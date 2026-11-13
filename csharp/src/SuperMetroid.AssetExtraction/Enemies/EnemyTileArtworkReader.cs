@@ -167,10 +167,10 @@ internal sealed class EnemyTileArtworkReader
         EnemySpritemapCatalog spritemaps = Spritemaps();
         EnemyProjectileSpritemapCatalog projectileSpritemaps = ProjectileSpritemaps();
         EnemyExtendedFrameCatalog extendedFrames = ExtendedFrames();
-        PhantoonBg2FrameCatalog phantoonBg2Frames = PhantoonBg2Frames();
-        DraygonBg2FrameCatalog draygonBg2Frames = DraygonBg2Frames();
-        CrocomireBg2FrameCatalog crocomireBg2Frames = CrocomireBg2Frames();
-        MotherBrainBodyBg2FrameCatalog motherBrainBodyBg2Frames = MotherBrainBodyBg2Frames();
+        PhantoonBg2FrameCatalog phantoonBg2Frames = PhantoonBg2Frames(importData);
+        DraygonBg2FrameCatalog draygonBg2Frames = DraygonBg2Frames(importData);
+        CrocomireBg2FrameCatalog crocomireBg2Frames = CrocomireBg2Frames(importData);
+        MotherBrainBodyBg2FrameCatalog motherBrainBodyBg2Frames = MotherBrainBodyBg2Frames(importData);
         GunshipLiftoffArtworkCatalog gunshipLiftoff = GunshipLiftoff(importData);
         TorizoSwapArtwork torizoInstructionVram = TorizoSwaps(importData);
         CeresEscapeTileArtwork ceresEscapeTiles = CeresEscapeTiles(importData);
@@ -367,13 +367,13 @@ internal sealed class EnemyTileArtworkReader
         }
     }
 
-    /// <summary>Phantoon's BG2 frames.</summary>
-    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal PhantoonBg2FrameCatalog PhantoonBg2Frames()
+    /// <summary>Phantoon's BG2 frames, import data whose writes are packed tile placements (#1638).</summary>
+    /// <exception cref="InvalidDataException">The extracted file is invalid.</exception>
+    internal PhantoonBg2FrameCatalog PhantoonBg2Frames(string importData)
     {
         try
         {
-            byte[] selected = Read(
+            byte[] selected = ReadPage(importData,
                 PhantoonBg2FrameDefinitions.FileName);
             return PhantoonBg2FrameCatalog.Load(
                 new MemoryStream(selected, writable: false));
@@ -386,13 +386,13 @@ internal sealed class EnemyTileArtworkReader
         }
     }
 
-    /// <summary>Draygon's BG2 frames.</summary>
-    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal DraygonBg2FrameCatalog DraygonBg2Frames()
+    /// <summary>Draygon's BG2 frames, import data whose writes are packed tile placements (#1638).</summary>
+    /// <exception cref="InvalidDataException">The extracted file is invalid.</exception>
+    internal DraygonBg2FrameCatalog DraygonBg2Frames(string importData)
     {
         try
         {
-            byte[] selected = Read(DraygonBg2FrameDefinitions.FileName);
+            byte[] selected = ReadPage(importData, DraygonBg2FrameDefinitions.FileName);
             return DraygonBg2FrameCatalog.Load(
                 new MemoryStream(selected, writable: false));
         }
@@ -404,13 +404,13 @@ internal sealed class EnemyTileArtworkReader
         }
     }
 
-    /// <summary>Crocomire's BG2 frames.</summary>
-    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal CrocomireBg2FrameCatalog CrocomireBg2Frames()
+    /// <summary>Crocomire's BG2 frames, import data whose writes are packed tile placements (#1638).</summary>
+    /// <exception cref="InvalidDataException">The extracted file is invalid.</exception>
+    internal CrocomireBg2FrameCatalog CrocomireBg2Frames(string importData)
     {
         try
         {
-            byte[] selected = Read(CrocomireBg2FrameDefinitions.FileName);
+            byte[] selected = ReadPage(importData, CrocomireBg2FrameDefinitions.FileName);
             return CrocomireBg2FrameCatalog.Load(
                 new MemoryStream(selected, writable: false));
         }
@@ -422,14 +422,14 @@ internal sealed class EnemyTileArtworkReader
         }
     }
 
-    /// <summary>Mother Brain's body BG2 frames.</summary>
-    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal MotherBrainBodyBg2FrameCatalog MotherBrainBodyBg2Frames()
+    /// <summary>Mother Brain's body BG2 frames, import data whose writes are packed tile placements (#1638).</summary>
+    /// <exception cref="InvalidDataException">The extracted file is invalid.</exception>
+    internal MotherBrainBodyBg2FrameCatalog MotherBrainBodyBg2Frames(string importData)
     {
         try
         {
             return MotherBrainBodyBg2FrameCatalog.Load(new MemoryStream(
-                Read(MotherBrainBodyBg2FrameDefinitions.FileName), writable: false));
+                ReadPage(importData, MotherBrainBodyBg2FrameDefinitions.FileName), writable: false));
         }
         catch (InvalidDataException error)
         {

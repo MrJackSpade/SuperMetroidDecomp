@@ -356,7 +356,9 @@ internal static class MapPresentationVerification
         string stock = RepositoryInstallation.Installation.MapDirectory;
         AreaMapPresentation original = InstalledFixtures.Maps;
         Suite(nameof(VerifyTitleSpriteSources), () => VerifyTitleSpriteSources(bus));
-        Suite(nameof(VerifyRoomFxLayer3TilemapsRejectMalformedDocuments), () => VerifyRoomFxLayer3TilemapsRejectMalformedDocuments(stock));
+        // The room-FX pages are import data (#1638): the codec is checked on the cartridge-derived extraction's document.
+        Suite(nameof(VerifyRoomFxLayer3TilemapsRejectMalformedDocuments), () => VerifyRoomFxLayer3TilemapsRejectMalformedDocuments(
+            CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName)));
         Suite(nameof(VerifyRoomFxPaletteBlendsRejectMalformedDocuments), () => VerifyRoomFxPaletteBlendsRejectMalformedDocuments(stock));
         Suite(nameof(VerifyPowerBombGlowColorsRejectMalformedDocuments), () => VerifyPowerBombGlowColorsRejectMalformedDocuments(stock));
         Suite(nameof(VerifySamusVisorColorsRejectMalformedDocuments), () => VerifySamusVisorColorsRejectMalformedDocuments(stock));

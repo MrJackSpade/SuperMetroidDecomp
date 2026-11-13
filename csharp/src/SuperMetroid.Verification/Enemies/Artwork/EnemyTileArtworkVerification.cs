@@ -164,10 +164,12 @@ internal static class EnemyTileArtworkVerification
     /// <summary>Checks Crocomire's, Phantoon's and Draygon's installed bodies against retail.</summary>
     private static void VerifyBossBodyFrameArtwork()
     {
-        var (bus, directory, stock) = new EnemyTileFixture();
+        var (bus, _, stock) = new EnemyTileFixture();
         Suite(nameof(VerifyInstalledCrocomireBodyVisuals), () => VerifyInstalledCrocomireBodyVisuals(bus, stock));
-        Suite(nameof(VerifyInstalledPhantoonBg2Frames), () => VerifyInstalledPhantoonBg2Frames(bus, directory, stock));
-        Suite(nameof(VerifyInstalledDraygonBg2Frames), () => VerifyInstalledDraygonBg2Frames(bus, directory, stock));
+        // The BG2 frames are import data (#1638): their documents are the cartridge-derived extraction's.
+        string importData = CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.EnemyTileDirectoryName);
+        Suite(nameof(VerifyInstalledPhantoonBg2Frames), () => VerifyInstalledPhantoonBg2Frames(bus, importData, stock));
+        Suite(nameof(VerifyInstalledDraygonBg2Frames), () => VerifyInstalledDraygonBg2Frames(bus, importData, stock));
     }
 
     /// <summary>Checks the gunship's installed liftoff artwork against retail.</summary>

@@ -310,7 +310,7 @@ public static class MapPresentationExtractor
         hashes.Add(RoomFxAnimatedTileAtlasFile.FileName,
             Convert.ToHexString(SHA256.HashData(roomFxAnimatedTileBytes)));
         byte[] roomFxLayer3TilemapBytes = RoomFxLayer3TilemapExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, RoomFxLayer3TilemapFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(PathOf(RoomFxLayer3TilemapFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(roomFxLayer3TilemapBytes);
         hashes.Add(RoomFxLayer3TilemapFormat.FileName,
             Convert.ToHexString(SHA256.HashData(roomFxLayer3TilemapBytes)));

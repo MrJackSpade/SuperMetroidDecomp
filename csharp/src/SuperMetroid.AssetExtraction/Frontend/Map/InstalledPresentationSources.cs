@@ -17,7 +17,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// characters are import data the installation never holds (#1636, <see cref="ImportPresentationCharacters"/>).
 /// </summary>
 /// <param name="Messages">The editable gameplay messages, whose words compose each message box image.</param>
-/// <param name="RoomFxPages">The editable room effects' BG3 pages, pictured into each tileset's BG3 sheet.</param>
 /// <param name="StaffCredits">The editable staff credits, pictured into the ending's credits rows.</param>
 /// <param name="EndingText">The editable ending text, whose pages and glyphs are pictured and whose typewriter characters are compiled.</param>
 /// <param name="Screens">The map screens' pages, pictured for the world map and the room maps.</param>
@@ -32,7 +31,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 [ArchitectureReview("context-bag", "The installed documents an installed map presentation was read with; every member is immutable artwork data the import composes pictures from, not a service.")]
 internal sealed record InstalledPresentationSources(
     GameplayMessageArtwork Messages,
-    RoomFxLayer3Pages RoomFxPages,
     CreditsPresentation StaffCredits,
     EndingTextPresentation EndingText,
     MapScreenPresentation Screens,

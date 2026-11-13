@@ -28,7 +28,6 @@ public class InstalledAreaMapPresentation
         StaffCredits = Ensure.NotNull(sources.StaffCredits);
         EndingTextPresentation = Ensure.NotNull(sources.EndingText);
         Messages = Ensure.NotNull(sources.Messages);
-        RoomFxPages = Ensure.NotNull(sources.RoomFxPages);
         HighlightColours = Ensure.NotNull(sources.HighlightColours);
         PauseSelectors = Ensure.NotNull(sources.PauseSelectors);
         PauseReserveTanks = Ensure.NotNull(sources.PauseReserveTanks);
@@ -51,9 +50,6 @@ public class InstalledAreaMapPresentation
 
     /// <summary>The editable gameplay messages, whose words the import composes each message box image from (#1466).</summary>
     public GameplayMessageArtwork Messages { get; }
-
-    /// <summary>The editable room effects' BG3 pages, which the import pictures into each tileset's BG3 sheet (#1466, #1467).</summary>
-    public RoomFxLayer3Pages RoomFxPages { get; }
 
     /// <summary>The map screens' pages, which the import pictures for the world map and the room maps (#1467).</summary>
     public MapScreenPresentation Screens { get; }

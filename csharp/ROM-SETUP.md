@@ -411,8 +411,9 @@ transfers use the installed art rather than reading bank $87. Adding spores does
 existing character or statue transfer alias.
 
 Spores use a ten-tick three-frame loop and camera-anchored quarter-pixel
-vertical scroll. Their installed `room-fx-layer3-tilemaps.json` page and
-`room-fx-blend-palettes.json` colors can also be edited in place. Native source-aware
+vertical scroll. Their `room-fx-layer3-tilemaps.json` page is import data, whose cells are the original's packed tile
+placements: the import composes the effect pictures from it, and the installation holds the pictures. The
+`room-fx-blend-palettes.json` colors can be edited in place. Native source-aware
 color math keeps the effect behind BG1 terrain and excludes OBJ palettes
 zero through three; it never tints the HUD or enables liquid physics.
 Malformed FX artwork/tilemap/palette files fail with the exact path.
@@ -663,16 +664,16 @@ control/selector records with the pinned import source. It is not a whole-game
 playthrough or proof of every boss effect's parity.
 
 Phantoon's stock body, eye, tentacles, and mouth use BG2 tilemap writes rather than
-ordinary OAM parts: `game/enemy-tiles/phantoon-bg2-frames.json` holds its 22 named visual frames. Each ordered write
-has `x` and `y` coordinates in the 32-by-64 BG2 tilemap and a horizontal `tiles`
-array of cells, each naming its character-sheet `tileColumn` and `tileRow`, its
-`palette`, `priority`, `flipX` and `flipY`, as the room background tilemaps do. Its multipart `displayFrames` bindings select the
+ordinary OAM parts: `phantoon-bg2-frames.json` holds its 22 named visual frames. Like Draygon's, Crocomire's and Mother
+Brain's BG2 frames below, it is import data in the enemy-tile component's import data: each write's cells are the
+original's packed tile placements, the import composes the boss body sheets from them, and the installation holds the
+pictures. Its multipart `displayFrames` bindings select the
 matching BG2 pose and any authored OAM components together. Physical frame
 selection and write timing stay in the engine;
 the JSON contains no hitbox, damage, or instruction data. Invalid or missing
 frames fail during load.
 Draygon's 34 BG2 frames use the same visual-only tilemap format in
-`game/enemy-tiles/draygon-bg2-frames.json`: the ordered tiles and their 32-by-64
+`draygon-bg2-frames.json`: the ordered tiles and their 32-by-64
 tilemap positions. Its native frame selectors, producer timing, hitboxes, and damage
 callbacks remain outside the appearance file. A malformed file fails during load.
 Crocomire's fifty fight-body poses use multipart OAM and, for 42 mixed poses,

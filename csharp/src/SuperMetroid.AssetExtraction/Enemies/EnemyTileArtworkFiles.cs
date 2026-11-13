@@ -189,16 +189,16 @@ public static class EnemyTileArtworkFiles
         File.WriteAllBytes(Path.Combine(importData,
             CeresWarningGlyphDefinitions.FileName), ceresEscapeOverlay);
         byte[] phantoonBg2Json = PhantoonBg2FrameFiles.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, PhantoonBg2FrameDefinitions.FileName),
+        File.WriteAllBytes(Path.Combine(importData, PhantoonBg2FrameDefinitions.FileName),
             phantoonBg2Json);
         byte[] draygonBg2Json = DraygonBg2FrameFiles.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, DraygonBg2FrameDefinitions.FileName),
+        File.WriteAllBytes(Path.Combine(importData, DraygonBg2FrameDefinitions.FileName),
             draygonBg2Json);
         byte[] crocomireBg2Json = CrocomireBg2FrameFiles.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, CrocomireBg2FrameDefinitions.FileName),
+        File.WriteAllBytes(Path.Combine(importData, CrocomireBg2FrameDefinitions.FileName),
             crocomireBg2Json);
         byte[] motherBrainBodyBg2Json = MotherBrainBodyBg2FrameFiles.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, MotherBrainBodyBg2FrameDefinitions.FileName),
+        File.WriteAllBytes(Path.Combine(importData, MotherBrainBodyBg2FrameDefinitions.FileName),
             motherBrainBodyBg2Json);
         var gunshipLiftoffHashes = new Dictionary<int, string>();
         for (int index = 0; index < GunshipLiftoffTransferDefinitions.Frames.Length; index++)

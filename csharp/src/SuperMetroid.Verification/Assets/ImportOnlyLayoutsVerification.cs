@@ -1,6 +1,7 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
@@ -30,6 +31,10 @@ internal static class ImportOnlyLayoutsVerification
         foreach (KraidHeadFrame head in KraidHeadTilemapFormat.HeadsByMouthStage)
             yield return (enemyTiles, KraidBackgroundArtworkFormat.HeadFileName(head.MouthStage));
         yield return (enemyTiles, CeresWarningGlyphDefinitions.FileName);
+        yield return (enemyTiles, PhantoonBg2FrameDefinitions.FileName);
+        yield return (enemyTiles, DraygonBg2FrameDefinitions.FileName);
+        yield return (enemyTiles, CrocomireBg2FrameDefinitions.FileName);
+        yield return (enemyTiles, MotherBrainBodyBg2FrameDefinitions.FileName);
         string intro = GameInstallationLayout.IntroCinematicDirectoryName;
         for (int page = 0; page < IntroCinematicArtworkFormat.BackgroundPageCount; page++)
             yield return (intro, IntroCinematicArtworkFormat.BackgroundPageFileName(page));

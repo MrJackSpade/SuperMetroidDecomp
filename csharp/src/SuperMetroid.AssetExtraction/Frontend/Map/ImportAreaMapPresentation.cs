@@ -36,6 +36,7 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
         Ensure.NotNull(documents);
         FileSelect = Ensure.NotNull(documents.FileSelect);
         Pause = Ensure.NotNull(documents.Pause);
+        RoomFxPages = Ensure.NotNull(documents.RoomFxPages);
         Ensure.NotNull(characters);
         Characters = Ensure.NotNull(characters.Characters);
         Sprites = Ensure.NotNull(characters.Sprites);
@@ -69,6 +70,9 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
     /// the pause sheet (#1467).
     /// </summary>
     public PauseScreenArtwork Pause { get; }
+
+    /// <summary>The room effects' BG3 pages, import data (#1638), which the import pictures into each tileset's BG3 sheet (#1466, #1467).</summary>
+    public RoomFxLayer3Pages RoomFxPages { get; }
 
     /// <summary>The characters the map screens, the pause interface and the HUD are pictured from.</summary>
     public MapCharacterArtwork Characters { get; }

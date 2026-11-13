@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Fx;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -13,4 +14,5 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// file-select and menu sheets are composed from.
 /// </param>
 /// <param name="Pause">The pause screen's backdrops, wireframes and equipment-page artwork, pictured into the pause sheet.</param>
-internal sealed record ImportPresentationDocuments(FileSelectSourcePresentation FileSelect, PauseScreenArtwork Pause);
+/// <param name="RoomFxPages">The room effects' BG3 pages, pictured into each tileset's BG3 sheet.</param>
+internal sealed record ImportPresentationDocuments(FileSelectSourcePresentation FileSelect, PauseScreenArtwork Pause, RoomFxLayer3Pages RoomFxPages);

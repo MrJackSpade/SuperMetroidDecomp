@@ -695,7 +695,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentBabyDiscovery = new IntroBabyDiscoveryState(Random, CurrentFlashbackSamus
             ?? throw new InvalidOperationException("Discovery setup requires the preceding flashback Samus state."), shellFallPastCurve, audio);
 
-        // The old gameplay objects have reached their delete lists. Releasing the scoped
+        // The old gameplay objects have reached their delete animations. Releasing the scoped
         // references prevents their projectile/collision handlers from running behind the
         // new scene while preserving the shared artwork and colours they intentionally reuse.
         CurrentFlashbackSamus = null;
@@ -976,10 +976,10 @@ level, samus, frameCounter);
         if (!groundedDemoStepped)
             SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { ControllerInput = demoInput, FrameCounter = frameCounter, Random = Random });
 
-        // The delay list's pose-transition steps publish a prospective pose; they are not ordinary frame
+        // The pose animation's transition steps publish a prospective pose; they are not ordinary frame
         // delays. The intro-demo handler consumes that publication before the value following the step
         // can ever be misread as another animation duration. This completes landing art's
-        // A5 -> 02 transition instead of walking beyond its delay list.
+        // A5 -> 02 transition instead of walking beyond its pose animation.
         bool animationTransitionApplied = SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus);
         animationTransitionApplied |= SamusKnockbackMovement.TryFinishExpiredHitInterruption(samus);
         transitionAccepted |= animationTransitionApplied;
@@ -992,7 +992,7 @@ level, samus, frameCounter);
 
         // The normal new-state handler resolves a downward collision only after animation.
         // Apply the shared landing transition here so pose, radii, feet alignment, and the
-        // next animation list all come from the same landing implementation as gameplay.
+        // next animation all come from the same landing implementation as gameplay.
         if (!animationTransitionApplied && fallingMovement is { Landed: true })
         {
             SamusPoseTransitions.ApplyAerialLanding(samus, wasSpinning: samus.Pose == SamusPoseId.SpinJumpLeftPose, demoInput);

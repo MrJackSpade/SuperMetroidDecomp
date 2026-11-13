@@ -73,7 +73,7 @@ internal static class IntroSamusDemoMovement
         }
         else
         {
-            // This controller is installed only for the SR388 left-facing run/stand list;
+            // This controller is installed only for the SR388 left-facing run/stand animation;
             // a different pose means cinematic ownership escaped its declared state machine.
             throw new InvalidOperationException(
                 $"SR388 intro demo reached invalid grounded-left pose {poseAtFrameStart}.");

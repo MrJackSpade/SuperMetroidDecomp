@@ -327,7 +327,7 @@ internal sealed class IntroCeresFlightState
             return;
         }
 
-        // The list's final record holds the completed caption for 128 frames before
+        // The caption's final step holds the completed caption for 128 frames before
         // the fade step installs the ordinary fade owner.
         if (!spaceColonyHoldStarted)
         {
@@ -353,7 +353,7 @@ internal sealed class IntroCeresFlightState
             Phase = IntroCeresFlightPhase.StartGameAtCeres;
     }
 
-    /// <summary>Moves each rear-view actor according to its compiled motion before stepping its sprite list.</summary>
+    /// <summary>Moves each rear-view actor according to its compiled motion before stepping its sprite animation.</summary>
     private void StepRearViewActors()
     {
         for (int index = 0; index < RearViewActors.Length; index++)

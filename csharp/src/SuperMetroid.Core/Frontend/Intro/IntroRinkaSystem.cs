@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The four Rinkas (the ring-shaped “Cheerios”) fired during the Mother Brain flashback.
 /// </summary>
 /// <remarks>
-/// This models the Rinka and spawner definitions and their animation
-/// lists. Only Rinka zero is scripted to strike Samus; the other three deliberately miss.
+/// This models the Rinka and spawner definitions and their animations.
+/// Only Rinka zero is scripted to strike Samus; the other three deliberately miss.
 /// The hit step does not subtract health in the retail cinematic. It publishes eleven
 /// frames of invincibility and knockback, which makes Samus flash and visibly react.
 /// The Rinkas are a list in spawn order with no cap (#1625): only the first one launched touches Samus, so the order the

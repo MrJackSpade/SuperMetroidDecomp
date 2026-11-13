@@ -65,7 +65,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     private TitleSequencePhase textCard = TitleSequencePhase.YearText;
     /// <summary>The next step of the running title card.</summary>
     private int textCardStep;
-    /// <summary>Frames left before the next title text list entry is read.</summary>
+    /// <summary>Frames left before the next title sequence entry is read.</summary>
     private int sequenceEntryTimer;
     /// <summary>Composition selected by the active title text or logo entry, or null while nothing is shown.</summary>
     internal TitleSprite? ActiveSprite { get; set; }

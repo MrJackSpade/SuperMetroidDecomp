@@ -235,7 +235,7 @@ internal sealed class IntroCinematicObjectSystem
             return;
         if (narrationInitialMarkerPending)
         {
-            // Each page list opens with the page's subtitle-creating cue.
+            // Each page's animation opens with the page's subtitle-creating cue.
             subtitles.BeginPage(narrationPage ?? throw new InvalidDataException(
                 "Installed narration started without an active page identity."));
             narrationInitialMarkerPending = false;
@@ -353,7 +353,7 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Shows <paramref name="frame"/> on the portrait.</summary>
     internal void ShowEyeFrame(IntroEyeFrame frame) => EyeFrame = frame;
 
-    /// <summary>Shows the persistent caret again at the first text line and restarts its non-blinking sprite list.</summary>
+    /// <summary>Shows the persistent caret again at the first text line and restarts its non-blinking sprite animation.</summary>
     private void ResetCaret()
     {
         caretHidden = false;
@@ -397,7 +397,7 @@ internal sealed class IntroCinematicObjectSystem
         arrow.Step();
     }
 
-    /// <summary>Points the existing caret slot at its blinking list and primes its timer.</summary>
+    /// <summary>Points the existing caret slot at its blinking animation and primes its timer.</summary>
     internal void SetCaretBlinking()
     {
         // The caret-blink cue starts the existing slot's blinking animation and primes timer

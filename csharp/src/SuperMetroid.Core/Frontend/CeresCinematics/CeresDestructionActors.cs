@@ -37,7 +37,7 @@ internal static class CeresDestructionActors
     /// <summary>Selects large debris, small debris and stationary vortex in spawn order.</summary>
     /// <remarks>#1165 independently confirms the spawn order and the definitions it selects.
     /// This existing explicit actor dispatch is preserved: large debris aliases flight row0
-    /// with its distinct definition/list, small debris aliases flight row2 unchanged, and
+    /// with its distinct definition/animation, small debris aliases flight row2 unchanged, and
     /// vortex aliases flight row3 with the stationary vortex's initializer overrides.
     /// Its initializer installs an empty callback, so this vortex has no horizontal
     /// movement or wrap. The definition still names the moving callback before initialization. No slide

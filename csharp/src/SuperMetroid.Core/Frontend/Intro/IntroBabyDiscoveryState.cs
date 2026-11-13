@@ -77,7 +77,7 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>The 32 by 16 discovery room with the game's partial foreground copy.</summary>
     public RoomLevelData Level { get; }
 
-    /// <summary>Signals the egg actor's permanent switch to its hatching list.</summary>
+    /// <summary>Signals the egg actor's permanent switch to its hatching animation.</summary>
     public bool EggHatchingStarted { get; private set; }
 
     /// <summary>Signals the outer cinematic owner to start page three's palette transition.</summary>
@@ -169,7 +169,7 @@ internal sealed class IntroBabyDiscoveryState
         IIntroCinematicSpritePresentation? actorArt = null)
     {
         // An intro Samus display of +1 makes cinematic objects draw before Samus. The egg
-        // was spawned before the confused-baby object and retains its own list and timer.
+        // was spawned before the confused-baby object and retains its own animation and timer.
         egg.Draw(objects, installedArt: actorArt);
         confusedBaby.Draw(objects, installedArt: actorArt);
         foreach (IntroEggParticle particle in eggParticles)
@@ -210,7 +210,7 @@ internal sealed class IntroBabyDiscoveryState
         }
     }
 
-    /// <summary>Runs the discovery list's end step, disabling input and both Samus handlers for subsequent dispatches.</summary>
+    /// <summary>Runs the discovery demo recording's end cue, disabling input and both Samus handlers for subsequent dispatches.</summary>
     private void HandleDemoCue(DemoInputCue cue)
     {
         if (cue != DemoInputCue.EndIntroBabyDiscovery)
@@ -223,7 +223,7 @@ internal sealed class IntroBabyDiscoveryState
         samusHandlersEnded = true;
     }
 
-    /// <summary>Spawns hatch particles or requests the page-three transition from the egg's list.</summary>
+    /// <summary>Spawns hatch particles or requests the page-three transition from the egg's animation.</summary>
     private void HandleEggCue(CinematicSpriteCueKind cue)
     {
         switch (cue)

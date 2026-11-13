@@ -44,6 +44,30 @@ internal static class RoomGridBoundsVerification
             AssertEqual(pixel | 15, RoomGridConversions.BlockEnd(pixel), $"pixel {pixel}: its block's last pixel");
             AssertEqual((pixel >> 4) & 15, RoomGridConversions.BlockRowWithinScreen(pixel), $"pixel {pixel}: its block within its screen");
         }
+
+        // The save station's trigger column and its centring of Samus (#1632) replaced a shift by four and a rounding
+        // shift pair; both give the shifts' results for every room coordinate.
+        int blockMismatches = 0, boundaryMismatches = 0;
+        for (int pixel = 0; pixel <= ushort.MaxValue; pixel++)
+        {
+            blockMismatches += RoomGridConversions.PixelToBlock(pixel) == pixel >> 4 ? 0 : 1;
+            boundaryMismatches += RoomGridConversions.NearestBlockBoundary(pixel) == ((pixel + 8) >> 4) << 4 ? 0 : 1;
+        }
+        AssertEqual(0, blockMismatches, "every room coordinate's block is the coordinate shifted right four");
+        AssertEqual(0, boundaryMismatches, "every room coordinate's nearest block boundary is the half-block rounding shift pair's");
+        AssertThrows<ArgumentOutOfRangeException>(() => RoomGridConversions.PixelToBlock(-1), "a block below the room's coordinates is refused");
+        AssertThrows<ArgumentOutOfRangeException>(() => RoomGridConversions.NearestBlockBoundary(ushort.MaxValue + 1),
+            "a boundary past the room's coordinates is refused");
+
+        // Samus's changed-pose probe (#1632) replaced a two's-complement mask and half-block bit; the block step's centre
+        // gives the mask's result for every signed whole-pixel displacement.
+        int centreMismatches = 0;
+        for (int displacement = short.MinValue; displacement <= short.MaxValue; displacement++)
+            centreMismatches += RoomGridConversions.BlockStepCentre(displacement) == ((displacement & ~15) | 8) ? 0 : 1;
+        AssertEqual(0, centreMismatches, "every signed displacement's block step centre is the masked displacement with its half-block bit");
+        AssertEqual(-8, RoomGridConversions.BlockStepCentre(-8), "a probe eight pixels back reaches its block step's centre at -8");
+        AssertThrows<ArgumentOutOfRangeException>(() => RoomGridConversions.BlockStepCentre(short.MaxValue + 1),
+            "a displacement past the signed whole-pixel range is refused");
         Console.WriteLine("Room grid bounds: a 300-block room, one-cell planes and grids, and every coordinate's block conversions.");
     }
 }

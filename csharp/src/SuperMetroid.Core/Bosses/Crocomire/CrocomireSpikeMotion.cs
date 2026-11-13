@@ -10,7 +10,7 @@ internal static class CrocomireSpikeMotion
     /// <summary>The maximum acceleration of the piece at <paramref name="piece"/>, in 1/65536 pixels/frame squared.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="piece"/> is not one of the wall's pieces.</exception>
     internal static int MaximumAcceleration(int piece) =>
-        AccelerationDelta(piece) << CrocomireSpikeMotionDefinitions.MaximumAccelerationShift;
+        AccelerationDelta(piece) * CrocomireSpikeMotionDefinitions.MaximumAccelerationPerIncrement;
 
     /// <summary>The fastest whole-pixel horizontal speed of the piece at <paramref name="piece"/>, in pixels per frame.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="piece"/> is not one of the wall's pieces.</exception>

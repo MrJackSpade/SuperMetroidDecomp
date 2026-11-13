@@ -10,8 +10,9 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The exposed, Chozo-orb and concealed shot-block items each name one object per <see cref="InWorldCollectibleKind"/>;
 /// doors name one object per colour and facing. A boss's change to its room (a wall, ceiling, bridge, platform, mural
 /// row or tube) has no identity here (#1608), and neither has a gate trigger's shot, the Wrecked Ship treadmill or the
-/// Maridia elevatube, nor does any object a Chozo statue, Tourian or the Wrecked Ship spawns carry one (#1622): its
-/// spawner places it by what it does, and its typed room object is how the room finds it.
+/// Maridia elevatube, nor does any object a Chozo statue, Tourian, the Wrecked Ship, Shaktool's room, the critters'
+/// escape or an enemy's break of a block spawns carry one (#1622): its spawner places it by what it does, and its typed
+/// room object is how the room finds it.
 /// </remarks>
 public enum RoomObjectHeaderId
 {
@@ -87,12 +88,6 @@ public enum RoomObjectHeaderId
     /// <summary>A save station.</summary>
     SaveStation,
 
-    /// <summary>Crumbles the blocks barring the way to the Tourian elevator once the statues have sunk.</summary>
-    CrumbleAccessToTourianElevator,
-
-    /// <summary>Clears the way to the Tourian elevator in a room loaded after the statues have sunk.</summary>
-    ClearAccessToTourianElevator,
-
     /// <summary>Closes Phantoon's arena door for the fight.</summary>
     DrawPhantoonDoorDuringBossFight,
 
@@ -101,9 +96,6 @@ public enum RoomObjectHeaderId
 
     /// <summary>The lava quake of the Speed Booster room's escape, once the Speed Booster is taken.</summary>
     SpeedBoosterEscape,
-
-    /// <summary>The controller of Shaktool's room, which digs Shaktool's tunnel.</summary>
-    ShaktoolRoomController,
 
     /// <summary>
     /// The fake wall of the old Tourian escape shaft, spawned by its room's setup during the escape; it explodes once
@@ -116,12 +108,6 @@ public enum RoomObjectHeaderId
 
     /// <summary>The Wrecked Ship attic's watcher, which does nothing while it waits.</summary>
     WreckedShipAttic,
-
-    /// <summary>
-    /// The passage the critters open in Crateria's main street, spawned by its room's setup; its setup removes it unless
-    /// the critters escaped.
-    /// </summary>
-    CrateriaMainstreetEscapePassage,
 
     /// <summary>A five-block gate that slides down out of the way when its trigger is shot or Samus stands below it.</summary>
     DownwardGate,
@@ -254,9 +240,6 @@ public enum RoomObjectHeaderId
 
     /// <summary>A two-by-two crumble block Samus stands on, which stays broken.</summary>
     ContactCrumble2x2Permanent,
-
-    /// <summary>A block an enemy breaks.</summary>
-    EnemyBreakableBlock,
 
     /// <summary>The plug of the Lower Norfair Chozo's room, which crumbles once the Chozo lowers the acid.</summary>
     CrumbleLowerNorfairChozoRoomPlug,

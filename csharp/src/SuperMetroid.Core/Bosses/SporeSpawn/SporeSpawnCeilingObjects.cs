@@ -13,8 +13,7 @@ internal sealed class SporeSpawnCeilingObjects(RoomObjectSlotTable slotTable)
     /// crumble frames and then runs on into the clear; the clear starts directly at the clear for an already-defeated room.
     /// </summary>
     /// <returns>
-    /// False when every room-object slot is occupied; nothing is spawned then (<see cref="RoomObjectSlotTable"/>'s full-room
-    /// rule).
+    /// False when the room is full; nothing is spawned then (<see cref="Compatibility.RoomObjectPlaces"/>).
     /// </returns>
     public bool TrySpawn(RoomLevelData level, SporeSpawnCeilingMutation mutation)
     {
@@ -22,7 +21,7 @@ internal sealed class SporeSpawnCeilingObjects(RoomObjectSlotTable slotTable)
         TerrainChange change = Ensure.Listed(SporeSpawnCeilingMutationDefinitions.Changes, mutation);
 
         Position16<RoomBlocks> block = level.GridBlock(Block);
-        if (slotTable.SpawnHardcoded() is not { } slot)
+        if (slotTable.Spawn() is not { } slot)
             return false;
 
         slot.Block = block;

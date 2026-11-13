@@ -620,7 +620,8 @@ public static class SamusBlockCollision
                     // Hand reactions change state but return unconditional collision:
                     // even an admitted morph contact is clipped by this same scan.
                     if (owner is { } chozoSamus)
-                        terrain.RoomObjects?.ChozoStatueHand.NotifyChozoStatueHandCollision(terrain.Level, block, chozoSamus,
+                        terrain.RoomObjects?.ChozoStatueHand.NotifyChozoStatueHandCollision(terrain.Level,
+                            terrain.Level.BlockAt(block.Index), chozoSamus,
                             state.CollisionPose, movingDown: acceptedDisplacement.IsPositive &&
                                 (move.BlockReactionDirection ?? SamusCollisionDirection.Down) == SamusCollisionDirection.Down);
                     // The vertical special-solid dispatcher shares the speed-block setup

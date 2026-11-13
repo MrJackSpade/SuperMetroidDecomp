@@ -41,12 +41,14 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
 
     /// <summary>Runs the one-shot special-block setup; the caller still clips to solid.</summary>
     public void NotifyChozoStatueHandCollision(RoomLevelData level,
-        RoomCollisionBlock block, SamusState samus, SamusPoseId collisionPose, bool movingDown)
+        Position16<RoomBlocks> block, SamusState samus, SamusPoseId collisionPose, bool movingDown)
     {
+        Ensure.NotNull(level);
+        RoomBlockBehavior behavior = level.GetCollisionBlock(block).Behavior;
         bool wreckedShip = _area == AreaId.WreckedShip &&
-            block.Behavior == ChozoStatueRoomDefinitions.WreckedShipHandBehavior;
+            behavior == ChozoStatueRoomDefinitions.WreckedShipHandBehavior;
         bool lowerNorfair = _area == AreaId.Norfair &&
-            block.Behavior == ChozoStatueRoomDefinitions.LowerNorfairHandBehavior;
+            behavior == ChozoStatueRoomDefinitions.LowerNorfairHandBehavior;
         if (!wreckedShip && !lowerNorfair) return;
         // Both setups return SEC regardless of admission. The morph-left pose
         // is deliberately absent: the game explicitly lists these three poses.
@@ -65,7 +67,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
         {
             IEnemyObjectRequests hands = _chozoHands ??
                 throw new InvalidOperationException("Chozo hand has no bound enemy room-object requests.");
-            hands.ActivateChozoStatueHandTrigger(level, level.BlockAt(block.Index));
+            hands.ActivateChozoStatueHandTrigger(level, block);
             hands.ApplyPendingChozoStatueObjects(level, this);
         }
         check.Delete();

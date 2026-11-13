@@ -13,7 +13,7 @@ internal sealed class ShaktoolObjects
     private readonly IRoomSamusAccess? _samus;
     /// <summary>The game's event flags.</summary>
     private readonly IGlobalEventFlags? _events;
-    /// <summary>Physical room-object slots scanned from highest index for the hardcoded spawn.</summary>
+    /// <summary>The room's room objects, which the controller joins.</summary>
     private readonly RoomObjectSlotTable _slotTable;
 
     /// <summary>Connects Shaktool's room controller to the resident room-object slots and room owners.</summary>
@@ -24,14 +24,13 @@ internal sealed class ShaktoolObjects
         _slotTable = slotTable;
     }
     /// <summary>Spawns the Shaktool room's controller and runs its scroll setup.</summary>
+    /// <returns>False when the room is full; the scrolls are then left untouched (<see cref="Compatibility.RoomObjectPlaces"/>).</returns>
     public bool TrySpawnShaktoolRoomController(RoomScrollGrid scrolls)
     {
         Ensure.NotNull(scrolls);
-        // Hardcoded spawning leaves the scrolls untouched when its pool is full.
-        if (_slotTable.SpawnHardcoded() is not { } slot)
+        if (_slotTable.Spawn() is not { } slot)
             return false;
 
-        slot.Header = RoomObjectHeaderId.ShaktoolRoomController;
         slot.Block = Position16<RoomBlocks>.Zero;
         slot.Become(new ShaktoolRoomControllerObject(_samus, _events));
         for (int cell = 0; cell < ShaktoolRoomDefinitions.ScrollCellCount; cell++)

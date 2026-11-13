@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal static class OldTourianEscapeShaftWallObjectDefinitions
 {
-    /// <summary>The hardcoded spawn's block X.</summary>
+    /// <summary>The column of the block the room object is spawned at.</summary>
     internal const int BlockX = 16;
-    /// <summary>The hardcoded spawn's block Y.</summary>
+    /// <summary>The row of the block the room object is spawned at.</summary>
     internal const int BlockY = 135;
 
     /// <summary>The wall's one draw.</summary>

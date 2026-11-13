@@ -61,10 +61,4 @@ internal sealed class RoomObjectSlotTable
         slot.Claim();
         return slot;
     }
-
-    /// <summary>The spawn, under the name the boss terrain changes and the Shaktool controller call it by.</summary>
-    internal RoomObjectSlot? SpawnHardcoded() => Spawn();
-
-    /// <summary>The spawn, under the name the critters' rescue wall and the enemy-broken blocks call it by.</summary>
-    internal RoomObjectSlot? SpawnAtCurrentBlock() => Spawn();
 }

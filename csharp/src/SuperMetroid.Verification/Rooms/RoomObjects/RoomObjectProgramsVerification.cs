@@ -369,7 +369,7 @@ internal static class RoomObjectProgramsVerification
         int frames = 0;
         foreach ((TourianAccessFloor floor, ushort entry) in TourianAccessEntries)
         {
-            frames += NativeTerrainChanges.Compare(cartridge, TourianAccessFloors.ForState(floor).Change, entry,
+            frames += NativeTerrainChanges.Compare(cartridge, TourianAccessFloors.ForState(floor), entry,
                 (IImportCartridgeSource source, ushort cursor, out NativeTerrainChanges.NativeStep step) =>
                 {
                     step = new NativeTerrainChanges.NativeStep(new Offset16<RoomBlocks>(0, 1), Sound: null, Begins: false, Length: 2);

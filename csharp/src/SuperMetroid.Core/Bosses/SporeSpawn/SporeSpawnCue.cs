@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>One cue of Spore Spawn's body animations, with the operands it carries.</summary>
+/// <summary>One cue of Spore Spawn's body animations: what it does, with the values it acts on.</summary>
 internal abstract record SporeSpawnCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>

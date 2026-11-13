@@ -474,11 +474,11 @@ public sealed class SamusState
     internal LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> AnimationContinuation { get; }
 
     /// <summary>
-    /// Operand published by the animation's pose-transition command through the “super-special
-    /// prospective pose” seam. Null means the animation has not requested that transition.
+    /// The pose the animation's pose-transition cue left pending, which outranks every other pose transition. Null means
+    /// the animation has not requested that transition.
     /// </summary>
     /// <remarks>
-    /// This is host storage for the super-special prospective pose's command-three route. The grounded slice
+    /// This holds the pose between the animation's cue and the pose update that installs it. The grounded slice
     /// consumes it after animation, at the same pose-transition point used by the game.
     /// Keeping it explicit makes the turn's final facing change its own step.
     /// </remarks>

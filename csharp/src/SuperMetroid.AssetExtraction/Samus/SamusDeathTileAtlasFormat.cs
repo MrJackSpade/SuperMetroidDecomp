@@ -26,8 +26,6 @@ public static class SamusDeathTileAtlasFormat
 
     /// <summary>Indexed PNG filename for the death-explosion characters.</summary>
     public const string ArtworkFileName = "samus-death-explosion.png";
-    /// <summary>Companion JSON manifest filename describing the extracted death-explosion artwork resource.</summary>
-    public const string ManifestFileName = "samus-death-explosion-manifest.json";
     /// <summary>Four planar bits per pixel, allowing sixteen palette-index pens and encoding each 8-by-8 character in 32 bytes.</summary>
     public const int BitsPerPixel = 4;
     /// <summary>Bytes encoding one eight-by-eight character.</summary>

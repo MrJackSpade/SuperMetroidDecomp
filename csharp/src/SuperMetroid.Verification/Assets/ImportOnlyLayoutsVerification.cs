@@ -112,6 +112,9 @@ internal static class ImportOnlyLayoutsVerification
         yield return (GameInstallationLayout.StraddledTerrainDirectoryName, "straddled-terrain-manifest.json");
         yield return (GameInstallationLayout.XrayRevealVisualDirectoryName, "manifest.json");
         yield return (GameInstallationLayout.ProjectileDirectoryName, "projectile-manifest.json");
+        yield return (GameInstallationLayout.SamusBodyDirectoryName, "samus-arm-cannon-manifest.json");
+        yield return (GameInstallationLayout.SamusBodyDirectoryName, "samus-death-explosion-manifest.json");
+        yield return (GameInstallationLayout.SamusBodyDirectoryName, "samus-death-palettes-manifest.json");
     }
 
     /// <summary>

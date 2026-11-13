@@ -71,7 +71,7 @@ internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, Spr
             palettes,
             intro,
             body,
-            SamusDeathTileArtworkFiles.LoadForImport(samusBody, samusBodyImportData),
+            SamusDeathTileArtworkFiles.LoadForImport(samusBodyImportData),
             SamusArmCannonArtworkFiles.LoadCoverCharacters(body.Body.ArmCannon, samusBodyImportData),
             sources,
             SamusOverreadFiles.LoadAnimationContinuation(overreads));

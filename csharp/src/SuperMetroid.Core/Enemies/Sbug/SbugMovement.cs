@@ -4,18 +4,18 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 internal static class SbugMovement
 {
     /// <summary>The facing <paramref name="heading"/> shows: the facing whose eighth of the turn contains it.</summary>
-    internal static SbugFacing FacingOf(RotationAngle heading) => SbugMovementDefinitions.Facings.At(heading);
+    internal static CompassDirection FacingOf(RotationAngle heading) => SbugMovementDefinitions.Facings.At(heading);
 
     /// <summary>The facing a reversal of the custom heading turns <paramref name="facing"/> to.</summary>
     /// <exception cref="InvalidDataException"><paramref name="facing"/> is not one of the eight facings.</exception>
-    internal static SbugFacing ReversedFacing(SbugFacing facing) =>
-        SbugMovementDefinitions.ReversedFacings.TryGetValue(facing, out SbugFacing reversed)
+    internal static CompassDirection ReversedFacing(CompassDirection facing) =>
+        SbugMovementDefinitions.ReversedFacings.TryGetValue(facing, out CompassDirection reversed)
             ? reversed
             : throw new InvalidDataException($"Sbug facing {facing} is not one of the eight facings.");
 
     /// <summary>The directional loop of <paramref name="facing"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="facing"/> is not one of the eight facings.</exception>
-    internal static SbugSegment FacingAnimation(SbugFacing facing) =>
+    internal static SbugSegment FacingAnimation(CompassDirection facing) =>
         SbugMovementDefinitions.FacingAnimations.TryGetValue(facing, out SbugSegment segment)
             ? segment
             : throw new InvalidDataException($"Sbug facing {facing} is not one of the eight facings.");

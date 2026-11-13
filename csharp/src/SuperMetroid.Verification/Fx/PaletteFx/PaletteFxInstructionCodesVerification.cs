@@ -36,7 +36,7 @@ internal static class PaletteFxInstructionCodesVerification
         AssertPaletteFxCatalog(nameof(PaletteFxInstruction), CatalogWords(PaletteFxInstructionCodesType()), expectedCount: 19);
         // The setups' and pre-instructions' values are arbitrary (#1415): their routine words are the native view's.
         AssertPaletteFxCatalog(nameof(NativePaletteFxSetup), NativeWords(FxNativeWords.PaletteFxSetups), expectedCount: 4);
-        AssertPaletteFxCatalog(nameof(NativePaletteFxPreInstruction), NativeWords(FxNativeWords.PaletteFxPreInstructions), expectedCount: 8);
+        AssertPaletteFxCatalog(nameof(NativePaletteFxPreInstruction), NativeWords(FxNativeWords.PaletteFxPreInstructions), expectedCount: 7);
         AssertPaletteFxHeatDefinitions();
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -68,7 +68,6 @@ internal static class PaletteFxInstructionCodesVerification
         Suite(nameof(VerifyZebesExplosionFinalePaletteFxColorDefinitions), () => VerifyZebesExplosionFinalePaletteFxColorDefinitions(bus));
         Suite(nameof(VerifyZebesExplosionWhiteoutPaletteFxColorDefinitions), () => VerifyZebesExplosionWhiteoutPaletteFxColorDefinitions(bus));
         Suite(nameof(VerifyZebesExplosionGunshipPaletteFxColorDefinitions), () => VerifyZebesExplosionGunshipPaletteFxColorDefinitions(bus));
-        Suite(nameof(VerifyUnusedCinematicFadePaletteFxColorDefinitions), () => VerifyUnusedCinematicFadePaletteFxColorDefinitions(bus));
         Suite(nameof(VerifySamusLoadingSuitPaletteFxColorDefinitions), () => VerifySamusLoadingSuitPaletteFxColorDefinitions());
         Suite(nameof(VerifyPostCreditsIconGlarePaletteFxColorDefinitions), () => VerifyPostCreditsIconGlarePaletteFxColorDefinitions(bus));
         Suite(nameof(VerifyPaletteFxHeatAnimationScriptDefinitions), () => VerifyPaletteFxHeatAnimationScriptDefinitions(bus));
@@ -268,36 +267,6 @@ internal static class PaletteFxInstructionCodesVerification
             AssertTrue(ReferenceEquals(programs[index], programs.ElementAt(index)), "Indexed and enumerated named owner agree");
         foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => _ = programs[invalid], "Loading roster retains index bounds");
-    }
-
-    /// <summary>Checks the unused cinematic fade's compiled program through its delete instruction.</summary>
-    private static void VerifyUnusedCinematicFadePaletteFxColorDefinitions(
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
-    {
-
-        var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
-        var paletteFxSession = new PaletteFxSessionState();
-        var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-        paletteFx.Start(
-            UnusedCinematicFadePaletteFxColorDefinitions.DefinitionPointer,
-            0);
-        for (int step = 0;
-             step <= UnusedCinematicFadePaletteFxColorDefinitions.CycleFrames;
-             step++)
-        {
-            StepScreenShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
-        }
-        AssertTrue(!paletteFx.IsRunning(
-                UnusedCinematicFadePaletteFxColorDefinitions.DefinitionPointer),
-            "unused cinematic fade deletes after its final hold");
-        AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "unused cinematic fade avoids mechanics ROM reads");
-        AssertEqual(
-            UnusedCinematicFadePaletteFxColorDefinitionsConstants.FrameCount *
-            UnusedCinematicFadePaletteFxColorDefinitions.ColorsPerFrame *
-            sizeof(ushort),
-            guardedPresentationReads.Value,
-            "unused cinematic fade retains every live color");
     }
 
     /// <summary>Checks the Zebes explosion gunship reveal's color setup, definition entry, and frame sequence.</summary>
@@ -679,7 +648,6 @@ internal static class PaletteFxInstructionCodesVerification
         foreach (ushort definition in new ushort[]
                  {
                      TourianGlowPaletteFxColorDefinitions.LiveDefinitionPointer,
-                     TourianGlowPaletteFxColorDefinitions.CloneDefinitionPointer,
                  })
         {
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
@@ -790,7 +758,7 @@ internal static class PaletteFxInstructionCodesVerification
     private static void VerifyWreckedShipGreenLightPaletteFxColorDefinitions(
         ISnesAddressSpace bus)
     {
-        foreach (ushort definition in new ushort[] { 0xf76d, 0xf771 })
+        foreach (ushort definition in new ushort[] { 0xf76d })
         {
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFxSession = new PaletteFxSessionState();
@@ -1188,23 +1156,6 @@ internal static class PaletteFxInstructionCodesVerification
                 }
             }
 
-            for (int frame = 0;
-                 frame < UnusedCinematicFadePaletteFxColorDefinitionsConstants
-                     .FrameCount;
-                 frame++)
-            {
-                int offset = source.Offset - unchecked((ushort)(
-                    UnusedCinematicFadePaletteFxColorDefinitions
-                        .FramePointer(frame) + sizeof(ushort)));
-                if ((uint)offset <
-                    UnusedCinematicFadePaletteFxColorDefinitions
-                        .ColorsPerFrame * sizeof(ushort))
-                {
-                    presentationReads++;
-                    break;
-                }
-            }
-
             foreach (SamusLoadingSuitPaletteFxColorDefinition definition in
                      SamusLoadingSuitPaletteFxColorDefinitions.All)
             {
@@ -1345,9 +1296,8 @@ internal static class PaletteFxInstructionCodesVerification
                 }
             }
 
-            foreach (CrateriaLightningPaletteFxColorDefinition definition in
-                     CrateriaLightningPaletteFxColorDefinitions.All)
             {
+                CrateriaLightningPaletteFxColorDefinition definition = CrateriaLightningPaletteFxColorDefinitions.Surface;
                 foreach (var frame in definition.Frames)
                 {
                     int colorOffset = source.Offset - frame.FirstColorPointer;

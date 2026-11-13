@@ -74,8 +74,6 @@ public enum PaletteFxSegment
     HyperBeam0,
     /// <summary>The Hyper Beam animation, step 1.</summary>
     HyperBeam1,
-    /// <summary>The unused cinematic fade, which no scene starts.</summary>
-    UnusedCinematicFade,
     /// <summary>The Samus loading Power suit animation, step 0.</summary>
     SamusLoadingPowerSuit0,
     /// <summary>The Samus loading Power suit animation, step 1.</summary>
@@ -161,14 +159,6 @@ public enum PaletteFxSegment
     CrateriaLightningRepeatedFlash,
     /// <summary>The Crateria surface lightning's flash shown once before the cycle repeats.</summary>
     CrateriaLightningClosingFlash,
-    /// <summary>The unused dark lightning: watches Samus's height, names its colours, then runs its cycle.</summary>
-    UnusedDarkLightning,
-    /// <summary>One cycle of the unused dark lightning, restarted calm while Samus is high.</summary>
-    UnusedDarkLightningCycle,
-    /// <summary>The unused dark lightning's flash shown twice each cycle.</summary>
-    UnusedDarkLightningRepeatedFlash,
-    /// <summary>The unused dark lightning's flash shown once before the cycle repeats.</summary>
-    UnusedDarkLightningClosingFlash,
     /// <summary>Brinstar's blue background spores: names their colours, then runs their cycle.</summary>
     BrinstarBlueBackgroundSpores,
     /// <summary>Brinstar's blue background spores' repeating drift.</summary>
@@ -213,11 +203,9 @@ public enum PaletteFxSegment
     MaridiaBackgroundWaterfalls,
     /// <summary>Maridia's background waterfalls' repeating flow.</summary>
     MaridiaBackgroundWaterfallsCycle,
-    /// <summary>The unused copy of Tourian's glow: names its colours, then jumps into the shared glow cycle.</summary>
-    UnusedTourianGlowClone,
     /// <summary>Tourian's glowing Arkanoid blocks and red orbs: names their colours, then runs the shared glow cycle.</summary>
     TourianGlowingArkanoidBlocksAndRedOrbs,
-    /// <summary>Tourian's glow cycle, shared by the glow and its unused copy.</summary>
+    /// <summary>Tourian's glow cycle, which the glow runs after naming its colours.</summary>
     CommonTourianGlowCycle,
     /// <summary>Tourian's shutters flashing red during the escape: names their colours, then runs their cycle.</summary>
     TourianShutterRedFlashing,

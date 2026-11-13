@@ -55,8 +55,8 @@ internal static class PaletteFxProgramLayoutAccess
         /// <summary>The program's timed records.</summary>
         internal IReadOnlyList<PaletteFxRecordView> Frames => Records(self.ColorFrames);
 
-        /// <summary>The list entry: <c>$8D:EB3B</c> for surface lightning, <c>$8D:EC6E</c> for dark lightning.</summary>
-        internal ushort ProgramStart => self.Owner == CrateriaLightningPaletteOwner.SurfaceLightning ? (ushort)0xeb3b : (ushort)0xec6e;
+        /// <summary>The list entry: <c>$8D:EB3B</c>.</summary>
+        internal static ushort ProgramStart => 0xeb3b;
 
         /// <summary>The first loop's timer instruction after the opening neutral record.</summary>
         internal ushort TimerTwoPointer => checked((ushort)(self.FirstFramePointer + 2 * (self.ColorsPerFrame + 2)));

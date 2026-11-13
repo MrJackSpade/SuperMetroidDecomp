@@ -63,7 +63,6 @@ internal static class FxNativeWords
         [NativePaletteFxPreInstruction.DeleteWhenEnemyZeroDies] = 0xe2e0,
         [NativePaletteFxPreInstruction.Heat] = 0xe379,
         [NativePaletteFxPreInstruction.SwitchAboveY380] = 0xec59,
-        [NativePaletteFxPreInstruction.SwitchAboveY380Second] = 0xed84,
         [NativePaletteFxPreInstruction.DeleteWhenAreaMiniBossDies] = 0xeec5,
     });
 
@@ -79,8 +78,6 @@ internal static class FxNativeWords
         NativePaletteFxPreInstruction.Heat => ColourEffectCondition.BurnsSamusInHeat.Instance,
         NativePaletteFxPreInstruction.SwitchAboveY380 => new ColourEffectCondition.RestartsWhileSamusIsHigh(
             CrateriaLightningDefinitions.SamusHighOnSurfaceHeight, PaletteFxSegment.CrateriaLightningCycle),
-        NativePaletteFxPreInstruction.SwitchAboveY380Second => new ColourEffectCondition.RestartsWhileSamusIsHigh(
-            CrateriaLightningDefinitions.SamusHighOnSurfaceHeight, PaletteFxSegment.UnusedDarkLightningCycle),
         NativePaletteFxPreInstruction.DeleteWhenAreaMiniBossDies => ColourEffectCondition.EndsWhenAreaMiniBossDies.Instance,
         _ => throw new ArgumentOutOfRangeException(nameof(preInstruction), preInstruction, "Undefined palette-FX pre-instruction."),
     };

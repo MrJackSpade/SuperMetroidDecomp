@@ -98,7 +98,6 @@ internal static class RoomPaletteFxPresentationVerification
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Red Brinstar glow", new PaletteFxFamilyShape { FrameCount = RedBrinstarGlowPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = RedBrinstarGlowPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = RedBrinstarGlowPaletteFxColorDefinitions.ColorPointer, Definitions = [RedBrinstarGlowPaletteFxColorDefinitions.DefinitionPointer] }, RedBrinstarGlowPaletteFxColorDefinitions.CycleFrames * 2));
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Tourian glow", new PaletteFxFamilyShape { FrameCount = TourianGlowPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = TourianGlowPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = TourianGlowPaletteFxColorDefinitions.ColorPointer, Definitions = [
                 TourianGlowPaletteFxColorDefinitions.LiveDefinitionPointer,
-                TourianGlowPaletteFxColorDefinitions.CloneDefinitionPointer,
             ] }, TourianGlowPaletteFxColorDefinitions.CycleFrames * 2));
         foreach (BrinstarBlueSporePaletteFxColorDefinition definition in
                  BrinstarBlueSporePaletteFxColorDefinitions.All)
@@ -113,10 +112,9 @@ internal static class RoomPaletteFxPresentationVerification
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Tourian statue grey-out", new PaletteFxFamilyShape { FrameCount = TourianStatueGreyPaletteFxColorDefinitions.ColorFrames.FrameCount, ColorsPerFrame = TourianStatueGreyPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = TourianStatueGreyPaletteFxColorDefinitions.ColorPointer, Definitions = TourianStatueGreyPaletteFxColorToolingDefinitions.All
                 .Select(definition => definition.DefinitionPointer)
                 .ToArray() }, TourianStatueGreyPaletteFxColorDefinitions.FramesThroughDeletion));
-        foreach (CrateriaLightningPaletteFxColorDefinition definition in
-                 CrateriaLightningPaletteFxColorDefinitions.All)
         {
-            VerifyInstalledPaletteFxFamily(bus, presentation, $"Crateria {definition.Owner}", new PaletteFxFamilyShape { FrameCount = definition.Frames.Count, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer] }, definition.CycleFrames * 2, CrateriaLightningDefinitions.SamusHighOnSurfaceHeight);
+            CrateriaLightningPaletteFxColorDefinition definition = CrateriaLightningPaletteFxColorDefinitions.Surface;
+            VerifyInstalledPaletteFxFamily(bus, presentation, "Crateria surface lightning", new PaletteFxFamilyShape { FrameCount = definition.Frames.Count, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [CrateriaLightningPaletteFxColorDefinition.DefinitionPointer] }, definition.CycleFrames * 2, CrateriaLightningDefinitions.SamusHighOnSurfaceHeight);
         }
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Ceres gunship-engine lights", new PaletteFxFamilyShape { FrameCount = CeresCinematicLightPaletteFxColorDefinitionsConstants.GunshipEngineFrameCount, ColorsPerFrame = CeresCinematicLightPaletteFxColorDefinitions
                 .GunshipEngineColorsPerFrame, ColorPointer = CeresCinematicLightPaletteFxColorDefinitions
@@ -143,7 +141,6 @@ internal static class RoomPaletteFxPresentationVerification
             VerifyInstalledPaletteFxFamily(bus, presentation, $"Cinematic glow {definition.Owner}", new PaletteFxFamilyShape { FrameCount = CinematicGlowPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer], OnScreen = true }, definition.CycleFrames * 2);
         }
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "exploding Zebes fade", new PaletteFxFamilyShape { FrameCount = ExplodingZebesFadePaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = ExplodingZebesFadePaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = ExplodingZebesFadePaletteFxColorDefinitions.ColorPointer, Definitions = [ExplodingZebesFadePaletteFxColorDefinitions.DefinitionPointer], OnScreen = true }, ExplodingZebesFadePaletteFxColorDefinitions.CycleFrames + 1));
-        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "unused cinematic fade", new PaletteFxFamilyShape { FrameCount = UnusedCinematicFadePaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = UnusedCinematicFadePaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = UnusedCinematicFadePaletteFxColorDefinitions.ColorPointer, Definitions = [UnusedCinematicFadePaletteFxColorDefinitions.DefinitionPointer], OnScreen = true }, UnusedCinematicFadePaletteFxColorDefinitions.CycleFrames + 1));
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "title-logo fade", new PaletteFxFamilyShape { FrameCount = TitleLogoFadePaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = TitleLogoFadePaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = TitleLogoFadePaletteFxColorDefinitions.ColorPointer, Definitions = [TitleLogoFadePaletteFxColorDefinitions.DefinitionPointer], OnScreen = true }, TitleLogoFadePaletteFxColorDefinitions.CycleFrames + 1));
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Nintendo shared fade", new PaletteFxFamilyShape { FrameCount = NintendoLogoFadePaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = NintendoLogoFadePaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = NintendoLogoFadePaletteFxColorDefinitions.ColorPointer, Definitions = [NintendoLogoFadePaletteFxColorDefinitions.BootLogoDefinitionPointer,
                 NintendoLogoFadePaletteFxColorDefinitions.CopyrightDefinitionPointer], OnScreen = true }, NintendoLogoFadePaletteFxColorDefinitions.CycleFrames + 1));
@@ -354,7 +351,6 @@ internal static class RoomPaletteFxPresentationVerification
         foreach (ushort definition in new ushort[]
                  {
                      WreckedShipGreenLightPaletteFxColorDefinitions.PoweredDefinition,
-                     WreckedShipGreenLightPaletteFxColorDefinitions.PoweredDefinitionAlternate,
                  })
         {
             var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
@@ -534,11 +530,6 @@ internal static class RoomPaletteFxPresentationVerification
         Reject("room palette-FX rejects incomplete Crateria surface lightning");
         document = document with { CrateriaSurfaceLightning = surfaceLightning };
 
-        PaletteRgb5[] darkLightningFrame = document.CrateriaUnusedDarkLightning[0];
-        document.CrateriaUnusedDarkLightning[0] = darkLightningFrame[..^1];
-        Reject("room palette-FX rejects incomplete Crateria dark-lightning frame");
-        document.CrateriaUnusedDarkLightning[0] = darkLightningFrame;
-
         PaletteRgb5[][] gunshipLights = document.CeresGunshipEngineLights;
         document = document with { CeresGunshipEngineLights = gunshipLights[..^1] };
         Reject("room palette-FX rejects incomplete Ceres gunship-engine lights");
@@ -576,11 +567,6 @@ internal static class RoomPaletteFxPresentationVerification
         document = document with { ExplodingZebesFade = zebesFade[..^1] };
         Reject("room palette-FX rejects incomplete exploding-Zebes fade");
         document = document with { ExplodingZebesFade = zebesFade };
-
-        PaletteRgb5[] unusedFadeFrame = document.UnusedCinematicFade[0];
-        document.UnusedCinematicFade[0] = unusedFadeFrame[..^1];
-        Reject("room palette-FX rejects incomplete unused cinematic-fade frame");
-        document.UnusedCinematicFade[0] = unusedFadeFrame;
 
         PaletteRgb5[][] titleLogo = document.TitleLogoFade;
         document = document with { TitleLogoFade = titleLogo[..^1] };

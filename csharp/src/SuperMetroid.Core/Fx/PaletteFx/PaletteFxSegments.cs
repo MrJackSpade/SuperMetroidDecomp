@@ -366,21 +366,6 @@ internal static class PaletteFxSegments
             F(8, 2),
             F(9, 2),
         ],
-        [P.UnusedCinematicFade] =
-        [
-            E(new PaletteFxCue.SetColours(PaletteFxColours.UnusedCinematicFade)),
-            F(0, 2),
-            F(1, 2),
-            F(2, 2),
-            F(3, 2),
-            F(4, 2),
-            F(5, 2),
-            F(6, 2),
-            F(7, 2),
-            F(8, 2),
-            F(9, 2),
-            F(10, 2),
-        ],
         [P.SamusLoadingPowerSuit0] =
         [
             E(new PaletteFxCue.SetColours(PaletteFxColours.SamusLoadingSuit)),
@@ -646,34 +631,6 @@ internal static class PaletteFxSegments
             F(2, 1),
             F(3, 2),
         ],
-        [P.UnusedDarkLightning] =
-        [
-            E(new PaletteFxCue.Watch(new ColourEffectCondition.RestartsWhileSamusIsHigh(CrateriaLightningDefinitions.SamusHighOnSurfaceHeight, P.UnusedDarkLightningCycle))),
-            E(new PaletteFxCue.SetColours(PaletteFxColours.UnusedDarkLightning)),
-        ],
-        [P.UnusedDarkLightningCycle] =
-        [
-            F(0, 240),
-        ],
-        [P.UnusedDarkLightningRepeatedFlash] =
-        [
-            F(0, 2),
-            F(1, 1),
-            F(2, 1),
-            F(3, 1),
-            F(4, 1),
-            F(5, 1),
-            F(6, 2),
-            F(7, 240),
-            F(8, 240),
-        ],
-        [P.UnusedDarkLightningClosingFlash] =
-        [
-            F(0, 1),
-            F(1, 1),
-            F(2, 1),
-            F(3, 2),
-        ],
         [P.BrinstarBlueBackgroundSpores] =
         [
             E(new PaletteFxCue.SetColours(PaletteFxColours.BrinstarBlueSpores)),
@@ -900,10 +857,6 @@ internal static class PaletteFxSegments
             F(5, 2),
             F(6, 2),
             F(7, 2),
-        ],
-        [P.UnusedTourianGlowClone] =
-        [
-            E(new PaletteFxCue.SetColours(PaletteFxColours.TourianArkanoidBlocksAndOrbs)),
         ],
         [P.TourianGlowingArkanoidBlocksAndRedOrbs] =
         [

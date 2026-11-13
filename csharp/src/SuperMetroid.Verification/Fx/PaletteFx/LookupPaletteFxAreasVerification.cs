@@ -19,6 +19,9 @@ internal static class LookupPaletteFxAreasVerification
                 "Area-list identity preserves indexed-span bounds");
     }
 
+    /// <summary>The bank-$8D palette-FX object Tourian's third effect bit names, the glow copy no room sets.</summary>
+    private const ushort TourianGlowCopyObject = 0xf7a5;
+
     /// <summary>Checks the full area/bit dispatch domain and gives area validation precedence on invalid pairs.</summary>
     internal static void VerifyPaletteFxAreaSelections(CartridgeImportAddressSpace rom)
     {
@@ -29,7 +32,10 @@ internal static class LookupPaletteFxAreasVerification
             {
                 ushort nativeList = ReadVerificationWord(rom, 0x83ac46 + 2 * area);
                 ushort expected = ReadVerificationWord(rom, 0x830000 | (nativeList + 2 * bit));
-                AssertEqual(expected, PaletteFxObjectAccess.NativeAddress(AreaPaletteFxObjects.GetAreaDefinition(area, bit)),
+                // Only Tourian's third bit names an object that is no effect: the glow copy no room sets.
+                AssertEqual(expected, AreaPaletteFxObjects.GetAreaDefinition(area, bit) is { } effect
+                        ? PaletteFxObjectAccess.NativeAddress(effect)
+                        : TourianGlowCopyObject,
                     "Original palette-FX area/bit dispatch");
             }
             else

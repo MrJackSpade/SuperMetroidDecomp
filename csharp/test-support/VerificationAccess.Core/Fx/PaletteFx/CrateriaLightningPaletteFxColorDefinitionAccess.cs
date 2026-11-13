@@ -5,11 +5,11 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// <summary>Verification access to <see cref="CrateriaLightningPaletteFxColorDefinition"/> members production does not use.</summary>
 internal static class CrateriaLightningPaletteFxColorDefinitionAccess
 {
-    /// <summary>Exposes surface/dark lightning identity and the complete neutral-flash-recovery cycle lengths.</summary>
+    /// <summary>Exposes the lightning's definition and the complete neutral-flash-recovery cycle lengths.</summary>
     extension(CrateriaLightningPaletteFxColorDefinition self)
     {
-        /// <summary>$8D:F765 live surface-lightning definition or $F769 unused dark-lightning definition.</summary>
-        internal ushort DefinitionPointer => self.Owner == CrateriaLightningPaletteOwner.SurfaceLightning ? (ushort)0xf765 : (ushort)0xf769;
+        /// <summary>The $8D:F765 surface-lightning definition.</summary>
+        internal static ushort DefinitionPointer => 0xf765;
 
         /// <summary>Full lightning cycle including neutral holds, two flashes, and recovery.</summary>
         internal int CycleFrames => 240 * (1 + self.NeutralCount) + 2 * 9 + 5;

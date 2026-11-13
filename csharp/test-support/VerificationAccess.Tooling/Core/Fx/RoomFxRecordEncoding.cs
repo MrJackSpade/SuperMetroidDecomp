@@ -43,7 +43,7 @@ internal static class RoomFxRecordEncoding
     /// in ascending bit order as the decode lists them.
     /// </summary>
     /// <exception cref="InvalidDataException">An effect is not in the list once, or the effects are out of the list's order.</exception>
-    private static byte BitsetByte<TEffect>(ImmutableArray<TEffect> effects, Func<int, TEffect> selected, string kind)
+    private static byte BitsetByte<TEffect>(ImmutableArray<TEffect> effects, Func<int, TEffect?> selected, string kind)
         where TEffect : struct, Enum
     {
         int bitset = 0;
@@ -51,7 +51,7 @@ internal static class RoomFxRecordEncoding
         foreach (TEffect effect in effects)
         {
             int[] bits = [.. Enumerable.Range(0, AreaAnimatedTileObjectDefinitions.ObjectsPerArea)
-                .Where(bit => EqualityComparer<TEffect>.Default.Equals(selected(bit), effect))];
+                .Where(bit => selected(bit) is { } candidate && EqualityComparer<TEffect>.Default.Equals(candidate, effect))];
             if (bits.Length != 1)
                 throw new InvalidDataException($"{kind} {effect} is selected by {bits.Length} bits of its area's list, not one.");
             if (bits[0] <= previous)

@@ -44,8 +44,6 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] TourianStatueGrey { get; init; }
     /// <summary>Gets thirteen eight-color records for surface lightning, including the long neutral holds and brief flashes defined by the native program.</summary>
     public required PaletteRgb5[][] CrateriaSurfaceLightning { get; init; }
-    /// <summary>Gets fourteen seven-color records for the distinct unused dark-lightning program, each kept as installed.</summary>
-    public required PaletteRgb5[][] CrateriaUnusedDarkLightning { get; init; }
     /// <summary>Gets two single-color records for the Ceres gunship engine-light loop.</summary>
     public required PaletteRgb5[][] CeresGunshipEngineLights { get; init; }
     /// <summary>Gets fourteen two-color navigation-light records shared by the sprite and background destination programs.</summary>
@@ -60,8 +58,6 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] CinematicGunshipGlow { get; init; }
     /// <summary>Gets seven eight-color records for the exploding-Zebes cinematic fade.</summary>
     public required PaletteRgb5[][] ExplodingZebesFade { get; init; }
-    /// <summary>Gets eleven sixteen-color records for the native unused cinematic fade program.</summary>
-    public required PaletteRgb5[][] UnusedCinematicFade { get; init; }
     /// <summary>Gets eight fifteen-color records for the title-logo fade.</summary>
     public required PaletteRgb5[][] TitleLogoFade { get; init; }
     /// <summary>Gets eight two-color records for the shared Nintendo-logo fade.</summary>

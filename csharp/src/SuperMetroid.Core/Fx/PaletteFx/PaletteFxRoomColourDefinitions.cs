@@ -16,7 +16,6 @@ internal static class PaletteFxRoomColourDefinitions
         PaletteFxColours.KraidStatue,
         PaletteFxColours.WreckedShipGreenLights,
         PaletteFxColours.LandingSiteLightning,
-        PaletteFxColours.UnusedDarkLightning,
         PaletteFxColours.BrinstarBlueSpores,
         PaletteFxColours.BrinstarRedGlow,
         PaletteFxColours.Beacon,

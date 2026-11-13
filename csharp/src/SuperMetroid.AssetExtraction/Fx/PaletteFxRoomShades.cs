@@ -27,7 +27,6 @@ internal static class PaletteFxRoomShades
         [PaletteFxColours.KraidStatue] = 112,
         [PaletteFxColours.WreckedShipGreenLights] = 76,
         [PaletteFxColours.LandingSiteLightning] = 84,
-        [PaletteFxColours.UnusedDarkLightning] = 65,
         [PaletteFxColours.BrinstarBlueSpores] = 113,
         [PaletteFxColours.BrinstarRedGlow] = 100,
         [PaletteFxColours.Beacon] = 113,

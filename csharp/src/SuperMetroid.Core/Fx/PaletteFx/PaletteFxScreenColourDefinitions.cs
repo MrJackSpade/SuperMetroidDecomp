@@ -33,7 +33,6 @@ internal static class PaletteFxScreenColourDefinitions
         PaletteFxColours.ExplodingZebesCrust,
         PaletteFxColours.ExplodingZebesGreyClouds,
         PaletteFxColours.GunshipEmergingFromExplosion,
-        PaletteFxColours.UnusedCinematicFade,
         PaletteFxColours.PostCreditsSuperMetroidIcon,
     ];
 }

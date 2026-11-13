@@ -49,8 +49,6 @@ public enum PaletteFxColours
     ExplodingZebesGreyClouds,
     /// <summary>The gunship emerging from Zebes's explosion.</summary>
     GunshipEmergingFromExplosion,
-    /// <summary>The colours the unused cinematic fade animation fades.</summary>
-    UnusedCinematicFade,
     /// <summary>Samus's beam colours while she holds the Hyper Beam.</summary>
     HyperBeam,
     /// <summary>Samus's suit while she materializes at a load.</summary>
@@ -73,8 +71,6 @@ public enum PaletteFxColours
     WreckedShipGreenLights,
     /// <summary>The Landing Site's sky, flashed by its lightning.</summary>
     LandingSiteLightning,
-    /// <summary>The colours the unused dark-lightning animation darkens.</summary>
-    UnusedDarkLightning,
     /// <summary>Brinstar's blue background spores, in the ordinary rooms and Spore Spawn's.</summary>
     BrinstarBlueSpores,
     /// <summary>Brinstar's red background glow.</summary>

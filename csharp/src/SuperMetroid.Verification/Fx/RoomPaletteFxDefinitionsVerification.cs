@@ -19,7 +19,13 @@ using SuperMetroid.Core.Progression;
 /// <summary>Checks compiled palette-FX definitions, area selection, and production spawn metadata.</summary>
 internal static class RoomPaletteFxDefinitionsVerification
 {
-    /// <summary>Audits 63 entries and eight area lists, then checks spawns and room loads without metadata reads.</summary>
+    /// <summary>
+    /// The bank-$8D definitions of the cinematic fade, the dark lightning, the Wrecked Ship lights' copy and the Tourian
+    /// glow's copy, which no scene spawns and no room's record sets, so they are no effect of the game.
+    /// </summary>
+    private static readonly HashSet<ushort> UnreachableDefinitions = [0xe1ec, 0xf769, 0xf771, 0xf7a5];
+
+    /// <summary>Audits the 59 reachable entries and eight area lists, then checks spawns and room loads without metadata reads.</summary>
     internal static void VerifyRoomPaletteFxDefinitions(CartridgeImportAddressSpace rom)
     {
 
@@ -35,10 +41,11 @@ internal static class RoomPaletteFxDefinitionsVerification
                 RoomPaletteFxDefinitions.TourianDefinitionsBegin,
                 RoomPaletteFxDefinitions.TourianDefinitionsEnd),
         ];
+        pointers = [.. pointers.Where(pointer => !UnreachableDefinitions.Contains(pointer))];
         Suite(nameof(VerifyPaletteFxDispatchDomain), () => VerifyPaletteFxDispatchDomain());
         Suite(nameof(VerifyPaletteFxSetupSelection), () => VerifyPaletteFxSetupSelection(rom));
         Suite(nameof(VerifyPaletteFxInitialListSelection), () => VerifyPaletteFxInitialListSelection(rom));
-        AssertEqual(63, pointers.Length, "compiled palette-FX definition count");
+        AssertEqual(59, pointers.Length, "compiled palette-FX definition count");
 
         var forbidden = new HashSet<int>();
         int genericCompiledPrograms = 0;
@@ -61,7 +68,7 @@ internal static class RoomPaletteFxDefinitionsVerification
                 genericCompiledPrograms++;
             }
         }
-        AssertEqual(62, genericCompiledPrograms,
+        AssertEqual(58, genericCompiledPrograms,
             "generic palette-FX definitions with typed initial programs");
         AssertEqual(1, specializedCompiledPrograms,
             "specialized Hyper Beam palette-FX definition count");
@@ -90,7 +97,9 @@ internal static class RoomPaletteFxDefinitionsVerification
         for (int area = 0; area < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count; area++)
         for (int bit = 0; bit < RoomPaletteFxDefinitions.DefinitionsPerArea; bit++)
         {
-            PaletteFxObject effect = AreaPaletteFxObjects.GetAreaDefinition(area, bit);
+            // Tourian's third bit selects the glow copy no room sets, which is no effect of the game and starts nothing.
+            if (AreaPaletteFxObjects.GetAreaDefinition(area, bit) is not { } effect)
+                continue;
             var definition = new RoomFxRecordDefinition(BaseYPosition: 0, TargetYPosition: 0, YVelocity: default, Timer: 0,
                 Type: RoomFxType.None, VisorAnimation: RoomVisorAnimation.Steady, EffectBlend: null, Liquid: null,
                 PaletteEffects: [effect], AnimatedTiles: [], PaletteBlend: RoomFxPaletteBlend.None);

@@ -35,10 +35,7 @@ internal static class RoomPaletteFxPresentationExtractor
             BombTorizoBelly = ExtractFrames(TorizoBellyPaletteFxColorDefinitions.All.Single(item => item.Owner == TorizoBellyPaletteOwner.BombTorizo).ColorFrames),
             GoldenTorizoBelly = ExtractFrames(TorizoBellyPaletteFxColorDefinitions.All.Single(item => item.Owner == TorizoBellyPaletteOwner.GoldenTorizo).ColorFrames),
             TourianStatueGrey = ExtractFrames(TourianStatueGreyPaletteFxColorDefinitions.ColorFrames),
-            CrateriaSurfaceLightning = ExtractFrames(CrateriaLightningPaletteFxColorDefinitions.All.Single(
-                item => item.Owner == CrateriaLightningPaletteOwner.SurfaceLightning).ColorFrames),
-            CrateriaUnusedDarkLightning = ExtractFrames(CrateriaLightningPaletteFxColorDefinitions.All.Single(
-                item => item.Owner == CrateriaLightningPaletteOwner.UnusedDarkLightning).ColorFrames),
+            CrateriaSurfaceLightning = ExtractFrames(CrateriaLightningPaletteFxColorDefinitions.Surface.ColorFrames),
             CeresGunshipEngineLights = ExtractFrames(CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineFrames),
             CeresNavigationLights = ExtractFrames(CeresCinematicLightPaletteFxColorDefinitions.NavigationLightsFrames),
             PlanetZebesTextFadeIn = ExtractFrames(PlanetZebesTextPaletteFxColorDefinitions.All.Single(
@@ -50,7 +47,6 @@ internal static class RoomPaletteFxPresentationExtractor
             CinematicGunshipGlow = ExtractFrames(CinematicGlowPaletteFxColorDefinitions.All.Single(
                 item => item.Owner == CinematicGlowPaletteFxProgramOwner.GunshipGlow).ColorFrames),
             ExplodingZebesFade = ExtractFrames(ExplodingZebesFadePaletteFxColorDefinitions.ColorFrames),
-            UnusedCinematicFade = ExtractFrames(UnusedCinematicFadePaletteFxColorDefinitions.ColorFrames),
             TitleLogoFade = ExtractFrames(TitleLogoFadePaletteFxColorDefinitions.ColorFrames),
             NintendoSharedFade = ExtractFrames(NintendoLogoFadePaletteFxColorDefinitions.ColorFrames),
             ZebesExplosionForeground = ExtractFrames(ZebesExplosionForegroundPaletteFxColorDefinitions.ColorFrames),

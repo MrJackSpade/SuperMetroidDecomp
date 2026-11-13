@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 internal static class SbugMovementDefinitions
 {
     /// <summary>
-    /// The random field that turns an Sbug starting a random movement leg: bits zero to seven, 0 through 255, less a
+    /// The random field that turns an Sbug starting a random movement leg: the sample modulo 256, 0 through 255, less a
     /// quarter turn, added to its heading.
     /// </summary>
     internal static readonly RandomSampleField RandomTurn = new(0, 8);

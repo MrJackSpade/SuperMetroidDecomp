@@ -784,7 +784,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// <paramref name="field"/>, checked to lie within a sample's bits zero to seven, the only range the scatter authors.
+    /// <paramref name="field"/>, checked to read only the sample modulo 256, the only range the scatter authors.
     /// </summary>
     private static RandomSampleField RequireLowHalfField(RandomSampleField field)
     {
@@ -792,7 +792,7 @@ internal sealed class EnemyProjectileEngine
         return field;
     }
 
-    /// <summary>The sample's bits zero to seven, the only bits a scatter's range reads.</summary>
+    /// <summary>The width of the sample modulo 256, the only part of the sample a scatter's range reads.</summary>
     private const int LowHalfBits = 8;
 
     /// <summary>
@@ -1007,8 +1007,8 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Draws the one-in-four branch: it is taken when bits fourteen and fifteen of the room's next random
-    /// number are both set.
+    /// Draws the one-in-four branch: it is taken when the room's next random number divided by 16384
+    /// is three.
     /// </summary>
     internal bool TakeOneInFourBranch() =>
         _room.Random.Next(EnemyProjectileRandomBranchDefinitions.OneInFourBranch) == EnemyProjectileRandomBranchDefinitions.OneInFourBranchTaken;

@@ -20,7 +20,7 @@ internal static class EnemyDropSelectionDefinitions
     ];
 
     /// <summary>
-    /// The random field a drop's chance roll reads: bits zero to seven, 0 through 255, drawn again while it is zero, then
+    /// The random field a drop's chance roll reads: the sample modulo 256, 0 through 255, drawn again while it is zero, then
     /// compared with the accumulated column chances.
     /// </summary>
     internal static readonly RandomSampleField DropRoll = new(0, 8);

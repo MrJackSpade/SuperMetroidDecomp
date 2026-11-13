@@ -16,7 +16,7 @@ public static class PuyoHopDefinitions
     };
 
     /// <summary>
-    /// The random field a Puyo's hop roll starts from: bits zero to two. The roll adds the enemy's frame counter and
+    /// The random field a Puyo's hop roll starts from: the sample modulo 8. The roll adds the enemy's frame counter and
     /// continues past the field's last value from zero.
     /// </summary>
     internal static readonly RandomSampleField HopRoll = new(0, 3);

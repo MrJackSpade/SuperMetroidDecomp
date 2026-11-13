@@ -22,7 +22,7 @@ internal static class MetroidBehaviorDefinitions
     /// </summary>
     internal static readonly SoundEffectId[] RandomCries = [FirstCry, SecondCry, ThirdCry, FirstCry, SecondCry, ThirdCry, SecondCry, ThirdCry];
 
-    /// <summary>The random field that picks which of the eight <see cref="RandomCries"/> slots a chasing Metroid plays: bits zero to two.</summary>
+    /// <summary>The random field that picks which of the eight <see cref="RandomCries"/> slots a chasing Metroid plays: the sample modulo 8.</summary>
     internal static readonly RandomSampleField CrySlot = new(0, 3);
 
     /// <summary>A sixteenth of a health point, in the units of the drain counter.</summary>

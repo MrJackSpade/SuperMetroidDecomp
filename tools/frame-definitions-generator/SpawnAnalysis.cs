@@ -64,8 +64,6 @@ internal sealed class SpawnAnalysis
         RequireMembers(model.EnemyFrameId, Walk.ExcludedEnemyFrames);
         RequireMembers(model.EnemyProjectileFrameId, Walk.ExcludedProjectileFrames);
         RequireEmptySpritemapFrames(model);
-        RequireMembers(model.RoomSpriteObjectKind, Walk.ExcludedSpriteObjects);
-        RedrawnSpawns.Require(model);
         var analysis = new SpawnAnalysis(model);
         var scanner = new UnitScanner(model);
         var reached = new HashSet<Unit>();

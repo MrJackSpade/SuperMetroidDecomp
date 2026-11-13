@@ -16,7 +16,7 @@ internal static class PolypAnimations
     {
         [P.Stationary] =
         [
-            Show(EnemyFrameId.Polyp00, 1),
+            Show(EnemyFrameId.PolypStationary, 1),
         ],
     });
 

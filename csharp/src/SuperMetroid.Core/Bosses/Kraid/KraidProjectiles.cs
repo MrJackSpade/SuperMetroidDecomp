@@ -51,7 +51,7 @@ internal sealed class KraidProjectiles
         lint.Shading = _parts.Body.Shading;
         lint.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
         _access.SetKraidPartProgram(lint, KraidPartProgram.LintInitial);
-        lint.Frame = EnemyFrameId.KraidLint00;
+        lint.Frame = EnemyFrameId.KraidLintInitial;
         _parts.LintStateOf(state, lint).Function = KraidAiFunction.LintInactive;
         _parts.LintStateOf(state, lint).LintXOffset = expected == KraidLintPart.Top ? 0 : -16;
     }
@@ -76,7 +76,7 @@ internal sealed class KraidProjectiles
         nail.Presence = nail.Presence.With(EnemyPresence.Hidden);
         nail.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
         _access.SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
-        nail.Frame = EnemyFrameId.KraidNail0;
+        nail.Frame = EnemyFrameId.KraidNailLoopFirst;
         _parts.NailStateOf(state, nail).NextFunction = KraidAiFunction.FingernailInitialize;
         _parts.NailStateOf(state, nail).Function = KraidAiFunction.HandleFunctionTimer;
         _parts.NailStateOf(state, nail).FunctionTimer = 64;

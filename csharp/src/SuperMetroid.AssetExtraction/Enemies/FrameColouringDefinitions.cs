@@ -75,10 +75,10 @@ internal static class FrameColouringDefinitions
     /// <summary>The enemy frames: Mother Brain's tubes, drawn from her room's entry in the tube colours it loads.</summary>
     internal static IReadOnlyDictionary<EnemyFrameId, FrameColouring> Frames { get; } = new Dictionary<EnemyFrameId, FrameColouring>
     {
-        [EnemyFrameId.MotherBrainTube0] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyFrameId.MotherBrainTube1] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyFrameId.MotherBrainTube2] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyFrameId.MotherBrainTube3] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyFrameId.MotherBrainTube4] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyFrameId.MotherBrainTubeFirst] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyFrameId.MotherBrainTubeSecond] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyFrameId.MotherBrainTubeThird] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyFrameId.MotherBrainTubeFourth] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyFrameId.MotherBrainTubeFifth] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
     };
 }

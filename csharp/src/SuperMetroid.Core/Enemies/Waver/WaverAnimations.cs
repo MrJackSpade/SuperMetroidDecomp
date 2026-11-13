@@ -25,18 +25,18 @@ internal static class WaverAnimations
         ],
         [P.SpinningFacingLeft] =
         [
-            Show(EnemyFrameId.WaverSpinLeft0, 8),
-            Show(EnemyFrameId.WaverSpinLeft1, 8),
-            Show(EnemyFrameId.WaverSpinLeft2, 8),
-            Show(EnemyFrameId.WaverSpinLeft3, 8),
+            Show(EnemyFrameId.WaverSpinningFacingLeftFirst, 8),
+            Show(EnemyFrameId.WaverSpinningFacingLeftSecond, 8),
+            Show(EnemyFrameId.WaverSpinningFacingLeftThird, 8),
+            Show(EnemyFrameId.WaverSpinningFacingLeftFourth, 8),
             Cue(new(K.FinishSpin)),
         ],
         [P.SpinningFacingRight] =
         [
-            Show(EnemyFrameId.WaverSpinRight0, 8),
-            Show(EnemyFrameId.WaverSpinRight1, 8),
-            Show(EnemyFrameId.WaverSpinRight2, 8),
-            Show(EnemyFrameId.WaverSpinRight3, 8),
+            Show(EnemyFrameId.WaverSpinningFacingRightFirst, 8),
+            Show(EnemyFrameId.WaverSpinningFacingRightSecond, 8),
+            Show(EnemyFrameId.WaverSpinningFacingRightThird, 8),
+            Show(EnemyFrameId.WaverSpinningFacingRightFourth, 8),
             Cue(new(K.FinishSpin)),
         ],
     });

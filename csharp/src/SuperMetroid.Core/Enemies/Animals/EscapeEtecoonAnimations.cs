@@ -21,17 +21,17 @@ internal static class EscapeEtecoonAnimations
         ],
         [P.RunningLeftLowTideLoop] =
         [
-            Show(EnemyFrameId.EscapeEtecoon00, 5),
-            Show(EnemyFrameId.EscapeEtecoon01, 5),
-            Show(EnemyFrameId.EscapeEtecoon02, 5),
-            Show(EnemyFrameId.EscapeEtecoon01, 5),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopFirst, 5),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopSecond, 5),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopThird, 5),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopSecond, 5),
         ],
         [P.RunningLeftHighTide] =
         [
-            Show(EnemyFrameId.EscapeEtecoon00, 3),
-            Show(EnemyFrameId.EscapeEtecoon01, 3),
-            Show(EnemyFrameId.EscapeEtecoon02, 3),
-            Show(EnemyFrameId.EscapeEtecoon01, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopFirst, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopSecond, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopThird, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopSecond, 3),
         ],
         [P.RunningRightLowTide] =
         [
@@ -39,17 +39,17 @@ internal static class EscapeEtecoonAnimations
         ],
         [P.RunningRightLowTideLoop] =
         [
-            Show(EnemyFrameId.EscapeEtecoon03, 6),
-            Show(EnemyFrameId.EscapeEtecoon04, 6),
-            Show(EnemyFrameId.EscapeEtecoon05, 6),
-            Show(EnemyFrameId.EscapeEtecoon04, 6),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopFirst, 6),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopSecond, 6),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopThird, 6),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopSecond, 6),
         ],
         [P.RunningRightHighTide] =
         [
-            Show(EnemyFrameId.EscapeEtecoon03, 3),
-            Show(EnemyFrameId.EscapeEtecoon04, 3),
-            Show(EnemyFrameId.EscapeEtecoon05, 3),
-            Show(EnemyFrameId.EscapeEtecoon04, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopFirst, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopSecond, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopThird, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopSecond, 3),
         ],
         [P.RunningForEscape] =
         [
@@ -57,17 +57,17 @@ internal static class EscapeEtecoonAnimations
         ],
         [P.RunningForEscapeLoop] =
         [
-            Show(EnemyFrameId.EscapeEtecoon03, 3),
-            Show(EnemyFrameId.EscapeEtecoon04, 3),
-            Show(EnemyFrameId.EscapeEtecoon05, 3),
-            Show(EnemyFrameId.EscapeEtecoon04, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopFirst, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopSecond, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopThird, 3),
+            Show(EnemyFrameId.EscapeEtecoonRunningRightLowTideLoopSecond, 3),
         ],
         [P.Stationary] =
         [
-            Show(EnemyFrameId.EscapeEtecoon06, 64),
-            Show(EnemyFrameId.EscapeEtecoon07, 8),
-            Show(EnemyFrameId.EscapeEtecoon08, 64),
-            Show(EnemyFrameId.EscapeEtecoon09, 8),
+            Show(EnemyFrameId.EscapeEtecoonStationaryFirst, 64),
+            Show(EnemyFrameId.EscapeEtecoonStationarySecond, 8),
+            Show(EnemyFrameId.EscapeEtecoonStationaryThird, 64),
+            Show(EnemyFrameId.EscapeEtecoonStationaryFourth, 8),
         ],
         [P.ExpressGratitudeThenEscape] =
         [
@@ -75,16 +75,16 @@ internal static class EscapeEtecoonAnimations
         ],
         [P.ExpressGratitudeThenEscapeLoop] =
         [
-            Show(EnemyFrameId.EscapeEtecoon00, 8),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopFirst, 8),
             Cue(new EscapeEtecoonCue.Move(Offset: -3)),
-            Show(EnemyFrameId.EscapeEtecoon01, 8),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopSecond, 8),
             Cue(new EscapeEtecoonCue.Move(Offset: -3)),
-            Show(EnemyFrameId.EscapeEtecoon02, 8),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopThird, 8),
             Cue(new EscapeEtecoonCue.Move(Offset: -3)),
-            Show(EnemyFrameId.EscapeEtecoon01, 8),
+            Show(EnemyFrameId.EscapeEtecoonRunningLeftLowTideLoopSecond, 8),
             Cue(new EscapeEtecoonCue.Move(Offset: -3)),
-            Show(EnemyFrameId.EscapeEtecoon06, 64),
-            Show(EnemyFrameId.EscapeEtecoon07, 8),
+            Show(EnemyFrameId.EscapeEtecoonStationaryFirst, 64),
+            Show(EnemyFrameId.EscapeEtecoonStationarySecond, 8),
         ],
     });
 

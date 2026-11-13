@@ -95,7 +95,7 @@ internal sealed class DefinitionPruner
                         break;
                     }
                 }
-                if (!matched && defaultSection is not null && !taken.Contains(defaultSection.Statements.FirstOrDefault()))
+                if (!matched && defaultSection is not null && !(defaultSection.Statements.FirstOrDefault() is { } first && taken.Contains(first)))
                     taken.AddRange(defaultSection.Statements);
                 return taken;
             }

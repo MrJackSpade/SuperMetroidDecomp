@@ -16,59 +16,59 @@ internal static class SbugAnimations
     {
         [P.Right] =
         [
-            Show(EnemyFrameId.SbugRight0, 5),
-            Show(EnemyFrameId.SbugRight1, 5),
-            Show(EnemyFrameId.SbugRight0, 5),
-            Show(EnemyFrameId.SbugRight2, 5),
+            Show(EnemyFrameId.SbugRightFirst, 5),
+            Show(EnemyFrameId.SbugRightSecond, 5),
+            Show(EnemyFrameId.SbugRightFirst, 5),
+            Show(EnemyFrameId.SbugRightThird, 5),
         ],
         [P.UpRight] =
         [
-            Show(EnemyFrameId.SbugUpRight0, 5),
-            Show(EnemyFrameId.SbugUpRight1, 5),
-            Show(EnemyFrameId.SbugUpRight0, 5),
-            Show(EnemyFrameId.SbugUpRight2, 5),
+            Show(EnemyFrameId.SbugUpRightFirst, 5),
+            Show(EnemyFrameId.SbugUpRightSecond, 5),
+            Show(EnemyFrameId.SbugUpRightFirst, 5),
+            Show(EnemyFrameId.SbugUpRightThird, 5),
         ],
         [P.Up] =
         [
-            Show(EnemyFrameId.SbugUp0, 5),
-            Show(EnemyFrameId.SbugUp1, 5),
-            Show(EnemyFrameId.SbugUp0, 5),
-            Show(EnemyFrameId.SbugUp2, 5),
+            Show(EnemyFrameId.SbugUpFirst, 5),
+            Show(EnemyFrameId.SbugUpSecond, 5),
+            Show(EnemyFrameId.SbugUpFirst, 5),
+            Show(EnemyFrameId.SbugUpThird, 5),
         ],
         [P.UpLeft] =
         [
-            Show(EnemyFrameId.SbugUpLeft0, 5),
-            Show(EnemyFrameId.SbugUpLeft1, 5),
-            Show(EnemyFrameId.SbugUpLeft0, 5),
-            Show(EnemyFrameId.SbugUpLeft2, 5),
+            Show(EnemyFrameId.SbugUpLeftFirst, 5),
+            Show(EnemyFrameId.SbugUpLeftSecond, 5),
+            Show(EnemyFrameId.SbugUpLeftFirst, 5),
+            Show(EnemyFrameId.SbugUpLeftThird, 5),
         ],
         [P.Left] =
         [
-            Show(EnemyFrameId.SbugLeft0, 5),
-            Show(EnemyFrameId.SbugLeft1, 5),
-            Show(EnemyFrameId.SbugLeft0, 5),
-            Show(EnemyFrameId.SbugLeft2, 5),
+            Show(EnemyFrameId.SbugLeftFirst, 5),
+            Show(EnemyFrameId.SbugLeftSecond, 5),
+            Show(EnemyFrameId.SbugLeftFirst, 5),
+            Show(EnemyFrameId.SbugLeftThird, 5),
         ],
         [P.DownLeft] =
         [
-            Show(EnemyFrameId.SbugDownLeft0, 5),
-            Show(EnemyFrameId.SbugDownLeft1, 5),
-            Show(EnemyFrameId.SbugDownLeft0, 5),
-            Show(EnemyFrameId.SbugDownLeft2, 5),
+            Show(EnemyFrameId.SbugDownLeftFirst, 5),
+            Show(EnemyFrameId.SbugDownLeftSecond, 5),
+            Show(EnemyFrameId.SbugDownLeftFirst, 5),
+            Show(EnemyFrameId.SbugDownLeftThird, 5),
         ],
         [P.Down] =
         [
-            Show(EnemyFrameId.SbugDown0, 5),
-            Show(EnemyFrameId.SbugDown1, 5),
-            Show(EnemyFrameId.SbugDown0, 5),
-            Show(EnemyFrameId.SbugDown2, 5),
+            Show(EnemyFrameId.SbugDownFirst, 5),
+            Show(EnemyFrameId.SbugDownSecond, 5),
+            Show(EnemyFrameId.SbugDownFirst, 5),
+            Show(EnemyFrameId.SbugDownThird, 5),
         ],
         [P.DownRight] =
         [
-            Show(EnemyFrameId.SbugDownRight0, 5),
-            Show(EnemyFrameId.SbugDownRight1, 5),
-            Show(EnemyFrameId.SbugDownRight0, 5),
-            Show(EnemyFrameId.SbugDownRight2, 5),
+            Show(EnemyFrameId.SbugDownRightFirst, 5),
+            Show(EnemyFrameId.SbugDownRightSecond, 5),
+            Show(EnemyFrameId.SbugDownRightFirst, 5),
+            Show(EnemyFrameId.SbugDownRightThird, 5),
         ],
     });
 

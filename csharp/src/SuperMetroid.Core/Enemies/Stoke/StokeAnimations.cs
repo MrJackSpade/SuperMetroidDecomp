@@ -21,14 +21,14 @@ internal static class StokeAnimations
         ],
         [P.MovingLeftLoop] =
         [
-            Show(EnemyFrameId.StokeWalkLeft0, 8),
-            Show(EnemyFrameId.StokeWalkLeft1, 16),
-            Show(EnemyFrameId.StokeWalkLeft2, 8),
-            Show(EnemyFrameId.StokeWalkLeft3, 8),
+            Show(EnemyFrameId.StokeMovingLeftLoopFirst, 8),
+            Show(EnemyFrameId.StokeMovingLeftLoopSecond, 16),
+            Show(EnemyFrameId.StokeMovingLeftLoopThird, 8),
+            Show(EnemyFrameId.StokeMovingLeftLoopFourth, 8),
         ],
         [P.AttackingLeft] =
         [
-            Show(EnemyFrameId.StokeWalkLeft2, 16),
+            Show(EnemyFrameId.StokeMovingLeftLoopThird, 16),
             Cue(new(K.SpawnFireball, FireballDirection: StokeDirection.Left)),
             Show(EnemyFrameId.StokeAttackLeft, 16),
         ],
@@ -38,14 +38,14 @@ internal static class StokeAnimations
         ],
         [P.MovingRightLoop] =
         [
-            Show(EnemyFrameId.StokeWalkRight0, 8),
-            Show(EnemyFrameId.StokeWalkRight1, 16),
-            Show(EnemyFrameId.StokeWalkRight2, 8),
-            Show(EnemyFrameId.StokeWalkRight3, 8),
+            Show(EnemyFrameId.StokeMovingRightLoopFirst, 8),
+            Show(EnemyFrameId.StokeMovingRightLoopSecond, 16),
+            Show(EnemyFrameId.StokeMovingRightLoopThird, 8),
+            Show(EnemyFrameId.StokeMovingRightLoopFourth, 8),
         ],
         [P.AttackingRight] =
         [
-            Show(EnemyFrameId.StokeWalkRight2, 16),
+            Show(EnemyFrameId.StokeMovingRightLoopThird, 16),
             Cue(new(K.SpawnFireball, FireballDirection: StokeDirection.Right)),
             Show(EnemyFrameId.StokeAttackRight, 16),
         ],

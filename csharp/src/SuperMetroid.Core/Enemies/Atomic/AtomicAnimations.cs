@@ -16,39 +16,39 @@ internal static class AtomicAnimations
     {
         [P.UpRight] =
         [
-            Show(EnemyFrameId.AtomicUpRight0, 8),
-            Show(EnemyFrameId.AtomicUpRight1, 8),
-            Show(EnemyFrameId.AtomicUpRight2, 8),
-            Show(EnemyFrameId.AtomicUpRight3, 8),
-            Show(EnemyFrameId.AtomicUpRight4, 8),
-            Show(EnemyFrameId.AtomicUpRight5, 8),
+            Show(EnemyFrameId.AtomicUpRightFirst, 8),
+            Show(EnemyFrameId.AtomicUpRightSecond, 8),
+            Show(EnemyFrameId.AtomicUpRightThird, 8),
+            Show(EnemyFrameId.AtomicUpRightFourth, 8),
+            Show(EnemyFrameId.AtomicUpRightFifth, 8),
+            Show(EnemyFrameId.AtomicUpRightSixth, 8),
         ],
         [P.UpLeft] =
         [
-            Show(EnemyFrameId.AtomicUpLeft0, 8),
-            Show(EnemyFrameId.AtomicUpLeft1, 8),
-            Show(EnemyFrameId.AtomicUpLeft2, 8),
-            Show(EnemyFrameId.AtomicUpLeft3, 8),
-            Show(EnemyFrameId.AtomicUpLeft4, 8),
-            Show(EnemyFrameId.AtomicUpLeft5, 8),
+            Show(EnemyFrameId.AtomicUpLeftFirst, 8),
+            Show(EnemyFrameId.AtomicUpLeftSecond, 8),
+            Show(EnemyFrameId.AtomicUpLeftThird, 8),
+            Show(EnemyFrameId.AtomicUpLeftFourth, 8),
+            Show(EnemyFrameId.AtomicUpLeftFifth, 8),
+            Show(EnemyFrameId.AtomicUpLeftSixth, 8),
         ],
         [P.DownLeft] =
         [
-            Show(EnemyFrameId.AtomicUpRight5, 8),
-            Show(EnemyFrameId.AtomicUpRight4, 8),
-            Show(EnemyFrameId.AtomicUpRight3, 8),
-            Show(EnemyFrameId.AtomicUpRight2, 8),
-            Show(EnemyFrameId.AtomicUpRight1, 8),
-            Show(EnemyFrameId.AtomicUpRight0, 8),
+            Show(EnemyFrameId.AtomicUpRightSixth, 8),
+            Show(EnemyFrameId.AtomicUpRightFifth, 8),
+            Show(EnemyFrameId.AtomicUpRightFourth, 8),
+            Show(EnemyFrameId.AtomicUpRightThird, 8),
+            Show(EnemyFrameId.AtomicUpRightSecond, 8),
+            Show(EnemyFrameId.AtomicUpRightFirst, 8),
         ],
         [P.DownRight] =
         [
-            Show(EnemyFrameId.AtomicUpLeft5, 8),
-            Show(EnemyFrameId.AtomicUpLeft4, 8),
-            Show(EnemyFrameId.AtomicUpLeft3, 8),
-            Show(EnemyFrameId.AtomicUpLeft2, 8),
-            Show(EnemyFrameId.AtomicUpLeft1, 8),
-            Show(EnemyFrameId.AtomicUpLeft0, 8),
+            Show(EnemyFrameId.AtomicUpLeftSixth, 8),
+            Show(EnemyFrameId.AtomicUpLeftFifth, 8),
+            Show(EnemyFrameId.AtomicUpLeftFourth, 8),
+            Show(EnemyFrameId.AtomicUpLeftThird, 8),
+            Show(EnemyFrameId.AtomicUpLeftSecond, 8),
+            Show(EnemyFrameId.AtomicUpLeftFirst, 8),
         ],
     });
 

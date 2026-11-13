@@ -17,43 +17,43 @@ internal static class RioAnimations
     {
         [P.Idle] =
         [
-            Show(EnemyFrameId.RioPose0, 4),
-            Show(EnemyFrameId.RioPose1, 4),
+            Show(EnemyFrameId.RioIdleFirst, 4),
+            Show(EnemyFrameId.RioIdleSecond, 4),
         ],
         [P.PostSwoopIdle] =
         [
-            Show(EnemyFrameId.RioPose0, 4),
-            Show(EnemyFrameId.RioPose1, 4),
-            Show(EnemyFrameId.RioPose0, 4),
-            Show(EnemyFrameId.RioPose1, 4),
-            Show(EnemyFrameId.RioPose0, 4),
-            Show(EnemyFrameId.RioPose1, 4),
-            Show(EnemyFrameId.RioPose2, 4),
-            Show(EnemyFrameId.RioPose3, 4),
-            Show(EnemyFrameId.RioPose2, 4),
-            Show(EnemyFrameId.RioPose3, 4),
+            Show(EnemyFrameId.RioIdleFirst, 4),
+            Show(EnemyFrameId.RioIdleSecond, 4),
+            Show(EnemyFrameId.RioIdleFirst, 4),
+            Show(EnemyFrameId.RioIdleSecond, 4),
+            Show(EnemyFrameId.RioIdleFirst, 4),
+            Show(EnemyFrameId.RioIdleSecond, 4),
+            Show(EnemyFrameId.RioPostSwoopIdleThird, 4),
+            Show(EnemyFrameId.RioPostSwoopIdleFourth, 4),
+            Show(EnemyFrameId.RioPostSwoopIdleThird, 4),
+            Show(EnemyFrameId.RioPostSwoopIdleFourth, 4),
         ],
         [P.SwoopingPart1] =
         [
-            Show(EnemyFrameId.RioPose2, 3),
-            Show(EnemyFrameId.RioPose3, 3),
-            Show(EnemyFrameId.RioPose4, 3),
-            Show(EnemyFrameId.RioPose5, 3),
-            Show(EnemyFrameId.RioPose6, 3),
+            Show(EnemyFrameId.RioPostSwoopIdleThird, 3),
+            Show(EnemyFrameId.RioPostSwoopIdleFourth, 3),
+            Show(EnemyFrameId.RioSwoopingPartOneThird, 3),
+            Show(EnemyFrameId.RioSwoopingPartOneFourth, 3),
+            Show(EnemyFrameId.RioSwoopingPartOneFifth, 3),
             Cue(new(K.AnimationFinished)),
         ],
         [P.SwoopingPart2] =
         [
-            Show(EnemyFrameId.RioPose7, 3),
-            Show(EnemyFrameId.RioPose6, 3),
+            Show(EnemyFrameId.RioSwoopingPartTwoFirst, 3),
+            Show(EnemyFrameId.RioSwoopingPartOneFifth, 3),
         ],
         [P.SwoopCooldown] =
         [
-            Show(EnemyFrameId.RioPose6, 3),
-            Show(EnemyFrameId.RioPose5, 3),
-            Show(EnemyFrameId.RioPose4, 3),
-            Show(EnemyFrameId.RioPose3, 3),
-            Show(EnemyFrameId.RioPose2, 3),
+            Show(EnemyFrameId.RioSwoopingPartOneFifth, 3),
+            Show(EnemyFrameId.RioSwoopingPartOneFourth, 3),
+            Show(EnemyFrameId.RioSwoopingPartOneThird, 3),
+            Show(EnemyFrameId.RioPostSwoopIdleFourth, 3),
+            Show(EnemyFrameId.RioPostSwoopIdleThird, 3),
             Cue(new(K.AnimationFinished)),
         ],
     });

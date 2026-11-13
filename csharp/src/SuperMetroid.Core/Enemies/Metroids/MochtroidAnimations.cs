@@ -16,17 +16,17 @@ internal static class MochtroidAnimations
     {
         [P.FreeFlight] =
         [
-            Show(EnemyFrameId.MochtroidFlight0, 14),
-            Show(EnemyFrameId.MochtroidFlight1, 14),
-            Show(EnemyFrameId.MochtroidFlight2, 14),
-            Show(EnemyFrameId.MochtroidFlight1, 14),
+            Show(EnemyFrameId.MochtroidFreeFlightFirst, 14),
+            Show(EnemyFrameId.MochtroidFreeFlightSecond, 14),
+            Show(EnemyFrameId.MochtroidFreeFlightThird, 14),
+            Show(EnemyFrameId.MochtroidFreeFlightSecond, 14),
         ],
         [P.Attached] =
         [
-            Show(EnemyFrameId.MochtroidAttached0, 5),
-            Show(EnemyFrameId.MochtroidAttached1, 5),
-            Show(EnemyFrameId.MochtroidAttached2, 5),
-            Show(EnemyFrameId.MochtroidAttached1, 5),
+            Show(EnemyFrameId.MochtroidAttachedFirst, 5),
+            Show(EnemyFrameId.MochtroidAttachedSecond, 5),
+            Show(EnemyFrameId.MochtroidAttachedThird, 5),
+            Show(EnemyFrameId.MochtroidAttachedSecond, 5),
         ],
     });
 

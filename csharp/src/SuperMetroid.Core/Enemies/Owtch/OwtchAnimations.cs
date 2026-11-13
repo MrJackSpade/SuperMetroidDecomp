@@ -21,9 +21,9 @@ internal static class OwtchAnimations
         ],
         [P.MovingLeftLoop] =
         [
-            Show(EnemyFrameId.OwtchLeft0, 8),
-            Show(EnemyFrameId.OwtchLeft1, 8),
-            Show(EnemyFrameId.OwtchLeft2, 8),
+            Show(EnemyFrameId.OwtchMovingLeftLoopFirst, 8),
+            Show(EnemyFrameId.OwtchMovingLeftLoopSecond, 8),
+            Show(EnemyFrameId.OwtchMovingLeftLoopThird, 8),
         ],
         [P.MovingRight] =
         [
@@ -31,9 +31,9 @@ internal static class OwtchAnimations
         ],
         [P.MovingRightLoop] =
         [
-            Show(EnemyFrameId.OwtchLeft2, 8),
-            Show(EnemyFrameId.OwtchLeft1, 8),
-            Show(EnemyFrameId.OwtchLeft0, 8),
+            Show(EnemyFrameId.OwtchMovingLeftLoopThird, 8),
+            Show(EnemyFrameId.OwtchMovingLeftLoopSecond, 8),
+            Show(EnemyFrameId.OwtchMovingLeftLoopFirst, 8),
         ],
     });
 

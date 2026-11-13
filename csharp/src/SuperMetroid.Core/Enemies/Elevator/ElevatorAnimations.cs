@@ -16,8 +16,8 @@ internal static class ElevatorAnimations
     {
         [P.Loop] =
         [
-            Show(EnemyFrameId.ElevatorPlatform0, 2),
-            Show(EnemyFrameId.ElevatorPlatform1, 2),
+            Show(EnemyFrameId.ElevatorLoopFirst, 2),
+            Show(EnemyFrameId.ElevatorLoopSecond, 2),
         ],
     });
 

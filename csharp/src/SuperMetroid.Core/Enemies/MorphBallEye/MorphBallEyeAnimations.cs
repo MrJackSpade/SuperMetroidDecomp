@@ -16,27 +16,27 @@ internal static class MorphBallEyeAnimations
     {
         [P.Active] =
         [
-            Show(EnemyFrameId.MorphEyeActive0, 10),
-            Show(EnemyFrameId.MorphEyeActive0, 10),
-            Show(EnemyFrameId.MorphEyeActive1, 10),
-            Show(EnemyFrameId.MorphEyeActive2, 10),
-            Show(EnemyFrameId.MorphEyeActive3, 10),
-            Show(EnemyFrameId.MorphEyeActive4, 10),
-            Show(EnemyFrameId.MorphEyeActive5, 10),
-            Show(EnemyFrameId.MorphEyeActive6, 10),
-            Show(EnemyFrameId.MorphEyeActive7, 10),
-            Show(EnemyFrameId.MorphEyeActive8, 10),
-            Show(EnemyFrameId.MorphEyeActive9, 10),
-            Show(EnemyFrameId.MorphEyeActive10, 10),
-            Show(EnemyFrameId.MorphEyeActive11, 10),
-            Show(EnemyFrameId.MorphEyeActive12, 10),
-            Show(EnemyFrameId.MorphEyeActive13, 10),
-            Show(EnemyFrameId.MorphEyeActive13, 10),
+            Show(EnemyFrameId.MorphBallEyeActiveFirst, 10),
+            Show(EnemyFrameId.MorphBallEyeActiveFirst, 10),
+            Show(EnemyFrameId.MorphBallEyeActiveSecond, 10),
+            Show(EnemyFrameId.MorphBallEyeActiveThird, 10),
+            Show(EnemyFrameId.MorphBallEyeActiveFourth, 10),
+            Show(EnemyFrameId.MorphBallEyeActiveFifth, 10),
+            Show(EnemyFrameId.MorphBallEyeActiveSixth, 10),
+            Show(EnemyFrameId.MorphBallEyeActiveSeventh, 10),
+            Show(EnemyFrameId.MorphBallEyeActiveEighth, 10),
+            Show(EnemyFrameId.MorphBallEyeActiveNinth, 10),
+            Show(EnemyFrameId.MorphBallEyeActiveTenth, 10),
+            Show(EnemyFrameId.MorphBallEyeActiveEleventh, 10),
+            Show(EnemyFrameId.MorphBallEyeActiveTwelfth, 10),
+            Show(EnemyFrameId.MorphBallEyeActiveThirteenth, 10),
+            Show(EnemyFrameId.MorphBallEyeActiveFourteenth, 10),
+            Show(EnemyFrameId.MorphBallEyeActiveFourteenth, 10),
         ],
         [P.FacingRightDeactivating] =
         [
             Show(EnemyFrameId.MorphEyeRightTransition, 8),
-            Show(EnemyFrameId.MorphEyeActive10, 48),
+            Show(EnemyFrameId.MorphBallEyeActiveEleventh, 48),
             Show(EnemyFrameId.MorphEyeRightTransition, 5),
         ],
         [P.FacingRightClosed] =
@@ -46,7 +46,7 @@ internal static class MorphBallEyeAnimations
         [P.FacingLeftDeactivating] =
         [
             Show(EnemyFrameId.MorphEyeLeftTransition, 8),
-            Show(EnemyFrameId.MorphEyeActive3, 48),
+            Show(EnemyFrameId.MorphBallEyeActiveFourth, 48),
             Show(EnemyFrameId.MorphEyeLeftTransition, 5),
         ],
         [P.FacingLeftClosed] =
@@ -57,14 +57,14 @@ internal static class MorphBallEyeAnimations
         [
             Show(EnemyFrameId.MorphEyeRightClosed, 32),
             Show(EnemyFrameId.MorphEyeRightTransition, 5),
-            Show(EnemyFrameId.MorphEyeActive10, 48),
+            Show(EnemyFrameId.MorphBallEyeActiveEleventh, 48),
             Show(EnemyFrameId.MorphEyeRightTransition, 8),
         ],
         [P.FacingLeftActivating] =
         [
             Show(EnemyFrameId.MorphEyeLeftClosed, 32),
             Show(EnemyFrameId.MorphEyeLeftTransition, 5),
-            Show(EnemyFrameId.MorphEyeActive3, 48),
+            Show(EnemyFrameId.MorphBallEyeActiveFourth, 48),
             Show(EnemyFrameId.MorphEyeLeftTransition, 8),
         ],
         [P.MountFacingRight] =

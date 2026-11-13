@@ -21,36 +21,36 @@ internal static class LowerNorfairRioAnimations
         ],
         [P.IdleLoop] =
         [
-            Show(EnemyFrameId.LowerNorfairRioPose0, 11),
-            Show(EnemyFrameId.LowerNorfairRioPose1, 11),
-            Show(EnemyFrameId.LowerNorfairRioPose2, 11),
-            Show(EnemyFrameId.LowerNorfairRioPose1, 11),
+            Show(EnemyFrameId.LowerNorfairRioIdleLoopFirst, 11),
+            Show(EnemyFrameId.LowerNorfairRioIdleLoopSecond, 11),
+            Show(EnemyFrameId.LowerNorfairRioIdleLoopThird, 11),
+            Show(EnemyFrameId.LowerNorfairRioIdleLoopSecond, 11),
         ],
         [P.PrepareToSwoop] =
         [
             Cue(new(K.HideFlames)),
-            Show(EnemyFrameId.LowerNorfairRioPose2, 3),
-            Show(EnemyFrameId.LowerNorfairRioPose3, 3),
-            Show(EnemyFrameId.LowerNorfairRioPose4, 3),
-            Show(EnemyFrameId.LowerNorfairRioPose5, 3),
-            Show(EnemyFrameId.LowerNorfairRioPose6, 2),
-            Show(EnemyFrameId.LowerNorfairRioPose7, 1),
-            Show(EnemyFrameId.LowerNorfairRioPose8, 2),
-            Show(EnemyFrameId.LowerNorfairRioPose9, 3),
-            Show(EnemyFrameId.LowerNorfairRioPose10, 3),
+            Show(EnemyFrameId.LowerNorfairRioIdleLoopThird, 3),
+            Show(EnemyFrameId.LowerNorfairRioPrepareToSwoopSecond, 3),
+            Show(EnemyFrameId.LowerNorfairRioPrepareToSwoopThird, 3),
+            Show(EnemyFrameId.LowerNorfairRioPrepareToSwoopFourth, 3),
+            Show(EnemyFrameId.LowerNorfairRioPrepareToSwoopFifth, 2),
+            Show(EnemyFrameId.LowerNorfairRioPrepareToSwoopSixth, 1),
+            Show(EnemyFrameId.LowerNorfairRioPrepareToSwoopSeventh, 2),
+            Show(EnemyFrameId.LowerNorfairRioPrepareToSwoopEighth, 3),
+            Show(EnemyFrameId.LowerNorfairRioPrepareToSwoopNinth, 3),
             Cue(new(K.AnimationFinished)),
         ],
         [P.Descending] =
         [
             Cue(new(K.HideFlames)),
-            Show(EnemyFrameId.LowerNorfairRioPose10, 1),
+            Show(EnemyFrameId.LowerNorfairRioPrepareToSwoopNinth, 1),
         ],
         [P.AscendingPart1] =
         [
             Cue(new(K.HideFlames)),
-            Show(EnemyFrameId.LowerNorfairRioPose10, 3),
-            Show(EnemyFrameId.LowerNorfairRioPose9, 3),
-            Show(EnemyFrameId.LowerNorfairRioPose11, 3),
+            Show(EnemyFrameId.LowerNorfairRioPrepareToSwoopNinth, 3),
+            Show(EnemyFrameId.LowerNorfairRioPrepareToSwoopEighth, 3),
+            Show(EnemyFrameId.LowerNorfairRioAscendingPartOneThird, 3),
             Cue(new(K.AnimationFinished)),
         ],
         [P.AscendingPart2] =
@@ -59,29 +59,29 @@ internal static class LowerNorfairRioAnimations
         ],
         [P.AscendingPart2Loop] =
         [
-            Show(EnemyFrameId.LowerNorfairRioPose14, 2),
-            Show(EnemyFrameId.LowerNorfairRioPose12, 2),
-            Show(EnemyFrameId.LowerNorfairRioPose13, 2),
+            Show(EnemyFrameId.LowerNorfairRioAscendingPartTwoLoopFirst, 2),
+            Show(EnemyFrameId.LowerNorfairRioAscendingPartTwoLoopSecond, 2),
+            Show(EnemyFrameId.LowerNorfairRioAscendingPartTwoLoopThird, 2),
         ],
         [P.Cooldown] =
         [
             Cue(new(K.ShowFlames)),
-            Show(EnemyFrameId.LowerNorfairRioPose11, 3),
-            Show(EnemyFrameId.LowerNorfairRioPose9, 3),
-            Show(EnemyFrameId.LowerNorfairRioPose8, 2),
-            Show(EnemyFrameId.LowerNorfairRioPose7, 1),
-            Show(EnemyFrameId.LowerNorfairRioPose6, 2),
-            Show(EnemyFrameId.LowerNorfairRioPose5, 3),
-            Show(EnemyFrameId.LowerNorfairRioPose4, 1),
-            Show(EnemyFrameId.LowerNorfairRioPose3, 1),
-            Show(EnemyFrameId.LowerNorfairRioPose2, 1),
+            Show(EnemyFrameId.LowerNorfairRioAscendingPartOneThird, 3),
+            Show(EnemyFrameId.LowerNorfairRioPrepareToSwoopEighth, 3),
+            Show(EnemyFrameId.LowerNorfairRioPrepareToSwoopSeventh, 2),
+            Show(EnemyFrameId.LowerNorfairRioPrepareToSwoopSixth, 1),
+            Show(EnemyFrameId.LowerNorfairRioPrepareToSwoopFifth, 2),
+            Show(EnemyFrameId.LowerNorfairRioPrepareToSwoopFourth, 3),
+            Show(EnemyFrameId.LowerNorfairRioPrepareToSwoopThird, 1),
+            Show(EnemyFrameId.LowerNorfairRioPrepareToSwoopSecond, 1),
+            Show(EnemyFrameId.LowerNorfairRioIdleLoopThird, 1),
             Cue(new(K.AnimationFinished)),
         ],
         [P.Flames] =
         [
-            Show(EnemyFrameId.LowerNorfairRioPose15, 6),
-            Show(EnemyFrameId.LowerNorfairRioPose16, 4),
-            Show(EnemyFrameId.LowerNorfairRioPose17, 3),
+            Show(EnemyFrameId.LowerNorfairRioFlamesFirst, 6),
+            Show(EnemyFrameId.LowerNorfairRioFlamesSecond, 4),
+            Show(EnemyFrameId.LowerNorfairRioFlamesThird, 3),
         ],
     });
 

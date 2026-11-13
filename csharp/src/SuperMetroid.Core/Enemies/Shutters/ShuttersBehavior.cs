@@ -611,13 +611,26 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             c => ReactVerticalShutter(c.Enemy, _shutterCamera));
     }
 
-    /// <summary>Runs common bomb damage before reacting a destroyable vertical shutter.</summary>
-    internal void AddDestroyableShutterBombReactions(EnemySharedReactions table)
+    /// <summary>
+    /// Runs common bomb damage before reacting a destroyable vertical shutter or a horizontal shutter, as their shot
+    /// reactions, which a bomb runs, do.
+    /// </summary>
+    internal void AddDestroyableAndHorizontalShutterBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.ShutterDestroyable &&
                                                        c.SelectedShotAi == EnemyReaction.DestroyableVerticalShutterShot)
         {
             AfterCommon = c => ReactDestroyableShutterAfterCommon(c.Enemy, c.StruckOccupant),
+        });
+
+        // The horizontal shutter's shot reaction runs the common damage without the death check or the hit burst, then
+        // its reaction; a bomb it shrugs off still leaves the dud flash and sound before the reaction.
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.ShutterHorizShootable &&
+                                                       c.SelectedShotAi == EnemyReaction.HorizontalShutterShot)
+        {
+            RunsGenericDeath = false,
+            ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
+            AfterCommon = c => ReactHorizontalShutter(c.Enemy),
         });
     }
 

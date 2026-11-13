@@ -112,11 +112,9 @@ internal static class CoreAccess
         internal int CreditsVerticalScroll => ending.InstalledArtwork.CurrentCredits?.ScrolledPixels ?? 0;
     }
 
-    /// <summary>Exposes pause indicator placement, page transition, and displayed map cell state.</summary>
+    /// <summary>Exposes pause page transition, map scroll, and displayed map cell state.</summary>
     extension(PauseMenuState pause)
     {
-        /// <summary>Last OAM origin used for the pause menu's selection indicator.</summary>
-        internal Position16<SpritePixels> LastIndicatorOrigin => pause.LastIndicatorOrigin;
         /// <summary>True while an L/R page switch is fading out, loading or fading in.</summary>
         internal bool PageTransitionActive => pause.Transition != PauseMenuTransition.None;
         /// <summary>Map-space scroll point currently displayed by the pause menu.</summary>

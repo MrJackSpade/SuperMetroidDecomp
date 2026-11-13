@@ -111,12 +111,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     internal int ItemSelectorAnimationFrame { get; set; }
     /// <summary>Remaining updates in the equipment selector frame.</summary>
     internal int ItemSelectorAnimationTimer { get; set; }
-    /// <summary>Last selected map marker or equipment selector origin for diagnostics.</summary>
-    internal Position16<SpritePixels> LastIndicatorOrigin { get; private set; }
-    /// <summary>Pose of the Samus map marker when it was the last indicator drawn, for diagnostics; null after a selector draw.</summary>
-    internal MapSpriteId? LastMapIndicatorSprite { get; private set; }
-    /// <summary>Category of the equipment selector when it was the last indicator drawn, for diagnostics; null after a map-marker draw.</summary>
-    internal PauseEquipmentCategory? LastSelectorCategory { get; private set; }
 
     /// <summary>Creates the isolated pause display image and initial map/equipment state from live gameplay.</summary>
     public PauseMenuState(PauseMenuEntry entry)
@@ -519,10 +513,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private void DrawMapPositionIndicator()
     {
         Position16<SpritePixels> origin = SamusMapCell().ToMapPixels().ToScreen(MapScrollPosition).ToSpritePosition();
-        LastIndicatorOrigin = origin;
         MapSpriteId indicator = PauseMapIndicatorAnimation.SpriteId(MapIndicatorAnimationFrame);
-        LastMapIndicatorSprite = indicator;
-        LastSelectorCategory = null;
         DrawMapSprite(
             indicator,
             origin,
@@ -570,7 +561,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         ItemSelectorAnimationTimer = selectors.Duration(ItemSelectorAnimationFrame);
     }
 
-    /// <summary>Draws the selected equipment item's authored sprite and records its origin.</summary>
+    /// <summary>Draws the selected equipment item's authored sprite.</summary>
     private void DrawEquipmentItemSelector()
     {
         if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == SamusEquipmentFlags.None && samus.CollectedBeams == SamusBeamFlags.None)
@@ -578,12 +569,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
         var selector = (mapPresentation ?? throw new InvalidOperationException(
             "Pause selector requires installed presentation assets.")).PauseSelectors;
-        var point = selector.Anchor(SelectedCategory, SelectedItem);
-        LastIndicatorOrigin = point;
-        // The diagnostic records the category binding, not the authored artwork,
-        // because custom phases may draw different compositions.
-        LastSelectorCategory = SelectedCategory;
-        LastMapIndicatorSprite = null;
         selector.Draw(screen.Objects, PauseSheet, SelectedCategory, SelectedItem, ItemSelectorAnimationFrame);
     }
 

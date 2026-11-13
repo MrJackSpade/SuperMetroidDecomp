@@ -3,13 +3,14 @@ using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>The scrolling sky's bands as the display draws them (#1468): bands of the background horizontal scroll down the gameplay lines.</summary>
+/// <summary>The scrolling sky's bands as the display draws them (#1468, #1687): bands of the background's horizontal scroll down the gameplay lines.</summary>
 public static class SkyBandScrolls
 {
     /// <summary>
-    /// The sky's bands of horizontal scroll down the gameplay lines, each moved by <paramref name="shift"/>: from the first
-    /// gameplay line, each line shows the offset of the world row it shows; a band ends where its world rows reach the
-    /// next band, the end of the sky, or the wrap past 65535. Lines above the gameplay lines show the unshifted base.
+    /// The sky's bands of horizontal scroll down the gameplay lines, each moved by <paramref name="shift"/>: each gameplay
+    /// line shows the room row the camera's row plus the line reaches, at that row's offset; a screen band ends where its
+    /// rows reach the end of the sky band or the next sky band's top, and the rows below the last sky band show unshifted
+    /// to the bottom of the screen. Lines above the gameplay lines show the unshifted base.
     /// </summary>
     /// <param name="sky">The sky the frame published.</param>
     /// <param name="shift">The horizontal shift added to every line, as the room's shake adds to the background's scroll after each band's value.</param>
@@ -20,13 +21,12 @@ public static class SkyBandScrolls
         int line = ScreenGeometry.GameplayHudHeightPixels;
         while (line < ScreenGeometry.ScreenHeightPixels)
         {
-            int worldY = CoordinateAxis.Wrap(sky.FirstGameplayRow + line - ScreenGeometry.GameplayHudHeightPixels);
-            bands.Add(new(line, Shifted(sky.OffsetAt(worldY), shift)));
-            line += ScrollingSkyLayer.NextBandRow(worldY) - worldY;
+            int row = sky.CameraRow + line;
+            bands.Add(new(line, sky.OffsetAt(row) + shift));
+            if ((sky.BandAt(row)?.EndRow ?? sky.NextBandTop(row)) is not { } nextRow)
+                break;
+            line += nextRow - row;
         }
-        return new ScrollBands(Shifted(0, shift), bands.ToImmutable());
+        return new ScrollBands(shift, bands.ToImmutable());
     }
-
-    /// <summary><paramref name="offset"/> moved by <paramref name="shift"/>, wrapping as a scroll of 0 through 65535.</summary>
-    private static int Shifted(int offset, int shift) => CoordinateAxis.Wrap(offset + shift);
 }

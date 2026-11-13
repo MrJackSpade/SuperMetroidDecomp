@@ -5,17 +5,18 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 
-/// <summary>Checks the scrolling sky's published parallax layer (#1347).</summary>
+/// <summary>Checks the scrolling sky's published bands (#1347, #1687).</summary>
 internal static class ScrollingSkyLayerVerification
 {
     /// <summary>
-    /// Steps the sky through ordinary and frozen frames; each frame's published layer carries the band offsets the
-    /// 23 band speeds accumulate to, with the bottom band stationary and frozen frames leaving every offset unchanged.
+    /// Steps the sky through ordinary and frozen frames; each frame's published sky places its bands against the camera and
+    /// carries, for every band, the offset its drift's speed accumulates to, with the bottom band still and frozen frames
+    /// leaving every offset unchanged.
     /// </summary>
     internal static void VerifyPublishedSkyBands()
     {
         var sky = new ScrollingSkyState(ScrollingSkyChunkTable.Ocean);
-        var expected = new uint[ScrollingSkyBandDefinitions.DataSlotCount];
+        var expected = ScrollingSkyBandDefinitions.Drifts.ToDictionary(drift => drift, _ => default(FixedCoordinate));
         int frozenFrames = 0;
         for (int frame = 0; frame < 300; frame++)
         {
@@ -23,28 +24,27 @@ internal static class ScrollingSkyLayerVerification
             ushort cameraY = (ushort)(frame * 3);
             sky.ProcessFrame(cameraY, frozen);
             if (!frozen)
-            {
-                for (int band = 0; band < ScrollingSkyBandDefinitions.SectionCount; band++)
-                {
-                    SkyScrollSection section = ScrollingSkyBands.GetSection(band);
-                    expected[section.DataSlot] = unchecked(expected[section.DataSlot] + (uint)section.Velocity.RawValue);
-                }
-                expected[^1] = 0;
-            }
+                foreach (SkyDrift drift in ScrollingSkyBandDefinitions.Drifts)
+                    expected[drift] = expected[drift].MovedBy(drift.Speed);
             else
                 frozenFrames++;
 
             ScrollingSkyLayer layer = sky.Publish(cameraY)
                 ?? throw new InvalidOperationException("The configured sky publishes its layer.");
-            AssertEqual(cameraY, layer.VerticalScroll, $"frame {frame} positions the bands from the camera");
-            AssertEqual(!frozen, layer.BandsShown, $"frame {frame} shows its bands only when time runs");
-            AssertEqual(expected.Length, layer.BandOffsets.Length, $"frame {frame} publishes all 23 band offsets");
-            for (int slot = 0; slot < expected.Length; slot++)
-                AssertEqual(FixedCoordinate.WholeOf(unchecked((int)expected[slot])), layer.BandOffsets[slot],
-                    $"frame {frame} band slot {slot} offset");
-            AssertEqual(0, layer.BandOffsets[^1], $"frame {frame} keeps the bottom band stationary");
+            AssertEqual((int)cameraY, layer.CameraRow, $"frame {frame} places the bands against the camera");
+            AssertEqual(!frozen, layer.ShowsDrift, $"frame {frame} shows the drift only when time runs");
+            AssertEqual(ScrollingSkyBandDefinitions.Bands.Length, layer.Bands.Length, $"frame {frame} publishes every band");
+            for (int band = 0; band < layer.Bands.Length; band++)
+            {
+                SkyBand definition = ScrollingSkyBandDefinitions.Bands[band];
+                AssertEqual(definition.TopRow, layer.Bands[band].FirstRow, $"frame {frame} band {band} top");
+                AssertEqual(band + 1 < layer.Bands.Length ? ScrollingSkyBandDefinitions.Bands[band + 1].TopRow : ScrollingSkyBandDefinitions.EndRow,
+                    layer.Bands[band].EndRow, $"frame {frame} band {band} end");
+                AssertEqual((int)expected[definition.Drift].Whole, layer.Bands[band].Offset, $"frame {frame} band {band} offset");
+            }
+            AssertEqual(0, layer.Bands[^1].Offset, $"frame {frame} keeps the bottom band still");
         }
-        AssertTrue(frozenFrames > 0 && expected.Take(expected.Length - 1).Any(value => value != 0),
+        AssertTrue(frozenFrames > 0 && expected.Values.Any(phase => phase.Whole != 0),
             "the fixture covers frozen frames and moving bands");
         Console.WriteLine($"  Scrolling sky: 300 published frames ({frozenFrames} frozen) carry the accumulated band offsets.");
     }

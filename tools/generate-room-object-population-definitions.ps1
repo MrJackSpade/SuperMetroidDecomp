@@ -48,7 +48,7 @@ public static class RoomObjectHeaderGenerationProcessPolicy {
         if ($word -ne 0) { $headerNames[$word] = $match.Groups[1].Value }
     }
     # The import decodes each placement's room argument into what the PLM's setup reads (#1452): a collectible's item
-    # location, a door, a grey door's condition and door, a station, a Metroid-cleared entry or a gate trigger. Doors and
+    # location, a door, a grey door's condition and door, a save station's load station, a Metroid-cleared entry or a gate trigger. Doors and
     # item locations are named identities (#1553): each is named for the first population that places it and its header,
     # with its block where two would share a name; the room-data number stays in the import pipeline's numbering. Scroll
     # triggers carry their program and Draygon cannons their control word instead; filler and fixed unread words become
@@ -69,7 +69,9 @@ public static class RoomObjectHeaderGenerationProcessPolicy {
             if (($word -band 0x8000) -ne 0) { throw ('Door {0} argument {1:X4} never persists.' -f $name, $word) }
             return 'new DoorBitArgument(@@DOOR:{0}@@, DoorOpeningPersistence.Persistent)' -f $word
         }
-        if ($name -in @('EnergyStation', 'MissileStation')) { return 'new StationArgument({0})' -f $word }
+        # A refill station's word numbers it in room data, but neither its setup nor its refill reads the number (#1623):
+        # the station is placed without an argument.
+        if ($name -in @('EnergyStation', 'MissileStation')) { return 'null' }
         # A save station's argument numbers its load station in its area's station list; the population's area resolves it.
         if ($name -eq 'SaveStation') { return '@@STATION:{0}@@' -f $word }
         if ($name -eq 'MetroidRoomClearance' -or $name -eq 'DownwardGateShotBlock') {

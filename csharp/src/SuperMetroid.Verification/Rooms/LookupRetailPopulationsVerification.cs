@@ -119,6 +119,12 @@ internal static class LookupRetailPopulationsVerification
                         $"population {pointer:X4} operation {count} cannon control");
                     AssertEqual(0, result, $"population {pointer:X4} operation {count} cannon carries no raw argument");
                 }
+                else if (field == 3 && RoomObjectRoomArgumentWords.NumbersUnread(placement.Header.Header))
+                {
+                    // A refill station's number is read by nothing (#1623): the placement carries no argument instead of it.
+                    AssertEqual<RoomObjectRoomArgument?>(null, placement.Argument,
+                        $"population {pointer:X4} operation {count} refill station carries no argument");
+                }
                 else if (field != 4)
                     AssertEqual(expected, result, $"population {pointer:X4} operation {count} field {field}");
                 address += 6;

@@ -78,6 +78,12 @@ internal static class BotwoonAnimationsVerification
         Action<RoomEnemySystem, RoomEnemySlot, BotwoonEnemyState, SamusState> aimHead = (owner, a0, a1, a2) => owner.BotwoonBehavior.AimBotwoonAtSamus(a0, a1, a2);
         OctantVector[] octantVectors =
             [new OctantVector(0, -100), new OctantVector(100, -100), new OctantVector(100, 0), new OctantVector(100, 100), new OctantVector(0, 100), new OctantVector(-100, 100), new OctantVector(-100, 0), new OctantVector(-100, -100)];
+        // The direction each vector points, as the cartridge's octant lists number them clockwise from up.
+        CompassDirection[] octantDirections =
+        [
+            CompassDirection.Up, CompassDirection.UpRight, CompassDirection.Right, CompassDirection.DownRight,
+            CompassDirection.Down, CompassDirection.DownLeft, CompassDirection.Left, CompassDirection.UpLeft,
+        ];
         for (int octant = 0; octant < octantVectors.Length; octant++)
         {
             (short dx, short dy) = octantVectors[octant];
@@ -86,7 +92,7 @@ internal static class BotwoonAnimationsVerification
             movingState.HeadHistory[3] = new Position16<RoomPixels>(1000, 1000);
             movingState.InsideHole = false;
             animateHead(movingHead, movingState);
-            AssertEqual(new BotwoonHeadAnimationSegment(BotwoonHeadAnimationSegmentKind.Moving, BotwoonAnimations.FacingOfOctant(octant)),
+            AssertEqual(new BotwoonHeadAnimationSegment(BotwoonHeadAnimationSegmentKind.Moving, octantDirections[octant]),
                 movingState.HeadAnimation, $"moving head toward octant {octant}");
             CompareBotwoonHead(rom, CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonMovingListTable + 2 * octant)), movingEnemies, movingHead,
                 movingState, $"AI-selected moving octant {octant}");
@@ -99,7 +105,7 @@ internal static class BotwoonAnimationsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(1000 + dx)), unchecked((ushort)(1000 + dy)))),
             };
             aimHead(spitEnemies, spitHead, spitState, samus);
-            AssertEqual(new BotwoonHeadAnimationSegment(BotwoonHeadAnimationSegmentKind.Spitting, BotwoonAnimations.FacingOfOctant(octant)),
+            AssertEqual(new BotwoonHeadAnimationSegment(BotwoonHeadAnimationSegmentKind.Spitting, octantDirections[octant]),
                 spitState.HeadAnimation, $"spitting head toward octant {octant}");
             // Outside a hidden spit the aim fires a three-shot volley at once. The spit angle is a quarter turn minus
             // the aim and the volley spreads a sixteenth of a turn either side of it, all wrapping around the turn.
@@ -143,7 +149,6 @@ internal static class BotwoonAnimationsVerification
         }
         AssertThrows<ArgumentOutOfRangeException>(() => BotwoonSegmentSelectorCodec.Program(1), "odd Botwoon segment selector");
         AssertThrows<ArgumentOutOfRangeException>(() => BotwoonSegmentSelectorCodec.Program(64), "Botwoon segment selector past the table");
-        AssertThrows<ArgumentOutOfRangeException>(() => BotwoonAnimations.FacingOfOctant(8), "Botwoon octant past the circle");
         Console.WriteLine("  Botwoon animation selection: AI head choices, hiding and reinstallation follow the cartridge.");
     }
 
@@ -187,7 +192,7 @@ internal static class BotwoonAnimationsVerification
         animate(segment, 0);
         AssertEqual((ushort)1, segment.FrameHold.RawValue, "a changed Botwoon segment program restarts");
         Pass(segment);
-        AssertEqual(EnemyProjectileProgramFrameSources.Operand(BotwoonVisualDefinitions.ShownProjectileFrames[new(BotwoonProjectileFrameKind.Body, BotwoonFacing.UpRight, 0)]),
+        AssertEqual(EnemyProjectileProgramFrameSources.Operand(BotwoonVisualDefinitions.ShownProjectileFrames[new(BotwoonProjectileFrameKind.Body, CompassDirection.UpRight, 0)]),
             segment.PresentationOperandAddress, "the restarted segment shows its first frame");
 
         // Landing hands the segment to the shared native big-explosion list.

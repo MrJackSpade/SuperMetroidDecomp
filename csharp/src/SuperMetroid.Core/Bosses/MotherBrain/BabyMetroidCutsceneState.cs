@@ -731,10 +731,10 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>Applies the Baby's health/flash mutation from the blue-ring collision handler: a living Baby gets a sixteen-frame flash timer and health subtraction saturated at zero.</summary>
-    /// <param name="damage">Unsigned health units to subtract, defaulting to 80; even zero damage refreshes the flash timer when health is nonzero.</param>
+    /// <param name="damage">The ring's damage (<see cref="MotherBrainAttackDamage.OnionRing"/>), zero or more; even zero damage refreshes the flash timer when health is nonzero.</param>
     /// <returns>An empty compatibility result; the effects are written directly to <see cref="Health"/> and <see cref="OnionRingHitFlashTimer"/>.</returns>
     /// <remarks>Zero health leaves all state unchanged. The caller must establish overlap and owns the Baby cry request, physical enemy-slot synchronization, and ring explosion/deletion.</remarks>
-    public BabyMetroidOnionRingHitResult ApplyMotherBrainOnionRingHit(int damage = 80)
+    public BabyMetroidOnionRingHitResult ApplyMotherBrainOnionRingHit(int damage)
     {
         int healthBefore = Health;
         if (healthBefore == 0)

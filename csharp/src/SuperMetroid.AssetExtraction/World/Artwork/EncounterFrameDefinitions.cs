@@ -15,7 +15,7 @@ internal static class EncounterFrameDefinitions
     /// <summary>Ridley's tail tip, tail segments and wings.</summary>
     private static readonly EnemyFrameId[] RidleySupplements =
     [
-        .. RidleySupplementalVisualDefinitions.TailTipFrames.Select(entry => entry.Value),
+        .. RidleySupplementalVisualDefinitions.TailTipFrames.InTurnOrder,
         .. RidleySupplementalVisualDefinitions.SegmentFrames.Select(entry => entry.Value),
         .. RidleySupplementalVisualDefinitions.WingFrames.Select(entry => entry.Value),
     ];

@@ -315,7 +315,7 @@ using static SuperMetroid.Verification.Rooms.RoomEnemiesVerification;
 using static SuperMetroid.Verification.Enemies.RoomEnemyLoadContractsVerification;
 using static SuperMetroid.Verification.Fx.RoomFxRomDataVerification;
 using static SuperMetroid.Verification.Fx.RoomFxSnapshotTestsVerification;
-using static SuperMetroid.Verification.Rooms.RoomHeaderDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectHeaderCatalogVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectAnimationScriptCatalogVerification;
@@ -633,6 +633,14 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Spatial.TypedAngleStepsVerification.VerifyTypedAngleSteps),
         new(nameof(SuperMetroid.Verification.Spatial.TypedDirectionBucketsVerification.VerifyTypedDirectionBuckets),
             SuperMetroid.Verification.Spatial.TypedDirectionBucketsVerification.VerifyTypedDirectionBuckets),
+        new(nameof(SuperMetroid.Verification.Spatial.CompassDirectionPicksVerification.VerifyCompassDirectionPicks),
+            SuperMetroid.Verification.Spatial.CompassDirectionPicksVerification.VerifyCompassDirectionPicks),
+        new(nameof(SuperMetroid.Verification.Spatial.TurnArcPicksVerification.VerifyTurnArcPicks),
+            SuperMetroid.Verification.Spatial.TurnArcPicksVerification.VerifyTurnArcPicks),
+        new(nameof(SuperMetroid.Verification.Spatial.HeadingBucketPicksVerification.VerifyHeadingBucketPicks),
+            SuperMetroid.Verification.Spatial.HeadingBucketPicksVerification.VerifyHeadingBucketPicks),
+        new(nameof(SuperMetroid.Verification.Samus.Projectiles.SpazerTurnsVerification.VerifySpazerTurns),
+            SuperMetroid.Verification.Samus.Projectiles.SpazerTurnsVerification.VerifySpazerTurns),
         new(nameof(SuperMetroid.Verification.Samus.Abilities.XrayAimClampVerification.VerifyXrayAimClamp),
             SuperMetroid.Verification.Samus.Abilities.XrayAimClampVerification.VerifyXrayAimClamp),
         new(nameof(SuperMetroid.Verification.Samus.Projectiles.ComboSineOffsetVerification.VerifyComboSineOffset),
@@ -888,7 +896,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyLevelBlockTilemapExpansion), () => VerifyLevelBlockTilemapExpansion()),
         new(nameof(VerifyRoomLevelData), () => VerifyRoomLevelData()),
         new(nameof(VerifyCartridgeRoomStateSelection), () => VerifyCartridgeRoomStateSelection()),
-        new(nameof(VerifyCompiledRoomHeaderDefinitions), () => VerifyCompiledRoomHeaderDefinitions()),
+        new(nameof(VerifyCompiledRoomDefinitions), () => VerifyCompiledRoomDefinitions()),
         new(nameof(VerifyCompiledRoomStateDefinitions), () => VerifyCompiledRoomStateDefinitions()),
         new(nameof(VerifyCompiledRoomStateSelectionDefinitions), () => VerifyCompiledRoomStateSelectionDefinitions()),
         new(nameof(VerifyCompiledLoadStationDefinitions), () => VerifyCompiledLoadStationDefinitions()),
@@ -1172,6 +1180,10 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainFinishOffThresholdVerification.VerifyMotherBrainFinishOffThreshold),
         new(nameof(SuperMetroid.Verification.Samus.Grapple.GrappleExtensionArithmeticVerification.VerifyGrappleExtensionArithmetic),
             SuperMetroid.Verification.Samus.Grapple.GrappleExtensionArithmeticVerification.VerifyGrappleExtensionArithmetic),
+        new(nameof(SuperMetroid.Verification.Samus.Grapple.GrappleSwingArithmeticVerification.VerifyGrappleSwingArithmetic),
+            SuperMetroid.Verification.Samus.Grapple.GrappleSwingArithmeticVerification.VerifyGrappleSwingArithmetic),
+        new(nameof(SuperMetroid.Verification.Enemies.EnemyHitDamageVerification.VerifyEnemyHitDamage),
+            SuperMetroid.Verification.Enemies.EnemyHitDamageVerification.VerifyEnemyHitDamage),
         new(nameof(VerifyRoomGridBounds), () => VerifyRoomGridBounds()),
         new(nameof(VerifyCompatibilitySubpixelInputs), () => VerifyCompatibilitySubpixelInputs()),
         new(nameof(VerifyDoorCapAbsentFrames), () => VerifyDoorCapAbsentFrames()),

@@ -11,13 +11,6 @@ internal static class BotwoonAnimations
     /// <summary>Number of frames in the spit's cycle.</summary>
     internal const int SpitPhaseCount = 5;
 
-    /// <summary>Clockwise octant order used by head and segment selectors.</summary>
-    private static readonly BotwoonFacing[] Octants =
-    [
-        BotwoonFacing.Up, BotwoonFacing.UpRight, BotwoonFacing.Right, BotwoonFacing.DownRight,
-        BotwoonFacing.Down, BotwoonFacing.DownLeft, BotwoonFacing.Left, BotwoonFacing.UpLeft,
-    ];
-
     /// <summary>The closed-mouth aiming hold before Botwoon publishes the spit cue.</summary>
     private const int MouthClosedBeforeSpit = 32;
     /// <summary>The usual open-mouth hold after a spit volley.</summary>
@@ -32,7 +25,7 @@ internal static class BotwoonAnimations
     /// <summary>Every head animation's segment: moving and spitting by facing, plus the hidden head.</summary>
     private static readonly BotwoonHeadAnimationSegment[] HeadAnimationKeys =
     [
-        .. Enum.GetValues<BotwoonFacing>().SelectMany(facing => new[]
+        .. Enum.GetValues<CompassDirection>().SelectMany(facing => new[]
         {
             new BotwoonHeadAnimationSegment(BotwoonHeadAnimationSegmentKind.Moving, facing),
             new BotwoonHeadAnimationSegment(BotwoonHeadAnimationSegmentKind.Spitting, facing),
@@ -43,7 +36,7 @@ internal static class BotwoonAnimations
     /// <summary>Every projectile animation's segment: body cycles and stationary tail caps by facing, the hidden body/tail, and the spit.</summary>
     private static readonly BotwoonBodyAnimationSegment[] SegmentAnimationKeys =
     [
-        .. Enum.GetValues<BotwoonFacing>().SelectMany(facing => new[]
+        .. Enum.GetValues<CompassDirection>().SelectMany(facing => new[]
         {
             new BotwoonBodyAnimationSegment(BotwoonBodyAnimationSegmentKind.Body, facing),
             new BotwoonBodyAnimationSegment(BotwoonBodyAnimationSegmentKind.Tail, facing),
@@ -79,21 +72,15 @@ internal static class BotwoonAnimations
     /// <summary>The projectile animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<BotwoonBodyAnimationSegment> ProjectileStartingWith(BotwoonBodyAnimationSegment segment) => ProjectileStartingAt[segment];
 
-    /// <summary>The facing of angle octant <paramref name="octant"/>, zero (up) through seven, clockwise.</summary>
-    internal static BotwoonFacing FacingOfOctant(int octant) =>
-        (uint)octant < (uint)Octants.Length
-            ? Octants[octant]
-            : throw new ArgumentOutOfRangeException(nameof(octant), octant, "An angle octant is zero through seven.");
-
     /// <summary>
     /// The head's collision half-extents facing <paramref name="facing"/>: tall vertically, wide
     /// horizontally and square on the diagonals.
     /// </summary>
-    internal static Extent16<RoomPixels> HeadRadius(BotwoonFacing facing) => facing switch
+    internal static Extent16<RoomPixels> HeadRadius(CompassDirection facing) => facing switch
     {
-        BotwoonFacing.Up or BotwoonFacing.Down => new(8, 16),
-        BotwoonFacing.Left or BotwoonFacing.Right => new(16, 8),
-        BotwoonFacing.UpRight or BotwoonFacing.DownRight or BotwoonFacing.DownLeft or BotwoonFacing.UpLeft => new(12, 12),
+        CompassDirection.Up or CompassDirection.Down => new(8, 16),
+        CompassDirection.Left or CompassDirection.Right => new(16, 8),
+        CompassDirection.UpRight or CompassDirection.DownRight or CompassDirection.DownLeft or CompassDirection.UpLeft => new(12, 12),
         _ => throw new ArgumentOutOfRangeException(nameof(facing), facing, "Undefined Botwoon facing."),
     };
 
@@ -119,7 +106,7 @@ internal static class BotwoonAnimations
     {
         BotwoonBodyAnimationSegmentKind.Body => BodyLink(segment.Facing),
         BotwoonBodyAnimationSegmentKind.Tail => [SegmentFrame(new(BotwoonProjectileFrameKind.Tail, segment.Facing, 0), 1)],
-        BotwoonBodyAnimationSegmentKind.Hidden => [SegmentFrame(new(BotwoonProjectileFrameKind.Hidden, BotwoonFacing.Up, 0), 1)],
+        BotwoonBodyAnimationSegmentKind.Hidden => [SegmentFrame(new(BotwoonProjectileFrameKind.Hidden, CompassDirection.Up, 0), 1)],
         BotwoonBodyAnimationSegmentKind.Spit => SpitCycle(),
         _ => throw new ArgumentOutOfRangeException(nameof(segment), segment, "Undefined Botwoon segment program."),
     };
@@ -128,25 +115,25 @@ internal static class BotwoonAnimations
     private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[] HiddenHead() => [HeadFrame(BotwoonHeadFrame.Hidden, 1)];
 
     /// <summary>Raises a facing-radius update before showing the closed mouth, which is held.</summary>
-    private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[] MovingHead(BotwoonFacing facing) =>
+    private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[] MovingHead(CompassDirection facing) =>
     [
         HeadEvent(BotwoonHeadCue.ApplyFacingRadius),
         HeadFrame(BotwoonHeadFrame.Closed(facing), 1),
     ];
 
     /// <summary>Holds aim, raises radius/sound/volley events, then opens the mouth with a longer leftward hold, which is held.</summary>
-    private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[] SpittingHead(BotwoonFacing facing) =>
+    private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[] SpittingHead(CompassDirection facing) =>
     [
         HeadFrame(BotwoonHeadFrame.Closed(facing), MouthClosedBeforeSpit),
         HeadEvent(BotwoonHeadCue.ApplyFacingRadius),
         HeadEvent(BotwoonHeadCue.QueueSpitSound),
         HeadEvent(BotwoonHeadCue.ReachSpitFrame),
         // Botwoon holds its open mouth longer only when spitting left (25 updates, the rest 16).
-        HeadFrame(BotwoonHeadFrame.Open(facing), facing == BotwoonFacing.Left ? MouthOpenAfterSpitLeft : MouthOpenAfterSpit),
+        HeadFrame(BotwoonHeadFrame.Open(facing), facing == CompassDirection.Left ? MouthOpenAfterSpitLeft : MouthOpenAfterSpit),
     ];
 
     /// <summary>Four facing-specific body-link pictures at eight updates apiece, which cycle.</summary>
-    private static AnimationBeat<BotwoonProjectileFrame, NoAnimationCue>[] BodyLink(BotwoonFacing facing) =>
+    private static AnimationBeat<BotwoonProjectileFrame, NoAnimationCue>[] BodyLink(CompassDirection facing) =>
     [
         .. Enumerable.Range(0, BodyPhaseCount).Select(phase =>
             SegmentFrame(new(BotwoonProjectileFrameKind.Body, facing, phase), BodyFrameDuration)),
@@ -156,7 +143,7 @@ internal static class BotwoonAnimations
     private static AnimationBeat<BotwoonProjectileFrame, NoAnimationCue>[] SpitCycle() =>
     [
         .. Enumerable.Range(0, SpitPhaseCount).Select(phase =>
-            SegmentFrame(new(BotwoonProjectileFrameKind.Spit, BotwoonFacing.Up, phase), SpitFrameDuration)),
+            SegmentFrame(new(BotwoonProjectileFrameKind.Spit, CompassDirection.Up, phase), SpitFrameDuration)),
     ];
 
     /// <summary>Shows head frame <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>

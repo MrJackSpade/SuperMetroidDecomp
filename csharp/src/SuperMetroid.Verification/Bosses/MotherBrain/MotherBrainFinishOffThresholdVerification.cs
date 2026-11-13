@@ -4,14 +4,20 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>
-/// Checks Mother Brain's finish-off energy thresholds (#1632) against the suit-shift arithmetic they replaced: each
-/// nominal damage, divided as the suits divide it, gives the threshold the shifts gave for every suit combination.
+/// Checks Mother Brain's finish-off energy thresholds (#1632) against the arithmetic they replaced: the stand-up
+/// threshold, four suit-divided onion ring hits plus the margin, and the onion-rings-only threshold, one suit-divided
+/// bomb hit plus the margin, give the thresholds the suit shifts of the replaced 80 and 160 gave for every suit
+/// combination; and the onion ring's and bomb's definition damages are the 80 and 160 their collision and thresholds
+/// wrote out.
 /// </summary>
 internal static class MotherBrainFinishOffThresholdVerification
 {
-    /// <summary>Compares both nominal damages' thresholds with each suit combination against the replaced shifts.</summary>
+    /// <summary>Compares both thresholds with each suit combination against the replaced shifts.</summary>
     internal static void VerifyMotherBrainFinishOffThreshold()
     {
+        AssertEqual(80, MotherBrainAttackDamage.OnionRing, "the onion ring's damage is the 80 its collision dealt");
+        AssertEqual(160, MotherBrainAttackDamage.Bomb, "the bomb's damage is the 160 the onion-rings-only threshold counted");
+
         SamusEquipmentFlags[] suitCombinations =
         [
             SamusEquipmentFlags.None,
@@ -21,19 +27,18 @@ internal static class MotherBrainFinishOffThresholdVerification
         ];
         foreach (SamusEquipmentFlags suits in suitCombinations)
         {
-            foreach (int nominalDamage in new[] { 80, 160 })
-            {
-                int divided = suits.HasAny(SamusEquipmentFlags.GravitySuit)
-                    ? nominalDamage >> 2
-                    : suits.HasAny(SamusEquipmentFlags.VariaSuit)
-                        ? nominalDamage >> 1
-                        : nominalDamage;
-                int expected = nominalDamage == 80 ? divided * 4 + 20 : divided + 20;
-                AssertEqual(expected, MotherBrainFinishSamusOffPhases.CalculateFinishOffHealthThreshold(suits, nominalDamage),
-                    $"{suits}: the {nominalDamage}-damage finish-off threshold");
-            }
+            AssertEqual(ReplacedSuitDivision(80, suits) * 4 + 20, MotherBrainFinishSamusOffPhases.StandUpToFinishOffEnergy(suits),
+                $"{suits}: the stand-up threshold");
+            AssertEqual(ReplacedSuitDivision(160, suits) + 20, MotherBrainFinishSamusOffPhases.OnionRingsOnlyEnergy(suits),
+                $"{suits}: the onion-rings-only threshold");
         }
 
-        Console.WriteLine("Mother Brain finish-off thresholds: both nominal damages with every suit combination give the replaced shifts' thresholds.");
+        Console.WriteLine("Mother Brain finish-off thresholds: both thresholds with every suit combination give the replaced shifts' thresholds.");
     }
+
+    /// <summary>The replaced suit shifts: Gravity quarters the damage, otherwise Varia halves it.</summary>
+    private static int ReplacedSuitDivision(int damage, SamusEquipmentFlags suits) =>
+        suits.HasAny(SamusEquipmentFlags.GravitySuit) ? damage >> 2
+        : suits.HasAny(SamusEquipmentFlags.VariaSuit) ? damage >> 1
+        : damage;
 }

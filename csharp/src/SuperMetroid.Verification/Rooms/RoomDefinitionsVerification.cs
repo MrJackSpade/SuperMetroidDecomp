@@ -8,11 +8,11 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Checks the compiled room roster and header fields against the pinned retail cartridge.</summary>
-internal static class RoomHeaderDefinitionsVerification
+/// <summary>Checks the compiled room roster and each room definition's fields against the pinned retail cartridge's room headers.</summary>
+internal static class RoomDefinitionsVerification
 {
     /// <summary>Checks all 262 named room identities and ten native fields, including sorted enumeration.</summary>
-    internal static void VerifyCompiledRoomHeaderDefinitions()
+    internal static void VerifyCompiledRoomDefinitions()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -20,22 +20,22 @@ internal static class RoomHeaderDefinitionsVerification
         ushort[] rooms = File.ReadLines(Path.GetFullPath(Path.Combine("upstream-sm", "assets", "names.txt")))
             .Select(TryParseRoomHeaderPointer).Where(pointer => pointer.HasValue)
             .Select(pointer => (pointer ?? throw new InvalidOperationException("Verification requires pointer."))).Distinct().Order().ToArray();
-        Suite(nameof(VerifyRoomHeaderIdentities), () => VerifyRoomHeaderIdentities(rooms));
-        Suite(nameof(VerifyRoomHeaderRoomIndex), () => VerifyRoomHeaderRoomIndex(rom, rooms));
-        Suite(nameof(VerifyRoomHeaderAreaIndex), () => VerifyRoomHeaderAreaIndex(rom, rooms));
-        Suite(nameof(VerifyRoomHeaderMapX), () => VerifyRoomHeaderMapX(rom, rooms));
-        Suite(nameof(VerifyRoomHeaderMapY), () => VerifyRoomHeaderMapY(rom, rooms));
-        Suite(nameof(VerifyRoomHeaderWidthInScreens), () => VerifyRoomHeaderWidthInScreens(rom, rooms));
-        Suite(nameof(VerifyRoomHeaderHeightInScreens), () => VerifyRoomHeaderHeightInScreens(rom, rooms));
-        Suite(nameof(VerifyRoomHeaderUpScroller), () => VerifyRoomHeaderUpScroller(rom, rooms));
-        Suite(nameof(VerifyRoomHeaderDownScroller), () => VerifyRoomHeaderDownScroller(rom, rooms));
-        Suite(nameof(VerifyRoomHeaderIsolatedDoorTransition), () => VerifyRoomHeaderIsolatedDoorTransition(rom, rooms));
-        Suite(nameof(VerifyRoomHeaderDoorListPointer), () => VerifyRoomHeaderDoorListPointer(rom, rooms));
-        Console.WriteLine("Room headers: all262 identities, ten original native fields, sorted enumeration and complete ushort rejection domain pass.");
+        Suite(nameof(VerifyRoomDefinitionIdentities), () => VerifyRoomDefinitionIdentities(rooms));
+        Suite(nameof(VerifyRoomDefinitionRoomIndex), () => VerifyRoomDefinitionRoomIndex(rom, rooms));
+        Suite(nameof(VerifyRoomDefinitionAreaIndex), () => VerifyRoomDefinitionAreaIndex(rom, rooms));
+        Suite(nameof(VerifyRoomDefinitionMapX), () => VerifyRoomDefinitionMapX(rom, rooms));
+        Suite(nameof(VerifyRoomDefinitionMapY), () => VerifyRoomDefinitionMapY(rom, rooms));
+        Suite(nameof(VerifyRoomDefinitionWidthInScreens), () => VerifyRoomDefinitionWidthInScreens(rom, rooms));
+        Suite(nameof(VerifyRoomDefinitionHeightInScreens), () => VerifyRoomDefinitionHeightInScreens(rom, rooms));
+        Suite(nameof(VerifyRoomDefinitionUpScroller), () => VerifyRoomDefinitionUpScroller(rom, rooms));
+        Suite(nameof(VerifyRoomDefinitionDownScroller), () => VerifyRoomDefinitionDownScroller(rom, rooms));
+        Suite(nameof(VerifyRoomDefinitionIsolatedDoorTransition), () => VerifyRoomDefinitionIsolatedDoorTransition(rom, rooms));
+        Suite(nameof(VerifyRoomDefinitionDoorListPointer), () => VerifyRoomDefinitionDoorListPointer(rom, rooms));
+        Console.WriteLine("Room definitions: all 262 identities, ten fields against the cartridge's headers, sorted enumeration and complete ushort rejection domain pass.");
     }
 
     /// <summary>Checks every ushort pointer for roster membership and production header construction.</summary>
-    private static void VerifyRoomHeaderIdentities(ushort[] rooms)
+    private static void VerifyRoomDefinitionIdentities(ushort[] rooms)
     {
         AssertEqual(262, rooms.Length, "Independent retail room roster");
         AssertTrue(RetailRooms.All.Select(header => header.Pointer).SequenceEqual(rooms),
@@ -59,26 +59,26 @@ internal static class RoomHeaderDefinitionsVerification
     }
 
     /// <summary>Checks the room index stored at header byte zero.</summary>
-    private static void VerifyRoomHeaderRoomIndex(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 0, header => header.RoomIndex);
+    private static void VerifyRoomDefinitionRoomIndex(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 0, header => header.RoomIndex);
     /// <summary>Checks the area byte and its production area lookup.</summary>
-    private static void VerifyRoomHeaderAreaIndex(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 1, header => (int)header.AreaIndex);
+    private static void VerifyRoomDefinitionAreaIndex(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 1, header => (int)header.AreaIndex);
     /// <summary>Checks each room's horizontal map coordinate against header byte two.</summary>
-    private static void VerifyRoomHeaderMapX(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 2, header => header.MapPosition.X);
+    private static void VerifyRoomDefinitionMapX(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 2, header => header.MapPosition.X);
     /// <summary>Checks each room's vertical map coordinate against header byte three.</summary>
-    private static void VerifyRoomHeaderMapY(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 3, header => header.MapPosition.Y);
+    private static void VerifyRoomDefinitionMapY(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 3, header => header.MapPosition.Y);
     /// <summary>Checks room width in screen units against header byte four.</summary>
-    private static void VerifyRoomHeaderWidthInScreens(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 4, header => header.Size.X);
+    private static void VerifyRoomDefinitionWidthInScreens(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 4, header => header.Size.X);
     /// <summary>Checks room height in screen units against header byte five.</summary>
-    private static void VerifyRoomHeaderHeightInScreens(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 5, header => header.Size.Y);
+    private static void VerifyRoomDefinitionHeightInScreens(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 5, header => header.Size.Y);
     /// <summary>Checks the upward scroller setting at header byte six.</summary>
-    private static void VerifyRoomHeaderUpScroller(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 6, header => header.UpScroller);
+    private static void VerifyRoomDefinitionUpScroller(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 6, header => header.UpScroller);
     /// <summary>Checks the downward scroller setting at header byte seven.</summary>
-    private static void VerifyRoomHeaderDownScroller(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 7, header => header.DownScroller);
+    private static void VerifyRoomDefinitionDownScroller(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 7, header => header.DownScroller);
     /// <summary>
     /// Checks the isolated door transition against bit zero of header byte eight, whatever the byte's other bits hold:
     /// rooms that set only other bits (the common-element tile reloads) keep the ordinary transition.
     /// </summary>
-    private static void VerifyRoomHeaderIsolatedDoorTransition(CartridgeImportAddressSpace rom, ushort[] rooms)
+    private static void VerifyRoomDefinitionIsolatedDoorTransition(CartridgeImportAddressSpace rom, ushort[] rooms)
     {
         bool sawOtherBitsOnly = false;
         foreach (ushort pointer in rooms)
@@ -92,10 +92,10 @@ internal static class RoomHeaderDefinitionsVerification
         AssertTrue(sawOtherBitsOnly, "a room whose only header settings bits are other bits keeps the ordinary transition");
     }
     /// <summary>Checks the two-byte door-list pointer at the end of each header.</summary>
-    private static void VerifyRoomHeaderDoorListPointer(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 9, header => RoomDoorListDefinitions.ListPointerOf(header));
+    private static void VerifyRoomDefinitionDoorListPointer(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 9, header => RoomDoorListDefinitions.ListPointerOf(header));
 
     /// <summary>Compares one selected header field in direct and enumerated views with its cartridge bytes.</summary>
-    private static void VerifyRoomHeaderField(CartridgeImportAddressSpace rom, ushort[] rooms,
+    private static void VerifyRoomDefinitionField(CartridgeImportAddressSpace rom, ushort[] rooms,
         int offset, Func<RoomDefinition, int> field)
     {
         RoomDefinition[] enumerated = RetailRooms.All.ToArray();
@@ -112,11 +112,11 @@ internal static class RoomHeaderDefinitionsVerification
         }
     }
 
-    /// <summary>Runs the compiled room-header verification suite.</summary>
-    [VerificationCommand("--room-header-definitions")]
-    internal static int RoomHeaderDefinitionsCommand()
+    /// <summary>Runs the compiled room definition verification suite.</summary>
+    [VerificationCommand("--room-definitions")]
+    internal static int RoomDefinitionsCommand()
     {
-        Suite(nameof(VerifyCompiledRoomHeaderDefinitions), () => VerifyCompiledRoomHeaderDefinitions());
+        Suite(nameof(VerifyCompiledRoomDefinitions), () => VerifyCompiledRoomDefinitions());
         return 0;
     }
 }

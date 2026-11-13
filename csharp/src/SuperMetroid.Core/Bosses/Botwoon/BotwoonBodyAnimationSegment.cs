@@ -1,20 +1,20 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>A body segment's animation: what it shows and which way it faces.</summary>
-internal readonly record struct BotwoonBodyAnimationSegment(BotwoonBodyAnimationSegmentKind Kind, BotwoonFacing Facing)
+internal readonly record struct BotwoonBodyAnimationSegment(BotwoonBodyAnimationSegmentKind Kind, CompassDirection Facing)
 {
     /// <summary>The hidden segment. Facing is irrelevant and fixed so equal programs compare equal.</summary>
-    internal static BotwoonBodyAnimationSegment Hidden => new(BotwoonBodyAnimationSegmentKind.Hidden, BotwoonFacing.Up);
+    internal static BotwoonBodyAnimationSegment Hidden => new(BotwoonBodyAnimationSegmentKind.Hidden, CompassDirection.Up);
 
     /// <summary>The spit's program. Facing is irrelevant and fixed so equal programs compare equal.</summary>
-    internal static BotwoonBodyAnimationSegment Spit => new(BotwoonBodyAnimationSegmentKind.Spit, BotwoonFacing.Up);
+    internal static BotwoonBodyAnimationSegment Spit => new(BotwoonBodyAnimationSegmentKind.Spit, CompassDirection.Up);
 
     /// <summary>
-    /// The segment program of <paramref name="kind"/> facing the octant of <paramref name="toLeader"/>, the bearing
-    /// to the segment ahead; a hidden segment has no facing.
+    /// The segment program of <paramref name="kind"/> facing the direction opening the eighth of the turn that holds
+    /// <paramref name="toLeader"/>, the bearing to the segment ahead; a hidden segment has no facing.
     /// </summary>
     internal static BotwoonBodyAnimationSegment Toward(BotwoonBodyAnimationSegmentKind kind, Bearing toLeader) =>
         kind == BotwoonBodyAnimationSegmentKind.Hidden
             ? Hidden
-            : new(kind, BotwoonAnimations.FacingOfOctant(toLeader.Sector(8)));
+            : new(kind, toLeader.DirectionOfEighth());
 }

@@ -10,10 +10,10 @@ internal static class SbugMovementDefinitions
     internal static readonly RandomSampleField RandomTurn = new(0, 8);
 
     /// <summary>
-    /// The eight facings counter-clockwise from right, one per eighth of a turn: a heading shows the facing whose eighth
-    /// of the turn, counted on from <see cref="SbugDefinitions.FirstFacingStart"/>, contains it.
+    /// The facing a heading shows for each eighth of the turn it lies in: counter-clockwise from right, the first eighth
+    /// opening at a heading of 48 steps.
     /// </summary>
-    internal static readonly IdentitySequence<SbugFacing> FacingsCounterClockwise = new(
+    internal static readonly TurnArcs<SbugFacing> Facings = new(new TrigonometryAngle(48),
         SbugFacing.Right, SbugFacing.UpRight, SbugFacing.Up, SbugFacing.UpLeft,
         SbugFacing.Left, SbugFacing.DownLeft, SbugFacing.Down, SbugFacing.DownRight);
 

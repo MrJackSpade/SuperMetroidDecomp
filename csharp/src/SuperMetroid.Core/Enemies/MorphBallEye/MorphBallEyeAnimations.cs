@@ -101,6 +101,14 @@ internal static class MorphBallEyeAnimations
         [P.MountFacingUp] = new([new(P.MountFacingUp, 0, 1, 1)], AnimationEnd.Holds),
     };
 
+    /// <summary>
+    /// The place in the tracking loop each part of the turn resumes at: the loop's poses follow the turn, one for each of
+    /// its sixteen equal arcs from the eye's angle zero.
+    /// </summary>
+    internal static TurnArcs<AnimationPlace> TrackingPlaces { get; } = new(TrigonometryAngle.Zero,
+        [.. Enumerable.Range(0, MorphBallEyeBeamDefinitions.TrackingPoses).Select(pose =>
+            AnimationSegments<MorphBallEyeSegment, EnemyFrameId, NoAnimationCue>.PlaceOf(StartingAt[P.Active], P.Active, pose))]);
+
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MorphBallEyeSegment> StartingWith(MorphBallEyeSegment segment) => StartingAt[segment];
 

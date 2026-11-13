@@ -1458,12 +1458,11 @@ internal static class LookupStream4Verification
             var actual = RidleyExplosionDefinitions.GetPart(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(parameter));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)), actual.Lifetime, "stream4 native breakup lifetime");
         }
-        for (int orientation = 0; orientation < 16; orientation++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + 2 * orientation)), RidleyNativeProgramOracle.BreakupList(RidleyBreakup.SelectTailFrame(RidleyExplosionPart.TailTip, orientation)), "stream4 native tail-tip orientation program");
+        // The cartridge's tip list is the one its orientation, the direction half a pose on, numbers in sixteenths of a turn.
+        for (int direction = 0; direction < 256; direction++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + 2 * (((direction + 8) & 255) >> 4))), RidleyNativeProgramOracle.BreakupList(RidleyBreakup.SelectTailFrame(RidleyExplosionPart.TailTip, new TrigonometryAngle(direction))), "stream4 native tail-tip orientation program");
         foreach (ushort invalid in new ushort[] { 1, 23, 24, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(invalid), "stream4 invalid breakup parameter");
-        foreach (int invalid in new[] { -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => RidleyBreakup.SelectTailFrame(RidleyExplosionPart.TailTip, invalid), "stream4 invalid tail-tip orientation");
     }
 
     /// <summary>Checks dark lightning palette rows and their source pointers against native values.</summary>

@@ -3,13 +3,13 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// <summary>Chooses Shaktool's head aim by direction and each segment's collision-recovery animation.</summary>
 internal static class ShaktoolAnimationChoices
 {
-    /// <summary>The head animation of an eighth-turn direction bucket.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="directionBucket"/> is not one of the eight buckets.</exception>
-    internal static ShaktoolSegment ForOrientationBucket(int directionBucket) =>
-        ShaktoolAnimationDefinitions.OrientationAnimations.TryGetValue(directionBucket, out ShaktoolSegment segment)
+    /// <summary>The head animation aiming along <paramref name="orientation"/>.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="orientation"/> is not one of the eight directions.</exception>
+    internal static ShaktoolSegment ForOrientation(CompassDirection orientation) =>
+        ShaktoolAnimationDefinitions.OrientationAnimations.TryGetValue(orientation, out ShaktoolSegment segment)
             ? segment
             : throw new InvalidDataException(
-                $"Shaktool orientation bucket {directionBucket} is invalid.");
+                $"Shaktool orientation {orientation} is not one of the eight directions.");
 
     /// <summary>Returns the collision-recovery animation for one physical segment.</summary>
     /// <exception cref="InvalidDataException"><paramref name="segmentIndex"/> is outside the seven segments.</exception>

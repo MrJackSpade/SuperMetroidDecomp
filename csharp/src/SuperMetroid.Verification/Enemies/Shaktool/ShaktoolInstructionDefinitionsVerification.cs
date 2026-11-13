@@ -18,10 +18,11 @@ internal static class ShaktoolInstructionDefinitionsVerification
     internal static void VerifyShaktoolInstructionDefinitions(CartridgeImportAddressSpace rom)
     {
 
+        // The cartridge keys the head's lists by bucket, the bearing of the direction it aims.
         for (ushort bucket = 0; bucket <= 0x00e0; bucket += 0x0020)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaadd15 + (bucket >> 5) * 2)),
-                NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolAnimationChoices.ForOrientationBucket(bucket)),
+                NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolAnimationChoices.ForOrientation(new Bearing(bucket).DirectionOfEighth())),
                 $"Shaktool orientation list {bucket:X2}");
         }
         for (int index = 0; index < 7; index++)
@@ -45,9 +46,9 @@ internal static class ShaktoolInstructionDefinitionsVerification
             centerState.ResetOrientation();
             nextState.OrbitAngle = RotationAngle.FromRaw(midpoint);
             orient(center, centerState);
-            AssertEqual(bucket, centerState.OrientationBucket,
+            AssertEqual(new Bearing(bucket).DirectionOfEighth(), centerState.Orientation,
                 $"Shaktool production orientation bucket {bucket:X2}");
-            AssertEqual(new AnimationPlayback<ShaktoolSegment>(ShaktoolAnimations.StartingWith(ShaktoolAnimationChoices.ForOrientationBucket(bucket)), AnimationPlace.StartOfAnimation),
+            AssertEqual(new AnimationPlayback<ShaktoolSegment>(ShaktoolAnimations.StartingWith(ShaktoolAnimationChoices.ForOrientation(new Bearing(bucket).DirectionOfEighth())), AnimationPlace.StartOfAnimation),
                 centerState.Playback,
                 $"Shaktool production orientation list {bucket:X2}");
         }
@@ -63,12 +64,6 @@ internal static class ShaktoolInstructionDefinitionsVerification
                 $"Shaktool production collision list {index}");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => ShaktoolAnimationChoices.ForOrientationBucket(1),
-            "unaligned Shaktool orientation bucket");
-        AssertThrows<InvalidDataException>(
-            () => ShaktoolAnimationChoices.ForOrientationBucket(0x0100),
-            "Shaktool orientation bucket past table");
         AssertThrows<InvalidDataException>(
             () => ShaktoolAnimationChoices.CollisionForSegment(-1),
             "negative Shaktool collision segment");

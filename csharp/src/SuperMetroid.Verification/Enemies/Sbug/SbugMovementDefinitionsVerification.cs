@@ -31,7 +31,7 @@ internal static class SbugMovementDefinitionsVerification
             int address = instructionTable + facing * 2;
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native, NativeEnemyAnimationOracle.EntryOf(SbugNativeListAddresses.Entries,
-                    SbugMovement.FacingAnimation(SbugMovementDefinitions.FacingsCounterClockwise.At(facing))),
+                    SbugMovement.FacingAnimation(SbugMovementDefinitions.Facings.InTurnOrder[facing])),
                 $"compiled Sbug facing selector {facing}");
         }
 
@@ -58,7 +58,7 @@ internal static class SbugMovementDefinitionsVerification
 
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(instructionTable + selector * 2);
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
-            AssertEqual(SbugMovementDefinitions.FacingsCounterClockwise.At(selector), state.ForwardFacing,
+            AssertEqual(SbugMovementDefinitions.Facings.InTurnOrder[selector], state.ForwardFacing,
                 $"Sbug production facing {selector}");
             AssertEqual(new AnimationPlayback<SbugSegment>(SbugAnimations.StartingWith(SbugMovement.FacingAnimation(state.ForwardFacing)), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Sbug production facing animation {selector}");
@@ -152,8 +152,8 @@ internal static class SbugMovementDefinitionsVerification
     {
         for (int place = 0; place < 8; place++)
         {
-            SbugFacing facing = SbugMovementDefinitions.FacingsCounterClockwise.At(place);
-            AssertEqual(SbugMovementDefinitions.FacingsCounterClockwise.At((place + 2) % 4), SbugMovement.ReversedFacing(facing),
+            SbugFacing facing = SbugMovementDefinitions.Facings.InTurnOrder[place];
+            AssertEqual(SbugMovementDefinitions.Facings.InTurnOrder[(place + 2) % 4], SbugMovement.ReversedFacing(facing),
                 $"Sbug reversal of {facing}");
         }
         Console.WriteLine("  Sbug reversed facings: all eight fold as the game's reversal does.");

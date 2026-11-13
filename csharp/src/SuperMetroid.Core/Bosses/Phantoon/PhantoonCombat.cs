@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -226,7 +226,7 @@ internal sealed class PhantoonCombat
             }
             else
             {
-                int damage = (projectileDamage >> 1) * vulnerability.Multiplier;
+                int damage = vulnerability.DamageFrom(projectileDamage);
                 if (damage != 0)
                 {
                     body.FlashTimer = body.HurtFlashFrames + 8;
@@ -399,7 +399,7 @@ internal sealed class PhantoonCombat
             }
         }
 
-        orbit.Angle = orbit.Angle.TurnedBySteps(1);
+        orbit.Angle += PhantoonFlameMotionDefinitions.StartingTurnPerUpdate;
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,
@@ -489,7 +489,7 @@ internal sealed class PhantoonCombat
 
         PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
         orbit.Radius += PhantoonFlameMotionDefinitions.RageRadiusStep;
-        orbit.Angle = orbit.Angle.TurnedBySteps(orbit.AngleStep);
+        orbit.Angle += orbit.TurnPerUpdate;
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,
@@ -535,7 +535,7 @@ internal sealed class PhantoonCombat
 
         PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
         orbit.Radius += PhantoonFlameMotionDefinitions.SpiralRadiusStep;
-        orbit.Angle = orbit.Angle.TurnedBySteps(PhantoonFlameMotionDefinitions.SpiralAngleStep);
+        orbit.Angle += PhantoonFlameMotionDefinitions.SpiralTurnPerUpdate;
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,

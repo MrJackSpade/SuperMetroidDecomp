@@ -17,17 +17,16 @@ internal static class RidleyBreakup
     }
 
     /// <summary>
-    /// Selects the tail pose the breakup initializer loads; the tip's comes from its orientation, as the sixteen
-    /// tip lists selected do. <paramref name="tailTipOrientation"/> is ignored for the first six segments.
+    /// Selects the tail pose the breakup initializer loads; the tip's comes from the direction it points, turned by the
+    /// link before it (<see cref="TailTipBreakupFrames"/>). <paramref name="tailTipDirection"/> is ignored for the first
+    /// six segments.
     /// </summary>
-    public static RidleyBreakupFrame SelectTailFrame(RidleyExplosionPart parameter, int tailTipOrientation)
+    public static RidleyBreakupFrame SelectTailFrame(RidleyExplosionPart parameter, TrigonometryAngle tailTipDirection)
     {
         if (TailFrames.TryGetValue(parameter, out RidleyBreakupFrame frame))
             return frame;
         if (parameter == RidleyExplosionPart.TailTip)
-            return (uint)tailTipOrientation < TailTipOrientationCount
-                ? RidleyBreakupFrame.TailTip0 + tailTipOrientation
-                : throw new ArgumentOutOfRangeException(nameof(tailTipOrientation));
+            return TailTipBreakupFrames.At(tailTipDirection);
         return Enum.IsDefined(parameter)
             ? throw new ArgumentOutOfRangeException(nameof(parameter), parameter, "Body fragments have no tail program.")
             : throw new InvalidOperationException($"Undefined Ridley explosion part {parameter}.");

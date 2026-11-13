@@ -346,7 +346,7 @@ internal sealed class EnemyCollision
                     break;
                 }
 
-                int damage = (projectileDamage >> 1) * shotVulnerability.Multiplier;
+                int damage = shotVulnerability.DamageFrom(projectileDamage);
                 if (damage == 0)
                 {
                     // A zero-damage hit enters the dud branch even for Plasma: immunity removes
@@ -570,7 +570,7 @@ internal sealed class EnemyCollision
         bool runGenericDeath = true)
     {
         EnemyWeaponVulnerability vulnerability = EnemyVulnerabilities.Of(enemy.Definition).Ordnance.Bomb;
-        int damage = (bomb.Damage >> 1) * vulnerability.Multiplier;
+        int damage = vulnerability.DamageFrom(bomb.Damage);
 
         // A zero multiplier still consumes the collision and leaves the hit direction on
         // the bomb. Emits a dud sprite/sound here; those presentation queues are not
@@ -658,8 +658,8 @@ internal sealed class EnemyCollision
                 continue;
             }
 
-            // The common reaction damages the enemy; the process-off-screen property follows.
-            int damage = 100 * vulnerability.Multiplier;
+            // The common reaction damages the enemy by a Power Bomb's damage; the process-off-screen property follows.
+            int damage = vulnerability.DamageFrom(SamusProjectileDamage.Read(SamusProjectileKind.PowerBomb));
             enemy.InvincibilityTimer = 48;
             enemy.FlashTimer = enemy.HurtFlashFrames + 8;
             enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
@@ -774,7 +774,14 @@ internal sealed class EnemyCollision
     internal readonly record struct NormalShotVulnerability(
         int Multiplier,
         bool FreezeImmediately,
-        bool PreventsLethalFreeze);
+        bool PreventsLethalFreeze)
+    {
+        /// <summary>
+        /// The damage a shot of <paramref name="weaponDamage"/>, zero or more, deals by <see cref="Multiplier"/>, the rule
+        /// every weapon response takes (<see cref="EnemyWeaponVulnerability.DamageFrom(int, int)"/>).
+        /// </summary>
+        internal int DamageFrom(int weaponDamage) => EnemyWeaponVulnerability.DamageFrom(weaponDamage, Multiplier);
+    }
 
     /// <summary>
     /// Tests the hitboxes of the frame an enemy shows and returns the reaction belonging to the first overlapping
@@ -896,7 +903,7 @@ internal sealed class EnemyCollision
             default:
                 throw new InvalidOperationException($"Undefined {nameof(SamusContactDamageIndex)} {contactDamageIndex}.");
         }
-        int damage = (baseDamage >> 1) * vulnerability.Multiplier;
+        int damage = vulnerability.DamageFrom(baseDamage);
         if (damage == 0)
             return;
 

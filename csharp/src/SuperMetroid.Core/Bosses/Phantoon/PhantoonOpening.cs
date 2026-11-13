@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms;
 
@@ -35,7 +35,7 @@ internal sealed class PhantoonOpening
             return;
 
         state.StartingFlameRequests++;
-        if (SpawnPhantoonStartingFlame(body, state.BodyState.StartingFlameIndex))
+        if (SpawnPhantoonStartingFlame(body, PhantoonFlameSpawns.StartingFlameStart(state.BodyState.StartingFlameIndex)))
             state.StartingFlamesSpawned++;
         _audio.QueueEnemySound(PhantoonSoundDefinitions.StartingFlame, PhantoonSoundDefinitions.StartingFlamePriority);
         state.BodyState.FunctionTimer = 30;
@@ -101,10 +101,10 @@ internal sealed class PhantoonOpening
             state.MouthState.WaveAmplitudeShrinking = true;
     }
 
-    /// <summary>Allocates one intro flame with its chosen orbit direction.</summary>
+    /// <summary>Allocates one intro flame at its place on the circle round the body.</summary>
     /// <param name="body">Phantoon's body.</param>
-    /// <param name="directionIndex">The flame's orbit direction, 0 through 255; its eighth turns wrap within the orbit.</param>
-    internal bool SpawnPhantoonStartingFlame(RoomEnemySlot body, int directionIndex)
+    /// <param name="start">The flame's starting angle round the body.</param>
+    internal bool SpawnPhantoonStartingFlame(RoomEnemySlot body, TrigonometryAngle start)
     {
         EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile();
         if (flame is null)
@@ -117,7 +117,7 @@ internal sealed class PhantoonOpening
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.StartingFlame));
         flame.Position = flame.Position.WithFractionX(0).WithFractionY(0);
         flame.Velocity = EightEightVector<RoomPixels>.Zero;
-        var orbit = new PhantoonOrbitingFlameState(new TrigonometryAngle(directionIndex * 32));
+        var orbit = new PhantoonOrbitingFlameState(start);
         flame.State = orbit;
         PhantoonCombat.PositionPhantoonFlameAroundBody(flame, body, orbit.Angle, radius: 48);
         flame.FrameBehavior = PhantoonBehavior.PhantoonStartingFlameWaitingFrameBehavior;

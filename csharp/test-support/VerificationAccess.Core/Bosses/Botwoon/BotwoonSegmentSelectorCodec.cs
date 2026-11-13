@@ -15,6 +15,13 @@ internal static class BotwoonSegmentSelectorCodec
     /// <summary>One past the last selector.</summary>
     public const int SelectorEnd = 64;
 
+    /// <summary>The facings a selector's octant bits name, clockwise from up.</summary>
+    private static readonly CompassDirection[] DirectionsClockwise =
+    [
+        CompassDirection.Up, CompassDirection.UpRight, CompassDirection.Right, CompassDirection.DownRight,
+        CompassDirection.Down, CompassDirection.DownLeft, CompassDirection.Left, CompassDirection.UpLeft,
+    ];
+
     /// <summary>The segment program selector <paramref name="byteOffset"/> names.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The selector is odd or outside the table.</exception>
     public static BotwoonBodyAnimationSegment Program(int byteOffset)
@@ -28,6 +35,6 @@ internal static class BotwoonSegmentSelectorCodec
         if ((entry & 8) != 0)
             return BotwoonBodyAnimationSegment.Hidden;
         return new((entry & 16) != 0 ? BotwoonBodyAnimationSegmentKind.Tail : BotwoonBodyAnimationSegmentKind.Body,
-            BotwoonAnimations.FacingOfOctant(entry & 7));
+            DirectionsClockwise[entry & 7]);
     }
 }

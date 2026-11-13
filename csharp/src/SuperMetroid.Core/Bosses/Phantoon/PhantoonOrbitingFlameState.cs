@@ -12,8 +12,11 @@ internal sealed class PhantoonOrbitingFlameState(TrigonometryAngle angle) : Enem
     /// <summary>The flame's angle around Phantoon's body.</summary>
     internal TrigonometryAngle Angle { get; set; } = angle;
 
-    /// <summary>The table units a rage flame turns each update, negative when it circles the other way.</summary>
-    internal int AngleStep { get; init; }
+    /// <summary>
+    /// The turn a rage flame makes each update: the rage turn when it circles clockwise, a full circle less it when it
+    /// circles counterclockwise. Other flames keep no turn here.
+    /// </summary>
+    internal TrigonometryAngle TurnPerUpdate { get; init; }
 
     /// <summary>
     /// The circle's radius in pixels, zero or more: an enraged or spiral flame's grows each update for as long as it

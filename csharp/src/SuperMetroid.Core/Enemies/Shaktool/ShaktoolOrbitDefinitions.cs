@@ -12,11 +12,13 @@ internal static class ShaktoolOrbitDefinitions
     /// </summary>
     internal const int ConvergenceShares = 64;
 
-    /// <summary>The direction buckets a middle segment's heading is rounded to, one for each equal arc of the turn.</summary>
-    internal const int OrientationBuckets = 8;
-
-    /// <summary>The table units a midpoint's heading is advanced by before its bucket is chosen.</summary>
-    internal const int OrientationBucketLead = 8;
+    /// <summary>
+    /// The direction the centre segment's head aims for each eighth of the turn its neighbours' midpoint lies in, in turn
+    /// order: each direction's eighth opens eight steps before it.
+    /// </summary>
+    internal static TurnArcs<CompassDirection> Orientations { get; } = new(TrigonometryAngle.Wrapped(-8),
+        CompassDirection.Up, CompassDirection.UpRight, CompassDirection.Right, CompassDirection.DownRight,
+        CompassDirection.Down, CompassDirection.DownLeft, CompassDirection.Left, CompassDirection.UpLeft);
 
     /// <summary>The curl progress installed when the centre reaches its target angle: 120 whole steps.</summary>
     internal static RotationAngle StraighteningStart { get; } = RotationAngle.FromSteps(120);

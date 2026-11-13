@@ -936,19 +936,13 @@ internal static class LookupStream3Verification
                 "stream 3 native Spark list selector");
             AssertEqual(function, definition.Function, "stream 3 native Spark function selector");
         }
-        for (int bucket = 0; bucket <= ushort.MaxValue; bucket++)
+        // The cartridge keys the head's lists by bucket, the bearing of the direction it aims.
+        for (int bucket = 0; bucket <= 224; bucket += 32)
         {
-            ushort direction = (ushort)bucket;
-            if ((bucket & 31) != 0 || bucket > 224)
-                AssertThrows<InvalidDataException>(() => ShaktoolAnimationChoices.ForOrientationBucket(direction),
-                    "stream 3 invalid Shaktool orientation");
-            else
-            {
-                int address = 0xaadd15 + 2 * (bucket >> 5);
-                ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-                AssertEqual(expected, NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolAnimationChoices.ForOrientationBucket(direction)),
-                    "stream 3 native Shaktool orientation");
-            }
+            int address = 0xaadd15 + 2 * (bucket >> 5);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            AssertEqual(expected, NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolAnimationChoices.ForOrientation(new Bearing(bucket).DirectionOfEighth())),
+                "stream 3 native Shaktool orientation");
         }
         for (int segment = 0; segment < 7; segment++)
         {

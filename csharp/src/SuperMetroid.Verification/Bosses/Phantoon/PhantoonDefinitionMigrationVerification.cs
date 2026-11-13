@@ -31,7 +31,9 @@ internal static class PhantoonDefinitionMigrationVerification
         AssertEqual(PhantoonWaveLength.Long, PhantoonWaveDefinitions.DeathLength, "death wave is the 128-line wave");
 
         // Flame motion and rage keep their values under domain names.
-        AssertEqual(2, PhantoonFlameMotionDefinitions.RageAngleStep, "rage angle step");
+        AssertEqual(new TrigonometryAngle(2), PhantoonFlameMotionDefinitions.RageTurnPerUpdate, "rage turn per update");
+        AssertEqual(new TrigonometryAngle(2), PhantoonFlameMotionDefinitions.SpiralTurnPerUpdate, "spiral turn per update");
+        AssertEqual(new TrigonometryAngle(1), PhantoonFlameMotionDefinitions.StartingTurnPerUpdate, "intro flame turn per update");
         AssertEqual(4, PhantoonFlameMotionDefinitions.RageRadiusStep, "rage radius step");
         AssertEqual(128, PhantoonRageDefinitions.WaveInterval, "rage wave interval");
         AssertEqual(8, PhantoonRageDefinitions.WaveCount, "rage wave count");

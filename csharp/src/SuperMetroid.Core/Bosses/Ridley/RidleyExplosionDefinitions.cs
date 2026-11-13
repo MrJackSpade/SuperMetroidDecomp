@@ -20,8 +20,15 @@ internal static class RidleyExplosionDefinitions
     internal const int SixteenthPixelSpeed = 16;
     /// <summary>The 8.8 speed of a <see cref="FragmentSpeedWholePixel"/> step, one pixel per frame.</summary>
     internal const int WholePixelSpeed = 256;
-    /// <summary>The tail tip's sixteen orientations.</summary>
-    internal const int TailTipOrientationCount = 16;
+    /// <summary>
+    /// The tail tip's breakup pose for each sixteenth of the turn its direction can point into, in turn order: each pose's
+    /// sixteenth is centred on it, so the first opens half a pose before straight down.
+    /// </summary>
+    internal static readonly TurnArcs<RidleyBreakupFrame> TailTipBreakupFrames = new(TrigonometryAngle.Wrapped(-8),
+        RidleyBreakupFrame.TailTip0, RidleyBreakupFrame.TailTip1, RidleyBreakupFrame.TailTip2, RidleyBreakupFrame.TailTip3,
+        RidleyBreakupFrame.TailTip4, RidleyBreakupFrame.TailTip5, RidleyBreakupFrame.TailTip6, RidleyBreakupFrame.TailTip7,
+        RidleyBreakupFrame.TailTip8, RidleyBreakupFrame.TailTip9, RidleyBreakupFrame.TailTip10, RidleyBreakupFrame.TailTip11,
+        RidleyBreakupFrame.TailTip12, RidleyBreakupFrame.TailTip13, RidleyBreakupFrame.TailTip14, RidleyBreakupFrame.TailTip15);
 
     /// <summary>
     /// The breakup's allocation order: the tail from tip to base, then wings, legs, torso, head and claw. Enemy-slot

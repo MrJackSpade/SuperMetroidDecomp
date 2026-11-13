@@ -43,8 +43,9 @@ internal static class MotherBrainGlassShardDefinitionsVerification
 
                 EnemyProjectile shard =
                     enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
+                // The random roll launches the shard at the start of sixteenth animationIndex, whose cartridge selector names its spin.
                 AssertTrue(shard.Animation is MotherBrainGlassAnimation started &&
-                    started.Program == MotherBrainGlassAnimations.ShardAnimation(animationIndex),
+                    MotherBrainNativeListAddresses.GlassEntries[started.Program] == ReadMotherBrainGlassShardWord(rom, 0x86ce41 + 2 * animationIndex),
                     $"production Mother Brain glass-shard program {parameter}/{animationIndex}");
                 AssertEqual(unchecked((ushort)(0x0200 + unchecked((short)ReadMotherBrainGlassShardWord(rom, 0x86ce61 + parameter)))), shard.Position.X.Whole,
                     $"production Mother Brain glass-shard X {parameter}/{animationIndex}");
@@ -58,27 +59,20 @@ internal static class MotherBrainGlassShardDefinitionsVerification
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainGlassAnimations.ShardAnimation(16),
-            "Mother Brain glass-shard animation past table");
-        AssertThrows<ArgumentOutOfRangeException>(
             () => MotherBrainGlassShards.Placement((MotherBrainGlassShard)99),
             "Mother Brain glass-shard undefined emitter");
         Console.WriteLine(
             "Mother Brain glass-shard definitions: sixteen instruction selectors, six placement words and 48 real spawns pass with source tables forbidden.");
     }
 
-    /// <summary>Checks the sixteen selector words and rejects every other ushort index.</summary>
+    /// <summary>Checks every launch angle's spin against the cartridge selector its sixteenth of the turn reads.</summary>
     private static void VerifyGlassShardProgramSelection(CartridgeImportAddressSpace rom)
     {
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        for (int angle = 0; angle < 256; angle++)
         {
-            ushort index = (ushort)raw;
-            if (raw >= 16)
-                AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainGlassAnimations.ShardAnimation(index),
-                    "Glass shard selector full rejected domain");
-            else
-                AssertEqual(ReadMotherBrainGlassShardWord(rom, 0x86ce41 + 2 * raw),
-                    MotherBrainNativeListAddresses.GlassEntries[MotherBrainGlassAnimations.ShardAnimation(index)], "Glass shard original angular selector");
+            AssertEqual(ReadMotherBrainGlassShardWord(rom, 0x86ce41 + 2 * (angle >> 4)),
+                MotherBrainNativeListAddresses.GlassEntries[MotherBrainGlassAnimations.ShardAnimations.At(new TrigonometryAngle(angle))],
+                $"Glass shard launch angle {angle} selector");
         }
     }
 

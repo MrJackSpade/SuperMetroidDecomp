@@ -25,9 +25,10 @@ public static class EnemySheetFiles
     /// look an enemy's draws never select, so variants the player cannot tell apart, as the Chozo statue's of one site and
     /// the elevator's, are one variant drawing one sheet (#1643); 29 installs no frame no animation shows, as the room sprite
     /// objects nothing spawns, and keys every projectile frame by what it shows (#1623); 30 keys every enemy frame by the
-    /// animation segment or table key that first shows it (#1623).
+    /// animation segment or table key that first shows it (#1623); 31 keys the frames that rule misnamed by what they show
+    /// (#1623); 32 keys the Wrecked Ship Chozo statue's walk frames by its walk (#1623).
     /// </summary>
-    public const int ManifestVersion = 31;
+    public const int ManifestVersion = 32;
 
     /// <summary>The manifest naming each variant's sheets and the variants each population draws.</summary>
     public const string ManifestFileName = "enemy-sheets.json";

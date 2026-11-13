@@ -417,16 +417,15 @@ internal sealed class MotherBrainProjectiles
             RoomEnemyProjectileKind.MotherBrainGlassShard,
             graphics: default);
 
-        // The shard's launch angle is a random angle of 0 through 255. It selects signed sine/cosine velocities, and
-        // the sixteenth of a turn it lies in chooses one of sixteen authored shard animation lists.
+        // The shard's launch angle is a random angle of 0 through 255. It selects signed sine/cosine velocities and the
+        // shard's spin animation.
         var angle = new TrigonometryAngle(MotherBrainGlassShardDefinitions.LaunchAngle.Of(_room.Random.Generate()));
         shard.Velocity = shard.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Trigonometry.SignedSine(angle)));
         // The vertical speed is four times the negative cosine, the sine a quarter turn back; a sample lies within one
         // pixel either way, so four times one stays within four.
         shard.Velocity = shard.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
             4 * Trigonometry.SignedSine(angle - TrigonometryAngle.QuarterTurn)));
-        int animationIndex = angle.ToAngle().Sector(16);
-        shard.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassAnimations.ShardAnimation(animationIndex)));
+        shard.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassAnimations.ShardAnimations.At(angle)));
         shard.Graphics = MotherBrainGlassShardDefinitions.Graphics(MotherBrainColours.GlassAndTubes);
 
         MotherBrainGlassShardPlacement placement =
@@ -609,7 +608,7 @@ internal sealed class MotherBrainProjectiles
             if (MotherBrainOnionRingOverlapsBaby(ring, baby))
             {
                 state.PendingBabyCryCount++;
-                _ = baby.ApplyMotherBrainOnionRingHit();
+                _ = baby.ApplyMotherBrainOnionRingHit(MotherBrainAttackDamage.OnionRing);
                 // The ring writes the Baby slot's Enemy.health from this projectile
                 // pass; it must not wait for the Baby's next AI turn to publish it.
                 RoomEnemySlot babySlot = state.BabyMetroidSlot ?? throw new InvalidDataException(
@@ -625,7 +624,7 @@ internal sealed class MotherBrainProjectiles
         if (samus is not null && MotherBrainOnionRingOverlapsSamus(ring, samus))
         {
             Position16<RoomPixels> ringPosition = ring.Position.Whole;
-            SamusSuitDamage.Hurt(samus, 80);
+            SamusSuitDamage.Hurt(samus, MotherBrainAttackDamage.OnionRing);
             samus.InvincibilityTimer = WrappingCountdown.Start(96);
             samus.KnockbackTimer = 5;
             samus.KnockbackXDirection = CoordinateAxis.Difference(samus.Position.X.Whole, ringPosition.X) >= 0

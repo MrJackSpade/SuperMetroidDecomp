@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms;
@@ -181,12 +181,9 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.OrientationReversed)
             midpoint += RotationAngle.HalfTurn;
 
-        RotationAngle heading = midpoint.TurnedBySteps(ShaktoolOrbitDefinitions.OrientationBucketLead);
-        int directionBucket = heading.Sector(ShaktoolOrbitDefinitions.OrientationBuckets) *
-            (RotationAngle.StepsPerTurn / ShaktoolOrbitDefinitions.OrientationBuckets);
-        state.OrientationBucket = directionBucket;
+        state.Orientation = ShaktoolOrbitDefinitions.Orientations.At(midpoint);
         state.Playback = new(ShaktoolAnimations.StartingWith(
-            ShaktoolAnimationChoices.ForOrientationBucket(directionBucket)), AnimationPlace.StartOfAnimation);
+            ShaktoolAnimationChoices.ForOrientation(state.Orientation)), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
     }
 
@@ -418,8 +415,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             case ShaktoolCueKind.RaiseTowardCenter:
             {
                 RoomEnemySlot[] group = GetShaktoolGroup(slot);
-                // Flipping the direction's top bit turns it half a turn.
-                TrigonometryAngle centerDirection = new(RequireShaktoolState(group[3]).OrientationBucket);
+                TrigonometryAngle centerDirection = Bearing.Toward(RequireShaktoolState(group[3]).Orientation).ToMirroredTableAngle();
                 MoveShaktoolSegmentForAnimation(
                     slot,
                     cue.Kind == ShaktoolCueKind.LowerAwayFromCenter

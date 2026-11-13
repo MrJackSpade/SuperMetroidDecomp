@@ -162,11 +162,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Angle = CalculateMorphBallEyeAngle(eye, samus);
 
-        // The tracking loop resumes at the pose for the arc of the turn the angle lies in, one pose for
-        // each of the turn's sixteen equal arcs.
-        Animation<MorphBallEyeSegment> tracking = MorphBallEyeAnimations.StartingWith(MorphBallEyeSegment.Active);
-        state.Playback = new(tracking, AnimationSegments<MorphBallEyeSegment, EnemyFrameId, NoAnimationCue>.PlaceOf(tracking,
-            MorphBallEyeSegment.Active, state.Angle.Sector(MorphBallEyeBeamDefinitions.TrackingPoses)));
+        // The tracking loop resumes at the pose for the arc of the turn the angle lies in.
+        state.Playback = new(MorphBallEyeAnimations.StartingWith(MorphBallEyeSegment.Active), MorphBallEyeAnimations.TrackingPlaces.At(state.Angle));
         eye.AnimationClock.StepOnNextUpdate();
     }
 

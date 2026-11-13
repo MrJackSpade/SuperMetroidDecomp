@@ -225,12 +225,12 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Starts the spiral-flame pattern around the body.</summary>
-    /// <remarks>The spiral fireballs are the first ordinary combat attack: eight destroyable flames, spawned from
-    /// direction seven down to zero.</remarks>
+    /// <remarks>The spiral fireballs are the first ordinary combat attack: eight destroyable flames, spawned in their
+    /// authored order round the body.</remarks>
     private void SpawnPhantoonSpiralFlames(RoomEnemySlot body)
     {
-        for (int direction = 7; direction >= 0; direction--)
-            SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Spiral, direction);
+        foreach (TrigonometryAngle start in PhantoonFlameSpawns.SpiralStarts)
+            SpawnPhantoonSpiralFlame(body, start);
     }
 
     /// <summary>Runs the eye-open vulnerable window.</summary>
@@ -497,18 +497,12 @@ internal sealed class PhantoonPatterns
         if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
             return;
 
-        if (!PhantoonCadenceDefinitions.OddRageWave.IsSetIn(state.EyeState.RageWaveCount))
-        {
-            for (int direction = PhantoonRageDefinitions.EvenWaveFirstDirection; direction >= 0; direction--)
-                SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Enraged, direction);
-        }
-        else
-        {
-            // The inclusive countdown includes direction eight: alternating waves
-            // intentionally contain seven and eight flames, not seven each.
-            for (int direction = PhantoonRageDefinitions.OddWaveFirstDirection; direction >= PhantoonRageDefinitions.OddWaveLastDirection; direction--)
-                SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Enraged, direction);
-        }
+        // Alternating waves contain seven and eight flames, not seven each.
+        IReadOnlyList<PhantoonRageFlameStart> wave = PhantoonCadenceDefinitions.OddRageWave.IsSetIn(state.EyeState.RageWaveCount)
+            ? PhantoonFlameSpawns.OddRageWave
+            : PhantoonFlameSpawns.EvenRageWave;
+        foreach (PhantoonRageFlameStart start in wave)
+            SpawnPhantoonRageFlame(body, start);
 
         _audio.QueueEnemySound(PhantoonRageDefinitions.WaveSound, PhantoonRageDefinitions.WaveSoundPriority);
         state.EyeState.RageWaveCount = WrappingCounter.IncrementCount(state.EyeState.RageWaveCount);
@@ -700,60 +694,57 @@ internal sealed class PhantoonPatterns
             state.EyeState.FadeComplete = false;
     }
 
-    /// <summary>
-    /// Initializes a destroyable flame from the casual, rage or spiral producer; rain flames spawn through
-    /// <see cref="SpawnPhantoonRainFlame"/>.
-    /// </summary>
+    /// <summary>Initializes a casual flame, which falls from the mouth harmless until it strikes the floor.</summary>
     /// <param name="body">Phantoon's body.</param>
-    /// <param name="type">Which producer spawns the flame.</param>
-    /// <param name="index">The producer's flame index: a rage flame's 0 through 15, a spiral flame's direction 0 through 7.</param>
-    /// <exception cref="ArgumentException"><paramref name="type"/> is the rain producer.</exception>
-    internal bool SpawnPhantoonDestroyableFlame(RoomEnemySlot body, PhantoonFlameSpawnType type, int index)
+    internal bool SpawnPhantoonCasualFlame(RoomEnemySlot body)
     {
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
             return false;
-        switch (type)
+        flame.Velocity = flame.Velocity.WithX(SignedEightEight.Zero);
+        flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 32)));
+        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualFalling0));
+        flame.FrameBehavior =
+            EnemyProjectileFrameBehavior.PhantoonCasualFlameFall;
+
+        // The falling flame's step changes the spawn definition's harmful, shootable properties to harmless ones.
+        // The falling flame therefore cannot hurt Samus and cannot be shot until
+        // it has struck the floor and changed into the bouncing form.
+        flame.CanDamageSamus = false;
+        flame.BlocksSamusProjectiles = false;
+        return true;
+    }
+
+    /// <summary>Initializes an enraged flame, which circles the body from its start as its circle widens.</summary>
+    /// <param name="body">Phantoon's body.</param>
+    /// <param name="start">Where on its circle the flame starts and which way it circles.</param>
+    internal bool SpawnPhantoonRageFlame(RoomEnemySlot body, PhantoonRageFlameStart start)
+    {
+        EnemyProjectile? flame = AllocateDestroyableFlame(body);
+        if (flame is null)
+            return false;
+        flame.State = new PhantoonOrbitingFlameState(start.Angle)
         {
-            case PhantoonFlameSpawnType.Casual:
-                flame.Velocity = flame.Velocity.WithX(SignedEightEight.Zero);
-                flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 32)));
-                flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualFalling0));
-                flame.FrameBehavior =
-                    EnemyProjectileFrameBehavior.PhantoonCasualFlameFall;
+            TurnPerUpdate = PhantoonFlameSpawns.RageTurnPerUpdate(start),
+        };
+        flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 32)));
+        flame.FrameBehavior =
+            EnemyProjectileFrameBehavior.PhantoonRageFlameOrbit;
+        return true;
+    }
 
-                // The falling flame's step changes the spawn definition's harmful, shootable properties to harmless ones.
-                // The falling flame therefore cannot hurt Samus and cannot be shot until
-                // it has struck the floor and changed into the bouncing form.
-                flame.CanDamageSamus = false;
-                flame.BlocksSamusProjectiles = false;
-                break;
-
-            case PhantoonFlameSpawnType.Enraged:
-                flame.State = new PhantoonOrbitingFlameState(PhantoonFlameSpawns.RageAngle(index))
-                {
-                    AngleStep = index >= 8 ? -PhantoonFlameMotionDefinitions.RageAngleStep : PhantoonFlameMotionDefinitions.RageAngleStep,
-                };
-                flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 32)));
-                flame.FrameBehavior =
-                    EnemyProjectileFrameBehavior.PhantoonRageFlameOrbit;
-                break;
-
-            case PhantoonFlameSpawnType.Rain:
-                throw new ArgumentException("A rain flame spawns by its column and fall delay.", nameof(type));
-
-            case PhantoonFlameSpawnType.Spiral:
-                if (index > 7)
-                    throw new InvalidDataException($"Phantoon spiral direction {index} exceeds seven.");
-                flame.State = new PhantoonOrbitingFlameState(PhantoonFlameSpawns.SpiralAngle(index));
-                flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 16)));
-                flame.FrameBehavior =
-                    EnemyProjectileFrameBehavior.PhantoonSpiralFlameOrbit;
-                break;
-
-            default:
-                throw new InvalidOperationException($"Undefined Phantoon flame spawn type {type}.");
-        }
+    /// <summary>Initializes a spiral flame, which circles the body clockwise from its start as its circle widens.</summary>
+    /// <param name="body">Phantoon's body.</param>
+    /// <param name="start">The flame's starting angle round the body.</param>
+    internal bool SpawnPhantoonSpiralFlame(RoomEnemySlot body, TrigonometryAngle start)
+    {
+        EnemyProjectile? flame = AllocateDestroyableFlame(body);
+        if (flame is null)
+            return false;
+        flame.State = new PhantoonOrbitingFlameState(start);
+        flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 16)));
+        flame.FrameBehavior =
+            EnemyProjectileFrameBehavior.PhantoonSpiralFlameOrbit;
         return true;
     }
 

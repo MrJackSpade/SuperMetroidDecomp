@@ -4,9 +4,7 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 internal static class SbugMovement
 {
     /// <summary>The facing <paramref name="heading"/> shows: the facing whose eighth of the turn contains it.</summary>
-    internal static SbugFacing FacingOf(RotationAngle heading) =>
-        SbugMovementDefinitions.FacingsCounterClockwise.At(
-            heading.TurnedBySteps(-SbugDefinitions.FirstFacingStart).Sector(RotationAngle.StepsPerTurn / SbugDefinitions.StepsPerFacing));
+    internal static SbugFacing FacingOf(RotationAngle heading) => SbugMovementDefinitions.Facings.At(heading);
 
     /// <summary>The facing a reversal of the custom heading turns <paramref name="facing"/> to.</summary>
     /// <exception cref="InvalidDataException"><paramref name="facing"/> is not one of the eight facings.</exception>

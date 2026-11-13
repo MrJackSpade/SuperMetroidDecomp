@@ -46,19 +46,16 @@ internal static class MotherBrainGlassAnimations
     };
 
     /// <summary>
-    /// The shard initializer maps one of sixteen random angle bins to its shard group; the bin widths 1, 2, 3, 2 repeat in
-    /// the opposite half-turn.
+    /// The spin a shard launched at each sixteenth of the turn plays, in turn order: the groups span one, two, three and two
+    /// sixteenths, and repeat so in the opposite half-turn.
     /// </summary>
-    internal static MotherBrainGlassSegment ShardAnimation(int angleBin) => angleBin switch
-    {
-        0 => MotherBrainGlassSegment.ShardGroup0,
-        1 or 2 => MotherBrainGlassSegment.ShardGroup1,
-        3 or 4 or 5 => MotherBrainGlassSegment.ShardGroup2,
-        6 or 7 => MotherBrainGlassSegment.ShardGroup3,
-        8 => MotherBrainGlassSegment.ShardGroup4,
-        9 or 10 => MotherBrainGlassSegment.ShardGroup5,
-        11 or 12 or 13 => MotherBrainGlassSegment.ShardGroup6,
-        14 or 15 => MotherBrainGlassSegment.ShardGroup7,
-        _ => throw new ArgumentOutOfRangeException(nameof(angleBin), angleBin, "Glass-shard angle bins run from zero to fifteen."),
-    };
+    internal static TurnArcs<MotherBrainGlassSegment> ShardAnimations { get; } = new(TrigonometryAngle.Zero,
+        MotherBrainGlassSegment.ShardGroup0,
+        MotherBrainGlassSegment.ShardGroup1, MotherBrainGlassSegment.ShardGroup1,
+        MotherBrainGlassSegment.ShardGroup2, MotherBrainGlassSegment.ShardGroup2, MotherBrainGlassSegment.ShardGroup2,
+        MotherBrainGlassSegment.ShardGroup3, MotherBrainGlassSegment.ShardGroup3,
+        MotherBrainGlassSegment.ShardGroup4,
+        MotherBrainGlassSegment.ShardGroup5, MotherBrainGlassSegment.ShardGroup5,
+        MotherBrainGlassSegment.ShardGroup6, MotherBrainGlassSegment.ShardGroup6, MotherBrainGlassSegment.ShardGroup6,
+        MotherBrainGlassSegment.ShardGroup7, MotherBrainGlassSegment.ShardGroup7);
 }

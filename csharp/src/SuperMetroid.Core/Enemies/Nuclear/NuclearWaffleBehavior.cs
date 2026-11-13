@@ -148,7 +148,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             // its initializer runs. That record owns the twelve-map animation, the link's
             // frame behaviour, 8x8 radii, interaction flags, and 64 damage. The
             // initializer below only copies the live owner coordinates, associates this
-            // physical slot with one articulated link, and selects collision option one.
+            // projectile with one articulated link, and selects collision option one.
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 segment,
                 RoomEnemyProjectileKind.NuclearWaffleBody,

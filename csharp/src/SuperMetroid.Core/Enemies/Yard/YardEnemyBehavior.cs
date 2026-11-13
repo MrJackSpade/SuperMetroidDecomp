@@ -34,7 +34,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Binds Yard's room, terrain, quake, and collision owners for its registered AI callbacks.</summary>
+    /// <summary>Binds Yard's room, terrain, quake, and collision owners for its registered AI behaviours.</summary>
     internal YardEnemyBehavior(EnemyRoomBinding room, EnemyTerrain terrain, RoomEarthquake earthquake, EnemyCollision collision, EnemyAudioQueue audio)
     {
         _audio = audio;
@@ -591,7 +591,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Behavior = YardBehavior.NormalCrawling;
     }
 
-    /// <summary>Reads the exact held horizontal direction used by Yard's touch callback.</summary>
+    /// <summary>Reads the exact held horizontal direction used by Yard's touch reaction.</summary>
     private static bool SamusIsDirectingTowardYard(
         YardEnemyState state,
         ControllerButton controllerInput)
@@ -660,7 +660,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Registers Yard's touch callback, including its facing-dependent shell response.</summary>
+    /// <summary>Registers Yard's touch reaction, including its facing-dependent shell response.</summary>
     internal void AddYardTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Yard &&

@@ -573,7 +573,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         // subtitle-delay values. On underflow the code installs the typing step,
         // spawns the persistent Japanese subtitle projectile, and falls through to
         // that same typewriter call. Keep the producer request separate because the
-        //  allocator owns whether a physical slot is actually available.
+        //  allocator owns whether a place in the projectile pool is actually free.
         if (--_state.FunctionTimer < 0)
         {
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathTypeOutZebesEscapeText;

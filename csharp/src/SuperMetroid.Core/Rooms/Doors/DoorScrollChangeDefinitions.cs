@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The straight-line door callbacks that only rewrite room scroll cells (#641). Each callback is
+/// The straight-line door behaviours that only rewrite room scroll cells (#641). Each behaviour is
 /// its ordered list of writes; a scroll index is the row-major cell number in the room's scroll grid.
 /// Each setup is named for the room its doors lead into and the screens of that room its writes change.
 /// </summary>

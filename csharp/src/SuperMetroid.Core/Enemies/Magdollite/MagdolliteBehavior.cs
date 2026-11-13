@@ -559,7 +559,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Carries out one cue of a Magdollite part's animations: the sixteen private callbacks the ten
+    /// Carries out one cue of a Magdollite part's animations: the sixteen private cues the ten
     /// authored animations reference. Every cue runs on to the next step, so none redirects.
     /// </summary>
     private MagdolliteSegment? ApplyMagdolliteCue(

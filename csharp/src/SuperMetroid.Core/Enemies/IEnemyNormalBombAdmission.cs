@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>An enemy that takes normal bombs although its definition names neither the common nor a private shot callback.</summary>
+/// <summary>An enemy that takes normal bombs although its definition names neither the common nor a private shot reaction.</summary>
 internal interface IEnemyNormalBombAdmission : IEnemyEntity
 {
     /// <summary>Whether the normal-bomb walker admits the occupant this frame.</summary>

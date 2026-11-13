@@ -596,7 +596,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddShuttersBombReactions(EnemySharedReactions table)
     {
         // The shutter's shot reaction never calls common shot AI. Bomb collision has already marked the physical bomb, then the
-        // callback only advances the shutter state machine exactly as a beam, missile, touch, or power bomb would.
+        // reaction only advances the shutter state machine exactly as a beam, missile, touch, or power bomb would.
         table.AddBombSpecial(c => c.Enemy.DefinitionId is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer &&
                                   c.SelectedShotAi == EnemyReaction.ShootableVerticalShutterShot,
             c => ReactVerticalShutter(c.Enemy, _shutterCamera));

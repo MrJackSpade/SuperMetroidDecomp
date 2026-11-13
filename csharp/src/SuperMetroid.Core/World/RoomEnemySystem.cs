@@ -490,7 +490,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>The <see cref="EnemyTerrain"/> owner of this RoomEnemySystem.</summary>
     internal EnemyTerrain Terrain { get; }
 
-    /// <summary>Post-AI collision snapshots for active physical enemy slots.</summary>
+    /// <summary>Post-AI collision snapshots for the room's active enemies.</summary>
     private readonly List<SolidEnemyCollisionBody> _interactiveCollisionBodies = new();
 
     /// <summary>The elevator journey the runtime reads and resets.</summary>
@@ -1010,9 +1010,9 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     slot.FrameCounter = WrappingCounter.IncrementCount(slot.FrameCounter);
                     // The enemy pass skips the animation whenever the enemy is
                     // frozen, even if the hurt state, tried first, selected an
-                    // enemy-specific hurt callback above. Testing only `ranActorAi` here
+                    // enemy-specific hurt behaviour above. Testing only `ranActorAi` here
                     // incorrectly advanced a Metroid's body animation while its frozen
-                    // callback still owned the two composited outer sprite objects.
+                    // behaviour still owned the two composited outer sprite objects.
                     if ((slot.AiStates & EnemyAiStates.Frozen) == EnemyAiStates.None &&
                         slot.Processing.HasAny(EnemyProcessing.Animates))
                         EnemyAnimationPlayer.AdvanceAnimation(
@@ -1129,7 +1129,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         BombTorizoBehavior.Combat.AddBombTorizoBombReactions(table);
 
         // The body's reaction makes a dud shot. The frame-hitbox bomb walker has already marked the physical explosion, and the
-        // body callback performs no health, phase, or multipart-state work of its own.
+        // body's reaction performs no health, phase, or multipart-state work of its own.
         MotherBrainCombat.AddMotherBrainBodyBombReactions(table);
         MotherBrainBehavior.Combat.AddMotherBrainBombReactions(table);
         DeadTorizoBehavior.AddDeadTorizoBombReactions(table);
@@ -1147,7 +1147,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         FirefleaBehavior.AddFirefleaBombReactions(table);
         FakeKraidBehavior.AddFakeKraidBombReactions(table);
         PlatformsBehavior.AddPlatformsBombReactions(table);
-        // Skree's callback owns its four-piece burst and death animation because its shot reaction skips the
+        // Skree's shot reaction owns its four-piece burst and death animation because its shot reaction skips the
         // ordinary death animation. A normal bomb selects death variant zero (only missiles select two).
         SkreeBehavior.AddSkreeBombReactions(table);
         ZebetiteBehavior.AddZebetiteBombReactions(table);
@@ -1350,7 +1350,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>Registers Samus-contact handlers after species animation registrations.</summary>
     /// <remarks>Each species registers its own run of reactions; first match wins, so the interleaving below is the
     /// established precedence between species and shared registrations. Matches are mutually exclusive (each names its
-    /// definition and the definition's callback); the ordinary normal-touch handler is last because Crocomire's tongue also uses
+    /// definition and the definition's reaction); the ordinary normal-touch handler is last because Crocomire's tongue also uses
     /// NormalEnemyTouch.</remarks>
     private void AddTouchHandlers(EnemySharedReactions table)
     {

@@ -134,7 +134,7 @@ internal sealed class TorizoMovement
         RunBombTorizoFrameBehavior(torizo, state, level);
     }
 
-    /// <summary>Dispatches the movement callback installed by the current Bomb or Golden animation.</summary>
+    /// <summary>Dispatches the movement behaviour installed by the current Bomb or Golden animation.</summary>
     internal void RunBombTorizoFrameBehavior(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -249,7 +249,7 @@ internal sealed class TorizoMovement
         if (!_terrain.MoveEnemyVertically(level, torizo, SignedSixteenSixteen.FromWholePixels(TorizoGroundProbeFall.Pixels(state.Velocity.X))))
         {
             // Bomb Torizo's fall swaps to the authored in-air animation while the downward probe remains
-            // clear. Landing itself is handled by the animation-installed gravity/jump callback.
+            // clear. Landing itself is handled by the animation-installed gravity/jump behaviour.
             TorizoBody.StartTorizoBodyAnimation(torizo, _access.RequireBombTorizoState(torizo), TorizoAnimations.Start(_access.FacesRight(torizo)
                 ? TorizoBodySegment.FacingRightFalling0
                 : TorizoBodySegment.FacingLeftFalling0));
@@ -285,7 +285,7 @@ internal sealed class TorizoMovement
         }
     }
 
-    /// <summary>Requires a collision layer for movement callbacks that cannot run outside a loaded room.</summary>
+    /// <summary>Requires a collision layer for movement behaviours that cannot run outside a loaded room.</summary>
     internal static RoomLevelData RequireBombTorizoLevel(RoomLevelData? level) =>
         level ?? throw new InvalidOperationException(
             "Bomb Torizo movement requires the active room collision layer.");

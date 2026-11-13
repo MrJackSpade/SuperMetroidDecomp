@@ -297,7 +297,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         return state;
     }
 
-    /// <summary>Applies Dragon's paired-body combat tail after the common bomb-as-shot callback.</summary>
+    /// <summary>Applies Dragon's paired-body combat tail after the common bomb-as-shot reaction.</summary>
     internal void AddDragonBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Dragon &&

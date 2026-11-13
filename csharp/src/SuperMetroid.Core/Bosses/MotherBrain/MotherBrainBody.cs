@@ -392,8 +392,8 @@ internal sealed class MotherBrainBody
 
     /// <summary>
     /// Makes the twelve turret spawns
-    /// the body's initializer requests. Allocation scans from the highest slot down, so request
-    /// zero lands in host slot 17 and request eleven lands in slot 6.
+    /// the body's initializer requests. Allocation scans the pool from its highest place down, so request
+    /// zero lands in place 17 and request eleven lands in place 6.
     /// </summary>
     private void SpawnMotherBrainInitialTurrets()
     {

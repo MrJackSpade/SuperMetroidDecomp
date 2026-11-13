@@ -8,7 +8,7 @@ public static class SporeSpawnScrollingHooks
     /// <summary>
     /// The scrolling-finished hook of the Spore Spawn fight. The hook
     /// prevents the camera from moving above Y 464 while the live encounter owns
-    /// the global scrolling-finished callback.
+    /// the global scrolling-finished behaviour.
     /// </summary>
     public const int FightMinimumCameraY = 464;
 }

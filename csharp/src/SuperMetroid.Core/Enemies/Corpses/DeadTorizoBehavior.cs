@@ -264,7 +264,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddDeadTorizoBombReactions(EnemySharedReactions table)
     {
         // Specials consulted after the selected literal no-op gate.
-        // Corpse shot callbacks run directly after the collision mark. They do not consult bomb
+        // Corpse shot reactions run directly after the collision mark. They do not consult bomb
         // vulnerability or health; they only hand the actor to its authored rotting state machine.
         table.AddBombSpecialAfterNoOp(c => c.Enemy.DefinitionId == EnemyDefinitionId.CorpseTorizo &&
                                            c.SelectedShotAi == EnemyReaction.DeadTorizoTouchAndShot,
@@ -303,7 +303,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.CorpseTorizo &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.DeadTorizoTouchAndShot)
         {
-            // Its private callback runs after the ordinary collision prelude but before common impact/vulnerability
+            // Its private reaction runs after the ordinary collision prelude but before common impact/vulnerability
             // code. The shot is marked, not converted into an explosion, and the corpse never loses health.
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {

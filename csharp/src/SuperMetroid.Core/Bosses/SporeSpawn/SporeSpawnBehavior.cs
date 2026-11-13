@@ -71,7 +71,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
 
     /// <summary>
-    /// Runs the global scrolling-finished callback installed by live Spore Spawn.
+    /// Runs the global scrolling-finished behaviour installed by live Spore Spawn.
     /// The camera invokes it after both ordinary camera axes have
     /// finished and before background streaming observes the final camera position.
     /// </summary>
@@ -121,7 +121,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Shading = state.Colours.Sprites;
 
         // The projectile spawner searches the eighteen-slot pool downward. Four calls therefore
-        // occupy physical slots 17..14, which the stalk update later reaches directly.
+        // occupy the pool's places 17..14, which the stalk update later reaches directly.
         for (int argument = 0; argument < 4; argument++)
             SpawnSporeSpawnStalk(body, argument);
 
@@ -299,7 +299,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             CoordinateAxis.Wrap(anchor + (negative ? -threeQuarters : threeQuarters)),
         };
 
-        // The boss writes physical projectile slots 14,15,16,17 in this order even though
+        // The boss writes projectile places 14,15,16,17 in this order even though
         // its four initializer calls allocated them in reverse order.
         for (int segment = 0; segment < positions.Length; segment++)
         {
@@ -777,7 +777,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // These twelve frames are selected by Spore Spawn. Old visual
         // overrides may carry Draygon-prefixed keys, but every rectangle
-        // and callback comes from the compiled gameplay catalog.
+        // and reaction comes from the compiled gameplay catalog.
         foreach (EnemyCollisionComponent component in
                  SporeSpawnCollision.ComponentsAt(enemy.Frame))
         {

@@ -17,7 +17,7 @@ public sealed class YappingMawEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<YappingMawSegment> Playback { get; set; }
 
-    /// <summary>Physical enemy slot representing the moving mouth, distinct from the four body-projectile slots and the stationary root sprite object.</summary>
+    /// <summary>The listed enemy representing the moving mouth, distinct from the four body projectiles and the stationary root sprite object.</summary>
     public RoomEnemySlot Owner { get; }
     /// <summary>The behaviour main AI runs, initialized to neutral and advanced by targeting, curl completion, and cooldown expiration.</summary>
     public YappingMawAiFunction Function { get; internal set; }

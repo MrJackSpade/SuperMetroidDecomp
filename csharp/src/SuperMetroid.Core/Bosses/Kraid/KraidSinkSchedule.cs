@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Compiled mechanical callbacks in Kraid's sinking schedule.</summary>
+/// <summary>Compiled mechanical steps in Kraid's sinking schedule.</summary>
 internal static class KraidSinkSchedule
 {
     /// <summary>
     /// Kraid's sinking schedule: twenty-eight rows spaced eight pixels
     /// apart, terminated by an end marker. Six rows crumble platforms; the remaining rows
-    /// invoke the distinct empty callback. Where each row draws is presentation data.
+    /// run the distinct empty step. Where each row draws is presentation data.
     /// </summary>
     public static KraidSinkCallback? CallbackAt(int y)
     {

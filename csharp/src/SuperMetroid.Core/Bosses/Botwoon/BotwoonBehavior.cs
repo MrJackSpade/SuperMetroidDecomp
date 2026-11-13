@@ -755,7 +755,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Runs the private tail shared by Botwoon's contact, shot and
-    /// power-bomb reactions. All three callbacks deliberately use a common damage helper
+    /// power-bomb reactions. All three reactions deliberately use a common damage helper
     /// that skips the ordinary death animation: zero health is only a request to finish the
     /// current traversal. The head and thirteen body actors remain alive until the tail has
     /// crossed the next hole, exactly as the death tail requires.
@@ -792,7 +792,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             : throw new InvalidOperationException(
                 $"Enemy slot {head.SlotIndex} has no initialized Botwoon state.");
 
-    /// <summary>Routes bomb hits through the shared shot callback without generic death animation.</summary>
+    /// <summary>Routes bomb hits through the shared shot reaction without generic death animation.</summary>
     internal void AddBotwoonBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Botwoon &&

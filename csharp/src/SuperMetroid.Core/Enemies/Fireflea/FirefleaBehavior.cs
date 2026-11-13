@@ -21,7 +21,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Holds the shared darkness level that advances when Firefleas die.</summary>
     private readonly EnemyRoomStatus _roomStatus;
 
-    /// <summary>Connects Fireflea motion and collision callbacks to room death and darkness state.</summary>
+    /// <summary>Connects Fireflea motion and collision behaviours to room death and darkness state.</summary>
     internal FirefleaBehavior(EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops, EnemyRoomStatus roomStatus)
     {
         _collision = collision;
@@ -183,7 +183,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Registers Fireflea's touch callback, which runs the retail unconditional-death sequence.</summary>
+    /// <summary>Registers Fireflea's touch reaction, which runs the retail unconditional-death sequence.</summary>
     internal void AddFirefleaTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Fireflea &&

@@ -612,7 +612,7 @@ internal sealed class MotherBrainProjectiles
                 // The ring writes the Baby slot's Enemy.health from this projectile
                 // pass; it must not wait for the Baby's next AI turn to publish it.
                 RoomEnemySlot babySlot = state.BabyMetroidSlot ?? throw new InvalidDataException(
-                    "A Mother Brain onion ring hit the Baby without its physical slot.");
+                    "A Mother Brain onion ring hit the Baby while the Baby has no enemy in the room.");
                 babySlot.Health = baby.Health;
                 ExplodeMotherBrainOnionRing(ring, ring.Position.Whole);
                 return;
@@ -678,7 +678,7 @@ internal sealed class MotherBrainProjectiles
         Position16<RoomPixels> position)
     {
         // The ring's impact clears the source before allocating the small-explosion room dust. If the
-        // allocator reuses this physical slot, the outer projectile scheduler will advance
+        // allocator reuses this place in the projectile pool, the outer projectile pass will advance
         // the newborn dust animation during the same pass.
         ring.Delete();
         _projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.SmallExplosion);

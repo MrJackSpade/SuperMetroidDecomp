@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Shared state behind Mother Brain's two retail enemy records, the body and the brain.
-/// Most of these values belong to neither enemy slot. A dedicated object therefore preserves both the physical slot
-/// boundary and the one-owner/two-record relationship.
+/// Most of these values belong to neither enemy. A dedicated object therefore keeps both enemies' places in the room
+/// separate while one owner serves the two.
 /// </summary>
 public sealed class MotherBrainEnemyState
 {
@@ -285,7 +285,7 @@ public sealed class MotherBrainEnemyState
 
 
     /// <summary>
-    /// Last Baby animation copied into its physical slot. The slot's cursor advances
+    /// Last Baby animation started on the Baby's enemy. That enemy's playback advances
     /// independently, so this latch changes only when Baby AI explicitly invokes the
     /// helper that starts its animation.
     /// </summary>

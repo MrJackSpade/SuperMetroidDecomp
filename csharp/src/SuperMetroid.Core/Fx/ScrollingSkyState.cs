@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Fx;
 [RoomLifetime]
 public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBands = true)
 {
-    /// <summary>Whether the sky's bands drift: only the sky's effect or setup starts them; the room-main callback alone does not.</summary>
+    /// <summary>Whether the sky's bands drift: only the sky's effect or setup starts them; the room-main behaviour alone does not.</summary>
     public bool HasBands { get; } = hasBands;
 
     /// <summary>The land or ocean chunk table the sky's rows follow.</summary>
@@ -28,7 +28,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
         ScrollingSkyBandDefinitions.Drifts.ToDictionary(drift => drift, _ => default(FixedCoordinate));
 
     /// <summary>
-    /// Returns whether a room-state callback dispatches to the land-sky
+    /// Returns whether a room state's main behaviour dispatches to the land-sky
     /// implementation. This is the same room-main dispatch decision the game makes;
     /// callers must not infer it from a room number, area, door, or camera position.
     /// </summary>
@@ -41,7 +41,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
         IsLandRoomMain(callback) || callback == RoomMainCallback.ScrollingSkyOcean;
 
     /// <summary>
-    /// Whether a room state's setup callback spawns the sky's bands, whichever door the room is entered through; a room's
+    /// Whether a room state's setup spawns the sky's bands, whichever door the room is entered through; a room's
     /// effect can spawn them too (<see cref="SpawnsBands"/>).
     /// </summary>
     public static bool SetupSpawnsBands(RoomSetupCallback setup) =>
@@ -50,7 +50,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
 
     /// <summary>
     /// Whether a room state spawns the sky's bands when entered with <paramref name="selectedFx"/> as its effect: the sky
-    /// effect or the state's setup callback spawns them; the room-main callback alone does not.
+    /// effect or the state's setup spawns them; the room-main behaviour alone does not.
     /// </summary>
     public static bool SpawnsBands(RoomFxType? selectedFx, RoomSetupCallback setup) =>
         selectedFx == RoomFxType.ScrollingSky || SetupSpawnsBands(setup);

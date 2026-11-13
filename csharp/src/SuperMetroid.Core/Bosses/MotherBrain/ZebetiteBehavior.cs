@@ -30,7 +30,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Clears actor shaking when the room earthquake ends.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Owns physical enemy slots, including slots reused across Zebetite generations.</summary>
+    /// <summary>The room's enemies, whose places are reused across Zebetite generations.</summary>
     private readonly EnemySlotTable _slotTable;
 
     /// <summary>Exposes the door transition that keeps newly initialized Zebetites inert.</summary>
@@ -220,7 +220,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.AnimationClock.Restart();
     }
 
-    /// <summary>Finds a free physical slot and initializes a primary or linked half from its population record.</summary>
+    /// <summary>Finds a free place in the room's enemies and initializes a primary or linked half from its population record.</summary>
     internal RoomEnemySlot SpawnZebetite(ZebetiteHalf half)
     {
         // The spawn takes the first free slot. In particular, a primary's death vacates

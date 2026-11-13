@@ -354,7 +354,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddFakeKraidBombReactions(EnemySharedReactions table)
     {
         // Fake Kraid saves its coordinates before common no-death AI, then requests death variant three and the
-        // Mini-Kraid drop. Its definition never runs the generic death, whatever callback a hitbox selects.
+        // Mini-Kraid drop. Its definition never runs the generic death, whatever reaction a hitbox selects.
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.MiniKraid)
         {
             RunsGenericDeath = false,
@@ -406,7 +406,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spawns Mini-Kraid's own explosion and four drops after a lethal power bomb.</summary>
     internal void AddFakeKraidPowerBombReactions(EnemySharedReactions table)
     {
-        // Mini Kraid's private power-bomb callback still owns its four direct pickup explosions, spawned after its
+        // Mini Kraid's private power-bomb reaction still owns its four direct pickup explosions, spawned after its
         // death explosion.
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.MiniKraid &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.FakeKraidShot)

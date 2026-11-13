@@ -638,7 +638,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Creates species state at the enemy's physical slot before its first AI pass.</summary>
+    /// <summary>Creates the enemy's species state before its first AI pass.</summary>
     private static PipeBugEnemyState CreatePipeBugState(RoomEnemySlot slot)
     {
         var state = new PipeBugEnemyState(slot);
@@ -652,7 +652,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(slot, PipeBugAnimations.StartingWith(segment));
     }
 
-    /// <summary>Rejects a behavior callback that needs Samus but received no live player actor.</summary>
+    /// <summary>Rejects a behavior that needs Samus but received no live player actor.</summary>
     private static void RequirePipeBugSamus([NotNull] SamusState? samus)
     {
         if (samus is null)

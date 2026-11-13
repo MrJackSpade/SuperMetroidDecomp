@@ -217,7 +217,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Owtch &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.OwtchShot)
         {
-            // Owtch's private shot callback returns before common shot AI unless signed(state - 1) is negative.
+            // Owtch's private shot reaction returns before common shot AI unless signed(state - 1) is negative.
             // The collision prelude has already marked ordinary non-plasma shots as collided at this point,
             // but it has not converted them into an impact animation. Preserve that split so the shell is genuinely
             // immune while moving right, sinking, buried, or rising.

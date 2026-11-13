@@ -28,7 +28,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ShitroidEntity(this, slot, common);
 
-    /// <summary>Provides scratch state, room scroll values, RNG, and installed encounter colors.</summary>
+    /// <summary>Provides the room's enemy session, room scroll values, RNG, and installed encounter colors.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>The room's enemies, among which the Baby Metroid's victim is placed directly after it (<see cref="BabyMetroidVictim"/>).</summary>
     private readonly EnemySlotTable _slotTable;
@@ -827,7 +827,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs the private power-bomb callback in place of common enemy damage.</summary>
+    /// <summary>Runs the private power-bomb reaction in place of common enemy damage.</summary>
     internal void AddShitroidPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.BabyMetroid &&
@@ -844,7 +844,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.ShitroidShot)
         {
             // Like Dead Torizo, Shitroid receives the projectile prelude but never creates an impact or
-            // enters vulnerability damage. Its own callback converts shot strength and the first shot's aim into recoil.
+            // enters vulnerability damage. Its own reaction converts shot strength and the first shot's aim into recoil.
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {
                 c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);

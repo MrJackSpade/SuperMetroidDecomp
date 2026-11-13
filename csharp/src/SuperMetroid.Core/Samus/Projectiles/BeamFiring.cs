@@ -323,11 +323,11 @@ internal sealed class BeamFiring
             waveBeam: beamType.HasWave);
         if (!initialImpact)
         {
-            // The game installs the callback only after muzzle collision. Do not
+            // The game installs the frame behaviour only after muzzle collision. Do not
             // infer it from Wave bits: the table is the dispatcher, including overreads.
             SamusBeamCallbackDefinition callback =
                 SamusBeamCallbacks.Resolve(charged, beamType);
-            // The callbacks with no model are Spazer and Plasma combinations whose table read lands outside
+            // The frame behaviours with no model are Spazer and Plasma combinations whose table read lands outside
             // the game's code: on the game's live state or an unconnected region. The game then runs
             // whatever that data holds, which only full memory and processor emulation could reproduce, so the
             // model rejects the shot under the emulation scope limit (#1500).

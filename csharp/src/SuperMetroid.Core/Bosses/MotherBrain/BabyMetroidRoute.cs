@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>The Baby Metroid's route from the ceiling to Samus: each leg's waypoint and steering.</summary>
 internal static class BabyMetroidRoute
 {
-    /// <summary>Combines an authored waypoint with its callback and whether it is the final leg.</summary>
+    /// <summary>Combines an authored waypoint with its movement step and whether it is the final leg.</summary>
     private static BabyMetroidRouteRecord Record(int index) => new(
         BabyMetroidRouteDefinitions.Waypoints[index],
         BabyMetroidRouteDefinitions.AccelerationDivisor,
@@ -18,7 +18,7 @@ internal static class BabyMetroidRoute
             ? Record(leg)
             : throw new InvalidDataException($"Baby route leg {leg} is not one of the {BabyMetroidRouteDefinitions.RecordCount} authored legs.");
 
-    /// <summary>Resolves a movement callback to its wrong-way horizontal speed addition.</summary>
+    /// <summary>Resolves a movement step to its wrong-way horizontal speed addition.</summary>
     internal static int GetWrongWayOffScreenXSpeed(BabyMetroidRouteMovementFunction movementFunction) =>
         BabyMetroidRouteDefinitions.WrongWayOffScreenXSpeeds.TryGetValue(movementFunction, out int speed)
             ? speed

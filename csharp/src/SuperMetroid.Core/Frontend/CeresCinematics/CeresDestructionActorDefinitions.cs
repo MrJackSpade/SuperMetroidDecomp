@@ -12,16 +12,16 @@ internal static class CeresDestructionActorDefinitions
     public const int ZebesActorCount = 6;
 
     /// <summary>The Zebes planet actor: its initializer,
-    /// waiting callback and animation; its operands set its placement/palette.
-    /// Its slide callback accelerates by 64/256 pixels.</summary>
+    /// waiting behaviour and animation; its operands set its placement/palette.
+    /// Its slide behaviour accelerates by 64/256 pixels.</summary>
     internal static CeresDestructionActorDefinition ZebesPlanet =>
         new(CinematicSpriteFrameBehavior.Zebes, CinematicSpriteSegment.ZebesPlanet,
             CeresSpriteColouring.Zebes, SignedSixteenSixteen.Zero, false, SignedEightEight.FromParts(0, 64),
             CinematicSpriteFrameBehavior.ZebesSlideSceneAway, false);
 
     /// <summary>The PLANET ZEBES text actor: its initializer,
-    /// an empty callback and its animation, in the cinematic's first sprite colours.
-    /// Its animation deletes before scene sliding, so it has no slide callback or acceleration.</summary>
+    /// an empty behaviour and its animation, in the cinematic's first sprite colours.
+    /// Its animation deletes before scene sliding, so it has no slide behaviour or acceleration.</summary>
     internal static CeresDestructionActorDefinition ZebesTitle =>
         new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteSegment.ZebesTitle,
             CeresSpriteColouring.ZebesTitle, SignedSixteenSixteen.Zero, false, SignedEightEight.Zero, null, false);

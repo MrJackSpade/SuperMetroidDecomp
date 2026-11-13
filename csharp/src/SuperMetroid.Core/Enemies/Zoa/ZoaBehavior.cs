@@ -112,7 +112,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = ZoaEnemyFunction.Rising;
     }
 
-    /// <summary>Reveals Zoa and rises until it reaches Samus's height, then starts its shooting animation and clears loop scratch.</summary>
+    /// <summary>Reveals Zoa and rises until it reaches Samus's height, then starts its shooting animation.</summary>
     internal static void RunZoaRising(
         RoomEnemySlot slot,
         ZoaEnemyState state,

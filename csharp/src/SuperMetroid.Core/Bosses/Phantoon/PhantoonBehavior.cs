@@ -383,10 +383,10 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PhantoonPresentation.StartPhantoonAnimation(state, state.Eye, PhantoonPartSegment.EyeballCentered);
     }
 
-    /// <summary>Initial flame callback that holds position before orbit activation.</summary>
+    /// <summary>Initial flame behaviour that holds position before orbit activation.</summary>
     internal const EnemyProjectileFrameBehavior PhantoonStartingFlameWaitingFrameBehavior =
         EnemyProjectileFrameBehavior.PhantoonIntroFlameWaiting;
-    /// <summary>Activated flame callback that advances its orbit around the body.</summary>
+    /// <summary>Activated flame behaviour that advances its orbit around the body.</summary>
     internal const EnemyProjectileFrameBehavior PhantoonStartingFlameOrbitFrameBehavior =
         EnemyProjectileFrameBehavior.PhantoonIntroFlameOrbit;
 
@@ -396,7 +396,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RunPhantoonMain(slot, frame.Samus, frame.Camera);
     }
 
-    /// <summary>Binds the hurt callback used after a vulnerable-eye hit.</summary>
+    /// <summary>Binds the hurt behaviour used after a vulnerable-eye hit.</summary>
     /// <remarks>Phantoon's hurt AI owns every Phantoon hurt frame. It alternates the body's colours between white and the
     /// new health band; body movement/main AI resumes only after common flash timing clears the hurt state.</remarks>
     internal void AddPhantoonHurtAi(EnemySharedReactions table) =>

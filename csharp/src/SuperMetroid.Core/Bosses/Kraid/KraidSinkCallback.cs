@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// The callbacks of Kraid's sinking/death steps; each member names the behaviour it runs.
+/// The steps of Kraid's sinking/death schedule; each member names what its step does.
 /// </summary>
 public enum KraidSinkCallback
 {
     /// <summary>
-    /// The empty callback. Rows that only clear another strip of his body
-    /// select this callback so it returns without spawning rocks or room objects.
+    /// The empty step. Rows that only clear another strip of his body
+    /// select this step so it returns without spawning rocks or room objects.
     /// </summary>
     NoOperation,
 

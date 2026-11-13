@@ -208,7 +208,7 @@ internal sealed class RidleyProjectiles
         // clears movement, draws five frames, then deletes; it never disables damage.
     }
 
-    /// <summary>Registers collision and motion callbacks for fireballs and both perpendicular afterburn paths.</summary>
+    /// <summary>Registers collision and motion behaviours for fireballs and both perpendicular afterburn paths.</summary>
     internal void AddFireballFrameBehaviors(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>

@@ -28,7 +28,7 @@ internal sealed class GameplayScreenLayers
     public ScreenLayers Displayed { get; private set; }
 
     /// <summary>
-    /// Chooses the layers before projectile callbacks run: a door transition's own layers, foreground and the sprites alone
+    /// Chooses the layers before projectile frame behaviours run: a door transition's own layers, foreground and the sprites alone
     /// while Mother Brain's death hides background, and the waterfall rooms' layers when their effect's blend lays the
     /// background behind the room (#1545).
     /// </summary>

@@ -7,7 +7,7 @@ public sealed class DeadTourianCorpseEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<DeadTourianSegment> Playback { get; set; }
 
-    /// <summary>Captures the selected corpse variant's callback profile and its own rot schedule for one slot, and starts its own rows.</summary>
+    /// <summary>Captures the selected corpse variant's reaction profile and its own rot schedule for one slot, and starts its own rows.</summary>
     internal DeadTourianCorpseEnemyState(RoomEnemySlot slot, DeadTourianBehavior.DeadTourianCorpseProfile profile, CorpseRotSchedule rot)
     {
         Slot = slot;
@@ -26,11 +26,11 @@ public sealed class DeadTourianCorpseEnemyState
     internal RottingCorpseRows Rows { get; }
     /// <summary>
     /// Pre-rot AI calls counted after solid Samus collision, from zero; the sixteenth switches to rotting and the corpse
-    /// never returns to the delay, so the count stops at sixteen. Touch/shot callbacks enter rotting directly.
+    /// never returns to the delay, so the count stops at sixteen. Touch/shot reactions enter rotting directly.
     /// </summary>
     public int PreRotDelayCounter { get; internal set; }
 
-    /// <summary>Assembly-internal callback profile and tile-row layout of this corpse's species.</summary>
+    /// <summary>Assembly-internal reaction profile and tile-row layout of this corpse's species.</summary>
     internal DeadTourianBehavior.DeadTourianCorpseProfile Profile { get; }
 
     /// <summary>Counts one pre-rot AI call.</summary>

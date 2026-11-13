@@ -76,7 +76,7 @@ public sealed class SamusProjectileSystem
     /// <summary>Resolves projectile impact with blocks and breakable terrain.</summary>
     internal ProjectileTerrainCollision TerrainCollision { get; }
 
-    /// <summary>Routes ordinary shots into enemy collision and damage callbacks.</summary>
+    /// <summary>Routes ordinary shots into enemy collision and damage reactions.</summary>
     internal ProjectileEnemyImpacts EnemyImpacts { get; }
 
     /// <summary>The trails moving projectiles leave, which run and show until both their sparkles end.</summary>
@@ -522,7 +522,7 @@ public sealed class SamusProjectileSystem
                 // overrun reads a value of Samus's state, so the game jumps there and begins
                 // decoding the cached previous-Super-Missile value as code. This semantic
                 // model cannot execute arbitrary mutable data as code; fail at the
-                // same callback-dispatch seam instead of silently substituting Wave motion.
+                // same frame-behaviour dispatch seam instead of silently substituting Wave motion.
                 throw new NotSupportedException(
                     "Charged Chainsaw callback enters Samus's mutable state as code; reproducing it needs full " +
                     "memory and processor emulation, which is outside the port's scope.");
@@ -532,7 +532,7 @@ public sealed class SamusProjectileSystem
             {
                 // Safe left-facing Murder Beam has no animation and never
                 // enters the projectile update. Other directions retain an animation;
-                // the overread callback then jumps into unrelated code and the
+                // the overread frame behaviour then jumps into unrelated code and the
                 // game stops making forward progress. Keep that unsafe execution
                 // explicit instead of silently substituting ordinary beam motion.
                 throw new NotSupportedException(

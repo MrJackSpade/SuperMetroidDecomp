@@ -29,7 +29,7 @@ internal static class PhantoonSoundDefinitions
 
     /// <summary>
     /// The materialization sounds: the enemy-library sounds queued in a repeating
-    /// three-callback cycle.
+    /// three-step cycle.
     /// </summary>
     internal static readonly SoundEffectId[] MaterializationSounds =
     [

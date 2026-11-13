@@ -285,10 +285,10 @@ internal sealed class KraidDeath
     {
         if (KraidSinkSchedule.CallbackAt(body.Position.Y.Whole) is KraidSinkCallback function)
         {
-            // Every eight-pixel sinking row invokes its callback, including the
-            // deliberately empty callback used by rows whose only job is clearing a strip of his body.
-            // Do not merge that callback with the adjacent crumble callback: they are
-            // distinct legal callbacks in the retail table.
+            // Every eight-pixel sinking row runs its step, including the
+            // deliberately empty step used by rows whose only job is clearing a strip of his body.
+            // Do not merge that step with the adjacent crumble step: they are
+            // distinct steps in the retail schedule.
             if (KraidObjects.ForSinkCallback(function) is { } request)
             {
                 // Each sinking rock starts at the left pixel edge of the removed block.

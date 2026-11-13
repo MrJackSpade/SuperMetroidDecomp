@@ -7,8 +7,8 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Literal ports of Samus's ordinary jump, spin-jump, wall-jump, aerial-turn, and falling
-/// movement routines, including their shared water/lava table selection.
+/// Samus's ordinary jump, spin-jump, wall-jump, aerial-turn, and falling movement, including
+/// their shared water/lava table selection.
 /// </summary>
 /// <remarks>
 /// This deliberately retains the game's split 16.16 magnitudes and separate vertical
@@ -224,7 +224,7 @@ public static class SamusAerialMovement
 
         // If acceleration did not overshoot the cap, spin jump retains motion only while
         // turning (mode 1) or while the input matching the pose's facing direction is held.
-        // The carry-set cap path bypasses this test exactly as the game does.
+        // A speed the maximum capped bypasses this test exactly as the game does.
         bool forwardHeld = IsForwardHeld(samus, controllerInput);
         bool allowHorizontal = calculation.ReachedMaximum ||
             speed.AccelerationMode == SamusAccelerationMode.Turning ||

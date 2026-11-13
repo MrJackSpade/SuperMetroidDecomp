@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Bosses.Kraid.KraidPartCue;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 
@@ -10,6 +10,6 @@ internal static class KraidAnimationsTooling
     /// <summary>The spritemaps the <paramref name="programs"/>' segments show, in beat order, repeats included.</summary>
     internal static IEnumerable<ushort> Spritemaps(params KraidPartProgram[] programs) =>
         programs.SelectMany(program => KraidAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<KraidPartFrame, K>.Frame>()
-            .Select(frame => KraidPartFrameToolingDefinitions.Spritemap(frame.Shown));
+            .Select(beat => beat.ShownFrame).OfType<KraidPartFrame>()
+            .Select(frame => KraidPartFrameToolingDefinitions.Spritemap(frame));
 }

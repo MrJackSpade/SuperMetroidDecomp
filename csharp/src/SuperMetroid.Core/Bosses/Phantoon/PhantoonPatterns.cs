@@ -616,15 +616,15 @@ internal sealed class PhantoonPatterns
         SamusState samus)
     {
         Offset16<RoomPixels> toSamus = samus.Position.Whole - body.Position.Whole;
-        int direction;
+        CompassDirection direction;
         if (Math.Abs(toSamus.Y) < 32)
-            direction = toSamus.X < 0 ? 7 : 2;
+            direction = toSamus.X < 0 ? CompassDirection.Left : CompassDirection.Right;
         else if (Math.Abs(toSamus.X) < 32)
-            direction = toSamus.Y < 0 ? 0 : 4;
+            direction = toSamus.Y < 0 ? CompassDirection.Up : CompassDirection.Down;
         else if (toSamus.X < 0)
-            direction = toSamus.Y < 0 ? 8 : 6;
+            direction = toSamus.Y < 0 ? CompassDirection.UpLeft : CompassDirection.DownLeft;
         else
-            direction = toSamus.Y < 0 ? 1 : 3;
+            direction = toSamus.Y < 0 ? CompassDirection.UpRight : CompassDirection.DownRight;
 
         PhantoonPresentation.InstallPhantoonProgram(
             state,

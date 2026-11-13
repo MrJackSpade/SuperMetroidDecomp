@@ -15,24 +15,31 @@ public static class PowampMotionDefinitions
     /// <summary>The balloon's sinking Y offsets: four pixels lower per inflation pose.</summary>
     internal static readonly int[] SinkingBalloonOffsets = [-20, -16, -12];
 
-    /// <summary>Eight clockwise compass directions beginning up.</summary>
-    public const int SpikeDirectionCount = 8;
+    /// <summary>
+    /// The order a burst fires its eight spikes in, anticlockwise from up and left round to straight up; each spike takes
+    /// the next free place in the projectile pool.
+    /// </summary>
+    internal static readonly IReadOnlyList<CompassDirection> SpikeFiringOrder =
+    [
+        CompassDirection.UpLeft, CompassDirection.Left, CompassDirection.DownLeft, CompassDirection.Down,
+        CompassDirection.DownRight, CompassDirection.Right, CompassDirection.UpRight, CompassDirection.Up,
+    ];
 
     /// <summary>
-    /// Each compass direction's signed 8.8 acceleration, ±32 on each
-    /// axis the direction leans along. The Y component is the X component rotated two compass steps.
+    /// The signed 8.8 acceleration of a spike flying in each direction, ±32 on each axis the direction leans along.
     /// </summary>
-    internal static readonly EightEightVector<RoomPixels>[] SpikeAccelerations =
-        [
-            EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, -32),
-            EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(32, -32),
-            EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(32, 0),
-            EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(32, 32),
-            EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 32),
-            EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-32, 32),
-            EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-32, 0),
-            EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-32, -32),
-        ];
+    internal static readonly IReadOnlyDictionary<CompassDirection, EightEightVector<RoomPixels>> SpikeAccelerations =
+        new Dictionary<CompassDirection, EightEightVector<RoomPixels>>
+        {
+            [CompassDirection.Up] = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, -32),
+            [CompassDirection.UpRight] = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(32, -32),
+            [CompassDirection.Right] = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(32, 0),
+            [CompassDirection.DownRight] = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(32, 32),
+            [CompassDirection.Down] = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 32),
+            [CompassDirection.DownLeft] = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-32, 32),
+            [CompassDirection.Left] = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-32, 0),
+            [CompassDirection.UpLeft] = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-32, -32),
+        };
 
     /// <summary>
     /// The inflate stage a sinking balloon restarts when Powamp dies, by the sinking poses it had shown: after two it

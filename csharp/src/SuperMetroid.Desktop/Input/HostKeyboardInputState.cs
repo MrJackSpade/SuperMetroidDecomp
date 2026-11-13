@@ -3,13 +3,13 @@ using SuperMetroid.Core.Input;
 namespace SuperMetroid.Desktop.Input;
 
 /// <summary>
-/// Converts Windows key messages into the single cartridge-format controller word consumed
-/// by the emulated NMI.
+/// Converts Windows key messages into the controller's held buttons, which the game reads
+/// once per update.
 /// </summary>
 /// <remarks>
 /// This state belongs above individual child controls. A canvas-only KeyDown handler stops
 /// receiving Enter and the arrows as soon as a debugger toolbar item owns focus, allowing
-/// WinForms dialog/navigation behavior to mutate the host UI instead of the SNES pad.
+/// WinForms dialog/navigation behavior to mutate the host UI instead of the game's controller.
 /// </remarks>
 internal sealed class HostKeyboardInputState
 {
@@ -26,7 +26,7 @@ internal sealed class HostKeyboardInputState
         SystemKeyUp = 0x0105,
     }
 
-    /// <summary>Event-owned keys currently held by Windows, independent of the polled gamepad word.</summary>
+    /// <summary>Event-owned keys currently held by Windows, independent of the polled gamepad buttons.</summary>
     private readonly HashSet<Keys> heldKeys = [];
 
     /// <summary>
@@ -71,7 +71,7 @@ internal sealed class HostKeyboardInputState
         if (heldKeys.Contains(Keys.Z)) input |= ControllerButton.B;
 
         // Space is a discoverable desktop jump alias; X retains the compact four-face-
-        // button layout printed below the viewport. Both become the retail SNES A bit.
+        // button layout printed below the viewport. Both press the controller's A button.
         if (heldKeys.Contains(Keys.X) || heldKeys.Contains(Keys.Space)) input |= ControllerButton.A;
         if (heldKeys.Contains(Keys.A)) input |= ControllerButton.Y;
         if (heldKeys.Contains(Keys.S)) input |= ControllerButton.X;
@@ -82,7 +82,7 @@ internal sealed class HostKeyboardInputState
         return input;
     }
 
-    /// <summary>Limits message interception to the keys mapped to SNES controls.</summary>
+    /// <summary>Limits message interception to the keys mapped to the controller's buttons.</summary>
     private static bool IsGameplayKey(Keys key) => key is
         Keys.Left or Keys.Right or Keys.Up or Keys.Down or
         Keys.Z or Keys.X or Keys.Space or Keys.A or Keys.S or Keys.Q or Keys.W or

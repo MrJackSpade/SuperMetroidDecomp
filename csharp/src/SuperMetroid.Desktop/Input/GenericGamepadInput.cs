@@ -2,7 +2,7 @@ using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Desktop.Input;
 
-/// <summary>Converts a conventional physical gamepad layout into one SNES controller word.</summary>
+/// <summary>Converts a conventional physical gamepad layout into the game's controller buttons.</summary>
 internal static class GenericGamepadInput
 {
     /// <summary>POV value returned by Windows while a directional hat is centered.</summary>
@@ -18,15 +18,15 @@ internal static class GenericGamepadInput
     public const int DefaultAxisDeadZone = 8192;
 
     /// <summary>
-    /// Maps the common DirectInput/USB physical layout to Super Metroid's SNES controls.
+    /// Maps the common DirectInput/USB physical layout to the game's controller buttons.
     /// </summary>
     /// <remarks>
     /// Face buttons are mapped by position rather than the letters printed by a modern
     /// controller: south=B/dash, east=A/jump, west=Y/cancel, and north=X/fire. This matches
-    /// the original SNES diamond and remains sensible on pads labelled A/B/X/Y differently.
+    /// the game controller's own diamond and remains sensible on pads labelled A/B/X/Y differently.
     /// Button bits seven/eight are the usual Back/Start pair. Many low-cost ten-button USB
     /// pads instead publish Select/Start as bits nine/ten, so both non-overlapping pairs are
-    /// accepted. The extra aliases do not alter recordings: only the resulting SNES word is
+    /// accepted. The extra aliases do not alter recordings: only the resulting controller buttons are
     /// written to disk.
     /// </remarks>
     public static ControllerButton Map(
@@ -76,9 +76,9 @@ internal static class GenericGamepadInput
         // WinMM button one occupies bit zero. Standard DirectInput pads number the diamond
         // by position (south/east/west/north), but the explicitly supported 0079:0011 SNES
         // adapter reports the printed labels X/A/B/Y. Keeping the two translations here
-        // ensures the game receives the same SNES word from either device; the
-        // cartridge's separate options bindings still decide what those SNES buttons do.
-        // The SNES buttons host face buttons 0 to 3 report.
+        // ensures the game receives the same buttons from either device; the
+        // game's own controller-setting options still decide what those buttons do.
+        // The controller buttons host face buttons 0 to 3 press.
         ControllerButton[] faceButtons =
             faceButtonLayout switch
             {

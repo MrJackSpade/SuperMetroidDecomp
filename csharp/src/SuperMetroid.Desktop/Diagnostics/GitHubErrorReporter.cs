@@ -9,14 +9,14 @@ using System.Threading.Channels;
 namespace SuperMetroid.Desktop.Diagnostics;
 
 /// <summary>
-/// Queues recoverable failures to one private GitHub repository without blocking emulation.
+/// Queues recoverable failures to one private GitHub repository without blocking the game's updates.
 /// </summary>
 /// <remarks>
 /// The fingerprint uses exception identities, messages, and managed method identities but
 /// deliberately excludes source paths and line numbers. Moving unchanged code therefore
-/// does not manufacture a new issue, while a different cartridge address in an exception
+/// does not manufacture a new issue, while a different identity named in an exception
 /// message remains a distinct defect. Unclassified errors also include room/state identity;
-/// typed cartridge dispatch errors can explicitly share a semantic key across rooms.
+/// an unmodeled behaviour's error is keyed by the behaviour it names, which it shares across rooms.
 /// The queue is single-reader so two novel failures can
 /// never race each other through the remote duplicate check.
 /// </remarks>
@@ -96,7 +96,7 @@ public sealed class GitHubErrorReporter : IDisposable
         Console.Error.WriteLine($"Room {context.Room}, state {context.RoomState}, " +
             $"door {context.Door}, recording {context.InputRecordingPath}");
         Console.Error.WriteLine(
-            "The failed frame may have partially mutated emulated state. " +
+            "The failed update may have partially changed the game's state. " +
             "A repeated throw can stall progress until the translation is fixed.");
         Console.Error.Flush();
 
@@ -235,7 +235,7 @@ public sealed class GitHubErrorReporter : IDisposable
             .AppendLine("Automatically captured by the opt-in desktop error reporter.")
             .AppendLine()
             .AppendLine("The host caught this at a recoverable boundary and attempted the next frame. " +
-                "Because CLR exceptions cannot resume at the throwing instruction, emulated state may " +
+                "Because CLR exceptions cannot resume at the throwing instruction, the game's state may " +
                 "already be partially mutated and a repeated failure may still stall progress.")
             .AppendLine()
             .AppendLine("## Runtime context")
@@ -251,7 +251,7 @@ public sealed class GitHubErrorReporter : IDisposable
             body.Append("- Game state: ").AppendLine(context.GameState);
         if (context.Phase is not null)
             body.Append("- Phase: ").AppendLine(context.Phase);
-        // The report shows the controller word as the journal records it.
+        // The report shows the held controller buttons in the form the journal records them.
         AppendHexContext(body, "Controller input", (ushort?)context.ControllerInput);
         if (context.Room is not null)
             body.Append("- Room: ").AppendLine(context.Room);

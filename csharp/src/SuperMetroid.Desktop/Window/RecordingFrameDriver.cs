@@ -13,7 +13,7 @@ namespace SuperMetroid.Desktop.Window;
 
 /// <summary>
 /// Replays a <see cref="ControllerInputRecording"/> through the host: the session starts from the
-/// recording's save RAM and takes one recorded controller word per frame. The recording's saves are
+/// recording's save RAM and takes the recorded controller buttons for each update. The recording's saves are
 /// never written back.
 /// </summary>
 internal sealed class RecordingFrameDriver : IHostFrameDriver

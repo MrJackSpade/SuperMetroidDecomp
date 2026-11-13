@@ -159,6 +159,37 @@ internal static class CoreVocabularyAnalyzerTests
         ExpectFile("delegate void FrameCallback();", "FrameCallback.cs");
         ExpectFile("enum RoomMainCallback { None }", "RoomMainCallback.cs",
             "'RoomMainCallback' names the original's dispatch ('Callback')", "'RoomMainCallback' names the original's dispatch ('Callback')");
+        // The original's jump through a table of routines, in each kind of declaration a renamed Core identifier used it in
+        // (#1624): a game-state phase method, the enemy coordinator's interface and its property, a pose table, the random
+        // step's enum, the running game state, a beta-handler selection and replacement, a dispatched local and an index.
+        const string routine = "names the original's routine dispatch";
+        Expect("class P { void DispatchMainGameplay(int input) { } }", $"'DispatchMainGameplay' {routine} ('Dispatch')");
+        Expect("class P { void DispatchShitroidState() { } }", $"'DispatchShitroidState' {routine} ('Dispatch')");
+        Expect("interface IEnemyDispatch { }", $"'IEnemyDispatch' {routine} ('Dispatch')");
+        Expect("interface IEnemies { } class Dependencies { IEnemies? Dispatch { get; init; } }", $"'Dispatch' {routine} ('Dispatch')");
+        Expect("static class SamusPoseDispatch { }", $"'SamusPoseDispatch' {routine} ('Dispatch')");
+        Expect("enum DispatchRandomStep { Reseed }", $"'DispatchRandomStep' {routine} ('Dispatch')");
+        Expect("enum GameState { Paused } class P { GameState DispatchGameState { get; set; } }", $"'DispatchGameState' {routine} ('Dispatch')");
+        Expect("class P { int DispatchedBetaHandler() => 0; }", $"'DispatchedBetaHandler' {routine} ('Dispatch')");
+        Expect("class P { void RedispatchBeta(int beta) { } }", $"'RedispatchBeta' {routine} ('Redispatch')");
+        Expect("class P { void RunPreDispatchEffects() { } }", $"'RunPreDispatchEffects' {routine} ('Dispatch')");
+        Expect("class P { int Run(int phase) { int dispatched = phase; return dispatched; } }", $"'dispatched' {routine} ('Dispatch')");
+        Expect("class P { void Run(int dispatch) { } }", $"'dispatch' {routine} ('Dispatch')");
+        Expect("class P { int Dispatcher; }", $"'Dispatcher' {routine} ('Dispatcher')");
+        Expect("class P { int CallsUntilDispatch { get; } }", $"'CallsUntilDispatch' {routine} ('Dispatch')");
+        // Sending music, a sound, audio, a request, a message or an event is the English verb.
+        Expect("record PendingMusicDispatch(int CallsUntilSent); class P { void AdvanceMusicDispatch() { } bool doorAudioDispatch; }");
+        Expect("class P { void DispatchSoundRequests() { } void DispatchMessages() { } void DispatchEvent() { } int RequestDispatcher; }");
+        // A C# delegate the port passes is dispatched through: a delegate type, an event, and a field, property, parameter
+        // or local whose type is a delegate or a collection of them.
+        Expect("delegate void PhaseDispatch(); class P { event System.Action? Dispatched; System.Action? Dispatch; System.Action[] Dispatchers = []; }");
+        Expect("class P { void Run(System.Action<int> dispatch) { System.Action<int> redispatch = dispatch; redispatch(0); } }");
+        // Words that share its letters are the game's own.
+        Expect("class P { int Dispatchable; int Patch; int Dis; int Despatch; }");
+        // A file is named for its type: a delegate type's file keeps the word, another type's file does not.
+        ExpectFile("delegate void PhaseDispatch();", "PhaseDispatch.cs");
+        ExpectFile("enum DispatchRandomStep { Reseed }", "DispatchRandomStep.cs",
+            $"'DispatchRandomStep' {routine} ('Dispatch')", $"'DispatchRandomStep' {routine} ('Dispatch')");
         Expect("class P { int Banked; }", "'Banked' names the hardware ('Bank')");
         Expect("class P { int[] Pointers = []; }", "'Pointers' names the hardware ('Pointer')");
         Expect("class P { void Run() { try { } catch (System.Exception addressing) { _ = addressing; } } }", "'addressing' names the hardware ('Address')");

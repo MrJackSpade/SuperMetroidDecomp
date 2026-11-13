@@ -154,10 +154,10 @@ public sealed class KraidEnemyState
     }
 
     /// <summary>
-    /// Where Kraid's body layer is placed: the layer position shown at the screen's top-left, which his AI sets from the
-    /// camera and his body's position. It is set at AI time and latched with the frame.
+    /// Where Kraid's body lies in the room (#1617): the room pixel his body's parts' area's top-left corner lies on, which his
+    /// AI sets from his body's position. It is set at AI time and latched with the frame.
     /// </summary>
-    public Position16<BackgroundPixels> BodyLayerPlacement { get; internal set; }
+    public Position16<RoomPixels> BodyOrigin { get; internal set; }
 
     /// <summary>Number of rock/quake spawn requests made by retail cadence.</summary>
     public int RiseRockSpawnRequestCount { get; internal set; }

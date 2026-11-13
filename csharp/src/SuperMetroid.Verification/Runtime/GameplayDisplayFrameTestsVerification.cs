@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hud;
@@ -93,11 +94,12 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         GameplaySceneView before = Registers(runtime);
-        var kraid = new KraidEnemyState { ShowsBodyLayer = true, BodyLayerPlacement = new Position16<BackgroundPixels>(320, 88) };
+        var kraid = new KraidEnemyState { ShowsBodyLayer = true, BodyOrigin = new Position16<RoomPixels>(320, 88) };
         runtime.Enemies.KraidBehavior.Access.Kraid = kraid;
         AssertPending(runtime, registers => registers.BackgroundScroll == before.BackgroundScroll, "Kraid's body on the background");
-        // The view shows the body row below his placement at the screen's top (#1514).
-        AssertPublished(runtime, registers => registers.BackgroundScroll == GameplaySceneView.ShownAtScreenTop(kraid.BodyLayerPlacement), "Kraid's body on the background");
+        // The view shows the body row below where his body lies against the frame's camera at the screen's top (#1514, #1617).
+        AssertPublished(runtime, registers => registers.BackgroundScroll == GameplaySceneView.ShownAtScreenTop(
+            BossBodyPlacement.Shown(kraid.BodyOrigin, runtime.Display.Latched.Scrolls.ForegroundPosition)), "Kraid's body on the background");
         runtime.Enemies.KraidBehavior.Access.Kraid = null;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 

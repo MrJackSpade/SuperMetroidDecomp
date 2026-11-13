@@ -9,6 +9,8 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Gameplay;
 
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.BossBodies;
+
 namespace SuperMetroid.Core.Runtime;
 
 /// <summary>Resolution of one published gameplay display frame into the layered scene the backend draws.</summary>
@@ -86,9 +88,12 @@ public static class GameplayDisplayCapture
         GameplayLatchedBossBackgrounds bosses = latched.Bosses;
         RoomShakeFrameResult shake = scrolls.RoomShake;
         Position16<RoomPixels> foregroundScroll = scrolls.ForegroundScroll + shake.Foreground;
-        // Draygon (#1354) and Mother Brain (#1356) place their body images at their body layers' placements, which the room's
-        // water waves then displace.
-        Position16<BackgroundPixels> backgroundScroll = (bosses.DraygonBody?.LayerPlacement ?? bosses.MotherBrainBody?.LayerPlacement ?? scrolls.BackgroundScroll) + shake.Background;
+        // Draygon's (#1354) and Mother Brain's (#1356) bodies show where they lie in the room against the frame's camera
+        // (#1617), which the room's water waves then displace.
+        Position16<RoomPixels> camera = scrolls.ForegroundPosition;
+        Position16<BackgroundPixels>? draygonBody = bosses.DraygonBody is { } draygonPlacement ? BossBodyPlacement.Shown(draygonPlacement.BodyOrigin, camera) : null;
+        Position16<BackgroundPixels>? motherBrainBody = bosses.MotherBrainBody?.BodyOrigin is { } motherBrainOrigin ? BossBodyPlacement.Shown(motherBrainOrigin, camera) : null;
+        Position16<BackgroundPixels> backgroundScroll = (draygonBody ?? motherBrainBody ?? scrolls.BackgroundScroll) + shake.Background;
         if (live.TourianStatuesEnabled)
             // The statues' descent supplies the background's vertical scroll per line after the
             // ordinary scroll. It replaces, rather than adds to, the quake-adjusted
@@ -104,11 +109,11 @@ public static class GameplayDisplayCapture
             ? GameplayEffectCapture.BuildLavaAcidBackgroundHorizontalScrolls(lava, backgroundScroll) : null;
         SampledScrollWave? lavaY = fx is { } vertical
             ? GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(vertical, backgroundScroll.Y) : null;
-        Position16<BackgroundPixels>? kraidBody = bosses.KraidBodyPlacement;
+        Position16<BackgroundPixels>? kraidBody = bosses.KraidBodyOrigin is { } kraidOrigin ? BossBodyPlacement.Shown(kraidOrigin, camera) : null;
         // Draygon's body shows only on the band of lines around it, placed against the frame's camera (#1354, #1468).
         ScreenLineBand backgroundLines = bosses.DraygonBody is { } draygon
             ? DraygonBodyBand.ShownLines(draygon, scrolls.ForegroundPosition) : ScreenLineBand.Gameplay;
-        Position16<BackgroundPixels>? crocomireBody = bosses.CrocomireBodyPlacement;
+        Position16<BackgroundPixels>? crocomireBody = bosses.CrocomireBodyOrigin is { } crocomireOrigin ? BossBodyPlacement.Shown(crocomireOrigin, camera) : null;
         ScreenLayers displayedLayers = latched.ShownLayers;
         // The cameras become the pixels the layers show at the screen's top-left corner (#1514): the layers show one row
         // below their cameras, so the backend draws the view with no offset of its own.

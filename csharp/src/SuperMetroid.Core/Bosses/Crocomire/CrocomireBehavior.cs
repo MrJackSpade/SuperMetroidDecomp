@@ -264,7 +264,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.DeathPhase = state.DeathPhase.Next();
                 return;
             case CrocomireDeathPhase.PinDefeatedRoomBodyLayerPlacement:
-                BodyLayer.Placement = Position16<BackgroundPixels>.Zero;
+                BodyLayer.PinToScreen();
                 return;
             case CrocomireDeathPhase.RiverSkeletonDetour:
                 CrocomireSkeleton.RunCrocomireSkeletonRiver(state);

@@ -94,11 +94,11 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             Combat.ResolveKraidBodyProjectileHits(body, state, tested);
         if (samus is not null)
             Combat.ResolveKraidBodyContact(body, state, samus);
-        // The body-layer placement places his body layer to follow Kraid rather than the room. X radius is the authored
-        // body's right-edge origin adjustment; 152 is the authored vertical anchor.
-        state.BodyLayerPlacement = new Position16<BackgroundPixels>(
-            CoordinateAxis.Wrap(camera.X - body.Position.X.Whole + body.Radius.X),
-            CoordinateAxis.Wrap(camera.Y - body.Position.Y.Whole + 152));
+        // His body follows Kraid (#1617): its area lies his X radius, the authored body's right-edge origin adjustment, left
+        // of him, and 152 pixels, the authored vertical anchor, above him.
+        state.BodyOrigin = new Position16<RoomPixels>(
+            CoordinateAxis.Wrap(body.Position.X.Whole - body.Radius.X),
+            CoordinateAxis.Wrap(body.Position.Y.Whole - 152));
         KraidAiFunction function = state.BodyState.Function;
         if (KraidFunctionGroups.Rise.Contains(function))
         {

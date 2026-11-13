@@ -46,8 +46,9 @@ internal static class MotherBrainBodyPublicationVerification
         BossBodyLayer image = runtime.Display.Latched.Bosses.Body
             ?? throw new InvalidOperationException("The phase-two transition publishes her body image.");
         AssertTrue(Words(image).SequenceEqual(staged), "phase two publishes her body as it stood");
-        AssertEqual(new MotherBrainBodyPlacement(state.BodyLayerPlacement, false), runtime.Display.Latched.Bosses.MotherBrainBody,
-            "phase two publishes her body at her posture scroll");
+        // Her posture places her body against the screen; the frame places it in the room against its camera (#1617).
+        AssertEqual(new MotherBrainBodyPlacement(BossBodyPlacement.InRoom(state.BodyLayerPlacement, runtime.Display.Latched.Scrolls.ForegroundPosition), false),
+            runtime.Display.Latched.Bosses.MotherBrainBody, "phase two publishes her body where her posture places it");
         AssertEqual(roomScroll, runtime.BackgroundScroll.BackgroundScroll, "Mother Brain leaves the room's BG2 scroll alone");
         var drawn = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         // The view shows the body row below her placement at the screen's top (#1514).
@@ -58,7 +59,8 @@ internal static class MotherBrainBodyPublicationVerification
         // Death: the flicker hides her body.
         state.DeathHidesBodyLayer = true;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(new MotherBrainBodyPlacement(state.BodyLayerPlacement, true), runtime.Display.Latched.Bosses.MotherBrainBody,
+        AssertEqual(new MotherBrainBodyPlacement(BossBodyPlacement.InRoom(state.BodyLayerPlacement, runtime.Display.Latched.Scrolls.ForegroundPosition), true),
+            runtime.Display.Latched.Bosses.MotherBrainBody,
             "the death flicker publishes her body hidden");
         var hidden = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertTrue(!hidden.View.ShownLayers.HasFlag(ScreenLayers.Background), "a hidden body leaves BG2 off the main screen");

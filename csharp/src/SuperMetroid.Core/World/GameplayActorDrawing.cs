@@ -387,11 +387,9 @@ internal sealed class GameplayActorDrawing
             // Placing it during enemy AI instead detaches the torso whenever scrolling
             // changes the camera between AI and drawing (especially during a grab). The
             // placement is Draygon's own published body position (#1354), not the background's scroll.
-            draygon.BodyLayerPlacement = new Position16<BackgroundPixels>(
-                CoordinateAxis.Wrap(draygon.BodyGraphicsDisplacement.X + _room.Camera.PixelPosition.X -
-                    draygon.Body.Position.X.Whole - DraygonBackgroundData.HorizontalOrigin),
-                CoordinateAxis.Wrap(draygon.BodyGraphicsDisplacement.Y + _room.Camera.PixelPosition.Y -
-                    draygon.Body.Position.Y.Whole - DraygonBackgroundData.VerticalOrigin));
+            draygon.BodyOrigin = new Position16<RoomPixels>(
+                CoordinateAxis.Wrap(draygon.Body.Position.X.Whole + DraygonBackgroundData.HorizontalOrigin - draygon.BodyGraphicsDisplacement.X),
+                CoordinateAxis.Wrap(draygon.Body.Position.Y.Whole + DraygonBackgroundData.VerticalOrigin - draygon.BodyGraphicsDisplacement.Y));
         }
 
         if (!deathOwnsSamus && room.Enemies.IsLoaded)

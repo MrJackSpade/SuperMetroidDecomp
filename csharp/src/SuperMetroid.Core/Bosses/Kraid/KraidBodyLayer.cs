@@ -46,8 +46,8 @@ internal sealed class KraidBodyLayer
         return cached.Layer;
     }
 
-    /// <summary>Where Kraid's body layer is placed while it is shown (#1352); otherwise null.</summary>
-    internal Position16<BackgroundPixels>? BodyPlacement => _access.Kraid is { ShowsBodyLayer: true } state ? state.BodyLayerPlacement : null;
+    /// <summary>Where Kraid's body lies in the room while it is shown (#1352, #1617); otherwise null.</summary>
+    internal Position16<RoomPixels>? BodyOrigin => _access.Kraid is { ShowsBodyLayer: true } state ? state.BodyOrigin : null;
 
     /// <summary>
     /// The body <paramref name="appearance"/> shows, drawn from <paramref name="sheet"/>: nothing while it is hidden, and

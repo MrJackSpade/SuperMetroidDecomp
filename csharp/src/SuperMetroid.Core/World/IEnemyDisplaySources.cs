@@ -43,11 +43,14 @@ internal interface IEnemyDisplaySources
     /// </summary>
     BossBodyLayer? BossBody { get; }
 
-    /// <summary>Where Kraid's body layer is placed while it is shown (#1352); otherwise null.</summary>
-    Position16<BackgroundPixels>? KraidBodyPlacement { get; }
+    /// <summary>Where Kraid's body lies in the room while it is shown (#1352, #1617); otherwise null.</summary>
+    Position16<RoomPixels>? KraidBodyOrigin { get; }
 
-    /// <summary>Where Crocomire's body layer is placed while Crocomire is loaded; otherwise null.</summary>
-    Position16<BackgroundPixels>? CrocomireBodyPlacement { get; }
+    /// <summary>
+    /// Where Crocomire's body shows against the screen while Crocomire is loaded, the pixel of his body's area at the
+    /// screen's top-left, and whether it shows (#1617); otherwise null.
+    /// </summary>
+    ScreenPlacedBossBody? CrocomireBody { get; }
 
     /// <summary>The morph-ball eye's beam.</summary>
     MorphBallEyeBeamState MorphBallEyeBeam { get; }

@@ -144,7 +144,7 @@ internal sealed class AcceptedFrameBoundary
             // Before the first room there are no statues, so no descent is displayed.
             Ensure.BetweenInclusive(short.MinValue, short.MaxValue, _room.TourianStatues?.DisplayedVerticalOffset ?? 0),
             scene,
-            CaptureBossBackgrounds(),
+            CaptureBossBackgrounds(displayScroll.ForegroundPosition),
             CaptureTints(),
             // The reveal and the room's planes are drawn once this frame boundary's uploads have bound (WithBlockPictures).
             null,
@@ -186,21 +186,24 @@ internal sealed class AcceptedFrameBoundary
         : null;
 
     /// <summary>
-    /// The body a boss shows on its body layer (#1352-#1356, #1466): the layer, and where Kraid, Draygon, Crocomire and
-    /// Mother Brain view theirs from.
+    /// The body a boss shows (#1352-#1356, #1466, #1617): its parts, and where Kraid's, Draygon's, Crocomire's and Mother
+    /// Brain's lie in the room. Crocomire and Mother Brain place their bodies against the screen, so their bodies lie where
+    /// <paramref name="camera"/>, the frame's, shows those places; Crocomire's body shows nothing while he is far from it.
     /// </summary>
-    private GameplayLatchedBossBackgrounds CaptureBossBackgrounds()
+    private GameplayLatchedBossBackgrounds CaptureBossBackgrounds(Position16<RoomPixels> camera)
     {
         var motherBrain = Displays?.MotherBrain;
+        var crocomire = Displays?.CrocomireBody;
         return new(
-            Displays?.BossBody,
-            Displays?.KraidBodyPlacement,
+            crocomire is { Shown: false } && Displays?.BossBody is not null ? BossBodyLayer.Empty : Displays?.BossBody,
+            Displays?.KraidBodyOrigin,
             Displays?.Draygon is { } draygon
-                ? new DraygonBodyPlacement(draygon.Body.Position.Whole, draygon.BodyLayerPlacement, draygon.Body.Presence.HasAny(EnemyPresence.Deleted))
+                ? new DraygonBodyPlacement(draygon.Body.Position.Whole, draygon.BodyOrigin, draygon.Body.Presence.HasAny(EnemyPresence.Deleted))
                 : null,
-            Displays?.CrocomireBodyPlacement,
+            crocomire is { Placement: var shown } ? BossBodyPlacement.InRoom(shown, camera) : null,
             motherBrain is { PlacesBodyLayer: true } or { DeathHidesBodyLayer: true }
-                ? new MotherBrainBodyPlacement(motherBrain.PlacesBodyLayer ? motherBrain.BodyLayerPlacement : null, motherBrain.DeathHidesBodyLayer)
+                ? new MotherBrainBodyPlacement(motherBrain.PlacesBodyLayer ? BossBodyPlacement.InRoom(motherBrain.BodyLayerPlacement, camera) : null,
+                    motherBrain.DeathHidesBodyLayer)
                 : null);
     }
 

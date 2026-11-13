@@ -548,10 +548,10 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     BossBodyLayer? IEnemyDisplaySources.BossBody => KraidBehavior.BodyLayer.CaptureBodyLayer()
         ?? (Presentation.BossBody is { IsShown: true } body ? body.Publish() : null);
     /// <inheritdoc/>
-    Position16<BackgroundPixels>? IEnemyDisplaySources.KraidBodyPlacement => KraidBehavior.BodyLayer.BodyPlacement;
+    Position16<RoomPixels>? IEnemyDisplaySources.KraidBodyOrigin => KraidBehavior.BodyLayer.BodyOrigin;
     /// <inheritdoc/>
-    Position16<BackgroundPixels>? IEnemyDisplaySources.CrocomireBodyPlacement =>
-        CrocomireBehavior.Access.Crocomire is not null ? CrocomireBehavior.BodyLayer.Placement : null;
+    ScreenPlacedBossBody? IEnemyDisplaySources.CrocomireBody =>
+        CrocomireBehavior.Access.Crocomire is not null ? new(CrocomireBehavior.BodyLayer.Placement, CrocomireBehavior.BodyLayer.ShowsBody) : null;
     /// <inheritdoc/>
     MorphBallEyeBeamState IEnemyDisplaySources.MorphBallEyeBeam => MorphBallEyeBehavior.MorphBallEyeBeam;
 

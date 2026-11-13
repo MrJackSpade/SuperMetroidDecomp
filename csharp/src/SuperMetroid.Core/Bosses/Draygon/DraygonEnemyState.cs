@@ -95,11 +95,11 @@ public sealed class DraygonEnemyState
     public Offset16<BackgroundPixels> BodyGraphicsDisplacement { get; internal set; }
 
     /// <summary>
-    /// Where Draygon's body layer is placed (#1354): the layer position shown at the screen's top-left, derived after
-    /// enemies draw from the final camera, the body position and <see cref="BodyGraphicsDisplacement"/>. It is
-    /// Draygon's own, never the room's background placement.
+    /// Where Draygon's body lies in the room (#1354, #1617): the room pixel his body's parts' area's top-left corner lies on,
+    /// derived after enemies draw from the body position and <see cref="BodyGraphicsDisplacement"/>, which moves the body's
+    /// pictures against the body.
     /// </summary>
-    public Position16<BackgroundPixels> BodyLayerPlacement { get; internal set; }
+    public Position16<RoomPixels> BodyOrigin { get; internal set; }
 
     /// <summary>The most heights a swoop path may hold; building a longer one fails.</summary>
     internal const int SwoopPathCapacity = 512;

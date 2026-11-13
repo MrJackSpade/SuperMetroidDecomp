@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
@@ -41,7 +42,7 @@ internal static class RetailCrocomireCaptureTests
             Position16<BackgroundPixels> previousScroll = runtime.Enemies.CrocomireBehavior.BodyLayer.Placement;
             runtime.StepFrame(0);
             GameplayDisplayFrame published = runtime.PublishDisplayFrame();
-            if (published.Latched.Bosses.CrocomireBodyPlacement != previousScroll)
+            if (published.Latched.Bosses.CrocomireBodyOrigin != BossBodyPlacement.InRoom(previousScroll, published.Latched.Scrolls.ForegroundPosition))
                 throw new InvalidOperationException($"Crocomire BG2 scroll was not published by the following NMI at tick {tick}.");
             if (previousScroll != runtime.Enemies.CrocomireBehavior.BodyLayer.Placement) latchedScrollChanges++;
             var scene = GameplayDisplayCapture.Capture(published);

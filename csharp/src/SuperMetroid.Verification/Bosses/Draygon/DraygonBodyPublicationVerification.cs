@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rendering;
@@ -33,10 +34,10 @@ internal static class DraygonBodyPublicationVerification
         {
             draygon.Body.Position = draygon.Body.Position.WithWhole(body);
             runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
-            Position16<RoomPixels> camera = runtime.Room.LoadedCamera.PixelPosition;
-            var expected = new Position16<BackgroundPixels>(
-                unchecked((ushort)(draygon.BodyGraphicsDisplacement.X + camera.X - body.X - 450)),
-                unchecked((ushort)(draygon.BodyGraphicsDisplacement.Y + camera.Y - body.Y - 192)));
+            // His body lies in the room at his body's position, moved by his body graphics' displacement (#1617).
+            var expected = new Position16<RoomPixels>(
+                unchecked((ushort)(body.X + 450 - draygon.BodyGraphicsDisplacement.X)),
+                unchecked((ushort)(body.Y + 192 - draygon.BodyGraphicsDisplacement.Y)));
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             DraygonBodyPlacement placement = runtime.Display.Latched.Bosses.DraygonBody
                 ?? throw new InvalidOperationException("Draygon publishes his body placement.");
@@ -46,8 +47,9 @@ internal static class DraygonBodyPublicationVerification
                 ?? throw new InvalidOperationException("Draygon publishes his body layer.");
             var drawn = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
             AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), $"Draygon at {body} shows his body image on BG2");
-            // The view shows the body row below his placement at the screen's top (#1514).
-            AssertEqual(GameplaySceneView.ShownAtScreenTop(expected + runtime.Display.Latched.Scrolls.RoomShake.Background), drawn.View.BackgroundScroll, $"Draygon at {body} places the image at his body");
+            // The view shows the body row below where his body lies against the frame's camera at the screen's top (#1514, #1617).
+            AssertEqual(GameplaySceneView.ShownAtScreenTop(BossBodyPlacement.Shown(expected, runtime.Display.Latched.Scrolls.ForegroundPosition)
+                + runtime.Display.Latched.Scrolls.RoomShake.Background), drawn.View.BackgroundScroll, $"Draygon at {body} places the image at his body");
             AssertEqual(DraygonBodyBand.ShownLines(placement, runtime.Display.Latched.Scrolls.ForegroundPosition),
                 new ScreenLineBand(drawn.View.BackgroundFirstLine, drawn.View.BackgroundEndLine), $"Draygon at {body} shows BG2 on the band of lines around his body");
         }

@@ -47,25 +47,25 @@ internal static class KraidBodyPublicationVerification
         state.BodyAppearance = KraidBodyAppearance.BehindSprites;
         state.ShowBody();
         state.DisplayedHeadFrame = null;
-        state.BodyLayerPlacement = new Position16<BackgroundPixels>(320, 88);
+        state.BodyOrigin = new Position16<RoomPixels>(320, 88);
         GameplayLatchedBossBackgrounds risen = Published(runtime);
         AssertTrue((risen.Body?.Frames.Select(frame => frame.Name) ?? []).SequenceEqual(["Body", "RestingHead"]),
             "the risen body shows his body and the head it rises with");
         AssertTrue(Words(risen, art).AsSpan().SequenceEqual(KraidBodyFixtures.Tilemap(upper, [], lower)),
             "the risen body publishes both working pages, blank elsewhere");
-        AssertTrue(risen.KraidBodyPlacement == state.BodyLayerPlacement, "the body publishes at Kraid's body layer placement");
+        AssertTrue(risen.KraidBodyOrigin == state.BodyOrigin, "the body publishes where Kraid's body lies in the room");
         var drawn = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), "the capture draws the published body on the background");
 
         // Mouth open: his head's current pose shows over his body (#1515).
         state.DisplayedHeadFrame = KraidHeadFrame.Open;
-        state.BodyLayerPlacement = new Position16<BackgroundPixels>(300, 96);
+        state.BodyOrigin = new Position16<RoomPixels>(300, 96);
         GameplayLatchedBossBackgrounds roaring = Published(runtime);
         ReadOnlySpan<ushort> head = (art.KraidBackground ?? throw new InvalidOperationException("Kraid art installs his BG2."))
             .HeadWords(KraidHeadFrameDefinitions.PresentationKey(KraidHeadFrame.Open));
         AssertTrue(Words(roaring, art).AsSpan().SequenceEqual(KraidBodyFixtures.Tilemap(upper, head, lower)),
             "the open mouth publishes its head over the upper page");
-        AssertTrue(roaring.KraidBodyPlacement == state.BodyLayerPlacement, "the roaring body publishes at its moved placement");
+        AssertTrue(roaring.KraidBodyOrigin == state.BodyOrigin, "the roaring body publishes where it moved in the room");
 
         // Dead: the death clear keeps BG2 as Kraid's map, every word blank; the room's own BG2 never returns (#1427).
         state.BodyAppearance = KraidBodyAppearance.Hidden;
@@ -74,7 +74,7 @@ internal static class KraidBodyPublicationVerification
             "the cleared body publishes only the blank tile");
         var dead = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(dead, runtime), "BG2 shows the cleared map, not the room's");
-        Console.WriteLine("  Kraid body: risen, roaring and cleared frames publish at Kraid's body layer placement.");
+        Console.WriteLine("  Kraid body: risen, roaring and cleared frames publish where Kraid's body lies in the room.");
     }
 
     /// <summary>Kraid's body as the next accepted NMI latches it.</summary>
@@ -82,7 +82,7 @@ internal static class KraidBodyPublicationVerification
     {
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         GameplayLatchedBossBackgrounds bosses = runtime.Display.Latched.Bosses;
-        return bosses.Body is not null && bosses.KraidBodyPlacement is not null ? bosses
+        return bosses.Body is not null && bosses.KraidBodyOrigin is not null ? bosses
             : throw new InvalidOperationException("Kraid owning BG2 publishes his body.");
     }
 

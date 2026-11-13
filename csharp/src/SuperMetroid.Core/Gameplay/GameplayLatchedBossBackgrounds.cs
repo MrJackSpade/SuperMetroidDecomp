@@ -5,22 +5,24 @@ using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
-/// The body a boss shows on its body layer in an accepted frame (#1352-#1356, #1466): the layer, where Kraid's, Draygon's,
-/// Crocomire's and Mother Brain's are viewed from, and the pictures it shows. Enemy AI chooses each during the main loop.
+/// The body a boss shows in an accepted frame (#1352-#1356, #1466, #1617): its parts, where Kraid's, Draygon's, Crocomire's
+/// and Mother Brain's lie in the room, and the pictures it shows. A body's origin is the room pixel its parts' area's
+/// top-left corner lies on; the display draws each part there, clipped to the screen. Enemy AI chooses each during the main
+/// loop.
 /// </summary>
-/// <param name="Body">The body layer a boss shows, or null without one.</param>
-/// <param name="KraidBodyPlacement">Where Kraid's body layer is placed, or null when it is not shown.</param>
-/// <param name="DraygonBody">Draygon's body position and where his body layer is placed, or null without Draygon (#1354).</param>
-/// <param name="CrocomireBodyPlacement">Where Crocomire's body layer is placed, or null without Crocomire.</param>
-/// <param name="MotherBrainBody">Where Mother Brain's body layer is placed and her death-flicker hiding, or null without either (#1356).</param>
+/// <param name="Body">The body a boss shows, or null without one.</param>
+/// <param name="KraidBodyOrigin">Where Kraid's body lies in the room, or null when it is not shown.</param>
+/// <param name="DraygonBody">Draygon's body position and where his body lies in the room, or null without Draygon (#1354).</param>
+/// <param name="CrocomireBodyOrigin">Where Crocomire's body lies in the room, or null without Crocomire.</param>
+/// <param name="MotherBrainBody">Where Mother Brain's body lies in the room and her death-flicker hiding, or null without either (#1356).</param>
 /// <param name="ShownBody">
 /// The body as the frame shows it, its pictures placed where they show, each for the frame its animation had selected,
 /// resolved once the frame's animations have bound (#1514); null without a body.
 /// </param>
 public readonly record struct GameplayLatchedBossBackgrounds(
     BossBodyLayer? Body,
-    Position16<BackgroundPixels>? KraidBodyPlacement,
+    Position16<RoomPixels>? KraidBodyOrigin,
     DraygonBodyPlacement? DraygonBody,
-    Position16<BackgroundPixels>? CrocomireBodyPlacement,
+    Position16<RoomPixels>? CrocomireBodyOrigin,
     MotherBrainBodyPlacement? MotherBrainBody,
     ShownBossBody? ShownBody = null);

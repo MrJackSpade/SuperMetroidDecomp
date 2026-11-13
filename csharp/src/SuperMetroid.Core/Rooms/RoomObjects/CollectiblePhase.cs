@@ -27,8 +27,8 @@ public enum CollectiblePhase
     CollectedShotBlockRespawn,
     /// <summary>Inventory and persistence have been granted; the slot and drawn tile remain while the synchronous pickup message runs.</summary>
     AwaitingMessage,
-    /// <summary>The pickup message has returned and the suspended item list is ready for its empty draw or shot-block continuation.</summary>
+    /// <summary>The pickup message has returned and the suspended item sequence is ready for its empty draw or shot-block continuation.</summary>
     ResumeAfterMessage,
-    /// <summary>The empty draw has run; the script deletes the room object next pass.</summary>
+    /// <summary>The empty draw has run; the sequence deletes the room object next pass.</summary>
     EmptyAwaitingDelete,
 }

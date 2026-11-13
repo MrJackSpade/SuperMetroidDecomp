@@ -55,7 +55,7 @@ internal sealed class DoorObjects
                 continue;
 
             // A cap whose opening never persists always closes. The escape entrance's cap never persists, so it
-            // always selects its closing list. Ordinary coloured caps consult the doors opened for good.
+            // always selects its closing sequence. Ordinary coloured caps consult the doors opened for good.
             if (resident.Argument is DoorBitArgument { Persists: true } residentDoorBit &&
                 system.HasOpenedDoor(residentDoorBit.Door))
             {

@@ -4,7 +4,7 @@ using F = SuperMetroid.Core.Rooms.RoomObjects.BlockReactionObjectFrame;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The authored timing of the block reactions (#1554), change for change their lists: the reaction sound, the breakup
+/// The authored timing of the block reactions (#1554), change for change: the reaction sound, the breakup
 /// images with their durations, the respawn and the restored block. A change ends on the update after its last image.
 /// </summary>
 internal static class BlockReactionChangeDefinitions

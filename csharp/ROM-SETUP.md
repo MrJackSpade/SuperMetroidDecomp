@@ -440,8 +440,8 @@ sheets, plus the installed visual block definitions. Its BG1/BTS/BG2 level
 allocation comes from the installed stock-only room-level streams because those
 words also drive collision and placement; artwork edits do not edit room geometry.
 
-Do not edit stock files or `room-characters.json`: stock hashes are validated and repaired
-from the installed ROM.
+The room character pages and their manifest are import data, which only the
+import composes the block sheets from; neither is installed.
 
 Ordinary room-enemy tile uploads and OBJ colors are import data, which only the
 import composes the enemy sheets from: each `enemy-XXXX-tiles.png` and matching

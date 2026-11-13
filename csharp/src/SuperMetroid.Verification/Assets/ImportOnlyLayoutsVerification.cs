@@ -39,6 +39,11 @@ internal static class ImportOnlyLayoutsVerification
         yield return (enemyTiles, EnemyProjectileSpritemapDefinitions.FileName);
         yield return (enemyTiles, SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapDefinitions.FileName);
         yield return (enemyTiles, SuperMetroid.AssetExtraction.World.Artwork.EnemyExtendedFrameDefinitions.FileName);
+        // The character-page manifests only the import reads (#1693).
+        yield return (enemyTiles, SuperMetroid.AssetExtraction.Enemies.Artwork.EnemyTileArtworkFormat.ManifestFileName);
+        yield return (GameInstallationLayout.RoomCharacterDirectoryName, SuperMetroid.AssetExtraction.Rooms.RoomCharacterArtworkFiles.ManifestFileName);
+        yield return (GameInstallationLayout.IntroCinematicDirectoryName, IntroCinematicArtworkFormat.ManifestFileName);
+        yield return (GameInstallationLayout.EndingObjectDirectoryName, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.ManifestFileName);
         string intro = GameInstallationLayout.IntroCinematicDirectoryName;
         for (int page = 0; page < IntroCinematicArtworkFormat.BackgroundPageCount; page++)
             yield return (intro, IntroCinematicArtworkFormat.BackgroundPageFileName(page));

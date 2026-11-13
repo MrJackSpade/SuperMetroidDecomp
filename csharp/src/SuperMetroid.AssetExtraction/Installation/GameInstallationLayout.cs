@@ -17,9 +17,9 @@ public static class GameInstallationLayout
     public const string StandardObjectDirectoryName = "standard-objects";
     /// <summary>Content child directory for projectile artwork and presentation selectors.</summary>
     public const string ProjectileDirectoryName = "projectiles";
-    /// <summary>Content child directory for ordinary-enemy tile artwork.</summary>
+    /// <summary>Content child directory for the enemy documents the game binds: every enemy frame's display and Kraid's eye colours; the characters, colours, layouts, compositions and their manifest are its import data (#1636, #1693).</summary>
     public const string EnemyTileDirectoryName = "enemy-tiles";
-    /// <summary>Content child directory for room character-tile atlases.</summary>
+    /// <summary>Component directory whose import data holds the room character pages and their manifest, which only the import reads (#1636, #1693); nothing of it is installed.</summary>
     public const string RoomCharacterDirectoryName = "room-characters";
     /// <summary>Content child directory for the cartridge bytes Samus's glitch paths read.</summary>
     public const string SamusOverreadDirectoryName = "samus-overreads";
@@ -39,7 +39,7 @@ public static class GameInstallationLayout
     public const string IntroCinematicDirectoryName = "intro-cinematic";
     /// <summary>Component directory whose import data holds the ending's Mode 7 cell maps and character pages, which only the import reads (#1636, #1693); nothing of it is installed.</summary>
     public const string EndingMode7DirectoryName = "ending-mode7";
-    /// <summary>Content child directory for ending OBJ artwork.</summary>
+    /// <summary>Component directory whose import data holds the ending's object pages, maps and compositions and their manifest, which only the import reads (#1636, #1638, #1693); nothing of it is installed.</summary>
     public const string EndingObjectDirectoryName = "ending-objects";
     /// <summary>Content child directory for the ending scenes' backdrops (#1544).</summary>
     public const string EndingBackdropDirectoryName = "ending-backdrops";

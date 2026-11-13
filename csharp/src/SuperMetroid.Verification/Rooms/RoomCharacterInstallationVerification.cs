@@ -31,12 +31,13 @@ internal static class RoomCharacterInstallationVerification
     /// <summary>Stock import contract for room art in the shared installation, with a private copy of its background directory whose manifest is altered.</summary>
     internal static void VerifyRoomArtworkInstallation(GameInstallation installed, CartridgeImportAddressSpace bus, SelectedRoom landing)
     {
-        AssertTrue(File.Exists(Path.Combine(installed.RoomCharacterDirectory,
-                RoomCharacterArtworkFiles.ManifestFileName)),
-            "room-character stock manifest is installed");
-        AssertTrue(File.Exists(Path.Combine(installed.EnemyTileDirectory,
-                EnemyTileArtworkFormat.ManifestFileName)),
-            "enemy-tile stock manifest is installed");
+        // The room characters' and the enemies' manifests pin the import data's pages and name the enemies by the
+        // cartridge's headers: only the import reads them (#1693), so the installation holds neither, and the game opens no
+        // manifest to read the enemy documents it binds.
+        AssertTrue(!Directory.Exists(Path.Combine(installed.ContentDirectory, GameInstallationLayout.RoomCharacterDirectoryName)),
+            "the installation holds no room character directory");
+        AssertTrue(!File.Exists(Path.Combine(installed.EnemyTileDirectory, EnemyTileArtworkFormat.ManifestFileName)),
+            "the installation holds no enemy manifest");
         // The enemies' palettes only pre-colour their sheets: they are import data (#1637), which the installation never holds.
         AssertEqual(0, Directory.GetFiles(installed.EnemyTileDirectory, "*-colors.json").Length,
             "the installation holds no enemy, boss or area colour document");

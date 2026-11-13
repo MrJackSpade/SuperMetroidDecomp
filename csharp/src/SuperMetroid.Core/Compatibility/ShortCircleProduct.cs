@@ -31,5 +31,5 @@ public static class ShortCircleProduct
     /// <paramref name="point"/> reversed for the turn's second half: its whole pixels and its fraction negated each on
     /// their own, the fraction's borrow never reaching the whole pixels.
     /// </summary>
-    public static SignedSixteenSixteen Reversed(SignedSixteenSixteen point) => point.NegatedPartsSeparately();
+    public static SignedSixteenSixteen Reversed(SignedSixteenSixteen point) => PartwiseReversal.BothPartsNegated(point);
 }

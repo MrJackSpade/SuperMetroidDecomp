@@ -144,22 +144,6 @@ public readonly record struct SignedSixteenSixteen
     /// </summary>
     public UnsignedSixteenSixteen Magnitude() => UnsignedSixteenSixteen.FromDisplacement(IsNegative ? -this : this);
 
-    /// <summary>
-    /// The displacement reversed by negating its whole pixels and its fraction each on their own, as several enemies
-    /// reverse one: the fraction's borrow never reaches the whole pixels. It equals the true reversal when the fraction is
-    /// zero and lies one pixel further along the original direction when it is not.
-    /// </summary>
-    public SignedSixteenSixteen NegatedPartsSeparately() =>
-        FromParts(unchecked((short)-WholePixels), unchecked((ushort)-Fraction));
-
-    /// <summary>
-    /// The displacement reversed by complementing its whole pixels and negating its fraction on its own, as several
-    /// enemies reverse one: it equals the true reversal when the fraction is not zero and lies one pixel further along
-    /// the reversed direction when it is.
-    /// </summary>
-    public SignedSixteenSixteen ComplementedWholeNegatedFraction() =>
-        FromParts(~WholePixels, unchecked((ushort)-Fraction));
-
     /// <summary>Adds this delta to an unsigned wrapped 16.16 world-position pair, each word 0 through 65535.</summary>
     public FixedCoordinate AddTo(int wholePosition, int subposition) =>
         FixedCoordinate.Of(wholePosition, subposition).MovedBy(this);

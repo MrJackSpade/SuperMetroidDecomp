@@ -416,20 +416,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.FromParts(cappedWhole, sum.Fraction));
     }
 
-    /// <summary>
-    /// Reverses the hovering turtle's horizontal velocity and acceleration at a wall. Each value's
-    /// fraction is negated and its whole part inverted, which reverses a value exactly unless its fraction is zero,
-    /// when the reversed value lands one whole pixel lower. A velocity whose whole part is -1 (moving left by less
-    /// than a pixel) lowers the reversed acceleration's whole part by one more pixel.
-    /// </summary>
+    /// <summary>Reverses the hovering turtle's horizontal velocity and acceleration at a wall (<see cref="MamaTurtleWallReversal"/>).</summary>
     internal static void ReverseMamaTurtleAtWall(MamaTurtleEnemyState state)
     {
         SignedSixteenSixteen velocity = state.Velocity.X;
-        state.Velocity = state.Velocity.WithX(velocity.ComplementedWholeNegatedFraction());
-
-        SignedSixteenSixteen acceleration = state.XAcceleration;
-        int lowered = velocity.WholePixels == -1 ? 1 : 0;
-        state.XAcceleration = acceleration.ComplementedWholeNegatedFraction() - SignedSixteenSixteen.FromParts(lowered, 0);
+        state.Velocity = state.Velocity.WithX(MamaTurtleWallReversal.ReversedVelocity(velocity));
+        state.XAcceleration = MamaTurtleWallReversal.ReversedAcceleration(state.XAcceleration, velocity);
     }
 
     /// <summary>Runs the rider-powered seven-pixel ascent.</summary>

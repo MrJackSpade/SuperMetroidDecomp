@@ -107,7 +107,7 @@ internal static class RoomPaletteFxPresentationVerification
         foreach (TorizoBellyPaletteFxColorDefinition definition in
                  TorizoBellyPaletteFxColorDefinitions.All)
         {
-            VerifyInstalledPaletteFxFamily(bus, presentation, $"{definition.Owner} belly", new PaletteFxFamilyShape { FrameCount = TorizoBellyPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = TorizoBellyPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer] }, TorizoBellyPaletteFxColorDefinitions.CycleFrames * 2);
+            VerifyInstalledPaletteFxFamily(bus, presentation, $"{definition.Owner} belly", new PaletteFxFamilyShape { FrameCount = TorizoBellyPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = TorizoBellyPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer], LitTorizo = LivingTorizo.Instance }, TorizoBellyPaletteFxColorDefinitions.CycleFrames * 2);
         }
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Tourian statue grey-out", new PaletteFxFamilyShape { FrameCount = TourianStatueGreyPaletteFxColorDefinitions.ColorFrames.FrameCount, ColorsPerFrame = TourianStatueGreyPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = TourianStatueGreyPaletteFxColorDefinitions.ColorPointer, Definitions = TourianStatueGreyPaletteFxColorToolingDefinitions.All
                 .Select(definition => definition.DefinitionPointer)
@@ -295,8 +295,8 @@ internal static class RoomPaletteFxPresentationVerification
             var native = new RoomPaletteFxSystem(nativeSession);
             var installedSession = new PaletteFxSessionState();
             var installed = new RoomPaletteFxSystem(installedSession);
-            native.Start(definition, equippedItems: 0);
-            installed.Start(definition, equippedItems: 0);
+            StartFamily(native, shape, definition);
+            StartFamily(installed, shape, definition);
             var nativeCgram = new SnesCgram();
             var installedCgram = new SnesCgram();
             for (int frame = 0; frame < framesToRun; frame++)
@@ -696,6 +696,28 @@ internal static class RoomPaletteFxPresentationVerification
             () => RoomPaletteFxPresentationFile.Read(new MemoryStream(
                 Encoding.UTF8.GetBytes(unknownField), writable: false)),
             "room palette-FX rejects native-address escape hatch");
+    }
+
+    /// <summary>
+    /// Starts <paramref name="definition"/>'s effect as the game starts <paramref name="shape"/>'s family: a Torizo belly glow
+    /// with the Torizo it lights, as that Torizo's fight start hands itself to the glow (#1700); every other family plainly.
+    /// </summary>
+    private static void StartFamily(RoomPaletteFxSystem fx, PaletteFxFamilyShape shape, ushort definition)
+    {
+        if (shape.LitTorizo is { } torizo)
+            fx.StartTorizoBellyGlow(definition, torizo, equippedItems: 0);
+        else
+            fx.Start(definition, equippedItems: 0);
+    }
+
+    /// <summary>A Torizo that keeps its health through the check, so the belly glow lighting it plays its whole cycle.</summary>
+    private sealed class LivingTorizo : ILitTorizo
+    {
+        /// <summary>The one Torizo.</summary>
+        internal static LivingTorizo Instance { get; } = new();
+
+        /// <inheritdoc/>
+        public bool IsDefeated => false;
     }
 
     /// <summary>Runs one handler pass of <paramref name="fx"/> as <paramref name="shape"/>'s family plays: on a frontend screen or in gameplay.</summary>

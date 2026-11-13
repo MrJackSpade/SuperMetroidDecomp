@@ -176,7 +176,7 @@ internal sealed class MotherBrainThirdPhaseFight
                 }
 
                 // A decrement of zero branches negative without storing -1, so the readable
-                // timer remains zero while the four-ring recovery list is installed.
+                // timer remains zero while the four-ring recovery animation plays.
                 _state.SetHeadAnimation(MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3);
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.Normal;
                 return;

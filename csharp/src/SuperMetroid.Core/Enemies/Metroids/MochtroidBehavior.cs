@@ -46,8 +46,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Mochtroid.</summary>
     internal static void InitializeMochtroid(RoomEnemySlot slot)
     {
-        // Room clearing initializes both parallel values to zero. Installing the
-        // first nonzero list is important: the equality shortcut is also the
+        // Room clearing initializes both parallel values to zero. Starting the
+        // first nonzero animation is important: the equality shortcut is also the
         // source of its documented respawning-Mochtroid crash when stale extension state is
         // retained. Ordinary room loads start clean and therefore take the safe path.
         var state = new MochtroidEnemyState

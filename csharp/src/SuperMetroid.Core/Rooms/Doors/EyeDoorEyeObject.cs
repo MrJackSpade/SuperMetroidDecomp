@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// An eye door's eye (#1554), which replaces the eye's sequences, its missile wake and its hit counter. On its first update
+/// An eye door's eye (#1554). On its first update
 /// the eye looks at its door: one opened for good moves up a block and turns into its closed blue cap
 /// (<see cref="BlueDoorCapObject"/>). Otherwise it stays closed, looking for Samus every four updates; once she is near
 /// (<see cref="EyeDoorSequenceDefinitions.WakeReach"/>) it opens, takes missiles from then on, and watches her, firing its

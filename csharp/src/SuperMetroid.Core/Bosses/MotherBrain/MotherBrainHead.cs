@@ -116,8 +116,8 @@ internal sealed class MotherBrainHead
         if (state.SmallPurpleBreathGenerationEnabled && !state.SmallPurpleBreathActive &&
             BossRandomRolls.InLowerHalf(_room.Random.Read()))
             SpawnMotherBrainPurpleBreathSmall(state);
-        // The brain draw advances the brain list here, after every enemy's AI, and returns out
-        // of the whole draw when the list is not live.
+        // The brain draw advances the brain animation here, after every enemy's AI, and returns out
+        // of the whole draw when the animation is not live.
         if (AdvanceMotherBrainBrain(state, _deathsAndDrops.SamusForEnemyDrops) is not MotherBrainHeadFrame brainFrame)
             return;
 

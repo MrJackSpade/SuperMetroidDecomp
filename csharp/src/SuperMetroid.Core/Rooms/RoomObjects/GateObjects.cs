@@ -25,7 +25,7 @@ internal sealed class GateObjects
     private readonly List<DownwardGateProjectileRequest> _downwardGateProjectileRequests = new();
 
     /// <summary>
-    /// Returns and clears projectile work published by gate setup/list execution. Room load
+    /// Returns and clears projectile work published by gate setup and sequences. Room load
     /// consumes the initial closed actor after enemy loading clears the enemy-projectile pool; normal
     /// gameplay consumes later close/wake commands immediately after the room-object handler.
     /// </summary>

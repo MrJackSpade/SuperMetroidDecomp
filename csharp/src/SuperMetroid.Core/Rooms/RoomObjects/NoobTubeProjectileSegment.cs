@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// The n00b tube's crack, glass shard and released-air bubble animations (#641): one segment per animation a spawn, branch or family step enters, in authored order.
-/// Generated from the verified lists; see <see cref="NoobTubeProjectileAnimations"/>.
+/// Generated from the verified animations; see <see cref="NoobTubeProjectileAnimations"/>.
 /// </summary>
 internal enum NoobTubeProjectileSegment
 {

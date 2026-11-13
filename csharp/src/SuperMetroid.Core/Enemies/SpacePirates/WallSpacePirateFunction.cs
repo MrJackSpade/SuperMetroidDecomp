@@ -9,7 +9,7 @@ public enum WallSpacePirateFunction
     /// <summary>Watch Samus while continuing the left-wall climbing animation.</summary>
     ClimbingLeftWall = 1,
 
-    /// <summary>The attack list owns presentation until it prepares a rightward jump.</summary>
+    /// <summary>The attack animation owns presentation until it prepares a rightward jump.</summary>
     AttackAnimationOnLeftWall,
 
     /// <summary>Follow the game's sine/cosine arc from the left wall to the right.</summary>
@@ -18,7 +18,7 @@ public enum WallSpacePirateFunction
     /// <summary>Watch Samus while continuing the right-wall climbing animation.</summary>
     ClimbingRightWall,
 
-    /// <summary>The attack list owns presentation until it prepares a leftward jump.</summary>
+    /// <summary>The attack animation owns presentation until it prepares a leftward jump.</summary>
     AttackAnimationOnRightWall,
 
     /// <summary>Follow the game's sine/cosine arc from the right wall to the left.</summary>

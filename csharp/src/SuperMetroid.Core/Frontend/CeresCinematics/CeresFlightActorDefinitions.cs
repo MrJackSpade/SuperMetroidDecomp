@@ -23,7 +23,7 @@ internal static class CeresFlightActorDefinitions
     /// same star definition and animation. Its four
     /// steps match the authored data: duration
     /// 10, the star frame, then a jump back to the start.
-    /// The initializer parameter changes actor motion, not this list.
+    /// The initializer parameter changes actor motion, not this animation.
     /// The exact bounded rule displays the same authored star sheet for
     /// ten handler calls and repeats while its scene owns the actor.
     /// IntroDiscoverySprite.Step never falls into the following animation.

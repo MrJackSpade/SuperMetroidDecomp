@@ -352,7 +352,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // Outside corner: reverse the tangent for up to three frames while the
-        // list rotates the actor around the exposed block edge.
+        // animation rotates the actor around the exposed block edge.
         state.Velocity = state.Velocity.ReversedY();
         SetCrawlerVerticalSurfaceAnimation(slot, state);
     }

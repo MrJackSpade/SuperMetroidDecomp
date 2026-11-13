@@ -58,7 +58,7 @@ internal sealed class CeresRidleyFades
             return;
 
         // The final eye-fade step makes Ridley intangible after the final shade, waits
-        // five dispatcher calls, then begins the opening-roar list.
+        // five dispatcher calls, then begins the opening-roar animation.
         slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
         state.FadeStep = 0;
         state.Function = RidleyAiFunction.WaitBeforeRoar;

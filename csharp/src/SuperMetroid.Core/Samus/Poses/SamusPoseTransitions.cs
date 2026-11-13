@@ -378,8 +378,8 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             // therefore execute the literal same terminal transitions to normal standing.
             (SamusPoseId.FiringLandingRightPose, SamusPoseId.FacingRightNormalPose) or
             (SamusPoseId.FiringLandingLeftPose, SamusPoseId.FacingLeftNormalPose) or
-            // Every aerial-turn delay list ends in a pose-transition command. These pairs are the
-            // literal operands from the aerial-turn delay lists, not inferred mirror poses.
+            // Every aerial-turn animation ends in a pose-transition cue. These pairs are the
+            // literal transitions of the aerial-turn animations, not inferred mirror poses.
             (SamusPoseId.TurningRightToLeftJumpPose, SamusPoseId.NormalJumpForwardLeftPose) or
             (SamusPoseId.TurningLeftToRightJumpPose, SamusPoseId.NormalJumpForwardRightPose) or
             (SamusPoseId.TurningRightToLeftFallingPose, SamusPoseId.FallingLeftPose) or
@@ -396,7 +396,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             (SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose, SamusPoseId.NormalJumpAimDiagonalUpRightPose) or
             (SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose, SamusPoseId.FallingAimDiagonalUpLeftPose) or
             (SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose, SamusPoseId.FallingAimDiagonalUpRightPose) or
-            // Ends every moonwalk turn/jump delay list with a transition to
+            // Ends every moonwalk turn/jump animation with a transition to
             // the spin jump. Super-special selection refreshes the pose, but skips the pose
             // initializer's later jump initialization. Its unchanged vertical direction permits Moonfall.
             (SamusPoseId.MoonwalkTurnJumpLeftPose or SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
@@ -408,7 +408,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             (SamusPoseId.CrystalFlashRightPose, SamusPoseId.FacingRightNormalPose) or
             (SamusPoseId.CrystalFlashLeftPose, SamusPoseId.FacingLeftNormalPose) or
             // All four drained release streams eventually publish ordinary standing art.
-            // These are literal transition operands from the drained release delay lists.
+            // These are literal transitions of the drained release animations.
             (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedStandingRightPose, SamusPoseId.FacingRightNormalPose) or
             (SamusPoseId.DrainedCrouchingLeftPose or SamusPoseId.DrainedStandingLeftPose, SamusPoseId.FacingLeftNormalPose);
         if (!verified)
@@ -434,7 +434,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             previousMovementType);
         if (!beganShinespark)
         {
-            // Moonwalk turn lists end in a literal transition to the spin jump. That operand is still fed
+            // Moonwalk turn animations end in a literal transition to the spin jump. That operand is still fed
             // through movement-type initialization, so equipment substitution occurs here
             // just as it does for an input-table jump from ordinary running.
             SamusPoseId installedPose = startsMoonwalkJump

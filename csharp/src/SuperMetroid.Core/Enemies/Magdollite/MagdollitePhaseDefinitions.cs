@@ -10,7 +10,7 @@ internal static class MagdollitePhaseDefinitions
     internal const int MaximumRise = 108;
 
     /// <summary>
-    /// The distance thresholds, body animation lists, and body-to-overlay Y offsets for the
+    /// The distance thresholds, body animations, and body-to-overlay Y offsets for the
     /// nine authored phases; the body shows the narrow pillars and the three- to eight-segment stacks in rise order. The zero-distance setup repeats the first visible pillar. Each following sixteen-pixel rise
     /// selects the next pillar-stack animation and moves the overlay down one eight-pixel tile relative to the body.
     /// </summary>

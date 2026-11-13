@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 /// </summary>
 public enum ZoaEnemyFunction
 {
-    /// <summary>Remain hidden until Samus is fewer than 128 horizontal pixels away, then select the facing rise list.</summary>
+    /// <summary>Remain hidden until Samus is fewer than 128 horizontal pixels away, then select the facing rise animation.</summary>
     WaitForSamus = 1,
     /// <summary>Become visible and move upward 0.5 pixel per NTSC AI update while Samus is above; reaching her height selects horizontal launch.</summary>
     Rising,

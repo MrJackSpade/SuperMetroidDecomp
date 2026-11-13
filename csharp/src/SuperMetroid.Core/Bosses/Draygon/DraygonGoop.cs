@@ -51,7 +51,7 @@ internal sealed class DraygonGoop
         body.Position = body.Position.WithWhole(new(direction == HorizontalDirection.Right ? DraygonBehavior.DraygonOffscreenLeftX : state.RightSideReset.X, 384));
         state.SwoopVelocity = new UnsignedSixteenSixteen(1, 0);
         state.GoopYOscillationAngle = RotationAngle.Zero;
-        // Retail's leftward setup briefly requests the right-facing apex arm list before
+        // Retail's leftward setup briefly requests the right-facing apex arm animation before
         // the body's reset cue replaces all four animations. Preserve the literal write.
         _parts.StartDraygonAnimation(state.Arms, DraygonSegment.ArmsFacingRightNearSwoopApex);
         state.Function = direction == HorizontalDirection.Right
@@ -206,7 +206,7 @@ internal sealed class DraygonGoop
             RunFlyingDraygonGoop(context.Projectile, context.Samus);
         }, EnemyProjectileFrameBehavior.DraygonGoopFlight);
 
-        // A shot wall turret runs the shared misc-dust small explosion, the list its definition names.
+        // A shot wall turret runs the shared misc-dust small explosion, the animation its definition names.
         table.AddShotAnimation(RoomEnemyProjectileKind.DraygonWallTurret,
             () => new MiscDustProjectileAnimation(MiscDustProjectileSegment.SmallExplosion));
         table.AddTouchAnimation(RoomEnemyProjectileKind.DraygonGoop,
@@ -256,7 +256,7 @@ internal sealed class DraygonGoop
     {
         // A power-bombed goop frees its place but its update still moves it and
         // tests Samus. Contact is tested before the room boundary, so a goop that touches
-        // Samus outside the boundary still runs its touch list instead of being deleted.
+        // Samus outside the boundary still plays its touch animation instead of being deleted.
         FreePlaceIfPowerBombed(goop, samus);
         MoveDraygonProjectile(goop);
         if (samus is null)

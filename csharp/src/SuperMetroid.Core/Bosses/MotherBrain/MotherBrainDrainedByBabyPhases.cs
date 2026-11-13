@@ -19,7 +19,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// <summary>Walk animation delay derived from the current stage: 2, 4, 6, 8 or 10 updates.</summary>
     public int PainfulWalkingAnimationDelay { get; internal set; }
 
-    /// <summary>Pause timer used after each completed forward/backward body list.</summary>
+    /// <summary>Pause timer used after each completed forward/backward body animation.</summary>
     public int PainfulWalkingFunctionTimer { get; private set; }
 
     /// <summary>True while the nested painful-walk function is on its forward half.</summary>
@@ -152,7 +152,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     {
         // The walk step does not reload Y before the shared walk helper. The surrounding
         // sequence's final painful-animation selector is ten, so the observable
-        // retail list is the really-slow backward animation.
+        // animation is the really-slow backward one.
         MotherBrainWalkResult moveToBack = _state.RequestWalkBackwardReallySlow(targetX: 40);
         requests.BodyWalkRequested = moveToBack.Requested;
         if (moveToBack.ReachedTarget)

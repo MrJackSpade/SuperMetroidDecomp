@@ -28,7 +28,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         _collision = collision;
     }
 
-    /// <summary>Plays a vent's typed animation where the shared enemy animation would run its list.</summary>
+    /// <summary>Plays a vent's typed animation in place of the shared enemy animation.</summary>
     internal static void AdvanceCeresSteamAnimation(RoomEnemySlot slot)
     {
         if (!slot.AnimationClock.Expire())

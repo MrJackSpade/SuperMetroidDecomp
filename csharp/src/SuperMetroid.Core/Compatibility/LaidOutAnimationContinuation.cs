@@ -26,9 +26,9 @@ namespace SuperMetroid.Core.Compatibility;
 /// pose that read into them.
 /// </para>
 /// <para>
-/// The typed animations whose gameplay reads which list a resting animation stands in (#1600) keep their lists' layout in
-/// the same terms: a list that runs on into the list authored after it, directly after its last beat, has that list as
-/// its successor, starting as many beats later, so a play resting after that beat reads the next list, as the game's
+/// The typed animations whose gameplay reads which segment a resting animation stands in (#1600) keep their segments' layout in
+/// the same terms: a segment that runs on into the segment authored after it, directly after its last beat, has that segment as
+/// its successor, starting as many beats later, so a play resting after that beat reads the next segment, as the game's
 /// animation position then rests at its entry.
 /// </para>
 /// </remarks>

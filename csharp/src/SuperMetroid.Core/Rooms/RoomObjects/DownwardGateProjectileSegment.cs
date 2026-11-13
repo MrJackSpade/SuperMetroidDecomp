@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// The downward shot gate's moving and closed animations (#641): one segment per animation a spawn, branch or family step enters, in authored order.
-/// Generated from the verified lists; see <see cref="DownwardGateProjectileAnimations"/>.
+/// Generated from the verified animations; see <see cref="DownwardGateProjectileAnimations"/>.
 /// </summary>
 internal enum DownwardGateProjectileSegment
 {

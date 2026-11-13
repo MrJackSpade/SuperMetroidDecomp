@@ -77,7 +77,7 @@ internal sealed class IntroMotherBrainExplosionSystem
         /// <summary>The pose the explosion's animation shows; null before its first frame and after deletion.</summary>
         public CinematicSpritePose? Pose => sprite.Pose;
 
-        /// <summary>Cleared by the animation's delete after the later crossfade or list completion.</summary>
+        /// <summary>Cleared by the animation's delete after the later crossfade or animation completion.</summary>
         public bool IsActive => sprite.IsActive;
 
         /// <summary>Starts a big explosion from its five-entry position and delay table.</summary>

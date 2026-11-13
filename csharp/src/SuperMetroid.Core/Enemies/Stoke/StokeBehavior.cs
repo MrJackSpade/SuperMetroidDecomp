@@ -74,7 +74,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state);
 
-        // Initialization writes the common empty map, then picks the left list by default.
+        // Initialization writes the common empty map, then picks the left animation by default.
         // A right-moving Stoke takes the right-facing branch. The room-loader tail later
         // restores the transient empty frame, and the first animation tick supplies art.
         slot.Frame = EnemyFrameId.Empty;

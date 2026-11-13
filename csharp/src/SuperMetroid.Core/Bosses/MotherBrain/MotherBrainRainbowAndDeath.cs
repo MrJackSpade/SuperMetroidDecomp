@@ -227,9 +227,9 @@ internal sealed class MotherBrainRainbowAndDeath
     {
         RoomEnemySlot head = state.Head;
 
-        // The brain-animation request resets the physical list timer only when body AI requests a new list.
+        // The brain-animation request resets the physical animation's timer only when body AI requests a new animation.
         // The dedicated latch is essential because the running animation advances away from
-        // the list origin while the request itself remains unchanged.
+        // the animation's start while the request itself remains unchanged.
         if (sequence.State.HeadAnimation is { } headSegment &&
             (step is { HeadAnimationRequested: true } ||
              headSegment != state.RainbowAppliedHeadAnimation))

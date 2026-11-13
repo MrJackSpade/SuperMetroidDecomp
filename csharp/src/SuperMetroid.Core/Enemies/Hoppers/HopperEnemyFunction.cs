@@ -18,15 +18,15 @@ public enum HopperEnemyFunction
     ChooseDirectionUpsideUp,
     /// <summary>Compares Samus X against a ceiling Hopper and selects the leftward/backward or rightward/forward start.</summary>
     ChooseDirectionUpsideDown,
-    /// <summary>Negates X velocity, installs the floor jumping list, and selects the floor backward movement entry.</summary>
+    /// <summary>Negates X velocity, starts the floor jumping animation, and selects the floor backward movement entry.</summary>
     StartBackwardHopUpsideUp,
-    /// <summary>Retains positive X velocity, installs the floor jumping list, and selects the distinct forward movement entry.</summary>
+    /// <summary>Retains positive X velocity, starts the floor jumping animation, and selects the distinct forward movement entry.</summary>
     StartForwardHopUpsideUp,
-    /// <summary>Negates X velocity, installs the ceiling jumping list, and selects the ceiling backward movement entry.</summary>
+    /// <summary>Negates X velocity, starts the ceiling jumping animation, and selects the ceiling backward movement entry.</summary>
     StartBackwardHopUpsideDown,
-    /// <summary>Retains positive X velocity, installs the ceiling jumping list, and selects the distinct forward movement entry.</summary>
+    /// <summary>Retains positive X velocity, starts the ceiling jumping animation, and selects the distinct forward movement entry.</summary>
     StartForwardHopUpsideDown,
-    /// <summary>Restores the variant's floor or ceiling idle list and waits for its cue-driven ready flag.</summary>
+    /// <summary>Restores the variant's floor or ceiling idle animation and waits for its cue-driven ready flag.</summary>
     Landed,
     /// <summary>Floor hop motion selected by the initial leftward branch, resolving vertical movement before horizontal movement and landing.</summary>
     JumpingUpsideUpBackward,

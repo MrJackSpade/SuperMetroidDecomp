@@ -5,7 +5,7 @@ internal enum RidleyFireballCue
 {
     /// <summary>Stops the projectile's motion.</summary>
     ClearFrameBehavior,
-    /// <summary>Starts the fireball's flight: installs its moving frame behaviour, as the list's flight step does.</summary>
+    /// <summary>Starts the fireball's flight: installs its moving frame behaviour, as the animation's flight cue does.</summary>
     BeginFlight,
     /// <summary>Emits the right and left afterburns.</summary>
     SpawnHorizontalAfterburns,

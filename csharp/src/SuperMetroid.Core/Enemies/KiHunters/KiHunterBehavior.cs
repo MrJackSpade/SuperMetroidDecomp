@@ -50,7 +50,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Carries out one cue of the Ki-Hunter body's animations. Returning to flight continues at the flying animation for
-    /// the current direction, as the callback returns that list; every other cue runs on.
+    /// the current direction, as the callback returns that animation; every other cue runs on.
     /// </summary>
     private KiHunterSegment? ApplyKiHunterCue(RoomEnemySlot slot, KiHunterCue cue)
     {
@@ -103,7 +103,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         _wingsOfBody.Place(body, _slotTable.ListedAfter(body, 1));
         KiHunterEnemyState state = CreateKiHunterState(body);
 
-        // Every Ki-Hunter list is run by the shared enemy animation. The
+        // Every Ki-Hunter animation is played by the shared enemy animation. The
         // game's name calls this property "disable Samus collision", but the live engine
         // proves it is the animating flag.
         body.Processing = body.Processing.With(EnemyProcessing.Animates);
@@ -714,7 +714,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         body.RequireSpeciesState<KiHunterEnemyState>().WaitTimer = KiHunterSpitWaitFrames;
     }
 
-    /// <summary>Restarts matching body and still-attached wing lists for the selected flight direction.</summary>
+    /// <summary>Restarts matching body and still-attached wing animations for the selected flight direction.</summary>
     private void SetKiHunterPairFacing(RoomEnemySlot body, bool movingRight)
     {
         StartKiHunterAnimation(
@@ -959,7 +959,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Moves the falling acid exactly: move/test Y, then X, then add capped 8.8 gravity. A floor
-    /// collision swaps to the game splash list; a wall collision only zeros X speed.
+    /// collision swaps to the splash animation; a wall collision only zeros X speed.
     /// </summary>
     internal static void RunKiHunterAcidMovement(
         EnemyProjectile projectile,

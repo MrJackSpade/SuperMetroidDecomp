@@ -252,7 +252,7 @@ internal sealed class PhantoonPatterns
                 body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
 
                 // This flag makes the next pattern choice take the initial flame-rain
-                // branch after the eye-close list invokes its flame-rain callback.
+                // branch after the eye-close animation invokes its flame-rain callback.
                 state.BodyState.FlameRainRequested = true;
                 return;
             }

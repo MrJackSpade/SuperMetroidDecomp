@@ -34,7 +34,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
     /// <summary>Velocity increment applied after each moving frame, 56 256ths of a pixel per update.</summary>
     private static readonly SignedEightEight NorfairLavaJumpingEnemyGravity = SignedEightEight.FromParts(0, 56);
-    /// <summary>The rising velocity at and above which, while still rising, the jumper switches to the visible jump list.</summary>
+    /// <summary>The rising velocity at and above which, while still rising, the jumper switches to the visible jump animation.</summary>
     private static readonly SignedEightEight NorfairLavaJumpingEnemyAnimationSwitchVelocity = -SignedEightEight.FromParts(4, 0);
 
     /// <summary>Initializes the Norfair lava jumper.</summary>
@@ -120,7 +120,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
                 // Reaching a screen's last block row is how the jumper knows it is back in the lava. Once the
                 // actor reaches that row it snaps to its exact population origin, restores
-                // the hidden list, and sleeps off-screen until the next jump begins.
+                // the hidden animation, and sleeps off-screen until the next jump begins.
                 if (RoomGridConversions.BlockRowWithinScreen(slot.Position.Y.Whole) == 15)
                 {
                     slot.Position = slot.Position.WithWhole(state.SpawnPosition);

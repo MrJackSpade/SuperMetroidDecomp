@@ -171,7 +171,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         // The spit has no graphics-set entry of its own: its sheet pictures it in the Evir's art and colours.
         ResetEvirProjectilePosition(slot, state);
 
-        // Clears installed-list after having installed the normal list. That oddity
+        // Clears the installed animation after having started the normal animation. That oddity
         // forces the first main-AI request to refresh the frame timer exactly once.
         state.InstalledAnimation = null;
     }
@@ -214,7 +214,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Dispatches idle attachment, aimed flight, or regeneration after selecting its animation list.</summary>
+    /// <summary>Dispatches idle attachment, aimed flight, or regeneration after selecting its animation.</summary>
     private void RunEvirProjectileMain(
         RoomEnemySlot slot,
         EvirEnemyState state,
@@ -457,7 +457,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = EvirAiFunction.ProjectileIdle;
     }
 
-    /// <summary>Records the desired list and installs it only when it differs from the active one.</summary>
+    /// <summary>Records the desired animation and starts it only when it differs from the active one.</summary>
     private static void RequestEvirAnimation(
         RoomEnemySlot slot,
         EvirEnemyState state,
@@ -467,7 +467,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         StartEvirAnimation(slot, state);
     }
 
-    /// <summary>Resets the frame timer once per list change, preserving held animations.</summary>
+    /// <summary>Resets the frame timer once per animation change, preserving held animations.</summary>
     private static void StartEvirAnimation(RoomEnemySlot slot, EvirEnemyState state)
     {
         if (state.RequestedAnimation == state.InstalledAnimation)

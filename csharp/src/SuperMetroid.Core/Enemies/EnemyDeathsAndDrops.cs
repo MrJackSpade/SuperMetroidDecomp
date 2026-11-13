@@ -228,7 +228,7 @@ internal sealed class EnemyDeathsAndDrops
         return pickup;
     }
 
-    /// <summary>Rolls a direct drop and either starts its pickup list or the no-drop tail.</summary>
+    /// <summary>Rolls a direct drop and either starts its pickup animation or the no-drop tail.</summary>
     private void InitializeDirectEnemyPickup(EnemyProjectile pickup)
     {
         EnemyPickupKind kind = SelectRandomEnemyDrop(pickup);

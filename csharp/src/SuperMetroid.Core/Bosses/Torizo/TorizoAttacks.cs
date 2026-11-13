@@ -98,7 +98,7 @@ internal sealed class TorizoAttacks
         table.AddBranchingCue<TorizoProjectileSegment, TorizoProjectileCue>((context, cue) => ApplyTorizoProjectileCue(context.Projectile, context.Samus, cue));
         table.AddShotAnimation(RoomEnemyProjectileKind.BombTorizoChozoOrb, () => new TorizoProjectileAnimation(TorizoProjectileSegment.ChozoOrbShot));
         table.AddShotAnimation(RoomEnemyProjectileKind.GoldenTorizoChozoOrb, () => new TorizoProjectileAnimation(TorizoProjectileSegment.ChozoOrbShot));
-        // The egg's definition names the Chozo orb's wall-impact list as its shot list.
+        // The egg's definition names the Chozo orb's wall-impact animation as its shot animation.
         table.AddShotAnimation(RoomEnemyProjectileKind.GoldenTorizoEgg, () => new TorizoProjectileAnimation(TorizoProjectileSegment.ChozoOrbWallImpact));
         table.AddShotAnimation(RoomEnemyProjectileKind.GoldenTorizoSuperMissile, () => new TorizoProjectileAnimation(TorizoProjectileSegment.SuperMissileImpact));
     }
@@ -351,7 +351,7 @@ internal sealed class TorizoAttacks
             torizo,
             RoomEnemyProjectileKind.GoldenTorizoSonicBoom);
 
-    /// <summary>Places a sonic boom 32 pixels ahead and selects the fired-left or fired-right list.</summary>
+    /// <summary>Places a sonic boom 32 pixels ahead and selects the fired-left or fired-right animation.</summary>
     private void SpawnTorizoSonicBoom(
         RoomEnemySlot torizo,
         RoomEnemyProjectileKind kind)
@@ -618,7 +618,7 @@ internal sealed class TorizoAttacks
         GoldenTorizoEggState egg = projectile.StateOf<GoldenTorizoEggState>();
         if (--egg.HatchTimer < 0)
         {
-            // The hatch timer steps the sleeping list past its sleep.
+            // The hatch timer steps the sleeping animation past its sleep.
             projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileAnimations.AfterSleep(RunningTorizoProjectileAnimation(projectile))));
             projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromPixels(egg.FacingRight ? 1 : -1));
             return;

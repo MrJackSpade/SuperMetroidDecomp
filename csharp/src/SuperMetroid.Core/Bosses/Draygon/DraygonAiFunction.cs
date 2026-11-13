@@ -32,7 +32,7 @@ public enum DraygonAiFunction
     GoopRightSetup,
     /// <summary>Follows the oscillating path until horizontal separation from Samus is below 208 pixels.</summary>
     GoopRight,
-    /// <summary>Requests right-facing goop lists from RNG samples and begins chasing when goop slows Samus.</summary>
+    /// <summary>Requests right-facing goop animations from RNG samples and begins chasing when goop slows Samus.</summary>
     GoopRightTail,
     /// <summary>Finishes the rightward oscillating exit without firing goop.</summary>
     GoopRightRecovery,
@@ -40,7 +40,7 @@ public enum DraygonAiFunction
     GoopLeftSetup,
     /// <summary>Follows the oscillating path until horizontal separation from Samus is below 208 pixels.</summary>
     GoopLeft,
-    /// <summary>Requests left-facing goop lists from RNG samples and begins chasing when goop slows Samus.</summary>
+    /// <summary>Requests left-facing goop animations from RNG samples and begins chasing when goop slows Samus.</summary>
     GoopLeftTail,
     /// <summary>Completes the leftward exit, still allowing attached goop to trigger a chase.</summary>
     GoopLeftRecovery,
@@ -54,9 +54,9 @@ public enum DraygonAiFunction
     FlailWithSamus,
     /// <summary>Holds the grabbed pair together during a 64-frame whip, then resumes the spiral.</summary>
     TailWhipWithSamus,
-    /// <summary>Installs the facing-specific four-repeat finishing tail-whip list.</summary>
+    /// <summary>Starts the facing-specific four-repeat finishing tail-whip animation.</summary>
     FinalTailWhips,
-    /// <summary>Keeps Samus attached until the tail list changes the body function to release.</summary>
+    /// <summary>Keeps Samus attached until the tail animation changes the body function to release.</summary>
     FinalTailWhipsWait,
     /// <summary>Releases Samus, restores ordinary collision, and starts a tail flail before retreat.</summary>
     ReleaseSamus,

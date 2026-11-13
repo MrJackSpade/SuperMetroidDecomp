@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal static class CrocomireBodyAnimationGroups
 {
     /// <summary>
-    /// The animations laid out before the stepping-back list. The stepping fight function steps forward again only once
+    /// The animations laid out before the stepping-back animation. The stepping fight function steps forward again only once
     /// the continuation has left them.
     /// </summary>
     internal static readonly FrozenSet<CrocomireBodySegment> BeforeSteppingBack = new[]

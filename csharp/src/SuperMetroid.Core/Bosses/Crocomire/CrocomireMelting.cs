@@ -69,7 +69,7 @@ internal sealed class CrocomireMelting
     internal BossBodyFrame RequireCrocomireMeltingImage(CrocomireMeltingIllustration illustration) =>
         _bossArtwork.Body(BossBodyOwner.Crocomire).Frame(CrocomireMeltingFrameNames.Of(illustration));
 
-    /// <summary>Starts the selected body melting list, which the melt image just shown on his body layer goes with.</summary>
+    /// <summary>Starts the selected body melting animation, which the melt image just shown on his body layer goes with.</summary>
     private static void StartCrocomireMeltingBodyAnimation(CrocomireEnemyState state, CrocomireBodySegment bodySegment)
     {
         state.DeathPhase = state.DeathPhase.Next();

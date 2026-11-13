@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 /// <remarks>
 /// Members are identities. Their values are arbitrary and nothing reads them; the import pipeline alone knows which
-/// request each member is in the installed sound program.
+/// installed sound effect each member requests.
 /// </remarks>
 public enum RoomSound
 {

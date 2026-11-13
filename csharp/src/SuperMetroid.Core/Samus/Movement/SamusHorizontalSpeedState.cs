@@ -246,7 +246,7 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>
     /// Executes the equipped-Speed-Booster interception when running
     /// reaches an animation command. True means the command was consumed and frame zero
-    /// was restarted from the authored delay list for the new boost stage.
+    /// was restarted from the authored animation for the new boost stage.
     /// </summary>
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which a full sound queue selects.</param>
     /// <param name="movementType">Current movement category; only running can consume this animation command.</param>

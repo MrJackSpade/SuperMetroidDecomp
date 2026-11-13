@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Mother Brain's onion-ring, bomb, rainbow-charge, drool, escape-door, purple-breath and subtitle animations (#641): one segment per animation a spawn, branch or family step enters, in authored order.
-/// Generated from the verified lists; see <see cref="MotherBrainEffectAnimations"/>.
+/// Generated from the verified animations; see <see cref="MotherBrainEffectAnimations"/>.
 /// </summary>
 internal enum MotherBrainEffectSegment
 {

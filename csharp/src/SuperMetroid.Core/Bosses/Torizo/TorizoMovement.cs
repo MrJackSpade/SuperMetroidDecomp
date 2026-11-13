@@ -113,7 +113,7 @@ internal sealed class TorizoMovement
         _body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
 
         // Two of its latches are the death sequence's. Before they are set,
-        // health thresholds interrupt the current authored list with the core/head bursts.
+        // health thresholds interrupt the current authored animation with the core/head bursts.
         if (!_body.HasBehavior(torizo, TorizoBehaviorFlags.GutBlownUp) &&
             torizo.Health < BombTorizoBehavior.BombTorizoHeadExplosionHealth)
         {
@@ -199,7 +199,7 @@ internal sealed class TorizoMovement
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + TorizoMotionDefinitions.StatueGravity);
     }
 
-    /// <summary>Advances a jump across slopes; landing restores the saved list and triggers the impact quake.</summary>
+    /// <summary>Advances a jump across slopes; landing restores the saved animation and triggers the impact quake.</summary>
     private void RunBombTorizoJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -225,7 +225,7 @@ internal sealed class TorizoMovement
         state.Velocity += state.JumpAcceleration;
     }
 
-    /// <summary>Waits for Bomb Torizo's landing timer or selects the airborne list while a downward probe is clear.</summary>
+    /// <summary>Waits for Bomb Torizo's landing timer or selects the airborne animation while a downward probe is clear.</summary>
     private void RunBombTorizoAirTransition(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -249,8 +249,8 @@ internal sealed class TorizoMovement
 
         if (!_terrain.MoveEnemyVertically(level, torizo, SignedSixteenSixteen.FromWholePixels(TorizoGroundProbeFall.Pixels(state.Velocity.X))))
         {
-            // Bomb Torizo's fall swaps to the authored in-air list while the downward probe remains
-            // clear. Landing itself is handled by the list-installed gravity/jump callback.
+            // Bomb Torizo's fall swaps to the authored in-air animation while the downward probe remains
+            // clear. Landing itself is handled by the animation-installed gravity/jump callback.
             TorizoBody.StartTorizoBodyAnimation(torizo, _access.RequireBombTorizoState(torizo), TorizoAnimations.Start(_access.FacesRight(torizo)
                 ? TorizoBodySegment.FacingRightFalling0
                 : TorizoBodySegment.FacingLeftFalling0));
@@ -258,14 +258,14 @@ internal sealed class TorizoMovement
         }
     }
 
-    /// <summary>Uses Golden Torizo's timed facing transition and landing lists during an airborne probe.</summary>
+    /// <summary>Uses Golden Torizo's timed facing transition and landing animations during an airborne probe.</summary>
     private void RunGoldenTorizoAirTransition(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         RoomLevelData level)
     {
         // Golden Torizo's fall is the Golden analogue of Bomb Torizo's. Its only behavioral difference is the
-        // sixteen-frame facing transition and Golden landing lists selected when it expires.
+        // sixteen-frame facing transition and Golden landing animations selected when it expires.
         if (state.AirTransitionTimer != 0)
         {
             if (--state.AirTransitionTimer == 0)

@@ -23,7 +23,7 @@ public static class SamusMovementDefinitions
     public const int FastFallAnimationTimer = 8;
 
 
-    /// <summary>Pose definitions, animation lists, and controller-transition streams.</summary>
+    /// <summary>Pose definitions, animations, and controller-transition streams.</summary>
     public static class Poses
     {
 

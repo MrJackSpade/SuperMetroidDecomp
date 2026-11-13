@@ -101,7 +101,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Starts the 32-frame opening list only inside strict modular X and Y activation ranges.</summary>
+    /// <summary>Starts the 32-frame opening animation only inside strict modular X and Y activation ranges.</summary>
     private static void WaitForSamusNearMorphBallEye(
         RoomEnemySlot eye,
         MorphBallEyeEnemyState state,

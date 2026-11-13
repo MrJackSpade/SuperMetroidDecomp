@@ -134,8 +134,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         bodyState.FunctionTimer = DragonRiseOrSinkFrames;
         bodyState.Function = DragonEnemyFunction.Rising;
 
-        // The wait records the sign of (Samus X - body X) as the body's facing. The following list
-        // edits use that sign to select even/odd left/right table entries for both physical records.
+        // The wait records the sign of (Samus X - body X) as the body's facing. The following animation
+        // choices use that sign to select even/odd left/right table entries for both physical records.
         bool facingLeft = CoordinateAxis.Difference(samus.Position.X.Whole, body.Position.X.Whole) < 0;
         bodyState.FacingLeft = facingLeft;
         bodyState.RequestedAnimation = DragonPhases.WithFacing(
@@ -255,7 +255,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         following.AiStates = actor.AiStates;
     }
 
-    /// <summary>Installs a newly requested animation list once and resets its frame and loop timers.</summary>
+    /// <summary>Starts a newly requested animation once and resets its frame and loop timers.</summary>
     internal static void StartDragonAnimation(
         RoomEnemySlot slot,
         DragonEnemyState state)

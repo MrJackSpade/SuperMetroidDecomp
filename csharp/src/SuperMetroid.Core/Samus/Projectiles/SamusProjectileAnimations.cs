@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// The Samus projectiles' animations (#1301):
-/// each timed step shows a <see cref="SamusProjectileFrame"/> for its duration, and the lists' gotos and
-/// deletes end their animations.
+/// each timed step shows a <see cref="SamusProjectileFrame"/> for its duration, and a goto or
+/// delete ends its animation.
 /// </summary>
 internal static class SamusProjectileAnimations
 {

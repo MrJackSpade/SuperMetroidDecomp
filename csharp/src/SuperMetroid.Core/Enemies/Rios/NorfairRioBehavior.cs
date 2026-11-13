@@ -92,7 +92,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             case NorfairRioEnemyFunction.WaitForAttackOpportunity:
                 // The retail gate tests two parts of the newly generated random
                 // number, then the strict modular X distance. Failure also consumes a pending
-                // animation signal and restores the idle list without starting an attack.
+                // animation signal and restores the idle animation without starting an attack.
                 if (samus is null ||
                     (!RioLaunchDefinitions.AttackChanceLowBit.IsSetIn(random) && !RioLaunchDefinitions.AttackChanceHighBit.IsSetIn(random)) ||
                     !EnemyMath.IsWithinStrictModularDistance(
@@ -246,7 +246,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The follower's spawn reads the parent's own state: its installed list and its signed
+        // The follower's spawn reads the parent's own state: its installed animation and its signed
         // follower Y offset. Its drawing position follows the parent's live position.
         NorfairRioSegment followerList = parentState.FollowerOffset.Y < 0
             ? NorfairRioSegment.FlamesDescending

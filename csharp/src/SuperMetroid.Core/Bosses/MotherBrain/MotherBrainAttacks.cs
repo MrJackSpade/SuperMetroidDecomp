@@ -227,7 +227,7 @@ internal sealed class MotherBrainAttacks
                 PositionMotherBrainHeadQuicklyForLaser(state, samus);
                 return;
             case MotherBrainSecondPhaseAttack.Bomb when state.BombCounter >= 1:
-                // The bomb branch returns without changing the current head list when one bomb is
+                // The bomb branch returns without changing the current head animation when one bomb is
                 // already alive. The body still spends the full cooldown in phase one.
                 return;
             case MotherBrainSecondPhaseAttack.Bomb:
@@ -284,7 +284,7 @@ internal sealed class MotherBrainAttacks
     /// <summary>
     /// Runs the fallthrough. This step advances the global RNG—unlike
     /// attack selection—and fires immediately on the lower half; the upper half enters the
-    /// ordinary slow-crouch body list before firing.
+    /// ordinary slow-crouch body animation before firing.
     /// </summary>
     private void DecideWhetherMotherBrainCrouchesForBomb(MotherBrainEnemyState state)
     {
@@ -364,19 +364,19 @@ internal sealed class MotherBrainAttacks
         return false;
     }
 
-    /// <summary>Literal pose/list behavior of crouching.</summary>
+    /// <summary>Literal pose/animation behavior of crouching.</summary>
     private static bool TryMakeMotherBrainCrouch(MotherBrainEnemyState state)
     {
         if (state.Pose == MotherBrainBodyPose.Crouched)
             return true;
         if (state.Pose == MotherBrainBodyPose.Standing)
-            // The static crouched list is only appropriate during ascent initialization.
+            // The static crouched animation is only appropriate during ascent initialization.
             // Combat must first lower the body so the subsequent stand reverses that move.
             MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.CrouchSlow);
         return false;
     }
 
-    /// <summary>Literal pose/list behavior of standing.</summary>
+    /// <summary>Literal pose/animation behavior of standing.</summary>
     private static bool TryMakeMotherBrainStand(MotherBrainEnemyState state)
     {
         switch (state.Pose)
@@ -465,7 +465,7 @@ internal sealed class MotherBrainAttacks
     /// <summary>Advances the chosen walk direction, animation, and footstep cadence.</summary>
     private void HandleMotherBrainWalking(MotherBrainEnemyState state)
     {
-        // The backward walk alters only the walk credit and installs an authored body list;
+        // The backward walk alters only the walk credit and starts an authored body animation;
         // actual displacement remains owned by the body animation, which also keeps the background scroll aligned.
         if (state.Pose != MotherBrainBodyPose.Standing)
             return;

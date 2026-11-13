@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain's brain (head) animations order, run by her dedicated brain list rather than an enemy
+/// Mother Brain's brain (head) animations order, played by her dedicated brain animation rather than an enemy
 /// slot. The unreachable frames after the initial dummy and the unused flash and
 /// unused head animation are not authored.
 /// </summary>

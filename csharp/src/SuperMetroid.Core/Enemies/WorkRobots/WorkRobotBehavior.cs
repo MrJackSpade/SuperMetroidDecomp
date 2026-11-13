@@ -224,7 +224,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Applies one walk step, carries Samus on contact, and branches to wall or fall lists when support ends.</summary>
+    /// <summary>Applies one walk step, carries Samus on contact, and branches to wall or fall animations when support ends.</summary>
     private WorkRobotSegment? MoveWorkRobot(RoomEnemySlot slot, WorkRobotEnemyState state, SamusState? samus, RoomLevelData? level, WorkRobotMoveStep step)
     {
         if (level is null)
@@ -273,7 +273,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         CoordinateAxis.Difference(robot.Position.Y.Whole, camera.Y) > 0 &&
         CoordinateAxis.AsSigned(camera.Y + 224 - robot.Position.Y.Whole) >= 0;
 
-    /// <summary>Uses the existing random number to reset cooldown and enters the firing list when ready.</summary>
+    /// <summary>Uses the existing random number to reset cooldown and starts the firing animation when ready.</summary>
     private WorkRobotSegment? TryFireWorkRobotLaser(
         RoomEnemySlot robot,
         WorkRobotEnemyState state,
@@ -311,7 +311,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Runs the private tail of powered shot AI after common shot handling. The
     /// indestructible vulnerability table leaves health unchanged, but the accepted impact
-    /// still chooses an ahead/behind recoil list and delays the next laser by 64 frames.
+    /// still chooses an ahead/behind recoil animation and delays the next laser by 64 frames.
     /// </summary>
     private void ResolveWorkRobotShotAfterCommon(RoomEnemySlot robot, SamusState? samus)
     {

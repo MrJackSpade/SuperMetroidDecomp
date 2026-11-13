@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// Consulted by the room's setup, when it spawns the holding projectile, and by the room's background rule, which lasts
 /// as long as the place is held. Evidence: the room's setup (<c>$8F:C8C8</c>) spawns its projectile into the pool its
-/// load has just cleared, and the projectile's list (<c>$86:A3AA</c>) shows a blank frame for 32 updates and deletes it;
+/// load has just cleared, and the projectile's animation (<c>$86:A3AA</c>) shows a blank frame for 32 updates and deletes it;
 /// spawns search the pool from the place it takes downward.
 /// </remarks>
 [CompatibilityService("the pre-Phantoon room's setup holds an enemy-projectile place for its first 32 projectile updates, so projectiles spawned meanwhile take the place below it")]

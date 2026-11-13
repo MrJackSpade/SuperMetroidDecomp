@@ -62,7 +62,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             frame.Shade(GameplayPictures.Room, CeresDoorShades.ElevatorRoomGlow(step));
     }
 
-    /// <summary>Plays a door's typed animation where the shared enemy animation would run its list.</summary>
+    /// <summary>Plays a door's typed animation in place of the shared enemy animation.</summary>
     private void AdvanceCeresDoorAnimation(RoomEnemySlot slot, SamusState? samus)
     {
         if (!slot.AnimationClock.Expire())

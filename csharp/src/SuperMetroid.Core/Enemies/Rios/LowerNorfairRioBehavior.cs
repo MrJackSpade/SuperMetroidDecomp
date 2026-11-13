@@ -95,7 +95,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                         LowerNorfairRioHorizontalTriggerDistance))
                 {
                     // Unlike upper Norfair Rio, this variant clears the handshake and calls
-                    // its list installer on every rejected frame. The helper itself prevents
+                    // its animation starter on every rejected frame. The helper itself prevents
                     // an unchanged attack animation from restarting.
                     state.AnimationSignal = false;
                     StartLowerNorfairRioAnimation(
@@ -271,7 +271,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     private static void ApplyLowerNorfairRioGravity(LowerNorfairRioEnemyState state) =>
         state.Velocity = state.Velocity.WithY(state.Velocity.Y - LowerNorfairRioGravity);
 
-    /// <summary>Restarts a different Rio animation list while leaving an unchanged list's timer intact.</summary>
+    /// <summary>Restarts a different Rio animation while leaving an unchanged animation's timer intact.</summary>
     private static void StartLowerNorfairRioAnimation(
         RoomEnemySlot slot,
         LowerNorfairRioEnemyState state,

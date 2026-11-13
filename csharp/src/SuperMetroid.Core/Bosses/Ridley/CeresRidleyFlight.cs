@@ -515,7 +515,7 @@ internal sealed class CeresRidleyFlight
         state.FunctionTimer = 0;
     }
 
-    /// <summary>Restarts Ridley's body animation and frame timer at a selected list.</summary>
+    /// <summary>Restarts Ridley's body animation and frame timer at a selected segment.</summary>
     internal static void StartRidleyAnimation(RidleyEnemyState state, RoomEnemySlot slot, RidleyBodySegment segment)
     {
         state.BodyPlayback = EnemyAnimationPlayback.Start(slot, RidleyAnimations.StartingWith(segment));

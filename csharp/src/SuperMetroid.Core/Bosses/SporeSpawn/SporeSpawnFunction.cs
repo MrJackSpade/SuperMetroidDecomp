@@ -8,7 +8,7 @@ public enum SporeSpawnFunction
 {
     /// <summary>Performs no main-AI movement while its animations control the idle or open phase.</summary>
     Idle = 1,
-    /// <summary>Lowers the body one room pixel per AI update until Y reaches 624 and installs the fight-start list.</summary>
+    /// <summary>Lowers the body one room pixel per AI update until Y reaches 624 and starts the fight-start animation.</summary>
     Descending,
     /// <summary>Computes the phase-driven body sway about its spawn center and updates stalk segment positions.</summary>
     Moving,

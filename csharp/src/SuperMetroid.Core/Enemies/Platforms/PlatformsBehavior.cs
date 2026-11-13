@@ -138,7 +138,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         return yRemainder <= slot.Radius.Y;
     }
 
-    /// <summary>Applies horizontal movement, reversing the dispatcher and still-art list on wall collision.</summary>
+    /// <summary>Applies horizontal movement, reversing the dispatcher and still-art animation on wall collision.</summary>
     private void MovePlatformHorizontally(
         RoomEnemySlot slot,
         PlatformEnemyState state,
@@ -275,7 +275,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             InstallPlatformVerticallyMovingForCurrentDirection(slot, state);
         }
         // The direction cue runs after the already-installed branch target, so it executes even when
-        // no new list was needed this frame.
+        // no new animation was needed this frame.
         state.VerticallyStillArtInstalled = false;
     }
 
@@ -293,7 +293,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.VerticallyMovingArtInstalled = false;
     }
 
-    /// <summary>Selects the moving list from suspensor identity and current horizontal dispatcher.</summary>
+    /// <summary>Selects the moving animation from suspensor identity and current horizontal dispatcher.</summary>
     internal static void InstallPlatformVerticallyMovingForCurrentDirection(
         RoomEnemySlot slot,
         PlatformEnemyState state)
@@ -302,7 +302,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             state.IsSuspensorPlatform, axis: Axis.Vertical, state.XMovement));
     }
 
-    /// <summary>Selects the stationary list from suspensor identity and current horizontal dispatcher.</summary>
+    /// <summary>Selects the stationary animation from suspensor identity and current horizontal dispatcher.</summary>
     internal static void InstallPlatformVerticallyStillForCurrentDirection(
         RoomEnemySlot slot,
         PlatformEnemyState state)

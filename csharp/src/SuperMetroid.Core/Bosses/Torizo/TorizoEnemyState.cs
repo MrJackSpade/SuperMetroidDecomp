@@ -43,7 +43,7 @@ public sealed class TorizoEnemyState
     public int AirTransitionTimer { get; internal set; }
 
     /// <summary>
-    /// Whether the body's animation is locked: the awakening list locks it and
+    /// Whether the body's animation is locked: the awakening animation locks it and
     /// later unlocks it. While it is locked Bomb Torizo rejects shots before common damage, and Golden Torizo sends
     /// them to common damage without its catches or its stun. Every test is locked versus unlocked.
     /// </summary>
@@ -55,7 +55,7 @@ public sealed class TorizoEnemyState
     /// </summary>
     public int DecisionCounter { get; internal set; }
 
-    /// <summary>Whether Golden Torizo's eye beams explode on impact; its eye-beam list enables them.</summary>
+    /// <summary>Whether Golden Torizo's eye beams explode on impact; its eye-beam animation enables them.</summary>
     public bool EyeBeamExplosionsEnabled { get; internal set; }
 
     /// <summary>

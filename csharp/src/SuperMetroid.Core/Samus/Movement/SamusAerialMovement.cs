@@ -475,7 +475,7 @@ public static class SamusAerialMovement
 
         AerialMovementResult result = FinishVerticalMovement(level, samus, frameCounter, roomObjects: roomObjects);
         // The movement wrapper selects fast-fall art after physics, before Samus is animated.
-        // Aimed falling poses have their own lists and do not enter this branch.
+        // Aimed falling poses have their own animations and do not enter this branch.
         if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose or
             SamusPoseId.FallingGunExtendedRightPose or SamusPoseId.FallingGunExtendedLeftPose &&
             SamusSpeedMagnitude.IsAtLeast(samus.Kinematics.YSpeed.Whole, SamusMovementDefinitions.FastFallAnimationSpeed) &&

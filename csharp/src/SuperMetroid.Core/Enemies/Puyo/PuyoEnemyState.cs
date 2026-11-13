@@ -41,7 +41,7 @@ public sealed class PuyoEnemyState
 
     /// <summary>
     /// True means the hopping pose is still active, while false permits
-    /// the grounded-list handoff.
+    /// the grounded-animation handoff.
     /// </summary>
     public bool HoppingAnimationActive { get; internal set; }
 

@@ -176,7 +176,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
     /// <summary>
     /// Applies the head's attack-counter step. Live gameplay advances the ordinary
-    /// room animation, while the reusable head verifier advances its private list;
+    /// room animation, while the reusable head verifier advances its private animation;
     /// both must mutate this one saturating counter.
     /// </summary>
     internal void IncrementLiveBabyMetroidAttackCounter() =>

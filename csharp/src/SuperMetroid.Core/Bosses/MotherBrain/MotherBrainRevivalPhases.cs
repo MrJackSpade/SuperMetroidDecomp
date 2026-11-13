@@ -92,7 +92,7 @@ internal sealed class MotherBrainRevivalPhases
     internal bool RunSecondPhaseReviveWakeUp(MotherBrainRainbowBeamStepRequests requests)
     {
         // The standing helper reports her standing only when the standing pose was already visible at entry.
-        // A corpse pose therefore installs the stand-up list and waits for the ordinary body
+        // A corpse pose therefore starts the stand-up animation and waits for the ordinary body
         // animation stage to publish standing before setting the neck and timer values.
         bool stoodUp = _state.MakeBodyStandUp(out bool postureRequested);
         requests.BodyPostureRequested = postureRequested;
@@ -193,7 +193,7 @@ internal sealed class MotherBrainRevivalPhases
         {
             // A nonzero Baby enemy index selects the Baby-targeted volley; zero instead targets Samus.
             // This cutscene owns a spawned Baby, so retain the live actor
-            // condition instead of unconditionally substituting the desired list.
+            // condition instead of unconditionally substituting the desired animation.
             _state.SetHeadAnimation(_state.BabyMetroidSpawned
                 ? MotherBrainHeadSegment.AttackingBabyMetroid
                 : MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3);

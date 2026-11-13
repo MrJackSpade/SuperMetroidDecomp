@@ -223,7 +223,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         };
     }
 
-    /// <summary>Installs the landed list and returns the actor to its wait-for-hop function.</summary>
+    /// <summary>Starts the landed animation and returns the actor to its wait-for-hop function.</summary>
     internal static void LandHopper(RoomEnemySlot slot, HopperEnemyState state)
     {
         SetHopperAnimation(slot, state, ReadHopperAnimation(state, SurfaceOf(state), HopperPhase.Landed));

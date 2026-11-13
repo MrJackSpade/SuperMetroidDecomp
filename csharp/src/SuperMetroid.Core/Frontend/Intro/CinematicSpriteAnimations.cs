@@ -819,7 +819,7 @@ internal static class CinematicSpriteAnimations
     internal static Animation<CinematicSpriteSegment> StartingWith(CinematicSpriteSegment segment) => StartingAt[segment];
 
     /// <summary>
-    /// The segment each list that runs on into the list authored next, directly after its last beat, continues into: a
+    /// The segment each segment that runs on into the one authored next, directly after its last beat, continues into: a
     /// sprite resting after that beat already stands in the next.
     /// </summary>
     internal static IReadOnlyDictionary<CinematicSpriteSegment, CinematicSpriteSegment> RunsOnInto { get; } =

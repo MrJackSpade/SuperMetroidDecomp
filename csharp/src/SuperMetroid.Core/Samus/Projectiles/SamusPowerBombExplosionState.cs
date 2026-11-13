@@ -348,7 +348,7 @@ public sealed class SamusPowerBombExplosionState
         if (!finishedShapes)
             return;
 
-        // The white explosion primes 32 afterglow steps. The list then installs the afterglow
+        // The white explosion primes 32 afterglow steps. The explosion then installs the afterglow
         // frame behaviour; it fades the first step on the following frame.
         _afterglowStepsRemaining = 32;
         Phase = PowerBombExplosionPhase.Afterglow;

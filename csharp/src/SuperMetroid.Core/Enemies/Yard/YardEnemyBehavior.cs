@@ -111,7 +111,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new YardEnemyState
         {
             MovementFunction = YardMovementFunction.AwaitingAnimationCue,
-            // The population entry selects the initial lists and velocity signs, but
+            // The population entry selects the initial animations and velocity signs, but
             // does not set the live direction. Only the direction cue does. A
             // first-frame hide can bypass it and keeps the first direction.
             Direction = YardDirection.UpsideRightMovingUp,
@@ -249,7 +249,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             : slot.Contact.Without(EnemyContact.SolidToSamus);
     }
 
-    /// <summary>Runs the hidden-list movement owner.</summary>
+    /// <summary>Runs the hidden-animation movement owner.</summary>
     private static void RunYardHidingMovement(
         RoomEnemySlot slot,
         YardEnemyState state,

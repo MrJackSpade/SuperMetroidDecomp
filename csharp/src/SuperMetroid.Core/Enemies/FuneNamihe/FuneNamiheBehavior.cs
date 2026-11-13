@@ -16,7 +16,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new FuneNamiheEntity(this, slot, common);
 
-    /// <summary>Allocates the shared directional fireball fired by either species' animation list.</summary>
+    /// <summary>Allocates the shared directional fireball fired by either species' animation.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
@@ -60,7 +60,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Takes the variant, facing, cooldown and Y proximity from the spawn settings, then installs the corresponding idle list.</summary>
+    /// <summary>Takes the variant, facing, cooldown and Y proximity from the spawn settings, then starts the corresponding idle animation.</summary>
     internal static void InitializeFuneNamihe(RoomEnemySlot slot)
     {
         FuneNamiheSpawnSettings settings = slot.SpawnSettings<FuneNamiheSpawnSettings>();
@@ -84,7 +84,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         StartFuneNamiheAnimation(slot, state);
     }
 
-    /// <summary>Starts Fune's activity after a wrapping cooldown or Namihe's after strict modular Y proximity; active lists own the return to idle.</summary>
+    /// <summary>Starts Fune's activity after a wrapping cooldown or Namihe's after strict modular Y proximity; active animations own the return to idle.</summary>
     internal static void RunFuneNamiheMain(
         RoomEnemySlot slot,
         FuneNamiheEnemyState state,
@@ -165,7 +165,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     private void QueueFuneNamiheSpitSound() =>
         _audio.QueueEnemySound(FuneNamiheDefinitions.SpitSoundEffect, priority: SoundRequestPriority.Normal);
 
-    /// <summary>Moves the list-table cursor back to idle and restores the species-specific waiting function after the active animation.</summary>
+    /// <summary>Moves the animation choice back to idle and restores the species-specific waiting function after the active animation.</summary>
     private static void FinishFuneNamiheActivity(FuneNamiheEnemyState state)
     {
         state.ShowsActiveAnimation = false;

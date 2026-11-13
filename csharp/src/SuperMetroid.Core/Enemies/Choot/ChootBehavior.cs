@@ -38,10 +38,10 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         // The jump rises as far as its loops of the falling path fall: one to seven loops of under 256 pixels in every
         // retail room, so the height stays well within the room (#1620).
         int jumpHeight = slot.SpawnSettings<ChootSpawnSettings>().PatternLoops * state.FallingPatternYDistance;
-        state.InitialYSpeedTableIndex = CalculateInitialChootYSpeedTableIndex(jumpHeight);
+        state.InitialYSpeedCurvePlace = CalculateInitialChootYSpeedCurvePlace(jumpHeight);
         state.InitialFallingPosition = state.SpawnPosition.WithY(CoordinateAxis.Wrap(
             state.SpawnPosition.Y - jumpHeight));
-        state.YSpeedTableIndex = state.InitialYSpeedTableIndex;
+        state.YSpeedCurvePlace = state.InitialYSpeedCurvePlace;
     }
 
     /// <summary>Runs the Choot's main AI and its four wait, prepare, jump, and fall targets.</summary>
@@ -104,11 +104,11 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Choot applies the table's separately stored negative pair, including its fractional
         // negation bug, without consulting room collision during this authored leap.
-        SignedSixteenSixteen upwardDisplacement = state.YSpeedTableIndex.Row.Negative;
+        SignedSixteenSixteen upwardDisplacement = state.YSpeedCurvePlace.Row.Negative;
         slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(upwardDisplacement));
 
-        state.YSpeedTableIndex -= ChootRowsPerUpdate;
-        if (!state.YSpeedTableIndex.IsNegative)
+        state.YSpeedCurvePlace -= ChootRowsPerUpdate;
+        if (!state.YSpeedCurvePlace.IsNegative)
             return;
 
         // The apex transition snaps only the whole positions to precalculated origins;
@@ -138,7 +138,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
 
             // The last loop's end restores exact spawn coordinates/subpositions, reinstalls
             // the idle animation, and rearms the same calculated ascent for the next activation.
-            state.YSpeedTableIndex = state.InitialYSpeedTableIndex;
+            state.YSpeedCurvePlace = state.InitialYSpeedCurvePlace;
             slot.Position = FixedPosition<RoomPixels>.FromWhole(state.SpawnPosition);
             SetChootAnimation(slot, state, ChootSegment.Idle);
             state.Action = ChootAction.WaitingForSamus;
@@ -153,7 +153,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Calculates the Choot's initial jump speed, integrating every second quadratic step until
     /// they cover the requested height. The table ends at record 94, so the result is an even index from 2 to 94.
     /// </summary>
-    private static EnemyQuadraticSpeedIndex CalculateInitialChootYSpeedTableIndex(int jumpHeight)
+    private static EnemyQuadraticSpeedIndex CalculateInitialChootYSpeedCurvePlace(int jumpHeight)
     {
         EnemyQuadraticSpeedIndex tableIndex = EnemyQuadraticSpeedIndex.Start;
         FixedCoordinate accumulatedDistance = default;

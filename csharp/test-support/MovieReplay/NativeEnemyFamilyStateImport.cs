@@ -429,7 +429,7 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<MaridiaLargeSnailEnemyState>() is { } maridiaLargeSnailRecord)
         {
             maridiaLargeSnailRecord.Action = words.A == 0 ? null : MaridiaSnailsNativeWords.MaridiaLargeSnailActions.Decode(words.A, "recorded MaridiaLargeSnailAction");
-            maridiaLargeSnailRecord.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(unchecked((short)words.B));
+            maridiaLargeSnailRecord.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(unchecked((short)words.B));
             maridiaLargeSnailRecord.AttackCooldown = unchecked((short)words.C);
             maridiaLargeSnailRecord.MovingLeft = words.D != 0;
             maridiaLargeSnailRecord.RemainingBounces = unchecked((short)words.E);
@@ -502,20 +502,20 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<HopperEnemyState>() is { } hopperRecord)
         {
             hopperRecord.Action = words.A == 0 ? null : HoppersNativeWords.HopperActions.Decode(words.A, "recorded HopperAction");
-            hopperRecord.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(words.B);
+            hopperRecord.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromRows(words.B);
             hopperRecord.XVelocity = unchecked((short)words.C);
-            hopperRecord.YSpeedTableIndexDelta = words.D;
+            hopperRecord.YSpeedCurvePlaceDelta = words.D;
         }
         if (enemies.PlatformStates[index] is { } platform)
         {
             platform.RestingHeight = new Position16<RoomPixels>(0, words.A);
             platform.RightSpeed = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B);
             platform.LeftSpeed = SignedSixteenSixteen.FromParts(unchecked((short)words.E), words.D);
-            platform.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(Index(words.F, platform.MaximumYSpeedTableIndex.WholeRows, "platform acceleration index"));
+            platform.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromRows(Index(words.F, platform.MaximumYSpeedCurvePlace.WholeRows, "platform acceleration index"));
         }
         if (enemies.BeetomStates[index] is { } beetom)
         {
-            beetom.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(Index(words.B, short.MaxValue, "Beetom speed index"));
+            beetom.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromRows(Index(words.B, short.MaxValue, "Beetom speed index"));
             beetom.Action = words.C == 0 ? null : BeetomNativeWords.BeetomActions.Decode(words.C, "recorded BeetomAction");
             beetom.ActionTimer = unchecked((short)words.D);
             beetom.ButtonCounter = unchecked((short)words.E);
@@ -536,7 +536,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             choot.Action = words.A == 0 ? null : ChootNativeWords.ChootActions.Decode(words.A, "recorded ChootAction");
             // The ascent cursor is 8.8 and moves by whole records, so its signed high byte is the record index.
-            choot.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(unchecked((short)words.B) >> 8);
+            choot.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromRows(unchecked((short)words.B) >> 8);
             choot.FallingPatternFrame = (words.C & 0xff) == 0
                 ? words.C >> 8
                 : throw new InvalidDataException($"Recorded Choot falling cursor ${words.C:X4} is not a whole frame.");
@@ -733,7 +733,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemies.PuyoStates[index] is { } puyo)
         {
-            puyo.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(Index(words.A, short.MaxValue, "Puyo speed index"));
+            puyo.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(Index(words.A, short.MaxValue, "Puyo speed index"));
             puyo.HopCooldownTimer = unchecked((short)words.B);
             puyo.Action = words.C == 0 ? null : PuyoNativeWords.PuyoActions.Decode(words.C, "recorded PuyoAction");
             puyo.AirborneMovement = words.D == 0 ? null : PuyoNativeWords.PuyoAirborneMovements.Decode(words.D, "recorded PuyoAirborneMovement");

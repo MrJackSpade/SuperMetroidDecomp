@@ -74,8 +74,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.VerticallyMovingArtInstalled = false;
         state.VerticallyStillArtInstalled = false;
         state.RestingHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole) + new Offset16<RoomPixels>(0, 1);
-        state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
-        state.MaximumYSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(settings.VerticalAccelerationUpdates);
+        state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start;
+        state.MaximumYSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromRows(settings.VerticalAccelerationUpdates);
     }
 
     /// <summary>Runs the Tripper and Kamer's main AI.</summary>
@@ -106,7 +106,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         // selected vertical state. Preserve that slightly surprising ordering: a new phase
         // can use quadratic entry one now, then begins from entry zero on its next frame.
         if (state.YMovement != state.PreviousYMovement)
-            state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
+            state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start;
         state.PreviousYMovement = state.YMovement;
     }
 
@@ -201,18 +201,18 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         // from their depressed position to one pixel below their original spawn center.
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, state.RestingHeight.Y) < 0)
         {
-            state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
+            state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start;
             SetPlatformVerticallyStillAnimation(slot, state);
             return;
         }
 
         SetPlatformVerticallyMovingAnimation(slot, state);
         IncrementAndClampPlatformYSpeed(state);
-        SignedSixteenSixteen displacement = state.YSpeedTableIndex.Row.Negative;
+        SignedSixteenSixteen displacement = state.YSpeedCurvePlace.Row.Negative;
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
             return;
 
-        state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
+        state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start;
         SetPlatformVerticallyStillAnimation(slot, state);
     }
 
@@ -239,10 +239,10 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(CoordinateAxis.AsSigned(xDelta), 0);
 
         int preVerticalY = slot.Position.Y.Whole;
-        SignedSixteenSixteen displacement = state.YSpeedTableIndex.Row.Positive;
+        SignedSixteenSixteen displacement = state.YSpeedCurvePlace.Row.Positive;
         if (_terrain.MoveEnemyVertically(level, slot, displacement))
         {
-            state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
+            state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start;
             SetPlatformVerticallyStillAnimation(slot, state);
         }
 
@@ -259,9 +259,9 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void IncrementAndClampPlatformYSpeed(PlatformEnemyState state)
     {
-        state.YSpeedTableIndex += EnemyQuadraticSpeedIndex.OneRow;
-        if (state.YSpeedTableIndex >= state.MaximumYSpeedTableIndex)
-            state.YSpeedTableIndex = state.MaximumYSpeedTableIndex;
+        state.YSpeedCurvePlace += EnemyQuadraticSpeedIndex.OneRow;
+        if (state.YSpeedCurvePlace >= state.MaximumYSpeedCurvePlace)
+            state.YSpeedCurvePlace = state.MaximumYSpeedCurvePlace;
     }
 
     /// <summary>Installs moving art once per phase and always clears the still-art flag at the merge label.</summary>

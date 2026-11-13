@@ -202,7 +202,7 @@ public sealed class SamusBodySources
     /// pictures with where it places the body, her death steps and the arm cannon's placement at every frame each pose shows.
     /// </summary>
     /// <param name="continuation">What an animation frame past a pose's program reads, which decides the frames her body can show.</param>
-    internal InstalledSamusBody InstalledBody(LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> continuation) =>
+    internal InstalledSamusBody InstalledBody(FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> continuation) =>
         new(Placements.ToDictionary(pose => pose.Key, pose => pose.Value.GraphicsYOffset),
             SheetFrames(originRises, Spritemaps, Ensure.NotNull(continuation)), DeathSteps, ArmCannon.Installed(continuation));
 
@@ -228,7 +228,7 @@ public sealed class SamusBodySources
     /// halves reach past the table draws nothing the sheet could hold: the draw rejects it.
     /// </summary>
     private static Dictionary<SamusPoseId, IReadOnlyDictionary<int, int>> SheetFrames(Dictionary<SamusPoseId, IReadOnlyList<int?>> installed,
-        SamusSpritemapSources spritemaps, LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> continuation)
+        SamusSpritemapSources spritemaps, FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> continuation)
     {
         SamusShownFrames shown = SamusShownFrames.Of(continuation);
         Dictionary<SamusPoseId, Dictionary<int, int>> pictured = SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, _ => new Dictionary<int, int>());

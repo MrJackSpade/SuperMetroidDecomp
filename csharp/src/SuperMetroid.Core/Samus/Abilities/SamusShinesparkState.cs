@@ -230,7 +230,7 @@ public sealed class SamusShinesparkState
         samus.Xray.RelinquishPaletteHandler();
 
         // These are literal writes. Stage four remains published during windup even
-        // though base speed is zero and the extra component becomes exactly 8.0000.
+        // though base speed is zero and the extra component becomes exactly eight pixels per frame.
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         samus.Kinematics.YSpeed = default;
         samus.KnockbackDirection = Movement.SamusKnockbackDirection.None;

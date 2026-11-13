@@ -84,7 +84,7 @@ internal static class Program
             {
                 // Gameplay-affecting options and SRAM belong to the deterministic replay seed.
                 // GitHub publication is a host-only diagnostic side channel, so the current INI may
-                // enable or redirect it without changing a single emulated frame.
+                // enable or redirect it without changing a single replayed gameplay update.
                 hostOptions = new HostOptions
                 {
                     Game = replay.GameOptions,

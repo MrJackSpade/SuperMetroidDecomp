@@ -30,7 +30,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// vocabulary: the tile characters pictures were assembled
 /// from, video and display memory, and per-line tables. #1726 adds the processor's arithmetic and the original's display
 /// and sound records: underflows, sign tests and sign bits, tile attributes and values, per-line effect objects and
-/// voices keyed on.
+/// voices keyed on. #1743 adds the original machine's provenance, which no type may describe, hardware owners included:
+/// its native words and bit patterns, the cartridge's routines, and a value written as the machine's hexadecimal fixed-point
+/// (<c>0.1000</c>, <c>7.0000</c>).
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -256,6 +258,22 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         @"|\b(?:voices?|notes?|channels?)\s+(?:(?:is|are|was|were|stays?|stayed|remains?|remained)\s+)?keyed\s+on\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    /// <summary>
+    /// The original machine's provenance in prose (#1743), read in every Core type: a native word or bit pattern (spaced or
+    /// hyphenated, with up to two words between: a signed native word), a cartridge routine or the cartridge's routines, and a
+    /// value written as the machine's hexadecimal fixed-point, a whole part starting with a digit and a four-digit fraction
+    /// that ends in zero or holds a hexadecimal letter (<c>0.1000</c>, <c>7.0000</c>, <c>1.8C00</c>). A compatibility service
+    /// says which behaviour it reproduces and an encoding owner describes its encoding, but neither cites the machine's words,
+    /// its routines or its spelling of a value. English stays legal: a native pose number or any other native thing that is
+    /// not a word or bit pattern, a routine that is not the cartridge's, and a decimal with no trailing zero (<c>0.0625</c>,
+    /// <c>0.1875</c>, <c>0.125</c>) or a format's name (<c>16.16</c>, <c>8.8</c>).
+    /// </summary>
+    private static readonly Regex MachineProvenanceProse = new(
+        @"\bnative[-\s]+(?:[\w-]+\s+){0,2}?(?:words?|bit[-\s]+patterns?)\b" +
+        @"|\bcartridge(?:'s)?[-\s]+routines?\b" +
+        @"|(?<!\w|\w\.)\$?[0-9][0-9A-Fa-f]{0,3}\.(?:[0-9A-Fa-f]{3}0|(?=[0-9]{0,3}[A-Fa-f])[0-9A-Fa-f]{4})(?!\w|\.\w)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     /// <summary>A value's sign as a word, not a percent, plus, minus, equals or dollar sign.</summary>
     private const string SignWord = @"(?<!\b(?:percent|plus|minus|equals?|dollar)[-\s]+)sign\b";
 
@@ -380,7 +398,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>
-    /// Reports <paramref name="text"/> once when it names the hardware outside a hardware-owning type. A comment carries
+    /// Reports <paramref name="text"/> once when it cites the machine's provenance (<see cref="MachineProvenanceProse"/>), in
+    /// any type, or names the hardware outside a hardware-owning type. A comment carries
     /// <paramref name="codeNames"/>, against which its compound names are read as routine labels; a string literal does not,
     /// and is not read for labels or hexadecimal literals.
     /// </summary>
@@ -388,7 +407,9 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         Lazy<ImmutableHashSet<string>>? codeNames)
     {
         text = AllowanceMarker.Replace(text, string.Empty);
-        string? word = Address.Match(text) is { Success: true } address ? address.Value
+        string? word = MachineProvenanceProse.Match(text) is { Success: true } provenance ? provenance.Value
+            : IsInHardwareOwner(owner) ? null
+            : Address.Match(text) is { Success: true } address ? address.Value
             : BankedValue.Match(text) is { Success: true } banked ? banked.Value
             : HardwareProse.Match(text) is { Success: true } prose ? prose.Value
             : HardwareTerms.Match(text) is { Success: true } term ? term.Value
@@ -406,7 +427,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;
-        if (word is null || IsInHardwareOwner(owner))
+        if (word is null)
             return;
         context.ReportDiagnostic(Diagnostic.Create(Rule, location, word));
     }

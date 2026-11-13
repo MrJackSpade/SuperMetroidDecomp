@@ -53,7 +53,7 @@ public sealed class MaridiaLargeSnailEnemyState
     /// stores the start once it would go below it. It therefore stays within 3712 256ths of a record below the start
     /// through record 64.
     /// </summary>
-    public EnemyQuadraticSpeedIndex YSpeedTableIndex { get; internal set; }
+    public EnemyQuadraticSpeedIndex YSpeedCurvePlace { get; internal set; }
 
     /// <summary>Attack cooldown, initialized to 128 and expiring when it steps below zero.</summary>
     public int AttackCooldown { get; internal set; }

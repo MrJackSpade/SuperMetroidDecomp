@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// The fixed timing of the <see cref="SoundAcceptanceClock{TLibrary, TSound}"/>: how many of the sound program's samples
+/// The fixed timing of the <see cref="SoundAcceptanceClock{TLibrary, TSound}"/>: how many of the music player's samples
 /// one update holds, and how often the clock steps and checks the requests.
 /// </summary>
 /// <remarks>Evidence: the sound program's 500-Hz timer and its request read (<c>$1621</c>).</remarks>
@@ -11,7 +11,7 @@ public static class SoundClockTiming
     /// <summary>The sound clock's samples in one 60-Hz update: 32,040 / 60.</summary>
     public const int SamplesPerUpdate = 534;
 
-    /// <summary>Samples between clock steps (the sound program's 500-Hz timer).</summary>
+    /// <summary>Samples between clock steps (the music player's 500-Hz timer).</summary>
     public const int SamplesPerStep = 64;
 
     /// <summary>The most steps one update can contain: one pending at its start plus one per whole step period.</summary>

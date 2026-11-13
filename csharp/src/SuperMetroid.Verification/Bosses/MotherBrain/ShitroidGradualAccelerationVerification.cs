@@ -30,7 +30,7 @@ internal static class ShitroidGradualAccelerationVerification
         // The movie's state when the drain ends, entering RiseAfterFeeding with no velocity.
         ShitroidEnemyState state = shitroid.SpeciesState<ShitroidEnemyState>()
             ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
-        state.Function = ShitroidAiFunction.RiseAfterFeeding;
+        state.Action = ShitroidAction.RiseAfterFeeding;
         state.Velocity = default;
         shitroid.Position = shitroid.Position.WithWholeX(0x02d6).WithWholeY(0x009c).WithFractionY(0x6b00);
         runtime.Enemies.ShitroidBehavior.RunShitroidMain(shitroid, runtime.Player.Samus, new Position16<RoomPixels>(0x0200, 0x0000), null);
@@ -66,7 +66,7 @@ internal static class ShitroidGradualAccelerationVerification
                 new VerifyShitroidDrainCarryCase(0xffff, 0x01c4, 0xffff),
             })
         {
-            state.Function = ShitroidAiFunction.DrainSamus;
+            state.Action = ShitroidAction.DrainSamus;
             state.Velocity = default;
             shitroid.FrameCounter = 0;
             samus.Health = 500;

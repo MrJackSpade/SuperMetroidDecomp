@@ -77,33 +77,33 @@ internal static class CrocomireNativeWords
     });
 
     /// <summary>
-    /// The byte offset into the fight-AI jump table, body variable C, naming each <see cref="CrocomireFightFunction"/>;
-    /// <see cref="CrocomireFightFunction.UnwrittenTableEntry"/> is the offset one entry past the table's 21 entries.
+    /// The byte offset into the fight-AI jump table, body variable C, naming each <see cref="CrocomirePhase"/>;
+    /// <see cref="CrocomirePhase.UnwrittenTableEntry"/> is the offset one entry past the table's 21 entries.
     /// </summary>
-    internal static readonly NativeWordIdentities<CrocomireFightFunction> FightFunctions = new(new Dictionary<CrocomireFightFunction, ushort>
+    internal static readonly NativeWordIdentities<CrocomirePhase> Phases = new(new Dictionary<CrocomirePhase, ushort>
     {
-        [CrocomireFightFunction.ResetAnimation] = 0,
-        [CrocomireFightFunction.StepForward] = 2,
-        [CrocomireFightFunction.Sleeping] = 4,
-        [CrocomireFightFunction.SteppingForward] = 6,
-        [CrocomireFightFunction.ProjectileAttack] = 8,
-        [CrocomireFightFunction.NearSpikeWallCharge] = 10,
-        [CrocomireFightFunction.SteppingBack] = 12,
-        [CrocomireFightFunction.BackingOffSpikeWall] = 14,
-        [CrocomireFightFunction.RoarAndStepForwardUnused] = 16,
-        [CrocomireFightFunction.WaitingForFirstDamage] = 18,
-        [CrocomireFightFunction.WaitingForSecondDamage] = 20,
-        [CrocomireFightFunction.WaitingForSecondDamageUnused] = 22,
-        [CrocomireFightFunction.PowerBombCharge] = 24,
-        [CrocomireFightFunction.NearSpikeWallChargeUnused] = 26,
-        [CrocomireFightFunction.ResetAnimationUnused] = 28,
-        [CrocomireFightFunction.ChooseAttackUnused] = 30,
-        [CrocomireFightFunction.StepForwardUnused] = 32,
-        [CrocomireFightFunction.MoveUntilSamusUnused] = 34,
-        [CrocomireFightFunction.MoveClawsUnused] = 36,
-        [CrocomireFightFunction.StepForwardVariantUnused] = 38,
-        [CrocomireFightFunction.MovingClawsUnused] = 40,
-        [CrocomireFightFunction.UnwrittenTableEntry] = 42,
+        [CrocomirePhase.ResetAnimation] = 0,
+        [CrocomirePhase.StepForward] = 2,
+        [CrocomirePhase.Sleeping] = 4,
+        [CrocomirePhase.SteppingForward] = 6,
+        [CrocomirePhase.ProjectileAttack] = 8,
+        [CrocomirePhase.NearSpikeWallCharge] = 10,
+        [CrocomirePhase.SteppingBack] = 12,
+        [CrocomirePhase.BackingOffSpikeWall] = 14,
+        [CrocomirePhase.RoarAndStepForwardUnused] = 16,
+        [CrocomirePhase.WaitingForFirstDamage] = 18,
+        [CrocomirePhase.WaitingForSecondDamage] = 20,
+        [CrocomirePhase.WaitingForSecondDamageUnused] = 22,
+        [CrocomirePhase.PowerBombCharge] = 24,
+        [CrocomirePhase.NearSpikeWallChargeUnused] = 26,
+        [CrocomirePhase.ResetAnimationUnused] = 28,
+        [CrocomirePhase.ChooseAttackUnused] = 30,
+        [CrocomirePhase.StepForwardUnused] = 32,
+        [CrocomirePhase.MoveUntilSamusUnused] = 34,
+        [CrocomirePhase.MoveClawsUnused] = 36,
+        [CrocomirePhase.StepForwardVariantUnused] = 38,
+        [CrocomirePhase.MovingClawsUnused] = 40,
+        [CrocomirePhase.UnwrittenTableEntry] = 42,
     });
 
     /// <summary>The bank-$A4 frame word naming each <see cref="CrocomireTongueFrame"/>.</summary>

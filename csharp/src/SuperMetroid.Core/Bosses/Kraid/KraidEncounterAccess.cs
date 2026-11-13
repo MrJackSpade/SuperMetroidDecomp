@@ -64,7 +64,7 @@ internal sealed class KraidEncounterAccess
         if (part.FunctionTimer == 0)
             return;
         if (--part.FunctionTimer == 0)
-            part.Function = part.NextFunction;
+            part.Phase = part.PhaseToResume;
     }
 
     /// <summary>Kraid's encounter state once his body has initialized in the room.</summary>

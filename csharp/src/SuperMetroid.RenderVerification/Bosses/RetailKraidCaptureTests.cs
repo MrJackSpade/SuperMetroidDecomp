@@ -43,26 +43,26 @@ internal static class RetailKraidCaptureTests
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var boss = runtime.Enemies.KraidBehavior.Access.Kraid ?? throw new InvalidOperationException("Kraid did not initialize.");
         var body = runtime.Enemies.SlotTable.Slots[0];
-        KraidAiFunction BodyFunction() =>
-            (body.SpeciesState<KraidPartState>() ?? throw new InvalidOperationException("Kraid's body has no part state.")).Function;
+        KraidPhase BodyPhase() =>
+            (body.SpeciesState<KraidPartState>() ?? throw new InvalidOperationException("Kraid's body has no part state.")).Phase;
         // The death has played out once the background fade hands the body to either finished entry.
         static bool DeathFinished(KraidEnemyState kraid) =>
-            kraid.BodyState.Function is KraidAiFunction.DeathFinishedWasAlive or KraidAiFunction.DeathFinishedWasDead;
-        var phases = new HashSet<KraidAiFunction>();
+            kraid.BodyState.Phase is KraidPhase.DeathFinishedWasAlive or KraidPhase.DeathFinishedWasDead;
+        var phases = new HashSet<KraidPhase>();
         int samples = 0;
         bool completed = false, ownedBackground = false;
         for (int tick = 0; tick < 1200; tick++)
         {
-            bool changed = phases.Add(BodyFunction());
+            bool changed = phases.Add(BodyPhase());
             ownedBackground |= boss.ShowsBodyLayer;
-            bool mainLoop = BodyFunction() == KraidAiFunction.MainloopThinking;
+            bool mainLoop = BodyPhase() == KraidPhase.MainloopThinking;
             if (changed || tick % 8 == 0 || mainLoop)
             {
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
                 samples++;
                 var packet = new DisplayPacket((ushort)tick, GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
-                    $"{device.Kind}: Kraid rise tick={tick}, AI={BodyFunction()}");
+                    $"{device.Kind}: Kraid rise tick={tick}, AI={BodyPhase()}");
             }
             if (mainLoop) { completed = true; break; }
             runtime.StepFrame(0);
@@ -75,7 +75,7 @@ internal static class RetailKraidCaptureTests
             int waiting = 0;
             // The attack enters with a roar timer before its first head frame selects a mouth
             // shape; until then no frame is displayed, or the closed mouth's has no shape.
-            while (!(BodyFunction() is KraidAiFunction.MainAttackWithMouthOpen or KraidAiFunction.MouthOpenReaction
+            while (!(BodyPhase() is KraidPhase.MainAttackWithMouthOpen or KraidPhase.MouthOpenReaction
                 && boss.DisplayedHeadFrame is { InvulnerableShape: not null }) && waiting++ < 1400)
                 runtime.StepFrame(0);
             if (waiting >= 1400) throw new InvalidOperationException("Kraid never opened its mouth.");
@@ -83,18 +83,18 @@ internal static class RetailKraidCaptureTests
             runtime.StepFrame(0);
         }
         int growthSamples = 0;
-        var growthPhases = new HashSet<KraidAiFunction>();
+        var growthPhases = new HashSet<KraidPhase>();
         completed = false;
         for (int tick = 0; tick < 1800; tick++)
         {
-            bool changed = growthPhases.Add(BodyFunction());
-            bool finished = BodyFunction() == KraidAiFunction.SecondPhaseThinking;
+            bool changed = growthPhases.Add(BodyPhase());
+            bool finished = BodyPhase() == KraidPhase.SecondPhaseThinking;
             if (changed || tick % 4 == 0 || finished)
             {
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
                 samples++;
                 var packet = new DisplayPacket((ushort)tick, GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
-                PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: Kraid growth tick={tick}, AI={BodyFunction()}");
+                PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: Kraid growth tick={tick}, AI={BodyPhase()}");
                 growthSamples++;
             }
             if (finished) { completed = true; break; }
@@ -105,7 +105,7 @@ internal static class RetailKraidCaptureTests
             throw new InvalidOperationException("Kraid growth missed camera/priority/second-phase handoff.");
         Console.WriteLine($"{device.Kind}: Kraid growth: {growthSamples} exact samples across {growthPhases.Count} AI states, camera and BG2 priority handoff verified.");
         int deathWait = 0;
-        while (!(BodyFunction() is KraidAiFunction.MainAttackWithMouthOpen or KraidAiFunction.MouthOpenReaction
+        while (!(BodyPhase() is KraidPhase.MainAttackWithMouthOpen or KraidPhase.MouthOpenReaction
             && boss.DisplayedHeadFrame is not { InvulnerableShape: null }) && deathWait++ < 1400)
             runtime.StepFrame(0);
         if (deathWait >= 1400) throw new InvalidOperationException("Kraid death fixture never reached an open mouth.");
@@ -113,27 +113,27 @@ internal static class RetailKraidCaptureTests
         // still runs collision and initializes the real death coroutine.
         body.Health = 100;
         StrikeMouth(runtime, body, boss);
-        if (body.Health != 0 || BodyFunction() != KraidAiFunction.DeathInitialize)
+        if (body.Health != 0 || BodyPhase() != KraidPhase.DeathInitialize)
             throw new InvalidOperationException("Kraid lethal hit did not start death.");
         int deathSamples = 0;
-        var deathPhases = new HashSet<KraidAiFunction>();
+        var deathPhases = new HashSet<KraidPhase>();
         for (int tick = 0; tick < 1200; tick++)
         {
-            bool changed = deathPhases.Add(BodyFunction());
+            bool changed = deathPhases.Add(BodyPhase());
             if (changed || tick % 4 == 0 || DeathFinished(boss))
             {
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
                 samples++;
                 var packet = new DisplayPacket((ushort)tick, GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
-                PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: Kraid death tick={tick}, AI={BodyFunction()}");
+                PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: Kraid death tick={tick}, AI={BodyPhase()}");
                 deathSamples++;
             }
             if (DeathFinished(boss)) break;
             runtime.StepFrame(0);
         }
-        if (!DeathFinished(boss) || !deathPhases.Contains(KraidAiFunction.DeathWaitBeforeFadeIn4) ||
-            !deathPhases.Contains(KraidAiFunction.DeathSink) ||
-            !deathPhases.Contains(KraidAiFunction.DeathFadeInBackground))
+        if (!DeathFinished(boss) || !deathPhases.Contains(KraidPhase.DeathWaitBeforeFadeIn4) ||
+            !deathPhases.Contains(KraidPhase.DeathSink) ||
+            !deathPhases.Contains(KraidPhase.DeathFadeInBackground))
             throw new InvalidOperationException("Kraid death missed sinking, the wait before the fade-in or the background fade.");
         RequireBlankBg2(runtime, $"{device.Kind}: defeated Kraid");
         Console.WriteLine($"{device.Kind}: Kraid death: {deathSamples} exact samples across {deathPhases.Count} AI states; sinking, wait, fade and blank BG2 verified.");

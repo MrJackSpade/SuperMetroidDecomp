@@ -165,8 +165,8 @@ public sealed class DraygonEnemyState
     /// </summary>
     internal HashSet<DraygonWallCannon> DisabledCannons { get; } = [];
 
-    /// <summary>The body function; body main AI dispatches this before copying coordinates to the three parts.</summary>
-    public DraygonAiFunction Function { get; internal set; }
+    /// <summary>The body's phase; body main AI dispatches this before copying coordinates to the three parts.</summary>
+    public DraygonPhase Phase { get; internal set; }
 
     /// <summary>
     /// The updates the current intro stage has run: zero when the opening delay starts and when the dance starts, and

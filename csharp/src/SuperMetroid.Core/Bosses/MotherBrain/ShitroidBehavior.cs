@@ -92,7 +92,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new ShitroidEnemyState(slot)
         {
             Playback = ShitroidAnimations.Starting(ShitroidSegment.Normal),
-            Function = ShitroidAiFunction.WaitForCamera,
+            Action = ShitroidAction.WaitForCamera,
             Velocity = default,
             PaletteDelay = 10,
         };
@@ -103,7 +103,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             // collision walkers explicitly reject actors that have it.
             slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
             slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
-            state.Function = ShitroidAiFunction.Dormant;
+            state.Action = ShitroidAction.Dormant;
         }
         state.ReactsToSamus = false;
         Shitroid = state;
@@ -146,37 +146,37 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState? samus,
         SamusBombProjectileSystem? sharedProjectiles)
     {
-        switch (state.Function)
+        switch (state.Action)
         {
-            case ShitroidAiFunction.Dormant:
+            case ShitroidAction.Dormant:
                 state.Velocity = default;
                 return;
 
-            case ShitroidAiFunction.WaitForCamera:
+            case ShitroidAction.WaitForCamera:
                 WaitForShitroidCamera(state);
                 return;
 
-            case ShitroidAiFunction.BeginEntranceDelay:
-                state.Function = ShitroidAiFunction.EntranceDelay;
+            case ShitroidAction.BeginEntranceDelay:
+                state.Action = ShitroidAction.EntranceDelay;
                 state.StateTimer = 464;
-                goto case ShitroidAiFunction.EntranceDelay;
+                goto case ShitroidAction.EntranceDelay;
 
-            case ShitroidAiFunction.EntranceDelay:
+            case ShitroidAction.EntranceDelay:
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     RequestShitroidMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
-                    state.Function = ShitroidAiFunction.FlyToSidehopper;
-                    goto case ShitroidAiFunction.FlyToSidehopper;
+                    state.Action = ShitroidAction.FlyToSidehopper;
+                    goto case ShitroidAction.FlyToSidehopper;
                 }
                 return;
 
-            case ShitroidAiFunction.FlyToSidehopper:
+            case ShitroidAction.FlyToSidehopper:
                 GraduallyAccelerateShitroid(slot, state, 15, new(584, 74), 1024);
                 if (ShitroidOverlapsRectangle(slot, new(584, 74), new(1, 1)))
-                    state.Function = ShitroidAiFunction.ChaseSidehopper;
+                    state.Action = ShitroidAction.ChaseSidehopper;
                 return;
 
-            case ShitroidAiFunction.ChaseSidehopper:
+            case ShitroidAction.ChaseSidehopper:
             {
                 RoomEnemySlot victim = RequireShitroidVictim(slot);
                 GraduallyAccelerateShitroid(
@@ -186,40 +186,40 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     victim.Position.Whole + new Offset16<RoomPixels>(0, -32),
                     1024);
                 if (ShitroidActorsOverlap(slot, victim))
-                    state.Function = ShitroidAiFunction.AttachToSidehopper;
+                    state.Action = ShitroidAction.AttachToSidehopper;
                 return;
             }
 
-            case ShitroidAiFunction.AttachToSidehopper:
+            case ShitroidAction.AttachToSidehopper:
                 AttachShitroidToSidehopper(slot, state);
                 return;
 
-            case ShitroidAiFunction.DrainSidehopper:
+            case ShitroidAction.DrainSidehopper:
                 DrainShitroidVictim(slot, state);
                 return;
 
-            case ShitroidAiFunction.ActivateSidehopperCorpse:
+            case ShitroidAction.ActivateSidehopperCorpse:
                 DeadSidehopperBehavior.ActivateDeadSidehopperVictim(RequireShitroidVictim(slot));
-                state.Function = ShitroidAiFunction.RiseAfterFeeding;
+                state.Action = ShitroidAction.RiseAfterFeeding;
                 state.StateTimer = 192;
-                goto case ShitroidAiFunction.RiseAfterFeeding;
+                goto case ShitroidAction.RiseAfterFeeding;
 
-            case ShitroidAiFunction.RiseAfterFeeding:
+            case ShitroidAction.RiseAfterFeeding:
                 GraduallyAccelerateShitroid(slot, state, 0, new(slot.Position.X.Whole, 104), 1024);
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
-                    state.Function = ShitroidAiFunction.HoverNearSamus;
+                    state.Action = ShitroidAction.HoverNearSamus;
                     state.ReactsToSamus = true;
                     SetShitroidScrollPair(RoomScrollState.Blue);
                     QueueShitroidWallObjects(ShitroidWallMutation.Clear);
                 }
                 return;
 
-            case ShitroidAiFunction.HoverNearSamus:
+            case ShitroidAction.HoverNearSamus:
                 HoverShitroidNearSamus(slot, state, RequireShitroidSamus(samus));
                 return;
 
-            case ShitroidAiFunction.ChaseSamus:
+            case ShitroidAction.ChaseSamus:
             {
                 SamusState target = RequireShitroidSamus(samus);
                 GraduallyAccelerateShitroid(
@@ -231,12 +231,12 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             }
 
-            case ShitroidAiFunction.BeginDrainingSamus:
+            case ShitroidAction.BeginDrainingSamus:
                 RequireShitroidSamus(samus).MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext;
-                state.Function = ShitroidAiFunction.DrainSamus;
-                goto case ShitroidAiFunction.DrainSamus;
+                state.Action = ShitroidAction.DrainSamus;
+                goto case ShitroidAction.DrainSamus;
 
-            case ShitroidAiFunction.DrainSamus:
+            case ShitroidAction.DrainSamus:
                 DrainSamusWithShitroid(
                     slot,
                     state,
@@ -244,36 +244,36 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     sharedProjectiles);
                 return;
 
-            case ShitroidAiFunction.BeginPostDrainPause:
-                state.Function = ShitroidAiFunction.PostDrainPause;
+            case ShitroidAction.BeginPostDrainPause:
+                state.Action = ShitroidAction.PostDrainPause;
                 state.StateTimer = 120;
-                goto case ShitroidAiFunction.PostDrainPause;
+                goto case ShitroidAction.PostDrainPause;
 
-            case ShitroidAiFunction.PostDrainPause:
+            case ShitroidAction.PostDrainPause:
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
-                    state.Function = ShitroidAiFunction.RiseAfterDrainingSamus;
+                    state.Action = ShitroidAction.RiseAfterDrainingSamus;
                     state.StateTimer = 192;
-                    goto case ShitroidAiFunction.RiseAfterDrainingSamus;
+                    goto case ShitroidAction.RiseAfterDrainingSamus;
                 }
                 return;
 
-            case ShitroidAiFunction.RiseAfterDrainingSamus:
+            case ShitroidAction.RiseAfterDrainingSamus:
             {
                 SamusState target = RequireShitroidSamus(samus);
                 GraduallyAccelerateShitroid(slot, state, 0, new(target.Position.X.Whole, 104), 1024);
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     RequestShitroidSound(ShitroidSoundDefinitions.FlyAwayCry);
-                    state.Function = ShitroidAiFunction.FlyLeft;
+                    state.Action = ShitroidAction.FlyLeft;
                     state.StateTimer = 88;
                     SetShitroidAnimation(slot, ShitroidSegment.LatchedOn);
-                    goto case ShitroidAiFunction.FlyLeft;
+                    goto case ShitroidAction.FlyLeft;
                 }
                 return;
             }
 
-            case ShitroidAiFunction.FlyLeft:
+            case ShitroidAction.FlyLeft:
             {
                 SamusState target = RequireShitroidSamus(samus);
                 GraduallyAccelerateShitroid(
@@ -284,14 +284,14 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     1024);
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
-                    state.Function = ShitroidAiFunction.FlyRight;
+                    state.Action = ShitroidAction.FlyRight;
                     state.StateTimer = 88;
-                    goto case ShitroidAiFunction.FlyRight;
+                    goto case ShitroidAction.FlyRight;
                 }
                 return;
             }
 
-            case ShitroidAiFunction.FlyRight:
+            case ShitroidAction.FlyRight:
             {
                 SamusState target = RequireShitroidSamus(samus);
                 GraduallyAccelerateShitroid(
@@ -302,19 +302,19 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     1024);
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
-                    state.Function = ShitroidAiFunction.HoldSamusBeforeRelease;
+                    state.Action = ShitroidAction.HoldSamusBeforeRelease;
                     state.StateTimer = 256;
                     SetShitroidAnimation(slot, ShitroidSegment.Remorse);
                 }
                 return;
             }
 
-            case ShitroidAiFunction.BeginExit:
+            case ShitroidAction.BeginExit:
                 RequestShitroidSound(ShitroidSoundDefinitions.RemorseCry);
-                state.Function = ShitroidAiFunction.Exit;
-                goto case ShitroidAiFunction.Exit;
+                state.Action = ShitroidAction.Exit;
+                goto case ShitroidAction.Exit;
 
-            case ShitroidAiFunction.Exit:
+            case ShitroidAction.Exit:
                 GraduallyAccelerateShitroid(slot, state, 0, Position16<RoomPixels>.Wrapped(-128, 64), 1024);
                 if (ShitroidOverlapsRectangle(slot, Position16<RoomPixels>.Wrapped(-128, 64), new(8, 8)))
                 {
@@ -323,18 +323,18 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     // reaches the off-screen destination, leaving a dormant non-drawn actor.
                     slot.Processing = slot.Processing.Without(EnemyProcessing.Animates);
                     slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
-                    state.Function = ShitroidAiFunction.Dormant;
+                    state.Action = ShitroidAction.Dormant;
                 }
                 return;
 
-            case ShitroidAiFunction.HoldSamusBeforeRelease:
+            case ShitroidAction.HoldSamusBeforeRelease:
             {
                 SamusState target = RequireShitroidSamus(samus);
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     target.Drained.Release(target);
                     state.ReactsToSamus = true;
-                    state.Function = ShitroidAiFunction.ReleasedFollow;
+                    state.Action = ShitroidAction.ReleasedFollow;
                     FollowReleasedSamus(slot, state, target);
                 }
                 else
@@ -344,14 +344,14 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             }
 
-            case ShitroidAiFunction.ReleasedFollow:
+            case ShitroidAction.ReleasedFollow:
                 if (FollowReleasedSamus(slot, state, RequireShitroidSamus(samus)))
-                    state.Function = ShitroidAiFunction.BeginExit;
+                    state.Action = ShitroidAction.BeginExit;
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Shitroid state {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Shitroid state {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -367,7 +367,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         _frameResults.CameraXOverride = 512;
         SetShitroidScrollPair(RoomScrollState.RedBoundary);
         QueueShitroidWallObjects(ShitroidWallMutation.Create);
-        state.Function = ShitroidAiFunction.BeginEntranceDelay;
+        state.Action = ShitroidAction.BeginEntranceDelay;
         state.CryEnabled = true;
     }
 
@@ -400,7 +400,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = default;
         slot.Position = slot.Position.WithWhole(latch);
         SetShitroidAnimation(slot, ShitroidSegment.LatchedOn);
-        state.Function = ShitroidAiFunction.DrainSidehopper;
+        state.Action = ShitroidAction.DrainSidehopper;
         state.PaletteDelay = 1;
         state.ReactsToSamus = false;
         state.StateTimer = 320;
@@ -415,7 +415,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             victim.Position.Whole + ShitroidShakeOffsets[shakeIndex] + new Offset16<RoomPixels>(0, -32));
         if (--state.StateTimer == 0)
         {
-            state.Function = ShitroidAiFunction.ActivateSidehopperCorpse;
+            state.Action = ShitroidAction.ActivateSidehopperCorpse;
             SetShitroidAnimation(slot, ShitroidSegment.FinishDraining);
             state.PaletteDelay = 10;
         }
@@ -431,7 +431,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.HorizontalLockAccumulator >= 256 ||
             CoordinateAxis.Difference(samus.Position.X.Whole, 512) < 0)
         {
-            state.Function = ShitroidAiFunction.ChaseSamus;
+            state.Action = ShitroidAction.ChaseSamus;
             return;
         }
 
@@ -467,7 +467,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             samus.XSpeedDivisor = 0;
             sharedProjectiles?.SetSharedBombCounter(0);
-            state.Function = ShitroidAiFunction.BeginPostDrainPause;
+            state.Action = ShitroidAction.BeginPostDrainPause;
             state.Velocity = default;
             SetShitroidAnimation(slot, ShitroidSegment.FinishDraining);
             state.PaletteDelay = 10;
@@ -652,7 +652,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (state.Function == ShitroidAiFunction.ChaseSamus)
+        if (state.Action == ShitroidAction.ChaseSamus)
         {
             if (AccelerateShitroidExactly(
                 state,
@@ -663,12 +663,12 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.PaletteDelay = 1;
                 state.ReactsToSamus = false;
                 state.Velocity = default;
-                state.Function = ShitroidAiFunction.BeginDrainingSamus;
+                state.Action = ShitroidAction.BeginDrainingSamus;
             }
         }
-        else if (state.Function == ShitroidAiFunction.HoverNearSamus)
+        else if (state.Action == ShitroidAction.HoverNearSamus)
         {
-            state.Function = ShitroidAiFunction.ChaseSamus;
+            state.Action = ShitroidAction.ChaseSamus;
         }
     }
 
@@ -712,8 +712,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Function 26: shots/contact release function 25 into the exit sequence.</summary>
     private static void BreakReleasedShitroidFollow(ShitroidEnemyState state)
     {
-        if (state.Function == ShitroidAiFunction.ReleasedFollow)
-            state.Function = ShitroidAiFunction.BeginExit;
+        if (state.Action == ShitroidAction.ReleasedFollow)
+            state.Action = ShitroidAction.BeginExit;
     }
 
     /// <summary>Advances the eight-phase membrane colors and paces cries when the Zebetites' pulse allows it.</summary>

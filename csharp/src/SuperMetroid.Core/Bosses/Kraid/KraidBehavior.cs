@@ -76,7 +76,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Runs Kraid's body per-frame behaviour: mouth-projectile collision, palette handling,
-    /// body-projectile collision and body-vs-Samus collision precede the function. A
+    /// body-projectile collision and body-vs-Samus collision precede the phase. A
     /// killing mouth hit therefore reaches palette handling, which zeroes the hurt frame,
     /// before the death initializer runs in this same frame.
     /// </summary>
@@ -103,13 +103,13 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BodyOrigin = new Position16<RoomPixels>(
             CoordinateAxis.Wrap(body.Position.X.Whole - body.Radius.X),
             CoordinateAxis.Wrap(body.Position.Y.Whole - 152));
-        KraidAiFunction function = state.BodyState.Function;
-        if (KraidFunctionGroups.Rise.Contains(function))
+        KraidPhase phase = state.BodyState.Phase;
+        if (KraidPhaseGroups.Rise.Contains(phase))
         {
-            Rise.RunKraidRiseFunction(body, state, samus);
+            Rise.RunKraidRisePhase(body, state, samus);
             return;
         }
-        RunKraidCombatFunction(body, state, camera.X);
+        RunKraidCombatPhase(body, state, camera.X);
     }
 
     /// <summary>Runs Kraid's main AI.</summary>
@@ -215,111 +215,111 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal readonly record struct KraidCollisionShot(Position16<RoomPixels> Position, Extent16<RoomPixels> Radius, SamusProjectileType Type, int Damage, bool IsPlacedBomb);
 
 
-    /// <summary>Dispatches the active first- or second-phase body combat function.</summary>
-    internal void RunKraidCombatFunction(
+    /// <summary>Runs the body's active first- or second-phase combat phase.</summary>
+    internal void RunKraidCombatPhase(
         RoomEnemySlot body,
         KraidEnemyState state,
         int cameraX)
     {
-        switch (state.BodyState.Function)
+        switch (state.BodyState.Phase)
         {
-            case KraidAiFunction.MainloopThinking:
+            case KraidPhase.MainloopThinking:
                 if (state.ThinkingTimer != 0 && --state.ThinkingTimer == 0)
                 {
-                    state.BodyState.Function = KraidAiFunction.MainAttackWithMouthOpen;
+                    state.BodyState.Phase = KraidPhase.MainAttackWithMouthOpen;
                     state.HeadPlayback = KraidHeadAnimations.RoarAfterEntryFrame;
                     state.BodyState.HeadTimer = KraidHeadAnimations.RoarEntryDuration;
                 }
                 return;
 
-            case KraidAiFunction.MainAttackWithMouthOpen:
+            case KraidPhase.MainAttackWithMouthOpen:
                 Head.RunKraidMouthOpenAttack(body, state);
                 return;
 
-            case KraidAiFunction.MouthOpenReaction:
+            case KraidPhase.MouthOpenReaction:
                 Head.RunKraidMouthOpenReaction(state);
                 return;
 
-            case KraidAiFunction.InitializeEyeGlow:
+            case KraidPhase.InitializeEyeGlow:
                 Head.InitializeKraidEyeGlow(state);
                 return;
 
-            case KraidAiFunction.GlowEye:
+            case KraidPhase.GlowEye:
                 Head.GlowKraidEye(state);
                 return;
 
-            case KraidAiFunction.UnglowEye:
+            case KraidPhase.UnglowEye:
                 Head.UnglowKraidEye(body, state);
                 return;
 
-            case KraidAiFunction.HandleFunctionTimer:
+            case KraidPhase.HandleFunctionTimer:
                 KraidEncounterAccess.TickKraidFunctionTimer(state.BodyState);
                 return;
 
-            case KraidAiFunction.AdvanceHeadAnimationAndTimer:
+            case KraidPhase.AdvanceHeadAnimationAndTimer:
                 _ = Head.AdvanceKraidHeadAnimation(state);
                 KraidEncounterAccess.TickKraidFunctionTimer(state.BodyState);
                 return;
 
-            case KraidAiFunction.GrowReleaseCamera:
-            case KraidAiFunction.GrowBreakCeilingPlatforms:
-            case KraidAiFunction.GrowBringBodyInFront:
-            case KraidAiFunction.GrowShowLowerBodyInFront:
-            case KraidAiFunction.GrowDrawRoomBackground:
-            case KraidAiFunction.GrowFadeInRoomBackground:
-                Rise.RunKraidGrowthFunction(body, state);
+            case KraidPhase.GrowReleaseCamera:
+            case KraidPhase.GrowBreakCeilingPlatforms:
+            case KraidPhase.GrowBringBodyInFront:
+            case KraidPhase.GrowShowLowerBodyInFront:
+            case KraidPhase.GrowDrawRoomBackground:
+            case KraidPhase.GrowFadeInRoomBackground:
+                Rise.RunKraidGrowthPhase(body, state);
                 return;
 
-            case KraidAiFunction.SecondPhaseThinking:
+            case KraidPhase.SecondPhaseThinking:
                 KraidLimbs.RunKraidSecondPhaseThinking(state);
                 return;
 
-            case KraidAiFunction.DeathInitialize:
-            case KraidAiFunction.DeathFadeOut:
-            case KraidAiFunction.DeathShowUpperBody:
-            case KraidAiFunction.DeathShowLowerBody:
-            case KraidAiFunction.DeathSink:
-            case KraidAiFunction.DeathHideUpperBody:
-            case KraidAiFunction.DeathHideLowerBody:
-            case KraidAiFunction.DeathWaitBeforeFadeIn1:
-            case KraidAiFunction.DeathWaitBeforeFadeIn2:
-            case KraidAiFunction.DeathWaitBeforeFadeIn3:
-            case KraidAiFunction.DeathWaitBeforeFadeIn4:
-            case KraidAiFunction.DeathFadeInBackground:
-            case KraidAiFunction.DeathFinishedWasAlive:
-            case KraidAiFunction.DeathFinishedWasDead:
-                Death.RunKraidDeathFunction(body, state, cameraX);
+            case KraidPhase.DeathInitialize:
+            case KraidPhase.DeathFadeOut:
+            case KraidPhase.DeathShowUpperBody:
+            case KraidPhase.DeathShowLowerBody:
+            case KraidPhase.DeathSink:
+            case KraidPhase.DeathHideUpperBody:
+            case KraidPhase.DeathHideLowerBody:
+            case KraidPhase.DeathWaitBeforeFadeIn1:
+            case KraidPhase.DeathWaitBeforeFadeIn2:
+            case KraidPhase.DeathWaitBeforeFadeIn3:
+            case KraidPhase.DeathWaitBeforeFadeIn4:
+            case KraidPhase.DeathFadeInBackground:
+            case KraidPhase.DeathFinishedWasAlive:
+            case KraidPhase.DeathFinishedWasDead:
+                Death.RunKraidDeathPhase(body, state, cameraX);
                 return;
 
-            case KraidAiFunction.NoOperation:
-            case KraidAiFunction.LintInactive:
-            case KraidAiFunction.LintProduce:
-            case KraidAiFunction.LintCharge:
-            case KraidAiFunction.LintFire:
-            case KraidAiFunction.FingernailWaitForLint:
-            case KraidAiFunction.AlignPartToKraid:
-            case KraidAiFunction.DecrementFunctionTimerAndStartWalk:
-            case KraidAiFunction.FootFirstPhaseThinking:
-            case KraidAiFunction.FootSecondPhaseThinking:
-            case KraidAiFunction.FootSecondPhaseWalkingRight:
-            case KraidAiFunction.FootSecondPhaseWalkToStart:
-            case KraidAiFunction.FootSecondPhaseInitialize:
-            case KraidAiFunction.FootSecondPhaseWalkingLeft:
-            case KraidAiFunction.FingernailInitialize:
-            case KraidAiFunction.FingernailFire:
-            case KraidAiFunction.FootPrepareFirstPhaseLunge:
-            case KraidAiFunction.FootFirstPhaseLunge:
-            case KraidAiFunction.FootFirstPhaseRetreat:
-            case KraidAiFunction.RestrictSamusToFirstScreen:
-            case KraidAiFunction.RaiseKraidThroughFloor:
-            case KraidAiFunction.RaiseShowLowerBody:
-            case KraidAiFunction.RaiseRocksEvery16Frames:
-            case KraidAiFunction.RaiseRocksEvery8Frames:
-            case KraidAiFunction.RaiseBody:
-            case KraidAiFunction.None:
+            case KraidPhase.NoOperation:
+            case KraidPhase.LintInactive:
+            case KraidPhase.LintProduce:
+            case KraidPhase.LintCharge:
+            case KraidPhase.LintFire:
+            case KraidPhase.FingernailWaitForLint:
+            case KraidPhase.AlignPartToKraid:
+            case KraidPhase.DecrementFunctionTimerAndStartWalk:
+            case KraidPhase.FootFirstPhaseThinking:
+            case KraidPhase.FootSecondPhaseThinking:
+            case KraidPhase.FootSecondPhaseWalkingRight:
+            case KraidPhase.FootSecondPhaseWalkToStart:
+            case KraidPhase.FootSecondPhaseInitialize:
+            case KraidPhase.FootSecondPhaseWalkingLeft:
+            case KraidPhase.FingernailInitialize:
+            case KraidPhase.FingernailFire:
+            case KraidPhase.FootPrepareFirstPhaseLunge:
+            case KraidPhase.FootFirstPhaseLunge:
+            case KraidPhase.FootFirstPhaseRetreat:
+            case KraidPhase.RestrictSamusToFirstScreen:
+            case KraidPhase.RaiseKraidThroughFloor:
+            case KraidPhase.RaiseShowLowerBody:
+            case KraidPhase.RaiseRocksEvery16Frames:
+            case KraidPhase.RaiseRocksEvery8Frames:
+            case KraidPhase.RaiseBody:
+            case KraidPhase.None:
             default:
                 throw new InvalidDataException(
-                    $"Kraid body function {state.BodyState.Function} is not translated.");
+                    $"Kraid body function {state.BodyState.Phase} is not translated.");
         }
     }
 }

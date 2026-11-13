@@ -102,9 +102,9 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
         slot.AnimationClock.Restart();
         slot.Shading = PulseShading;
-        state.Function = state.IsSecondaryHalf
-            ? ZebetiteAiFunction.WaitForDoorTransition
-            : ZebetiteAiFunction.SpawnLinkedHalf;
+        state.Action = state.IsSecondaryHalf
+            ? ZebetiteAction.WaitForDoorTransition
+            : ZebetiteAction.SpawnLinkedHalf;
 
         int generation = _room.Services.ZebetiteProgress.ZebetitesDestroyed;
         state.Generation = generation;
@@ -128,20 +128,20 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!_earthquake.IsShaking)
             slot.ShakeTimer = 0;
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case ZebetiteAiFunction.SpawnLinkedHalf:
+            case ZebetiteAction.SpawnLinkedHalf:
                 RunZebetiteSpawnLinkedHalf(slot, state);
                 break;
-            case ZebetiteAiFunction.WaitForDoorTransition:
+            case ZebetiteAction.WaitForDoorTransition:
                 RunZebetiteWaitForDoorTransition(slot, state);
                 break;
-            case ZebetiteAiFunction.Active:
+            case ZebetiteAction.Active:
                 RunZebetiteActive(slot, state);
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Zebetite function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Zebetite function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -155,7 +155,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             state.LinkedHalf = secondary;
         }
 
-        state.Function = ZebetiteAiFunction.WaitForDoorTransition;
+        state.Action = ZebetiteAction.WaitForDoorTransition;
         RunZebetiteWaitForDoorTransition(slot, state);
     }
 
@@ -166,7 +166,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         // inert during door loading and enters its active body on the first clear frame.
         if (_elevatorBehavior.ElevatorDoorTransitionActive)
             return;
-        state.Function = ZebetiteAiFunction.Active;
+        state.Action = ZebetiteAction.Active;
         RunZebetiteActive(slot, state);
     }
 

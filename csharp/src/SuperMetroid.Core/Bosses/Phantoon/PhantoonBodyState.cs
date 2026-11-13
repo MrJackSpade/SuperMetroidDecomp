@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public sealed class PhantoonBodyState
 {
     /// <summary>The encounter phase.</summary>
-    private PhantoonAiFunction? _function;
+    private PhantoonPhase? _phase;
 
     /// <summary>The body's next starting flame, 0 through 7.</summary>
     public int StartingFlameIndex { get; internal set => field = Ensure.AtLeastZero(value); }
@@ -39,10 +39,10 @@ public sealed class PhantoonBodyState
     public int FunctionTimer { get; internal set; }
 
     /// <summary>The encounter phase the body dispatches.</summary>
-    public PhantoonAiFunction Function
+    public PhantoonPhase Phase
     {
-        get => _function ?? default;
-        internal set => _function = value;
+        get => _phase ?? default;
+        internal set => _phase = value;
     }
 
     /// <summary>Whether the body takes the flame-rain branch when the eye-close animation picks the next pattern.</summary>

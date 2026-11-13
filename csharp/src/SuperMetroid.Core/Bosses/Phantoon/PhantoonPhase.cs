@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// The phase of Phantoon's encounter the body runs each update. The values are arbitrary
 /// identities (#1413), and the main AI dispatches on the member.
 /// </summary>
-public enum PhantoonAiFunction
+public enum PhantoonPhase
 {
     /// <summary>Allocates the introductory circle of eight flames from the physical projectile pool.</summary>
     SpawnStartingFlames = 1,

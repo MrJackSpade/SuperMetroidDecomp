@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The behaviours Shitroid's main AI dispatches.
 /// Its values are arbitrary; verification's catalog relates each member to its source (#1413).
 /// </summary>
-public enum ShitroidAiFunction
+public enum ShitroidAction
 {
     /// <summary>Keeps the encounter actor inactive in the alternate camera state.</summary>
     Dormant = 1,

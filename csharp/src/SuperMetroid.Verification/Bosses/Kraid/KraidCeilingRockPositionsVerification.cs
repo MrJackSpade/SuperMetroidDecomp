@@ -35,7 +35,7 @@ internal static class KraidCeilingRockPositionsVerification
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Access.Kraid = state;
         enemies.VerificationServices().ReadRandom = () => 63;
-        Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.Rise.RunKraidGrowthFunction;
+        Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.Rise.RunKraidGrowthPhase;
         var requests = enemies.BossFrameResults.KraidObjects;
         var body = enemies.SlotTable.Slots[0];
         body.FrameCounter = 1; // Isolate the ceiling placement from the independent rising-rock cadence.
@@ -46,7 +46,7 @@ internal static class KraidCeilingRockPositionsVerification
             requests.Clear();
             body.Position = body.Position.WithWhole(new(128, (ushort)raw));
             state.BodyState.CeilingRock = index;
-            state.BodyState.Function = KraidAiFunction.GrowBreakCeilingPlatforms;
+            state.BodyState.Phase = KraidPhase.GrowBreakCeilingPlatforms;
             step(body, state);
             ushort y = unchecked((ushort)(raw - 1));
             bool spawn = (y & 3) == 0;

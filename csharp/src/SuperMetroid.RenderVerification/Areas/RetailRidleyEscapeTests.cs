@@ -33,17 +33,17 @@ internal static class RetailRidleyEscapeTests
             bool triggered = false, finished = false;
             int samples = 0, mixedFrames = 0;
             var floorViews = new HashSet<FloorView>();
-            var phases = new HashSet<RidleyAiFunction>();
+            var phases = new HashSet<RidleyPhase>();
             for (int tick = 0; tick < 6000; tick++)
             {
-                if (!triggered && (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Function == RidleyAiFunction.CeresHovering)
+                if (!triggered && (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Phase == RidleyPhase.CeresHovering)
                 {
                     if (hitThreshold) ridley.HitCounter = RidleyEscapeFixtureDefinitions.HitThreshold;
                     else samus.Health = RidleyEscapeFixtureDefinitions.LowEnergy;
                     triggered = true;
                 }
                 runtime.StepFrame(0);
-                bool newPhase = phases.Add((ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Function);
+                bool newPhase = phases.Add((ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Phase);
                 if (ridley.GetawayActive)
                 {
                     mixedFrames++;
@@ -66,13 +66,13 @@ internal static class RetailRidleyEscapeTests
                     samples++;
                     var packet = new DisplayPacket((ushort)tick, scene);
                     PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
-                        $"{device.Kind}: Ridley native escape hits={hitThreshold}, tick={tick}, phase={ridley.Function}");
+                        $"{device.Kind}: Ridley native escape hits={hitThreshold}, tick={tick}, phase={ridley.Phase}");
                 }
                 if (finished) break;
             }
             if (!finished || mixedFrames == 0 || floorViews.Count < 2 || runtime.EscapeTimer.Phase == EscapeTimerPhase.Inactive)
                 throw new InvalidOperationException($"Native escape coverage incomplete: triggered={triggered}, finished={finished}, " +
-                    $"phase={(ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Function}, mode7={mixedFrames}, floor views={floorViews.Count}.");
+                    $"phase={(ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Phase}, mode7={mixedFrames}, floor views={floorViews.Count}.");
             Console.WriteLine($"{device.Kind}: native Ridley escape hits={hitThreshold}: {samples} exact samples, " +
                 $"{mixedFrames} Mode-7 frames, {floorViews.Count} floor views, {phases.Count} phases; timer/ejection handoff complete.");
         }

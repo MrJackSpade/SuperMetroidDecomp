@@ -254,14 +254,14 @@ internal sealed class CrocomireCombat
             return;
 
         state.StepCounter = 3;
-        if (state.FightFunction == CrocomireFightFunction.PowerBombCharge)
+        if (state.Phase == CrocomirePhase.PowerBombCharge)
             return;
 
         state.FightFlags = (state.FightFlags & ~(CrocomireFightFlags.ClawTouchedSamus | CrocomireFightFlags.Engaged)) |
             CrocomireFightFlags.Engaged;
         body.FlashTimer += 4;
         body.AiStates |= EnemyAiStates.Hurt;
-        state.FightFunction = CrocomireFightFunction.PowerBombCharge;
+        state.Phase = CrocomirePhase.PowerBombCharge;
 
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, SelectCrocomirePowerBombAnimation(state));
     }

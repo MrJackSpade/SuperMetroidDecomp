@@ -106,7 +106,7 @@ internal sealed class RidleyBodyAnimation
             case RidleyBodyCue.Command { Kind: RidleyBodyCueKind.CeresStartLiftoff }:
             {
                 RidleyEnemyState liftoff = _ridleyEncounter.RequireCeresRidley(slot);
-                liftoff.Function = RidleyAiFunction.CeresLiftoffAccelerating;
+                liftoff.Phase = RidleyPhase.CeresLiftoffAccelerating;
                 liftoff.Velocity = liftoff.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-352));
                 return null;
             }
@@ -115,7 +115,7 @@ internal sealed class RidleyBodyAnimation
                 // The shared roar/liftoff animation hands control to the real fight at
                 // the fight's start and supplies the initial upward 8.8 velocity in the same tick.
                 RidleyEnemyState norfairLiftoff = _ridleyEncounter.RequireNorfairRidley(slot);
-                norfairLiftoff.Function = RidleyAiFunction.NorfairEnterArena;
+                norfairLiftoff.Phase = RidleyPhase.NorfairEnterArena;
                 norfairLiftoff.Velocity = norfairLiftoff.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-352));
                 return null;
             }

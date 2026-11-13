@@ -62,7 +62,7 @@ internal sealed class DraygonParts
         _frameContext.RequestFullSweep();
         Draygon = new DraygonEnemyState(body)
         {
-            Function = DraygonAiFunction.IntroInitialDelay,
+            Phase = DraygonPhase.IntroInitialDelay,
         };
         body.SetSpeciesState(Draygon);
         body.Shading = Draygon.Colours.Sprites;
@@ -231,8 +231,8 @@ internal sealed class DraygonParts
             case DraygonCue.SetBodyIntangible:
                 state.Body.Contact = state.Body.Contact.With(EnemyContact.IgnoresSamus);
                 return;
-            case DraygonCue.SetBodyFunction bodyFunction:
-                state.Function = bodyFunction.Function;
+            case DraygonCue.SetBodyPhase bodyFunction:
+                state.Phase = bodyFunction.Phase;
                 return;
             case DraygonCue.TailWhipHit:
                 ApplyDraygonTailWhipHit(state, samus);

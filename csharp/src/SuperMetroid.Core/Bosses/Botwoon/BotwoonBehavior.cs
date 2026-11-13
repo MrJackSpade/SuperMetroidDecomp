@@ -104,7 +104,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int segmentIndex = state.BodySegments.Length - 1; segmentIndex >= 0; segmentIndex--)
             SpawnBotwoonBodySegment(head, state, segmentIndex);
 
-        state.Function = BotwoonEnemyFunction.InitialDelay;
+        state.Phase = BotwoonPhase.InitialDelay;
         state.MovementFunction = BotwoonMovementFunction.MoveTowardHole;
         state.HeadFunction = BotwoonHeadFunction.AnimateFromMovement;
         state.InitialDelayTimer = 256;
@@ -141,53 +141,53 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.PendingDeath && state.ExitTransitionComplete)
         {
             state.BodyDeathStarted = true;
-            state.Function = BotwoonEnemyFunction.DeathDelay;
+            state.Phase = BotwoonPhase.DeathDelay;
             state.DeathTimer = BotwoonDeathDelayStart;
             state.PendingDeath = false;
             state.ExitTransitionComplete = false;
         }
 
-        switch (state.Function)
+        switch (state.Phase)
         {
-            case BotwoonEnemyFunction.InitialDelay:
+            case BotwoonPhase.InitialDelay:
                 if (--state.InitialDelayTimer == 0)
-                    state.Function = BotwoonEnemyFunction.ChooseNextAction;
+                    state.Phase = BotwoonPhase.ChooseNextAction;
                 break;
 
-            case BotwoonEnemyFunction.ChooseNextAction:
+            case BotwoonPhase.ChooseNextAction:
                 RunBotwoonActionSelector(head, state, samus);
                 break;
 
-            case BotwoonEnemyFunction.FollowAuthoredPath:
+            case BotwoonPhase.FollowAuthoredPath:
                 RunBotwoonAuthoredPathState(head, state, samus);
                 break;
 
-            case BotwoonEnemyFunction.SpitWhileHidden:
+            case BotwoonPhase.SpitWhileHidden:
                 RunBotwoonHiddenSpitState(head, state, samus);
                 break;
 
-            case BotwoonEnemyFunction.DeathDelay:
+            case BotwoonPhase.DeathDelay:
                 state.DeathTimer++;
                 if (state.DeathTimer >= BotwoonDeathDelayEnd)
-                    state.Function = BotwoonEnemyFunction.HeadFalling;
+                    state.Phase = BotwoonPhase.HeadFalling;
                 break;
 
-            case BotwoonEnemyFunction.HeadFalling:
+            case BotwoonPhase.HeadFalling:
                 RunBotwoonHeadFall(head, state);
                 break;
 
-            case BotwoonEnemyFunction.WaitForBody:
+            case BotwoonPhase.WaitForBody:
                 if (state.LastBodySegmentLanded)
                     BeginBotwoonWallExplosions(head, state);
                 break;
 
-            case BotwoonEnemyFunction.WallExplosions:
+            case BotwoonPhase.WallExplosions:
                 RunBotwoonWallExplosions(head, state);
                 break;
 
             default:
                 throw new InvalidDataException(
-                    $"Botwoon function {state.Function} is not translated.");
+                    $"Botwoon function {state.Phase} is not translated.");
         }
 
         UpdateBotwoonHealthBand(head, state);
@@ -214,7 +214,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (choice < BotwoonNavigationDefinitions.AuthoredPathActions)
         {
-            state.Function = BotwoonEnemyFunction.FollowAuthoredPath;
+            state.Phase = BotwoonPhase.FollowAuthoredPath;
             state.MovementFunction = BotwoonMovementFunction.LoadAuthoredPath;
             state.AttackTimer = 0;
             state.HeadFunction = BotwoonHeadFunction.AnimateFromMovement;
@@ -222,7 +222,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            state.Function = BotwoonEnemyFunction.SpitWhileHidden;
+            state.Phase = BotwoonPhase.SpitWhileHidden;
             state.HeadFunction = BotwoonHeadFunction.AimAtSamus;
             state.AttackTimer = 48;
             // The spit step makes the spitting head tangible again.
@@ -239,7 +239,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.PathComplete)
         {
             state.PathComplete = false;
-            state.Function = BotwoonEnemyFunction.ChooseNextAction;
+            state.Phase = BotwoonPhase.ChooseNextAction;
             state.MovementFunction = BotwoonMovementFunction.MoveTowardHole;
             if (state.InsideHole)
                 state.HoleLatch = false;
@@ -262,7 +262,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.PathComplete = false;
-        state.Function = BotwoonEnemyFunction.FollowAuthoredPath;
+        state.Phase = BotwoonPhase.FollowAuthoredPath;
         state.MovementFunction = BotwoonMovementFunction.LoadAuthoredPath;
         state.HeadFunction = BotwoonHeadFunction.AnimateFromMovement;
 
@@ -570,7 +570,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             new(CoordinateAxis.Difference(samus.Position.X.Whole, head.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, head.Position.Y.Whole)));
         StartBotwoonHeadAnimation(head, state, BotwoonHeadAnimationSegment.SpittingToward(bearing));
         state.SpitAngle = bearing.ToTableAngle().ToAngle();
-        state.HeadFunction = state.Function == BotwoonEnemyFunction.SpitWhileHidden
+        state.HeadFunction = state.Phase == BotwoonPhase.SpitWhileHidden
             ? BotwoonHeadFunction.WaitForSpitFrame
             : BotwoonHeadFunction.SpawnImmediateVolley;
         RunBotwoonHeadFunction(head, state, samus);
@@ -679,7 +679,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         head.Position = head.Position.WithWholeY(200);
-        state.Function = BotwoonEnemyFunction.WaitForBody;
+        state.Phase = BotwoonPhase.WaitForBody;
         _projectiles.SpawnRoomGraphicsDustExplosion(head.Position.Whole, MiscDustAnimation.BigExplosion);
         RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
         head.Contact = head.Contact.With(EnemyContact.IgnoresSamus);
@@ -689,7 +689,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Requests the crumble room object and sixteen RNG-positioned drops before wall explosions.</summary>
     private void BeginBotwoonWallExplosions(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        state.Function = BotwoonEnemyFunction.WallExplosions;
+        state.Phase = BotwoonPhase.WallExplosions;
         _frameResults.BotwoonWall = BotwoonWallMutation.Crumble;
 
         // Botwoon's death drop emits sixteen independent pickup

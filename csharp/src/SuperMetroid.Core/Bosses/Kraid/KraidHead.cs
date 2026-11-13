@@ -86,7 +86,7 @@ internal sealed class KraidHead
     /// <summary>Restores the small-body thinking state after an attack.</summary>
     internal void SetupKraidFirstPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
     {
-        state.BodyState.Function = KraidAiFunction.MainloopThinking;
+        state.BodyState.Phase = KraidPhase.MainloopThinking;
         _parts.TopLint.Position = _parts.TopLint.Position.WithWrappedWholeY(body.Position.Y.Whole - 20);
         _parts.MiddleLint.Position = _parts.MiddleLint.Position.WithWrappedWholeY(body.Position.Y.Whole + 46);
         _parts.BottomLint.Position = _parts.BottomLint.Position.WithWrappedWholeY(body.Position.Y.Whole + 112);
@@ -108,9 +108,9 @@ internal sealed class KraidHead
                 state.RemoveOneMouthReopen();
                 if (state.PendingMouthReopens != 0)
                 {
-                    state.BodyState.Function = KraidAiFunction.HandleFunctionTimer;
+                    state.BodyState.Phase = KraidPhase.HandleFunctionTimer;
                     state.BodyState.FunctionTimer = 64;
-                    state.BodyState.NextFunction = KraidAiFunction.InitializeEyeGlow;
+                    state.BodyState.PhaseToResume = KraidPhase.InitializeEyeGlow;
                     return;
                 }
             }
@@ -196,16 +196,16 @@ internal sealed class KraidHead
     {
         if (AdvanceKraidHeadAnimation(state) != KraidHeadAnimationResult.AnimationEnded)
             return;
-        state.BodyState.Function = KraidAiFunction.MainloopThinking;
+        state.BodyState.Phase = KraidPhase.MainloopThinking;
         state.BodyState.HeadTimer = 90;
         if ((state.MouthFlags & KraidMouthFlags.ReopenPending) != KraidMouthFlags.None)
         {
             state.RemoveOneMouthReopen();
             if (state.PendingMouthReopens != 0)
             {
-                state.BodyState.Function = KraidAiFunction.HandleFunctionTimer;
+                state.BodyState.Phase = KraidPhase.HandleFunctionTimer;
                 state.BodyState.FunctionTimer = 64;
-                state.BodyState.NextFunction = KraidAiFunction.InitializeEyeGlow;
+                state.BodyState.PhaseToResume = KraidPhase.InitializeEyeGlow;
                 return;
             }
         }
@@ -215,7 +215,7 @@ internal sealed class KraidHead
     /// <summary>Seeds eye-glow palette state after a body hit.</summary>
     internal void InitializeKraidEyeGlow(KraidEnemyState state)
     {
-        state.BodyState.Function = KraidAiFunction.GlowEye;
+        state.BodyState.Phase = KraidPhase.GlowEye;
         state.HeadPlayback = KraidHeadAnimations.EyeGlowAfterEntryFrame;
         state.BodyState.HeadTimer = KraidHeadAnimations.EyeGlowEntryDuration;
         GlowKraidEye(state);
@@ -227,7 +227,7 @@ internal sealed class KraidHead
         _ = AdvanceKraidHeadAnimation(state);
         // The glow's peak, read back from the eyes' colours, ends the glow (#1512).
         if (state.Colours.GlowEyes())
-            state.BodyState.Function = KraidAiFunction.UnglowEye;
+            state.BodyState.Phase = KraidPhase.UnglowEye;
     }
 
     /// <summary>Restores the eye palette after the reaction completes.</summary>
@@ -237,7 +237,7 @@ internal sealed class KraidHead
         bool unglowed = state.Colours.UnglowEyes(BandEyes(KraidColourBand.Health(HealthBand(body, state))));
         if (unglowed)
         {
-            state.BodyState.Function = KraidAiFunction.MouthOpenReaction;
+            state.BodyState.Phase = KraidPhase.MouthOpenReaction;
             state.HeadPlayback = KraidHeadAnimations.RoarAfterEntryFrame;
             state.BodyState.HeadTimer = KraidHeadAnimations.RoarEntryDuration;
         }

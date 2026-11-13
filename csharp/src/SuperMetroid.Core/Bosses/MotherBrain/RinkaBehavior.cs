@@ -152,7 +152,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Resets the watch state and animation after initialization or respawn; deletes terminated special actors.</summary>
     private void InitializeRinkaLife(RoomEnemySlot slot, RinkaEnemyState state)
     {
-        state.Function = RinkaEnemyFunction.WatchForLeavingViewport;
+        state.Action = RinkaAction.WatchForLeavingViewport;
         state.DelayTimer = RinkaInitialDelay;
         state.Velocity = default;
 
@@ -211,20 +211,20 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case RinkaEnemyFunction.WatchForLeavingViewport:
+            case RinkaAction.WatchForLeavingViewport:
                 if (RinkaIsOutsideFlightWindow(slot))
                     RecycleRinkaAfterLeavingViewport(slot, state);
                 return;
 
-            case RinkaEnemyFunction.AimDelay:
+            case RinkaAction.AimDelay:
                 if (--state.DelayTimer >= 0)
                     return;
                 if (samus is null)
                     throw new InvalidOperationException("Rinka homing requires the active Samus actor.");
 
-                state.Function = RinkaEnemyFunction.Flying;
+                state.Action = RinkaAction.Flying;
 
                 // Special and ordinary branches have different source masks in code,
                 // but both observable results make the Rinka tangible and set its processing property here.
@@ -240,13 +240,13 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                         velocityAngle.TurnedBy(TrigonometryAngle.QuarterTurn)));
                 return;
 
-            case RinkaEnemyFunction.Flying:
+            case RinkaAction.Flying:
                 slot.Position = slot.Position.Advance(state.Velocity.ToSixteenSixteen());
                 if (RinkaIsOutsideFlightWindow(slot))
                     RecycleRinkaAfterLeavingViewport(slot, state);
                 return;
 
-            case RinkaEnemyFunction.DeathRespawnDelay:
+            case RinkaAction.DeathRespawnDelay:
                 if (--state.DelayTimer >= 0)
                     return;
                 slot.Health = RinkaHealth;
@@ -255,7 +255,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Rinka function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Rinka function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -283,7 +283,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         SpawnRinkaDustExplosion(slot.Position.Whole);
-        state.Function = RinkaEnemyFunction.DeathRespawnDelay;
+        state.Action = RinkaAction.DeathRespawnDelay;
         state.DelayTimer = 1;
     }
 
@@ -317,7 +317,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             case RinkaCueKind.Fire:
                 slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
                 slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
-                state.Function = RinkaEnemyFunction.AimDelay;
+                state.Action = RinkaAction.AimDelay;
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(RinkaCueKind)} {cue.Kind}.");

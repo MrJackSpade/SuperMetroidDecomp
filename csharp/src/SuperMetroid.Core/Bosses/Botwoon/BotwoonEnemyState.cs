@@ -12,9 +12,9 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 public sealed class BotwoonEnemyState
 {
     /// <summary>
-    /// The main function, owning initial waiting, traversal/spitting, and synchronized death progression.
+    /// The fight's phase, owning initial waiting, traversal/spitting, and synchronized death progression.
     /// </summary>
-    public BotwoonEnemyFunction? Function { get; internal set; }
+    public BotwoonPhase? Phase { get; internal set; }
 
     /// <summary>The independent movement callback, choosing direct hole movement or an authored path.</summary>
     public BotwoonMovementFunction? MovementFunction { get; internal set; }

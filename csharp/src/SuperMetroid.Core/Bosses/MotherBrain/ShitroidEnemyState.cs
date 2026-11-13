@@ -17,8 +17,8 @@ public sealed class ShitroidEnemyState
     /// <summary>The Shitroid's animation and where it stands (#641, #1600).</summary>
     internal AnimationPlayback<ShitroidSegment> Playback { get; set; } = ShitroidAnimations.Starting(default);
 
-    /// <summary>Gets the current Shitroid AI function.</summary>
-    public ShitroidAiFunction? Function { get; internal set; }
+    /// <summary>Gets the Shitroid's current action.</summary>
+    public ShitroidAction? Action { get; internal set; }
 
     /// <summary>Signed 8.8 velocity: X, Y.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }

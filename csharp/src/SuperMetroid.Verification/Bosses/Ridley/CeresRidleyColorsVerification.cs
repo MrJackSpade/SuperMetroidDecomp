@@ -86,7 +86,7 @@ internal static class CeresRidleyColorsVerification
         Action<RidleyEnemyState> eyeTick = CeresRidleyFades.TickCeresRidleyEyeFade;
         Action<RoomEnemySlot, RidleyEnemyState> bodyTick = enemies.CeresRidleyBehavior.Fades.TickCeresRidleyBodyFade;
         Action<RidleyEnemyState> healthTick = CeresRidleyHits.UpdateCeresRidleyHealthBand;
-        var state = new RidleyEnemyState { Function = RidleyAiFunction.FadeInEyes };
+        var state = new RidleyEnemyState { Phase = RidleyPhase.FadeInEyes };
         for (ushort step = 0; step < CeresRidleyEyeFadeDefinitions.PaletteStepCount; step++)
         {
             state.FadeStep = step;
@@ -100,7 +100,7 @@ internal static class CeresRidleyColorsVerification
                 color => InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveEyeFade(row, color),
                 $"Ceres Ridley eye fade step {step}");
         }
-        state.Function = RidleyAiFunction.FadeInBody;
+        state.Phase = RidleyPhase.FadeInBody;
         for (int row = 0; row < CeresRidleyPaletteDefinitions.BodyFadeShadeCount; row++)
         {
             state.FadeStep = row;
@@ -134,11 +134,11 @@ internal static class CeresRidleyColorsVerification
         slot.Bind(EnemyDefinitionId.RidleyCeres, slot.Definition);
         RidleyEnemyState activeRidley = enemies.RidleyEncounter.Ridley ??
             throw new InvalidOperationException("Ceres Ridley initialization did not publish state.");
-        activeRidley.Function = RidleyAiFunction.CeresRetreatDelay;
+        activeRidley.Phase = RidleyPhase.CeresRetreatDelay;
         activeRidley.FunctionTimer = 0;
         activeRidley.MovementAnimationEnabled = false;
         enemies.CeresRidleyBehavior.RunCeresRidleyMain(slot, null);
-        AssertEqual(RidleyAiFunction.CeresPublishEscapeHandoff, activeRidley.Function,
+        AssertEqual(RidleyPhase.CeresPublishEscapeHandoff, activeRidley.Phase,
             "Ceres Ridley retreat publishes the Mode-7 handoff");
         CheckCgram(activeRidley, CeresRidleyColorFormat.RetreatBgColorCount,
             CeresRidleyPaletteDefinitionsConstants.RetreatBgCgramIndex,

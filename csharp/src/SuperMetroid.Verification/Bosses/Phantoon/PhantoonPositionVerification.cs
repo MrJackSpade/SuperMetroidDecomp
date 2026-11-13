@@ -41,11 +41,11 @@ internal static class PhantoonPositionVerification
             boundary.LoadCartridgeRoomForDebug(SuperMetroid.Core.Rooms.RoomDefinitions.Phantoon);
             var state = boundary.Enemies.PhantoonBehavior.Combat.Phantoon;
             PhantoonEnemyState boundaryState = state ?? throw new InvalidOperationException("Verification requires state.");
-            boundaryState.BodyState.Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
+            boundaryState.BodyState.Phase = PhantoonPhase.MoveInFigureEightThenOpenEye;
             boundaryState.EyeState.ClosedTimer = timer;
             boundary.StepFrame(0);
-            AssertEqual(timer == 2 ? PhantoonAiFunction.MoveInFigureEightThenOpenEye : PhantoonAiFunction.NoOperation,
-                boundaryState.BodyState.Function, $"Native figure-eight DEC/BEQ/BPL boundary from {timer}");
+            AssertEqual(timer == 2 ? PhantoonPhase.MoveInFigureEightThenOpenEye : PhantoonPhase.NoOperation,
+                boundaryState.BodyState.Phase, $"Native figure-eight DEC/BEQ/BPL boundary from {timer}");
         }
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

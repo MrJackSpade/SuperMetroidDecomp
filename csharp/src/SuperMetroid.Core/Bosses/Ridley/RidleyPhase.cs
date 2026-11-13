@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 /// <remarks>
 /// Lower Norfair Ridley begins at <see cref="NorfairEnterArena"/> after the shared reveal sequence. The Ceres fake
-/// retreat functions from <see cref="CeresFakeRetreatMoveToPosition"/> on are shared with the Baby retrieval route,
+/// retreat phases from <see cref="CeresFakeRetreatMoveToPosition"/> on are shared with the Baby retrieval route,
 /// and the real fight selects them only while Ridley has grabbed Samus.
 /// </remarks>
-public enum RidleyAiFunction
+public enum RidleyPhase
 {
     /// <summary>Clears shared motion before returning to the flying dispatcher.</summary>
     ClearVelocity = 1,
@@ -138,6 +138,6 @@ public enum RidleyAiFunction
     NorfairDeathWait,
     /// <summary>Completes the terminal wait, publishes boss persistence, scatters drops, requests music, and deletes the body.</summary>
     NorfairDeathFinish,
-    /// <summary>Terminal empty function selected after drops, music and deletion.</summary>
+    /// <summary>Terminal empty phase selected after drops, music and deletion.</summary>
     NorfairDeathComplete,
 }

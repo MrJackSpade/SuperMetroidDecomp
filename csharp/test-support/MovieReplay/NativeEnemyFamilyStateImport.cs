@@ -118,11 +118,11 @@ internal static class NativeEnemyFamilyStateImport
             phantoonBody.FigureEightStage = PhantoonFigureEightStageWords.Decode(words.D);
             phantoonBody.FunctionTimer = CoordinateAxis.AsSigned(words.E);
             if (words.F != 0)
-                phantoonBody.Function = PhantoonNativeWords.AiFunctions.Decode(words.F, "recorded PhantoonAiFunction");
+                phantoonBody.Phase = PhantoonNativeWords.Phases.Decode(words.F, "recorded PhantoonPhase");
         }
         if (slot.SpeciesState<KraidPartState>() is { } kraidPartRecord)
         {
-            kraidPartRecord.Function = (KraidAiFunction)words.A;
+            kraidPartRecord.Phase = (KraidPhase)words.A;
             // Words B and C hold the body's head timer, a lint's travel and X offset, or a nail's horizontal velocity;
             // each part's own state takes its own.
             if (kraidPartRecord is KraidNailState kraidNail)
@@ -136,7 +136,7 @@ internal static class NativeEnemyFamilyStateImport
             if (kraidPartRecord is KraidBodyState kraidBody)
             {
                 kraidBody.HeadTimer = words.C;
-                if (kraidBody.Function == KraidAiFunction.GrowBreakCeilingPlatforms)
+                if (kraidBody.Phase == KraidPhase.GrowBreakCeilingPlatforms)
                     kraidBody.CeilingRock = words.F / sizeof(ushort);
                 else
                     kraidBody.FunctionTimer = words.F;
@@ -193,8 +193,8 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<DraygonEnemyState>() is { } draygonRecord)
         {
-            draygonRecord.Function = (DraygonAiFunction)words.A;
-            switch (DraygonNativeWords.MeaningOfSharedValue(draygonRecord.Function))
+            draygonRecord.Phase = (DraygonPhase)words.A;
+            switch (DraygonNativeWords.MeaningOfSharedValue(draygonRecord.Phase))
             {
                 case DraygonNativeWords.SharedValue.IntroFrames:
                     draygonRecord.IntroFrames = words.B;
@@ -206,7 +206,7 @@ internal static class NativeEnemyFamilyStateImport
                     draygonRecord.SwoopEntry = words.B / DraygonNativeWords.SwoopEntryBytes;
                     break;
                 default:
-                    throw new InvalidOperationException($"Undefined Draygon shared value meaning for {draygonRecord.Function}.");
+                    throw new InvalidOperationException($"Undefined Draygon shared value meaning for {draygonRecord.Phase}.");
             }
             // The swoop path's length (word C) is read with the path's heights from the cartridge's table by the snapshot
             // import, which holds the memory the table lies in.
@@ -222,7 +222,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             crocomireRecord.DeathPhase = CrocomireNativeWords.DeathPhases.Decode(words.A, "recorded Crocomire death phase");
             crocomireRecord.FightFlags = CrocomireNativeWords.FightFlags(words.B);
-            crocomireRecord.FightFunction = CrocomireNativeWords.FightFunctions.Decode(words.C, "recorded Crocomire fight function");
+            crocomireRecord.Phase = CrocomireNativeWords.Phases.Decode(words.C, "recorded Crocomire fight function");
             // The cartridge keeps several of the body's values in each of words D, E and F; the phase says which.
             CrocomireNativeWords.ImportSharedWords(crocomireRecord, words.D, words.E, words.F);
         }
@@ -236,13 +236,13 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<BotwoonEnemyState>() is { } botwoonRecord)
         {
-            botwoonRecord.Function = words.D == 0 ? null : (BotwoonEnemyFunction)words.D;
+            botwoonRecord.Phase = words.D == 0 ? null : (BotwoonPhase)words.D;
             botwoonRecord.MovementFunction = words.E == 0 ? null : (BotwoonMovementFunction)words.E;
             botwoonRecord.HeadFunction = words.F == 0 ? null : (BotwoonHeadFunction)words.F;
         }
         if (slot.SpeciesState<ShitroidEnemyState>() is { } shitroidRecord)
         {
-            shitroidRecord.Function = words.A == 0 ? null : MotherBrainNativeWords.ShitroidAiFunctions.Decode(words.A, "recorded ShitroidAiFunction");
+            shitroidRecord.Action = words.A == 0 ? null : MotherBrainNativeWords.ShitroidActions.Decode(words.A, "recorded ShitroidAction");
             shitroidRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
             shitroidRecord.MembranePulsePhase = LittleEndianBytes.LowByte(words.D);
             shitroidRecord.PaletteTimer = LittleEndianBytes.HighByte(words.D);
@@ -305,7 +305,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<ZebetiteEnemyState>() is { } zebetiteRecord)
         {
-            zebetiteRecord.Function = words.A == 0 ? null : MotherBrainNativeWords.ZebetiteAiFunctions.Decode(words.A, "recorded ZebetiteAiFunction");
+            zebetiteRecord.Action = words.A == 0 ? null : MotherBrainNativeWords.ZebetiteActions.Decode(words.A, "recorded ZebetiteAction");
             zebetiteRecord.Generation = words.D;
             zebetiteRecord.GenerationFlags = MotherBrainNativeWords.DecodeGenerationFlags(words.F);
         }
@@ -481,7 +481,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<RinkaEnemyState>() is { } rinkaRecord)
         {
-            rinkaRecord.Function = words.A == 0 ? null : MotherBrainNativeWords.RinkaEnemyFunctions.Decode(words.A, "recorded RinkaEnemyFunction");
+            rinkaRecord.Action = words.A == 0 ? null : MotherBrainNativeWords.RinkaActions.Decode(words.A, "recorded RinkaAction");
             rinkaRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
             rinkaRecord.SpawnResourceToken = words.D;
             rinkaRecord.DelayTimer = CoordinateAxis.AsSigned(words.F);

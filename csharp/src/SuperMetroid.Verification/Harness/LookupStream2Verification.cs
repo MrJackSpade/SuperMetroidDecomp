@@ -833,13 +833,13 @@ internal static class LookupStream2Verification
             AssertEqual(expected, KraidLints.InitialDelay(lintParts[native]), "Native per-part initial delay");
             AssertEqual(expected, lintState.FunctionTimer, "Actual post-growth timer write");
             AssertEqual(0, lintState.LintTravel, "Actual lint growth resets extension");
-            AssertEqual(KraidAiFunction.LintProduce, lintState.NextFunction, "Actual lint continuation");
+            AssertEqual(KraidPhase.LintProduce, lintState.PhaseToResume, "Actual lint continuation");
             for (int remaining = expected - 1; remaining >= 0; remaining--)
             {
                 align(lint, lintState);
                 AssertEqual(remaining, lintState.FunctionTimer, "Actual per-part countdown");
-                AssertEqual((remaining == 0 ? KraidAiFunction.LintProduce : KraidAiFunction.AlignPartToKraid),
-                    lintState.Function, "Actual lint transition occurs on its own final tick");
+                AssertEqual((remaining == 0 ? KraidPhase.LintProduce : KraidPhase.AlignPartToKraid),
+                    lintState.Phase, "Actual lint transition occurs on its own final tick");
                 AssertEqual(unchecked((ushort)(body.Position.X.Whole - lint.Radius.X)), lint.Position.X.Whole, "Alignment continues during delay");
             }
         }

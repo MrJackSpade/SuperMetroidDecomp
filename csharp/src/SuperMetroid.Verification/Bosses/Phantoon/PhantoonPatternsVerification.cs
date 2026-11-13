@@ -40,7 +40,7 @@ internal static class PhantoonPatternsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + pattern * 8)), body.Position.X.Whole, "Real rain body placement X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + pattern * 8)), body.Position.Y.Whole, "Real rain body placement Y");
             AssertEqual(false, state.EyeState.FigureEightReversed, "Real rain direction reset");
-            AssertEqual(PhantoonAiFunction.BecomeSolidAfterFlameRain, state.BodyState.Function, "Real rain phase handoff");
+            AssertEqual(PhantoonPhase.BecomeSolidAfterFlameRain, state.BodyState.Phase, "Real rain phase handoff");
             AssertEqual(1, calls, "Rain consumes one RNG word");
             var flames = enemies.Projectiles.EnemyProjectiles.Where(p => p.IsActive).OrderBy(p => p.StateOf<PhantoonRainFlameState>().FallDelay).ToArray();
             AssertEqual(8, flames.Length, "Actual rain population");
@@ -87,7 +87,7 @@ internal static class PhantoonPatternsVerification
             shotRandom = (ushort)raw;
             shotBody.Health = 1000;
             shotBody.AiStates = EnemyAiStates.Hurt;
-            shotState.BodyState.Function = PhantoonAiFunction.EyeTracksSamus;
+            shotState.BodyState.Phase = PhantoonPhase.EyeTracksSamus;
             shotState.BodyState.FunctionTimer = 60;
             shotState.TentaclesState.SwoopRequested = false;
             shotState.TentaclesState.RoundDamage = 0;

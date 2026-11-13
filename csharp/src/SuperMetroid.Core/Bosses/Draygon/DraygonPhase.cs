@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Draygon's body function, the behaviour its body runs each frame. Each member names that behaviour, and the slot
-/// stores the member. Members start at one so a cleared slot is never mistaken for a function.
+/// The phase of Draygon's fight, the behaviour his body runs each frame. Each member names that behaviour, and the
+/// body's state stores the member.
 /// </summary>
-public enum DraygonAiFunction
+public enum DraygonPhase
 {
-    /// <summary>A cleared record holds no function.</summary>
+    /// <summary>A cleared record is in no phase.</summary>
     None = 0,
     /// <summary>Loads four Evir sprites, then waits 256 gameplay frames.</summary>
     IntroInitialDelay = 1,
@@ -56,7 +56,7 @@ public enum DraygonAiFunction
     TailWhipWithSamus,
     /// <summary>Starts the facing-specific four-repeat finishing tail-whip animation.</summary>
     FinalTailWhips,
-    /// <summary>Keeps Samus attached until the tail animation changes the body function to release.</summary>
+    /// <summary>Keeps Samus attached until the tail animation changes the body's phase to release.</summary>
     FinalTailWhipsWait,
     /// <summary>Releases Samus, restores ordinary collision, and starts a tail flail before retreat.</summary>
     ReleaseSamus,

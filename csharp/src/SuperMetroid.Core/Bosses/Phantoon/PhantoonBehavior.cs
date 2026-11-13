@@ -85,7 +85,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         StartPhantoonPart(body, PhantoonPartSegment.InvulnerableBody);
         bodyState.StartPart();
         body.SetSpeciesState(bodyState);
-        bodyState.Function = PhantoonAiFunction.SpawnStartingFlames;
+        bodyState.Phase = PhantoonPhase.SpawnStartingFlames;
         ResetPhantoonMouthControls(Combat.Phantoon);
     }
 
@@ -148,116 +148,116 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera)
     {
         PhantoonEnemyState state = RequireCompletePhantoonState(body);
-        PhantoonAiFunction dispatched = state.BodyState.Function;
+        PhantoonPhase dispatched = state.BodyState.Phase;
 
         switch (dispatched)
         {
-            case PhantoonAiFunction.SpawnStartingFlames:
+            case PhantoonPhase.SpawnStartingFlames:
                 Opening.RunPhantoonStartingFlameSpawner(body, state);
                 break;
-            case PhantoonAiFunction.WaitBeforeActivatingStartingFlames:
+            case PhantoonPhase.WaitBeforeActivatingStartingFlames:
                 PhantoonOpening.RunPhantoonStartingFlamePause(state.BodyState);
                 break;
-            case PhantoonAiFunction.WaitForStartingFlamesToDisappear:
+            case PhantoonPhase.WaitForStartingFlamesToDisappear:
                 Opening.RunPhantoonStartingFlameOrbitWait(state);
                 break;
-            case PhantoonAiFunction.WavyFadeIn:
+            case PhantoonPhase.WavyFadeIn:
                 Opening.RunPhantoonWavyFadeIn(body, state);
                 break;
-            case PhantoonAiFunction.PickFirstRoundPattern:
+            case PhantoonPhase.PickFirstRoundPattern:
                 Patterns.RunPhantoonPickFirstRoundPattern(state);
                 break;
-            case PhantoonAiFunction.MoveInFigureEightThenOpenEye:
+            case PhantoonPhase.MoveInFigureEightThenOpenEye:
                 Patterns.RunPhantoonFirstRoundFigureEight(body, state);
                 break;
-            case PhantoonAiFunction.EyeTracksSamus:
+            case PhantoonPhase.EyeTracksSamus:
                 PhantoonPatterns.RunPhantoonEyeTracking(body, state, RequirePhantoonSamus(samus));
                 break;
-            case PhantoonAiFunction.BecomeSolidAndSwoop:
+            case PhantoonPhase.BecomeSolidAndSwoop:
                 PhantoonPatterns.BeginPhantoonVulnerableSwoop(body, state, RequirePhantoonSamus(samus));
                 break;
-            case PhantoonAiFunction.Swooping:
+            case PhantoonPhase.Swooping:
                 PhantoonPatterns.RunPhantoonSwoop(body, state, RequirePhantoonSamus(samus));
                 break;
-            case PhantoonAiFunction.FadeOutWhileSwooping:
+            case PhantoonPhase.FadeOutWhileSwooping:
                 Patterns.RunPhantoonFadeOutWhileSwooping(
                     body,
                     state,
                     RequirePhantoonSamus(samus));
                 break;
-            case PhantoonAiFunction.WaitAfterFadeOut:
+            case PhantoonPhase.WaitAfterFadeOut:
                 PhantoonPatterns.RunPhantoonHiddenWait(state.BodyState);
                 break;
-            case PhantoonAiFunction.PickNextAppearance:
+            case PhantoonPhase.PickNextAppearance:
                 Patterns.PlacePhantoonForNextFigureEight(body, state);
                 break;
-            case PhantoonAiFunction.FadeInBeforeFigureEight:
+            case PhantoonPhase.FadeInBeforeFigureEight:
                 Patterns.RunPhantoonFadeInBeforeFigureEight(body, state);
                 break;
-            case PhantoonAiFunction.BecomeSolidAfterFlameRain:
+            case PhantoonPhase.BecomeSolidAfterFlameRain:
                 PhantoonPatterns.BeginPhantoonFlameRainVulnerableWindow(body, state);
                 break;
-            case PhantoonAiFunction.FadeInDuringFlameRain:
+            case PhantoonPhase.FadeInDuringFlameRain:
                 Patterns.RunPhantoonFlameRainFadeIn(body, state);
                 break;
-            case PhantoonAiFunction.TrackSamusDuringFlameRain:
+            case PhantoonPhase.TrackSamusDuringFlameRain:
                 PhantoonPatterns.RunPhantoonFlameRainVulnerableWindow(body, state);
                 break;
-            case PhantoonAiFunction.FadeOutDuringFlameRain:
+            case PhantoonPhase.FadeOutDuringFlameRain:
                 Patterns.RunPhantoonFlameRainFadeOut(state);
                 break;
-            case PhantoonAiFunction.SpawnFlameRain:
+            case PhantoonPhase.SpawnFlameRain:
                 Patterns.RunPhantoonHiddenFlameRain(body, state);
                 break;
-            case PhantoonAiFunction.FadeOutBeforeFirstFlameRain:
+            case PhantoonPhase.FadeOutBeforeFirstFlameRain:
                 Patterns.RunPhantoonInitialFlameRain(body, state);
                 break;
-            case PhantoonAiFunction.FadeOutBeforeRage:
+            case PhantoonPhase.FadeOutBeforeRage:
                 Patterns.RunPhantoonFadeOutBeforeRage(state);
                 break;
-            case PhantoonAiFunction.MoveToTopCenterForRage:
+            case PhantoonPhase.MoveToTopCenterForRage:
                 PhantoonPatterns.RunPhantoonRageHiddenWait(body, state);
                 break;
-            case PhantoonAiFunction.FadeInForRage:
+            case PhantoonPhase.FadeInForRage:
                 Patterns.RunPhantoonRageFadeIn(body, state);
                 break;
-            case PhantoonAiFunction.Enraged:
+            case PhantoonPhase.Enraged:
                 Patterns.RunPhantoonRage(body, state);
                 break;
-            case PhantoonAiFunction.FadeOutAfterRage:
+            case PhantoonPhase.FadeOutAfterRage:
                 Patterns.RunPhantoonRageFadeOut(state);
                 break;
-            case PhantoonAiFunction.FinishFatalSwoop:
+            case PhantoonPhase.FinishFatalSwoop:
                 PhantoonDeath.RunPhantoonFatalSwoop(body, state, RequirePhantoonSamus(samus));
                 break;
-            case PhantoonAiFunction.DyingFadeInOut:
+            case PhantoonPhase.DyingFadeInOut:
                 Death.RunPhantoonDyingFadeCycles(body, state);
                 break;
-            case PhantoonAiFunction.DyingExplosions:
+            case PhantoonPhase.DyingExplosions:
                 Death.RunPhantoonDyingExplosions(body, state);
                 break;
-            case PhantoonAiFunction.BeginFinalWavyDeath:
+            case PhantoonPhase.BeginFinalWavyDeath:
                 Death.BeginPhantoonWavyMosaicDeath(body, state);
                 break;
-            case PhantoonAiFunction.DyingFadeOut:
+            case PhantoonPhase.DyingFadeOut:
                 Death.RunPhantoonWavyMosaicDeath(state);
                 break;
-            case PhantoonAiFunction.AlmostDead:
+            case PhantoonPhase.AlmostDead:
                 Death.ClearPhantoonDeathGraphics(body, state);
                 break;
-            case PhantoonAiFunction.Dead:
+            case PhantoonPhase.Dead:
                 Death.ActivateWreckedShipAfterPhantoon(body, state);
                 break;
-            case PhantoonAiFunction.NoOperation:
+            case PhantoonPhase.NoOperation:
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Phantoon function {state.BodyState.Function} is not translated.");
+                    $"Phantoon function {state.BodyState.Phase} is not translated.");
         }
 
         // This synchronization runs only for the body's invocation, then copies the updated point into the three
         // drawing parts. The almost-dead phase skips the part sync and body-layer scroll entirely on that frame.
-        if (dispatched == PhantoonAiFunction.AlmostDead)
+        if (dispatched == PhantoonPhase.AlmostDead)
             return;
         state.Mouth.Position = state.Mouth.Position.WithWholeX(body.Position.X.Whole);
         state.Tentacles.Position = state.Tentacles.Position.WithWholeX(body.Position.X.Whole);
@@ -379,7 +379,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PhantoonPresentation.StartPhantoonAnimation(state, body, PhantoonPartSegment.EyeHitboxBody);
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         state.BodyState.FunctionTimer = PhantoonTimerDefinitions.VulnerableWindow[_room.Random.Next(PhantoonRandomDefinitions.VulnerableWindowChoice)];
-        state.BodyState.Function = PhantoonAiFunction.EyeTracksSamus;
+        state.BodyState.Phase = PhantoonPhase.EyeTracksSamus;
         PhantoonPresentation.StartPhantoonAnimation(state, state.Eye, PhantoonPartSegment.EyeballCentered);
     }
 

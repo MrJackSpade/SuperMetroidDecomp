@@ -47,7 +47,7 @@ internal static class RidleyMovementTargetsVerification
         Func<RidleyEnemyState, int> readDivisor = NorfairRidleyCombat.ReadRidleyHealthMovementDivisor;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, VerticalDirection> pogo = enemies.RidleyBehavior.Combat.TickNorfairRidleyPogo;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> moveSide = enemies.RidleyBehavior.Combat.TickNorfairRidleyGroundAttackMoveToSide;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyFunction;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyPhase;
         var slot = enemies.SlotTable.Slots[0];
         var state = new RidleyEnemyState();
         // Independent closed form of native inertia from zero velocity: target selection
@@ -84,7 +84,7 @@ internal static class RidleyMovementTargetsVerification
             AssertEqual(Expected(slot.Position.Y.Whole, y, 16), state.Velocity.Y.RawValue, "Carry target drives exact Y acceleration");
             // Setup stores 32 and then falls through into the shared timer decrement.
             AssertEqual(31, state.FunctionTimer, "Carry setup timer");
-            AssertEqual(RidleyAiFunction.NorfairCarryMoveToAnchor, state.Function, "Carry setup phase");
+            AssertEqual(RidleyPhase.NorfairCarryMoveToAnchor, state.Phase, "Carry setup phase");
             AssertEqual(RidleyInertiaDefinitions.LargestDivisor - hover[Math.Min(raw, 3)], readDivisor(state), "Every health word preserves existing divisor clamp");
         }
         foreach (RidleyFacing facing in Enum.GetValues<RidleyFacing>())
@@ -105,7 +105,7 @@ internal static class RidleyMovementTargetsVerification
             moveSide(slot, state, null);
             AssertEqual(Expected(x, ground[(int)facing], 16), state.Velocity.X.RawValue, "Ground side target reaches motion");
             state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
-            state.Function = RidleyAiFunction.NorfairCarryRelease;
+            state.Phase = RidleyPhase.NorfairCarryRelease;
             state.FunctionTimer = 1;
             run(slot, state, null, 0, null);
             AssertEqual(Expected(x, release[(int)facing], 16), state.Velocity.X.RawValue, "Carry release target reaches motion");

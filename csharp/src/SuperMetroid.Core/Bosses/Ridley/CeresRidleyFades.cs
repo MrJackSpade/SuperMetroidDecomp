@@ -31,7 +31,7 @@ internal sealed class CeresRidleyFades
         if (fadeStep.IsComplete)
         {
             state.FadeStep = 0;
-            state.Function = RidleyAiFunction.FadeInBody;
+            state.Phase = RidleyPhase.FadeInBody;
             state.MovementAnimationEnabled = true;
             return;
         }
@@ -61,7 +61,7 @@ internal sealed class CeresRidleyFades
         // five dispatcher calls, then begins the opening-roar animation.
         slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
         state.FadeStep = 0;
-        state.Function = RidleyAiFunction.WaitBeforeRoar;
+        state.Phase = RidleyPhase.WaitBeforeRoar;
         state.FunctionTimer = 4;
         // The fade queues the set's first song immediately after the final body shade.
         // This is the Ceres battle/escape track; it intentionally continues after Ridley

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
-/// <summary>Botwoon's head and attack callback: what his head does each update. Members start at one, as for <see cref="BotwoonEnemyFunction"/>.</summary>
+/// <summary>Botwoon's head and attack callback: what his head does each update. Members start at one, as for <see cref="BotwoonPhase"/>.</summary>
 public enum BotwoonHeadFunction
 {
     /// <summary>Derives orientation from delayed head positions and selects hidden/tangible drawing according to hole state.</summary>

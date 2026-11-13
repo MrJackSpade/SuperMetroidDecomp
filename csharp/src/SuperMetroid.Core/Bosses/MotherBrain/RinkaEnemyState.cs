@@ -12,7 +12,7 @@ public sealed class RinkaEnemyState
     /// Behaviour dispatched by main AI, changed by initialization, the fire step, aim completion, or the special death
     /// tail.
     /// </summary>
-    public RinkaEnemyFunction? Function { get; internal set; }
+    public RinkaAction? Action { get; internal set; }
 
     /// <summary>Signed 8.8 velocity: X produced by the sine multiply, Y by the cosine multiply.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }

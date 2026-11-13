@@ -98,7 +98,7 @@ internal static class BotwoonAnimationsVerification
                 movingState, $"AI-selected moving octant {octant}");
 
             (RoomEnemySystem spitEnemies, RoomEnemySlot spitHead, BotwoonEnemyState spitState) = NewBotwoonHead();
-            spitState.Function = BotwoonEnemyFunction.SpitWhileHidden;
+            spitState.Phase = BotwoonPhase.SpitWhileHidden;
             spitHead.Position = spitHead.Position.WithWhole(new(1000, 1000));
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
             {

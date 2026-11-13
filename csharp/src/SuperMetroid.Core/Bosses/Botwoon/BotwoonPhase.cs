@@ -1,10 +1,9 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>
-/// Botwoon's main function: the phase of the fight he runs each update. Each member names what that phase of the fight
-/// does. Members start at one so a cleared function is never mistaken for a phase.
+/// The phase of Botwoon's fight he runs each update. Each member names what that phase of the fight does.
 /// </summary>
-public enum BotwoonEnemyFunction
+public enum BotwoonPhase
 {
     /// <summary>Decrements the 256-update opening delay and selects hole traversal when it reaches zero.</summary>
     InitialDelay = 1,

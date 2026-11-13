@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's fight-AI function: what his fight does each time his body animation's fight cue fires. Its values are
+/// The phase of Crocomire's fight: what his fight does each time his body animation's fight cue fires. Its values are
 /// arbitrary; nothing reads or orders them.
 /// </summary>
-public enum CrocomireFightFunction
+public enum CrocomirePhase
 {
     /// <summary>Restarts the initial animation with timer one.</summary>
     ResetAnimation,
@@ -46,8 +46,8 @@ public enum CrocomireFightFunction
     MoveClawsUnused,
     /// <summary>Unused: adjusts attack flags and installs a forward step before the moving-claws branch.</summary>
     StepForwardVariantUnused,
-    /// <summary>Unused: consumes claw-contact cycles or restores the saved fight function.</summary>
+    /// <summary>Unused: consumes claw-contact cycles or resumes the saved fight phase.</summary>
     MovingClawsUnused,
-    /// <summary>A function the game never wrote: the unused move-until-Samus branch selects it, and the game would run whatever follows its functions as one. It is rejected.</summary>
+    /// <summary>A phase the game never wrote: the unused move-until-Samus branch selects it, and the game would run whatever follows its phases as one. It is rejected.</summary>
     UnwrittenTableEntry,
 }

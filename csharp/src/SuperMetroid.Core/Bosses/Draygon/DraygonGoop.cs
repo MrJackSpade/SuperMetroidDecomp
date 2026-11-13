@@ -54,9 +54,9 @@ internal sealed class DraygonGoop
         // Retail's leftward setup briefly requests the right-facing apex arm animation before
         // the body's reset cue replaces all four animations. Preserve the literal write.
         _parts.StartDraygonAnimation(state.Arms, DraygonSegment.ArmsFacingRightNearSwoopApex);
-        state.Function = direction == HorizontalDirection.Right
-            ? DraygonAiFunction.GoopRight
-            : DraygonAiFunction.GoopLeft;
+        state.Phase = direction == HorizontalDirection.Right
+            ? DraygonPhase.GoopRight
+            : DraygonPhase.GoopLeft;
         _parts.StartDraygonAnimation(
             body,
             direction == HorizontalDirection.Right
@@ -79,9 +79,9 @@ internal sealed class DraygonGoop
 
         if (CoordinateAxis.Distance(state.Body.Position.X.Whole, samus.Position.X.Whole) < 208)
         {
-            state.Function = direction == HorizontalDirection.Right
-                ? DraygonAiFunction.GoopRightTail
-                : DraygonAiFunction.GoopLeftTail;
+            state.Phase = direction == HorizontalDirection.Right
+                ? DraygonPhase.GoopRightTail
+                : DraygonPhase.GoopLeftTail;
             state.GoopCounter = 16;
             return;
         }
@@ -100,7 +100,7 @@ internal sealed class DraygonGoop
             _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         if (samus?.XSpeedDivisor != 0)
         {
-            state.Function = DraygonAiFunction.TryGrabSamus;
+            state.Phase = DraygonPhase.TryGrabSamus;
             return;
         }
 
@@ -135,9 +135,9 @@ internal sealed class DraygonGoop
             movingRight
                 ? DraygonSegment.ArmsFacingRightIdle
                 : DraygonSegment.ArmsFacingLeftIdle);
-        state.Function = movingRight
-            ? DraygonAiFunction.GoopRightRecovery
-            : DraygonAiFunction.GoopLeftRecovery;
+        state.Phase = movingRight
+            ? DraygonPhase.GoopRightRecovery
+            : DraygonPhase.GoopLeftRecovery;
     }
 
     /// <summary>Runs the final off-screen movement.</summary>
@@ -150,7 +150,7 @@ internal sealed class DraygonGoop
         // Only the leftward recovery rechecks whether Samus became gooped after firing.
         if (direction != HorizontalDirection.Right && samus?.XSpeedDivisor != 0)
         {
-            state.Function = DraygonAiFunction.TryGrabSamus;
+            state.Phase = DraygonPhase.TryGrabSamus;
             return;
         }
 
@@ -165,12 +165,12 @@ internal sealed class DraygonGoop
         state.SwoopEntry = DraygonSwoops.PathOf(state).EntryCount;
         if (direction == HorizontalDirection.Right)
         {
-            state.Function = DraygonAiFunction.SwoopLeftSetup;
+            state.Phase = DraygonPhase.SwoopLeftSetup;
             state.Body.Position = state.Body.Position.WithWholeX(592);
         }
         else
         {
-            state.Function = DraygonAiFunction.SwoopRightSetup;
+            state.Phase = DraygonPhase.SwoopRightSetup;
             state.Body.Position = state.Body.Position.WithWholeX(DraygonBehavior.DraygonOffscreenLeftX);
         }
         state.Body.Position = state.Body.Position.WithWholeY(DraygonBehavior.DraygonOffscreenLeftX);

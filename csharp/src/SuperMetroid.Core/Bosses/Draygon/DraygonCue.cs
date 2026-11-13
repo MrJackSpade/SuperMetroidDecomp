@@ -37,8 +37,8 @@ internal abstract record DraygonCue
         internal static SetBodyIntangible Instance { get; } = new();
     }
 
-    /// <summary>Gives the body a new AI function.</summary>
-    internal sealed record SetBodyFunction(DraygonAiFunction Function) : DraygonCue;
+    /// <summary>Gives the body a new phase.</summary>
+    internal sealed record SetBodyPhase(DraygonPhase Phase) : DraygonCue;
 
     /// <summary>Applies a tail whip's hit to a grabbed Samus.</summary>
     internal sealed record TailWhipHit : DraygonCue

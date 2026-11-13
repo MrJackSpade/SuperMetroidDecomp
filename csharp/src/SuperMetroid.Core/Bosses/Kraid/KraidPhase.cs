@@ -1,15 +1,14 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Kraid's part functions, held in each part's function and its next-function alias. Each
-/// member names the behaviour it runs; the part stores the member. Members are
-/// declared in the game's authored order, which Kraid's death tests compare, and start at one.
+/// The phase each of Kraid's parts runs, held in each part's phase and the phase it resumes after its timer. Each
+/// member names the behaviour it runs; the part stores the member.
 /// </summary>
-public enum KraidAiFunction
+public enum KraidPhase
 {
-    /// <summary>A cleared record holds no function.</summary>
+    /// <summary>A cleared part is in no phase.</summary>
     None = 0,
-    /// <summary>An explicit no-op function retaining the part slot.</summary>
+    /// <summary>An explicit no-op phase retaining the part slot.</summary>
     NoOperation = 1,
     /// <summary>Breaks ceiling platforms into their authored room mutations as Kraid grows.</summary>
     GrowBreakCeilingPlatforms,
@@ -45,7 +44,7 @@ public enum KraidAiFunction
     FingernailWaitForLint,
     /// <summary>Horizontally aligns the current physical part to Kraid's body.</summary>
     AlignPartToKraid,
-    /// <summary>Decrements the current part's function timer and installs its saved next function on expiry.</summary>
+    /// <summary>Decrements the current part's function timer and resumes its saved phase on expiry.</summary>
     HandleFunctionTimer,
     /// <summary>The first-phase foot's start-retreat timer entry.</summary>
     DecrementFunctionTimerAndStartWalk,

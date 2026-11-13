@@ -1710,7 +1710,7 @@ internal static class LookupStream4Verification
                 // The initializer shows his opening's colours: the shading he publishes, laid in the import's shades (#1512).
                 LayDraygonShading(actual, selected, (enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).Colours);
                 for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0,actual.Colors[color],"Actual initializer shows only his opening's colours");
-                AssertEqual(DraygonAiFunction.IntroInitialDelay,(enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).Function,"Actual initializer phase");
+                AssertEqual(DraygonPhase.IntroInitialDelay,(enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).Phase,"Actual initializer phase");
             }
         }
         foreach(int invalid in new[]{-1,25,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>stock.ResolveIntro(invalid),"Original intro domain");
@@ -1959,7 +1959,7 @@ internal static class LookupStream4Verification
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0]; slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
                 new Action<RoomEnemySlot>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(slot);
                 RidleyEnemyState state = (enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires enemies.RidleyEncounter.Ridley."));
-                state.Function = RidleyAiFunction.WaitBeforeLiftoff; state.FunctionTimer = 0;
+                state.Phase = RidleyPhase.WaitBeforeLiftoff; state.FunctionTimer = 0;
                 var liquid = new RoomFxOverlayState(new RoomFxSession());
                 enemies.RoomFx.BindRoomFx(liquid);
                 Action<RoomEnemySlot, RidleyEnemyState> tick = enemies.RidleyBehavior.Combat.TickNorfairRidleyArenaReveal;
@@ -1976,7 +1976,7 @@ internal static class LookupStream4Verification
                             : color is 127 or >= 241 ? (ushort)0 : (ushort)0x1234,
                             cgram[color], "Actual producer preserves full CGRAM and held rows");
                 }
-                AssertEqual(RidleyAiFunction.ClearVelocity, state.Function, "Native terminator handoff");
+                AssertEqual(RidleyPhase.ClearVelocity, state.Phase, "Native terminator handoff");
                 AssertEqual<int?>(RidleyLiquidDefinitions.BattleHeight, liquid.TargetSurface, "Native liquid target handoff");
                 AssertEqual(8, state.WingAnimationTimer, "Native wing timer handoff");
                 AssertTrue(state.TailSegments.All(segment => segment.Active), "Native tail activation handoff");

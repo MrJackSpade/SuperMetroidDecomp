@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <summary>
 /// What the equipment toggle does to play when it lands on the first reserve row (#1505): moving into the reserve
 /// column with A pressed on the same frame toggles through the reserve category's empty equipment tables, which repaint
-/// a run of projectile words as if they were label cells. Of those words only the last bomb slot's whole vertical
+/// a run of projectile values as if they were label cells. Of those values only the last bomb slot's whole vertical
 /// speed is read by play: a bomb from a charged bomb spread in that slot resumes, after the pause, with its whole
 /// speed's palette field set to the disabled-label palette. No equipment changes.
 /// </summary>

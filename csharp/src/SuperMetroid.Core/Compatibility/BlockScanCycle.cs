@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// How Samus's block scans, the enemies' terrain movers and the enemy projectiles' block scans number the rows and columns
 /// they look up (#1552, #1593, #1628): each
 /// lookup holds the row it starts from within a cycle of 256, so a row past the 256th, or one above the room's top whose
-/// number continued from the bottom of the cycle, addresses a row counted from the top of the room again. The scan then
+/// number continued from the bottom of the cycle, names a row counted from the top of the room again. The scan then
 /// counts the blocks it steps through within a cycle of 32768, so one that runs past it continues from the room's first
 /// block. The blocks a lookup finds there are the ones the scan reacts to, reveals, swings against or collides with. The
 /// rooms are authored inside both cycles, so they are observed only at a room's edges and by lookups that run past them.

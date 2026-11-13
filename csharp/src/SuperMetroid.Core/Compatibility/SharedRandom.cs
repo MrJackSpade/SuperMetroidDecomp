@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <summary>
 /// The game's shared random sequence: one per game session, shared by the frontend, every gameplay runtime and every
 /// random consumer, so each draw advances the sequence every later consumer observes, including the draws effect work
-/// makes. Its advance and sixteen-bit state are the original's exactly (<see cref="SharedRandomState"/>), because which
+/// makes. Its advance and sixteen-bit state are the game's exactly (<see cref="SharedRandomState"/>), because which
 /// value each consumer draws, and in which order, is gameplay-observable.
 /// </summary>
 /// <remarks>
@@ -53,6 +53,6 @@ public sealed class SharedRandom
     /// <summary>Stores the power-on seed, as a reset does.</summary>
     internal void SeedPowerOn() => State = SharedRandomDefinitions.PowerOnState;
 
-    /// <summary>Stores the state with its two bytes exchanged, as the lava and acid FX routine does.</summary>
+    /// <summary>Stores the state with its two halves exchanged, as the lava and acid effect does.</summary>
     internal void SwapHalves() => State = State.WithHalvesSwapped();
 }

@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// <para>
 /// Gameplay behaviour reproduced: the ghost's colours are darkened to black when it initializes; each brightening step
-/// raises every colour whose red is below full by one level in each channel, carrying a channel that passes full into the
-/// next (red into green, green into blue, blue's carry lost), and the brightening ends on the first step that changes no
+/// raises every colour whose red is below full by one level in each channel, a channel that passes full overflowing into the
+/// next (red into green, green into blue, blue's overflow lost), and the brightening ends on the first step that changes no
 /// colour; each fade step moves every channel of every colour one level toward the fade's target, the ghost's own colours
 /// as it materializes or white as it vanishes, and the fade ends on the first step that moves no channel. All sixteen
 /// colours take part, colour zero too, which no picture draws, so how many steps each takes and when each ends are decided
@@ -169,8 +169,8 @@ public readonly struct WreckedShipGhostFade
     private static ImmutableArray<FadeLevelColour> Black() => [.. Enumerable.Repeat(FadeLevelColour.Of(RgbColor.Black), ColourCount)];
 
     /// <summary>
-    /// <paramref name="colour"/> one level brighter in each channel, a channel passing full wrapping to zero and carrying
-    /// one level into the next, the last channel's carry lost.
+    /// <paramref name="colour"/> one level brighter in each channel, a channel passing full wrapping to zero and adding
+    /// one level to the next, the last channel's overflow lost.
     /// </summary>
     private static FadeLevelColour RaisedOneLevel(FadeLevelColour colour)
     {

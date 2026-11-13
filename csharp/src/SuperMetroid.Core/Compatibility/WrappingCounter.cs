@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// Counters that wrap at the top or bottom of their range instead of stopping there, as every counter of the original
+/// Counters that wrap at the top or bottom of their range instead of stopping there, as every counter of the
 /// game does: a count of 0 through 65535 stepped below zero continues from 65535, and one stepped past 65535 continues
 /// from zero; a count of 0 through 255 wraps the same way at 255.
 /// <para>
@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Compatibility;
 [EncodingOwner("wrapping and saturating word counters")]
 public static class WrappingCounter
 {
-    /// <summary>The largest count a wrapping word holds: a count stepped past it continues from zero.</summary>
+    /// <summary>The largest count a wrapping counter holds: a count stepped past it continues from zero.</summary>
     public const int LargestCount = ushort.MaxValue;
 
     /// <summary>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// How many frames the frame counter advances while a door's new music loads. The original program loaded music by
+/// How many frames the frame counter advances while a door's new music loads. The game loaded music by
 /// stalling its main loop; frames kept being counted and the controller kept being read during the stall, although no
 /// gameplay update ran. Those counts are gameplay state: their parity selects, for example, the order in which a bomb's
 /// explosion scans the blocks around it. The game itself loads instantly (<see cref="InstantDoorMusicLoad"/>); a replay

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <summary>
 /// How far the opening cinematic's egg-shell fragments fall on the updates after their authored gravity curve ends (#1500).
 /// Each fragment falls by the curve's step for the number of updates it has fallen until it reaches the floor; the curve
-/// has 38 steps, and the two fragments that start highest are still airborne after them, so the original game reads
+/// has 38 steps, and the two fragments that start highest are still airborne after them, so the game reads
 /// their next three steps from the data that follows the curve. Those steps decide where the two fragments are drawn on
 /// their last updates and when they land. The import pipeline decodes the three steps once from the player's game data.
 /// </summary>

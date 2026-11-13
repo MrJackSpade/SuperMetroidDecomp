@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// How the enemies' short circle product places a point at a radius along a turn (#1607): the radius counts only its
 /// place within 256, so a radius of 256 or more continues from zero, and a point in the turn's second half is reversed by
 /// negating its whole pixels and its fraction each on their own, so a reversed point with a fraction lies one pixel further
-/// along the original direction than a true reversal. Fireflea circles, Ki-Hunter swoops, Nuclear Waffle orbits and Evir
-/// spit therefore move along exactly the original's points. Phantoon's circling flames keep only the radius rule: their
+/// along the unreversed direction than a true reversal. Fireflea circles, Ki-Hunter swoops, Nuclear Waffle orbits and Evir
+/// spit therefore move along exactly the game's points. Phantoon's circling flames keep only the radius rule: their
 /// radius grows past 255 as a plain count (#1627), and their own product negates its whole result.
 /// </summary>
 /// <remarks>

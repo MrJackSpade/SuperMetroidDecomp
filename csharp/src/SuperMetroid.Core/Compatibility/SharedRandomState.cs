@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// The value of the game's shared random sequence: one sixteen-bit value every random consumer draws from. Advancing it
 /// and exchanging its two bytes are its only operations; a sample is the state read as an int, and the game often draws
 /// two independent random bytes from one sample, one per axis or choice. Which value each consumer draws is
-/// gameplay-observable, so the advance is the original's exactly.
+/// gameplay-observable, so the advance is the game's exactly.
 /// </summary>
 /// <remarks>
 /// Held by the session's <see cref="SharedRandom"/>, which advances it whenever a consumer draws. Evidence: the original's
@@ -59,7 +59,7 @@ public readonly record struct SharedRandomState
         return new SharedRandomState((raised + Increment + pastSixteenBits) % StateSpan);
     }
 
-    /// <summary>The state with its two bytes exchanged, as the lava and acid FX routine stores it back.</summary>
+    /// <summary>The state with its two bytes exchanged, as the lava and acid effect stores it back.</summary>
     public SharedRandomState WithHalvesSwapped() =>
         new(LowerHalf(Value) << HalfBits | UpperHalf(Value));
 

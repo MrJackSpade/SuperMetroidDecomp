@@ -958,9 +958,10 @@ internal sealed class RoomLoader
             Earthquake = roomObjectServices,
             Enemies = roomObjectServices,
         };
-        // Each room's room objects get their own collectible block pairs: the room's first collectible that shows its own
-        // picture takes the first pair.
-        var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, _shotBlockVisuals, new CollectibleBlockPairs());
+        // Each room's room objects get their own collectible block pairs, the room's first collectible that shows its own
+        // picture taking the first pair, and their own places, every one free.
+        var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, _shotBlockVisuals, new CollectibleBlockPairs(),
+            new RoomObjectPlaces());
         scope.RoomObjects = roomObjects;
         roomObjects.Sounds.BindPowerBombAudio(bombs.PowerBombExplosion.Activity);
         var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, roomObjects, _display, progress);

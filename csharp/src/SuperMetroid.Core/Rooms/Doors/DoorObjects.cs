@@ -71,7 +71,7 @@ internal sealed class DoorObjects
         if (DoorClosingObjects.GetDefinition(door.Orientation) is not { } fallback)
             return false;
 
-        if (_slotTable.SpawnRoomObject() is not { } slot)
+        if (_slotTable.Spawn() is not { } slot)
             return false;
 
         slot.Header = fallback.Header;
@@ -199,7 +199,7 @@ internal sealed class DoorObjects
                 "A validated blue-door facing escaped its four-way header table."),
         };
 
-        if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
+        if (_slotTable.Spawn() is not { } slot)
             return false;
 
         slot.Header = blueDoorHeader;

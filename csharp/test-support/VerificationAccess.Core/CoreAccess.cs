@@ -343,7 +343,7 @@ internal static class CoreAccess
         /// </summary>
         internal bool ScrollObjectTriggered(Position16<RoomBlocks> block)
         {
-            ScrollTriggerObject[] owners = [.. roomObjects.SlotTable.Slots
+            ScrollTriggerObject[] owners = [.. roomObjects.SlotTable.InProcessingOrder
                 .Where(slot => slot.Active && slot.Block == block)
                 .Select(slot => slot.Behaviour)
                 .OfType<ScrollTriggerObject>()];
@@ -391,9 +391,9 @@ internal static class CoreAccess
     }
 
 
-    /// <summary>Visits occupied PLM slots by ordinal.</summary>
+    /// <summary>The room's occupied places, the last in update order first, as the checks have always listed them.</summary>
     private static IEnumerable<RoomObjectSlot> Group4ActiveObjectSlots(RoomObjectSystem roomObjects) =>
-        roomObjects.SlotTable.Slots.Where(slot => slot.Active);
+        roomObjects.SlotTable.FromLastPlace.Where(slot => slot.Active);
 
     /// <summary>Extracts live collectible state from the active PLM slots.</summary>
     private static IEnumerable<CollectibleObject> Group4CollectibleItems(RoomObjectSystem roomObjects) =>

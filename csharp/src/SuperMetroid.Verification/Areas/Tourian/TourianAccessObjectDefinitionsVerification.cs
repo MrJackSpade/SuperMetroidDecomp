@@ -36,7 +36,6 @@ internal static class TourianAccessObjectDefinitionsVerification
             AssertEqual(1, roomObjects.SlotTable.ActiveCount, "Tourian access spawn occupies one PLM slot");
             RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
             AssertEqual(0, slot.ProcessingPosition, "Tourian access takes the first free slot in processing order");
-            AssertEqual(definition.Header, slot.HeaderPointer, "Tourian access header identity");
             AssertEqual(new Position16<RoomBlocks>(6, 12), slot.Block, "Tourian access fixed block coordinate");
             AssertTrue(slot.Behaviour is TerrainChangeObject { Change: var change } && change == definition.Change,
                 "Tourian access starts its terrain change");

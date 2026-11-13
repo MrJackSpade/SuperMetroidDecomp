@@ -105,8 +105,8 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
         public bool IsDefeated(BossBits bits) => throw Missing($"read the area {bits} flag");
         /// <summary>Fails when boss status is written without an installed area-boss service.</summary>
         public void SetDefeated(BossBits bits) => throw Missing($"set the area {bits} flag");
-        /// <summary>Fails when AI inspects room PLM population without an installed presence service.</summary>
-        public bool HasActiveHeader(RoomObjectHeaderId header) => throw Missing("query the active room PLM population");
+        /// <summary>Fails when AI asks after the statue's hand without an installed room-object service.</summary>
+        public bool BombTorizoHandRemains => throw Missing("ask whether the statue's hand still stands");
         /// <summary>Fails when AI reads scroll-zone state without an installed room-scroll service.</summary>
         public RoomScrollState Read(int index) => throw Missing("read a room scroll state");
         /// <summary>Fails when AI changes a scroll zone without an installed room-scroll service.</summary>

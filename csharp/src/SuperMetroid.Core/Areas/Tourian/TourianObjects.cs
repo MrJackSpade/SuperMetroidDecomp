@@ -13,7 +13,7 @@ internal sealed class TourianObjects
     private readonly IRoomSamusAccess? _samus;
     /// <summary>The enemy effects room objects trigger.</summary>
     private readonly IRoomObjectEnemyEffects? _enemies;
-    /// <summary>Forty-slot room-object table scanned from the final slot during hardcoded spawns.</summary>
+    /// <summary>The room's room objects, which the fake wall and the access floor's change join.</summary>
     private readonly RoomObjectSlotTable _slotTable;
 
     /// <summary>Binds Tourian room callbacks to the active room's services and room-object slots.</summary>
@@ -38,29 +38,28 @@ internal sealed class TourianObjects
     /// Runs the room setup that spawns the fake wall at block (16,135), whose setup clears the block's collision before
     /// the wall's first update.
     /// </summary>
-    /// <returns>False only when all 40 room-object slots are occupied.</returns>
+    /// <returns>False when the room is full; nothing is spawned then (<see cref="Compatibility.RoomObjectPlaces"/>).</returns>
     public bool TrySpawnOldTourianEscapeShaftWall(RoomLevelData level)
     {
         Ensure.NotNull(level);
         Position16<RoomBlocks> block = level.GridBlock(
             new(OldTourianEscapeShaftWallObjectDefinitions.BlockX, OldTourianEscapeShaftWallObjectDefinitions.BlockY));
-        if (_slotTable.SpawnHardcoded() is not { } slot)
+        if (_slotTable.Spawn() is not { } slot)
             return false;
 
         slot.Block = block;
-        slot.Header = RoomObjectHeaderId.OldTourianEscapeShaftFakeWall;
         DoorObjects.SetupDoorTransitionDeactivatedSlot(level, slot);
         slot.Become(new OldTourianWallObject(_samus, _enemies));
         return true;
     }
     /// <summary>Spawns the clear or crumble of the access floor at block (6,12).</summary>
+    /// <returns>False when the room is full; nothing is spawned then (<see cref="Compatibility.RoomObjectPlaces"/>).</returns>
     public bool TrySpawnTourianAccess(RoomLevelData level, TourianAccessFloor floor)
     {
         TourianAccessObjectDefinition definition = TourianAccessFloors.ForState(floor);
-        if (_slotTable.SpawnHardcoded() is not { } slot)
+        if (_slotTable.Spawn() is not { } slot)
             return false;
 
-        slot.Header = definition.Header;
         slot.Block = level.GridBlock(new(6, 12));
         slot.Become(new TerrainChangeObject(definition.Change));
         return true;

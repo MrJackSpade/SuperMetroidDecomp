@@ -297,7 +297,7 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
     {
         if (Game.RuntimeForVerification?.Room.Scope is not { } scope)
             return string.Empty;
-        string[] objects = [.. scope.RoomObjects.SlotTable.Slots.Where(static slot => slot.Active)
+        string[] objects = [.. scope.RoomObjects.SlotTable.InProcessingOrder.Where(static slot => slot.Active)
             .Select(slot => $"{slot.Header} at {slot.Block} ({slot.Behaviour?.GetType().Name ?? "no behaviour"}; terrain now " +
                 $"{scope.LevelData.GetCollisionBlock(slot.Block)}; restores {slot.RestoreTerrain?.ToString() ?? "nothing"})")];
         return $" in room state {scope.Room.State.Name}; active room objects: {(objects.Length == 0 ? "none" : string.Join(", ", objects))}";

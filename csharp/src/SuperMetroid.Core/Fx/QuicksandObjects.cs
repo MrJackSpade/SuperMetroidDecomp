@@ -36,7 +36,7 @@ internal sealed class QuicksandObjects
         QuicksandReactionDefinition definition =
             QuicksandReactions.ResolveReaction(header);
 
-        if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
+        if (_slotTable.Spawn() is not { } slot)
             return false;
 
         slot.Header = header;

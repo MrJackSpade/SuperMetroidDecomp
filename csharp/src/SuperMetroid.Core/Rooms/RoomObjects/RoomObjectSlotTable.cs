@@ -1,104 +1,70 @@
-﻿namespace SuperMetroid.Core.Rooms.RoomObjects;
+﻿using SuperMetroid.Core.Compatibility;
+
+namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The room's object update order: the places its room objects hold, and the three spawn operations, the only way a
-/// place is taken.
+/// The room's room objects, each at the place it holds in the room's update order, and the spawn, the only way a place
+/// is taken. Which place a spawn takes, the order the places update in and the loss of a spawn into a full room are the
+/// room's <see cref="RoomObjectPlaces"/> (#1622); this list holds what each place holds.
 /// </summary>
-/// <remarks>
-/// <para>
-/// The update-order rule (#1554). The room holds at most <see cref="Capacity"/> objects, each at a fixed place. Every
-/// pass over them runs in one order, the update order: the room-object update, every search for the object that owns
-/// a block, and every spawn's search for a free place. A spawn takes the first free place in that order, so in a room
-/// where nothing has been removed the objects update in the order they were spawned, and a spawn after a removal takes
-/// the removed object's place.
-/// </para>
-/// <para>
-/// The rule is kept because the game observes it. A room population's records spawn in authored order and update in
-/// it, and a record whose setup removes its object at once (every scroll extension) leaves its place to the next
-/// record. A spawn made during the room-object update into a place the update has still to reach runs on that same
-/// update, and into one it has passed, on the next. Two requests made in one update, such as the pair of mural rows
-/// Mother Brain's ascent asks for, update in the order of the places they took. A search for the object at a block
-/// (a gate's trigger finding its gate, a touch finding its station) takes the first match in the order. Nothing else
-/// about the places is part of the game.
-/// </para>
-/// <para>
-/// The full-room rule (#1608). A full room drops a spawn: a gate trigger's shot, a Speed Booster block's contact and a
-/// boss's terrain change are lost then, as the original game loses them. The rule is kept because a boss room can be
-/// full when a boss spawns its change. The room's own population and the boss's concurrently live changes stay far
-/// below <see cref="Capacity"/>, but the room's occupancy is not bounded by them: every block reaction Samus starts
-/// (a bombed, shot, crumbled or Speed Booster block, a sand contact) holds a place until its own updates end it, and
-/// while room-object updates are suspended (X-Ray, and G-Mode, which keeps them suspended across a door into the
-/// next room while enemies, bosses among them, keep running) none of those places is ever released. Repeated
-/// reactions then fill the room, and a boss that mutates its room meanwhile finds no free place.
-/// </para>
-/// </remarks>
 internal sealed class RoomObjectSlotTable
 {
-    /// <summary>How many room objects the room can hold at once; a spawn into a full table fails.</summary>
-    internal const int Capacity = 40;
+    /// <summary>The room's places, which say which hold an object and which a spawn takes.</summary>
+    private readonly RoomObjectPlaces _places;
 
-    /// <summary>The slots by ordinal; each slot object keeps its identity for the table's lifetime.</summary>
-    private readonly RoomObjectSlot[] _slots = Enumerable
-        .Range(0, Capacity)
-        .Select(_ => new RoomObjectSlot())
-        .ToArray();
+    /// <summary>What each place holds, in update order; each keeps its identity for the room's lifetime.</summary>
+    private readonly RoomObjectSlot[] _slots;
 
-    /// <summary>The slots by ordinal, 0 through <see cref="Capacity"/> - 1.</summary>
-    internal IReadOnlyList<RoomObjectSlot> Slots => _slots;
+    /// <summary>Creates the room's empty room-object list over the room's places.</summary>
+    /// <param name="places">The room's places, created with the room.</param>
+    internal RoomObjectSlotTable(RoomObjectPlaces places)
+    {
+        _places = Ensure.NotNull(places);
+        _slots = [.. Enumerable.Range(0, RoomObjectPlaces.PlaceCount).Select(place => new RoomObjectSlot(places, place))];
+    }
 
-    /// <summary>The slots in processing order, highest ordinal first, including free ones.</summary>
-    internal IEnumerable<RoomObjectSlot> InProcessingOrder
+    /// <summary>
+    /// Every place in update order, the place the room-object update reaches first leading, free ones included: the order
+    /// the update runs in, and the order a door or a gate trigger searches for the object at a block.
+    /// </summary>
+    internal IReadOnlyList<RoomObjectSlot> InProcessingOrder => _slots;
+
+    /// <summary>
+    /// Every place from the last the update reaches back to the first, free ones included: the order a touch or a shot
+    /// searches for the collectible, station or scroll trigger at its block, and the room's other searches for a
+    /// collectible or a station, run in.
+    /// </summary>
+    internal IEnumerable<RoomObjectSlot> FromLastPlace
     {
         get
         {
-            for (int ordinal = _slots.Length - 1; ordinal >= 0; ordinal--)
-                yield return _slots[ordinal];
+            for (int place = _slots.Length - 1; place >= 0; place--)
+                yield return _slots[place];
         }
     }
 
-    /// <summary>Whether every slot is occupied, so every spawn fails.</summary>
-    internal bool IsFull => ActiveCount == Capacity;
+    /// <summary>Whether every place holds an object, so every spawn is lost.</summary>
+    internal bool IsFull => _places.IsFull;
+
+    /// <summary>How many places hold an object.</summary>
+    public int ActiveCount => _places.HeldCount;
 
     /// <summary>
-    /// A room object spawned by a fixed game event: claims the first free slot in processing order, or returns null when the
-    /// table is full, in which case no setup runs.
+    /// Spawns a room object: takes the first free place in update order, emptied for the object's setup, or returns null
+    /// when the room is full, in which case no setup runs.
     /// </summary>
-    internal RoomObjectSlot? SpawnHardcoded() => ClaimFirstFree();
-
-    /// <summary>
-    /// A room object placed by room population or by the door-closing room object: claims the first free slot in processing order, or
-    /// returns null when the table is full, in which case no setup runs.
-    /// </summary>
-    internal RoomObjectSlot? SpawnRoomObject() => ClaimFirstFree();
-
-    /// <summary>
-    /// A room object spawned by a block reaction at the reacting block: claims the first free slot in processing order, or
-    /// returns null when the table is full, in which case no setup runs.
-    /// </summary>
-    internal RoomObjectSlot? SpawnAtCurrentBlock() => ClaimFirstFree();
-
-    /// <summary>The shared search of all three spawns: the first free slot in processing order is claimed.</summary>
-    private RoomObjectSlot? ClaimFirstFree()
+    internal RoomObjectSlot? Spawn()
     {
-        foreach (RoomObjectSlot slot in InProcessingOrder)
-        {
-            if (slot.Active)
-                continue;
-            slot.Claim();
-            return slot;
-        }
-        return null;
+        if (_places.Take() is not { } place)
+            return null;
+        RoomObjectSlot slot = _slots[place];
+        slot.Claim();
+        return slot;
     }
 
-    /// <summary>Number of occupied slots.</summary>
-    public int ActiveCount
-    {
-        get
-        {
-            int count = 0;
-            foreach (RoomObjectSlot slot in _slots)
-                if (slot.Active) count++;
-            return count;
-        }
-    }
+    /// <summary>The spawn, under the name the boss terrain changes and the Shaktool controller call it by.</summary>
+    internal RoomObjectSlot? SpawnHardcoded() => Spawn();
+
+    /// <summary>The spawn, under the name the critters' rescue wall and the enemy-broken blocks call it by.</summary>
+    internal RoomObjectSlot? SpawnAtCurrentBlock() => Spawn();
 }

@@ -84,5 +84,5 @@ internal sealed class RoomEnemyRuntimeServices(
             .Draw(frame);
 
     /// <summary>Checks whether a requested Bomb Torizo hand room-object header remains active.</summary>
-    public bool HasActiveHeader(RoomObjectHeaderId header) => roomObjects.BombTorizoHand.HasActiveHeader(header);
+    public bool BombTorizoHandRemains => roomObjects.BombTorizoHand.HandRemains;
 }

@@ -47,7 +47,7 @@ internal static class BombTorizoHandVerification
         var roomObjects = RoomObjectFixtures.Unbound();
         AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Crateria), RoomObjectPopulationImporter.Read(guarded, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "undefeated Bomb Torizo hand occupies PLM slot");
-        AssertTrue(roomObjects.BombTorizoHand.HasActiveHeader(RoomObjectHeaderId.BombTorizoHand),
+        AssertTrue(roomObjects.BombTorizoHand.HandRemains,
             "enemy header scan sees live Bomb Torizo hand");
 
         // First pass draws the closed hand; second installs D33B and reaches sleep. Many
@@ -64,14 +64,14 @@ internal static class BombTorizoHandVerification
         roomObjects.Step(level);
         for (int frame = 0; frame < 180; frame++)
             roomObjects.Step(level);
-        AssertTrue(roomObjects.BombTorizoHand.HasActiveHeader(RoomObjectHeaderId.BombTorizoHand),
+        AssertTrue(roomObjects.BombTorizoHand.HandRemains,
             "hand remains resident while Samus lacks Bombs");
         AssertEqual(0, roomObjects.BombTorizoHand.BombTorizoStatueProjectileRequests.Count,
             "sleeping hand drops no premature fragment");
 
         samus.CollectedItems |= SamusEquipmentFlags.Bombs;
         roomObjects.Step(level); // D33B skips sleep, starts 120-frame wait.
-        AssertTrue(roomObjects.BombTorizoHand.HasActiveHeader(RoomObjectHeaderId.BombTorizoHand),
+        AssertTrue(roomObjects.BombTorizoHand.HandRemains,
             "Bombs wake starts authored delay without deleting hand");
 
         for (int frame = 0; frame < 119; frame++)
@@ -81,7 +81,7 @@ internal static class BombTorizoHandVerification
         roomObjects.Step(level);
         var fragments = new List<int>();
         int firstFragmentFrame = 0;
-        for (int frame = 1; frame <= 400 && roomObjects.BombTorizoHand.HasActiveHeader(RoomObjectHeaderId.BombTorizoHand); frame++)
+        for (int frame = 1; frame <= 400 && roomObjects.BombTorizoHand.HandRemains; frame++)
         {
             roomObjects.Step(level);
             if (fragments.Count == 0 && roomObjects.BombTorizoHand.BombTorizoStatueProjectileRequests.Count > 0)
@@ -97,7 +97,7 @@ internal static class BombTorizoHandVerification
             new[] { 0, 1, 2, 3, 4, 5, 6, 7 },
             fragments,
             "hand fragments preserve cartridge order");
-        AssertTrue(!roomObjects.BombTorizoHand.HasActiveHeader(RoomObjectHeaderId.BombTorizoHand),
+        AssertTrue(!roomObjects.BombTorizoHand.HandRemains,
             "final delete removes header seen by Torizo AI");
         AssertEqual(RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
             level.GetCollisionBlock(handOrigin).Terrain,
@@ -112,7 +112,7 @@ internal static class BombTorizoHandVerification
         var defeated = RoomObjectFixtures.Unbound();
         AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref defeated, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Crateria), RoomObjectPopulationImporter.Read(guarded, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true } }),
             "single loader still parses defeated hand record before setup deletes it");
-        AssertTrue(!defeated.BombTorizoHand.HasActiveHeader(RoomObjectHeaderId.BombTorizoHand),
+        AssertTrue(!defeated.BombTorizoHand.HandRemains,
             "defeated setup exposes no transient hand header");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "complete hand lifecycle and defeated reload never reread program or draw bytes");

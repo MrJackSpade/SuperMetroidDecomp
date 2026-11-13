@@ -138,9 +138,8 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     public void DrawFloor(CeresFloorAnimationFrame frame) =>
         Loaded("draw over the room's turning floor").DrawFloor(frame);
 
-    /// <summary>Queries the loaded room's active PLM headers.</summary>
-    public bool HasActiveHeader(RoomObjectHeaderId header) =>
-        Loaded("query the active room PLM population").RoomObjects.HasActiveHeader(header);
+    /// <summary>Whether the loaded room's Bomb Torizo statue hand still stands.</summary>
+    public bool BombTorizoHandRemains => Loaded("ask whether the statue's hand still stands").RoomObjects.BombTorizoHandRemains;
 
     /// <summary>Fails at the missing dependency when neither the case nor room loading supplied a service.</summary>
     private IRoomEnemyServices Loaded(string operation) => loaded ?? throw new InvalidOperationException(

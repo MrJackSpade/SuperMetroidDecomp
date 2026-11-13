@@ -67,12 +67,12 @@ internal static class MotherBrainGlassObjectProgramVerification
         for (int shot = 0; shot < 18; shot++)
             roomObjects.MotherBrainGlass.IncrementMotherBrainGlassRoomArgument();
         int emitted = 0;
-        for (int frame = 0; frame < 128 && roomObjects.BombTorizoHand.HasActiveHeader(RoomObjectHeaderId.MotherBrainGlass); frame++)
+        for (int frame = 0; frame < 128 && roomObjects.LiveMotherBrainGlass is not null; frame++)
         {
             roomObjects.Step(level);
             emitted += roomObjects.MotherBrainGlass.MotherBrainGlassProjectileRequests.Count;
         }
-        AssertTrue(eventSet && !roomObjects.BombTorizoHand.HasActiveHeader(RoomObjectHeaderId.MotherBrainGlass),
+        AssertTrue(eventSet && roomObjects.LiveMotherBrainGlass is null,
             $"all glass stages end by setting the event and deleting the PLM; " +
             $"phase={roomObjects.LiveMotherBrainGlass?.Phase}, stage={roomObjects.LiveMotherBrainGlass?.Stage}");
         AssertEqual(40, emitted,

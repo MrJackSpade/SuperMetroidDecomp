@@ -62,7 +62,7 @@ internal sealed class StationObjects
     /// </summary>
     public void ResumeMapStationsAfterUnpause()
     {
-        foreach (RoomObjectSlot slot in _slotTable.Slots)
+        foreach (RoomObjectSlot slot in _slotTable.FromLastPlace)
         {
             // Unpause can arrive before the final access-art hold expires. Keep that
             // remaining animation; only a station waiting for the map returns to idle.
@@ -141,7 +141,7 @@ internal sealed class StationObjects
     /// <summary>Requires exactly one resident save station matching a frontend confirmation event.</summary>
     private StationObject FindSaveStation(StationActivationEvent activation)
     {
-        StationObject[] matches = _slotTable.Slots
+        StationObject[] matches = _slotTable.FromLastPlace
             .Where(slot => slot.Active && slot.Argument is StationArgument station && station.Station == activation.SaveStationNumber)
             .Select(slot => slot.Behaviour as StationObject)
             .OfType<StationObject>()
@@ -334,7 +334,7 @@ internal sealed class StationObjects
         };
         Position16<RoomBlocks> stationBlock = level.ObjectBlockStep(accessBlock, new Offset16<RoomBlocks>(columnsToStation, 0));
 
-        foreach (RoomObjectSlot slot in _slotTable.Slots)
+        foreach (RoomObjectSlot slot in _slotTable.FromLastPlace)
         {
             if (!slot.Active || slot.Block != stationBlock || slot.Behaviour is not StationObject station)
                 continue;

@@ -4,21 +4,24 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>The Bomb Torizo statue's hand: its setup, the fragments and music it requests, and the identity search Bomb Torizo makes.</summary>
+/// <summary>
+/// The Bomb Torizo statue's hand: its setup, the fragments and music it requests, and whether it still stands, which
+/// Bomb Torizo waits on.
+/// </summary>
 [RoomLifetime]
 internal sealed class BombTorizoHandObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess? _samus;
-    /// <summary>The room-object slots searched for active headers.</summary>
-    private readonly RoomObjectSlotTable _slotTable;
 
-    /// <summary>Connects the statue-hand interpreter to the current room and room-object slot table.</summary>
-    internal BombTorizoHandObjects(IRoomSamusAccess? samus, RoomObjectSlotTable slotTable)
-    {
-        _samus = samus;
-        _slotTable = slotTable;
-    }
+    /// <summary>The room's statue hand, from its setup on; null in a room without one or whose Torizo is defeated.</summary>
+    private BombTorizoHandObject? _hand;
+
+    /// <summary>The place the hand holds in the room's update order, which it frees as it leaves.</summary>
+    private RoomObjectSlot? _handPlace;
+
+    /// <summary>Connects the statue hand to Samus.</summary>
+    internal BombTorizoHandObjects(IRoomSamusAccess? samus) => _samus = samus;
     /// <summary>Statue-fragment spawns queued by the hand's breaking instruction for this frame.</summary>
     private readonly List<BombTorizoStatueProjectileRequest>
         _bombTorizoStatueProjectileRequests = [];
@@ -33,26 +36,29 @@ internal sealed class BombTorizoHandObjects
     public IReadOnlyList<DelayedMusicRequest> MusicRequests => _musicRequests;
 
     /// <summary>
-    /// Tests the room-object headers exactly as enemy code such as
-    /// Bomb Torizo's awakening check does. This is intentionally generic: the enemy does not know which
-    /// family owns a slot, only whether one of forty headers matches.
+    /// Whether the statue's hand still stands in the room: from its setup until it leaves after its crumble. Bomb Torizo
+    /// sleeps while it does.
     /// </summary>
-    public bool HasActiveHeader(RoomObjectHeaderId header) =>
-        _slotTable.Slots.Any(slot => slot.Active && slot.Header == header);
+    public bool HandRemains => _handPlace is { Active: true } place && ReferenceEquals(place.Behaviour, _hand);
 
-    /// <summary>Runs the hand room object's setup after the generic room allocator has installed the header.</summary>
+    /// <summary>Sets up the hand the room's population placed at <paramref name="slot"/>; a defeated Torizo's room has none.</summary>
     internal void SetupBombTorizoHandSlot(
         RoomObjectSlot slot,
         IAreaBossFlagReader bosses)
     {
+        Ensure.NotNull(slot);
+        Ensure.NotNull(bosses);
         if (bosses.IsDefeated(BossBits.AreaTorizo))
         {
-            // Setup deletes synchronously, so the next population record may reuse this ID.
-            slot.Clear();
+            // The setup removes the hand at once, so the next population record may take its place.
+            slot.Delete();
             return;
         }
 
-        slot.Become(new BombTorizoHandObject(this));
+        var hand = new BombTorizoHandObject(this);
+        slot.Become(hand);
+        _hand = hand;
+        _handPlace = slot;
     }
 
     /// <summary>Discards the previous room-object pass's fragment and music requests before the next pass.</summary>

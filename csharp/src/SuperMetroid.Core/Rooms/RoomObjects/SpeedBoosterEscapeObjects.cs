@@ -38,7 +38,7 @@ internal sealed class SpeedBoosterEscapeObjects
         }
 
         if (_events.Has(StoryEvent.OutranSpeedBoosterLavaquake))
-            slot.Clear();
+            slot.Delete();
         else
             slot.Become(new SpeedBoosterEscapeObject(this));
     }

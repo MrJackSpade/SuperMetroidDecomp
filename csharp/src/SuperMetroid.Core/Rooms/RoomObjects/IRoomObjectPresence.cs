@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Queries the active room-object population.</summary>
+/// <summary>What the room's enemies ask of its room objects.</summary>
 public interface IRoomObjectPresence
 {
-    /// <summary>Whether a room object with <paramref name="header"/> is active.</summary>
-    bool HasActiveHeader(RoomObjectHeaderId header);
+    /// <summary>Whether the Bomb Torizo statue's hand still stands in the room; Bomb Torizo sleeps until it has crumbled away.</summary>
+    bool BombTorizoHandRemains { get; }
 }

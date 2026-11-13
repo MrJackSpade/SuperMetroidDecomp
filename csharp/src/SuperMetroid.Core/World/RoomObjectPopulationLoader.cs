@@ -100,7 +100,7 @@ internal sealed class RoomObjectPopulationLoader
                 // Do not leave the preallocated but untranslated actor resident. The load is
                 // intentionally loud and includes every value needed to locate the exact authored
                 // record without relying on a room-name special case.
-                slot.Clear();
+                slot.Delete();
                 throw new NotSupportedException(
                     $"Room-object population {population.Name} record {recordIndex} " +
                     $"uses untranslated header " +
@@ -119,7 +119,7 @@ internal sealed class RoomObjectPopulationLoader
         RoomObjectPopulationRecord record,
         Position16<RoomBlocks> block)
     {
-        if (_slotTable.SpawnRoomObject() is not { } slot)
+        if (_slotTable.Spawn() is not { } slot)
             return null;
 
         slot.Header = record.Header;

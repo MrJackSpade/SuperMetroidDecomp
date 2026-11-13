@@ -166,9 +166,9 @@ internal static class RoomObjectSystemAccess
             Position16<RoomBlocks> block,
             SamusProjectileType projectileType)
         {
-            foreach (var slot in self.SlotTable.Slots)
+            foreach (var slot in ActiveSlots(self))
             {
-                if (!slot.Active || slot.Block != block || slot.Behaviour is not EyeDoorEyeObject)
+                if (slot.Block != block || slot.Behaviour is not EyeDoorEyeObject)
                     continue;
 
                 // The pending hit is single. A later collision before the eye's update replaces it rather than
@@ -330,7 +330,7 @@ internal static class RoomObjectSystemAccess
 
             // Spawn_PLM's descending free-slot search happens before any setup routine. A full
             // pool must therefore leave both level data and BTS completely untouched.
-            if (self.SlotTable.SpawnAtCurrentBlock() is not { } slot)
+            if (self.SlotTable.Spawn() is not { } slot)
                 return false;
 
             RoomCollisionBlock block = level.GetCollisionBlock(position);
@@ -456,9 +456,9 @@ internal static class RoomObjectSystemAccess
             => self.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = enemyDeaths, EnemyDeathQuota = enemyDeathQuota, ControllerNewInput = 0 });
     }
 
-    /// <summary>Filters the PLM table to its occupied slots.</summary>
+    /// <summary>The room's occupied places, the last in update order first, as the checks have always listed them.</summary>
     private static IEnumerable<RoomObjectSlot> ActiveSlots(RoomObjectSystem roomObjects) =>
-        roomObjects.SlotTable.Slots.Where(slot => slot.Active);
+        roomObjects.SlotTable.FromLastPlace.Where(slot => slot.Active);
 
     /// <summary>The live Mother Brain glass, as the system's own search finds it.</summary>
     private static MotherBrainGlassObject? LiveGlass(RoomObjectSystem roomObjects) =>

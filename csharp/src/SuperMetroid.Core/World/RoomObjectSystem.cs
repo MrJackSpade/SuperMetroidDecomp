@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Bosses;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Areas.Tourian;
@@ -21,21 +22,13 @@ using SuperMetroid.Core.Areas.WreckedShip;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Frame-steppable room-object owner translating movement-triggered breakable terrain and its
-/// authored animation scripts.
+/// The room's room objects: every family that spawns, sets up and runs them, the list of what the room holds and the
+/// room-object update that advances each in the room's update order.
 /// </summary>
 /// <remarks>
-/// A room object is not a Samus animation. It is an independent room object which keeps running
-/// after the rope disconnects, owns collision/BTS mutation, and requests a background redraw when
-/// an instruction changes its block. Keeping this state outside <c>SamusGrappleState</c>
-/// is essential for the respawning block: Samus is long gone when its original block returns.
-///
-/// The retail allocation contains 40 slots and searches from
-/// the highest slot downward. The C# array uses logical indices 0..39 and preserves that
-/// search and handler order. The translated step surface is deliberately limited to the
-/// collision-bomb, projectile-reaction bomb, and breakable-grapple lists. Encountering any
-/// other program fails instead of silently inventing an effect for a still-untranslated room object
-/// family.
+/// A room object is not Samus's or an enemy's: it is the room's own, and it keeps running after whatever started it has
+/// gone (a respawning grapple block grows back long after Samus has swung away). Which place each object holds, the order
+/// the places update in and the loss of a spawn into a full room are the room's <see cref="Compatibility.RoomObjectPlaces"/>.
 /// </remarks>
 [RoomLifetime]
 public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
@@ -49,7 +42,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// <summary>The game's event flags, which scripted room objects set.</summary>
     internal IGlobalEventFlags? Events { get; }
 
-    /// <summary>Forty word-indexed room-object slots shared by the room's object families.</summary>
+    /// <summary>The room's room objects at their places in the update order, shared by every room-object family.</summary>
     internal RoomObjectSlotTable SlotTable { get; }
 
     /// <summary>Queues sound requests emitted by room object instructions.</summary>
@@ -121,7 +114,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// <summary>Handles grey door conditions and opening animation.</summary>
     internal GreyDoorObjects GreyDoors { get; }
 
-    /// <summary>Creates one room's forty empty room-object slots and the room-object family owners that run in them.</summary>
+    /// <summary>Creates one room's empty room-object list and the room-object family owners that run in it.</summary>
     /// <param name="room">The room the objects live in.</param>
     /// <param name="services">The room's service owners; each room-object family receives the ones it uses.</param>
     /// <param name="visuals">The host's installed room-object artwork.</param>
@@ -129,13 +122,14 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// The room's own block pairs its collectibles that show their own picture take in turn, created with the system by
     /// its builder so each room starts at the first pair.
     /// </param>
+    /// <param name="places">The room's own room-object places, created with the system by its builder so each room starts with every place free.</param>
     internal RoomObjectSystem(RoomObjectRoom room, RoomObjectServices services, RoomObjectVisuals visuals,
-        CollectibleBlockPairs collectibleBlockPairs)
+        CollectibleBlockPairs collectibleBlockPairs, RoomObjectPlaces places)
     {
         Ensure.NotNull(room);
         Ensure.NotNull(services);
         Events = services.Events;
-        SlotTable = new RoomObjectSlotTable();
+        SlotTable = new RoomObjectSlotTable(places);
         Sounds = new RoomObjectSoundQueue();
         Drawing = new RoomObjectBlockDrawing(visuals);
         ProjectileTriggers = new ProjectileTriggerObjects(SlotTable);
@@ -149,7 +143,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
         SpeedBoosterEscape = new SpeedBoosterEscapeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake);
         ChozoStatue = new ChozoStatueObjects(room.System, room.AreaIndex, SlotTable);
         DraygonCannons = new DraygonCannonObjects(services.Enemies);
-        BombTorizoHand = new BombTorizoHandObjects(services.Samus, SlotTable);
+        BombTorizoHand = new BombTorizoHandObjects(services.Samus);
         NoobTube = new NoobTubeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake, services.Enemies);
         Gates = new GateObjects(services.Samus, SlotTable, Sounds);
         MotherBrainGlass = new MotherBrainGlassObjects(services.Bosses, services.Events, Sounds);
@@ -194,12 +188,13 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     }
 
     /// <summary>
-    /// Releases the slot. Lists and typed programs end a room object the same way.
+    /// The object at <paramref name="slot"/> leaves the room, freeing its place; Mother Brain's glass first keeps its hit
+    /// count.
     /// </summary>
     internal void DeleteObject(RoomObjectSlot slot)
     {
-        slot.Delete();
         MotherBrainGlass.OnObjectDeleted(slot);
+        slot.Delete();
     }
 
     /// <inheritdoc/>

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Areas.WreckedShip;
 /// <summary>The Wrecked Ship entrance treadmill and the Maridia elevatube: their spawns and the belt row a treadmill runs.</summary>
 internal sealed class WreckedShipTreadmillObjects
 {
-    /// <summary>Room-object slot pool used for treadmill and elevatube allocation.</summary>
+    /// <summary>The room's room objects, which the treadmill and the elevatube join.</summary>
     private readonly RoomObjectSlotTable _slotTable;
     /// <summary>What the treadmill's row shows: its installed picture (#1580).</summary>
     private readonly IRoomObjectDrawing _drawing;
@@ -25,32 +25,23 @@ internal sealed class WreckedShipTreadmillObjects
     /// 56 blocks with blank air. The treadmill's first update runs the belt when Phantoon is dead, and it then leaves the
     /// room either way.
     /// </summary>
-    /// <returns>False only when all forty room-object slots are occupied.</returns>
+    /// <returns>False when the room is full; nothing is spawned then (<see cref="Compatibility.RoomObjectPlaces"/>).</returns>
     public bool TrySpawnWreckedShipEntranceTreadmill(
         RoomLevelData level,
         WreckedShipTreadmillDirection direction,
         bool areaBossDefeated)
     {
         Ensure.NotNull(level);
-
-        RoomObjectHeaderId header = direction switch
-        {
-            WreckedShipTreadmillDirection.Rightwards =>
-                RoomObjectHeaderId.WreckedShipEntranceTreadmillFromWest,
-            WreckedShipTreadmillDirection.Leftwards =>
-                RoomObjectHeaderId.WreckedShipEntranceTreadmillFromEast,
-            _ => throw new ArgumentOutOfRangeException(
-                nameof(direction), direction, "Unknown Wrecked Ship treadmill direction."),
-        };
+        if (direction is not (WreckedShipTreadmillDirection.Rightwards or WreckedShipTreadmillDirection.Leftwards))
+            throw new ArgumentOutOfRangeException(nameof(direction), direction, "Unknown Wrecked Ship treadmill direction.");
 
         Position16<RoomBlocks> origin = level.GridBlock(
             new(WreckedShipTreadmillBlockDefinitions.BlockX, WreckedShipTreadmillBlockDefinitions.BlockY));
         EnsureHorizontalRangeFits(level, origin, WreckedShipTreadmillBlockDefinitions.BlockCount);
 
-        if (_slotTable.SpawnHardcoded() is not { } slot)
+        if (_slotTable.Spawn() is not { } slot)
             return false;
 
-        slot.Header = header;
         slot.Block = origin;
         slot.Become(new WreckedShipTreadmillObject(direction, areaBossDefeated));
 
@@ -65,16 +56,15 @@ internal sealed class WreckedShipTreadmillObjects
     /// Spawns the effectively invisible elevatube object at (1,0): it waits sixteen updates, plays the elevatube sound
     /// and leaves the room.
     /// </summary>
-    /// <returns>False only when all forty room-object slots are occupied.</returns>
+    /// <returns>False when the room is full; nothing is spawned then (<see cref="Compatibility.RoomObjectPlaces"/>).</returns>
     public bool TrySpawnMaridiaElevatube(RoomLevelData level)
     {
         Ensure.NotNull(level);
         Position16<RoomBlocks> block = level.GridBlock(MaridiaElevatubeDefinitions.RoomObjectBlock);
 
-        if (_slotTable.SpawnHardcoded() is not { } slot)
+        if (_slotTable.Spawn() is not { } slot)
             return false;
 
-        slot.Header = RoomObjectHeaderId.MaridiaElevatube;
         slot.Block = block;
         slot.Become(new MaridiaElevatubeObject());
         return true;

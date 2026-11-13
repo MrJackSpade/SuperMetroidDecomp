@@ -71,7 +71,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
             // The nested hardcoded spawn occurs while the reaction slot is occupied.
             hands.ApplyPendingChozoStatueObjects(level, this);
         }
-        reaction.Clear();
+        reaction.Delete();
     }
 
     /// <summary>Spawns one of the statues' room objects at the first free place in the update order and runs its setup.</summary>

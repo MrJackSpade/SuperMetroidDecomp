@@ -59,7 +59,7 @@ internal static class WaveCeilingStraddleVerification
         RoomLevelData arena = arenaScan.Level;
         RoomObjectSystem arenaObjects = arenaScan.RoomObjects;
         var reacted = new Position16<RoomBlocks>(99, 1);
-        RoomObjectSlot[] active = [.. arenaObjects.SlotTable.Slots.Where(slot => slot.Active)];
+        RoomObjectSlot[] active = [.. arenaObjects.SlotTable.InProcessingOrder.Where(slot => slot.Active)];
         AssertEqual(1, active.Length, "the shot above the ceiling sets off one reaction in the room's right half");
         AssertEqual(reacted, active[0].Block, "the reaction spawns at the solid block the straddled read starts in");
         AssertEqual(RoomCollisionType.SolidBlock, active[0].RestoreTerrain?.Collision,

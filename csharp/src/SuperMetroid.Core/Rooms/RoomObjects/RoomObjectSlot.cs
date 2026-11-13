@@ -1,25 +1,40 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// One place in the room's update order (<see cref="RoomObjectSlotTable"/>) and the room object it holds: the object's
-/// identity and block, what it was placed with, a shot on its block it has yet to take, and the typed object that holds
-/// its own state and advances it (<see cref="Behaviour"/>, #1554).
+/// One place in the room's update order (<see cref="RoomObjectPlaces"/>) and the room object it holds: the object's
+/// block, what it was placed with, a shot on its block it has yet to take, and the typed object that holds its own state
+/// and advances it (<see cref="Behaviour"/>, #1554). A place that holds no object holds nothing: the object's record
+/// leaves the room with it (#1622).
 /// </summary>
 internal sealed class RoomObjectSlot
 {
+    /// <summary>The room's places, which say whether this one holds an object.</summary>
+    private readonly RoomObjectPlaces _places;
+
+    /// <summary>This place, numbered in update order.</summary>
+    private readonly int _place;
+
+    /// <summary>Creates the free place <paramref name="place"/> of the room's <paramref name="places"/>.</summary>
+    internal RoomObjectSlot(RoomObjectPlaces places, int place)
+    {
+        _places = Ensure.NotNull(places);
+        _place = place;
+    }
+
     /// <summary>
     /// The typed room object this place holds, which advances by its own steps; null for a free place, or one whose setup
     /// did all its work.
     /// </summary>
     internal RoomObjectBehaviour? Behaviour { get; private set; }
     /// <summary>
-    /// Whether this slot holds a room object and participates in the room update. Only <see cref="RoomObjectSlotTable"/>'s
-    /// spawn operations claim a slot; <see cref="Delete"/> and <see cref="Clear"/> free it.
+    /// Whether this place holds a room object and takes part in the room update. Only <see cref="RoomObjectSlotTable.Spawn"/>
+    /// takes a place; <see cref="Delete"/> frees it.
     /// </summary>
-    public bool Active { get; private set; }
-    /// <summary>The room object the slot holds, selecting its setup and behavior.</summary>
+    public bool Active => _places.IsHeld(_place);
+    /// <summary>What the room's population placed here, which selected its setup; <see cref="RoomObjectHeaderId.None"/> for every other object.</summary>
     public RoomObjectHeaderId Header { get; set; }
     /// <summary>
     /// The room block this room object sits on and draws from: a block of the room's grid, or one past its last row in the
@@ -38,28 +53,13 @@ internal sealed class RoomObjectSlot
     /// <summary>The projectile hit on the place's block that its object has not yet taken, or null for none.</summary>
     public ResidentObjectProjectileHit? ProjectileHit { get; set; }
 
-    /// <summary>
-    /// Clears every field, so a recycled place cannot run its former object. Every population and runtime spawn passes
-    /// through this reset before setting its own state.
-    /// </summary>
-    internal void Clear()
-    {
-        Active = false;
-        Header = 0;
-        Block = default;
-        RestoreTerrain = null;
-        Argument = null;
-        ProjectileHit = null;
-        Behaviour = null;
-    }
-
-    /// <summary>Makes this freshly claimed place hold <paramref name="behaviour"/>, which advances it from the next update on.</summary>
+    /// <summary>Makes this freshly taken place hold <paramref name="behaviour"/>, which advances it from the next update on.</summary>
     /// <exception cref="InvalidOperationException">The place is free, or already holds a typed object.</exception>
     internal void Become(RoomObjectBehaviour behaviour)
     {
         Ensure.NotNull(behaviour);
         if (!Active || Behaviour is not null)
-            throw new InvalidOperationException("Only a freshly claimed room-object place can become a typed room object.");
+            throw new InvalidOperationException("Only a freshly taken room-object place can become a typed room object.");
         Behaviour = behaviour;
     }
 
@@ -77,20 +77,36 @@ internal sealed class RoomObjectSlot
     }
 
     /// <summary>
-    /// Claims this free slot for a new room object: every field is reset and the slot is active. Only <see cref="RoomObjectSlotTable"/>'s
-    /// spawn operations call it, which analyzer SME6303 enforces.
+    /// Readies this place, which <see cref="RoomObjectSlotTable.Spawn"/> has just taken, for a new room object's setup.
+    /// Only the spawn calls it, which analyzer SME6303 enforces.
     /// </summary>
+    /// <exception cref="InvalidOperationException">The place was not taken.</exception>
     internal void Claim()
     {
-        if (Active)
-            throw new InvalidOperationException("An occupied room-object slot cannot be claimed.");
-        Clear();
-        Active = true;
+        if (!Active)
+            throw new InvalidOperationException("A room-object place is readied only once a spawn has taken it.");
+        ClearRecord();
     }
 
     /// <summary>
-    /// Deletes the room object, as the delete instruction does: only occupancy is cleared, and the other fields stay until the
-    /// slot is claimed again.
+    /// The object leaves the room: its place is free for the next spawn, and nothing of the object stays behind. A setup
+    /// that does all its work at once leaves this way too, so the next spawn may take the same place.
     /// </summary>
-    internal void Delete() => Active = false;
+    internal void Delete()
+    {
+        if (Active)
+            _places.Free(_place);
+        ClearRecord();
+    }
+
+    /// <summary>Clears what the place holds.</summary>
+    private void ClearRecord()
+    {
+        Header = RoomObjectHeaderId.None;
+        Block = default;
+        RestoreTerrain = null;
+        Argument = null;
+        ProjectileHit = null;
+        Behaviour = null;
+    }
 }

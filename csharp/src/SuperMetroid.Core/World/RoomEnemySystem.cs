@@ -643,7 +643,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         MotherBrainEncounter = new MotherBrainEncounter(Audio);
         RidleyTail = new RidleyTail(FrameContext, Projectiles, RidleyEncounter, Room);
         DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, Dispatch, compatibility.PowerBombRadius, Audio);
-        Collision = new EnemyCollision(new EnemyCollisionDependencies { Dispatch = Dispatch, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Presentation = Presentation, Projectiles = Projectiles, Room = Room, SlotTable = SlotTable, PowerBombRadius = compatibility.PowerBombRadius });
+        Collision = new EnemyCollision(new EnemyCollisionDependencies { Dispatch = Dispatch, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Projectiles = Projectiles, Room = Room, SlotTable = SlotTable, PowerBombRadius = compatibility.PowerBombRadius });
         RidleyProjectiles = new RidleyProjectiles(DeathsAndDrops, Projectiles, RidleyEncounter);
         ZoaBehavior = new ZoaBehavior();
         ElevatorBehavior = new ElevatorBehavior(Room, Audio, FrameResults);
@@ -658,7 +658,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         TourianEntranceStatueBehavior = new TourianEntranceStatueBehavior(Projectiles, SlotTable);
         TourianUnlockBehavior = new TourianUnlockBehavior(Room, Projectiles, Earthquake, Audio, TourianEntranceStatueBehavior);
         StokeBehavior = new StokeBehavior(Room, Terrain, Projectiles);
-        SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = Audio, Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults , BossArtwork = BossArtworkBinding });
+        SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = Audio, Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults });
         FallingSparksBehavior = new FallingSparksBehavior(Room, Projectiles, SpriteObjects);
         SparkBehavior = new SparkBehavior(FallingSparksBehavior);
         SkulteraBehavior = new SkulteraBehavior(Terrain);
@@ -729,7 +729,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         BullBehavior = new BullBehavior(compatibility.BullInheritance);
         BoyonBehavior = new BoyonBehavior(Audio);
         BoulderBehavior = new BoulderBehavior(Terrain, Projectiles, Audio);
-        BotwoonBehavior = new BotwoonBehavior(new BotwoonBehaviorDependencies { Audio = Audio, Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, Presentation = Presentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults , BossArtwork = BossArtworkBinding });
+        BotwoonBehavior = new BotwoonBehavior(new BotwoonBehaviorDependencies { Audio = Audio, Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults });
         AnimationPlayer = new EnemyAnimationPlayer(Presentation);
         Drawing = new EnemyDrawList(new EnemyDrawListDependencies { DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, AnimationPlayer = AnimationPlayer, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, Room = Room, PuyoCeilingTurn = PuyoCeilingTurn });
         BombTorizoBehavior = new BombTorizoBehavior(new BombTorizoBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults });

@@ -246,8 +246,8 @@ internal static class KraidAnimationsVerification
         {
             (RoomEnemySystem enemies, _, _, _) = NewKraid();
             enemies.VerificationServices().ReadRandom = () => 32;
-            AssertTrue(enemies.KraidBehavior.Head.SpawnKraidSpitRock(NewRockSource()), "the real spit producer allocates a rock");
-            EnemyProjectile rock = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.KraidSpitRock);
+            enemies.KraidBehavior.Head.SpawnKraidSpitRock(NewRockSource());
+            EnemyProjectile rock = enemies.Projectiles.EnemyProjectiles.Single(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KraidSpitRock);
             rock.StartAnimation(new KraidRockAnimation(program));
             var native = new NativeEnemyProjectileListReader(entry, rock.FrameHold.RawValue);
             for (int update = 0; update < 40 && !native.Deleted; update++)
@@ -287,9 +287,13 @@ internal static class KraidAnimationsVerification
         enemies.VerificationServices().ReadRandom = () => random;
         RoomEnemySlot source = NewRockSource();
         random = 32;
-        AssertTrue(enemies.KraidBehavior.Head.SpawnKraidSpitRock(source), "the real spit producer allocates its rock");
+        enemies.KraidBehavior.Head.SpawnKraidSpitRock(source);
+        AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KraidSpitRock),
+            "the real spit producer allocates its rock in the enemy projectile pool");
         random = 32;
-        AssertTrue(enemies.KraidBehavior.Background.SpawnKraidCeilingRock(96), "the real ceiling producer allocates its rock");
+        enemies.KraidBehavior.Background.SpawnKraidCeilingRock(96);
+        AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KraidCeilingRock),
+            "the real ceiling producer allocates its rock in the enemy projectile pool");
         var state = new KraidEnemyState();
         random = 0;
         enemies.KraidBehavior.Rise.RequestKraidRisingRock(source);

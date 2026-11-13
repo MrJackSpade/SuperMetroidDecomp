@@ -40,7 +40,7 @@ internal static class KraidRockLaunchDefinitionsVerification
         int reads = 0;
         enemies.VerificationServices().ReadRandom = () => { reads++; return random; };
         enemies.VerificationServices().NextRandom = () => throw new InvalidOperationException("Kraid rock must not advance RNG.");
-        Func<RoomEnemySlot, bool> spawn = enemies.KraidBehavior.Head.SpawnKraidSpitRock;
+        Action<RoomEnemySlot> spawn = enemies.KraidBehavior.Head.SpawnKraidSpitRock;
         var body = enemies.SlotTable.Slots[0];
         var rock = enemies.Projectiles.EnemyProjectiles[^1];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -51,9 +51,10 @@ internal static class KraidRockLaunchDefinitionsVerification
             rock.Position = rock.Position.WithFractionY(0xffff).WithFractionX(0xffff);
             body.Position = body.Position.WithWhole(new((ushort)raw, (ushort)(ushort.MaxValue - raw)));
             reads = 0;
-            AssertTrue(spawn(body), "Kraid rock allocation succeeds");
+            spawn(body);
             // A spawn creates a new projectile in the place, which the place now holds (#1590).
             rock = enemies.Projectiles.EnemyProjectiles[^1];
+            AssertTrue(rock.IsActive, "Kraid rock allocation succeeds: the pool's last place holds a live rock");
             AssertEqual(1, reads, "Kraid rock reads current RNG once");
             AssertEqual(RoomEnemyProjectileKind.KraidSpitRock, rock.Kind, "Native reverse allocation slot");
             AssertEqual(expected, rock.Velocity.X.RawValue, "Native selected speed reaches actual projectile");
@@ -68,8 +69,8 @@ internal static class KraidRockLaunchDefinitionsVerification
         foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Kind = RoomEnemyProjectileKind.KraidSpitRock;
         ushort previousX = rock.Position.X.Whole;
         reads = 0;
-        AssertTrue(!spawn(body), "Full pool rejects Kraid rock");
-        AssertEqual(0, reads, "Full pool performs no initializer RNG read");
+        spawn(body);
+        AssertEqual(0, reads, "Full pool rejects Kraid rock: it performs no initializer RNG read");
         AssertEqual(previousX, rock.Position.X.Whole, "Full pool preserves occupied rock");
         Console.WriteLine("Kraid rock launch: eight native words and 65536 actual wrapped spawns pass with table reads and RNG advances forbidden.");
     }

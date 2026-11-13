@@ -66,6 +66,4 @@ public sealed class YardEnemyState
     internal CrawlerSurfaceOrientation BlockSide { get; set; }
     /// <summary>Mutually exclusive behavior 0 normal crawling, 1 aggressive crawling, 2 hiding, 3 dropped, 4 kicked, or 5 beam-launched, controlling look-at, solidity, touch, and airborne decisions.</summary>
     public YardBehavior Behavior { get; internal set; }
-    /// <summary>Parallel flag: set by a horizontal airborne collision and cleared by a vertical bounce; a record of bounce state rather than a per-frame event.</summary>
-    public bool BouncedHorizontally { get; internal set; }
 }

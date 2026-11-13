@@ -58,11 +58,11 @@ internal sealed class KraidBackground
     }
 
     /// <summary>Emits a ceiling rock at the scripted horizontal position when a slot is free.</summary>
-    internal bool SpawnKraidCeilingRock(int xPosition)
+    internal void SpawnKraidCeilingRock(int xPosition)
     {
         EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile();
         if (rock is null)
-            return false;
+            return;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             rock,
             RoomEnemyProjectileKind.KraidCeilingRock,
@@ -74,6 +74,5 @@ internal sealed class KraidBackground
             KraidRandomDefinitions.CeilingRockFallSpeedSpread.Of(_access.ReadKraidRandomNumber()) +
             KraidRandomDefinitions.CeilingRockFallSpeedBase));
         rock.Graphics = SpriteGraphics.SharedIn(KraidColours.RocksShading);
-        return true;
     }
 }

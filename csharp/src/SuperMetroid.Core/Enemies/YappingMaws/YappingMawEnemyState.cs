@@ -122,7 +122,4 @@ public sealed class YappingMawEnemyState
 
     /// <summary>The root/base object its attack direction selects.</summary>
     public RoomSpriteObject? RootSpriteObject { get; internal set; }
-
-    /// <summary>One curl correction per tongue link, changed only by calculations.</summary>
-    internal Offset16<RoomPixels>[] Corrections { get; } = new Offset16<RoomPixels>[4];
 }

@@ -292,7 +292,7 @@ internal sealed class KraidDeath
             if (KraidObjects.ForSinkCallback(function) is { } request)
             {
                 // Each sinking rock starts at the left pixel edge of the removed block.
-                _ = _background.SpawnKraidCeilingRock(request.Block.X * 16);
+                _background.SpawnKraidCeilingRock(request.Block.X * 16);
                 _frameResults.KraidObjects.Add(request);
             }
             return;

@@ -53,7 +53,7 @@ internal static class GrappleFiringDefinitionsVerification
             ushort angle = unchecked((ushort)Word(0x9bc104 + offset));
             foreach (byte graphicsY in SignedByteClasses)
             {
-            samus.Presentation.BindArtwork(SamusGraphicsOffsetFixture(unchecked((sbyte)graphicsY)));
+            samus.Presentation.BindArtwork(SamusGraphicsOffsetFixture(unchecked((sbyte)graphicsY)).Gameplay);
             foreach (SamusPoseId pose in aimingPoses)
             foreach (ushort raw in positions)
             {
@@ -101,7 +101,7 @@ internal static class GrappleFiringDefinitionsVerification
             samus.Pose = sourcePose = SamusPoseNumbering.FromNumber(Enumerable.Range(0, 253).Where(SamusPoseNumbering.NamesPose).First(pose =>
                 GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 3) == direction &&
                 GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1) != 1));
-            samus.Presentation.BindArtwork(SamusGraphicsOffsetFixture(0));
+            samus.Presentation.BindArtwork(SamusGraphicsOffsetFixture(0).Gameplay);
             samus.Position = samus.Position.WithWhole(new(512, 512));
             grapple.Phase = GrapplePhase.Inactive;
             samus.LiquidPhysics.BeginFrameSoundRequests();
@@ -158,7 +158,7 @@ internal static class GrappleFiringDefinitionsVerification
         foreach (ushort coordinate in new ushort[] { 0, 512, ushort.MaxValue })
         {
             samus.Pose = sourcePose = movementPoses[movement];
-            samus.Presentation.BindArtwork(SamusGraphicsOffsetFixture(127));
+            samus.Presentation.BindArtwork(SamusGraphicsOffsetFixture(127).Gameplay);
             samus.Position = samus.Position.WithWhole(new(coordinate, coordinate));
             samus.Kinematics.YSpeed = default;
             grapple.FireDirection = (SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)direction;

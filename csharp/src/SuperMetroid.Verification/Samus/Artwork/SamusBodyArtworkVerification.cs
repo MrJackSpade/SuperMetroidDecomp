@@ -28,7 +28,7 @@ internal static class SamusBodyArtworkVerification
         // The installation's body characters and death tiles are the shared Samus sheet inputs, loaded once per process
         // with the sheets they compose (#1532).
         SamusBodyCharacterArtwork stockCharacters = SamusBodySheetFixtures.Inputs.SamusBody;
-        InstalledSamusBodyArtwork stock = stockCharacters.Body;
+        SamusBodySources stock = stockCharacters.Body;
         InstalledSamusDeathPalettes stockDeathPalettes = SamusDeathPaletteArtworkFiles.Load(RepositoryInstallation.Installation.SamusBodyDirectory);
         SamusDeathTileAtlas stockDeathTiles = SamusBodySheetFixtures.Inputs.DeathTiles;
         Suite(nameof(VerifySamusArmCannonArtwork), () => VerifySamusArmCannonArtwork(bus, stock));
@@ -44,11 +44,11 @@ internal static class SamusBodyArtworkVerification
             int graphicsAddress = SamusSourceDefinitions.PoseDefinitions.Value +
                 pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4;
             AssertEqual(unchecked((sbyte)bus.ReadCartridgeByte(graphicsAddress)),
-                stock.GraphicsYOffset(SamusPoseNumbering.FromNumber(pose)), $"Samus pose {pose:X2} visual Y origin");
+                stock.Gameplay.GraphicsYOffset(SamusPoseNumbering.FromNumber(pose)), $"Samus pose {pose:X2} visual Y origin");
         }
         for (int index = 0; index < SamusBodySources.FrameCount; index++)
         {
-            int address = InstalledSamusBodyArtwork.FirstFrameAddress + index * 4;
+            int address = SamusBodySources.FirstFrameAddress + index * 4;
             SamusBodyFrameSelection frame = stock.Frames[index];
             AssertEqual(bus.ReadCartridgeByte(address), frame.TopSet, $"Samus frame {index} upper set");
             AssertEqual(bus.ReadCartridgeByte(address + 1), frame.TopPosition, $"Samus frame {index} upper position");
@@ -87,7 +87,7 @@ internal static class SamusBodyArtworkVerification
         }
         AssertEqual(435, definitions, "complete Samus body DMA definition count");
 
-        SamusSpritemapSources sprites = stock.Source.Spritemaps;
+        SamusSpritemapSources sprites = stock.Spritemaps;
         for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
         {
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
@@ -183,9 +183,9 @@ internal static class SamusBodyArtworkVerification
             SamusParticles nativeEffects = OneParticle(type, 0);
             SamusParticles installedEffects = OneParticle(type, 0);
             OamBuffer nativeEffectOam = SpriteFrameBuffer.DrawnOam(frame => nativeEffects.UpdateAndDraw(frame, new(0, 0), 128,
-                SamusBodySheetFixtures.ForAtmosphere(stock.Source.Spritemaps)));
+                SamusBodySheetFixtures.ForAtmosphere(stock.Spritemaps)));
             OamBuffer installedEffectOam = SpriteFrameBuffer.DrawnOam(frame => installedEffects.UpdateAndDraw(frame, new(0, 0), 128,
-                SamusBodySheetFixtures.ForAtmosphere(stock.Source.Spritemaps)));
+                SamusBodySheetFixtures.ForAtmosphere(stock.Spritemaps)));
             AssertTrue(nativeEffectOam.LastFinalizedSpriteCount > 0 &&
                 nativeEffectOam.ImageEquals(installedEffectOam),
                 $"atmospheric type {type} uses installed Samus OAM art with native parity");
@@ -199,7 +199,7 @@ internal static class SamusBodyArtworkVerification
             int source = SamusSourceDefinitions.MovementBank.Value | (pointer + frame * sizeof(ushort));
             // The cartridge's attribute word is decoded by the import codec into the single piece it describes.
             SpritePart expectedAttributes = new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(source)).ToSinglePart();
-            AssertTrue(stock.Atmosphere.Source.TryResolve(type, frame, out SpritePart installedAttributes),
+            AssertTrue(stock.Atmosphere.TryResolve(type, frame, out SpritePart installedAttributes),
                 $"atmospheric type {type} frame {frame} has installed artwork");
             AssertEqual(expectedAttributes, installedAttributes,
                 $"atmospheric type {type} frame {frame} imported the native character, palette row, priority and flips");
@@ -208,7 +208,7 @@ internal static class SamusBodyArtworkVerification
             OamBuffer nativeEffectOam = SpriteFrameBuffer.DrawnOam(frame => nativeEffects.UpdateAndDraw(frame, new(0, 0), 128,
                 SamusBodySheetFixtures.ForAtmosphere(atmosphere: stock.Atmosphere)));
             OamBuffer installedEffectOam = SpriteFrameBuffer.DrawnOam(frame => installedEffects.UpdateAndDraw(frame,
-                Position16<RoomPixels>.Zero, 128, SamusBodySheetFixtures.ForAtmosphere(stock.Source.Spritemaps, stock.Atmosphere)));
+                Position16<RoomPixels>.Zero, 128, SamusBodySheetFixtures.ForAtmosphere(stock.Spritemaps, stock.Atmosphere)));
             AssertTrue(nativeEffectOam.LastFinalizedSpriteCount > 0 &&
                 nativeEffectOam.ImageEquals(installedEffectOam) &&
                 nativeEffects.All[0].Kind == installedEffects.All[0].Kind &&
@@ -216,7 +216,7 @@ internal static class SamusBodyArtworkVerification
                 nativeEffects.All[0].StepUpdatesLeft == installedEffects.All[0].StepUpdatesLeft,
                 $"direct atmospheric type {type} frame {frame} installed/native OAM and timing parity");
         }
-        AssertTrue(!stock.Atmosphere.Source.TryResolve(2, 0, out _),
+        AssertTrue(!stock.Atmosphere.TryResolve(2, 0, out _),
             "atmospheric type two retains its retail pointer-zero address-space path");
         var deathSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
@@ -228,7 +228,7 @@ internal static class SamusBodyArtworkVerification
             frame++)
         {
             AssertTrue(frame < 200, "retail Samus death reaches the explosion draw phase");
-            deathSamus.DeathSequence.Step(deathSamus, deathCgram, stock.DeathSteps);
+            deathSamus.DeathSequence.Step(deathSamus, deathCgram, stock.Gameplay.DeathSteps);
         }
         OamBuffer nativeDeathOam = SpriteFrameBuffer.DrawnOam(frame =>
             deathSamus.DeathSequence.DrawExplosion(frame, SamusBodySheetFixtures.For(stock)));
@@ -296,16 +296,16 @@ internal static class SamusBodyArtworkVerification
             // palette ownership passes to the independent bank-$9B sequence.
             for (int frame = 0; frame < 16; frame++)
             {
-                nativeSamus.DeathSequence.Step(nativeSamus, nativeColors, stock.DeathSteps);
-                installedSamus.DeathSequence.Step(installedSamus, installedColors, stock.DeathSteps);
+                nativeSamus.DeathSequence.Step(nativeSamus, nativeColors, stock.Gameplay.DeathSteps);
+                installedSamus.DeathSequence.Step(installedSamus, installedColors, stock.Gameplay.DeathSteps);
             }
             int pairFrames = 0;
             for (int frame = 0; frame < 240; frame++)
             {
                 SamusDeathSequenceStepResult nativeStep = nativeSamus.DeathSequence.Step(
-                    nativeSamus, nativeColors, stock.DeathSteps);
+                    nativeSamus, nativeColors, stock.Gameplay.DeathSteps);
                 SamusDeathSequenceStepResult installedStep = installedSamus.DeathSequence.Step(
-                    installedSamus, installedColors, stock.DeathSteps);
+                    installedSamus, installedColors, stock.Gameplay.DeathSteps);
                 // Samus's death colours are her shades and the whiteout a colour the display shows (#1512): each frame
                 // her shown suit and suitless colours are one of the cartridge's death palette pairs for her suit, and the
                 // whiteout one of the cartridge's whiteout shades.
@@ -348,7 +348,7 @@ internal static class SamusBodyArtworkVerification
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
             // The half pictures the import composes a pose's frame zero of are the definition records the cartridge's
             // frame-zero selector names (#1465, #1585).
-            SamusBodyFramePictures pictures = stock.Source.Pictures(SamusPoseNumbering.FromNumber(pose), 0);
+            SamusBodyFramePictures pictures = stock.Pictures(SamusPoseNumbering.FromNumber(pose), 0);
             SamusBodyFrameSelection selection = stock.Selection(SamusPoseNumbering.FromNumber(pose), 0);
             AssertEqual(SamusBodySources.Picture(stock.DefinitionRecord(SamusBodyHalf.Top, selection.TopSet, selection.TopPosition)),
                 pictures.Top, $"Samus pose {pose:X2} composes its frame-zero top definition");
@@ -370,9 +370,9 @@ internal static class SamusBodyArtworkVerification
 
     /// <summary>Compares arm-cannon pose records and tiles to ROM, then checks guarded cover OAM and DMA output.</summary>
     private static void VerifySamusArmCannonArtwork(ISnesAddressSpace bus,
-        InstalledSamusBodyArtwork body)
+        SamusBodySources body)
     {
-        SamusArmCannonSourceArtwork armCannon = body.ArmCannon.Source;
+        SamusArmCannonSourceArtwork armCannon = body.ArmCannon;
         for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
         {
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
@@ -413,7 +413,7 @@ internal static class SamusBodyArtworkVerification
             int direction = bus.ReadCartridgeByte(descriptor);
             bool frameDependent = (direction & 0x80) != 0;
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
-            SamusArmCannonPlacement placement = body.ArmCannon.Placement(SamusPoseNumbering.FromNumber(pose));
+            SamusArmCannonPlacement placement = body.ArmCannon.Gameplay.Placement(SamusPoseNumbering.FromNumber(pose));
             AssertEqual(SuperMetroid.Core.Samus.Drawing.SamusArmCannonState.DrawOrderOf(bus.ReadCartridgeByte(descriptor + 1)),
                 placement.DrawOrder, $"arm-cannon pose {pose:X2} drawing mode");
             AssertEqual(SuperMetroid.AssetExtraction.Samus.SamusProjectileDirectionCodec.FromAimIndex(direction & 0x7f),

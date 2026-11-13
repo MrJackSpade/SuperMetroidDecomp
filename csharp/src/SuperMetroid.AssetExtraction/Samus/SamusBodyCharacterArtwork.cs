@@ -31,22 +31,22 @@ public sealed class SamusBodyCharacterArtwork
     /// <summary>Composed body characters per selected pair, built once.</summary>
     private readonly System.Collections.Concurrent.ConcurrentDictionary<SamusBodyArtworkKey, SpriteArtwork> bodyArtwork = new();
 
-    /// <summary>The body catalog whose frames select these characters.</summary>
-    public InstalledSamusBodyArtwork Body { get; }
+    /// <summary>The body whose frames select these characters.</summary>
+    public SamusBodySources Body { get; }
 
     /// <summary>Binds <paramref name="top"/> and <paramref name="bottom"/> to the frames of <paramref name="body"/>.</summary>
     /// <param name="body">The body catalog whose frames select these characters; <see cref="Create"/> builds one that names them.</param>
     /// <param name="top">Upper-body tile definitions grouped by pointer table entry.</param>
     /// <param name="bottom">Lower-body tile definitions grouped by pointer table entry.</param>
     /// <exception cref="InvalidDataException">A group is missing, malformed or does not fill its set's records.</exception>
-    public SamusBodyCharacterArtwork(InstalledSamusBodyArtwork body, SamusBodyTileTransfer[][] top, SamusBodyTileTransfer[][] bottom)
+    public SamusBodyCharacterArtwork(SamusBodySources body, SamusBodyTileTransfer[][] top, SamusBodyTileTransfer[][] bottom)
     {
         Body = Ensure.NotNull(body);
         Ensure.NotNull(top);
         Ensure.NotNull(bottom);
         if (top.Length != SamusBodySources.TopSetCount || bottom.Length != SamusBodySources.BottomSetCount)
             throw new InvalidDataException("Samus body selector tables have an invalid length.");
-        int[] topStarts = body.Source.TopSetStarts.ToArray(), bottomStarts = body.Source.BottomSetStarts.ToArray();
+        int[] topStarts = body.TopSetStarts.ToArray(), bottomStarts = body.BottomSetStarts.ToArray();
         this.top = CloneAndValidate(topStarts, top);
         this.bottom = CloneAndValidate(bottomStarts, bottom);
         ValidateCompleteGroups(topStarts, bottomStarts, this.top, this.bottom);
@@ -107,7 +107,7 @@ public sealed class SamusBodyCharacterArtwork
     /// <summary>Indexes each tile definition at its physical record.</summary>
     private void IndexDefinitions(SamusBodyHalf half, SamusBodyTileTransfer[][] groups)
     {
-        ReadOnlySpan<int> starts = half == SamusBodyHalf.Top ? Body.Source.TopSetStarts : Body.Source.BottomSetStarts;
+        ReadOnlySpan<int> starts = half == SamusBodyHalf.Top ? Body.TopSetStarts : Body.BottomSetStarts;
         for (int set = 0; set < groups.Length; set++)
         for (int position = 0; position < groups[set].Length; position++)
         {

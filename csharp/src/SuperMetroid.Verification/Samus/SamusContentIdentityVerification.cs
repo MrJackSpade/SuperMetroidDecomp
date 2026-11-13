@@ -17,7 +17,7 @@ internal static class SamusContentIdentityVerification
     /// Builds a minimal Samus art catalog; its characters are registered, so bodies built from its tables compose their
     /// sheets from them.
     /// </summary>
-    internal static InstalledSamusBodyArtwork CreateSamusIdentityFixture() =>
+    internal static SamusBodySources CreateSamusIdentityFixture() =>
         SamusBodySheetFixtures.Register(CreateSamusIdentityCharacters());
 
     /// <summary>Builds a minimal Samus art catalog and its characters.</summary>
@@ -66,7 +66,7 @@ internal static class SamusContentIdentityVerification
             CoverTiles = Enumerable.Range(0, SamusProjectileDirectionCodec.Count)
                 .Select(_ => new int[SamusArmCannonArtworkFormat.FramesPerDirection - 1]).ToArray(),
         };
-        InstalledSamusArmCannonArtwork cannon = InstalledSamusArmCannonArtworkTooling.Load(
+        SamusArmCannonSourceArtwork cannon = InstalledSamusArmCannonArtworkTooling.Load(
             new MemoryStream(SamusArmCannonSourceArtwork.Write(cannonDocument)));
         return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = topStarts, BottomSetStarts = bottomStarts, PoseFirstFrames = poses, Placements = placements, Frames = frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, ArmCannon = cannon }, Half(topStarts.Length), Half(bottomStarts.Length));
     }

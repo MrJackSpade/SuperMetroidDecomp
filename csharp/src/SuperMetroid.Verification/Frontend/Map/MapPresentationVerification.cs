@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Samus;
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -181,7 +182,7 @@ internal static class MapPresentationVerification
         /// <summary>Enemy character and sprite art bound alongside room art.</summary>
         public ImportEnemyArtwork EnemyTiles { get; }
         /// <summary>Samus body art bound before gameplay drawing begins.</summary>
-        public InstalledSamusBodyArtwork SamusBody { get; }
+        public SamusBodySources SamusBody { get; }
 
         /// <summary>
         /// The repository installation's room artwork set, gathered once per process (#1532): the map checks bind only map
@@ -216,7 +217,7 @@ internal static class MapPresentationVerification
 
             runtime.BossArtwork.KraidEyes = EnemyTiles.Bosses.KraidColors?.Eyes();
 
-            runtime.Artwork.SamusBodyArt = SamusBody;
+            runtime.Artwork.SamusBodyArt = SamusBody.Gameplay;
             runtime.ShotBlockVisuals.RoomObjectElevatorPlatformVisuals = elevatorPlatform;
         }
     }

@@ -9,7 +9,7 @@ internal static class SamusBodyCharacterArtworkConstants
     public static string CharactersContentIdentityOf(SamusBodyCharacterArtwork artwork)
     {
         Ensure.NotNull(artwork);
-        return ContentIdentityOf(artwork.Body.Source.TopSetStarts.ToArray(), artwork.Body.Source.BottomSetStarts.ToArray(), artwork.top, artwork.bottom);
+        return ContentIdentityOf(artwork.Body.TopSetStarts.ToArray(), artwork.Body.BottomSetStarts.ToArray(), artwork.top, artwork.bottom);
     }
 
     /// <summary>SHA-256 of each numbered half picture's transfer sizes and characters, in record order.</summary>

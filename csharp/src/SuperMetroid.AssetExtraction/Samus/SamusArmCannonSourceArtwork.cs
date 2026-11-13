@@ -12,10 +12,10 @@ namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// The arm cannon's installed artwork (#1463): the cartridge's descriptor bytes, cover appearances and cover tile
-/// selections, from which each pose's typed placement is decoded for gameplay. Its 8×8 cover characters are import data
+/// selections, from which each pose's typed placement is decoded for gameplay, which receives only <see cref="Gameplay"/> (#1616). Its 8×8 cover characters are import data
 /// the installation never holds (<see cref="SamusArmCannonCoverCharacters"/>, #1636), which the overlay sheet is composed from.
 /// </summary>
-public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
+public sealed class SamusArmCannonSourceArtwork
 {
     /// <summary>Tile-source slots: one row per native aim direction, each holding every cover-art frame slot.</summary>
     private static readonly FixedGridShape CoverTileShape =
@@ -48,13 +48,16 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
     /// <summary>Holds the complete installed descriptors, drawing data, cover appearances and cover tiles.</summary>
     private SamusArmCannonSourceArtwork(IReadOnlyDictionary<SamusPoseId, int> poseDescriptors, byte[] drawingData,
         SpritePart[] attributes, int[][] coverTiles)
-        : base(Placements(poseDescriptors, drawingData))
     {
+        Gameplay = new InstalledSamusArmCannonArtwork(Placements(poseDescriptors, drawingData));
         this.poseDescriptors = poseDescriptors.ToDictionary();
         this.drawingData = [.. drawingData];
         this.attributes = [.. attributes];
         openingTiles = [.. coverTiles.Select(row => row.ToArray())];
     }
+
+    /// <summary>Where each pose draws the cover, which is what the game reads of the arm cannon.</summary>
+    public InstalledSamusArmCannonArtwork Gameplay { get; }
 
     /// <summary>
     /// Decodes each pose's descriptor into its typed placement: the descriptor's direction byte, whose top bit makes

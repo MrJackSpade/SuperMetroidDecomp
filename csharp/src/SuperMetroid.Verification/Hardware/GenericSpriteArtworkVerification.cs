@@ -42,7 +42,7 @@ internal static class GenericSpriteArtworkVerification
         AreaMapPresentation maps = InstalledFixtures.Maps;
         IntroCinematicArtwork introArtwork = InstalledFixtures.IntroArtwork;
         InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
-        InstalledSamusBodyArtwork body = installation.LoadSamusBodyArt();
+        InstalledSamusBodyArtwork body = installation.LoadSamusBody().Gameplay;
 
         // Reference decoding is confined to this diagnostic. The production renderer
         // receives mutable memory only and the installed sprite composition catalog.

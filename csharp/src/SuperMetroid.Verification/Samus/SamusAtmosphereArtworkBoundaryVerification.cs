@@ -26,7 +26,7 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
     internal static void VerifySamusAtmosphereArtworkBoundary(string sourceRom)
     {
         var importBus = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
-        InstalledSamusAtmosphericArtwork artwork = InstalledFixtures.SamusBody.Atmosphere;
+        SamusAtmosphericSourceArtwork artwork = InstalledFixtures.SamusBody.Atmosphere;
 
         foreach (byte type in new byte[] { 1, 4, 6, 7 })
         for (byte frame = 0; frame < SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount; frame++)

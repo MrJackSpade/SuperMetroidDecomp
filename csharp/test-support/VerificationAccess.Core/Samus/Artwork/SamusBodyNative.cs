@@ -40,14 +40,14 @@ internal static class SamusBodyNative
     internal static Dictionary<SamusPoseId, int> Frames(IReadOnlyList<ushort> pointers) =>
         SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, pose => Frame(pointers[SamusPoseNumbers.Number(pose)]));
 
-    /// <summary>Native views of the body catalog.</summary>
-    extension(InstalledSamusBodyArtwork body)
+    /// <summary>Native views of the body's tables.</summary>
+    extension(SamusBodySources body)
     {
         /// <summary>The bank-$92 address of each upper-body definition group.</summary>
-        internal ushort[] TopSetPointers => [.. body.Source.TopSetStarts.ToArray().Select(RecordPointer)];
+        internal ushort[] TopSetPointers => [.. body.TopSetStarts.ToArray().Select(RecordPointer)];
 
         /// <summary>The bank-$92 address of each lower-body definition group.</summary>
-        internal ushort[] BottomSetPointers => [.. body.Source.BottomSetStarts.ToArray().Select(RecordPointer)];
+        internal ushort[] BottomSetPointers => [.. body.BottomSetStarts.ToArray().Select(RecordPointer)];
 
         /// <summary>The bank-$92 address of each pose with a record's frame list.</summary>
         internal IReadOnlyDictionary<SamusPoseId, ushort> PosePointers =>
@@ -59,7 +59,7 @@ internal static class SamusBodyNative
     }
 
     /// <summary>Where the cartridge stores the body frame selectors.</summary>
-    extension(InstalledSamusBodyArtwork)
+    extension(SamusBodySources)
     {
         /// <summary>$92:DB48: the SNES address of the first frame selector.</summary>
         internal static int FirstFrameAddress => SamusSourceDefinitions.BodyFrames.Value;

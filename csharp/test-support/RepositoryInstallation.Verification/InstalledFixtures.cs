@@ -100,8 +100,8 @@ internal static class InstalledFixtures
         ProjectilePresentationFiles.LoadForImport(CartridgeImportContent.Component(GameInstallationLayout.ProjectileDirectoryName),
             CartridgeImportContent.ImportData(GameInstallationLayout.ProjectileDirectoryName)));
 
-    /// <summary>Lazy Samus body and arm-cannon artwork.</summary>
-    private static readonly Lazy<InstalledSamusBodyArtwork> samusBody = Shared<InstalledSamusBodyArtwork>("Samus body", () => RepositoryInstallation.Installation.LoadSamusBodyArt());
+    /// <summary>Lazy Samus body and arm-cannon artwork: the repository installation's, whose game catalog its artwork binds.</summary>
+    private static readonly Lazy<SamusBodySources> samusBody = Shared<SamusBodySources>("Samus body", () => RepositoryInstallation.SamusBody);
 
     /// <summary>Lazy intro and Ceres-flight cinematic artwork as the import reads it, characters included, from the cartridge-derived extraction (#1636).</summary>
     private static readonly Lazy<IntroCinematicArtwork> introArtwork = Shared<IntroCinematicArtwork>("intro artwork", () =>
@@ -295,8 +295,8 @@ internal static class InstalledFixtures
         runtime.Artwork.SpriteSheets = SpriteSheets;
     }
 
-    /// <summary>The installation's Samus body and arm-cannon artwork, loaded once per process.</summary>
-    internal static InstalledSamusBodyArtwork SamusBody => samusBody.Value;
+    /// <summary>The installation's Samus body and arm-cannon artwork as the import reads them, loaded once per process.</summary>
+    internal static SamusBodySources SamusBody => samusBody.Value;
 
     /// <summary>The installation's intro cinematic artwork, loaded once per process.</summary>
     internal static IntroCinematicArtwork IntroArtwork => introArtwork.Value;
@@ -325,9 +325,9 @@ internal static class InstalledFixtures
     /// <summary>Binds the installation's body and grapple presentation to a standalone Samus.</summary>
     internal static SamusState BindSamus(SamusState samus)
     {
-        samus.Presentation.BindArtwork(SamusBody);
+        samus.Presentation.BindArtwork(SamusBody.Gameplay);
         samus.Presentation.BindSheets(SpriteSheets);
-        samus.ArmCannon.Artwork = SamusBody.ArmCannon;
+        samus.ArmCannon.Artwork = SamusBody.ArmCannon.Gameplay;
         samus.Grapple.FlarePlacement = Projectiles.Grapple.FlarePlacement;
         samus.Grapple.SwingFrames = Projectiles.Grapple.SwingFrames;
         return samus;
@@ -347,7 +347,7 @@ internal static class InstalledFixtures
         InstalledSamusBodyArtwork? samusBodyArtwork = null)
     {
         var intro = new IntroCinematicState(new IntroCinematicOverreads(SamusOverreads, BossAndIntroOverreads.ShellFragmentFallPastCurve), audio,
-            characterArtwork ?? IntroArtwork, samusBodyArtwork ?? SamusBody)
+            characterArtwork ?? IntroArtwork, samusBodyArtwork ?? SamusBody.Gameplay)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),

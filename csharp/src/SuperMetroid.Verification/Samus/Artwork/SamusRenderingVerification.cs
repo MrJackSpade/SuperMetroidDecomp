@@ -58,8 +58,8 @@ internal static void VerifySamusRenderingSlice()
     BindSyntheticSamusRendering(bus, samus);
     // The import composes pose 1's frame-zero picture of the definitions its selector names, laid where the picture's
     // parts read them (#1585).
-    InstalledSamusBodyArtwork poseOneArtwork = BoundArtwork(samus);
-    SamusBodyFramePictures poseOnePictures = poseOneArtwork.Source.Pictures(SamusPoseId.FacingRightNormalPose, 0);
+    SamusBodySources poseOneArtwork = BoundArtwork(samus);
+    SamusBodyFramePictures poseOnePictures = poseOneArtwork.Pictures(SamusPoseId.FacingRightNormalPose, 0);
     AssertEqual(0x92d0b0, 0x920000 | SamusBodyNative.RecordPointer(SamusBodySources.Record(poseOnePictures.Top)), "pose 1 frame 0 top tile definition");
     AssertEqual(0x92d1c8, poseOnePictures.Bottom is { } poseOneBottom ? 0x920000 | SamusBodyNative.RecordPointer(SamusBodySources.Record(poseOneBottom)) : 0,
         "pose 1 frame 0 bottom tile definition");
@@ -244,9 +244,9 @@ internal static void VerifySamusRenderingSlice()
     // The suited forward frame selects bottom set $FF: no bottom transfer. Its whole picture is composed of its own
     // selection alone, with no bottom picture carried from an earlier frame (#1585).
     var suited = new SamusBodyFrame(SamusPoseId.ForwardFacingSuitedPose, 0);
-    SamusBodyFramePictures suitedPictures = BoundArtwork(samus).Source.Pictures(suited.Pose, suited.PictureFrame);
+    SamusBodyFramePictures suitedPictures = BoundArtwork(samus).Pictures(suited.Pose, suited.PictureFrame);
     AssertTrue(suitedPictures.Bottom is null, "the suited forward frame names no bottom record");
-    AssertTrue(BoundArtwork(samus).Source.Spritemaps.PictureKey(Composition(samus, suited), suitedPictures) is { BottomPicture: null },
+    AssertTrue(BoundArtwork(samus).Spritemaps.PictureKey(Composition(samus, suited), suitedPictures) is { BottomPicture: null },
         "a frame with no bottom transfer is composed with no bottom picture");
     SpriteDraw[] suitedBody = [.. oamFrame.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.Samus)];
     AssertTrue(suitedBody.Length == 1 && ShowsBodyFrame(samus, suitedBody[0], suited),
@@ -454,9 +454,8 @@ private static bool ShowsBodyFrame(SamusState samus, SpriteDraw draw, SamusBodyF
         ReferenceEquals(sheets.Get(SpriteSheetId.SamusBody).Frame(frame.Name), image.Image);
 }
 
-/// <summary>The body artwork bound to <paramref name="samus"/>.</summary>
-private static InstalledSamusBodyArtwork BoundArtwork(SamusState samus) => samus.Presentation.Artwork
-    ?? throw new InvalidOperationException("Verification requires bound Samus body artwork.");
+/// <summary>The body fixture bound to <paramref name="samus"/>, as the import reads it.</summary>
+private static SamusBodySources BoundArtwork(SamusState samus) => samus.Presentation.BoundBodyFixture;
 
 /// <summary>The halves and chest cover the import composed <paramref name="frame"/>'s whole picture of (#1585).</summary>
 private static SamusBodyComposition Composition(SamusState samus, SamusBodyFrame frame) =>

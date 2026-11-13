@@ -97,8 +97,8 @@ public sealed record GameInstallation(string Root)
     public string ProjectileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.ProjectileDirectoryName);
     /// <summary>Installed Samus body PNGs and visual selectors, which the player edits in place.</summary>
     public string SamusBodyDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusBodyDirectoryName);
-    /// <summary>Loads the validated installed Samus body artwork.</summary>
-    public InstalledSamusBodyArtwork LoadSamusBodyArt() => SamusBodyArtworkFiles.Load(SamusBodyDirectory);
+    /// <summary>Loads the validated installed Samus body: the tables, compositions and linked artwork it is composed from.</summary>
+    public SamusBodySources LoadSamusBody() => SamusBodyArtworkFiles.Load(SamusBodyDirectory);
     /// <summary>Installed opening-cinematic artwork, which the player edits in place.</summary>
     public string IntroCinematicDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.IntroCinematicDirectoryName);
     /// <summary>Loads the installed opening-cinematic artwork.</summary>
@@ -288,19 +288,22 @@ public sealed record GameInstallation(string Root)
     public AreaMapPresentation LoadMaps() => MapPresentationFiles.Load(MapDirectory);
 
     /// <summary>
-    /// Loads every installed presentation catalog the frontend binds. Hosts pass the maps, projectile presentation and
-    /// enemy directory they already hold for content identity and save persistence.
+    /// Loads every installed presentation catalog the frontend binds. Hosts pass the maps, projectile presentation, enemy
+    /// directory and Samus body they already hold for content identity and save persistence; of the body, the frontend
+    /// binds what the game reads.
     /// </summary>
-    public GameArtwork LoadGameArtwork(AreaMapPresentation maps, InstalledProjectilePresentation projectiles, InstalledEnemyArtwork enemies)
+    public GameArtwork LoadGameArtwork(AreaMapPresentation maps, InstalledProjectilePresentation projectiles, InstalledEnemyArtwork enemies,
+        SamusBodySources samusBody)
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(projectiles);
         Ensure.NotNull(enemies);
+        Ensure.NotNull(samusBody);
         return new GameArtwork
         {
             MapPresentation = maps,
             IntroCinematicArt = LoadIntroCinematicArt(),
-            SamusBodyArt = LoadSamusBodyArt(),
+            SamusBodyArt = samusBody.Gameplay,
 
             EndingObjectArt = LoadEndingObjectArt(),
             EndingBackdrops = LoadEndingBackdrops(),

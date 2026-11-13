@@ -32,12 +32,12 @@ public sealed record SamusBodyArtworkParts
     /// <summary>The compositions each pose half shows at each animation frame, which the whole body pictures are composed from.</summary>
     public required SamusSpritemapSources Spritemaps { get; init; }
 
-    /// <summary>The selected appearance of the atmospheric effects.</summary>
-    public required InstalledSamusAtmosphericArtwork Atmosphere { get; init; }
+    /// <summary>The appearances of the atmospheric effects.</summary>
+    public required SamusAtmosphericSourceArtwork Atmosphere { get; init; }
 
     /// <summary>Editable fatal-damage and death palettes.</summary>
     public required InstalledSamusDeathPalettes DeathPalettes { get; init; }
 
-    /// <summary>Where each pose places the arm-cannon cover.</summary>
-    public required InstalledSamusArmCannonArtwork ArmCannon { get; init; }
+    /// <summary>The arm cannon's descriptors, appearances and cover tile selections, and where each pose places its cover.</summary>
+    public required SamusArmCannonSourceArtwork ArmCannon { get; init; }
 }

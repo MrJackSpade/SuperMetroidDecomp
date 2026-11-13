@@ -15,7 +15,7 @@ internal static class SamusArmCannonDefinitionsVerification
     /// <summary>Compares six opening flags with the cartridge and checks the second-sample transition without ROM policy reads.</summary>
     internal static void VerifySamusArmCannonDefinitions(SuperMetroidAddressSpace rom)
     {
-        var artwork = InstalledFixtures.SamusBody.ArmCannon;
+        var artwork = InstalledFixtures.SamusBody.ArmCannon.Gameplay;
         foreach (HudItem selectedHudItem in Enum.GetValues<HudItem>())
         {
             byte expected = rom.ReadCartridgeByte(

@@ -3,11 +3,11 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
-/// Where each pose draws the arm cannon's cover (#1463). Gameplay draws the cover's pre-coloured picture from the
+/// Where each pose draws the arm cannon's cover (#1463, #1616). Gameplay draws the cover's pre-coloured picture from the
 /// overlay sheet by aim direction and cover frame, at the pose's placement; the descriptors, appearances and tiles the
 /// placements and the sheet come from are the import pipeline's.
 /// </summary>
-public abstract class InstalledSamusArmCannonArtwork
+public sealed class InstalledSamusArmCannonArtwork
 {
     /// <summary>Each pose's placement.</summary>
     private readonly Dictionary<SamusPoseId, SamusArmCannonPlacement> placements;
@@ -15,7 +15,7 @@ public abstract class InstalledSamusArmCannonArtwork
     /// <summary>Holds each pose's placement.</summary>
     /// <param name="placements">The placement of every pose the import's tables describe.</param>
     /// <exception cref="InvalidDataException">A pose has no placement.</exception>
-    protected InstalledSamusArmCannonArtwork(IReadOnlyDictionary<SamusPoseId, SamusArmCannonPlacement> placements)
+    internal InstalledSamusArmCannonArtwork(IReadOnlyDictionary<SamusPoseId, SamusArmCannonPlacement> placements)
     {
         Ensure.NotNull(placements);
         if (placements.Values.Any(placement => placement is null))

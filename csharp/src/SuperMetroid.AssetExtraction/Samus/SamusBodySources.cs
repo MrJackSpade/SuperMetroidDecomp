@@ -11,9 +11,9 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// animation frame, and the placement each of those frames carries (#1517). A half picture is a numbered body definition
 /// record: a group's start plus a selection's position, which may run into the next group. The half pictures and the
 /// compositions are the import's private knowledge: it composes the whole picture of each pose frame from them (#1585),
-/// and gameplay sees only where each installed frame places the body.
+/// and gameplay receives only <see cref="Gameplay"/> (#1616).
 /// </summary>
-public sealed class SamusBodySources : InstalledSamusBodyArtwork
+public sealed class SamusBodySources
 {
     /// <summary>Number of records in the cartridge's pose tables, which the import reads them by.</summary>
     public const int PoseCount = SamusPoseNumbering.RecordCount;
@@ -47,8 +47,10 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
 
     /// <summary>Binds the frames <paramref name="installed"/> resolved from <paramref name="parts"/>.</summary>
     private SamusBodySources(SamusBodyArtworkParts parts, InstalledFrames installed)
-        : base(Content(parts, installed))
     {
+        Gameplay = new InstalledSamusBodyArtwork(Content(parts, installed));
+        Atmosphere = Ensure.NotNull(parts.Atmosphere);
+        ArmCannon = Ensure.NotNull(parts.ArmCannon);
         posePictures = installed.Pictures;
         Spritemaps = Ensure.NotNull(parts.Spritemaps);
         DeathPalettes = Ensure.NotNull(parts.DeathPalettes);
@@ -58,6 +60,18 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
         frames = (SamusBodyFrameSelection[])parts.Frames.Clone();
         Placements = parts.Placements.ToDictionary();
     }
+
+    /// <summary>
+    /// What the game reads of the body: where each installed frame places it, each pose's art origin, her death steps and
+    /// the arm cannon's placements.
+    /// </summary>
+    public InstalledSamusBodyArtwork Gameplay { get; }
+
+    /// <summary>The appearances of the atmospheric effects, which the atmosphere sheet is composed from.</summary>
+    public SamusAtmosphericSourceArtwork Atmosphere { get; }
+
+    /// <summary>The arm cannon's descriptors, appearances and tiles, which the overlay sheet is composed from.</summary>
+    public SamusArmCannonSourceArtwork ArmCannon { get; }
 
     /// <summary>The compositions each pose half shows, which the import composes the whole body pictures from.</summary>
     public SamusSpritemapSources Spritemaps { get; }
@@ -169,9 +183,8 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
     {
         OriginRises = installed.OriginRises,
         GraphicsYOffsets = parts.Placements.ToDictionary(pose => pose.Key, pose => pose.Value.GraphicsYOffset),
-        Atmosphere = parts.Atmosphere,
-        DeathSteps = parts.DeathPalettes.Steps,
-        ArmCannon = parts.ArmCannon,
+        DeathSteps = Ensure.NotNull(parts.DeathPalettes).Steps,
+        ArmCannon = Ensure.NotNull(parts.ArmCannon).Gameplay,
     };
 
     /// <summary>

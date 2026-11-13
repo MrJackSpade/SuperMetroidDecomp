@@ -75,12 +75,9 @@ Within either platform's application-data root:
 - `game/room-characters/`: stock indexed room-character PNGs and their manifest.
 - `game/samus-body/`: 24 indexed Samus upper/lower-body PNG atlases and editable
   pose/frame/transfer-definition JSON.
-- `game/enemy-tiles/`: 122 indexed ordinary enemy tile sheets, 122 RGB5 palettes,
-  Mother Brain's separate corpse-decay source PNG,
-  Crocomire's two melting images, two BG2 layouts, and skeleton-character PNG,
-  Kraid's body and head BG2
-  tile-reference maps, room-backdrop character PNG and RGB5 palette file, and
-  their manifest.
+- `game/enemy-tiles/`: the enemies' compositions and extended frames, the bosses' BG2 layouts and
+  tile-reference maps, Kraid's eye colours, and their manifest. The enemies' characters and the enemy, boss
+  and area colour documents are import data, which only pre-colour the sheets and are not installed.
 - `game/intro-cinematic/`: three stock indexed opening-scene character PNGs and their manifest.
 - `game/standard-objects/standard-object-characters.png`: indexed 4-bpp common
   gameplay sprite sheet, edited in place.

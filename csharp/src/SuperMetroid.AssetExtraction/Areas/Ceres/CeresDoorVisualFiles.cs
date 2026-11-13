@@ -20,8 +20,8 @@ public static class CeresDoorVisualFiles
 {
     /// <summary>Exports the Ceres door tile DMA as indexed PNG and its normal, escape and animated appearances as JSON.</summary>
     /// <param name="bus">Supported-cartridge address space containing the Ceres door tile and palette sources.</param>
-    /// <param name="directory">Destination directory receiving the color JSON; an existing file is replaced.</param>
-    /// <param name="importData">The import-data directory receiving the tile page (#1636), which only the import reads.</param>
+    /// <param name="directory">The component's directory, created if absent.</param>
+    /// <param name="importData">The import-data directory receiving the tile page (#1636) and the colour JSON (#1637), which only the import reads; existing files are replaced.</param>
     /// <returns>Uppercase SHA-256 digests of the exact tile and color files written.</returns>
     public static CeresDoorVisualHashes Extract(ISnesAddressSpace bus,
         string directory, string importData)
@@ -51,7 +51,7 @@ public static class CeresDoorVisualFiles
         Directory.CreateDirectory(directory);
         Directory.CreateDirectory(importData);
         File.WriteAllBytes(Path.Combine(importData, CeresDoorVisualFormat.TilesFileName), tilePng);
-        File.WriteAllBytes(Path.Combine(directory, CeresDoorVisualFormat.ColorsFileName), paletteJson);
+        File.WriteAllBytes(Path.Combine(importData, CeresDoorVisualFormat.ColorsFileName), paletteJson);
         return new CeresDoorVisualHashes(Convert.ToHexString(SHA256.HashData(tilePng)),
             Convert.ToHexString(SHA256.HashData(paletteJson)));
     }

@@ -355,7 +355,7 @@ public sealed record GameInstallation(string Root)
             XrayRevealVisuals = LoadXrayRevealVisuals(),
             ProjectileFrameBindings = projectiles.FrameBindings,
 
-            KraidEyes = enemies.KraidColors.Eyes(),
+            KraidEyes = enemies.KraidEyes,
             ChargeFlarePlacement = projectiles.FlarePlacement,
             GrappleFlarePlacement = projectiles.Grapple.FlarePlacement,
             GrappleSwingFrames = projectiles.Grapple.SwingFrames,

@@ -38,9 +38,11 @@ using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// Extracts every retail room-enemy graphics sheet (#1636): the characters and tile pages go to the component's import data
+/// Extracts every retail room-enemy graphics sheet (#1636): the characters and tile pages, and the enemy, boss and area
+/// colour documents only the import pre-colours sheets from (#1637), go to the component's import data
 /// (<see cref="SuperMetroid.AssetExtraction.Installation.ImportDataDirectory"/>), which the sheets compose from and the
-/// installer deletes before it publishes; the documents are installed, and the player edits them in place.
+/// installer deletes before it publishes; the other documents, Kraid's eye colours among them, are installed, and the player
+/// edits them in place.
 /// </summary>
 public static class EnemyTileArtworkFiles
 {
@@ -116,7 +118,7 @@ public static class EnemyTileArtworkFiles
                     Version = 1,
                     Colors = colors,
                 });
-                File.WriteAllBytes(Path.Combine(directory,
+                File.WriteAllBytes(Path.Combine(importData,
                     PaletteFileName(definitionPointer)), paletteJson);
                 entries.Add(headerWord, new EnemyTileFileEntry(
                     byteCount, Convert.ToHexString(SHA256.HashData(encoded)),
@@ -273,56 +275,60 @@ public static class EnemyTileArtworkFiles
         File.WriteAllBytes(Path.Combine(importData,
             KraidBackgroundArtworkFormat.RoomBackgroundFileName), kraidRoomBackground);
         byte[] kraidColors = ExtractKraidColors(bus);
-        File.WriteAllBytes(Path.Combine(directory, KraidColorFormat.FileName), kraidColors);
+        File.WriteAllBytes(Path.Combine(importData, KraidColorFormat.FileName), kraidColors);
+        // The game works with Kraid's eye colours alone (#1637): they are installed by what they colour.
+        byte[] kraidEyeColours = KraidEyeColourFile.Write(KraidColorFile.Read(new MemoryStream(kraidColors, writable: false)).Eyes());
+        File.WriteAllBytes(Path.Combine(directory, KraidEyeColourFile.FileName), kraidEyeColours);
         (string ceresDoorTilesHash, string ceresDoorColorsHash) =
             CeresDoorVisualFiles.Extract(bus, directory, importData);
         byte[] magdollitePaletteCycle = MagdollitePaletteCycleExtractor.Extract(bus);
         byte[] auxiliaryColors = EnemyAuxiliaryColorFiles.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, EnemyAuxiliaryColorFormat.FileName), auxiliaryColors);
-        File.WriteAllBytes(Path.Combine(directory, MagdollitePaletteCycleFormat.FileName),
+        // The enemies', bosses' and areas' colour documents only pre-colour their sheets: they are import data (#1637).
+        File.WriteAllBytes(Path.Combine(importData, EnemyAuxiliaryColorFormat.FileName), auxiliaryColors);
+        File.WriteAllBytes(Path.Combine(importData, MagdollitePaletteCycleFormat.FileName),
             magdollitePaletteCycle);
         byte[] workRobotPaletteCycle = WorkRobotPaletteCycleExtractor.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, WorkRobotPaletteCycleFormat.FileName),
+        File.WriteAllBytes(Path.Combine(importData, WorkRobotPaletteCycleFormat.FileName),
             workRobotPaletteCycle);
         byte[] crocomireColors = CrocomireColorExtractor.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, CrocomireColorFormat.FileName),
+        File.WriteAllBytes(Path.Combine(importData, CrocomireColorFormat.FileName),
             crocomireColors);
         byte[] draygonColors = DraygonColorExtractor.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, DraygonColorFormat.FileName),
+        File.WriteAllBytes(Path.Combine(importData, DraygonColorFormat.FileName),
             draygonColors);
         byte[] phantoonColors = PhantoonColorExtractor.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, PhantoonColorFormat.FileName),
+        File.WriteAllBytes(Path.Combine(importData, PhantoonColorFormat.FileName),
             phantoonColors);
         byte[] chozoAndTubeColors = ChozoAndTubeColorExtractor.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, ChozoAndTubeColorFormat.FileName),
+        File.WriteAllBytes(Path.Combine(importData, ChozoAndTubeColorFormat.FileName),
             chozoAndTubeColors);
         byte[] sporeSpawnColors = SporeSpawnColorExtractor.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, SporeSpawnColorFormat.FileName),
+        File.WriteAllBytes(Path.Combine(importData, SporeSpawnColorFormat.FileName),
             sporeSpawnColors);
         byte[] dachoraColors = DachoraColorExtractor.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, DachoraColorFormat.FileName),
+        File.WriteAllBytes(Path.Combine(importData, DachoraColorFormat.FileName),
             dachoraColors);
         byte[] shitroidColors = ShitroidColorExtractor.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, ShitroidColorFormat.FileName),
+        File.WriteAllBytes(Path.Combine(importData, ShitroidColorFormat.FileName),
             shitroidColors);
         byte[] babyMetroidCutsceneColors =
             BabyMetroidCutsceneColorExtractor.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory,
+        File.WriteAllBytes(Path.Combine(importData,
             BabyMetroidCutsceneColorFormat.FileName), babyMetroidCutsceneColors);
         byte[] botwoonColors = BotwoonColorExtractor.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, BotwoonColorFormat.FileName),
+        File.WriteAllBytes(Path.Combine(importData, BotwoonColorFormat.FileName),
             botwoonColors);
         byte[] motherBrainDeathColors = MotherBrainDeathColorExtractor.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory,
+        File.WriteAllBytes(Path.Combine(importData,
             MotherBrainDeathColorFormat.FileName), motherBrainDeathColors);
         byte[] zebetiteColors = ZebetiteColorExtractor.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, ZebetiteColorFile.FileName),
+        File.WriteAllBytes(Path.Combine(importData, ZebetiteColorFile.FileName),
             zebetiteColors);
         byte[] norfairRidleyColors = NorfairRidleyColorExtractor.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, NorfairRidleyColorFormat.FileName),
+        File.WriteAllBytes(Path.Combine(importData, NorfairRidleyColorFormat.FileName),
             norfairRidleyColors);
         byte[] tourianStatueColors = TourianStatueColorExtractor.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, TourianStatueColorFormat.FileName),
+        File.WriteAllBytes(Path.Combine(importData, TourianStatueColorFormat.FileName),
             tourianStatueColors);
         var manifest = new EnemyTileManifest(EnemyTileArtworkFormat.Version,
             sourceCartridgeSha256, entries,
@@ -349,6 +355,7 @@ public static class EnemyTileArtworkFiles
             kraidHeadHashes,
             Convert.ToHexString(SHA256.HashData(kraidRoomBackground)),
             Convert.ToHexString(SHA256.HashData(kraidColors)),
+            Convert.ToHexString(SHA256.HashData(kraidEyeColours)),
             ceresDoorTilesHash, ceresDoorColorsHash,
             Convert.ToHexString(SHA256.HashData(magdollitePaletteCycle)),
             Convert.ToHexString(SHA256.HashData(workRobotPaletteCycle)),
@@ -373,16 +380,18 @@ public static class EnemyTileArtworkFiles
 
     /// <summary>
     /// Checks the manifest, then reads what the game binds from the installed documents (#1636): every frame's display and
-    /// Kraid's colours. It reads no character page; the installation holds none.
+    /// Kraid's eye colours (#1637). It reads no character page or colour document only the import reads; the installation
+    /// holds none.
     /// </summary>
     public static InstalledEnemyArtwork Load(string directory) => EnemyTileArtworkReader.Open(directory).LoadInstalled();
 
     /// <summary>
-    /// Checks the manifest, then compiles the extracted documents in <paramref name="directory"/> and the characters in its
-    /// import data <paramref name="importData"/> into the enemy, boss and area catalogs the import composes from.
+    /// Checks the manifest, then compiles the extracted documents in <paramref name="directory"/> and the characters and
+    /// colour documents in its import data <paramref name="importData"/> into the enemy, boss and area catalogs the import
+    /// composes from.
     /// </summary>
     /// <param name="directory">The component's directory, holding the manifest and the documents.</param>
-    /// <param name="importData">The component's import-data directory, holding the character and tile pages.</param>
+    /// <param name="importData">The component's import-data directory, holding the character and tile pages and the colour documents.</param>
     public static ImportEnemyArtwork LoadForImport(string directory, string importData) =>
         EnemyTileArtworkReader.Open(directory).LoadForImport(importData);
 
@@ -398,7 +407,7 @@ public static class EnemyTileArtworkFiles
     internal static string FileName(EnemyDefinitionId definitionId) =>
         $"enemy-{EnemyDefinitionIds.HeaderPointer(definitionId):X4}-tiles.png";
 
-    /// <summary>The RGB5 palette JSON file name of <paramref name="definitionId"/>'s colours, named by its header pointer.</summary>
+    /// <summary>The import-data RGB5 palette JSON file name of <paramref name="definitionId"/>'s colours, named by its header pointer.</summary>
     internal static string PaletteFileName(EnemyDefinitionId definitionId) =>
         $"enemy-{EnemyDefinitionIds.HeaderPointer(definitionId):X4}-colors.json";
 
@@ -571,6 +580,7 @@ public static class EnemyTileArtworkFiles
         Dictionary<int, string> KraidHeadsSha256,
         string KraidRoomBackgroundSha256,
         string KraidColorsSha256,
+        string KraidEyeColoursSha256,
         string CeresDoorTilesSha256,
         string CeresDoorColorsSha256,
         string MagdollitePaletteCycleSha256,

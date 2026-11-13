@@ -37,9 +37,12 @@ internal static class RoomCharacterInstallationVerification
         AssertTrue(File.Exists(Path.Combine(installed.EnemyTileDirectory,
                 EnemyTileArtworkFormat.ManifestFileName)),
             "enemy-tile stock manifest is installed");
+        // The enemies' palettes only pre-colour their sheets: they are import data (#1637), which the installation never holds.
+        AssertEqual(0, Directory.GetFiles(installed.EnemyTileDirectory, "*-colors.json").Length,
+            "the installation holds no enemy, boss or area colour document");
         AssertEqual(EnemyTileArtworkFormat.RetailDefinitionCount,
-            Directory.GetFiles(installed.EnemyTileDirectory, "enemy-????-colors.json").Length,
-            "full installer publishes all retail enemy palettes");
+            Directory.GetFiles(CartridgeImportContent.ImportData(GameInstallationLayout.EnemyTileDirectoryName), "enemy-????-colors.json").Length,
+            "the import extracts every retail enemy palette into its import data");
         _ = installed.LoadEnemyTiles();
         // Room characters are the import's input (#1466) and import data no installation holds (#1636): they are read
         // from the cartridge-derived extraction, and rooms show pre-composed pictures, which a player edits in the

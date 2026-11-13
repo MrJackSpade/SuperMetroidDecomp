@@ -64,6 +64,15 @@ internal static class EnemyTileArtworkKraidColorsVerification
         }
         AssertThrows<ArgumentOutOfRangeException>(() => eyes.HealthBand(KraidHealthThresholdDefinitions.EighthCount).ToArray(),
             "Kraid's eye colours reject a ninth health band");
+        // The game reads the eye colours from their own installed document by purpose (#1637), and no other Kraid colour.
+        SuperMetroid.AssetExtraction.Installation.GameInstallation installation = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation;
+        AssertTrue(!File.Exists(Path.Combine(installation.EnemyTileDirectory, KraidColorFormat.FileName)),
+            "the installation holds none of Kraid's colours but his eyes'");
+        KraidEyeColours installedEyes = installation.LoadEnemyTiles().KraidEyes;
+        for (int band = -1; band < KraidHealthThresholdDefinitions.EighthCount; band++)
+            AssertTrue((band < 0 ? installedEyes.Hurt : installedEyes.HealthBand(band)).ToArray()
+                    .SequenceEqual((band < 0 ? eyes.Hurt : eyes.HealthBand(band)).ToArray()),
+                $"Kraid band {band}'s installed eye colours are the eyes' colours of his health colours");
         AssertEqual(0, guardForAllColors.ForbiddenReadAttempts,
             "all installed Kraid palette rows avoid their ROM sources");
 

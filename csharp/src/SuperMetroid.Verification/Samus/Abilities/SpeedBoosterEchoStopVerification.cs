@@ -99,9 +99,14 @@ internal static class SpeedBoosterEchoStopVerification
         speed.HasRunningMomentum = true;
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
         int animation = 0;
+        int echoRequests = 0;
         speed.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running, ControllerButton.B,
-            0, ref animation, out _);
-        AssertTrue(speed.ConsumeEchoSoundRequest(), "deferred producer publishes its start request");
+            0, ref animation, out _, () =>
+            {
+                echoRequests++;
+                return null;
+            });
+        AssertEqual(1, echoRequests, "reaching stage four requests the echo's start sound");
         AssertEqual(1, speed.EchoSoundFlag, "consuming the start event retains the persistent echo flag");
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0, 0);
         samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.SignedLatch;
@@ -124,12 +129,10 @@ internal static class SpeedBoosterEchoStopVerification
         samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(8);
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1);
         speed.EchoSoundFlag = 1;
-        speed.EchoSoundRequested = true;
         samus.LiquidPhysics.BeginFrameSoundRequests();
         var sand = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), 16).ToArray(), Enumerable.Repeat(RoomBlockBehaviorCodec.Decode(0x80), 16).ToArray(), new RoomBlockAppearance[16]), RoomLevelData.NothingBeyondGrid());
         SamusInsideBlockReactions.PrepareFrame(sand, samus, AreaId.Maridia);
         AssertEqual(0, speed.EchoSoundFlag, "quicksand clears the native persistent flag");
-        AssertTrue(speed.EchoSoundRequested, "quicksand does not retract a previously published start command");
         SamusPostDrawAudio.Step(samus, SamusMovementType.Standing, 0);
         AssertEqual(0, samus.LiquidPhysics.SoundRequests.Count, "quicksand silently suppresses the post-draw stop");
     }

@@ -23,4 +23,10 @@ internal sealed record GameplaySessionCarryover
 
     /// <summary>The session's live and stored explored maps, which the game keeps across games and demos.</summary>
     public required StoredExploredMaps<AreaId> StoredExploredMaps { get; init; }
+
+    /// <summary>
+    /// The session's sound and music queues, which the runtime's gameplay requests go straight into as they are made; none
+    /// for a runtime outside a session, whose requests reach no queue.
+    /// </summary>
+    public AudioQueues? Audio { get; init; }
 }

@@ -48,7 +48,7 @@ internal static class Layer3PlaneVerification
         ushort[] before = runtime.Hud.TileWords(runtime.InstalledHudArtwork);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Health = samus.Health == 42 ? 37 : 42;
-        runtime.Hud.UpdateGameplayCounters(samus);
+        runtime.Hud.UpdateGameplayCounters(samus, runtime.AudioRequests);
         ushort[] after = runtime.Hud.TileWords(runtime.InstalledHudArtwork);
         int cell = Enumerable.Range(0, after.Length).First(index => after[index] != before[index]);
         runtime.FrameBoundary.BeginAcceptedFrame(0);

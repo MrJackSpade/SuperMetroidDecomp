@@ -53,26 +53,6 @@ public sealed class HudState
     /// <summary>Whether the HUD has been set up from an inventory.</summary>
     public bool IsInitialized { get; private set; }
 
-    /// <summary>
-    /// One-frame publication of the item-selection sound from the HUD update.
-    /// The frontend consumes it after the runtime frame has completed.
-    /// </summary>
-    public bool SelectionSoundRequestedThisFrame { get; private set; }
-    /// <summary>Transfers the pending HUD sound once, including across frontend frame boundaries.</summary>
-    public bool ConsumeSelectionSoundRequest()
-    {
-        bool requested = SelectionSoundRequestedThisFrame;
-        SelectionSoundRequestedThisFrame = false;
-        return requested;
-    }
-
-    /// <summary>
-    /// Sound suppression captured when the HUD requests its sound, rather than
-    /// when the frontend eventually publishes it. Later explosion state changes must
-    /// not retroactively admit or reject an earlier request.
-    /// </summary>
-    public bool SelectionSoundSuppressedThisFrame { get; private set; }
-
     /// <summary>Absolute area-map tile (X 0-63, Y 0-31) selected by the latest minimap update.</summary>
     public Position16<MapTiles> MinimapCenter { get; private set; }
 
@@ -91,28 +71,30 @@ public sealed class HudState
         // HUD setup initializes the previous selected item to zero. The HUD update
         // performs the first live comparison on the next gameplay pass.
         PreviousSelectedItem = HudItem.Beam;
-        SelectionSoundRequestedThisFrame = false;
         IsInitialized = true;
     }
 
     /// <summary>
-    /// The HUD's update: reads Samus's values for the HUD to show and, when the selected item has changed, requests the
-    /// item-selection sound. Gameplay runs it every gameplay pass, so enemy damage that changes Samus's state during the
-    /// pass reaches the next accepted frame.
+    /// The HUD's update: reads Samus's values for the HUD to show and, when the selected item has changed, queues the
+    /// item-selection sound into <paramref name="audio"/> at once, as the HUD routine does. Gameplay runs it every gameplay
+    /// pass, so enemy damage that changes Samus's state during the pass reaches the next accepted frame.
     /// </summary>
+    /// <param name="samus">Samus, whose values the HUD shows.</param>
+    /// <param name="audio">The update's audio requests the selection sound joins.</param>
+    /// <param name="timeIsFrozen">Whether time is frozen, which silences the selection.</param>
+    /// <param name="soundSuppressed">Whether sounds are suppressed as the HUD requests its sound.</param>
     [IndependentFlag("Time freeze and sound suppression are separate runtime states supplied by the frame.")]
-    public void UpdateGameplayCounters(
+    internal void UpdateGameplayCounters(
         SamusState samus,
+        GameplayAudioRequests audio,
         bool timeIsFrozen = false,
         bool soundSuppressed = false)
     {
         Ensure.NotNull(samus);
+        Ensure.NotNull(audio);
         if (!IsInitialized)
             throw new InvalidOperationException("Initialize the HUD before updating gameplay counters.");
 
-        SelectionSoundRequestedThisFrame = false;
-
-        SelectionSoundSuppressedThisFrame = soundSuppressed;
         values = HudSnapshot.Of(samus);
 
         // Selecting an item publishes the item-select sound. This belongs in the live HUD update rather than the input
@@ -123,10 +105,10 @@ public sealed class HudState
             PreviousSelectedItem = samus.SelectedHudItem;
 
             SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
-            SelectionSoundRequestedThisFrame =
-                movementType is not (SamusMovementType.SpinJumping or SamusMovementType.WallJumping) &&
+            if (movementType is not (SamusMovementType.SpinJumping or SamusMovementType.WallJumping) &&
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
-                !timeIsFrozen;
+                !timeIsFrozen)
+                audio.QueueSound(SamusSound.HudWeaponSelect, SoundRequestPriority.Normal, soundSuppressed);
         }
     }
 

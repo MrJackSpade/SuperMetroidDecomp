@@ -30,6 +30,8 @@ internal sealed class MessageBoxFlow
     private readonly SamusSuitPickupState _suitPickup;
     /// <summary>Marks accepted gunship and room station saves in area progression bits.</summary>
     private readonly SharedGameState _system;
+    /// <summary>The runtime's audio requests, which the HUD update after a message box queues its selection sound into.</summary>
+    private readonly GameplayAudioRequests _audioRequests;
 
     /// <summary>Retains the runtime owners needed to resolve message outcomes once the box closes.</summary>
     internal MessageBoxFlow(MessageBoxFlowDependencies dependencies)
@@ -41,6 +43,7 @@ internal sealed class MessageBoxFlow
         _room = dependencies.Room;
         _suitPickup = dependencies.SuitPickup;
         _system = dependencies.System;
+        _audioRequests = Ensure.NotNull(dependencies.AudioRequests);
     }
     /// <summary>Suit transformation to start when its item message returns to the room object.</summary>
     private SamusSuitPickupKind? _pendingSuitPickup;
@@ -73,9 +76,8 @@ internal sealed class MessageBoxFlow
     /// Returns and clears the message selector's momentary sound publication.
     /// </summary>
     /// <remarks>
-    /// Message-box updates run no gameplay and therefore do not increment
-    /// <see cref="AcceptedFrameBoundary.CompletedGameplayAudioPublication"/>. Giving this publisher explicit
-    /// consume semantics keeps it audible once without reopening stale gameplay lists.
+    /// Message-box updates run no gameplay; the frontend queues this request at the update's end, and consuming it keeps
+    /// it audible once.
     /// </remarks>
     public bool ConsumeMessageBoxSelectionSoundRequest()
     {
@@ -154,7 +156,7 @@ internal sealed class MessageBoxFlow
         // The resumed dispatch reaches the HUD handler, which shows the new inventory. A
         // suspended frame tail does that itself; a capture without one updates it here.
         if (_player.Samus is not null && !frameSuspended)
-            _hud.UpdateGameplayCounters(_player.Samus, _freeze.TimeIsFrozen,
+            _hud.UpdateGameplayCounters(_player.Samus, _audioRequests, _freeze.TimeIsFrozen,
                 soundSuppressed: bombProjectiles.PowerBombExplosion.IsActive);
 
         // The message returns directly to the suspended item's script.

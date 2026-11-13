@@ -694,19 +694,22 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(SamusBombJumpRequest.Published(SamusBombJumpDirection.Straight).Accept(), bombProjectileSamus.BombJumpRequest,
         "morphed setup accepts the request on the following frame");
 
-    BombProjectileFrameResult explosion = default;
     while (!bombs.Slots[0].IsExploding)
-        explosion = bombs.StepFrame(new SamusTerrain { Level = floor }, bombProjectileSamus, 0, 0);
+    {
+        // Each pass is an update of its own; the bombs' record keeps only its requests.
+        bombs.AudioRequests.BeginUpdate();
+        _ = bombs.StepFrame(new SamusTerrain { Level = floor }, bombProjectileSamus, 0, 0);
+    }
     AssertTrue(bombs.Slots[0].IsExploding, "timer zero selects bomb explosion list");
     AssertEqual(SamusBombProjectileSystem.NormalBombType, bombs.Slots[0].Type, "the exploding bomb stays a bomb");
     AssertTrue(bombs.Slots[0].HasReactedToTerrain, "first explosion pass marks block cross handled");
     AssertEqual(RoomTerrainBlocks.EdgeSolid, floor.GetCollisionBlockByIndex(4 * width + 3).Terrain,
         "bottom reaction leaves the fixture solid floor intact without inventing a PLM");
-    AssertEqual(1, (explosion.SoundRequests ?? throw new InvalidOperationException("Verification requires explosion.SoundRequests.")).Count,
-        "normal bomb fuse expiry publishes exactly one sound request");
+    AssertEqual(1, bombs.AudioRequests.SoundRequests.Count,
+        "normal bomb fuse expiry queues exactly one sound request");
     AssertEqual(
         new SoundRequest(EnemySound.BombExplosion, SoundRequestPriority.Normal),
-        explosion.SoundRequests[0],
+        bombs.AudioRequests.SoundRequests[0],
         "normal bomb fuse expiry requests the bomb explosion at normal priority");
 
     for (int tick = 0; tick < 20 && bombs.BombCounter != 0; tick++)
@@ -732,16 +735,17 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(1, spreadSamus.BombSpreadChargeTimeoutCounter,
         "held Down advances native bomb-spread timeout");
 
+    spreadBombs.AudioRequests.BeginUpdate();
     BombProjectileFrameResult spreadReleased = spreadBombs.StepFrame(new SamusTerrain { Level = empty }, spreadSamus, ControllerButton.X, 0);
     AssertTrue(spreadBombs.Slots.All(slot => slot.IsActive && slot.IsBombSpread),
         "releasing Down while holding charged Shoot starts bomb spread");
     AssertTrue(spreadReleased.BeamChargeConsumed,
         "bomb spread publishes charge teardown to shared beam owner");
-    AssertEqual(1, (spreadReleased.SoundRequests ?? throw new InvalidOperationException("Verification requires spreadReleased.SoundRequests.")).Count,
-        "bomb spread publishes one charge-cancellation sound request");
+    AssertEqual(1, spreadBombs.AudioRequests.SoundRequests.Count,
+        "bomb spread queues one charge-cancellation sound request");
     AssertEqual(
         new SoundRequest(SamusSound.Silence, SoundRequestPriority.High),
-        spreadReleased.SoundRequests[0],
+        spreadBombs.AudioRequests.SoundRequests[0],
         "bomb spread queues cartridge library-one sound two with Max9");
     AssertEqual(5, spreadBombs.BombCounter,
         "bomb spread occupies all five physical bomb slots");
@@ -901,9 +905,11 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertTrue(armedPowerBombOam.LastFinalizedSpriteCount > 0,
         "armed Power Bomb draws its fast-list spritemap before detonation");
 
-    BombProjectileFrameResult powerBombFuse = default;
     while (!powerBombs.PowerBombExplosion.IsActive)
-        powerBombFuse = powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, 0, 0);
+    {
+        powerBombs.AudioRequests.BeginUpdate();
+        _ = powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, 0, 0);
+    }
     AssertEqual(0, powerBombs.Slots[0].BombTimer.RawValue,
         "the fuse has run out once the explosion starts");
     AssertEqual(PowerBombExplosionPhase.PendingPreExplosionSetup,
@@ -915,7 +921,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         "normal explosion becomes active at its spawn");
     AssertEqual(
         new SoundRequest(SamusSound.PowerBombExplosion, SoundRequestPriority.Essential),
-        (powerBombFuse.SoundRequests ?? throw new InvalidOperationException("Verification requires powerBombFuse.SoundRequests.")).Single(),
+        powerBombs.AudioRequests.SoundRequests.Single(),
         "power-bomb spawn queues cartridge library-one explosion sound");
     OamBuffer detonatedPowerBombOam = SpriteFrameBuffer.DrawnOam(frame =>
         powerBombs.Draw(frame, cameraPosition: new(0, 0), InstalledFixtures.ProjectileArtwork()));

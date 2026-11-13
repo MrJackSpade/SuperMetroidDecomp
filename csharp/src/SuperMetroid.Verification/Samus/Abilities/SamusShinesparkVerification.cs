@@ -104,12 +104,9 @@ internal static void VerifySamusStoredShineAndShinespark()
     // Ten further calls arrive with timer 170 on the final call and publish the warning.
     for (int tick = 0; tick < 10; tick++)
         shine.Shinespark.UpdatePalette(samusColours, equippedItems: 0);
-    AssertTrue(shine.Shinespark.StoredShineWarningSoundRequested,
-        "stored timer 170 requests warning sound");
-    AssertTrue(shine.Shinespark.ConsumeStoredShineWarningSoundRequest(),
-        "frontend can consume the stored-shine warning exactly once");
-    AssertTrue(!shine.Shinespark.ConsumeStoredShineWarningSoundRequest(),
-        "consumed stored-shine warning cannot replay");
+    AssertSequenceEqual(new[] { new SoundRequest(RoomSound.StoredShinespark, SoundRequestPriority.High) },
+        shine.AudioRequests.SoundRequests.Where(request => request.SoundEffect == RoomSound.StoredShinespark),
+        "stored timer 170 queues the warning sound once, at high priority");
     AssertEqual(169, shine.Shinespark.ShineTimer,
         "warning frame still decrements timer");
 
@@ -173,10 +170,8 @@ internal static void VerifySamusStoredShineAndShinespark()
         directional.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0));
         directional.Shinespark.BeginWindup(directional);
         directional.Shinespark.BeginDirectionalLaunch(directional, targetPose);
-        AssertTrue(directional.Shinespark.ConsumeLaunchSoundRequest(),
-            $"pose ${(int)SamusPoseNumbers.Number(targetPose):X2} publishes one launch sound");
-        AssertTrue(!directional.Shinespark.ConsumeLaunchSoundRequest(),
-            $"pose ${(int)SamusPoseNumbers.Number(targetPose):X2} launch sound is one-shot");
+        AssertEqual(1, directional.AudioRequests.CountOf(RoomSound.Shinespark),
+            $"pose ${(int)SamusPoseNumbers.Number(targetPose):X2} queues one launch sound");
         directional.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x2800);
         uint directionalXBefore = directional.Kinematics.Position.X.RawValue;
         uint directionalYBefore = directional.Kinematics.Position.Y.RawValue;
@@ -322,10 +317,9 @@ internal static void VerifySamusStoredShineAndShinespark()
         "29-energy frame moves then enters crash without another drain");
     AssertEqual(ShinesparkPhase.Crash, horizontal.Shinespark.Phase,
         "low energy installs crash handler");
-    AssertTrue(horizontal.Shinespark.ConsumeCrashSoundRequest(),
-        "crash setup publishes its paired library-one/library-three event once");
-    AssertTrue(!horizontal.Shinespark.ConsumeCrashSoundRequest(),
-        "consumed crash sound event cannot replay during the crash orbit");
+    AssertSequenceEqual(new[] { new SoundRequest(SamusSound.SamusDamaged, SoundRequestPriority.Normal), new SoundRequest(RoomSound.ShinesparkEnd, SoundRequestPriority.Normal) },
+        horizontal.AudioRequests.SoundRequests.Where(request => request.SoundEffect == SamusSound.SamusDamaged || request.SoundEffect == RoomSound.ShinesparkEnd),
+        "crash setup queues its paired library-one and library-three sounds once, in that order");
     AssertEqual(0, horizontal.HorizontalSpeed.ExtraRunSpeed.Whole,
         "crash clears horizontal spark velocity");
 

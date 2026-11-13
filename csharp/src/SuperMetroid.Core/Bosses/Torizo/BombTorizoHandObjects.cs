@@ -20,20 +20,21 @@ internal sealed class BombTorizoHandObjects
     /// <summary>The place the hand holds in the room's update order, which it frees as it leaves.</summary>
     private RoomObjectSlot? _handPlace;
 
-    /// <summary>Connects the statue hand to Samus.</summary>
-    internal BombTorizoHandObjects(IRoomSamusAccess? samus) => _samus = samus;
+    /// <summary>Connects the statue hand to Samus and to the room objects' audio requests.</summary>
+    internal BombTorizoHandObjects(IRoomSamusAccess? samus, RoomObjectSoundQueue sounds)
+    {
+        _samus = samus;
+        _sounds = Ensure.NotNull(sounds);
+    }
     /// <summary>Statue-fragment spawns queued by the hand's breaking instruction for this frame.</summary>
     private readonly List<BombTorizoStatueProjectileRequest>
         _bombTorizoStatueProjectileRequests = [];
-    /// <summary>Delayed track-selection commands queued by the hand program for this frame.</summary>
-    private readonly List<DelayedMusicRequest> _musicRequests = [];
+    /// <summary>The room objects' audio requests, which the hand's music joins.</summary>
+    private readonly RoomObjectSoundQueue _sounds;
 
     /// <summary>Statue fragment projectiles emitted during the latest room-object pass.</summary>
     public IReadOnlyList<BombTorizoStatueProjectileRequest>
         BombTorizoStatueProjectileRequests => _bombTorizoStatueProjectileRequests;
-
-    /// <summary>Delayed music commands emitted during the latest room-object pass.</summary>
-    public IReadOnlyList<DelayedMusicRequest> MusicRequests => _musicRequests;
 
     /// <summary>
     /// Whether the statue's hand still stands in the room: from its setup until it leaves after its crumble. Bomb Torizo
@@ -61,11 +62,10 @@ internal sealed class BombTorizoHandObjects
         _handPlace = slot;
     }
 
-    /// <summary>Discards the previous room-object pass's fragment and music requests before the next pass.</summary>
+    /// <summary>Discards the previous room-object pass's fragment requests before the next pass.</summary>
     internal void BeginBombTorizoHandFrame()
     {
         _bombTorizoStatueProjectileRequests.Clear();
-        _musicRequests.Clear();
     }
 
     /// <summary>Whether Samus has Bombs, which wakes the resting hand.</summary>
@@ -80,9 +80,9 @@ internal sealed class BombTorizoHandObjects
             slot.Block));
 
     /// <summary>
-    /// Queues the loaded set's second song with the shared eight-frame delay.
+    /// Queues the loaded set's second song with the shared eight-frame delay, now.
     /// </summary>
     internal void QueueMusic() =>
-        _musicRequests.Add(new DelayedMusicRequest(MusicRequest.SelectTrack(MusicTrack.SecondSetSong), MusicQueueDelay.Shortest));
+        _sounds.ScheduleMusic(new DelayedMusicRequest(MusicRequest.SelectTrack(MusicTrack.SecondSetSong), MusicQueueDelay.Shortest));
 
 }

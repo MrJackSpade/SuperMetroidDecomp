@@ -34,8 +34,6 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     private readonly List<ShownPaletteFxFrame> suitShown = [];
     /// <summary>The frames the enemies' groups showed during the current update, in order (#1512).</summary>
     private readonly List<ShownPaletteFxFrame> enemyShown = [];
-    /// <summary>Momentary sound publications cleared at the start of each update.</summary>
-    private readonly List<SoundRequest> soundRequests = [];
     /// <summary>Live Power Bomb state used to suppress colour-effect sound requests.</summary>
     private IActivePowerBomb? audioPowerBomb;
     /// <summary>Whether the effects run at all and the heat phases, which outlive each room's effects.</summary>
@@ -48,8 +46,14 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// <summary>Whether the colour effects run at all, checked first each update; it lives on the session.</summary>
     public bool HandlerEnabled => _session.HandlerEnabled;
 
-    /// <summary>Sound calls the colour effects published during the current update.</summary>
-    public IReadOnlyList<SoundRequest> SoundRequests => soundRequests;
+    /// <summary>
+    /// The audio requests the colour effects' sounds join as they make them: the runtime's update's, once it points the
+    /// room's systems at it; the effects' own record otherwise, which a frontend screen's effects keep and reach no queue.
+    /// </summary>
+    internal GameplayAudioRequests AudioRequests { get; private set; } = new();
+
+    /// <summary>Points the colour effects' sounds at <paramref name="requests"/>, the update's audio requests of the runtime running them.</summary>
+    internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
 
     /// <summary>Whether <paramref name="effect"/> is running.</summary>
     public bool IsRunning(PaletteFxObject effect) => effects.Exists(running => running.Effect == effect);
@@ -137,8 +141,6 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// </summary>
     private void RunTurns(PaletteFxConditions conditions, Action<RoomColourEffect, PaletteFxFrame> show)
     {
-        // Each update owns a new publication window: requests are momentary calls into the shared queues.
-        soundRequests.Clear();
         suitShown.Clear();
         enemyShown.Clear();
 
@@ -241,7 +243,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
             if (PaletteFxHeatData.DamageSoundEveryEighthUpdate.IsDue(frameCounter) &&
                 samus.Health > PaletteFxHeatData.DamageSoundEnergyThreshold)
             {
-                soundRequests.Add(new SoundRequest(
+                AudioRequests.QueueSound(new SoundRequest(
                     RoomSound.IncrementalEnergy,
                     PaletteFxHeatData.DamageSoundPriority,
                     SoundSuppressed: audioPowerBomb?.IsActive == true));
@@ -267,7 +269,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
                 _session.PublishedHeatPhase = publishHeatPhase.Phase;
                 return;
             case PaletteFxCue.QueueSound queueSound:
-                soundRequests.Add(new SoundRequest(
+                AudioRequests.QueueSound(new SoundRequest(
                     queueSound.Sound ?? throw new InvalidDataException(
                         $"Colour effect {effect.Effect} queued a sound step without a sound."),
                     PaletteFxSoundPriorities.InstructionSound,

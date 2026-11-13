@@ -11,13 +11,13 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class AttractGamePhases(FrontendSession session)
 {
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.LoadingDemo"/>, <see cref="SuperMetroidGameState.StartingDemo"/>, <see cref="SuperMetroidGameState.PlayingDemo"/>, <see cref="SuperMetroidGameState.UnloadingDemo"/>, <see cref="SuperMetroidGameState.RoutingAfterDemo"/>.</summary>
-    internal void DispatchAttractDemo(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
+    internal void DispatchAttractDemo(ControllerButton controllerInput)
     {
-        StepAttractDemo(controllerInput, gameplayAudio);
+        StepAttractDemo(controllerInput);
     }
 
     /// <summary>Advances demo loading, scripted gameplay, holds, cancellation, and title return.</summary>
-    private void StepAttractDemo(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
+    private void StepAttractDemo(ControllerButton controllerInput)
     {
         switch (session.GameState)
         {
@@ -45,7 +45,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
             case SuperMetroidGameState.StartingDemo:
                 // The demo's transition state runs one gameplay frame before revealing the room. Its
                 // extra frame does not decrement the demo-playing state's countdown.
-                session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.AttractFrameAudio(session.GameplayRuntime) });
+                session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = GameplayFrameAudio.Attract(session.GameplayRuntime) });
                 session.display.PublishGameplay(session.GameplayRuntime);
                 session.GameState = SuperMetroidGameState.PlayingDemo;
                 break;
@@ -63,7 +63,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
                 }
                 else
                 {
-                    session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.AttractFrameAudio(session.GameplayRuntime) });
+                    session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = GameplayFrameAudio.Attract(session.GameplayRuntime) });
                     session.display.PublishGameplay(session.GameplayRuntime);
                     // Demo beta has restored the physical controller pair at this point.
                     if (session.GameplayRuntime.Controller1.NewlyPressed != ControllerButton.None)

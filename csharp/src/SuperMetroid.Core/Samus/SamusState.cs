@@ -142,6 +142,20 @@ public sealed class SamusState
     public SamusShinesparkState Shinespark { get; }
 
     /// <summary>
+    /// The update's audio requests every sound of hers joins as it is made: her own record until a runtime points her at
+    /// its own (<see cref="BindAudioRequests"/>).
+    /// </summary>
+    internal GameplayAudioRequests AudioRequests { get; private set; } = new();
+
+    /// <summary>Points every sound of hers, her movement's and her spark's among them, at <paramref name="requests"/>.</summary>
+    internal void BindAudioRequests(GameplayAudioRequests requests)
+    {
+        AudioRequests = Ensure.NotNull(requests);
+        LiquidPhysics.BindAudioRequests(requests);
+        Shinespark.BindAudioRequests(requests);
+    }
+
+    /// <summary>
     /// Crystal Flash initiation, ammo cadence, energy restoration, and installed handler
     /// state. It is deliberately separate from <see cref="Shinespark"/> even though the
     /// original aliases a few words between the mutually exclusive effects.
@@ -542,6 +556,7 @@ public sealed class SamusState
         Presentation = new SamusPresentation();
         LiquidPhysics = new SamusLiquidPhysicsState(compatibility.EffectWaits, Presentation.Particles);
         Kinematics = new SamusKinematicsState();
+        BindAudioRequests(AudioRequests);
         // The backing field supplies the retail standing-right default without invoking
         // the setter before property initializers have constructed Kinematics.
         Kinematics.CollisionPose = Pose;

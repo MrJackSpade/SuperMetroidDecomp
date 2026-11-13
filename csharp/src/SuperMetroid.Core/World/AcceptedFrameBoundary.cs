@@ -82,18 +82,6 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>
-    /// Monotonic host sequence advanced only after a complete main-gameplay owner
-    /// pass has published its per-frame audio requests.
-    /// </summary>
-    /// <remarks>
-    /// Door transitions and other frontend sequences can run frame boundaries without
-    /// running enemy, projectile, or room-object owners. Consumers must distinguish those waits
-    /// from a fresh gameplay publication; otherwise the last request is re-enqueued on
-    /// every transition update and the door's sound-queue drain can never finish.
-    /// </remarks>
-    public ulong CompletedGameplayAudioPublication { get; internal set; }
-
-    /// <summary>
     /// Runs the frame boundary: publication, the controller latch, then the frame counters. Every update shows exactly
     /// one frame.
     /// </summary>

@@ -45,6 +45,19 @@ public sealed class SamusProjectileSystem
     /// <summary>Queues the sound selected for projectile contact with terrain or enemies.</summary>
     internal ProjectileImpactAudio ImpactAudio { get; }
 
+    /// <summary>
+    /// The update's audio requests the projectiles' firing, combination and impact sounds join as they are made: the
+    /// runtime's, once it points the room's systems at it; the projectiles' own record before that.
+    /// </summary>
+    internal GameplayAudioRequests AudioRequests { get; private set; } = new();
+
+    /// <summary>Points the projectiles' sounds at <paramref name="requests"/>, the update's audio requests of the runtime running them.</summary>
+    internal void BindAudioRequests(GameplayAudioRequests requests)
+    {
+        AudioRequests = Ensure.NotNull(requests);
+        ImpactAudio.BindAudioRequests(requests);
+    }
+
     /// <summary>Owns the projectile visuals emitted by Shinespark echoes.</summary>
     internal ShinesparkEchoProjectile Shinespark { get; }
 
@@ -93,7 +106,7 @@ public sealed class SamusProjectileSystem
         DrainedCrashDepartures = overreads.DrainedCrashDepartures;
         SlotTable = new ProjectileSlotTable(muzzleCarry);
         Earthquakes = new ProjectileEarthquakes();
-        ImpactAudio = new ProjectileImpactAudio();
+        ImpactAudio = new ProjectileImpactAudio(AudioRequests);
         Animation = new ProjectileAnimation(Charge, SlotTable, overreads.ChargeFlareDelays);
         TerrainCollision = new ProjectileTerrainCollision(Animation, Earthquakes, ImpactAudio, samusOverreads.StraddledTerrain);
         EnemyImpacts = new ProjectileEnemyImpacts(Animation, Earthquakes, SlotTable, TerrainCollision, overreads.UnauthoredBeamFiring);
@@ -379,6 +392,13 @@ public sealed class SamusProjectileSystem
                     queuedSoundMaximum = SoundRequestPriority.Normal;
             }
         }
+        // The firing routine queues its sound as it fires, before any shot moves.
+        if (queuedSound is { } firingSound)
+        {
+            AudioRequests.QueueSound(firingSound,
+                queuedSoundMaximum ?? throw new InvalidDataException("A projectile sound was queued without its queue limit."),
+                soundSuppressedAtProduction);
+        }
 
         // Uncharged and charged firing perform one zero-speed block dispatch before
         // installing ordinary movement. A muzzle born against a solid door can therefore
@@ -387,7 +407,6 @@ public sealed class SamusProjectileSystem
             SlotTable.Slots[initialCollisionSlot].Type.IsFamily(
                 SamusProjectileFamily.BeamExplosion);
         bool projectileDeleted = false;
-        List<SoundRequest>? comboSounds = null;
 
         // Bombs were handled by the companion class first; the shots run in update order here because instruction
         // deletion changes the counter. The HUD producer can activate X-ray during this pass, so the freeze is checked
@@ -419,9 +438,8 @@ public sealed class SamusProjectileSystem
                 else comboSound = Combos.StepSpazerCombo(samus, slot, sharedProjectiles, cameraPosition.Y);
                 projectileDeleted |= !slot.IsActive;
                 if (comboSound is SoundEffectId sound)
-                    (comboSounds ??= []).Add(new SoundRequest(
-                        sound, SoundRequestPriority.Normal,
-                        SoundSuppressed: sharedProjectiles.PowerBombExplosion.IsActive));
+                    AudioRequests.QueueSound(sound, SoundRequestPriority.Normal,
+                        soundSuppressed: sharedProjectiles.PowerBombExplosion.IsActive);
             }
             else if (slot.FrameBehavior == SamusProjectileFrameBehavior.NoWaveBeam)
             {
@@ -515,7 +533,6 @@ public sealed class SamusProjectileSystem
         LastFrameResult = new SamusProjectileFrameResult(
             queuedSound,
             queuedSoundMaximum,
-            comboSounds?.ToArray(),
             soundSuppressedAtProduction);
         return LastFrameResult;
     }

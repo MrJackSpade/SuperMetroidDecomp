@@ -27,8 +27,9 @@ internal sealed class CollectibleObjects
     /// show their own picture take in turn.
     /// </summary>
     internal CollectibleObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomFxMotion? roomFx, IRoomObjectDrawing drawing, RoomObjectSlotTable slotTable,
-        CollectibleBlockPairs blockPairs)
+        CollectibleBlockPairs blockPairs, RoomObjectSoundQueue sounds)
     {
+        _sounds = Ensure.NotNull(sounds);
         _system = system;
         _samus = samus;
         _roomFx = roomFx;
@@ -41,8 +42,8 @@ internal sealed class CollectibleObjects
     private readonly List<CollectiblePickupEvent> _collectiblePickupEvents = new();
     /// <summary>The terrain block pairs the room's collectibles that show their own picture take in turn.</summary>
     private readonly CollectibleBlockPairs _blockPairs;
-    /// <summary>One-shot fanfare edge independent of the retained pickup event list.</summary>
-    private bool _collectibleFanfareRequested;
+    /// <summary>The room objects' audio requests, which a pickup's fanfare joins.</summary>
+    private readonly RoomObjectSoundQueue _sounds;
     /// <summary>Delays the Speed Booster Chozo lava motion write until message return.</summary>
     private bool _pendingSpeedBoosterPickupContinuation;
 
@@ -89,21 +90,6 @@ internal sealed class CollectibleObjects
     /// <summary>Pickup publications produced during the most recent room-object handler pass.</summary>
     public IReadOnlyList<CollectiblePickupEvent> CollectiblePickupEvents =>
         _collectiblePickupEvents;
-
-    /// <summary>
-    /// Consumes the one-shot music request published by a permanent-item instruction.
-    /// </summary>
-    /// <remarks>
-    /// The synchronous message pauses the room-object update, so the diagnostic pickup list
-    /// intentionally remains visible during many frames. Audio must not infer an
-    /// edge from that retained list or it will clear/requeue the fanfare every frame.
-    /// </remarks>
-    public bool ConsumeCollectibleFanfareRequest()
-    {
-        bool requested = _collectibleFanfareRequested;
-        _collectibleFanfareRequested = false;
-        return requested;
-    }
 
     /// <summary>Every currently allocated permanent-item room object, by slot ordinal.</summary>
     public IReadOnlyList<CollectibleObjectSnapshot> Collectibles => _slotTable.FromLastPlace
@@ -254,7 +240,8 @@ internal sealed class CollectibleObjects
             item.Kind,
             GetMessageBoxIndex(item.Kind));
         _collectiblePickupEvents.Add(pickup);
-        _collectibleFanfareRequested = true;
+        // The item's instruction starts the fanfare as it runs, before its message box opens.
+        _sounds.QueuePermanentItemFanfare();
         _pendingSpeedBoosterPickupContinuation =
             item.Kind == InWorldCollectibleKind.SpeedBooster &&
             item.Presentation == CollectiblePresentation.ChozoOrb;

@@ -22,9 +22,10 @@ public sealed class SamusShinesparkState
 {
     /// <summary>Live Power Bomb state consulted when a spark sound request is produced.</summary>
     private SamusPowerBombExplosionState? _audioPowerBomb;
-    /// <summary>The session's held beam charge and flare, canceled when spark windup begins.</summary>
-    /// <summary>One-frame Samus-library sound request from canceling a sufficiently charged flare.</summary>
-    private bool _chargeCancellationSoundRequested;
+    /// <summary>
+    /// The update's audio requests the spark's sounds join as they are made: Samus's, which her runtime points at its own.
+    /// </summary>
+    internal GameplayAudioRequests AudioRequests { get; private set; } = new();
 
     /// <summary>
     /// The upward spark's 16.16 acceleration in pixels per frame per frame: 7.0 when windup begins, raised by Samus's
@@ -54,12 +55,11 @@ public sealed class SamusShinesparkState
     /// </summary>
     internal void BindProjectileOwners(SamusPowerBombExplosionState powerBomb) => _audioPowerBomb = powerBomb;
 
-    /// <summary>Queue guard captured at the stored-shine warning call, not at publication.</summary>
-    public bool StoredShineWarningSoundSuppressed { get; private set; }
-    /// <summary>Queue guard captured at directional launch.</summary>
-    public bool LaunchSoundSuppressed { get; private set; }
-    /// <summary>Queue guard shared by the two adjacent crash-entry sound calls.</summary>
-    public bool CrashSoundSuppressed { get; private set; }
+    /// <summary>Points the spark's sounds at <paramref name="requests"/>, Samus's audio requests.</summary>
+    internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
+
+    /// <summary>Whether the live power bomb's explosion silences a spark sound requested now.</summary>
+    private bool SoundSuppressed => _audioPowerBomb?.IsActive == true;
     /// <summary>The special suit colouring the shine runs: none, the stored shine's, or the shinespark's.</summary>
     public SamusSpecialPaletteType PaletteType { get; private set; }
 
@@ -113,55 +113,6 @@ public sealed class SamusShinesparkState
         PaletteStep = 0;
     }
 
-    /// <summary>Set at stored timer 170, requesting the stored-shine warning sound.</summary>
-    public bool StoredShineWarningSoundRequested { get; set; }
-
-    /// <summary>Set when direction selection requests the shinespark launch sound.</summary>
-    public bool LaunchSoundRequested { get; set; }
-
-    /// <summary>Set when energy or collision installs the crash handler.</summary>
-    public bool CrashSoundRequested { get; set; }
-
-    /// <summary>Consumes the stored-shine warning's high-priority sound request.</summary>
-    public bool ConsumeStoredShineWarningSoundRequest()
-    {
-        bool requested = StoredShineWarningSoundRequested;
-        StoredShineWarningSoundRequested = false;
-        return requested;
-    }
-
-    /// <summary>Consumes directional launch's high-priority sound request.</summary>
-    public bool ConsumeLaunchSoundRequest()
-    {
-        bool requested = LaunchSoundRequested;
-        LaunchSoundRequested = false;
-        return requested;
-    }
-
-    /// <summary>
-    /// Consumes crash setup, which requests two sounds at normal priority: one in the Samus library and one in
-    /// the room library.
-    /// </summary>
-    public bool ConsumeCrashSoundRequest()
-    {
-        bool requested = CrashSoundRequested;
-        CrashSoundRequested = false;
-        return requested;
-    }
-
-    /// <summary>
-    /// Consumes the shinespark windup's charge-cancellation sound request,
-    /// emitted only when windup cancels a charge whose counter reached sixteen.
-    /// </summary>
-    public bool ConsumeChargeCancellationSoundRequest()
-    {
-        bool requested = _chargeCancellationSoundRequested;
-        _chargeCancellationSoundRequested = false;
-        return requested;
-    }
-
-    /// <summary>Producer-time Power Bomb guard for the pending charge-cancellation call.</summary>
-    public bool ChargeCancellationSoundSuppressed { get; private set; }
 
     /// <summary>
     /// The stage of the crash's orbit: expanding at crash entry, orbiting once the radius reaches sixteen,
@@ -242,7 +193,6 @@ public sealed class SamusShinesparkState
         PaletteType = SamusSpecialPaletteType.SpeedBoosterShine;
         PaletteStep = 0;
         Phase = ShinesparkPhase.Stored;
-        StoredShineWarningSoundRequested = false;
         return true;
     }
 
@@ -277,10 +227,7 @@ public sealed class SamusShinesparkState
         {
             samus.BeamCharge.ClearChargeAndFlare();
             if (cancelledCharge >= BeamChargeDefinitions.ChargeSoundStartCounter)
-            {
-                _chargeCancellationSoundRequested = true;
-                ChargeCancellationSoundSuppressed = _audioPowerBomb?.IsActive == true;
-            }
+                AudioRequests.QueueSound(SamusSound.Silence, SoundRequestPriority.High, SoundSuppressed);
         }
 
         // The windup takes over Samus's movement and suit colouring. Flash's live
@@ -309,8 +256,6 @@ public sealed class SamusShinesparkState
         PaletteStep = 0;
         Phase = ShinesparkPhase.Windup;
         samus.HurtFlash.Clear();
-        LaunchSoundRequested = false;
-        CrashSoundRequested = false;
     }
 
     /// <summary>
@@ -576,8 +521,7 @@ public sealed class SamusShinesparkState
         if (!deferPoseChange)
             ApplyDirectionalLaunchPose(samus, targetPose);
         samus.HorizontalSpeed.ClearSpeedEchoes();
-        LaunchSoundRequested = true;
-        LaunchSoundSuppressed = _audioPowerBomb?.IsActive == true;
+        AudioRequests.QueueSound(RoomSound.Shinespark, SoundRequestPriority.High, SoundSuppressed);
     }
 
     /// <summary>Commits the interrupted launch pose after the current frame's animation.</summary>
@@ -695,10 +639,7 @@ false);
             return false;
 
         if (PaletteType == SamusSpecialPaletteType.SpeedBoosterShine && ShineTimer == 170)
-        {
-            StoredShineWarningSoundRequested = true;
-            StoredShineWarningSoundSuppressed = _audioPowerBomb?.IsActive == true;
-        }
+            AudioRequests.QueueSound(RoomSound.StoredShinespark, SoundRequestPriority.High, SoundSuppressed);
 
         bool expired = --ShineTimer <= 0;
         if (expired)
@@ -756,8 +697,10 @@ false);
         samus.HorizontalSpeed.ClearSpeedEchoes();
         FirstOrbitingCopy = SecondOrbitingCopy = samus.Position.Whole;
         Phase = ShinesparkPhase.Crash;
-        CrashSoundRequested = true;
-        CrashSoundSuppressed = _audioPowerBomb?.IsActive == true;
+        // The crash entry queues its two sounds together, under one test of the power bomb.
+        bool crashSoundSuppressed = SoundSuppressed;
+        AudioRequests.QueueSound(SamusSound.SamusDamaged, SoundRequestPriority.Normal, crashSoundSuppressed);
+        AudioRequests.QueueSound(RoomSound.ShinesparkEnd, SoundRequestPriority.Normal, crashSoundSuppressed);
     }
 
     /// <summary>The steps of a 256-step turn the orbiting copies turn by on each orbiting call.</summary>

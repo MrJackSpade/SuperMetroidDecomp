@@ -72,6 +72,9 @@ internal static class RoomEnemyFrameFixtures
         internal EnemyFrameResult StepStandaloneFrame(RoomEnemyFrame frame)
         {
             Ensure.NotNull(frame);
+            // A standalone frame is an update of its own: it begins the record the enemies' requests join, as the runtime's
+            // update begins its own.
+            self.Audio.Requests.BeginUpdate();
             self.ProcessingWindow.PrepareEnemyProcessingList(frame.Camera);
             return self.StepFrame(frame);
         }

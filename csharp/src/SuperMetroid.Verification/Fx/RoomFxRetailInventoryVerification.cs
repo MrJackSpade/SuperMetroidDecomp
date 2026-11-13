@@ -780,23 +780,27 @@ internal static class RoomFxRetailInventoryVerification
         // the rising-liquid type's BG1/BG2 X displacement words are nonzero, so every
         // accepted frame of this effect publishes a non-default delta.
         static bool Shook(RoomShakeFrameResult shake) => shake != default;
+        // The runtime's update records every system's sounds in one ordered list (#1620); the effect's are its quake and lava sounds.
+        IReadOnlyList<SoundRequest> EffectSounds() => [.. runtime.RoomFxOverlay.SoundRequests.Where(request =>
+            request.SoundEffect == EnemySound.Lavaquake || request.SoundEffect == EnemySound.LavaBubbling1 ||
+            request.SoundEffect == EnemySound.LavaBubbling2 || request.SoundEffect == EnemySound.LavaBubbling3)];
 
         runtime.StepFrame(0);
         AssertTrue(!Shook(runtime.Enemies.Earthquake.LastRoomShake), "room $02/$28 callback install pass does not shake");
-        AssertEqual(0, runtime.RoomFxOverlay.SoundRequests.Count, "room $02/$28 callback install pass is silent");
+        AssertEqual(0, EffectSounds().Count, "room $02/$28 callback install pass is silent");
 
         StepAndVerifySound(0);
         RoomShakeFrameResult dormantShake = runtime.Enemies.Earthquake.LastRoomShake;
         AssertTrue(!Shook(dormantShake),
             "room $02/$28 dormant rise initializer does not shake one frame early");
-        AssertEqual(0, runtime.RoomFxOverlay.SoundRequests.Count,
+        AssertEqual(0, EffectSounds().Count,
             "room $02/$28 dormant rise initializer does not sound one frame early");
 
         StepAndVerifySound(1);
         RoomShakeFrameResult firstActiveShake = runtime.Enemies.Earthquake.LastRoomShake;
-        AssertEqual(1, runtime.RoomFxOverlay.SoundRequests.Count,
+        AssertEqual(1, EffectSounds().Count,
             "room $02/$28 first wait frame emits one earthquake sound");
-        SoundRequest sound = runtime.RoomFxOverlay.SoundRequests[0];
+        SoundRequest sound = EffectSounds()[0];
         AssertEqual(EnemySound.Lavaquake, sound.SoundEffect,
             "room $02/$28 earthquake sound identity");
         AssertEqual(SoundRequestPriority.Normal, sound.Priority,

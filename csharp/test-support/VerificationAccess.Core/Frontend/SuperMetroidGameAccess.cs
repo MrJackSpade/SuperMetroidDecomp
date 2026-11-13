@@ -47,6 +47,8 @@ internal static class SuperMetroidGameAccess
             if (!ReferenceEquals(runtime.System.Random, self.Session.Random))
                 throw new InvalidOperationException(
                     "A prepared runtime must be built over its game's random-number word; pass the game's word to the runtime fixture.");
+            // The adopted runtime's later gameplay requests go straight into the game's queues, as a session-built runtime's do.
+            runtime.AttachSessionAudio(self.Session.audio);
             self.Session.Runtime = runtime;
         }
 

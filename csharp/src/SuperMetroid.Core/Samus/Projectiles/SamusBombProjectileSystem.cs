@@ -105,8 +105,14 @@ public sealed class SamusBombProjectileSystem
     /// </summary>
     internal void SetSharedBombCounter(int value) => BombCounter = value;
 
-    /// <summary>The most recent alpha/interaction pass's result, whose sound requests the frontend routes after the frame.</summary>
-    public BombProjectileFrameResult LastFrameResult { get; private set; }
+    /// <summary>
+    /// The update's audio requests the bombs' sounds join as they are made: the runtime's, once it points the room's
+    /// systems at it; the bombs' own record before that.
+    /// </summary>
+    internal GameplayAudioRequests AudioRequests { get; private set; } = new();
+
+    /// <summary>Points the bombs' sounds at <paramref name="requests"/>, the update's audio requests of the runtime running them.</summary>
+    internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
 
     /// <summary>
     /// Sound guard after the per-line effect update but before bomb frame behaviours. The game's
@@ -178,7 +184,6 @@ public sealed class SamusBombProjectileSystem
             StepCooldown(samus.Xray.TimeIsFrozen);
 
         bool beamChargeConsumed = false;
-        var soundRequests = new List<SoundRequest>();
         if (samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked && SamusPoseMetadata.IsStableBallPose(samus.Pose))
         {
             BombSpreadAdmission spread = HandleBombSpreadInput(samus, controllerInput);
@@ -195,7 +200,7 @@ public sealed class SamusBombProjectileSystem
             }
             if (beamChargeConsumed)
             {
-                soundRequests.Add(new SoundRequest(
+                AudioRequests.QueueSound(new SoundRequest(
                     SamusSound.Silence,
                     Priority: SoundRequestPriority.High,
                     SoundSuppressed: PowerBombExplosion.IsActive));
@@ -232,7 +237,7 @@ public sealed class SamusBombProjectileSystem
                 // The fuse requests this sound at normal priority for every normal bomb
                 // whose fuse expires. Keep the append-only shape because several spread
                 // bombs can expire during one Samus projectile pass.
-                soundRequests.Add(new SoundRequest(
+                AudioRequests.QueueSound(new SoundRequest(
                     EnemySound.BombExplosion,
                     Priority: SoundRequestPriority.Normal,
                     SoundSuppressed: PowerBombExplosion.IsActive));
@@ -243,7 +248,7 @@ public sealed class SamusBombProjectileSystem
                 // immediately before it marks the explosion active and
                 // starts its two per-line effects. Publish it from the same frame that
                 // Spawn installs the explosion's owner.
-                soundRequests.Add(new SoundRequest(
+                AudioRequests.QueueSound(new SoundRequest(
                     SamusSound.PowerBombExplosion,
                     Priority: SoundRequestPriority.Essential,
                     SoundSuppressed: soundSuppressedBeforeFrameBehavior));
@@ -269,20 +274,15 @@ public sealed class SamusBombProjectileSystem
         // shot this frame may suppress overlap before the bomb direction is stored.
         SamusBombJumpDirection publishedDirection = overlap == BombJumpOverlapPublication.Deferred ? SamusBombJumpDirection.None : PublishBombJumpOverlap(samus);
 
-        LastFrameResult = new BombProjectileFrameResult(
-            publishedDirection,
-            beamChargeConsumed,
-            soundRequests.ToArray());
-        return LastFrameResult;
+        return new BombProjectileFrameResult(publishedDirection, beamChargeConsumed);
     }
 
     /// <summary>Runs the bomb subset of the post-alpha Samus/projectile interaction pass.</summary>
     public void ResolveSamusOverlap(SamusState samus, int projectileInvincibilityTimer)
     {
         Ensure.NotNull(samus);
-        SamusBombJumpDirection direction = projectileInvincibilityTimer == 0 && samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.None
-            ? PublishBombJumpOverlap(samus) : SamusBombJumpDirection.None;
-        LastFrameResult = LastFrameResult with { PublishedBombJumpDirection = direction };
+        if (projectileInvincibilityTimer == 0 && samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.None)
+            _ = PublishBombJumpOverlap(samus);
     }
 
     /// <summary>
@@ -340,7 +340,6 @@ public sealed class SamusBombProjectileSystem
         BombCounter = 0;
         CooldownTimer = WrappingCountdown.Start(0);
         PowerBombExplosion.Reset();
-        LastFrameResult = default;
     }
 
     /// <summary>

@@ -128,26 +128,27 @@ internal static void VerifyHudState()
     AssertEqual(0x2d09, hud.TileWords(hudArtwork)[0x8e / 2], "HUD health ones digit from ROM table");
 
     var damagedSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 94, MaxHealth = 99 };
-    hud.UpdateGameplayCounters(damagedSamus);
+    var hudAudio = new GameplayAudioRequests();
+    hud.UpdateGameplayCounters(damagedSamus, hudAudio);
     AssertEqual(0x2d09, hud.TileWords(hudArtwork)[0x8c / 2], "live HUD damage tens digit");
     AssertEqual(0x2d04, hud.TileWords(hudArtwork)[0x8e / 2], "live HUD damage ones digit");
 
     // HandleHudTilemap owns selection presentation independently of the input handler.
     // Installing missiles after initialization mirrors a live pickup, then selecting them
-    // proves both palette directions and the one-frame QueueSfx publication.
+    // proves both palette directions and the selection sound queued once, as the HUD routine queues it.
     damagedSamus.MaxMissiles = 5;
     damagedSamus.Missiles = 5;
     damagedSamus.SelectedHudItem = HudItem.Missile;
-    hud.UpdateGameplayCounters(damagedSamus);
+    hud.UpdateGameplayCounters(damagedSamus, hudAudio);
     AssertEqual(0x1000, hud.TileWords(hudArtwork)[0x14 / 2] & 0x1c00,
         "live HUD selects missile icon with palette four");
-    AssertTrue(hud.SelectionSoundRequestedThisFrame,
-        "live HUD publishes cartridge selection sound on change");
-    hud.UpdateGameplayCounters(damagedSamus);
-    AssertTrue(!hud.SelectionSoundRequestedThisFrame,
+    AssertEqual(1, hudAudio.CountOf(SamusSound.HudWeaponSelect),
+        "live HUD queues the cartridge selection sound on change");
+    hud.UpdateGameplayCounters(damagedSamus, hudAudio);
+    AssertEqual(1, hudAudio.CountOf(SamusSound.HudWeaponSelect),
         "stable HUD selection does not repeat the selection sound");
     damagedSamus.SelectedHudItem = HudItem.Beam;
-    hud.UpdateGameplayCounters(damagedSamus);
+    hud.UpdateGameplayCounters(damagedSamus, hudAudio);
     AssertEqual(0x1400, hud.TileWords(hudArtwork)[0x14 / 2] & 0x1c00,
         "live HUD restores deselected missile icon to palette five");
 

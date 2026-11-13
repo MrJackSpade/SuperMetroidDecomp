@@ -79,6 +79,8 @@ internal sealed class RoomLoader
     private readonly RoomObjectVisuals _shotBlockVisuals;
     /// <summary>Resets Samus projectiles for the destination room.</summary>
     private readonly BeamChargeState _beamCharge;
+    /// <summary>The runtime's audio requests, which every room system and every Samus built here queue theirs into.</summary>
+    private readonly GameplayAudioRequests _audioRequests;
     /// <summary>The installed services reproducing Samus's glitch reads, handed to every Samus and projectile system built here.</summary>
     private readonly SamusOverreadServices _samusOverreads;
     /// <summary>
@@ -126,6 +128,7 @@ internal sealed class RoomLoader
         _player = dependencies.Player;
         _shotBlockVisuals = dependencies.ShotBlockVisuals;
         _beamCharge = dependencies.BeamCharge;
+        _audioRequests = Ensure.NotNull(dependencies.AudioRequests);
         _samusOverreads = Ensure.NotNull(dependencies.SamusOverreads);
         _unauthoredBoostCadence = Ensure.NotNull(dependencies.UnauthoredBoostCadence);
         _fadeStepCount = Ensure.NotNull(dependencies.FadeStepCount);
@@ -266,6 +269,7 @@ internal sealed class RoomLoader
             Pose = SamusPoseId.FacingRightNormalPose,
             AnimationFrame = 0,
         };
+        _player.Samus.BindAudioRequests(_audioRequests);
         _artwork.BindSamusPalettePresentation();
         slot.ApplyTo(_player.Samus, _system);
         // Loading the save sets the stored explored maps from it; the live map is loaded only at file select.
@@ -299,6 +303,7 @@ internal sealed class RoomLoader
         // Initialization clears Pose; the port's constructor defaults to the right-facing pose.
         var samus = new SamusState(_samusOverreads.AnimationContinuation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge) { Pose = 0, AnimationFrame = 0 };
         samus.CopyInventoryFrom(carried);
+        samus.BindAudioRequests(_audioRequests);
         _player.Samus = samus;
         _assists.CarryLoadoutGrant(carried, samus);
         _artwork.BindSamusPalettePresentation();
@@ -874,6 +879,7 @@ internal sealed class RoomLoader
             door,
             _system.RandomNumber,
             room.Definition);
+        roomFxOverlay.BindAudioRequests(_audioRequests);
         scope.FxOverlay = roomFxOverlay;
         roomFxOverlay.PrimeViewport(destinationCamera.PixelPosition);
         scope.CeresHaze = new CeresHazeState(RoomCallbackDefinitions.CeresHazeSetups.Contains(room.State.SetupCallback),
@@ -895,6 +901,7 @@ internal sealed class RoomLoader
             door,
             _player.Samus?.EquippedItems ?? 0,
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
+        roomPaletteFx.BindAudioRequests(_audioRequests);
         scope.PaletteFx = roomPaletteFx;
 
 
@@ -912,6 +919,8 @@ internal sealed class RoomLoader
         var projectiles = new SamusProjectileSystem(_beamCharge, _samusOverreads,
             new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
         projectiles.TakeOverFrom(_room.HandOver);
+        bombs.BindAudioRequests(_audioRequests);
+        projectiles.BindAudioRequests(_audioRequests);
         scope.BombProjectiles = bombs;
         scope.Projectiles = projectiles;
         _artwork.BindProjectiles(projectiles, bombs);
@@ -943,6 +952,7 @@ internal sealed class RoomLoader
         var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, _shotBlockVisuals, new CollectibleBlockPairs(),
             new RoomObjectPlaces());
         scope.RoomObjects = roomObjects;
+        roomObjects.Sounds.BindAudioRequests(_audioRequests);
         roomObjects.Sounds.BindPowerBombAudio(bombs.PowerBombExplosion.Activity);
         var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, roomObjects, _display, progress);
         scope.Services = areaServices;
@@ -1001,6 +1011,7 @@ internal sealed class RoomLoader
         var enemies = new RoomEnemySystem(_enemySession, compatibility, CompiledRoomEnemyDefinitions.Instance, areaServices,
             _bossArtwork);
         enemies.TakeOverFrom(_room.HandOver);
+        enemies.Audio.BindAudioRequests(_audioRequests);
         scope.Enemies = enemies;
         projectiles.Earthquakes.BindRoomEarthquake(enemies.Earthquake);
         enemies.Load(new RoomEnemyLoadRequest(
@@ -1135,6 +1146,7 @@ internal sealed class RoomLoader
             AnimationFrame = 0,
             Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.SamusPosition.WithY(0)),
         };
+        _player.Samus.BindAudioRequests(_audioRequests);
         _artwork.BindSamusPalettePresentation();
         SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.LoadPower(_player.Colours);
         _assists.GrantLoadoutToNewSamus();

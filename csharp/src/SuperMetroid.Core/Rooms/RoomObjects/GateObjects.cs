@@ -23,8 +23,6 @@ internal sealed class GateObjects
     }
     /// <summary>Spawn and close requests published by gate room objects for the projectile system.</summary>
     private readonly List<DownwardGateProjectileRequest> _downwardGateProjectileRequests = new();
-    /// <summary>Rejected-shot sounds buffered until the room's sound publication stage.</summary>
-    private readonly List<SoundRequest> _pendingDownwardGateSounds = new();
 
     /// <summary>
     /// Returns and clears projectile work published by gate setup/list execution. Room load
@@ -119,9 +117,8 @@ internal sealed class GateObjects
             if (trigger is not DownwardGateTriggerBehavior.BlueLeft and
                 not DownwardGateTriggerBehavior.BlueRight)
             {
-                _pendingDownwardGateSounds.Add(_sounds.CreateSoundRequest(
-                    DownwardGateDefinitions.RejectedShotSound,
-                    Priority: SoundRequestPriority.Normal));
+                // The trigger's setup queues the rejection at once, inside the shot's collision (#1620).
+                _sounds.Queue(DownwardGateDefinitions.RejectedShotSound, Priority: SoundRequestPriority.Normal);
             }
             temporary.Delete();
             return true;
@@ -162,13 +159,6 @@ internal sealed class GateObjects
     internal void WakeGateProjectile(RoomObjectSlot slot) =>
         _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
             DownwardGateProjectileOperation.Wake, Kind: null, slot.Block));
-
-    /// <summary>Moves buffered rejected-shot sounds into the room sound queue in emission order.</summary>
-    internal void PublishPendingDownwardGateSounds()
-    {
-        _sounds.QueueAll(_pendingDownwardGateSounds);
-        _pendingDownwardGateSounds.Clear();
-    }
 
     /// <summary>Tests Samus's block position against the resident gate's five-cell vertical column.</summary>
     internal bool IsSamusInsideDownwardGateColumn(RoomObjectSlot slot)

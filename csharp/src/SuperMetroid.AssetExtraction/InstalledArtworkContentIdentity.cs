@@ -236,7 +236,7 @@ internal static class InstalledArtworkContentIdentity
         /// <summary>Identity of selected tank appearances and room overlay coordinates and blocks, in record order.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledXrayOverlays), content =>
         {
-            content.AppendAppearances("tank metatiles", overlays.tankMetatiles);
+            content.AppendAppearances("tank metatiles", overlays.tankBlocks);
             foreach ((XrayRoomOverlayDefinition overlay, XrayRoomOverlayVisual[] tiles) in overlays.rooms.OrderBy(pair => pair.Key.Name, StringComparer.Ordinal))
             {
                 content.Append("room overlay", Encoding.UTF8.GetBytes(overlay.Name));

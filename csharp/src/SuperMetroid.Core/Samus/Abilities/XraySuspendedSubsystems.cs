@@ -20,9 +20,9 @@ public enum XraySuspendedSubsystems
     /// <summary>The room objects, which X-ray setup disables; suspends room-object processing, including door-transition room objects.</summary>
     RoomObjects = 1 << 1,
     /// <summary>The block animations, which X-ray setup disables; prevents them from advancing.</summary>
-    AnimatedTiles = 1 << 2,
+    BlockAnimations = 1 << 2,
     /// <summary>The room palette effects, which X-ray setup disables; not Samus's independently handled visor colors.</summary>
     PaletteFx = 1 << 3,
     /// <summary>All four independent disables installed by admitted X-ray setup and cleared by normal teardown; excludes shared time freeze, the cone effect, and Samus control ownership.</summary>
-    All = EnemyProjectiles | RoomObjects | AnimatedTiles | PaletteFx,
+    All = EnemyProjectiles | RoomObjects | BlockAnimations | PaletteFx,
 }

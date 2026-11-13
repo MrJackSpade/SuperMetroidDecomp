@@ -20,29 +20,29 @@ internal static class AreaAnimatedTileObjects
     /// beyond the seven retail areas, selects only the shared spikes. A bit that selects none
     /// names the cartridge's empty object, or for Crateria's fourth bit a lava animation; no
     /// retail record sets either, so neither is an object of the game.</remarks>
-    internal static AnimatedTileObject? SelectObject(int areaIndex, int bit) => bit switch
+    internal static BlockAnimation? SelectObject(int areaIndex, int bit) => bit switch
     {
-        0 => AnimatedTileObject.HorizontalSpikes,
-        1 => AnimatedTileObject.VerticalSpikes,
+        0 => BlockAnimation.HorizontalSpikes,
+        1 => BlockAnimation.VerticalSpikes,
         _ => areaIndex < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count
             ? SelectAreaObject(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Decode(areaIndex, "Animated-tile area"), bit)
             : null,
     };
 
     /// <summary>Maps the area-specific FX bits after the shared horizontal and vertical spike selectors.</summary>
-    private static AnimatedTileObject? SelectAreaObject(AreaId area, int bit) => new AreaFxBit(area, bit) switch
+    private static BlockAnimation? SelectAreaObject(AreaId area, int bit) => new AreaFxBit(area, bit) switch
     {
-        (AreaId.Crateria, 2) => AnimatedTileObject.CrateriaLake,
-        (AreaId.Brinstar, 2) => AnimatedTileObject.BrinstarPlant,
-        (AreaId.WreckedShip, 2) => AnimatedTileObject.WreckedShipTreadmillRightwards,
-        (AreaId.WreckedShip, 3) => AnimatedTileObject.WreckedShipTreadmillLeftwards,
-        (AreaId.WreckedShip, 4) => AnimatedTileObject.WreckedShipScreen,
-        (AreaId.Maridia, 2) => AnimatedTileObject.MaridiaSandCeiling,
-        (AreaId.Maridia, 3) => AnimatedTileObject.MaridiaSandFalling,
+        (AreaId.Crateria, 2) => BlockAnimation.CrateriaLake,
+        (AreaId.Brinstar, 2) => BlockAnimation.BrinstarPlant,
+        (AreaId.WreckedShip, 2) => BlockAnimation.WreckedShipTreadmillRightwards,
+        (AreaId.WreckedShip, 3) => BlockAnimation.WreckedShipTreadmillLeftwards,
+        (AreaId.WreckedShip, 4) => BlockAnimation.WreckedShipScreen,
+        (AreaId.Maridia, 2) => BlockAnimation.MaridiaSandCeiling,
+        (AreaId.Maridia, 3) => BlockAnimation.MaridiaSandFalling,
         _ => null,
     };
     /// <summary>Returns the object selected by one retail area/bit pair, or null for a bit no retail record of the area sets.</summary>
-    public static AnimatedTileObject? Read(AreaId area, int bit)
+    public static BlockAnimation? Read(AreaId area, int bit)
     {
         if ((uint)bit >= ObjectsPerArea)
         {

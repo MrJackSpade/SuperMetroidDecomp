@@ -20,7 +20,7 @@ internal static class VramTilemapImage
     private const int ScreenCells = SuperMetroid.AssetExtraction.Video.TilemapScreenGeometry.WidthInTiles;
 
     /// <summary>Pixels along a cell's side.</summary>
-    private const int CellPixels = ScreenGeometry.BackgroundTileSizePixels;
+    private const int CellPixels = ScreenGeometry.BackgroundCellSizePixels;
 
     /// <summary>
     /// The cells of <paramref name="screens"/>, a <paramref name="size"/> tilemap laid out as the cartridge lays one out,

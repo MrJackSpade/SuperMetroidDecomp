@@ -359,7 +359,7 @@ internal sealed class SpriteSheetLayout
 
     /// <summary>The depth each of the game's priorities draws at, from priority zero up.</summary>
     private static readonly ActorDepth[] DepthOfPriority =
-        [ActorDepth.BehindRoom, ActorDepth.BehindRoom, ActorDepth.BehindFrontTiles, ActorDepth.InFront];
+        [ActorDepth.BehindRoom, ActorDepth.BehindRoom, ActorDepth.BehindFrontParts, ActorDepth.InFront];
 
     /// <summary>
     /// Hashes everything <see cref="Paint"/> reads into <see cref="Identity"/>. A part is hashed by the characters it

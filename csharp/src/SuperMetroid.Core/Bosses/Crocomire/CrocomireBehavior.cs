@@ -234,7 +234,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 Skeleton.RunCrocomireWallRumble(state);
                 return;
             case CrocomireDeathPhase.BreakSpikeWall:
-                Skeleton.RunCrocomireSkeletonTileLoadAndWallBreak(state);
+                Skeleton.RunCrocomireSkeletonRevealAndWallBreak(state);
                 return;
             case CrocomireDeathPhase.DelaySkeletonFall:
                 Skeleton.RunCrocomireWallBreakDelay(state);

@@ -30,7 +30,7 @@ public sealed record TurningRoomLayer : DisplayLayer
         int hudLines, TurningRoomLowerBand? floor = null)
     {
         if (hudLines < 0 || hudLines > ScreenGeometry.ScreenHeightPixels ||
-            hudLines % ScreenGeometry.BackgroundTileSizePixels != 0)
+            hudLines % ScreenGeometry.BackgroundCellSizePixels != 0)
             throw new ArgumentOutOfRangeException(nameof(hudLines));
         if (floor is { } f && (f.FirstLine < hudLines || f.FirstLine >= ScreenGeometry.ScreenHeightPixels))
             throw new ArgumentOutOfRangeException(nameof(floor));

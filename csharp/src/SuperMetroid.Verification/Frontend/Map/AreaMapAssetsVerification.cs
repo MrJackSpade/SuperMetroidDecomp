@@ -41,9 +41,9 @@ internal static class AreaMapAssetsVerification
 
             int publicCount = 0;
             int secretCount = 0;
-            for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
+            for (int y = 0; y < AreaMapSize.HeightInMapTiles; y++)
             {
-                for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
+                for (int x = 0; x < AreaMapSize.WidthInMapTiles; x++)
                 {
                     bool discoverable = map.IsDiscoverable(new(checked((ushort)x), checked((ushort)y)));
                     bool stationVisible = map.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y)));

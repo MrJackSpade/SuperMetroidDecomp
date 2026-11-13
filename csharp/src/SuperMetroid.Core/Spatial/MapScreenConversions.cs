@@ -4,11 +4,11 @@ namespace SuperMetroid.Core.Spatial;
 public static class MapScreenConversions
 {
     /// <summary>Map-plane pixels per map tile on each axis.</summary>
-    public const int PixelsPerTile = 8;
+    public const int PixelsPerMapTile = 8;
 
     /// <summary>The top-left map-plane pixel of a map tile (<c>tile × 8</c>), wrapping each axis at sixteen bits.</summary>
     public static Position16<MapPixels> ToMapPixels(this Position16<MapTiles> tile) =>
-        Position16<MapPixels>.Wrapped(tile.X * PixelsPerTile, tile.Y * PixelsPerTile);
+        Position16<MapPixels>.Wrapped(tile.X * PixelsPerMapTile, tile.Y * PixelsPerMapTile);
 
     /// <summary>
     /// The screen position of a map-plane pixel under the map's scroll (<c>position - scroll</c>),

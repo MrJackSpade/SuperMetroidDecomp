@@ -541,15 +541,15 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(0x155, bgEntry.CharacterIndex, "BG tile character field");
     AssertEqual(5, bgEntry.PaletteIndex, "BG tile palette field");
     AssertTrue(bgEntry.HasPriority, "BG tile priority bit");
-    AssertEqual(TileFlip.Horizontal | TileFlip.Vertical,
+    AssertEqual(PictureFlip.Horizontal | PictureFlip.Vertical,
         bgEntry.FlipFlags, "BG tile flip flags");
-    AssertEqual(0x7555, bgEntry.ToggleFlips(TileFlip.Vertical).Raw,
+    AssertEqual(0x7555, bgEntry.ToggleFlips(PictureFlip.Vertical).Raw,
         "BG tile toggles only vertical flip");
     SnesBgTilemapWord encodedBg = SnesBgTilemapWord.Create(
         characterIndex: 0x155,
         paletteIndex: 5,
         priority: true,
-        TileFlip.Horizontal | TileFlip.Vertical);
+        PictureFlip.Horizontal | PictureFlip.Vertical);
     AssertEqual(bgEntry, encodedBg, "BG tile encode/decode round trip");
     AssertEqual(0xd955, encodedBg.WithPaletteIndex(6).WithPriority(false).Raw,
         "BG tile field replacement preserves character and flips");
@@ -564,12 +564,12 @@ internal static void VerifyTypedNativeWords()
         tileNumber: 0x1ab,
         paletteIndex: 6,
         priority: 2,
-        TileFlip.Horizontal);
+        PictureFlip.Horizontal);
     AssertEqual(objEntry, encodedObj, "OBJ attribute encode/decode round trip");
     AssertEqual(0x63ab, encodedObj.WithPaletteIndex(1).Raw,
         "OBJ palette replacement preserves tile, priority, and flips");
     AssertEqual(0x6e00, SnesObjAttributeWord.Create(0, 7, 0).Or(
-            SnesObjAttributeWord.Create(0, 0, 2, TileFlip.Horizontal)).Raw,
+            SnesObjAttributeWord.Create(0, 0, 2, PictureFlip.Horizontal)).Raw,
         "typed OBJ palette fragment composes with priority and flip fields");
     SnesOamHighTablePair highPair = SnesOamHighTablePair.FromSprite(
         screenX: 0x0100,

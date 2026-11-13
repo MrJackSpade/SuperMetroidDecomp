@@ -58,7 +58,7 @@ internal static class MapCellCharacters
 
     /// <summary>The cell map character <paramref name="character"/> pictures, mirrored by <paramref name="mirroring"/>.</summary>
     /// <exception cref="InvalidDataException">The character, so mirrored, is not one the retail maps draw a cell with.</exception>
-    internal static MapCell Picture(int character, TileFlip mirroring) =>
+    internal static MapCell Picture(int character, PictureFlip mirroring) =>
         CellsBySource.TryGetValue(new MapCellSource(character, mirroring), out MapCell cell)
             ? cell
             : throw new InvalidDataException($"Map character {character} mirrored {mirroring} is not one the retail maps draw a cell with.");

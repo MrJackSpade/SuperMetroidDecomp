@@ -19,7 +19,7 @@ public readonly record struct SpritePart(
     Offset16<ScreenPixels> Offset,
     bool Large,
     int Character,
-    TileFlip Flip,
+    PictureFlip Flip,
     int Palette,
     int Priority)
 {
@@ -50,14 +50,14 @@ public readonly record struct SpritePart(
     /// <param name="flip">The piece's own mirroring.</param>
     /// <exception cref="ArgumentOutOfRangeException">A field is outside its range.</exception>
     public static SpritePart Create(Offset16<ScreenPixels> offset, bool large, int character, int palette, int priority,
-        TileFlip flip = TileFlip.None)
+        PictureFlip flip = PictureFlip.None)
     {
         Ensure.BetweenInclusive(MinimumX, MaximumX, offset.X);
         Ensure.BetweenInclusive(MinimumY, MaximumY, offset.Y);
         Ensure.BetweenInclusive(0, MaximumCharacter, character);
         Ensure.BetweenInclusive(0, MaximumPalette, palette);
         Ensure.BetweenInclusive(0, MaximumPriority, priority);
-        if ((flip & ~(TileFlip.Horizontal | TileFlip.Vertical)) != TileFlip.None)
+        if ((flip & ~(PictureFlip.Horizontal | PictureFlip.Vertical)) != PictureFlip.None)
             throw new ArgumentOutOfRangeException(nameof(flip));
         return new(offset, large, character, flip, palette, priority);
     }
@@ -68,14 +68,14 @@ public readonly record struct SpritePart(
     /// <param name="priority">Priority against the backgrounds, 0 through <see cref="MaximumPriority"/>.</param>
     /// <param name="flip">The piece's own mirroring.</param>
     /// <exception cref="ArgumentOutOfRangeException">A field is outside its range.</exception>
-    public static SpritePart Single(int character, int palette, int priority, TileFlip flip = TileFlip.None) =>
+    public static SpritePart Single(int character, int palette, int priority, PictureFlip flip = PictureFlip.None) =>
         Create(Offset16<ScreenPixels>.Zero, false, character, palette, priority, flip);
 
     /// <summary>Whether the piece's pixels are drawn in reverse horizontal order.</summary>
-    public bool FlipsHorizontally => (Flip & TileFlip.Horizontal) != TileFlip.None;
+    public bool FlipsHorizontally => (Flip & PictureFlip.Horizontal) != PictureFlip.None;
 
     /// <summary>Whether the piece's rows are drawn in reverse vertical order.</summary>
-    public bool FlipsVertically => (Flip & TileFlip.Vertical) != TileFlip.None;
+    public bool FlipsVertically => (Flip & PictureFlip.Vertical) != PictureFlip.None;
 
     /// <summary>
     /// The piece as a whole-frame part over artwork whose character 0 is sheet character <paramref name="firstCharacter"/>,

@@ -197,7 +197,7 @@ internal static class RoomBlockUploads
     {
         foreach (RoomFxRecordDefinition record in state.Fx?.Records ?? [])
         {
-            foreach (AnimatedTileObject animatedObject in record.AnimatedTiles)
+            foreach (BlockAnimation animatedObject in record.BlockAnimations)
             {
                 foreach (AnimatedCharacterPlacement frame in AnimatedTiles(inputs, animatedObject))
                     yield return frame;
@@ -211,7 +211,7 @@ internal static class RoomBlockUploads
                 // Phantoon's and Ridley's statues paint characters outside the room's tile characters, which no block reads.
                 if (!BgCharacterWords.AmongTiles(destination))
                     continue;
-                foreach (TourianStatueTilePicture picture in RoomFxAnimatedTilePictures.TourianStatuePictures)
+                foreach (TourianStatueBlockPicture picture in RoomFxAnimatedTilePictures.TourianStatuePictures)
                 {
                     yield return AnimatedCharacterPlacement.At(statue.Picture(picture), destination,
                         inputs.AnimatedTiles.TourianStatuePicture(statue.Statue, picture));
@@ -345,10 +345,10 @@ internal static class RoomBlockUploads
     /// <summary>Each frame a room effect of <paramref name="type"/> animates over BG3's characters.</summary>
     internal static IEnumerable<AnimatedCharacterPlacement> EffectCharacters(RoomBlockSheetInputs inputs, RoomFxType type)
     {
-        AnimatedTileObject animatedObject = RoomFxAnimatedTilesState.ObjectOf(type);
-        if (animatedObject == AnimatedTileObject.None)
+        BlockAnimation animatedObject = RoomFxBlockAnimationsState.ObjectOf(type);
+        if (animatedObject == BlockAnimation.None)
             yield break;
-        RoomFxAnimatedTileLoop mechanics = RoomFxAnimatedTileLoops.Require(animatedObject);
+        RoomFxBlockAnimationLoop mechanics = RoomFxAnimatedTileLoops.Require(animatedObject);
         for (int frame = 0; frame < mechanics.Frames.Count; frame++)
             yield return Animated(inputs, mechanics.Frames[frame].Frame, mechanics.Image(frame),
                 mechanics.PictureByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));
@@ -403,18 +403,18 @@ internal static class RoomBlockUploads
     }
 
     /// <summary>Each frame an animated-tile object the port runs shows; none for an object it does not animate.</summary>
-    private static IEnumerable<AnimatedCharacterPlacement> AnimatedTiles(RoomBlockSheetInputs inputs, AnimatedTileObject animatedObject)
+    private static IEnumerable<AnimatedCharacterPlacement> AnimatedTiles(RoomBlockSheetInputs inputs, BlockAnimation animatedObject)
     {
         if (WreckedShipTreadmills.TryResolve(animatedObject, out WreckedShipTreadmillLoop? treadmill))
         {
             for (int frame = 0; frame < WreckedShipTreadmillMechanicsDefinitions.FrameCount; frame++)
-                yield return Animated(inputs, AnimatedTileFrames.Frame(animatedObject, frame), treadmill.Image(frame),
+                yield return Animated(inputs, BlockAnimationFrames.Frame(animatedObject, frame), treadmill.Image(frame),
                     RoomFxAnimatedTileLoops.TreadmillFrameByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));
             yield break;
         }
-        if (animatedObject is not (AnimatedTileObject.HorizontalSpikes or AnimatedTileObject.MaridiaSandCeiling or AnimatedTileObject.MaridiaSandFalling))
+        if (animatedObject is not (BlockAnimation.HorizontalSpikes or BlockAnimation.MaridiaSandCeiling or BlockAnimation.MaridiaSandFalling))
             yield break;
-        RoomFxAnimatedTileLoop mechanics = RoomFxAnimatedTileLoops.Require(animatedObject);
+        RoomFxBlockAnimationLoop mechanics = RoomFxAnimatedTileLoops.Require(animatedObject);
         for (int frame = 0; frame < mechanics.Frames.Count; frame++)
             yield return Animated(inputs, mechanics.Frames[frame].Frame, mechanics.Image(frame),
                 mechanics.PictureByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));

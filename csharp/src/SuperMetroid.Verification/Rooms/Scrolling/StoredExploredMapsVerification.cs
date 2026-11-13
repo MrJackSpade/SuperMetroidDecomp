@@ -39,8 +39,8 @@ internal static class StoredExploredMapsVerification
     private static List<Position16<MapTiles>> Exploration(int seed)
     {
         var cells = new List<Position16<MapTiles>>();
-        for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
-        for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
+        for (int y = 0; y < AreaMapSize.HeightInMapTiles; y++)
+        for (int x = 0; x < AreaMapSize.WidthInMapTiles; x++)
         {
             int run = x / 8;
             bool lastOnly = (y + run + seed) % 5 == 0;

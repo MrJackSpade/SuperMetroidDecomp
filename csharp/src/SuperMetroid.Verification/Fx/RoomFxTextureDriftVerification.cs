@@ -67,7 +67,7 @@ internal static class RoomFxTextureDriftVerification
         RoomFxOverlayState state;
         var record = new RoomFxRecordDefinition(BaseYPosition: 100, TargetYPosition: 100,
             YVelocity: default, Timer: 0, Type: type, VisorAnimation: RoomVisorAnimation.Steady, EffectBlend: blend,
-            Liquid: liquid, PaletteEffects: [], AnimatedTiles: [],
+            Liquid: liquid, PaletteEffects: [], BlockAnimations: [],
             PaletteBlend: RoomFxPaletteBlend.None);
         state = RoomFxOverlayState.ForDefinition(stateSession, record, checked((ushort)randomNumber));
         AssertEqual(type, state.Type, $"synthetic {type} record loads");

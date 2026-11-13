@@ -67,7 +67,7 @@ internal static class ExploredMapPackingDefinitionsVerification
         var explored = new PersistentProgress();
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            for (int index = 0; index < AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles; index += 3)
+            for (int index = 0; index < AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles; index += 3)
                 explored.SetExplored(area, AreaMapSize.Extent.CellAtRowMajorIndex(index), explored: true);
         }
         saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot { Progress = explored });

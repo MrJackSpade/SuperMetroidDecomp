@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Rendering;
 /// The shades and colour effects its screen shows it in (#1512); <see cref="PictureShading.Standard"/> where the screen
 /// shows no effect on it.
 /// </param>
-public readonly record struct GridPicture(SpriteSheetFrame Picture, TileFlip Mirroring, PictureShading Shading);
+public readonly record struct GridPicture(SpriteSheetFrame Picture, PictureFlip Mirroring, PictureShading Shading);

@@ -572,8 +572,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             if (cells[index] is not { } cell)
                 continue;
             upload[offset + 1 + index] = (uint)pictureWords[new(cell.Picture, D3D11PictureColouring.OwnShading, cell.Shading)]
-                | ((cell.Mirroring & TileFlip.Horizontal) != 0 ? GridFlipHorizontally : 0)
-                | ((cell.Mirroring & TileFlip.Vertical) != 0 ? GridFlipVertically : 0);
+                | ((cell.Mirroring & PictureFlip.Horizontal) != 0 ? GridFlipHorizontally : 0)
+                | ((cell.Mirroring & PictureFlip.Vertical) != 0 ? GridFlipVertically : 0);
         }
     }
 

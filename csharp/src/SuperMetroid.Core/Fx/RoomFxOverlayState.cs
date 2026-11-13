@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Fx;
 public sealed class RoomFxOverlayState : IGameplayShadingSource
 {
     /// <summary>Tracks frame selection for the liquid, rain, fog, and spore block animations.</summary>
-    private readonly RoomFxAnimatedTilesState animatedTiles = new();
+    private readonly RoomFxBlockAnimationsState blockAnimations = new();
 
     /// <summary>The Fireflea state, which outlives each room.</summary>
     private readonly RoomFxSession _session;
@@ -232,7 +232,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Type = definition.Type;
         Blend = definition.EffectBlend;
         VisorAnimation = definition.VisorAnimation;
-        animatedTiles.Load(Type);
+        blockAnimations.Load(Type);
         PaletteBlend = definition.PaletteBlend;
 
         if (Type == RoomFxType.Fireflea)
@@ -349,7 +349,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         AudioRequests.QueueSound(LiquidEffects.LavaAmbientSound(random), LavaAcidWaveDefinitions.AmbientSoundPriority);
     }
 
-    /// <summary>Runs the active effect's per-frame behaviour step and rain animtile handler.</summary>
+    /// <summary>Runs the active effect's per-frame behaviour step and rain block animation.</summary>
     public void Step(ArtworkFrameSelections frames, RoomFxOverlayFrame frame)
     {
         Ensure.NotNull(frames);
@@ -366,7 +366,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         // The shared block animations run independently of the liquid motion's
         // per-frame step. In particular, lava and acid select the animation frame their pictures
         // show here, before the surface step that follows.
-        animatedTiles.Step(frames);
+        blockAnimations.Step(frames);
 
         if (LiquidMotionStopped && MovesLiquidBeforeMainLoop)
             return;

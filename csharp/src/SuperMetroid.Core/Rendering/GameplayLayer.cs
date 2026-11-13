@@ -13,19 +13,19 @@ public enum GameplayLayer
     ActorsBehindRoom,
 
     /// <summary>The room's background, its back tiles.</summary>
-    BackgroundBackTiles,
+    BackgroundBackPart,
 
     /// <summary>The room's foreground, its back tiles.</summary>
-    ForegroundBackTiles,
+    ForegroundBackPart,
 
-    /// <summary>The actors drawn behind the room's front tiles (<see cref="Assets.ActorDepth.BehindFrontTiles"/>).</summary>
-    ActorsBehindFrontTiles,
+    /// <summary>The actors drawn behind the room's front tiles (<see cref="Assets.ActorDepth.BehindFrontParts"/>).</summary>
+    ActorsBehindFrontParts,
 
     /// <summary>The room's background, its front tiles.</summary>
-    BackgroundFrontTiles,
+    BackgroundFrontPart,
 
     /// <summary>The room's foreground, its front tiles.</summary>
-    ForegroundFrontTiles,
+    ForegroundFrontPart,
 
     /// <summary>The actors drawn in front of the whole room (<see cref="Assets.ActorDepth.InFront"/>).</summary>
     ActorsInFront,

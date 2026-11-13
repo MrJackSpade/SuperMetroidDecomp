@@ -1,29 +1,29 @@
 using SuperMetroid.AssetExtraction.Fx;
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>Verification access to <see cref="RoomFxAnimatedTileLoop"/> members production does not use.</summary>
+/// <summary>Verification access to <see cref="RoomFxBlockAnimationLoop"/> members production does not use.</summary>
 internal static class RoomFxAnimatedTileObjectDefinitionAccess
 {
     /// <summary>The bank-$87 cursor of <paramref name="animatedObject"/>'s first timed frame.</summary>
-    internal static ushort FirstCursor(AnimatedTileObject animatedObject) => animatedObject switch
+    internal static ushort FirstCursor(BlockAnimation animatedObject) => animatedObject switch
     {
-        AnimatedTileObject.HorizontalSpikes => 0x817e,
-        AnimatedTileObject.MaridiaSandCeiling => 0x8221,
-        AnimatedTileObject.MaridiaSandFalling => 0x8235,
-        AnimatedTileObject.Lava => 0x8293,
-        AnimatedTileObject.Acid => 0x82b1,
-        AnimatedTileObject.Rain => 0x82cf,
-        AnimatedTileObject.Spores => 0x82ed,
-        AnimatedTileObject.WreckedShipTreadmillRightwards or AnimatedTileObject.WreckedShipTreadmillLeftwards
-            or AnimatedTileObject.None or AnimatedTileObject.TourianStatuePhantoon or AnimatedTileObject.TourianStatueRidley
-            or AnimatedTileObject.TourianStatueKraid or AnimatedTileObject.TourianStatueDraygon
-            or AnimatedTileObject.VerticalSpikes or AnimatedTileObject.CrateriaLake
-            or AnimatedTileObject.BrinstarPlant or AnimatedTileObject.WreckedShipScreen
+        BlockAnimation.HorizontalSpikes => 0x817e,
+        BlockAnimation.MaridiaSandCeiling => 0x8221,
+        BlockAnimation.MaridiaSandFalling => 0x8235,
+        BlockAnimation.Lava => 0x8293,
+        BlockAnimation.Acid => 0x82b1,
+        BlockAnimation.Rain => 0x82cf,
+        BlockAnimation.Spores => 0x82ed,
+        BlockAnimation.WreckedShipTreadmillRightwards or BlockAnimation.WreckedShipTreadmillLeftwards
+            or BlockAnimation.None or BlockAnimation.TourianStatuePhantoon or BlockAnimation.TourianStatueRidley
+            or BlockAnimation.TourianStatueKraid or BlockAnimation.TourianStatueDraygon
+            or BlockAnimation.VerticalSpikes or BlockAnimation.CrateriaLake
+            or BlockAnimation.BrinstarPlant or BlockAnimation.WreckedShipScreen
             => throw new InvalidDataException($"Room-FX object {animatedObject} has no simple frame loop."),
         _ => throw new InvalidDataException($"Undefined room-FX object {animatedObject}."),
     };
 
-    extension(RoomFxAnimatedTileLoop self)
+    extension(RoomFxBlockAnimationLoop self)
     {
         /// <summary>The first timed instruction in the object's bank-$87 loop.</summary>
         public ushort InstructionPointer => FirstCursor(self.AnimatedObject);

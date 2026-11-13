@@ -23,7 +23,7 @@ internal static class PicturedHudFixtures
     /// </summary>
     internal static PicturedHud FromVram(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int characterWord = GameplayVramLayout.HudCharacterWord)
     {
-        const int tile = ScreenGeometry.BackgroundTileSizePixels, characterWords = 8;
+        const int tile = ScreenGeometry.BackgroundCellSizePixels, characterWords = 8;
         const int columns = GameplayHudDocumentDefinitions.Columns, rows = GameplayHudDocumentDefinitions.DrawnRows + 1;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(columns * tile, rows * tile));
         RgbColor[] colours = palette[..ImageColourGroup.HalfColours].ToArray();

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rendering;
 public sealed class PictureGrid : IEquatable<PictureGrid>
 {
     /// <summary>Pixels along each side of a square.</summary>
-    public const int CellPixels = ScreenGeometry.BackgroundTileSizePixels;
+    public const int CellPixels = ScreenGeometry.BackgroundCellSizePixels;
 
     /// <summary>Keeps the grid's cells.</summary>
     /// <param name="size">The grid's width and height in area-map squares.</param>

@@ -55,7 +55,7 @@ internal static class DoorAnimatedTilesVerification
         int handlerFrames = 0;
         for (int frame = 0; frame < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; frame++)
         {
-            if (game.DoorTransitionPhaseForVerification is DoorTransitionPhase.StepDestinationAnimatedTiles or
+            if (game.DoorTransitionPhaseForVerification is DoorTransitionPhase.StepDestinationBlockAnimations or
                 DoorTransitionPhase.DrawFirstDestinationFrame or DoorTransitionPhase.FadeInDestinationPalette)
                 handlerFrames++;
             game.Step(0);
@@ -72,7 +72,7 @@ internal static class DoorAnimatedTilesVerification
             reference.System.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
         reference.LoadCartridgeRoomThroughDoorForVerification((entry ?? throw new InvalidOperationException("Verification requires entry.")));
         for (int call = 0; call < handlerFrames; call++)
-            reference.TourianStatues.StepTiles();
+            reference.TourianStatues.StepBlockAnimations();
 
         AssertTrue(handlerFrames > 1, "the door runs the handler at $E659 and on its fade steps");
         AssertEqual(StatueSnapshot(reference), StatueSnapshot(runtime),

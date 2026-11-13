@@ -88,7 +88,7 @@ internal static class GameplayContentIdentityVerification
                 RoomBlockAppearance.Of(edit == "overlay-word" ? 7 : 6)),
         ];
         if (edit == "overlay-order") Array.Reverse(tiles);
-        XrayRoomOverlayTiles[] rooms =
+        XrayRoomOverlayBlocks[] rooms =
             [new(FirstFixtureOverlay, tiles), new(SecondFixtureOverlay, new XrayRoomOverlayVisual[] { new(new(8, 9), RoomBlockAppearance.Of(10)) })];
         var overlays = InstalledXrayOverlays.FromOverlaysForVerification(items, reverse ? rooms.Reverse() : rooms);
         var xray = new InstalledXrayReveals(reverse ? entries.AsEnumerable().Reverse() : entries, overlays,

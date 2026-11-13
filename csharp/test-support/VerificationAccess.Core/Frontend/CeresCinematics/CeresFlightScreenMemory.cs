@@ -55,7 +55,7 @@ internal static class CeresFlightScreenMemory
     /// </summary>
     internal static BackgroundTile[] CaptionTiles(IntroCeresFlightState flight)
     {
-        const int cell = ScreenGeometry.BackgroundTileSizePixels;
+        const int cell = ScreenGeometry.BackgroundCellSizePixels;
         var tiles = new BackgroundTile[TilemapScreenGeometry.CellCount];
         for (int letter = 0; letter < flight.CaptionLettersShown; letter++)
             tiles[SpaceColonyCaptionDefinitions.Top / cell * TilemapScreenGeometry.WidthInTiles + SpaceColonyCaption.Left(letter) / cell] =

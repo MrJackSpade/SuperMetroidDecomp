@@ -50,18 +50,18 @@ internal static class AnimatedTileFrameArtwork
     /// Writes the frame <paramref name="animatedObject"/> shows in <paramref name="frames"/>, if any, into <paramref name="vram"/>
     /// where the cartridge copies it, for checks that render a layer from VRAM.
     /// </summary>
-    internal static void ShowIn(SnesVram vram, ArtworkFrameSelections frames, RoomFxAnimatedTileAtlas atlas, AnimatedTileObject animatedObject)
+    internal static void ShowIn(SnesVram vram, ArtworkFrameSelections frames, RoomFxAnimatedTileAtlas atlas, BlockAnimation animatedObject)
     {
-        if (!frames.TryShown(AnimatedTileFrames.Of(animatedObject), out ArtworkFrame shown))
+        if (!frames.TryShown(BlockAnimationFrames.Of(animatedObject), out ArtworkFrame shown))
             return;
-        RoomFxAnimatedTileLoop mechanics = RoomFxAnimatedTileLoops.Require(animatedObject);
+        RoomFxBlockAnimationLoop mechanics = RoomFxAnimatedTileLoops.Require(animatedObject);
         vram.LoadBytes(AnimatedTileVramDestinations.WordOf(mechanics.AnimatedObject) * sizeof(ushort), Bytes(BgArtworkIdentity.Frame(shown), atlas).Span);
     }
 
     /// <summary>Every animated-tile frame, with the cartridge source and size of its installed characters.</summary>
     private static IEnumerable<FramePicture> Frames()
     {
-        foreach (RoomFxAnimatedTileLoop mechanics in RoomFxAnimatedTileLoops.All)
+        foreach (RoomFxBlockAnimationLoop mechanics in RoomFxAnimatedTileLoops.All)
         {
             for (int frame = 0; frame < mechanics.Frames.Count; frame++)
             {
@@ -74,12 +74,12 @@ internal static class AnimatedTileFrameArtwork
         {
             WreckedShipTreadmillLoop treadmill = WreckedShipTreadmills.ForDirection(direction);
             for (int frame = 0; frame < WreckedShipTreadmillMechanicsDefinitions.FrameCount; frame++)
-                yield return new(AnimatedTileFrames.Frame(treadmill.AnimatedObject, frame), AnimatedTileImageSources.Of(treadmill.Image(frame)),
+                yield return new(BlockAnimationFrames.Frame(treadmill.AnimatedObject, frame), AnimatedTileImageSources.Of(treadmill.Image(frame)),
                     Picture(treadmill.Image(frame), RoomFxAnimatedTileLoops.TreadmillFrameByteCount));
         }
         foreach (TourianStatueAnimationDefinition statue in TourianStatueAnimatedTilePrograms.All)
         {
-            foreach (TourianStatueTilePicture picture in RoomFxAnimatedTilePictures.TourianStatuePictures)
+            foreach (TourianStatueBlockPicture picture in RoomFxAnimatedTilePictures.TourianStatuePictures)
                 yield return new(statue.Picture(picture),
                     AnimatedTileImageSources.TourianStatue(statue.Statue, picture),
                     atlas => atlas.TourianStatuePicture(statue.Statue, picture));

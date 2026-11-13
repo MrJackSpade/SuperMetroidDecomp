@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// <summary>How a block the X-ray reveal shows lays out its picture (#1392, #1431).</summary>
 public enum RevealedBlockArrangement
 {
-    /// <summary>As the definition gives them: a reveal metatile, or a copied block the level does not mirror.</summary>
+    /// <summary>As the definition gives them: a reveal block, or a copied block the level does not mirror.</summary>
     AsDefined,
 
     /// <summary>Mirrored left to right, each quarter's own flip toggled: a copied block the level mirrors so.</summary>

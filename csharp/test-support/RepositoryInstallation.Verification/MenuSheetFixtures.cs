@@ -264,9 +264,9 @@ internal static class MenuSheetFixtures
         sheets[SpriteSheetId.MenuPictures] = LoadTiles(SpriteSheetId.MenuPictures, MenuPictureSheet.Compose(maps), fixture);
         // The room maps' cells and frames, and each area's world-map pages, are pictured from the maps' presentation (#1467).
         sheets[SpriteSheetId.RoomMapPictures] = LoadTiles(SpriteSheetId.RoomMapPictures, MapPictureSheets.ComposeRoomMap(maps), fixture);
-        foreach (KeyValuePair<AreaId, SpriteSheetId> foreground in ScreenTileSheetDefinitions.AreaMapForegrounds)
+        foreach (KeyValuePair<AreaId, SpriteSheetId> foreground in ScreenPictureSheetDefinitions.AreaMapForegrounds)
             sheets[foreground.Value] = LoadTiles(foreground.Value, MapPictureSheets.ComposeWorldForeground(maps, foreground.Key), fixture);
-        foreach (KeyValuePair<AreaId, SpriteSheetId> background in ScreenTileSheetDefinitions.AreaMapBackgrounds)
+        foreach (KeyValuePair<AreaId, SpriteSheetId> background in ScreenPictureSheetDefinitions.AreaMapBackgrounds)
             sheets[background.Value] = LoadTiles(background.Value, MapPictureSheets.ComposeWorldBackground(maps, background.Key), fixture);
     }
 

@@ -28,8 +28,8 @@ public readonly record struct BackgroundTile(int Tile, int ColourVariant, bool F
     /// <param name="colourVariant">The colour variant, 0 through one less than <see cref="ColourVariants"/>.</param>
     /// <param name="highPriority">Whether the tile is in the layer's upper priority tier.</param>
     /// <param name="flip">The mirroring the tile is drawn with.</param>
-    public BackgroundTile(int tile, int colourVariant, bool highPriority, TileFlip flip = TileFlip.None)
-        : this(tile, colourVariant, (flip & TileFlip.Horizontal) != TileFlip.None, (flip & TileFlip.Vertical) != TileFlip.None, highPriority)
+    public BackgroundTile(int tile, int colourVariant, bool highPriority, PictureFlip flip = PictureFlip.None)
+        : this(tile, colourVariant, (flip & PictureFlip.Horizontal) != PictureFlip.None, (flip & PictureFlip.Vertical) != PictureFlip.None, highPriority)
     {
     }
 
@@ -49,5 +49,5 @@ public readonly record struct BackgroundTile(int Tile, int ColourVariant, bool F
 
     /// <summary>The mirroring the tile is drawn with; documents store its two axes.</summary>
     [JsonIgnore]
-    public TileFlip Flip => (FlipHorizontally ? TileFlip.Horizontal : TileFlip.None) | (FlipVertically ? TileFlip.Vertical : TileFlip.None);
+    public PictureFlip Flip => (FlipHorizontally ? PictureFlip.Horizontal : PictureFlip.None) | (FlipVertically ? PictureFlip.Vertical : PictureFlip.None);
 }

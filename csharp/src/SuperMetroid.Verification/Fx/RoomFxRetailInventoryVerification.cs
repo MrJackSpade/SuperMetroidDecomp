@@ -346,7 +346,7 @@ internal static class RoomFxRetailInventoryVerification
         var liquidFrames = new ArtworkFrameSelections();
         actual.Step(liquidFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
         // The liquid's frames are selected, and BG3's pictures show the selected frame: the render reads it where the cartridge copies it.
-        if (RoomFxAnimatedTilesState.ObjectOf(expectedType) is var liquidTiles and not AnimatedTileObject.None)
+        if (RoomFxBlockAnimationsState.ObjectOf(expectedType) is var liquidTiles and not BlockAnimation.None)
             AnimatedTileFrameArtwork.ShowIn(vram, liquidFrames, AnimatedTiles, liquidTiles);
 
         if (expectedType is RoomFxType.Lava or RoomFxType.Acid)
@@ -369,26 +369,26 @@ internal static class RoomFxRetailInventoryVerification
     {
         Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
             bus,
-            FxNativeWords.AnimatedTileObjects.Word(AnimatedTileObject.Lava),
+            FxNativeWords.AnimatedTileObjects.Word(BlockAnimation.Lava),
             RoomFxNativeSources.LavaFirstInstruction,
-            RoomFxAnimatedTileLoops.Require(AnimatedTileObject.Lava).PictureByteCount,
-            AnimatedTileVramDestinations.WordOf(AnimatedTileObject.Lava),
+            RoomFxAnimatedTileLoops.Require(BlockAnimation.Lava).PictureByteCount,
+            AnimatedTileVramDestinations.WordOf(BlockAnimation.Lava),
             RoomFxNativeSources.LavaFirstFrame,
             "lava"));
         Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
             bus,
-            FxNativeWords.AnimatedTileObjects.Word(AnimatedTileObject.Acid),
+            FxNativeWords.AnimatedTileObjects.Word(BlockAnimation.Acid),
             RoomFxNativeSources.AcidFirstInstruction,
-            RoomFxAnimatedTileLoops.Require(AnimatedTileObject.Lava).PictureByteCount,
-            AnimatedTileVramDestinations.WordOf(AnimatedTileObject.Lava),
+            RoomFxAnimatedTileLoops.Require(BlockAnimation.Lava).PictureByteCount,
+            AnimatedTileVramDestinations.WordOf(BlockAnimation.Lava),
             RoomFxNativeSources.AcidFirstFrame,
             "acid"));
         Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
             bus,
-            FxNativeWords.AnimatedTileObjects.Word(AnimatedTileObject.Rain),
+            FxNativeWords.AnimatedTileObjects.Word(BlockAnimation.Rain),
             RoomFxNativeSources.RainFirstInstruction,
-            RoomFxAnimatedTileLoops.Require(AnimatedTileObject.Rain).PictureByteCount,
-            AnimatedTileVramDestinations.WordOf(AnimatedTileObject.Rain),
+            RoomFxAnimatedTileLoops.Require(BlockAnimation.Rain).PictureByteCount,
+            AnimatedTileVramDestinations.WordOf(BlockAnimation.Rain),
             RoomFxNativeSources.RainFirstFrame,
             "rain"));
     }
@@ -423,7 +423,7 @@ internal static class RoomFxRetailInventoryVerification
         var lavaFrames = new ArtworkFrameSelections();
         RoomFxAnimatedTileAtlas lavaArtwork = AnimatedTiles;
         fx.Step(lavaFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
-        AnimatedTileFrameArtwork.ShowIn(vram, lavaFrames, lavaArtwork, AnimatedTileObject.Lava);
+        AnimatedTileFrameArtwork.ShowIn(vram, lavaFrames, lavaArtwork, BlockAnimation.Lava);
 
         RoomFxOverlayRenderSnapshot firstSnapshot = fx.CaptureForDisplay()
             ?? throw new InvalidDataException("Business Center lava published no render snapshot.");
@@ -432,7 +432,7 @@ internal static class RoomFxRetailInventoryVerification
         RgbaPixel[] first = RenderRoomFx(vram, cgram, firstSnapshot, plane);
         RgbaPixel[] backdrop = RenderRoomFxBackdrop(cgram);
         int surfaceFirstRow = firstSnapshot.NamedSurfaceScreenY -
-            (ScreenGeometry.BackgroundTileSizePixels - 1);
+            (ScreenGeometry.BackgroundCellSizePixels - 1);
         RgbaPixel[] firstSurface = ReadRows(
             first,
             surfaceFirstRow,
@@ -452,7 +452,7 @@ internal static class RoomFxRetailInventoryVerification
         {
             fx.Step(lavaFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
         }
-        AnimatedTileFrameArtwork.ShowIn(vram, lavaFrames, lavaArtwork, AnimatedTileObject.Lava);
+        AnimatedTileFrameArtwork.ShowIn(vram, lavaFrames, lavaArtwork, BlockAnimation.Lava);
         RgbaPixel[] second = RenderRoomFx(
             vram,
             cgram,
@@ -754,7 +754,7 @@ internal static class RoomFxRetailInventoryVerification
         AssertEqual(definition.TargetY, fx.NamedBaseY.Whole,
             $"room {definition.Room} lava stops at its cartridge target");
 
-        AnimatedTileFrameArtwork.ShowIn(vram, risenFrames, AnimatedTiles, AnimatedTileObject.Lava);
+        AnimatedTileFrameArtwork.ShowIn(vram, risenFrames, AnimatedTiles, BlockAnimation.Lava);
         ushort[] finalPlane = EffectPlane(fx);
         RoomFxOverlayRenderSnapshot finalSnapshot = fx.CaptureForDisplay()
             ?? throw new InvalidDataException(

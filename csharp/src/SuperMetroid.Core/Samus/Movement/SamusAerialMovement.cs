@@ -693,8 +693,8 @@ public static class SamusAerialMovement
             return;
 
         bool jumpHeld = (controllerInput & ControllerButton.A) != ControllerButton.None;
-        bool speedUnderflowed = SamusSpeedMagnitude.HasPassedZero(state.YSpeed.Whole);
-        if (!jumpHeld || speedUnderflowed)
+        bool speedPassedZero = SamusSpeedMagnitude.HasPassedZero(state.YSpeed.Whole);
+        if (!jumpHeld || speedPassedZero)
         {
             state.YSpeed = default;
             state.YDirection = SamusVerticalDirection.Down;

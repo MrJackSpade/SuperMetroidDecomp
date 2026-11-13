@@ -64,7 +64,7 @@ public sealed class InstalledGrappleSprites
             style.Palette is < 0 or > 7 || style.Priority is < 0 or > 3)
             throw new InvalidDataException("Invalid Grapple tile, palette or priority.");
         return SpritePart.Single(style.TileRow * ProjectileSpriteDefinitions.TileColumns + style.TileColumn, style.Palette, style.Priority,
-            (style.FlipX ? TileFlip.Horizontal : 0) | (style.FlipY ? TileFlip.Vertical : 0));
+            (style.FlipX ? PictureFlip.Horizontal : 0) | (style.FlipY ? PictureFlip.Vertical : 0));
     }
 
     /// <summary>Serializes all five appearances in the schema <see cref="Load"/> reads.</summary>

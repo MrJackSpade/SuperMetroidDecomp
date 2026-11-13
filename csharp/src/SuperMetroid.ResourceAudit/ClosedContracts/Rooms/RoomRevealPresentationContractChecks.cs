@@ -35,10 +35,10 @@ internal static class RoomRevealPresentationContractChecks
                     reveals.Apply(RoomCollisionType.ShootableBlock, RoomBlockBehavior.Reacting(ShootableReaction.RespawningBreak1x2));
                     reveals.Apply(RoomCollisionType.SolidBlock, RoomBlockBehavior.None);
                     reveals.Apply(RoomCollisionType.HorizontalExtension, RoomBlockBehavior.Extending(3));
-                    overlays.TankMetatile(InWorldCollectibleKind.EnergyTank);
-                    overlays.TankMetatile(InWorldCollectibleKind.PowerBombTank);
-                    overlays.TankMetatile(InWorldCollectibleKind.Bombs);
-                    overlays.RoomTiles(XrayRoomOverlayDefinitions.BombTorizoAnimalEscapeBlocks);
+                    overlays.TankBlock(InWorldCollectibleKind.EnergyTank);
+                    overlays.TankBlock(InWorldCollectibleKind.PowerBombTank);
+                    overlays.TankBlock(InWorldCollectibleKind.Bombs);
+                    overlays.RoomBlocks(XrayRoomOverlayDefinitions.BombTorizoAnimalEscapeBlocks);
                 }
             }
             """, path: "fixture-room-reveal-consumer.cs");
@@ -77,7 +77,7 @@ internal static class RoomRevealPresentationContractChecks
                 entries.Add(new(type, reaction, new(1, 2, 3, 4)));
         // The overlays are required with the reveals (#1596); every required room overlay shows one block.
         var overlays = new InstalledXrayOverlays(Enumerable.Repeat(RoomBlockAppearance.Of(0), InstalledXrayOverlays.TankCount),
-            XrayRoomOverlayDefinitions.All.Select(overlay => new XrayRoomOverlayTiles(overlay,
+            XrayRoomOverlayDefinitions.All.Select(overlay => new XrayRoomOverlayBlocks(overlay,
                 [new XrayRoomOverlayVisual(Position16<RoomBlocks>.Of(0, 0), RoomBlockAppearance.Of(0))])));
         // The block a backward extension exit shows is installed with them (#1615).
         var catalog = new InstalledXrayReveals(entries, overlays, extensionExitBlock: 5);

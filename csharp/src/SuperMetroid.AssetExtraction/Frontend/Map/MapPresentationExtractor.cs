@@ -76,8 +76,8 @@ public static class MapPresentationExtractor
             using var buffer = new MemoryStream();
             var map = AreaMapImporter.Load(bus, area);
             AreaMapPresentationFile.Write(buffer, map);
-            stationCells.Add(area.ToString(), Enumerable.Range(0, AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles)
-                .Where(i => map.IsRevealedByMapStation(new(checked((ushort)(i % AreaMapSize.WidthInTiles)), checked((ushort)(i / AreaMapSize.WidthInTiles))))).ToArray());
+            stationCells.Add(area.ToString(), Enumerable.Range(0, AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles)
+                .Where(i => map.IsRevealedByMapStation(new(checked((ushort)(i % AreaMapSize.WidthInMapTiles)), checked((ushort)(i / AreaMapSize.WidthInMapTiles))))).ToArray());
             byte[] bytes = buffer.ToArray();
             string name = AreaMapCatalogFormat.FileName(area);
             // Exclusive creation prevents this stock importer from overwriting edited

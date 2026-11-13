@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Spatial;
 /// a picture is drawn unmirrored, mirrored on either axis, or on both.
 /// </summary>
 [Flags]
-public enum TileFlip
+public enum PictureFlip
 {
     /// <summary>Draws the picture as stored.</summary>
     None = 0,

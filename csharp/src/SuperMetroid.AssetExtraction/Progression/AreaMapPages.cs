@@ -42,7 +42,7 @@ public static class AreaMapPages
     /// <summary>Returns the MSB-first mask used by both one-bit map planes.</summary>
     public static int GetBitMask(int mapX)
     {
-        if ((uint)mapX >= AreaMapSize.WidthInTiles)
+        if ((uint)mapX >= AreaMapSize.WidthInMapTiles)
             throw new ArgumentOutOfRangeException(nameof(mapX));
         return FirstCellBit >> (mapX & 7);
     }
@@ -50,9 +50,9 @@ public static class AreaMapPages
     /// <summary>Rejects coordinates outside the two 32-by-32 map pages.</summary>
     private static void ValidateCoordinate(Position16<MapTiles> cell)
     {
-        if ((uint)cell.X >= AreaMapSize.WidthInTiles)
+        if ((uint)cell.X >= AreaMapSize.WidthInMapTiles)
             throw new ArgumentOutOfRangeException(nameof(cell), "Map X lies outside the 64-tile area map.");
-        if ((uint)cell.Y >= AreaMapSize.HeightInTiles)
+        if ((uint)cell.Y >= AreaMapSize.HeightInMapTiles)
             throw new ArgumentOutOfRangeException(nameof(cell), "Map Y lies outside the 32-tile area map.");
     }
 }

@@ -111,16 +111,16 @@ internal sealed record RoomScope
     public required CeresHazeState CeresHaze { get; init; }
 
     /// <summary>The room's sand block animations.</summary>
-    public required RoomSandAnimatedTilesState SandTiles { get; init; }
+    public required RoomSandBlockAnimationsState SandBlockAnimations { get; init; }
 
     /// <summary>The room's horizontal-spike block animations.</summary>
-    public required RoomSpikeAnimatedTilesState SpikeTiles { get; init; }
+    public required RoomSpikeBlockAnimationsState SpikeBlockAnimations { get; init; }
 
     /// <summary>The room's FX-selected treadmill block animations.</summary>
-    public required RoomTreadmillAnimatedTilesState TreadmillTiles { get; init; }
+    public required RoomTreadmillBlockAnimationsState TreadmillBlockAnimations { get; init; }
 
     /// <summary>The Wrecked Ship entrance treadmill block animations a door's setup may start.</summary>
-    public required WreckedShipTreadmillAnimatedTilesState WreckedShipTreadmill { get; init; }
+    public required WreckedShipTreadmillBlockAnimationsState WreckedShipTreadmill { get; init; }
 
     /// <summary>The room's Tourian statue animations and descent, enabled only in the statue room.</summary>
     public required TourianStatueSequence TourianStatues { get; init; }

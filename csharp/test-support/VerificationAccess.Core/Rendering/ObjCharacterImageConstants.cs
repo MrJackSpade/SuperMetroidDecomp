@@ -16,7 +16,7 @@ internal static class ObjCharacterImageConstants
 
     /// <summary>The depth among a gameplay room's layers each record priority draws at, from priority zero up (#1514).</summary>
     private static readonly ActorDepth[] DepthOfPriority =
-        [ActorDepth.BehindRoom, ActorDepth.BehindRoom, ActorDepth.BehindFrontTiles, ActorDepth.InFront];
+        [ActorDepth.BehindRoom, ActorDepth.BehindRoom, ActorDepth.BehindFrontParts, ActorDepth.InFront];
 
     /// <summary>Images pictured from OAM so far, which keeps each one's name its own.</summary>
     private static int pictured;
@@ -112,7 +112,7 @@ internal static class ObjCharacterImageConstants
             // OAM X is a signed/modular 9-bit coordinate and Y wraps above the visible field.
             int objectX = entry.Position.X >= XRange / 2 ? entry.Position.X - XRange : entry.Position.X;
             int objectY = entry.Position.Y >= ScreenGeometry.ScreenHeightPixels ? entry.Position.Y - YRange : entry.Position.Y;
-            var flip = (entry.FlipX ? TileFlip.Horizontal : 0) | (entry.FlipY ? TileFlip.Vertical : 0);
+            var flip = (entry.FlipX ? PictureFlip.Horizontal : 0) | (entry.FlipY ? PictureFlip.Vertical : 0);
             int columns = width / SpriteArtwork.CharacterPixels;
             int rows = height / SpriteArtwork.CharacterPixels;
             for (int row = 0; row < rows; row++)

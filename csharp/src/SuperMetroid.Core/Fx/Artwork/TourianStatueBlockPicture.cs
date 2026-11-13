@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// pictures forward and back, the release replays the second and third, and the released picture stays through the
 /// eye-glow and soul waits.
 /// </summary>
-public enum TourianStatueTilePicture
+public enum TourianStatueBlockPicture
 {
     /// <summary>The first oscillation picture: the idle animation's turning point.</summary>
     OscillationFirst,

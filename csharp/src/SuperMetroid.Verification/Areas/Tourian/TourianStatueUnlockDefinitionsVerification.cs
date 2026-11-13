@@ -83,7 +83,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
             new MemoryStream(RoomFxAnimatedTileAtlasExtractor.Extract(rom)));
         foreach (TourianStatueAnimationDefinition definition in
                  TourianStatueAnimatedTilePrograms.All)
-        foreach (TourianStatueTilePicture picture in RoomFxAnimatedTilePictures.TourianStatuePictures)
+        foreach (TourianStatueBlockPicture picture in RoomFxAnimatedTilePictures.TourianStatuePictures)
         {
             int source = AnimatedTileImageSources.TourianStatue(definition.Statue, picture);
             byte[] native = ReadNativeTourianStatueFrame(rom, source,
@@ -132,7 +132,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
 
         int steps = 0;
         for (; steps < 3000 && !TourianStatueGreyEventsAreSet(runtime); steps++)
-            runtime.TourianStatues.StepTiles();
+            runtime.TourianStatues.StepBlockAnimations();
 
         AssertTrue(TourianStatueGreyEventsAreSet(runtime),
             "production Tourian sequence releases all four defeated-boss statues");

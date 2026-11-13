@@ -38,27 +38,27 @@ internal static class FxNativeWords
         nativeAreaIndex == SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(SuperMetroid.Core.Progression.AreaId.Crateria) && bit == 3
             ? (ushort)0x8263 : (ushort)0x824b;
 
-    /// <summary>The bank-$87 object header naming each <see cref="AnimatedTileObject"/>; zero names no object.</summary>
-    internal static readonly NativeWordIdentities<AnimatedTileObject> AnimatedTileObjects = new(new Dictionary<AnimatedTileObject, ushort>
+    /// <summary>The bank-$87 object header naming each <see cref="BlockAnimation"/>; zero names no object.</summary>
+    internal static readonly NativeWordIdentities<BlockAnimation> AnimatedTileObjects = new(new Dictionary<BlockAnimation, ushort>
     {
-        [AnimatedTileObject.None] = 0x0000,
-        [AnimatedTileObject.TourianStatuePhantoon] = 0x854c,
-        [AnimatedTileObject.TourianStatueRidley] = 0x8552,
-        [AnimatedTileObject.TourianStatueKraid] = 0x8558,
-        [AnimatedTileObject.TourianStatueDraygon] = 0x855e,
-        [AnimatedTileObject.HorizontalSpikes] = 0x8257,
-        [AnimatedTileObject.VerticalSpikes] = 0x8251,
-        [AnimatedTileObject.CrateriaLake] = 0x825d,
-        [AnimatedTileObject.BrinstarPlant] = 0x8281,
-        [AnimatedTileObject.WreckedShipScreen] = 0x826f,
-        [AnimatedTileObject.MaridiaSandCeiling] = 0x8287,
-        [AnimatedTileObject.MaridiaSandFalling] = 0x828d,
-        [AnimatedTileObject.WreckedShipTreadmillRightwards] = 0x8275,
-        [AnimatedTileObject.WreckedShipTreadmillLeftwards] = 0x827b,
-        [AnimatedTileObject.Lava] = 0x82ab,
-        [AnimatedTileObject.Acid] = 0x82c9,
-        [AnimatedTileObject.Rain] = 0x82e7,
-        [AnimatedTileObject.Spores] = 0x82fd,
+        [BlockAnimation.None] = 0x0000,
+        [BlockAnimation.TourianStatuePhantoon] = 0x854c,
+        [BlockAnimation.TourianStatueRidley] = 0x8552,
+        [BlockAnimation.TourianStatueKraid] = 0x8558,
+        [BlockAnimation.TourianStatueDraygon] = 0x855e,
+        [BlockAnimation.HorizontalSpikes] = 0x8257,
+        [BlockAnimation.VerticalSpikes] = 0x8251,
+        [BlockAnimation.CrateriaLake] = 0x825d,
+        [BlockAnimation.BrinstarPlant] = 0x8281,
+        [BlockAnimation.WreckedShipScreen] = 0x826f,
+        [BlockAnimation.MaridiaSandCeiling] = 0x8287,
+        [BlockAnimation.MaridiaSandFalling] = 0x828d,
+        [BlockAnimation.WreckedShipTreadmillRightwards] = 0x8275,
+        [BlockAnimation.WreckedShipTreadmillLeftwards] = 0x827b,
+        [BlockAnimation.Lava] = 0x82ab,
+        [BlockAnimation.Acid] = 0x82c9,
+        [BlockAnimation.Rain] = 0x82e7,
+        [BlockAnimation.Spores] = 0x82fd,
     });
 
     /// <summary>The bank-$8D pre-instruction routine of each <see cref="NativePaletteFxPreInstruction"/>.</summary>

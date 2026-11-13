@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>Verification access to the native cursors of a <see cref="RoomFxAnimatedTileLoop"/>'s timed frames.</summary>
+/// <summary>Verification access to the native cursors of a <see cref="RoomFxBlockAnimationLoop"/>'s timed frames.</summary>
 internal static class RoomFxAnimatedTileFrameDefinitionAccess
 {
     /// <summary>Locates the art source operand immediately after a room-FX animated-tile control word.</summary>
-    extension(RoomFxAnimatedTileLoop self)
+    extension(RoomFxBlockAnimationLoop self)
     {
         /// <summary>The bank-$87 cursor of the timed control word of the loop's frame <paramref name="index"/>.</summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is not one of the loop's frames.</exception>

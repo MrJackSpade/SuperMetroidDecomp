@@ -13,14 +13,14 @@ public static class AreaMapProjection
     {
         Ensure.NotNull(map);
         Ensure.NotNull(system);
-        var cells = new ShownMapCell[AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles];
+        var cells = new ShownMapCell[AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles];
         bool downloaded = system.HasAreaMap(map.Area);
-        for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
-        for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
+        for (int y = 0; y < AreaMapSize.HeightInMapTiles; y++)
+        for (int x = 0; x < AreaMapSize.WidthInMapTiles; x++)
         {
             var cell = new Position16<MapTiles>(CoordinateAxis.Wrap(x), CoordinateAxis.Wrap(y));
             bool explored = system.IsMapTileExplored(map.Area, cell);
-            cells[y * AreaMapSize.WidthInTiles + x] = explored ? ShownMapCell.Explored(map.Cell(cell))
+            cells[y * AreaMapSize.WidthInMapTiles + x] = explored ? ShownMapCell.Explored(map.Cell(cell))
                 : AreaMapVisibility.IsVisible(explored, downloaded, map.IsRevealedByMapStation(cell), map.IsDiscoverable(cell), revealMode)
                     ? ShownMapCell.Unexplored(map.Cell(cell))
                     : ShownMapCell.Unexplored(MapCell.Empty);

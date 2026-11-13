@@ -37,9 +37,9 @@ internal static class EnemySpritemapCompiler
                 part.TileRow is < 0 or >= TileRows)
                 throw new InvalidDataException(
                     $"Enemy composition {frameName} part {index} has invalid visual fields.");
-            TileFlip flips =
-                (part.FlipX ? TileFlip.Horizontal : 0) |
-                (part.FlipY ? TileFlip.Vertical : 0);
+            PictureFlip flips =
+                (part.FlipX ? PictureFlip.Horizontal : 0) |
+                (part.FlipY ? PictureFlip.Vertical : 0);
             parts[index] = SpritePart.Create(Offset16<ScreenPixels>.Of(part.OffsetX, part.OffsetY), part.Size == 16,
                 part.TileRow * TileColumns + part.TileColumn, part.Palette.Value, part.Priority, flips);
         }

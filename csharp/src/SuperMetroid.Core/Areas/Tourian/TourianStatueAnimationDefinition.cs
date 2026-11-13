@@ -48,5 +48,5 @@ public sealed class TourianStatueAnimationDefinition
     public required PictureShade GreyShade { get; init; }
 
     /// <summary>The frame of the statue's animation that shows <paramref name="picture"/>.</summary>
-    public ArtworkFrame Picture(TourianStatueTilePicture picture) => new(Animation, $"{picture}");
+    public ArtworkFrame Picture(TourianStatueBlockPicture picture) => new(Animation, $"{picture}");
 }

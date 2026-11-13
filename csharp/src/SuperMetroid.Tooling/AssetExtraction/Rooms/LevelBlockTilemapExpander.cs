@@ -43,20 +43,20 @@ public static class LevelBlockTilemapExpander
             BlockMirroring.None =>
                 new ExpandedBlockTiles(topLeft, topRight, bottomLeft, bottomRight),
             BlockMirroring.Horizontal => new ExpandedBlockTiles(
-                topRight.WithFlipsToggled(TileFlip.Horizontal),
-                topLeft.WithFlipsToggled(TileFlip.Horizontal),
-                bottomRight.WithFlipsToggled(TileFlip.Horizontal),
-                bottomLeft.WithFlipsToggled(TileFlip.Horizontal)),
+                topRight.WithFlipsToggled(PictureFlip.Horizontal),
+                topLeft.WithFlipsToggled(PictureFlip.Horizontal),
+                bottomRight.WithFlipsToggled(PictureFlip.Horizontal),
+                bottomLeft.WithFlipsToggled(PictureFlip.Horizontal)),
             BlockMirroring.Vertical => new ExpandedBlockTiles(
-                bottomLeft.WithFlipsToggled(TileFlip.Vertical),
-                bottomRight.WithFlipsToggled(TileFlip.Vertical),
-                topLeft.WithFlipsToggled(TileFlip.Vertical),
-                topRight.WithFlipsToggled(TileFlip.Vertical)),
+                bottomLeft.WithFlipsToggled(PictureFlip.Vertical),
+                bottomRight.WithFlipsToggled(PictureFlip.Vertical),
+                topLeft.WithFlipsToggled(PictureFlip.Vertical),
+                topRight.WithFlipsToggled(PictureFlip.Vertical)),
             BlockMirroring.Horizontal | BlockMirroring.Vertical => new ExpandedBlockTiles(
-                bottomRight.WithFlipsToggled(TileFlip.Horizontal | TileFlip.Vertical),
-                bottomLeft.WithFlipsToggled(TileFlip.Horizontal | TileFlip.Vertical),
-                topRight.WithFlipsToggled(TileFlip.Horizontal | TileFlip.Vertical),
-                topLeft.WithFlipsToggled(TileFlip.Horizontal | TileFlip.Vertical)),
+                bottomRight.WithFlipsToggled(PictureFlip.Horizontal | PictureFlip.Vertical),
+                bottomLeft.WithFlipsToggled(PictureFlip.Horizontal | PictureFlip.Vertical),
+                topRight.WithFlipsToggled(PictureFlip.Horizontal | PictureFlip.Vertical),
+                topLeft.WithFlipsToggled(PictureFlip.Horizontal | PictureFlip.Vertical)),
             _ => throw new InvalidDataException(
                 $"Block appearance {appearance} has unsupported mirroring."),
         };

@@ -11,13 +11,13 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 public static class PauseEquipmentLabelKeys
 {
     /// <summary>The JSON key of an ordinary label, which is its selector control's anchor name.</summary>
-    public static string Key(PauseEquipmentCategory category, int item) => Name(PauseEquipmentLabelTiles.Label(category, item));
+    public static string Key(PauseEquipmentCategory category, int item) => Name(PauseEquipmentLabels.Label(category, item));
 
     /// <summary>The JSON key of a label: its selector control's anchor name, or <see cref="PauseEquipmentLabelArtworkDefinitions.HyperKey"/>.</summary>
     public static string Name(PauseEquipmentLabelId label)
     {
         if (label == PauseEquipmentLabelId.Hyper) return PauseEquipmentLabelArtworkDefinitions.HyperKey;
-        PauseEquipmentLabelKey entry = PauseEquipmentLabelTiles.Labels().Single(candidate => candidate.Label == label);
+        PauseEquipmentLabelKey entry = PauseEquipmentLabels.Labels().Single(candidate => candidate.Label == label);
         return PauseSelectorAnchors.Anchor(entry.Category, entry.Item);
     }
 

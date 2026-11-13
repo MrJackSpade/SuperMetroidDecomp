@@ -163,8 +163,8 @@ public sealed class TitleGraphicsCharacters
                     throw new InvalidDataException($"Title frame {frame.Sprite} part {index} is invalid.");
                 int tile = part.TileRow * TitleGraphicsFormat.ObjectTileColumns + part.TileColumn;
                 parts[index] = new(SpritePart.Create(Offset16<ScreenPixels>.Of(part.OffsetX, part.OffsetY), part.Size == 16, tile, 0, part.Priority,
-                    (part.FlipX ? TileFlip.Horizontal : 0) |
-                    (part.FlipY ? TileFlip.Vertical : 0)), InheritPalette: true);
+                    (part.FlipX ? PictureFlip.Horizontal : 0) |
+                    (part.FlipY ? PictureFlip.Vertical : 0)), InheritPalette: true);
             }
             if (!result.TryAdd(frame.Sprite, new SpriteComposition(parts)))
                 throw new InvalidDataException($"Duplicate title frame {frame.Sprite}.");

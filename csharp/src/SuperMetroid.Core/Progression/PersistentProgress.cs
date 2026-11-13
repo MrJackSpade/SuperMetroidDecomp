@@ -13,7 +13,7 @@ public sealed class PersistentProgress
     public const int ZebetiteCount = 4;
 
     /// <summary>The cells of one area's 64-by-32 map.</summary>
-    private const int MapCellsPerArea = AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles;
+    private const int MapCellsPerArea = AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles;
 
     /// <summary>Each area's defeated bosses.</summary>
     private readonly Dictionary<AreaId, DefeatedBosses> _defeatedBosses = AreaIds.All.ToDictionary(area => area, _ => DefeatedBosses.None);

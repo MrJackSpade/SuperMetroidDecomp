@@ -221,7 +221,7 @@ internal static class RoomFxRecordCodec
     /// The animated-tile objects a record's animated-tile byte starts in a room of <paramref name="area"/>, in ascending
     /// bit order. No retail record sets a bit that selects no object of the game (#1686), and the decode rejects one.
     /// </summary>
-    internal static ImmutableArray<AnimatedTileObject> AnimatedTiles(AreaId area, byte value) =>
+    internal static ImmutableArray<BlockAnimation> AnimatedTiles(AreaId area, byte value) =>
         [.. SetBits(value).Select(bit => AreaAnimatedTileObjects.Read(area, bit) ?? throw new InvalidDataException(
             $"A {area} record sets animated-tile bit {bit}, which selects no object of the game."))];
 

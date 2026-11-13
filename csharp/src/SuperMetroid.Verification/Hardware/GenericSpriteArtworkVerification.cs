@@ -166,10 +166,10 @@ internal static class GenericSpriteArtworkVerification
             loader.BeginFrame();
             if (onScreen)
                 loader.AddOnScreenSpritePart(SnesSpritemapXWord.Create(5, true), new SnesSpritemapYByte((byte)offset),
-                    SnesObjAttributeWord.Create(3, 2, 1, TileFlip.Horizontal), new Position16<SpritePixels>(12, (ushort)origin));
+                    SnesObjAttributeWord.Create(3, 2, 1, PictureFlip.Horizontal), new Position16<SpritePixels>(12, (ushort)origin));
             else
                 loader.AddOffScreenSpritePart(SnesSpritemapXWord.Create(5, true), new SnesSpritemapYByte((byte)offset),
-                    SnesObjAttributeWord.Create(3, 2, 1, TileFlip.Horizontal), new Position16<SpritePixels>(12, (ushort)origin));
+                    SnesObjAttributeWord.Create(3, 2, 1, PictureFlip.Horizontal), new Position16<SpritePixels>(12, (ushort)origin));
             loader.FinalizeFrame();
             int signedY = origin + unchecked((sbyte)offset);
             bool hide = signedY is < -32 or >= 224;

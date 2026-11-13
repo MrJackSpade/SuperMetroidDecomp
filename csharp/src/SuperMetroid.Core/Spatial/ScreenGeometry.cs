@@ -30,5 +30,5 @@ public static class ScreenGeometry
     public const int GameplayHudHeightPixels = 32;
 
     /// <summary>Pixels on either axis of one background cell.</summary>
-    public const int BackgroundTileSizePixels = 8;
+    public const int BackgroundCellSizePixels = 8;
 }

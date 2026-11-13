@@ -11,8 +11,8 @@ internal static class InstalledXrayOverlaysAccess
     extension(InstalledXrayOverlays)
     {
         /// <summary>Explicitly partial room overlays for focused fixtures; never an installed catalog.</summary>
-        internal static InstalledXrayOverlays FromOverlaysForVerification(IEnumerable<RoomBlockAppearance> tankMetatiles,
-            IEnumerable<XrayRoomOverlayTiles> rooms) =>
-            new InstalledXrayOverlays(tankMetatiles, rooms, requiredOverlays: []);
+        internal static InstalledXrayOverlays FromOverlaysForVerification(IEnumerable<RoomBlockAppearance> tankBlocks,
+            IEnumerable<XrayRoomOverlayBlocks> rooms) =>
+            new InstalledXrayOverlays(tankBlocks, rooms, requiredOverlays: []);
     }
 }

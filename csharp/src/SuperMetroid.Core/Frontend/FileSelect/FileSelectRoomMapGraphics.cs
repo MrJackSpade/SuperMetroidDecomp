@@ -59,7 +59,7 @@ public sealed class FileSelectRoomMapGraphics
         mapSheet = installed.Get(SpriteSheetId.MapSprites);
         roomPictures = installed.Get(SpriteSheetId.RoomMapPictures);
         icons.BindSprites(mapSheet);
-        screen.BindScreenTiles(installed);
+        screen.BindScreenPictures(installed);
     }
 
     /// <summary>Reprojects current host artwork without resetting menu animation or scroll state.</summary>

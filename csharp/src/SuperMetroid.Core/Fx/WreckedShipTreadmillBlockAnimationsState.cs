@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Fx;
 /// (#1406).
 /// </summary>
 [RoomLifetime]
-public sealed class WreckedShipTreadmillAnimatedTilesState
+public sealed class WreckedShipTreadmillBlockAnimationsState
 {
     /// <summary>Passes left before the object next shows a frame or re-tests the boss wait.</summary>
     private int _frameHold;
@@ -43,7 +43,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     /// </summary>
     internal void StartDefinition(
         WreckedShipTreadmillDirection direction,
-        AnimatedTileObject animatedObject)
+        BlockAnimation animatedObject)
     {
 
         IsActive = true;
@@ -86,7 +86,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         WreckedShipTreadmillLoop definition = _compiledMechanics ?? throw new InvalidOperationException(
             "Wrecked Ship treadmill lost its compiled mechanics.");
         _frameHold = WreckedShipTreadmillMechanicsDefinitions.FrameDuration;
-        frames.Select(AnimatedTileFrames.Frame(definition.AnimatedObject, NextFrameIndex));
+        frames.Select(BlockAnimationFrames.Frame(definition.AnimatedObject, NextFrameIndex));
         NextFrameIndex = (NextFrameIndex + 1) % WreckedShipTreadmillMechanicsDefinitions.FrameCount;
     }
 }

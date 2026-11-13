@@ -12,10 +12,10 @@ internal static class BackgroundTileToolingExtensions
         /// The same placement with the mirrorings <paramref name="flip"/> names reversed: a 16x16 block mirrored on an axis
         /// mirrors each of its four tiles on that axis as well as swapping their places.
         /// </summary>
-        internal BackgroundTile WithFlipsToggled(TileFlip flip) => self with
+        internal BackgroundTile WithFlipsToggled(PictureFlip flip) => self with
         {
-            FlipHorizontally = self.FlipHorizontally ^ ((flip & TileFlip.Horizontal) != TileFlip.None),
-            FlipVertically = self.FlipVertically ^ ((flip & TileFlip.Vertical) != TileFlip.None),
+            FlipHorizontally = self.FlipHorizontally ^ ((flip & PictureFlip.Horizontal) != PictureFlip.None),
+            FlipVertically = self.FlipVertically ^ ((flip & PictureFlip.Vertical) != PictureFlip.None),
         };
     }
 }

@@ -53,7 +53,7 @@ internal static class InstalledSporesTests
     private static void CheckOwners(ImportAreaMapPresentation stock, List<DisplayPacket> packets)
     {
         var mechanics = RoomFxAnimatedTileLoops.All.Single(
-            value => value.AnimatedObject == AnimatedTileObject.Spores);
+            value => value.AnimatedObject == BlockAnimation.Spores);
         Require(mechanics.InstructionPointer == 0x82ed && mechanics.PictureByteCount == 48 &&
             AnimatedTileVramDestinations.WordOf(mechanics.AnimatedObject) == 0x4280 && mechanics.GotoInstructionPointer == 0x82f9 &&
             mechanics.Frames.Count == 3 && mechanics.Frames.All(frame => frame.Duration == 10),
@@ -90,8 +90,8 @@ internal static class InstalledSporesTests
                         mechanics.FrameInstructionPointer(tick / 10 % 3));
                     Require(stock.RoomFxAnimatedTiles.TryResolve(source, 48, out var expected), "Missing stock spores frame.");
                     // Animated frames are selected, and the room's BG3 pictures show the selected frame (#1406).
-                    ArtworkFrame cadence = AnimatedTileFrames.Frame(AnimatedTileObject.Spores, tick / 10 % 3);
-                    Require(baselineFrames.TryShown(AnimatedTileFrames.Of(AnimatedTileObject.Spores), out ArtworkFrame stockShown) && stockShown == cadence,
+                    ArtworkFrame cadence = BlockAnimationFrames.Frame(BlockAnimation.Spores, tick / 10 % 3);
+                    Require(baselineFrames.TryShown(BlockAnimationFrames.Of(BlockAnimation.Spores), out ArtworkFrame stockShown) && stockShown == cadence,
                         "Stock spore cadence differs.");
                     tick++;
                 }
@@ -155,7 +155,7 @@ internal static class InstalledSporesTests
         Require(segmentOffset == planar.Length, "Installed sheet length differs from its native segment list.");
         int sporesOffset = RoomFxAnimatedTileAtlasFormat.PreSporesTileCount * 16;
         var controls = RoomFxAnimatedTileLoops.All.Single(
-            value => value.AnimatedObject == AnimatedTileObject.Spores);
+            value => value.AnimatedObject == BlockAnimation.Spores);
         for (int frame = 0; frame < 3; frame++)
         {
             int source = AnimatedTileImageSources.OfCursor(controls, controls.FrameInstructionPointer(frame));

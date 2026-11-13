@@ -20,7 +20,7 @@ internal sealed class MenuScreen
     {
         Objects = new ScreenSprites();
         Backdrop = backdrop;
-        BindScreenTiles(sheets);
+        BindScreenPictures(sheets);
     }
 
     /// <summary>The installed sheets the screen's pictures come from (#1467).</summary>
@@ -28,7 +28,7 @@ internal sealed class MenuScreen
     private InstalledSpriteSheets Sheets { get => field ?? throw new InvalidOperationException("The menu's pictures are bound when the game is bound to its installed content."); set; }
 
     /// <summary>Rebinds the sheets the screen's pictures come from (#1467).</summary>
-    public void BindScreenTiles(InstalledSpriteSheets? sheets) =>
+    public void BindScreenPictures(InstalledSpriteSheets? sheets) =>
         Sheets = sheets ?? throw new InvalidOperationException("Menus require the installed sprite sheets.");
 
     /// <summary>

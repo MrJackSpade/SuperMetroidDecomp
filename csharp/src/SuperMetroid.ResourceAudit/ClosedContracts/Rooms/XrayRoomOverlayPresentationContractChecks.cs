@@ -25,10 +25,10 @@ internal static class XrayRoomOverlayPresentationContractChecks
         XrayRoomOverlayDefinition first = XrayRoomOverlayDefinitions.All[0];
         XrayRoomOverlayVisual[] tiles = [new(new(1, 2), RoomBlockAppearance.Of(3))];
         var rooms = XrayRoomOverlayDefinitions.All.Select(overlay =>
-            new XrayRoomOverlayTiles(overlay, tiles)).ToArray();
+            new XrayRoomOverlayBlocks(overlay, tiles)).ToArray();
         var catalog = new InstalledXrayOverlays(new RoomBlockAppearance[InstalledXrayOverlays.TankCount], rooms);
         tiles[0] = new(new(0, 0), RoomBlockAppearance.Of(0));
-        Require(catalog.RoomTiles(first).Single() == new XrayRoomOverlayVisual(new(1, 2), RoomBlockAppearance.Of(3)),
+        Require(catalog.RoomBlocks(first).Single() == new XrayRoomOverlayVisual(new(1, 2), RoomBlockAppearance.Of(3)),
             "installed overlays must be independent of caller tile arrays");
 
         ClosedPresentationContract contract = RoomRevealClosedContractDefinitions.All.Single(item =>
@@ -41,8 +41,8 @@ internal static class XrayRoomOverlayPresentationContractChecks
             using SuperMetroid.Core.Samus.Abilities.Artwork;
             class OverlayConsumer {
                 void Inspect(InstalledXrayOverlays overlays, XrayRoomOverlayDefinition selected) {
-                    overlays.RoomTiles(XrayRoomOverlayDefinitions.{{first.Name}});
-                    overlays.RoomTiles(selected);
+                    overlays.RoomBlocks(XrayRoomOverlayDefinitions.{{first.Name}});
+                    overlays.RoomBlocks(selected);
                 }
             }
             """, path: "fixture-room-overlay-consumer.cs");

@@ -2,9 +2,9 @@ namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
 /// The animations of a Tourian boss statue's animated pictures, in authored order. Each statue runs the same four animations
-/// with its own cue values; see <see cref="TourianStatueTileAnimations"/>.
+/// with its own cue values; see <see cref="TourianStatueBlockAnimations"/>.
 /// </summary>
-internal enum TourianStatueTileSegment
+internal enum TourianStatueBlockSegment
 {
     /// <summary>The spawn: marks the statue animating, skips to <see cref="AlreadyGrey"/> once its grey event exists, and shows the first idle frame.</summary>
     Entry,

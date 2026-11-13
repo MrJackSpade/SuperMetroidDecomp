@@ -826,7 +826,7 @@ internal static class RidleyFullMovieVerification
             "final scrolling update publishes native visor green before PLMs");
         AssertEqual(0x00de2000u, samus.Kinematics.Position.X.RawValue, "native source frame 276 scrolling endpoint");
         game.Step(0);
-        AssertEqual(DoorTransitionPhase.StepDestinationAnimatedTiles, game.DoorTransitionPhaseForVerification, "loading alignment precedes music wait");
+        AssertEqual(DoorTransitionPhase.StepDestinationBlockAnimations, game.DoorTransitionPhaseForVerification, "loading alignment precedes music wait");
         AssertEqual(0x5a88, runtime.System.RandomNumber, "loading continuation does not advance outer RNG");
         AssertEqual(0x00d82000u, samus.Kinematics.Position.X.RawValue, "native final doorway alignment preserves original subposition");
         AssertEqual(yFixed, samus.Kinematics.Position.Y.RawValue, "left door endpoint preserves perpendicular coordinate");

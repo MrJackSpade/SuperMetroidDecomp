@@ -54,7 +54,7 @@ internal static class CorpseRowPictures
     /// <summary>Each character <paramref name="part"/> draws, at its place in the frame.</summary>
     private static IEnumerable<DrawnCharacter> Characters(SpriteFramePart part)
     {
-        bool flipped = (part.Flip & TileFlip.Vertical) != TileFlip.None;
+        bool flipped = (part.Flip & PictureFlip.Vertical) != PictureFlip.None;
         for (int row = 0; row < part.Size.Y / SpriteArtwork.CharacterPixels; row++)
         {
             for (int column = 0; column < part.Size.X / SpriteArtwork.CharacterPixels; column++)

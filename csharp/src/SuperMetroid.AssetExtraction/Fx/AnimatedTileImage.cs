@@ -11,4 +11,4 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// </summary>
 /// <param name="Object">The object whose art the picture is.</param>
 /// <param name="Index">The picture's place among the object's distinct pictures, from zero.</param>
-public readonly record struct AnimatedTileImage(AnimatedTileObject Object, int Index);
+public readonly record struct AnimatedTileImage(BlockAnimation Object, int Index);

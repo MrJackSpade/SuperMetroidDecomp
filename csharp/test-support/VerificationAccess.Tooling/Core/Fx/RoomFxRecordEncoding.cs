@@ -35,7 +35,7 @@ internal static class RoomFxRecordEncoding
     /// in the area's list (#1526).
     /// </summary>
     /// <exception cref="InvalidDataException">An object is not in the area's list once, or the objects are out of the list's order.</exception>
-    internal static byte AnimatedTilesByte(ImmutableArray<AnimatedTileObject> tiles, AreaId area) =>
+    internal static byte AnimatedTilesByte(ImmutableArray<BlockAnimation> tiles, AreaId area) =>
         BitsetByte(tiles, bit => AreaAnimatedTileObjects.Read(area, bit), $"{area} animated-tile object");
 
     /// <summary>

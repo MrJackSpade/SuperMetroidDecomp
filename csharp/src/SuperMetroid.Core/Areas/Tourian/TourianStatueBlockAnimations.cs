@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Animation;
-using K = SuperMetroid.Core.Areas.Tourian.TourianStatueTileCueKind;
-using P = SuperMetroid.Core.Areas.Tourian.TourianStatueTileSegment;
-using F = SuperMetroid.Core.Fx.Artwork.TourianStatueTilePicture;
+using K = SuperMetroid.Core.Areas.Tourian.TourianStatueBlockCueKind;
+using P = SuperMetroid.Core.Areas.Tourian.TourianStatueBlockSegment;
+using F = SuperMetroid.Core.Fx.Artwork.TourianStatueBlockPicture;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
@@ -11,11 +11,11 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// from the statue's <see cref="TourianStatueAnimationDefinition"/> when an event is reached. The Tourian animation
 /// lookup check matches each statue's segments beat by beat, and its animations' control flow, with the game's.
 /// </summary>
-internal static class TourianStatueTileAnimations
+internal static class TourianStatueBlockAnimations
 {
     /// <summary>Builds one statue's segments, whose first idle frame lasts <paramref name="firstFrameDuration"/> updates.</summary>
-    internal static AnimationSegments<P, F, TourianStatueTileCue> SegmentsFor(int firstFrameDuration) => new(
-        new Dictionary<P, AnimationBeat<F, TourianStatueTileCue>[]>
+    internal static AnimationSegments<P, F, TourianStatueBlockCue> SegmentsFor(int firstFrameDuration) => new(
+        new Dictionary<P, AnimationBeat<F, TourianStatueBlockCue>[]>
         {
             [P.Entry] =
             [
@@ -70,10 +70,10 @@ internal static class TourianStatueTileAnimations
     internal static Animation<P> StartingWith(P segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="picture"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<F, TourianStatueTileCue> Show(F picture, int duration) =>
-        new AnimationBeat<F, TourianStatueTileCue>.Frame(picture, duration);
+    private static AnimationBeat<F, TourianStatueBlockCue> Show(F picture, int duration) =>
+        new AnimationBeat<F, TourianStatueBlockCue>.Frame(picture, duration);
 
     /// <summary>Raises <paramref name="cue"/>.</summary>
-    private static AnimationBeat<F, TourianStatueTileCue> Cue(TourianStatueTileCue cue) =>
-        new AnimationBeat<F, TourianStatueTileCue>.Event(cue);
+    private static AnimationBeat<F, TourianStatueBlockCue> Cue(TourianStatueBlockCue cue) =>
+        new AnimationBeat<F, TourianStatueBlockCue>.Event(cue);
 }

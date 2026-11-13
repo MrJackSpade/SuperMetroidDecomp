@@ -38,7 +38,7 @@ internal static class RetailEndingHandoffTests
             captured.CopyAudioFrame(rightAudio);
             if (expected.GameState != actual.Frame.GameState ||
                 expected.Phase != actual.Frame.Phase || expected.FrameNumber != actual.Frame.FrameNumber ||
-                !legacy.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification) ||
+                !expected.Audio.Events.SequenceEqual(actual.Frame.Audio.Events) ||
                 !leftAudio.SequenceEqual(rightAudio))
                 throw new InvalidOperationException("Ending handoff changed frontend cadence/audio.");
             if (pixels) PixelComparison.Verify(actual.Snapshot, legacy.PublishedPixels(),

@@ -71,7 +71,6 @@ public static class DebuggerSaveStateSmokeTest
             var expectedPixels = new RgbaPixel[continuationFrames][];
             var expectedPcm = new short[continuationFrames][];
             var expectedAcknowledgements = new SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>[continuationFrames];
-            var expectedAudioEvents = new AudioEvent[continuationFrames][];
             for (int frame = 0; frame < continuationFrames; frame++)
             {
                 expected[frame] = game.Step(0);
@@ -79,7 +78,6 @@ public static class DebuggerSaveStateSmokeTest
                 expectedPcm[frame] = new short[AudioSession.PcmSamplesPerFrame];
                 game.CopyAudioFrame(expectedPcm[frame]);
                 expectedAcknowledgements[frame] = game.AudioAcknowledgementsForVerification;
-                expectedAudioEvents[frame] = [.. game.AudioEventsForVerification];
             }
 
             DebuggerSaveStateLoadResult loaded = store.Load(0);
@@ -119,7 +117,7 @@ public static class DebuggerSaveStateSmokeTest
                     actual.FrameNumber != wanted.FrameNumber ||
                     actual.Phase != wanted.Phase ||
                     !loaded.Game.PublishedPixels().SequenceEqual(expectedPixels[frame]) ||
-                    !loaded.Game.AudioEventsForVerification.SequenceEqual(expectedAudioEvents[frame]) ||
+                    !actual.Audio.Events.SequenceEqual(wanted.Audio.Events) ||
                     !actualPcm.SequenceEqual(expectedPcm[frame]) ||
                     !actualAcknowledgements.Equals(expectedAcknowledgements[frame]))
                 {

@@ -9,7 +9,8 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 /// Shared layout-checked binary serializer for the managed emulator graph used by debugger states.
 /// It preserves private fields, reference identity, cycles, arrays, and internal delegates;
 /// this is intentionally not a general interchange format. Build changes are permitted,
-/// but fields and delegate identities must still resolve against the current layout.
+/// but fields and delegate identities must still resolve against the current layout. A collection keyed by hash is held
+/// as its entries and rebuilt from them, never by its buckets (<see cref="HashKeyedCollection"/>, #1681).
 /// </summary>
 internal static class DebuggerObjectGraphSerializer
 {
@@ -38,7 +39,7 @@ internal static class DebuggerObjectGraphSerializer
     {
         Ensure.NotNull(source);
         using var reader = new BinaryReader(source, System.Text.Encoding.UTF8, leaveOpen: true);
-        object? root = new GraphReader(reader, bound).Read();
+        object? root = new GraphReader(reader, bound).ReadState();
         return root as T ?? throw new InvalidDataException(
             $"Debugger state root is {root?.GetType().FullName ?? "null"}, expected {typeof(T).FullName}.");
     }
@@ -76,6 +77,11 @@ internal static class DebuggerObjectGraphSerializer
         InlineArray,
         /// <summary>An enum member's name, or names joined for flags, so stored states do not depend on member numbering.</summary>
         EnumName,
+        /// <summary>
+        /// A hash-keyed collection's comparers, its entry count and its entries in enumeration order, which a restore adds
+        /// to a new collection instead of restoring the captured bucket layout (#1681).
+        /// </summary>
+        HashEntries,
     }
 
     /// <summary>Serializes one graph with reference IDs and strict type/member identities.</summary>
@@ -190,6 +196,10 @@ internal static class DebuggerObjectGraphSerializer
                     writer.Write(layout.Fields.Length);
                     WriteFields(layout, value);
                     return;
+                case LayoutKind.HashKeyed:
+                    WriteHashEntries(layout.HashKeyed ?? throw new InvalidOperationException(
+                        $"Debugger state has no hash-keyed rebuild for {layout.Type.FullName}."), value);
+                    return;
                 default:
                     throw new InvalidOperationException($"Debugger state has no layout kind {layout.Kind} for {layout.Type.FullName}.");
             }
@@ -214,6 +224,22 @@ internal static class DebuggerObjectGraphSerializer
                 writer.Write(headers[index]);
                 Write(fields[index].GetValue(value));
             }
+        }
+
+        /// <summary>
+        /// Writes a hash-keyed collection as its comparers, its entry count and its entries in enumeration order (#1681); a
+        /// kind with no rebuild is refused here.
+        /// </summary>
+        private void WriteHashEntries(HashKeyedCollection kind, object collection)
+        {
+            object?[] comparers = kind.Comparers(collection);
+            object?[] entries = kind.Entries(collection);
+            writer.Write((byte)PayloadKind.HashEntries);
+            foreach (object? comparer in comparers)
+                Write(comparer);
+            writer.Write(entries.Length / kind.EntryWidth);
+            foreach (object? entry in entries)
+                Write(entry);
         }
 
         /// <summary>Writes each supported primitive with a fixed binary width or representation.</summary>
@@ -337,6 +363,8 @@ internal static class DebuggerObjectGraphSerializer
         InlineArray,
         /// <summary>An object or struct written field by field.</summary>
         Fields,
+        /// <summary>A collection keyed by hash, written as its comparers and entries (#1681).</summary>
+        HashKeyed,
     }
 
     /// <summary>Each type's serialized layout, worked out once.</summary>
@@ -370,7 +398,8 @@ internal static class DebuggerObjectGraphSerializer
                 writer.Write(0);
                 writer.Write(Name);
             }) : [];
-            Kind = KindOf(type);
+            HashKeyed = HashKeyedCollection.For(type);
+            Kind = HashKeyed is not null ? LayoutKind.HashKeyed : KindOf(type);
             EnumPrefix = Kind == LayoutKind.Enum ? [.. ValuePrefix, (byte)PayloadKind.EnumName] : [];
             Fields = Kind == LayoutKind.Fields ? GetSerializableFields(type) : [];
             Headers = Kind == LayoutKind.Fields ? EncodedFieldHeaders(type) : [];
@@ -396,6 +425,9 @@ internal static class DebuggerObjectGraphSerializer
 
         /// <summary>How values of the type are encoded.</summary>
         internal LayoutKind Kind { get; }
+
+        /// <summary>For a collection keyed by hash, how it is written as its entries and rebuilt from them (#1681).</summary>
+        internal HashKeyedCollection? HashKeyed { get; }
 
         /// <summary>For an enum, the bytes every member starts with: its value prefix and the enum-name payload kind.</summary>
         internal byte[] EnumPrefix { get; }
@@ -735,6 +767,28 @@ internal static class DebuggerObjectGraphSerializer
             }
         }
 
+        /// <summary>
+        /// The hash-keyed collections the restore made empty, each with its saved entries, filled in the order their
+        /// entries finished reading once the whole state is read (#1681).
+        /// </summary>
+        private readonly List<(HashKeyedCollection.Mutable Kind, object Collection, object?[] Entries)> unfilled = [];
+
+        /// <summary>The objects whose fields are still being read, which a collection built at once cannot hash yet.</summary>
+        private readonly HashSet<object> restoring = new(ReferenceEqualityComparer.Instance);
+
+        /// <summary>
+        /// Decodes a whole state, then fills its hash-keyed collections from their saved entries, every key's fields restored
+        /// by then, so each key lands where this process hashes it (#1681).
+        /// </summary>
+        public object? ReadState()
+        {
+            object? root = Read();
+            foreach ((HashKeyedCollection.Mutable kind, object collection, object?[] entries) in unfilled)
+                kind.Fill(collection, entries);
+            unfilled.Clear();
+            return root;
+        }
+
         /// <summary>Decodes one graph value, resolving references and rejecting unknown payload kinds.</summary>
         public object? Read()
         {
@@ -777,6 +831,7 @@ internal static class DebuggerObjectGraphSerializer
                 PayloadKind.Fields => ReadFields(type, referenceId),
                 PayloadKind.InlineArray => ReadInlineArray(type),
                 PayloadKind.EnumName => ReadEnumName(type),
+                PayloadKind.HashEntries => ReadHashEntries(type, referenceId),
                 _ => throw new InvalidDataException(
                     $"Unknown debugger-state payload kind {(byte)kind} for {type.FullName}."),
             };
@@ -924,13 +979,60 @@ internal static class DebuggerObjectGraphSerializer
                 throw new InvalidDataException($"{UnsupportedVersion}: a saved delegate has no invocation entries."));
         }
 
+        /// <summary>
+        /// Rebuilds a hash-keyed collection from its saved comparers and entries (#1681): a collection that can change is
+        /// made empty and registered at once, so objects inside it can hold it, and filled once the whole state is read; one
+        /// that cannot is built as soon as its entries are read, from keys that must be whole by then.
+        /// </summary>
+        private object ReadHashEntries(Type type, int referenceId)
+        {
+            if (HashKeyedCollection.For(type) is not { } kind || kind is not (HashKeyedCollection.Mutable or HashKeyedCollection.Immutable))
+            {
+                throw new InvalidDataException(
+                    $"{UnsupportedVersion}: the state holds {type.FullName} as hash entries; this build does not rebuild it from them.");
+            }
+            var comparers = new object?[kind.ComparerCount];
+            for (int index = 0; index < comparers.Length; index++)
+                comparers[index] = Read();
+            int count = ReadNonnegativeLength("hash entry");
+            var entries = new object?[checked(count * kind.EntryWidth)];
+            if (kind is HashKeyedCollection.Mutable mutable)
+            {
+                object collection = Register(referenceId, mutable.Empty(comparers));
+                for (int index = 0; index < entries.Length; index++)
+                    entries[index] = Read();
+                unfilled.Add((mutable, collection, entries));
+                return collection;
+            }
+            for (int index = 0; index < entries.Length; index++)
+            {
+                entries[index] = Read();
+                if (index % kind.EntryWidth == 0 && entries[index] is { } key && restoring.Contains(key))
+                {
+                    throw new InvalidDataException(
+                        $"Debugger state cannot rebuild the saved {type.FullName}: its key {key.GetType().FullName} encloses it, " +
+                        "so the key's fields are still being read when the collection must hash it.");
+                }
+            }
+            return Register(referenceId, ((HashKeyedCollection.Immutable)kind).Build(comparers, entries));
+        }
+
         /// <summary>Restores each field only after matching its declaring type and name to this build.</summary>
         [ReflectionAudit("debugger state restore: an object is rebuilt from its serialized fields, not by a constructor")]
         private object ReadFields(Type type, int referenceId)
         {
+            // A hash-keyed collection is never restored by its layout, whose buckets are the capturing process's (#1681).
+            if (HashKeyedCollection.For(type) is not null)
+            {
+                throw new InvalidDataException(
+                    $"{UnsupportedVersion}: the state holds the hash-keyed {type.FullName} by its layout; this build rebuilds it from its entries.");
+            }
             object instance = RuntimeHelpers.GetUninitializedObject(type);
             if (!type.IsValueType)
+            {
                 Register(referenceId, instance);
+                restoring.Add(instance);
+            }
             FieldInfo[] currentFields = GetSerializableFields(type);
             int count = ReadNonnegativeLength("field");
             if (count != currentFields.Length)
@@ -967,6 +1069,8 @@ internal static class DebuggerObjectGraphSerializer
                 }
                 field.SetValue(instance, restoredValue);
             }
+            if (!type.IsValueType)
+                restoring.Remove(instance);
             if (instance is SuperMetroid.AssetExtraction.Installation.IRestoredSharedContent shared)
                 shared.ReattachSharedContent();
             return instance;

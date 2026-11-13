@@ -28,4 +28,7 @@ internal sealed record NorfairRidleyCombatDependencies
 
     /// <summary>Raises the arena liquid during Ridley's reveal.</summary>
     public required EnemyRoomFx RoomFx { get; init; }
+
+    /// <summary>The enemy pass's view of the frame, whose power bomb explosion Ridley dodges.</summary>
+    public required EnemyFrameContext FrameContext { get; init; }
 }

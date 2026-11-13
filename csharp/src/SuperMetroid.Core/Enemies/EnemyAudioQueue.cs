@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
@@ -19,12 +18,6 @@ internal sealed class EnemyAudioQueue
     /// enemies' own record before that.
     /// </summary>
     internal GameplayAudioRequests Requests { get; private set; } = new();
-
-    /// <summary>
-    /// The power-bomb explosion bound for the current enemy frame, which Norfair Ridley's dodge and Draygon's goop read: the
-    /// enemy pass refreshes this before AI. The sound queues test the explosion themselves (<see cref="SoundQueueAdmission"/>).
-    /// </summary>
-    internal SamusPowerBombExplosionState? PowerBomb { get; set; }
 
     /// <summary>Points the enemies' requests at <paramref name="requests"/>, the update's audio requests of the runtime running them.</summary>
     internal void BindAudioRequests(GameplayAudioRequests requests) => Requests = Ensure.NotNull(requests);

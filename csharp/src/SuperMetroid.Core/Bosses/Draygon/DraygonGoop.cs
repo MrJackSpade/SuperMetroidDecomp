@@ -13,8 +13,8 @@ internal sealed class DraygonGoop
 {
     /// <summary>Provides the active room bus, random source, and persistent boss state.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Queues encounter sound effects and music through the enemy audio limits.</summary>
-    private readonly EnemyAudioQueue _audio;
+    /// <summary>The enemy pass's view of the frame, whose power bomb explosion frees the shots it catches.</summary>
+    private readonly EnemyFrameContext _frameContext;
     /// <summary>Applies common death and drop behavior after Draygon's special sequence.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Draygon's body, eye and tail: their setup, programs and cues.</summary>
@@ -25,10 +25,10 @@ internal sealed class DraygonGoop
     private readonly DraygonMovement _movement;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonGoop(EnemyRoomBinding room, EnemyAudioQueue audio, EnemyDeathsAndDrops deathsAndDrops, DraygonParts parts, DraygonTurrets turrets, DraygonMovement movement)
+    internal DraygonGoop(EnemyRoomBinding room, EnemyFrameContext frameContext, EnemyDeathsAndDrops deathsAndDrops, DraygonParts parts, DraygonTurrets turrets, DraygonMovement movement)
     {
         _room = room;
-        _audio = audio;
+        _frameContext = frameContext;
         _deathsAndDrops = deathsAndDrops;
         _parts = parts;
         _turrets = turrets;
@@ -339,8 +339,8 @@ internal sealed class DraygonGoop
     /// </summary>
     internal void FreePlaceIfPowerBombed(EnemyProjectile projectile, SamusState? samus)
     {
-        // A standalone projectile pass has no bomb owner, which is the radius-zero case.
-        if (_audio.PowerBomb is not { } powerBomb)
+        // A projectile pass no enemy pass has preceded has seen no explosion, which is the radius-zero case.
+        if (_frameContext.PowerBombExplosion is not { } powerBomb)
             return;
         int horizontalRadius = powerBomb.ExplosionRadius.WholePixels;
         if (horizontalRadius == 0)

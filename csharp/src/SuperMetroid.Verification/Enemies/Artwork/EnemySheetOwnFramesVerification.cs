@@ -114,7 +114,7 @@ internal static class EnemySheetOwnFramesVerification
         return new("Sidehopper and Dessgeega", TableFrames(HopperFrameDefinitions.ShownFrames),
             hoppers.ToDictionary<EnemyDefinitionId, EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>(definition => definition, definition => Reach(HopperAnimations.Segments, HopperAnimations.StartingAt, HopperFrameDefinitions.ShownFrames,
                 HopperAnimationDefinitions.Programs
-                    .Where(entry => entry.Key.Variant == CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(definition).VariantIndex)
+                    .Where(entry => entry.Key.Kind == HopperPrograms.KindOf(definition))
                     .Select(entry => entry.Value))));
     }
 

@@ -64,12 +64,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Hopper.</summary>
     internal void InitializeHopper(RoomEnemySlot slot)
     {
-        if (slot.Definition.VariantIndex > 3)
-        {
-            throw new InvalidDataException(
-                $"Hopper definition {slot.DefinitionId} variant " +
-                $"{slot.Definition.VariantIndex} exceeds its four-entry animation tables.");
-        }
+        HopperKind kind = HopperPrograms.KindOf(slot.DefinitionId);
         // The initializer overwrites the global RNG seed and consumes one generated value
         // even though it never reads that value. This changes later enemy randomness and is
         // therefore observable whenever a hopper appears earlier in population order.
@@ -80,7 +75,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Falling = false,
             ReadyToHop = false,
-            Variant = slot.Definition.VariantIndex,
+            Kind = kind,
             UpsideDown = slot.SpawnSettings<HopperSpawnSettings>().Mounting == HopperMounting.Ceiling,
             Function = HopperEnemyFunction.ChooseHopSize,
         };
@@ -329,12 +324,12 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             "Hopper initial-speed calculation did not reach its authored jump height.");
     }
 
-    /// <summary>Selects the program for this variant's facing and jumping or landing half.</summary>
+    /// <summary>Selects the program for this kind's facing and jumping or landing half.</summary>
     private static HopperProgram ReadHopperProgram(
         HopperEnemyState state,
         HopperSurface surface,
         HopperPhase phase) =>
-        HopperPrograms.Program(state.Variant, surface, phase);
+        HopperPrograms.Program(state.Kind, surface, phase);
 
     /// <summary>The surface the population's first parameter placed this hopper on.</summary>
     private static HopperSurface SurfaceOf(HopperEnemyState state) =>

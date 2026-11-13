@@ -22,4 +22,20 @@ internal static class MaridiaSnailsNativeWords
         [MaridiaLargeSnailEnemyFunction.Rolling] = 0xce2b,
         [MaridiaLargeSnailEnemyFunction.Attacking] = 0xcf40,
     });
+
+    /// <summary>
+    /// The index naming each <see cref="MaridiaLargeSnailAnimation"/> in the snail's eight-entry animation table: its low
+    /// bit faces left, its next bit rolls and its third attacks, or, with the roll bit, rolls backwards.
+    /// </summary>
+    internal static readonly NativeWordIdentities<MaridiaLargeSnailAnimation> MaridiaLargeSnailAnimations = new(new Dictionary<MaridiaLargeSnailAnimation, ushort>
+    {
+        [MaridiaLargeSnailAnimation.FacingRightIdle] = 0,
+        [MaridiaLargeSnailAnimation.FacingLeftIdle] = 1,
+        [MaridiaLargeSnailAnimation.FacingRightRollingForwards] = 2,
+        [MaridiaLargeSnailAnimation.FacingLeftRollingForwards] = 3,
+        [MaridiaLargeSnailAnimation.FacingRightAttacking] = 4,
+        [MaridiaLargeSnailAnimation.FacingLeftAttacking] = 5,
+        [MaridiaLargeSnailAnimation.FacingRightRollingBackwards] = 6,
+        [MaridiaLargeSnailAnimation.FacingLeftRollingBackwards] = 7,
+    });
 }

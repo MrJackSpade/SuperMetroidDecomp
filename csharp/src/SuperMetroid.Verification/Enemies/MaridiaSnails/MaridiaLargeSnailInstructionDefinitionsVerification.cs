@@ -15,34 +15,61 @@ using SuperMetroid.Core.World;
 internal static class MaridiaLargeSnailInstructionDefinitionsVerification
 {
     /// <summary>
-    /// The eight-entry selector table picks the native lists and installing a changed index restarts that animation with
-    /// both clocks reset; the initializer starts left-facing idle; each attack shows its poses, plays the splash and
+    /// The eight-entry selector table picks the native lists for the animations its indexes name, and starting a changed
+    /// animation restarts it with both clocks reset; the behaviour's transitions move between the animations as the
+    /// original index arithmetic does; the initializer starts left-facing idle; each attack shows its poses, plays the splash and
     /// marks the attack finished; each roll opens the attack-rotation window for one pose and loops on time.
     /// </summary>
     internal static void VerifyMaridiaLargeSnailInstructionDefinitions(SuperMetroidAddressSpace rom)
     {
         for (ushort animationIndex = 0; animationIndex < 8; animationIndex++)
         {
-            MaridiaLargeSnailProgram program = MaridiaLargeSnailPrograms.Program(animationIndex);
+            MaridiaLargeSnailAnimation animation = MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(animationIndex, "Oum animation index");
+            MaridiaLargeSnailProgram program = MaridiaLargeSnailPrograms.Program(animation);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(MaridiaLargeSnailNativeValues.SelectorTable + animationIndex * 2),
                 NativeEnemyAnimationOracle.EntryOf(MaridiaLargeSnailNativeListAddresses.Entries, program),
                 $"Oum selector {animationIndex}");
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
             var state = new MaridiaLargeSnailEnemyState()
             {
-                RequestedAnimationScriptIndex = animationIndex,
-                InstalledAnimationScriptIndex = -1,
+                RequestedAnimation = animation,
+                InstalledAnimation = animation == MaridiaLargeSnailAnimation.FacingRightIdle
+                    ? MaridiaLargeSnailAnimation.FacingLeftIdle
+                    : MaridiaLargeSnailAnimation.FacingRightIdle,
             };
             slot.FrameHold = WrappingCountdown.Start(0x1234);
             slot.Timer = WrappingCountdown.Start(0x5678);
             MaridiaLargeSnailBehavior.InstallMaridiaLargeSnailAnimationScript(slot, state);
-            AssertEqual(animationIndex, state.InstalledAnimationScriptIndex, $"Oum installed selector {animationIndex}");
+            AssertEqual(animation, state.InstalledAnimation, $"Oum installed selector {animationIndex}");
             AssertTrue(ReferenceEquals(MaridiaLargeSnailAnimations.StartingWith(program), state.Playback.Animation) &&
                 state.Playback.Place == AnimationPlace.StartOfAnimation, $"Oum installed animation {animationIndex}");
             AssertEqual((ushort)1, slot.FrameHold.RawValue, $"Oum instruction timer {animationIndex}");
             AssertEqual((ushort)0, slot.Timer.RawValue, $"Oum general timer {animationIndex}");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => MaridiaLargeSnailPrograms.Program(8), "Oum selector past table");
+        AssertThrows<InvalidDataException>(() => MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(8, "Oum animation index"), "Oum selector past table");
+
+        // Each transition of the behaviour lands on the animation the original index arithmetic reaches: idle facing
+        // Samus (0 or 1), a roll from idle (OR 2), an attack facing Samus (facing bit OR 4), the roll after an attack
+        // (minus 2) and a reversed roll (XOR 4).
+        int transitions = 0;
+        foreach (bool left in new[] { false, true })
+        {
+            int facing = left ? 1 : 0;
+            AssertEqual(Index(facing), MaridiaLargeSnailPrograms.Idle(left), $"Oum idle facing left {left}");
+            AssertEqual(Index(facing | 2), MaridiaLargeSnailPrograms.RollingFrom(Index(facing)), $"Oum roll from idle facing left {left}");
+            AssertEqual(Index((facing & 1) | 4), MaridiaLargeSnailPrograms.Attacking(left), $"Oum attack facing left {left}");
+            AssertEqual(Index((facing | 4) - 2), MaridiaLargeSnailPrograms.RollingAfter(Index(facing | 4)), $"Oum roll after attack facing left {left}");
+            foreach (int roll in new[] { facing | 2, facing | 6 })
+                AssertEqual(Index(roll ^ 4), MaridiaLargeSnailPrograms.Reversed(Index(roll)), $"Oum reversed roll from index {roll}");
+            transitions += 6;
+        }
+        foreach (MaridiaLargeSnailAnimation notIdle in new[] { Index(2), Index(4), Index(6) })
+            AssertThrows<InvalidOperationException>(() => MaridiaLargeSnailPrograms.RollingFrom(notIdle), $"Oum starts rolling only from idle, not {notIdle}");
+        foreach (MaridiaLargeSnailAnimation notAttack in new[] { Index(0), Index(2), Index(6) })
+            AssertThrows<InvalidOperationException>(() => MaridiaLargeSnailPrograms.RollingAfter(notAttack), $"Oum resumes rolling only after an attack, not {notAttack}");
+        foreach (MaridiaLargeSnailAnimation notRoll in new[] { Index(0), Index(5) })
+            AssertThrows<InvalidOperationException>(() => MaridiaLargeSnailPrograms.Reversed(notRoll), $"Only a rolling Oum reverses, not {notRoll}");
+        static MaridiaLargeSnailAnimation Index(int index) => MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(index, "Oum animation index");
 
         foreach (MaridiaLargeSnailProgram attack in new[] { MaridiaLargeSnailProgram.FacingLeftAttacking, MaridiaLargeSnailProgram.FacingRightAttacking })
         {
@@ -76,7 +103,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(MaridiaLargeSnailAnimations.Segments, roll, MaridiaLargeSnailFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(MaridiaLargeSnailAnimations.Segments, roll)), $"Oum {roll} loop");
         }
-        Console.WriteLine("Maridia Large Snail: eight native selectors, installs, both attacks' splash and completion, and all four rolls' rotation windows and loops pass.");
+        Console.WriteLine($"Maridia Large Snail: eight native selectors, installs, {transitions} index-arithmetic transitions, both attacks' splash and completion, and all four rolls' rotation windows and loops pass.");
     }
 
     /// <summary>An Oum after its real initializer.</summary>

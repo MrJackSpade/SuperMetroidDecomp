@@ -1,8 +1,7 @@
-
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
-/// <summary>The variant, surface and phase that select a hopper's program.</summary>
-/// <param name="Variant">The variant.</param>
+/// <summary>The kind, surface and phase that select a hopper's program.</summary>
+/// <param name="Kind">The kind of hopper.</param>
 /// <param name="Surface">The surface.</param>
 /// <param name="Phase">The phase.</param>
-internal readonly record struct HopperProgramKey(int Variant, HopperSurface Surface, HopperPhase Phase);
+internal readonly record struct HopperProgramKey(HopperKind Kind, HopperSurface Surface, HopperPhase Phase);

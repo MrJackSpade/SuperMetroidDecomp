@@ -13,9 +13,6 @@ namespace SuperMetroid.Verification.Enemies.Zoa;
 /// <summary>Checks Zoa animation selectors and live rise-to-shoot list handoffs.</summary>
 internal static class ZoaAnimationDefinitionsVerification
 {
-    /// <summary>A selector holding every value no animation flag names, which no animation table entry selects.</summary>
-    private const ZoaAnimationSelector UnnamedSelector = ~(ZoaAnimationSelector.Rising | ZoaAnimationSelector.FacingRight);
-
     /// <summary>Compares four native animation pointers and optionally exercises live state transitions.</summary>
     internal static void VerifyZoaAnimationDefinitions(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
@@ -30,22 +27,16 @@ internal static class ZoaAnimationDefinitionsVerification
         foreach (ushort invalid in new ushort[] { 4, 5, 0x8000, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() =>
                 ZoaNativeWords.AnimationSelectorOf(invalid),
-                "Zoa animation selector word rejects unsupported flag combinations");
-        AssertThrows<InvalidDataException>(() =>
-            ZoaPrograms.Program(UnnamedSelector),
-            "Zoa animation rejects unsupported flag combinations");
+                "Zoa animation selector word rejects words naming no animation");
         if (definitionsOnly)
         {
-            Console.WriteLine("Zoa animation cases: four original pointers and unsupported flag bounds pass.");
+            Console.WriteLine("Zoa animation cases: four original pointers and the selector word's bounds pass.");
             return;
         }
         Suite(nameof(VerifyAllZoaAnimationHandoffs), () => VerifyAllZoaAnimationHandoffs());
         Suite(nameof(VerifyLiveZoaAnimationHandoffs), () => VerifyLiveZoaAnimationHandoffs(facingRight: false));
         Suite(nameof(VerifyLiveZoaAnimationHandoffs), () => VerifyLiveZoaAnimationHandoffs(facingRight: true));
 
-        AssertThrows<InvalidDataException>(
-            () => ZoaPrograms.Program(UnnamedSelector),
-            "Zoa animation selector past table");
         Console.WriteLine(
             "Zoa animation definitions: four native selectors, all four installs, and both complete live facing/rise/shoot handoffs pass with the pointer table forbidden.");
     }
@@ -53,19 +44,15 @@ internal static class ZoaAnimationDefinitionsVerification
     /// <summary>Checks all four selector installs reset the instruction and loop timers.</summary>
     private static void VerifyAllZoaAnimationHandoffs()
     {
-        foreach (ZoaAnimationSelector selector in new[]
-            {
-                ZoaAnimationSelector.None, ZoaAnimationSelector.Rising, ZoaAnimationSelector.FacingRight,
-                ZoaAnimationSelector.FacingRight | ZoaAnimationSelector.Rising,
-            })
+        foreach (ZoaAnimationSelector selector in Enum.GetValues<ZoaAnimationSelector>())
         {
             var slot = NewZoaAnimationSlot();
             var state = new ZoaEnemyState()
             {
-                AnimationScriptTableIndex = selector,
-                PreviousAnimationScriptTableIndex = selector == ZoaAnimationSelector.None
-                    ? ZoaAnimationSelector.Rising
-                    : ZoaAnimationSelector.None,
+                RequestedAnimation = selector,
+                InstalledAnimation = selector == ZoaAnimationSelector.ShootingFacingLeft
+                    ? ZoaAnimationSelector.RisingFacingLeft
+                    : ZoaAnimationSelector.ShootingFacingLeft,
             };
             ZoaBehavior.SetZoaProgram(slot, state);
             AssertZoaAnimationHandoff(slot, state, selector, $"Zoa {selector}");
@@ -90,9 +77,11 @@ internal static class ZoaAnimationDefinitionsVerification
         };
         ZoaBehavior.RunZoaWait(slot, (state), samus);
         ZoaAnimationSelector direction = facingRight
-            ? ZoaAnimationSelector.FacingRight
-            : ZoaAnimationSelector.None;
-        ZoaAnimationSelector rising = direction | ZoaAnimationSelector.Rising;
+            ? ZoaAnimationSelector.ShootingFacingRight
+            : ZoaAnimationSelector.ShootingFacingLeft;
+        ZoaAnimationSelector rising = facingRight
+            ? ZoaAnimationSelector.RisingFacingRight
+            : ZoaAnimationSelector.RisingFacingLeft;
         AssertZoaAnimationHandoff(
             slot,
             state,
@@ -121,9 +110,9 @@ internal static class ZoaAnimationDefinitionsVerification
         ZoaAnimationSelector expected,
         string context)
     {
-        AssertEqual(expected, state.AnimationScriptTableIndex,
+        AssertEqual(expected, state.RequestedAnimation,
             $"{context} requested selector");
-        AssertEqual(expected, state.PreviousAnimationScriptTableIndex,
+        AssertEqual(expected, state.InstalledAnimation,
             $"{context} installed selector");
         AssertEqual(new AnimationPlayback<ZoaProgram>(ZoaAnimations.StartingWith(ZoaPrograms.Program(expected)), AnimationPlace.StartOfAnimation),
             state.Playback,

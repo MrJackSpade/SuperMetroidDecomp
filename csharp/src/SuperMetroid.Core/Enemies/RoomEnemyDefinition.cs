@@ -18,7 +18,6 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="PowerBombReaction">
 /// The Power Bomb reaction, or null when the header names none and the common Power Bomb damage applies.
 /// </param>
-/// <param name="VariantIndex">The hopper variant, 0 through 3; zero for an enemy whose behaviour reads none.</param>
 /// <param name="Touch">The Samus-contact reaction, or null when the header names none and only extended hitboxes name one.</param>
 /// <param name="Shot">The projectile-hit reaction, or null when the header names none and only extended hitboxes name one.</param>
 /// <param name="TouchHitboxScan">Whether Samus's touch is tested against the enemy's extended hitboxes or withheld.</param>
@@ -40,7 +39,6 @@ public readonly record struct RoomEnemyDefinition(
     EnemyAiRoutine HurtAi,
     EnemyDeathExplosion DeathExplosion,
     EnemyReaction? PowerBombReaction,
-    int VariantIndex,
     EnemyReaction? Touch,
     EnemyReaction? Shot,
     EnemyHitboxScan TouchHitboxScan,

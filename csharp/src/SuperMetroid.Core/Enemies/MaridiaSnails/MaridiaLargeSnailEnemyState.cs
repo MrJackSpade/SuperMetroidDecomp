@@ -8,14 +8,16 @@ public sealed class MaridiaLargeSnailEnemyState
     internal AnimationPlayback<MaridiaLargeSnailProgram> Playback { get; set; }
 
     /// <summary>
-    /// Extra word zero: the requested animation, 0 through 7, an index into the eight-entry selector table.
-    /// Its lowest bit selects the left-facing program, and the idle, roll and attack transitions set, clear and toggle
-    /// its upper two bits, which never carries it outside the table.
+    /// The animation the snail's behaviour asks for: idle facing Samus, a forward roll from idle, an attack facing Samus,
+    /// a forward roll again once the attack ends, and the opposite roll each time a roll meets a wall.
     /// </summary>
-    public int RequestedAnimationScriptIndex { get; internal set; }
+    public MaridiaLargeSnailAnimation RequestedAnimation { get; internal set; }
 
-    /// <summary>The last requested animation the snail installed, 0 through 7.</summary>
-    public int InstalledAnimationScriptIndex { get; internal set; }
+    /// <summary>
+    /// The requested animation the snail last started. Asking for it again leaves the playing animation running, and the
+    /// snail starts out holding the right-facing idle here while it shows the left-facing one.
+    /// </summary>
+    public MaridiaLargeSnailAnimation InstalledAnimation { get; internal set; }
 
     /// <summary>Extra word two: set by the attack animation's cue when it ends.</summary>
     public bool AttackAnimationFinished { get; internal set; }

@@ -299,24 +299,17 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SetSbugFacing(slot, state, state.CustomFacing);
     }
 
-    /// <summary>Preserves the separate whole and fraction negation and the folded facing on reversal.</summary>
+    /// <summary>Reverses the Sbug's custom velocity and folds its facing on reversal.</summary>
     private static void ReverseSbugCustomDirection(RoomEnemySlot slot, SbugEnemyState state)
     {
-        // The Sbug negates whole pixels and subpixels separately. For a nonzero subpixel
-        // that is off by exactly 1.0 compared with a proper negation; this
-        // visible drift is part of retail behavior and must not be “fixed.”
-        state.CustomXVelocity = NegateSbugPartsIndependently(state.CustomXVelocity);
-        state.CustomYVelocity = NegateSbugPartsIndependently(state.CustomYVelocity);
+        state.CustomXVelocity = -state.CustomXVelocity;
+        state.CustomYVelocity = -state.CustomYVelocity;
 
         // The reversal does not show the opposite facing: as the game does, it turns the facing a quarter turn
         // counter-clockwise and folds it into the four facings from right to up-left.
         state.CustomFacing = SbugMovement.ReversedFacing(state.CustomFacing);
         SetSbugFacing(slot, state, state.CustomFacing);
     }
-
-    /// <summary>Negates pixel and subpixel parts separately, retaining the game's fractional error.</summary>
-    private static SignedSixteenSixteen NegateSbugPartsIndependently(SignedSixteenSixteen value) =>
-        value.NegatedPartsSeparately();
 
     /// <summary>Applies unsigned quarter-wave magnitudes with signs from the initial angle.</summary>
     private static void MoveSbugForward(RoomEnemySlot slot, SbugEnemyState state)

@@ -20,9 +20,9 @@ public static class RoomStaticPaletteExtractor
         Ensure.NotNull(bus);
         var files = new Dictionary<string, byte[]>();
         RoomTilesetSourceMap sources = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
-        for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        foreach (TilesetDefinition tileset in RoomTilesets.All)
         {
-            RoomPaletteSet set = RoomTilesets.Get(graphicsSet).Palette;
+            RoomPaletteSet set = tileset.Palette;
             SnesAddress address = sources.Palettes[set];
             string name = RoomStaticPaletteFormat.FileName(set);
             if (files.ContainsKey(name)) continue;

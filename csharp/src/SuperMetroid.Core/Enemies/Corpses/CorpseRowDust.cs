@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 [RoomLifetime]
 internal sealed class CorpseRowDust
 {
-    /// <summary>Receives the family's end-of-update dust sound.</summary>
+    /// <summary>Receives the family's dust sound, queued as the family makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Raises the family's dust on the room's enemy audio queue.</summary>
@@ -27,7 +27,7 @@ internal sealed class CorpseRowDust
             new(CoordinateAxis.Wrap(slot.Position.X.Whole + CorpseDustSpread(random) - 14), CoordinateAxis.Wrap(slot.Position.Y.Whole + 16)),
             MiscDustAnimation.CorpseDustCloud);
         if (CorpseCadenceDefinitions.DustSoundEveryEighthEnemyPass.IsDue(randomEnemyCounter))
-            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.DeadMonsters, EnemySound.LiquidDamage, priority: SoundRequestPriority.Low);
+            _audio.QueueEnemySound(EnemySound.LiquidDamage, priority: SoundRequestPriority.Low);
     }
 
     /// <summary>How far right of its leftmost place <paramref name="random"/> spreads a corpse row's dust cloud.</summary>

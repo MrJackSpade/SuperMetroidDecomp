@@ -684,12 +684,12 @@ internal static void VerifyCeresElevatorPlatformAnimation()
     var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Floor = map });
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)));
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
-    AssertEqual(CeresFloorAnimationFrame.ElevatorLight, map.Drawn.Single(),
+    AssertEqual(CeresFloorAnimationFrame.ElevatorLight, map.Shown.Values.Single(),
         "Ceres elevator landed platform light floor frame");
 
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
-    AssertEqual(CeresFloorAnimationFrame.ElevatorDark, map.Drawn.Single(),
+    AssertEqual(CeresFloorAnimationFrame.ElevatorDark, map.Shown.Values.Single(),
         "Ceres elevator landed platform dark floor frame, drawn over the light one");
 
     Console.WriteLine("  Ceres elevator: landed Mode-7 platform continues its ROM transfer animation.");

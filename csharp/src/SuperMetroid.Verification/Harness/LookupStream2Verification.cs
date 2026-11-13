@@ -372,7 +372,7 @@ internal static class LookupStream2Verification
         // tiles are compared by tile, colour variant, mirroring and priority.
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            int label = 0x820000 | ReadVerificationWord(rom, 0x82965f + AreaIds.ToIndex(area) * 2);
+            int label = 0x820000 | ReadVerificationWord(rom, 0x82965f + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2);
             var native = new BackgroundTile[1024];
             for (int cell = 0; cell < 1024; cell++)
             {

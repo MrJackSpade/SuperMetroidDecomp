@@ -80,13 +80,13 @@ internal static class EndingSceneActors
 
     /// <summary>
     /// The post-credits actors of every reward whose scenes draw from reward sheet <paramref name="sheet"/>: the idle
-    /// Samus, the gesture and the jump until it falls from her falling sheet, each in its colouring, and the stars.
+    /// Samus, the gesture and the jump until she falls back as the falling Samus, each in its colouring, and the stars.
     /// </summary>
     private static void Rewards(EndingSheetDraws draws, SpriteSheetId sheet)
     {
         foreach (EndingReward reward in Enum.GetValues<EndingReward>())
         {
-            if (EndingSpriteSheets.For(EndingObjectSheet.Reward, reward) != sheet)
+            if (EndingSpriteSheets.Reward(reward) != sheet)
                 continue;
             foreach (EndingSpriteDefinition idle in EndingRewardCast.Idle(reward))
                 draws.AddProgram(CinematicSpriteFamily.EndingReward, idle.Program, idle.Colouring);
@@ -101,7 +101,7 @@ internal static class EndingSceneActors
 
     /// <summary>
     /// The falling Samus, who falls and lands in her falling colouring until the landing's shoot cue turns her to her
-    /// shooting colouring; the logo the scene ends on; and the stars.
+    /// shooting colouring, and the logo the scene ends on. The stars draw from the reward sheets (#1626).
     /// </summary>
     private static void Shooting(EndingSheetDraws draws)
     {
@@ -119,7 +119,6 @@ internal static class EndingSceneActors
         }
         for (int actor = 0; actor < EndingLogoDefinitions.ActorKinds.Length; actor++)
             draws.AddProgram(CinematicSpriteFamily.EndingLogo, EndingLogoActors.Actor(actor).Program, EndingLogoDefinitions.Colouring);
-        draws.AddStars();
     }
 
     /// <summary>Records <paramref name="actor"/>'s poses in the colouring its initialization gives it.</summary>

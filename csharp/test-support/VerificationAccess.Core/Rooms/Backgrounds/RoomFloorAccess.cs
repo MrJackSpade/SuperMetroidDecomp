@@ -1,4 +1,4 @@
-﻿
+
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>Verification access to <see cref="RoomFloor"/> members production does not use.</summary>
@@ -8,6 +8,6 @@ internal static class RoomFloorAccess
     extension(RoomFloor self)
     {
         /// <summary>The floor animation frames drawn over the floor, in drawing order.</summary>
-        public IReadOnlyList<CeresFloorAnimationFrame> Drawn => self.drawn;
+        public IReadOnlyDictionary<CeresFloorPart, CeresFloorAnimationFrame> Shown => self.shown;
     }
 }

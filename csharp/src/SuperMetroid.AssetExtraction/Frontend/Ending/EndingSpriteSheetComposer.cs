@@ -42,7 +42,7 @@ internal static class EndingSpriteSheetComposer
         EndingPage page = Page(sheet);
         EndingSheetDraws draws = EndingSceneActors.Of(sheet);
         var transferArtwork = new EndingTransferArtwork(objects, font, page.Reward);
-        int objectSelection = EndingSheetObjectSelectionDefinitions.Of(page.ObjectSheet);
+        int objectSelection = EndingSheetObjectSelectionDefinitions.Of(sheet);
         ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(objectSelection);
         SpriteArtwork characters = Characters(page.Transfers, transferArtwork, objectSelection);
         var frames = new List<ColouredFrame<EndingSpriteColouring>>();
@@ -198,9 +198,9 @@ internal static class EndingSpriteSheetComposer
     {
         return sheet switch
         {
-            SpriteSheetId.EndingCloudSprites => new(EndingObjectSheet.Clouds, EndingReward.Armored, [new EndingTransfer(EndingTransferKind.EscapeClouds)],
+            SpriteSheetId.EndingCloudSprites => new(EndingReward.Armored, [new EndingTransfer(EndingTransferKind.EscapeClouds)],
                 objects => [objects.CloudSprites], Logo: false, EscapeColours),
-            SpriteSheetId.EndingExplosionSprites => new(EndingObjectSheet.Explosion, EndingReward.Armored,
+            SpriteSheetId.EndingExplosionSprites => new(EndingReward.Armored,
                 [
                     new EndingTransfer(EndingTransferKind.ExplosionObjects),
                     .. Enum.GetValues<EndingObjectFragmentId>().Select(fragment => new EndingTransfer(EndingTransferKind.ExplosionMap, Fragment: fragment)),
@@ -244,14 +244,14 @@ internal static class EndingSpriteSheetComposer
     }
 
     /// <summary>The post-credits reward page of an ending of <paramref name="reward"/>.</summary>
-    private static EndingPage Reward(EndingReward reward) => new(EndingObjectSheet.Reward, reward,
+    private static EndingPage Reward(EndingReward reward) => new(reward,
         [new EndingTransfer(EndingTransferKind.CreditsCharacterArt)], objects => [objects.RewardSprites], Logo: false, PostCreditsColours);
 
     /// <summary>
     /// The shooting scene: the falling, landing and shooting Samus and the stars over the post-credits art, and the logo
     /// the scene ends on over its own characters. The reward's characters lie outside this page, so any reward shows it.
     /// </summary>
-    private static EndingPage Shooting => new(EndingObjectSheet.RewardFalling, EndingReward.Armored,
+    private static EndingPage Shooting => new(EndingReward.Armored,
         [new EndingTransfer(EndingTransferKind.CreditsCharacterArt)], objects => [objects.RewardSprites], Logo: true, PostCreditsColours);
 
     /// <summary>The escape scenes' sprite colours.</summary>
@@ -264,11 +264,10 @@ internal static class EndingSpriteSheetComposer
     private static RgbColor[] SpritesOf(EndingPaletteSet palettes, EndingPaletteId palette) => palettes[palette].Sprites.ToArray();
 
     /// <summary>
-    /// A scene of the ending: the object sheet that selects it, the reward the scene's transfers dress, those transfers in
-    /// order, the families it shows over them, whether it also holds the logo over the logo's own characters, and the
+    /// A scene of the ending: the reward the scene's transfers dress, those transfers in order, the families it shows over them, whether it also holds the logo over the logo's own characters, and the
     /// sprite colours its scene loads.
     /// </summary>
-    private sealed record EndingPage(EndingObjectSheet ObjectSheet, EndingReward Reward, IReadOnlyList<EndingTransfer> Transfers,
+    private sealed record EndingPage(EndingReward Reward, IReadOnlyList<EndingTransfer> Transfers,
         Func<EndingObjectSourceArtwork, IEnumerable<ICinematicSpriteFrames>> Families, bool Logo,
         Func<EndingPaletteSet, RgbColor[]> SpriteColours);
 }

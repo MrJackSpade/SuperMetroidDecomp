@@ -9,16 +9,15 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed class EndingRewardJump
 {
     /// <summary>
-    /// The program Samus's body falls by once she is drawn from her falling sheet. A suited jump's head flies ahead of the
-    /// body and is deleted as it passes the height at which the body switches to that sheet, so only the body's falling and
-    /// landing are drawn from it.
+    /// The program Samus's body falls by once she passes above the screen. A suited jump's head flies ahead of the body
+    /// and is deleted as it passes the height at which the body starts to fall, so only the body falls and lands.
     /// </summary>
     internal const CinematicSpriteProgram FallingProgram = CinematicSpriteProgram.Falling;
 
     /// <summary>The program Samus's body lands and shoots by.</summary>
     internal const CinematicSpriteProgram LandingProgram = CinematicSpriteProgram.Landing;
 
-    /// <summary>The colouring Samus's body falls and lands in once she is drawn from her falling sheet.</summary>
+    /// <summary>The colouring Samus's body falls and lands in.</summary>
     internal const EndingSpriteColouring FallingColouring = EndingSpriteColouring.FallingSamus;
 
     /// <summary>The colouring the landing program's shoot cue turns Samus's body to, which it keeps to the end.</summary>
@@ -29,7 +28,7 @@ internal sealed class EndingRewardJump
 
     /// <summary>Selects the armored head offsets used during the launch animation.</summary>
     private readonly bool helmeted;
-    /// <summary>Body actor whose vertical position controls the sheet switch and landing.</summary>
+    /// <summary>Body actor whose vertical position controls the fall and landing.</summary>
     private readonly IntroDiscoverySprite body;
     /// <summary>Separate head actor present for the two suited ending rewards.</summary>
     private readonly IntroDiscoverySprite? head;
@@ -37,8 +36,8 @@ internal sealed class EndingRewardJump
     internal SignedSixteenSixteen Velocity { get; private set; }
     /// <summary>Whether the shooting instruction has requested the ending screen capture.</summary>
     public bool ShotRequested { get; private set; }
-    /// <summary>Set when the body crosses the graphics sheet switch height and Samus is drawn from her falling sheet.</summary>
-    public bool FallingSheetSelected { get; private set; }
+    /// <summary>Set when the body passes above the screen and Samus starts to fall back, as the falling Samus.</summary>
+    public bool Falling { get; private set; }
     /// <summary>Whole-pixel body height used to select the falling and landed programs.</summary>
     public int BodyY => CoordinateAxis.AsSigned(body.WholePosition.Y);
 
@@ -61,7 +60,7 @@ internal sealed class EndingRewardJump
             if (head.FrameBehavior == CinematicSpriteFrameBehavior.RewardHeadFlight)
             {
                 Move(head);
-                if (CoordinateAxis.AsSigned(head.WholePosition.Y) < EndingRewardJumpDefinitions.SheetSwitchY) head.Delete();
+                if (CoordinateAxis.AsSigned(head.WholePosition.Y) < EndingRewardJumpDefinitions.FallStartY) head.Delete();
             }
             head.Step(HandleCue);
         }
@@ -69,9 +68,9 @@ internal sealed class EndingRewardJump
         if (bodyFrameBehavior == CinematicSpriteFrameBehavior.RewardBodyFlight)
         {
             Move(body);
-            if (BodyY < EndingRewardJumpDefinitions.SheetSwitchY)
+            if (BodyY < EndingRewardJumpDefinitions.FallStartY)
             {
-                FallingSheetSelected = true;
+                Falling = true;
                 body.SetColouring(EndingShades.Drawn(FallingColouring));
                 body.Start(FallingProgram);
                 body.InstallFrameBehavior(CinematicSpriteFrameBehavior.RewardLanding);
@@ -90,12 +89,15 @@ internal sealed class EndingRewardJump
         body.Step(HandleCue);
     }
 
-    /// <summary>Places the active head and body as the supplied sprite entries.</summary>
-    public void Draw(ScreenSprites destination, IIntroCinematicSpritePresentation installedArt)
+    /// <summary>
+    /// Places the active head and body as the supplied sprite entries: the jumping Samus's frames from
+    /// <paramref name="jumpingArt"/>, and the falling Samus's, once she falls back, from <paramref name="fallingArt"/>.
+    /// </summary>
+    public void Draw(ScreenSprites destination, IIntroCinematicSpritePresentation jumpingArt, IIntroCinematicSpritePresentation fallingArt)
     {
         Ensure.NotNull(destination);
-        head?.Draw(destination, installedArt: installedArt);
-        body.Draw(destination, installedArt: installedArt);
+        head?.Draw(destination, installedArt: jumpingArt);
+        body.Draw(destination, installedArt: Falling ? fallingArt : jumpingArt);
     }
 
     /// <summary>Applies gravity to shared velocity and moves an actor by it.</summary>

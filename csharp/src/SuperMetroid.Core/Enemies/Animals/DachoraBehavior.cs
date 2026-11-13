@@ -25,7 +25,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The four speed-boost echoes each Dachora found when it was placed, which its room lists right after it.</summary>
     private readonly EnemyPartLinks<RoomEnemySlot[]> _echoes = new();
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>
@@ -192,7 +192,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
                 : DachoraProgram.BlinkLeft);
         state.Function = DachoraAiFunction.BlinkingBeforeRun;
         state.StartBlinking(DachoraBlinkDuration);
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraActivationSound, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(DachoraActivationSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Runs the 120-frame warning countdown.</summary>
@@ -247,7 +247,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen displacement = AccelerateDachora(slot, state, level);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
         {
-            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraWallImpactSound, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(DachoraWallImpactSound, priority: SoundRequestPriority.Normal);
             InstallDachoraInstruction(slot, state, DachoraProgram.RunningLeft);
             state.Function = DachoraAiFunction.RunningLeft;
             state.FacingRight = false;
@@ -266,7 +266,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.StartCharging(DachoraChargeDuration);
         state.SetGlowCycle(frame: 0, ticks: 0);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 8);
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraChargeSound, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(DachoraChargeSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>
@@ -282,7 +282,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Speed.WholePixels >= DachoraMaximumSpeed.WholePixels)
         {
             if (state.GlowFrame == 0 && state.GlowTicks == 1)
-                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraSpeedBoosterSound, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(DachoraSpeedBoosterSound, priority: SoundRequestPriority.Normal);
 
             if (state.TickGlowCycle())
             {
@@ -343,7 +343,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             echo.RequireSpeciesState<DachoraEnemyState>().EchoLifetime = 0;
         state.VerticalAcceleration = SignedSixteenSixteen.Zero;
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - 8);
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraLaunchSound, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(DachoraLaunchSound, priority: SoundRequestPriority.Normal);
 
         DachoraProgram echoList = state.FacingRight
             ? DachoraProgram.EchoRight
@@ -389,7 +389,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Speed = SignedSixteenSixteen.Zero;
         state.SetGlowCycle(frame: 0, ticks: 0);
         ShowDachoraColours(slot, DachoraColourPhase.Default, frame: 0);
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraCeilingImpactSound, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(DachoraCeilingImpactSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Runs the gravity-capped return to the ground.</summary>

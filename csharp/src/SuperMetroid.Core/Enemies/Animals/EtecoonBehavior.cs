@@ -27,7 +27,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Suppresses the pre-jump transition while an elevator door transition owns the room.</summary>
     private readonly ElevatorBehavior _elevatorBehavior;
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds the terrain, quake, and elevator owners consulted by Etecoon AI.</summary>
@@ -214,7 +214,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         if (state.Route == EtecoonRoute.RunLeftToTeachingStart)
-            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Etecoon, EtecoonWakeSound, priority: SoundRequestPriority.Essential);
+            _audio.QueueEnemySound(EtecoonWakeSound, priority: SoundRequestPriority.Essential);
         InstallEtecoonInstruction(slot, state, EtecoonProgram.Flexing);
         state.FunctionTimer = WrappingCountdown.Start(256);
     }
@@ -233,7 +233,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.FrameHold = WrappingCountdown.Start(1);
         state.Function = EtecoonAiFunction.InitialJump;
         if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
-            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Etecoon, EtecoonJumpSound, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(EtecoonJumpSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Finishes the initial hop and either faces nearby Samus or schedules another hop.</summary>
@@ -358,7 +358,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Function = EtecoonAiFunction.WallPause;
             state.FunctionTimer = WrappingCountdown.Start(8);
             if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
-                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Etecoon, EtecoonWallSound, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(EtecoonWallSound, priority: SoundRequestPriority.Normal);
             return;
         }
 
@@ -582,7 +582,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
         slot.FrameHold = WrappingCountdown.Start(1);
         if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
-            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Etecoon, EtecoonJumpSound, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(EtecoonJumpSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Starts the long run when Samus approaches; otherwise schedules another teaching hop.</summary>
@@ -607,7 +607,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Playback = new(EtecoonAnimations.StartingWith(EtecoonAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
             state.Function = EtecoonAiFunction.TeachingJump;
             if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
-                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Etecoon, EtecoonJumpSound, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(EtecoonJumpSound, priority: SoundRequestPriority.Normal);
         }
         slot.FrameHold = WrappingCountdown.Start(1);
     }

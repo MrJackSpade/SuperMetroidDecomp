@@ -228,10 +228,8 @@ internal static class DraygonAnimationsVerification
             AssertEqual(native.NewFrame, arms.NewInstructionFrame, $"{at}: new-frame flag");
             AssertEqual(native.Counter, arms.Timer.RawValue, $"{at}: loop counter");
             DraygonCue[] cues = [.. callbacks.Where(callback => !SelectsHudSplit(callback.Word)).Select(callback => CueOf(callback.Word, callback.Operands))];
-            AssertEqual(cues.OfType<DraygonCue.QueueSound>().LastOrDefault(sound => sound.Sound.Library == SoundEffectLibrary.Enemies)?.Sound,
-                enemies.Audio.PublishedSoundFrom(EnemySoundSource.DraygonCombat), $"{at}: the native list's library-two sound is the combat source's request");
-            AssertEqual(cues.OfType<DraygonCue.QueueSound>().LastOrDefault(sound => sound.Sound.Library == SoundEffectLibrary.Room)?.Sound,
-                enemies.Audio.PublishedSoundFrom(EnemySoundSource.DraygonDeathCry), $"{at}: the native list's library-three sound is the dying-cry source's request");
+            AssertEqual(EnemyAudioQueueAccess.SoundList(cues.OfType<DraygonCue.QueueSound>().Select(sound => sound.Sound)),
+                enemies.Audio.QueuedSoundList, $"{at}: every sound the native list queues, in its order");
             if (cues.Any(cue => cue is DraygonCue.ParalyseTailAndArms))
             {
                 paralysed = true;

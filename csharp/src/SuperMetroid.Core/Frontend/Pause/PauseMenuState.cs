@@ -131,7 +131,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         CurrentMapArrows = new FileSelectMapAnimations(entry.MapPresentation.Arrows);
         mapHighlight.Bind(entry.MapPresentation.HighlightCycle);
         area = entry.AreaIndex;
-        _ = AreaIds.ToIndex(entry.AreaIndex);
+        _ = AreaIds.Require(entry.AreaIndex);
         this.roomMapPosition = entry.RoomMapPosition;
         this.mapRevealMode = Enum.IsDefined(entry.MapRevealMode)
             ? entry.MapRevealMode
@@ -143,18 +143,14 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         BindSpriteSheets(entry.SpriteSheets);
         if (entry.GameplayHud is not null)
         {
-            // Pause setup moves the HUD's layer but never loads a replacement
-            // HUD. The four-row gameplay HUD already resident there is
-            // intentionally retained. A fresh host-side display object used to discard that
-            // state, removing the entire energy/ammo HUD from pause and exposing map
-            // pixels in the area that the HUD normally covers. Pause keeps the HUD's
-            // images gameplay displayed (#1351, #1466) and draws them under its palette.
-            screen.RetainHud(entry.GameplayHud);
+            // Pause shows the HUD gameplay displayed (#1351, #1466) and draws it under its palette, so the energy and
+            // ammo HUD stays over the area it covers instead of the map showing there.
+            screen.ShowHud(entry.GameplayHud);
         }
 
         // Pause setup ends by clearing the effect overlay
         // beneath the four HUD rows. Pause draws
-        // only the HUD's own layer (PauseScreen.RetainedHudPictures), so every otherwise-empty map
+        // only the HUD's own layer (PauseScreen.ShownHudPictures), so every otherwise-empty map
         // cell shows nothing rather than pause character zero, the visible orange `1` glyph.
 
         // The pause screen's base page shows the button page's two label rows over the backdrop's bottom rows, its labels
@@ -285,7 +281,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             ? new PictureGridLayer(AreaMapPictures.Grid(ShownMap, screen.Pictures), mapScroll) { Window = MapFrameOpening.Window(new(0, PauseScreen.PageRowsAboveScreen)) }
             : new PicturedPlaneLayer(screen.EquipmentPage(EquipmentPage, ReserveArrowShading), Offset16<PlanePixels>.Zero);
         // The retained HUD is its own layer at the HUD's place (#1466).
-        var hud = new HudLayer(screen.RetainedHudPictures(), DrawsOpaque: false);
+        var hud = new HudLayer(screen.ShownHudPictures(), DrawsOpaque: false);
         // Back to front (#1514): the area's frame, the page inside it, the page's markers, cursors and labels, and the
         // retained HUD over the top band. Each picture and sprite is drawn whole at its layer's place; the per-tile and
         // per-sprite-part priority tiers that once interleaved them are a presentation quirk the port does not keep.
@@ -769,14 +765,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         }
     }
 
-    /// <summary>Retains only the HUD gameplay last displayed, not one still being written.</summary>
-    /// <param name="gameplayHud">The HUD gameplay latched at that frame (#1351, #1466).</param>
-    public void SynchronizeAcceptedHud(ShownHud gameplayHud)
-    {
-        // Pause owns its own screen. Mirror the HUD's drawn rows, leaving its static
-        // first row and deliberately cleared FX rows untouched.
-        screen.MirrorAcceptedHud(gameplayHud);
-    }
+    /// <summary>Shows the HUD gameplay last displayed, not one still being written.</summary>
+    /// <param name="gameplayHud">The HUD gameplay latched at that frame (#1351, #1466, #1626).</param>
+    public void SynchronizeAcceptedHud(ShownHud gameplayHud) => screen.ShowHud(gameplayHud);
 
     /// <summary>Rebinds edited map and pause artwork while retaining live scroll, highlight, and label state.</summary>
     public void BindMapPresentation(AreaMapPresentation? catalog)

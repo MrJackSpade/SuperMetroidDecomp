@@ -60,15 +60,15 @@ internal static class RoomAssetRomDataVerification
         {
             foreach (RoomStateSelectionContext context in BuildRoomStateAuditContexts())
             {
-                graphicsSets.Add(checked((byte)SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context).State.GraphicsSet));
+                graphicsSets.Add(checked((byte)RoomGraphicsSetCodec.Encode(SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context).State.GraphicsSet)));
             }
         }
 
         // Test the complete native table, including entries not reached by the room-state
         // contexts above. This is definition metadata, not an editable visual payload.
-        for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        for (byte graphicsSet = 0; graphicsSet < RoomGraphicsSetCodec.Count; graphicsSet++)
         {
-            TilesetDefinition compiled = RoomTilesets.Get(graphicsSet);
+            TilesetDefinition compiled = RoomTilesets.Get(RoomGraphicsSetCodec.Decode(graphicsSet));
             int pointerAddress = RoomTilesetTableConstants.PointerTableAddress +
                 graphicsSet * sizeof(ushort);
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), pointerAddress);
@@ -86,7 +86,7 @@ internal static class RoomAssetRomDataVerification
                 compiled.PaletteAddress,
                 $"graphics set ${graphicsSet:X2} compiled palette source");
         }
-        AssertThrows<InvalidDataException>(() => RoomTilesets.Get(RoomTilesetDefinitions.Count),
+        AssertThrows<InvalidDataException>(() => RoomGraphicsSetCodec.Decode(RoomGraphicsSetCodec.Count),
             "graphics set after the last retail entry fails rather than reading unrelated bank-$8F data");
 
         foreach (byte graphicsSet in graphicsSets)
@@ -142,7 +142,7 @@ internal static class RoomAssetRomDataVerification
 
         Console.WriteLine(
             $"  Room assets: {graphicsSets.Count} retail graphics sets validated; all " +
-            $"{RoomTilesetDefinitions.Count} definitions compiled with live table reads blocked.");
+            $"{RoomGraphicsSetCodec.Count} definitions compiled with live table reads blocked.");
     }
 
     /// <summary>Exercises every distinct room-character PNG against its native 4-bpp source.</summary>
@@ -161,9 +161,9 @@ internal static class RoomAssetRomDataVerification
         {
             [RoomCharacterSheetFiles.CreFileName] = (int)RoomTilesetSourceDefinitions.CreCharacters,
         };
-        for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        for (byte graphicsSet = 0; graphicsSet < RoomGraphicsSetCodec.Count; graphicsSet++)
         {
-            int address = RoomTilesets.Get(graphicsSet).CharacterAddress;
+            int address = RoomTilesets.Get(RoomGraphicsSetCodec.Decode(graphicsSet)).CharacterAddress;
             sources[RoomCharacterSheetFiles.SourceFileName(address)] = address;
         }
         int ghostSource = RoomBackgroundSourceDefinitions.TourianStatueGhostCharacters;
@@ -209,7 +209,7 @@ internal static class RoomAssetRomDataVerification
         // Artwork in empty padding cells must fail rather than disappear silently.
         // Retail sources happen to end on complete 32-tile rows. A bounded 33-tile
         // prefix from a real source tests the partial-row policy independently.
-        int partialSource = RoomTilesets.Get(0).CharacterAddress;
+        int partialSource = RoomTilesets.Get(RoomGraphicsSet.UpperCrateria).CharacterAddress;
         byte[] partialNative = RomDataReader.Decompress(bus, partialSource)
             .AsSpan(0, 33 * RoomCharacterAtlasFormat.BytesPerTile).ToArray();
         int tileCount = partialNative.Length / RoomCharacterAtlasFormat.BytesPerTile;

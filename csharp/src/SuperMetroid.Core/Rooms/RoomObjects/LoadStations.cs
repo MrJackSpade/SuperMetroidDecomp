@@ -1,34 +1,19 @@
 using SuperMetroid.Core.Progression;
-using static SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions;
-
-using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The placement each area's load station selects.</summary>
+/// <summary>Finds a load station by the area and number a save station's room object or a save names it by.</summary>
 public static class LoadStations
 {
-    /// <summary>List length of <paramref name="area"/>, including inert placeholders.</summary>
-    public static int Count(AreaId area) =>
-        Counts.TryGetValue(area, out int count) ? count : throw new ArgumentOutOfRangeException(nameof(area), area, "Unknown retail area ID.");
+    /// <summary>The station numbered <paramref name="number"/> in <paramref name="area"/>'s station list, or null when the list numbers none.</summary>
+    public static LoadStation? Find(AreaId area, int number) =>
+        LoadStationDefinitions.All.SingleOrDefault(station => station.Area == area && station.Number == number);
 
-    /// <summary>Constructs one exact placement after validating area and station bounds.</summary>
-    public static LoadStationEntry Get(AreaId areaIndex, int stationIndex)
-    {
-        int area = AreaIds.ToIndex(areaIndex);
-        int count = Count(areaIndex);
-        if ((uint)stationIndex >= count)
-            throw new ArgumentOutOfRangeException(nameof(stationIndex), stationIndex,
-                $"{areaIndex} has {count} load-station slots.");
-        int preceding = 0;
-        for (int index = 0; index < area; index++) preceding += Count(AreaIds.At(index));
-        LoadStationDefinition entry = areaIndex == AreaId.Ceres
-            ? new(RoomHeaderDefinitions.CeresElev, CeresDoorDefinitions.FallingTile0, Position16<RoomPixels>.Zero, new(0, stationIndex == 0 ? 72 : 64))
-            : Placement(areaIndex, stationIndex);
-        return new LoadStationEntry(entry.Room, entry.Door, entry.CameraPosition, entry.SamusOffset);
-    }
-
-    /// <summary>Selects a validated non-Ceres station; unused slots receive the inert record.</summary>
-    private static LoadStationDefinition Placement(AreaId area, int station) =>
-        Placements.GetValueOrDefault(new LoadStationKey(area, station), Placeholder);
+    /// <summary>The station numbered <paramref name="number"/> in <paramref name="area"/>'s station list.</summary>
+    /// <param name="area">The area whose station list holds the station.</param>
+    /// <param name="number">The station's number in that list.</param>
+    /// <param name="source">What named the station, reported when it names none.</param>
+    /// <exception cref="InvalidDataException"><paramref name="area"/>'s station list numbers no station <paramref name="number"/>.</exception>
+    public static LoadStation Get(AreaId area, int number, string source) =>
+        Find(area, number) ?? throw new InvalidDataException($"{source} names {area} load station {number}, which is no load station.");
 }

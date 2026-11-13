@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Boyon;
@@ -21,15 +22,12 @@ using SuperMetroid.Core.Enemies.YappingMaws;
 
 namespace SuperMetroid.Core.World.RoomStates;
 
-/// <summary>The placement lists of the Crateria room-header region, in authored order. It opens with the list Draygon and Mother Brain share.</summary>
+/// <summary>The enemy placement lists of the Crateria rooms.</summary>
 internal static class CrateriaRoomEnemyPopulationDefinitions
 {
-    /// <summary>The region's lists, in authored order.</summary>
+    /// <summary>The Crateria rooms' lists.</summary>
     internal static RoomEnemyPopulationDefinition[] Build() =>
     [
-        new(nameof(RoomEnemyPopulationDefinitions.DraygonWhenAreaBossDeadOrMotherBrainWhenMainAreaBossDead),
-        [
-        ], 191),
         new(nameof(RoomEnemyPopulationDefinitions.EastOcean),
         [
             new(EnemyDefinitionId.Choot, new(336, 1356), EnemyContact.None, EnemyProcessing.AnimationScript, EnemyPresence.None, false, new ChootSpawnSettings(FallingPath: ChootFallingPath.VeryWide, PatternLoops: 3, JumpDelay: 16)),
@@ -395,5 +393,15 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Sciser, new(408, 472), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: new SignedEightEight(128), SurfaceFamily: CrawlerAnimationFamily.Shared)),
             new(EnemyDefinitionId.Sciser, new(357, 538), EnemyContact.None, EnemyProcessing.AnimationScript, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: new SignedEightEight(128), SurfaceFamily: CrawlerAnimationFamily.Shared)),
         ], 4),
+        new(nameof(RoomEnemyPopulationDefinitions.Statues),
+        [
+            new(EnemyDefinitionId.Elevator, new(128, 432), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 576)),
+            new(EnemyDefinitionId.TourianStatue, new(120, 184), EnemyContact.None, EnemyProcessing.AnimationScript, EnemyPresence.None, false, new TourianEntranceStatueSpawnSettings(Statue: TourianEntranceStatueProgram.BaseDecoration)),
+            new(EnemyDefinitionId.TourianStatue, new(142, 85), EnemyContact.None, EnemyProcessing.AnimationScript, EnemyPresence.None, false, new TourianEntranceStatueSpawnSettings(Statue: TourianEntranceStatueProgram.Ridley)),
+            new(EnemyDefinitionId.TourianStatue, new(132, 136), EnemyContact.None, EnemyProcessing.AnimationScript, EnemyPresence.None, false, new TourianEntranceStatueSpawnSettings(Statue: TourianEntranceStatueProgram.Phantoon)),
+        ], 0),
+        new(nameof(RoomEnemyPopulationDefinitions.StatuesHallway),
+        [
+        ], 0),
     ];
 }

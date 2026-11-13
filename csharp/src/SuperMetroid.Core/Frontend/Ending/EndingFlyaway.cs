@@ -126,11 +126,11 @@ internal sealed class EndingFlyaway
     /// <summary>The steps left of the white wash over the planet escape (<see cref="WhiteWash"/>), from full white fading to none, where it stays.</summary>
     private int flyawayWhite;
 
-    /// <summary>Countdown between flyaway fixed-color decrements.</summary>
+    /// <summary>Countdown between the steps the flyaway's white wash fades by.</summary>
     private int flyawayFadeCountdown;
 
     /// <summary>The white wash, shown only during visible planet flyaway phases.</summary>
-    internal ScreenTintLayer? FlyawayFixedColor => flyawayWhite != 0
+    internal ScreenTintLayer? FlyawayWhiteWash => flyawayWhite != 0
         && EndingCreditsPhaseGroups.PlanetEscape.Contains(_stage.Phase)
         ? WhiteWash.Layer(flyawayWhite) : null;
 

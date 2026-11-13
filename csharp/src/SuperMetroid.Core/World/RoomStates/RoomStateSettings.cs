@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 public sealed record RoomStateSettings(
     string Name,
     RoomLevelId Level,
-    int GraphicsSet,
+    RoomGraphicsSet GraphicsSet,
     RoomMusic Music,
     SuperMetroid.Core.Fx.RoomFxHeader? Fx,
     Enemies.RoomEnemyPopulationDefinition EnemyPopulation,
@@ -28,8 +28,8 @@ public sealed record RoomStateSettings(
     /// <summary>The level the state loads: its initial blocks, block types and background blocks, shared with the room's other states that load the same one.</summary>
     public RoomLevelId Level { get; init; } = Level;
 
-    /// <summary>The room state's graphics theme, 0 through 255.</summary>
-    public int GraphicsSet { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, GraphicsSet);
+    /// <summary>The graphics set the state draws its rooms with.</summary>
+    public RoomGraphicsSet GraphicsSet { get; init; } = GraphicsSet;
 
     /// <summary>The music data set and track the room state selects.</summary>
     public RoomMusic Music { get; init; } = Music;

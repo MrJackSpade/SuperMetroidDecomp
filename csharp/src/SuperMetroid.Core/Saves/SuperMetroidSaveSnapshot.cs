@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Saves;
@@ -91,11 +92,8 @@ public sealed record SuperMetroidSaveSnapshot
     /// <summary>The startup route the save resumes by.</summary>
     public SaveLoadingGameState StartupRoute { get; init; } = SaveLoadingGameState.MainGame;
 
-    /// <summary>The zero-based load-station index within <see cref="Area"/>.</summary>
-    public int SaveStation { get; init; }
-
-    /// <summary>The retail area index that owns <see cref="SaveStation"/>.</summary>
-    public int Area { get; init; }
+    /// <summary>The load station the save resumes at.</summary>
+    public LoadStation Checkpoint { get; init; } = LoadStationDefinitions.Gunship;
 
     /// <summary>The persistent progress to save; the snapshot owns this copy.</summary>
     public PersistentProgress Progress { get; init; } = new();
@@ -140,8 +138,7 @@ public sealed record SuperMetroidSaveSnapshot
             GameTimeMinutes = context.GameTime?.Minutes ?? 0,
             GameTimeHours = context.GameTime?.Hours ?? 0,
             StartupRoute = system.SavedStartupRoute,
-            SaveStation = context.SaveStation,
-            Area = AreaIds.ToIndex(context.Area),
+            Checkpoint = Ensure.NotNull(context.Checkpoint),
             Progress = system.Progress.Copy(),
         };
     }

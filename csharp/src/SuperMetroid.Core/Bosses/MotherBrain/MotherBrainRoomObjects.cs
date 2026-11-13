@@ -13,17 +13,16 @@ internal sealed class MotherBrainRoomObjects(RoomObjectSlotTable slotTable)
     /// update and is gone on the next.
     /// </summary>
     /// <returns>
-    /// False when every room-object slot is occupied; nothing is spawned or changed then (<see cref="RoomObjectSlotTable"/>'s
-    /// full-room rule).
+    /// False when the room is full; nothing is spawned or changed then (<see cref="Compatibility.RoomObjectPlaces"/>).
     /// </returns>
     public bool TrySpawn(RoomLevelData level, RoomObjectSpawnRequest<MotherBrainRoomMutation> request)
     {
         Ensure.NotNull(level);
         TerrainChange change = Ensure.Listed(Changes, request.RoomObject);
 
-        // Spawning searches the room-object slots in processing order. Do not reserve a boss slot or coalesce adjacent row
+        // Each spawn takes the first free place in update order. Do not reserve a boss place or coalesce adjacent row
         // requests: the order of the places they take is their update order.
-        if (slotTable.SpawnHardcoded() is not { } slot)
+        if (slotTable.Spawn() is not { } slot)
             return false;
 
         slot.Block = level.GridBlock(request.Block);

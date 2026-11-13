@@ -112,18 +112,19 @@ public static class GameplayEffectCapture
     }
 
     /// <summary>
-    /// The rainbow beam's cone from Mother Brain's mouth, below the HUD, in the colour the beam adds. The beam's edge
-    /// angles are measured clockwise from straight down, so each is reflected into the screen's angles, which swaps
-    /// which edge the cone sweeps from.
+    /// The rainbow beam's cone from Mother Brain's mouth, placed against the frame's camera, below the HUD, in the colour
+    /// the beam adds. The beam's edge angles are measured from straight down turning toward its right, so each is
+    /// reflected into the screen's angles, which swaps which edge the cone sweeps from.
     /// </summary>
-    public static ColourAddWindowLayer? CaptureMotherBrainRainbowBeam(MotherBrainRainbowBeamRenderSnapshot beam)
+    /// <param name="beam">The shown beam.</param>
+    /// <param name="cameraPosition">The camera, which places the mouth on the screen.</param>
+    public static ColourAddWindowLayer CaptureMotherBrainRainbowBeam(MotherBrainRainbowBeamRenderSnapshot beam,
+        Position16<RoomPixels> cameraPosition)
     {
-        if (!beam.Active) return null;
-        if (beam.Geometry is not { } geometry) return new(ScreenWindow.Closed, beam.Color);
         int down = WindowCone.AngleUnitsPerTurn / 2;
-        var cone = new WindowCone(Offset16<ScreenPixels>.Of(geometry.MouthScreenX, geometry.MouthY),
-            down - geometry.EdgeB, down - geometry.EdgeA);
-        return new(ScreenWindow.Of(cone, MotherBrainBeamDefinitions.FirstLine), beam.Color);
+        var cone = new WindowCone(beam.Cone.Mouth.RelativeToCamera(cameraPosition),
+            down - beam.Cone.UpperEdge, down - beam.Cone.LowerEdge);
+        return new(ScreenWindow.Of(cone, HudHeight), beam.Color);
     }
 
     /// <summary>

@@ -17,6 +17,8 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidVictimVerif
 using static SuperMetroid.Verification.Bosses.MotherBrain.ZebetiteShotShareVerification;
 using static SuperMetroid.Verification.Enemies.EnemyOccupantStatesVerification;
 using static SuperMetroid.Verification.Enemies.KilledEnemyCompatibilityVerification;
+using static SuperMetroid.Verification.Bosses.BossRuleRangesVerification;
+using static SuperMetroid.Verification.Enemies.EnemyRuleRangesVerification;
 using static SuperMetroid.Verification.Enemies.Puyo.PuyoCeilingTurnVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFatalBlowShakeVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidHeadTargetVerification;
@@ -74,6 +76,7 @@ using static SuperMetroid.Verification.Samus.Movement.CompactWalkOffCollisionVer
 using static SuperMetroid.Verification.Hardware.CompressionVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.ContactCrumbleProgramsVerification;
 using static SuperMetroid.Verification.Audio.ContactDamageSoundVerification;
+using static SuperMetroid.Verification.Enemies.EnemySoundOrderVerification;
 using static SuperMetroid.Verification.Frontend.Recording.ControllerInputRecordingVerification;
 using static SuperMetroid.Verification.Hardware.WorkRamCellVerification;
 using static SuperMetroid.Verification.Samus.Movement.CrampedAerialLandingVerification;
@@ -906,6 +909,12 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyZebetiteShotShare), () => VerifyZebetiteShotShare()),
         new(nameof(VerifyEnemyOccupantStates), () => VerifyEnemyOccupantStates()),
         new(nameof(VerifyKilledEnemyCompatibility), () => VerifyKilledEnemyCompatibility()),
+        new(nameof(VerifyBossRandomRolls), () => VerifyBossRandomRolls()),
+        new(nameof(VerifyMetroidClosingDistance), () => VerifyMetroidClosingDistance()),
+        new(nameof(VerifyYappingMawLinkOffset), () => VerifyYappingMawLinkOffset()),
+        new(nameof(VerifyUnauthoredBeamVulnerability), () => VerifyUnauthoredBeamVulnerability()),
+        new(nameof(VerifyDeletedParentLeftovers), () => VerifyDeletedParentLeftovers()),
+        new(nameof(VerifyDeathExplosionRules), () => VerifyDeathExplosionRules()),
         new(nameof(VerifyPuyoCeilingTurn), () => VerifyPuyoCeilingTurn()),
         new(nameof(VerifyJumpNoXMovement), () => VerifyJumpNoXMovement()),
         new(nameof(VerifySaveConfirmationCadence), () => VerifySaveConfirmationCadence()),
@@ -968,6 +977,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyReleasedSamusFallsOffDraygon), () => VerifyReleasedSamusFallsOffDraygon()),
         new(nameof(VerifySuperMissileEnemyHitQuake), () => VerifySuperMissileEnemyHitQuake()),
         new(nameof(VerifyContactDamageSound), () => VerifyContactDamageSound()),
+        new(nameof(VerifyEnemySoundsQueueInRunOrder), () => VerifyEnemySoundsQueueInRunOrder()),
+        new(nameof(VerifyProjectileDudSoundsQueueWhenRejected), () => VerifyProjectileDudSoundsQueueWhenRejected()),
         new(nameof(VerifyBombJumpRunMomentum), () => VerifyBombJumpRunMomentum()),
         new(nameof(VerifyBabyMetroidWallClearTiming), () => VerifyBabyMetroidWallClearTiming()),
         new(nameof(VerifyDrainedSparkCrash), () => VerifyDrainedSparkCrash()),

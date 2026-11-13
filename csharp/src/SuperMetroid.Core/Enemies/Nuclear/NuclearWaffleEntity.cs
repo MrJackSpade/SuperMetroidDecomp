@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
-/// <summary>One NuclearWaffle occupant: its own AI handlers, with the shared reactions.</summary>
-/// <param name="species">The NuclearWaffle species owner.</param>
+/// <summary>One Nuclear Waffle occupant: its own AI handlers, with the shared reactions.</summary>
+/// <param name="species">The Nuclear Waffle species owner.</param>
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class NuclearWaffleEntity(NuclearWaffleBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)

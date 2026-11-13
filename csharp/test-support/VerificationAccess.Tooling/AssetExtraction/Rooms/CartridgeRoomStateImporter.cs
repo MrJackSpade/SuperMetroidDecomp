@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>Reads one native 26-byte bank-$8F room-state payload during import.</summary>
 public static class CartridgeRoomStateImporter
 {
-    /// <summary>Decodes one 26-byte bank-$8F room-state payload, including its level (named by extraction's map from its compressed source) and native graphics, music (decoded by <see cref="RoomMusicCodec"/>), population, and setup fields.</summary>
+    /// <summary>Decodes one 26-byte bank-$8F room-state payload, including its level (named by extraction's map from its compressed source) and graphics set (decoded by <see cref="RoomGraphicsSetCodec"/>), music (decoded by <see cref="RoomMusicCodec"/>), population, and setup fields.</summary>
     /// <param name="bus">Address space implementing the import-only cartridge-source capability.</param>
     /// <param name="statePointer">Sixteen-bit payload address within bank $8F, not the room header or state-selection list.</param>
     /// <returns>The decoded definition, named by the import map; no room selection or runtime setup is performed.</returns>
@@ -27,7 +27,7 @@ public static class CartridgeRoomStateImporter
         int Long(int offset) => RomDataReader.ReadLongFixedBank(cartridge, address + offset);
         int levelSource = Long(0);
         RoomLevelId level = RoomLevelSourceDefinitions.Addresses.Single(pair => pair.Value == levelSource).Key;
-        return new RoomStateSettings(RoomStateSourcesConstants.State(statePointer).Name, level, Byte(3), RoomMusicCodec.Decode(Byte(4), Byte(5)),
+        return new RoomStateSettings(RoomStateSourcesConstants.State(statePointer).Name, level, RoomGraphicsSetCodec.Decode(Byte(3)), RoomMusicCodec.Decode(Byte(4), Byte(5)),
             Word(6) == 0 ? null : SuperMetroid.Core.Fx.RoomFxDefinitions.Get(Word(6)), SuperMetroid.Core.World.RoomStates.RoomEnemyPopulationDefinitions.Get(Word(8)),
             SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(Byte(12), Byte(13)),
             SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Get(Word(14)), Word(16) == 0 ? null : XrayRoomOverlaySources.Overlay(Word(16)),

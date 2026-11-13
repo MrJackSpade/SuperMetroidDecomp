@@ -49,7 +49,7 @@ internal static class PowampBurstExplosionVerification
 
     /// <summary>The explosion a Powamp dies with after a burst whose last spike took <paramref name="place"/>.</summary>
     private static EnemyDeathExplosion ExplosionAfter(int? place) =>
-        EnemyDeathExplosions.ForLeftoverNumber(PowampBurstExplosion.AuthoredExplosionAfter(place));
+        PowampBurstExplosion.AfterBurst(place, EnemyDeathExplosionDefinitions.AuthoredOrder);
 
     /// <summary>Runs the Powamp burst explosion rule check.</summary>
     [VerificationCommand("--powamp-burst-explosion")]

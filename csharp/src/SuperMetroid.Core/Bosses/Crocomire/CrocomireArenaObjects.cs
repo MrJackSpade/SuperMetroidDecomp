@@ -13,8 +13,7 @@ internal sealed class CrocomireArenaObjects(RoomObjectSlotTable slotTable)
     /// draws once and is gone on the next update.
     /// </summary>
     /// <returns>
-    /// False when every room-object slot is occupied; the request is then lost, as the game loses it
-    /// (<see cref="RoomObjectSlotTable"/>'s full-room rule).
+    /// False when the room is full; the request is then lost, as the game loses it (<see cref="Compatibility.RoomObjectPlaces"/>).
     /// </returns>
     public bool TrySpawn(RoomLevelData level, RoomObjectSpawnRequest<CrocomireArenaMutation> request)
     {
@@ -22,7 +21,7 @@ internal sealed class CrocomireArenaObjects(RoomObjectSlotTable slotTable)
         TerrainChange change = Ensure.Listed(Changes, request.RoomObject);
 
         Position16<RoomBlocks> block = level.GridBlock(request.Block);
-        if (slotTable.SpawnHardcoded() is not { } slot)
+        if (slotTable.Spawn() is not { } slot)
             return false;
 
         slot.Block = block;

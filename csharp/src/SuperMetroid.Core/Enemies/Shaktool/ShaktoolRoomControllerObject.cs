@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// <summary>
 /// Shaktool's room controller (#1554). From its second update on, every update it opens all of the room's scroll cells
 /// while a power bomb explodes, and once Samus is past the cleared path's boundary it marks the path cleared and
-/// leaves the room, taking its identity with it.
+/// leaves the room.
 /// </summary>
 /// <param name="samus">Samus as the room reads her.</param>
 /// <param name="events">The game's event flags.</param>
@@ -41,8 +41,6 @@ internal sealed class ShaktoolRoomControllerObject(IRoomSamusAccess? samus, IGlo
         if (current.Position.X.Whole <= ShaktoolRoomDefinitions.ClearedPathXBoundary)
             return;
         _events.Set(StoryEvent.ShaktoolClearedPath);
-        // The controller leaves with its identity, so a search for it by identity no longer finds it.
-        place.Header = 0;
         context.RoomObjects.DeleteObject(place);
     }
 }

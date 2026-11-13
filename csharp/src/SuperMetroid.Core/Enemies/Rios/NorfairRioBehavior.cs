@@ -25,8 +25,10 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemySlotTable _slotTable;
     /// <summary>The parent each flame follower found when it was placed, which its room lists right before it.</summary>
     private readonly EnemyPartLinks<RoomEnemySlot> _parents = new();
+    /// <summary>The state of the parent each flame follower found when it was placed, which a deleted parent leaves (<see cref="DeletedParentLeftovers"/>).</summary>
+    private readonly EnemyPartLinks<NorfairRioEnemyState> _parentStates = new();
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Captures the room RNG, terrain, and slot table needed by Rio AI.</summary>
@@ -58,6 +60,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             _parents.Place(slot, _slotTable.ListedBefore(slot, 1));
             ValidateNorfairRioParent(slot);
+            _parentStates.Place(slot, GetPrecedingNorfairRioSlot(slot).RequireSpeciesState<NorfairRioEnemyState>());
             state.InstalledProgram = NorfairRioProgram.FlamesAscending;
             state.Playback = new(NorfairRioAnimations.StartingWith(NorfairRioProgram.FlamesAscending), AnimationPlace.StartOfAnimation);
             state.Function = NorfairRioEnemyFunction.FollowParent;
@@ -131,7 +134,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     state,
                     NorfairRioProgram.Descending);
                 state.Function = NorfairRioEnemyFunction.Dive;
-                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.NorfairRio, EnemySoundEffectDefinitions.NorfairRioDiveSound, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(EnemySoundEffectDefinitions.NorfairRioDiveSound, priority: SoundRequestPriority.Normal);
                 return;
 
             case NorfairRioEnemyFunction.Dive:
@@ -232,9 +235,10 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             follower.Presence = follower.Presence.With(EnemyPresence.Deleted);
             return;
         }
-        ValidateNorfairRioParent(follower);
-
-        NorfairRioEnemyState parentState = parent.RequireSpeciesState<NorfairRioEnemyState>();
+        // The pair is checked when the follower is placed; a parent deleted without a kill is read as it left its place and
+        // its animation (DeletedParentLeftovers).
+        NorfairRioEnemyState parentState = DeletedParentLeftovers.Parent(
+            parent.SpeciesState<NorfairRioEnemyState>(), _parentStates.Of(follower));
         follower.FrozenTimer = parent.FrozenTimer;
         if (parent.FrozenTimer != 0 ||
             parentState.InstalledProgram == NorfairRioProgram.Idle)
@@ -317,7 +321,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Norfair Rio movement requires room level data.");
     }
 
-    /// <summary>Ports NorfairRio's main AI.</summary>
+    /// <summary>Runs the Norfair Rio's main AI.</summary>
     internal void RunNorfairRioMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunNorfairRioMain(
@@ -327,7 +331,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             frame.Level);
     }
 
-    /// <summary>Advances NorfairRio's typed animation.</summary>
+    /// <summary>Advances the Norfair Rio's typed animation.</summary>
     internal static void AdvanceNorfairRioTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, NorfairRioAnimations.Segments, NorfairRioFrameDefinitions.ShownFrames.Of,
             static (NorfairRioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,

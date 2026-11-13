@@ -2,7 +2,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>The room objects that clear or crumble the Tourian access floor, and the changes they make.</summary>
+/// <summary>The changes the room objects that clear or crumble the Tourian access floor make.</summary>
 internal static class TourianAccessObjectDefinitions
 {
     /// <summary>The rows the crumble walks down.</summary>
@@ -24,18 +24,17 @@ internal static class TourianAccessObjectDefinitions
     ];
 
     /// <summary>
-    /// Each floor state's room object and change: the crumble walks down six rows, crumbling each through four images;
-    /// the clear erases the access at once.
+    /// Each floor state's change, which its room object makes: the crumble walks down six rows, crumbling each through
+    /// four images; the clear erases the access at once.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<TourianAccessFloor, TourianAccessObjectDefinition> Floors =
-        new Dictionary<TourianAccessFloor, TourianAccessObjectDefinition>
+    internal static readonly IReadOnlyDictionary<TourianAccessFloor, TerrainChange> Floors =
+        new Dictionary<TourianAccessFloor, TerrainChange>
         {
-            [TourianAccessFloor.Clear] = new(RoomObjectHeaderId.ClearAccessToTourianElevator,
-                TerrainChange.DrawnOnce(RoomObjectDraw.Of(TourianAccessDraw.Clear))),
-            [TourianAccessFloor.Crumble] = new(RoomObjectHeaderId.CrumbleAccessToTourianElevator, new TerrainChange(1,
+            [TourianAccessFloor.Clear] = TerrainChange.DrawnOnce(RoomObjectDraw.Of(TourianAccessDraw.Clear)),
+            [TourianAccessFloor.Crumble] = new TerrainChange(1,
             [
                 .. CrumbleRow(Offset16<RoomBlocks>.Zero),
                 .. Enumerable.Repeat(NextRow, CrumbleRows - 1).SelectMany(CrumbleRow),
-            ])),
+            ]),
         };
 }

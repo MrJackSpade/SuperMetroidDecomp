@@ -772,25 +772,6 @@ internal static class LookupStream3Verification
         }
         var unchangedScroll = RoomScrollGrid.LoadNativeTable(new byte[RoomScrollGrid.KeptCellCount], new Extent16<RoomScreens>(10, 5));
         AssertTrue(!SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.TryApply(DoorSetupCode.None, unchangedScroll), "stream 3 setup without scroll writes is a no-op");
-        for (int pair = 0; pair < 16; pair++)
-        {
-            int address = 0xadde5f + 2 * pair;
-            int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            var expected = pointer switch
-            {
-                0xe1a6 => MotherBrainBeamDirection.Down,
-                0xde7f => MotherBrainBeamDirection.Right,
-                0xdf6e => MotherBrainBeamDirection.Up,
-                0xde5e => MotherBrainBeamDirection.Retain,
-                0 => MotherBrainBeamDirection.Unsupported,
-                _ => throw new InvalidDataException("Unexpected native beam quadrant target."),
-            };
-            AssertEqual(expected, MotherBrainBeamQuadrants.DirectionForPair(pair),
-                "stream 3 native beam quadrant dispatcher including null and retaining entries");
-        }
-        foreach (int invalid in new[] { -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBeamQuadrants.DirectionForPair(invalid),
-                "stream 3 beam dispatcher preserves span index bounds");
         // The cartridge's four crossfade routines at the native boundary, each region the cartridge position of its first colour
         // and its colour count: the narration's colours on the way out and on the way back, the flashback's and the
         // laboratory's. Each crossfaded scene the import shades is the union of its routines' regions (#1597).

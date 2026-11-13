@@ -34,7 +34,7 @@ internal static class CinematicScreenPublicationVerification
 
         // The ending's stars are written straight to OAM. Each is published where it is placed, those below the screen
         // included, for the display to clip (#1587); the stars on the screen stand for the records their stores write.
-        SpriteSheetFrame star = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.EndingShootingSprites)
+        SpriteSheetFrame star = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.EndingSuitedRewardSprites)
             .Frame(EndingShootingStarFrames.SheetFrameName(EndingShootingStarDefinitions.FullStarFrame));
         var raw = ScreenSpritesFixtures.Blank();
         var oam = new OamBuffer();

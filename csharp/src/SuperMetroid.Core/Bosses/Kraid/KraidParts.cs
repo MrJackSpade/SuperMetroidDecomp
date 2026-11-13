@@ -4,10 +4,12 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Kraid's eight parts in his room. His room lists them in one order, which is the order the enemy pass runs them in:
-/// his body, his arm, his top, middle and bottom lint, his foot, then his two fingernails. Every reference reads the
-/// room's enemy in that part's place, whatever it currently holds, so a part that has died or been deleted is still
-/// the one reached, as the fight expects.
+/// Kraid's eight parts in his room, which he holds by reference: his body, his arm, his top, middle and bottom lint, his
+/// foot and his two fingernails. His room lists them in that order, the order the enemy pass runs them in, and he takes
+/// each one once from its place in that listing, the first time the fight reaches his parts, once the room's enemies are
+/// in place. A part's reference is its place in the room, which outlives the part's occupant: a deleted part leaves its
+/// last values there and a killed part is emptied, so a read of a part that has been killed goes through the rule that
+/// states what the fight reads of it (<see cref="KilledFingernailStops"/>).
 /// </summary>
 [RoomLifetime]
 internal sealed class KraidParts
@@ -32,35 +34,57 @@ internal sealed class KraidParts
     /// <summary>The room's enemies, whose first eight are Kraid's parts.</summary>
     private readonly EnemySlotTable _enemies;
 
+    /// <summary>His parts, taken once the room's enemies are in place; null until the fight first reaches them.</summary>
+    private Held? _held;
+
     /// <summary>Reaches Kraid's parts among <paramref name="enemies"/>.</summary>
     internal KraidParts(EnemySlotTable enemies)
     {
-        _enemies = enemies;
+        _enemies = Ensure.NotNull(enemies);
     }
 
+    /// <summary>His eight parts, each the place his room lists it in.</summary>
+    /// <param name="Body">His body.</param>
+    /// <param name="Arm">His arm.</param>
+    /// <param name="TopLint">His top lint.</param>
+    /// <param name="MiddleLint">His middle lint.</param>
+    /// <param name="BottomLint">His bottom lint.</param>
+    /// <param name="Foot">His foot.</param>
+    /// <param name="FirstNail">His first fingernail.</param>
+    /// <param name="SecondNail">His second fingernail.</param>
+    [ArchitectureReview("context-bag", "Kraid's eight parts, each the enemy place his room lists it in; the members are his body's parts, not services.")]
+    private sealed record Held(
+        RoomEnemySlot Body, RoomEnemySlot Arm, RoomEnemySlot TopLint, RoomEnemySlot MiddleLint, RoomEnemySlot BottomLint,
+        RoomEnemySlot Foot, RoomEnemySlot FirstNail, RoomEnemySlot SecondNail);
+
+    /// <summary>His parts, taken from the room's listing the first time they are reached.</summary>
+    private Held Parts => _held ??= new(
+        _enemies.Slots[BodyPlace], _enemies.Slots[ArmPlace], _enemies.Slots[TopLintPlace], _enemies.Slots[MiddleLintPlace],
+        _enemies.Slots[BottomLintPlace], _enemies.Slots[FootPlace], _enemies.Slots[FirstNailPlace], _enemies.Slots[SecondNailPlace]);
+
     /// <summary>His body, which runs first.</summary>
-    internal RoomEnemySlot Body => _enemies.Slots[BodyPlace];
+    internal RoomEnemySlot Body => Parts.Body;
 
     /// <summary>His arm.</summary>
-    internal RoomEnemySlot Arm => _enemies.Slots[ArmPlace];
+    internal RoomEnemySlot Arm => Parts.Arm;
 
     /// <summary>His top lint.</summary>
-    internal RoomEnemySlot TopLint => _enemies.Slots[TopLintPlace];
+    internal RoomEnemySlot TopLint => Parts.TopLint;
 
     /// <summary>His middle lint.</summary>
-    internal RoomEnemySlot MiddleLint => _enemies.Slots[MiddleLintPlace];
+    internal RoomEnemySlot MiddleLint => Parts.MiddleLint;
 
     /// <summary>His bottom lint.</summary>
-    internal RoomEnemySlot BottomLint => _enemies.Slots[BottomLintPlace];
+    internal RoomEnemySlot BottomLint => Parts.BottomLint;
 
     /// <summary>His foot.</summary>
-    internal RoomEnemySlot Foot => _enemies.Slots[FootPlace];
+    internal RoomEnemySlot Foot => Parts.Foot;
 
     /// <summary>His first fingernail.</summary>
-    internal RoomEnemySlot FirstNail => _enemies.Slots[FirstNailPlace];
+    internal RoomEnemySlot FirstNail => Parts.FirstNail;
 
     /// <summary>His second fingernail, which runs last.</summary>
-    internal RoomEnemySlot SecondNail => _enemies.Slots[SecondNailPlace];
+    internal RoomEnemySlot SecondNail => Parts.SecondNail;
 
     /// <summary>Which of Kraid's parts <paramref name="slot"/> is.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="slot"/> is not one of his parts' places.</exception>

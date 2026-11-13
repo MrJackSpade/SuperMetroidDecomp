@@ -40,8 +40,7 @@ internal static class CeresSaveStartupVerification
         departureProgress.SetDefeatedBosses(AreaId.Ceres, BossBits.AreaBoss);
         var departure = new SuperMetroidSaveSnapshot
         {
-            Area = (ushort)AreaId.Ceres,
-            SaveStation = 0,
+            Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.CeresElevator,
             StartupRoute = SaveLoadingGameState.CeresDestruction,
             Progress = departureProgress,
             Health = 77,
@@ -205,8 +204,8 @@ internal static class CeresSaveStartupVerification
         var landingSlot = reloadSaves.ReadSlot(0);
         AssertEqual(SaveLoadingGameState.MainGame, (landingSlot ?? throw new InvalidOperationException("Verification requires landingSlot.")).StartupRoute,
             "#1153 Zebes landing saver records native mode $05");
-        AssertEqual((ushort)AreaId.Crateria, landingSlot.Area,
-            "#1153 Zebes checkpoint does not retain Ceres as its area");
+        AssertTrue(ReferenceEquals(SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.Gunship, landingSlot.Checkpoint),
+            "#1153 Zebes checkpoint is the gunship, not the Ceres start");
 
         // Do not infer a cinematic mode from area/boss flags in malformed old saves.
         // Preserve the persisted word and follow its dispatcher branch literally.

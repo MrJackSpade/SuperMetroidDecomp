@@ -177,7 +177,7 @@ internal static class EnemyDropsVerification
             $"{kind} starts with native 400-frame lifetime");
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
 
-        AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, expectedSound), fixture.System.Audio.PublishedSoundFrom(EnemySoundSource.EnemyPickup),
+        AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, expectedSound), fixture.System.Audio.LatestSound,
             $"{kind} library-two sound");
         AssertEqual(EnemyProjectileFrameBehavior.Stationary, pickup.FrameBehavior,
             $"{kind} enters shared blank/no-collision tail after collection");
@@ -345,8 +345,9 @@ internal static class EnemyDropsVerification
         enemy.Processing = EnemyProcessing.None;
         enemy.Presence = EnemyPresence.RespawnsIfKilled;
 
-        // A Fireflea with health nine proves health above four selects the small explosion.
-        fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosions.ForLeftoverNumber(9));
+        // A Fireflea touched with health nine left dies in the small explosion.
+        fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy,
+            deathAnimation: FirefleaTouchDeathExplosion.AfterSurvivedTouch(9, EnemyDeathExplosionDefinitions.AuthoredOrder));
         AssertEqual(EnemyDefinitionId.Respawn, enemy.DefinitionId,
             "respawning death leaves native DAFF placeholder in physical enemy slot");
         AssertEqual((byte)0xa3, enemy.NativeHeader.Bank,

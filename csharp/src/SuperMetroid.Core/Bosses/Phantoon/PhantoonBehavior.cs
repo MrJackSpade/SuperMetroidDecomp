@@ -150,7 +150,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera)
     {
         PhantoonEnemyState state = RequireCompletePhantoonState(body);
-        _audio.CancelPhantoonMaterializationSound();
         PhantoonAiFunction dispatched = state.BodyState.Function;
 
         switch (dispatched)

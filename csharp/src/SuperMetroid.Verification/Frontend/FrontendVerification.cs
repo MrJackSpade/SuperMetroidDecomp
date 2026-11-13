@@ -176,15 +176,13 @@ internal static void VerifyFileSelectFreshSaveTilemap()
         GameTimeMinutes = 34,
         GameTimeHours = 12,
         Progress = progress,
-        Area = 6,
-        SaveStation = 0,
+        Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.CeresElevator,
     });
     SuperMetroidSaveSlot saved = saveRam.ReadSlot(0)
         ?? throw new InvalidOperationException("Fresh Ceres SRAM slot failed its own checksums.");
     AssertEqual(99, saved.Health, "Ceres checkpoint saved health");
     AssertEqual(99, saved.MaxHealth, "Ceres checkpoint saved maximum health");
-    AssertEqual(6, saved.Area, "Ceres checkpoint saved area");
-    AssertEqual(0, saved.SaveStation, "Ceres checkpoint saved load station");
+    AssertTrue(ReferenceEquals(SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.CeresElevator, saved.Checkpoint), "Ceres checkpoint saved load station");
     AssertTrue(saved.Progression.UsedStations(AreaId.Crateria).Members.SequenceEqual([0]), "used Crateria save station");
     AssertTrue(saved.Progression.HasAreaMap(AreaId.Crateria), "Crateria map acquired");
     AssertTrue(saved.Progression.ExploredCells(AreaId.Crateria).SequenceEqual([new Position16<MapTiles>(24, 1), new Position16<MapTiles>(37, 1)]),
@@ -321,8 +319,7 @@ internal static void VerifySavedGameLoadAppearance()
     {
         Health = 99,
         MaxHealth = 99,
-        Area = 0,
-        SaveStation = 1,
+        Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.CrateriaSave,
     });
     SuperMetroidSaveSlot slot = saveRam.ReadSlot(0)
         ?? throw new InvalidOperationException("Synthetic Crateria save did not validate.");

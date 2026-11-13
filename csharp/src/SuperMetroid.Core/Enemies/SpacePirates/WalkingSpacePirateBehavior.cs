@@ -23,7 +23,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Allocates the shared Pirate/Mother Brain laser projectile.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds the patrol collision owner and laser pool.</summary>
@@ -82,11 +82,11 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     private const int WalkingPirateFastLaserPixelsPerFrame = 4;
 
     /// <summary>
-    /// Requests <paramref name="sound"/> at the end of the update from the space pirates' shared source: walking, wall
-    /// and ninja pirates and Mother Brain's pirate laser all speak through it, so the latest of them this update is heard.
+    /// Queues <paramref name="sound"/> as a space pirate makes it, after the update's earlier requests: walking, wall and
+    /// ninja pirates and Mother Brain's pirate laser all request their sounds through this.
     /// </summary>
     internal void RequestSpacePirateSound(SoundEffectId sound) =>
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.SpacePirate, sound, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Recognizes the six walking variants that share patrol AI and laser behavior.</summary>
     internal static bool IsWalkingSpacePirateDefinition(EnemyDefinitionId definition) => definition is

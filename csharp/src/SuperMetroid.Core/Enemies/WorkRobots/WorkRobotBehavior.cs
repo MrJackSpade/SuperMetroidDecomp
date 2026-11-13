@@ -31,7 +31,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Whether Phantoon's area-boss bit is set, which powers the work robots.</summary>
     internal bool IsAreaBossDefeated => _room.Services.Bosses.IsDefeated(BossBits.AreaBoss);
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds robot locomotion, power state, lasers, and the glow to room services.</summary>
@@ -184,7 +184,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
                 return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingRightVelocity, WallProgram = WorkRobotProgram.FacingLeftWalkingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallProgram = null, FallLaserVelocity = default });
             case WorkRobotCueKind.Footstep:
                 if (IsWorkRobotOriginStrictlyOnScreen(slot, camera))
-                    _audio.RequestSoundAtUpdateEnd(EnemySoundSource.WorkRobot, WorkRobotFootstepSound, priority: SoundRequestPriority.Normal);
+                    _audio.QueueEnemySound(WorkRobotFootstepSound, priority: SoundRequestPriority.Normal);
                 return null;
             case WorkRobotCueKind.WalkLeft:
                 return WorkRobotProgram.FacingLeftWalkingForwards;
@@ -468,7 +468,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             CoordinateAxis.AsSigned(robot.Position.Y.Whole + robot.Radius.Y - camera.Y) >= 0 &&
             CoordinateAxis.Difference(robot.Position.Y.Whole - robot.Radius.Y, 224) < 0;
         if (horizontallyVisible && verticallyVisible)
-            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.WorkRobot, WorkRobotLaserSound, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(WorkRobotLaserSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Runs the laser's per-frame behaviour: X collision, then Y collision, else move.</summary>

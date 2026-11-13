@@ -24,7 +24,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spawns the three directed fireball variants.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects Alcoon's per-room AI to collision, RNG, and projectile services.</summary>
@@ -46,15 +46,15 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case AlcoonCueKind.FireUpward:
                 SpawnAlcoonFireball(slot, AlcoonFireballLaunchDefinitions.Upward);
-                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Alcoon, EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
                 return null;
             case AlcoonCueKind.FireHorizontally:
                 SpawnAlcoonFireball(slot, AlcoonFireballLaunchDefinitions.Level);
-                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Alcoon, EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
                 return null;
             case AlcoonCueKind.FireDownward:
                 SpawnAlcoonFireball(slot, AlcoonFireballLaunchDefinitions.Downward);
-                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Alcoon, EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
                 return null;
             case AlcoonCueKind.StartWalking:
                 return StartAlcoonWalking(state);
@@ -183,7 +183,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             InstallAlcoonInstruction(slot, state, AlcoonProgram.AirborneRightLookingUp);
         }
         state.Function = AlcoonEnemyFunction.EmergingRising;
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Alcoon, EnemySoundEffectDefinitions.AlcoonEmergeSound, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonEmergeSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Integrates the emerging ascent until vertical velocity ceases to be negative.</summary>

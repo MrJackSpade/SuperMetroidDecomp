@@ -38,7 +38,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies touch damage for Mama's expanded body or exposed shell.</summary>
     private readonly EnemyCollision _collision;
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects the tatori family to room terrain, collision, slots, and earthquake output.</summary>
@@ -66,7 +66,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 StartMamaTurtleRisingToHover(slot.RequireSpeciesState<MamaTurtleEnemyState>(), direction: HorizontalDirection.Left);
                 return MamaTurtleProgram.MamaSpinning;
             case MamaTurtleCueKind.PlaySpinningSound:
-                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.MamaTurtle, EnemySoundEffectDefinitions.MamaTurtleSpinSound, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(EnemySoundEffectDefinitions.MamaTurtleSpinSound, priority: SoundRequestPriority.Normal);
                 return null;
             case MamaTurtleCueKind.Crawl:
             case MamaTurtleCueKind.LeaveShell:
@@ -99,7 +99,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.RequireSpeciesState<BabyTurtleEnemyState>().Function = BabyTurtleAiFunction.SpinningStoppable;
                 return null;
             case MamaTurtleCueKind.PlaySpinningSound:
-                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.MamaTurtle, EnemySoundEffectDefinitions.MamaTurtleSpinSound, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(EnemySoundEffectDefinitions.MamaTurtleSpinSound, priority: SoundRequestPriority.Normal);
                 return null;
             case MamaTurtleCueKind.EnterShell:
             case MamaTurtleCueKind.RiseToHoverLeftwards:
@@ -376,7 +376,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             ReverseMamaTurtleAtWall(state);
             _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Horizontal, EarthquakeReach.Foreground), 16);
-            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.MamaTurtle, EnemySoundEffectDefinitions.MamaTurtleWallSound, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(EnemySoundEffectDefinitions.MamaTurtleWallSound, priority: SoundRequestPriority.Normal);
             return;
         }
 

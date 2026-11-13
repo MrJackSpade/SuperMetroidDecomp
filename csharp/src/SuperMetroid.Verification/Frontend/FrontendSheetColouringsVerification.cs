@@ -251,7 +251,7 @@ internal static class FrontendSheetColouringsVerification
         AddStars(sets);
     }
 
-    /// <summary>The falling and shooting Samus, the logo and the stars.</summary>
+    /// <summary>The falling and shooting Samus and the logo; the stars draw from the reward sheets (#1626).</summary>
     private static void ShootingActors(Dictionary<string, HashSet<int>> sets)
     {
         // The falling body falls and lands as falling Samus, and the shoot cue turns it to shooting Samus
@@ -269,7 +269,6 @@ internal static class FrontendSheetColouringsVerification
         }
         for (int actor = 0; actor < EndingLogoDefinitions.ActorKinds.Length; actor++)
             AddProgram(sets, CinematicSpriteFamily.EndingLogo, EndingLogoActors.Actor(actor).Program, EndingSpriteColouring.Logo);
-        AddStars(sets);
     }
 
     /// <summary>Records each reward actor's poses in the colouring its initialization gives it.</summary>

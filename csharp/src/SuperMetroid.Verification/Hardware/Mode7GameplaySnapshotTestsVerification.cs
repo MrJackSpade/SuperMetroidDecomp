@@ -27,13 +27,15 @@ internal static class Mode7GameplaySnapshotTestsVerification
         // The layer's pictures are drawn from the fixture's own VRAM, which the frame no longer carries (#1403).
         var fixtureVram = new SnesVram();
         fixtureVram.LoadBytes(0, bytes);
+        // The fixture's floor is composed once; each variant turns, scales and scrolls the same picture (#1677).
+        var floor = AffineFloorFixtures.Floor(fixtureVram.Bytes, ToColors(palette));
         int samples = 0;
         foreach (double scale in new[] { 0, 0.5, 1, 2 })
         foreach (ushort scroll in new ushort[] { 0, 255, 511, ushort.MaxValue })
         {
             // The floor band below shows the room's layer-2 plane (#1403); the retail Ridley capture below draws it.
             var m = new FloorView(0.13, scale, new Offset16<FloorPixels>(128, 96), new Offset16<FloorPixels>(-13, unchecked((short)scroll)));
-            var layer = new TurningRoomLayer(m, AffineFloorFixtures.Floor(fixtureVram.Bytes, ToColors(palette)), ScreenGeometry.GameplayHudHeightPixels);
+            var layer = new TurningRoomLayer(m, floor, ScreenGeometry.GameplayHudHeightPixels);
             samples++;
             var packet = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
             AssertEqual(layer, (TurningRoomLayer)(packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0], "the turning-floor band layer keeps its floor view");

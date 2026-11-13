@@ -1072,7 +1072,6 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         BlueBrinstarFaceBlockBehavior.StepGlow();
         if (!frame.TimeIsFrozen)
             SpriteObjects.StepRoomSpriteObjects();
-        PublishEnemyAudioRequests();
         return BuildFrameResult();
     }
 
@@ -1090,76 +1089,10 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         return Earthquake.LastRoomShake;
     }
 
-    /// <summary>Begins the enemy pass's audio: the previous pass's requests and the pass-scoped pending requests are dropped.</summary>
+    /// <summary>Begins the update's enemy audio: the previous update's requests, already received by the audio queues, are dropped.</summary>
     internal void BeginEnemySoundRequestFrame()
     {
         Audio.BeginFrame();
-    }
-
-    /// <summary>
-    /// Publishes the end-of-update sound and music requests after every enemy has run, in the fixed source order below
-    /// (<see cref="EnemyAudioQueue"/> documents the rule). The order interleaves species and encounters exactly as the
-    /// port has always published them; changing it changes which requests a full sound queue drops.
-    /// </summary>
-    internal void PublishEnemyAudioRequests()
-    {
-        Audio.PublishSoundsFrom(EnemySoundSource.Boyon);
-        Audio.PublishSoundsFrom(EnemySoundSource.MamaTurtle);
-        Audio.PublishSoundsFrom(EnemySoundSource.Cacatac);
-        Audio.PublishSoundsFrom(EnemySoundSource.Boulder);
-        Audio.PublishSoundsFrom(EnemySoundSource.Etecoon);
-        Audio.PublishSoundsFrom(EnemySoundSource.Dachora);
-        Audio.PublishSoundsFrom(EnemySoundSource.Evir);
-        Audio.PublishSoundsFrom(EnemySoundSource.MorphBallEye);
-        Audio.PublishSoundsFrom(EnemySoundSource.YappingMaw);
-        Audio.PublishSoundsFrom(EnemySoundSource.Hoppers);
-        Audio.PublishSoundsFrom(EnemySoundSource.Metaree);
-        Audio.PublishSoundsFrom(EnemySoundSource.Alcoon);
-        Audio.PublishSoundsFrom(EnemySoundSource.FuneNamihe);
-        Audio.PublishSoundsFrom(EnemySoundSource.Kago);
-        Audio.PublishSoundsFrom(EnemySoundSource.Kzan);
-        Audio.PublishSoundsFrom(EnemySoundSource.NuclearWaffle);
-        Audio.PublishSoundsFrom(EnemySoundSource.FakeKraid);
-        Audio.PublishSoundsFrom(EnemySoundSource.WorkRobot);
-        Audio.PublishSoundsFrom(EnemySoundSource.SpacePirate);
-        Audio.PublishSoundsFrom(EnemySoundSource.Rio);
-        Audio.PublishSoundsFrom(EnemySoundSource.NorfairLavaJumpingEnemy);
-        Audio.PublishSoundsFrom(EnemySoundSource.NorfairRio);
-        Audio.PublishSoundsFrom(EnemySoundSource.LowerNorfairRio);
-        Audio.PublishSoundsFrom(EnemySoundSource.MaridiaLargeSnail);
-        Audio.PublishSoundsFrom(EnemySoundSource.Magdollite);
-        Audio.PublishSoundsFrom(EnemySoundSource.Shutters);
-        Audio.PublishSoundsFrom(EnemySoundSource.Yard);
-        Audio.PublishSoundsFrom(EnemySoundSource.Zebetite);
-        Audio.PublishSoundsFrom(EnemySoundSource.Metroid);
-        Audio.PublishSoundsFrom(EnemySoundSource.EnemyPickup);
-        Audio.PublishSoundsFrom(EnemySoundSource.EnemyDeath);
-        Audio.PublishSoundsFrom(EnemySoundSource.EnemyProjectileDud);
-        Audio.PublishSoundsFrom(EnemySoundSource.Botwoon);
-        Audio.PublishSoundsFrom(EnemySoundSource.Crocomire);
-        Audio.PublishSoundsFrom(EnemySoundSource.DeadTorizo);
-        Audio.PublishSoundsFrom(EnemySoundSource.DeadMonsters);
-        Audio.PublishSoundsFrom(EnemySoundSource.Shitroid);
-        Audio.PublishSoundsFrom(EnemySoundSource.SporeSpawn);
-        Audio.PublishSoundsFrom(EnemySoundSource.Kraid);
-        Audio.PublishSoundsFrom(EnemySoundSource.Ridley);
-        Audio.PublishSoundsFrom(EnemySoundSource.DraygonCombat);
-        Audio.PublishSoundsFrom(EnemySoundSource.DraygonDeathCry);
-        Audio.PublishSoundsFrom(EnemySoundSource.PhantoonMaterialization);
-        Audio.PublishSoundsFrom(EnemySoundSource.PhantoonCombat);
-        Audio.PublishSoundsFrom(EnemySoundSource.MotherBrainBody);
-        Audio.PublishSoundsFrom(EnemySoundSource.MotherBrainRainbowBeam);
-        Audio.PublishSoundsFrom(EnemySoundSource.MotherBrainCue);
-
-        Audio.PublishMusicFrom(EnemyMusicSource.Botwoon);
-        Audio.PublishMusicFrom(EnemyMusicSource.BombTorizo);
-        Audio.PublishMusicFrom(EnemyMusicSource.Crocomire);
-        Audio.PublishMusicFrom(EnemyMusicSource.Kraid);
-        Audio.PublishMusicFrom(EnemyMusicSource.Draygon);
-        Audio.PublishMusicFrom(EnemyMusicSource.Phantoon);
-        Audio.PublishMusicFrom(EnemyMusicSource.Ridley);
-        Audio.PublishMusicFrom(EnemyMusicSource.Shitroid);
-        Audio.PublishMusicFrom(EnemyMusicSource.MotherBrain);
     }
 
     /// <summary>
@@ -1278,9 +1211,6 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     {
         Room.EnsureLoaded();
         DeathsAndDrops.BindSamus(samus);
-        // A projectile pass starts with no drop or death sound pending: the previous pass's, published or not, are dropped.
-        Audio.CancelSoundAtUpdateEnd(EnemySoundSource.EnemyPickup);
-        Audio.CancelSoundAtUpdateEnd(EnemySoundSource.EnemyDeath);
         Projectiles.RunPass(level, samus, camera, shortFrameCounter, samusBombs, frameCounter);
     }
 

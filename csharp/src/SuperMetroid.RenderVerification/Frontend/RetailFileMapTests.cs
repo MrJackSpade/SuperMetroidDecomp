@@ -43,7 +43,7 @@ internal static class RetailFileMapTests
         foreach (bool cancel in new[] { false, true })
         {
             var saves = new SuperMetroid.Core.Saves.SaveSlotStore(SaveMapPresentationFixture.Create());
-            var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
+            var save = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.GlassTunnelSave, Health = 99, MaxHealth = 99 };
             save.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true); save.Progress.UsedStations(SuperMetroid.Core.Progression.AreaId.Maridia).Add(0);
             saves.SaveSlot(0, save);
             var legacy = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, InstalledFixtures.Maps, MenuSheetFixtures.For(InstalledFixtures.Maps));

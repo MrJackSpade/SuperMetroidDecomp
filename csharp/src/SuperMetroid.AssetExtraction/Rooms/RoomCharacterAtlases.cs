@@ -21,11 +21,11 @@ public sealed class RoomCharacterAtlases
     {
         Cre = Ensure.NotNull(cre);
         Ensure.NotNull(sheets);
-        for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        foreach (TilesetDefinition tileset in RoomTilesets.All)
         {
-            RoomCharacterSet required = RoomTilesets.Get(graphicsSet).Characters;
+            RoomCharacterSet required = tileset.Characters;
             if (!sheets.TryGetValue(required, out RoomCharacterAtlas? value) || value is null)
-                throw new InvalidDataException($"RoomCharacterAtlases lacks graphics set ${graphicsSet:X2}'s {required}.");
+                throw new InvalidDataException($"RoomCharacterAtlases lacks graphics set {tileset.GraphicsSet}'s {required}.");
         }
         byRoomCharacterSet = new Dictionary<RoomCharacterSet, RoomCharacterAtlas>(sheets);
     }

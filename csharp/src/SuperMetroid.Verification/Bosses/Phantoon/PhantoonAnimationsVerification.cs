@@ -102,9 +102,9 @@ internal static class PhantoonAnimationsVerification
             Pass(eye, forceExpiry: true);
             AssertEqual(PhantoonPartFrameSpritemapsConstants.Spritemap(new PhantoonPartFrame(PhantoonPartFrameKind.OpeningEye, frame)), eye.SpritemapPointer, $"opening eye frame {frame}");
         }
-        AssertTrue(enemies.Audio.PublishedSoundFrom(EnemySoundSource.PhantoonMaterialization) is null, "the materialization sound waits for the last frame to expire");
+        AssertTrue(enemies.Audio.LatestSound is null, "the materialization sound waits for the last frame to expire");
         Pass(eye, forceExpiry: true);
-        AssertTrue(enemies.Audio.PublishedSoundFrom(EnemySoundSource.PhantoonMaterialization).HasValue, "the opened eye queues its materialization sound");
+        AssertTrue(enemies.Audio.LatestSound.HasValue, "the opened eye queues its materialization sound");
         AssertEqual(PhantoonPartProgram.EyeHitboxBody, PartProgram(enemies, state.Body), "the opened eye installs the eye-only body hitbox");
         AssertEqual(PhantoonPartProgram.EyeOpen, PartProgram(enemies, eye), "the list's sleep keeps the eye on its opened program");
         AssertEqual(PhantoonPartFrameSpritemapsConstants.Spritemap(new PhantoonPartFrame(PhantoonPartFrameKind.OpeningEye, 2)), eye.SpritemapPointer, "the opened eye keeps its last frame");

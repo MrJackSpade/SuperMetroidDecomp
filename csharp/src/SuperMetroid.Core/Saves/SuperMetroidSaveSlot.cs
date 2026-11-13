@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Saves;
@@ -31,8 +32,7 @@ namespace SuperMetroid.Core.Saves;
 /// <param name="GameTimeHours">The game clock's hours.</param>
 /// <param name="Progression">The persistent progress the save keeps; the slot owns this copy.</param>
 /// <param name="StartupRoute">The startup route the save resumes by.</param>
-/// <param name="SaveStation">The load station within <paramref name="Area"/>.</param>
-/// <param name="Area">The checkpoint's area index.</param>
+/// <param name="Checkpoint">The load station the save resumes at.</param>
 public sealed record SuperMetroidSaveSlot(
     int Slot,
     SamusEquipmentFlags EquippedItems,
@@ -57,8 +57,7 @@ public sealed record SuperMetroidSaveSlot(
     int GameTimeHours,
     PersistentProgress Progression,
     SaveLoadingGameState StartupRoute,
-    int SaveStation,
-    int Area)
+    LoadStation Checkpoint)
 {
     /// <summary>The buttons of the seven configurable actions.</summary>
     public ControllerBindings ControllerBindings { get; init; } = ControllerBindings.Default;

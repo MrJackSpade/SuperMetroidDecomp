@@ -220,7 +220,6 @@ internal static class NativeEnemyFamilyStateImport
         {
             crocomireRecord.DeathPhase = CrocomireNativeWords.DeathPhases.Decode(words.A, "recorded Crocomire death phase");
             crocomireRecord.FightFlags = CrocomireNativeWords.FightFlags(words.B);
-            crocomireRecord.HitCount = CrocomireNativeWords.HitCount(words.B);
             crocomireRecord.FightFunction = CrocomireNativeWords.FightFunctions.Decode(words.C, "recorded Crocomire fight function");
             // The cartridge keeps several of the body's values in each of words D, E and F; the phase says which.
             CrocomireNativeWords.ImportSharedWords(crocomireRecord, words.D, words.E, words.F);

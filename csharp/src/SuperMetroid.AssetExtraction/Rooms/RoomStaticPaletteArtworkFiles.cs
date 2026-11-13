@@ -95,9 +95,9 @@ public static class RoomStaticPaletteArtworkFiles
     private static Dictionary<string, RoomPaletteSet> ExpectedSources()
     {
         var sources = new Dictionary<string, RoomPaletteSet>();
-        for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        foreach (TilesetDefinition tileset in RoomTilesets.All)
         {
-            RoomPaletteSet set = RoomTilesets.Get(graphicsSet).Palette;
+            RoomPaletteSet set = tileset.Palette;
             sources[RoomStaticPaletteFormat.FileName(set)] = set;
         }
         return sources;

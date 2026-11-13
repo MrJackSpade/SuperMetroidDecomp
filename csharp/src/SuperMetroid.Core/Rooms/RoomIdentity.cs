@@ -17,7 +17,7 @@ public readonly record struct RoomIdentity
     {
         // Enum casts can manufacture arbitrary bytes. Validate at construction so a room
         // identity can safely cross table and dispatcher boundaries without another guard.
-        _ = AreaIds.ToIndex(area);
+        _ = AreaIds.Require(area);
         Area = area;
         RoomIndex = Ensure.BetweenInclusive(0, byte.MaxValue, roomIndex);
     }
@@ -28,6 +28,6 @@ public readonly record struct RoomIdentity
     /// <summary>The room index, whose meaning is local to <see cref="Area"/>.</summary>
     public int RoomIndex { get; }
 
-    /// <summary>Formats the area/room pair for diagnostics.</summary>
-    public override string ToString() => $"${AreaIds.ToIndex(Area):X2}/${RoomIndex:X2}";
+    /// <summary>Names the area and the room's index within it for diagnostics.</summary>
+    public override string ToString() => $"{Area} room {RoomIndex}";
 }

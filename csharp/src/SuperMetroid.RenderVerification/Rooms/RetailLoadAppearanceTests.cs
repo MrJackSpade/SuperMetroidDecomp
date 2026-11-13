@@ -20,7 +20,7 @@ internal static class RetailLoadAppearanceTests
         // In-memory saves only, matching the portable saved-file fixture.
         SuperMetroid.Core.Saves.SaveSlotStore Saves()
         {
-            var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
+            var save = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.GlassTunnelSave, Health = 99, MaxHealth = 99 };
             save.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true); save.Progress.UsedStations(SuperMetroid.Core.Progression.AreaId.Maridia).Add(0);
             var saves = new SuperMetroid.Core.Saves.SaveSlotStore(SaveMapPresentationFixture.Create());
             saves.SaveSlot(0, save);

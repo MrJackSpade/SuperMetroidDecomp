@@ -326,7 +326,7 @@ internal static class LookupStream5Verification
         {
             slots[0].FrameCounter = tick;
             system.CeresDoorBehavior.RunCeresDoorPaletteAnimation(slots[0]);
-            AssertEqual(strips[(tick & 2) >> 1], floor.Drawn.Single(), "Actual platform phase draws its strip over the floor");
+            AssertEqual(strips[(tick & 2) >> 1], floor.Shown[CeresFloorPart.ElevatorPlatform], "Actual platform phase draws its strip over the floor");
         }
         string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1",content =>
         {

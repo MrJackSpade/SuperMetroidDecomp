@@ -53,12 +53,12 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case MetroidCueKind.PlayDrainingSound:
                 // The attached loop emits the Metroid's animation sound.
-                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Metroid, EnemySoundEffectDefinitions.MetroidAnimationSoundEffect, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(EnemySoundEffectDefinitions.MetroidAnimationSoundEffect, priority: SoundRequestPriority.Normal);
                 break;
             case MetroidCueKind.PlayRandomCry:
                 // The shared random sequence advances exactly once and the result's remainder by eight chooses one of the eight
                 // authored idle cries.
-                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Metroid, MetroidReactions.RandomCrySoundEffect(_room.Random.Generate()), priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(MetroidReactions.RandomCrySoundEffect(_room.Random.Generate()), priority: SoundRequestPriority.Normal);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(MetroidCueKind)} {cue.Kind}.");
@@ -164,10 +164,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         int targetY,
         RoomLevelData level)
     {
-        // The game constructs a temporary word from the coordinate low-byte subtraction,
-        // shifts it right three, sign-extends bit twelve, then clamps the whole result.
-        // This is observably not a clean full-word delta: crossing a 256-pixel boundary can
-        // reverse the short route. Preserve the byte arithmetic instead of “fixing” it.
+        // The Metroid reckons each distance within a 256-pixel span (MetroidClosingDistance), so a target it has fallen
+        // 128 pixels or more behind reads as lying the other way.
         SignedSixteenSixteen yVelocity = SignedSixteenSixteen.FromWholePixels(
             CalculateMetroidClosingVelocity(targetY, slot.Position.Y.Whole));
         StoreMetroidYVelocity(state, yVelocity);
@@ -181,19 +179,12 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             StoreMetroidXVelocity(state, SignedSixteenSixteen.Zero);
     }
 
-    /// <summary>The span within which a Metroid measures its distance to its target.</summary>
-    private const int ClosingSpan = 256;
-
-    /// <summary>Chooses Metroid's byte-oriented closing speed from wrapped distance to Samus.</summary>
+    /// <summary>Chooses a closing Metroid's speed on one axis from its distance to its target.</summary>
     private static int CalculateMetroidClosingVelocity(int target, int current)
     {
-        // The closing speed is 32 times the signed distance between the two coordinates' places within a 256-pixel
-        // span, -128 through 127: a distance of 128 or more one way reads as the other way.
-        int nearDistance = CoordinateAxis.Wrap(target - current) % ClosingSpan;
-        if (nearDistance >= ClosingSpan / 2)
-            nearDistance -= ClosingSpan;
+        // The closing speed is 32 times the distance the Metroid reckons (MetroidClosingDistance), clamped.
         return Math.Clamp(
-            32 * nearDistance,
+            32 * MetroidClosingDistance.Between(target, current),
             -MetroidMaximumVelocity,
             MetroidMaximumVelocity);
     }
@@ -359,7 +350,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             state.IceDamageToFreeze -= collisionProjectileDamage;
         }
 
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Metroid, EnemySoundEffectDefinitions.MetroidRecoilSoundEffect, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(EnemySoundEffectDefinitions.MetroidRecoilSoundEffect, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Releases an attached Metroid into its four-frame escape and clears Samus's drain palette flag.</summary>
@@ -388,7 +379,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Spawns the Metroid's death drops around the origin
-    /// recorded before <c>EnemyDeath</c> cleared the slot.
+    /// recorded before its death cleared the slot.
     /// </summary>
     internal void RequestMetroidDrops(Position16<RoomPixels> origin)
     {
@@ -528,7 +519,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             if (enemy.Health == 0)
             {
-                // The death records the drop origin, EnemyDeath spawns the explosion, and only then
+                // The death records the drop origin, the enemy's death spawns the explosion, and only then
                 // the five drops spawn.
                 Position16<RoomPixels> dropOrigin = enemy.Position.Whole;
                 FinishMetroidDeath(enemy, c.Samus);

@@ -62,7 +62,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
 
             EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.IsActive);
             AssertEqual(program.Right, projectile.Velocity.X.SignedRawValue > 0, $"Fune/Namihe {program.Entry} projectile flies in its facing");
-            AssertEqual(FuneNamiheDefinitions.SpitSoundEffect, enemies.Audio.PublishedSoundFrom(EnemySoundSource.FuneNamihe),
+            AssertEqual(FuneNamiheDefinitions.SpitSoundEffect, enemies.Audio.LatestSound,
                 $"Fune/Namihe {program.Entry} sound cue");
             AssertEqual(
                 program.Namihe ? FuneNamiheEnemyFunction.NamiheWaitForSamus : FuneNamiheEnemyFunction.FuneWaitForCooldown,

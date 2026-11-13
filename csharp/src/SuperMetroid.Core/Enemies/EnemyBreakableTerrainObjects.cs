@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>Terrain room objects that enemies break, spawned by enemy contact instead of Samus or projectiles.</summary>
 internal sealed class EnemyBreakableTerrainObjects
 {
-    /// <summary>Finite room-object slots searched in descending order for a free break effect.</summary>
+    /// <summary>The room's room objects, which an enemy's break joins.</summary>
     private readonly RoomObjectSlotTable _slotTable;
 
-    /// <summary>Uses the room's live room-object pool so enemy-triggered breaks share allocation limits.</summary>
+    /// <summary>Uses the room's room objects, so an enemy's break takes a place like every other room object.</summary>
     internal EnemyBreakableTerrainObjects(RoomObjectSlotTable slotTable)
     {
         _slotTable = slotTable;
@@ -22,11 +22,10 @@ internal sealed class EnemyBreakableTerrainObjects
     {
         Ensure.NotNull(level);
         RoomCollisionBlock block = level.GetCollisionBlock(position);
-        // A full pool skips setup, and the block is reported as not broken.
-        if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
+        // A full room skips the setup, and the block is reported as not broken.
+        if (_slotTable.Spawn() is not { } slot)
             return false;
 
-        slot.Header = RoomObjectHeaderId.EnemyBreakableBlock;
         slot.Block = position;
         slot.Become(new TerrainChangeObject(ScriptedTerrainChangeDefinitions.EnemyBreakableBlockBreak));
         level.SetTerrain(position, block.Terrain.WithCollision(RoomCollisionType.Air));

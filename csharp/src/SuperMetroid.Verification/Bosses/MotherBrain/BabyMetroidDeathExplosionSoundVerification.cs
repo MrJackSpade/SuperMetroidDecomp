@@ -37,10 +37,9 @@ internal static class BabyMetroidDeathExplosionSoundVerification
 
         runtime.Enemies.Audio.BeginFrame();
         runtime.Enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects(step);
-        AssertEqual((SoundEffectId?)MotherBrainSoundDefinitions.Explosion, runtime.Enemies.Audio.PublishedSoundFrom(EnemySoundSource.MotherBrainCue),
-            "the explosion requests library-three $13 from Mother Brain's cue source");
-        AssertEqual(SoundRequestPriority.Low, runtime.Enemies.Audio.SoundRequests[^1].Priority, "the explosion competes at low priority");
-        AssertEqual(null, runtime.Enemies.Audio.PublishedSoundFrom(EnemySoundSource.MotherBrainBody), "and nothing from the body's library-two source");
+        AssertSequenceEqual(
+            new[] { new SoundRequest(MotherBrainSoundDefinitions.Explosion, SoundRequestPriority.Low) },
+            runtime.Enemies.Audio.SoundRequests, "the explosion queues library-three $13 at low priority, and nothing else");
 
         // Mother Brain's corpse-rot dust ($A9:B252) and escape-door explosion ($A9:B346) both
         // request library-two sounds at low priority.
@@ -53,7 +52,6 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         };
         runtime.Enemies.Audio.BeginFrame();
         runtime.Enemies.MotherBrainBehavior.RainbowAndDeath.ApplyLiveMotherBrainDeath(state, new MotherBrainRainbowBeamAttackSequence(), death);
-        AssertEqual(null, runtime.Enemies.Audio.PublishedSoundFrom(EnemySoundSource.MotherBrainCue), "neither sound is a library-three cue sound");
         AssertSequenceEqual(
             new[]
             {

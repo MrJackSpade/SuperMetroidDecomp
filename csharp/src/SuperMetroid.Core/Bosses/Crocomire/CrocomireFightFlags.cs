@@ -2,9 +2,8 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
 /// Crocomire's fight latches. The original game sets, clears and tests each one on its own, so they compose, and the
-/// values here are arbitrary bits (#1413); the mouth-hit count (<see cref="CrocomireEnemyState.HitCount"/>) is kept
-/// apart from them. The unused attack branches give some latches meanings that the retail fight never
-/// reaches.
+/// values here are arbitrary bits (#1413). The unused attack branches give some latches meanings that the retail fight
+/// never reaches.
 /// </summary>
 [Flags]
 public enum CrocomireFightFlags

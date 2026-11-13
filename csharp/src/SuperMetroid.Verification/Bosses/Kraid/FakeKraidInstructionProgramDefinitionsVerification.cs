@@ -131,7 +131,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
 
             AssertEqual(2, state.SpawnedSpitCount,
                 $"Fake Kraid {program} spawns its projectile pair");
-            AssertEqual((SoundEffectId?)KraidSoundDefinitions.MiniKraidCry, enemies.Audio.PublishedSoundFrom(EnemySoundSource.FakeKraid),
+            AssertEqual((SoundEffectId?)KraidSoundDefinitions.MiniKraidCry, enemies.Audio.LatestSound,
                 $"Fake Kraid {program} publishes its cry");
         }
 

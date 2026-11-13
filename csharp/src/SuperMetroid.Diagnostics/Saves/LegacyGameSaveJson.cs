@@ -285,9 +285,9 @@ public static class LegacyGameSaveJson
             var defeated = new JsonArray();
             var used = new JsonArray();
             var acquired = new JsonArray();
-            for (int area = 0; area < AreaIds.RetailCount; area++)
+            for (int area = 0; area < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count; area++)
             {
-                string name = JsonNamingPolicy.CamelCase.ConvertName(AreaIds.At(area).ToString());
+                string name = JsonNamingPolicy.CamelCase.ConvertName(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area).ToString());
                 defeated.Add(new JsonObject
                 {
                     ["area"] = name,

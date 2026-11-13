@@ -41,7 +41,7 @@ internal enum EndingCreditsPhase
     OperationSuccessfulText,
     /// <summary>Blanks the planet and completion text before staff credits.</summary>
     FadeOutToCredits,
-    /// <summary>Scrolls the staff tilemap until its control program finishes.</summary>
+    /// <summary>Scrolls the staff credits until their control program finishes.</summary>
     Credits,
     /// <summary>Holds the first post-credits backdrop blank for sixty calls.</summary>
     PostCreditsBlank,

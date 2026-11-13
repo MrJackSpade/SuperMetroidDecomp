@@ -22,9 +22,9 @@ public static class RoomMetatileExtractor
         RoomTilesetSourceMap sources = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
         Add(RoomMetatileFormat.CreFileName,
             RoomTilesetSourceDefinitions.CreBlocks);
-        for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        foreach (TilesetDefinition tileset in RoomTilesets.All)
         {
-            RoomBlockSet set = RoomTilesets.Get(graphicsSet).Blocks;
+            RoomBlockSet set = tileset.Blocks;
             string name = RoomMetatileFormat.FileName(set);
             if (!files.ContainsKey(name)) Add(name, sources.Blocks[set]);
         }

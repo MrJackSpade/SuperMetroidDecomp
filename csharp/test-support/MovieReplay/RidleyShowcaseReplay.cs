@@ -273,14 +273,14 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     if (kept != recorded)
                         mismatches.Add($"Room scroll cell {cell}: native={recorded} port={kept}");
                 }
-                for (int area = 0; area < AreaIds.RetailCount; area++)
+                for (int area = 0; area < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count; area++)
                 {
                     int plane = area == W(NativeSnapshotMemory.CurrentArea) ? NativeSnapshotMemory.LiveExploredMap :
                         NativeSnapshotMemory.SavedExploredMaps + area * ProgressionTableCodec.ExploredPlaneByteCount;
                     ProgressionTableCodec.ReadExploredPlane(memory.Slice(plane, ProgressionTableCodec.ExploredPlaneByteCount),
-                        AreaIds.At(area), nativeProgress);
-                    if (!nativeProgress.ExploredCells(AreaIds.At(area)).SequenceEqual(portProgress.ExploredCells(AreaIds.At(area))))
-                        mismatches.Add($"Explored map {AreaIds.At(area)} differs");
+                        SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), nativeProgress);
+                    if (!nativeProgress.ExploredCells(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area)).SequenceEqual(portProgress.ExploredCells(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area))))
+                        mismatches.Add($"Explored map {SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area)} differs");
                 }
             }
             // Only the reference's proven hardware-upload NMI count is normalized;

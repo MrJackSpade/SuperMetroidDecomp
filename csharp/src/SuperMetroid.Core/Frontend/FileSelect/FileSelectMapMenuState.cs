@@ -72,10 +72,10 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     {
         this.audio = Ensure.NotNull(audio);
         Ensure.NotNull(slot);
-        area = slot.Area;
-        stationIndex = slot.SaveStation;
-        if ((uint)area >= FileSelectMapDefinitions.AreaCount)
+        if (!AreaIds.IsZebes(slot.Checkpoint.Area))
             throw new ArgumentOutOfRangeException(nameof(slot), "Ceres does not use the Zebes save-selection map.");
+        area = AreaIds.ToIndex(slot.Checkpoint.Area);
+        stationIndex = slot.Checkpoint.Number;
         var system = new SharedGameState(random);
         system.Progress.CopyFrom(slot.Progression);
         savedProgress = system.Progress;
@@ -87,7 +87,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         roomGraphics = new FileSelectRoomMapGraphics(system, typedArea, mapPresentation: mapPresentation, sheets: sheets);
         this.mapPresentation = mapPresentation;
         Scroll = CreateScrollForCurrentContent();
-        marker = new FileSelectStationMarker(typedArea, slot.SaveStation, mapPresentation.SaveMarkers);
+        marker = new FileSelectStationMarker(typedArea, stationIndex, mapPresentation.SaveMarkers);
         navigation = new FileSelectMapNavigation(area, initialHeldInput);
         navigation.BindLabels(mapPresentation.Labels);
         animations = new FileSelectMapAnimations(mapPresentation.Arrows);

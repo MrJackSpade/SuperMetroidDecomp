@@ -87,7 +87,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             AssertEqual((EvirAiFunction?)EvirAiFunction.ProjectileIdle, state.Function, "regeneration finish cue restores idle AI");
             const ushort nativeSpitSound = 0x005e;
             AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, nativeSpitSound),
-                enemies.Audio.PublishedSoundFrom(EnemySoundSource.Evir), "regeneration publishes the native library-two spit sound");
+                enemies.Audio.LatestSound, "regeneration publishes the native library-two spit sound");
         }
 
         Suite(nameof(EvirAnimationsVerification.VerifyEvirAnimations), () => EvirAnimationsVerification.VerifyEvirAnimations(rom));

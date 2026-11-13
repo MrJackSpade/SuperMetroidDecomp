@@ -49,9 +49,18 @@ public readonly record struct RandomChance
 
     /// <summary>Whether the chance is taken on <paramref name="sample"/>.</summary>
     /// <param name="sample">A random sample, 0 through 65535.</param>
-    public bool IsTakenBy(int sample)
-    {
-        int value = Field.Of(sample);
-        return value >= First && value - First < TakingValues;
-    }
+    public bool IsTakenBy(int sample) => IsTakenAt(Field.Of(sample));
+
+    /// <summary>
+    /// Whether the chance is taken on <paramref name="sample"/> once its field's roll has advanced
+    /// <paramref name="advancedBy"/> places (#1619), as <see cref="RandomSampleField.OfAdvancedBy"/> advances it: a chance
+    /// the original took by adding a counter to the field it drew before comparing the sum with its threshold.
+    /// </summary>
+    /// <param name="sample">A random sample, 0 through 65535.</param>
+    /// <param name="advancedBy">The counter added to the field's roll, zero or more.</param>
+    public bool IsTakenBy(int sample, int advancedBy) => IsTakenAt(Field.OfAdvancedBy(sample, advancedBy));
+
+    /// <summary>Whether the chance is taken when its field reads <paramref name="value"/>.</summary>
+    /// <param name="value">A value of <see cref="Field"/>, 0 through its outcomes less one.</param>
+    private bool IsTakenAt(int value) => value >= First && value - First < TakingValues;
 }

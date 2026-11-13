@@ -72,7 +72,7 @@ public sealed class SamusHorizontalSpeedState
     public SamusContactDamageIndex ContactDamageIndex { get; set; }
 
     /// <summary>
-    /// Host-side publication of the immediate suit-palette copy performed by
+    /// Publication of the immediate suit-palette copy performed by
     /// cancelling a speed boost. Movement owns the cancellation,
     /// while the runtime owns the colours, so this flag preserves the same-frame handoff
     /// without passing a renderer through every collision and pose step.

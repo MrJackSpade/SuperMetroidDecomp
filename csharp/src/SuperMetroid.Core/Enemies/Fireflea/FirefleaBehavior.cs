@@ -80,7 +80,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         slot.Position = slot.Position.AdvanceY(state.Speeds.Toward(state.SpeedSign));
 
-        // The bounds compare by the sign of the wrapped subtraction, not ordinary host
+        // The bounds compare by the sign of the wrapped subtraction, not by ordinary
         // bounds comparisons. The actor is intentionally allowed to overshoot before its
         // speed reverses to the row's other sign.
         bool crossedMinimum = (slot.Position.Whole - state.MinimumYExtent).Y < 0;

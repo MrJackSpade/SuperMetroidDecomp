@@ -134,7 +134,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Reproduces the sign-pair arithmetic: each axis takes the live crawl speed or its negation wrapped past 65535, rather
-    /// than a host signed table.
+    /// than a table of signed speeds.
     /// </summary>
     internal static void SetYardCrawlingVelocities(YardEnemyState state, YardDirection direction) =>
         state.CrawlingVelocity = YardCrawlVelocity.Apply(state.CrawlSpeed, direction);

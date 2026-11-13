@@ -70,7 +70,7 @@ public sealed class MaridiaElevatubeRoomMainState
 
     /// <summary>
     /// Applies Samus command one used by both exit behaviours. Room loading has already
-    /// selected a non-elevatube main behaviour, so no host-side movement state survives.
+    /// selected a non-elevatube main behaviour, so no elevatube movement state survives.
     /// </summary>
     public void ResetOnExit(SamusState samus)
     {

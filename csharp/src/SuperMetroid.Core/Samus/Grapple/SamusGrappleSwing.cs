@@ -354,7 +354,7 @@ public static class SamusGrappleSwing
 
         // At the maximum retail velocity this loop executes at most five times. Keep an
         // explicit 256-step guard anyway: it documents the cyclic angle domain and turns a
-        // future corrupt state into a diagnostic rather than an infinite host loop.
+        // future corrupt state into a diagnostic rather than an infinite loop.
         for (int angleSteps = 0;
              lastSafeStep != targetStep && angleSteps < 256;
              angleSteps++)

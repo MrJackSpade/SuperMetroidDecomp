@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Movement for ordinary/aimed crouching and the crouch/stand animation poses.
 /// </summary>
 /// <remarks>
-/// These movements look stationary but are not host no-ops: the game still publishes
+/// These movements look stationary but are not no-ops: the game still publishes
 /// total X speed, runs horizontal block/slope collision, and performs its downward grounding
 /// probe every frame. Keeping those calls makes ledges, slopes, and future conveyors meet
 /// the same seam as standing movement.

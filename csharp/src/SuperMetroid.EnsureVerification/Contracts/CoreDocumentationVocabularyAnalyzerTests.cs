@@ -148,6 +148,29 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>The host's save slots; the host persists them and reports an exception it catches.</summary>\nint F => 0; }");
         Expect("class P { // the first host frame on which the wait expires; the hosts' slot list\n }");
         Expect("class P { /// <summary>Queues the room's music from scratch; the claw leaves scratch marks.</summary>\nint F => 0; }");
+        // The port's host set against the original (#1632): the simulation's state and arithmetic named as the host's, the
+        // provenance compounds, and "this host", in comments and string literals.
+        foreach (string noun in new[] { "enum", "integer", "flags", "timer", "RNG", "random", "record", "field", "latch",
+            "guard", "mask", "names", "equivalents", "storage", "state", "list", "lock", "projection", "table", "constant",
+            "sprite", "animation", "reading", "physics", "ordering", "result", "no-ops", "error", "loop", "vector", "pose",
+            "phase", "interaction", "signed", "movement", "gravity", "jump", "knockback", "palette", "handler", "death",
+            "scheduler", "allocation", "bomb", "area", "aiming", "smoothing", "floating-point" })
+            Expect($"class P {{ // the shot keeps the host {noun} as it was\n }}", $"('host {noun}')");
+        foreach (string compound in new[] { "host-side", "host-only", "host-readable", "host-visible", "host-friendly",
+            "host-authored", "host-facing" })
+            Expect($"class P {{ /// <summary>No {compound} copy survives.</summary>\nint F => 0; }}", $"('{compound}')");
+        Expect("class P { /// <summary>Host-readable form of the close-collision flag.</summary>\nbool F => false; }", "('Host-readable')");
+        Expect("class P { /// <summary>Host latch preventing repeat entry.</summary>\nbool F => false; }", "('Host latch')");
+        Expect("class P { // In this host those mean animation processing\n }", "('this host')");
+        Expect("class P { // the outer owner is not part of this gameplay host\n }", "('this gameplay host')");
+        Expect("class P { string Name => \"The host enum rejects it.\"; }", "('host enum')");
+        // The application that runs the game is a host: as an actor, possessive or plural, with its presentation, services
+        // and ownership compounds, and a ghost is not a host.
+        Expect("class P { /// <summary>The host binds the artwork; a host plays audio, and the host's state is its own.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>Host-owned, host-installed, host-bound, host-supplied and host-configured content.</summary>\nint F => 0; }");
+        Expect("class P { // host PCM at the host rate, host pixels, host artwork, host options, host elapsed time, host diagnostics\n }");
+        Expect("class P { // the host renderer, a host compositor, one host call and the hosts' import format\n }");
+        Expect("class P { /// <summary>The ghost flag and the ghost's state.</summary>\nint F => 0; }");
         // A compound name in a comment is a routine label unless Core's code spells it (#1558).
         Expect("class P { // as EnemyMain does\n }", "('EnemyMain')");
         Expect("class P { // set by InitAI\n }", "('InitAI')");

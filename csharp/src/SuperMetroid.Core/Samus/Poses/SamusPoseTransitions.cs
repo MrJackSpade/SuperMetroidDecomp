@@ -239,7 +239,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         samus.Kinematics.YSpeed = default;
 
         // Reloads the normal suit palette whenever a pose change leaves spin or
-        // wall-jump movement while Screw Attack is equipped. The host palette copy occurs
+        // wall-jump movement while Screw Attack is equipped. The suit palette copy occurs
         // at the later palette phase, so publish that same deferred work here.
         if (leavingScrewAttack)
             samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
@@ -456,7 +456,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose)
         {
             // The drained release animation has now reached its authored normal pose.
-            // Clear only the host handler marker; pose initialization above already owns the
+            // Clear only the drained-release marker; pose initialization above already owns the
             // same radius and animation writes as the game's pose initializer.
             samus.Drained.CompleteRelease();
         }

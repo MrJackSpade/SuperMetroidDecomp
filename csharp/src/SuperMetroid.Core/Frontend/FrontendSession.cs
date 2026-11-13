@@ -440,7 +440,7 @@ internal sealed class FrontendSession
 
         // New-game loading first publishes the standard HUD/sprite artwork, then
         // loads the area-six station-zero room and finally runs Samus's new-game setup. This is the
-        // same sequence used by the room diagnostic; there is no host
+        // same sequence used by the room diagnostic; there is no invented
         // terrain image, hand-placed Samus, or alternate playable-only initialization.
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.FrameBoundary.PublishWhileLoading();

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// </summary>
 /// <remarks>
 /// A component shows only its own pictures. A place outside them, which only the Hyper Beam's backward count reaches
-/// once it has run a component past its first picture, shows nothing: the port does not draw the neighbouring run's
+/// once it has run a component past its first picture, shows nothing: it does not draw the neighbouring run's
 /// picture there, which was a presentation quirk (owner decision, 2026-10-12).
 /// </remarks>
 public static class ChargeFlarePictures

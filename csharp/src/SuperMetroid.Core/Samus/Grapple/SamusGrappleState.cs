@@ -23,7 +23,7 @@ public sealed class SamusGrappleState
     public Position16<RoomPixels> RopeStart { get; set; }
 
     /// <summary>
-    /// The flare position, retained under the older host-facing
+    /// The flare position, retained under the older
     /// BeamStart name. <c>DrawConnectedBeam</c> starts drawing
     /// here; do not use this position to reconstruct command-10 body positioning.
     /// </summary>
@@ -125,7 +125,7 @@ public sealed class SamusGrappleState
     public bool Submerged { get; set; }
 
     /// <summary>
-    /// Host-readable equivalent of the released-from-swing movement handler. The grapple
+    /// Whether the released-from-swing movement handler is running. The grapple
     /// beam function becomes inactive one frame after release, but this independent Samus
     /// movement handler continues until apex underflow or vertical collision restores the
     /// normal handler. Keeping it separate from <see cref="Phase"/> prevents premature
@@ -147,7 +147,7 @@ public sealed class SamusGrappleState
     public bool ValidateAnchorEnemy { get; set; }
 
     /// <summary>
-    /// Host-readable form of the close-collision flag. A close collision at minimum rope length
+    /// The close-collision flag. A close collision at minimum rope length
     /// requests the exact locked/wallgrab angle lookup; successful swing motion clears it.
     /// </summary>
     public bool SpecialAngleHandling { get; set; }

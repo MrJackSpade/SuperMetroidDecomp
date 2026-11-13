@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
 /// Shared Kraid encounter state, plus the room-level effects whose
-/// owners sit outside an individual enemy record. No host-only combat simplification
+/// owners sit outside an individual enemy record. No combat simplification
 /// is represented here: thresholds and functions are copied from retail arithmetic.
 /// </summary>
 public sealed class KraidEnemyState

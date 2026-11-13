@@ -180,7 +180,7 @@ public static class SamusAerialMovement
                 $"Spin-jump movement requires type 3, not {SamusPoseMetadata.ReadMovementType(samus)}.");
 
         // Runs this before ordinary spin movement. Space Jump is not a
-        // host-side double-jump: it only accepts a fresh Jump edge while descending and
+        // generic double-jump: it only accepts a fresh Jump edge while descending and
         // while the split Y magnitude lies inside the game's dry-air 8.8 window.
         bool fullySubmergedWithoutGravity =
             !samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) &&
@@ -623,7 +623,7 @@ public static class SamusAerialMovement
     /// Ordinary jump/fall handlers call this after their X pass, but the drained-Samus
     /// handler calls this directly. Keeping one implementation
     /// is important: the old-speed displacement, equality-only terminal-speed check, and
-    /// ceiling response are observable game behavior, not general-purpose host physics.
+    /// ceiling response are observable game behavior, not general-purpose physics.
     /// </remarks>
     internal static BlockMoveResult StepVerticalWithSpeedCalculations(SamusTerrain terrain, SamusState samus, int frameCounter, out bool hitCeiling, out bool downwardDisplacement, SamusCeilingResponse ceilingResponse = SamusCeilingResponse.Immediate)
     {
@@ -767,7 +767,7 @@ public static class SamusAerialMovement
             // Both successful exits converge on the same result: the solid-enemy
             // branch writes five, and the terrain branch repeats that write
             // too. This is not merely an internal boolean. The shared result
-            // state, so retain the publication even though the host result below also tells
+            // state, so retain the publication even though the returned result below also tells
             // the runtime to install the wall-jump pose explicitly.
             samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.WallJump;
             // A launch off a solid or frozen enemy asks the next enemy pass to shake that enemy; a launch off

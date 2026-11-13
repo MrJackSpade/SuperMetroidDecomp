@@ -359,7 +359,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The horizontal half still runs on the exact frame that vertical collision changes
         // the AI function. That ordering is easy to lose when expressing the two axes
-        // as a single host movement vector.
+        // as a single combined movement vector.
         SignedSixteenSixteen displacement = arc == BeetomArcKind.Lunge
             ? (direction == HorizontalDirection.Left ? SignedSixteenSixteen.FromWholePixels(-3) : SignedSixteenSixteen.FromWholePixels(3))
             : (direction == HorizontalDirection.Left ? SignedSixteenSixteen.FromSixteenthsOfPixel(-4) : SignedSixteenSixteen.FromSixteenthsOfPixel(4));

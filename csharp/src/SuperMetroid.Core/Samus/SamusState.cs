@@ -449,7 +449,7 @@ public sealed class SamusState
     public SamusVisorPaletteState VisorPalette { get; } = new();
 
     /// <summary>
-    /// Host-visible equivalent of the knockback movement handler. It is separate from
+    /// Whether Samus's knockback movement handler is running. It is separate from
     /// the knockback movement type because the game also uses that type for crystal-flash art.
     /// </summary>
     public bool KnockbackActive { get; set; }

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// <summary>Named phases owned by <see cref="CeresDepartureState"/>.</summary>
 public enum CeresDeparturePhase
 {
-    /// <summary>Host state before the Ceres room requests departure; ordinary Ceres gameplay and elevator arrival are not owned by this sequence.</summary>
+    /// <summary>The state before the Ceres room requests departure; ordinary Ceres gameplay and elevator arrival are not owned by this sequence.</summary>
     Inactive,
     /// <summary>Samus has made it to the Ceres elevator: gameplay continues, then the 60-call hold decrements after each update before the blackout.</summary>
     HoldingOnElevator,

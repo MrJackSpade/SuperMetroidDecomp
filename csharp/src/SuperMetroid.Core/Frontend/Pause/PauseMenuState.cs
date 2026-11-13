@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// <see cref="SuperMetroidGame"/> dispatcher retains the pause game states, while the
 /// live <see cref="SamusState"/> remains the sole owner of inventory. Consequently an
 /// equipment-screen A press changes the same flags consumed by movement, rendering, and saving;
-/// there is no host-only copy that can diverge from gameplay.
+/// there is no separate copy that can diverge from gameplay.
 /// </remarks>
 internal sealed class PauseMenuState : IMenuFrontendScreen
 {

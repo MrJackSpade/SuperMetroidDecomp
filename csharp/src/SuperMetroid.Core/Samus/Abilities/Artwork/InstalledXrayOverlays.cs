@@ -9,7 +9,7 @@ public sealed class InstalledXrayOverlays
 {
     /// <summary>The installed block the X-ray reveal shows for each tank kind, in tank order.</summary>
     /// <remarks>
-    /// Issue #1038: the original data reveals the four tanks as four particular blocks of the tileset. These are authored
+    /// Issue #1038: the game's data reveals the four tanks as four particular blocks of the tileset. These are authored
     /// visual choices and reveals.json may replace them, so no universal formula can replace this bounded installed
     /// array. Every other uncollected item is revealed as its kind's own picture (#1538).
     /// </remarks>
@@ -20,7 +20,7 @@ public sealed class InstalledXrayOverlays
     /// Bomb Torizo selects a special X-ray overlay. Its three
     /// records are block 82 at column fifteen, rows ten through twelve, followed
     /// by zero coordinates. The loop stops there;
-    /// adjacent bytes are not a fourth record. The independent installation
+    /// the data that follows is not a fourth record. The independent installation
     /// verifier compared all three stock records with the game.
     /// reveals.json may change coordinates and blocks while retaining the
     /// overlay and record count, so the apparent Y sequence is not an

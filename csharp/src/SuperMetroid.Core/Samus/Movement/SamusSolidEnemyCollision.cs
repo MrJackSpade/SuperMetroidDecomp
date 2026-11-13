@@ -86,7 +86,7 @@ public static class SamusSolidEnemyCollision
             {
                 // Clears Y subposition for every direction. Yes, that clears
                 // Samus's *Y* subposition even for a left/right touch. This is an
-                // original-game bug; preserving it prevents one-pixel drift
+                // game bug; preserving it prevents one-pixel drift
                 // differences when repeatedly pressing into a solid or frozen enemy.
                 state.Position = state.Position.WithFractionY(0);
             }

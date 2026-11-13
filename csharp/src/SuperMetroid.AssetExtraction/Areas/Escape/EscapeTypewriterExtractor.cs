@@ -23,17 +23,17 @@ public static class EscapeTypewriterExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var programs = new Dictionary<string, EscapeTypewriterProgramDocument>(StringComparer.Ordinal);
+        var messages = new Dictionary<string, EscapeTypewriterMessageDocument>(StringComparer.Ordinal);
         foreach (EscapeTypewriterMessageId id in Enum.GetValues<EscapeTypewriterMessageId>())
         {
             if (id == EscapeTypewriterMessageId.None) continue;
-            programs.Add(id.ToString(), new() { Lines = ReadProgram(bus, id) });
+            messages.Add(id.ToString(), new() { Lines = ReadProgram(bus, id) });
         }
         using var output = new MemoryStream();
         Write(output, new()
         {
             Version = EscapeTypewriterDocumentDefinitions.Version,
-            Programs = programs,
+            Messages = messages,
         });
         return output.ToArray();
     }

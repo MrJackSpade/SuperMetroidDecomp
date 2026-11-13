@@ -67,8 +67,10 @@ extract and validate their audio on startup. No ROM is copied out of the APK.
 
 Within either platform's application-data root:
 
-- `game/SuperMetroid.smc`: validated, unheadered ROM copy retained by default;
-  optional only while all extracted assets remain complete and valid.
+- `import/SuperMetroid.smc`: the import's validated, unheadered ROM copy, retained by default beside the
+  content and never inside `game/`; optional only while all extracted assets remain complete and valid. An
+  installation from an older release, whose copy lay inside `game/`, is extracted again only from a ROM you
+  choose.
 - `game/audio/`: the rendered clips of every song and sound (`clips/`) and their index (`audio-clips.json`),
   which names each sound by name, and nothing else; audio is replaced by clip. The SPC upload streams, the
   instrument samples and the catalog manifest the clips are rendered from are import data (#1693).
@@ -532,7 +534,7 @@ Walking, wall, and ninja Space Pirates use the separate, historically named
 `enemy-walking-pirate-compositions.json`, import data too, which holds the named Pirate,
 Ridley-body, Draygon, Spore Spawn, Torizo and other multipart OAM frames. Each frame contains
 ordered visual components with `offsetX`, `offsetY`, and `parts` using the same
-OAM fields listed above. The installed `extendedDisplayFrames` table in
+OAM fields listed above. The installed `multipartDisplayFrames` table in
 `game/enemy-tiles/enemy-frame-displays.json` can remap any of its named visual
 frames to another frame of the same enemy family, without changing the native
 instruction frame, duration, or hitbox; native hitbox geometry and touch/shot callbacks
@@ -703,7 +705,7 @@ frame and every cell: the import checks each frame against the shape and collisi
 missing, repeated or unknown frame and a missing, repeated or foreign cell. Collision is never part of a picture.
 
 Ordinary shot-block PLM appearances are installed as
-`game/room-plm-shot-blocks/shot-blocks.json`. Each of its 19 frames is one
+`game/room-object-shot-blocks/shot-blocks.json`. Each of its 19 frames is one
 compiled animation or restoration draw. The native instruction
 timers, sounds, draw geometry and complete physical level words remain compiled
 and immutable. An edited word changes both the immediate PLM redraw and later
@@ -721,7 +723,7 @@ display visual block `$0BC`; repaint that block's pictures in the block sheet to
 restored appearance. Neither edit changes contact collision or crumble timing.
 
 Breakable Grapple-block appearances are installed separately as
-`game/room-plm-grapple-blocks/grapple-blocks.json`. Keep all five
+`game/room-object-grapple-blocks/grapple-blocks.json`. Keep all five
 frames: they are the compiled Grapple and breakup frames. The full
 native level words, including Grapple/air collision, and both instruction
 timelines remain fixed. Edited art appears in immediate redraws and later camera
@@ -730,7 +732,7 @@ must exist in the active room's block-definition table. Other PLM families use
 their own resources or remain ROM-backed.
 
 Station PLM appearances are installed as
-`game/room-plm-stations/stations.json`. In the installed file, edit only the cells' `block` and `mirroring`,
+`game/room-object-stations/stations.json`. In the installed file, edit only the cells' `block` and `mirroring`,
 then restart. Every frame has a semantic `id`, such as
 `map-frame-0`, `save-active-a`, or `resource-right-extended`; keep all 20
 IDs and every cell. The values select visual blocks from the
@@ -743,7 +745,7 @@ Other room-object
 families still need separate presentation resources.
 
 Blue-door cap appearances are installed as
-`game/room-plm-blue-doors/blue-doors.json`. In the installed file, edit only the cells' `block` and `mirroring`, and restart. Keep all 16 IDs: four animation frames for
+`game/room-object-blue-doors/blue-doors.json`. In the installed file, edit only the cells' `block` and `mirroring`, and restart. Keep all 16 IDs: four animation frames for
 each of `left`, `right`, `up`, and `down`. Each frame contains four visual
 blocks from the active room's combined CRE/area definitions. The full
 physical level words, door collision, animation cadence, and sound stay
@@ -752,7 +754,7 @@ camera streaming. Invalid content fails loudly. Colored, grey, and eye-door
 artwork is not covered by this blue-cap resource.
 
 Yellow, green, and red door-cap appearances are installed as
-`game/room-plm-colored-doors/colored-doors.json`. In the installed file, edit only the cells'
+`game/room-object-colored-doors/colored-doors.json`. In the installed file, edit only the cells'
 `block` and `mirroring`, and restart. Keep all 48 IDs: four frames for each
 color and orientation. Each frame contains four visual blocks from the active
 room's combined CRE/area definitions. The full physical level words, shot
@@ -762,14 +764,14 @@ streaming. Invalid content fails loudly. Grey-door art uses the separate resourc
 eye-door art uses the separate resource below.
 
 Grey-door caps and the four shared door-clear frames are installed as
-`game/room-plm-grey-doors/grey-doors.json`. In the installed file, edit only the cells' `block` and `mirroring`, and restart. Keep all 20 IDs: four frames for each grey
+`game/room-object-grey-doors/grey-doors.json`. In the installed file, edit only the cells' `block` and `mirroring`, and restart. Keep all 20 IDs: four frames for each grey
 orientation and `clear-left`, `clear-right`, `clear-up`, `clear-down`. The
 clear frames are also used by blue and colored doors. Bomb Torizo's special
 grey-door program selects the ordinary right-facing grey cap. Physical level
 words, collision, condition gates, timing, sound, and door-bit persistence
 remain cartridge-defined. Invalid content fails loudly.
 
-Eye-door components are installed as `game/room-plm-eye-doors/eye-doors.json`.
+Eye-door components are installed as `game/room-object-eye-doors/eye-doors.json`.
 In the installed file, edit only the cells'
 `block` and `mirroring`, and restart. Keep all 23 IDs: five animated eye
 frames per orientation, three middle and three bottom frames per orientation,
@@ -780,7 +782,7 @@ hit counts, opening timing, sounds, or door-bit persistence. Malformed content
 fails loudly.
 
 Mother Brain's glass frames are installed as
-`game/room-plm-mother-brain-glass/mother-brain-glass.json`. In the installed file, edit only the
+`game/room-object-mother-brain-glass/mother-brain-glass.json`. In the installed file, edit only the
 cells' `block` and `mirroring`, and restart. Keep all eleven frame IDs and their
 cells; the compiled application keeps each run's shape and signed placement.
 The active room's CRE/area definitions supply the tiles. Glass collision,
@@ -788,7 +790,7 @@ damage thresholds, shatter timing, shards, and progression cannot be changed
 by this appearance file. Malformed content fails loudly.
 
 The n00b-tube break-apart frames are installed as
-`game/room-plm-noob-tube/noob-tube.json`. In the installed file, edit only the
+`game/room-object-noob-tube/noob-tube.json`. In the installed file, edit only the
 cells' `block` and `mirroring`, and restart. Keep all seven frame IDs and their cells; run placement,
 physical blocks, the power-bomb trigger, shards, and event timing remain
 compiled. The tube's two reachable instruction branches are compiled as
@@ -811,7 +813,7 @@ items are drawn from their pictures in the room block sheets, described below;
 other PLM instruction-program ROM dependencies remain to be migrated.
 
 Downward-gate PLM block appearances are installed as
-`game/room-plm-downward-gates/downward-gates.json`. In the installed file, edit only the cells'
+`game/room-object-downward-gates/downward-gates.json`. In the installed file, edit only the cells'
 `block` and `mirroring`, then restart. Keep all 14 semantic IDs and each
 run/word count: six `column-frame-*` entries and left/right trigger entries
 for blue, green, red, and yellow gates. These words select visual blocks from
@@ -821,35 +823,35 @@ change. The visible moving gate actor uses separate bank-$86 sprite art and is
 not replaced by this resource. Invalid data fails loudly.
 
 Elevator-platform PLM frames are installed as
-`game/room-plm-elevator-platforms/elevator-platforms.json`. In the installed file, edit only
+`game/room-object-elevator-platforms/elevator-platforms.json`. In the installed file, edit only
 the cells' `block` and `mirroring`, then restart. Keep all three named frames
 and their run lengths. Each word selects a visual block from the active room
 tileset; the four-step frame loop, draw offsets, and physical collision words
 remain compiled. Invalid edits fail loudly.
 
 Mother Brain's escape-gate appearances are installed as
-`game/room-plm-escape-gate/escape-gate.json`. In the installed file, edit only the cells' `block` and `mirroring`, then restart. Keep all three four-block frames: `open`,
+`game/room-object-escape-gate/escape-gate.json`. In the installed file, edit only the cells' `block` and `mirroring`, then restart. Keep all three four-block frames: `open`,
 `half-closed`, and `closed`. These words select visual blocks from the active
 room's combined CRE/area definitions; the cartridge's collision, closing
 timing, and door-transition handoff remain compiled mechanics. Malformed
 content fails loudly.
 
 Bomb Torizo's resident hand PLM appearances are installed as
-`game/room-plm-bomb-torizo-hand/bomb-torizo-hand.json`. In the installed file, edit only
+`game/room-object-bomb-torizo-hand/bomb-torizo-hand.json`. In the installed file, edit only
 the cells' `block` and `mirroring`, then restart. Keep both `intact` (eight
 cells) and `cleared` (sixteen cells). The authored
 geometry, collision words, Bombs gate, debris timing, and music are not
 editable through this file. Invalid files fail loudly.
 
 Reachable Draygon cannon appearances are installed as
-`game/room-plm-draygon-cannons/draygon-cannons.json`. In the installed file, edit only
+`game/room-object-draygon-cannons/draygon-cannons.json`. In the installed file, edit only
 the cells' `block` and `mirroring`, then restart. Keep all twelve semantic
 right/left shield and damaged-frame IDs, four cells per frame. This does not alter cannon collision, projectile thresholds, or boss
 control-word writes. The unused diagonal orientations are not part of this
 resource. Invalid content fails loudly.
 
 Chozo statue terrain appearances are installed as
-`game/room-plm-chozo-statues/chozo-statues.json`. In the installed file, edit only the cells'
+`game/room-object-chozo-statues/chozo-statues.json`. In the installed file, edit only the cells'
 `block` and `mirroring`, then restart. Keep the three IDs for the cleared
 Lower Norfair hand and the two Wrecked Ship slope-access states. These edits
 cannot change draw geometry, slope collision, or the statue's event/acid
@@ -860,7 +862,7 @@ compiled as bounded mechanics data, while the native statue callbacks remain
 separate executable behavior.
 
 Linked bomb-block and Samus-contact crumble-block restoration appearances
-are installed as `game/room-plm-linked-restores/linked-restores.json`.
+are installed as `game/room-object-linked-restores/linked-restores.json`.
 In the installed file, edit
 only the cells' `block` and `mirroring`, then restart. Keep the six IDs:
 `bomb-horizontal`, `bomb-vertical`, `bomb-square`, `crumble-horizontal`,
@@ -880,27 +882,27 @@ draw, sound, and deletion data, leaving its physical tile and sound behavior
 unchanged without reading that bank-$84 source at runtime.
 The Tourian entrance access floor also uses compiled clear/crumble programs
 and physical draw rows. Its five appearances are installed as
-`game/room-plm-tourian-access/tourian-access.json`. In the installed file, edit only the cells'
+`game/room-object-tourian-access/tourian-access.json`. In the installed file, edit only the cells'
 `block` and `mirroring`, retaining all five IDs and each frame's cells. The six-row removal, collision words, and frame timing remain compiled.
 Invalid content fails loudly.
 
 The bomb-revealed Speed Booster block uses
-`game/room-plm-speed-booster/speed-booster.json`. In the installed file, edit the sole
+`game/room-object-speed-booster/speed-booster.json`. In the installed file, edit the sole
 `bomb-reveal` frame's one cell. Its type-B collision and
 one-frame reveal timing remain compiled. Invalid edits fail validation.
 
 The Maridia elevatube's one-block PLM appearance is installed at
-`game/room-plm-maridia-elevatube/maridia-elevatube.json`. In the installed file, edit the
+`game/room-object-maridia-elevatube/maridia-elevatube.json`. In the installed file, edit the
 `elevatube-block` frame's one cell. The sixteen-frame hold,
 physical block, sound, and deletion remain compiled and unchanged.
 
 Spore Spawn's four 2×2 ceiling frames are installed at
-`game/room-plm-spore-spawn-ceiling/spore-spawn-ceiling.json`. In the installed file, edit only
+`game/room-object-spore-spawn-ceiling/spore-spawn-ceiling.json`. In the installed file, edit only
 the cells' `block` and `mirroring`. Retain all four frame IDs and their four cells. The crumble/clear sequence,
 sound, timing, and physical terrain changes remain compiled.
 
 Permanent collectible PLM appearances are installed as
-`game/room-plm-collectibles/collectibles.json`. In the installed file, edit only each frame's cell,
+`game/room-object-collectibles/collectibles.json`. In the installed file, edit only each frame's cell,
 then restart. Keep all 16 semantic IDs: the empty block, Chozo orb
 and burst, the four two-frame tank kinds, and the three shot-block reveal
 frames. The words select visual blocks from the active room's combined CRE/area

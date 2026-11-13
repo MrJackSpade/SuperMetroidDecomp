@@ -56,7 +56,7 @@ internal static class EscapeTypewriterPresentationVerification
             savedVram.ReadWord(0x106), "restored escape text resumes at its saved character");
 
         JsonObject malformedDocument = RequiredJson.Parse(extracted).AsObject();
-        malformedDocument.Required("programs").Required(EscapeTypewriterMessageId.Zebes.ToString())
+        malformedDocument.Required("messages").Required(EscapeTypewriterMessageId.Zebes.ToString())
             .Required("lines").Required(0)["text"] = "test!";
         byte[] malformed = Encoding.UTF8.GetBytes(malformedDocument.ToJsonString(ArtworkJson.Options));
         AssertThrows<InvalidDataException>(() => EscapeTypewriterPresentationFile.Load(

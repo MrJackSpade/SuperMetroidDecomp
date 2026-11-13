@@ -19,9 +19,11 @@ public static class SpriteSheetFile
     /// picture by its tag as well (#1639); 18 names the recolour-region and blend maps each frame shows its picture with, the
     /// stored picture being its pixels only (#1644); 19 names each frame's picture's size and its place in the frame's
     /// rectangle, the stored picture being the box of what the frame shows (#1646); 20 marks a picture a frame shows repeated
-    /// over its rectangle, the stored picture being one period of a turning floor the game repeats beyond its edges (#1651).
+    /// over its rectangle, the stored picture being one period of a turning floor the game repeats beyond its edges (#1651);
+    /// 21 names a room block's pictures by the block's number and a colour group's animated shades as its colour animation's
+    /// (#1712).
     /// </summary>
-    public const int Version = 20;
+    public const int Version = 21;
 
     /// <summary>
     /// Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings, unindented:

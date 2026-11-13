@@ -27,9 +27,9 @@ internal static class ExtractedInstallationValidationVerification
             Assert(!Directory.Exists(missing), "missing-root diagnostics must not create an installation");
 
             var fixture = new GameInstallation(Path.Combine(temporary, "installation"));
+            // The content holds no cartridge copy (#1711): the import keeps its own beside it, which the fixture leaves out.
             foreach (string file in Directory.GetFiles(source.ContentDirectory, "*", SearchOption.AllDirectories))
             {
-                if (Path.GetFullPath(file) == Path.GetFullPath(source.RomPath)) continue;
                 string destination = Path.Combine(fixture.ContentDirectory, Path.GetRelativePath(source.ContentDirectory, file));
                 Directory.CreateDirectory((Path.GetDirectoryName(destination) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(destination).")));
                 File.Copy(file, destination);

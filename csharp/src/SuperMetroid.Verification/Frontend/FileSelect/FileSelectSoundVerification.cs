@@ -18,10 +18,9 @@ internal static class FileSelectSoundVerification
     /// <summary>Checks the driver's delayed acknowledgement and audible output, then both save and accept routes.</summary>
     internal static void VerifyFileSelectSound()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var audio = AudioQueues.Standalone();
         var menu = new FileSelectMenuState(new SuperMetroid.Core.Saves.SaveSlotStore(), audio, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
-        var renderer = AudioSessionAccess.CreateSynthesizing(ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory));
+        var renderer = AudioSessionAccess.CreateSynthesizing(InstalledFixtures.Audio);
         int writes = 0, nonzero = 0;
         bool accepted = false;
         for (int frame = 0; frame < 180; frame++)
@@ -51,12 +50,11 @@ internal static class FileSelectSoundVerification
     /// <summary>Compares captured PCM with the swoosh suppressed for one save state and accept button.</summary>
     private static void VerifyFullFrontendFileSelectSound(bool existingSave, ControllerButton accept)
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         if (existingSave)
             saves.SaveSlot(0, new SuperMetroidSaveSnapshot());
         var game = CreateRetailGameFixture(saves);
-        var assets = RepositoryInstallation.Installation.LoadAudioClips().Clips;
+        var assets = InstalledFixtures.AudioClips;
         game.BindAudio(assets);
         var pcm = new short[AudioSession.PcmSamplesPerFrame];
         var withoutSwoosh = new ClipAudioBackend(assets);

@@ -60,16 +60,12 @@ internal static class SpeedBoosterObjectProgramsVerification
         }
     }
 
-    /// <summary>Checks BTS and area selection of the native Speed Booster PLM headers.</summary>
-    private static void VerifySpeedBlockHeaderSelection(CartridgeImportAddressSpace rom) =>
-        Suite(nameof(VerifySpeedBlockSelectionField), () => VerifySpeedBlockSelectionField(rom, instruction: false));
-
-    /// <summary>Checks BTS and area selection of each header's initial instruction pointer.</summary>
-    private static void VerifySpeedBlockInstructionSelection(CartridgeImportAddressSpace rom) =>
-        Suite(nameof(VerifySpeedBlockSelectionField), () => VerifySpeedBlockSelectionField(rom, instruction: true));
-
-    /// <summary>Compares the complete BTS/area selector domain with original bank-94 entry records.</summary>
-    private static void VerifySpeedBlockSelectionField(CartridgeImportAddressSpace rom, bool instruction)
+    /// <summary>
+    /// Compares the complete BTS/area selector domain with original bank-94 entry records: each selected block's header
+    /// names the Speed Booster setup, and its initial list plays as the block's typed crumble. The header itself is not
+    /// compared, as the game keeps no record of it (#1691).
+    /// </summary>
+    private static void VerifySpeedBlockInstructionSelection(CartridgeImportAddressSpace rom)
     {
         // Original bank-94 speed-entry locations, independent of named C# results.
         SpeedBoosterObjectProgramsEntry[] entries =
@@ -83,23 +79,18 @@ internal static class SpeedBoosterObjectProgramsVerification
                 if (entry.Bts == bts && (entry.Area < 0 || entry.Area == area))
                     tableAddress = entry.Address;
             bool found = SpeedBoosterBlocks.TryResolve(RoomBlockBehaviorCodec.Decode((byte)bts),
-                (AreaId)(byte)area,out var definition);
+                (AreaId)(byte)area,out BlockReactionChange? crumble);
             AssertEqual(tableAddress != 0,found,"speed selector full byte BTS/area contract");
             if (!found)
             {
-                AssertEqual(default(SpeedBoosterBlockObjectDefinition),definition,"speed selector missing definition cleared");
+                AssertTrue(crumble is null,"speed selector missing crumble cleared");
                 continue;
             }
             ushort header = ReadRomWord(rom,tableAddress);
             AssertEqual((ushort)0xcdea,ReadRomWord(rom,0x840000 | header),"native selected PLM is Speed Booster setup");
-            if (instruction)
-            {
-                ushort list = ReadRomWord(rom,0x840000 | (header + 2));
-                AssertEqual(RoomObjectNativeListAddresses.SpeedBoosterBlockEntries.Single(entry => entry.Entry == list).Program,
-                    definition.Change, "speed native selected list plays its typed crumble");
-            }
-            else
-                AssertEqual(header,RoomObjectNativeWords.Word(definition.Kind),"speed native selected header");
+            ushort list = ReadRomWord(rom,0x840000 | (header + 2));
+            AssertEqual(RoomObjectNativeListAddresses.SpeedBoosterBlockEntries.Single(entry => entry.Entry == list).Program,
+                crumble, "speed native selected list plays its typed crumble");
         }
     }
 
@@ -108,7 +99,6 @@ internal static class SpeedBoosterObjectProgramsVerification
     {
         CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifySpeedBlockHeaderSelection), () => VerifySpeedBlockHeaderSelection(rom));
         Suite(nameof(VerifySpeedBlockInstructionSelection), () => VerifySpeedBlockInstructionSelection(rom));
         Suite(nameof(RoomObjectProgramsVerification.VerifySpeedBoosterBlockPrograms), () => RoomObjectProgramsVerification.VerifySpeedBoosterBlockPrograms(rom));
 

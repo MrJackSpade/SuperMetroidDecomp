@@ -136,18 +136,18 @@ internal static class SpeedBoosterCollisionBlocksVerification
             "permanent speed-block list does not restore collision");
     }
 
-    /// <summary>Confirms Brinstar BTS $82-$85 choose their distinct respawn, permanent, and Dachora PLM headers through real collision contact.</summary>
+    /// <summary>Confirms Brinstar BTS $82-$85 choose their slow respawning, slow permanent, Dachora respawning and permanent crumbles through real collision contact.</summary>
     private static void VerifyBrinstarAreaTableVariants()
     {
         var cases = new SpeedBoosterCollisionBlocksCase[]
         {
-            new SpeedBoosterCollisionBlocksCase(0x82, SpeedBoosterBlockObjectDefinitions.BrinstarSlowRespawning),
-            new SpeedBoosterCollisionBlocksCase(0x83, SpeedBoosterBlockObjectDefinitions.BrinstarSlowPermanent),
-            new SpeedBoosterCollisionBlocksCase(0x84, SpeedBoosterBlockObjectDefinitions.DachoraRespawning),
-            new SpeedBoosterCollisionBlocksCase(0x85, SpeedBoosterBlockObjectDefinitions.Permanent),
+            new SpeedBoosterCollisionBlocksCase(0x82, SpeedBoosterBlockObjectDefinitions.SlowRespawningCrumble),
+            new SpeedBoosterCollisionBlocksCase(0x83, SpeedBoosterBlockObjectDefinitions.SlowPermanentCrumble),
+            new SpeedBoosterCollisionBlocksCase(0x84, SpeedBoosterBlockObjectDefinitions.RespawningCrumble),
+            new SpeedBoosterCollisionBlocksCase(0x85, SpeedBoosterBlockObjectDefinitions.PermanentCrumble),
         };
 
-        foreach ((byte bts, SpeedBoosterBlockObjectDefinition expected) in cases)
+        foreach ((byte bts, BlockReactionChange expected) in cases)
         {
             (_, RoomLevelData level, RoomObjectSystem roomObjects, int blockIndex) =
                 CreateSpeedBoosterBlockFixture(RoomBlockBehaviorCodec.Decode(bts), AreaId.Brinstar);
@@ -157,7 +157,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             AssertTrue(!result.Collided,
                 $"Brinstar BTS ${bts:X2} clears through the production collision path");
             RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
-            AssertTrue(slot.Behaviour is BlockReactionObject { Change: var started } && started == expected.Change,
+            AssertTrue(slot.Behaviour is BlockReactionObject { Change: var started } && started == expected,
                 $"Brinstar BTS ${bts:X2} starts its exact typed program");
             AssertEqual(RoomCollisionType.Air,
                 level.GetCollisionBlockByIndex(blockIndex).CollisionType,

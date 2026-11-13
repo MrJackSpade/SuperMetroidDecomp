@@ -33,7 +33,7 @@ internal sealed class QuicksandObjects
     /// <returns>False only when the room-object pool is full.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is not a sand reaction.</exception>
     public bool TrySpawnQuicksandReaction(Position16<RoomBlocks> block, SpecialAirInsideReaction reaction) =>
-        QuicksandDefinitions.InsideObjects.ContainsKey(reaction)
+        QuicksandDefinitions.ObjectPlacingInsideReactions.Contains(reaction)
             ? TrySpawn(block)
             : throw new ArgumentOutOfRangeException(nameof(reaction), reaction, "Only the four inside sand reactions place a sand reaction.");
 
@@ -46,7 +46,7 @@ internal sealed class QuicksandObjects
     /// <returns>False only when the room-object pool is full.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is not a sand reaction.</exception>
     public bool TrySpawnQuicksandReaction(Position16<RoomBlocks> block, SpecialAirCollisionReaction reaction) =>
-        QuicksandDefinitions.CollisionObjects.ContainsKey(reaction)
+        QuicksandDefinitions.ObjectPlacingCollisionReactions.Contains(reaction)
             ? TrySpawn(block)
             : throw new ArgumentOutOfRangeException(nameof(reaction), reaction, "Only the four collision sand reactions place a sand reaction.");
 

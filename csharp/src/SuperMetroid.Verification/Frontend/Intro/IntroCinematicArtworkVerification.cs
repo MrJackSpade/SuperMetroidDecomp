@@ -1,6 +1,8 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using static SuperMetroid.Verification.Frontend.Intro.IntroArtworkPostSlicesVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresDestructionArtworkVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresFlightArtworkVerification;
 using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
 using static SuperMetroid.Verification.Harness.SuiteSchedulingVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -566,7 +568,10 @@ internal static class IntroCinematicArtworkVerification
         new(nameof(VerifyGoldenTorizoCartridgeCombatFallback), () => VerifyGoldenTorizoCartridgeCombatFallback(RepositoryRomPath, RepositoryInstallation.Installation)),
         new(nameof(VerifySamusBodyArtwork), VerifyInstalledSamusBodyArtwork),
         new(nameof(VerifyIntroCinematicArtwork), () => VerifyIntroCinematicArtwork(RepositoryRomPath)),
-        new(nameof(VerifyCeresCinematicArtwork), () => VerifyCeresCinematicArtwork(RepositoryRomPath)),
+        new(nameof(VerifyCeresFlightArtwork), () => VerifyCeresFlightArtwork(RepositoryInstallation.Installation,
+            CartridgeImportAddressSpaceTooling.LoadRetailRom(RepositoryRomPath))),
+        new(nameof(VerifyCeresDestructionArtwork), () => VerifyCeresDestructionArtwork(RepositoryInstallation.Installation,
+            CartridgeImportAddressSpaceTooling.LoadRetailRom(RepositoryRomPath))),
         new(nameof(VerifyEndingArtwork), () => VerifyEndingArtwork()),
     ];
 

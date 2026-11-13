@@ -2974,7 +2974,7 @@ internal static class VerificationAssert
         Suite(nameof(VerifyBombedRevealPhysicalDrawMapping), () => VerifyBombedRevealPhysicalDrawMapping(oracle));
         Suite(nameof(VerifyBombedRevealControlMapping), () => VerifyBombedRevealControlMapping(oracle));
         Suite(nameof(VerifyBombedRevealDrawMapping), () => VerifyBombedRevealDrawMapping(oracle));
-        Suite(nameof(VerifyContactCrumbleHeaderSelection), () => VerifyContactCrumbleHeaderSelection(oracle));
+        Suite(nameof(VerifyContactCrumbleSelection), () => VerifyContactCrumbleSelection());
         Suite(nameof(VerifyCollisionBombInstructionSelection), () => VerifyCollisionBombInstructionSelection(oracle));
         Suite(nameof(VerifyReactionBombInstructionSelection), () => VerifyReactionBombInstructionSelection(oracle));
         Suite(nameof(VerifyCrumbleRevealInstructionSelection), () => VerifyCrumbleRevealInstructionSelection(oracle));

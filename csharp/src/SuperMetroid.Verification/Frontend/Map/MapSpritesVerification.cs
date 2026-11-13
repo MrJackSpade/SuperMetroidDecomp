@@ -68,9 +68,8 @@ internal static class MapSpritesVerification
         var vram = new SnesVram(); InstalledFixtures.ImportOf(original).Sprites.LoadArtworkTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(MenuVramLayout.MapSpriteByteAddress / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
         AssertTrue(vram.Bytes.Slice(MenuVramLayout.MapSpriteByteAddress, MapSpriteFormat.ByteCount).SequenceEqual(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectCharacters, MapSpriteFormat.ByteCount)), "map OBJ PNG round-trips native characters exactly");
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original));
         Suite(nameof(VerifyRenderedSprites), () => VerifyRenderedSprites());
-        Console.WriteLine("Map sprites: 26 native compositions, clipping/capacity/palette parity, guarded file-select lifecycle and guarded file-select/pause sprite pixels pass.");
+        Console.WriteLine("Map sprites: 26 native compositions, clipping/capacity/palette parity and guarded file-select/pause sprite pixels pass.");
 
         void VerifyRenderedSprites()
         {

@@ -86,16 +86,15 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(loop, cartridge.ReadCartridgeWord(0x840000 | (cursor + 2)), "elevator platform loop goes back to its first image");
     }
 
-    /// <summary>Compares every closing-door orientation's compiled header against the bank-$8F table.</summary>
-    private static void VerifyFallbackDoorHeaders(CartridgeImportAddressSpace rom) => VerifyFallbackDoorField(rom, false);
-    /// <summary>Compares the selected resident door's initial list with its bank-$84 header word.</summary>
-    private static void VerifyFallbackDoorLists(CartridgeImportAddressSpace rom) => VerifyFallbackDoorField(rom, true);
-
     /// <summary>Entries in <c>Door_Closing_PLMs</c> ($8F:E68A), the orientation byte's domain.</summary>
     private const byte DoorClosingTableEntries = 12;
 
-    /// <summary>Checks all orientation bytes, including out-of-table rejection, against either headers or first-list words.</summary>
-    private static void VerifyFallbackDoorField(CartridgeImportAddressSpace rom, bool list)
+    /// <summary>
+    /// Checks all orientation bytes, including out-of-table rejection: each closer begins the initial list of the header
+    /// the bank-$8F table names for its orientation, and a non-closing entry selects none. The header itself is not
+    /// compared, as the game keeps no record of it (#1691).
+    /// </summary>
+    private static void VerifyFallbackDoorLists(CartridgeImportAddressSpace rom)
     {
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
@@ -103,7 +102,6 @@ internal static class RoomObjectPopulationVerification
             if (raw >= DoorClosingTableEntries)
             {
                 AssertThrows<InvalidDataException>(() => DoorRecordCodec.DecodeOrientation(direction), "Orientation beyond Door_Closing_PLMs rejected");
-                if (!list) AssertThrows<InvalidDataException>(() => DoorClosingObjects.GetHeader(direction), "Fallback door public rejected direction");
                 continue;
             }
             ushort header = ReadSamusEaterObjectWord(rom, 0x8fe68a + raw * 2);
@@ -111,15 +109,9 @@ internal static class RoomObjectPopulationVerification
             AssertEqual(direction, orientation.Encode(), "Orientation byte round-trips");
             var actual = DoorClosingObjects.GetDefinition(orientation);
             AssertEqual(header == 0, actual is null, "Non-closing table entries select no actor");
-            if (list)
-                AssertEqual(header == 0 ? (ushort)0 : ReadSamusEaterObjectWord(rom, 0x840000 | (header + 2)),
-                    actual is { } fallback ? TypedDoorObjectOracle.ClosingListOf(fallback) : (ushort)0,
-                    "Fallback original initial list or no-actor zero");
-            else
-            {
-                AssertEqual(header, RoomObjectNativeWords.Word(actual?.Kind ?? RoomObjectKind.None), "Fallback original direction header");
-                AssertEqual(header, DoorClosingObjects.GetHeader(direction), "Fallback public original header");
-            }
+            AssertEqual(header == 0 ? (ushort)0 : ReadSamusEaterObjectWord(rom, 0x840000 | (header + 2)),
+                actual is { } fallback ? TypedDoorObjectOracle.ClosingListOf(fallback) : (ushort)0,
+                "Fallback original initial list or no-actor zero");
         }
     }
 
@@ -127,7 +119,6 @@ internal static class RoomObjectPopulationVerification
     internal static void VerifyDoorClosingObjectDefinitions(CartridgeImportAddressSpace rom, bool fallbackOnly = false)
     {
 
-        Suite(nameof(VerifyFallbackDoorHeaders), () => VerifyFallbackDoorHeaders(rom));
         Suite(nameof(VerifyFallbackDoorLists), () => VerifyFallbackDoorLists(rom));
         for (byte direction = 0; direction < DoorClosingTableEntries; direction++)
         {

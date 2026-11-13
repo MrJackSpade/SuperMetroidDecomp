@@ -76,46 +76,28 @@ internal static class SpeedBoosterBlockObjectDefinitions
         new(SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw, 1),
     ]);
 
-    /// <summary>Brinstar's respawning Speed Booster block with the slower crumble.</summary>
-    public static readonly SpeedBoosterBlockObjectDefinition BrinstarSlowRespawning = new(
-        RoomObjectKind.SpeedBlockBrinstarSlowRespawning,
-        SlowRespawningCrumble);
-
-    /// <summary>Brinstar's permanent Speed Booster block with the slower crumble.</summary>
-    public static readonly SpeedBoosterBlockObjectDefinition BrinstarSlowPermanent = new(
-        RoomObjectKind.SpeedBlockBrinstarSlowPermanent,
-        SlowPermanentCrumble);
-
-    /// <summary>The area-independent standard respawning block.</summary>
-    public static readonly SpeedBoosterBlockObjectDefinition Respawning = new(
-        RoomObjectKind.SpeedBlockRespawning,
-        RespawningCrumble);
-
-    /// <summary>Brinstar's Dachora-room standard respawning block.</summary>
-    public static readonly SpeedBoosterBlockObjectDefinition DachoraRespawning = new(
-        RoomObjectKind.SpeedBlockDachoraRespawning,
-        RespawningCrumble);
-
-    /// <summary>The permanent block, by the area-independent behaviour or Brinstar's own.</summary>
-    public static readonly SpeedBoosterBlockObjectDefinition Permanent = new(
-        RoomObjectKind.SpeedBlockPermanent,
-        PermanentCrumble);
-
-    /// <summary>The Speed Booster blocks the common special-block reactions select, in every area.</summary>
-    public static readonly IReadOnlyDictionary<BlockReaction, SpeedBoosterBlockObjectDefinition> CommonBlocks =
-        new Dictionary<BlockReaction, SpeedBoosterBlockObjectDefinition>
+    /// <summary>
+    /// The crumble of each Speed Booster block the common special-block reactions select, in every area: the respawning
+    /// block and the permanent one.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<BlockReaction, BlockReactionChange> CommonBlocks =
+        new Dictionary<BlockReaction, BlockReactionChange>
         {
-            [BlockReaction.Common(14)] = Respawning,
-            [BlockReaction.Common(15)] = Permanent,
+            [BlockReaction.Common(14)] = RespawningCrumble,
+            [BlockReaction.Common(15)] = PermanentCrumble,
         };
 
-    /// <summary>The Speed Booster blocks Brinstar's own special-block reactions select.</summary>
-    public static readonly IReadOnlyDictionary<BlockReaction, SpeedBoosterBlockObjectDefinition> BrinstarBlocks =
-        new Dictionary<BlockReaction, SpeedBoosterBlockObjectDefinition>
+    /// <summary>
+    /// The crumble of each Speed Booster block Brinstar's own special-block reactions select: the slow respawning and
+    /// slow permanent blocks, the Dachora room's respawning block (which crumbles as the common one does) and the permanent
+    /// block.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<BlockReaction, BlockReactionChange> BrinstarBlocks =
+        new Dictionary<BlockReaction, BlockReactionChange>
         {
-            [BlockReaction.AreaSpecific(2)] = BrinstarSlowRespawning,
-            [BlockReaction.AreaSpecific(3)] = BrinstarSlowPermanent,
-            [BlockReaction.AreaSpecific(4)] = DachoraRespawning,
-            [BlockReaction.AreaSpecific(5)] = Permanent,
+            [BlockReaction.AreaSpecific(2)] = SlowRespawningCrumble,
+            [BlockReaction.AreaSpecific(3)] = SlowPermanentCrumble,
+            [BlockReaction.AreaSpecific(4)] = RespawningCrumble,
+            [BlockReaction.AreaSpecific(5)] = PermanentCrumble,
         };
 }

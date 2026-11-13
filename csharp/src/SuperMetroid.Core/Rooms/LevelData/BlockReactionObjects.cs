@@ -148,7 +148,7 @@ internal sealed class BlockReactionObjects
         if (!SpeedBoosterBlocks.TryResolve(
                 behavior,
                 _area,
-                out SpeedBoosterBlockObjectDefinition definition))
+                out BlockReactionChange? crumble))
         {
             return false;
         }
@@ -172,7 +172,7 @@ internal sealed class BlockReactionObjects
         // The struck block keeps only its collision; the parent shows unmirrored, whatever the block's mirroring (#1581).
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.SpeedBoosterBlockParent));
         slot.RestoreTerrain = restore;
-        slot.Become(new BlockReactionObject(definition.Change));
+        slot.Become(new BlockReactionObject(crumble));
         level.SetTerrain(position, restore.WithCollision(RoomCollisionType.Air));
         return true;
     }

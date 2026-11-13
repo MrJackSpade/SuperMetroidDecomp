@@ -159,23 +159,22 @@ internal static class QuicksandVerification
         Suite(nameof(VerifyQuicksandReactionField), () => VerifyQuicksandReactionField(rom, true));
 
     /// <summary>
-    /// Checks the eight sand reactions' room objects: each one's identity is the cartridge's sand header for that reaction,
-    /// and that header's setup or list matches, the list playing as the sand object's typed change (it ends on its first
+    /// Checks the eight sand reactions' room objects: the reactions that place one are the cartridge's sand headers, and
+    /// each header's setup or list matches, the list playing as the sand object's typed change (it ends on its first
     /// update).
     /// </summary>
     private static void VerifyQuicksandReactionField(CartridgeImportAddressSpace rom, bool instruction)
     {
         // Original non-clone sand PLM headers, independent of the replacement's named cases.
         ushort[] headers = [0xb713, 0xb71f, 0xb723, 0xb727, 0xb72b, 0xb737, 0xb73b, 0xb73f];
-        var sand = new List<(RoomObjectKind Identity, ushort Header, ushort Setup)>();
-        foreach ((SpecialAirInsideReaction reaction, RoomObjectKind identity) in QuicksandDefinitions.InsideObjects)
-            sand.Add((identity, SpecialAirReactionNativeWords.InsideHeaders[reaction], SpecialAirReactionNativeWords.InsideSetups[reaction]));
-        foreach ((SpecialAirCollisionReaction reaction, RoomObjectKind identity) in QuicksandDefinitions.CollisionObjects)
-            sand.Add((identity, SpecialAirReactionNativeWords.CollisionHeaders[reaction], SpecialAirReactionNativeWords.CollisionSetups[reaction]));
+        var sand = new List<(ushort Header, ushort Setup)>();
+        foreach (SpecialAirInsideReaction reaction in QuicksandDefinitions.ObjectPlacingInsideReactions)
+            sand.Add((SpecialAirReactionNativeWords.InsideHeaders[reaction], SpecialAirReactionNativeWords.InsideSetups[reaction]));
+        foreach (SpecialAirCollisionReaction reaction in QuicksandDefinitions.ObjectPlacingCollisionReactions)
+            sand.Add((SpecialAirReactionNativeWords.CollisionHeaders[reaction], SpecialAirReactionNativeWords.CollisionSetups[reaction]));
         AssertTrue(sand.Select(entry => entry.Header).Order().SequenceEqual(headers), "the eight sand reactions are the cartridge's sand headers");
-        foreach ((RoomObjectKind identity, ushort header, ushort setup) in sand)
+        foreach ((ushort header, ushort setup) in sand)
         {
-            AssertEqual(header, RoomObjectNativeWords.Word(identity), $"sand reaction object identity names header {(int)header:X4}");
             ushort native = ReadRomWord(rom, 0x840000 | (header + (instruction ? 2 : 0)));
             if (instruction)
             {

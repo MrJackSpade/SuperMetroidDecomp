@@ -19,8 +19,8 @@ public static class QuicksandReactions
         gravitySuit ? QuicksandDefinitions.WithGravitySuit : QuicksandDefinitions.WithoutGravitySuit;
 
     /// <summary>Whether <paramref name="reaction"/> is one of the four inside sand reactions, each of which places a sand reaction object.</summary>
-    internal static bool PlacesObject(SpecialAirInsideReaction reaction) => QuicksandDefinitions.InsideObjects.ContainsKey(reaction);
+    internal static bool PlacesObject(SpecialAirInsideReaction reaction) => QuicksandDefinitions.ObjectPlacingInsideReactions.Contains(reaction);
 
     /// <summary>Whether <paramref name="reaction"/> is one of the four collision sand reactions, each of which places a sand reaction object.</summary>
-    internal static bool PlacesObject(SpecialAirCollisionReaction reaction) => QuicksandDefinitions.CollisionObjects.ContainsKey(reaction);
+    internal static bool PlacesObject(SpecialAirCollisionReaction reaction) => QuicksandDefinitions.ObjectPlacingCollisionReactions.Contains(reaction);
 }

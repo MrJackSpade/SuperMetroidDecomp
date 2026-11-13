@@ -97,7 +97,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Morph-ball eye function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Morph-ball eye has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 
@@ -113,7 +113,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.FunctionTimer = EyeTransitionDuration;
+        state.ActionTimer = EyeTransitionDuration;
         eye.AnimationClock.StepOnNextUpdate();
         state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
             ? MorphBallEyeSegment.FacingRightActivating
@@ -129,7 +129,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The step expires on reaching zero and also on going below it, so an already-zero timer expires on its
         // step to -1. This is deliberately not a test before the step.
-        if (--state.FunctionTimer > 0)
+        if (--state.ActionTimer > 0)
             return;
 
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.EyeActivationSound, priority: SoundRequestPriority.Normal);
@@ -151,7 +151,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.EyeDeactivationSound, priority: SoundRequestPriority.Normal);
             state.IsActivated = false;
-            state.FunctionTimer = EyeTransitionDuration;
+            state.ActionTimer = EyeTransitionDuration;
             state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
                 ? MorphBallEyeSegment.FacingRightDeactivating
                 : MorphBallEyeSegment.FacingLeftDeactivating), AnimationPlace.StartOfAnimation);
@@ -170,7 +170,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Returns to waiting when the closing countdown reaches zero or goes below it.</summary>
     private static void AdvanceMorphBallEyeDeactivation(MorphBallEyeEnemyState state)
     {
-        if (--state.FunctionTimer <= 0)
+        if (--state.ActionTimer <= 0)
             state.Action = MorphBallEyeAction.WaitForSamus;
     }
 

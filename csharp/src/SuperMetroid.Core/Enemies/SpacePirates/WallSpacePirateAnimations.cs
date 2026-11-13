@@ -17,25 +17,25 @@ internal static class WallSpacePirateAnimations
     {
         [P.FireAndJumpLeft] =
         [
-            Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.AttackAnimationOnRightWall)),
+            Cue(new WallSpacePirateCue.SetAction(Action: WallSpacePirateAction.AttackAnimationOnRightWall)),
             Show(EnemyFrameId.WallPirateFireAndJumpLeftFirst, 9),
             Show(EnemyFrameId.WallPirateFireAndJumpLeftSecond, 15),
             Cue(new WallSpacePirateCue.Signal(K.FireLaserLeft)),
             Wait(32),
             Cue(new WallSpacePirateCue.Signal(K.PrepareJumpLeft)),
-            Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.WallJumpingLeft)),
+            Cue(new WallSpacePirateCue.SetAction(Action: WallSpacePirateAction.WallJumpingLeft)),
             Cue(new WallSpacePirateCue.Signal(K.PlayAttackSound)),
             Show(EnemyFrameId.WallPirateFireAndJumpLeftThird, 10),
             Show(EnemyFrameId.WallPirateFireAndJumpLeftFourth, 1),
         ],
         [P.LandedOnLeftWall] =
         [
-            Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.ClimbingLeftWall)),
+            Cue(new WallSpacePirateCue.SetAction(Action: WallSpacePirateAction.ClimbingLeftWall)),
             Show(EnemyFrameId.WallPirateFireAndJumpLeftThird, 10),
         ],
         [P.MovingUpLeftWall] =
         [
-            Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.ClimbingLeftWall)),
+            Cue(new WallSpacePirateCue.SetAction(Action: WallSpacePirateAction.ClimbingLeftWall)),
         ],
         [P.MovingUpLeftWallLoop] =
         [
@@ -58,7 +58,7 @@ internal static class WallSpacePirateAnimations
         ],
         [P.MovingDownLeftWall] =
         [
-            Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.ClimbingLeftWall)),
+            Cue(new WallSpacePirateCue.SetAction(Action: WallSpacePirateAction.ClimbingLeftWall)),
         ],
         [P.MovingDownLeftWallLoop] =
         [
@@ -81,25 +81,25 @@ internal static class WallSpacePirateAnimations
         ],
         [P.FireAndJumpRight] =
         [
-            Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.AttackAnimationOnLeftWall)),
+            Cue(new WallSpacePirateCue.SetAction(Action: WallSpacePirateAction.AttackAnimationOnLeftWall)),
             Show(EnemyFrameId.WallPirateFireAndJumpRightFirst, 9),
             Show(EnemyFrameId.WallPirateFireAndJumpRightSecond, 1),
             Cue(new WallSpacePirateCue.Signal(K.FireLaserRight)),
             Wait(32),
             Cue(new WallSpacePirateCue.Signal(K.PrepareJumpRight)),
-            Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.WallJumpingRight)),
+            Cue(new WallSpacePirateCue.SetAction(Action: WallSpacePirateAction.WallJumpingRight)),
             Cue(new WallSpacePirateCue.Signal(K.PlayAttackSound)),
             Show(EnemyFrameId.WallPirateFireAndJumpRightThird, 10),
             Show(EnemyFrameId.WallPirateFireAndJumpRightFourth, 1),
         ],
         [P.LandedOnRightWall] =
         [
-            Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.ClimbingRightWall)),
+            Cue(new WallSpacePirateCue.SetAction(Action: WallSpacePirateAction.ClimbingRightWall)),
             Show(EnemyFrameId.WallPirateFireAndJumpRightThird, 10),
         ],
         [P.MovingDownRightWall] =
         [
-            Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.ClimbingRightWall)),
+            Cue(new WallSpacePirateCue.SetAction(Action: WallSpacePirateAction.ClimbingRightWall)),
         ],
         [P.MovingDownRightWallLoop] =
         [
@@ -122,7 +122,7 @@ internal static class WallSpacePirateAnimations
         ],
         [P.MovingUpRightWall] =
         [
-            Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.ClimbingRightWall)),
+            Cue(new WallSpacePirateCue.SetAction(Action: WallSpacePirateAction.ClimbingRightWall)),
         ],
         [P.MovingUpRightWallLoop] =
         [

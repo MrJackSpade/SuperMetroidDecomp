@@ -40,7 +40,7 @@ internal static class GrappleConnectionDefinitionsVerification
         {
             int address = table + direction.ToAimIndex() * 4;
             var connection = GrappleConnections.ResolveConnection(kind, direction);
-            AssertEqual(new VerifyGrappleConnectionDefinitionsCase(Word(address), Word(address + 2)), new VerifyGrappleConnectionDefinitionsCase(SamusGrappleConnectionNative.Functions.Word(connection.Function), SamusGrappleConnectionNative.Handlers.Word(connection.Handler)),
+            AssertEqual(new VerifyGrappleConnectionDefinitionsCase(Word(address), Word(address + 2)), new VerifyGrappleConnectionDefinitionsCase(SamusGrappleConnectionNative.Kinds.Word(connection.Kind), SamusGrappleConnectionNative.Handlers.Word(connection.Handler)),
                 "Both native connection words");
             compiled++;
         }
@@ -122,7 +122,7 @@ internal static class GrappleConnectionDefinitionsVerification
             AssertEqual(0, Word(address + 2) >> 8, "Native special pose word has no discarded high byte");
             return new GrappleConnectionDefinitions.SpecialConnection(RotationAngle.FromRaw(checked(Word(address))), SamusPoseNumbering.FromNumber(Word(address + 2)),
                 new Offset16<RoomPixels>(unchecked((short)Word(address + 4)), unchecked((short)Word(address + 6))),
-                SamusGrappleConnectionNative.Functions.Decode(Word(address + 8), "grapple connection function"));
+                SamusGrappleConnectionNative.Kinds.Decode(Word(address + 8), "grapple connection function"));
         }).ToArray();
         // The native records alternate an authored stop and its reflection; the typed list holds each stop then its reflection.
         AssertEqual(native.Length, GrappleConnections.SpecialConnections.Count, "Native special-angle record count");
@@ -159,7 +159,7 @@ internal static class GrappleConnectionDefinitionsVerification
             AssertEqual(x, samus.Position.X.Whole, "Special wrapped body X");
             AssertEqual(y, samus.Position.Y.Whole, "Special wrapped body Y");
             AssertEqual(row.Pose, samus.Pose, "Special body pose");
-            AssertEqual(row.Function == GrappleConnectionFunction.LockedInPlace ? GrapplePhase.ConnectedLocked : GrapplePhase.WallGrab, g.Phase, "Special next phase");
+            AssertEqual(row.Kind == GrappleConnectionKind.LockedInPlace ? GrapplePhase.ConnectedLocked : GrapplePhase.WallGrab, g.Phase, "Special next phase");
             AssertEqual(0, g.WallJumpTimer, "Special resets wall-jump timer");
             AssertEqual(Clamp(x, 0), (result.CameraPrevious ?? throw new InvalidOperationException("Verification requires result.CameraPrevious.")).X, "Special previous-camera X clamp");
             AssertEqual(Clamp(y, ushort.MaxValue), result.CameraPrevious.Value.Y, "Special previous-camera Y clamp");

@@ -69,8 +69,8 @@ internal static class SporeSpawnAnimationsVerification
         BodyInstructions[word].Cue.Check(cue, at);
         switch (cue)
         {
-            case SporeSpawnCue.SetFunction setFunction:
-                AssertEqual(operands[0], SporeSpawnNativeWords.SporeSpawnFunctions.Word(setFunction.Function), $"{at}: the cartridge's routine word names the cue's function");
+            case SporeSpawnCue.SetMovement setMovement:
+                AssertEqual(operands[0], SporeSpawnNativeWords.SporeSpawnMovements.Word(setMovement.Movement), $"{at}: the cartridge's routine word names the cue's function");
                 break;
             case SporeSpawnCue.SetMaxXRadiusAndAngleDelta sway:
                 AssertEqual(operands[0], sway.MaximumXRadius, $"{at}: maximum X radius in pixels");
@@ -181,7 +181,7 @@ internal static class SporeSpawnAnimationsVerification
 
         var state = new SporeSpawnEnemyState(body)
         {
-            Function = SporeSpawnFunction.Idle,
+            Movement = SporeSpawnMovement.Idle,
             MovementCenter = body.Position.Whole,
             MaximumXRadius = 48,
             AngleDelta = 1,

@@ -13,13 +13,13 @@ public sealed class VerticalShutterEnemyState
     /// <summary>
     /// The dispatcher behaviour, shared by shootable/destroyable shutters and the Kamer vertical platform.
     /// </summary>
-    public VerticalShutterFunction? Function { get; internal set; }
+    public VerticalShutterAction? Action { get; internal set; }
 
     /// <summary>
     /// Wrapping AI-update countdown; initial waiting activates at zero, while endpoint resting resumes on signed
     /// underflow.
     /// </summary>
-    public WrappingCountdown FunctionTimer { get; internal set; }
+    public WrappingCountdown ActionTimer { get; internal set; }
     /// <summary>Downward signed 16.16 velocity in pixels per update, from the common linear-speed table.</summary>
     public SignedSixteenSixteen DownVelocity { get; internal set; }
 

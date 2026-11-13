@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// The behaviour a wall Space Pirate's main AI runs.
 /// Its values are arbitrary.
 /// </summary>
-public enum WallSpacePirateFunction
+public enum WallSpacePirateAction
 {
     /// <summary>Watch Samus while continuing the left-wall climbing animation.</summary>
     ClimbingLeftWall = 1,

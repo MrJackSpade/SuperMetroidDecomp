@@ -10,7 +10,7 @@ internal static class MotherBrainPainfulWalking
     internal static int NeckAngleDelta(int stage) => MotherBrainPainfulWalkingDefinitions.NeckAngleDeltas[Pair(stage)];
 
     /// <summary>The pause of <paramref name="stage"/>.</summary>
-    internal static int FunctionTimer(int stage) => MotherBrainPainfulWalkingDefinitions.FunctionTimers[Pair(stage)];
+    internal static int PauseTimer(int stage) => MotherBrainPainfulWalkingDefinitions.PauseTimers[Pair(stage)];
 
     /// <summary>Maps each forward/backward stagger stage to its shared timing pair, rejecting stages outside the eight-entry sequence.</summary>
     private static int Pair(int stage) => (uint)stage < MotherBrainPainfulWalkingDefinitions.StageCount

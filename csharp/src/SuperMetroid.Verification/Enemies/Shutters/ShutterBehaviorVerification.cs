@@ -84,17 +84,17 @@ internal static class ShutterBehaviorVerification
     /// <summary>Checks native vertical shutter function selection and invalid trigger-mode rejection.</summary>
     internal static void VerifyVerticalShutterInitialFunctionSelection(CartridgeImportAddressSpace rom)
     {
-        Func<VerticalShutterEnemyState, VerticalShutterFunction> select = ShuttersBehavior.SelectInitialVerticalShutterFunction;
+        Func<VerticalShutterEnemyState, VerticalShutterAction> select = ShuttersBehavior.SelectInitialVerticalShutterAction;
         var state = new VerticalShutterEnemyState()
         {
-            Function = VerticalShutterFunction.Initial,
+            Action = VerticalShutterAction.Initial,
         };
         foreach (ShutterTriggerMode mode in Enum.GetValues<ShutterTriggerMode>())
         {
             state.TriggerMode = mode;
             ushort native = ReadShutterWord(rom, ShutterNativeTableAddresses.VerticalInitialFunctions.AddWithinBank(ShutterTriggerModeCodec.ToNativeOffset(mode)));
-            AssertEqual(native, ShuttersNativeWords.VerticalShutterFunctions.Word(select(state)), "vertical shutter native initial function pointer");
-            AssertEqual(VerticalShutterFunction.Initial, state.Function,
+            AssertEqual(native, ShuttersNativeWords.VerticalShutterActions.Word(select(state)), "vertical shutter native initial function pointer");
+            AssertEqual(VerticalShutterAction.Initial, state.Action,
                 "vertical initial dispatch selects a function without installing it");
         }
         foreach (int mode in new[] { 5, 6, 128, 255 })
@@ -105,15 +105,15 @@ internal static class ShutterBehaviorVerification
     /// <summary>Checks horizontal shutter function installation and invalid trigger-mode rejection.</summary>
     internal static void VerifyHorizontalShutterInitialFunctionSelection(CartridgeImportAddressSpace rom)
     {
-        Action<HorizontalShutterEnemyState> select = ShuttersBehavior.SelectInitialHorizontalShutterFunction;
+        Action<HorizontalShutterEnemyState> select = ShuttersBehavior.SelectInitialHorizontalShutterAction;
         var state = new HorizontalShutterEnemyState();
         foreach (ShutterTriggerMode mode in Enum.GetValues<ShutterTriggerMode>())
         {
-            state.Function = HorizontalShutterFunction.Initial;
+            state.Action = HorizontalShutterAction.Initial;
             state.TriggerMode = mode;
             ushort native = ReadShutterWord(rom, ShutterNativeTableAddresses.HorizontalInitialFunctions.AddWithinBank(ShutterTriggerModeCodec.ToNativeOffset(mode)));
             select(state);
-            AssertEqual(native, ShuttersNativeWords.HorizontalShutterFunctions.Word(state.Function ?? throw new InvalidOperationException("The shutter installed no function.")), "horizontal shutter installs native initial function pointer");
+            AssertEqual(native, ShuttersNativeWords.HorizontalShutterActions.Word(state.Action ?? throw new InvalidOperationException("The shutter installed no function.")), "horizontal shutter installs native initial function pointer");
         }
         foreach (int mode in new[] { 5, 6, 128, 255 })
             AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.ShutterHorizShootable,

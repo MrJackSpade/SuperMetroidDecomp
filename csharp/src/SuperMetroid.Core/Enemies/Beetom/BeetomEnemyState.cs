@@ -31,7 +31,7 @@ public sealed class BeetomEnemyState
     /// <summary>The per-update behaviour, including separate decision and setup updates.</summary>
     public BeetomAction? Action { get; internal set; }
     /// <summary>Idle/crawl countdown in gameplay updates; it expires when a step takes it below zero, not on reaching zero.</summary>
-    public int FunctionTimer { get; internal set; }
+    public int ActionTimer { get; internal set; }
     /// <summary>Remaining controller changes needed to escape attachment, restarted at 64 by the initial touch.</summary>
     public int ButtonCounter { get; internal set; }
     /// <summary>Controller input last observed by initialization or the attached counter; any differing input, including releases, decrements <see cref="ButtonCounter"/>.</summary>

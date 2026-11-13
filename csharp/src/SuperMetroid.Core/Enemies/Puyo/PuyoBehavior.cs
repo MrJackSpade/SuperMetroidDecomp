@@ -52,7 +52,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             // The initialization AI never writes the airborne function or the inactive extra values. The room loader's
             // cleared enemy allocation therefore leaves them empty until the first hop owns
             // them; do not pre-populate plausible values the game has not written.
-            AirborneFunction = null,
+            AirborneMovement = null,
             CurrentHop = PuyoHopType.NormalSmall,
             HopType = PuyoHopType.NormalSmall,
             HoppingAnimationActive = false,
@@ -89,7 +89,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Puyo function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Puyo has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 
@@ -143,7 +143,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.CurrentHop = state.HopType;
-        state.AirborneFunction = Hop(state).Function;
+        state.AirborneMovement = Hop(state).Movement;
         CalculateInitialPuyoHopSpeed(state);
     }
 
@@ -192,42 +192,42 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         PuyoEnemyState state,
         RoomLevelData level)
     {
-        switch (state.AirborneFunction)
+        switch (state.AirborneMovement)
         {
-            case PuyoAirborneFunction.NormalShortHop:
+            case PuyoAirborneMovement.NormalShortHop:
                 RunNormalPuyoHop(
                     slot,
                     state,
                     level,
                     PuyoSegment.GroundedSlow);
                 return;
-            case PuyoAirborneFunction.NormalBigHop:
+            case PuyoAirborneMovement.NormalBigHop:
                 RunNormalPuyoHop(
                     slot,
                     state,
                     level,
                     PuyoSegment.GroundedMedium);
                 return;
-            case PuyoAirborneFunction.NormalLongHop:
+            case PuyoAirborneMovement.NormalLongHop:
                 RunNormalPuyoHop(
                     slot,
                     state,
                     level,
                     PuyoSegment.GroundedFast);
                 return;
-            case PuyoAirborneFunction.GiantHop:
+            case PuyoAirborneMovement.GiantHop:
                 RunGiantPuyoHop(slot, state, level);
                 return;
-            case PuyoAirborneFunction.Dropping:
+            case PuyoAirborneMovement.Dropping:
                 RunDroppingPuyo(slot, state, level);
                 return;
-            case PuyoAirborneFunction.Dropped:
+            case PuyoAirborneMovement.Dropped:
                 RunDroppedPuyo(slot, state, level);
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Puyo airborne function {state.AirborneFunction?.ToString() ?? "none"} " +
-                    "is not translated.");
+                    $"Puyo has no behaviour for airborne movement " +
+                    $"{state.AirborneMovement?.ToString() ?? "none"}.");
         }
     }
 
@@ -307,7 +307,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.InvertDirection = _ceilingTurn.TurnsBack;
                 state.InvertedDirection = Opposite(state.Direction);
                 state.HopType = PuyoHopType.Dropping;
-                state.AirborneFunction = PuyoAirborneFunction.Dropping;
+                state.AirborneMovement = PuyoAirborneMovement.Dropping;
                 state.HoppingAnimationActive = false;
             }
             else
@@ -345,7 +345,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InvertedDirection = Opposite(state.Direction);
         state.HoppingAnimationActive = false;
         state.HopType = PuyoHopType.Dropping;
-        state.AirborneFunction = PuyoAirborneFunction.Dropping;
+        state.AirborneMovement = PuyoAirborneMovement.Dropping;
     }
 
     /// <summary>Selects the rising/falling one-frame pose for the current curve index.</summary>

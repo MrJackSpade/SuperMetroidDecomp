@@ -6,13 +6,13 @@ public static class PuyoHopDefinitions
     /// <summary>Each hop's height, horizontal speed, vertical-curve step and airborne behaviour.</summary>
     internal static readonly Dictionary<PuyoHopType, PuyoHopDefinition> Hops = new()
     {
-        [PuyoHopType.NormalSmall] = new(16, 256, 512, PuyoAirborneFunction.NormalShortHop),
-        [PuyoHopType.NormalBig] = new(32, 256, 512, PuyoAirborneFunction.NormalBigHop),
-        [PuyoHopType.NormalHigh] = new(32, 512, 768, PuyoAirborneFunction.NormalLongHop),
-        [PuyoHopType.Giant] = new(128, 320, 512, PuyoAirborneFunction.GiantHop),
-        [PuyoHopType.Dropping] = new(0, 0, 256, PuyoAirborneFunction.Dropping),
-        [PuyoHopType.DroppedSmall] = new(16, 256, 448, PuyoAirborneFunction.Dropped),
-        [PuyoHopType.DroppedBig] = new(21, 256, 448, PuyoAirborneFunction.Dropped),
+        [PuyoHopType.NormalSmall] = new(16, 256, 512, PuyoAirborneMovement.NormalShortHop),
+        [PuyoHopType.NormalBig] = new(32, 256, 512, PuyoAirborneMovement.NormalBigHop),
+        [PuyoHopType.NormalHigh] = new(32, 512, 768, PuyoAirborneMovement.NormalLongHop),
+        [PuyoHopType.Giant] = new(128, 320, 512, PuyoAirborneMovement.GiantHop),
+        [PuyoHopType.Dropping] = new(0, 0, 256, PuyoAirborneMovement.Dropping),
+        [PuyoHopType.DroppedSmall] = new(16, 256, 448, PuyoAirborneMovement.Dropped),
+        [PuyoHopType.DroppedBig] = new(21, 256, 448, PuyoAirborneMovement.Dropped),
     };
 
     /// <summary>

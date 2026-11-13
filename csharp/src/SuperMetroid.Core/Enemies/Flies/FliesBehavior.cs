@@ -70,7 +70,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Fly function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Fly has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

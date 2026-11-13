@@ -1035,7 +1035,7 @@ internal static class LookupStream3Verification
             }
         }
         var sequence = new MotherBrainRainbowBeamAttackSequence();
-        sequence.State.Phase = MotherBrainBodyFunction.ThirdPhaseDeathStartEscape;
+        sequence.State.Phase = MotherBrainBodyPhase.ThirdPhaseDeathStartEscape;
         var bus = new TestAddressSpace();
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 99 };
         var firstPage = sequence.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
@@ -1056,13 +1056,13 @@ internal static class LookupStream3Verification
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9beee + 2 * stage)), MotherBrainPainfulWalking.AnimationDelay(stage), "stream 3 native stagger animation delay");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9befe + 2 * stage)), MotherBrainPainfulWalking.NeckAngleDelta(stage), "stream 3 native stagger neck angle delta");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * stage)), MotherBrainPainfulWalking.FunctionTimer(stage), "stream 3 native stagger pause timer");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * stage)), MotherBrainPainfulWalking.PauseTimer(stage), "stream 3 native stagger pause timer");
         }
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalking.AnimationDelay(invalid), "stream 3 stagger delay bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalking.NeckAngleDelta(invalid), "stream 3 stagger neck bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalking.FunctionTimer(invalid), "stream 3 stagger timer bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalking.PauseTimer(invalid), "stream 3 stagger timer bounds");
         }
         foreach (int stage in new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, ushort.MaxValue })
         {
@@ -1072,7 +1072,7 @@ internal static class LookupStream3Verification
             // As the stagger's setup does before each walk: the stage selects its delay (terminal stages keep the last).
             sequence.DrainedByBaby.PainfulWalkingAnimationDelay = MotherBrainPainfulWalking.AnimationDelay(Math.Min(stage, 7));
             sequence.DrainedByBaby.StepPainfulWalking();
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9c049 + 2 * Math.Min(stage, 7)), sequence.DrainedByBaby.PainfulWalkingFunctionTimer,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9c049 + 2 * Math.Min(stage, 7)), sequence.DrainedByBaby.PainfulWalkingPauseTimer,
                 "stream 3 real stagger timer clamps terminal stages");
         }
     }

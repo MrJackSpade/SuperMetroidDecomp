@@ -16,9 +16,9 @@ internal abstract record WallSpacePirateCue
     /// <param name="ClimbPixels">For a climb cue: the whole pixels the Pirate moves down the wall; negative climbs up.</param>
     internal sealed record ClimbRightWall(int ClimbPixels) : WallSpacePirateCue;
 
-    /// <summary>Sets the function main AI runs next.</summary>
-    /// <param name="Function">The function main AI runs next.</param>
-    internal sealed record SetFunction(WallSpacePirateFunction Function) : WallSpacePirateCue;
+    /// <summary>Sets the action main AI runs next.</summary>
+    /// <param name="Action">The action the cue installs.</param>
+    internal sealed record SetAction(WallSpacePirateAction Action) : WallSpacePirateCue;
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>

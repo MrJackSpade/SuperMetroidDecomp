@@ -59,7 +59,7 @@ internal static class RidleyFlightTailVerification
         slot.Position = slot.Position.WithWhole(new(128, 128));
         state = new RidleyEnemyState
         {
-            Phase = RidleyPhase.NorfairFireballMoveToHeight, FunctionTimer = 0,
+            Phase = RidleyPhase.NorfairFireballMoveToHeight, PhaseTimer = 0,
             TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
             {
                 Active = true, StaggerAngle = null, Clockwise = false,
@@ -67,10 +67,10 @@ internal static class RidleyFlightTailVerification
             }).ToArray(),
         };
         run(slot, state, null, 0, null);
-        AssertEqual(RidleyTailFunction.PointDown, state.TailFunctionIndex, "pogo wait runs pointed-tail setup");
+        AssertEqual(RidleyTailAction.PointDown, state.TailAction, "pogo wait runs pointed-tail setup");
         AssertEqual(RidleyTailAngle.StraightDown.TurnedClockwise(8), state.TailSegments[0].Angle, "setup immediately advances tail by eight");
         tail(slot, state, null);
-        AssertEqual(RidleyTailFunction.Pogo, state.TailFunctionIndex, "all pointed segments finish into normal pogo");
+        AssertEqual(RidleyTailAction.Pogo, state.TailAction, "all pointed segments finish into normal pogo");
         AssertTrue(state.TailSegments.All(segment => segment.Angle == RidleyTailAngle.StraightDown && !segment.Active), "pogo tail points down and stops");
         // $D10E returns on deactivation before recomputing offsets: retain the
         // previous $F8-angle Mode 7 products (-1,+1), not the new angle's (0,2).
@@ -78,13 +78,13 @@ internal static class RidleyFlightTailVerification
         AssertEqual((ushort)145, state.TailSegments[0].Position.Y, "pointed root retains pre-stop native hip Y");
         state.Velocity = state.Velocity.WithY(new SignedEightEight(0));
         tail(slot, state, null);
-        AssertEqual(RidleyTailFunction.StabSetup, state.TailFunctionIndex, "descending normal pogo starts stab setup");
+        AssertEqual(RidleyTailAction.StabSetup, state.TailAction, "descending normal pogo starts stab setup");
         tail(slot, state, null);
-        AssertEqual(RidleyTailFunction.Stab, state.TailFunctionIndex, "stab setup activates downward stab");
+        AssertEqual(RidleyTailAction.Stab, state.TailAction, "stab setup activates downward stab");
         AssertTrue(state.TailSegments.All(segment => segment.TargetDistance == SignedEightEight.FromParts(10, 0)), "stab sets every segment extension target");
         state.Phase = RidleyPhase.NorfairFireballRecover;
         run(slot, state, null, 0, null);
-        AssertEqual(RidleyTailFunction.Neutral, state.TailFunctionIndex, "leaving pogo restores neutral tail");
+        AssertEqual(RidleyTailAction.Neutral, state.TailAction, "leaving pogo restores neutral tail");
         AssertEqual(1, state.TailAngleDelta, "leaving pogo restores native delta");
         Action<RidleyEnemyState, SamusState?, int> aim = (state, samus, turnsBeyond) => enemies.RidleyTail.AimCeresRidleyTailWhip(state, samus, turnsBeyond);
         state.FightMode = RidleyFightMode.Fighting;

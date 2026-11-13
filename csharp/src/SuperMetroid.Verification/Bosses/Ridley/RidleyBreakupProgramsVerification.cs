@@ -35,7 +35,7 @@ internal static class RidleyBreakupProgramsVerification
         body.Bind(EnemyDefinitionId.Ridley, body.Definition);
         var state = new RidleyEnemyState
         {
-            GrabState = RidleyGrabState.CarryingSamus, FunctionTimer = 0,
+            GrabState = RidleyGrabState.CarryingSamus, PhaseTimer = 0,
             TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
                 { Angle = RidleyTailAngle.FromStepsFromStraightDown(index == 6 ? 16 : 0), Position = new Position16<RoomPixels>(128, 128) }).ToArray(),
         };

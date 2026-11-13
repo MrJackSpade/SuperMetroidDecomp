@@ -26,13 +26,13 @@ public static class CeresSteamDefinitions
     internal static readonly IReadOnlyDictionary<CeresSteamVariant, CeresSteamInitialization> Initializations =
         new Dictionary<CeresSteamVariant, CeresSteamInitialization>
         {
-            [CeresSteamVariant.Up] = new(CeresSteamSegment.Up, CeresSteamFunction.None),
-            [CeresSteamVariant.Left] = new(CeresSteamSegment.Left, CeresSteamFunction.None),
-            [CeresSteamVariant.Down] = new(CeresSteamSegment.Down, CeresSteamFunction.None),
-            [CeresSteamVariant.Right] = new(CeresSteamSegment.Right, CeresSteamFunction.None),
+            [CeresSteamVariant.Up] = new(CeresSteamSegment.Up, CeresSteamAction.None),
+            [CeresSteamVariant.Left] = new(CeresSteamSegment.Left, CeresSteamAction.None),
+            [CeresSteamVariant.Down] = new(CeresSteamSegment.Down, CeresSteamAction.None),
+            [CeresSteamVariant.Right] = new(CeresSteamSegment.Right, CeresSteamAction.None),
             [CeresSteamVariant.RotatingElevatorLeft] = new(CeresSteamSegment.Left,
-                CeresSteamFunction.ApplyRotatingElevatorOffset),
+                CeresSteamAction.ApplyRotatingElevatorOffset),
             [CeresSteamVariant.RotatingElevatorRight] = new(CeresSteamSegment.Right,
-                CeresSteamFunction.ApplyRotatingElevatorOffset),
+                CeresSteamAction.ApplyRotatingElevatorOffset),
         };
 }

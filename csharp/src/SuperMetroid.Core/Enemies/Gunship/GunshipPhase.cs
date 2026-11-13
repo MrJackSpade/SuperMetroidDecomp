@@ -1,18 +1,18 @@
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>
-/// The Landing Site gunship's functions, run by its top hull.
+/// The Landing Site gunship's phases, run by its top hull.
 /// Its values are arbitrary.
 /// </summary>
-internal enum GunshipFunction
+internal enum GunshipPhase
 {
-    /// <summary>A cleared record holds no function.</summary>
+    /// <summary>A cleared record holds no phase.</summary>
     None = 0,
-    /// <summary>Shared no-op function.</summary>
+    /// <summary>Shared no-op phase.</summary>
     NoOperation = 1,
     /// <summary>High-altitude post-Ceres descent.</summary>
     DescendAfterCeres,
-    /// <summary>Landing brake function.</summary>
+    /// <summary>Landing brake phase.</summary>
     ApplyLandingBrakes,
     /// <summary>Wait for the landing entrance to open.</summary>
     WaitForLandingEntranceToOpen,

@@ -153,7 +153,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         slot.AnimationClock.Restart();
         var state = new CeresDoorEnemyState
         {
-            Function = initialization.MainFunction,
+            Action = initialization.MainAction,
             Playback = new AnimationPlayback<CeresDoorSegment>(CeresDoorAnimations.StartingWith(initialization.Animation), AnimationPlace.StartOfAnimation),
         };
         slot.SetSpeciesState(state);
@@ -174,45 +174,45 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     internal void RunCeresDoorMain(RoomEnemySlot slot)
     {
         CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();
-        CeresDoorFunction function = state.Function
+        CeresDoorAction action = state.Action
             ?? throw new InvalidDataException("A Ceres door has no main function.");
-        switch (function)
+        switch (action)
         {
-            case CeresDoorFunction.HandleEarthquakeDuringEscape:
+            case CeresDoorAction.HandleEarthquakeDuringEscape:
                 RunCeresDoorEarthquake(EarthquakeReach.ForegroundBackgroundAndEnemies);
                 return;
-            case CeresDoorFunction.HandleEarthquakeDuringEscapeInRidleysRoom:
+            case CeresDoorAction.HandleEarthquakeDuringEscapeInRidleysRoom:
                 RunCeresDoorEarthquake(EarthquakeReach.BackgroundAndEnemies);
                 return;
 
-            case CeresDoorFunction.RidleyEscapeFloorWall:
+            case CeresDoorAction.RidleyEscapeFloorWall:
                 // A getaway wall actor only holds its place: the getaway scene shows the chamber's walls (#1545).
                 return;
 
-            case CeresDoorFunction.RotatingElevatorRoomDefault:
+            case CeresDoorAction.RotatingElevatorRoomDefault:
                 RunCeresDoorPaletteAnimation(slot);
                 if (_ridleyEncounter.CeresStatus is CeresEscapeStatus.SelfDestructStarted or CeresEscapeStatus.ElevatorDoorDestroyed)
                 {
                     // Entering the destruction state installs the destruction function and initializes all three
                     // actor-owned counters, but deliberately does not run the destruction step until
                     // the following enemy frame.
-                    state.Function = CeresDoorFunction.RotatingElevatorRumble;
+                    state.Action = CeresDoorAction.RotatingElevatorRumble;
                     state.RumbleCallsLeft = CeresDoorRumbleDuration;
                     state.ExplosionIntervalLeft = 0;
                     state.ExplosionPositionIndex = 0;
                 }
                 return;
 
-            case CeresDoorFunction.RotatingElevatorRumble:
+            case CeresDoorAction.RotatingElevatorRumble:
                 RunCeresDoorRumbleAndExplosions(slot);
                 return;
 
-            case CeresDoorFunction.ElevatorAnimation:
+            case CeresDoorAction.ElevatorAnimation:
                 RunCeresDoorPaletteAnimation(slot);
                 return;
 
             default:
-                throw new InvalidOperationException($"Undefined CeresDoorFunction {function}.");
+                throw new InvalidOperationException($"A Ceres door has no behaviour for action {action}.");
         }
     }
 
@@ -250,7 +250,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             // it to the perpetual elevator-animation function, and publishes its destruction so the
             // room's turning-floor controller begins the rotation after Ridley's escape.
             slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
-            state.Function = CeresDoorFunction.ElevatorAnimation;
+            state.Action = CeresDoorAction.ElevatorAnimation;
             if (_ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
                 _ridleyEncounter.CeresStatus = CeresEscapeStatus.ElevatorDoorDestroyed;
             return;

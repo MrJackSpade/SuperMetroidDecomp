@@ -44,10 +44,10 @@ public enum KraidPhase
     FingernailWaitForLint,
     /// <summary>Horizontally aligns the current physical part to Kraid's body.</summary>
     AlignPartToKraid,
-    /// <summary>Decrements the current part's function timer and resumes its saved phase on expiry.</summary>
-    HandleFunctionTimer,
+    /// <summary>Decrements the current part's phase timer and resumes its saved phase on expiry.</summary>
+    WaitToResumePhase,
     /// <summary>The first-phase foot's start-retreat timer entry.</summary>
-    DecrementFunctionTimerAndStartWalk,
+    FootWaitBeforeWalk,
     /// <summary>The first-phase foot's thinking entry before its independently timed lunge.</summary>
     FootFirstPhaseThinking,
     /// <summary>Processes Kraid's private head animation and its timer.</summary>

@@ -102,7 +102,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 if (_roomStatus.EnemyDoorTransitionActive)
                     return;
                 state.Phase = RidleyPhase.InitialDelay;
-                state.FunctionTimer = 170;
+                state.PhaseTimer = 170;
                 CeresRidleyFlight.TickCeresRidleyInitialDelay(state);
                 return;
 
@@ -119,10 +119,10 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 return;
 
             case RidleyPhase.WaitBeforeRoar:
-                if (--state.FunctionTimer < 0)
+                if (--state.PhaseTimer < 0)
                 {
                     CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.OpeningRoar);
-                    state.FunctionTimer = 0;
+                    state.PhaseTimer = 0;
                     state.Phase = RidleyPhase.WaitBeforeLiftoff;
                 }
                 return;
@@ -151,7 +151,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
             case RidleyPhase.NorfairHoverSetup:
                 state.Phase = RidleyPhase.NorfairHover;
-                state.FunctionTimer = 128;
+                state.PhaseTimer = 128;
                 NorfairRidleyCombat.TickNorfairRidleyHover(slot, state);
                 return;
 
@@ -232,7 +232,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 state.IdealInterSegmentTailAngle = 11;
                 state.TailExtensionSpeed = RidleyTailDefinitions.PogoExtensionSpeed;
                 state.Phase = RidleyPhase.NorfairPogoDescending;
-                state.FunctionTimer = RidleyRandomDefinitions.PogoDescentTimer.Of(_room.Random.Read()) + 32;
+                state.PhaseTimer = RidleyRandomDefinitions.PogoDescentTimer.Of(_room.Random.Read()) + 32;
                 Combat.TickNorfairRidleyPogo(slot, state, samus, direction: VerticalDirection.Down);
                 return;
 
@@ -278,28 +278,28 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
             case RidleyPhase.NorfairCarryMoveToAnchor:
                 NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, state.Target, 16);
-                if (NorfairRidleyMovement.TickRidleyFunctionTimer(state))
+                if (NorfairRidleyMovement.TickRidleyPhaseTimer(state))
                 {
                     state.Phase = RidleyPhase.NorfairCarryRise;
-                    state.FunctionTimer = 32;
+                    state.PhaseTimer = 32;
                 }
                 return;
 
             case RidleyPhase.NorfairCarryRise:
-                if (NorfairRidleyMovement.TickRidleyFunctionTimer(state))
+                if (NorfairRidleyMovement.TickRidleyPhaseTimer(state))
                 {
                     state.IdealInterSegmentTailAngle = RidleyTailDefinitions.CarryReleaseInterSegmentSpacing;
                     state.TailExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed;
                     NorfairRidleyDeath.ReleaseNorfairRidleyGrab(state, samus);
                     state.Phase = RidleyPhase.NorfairCarryRelease;
-                    state.FunctionTimer = 64;
+                    state.PhaseTimer = 64;
                 }
                 else
                     NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, state.Target.WithY(256), 16);
                 return;
 
             case RidleyPhase.NorfairCarryRelease:
-                if (NorfairRidleyMovement.TickRidleyFunctionTimer(state))
+                if (NorfairRidleyMovement.TickRidleyPhaseTimer(state))
                 {
                     state.IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentSpacing;
                     state.TailExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed;
@@ -368,7 +368,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             case RidleyPhase.CeresRetrieveBaby:
             default:
                 throw new InvalidDataException(
-                    $"Lower Norfair Ridley function {state.Phase} is not translated.");
+                    $"Lower Norfair Ridley has no behaviour for phase {state.Phase}.");
         }
     }
 

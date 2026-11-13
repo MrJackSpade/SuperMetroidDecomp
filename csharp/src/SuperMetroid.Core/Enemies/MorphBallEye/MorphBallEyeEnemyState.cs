@@ -22,7 +22,7 @@ public sealed class MorphBallEyeEnemyState
     public RotationAngle Angle { get; internal set; }
 
     /// <summary>Activation/deactivation countdown.</summary>
-    public int FunctionTimer { get; internal set; }
+    public int ActionTimer { get; internal set; }
 
     /// <summary>The action the eye performs.</summary>
     public MorphBallEyeAction? Action { get; internal set; }

@@ -78,7 +78,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         Combat.Phantoon.Colours.Show(PhantoonBodyLook.Black);
 
         PhantoonBodyState bodyState = Combat.Phantoon.BodyState;
-        bodyState.FunctionTimer = PhantoonTimerDefinitions.InitialFlameDelayFrames;
+        bodyState.PhaseTimer = PhantoonTimerDefinitions.InitialFlameDelayFrames;
         bodyState.StartingFlameIndex = 0;
         bodyState.StartingFlamesActive = false;
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
@@ -252,7 +252,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Phantoon function {state.BodyState.Phase} is not translated.");
+                    $"Phantoon has no behaviour for phase {state.BodyState.Phase}.");
         }
 
         // This synchronization runs only for the body's invocation, then copies the updated point into the three
@@ -378,7 +378,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body = state.Body;
         PhantoonPresentation.StartPhantoonAnimation(state, body, PhantoonPartSegment.EyeHitboxBody);
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
-        state.BodyState.FunctionTimer = PhantoonTimerDefinitions.VulnerableWindow[_room.Random.Next(PhantoonRandomDefinitions.VulnerableWindowChoice)];
+        state.BodyState.PhaseTimer = PhantoonTimerDefinitions.VulnerableWindow[_room.Random.Next(PhantoonRandomDefinitions.VulnerableWindowChoice)];
         state.BodyState.Phase = PhantoonPhase.EyeTracksSamus;
         PhantoonPresentation.StartPhantoonAnimation(state, state.Eye, PhantoonPartSegment.EyeballCentered);
     }

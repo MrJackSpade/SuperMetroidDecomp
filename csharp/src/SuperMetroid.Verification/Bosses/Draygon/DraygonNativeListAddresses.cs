@@ -109,8 +109,8 @@ internal static class DraygonNativeListAddresses
     internal static DraygonCue CueOf(ushort callback, ushort[] operands) => callback switch
     {
         0x94dd => new DraygonCue.StartPartAnimations(Program(operands[0]), Program(operands[1]), Program(operands[2]), Program(operands[3])),
-        0xc47b => new DraygonCue.SetEyeFunction(DraygonNativeWords.EyeFunctions.Decode(operands[0], "Draygon eye function")),
-        0x9736 => new DraygonCue.SetOwnEyeFunction(DraygonNativeWords.EyeFunctions.Decode(operands[0], "Draygon eye function")),
+        0xc47b => new DraygonCue.SetEyeAction(DraygonNativeWords.EyeActions.Decode(operands[0], "Draygon eye function")),
+        0x9736 => new DraygonCue.SetOwnEyeAction(DraygonNativeWords.EyeActions.Decode(operands[0], "Draygon eye function")),
         0x9e0a => new DraygonCue.DisplaceBodyGraphics(new(unchecked((short)operands[0]), unchecked((short)operands[1]))),
         0x9f60 => new DraygonCue.QueueSound(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[0])),
         0x9f6e => new DraygonCue.QueueSound(SoundEffectCommands.Decode(SoundEffectLibrary.Room, operands[0])),

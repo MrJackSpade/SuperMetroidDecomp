@@ -17,13 +17,13 @@ internal static class DraygonAnimations
         [P.BodyFacingLeftReset] =
         [
             Cue(new DraygonCue.StartPartAnimations(P.BodyFacingLeftIdle, P.EyeFacingLeftIdle, P.TailFacingLeftIdle, P.ArmsFacingLeftIdle)),
-            Cue(new DraygonCue.SetEyeFunction(DraygonEyeFunction.FacingLeft)),
+            Cue(new DraygonCue.SetEyeAction(DraygonEyeAction.FacingLeft)),
             Show(22, 1),
         ],
         [P.BodyFacingRightReset] =
         [
             Cue(new DraygonCue.StartPartAnimations(P.BodyFacingRightIdle, P.EyeFacingRightIdle, P.TailFacingRightIdle, P.ArmsFacingRightIdle)),
-            Cue(new DraygonCue.SetEyeFunction(DraygonEyeFunction.FacingRight)),
+            Cue(new DraygonCue.SetEyeAction(DraygonEyeAction.FacingRight)),
             Show(63, 1),
         ],
         [P.ArmsFacingLeftIdle] =
@@ -62,7 +62,7 @@ internal static class DraygonAnimations
         ],
         [P.BodyFacingLeftIdle] =
         [
-            Cue(new DraygonCue.SetEyeFunction(DraygonEyeFunction.FacingLeft)),
+            Cue(new DraygonCue.SetEyeAction(DraygonEyeAction.FacingLeft)),
             Show(22, 1),
         ],
         [P.BodyDying] =
@@ -130,7 +130,7 @@ internal static class DraygonAnimations
             Show(16, 5),
             Show(15, 5),
             Show(14, 5),
-            Cue(new DraygonCue.SetOwnEyeFunction(DraygonEyeFunction.FacingLeft)),
+            Cue(new DraygonCue.SetOwnEyeAction(DraygonEyeAction.FacingLeft)),
         ],
         [P.EyeFacingLeftDying] =
         [
@@ -319,7 +319,7 @@ internal static class DraygonAnimations
         ],
         [P.BodyFacingRightIdle] =
         [
-            Cue(new DraygonCue.SetEyeFunction(DraygonEyeFunction.FacingRight)),
+            Cue(new DraygonCue.SetEyeAction(DraygonEyeAction.FacingRight)),
             Show(63, 1),
         ],
         [P.BodyFacingRightFireGoop] =
@@ -359,7 +359,7 @@ internal static class DraygonAnimations
             Show(57, 5),
             Show(56, 5),
             Show(55, 5),
-            Cue(new DraygonCue.SetOwnEyeFunction(DraygonEyeFunction.FacingLeft)),
+            Cue(new DraygonCue.SetOwnEyeAction(DraygonEyeAction.FacingLeft)),
         ],
         [P.EyeFacingRightDying] =
         [

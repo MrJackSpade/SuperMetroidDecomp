@@ -122,7 +122,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         state.RightPost = state.PostsMidpoint + halfSpan;
         state.LeftPost = state.PostsMidpoint - halfSpan;
         slot.Position = slot.Position.WithX(new((startsAtLeft ? state.LeftPost : state.RightPost).X, 0));
-        state.Function = NinjaSpacePirateFunction.NoOperation;
+        state.Action = NinjaSpacePirateAction.NoOperation;
         state.SpawnPosition = slot.Position.Whole;
     }
 
@@ -134,56 +134,56 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         RoomLevelData? level,
         SamusProjectileSystem? samusProjectiles)
     {
-        switch (state.Function)
+        switch (state.Action)
         {
-            case NinjaSpacePirateFunction.NoOperation:
+            case NinjaSpacePirateAction.NoOperation:
                 return;
-            case NinjaSpacePirateFunction.Initial:
+            case NinjaSpacePirateAction.Initial:
                 RunNinjaPirateInitial(slot, state, RequireSamus(), samusProjectiles);
                 return;
-            case NinjaSpacePirateFunction.Active:
+            case NinjaSpacePirateAction.Active:
                 RunNinjaPirateActive(slot, state, RequireSamus(), samusProjectiles);
                 return;
-            case NinjaSpacePirateFunction.SpinJumpLeftRising:
+            case NinjaSpacePirateAction.SpinJumpLeftRising:
                 StepNinjaPirateSpinJump(slot, state, direction: HorizontalDirection.Left, vertical: VerticalDirection.Up);
                 return;
-            case NinjaSpacePirateFunction.SpinJumpLeftFalling:
+            case NinjaSpacePirateAction.SpinJumpLeftFalling:
                 StepNinjaPirateSpinJump(slot, state, direction: HorizontalDirection.Left, vertical: VerticalDirection.Down);
                 return;
-            case NinjaSpacePirateFunction.SpinJumpRightRising:
+            case NinjaSpacePirateAction.SpinJumpRightRising:
                 StepNinjaPirateSpinJump(slot, state, direction: HorizontalDirection.Right, vertical: VerticalDirection.Up);
                 return;
-            case NinjaSpacePirateFunction.SpinJumpRightFalling:
+            case NinjaSpacePirateAction.SpinJumpRightFalling:
                 StepNinjaPirateSpinJump(slot, state, direction: HorizontalDirection.Right, vertical: VerticalDirection.Down);
                 return;
-            case NinjaSpacePirateFunction.ReadyToDivekick:
+            case NinjaSpacePirateAction.ReadyToDivekick:
                 RunNinjaPirateReadyToDivekick(
                     slot,
                     state,
                     RequireSamus(),
                     samusProjectiles);
                 return;
-            case NinjaSpacePirateFunction.DivekickLeftJump:
+            case NinjaSpacePirateAction.DivekickLeftJump:
                 StepNinjaPirateDiveJump(slot, state, direction: HorizontalDirection.Left);
                 return;
-            case NinjaSpacePirateFunction.DivekickRightJump:
+            case NinjaSpacePirateAction.DivekickRightJump:
                 StepNinjaPirateDiveJump(slot, state, direction: HorizontalDirection.Right);
                 return;
-            case NinjaSpacePirateFunction.DivekickLeftDive:
+            case NinjaSpacePirateAction.DivekickLeftDive:
                 StepNinjaPirateDive(slot, state, level, direction: HorizontalDirection.Left);
                 return;
-            case NinjaSpacePirateFunction.DivekickRightDive:
+            case NinjaSpacePirateAction.DivekickRightDive:
                 StepNinjaPirateDive(slot, state, level, direction: HorizontalDirection.Right);
                 return;
-            case NinjaSpacePirateFunction.DivekickLeftWalkToPost:
+            case NinjaSpacePirateAction.DivekickLeftWalkToPost:
                 StepNinjaPirateWalkToPost(slot, state, direction: HorizontalDirection.Left);
                 return;
-            case NinjaSpacePirateFunction.DivekickRightWalkToPost:
+            case NinjaSpacePirateAction.DivekickRightWalkToPost:
                 StepNinjaPirateWalkToPost(slot, state, direction: HorizontalDirection.Right);
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Ninja Space Pirate function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Ninja Space Pirate has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
 
         SamusState RequireSamus() => samus ?? throw new InvalidOperationException(
@@ -383,9 +383,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 : (slot.Position.Whole - state.PostsMidpoint).X < 0;
             if (crossedMidpoint)
             {
-                state.Function = direction == HorizontalDirection.Right
-                    ? NinjaSpacePirateFunction.SpinJumpRightFalling
-                    : NinjaSpacePirateFunction.SpinJumpLeftFalling;
+                state.Action = direction == HorizontalDirection.Right
+                    ? NinjaSpacePirateAction.SpinJumpRightFalling
+                    : NinjaSpacePirateAction.SpinJumpLeftFalling;
             }
             return;
         }
@@ -394,7 +394,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         if (!state.Speed.IsZero)
             return;
 
-        state.Function = NinjaSpacePirateFunction.NoOperation;
+        state.Action = NinjaSpacePirateAction.NoOperation;
         slot.Position = slot.Position.WithWholeX((direction == HorizontalDirection.Right ? state.RightPost : state.LeftPost).X);
         StartNinjaPirateAnimation(
             slot,
@@ -423,9 +423,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         if (!state.Speed.IsNegative)
             return;
 
-        state.Function = direction == HorizontalDirection.Right
-            ? NinjaSpacePirateFunction.DivekickRightDive
-            : NinjaSpacePirateFunction.DivekickLeftDive;
+        state.Action = direction == HorizontalDirection.Right
+            ? NinjaSpacePirateAction.DivekickRightDive
+            : NinjaSpacePirateAction.DivekickLeftDive;
         StartNinjaPirateAnimation(
             slot,
             state,
@@ -463,9 +463,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         if (!landed)
             return;
 
-        state.Function = direction == HorizontalDirection.Right
-            ? NinjaSpacePirateFunction.DivekickRightWalkToPost
-            : NinjaSpacePirateFunction.DivekickLeftWalkToPost;
+        state.Action = direction == HorizontalDirection.Right
+            ? NinjaSpacePirateAction.DivekickRightWalkToPost
+            : NinjaSpacePirateAction.DivekickLeftWalkToPost;
         StartNinjaPirateAnimation(
             slot,
             state,
@@ -498,7 +498,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             direction == HorizontalDirection.Right
                 ? NinjaSpacePirateSegment.LandFacingRight
                 : NinjaSpacePirateSegment.LandFacingLeft);
-        state.Function = NinjaSpacePirateFunction.NoOperation;
+        state.Action = NinjaSpacePirateAction.NoOperation;
     }
 
     /// <summary>Spawns a dust cloud on each side of the landing position.</summary>
@@ -575,8 +575,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateEnemyState state = slot.RequireSpeciesState<NinjaSpacePirateEnemyState>();
         switch (cue)
         {
-            case NinjaSpacePirateCue.SetFunction setFunction:
-                state.Function = setFunction.Function;
+            case NinjaSpacePirateCue.SetAction setAction:
+                state.Action = setAction.Action;
                 return null;
             case NinjaSpacePirateCue.SetShading setShading:
                 slot.Shading = setShading.Shading;

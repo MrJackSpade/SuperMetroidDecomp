@@ -21,7 +21,7 @@ internal static class GrappleConnections
     /// less its own, its X offset negated and its pose facing the other way; its Y offset and function are shared.
     /// </summary>
     internal static SpecialConnection Reflection(SpecialConnection stop) =>
-        new(ReflectionTurn - stop.Angle, SamusPoseMirror.Of(stop.Pose), stop.SamusOffset.MirroredX(), stop.Function);
+        new(ReflectionTurn - stop.Angle, SamusPoseMirror.Of(stop.Pose), stop.SamusOffset.MirroredX(), stop.Kind);
 
     /// <summary>Grapple cancellation policy for the 28 movement dispatch identities.</summary>
     internal static bool CancelsFiring(SamusMovementType movement) => movement switch

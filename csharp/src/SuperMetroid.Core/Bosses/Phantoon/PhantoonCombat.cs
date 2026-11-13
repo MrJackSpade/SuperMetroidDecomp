@@ -198,7 +198,7 @@ internal sealed class PhantoonCombat
             if (hitboxShotAi != EnemyReaction.PhantoonShot)
             {
                 throw new InvalidDataException(
-                    $"Phantoon hitbox shot AI {hitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
+                    $"Phantoon has no response to shot reaction {hitboxShotAi?.ToString() ?? "(unnamed)"}.");
             }
 
             // The extended-hitbox walker marks the projectile before Phantoon's hitbox reaction.
@@ -294,7 +294,7 @@ internal sealed class PhantoonCombat
             if (state.TentaclesState.RoundDamage >= PhantoonBehavior.PhantoonDamageThreshold)
             {
                 if (swooping)
-                    state.BodyState.FunctionTimer = 1;
+                    state.BodyState.PhaseTimer = 1;
                 else
                     ClosePhantoonAfterDamage(body, state, PhantoonPhase.FadeOutWhileSwooping);
                 state.TentaclesState.RearmHurtFlash();
@@ -310,8 +310,8 @@ internal sealed class PhantoonCombat
                 if (!state.TentaclesState.SwoopRequested)
                 {
                     state.TentaclesState.SwoopRequested = true;
-                    if (state.BodyState.FunctionTimer >= 16)
-                        state.BodyState.FunctionTimer = 16;
+                    if (state.BodyState.PhaseTimer >= 16)
+                        state.BodyState.PhaseTimer = 16;
                 }
                 return;
             }
@@ -328,7 +328,7 @@ internal sealed class PhantoonCombat
         PhantoonPhase fadeOut)
     {
         state.BodyState.Phase = fadeOut;
-        state.BodyState.FunctionTimer = 0;
+        state.BodyState.PhaseTimer = 0;
         RoomEnemySlot eye = state.Eye;
         state.TentaclesState.SwoopRequested = false;
         state.TentaclesState.RoundDamage = 0;
@@ -629,7 +629,7 @@ internal sealed class PhantoonCombat
                 if (context.HitboxTouchAi != EnemyReaction.PhantoonTouch)
                 {
                     throw new InvalidDataException(
-                        $"Phantoon hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
+                        $"Phantoon has no response to touch reaction {context.HitboxTouchAi?.ToString() ?? "(unnamed)"}.");
                 }
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
             });

@@ -35,7 +35,7 @@ internal sealed class PhantoonPatterns
     internal void RunPhantoonPickFirstRoundPattern(
         PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
+        if (!PhantoonPresentation.TickPhantoonPhaseTimer(state.BodyState))
             return;
 
         state.EyeState.WaveLength = null;
@@ -239,7 +239,7 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state,
         SamusState samus)
     {
-        if (PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
+        if (PhantoonPresentation.TickPhantoonPhaseTimer(state.BodyState))
         {
             // The tentacles' round damage is the damage accumulated during this
             // opening. Clears it before deciding whether a shot requested a swoop.
@@ -258,7 +258,7 @@ internal sealed class PhantoonPatterns
             }
 
             state.TentaclesState.SwoopRequested = false;
-            state.BodyState.FunctionTimer = 60;
+            state.BodyState.PhaseTimer = 60;
             state.BodyState.Phase = PhantoonPhase.BecomeSolidAndSwoop;
         }
 
@@ -285,7 +285,7 @@ internal sealed class PhantoonPatterns
     {
         PointPhantoonEyeAtSamus(body, state, samus);
         MovePhantoonInSwoop(body, state, samus, target: PhantoonSwoopTarget.AboveSamus);
-        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
+        if (!PhantoonPresentation.TickPhantoonPhaseTimer(state.BodyState))
             return;
 
         state.BodyState.Phase = PhantoonPhase.FadeOutWhileSwooping;
@@ -310,13 +310,13 @@ internal sealed class PhantoonPatterns
             return;
 
         state.BodyState.Phase = PhantoonPhase.WaitAfterFadeOut;
-        state.BodyState.FunctionTimer = 120;
+        state.BodyState.PhaseTimer = 120;
     }
 
     /// <summary>Counts the hidden interval before reappearing.</summary>
     internal static void RunPhantoonHiddenWait(PhantoonBodyState body)
     {
-        if (PhantoonPresentation.TickPhantoonFunctionTimer(body))
+        if (PhantoonPresentation.TickPhantoonPhaseTimer(body))
             body.Phase = PhantoonPhase.PickNextAppearance;
     }
 
@@ -381,7 +381,7 @@ internal sealed class PhantoonPatterns
 
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         state.BodyState.Phase = PhantoonPhase.TrackSamusDuringFlameRain;
-        state.BodyState.FunctionTimer = 90;
+        state.BodyState.PhaseTimer = 90;
     }
 
     /// <summary>Counts the open-eye interval during flame rain.</summary>
@@ -389,7 +389,7 @@ internal sealed class PhantoonPatterns
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
+        if (!PhantoonPresentation.TickPhantoonPhaseTimer(state.BodyState))
             return;
 
         state.TentaclesState.RoundDamage = 0;
@@ -418,7 +418,7 @@ internal sealed class PhantoonPatterns
             return;
 
         state.BodyState.Phase = PhantoonPhase.SpawnFlameRain;
-        state.BodyState.FunctionTimer = PhantoonTimerDefinitions.RainHiding[_room.Random.Next(PhantoonRandomDefinitions.RainHidingChoice)];
+        state.BodyState.PhaseTimer = PhantoonTimerDefinitions.RainHiding[_room.Random.Next(PhantoonRandomDefinitions.RainHidingChoice)];
     }
 
     /// <summary>Emits the scheduled rain pattern while Phantoon is hidden.</summary>
@@ -426,7 +426,7 @@ internal sealed class PhantoonPatterns
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
+        if (!PhantoonPresentation.TickPhantoonPhaseTimer(state.BodyState))
             return;
 
         int pattern = _room.Random.Next(PhantoonRandomDefinitions.FlameRainPattern);
@@ -463,7 +463,7 @@ internal sealed class PhantoonPatterns
         if (!state.EyeState.FadeComplete)
             return;
         state.BodyState.Phase = PhantoonPhase.MoveToTopCenterForRage;
-        state.BodyState.FunctionTimer = 120;
+        state.BodyState.PhaseTimer = 120;
     }
 
     /// <summary>Holds the hidden rage phase until its timer expires.</summary>
@@ -471,7 +471,7 @@ internal sealed class PhantoonPatterns
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
+        if (!PhantoonPresentation.TickPhantoonPhaseTimer(state.BodyState))
             return;
         state.BodyState.Phase = PhantoonPhase.FadeInForRage;
         body.Position = body.Position.WithWhole(new(128, 32));
@@ -487,14 +487,14 @@ internal sealed class PhantoonPatterns
         if (!state.EyeState.FadeComplete)
             return;
         state.BodyState.Phase = PhantoonPhase.Enraged;
-        state.BodyState.FunctionTimer = 4;
+        state.BodyState.PhaseTimer = 4;
         state.EyeState.FadeComplete = false;
     }
 
     /// <summary>Runs all eight alternating radial flame waves.</summary>
     internal void RunPhantoonRage(RoomEnemySlot body, PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
+        if (!PhantoonPresentation.TickPhantoonPhaseTimer(state.BodyState))
             return;
 
         // Alternating waves contain seven and eight flames, not seven each.
@@ -508,7 +508,7 @@ internal sealed class PhantoonPatterns
         state.EyeState.RageWaveCount = WrappingCounter.IncrementCount(state.EyeState.RageWaveCount);
         if (state.EyeState.RageWaveCount < PhantoonRageDefinitions.WaveCount)
         {
-            state.BodyState.FunctionTimer = PhantoonRageDefinitions.WaveInterval;
+            state.BodyState.PhaseTimer = PhantoonRageDefinitions.WaveInterval;
             return;
         }
 
@@ -525,7 +525,7 @@ internal sealed class PhantoonPatterns
         if (!state.EyeState.FadeComplete)
             return;
         state.BodyState.Phase = PhantoonPhase.WaitAfterFadeOut;
-        state.BodyState.FunctionTimer = 120;
+        state.BodyState.PhaseTimer = 120;
     }
 
     /// <summary>Seeds swoop speed and direction from Samus's current position.</summary>
@@ -536,7 +536,7 @@ internal sealed class PhantoonPatterns
         state.TentaclesState.SwoopTargetX = 0;
         state.TentaclesState.SwoopReturning = false;
         state.BodyState.Phase = PhantoonPhase.Swooping;
-        state.BodyState.FunctionTimer = 360;
+        state.BodyState.PhaseTimer = 360;
     }
 
     /// <summary>
@@ -668,7 +668,7 @@ internal sealed class PhantoonPatterns
     internal void PickPhantoonSecondRoundPattern(
         PhantoonEnemyState state)
     {
-        state.BodyState.FunctionTimer = 60;
+        state.BodyState.PhaseTimer = 60;
         state.EyeState.ClosedTimer = PhantoonTimerDefinitions.EyeClosed[_room.Random.Next(PhantoonRandomDefinitions.EyeClosedChoice)];
         if (PhantoonCadenceDefinitions.FigureEightReverses.IsSetIn(_frameContext.FrameCounter))
         {

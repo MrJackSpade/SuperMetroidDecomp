@@ -11,4 +11,4 @@ internal readonly record struct YardDirectionDefinition(
     YardSegment HidingAnimation,
     YardAirborneFacing AirborneFacingDirection,
     YardDirection OppositeDirection,
-    YardMovementFunction MovementFunction);
+    YardMovement Movement);

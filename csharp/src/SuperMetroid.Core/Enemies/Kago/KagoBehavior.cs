@@ -68,7 +68,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Kago main function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Kago has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

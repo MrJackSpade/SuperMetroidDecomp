@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 /// </summary>
 internal static class MaridiaSnailsNativeWords
 {
-    /// <summary>The routine word naming each <see cref="MaridiaLargeSnailBounceFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<MaridiaLargeSnailBounceFunction> MaridiaLargeSnailBounceFunctions = new(new Dictionary<MaridiaLargeSnailBounceFunction, ushort>
+    /// <summary>The routine word naming each <see cref="MaridiaLargeSnailBouncePhase"/>.</summary>
+    internal static readonly NativeWordIdentities<MaridiaLargeSnailBouncePhase> MaridiaLargeSnailBouncePhases = new(new Dictionary<MaridiaLargeSnailBouncePhase, ushort>
     {
-        [MaridiaLargeSnailBounceFunction.Falling] = 0xcf66,
-        [MaridiaLargeSnailBounceFunction.Rising] = 0xcfa9,
+        [MaridiaLargeSnailBouncePhase.Falling] = 0xcf66,
+        [MaridiaLargeSnailBouncePhase.Rising] = 0xcfa9,
     });
 
     /// <summary>The routine word naming each <see cref="MaridiaLargeSnailAction"/>.</summary>

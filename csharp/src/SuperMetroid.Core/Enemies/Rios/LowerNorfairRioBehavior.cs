@@ -185,7 +185,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
 
             default:
                 throw new InvalidDataException(
-                    $"Lower Norfair Rio function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Lower Norfair Rio has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

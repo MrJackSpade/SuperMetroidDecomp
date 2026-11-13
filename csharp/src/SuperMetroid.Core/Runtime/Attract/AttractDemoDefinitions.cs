@@ -16,5 +16,5 @@ public static class AttractDemoDefinitions
     public const int ChargeBeamRedScrollScreen = 33;
 
     /// <summary>Frames Kraid's body waits before its next action in the Kraid demo.</summary>
-    public const int KraidFunctionTimer = 60;
+    public const int KraidPhaseTimer = 60;
 }

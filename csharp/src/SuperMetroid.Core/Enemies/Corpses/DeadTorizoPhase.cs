@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// The behaviours the dead Torizo corpse's main AI dispatches.
 /// Its values are arbitrary.
 /// </summary>
-internal enum DeadTorizoFunction
+internal enum DeadTorizoPhase
 {
     /// <summary>Holds the intact corpse before its contact or shot trigger.</summary>
     Wait = 1,

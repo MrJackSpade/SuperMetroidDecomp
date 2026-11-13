@@ -207,7 +207,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Magdollite function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Magdollite has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

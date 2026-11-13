@@ -62,7 +62,7 @@ internal sealed class TorizoCombat
         if (!validShotReaction)
         {
             throw new InvalidDataException(
-                $"Torizo normal-bomb hitbox AI {selectedShotAi?.ToString() ?? "(unnamed)"} is not translated.");
+                $"Torizo has no response to normal-bomb reaction {selectedShotAi?.ToString() ?? "(unnamed)"}.");
         }
 
         // Both normal reactions return during the hurt flash. Bomb Torizo also uses its
@@ -121,7 +121,7 @@ internal sealed class TorizoCombat
         if (state.DeathStarted)
             return;
         state.DeathStarted = true;
-        state.Function = TorizoFunction.Idle;
+        state.Phase = TorizoPhase.Idle;
         TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoBodySegment.DeathSequence0));
         SetBehavior(torizo, TorizoBehaviorFlags.GutBlownUp | TorizoBehaviorFlags.FaceBlownUp);
         // The normal Torizo shot reaction makes the actor intangible when
@@ -158,7 +158,7 @@ internal sealed class TorizoCombat
                         EnemyReaction.BombTorizoShot or EnemyReaction.TorizoStandUpSitDownShot))
                 {
                     throw new InvalidDataException(
-                        $"Torizo hitbox shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
+                        $"Torizo has no response to shot reaction {c.HitboxShotAi?.ToString() ?? "(unnamed)"}.");
                 }
                 return false;
             },
@@ -182,7 +182,7 @@ internal sealed class TorizoCombat
                 if (!context.UsesFrameHitboxes || context.HitboxTouchAi != EnemyReaction.BombTorizoTouch)
                 {
                     throw new InvalidDataException(
-                        $"Torizo hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
+                        $"Torizo has no response to touch reaction {context.HitboxTouchAi?.ToString() ?? "(unnamed)"}.");
                 }
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
                 if (context.Slot.Health == 0)
@@ -235,7 +235,7 @@ internal sealed class TorizoCombat
             {
                 c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
                 c.Projectile.IsSpent = false;
-                torizoState.Function = TorizoFunction.Idle;
+                torizoState.Phase = TorizoPhase.Idle;
                 enemy.AnimationClock.StepOnNextUpdate();
                 _access.RequireBombTorizoState(enemy).BodyPlayback = TorizoAnimations.Start(_access.FacesRight(enemy)
                     ? TorizoBodySegment.GoldenDodgeTurningRight
@@ -245,11 +245,11 @@ internal sealed class TorizoCombat
 
             if (c.Family == SamusProjectileFamily.SuperMissile)
             {
-                if (c.Samus is not null && _access.BombTorizoFunction12IsNonNegative(enemy, c.Samus))
+                if (c.Samus is not null && _access.FacesSamus(enemy, c.Samus))
                 {
                     c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
                     SetBehavior(enemy, TorizoBehaviorFlags.CaughtSuperMissile);
-                    torizoState.Function = TorizoFunction.Idle;
+                    torizoState.Phase = TorizoPhase.Idle;
                     c.Projectile.IsSpent = true;
                     enemy.AnimationClock.StepOnNextUpdate();
                     _access.RequireBombTorizoState(enemy).BodyPlayback = TorizoAnimations.Start(_access.Posture(enemy).HasFlag(TorizoPostureFlags.OppositeLegForward)

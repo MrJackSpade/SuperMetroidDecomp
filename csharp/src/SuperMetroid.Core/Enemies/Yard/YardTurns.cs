@@ -6,7 +6,7 @@ internal static class YardTurns
     /// <summary>The turn of <paramref name="movement"/>, or its transition-disabled alternative when it has one.</summary>
     /// <exception cref="InvalidDataException"><paramref name="movement"/> is not a crawling state.</exception>
     internal static YardTurnDefinition ForMovement(
-        YardMovementFunction movement,
+        YardMovement movement,
         bool transitionDisabled)
     {
         if (transitionDisabled && YardTurnDefinitions.DisabledTurns.TryGetValue(movement, out YardTurnDefinition disabled))

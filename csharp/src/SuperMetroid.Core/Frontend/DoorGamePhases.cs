@@ -18,7 +18,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
     internal void DispatchDoorCollisionAndLoading(ControllerButton controllerInput)
     {
         if (session.GameState == SuperMetroidGameState.HitDoorBlock &&
-            !StepHitDoorBlockFunction(controllerInput))
+            !StepHitDoorBlock(controllerInput))
             return;
         // The door's next state follows in the same dispatch and publishes the one after it.
         // The update's per-line effect pass runs before this phase. A rising
@@ -80,10 +80,10 @@ internal sealed class DoorGamePhases(FrontendSession session)
     }
 
     /// <summary>
-    /// Runs this dispatch's hit-door function. Returns true when the step finishes,
+    /// Runs this dispatch's hit-door step. Returns true when the step finishes,
     /// so the room-loading state runs in the same dispatch.
     /// </summary>
-    private bool StepHitDoorBlockFunction(ControllerButton controllerInput)
+    private bool StepHitDoorBlock(ControllerButton controllerInput)
     {
         if (!session.DownwardsElevator.Waiting)
         {

@@ -17,7 +17,7 @@ public sealed class MamaTurtleEnemyState
     public int AsleepFlag { get; internal set; }
 
     /// <summary>Gets the phase-specific countdown used by peak and transition states.</summary>
-    public int FunctionTimer { get; internal set; }
+    public int ActionTimer { get; internal set; }
 
     /// <summary>
     /// Signed 16.16 horizontal acceleration per hovering update, toward Samus's side when hovering starts; a wall

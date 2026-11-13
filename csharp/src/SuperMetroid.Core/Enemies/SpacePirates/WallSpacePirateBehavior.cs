@@ -71,9 +71,9 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         state.Playback = new(WallSpacePirateAnimations.StartingWith(startsOnRight
             ? WallSpacePirateSegment.MovingDownRightWall
             : WallSpacePirateSegment.MovingDownLeftWall), AnimationPlace.StartOfAnimation);
-        state.Function = startsOnRight
-            ? WallSpacePirateFunction.ClimbingRightWall
-            : WallSpacePirateFunction.ClimbingLeftWall;
+        state.Action = startsOnRight
+            ? WallSpacePirateAction.ClimbingRightWall
+            : WallSpacePirateAction.ClimbingLeftWall;
         state.ClimbDirection = WallSpacePirateClimbDirection.Down;
 
         // The USA/Japan build measures angles in 256ths of a turn. A slow jump takes 63 two-step frames; a fast
@@ -92,9 +92,9 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         WallSpacePirateEnemyState state,
         SamusState? samus)
     {
-        switch (state.Function)
+        switch (state.Action)
         {
-            case WallSpacePirateFunction.ClimbingLeftWall:
+            case WallSpacePirateAction.ClimbingLeftWall:
                 if (WallSpacePirateCanAttack(slot, RequireSamus()))
                 {
                     StartWallSpacePirateAnimation(
@@ -104,7 +104,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 }
                 return;
 
-            case WallSpacePirateFunction.ClimbingRightWall:
+            case WallSpacePirateAction.ClimbingRightWall:
                 if (WallSpacePirateCanAttack(slot, RequireSamus()))
                 {
                     StartWallSpacePirateAnimation(
@@ -114,23 +114,23 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 }
                 return;
 
-            case WallSpacePirateFunction.AttackAnimationOnLeftWall:
-            case WallSpacePirateFunction.AttackAnimationOnRightWall:
+            case WallSpacePirateAction.AttackAnimationOnLeftWall:
+            case WallSpacePirateAction.AttackAnimationOnRightWall:
                 // These behaviours do nothing. Actor presentation and timing are owned
                 // entirely by the currently-running animation.
                 return;
 
-            case WallSpacePirateFunction.WallJumpingRight:
+            case WallSpacePirateAction.WallJumpingRight:
                 StepWallSpacePirateJump(slot, state, direction: HorizontalDirection.Right);
                 return;
 
-            case WallSpacePirateFunction.WallJumpingLeft:
+            case WallSpacePirateAction.WallJumpingLeft:
                 StepWallSpacePirateJump(slot, state, direction: HorizontalDirection.Left);
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Wall Space Pirate function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Wall Space Pirate has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
 
         SamusState RequireSamus() => samus ?? throw new InvalidOperationException(
@@ -314,8 +314,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.FireLaserRight }:
                 FireWallSpacePirateLaser(slot, direction: HorizontalDirection.Right);
                 return null;
-            case WallSpacePirateCue.SetFunction setFunction:
-                state.Function = setFunction.Function;
+            case WallSpacePirateCue.SetAction setAction:
+                state.Action = setAction.Action;
                 return null;
             case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.PlayAttackSound }:
                 _walkingSpacePirateBehavior.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateJumpSound);
@@ -388,7 +388,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 if (context.UsesFrameHitboxes && context.HitboxTouchAi != EnemyReaction.SpacePirateTouch)
                 {
                     throw new InvalidDataException(
-                        $"Space Pirate hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
+                        $"Space Pirate has no response to touch reaction {context.HitboxTouchAi?.ToString() ?? "(unnamed)"}.");
                 }
                 // The shared Pirate touch returns before common touch AI while frozen. The overlap was
                 // still found, but neither Samus nor the Pirate receives contact damage.

@@ -252,13 +252,13 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 Head.UnglowKraidEye(body, state);
                 return;
 
-            case KraidPhase.HandleFunctionTimer:
-                KraidEncounterAccess.TickKraidFunctionTimer(state.BodyState);
+            case KraidPhase.WaitToResumePhase:
+                KraidEncounterAccess.TickKraidPhaseTimer(state.BodyState);
                 return;
 
             case KraidPhase.AdvanceHeadAnimationAndTimer:
                 _ = Head.AdvanceKraidHeadAnimation(state);
-                KraidEncounterAccess.TickKraidFunctionTimer(state.BodyState);
+                KraidEncounterAccess.TickKraidPhaseTimer(state.BodyState);
                 return;
 
             case KraidPhase.GrowReleaseCamera:
@@ -298,7 +298,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidPhase.LintFire:
             case KraidPhase.FingernailWaitForLint:
             case KraidPhase.AlignPartToKraid:
-            case KraidPhase.DecrementFunctionTimerAndStartWalk:
+            case KraidPhase.FootWaitBeforeWalk:
             case KraidPhase.FootFirstPhaseThinking:
             case KraidPhase.FootSecondPhaseThinking:
             case KraidPhase.FootSecondPhaseWalkingRight:
@@ -319,7 +319,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidPhase.None:
             default:
                 throw new InvalidDataException(
-                    $"Kraid body function {state.BodyState.Phase} is not translated.");
+                    $"Kraid body has no behaviour for phase {state.BodyState.Phase}.");
         }
     }
 }

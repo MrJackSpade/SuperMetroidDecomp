@@ -538,7 +538,7 @@ internal sealed class CrocomireFight
             case CrocomirePhase.UnwrittenTableEntry:
             default:
                 throw new InvalidDataException(
-                    $"Crocomire fight function {state.Phase} is not translated.");
+                    $"Crocomire fight has no behaviour for phase {state.Phase}.");
         }
     }
 

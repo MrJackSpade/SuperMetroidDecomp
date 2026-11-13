@@ -20,7 +20,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <c>Backdrop2A</c>), an address run into a name (<c>Projectile86E314Frame</c>, <c>Projectile86C76eFrame</c>), or a
 /// family of a type's members numbered in hexadecimal (<c>Row9</c> beside <c>RowA</c>). A name that says <c>Callback</c>
 /// names the original's function-pointer dispatch (#1624, <see cref="DispatchWords"/>) unless what it declares holds a C#
-/// delegate the port passes (<see cref="HoldsDelegate"/>). See <c>docs/core-vocabulary.md</c>.
+/// delegate the port passes (<see cref="HoldsDelegate"/>). A name that says <c>Function</c> names the enemy record's AI
+/// function field (#1701, <see cref="BehaviourFieldWords"/>) under the same delegate allowance. See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
@@ -53,15 +54,6 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     ];
 
     /// <summary>
-    /// The original's dispatch vocabulary (#1624), matched as whole camel-case words like <see cref="HardwareWords"/>: the
-    /// cartridge stored a room's setup and main behaviour, a beam's frame behaviour or a sinking step as a function pointer
-    /// it called back, and a Core name that says <c>Callback</c> names that pointer instead of the behaviour. A declaration
-    /// that holds a C# delegate the port passes (a delegate type, or a field, property, event, parameter or local whose type
-    /// holds one) is a genuine callback and keeps the word.
-    /// </summary>
-    internal static readonly ImmutableArray<string> DispatchWords = ["Callback"];
-
-    /// <summary>
     /// The machine's two-word names, matched as consecutive whole camel-case words without regard to case, the last with
     /// the endings of <see cref="Endings"/> (#1701): the enemy record's AI function field, which named an enemy's or a
     /// boss's behaviour state by the routine pointer the program stored (<c>AiFunction</c>, <c>EnemyFunction</c>,
@@ -71,6 +63,26 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     [
         ["Ai", "Function"], ["Enemy", "Function"], ["Fight", "Function"],
     ];
+
+    /// <summary>
+    /// The original's dispatch vocabulary (#1624), matched as whole camel-case words like <see cref="HardwareWords"/>: the
+    /// cartridge stored a room's setup and main behaviour, a beam's frame behaviour or a sinking step as a function pointer
+    /// it called back, and a Core name that says <c>Callback</c> names that pointer instead of the behaviour. A declaration
+    /// that holds a C# delegate the port passes (a delegate type, or a field, property, event, parameter or local whose type
+    /// holds one) is a genuine callback and keeps the word.
+    /// </summary>
+    internal static readonly ImmutableArray<string> DispatchWords = ["Callback"];
+
+    /// <summary>
+    /// The enemy record's AI function field (#1701), matched as whole camel-case words like <see cref="DispatchWords"/>: the
+    /// cartridge stored an enemy's or a boss's behaviour state, a part's wait and the state a cue installs as the routine
+    /// pointer its record's function field held, and a Core name that says <c>Function</c> (a <c>TorizoFunction</c> enum, a
+    /// <c>Function</c>, <c>SetFunction</c> or <c>FunctionTimer</c> member, a <c>function</c> local) names that field instead of
+    /// the phase, action or movement it selects. A declaration that holds a C# delegate the port passes (a <c>Func&lt;int&gt;</c>
+    /// field or parameter, a delegate type) is a genuine function and keeps the word, and a word that only shares its letters
+    /// (<c>Functional</c>, <c>Func</c>, <c>Functor</c>) is another word.
+    /// </summary>
+    internal static readonly ImmutableArray<string> BehaviourFieldWords = ["Function"];
 
     /// <summary>Endings that keep a word the same hardware word: <c>Banks</c>, <c>Addresses</c>, <c>Banked</c>, <c>Addressing</c>.</summary>
     private static readonly string[] Endings = ["", "s", "es", "ed", "ing"];
@@ -84,7 +96,8 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true,
         description: "Core is a C# game. Its identifiers say what things are in the game, never which chip, memory or " +
             "cartridge structure the original stored them in, never number them as the cartridge did in hexadecimal, and " +
-            "never call a behaviour the callback the original dispatched it through; hardware behaviour the game needs lives in " +
+            "never call a behaviour the callback the original dispatched it through or the function field its record held; " +
+            "hardware behaviour the game needs lives in " +
             "a compatibility service named for the game (#1400, #1554, #1624, #1685, #1694, #1701, docs/core-vocabulary.md).");
 
     /// <inheritdoc/>
@@ -266,7 +279,7 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     /// <summary>
     /// What a declared name says that Core may not, as the diagnostic states it, or null when it says nothing of the machine.
     /// <paramref name="holdsDelegate"/> says whether the declaration holds a C# delegate; it is asked only of a name that
-    /// says a dispatch word.
+    /// says a dispatch word or a behaviour-field word.
     /// </summary>
     internal static string? Finding(string identifier, Func<bool> holdsDelegate)
     {
@@ -274,6 +287,8 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             return $"names the hardware ('{word}')";
         if (ContainedWord(identifier, DispatchWords) is { } dispatch && !holdsDelegate())
             return $"names the original's dispatch ('{dispatch}') where it declares no delegate";
+        if (ContainedWord(identifier, BehaviourFieldWords) is { } field && !holdsDelegate())
+            return $"names the enemy record's AI function field ('{field}') where it declares no delegate";
         return HexCode(identifier) is { } code ? $"spells the cartridge value '{code}' in hexadecimal" : null;
     }
 
@@ -443,7 +458,7 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             if (IsAddressWord(part))
                 return part;
         }
-        return ContainedWord(identifier, HardwareWords) ?? ContainedPhrase(identifier);
+        return ContainedWord(identifier, HardwareWords) ?? ContainedPhrase(identifier, HardwarePhrases);
     }
 
     /// <summary>
@@ -456,28 +471,21 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         {
             foreach (string listed in vocabulary)
             {
-                foreach (string ending in Endings)
-                {
-                    if (word.Length == listed.Length + ending.Length &&
-                        word.StartsWith(listed, StringComparison.OrdinalIgnoreCase) &&
-                        word.EndsWith(ending, StringComparison.OrdinalIgnoreCase))
-                    {
-                        return listed;
-                    }
-                }
+                if (IsWordWithEnding(word, listed))
+                    return listed;
             }
         }
         return null;
     }
 
     /// <summary>
-    /// The phrase of <see cref="HardwarePhrases"/> whose words <paramref name="identifier"/> holds consecutively, ignoring
-    /// case, the last with one of <see cref="Endings"/>, or null.
+    /// The phrase of <paramref name="phrases"/> that <paramref name="identifier"/> contains as consecutive whole camel-case
+    /// words, ignoring case and allowing the <see cref="Endings"/> on its last word, joined, or null.
     /// </summary>
-    private static string? ContainedPhrase(string identifier)
+    private static string? ContainedPhrase(string identifier, ImmutableArray<ImmutableArray<string>> phrases)
     {
         string[] words = Words(identifier).ToArray();
-        foreach (ImmutableArray<string> phrase in HardwarePhrases)
+        foreach (ImmutableArray<string> phrase in phrases)
         {
             for (int start = 0; start + phrase.Length <= words.Length; start++)
             {
@@ -486,7 +494,7 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
                 {
                     string word = words[start + offset];
                     matches = offset == phrase.Length - 1
-                        ? ContainedWord(word, [phrase[offset]]) is not null
+                        ? IsWordWithEnding(word, phrase[offset])
                         : string.Equals(word, phrase[offset], StringComparison.OrdinalIgnoreCase);
                 }
                 if (matches)
@@ -494,6 +502,21 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             }
         }
         return null;
+    }
+
+    /// <summary>Whether <paramref name="word"/> is <paramref name="hardware"/>, ignoring case, with one of <see cref="Endings"/>.</summary>
+    private static bool IsWordWithEnding(string word, string hardware)
+    {
+        foreach (string ending in Endings)
+        {
+            if (word.Length == hardware.Length + ending.Length &&
+                word.StartsWith(hardware, StringComparison.OrdinalIgnoreCase) &&
+                word.EndsWith(ending, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /// <summary>

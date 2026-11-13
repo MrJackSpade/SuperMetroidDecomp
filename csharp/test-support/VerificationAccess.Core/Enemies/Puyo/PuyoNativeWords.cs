@@ -8,15 +8,15 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 /// </summary>
 internal static class PuyoNativeWords
 {
-    /// <summary>The routine word naming each <see cref="PuyoAirborneFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<PuyoAirborneFunction> PuyoAirborneFunctions = new(new Dictionary<PuyoAirborneFunction, ushort>
+    /// <summary>The routine word naming each <see cref="PuyoAirborneMovement"/>.</summary>
+    internal static readonly NativeWordIdentities<PuyoAirborneMovement> PuyoAirborneMovements = new(new Dictionary<PuyoAirborneMovement, ushort>
     {
-        [PuyoAirborneFunction.NormalShortHop] = 0x9d0b,
-        [PuyoAirborneFunction.NormalBigHop] = 0x9d2b,
-        [PuyoAirborneFunction.NormalLongHop] = 0x9d4b,
-        [PuyoAirborneFunction.GiantHop] = 0x9d6b,
-        [PuyoAirborneFunction.Dropping] = 0x9d98,
-        [PuyoAirborneFunction.Dropped] = 0x9dcd,
+        [PuyoAirborneMovement.NormalShortHop] = 0x9d0b,
+        [PuyoAirborneMovement.NormalBigHop] = 0x9d2b,
+        [PuyoAirborneMovement.NormalLongHop] = 0x9d4b,
+        [PuyoAirborneMovement.GiantHop] = 0x9d6b,
+        [PuyoAirborneMovement.Dropping] = 0x9d98,
+        [PuyoAirborneMovement.Dropped] = 0x9dcd,
     });
 
     /// <summary>The byte offset of each <see cref="PuyoHopType"/>'s eight-byte record in the cartridge's hop table.</summary>

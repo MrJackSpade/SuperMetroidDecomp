@@ -73,7 +73,7 @@ internal sealed class TorizoMovement
         torizo.Shading = state.Colours.Shading;
         torizo.Frame = EnemyFrameId.BombTorizoDormant;
 
-        state.Function = TorizoFunction.Falling;
+        state.Phase = TorizoPhase.Falling;
         state.FrameBehavior = TorizoFrameBehavior.Idle;
         state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 256);
 
@@ -173,7 +173,7 @@ internal sealed class TorizoMovement
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Bomb Torizo frame behaviour {state.FrameBehavior} is not translated.");
+                    $"Bomb Torizo has no frame behaviour {state.FrameBehavior}.");
         }
     }
 

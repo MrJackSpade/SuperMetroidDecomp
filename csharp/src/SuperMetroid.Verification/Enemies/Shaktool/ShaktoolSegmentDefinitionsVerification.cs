@@ -68,7 +68,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
         // The reset cue carries out its reaction and the animation plays on: a cue's reaction continues nowhere else.
         enemies.ShaktoolBehavior.ApplyShaktoolCue(
             enemies.SlotTable.Slots[0], enemies.ShaktoolSegments[0] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[0]."),
-            new ShaktoolCue(ShaktoolCueKind.ResetFunctions));
+            new ShaktoolCue(ShaktoolCueKind.ResetFrameBehaviors));
         for (int index = 0; index < definitions.Length; index++)
         {
             AssertEqual(definitions[index].FrameBehavior,

@@ -35,7 +35,7 @@ internal static class PhantoonDeathExplosionsVerification
             enemies.PhantoonBehavior.Combat.Phantoon = state;
             Action<RoomEnemySlot, PhantoonEnemyState> step = enemies.PhantoonBehavior.Death.RunPhantoonDyingExplosions;
             body.Position = body.Position.WithWhole(new(origin, origin));
-            state.BodyState.FunctionTimer = 15;
+            state.BodyState.PhaseTimer = 15;
             state.BodyState.Phase = PhantoonPhase.DyingExplosions;
             if (full) foreach (var projectile in enemies.Projectiles.EnemyProjectiles) projectile.Kind = RoomEnemyProjectileKind.MiscDustExplosion;
             int index = 0, passes = 0, timer = 15, requests = 0;
@@ -53,7 +53,7 @@ internal static class PhantoonDeathExplosionsVerification
                     if (++index == 13) { index = 5; passes++; }
                 }
                 step(body, state);
-                AssertEqual((ushort)timer, state.BodyState.FunctionTimer, "Exact death explosion frame timer");
+                AssertEqual((ushort)timer, state.BodyState.PhaseTimer, "Exact death explosion frame timer");
                 AssertEqual((ushort)index, state.TentaclesState.ExplosionIndex, "Exact death record cursor and repeat");
                 AssertEqual((ushort)passes, state.BodyState.ExplosionPass, "Exact death repeat counter");
                 // A due explosion takes the emptied pool's one place; a full pool leaves the schedule as it is.

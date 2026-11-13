@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// The Ceres Baby Metroid's behaviour while Ridley holds, drops or retrieves it.
 /// Its values are arbitrary; <see cref="None"/> is the default of a workspace that was never initialized (#1415).
 /// </summary>
-public enum CeresBabyFunction
+public enum CeresBabyAction
 {
     /// <summary>Outside Ceres the Baby workspace is never initialized and holds no behaviour.</summary>
     None = 0,
@@ -16,6 +16,6 @@ public enum CeresBabyFunction
     Drop,
     /// <summary>The Baby falls under gravity until it lands.</summary>
     Dropped,
-    /// <summary>The idle function after landing.</summary>
+    /// <summary>The idle action after landing.</summary>
     Idle,
 }

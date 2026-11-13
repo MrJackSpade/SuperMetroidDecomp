@@ -93,7 +93,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Skultera function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Skultera has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

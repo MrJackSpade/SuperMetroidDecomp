@@ -33,8 +33,8 @@ internal sealed class MotherBrainRevivalPhases
     {
         // The inanimate setup only installs the next function and its 768-frame timer. It does not
         // fall through, so the first pre-decrement belongs to the following call.
-        _state.Phase = MotherBrainBodyFunction.SecondPhaseReviveShowSignsOfLife;
-        _state.FunctionTimer = 768;
+        _state.Phase = MotherBrainBodyPhase.SecondPhaseReviveShowSignsOfLife;
+        _state.PhaseTimer = 768;
         return false;
     }
 
@@ -47,12 +47,12 @@ internal sealed class MotherBrainRevivalPhases
         // The sign test accepts zero: 768 reaches zero without advancing and only the 769th
         // call underflows to -1. Revival then re-enables both breath producers,
         // seeds 224, and falls through two function installations to the transition from grey.
-        if (--_state.FunctionTimer < 0)
+        if (--_state.PhaseTimer < 0)
         {
             EnableSmallPurpleBreathGeneration();
             _state.DroolGenerationEnabled = true;
-            _state.Phase = MotherBrainBodyFunction.SecondPhaseReviveTransitionFromGrey;
-            _state.FunctionTimer = 224;
+            _state.Phase = MotherBrainBodyPhase.SecondPhaseReviveTransitionFromGrey;
+            _state.PhaseTimer = 224;
             _state.GreyTransitionCounter = 0;
             return true;
         }
@@ -65,9 +65,9 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseReviveTransitionFromGrey(MotherBrainRainbowBeamStepRequests requests)
     {
-        if (--_state.FunctionTimer < 0)
+        if (--_state.PhaseTimer < 0)
         {
-            _state.FunctionTimer = 16;
+            _state.PhaseTimer = 16;
 
             // The revival palette list reverses the same eight grey palettes used by the corpse
             // transition and follows them with zero. The body counter is incremented
@@ -78,7 +78,7 @@ internal sealed class MotherBrainRevivalPhases
             requests.ColoursRequested = paletteIndex < 8;
             if (paletteIndex >= 8)
             {
-                _state.Phase = MotherBrainBodyFunction.SecondPhaseReviveWakeUp;
+                _state.Phase = MotherBrainBodyPhase.SecondPhaseReviveWakeUp;
                 return true;
             }
         }
@@ -102,8 +102,8 @@ internal sealed class MotherBrainRevivalPhases
             _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
             _state.NeckAngleDelta = 1280;
             _state.NeckMovementEnabled = true;
-            _state.Phase = MotherBrainBodyFunction.SecondPhaseReviveWakeUpStretch;
-            _state.FunctionTimer = 16;
+            _state.Phase = MotherBrainBodyPhase.SecondPhaseReviveWakeUpStretch;
+            _state.PhaseTimer = 16;
             return true;
         }
         return false;
@@ -115,11 +115,11 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseReviveWakeUpStretch()
     {
-        if (--_state.FunctionTimer < 0)
+        if (--_state.PhaseTimer < 0)
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.StretchingPhase3);
-            _state.Phase = MotherBrainBodyFunction.SecondPhaseReviveWalkUpToBaby;
-            _state.FunctionTimer = 128;
+            _state.Phase = MotherBrainBodyPhase.SecondPhaseReviveWalkUpToBaby;
+            _state.PhaseTimer = 128;
             return true;
         }
         return false;
@@ -133,7 +133,7 @@ internal sealed class MotherBrainRevivalPhases
     {
         // Once the 128-count timer underflows, the timer deliberately remains negative and the
         // helper is retried after every body-animation call until X has overshot 80.
-        if (--_state.FunctionTimer < 0)
+        if (--_state.PhaseTimer < 0)
         {
             requests.BodyWalkRequested = _state.RequestWalkForward(80, 4).Requested;
             bool reachedWalkTarget = CoordinateAxis.Difference(80, _state.Body.Position.X) < 0 ||
@@ -142,7 +142,7 @@ internal sealed class MotherBrainRevivalPhases
             {
                 _state.Phase2CorpseState = MotherBrainPhase2CorpseState.Revived;
                 _state.HealthColoursEnabled = true;
-                _state.Phase = MotherBrainBodyFunction.SecondPhaseRevivePrepareNeckForBabyDeath;
+                _state.Phase = MotherBrainBodyPhase.SecondPhaseRevivePrepareNeckForBabyDeath;
             }
         }
         return false;
@@ -161,7 +161,7 @@ internal sealed class MotherBrainRevivalPhases
         _state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
         _state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
         _state.NeckAngleDelta = 64;
-        _state.Phase = MotherBrainBodyFunction.SecondPhaseReviveFinishPreparingForBabyDeath;
+        _state.Phase = MotherBrainBodyPhase.SecondPhaseReviveFinishPreparingForBabyDeath;
         return true;
     }
 
@@ -175,7 +175,7 @@ internal sealed class MotherBrainRevivalPhases
         requests.BodyPostureRequested = postureRequested;
         if (stoodUp)
         {
-            _state.Phase = MotherBrainBodyFunction.SecondPhaseMurderBabyAttack;
+            _state.Phase = MotherBrainBodyPhase.SecondPhaseMurderBabyAttack;
             requests.BodyWalkRequested = _state.RequestWalkForward(80, 10).Requested;
             return true;
         }
@@ -197,8 +197,8 @@ internal sealed class MotherBrainRevivalPhases
             _state.SetHeadAnimation(_state.BabyMetroidSpawned
                 ? MotherBrainHeadSegment.AttackingBabyMetroid
                 : MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3);
-            _state.Phase = MotherBrainBodyFunction.SecondPhaseMurderBabyAttackCooldown;
-            _state.FunctionTimer = 64;
+            _state.Phase = MotherBrainBodyPhase.SecondPhaseMurderBabyAttackCooldown;
+            _state.PhaseTimer = 64;
         }
         return false;
     }
@@ -209,8 +209,8 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseMurderBabyAttackCooldown()
     {
-        if (--_state.FunctionTimer < 0)
-            _state.Phase = MotherBrainBodyFunction.SecondPhaseMurderBabyAttack;
+        if (--_state.PhaseTimer < 0)
+            _state.Phase = MotherBrainBodyPhase.SecondPhaseMurderBabyAttack;
         return false;
     }
 
@@ -235,7 +235,7 @@ internal sealed class MotherBrainRevivalPhases
     internal bool RunSecondPhaseExecuteFinalBabyAttack()
     {
         _state.SetHeadAnimation(MotherBrainHeadSegment.AttackingBabyMetroid);
-        _state.Phase = MotherBrainBodyFunction.SecondPhaseFinalBabyAttackHolding;
+        _state.Phase = MotherBrainBodyPhase.SecondPhaseFinalBabyAttackHolding;
         return false;
     }
 

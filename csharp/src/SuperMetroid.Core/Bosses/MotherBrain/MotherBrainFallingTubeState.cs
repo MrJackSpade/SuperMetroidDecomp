@@ -12,8 +12,8 @@ internal sealed class MotherBrainFallingTubeState
     /// <summary>The falling tube's animation and where it stands (#641, #1600).</summary>
     public AnimationPlayback<MotherBrainTubePiece> Playback { get; internal set; } = MotherBrainTubeAnimations.Starting(default);
 
-    /// <summary>The tube function.</summary>
-    public MotherBrainTubeFunction? Function { get; internal set; }
+    /// <summary>The tube action.</summary>
+    public MotherBrainTubeAction? Action { get; internal set; }
 
     /// <summary>The room Y, in pixels, at which a non-main tube explodes.</summary>
     public int FloorY { get; internal set; }

@@ -136,7 +136,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
             default:
                 throw new InvalidDataException(
-                    $"Norfair lava-jumping enemy function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Norfair lava-jumping enemy has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

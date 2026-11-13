@@ -8,8 +8,8 @@ internal static class BabyMetroidRoute
         BabyMetroidRouteDefinitions.Waypoints[index],
         BabyMetroidRouteDefinitions.AccelerationDivisor,
         index < BabyMetroidRouteDefinitions.FirstExtraEightLeg
-            ? BabyMetroidRouteMovementFunction.GradualAccelerationExtraSixteen
-            : BabyMetroidRouteMovementFunction.GradualAccelerationExtraEight,
+            ? BabyMetroidRouteMovement.GradualAccelerationExtraSixteen
+            : BabyMetroidRouteMovement.GradualAccelerationExtraEight,
         EndsWithLatchOntoSamus: index + 1 == BabyMetroidRouteDefinitions.RecordCount);
 
     /// <summary>Returns the authored route leg <paramref name="leg"/>, counted from zero.</summary>
@@ -19,8 +19,8 @@ internal static class BabyMetroidRoute
             : throw new InvalidDataException($"Baby route leg {leg} is not one of the {BabyMetroidRouteDefinitions.RecordCount} authored legs.");
 
     /// <summary>Resolves a movement step to its wrong-way horizontal speed addition.</summary>
-    internal static int GetWrongWayOffScreenXSpeed(BabyMetroidRouteMovementFunction movementFunction) =>
-        BabyMetroidRouteDefinitions.WrongWayOffScreenXSpeeds.TryGetValue(movementFunction, out int speed)
+    internal static int GetWrongWayOffScreenXSpeed(BabyMetroidRouteMovement movement) =>
+        BabyMetroidRouteDefinitions.WrongWayOffScreenXSpeeds.TryGetValue(movement, out int speed)
             ? speed
-            : throw new InvalidDataException($"Baby route names unknown movement function {movementFunction}.");
+            : throw new InvalidDataException($"Baby route names unknown movement function {movement}.");
 }

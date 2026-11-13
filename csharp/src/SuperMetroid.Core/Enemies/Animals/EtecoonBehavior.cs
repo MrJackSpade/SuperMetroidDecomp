@@ -183,7 +183,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Etecoon function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Etecoon has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 
@@ -203,7 +203,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 StartEtecoonAnimation(slot, state, EtecoonSegment.HoppingFacingLeft);
                 state.Action = EtecoonAction.PreJumpCountdown;
-                state.FunctionTimer = WrappingCountdown.Start(11);
+                state.ActionTimer = WrappingCountdown.Start(11);
             }
             return;
         }
@@ -215,7 +215,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             _audio.QueueEnemySound(EtecoonWakeSound, priority: SoundRequestPriority.Essential);
         StartEtecoonAnimation(slot, state, EtecoonSegment.Flexing);
         state.AwaitingSamus = false;
-        state.FunctionTimer = WrappingCountdown.Start(256);
+        state.ActionTimer = WrappingCountdown.Start(256);
     }
 
     /// <summary>Expires the wake pause, installs the first jump speed, and gates its sound by Samus's X.</summary>
@@ -260,12 +260,12 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     StartEtecoonAnimation(slot, state, EtecoonSegment.LookLeftAtSamusAndRunRight);
                     state.Head(side: HorizontalDirection.Right);
                 }
-                state.FunctionTimer = WrappingCountdown.Start(32);
+                state.ActionTimer = WrappingCountdown.Start(32);
                 state.Action = EtecoonAction.FaceSamusPause;
             }
             else
             {
-                state.FunctionTimer = WrappingCountdown.Start(11);
+                state.ActionTimer = WrappingCountdown.Start(11);
                 state.Action = EtecoonAction.PreJumpCountdown;
                 StartEtecoonAnimation(slot, state, EtecoonSegment.HoppingFacingLeft);
             }
@@ -355,7 +355,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Head(side: HorizontalDirection.Right);
             }
             state.Action = EtecoonAction.WallPause;
-            state.FunctionTimer = WrappingCountdown.Start(8);
+            state.ActionTimer = WrappingCountdown.Start(8);
             if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
                 _audio.QueueEnemySound(EtecoonWallSound, priority: SoundRequestPriority.Normal);
             return;
@@ -370,7 +370,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.HeadingRight
                 ? EtecoonSegment.HoppingFacingLeft
                 : EtecoonSegment.HoppingFacingRight);
-        state.FunctionTimer = WrappingCountdown.Start(11);
+        state.ActionTimer = WrappingCountdown.Start(11);
         state.Action = EtecoonAction.RouteAfterLanding;
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
     }
@@ -438,7 +438,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(slot.Position.X.Whole, EtecoonFirstTeachingX) >= 0)
             return;
 
-        state.FunctionTimer = WrappingCountdown.Start(11);
+        state.ActionTimer = WrappingCountdown.Start(11);
         state.Action = EtecoonAction.IdleBetweenTeachingJumps;
         StartEtecoonAnimation(slot, state, EtecoonSegment.HoppingFacingLeft);
     }
@@ -453,7 +453,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(slot.Position.X.Whole, EtecoonRunStartX) < 0)
             return;
 
-        state.FunctionTimer = WrappingCountdown.Start(11);
+        state.ActionTimer = WrappingCountdown.Start(11);
         state.Action = EtecoonAction.IdleBetweenTeachingJumps;
         StartEtecoonAnimation(slot, state, EtecoonSegment.HoppingFacingLeft);
     }
@@ -515,7 +515,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!MoveEtecoonVertically(slot, state, samus, level))
             return;
 
-        state.FunctionTimer = WrappingCountdown.Start(11);
+        state.ActionTimer = WrappingCountdown.Start(11);
         StartEtecoonAnimation(slot, state, EtecoonSegment.HoppingFacingLeft);
         state.Action = EtecoonAction.IdleBetweenTeachingJumps;
     }
@@ -533,7 +533,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.Velocity.Y.WholePixels >= 0)
         {
-            state.FunctionTimer = WrappingCountdown.Start(11);
+            state.ActionTimer = WrappingCountdown.Start(11);
             StartEtecoonAnimation(slot, state, EtecoonSegment.HoppingFacingLeft);
             state.Action = state.Route == EtecoonRoute.TeachAtOnce &&
                 CoordinateAxis.Difference(slot.Position.X.Whole, EtecoonLongRunMaximumX) < 0
@@ -702,8 +702,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Uses post-decrement semantics, treating a one-to-zero or signed underflow as expiry.</summary>
     private static bool DecrementEtecoonTimerAndTestExpired(EtecoonEnemyState state)
     {
-        CountdownStep step = state.FunctionTimer.Decrement();
-        state.FunctionTimer = step.Remaining;
+        CountdownStep step = state.ActionTimer.Decrement();
+        state.ActionTimer = step.Remaining;
         return step.IsZeroOrNegative;
     }
 

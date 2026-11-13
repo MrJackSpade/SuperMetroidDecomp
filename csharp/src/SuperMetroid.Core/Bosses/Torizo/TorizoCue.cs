@@ -42,9 +42,9 @@ internal abstract record TorizoCue
     /// <param name="Site">Where the explosions burst.</param>
     internal sealed record LowHealthExplosions(BombTorizoExplosionSite Site) : TorizoCue;
 
-    /// <summary>Selects the main-AI function.</summary>
-    /// <param name="Function">The main-AI function a <see cref="SetFunction"/> cue selects.</param>
-    internal sealed record SetFunction(TorizoFunction Function) : TorizoCue;
+    /// <summary>Selects the main-AI phase.</summary>
+    /// <param name="Phase">The main-AI phase a <see cref="SetPhase"/> cue selects.</param>
+    internal sealed record SetPhase(TorizoPhase Phase) : TorizoCue;
 
     /// <summary>Installs the body's frame behaviour.</summary>
     /// <param name="FrameBehavior">The frame behaviour a <see cref="SetFrameBehavior"/> cue installs.</param>

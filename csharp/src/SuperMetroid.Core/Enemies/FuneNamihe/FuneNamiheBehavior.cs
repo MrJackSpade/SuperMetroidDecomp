@@ -136,7 +136,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Fune/Namihe function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Fune/Namihe has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

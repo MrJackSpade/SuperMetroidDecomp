@@ -16,9 +16,9 @@ internal abstract record WalkingSpacePirateCue
     /// <param name="LaserHeight">For a laser cue: how many pixels above the Pirate's origin the laser is emitted; negative is below.</param>
     internal sealed record FireLaserRight(int LaserHeight) : WalkingSpacePirateCue;
 
-    /// <summary>Sets the function main AI runs next.</summary>
-    /// <param name="Function">The function main AI runs next.</param>
-    internal sealed record SetFunction(WalkingSpacePirateFunction Function) : WalkingSpacePirateCue;
+    /// <summary>Sets the action main AI runs next.</summary>
+    /// <param name="Action">The action the cue installs.</param>
+    internal sealed record SetAction(WalkingSpacePirateAction Action) : WalkingSpacePirateCue;
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>

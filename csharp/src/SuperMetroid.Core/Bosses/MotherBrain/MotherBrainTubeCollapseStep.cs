@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The functions the head record's secondary Mother Brain dispatcher runs.
+/// The steps the head record's secondary Mother Brain dispatcher runs.
 /// During fake death this independent state machine serializes the physical tube actors,
 /// ceiling projectiles, and one-frame room mutations.
 /// </summary>
-public enum MotherBrainTubeCollapseFunction
+public enum MotherBrainTubeCollapseStep
 {
     /// <summary>Admits collapse when four projectile slots are free, then requests physical bottom-left tube enemy 0.</summary>
     WaitForFourFreeProjectileSlots = 1,

@@ -58,7 +58,7 @@ internal static class CrawlerNativeListAddresses
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, CrawlerNativeListAddressesInstruction> Instructions = new()
     {
-        [0xdfc2] = new CrawlerNativeListAddressesInstruction(CrawlerCueKind.SetFunction, "E"),
-        [0xe660] = new CrawlerNativeListAddressesInstruction(CrawlerCueKind.SetFunction, "E"),
+        [0xdfc2] = new CrawlerNativeListAddressesInstruction(CrawlerCueKind.SetMovement, "E"),
+        [0xe660] = new CrawlerNativeListAddressesInstruction(CrawlerCueKind.SetMovement, "E"),
     };
 }

@@ -17,12 +17,12 @@ public sealed class BotwoonEnemyState
     public BotwoonPhase? Phase { get; internal set; }
 
     /// <summary>The independent movement behaviour, choosing direct hole movement or an authored path.</summary>
-    public BotwoonMovementFunction? MovementFunction { get; internal set; }
+    public BotwoonMovement? Movement { get; internal set; }
 
     /// <summary>
     /// The independent head behaviour, controlling movement orientation, aiming, spit-frame admission, and cooldown.
     /// </summary>
-    public BotwoonHeadFunction? HeadFunction { get; internal set; }
+    public BotwoonHeadAction? HeadAction { get; internal set; }
 
     /// <summary>The trail ring's next place, 0 through 255 (<see cref="BotwoonTrailRing"/>); each moving update writes the head's position there and moves on one place.</summary>
     public int RingIndex { get; internal set; }
@@ -130,7 +130,7 @@ public sealed class BotwoonEnemyState
     /// Each body segment's phase, by segment index (#1413). The game kept it in the segment projectile's horizontal
     /// velocity, which no body motion reads; the phase is the segment's own state here.
     /// </summary>
-    internal BotwoonBodyFunction[] SegmentFunctions { get; } = new BotwoonBodyFunction[13];
+    internal BotwoonBodyPhase[] SegmentPhases { get; } = new BotwoonBodyPhase[13];
 
     /// <summary>The head's last moving positions, one for each of the trail ring's places (<see cref="BotwoonTrailRing"/>), cleared as the room's enemies load.</summary>
     internal Position16<RoomPixels>[] History { get; } = new Position16<RoomPixels>[BotwoonTrailRing.Places];

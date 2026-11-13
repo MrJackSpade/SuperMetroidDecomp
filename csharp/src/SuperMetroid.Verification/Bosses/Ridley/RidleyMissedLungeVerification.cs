@@ -91,7 +91,7 @@ internal static class RidleyMissedLungeVerification
         run(slot, state, samus, 0, null);
         AssertEqual(RidleyPhase.NorfairDeathExplosions, state.Phase, "tenth miss immediately executes death-roar setup");
         AssertEqual(RidleyFightMode.Dying, state.FightMode, "tenth miss enters death mode without requiring a grab");
-        AssertEqual(32, state.FunctionTimer, "native death-roar timer is armed");
+        AssertEqual(32, state.PhaseTimer, "native death-roar timer is armed");
 
         var bomb = new SamusPowerBombExplosionState();
         bomb.Arm();

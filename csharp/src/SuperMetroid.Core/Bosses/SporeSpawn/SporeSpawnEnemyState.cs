@@ -17,8 +17,8 @@ public sealed class SporeSpawnEnemyState
 
     /// <summary>Live common enemy slot owned by the room enemy system; shared by movement, combat, animation, and stalk-projectile owners.</summary>
     public RoomEnemySlot Body { get; }
-    /// <summary>Current main-AI function: the phase of the fight it runs each update.</summary>
-    public SporeSpawnFunction Function { get; internal set; }
+    /// <summary>Current main-AI movement: the phase of the fight it runs each update.</summary>
+    public SporeSpawnMovement Movement { get; internal set; }
     /// <summary>The body's animation and where it stands in it (#1600).</summary>
     internal AnimationPlayback<SporeSpawnBodySegment> BodyPlayback { get; set; }
     /// <summary>

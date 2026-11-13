@@ -25,6 +25,6 @@ public abstract class KraidPartState
     /// <summary>The phase the part runs.</summary>
     public KraidPhase Phase { get; internal set; }
 
-    /// <summary>The updates before the part's function timer installs <see cref="PhaseToResume"/>.</summary>
-    public int FunctionTimer { get; internal set; }
+    /// <summary>The updates before the part's phase timer installs <see cref="PhaseToResume"/>.</summary>
+    public int PhaseTimer { get; internal set; }
 }

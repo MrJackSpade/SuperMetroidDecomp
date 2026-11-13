@@ -744,7 +744,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             samus.LiquidPhysics.QueueMovementSound(SamusSound.SpaceJump, priority: SoundRequestPriority.Normal);
             return facingLeft ? SamusPoseId.SpaceJumpLeftPose : SamusPoseId.SpaceJumpRightPose;
         }
-        if (start != SpinPoseStart.SkipFirstFrame && !samus.LiquidPhysics.CinematicFunctionActive)
+        if (start != SpinPoseStart.SkipFirstFrame && !samus.LiquidPhysics.CinematicActive)
             samus.LiquidPhysics.QueueMovementSound(SamusSound.SpinJump, priority: SoundRequestPriority.Normal);
         return genericPose;
     }

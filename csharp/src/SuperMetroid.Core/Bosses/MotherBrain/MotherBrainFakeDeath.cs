@@ -57,13 +57,13 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>Steps Mother Brain's fake-death gray fade and advances when its palette cycle completes.</summary>
     internal void RunMotherBrainFadeToGray(MotherBrainEnemyState state)
     {
-        if (--state.FunctionTimer < 0)
+        if (--state.PhaseTimer < 0)
         {
-            state.FunctionTimer = 8;
+            state.PhaseTimer = 8;
             int step = state.GrayFadeIndex++;
             if (step == MotherBrainFakeDeathPaletteDefinitions.FrameCount)
             {
-                state.Function = MotherBrainBodyFunction.FakeDeathDescentCollapseTubes;
+                state.Phase = MotherBrainBodyPhase.FakeDeathDescentCollapseTubes;
             }
             else
             {
@@ -114,113 +114,113 @@ internal sealed class MotherBrainFakeDeath
     /// 32 (or 2) its preceding clear step set.</remarks>
     internal void RunMotherBrainTubeCollapse(MotherBrainEnemyState state)
     {
-        switch (state.TubeCollapseFunction)
+        switch (state.TubeCollapseStep)
         {
-            case MotherBrainTubeCollapseFunction.WaitForFourFreeProjectileSlots:
+            case MotherBrainTubeCollapseStep.WaitForFourFreeProjectileSlots:
                 if (_projectiles.EnemyProjectiles.Count(projectile => !projectile.IsActive) < 4)
                     return;
                 SpawnMotherBrainFallingTube(MotherBrainTubePiece.BottomLeft);
-                state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomLeftTube;
+                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearBottomLeftTube;
                 return;
 
-            case MotherBrainTubeCollapseFunction.ClearBottomLeftTube:
+            case MotherBrainTubeCollapseStep.ClearBottomLeftTube:
                 RequestMotherBrainTubeObject(state, new(5, 9),
                     MotherBrainRoomMutation.ClearBottomLeftTube,
-                    MotherBrainTubeCollapseFunction.SpawnTopRightTube, 32);
+                    MotherBrainTubeCollapseStep.SpawnTopRightTube, 32);
                 return;
-            case MotherBrainTubeCollapseFunction.SpawnTopRightTube:
+            case MotherBrainTubeCollapseStep.SpawnTopRightTube:
                 if (!DecrementMotherBrainTubeTimerPastZero(state))
                     return;
                 SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopRightTube, new(152, 47));
-                state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearCeilingColumn9;
+                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearCeilingColumn9;
                 return;
-            case MotherBrainTubeCollapseFunction.ClearCeilingColumn9:
+            case MotherBrainTubeCollapseStep.ClearCeilingColumn9:
                 RequestMotherBrainTubeObject(state, new(9, 2),
                     MotherBrainRoomMutation.ClearCeilingBlock,
-                    MotherBrainTubeCollapseFunction.SpawnTopLeftTube, 32);
+                    MotherBrainTubeCollapseStep.SpawnTopLeftTube, 32);
                 return;
-            case MotherBrainTubeCollapseFunction.SpawnTopLeftTube:
+            case MotherBrainTubeCollapseStep.SpawnTopLeftTube:
                 if (!DecrementMotherBrainTubeTimerPastZero(state))
                     return;
                 SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopLeftTube, new(104, 47));
-                state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearCeilingColumn6;
+                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearCeilingColumn6;
                 return;
-            case MotherBrainTubeCollapseFunction.ClearCeilingColumn6:
+            case MotherBrainTubeCollapseStep.ClearCeilingColumn6:
                 RequestMotherBrainTubeObject(state, new(6, 2),
                     MotherBrainRoomMutation.ClearCeilingBlock,
-                    MotherBrainTubeCollapseFunction.SpawnBottomRightTube, 32);
+                    MotherBrainTubeCollapseStep.SpawnBottomRightTube, 32);
                 return;
-            case MotherBrainTubeCollapseFunction.SpawnBottomRightTube:
+            case MotherBrainTubeCollapseStep.SpawnBottomRightTube:
                 if (!DecrementMotherBrainTubeTimerPastZero(state))
                     return;
                 SpawnMotherBrainFallingTube(MotherBrainTubePiece.BottomRight);
-                state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomRightTube;
+                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearBottomRightTube;
                 return;
-            case MotherBrainTubeCollapseFunction.ClearBottomRightTube:
+            case MotherBrainTubeCollapseStep.ClearBottomRightTube:
                 RequestMotherBrainTubeObject(state, new(10, 9),
                     MotherBrainRoomMutation.ClearBottomRightTube,
-                    MotherBrainTubeCollapseFunction.SpawnBottomMiddleLeftTube, 32);
+                    MotherBrainTubeCollapseStep.SpawnBottomMiddleLeftTube, 32);
                 return;
-            case MotherBrainTubeCollapseFunction.SpawnBottomMiddleLeftTube:
+            case MotherBrainTubeCollapseStep.SpawnBottomMiddleLeftTube:
                 if (!DecrementMotherBrainTubeTimerPastZero(state))
                     return;
                 SpawnMotherBrainFallingTube(MotherBrainTubePiece.BottomMiddleLeft);
-                state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomMiddleLeftTube;
+                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearBottomMiddleLeftTube;
                 return;
-            case MotherBrainTubeCollapseFunction.ClearBottomMiddleLeftTube:
+            case MotherBrainTubeCollapseStep.ClearBottomMiddleLeftTube:
                 RequestMotherBrainTubeObject(state, new(6, 10),
                     MotherBrainRoomMutation.ClearBottomMiddleSideTube,
-                    MotherBrainTubeCollapseFunction.SpawnTopMiddleLeftTube, 32);
+                    MotherBrainTubeCollapseStep.SpawnTopMiddleLeftTube, 32);
                 return;
-            case MotherBrainTubeCollapseFunction.SpawnTopMiddleLeftTube:
+            case MotherBrainTubeCollapseStep.SpawnTopMiddleLeftTube:
                 if (!DecrementMotherBrainTubeTimerPastZero(state))
                     return;
                 SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube, new(120, 59));
-                state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearCeilingColumn7;
+                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearCeilingColumn7;
                 return;
-            case MotherBrainTubeCollapseFunction.ClearCeilingColumn7:
+            case MotherBrainTubeCollapseStep.ClearCeilingColumn7:
                 RequestMotherBrainTubeObject(state, new(7, 2),
                     MotherBrainRoomMutation.ClearCeilingTube,
-                    MotherBrainTubeCollapseFunction.SpawnTopMiddleRightTube, 32);
+                    MotherBrainTubeCollapseStep.SpawnTopMiddleRightTube, 32);
                 return;
-            case MotherBrainTubeCollapseFunction.SpawnTopMiddleRightTube:
+            case MotherBrainTubeCollapseStep.SpawnTopMiddleRightTube:
                 if (!DecrementMotherBrainTubeTimerPastZero(state))
                     return;
                 SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube, new(136, 59));
-                state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearCeilingColumn8;
+                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearCeilingColumn8;
                 return;
-            case MotherBrainTubeCollapseFunction.ClearCeilingColumn8:
+            case MotherBrainTubeCollapseStep.ClearCeilingColumn8:
                 RequestMotherBrainTubeObject(state, new(8, 2),
                     MotherBrainRoomMutation.ClearCeilingTube,
-                    MotherBrainTubeCollapseFunction.SpawnBottomMiddleRightTube, 32);
+                    MotherBrainTubeCollapseStep.SpawnBottomMiddleRightTube, 32);
                 return;
-            case MotherBrainTubeCollapseFunction.SpawnBottomMiddleRightTube:
+            case MotherBrainTubeCollapseStep.SpawnBottomMiddleRightTube:
                 if (!DecrementMotherBrainTubeTimerPastZero(state))
                     return;
                 SpawnMotherBrainFallingTube(MotherBrainTubePiece.BottomMiddleRight);
-                state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomMiddleRightTube;
+                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearBottomMiddleRightTube;
                 return;
-            case MotherBrainTubeCollapseFunction.ClearBottomMiddleRightTube:
+            case MotherBrainTubeCollapseStep.ClearBottomMiddleRightTube:
                 RequestMotherBrainTubeObject(state, new(9, 10),
                     MotherBrainRoomMutation.ClearBottomMiddleSideTube,
-                    MotherBrainTubeCollapseFunction.SpawnMainTube, 2);
+                    MotherBrainTubeCollapseStep.SpawnMainTube, 2);
                 return;
-            case MotherBrainTubeCollapseFunction.SpawnMainTube:
+            case MotherBrainTubeCollapseStep.SpawnMainTube:
                 if (!DecrementMotherBrainTubeTimerPastZero(state))
                     return;
                 SpawnMotherBrainFallingTube(MotherBrainTubePiece.Main);
-                state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.ClearBottomMiddleTubes;
+                state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearBottomMiddleTubes;
                 return;
-            case MotherBrainTubeCollapseFunction.ClearBottomMiddleTubes:
+            case MotherBrainTubeCollapseStep.ClearBottomMiddleTubes:
                 RequestMotherBrainTubeObject(state, new(7, 7),
                     MotherBrainRoomMutation.ClearBottomMiddleTubes,
-                    MotherBrainTubeCollapseFunction.Finished, 0);
+                    MotherBrainTubeCollapseStep.Finished, 0);
                 return;
-            case MotherBrainTubeCollapseFunction.Finished:
+            case MotherBrainTubeCollapseStep.Finished:
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain tube function {state.TubeCollapseFunction} is not translated.");
+                    $"Mother Brain tube has no behaviour for tube collapse step {state.TubeCollapseStep}.");
         }
     }
 
@@ -232,11 +232,11 @@ internal sealed class MotherBrainFakeDeath
         MotherBrainEnemyState state,
         Position16<RoomBlocks> block,
         MotherBrainRoomMutation mutation,
-        MotherBrainTubeCollapseFunction next,
+        MotherBrainTubeCollapseStep next,
         int timer)
     {
         _access.RequestMotherBrainObject(block, mutation);
-        state.TubeCollapseFunction = next;
+        state.TubeCollapseStep = next;
         state.TubeCollapseTimer = timer;
     }
 
@@ -281,9 +281,9 @@ internal sealed class MotherBrainFakeDeath
         var state = new MotherBrainFallingTubeState
         {
             Playback = MotherBrainTubeAnimations.Starting(piece),
-            Function = piece == MotherBrainTubePiece.Main
-                ? MotherBrainTubeFunction.MainTube_WaitingToFall
-                : MotherBrainTubeFunction.NonMainTube,
+            Action = piece == MotherBrainTubePiece.Main
+                ? MotherBrainTubeAction.MainTube_WaitingToFall
+                : MotherBrainTubeAction.NonMainTube,
             FloorY = tubeBody.Floor,
             FallDelay = settings.FallDelay,
         };
@@ -294,24 +294,24 @@ internal sealed class MotherBrainFakeDeath
     internal void RunMotherBrainFallingTubeMain(RoomEnemySlot tube)
     {
         MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
-        switch (tubeState.Function ?? throw new InvalidDataException("A falling tube has no function."))
+        switch (tubeState.Action ?? throw new InvalidDataException("A falling tube has no function."))
         {
-            case MotherBrainTubeFunction.NonMainTube:
+            case MotherBrainTubeAction.NonMainTube:
                 FallMotherBrainSideTube(tube);
                 return;
-            case MotherBrainTubeFunction.MainTube_WaitingToFall:
+            case MotherBrainTubeAction.MainTube_WaitingToFall:
                 // The main tube's fall delay expires when it passes zero.
                 if (--tubeState.FallDelay >= 0)
                     return;
-                tubeState.Function = MotherBrainTubeFunction.MainTube_Falling;
+                tubeState.Action = MotherBrainTubeAction.MainTube_Falling;
                 FallMotherBrainMainTube(tube);
                 return;
-            case MotherBrainTubeFunction.MainTube_Falling:
+            case MotherBrainTubeAction.MainTube_Falling:
                 FallMotherBrainMainTube(tube);
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain falling tube function {tubeState.Function} is not translated.");
+                    $"Mother Brain falling tube has no behaviour for action {tubeState.Action}.");
         }
     }
 
@@ -368,7 +368,7 @@ internal sealed class MotherBrainFakeDeath
         state.LowerNeckAngle = RotationAngle.FromSteps(72);
         state.UpperNeckAngle = RotationAngle.FromSteps(80);
         state.NeckAngleDelta = 256;
-        state.Function = MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows1And2;
+        state.Phase = MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows1And2;
         ExplodeMotherBrainTube(tube);
     }
 
@@ -402,122 +402,122 @@ internal sealed class MotherBrainFakeDeath
         MotherBrainEnemyState state,
         MotherBrainRoomMutation firstRowMutation,
         MotherBrainRoomMutation secondRowMutation,
-        MotherBrainBodyFunction next)
+        MotherBrainBodyPhase next)
     {
-        int firstRow = state.Function switch
+        int firstRow = state.Phase switch
         {
-            MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows1And2 => 2,
-            MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows3And4 => 4,
-            MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows5And6 => 6,
-            MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows7And8 => 8,
-            MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows9And10 => 10,
-            MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows11And12 => 12,
-            MotherBrainBodyFunction.FirstPhase or
-                MotherBrainBodyFunction.FakeDeathDescentInitialPause or
-                MotherBrainBodyFunction.FakeDeathDescentPauseBeforeLock or
-                MotherBrainBodyFunction.FakeDeathDescentPauseBeforeMusic or
-                MotherBrainBodyFunction.FakeDeathDescentPauseBeforeUnlock or
-                MotherBrainBodyFunction.FakeDeathDescentPauseBeforeFlash or
-                MotherBrainBodyFunction.FakeDeathDescentFadeToGray or
-                MotherBrainBodyFunction.FakeDeathDescentCollapseTubes or
-                MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Graphics or
-                MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain or
-                MotherBrainBodyFunction.FakeDeathAscentPauseForSuspense or
-                MotherBrainBodyFunction.FakeDeathAscentPrepareForRising or
-                MotherBrainBodyFunction.FakeDeathAscentReadyStandingBody or
-                MotherBrainBodyFunction.FakeDeathAscentContinuePausing or
-                MotherBrainBodyFunction.FakeDeathAscentStartMusicAndEarthquake or
-                MotherBrainBodyFunction.FakeDeathAscentRaiseMotherBrain or
-                MotherBrainBodyFunction.FakeDeathAscentWaitUntilUncrouched or
-                MotherBrainBodyFunction.FakeDeathAscentTransitionFromGray or
-                MotherBrainBodyFunction.SecondPhaseStretchingShakeHead or
-                MotherBrainBodyFunction.SecondPhaseStretchingBringHeadUp or
-                MotherBrainBodyFunction.SecondPhaseStretchingFinish or
-                MotherBrainBodyFunction.SecondPhaseThinking or
-                MotherBrainBodyFunction.SecondPhaseTryAttack or
-                MotherBrainBodyFunction.SecondPhaseBombDecideWalking or
-                MotherBrainBodyFunction.SecondPhaseBombWalkingBackwards or
-                MotherBrainBodyFunction.SecondPhaseBombCrouch or
-                MotherBrainBodyFunction.SecondPhaseBombFired or
-                MotherBrainBodyFunction.SecondPhaseBombStandUp or
-                MotherBrainBodyFunction.SecondPhaseLaserPositionHeadQuickly or
-                MotherBrainBodyFunction.SecondPhaseLaserPositionHeadSlowlyAndFire or
-                MotherBrainBodyFunction.SecondPhaseLaserFinishAttack or
-                MotherBrainBodyFunction.SecondPhaseHandBeam or
-                MotherBrainBodyFunction.SecondPhaseRainbowExtendNeck or
-                MotherBrainBodyFunction.SecondPhaseRainbowStartCharging or
-                MotherBrainBodyFunction.SecondPhaseRainbowRetractNeck or
-                MotherBrainBodyFunction.SecondPhaseRainbowWaitForCharge or
-                MotherBrainBodyFunction.SecondPhaseRainbowExtendNeckDown or
-                MotherBrainBodyFunction.SecondPhaseRainbowStartFiring or
-                MotherBrainBodyFunction.SecondPhaseRainbowMoveSamusTowardWall or
-                MotherBrainBodyFunction.SecondPhaseRainbowOneFrameDelay or
-                MotherBrainBodyFunction.SecondPhaseRainbowStartDrainingSamus or
-                MotherBrainBodyFunction.SecondPhaseRainbowDrainingSamus or
-                MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring or
-                MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall or
-                MotherBrainBodyFunction.SecondPhaseRainbowWaitForSamusToLand or
-                MotherBrainBodyFunction.SecondPhaseRainbowLowerHead or
-                MotherBrainBodyFunction.SecondPhaseRainbowDecideNextAction or
-                MotherBrainBodyFunction.SecondPhaseFinishSamusOff or
-                MotherBrainBodyFunction.SecondPhaseFinishSamusOffStandUp or
-                MotherBrainBodyFunction.SecondPhaseFinishSamusOffAdmire or
-                MotherBrainBodyFunction.SecondPhaseFinishSamusOffChargeFinalBeam or
-                MotherBrainBodyFunction.SecondPhaseFinishSamusOffReadyBaby or
-                MotherBrainBodyFunction.SecondPhaseFinishSamusOffFireFinalBeam or
-                MotherBrainBodyFunction.SecondPhaseFinalRainbowBeamHolding or
-                MotherBrainBodyFunction.SecondPhaseDrainedByBabyTakenAback or
-                MotherBrainBodyFunction.SecondPhaseDrainedByBabyRegainBalance or
-                MotherBrainBodyFunction.SecondPhaseDrainedByBabyFiringRainbowBeam or
-                MotherBrainBodyFunction.SecondPhaseDrainedByBabyRainbowBeamRunOut or
-                MotherBrainBodyFunction.SecondPhaseDrainedByBabyMoveToBackOfRoom or
-                MotherBrainBodyFunction.SecondPhaseDrainedByBabyGoIntoLowPowerMode or
-                MotherBrainBodyFunction.SecondPhaseDrainedByBabyPrepareTransitionToGrey or
-                MotherBrainBodyFunction.SecondPhaseDrainedByBabyTransitionToGrey or
-                MotherBrainBodyFunction.SecondPhaseReviveInanimateGrey or
-                MotherBrainBodyFunction.SecondPhaseReviveShowSignsOfLife or
-                MotherBrainBodyFunction.SecondPhaseReviveTransitionFromGrey or
-                MotherBrainBodyFunction.SecondPhaseReviveWakeUp or
-                MotherBrainBodyFunction.SecondPhaseReviveWakeUpStretch or
-                MotherBrainBodyFunction.SecondPhaseReviveWalkUpToBaby or
-                MotherBrainBodyFunction.SecondPhaseRevivePrepareNeckForBabyDeath or
-                MotherBrainBodyFunction.SecondPhaseReviveFinishPreparingForBabyDeath or
-                MotherBrainBodyFunction.SecondPhaseMurderBabyAttack or
-                MotherBrainBodyFunction.SecondPhaseMurderBabyAttackCooldown or
-                MotherBrainBodyFunction.SecondPhasePrepareForFinalBabyAttack or
-                MotherBrainBodyFunction.SecondPhaseExecuteFinalBabyAttack or
-                MotherBrainBodyFunction.SecondPhaseFinalBabyAttackHolding or
-                MotherBrainBodyFunction.ThirdPhaseRecoverMakeSomeDistance or
-                MotherBrainBodyFunction.ThirdPhaseRecoverSetupForFighting or
-                MotherBrainBodyFunction.ThirdPhaseFightingMain or
-                MotherBrainBodyFunction.ThirdPhaseFightingAttackCooldown or
-                MotherBrainBodyFunction.ThirdPhaseDeathMoveToBackOfRoom or
-                MotherBrainBodyFunction.ThirdPhaseDeathIdleWhilstExploding or
-                MotherBrainBodyFunction.ThirdPhaseDeathStumbleToMiddleOfRoom or
-                MotherBrainBodyFunction.ThirdPhaseDeathDisableBrainEffects or
-                MotherBrainBodyFunction.ThirdPhaseDeathSetupBodyFadeOut or
-                MotherBrainBodyFunction.ThirdPhaseDeathFadeOutBody or
-                MotherBrainBodyFunction.ThirdPhaseDeathFinalFewExplosions or
-                MotherBrainBodyFunction.ThirdPhaseDeathRealizeDecapitation or
-                MotherBrainBodyFunction.ThirdPhaseDeathBrainFallsToGround or
-                MotherBrainBodyFunction.ThirdPhaseDeathReadyCorpse or
-                MotherBrainBodyFunction.ThirdPhaseDeathSetupFadeToGrey or
-                MotherBrainBodyFunction.ThirdPhaseDeathFadeToGrey or
-                MotherBrainBodyFunction.ThirdPhaseDeathCorpseTipsOver or
-                MotherBrainBodyFunction.ThirdPhaseDeathCorpseRotsAway or
-                MotherBrainBodyFunction.ThirdPhaseDeath20FrameDelay or
-                MotherBrainBodyFunction.ThirdPhaseDeathReadyEscapeWarning or
-                MotherBrainBodyFunction.ThirdPhaseDeathStartEscape or
-                MotherBrainBodyFunction.ThirdPhaseDeathSpawnTimeBombSetSubtitle or
-                MotherBrainBodyFunction.ThirdPhaseDeathTypeOutZebesEscapeText or
-                MotherBrainBodyFunction.ThirdPhaseDeathDoorExplodingStartTimer or
-                MotherBrainBodyFunction.ThirdPhaseDeathBlowUpEscapeDoor or
-                MotherBrainBodyFunction.ThirdPhaseDeathKeepEarthquakeGoing => throw new InvalidOperationException("Mother Brain row draw called outside fake ascent."),
+            MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows1And2 => 2,
+            MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows3And4 => 4,
+            MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows5And6 => 6,
+            MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows7And8 => 8,
+            MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows9And10 => 10,
+            MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows11And12 => 12,
+            MotherBrainBodyPhase.FirstPhase or
+                MotherBrainBodyPhase.FakeDeathDescentInitialPause or
+                MotherBrainBodyPhase.FakeDeathDescentPauseBeforeLock or
+                MotherBrainBodyPhase.FakeDeathDescentPauseBeforeMusic or
+                MotherBrainBodyPhase.FakeDeathDescentPauseBeforeUnlock or
+                MotherBrainBodyPhase.FakeDeathDescentPauseBeforeFlash or
+                MotherBrainBodyPhase.FakeDeathDescentFadeToGray or
+                MotherBrainBodyPhase.FakeDeathDescentCollapseTubes or
+                MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Graphics or
+                MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Brain or
+                MotherBrainBodyPhase.FakeDeathAscentPauseForSuspense or
+                MotherBrainBodyPhase.FakeDeathAscentPrepareForRising or
+                MotherBrainBodyPhase.FakeDeathAscentReadyStandingBody or
+                MotherBrainBodyPhase.FakeDeathAscentContinuePausing or
+                MotherBrainBodyPhase.FakeDeathAscentStartMusicAndEarthquake or
+                MotherBrainBodyPhase.FakeDeathAscentRaiseMotherBrain or
+                MotherBrainBodyPhase.FakeDeathAscentWaitUntilUncrouched or
+                MotherBrainBodyPhase.FakeDeathAscentTransitionFromGray or
+                MotherBrainBodyPhase.SecondPhaseStretchingShakeHead or
+                MotherBrainBodyPhase.SecondPhaseStretchingBringHeadUp or
+                MotherBrainBodyPhase.SecondPhaseStretchingFinish or
+                MotherBrainBodyPhase.SecondPhaseThinking or
+                MotherBrainBodyPhase.SecondPhaseTryAttack or
+                MotherBrainBodyPhase.SecondPhaseBombDecideWalking or
+                MotherBrainBodyPhase.SecondPhaseBombWalkingBackwards or
+                MotherBrainBodyPhase.SecondPhaseBombCrouch or
+                MotherBrainBodyPhase.SecondPhaseBombFired or
+                MotherBrainBodyPhase.SecondPhaseBombStandUp or
+                MotherBrainBodyPhase.SecondPhaseLaserPositionHeadQuickly or
+                MotherBrainBodyPhase.SecondPhaseLaserPositionHeadSlowlyAndFire or
+                MotherBrainBodyPhase.SecondPhaseLaserFinishAttack or
+                MotherBrainBodyPhase.SecondPhaseHandBeam or
+                MotherBrainBodyPhase.SecondPhaseRainbowExtendNeck or
+                MotherBrainBodyPhase.SecondPhaseRainbowStartCharging or
+                MotherBrainBodyPhase.SecondPhaseRainbowRetractNeck or
+                MotherBrainBodyPhase.SecondPhaseRainbowWaitForCharge or
+                MotherBrainBodyPhase.SecondPhaseRainbowExtendNeckDown or
+                MotherBrainBodyPhase.SecondPhaseRainbowStartFiring or
+                MotherBrainBodyPhase.SecondPhaseRainbowMoveSamusTowardWall or
+                MotherBrainBodyPhase.SecondPhaseRainbowOneFrameDelay or
+                MotherBrainBodyPhase.SecondPhaseRainbowStartDrainingSamus or
+                MotherBrainBodyPhase.SecondPhaseRainbowDrainingSamus or
+                MotherBrainBodyPhase.SecondPhaseRainbowFinishFiring or
+                MotherBrainBodyPhase.SecondPhaseRainbowLetSamusFall or
+                MotherBrainBodyPhase.SecondPhaseRainbowWaitForSamusToLand or
+                MotherBrainBodyPhase.SecondPhaseRainbowLowerHead or
+                MotherBrainBodyPhase.SecondPhaseRainbowDecideNextAction or
+                MotherBrainBodyPhase.SecondPhaseFinishSamusOff or
+                MotherBrainBodyPhase.SecondPhaseFinishSamusOffStandUp or
+                MotherBrainBodyPhase.SecondPhaseFinishSamusOffAdmire or
+                MotherBrainBodyPhase.SecondPhaseFinishSamusOffChargeFinalBeam or
+                MotherBrainBodyPhase.SecondPhaseFinishSamusOffReadyBaby or
+                MotherBrainBodyPhase.SecondPhaseFinishSamusOffFireFinalBeam or
+                MotherBrainBodyPhase.SecondPhaseFinalRainbowBeamHolding or
+                MotherBrainBodyPhase.SecondPhaseDrainedByBabyTakenAback or
+                MotherBrainBodyPhase.SecondPhaseDrainedByBabyRegainBalance or
+                MotherBrainBodyPhase.SecondPhaseDrainedByBabyFiringRainbowBeam or
+                MotherBrainBodyPhase.SecondPhaseDrainedByBabyRainbowBeamRunOut or
+                MotherBrainBodyPhase.SecondPhaseDrainedByBabyMoveToBackOfRoom or
+                MotherBrainBodyPhase.SecondPhaseDrainedByBabyGoIntoLowPowerMode or
+                MotherBrainBodyPhase.SecondPhaseDrainedByBabyPrepareTransitionToGrey or
+                MotherBrainBodyPhase.SecondPhaseDrainedByBabyTransitionToGrey or
+                MotherBrainBodyPhase.SecondPhaseReviveInanimateGrey or
+                MotherBrainBodyPhase.SecondPhaseReviveShowSignsOfLife or
+                MotherBrainBodyPhase.SecondPhaseReviveTransitionFromGrey or
+                MotherBrainBodyPhase.SecondPhaseReviveWakeUp or
+                MotherBrainBodyPhase.SecondPhaseReviveWakeUpStretch or
+                MotherBrainBodyPhase.SecondPhaseReviveWalkUpToBaby or
+                MotherBrainBodyPhase.SecondPhaseRevivePrepareNeckForBabyDeath or
+                MotherBrainBodyPhase.SecondPhaseReviveFinishPreparingForBabyDeath or
+                MotherBrainBodyPhase.SecondPhaseMurderBabyAttack or
+                MotherBrainBodyPhase.SecondPhaseMurderBabyAttackCooldown or
+                MotherBrainBodyPhase.SecondPhasePrepareForFinalBabyAttack or
+                MotherBrainBodyPhase.SecondPhaseExecuteFinalBabyAttack or
+                MotherBrainBodyPhase.SecondPhaseFinalBabyAttackHolding or
+                MotherBrainBodyPhase.ThirdPhaseRecoverMakeSomeDistance or
+                MotherBrainBodyPhase.ThirdPhaseRecoverSetupForFighting or
+                MotherBrainBodyPhase.ThirdPhaseFightingMain or
+                MotherBrainBodyPhase.ThirdPhaseFightingAttackCooldown or
+                MotherBrainBodyPhase.ThirdPhaseDeathMoveToBackOfRoom or
+                MotherBrainBodyPhase.ThirdPhaseDeathIdleWhilstExploding or
+                MotherBrainBodyPhase.ThirdPhaseDeathStumbleToMiddleOfRoom or
+                MotherBrainBodyPhase.ThirdPhaseDeathDisableBrainEffects or
+                MotherBrainBodyPhase.ThirdPhaseDeathSetupBodyFadeOut or
+                MotherBrainBodyPhase.ThirdPhaseDeathFadeOutBody or
+                MotherBrainBodyPhase.ThirdPhaseDeathFinalFewExplosions or
+                MotherBrainBodyPhase.ThirdPhaseDeathRealizeDecapitation or
+                MotherBrainBodyPhase.ThirdPhaseDeathBrainFallsToGround or
+                MotherBrainBodyPhase.ThirdPhaseDeathReadyCorpse or
+                MotherBrainBodyPhase.ThirdPhaseDeathSetupFadeToGrey or
+                MotherBrainBodyPhase.ThirdPhaseDeathFadeToGrey or
+                MotherBrainBodyPhase.ThirdPhaseDeathCorpseTipsOver or
+                MotherBrainBodyPhase.ThirdPhaseDeathCorpseRotsAway or
+                MotherBrainBodyPhase.ThirdPhaseDeath20FrameDelay or
+                MotherBrainBodyPhase.ThirdPhaseDeathReadyEscapeWarning or
+                MotherBrainBodyPhase.ThirdPhaseDeathStartEscape or
+                MotherBrainBodyPhase.ThirdPhaseDeathSpawnTimeBombSetSubtitle or
+                MotherBrainBodyPhase.ThirdPhaseDeathTypeOutZebesEscapeText or
+                MotherBrainBodyPhase.ThirdPhaseDeathDoorExplodingStartTimer or
+                MotherBrainBodyPhase.ThirdPhaseDeathBlowUpEscapeDoor or
+                MotherBrainBodyPhase.ThirdPhaseDeathKeepEarthquakeGoing => throw new InvalidOperationException("Mother Brain row draw called outside fake ascent."),
             _ => throw new InvalidOperationException("Mother Brain row draw called outside fake ascent."),
         };
         _access.RequestMotherBrainObject(new(2, CoordinateAxis.Wrap(firstRow)), firstRowMutation);
         _access.RequestMotherBrainObject(new(2, CoordinateAxis.Wrap(firstRow + 1)), secondRowMutation);
-        state.Function = next;
+        state.Phase = next;
     }
 
     /// <summary>Restores the combat palette after the gray fake-death phase.</summary>
@@ -526,7 +526,7 @@ internal sealed class MotherBrainFakeDeath
         if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
             return;
 
-        state.FunctionTimer = 4;
+        state.PhaseTimer = 4;
         int paletteStep = state.GrayTransitionCounter++;
         if (paletteStep < MotherBrainFakeDeathPaletteDefinitions.FrameCount)
         {
@@ -540,7 +540,7 @@ internal sealed class MotherBrainFakeDeath
         state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
         state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
         state.NeckAngleDelta = 1280;
-        state.Function = MotherBrainBodyFunction.SecondPhaseStretchingShakeHead;
-        state.FunctionTimer = 23;
+        state.Phase = MotherBrainBodyPhase.SecondPhaseStretchingShakeHead;
+        state.PhaseTimer = 23;
     }
 }

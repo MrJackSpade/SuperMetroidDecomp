@@ -6,11 +6,11 @@ namespace SuperMetroid.Core.Samus.Grapple;
 internal static class SamusGrappleConnectionNative
 {
     /// <summary>The routine a connection record's function word names.</summary>
-    internal static readonly NativeWordIdentities<GrappleConnectionFunction> Functions = new(new Dictionary<GrappleConnectionFunction, ushort>
+    internal static readonly NativeWordIdentities<GrappleConnectionKind> Kinds = new(new Dictionary<GrappleConnectionKind, ushort>
     {
-        [GrappleConnectionFunction.LockedInPlace] = 0xc77e,
-        [GrappleConnectionFunction.Swinging] = 0xc79d,
-        [GrappleConnectionFunction.WallGrab] = 0xc814,
+        [GrappleConnectionKind.LockedInPlace] = 0xc77e,
+        [GrappleConnectionKind.Swinging] = 0xc79d,
+        [GrappleConnectionKind.WallGrab] = 0xc814,
     });
 
     /// <summary>The handler a connection record's handler word names.</summary>

@@ -50,7 +50,7 @@ public static class SamusHurtFlashPalette
         // Mother-Brain drained knockback handler are the two exceptions; the latter is
         // identified by the same explicit phase/pose pair that replaces its handler.
         if (counterBefore == 2 &&
-            !samus.LiquidPhysics.CinematicFunctionActive &&
+            !samus.LiquidPhysics.CinematicActive &&
             !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked &&
               samus.Pose == SamusPoseId.KnockbackLeftPose))
         {
@@ -66,7 +66,7 @@ public static class SamusHurtFlashPalette
             {
                 colours.ShowSuit(SamusShades.Hurt(SamusHurtColorVariant.Hurt));
             }
-            else if (samus.LiquidPhysics.CinematicFunctionActive)
+            else if (samus.LiquidPhysics.CinematicActive)
             {
                 colours.ShowSuit(SamusShades.Hurt(SamusHurtColorVariant.Intro));
             }

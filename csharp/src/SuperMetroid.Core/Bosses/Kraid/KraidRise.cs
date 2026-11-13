@@ -92,7 +92,7 @@ internal sealed class KraidRise
         body.Position = body.Position.WithWhole(new(176, 592));
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         state.BodyState.Phase = KraidPhase.RestrictSamusToFirstScreen;
-        state.BodyState.FunctionTimer = 300;
+        state.BodyState.PhaseTimer = 300;
         state.BodyState.HeadTimer = 64;
         state.BodyState.PhaseToResume = KraidPhase.RaiseKraidThroughFloor;
 
@@ -187,7 +187,7 @@ internal sealed class KraidRise
             case KraidPhase.GrowDrawRoomBackground:
                 state.BodyState.Phase = KraidPhase.GrowFadeInRoomBackground;
                 // The game clears the value it kept the ceiling rocks in, which is the function timer again.
-                state.BodyState.FunctionTimer = 0;
+                state.BodyState.PhaseTimer = 0;
                 // Redrawing Kraid's room background restarts the shared fade step count.
                 _presentation.FadeStepCount.Reset();
                 // The background redraw shows the room's backdrop on the same frame that it
@@ -215,8 +215,8 @@ internal sealed class KraidRise
             case KraidPhase.LintFire:
             case KraidPhase.FingernailWaitForLint:
             case KraidPhase.AlignPartToKraid:
-            case KraidPhase.HandleFunctionTimer:
-            case KraidPhase.DecrementFunctionTimerAndStartWalk:
+            case KraidPhase.WaitToResumePhase:
+            case KraidPhase.FootWaitBeforeWalk:
             case KraidPhase.FootFirstPhaseThinking:
             case KraidPhase.AdvanceHeadAnimationAndTimer:
             case KraidPhase.FootSecondPhaseThinking:
@@ -264,7 +264,7 @@ internal sealed class KraidRise
         foreach (KraidLintPart part in Enum.GetValues<KraidLintPart>())
         {
             RoomEnemySlot lint = _parts.Lint(part);
-            _parts.LintStateOf(state, lint).FunctionTimer = KraidLints.InitialDelay(part);
+            _parts.LintStateOf(state, lint).PhaseTimer = KraidLints.InitialDelay(part);
             _parts.LintStateOf(state, lint).Phase = KraidPhase.AlignPartToKraid;
             _parts.LintStateOf(state, lint).PhaseToResume = KraidPhase.LintProduce;
             _parts.LintStateOf(state, lint).LintTravel = 0;
@@ -274,8 +274,8 @@ internal sealed class KraidRise
         foreach (RoomEnemySlot nail in _parts.Nails)
         {
             _parts.NailStateOf(state, nail).PhaseToResume = KraidPhase.FingernailInitialize;
-            _parts.NailStateOf(state, nail).Phase = KraidPhase.HandleFunctionTimer;
-            _parts.NailStateOf(state, nail).FunctionTimer = nailDelay;
+            _parts.NailStateOf(state, nail).Phase = KraidPhase.WaitToResumePhase;
+            _parts.NailStateOf(state, nail).PhaseTimer = nailDelay;
             nailDelay += 64;
         }
         state.HeadPlayback = KraidHeadAnimations.RoarAfterEntryFrame;
@@ -321,7 +321,7 @@ internal sealed class KraidRise
         {
             case KraidPhase.RestrictSamusToFirstScreen:
                 RestrictSamusToKraidFirstScreen(samus);
-                KraidEncounterAccess.TickKraidFunctionTimer(state.BodyState);
+                KraidEncounterAccess.TickKraidPhaseTimer(state.BodyState);
                 return;
 
             case KraidPhase.RaiseKraidThroughFloor:
@@ -357,7 +357,7 @@ internal sealed class KraidRise
                 if (--state.BodyState.RisingRockTimer == 0)
                 {
                     state.BodyState.Phase = KraidPhase.RaiseBody;
-                    state.BodyState.FunctionTimer = 288;
+                    state.BodyState.PhaseTimer = 288;
                 }
                 else if (KraidCadenceDefinitions.FasterRiseRockEveryEighthUpdate.IsDue(state.BodyState.RisingRockTimer))
                 {
@@ -385,7 +385,7 @@ internal sealed class KraidRise
                     // The foot owns first-phase lunges independently of the body thinker.
                     // Its 300-frame delay starts on the exact rise-completion frame.
                     state.FootState.Phase = KraidPhase.FootFirstPhaseThinking;
-                    state.FootState.FunctionTimer = 300;
+                    state.FootState.PhaseTimer = 300;
                     state.FootState.PhaseToResume = KraidPhase.FootPrepareFirstPhaseLunge;
                     _access.StartKraidPartAnimation(_parts.Arm, KraidPartSegment.ArmNormal);
                 }
@@ -409,8 +409,8 @@ internal sealed class KraidRise
             case KraidPhase.LintFire:
             case KraidPhase.FingernailWaitForLint:
             case KraidPhase.AlignPartToKraid:
-            case KraidPhase.HandleFunctionTimer:
-            case KraidPhase.DecrementFunctionTimerAndStartWalk:
+            case KraidPhase.WaitToResumePhase:
+            case KraidPhase.FootWaitBeforeWalk:
             case KraidPhase.FootFirstPhaseThinking:
             case KraidPhase.AdvanceHeadAnimationAndTimer:
             case KraidPhase.FootSecondPhaseThinking:
@@ -442,7 +442,7 @@ internal sealed class KraidRise
             case KraidPhase.None:
             default:
                 throw new InvalidDataException(
-                    $"Kraid body function {state.BodyState.Phase} is not translated.");
+                    $"Kraid body has no behaviour for phase {state.BodyState.Phase}.");
         }
     }
 

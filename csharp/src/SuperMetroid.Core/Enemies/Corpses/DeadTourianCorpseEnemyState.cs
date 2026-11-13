@@ -19,7 +19,7 @@ public sealed class DeadTourianCorpseEnemyState
     /// <summary>Owning room slot; state is registered for this slot until room reset.</summary>
     public RoomEnemySlot Slot { get; }
     /// <summary>The phase main AI runs.</summary>
-    public DeadTourianCorpseFunction? Function { get; internal set; }
+    public DeadTourianCorpsePhase? Phase { get; internal set; }
     /// <summary>The corpse's own rot schedule: the fall of each of its pixel rows, 16 for Zoomer and Ripper, 32 for Skree.</summary>
     internal CorpseRotSchedule Rot { get; }
     /// <summary>The corpse's own pixel rows as its rot calls have left them, which its frames are drawn through (#1539).</summary>

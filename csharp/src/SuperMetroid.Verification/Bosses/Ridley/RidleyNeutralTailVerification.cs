@@ -18,11 +18,11 @@ internal static class RidleyNeutralTailVerification
             var state = new RidleyEnemyState
             {
                 FightMode = RidleyFightMode.Fighting, GrabState = RidleyGrabState.Released,
-                TailFunctionIndex = RidleyTailFunction.Pogo, TailAngleDelta = (ushort)raw,
+                TailAction = RidleyTailAction.Pogo, TailAngleDelta = (ushort)raw,
                 FeetDistanceIndex = raw % 3,
             };
             prepare(state, armed);
-            AssertEqual(RidleyTailFunction.Neutral, state.TailFunctionIndex, "Power Bomb sets neutral tail function");
+            AssertEqual(RidleyTailAction.Neutral, state.TailAction, "Power Bomb sets neutral tail function");
             AssertEqual(1, state.TailAngleDelta, "Power Bomb resets native tail angle delta");
             AssertEqual(raw % 3, state.FeetDistanceIndex, "Power Bomb preserves animated foot displacement");
             AssertEqual(RidleyPhase.NorfairGrabApproach, state.Phase, "Power Bomb lunge handoff");
@@ -35,11 +35,11 @@ internal static class RidleyNeutralTailVerification
             var state = new RidleyEnemyState
             {
                 FightMode = fight, GrabState = grab,
-                TailFunctionIndex = RidleyTailFunction.Pogo, TailAngleDelta = 8, FeetDistanceIndex = 2,
+                TailAction = RidleyTailAction.Pogo, TailAngleDelta = 8, FeetDistanceIndex = 2,
                 Phase = RidleyPhase.NorfairHover,
             };
             prepare(state, flag ? armed : unarmed);
-            AssertEqual(RidleyTailFunction.Pogo, state.TailFunctionIndex, "Inactive reaction preserves tail function");
+            AssertEqual(RidleyTailAction.Pogo, state.TailAction, "Inactive reaction preserves tail function");
             AssertEqual(8, state.TailAngleDelta, "Inactive reaction preserves angle delta");
             AssertEqual(2, state.FeetDistanceIndex, "Inactive reaction preserves feet");
             AssertEqual(RidleyPhase.NorfairHover, state.Phase, "Inactive reaction preserves phase");

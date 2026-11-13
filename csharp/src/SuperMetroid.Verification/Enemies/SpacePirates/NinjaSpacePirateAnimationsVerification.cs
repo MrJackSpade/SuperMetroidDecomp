@@ -36,12 +36,12 @@ internal static class NinjaSpacePirateAnimationsVerification
                                 setShading.Shading == SuperMetroid.Core.Enemies.SpacePirates.Artwork.NinjaSpacePirateShades.GoldWallFlash
                                     ? SuperMetroid.AssetExtraction.Enemies.EnemySheetRowDefinitions.NinjaGoldWall : NinjaStanceRow),
                             NinjaSpacePirateCue.ThrowClaw throwClaw => throwClaw.Throw == HorizontalDirection.Right ? (ushort)1 : (ushort)0,
-                            NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.ResetSpeed } or NinjaSpacePirateCue.SetFunction or NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartActive } or NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartLeftDivekick } or NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartRightDivekick } => throw new InvalidOperationException($"{at}: {cue} has no word operand."),
+                            NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.ResetSpeed } or NinjaSpacePirateCue.SetAction or NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartActive } or NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartLeftDivekick } or NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartRightDivekick } => throw new InvalidOperationException($"{at}: {cue} has no word operand."),
                             _ => throw new InvalidOperationException($"{at}: {cue} has no word operand."),
                         },
                         'S' => unchecked((ushort)AssertIs<NinjaSpacePirateCue.ThrowClaw>(cue, $"{at}: cue").Offset.X),
                         'Y' => unchecked((ushort)AssertIs<NinjaSpacePirateCue.ThrowClaw>(cue, $"{at}: cue").Offset.Y),
-                        'E' => SpacePiratesNativeWords.NinjaSpacePirateFunctions.Word(AssertIs<NinjaSpacePirateCue.SetFunction>(cue, $"{at}: cue").Function),
+                        'E' => SpacePiratesNativeWords.NinjaSpacePirateActions.Word(AssertIs<NinjaSpacePirateCue.SetAction>(cue, $"{at}: cue").Action),
                         _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                     }, $"{at}: operand {index}");
                 }));

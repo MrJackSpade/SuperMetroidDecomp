@@ -25,8 +25,8 @@ public sealed class DeadTorizoEnemyState
     /// <summary>Count of the corpse's rot calls since initialization, including the call that completes its final entry; its sand heap forms by it.</summary>
     public uint ProcessCallCount { get; internal set; }
 
-    /// <summary>The corpse function.</summary>
-    internal DeadTorizoFunction? Function { get; set; }
+    /// <summary>The corpse phase.</summary>
+    internal DeadTorizoPhase? Phase { get; set; }
 
     /// <summary>Signed 8.8 velocity per update: X, and Y, which rotting increases by one 256th each update.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }

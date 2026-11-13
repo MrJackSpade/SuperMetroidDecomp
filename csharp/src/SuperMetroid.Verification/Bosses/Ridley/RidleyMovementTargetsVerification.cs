@@ -83,7 +83,7 @@ internal static class RidleyMovementTargetsVerification
             AssertEqual(Expected(slot.Position.X.Whole, x, 16), state.Velocity.X.RawValue, "Carry target drives exact X acceleration");
             AssertEqual(Expected(slot.Position.Y.Whole, y, 16), state.Velocity.Y.RawValue, "Carry target drives exact Y acceleration");
             // Setup stores 32 and then falls through into the shared timer decrement.
-            AssertEqual(31, state.FunctionTimer, "Carry setup timer");
+            AssertEqual(31, state.PhaseTimer, "Carry setup timer");
             AssertEqual(RidleyPhase.NorfairCarryMoveToAnchor, state.Phase, "Carry setup phase");
             AssertEqual(RidleyInertiaDefinitions.LargestDivisor - hover[Math.Min(raw, 3)], readDivisor(state), "Every health word preserves existing divisor clamp");
         }
@@ -106,7 +106,7 @@ internal static class RidleyMovementTargetsVerification
             AssertEqual(Expected(x, ground[(int)facing], 16), state.Velocity.X.RawValue, "Ground side target reaches motion");
             state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
             state.Phase = RidleyPhase.NorfairCarryRelease;
-            state.FunctionTimer = 1;
+            state.PhaseTimer = 1;
             run(slot, state, null, 0, null);
             AssertEqual(Expected(x, release[(int)facing], 16), state.Velocity.X.RawValue, "Carry release target reaches motion");
         }

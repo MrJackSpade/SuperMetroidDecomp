@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>What one step of Mother Brain's rainbow beam attack did: its phase before and after, Samus's forced movement and the requests it made.</summary>
 [IndependentFlag("independent requests and edges one attack step reports to the room")]
 public readonly record struct MotherBrainRainbowBeamAttackStepResult(
-    MotherBrainBodyFunction? PhaseBefore,
-    MotherBrainBodyFunction? PhaseAfter,
+    MotherBrainBodyPhase? PhaseBefore,
+    MotherBrainBodyPhase? PhaseAfter,
     MotherBrainForcedSamusMovementResult? Movement,
     bool SoundQueued,
     bool ColoursRequested,

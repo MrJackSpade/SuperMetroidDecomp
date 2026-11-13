@@ -80,7 +80,7 @@ internal sealed class DraygonDeath
             state.FacingRight
                 ? DraygonSegment.EyeFacingRightDead
                 : DraygonSegment.EyeFacingLeftDead);
-        eye.RequireSpeciesState<DraygonEyeState>().Function = DraygonEyeFunction.Inert;
+        eye.RequireSpeciesState<DraygonEyeState>().Action = DraygonEyeAction.Inert;
     }
 
     /// <summary>Advances burial sprite motion while the pre-sink countdown expires.</summary>

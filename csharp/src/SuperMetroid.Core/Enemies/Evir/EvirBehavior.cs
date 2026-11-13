@@ -182,7 +182,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Action != EvirAction.HandleBodyOrArms)
         {
             throw new InvalidDataException(
-                $"Evir body/arms function {state.Action} is not translated.");
+                $"Evir body/arms has no behaviour for action {state.Action}.");
         }
 
         if (slot.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms)
@@ -257,7 +257,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             case EvirAction.HandleBodyOrArms:
             default:
                 throw new InvalidDataException(
-                    $"Evir projectile function {state.Action} is not translated.");
+                    $"Evir projectile has no behaviour for action {state.Action}.");
         }
     }
 

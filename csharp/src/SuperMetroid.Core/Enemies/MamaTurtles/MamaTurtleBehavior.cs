@@ -222,7 +222,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mama Turtle main-AI function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Mama Turtle has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 
@@ -348,7 +348,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, 1);
         }
 
-        if (--state.FunctionTimer != 0)
+        if (--state.ActionTimer != 0)
             return;
 
         // The two adjacent acceleration records accelerate toward Samus's side by a sixteenth of a pixel per update.
@@ -430,7 +430,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         ResolveMamaTurtleExpandedContact(mama, samus);
         if (CoordinateAxis.Difference(mama.Position.Y.Whole, MamaTurtlePeakYPosition) < 0)
         {
-            state.FunctionTimer = MamaTurtlePeakPauseFrames;
+            state.ActionTimer = MamaTurtlePeakPauseFrames;
             state.Action = MamaTurtleAction.HoveringAtPeak;
             state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.Zero);
             return;
@@ -454,7 +454,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         ResolveMamaTurtleExpandedContact(mama, samus);
-        if (--state.FunctionTimer == 0)
+        if (--state.ActionTimer == 0)
             state.Action = MamaTurtleAction.Falling;
     }
 
@@ -527,7 +527,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (--state.NotCarryingSamusReactionTimer == 0)
                 {
                     state.Action = BabyTurtleAction.HidingNotCarryingSamus;
-                    state.FunctionTimer = 60;
+                    state.ActionTimer = 60;
                 }
                 return;
 
@@ -543,7 +543,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.Velocity = new Offset16<RoomPixels>(facingRight ? 3 : -3, 1);
                     return;
                 }
-                if (--state.FunctionTimer == 0)
+                if (--state.ActionTimer == 0)
                 {
                     StartBabyTurtleCrawlingAnimation(baby, state);
                     state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
@@ -573,7 +573,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Baby Turtle main-AI function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Baby Turtle has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 
@@ -663,7 +663,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         // opposite sign: the facing-left cue writes -1 and the facing-right cue writes +1.
         state.Action = MamaTurtleAction.RisingToHover;
         state.Velocity = state.Velocity.WithWholeX(direction == HorizontalDirection.Right ? -1 : 1);
-        state.FunctionTimer = 16;
+        state.ActionTimer = 16;
     }
 
     /// <summary>Animation cue: branch out of hiding only while ridden; otherwise the hiding animation runs on.</summary>

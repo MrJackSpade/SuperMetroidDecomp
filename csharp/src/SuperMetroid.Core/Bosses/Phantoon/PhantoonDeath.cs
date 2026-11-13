@@ -76,7 +76,7 @@ internal sealed class PhantoonDeath
             return;
 
         state.BodyState.Phase = PhantoonPhase.DyingExplosions;
-        state.BodyState.FunctionTimer = 15;
+        state.BodyState.PhaseTimer = 15;
         state.TentaclesState.ExplosionIndex = 0;
         state.BodyState.ExplosionPass = 0;
     }
@@ -86,11 +86,11 @@ internal sealed class PhantoonDeath
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
+        if (!PhantoonPresentation.TickPhantoonPhaseTimer(state.BodyState))
             return;
 
         PhantoonDeathExplosionDefinition explosion = PhantoonDeathExplosions.Read(state.TentaclesState.ExplosionIndex);
-        state.BodyState.FunctionTimer = explosion.Delay;
+        state.BodyState.PhaseTimer = explosion.Delay;
         Position16<RoomPixels> position = body.Position.Whole + explosion.Offset;
 
         _projectiles.SpawnRoomGraphicsDustExplosion(position, explosion.Type);
@@ -183,7 +183,7 @@ internal sealed class PhantoonDeath
         state.Translucent = false;
         state.MouthState.BodyLayer = PhantoonBodyLayer.Cleared;
         state.BodyState.Phase = PhantoonPhase.Dead;
-        state.BodyState.FunctionTimer = 60;
+        state.BodyState.PhaseTimer = 60;
         state.EyeState.FadeComplete = false;
         body.Position = body.Position.WithWhole(new(384, 128));
 
@@ -195,9 +195,9 @@ internal sealed class PhantoonDeath
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if (state.BodyState.FunctionTimer != 0)
+        if (state.BodyState.PhaseTimer != 0)
         {
-            state.BodyState.FunctionTimer--;
+            state.BodyState.PhaseTimer--;
             return;
         }
         if (!PhantoonCadenceDefinitions.PowerReturnStepEveryFourthUpdate.IsDue(_frameContext.FrameCounter))

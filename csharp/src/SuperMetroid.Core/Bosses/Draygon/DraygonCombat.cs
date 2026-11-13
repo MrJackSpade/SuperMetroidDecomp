@@ -80,7 +80,7 @@ internal sealed class DraygonCombat
                 if (context.HitboxTouchAi != EnemyReaction.DraygonTouch)
                 {
                     throw new InvalidDataException(
-                        $"Draygon hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
+                        $"Draygon has no response to touch reaction {context.HitboxTouchAi?.ToString() ?? "(unnamed)"}.");
                 }
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
                 ResolveDraygonReaction(context.Slot, context.Samus);
@@ -159,7 +159,7 @@ internal sealed class DraygonCombat
             state.FacingRight
                 ? DraygonSegment.EyeFacingRightDying
                 : DraygonSegment.EyeFacingLeftDying);
-        (DraygonParts.RequirePart(state.Eye)).RequireSpeciesState<DraygonEyeState>().Function = DraygonEyeFunction.Inert;
+        (DraygonParts.RequirePart(state.Eye)).RequireSpeciesState<DraygonEyeState>().Action = DraygonEyeAction.Inert;
         state.Phase = DraygonPhase.Dying;
 
         // The death behaviour releases Samus unconditionally, even during an
@@ -215,7 +215,7 @@ internal sealed class DraygonCombat
                 if (c.HitboxShotAi != EnemyReaction.DraygonShot)
                 {
                     throw new InvalidDataException(
-                        $"Draygon hitbox shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
+                        $"Draygon has no response to shot reaction {c.HitboxShotAi?.ToString() ?? "(unnamed)"}.");
                 }
                 return false;
             },

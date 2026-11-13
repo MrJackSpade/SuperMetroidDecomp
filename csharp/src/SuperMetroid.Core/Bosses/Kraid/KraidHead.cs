@@ -108,8 +108,8 @@ internal sealed class KraidHead
                 state.RemoveOneMouthReopen();
                 if (state.PendingMouthReopens != 0)
                 {
-                    state.BodyState.Phase = KraidPhase.HandleFunctionTimer;
-                    state.BodyState.FunctionTimer = 64;
+                    state.BodyState.Phase = KraidPhase.WaitToResumePhase;
+                    state.BodyState.PhaseTimer = 64;
                     state.BodyState.PhaseToResume = KraidPhase.InitializeEyeGlow;
                     return;
                 }
@@ -203,8 +203,8 @@ internal sealed class KraidHead
             state.RemoveOneMouthReopen();
             if (state.PendingMouthReopens != 0)
             {
-                state.BodyState.Phase = KraidPhase.HandleFunctionTimer;
-                state.BodyState.FunctionTimer = 64;
+                state.BodyState.Phase = KraidPhase.WaitToResumePhase;
+                state.BodyState.PhaseTimer = 64;
                 state.BodyState.PhaseToResume = KraidPhase.InitializeEyeGlow;
                 return;
             }

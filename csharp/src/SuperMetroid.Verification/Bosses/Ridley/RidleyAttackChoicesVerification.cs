@@ -77,7 +77,7 @@ internal static class RidleyAttackChoicesVerification
             AssertEqual(1, advances, "Selector advances RNG exactly once");
             AssertEqual(referenceReads, actualReads, "Chosen setup reads the same current RNG word");
             AssertEqual(expected.Phase, state.Phase, "Native chosen callback executes on the selection frame");
-            AssertEqual(expected.FunctionTimer, state.FunctionTimer, "Same-frame selected timer");
+            AssertEqual(expected.PhaseTimer, state.PhaseTimer, "Same-frame selected timer");
             AssertEqual(expected.Velocity.X.RawValue, state.Velocity.X.RawValue, "Same-frame selected X motion");
             AssertEqual(expected.Velocity.Y.RawValue, state.Velocity.Y.RawValue, "Same-frame selected Y motion");
             AssertEqual(expected.ZeroHealthLungeCount, state.ZeroHealthLungeCount, "Only a zero-health selection counts a lunge; spin takes priority");

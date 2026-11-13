@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 /// settling animation.
 /// Its values are arbitrary.
 /// </summary>
-public enum MaridiaLargeSnailBounceFunction
+public enum MaridiaLargeSnailBouncePhase
 {
     /// <summary>Increases the quadratic-speed selector by 384 per update up to 16384; a floor impact consumes a bounce, subtracts 4096, and selects rising.</summary>
     Falling = 1,

@@ -71,7 +71,7 @@ internal static class SoundQueuePowerBombAdmissionVerification
 
         // An ordinary producer's sound is turned away the same way.
         SamusState landing = SamusAt(SamusPoseId.FacingRightNormalPose, requests);
-        landing.LiquidPhysics.CinematicFunctionActive = false;
+        landing.LiquidPhysics.CinematicActive = false;
         landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(landing,
             SamusMovementType.Standing, SamusPoseId.FacingRightNormalPose, new UnsignedSixteenSixteen(5, 0));
         AssertTurnedAway(audio, requests, RoomSound.HardLanding, "a landing's sound");

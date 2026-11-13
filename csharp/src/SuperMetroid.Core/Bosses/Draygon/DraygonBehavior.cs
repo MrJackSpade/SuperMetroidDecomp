@@ -173,7 +173,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             case DraygonPhase.None:
             default:
                 throw new InvalidDataException(
-                    $"Draygon body function {state.Phase} is not translated.");
+                    $"Draygon body has no behaviour for phase {state.Phase}.");
         }
 
         // These are four physical enemy records, but Draygon's main behaviour makes the body coordinate

@@ -62,7 +62,7 @@ internal sealed class RidleyBodyAnimation
                     return null;
                 // The fireball animation stores 8 in the Ridley timer before it continues elsewhere,
                 // cutting the fireball hover short.
-                state.FunctionTimer = 8;
+                state.PhaseTimer = 8;
                 return goToIfCeresAndSamusLowEnergy.Target;
             case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.Roar }:
                 state.Roaring = true;

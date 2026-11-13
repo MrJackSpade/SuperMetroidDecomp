@@ -50,7 +50,7 @@ internal sealed class IntroScientistCutsceneState
 
     /// <summary>Advances the Baby script and pans on every fourth function tick until the alternate crossfade timer redirects it to deletion.</summary>
     public void Step(
-        int cinematicFunctionTimer,
+        int cinematicTimer,
         int introCrossfadeTimer)
     {
         if (!baby.IsActive)
@@ -63,7 +63,7 @@ internal sealed class IntroScientistCutsceneState
         {
             baby.Start(CinematicSpriteSegment.Delete);
         }
-        else if (IntroCadenceDefinitions.LaboratoryStepEveryFourthUpdate.IsDue(cinematicFunctionTimer))
+        else if (IntroCadenceDefinitions.LaboratoryStepEveryFourthUpdate.IsDue(cinematicTimer))
         {
             if (Scene == IntroLaboratoryScene.Delivery && Background.X != 0)
             {

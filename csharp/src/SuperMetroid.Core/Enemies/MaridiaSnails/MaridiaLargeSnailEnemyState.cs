@@ -65,5 +65,5 @@ public sealed class MaridiaLargeSnailEnemyState
     public int RemainingBounces { get; internal set; }
 
     /// <summary>Falling/rising half of the quadratic bounce.</summary>
-    public MaridiaLargeSnailBounceFunction? BounceFunction { get; internal set; }
+    public MaridiaLargeSnailBouncePhase? BouncePhase { get; internal set; }
 }

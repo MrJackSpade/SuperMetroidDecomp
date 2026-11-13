@@ -78,8 +78,8 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Heading of the curved entrance; only its table index is passed to shared component math.</summary>
     public RotationAngle Angle { get; private set; }
 
-    /// <summary>Function timer: each phase counts it down and moves on once it runs past zero.</summary>
-    public int FunctionTimer { get; private set; }
+    /// <summary>Phase timer: each phase counts it down and moves on once it runs past zero.</summary>
+    public int PhaseTimer { get; private set; }
 
     /// <summary>
     /// Zero-based leg of the ceiling-to-Samus route the Baby is steering along, started at the
@@ -193,7 +193,7 @@ public sealed class BabyMetroidCutsceneState
         Speed = 0;
         Angle = RotationAngle.Zero;
         Phase = BabyMetroidCutscenePhase.DashOntoScreen;
-        FunctionTimer = 248;
+        PhaseTimer = 248;
     }
 
     /// <summary>
@@ -253,22 +253,22 @@ public sealed class BabyMetroidCutsceneState
                 // The timer of 248 is decremented before the sign test, so calls 1..248 leave the Baby still and
                 // call 249 takes zero to -1. The expiry call immediately executes the
                 // first curve update before the common mover consumes its new velocity.
-                if (--FunctionTimer < 0)
+                if (--PhaseTimer < 0)
                 {
                     Angle = RotationAngle.FromSteps(216);
                     Speed = 2560;
                     Phase = BabyMetroidCutscenePhase.CurveTowardMotherBrainHead;
-                    FunctionTimer = 10;
+                    PhaseTimer = 10;
                     goto case BabyMetroidCutscenePhase.CurveTowardMotherBrainHead;
                 }
                 break;
 
             case BabyMetroidCutscenePhase.CurveTowardMotherBrainHead:
                 UpdateSpeedAndAngle(angleDelta: -384, targetAngle: RotationAngle.FromSteps(176), targetSpeed: 2560);
-                if (--FunctionTimer < 0)
+                if (--PhaseTimer < 0)
                 {
                     Phase = BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace;
-                    FunctionTimer = 9;
+                    PhaseTimer = 9;
                 }
                 break;
 
@@ -282,7 +282,7 @@ public sealed class BabyMetroidCutsceneState
                 // approach calls and expires when the tenth decrement runs to -1.
                 if (!brainCollision)
                 {
-                    brainCollision = --FunctionTimer < 0;
+                    brainCollision = --PhaseTimer < 0;
                 }
 
                 if (brainCollision)
@@ -338,7 +338,7 @@ public sealed class BabyMetroidCutsceneState
                 if (motherBrain.State.Phase2CorpseState != MotherBrainPhase2CorpseState.Living)
                 {
                     Phase = BabyMetroidCutscenePhase.StopDraining;
-                    FunctionTimer = 64;
+                    PhaseTimer = 64;
                 }
                 break;
             }
@@ -347,11 +347,11 @@ public sealed class BabyMetroidCutsceneState
                 // Shaking ceases immediately: every wait call pins to the unoffset brain
                 // coordinate before decrementing the timer of 64, which expires only after 65 calls.
                 Position = Position.WithWhole(head + BrainLatchOffset);
-                if (--FunctionTimer < 0)
+                if (--PhaseTimer < 0)
                 {
                     SetAnimation(MotherBrainBabySegment.Initial);
                     Phase = BabyMetroidCutscenePhase.LetGoAndSpawnDustClouds;
-                    FunctionTimer = 32;
+                    PhaseTimer = 32;
                     Velocity = default;
                 }
                 break;
@@ -360,7 +360,7 @@ public sealed class BabyMetroidCutsceneState
                 // The release branches *into* its acceleration while the timer is nonnegative. Thus the
                 // Baby accelerates ceilingward for all 32 visible release calls; the dust
                 // burst happens on call 33 and that call also performs another acceleration.
-                if (--FunctionTimer < 0)
+                if (--PhaseTimer < 0)
                 {
                     // The three dust clouds on Mother Brain's head are spawned in this
                     // exact order. Each helper adds its signed offsets to the brain
@@ -409,7 +409,7 @@ public sealed class BabyMetroidCutsceneState
                 Position16<RoomPixels> target = record.Target;
                 int accelerationDivisor = record.AccelerationDivisor;
                 int wrongWayExtra = BabyMetroidRoute.GetWrongWayOffScreenXSpeed(
-                    record.MovementFunction);
+                    record.Movement);
 
                 GraduallyAccelerateTowardsPoint(
                     target,
@@ -573,7 +573,7 @@ public sealed class BabyMetroidCutsceneState
                     SetAnimation(MotherBrainBabySegment.TakingFatalBlow);
                     Velocity = default;
                     Phase = BabyMetroidCutscenePhase.TakeFinalBlow;
-                    FunctionTimer = 16;
+                    PhaseTimer = 16;
                     FatalBlowOrigin = Position.Whole;
                     goto case BabyMetroidCutscenePhase.TakeFinalBlow;
                 }
@@ -587,11 +587,11 @@ public sealed class BabyMetroidCutsceneState
                 Velocity = Velocity.WithY(Velocity.Y - SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1));
                 int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
                 Position = Position.WithWhole(FatalBlowOrigin + ShakingOffsets[shakingIndex]);
-                if (--FunctionTimer < 0)
+                if (--PhaseTimer < 0)
                 {
                     Position = Position.WithWhole(FatalBlowOrigin);
                     Phase = BabyMetroidCutscenePhase.PlaySamusTheme;
-                    FunctionTimer = 56;
+                    PhaseTimer = 56;
                     goto case BabyMetroidCutscenePhase.PlaySamusTheme;
                 }
                 break;
@@ -600,16 +600,16 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.PlaySamusTheme:
                 // The expiry call queues the two delayed music requests and immediately
                 // performs the first twelve-count prepare-Hyper-Beam decrement.
-                if (--FunctionTimer < 0)
+                if (--PhaseTimer < 0)
                 {
                     Phase = BabyMetroidCutscenePhase.PrepareSamusForHyperBeam;
-                    FunctionTimer = 12;
+                    PhaseTimer = 12;
                     goto case BabyMetroidCutscenePhase.PrepareSamusForHyperBeam;
                 }
                 break;
 
             case BabyMetroidCutscenePhase.PrepareSamusForHyperBeam:
-                if (--FunctionTimer < 0)
+                if (--PhaseTimer < 0)
                 {
                     // The Hyper Beam acquisition freezes Samus's drained animation on its Hyper Beam acquisition frame.
                     // The Hyper Beam step also installs the first rainbow handler; neither handler is
@@ -629,7 +629,7 @@ public sealed class BabyMetroidCutsceneState
                     // starts readying Mother Brain's attacks again, and waits through 128..0 before its first update.
                     Presence = Presence.With(EnemyPresence.Hidden);
                     Phase = BabyMetroidCutscenePhase.ReadyMotherBrainAttacksAgain;
-                    FunctionTimer = 128;
+                    PhaseTimer = 128;
                 }
                 else
                 {
@@ -643,7 +643,7 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.ReadyMotherBrainAttacksAgain:
                 StepSamusRainbowPaletteAnimation(samus, ref samusRainbowActivated);
-                if (--FunctionTimer < 0)
+                if (--PhaseTimer < 0)
                 {
                     if (AttacksAgainReadyingElapsed >= MotherBrainReadyingDefinitions.AttacksAgainDuration)
                         throw new InvalidOperationException("Mother Brain's attacks are already readied again.");
@@ -655,14 +655,14 @@ public sealed class BabyMetroidCutsceneState
                         // The last readying update falls straight into the next step, so the newly written 176
                         // becomes 175 on this same call.
                         Phase = BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
-                        FunctionTimer = 176;
+                        PhaseTimer = 176;
                         goto case BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
                     }
                 }
                 break;
 
             case BabyMetroidCutscenePhase.LetSamusRainbowSomeMore:
-                if (--FunctionTimer < 0)
+                if (--PhaseTimer < 0)
                 {
                     Phase = BabyMetroidCutscenePhase.FinalCutscene;
                     RoomLightsTransitionCounter = 0;

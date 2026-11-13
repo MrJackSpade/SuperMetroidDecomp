@@ -28,15 +28,15 @@ internal static class MotherBrainFakeDeathLockVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         MotherBrainEnemyState state = (runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.MotherBrainEncounter.MotherBrain."));
-        state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeLock;
-        state.FunctionTimer = 0;
+        state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeLock;
+        state.PhaseTimer = 0;
 
         runtime.Enemies.MotherBrainBehavior.RunMotherBrainFakeDeath(state, samus);
         AssertTrue(samus.Control.AlphaLocked && samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked,
             "the descent locks Samus with command zero's stationary handlers");
 
-        state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeUnlock;
-        state.FunctionTimer = 0;
+        state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeUnlock;
+        state.PhaseTimer = 0;
         runtime.Enemies.MotherBrainBehavior.RunMotherBrainFakeDeath(state, samus);
         AssertTrue(!samus.Control.AlphaLocked && samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked,
             "command one restores the normal handlers");
@@ -56,9 +56,9 @@ internal static class MotherBrainFakeDeathLockVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain ??
             throw new InvalidOperationException("Verification requires runtime.Enemies.MotherBrainEncounter.MotherBrain.");
-        state.Function = MotherBrainBodyFunction.FakeDeathDescentFadeToGray;
-        state.FunctionTimer = 100;
-        state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.Finished;
+        state.Phase = MotherBrainBodyPhase.FakeDeathDescentFadeToGray;
+        state.PhaseTimer = 100;
+        state.TubeCollapseStep = MotherBrainTubeCollapseStep.Finished;
         state.FakeDeathExplosionIndex = 0;
 
         int[] expectedIndices = [7, 6];

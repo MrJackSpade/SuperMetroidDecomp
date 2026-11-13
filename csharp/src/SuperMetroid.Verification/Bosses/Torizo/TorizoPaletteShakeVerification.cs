@@ -27,7 +27,7 @@ internal static class TorizoPaletteShakeVerification
         actor.Bind(EnemyDefinitionId.BombTorizo, actor.Definition);
         actor.Bind(actor.DefinitionId, RoomEnemyDefinitionLookup.Get(actor.DefinitionId));
         // The initializer's function words; the build-pinned debugger state below rejects the undefined zero defaults.
-        var state = new TorizoEnemyState(actor, false) { Function = TorizoFunction.Falling, FrameBehavior = TorizoFrameBehavior.Idle };
+        var state = new TorizoEnemyState(actor, false) { Phase = TorizoPhase.Falling, FrameBehavior = TorizoFrameBehavior.Idle };
         enemies.BombTorizoBehavior.Access.TorizoState = state;
         void Execute(TorizoCueKind kind) =>
             AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(

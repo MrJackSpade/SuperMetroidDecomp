@@ -347,7 +347,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Shitroid state {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Shitroid has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

@@ -7,4 +7,4 @@ namespace SuperMetroid.Verification.Enemies.Yard;
 /// <param name="Expected">The expected.</param>
 /// <param name="ExpectedBehavior">The expected behavior.</param>
 /// <param name="ExpectedMovement">The expected movement.</param>
-internal readonly record struct VerifyYardSurfaceLossCase(int Counted, int Expected, YardBehavior ExpectedBehavior, YardMovementFunction ExpectedMovement);
+internal readonly record struct VerifyYardSurfaceLossCase(int Counted, int Expected, YardBehavior ExpectedBehavior, YardMovement ExpectedMovement);

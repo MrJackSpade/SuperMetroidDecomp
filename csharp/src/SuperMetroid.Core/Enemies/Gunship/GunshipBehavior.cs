@@ -74,9 +74,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         RoomEnemySlot top = ship.Top;
         RoomEnemySlot pad = ship.EntrancePad;
         GunshipSavePromptPending = false;
-        Part(top).Function = GunshipFunction.WaitForExitPadToOpen;
+        Part(top).Phase = GunshipPhase.WaitForExitPadToOpen;
         StartGunshipAnimation(pad, GunshipSegment.EntrancePadOpening);
-        Part(top).FunctionTimer = 144;
+        Part(top).PhaseTimer = 144;
     }
 
     /// <summary>
@@ -120,13 +120,13 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             // Post-Ceres initialization attaches the top hull seventeen pixels above Samus and
             // enters function three, the high-altitude descent used only after Ceres.
             slot.Position = slot.Position.WithWrappedWholeY(samus.Position.Y.Whole - 17);
-            part.Function = GunshipFunction.DescendAfterCeres;
+            part.Phase = GunshipPhase.DescendAfterCeres;
         }
         else
         {
             slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - 25);
             part.BaseY = slot.Position.Y.Whole;
-            part.Function = GunshipFunction.Idle;
+            part.Phase = GunshipPhase.Idle;
         }
         part.BobTimer = 1;
         part.BobPhase = 0;
@@ -163,7 +163,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
                 part.EngineSoundTimer = 71;
             }
         }
-        part.Function = GunshipFunction.NoOperation;
+        part.Phase = GunshipPhase.NoOperation;
     }
 
     /// <summary>Runs the top hull's sound timer and landing, boarding, save, or takeoff state machine.</summary>
@@ -188,92 +188,92 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
         // The landed ship continuously performs its four-phase bob before dispatching the function itself, in every
         // function from waiting for the landing entrance through loading the liftoff dust.
-        GunshipFunction function = Part(top).Function;
-        if (BobsWhileLanded(function))
+        GunshipPhase phase = Part(top).Phase;
+        if (BobsWhileLanded(phase))
             StepGunshipBob(top);
 
-        switch (function)
+        switch (phase)
         {
-            case GunshipFunction.DescendAfterCeres:
+            case GunshipPhase.DescendAfterCeres:
                 DescendPostCeresGunship(top, samus);
                 return;
-            case GunshipFunction.ApplyLandingBrakes:
+            case GunshipPhase.ApplyLandingBrakes:
                 BouncePostCeresGunship(top, samus);
                 return;
-            case GunshipFunction.WaitForLandingEntranceToOpen:
-                if (TickGunshipFunctionTimer(top))
-                    Part(top).Function = GunshipFunction.EjectSamus;
+            case GunshipPhase.WaitForLandingEntranceToOpen:
+                if (TickGunshipPhaseTimer(top))
+                    Part(top).Phase = GunshipPhase.EjectSamus;
                 return;
-            case GunshipFunction.EjectSamus:
+            case GunshipPhase.EjectSamus:
                 RaisePostCeresSamus(top, samus);
                 return;
-            case GunshipFunction.FinishLanding:
-                if (TickGunshipFunctionTimer(top))
+            case GunshipPhase.FinishLanding:
+                if (TickGunshipPhaseTimer(top))
                 {
-                    Part(top).Function = GunshipFunction.Idle;
+                    Part(top).Phase = GunshipPhase.Idle;
                     if (samus is not null)
                         samus.Control.Unlock();
                     _frameResults.Gunship = GunshipFrameEvent.LandingCompleted;
                 }
                 return;
-            case GunshipFunction.Idle:
+            case GunshipPhase.Idle:
                 HandleIdleGunshipEntrance(top, samus, newlyPressedControllerInput);
                 return;
-            case GunshipFunction.WaitForEntranceToOpen:
-                if (TickGunshipFunctionTimer(top))
-                    Part(top).Function = GunshipFunction.LowerSamus;
+            case GunshipPhase.WaitForEntranceToOpen:
+                if (TickGunshipPhaseTimer(top))
+                    Part(top).Phase = GunshipPhase.LowerSamus;
                 return;
-            case GunshipFunction.LowerSamus:
+            case GunshipPhase.LowerSamus:
                 LowerSamusIntoGunship(top, samus);
                 return;
-            case GunshipFunction.WaitForEntranceToClose:
-                if (TickGunshipFunctionTimer(top))
-                    Part(top).Function = GunshipFunction.BeginLiftoffOrRestoreSamus;
+            case GunshipPhase.WaitForEntranceToClose:
+                if (TickGunshipPhaseTimer(top))
+                    Part(top).Phase = GunshipPhase.BeginLiftoffOrRestoreSamus;
                 return;
-            case GunshipFunction.BeginLiftoffOrRestoreSamus:
+            case GunshipPhase.BeginLiftoffOrRestoreSamus:
                 RestoreSamusInGunship(top, samus);
                 return;
-            case GunshipFunction.HandleSaveConfirmation:
+            case GunshipPhase.HandleSaveConfirmation:
                 GunshipSavePromptPending = true;
                 _frameResults.Gunship = GunshipFrameEvent.SavePromptRequested;
                 return;
-            case GunshipFunction.WaitForExitPadToOpen:
-                if (TickGunshipFunctionTimer(top))
-                    Part(top).Function = GunshipFunction.RaiseSamus;
+            case GunshipPhase.WaitForExitPadToOpen:
+                if (TickGunshipPhaseTimer(top))
+                    Part(top).Phase = GunshipPhase.RaiseSamus;
                 return;
-            case GunshipFunction.RaiseSamus:
+            case GunshipPhase.RaiseSamus:
                 RaiseSamusOutOfGunship(top, samus);
                 return;
-            case GunshipFunction.FinishSamusExit:
-                if (TickGunshipFunctionTimer(top))
+            case GunshipPhase.FinishSamusExit:
+                if (TickGunshipPhaseTimer(top))
                 {
-                    Part(top).Function = GunshipFunction.Idle;
+                    Part(top).Phase = GunshipPhase.Idle;
                     if (samus is not null)
                         samus.Control.Unlock();
                     _frameResults.Gunship = GunshipFrameEvent.ExitCompleted;
                 }
                 return;
-            case GunshipFunction.ReadyTakeoffEngines:
+            case GunshipPhase.ReadyTakeoffEngines:
                 ReadyGunshipTakeoffEngines(top);
                 return;
-            case GunshipFunction.FireUpEngines:
+            case GunshipPhase.FireUpEngines:
                 FireUpGunshipEngines(top, samus);
                 return;
-            case GunshipFunction.SteadyLiftoff:
+            case GunshipPhase.SteadyLiftoff:
                 LiftGunshipAtConstantSpeed(top, samus);
                 return;
-            case GunshipFunction.AcceleratingLiftoff:
+            case GunshipPhase.AcceleratingLiftoff:
                 AccelerateEscapingGunship(top, samus);
                 return;
-            case GunshipFunction.MoveAccelerating:
+            case GunshipPhase.MoveAccelerating:
                 MoveEscapingGunship(top, samus);
                 return;
-            case GunshipFunction.NoOperation:
+            case GunshipPhase.NoOperation:
                 throw new InvalidDataException(
-                    $"Gunship function {Part(top).Function} is not translated.");
-            case GunshipFunction.None:
+                    $"Gunship has no behaviour for phase {Part(top).Phase}.");
+            case GunshipPhase.None:
             default:
-                throw new InvalidOperationException($"Undefined GunshipFunction {function}.");
+                throw new InvalidOperationException($"The gunship has no behaviour for phase {phase}.");
         }
     }
 
@@ -297,7 +297,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         top.Position = top.Position.WithWholeY(GunshipMotionDefinitions.LandedTopY);
         bottom.Position = bottom.Position.WithWholeY(GunshipMotionDefinitions.LandedBottomY);
         pad.Position = pad.Position.WithWholeY(GunshipMotionDefinitions.LandedPadY);
-        Part(top).Function = GunshipFunction.ApplyLandingBrakes;
+        Part(top).Phase = GunshipPhase.ApplyLandingBrakes;
         Part(top).LandingBrakeStep = 0;
     }
 
@@ -319,14 +319,14 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             return;
 
         RoomEnemySlot pad = Pieces(top).EntrancePad;
-        Part(top).Function = GunshipFunction.WaitForLandingEntranceToOpen;
+        Part(top).Phase = GunshipPhase.WaitForLandingEntranceToOpen;
         Part(top).BaseY = top.Position.Y.Whole;
         Part(top).BobTimer = 1;
         Part(top).BobPhase = 0;
         samus.Position = samus.Position.WithWrappedWholeX(top.Position.X.Whole + 1);
         samus.WritePreviousXPosition(samus.Position.X.Whole);
         StartGunshipAnimation(pad, GunshipSegment.EntrancePadOpening);
-        Part(top).FunctionTimer = 144;
+        Part(top).PhaseTimer = 144;
         _frameResults.Gunship = GunshipFrameEvent.LandingPadOpened;
         _audio.QueueEnemySound(RoomSound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
     }
@@ -342,9 +342,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             return;
 
         RoomEnemySlot pad = Pieces(top).EntrancePad;
-        Part(top).Function = GunshipFunction.FinishLanding;
+        Part(top).Phase = GunshipPhase.FinishLanding;
         StartGunshipAnimation(pad, GunshipSegment.EntrancePadClosing);
-        Part(top).FunctionTimer = 144;
+        Part(top).PhaseTimer = 144;
         _frameResults.Gunship = GunshipFrameEvent.LandingPadClosed;
     }
 
@@ -363,16 +363,16 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Whether the landed ship bobs before running <paramref name="function"/>: every function from waiting for the
+    /// Whether the landed ship bobs before running <paramref name="phase"/>: every function from waiting for the
     /// landing entrance through loading the liftoff dust. The game tests its function against the range of
     /// those functions (a range which also contains Idle); firing up the engines is the first function past it.
     /// </summary>
-    private static bool BobsWhileLanded(GunshipFunction function) => function is
-        GunshipFunction.WaitForLandingEntranceToOpen or GunshipFunction.EjectSamus or GunshipFunction.FinishLanding or
-        GunshipFunction.Idle or GunshipFunction.WaitForEntranceToOpen or GunshipFunction.LowerSamus or
-        GunshipFunction.WaitForEntranceToClose or GunshipFunction.BeginLiftoffOrRestoreSamus or
-        GunshipFunction.HandleSaveConfirmation or GunshipFunction.WaitForExitPadToOpen or GunshipFunction.RaiseSamus or
-        GunshipFunction.FinishSamusExit or GunshipFunction.ReadyTakeoffEngines;
+    private static bool BobsWhileLanded(GunshipPhase phase) => phase is
+        GunshipPhase.WaitForLandingEntranceToOpen or GunshipPhase.EjectSamus or GunshipPhase.FinishLanding or
+        GunshipPhase.Idle or GunshipPhase.WaitForEntranceToOpen or GunshipPhase.LowerSamus or
+        GunshipPhase.WaitForEntranceToClose or GunshipPhase.BeginLiftoffOrRestoreSamus or
+        GunshipPhase.HandleSaveConfirmation or GunshipPhase.WaitForExitPadToOpen or GunshipPhase.RaiseSamus or
+        GunshipPhase.FinishSamusExit or GunshipPhase.ReadyTakeoffEngines;
 
     /// <summary>Cycles the four idle-bob entries while moving the hull and pad together.</summary>
     internal void StepGunshipBob(RoomEnemySlot top)
@@ -408,7 +408,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (insideEntrance && SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Standing)
         {
             RoomEnemySlot pad = Pieces(top).EntrancePad;
-            Part(top).Function = GunshipFunction.WaitForEntranceToOpen;
+            Part(top).Phase = GunshipPhase.WaitForEntranceToOpen;
             // The alignment stores the ship's X as both Samus's current and previous X, so the camera sees
             // no horizontal motion from this alignment.
             if (samus.Position.X.Whole != GunshipMotionDefinitions.LandedX)
@@ -420,16 +420,16 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             samus.Control.EnterGunship();
             pad.Position = pad.Position.WithWrappedWholeY(top.Position.Y.Whole - 1);
             StartGunshipAnimation(pad, GunshipSegment.EntrancePadOpening);
-            Part(top).FunctionTimer = 144;
+            Part(top).PhaseTimer = 144;
             _frameResults.Gunship = GunshipFrameEvent.EntryStarted;
             _audio.QueueEnemySound(RoomSound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
         }
     }
 
-    /// <summary>Decrements the function timer, treating one and signed underflow as expiry.</summary>
-    private static bool TickGunshipFunctionTimer(RoomEnemySlot top)
+    /// <summary>Decrements the phase timer, treating one and signed underflow as expiry.</summary>
+    private static bool TickGunshipPhaseTimer(RoomEnemySlot top)
     {
-        return --Part(top).FunctionTimer <= 0;
+        return --Part(top).PhaseTimer <= 0;
     }
 
     /// <summary>Lowers Samus two pixels per frame until the closing-pad threshold.</summary>
@@ -442,9 +442,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             return;
 
         RoomEnemySlot pad = Pieces(top).EntrancePad;
-        Part(top).Function = GunshipFunction.WaitForEntranceToClose;
+        Part(top).Phase = GunshipPhase.WaitForEntranceToClose;
         StartGunshipAnimation(pad, GunshipSegment.EntrancePadClosing);
-        Part(top).FunctionTimer = 144;
+        Part(top).PhaseTimer = 144;
         _frameResults.Gunship = GunshipFrameEvent.EntryPadClosing;
     }
 
@@ -460,7 +460,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (_room.Services.Events.Has(StoryEvent.ZebesTimebombSet))
         {
             RoomEnemySlot bottom = Pieces(top).Bottom;
-            Part(top).Function = GunshipFunction.ReadyTakeoffEngines;
+            Part(top).Phase = GunshipPhase.ReadyTakeoffEngines;
             Part(top).EngineReadyingElapsed = 0;
             Part(bottom).EscapeVelocity = SignedEightEight.Zero;
             Part(bottom).RumbleFrame = 0;
@@ -480,7 +480,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             return;
 
         // The prompt itself opens when the save-confirmation behaviour runs on the following frame.
-        Part(top).Function = GunshipFunction.HandleSaveConfirmation;
+        Part(top).Phase = GunshipPhase.HandleSaveConfirmation;
     }
 
     /// <summary>Raises Samus two pixels per frame, then closes the pad and emits the exit event.</summary>
@@ -493,9 +493,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             return;
 
         RoomEnemySlot pad = Pieces(top).EntrancePad;
-        Part(top).Function = GunshipFunction.FinishSamusExit;
+        Part(top).Phase = GunshipPhase.FinishSamusExit;
         StartGunshipAnimation(pad, GunshipSegment.EntrancePadClosing);
-        Part(top).FunctionTimer = 144;
+        Part(top).PhaseTimer = 144;
         _frameResults.Gunship = GunshipFrameEvent.ExitPadClosing;
         _audio.QueueEnemySound(RoomSound.GunshipPadClosing, priority: SoundRequestPriority.Normal);
     }
@@ -516,7 +516,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (Part(top).EngineReadyingElapsed >= GunshipTakeoffDefinitions.EngineReadyingDuration)
         {
             _room.Session.Looks.Show(GunshipTakeoffDefinitions.TakeoffLook);
-            Part(top).Function = GunshipFunction.FireUpEngines;
+            Part(top).Phase = GunshipPhase.FireUpEngines;
             Part(top).EngineReadyingElapsed = 0;
         }
     }
@@ -548,8 +548,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
         if (Part(bottom).RumbleFrame >= GunshipTakeoffDefinitions.EngineRumbleFrames)
         {
-            Part(top).Function = GunshipFunction.SteadyLiftoff;
-            Part(top).FunctionTimer = 0;
+            Part(top).Phase = GunshipPhase.SteadyLiftoff;
+            Part(top).PhaseTimer = 0;
         }
     }
 
@@ -561,7 +561,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         MoveGunshipAndSamusToY(top, samus, CoordinateAxis.Wrap(samus.Position.Y.Whole - 2));
         if (CoordinateAxis.Difference(top.Position.Y.Whole, 896) < 0)
         {
-            Part(top).Function = GunshipFunction.AcceleratingLiftoff;
+            Part(top).Phase = GunshipPhase.AcceleratingLiftoff;
             Part(Pieces(top).Bottom).EscapeVelocity = GunshipMotionDefinitions.EscapeStartVelocity;
         }
     }
@@ -572,7 +572,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         MoveEscapingGunship(top, samus);
         if (CoordinateAxis.Difference(top.Position.Y.Whole, 256) < 0)
         {
-            Part(top).Function = GunshipFunction.MoveAccelerating;
+            Part(top).Phase = GunshipPhase.MoveAccelerating;
             _frameResults.Gunship = GunshipFrameEvent.EscapeTakeoffCompleted;
         }
     }

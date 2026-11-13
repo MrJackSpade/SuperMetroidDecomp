@@ -539,8 +539,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 if (!RidleyNativeWords.Phases.TryDecode(nativeFunctionWord, out RidleyPhase nativePhase) ||
                     nativePhase != ridleyState.Phase)
                     mismatches.Add($"Ridley AI function: native={nativeFunctionWord:X4} port={ridleyState.Phase}");
-                Check("Ridley AI timer", unchecked((ushort)ridleyState.FunctionTimer), NativeSnapshotMemory.RidleyFunctionTimer);
-                Check("Ridley TailFunctionIndex", (ushort)ridleyState.TailFunctionIndex, NativeSnapshotMemory.RidleyTailFunctionIndex);
+                Check("Ridley AI timer", unchecked((ushort)ridleyState.PhaseTimer), NativeSnapshotMemory.RidleyFunctionTimer);
+                Check("Ridley TailFunctionIndex", (ushort)ridleyState.TailAction, NativeSnapshotMemory.RidleyTailFunctionIndex);
                 Check("Ridley IdleTailWhipEnabled", ridleyState.IdleTailWhipEnabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyIdleTailWhipEnabled);
                 Check("Ridley TailWhipRequest", checked((ushort)ridleyState.TailWhipRequest), NativeSnapshotMemory.RidleyTailWhipRequest);
                 Check("Ridley TailExtensionSpeed", ridleyState.TailExtensionSpeed.RawValue, NativeSnapshotMemory.RidleyTailExtensionSpeed);

@@ -11,9 +11,9 @@ public sealed class SparkEnemyState
     public SparkAction? Action { get; internal set; }
 
     /// <summary>The updates the Spark waits between functions when it does not randomize them, from its spawn settings.</summary>
-    public int BaseFunctionTime { get; internal set; }
+    public int BaseActionTime { get; internal set; }
 
 
     /// <summary>The countdown, decremented and then tested for zero as the game does: reaching zero expires it, and one that starts from zero wraps instead.</summary>
-    public int FunctionTimer { get; internal set; }
+    public int ActionTimer { get; internal set; }
 }

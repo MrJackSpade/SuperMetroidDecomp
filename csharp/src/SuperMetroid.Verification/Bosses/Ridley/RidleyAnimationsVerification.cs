@@ -91,7 +91,7 @@ internal static class RidleyAnimationsVerification
         CeresRidleyFlight.StartRidleyAnimation(state, body, RidleyBodySegment.Fireballing);
         Pass(body, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 29 });
         AssertEqual(RidleyAnimations.StartingWith(RidleyBodySegment.FireballingEnd), state.BodyPlayback.Animation, "low energy in Ceres skips to the fireballing tail");
-        AssertEqual(8, state.FunctionTimer, "low energy shortens the hover to eight updates");
+        AssertEqual(8, state.PhaseTimer, "low energy shortens the hover to eight updates");
         AssertTrue(!state.Roaring, "the fireballing tail clears the roaring flag");
         AssertEqual((RidleyCollisionDefinitions.BodyFrame?)RidleyCollisionDefinitions.BodyFrame.Left, RidleyCollisionDefinitions.BodyFrameAt(body.SpritemapPointer), "the tail shows the standing pose");
 

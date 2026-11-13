@@ -24,7 +24,7 @@ internal static class MotherBrainInheritedExplosionIndexVerification
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
 
-        state.BodySubFunctionTimer = 2;
+        state.BodySubPhaseTimer = 2;
         runtime.Enemies.MotherBrainBehavior.Attacks.StartLiveMotherBrainRainbowBeam(state, runtime.Player.IntroducedSamus, null);
         MotherBrainRainbowBeamAttackSequence sequence = (state.RainbowBeamSequence ?? throw new InvalidOperationException("Verification requires state.RainbowBeamSequence."));
         AssertEqual(2, sequence.ThirdPhaseDeath.DeathAndEscapeExplosionIndex, "the sequence inherits word $0FF2");

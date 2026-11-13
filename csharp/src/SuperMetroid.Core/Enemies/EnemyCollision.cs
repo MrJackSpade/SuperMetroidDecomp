@@ -645,7 +645,7 @@ internal sealed class EnemyCollision
             if (enemy.Definition.PowerBombReaction is { } named && reaction is null)
             {
                 throw new InvalidDataException(
-                    $"Enemy {enemy.DefinitionId} power-bomb reaction {named} is not translated.");
+                    $"Enemy {enemy.DefinitionId} has no response to power-bomb reaction {named}.");
             }
 
             // Private reactions replace common power-bomb damage, but still receive the

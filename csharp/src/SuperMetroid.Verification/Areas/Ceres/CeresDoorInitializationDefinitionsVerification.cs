@@ -29,7 +29,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
             CeresDoorInitializationDefinition definition =
                 CeresDoorInitializations.For(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoor(variant));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((functionTable + variant * 2)),
-                CeresNativeWords.DoorFunctions.Word(definition.MainFunction),
+                CeresNativeWords.DoorActions.Word(definition.MainAction),
                 $"Ceres door function selector {variant}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + variant * 2)),
                 NativeEnemyAnimationOracle.EntryOf(CeresDoorNativeListAddresses.Entries, definition.Animation),
@@ -43,7 +43,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
             slot.Bind(EnemyDefinitionId.CeresDoor, slot.Definition);
             enemies.CeresDoorBehavior.InitializeCeresDoor(slot);
 
-            AssertEqual<CeresDoorFunction?>(definition.MainFunction, slot.SpeciesState<CeresDoorEnemyState>()?.Function,
+            AssertEqual<CeresDoorAction?>(definition.MainAction, slot.SpeciesState<CeresDoorEnemyState>()?.Action,
                 $"production Ceres door function selector {variant}");
             AssertEqual(new AnimationPlayback<CeresDoorSegment>(CeresDoorAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation), slot.RequireSpeciesState<CeresDoorEnemyState>().Playback,
                 $"production Ceres door program selector {variant}");

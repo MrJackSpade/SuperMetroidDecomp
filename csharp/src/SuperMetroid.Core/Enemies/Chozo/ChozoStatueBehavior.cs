@@ -188,7 +188,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Chozo statue frame behaviour {state.FrameBehavior?.ToString() ?? "none"} is not translated.");
+                    $"Chozo statue has no frame behaviour {state.FrameBehavior?.ToString() ?? "none"}.");
         }
     }
 

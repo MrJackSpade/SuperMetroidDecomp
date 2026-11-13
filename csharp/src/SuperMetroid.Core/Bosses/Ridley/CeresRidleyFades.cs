@@ -22,9 +22,9 @@ internal sealed class CeresRidleyFades
     {
         // The game's increment-and-test advances once per AI call for every reachable
         // counter value, resetting that timer to zero immediately afterward.
-        if (++state.FunctionTimer == 0)
+        if (++state.PhaseTimer == 0)
             return;
-        state.FunctionTimer = 0;
+        state.PhaseTimer = 0;
 
         CeresRidleyEyeFadeStep fadeStep =
             CeresRidleyEyeFade.Get(state.FadeStep);
@@ -43,9 +43,9 @@ internal sealed class CeresRidleyFades
     /// <summary>Reveals the body one shade per step, clears intangible collision and queues the battle track at the final shade.</summary>
     internal void TickCeresRidleyBodyFade(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        if (++state.FunctionTimer < 2)
+        if (++state.PhaseTimer < 2)
             return;
-        state.FunctionTimer = 0;
+        state.PhaseTimer = 0;
 
         // Each step of the body fade shows the next shade, from black to the full body colours.
         int shade = state.FadeStep;
@@ -62,7 +62,7 @@ internal sealed class CeresRidleyFades
         slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
         state.FadeStep = 0;
         state.Phase = RidleyPhase.WaitBeforeRoar;
-        state.FunctionTimer = 4;
+        state.PhaseTimer = 4;
         // The fade queues the set's first song immediately after the final body shade.
         // This is the Ceres battle/escape track; it intentionally continues after Ridley
         // retreats, so omitting this single publication silences both scenes.

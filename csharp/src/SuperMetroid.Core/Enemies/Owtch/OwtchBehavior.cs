@@ -119,7 +119,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Owtch state {state.Behavior} is not translated.");
+                    $"Owtch has no behaviour for state {state.Behavior}.");
         }
     }
 

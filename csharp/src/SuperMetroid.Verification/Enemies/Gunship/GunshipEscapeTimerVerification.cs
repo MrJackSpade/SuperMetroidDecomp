@@ -60,7 +60,7 @@ internal static class GunshipEscapeTimerVerification
             AssertTrue(runtime.EscapeTimer.IsActive, "Gunship preserves native active timer status");
             AssertEqual(timeBeforeBoarding, Time(), "Gunship handler omits timer countdown");
             AssertTrue(!TimerSpritesPresent(), "No timer sprites reference repurposed dust tiles");
-            if (GunshipPartState.Of(top).Function == GunshipFunction.FireUpEngines)
+            if (GunshipPartState.Of(top).Phase == GunshipPhase.FireUpEngines)
             {
                 sawDustUpload = true;
                 break;

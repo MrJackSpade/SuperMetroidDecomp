@@ -190,7 +190,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
                     throw new InvalidDataException("Landing Site demo requires the scrolling sky's background owner.");
                 break;
             case AttractDemoRoomSetup.KraidTimer:
-                enemies.AttractDemoHooks.SetKraidFunctionTimer(AttractDemoDefinitions.KraidFunctionTimer);
+                enemies.AttractDemoHooks.SetKraidPhaseTimer(AttractDemoDefinitions.KraidPhaseTimer);
                 break;
             case AttractDemoRoomSetup.DefeatedKraid:
                 _system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss);

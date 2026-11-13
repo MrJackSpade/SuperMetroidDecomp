@@ -31,7 +31,7 @@ internal sealed class TorizoEncounterAccess
                 $"Enemy slot {torizo.SlotIndex} has no initialized Bomb Torizo state.");
 
     /// <summary>Tests whether Torizo faces the side Samus is on, as its attack branches do.</summary>
-    internal bool BombTorizoFunction12IsNonNegative(
+    internal bool FacesSamus(
         RoomEnemySlot torizo,
         SamusState samus)
     {

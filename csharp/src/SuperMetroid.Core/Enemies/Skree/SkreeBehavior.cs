@@ -90,7 +90,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Skree function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Skree has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

@@ -74,7 +74,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             AttackCooldown = MaridiaLargeSnailInitialAttackCooldown,
             MovingLeft = false,
             RemainingBounces = MaridiaLargeSnailInitialBounceCount,
-            BounceFunction = MaridiaLargeSnailBounceFunction.Falling,
+            BouncePhase = MaridiaLargeSnailBouncePhase.Falling,
         };
         slot.SetSpeciesState(state);
 
@@ -115,7 +115,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Maridia Large Snail function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Maridia Large Snail has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
 
         CarrySamusWithMaridiaLargeSnail(slot, state, samus);
@@ -170,7 +170,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             // No floor one pixel below means Oum walked off a ledge. Retail restarts the
             // complete three-impact settling sequence without skipping horizontal work.
             state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
-            state.BounceFunction = MaridiaLargeSnailBounceFunction.Falling;
+            state.BouncePhase = MaridiaLargeSnailBouncePhase.Falling;
             state.RemainingBounces = MaridiaLargeSnailInitialBounceCount;
         }
 
@@ -224,9 +224,9 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         MaridiaLargeSnailEnemyState state,
         RoomLevelData level)
     {
-        switch (state.BounceFunction)
+        switch (state.BouncePhase)
         {
-            case MaridiaLargeSnailBounceFunction.Falling:
+            case MaridiaLargeSnailBouncePhase.Falling:
                 // The record stays within 3712 256ths of a record below the start through record 64, so the game's
                 // signed comparisons are ordinary comparisons.
                 state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Min(
@@ -246,15 +246,15 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 state.YSpeedTableIndex -= MaridiaLargeSnailImpactIndexLoss;
                 if (state.YSpeedTableIndex.IsNegative)
                     state.RemainingBounces = 0;
-                state.BounceFunction = MaridiaLargeSnailBounceFunction.Rising;
+                state.BouncePhase = MaridiaLargeSnailBouncePhase.Rising;
                 return;
 
-            case MaridiaLargeSnailBounceFunction.Rising:
+            case MaridiaLargeSnailBouncePhase.Rising:
                 state.YSpeedTableIndex -= MaridiaLargeSnailBounceAcceleration;
                 if (state.YSpeedTableIndex.IsNegative)
                 {
                     state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
-                    state.BounceFunction = MaridiaLargeSnailBounceFunction.Falling;
+                    state.BouncePhase = MaridiaLargeSnailBouncePhase.Falling;
                     return;
                 }
 
@@ -268,8 +268,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
             default:
                 throw new InvalidDataException(
-                    $"Maridia Large Snail bounce function " +
-                    $"{state.BounceFunction?.ToString() ?? "none"} is not translated.");
+                    $"Maridia Large Snail has no behaviour for bounce phase " +
+                    $"{state.BouncePhase?.ToString() ?? "none"}.");
         }
     }
 
@@ -532,8 +532,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 if (c.HitboxShotAi != EnemyReaction.MaridiaLargeSnailShot)
                 {
                     throw new InvalidDataException(
-                        $"Maridia Large Snail hitbox shot AI " +
-                        $"{c.HitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
+                        $"Maridia Large Snail has no response to shot reaction " +
+                        $"{c.HitboxShotAi?.ToString() ?? "(unnamed)"}.");
                 }
                 return false;
             },
@@ -555,8 +555,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                         EnemyReaction.MaridiaLargeSnailNonDamagingTouch))
                 {
                     throw new InvalidDataException(
-                        $"Maridia Large Snail hitbox touch AI " +
-                        $"{context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
+                        $"Maridia Large Snail has no response to touch reaction " +
+                        $"{context.HitboxTouchAi?.ToString() ?? "(unnamed)"}.");
                 }
 
                 // The damaging touch enters common touch damage and falls directly through the harmless touch's

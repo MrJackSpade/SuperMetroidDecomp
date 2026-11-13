@@ -127,7 +127,7 @@ internal sealed class CrocomireCombat
                         EnemyReaction.CrocomireClawTouch or EnemyReaction.NormalEnemyTouch))
                 {
                     throw new InvalidDataException(
-                        $"Crocomire hitbox touch reaction {context.HitboxTouchAi?.ToString() ?? "(none)"} is not translated.");
+                        $"Crocomire has no response to touch reaction {context.HitboxTouchAi?.ToString() ?? "(none)"}.");
                 }
 
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
@@ -172,7 +172,7 @@ internal sealed class CrocomireCombat
             return;
         }
 
-        throw new InvalidOperationException($"Crocomire hitbox shot reaction {reaction?.ToString() ?? "(none)"} is not translated.");
+        throw new InvalidOperationException($"Crocomire has no response to shot reaction {reaction?.ToString() ?? "(none)"}.");
     }
 
     /// <summary>

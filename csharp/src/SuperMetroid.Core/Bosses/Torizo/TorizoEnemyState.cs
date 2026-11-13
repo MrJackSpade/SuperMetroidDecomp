@@ -80,8 +80,8 @@ public sealed class TorizoEnemyState : ILitTorizo
     /// </summary>
     public EightEightVector<RoomPixels> JumpAcceleration { get; internal set; }
 
-    /// <summary>The main function the Torizo runs each frame.</summary>
-    public TorizoFunction Function { get; internal set; }
+    /// <summary>The main phase the Torizo runs each frame.</summary>
+    public TorizoPhase Phase { get; internal set; }
 
     /// <summary>The behaviour the Torizo runs before each animation step while active.</summary>
     public TorizoFrameBehavior FrameBehavior { get; internal set; }

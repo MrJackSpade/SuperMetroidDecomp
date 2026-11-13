@@ -46,14 +46,14 @@ internal static class YardTrajectoriesVerification
             for (int frame = 0; frame < 1200; frame++)
             {
                 ushort x = actor.Position.X.Whole, y = actor.Position.Y.Whole;
-                var function = (state ?? throw new InvalidOperationException("Verification requires state.")).MovementFunction;
+                var movement = (state ?? throw new InvalidOperationException("Verification requires state.")).Movement;
                 ushort cameraX = unchecked((ushort)Math.Max(0, x - 128)), cameraY = unchecked((ushort)Math.Max(0, y - 112));
                 enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(cameraX, cameraY), TimeIsFrozen = false, Samus = samus });
                 int distance = Math.Max(Math.Abs(unchecked((short)(actor.Position.X.Whole - x))), Math.Abs(unchecked((short)(actor.Position.Y.Whole - y))));
                 if (distance > largest)
                 {
                     largest = distance;
-                    Console.WriteLine($"Yard {focus}, frame {frame}, {function}: ({x},{y})->({actor.Position.X.Whole},{actor.Position.Y.Whole}), crawl={state.CrawlingVelocity.X.RawValue:X4}/{state.CrawlingVelocity.Y.RawValue:X4}, airborne={state.AirborneVelocity.X.UnsignedWholePixels:X4}.{state.AirborneVelocity.X.Fraction:X4}/{state.AirborneVelocity.Y.UnsignedWholePixels:X4}.{state.AirborneVelocity.Y.Fraction:X4}");
+                    Console.WriteLine($"Yard {focus}, frame {frame}, {movement}: ({x},{y})->({actor.Position.X.Whole},{actor.Position.Y.Whole}), crawl={state.CrawlingVelocity.X.RawValue:X4}/{state.CrawlingVelocity.Y.RawValue:X4}, airborne={state.AirborneVelocity.X.UnsignedWholePixels:X4}.{state.AirborneVelocity.X.Fraction:X4}/{state.AirborneVelocity.Y.UnsignedWholePixels:X4}.{state.AirborneVelocity.Y.Fraction:X4}");
                 }
             }
             Console.WriteLine($"Yard {focus}: maximum axis step {largest}");
@@ -74,7 +74,7 @@ internal static class YardTrajectoriesVerification
             actor.Position = FixedPosition<RoomPixels>.FromWhole(new(256, unchecked((ushort)(256 - actor.Radius.Y))));
             (state ?? throw new InvalidOperationException("Verification requires state.")).Direction = SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction);
             state.AirborneFacingDirection = facing;
-            state.MovementFunction = YardMovementFunction.Airborne;
+            state.Movement = YardMovement.Airborne;
             state.Behavior = YardBehavior.Dropped;
             state.AirborneVelocity = state.AirborneVelocity.WithWholeY(1);
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 999, MaxHealth = 999,

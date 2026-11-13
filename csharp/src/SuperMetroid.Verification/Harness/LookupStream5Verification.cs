@@ -193,22 +193,22 @@ internal static class LookupStream5Verification
             system.BossArtwork = InstalledFixtures.BossArtwork;
             Action<PhantoonEnemyState> fade = system.PhantoonBehavior.Patterns.RunPhantoonFlameRainFadeOut;
             Action<RoomEnemySlot, PhantoonEnemyState> tick = system.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain;
-            body.Position = body.Position.WithWhole(new(111, 99)); state.BodyState.PathCursor = 42; state.BodyState.FunctionTimer = 17;
+            body.Position = body.Position.WithWhole(new(111, 99)); state.BodyState.PathCursor = 42; state.BodyState.PhaseTimer = 17;
             state.BodyState.Phase = PhantoonPhase.FadeOutDuringFlameRain;
             // He fades out of the colouring the fight shows him in (#1512), his health band's.
             state.Colours.Show(PhantoonBodyLook.Health(0));
             fade(state); // The eye's independent fade has not completed yet.
             AssertEqual(0, randomCalls, "Incomplete fade does not choose hidden delay");
-            AssertEqual(17, state.BodyState.FunctionTimer, "Incomplete fade preserves prior countdown");
+            AssertEqual(17, state.BodyState.PhaseTimer, "Incomplete fade preserves prior countdown");
             state.EyeState.FadeComplete = true;
             fade(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd63 + bucket * 2);
-            AssertEqual(duration, state.BodyState.FunctionTimer, "Completed fade selects exact native hidden duration");
+            AssertEqual(duration, state.BodyState.PhaseTimer, "Completed fade selects exact native hidden duration");
             AssertEqual(PhantoonPhase.SpawnFlameRain, state.BodyState.Phase, "Completed fade starts hidden waiting phase");
             for (int elapsed = 1; elapsed <= duration; elapsed++)
             {
                 tick(body, state); totalTicks++;
-                AssertEqual((ushort)(duration - elapsed), state.BodyState.FunctionTimer, "Hidden wait decrements exactly once");
+                AssertEqual((ushort)(duration - elapsed), state.BodyState.PhaseTimer, "Hidden wait decrements exactly once");
                 if (elapsed < duration)
                 {
                     AssertEqual(1, randomCalls, "Next location is not chosen before delay expires");
@@ -254,7 +254,7 @@ internal static class LookupStream5Verification
             Action<RoomEnemySlot, PhantoonEnemyState> tick = system.PhantoonBehavior.Patterns.RunPhantoonFirstRoundFigureEight;
             // The duration bucket is the enemy frame's NMI counter bits 1-2, not a random draw.
             system.FrameContext.SeedFrame((ushort)(bucket << 1), InstalledFixtures.CreateProjectileSystem(), new SuperMetroid.Core.Samus.Palettes.SamusColours());
-            body.Position = body.Position.WithWhole(new(128, 96)); state.BodyState.FunctionTimer = 1; state.BodyState.FlameRainRequested = true;
+            body.Position = body.Position.WithWhole(new(128, 96)); state.BodyState.PhaseTimer = 1; state.BodyState.FlameRainRequested = true;
             begin(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd53 + bucket * 2);
             AssertEqual(duration, state.EyeState.ClosedTimer, "Native first-round closed-eye duration");
@@ -363,7 +363,7 @@ internal static class LookupStream5Verification
             body.Position = body.Position.WithWhole(new(128, 96));
             open(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd41 + bucket * 2);
-            AssertEqual(duration, state.BodyState.FunctionTimer, "Native selected vulnerability duration");
+            AssertEqual(duration, state.BodyState.PhaseTimer, "Native selected vulnerability duration");
             AssertTrue(!body.Contact.HasAny(EnemyContact.IgnoresSamus), "Eye opening enables collision");
             state.TentaclesState.SwoopRequested = shot;
             state.TentaclesState.RoundDamage = 37;
@@ -375,7 +375,7 @@ internal static class LookupStream5Verification
                 AssertEqual((ushort)96, body.Position.Y.Whole, "Exposure body remains at current Y");
                 if (elapsed < duration)
                 {
-                    AssertEqual((ushort)(duration - elapsed), state.BodyState.FunctionTimer, "One exact countdown decrement per actor call");
+                    AssertEqual((ushort)(duration - elapsed), state.BodyState.PhaseTimer, "One exact countdown decrement per actor call");
                     AssertEqual(PhantoonPhase.EyeTracksSamus, state.BodyState.Phase, "No early exposure transition");
                     AssertTrue(!body.Contact.HasAny(EnemyContact.IgnoresSamus), "Exposure remains collidable before expiry");
                     AssertEqual(37, state.TentaclesState.RoundDamage, "Round damage remains until expiration");
@@ -385,7 +385,7 @@ internal static class LookupStream5Verification
             if (shot)
             {
                 AssertEqual(PhantoonPhase.BecomeSolidAndSwoop, state.BodyState.Phase, "Shot-triggered expiration selects swoop");
-                AssertEqual(ReadVerificationWord(rom, 0xa7d620), state.BodyState.FunctionTimer, "Separate native swoop setup hold preserved");
+                AssertEqual(ReadVerificationWord(rom, 0xa7d620), state.BodyState.PhaseTimer, "Separate native swoop setup hold preserved");
                 AssertEqual(false, state.TentaclesState.SwoopRequested, "Expiration consumes swoop request");
             }
             else
@@ -941,11 +941,11 @@ internal static class LookupStream5Verification
             body.Health = 1000;
             body.AiStates = EnemyAiStates.Hurt;
             state.BodyState.Phase = PhantoonPhase.EyeTracksSamus;
-            state.BodyState.FunctionTimer = 60;
+            state.BodyState.PhaseTimer = 60;
             state.TentaclesState.SwoopRequested = false;
             state.TentaclesState.RoundDamage = 0;
             shot(body, state, 0x100, 1);
-            AssertEqual(16, state.BodyState.FunctionTimer, "Actual shot window");
+            AssertEqual(16, state.BodyState.PhaseTimer, "Actual shot window");
             AssertEqual(bucket + 1, calls, "One preserved RNG call per shot");
         }
         Console.WriteLine("Phantoon shot draws: eight actual bus-free shots preserve RNG and timing.");
@@ -1239,7 +1239,7 @@ internal static class LookupStream5Verification
             var eye = enemies.SlotTable.Slots[1];
             var state = new PhantoonEnemyState(body) { Eye = eye };
             enemies.PhantoonBehavior.Combat.Phantoon = state;
-            state.BodyState.FunctionTimer = 1;
+            state.BodyState.PhaseTimer = 1;
             state.EyeState.FigureEightReversed = true;
             new Action<RoomEnemySlot, PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain)(body, state);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + pattern * 8)), state.BodyState.PathCursor, "Real rain cursor handoff");
@@ -1459,7 +1459,7 @@ internal static class LookupStream5Verification
         {
             var actual = CeresDoorInitializations.For(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoor(variant));
             AssertEqual(ReadVerificationWord(rom, 0xa6f52c + 2 * variant), NativeEnemyAnimationOracle.EntryOf(CeresDoorNativeListAddresses.Entries, actual.Animation), "Ceres door original instruction dispatch");
-            AssertEqual(ReadVerificationWord(rom, 0xa6f72b + 2 * variant), CeresNativeWords.DoorFunctions.Word(actual.MainFunction), "Ceres door original function dispatch");
+            AssertEqual(ReadVerificationWord(rom, 0xa6f72b + 2 * variant), CeresNativeWords.DoorActions.Word(actual.MainAction), "Ceres door original function dispatch");
         }
         // The vents' ways in the order of the cartridge's tables, which a vent's first spawn parameter indexes.
         CeresSteamVariant[] steamVariants = [CeresSteamVariant.Up, CeresSteamVariant.Left, CeresSteamVariant.Down, CeresSteamVariant.Right, CeresSteamVariant.RotatingElevatorLeft, CeresSteamVariant.RotatingElevatorRight];
@@ -1467,7 +1467,7 @@ internal static class LookupStream5Verification
         {
             var actual = CeresSteamInitializations.Initialization(steamVariants[variant]);
             AssertEqual(ReadVerificationWord(rom, 0xa6eff5 + 2 * variant), NativeEnemyAnimationOracle.EntryOf(CeresSteamNativeListAddresses.Entries, actual.Animation), "Ceres steam original instruction dispatch");
-            AssertEqual(ReadVerificationWord(rom, 0xa6f001 + 2 * variant), CeresNativeWords.SteamFunctions.Word(actual.Function), "Ceres steam original function dispatch");
+            AssertEqual(ReadVerificationWord(rom, 0xa6f001 + 2 * variant), CeresNativeWords.SteamActions.Word(actual.Action), "Ceres steam original function dispatch");
         }
         for (int index = 0; index < 9; index++)
         {

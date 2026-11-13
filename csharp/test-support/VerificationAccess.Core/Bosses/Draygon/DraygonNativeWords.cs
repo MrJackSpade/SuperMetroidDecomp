@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// </summary>
 internal static class DraygonNativeWords
 {
-    /// <summary>The bank-$A5 routine word naming each <see cref="DraygonEyeFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<DraygonEyeFunction> EyeFunctions = new(new Dictionary<DraygonEyeFunction, ushort>
+    /// <summary>The bank-$A5 routine word naming each <see cref="DraygonEyeAction"/>.</summary>
+    internal static readonly NativeWordIdentities<DraygonEyeAction> EyeActions = new(new Dictionary<DraygonEyeAction, ushort>
     {
-        [DraygonEyeFunction.Inert] = 0x804b,
-        [DraygonEyeFunction.FacingLeft] = 0xc48d,
-        [DraygonEyeFunction.FacingRight] = 0xc513,
+        [DraygonEyeAction.Inert] = 0x804b,
+        [DraygonEyeAction.FacingLeft] = 0xc48d,
+        [DraygonEyeAction.FacingRight] = 0xc513,
     });
 
     /// <summary>Pre-instruction <c>$84:DB64</c>, accepting missiles and Super Missiles.</summary>

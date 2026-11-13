@@ -9,22 +9,22 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 internal static class CeresNativeWords
 {
-    /// <summary>The routine word naming each <see cref="CeresDoorFunction"/>, stored in the door's variable A.</summary>
-    internal static readonly NativeWordIdentities<CeresDoorFunction> DoorFunctions = new(new Dictionary<CeresDoorFunction, ushort>
+    /// <summary>The routine word naming each <see cref="CeresDoorAction"/>, stored in the door's variable A.</summary>
+    internal static readonly NativeWordIdentities<CeresDoorAction> DoorActions = new(new Dictionary<CeresDoorAction, ushort>
     {
-        [CeresDoorFunction.HandleEarthquakeDuringEscape] = 0xf76b,
-        [CeresDoorFunction.HandleEarthquakeDuringEscapeInRidleysRoom] = 0xf770,
-        [CeresDoorFunction.RidleyEscapeFloorWall] = 0xf7a5,
-        [CeresDoorFunction.RotatingElevatorRoomDefault] = 0xf7bd,
-        [CeresDoorFunction.RotatingElevatorRumble] = 0xf7dc,
-        [CeresDoorFunction.ElevatorAnimation] = 0xf850,
+        [CeresDoorAction.HandleEarthquakeDuringEscape] = 0xf76b,
+        [CeresDoorAction.HandleEarthquakeDuringEscapeInRidleysRoom] = 0xf770,
+        [CeresDoorAction.RidleyEscapeFloorWall] = 0xf7a5,
+        [CeresDoorAction.RotatingElevatorRoomDefault] = 0xf7bd,
+        [CeresDoorAction.RotatingElevatorRumble] = 0xf7dc,
+        [CeresDoorAction.ElevatorAnimation] = 0xf850,
     });
 
-    /// <summary>The routine word naming each <see cref="CeresSteamFunction"/>, stored in the steam actor's variable A.</summary>
-    internal static readonly NativeWordIdentities<CeresSteamFunction> SteamFunctions = new(new Dictionary<CeresSteamFunction, ushort>
+    /// <summary>The routine word naming each <see cref="CeresSteamAction"/>, stored in the steam actor's variable A.</summary>
+    internal static readonly NativeWordIdentities<CeresSteamAction> SteamActions = new(new Dictionary<CeresSteamAction, ushort>
     {
-        [CeresSteamFunction.None] = 0xeff4,
-        [CeresSteamFunction.ApplyRotatingElevatorOffset] = 0xf019,
+        [CeresSteamAction.None] = 0xeff4,
+        [CeresSteamAction.ApplyRotatingElevatorOffset] = 0xf019,
     });
 
     /// <summary>The bank-$A6 floor update list naming each <see cref="CeresFloorAnimationFrame"/>.</summary>

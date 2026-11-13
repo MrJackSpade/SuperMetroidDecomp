@@ -16,7 +16,7 @@ internal sealed class MotherBrainLateFightState
     public MotherBrainBodyAnimationState Body { get; } = new();
 
     /// <summary>Current body-function equivalent.</summary>
-    public MotherBrainBodyFunction? Phase { get; internal set; }
+    public MotherBrainBodyPhase? Phase { get; internal set; }
 
     /// <summary>Mother Brain brain-slot room position used by the final beam's aim vector.</summary>
     public Position16<RoomPixels> BrainPosition { get; set; }
@@ -36,8 +36,8 @@ internal sealed class MotherBrainLateFightState
     /// <summary>The upper neck movement selected by the current actor phase.</summary>
     public MotherBrainNeckMovement UpperNeckMovement { get; internal set; }
 
-    /// <summary>Body function timer.</summary>
-    public int FunctionTimer { get; internal set; }
+    /// <summary>Body phase timer.</summary>
+    public int PhaseTimer { get; internal set; }
 
     /// <summary>Rainbow-beam SFX-playing flag.</summary>
     public bool RainbowBeamSoundPlaying { get; internal set; }

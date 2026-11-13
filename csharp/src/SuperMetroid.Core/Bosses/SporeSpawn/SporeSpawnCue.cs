@@ -20,9 +20,9 @@ internal abstract record SporeSpawnCue
     /// <param name="Sound">The sound a <see cref="QueueSound"/> cue queues.</param>
     internal sealed record QueueSound(SoundEffectId? Sound) : SporeSpawnCue;
 
-    /// <summary>Selects the main-AI function.</summary>
-    /// <param name="Function">The main-AI function a <see cref="SetFunction"/> cue selects.</param>
-    internal sealed record SetFunction(SporeSpawnFunction Function) : SporeSpawnCue;
+    /// <summary>Selects the main-AI movement.</summary>
+    /// <param name="Movement">The main-AI movement a <see cref="SetMovement"/> cue selects.</param>
+    internal sealed record SetMovement(SporeSpawnMovement Movement) : SporeSpawnCue;
 
     /// <summary>Sets the sway's maximum X radius and angle delta.</summary>
     /// <param name="MaximumXRadius">The sway's horizontal amplitude in room pixels a <see cref="SetMaxXRadiusAndAngleDelta"/> cue sets.</param>

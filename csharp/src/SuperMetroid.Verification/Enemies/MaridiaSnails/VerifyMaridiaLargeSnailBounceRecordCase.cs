@@ -11,4 +11,4 @@ namespace SuperMetroid.Verification.Enemies.MaridiaSnails;
 /// <param name="Expected">The expected.</param>
 /// <param name="ExpectedPhase">The expected phase.</param>
 /// <param name="ExpectedSettled">The expected settled.</param>
-internal readonly record struct VerifyMaridiaLargeSnailBounceRecordCase(string Context, RoomLevelData Level, MaridiaLargeSnailBounceFunction Phase, int Start, int Expected, MaridiaLargeSnailBounceFunction ExpectedPhase, bool ExpectedSettled);
+internal readonly record struct VerifyMaridiaLargeSnailBounceRecordCase(string Context, RoomLevelData Level, MaridiaLargeSnailBouncePhase Phase, int Start, int Expected, MaridiaLargeSnailBouncePhase ExpectedPhase, bool ExpectedSettled);

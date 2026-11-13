@@ -24,7 +24,7 @@ internal static class CeresRidleyWallVerification
         // Continue an in-flight lunge just before its left-boundary collision. The real
         // attack dispatcher still calculates acceleration and the shared mover clips X.
         (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Phase = RidleyPhase.CeresLungeMain;
-        ridley.FunctionTimer = 100;
+        ridley.PhaseTimer = 100;
         ridley.MovementAnimationEnabled = true;
         ridley.Velocity = ridley.Velocity.WithX(new SignedEightEight(unchecked((ushort)-768)));
         body.Position = body.Position.WithWhole(new(41, 100));

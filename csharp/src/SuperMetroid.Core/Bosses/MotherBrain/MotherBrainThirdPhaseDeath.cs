@@ -224,8 +224,8 @@ internal sealed class MotherBrainThirdPhaseDeath
         requests.BodyWalkRequested = dyingRetreat.Requested;
         if (dyingRetreat.ReachedTarget)
         {
-            _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathIdleWhilstExploding;
-            _state.FunctionTimer = 128;
+            _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathIdleWhilstExploding;
+            _state.PhaseTimer = 128;
             return true;
         }
         return false;
@@ -239,8 +239,8 @@ internal sealed class MotherBrainThirdPhaseDeath
     {
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Smoky, frame.NextRandomNumber, requests.DeathExplosions);
-        if (--_state.FunctionTimer < 0)
-            _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathStumbleToMiddleOfRoom;
+        if (--_state.PhaseTimer < 0)
+            _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathStumbleToMiddleOfRoom;
         return false;
     }
 
@@ -263,8 +263,8 @@ internal sealed class MotherBrainThirdPhaseDeath
             _state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
             _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
             _state.NeckAngleDelta = 1280;
-            _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathDisableBrainEffects;
-            _state.FunctionTimer = 32;
+            _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathDisableBrainEffects;
+            _state.PhaseTimer = 32;
         }
         return false;
     }
@@ -277,7 +277,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     {
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Smoky, frame.NextRandomNumber, requests.DeathExplosions);
-        if (--_state.FunctionTimer < 0)
+        if (--_state.PhaseTimer < 0)
         {
             // Disabling the brain's effects removes the neck/breath/palette producers, copies the body's
             // shared colours into the brain's, performs one health-palette refresh, and then
@@ -291,7 +291,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             // Disabling the brain's effects clears the death-explosion counters before the fade-out explosions.
             DeathExplosionIntervalTimer = 0;
             DeathAndEscapeExplosionIndex = 0;
-            _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathSetupBodyFadeOut;
+            _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathSetupBodyFadeOut;
             return true;
         }
         return false;
@@ -305,11 +305,11 @@ internal sealed class MotherBrainThirdPhaseDeath
     {
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Mixed, frame.NextRandomNumber, requests.DeathExplosions);
-        if (--_state.FunctionTimer < 0)
+        if (--_state.PhaseTimer < 0)
         {
             _state.GreyTransitionCounter = 0;
-            _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathFadeOutBody;
-            _state.FunctionTimer = 0;
+            _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathFadeOutBody;
+            _state.PhaseTimer = 0;
             return true;
         }
         return false;
@@ -326,9 +326,9 @@ internal sealed class MotherBrainThirdPhaseDeath
         // is past the last palette and completes the transition without a copy.
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Mixed, frame.NextRandomNumber, requests.DeathExplosions);
-        if (--_state.FunctionTimer < 0)
+        if (--_state.PhaseTimer < 0)
         {
-            _state.FunctionTimer = 16;
+            _state.PhaseTimer = 16;
             int paletteIndex = _state.GreyTransitionCounter;
             _state.GreyTransitionCounter++;
             requests.ColoursRequested |= paletteIndex < 16;
@@ -339,8 +339,8 @@ internal sealed class MotherBrainThirdPhaseDeath
                 BodyProcessing = BodyProcessing.Without(EnemyProcessing.Animates);
                 BodyCollidesByFrameHitboxes = false;
                 BodyShowsNewFrame = false;
-                _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathFinalFewExplosions;
-                _state.FunctionTimer = 16;
+                _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathFinalFewExplosions;
+                _state.PhaseTimer = 16;
             }
         }
         return false;
@@ -354,8 +354,8 @@ internal sealed class MotherBrainThirdPhaseDeath
     {
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Mixed, frame.NextRandomNumber, requests.DeathExplosions);
-        if (--_state.FunctionTimer < 0)
-            _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathRealizeDecapitation;
+        if (--_state.PhaseTimer < 0)
+            _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathRealizeDecapitation;
         return false;
     }
 
@@ -369,8 +369,8 @@ internal sealed class MotherBrainThirdPhaseDeath
         // setup, clears its 8.8 falling velocity, then falls through immediately.
         _state.SetHeadAnimation(MotherBrainHeadSegment.Decapitated);
         BrainDrawSetupRequested = true;
-        _state.FunctionTimer = 0;
-        _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathBrainFallsToGround;
+        _state.PhaseTimer = 0;
+        _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathBrainFallsToGround;
         return true;
     }
 
@@ -380,19 +380,19 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool RunThirdPhaseDeathBrainFallsToGround(MotherBrainRainbowBeamStepRequests requests)
     {
-        // The fall treats FunctionTimer as unsigned 8.8 velocity: add 32, use only
+        // The fall treats PhaseTimer as unsigned 8.8 velocity: add 32, use only
         // its whole pixels as this frame's displacement, and accumulate Y.
         // Crossing 196 clamps the head and starts the brain's landing earthquake for 20 frames.
-        _state.FunctionTimer += 32;
-        int fallingDisplacement = UnsignedEightEight.Whole(_state.FunctionTimer);
+        _state.PhaseTimer += 32;
+        int fallingDisplacement = UnsignedEightEight.Whole(_state.PhaseTimer);
         Position16<RoomPixels> candidate = _state.BrainPosition + new Offset16<RoomPixels>(0, fallingDisplacement);
         if (candidate.Y >= 196)
         {
             requests.StartEarthquake(MotherBrainDeathDefinitions.BrainLandingEarthquake, 20);
             _state.BrainPosition = _state.BrainPosition.WithY(196);
             CorpseReadyingElapsed = 0;
-            _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathReadyCorpse;
-            _state.FunctionTimer = 256;
+            _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathReadyCorpse;
+            _state.PhaseTimer = 256;
         }
         else
         {
@@ -411,8 +411,8 @@ internal sealed class MotherBrainThirdPhaseDeath
         ReadyCorpse();
         if (CorpseReadyingElapsed == MotherBrainReadyingDefinitions.CorpseDuration)
         {
-            _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathSetupFadeToGrey;
-            _state.FunctionTimer = 32;
+            _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathSetupFadeToGrey;
+            _state.PhaseTimer = 32;
         }
         return false;
     }
@@ -423,11 +423,11 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool RunThirdPhaseDeathSetupFadeToGrey()
     {
-        if (--_state.FunctionTimer < 0)
+        if (--_state.PhaseTimer < 0)
         {
             _state.GreyTransitionCounter = 0;
-            _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathFadeToGrey;
-            _state.FunctionTimer = 0;
+            _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathFadeToGrey;
+            _state.PhaseTimer = 0;
         }
         return false;
     }
@@ -438,20 +438,20 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool RunThirdPhaseDeathFadeToGrey(MotherBrainRainbowBeamStepRequests requests)
     {
-        if (--_state.FunctionTimer < 0)
+        if (--_state.PhaseTimer < 0)
         {
             int paletteIndex = _state.GreyTransitionCounter;
             _state.GreyTransitionCounter++;
             requests.ColoursRequested = paletteIndex < 8;
             if (paletteIndex < 8)
             {
-                _state.FunctionTimer = 16;
+                _state.PhaseTimer = 16;
             }
             else
             {
                 _state.SetHeadAnimation(MotherBrainHeadSegment.Corpse);
-                _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathCorpseTipsOver;
-                _state.FunctionTimer = 256;
+                _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathCorpseTipsOver;
+                _state.PhaseTimer = 256;
             }
         }
         return false;
@@ -463,9 +463,9 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool RunThirdPhaseDeathCorpseTipsOver()
     {
-        if (--_state.FunctionTimer < 0)
+        if (--_state.PhaseTimer < 0)
         {
-            _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathCorpseRotsAway;
+            _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathCorpseRotsAway;
             BrainContact = BrainContact.With(EnemyContact.IgnoresSamus);
             HitboxesEnabled = false;
         }
@@ -496,8 +496,8 @@ internal sealed class MotherBrainThirdPhaseDeath
         BrainShowsNewFrame = false;
         requests.MusicStopQueued = true;   // Queue the music stop.
         requests.EscapeMusicQueued = true; // Queue the escape music.
-        _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeath20FrameDelay;
-        _state.FunctionTimer = 20;
+        _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeath20FrameDelay;
+        _state.PhaseTimer = 20;
         return true;
     }
 
@@ -507,13 +507,13 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool RunThirdPhaseDeath20FrameDelay()
     {
-        if (--_state.FunctionTimer < 0)
+        if (--_state.PhaseTimer < 0)
         {
             // The decapitated brain remains at the corpse coordinates for the full
             // delay. Loading the escape-timer tiles finally parks it at (0,0) before escape-timer tile
             // loading begins; this is a real actor-coordinate mutation, not rendering.
             _state.BrainPosition = Position16<RoomPixels>.Zero;
-            _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathReadyEscapeWarning;
+            _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathReadyEscapeWarning;
         }
         return false;
     }
@@ -529,7 +529,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         {
             // The last readying update installs the escape's start and falls through far enough to ready the escape
             // door's explosion's first update during this same enemy AI call.
-            _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathStartEscape;
+            _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathStartEscape;
             return true;
         }
         return false;
@@ -555,10 +555,10 @@ internal sealed class MotherBrainThirdPhaseDeath
         requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianGeneralLevelRedFlashing);
         requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianRedFlashingArkanoidBlocksAndRedOrbs);
         requests.EscapeTypewriterSetupRequested = true;
-        _state.FunctionTimer = 32;
+        _state.PhaseTimer = 32;
         _state.Phase = frame.AlternateEscapeText
-            ? MotherBrainBodyFunction.ThirdPhaseDeathSpawnTimeBombSetSubtitle
-            : MotherBrainBodyFunction.ThirdPhaseDeathTypeOutZebesEscapeText;
+            ? MotherBrainBodyPhase.ThirdPhaseDeathSpawnTimeBombSetSubtitle
+            : MotherBrainBodyPhase.ThirdPhaseDeathTypeOutZebesEscapeText;
         return false;
     }
 
@@ -574,9 +574,9 @@ internal sealed class MotherBrainThirdPhaseDeath
         // spawns the persistent Japanese subtitle projectile, and falls through to
         // that same typewriter call. Keep the producer request separate because the
         //  allocator owns whether a place in the projectile pool is actually free.
-        if (--_state.FunctionTimer < 0)
+        if (--_state.PhaseTimer < 0)
         {
-            _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathTypeOutZebesEscapeText;
+            _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathTypeOutZebesEscapeText;
             requests.TimeBombSetSubtitleSpawnRequested = true;
         }
         return true;
@@ -593,8 +593,8 @@ internal sealed class MotherBrainThirdPhaseDeath
         // finished; the typewriter alone sets the character cadence.
         if (frame.TypewriterFinished)
         {
-            _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathDoorExplodingStartTimer;
-            _state.FunctionTimer = 32;
+            _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathDoorExplodingStartTimer;
+            _state.PhaseTimer = 32;
         }
         return false;
     }
@@ -609,7 +609,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         // countdown. The freshly loaded 32 therefore receives 33 calls (32..0,
         // then -1) and can emit dust even on the transition call.
         requests.EscapeDoorExplosion = GenerateEscapeDoorExplosion(frame.NextRandomNumber);
-        if (--_state.FunctionTimer >= 0)
+        if (--_state.PhaseTimer >= 0)
             return false;
 
         // Enabling timer handling, the escape timer status, Mother Brain's boss bit, and the escape event
@@ -619,7 +619,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         requests.MotherBrainEscapeTimerStartRequested = true;
         requests.MotherBrainBossBitRequested = true;
         requests.ZebesTimebombEventRequested = true;
-        _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathBlowUpEscapeDoor;
+        _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathBlowUpEscapeDoor;
         DeathExplosionIntervalTimer = 0;
         DeathAndEscapeExplosionIndex = 0;
         return false;
@@ -637,7 +637,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         for (int parameter = 0; parameter < 8; parameter++)
             requests.EscapeDoorParticleSpawns.Add(new(parameter));
 
-        _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathKeepEarthquakeGoing;
+        _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathKeepEarthquakeGoing;
         requests.EscapeDoorObject = new(
             Block: new(0, 6),
             RoomObject: MotherBrainRoomMutation.EscapeDoor);

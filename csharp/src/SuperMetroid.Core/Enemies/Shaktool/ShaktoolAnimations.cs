@@ -22,7 +22,7 @@ internal static class ShaktoolAnimations
         [P.SawHandAttackFinalPiece] =
         [
             Wait(576),
-            Cue(new(K.ResetFunctions)),
+            Cue(new(K.ResetFrameBehaviors)),
         ],
         [P.SawHandHeadBobPrimaryPiece] =
         [
@@ -31,7 +31,7 @@ internal static class ShaktoolAnimations
         [P.SawHandHeadBobFinalPiece] =
         [
             Wait(20),
-            Cue(new(K.ResetFunctions)),
+            Cue(new(K.ResetFrameBehaviors)),
         ],
         [P.SawHandPrimaryPiece] =
         [

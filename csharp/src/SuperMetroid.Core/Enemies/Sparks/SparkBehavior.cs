@@ -56,8 +56,8 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
 
         SparkMovementDefinition definition = slot.SpawnSettings<SparkSpawnSettings>().Start;
         state.Action = definition.Action;
-        state.BaseFunctionTime = slot.SpawnSettings<SparkSpawnSettings>().BaseFunctionTime;
-        SetSparkFunctionTimer(state, additionalTime: 0);
+        state.BaseActionTime = slot.SpawnSettings<SparkSpawnSettings>().BaseActionTime;
+        SetSparkActionTimer(state, additionalTime: 0);
 
         slot.AnimationClock.StepOnNextUpdate();
         state.Playback = new(SparkAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation);
@@ -80,7 +80,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 state.Action = SparkAction.IntermittentActive;
                 StartSparkAnimation(slot, state, SparkSegment.FlickerOn);
-                SetSparkFunctionTimer(state, additionalTime: 0);
+                SetSparkActionTimer(state, additionalTime: 0);
                 return;
 
             case SparkAction.IntermittentActive:
@@ -89,7 +89,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 state.Action = SparkAction.IntermittentInactive;
                 StartSparkAnimation(slot, state, SparkSegment.FlickerOut);
-                SetSparkFunctionTimer(state, additionalTime: 8);
+                SetSparkActionTimer(state, additionalTime: 8);
                 return;
 
             case SparkAction.EmitFallingSparks:
@@ -97,13 +97,13 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
 
                 _fallingSparksBehavior.SpawnFallingSpark(slot);
-                SetSparkFunctionTimer(state, additionalTime: 0);
+                SetSparkActionTimer(state, additionalTime: 0);
                 return;
 
             case null:
             default:
                 throw new InvalidDataException(
-                    $"Spark function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Spark has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 
@@ -113,17 +113,17 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static bool DecrementSparkTimerAndTestExpired(SparkEnemyState state)
     {
-        if (state.FunctionTimer == 1)
+        if (state.ActionTimer == 1)
             return true;
 
-        state.FunctionTimer--;
+        state.ActionTimer--;
         return false;
     }
 
-    /// <summary>Sets the Spark's function timer.</summary>
-    private static void SetSparkFunctionTimer(SparkEnemyState state, int additionalTime)
+    /// <summary>Sets the Spark's action timer.</summary>
+    private static void SetSparkActionTimer(SparkEnemyState state, int additionalTime)
     {
-        state.FunctionTimer = state.BaseFunctionTime + additionalTime;
+        state.ActionTimer = state.BaseActionTime + additionalTime;
     }
 
     /// <summary>Selects an animation and makes its first step due on the next pass.</summary>

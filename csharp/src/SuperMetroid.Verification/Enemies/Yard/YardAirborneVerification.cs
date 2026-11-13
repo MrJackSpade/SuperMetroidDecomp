@@ -57,7 +57,7 @@ internal static class YardAirborneVerification
             var state = enemies.YardStates[0];
             actor.Position = new(new(512, 0xF000), new(512, 0xF000));
             actor.AnimationClock.HoldFor(ushort.MaxValue);
-            (state ?? throw new InvalidOperationException("Verification requires state.")).MovementFunction = YardMovementFunction.Airborne;
+            (state ?? throw new InvalidOperationException("Verification requires state.")).Movement = YardMovement.Airborne;
             state.Behavior = behavior;
             state.AirborneVelocity = new FixedVector<RoomPixels>(
                 SixteenSixteenWords.ToDisplacement(unchecked((int)initialX)),
@@ -86,7 +86,7 @@ internal static class YardAirborneVerification
                 AssertEqual(y, actor.Position.Y.RawValue, "Yard airborne Y trajectory");
                 AssertEqual(vx, unchecked((uint)state.AirborneVelocity.X.RawValue), "Yard native friction words");
                 AssertEqual(vy, unchecked((uint)state.AirborneVelocity.Y.RawValue), "Yard native gravity words");
-                AssertEqual(YardMovementFunction.Airborne, state.MovementFunction, "empty fixture remains airborne");
+                AssertEqual(YardMovement.Airborne, state.Movement, "empty fixture remains airborne");
                 samples++;
             }
         }

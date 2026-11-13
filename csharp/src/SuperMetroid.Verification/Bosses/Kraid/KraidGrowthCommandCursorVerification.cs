@@ -53,7 +53,7 @@ internal static class KraidGrowthCommandCursorVerification
         AssertEqual(64, state.BodyState.HeadTimer, "native quick-kill growth delay is preserved");
         AssertEqual(displayed, state.DisplayedHeadFrame, "growth selection does not advance the displayed head");
         AssertEqual(KraidPhase.GrowReleaseCamera, state.BodyState.PhaseToResume, "growth schedules camera release");
-        AssertEqual(180, state.BodyState.FunctionTimer, "growth function timer");
+        AssertEqual(180, state.BodyState.PhaseTimer, "growth function timer");
         AssertEqual(KraidPhase.NoOperation, state.FootState.Phase, "growth stops the foot lunge");
         AssertEqual(0, guard.ForbiddenReadAttempts, "growth selection does not read compiled cartridge programs");
 

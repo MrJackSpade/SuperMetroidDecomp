@@ -91,7 +91,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Hibashi function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Hibashi has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

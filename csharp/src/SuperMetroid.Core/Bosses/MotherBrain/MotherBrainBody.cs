@@ -85,8 +85,8 @@ internal sealed class MotherBrainBody
         {
             Form = MotherBrainForm.Glass,
             HitboxesEnabled = MotherBrainHitboxParts.Brain,
-            BrainFunction = MotherBrainBrainFunction.SetupBrainToBeDrawn,
-            Function = MotherBrainBodyFunction.FirstPhase,
+            BrainAction = MotherBrainBrainAction.SetupBrainToBeDrawn,
+            Phase = MotherBrainBodyPhase.FirstPhase,
         };
         // Her body frames show on her body from here, which her room does not show over the pipe background until her
         // phase-two transition reveals it (#1356, #1515).
@@ -127,7 +127,7 @@ internal sealed class MotherBrainBody
                 _projectiles.SpawnRoomGraphicsDustExplosion(new(248, 152), MiscDustAnimation.SmallDustCloud);
                 _access.RequestMotherBrainObject(new(15, 4), MotherBrainRoomMutation.FillWall);
                 _access.RequestMotherBrainObject(new(15, 9), MotherBrainRoomMutation.FillWall);
-                state.Function = MotherBrainBodyFunction.FakeDeathDescentInitialPause;
+                state.Phase = MotherBrainBodyPhase.FakeDeathDescentInitialPause;
             }
         }
 

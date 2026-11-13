@@ -194,7 +194,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Ki-Hunter function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Ki-Hunter has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 
@@ -486,17 +486,17 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterEnemyState state,
         RoomLevelData level)
     {
-        switch (state.WingFunction)
+        switch (state.WingMovement)
         {
-            case KiHunterWingFunction.Orbit:
+            case KiHunterWingMovement.Orbit:
                 RunDetachedKiHunterWingOrbit(wings, state);
                 return;
-            case KiHunterWingFunction.FallingCollisionArc:
+            case KiHunterWingMovement.FallingCollisionArc:
                 RunDetachedKiHunterWingCollisionArc(wings, state, level);
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Detached Ki-Hunter wing function {state.WingFunction} is not translated.");
+                    $"Detached Ki-Hunter has no behaviour for wing movement {state.WingMovement}.");
         }
     }
 
@@ -605,7 +605,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FallingArcOffset = EnemyMath.CircleOffset(KiHunterMotionDefinitions.FallingArcOffsetAngle, radius);
         state.WingArcAngle = KiHunterMotionDefinitions.DetachedOrbitStartAngle;
         state.Action = KiHunterAction.DetachedWing;
-        state.WingFunction = KiHunterWingFunction.Orbit;
+        state.WingMovement = KiHunterWingMovement.Orbit;
         state.OrbitCenter = new Position16<RoomPixels>(
             wings.Position.X.Whole,
             CoordinateAxis.Wrap((state.SavedWingPosition - state.LowerPatrol).Y));
@@ -639,7 +639,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot wings,
         KiHunterEnemyState state)
     {
-        state.WingFunction = KiHunterWingFunction.Orbit;
+        state.WingMovement = KiHunterWingMovement.Orbit;
         state.DetachedSpeedIndex = state.DetachedSpeedReset;
         state.WingArcAngle = KiHunterMotionDefinitions.DetachedOrbitStartAngle;
         state.OrbitCenter = wings.Position.Whole;
@@ -650,7 +650,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot wings,
         KiHunterEnemyState state)
     {
-        state.WingFunction = KiHunterWingFunction.FallingCollisionArc;
+        state.WingMovement = KiHunterWingMovement.FallingCollisionArc;
         state.DetachedSpeedIndex = state.DetachedSpeedReset;
         state.WingArcAngle = KiHunterMotionDefinitions.FallingArcStartAngle;
         state.OrbitCenter = wings.Position.Whole;

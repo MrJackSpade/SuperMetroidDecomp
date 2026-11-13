@@ -33,8 +33,8 @@ row is a line); and `Tilemap`, the cartridge's one-word background tilemap (a Co
 shows). Three two-word names are listed too (`CoreVocabularyAnalyzer.HardwarePhrases`, #1701): `AiFunction`,
 `EnemyFunction` and `FightFunction`, the enemy record's AI function field, which named an enemy's or a boss's behaviour
 state by the routine the program stored (a Core behaviour state is a phase or an action: `KraidPhase`, `BeetomAction`).
-The words must be consecutive, the last may take an ending (`PipeBugEnemyFunctions`), and each word alone stays the
-game's own (`Function`, `FunctionTimer`, `EnemyState`, `FightPhase`). An underscore-separated part that is a cartridge address (four or six
+The words must be consecutive, the last may take an ending (`PipeBugEnemyFunctions`), and `Enemy`, `Fight` and `Ai`
+alone stay the game's own (`EnemyState`, `FightPhase`). An underscore-separated part that is a cartridge address (four or six
 hexadecimal digits with at least one decimal digit, as in `RTS_86BB30` or `Instr_A0B3`) is reported as well.
 
 A name that says `Callback` names the original's function-pointer dispatch and is reported too (#1624,
@@ -44,6 +44,13 @@ and each of Kraid's sinking steps as a pointer it called back, and Core names th
 callback and keeps the word: a delegate type and its file, an event, and a field, property, parameter or local whose type
 is a delegate, or an array or constructed generic type of one (`Action? AudioCallback`, `Func<int> callback`,
 `List<Func<int>> PendingCallbacks`). A method's own name is never a delegate, even when it returns one.
+
+A name that says `Function` names the enemy record's AI function field and is reported under the same delegate
+allowance (#1701, `CoreVocabularyAnalyzer.BehaviourFieldWords`): the cartridge stored an enemy's or a boss's behaviour
+state, a part's wait and the state a cue installs as the routine its record's function field held, and Core names what
+that state is (`TorizoPhase`, `GunshipPhase`, `YardMovement`, `WallSpacePirateAction`, a state's `Phase` or `Action`,
+a `SetPhase` cue, a `PhaseTimer` or `ActionTimer`). A `Func<int>` field or parameter, a delegate type and its file keep
+the word, and words that only share its letters stay the game's own (`Functional`, `Func`, `Functor`).
 
 A name that spells a cartridge value in hexadecimal is reported too (#1554): a run of two or more capital hexadecimal
 characters after a lower-case letter that holds a hexadecimal letter and ends its word (`Unused0B`, `PoseFD`,

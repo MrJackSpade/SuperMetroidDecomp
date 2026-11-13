@@ -18,21 +18,21 @@ internal static class YardTurnDefinitionsVerification
     {
         YardTurnDefinitionsRecord[] records =
         [
-            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideUpMovingLeft, false, 0xa3cce2),
-            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideLeftMovingDown, false, 0xa3ccea),
-            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideDownMovingRight, false, 0xa3ccf2),
-            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideRightMovingUp, false, 0xa3ccfa),
-            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideUpMovingRight, false, 0xa3cd02),
-            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideRightMovingDown, false, 0xa3cd0a),
-            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideDownMovingLeft, false, 0xa3cd12),
-            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideLeftMovingUp, false, 0xa3cd1a),
-            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideUpMovingLeft, true, 0xa3cd22),
-            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideDownMovingRight, true, 0xa3cd2a),
-            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideUpMovingRight, true, 0xa3cd32),
-            new YardTurnDefinitionsRecord(YardMovementFunction.CrawlingUpsideDownMovingLeft, true, 0xa3cd3a),
+            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideUpMovingLeft, false, 0xa3cce2),
+            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideLeftMovingDown, false, 0xa3ccea),
+            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideDownMovingRight, false, 0xa3ccf2),
+            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideRightMovingUp, false, 0xa3ccfa),
+            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideUpMovingRight, false, 0xa3cd02),
+            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideRightMovingDown, false, 0xa3cd0a),
+            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideDownMovingLeft, false, 0xa3cd12),
+            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideLeftMovingUp, false, 0xa3cd1a),
+            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideUpMovingLeft, true, 0xa3cd22),
+            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideDownMovingRight, true, 0xa3cd2a),
+            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideUpMovingRight, true, 0xa3cd32),
+            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideDownMovingLeft, true, 0xa3cd3a),
         ];
 
-        foreach ((YardMovementFunction movement, bool disabled, int address) in records)
+        foreach ((YardMovement movement, bool disabled, int address) in records)
         {
             YardTurnDefinition definition =
                 YardTurns.ForMovement(movement, disabled);
@@ -47,12 +47,12 @@ internal static class YardTurnDefinitionsVerification
         }
 
         // The four vertical crawling states do not consult the suppression flag.
-        foreach (YardMovementFunction movement in new[]
+        foreach (YardMovement movement in new[]
         {
-            YardMovementFunction.CrawlingUpsideLeftMovingDown,
-            YardMovementFunction.CrawlingUpsideRightMovingUp,
-            YardMovementFunction.CrawlingUpsideRightMovingDown,
-            YardMovementFunction.CrawlingUpsideLeftMovingUp,
+            YardMovement.CrawlingUpsideLeftMovingDown,
+            YardMovement.CrawlingUpsideRightMovingUp,
+            YardMovement.CrawlingUpsideRightMovingDown,
+            YardMovement.CrawlingUpsideLeftMovingUp,
         })
         {
             AssertEqual(
@@ -61,7 +61,7 @@ internal static class YardTurnDefinitionsVerification
                 $"Yard vertical turn {movement} ignores suppression flag");
         }
         AssertThrows<InvalidDataException>(
-            () => YardTurns.ForMovement(YardMovementFunction.Airborne, false),
+            () => YardTurns.ForMovement(YardMovement.Airborne, false),
             "Yard airborne state has no surface-turn definition");
 
         Suite(nameof(VerifyYardTurnProductionBranches), () => VerifyYardTurnProductionBranches(records));
@@ -77,7 +77,7 @@ internal static class YardTurnDefinitionsVerification
         RoomLevelData empty = VerificationHelpersVerification.CreateEmptyRoom(new(64, 64));
         RoomLevelData solid = VerificationHelpersVerification.CreateSolidRowsRoom(new(64, 64), firstSolidRow: 0, solidRowCount: 64);
 
-        foreach ((YardMovementFunction movement, bool disabled, _) in records)
+        foreach ((YardMovement movement, bool disabled, _) in records)
         {
             YardTurnDefinition definition =
                 YardTurns.ForMovement(movement, disabled);
@@ -90,7 +90,7 @@ internal static class YardTurnDefinitionsVerification
         }
 
         static void VerifyYardTurnProductionBranch(
-            YardMovementFunction movement,
+            YardMovement movement,
             bool disabled,
             RoomLevelData level,
             YardSegment expectedProgram,
@@ -105,7 +105,7 @@ internal static class YardTurnDefinitionsVerification
             {
                 // A hiding animation is never a turn's result, so the assertion sees the turn's own choice.
                 Playback = new(YardAnimations.StartingWith(YardSegment.HidingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation),
-                MovementFunction = movement,
+                Movement = movement,
                 TurnTransitionDisabled = disabled,
                 CrawlingVelocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(256, 256),
             };

@@ -98,7 +98,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Metaree function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Metaree has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

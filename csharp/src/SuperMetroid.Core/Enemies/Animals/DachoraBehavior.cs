@@ -165,7 +165,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             case DachoraAction.Echo:
             default:
                 throw new InvalidDataException(
-                    $"Dachora function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Dachora has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

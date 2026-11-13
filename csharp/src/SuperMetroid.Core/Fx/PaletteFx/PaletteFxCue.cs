@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Fx.PaletteFx;
 
-/// <summary>One named step of a colour effect's animation that shows nothing, with its typed operand.</summary>
+/// <summary>One named step of a colour effect's animation that shows nothing, with the value it acts on.</summary>
 public abstract record PaletteFxCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>

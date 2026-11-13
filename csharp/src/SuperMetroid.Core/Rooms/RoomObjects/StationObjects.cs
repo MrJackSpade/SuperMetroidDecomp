@@ -43,7 +43,7 @@ internal sealed class StationObjects
     /// <summary>
     /// The map station's side of gameplay resume. Ending the map access sequence does
     /// not restore the normal Samus handlers; leaving the automatically opened map does,
-    /// through the map-unpause release command (<see cref="SuperMetroid.Core.Samus.SamusControl.ReleaseRefillStationOnUnpause"/>).
+    /// through the station lock's release on unpause (<see cref="SuperMetroid.Core.Samus.SamusControl.ReleaseRefillStationOnUnpause"/>).
     /// </summary>
     public void ResumeMapStationsAfterUnpause()
     {

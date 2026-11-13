@@ -190,19 +190,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     {
         controller.Latch(controllerInput);
         bool restartColourEffectsAfterStep = false;
-
-        // The title admits B, Start, or A during every pre-title cinematic phase. The
-        // game performs a fast fade-out, reconstructs the final title objects, then a
-        // fast fade-in. Do not jump straight to the file-select menu: those intermediate frames and
-        // their brightness levels are observable in recorded traces.
         bool confirmPressed =
             controller.NewlyPressed.HasAny(TitleSequenceDefinitions.Timing.ConfirmButtons);
-        if (confirmPressed && Phase is not (TitleSequencePhase.TitleScreenFadeIn or TitleSequencePhase.TitleScreen or
-            TitleSequencePhase.TitleScreenFadeOut))
-        {
-            Phase = TitleSequencePhase.SkipFadeOut;
-            PhaseTimer = 0;
-        }
 
         switch (Phase)
         {
@@ -232,10 +221,14 @@ public sealed class TitleSequenceState : IFrontendScreen
                 break;
 
             case TitleSequencePhase.SceneThreeZoom:
-                // The zoom grows only on every second update; reaching the floor's own size completes it.
-                if (TitleSequenceDefinitions.Scenes.FinalZoomStepEverySecondUpdate.IsDue(PhaseTimer++) && Zoom < FloorZoom.OwnSize)
+                // The zoom acts only on every second update: it grows one step while the floor is smaller than its own
+                // size, and the first such update that finds it at its own size completes the zoom (#1715), so the zoom
+                // holds the floor's own size for two updates before the logo shows.
+                if (!TitleSequenceDefinitions.Scenes.FinalZoomStepEverySecondUpdate.IsDue(PhaseTimer++))
+                    break;
+                if (Zoom < FloorZoom.OwnSize)
                     Zoom = Zoom.Widened(TitleSequenceDefinitions.Scenes.FinalZoomStep);
-                if (Zoom >= FloorZoom.OwnSize)
+                else
                 {
                     ActiveSprite = TitleSprite.SuperMetroidLogo;
                     ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
@@ -265,19 +258,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                 break;
 
             case TitleSequencePhase.SkipFadeOut:
-                Brightness = Math.Max(
-                    0,
-                    Brightness - TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep);
-                if (Brightness == 0)
-                {
-                    // The cinematic transition queues the immediate title song before
-                    // rebuilding the immediate title objects.
-                    audio?.QueueMusic(
-                        MusicRequest.SelectTrack(TitleSequenceDefinitions.Music.ImmediateTitleTrack));
-                    EnterImmediateTitleObjects();
-                    restartColourEffectsAfterStep = true;
-                    Phase = TitleSequencePhase.TitleScreenFadeIn;
-                }
+                restartColourEffectsAfterStep = StepSkipFadeOut();
                 break;
 
             case TitleSequencePhase.TitleScreenFadeIn:
@@ -319,6 +300,16 @@ public sealed class TitleSequenceState : IFrontendScreen
                 throw new InvalidOperationException($"Undefined {nameof(TitleSequencePhase)} {Phase}.");
         }
 
+        // A new B, Start or A press skips to the title screen, read after this update's step has run (#1715): the step
+        // this update ends in decides, so the update the zoom completes on already refuses it. The skip fades out
+        // fast, rebuilds the final title objects and fades in fast rather than jumping to file select; its first
+        // fade step falls on the update of the press.
+        if (confirmPressed && AcceptsSkip(Phase))
+        {
+            Phase = TitleSequencePhase.SkipFadeOut;
+            restartColourEffectsAfterStep = StepSkipFadeOut();
+        }
+
         StepBabyMetroidAnimation();
         // The title runs the same colour effects as rooms. The console lights and the
         // logo's and copyright's fades own their colours and timers; nothing else synthesizes a blink or a fade.
@@ -327,6 +318,51 @@ public sealed class TitleSequenceState : IFrontendScreen
         // only here, not when the subsequent fade-in arms the title idle countdown.
         if (restartColourEffectsAfterStep)
             RestartColourEffects();
+    }
+
+    /// <summary>
+    /// Whether a new skip press read at the end of an update in <paramref name="phase"/> skips to the title screen (#1715):
+    /// only while the opening runs, from the first title card until the update the final zoom completes on. The logo's and
+    /// the copyright's holds refuse it, a running skip or fade-in does not restart, and the idle title screen reads its own
+    /// confirmation instead.
+    /// </summary>
+    private static bool AcceptsSkip(TitleSequencePhase phase) => phase switch
+    {
+        TitleSequencePhase.YearText or
+            TitleSequencePhase.SceneZeroPan or
+            TitleSequencePhase.NintendoText or
+            TitleSequencePhase.SceneOnePan or
+            TitleSequencePhase.PresentsText or
+            TitleSequencePhase.SceneTwoPan or
+            TitleSequencePhase.MetroidThreeText or
+            TitleSequencePhase.SceneThreeZoom => true,
+        TitleSequencePhase.TitleLogoFade or
+            TitleSequencePhase.CopyrightFade or
+            TitleSequencePhase.SkipFadeOut or
+            TitleSequencePhase.TitleScreenFadeIn or
+            TitleSequencePhase.TitleScreen or
+            TitleSequencePhase.TitleScreenFadeOut => false,
+        _ => throw new InvalidOperationException($"Undefined {nameof(TitleSequencePhase)} {phase}."),
+    };
+
+    /// <summary>
+    /// Runs one update of the skip's fast fade-out; at black it queues the immediate title song, rebuilds the immediate
+    /// title objects and starts the fade-in.
+    /// </summary>
+    /// <returns>Whether the colour effects restart once this update's effects have stepped, which the rebuild requires.</returns>
+    private bool StepSkipFadeOut()
+    {
+        Brightness = Math.Max(
+            0,
+            Brightness - TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep);
+        if (Brightness != 0)
+            return false;
+        // The transition queues the immediate title song before rebuilding the immediate title objects.
+        audio?.QueueMusic(
+            MusicRequest.SelectTrack(TitleSequenceDefinitions.Music.ImmediateTitleTrack));
+        EnterImmediateTitleObjects();
+        Phase = TitleSequencePhase.TitleScreenFadeIn;
+        return true;
     }
 
     /// <summary>

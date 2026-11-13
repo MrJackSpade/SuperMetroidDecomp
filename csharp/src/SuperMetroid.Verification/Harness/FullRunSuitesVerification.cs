@@ -20,6 +20,7 @@ using static SuperMetroid.Verification.Enemies.KilledEnemyCompatibilityVerificat
 using static SuperMetroid.Verification.Bosses.BossRuleRangesVerification;
 using static SuperMetroid.Verification.Enemies.EnemyRuleRangesVerification;
 using static SuperMetroid.Verification.Bosses.SeekingVelocityRunVerification;
+using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyFireballTargetVerification;
 using static SuperMetroid.Verification.Enemies.Puyo.PuyoCeilingTurnVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFatalBlowShakeVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidHeadTargetVerification;
@@ -975,6 +976,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyDeathExplosionRules), () => VerifyDeathExplosionRules()),
         new(nameof(VerifySeekingVelocityRun), () => VerifySeekingVelocityRun()),
         new(nameof(VerifyShitroidSeekingAcceleration), () => VerifyShitroidSeekingAcceleration()),
+        new(nameof(VerifyCeresRidleyFireballTarget), () => VerifyCeresRidleyFireballTarget()),
         new(nameof(VerifyPuyoCeilingTurn), () => VerifyPuyoCeilingTurn()),
         new(nameof(VerifyJumpNoXMovement), () => VerifyJumpNoXMovement()),
         new(nameof(VerifySaveConfirmationCadence), () => VerifySaveConfirmationCadence()),

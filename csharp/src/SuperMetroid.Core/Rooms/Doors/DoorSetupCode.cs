@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// The setup a door runs while Samus passes through it: the complete set the retail doors name, plus none. Each is named
 /// for the room its doors lead into and what it does there: a scroll setup names the screens of that room it closes to
 /// the camera, opens, and opens with the camera aligned to the screen's top, each as its column and row in the room
-/// (in the summaries below, as (column, row)); two setups making the same change in one room are each named for the
-/// room their door leaves.
+/// (in the summaries below, as (column, row)). A setup is what it does, so one member names each change in each room,
+/// whichever door runs it.
 /// The values are arbitrary; the import pipeline maps the doors' setups to them (#1414).
 /// </summary>
 public enum DoorSetupCode
@@ -56,11 +56,8 @@ public enum DoorSetupCode
     /// </summary>
     GauntletETankOpensScreen4x0TopAligned = 12,
 
-    /// <summary>
-    /// Entering the Caterpillar room from the RedBinstarElev room, opens screen (0, 2). The door from the Hellway room
-    /// runs another setup with the same writes.
-    /// </summary>
-    CaterpillarFromRedBinstarElevOpensScreen0x2 = 13,
+    /// <summary>Entering the Caterpillar room, opens screen (0, 2).</summary>
+    CaterpillarOpensScreen0x2 = 13,
 
     /// <summary>Entering the GreenPiratesShaft room, opens screen (0, 3).</summary>
     GreenPiratesShaftOpensScreen0x3 = 14,
@@ -123,10 +120,10 @@ public enum DoorSetupCode
     SporeSpawnSuperClosesScreen1x1OpensScreen1x0TopAligned = 28,
 
     /// <summary>
-    /// Entering the EastTunnel room from the WarehouseEntrance room, closes screen (0, 0); opens screen (0, 1) with the
-    /// camera aligned to the screen's top. The door from the GlassTunnel room runs another setup with the same writes.
+    /// Entering the EastTunnel room, closes screen (0, 0); opens screen (0, 1) with the camera aligned to the screen's
+    /// top.
     /// </summary>
-    EastTunnelFromWarehouseEntranceClosesScreen0x0OpensScreen0x1TopAligned = 29,
+    EastTunnelClosesScreen0x0OpensScreen0x1TopAligned = 29,
 
     /// <summary>
     /// Entering the WarehouseKihunter room, opens screens (2, 0) and (3, 0) with the camera aligned to the screen's
@@ -142,12 +139,6 @@ public enum DoorSetupCode
 
     /// <summary>Entering the Caterpillar room, opens screens (0, 5) and (0, 6).</summary>
     CaterpillarOpensScreens0x5And0x6 = 33,
-
-    /// <summary>
-    /// Entering the Caterpillar room from the Hellway room, opens screen (0, 2). The door from the RedBinstarElev room
-    /// runs another setup with the same writes.
-    /// </summary>
-    CaterpillarFromHellwayOpensScreen0x2 = 34,
 
     /// <summary>
     /// Entering the ConstructionZone room, opens screen (0, 0); opens screen (0, 1) with the camera aligned to the
@@ -211,11 +202,10 @@ public enum DoorSetupCode
     FastPillarsSetupClosesScreen0x1OpensScreen0x2TopAligned = 46,
 
     /// <summary>
-    /// Entering the RedKihunterShaft room from the Amphitheatre room, closes screen (0, 1); opens screen (0, 0) with
-    /// the camera aligned to the screen's top. The door from the LNFireflea room runs another setup with the same
-    /// writes.
+    /// Entering the RedKihunterShaft room, closes screen (0, 1); opens screen (0, 0) with the camera aligned to the
+    /// screen's top.
     /// </summary>
-    RedKihunterShaftFromAmphitheatreClosesScreen0x1OpensScreen0x0TopAligned = 47,
+    RedKihunterShaftClosesScreen0x1OpensScreen0x0TopAligned = 47,
 
     /// <summary>
     /// Entering the LNFireflea room, closes screen (1, 1); opens screen (1, 0) with the camera aligned to the screen's
@@ -237,12 +227,6 @@ public enum DoorSetupCode
     /// the screen's top.
     /// </summary>
     LNFirefleaClosesScreen1x1OpensScreens0x0And1x0TopAligned = 51,
-
-    /// <summary>
-    /// Entering the RedKihunterShaft room from the LNFireflea room, closes screen (0, 1); opens screen (0, 0) with the
-    /// camera aligned to the screen's top. The door from the Amphitheatre room runs another setup with the same writes.
-    /// </summary>
-    RedKihunterShaftFromLNFirefleaClosesScreen0x1OpensScreen0x0TopAligned = 52,
 
     /// <summary>
     /// Entering the GreenBubblesMissiles room, opens screen (0, 0) with the camera aligned to the screen's top.
@@ -330,13 +314,6 @@ public enum DoorSetupCode
     /// top.
     /// </summary>
     HalfieClimbClosesScreen0x2OpensScreen1x2TopAligned = 69,
-
-    /// <summary>
-    /// Entering the EastTunnel room from the GlassTunnel room, closes screen (0, 0); opens screen (0, 1) with the
-    /// camera aligned to the screen's top. The door from the WarehouseEntrance room runs another setup with the same
-    /// writes.
-    /// </summary>
-    EastTunnelFromGlassTunnelClosesScreen0x0OpensScreen0x1TopAligned = 70,
 
     /// <summary>
     /// Entering the CrabHole room, closes screen (0, 0); opens screen (0, 1) with the camera aligned to the screen's

@@ -23,21 +23,12 @@ internal static class DoorSetupNamesVerification
     /// <summary>
     /// Runs every retail door setup's scroll writes over the room its doors lead into and checks its name: that room,
     /// then the column and row of each screen its writes close, open and open top-aligned (a screen past the room's
-    /// rows marked as below the room). A setup that only changes screens has nothing between the two, unless another such
-    /// setup makes the same change in the same room, when each names the room its door leaves; a setup that does more
-    /// names its effect there.
+    /// rows marked as below the room). A setup that only changes screens has nothing between the two, so its name is
+    /// its room and change alone and two members cannot make one change in one room; a setup that does more names its
+    /// effect there.
     /// </summary>
     internal static void VerifyDoorSetupNamesDescribeTheirScreens()
     {
-        var leaves = new Dictionary<DoorDefinition, RoomDefinition>();
-        foreach ((RoomDefinition room, IReadOnlyList<DoorListEntry> entries) in RoomDoorListDefinitions.ByRoom)
-        {
-            foreach (DoorListEntry entry in entries)
-            {
-                if (entry.Door is { } door)
-                    AssertTrue(leaves.TryAdd(door, room), $"{door.Name} is listed in one room");
-            }
-        }
         Dictionary<DoorSetupCode, DoorDefinition[]> doorsRunning = DoorDefinitions.Definitions
             .Where(door => door.SetupCode != DoorSetupCode.None)
             .GroupBy(door => door.SetupCode)
@@ -68,16 +59,7 @@ internal static class DoorSetupNamesVerification
                 continue;
             }
             AssertTrue(screens.Length > 0, $"{setup} changes a screen of {room.Name}");
-            bool sharesItsChange = described.Any(other => other.Key != setup && DoorScrollChanges.Contains(other.Key)
-                && other.Value.Room == room && other.Value.Screens == screens);
-            string expected = "";
-            if (sharesItsChange)
-            {
-                RoomDefinition[] left = [.. doorsRunning[setup].Select(door => leaves[door]).Distinct()];
-                AssertEqual(1, left.Length, $"{setup}'s doors leave one room");
-                expected = "From" + left[0].Name;
-            }
-            AssertEqual(expected, between, $"{setup} names only {room.Name} and its screens, and the room it leaves when another setup makes its change");
+            AssertEqual("", between, $"{setup} names only {room.Name} and its screens");
         }
     }
 

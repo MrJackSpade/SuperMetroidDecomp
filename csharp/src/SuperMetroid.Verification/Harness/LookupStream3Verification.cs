@@ -670,105 +670,28 @@ internal static class LookupStream3Verification
     {
         Suite(nameof(VerifyStream3GameOverText), () => VerifyStream3GameOverText(rom));
         Suite(nameof(VerifyStream3OptionsGeometry), () => VerifyStream3OptionsGeometry(rom));
-        DoorSetupCode[] expectedDoorCallbacks =
-        [
-            DoorSetupCode.ParlorOpensScreen1x1,
-            DoorSetupCode.ParlorOpensScreen0x0TopAligned,
-            DoorSetupCode.LandingSiteOpensScreen1x2TopAligned,
-            DoorSetupCode.ParlorClosesScreen4x0OpensScreen3x1,
-            DoorSetupCode.BowlingAlleyClosesScreens2x1And3x1And4x1And5x1,
-            DoorSetupCode.BowlingAlleyClosesScreens2x0And3x0And4x0And5x0And5x1And0x2And1x2And5x2,
-            DoorSetupCode.CrateriaKihunterOpensScreens1x0And1x1,
-            DoorSetupCode.ClimbOpensScreen2x0TopAligned,
-            DoorSetupCode.ClimbOpensScreen2x7TopAligned,
-            DoorSetupCode.GauntletETankOpensScreen4x0TopAligned,
-            DoorSetupCode.CaterpillarFromRedBinstarElevOpensScreen0x2,
-            DoorSetupCode.GreenPiratesShaftOpensScreen0x3,
-            DoorSetupCode.GreenBrinstarMainShaftOpensScreens0x6And0x7,
-            DoorSetupCode.EtecoonETankOpensScreens0x1And1x1TopAligned,
-            DoorSetupCode.GreenBrinstarMainShaftOpensScreen1x7TopAligned,
-            DoorSetupCode.PinkBrinstarPowerBombsOpensScreens0x1And1x1,
-            DoorSetupCode.WarehouseEntranceClosesScreen0x0OpensScreen1x0,
-            DoorSetupCode.DachoraOpensScreen4x1,
-            DoorSetupCode.BigPinkClosesScreen3x5OpensScreen4x5TopAligned,
-            DoorSetupCode.DachoraClosesScreen4x0,
-            DoorSetupCode.BigPinkOpensScreens2x6And1x7And2x7,
-            DoorSetupCode.BlueBrinstarETankOpensScreen2x0TopAligned,
-            DoorSetupCode.KraidEyeDoorOpensScreen0x0,
-            DoorSetupCode.RedTowerOpensScreens0x6And0x7,
-            DoorSetupCode.RedFishClosesScreen2x0OpensScreen1x0TopAligned,
-            DoorSetupCode.SporeSpawnSuperClosesScreen1x1OpensScreen1x0TopAligned,
-            DoorSetupCode.EastTunnelFromWarehouseEntranceClosesScreen0x0OpensScreen0x1TopAligned,
-            DoorSetupCode.WarehouseKihunterOpensScreens2x0And3x0TopAligned,
-            DoorSetupCode.BelowSpazerOpensScreens0x0And1x0,
-            DoorSetupCode.BigPinkOpensScreen1x0,
-            DoorSetupCode.CaterpillarOpensScreens0x5And0x6,
-            DoorSetupCode.CaterpillarFromHellwayOpensScreen0x2,
-            DoorSetupCode.ConstructionZoneOpensScreen0x0OpensScreen0x1TopAligned,
-            DoorSetupCode.GreenBrinstarElevOpensScreen0x2BelowTheRoom,
-            DoorSetupCode.AcidStatueClosesScreens0x1And1x1OpensScreens0x2And1x2And2x2TopAligned,
-            DoorSetupCode.LNSpringBallMazeClosesScreen1x1OpensScreen4x0OpensScreens1x0And2x0And3x0TopAligned,
-            DoorSetupCode.CrocomireOpensScreens0x0And1x0TopAligned,
-            DoorSetupCode.BatCaveClosesScreen0x1OpensScreen0x0TopAligned,
-            DoorSetupCode.IceBeamGateOpensScreen3x1,
-            DoorSetupCode.HiJumpETankOpensScreens0x0And0x1,
-            DoorSetupCode.VolcanoClosesScreen2x2OpensScreens0x2And1x2TopAligned,
-            DoorSetupCode.IceBeamSnakeClosesScreen0x1OpensScreen1x1TopAligned,
-            DoorSetupCode.WastelandOpensScreen1x1,
-            DoorSetupCode.FastPillarsSetupClosesScreen0x1OpensScreen0x2TopAligned,
-            DoorSetupCode.RedKihunterShaftFromAmphitheatreClosesScreen0x1OpensScreen0x0TopAligned,
-            DoorSetupCode.LNFirefleaClosesScreen1x1OpensScreen1x0TopAligned,
-            DoorSetupCode.GoldenTorizoClosesScreens1x0And0x1And1x1OpensScreen0x0TopAligned,
-            DoorSetupCode.WorstRoomInTheGameOpensScreen0x0,
-            DoorSetupCode.LNFirefleaClosesScreen1x1OpensScreens0x0And1x0TopAligned,
-            DoorSetupCode.RedKihunterShaftFromLNFirefleaClosesScreen0x1OpensScreen0x0TopAligned,
-            DoorSetupCode.GreenBubblesMissilesOpensScreen0x0TopAligned,
-            DoorSetupCode.PurpleShaftClosesScreen0x1OpensScreen0x0TopAligned,
-            DoorSetupCode.IceBeamGateOpensScreen3x3TopAligned,
-            DoorSetupCode.KronicBoostClosesScreen1x1OpensScreen0x1TopAligned,
-            DoorSetupCode.MickeyMouseClosesScreen2x3,
-            DoorSetupCode.SpongeBathOpensScreen1x0TopAligned,
-            DoorSetupCode.ElectricDeathOpensScreen0x0,
-            DoorSetupCode.BasementClosesScreen3x0OpensScreen4x0TopAligned,
-            DoorSetupCode.WreckedShipMainShaftOpensScreen5x6TopAligned,
-            DoorSetupCode.WreckedShipMainShaftOpensScreens4x6And4x7,
-            DoorSetupCode.BowlingAlleyClosesScreens0x1And1x1And2x1And3x1And4x1And5x1,
-            DoorSetupCode.HalfieClimbClosesScreen0x2OpensScreen1x2TopAligned,
-            DoorSetupCode.EastTunnelFromGlassTunnelClosesScreen0x0OpensScreen0x1TopAligned,
-            DoorSetupCode.CrabHoleClosesScreen0x0OpensScreen0x1TopAligned,
-            DoorSetupCode.CaterpillarClosesScreen0x3OpensScreen1x3TopAligned,
-            DoorSetupCode.GlassTunnelClosesScreens0x0And0x2OpensScreen0x1TopAligned,
-            DoorSetupCode.BotwoonOpensScreen1x0TopAligned,
-            DoorSetupCode.CrabShaftOpensScreen0x3TopAligned,
-            DoorSetupCode.PantsClosesScreen0x2,
-            DoorSetupCode.PantsClosesScreens0x2And1x3,
-            DoorSetupCode.EastPantsClosesScreen0x2OpensScreen0x1TopAligned,
-            DoorSetupCode.ThePreciousOpensScreens0x0And0x1,
-            DoorSetupCode.StatuesOpensScreens0x0And0x1,
-            DoorSetupCode.ClimbClosesScreen1x8OpensScreen0x8TopAligned,
-        ];
-        AssertTrue(expectedDoorCallbacks.SequenceEqual(SuperMetroid.Core.Rooms.Doors.DoorScrollChanges.Pointers),
-            "stream 3 pure door callback original registration order");
-        var expectedCallbacks = expectedDoorCallbacks.ToHashSet();
-        foreach (DoorSetupCode pointer in Enum.GetValues<DoorSetupCode>())
-            AssertEqual(expectedCallbacks.Contains(pointer),
-                SuperMetroid.Core.Rooms.Doors.DoorScrollChanges.Contains(pointer), "stream 3 exact callback ownership");
-        // DoorSetupCode's values are arbitrary (#1414): zero and values far past the last member name no routine.
+        // DoorSetupCode's values are arbitrary (#1414): zero and values far past the last member name no setup.
         foreach (ushort undefined in new ushort[] { 0x0000, 0xb972, 0xffff })
             AssertThrows<InvalidOperationException>(
                 () => SuperMetroid.Core.Rooms.Doors.DoorScrollChanges.Contains((DoorSetupCode)undefined),
                 "stream 3 undefined door setup code");
-        // Each callback runs over a grid of red cells and one of blue cells, so every write differs from the cells it
-        // replaces in at least one run; the native writes are compared as the cells the camera reads them as.
-        foreach (DoorSetupCode pointer in expectedDoorCallbacks)
-        foreach (RoomScrollState fill in new[] { RoomScrollState.RedBoundary, RoomScrollState.Blue })
+        // Every cartridge routine the import maps to a scroll-changing setup runs over a grid of red cells and one of blue
+        // cells, so every write differs from the cells it replaces in at least one run; the native writes are compared as
+        // the cells the camera reads them as. A setup the cartridge has two routines for is checked against both.
+        foreach ((DoorSetupCode setup, ushort[] routines) in DoorIdentityWords.SetupRoutines.WordsByIdentity)
         {
-            byte[] expected = Enumerable.Repeat(fill.ToStorageByte(), RoomScrollGrid.KeptCellCount).ToArray();
-            var actual = RoomScrollGrid.LoadNativeTable(expected, new Extent16<RoomScreens>(10, 5));
-            ExecuteStream3DoorScroll(rom, DoorIdentityWords.SetupRoutines.Word(pointer), expected);
-            AssertTrue(SuperMetroid.Core.Rooms.Doors.DoorScrollChanges.TryApply(pointer, actual), "stream 3 callback recognized");
-            AssertTrue(actual.KeptStates.SequenceEqual(RoomScrollStates.FromStorageBytes(expected)),
-                "stream 3 native ordered door writes and all untouched cells");
+            if (!SuperMetroid.Core.Rooms.Doors.DoorScrollChanges.Contains(setup))
+                continue;
+            foreach (ushort routine in routines)
+            foreach (RoomScrollState fill in new[] { RoomScrollState.RedBoundary, RoomScrollState.Blue })
+            {
+                byte[] expected = Enumerable.Repeat(fill.ToStorageByte(), RoomScrollGrid.KeptCellCount).ToArray();
+                var actual = RoomScrollGrid.LoadNativeTable(expected, new Extent16<RoomScreens>(10, 5));
+                ExecuteStream3DoorScroll(rom, routine, expected);
+                AssertTrue(SuperMetroid.Core.Rooms.Doors.DoorScrollChanges.TryApply(setup, actual), "stream 3 callback recognized");
+                AssertTrue(actual.KeptStates.SequenceEqual(RoomScrollStates.FromStorageBytes(expected)),
+                    $"stream 3 {setup} makes the native routine ${routine:X4}'s ordered door writes and leaves all other cells");
+            }
         }
         var unchangedScroll = RoomScrollGrid.LoadNativeTable(new byte[RoomScrollGrid.KeptCellCount], new Extent16<RoomScreens>(10, 5));
         AssertTrue(!SuperMetroid.Core.Rooms.Doors.DoorScrollChanges.TryApply(DoorSetupCode.None, unchangedScroll), "stream 3 setup without scroll writes is a no-op");

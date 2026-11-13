@@ -266,15 +266,15 @@ internal sealed class EnemyTileArtworkReader
         return new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes };
     }
 
-    /// <summary>Crocomire's two melt images and their tilemaps.</summary>
-    /// <exception cref="InvalidDataException">An installed file is invalid.</exception>
+    /// <summary>Crocomire's two melt images and their layouts, all import data (#1636, #1638).</summary>
+    /// <exception cref="InvalidDataException">An extracted file is invalid.</exception>
     internal CrocomireMeltingArtwork CrocomireMelting(string importData)
     {
         byte[] first = ReadPage(importData, CrocomireMeltingArtworkFormat.FirstFileName);
         byte[] second = ReadPage(importData, CrocomireMeltingArtworkFormat.SecondFileName);
-        byte[] firstTilemap = Read(
+        byte[] firstTilemap = ReadPage(importData,
             CrocomireMeltingArtworkFormat.FirstTilemapFileName);
-        byte[] secondTilemap = Read(
+        byte[] secondTilemap = ReadPage(importData,
             CrocomireMeltingArtworkFormat.SecondTilemapFileName);
         try
         {
@@ -616,19 +616,19 @@ internal sealed class EnemyTileArtworkReader
             motherBrainSpecialSheets);
     }
 
-    /// <summary>Kraid's BG2 pages, heads and room background.</summary>
-    /// <exception cref="InvalidDataException">An installed file is invalid.</exception>
+    /// <summary>Kraid's body and head layouts and room background, all import data (#1636, #1638).</summary>
+    /// <exception cref="InvalidDataException">An extracted file is invalid.</exception>
     internal KraidBackgroundArtwork KraidBackground(string importData)
     {
-        RoomBackgroundTilemapAtlas upperKraid = LoadKraidTilemap(
+        RoomBackgroundTilemapAtlas upperKraid = LoadKraidTilemap(importData,
             KraidBackgroundArtworkFormat.UpperFileName);
-        RoomBackgroundTilemapAtlas lowerKraid = LoadKraidTilemap(
+        RoomBackgroundTilemapAtlas lowerKraid = LoadKraidTilemap(importData,
             KraidBackgroundArtworkFormat.LowerFileName);
         var kraidHeads = new Dictionary<int, KraidHeadTilemapAtlas>();
         foreach (int mouthStage in manifest.KraidHeadsSha256.Keys)
         {
             string fileName = KraidBackgroundArtworkFormat.HeadFileName(mouthStage);
-            byte[] selected = Read(fileName);
+            byte[] selected = ReadPage(importData, fileName);
             try
             {
                 kraidHeads.Add(mouthStage, KraidHeadTilemapAtlas.Load(
@@ -808,10 +808,10 @@ internal sealed class EnemyTileArtworkReader
         }
     }
 
-    /// <summary>Reads one of Kraid's BG2 tilemaps.</summary>
-    private RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName)
+    /// <summary>Reads one of Kraid's body layouts from the import data <paramref name="importData"/>.</summary>
+    private static RoomBackgroundTilemapAtlas LoadKraidTilemap(string importData, string fileName)
     {
-        byte[] selected = Read(fileName);
+        byte[] selected = ReadPage(importData, fileName);
         try
         {
             return RoomBackgroundTilemapAtlas.Load(
@@ -828,6 +828,6 @@ internal sealed class EnemyTileArtworkReader
     /// <summary>The installed <paramref name="fileName"/>, as the installation holds it.</summary>
     private byte[] Read(string fileName) => File.ReadAllBytes(Path.Combine(directory, fileName));
 
-    /// <summary>The character or tile page <paramref name="fileName"/> of the import data <paramref name="importData"/> (#1636).</summary>
+    /// <summary>The import-data file <paramref name="fileName"/> of <paramref name="importData"/>: a character or tile page (#1636) or a layout only the import composes from (#1638).</summary>
     private static byte[] ReadPage(string importData, string fileName) => File.ReadAllBytes(Path.Combine(importData, fileName));
 }

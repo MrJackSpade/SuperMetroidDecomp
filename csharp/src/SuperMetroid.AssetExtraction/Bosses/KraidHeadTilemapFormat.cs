@@ -11,7 +11,7 @@ public static class KraidHeadTilemapFormat
     public const int Width = 32;
     /// <summary>Eleven tile-reference rows in each head frame; with <see cref="Width"/> this yields 352 native words.</summary>
     public const int Height = 11;
-    /// <summary>The four head poses whose tilemaps are installed, from closed to fully open, indexed by mouth stage.</summary>
+    /// <summary>The four head poses whose layouts are extracted as import data (#1638), from closed to fully open, indexed by mouth stage.</summary>
     internal static IReadOnlyList<KraidHeadFrame> HeadsByMouthStage { get; } =
         [KraidHeadFrame.Closed, KraidHeadFrame.Opening, KraidHeadFrame.Wider, KraidHeadFrame.Open];
 }

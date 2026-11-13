@@ -40,7 +40,9 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>
 /// Extracts every retail room-enemy graphics sheet (#1636): the characters and tile pages go to the component's import data
 /// (<see cref="SuperMetroid.AssetExtraction.Installation.ImportDataDirectory"/>), which the sheets compose from and the
-/// installer deletes before it publishes; the documents are installed, and the player edits them in place.
+/// installer deletes before it publishes. So do the boss layouts only the import composes the body sheets from (#1638),
+/// whose tile entries are the original's packed placements; the installation holds the pictures they compose. The other
+/// documents are installed, and the player edits them in place.
 /// </summary>
 public static class EnemyTileArtworkFiles
 {
@@ -138,9 +140,10 @@ public static class EnemyTileArtworkFiles
             CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.Second));
         File.WriteAllBytes(Path.Combine(importData, CrocomireMeltingArtworkFormat.FirstFileName), firstMelt);
         File.WriteAllBytes(Path.Combine(importData, CrocomireMeltingArtworkFormat.SecondFileName), secondMelt);
-        File.WriteAllBytes(Path.Combine(directory,
+        // The melt layouts, like Kraid's, only compose the boss body sheets, whose pictures the installation holds (#1638).
+        File.WriteAllBytes(Path.Combine(importData,
             CrocomireMeltingArtworkFormat.FirstTilemapFileName), firstMeltTilemap);
-        File.WriteAllBytes(Path.Combine(directory,
+        File.WriteAllBytes(Path.Combine(importData,
             CrocomireMeltingArtworkFormat.SecondTilemapFileName), secondMeltTilemap);
         byte[] skeletonPlanar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             CrocomireSourceDefinitions.SkeletonChunk(0),
@@ -254,9 +257,9 @@ public static class EnemyTileArtworkFiles
         }
         byte[] upperKraid = ExtractKraidTilemap(bus, KraidSourceDefinitions.UpperBodyTilemap);
         byte[] lowerKraid = ExtractKraidTilemap(bus, KraidSourceDefinitions.LowerBodyTilemap);
-        File.WriteAllBytes(Path.Combine(directory, KraidBackgroundArtworkFormat.UpperFileName),
+        File.WriteAllBytes(Path.Combine(importData, KraidBackgroundArtworkFormat.UpperFileName),
             upperKraid);
-        File.WriteAllBytes(Path.Combine(directory, KraidBackgroundArtworkFormat.LowerFileName),
+        File.WriteAllBytes(Path.Combine(importData, KraidBackgroundArtworkFormat.LowerFileName),
             lowerKraid);
         var kraidHeadHashes = new Dictionary<int, string>();
         foreach (KraidHeadFrame head in KraidHeadTilemapFormat.HeadsByMouthStage)
@@ -265,7 +268,7 @@ public static class EnemyTileArtworkFiles
                 KraidSourceDefinitions.CodeBank | KraidHeadArtworkDefinitions.Address(head.MouthStage),
                 KraidWorkingMapDefinitions.HeadImageCells * sizeof(ushort));
             byte[] json = KraidHeadTilemapFiles.Encode(native);
-            File.WriteAllBytes(Path.Combine(directory,
+            File.WriteAllBytes(Path.Combine(importData,
                 KraidBackgroundArtworkFormat.HeadFileName(head.MouthStage)), json);
             kraidHeadHashes.Add(head.MouthStage, Convert.ToHexString(SHA256.HashData(json)));
         }

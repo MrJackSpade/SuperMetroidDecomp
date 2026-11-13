@@ -716,11 +716,12 @@ body instruction state through both walks and a crouch. The separate
 checks they load. These are focused checks of
 the source-identified conversion, not a battle playthrough or a search for reads.
 Other unsupported frames fail explicitly; there is no runtime ROM fallback.
-Crocomire's first and second melting images are the separate indexed files
-`crocomire-melt-first.png` and `crocomire-melt-second.png` in the same directory.
-Their matching 16×16 BG2 layouts are `crocomire-melt-first-tiles.json` and
-`crocomire-melt-second-tiles.json`. Edit the PNG's indexed pixels or a JSON cell's
-`tileIndex`, `palette`, `priority`, `flipX`, or `flipY` in place. The erase order,
+Crocomire's first and second melting images, `crocomire-melt-first.png` and
+`crocomire-melt-second.png`, and their 16×16 BG2 layouts, `crocomire-melt-first-tiles.json`
+and `crocomire-melt-second-tiles.json`, are import data: the import composes the melt
+pictures of Crocomire's body sheet from them, and the installation holds those pictures, which
+a player edits in place. The layouts' cells are the original's packed tile placements, so no
+installed file holds them. The erase order,
 distortion timing, the update each band of the image is shown on, and collision
 stay fixed; extraction pictures every band at every dissolve step and the death
 sequence selects which picture each band shows (`--crocomire-melt-frames`).
@@ -741,12 +742,11 @@ Crocomire's six skeleton-character uploads share the indexed 4-bpp
 `crocomire-skeleton-tiles.png` sheet in `game/enemy-tiles/`, the pixels used during
 his death sequence. The upload sequence and VRAM destinations remain fixed. A
 malformed sheet fails when the artwork loads.
-Kraid's private BG2 body sources are `kraid-upper-bg2.json` and
-`kraid-lower-bg2.json` in `game/enemy-tiles/`. Each has two ordered 32×32 pages.
-The four animated head layouts are `kraid-head-97C8.json`,
-`kraid-head-9AC8.json`, `kraid-head-9DC8.json`, and `kraid-head-A0C8.json`,
-each with 32×11 ordered cells. Each cell names `tileColumn`,
-`tileRow`, `palette`, `priority`, `flipX`, and `flipY`. Kraid's engine still
+Kraid's BG2 body sources, `kraid-upper-bg2.json` and `kraid-lower-bg2.json`, and his
+four animated head layouts, `kraid-head-0.json` to `kraid-head-3.json` by mouth stage, are
+import data: the import composes Kraid's body sheet from them, and the installation holds its
+pictures. Each body source has two ordered 32×32 pages and each head layout 32×11 ordered
+cells, every cell one of the original's packed tile placements. Kraid's engine still
 owns frame selection and duration, growth, collision, and VRAM transfer timing.
 The head and body-map loaders reject unknown fields and duplicate properties,
 including differently cased aliases. Historical single-field casing remains

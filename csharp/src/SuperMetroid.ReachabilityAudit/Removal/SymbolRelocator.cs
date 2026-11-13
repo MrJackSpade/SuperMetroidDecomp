@@ -169,6 +169,44 @@ internal static class SymbolRelocator
         string AdapterName(INamedTypeSymbol owner) => holders.Of(OwnerKey(owner), RelocationHolderKind.Members).Name;
         string HolderName(INamedTypeSymbol owner, RelocationHolderKind kind) => holders.Of(OwnerKey(owner), kind).Name;
 
+        // A cref to a member of a nested type or extension block that moves into its owner's adapter. The name that qualifies
+        // the container, written with or without its namespace, becomes the adapter's; an unqualified form is qualified with
+        // the adapter unless the cref moves into that adapter too.
+        IEnumerable<TextEdit> ContainedMemberCref(SemanticModel model, CrefSyntax cref, ISymbol bound, Move container, Move? enclosing)
+        {
+            string holder = AdapterName(container.AdapterOwner);
+            bool inAdapter = enclosing is not null && (enclosing == container ||
+                enclosing.Placement == Placement.AdapterMember && SameOwner(enclosing.Owner, container.Owner));
+            if (container.Node is ExtensionBlockDeclarationSyntax block)
+            {
+                bool namesBlock = cref.DescendantNodesAndSelf().OfType<ExtensionMemberCrefSyntax>().Any();
+                if (cref is QualifiedCrefSyntax qualified)
+                    yield return new TextEdit(qualified.Span, $"{NamespacePrefix(model, qualified.Container)}{holder}." +
+                        $"{(namesBlock ? "" : BlockCref(block) + ".")}{qualified.Member}");
+                else if (!inAdapter)
+                    yield return new TextEdit(cref.Span, $"{holder}.{(namesBlock ? "" : BlockCref(block) + ".")}{cref}");
+                yield break;
+            }
+            string containerKey = identity.Key(container.Symbol) ??
+                throw new InvalidOperationException($"{container.Symbol} has no repository identity.");
+            var names = cref.DescendantNodesAndSelf().OfType<SimpleNameSyntax>()
+                .Where(name => identity.Key(SymbolIdentity.Normalize(model.GetSymbolInfo(name).Symbol)) == containerKey).ToList();
+            if (names.Count == 0)
+            {
+                // The member written alone, which only its own type (or one deriving from it) could resolve.
+                if (!inAdapter)
+                    yield return new TextEdit(new TextSpan(cref.SpanStart, 0), $"{holder}.{CrefPath(bound, container.Symbol)}.");
+                yield break;
+            }
+            foreach (var name in names)
+            {
+                if (name.Parent is QualifiedNameSyntax qualifiedName && qualifiedName.Right == name)
+                    yield return new TextEdit(qualifiedName.Left.Span, NamespacePrefix(model, qualifiedName.Left) + holder);
+                else if (!inAdapter)
+                    yield return new TextEdit(new TextSpan(name.SpanStart, 0), holder + ".");
+            }
+        }
+
         // 2. Edits: outside moved spans they apply in place; inside, to the moved text.
         var edits = new Dictionary<SyntaxTree, List<TextEdit>>();
         void Edit(SyntaxTree tree, TextSpan span, string text)
@@ -229,23 +267,36 @@ internal static class SymbolRelocator
                     if (bound is null) continue;
                     if (!Moved(bound))
                     {
-                        // Moved documentation naming a staying owner member needs the owner's name.
-                        if (enclosing is { Placement: not Placement.WholeType } && cref is NameMemberCrefSyntax &&
-                            bound.ContainingType is { } crefOwner && InOwnerChain(enclosing.AdapterOwner, crefOwner))
-                            Edit(tree, cref.Span, $"{TypeName(crefOwner)}.{cref}");
+                        // Moved documentation naming a staying owner member, or a member of one of the owner's staying extension
+                        // blocks, needs the owner's name.
+                        if (enclosing is { Placement: not Placement.WholeType } && cref is NameMemberCrefSyntax or ExtensionMemberCrefSyntax &&
+                            DeclaringOwner(bound) is { } crefOwner && InOwnerChain(enclosing.AdapterOwner, crefOwner))
+                            Edit(tree, cref.Span, $"{TypeName(crefOwner)}.{StayingBlockOf(bound, cref)}{cref}");
                         continue;
                     }
-                    // A shipped assembly cannot see the target project: the reference becomes text.
-                    if (shipped && enclosing is null && attribute.Parent is XmlEmptyElementSyntax element)
-                        Edit(tree, element.Span, $"<c>{cref}</c>");
+                    // A shipped assembly cannot see the target project: the reference becomes text, a labelled one its label.
+                    if (shipped && enclosing is null)
+                    {
+                        var (textSpan, replacement) = attribute.Parent switch
+                        {
+                            XmlEmptyElementSyntax element => (element.Span, $"<c>{cref}</c>"),
+                            XmlElementStartTagSyntax { Parent: XmlElementSyntax labelled } => (labelled.Span, labelled.Content.ToFullString()),
+                            _ => throw new InvalidOperationException($"The cref at {cref.GetLocation().GetLineSpan()} is in an unexpected element."),
+                        };
+                        Edit(tree, textSpan, replacement);
+                    }
                     else if (cref is QualifiedCrefSyntax qualified && MoveOf(bound) is { Placement: Placement.AdapterMember } crefMove)
-                        Edit(tree, qualified.Container.Span, AdapterName(crefMove.AdapterOwner));
+                        Edit(tree, qualified.Container.Span, NamespacePrefix(model, qualified.Container) + AdapterName(crefMove.AdapterOwner));
                     else if (cref is NameMemberCrefSyntax && MoveOf(bound) is { Placement: Placement.AdapterMember } nameMove &&
                              (enclosing is null || !SameOwner(enclosing.Owner, nameMove.Owner)))
                         Edit(tree, cref.Span, $"{AdapterName(nameMove.AdapterOwner)}.{cref}");
                     else if (MoveOf(bound) is { Placement: Placement.ExtensionMember } extensionMove)
                         Edit(tree, cref.Span, ExtensionCref(identity, model, cref, extensionMove,
                             HolderName(extensionMove.AdapterOwner, RelocationHolderKind.Extensions)));
+                    else if (MoveOf(bound) is null && Containers(bound).Select(MoveOf).FirstOrDefault(m => m is not null) is
+                             { Placement: Placement.AdapterMember } container)
+                        foreach (var (span, text) in ContainedMemberCref(model, cref, bound, container, enclosing))
+                            Edit(tree, span, text);
                     continue;
                 }
                 if (node.Ancestors().Any(a => a is CrefSyntax)) continue;
@@ -273,6 +324,8 @@ internal static class SymbolRelocator
                     if (bound is null || MoveOf(bound) is not { Placement: Placement.AdapterMember } move)
                         continue;
                     if (model.GetSymbolInfo(left).Symbol is not INamedTypeSymbol) continue;
+                    if (EnclosingMove(tree, node) is not { Placement: Placement.AdapterMember } qualifying || !SameOwner(qualifying.Owner, move.Owner))
+                        RejectUnimplementedReach(move, node);
                     Edit(tree, left.Span, NamespacePrefix(model, left) + AdapterName(move.AdapterOwner));
                     continue;
                 }
@@ -286,7 +339,10 @@ internal static class SymbolRelocator
                     // An unqualified use from code that does not move with it into the same adapter.
                     if (inside is null || inside.Placement == Placement.WholeType || !SameOwner(inside.Owner, target.Owner)
                         || inside.Placement == Placement.ExtensionMember)
+                    {
+                        RejectUnimplementedReach(target, simple);
                         Edit(tree, simple.Span, $"{AdapterName(target.AdapterOwner)}.{simple}");
+                    }
                     continue;
                 }
                 if (MoveOf(symbol) is { Placement: Placement.ExtensionMember } extension)
@@ -339,7 +395,7 @@ internal static class SymbolRelocator
 
         // 3. Accessibility: staying members used by moved code become internal (RelocationModifiers).
         foreach (var symbol in setterPromotions)
-            foreach (var syntax in DeclarationsOf(symbol))
+            foreach (var syntax in DeclarationsOf(identity, symbol))
                 if (syntax is PropertyDeclarationSyntax { AccessorList: { } accessors } property &&
                     !InMovedSpan(property.SyntaxTree, property.Span) &&
                     accessors.Accessors.FirstOrDefault(a => a.IsKind(SyntaxKind.SetAccessorDeclaration) || a.IsKind(SyntaxKind.InitAccessorDeclaration)) is { } setter)
@@ -349,7 +405,12 @@ internal static class SymbolRelocator
         foreach (var symbol in promotions)
         {
             if (symbol.DeclaredAccessibility is Accessibility.Internal or Accessibility.Public or Accessibility.ProtectedOrInternal) continue;
-            foreach (var syntax in DeclarationsOf(symbol))
+            // An accessibility modifier would require the method to be implemented (CS8795), and whether its calls run at all
+            // depends on that.
+            if (Unimplemented(symbol))
+                throw new InvalidOperationException($"Moved code uses {symbol.ToDisplayString()}, a partial method without an " +
+                    "implementation, from outside its owner, and it cannot be made internal without one.");
+            foreach (var syntax in DeclarationsOf(identity, symbol))
             {
                 var declaration = syntax is VariableDeclaratorSyntax { Parent.Parent: BaseFieldDeclarationSyntax sharedField } ? sharedField : DeclarationNode(syntax);
                 if (InMovedSpan(declaration.SyntaxTree, declaration.Span)) continue;
@@ -390,8 +451,21 @@ internal static class SymbolRelocator
             var file = FileFor(holders.Of(OwnerKey(move.AdapterOwner), KindOf(move)).Path, move);
             var adapter = file.Adapter(move.AdapterOwner, kind => HolderName(move.AdapterOwner, kind), movedInterfaces,
                 implementation => MoveOf(implementation) is not null);
-            text = RelocationModifiers.AsHolderMember(text, (CSharpParseOptions)move.Tree.Options,
-                move is { Placement: Placement.ExtensionMember, ExtensionReceiver: null });
+            bool becomesExtension = move is { Placement: Placement.ExtensionMember, ExtensionReceiver: null };
+            if (IsPartialMember(move.Node))
+            {
+                if (becomesExtension)
+                {
+                    // An extension block cannot hold a partial member (CS0751): the two parts become one member, rendered once.
+                    if (JoinedPartial(move, moves, edits) is not { } joined)
+                        continue;
+                    text = joined;
+                }
+                else
+                    adapter.Partial = true;
+            }
+            text = RelocationModifiers.AsHolderMember(text, (CSharpParseOptions)move.Tree.Options, becomesExtension,
+                keepsAccessibility: Unimplemented(move.Symbol));
             if (move.Placement == Placement.ExtensionMember)
                 adapter.Extensions.Add(new RelocatedExtension(move.ExtensionReceiver ?? adapter.SelfReceiver,
                     move.ExtensionReceiver is null ? text : Outdent(text)));
@@ -610,9 +684,43 @@ internal static class SymbolRelocator
     /// </summary>
     private static string ExtensionOf(Move move, string? writtenOwner)
     {
-        if (move.Node.Parent is not ExtensionBlockDeclarationSyntax { ParameterList.Parameters: [{ Type: { } receiver }] } block)
-            return $"extension({writtenOwner ?? TypeName(move.AdapterOwner)})";
-        return $"extension{CrefBraces(block.TypeParameterList?.ToString() ?? "")}({CrefBraces(receiver.ToString())})";
+        return move.Node.Parent is ExtensionBlockDeclarationSyntax block ? BlockCref(block)
+            : $"extension({writtenOwner ?? TypeName(move.AdapterOwner)})";
+    }
+
+    /// <summary>The <c>extension(Receiver)</c> part of a cref to a member of <paramref name="block"/>, with its type parameters.</summary>
+    /// <exception cref="InvalidOperationException">The block does not take exactly one receiver.</exception>
+    private static string BlockCref(ExtensionBlockDeclarationSyntax block) =>
+        block.ParameterList?.Parameters is [{ Type: { } receiver }]
+            ? $"extension{CrefBraces(block.TypeParameterList?.ToString() ?? "")}({CrefBraces(receiver.ToString())})"
+            : throw new InvalidOperationException($"The extension block at {block.GetLocation().GetLineSpan()} does not take one receiver.");
+
+    /// <summary>
+    /// The <c>extension(Receiver).</c> part a cref written as a bare member name needs once it is qualified with the owner,
+    /// when it names a member of one of the owner's extension blocks; empty otherwise.
+    /// </summary>
+    private static string StayingBlockOf(ISymbol bound, CrefSyntax cref) =>
+        cref is NameMemberCrefSyntax && bound.ContainingType is { IsExtension: true } extension
+            ? (extension.DeclaringSyntaxReferences is [var reference] && reference.GetSyntax() is ExtensionBlockDeclarationSyntax block
+                ? BlockCref(block) + "."
+                : throw new InvalidOperationException($"{extension.ToDisplayString()} has no single extension block declaration."))
+            : "";
+
+    /// <summary>
+    /// The types from <paramref name="container"/> down to the one declaring <paramref name="member"/>, as a cref names them:
+    /// <c>Outer.Inner{T}</c>.
+    /// </summary>
+    /// <exception cref="InvalidOperationException"><paramref name="container"/> does not contain the member.</exception>
+    private static string CrefPath(ISymbol member, ISymbol container)
+    {
+        var path = new List<string>();
+        for (var type = member.ContainingType; type is not null; type = type.ContainingType)
+        {
+            path.Insert(0, type.TypeParameters.Length == 0 ? type.Name : $"{type.Name}{{{string.Join(",", type.TypeParameters.Select(p => p.Name))}}}");
+            if (Comparer.Equals(type.OriginalDefinition, container))
+                return string.Join(".", path);
+        }
+        throw new InvalidOperationException($"{container.ToDisplayString()} does not contain {member.ToDisplayString()}.");
     }
 
     /// <summary>Generic brackets in the brace form a cref writes them in.</summary>
@@ -676,10 +784,11 @@ internal static class SymbolRelocator
         string.Join("\n", text.Replace("\r\n", "\n").Split('\n').Select(l => l.StartsWith("    ", StringComparison.Ordinal) ? l[4..] : l));
 
     /// <summary>
-    /// Every declaration of a symbol: each part of a partial type, and both parts of a partial method, property or event,
-    /// whose accessibility must stay identical (CS8799).
+    /// Every repository declaration of a symbol: each part of a partial type, and both parts of a partial method, property or
+    /// event, whose accessibility must stay identical (CS8799). A part a source generator writes (a LibraryImport stub, say)
+    /// is not repository source: the generator writes it again from the declaration it implements.
     /// </summary>
-    private static IEnumerable<SyntaxNode> DeclarationsOf(ISymbol symbol)
+    private static IEnumerable<SyntaxNode> DeclarationsOf(SymbolIdentity identity, ISymbol symbol)
     {
         ISymbol? implementation = symbol switch
         {
@@ -689,7 +798,60 @@ internal static class SymbolRelocator
             _ => null,
         };
         return symbol.DeclaringSyntaxReferences.Concat(implementation?.DeclaringSyntaxReferences ?? [])
+            .Where(reference => identity.IsRepositorySource(reference.SyntaxTree))
             .Select(reference => reference.GetSyntax()).Distinct();
+    }
+
+    /// <summary>Whether a declaration is one part of a partial method, property, indexer or event.</summary>
+    private static bool IsPartialMember(SyntaxNode node) =>
+        node is MethodDeclarationSyntax or BasePropertyDeclarationSyntax && ((MemberDeclarationSyntax)node).Modifiers.Any(SyntaxKind.PartialKeyword);
+
+    /// <summary>
+    /// Whether a symbol is a partial method declared without an implementation: implicitly private, with every call to it,
+    /// arguments included, left out of the program. An accessibility modifier would require an implementation (CS8795).
+    /// </summary>
+    private static bool Unimplemented(ISymbol symbol) => symbol is IMethodSymbol { IsPartialDefinition: true, PartialImplementationPart: null };
+
+    /// <summary>
+    /// Fails when code that does not move into the same class reaches a moved partial method without an implementation: it
+    /// moves as written, private to its new class, and cannot be made internal without an implementation.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The moved method has no implementation.</exception>
+    private static void RejectUnimplementedReach(Move target, SyntaxNode site)
+    {
+        if (Unimplemented(target.Symbol))
+            throw new InvalidOperationException($"{target.Symbol.ToDisplayString()}, a partial method without an implementation, " +
+                $"moves as written and stays private to its new class, but {site.GetLocation().GetLineSpan()} reaches it from outside that class.");
+    }
+
+    /// <summary>
+    /// The text of an instance partial method or property that becomes an extension member, which cannot be partial (CS0751):
+    /// one member, the implementation's declaration under the implementation's documentation, or the definition's when the
+    /// implementation has none. Returns the text for the implementation's move and null for the definition's, which it covers.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The implementation is not repository source that moves with the definition.</exception>
+    private static string? JoinedPartial(Move move, IReadOnlyList<Move> moves, Dictionary<SyntaxTree, List<TextEdit>> edits)
+    {
+        ISymbol? implementation = move.Symbol switch
+        {
+            IMethodSymbol method => method.PartialImplementationPart,
+            IPropertySymbol property => property.PartialImplementationPart,
+            _ => null,
+        };
+        Move? MoveDeclaring(ISymbol? part) => part?.DeclaringSyntaxReferences is [var reference]
+            ? moves.FirstOrDefault(m => string.Equals(m.Tree.FilePath, reference.SyntaxTree.FilePath, StringComparison.OrdinalIgnoreCase) &&
+                m.Node.Span == reference.Span)
+            : null;
+        if (MoveDeclaring(implementation) is not { } implementationMove || MoveDeclaring(move.Symbol) is not { } definitionMove)
+            throw new InvalidOperationException($"{move.Symbol.ToDisplayString()} becomes an extension member, which cannot be partial " +
+                $"(CS0751), and its two parts are not both repository source that moves ({Path.GetFileName(move.Tree.FilePath)}, " +
+                $"line {move.Node.GetLocation().GetLineSpan().StartLinePosition.Line + 1}).");
+        if (move != implementationMove)
+            return null;
+        var documented = move.Node.GetLeadingTrivia().Any(trivia => trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia) ||
+            trivia.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia)) ? move : definitionMove;
+        return Rewritten(documented.Tree, TextSpan.FromBounds(documented.Node.FullSpan.Start, documented.Node.SpanStart), edits) +
+            Rewritten(move.Tree, TextSpan.FromBounds(move.Node.SpanStart, move.Node.FullSpan.End), edits);
     }
 
     /// <summary>The type that declares a member: for a member of an extension block, the static class declaring the block.</summary>
@@ -813,7 +975,12 @@ internal static class SymbolRelocator
                 if (adapter.Members.Count > 0)
                 {
                     if (classes.TryGetValue(adapter.MembersName, out var membersClass))
+                    {
+                        // RelocationHolders merges partial members only into a partial class.
+                        if (adapter.Partial && !membersClass.Modifiers.Any(SyntaxKind.PartialKeyword))
+                            throw new InvalidOperationException($"{adapter.MembersName} is not partial, so the partial members moving into it cannot.");
                         InsertBefore(membersClass.CloseBraceToken, adapter.Members, "");
+                    }
                     else
                         appended.Append("\r\n").Append(adapter.RenderMembers());
                 }
@@ -881,6 +1048,8 @@ internal static class SymbolRelocator
         public List<string> Interfaces { get; } = interfaces;
         /// <summary>Static members, nested types, and retained-contract forwarders in the adapter.</summary>
         public List<string> Members { get; } = [];
+        /// <summary>Whether a moved partial member is among <see cref="Members"/>, which only a partial class declares (CS0751).</summary>
+        public bool Partial { get; set; }
         /// <summary>Instance methods and properties rendered into extension blocks, each with its receiver parameter.</summary>
         public List<RelocatedExtension> Extensions { get; } = [];
 
@@ -896,10 +1065,11 @@ internal static class SymbolRelocator
         {
             string ownerName = TypeName(Owner);
             var output = new StringBuilder("/// <summary>").Append(string.Format(style.MembersSummary, ownerName)).Append("</summary>\r\n");
+            string partial = Partial ? "partial " : "";
             if (Interfaces.Count > 0)
-                output.Append($"[ToolingFor(typeof({ownerName}))]\r\ninternal abstract class {MembersName} : {string.Join(", ", Interfaces)}\r\n");
+                output.Append($"[ToolingFor(typeof({ownerName}))]\r\ninternal abstract {partial}class {MembersName} : {string.Join(", ", Interfaces)}\r\n");
             else
-                output.Append($"internal static class {MembersName}\r\n");
+                output.Append($"internal static {partial}class {MembersName}\r\n");
             return output.Append("{\r\n").Append(string.Join("\r\n", Members.Select(m => m.Trim('\r', '\n')))).Append("\r\n}\r\n").ToString();
         }
 

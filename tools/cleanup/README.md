@@ -205,7 +205,12 @@ internal. `extension-block-merge` moves a block into an existing `<Owner>Constan
 for the same receiver. `holder-modifiers` holds the other modifiers the prune writes: a moved `protected internal` member
 becomes `internal`, a moved `new` member drops `new`, a struct's `readonly` instance members drop `readonly` as extension
 members, an internal property's private setter that moved code writes loses its modifier, and both parts of a partial
-method that moved code calls become internal.
+method that moved code calls become internal. `moved-crefs` holds crefs to members inside a moved extension block (a
+generic one among them) and a moved nested type: `see`, `seealso` and `inheritdoc`, written with the owner, with its
+namespace too, or alone inside the moved code; a moved block's cref to a member of the owner's staying block; and a
+labelled `see` in shipped code, which becomes its label. `partial-members` moves a partial method without an
+implementation as written and an implemented one, both into a partial `<Owner>Constants`, and joins the two parts of an
+instance partial method and property into one extension member each.
 
 The prune puts an owner's moved members in the class its style names, in the owner's namespace, unless a project
 compiling the destination already knows that name. It then merges into that class when it is one static class (abstract,
@@ -219,6 +224,10 @@ Every modifier the prune writes is one its declaration takes (`RelocationModifie
 internal; an extension block, an explicit interface implementation and an operator keep their declarations as written. A
 declaration a holder class cannot take, a staying member whose accessibility is bound to what it overrides or what
 overrides it, and an extension block whose owner's adapter is abstract fail the run instead of being written wrongly.
+A partial member moves into a partial class (an existing class is merged into only when it is partial). A partial
+method without an implementation moves as written, private to its new class, and the run fails when code outside that
+class reaches it or when a staying one must become internal. An instance partial member that becomes an extension
+member is written once from its two parts, and the run fails when they are not both repository source.
 
 ## Seeing status
 

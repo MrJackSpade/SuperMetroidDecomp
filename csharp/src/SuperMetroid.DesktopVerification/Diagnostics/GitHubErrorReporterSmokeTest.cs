@@ -123,11 +123,11 @@ public static class GitHubErrorReporterSmokeTest
         Require(before.Contains("animationFrame=8;") && !before.Contains("animationFrame=18;"),
             "Before-frame snapshot changed with mutable Samus state.");
         Require(after.Contains("animationFrame=18;") && after.Contains("animationTimer=1;") &&
-            after.Contains("drainedHandler=UnableToStand;") && after.Contains("pose=$09;") && after.Contains("fx=Acid;"),
+            after.Contains("drainedHandler=UnableToStand;") && after.Contains("pose=MovingRightNormalPose;") && after.Contains("fx=Acid;"),
             "Failed-frame snapshot omitted the reported invalid animation and its installed handler.");
         string diagnostics = GameplayFrameFailureDiagnostics.Format(beforeSnapshot, afterSnapshot, ControllerButton.Up | ControllerButton.A, "fixture.smrec", 70000);
         Require(diagnostics.Contains("Build:") && diagnostics.Contains("Core build ID:") &&
-            diagnostics.Contains("Host build ID:") && diagnostics.Contains("Attempted input: $0880") &&
+            diagnostics.Contains("Host build ID:") && diagnostics.Contains("Attempted input: Up, A") &&
             diagnostics.Contains("zero-based): 70000") && diagnostics.Contains("fixture.smrec") &&
             diagnostics.Contains("Before frame:") && diagnostics.Contains("may be partially mutated"),
             "Failure diagnostic omitted build/replay provenance or snapshot ordering.");

@@ -1165,7 +1165,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.CrocomireMouthFifth,
         EnemyProjectileFrameId.CrocomireMouthSixth,
         EnemyProjectileFrameId.CrocomireBridgeFragmentFirst,
-        EnemyProjectileFrameId.CrocomireBridgeFragmentThird,
         EnemyProjectileFrameId.CrocomireSpikeWallPieceSixth,
         EnemyProjectileFrameId.CrocomireShotSecond,
         EnemyProjectileFrameId.CrocomireShotThird,

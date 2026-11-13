@@ -360,9 +360,12 @@ internal sealed class UnitScanner(CoreModel model)
                 if (node is BaseObjectCreationExpressionSyntax creation && info.Symbol is IMethodSymbol constructor)
                     RecordSheetDraw(scan, semantic, creation, constructor);
                 // An object constructed with graphics holds them as its own (a room-drawn object's), so the creation hands
-                // them on as a spawn call does, to the constructor parameter that receives them.
+                // them on as a spawn call does, to the constructor parameter that receives them. A spawn primitive building
+                // the object from the kind and graphics its own callers handed it (the sprite-object list's spawn) spawns
+                // what those callers' calls name, and each of those calls records its own kind and graphics.
                 if (node is BaseObjectCreationExpressionSyntax { ArgumentList: { } constructed } && info.Symbol is IMethodSymbol made
-                    && made.Parameters.Any(p => SymbolEqualityComparer.Default.Equals(p.Type.OriginalDefinition, model.SpriteGraphics)))
+                    && made.Parameters.Any(p => SymbolEqualityComparer.Default.Equals(p.Type.OriginalDefinition, model.SpriteGraphics))
+                    && !BuildsFromHandedSpawn(semantic, constructed, made))
                 {
                     RecordSpawnCall(scan, semantic, constructed, made);
                 }
@@ -471,6 +474,29 @@ internal sealed class UnitScanner(CoreModel model)
                 callees.Add(Unit.Member(callee.OriginalDefinition));
             }
         }
+    }
+
+    /// <summary>
+    /// Whether the construction <paramref name="arguments"/> pass to <paramref name="constructor"/> builds the object from
+    /// the graphics and sprite-object kind the enclosing method was itself handed: both arguments are that method's
+    /// parameters.
+    /// </summary>
+    private bool BuildsFromHandedSpawn(SemanticModel semantic, ArgumentListSyntax arguments, IMethodSymbol constructor)
+    {
+        bool graphicsHanded = false, kindHanded = false;
+        for (int index = 0; index < arguments.Arguments.Count; index++)
+        {
+            ArgumentSyntax argument = arguments.Arguments[index];
+            IParameterSymbol? parameter = argument.NameColon is { } name
+                ? constructor.Parameters.FirstOrDefault(p => p.Name == name.Name.Identifier.Text)
+                : index < constructor.Parameters.Length ? constructor.Parameters[index] : null;
+            bool handed = semantic.GetSymbolInfo(argument.Expression).Symbol is IParameterSymbol { ContainingSymbol: IMethodSymbol { MethodKind: not MethodKind.AnonymousFunction } };
+            if (parameter is not null && SymbolEqualityComparer.Default.Equals(parameter.Type.OriginalDefinition, model.SpriteGraphics))
+                graphicsHanded = handed;
+            else if (parameter is not null && SymbolEqualityComparer.Default.Equals(parameter.Type, model.RoomSpriteObjectKind))
+                kindHanded = handed;
+        }
+        return graphicsHanded && kindHanded;
     }
 
     /// <summary>

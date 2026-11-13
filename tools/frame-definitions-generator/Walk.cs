@@ -152,8 +152,6 @@ internal sealed class Walk
         "TorizoDroolFourFrameDelay", "TorizoDroolTwoFrameDelay", "GoldenTorizoEyeBeamFloorImpactLoopFirst", "TourianStatueEyeGlowTenth", "BotwoonHiddenUp",
     ];
 
-    /// <summary>RoomSpriteObjectKind members that are no object.</summary>
-    public static readonly string[] ExcludedSpriteObjects = ["None"];
 
     private readonly CoreModel _model;
     private readonly UnitScanner _scanner;
@@ -586,8 +584,6 @@ internal sealed class Walk
         }
         else if (SymbolEqualityComparer.Default.Equals(type, _model.RoomSpriteObjectKind))
         {
-            if (ExcludedSpriteObjects.Contains(member.Name))
-                return;
             if (scan.SpawnCalls.Count == 0 && scan.Reassignments.Count == 0)
             {
                 Spawners.Add(unit);
@@ -643,9 +639,6 @@ internal sealed class Walk
         INamedTypeSymbol? scope = target.Scope ?? _behaviour;
         switch (target.Source)
         {
-            // An object whose frame behaviour replaces its spawner's graphics before it first draws never draws with them.
-            case GraphicsSource.Spawner when RedrawnSpawns.IsRedrawn(_model, unit):
-                return (null, null);
             case GraphicsSource.Spawner:
                 return (scope is null ? CommonOf(unit) : new Destination(DestinationKind.Own, scope), null);
             case GraphicsSource.Shared:

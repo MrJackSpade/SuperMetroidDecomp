@@ -9,7 +9,7 @@ internal enum GraphicsSource
 {
     /// <summary>Its spawner's graphics (<c>SpawnedBy</c>): the spawner's own spawned-object sheet.</summary>
     Spawner,
-    /// <summary>Emptied or shared graphics: the room's shared sheet.</summary>
+    /// <summary>Shared graphics: the room's shared sheet.</summary>
     Shared,
     /// <summary>A sheet-specific owner (Mother Brain's tank glass): that owner's sheet alone.</summary>
     Sheet,
@@ -45,8 +45,8 @@ internal readonly record struct SpawnTarget(GraphicsSource Source, INamedTypeSym
 }
 
 /// <summary>
-/// Reads which sheets the graphics handed to a spawn can make it draw from. Emptied graphics (<c>default</c>,
-/// <c>SpriteGraphics.Emptied</c>), <c>SpriteGraphics.SharedIn</c> and the shared owner draw from the room's shared
+/// Reads which sheets the graphics handed to a spawn can make it draw from. The shared standard graphics (<c>default</c>,
+/// <c>SpriteGraphics.SharedStandard</c>), <c>SpriteGraphics.SharedIn</c> and the shared owner draw from the room's shared
 /// sheet; a sheet-specific owner draws from that owner's sheet alone; <c>SpawnedBy</c> draws from the spawner's sheet.
 /// A conditional or switch can yield any of its branches. A property, field, local or method yielding graphics draws
 /// where its initializer, body or returns say, and when it is a behaviour's member, the spawn is that behaviour's. An
@@ -94,7 +94,7 @@ internal sealed class GraphicsClassifier(CoreModel model)
         switch (symbol)
         {
             case { } member when IsSpriteGraphics(member.ContainingType):
-                return [member.Name == "Emptied" ? SpawnTarget.SharedSheet : new SpawnTarget(GraphicsSource.Unknown)];
+                return [member.Name == "SharedStandard" ? SpawnTarget.SharedSheet : new SpawnTarget(GraphicsSource.Unknown)];
             case IParameterSymbol { ContainingSymbol: IMethodSymbol { MethodKind: not MethodKind.AnonymousFunction } method }:
                 return [new SpawnTarget(GraphicsSource.Parameter, Origin: method.OriginalDefinition)];
             case ILocalSymbol local:

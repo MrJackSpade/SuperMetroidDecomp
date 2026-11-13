@@ -293,7 +293,7 @@ internal sealed class BlockReactionObjects
 
             case ShotBlockReaction.CollisionProbe:
                 // Setup ends the projectile scan and forces its collision counter;
-                // the caller publishes those scratch effects only after successful
+                // the caller publishes those scan effects only after successful
                 // allocation. This object does not change terrain and leaves on its first update.
                 slot.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
                 return true;

@@ -27,7 +27,6 @@ internal static class GoldenTorizoCartridgeFallbackVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         var runtime = CreateRetailRuntimeFixture();
         InstalledEnemyArtwork installedArtwork = installation.LoadEnemyTiles();
-        runtime.EnemySession.FrameDisplays = installedArtwork.FrameDisplays;
         runtime.BossArtwork.KraidEyes = installedArtwork.KraidColors.Eyes();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

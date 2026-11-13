@@ -20,17 +20,16 @@ internal static class SuperMetroidRuntimeToolingExtensions
         /// exercises.
         /// </summary>
         /// <param name="assists">The assists the runtime plays under; <see cref="SuperMetroid.Core.Gameplay.GameplayAssists.None"/> for the unassisted game.</param>
-        /// <param name="samusOverreads">The installed services reproducing Samus's glitch reads, which every runtime requires.</param>
-        /// <param name="bossAndIntroOverreads">The installed services reproducing the bosses' reads past their data, which every runtime requires.</param>
-        /// <param name="enemyOverreads">The installed services reproducing what enemies read past their data, which every runtime requires.</param>
+        /// <param name="artwork">
+        /// The installed catalogs the runtime is built over: the Samus, boss and enemy overread services and the enemy sheets
+        /// and frame displays, which every runtime requires.
+        /// </param>
         /// <param name="random">The session's random-number word, or null for a runtime that is a session of its own.</param>
         internal static SuperMetroidRuntime Create(
             SuperMetroid.Core.Gameplay.GameplayAssists assists,
-            SuperMetroid.Core.Samus.SamusOverreadServices samusOverreads,
-            SuperMetroid.Core.Compatibility.BossAndIntroOverreadServices bossAndIntroOverreads,
-            SuperMetroid.Core.Enemies.EnemyOverreadServices enemyOverreads,
+            IGameplayArtwork artwork,
             SuperMetroid.Core.Compatibility.SharedRandom? random = null) =>
-            new(assists, new SuperMetroid.Core.Frontend.GameArtwork { SamusOverreads = samusOverreads, BossAndIntroOverreads = bossAndIntroOverreads, EnemyOverreads = enemyOverreads },
+            new(assists, artwork,
                 new GameplaySessionCarryover
                 {
                     Clock = new SuperMetroid.Core.Compatibility.FrameClock(),

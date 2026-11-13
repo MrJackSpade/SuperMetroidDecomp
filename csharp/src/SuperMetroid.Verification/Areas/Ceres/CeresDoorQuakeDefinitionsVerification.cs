@@ -42,10 +42,14 @@ internal static class CeresDoorQuakeDefinitionsVerification
         }
 
         var guarded = NewCeresDoorQuakeReadGuard(rom);
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
+        byte[] stockJson = EnemySpritemapFiles.Extract(rom);
+        EnemySpritemapCatalog installed = EnemySpritemapDocuments.Load(
+            new MemoryStream(stockJson, writable: false));
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(SpawnedObjectFixtures.InstalledTilesWith(installed)),
+            RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             RidleyEncounter = { CeresStatus = CeresEscapeStatus.RidleyEscaped },
-            TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, 
+            BossArtwork = InstalledFixtures.BossArtwork,
         };
         enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.SlotTable.Slots[0].Definition);
         enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = false };
@@ -54,10 +58,6 @@ internal static class CeresDoorQuakeDefinitionsVerification
         var doorState = new CeresDoorEnemyState { HandsDrawingToRidley = true };
         door.SetSpeciesState(doorState);
         door.Position = door.Position.WithWhole(new(100, 80));
-        byte[] stockJson = EnemySpritemapFiles.Extract(rom);
-        EnemySpritemapCatalog installed = EnemySpritemapDocuments.Load(
-            new MemoryStream(stockJson, writable: false));
-        enemies.TileArtwork = SpawnedObjectFixtures.InstalledTilesWith(installed);
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         short[] expectedOffsets = [0, -4, -1, 3];

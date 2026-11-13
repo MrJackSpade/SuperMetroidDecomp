@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Enemies;
 /// The enemy-side state that outlives each room, as the game keeps it across enemy loading (#1329): the
 /// elevator journey, Ceres's escape progress, the critical-energy drop bias, the language
 /// flag, the random enemy counter, the death quota an empty population keeps and how far the
-/// room's encounters have played their artwork; the compatibility services its enemies consult, which it receives when it
-/// is built: the installation's enemy and boss over-read services and the runtime's rainbow-beam camera checkpoint; and
-/// the host's installed enemy sheets and enemy frame displays, which every room's enemies draw from.
+/// room's encounters have played their artwork; and what it receives when it is built: the compatibility services its
+/// enemies consult (the installation's enemy and boss over-read services and the runtime's rainbow-beam camera checkpoint)
+/// and the installed enemy sheets and enemy frame displays every room's enemies draw from (#1616).
 /// </summary>
 public sealed class EnemySession
 {
@@ -24,14 +24,20 @@ public sealed class EnemySession
     /// The runtime's record of what Mother Brain's rainbow-beam push hides from the camera, which the runtime's scrolling
     /// consumes.
     /// </param>
+    /// <param name="sheets">The installed pre-coloured enemy sheets every room's enemies draw from.</param>
+    /// <param name="frameDisplays">Every installed enemy frame's display, which drawing an enemy reads.</param>
     public EnemySession(
         EnemyOverreadServices overreads,
         BossAndIntroOverreadServices bossOverreads,
-        RainbowBeamCameraCheckpoint rainbowBeamCameraCheckpoint)
+        RainbowBeamCameraCheckpoint rainbowBeamCameraCheckpoint,
+        IEnemySheetSource sheets,
+        EnemyFrameDisplays frameDisplays)
     {
         Overreads = Ensure.NotNull(overreads);
         BossOverreads = Ensure.NotNull(bossOverreads);
         RainbowBeamCameraCheckpoint = Ensure.NotNull(rainbowBeamCameraCheckpoint);
+        Sheets = Ensure.NotNull(sheets);
+        FrameDisplays = Ensure.NotNull(frameDisplays);
     }
 
     /// <summary>The elevator journey state carried through an elevator door.</summary>
@@ -85,14 +91,11 @@ public sealed class EnemySession
     /// </summary>
     internal EncounterLooks Looks { get; } = new();
 
-    /// <summary>The installed pre-coloured enemy sheets, bound with the game's artwork.</summary>
-    internal IEnemySheetSource? Sheets { get; set; }
+    /// <summary>The installed pre-coloured enemy sheets every room's enemies draw from.</summary>
+    internal IEnemySheetSource Sheets { get; }
 
-    /// <summary>
-    /// Every installed enemy frame's display, bound with the enemy sheets: drawing an enemy requires it, and null does not
-    /// enable a fallback.
-    /// </summary>
-    internal EnemyFrameDisplays? FrameDisplays { get; set; }
+    /// <summary>Every installed enemy frame's display, which drawing an enemy reads.</summary>
+    internal EnemyFrameDisplays FrameDisplays { get; }
 
     /// <summary>
     /// The installation's services reproducing what enemies read past their authored data (#1500), consulted only on the

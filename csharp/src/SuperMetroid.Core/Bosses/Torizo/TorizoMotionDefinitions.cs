@@ -69,11 +69,15 @@ internal static class TorizoMotionDefinitions
     /// <summary>The pixels of one room block: a landing projectile is placed relative to its block's top.</summary>
     internal const int BlockPixels = 16;
 
-    /// <summary>
-    /// The pixels the initial drool is lifted above the jittered spawn height. When lifting does not wrap the height
-    /// below zero, the drool's fall speed gains one 256th of a pixel per frame.
-    /// </summary>
+    /// <summary>The pixels the initial drool is lifted above the jittered spawn height.</summary>
     internal const int InitialDroolLift = 5;
+
+    /// <summary>
+    /// The initial drool's slowest fall, in 256ths of a pixel an update, to which its random fall jitter adds: 48, and
+    /// the one 256th the game adds whenever the lifted height lies at or below the room's top, which a Torizo's height
+    /// always keeps it (#1620).
+    /// </summary>
+    internal const int InitialDroolSlowestFall = 49;
 
     /// <summary>
     /// The pixels the initial drool is placed to the facing side of the jittered spawn position (the game

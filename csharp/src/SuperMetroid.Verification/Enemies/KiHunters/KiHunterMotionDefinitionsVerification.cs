@@ -21,7 +21,7 @@ internal static class KiHunterMotionDefinitionsVerification
         AssertEqual(high, KiHunterMotionDefinitions.Gravity.UnsignedWholePixels, "Native KiHunter whole acceleration");
         AssertEqual(radius, KiHunterMotionDefinitions.DetachedWingRadius, "Native KiHunter low-byte wing radius");
         var orbit = new Action<RoomEnemySlot, KiHunterEnemyState>(KiHunterBehavior.RunDetachedKiHunterWingOrbit);
-        var delta = new Func<EnemyQuadraticSpeedIndex, EnemySpeedSign, RotationAngle>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
+        var delta = new Func<EnemyQuadraticSpeedIndex, EnemySpeedSign, int>(KiHunterBehavior.DetachedWingCoarseSpeed);
         var cosine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitCosineProduct(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var sine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitNegativeSineProduct(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var gravity = KiHunterBehavior.KiHunterGravity;
@@ -36,7 +36,7 @@ internal static class KiHunterMotionDefinitionsVerification
             // The native decrement clamps to this minimum speed; varying arbitrary
             // high-byte indexes would leave the authored quadratic-speed records.
             EnemyQuadraticSpeedIndex speed = EnemyQuadraticSpeedIndex.FromRows(1);
-            ushort angle = unchecked((ushort)(raw + delta(speed, EnemySpeedSign.Negative).RawValue));
+            ushort angle = unchecked((ushort)(raw + delta(speed, EnemySpeedSign.Negative)));
             state.WingArcAngle = RotationAngle.FromRaw((ushort)raw);
             state.WingFunction = KiHunterWingFunction.Orbit;
             state.DetachedSpeedIndex = speed;

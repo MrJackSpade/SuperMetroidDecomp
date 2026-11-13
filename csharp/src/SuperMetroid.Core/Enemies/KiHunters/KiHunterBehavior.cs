@@ -503,9 +503,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances the detached wings' orbit, including its odd authored speed read.</summary>
     internal static void RunDetachedKiHunterWingOrbit(RoomEnemySlot wings, KiHunterEnemyState state)
     {
-        state.WingArcAngle += ReadKiHunterQuadraticAngleDelta(
+        state.WingArcAngle = state.WingArcAngle.TurnedByFractionsOfStep(DetachedWingCoarseSpeed(
             state.DetachedSpeedIndex,
-            sign: EnemySpeedSign.Negative);
+            sign: EnemySpeedSign.Negative));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
         TrigonometryAngle trigonometryAngle = state.WingArcAngle.ToTrigonometryAngle();
         wings.Position = wings.Position.WithWhole(state.OrbitCenter + EnemyMath.CircleOffset(trigonometryAngle, radius) - state.OrbitOffset);
@@ -524,9 +524,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterEnemyState state,
         RoomLevelData level)
     {
-        state.WingArcAngle += ReadKiHunterQuadraticAngleDelta(
+        state.WingArcAngle = state.WingArcAngle.TurnedByFractionsOfStep(DetachedWingCoarseSpeed(
             state.DetachedSpeedIndex,
-            sign: EnemySpeedSign.Positive);
+            sign: EnemySpeedSign.Positive));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
         TrigonometryAngle trigonometryAngle = state.WingArcAngle.ToTrigonometryAngle();
         int desiredY = CoordinateAxis.Wrap(
@@ -657,14 +657,15 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The detached wing's orbit turn each update: a quadratic row's coarse speed in the direction it turns, its whole
-    /// pixels read as whole steps of the turn and its 256ths of a pixel as 256ths of a step. A speed toward decreasing
-    /// coordinates is the speed's value continued around the turn, so it turns the orbit back.
+    /// The detached wing's speed along its orbit each update: its quadratic row's coarse speed in the direction it turns,
+    /// in 256ths of a pixel, 0 through 65535. The orbit turns a 256th of a step for each 256th of a pixel of it, so its
+    /// whole pixels turn whole steps; a speed toward decreasing coordinates is the speed's value continued around the
+    /// turn, so it turns the orbit back.
     /// </summary>
-    internal static RotationAngle ReadKiHunterQuadraticAngleDelta(EnemyQuadraticSpeedIndex speedIndex, EnemySpeedSign sign)
+    internal static int DetachedWingCoarseSpeed(EnemyQuadraticSpeedIndex speedIndex, EnemySpeedSign sign)
     {
         // The orbit steps by the coarse speed; stepping by the full speed changes the orbit.
-        return RotationAngle.FromRaw(speedIndex.Row.CoarseToward(sign));
+        return speedIndex.Row.CoarseToward(sign);
     }
 
     /// <summary>Slows a detached wing by one speed step, landing on the slowest index when the step would go below zero.</summary>

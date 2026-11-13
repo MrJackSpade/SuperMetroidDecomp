@@ -136,7 +136,7 @@ internal static class RoomBlockPicturesVerification
             rows++;
             for (int y = row * CharacterPixels; y < (row + 1) * CharacterPixels; y++)
             {
-                for (int x = 0; x < RoomBackgroundImageGeometry.PagePixels; x++)
+                for (int x = 0; x < RoomBackgroundImageGeometryConstants.PagePixels; x++)
                 {
                     var word = new SnesBgTilemapWord(sky.Tiles[row * SkyTilemap.Columns + x / CharacterPixels].PackedWord);
                     (LayeredPicture picture, Position16<ImagePixels> pixel) = PictureAt(shown.Image, x, y);
@@ -155,7 +155,7 @@ internal static class RoomBlockPicturesVerification
     private static (LayeredPicture Picture, Position16<ImagePixels> Pixel) PictureAt(RoomBackgroundImagePlane image, int x, int y)
     {
         const int cell = 16;
-        return image.Cell(y / cell * (RoomBackgroundImageGeometry.PagePixels / cell) + x / cell) is { } picture
+        return image.Cell(y / cell * (RoomBackgroundImageGeometryConstants.PagePixels / cell) + x / cell) is { } picture
             ? (picture, new Position16<ImagePixels>((ushort)(x % cell), (ushort)(y % cell)))
             : (image.Picture, new Position16<ImagePixels>((ushort)x, (ushort)y));
     }

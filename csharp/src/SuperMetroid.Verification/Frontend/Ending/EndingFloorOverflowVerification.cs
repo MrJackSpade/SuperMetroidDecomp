@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;

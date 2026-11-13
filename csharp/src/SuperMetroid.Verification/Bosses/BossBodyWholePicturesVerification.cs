@@ -1,7 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.TestSupport.RepositoryInstallation;

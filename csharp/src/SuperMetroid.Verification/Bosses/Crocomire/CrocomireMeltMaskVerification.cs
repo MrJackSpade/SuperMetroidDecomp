@@ -3,8 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
-using SuperMetroid.Core.Spatial;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -13,7 +11,7 @@ namespace SuperMetroid.Verification.Bosses.Crocomire;
 
 /// <summary>
 /// Confirms Crocomire's melt image, installed once, shows every step of its dissolve as the cartridge's erase leaves it
-/// (#1652). The cartridge's erase (<see cref="CrocomireMeltDissolve.Steps"/>) clears bits of the melt image's four-bit
+/// (#1652). The cartridge's erase (<see cref="CrocomireMeltDissolveConstants.Steps"/>) clears bits of the melt image's four-bit
 /// characters; Core hides pixel columns of the picture's dissolving cells (<see cref="CrocomireMeltMask"/>). For every pass,
 /// band and step, the pixels the mask leaves showing must be exactly the pixels the erased characters still ink.
 /// </summary>
@@ -37,7 +35,7 @@ internal static class CrocomireMeltMaskVerification
             SpriteSheetFrame picture = image.Picture
                 ?? throw new InvalidOperationException($"Verification failed: Crocomire's {pass} melt image shows no picture.");
             AssertTrue(!image.Dissolving.IsEmpty, $"Crocomire's {pass} melt image has cells its dissolve erases");
-            byte[][] steps = [.. CrocomireMeltDissolve.Steps(melt, pass)];
+            byte[][] steps = [.. CrocomireMeltDissolveConstants.Steps(melt, pass)];
             AssertEqual(CrocomireMeltingDefinitions.ColumnCount + 1, steps.Length, $"Crocomire's {pass} dissolve leaves its image after every step");
             foreach (DissolvingCell cell in image.Dissolving)
             {

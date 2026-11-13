@@ -6,7 +6,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -44,10 +43,10 @@ internal static class RoomBackgroundPeriodVerification
             // The scrolling sky's rows are pictured whole: they are not a library background's pages.
             if (height == RoomBackgroundImageGeometry.ImageSize(SkyTilemap.Rows * RoomBackgroundImageGeometry.PageTiles).Y)
                 continue;
-            if (width <= RoomBackgroundImageGeometry.PagePixels && height <= RoomBackgroundImageGeometry.PagePixels)
+            if (width <= RoomBackgroundImageGeometryConstants.PagePixels && height <= RoomBackgroundImageGeometryConstants.PagePixels)
             {
                 onePeriod++;
-                if (height < RoomBackgroundImageGeometry.PagePixels || width < RoomBackgroundImageGeometry.PagePixels)
+                if (height < RoomBackgroundImageGeometryConstants.PagePixels || width < RoomBackgroundImageGeometryConstants.PagePixels)
                     shortened.Add($"{sheet} {width}x{height}");
                 var image = new InstalledImagePlanes(store.Assemble(sheet, document), document.Size);
                 foreach (string part in parts.Where(document.Frames.ContainsKey))
@@ -58,7 +57,7 @@ internal static class RoomBackgroundPeriodVerification
                 }
                 continue;
             }
-            if (width != RoomBackgroundImageGeometry.PagePixels || height != 2 * RoomBackgroundImageGeometry.PagePixels)
+            if (width != RoomBackgroundImageGeometryConstants.PagePixels || height != 2 * RoomBackgroundImageGeometryConstants.PagePixels)
             {
                 malformed.Add($"{sheet} is {width}x{height}: neither one page nor two");
                 continue;
@@ -110,7 +109,7 @@ internal static class RoomBackgroundPeriodVerification
                 int expected = PeriodAcross(words) * TilePixels;
                 if (entry.Size.X != expected)
                     wrong.Add($"{sheet} frame {frame} is {entry.Size.X} wide; its words repeat every {expected} pixels across");
-                if (entry.Size.X < RoomBackgroundImageGeometry.PagePixels)
+                if (entry.Size.X < RoomBackgroundImageGeometryConstants.PagePixels)
                     narrowed.Add($"{frame} {entry.Size.X} wide");
             }
         }

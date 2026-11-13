@@ -2,12 +2,11 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.World.RoomStates;
 
-/// <summary>Application-owned ordered enemy placements selected by all retail room states.</summary>
+/// <summary>Application-owned ordered enemy placements selected by all retail room states, grouped by the area of the rooms that load them.</summary>
 /// <remarks>
-/// The 302 lists and 1,658 records come from the pinned NTSC J/U v1.0
-/// populations selected by 323 compiled room states. Record order and the byte after
-/// each terminator govern linked slot allocation and the room enemy-death quota.
-/// This is gameplay data, not an editable visual asset.
+/// The 302 lists and 1,658 records are the populations the 323 compiled room states select. Record order governs
+/// linked slot allocation; each list states the kills that clear its room as its death quota. This is gameplay data,
+/// not an editable visual asset.
 /// </remarks>
 [NumberedIdentities("Each numbered member is the enemy population of one numbered room or room state, named for it; no caller indexes the populations by number.")]
 public static class RoomEnemyPopulationDefinitions

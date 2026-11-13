@@ -238,16 +238,16 @@ public static class ProgressionTableCodec
         Ensure.NotNull(progress);
         Ensure.LengthEqual(table, AreaBossByteCount);
         table.Clear();
-        for (int index = 0; index < AreaIds.RetailCount; index++)
-            table[index] = EncodeBossMask(progress.DefeatedBosses(AreaIds.At(index)));
+        for (int index = 0; index < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count; index++)
+            table[index] = EncodeBossMask(progress.DefeatedBosses(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(index)));
     }
 
     /// <summary>The defeated bosses of each area <paramref name="copied"/>, the area-boss table's leading bytes, covers.</summary>
     public static IReadOnlyDictionary<AreaId, BossBits> AreaBossesPrefix(ReadOnlySpan<byte> copied)
     {
         var areas = new Dictionary<AreaId, BossBits>();
-        for (int index = 0; index < Math.Min(copied.Length, AreaIds.RetailCount); index++)
-            areas.Add(AreaIds.At(index), StoredBosses(copied[index]));
+        for (int index = 0; index < Math.Min(copied.Length, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count); index++)
+            areas.Add(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(index), StoredBosses(copied[index]));
         return areas;
     }
 
@@ -300,9 +300,9 @@ public static class ProgressionTableCodec
         Ensure.NotNull(progress);
         Ensure.LengthEqual(table, UsedStationByteCount);
         table.Clear();
-        for (int index = 0; index < AreaIds.RetailCount; index++)
+        for (int index = 0; index < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count; index++)
         {
-            foreach (int station in progress.UsedStations(AreaIds.At(index)).Members)
+            foreach (int station in progress.UsedStations(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(index)).Members)
                 table[index * sizeof(ushort) + station / BitsPerByte] |= (byte)(1 << (station % BitsPerByte));
         }
     }
@@ -314,10 +314,10 @@ public static class ProgressionTableCodec
     public static IReadOnlyDictionary<AreaId, FlagOverwrite> UsedStationsPrefix(ReadOnlySpan<byte> copied)
     {
         var areas = new Dictionary<AreaId, FlagOverwrite>();
-        for (int index = 0; index < AreaIds.RetailCount && index * sizeof(ushort) < copied.Length; index++)
+        for (int index = 0; index < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count && index * sizeof(ushort) < copied.Length; index++)
         {
             int start = index * sizeof(ushort);
-            areas.Add(AreaIds.At(index), PrefixOverwrite(copied.Slice(start, Math.Min(sizeof(ushort), copied.Length - start))));
+            areas.Add(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(index), PrefixOverwrite(copied.Slice(start, Math.Min(sizeof(ushort), copied.Length - start))));
         }
         return areas;
     }
@@ -339,9 +339,9 @@ public static class ProgressionTableCodec
         Ensure.NotNull(progress);
         Ensure.LengthEqual(table, MapStationByteCount);
         table.Clear();
-        for (int index = 0; index < AreaIds.RetailCount; index++)
+        for (int index = 0; index < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count; index++)
         {
-            if (progress.HasAreaMap(AreaIds.At(index)))
+            if (progress.HasAreaMap(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(index)))
                 table[index] = AcquiredMap;
         }
     }
@@ -350,8 +350,8 @@ public static class ProgressionTableCodec
     public static IReadOnlyDictionary<AreaId, bool> AreaMapsPrefix(ReadOnlySpan<byte> copied)
     {
         var areas = new Dictionary<AreaId, bool>();
-        for (int index = 0; index < Math.Min(copied.Length, AreaIds.RetailCount); index++)
-            areas.Add(AreaIds.At(index), copied[index] != 0);
+        for (int index = 0; index < Math.Min(copied.Length, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count); index++)
+            areas.Add(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(index), copied[index] != 0);
         return areas;
     }
 

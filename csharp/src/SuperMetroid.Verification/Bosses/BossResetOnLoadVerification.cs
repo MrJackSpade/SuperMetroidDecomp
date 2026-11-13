@@ -30,7 +30,7 @@ internal static class BossResetOnLoadVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var snapshot = new SuperMetroidSaveSnapshot
         {
-            Area = 0, SaveStation = 1, Health = 77, MaxHealth = 199,
+            Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.CrateriaSave, Health = 77, MaxHealth = 199,
             Missiles = 12, MaxMissiles = 25,
             CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             EquippedItems = SamusEquipmentFlags.MorphBall,

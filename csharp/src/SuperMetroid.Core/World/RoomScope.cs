@@ -143,7 +143,7 @@ internal sealed record RoomScope
     public required RoomEnemyRuntimeServices Services { get; init; }
 
     /// <summary>The load-station record whose load established this room; null for a room entered otherwise.</summary>
-    public LoadStationEntry? LoadStation { get; init; }
+    public LoadStation? LoadStation { get; init; }
 
     /// <summary>
     /// The two objects carrying Samus into fresh Ceres, once Ceres-start setup has begun them. They

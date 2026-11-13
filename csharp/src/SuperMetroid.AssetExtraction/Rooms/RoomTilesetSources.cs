@@ -24,11 +24,11 @@ internal static class RoomTilesetSources
         var blocks = new Dictionary<RoomBlockSet, SnesAddress>();
         var palettes = new Dictionary<RoomPaletteSet, SnesAddress>();
         SnesAddress table = RoomTilesetSourceDefinitions.TilesetTable;
-        for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        for (int number = 0; number < RoomGraphicsSetCodec.Count; number++)
         {
-            TilesetDefinition sets = RoomTilesets.Get(graphicsSet);
+            TilesetDefinition sets = RoomTilesets.Get(RoomGraphicsSetCodec.Decode(number));
             var entry = new SnesAddress(table.Bank,
-                RomDataReader.ReadWordFixedBank(cartridge, table.AddWithinBank(graphicsSet * sizeof(ushort))));
+                RomDataReader.ReadWordFixedBank(cartridge, table.AddWithinBank(number * sizeof(ushort))));
             Add(blocks, sets.Blocks, Source(cartridge, entry, RoomTilesetSourceDefinitions.BlocksPointerOffset));
             Add(characters, sets.Characters, Source(cartridge, entry, RoomTilesetSourceDefinitions.CharactersPointerOffset));
             Add(palettes, sets.Palette, Source(cartridge, entry, RoomTilesetSourceDefinitions.PalettePointerOffset));

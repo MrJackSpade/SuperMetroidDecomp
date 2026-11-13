@@ -38,8 +38,8 @@ public static class SaveRamMapPacking
         Ensure.NotNull(maps);
         int offset = 0;
         for (int previous = 0; previous < area; previous++)
-            offset += OccupiedBytes(maps.Get(AreaIds.At(previous))).Count;
-        return new SaveRamPackedArea(offset, OccupiedBytes(maps.Get(AreaIds.At(area))));
+            offset += OccupiedBytes(maps.Get(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(previous))).Count;
+        return new SaveRamPackedArea(offset, OccupiedBytes(maps.Get(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area))));
     }
 
     /// <summary>The packed field holding <paramref name="progress"/>'s Zebes exploration.</summary>
@@ -52,7 +52,7 @@ public static class SaveRamMapPacking
         for (int area = 0; area < PackedAreaCount; area++)
         {
             SaveRamPackedArea packed = Area(area, maps);
-            ProgressionTableCodec.WriteExploredPlane(progress, AreaIds.At(area), plane);
+            ProgressionTableCodec.WriteExploredPlane(progress, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), plane);
             for (int index = 0; index < packed.PlaneBytes.Count; index++)
                 field[FieldIndex(packed, index)] = plane[packed.PlaneBytes[index]];
         }
@@ -67,7 +67,7 @@ public static class SaveRamMapPacking
         Ensure.LengthEqual(field, SaveRamLayout.CompressedMapDataByteCount);
         Ensure.NotNull(progress);
         var plane = new byte[ProgressionTableCodec.ExploredPlaneByteCount];
-        for (int area = 0; area < AreaIds.RetailCount; area++)
+        for (int area = 0; area < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count; area++)
         {
             Array.Clear(plane);
             if (area < PackedAreaCount)
@@ -76,7 +76,7 @@ public static class SaveRamMapPacking
                 for (int index = 0; index < packed.PlaneBytes.Count; index++)
                     plane[packed.PlaneBytes[index]] = field[FieldIndex(packed, index)];
             }
-            ProgressionTableCodec.ReadExploredPlane(plane, AreaIds.At(area), progress);
+            ProgressionTableCodec.ReadExploredPlane(plane, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), progress);
         }
     }
 

@@ -49,8 +49,8 @@ internal static class RoomBlockInventoryVerification
     /// </summary>
     internal static void VerifyWriterCountsOnlyWhereHeld()
     {
-        TilesetDefinition holding = RoomTilesets.Get(0);
-        TilesetDefinition lacking = RoomTilesets.Get(1);
+        TilesetDefinition holding = RoomTilesets.Get(RoomGraphicsSet.UpperCrateria);
+        TilesetDefinition lacking = RoomTilesets.Get(RoomGraphicsSet.RedCrateria);
         InventoriedRoomState holder = State(holding, AreaId.Crateria, new(RoomCollisionType.BombableBlock, BlockReaction.Common(0)),
             RoomObjectHeaderId.MotherBrainGlass);
         InventoriedRoomState other = State(lacking, AreaId.Crateria, new(RoomCollisionType.BombableBlock, BlockReaction.Common(8)));
@@ -122,7 +122,7 @@ internal static class RoomBlockInventoryVerification
         {
             catalogs.SetupBlocks.Shown(RoomObjectSetupBlock.ShotBlockParent).Block,
         };
-        TilesetDefinition tileset = RoomTilesets.Get(0);
+        TilesetDefinition tileset = RoomTilesets.Get(RoomGraphicsSet.UpperCrateria);
 
         IReadOnlySet<int> quiet = RoomBlockInventory.Of([Quiet(tileset)], writers).Shown(tileset);
         AssertTrue(quiet.SetEquals([PlacedBlock]),

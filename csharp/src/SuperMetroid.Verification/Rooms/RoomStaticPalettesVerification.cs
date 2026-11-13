@@ -29,9 +29,9 @@ internal static class RoomStaticPalettesVerification
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         IReadOnlyDictionary<string, byte[]> files = RoomStaticPaletteExtractor.Extract(bus);
         var compiled = new Dictionary<int, RoomStaticPalette>();
-        for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        for (byte graphicsSet = 0; graphicsSet < RoomGraphicsSetCodec.Count; graphicsSet++)
         {
-            int source = RoomTilesets.Get(graphicsSet).PaletteAddress;
+            int source = RoomTilesets.Get(RoomGraphicsSetCodec.Decode(graphicsSet)).PaletteAddress;
             string name = RoomStaticPaletteFormat.SourceFileName(source);
             if (compiled.ContainsKey(source)) continue;
             RoomStaticPalette palette = RoomStaticPaletteFile.Read(
@@ -77,7 +77,7 @@ internal static class RoomStaticPalettesVerification
                 new MemoryStream(invalid, writable: false)),
             "room palette rejects out-of-range RGB5 components");
         Console.WriteLine($"  Room static palettes: {files.Count} distinct palettes cover all " +
-            $"{RoomTilesetDefinitions.Count} graphics sets; Landing Site/Ceres load without source reads, " +
+            $"{RoomGraphicsSetCodec.Count} graphics sets; Landing Site/Ceres load without source reads, " +
             "and out-of-range RGB5 components are rejected.");
     }
 

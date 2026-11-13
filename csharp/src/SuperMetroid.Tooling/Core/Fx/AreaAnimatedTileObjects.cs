@@ -21,8 +21,8 @@ internal static class AreaAnimatedTileObjects
     {
         0 => AnimatedTileObject.HorizontalSpikes,
         1 => AnimatedTileObject.VerticalSpikes,
-        _ => areaIndex < AreaIds.RetailCount
-            ? SelectAreaObject(AreaIds.FromIndex(areaIndex, "Animated-tile area"), bit)
+        _ => areaIndex < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count
+            ? SelectAreaObject(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Decode(areaIndex, "Animated-tile area"), bit)
             : AnimatedTileObject.Empty,
     };
 
@@ -48,6 +48,6 @@ internal static class AreaAnimatedTileObjects
                 nameof(bit), bit, $"Animated-tile bit must be 0..{ObjectsPerArea - 1}.");
         }
 
-        return SelectObject(AreaIds.ToIndex(area), bit);
+        return SelectObject(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area), bit);
     }
 }

@@ -3,10 +3,10 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.World.RoomStates;
 
-/// <summary>The placement lists of the Ceres room-header region, in authored order.</summary>
+/// <summary>The enemy placement lists of the Ceres rooms.</summary>
 internal static class CeresRoomEnemyPopulationDefinitions
 {
-    /// <summary>The region's lists, in authored order.</summary>
+    /// <summary>The Ceres rooms' lists.</summary>
     internal static RoomEnemyPopulationDefinition[] Build() =>
     [
         new(nameof(RoomEnemyPopulationDefinitions.CeresElevDefault),

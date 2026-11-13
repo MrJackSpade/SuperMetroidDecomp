@@ -116,7 +116,7 @@ internal static class CeresRidleyArenaBlocksVerification
         IImportCartridgeSource cartridge = Cartridge();
         AssertEqual(SpriteCharactersFirstWord, ArenaCharacterBase(cartridge),
             "the arena's setup points BG1 and BG2 at the sprites' characters");
-        TilesetDefinition tileset = RoomTilesets.Get(cartridge.ReadCartridgeByte(ArenaDefaultState + StateTilesetOffset));
+        TilesetDefinition tileset = RoomTilesets.Get(RoomGraphicsSetCodec.Decode(cartridge.ReadCartridgeByte(ArenaDefaultState + StateTilesetOffset)));
         RoomBlockSheet sheet = InstalledFixtures.RoomAssets.BlockSheets.Sheets[tileset];
         byte[] table = RomDataReader.Decompress(cartridge, RoomTilesetSources.Read(cartridge).Blocks[tileset.Blocks]);
         LoadedSpriteCharacters loaded = LoadedSpriteCharacters.Of(cartridge, ArenaDefaultState);
@@ -166,7 +166,7 @@ internal static class CeresRidleyArenaBlocksVerification
         {
             AssertEqual(ArenaSetup, RomDataReader.ReadWordFixedBank(cartridge, state + StateSetupOffset),
                 $"arena state ${state:X6} runs the setup that points its blocks at the sprites' characters");
-            TilesetDefinition tileset = RoomTilesets.Get(cartridge.ReadCartridgeByte(state + StateTilesetOffset));
+            TilesetDefinition tileset = RoomTilesets.Get(RoomGraphicsSetCodec.Decode(cartridge.ReadCartridgeByte(state + StateTilesetOffset)));
             RoomBlockSheet sheet = InstalledFixtures.RoomAssets.BlockSheets.Sheets[tileset];
             string name = RoomBlockSheet.NameOf(tileset);
             AssertTrue(!sheet.Inputs.ShowsOver(RoomBlockArtwork.Tileset), $"{name} records its blocks over the tileset's artwork, which its rooms never show");

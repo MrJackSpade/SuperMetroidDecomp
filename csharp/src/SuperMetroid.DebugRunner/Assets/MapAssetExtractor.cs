@@ -61,5 +61,5 @@ internal static class MapAssetExtractor
     }
 
     /// <summary>The per-area file name stem, for example <c>01-brinstar</c>.</summary>
-    internal static string FileStem(AreaId area) => $"{AreaIds.ToIndex(area):D2}-{area.ToString().ToLowerInvariant()}";
+    internal static string FileStem(AreaId area) => $"{SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area):D2}-{area.ToString().ToLowerInvariant()}";
 }

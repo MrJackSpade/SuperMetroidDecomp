@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Saves;
@@ -122,8 +123,9 @@ public static class SaveRamCodec
             GameTimeHours: ReadWord(payload, SaveRamLayout.GameTimeHoursOffset),
             Progression: DecodeProgression(payload, maps),
             StartupRoute: SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(ReadWord(payload, SaveRamLayout.LoadingGameStateOffset)),
-            SaveStation: ReadWord(payload, SaveRamLayout.SaveStationOffset),
-            Area: ReadWord(payload, SaveRamLayout.AreaOffset))
+            Checkpoint: LoadStations.Get(
+                SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Decode(ReadWord(payload, SaveRamLayout.AreaOffset), "The save's checkpoint"),
+                ReadWord(payload, SaveRamLayout.SaveStationOffset), "The save's checkpoint"))
         {
             ControllerBindings = ReadControllerBindings(payload).RequireRetailPermutation(),
             // The debug build's placement-mode word and the never-read word after it are not decoded: no retail
@@ -192,8 +194,9 @@ public static class SaveRamCodec
         EncodeProgression(snapshot.Progress, payload);
         WriteWord(payload, SaveRamLayout.LoadingGameStateOffset,
             FieldWord(SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Word(snapshot.StartupRoute), nameof(snapshot.StartupRoute)));
-        WriteWord(payload, SaveRamLayout.SaveStationOffset, FieldWord(snapshot.SaveStation, nameof(snapshot.SaveStation)));
-        WriteWord(payload, SaveRamLayout.AreaOffset, FieldWord(snapshot.Area, nameof(snapshot.Area)));
+        WriteWord(payload, SaveRamLayout.SaveStationOffset, FieldWord(snapshot.Checkpoint.Number, nameof(snapshot.Checkpoint)));
+        WriteWord(payload, SaveRamLayout.AreaOffset,
+            FieldWord(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(snapshot.Checkpoint.Area), nameof(snapshot.Checkpoint)));
         SaveRamMapPacking.Pack(snapshot.Progress, maps).CopyTo(payload, SaveRamLayout.CompressedMapDataOffset);
         return payload;
     }
@@ -228,8 +231,7 @@ public static class SaveRamCodec
         GameTimeMinutes = slot.GameTimeMinutes,
         GameTimeHours = slot.GameTimeHours,
         StartupRoute = slot.StartupRoute,
-        SaveStation = slot.SaveStation,
-        Area = slot.Area,
+        Checkpoint = slot.Checkpoint,
         Progress = slot.Progression.Copy(),
     };
 

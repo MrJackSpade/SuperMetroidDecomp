@@ -3,29 +3,31 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
 
-/// <summary>Checks the compiled seven-area load-station table against all retail records.</summary>
+/// <summary>Checks the named load stations against the cartridge's per-area load-station lists.</summary>
 internal static class LoadStationDefinitionsVerification
 {
-    /// <summary>Compares native list lengths, valid area/station pairs, and every station placement field.</summary>
+    /// <summary>The first number of the cartridge's debug load points, which no save, map or gameplay load names.</summary>
+    private const int FirstDebugNumber = 16;
+
+    /// <summary>The cartridge number of the post-Ceres arrival, the one load point past the save stations and elevators gameplay loads.</summary>
+    private const int ZebesArrivalNumber = 18;
+
+    /// <summary>Compares every named station's placement with its native record and the named set with the native lists.</summary>
     internal static void VerifyCompiledLoadStationDefinitions()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Load-station oracle revision");
         Suite(nameof(VerifyLoadStationDomain), () => VerifyLoadStationDomain(rom));
-        Suite(nameof(VerifyLoadStationRoomPointer), () => VerifyLoadStationRoomPointer(rom));
-        Suite(nameof(VerifyLoadStationDoorPointer), () => VerifyLoadStationDoorPointer(rom));
-        Suite(nameof(VerifyLoadStationCameraX), () => VerifyLoadStationCameraX(rom));
-        Suite(nameof(VerifyLoadStationCameraY), () => VerifyLoadStationCameraY(rom));
-        Suite(nameof(VerifyLoadStationSamusYOffset), () => VerifyLoadStationSamusYOffset(rom));
-        Suite(nameof(VerifyLoadStationSamusXOffset), () => VerifyLoadStationSamusXOffset(rom));
-        Console.WriteLine("Load stations: all134 original records, seven area lengths, six placement fields and complete byte area/station bounds pass.");
+        Suite(nameof(VerifyLoadStationPlacements), () => VerifyLoadStationPlacements(rom));
+        Console.WriteLine("Load stations: the 36 named stations match their native records; every other native record is unused, a debug load point or a Ceres repeat.");
     }
 
     /// <summary>Uses consecutive native pointer-table entries to derive one area's fourteen-byte record count.</summary>
@@ -39,67 +41,55 @@ internal static class LoadStationDefinitionsVerification
         return (end - start) / 14;
     }
 
-    /// <summary>Checks all byte-sized area/station pairs against the seven supported native lists.</summary>
+    /// <summary>
+    /// Checks which native records are named: each named station is a record of its area's list, and a record that names a
+    /// room is named unless it is a debug load point or a repeat of the Ceres start; lookups outside the named set find none.
+    /// </summary>
     private static void VerifyLoadStationDomain(SuperMetroidAddressSpace rom)
     {
-        int total = 0;
-        for (int areaValue = 0; areaValue <= byte.MaxValue; areaValue++)
+        int total = 0, named = 0;
+        for (int areaNumber = 0; areaNumber < AreaNumberCodec.Count; areaNumber++)
         {
-            AreaId area = (AreaId)areaValue;
-            int count = areaValue < 7 ? OriginalLoadStationCount(rom, areaValue) : 0;
-            if (areaValue < 7)
+            AreaId area = AreaNumberCodec.At(areaNumber);
+            int count = OriginalLoadStationCount(rom, areaNumber);
+            total += count;
+            for (int station = 0; station <= byte.MaxValue; station++)
             {
-                AssertEqual(count, LoadStations.Count(area), "Exact original area-list length");
-                total += count;
-            }
-            else
-                AssertThrows<ArgumentOutOfRangeException>(() => LoadStations.Count(area), "Unknown area count rejects");
-            for (int stationValue = 0; stationValue <= byte.MaxValue; stationValue++)
-            {
-                byte station = (byte)stationValue;
-                if (stationValue < count)
-                    _ = LoadStations.Get(area, station);
-                else
-                    AssertThrows<ArgumentOutOfRangeException>(() => LoadStations.Get(area, station),
-                        "Every unsupported area/station pair rejects before placeholder selection");
+                LoadStation? found = LoadStations.Find(area, station);
+                bool expected = station < count && LoadStationEntryImporter.Load(rom, area, (byte)station).Room is not null &&
+                    (area == AreaId.Ceres ? station == 0 : station < FirstDebugNumber || (area == AreaId.Crateria && station == ZebesArrivalNumber));
+                AssertEqual(expected, found is not null, $"{area} station {station} is named exactly when gameplay can load it");
+                if (found is null)
+                {
+                    AssertThrows<InvalidDataException>(() => LoadStations.Get(area, station, "test"), $"{area} station {station} names no station");
+                    continue;
+                }
+                AssertEqual(area, found.Area, $"{found} lies in its area's list");
+                AssertEqual(station, found.Number, $"{found} keeps its number");
+                AssertTrue(ReferenceEquals(found, LoadStations.Get(area, station, "test")), $"{found} is found by its area and number");
+                named++;
             }
         }
         AssertEqual(134, total, "All original retail station slots");
+        AssertEqual(36, named, "Named load stations");
+        AssertEqual(36, LoadStationDefinitions.All.Count, "Every named station is listed once");
     }
 
-    /// <summary>Checks every destination room header pointer against its native station record.</summary>
-    private static void VerifyLoadStationRoomPointer(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.Room is { } room ? RoomHeaderDefinitions.PointerOf(room) : 0, "RoomPointer");
-    /// <summary>Checks every destination door pointer against its native station record.</summary>
-    private static void VerifyLoadStationDoorPointer(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.Door is { } door ? DoorDefinitions.PointerOf(door) : 0, "DoorPointer");
-    /// <summary>Checks camera X placement for all 134 retail station slots.</summary>
-    private static void VerifyLoadStationCameraX(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.CameraPosition.X, "CameraX");
-    /// <summary>Checks camera Y placement for all 134 retail station slots.</summary>
-    private static void VerifyLoadStationCameraY(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.CameraPosition.Y, "CameraY");
-    /// <summary>Checks vertical Samus offset and the resulting wrapped room position.</summary>
-    private static void VerifyLoadStationSamusYOffset(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.SamusOffset.Y, "SamusYOffset");
-    /// <summary>Checks horizontal Samus offset and its signed sixteen-bit wrap during placement.</summary>
-    private static void VerifyLoadStationSamusXOffset(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.SamusOffset.X, "SamusXOffset");
-
-    /// <summary>Compares one selected field across every native area list, including placeholder stations and Ceres.</summary>
-    private static void VerifyLoadStationField(SuperMetroidAddressSpace rom,
-        Func<LoadStationEntry, int> field, string name)
+    /// <summary>Checks each named station's room, door, camera and Samus placement against its native record.</summary>
+    private static void VerifyLoadStationPlacements(SuperMetroidAddressSpace rom)
     {
-        int total = 0;
-        for (int area = 0; area < 7; area++)
-        for (int station = 0; station < OriginalLoadStationCount(rom, area); station++)
+        foreach (LoadStation station in LoadStationDefinitions.All)
         {
-            LoadStationEntry original = LoadStationEntryImporter.Load(rom, (AreaId)area, (byte)station);
-            LoadStationEntry actual = LoadStations.Get((AreaId)area, (byte)station);
-            AssertEqual(field(original), field(actual), $"Area {area} station {station} original {name}");
-            if (name == "SamusXOffset")
-                AssertEqual(unchecked((ushort)(original.CameraPosition.X + 128 + original.SamusOffset.X)), actual.SamusPosition.X,
-                    "Native horizontal placement preserves16-bit wrap of signed offset encoding");
-            if (name == "SamusYOffset")
-                AssertEqual(unchecked((ushort)(original.CameraPosition.Y + original.SamusOffset.Y)), actual.SamusPosition.Y,
-                    "Native vertical placement preserves16-bit wrap");
-            total++;
+            NativeLoadStation original = LoadStationEntryImporter.Load(rom, station.Area, (byte)station.Number);
+            AssertTrue(ReferenceEquals(original.Room, station.Room), $"{station} room");
+            AssertTrue(ReferenceEquals(original.Door, station.Door), $"{station} door");
+            AssertEqual(original.CameraPosition, station.CameraPosition, $"{station} camera");
+            AssertEqual(original.SamusOffset, station.SamusOffset, $"{station} Samus offset");
+            AssertEqual(unchecked((ushort)(original.CameraPosition.X + 128 + original.SamusOffset.X)), station.SamusPosition.X,
+                $"{station} horizontal placement preserves the 16-bit wrap of its signed offset");
+            AssertEqual(unchecked((ushort)(original.CameraPosition.Y + original.SamusOffset.Y)), station.SamusPosition.Y,
+                $"{station} vertical placement preserves the 16-bit wrap");
         }
-        AssertEqual(134, total, "Complete original field domain including placeholders and Ceres exception");
     }
 
     /// <summary>Runs the compiled load-station comparison against the retail cartridge.</summary>

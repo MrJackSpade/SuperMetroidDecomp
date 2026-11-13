@@ -59,13 +59,13 @@ internal static class StoredExploredMapsVerification
         var native = new byte[KeptMaps * MapBytes];
 
         // Each area's map is marked on the live map and stored as that area's, as a save or an exchanging door stores it.
-        for (int area = 0; area < AreaIds.RetailCount; area++)
+        for (int area = 0; area < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count; area++)
         {
             maps.ClearLiveMap();
             List<Position16<MapTiles>> cells = Exploration(area);
             foreach (Position16<MapTiles> cell in cells)
                 maps.MarkLiveMapCell(cell);
-            maps.StoreLiveMap(AreaIds.At(area));
+            maps.StoreLiveMap(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area));
             NativeMap(cells).CopyTo(native, area * MapBytes);
         }
         void CompareAll(string when)
@@ -87,13 +87,13 @@ internal static class StoredExploredMapsVerification
         // holds Brinstar's exploration, so storing it as Norfair's copies Brinstar's map bytes.
         maps.LoadLiveMap(AreaId.Brinstar);
         maps.StoreLiveMap(AreaId.Norfair);
-        Array.Copy(native, AreaIds.ToIndex(AreaId.Brinstar) * MapBytes, native, AreaIds.ToIndex(AreaId.Norfair) * MapBytes, MapBytes);
+        Array.Copy(native, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(AreaId.Brinstar) * MapBytes, native, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(AreaId.Norfair) * MapBytes, MapBytes);
         CompareAll("after an exchange");
 
         // A demo load clears the Zebes areas' maps and keeps Ceres's; a file load sets the Zebes areas' maps from the file
         // and clears Ceres's.
         StoredExploredMapLoads.ClearForDemo(maps);
-        Array.Clear(native, 0, AreaIds.ToIndex(AreaId.Ceres) * MapBytes);
+        Array.Clear(native, 0, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(AreaId.Ceres) * MapBytes);
         CompareAll("after a demo load");
         var file = new PersistentProgress();
         List<Position16<MapTiles>> fileCells = Exploration(11);
@@ -101,7 +101,7 @@ internal static class StoredExploredMapsVerification
             file.SetExplored(AreaId.Maridia, cell, explored: true);
         StoredExploredMapLoads.LoadFile(maps, file);
         Array.Clear(native);
-        NativeMap(fileCells).CopyTo(native, AreaIds.ToIndex(AreaId.Maridia) * MapBytes);
+        NativeMap(fileCells).CopyTo(native, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(AreaId.Maridia) * MapBytes);
         CompareAll("after a file load");
         Console.WriteLine("  Stored explored maps: every index of the eight stored maps reads the original map byte's scroll state.");
     }

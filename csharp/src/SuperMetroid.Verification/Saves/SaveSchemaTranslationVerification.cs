@@ -49,7 +49,7 @@ internal static class SaveSchemaTranslationVerification
         // A Zebetite count and the Shitroid-approach event, which schema four listed as counter events and by number (#1527).
         system.Progress.ZebetitesDestroyed = 3;
         system.SetEvent(StoryEvent.ShitroidEncounterMusicSkipped);
-        ram.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = 0, SaveStation = 0, JapaneseText = true }));
+        ram.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.Gunship, JapaneseText = true }));
         ram.SetGameCompleted(true);
         ram.SelectSlot(0);
         string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(ram));

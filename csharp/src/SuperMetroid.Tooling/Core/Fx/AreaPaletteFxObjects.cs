@@ -23,9 +23,9 @@ internal static class AreaPaletteFxObjects
         if ((uint)bitIndex >= DefinitionsPerArea)
             throw new ArgumentOutOfRangeException(nameof(bitIndex));
         // The eighth area (beyond the retail areas) selects no object for any bit.
-        if (areaIndex >= AreaIds.RetailCount)
+        if (areaIndex >= SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count)
             return PaletteFxObject.Nothing;
-        return new AreaFxBit(AreaIds.FromIndex(areaIndex, "Palette-FX area"), bitIndex) switch
+        return new AreaFxBit(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Decode(areaIndex, "Palette-FX area"), bitIndex) switch
         {
             (AreaId.Crateria, 0) => PaletteFxObject.CrateriaLightning,
             (AreaId.Crateria, 1) => PaletteFxObject.UpperCrateriaRedFlashing,
@@ -61,5 +61,5 @@ internal static class AreaPaletteFxObjects
 
     /// <summary>Returns the object selected by one retail area/bit pair.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is not a retail area, or <paramref name="bit"/> is not 0 through 7.</exception>
-    internal static PaletteFxObject Read(AreaId area, int bit) => GetAreaDefinition(AreaIds.ToIndex(area), bit);
+    internal static PaletteFxObject Read(AreaId area, int bit) => GetAreaDefinition(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area), bit);
 }

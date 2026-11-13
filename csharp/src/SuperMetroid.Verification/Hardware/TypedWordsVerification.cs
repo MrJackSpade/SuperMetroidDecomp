@@ -623,16 +623,16 @@ internal static void VerifyTypedNativeWords()
     ];
     for (byte rawArea = 0; rawArea < retailAreas.Length; rawArea++)
     {
-        AssertEqual(retailAreas[rawArea], AreaIds.FromIndex(rawArea, "typed-area test"),
+        AssertEqual(retailAreas[rawArea], SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Decode(rawArea, "typed-area test"),
             $"retail area byte {rawArea} validates");
-        AssertEqual(rawArea, AreaIds.ToIndex(retailAreas[rawArea]),
+        AssertEqual(rawArea, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(retailAreas[rawArea]),
             $"retail area {retailAreas[rawArea]} indexes cartridge tables");
     }
     AssertThrows<InvalidDataException>(
-        () => AreaIds.FromIndex(AreaIds.RetailCount, "typed-area test"),
+        () => SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Decode(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count, "typed-area test"),
         "non-retail cartridge area rejected");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => AreaIds.ToIndex((AreaId)AreaIds.RetailCount),
+        () => SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode((AreaId)SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count),
         "forged non-retail area rejected before table access");
 
     var crateriaRoom = new RoomIdentity(AreaId.Crateria, 0x1c);
@@ -641,10 +641,10 @@ internal static void VerifyTypedNativeWords()
         "named room identity combines area and per-area index");
     AssertTrue(crateriaRoom != brinstarRoom,
         "equal room bytes in different areas remain distinct");
-    AssertEqual("$00/$1C", crateriaRoom.ToString(),
+    AssertEqual("Crateria room 28", crateriaRoom.ToString(),
         "room identity diagnostic format");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => new RoomIdentity((AreaId)AreaIds.RetailCount, 0),
+        () => new RoomIdentity((AreaId)SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count, 0),
         "room identity rejects forged area enum");
     AssertTrue(RoomIdentities.UsesTourianStyleLandingDust(
             RoomIdentities.BrinstarDirectLandingDust),

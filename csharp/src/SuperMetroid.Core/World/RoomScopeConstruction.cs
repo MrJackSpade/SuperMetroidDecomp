@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 [RoomLifetime]
 internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
-    LoadStationEntry? loadStation)
+    LoadStation? loadStation)
 {
     /// <summary>The destination door.</summary>
     public DoorDefinition Door { get; } = Ensure.NotNull(door);
@@ -33,7 +33,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     public LoadedRoomAssets Assets { get; } = Ensure.NotNull(assets);
 
     /// <summary>The load-station record whose load establishes this room; null for a room entered otherwise.</summary>
-    public LoadStationEntry? LoadStation { get; } = loadStation;
+    public LoadStation? LoadStation { get; } = loadStation;
 
     /// <summary>The frame each of the room's animations shows (#1406), which the animations the load builds select into.</summary>
     public ArtworkFrameSelections ArtworkFrames { get; } = new();

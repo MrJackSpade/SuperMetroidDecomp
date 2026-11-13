@@ -111,7 +111,7 @@ internal static class FileSelectRoomMapVerification
     internal static void VerifyMapCancelPresentation()
     {
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-        var snapshot = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
+        var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.GlassTunnelSave, Health = 99, MaxHealth = 99 };
         snapshot.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true);
         snapshot.Progress.UsedStations(SuperMetroid.Core.Progression.AreaId.Maridia).Add(0);
         saves.SaveSlot(0, snapshot);
@@ -318,7 +318,7 @@ internal static class FileSelectRoomMapVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-        var snapshot = new SuperMetroidSaveSnapshot { Area = savedArea, SaveStation = 0, Health = 99, MaxHealth = 99,
+        var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStations.Get((AreaId)savedArea, 0, "room map fixture"), Health = 99, MaxHealth = 99,
             StartupRoute = savedArea == 6 ? SaveLoadingGameState.CeresElevatorArrival : SaveLoadingGameState.MainGame };
         snapshot.Progress.UsedStations(AreaIds.At(savedArea)).Add(0);
         if (savedArea < 6)

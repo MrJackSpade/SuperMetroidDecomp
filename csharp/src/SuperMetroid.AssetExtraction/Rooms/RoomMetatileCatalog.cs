@@ -17,11 +17,11 @@ public sealed class RoomMetatileCatalog
     {
         Cre = Ensure.NotNull(cre);
         Ensure.NotNull(atlases);
-        for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        foreach (TilesetDefinition tileset in RoomTilesets.All)
         {
-            RoomBlockSet required = RoomTilesets.Get(graphicsSet).Blocks;
+            RoomBlockSet required = tileset.Blocks;
             if (!atlases.TryGetValue(required, out RoomMetatileAtlas? value) || value is null)
-                throw new InvalidDataException($"RoomMetatileCatalog lacks graphics set ${graphicsSet:X2}'s {required}.");
+                throw new InvalidDataException($"RoomMetatileCatalog lacks graphics set {tileset.GraphicsSet}'s {required}.");
         }
         byRoomBlockSet = new Dictionary<RoomBlockSet, RoomMetatileAtlas>(atlases);
     }

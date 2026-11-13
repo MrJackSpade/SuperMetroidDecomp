@@ -23,10 +23,10 @@ using SuperMetroid.Core.Enemies.YappingMaws;
 
 namespace SuperMetroid.Core.World.RoomStates;
 
-/// <summary>The placement lists of the Brinstar room-header region, in authored order. It holds the Tourian statue rooms, whose headers lie in this region.</summary>
+/// <summary>The enemy placement lists of the Brinstar rooms.</summary>
 internal static class BrinstarRoomEnemyPopulationDefinitions
 {
-    /// <summary>The region's lists, in authored order.</summary>
+    /// <summary>The Brinstar rooms' lists.</summary>
     internal static RoomEnemyPopulationDefinition[] Build() =>
     [
         new(nameof(RoomEnemyPopulationDefinitions.BrinstarPreMap),
@@ -65,13 +65,6 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Zeela, new(128, 66), EnemyContact.None, EnemyProcessing.AnimationScript, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: null, SurfaceFamily: CrawlerAnimationFamily.Shared)),
             new(EnemyDefinitionId.Zeela, new(176, 66), EnemyContact.None, EnemyProcessing.AnimationScript, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: null, SurfaceFamily: CrawlerAnimationFamily.Shared)),
         ], 5),
-        new(nameof(RoomEnemyPopulationDefinitions.Statues),
-        [
-            new(EnemyDefinitionId.Elevator, new(128, 432), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, EnemyPresence.None, false, new ElevatorSpawnSettings(Direction: ElevatorTravelDirection.Down, ArrivalY: 576)),
-            new(EnemyDefinitionId.TourianStatue, new(120, 184), EnemyContact.None, EnemyProcessing.AnimationScript, EnemyPresence.None, false, new TourianEntranceStatueSpawnSettings(Statue: TourianEntranceStatueProgram.BaseDecoration)),
-            new(EnemyDefinitionId.TourianStatue, new(142, 85), EnemyContact.None, EnemyProcessing.AnimationScript, EnemyPresence.None, false, new TourianEntranceStatueSpawnSettings(Statue: TourianEntranceStatueProgram.Ridley)),
-            new(EnemyDefinitionId.TourianStatue, new(132, 136), EnemyContact.None, EnemyProcessing.AnimationScript, EnemyPresence.None, false, new TourianEntranceStatueSpawnSettings(Statue: TourianEntranceStatueProgram.Phantoon)),
-        ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.HopperETank),
         [
         ], 0),
@@ -427,9 +420,6 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         [
             new(EnemyDefinitionId.ShutterShootable, new(360, 160), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(8), PrimaryDirection: ShutterHeading.LeftOrUp, TriggerMode: ShutterTriggerMode.RepeatableReaction, TravelDistance: 64, ProximityDistance: 0, WaitTime: 0, FirstRestTime: 4080, SecondRestTime: 4080)),
             new(EnemyDefinitionId.ShutterShootable, new(184, 224), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(8), PrimaryDirection: ShutterHeading.LeftOrUp, TriggerMode: ShutterTriggerMode.RepeatableReaction, TravelDistance: 64, ProximityDistance: 0, WaitTime: 0, FirstRestTime: 4080, SecondRestTime: 4080)),
-        ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.StatuesHallway),
-        [
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.AlphaPowerBomb),
         [

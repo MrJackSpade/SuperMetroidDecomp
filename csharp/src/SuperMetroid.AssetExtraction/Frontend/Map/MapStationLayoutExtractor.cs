@@ -29,7 +29,7 @@ public static class MapStationLayoutExtractor
                 MapStationKind.Map => MapSourceDefinitions.Landmarks.MapStationLists,
                 _ => throw new ArgumentOutOfRangeException(nameof(kind))
             };
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + AreaIds.ToIndex(area) * 2);
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2);
             var rules = MapStationDiscoveryRules.Get(area, kind).ToArray();
             int count = 0;
             if (pointer != 0)

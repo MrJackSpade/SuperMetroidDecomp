@@ -18,17 +18,17 @@ public sealed class PersistentProgress
     /// <summary>The cells of one area's 64-by-32 map.</summary>
     private const int MapCellsPerArea = AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles;
 
-    /// <summary>Each area's defeated bosses, by area index.</summary>
-    private readonly BossBits[] _defeatedBosses = new BossBits[AreaIds.RetailCount];
+    /// <summary>Each area's defeated bosses.</summary>
+    private readonly Dictionary<AreaId, BossBits> _defeatedBosses = AreaIds.All.ToDictionary(area => area, _ => BossBits.None);
 
-    /// <summary>Each area's used save stations and elevators, by area index.</summary>
-    private readonly NumberedFlagSet[] _usedStations = Areas(StationsPerArea);
+    /// <summary>Each area's used save stations and elevators.</summary>
+    private readonly Dictionary<AreaId, NumberedFlagSet> _usedStations = Areas(StationsPerArea);
 
-    /// <summary>Whether each area's map has been acquired, by area index.</summary>
-    private readonly bool[] _acquiredMaps = new bool[AreaIds.RetailCount];
+    /// <summary>Whether each area's map has been acquired.</summary>
+    private readonly Dictionary<AreaId, bool> _acquiredMaps = AreaIds.All.ToDictionary(area => area, _ => false);
 
-    /// <summary>Each area's explored map cells, by area index, each cell numbered in row-major order.</summary>
-    private readonly NumberedFlagSet[] _explored = Areas(MapCellsPerArea);
+    /// <summary>Each area's explored map cells, each cell numbered in row-major order.</summary>
+    private readonly Dictionary<AreaId, NumberedFlagSet> _explored = Areas(MapCellsPerArea);
 
     /// <summary>Every story event, in the order the game lists them.</summary>
     private static readonly StoryEvent[] StoryEvents = Enum.GetValues<StoryEvent>();
@@ -66,30 +66,30 @@ public sealed class PersistentProgress
     public void ClearEvent(StoryEvent storyEvent) => Events.Remove(storyEvent);
 
     /// <summary>The bosses defeated in <paramref name="area"/>.</summary>
-    public BossBits DefeatedBosses(AreaId area) => _defeatedBosses[AreaIds.ToIndex(area)];
+    public BossBits DefeatedBosses(AreaId area) => _defeatedBosses[AreaIds.Require(area)];
 
     /// <summary>Replaces the bosses defeated in <paramref name="area"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="bosses"/> holds a flag the game does not name.</exception>
     public void SetDefeatedBosses(AreaId area, BossBits bosses)
     {
         ProvenBossBits.Validate(bosses, $"{area}'s defeated bosses");
-        _defeatedBosses[AreaIds.ToIndex(area)] = bosses;
+        _defeatedBosses[AreaIds.Require(area)] = bosses;
     }
 
     /// <summary>The save stations and elevators used in <paramref name="area"/>, by station number.</summary>
-    public NumberedFlagSet UsedStations(AreaId area) => _usedStations[AreaIds.ToIndex(area)];
+    public NumberedFlagSet UsedStations(AreaId area) => _usedStations[AreaIds.Require(area)];
 
     /// <summary>Whether <paramref name="area"/>'s map has been acquired.</summary>
-    public bool HasAreaMap(AreaId area) => _acquiredMaps[AreaIds.ToIndex(area)];
+    public bool HasAreaMap(AreaId area) => _acquiredMaps[AreaIds.Require(area)];
 
     /// <summary>Records whether <paramref name="area"/>'s map has been acquired.</summary>
     /// <param name="area">The area.</param>
     /// <param name="acquired">Whether its map has been acquired.</param>
-    public void SetAreaMap(AreaId area, bool acquired) => _acquiredMaps[AreaIds.ToIndex(area)] = acquired;
+    public void SetAreaMap(AreaId area, bool acquired) => _acquiredMaps[AreaIds.Require(area)] = acquired;
 
     /// <summary>Whether <paramref name="cell"/> of <paramref name="area"/>'s map has been explored.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="cell"/> is outside the area map.</exception>
-    public bool IsExplored(AreaId area, Position16<MapTiles> cell) => _explored[AreaIds.ToIndex(area)].Contains(CellNumber(cell));
+    public bool IsExplored(AreaId area, Position16<MapTiles> cell) => _explored[AreaIds.Require(area)].Contains(CellNumber(cell));
 
     /// <summary>Records whether <paramref name="cell"/> of <paramref name="area"/>'s map has been explored.</summary>
     /// <param name="area">The area.</param>
@@ -97,11 +97,11 @@ public sealed class PersistentProgress
     /// <param name="explored">Whether the cell has been explored.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="cell"/> is outside the area map.</exception>
     public void SetExplored(AreaId area, Position16<MapTiles> cell, bool explored) =>
-        _explored[AreaIds.ToIndex(area)].Set(CellNumber(cell), explored);
+        _explored[AreaIds.Require(area)].Set(CellNumber(cell), explored);
 
     /// <summary>The explored cells of <paramref name="area"/>'s map, in row-major order.</summary>
     public IEnumerable<Position16<MapTiles>> ExploredCells(AreaId area) =>
-        _explored[AreaIds.ToIndex(area)].Members.Select(AreaMapSize.Extent.CellAtRowMajorIndex);
+        _explored[AreaIds.Require(area)].Members.Select(AreaMapSize.Extent.CellAtRowMajorIndex);
 
     /// <summary>
     /// Applies the Spacetime Beam's progression overwrite: every story event, boss, item, door, station and map it decides,
@@ -130,15 +130,15 @@ public sealed class PersistentProgress
         Ensure.NotNull(source);
         Events.CopyFrom(source.Events);
         ZebetitesDestroyed = source.ZebetitesDestroyed;
-        source._defeatedBosses.CopyTo(_defeatedBosses, 0);
         CollectedItems.CopyFrom(source.CollectedItems);
         OpenedDoors.CopyFrom(source.OpenedDoors);
-        for (int area = 0; area < AreaIds.RetailCount; area++)
+        foreach (AreaId area in AreaIds.All)
         {
+            _defeatedBosses[area] = source._defeatedBosses[area];
             _usedStations[area].CopyFrom(source._usedStations[area]);
             _explored[area].CopyFrom(source._explored[area]);
+            _acquiredMaps[area] = source._acquiredMaps[area];
         }
-        source._acquiredMaps.CopyTo(_acquiredMaps, 0);
     }
 
     /// <summary>A detached copy of this progress.</summary>
@@ -150,8 +150,8 @@ public sealed class PersistentProgress
     }
 
     /// <summary>One range of <paramref name="capacity"/> flags for each area.</summary>
-    private static NumberedFlagSet[] Areas(int capacity) =>
-        [.. Enumerable.Range(0, AreaIds.RetailCount).Select(_ => new NumberedFlagSet(capacity))];
+    private static Dictionary<AreaId, NumberedFlagSet> Areas(int capacity) =>
+        AreaIds.All.ToDictionary(area => area, _ => new NumberedFlagSet(capacity));
 
     /// <summary>The number of a map cell, rejecting a cell outside the area map.</summary>
     private static int CellNumber(Position16<MapTiles> cell) => AreaMapSize.Extent.Contains(cell)

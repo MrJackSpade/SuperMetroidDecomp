@@ -120,8 +120,6 @@ internal static class SaveRamCodecVerification
         {
             LoadedItemCount = SaveFieldValue.MaximumValue,
             StartupRoute = SaveLoadingGameState.CeresDestruction,
-            SaveStation = SaveFieldValue.MaximumValue,
-            Area = SaveFieldValue.MaximumValue,
             GameTimeFrames = SaveFieldValue.MaximumValue,
             GameTimeSeconds = 0,
             GameTimeMinutes = SaveFieldValue.MaximumValue,
@@ -150,8 +148,9 @@ internal static class SaveRamCodecVerification
         AssertEqual(SaveLoadingGameState.CeresDestruction, slot.StartupRoute, "the startup route round-trips through its SRAM word");
         AssertEqual(SaveLoadingGameState.MainGame, SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(SaveFieldValue.MaximumValue),
             "a dispatcher word the cartridge does not name resumes the main game");
-        AssertEqual(SaveFieldValue.MaximumValue, slot.SaveStation, "the load station decodes its largest value");
-        AssertEqual(SaveFieldValue.MaximumValue, slot.Area, "the checkpoint area decodes its largest value");
+        AssertTrue(ReferenceEquals(SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.GreenBrinstarSave, slot.Checkpoint), "the checkpoint decodes to the station it was saved at");
+        AssertEqual(1, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.AreaOffset), "the checkpoint's area word holds Brinstar's number");
+        AssertEqual(1, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.SaveStationOffset), "the checkpoint's station word holds its number in Brinstar's list");
         AssertEqual(SaveFieldValue.MaximumValue, slot.GameTimeHours, "the clock's hours decode their largest value");
         AssertEqual(SaveFieldValue.MaximumValue, slot.GameTimeMinutes, "the clock's minutes decode their largest value");
         AssertEqual(SaveFieldValue.MaximumValue, slot.GameTimeFrames, "the clock's frames decode their largest value");
@@ -162,7 +161,6 @@ internal static class SaveRamCodecVerification
         foreach ((string field, SuperMetroidSaveSnapshot outOfRange) in new VerifyWidenedSlotFieldsRoundTripCase[]
                  {
                      new VerifyWidenedSlotFieldsRoundTripCase("item-load counter", extremes with { LoadedItemCount = SaveFieldValue.MaximumValue + 1 }),
-                     new VerifyWidenedSlotFieldsRoundTripCase("load station", extremes with { SaveStation = SaveFieldValue.MaximumValue + 1 }),
                      new VerifyWidenedSlotFieldsRoundTripCase("clock minutes", extremes with { GameTimeMinutes = -1 }),
                  })
         {
@@ -192,7 +190,7 @@ internal static class SaveRamCodecVerification
         // A save image's boss byte with a bit no routine tests beside two named ones: only the named flags are progress,
         // and typed operations change only the named flags; writing the table back leaves the untested bit clear.
         byte[] areas = new byte[ProgressionTableCodec.AreaBossByteCount];
-        areas[AreaIds.ToIndex(AreaId.Norfair)] = 0x85;
+        areas[SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(AreaId.Norfair)] = 0x85;
         ProgressionTableCodec.ReadAreaBosses(areas, system.Progress);
         AssertEqual(BossBits.AreaBoss | BossBits.AreaTorizo, system.GetBossBits(AreaId.Norfair), "a loaded boss byte keeps its named flags");
         system.SetBossBits(AreaId.Norfair, BossBits.AreaMiniBoss);
@@ -201,7 +199,7 @@ internal static class SaveRamCodecVerification
         AssertTrue(system.HasAnyBossBits(AreaId.Norfair, BossBits.AreaTorizo), "a named flag is found");
         AssertTrue(!system.HasAnyBossBits(AreaId.Norfair, BossBits.AreaBoss), "a cleared named flag is absent");
         ProgressionTableCodec.WriteAreaBosses(system.Progress, areas);
-        AssertEqual((byte)0x06, areas[AreaIds.ToIndex(AreaId.Norfair)], "the written boss byte holds only the named flags");
+        AssertEqual((byte)0x06, areas[SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(AreaId.Norfair)], "the written boss byte holds only the named flags");
         AssertEqual(BossBits.None, system.GetBossBits(AreaId.Crateria), "other areas stay clear");
         Console.WriteLine("Progression saved fields: save-field ranges are enforced and boss state holds the named flags.");
     }
@@ -222,7 +220,7 @@ internal static class SaveRamCodecVerification
         var time = new GameTimeState();
         time.Load(frames: 12, seconds: 34, minutes: 5, hours: 1);
         return SuperMetroidSaveSnapshot.Capture(samus, system,
-            new SaveSnapshotContext { Area = area, SaveStation = 1, GameTime = time });
+            new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStations.Get(area, 1, "save fixture"), GameTime = time });
     }
 
     /// <summary>The native payload a decoded slot re-encodes to, for field-by-field comparison.</summary>

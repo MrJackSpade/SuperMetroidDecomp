@@ -21,10 +21,10 @@ using SuperMetroid.Core.Enemies.Yard;
 
 namespace SuperMetroid.Core.World.RoomStates;
 
-/// <summary>The placement lists of the Maridia room-header region, in authored order.</summary>
+/// <summary>The enemy placement lists of the Maridia rooms. The empty list Draygon's room loads once its boss is dead is the one the Mother Brain room loads once the main area boss is dead.</summary>
 internal static class MaridiaRoomEnemyPopulationDefinitions
 {
-    /// <summary>The region's lists, in authored order.</summary>
+    /// <summary>The Maridia rooms' lists.</summary>
     internal static RoomEnemyPopulationDefinition[] Build() =>
     [
         new(nameof(RoomEnemyPopulationDefinitions.MtEverest),
@@ -482,5 +482,8 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.PirateMagentaWalking, new(888, 432), EnemyContact.None, EnemyProcessing.AnimationScript, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Options: WalkingSpacePirateOptions.StartsFacingRight | WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch, PatrolReach: 40)),
             new(EnemyDefinitionId.Skultera, new(872, 184), EnemyContact.None, EnemyProcessing.AnimationScript, EnemyPresence.None, false, new SkulteraSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
         ], 8),
+        new(nameof(RoomEnemyPopulationDefinitions.DraygonWhenAreaBossDeadOrMotherBrainWhenMainAreaBossDead),
+        [
+        ], 191),
     ];
 }

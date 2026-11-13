@@ -99,9 +99,9 @@ public static class RoomMetatileArtworkFiles
         {
             [RoomMetatileFormat.CreFileName] = new(null),
         };
-        for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        foreach (TilesetDefinition tileset in RoomTilesets.All)
         {
-            RoomBlockSet set = RoomTilesets.Get(graphicsSet).Blocks;
+            RoomBlockSet set = tileset.Blocks;
             sources[RoomMetatileFormat.FileName(set)] = new(set);
         }
         return sources;

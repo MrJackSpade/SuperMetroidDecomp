@@ -154,17 +154,13 @@ internal sealed class RoomLoader
     /// </summary>
     public InitialViewportResult InitializeStartingCeresRoom()
     {
-        // Loading the game data writes these exact indexes before loading from
-        // the load station. The compiled catalog preserves that general lookup rather
-        // than duplicating the Ceres room/door/placement at this call site.
-        LoadStationEntry station = LoadStations.Get(
-            areaIndex: AreaId.Ceres,
-            stationIndex: 0);
-        DoorDefinition door = station.Door ?? throw new InvalidDataException("The load station has no door.");
+        // A new game loads at the Ceres start; the station names the room, door and placement.
+        LoadStation station = LoadStationDefinitions.CeresElevator;
+        DoorDefinition door = station.Door;
         if (door.DestinationRoom != station.Room)
         {
             throw new InvalidDataException(
-                $"Ceres station room {station.Room?.Name} disagrees with door " +
+                $"Ceres station room {station.Room.Name} disagrees with door " +
                 $"{door.Name}'s destination {door.DestinationRoom.Name}.");
         }
 
@@ -197,26 +193,13 @@ internal sealed class RoomLoader
     public InitialViewportResult InitializeSavedGame(SuperMetroidSaveSlot slot)
     {
         Ensure.NotNull(slot);
-        if (slot.Area > byte.MaxValue || slot.SaveStation > byte.MaxValue)
-        {
-            throw new InvalidDataException(
-                $"Save slot {slot.Slot} contains an invalid area/station pair " +
-                $"{slot.Area}:{slot.SaveStation}.");
-        }
-
-        AreaId requestedArea = AreaIds.FromIndex(
-            slot.Area,
-            $"Save slot {slot.Slot}");
-        int stationIndex = slot.SaveStation;
-
-        LoadStationEntry station = LoadStations.Get(
-            requestedArea,
-            Ensure.BetweenInclusive(0, byte.MaxValue, stationIndex));
-        DoorDefinition door = station.Door ?? throw new InvalidDataException("The load station has no door.");
+        LoadStation station = slot.Checkpoint;
+        AreaId requestedArea = station.Area;
+        DoorDefinition door = station.Door;
         if (door.DestinationRoom != station.Room)
         {
             throw new InvalidDataException(
-                $"Load station {requestedArea}:{stationIndex} room {station.Room?.Name} " +
+                $"Load station {station} room {station.Room.Name} " +
                 $"disagrees with door {door.Name}'s destination " +
                 $"{door.DestinationRoom.Name}.");
         }
@@ -232,7 +215,7 @@ internal sealed class RoomLoader
         if (room.AreaIndex != requestedArea)
         {
             throw new InvalidDataException(
-                $"Load station {requestedArea}:{stationIndex} targets room area " +
+                $"Load station {station} targets room area " +
                 $"{room.AreaIndex}.");
         }
         InitialViewportResult viewport = LoadRoom(
@@ -320,17 +303,14 @@ internal sealed class RoomLoader
         _assists.CarryLoadoutGrant(carried, samus);
         _artwork.BindSamusPalettePresentation();
 
-        // These indexes are assigned immediately before loading from the load station.
-        // Station eighteen is a cutscene-only entry high above Landing Site; station zero
-        // is not selected until the gunship's landing finishes and performs the save.
-        LoadStationEntry station = LoadStations.Get(
-            areaIndex: AreaId.Crateria,
-            stationIndex: 18);
-        DoorDefinition door = station.Door ?? throw new InvalidDataException("The load station has no door.");
+        // The arrival on Zebes is a cutscene-only entry high above Landing Site; the gunship is
+        // not the checkpoint until the gunship's landing finishes and performs the save.
+        LoadStation station = LoadStationDefinitions.ZebesArrival;
+        DoorDefinition door = station.Door;
         if (door.DestinationRoom != station.Room)
         {
             throw new InvalidDataException(
-                $"Post-Ceres station room {station.Room?.Name} disagrees with " +
+                $"Post-Ceres station room {station.Room.Name} disagrees with " +
                 $"door {door.Name}'s destination {door.DestinationRoom.Name}.");
         }
 
@@ -338,7 +318,7 @@ internal sealed class RoomLoader
         if (room.AreaIndex != AreaId.Crateria)
         {
             throw new InvalidDataException(
-                $"Post-Ceres station eighteen targets area {room.AreaIndex}, expected Crateria.");
+                $"Post-Ceres station {station} targets area {room.AreaIndex}, expected Crateria.");
         }
 
         // The cinematic refilled health on the preceding frame; the Ceres start then seeds the

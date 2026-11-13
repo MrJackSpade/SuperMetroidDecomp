@@ -37,9 +37,9 @@ internal static class RoomMetatilesVerification
         {
             [RoomMetatileFormat.CreFileName] = (int)RoomTilesetSourceDefinitions.CreBlocks,
         };
-        for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        for (byte graphicsSet = 0; graphicsSet < RoomGraphicsSetCodec.Count; graphicsSet++)
         {
-            int address = RoomTilesets.Get(graphicsSet).BlockDefinitionsAddress;
+            int address = RoomTilesets.Get(RoomGraphicsSetCodec.Decode(graphicsSet)).BlockDefinitionsAddress;
             sources[RoomMetatileFormat.SourceFileName(address)] = address;
         }
         AssertEqual(sources.Count, files.Count,

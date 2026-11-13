@@ -741,8 +741,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The new properties: damage zero, high priority, Samus collision enabled, projectile
-        // collision disabled, and deletion on contact. Priority is not split by this host's
-        // draw queue, but every collision bit is retained explicitly.
+        // collision disabled, and deletion on contact. Drawing ignores the priority,
+        // but every collision bit is retained explicitly.
         spore.Damage = 0;
         spore.CanDamageSamus = true;
         spore.PersistsOnSamusContact = false;

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <remarks>
 /// These values are not velocity and are not one-frame impulses. Enemy, room-object, and room
 /// producers own their lifetime; Samus movement merely reads them. Keeping the arithmetic
-/// here prevents a convenient but incorrect host reading such as clearing them after
+/// here prevents a convenient but incorrect reading such as clearing them after
 /// movement or applying the grounded one-pixel bias to airborne gravity.
 /// </remarks>
 internal static class SamusExtraDisplacement

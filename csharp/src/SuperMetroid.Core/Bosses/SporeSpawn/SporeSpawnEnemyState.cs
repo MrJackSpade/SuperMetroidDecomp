@@ -62,7 +62,7 @@ public sealed class SporeSpawnEnemyState
     public FixedVector<RoomPixels> DeathVelocityMagnitude { get; internal set; }
     /// <summary>Whether the live fight's scrolling-finished hook still enforces the arena's minimum camera Y; cleared at death and never installed for an already defeated load.</summary>
     public bool ScrollClampHookActive { get; internal set; }
-    /// <summary>Host guard recording that zero health has already triggered projectile cleanup, the defeated flag, the death animation, and the ceiling-crumble request.</summary>
+    /// <summary>Guard recording that zero health has already triggered projectile cleanup, the defeated flag, the death animation, and the ceiling-crumble request.</summary>
     public bool DeathStarted { get; internal set; }
     /// <summary>Defeated-area miniboss flag sampled at room initialization; selects the solid dead body and cleared ceiling instead of the live fight setup.</summary>
     public bool LoadedAsDefeated { get; internal set; }

@@ -86,7 +86,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
         // Unpausing restores gameplay's layers, colours,
         // hooks, per-line effects and animated tiles on a blank display. Pause graphics live in a
         // separate display image here, so discarding it restores the untouched runtime
-        // image without a host-authored reconstruction.
+        // image without rebuilding it.
         SamusState resumedSamus = session.GameplayRuntime.Player.Samus ??
             throw new InvalidOperationException(
                 "Pause teardown requires live Samus equipment state.");

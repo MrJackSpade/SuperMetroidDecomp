@@ -99,7 +99,7 @@ namespace SuperMetroid.Core.World;
 /// <remarks>
 /// The room keeps a fixed set of enemy slots in <see cref="EnemySlotOrder"/>, each with a stable ordinal. The ordinals
 /// are gameplay: multi-part enemies find their parts by neighbouring ordinals, Samus records the ordinal of the enemy she
-/// meets, and the gunship's lower part copies fields from the slot before it. A compact host list would lose that.
+/// meets, and the gunship's lower part copies fields from the slot before it. A compacted list would lose that.
 /// </remarks>
 [RoomLifetime]
 public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrameResults, IEnemyDisplaySources
@@ -1142,7 +1142,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RipperBehavior.AddRipperBombReactions(table);
         DragonBehavior.AddDragonBombReactions(table);
         // The metal-debris death restores the dying actor's graphics long enough to seed four debris actors, then clears both
-        // values. The host death flag does not erase the record, so the exact source remains here.
+        // values. Marking the enemy dead does not erase its state, so the exact source remains here.
         MetareeBehavior.AddMetareeBombReactions(table);
         FirefleaBehavior.AddFirefleaBombReactions(table);
         FakeKraidBehavior.AddFakeKraidBombReactions(table);

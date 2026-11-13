@@ -71,7 +71,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // Bounce off the wall. As in retail, vertical movement is skipped
             // on a horizontal collision, so a corner can consume two frames to reflect both
-            // components instead of bouncing diagonally in a single host update.
+            // components instead of bouncing diagonally in a single update.
             state.Heading = MultiviolaQuarterBounce.OffWall(state.Heading);
             return;
         }

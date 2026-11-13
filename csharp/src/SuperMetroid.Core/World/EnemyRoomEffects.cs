@@ -92,7 +92,7 @@ internal sealed class EnemyRoomEffects
 
         // A fixed room-object spawn silently does nothing when all slots are occupied. Preserve
         // that allocator behavior; normal load begins from Reset's empty pool, while an
-        // artificial full-pool audit must not gain a host-only exception or terrain edit.
+        // artificial full-pool audit must not gain an invented exception or terrain edit.
         roomObjects.BossRoomMutations.BotwoonWall.TrySpawn(_room.LevelData, mutation);
 
         if (mutation == BotwoonWallMutation.Clear)

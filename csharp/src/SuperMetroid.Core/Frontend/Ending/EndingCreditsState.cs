@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// post-credit result screen.
 /// </summary>
 /// <remarks>
-/// This is deliberately a cinematic state machine rather than a video or a host-authored
+/// This is deliberately a cinematic state machine rather than a video or an invented
 /// slideshow. Backgrounds, character art, palettes, sprite frames, and animation durations
 /// preserve the game's behavior; editable text and fonts come from installed assets. The named phases merely replace the
 /// game's cinematic functions, so the scene steps through the same boundaries the game does.

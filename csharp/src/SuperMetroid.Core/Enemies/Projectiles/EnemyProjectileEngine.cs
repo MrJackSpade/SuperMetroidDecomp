@@ -737,7 +737,7 @@ internal sealed class EnemyProjectileEngine
     /// Uses RNG rejection and random signs to reposition a projectile within <paramref name="scatter"/>'s fields.
     /// Each axis rejects negative candidate offsets, while two independent bits from the first random sample choose
     /// the eventual signs. This peculiar rejection loop is observable in Bomb Torizo's sonic-boom wall impact, so a
-    /// host RNG approximation would produce a visibly different debris cloud and desynchronize later randomness.
+    /// random-draw approximation would produce a visibly different debris cloud and desynchronize later randomness.
     /// </summary>
     internal void Scatter(EnemyProjectile projectile, EnemyProjectileScatter scatter)
     {
@@ -860,7 +860,7 @@ internal sealed class EnemyProjectileEngine
         if (projectile is null)
         {
             // The projectile spawn deliberately drops a spawn when all eighteen places
-            // are occupied. This is the game's finite-pool behavior, not a host error.
+            // are occupied. This is the game's finite-pool behavior, not an error.
             return;
         }
 

@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// that synchronous message returns does the suit pickup center and lock Samus,
 /// while the light beam's per-line display effect advances this seven-stage sequence
 /// once per gameplay frame. This owner deliberately begins after the message rather than
-/// hiding those two independently observable lifetimes behind one host animation.
+/// hiding those two independently observable lifetimes behind one combined animation.
 /// </para>
 /// <para>
 /// Nothing in gameplay reads how the light beam is drawn, so this owner publishes the beam's

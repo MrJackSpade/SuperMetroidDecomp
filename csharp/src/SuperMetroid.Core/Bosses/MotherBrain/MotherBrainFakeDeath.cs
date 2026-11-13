@@ -100,8 +100,8 @@ internal sealed class MotherBrainFakeDeath
             MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions.Length;
         Position16<RoomPixels> explosion = MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions[state.FakeDeathExplosionIndex];
 
-        // The tube dust reads the current random number and never draws a new one. A host random
-        // call here would desynchronize every later Rinka and phase-two attack decision.
+        // The tube dust reads the current random number and never draws a new one. Drawing a new
+        // number here would desynchronize every later Rinka and phase-two attack decision.
         MiscDustAnimation animation = MotherBrainRandomDefinitions.FakeDeathDustSmokes.IsTakenBy(_room.Random.Read())
             ? MiscDustAnimation.Smoke
             : MiscDustAnimation.SmallExplosion;

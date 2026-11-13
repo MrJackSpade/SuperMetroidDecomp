@@ -40,7 +40,7 @@ public sealed class MaridiaLargeSnailEnemyState
     /// <summary>
     /// Movement suppression produced after AI and consumed on the next frame.
     /// This one-frame pipeline is intentional game ordering, not input latency invented
-    /// by the host.
+    /// on top of it.
     /// </summary>
     public bool StopMovementNextFrame { get; internal set; }
 

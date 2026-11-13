@@ -142,7 +142,7 @@ internal static class EnemyMath
     /// unsigned half-wave sample gives, regardless of direction: the sample, 0 through 65535 in 65536ths of the whole
     /// speed (its peak of 65535 standing for all of it), times the speed, in pixels per update with the fraction in
     /// 65536ths. The speeds are whole pixels: a Draygon goop's is two, a Multiviola's its spawn speed. Keeping sample
-    /// generation deterministic avoids host floating-point rounding, so each speed is exactly the game's product.
+    /// generation deterministic avoids floating-point rounding, so each speed is exactly the game's product.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="wholePixels"/> is negative.</exception>
     /// <exception cref="OverflowException">The product does not fit a 16.16 speed.</exception>

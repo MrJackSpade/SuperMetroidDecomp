@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// Ceres: the moving pad under Samus and the stationary elevator platform behind it.
 /// </summary>
 /// <remarks>
-/// These are not host-authored cutscene sprites. Construction consumes compiled copies of
+/// These are not invented cutscene sprites. Construction consumes compiled copies of
 /// the authored definitions; frame stepping executes their
 /// animations and frame behaviours. Keeping this tiny
 /// pair separate avoids pretending that the larger general enemy-projectile engine has

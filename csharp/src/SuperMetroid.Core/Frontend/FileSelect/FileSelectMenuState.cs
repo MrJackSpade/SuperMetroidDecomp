@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// of replacing the screen with desktop widgets. Its tile graphics, starfield, text, palette,
 /// border, helmets, and selection missile all come from the installed artwork. Slot
 /// validity and displayed energy/time are decoded from the redundant save
-/// checksum layout rather than from host-authored metadata.
+/// checksum layout rather than from separately authored metadata.
 /// </remarks>
 public sealed class FileSelectMenuState : IMenuFrontendScreen
 {

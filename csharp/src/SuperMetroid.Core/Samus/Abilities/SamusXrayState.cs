@@ -229,7 +229,7 @@ public sealed class SamusXrayState
         samus.Shinespark.RelinquishPaletteToXray();
         samus.Shinespark.RelinquishMovementHandler();
         // The X-ray command installs both X-Ray handlers, so an interrupted Flash's no-op
-        // pose-input handler is gone as well as its movement handler. Keeping the host lock
+        // pose-input handler is gone as well as its movement handler. Keeping the Crystal Flash input lock
         // would make Samus immobile again when X-Ray teardown restores ordinary input.
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         // The same step takes over Samus's movement and suit colouring and clears

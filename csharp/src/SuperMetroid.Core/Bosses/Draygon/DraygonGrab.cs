@@ -37,7 +37,7 @@ internal sealed class DraygonGrab
 
     /// <summary>
     /// Chases Samus and tries to grab her. The speed-divisor
-    /// test is the real communication channel from goop; no host-only encounter
+    /// test is the real communication channel from goop; no invented encounter
     /// flag or proximity shortcut is used to start this branch.
     /// </summary>
     internal void ChaseAndTryToGrabSamus(
@@ -253,7 +253,7 @@ internal sealed class DraygonGrab
         {
             ReleaseSamusDuringEnemyMain(samus);
             // ReleaseSamusFromDraygon publishes the owner-release flag, and the release immediately clears
-            // all of Samus's grapple flags. Consume the host projection here so
+            // all of Samus's grapple flags. Consume that release signal here so
             // a later encounter cannot observe a stale owner-release request.
             samus.DraygonGrabbed.ConsumeOwnerReleaseSignal();
         }

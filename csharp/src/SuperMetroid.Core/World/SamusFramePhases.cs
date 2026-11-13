@@ -158,7 +158,7 @@ internal sealed class SamusFramePhases
     /// for X-ray and passes the live dispatch game state (the pause darkening and unpause brightening states
     /// also run this alpha pass but setup rejects them), bomb cooldown/count, power-bomb phase, current/previous
     /// movement types, vertical velocity, landing-pose gate, and speed divisor to the X-ray
-    /// setup logic. The debug runner uses it without substituting a host pose or art frame.
+    /// setup logic. The debug runner uses it without substituting an invented pose or art frame.
     /// </remarks>
     public bool TryBeginXrayFromSelectedHudItem(SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusBombProjectileSystem bombProjectiles)
     {
@@ -1185,7 +1185,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // suppressing only their application would be too late and observably wrong.
         frame.SampleDeathOwnership(samus.DeathSequence.IsActive);
         SamusControlMode mode = new(samus.Control.Mode.Alpha, DispatchedBetaHandler(frame, samus));
-        // Sound queues are global persistent engines on hardware, but this typed host
+        // Sound queues persist across the whole game, but this typed control
         // publication is scoped to one frame's Samus handler. It opened before the per-line
         // effect pass, ahead of the landing sounds during collision.
         frame.BeginControl(mode, samus.Xray.OwnsSamusControl && !frame.DeathOwnsSamus, SamusPoseMetadata.ReadMovementType(samus));

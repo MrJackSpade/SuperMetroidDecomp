@@ -80,7 +80,7 @@ public sealed class SharedGameState
     /// actors deliberately reseed the global generator as part of their AI.
     /// </summary>
     /// <remarks>
-    /// This is not a host-only testing shortcut. Both Sbug activation behaviours reseed the generator
+    /// This is not a testing shortcut. Both Sbug activation behaviours reseed the generator
     /// with eleven, so later unrelated random
     /// consumers must observe the replacement seed as well.
     /// </remarks>

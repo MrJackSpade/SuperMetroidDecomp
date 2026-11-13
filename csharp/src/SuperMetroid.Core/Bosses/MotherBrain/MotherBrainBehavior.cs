@@ -270,7 +270,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case MotherBrainBodyFunction.FakeDeathDescentInitialPause:
                 // The fake-death start installs the following countdown and falls through to it. The
-                // first observable value is therefore 63, not the host-friendly value 64.
+                // first observable value is therefore 63, not the installed value 64.
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeLock;
                 state.FunctionTimer = 64;
                 RunMotherBrainPauseBeforeLock(state, samus);

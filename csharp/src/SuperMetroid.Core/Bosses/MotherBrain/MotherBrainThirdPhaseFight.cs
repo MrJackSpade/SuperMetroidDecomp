@@ -79,7 +79,7 @@ internal sealed class MotherBrainThirdPhaseFight
                 }
 
                 // The addition and comparison are unsigned here. A wrapped counter can therefore spend
-                // more calls below 256; no host integer widening or saturation belongs.
+                // more calls below 256; no integer widening or saturation belongs.
                 Phase3WalkCounter = Phase3WalkCounter.AddCredit(32);
                 if (Phase3WalkCounter.BelowStep)
                     return false;

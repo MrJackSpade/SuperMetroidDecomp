@@ -395,7 +395,7 @@ internal sealed class EnemyTerrain
     /// <summary>
     /// Resolves signed extension links exactly as the dispatcher repeats them: each link leads on in the room's reading
     /// order (<see cref="RoomReadingOrder"/>), so a horizontal link past a row's end continues on the next row.
-    /// A guard converts corrupt cyclic room data into a useful exception instead of a host
+    /// A guard converts corrupt cyclic room data into a useful exception instead of a runaway
     /// recursion failure; valid chains always terminate well before the room allocation size.
     /// </summary>
     /// <returns>The block the chain ends on, or null when the start or a link lies outside the room's grid.</returns>

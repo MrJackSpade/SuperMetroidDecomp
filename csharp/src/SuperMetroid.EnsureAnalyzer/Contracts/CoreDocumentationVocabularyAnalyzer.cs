@@ -18,8 +18,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// pointers, opcodes, registers, instruction lists and PLMs, word widths, CPU mnemonics, numbered palettes and priorities,
 /// and routine labels written without an underscore: a compound name in a comment that names nothing in Core's code. #1632
 /// adds the carry flag, bits by number, record variables and extra words, routines, spritemaps, headers, the port's
-/// translation and lower-case memory symbols, then physical slots, the port's host slots, exceptions, numbers and notions,
-/// memset and scratch values. Core's documentation states game behaviour in game
+/// translation and lower-case memory symbols, then physical slots, memset and scratch values, and the port's host set
+/// against the original (host state, enums, integers, flags, timers and the like, host-side and host-only, this host).
+/// Core's documentation states game behaviour in game
 /// terms; provenance belongs to the import pipeline or a check's native catalog. Only a
 /// <c>[CompatibilityService]</c> type, which reproduces hardware behaviour, or an <c>[EncodingOwner]</c> codec, which owns
 /// an encoding, may describe the hardware. One diagnostic per comment or literal; there is no allowance list.
@@ -127,16 +128,35 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
-    /// The program's working memory and the port's runtime set against it (#1632): a physical slot, enemy slot or projectile
-    /// slot (an enemy's place in the room's listing is the game's; a physical component or motion is geometry), a host slot,
-    /// exception, number or notion (the host that presents the game, its frames and the host's own slots are the
-    /// application's), a memset, and scratch values (starting from scratch and scratch marks are English).
+    /// The program's working memory (#1632): a physical slot, enemy slot or projectile slot (an enemy's place in the room's
+    /// listing is the game's; a physical component or motion is geometry), a memset, and scratch values (starting from
+    /// scratch and scratch marks are English).
     /// </summary>
     private static readonly Regex WorkingMemoryProse = new(
         @"\bphysical[-\s]+(?:(?:enemy|projectile)[-\s]+)?slots?\b" +
-        @"|\bhost[-\s]+(?:slots?|exceptions?|numbers?|notions?)\b" +
         @"|\bmemset\b" +
         @"|(?<!\bfrom\s+)\bscratch\b(?!\s+marks?\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The port's runtime set against the original program (#1632): "host" directly followed by the simulation's own state,
+    /// arithmetic or behaviour (a host slot, exception, number, notion, enum, integer, flag, timer, RNG, record, field,
+    /// latch, list, constant, sprite, animation, physics, ordering ...), a provenance compound (host-side, host-only,
+    /// host-readable, host-visible, host-friendly, host-authored, host-facing), and "this host" or "this gameplay host".
+    /// Core is never a host, so these describe the game as a translation. The application that runs the game stays legal:
+    /// the host as an actor (the host binds, persists or plays), possessive (the host's save slots), plural (the hosts'
+    /// import format), its presentation and services (host frames, PCM, pixels, artwork, options, content, elapsed time,
+    /// diagnostics, renderer, calls) and its ownership compounds (host-owned, host-installed, host-bound, host-supplied,
+    /// host-configured) are not read, nor is a ghost.
+    /// </summary>
+    private static readonly Regex HostProvenanceProse = new(
+        @"\bhost[-\s]+(?:side|only|readable|visible|friendly|authored|facing)\b" +
+        @"|\bhost\s+(?:slots?|exceptions?|numbers?|notions?|enums?|integers?|flags?|timers?|RNG|random|records?|fields?" +
+        @"|latch(?:es)?|guards?|masks?|names|equivalents?|storage|states?|lists?|locks?|projections?|tables?|constants?" +
+        @"|sprites?|animations?|readings?|physics|ordering|results?|no-ops?|errors?|loops?|vectors?|poses?|phases?" +
+        @"|interactions?|signed|movement|gravity|jumps?|knockback|palettes?|handlers?|death|schedulers?|allocations?|bombs?" +
+        @"|areas?|aiming|smoothing|floating-point)\b" +
+        @"|\bthis\s+(?:gameplay\s+)?host\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
@@ -245,6 +265,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : StorageProse.Match(text) is { Success: true } storage ? storage.Value
             : OperationProse.Match(text) is { Success: true } operation ? operation.Value
             : WorkingMemoryProse.Match(text) is { Success: true } memory ? memory.Value
+            : HostProvenanceProse.Match(text) is { Success: true } host ? host.Value
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;
         if (word is null || IsInHardwareOwner(owner))

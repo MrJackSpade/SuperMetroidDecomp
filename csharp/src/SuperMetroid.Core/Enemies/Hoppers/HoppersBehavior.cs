@@ -346,7 +346,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(slot, HopperAnimations.StartingWith(segment));
     }
 
-    /// <summary>Ports Hoppers's main AI.</summary>
+    /// <summary>Runs the hoppers' main AI.</summary>
     internal void RunHoppersMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunHopperMain(slot, frame.Samus, frame.Level);

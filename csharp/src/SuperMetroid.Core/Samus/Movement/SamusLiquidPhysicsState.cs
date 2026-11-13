@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// compare either Samus's top, bottom, or bottom-minus-one boundary against the live
 /// surface, and the remembered medium records the medium selected by the animation/room-load pass.
 /// Keeping each surface here lets each caller reproduce its own
-/// comparison instead of sharing a convenient but incorrect host-side boolean.
+/// comparison instead of sharing a convenient but incorrect single boolean.
 /// </remarks>
 public sealed class SamusLiquidPhysicsState
 {

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 /// <summary>The Boyon species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Builds the species owner on the room's enemy audio queue.</summary>
@@ -211,7 +211,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void StartBoyonBounce(BoyonEnemyState state)
     {
         state.BounceDisabled = false;
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Boyon, BoyonBounceSound, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(BoyonBounceSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Runs Boyon's idle and bouncing loops as typed programs (#641).</summary>

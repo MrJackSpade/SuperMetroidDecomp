@@ -22,7 +22,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs normal touch handling before Evir's shared combat tail.</summary>
     private readonly EnemyCollision _collision;
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds slot and collision owners for the three-record Evir actor.</summary>
@@ -403,7 +403,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Animation cue: queues the spit sound.</summary>
-    private void QueueEvirSpitSound() => _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Evir, EvirSpitSound, priority: SoundRequestPriority.Normal);
+    private void QueueEvirSpitSound() => _audio.QueueEnemySound(EvirSpitSound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Animation cue: sets the initial regeneration offset.</summary>
     private void SetInitialEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>

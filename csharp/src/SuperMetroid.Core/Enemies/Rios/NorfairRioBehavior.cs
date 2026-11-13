@@ -28,7 +28,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The state of the parent each flame follower found when it was placed, which a deleted parent leaves (<see cref="DeletedParentLeftovers"/>).</summary>
     private readonly EnemyPartLinks<NorfairRioEnemyState> _parentStates = new();
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Captures the room RNG, terrain, and slot table needed by Rio AI.</summary>
@@ -134,7 +134,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     state,
                     NorfairRioProgram.Descending);
                 state.Function = NorfairRioEnemyFunction.Dive;
-                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.NorfairRio, EnemySoundEffectDefinitions.NorfairRioDiveSound, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(EnemySoundEffectDefinitions.NorfairRioDiveSound, priority: SoundRequestPriority.Normal);
                 return;
 
             case NorfairRioEnemyFunction.Dive:
@@ -321,7 +321,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Norfair Rio movement requires room level data.");
     }
 
-    /// <summary>Ports NorfairRio's main AI.</summary>
+    /// <summary>Runs the Norfair Rio's main AI.</summary>
     internal void RunNorfairRioMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunNorfairRioMain(
@@ -331,7 +331,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             frame.Level);
     }
 
-    /// <summary>Advances NorfairRio's typed animation.</summary>
+    /// <summary>Advances the Norfair Rio's typed animation.</summary>
     internal static void AdvanceNorfairRioTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, NorfairRioAnimations.Segments, NorfairRioFrameDefinitions.ShownFrames.Of,
             static (NorfairRioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,

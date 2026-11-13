@@ -21,7 +21,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Allocates visual body links and turn overlays.</summary>
     private readonly RoomSpriteObjects _spriteObjects;
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Captures the enemy projectiles and sprite objects used for body links.</summary>
@@ -300,7 +300,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The falling turn is the silent second half-turn; every other change queues the turn sound.
         if (orientation.State != NuclearWaffleTurnState.PastFallingThreshold)
-            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.NuclearWaffle, NuclearWaffleDefinitions.TurnSoundEffect, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(NuclearWaffleDefinitions.TurnSoundEffect, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Places the head at the requested angle around its captured room origin.</summary>
@@ -323,7 +323,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void AddNuclearWaffleAngularSpeed(NuclearWaffleEnemyState state) =>
         state.SweepAngle += state.AngularSpeed;
 
-    /// <summary>Advances NuclearWaffle's typed animation.</summary>
+    /// <summary>Advances the Nuclear Waffle's typed animation.</summary>
     internal static void AdvanceNuclearWaffleTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
         if (!EnemyProgramAnimation.Expire(slot))
@@ -336,7 +336,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = playback;
     }
 
-    /// <summary>Ports NuclearWaffle's main AI.</summary>
+    /// <summary>Runs the Nuclear Waffle's main AI.</summary>
     internal void RunNuclearWaffleMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunNuclearWaffleMain(slot, slot.RequireSpeciesState<NuclearWaffleEnemyState>());

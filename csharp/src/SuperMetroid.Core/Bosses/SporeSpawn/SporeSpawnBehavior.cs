@@ -75,12 +75,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Frame-local drop publications from boss death and individual spores.</summary>
     internal readonly List<SporeSpawnDropRequest> SporeSpawnDropRequests = new();
 
-    /// <summary>
-    /// Requests a sound from the boss or one of its programs at the end of the enemy update. A later Spore Spawn sound
-    /// in the same update replaces it: the update-end rule of <see cref="EnemyAudioQueue.RequestSoundAtUpdateEnd"/>.
-    /// </summary>
+    /// <summary>Queues a sound from the boss or one of its programs as it makes it, after the update's earlier requests.</summary>
     private void RequestSporeSpawnSound(SoundEffectId sound) =>
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.SporeSpawn, sound, SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
 
     /// <summary>
     /// Runs the global scrolling-finished callback installed by live Spore Spawn.

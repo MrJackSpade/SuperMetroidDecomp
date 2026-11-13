@@ -1,4 +1,5 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonAnimationsVerification;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
@@ -15,10 +16,8 @@ internal static class PhantoonFlameSoundVerification
         var enemies = CreatePhantoonSystem();
         Action<RoomEnemySlot, PhantoonPartCue> callback = enemies.PhantoonBehavior.ApplyPhantoonPartCue;
         var begin = new Action(enemies.BeginEnemySoundRequestFrame);
-        var collect = new Action(enemies.PublishEnemyAudioRequests);
         begin();
         callback(enemies.SlotTable.Slots[3], PhantoonPartCue.SpawnCasualFlame);
-        collect();
         AssertEqual(1, enemies.Audio.SoundRequests.Count, "casual flame emits one sound request");
         var flameSound = new SoundRequest(RoomSound.PhantoonFlame, SoundRequestPriority.Normal);
         AssertEqual(flameSound, enemies.Audio.SoundRequests[0], "native A7:CF68/CF6B queues library three sound 1D with Max6");
@@ -29,12 +28,10 @@ internal static class PhantoonFlameSoundVerification
         callback(enemies.SlotTable.Slots[0], PhantoonPartCue.PlayMaterializationSound);
         callback(enemies.SlotTable.Slots[3], PhantoonPartCue.SpawnCasualFlame);
         callback(enemies.SlotTable.Slots[3], PhantoonPartCue.SpawnCasualFlame);
-        collect();
-        AssertEqual(2, enemies.Audio.SoundRequests.Count(request => request == flameSound),
-            "distinct flame callbacks retain their separate native queue calls");
-        AssertTrue(enemies.Audio.SoundRequests.Contains(new SoundRequest(
-            EnemySound.PhantoonAppears1, SoundRequestPriority.Normal)),
-            "flame audio does not overwrite the independent materialization sound");
+        AssertSequenceEqual(
+            new[] { new SoundRequest(EnemySound.PhantoonAppears1, SoundRequestPriority.Normal), flameSound, flameSound },
+            enemies.Audio.SoundRequests,
+            "the materialization sound and both flame callbacks are each queued, in the order they run");
         Console.WriteLine("Phantoon casual flame: actual spawn emits library 3 / 1D / Max6; materialization audio remains independent.");
     }
 

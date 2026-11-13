@@ -33,7 +33,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Caps camera movement while Samus is held at the Maw's mouth.</summary>
     private readonly SamusScrollCap _scrollCap;
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects Maw AI to room, body-link, sprite-object, and Samus camera services.</summary>
@@ -505,7 +505,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     private void PlayYappingMawAttackSound(YappingMawEnemyState state)
     {
         if (!state.IsOffScreen)
-            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.YappingMaw, EnemySoundEffectDefinitions.YappingMawAttackSound, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(EnemySoundEffectDefinitions.YappingMawAttackSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Moves one of the four required body-link projectiles to its solved point.</summary>

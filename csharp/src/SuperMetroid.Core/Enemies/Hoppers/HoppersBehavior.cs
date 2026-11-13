@@ -22,7 +22,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Resolves vertical and horizontal collisions in both floor and ceiling hops.</summary>
     private readonly EnemyTerrain _terrain;
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds the five Hopper definitions to shared room RNG and terrain movement.</summary>
@@ -45,7 +45,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.Processing = slot.Processing.Without(EnemyProcessing.OffScreen);
                 break;
             case HopperCueKind.PlaySound:
-                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Hoppers, cue.Sound ?? throw new InvalidOperationException("A hopper sound cue has no sound."), priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(cue.Sound ?? throw new InvalidOperationException("A hopper sound cue has no sound."), priority: SoundRequestPriority.Normal);
                 break;
             case HopperCueKind.ReadyToHop:
                 state.ReadyToHop = true;

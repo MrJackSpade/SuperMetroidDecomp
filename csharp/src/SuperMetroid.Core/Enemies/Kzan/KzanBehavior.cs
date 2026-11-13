@@ -20,7 +20,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The top each bottom found when it was placed, which its room lists right before it.</summary>
     private readonly EnemyPartLinks<RoomEnemySlot> _tops = new();
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Couples each Kzan bottom to the top its room lists before it.</summary>
@@ -156,7 +156,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
             state.RiseWaitTimer = KzanNtscRiseWaitFrames;
             state.Function = KzanEnemyFunction.WaitingToRise;
             slot.Position = slot.Position.WithWholeY(state.FallingTarget.Y);
-            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Kzan, KzanLandingSound, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(KzanLandingSound, priority: SoundRequestPriority.Normal);
         }
 
         CarrySamusWithKzanIfTouchingFromBelow(slot, state, samus);

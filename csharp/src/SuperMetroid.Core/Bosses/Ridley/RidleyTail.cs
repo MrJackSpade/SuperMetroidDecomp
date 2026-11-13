@@ -502,7 +502,7 @@ internal sealed class RidleyTail
             MiscDustAnimation dustVariant = missile ? MiscDustAnimation.DudShotTinyExplosion : MiscDustAnimation.Smoke;
             _projectiles.SpawnRoomGraphicsDustExplosion(joint.Position, dustVariant);
             if (missile)
-                _projectiles.RequestDudSound();
+                _projectiles.QueueDudSound(SoundRequestPriority.Normal);
             return true;
         }
 

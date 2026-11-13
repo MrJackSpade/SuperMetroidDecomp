@@ -100,7 +100,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Runs Fireflea touch AI, including its retail double-death bug. The
-    /// private handler calls common touch AI and then calls <c>EnemyDeath</c> unconditionally:
+    /// private handler calls common touch AI and then kills the Fireflea unconditionally:
     /// normal contact therefore kills an otherwise healthy Fireflea, while Screw Attack and
     /// similar contact attacks can increment the room kill count twice.
     /// </summary>

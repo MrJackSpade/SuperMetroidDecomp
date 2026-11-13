@@ -177,7 +177,7 @@ internal static class EnemyDropsVerification
             $"{kind} starts with native 400-frame lifetime");
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
 
-        AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, expectedSound), fixture.System.Audio.PublishedSoundFrom(EnemySoundSource.EnemyPickup),
+        AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, expectedSound), fixture.System.Audio.LatestSound,
             $"{kind} library-two sound");
         AssertEqual(EnemyProjectileFrameBehavior.Stationary, pickup.FrameBehavior,
             $"{kind} enters shared blank/no-collision tail after collection");

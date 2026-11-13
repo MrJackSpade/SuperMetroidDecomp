@@ -26,7 +26,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>The parent each flame follower found when it was placed, which its room lists right before it.</summary>
     private readonly EnemyPartLinks<RoomEnemySlot> _parents = new();
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds Holtz parent and follower behavior to room RNG, collision, and slot order.</summary>
@@ -246,7 +246,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
             state,
             LowerNorfairRioProgram.AscendingPart1);
         state.Function = LowerNorfairRioEnemyFunction.ReturnToPerch;
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.LowerNorfairRio, EnemySoundEffectDefinitions.LowerNorfairRioReturnSound, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(EnemySoundEffectDefinitions.LowerNorfairRioReturnSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Advances the Rio horizontally and reverses its velocity on a wall collision.</summary>
@@ -306,7 +306,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
             throw new InvalidOperationException("Lower Norfair Rio movement requires room level data.");
     }
 
-    /// <summary>Ports LowerNorfairRio's main AI.</summary>
+    /// <summary>Runs the Lower Norfair Rio's main AI.</summary>
     internal void RunLowerNorfairRioMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunLowerNorfairRioMain(
@@ -316,7 +316,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
             frame.Level);
     }
 
-    /// <summary>Advances LowerNorfairRio's typed animation.</summary>
+    /// <summary>Advances the Lower Norfair Rio's typed animation.</summary>
     internal static void AdvanceLowerNorfairRioTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, LowerNorfairRioAnimations.Segments, LowerNorfairRioFrameDefinitions.ShownFrames.Of,
             static (LowerNorfairRioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,

@@ -22,7 +22,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Creates the debris burst during burrow and death reactions.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Uses the room's projectile engine for Metaree's four-piece metal debris.</summary>
@@ -139,7 +139,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = MetareeEnemyFunction.LaunchedAttack;
 
         // The dive sound is requested as the attack launches.
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Metaree, EnemySoundEffectDefinitions.DiveSound, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(EnemySoundEffectDefinitions.DiveSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Probes solid terrain ahead before whole-pixel descent; ground contact begins burrowing while airborne frames steer toward Samus.</summary>
@@ -161,7 +161,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.FrameHold = WrappingCountdown.Start(1);
             slot.Timer = WrappingCountdown.Start(0);
             state.Function = MetareeEnemyFunction.Burrowing;
-            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Metaree, EnemySoundEffectDefinitions.BurrowSound, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(EnemySoundEffectDefinitions.BurrowSound, priority: SoundRequestPriority.Normal);
             return;
         }
 

@@ -29,7 +29,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Tracks the Kago death request in the room's defeated-enemy count.</summary>
     private readonly EnemyRoomStatus _roomStatus;
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds shell AI and bug projectile behavior to the shared room systems that own their effects.</summary>
@@ -242,7 +242,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         bug.SoundDelay--;
         if (bug.SoundDelay == 0)
-            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Kago, EnemySoundEffectDefinitions.KagoBugSoundEffect, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(EnemySoundEffectDefinitions.KagoBugSoundEffect, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>

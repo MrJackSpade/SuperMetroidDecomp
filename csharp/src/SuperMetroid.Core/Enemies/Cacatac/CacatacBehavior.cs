@@ -21,7 +21,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Allocates spike projectiles with source position and sprite attributes.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds Cacatac patrol and spike behavior to room RNG and projectile allocation.</summary>
@@ -154,7 +154,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Animation cue: publish the spike sound.</summary>
     private void PlayCacatacSpikeSound() =>
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Cacatac, EnemySoundEffectDefinitions.CacatacSpikeSound, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(EnemySoundEffectDefinitions.CacatacSpikeSound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Starts a patrol or attack animation on the next instruction tick.</summary>
     internal static void SetCacatacProgram(RoomEnemySlot slot, CacatacEnemyState state, CacatacProgram program)

@@ -603,10 +603,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         torizo.Position += move == BombTorizoPostureMove.SitDown ? -displacement : displacement;
     }
 
-    /// <summary>
-    /// Requests the Torizo's music change at the end of the enemy update. A later change in the same update replaces
-    /// it: the update-end rule of <see cref="EnemyAudioQueue.RequestMusicAtUpdateEnd"/>.
-    /// </summary>
+    /// <summary>Queues the Torizo's music change as the Torizo makes it, after the update's earlier music requests.</summary>
     private void RequestBombTorizoMusic(MusicRequest request) =>
-        _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.BombTorizo, new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
+        _audio.QueueEnemyMusic(new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 }

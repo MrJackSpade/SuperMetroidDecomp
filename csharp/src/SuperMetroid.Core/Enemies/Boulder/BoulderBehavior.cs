@@ -23,7 +23,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Creates the dust explosion when a rolling or brittle boulder breaks.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects terrain collision and the shared projectile engine for Boulder AI.</summary>
@@ -214,14 +214,14 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen verticalDisplacement = EnemyQuadraticSpeeds.Row(EightEight.WholeOf(state.BounceSpeedAccumulator)).Positive;
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
         {
-            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Boulder, BoulderImpactSound, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(BoulderImpactSound, priority: SoundRequestPriority.Normal);
             if (state.Roll == BoulderRoll.LeftBreakingOnImpact)
             {
                 slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
                 _projectiles.SpawnRoomGraphicsDustExplosion(
                     slot.Position.Whole,
                     BoulderDustAnimationIndex);
-                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Boulder, BoulderBreakSound, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(BoulderBreakSound, priority: SoundRequestPriority.Normal);
                 return;
             }
 
@@ -264,11 +264,11 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             // still written before the next update's processing pass clears it.
             slot.Presence = slot.Presence.With(EnemyPresence.Hidden | EnemyPresence.Deleted);
             state.Function = BoulderAiFunction.Inert;
-            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Boulder, BoulderImpactSound, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(BoulderImpactSound, priority: SoundRequestPriority.Normal);
             _projectiles.SpawnRoomGraphicsDustExplosion(
                 slot.Position.Whole,
                 BoulderDustAnimationIndex);
-            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Boulder, BoulderBreakSound, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(BoulderBreakSound, priority: SoundRequestPriority.Normal);
         }
         else
         {

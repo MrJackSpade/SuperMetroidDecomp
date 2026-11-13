@@ -141,9 +141,12 @@ internal sealed class EnemyProjectileEngine
     internal void HandOverTo(RoomHandOver handOver) =>
         Ensure.NotNull(handOver).LeaveEnemyProjectiles(_places.Select(projectile => projectile.LeftInPlace));
 
-    /// <summary>Requests the dud sound a rejected Samus shot makes.</summary>
-    internal void RequestDudSound() =>
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.EnemyProjectileDud, SamusSound.DudShot, priority: SoundRequestPriority.Low);
+    /// <summary>
+    /// Queues the dud sound a rejected Samus shot makes, at <paramref name="priority"/>: a protected body part's dud competes at
+    /// low priority, an indestructible projectile's and Ridley's tail's at normal priority.
+    /// </summary>
+    internal void QueueDudSound(SoundRequestPriority priority) =>
+        _audio.QueueEnemySound(SamusSound.DudShot, priority);
 
     /// <summary>
     /// Tests enemy projectiles against Samus's projectiles and handles each hit.
@@ -198,7 +201,7 @@ internal sealed class EnemyProjectileEngine
 
                 if (enemyProjectile.CollisionOption == EnemyProjectileCollisionOption.IndestructibleDud)
                 {
-                    RequestDudSound();
+                    QueueDudSound(SoundRequestPriority.Normal);
                 }
                 else
                 {
@@ -939,7 +942,7 @@ internal sealed class EnemyProjectileEngine
             projectile.Position.Whole,
             RoomSpriteObjectKind.EnemyProjectileDud,
             graphics: default);
-        RequestDudSound();
+        QueueDudSound(SoundRequestPriority.Low);
         projectile.IsSpent = true;
     }
 

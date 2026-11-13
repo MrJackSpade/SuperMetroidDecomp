@@ -20,7 +20,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Allocates the shared directional fireball fired by either species' animation list.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects the family AI to the room's enemy projectile slots.</summary>
@@ -166,7 +166,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Publishes the shared enemy-library spit cue for the outer enemy audio queue.</summary>
     private void QueueFuneNamiheSpitSound() =>
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.FuneNamihe, FuneNamiheDefinitions.SpitSoundEffect, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(FuneNamiheDefinitions.SpitSoundEffect, priority: SoundRequestPriority.Normal);
 
     /// <summary>Moves the list-table cursor back to idle and restores the species-specific waiting function after the active animation.</summary>
     private static void FinishFuneNamiheActivity(FuneNamiheEnemyState state)

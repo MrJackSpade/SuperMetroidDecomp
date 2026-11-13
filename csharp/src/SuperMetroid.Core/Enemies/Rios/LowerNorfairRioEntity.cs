@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Rios;
 
-/// <summary>One LowerNorfairRio occupant: its own AI handlers, with the shared reactions.</summary>
-/// <param name="species">The LowerNorfairRio species owner.</param>
+/// <summary>One Lower Norfair Rio occupant: its own AI handlers, with the shared reactions.</summary>
+/// <param name="species">The Lower Norfair Rio species owner.</param>
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class LowerNorfairRioEntity(LowerNorfairRioBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)

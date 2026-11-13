@@ -31,7 +31,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Creates the item drop when a thrown lava projectile is destroyed.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects the Magdollite AI, projectile, combat and glow services.</summary>
@@ -578,7 +578,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                     CoordinateAxis.Precedes(slot.Position.Y.Whole, camera.Y) ||
                     CoordinateAxis.Precedes(camera.Y + 256, slot.Position.Y.Whole);
                 if (!offScreen)
-                    _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Magdollite, cue.Sound ?? throw new InvalidDataException("A Magdollite sound cue carries no sound."), priority: SoundRequestPriority.Normal);
+                    _audio.QueueEnemySound(cue.Sound ?? throw new InvalidDataException("A Magdollite sound cue carries no sound."), priority: SoundRequestPriority.Normal);
                 break;
             }
             case MagdolliteCueKind.MoveDown2:

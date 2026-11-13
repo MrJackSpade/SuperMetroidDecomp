@@ -86,12 +86,9 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sub-pixel steps in one whole pixel of a projectile's 8.8 velocity.</summary>
     private const int SubpixelsPerPixel = 256;
 
-    /// <summary>
-    /// Requests one of Mini-Kraid's sounds at the end of the enemy update. A later Mini-Kraid sound in the same update
-    /// replaces it: the update-end rule of <see cref="EnemyAudioQueue.RequestSoundAtUpdateEnd"/>.
-    /// </summary>
+    /// <summary>Queues one of Mini-Kraid's sounds as it makes it, after the update's earlier requests.</summary>
     private void RequestFakeKraidSound(SoundEffectId sound) =>
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.FakeKraid, sound, SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
 
 
     /// <summary>Sets Mini-Kraid up when the room spawns it.</summary>
@@ -338,7 +335,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         CoordinateAxis.AsSigned(camera.Y + 256 - slot.Position.Y.Whole) >= 0;
 
     /// <summary>
-    /// Mini-Kraid's shared death reaction: <c>EnemyDeath</c> spawns death
+    /// Mini-Kraid's shared death reaction: the enemy's death spawns death
     /// explosion three and clears the slot, then the death drop
     /// scatters four pickups from the coordinates saved before the shot AI.
     /// The explosion therefore takes the first free projectile slot.
@@ -389,13 +386,13 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }, EnemyProjectileFrameBehavior.FakeKraidSpikeFlight);
     }
 
-    /// <summary>Ports FakeKraid's initialization AI.</summary>
+    /// <summary>Runs Mini-Kraid's initialization AI.</summary>
     internal void RunFakeKraidInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
         InitializeFakeKraid(slot, surroundings.Samus);
     }
 
-    /// <summary>Ports FakeKraid's main AI.</summary>
+    /// <summary>Runs Mini-Kraid's main AI.</summary>
     internal void RunFakeKraidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunFakeKraidMain(
@@ -404,7 +401,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             frame.Camera);
     }
 
-    /// <summary>Advances FakeKraid's typed animation.</summary>
+    /// <summary>Advances Mini-Kraid's typed animation.</summary>
     internal void AdvanceFakeKraidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
         EnemyProgramAnimation.Advance(slot, FakeKraidAnimations.Segments, FakeKraidFrameDefinitions.ShownFrames.Of,
             static (FakeKraidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,

@@ -22,7 +22,7 @@ internal sealed class EnemyDeathsAndDrops
     private readonly EnemyRoomBinding _room;
     /// <summary>Reinitializes a respawned enemy from its saved population record.</summary>
     private readonly IEnemyDispatch _dispatch;
-    /// <summary>Receives the pickup and death sounds, published at the end of the following enemy pass.</summary>
+    /// <summary>Receives the pickup and death sounds, each queued as the drop or death program makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects death animation, pickup, and respawn processing to the room systems.</summary>
@@ -52,14 +52,14 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>Requests a collected drop's sound; it joins the queue only when the sound queue is idle.</summary>
     private void RequestPickupSound(SoundEffectId sound) =>
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.EnemyPickup, sound, priority: SoundRequestPriority.WhenIdle);
+        _audio.QueueEnemySound(sound, priority: SoundRequestPriority.WhenIdle);
 
     /// <summary>
     /// Requests a death program's sound (the enemy-killed cry, the small explosion or the contact-killed sound); it joins
     /// the queue only when the sound queue is idle.
     /// </summary>
     private void RequestDeathSound(SoundEffectId sound) =>
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.EnemyDeath, sound, priority: SoundRequestPriority.WhenIdle);
+        _audio.QueueEnemySound(sound, priority: SoundRequestPriority.WhenIdle);
 
     /// <summary>The enemy-library enemy-killed cry the death explosion queues.</summary>
     internal static readonly SoundEffectId EnemyKilledSound = EnemySound.EnemyKilled;
@@ -556,7 +556,7 @@ internal sealed class EnemyDeathsAndDrops
 
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(spawn.Population.DefinitionId);
         // Unlike the room's enemy setup and an ordinary enemy spawn, a respawn
-        // never writes the spritemap: the actor keeps EnemyDeath's cleared word,
+        // never writes the spritemap: the actor keeps the word its death cleared,
         // or what its init AI wrote, until its first instruction. A zero spritemap is also
         // the contact gate, so the respawned actor cannot touch Samus before then.
         _dispatch.InitializeSlotFromDefinition(slot, spawn.Population, definition);

@@ -12,9 +12,9 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 /// <remarks>
 /// Every room effect shares the base/target position, packed 8.8 Y velocity, and
-/// timer the room-FX loader sets. This owner retains those values even when that effect's
-/// renderer is not modelled yet, allowing room objects to make their shared-state
-/// writes without inventing another representation for the corresponding room-effect state.
+/// timer the room-FX loader sets. This owner retains those values for every effect, including those that show no
+/// overlay page (the scrolling skies, the Fireflea darkness, Ceres's effects), so room objects make their shared-state
+/// writes into one representation of the room effect's state.
 /// The modelled effect overlay effects are lava, acid, water, spores, Landing Site rain, and Climb fog.
 /// </remarks>
 [RoomLifetime]

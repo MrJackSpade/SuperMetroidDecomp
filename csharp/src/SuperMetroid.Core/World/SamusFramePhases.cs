@@ -153,12 +153,11 @@ internal sealed class SamusFramePhases
     /// equipped scope and observed held Dash, matching the HUD's X-ray handler, its setup, and the X-ray spawn.
     /// </summary>
     /// <remarks>
-    /// HUD cursor movement is not yet a general runtime subsystem, so this narrow entry
-    /// point represents only the already-selected item. It still requires equipped bit
-    /// for X-ray and passes the live dispatch game state (the pause darkening and unpause brightening states
+    /// The HUD selection has already settled on X-ray this update. This still requires the X-ray Scope equipped
+    /// and passes the live dispatch game state (the pause darkening and unpause brightening states
     /// also run this alpha pass but setup rejects them), bomb cooldown/count, power-bomb phase, current/previous
     /// movement types, vertical velocity, landing-pose gate, and speed divisor to the X-ray
-    /// setup logic. The debug runner uses it without substituting an invented pose or art frame.
+    /// setup logic.
     /// </remarks>
     public bool TryBeginXrayFromSelectedHudItem(SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusBombProjectileSystem bombProjectiles)
     {

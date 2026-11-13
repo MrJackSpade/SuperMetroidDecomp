@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <remarks>
 /// These movements look stationary but are not no-ops: the game still publishes
 /// total X speed, runs horizontal block/slope collision, and performs its downward grounding
-/// probe every frame. Keeping those calls makes ledges, slopes, and future conveyors meet
+/// probe every frame. Keeping those calls makes ledges, slopes, and conveyors meet
 /// the same seam as standing movement.
 /// </remarks>
 public static class SamusPostureMovement

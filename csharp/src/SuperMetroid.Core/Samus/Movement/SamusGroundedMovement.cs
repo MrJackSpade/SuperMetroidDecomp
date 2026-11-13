@@ -7,16 +7,14 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Verified grounded movement slices from Samus's ordinary movement dispatcher.
+/// Samus's grounded movement types from her ordinary movement dispatcher.
 /// </summary>
 /// <remarks>
 /// This is deliberately not a generic platformer controller. The entry points below
-/// correspond only to the standing, running, turning-on-ground, moonwalking and ran-into-wall movement types. Air/water/lava X
-/// tables and submerged Dash gating are modelled; enemy collision, conveyor displacement,
-/// and knockback remain separate. Ordinary Dash and equipped-Speed-Booster accumulation/
-/// staging are modelled; palette/echo rendering lives outside movement. Each
-/// omitted system has observable game state and must be modelled before its branch is
-/// enabled; none is silently replaced with desktop physics.
+/// correspond only to the standing, running, turning-on-ground, moonwalking and ran-into-wall movement types, with
+/// their air/water/lava X tables, submerged Dash gating, and ordinary Dash and equipped-Speed-Booster accumulation and
+/// staging. Solid enemies stop Samus through the shared block collision, conveyors carry her as inside-block reactions,
+/// knockback is <see cref="SamusKnockbackMovement"/>'s, and the boost's colours and echoes are drawn outside movement.
 /// </remarks>
 public static class SamusGroundedMovement
 {
@@ -112,9 +110,7 @@ public static class SamusGroundedMovement
             roomObjects);
 
         // Cancels speed boost and clears extra speed, base speed, and
-        // acceleration mode after both movement calls, whichever way Samus faces. Speed-booster
-        // bookkeeping itself is outside this no-equipment slice, but these five values are
-        // exact and live.
+        // acceleration mode after both movement calls, whichever way Samus faces.
         speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         return new GroundedMovementResult(horizontal, vertical);
     }
@@ -330,8 +326,7 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Runs ran-into-wall movement for the ran-into-wall poses, unaimed or aimed,
-    /// in the block-only dry-room slice.
+    /// Runs ran-into-wall movement for the ran-into-wall poses, unaimed or aimed.
     /// </summary>
     internal static GroundedMovementResult StepRanIntoWall(
 
@@ -372,8 +367,7 @@ public static class SamusGroundedMovement
             roomObjects);
 
         // Cancels speed boost and clears both run/base components plus
-        // acceleration mode on every frame. The speed-booster counters themselves remain
-        // outside this slice; the five movement values are exact.
+        // acceleration mode on every frame.
         speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         return new GroundedMovementResult(horizontal, vertical);
     }
@@ -474,7 +468,7 @@ public static class SamusGroundedMovement
 
         // Alternates its left-to-right and right-to-left horizontal scan order on
         // the frame counter's parity. That parity can affect which simultaneous
-        // collision side effect wins, so it remains an explicit input even in this slice.
+        // collision side effect wins.
         return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
     }
 

@@ -17,15 +17,13 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// The retail game does not run grapple physics through the grappling movement type's tiny handler.
 /// The grapple beam's handler updates the pendulum before normal beta
 /// movement, and the block collision advances its angle while probing room collision. This class keeps
-/// those responsibilities separate from ordinary aerial movement. Firing, persistent grapple
-/// blocks, per-pixel rope adjustment, and the six-point angular terrain sweep are modelled
-/// here; solid/frozen-enemy wall-jump probing is shared with ordinary movement and retains
-/// the enemy slot to shake. The firing-only Draygon-turret damage and both behaviour-indexed swing
-/// spike-damage tables are applied through the shared periodic damage. Breakable
-/// block acquisition now installs the independent room-object lifecycle; enemy acquisition
-/// and the live enemy/shake loop remain explicit later routes rather than being approximated.
+/// those responsibilities separate from ordinary aerial movement. Firing, persistent and breakable
+/// grapple blocks, enemy anchors, per-pixel rope adjustment, and the six-point angular terrain sweep are
+/// here; solid/frozen-enemy wall-jump probing is shared with ordinary movement and asks the next enemy
+/// pass to shake the enemy launched from. The firing-only Draygon-turret damage and both behaviour-indexed swing
+/// spike-damage tables are applied through the shared periodic damage.
 /// Grapple's narrower water flag and persistent environment-selected
-/// release handler are modelled rather than collapsed into ordinary aerial movement.
+/// release handler are kept apart from ordinary aerial movement.
 /// </remarks>
 public static class SamusGrappleMovement
 {
@@ -389,10 +387,9 @@ public static class SamusGrappleMovement
                 !SamusGrappleSwing.IsStillConnectedToSupportedBlock(terrain.Level, samus, grapple));
         if (anchorDisconnected)
         {
-            // The persistent block path normally remains connected forever. Retain the
-            // validation seam so a future dynamic/breakable room object cannot leave a rope
-            // attached to air. A motionless straight-down body queues the drop; a moving
-            // pendulum uses the velocity-preserving release handoff.
+            // A block that still stops the beam keeps the rope; one replaced with air (a breakable grapple block that
+            // has crumbled), or an enemy anchor the rope has lost, ends the connection. A motionless straight-down
+            // body queues the drop; a moving pendulum uses the velocity-preserving release handoff.
             if (grapple.AngularVelocity == 0 && grapple.Angle == RotationAngle.HalfTurn)
             {
                 grapple.Phase = GrapplePhase.Dropped;

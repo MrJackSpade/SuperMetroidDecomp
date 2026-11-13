@@ -8,10 +8,9 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// The camera position constrained by Super Metroid's directional scroll-zone handlers.
 /// </summary>
 /// <remarks>
-/// The four private handlers are the game's four scroll-boundary handlers.
-/// The public directional methods are host/debug
-/// stimuli: genuine Samus tracking will eventually supply the same
-/// proposed position, ideal position, and fixed-point camera speed fields.
+/// The four directional handlers are the game's four scroll-boundary handlers. Samus's horizontal and vertical
+/// tracking, run by the gameplay update's scrolling, supply the proposed position, ideal position and camera speed
+/// they read.
 /// </remarks>
 [RoomLifetime]
 public sealed class ScrollBoundaryCamera

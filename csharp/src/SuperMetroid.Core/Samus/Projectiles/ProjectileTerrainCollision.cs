@@ -337,8 +337,8 @@ internal sealed class ProjectileTerrainCollision
             return block.CollisionType == RoomCollisionType.ShootableBlock;
         }
 
-        // Solid, special and grapple blocks stop the shot directly. Door, spike and bombable
-        // blocks also stop it; their actor/weapon-gated setup remains a later slice.
+        // Solid, special, grapple, door and spike blocks stop the shot with no reaction. A bomb block's reaction
+        // answers only bombs and Power Bombs, so it stops a shot with no reaction too, and bombable air lets it pass.
         return block.CollisionType.IsSolidKind();
     }
 

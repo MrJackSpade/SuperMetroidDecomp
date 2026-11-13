@@ -47,7 +47,7 @@ public sealed class MaridiaElevatubeRoomMainState
     /// <summary>Applies the door callback for entry from Oasis to the south.</summary>
     public void SetUpFromSouth(SamusState samus)
     {
-        EnsureActive(DoorSetupCode.DoorASM_SetupElevatubeFromSouth);
+        EnsureActive(DoorSetupCode.ToiletStartsElevatubeRideFromSouth);
         Ensure.NotNull(samus);
         // Entry from the south leaves the tracked fraction as it was.
         TrackedPosition = new(0, MaridiaElevatubeDefinitions.SouthStartingY);
@@ -59,7 +59,7 @@ public sealed class MaridiaElevatubeRoomMainState
     /// <summary>Applies the door callback for entry from Plasma Spark to the north.</summary>
     public void SetUpFromNorth(SamusState samus)
     {
-        EnsureActive(DoorSetupCode.DoorASM_SetupElevatubeFromNorth);
+        EnsureActive(DoorSetupCode.ToiletStartsElevatubeRideFromNorth);
         Ensure.NotNull(samus);
         // Entry from the north leaves the tracked fraction as it was.
         TrackedPosition = new(0, MaridiaElevatubeDefinitions.NorthStartingY);

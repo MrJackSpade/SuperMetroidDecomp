@@ -464,7 +464,7 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
     grid.SetLogicalState(new(0, 0), RoomScrollState.Blue);
     grid.SetLogicalState(new(0, 1), RoomScrollState.RedBoundary);
     DoorSetupCodeInterpreter.ApplyScrollWrites(
-        DoorSetupCode.DoorASM_Scroll_0_Green_1_Blue,
+        DoorSetupCode.ConstructionZoneOpensScreen0x0OpensScreen0x1TopAligned,
         DoorDefinitions.Get(DoorPointers.ConstructionZoneFromFirstMissile).Name,
         grid);
     AssertEqual(RoomScrollState.Green, grid.ReadState(0),
@@ -473,7 +473,7 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
         "$8F:BE25 writes Construction Zone screen one blue");
     grid.SetCell(6, RoomScrollState.RedBoundary);
     DoorSetupCodeInterpreter.ApplyScrollWrites(
-        DoorSetupCode.DoorCode_Scroll6_Green,
+        DoorSetupCode.ParlorOpensScreen1x1,
         DoorDefinitions.Get(DoorPointers.ParlorFromClimb).Name,
         grid);
     AssertEqual(RoomScrollState.Green, grid.ReadState(6),
@@ -485,7 +485,7 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
     // runtime-owned Mode-7 state is cleared by the paired door dispatcher.
     grid.SetCell(7, RoomScrollState.Blue);
     DoorSetupCodeInterpreter.ApplyScrollWrites(
-        DoorSetupCode.DoorASM_FromCeresElevatorShaft,
+        DoorSetupCode.FallingTileEndsTurningFloor,
         DoorDefinitions.Get(DoorPointers.FromCeresElevatorShaft).Name,
         grid);
     AssertEqual(RoomScrollState.Blue, grid.ReadState(7),

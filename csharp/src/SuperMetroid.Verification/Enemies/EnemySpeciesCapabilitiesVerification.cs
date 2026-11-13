@@ -183,7 +183,7 @@ internal static class EnemySpeciesCapabilitiesVerification
             foreach (EnemyReaction? callback in callbacks)
             {
                 bool expected = callback is { } named && owned.Contains(named) ||
-                    ownsHeaderCallback && DeadTourianBehavior.HasDeadTourianCorpseShotCallback(slot) && callback == EnemyCollision.ShotAi(slot) ||
+                    ownsHeaderCallback && DeadTourianBehavior.HasDeadTourianCorpseShotReaction(slot) && callback == EnemyCollision.ShotAi(slot) ||
                     ownsCrocomireCallbacks && callback is { } crocomire && crocomireCallbacks.Contains(crocomire);
                 bool actual = entity is IEnemyPrivateShotReaction owner && owner.OwnsPrivateShotReaction(callback);
                 AssertEqual(expected, actual, $"{definition} owns private shot callback {callback?.ToString() ?? "none"}");

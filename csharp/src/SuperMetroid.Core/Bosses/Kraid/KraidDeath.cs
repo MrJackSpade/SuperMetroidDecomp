@@ -283,13 +283,13 @@ internal sealed class KraidDeath
     /// <summary>Consumes sink-table entries as the body descends.</summary>
     internal void ProcessKraidSinkTable(RoomEnemySlot body)
     {
-        if (KraidSinkSchedule.CallbackAt(body.Position.Y.Whole) is KraidSinkCallback function)
+        if (KraidSinkSchedule.StepAt(body.Position.Y.Whole) is KraidSinkStep function)
         {
             // Every eight-pixel sinking row runs its step, including the
             // deliberately empty step used by rows whose only job is clearing a strip of his body.
             // Do not merge that step with the adjacent crumble step: they are
             // distinct steps in the retail schedule.
-            if (KraidObjects.ForSinkCallback(function) is { } request)
+            if (KraidObjects.ForSinkStep(function) is { } request)
             {
                 // Each sinking rock starts at the left pixel edge of the removed block.
                 _ = _background.SpawnKraidCeilingRock(request.Block.X * 16);

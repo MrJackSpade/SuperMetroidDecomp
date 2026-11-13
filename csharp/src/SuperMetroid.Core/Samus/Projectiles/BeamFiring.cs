@@ -325,15 +325,16 @@ internal sealed class BeamFiring
         {
             // The game installs the frame behaviour only after muzzle collision. Do not
             // infer it from Wave bits: the table is the dispatcher, including overreads.
-            SamusBeamCallbackDefinition callback =
-                SamusBeamCallbacks.Resolve(charged, beamType);
+            SamusBeamFrameBehaviorDefinition definition =
+                SamusBeamFrameBehaviors.Resolve(charged, beamType);
             // The frame behaviours with no model are Spazer and Plasma combinations whose table read lands outside
             // the game's code: on the game's live state or an unconnected region. The game then runs
             // whatever that data holds, which only full memory and processor emulation could reproduce, so the
             // model rejects the shot under the emulation scope limit (#1500).
-            slot.FrameBehavior = callback.Translated ?? throw new NotSupportedException(
-                $"Beam callback {callback.Callback} executes the game's live state or an unconnected region as code; " +
-                "reproducing it needs full memory and processor emulation, which is outside the port's scope.");
+            slot.FrameBehavior = definition.FrameBehavior ?? throw new NotSupportedException(
+                $"Beam frame behaviour {definition.Choice} runs whatever the game's live state or an unconnected region " +
+                "holds; reproducing that needs full memory and processor emulation, which is outside the emulation " +
+                "scope limit (#1500).");
             InitializePowerBeamVelocity(samus.ProjectileInheritance, slot, _unauthoredFiring);
         }
         return new BeamShot(slotIndex, sound);

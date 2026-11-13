@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>A beam frame behaviour the fire handlers select by charge state and beams, including the entries they read past their authored lists.</summary>
-internal enum SamusBeamCallback
+internal enum SamusBeamFrameBehaviorChoice
 {
     /// <summary>A beam without Wave: ordinary terrain-stopping beam motion.</summary>
     NoWave,

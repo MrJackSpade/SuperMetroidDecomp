@@ -59,25 +59,25 @@ internal static class SamusBeamFrameBehaviorCodes
     public const ushort MurderBeamMisalignedExecution = 0xa4aa;
 
     /// <summary>The bank-$90 word that selects <paramref name="callback"/>.</summary>
-    internal static ushort Of(SamusBeamCallback callback) => callback switch
+    internal static ushort Of(SamusBeamFrameBehaviorChoice callback) => callback switch
     {
-        SamusBeamCallback.NoWave => NoWave,
-        SamusBeamCallback.WaveThreeFrameTrail => WaveThreeFrameTrail,
-        SamusBeamCallback.WaveFourFrameTrail => WaveFourFrameTrail,
-        SamusBeamCallback.UnchargedCombinationTwelveOverrun => UnchargedCombinationTwelveAdjacentWord,
-        SamusBeamCallback.SpacetimePaletteCopyTail => SpacetimePaletteCopyTail,
-        SamusBeamCallback.ChainsawPowerBomb => ChainsawPowerBomb,
-        SamusBeamCallback.ChargedChainsawOverrun => ChargedChainsawOverrun,
-        SamusBeamCallback.UnchargedCombinationFifteenOverrun => UnchargedCombinationFifteenAdjacentWord,
-        SamusBeamCallback.ChargedCombinationTwelveOverrun => ChargedCombinationTwelveAdjacentWord,
-        SamusBeamCallback.MurderBeamMisalignedExecution => MurderBeamMisalignedExecution,
+        SamusBeamFrameBehaviorChoice.NoWave => NoWave,
+        SamusBeamFrameBehaviorChoice.WaveThreeFrameTrail => WaveThreeFrameTrail,
+        SamusBeamFrameBehaviorChoice.WaveFourFrameTrail => WaveFourFrameTrail,
+        SamusBeamFrameBehaviorChoice.UnchargedCombinationTwelveOverrun => UnchargedCombinationTwelveAdjacentWord,
+        SamusBeamFrameBehaviorChoice.SpacetimePaletteCopyTail => SpacetimePaletteCopyTail,
+        SamusBeamFrameBehaviorChoice.ChainsawPowerBomb => ChainsawPowerBomb,
+        SamusBeamFrameBehaviorChoice.ChargedChainsawOverrun => ChargedChainsawOverrun,
+        SamusBeamFrameBehaviorChoice.UnchargedCombinationFifteenOverrun => UnchargedCombinationFifteenAdjacentWord,
+        SamusBeamFrameBehaviorChoice.ChargedCombinationTwelveOverrun => ChargedCombinationTwelveAdjacentWord,
+        SamusBeamFrameBehaviorChoice.MurderBeamMisalignedExecution => MurderBeamMisalignedExecution,
         _ => throw new ArgumentOutOfRangeException(nameof(callback), callback, "Undefined beam callback."),
     };
 
     /// <summary>A callback definition by its bank-$90 word.</summary>
-    extension(SamusBeamCallbackDefinition definition)
+    extension(SamusBeamFrameBehaviorDefinition definition)
     {
         /// <summary>The bank-$90 word the fire handler table holds for the definition.</summary>
-        internal ushort NativePointer => Of(definition.Callback);
+        internal ushort NativePointer => Of(definition.Choice);
     }
 }

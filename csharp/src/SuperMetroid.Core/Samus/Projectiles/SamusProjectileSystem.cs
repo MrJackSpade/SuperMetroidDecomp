@@ -40,7 +40,7 @@ public sealed class SamusProjectileSystem
     internal ProjectileEarthquakes Earthquakes { get; }
 
     /// <summary>Manages the special beam window that alters projectile handling.</summary>
-    internal ChainsawPowerBombCallback Chainsaw { get; }
+    internal ChainsawPowerBombFrameBehavior Chainsaw { get; }
 
     /// <summary>Queues the sound selected for projectile contact with terrain or enemies.</summary>
     internal ProjectileImpactAudio ImpactAudio { get; }
@@ -111,7 +111,7 @@ public sealed class SamusProjectileSystem
         TerrainCollision = new ProjectileTerrainCollision(Animation, Earthquakes, ImpactAudio, samusOverreads.StraddledTerrain);
         EnemyImpacts = new ProjectileEnemyImpacts(Animation, Earthquakes, SlotTable, TerrainCollision, overreads.UnauthoredBeamFiring);
         Trails = new ProjectileTrails();
-        Chainsaw = new ChainsawPowerBombCallback(Animation, overreads.ChainsawFuseShift);
+        Chainsaw = new ChainsawPowerBombFrameBehavior(Animation, overreads.ChainsawFuseShift);
         Shinespark = new ShinesparkEchoProjectile(Animation, SlotTable);
         Combos = new BeamCombos(Animation, Charge, SlotTable, Trails, overreads.SpaceTimeOverwrite);
         Firing = new BeamFiring(Animation, Charge, Combos, SlotTable, TerrainCollision, overreads.UnauthoredBeamFiring);

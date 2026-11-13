@@ -284,7 +284,7 @@ internal static class DownwardGateObjectsVerification
             new RoomTerrainBlock[roomWidth * 16],
             new RoomBlockBehavior[roomWidth * 16]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        int parsed = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Brinstar), population, new RoomObjectServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        int parsed = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), population, new RoomObjectServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(2, parsed, $"{trigger} synthetic population parses both records");
         return new CreateDownwardGateFixtureResult(bus, level, roomObjects, gateY * roomWidth + gateX);
     }

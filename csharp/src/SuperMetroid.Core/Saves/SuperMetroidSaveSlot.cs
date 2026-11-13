@@ -74,12 +74,6 @@ public sealed record SuperMetroidSaveSlot(
     /// <summary>Whether the alternate Japanese text setting is enabled.</summary>
     public bool JapaneseText { get; init; }
 
-    /// <summary>
-    /// The cumulative count of item room objects set up, not a completion percentage. Gameplay wraps it to zero after
-    /// <see cref="SaveFieldValue.MaximumValue"/>; the slot only carries the value it reached.
-    /// </summary>
-    public int LoadedItemCount { get; init; }
-
     /// <summary>Restores the subset the Samus state represents.</summary>
     public void ApplyTo(SamusState samus)
     {
@@ -104,13 +98,12 @@ public sealed record SuperMetroidSaveSlot(
         samus.ReserveMissiles = ReserveMissiles;
     }
 
-    /// <summary>Restores player inventory, the saved progress, the loading state and the item-load count.</summary>
+    /// <summary>Restores player inventory, the saved progress and the loading state.</summary>
     public void ApplyTo(SamusState samus, SharedGameState system)
     {
         ApplyTo(samus);
         Ensure.NotNull(system);
         system.Progress.CopyFrom(Progression);
         system.LoadSavedStartupRoute(StartupRoute);
-        system.LoadedItemCount = SaveFieldValue.Require(LoadedItemCount, nameof(LoadedItemCount));
     }
 }

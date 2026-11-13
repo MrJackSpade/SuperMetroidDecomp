@@ -309,9 +309,9 @@ internal sealed class MenuGamePhases(FrontendSession session)
         {
             Random = session.Random,
             UnauthoredBoostCadence = session.unauthoredBoostCadence,
-            ProjectileFrameBindings = session.Artwork.ProjectileFrameBindings,
             NarrationPresentation = session.Artwork.MapPresentation?.IntroNarration,
         };
+        cinematic.BindProjectileFrames(session.Artwork.ProjectileFrameBindings);
         cinematic.BindSpriteSheets(session.Artwork.SpriteSheets);
         return cinematic;
     }

@@ -19,9 +19,6 @@ internal sealed record SporeSpawnBehaviorDependencies
     /// <summary>Sprite objects.</summary>
     public required RoomSpriteObjects SpriteObjects { get; init; }
 
-    /// <summary>Presentation.</summary>
-    public required EnemyPresentation Presentation { get; init; }
-
     /// <summary>Frame context.</summary>
     public required EnemyFrameContext FrameContext { get; init; }
 
@@ -33,9 +30,6 @@ internal sealed record SporeSpawnBehaviorDependencies
 
     /// <summary>Frame results.</summary>
     public required BossFrameResultBuilder FrameResults { get; init; }
-
-    /// <summary>The session's installed boss artwork.</summary>
-    public required BossArtworkBinding BossArtwork { get; init; }
 
     /// <summary>The enemy update's sound and music requests.</summary>
     public required EnemyAudioQueue Audio { get; init; }

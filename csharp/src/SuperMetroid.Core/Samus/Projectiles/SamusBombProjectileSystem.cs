@@ -161,16 +161,15 @@ public sealed class SamusBombProjectileSystem
     /// overlap pass that the main gameplay loop invokes before movement-handler beta: <see cref="RunHudProducer"/>,
     /// then <see cref="HandleBombs"/>.
     /// </summary>
-    public BombProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ControllerButton controllerInput, ControllerButton controllerNewInput, BombJumpOverlapPublication overlap = BombJumpOverlapPublication.Immediate, PowerBombExplosionStep explosion = PowerBombExplosionStep.Advance)
+    public void StepFrame(SamusTerrain terrain, SamusState samus, ControllerButton controllerInput, ControllerButton controllerNewInput, BombJumpOverlapPublication overlap = BombJumpOverlapPublication.Immediate, PowerBombExplosionStep explosion = PowerBombExplosionStep.Advance)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
 
         if (explosion == PowerBombExplosionStep.Advance)
             AdvancePowerBombExplosion(samus, controllerInput);
-        bool beamChargeConsumed = RunHudProducer(samus, controllerInput, controllerNewInput);
-        SamusBombJumpDirection publishedDirection = HandleBombs(terrain, samus, overlap);
-        return new BombProjectileFrameResult(publishedDirection, beamChargeConsumed);
+        _ = RunHudProducer(samus, controllerInput, controllerNewInput);
+        _ = HandleBombs(terrain, samus, overlap);
     }
 
     /// <summary>

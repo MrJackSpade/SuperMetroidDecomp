@@ -23,12 +23,6 @@ public sealed record SuperMetroidSaveSnapshot
     /// <summary>Whether the alternate Japanese text setting is enabled.</summary>
     public bool JapaneseText { get; init; }
 
-    /// <summary>
-    /// The cumulative count of item room objects set up. Gameplay wraps it to zero after <see cref="SaveFieldValue.MaximumValue"/>;
-    /// the snapshot only carries the value it reached.
-    /// </summary>
-    public int LoadedItemCount { get; init; }
-
     /// <summary>Bit mask of collected items currently enabled on Samus.</summary>
     public SamusEquipmentFlags EquippedItems { get; init; }
 
@@ -132,7 +126,6 @@ public sealed record SuperMetroidSaveSnapshot
             ReserveEnergy = samus.ReserveEnergy,
             ReserveMissiles = samus.ReserveMissiles,
             JapaneseText = context.JapaneseText,
-            LoadedItemCount = system.LoadedItemCount,
             GameTimeFrames = context.GameTime?.Frames ?? 0,
             GameTimeSeconds = context.GameTime?.Seconds ?? 0,
             GameTimeMinutes = context.GameTime?.Minutes ?? 0,

@@ -190,7 +190,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             words,
             behaviors);
         var roomObjects = RoomObjectFixtures.Unbound();
-        int parsed = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), area), RoomObjectPopulationImporter.Read(bus, emptyPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        int parsed = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), area), RoomObjectPopulationImporter.Read(bus, emptyPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(0, parsed, "speed-block fixture begins with an empty room PLM population");
         return new CreateSpeedBoosterBlockFixtureResult(bus, level, roomObjects, blockIndex);
     }

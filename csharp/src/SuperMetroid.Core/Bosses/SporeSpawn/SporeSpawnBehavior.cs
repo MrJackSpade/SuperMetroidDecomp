@@ -30,16 +30,12 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Spawns visual dust and dying explosions.</summary>
     private readonly RoomSpriteObjects _spriteObjects;
-    /// <summary>Receives live and death palette writes.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Exposes the enemy-frame counter and process-all-enemies override.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Resolves core-hitbox touch damage through shared enemy collision.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Creates item drops from Spore Spawn and its spores.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
     /// <summary>Receives Spore Spawn's sounds.</summary>
     private readonly EnemyAudioQueue _audio;
 
@@ -47,13 +43,11 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Captures the room and combat systems used by boss and spore behavior.</summary>
     internal SporeSpawnBehavior(SporeSpawnBehaviorDependencies dependencies)
     {
-        _bossArtwork = dependencies.BossArtwork;
         _audio = dependencies.Audio;
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _spriteObjects = dependencies.SpriteObjects;
-        _presentation = dependencies.Presentation;
         _frameContext = dependencies.FrameContext;
         _collision = dependencies.Collision;
         _deathsAndDrops = dependencies.DeathsAndDrops;

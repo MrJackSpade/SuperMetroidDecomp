@@ -14,7 +14,8 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// (#1527) listed the Zebetite count as three event bits, which become a count, and named an event after its number;
 /// schema five (#1553) listed event-table bits no story event uses by number, and the Chozo orbs, item locations and
 /// doors by room-data number, which become the locations and doors they number; schema six (#1605) kept the HUD
-/// selection and reserve-tank mode as numbers, which become their names, and two settings the game never reads.
+/// selection and reserve-tank mode as numbers, which become their names, and two settings the game never reads; schema
+/// seven (#1691) kept the count of item set-ups, which nothing in the game reads.
 /// </summary>
 public static class LegacyGameSaveJson
 {
@@ -52,7 +53,7 @@ public static class LegacyGameSaveJson
         return GameSaveJsonCodec.Deserialize(current, sourceName);
     }
 
-    /// <summary>One-way upgrade of schemas one through six to the current schema; the current schema is returned unchanged.</summary>
+    /// <summary>One-way upgrade of schemas one through seven to the current schema; the current schema is returned unchanged.</summary>
     private static string Upgrade(string json, out int sourceSchemaVersion)
     {
         JsonObject root = JsonNode.Parse(json) as JsonObject ??
@@ -70,7 +71,11 @@ public static class LegacyGameSaveJson
             UpgradeSchemaFour(root);
         if (sourceSchemaVersion <= SchemaFive)
             UpgradeSchemaFive(root);
-        UpgradeSchemaSix(root);
+        if (sourceSchemaVersion <= SchemaSix)
+            UpgradeSchemaSix(root);
+        // Schema one kept the count only in its preserved image, which its upgrade does not read the count from.
+        if (sourceSchemaVersion >= SchemaTwo)
+            UpgradeSchemaSeven(root);
         root["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
         return root.ToJsonString();
     }
@@ -99,7 +104,25 @@ public static class LegacyGameSaveJson
         }
     }
 
-    /// <summary>Removes and returns a schema-six slot's integer property.</summary>
+    /// <summary>The schema that kept the HUD selection and reserve-tank mode as numbers.</summary>
+    private const int SchemaSix = 6;
+
+    /// <summary>
+    /// Schema seven to eight (#1691): schemas two through seven carried <c>loadedItemCount</c>, the count of item set-ups
+    /// the cartridge kept and nothing in the game reads; like schema six's unread words, it is not carried.
+    /// </summary>
+    private static void UpgradeSchemaSeven(JsonObject root)
+    {
+        JsonArray slots = root["slots"] as JsonArray ?? throw new InvalidDataException("slots is required");
+        for (int index = 0; index < slots.Count; index++)
+        {
+            if (slots[index] is null) continue;
+            JsonObject slot = slots[index] as JsonObject ?? throw new InvalidDataException($"slots[{index}] must be an object");
+            _ = TakeInteger(slot, "loadedItemCount", index);
+        }
+    }
+
+    /// <summary>Removes and returns an older slot's integer property.</summary>
     private static int TakeInteger(JsonObject slot, string name, int index)
     {
         int value = slot[name] is JsonValue number && number.TryGetValue(out int parsed) ? parsed
@@ -350,7 +373,6 @@ public static class LegacyGameSaveJson
             JsonObject resources = slot["resources"] as JsonObject ?? throw new InvalidDataException($"slots[{index}].resources is required");
             resources["reserveMissiles"] = Word(SaveRamLayout.ReserveMissilesOffset);
             slot["japaneseText"] = Word(SaveRamLayout.JapaneseTextOffset) != 0;
-            slot["loadedItemCount"] = Word(SaveRamLayout.LoadedItemCountOffset);
             ushort Word(int offset) => SaveRamCodec.ReadSlotWord(sram, index, offset);
         }
         root["gameCompleted"] = sram.AsSpan(SaveRamLayout.CompletionMarkerOffset,

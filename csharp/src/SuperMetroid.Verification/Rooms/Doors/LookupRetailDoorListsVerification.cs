@@ -40,14 +40,14 @@ internal static class LookupRetailDoorListsVerification
             }
             IReadOnlyList<DoorListEntry> actual = RoomDoorListDefinitions.ByRoom[RoomDefinitions.Get(room)];
             AssertEqual(pointer, RoomDoorListDefinitions.ListPointerOf(RoomDefinitions.Get(room)), "Door list keeps its room's source identity");
-            AssertTrue(actual.Select(entry => entry.Pointer).SequenceEqual(original),
+            AssertTrue(actual.Select(entry => entry.Pointer).SequenceEqual(original.Select(DoorDefinitionsAccess.DoorPointerOf)),
                 $"Door list {pointer:X4} count and all original targets match");
             for (int behavior = 0; behavior <= byte.MaxValue; behavior++)
             {
                 byte bts = (byte)behavior;
                 int index = behavior & 0x7f;
                 if (index < original.Count)
-                    AssertEqual(original[index], DoorDefinitions.Resolve(pointer, bts).Pointer,
+                    AssertEqual(DoorDefinitionsAccess.DoorPointerOf(original[index]), DoorDefinitions.Resolve(pointer, bts).Pointer,
                         $"Door list {pointer:X4} BTS {behavior:X2} preserves physical/elevator target");
                 else
                     AssertThrows<InvalidDataException>(() => DoorDefinitions.Resolve(pointer, bts),

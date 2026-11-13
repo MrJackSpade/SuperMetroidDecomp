@@ -303,7 +303,7 @@ internal static class RoomBackgroundsFixtures
             SpriteSheetFrame behind = sheet.Frame($"{random.Next(SeededPictureCount)}");
             shown[definition] = new LayeredPicture(behind, random.Next(2) == 0 ? sheet.Frame($"{random.Next(SeededPictureCount)}") : null);
         }
-        return new RoomBlockPictureTable(new RoomBlockSheet(default(TilesetDefinition), sheet, RoomBlockFixtures.Appearances(Definitions)), shown);
+        return new RoomBlockPictureTable(shown);
     }
 
     /// <summary>

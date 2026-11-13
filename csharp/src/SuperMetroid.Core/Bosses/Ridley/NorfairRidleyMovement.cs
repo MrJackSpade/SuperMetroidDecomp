@@ -4,15 +4,8 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>How Norfair Ridley accelerates and moves toward a target, and the function timer its steps count down.</summary>
-[RoomLifetime]
-internal sealed class NorfairRidleyMovement
+internal static class NorfairRidleyMovement
 {
-
-    /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal NorfairRidleyMovement()
-    {
-    }
-
     /// <summary>Counts the function timer down and reports whether it ran past zero.</summary>
     internal static bool TickRidleyFunctionTimer(RidleyEnemyState state) => --state.FunctionTimer < 0;
 

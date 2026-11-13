@@ -106,9 +106,6 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The room-object system, once the room-object population step has built it.</summary>
     public RoomObjectSystem? RoomObjects { get; set; }
 
-    /// <summary>The runtime services, once the room-object population step has created them.</summary>
-    public RoomEnemyRuntimeServices? Services { get; set; }
-
     /// <summary>The finished scope.</summary>
     /// <exception cref="InvalidOperationException">A required load step has not run.</exception>
     public RoomScope Complete() => new()
@@ -152,7 +149,6 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         EscapeDiagonalQuake = EscapeDiagonalQuake ?? throw Missing(nameof(EscapeDiagonalQuake)),
         Enemies = Enemies ?? throw Missing(nameof(Enemies)),
         RoomObjects = RoomObjects ?? throw Missing(nameof(RoomObjects)),
-        Services = Services ?? throw Missing(nameof(Services)),
     };
 
     /// <summary>The failure for a load that completed without building <paramref name="part"/>.</summary>

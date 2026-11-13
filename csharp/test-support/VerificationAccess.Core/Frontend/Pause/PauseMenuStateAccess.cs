@@ -30,12 +30,6 @@ internal static class PauseMenuStateAccess
         /// <summary>Number of cartridge OBJ records emitted by the most recent render.</summary>
         internal int LastRenderedSpriteCount => self.screen.Objects.LastFinalizedSpriteCount;
 
-        /// <summary>Pose of the Samus map marker when it was the last indicator a pause render drew.</summary>
-        internal SuperMetroid.Core.Frontend.Map.MapSpriteId? LastMapIndicatorSprite => self.LastMapIndicatorSprite;
-
-        /// <summary>Category of the equipment selector when it was the last indicator a pause render drew.</summary>
-        internal PauseEquipmentCategory? LastSelectorCategory => self.LastSelectorCategory;
-
         /// <summary>
         /// The BG1 tiles the cartridge would show (#1467): the shown area map laid out on the layer's two pages, with the
         /// equipment page over the first while the equipment page shows, for comparison with native VRAM.

@@ -511,8 +511,7 @@ internal sealed class RoomLoader
             door,
             sourceSamus,
             _room.Camera.PixelPosition,
-            _backgroundScroll.BackgroundPosition,
-            _player.Samus.Position);
+            _backgroundScroll.BackgroundPosition);
         DoorDirection direction = door.Orientation.Direction;
         DoorOpeningSourceView sourceScroll = _pendingDoorOpeningSourceView
             ?? throw new InvalidOperationException(
@@ -935,7 +934,7 @@ internal sealed class RoomLoader
         // serves the room's room objects and enemies.
         var progress = new RoomAreaProgress(_system, room.AreaIndex);
         var roomObjectServices = new RoomObjectRuntimeServices(scope, _player, _system);
-        var roomObjectRoom = new RoomObjectRoom(assets.LevelData, scope.Appearance, _system, room.AreaIndex);
+        var roomObjectRoom = new RoomObjectRoom(assets.LevelData, _system, room.AreaIndex);
         var roomObjectBindings = new RoomObjectServices
         {
             Samus = roomObjectServices,
@@ -953,7 +952,6 @@ internal sealed class RoomLoader
         scope.RoomObjects = roomObjects;
         roomObjects.Sounds.BindAudioRequests(_audioRequests);
         var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, roomObjects, _display, progress);
-        scope.Services = areaServices;
         roomObjects.PopulationLoader.LoadRoomPopulation(roomObjectRoom, room.State.ObjectPopulation, roomObjectBindings);
 
         // The door transition runs the door setup code only after destination room objects
@@ -1207,7 +1205,7 @@ internal sealed class RoomLoader
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("A door began with no room loaded.");
         // The elevator shaft's screen is its turning floor, which the door's scroll keeps showing: none of its blocks (#1647).
         if (RoomTurningFloors.ShowsShaftFloor(scope.Room.State.MainCallback))
-            return RoomBlockPictureTable.NoneDrawn(scope.Assets.BlockSheet);
+            return RoomBlockPictureTable.NoneDrawn();
         return scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane, null, RoomScope.BlockArtworkOf(_room.ActiveRoom),
             new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, _enemySession.Looks), []);
     }

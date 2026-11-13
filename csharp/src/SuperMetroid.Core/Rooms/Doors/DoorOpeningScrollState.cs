@@ -24,8 +24,6 @@ internal sealed class DoorOpeningScrollState
         BackgroundPosition = setup.BackgroundPosition;
         SamusPosition = setup.SamusPosition;
         FinalCameraPosition = setup.FinalCameraPosition;
-        FinalBackgroundPosition = setup.FinalBackgroundPosition;
-        FinalSamusPosition = setup.FinalSamusPosition;
     }
 
     /// <summary>Travel axis and sign selected by the destination door definition.</summary>
@@ -49,22 +47,18 @@ internal sealed class DoorOpeningScrollState
     /// <summary>Exact camera endpoint published after the scroll's final update.</summary>
     public Position16<RoomPixels> FinalCameraPosition { get; }
 
-    /// <summary>Background endpoint reached through directional four-pixel steps.</summary>
-    public Position16<BackgroundPixels> FinalBackgroundPosition { get; }
-
-    /// <summary>Deferred Samus endpoint retained by the door loader for the destination handoff.</summary>
-    public FixedPosition<RoomPixels> FinalSamusPosition { get; }
-
     /// <summary>Whether the just-advanced update recomputes the layer scrolls; upward doors delay their first frames.</summary>
     public bool RecalculatesScrollAfterAdvance { get; private set; } = true;
 
-    /// <summary>Builds the setup position and the scroll's trajectory from a door and its destination coordinates.</summary>
+    /// <summary>
+    /// Builds the setup position and the scroll's trajectory from a door and its destination camera and background
+    /// positions; the background's endpoint is reached through directional four-pixel steps.
+    /// </summary>
     public static DoorOpeningScrollState Create(
         DoorDefinition door,
         FixedPosition<RoomPixels> sourceSamus,
         Position16<RoomPixels> finalCamera,
-        Position16<BackgroundPixels> finalBackground,
-        FixedPosition<RoomPixels> finalSamus)
+        Position16<BackgroundPixels> finalBackground)
     {
         DoorDirection direction = door.Orientation.Direction;
         FixedPosition<RoomPixels> samus = RebaseSamus(door, ApplySetupMovement(door, sourceSamus));
@@ -80,7 +74,7 @@ internal sealed class DoorOpeningScrollState
             _ => throw new ArgumentOutOfRangeException(nameof(door), direction, "Undefined door direction."),
         };
 
-        return new DoorOpeningScrollState(new DoorOpeningScrollSetup { Direction = direction, SamusScrollStep = GetSamusStep(door), RemainingFrames = MovingScrollUpdates(direction), CameraPosition = GetSetupCamera(door), BackgroundPosition = finalBackground + backgroundSetup, SamusPosition = samus, FinalCameraPosition = finalCamera, FinalBackgroundPosition = finalBackground, FinalSamusPosition = finalSamus });
+        return new DoorOpeningScrollState(new DoorOpeningScrollSetup { Direction = direction, SamusScrollStep = GetSamusStep(door), RemainingFrames = MovingScrollUpdates(direction), CameraPosition = GetSetupCamera(door), BackgroundPosition = finalBackground + backgroundSetup, SamusPosition = samus, FinalCameraPosition = finalCamera });
     }
 
     /// <summary>

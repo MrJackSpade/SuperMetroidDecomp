@@ -1,14 +1,13 @@
-using SuperMetroid.Core.Progression;
-
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>A cap that has been opened for good: its door is recorded as opened, and the cap is never checked again.</summary>
 public sealed record SpentDoorArgument : RoomObjectRoomArgument
 {
-    /// <summary>The door the cap stood for.</summary>
-    internal readonly LockedDoor Door;
+    /// <summary>The argument of every spent cap.</summary>
+    internal static SpentDoorArgument Instance { get; } = new();
 
-    /// <summary>Marks the cap of <paramref name="door"/> spent.</summary>
-    /// <param name="door">The door the cap stood for.</param>
-    internal SpentDoorArgument(LockedDoor door) => Door = Ensure.NotNull(door);
+    /// <summary>Only <see cref="Instance"/> exists.</summary>
+    private SpentDoorArgument()
+    {
+    }
 }

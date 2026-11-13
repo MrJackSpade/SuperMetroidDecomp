@@ -26,7 +26,6 @@ internal static class SaveSlotRetention
         HudItem hudItem = Defined(snapshot.HudItem, nameof(snapshot.HudItem));
         int maxReserveEnergy = Kept(snapshot.MaxReserveEnergy), reserveEnergy = Kept(snapshot.ReserveEnergy);
         int reserveMissiles = Kept(snapshot.ReserveMissiles);
-        int loadedItemCount = SaveFieldValue.Require(snapshot.LoadedItemCount, nameof(snapshot.LoadedItemCount));
         if (!GameTimeState.IsInDomain(snapshot.GameTimeFrames, snapshot.GameTimeSeconds, snapshot.GameTimeMinutes, snapshot.GameTimeHours))
         {
             throw new InvalidOperationException(
@@ -67,7 +66,6 @@ internal static class SaveSlotRetention
             IconCancelEnabled = snapshot.IconCancelEnabled,
             ReserveMissiles = reserveMissiles,
             JapaneseText = snapshot.JapaneseText,
-            LoadedItemCount = loadedItemCount,
         };
     }
 

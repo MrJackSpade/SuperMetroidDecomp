@@ -41,7 +41,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         if (!ReferenceEquals(previous.SamusBodyArt, artwork.SamusBodyArt))
             BindSamusBodyArtwork(artwork.SamusBodyArt);
         if (!ReferenceEquals(previous.ProjectileFrameBindings, artwork.ProjectileFrameBindings))
-            ProjectileFrameBindings = artwork.ProjectileFrameBindings;
+            BindProjectileFrames(artwork.ProjectileFrameBindings);
         if (!ReferenceEquals(previous.SpriteSheets, artwork.SpriteSheets))
             BindSpriteSheets(artwork.SpriteSheets);
     }
@@ -72,12 +72,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>The session's unauthored Speed Booster cadence, bound into the flashback Samus.</summary>
     public required UnauthoredBoostCadence UnauthoredBoostCadence { get; init; }
 
-    /// <summary>Host-owned frame artwork for the Mother Brain flashback's projectile and bomb slots.</summary>
-    public InstalledProjectileFrameBindings? ProjectileFrameBindings
-    {
-        get => flashbackProjectiles.Animation.FrameBindings;
-        set => flashbackProjectiles.Animation.FrameBindings = flashbackBombProjectiles.FrameBindings = value;
-    }
+    /// <summary>Binds the host-owned frame artwork the Mother Brain flashback's projectile and bomb slots draw.</summary>
+    public void BindProjectileFrames(InstalledProjectileFrameBindings? bindings) =>
+        flashbackProjectiles.Animation.FrameBindings = flashbackBombProjectiles.FrameBindings = bindings;
 
     /// <summary>The opening's installed backdrops and the Ceres scenes' placements (#1616).</summary>
     internal IntroCinematicArtwork? CharacterArtwork { get; private set; }

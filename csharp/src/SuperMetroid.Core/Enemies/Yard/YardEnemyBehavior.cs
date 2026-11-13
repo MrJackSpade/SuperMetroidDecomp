@@ -410,7 +410,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, state.AirborneVelocity.X))
             {
                 state.AirborneVelocity = state.AirborneVelocity.WithX(YardAirborneReversal.Reversed(state.AirborneVelocity.X));
-                state.BouncedHorizontally = true;
                 _audio.QueueEnemySound(YardBounceSound, priority: SoundRequestPriority.Low);
             }
             else
@@ -429,7 +428,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             state.AirborneVelocity = state.AirborneVelocity.WithY(YardAirborneReversal.Reversed(state.AirborneVelocity.Y));
-            state.BouncedHorizontally = false;
             return;
         }
 

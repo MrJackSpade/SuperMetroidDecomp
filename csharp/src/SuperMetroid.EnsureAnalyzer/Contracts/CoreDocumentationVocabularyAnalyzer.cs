@@ -23,6 +23,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// terms; provenance belongs to the import pipeline or a check's native catalog. Only a
 /// <c>[CompatibilityService]</c> type, which reproduces hardware behaviour, or an <c>[EncodingOwner]</c> codec, which owns
 /// an encoding, may describe the hardware. One diagnostic per comment or literal; there is no allowance list.
+/// #1624 adds the interpreter vocabulary of the original's streams: operands, instructions and numbered, Samus and
+/// animation commands.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -58,6 +60,26 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         @"|\b(?:eight|sixteen|8|16)-bit\b|\bextension\s+words?\b|\baccumulator\s+mode\b" +
         @"|\bassembly\s+(?:code|language|listing|routine|source)s?\b|\bthe\s+(?:original\s+)?assembly\b(?!\s+line)" +
         @"|\bpalette\s+(?:zero|one|two|three|four|five|six|seven|[0-7])\b|\bpriority\s+(?:zero|one|two|three|[0-3])\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The interpreter vocabulary of the original's streams in prose (#1624): an operand, an instruction, a command by
+    /// number (<c>command 9/10</c>, <c>command-six</c>, <c>commands 0/1/2/4</c>) and a Samus or animation command. A Core cue
+    /// says what it does and carries the values it acts on, a frame carries its gameplay, and a script's change of who
+    /// controls Samus is a control setup or lock. English stays legal: an arithmetic operation's operands (the
+    /// subtraction's operands, the operands of a comparison), the player's instructions and instructions for the player, a
+    /// command that is not numbered (a menu's commands, a data-management command) and a number that counts the noun after
+    /// it (a command one frame later).
+    /// </summary>
+    private static readonly Regex InterpreterProse = new(
+        @"(?<!\b(?:sum|difference|product|quotient|addition|subtraction|multiplication|division|comparison)'s\s+)\boperands?\b" +
+        @"(?!\s+of\s+(?:the|an?|its)\s+(?:sum|difference|product|quotient|addition|subtraction|multiplication|division|comparison)\b)" +
+        @"|(?<!\b(?:player's|players'|on-screen|written|follows?|followed|following|gives?|gave|given)\s+(?:the\s+|its\s+|their\s+)?)" +
+        @"\binstructions?\b(?!\s+(?:to|for)\s+(?:the\s+)?(?:players?|users?|readers?)\b)(?!\s+(?:manual|booklet)s?\b)" +
+        @"|\b(?:Samus|animation)[-\s]+commands?\b" +
+        @"|\bcommands?[-\s]+(?:[0-9]+|zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen" +
+        @"|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty)\b" +
+        @"(?![-\s]+(?:frames?|updates?|ticks?|times?|steps?|pixels?|seconds?|beats?|more|fewer|less|of)\b)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
@@ -241,6 +263,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : HardwareProse.Match(text) is { Success: true } prose ? prose.Value
             : HardwareTerms.Match(text) is { Success: true } term ? term.Value
             : ProgramProse.Match(text) is { Success: true } program ? program.Value
+            : InterpreterProse.Match(text) is { Success: true } interpreter ? interpreter.Value
             : CpuProse.Match(text) is { Success: true } cpu ? cpu.Value
             : StorageProse.Match(text) is { Success: true } storage ? storage.Value
             : OperationProse.Match(text) is { Success: true } operation ? operation.Value

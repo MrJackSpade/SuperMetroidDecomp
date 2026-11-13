@@ -64,6 +64,29 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { // passed through A\n }", "('through A')");
         Expect("class P { /// <summary>Drawn in palette seven.</summary>\nint F => 0; }", "('palette seven')");
         Expect("class P { // drawn at priority three\n }", "('priority three')");
+        // The interpreter vocabulary of the original's streams (#1624): operands, instructions, numbered commands, and
+        // Samus and animation commands, in documentation, line comments and string literals.
+        Expect("class P { /// <summary>One cue of the Alcoon's animations, with its typed operands.</summary>\nint F => 0; }", "('operands')");
+        Expect("class P { // a frame on a cue's operand reads the step\n }", "('operand')");
+        Expect("class P { // the walking instructions store the delta\n }", "('instructions')");
+        Expect("class P { // the instruction stream rewinds\n }", "('instruction')");
+        Expect("class P { string Name => \"Samus animation instruction {0} selected no delay.\"; }", "('instruction')");
+        Expect("class P { /// <summary>Samus command zero: installs the locked pair.</summary>\nvoid Run() { } }", "('Samus command')");
+        Expect("class P { string Name => \"Samus commands test it.\"; }", "('Samus commands')");
+        Expect("class P { // emitted by the spike-release animation command\n }", "('animation command')");
+        Expect("class P { // special prospective command 9/10 snaps Samus to the rope\n }", "('command 9')");
+        Expect("class P { // Command-six's empty beta skips animation\n }", "('Command-six')");
+        Expect("class P { // controller commands 0/1/2/4 report themselves handled\n }", "('commands 0')");
+        Expect("class P { // the connection pose commands 9 and 10 share one tail\n }", "('commands 9')");
+        Expect("class P { /// <summary>Command twenty-four leaves her unable to stand.</summary>\nvoid Run() { } }", "('Command twenty')");
+        // Arithmetic operands, the player's instructions, unnumbered commands and a count of the noun after it are English.
+        Expect("class P { /// <summary>Compares the subtraction's operands; the operands of the comparison are signed.</summary>\nint F => 0; }");
+        Expect("class P { // shows the player's instructions; instructions for the player follow the title\n }");
+        Expect("class P { /// <summary>A data-management command row; the menu's commands run one at a time.</summary>\nint F => 0; }");
+        Expect("class P { // the pause command one frame later restores the pair; the player commands Samus\n }");
+        Expect("class P { /// <summary>The cue carries the values it acts on; the control setup restores Samus's control.</summary>\nint F => 0; }");
+        Expect("[System.AttributeUsage(System.AttributeTargets.All)] sealed class CompatibilityServiceAttribute(string behaviour) : System.Attribute { public string Behaviour { get; } = behaviour; }\n" +
+            "/// <summary>Evidence: the walking instructions store the delta; command seven reads it.</summary>\n[CompatibilityService(\"walk\")] class Walk { }");
         // Storage and machine vocabulary #1558 left out (#1611).
         Expect("class P { /// <summary>Kept in variable E.</summary>\nint F => 0; }", "('variable E')");
         Expect("class P { // extended word 08 holds it\n }", "('extended word')");

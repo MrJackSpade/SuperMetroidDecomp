@@ -88,10 +88,29 @@ Matching is by whole camel-case word, ignoring case, with plural and verb ending
 `Addressing`). `Object` is not `Obj`, `Roman` is not `Rom`, `Registry` is not `Register`. A run of capitals is one word
 (`OAMBuffer` is `OAM` + `Buffer`), and a digit stays with the word before it (`Mode7`).
 
+A name that says `Tile` or `Metatile` names the hardware's tile and is reported too (#1726,
+`CoreVocabularyAnalyzer.TileWords`): the eight-pixel picture the machine drew its backgrounds and sprites from, and the
+block named as four of them. Core names what it means instead: a block animation (`BlockAnimation`,
+`RoomSandBlockAnimationsState`, `TourianStatueBlockPicture`), a picture (`PictureFlip`, `BindScreenPictures`), a
+block (`XrayRoomOverlayBlocks`, `TankBlock`), the part of a layer drawn behind or in front of the actors
+(`ActorDepth.BehindFrontParts`, `GameplayLayer.BackgroundFrontPart`) or the eight-pixel cell
+(`BackgroundCellSizePixels`). The game's own tiles keep the word (`CoreVocabularyAnalyzer.GameTilePhrases`), each tile
+word judged by its own neighbours: the area map's tiles, `Map` before it (`MapTiles`, `IsMapTileExplored`,
+`WidthInMapTiles`); a room layer named as the destination engine names it, `Map` after it (`TileMap`, `TileMapLayer`);
+and the ceiling tiles that fall in Ceres station and the room named for them, `Falling` before it or `Fall` after it
+(`FallingTile`, `CeresTileFall`). A field, property, parameter or local whose type is named for the map, or an array or
+generic type over one, holds one of the area map's tiles and keeps a bare `tile` or `tiles`
+(`MapCoordinateJsonDocument[] Tiles`, `Position16<MapTiles> tile`, `CoreVocabularyAnalyzer.NamedForMap`); a method's own
+name is never typed for the map. `Tileset` and `Projectile` are other words.
+
+A name that says `Underflow` names the CPU's arithmetic and is reported too (#1726,
+`CoreVocabularyAnalyzer.MachineArithmeticWords`): a subtraction borrowing past zero. Core says what the value did in the
+game (`speedPassedZero`).
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
-it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as do `Tile`, `Tiles`,
-`Metatile` and `MapTiles`; so does `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside
-`Scanline` (#1694). Documentation prose is never read, so a comment may still say what a cartridge spritemap held.
+it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
+`SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is
+never read, so a comment may still say what a cartridge spritemap held.
 
 Members that override or implement a member declared outside Core keep the name the base declares. A record's
 positional parameter and the property it declares are reported once.

@@ -55,9 +55,4 @@ public sealed class ImportEndingObjectArtwork : EndingObjectSourceArtwork
     public RoomCharacterAtlas PostCreditsFragmentA { get; }
     /// <summary>Four post-shot logo tile chunks uploaded to BG/OBJ VRAM.</summary>
     public RoomCharacterAtlas PostShotLogoTiles { get; }
-
-    /// <summary>The import's read of <paramref name="objects"/>.</summary>
-    /// <exception cref="InvalidDataException">The ending artwork was not read for the import, which alone reads its characters.</exception>
-    public static ImportEndingObjectArtwork Imported(EndingObjectArtwork objects) => objects as ImportEndingObjectArtwork
-        ?? throw new InvalidDataException("The ending object artwork was not read for the import, which alone reads its characters.");
 }

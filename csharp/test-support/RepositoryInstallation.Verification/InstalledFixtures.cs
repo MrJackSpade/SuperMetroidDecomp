@@ -363,7 +363,6 @@ internal static class InstalledFixtures
         ushort gameTimeHours, ushort gameTimeMinutes, EndingInventorySnapshot inventory = default, bool japaneseText = false)
     {
         var ending = new EndingCreditsState(audio, new EndingCreditsSetup { GameTimeHours = gameTimeHours, GameTimeMinutes = gameTimeMinutes, Inventory = inventory, JapaneseText = japaneseText, EndingText = Maps.EndingText });
-        ending.Flyaway.BindFlightArtwork(IntroArtwork.CeresFlight);
         ending.InstalledArtwork.BindFixtureObjectArtwork(endingObjects.Value);
         ending.InstalledArtwork.BindBackdrops(endingBackdrops.Value);
         ending.InstalledArtwork.BindSpaceBackdrops(Maps.EndingSpaceBackdrops);

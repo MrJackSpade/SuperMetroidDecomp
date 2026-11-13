@@ -26,9 +26,14 @@ internal static class FrontendShownVramAccess
     /// <summary>The Ceres destruction's composed image.</summary>
     extension(CeresDestructionCinematicState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram() => CeresDestructionScreenMemory.Compose(self); }
 
-    /// <summary>The ending's composed image.</summary>
+    /// <summary>
+    /// The ending's composed image, over the installation's flight and ending object artwork, which the ending's installed
+    /// pictures are composed from and the game binds none of (#1616).
+    /// </summary>
     extension(EndingCreditsState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram() => EndingScreenMemory.Compose(
-        EndingScreenLoads.Of(self.Stage.Phase), SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingFloors, self.Flyaway.FlightArtwork, self.Stage.ObjectArtwork,
+        EndingScreenLoads.Of(self.Stage.Phase), SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingFloors,
+        SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.IntroArtwork.CeresFlight,
+        SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects,
         // The ending's installed pictures are composed from the installation's ending font (#1583).
         SuperMetroid.AssetExtraction.Frontend.Map.ImportAreaMapPresentation.EndingFontOf(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
         self.Stage.EndingReward); }

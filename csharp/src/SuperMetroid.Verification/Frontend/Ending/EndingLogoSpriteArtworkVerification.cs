@@ -20,7 +20,7 @@ internal static class EndingLogoSpriteArtworkVerification
 {
     /// <summary>Compares every installed logo frame at visible and wrapped origins with native OAM.</summary>
     internal static void VerifyEndingLogoSpriteArtwork(ISnesAddressSpace bus,
-        EndingObjectArtwork stock)
+        EndingObjectSourceArtwork stock)
     {
         foreach (CinematicSpriteFrameDefinition frame in EndingLogoSpriteDefinitions.Frames)
         {
@@ -39,7 +39,7 @@ internal static class EndingLogoSpriteArtworkVerification
                 nativeOam.FinalizeFrame();
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
-                CinematicSheetFixtures.Drawer(EndingObjectSourceArtwork.Of(stock).LogoSprites).Draw(frame.Pose, installedOam,
+                CinematicSheetFixtures.Drawer(stock.LogoSprites).Draw(frame.Pose, installedOam,
                     new(120, y), EndingShades.Drawn(EndingSpriteColouring.ShootingStars));
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&

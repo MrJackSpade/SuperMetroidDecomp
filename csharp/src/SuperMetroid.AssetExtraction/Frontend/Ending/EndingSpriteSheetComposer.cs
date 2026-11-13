@@ -34,7 +34,7 @@ internal static class EndingSpriteSheetComposer
     /// The scene draws a pose its families do not compose, a frame keeps its own colours in a set the drawn shade of one of
     /// its colourings shows in that colouring's colours, or a shade the ending shows is authored for no listed actors.
     /// </exception>
-    internal static SpriteSheetSources Sources(SpriteSheetId sheet, EndingObjectArtwork objects, EndingPaletteSet palettes,
+    internal static SpriteSheetSources Sources(SpriteSheetId sheet, ImportEndingObjectArtwork objects, EndingPaletteSet palettes,
         EndingFontCharacters font, IPaletteFxColorSource paletteFx)
     {
         Ensure.NotNull(objects);
@@ -44,16 +44,15 @@ internal static class EndingSpriteSheetComposer
         var transferArtwork = new EndingTransferArtwork(objects, font, page.Reward);
         int objectSelection = EndingSheetObjectSelectionDefinitions.Of(page.ObjectSheet);
         ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(objectSelection);
-        EndingObjectSourceArtwork sourceArtwork = EndingObjectSourceArtwork.Of(objects);
         SpriteArtwork characters = Characters(page.Transfers, transferArtwork, objectSelection);
         var frames = new List<ColouredFrame<EndingSpriteColouring>>();
         var blank = new List<string>();
-        foreach (ICinematicSpriteFrames family in ShownFamilies(sheet, page.Families(sourceArtwork), draws))
+        foreach (ICinematicSpriteFrames family in ShownFamilies(sheet, page.Families(objects), draws))
             AddFamily(frames, blank, family, draws, characters, sizes);
         if (page.Logo)
         {
             SpriteArtwork logo = Characters(LogoTransfers, transferArtwork, objectSelection);
-            foreach (ICinematicSpriteFrames family in ShownFamilies(sheet, [sourceArtwork.LogoSprites], draws))
+            foreach (ICinematicSpriteFrames family in ShownFamilies(sheet, [objects.LogoSprites], draws))
                 AddFamily(frames, blank, family, draws, logo, sizes);
         }
         if (draws.Stars)
@@ -78,15 +77,14 @@ internal static class EndingSpriteSheetComposer
     }
 
     /// <summary>The frames ending sheet <paramref name="sheet"/> holds: the poses its scene's actors draw from it, and the stars where they cross it.</summary>
-    internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, EndingObjectArtwork objects)
+    internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, EndingObjectSourceArtwork objects)
     {
         Ensure.NotNull(objects);
         EndingPage page = Page(sheet);
         EndingSheetDraws draws = EndingSceneActors.Of(sheet);
-        EndingObjectSourceArtwork sourceArtwork = EndingObjectSourceArtwork.Of(objects);
-        IEnumerable<ICinematicSpriteFrames> families = ShownFamilies(sheet, page.Families(sourceArtwork), draws);
+        IEnumerable<ICinematicSpriteFrames> families = ShownFamilies(sheet, page.Families(objects), draws);
         if (page.Logo)
-            families = families.Concat(ShownFamilies(sheet, [sourceArtwork.LogoSprites], draws));
+            families = families.Concat(ShownFamilies(sheet, [objects.LogoSprites], draws));
         IEnumerable<string> names = families.SelectMany(family => family.Frames.Keys.OrderBy(pose => pose.Index)
             .Where(pose => family.Family != EndingTypedTexts.Family || EndingTypedTexts.Texts.Find(pose) is null)
             .Select(pose => CinematicSpriteSheet.FrameName(family.Family, pose)).Concat(GlyphNames(family.Family)));

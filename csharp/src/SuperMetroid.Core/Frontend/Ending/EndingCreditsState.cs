@@ -33,10 +33,6 @@ internal sealed class EndingCreditsState : IFrontendScreen
             InstalledArtwork.BindEndingText(artwork.MapPresentation?.EndingText);
             InstalledArtwork.BindSpaceBackdrops(artwork.MapPresentation?.EndingSpaceBackdrops);
         }
-        if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
-            Flyaway.BindFlightArtwork(artwork.IntroCinematicArt?.CeresFlight);
-        if (!ReferenceEquals(previous.EndingObjectArt, artwork.EndingObjectArt))
-            InstalledArtwork.BindObjectArtwork(artwork.EndingObjectArt);
         if (!ReferenceEquals(previous.EndingBackdrops, artwork.EndingBackdrops))
             InstalledArtwork.BindBackdrops(artwork.EndingBackdrops);
         if (!ReferenceEquals(previous.SpriteSheets, artwork.SpriteSheets))
@@ -78,7 +74,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
     internal EndingStage Stage { get; }
 
-    /// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars, the fade and the flight artwork.</summary>
+    /// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars and the fade.</summary>
     internal EndingFlyaway Flyaway { get; }
 
     /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and palette assets.</summary>
@@ -99,7 +95,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         Stage = new EndingStage(setup.GameTimeHours, screen, sprites);
         InstalledArtwork = new EndingArtwork(Stage);
         Flyaway = new EndingFlyaway(setup.CrittersEscaped, screen, Stage);
-        Explosion = new EndingZebesExplosion(screen, sprites, Stage, Flyaway, InstalledArtwork);
+        Explosion = new EndingZebesExplosion(screen, sprites, Stage, Flyaway);
         EscapeScenes = new EndingEscapeScenes(audio, setup.GameTimeHours, setup.GameTimeMinutes, screen, sprites, Stage, InstalledArtwork);
         CreditsRoll = new EndingCreditsRoll(inventory, japaneseText, screen, sprites, Stage, InstalledArtwork);
         InstalledArtwork.BindEndingText(setup.EndingText);

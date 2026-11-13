@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
@@ -86,7 +87,7 @@ public static class SpriteSheetFiles
         var intro = new Lazy<IntroCinematicArtwork>(() => IntroCinematicArtworkFiles.Load(
             Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName)));
         // The ending sheets are named from the stock ending compositions installed beside them.
-        var ending = new Lazy<EndingObjectArtwork>(() => EndingObjectArtworkFiles.Load(
+        var ending = new Lazy<EndingObjectSourceArtwork>(() => EndingObjectArtworkFiles.Load(
             Path.Combine(content, GameInstallationLayout.EndingObjectDirectoryName)));
         // The projectile sheets are named from the frame bindings installed beside them.
         var projectiles = new Lazy<InstalledProjectileFrameBindings>(() => ProjectileFrameBindingFile.LoadInstalled(
@@ -124,7 +125,7 @@ public static class SpriteSheetFiles
     /// <param name="ending">The ending's sprite artwork, whose compositions name the ending sheets' frames.</param>
     /// <param name="projectiles">The projectile frame bindings, whose compositions name the projectile sheets' frames.</param>
     internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<IReadOnlyList<string>> body,
-        Lazy<AreaMapPresentation> maps, Lazy<IntroCinematicArtwork> intro, Lazy<EndingObjectArtwork> ending,
+        Lazy<AreaMapPresentation> maps, Lazy<IntroCinematicArtwork> intro, Lazy<EndingObjectSourceArtwork> ending,
         Lazy<InstalledProjectileFrameBindings> projectiles) => sheet switch
     {
         SpriteSheetId.IntroScenePictures => IntroScenePictureSheetComposer.FrameNames,

@@ -34,7 +34,7 @@ internal sealed class SpriteSheetSourceCatalog
     private readonly Lazy<IntroCinematicArtwork> intro;
 
     /// <summary>The ending's sprite artwork.</summary>
-    private readonly Lazy<EndingObjectArtwork> ending;
+    private readonly Lazy<EndingObjectSourceArtwork> ending;
 
     /// <summary>The ending's colours, decoded from the cartridge.</summary>
     private readonly EndingPaletteSet endingPalettes;

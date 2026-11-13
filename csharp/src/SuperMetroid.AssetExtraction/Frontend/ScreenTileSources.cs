@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// <param name="endingPalettes">Reads the ending's palettes.</param>
 /// <param name="endingMode7">Reads the ending's Mode 7 artwork.</param>
 internal sealed class ScreenTileSources(Func<AreaMapPresentation> maps, Func<IntroCinematicArtwork> intro,
-    Func<EndingObjectArtwork> endingObjects, Func<EndingPaletteSet> endingPalettes, Func<EndingFloorCharacters> endingMode7)
+    Func<ImportEndingObjectArtwork> endingObjects, Func<EndingPaletteSet> endingPalettes, Func<EndingFloorCharacters> endingMode7)
 {
     /// <summary>The ending's Mode 7 artwork, once read.</summary>
     private readonly Lazy<EndingFloorCharacters> endingMode7 = new(endingMode7);
@@ -22,13 +22,13 @@ internal sealed class ScreenTileSources(Func<AreaMapPresentation> maps, Func<Int
     internal EndingFloorCharacters EndingMode7 => endingMode7.Value;
 
     /// <summary>The ending's object artwork, once read.</summary>
-    private readonly Lazy<EndingObjectArtwork> endingObjects = new(endingObjects);
+    private readonly Lazy<ImportEndingObjectArtwork> endingObjects = new(endingObjects);
 
     /// <summary>The ending's palettes, once read.</summary>
     private readonly Lazy<EndingPaletteSet> endingPalettes = new(endingPalettes);
 
     /// <summary>The ending's object artwork as the import read it, with the character atlases its sheets are composed from (#1636).</summary>
-    internal ImportEndingObjectArtwork EndingObjects => ImportEndingObjectArtwork.Imported(endingObjects.Value);
+    internal ImportEndingObjectArtwork EndingObjects => endingObjects.Value;
 
     /// <summary>The ending's palettes.</summary>
     internal EndingPaletteSet EndingPalettes => endingPalettes.Value;

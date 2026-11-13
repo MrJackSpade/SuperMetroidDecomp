@@ -147,7 +147,6 @@ internal static class EndingPaletteArtworkVerification
         installedState.InstalledArtwork.BindBackdrops(backdrops);
         installedState.InstalledArtwork.BindSpaceBackdrops(maps.EndingSpaceBackdrops);
         installedState.InstalledArtwork.BindEndingText(maps.EndingText);
-        installedState.Flyaway.BindFlightArtwork(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.IntroArtwork.CeresFlight);
         installedState.InstalledArtwork.BindFixtureObjectArtwork(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects);
         // This matches the playable host's installed ending bindings: the production-shaped scene must complete without
         // *any* cartridge read.

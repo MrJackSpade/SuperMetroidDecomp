@@ -49,8 +49,6 @@ internal sealed class EndingStage
     /// <summary>Turning-floor byte-angle shared by the escape and planet scenes.</summary>
     internal RotationAngle FloorAngle { get; set; }
 
-    /// <summary>Reloadable object character art for clouds, explosion and reward actors.</summary>
-    internal EndingObjectArtwork? ObjectArtwork { get; set; }
     /// <summary>Current cinematic-function replacement, including terminal display states.</summary>
     public EndingCreditsPhase Phase { get; internal set; }
 

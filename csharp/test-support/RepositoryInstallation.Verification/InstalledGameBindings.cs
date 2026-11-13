@@ -28,7 +28,6 @@ internal static class InstalledGameBindings
             {
                 MapPresentation = InstalledFixtures.Maps,
                 IntroCinematicArt = InstalledFixtures.IntroArtwork,
-                EndingObjectArt = InstalledFixtures.EndingObjects,
             }
             : installation.LoadGameArtwork(installation.LoadMaps(), installation.LoadProjectiles(), installation.LoadEnemyTiles(), installation.LoadSamusBody());
     }

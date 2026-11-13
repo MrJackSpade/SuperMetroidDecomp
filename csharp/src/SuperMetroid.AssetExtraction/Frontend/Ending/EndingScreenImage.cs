@@ -88,7 +88,7 @@ internal static class EndingScreenImage
 
     /// <summary>The bound OBJ artwork as the import pipeline read it, with its character atlases and maps.</summary>
     private static ImportEndingObjectArtwork Objects(EndingTransferArtwork artwork) =>
-        ImportEndingObjectArtwork.Imported(artwork.Objects ?? throw new InvalidOperationException("Ending objects require installed artwork."));
+        artwork.Objects ?? throw new InvalidOperationException("Ending objects require installed artwork.");
 
     /// <summary>The bound ending font.</summary>
     private static EndingFontCharacters Font(EndingTransferArtwork artwork) =>

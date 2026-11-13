@@ -14,8 +14,8 @@ using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>
-/// Verification access (#1392): binds a fixture's ending artwork as the game binds an installation's, with the ending
-/// sheets that artwork composes over the installed palettes and font, registered so OAM comparisons still apply to them.
+/// Verification access (#1392): binds the ending sheets a fixture's ending artwork composes over the installed palettes and
+/// font, as the game binds an installation's sheets, registered so OAM comparisons still apply to them.
 /// </summary>
 internal static class EndingSheetFixtures
 {
@@ -33,7 +33,7 @@ internal static class EndingSheetFixtures
     private static readonly ConcurrentDictionary<string, InstalledSpriteSheets> composed = new();
 
     /// <summary>The installed sheets with the ending sheets <paramref name="objects"/> composes.</summary>
-    internal static InstalledSpriteSheets WithEnding(EndingObjectArtwork objects)
+    internal static InstalledSpriteSheets WithEnding(ImportEndingObjectArtwork objects)
     {
         ArgumentNullException.ThrowIfNull(objects);
         string identity = objects.ContentIdentity;
@@ -45,7 +45,7 @@ internal static class EndingSheetFixtures
     /// The installed sheets with the ending sheets <paramref name="objects"/> composes over <paramref name="colours"/> and
     /// <paramref name="maps"/>, named by <paramref name="tag"/>: its sprite and picture sheets.
     /// </summary>
-    private static InstalledSpriteSheets Compose(EndingObjectArtwork objects, EndingPaletteSet colours, AreaMapPresentation maps, string tag)
+    private static InstalledSpriteSheets Compose(ImportEndingObjectArtwork objects, EndingPaletteSet colours, AreaMapPresentation maps, string tag)
     {
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
         foreach (SpriteSheetId sheet in EndingSpriteSheetsConstants.Sheets)
@@ -76,11 +76,7 @@ internal static class EndingSheetFixtures
 
     extension(EndingArtwork self)
     {
-        /// <summary>Binds <paramref name="objects"/> and the ending sheets it composes, as the game rebinds both.</summary>
-        internal void BindFixtureObjectArtwork(EndingObjectArtwork objects)
-        {
-            self.BindObjectArtwork(objects);
-            self.BindSpriteSheets(WithEnding(objects));
-        }
+        /// <summary>Binds the ending sheets <paramref name="objects"/> composes, as the game binds an installation's sheets.</summary>
+        internal void BindFixtureObjectArtwork(ImportEndingObjectArtwork objects) => self.BindSpriteSheets(WithEnding(objects));
     }
 }

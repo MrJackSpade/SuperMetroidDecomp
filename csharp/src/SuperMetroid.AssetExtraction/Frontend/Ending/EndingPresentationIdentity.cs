@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
@@ -10,11 +11,11 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 public static class EndingPresentationIdentity
 {
     /// <summary>Captures named identities of the selected ending object and backdrop content for installation/replay compatibility metadata.</summary>
-    /// <param name="objects">Non-null selected ending OBJ/BG character and composition catalog.</param>
+    /// <param name="objects">Non-null installed ending OBJ/BG characters and compositions, which only the import reads.</param>
     /// <param name="backdrops">Non-null selected ending scene backdrops (#1544).</param>
     /// <returns>A new ordinal-keyed dictionary mapping the two installation domain names to their decoded-content identity strings.</returns>
     /// <remarks>Uses the supplied catalogs; does not load files, retain catalog references, or conflate raw-file hashes with engine-build/cartridge provenance.</remarks>
-    public static IReadOnlyDictionary<string, string> Create(EndingObjectArtwork objects, EndingBackdrops backdrops) =>
+    public static IReadOnlyDictionary<string, string> Create(EndingObjectSourceArtwork objects, EndingBackdrops backdrops) =>
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
             [GameInstallationLayout.EndingObjectDirectoryName] = objects.ContentIdentity,

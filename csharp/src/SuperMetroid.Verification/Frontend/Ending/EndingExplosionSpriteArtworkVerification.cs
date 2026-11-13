@@ -89,7 +89,7 @@ internal static class EndingExplosionSpriteArtworkVerification
 
     /// <summary>Compares installed explosion OAM with native maps for visible and wrapped offscreen origins after checking frame and program catalogs.</summary>
     internal static void VerifyEndingExplosionActorArtwork(
-        ISnesAddressSpace bus, EndingObjectArtwork stock)
+        ISnesAddressSpace bus, EndingObjectSourceArtwork stock)
     {
         Suite(nameof(VerifyEndingExplosionFrameCatalog), () => VerifyEndingExplosionFrameCatalog(bus));
 
@@ -110,7 +110,7 @@ internal static class EndingExplosionSpriteArtworkVerification
                 nativeOam.FinalizeFrame();
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
-                CinematicSheetFixtures.Drawer(EndingObjectSourceArtwork.Of(stock).ExplosionSprites).Draw(frame.Pose, installedOam,
+                CinematicSheetFixtures.Drawer(stock.ExplosionSprites).Draw(frame.Pose, installedOam,
                     new(120, y), EndingShades.Drawn(EndingSpriteColouring.ShootingStars));
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&

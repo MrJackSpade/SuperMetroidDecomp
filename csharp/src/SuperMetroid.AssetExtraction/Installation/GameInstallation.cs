@@ -93,6 +93,11 @@ public sealed record GameInstallation(string Root)
     public string EnemySheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EnemySheetDirectoryName);
     /// <summary>Loads every installed enemy sheet.</summary>
     public InstalledEnemySheets LoadEnemySheets() => EnemySheetFiles.Load(EnemySheetDirectory);
+    /// <summary>Loads the installed artwork only the import reads, which the installed content's identity covers (#1616).</summary>
+    public InstalledArtworkSources LoadArtworkSources() => new()
+    {
+        EndingObjects = LoadEndingObjectArt(),
+    };
     /// <summary>Installed projectile artwork and presentation selectors, which the player edits in place.</summary>
     public string ProjectileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.ProjectileDirectoryName);
     /// <summary>Installed Samus body PNGs and visual selectors, which the player edits in place.</summary>
@@ -106,7 +111,7 @@ public sealed record GameInstallation(string Root)
         IntroCinematicArtworkFiles.Load(IntroCinematicDirectory);
     /// <summary>Installed ending sprite artwork, which the player edits in place.</summary>
     public string EndingObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingObjectDirectoryName);
-    /// <summary>Loads the installed ending OBJ artwork.</summary>
+    /// <summary>Loads the installed ending OBJ artwork, which only the import reads.</summary>
     public EndingObjectSourceArtwork LoadEndingObjectArt() =>
         EndingObjectArtworkFiles.Load(EndingObjectDirectory);
     /// <summary>Installed ending scene backdrops, which the player edits in place (#1544).</summary>
@@ -305,7 +310,6 @@ public sealed record GameInstallation(string Root)
             IntroCinematicArt = LoadIntroCinematicArt(),
             SamusBodyArt = samusBody.Gameplay,
 
-            EndingObjectArt = LoadEndingObjectArt(),
             EndingBackdrops = LoadEndingBackdrops(),
             RoomBlockSheets = LoadRoomBlockSheets(),
             RoomVisualLayouts = LoadRoomVisualLayouts(),

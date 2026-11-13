@@ -6,11 +6,11 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>
-/// The installed ending object artwork (#1463, #1636): beside the tilemaps the game binds, the sprite compositions the
-/// ending's sheets are composed from and named by. Its characters are import data the installation never holds
-/// (<see cref="ImportEndingObjectArtwork"/>).
+/// The installed ending object artwork, which only the import pipeline reads (#1463, #1616, #1636): the tilemaps and sprite
+/// compositions the ending's sheets and pictures are composed from and named by. The game draws those sheets and binds none
+/// of this artwork. Its characters are import data the installation never holds (<see cref="ImportEndingObjectArtwork"/>).
 /// </summary>
-public class EndingObjectSourceArtwork : EndingObjectArtwork
+public class EndingObjectSourceArtwork
 {
     /// <summary>Validates and retains the selected ending maps and compositions.</summary>
     /// <param name="parts">The ending's object tilemaps and sprite presentations (#633).</param>
@@ -90,9 +90,4 @@ public class EndingObjectSourceArtwork : EndingObjectArtwork
         content.Append("reward-sprites", Convert.FromHexString(RewardSprites.ContentIdentity));
         content.Append("logo-sprites", Convert.FromHexString(LogoSprites.ContentIdentity));
     });
-
-    /// <summary>The import-side artwork <paramref name="objects"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The ending artwork was not read from installed artwork.</exception>
-    public static EndingObjectSourceArtwork Of(EndingObjectArtwork objects) => objects as EndingObjectSourceArtwork
-        ?? throw new InvalidDataException("The ending object artwork was not read from installed artwork.");
 }

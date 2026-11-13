@@ -49,9 +49,6 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>Samus body tiles, palettes and death palettes.</summary>
     public InstalledSamusBodyArtwork? SamusBodyArt { get; init; }
 
-    /// <summary>Ending sprite artwork.</summary>
-    public EndingObjectArtwork? EndingObjectArt { get; init; }
-
     /// <summary>The ending scenes' backdrops (#1544).</summary>
     public EndingBackdrops? EndingBackdrops { get; init; }
 

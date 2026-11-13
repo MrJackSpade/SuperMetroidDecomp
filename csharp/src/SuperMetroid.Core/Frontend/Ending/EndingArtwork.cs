@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>The ending's installed artwork: its text, staff credits, turning floor, object and palette assets.</summary>
+/// <summary>The ending's installed artwork: its text, its sprite sheets and its backdrops.</summary>
 [RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingArtwork
 {
@@ -46,25 +46,9 @@ internal sealed class EndingArtwork
     }
 
 
-    /// <summary>Binds the ending's installed object artwork when the game is bound to its installed content.</summary>
-    internal void BindObjectArtwork(EndingObjectArtwork? value)
-    {
-        _stage.ObjectArtwork = value;
-    }
-
-    /// <summary>Requires the escape clouds' installed artwork, which the clouds' sheet is composed from (#1463, #1467).</summary>
-    internal void RequireEscapeCloudArtwork() =>
-        _ = _stage.ObjectArtwork ?? throw new InvalidOperationException("Escape clouds require installed object artwork.");
-
-    /// <summary>Requires the installed artwork the explosion's pictures show: its objects.</summary>
-    internal void RequireExplosionArtwork()
-    {
-        _ = _stage.ObjectArtwork ?? throw new InvalidOperationException("Ending objects require installed artwork.");
-    }
-
     /// <summary>
-    /// Shows the credits' colours once, at the staff handoff, and requires the installed artwork the post-credits scenes
-    /// show; the installed reward sheets hold the suitless and suited reward art both.
+    /// Shows the credits' colours once, at the staff handoff; the post-credits scenes draw from the installed reward
+    /// sheets, which hold the suitless and suited reward art both.
     /// </summary>
     internal void LoadCreditsAndPostCreditsAssets()
     {
@@ -72,7 +56,6 @@ internal sealed class EndingArtwork
             return;
 
         _stage.LoadColours(EndingColourLoad.Credits);
-        _ = _stage.ObjectArtwork ?? throw new InvalidOperationException("Post-credits scenes require installed object artwork.");
 
         creditsColoursShown = true;
     }

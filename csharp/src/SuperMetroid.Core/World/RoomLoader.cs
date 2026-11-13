@@ -722,8 +722,8 @@ internal sealed class RoomLoader
         }
 
         // The door transition promotes a departing elevator's global status from one to
-        // two after the destination room objects, door code, and setup code have been created. Our
-        // room constructor initializes enemies in one host call, so publish that carried
+        // two after the destination room objects, door code, and setup code have been created. The
+        // room load initializes enemies in the same call, so publish that carried
         // status immediately before Enemies.Load: the destination elevator initializer
         // must see two and place itself at its arrival height instead of clearing the journey.
         bool arrivingByElevator = _room.LoadedScope.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Departing;

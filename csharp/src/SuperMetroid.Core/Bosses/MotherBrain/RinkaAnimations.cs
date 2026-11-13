@@ -18,36 +18,36 @@ internal static class RinkaAnimations
         [P.Ordinary] =
         [
             Cue(new(K.Hide)),
-            Show(EnemyFrameId.RinkaSpin0, 64),
+            Show(EnemyFrameId.RinkaOrdinary, 64),
             Cue(new(K.Fire)),
         ],
         [P.OrdinaryLoop] =
         [
-            Show(EnemyFrameId.RinkaSpin0, 16),
-            Show(EnemyFrameId.RinkaSpin1, 8),
-            Show(EnemyFrameId.RinkaSpin2, 7),
-            Show(EnemyFrameId.RinkaSpin3, 6),
-            Show(EnemyFrameId.RinkaSpin4, 5),
-            Show(EnemyFrameId.RinkaSpin3, 6),
-            Show(EnemyFrameId.RinkaSpin2, 7),
-            Show(EnemyFrameId.RinkaSpin1, 8),
+            Show(EnemyFrameId.RinkaOrdinary, 16),
+            Show(EnemyFrameId.RinkaOrdinaryLoopSecond, 8),
+            Show(EnemyFrameId.RinkaOrdinaryLoopThird, 7),
+            Show(EnemyFrameId.RinkaOrdinaryLoopFourth, 6),
+            Show(EnemyFrameId.RinkaOrdinaryLoopFifth, 5),
+            Show(EnemyFrameId.RinkaOrdinaryLoopFourth, 6),
+            Show(EnemyFrameId.RinkaOrdinaryLoopThird, 7),
+            Show(EnemyFrameId.RinkaOrdinaryLoopSecond, 8),
         ],
         [P.Special] =
         [
             Cue(new(K.HideAndProcessOffScreen)),
-            Show(EnemyFrameId.RinkaSpin0, 64),
+            Show(EnemyFrameId.RinkaOrdinary, 64),
             Cue(new(K.Fire)),
         ],
         [P.SpecialLoop] =
         [
-            Show(EnemyFrameId.RinkaSpin0, 16),
-            Show(EnemyFrameId.RinkaSpin1, 8),
-            Show(EnemyFrameId.RinkaSpin2, 7),
-            Show(EnemyFrameId.RinkaSpin3, 6),
-            Show(EnemyFrameId.RinkaSpin4, 5),
-            Show(EnemyFrameId.RinkaSpin3, 6),
-            Show(EnemyFrameId.RinkaSpin2, 7),
-            Show(EnemyFrameId.RinkaSpin1, 8),
+            Show(EnemyFrameId.RinkaOrdinary, 16),
+            Show(EnemyFrameId.RinkaOrdinaryLoopSecond, 8),
+            Show(EnemyFrameId.RinkaOrdinaryLoopThird, 7),
+            Show(EnemyFrameId.RinkaOrdinaryLoopFourth, 6),
+            Show(EnemyFrameId.RinkaOrdinaryLoopFifth, 5),
+            Show(EnemyFrameId.RinkaOrdinaryLoopFourth, 6),
+            Show(EnemyFrameId.RinkaOrdinaryLoopThird, 7),
+            Show(EnemyFrameId.RinkaOrdinaryLoopSecond, 8),
         ],
     });
 

@@ -182,7 +182,7 @@ internal static class ShotCallbackDefinitionsVerification
             RoomEnemySlot enemy = enemies.SlotTable.Slots[0];
             interactive.Add(enemy);
             enemy.Bind((EnemyDefinitionId)0x1234, enemy.Definition);
-            enemy.Frame = EnemyFrameId.SkulteraSwimLeft0;
+            enemy.Frame = EnemyFrameId.SkulteraSwimmingLeftLoopFirst;
             enemy.Position = enemy.Position.WithWhole(new(0x0100, 0x0100));
             enemy.Radius = new(8, 8);
             enemy.Health = 100;

@@ -9,8 +9,8 @@ internal static class BabyMetroidVisualDefinitions
     /// <summary>The installed frame each <see cref="BabyMetroidFrame"/> shows.</summary>
     internal static EnemyFrameTable<BabyMetroidFrame> ShownFrames { get; } = new()
     {
-        { new(Index: 0), EnemyFrameId.Shitroid02 },
-        { new(Index: 1), EnemyFrameId.Shitroid01 },
-        { new(Index: 2), EnemyFrameId.Shitroid00 },
+        { new(Index: 0), EnemyFrameId.BabyMetroidInitialFirst },
+        { new(Index: 1), EnemyFrameId.BabyMetroidInitialSecond },
+        { new(Index: 2), EnemyFrameId.BabyMetroidInitialThird },
     };
 }

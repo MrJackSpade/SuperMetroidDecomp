@@ -139,7 +139,7 @@ internal sealed class Walk
     /// EnemyFrameId members that draw nothing and are on no sheet: the empty frame, and the Norfair lava jumper's
     /// first frame, which shows the shared empty spritemap.
     /// </summary>
-    public static readonly string[] ExcludedEnemyFrames = ["Empty", "NorfairLavaJumperPose0"];
+    public static readonly string[] ExcludedEnemyFrames = ["Empty", "NorfairLavaJumperFollowerSecond"];
 
     /// <summary>
     /// EnemyProjectileFrameId members that draw nothing and are on no sheet: the blank frame, and the program frames Core's

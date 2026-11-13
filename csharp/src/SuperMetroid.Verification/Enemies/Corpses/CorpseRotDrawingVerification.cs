@@ -110,7 +110,7 @@ internal static class CorpseRotDrawingVerification
     private static int VerifyMotherBrain(InstalledEnemySheets sheets)
     {
         RoomEnemyGraphicsSetDefinition set = SetDrawing(sheets, EnemyDefinitionId.MotherBrainHead);
-        string name = EnemySheetDefinitions.FrameName(EnemyFrameId.MotherBrainHead12);
+        string name = EnemySheetDefinitions.FrameName(EnemyFrameId.MotherBrainHeadCorpseLoop);
         AssertEqual(0, sheets.Under(set).Enemy(EnemyDefinitionId.MotherBrainHead).ChangingEncounters(name).Count,
             "Mother Brain's corpse frame has one finished picture, which no later look changes");
         SpriteSheet sheet = sheets.For(set, EnemyDefinitionId.MotherBrainHead);

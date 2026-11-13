@@ -57,8 +57,6 @@ internal static class EnemyFrameBindingRules
     internal static Dictionary<EnemyFrameId, EnemyFrameId> Extended(Dictionary<string, string>? authored)
     {
         Dictionary<string, EnemyFrameId> identities = Identities(EnemyExtendedFrameDefinitions.Frames);
-        // Display bindings stay within a family, judged by the frames' names.
-        var familyNames = identities.ToDictionary(identity => identity.Value, identity => identity.Key);
         if (authored is null || authored.Count != identities.Count)
             throw new InvalidDataException(
                 "Extended enemy display bindings require every named frame.");
@@ -68,7 +66,7 @@ internal static class EnemyFrameBindingRules
             if (!authored.TryGetValue(name, out string? selectedName) ||
                 selectedName is null ||
                 !identities.TryGetValue(selectedName, out EnemyFrameId selected) ||
-                !SameFrameFamily(familyNames[identity], familyNames[selected]))
+                EnemyExtendedFrameFamilies.Of(identity) != EnemyExtendedFrameFamilies.Of(selected))
                 throw new InvalidDataException(
                     $"Extended enemy display binding {name} must select a frame of the same enemy family.");
             displayFrames.Add(identity, selected);
@@ -88,48 +86,5 @@ internal static class EnemyFrameBindingRules
                 throw new InvalidDataException($"Enemy frame {frame.Name} repeats a visual identity.");
         }
         return identities;
-    }
-
-    /// <summary>Whether the frames named <paramref name="left"/> and <paramref name="right"/> belong to one enemy family.</summary>
-    private static bool SameFrameFamily(string left, string right)
-    {
-        if (left.StartsWith("mother_brain_body_oam_", StringComparison.Ordinal))
-            return right.StartsWith("mother_brain_body_oam_", StringComparison.Ordinal);
-        if (left.StartsWith("torizo_combat_", StringComparison.Ordinal))
-            return right.StartsWith("torizo_combat_", StringComparison.Ordinal);
-        if (left.StartsWith("kraid_arm_", StringComparison.Ordinal))
-            return right.StartsWith("kraid_arm_", StringComparison.Ordinal);
-        if (left.StartsWith("kraid_foot_", StringComparison.Ordinal))
-            return right.StartsWith("kraid_foot_", StringComparison.Ordinal);
-        if (left.StartsWith("golden_torizo_", StringComparison.Ordinal))
-            return right.StartsWith("golden_torizo_", StringComparison.Ordinal);
-        if (left.StartsWith("bomb_torizo_", StringComparison.Ordinal))
-            return right.StartsWith("bomb_torizo_", StringComparison.Ordinal);
-        if (left.StartsWith("torizo_jump_back_", StringComparison.Ordinal))
-            return right.StartsWith("torizo_jump_back_", StringComparison.Ordinal);
-        if (left.StartsWith("torizo_falling_left", StringComparison.Ordinal))
-            return right.StartsWith("torizo_falling_left", StringComparison.Ordinal);
-        if (left.StartsWith("spore_spawn_", StringComparison.Ordinal))
-            return right.StartsWith("spore_spawn_", StringComparison.Ordinal);
-        if (left.StartsWith("phantoon_", StringComparison.Ordinal))
-            return right.StartsWith("phantoon_", StringComparison.Ordinal);
-        if (left.StartsWith("draygon_", StringComparison.Ordinal))
-            return right.StartsWith("draygon_", StringComparison.Ordinal);
-        if (left.StartsWith("ridley_body_", StringComparison.Ordinal))
-            return right.StartsWith("ridley_body_", StringComparison.Ordinal);
-        if (left.StartsWith("ceres_steam_", StringComparison.Ordinal))
-            return right.StartsWith("ceres_steam_", StringComparison.Ordinal);
-        if (left.StartsWith("oum_", StringComparison.Ordinal))
-            return right.StartsWith("oum_", StringComparison.Ordinal);
-        if (left.StartsWith("crocomire_tongue_", StringComparison.Ordinal))
-            return right.StartsWith("crocomire_tongue_", StringComparison.Ordinal);
-        if (left.StartsWith("crocomire_skeleton_", StringComparison.Ordinal))
-            return right.StartsWith("crocomire_skeleton_", StringComparison.Ordinal);
-        if (left.StartsWith("crocomire_body_", StringComparison.Ordinal))
-            return right.StartsWith("crocomire_body_", StringComparison.Ordinal);
-        int leftEnd = left.IndexOf("_pirate_", StringComparison.Ordinal);
-        int rightEnd = right.IndexOf("_pirate_", StringComparison.Ordinal);
-        return leftEnd > 0 && rightEnd > 0 && left.AsSpan(0, leftEnd)
-            .SequenceEqual(right.AsSpan(0, rightEnd));
     }
 }

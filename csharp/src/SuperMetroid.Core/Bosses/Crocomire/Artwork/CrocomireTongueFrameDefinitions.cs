@@ -8,14 +8,14 @@ internal static class CrocomireTongueFrameDefinitions
     /// <summary>The installed frame each <see cref="CrocomireTongueFrame"/> shows.</summary>
     internal static EnemyFrameTable<CrocomireTongueFrame> ShownFrames { get; } = new()
     {
-        { CrocomireTongueFrame.Fight0, EnemyFrameId.CrocomireTongueFight0 },
-        { CrocomireTongueFrame.Fight1, EnemyFrameId.CrocomireTongueFight1 },
-        { CrocomireTongueFrame.Fight2, EnemyFrameId.CrocomireTongueFight2 },
-        { CrocomireTongueFrame.Fight3, EnemyFrameId.CrocomireTongueFight3 },
-        { CrocomireTongueFrame.MeltingPose0, EnemyFrameId.CrocomireTongueMeltingPose0 },
-        { CrocomireTongueFrame.MeltingPose1, EnemyFrameId.CrocomireTongueMeltingPose1 },
-        { CrocomireTongueFrame.MeltingPose2, EnemyFrameId.CrocomireTongueMeltingPose2 },
-        { CrocomireTongueFrame.MeltingPose3, EnemyFrameId.CrocomireTongueMeltingPose3 },
-        { CrocomireTongueFrame.MeltingPose4, EnemyFrameId.CrocomireTongueMeltingPose4 },
+        { CrocomireTongueFrame.Fight0, EnemyFrameId.CrocomireTongueFightFirst },
+        { CrocomireTongueFrame.Fight1, EnemyFrameId.CrocomireTongueFightSecond },
+        { CrocomireTongueFrame.Fight2, EnemyFrameId.CrocomireTongueFightThird },
+        { CrocomireTongueFrame.Fight3, EnemyFrameId.CrocomireTongueFightFourth },
+        { CrocomireTongueFrame.MeltingPose0, EnemyFrameId.CrocomireTongueMeltingPoseFirst },
+        { CrocomireTongueFrame.MeltingPose1, EnemyFrameId.CrocomireTongueMeltingPoseSecond },
+        { CrocomireTongueFrame.MeltingPose2, EnemyFrameId.CrocomireTongueMeltingPoseThird },
+        { CrocomireTongueFrame.MeltingPose3, EnemyFrameId.CrocomireTongueMeltingPoseFourth },
+        { CrocomireTongueFrame.MeltingPose4, EnemyFrameId.CrocomireTongueMeltingPoseFifth },
     };
 }

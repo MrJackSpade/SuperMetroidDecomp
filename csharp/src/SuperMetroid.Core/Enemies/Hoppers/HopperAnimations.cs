@@ -25,10 +25,10 @@ internal static class HopperAnimations
         [
             Cue(new(K.StopProcessingOffScreen)),
             Cue(new(K.PlaySound, Sound: HopperSoundDefinitions.Land)),
-            Show(EnemyFrameId.SidehopperLandFloor0, 2),
-            Show(EnemyFrameId.SidehopperLandFloor1, 5),
-            Show(EnemyFrameId.SidehopperLandFloor0, 2),
-            Show(EnemyFrameId.SidehopperLandFloor1, 3),
+            Show(EnemyFrameId.SidehopperFloorLandedFirst, 2),
+            Show(EnemyFrameId.SidehopperFloorLandedSecond, 5),
+            Show(EnemyFrameId.SidehopperFloorLandedFirst, 2),
+            Show(EnemyFrameId.SidehopperFloorLandedSecond, 3),
             Cue(new(K.ReadyToHop)),
         ],
         [P.SidehopperCeilingJumping] =
@@ -41,10 +41,10 @@ internal static class HopperAnimations
         [
             Cue(new(K.StopProcessingOffScreen)),
             Cue(new(K.PlaySound, Sound: HopperSoundDefinitions.Land)),
-            Show(EnemyFrameId.SidehopperLandCeiling0, 2),
-            Show(EnemyFrameId.SidehopperLandCeiling1, 5),
-            Show(EnemyFrameId.SidehopperLandCeiling0, 2),
-            Show(EnemyFrameId.SidehopperLandCeiling1, 3),
+            Show(EnemyFrameId.SidehopperCeilingLandedFirst, 2),
+            Show(EnemyFrameId.SidehopperCeilingLandedSecond, 5),
+            Show(EnemyFrameId.SidehopperCeilingLandedFirst, 2),
+            Show(EnemyFrameId.SidehopperCeilingLandedSecond, 3),
             Cue(new(K.ReadyToHop)),
         ],
         [P.DessgeegaFloorJumping] =
@@ -55,10 +55,10 @@ internal static class HopperAnimations
         [P.DessgeegaFloorLanded] =
         [
             Cue(new(K.StopProcessingOffScreen)),
-            Show(EnemyFrameId.DessgeegaLandFloor0, 2),
-            Show(EnemyFrameId.DessgeegaLandFloor1, 5),
-            Show(EnemyFrameId.DessgeegaLandFloor0, 2),
-            Show(EnemyFrameId.DessgeegaLandFloor1, 3),
+            Show(EnemyFrameId.DessgeegaFloorLandedFirst, 2),
+            Show(EnemyFrameId.DessgeegaFloorLandedSecond, 5),
+            Show(EnemyFrameId.DessgeegaFloorLandedFirst, 2),
+            Show(EnemyFrameId.DessgeegaFloorLandedSecond, 3),
             Cue(new(K.ReadyToHop)),
         ],
         [P.DessgeegaCeilingJumping] =
@@ -69,10 +69,10 @@ internal static class HopperAnimations
         [P.DessgeegaCeilingLanded] =
         [
             Cue(new(K.StopProcessingOffScreen)),
-            Show(EnemyFrameId.DessgeegaLandCeiling0, 2),
-            Show(EnemyFrameId.DessgeegaLandCeiling1, 5),
-            Show(EnemyFrameId.DessgeegaLandCeiling0, 2),
-            Show(EnemyFrameId.DessgeegaLandCeiling1, 3),
+            Show(EnemyFrameId.DessgeegaCeilingLandedFirst, 2),
+            Show(EnemyFrameId.DessgeegaCeilingLandedSecond, 5),
+            Show(EnemyFrameId.DessgeegaCeilingLandedFirst, 2),
+            Show(EnemyFrameId.DessgeegaCeilingLandedSecond, 3),
             Cue(new(K.ReadyToHop)),
         ],
         [P.LargeSidehopperFloorJumping] =
@@ -85,10 +85,10 @@ internal static class HopperAnimations
         [
             Cue(new(K.StopProcessingOffScreen)),
             Cue(new(K.PlaySound, Sound: HopperSoundDefinitions.Land)),
-            Show(EnemyFrameId.LargeSidehopperLandFloor0, 2),
-            Show(EnemyFrameId.LargeSidehopperLandFloor1, 5),
-            Show(EnemyFrameId.LargeSidehopperLandFloor0, 2),
-            Show(EnemyFrameId.LargeSidehopperLandFloor1, 3),
+            Show(EnemyFrameId.LargeSidehopperFloorLandedFirst, 2),
+            Show(EnemyFrameId.LargeSidehopperFloorLandedSecond, 5),
+            Show(EnemyFrameId.LargeSidehopperFloorLandedFirst, 2),
+            Show(EnemyFrameId.LargeSidehopperFloorLandedSecond, 3),
             Cue(new(K.ReadyToHop)),
         ],
         [P.LargeSidehopperCeilingJumping] =
@@ -101,10 +101,10 @@ internal static class HopperAnimations
         [
             Cue(new(K.StopProcessingOffScreen)),
             Cue(new(K.PlaySound, Sound: HopperSoundDefinitions.Land)),
-            Show(EnemyFrameId.LargeSidehopperLandCeiling0, 2),
-            Show(EnemyFrameId.LargeSidehopperLandCeiling1, 5),
-            Show(EnemyFrameId.LargeSidehopperLandCeiling0, 2),
-            Show(EnemyFrameId.LargeSidehopperLandCeiling1, 3),
+            Show(EnemyFrameId.LargeSidehopperCeilingLandedFirst, 2),
+            Show(EnemyFrameId.LargeSidehopperCeilingLandedSecond, 5),
+            Show(EnemyFrameId.LargeSidehopperCeilingLandedFirst, 2),
+            Show(EnemyFrameId.LargeSidehopperCeilingLandedSecond, 3),
             Cue(new(K.ReadyToHop)),
         ],
         [P.LargeDessgeegaFloorJumping] =
@@ -115,10 +115,10 @@ internal static class HopperAnimations
         [P.LargeDessgeegaFloorLanded] =
         [
             Cue(new(K.StopProcessingOffScreen)),
-            Show(EnemyFrameId.LargeDessgeegaLandFloor0, 2),
-            Show(EnemyFrameId.LargeDessgeegaLandFloor1, 5),
-            Show(EnemyFrameId.LargeDessgeegaLandFloor0, 2),
-            Show(EnemyFrameId.LargeDessgeegaLandFloor1, 3),
+            Show(EnemyFrameId.LargeDessgeegaFloorLandedFirst, 2),
+            Show(EnemyFrameId.LargeDessgeegaFloorLandedSecond, 5),
+            Show(EnemyFrameId.LargeDessgeegaFloorLandedFirst, 2),
+            Show(EnemyFrameId.LargeDessgeegaFloorLandedSecond, 3),
             Cue(new(K.ReadyToHop)),
         ],
         [P.LargeDessgeegaCeilingJumping] =
@@ -129,10 +129,10 @@ internal static class HopperAnimations
         [P.LargeDessgeegaCeilingLanded] =
         [
             Cue(new(K.StopProcessingOffScreen)),
-            Show(EnemyFrameId.LargeDessgeegaLandCeiling0, 2),
-            Show(EnemyFrameId.LargeDessgeegaLandCeiling1, 5),
-            Show(EnemyFrameId.LargeDessgeegaLandCeiling0, 2),
-            Show(EnemyFrameId.LargeDessgeegaLandCeiling1, 3),
+            Show(EnemyFrameId.LargeDessgeegaCeilingLandedFirst, 2),
+            Show(EnemyFrameId.LargeDessgeegaCeilingLandedSecond, 5),
+            Show(EnemyFrameId.LargeDessgeegaCeilingLandedFirst, 2),
+            Show(EnemyFrameId.LargeDessgeegaCeilingLandedSecond, 3),
             Cue(new(K.ReadyToHop)),
         ],
     });

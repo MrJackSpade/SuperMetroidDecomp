@@ -16,19 +16,19 @@ internal static class ShutterAnimations
     {
         [P.GrowingTenPixels] =
         [
-            Show(EnemyFrameId.ShutterGrowing10px, 1),
+            Show(EnemyFrameId.ShutterGrowingTenPixels, 1),
         ],
         [P.GrowingTwentyPixels] =
         [
-            Show(EnemyFrameId.ShutterGrowing20px, 1),
+            Show(EnemyFrameId.ShutterGrowingTwentyPixels, 1),
         ],
         [P.GrowingThirtyPixels] =
         [
-            Show(EnemyFrameId.ShutterGrowing30px, 1),
+            Show(EnemyFrameId.ShutterGrowingThirtyPixels, 1),
         ],
         [P.FortyPixels] =
         [
-            Show(EnemyFrameId.ShutterVertical40px, 1),
+            Show(EnemyFrameId.ShutterFortyPixels, 1),
         ],
         [P.Horizontal] =
         [
@@ -36,10 +36,10 @@ internal static class ShutterAnimations
         ],
         [P.KamerPlatform] =
         [
-            Show(EnemyFrameId.KamerPlatform0, 10),
-            Show(EnemyFrameId.KamerPlatform1, 10),
-            Show(EnemyFrameId.KamerPlatform2, 10),
-            Show(EnemyFrameId.KamerPlatform3, 10),
+            Show(EnemyFrameId.KamerPlatformFirst, 10),
+            Show(EnemyFrameId.KamerPlatformSecond, 10),
+            Show(EnemyFrameId.KamerPlatformThird, 10),
+            Show(EnemyFrameId.KamerPlatformFourth, 10),
         ],
     });
 

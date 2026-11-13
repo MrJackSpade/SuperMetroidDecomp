@@ -579,7 +579,7 @@ parts: `offsetX`, `offsetY`, `tileColumn`, `tileRow`, `size`, `priority`, `palet
 `flipX`, or `flipY`. The `displayFrames` table may also bind each named native
 frame to a different named frame in the same bank, letting an artist rearrange
 the visible sequence without moving its native frame boundaries. For example,
-setting `"boyon_idle_0": "boyon_idle_1"` displays the second Boyon composition
+setting `"boyon_idle_loop_first": "boyon_idle_loop_second"` displays the second Boyon composition
 whenever the first is selected by gameplay. Native frame duration, collision
 selection, enemy hitboxes, movement, and damage remain engine-owned. A malformed
 document fails with a load error. Runtime drawing has no ROM-spritemap fallback. The current

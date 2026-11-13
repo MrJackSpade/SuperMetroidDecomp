@@ -17,30 +17,30 @@ internal static class NorfairLavaJumperAnimations
     {
         [P.Hidden] =
         [
-            Show(EnemyFrameId.NorfairLavaJumperPose1, 1),
+            Show(EnemyFrameId.NorfairLavaJumperHidden, 1),
         ],
         [P.Jump] =
         [
-            Show(EnemyFrameId.NorfairLavaJumperPose1, 1),
-            Show(EnemyFrameId.NorfairLavaJumperPose2, 5),
-            Show(EnemyFrameId.NorfairLavaJumperPose3, 9),
-            Show(EnemyFrameId.NorfairLavaJumperPose4, 7),
-            Show(EnemyFrameId.NorfairLavaJumperPose5, 3),
-            Show(EnemyFrameId.NorfairLavaJumperPose6, 10),
-            Show(EnemyFrameId.NorfairLavaJumperPose7, 1),
+            Show(EnemyFrameId.NorfairLavaJumperHidden, 1),
+            Show(EnemyFrameId.NorfairLavaJumperJumpSecond, 5),
+            Show(EnemyFrameId.NorfairLavaJumperJumpThird, 9),
+            Show(EnemyFrameId.NorfairLavaJumperJumpFourth, 7),
+            Show(EnemyFrameId.NorfairLavaJumperJumpFifth, 3),
+            Show(EnemyFrameId.NorfairLavaJumperJumpSixth, 10),
+            Show(EnemyFrameId.NorfairLavaJumperJumpSeventh, 1),
             Cue(new(K.FinishAnimation)),
         ],
         [P.Follower] =
         [
-            Show(EnemyFrameId.NorfairLavaJumperPose8, 1),
-            Show(EnemyFrameId.NorfairLavaJumperPose0, 1),
+            Show(EnemyFrameId.NorfairLavaJumperFollowerFirst, 1),
+            Show(EnemyFrameId.NorfairLavaJumperFollowerSecond, 1),
         ],
         [P.FollowerLoop] =
         [
-            Show(EnemyFrameId.NorfairLavaJumperPose10, 1),
-            Show(EnemyFrameId.NorfairLavaJumperPose0, 1),
-            Show(EnemyFrameId.NorfairLavaJumperPose9, 1),
-            Show(EnemyFrameId.NorfairLavaJumperPose0, 1),
+            Show(EnemyFrameId.NorfairLavaJumperFollowerLoopFirst, 1),
+            Show(EnemyFrameId.NorfairLavaJumperFollowerSecond, 1),
+            Show(EnemyFrameId.NorfairLavaJumperFollowerLoopThird, 1),
+            Show(EnemyFrameId.NorfairLavaJumperFollowerSecond, 1),
         ],
     });
 

@@ -52,7 +52,7 @@ internal static class GrappleHurtFeedbackVerification
         target.Bind(target.DefinitionId, RoomEnemyHeaders.Get(target.DefinitionId));
         target.Position = target.Position.WithWhole(samus.Position.Whole);
         target.Radius = new(8, 8);
-        target.Frame = EnemyFrameId.RipperLeft0; // Contact admits only an enemy showing a frame.
+        target.Frame = EnemyFrameId.RipperMovingLeftFirst; // Contact admits only an enemy showing a frame.
         var interactive = (List<RoomEnemySlot>)runtime.Enemies.ProcessingWindow.InteractiveEnemies;
         interactive.Clear();
         interactive.Add(target);

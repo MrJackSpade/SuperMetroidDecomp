@@ -88,7 +88,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         byte[] nativeVram = ReadReferenceExtendedBg2Vram(rom, PhantoonBg2FrameDefinitionsConstants.Bank, firstPointer,
             newInstructionFrame: true);
         byte[] closedEyeVram = ReadReferenceExtendedBg2Vram(rom, PhantoonBg2FrameDefinitionsConstants.Bank,
-            PhantoonBg2FrameDefinitions.Frames.Single(candidate => candidate.Frame == EnemyFrameId.PhantoonClosedEye0).Pointer,
+            PhantoonBg2FrameDefinitions.Frames.Single(candidate => candidate.Frame == EnemyFrameId.PhantoonEyeClosed).Pointer,
             newInstructionFrame: true);
         for (int index = 0; index < nativeVram.Length; index += sizeof(ushort))
         {

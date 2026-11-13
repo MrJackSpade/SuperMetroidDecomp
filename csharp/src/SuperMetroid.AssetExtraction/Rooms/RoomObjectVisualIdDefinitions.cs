@@ -84,8 +84,6 @@ internal static class RoomObjectVisualIdDefinitions
         [MotherBrainFakeDeathDraw.MuralRow10] = "background-row-b",
         [MotherBrainFakeDeathDraw.MuralRow11] = "background-row-c",
         [MotherBrainFakeDeathDraw.MuralRow12] = "background-row-d",
-        [MotherBrainFakeDeathDraw.UnusedFirstSolidRow] = "background-row-e-unused",
-        [MotherBrainFakeDeathDraw.UnusedSecondSolidRow] = "background-row-f-unused",
         [MotherBrainFakeDeathDraw.ClearCeilingBlock] = "clear-ceiling-block",
         [MotherBrainFakeDeathDraw.ClearCeilingTube] = "clear-ceiling-tube",
         [MotherBrainFakeDeathDraw.ClearBottomMiddleSideTube] = "clear-bottom-middle-side-tube",

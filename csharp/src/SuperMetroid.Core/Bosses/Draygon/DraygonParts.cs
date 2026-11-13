@@ -67,7 +67,6 @@ internal sealed class DraygonParts
         body.SetSpeciesState(Draygon);
         body.Shading = Draygon.Colours.Sprites;
         Draygon.StartAnimation(body, DraygonSegment.BodyFacingLeftIdle);
-        Draygon.DisabledCannons.Add(DraygonWallCannon.UnusedBottom);
     }
 
     /// <summary>Runs the independent initializers.</summary>

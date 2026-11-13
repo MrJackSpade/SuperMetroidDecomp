@@ -169,8 +169,6 @@ internal static class RoomObjectDrawSourceDefinitions
         [MotherBrainFakeDeathDraw.MuralRow10] = new(Bank, 0x9613),
         [MotherBrainFakeDeathDraw.MuralRow11] = new(Bank, 0x9631),
         [MotherBrainFakeDeathDraw.MuralRow12] = new(Bank, 0x964f),
-        [MotherBrainFakeDeathDraw.UnusedFirstSolidRow] = new(Bank, 0x966d),
-        [MotherBrainFakeDeathDraw.UnusedSecondSolidRow] = new(Bank, 0x968b),
         [MotherBrainFakeDeathDraw.ClearCeilingBlock] = new(Bank, 0x96a9),
         [MotherBrainFakeDeathDraw.ClearCeilingTube] = new(Bank, 0x96b1),
         [MotherBrainFakeDeathDraw.ClearBottomMiddleSideTube] = new(Bank, 0x96bf),

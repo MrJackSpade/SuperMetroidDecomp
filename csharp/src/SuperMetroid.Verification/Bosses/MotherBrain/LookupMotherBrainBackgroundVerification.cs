@@ -27,8 +27,7 @@ internal static class LookupMotherBrainBackgroundVerification
     ];
 
     /// <summary>
-    /// Checks which draws are the fake-death room's (the mural rows, the wall and door, and the fill rows and tube clears
-    /// together), the twelve rows' order, their one thirteen-cell run against the cartridge, and that each row's shape
+    /// Checks which draws are the fake-death room's (the mural rows, the wall and door, and the tube clears together), the twelve rows' order, their one thirteen-cell run against the cartridge, and that each row's shape
     /// covers exactly the cells its draw list writes.
     /// </summary>
     internal static void VerifyMotherBrainBackgroundGeometry(CartridgeImportAddressSpace rom)

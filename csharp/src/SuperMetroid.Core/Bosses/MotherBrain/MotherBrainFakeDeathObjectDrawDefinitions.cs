@@ -51,18 +51,6 @@ internal static class MotherBrainFakeDeathObjectDrawDefinitions
         new(new(12, 0), RoomCollisionType.Air),
     ]);
 
-    /// <summary>A solid row nothing in the game draws: thirteen solid blocks rightward from the origin.</summary>
-    private static readonly RoomBlockShape SolidRow = new(
-    [
-        new(new(0, 0), RoomCollisionType.SolidBlock), new(new(1, 0), RoomCollisionType.SolidBlock),
-        new(new(2, 0), RoomCollisionType.SolidBlock), new(new(3, 0), RoomCollisionType.SolidBlock),
-        new(new(4, 0), RoomCollisionType.SolidBlock), new(new(5, 0), RoomCollisionType.SolidBlock),
-        new(new(6, 0), RoomCollisionType.SolidBlock), new(new(7, 0), RoomCollisionType.SolidBlock),
-        new(new(8, 0), RoomCollisionType.SolidBlock), new(new(9, 0), RoomCollisionType.SolidBlock),
-        new(new(10, 0), RoomCollisionType.SolidBlock), new(new(11, 0), RoomCollisionType.SolidBlock),
-        new(new(12, 0), RoomCollisionType.SolidBlock),
-    ]);
-
     /// <summary>A cleared ceiling block: the restored ceiling slope over one emptied block.</summary>
     private static readonly RoomBlockShape ClearedCeilingBlock = new(
     [
@@ -153,8 +141,6 @@ internal static class MotherBrainFakeDeathObjectDrawDefinitions
         [MotherBrainFakeDeathDraw.MuralRow10] = MuralInteriorRow,
         [MotherBrainFakeDeathDraw.MuralRow11] = MuralInteriorRow,
         [MotherBrainFakeDeathDraw.MuralRow12] = MuralBorderRow,
-        [MotherBrainFakeDeathDraw.UnusedFirstSolidRow] = SolidRow,
-        [MotherBrainFakeDeathDraw.UnusedSecondSolidRow] = SolidRow,
         [MotherBrainFakeDeathDraw.ClearCeilingBlock] = ClearedCeilingBlock,
         [MotherBrainFakeDeathDraw.ClearCeilingTube] = ClearedCeilingTube,
         [MotherBrainFakeDeathDraw.ClearBottomMiddleSideTube] = ClearedBottomMiddleSideTube,

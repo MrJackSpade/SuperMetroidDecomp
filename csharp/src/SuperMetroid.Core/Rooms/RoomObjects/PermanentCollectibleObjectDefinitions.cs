@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// The permanent-item room objects: one per collectible kind for each of the exposed, Chozo-orb and concealed shot-block
-/// presentations (#1414: named by member, replacing the three definition runs the game's tables implied).
+/// presentations.
 /// </summary>
 internal static class PermanentCollectibleObjectDefinitions
 {

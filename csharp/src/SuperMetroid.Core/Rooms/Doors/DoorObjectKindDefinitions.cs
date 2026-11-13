@@ -3,9 +3,8 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The room-object definitions that install coloured and grey doors, and the door each installs (#1414: named by member,
-/// replacing the ranges the room-object definitions implied). A definition absent here installs no
-/// coloured or grey door.
+/// The room-object definitions that install coloured and grey doors, and the door each installs. A definition absent
+/// here installs no coloured or grey door.
 /// </summary>
 internal static class DoorObjectKindDefinitions
 {

@@ -252,7 +252,7 @@ public sealed class SamusBombProjectileSystem
             }
 
             // The loop still steps the animation after a frame behaviour clears a slot.
-            // Its cleared timer underflows and returns without reading an empty animation. An
+            // Its cleared timer passes zero and returns without reading an empty animation. An
             // inactive projectile has the same externally visible result, so skip the
             // otherwise meaningless decrement rather than pretending an empty animation ran.
             if (!slot.IsActive)
@@ -732,7 +732,7 @@ public sealed class SamusBombProjectileSystem
         slot.BombSpreadHorizontal = slot.BombSpreadHorizontal.Reversed();
     }
 
-    /// <summary>Tests the bomb center against room bounds, extension parents, solid tiles and the game's non-square slope heights.</summary>
+    /// <summary>Tests the bomb center against room bounds, extension parents, solid blocks and the game's non-square slope heights.</summary>
     internal static bool BombSpreadCollides(
         RoomLevelData level,
         SamusBombProjectileSlot slot)
@@ -849,7 +849,7 @@ public sealed class SamusBombProjectileSystem
         }
     }
 
-    /// <summary>Resolves a bombed tile through extension, item, door and special-block dispatch, including synchronous room-object changes.</summary>
+    /// <summary>Resolves a bombed block through extension, item, door and special-block dispatch, including synchronous room-object changes.</summary>
     internal static void CollectSingleBombedBlockReaction(
         RoomLevelData level,
         Position16<RoomBlocks> bombedBlock,
@@ -1129,7 +1129,7 @@ public sealed class SamusBombProjectileSystem
         return publishedDirection;
     }
 
-    /// <summary>Deletes a bomb, ending it, and decrements the bomb count, clamping a signed underflow to zero.</summary>
+    /// <summary>Deletes a bomb, ending it, and decrements the bomb count, clamping a count below zero to zero.</summary>
     private void ClearProjectile(SamusBombProjectileSlot slot)
     {
         bool wasActive = slot.IsActive;

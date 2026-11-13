@@ -61,7 +61,7 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>
     /// The room effect's liquid surface as Samus's physics sees it: none when the effect has no surface, or when a tide
-    /// carries it above the room, where the game's sign test finds no surface.
+    /// carries it above the room, where the game's below-zero check finds no surface.
     /// </summary>
     private static int? LiveSurface(RoomFxOverlayState fx) => fx.Surface is >= 0 ? fx.Surface : null;
 
@@ -614,7 +614,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>
     /// Applies periodic damage to Samus. The producer above adds
     /// raw fixed-point damage; this consumer applies the suit's periodic division
-    /// (<see cref="SamusSuitDamage.ReducePeriodic"/>), subtracts with the game's borrow chain, clamps fatal underflow,
+    /// (<see cref="SamusSuitDamage.ReducePeriodic"/>), subtracts with the game's borrow chain, clamps a fatal result below zero,
     /// and clears the pair.
     /// </summary>
     public void ApplyPeriodicDamage(SamusState samus, bool timeIsFrozen)

@@ -120,7 +120,7 @@ public sealed class SamusKinematicsState
     /// <summary>
     /// Vertical direction: zero is none, one is upward, and two is
     /// downward. The game stores speed as a magnitude and uses this separate direction;
-    /// treating upward velocity as a negative number would lose the underflow quirks
+    /// treating upward velocity as a negative number would lose the quirks of a speed passing zero
     /// in the vertical move and the jump-release test.
     /// </summary>
     public SamusVerticalDirection YDirection { get; set; }

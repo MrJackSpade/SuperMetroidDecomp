@@ -528,7 +528,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
         if (!SamusPoseMetadata.IsAirborneMorphBallPose(samus.Pose) && !SamusPoseMetadata.IsGroundedMorphBallPose(samus.Pose))
             throw new InvalidOperationException($"Morph-Ball landing requires an airborne morph-ball pose, not {samus.Pose}.");
 
-        // The speed is compared by the sign of its difference from the minimum, so
+        // The speed is compared by whether its difference from the minimum is negative, so
         // Moonfall's negative velocity lands without a rebound.
         if (samus.MorphBallBounceState == SamusBallBounceState.None &&
             SamusSpeedMagnitude.IsAtLeast(samus.Kinematics.YSpeed.Whole, SamusMovementDefinitions.FirstBallBounceMinimumSpeed))
@@ -637,7 +637,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
     /// <summary>
     /// Applies the walk-off transition after a bomb-jump frame moved down without a floor. Only the pose
     /// changes: the airborne ball's initializer leaves vertical speed for the next
-    /// handler frame, whose underflow test turns the jump downward. Movement types whose
+    /// handler frame, whose passing-zero test turns the jump downward. Movement types whose
     /// falling entry is "no change" keep their pose.
     /// </summary>
     public static void ApplyBombJumpFallingPose(SamusState samus)

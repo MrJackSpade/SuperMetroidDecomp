@@ -571,7 +571,7 @@ internal sealed class ProjectileTerrainCollision
         int span = CoordinateAxis.Wrap(bottom - (top & ~15)) >> 4;
         int targetX = CoordinateAxis.Wrap(slot.Velocity.X.IsNegative
             ? slot.Position.X.Whole - slot.Radius.X : slot.Position.X.Whole + slot.Radius.X - 1);
-        // The game's sign test reads the whole coordinate's sign, not whether its pixel offset within the
+        // The game's check reads whether the whole coordinate is negative, not whether its pixel offset within the
         // screen is 128 or more. Testing the latter disables Wave reactions throughout
         // the lower half of every screen, including ordinary blue-door caps.
         if (span >= 16 || CoordinateAxis.AsSigned(slot.Position.Y.Whole) < 0 ||
@@ -621,10 +621,10 @@ internal sealed class ProjectileTerrainCollision
             return;
 
         // The row lookup takes the target row within the scan cycle. X is deliberately not clipped to the
-        // room width: right-edge spans reach the following row; left underflow
-        // starts 4095 tiles forward while the center remains inside the room.
+        // room width: right-edge spans reach the following row; a span left
+        // of the room's edge starts 4095 blocks forward while the center remains inside the room.
         // The block reaction dispatcher bounds the resulting allocation
-        // offset, not the horizontal extent of this individual tile span.
+        // offset, not the horizontal extent of this individual block span.
         var firstBlock = Position16<RoomBlocks>.Of(left >> 4, targetY >> 4);
         for (int step = 0; step <= span; step++)
         {

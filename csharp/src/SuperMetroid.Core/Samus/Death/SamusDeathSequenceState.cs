@@ -9,7 +9,7 @@ using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.Core.Samus.Death;
 
 /// <summary>
-/// Owns Samus's fatal-damage pose, tile, palette, flashing, whiteout, and suit-
+/// Owns Samus's fatal-damage pose, picture, palette, flashing, whiteout, and suit-
 /// explosion sequence. This is deliberately not folded into knockback merely because poses
 /// the death-sequence poses advertise the knockback movement type: the death game states stop the normal Samus frame
 /// handlers and call this independent state machine instead.

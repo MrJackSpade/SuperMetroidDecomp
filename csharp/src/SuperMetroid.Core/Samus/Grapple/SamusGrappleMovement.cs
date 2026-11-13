@@ -837,7 +837,7 @@ public static class SamusGrappleMovement
                     // Blue caps occupy the same table as breakable blocks but
                     // select door room objects. Grapple's negative projectile index bypasses the
                     // blue door setup's power-bomb rejection; the ordinary opening owner
-                    // supplies all four cap tiles, timing, collision changes, and sound.
+                    // supplies all four cap blocks, timing, collision changes, and sound.
                     if (block.Behavior.TryGetDownwardGateTrigger(out _))
                         roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.At, block.Behavior, projectileType: SamusProjectileType.None);
                     else if (block.Behavior.TryGetBlueDoorOrientation(out _))

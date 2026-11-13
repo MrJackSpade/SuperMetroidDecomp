@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// explicit state prevents the standing and crouching X-ray poses from silently inheriting ordinary standing or
 /// crouching input. The desktop compositor now consumes these exact angle and width values to
 /// reproduce the moving tangent-table window; building the revealed blocks' picture remains
-/// separate presentation work and no fake hidden tiles are generated here.
+/// separate presentation work and no fake hidden blocks are generated here.
 /// </remarks>
 public sealed class SamusXrayState
 {
@@ -53,7 +53,7 @@ public sealed class SamusXrayState
     public bool AreObjectsSuspended =>
         (SuspendedSubsystems & XraySuspendedSubsystems.RoomObjects) != XraySuspendedSubsystems.None;
 
-    /// <summary>Whether X-ray's independent animated-tile disable remains set, preventing animated-tile object advancement even after shared time resumes.</summary>
+    /// <summary>Whether X-ray's independent block-animation disable remains set, preventing block animations from advancing even after shared time resumes.</summary>
     public bool AreAnimatedTilesSuspended =>
         (SuspendedSubsystems & XraySuspendedSubsystems.AnimatedTiles) != XraySuspendedSubsystems.None;
 
@@ -64,7 +64,7 @@ public sealed class SamusXrayState
     /// <summary>Interrupted pose published by alpha, awaiting pose commit in beta.</summary>
     public SamusPoseId? PendingActivationPose { get; private set; }
 
-    /// <summary>X-ray freezes enemy/projectile/room-object/animated-tile time.</summary>
+    /// <summary>X-ray freezes enemy/projectile/room-object/block-animation time.</summary>
     public bool TimeIsFrozen { get; private set; }
 
     /// <summary>

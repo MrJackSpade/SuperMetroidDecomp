@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
 /// Where each pose draws the arm cannon's cover (#1463, #1616). Gameplay draws the cover's pre-coloured picture from the
-/// overlay sheet by aim direction and cover frame, at the pose's placement; the descriptors, appearances and tiles the
+/// overlay sheet by aim direction and cover frame, at the pose's placement; the descriptors, appearances and source artwork the
 /// placements and the sheet come from are the import pipeline's.
 /// </summary>
 public sealed class InstalledSamusArmCannonArtwork

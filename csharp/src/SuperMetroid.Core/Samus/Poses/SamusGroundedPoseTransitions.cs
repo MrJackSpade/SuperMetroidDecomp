@@ -111,7 +111,7 @@ internal static class SamusGroundedPoseTransitions
             return;
         }
 
-        // Sees previous movement type one and publishes 32768. The sign test
+        // Sees previous movement type one and publishes 32768. The below-zero check
         // in the animation setup exits before touching frame, timer, or delay-buffer state. Every live
         // running arm pose plays the same animation, so the cached animation is
         // already exact and must not be rebound or reset here.
@@ -366,7 +366,7 @@ internal static class SamusGroundedPoseTransitions
     /// <remarks>
     /// This is intentionally not a general pose setter. For this transition, momentum
     /// index zero is a no-op, both poses have radius 21, and <see cref="SamusPoseId.MovingRightNormalPose"/> uses the
-    /// already-supported default render/tile paths. Other transitions can change momentum,
+    /// already-supported default render/picture paths. Other transitions can change momentum,
     /// align radii, invoke collision, or run specialized handlers and remain rejected.
     /// </remarks>
     public static void ApplyStandingRightToRunningRight(SamusState samus)

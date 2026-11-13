@@ -91,7 +91,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// </summary>
     public void BeginFallingAfterRainbowBeam()
     {
-        CustomVelocity = new(-256, 0);
+        CustomVelocity = new(SignedEightEight.FromPixels(-1), SignedEightEight.Zero);
     }
 
     /// <summary>How much the leftward push slows on each update of Samus's fall from the beam.</summary>

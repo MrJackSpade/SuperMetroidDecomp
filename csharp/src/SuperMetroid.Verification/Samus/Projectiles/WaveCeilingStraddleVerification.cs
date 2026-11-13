@@ -93,7 +93,7 @@ internal static class WaveCeilingStraddleVerification
         {
             Position = new(new((ushort)((column * 16) + ShotXRadius), 0), new(ShotY, 0)),
             Radius = new(ShotXRadius, ShotYRadius),
-            Velocity = new(1, 0),
+            Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(1, 0),
             Type = SamusProjectileType.Beam(SamusBeamCombination.SpazerIceWave, charged: false),
         };
         ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, shot, roomObjects, straddled);

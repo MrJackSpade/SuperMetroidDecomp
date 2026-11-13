@@ -12,8 +12,8 @@ internal static class FakeKraidProjectiles
                 $"Fake Kraid spit index {projectile} exceeds its two-entry direction set.");
         }
 
-        int horizontal = (projectile + 1) * FakeKraidProjectileDefinitions.SpitSpeedStep;
-        return new(CoordinateAxis.AsSigned(movingRight ? horizontal : -horizontal), FakeKraidProjectileDefinitions.SpitRise);
+        SignedEightEight horizontal = SignedEightEight.FromPixels((projectile + 1) * FakeKraidProjectileDefinitions.SpitSpeedStepPixels);
+        return new(movingRight ? horizontal : -horizontal, FakeKraidProjectileDefinitions.SpitRise);
     }
 
     /// <summary>

@@ -74,7 +74,7 @@ internal static class GateBeamCollisionVerification
                 for (int i = 0; i < 40; i++)
                     AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, level.BlockAt(first), 0x10, SamusProjectileType.None, true), "Fill gate probe pool");
             var shot = new SamusProjectile(0) { Position = new(new(33, 0), new(33, 0)),
-                Radius = new(17, 17), Velocity = new(-1, -1) };
+                Radius = new(17, 17), Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-1, -1) };
             bool result = false;
             if (wave && horizontal) ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, shot, roomObjects, InstalledFixtures.SamusOverreads.StraddledTerrain);
             else if (wave) ProjectileTerrainCollision.ScanVerticalWaveShotReactions(level, shot, roomObjects);

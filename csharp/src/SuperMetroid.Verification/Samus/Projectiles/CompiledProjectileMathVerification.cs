@@ -78,9 +78,9 @@ internal static class CompiledProjectileMathVerification
         for (int angle = 0; angle < 256; angle++)
         {
             var tableAngle = new TrigonometryAngle(angle);
-            AssertEqual(new EightEightVector<RoomPixels>(native[angle + 64], native[angle]), flyCircle(tableAngle),
+            AssertEqual(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(native[angle + 64], native[angle]), flyCircle(tableAngle),
                 "fly circle step: sine across, negative cosine down");
-            AssertEqual(new EightEightVector<RoomPixels>(native[angle + 64] * 2, native[angle] * 4), flyDive(tableAngle),
+            AssertEqual(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(native[angle + 64] * 2, native[angle] * 4), flyDive(tableAngle),
                 "fly dive: doubled sine across, quadrupled negative cosine down");
             AssertEqual((short)(native[angle + 64] >> 4), eye((byte)angle), "eye arithmetic shift");
         }
@@ -90,7 +90,7 @@ internal static class CompiledProjectileMathVerification
         }
         for (int angle = 0; angle < 256; angle++)
         {
-            AssertEqual(new EightEightVector<RoomPixels>(unchecked((short)(native[angle + 64] << 2)),
+            AssertEqual(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(unchecked((short)(native[angle + 64] << 2)),
                     unchecked((short)(native[angle] << 2))), crocomire((byte)angle),
                 "Crocomire projectile signed X/Y shifts and negative-cosine origin");
             AssertEqual(unchecked((ushort)native[angle + 64]), rio((byte)angle), "Rio signed word bits");

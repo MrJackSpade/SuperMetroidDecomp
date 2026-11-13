@@ -1,3 +1,6 @@
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 using SuperMetroid.EnsureAnalyzer.Contracts;
 using SuperMetroid.EnsureAnalyzer.Modules;
 using static SuperMetroid.EnsureVerification.Harness.AnalyzerTests;
@@ -60,6 +63,37 @@ internal static class CoreVocabularyAnalyzerTests
         // (two words: TileMap) are the game's own.
         Expect("class P { int Sprite; int MapSpriteId; int SpriteSheets; int ScanLeftToRight; int Scanned; int Scanner; int FirstLine; int HudLines; }");
         Expect("class P { int Tile; int Tiles; int Metatile; int MapTiles; int TileMap; int TileMapLayer; }");
+        // The original's function-pointer dispatch, in each kind of declaration a renamed Core identifier used it in (#1624):
+        // an enum of room behaviours and its catalog, a record's member, a plural catalog, a method, a constant, a
+        // parameter and a local, none of which holds a delegate.
+        Expect("enum RoomMainCallback { None }", "'RoomMainCallback' names the original's dispatch ('Callback')");
+        Expect("static class RoomCallbackDefinitions { }", "'RoomCallbackDefinitions' names the original's dispatch ('Callback')");
+        Expect("enum Choice { NoWave } record struct Definition(Choice Callback);", "'Callback' names the original's dispatch ('Callback')");
+        Expect("static class SamusBeamCallbacks { }", "'SamusBeamCallbacks' names the original's dispatch ('Callback')");
+        Expect("class P { bool HasDeadTourianCorpseShotCallback() => true; }",
+            "'HasDeadTourianCorpseShotCallback' names the original's dispatch ('Callback')");
+        Expect("class P { const int EscapeDachoraPixelsPerCallback = 6; }",
+            "'EscapeDachoraPixelsPerCallback' names the original's dispatch ('Callback')");
+        Expect("enum Step { None } class P { bool Run(Step callback) => callback == Step.None; }",
+            "'callback' names the original's dispatch ('Callback')");
+        Expect("class P { void Run() { bool validMainCallback = true; _ = validMainCallback; } }",
+            "'validMainCallback' names the original's dispatch ('Callback')");
+        // A method's name is its own even when it returns a delegate.
+        Expect("class P { System.Action ReadCallback() => () => { }; }", "'ReadCallback' names the original's dispatch ('Callback')");
+        // A C# delegate the port passes is a genuine callback: a delegate type, an event, and a field, property, parameter,
+        // local or pattern variable whose type is a delegate or a collection of them.
+        Expect("delegate void FrameCallback(); class P { event System.Action? DoneCallback; }");
+        Expect("class P { System.Action? AudioCallback; System.Func<int>? ReadCallback { get; } System.Action[] Callbacks = []; }");
+        Expect("class P { System.Collections.Generic.List<System.Func<int>> PendingCallbacks = []; }");
+        Expect("class P { int Run(System.Func<int> callback) { System.Func<int> nextCallback = callback; return nextCallback(); } }");
+        Expect("class P { void Run(object value) { if (value is System.Action callback) callback(); } }");
+        Expect("record Hook(System.Action Callback);");
+        // Words that share its letters are the game's own.
+        Expect("class P { int Call; int Called; int Recall; int Back; int Fallback; }");
+        // A file is named for its type: a delegate type's file keeps the word, another type's file does not.
+        ExpectFile("delegate void FrameCallback();", "FrameCallback.cs");
+        ExpectFile("enum RoomMainCallback { None }", "RoomMainCallback.cs",
+            "'RoomMainCallback' names the original's dispatch ('Callback')", "'RoomMainCallback' names the original's dispatch ('Callback')");
         Expect("class P { int Banked; }", "'Banked' names the hardware ('Bank')");
         Expect("class P { int[] Pointers = []; }", "'Pointers' names the hardware ('Pointer')");
         Expect("class P { void Run() { try { } catch (System.Exception addressing) { _ = addressing; } } }", "'addressing' names the hardware ('Address')");
@@ -117,5 +151,29 @@ internal static class CoreVocabularyAnalyzerTests
             """);
         // Outside Core the import pipeline may name the ROM.
         VerifySnippet("class RomReader { }", analyzer: analyzer, assemblyName: "SuperMetroid.AssetExtraction");
+    }
+
+    /// <summary>
+    /// Compiles one Core source at <paramref name="path"/> and checks that SME6438 reports exactly
+    /// <paramref name="messages"/>, each diagnostic containing its message, in source order (the file name's first).
+    /// </summary>
+    private static void ExpectFile(string source, string path, params string[] messages)
+    {
+        var tree = CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Preview), path: path);
+        var compilation = CSharpCompilation.Create(CoreLayerAnalyzer.CoreAssembly, [tree], References,
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
+        var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+        if (errors.Length != 0)
+            throw new InvalidOperationException($"Invalid analyzer fixture: {string.Join("; ", errors.Select(e => e.ToString()))}");
+        var diagnostics = compilation.WithAnalyzers([new CoreVocabularyAnalyzer()]).GetAnalyzerDiagnosticsAsync().GetAwaiter().GetResult()
+            .OrderBy(d => d.Location.SourceSpan.Start).ToArray();
+        if (diagnostics.Length != messages.Length ||
+            diagnostics.Where((diagnostic, index) => diagnostic.Id != CoreVocabularyAnalyzer.HardwareWordId ||
+                diagnostic.Severity != DiagnosticSeverity.Error ||
+                !diagnostic.GetMessage().Contains(messages[index], StringComparison.Ordinal)).Any())
+        {
+            throw new InvalidOperationException(
+                $"Expected [{string.Join("; ", messages)}] for {path}, got [{string.Join("; ", diagnostics.Select(d => d.ToString()))}] in {source}");
+        }
     }
 }

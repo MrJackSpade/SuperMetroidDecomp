@@ -22,6 +22,12 @@ public sealed class SamusKinematicsState
     private readonly int?[] _solidEnemyCollisions = [null, null, null, null];
 
     /// <summary>
+    /// The slot ordinal of the solid enemy Samus's latest wall jump launched from, waiting for the next enemy pass to
+    /// shake that enemy; null when no launch from an enemy waits.
+    /// </summary>
+    private int? _wallJumpLaunchEnemy;
+
+    /// <summary>
     /// Contact-damage snapshot for ownerless geometry probes. Sand still reads this
     /// collision input even when a probe deliberately cannot mutate the full owner.
     /// </summary>
@@ -180,4 +186,21 @@ public sealed class SamusKinematicsState
     /// <summary>Forgets every direction's contact, as the end of the enemy pass does.</summary>
     internal void ClearSolidEnemyCollisions() =>
         Array.Fill(_solidEnemyCollisions, null);
+
+    /// <summary>
+    /// Asks the next enemy pass to shake the solid enemy in slot <paramref name="solidEnemySlot"/>, which a wall jump has
+    /// just launched from.
+    /// </summary>
+    internal void RequestWallJumpLaunchShake(int solidEnemySlot) => _wallJumpLaunchEnemy = solidEnemySlot;
+
+    /// <summary>Withdraws a waiting launch's shake, as each wall-jump check does before it looks for a new launch.</summary>
+    internal void WithdrawWallJumpLaunchShake() => _wallJumpLaunchEnemy = null;
+
+    /// <summary>Takes the enemy a wall jump launched from for the enemy pass to shake, leaving none waiting.</summary>
+    internal int? TakeWallJumpLaunchShake()
+    {
+        int? launchedFrom = _wallJumpLaunchEnemy;
+        _wallJumpLaunchEnemy = null;
+        return launchedFrom;
+    }
 }

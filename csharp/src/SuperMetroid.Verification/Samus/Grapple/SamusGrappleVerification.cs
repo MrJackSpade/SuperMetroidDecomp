@@ -1041,6 +1041,31 @@ firingLevel, cancelledSamus, controllerInput: 0);
         "grapple wall jump queues generic library-one sound seven");
     AssertEqual(0, wallGrabSamus.Grapple.RopeLength,
         "grapple wall jump removes rope state");
+    WallJumpLaunchShakeChecks.AssertEnemyPassShakes(wallGrabSamus, null, "a grapple wall jump off terrain");
+
+    // #1697: the same entry with a solid enemy against the wall launches off the enemy, which the enemy pass shakes.
+    var enemyWallGrabSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
+    BindGrapplePresentation(enemyWallGrabSamus);
+    SamusGrappleMovement.ConnectUnobstructedSwing(
+        enemyWallGrabSamus,
+        anchor: new Position16<RoomPixels>(128, 128),
+        ropeLength: 8,
+        angle: RotationAngle.FromRaw(0x6a00),
+        angularVelocity: 0x0200,
+        faceRight: true);
+    SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel }, enemyWallGrabSamus, ControllerButton.X, newlyPressedInput: 0);
+    SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel }, enemyWallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
+    enemyWallGrabSamus.Kinematics.InteractiveEnemies =
+    [
+        new SolidEnemyCollisionBody(
+            Slot: 4,
+            Position: new(150, 152),
+            Radius: new(4, 8),
+            Solid: true),
+    ];
+    GrappleMovementResult enemyWallJumpQueued = SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel }, enemyWallGrabSamus, controllerInput: ControllerButton.A, newlyPressedInput: ControllerButton.A);
+    AssertEqual(GrapplePhase.WallJumping, enemyWallJumpQueued.Phase, "fresh Jump against a solid enemy queues grapple wall jump");
+    WallJumpLaunchShakeChecks.AssertEnemyPassShakes(enemyWallGrabSamus, 4, "a grapple wall jump off a solid enemy");
 
     // Repeat the same authentic entry but do not press Jump. DEC/BPL permits exactly thirty
     // wall checks (timer 29 through zero); the thirty-first call wraps to `$FFFF` and queues

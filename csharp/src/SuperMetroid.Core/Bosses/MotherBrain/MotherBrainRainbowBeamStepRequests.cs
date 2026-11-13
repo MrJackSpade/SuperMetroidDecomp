@@ -82,6 +82,9 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>The escape door's room object requested, if any.</summary>
     internal RoomObjectSpawnRequest<MotherBrainRoomMutation>? EscapeDoorObject { get; set; }
 
+    /// <summary>The shared projectile cooldown, in updates, the call gave Samus, if it gave her one.</summary>
+    internal int? SamusProjectileCooldown { get; set; }
+
     /// <summary>What the call last asked of the room's earthquake, if anything.</summary>
     internal MotherBrainEarthquakeRequest? Earthquake { get; private set; }
 
@@ -103,5 +106,5 @@ internal sealed class MotherBrainRainbowBeamStepRequests
             EscapeMusicTrackQueued, EscapePaletteFxRequests,
             EscapeTypewriterSetupRequested, TimeBombSetSubtitleSpawnRequested, EscapeDoorExplosion, TimerHandlingEnableRequested,
             MotherBrainEscapeTimerStartRequested, MotherBrainBossBitRequested, ZebesTimebombEventRequested, EscapeDoorParticleSpawns,
-            EscapeDoorObject, Earthquake);
+            EscapeDoorObject, Earthquake, SamusProjectileCooldown);
 }

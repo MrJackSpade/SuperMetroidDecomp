@@ -912,6 +912,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         foreach (IEnemySpecies species in _species)
             species.BeginEnemyFrame(frame);
         Drawing.Clear();
+        ShakeWallJumpLaunchEnemy(frame.Samus);
 
         foreach (RoomEnemySlot slot in ProcessingWindow.ActiveEnemies)
         {
@@ -1070,6 +1071,17 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         if (!frame.TimeIsFrozen)
             SpriteObjects.StepRoomSpriteObjects();
         return BuildFrameResult();
+    }
+
+    /// <summary>
+    /// Shakes the solid or frozen enemy Samus's latest wall jump launched from, as the enemy pass does before any enemy
+    /// updates. While no enemy place is filled the request waits.
+    /// </summary>
+    internal void ShakeWallJumpLaunchEnemy(SamusState? samus)
+    {
+        if (SlotTable.EnemyCount == 0 || samus?.Kinematics.TakeWallJumpLaunchShake() is not int launchedFrom)
+            return;
+        SlotTable.Slots[launchedFrom].ShakeFromWallJumpLaunch();
     }
 
     /// <summary>Runs the room shaking: the earthquake's frame step, then the actor shake it selects.</summary>

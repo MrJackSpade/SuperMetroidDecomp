@@ -741,6 +741,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySamusGrabbedByDraygon), () => VerifySamusGrabbedByDraygon()),
         new(nameof(VerifyMotherBrainRainbowBeamSamusMovement), () => VerifyMotherBrainRainbowBeamSamusMovement()),
         new(nameof(VerifyMotherBrainRainbowBeamAttackSequence), () => VerifyMotherBrainRainbowBeamAttackSequence()),
+        new(nameof(MotherBrainRainbowSamusCooldownVerification.VerifyMotherBrainRainbowSamusCooldown), () => MotherBrainRainbowSamusCooldownVerification.VerifyMotherBrainRainbowSamusCooldown()),
         new(nameof(MotherBrainEffectAnimationsVerification.VerifyMotherBrainEffectAnimations), () => MotherBrainEffectAnimationsVerification.VerifyMotherBrainEffectAnimations(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
         new(nameof(MotherBrainEffectBehaviorVerification.VerifyMotherBrainEffectBehavior), () => MotherBrainEffectBehaviorVerification.VerifyMotherBrainEffectBehavior(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
         new(nameof(MiscDustProjectileAnimationsVerification.VerifyMiscDustProjectileAnimations), () => MiscDustProjectileAnimationsVerification.VerifyMiscDustProjectileAnimations(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),

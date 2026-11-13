@@ -3,8 +3,8 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
-/// The presentation boundary of Ridley's breakup fragments (#641): the spritemap each
-/// <see cref="RidleyBreakupFrame"/> shows, as the operands of the lists.
+/// The presentation boundary of Ridley's breakup fragments (#641): the frame each
+/// <see cref="RidleyBreakupFrame"/> shows.
 /// </summary>
 internal static class RidleyBreakupFrameDefinitions
 {

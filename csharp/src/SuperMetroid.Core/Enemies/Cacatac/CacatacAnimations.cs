@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
 /// Cacatac's upright and inverted idle and spike-attack animations as typed programs (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="CacatacCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="CacatacCue"/> with its typed operands.
 /// </summary>
 internal static class CacatacAnimations
 {

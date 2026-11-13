@@ -31,8 +31,8 @@ internal static class FrameColouringDefinitions
     /// </summary>
     private static readonly Dictionary<EnemyProjectileFrameId, FrameColouring> BossProjectiles = new()
     {
-        [EnemyProjectileFrameId.CrocomireBridgeFragmentFirst] = new(EnemyDefinitionId.Crocomire, [CrocomireShades.Wall, CrocomireShades.WallSpikes]),
-        [EnemyProjectileFrameId.CrocomireBridgeFragmentThird] = new(EnemyDefinitionId.Crocomire, [CrocomireShades.Wall, CrocomireShades.WallSpikes]),
+        [EnemyProjectileFrameId.CrocomireBridgeFragment] = new(EnemyDefinitionId.Crocomire, [CrocomireShades.Wall, CrocomireShades.WallSpikes]),
+        [EnemyProjectileFrameId.CrocomireSpikeWallPiece] = new(EnemyDefinitionId.Crocomire, [CrocomireShades.Wall, CrocomireShades.WallSpikes]),
         [EnemyProjectileFrameId.DraygonGoopShotFirst] = new(EnemyDefinitionId.DraygonBody, [DraygonShades.Intro]),
         [EnemyProjectileFrameId.DraygonGoopShotSecond] = new(EnemyDefinitionId.DraygonBody, [DraygonShades.Intro]),
         [EnemyProjectileFrameId.MotherBrainTopTubeTopRight] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The falling tubes' typed animations (#641, #1600), in place of their lists, six bytes a piece.</summary>
+/// <summary>The falling tubes' typed animations (#641, #1600).</summary>
 internal static class MotherBrainTubeAnimations
 {
     /// <summary>Every piece's segment: its pose for one update.</summary>

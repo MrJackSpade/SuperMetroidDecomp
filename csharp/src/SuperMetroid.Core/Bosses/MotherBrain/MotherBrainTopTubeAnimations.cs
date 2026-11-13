@@ -3,7 +3,7 @@ using P = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTopTubeProgram;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain's falling ceiling-tube animations (#641, #1600), in place of their lists: one pose, held.</summary>
+/// <summary>Mother Brain's falling ceiling-tube animations (#641, #1600): one pose, held.</summary>
 internal static class MotherBrainTopTubeAnimations
 {
     /// <summary>Every segment; each shows its own tube.</summary>

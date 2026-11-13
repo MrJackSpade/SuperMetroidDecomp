@@ -69,8 +69,8 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The projectile frames <c>Bosses/Crocomire/CrocomireBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] CrocomireProjectiles =
     [
-        EnemyProjectileFrameId.CrocomireBridgeFragmentThird,
-        EnemyProjectileFrameId.CrocomireSpikeWallPieceSixth,
+        EnemyProjectileFrameId.CrocomireSpikeWallPiece,
+        EnemyProjectileFrameId.CrocomireShotFirst,
         EnemyProjectileFrameId.CrocomireShotSecond,
         EnemyProjectileFrameId.CrocomireShotThird,
         EnemyProjectileFrameId.CrocomireShotFourth,
@@ -1164,8 +1164,8 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.CrocomireMouthFourth,
         EnemyProjectileFrameId.CrocomireMouthFifth,
         EnemyProjectileFrameId.CrocomireMouthSixth,
-        EnemyProjectileFrameId.CrocomireBridgeFragmentFirst,
-        EnemyProjectileFrameId.CrocomireSpikeWallPieceSixth,
+        EnemyProjectileFrameId.CrocomireBridgeFragment,
+        EnemyProjectileFrameId.CrocomireShotFirst,
         EnemyProjectileFrameId.CrocomireShotSecond,
         EnemyProjectileFrameId.CrocomireShotThird,
         EnemyProjectileFrameId.CrocomireShotFourth,

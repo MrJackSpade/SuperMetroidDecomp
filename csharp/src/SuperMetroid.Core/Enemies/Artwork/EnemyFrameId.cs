@@ -2,3705 +2,3705 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
 /// The frames an enemy shows: every installed enemy frame, and the empty frame every enemy family shares. Each is named for
-/// its owner and its place among that owner's frames (the pose, index or part its frame table selects it by); each cites
-/// the name the installed artwork gives it (<see cref="EnemyFrameNameDefinitions"/>), which also gives its installed sheet
-/// key (<see cref="EnemyFrameSheetKeys"/>), so a frame's identity never reaches a file.
+/// what it shows: its owner, the animation (or the part, facing or table key) that first shows it, and its place there,
+/// which its summary spells out. Its installed name is its name in snake case (<see cref="EnemyFrameNameDefinitions"/>),
+/// which gives its installed sheet key (<see cref="EnemyFrameSheetKeys"/>), so a frame's identity never reaches a file.
 /// </summary>
 public enum EnemyFrameId
 {
-    /// <summary>The frame the installed artwork names <c>boyon_idle_0</c>.</summary>
+    /// <summary>Boyon: idle loop, first frame.</summary>
     BoyonIdleLoopFirst = 1,
-    /// <summary>The frame the installed artwork names <c>boyon_idle_1</c>.</summary>
+    /// <summary>Boyon: idle loop, second frame.</summary>
     BoyonIdleLoopSecond,
-    /// <summary>The frame the installed artwork names <c>boyon_idle_2</c>.</summary>
+    /// <summary>Boyon: idle loop, third frame.</summary>
     BoyonIdleLoopThird,
-    /// <summary>The frame the installed artwork names <c>boyon_bounce_0</c>.</summary>
+    /// <summary>Boyon: bouncing loop, first frame.</summary>
     BoyonBouncingLoopFirst,
-    /// <summary>The frame the installed artwork names <c>boyon_bounce_1</c>.</summary>
+    /// <summary>Boyon: bouncing loop, second frame.</summary>
     BoyonBouncingLoopSecond,
-    /// <summary>The frame the installed artwork names <c>boyon_bounce_2</c>.</summary>
+    /// <summary>Boyon: bouncing loop, third frame.</summary>
     BoyonBouncingLoopThird,
-    /// <summary>The frame the installed artwork names <c>boyon_bounce_3</c>.</summary>
+    /// <summary>Boyon: bouncing loop, fourth frame.</summary>
     BoyonBouncingLoopFourth,
-    /// <summary>The frame the installed artwork names <c>cacatac_upright_idle_0</c>.</summary>
+    /// <summary>Cacatac: upside up idle, first frame.</summary>
     CacatacUpsideUpIdleFirst,
-    /// <summary>The frame the installed artwork names <c>cacatac_upright_idle_1</c>.</summary>
+    /// <summary>Cacatac: upside up idle, second frame.</summary>
     CacatacUpsideUpIdleSecond,
-    /// <summary>The frame the installed artwork names <c>cacatac_upright_idle_2</c>.</summary>
+    /// <summary>Cacatac: upside up idle, third frame.</summary>
     CacatacUpsideUpIdleThird,
-    /// <summary>The frame the installed artwork names <c>cacatac_upright_idle_3</c>.</summary>
+    /// <summary>Cacatac: upside up idle, fourth frame.</summary>
     CacatacUpsideUpIdleFourth,
-    /// <summary>The frame the installed artwork names <c>cacatac_upright_idle_4</c>.</summary>
+    /// <summary>Cacatac: upside up idle, fifth frame.</summary>
     CacatacUpsideUpIdleFifth,
-    /// <summary>The frame the installed artwork names <c>cacatac_upright_idle_5</c>.</summary>
+    /// <summary>Cacatac: upside up idle, sixth frame.</summary>
     CacatacUpsideUpIdleSixth,
-    /// <summary>The frame the installed artwork names <c>cacatac_upright_idle_6</c>.</summary>
+    /// <summary>Cacatac: upside up idle, seventh frame.</summary>
     CacatacUpsideUpIdleSeventh,
-    /// <summary>The frame the installed artwork names <c>cacatac_upright_idle_7</c>.</summary>
+    /// <summary>Cacatac: upside up idle, eighth frame.</summary>
     CacatacUpsideUpIdleEighth,
-    /// <summary>The frame the installed artwork names <c>cacatac_upright_attack_1</c>.</summary>
+    /// <summary>Cacatac: upside up attack, second frame.</summary>
     CacatacUpsideUpAttackSecond,
-    /// <summary>The frame the installed artwork names <c>cacatac_upright_attack_2</c>.</summary>
+    /// <summary>Cacatac: upside up attack, third frame.</summary>
     CacatacUpsideUpAttackThird,
-    /// <summary>The frame the installed artwork names <c>cacatac_inverted_idle_0</c>.</summary>
+    /// <summary>Cacatac: upside down idle loop, first frame.</summary>
     CacatacUpsideDownIdleLoopFirst,
-    /// <summary>The frame the installed artwork names <c>cacatac_inverted_idle_1</c>.</summary>
+    /// <summary>Cacatac: upside down idle loop, second frame.</summary>
     CacatacUpsideDownIdleLoopSecond,
-    /// <summary>The frame the installed artwork names <c>cacatac_inverted_idle_2</c>.</summary>
+    /// <summary>Cacatac: upside down idle loop, third frame.</summary>
     CacatacUpsideDownIdleLoopThird,
-    /// <summary>The frame the installed artwork names <c>cacatac_inverted_idle_3</c>.</summary>
+    /// <summary>Cacatac: upside down idle loop, fourth frame.</summary>
     CacatacUpsideDownIdleLoopFourth,
-    /// <summary>The frame the installed artwork names <c>cacatac_inverted_idle_4</c>.</summary>
+    /// <summary>Cacatac: upside down idle loop, fifth frame.</summary>
     CacatacUpsideDownIdleLoopFifth,
-    /// <summary>The frame the installed artwork names <c>cacatac_inverted_idle_5</c>.</summary>
+    /// <summary>Cacatac: upside down idle loop, sixth frame.</summary>
     CacatacUpsideDownIdleLoopSixth,
-    /// <summary>The frame the installed artwork names <c>cacatac_inverted_idle_6</c>.</summary>
+    /// <summary>Cacatac: upside down idle loop, seventh frame.</summary>
     CacatacUpsideDownIdleLoopSeventh,
-    /// <summary>The frame the installed artwork names <c>cacatac_inverted_idle_7</c>.</summary>
+    /// <summary>Cacatac: upside down idle loop, eighth frame.</summary>
     CacatacUpsideDownIdleLoopEighth,
-    /// <summary>The frame the installed artwork names <c>cacatac_inverted_attack_1</c>.</summary>
+    /// <summary>Cacatac: upside down attack, second frame.</summary>
     CacatacUpsideDownAttackSecond,
-    /// <summary>The frame the installed artwork names <c>cacatac_inverted_attack_2</c>.</summary>
+    /// <summary>Cacatac: upside down attack, third frame.</summary>
     CacatacUpsideDownAttackThird,
-    /// <summary>The frame the installed artwork names <c>boulder_roll_0</c>.</summary>
+    /// <summary>The boulder: left, first frame.</summary>
     BoulderLeftFirst,
-    /// <summary>The frame the installed artwork names <c>boulder_roll_1</c>.</summary>
+    /// <summary>The boulder: left, second frame.</summary>
     BoulderLeftSecond,
-    /// <summary>The frame the installed artwork names <c>boulder_roll_2</c>.</summary>
+    /// <summary>The boulder: left, third frame.</summary>
     BoulderLeftThird,
-    /// <summary>The frame the installed artwork names <c>boulder_roll_3</c>.</summary>
+    /// <summary>The boulder: left, fourth frame.</summary>
     BoulderLeftFourth,
-    /// <summary>The frame the installed artwork names <c>boulder_roll_4</c>.</summary>
+    /// <summary>The boulder: left, fifth frame.</summary>
     BoulderLeftFifth,
-    /// <summary>The frame the installed artwork names <c>boulder_roll_5</c>.</summary>
+    /// <summary>The boulder: left, sixth frame.</summary>
     BoulderLeftSixth,
-    /// <summary>The frame the installed artwork names <c>boulder_roll_6</c>.</summary>
+    /// <summary>The boulder: left, seventh frame.</summary>
     BoulderLeftSeventh,
-    /// <summary>The frame the installed artwork names <c>boulder_roll_7</c>.</summary>
+    /// <summary>The boulder: left, eighth frame.</summary>
     BoulderLeftEighth,
-    /// <summary>The frame the installed artwork names <c>atomic_up_right_0</c>.</summary>
+    /// <summary>Atomic: up right, first frame.</summary>
     AtomicUpRightFirst,
-    /// <summary>The frame the installed artwork names <c>atomic_up_right_1</c>.</summary>
+    /// <summary>Atomic: up right, second frame.</summary>
     AtomicUpRightSecond,
-    /// <summary>The frame the installed artwork names <c>atomic_up_right_2</c>.</summary>
+    /// <summary>Atomic: up right, third frame.</summary>
     AtomicUpRightThird,
-    /// <summary>The frame the installed artwork names <c>atomic_up_right_3</c>.</summary>
+    /// <summary>Atomic: up right, fourth frame.</summary>
     AtomicUpRightFourth,
-    /// <summary>The frame the installed artwork names <c>atomic_up_right_4</c>.</summary>
+    /// <summary>Atomic: up right, fifth frame.</summary>
     AtomicUpRightFifth,
-    /// <summary>The frame the installed artwork names <c>atomic_up_right_5</c>.</summary>
+    /// <summary>Atomic: up right, sixth frame.</summary>
     AtomicUpRightSixth,
-    /// <summary>The frame the installed artwork names <c>atomic_up_left_0</c>.</summary>
+    /// <summary>Atomic: up left, first frame.</summary>
     AtomicUpLeftFirst,
-    /// <summary>The frame the installed artwork names <c>atomic_up_left_1</c>.</summary>
+    /// <summary>Atomic: up left, second frame.</summary>
     AtomicUpLeftSecond,
-    /// <summary>The frame the installed artwork names <c>atomic_up_left_2</c>.</summary>
+    /// <summary>Atomic: up left, third frame.</summary>
     AtomicUpLeftThird,
-    /// <summary>The frame the installed artwork names <c>atomic_up_left_3</c>.</summary>
+    /// <summary>Atomic: up left, fourth frame.</summary>
     AtomicUpLeftFourth,
-    /// <summary>The frame the installed artwork names <c>atomic_up_left_4</c>.</summary>
+    /// <summary>Atomic: up left, fifth frame.</summary>
     AtomicUpLeftFifth,
-    /// <summary>The frame the installed artwork names <c>atomic_up_left_5</c>.</summary>
+    /// <summary>Atomic: up left, sixth frame.</summary>
     AtomicUpLeftSixth,
-    /// <summary>The frame the installed artwork names <c>skultera_swim_left_0</c>.</summary>
+    /// <summary>Skultera: swimming left loop, first frame.</summary>
     SkulteraSwimmingLeftLoopFirst,
-    /// <summary>The frame the installed artwork names <c>skultera_swim_left_1</c>.</summary>
+    /// <summary>Skultera: swimming left loop, second frame.</summary>
     SkulteraSwimmingLeftLoopSecond,
-    /// <summary>The frame the installed artwork names <c>skultera_swim_left_2</c>.</summary>
+    /// <summary>Skultera: swimming left loop, third frame.</summary>
     SkulteraSwimmingLeftLoopThird,
-    /// <summary>The frame the installed artwork names <c>skultera_turn_right_0</c>.</summary>
+    /// <summary>Skultera: turning right, first frame.</summary>
     SkulteraTurningRightFirst,
-    /// <summary>The frame the installed artwork names <c>skultera_turn_right_1</c>.</summary>
+    /// <summary>Skultera: turning right, second frame.</summary>
     SkulteraTurningRightSecond,
-    /// <summary>The frame the installed artwork names <c>skultera_turn_right_2</c>.</summary>
+    /// <summary>Skultera: turning right, third frame.</summary>
     SkulteraTurningRightThird,
-    /// <summary>The frame the installed artwork names <c>skultera_turn_right_3</c>.</summary>
+    /// <summary>Skultera: turning right, fourth frame.</summary>
     SkulteraTurningRightFourth,
-    /// <summary>The frame the installed artwork names <c>skultera_turn_right_4</c>.</summary>
+    /// <summary>Skultera: turning right, fifth frame.</summary>
     SkulteraTurningRightFifth,
-    /// <summary>The frame the installed artwork names <c>skultera_turn_right_5</c>.</summary>
+    /// <summary>Skultera: turning right, sixth frame.</summary>
     SkulteraTurningRightSixth,
-    /// <summary>The frame the installed artwork names <c>skultera_turn_right_6</c>.</summary>
+    /// <summary>Skultera: turning right, seventh frame.</summary>
     SkulteraTurningRightSeventh,
-    /// <summary>The frame the installed artwork names <c>skultera_turn_right_7</c>.</summary>
+    /// <summary>Skultera: turning right, eighth frame.</summary>
     SkulteraTurningRightEighth,
-    /// <summary>The frame the installed artwork names <c>skultera_swim_right_0</c>.</summary>
+    /// <summary>Skultera: swimming right loop, first frame.</summary>
     SkulteraSwimmingRightLoopFirst,
-    /// <summary>The frame the installed artwork names <c>skultera_swim_right_1</c>.</summary>
+    /// <summary>Skultera: swimming right loop, second frame.</summary>
     SkulteraSwimmingRightLoopSecond,
-    /// <summary>The frame the installed artwork names <c>skultera_swim_right_2</c>.</summary>
+    /// <summary>Skultera: swimming right loop, third frame.</summary>
     SkulteraSwimmingRightLoopThird,
-    /// <summary>The frame the installed artwork names <c>skultera_turn_left_0</c>.</summary>
+    /// <summary>Skultera: turning left, first frame.</summary>
     SkulteraTurningLeftFirst,
-    /// <summary>The frame the installed artwork names <c>skultera_turn_left_1</c>.</summary>
+    /// <summary>Skultera: turning left, second frame.</summary>
     SkulteraTurningLeftSecond,
-    /// <summary>The frame the installed artwork names <c>skultera_turn_left_2</c>.</summary>
+    /// <summary>Skultera: turning left, third frame.</summary>
     SkulteraTurningLeftThird,
-    /// <summary>The frame the installed artwork names <c>skultera_turn_left_3</c>.</summary>
+    /// <summary>Skultera: turning left, fourth frame.</summary>
     SkulteraTurningLeftFourth,
-    /// <summary>The frame the installed artwork names <c>skultera_turn_left_4</c>.</summary>
+    /// <summary>Skultera: turning left, fifth frame.</summary>
     SkulteraTurningLeftFifth,
-    /// <summary>The frame the installed artwork names <c>skultera_turn_left_5</c>.</summary>
+    /// <summary>Skultera: turning left, sixth frame.</summary>
     SkulteraTurningLeftSixth,
-    /// <summary>The frame the installed artwork names <c>skultera_turn_left_6</c>.</summary>
+    /// <summary>Skultera: turning left, seventh frame.</summary>
     SkulteraTurningLeftSeventh,
-    /// <summary>The frame the installed artwork names <c>skultera_turn_left_7</c>.</summary>
+    /// <summary>Skultera: turning left, eighth frame.</summary>
     SkulteraTurningLeftEighth,
-    /// <summary>The frame the installed artwork names <c>waver_steady_left</c>.</summary>
+    /// <summary>Waver: steady left.</summary>
     WaverSteadyLeft,
-    /// <summary>The frame the installed artwork names <c>waver_steady_right</c>.</summary>
+    /// <summary>Waver: steady right.</summary>
     WaverSteadyRight,
-    /// <summary>The frame the installed artwork names <c>waver_spin_left_0</c>.</summary>
+    /// <summary>Waver: spinning facing left, first frame.</summary>
     WaverSpinningFacingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>waver_spin_left_1</c>.</summary>
+    /// <summary>Waver: spinning facing left, second frame.</summary>
     WaverSpinningFacingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>waver_spin_left_2</c>.</summary>
+    /// <summary>Waver: spinning facing left, third frame.</summary>
     WaverSpinningFacingLeftThird,
-    /// <summary>The frame the installed artwork names <c>waver_spin_left_3</c>.</summary>
+    /// <summary>Waver: spinning facing left, fourth frame.</summary>
     WaverSpinningFacingLeftFourth,
-    /// <summary>The frame the installed artwork names <c>waver_spin_right_0</c>.</summary>
+    /// <summary>Waver: spinning facing right, first frame.</summary>
     WaverSpinningFacingRightFirst,
-    /// <summary>The frame the installed artwork names <c>waver_spin_right_1</c>.</summary>
+    /// <summary>Waver: spinning facing right, second frame.</summary>
     WaverSpinningFacingRightSecond,
-    /// <summary>The frame the installed artwork names <c>waver_spin_right_2</c>.</summary>
+    /// <summary>Waver: spinning facing right, third frame.</summary>
     WaverSpinningFacingRightThird,
-    /// <summary>The frame the installed artwork names <c>waver_spin_right_3</c>.</summary>
+    /// <summary>Waver: spinning facing right, fourth frame.</summary>
     WaverSpinningFacingRightFourth,
-    /// <summary>The frame the installed artwork names <c>metaree_idle_0</c>.</summary>
+    /// <summary>Metaree: idling, first frame.</summary>
     MetareeIdlingFirst,
-    /// <summary>The frame the installed artwork names <c>metaree_idle_1</c>.</summary>
+    /// <summary>Metaree: idling, second frame.</summary>
     MetareeIdlingSecond,
-    /// <summary>The frame the installed artwork names <c>metaree_idle_2</c>.</summary>
+    /// <summary>Metaree: idling, third frame.</summary>
     MetareeIdlingThird,
-    /// <summary>The frame the installed artwork names <c>metaree_idle_3</c>.</summary>
+    /// <summary>Metaree: idling, fourth frame.</summary>
     MetareeIdlingFourth,
-    /// <summary>The frame the installed artwork names <c>metaree_prepare_1</c>.</summary>
+    /// <summary>Metaree: preparing attack, second frame.</summary>
     MetareePreparingAttackSecond,
-    /// <summary>The frame the installed artwork names <c>skree_idle_0</c>.</summary>
+    /// <summary>Skree: idling, first frame.</summary>
     SkreeIdlingFirst,
-    /// <summary>The frame the installed artwork names <c>skree_idle_1</c>.</summary>
+    /// <summary>Skree: idling, second frame.</summary>
     SkreeIdlingSecond,
-    /// <summary>The frame the installed artwork names <c>skree_idle_2</c>.</summary>
+    /// <summary>Skree: idling, third frame.</summary>
     SkreeIdlingThird,
-    /// <summary>The frame the installed artwork names <c>skree_idle_3</c>.</summary>
+    /// <summary>Skree: idling, fourth frame.</summary>
     SkreeIdlingFourth,
-    /// <summary>The frame the installed artwork names <c>skree_prepare_1</c>.</summary>
+    /// <summary>Skree: preparing attack, second frame.</summary>
     SkreePreparingAttackSecond,
-    /// <summary>The frame the installed artwork names <c>zoa_shoot_left_0</c>.</summary>
+    /// <summary>Zoa: facing left shooting, first frame.</summary>
     ZoaFacingLeftShootingFirst,
-    /// <summary>The frame the installed artwork names <c>zoa_shoot_left_1</c>.</summary>
+    /// <summary>Zoa: facing left shooting, second frame.</summary>
     ZoaFacingLeftShootingSecond,
-    /// <summary>The frame the installed artwork names <c>zoa_shoot_left_2</c>.</summary>
+    /// <summary>Zoa: facing left shooting, third frame.</summary>
     ZoaFacingLeftShootingThird,
-    /// <summary>The frame the installed artwork names <c>zoa_rise_left_0</c>.</summary>
+    /// <summary>Zoa: facing left rising, first frame.</summary>
     ZoaFacingLeftRisingFirst,
-    /// <summary>The frame the installed artwork names <c>zoa_rise_left_1</c>.</summary>
+    /// <summary>Zoa: facing left rising, second frame.</summary>
     ZoaFacingLeftRisingSecond,
-    /// <summary>The frame the installed artwork names <c>zoa_rise_left_2</c>.</summary>
+    /// <summary>Zoa: facing left rising, third frame.</summary>
     ZoaFacingLeftRisingThird,
-    /// <summary>The frame the installed artwork names <c>zoa_shoot_right_0</c>.</summary>
+    /// <summary>Zoa: facing right shooting, first frame.</summary>
     ZoaFacingRightShootingFirst,
-    /// <summary>The frame the installed artwork names <c>zoa_shoot_right_1</c>.</summary>
+    /// <summary>Zoa: facing right shooting, second frame.</summary>
     ZoaFacingRightShootingSecond,
-    /// <summary>The frame the installed artwork names <c>zoa_shoot_right_2</c>.</summary>
+    /// <summary>Zoa: facing right shooting, third frame.</summary>
     ZoaFacingRightShootingThird,
-    /// <summary>The frame the installed artwork names <c>zoa_rise_right_0</c>.</summary>
+    /// <summary>Zoa: facing right rising, first frame.</summary>
     ZoaFacingRightRisingFirst,
-    /// <summary>The frame the installed artwork names <c>zoa_rise_right_1</c>.</summary>
+    /// <summary>Zoa: facing right rising, second frame.</summary>
     ZoaFacingRightRisingSecond,
-    /// <summary>The frame the installed artwork names <c>zoa_rise_right_2</c>.</summary>
+    /// <summary>Zoa: facing right rising, third frame.</summary>
     ZoaFacingRightRisingThird,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_normal_left_0</c>.</summary>
+    /// <summary>Zeb: rising left, first frame.</summary>
     ZebRisingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_normal_left_1</c>.</summary>
+    /// <summary>Zeb: rising left, second frame.</summary>
     ZebRisingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_normal_left_2</c>.</summary>
+    /// <summary>Zeb: rising left, third frame.</summary>
     ZebRisingLeftThird,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_normal_left_3</c>.</summary>
+    /// <summary>Zeb: rising left, fourth frame.</summary>
     ZebRisingLeftFourth,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_normal_left_4</c>.</summary>
+    /// <summary>Zeb: rising left, fifth frame.</summary>
     ZebRisingLeftFifth,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_normal_right_0</c>.</summary>
+    /// <summary>Zeb: rising right, first frame.</summary>
     ZebRisingRightFirst,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_normal_right_1</c>.</summary>
+    /// <summary>Zeb: rising right, second frame.</summary>
     ZebRisingRightSecond,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_normal_right_2</c>.</summary>
+    /// <summary>Zeb: rising right, third frame.</summary>
     ZebRisingRightThird,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_normal_right_3</c>.</summary>
+    /// <summary>Zeb: rising right, fourth frame.</summary>
     ZebRisingRightFourth,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_normal_right_4</c>.</summary>
+    /// <summary>Zeb: rising right, fifth frame.</summary>
     ZebRisingRightFifth,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_shoot_left_0</c>.</summary>
+    /// <summary>Zebbo: shooting left, first frame.</summary>
     ZebboShootingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_shoot_left_1</c>.</summary>
+    /// <summary>Zebbo: shooting left, second frame.</summary>
     ZebboShootingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_shoot_left_2</c>.</summary>
+    /// <summary>Zebbo: shooting left, third frame.</summary>
     ZebboShootingLeftThird,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_rise_left_0</c>.</summary>
+    /// <summary>Zebbo: rising left, first frame.</summary>
     ZebboRisingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_rise_left_1</c>.</summary>
+    /// <summary>Zebbo: rising left, second frame.</summary>
     ZebboRisingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_rise_left_2</c>.</summary>
+    /// <summary>Zebbo: rising left, third frame.</summary>
     ZebboRisingLeftThird,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_shoot_right_0</c>.</summary>
+    /// <summary>Zebbo: shooting right, first frame.</summary>
     ZebboShootingRightFirst,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_shoot_right_1</c>.</summary>
+    /// <summary>Zebbo: shooting right, second frame.</summary>
     ZebboShootingRightSecond,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_shoot_right_2</c>.</summary>
+    /// <summary>Zebbo: shooting right, third frame.</summary>
     ZebboShootingRightThird,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_rise_right_0</c>.</summary>
+    /// <summary>Zebbo: rising right, first frame.</summary>
     ZebboRisingRightFirst,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_rise_right_1</c>.</summary>
+    /// <summary>Zebbo: rising right, second frame.</summary>
     ZebboRisingRightSecond,
-    /// <summary>The frame the installed artwork names <c>pipe_brinstar_strong_rise_right_2</c>.</summary>
+    /// <summary>Zebbo: rising right, third frame.</summary>
     ZebboRisingRightThird,
-    /// <summary>The frame the installed artwork names <c>pipe_norfair_left_0</c>.</summary>
+    /// <summary>Gamet: rising left, first frame.</summary>
     GametRisingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>pipe_norfair_left_1</c>.</summary>
+    /// <summary>Gamet: rising left, second frame.</summary>
     GametRisingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>pipe_norfair_left_2</c>.</summary>
+    /// <summary>Gamet: rising left, third frame.</summary>
     GametRisingLeftThird,
-    /// <summary>The frame the installed artwork names <c>pipe_norfair_left_3</c>.</summary>
+    /// <summary>Gamet: rising left, fourth frame.</summary>
     GametRisingLeftFourth,
-    /// <summary>The frame the installed artwork names <c>pipe_norfair_left_4</c>.</summary>
+    /// <summary>Gamet: rising left, fifth frame.</summary>
     GametRisingLeftFifth,
-    /// <summary>The frame the installed artwork names <c>pipe_norfair_right_0</c>.</summary>
+    /// <summary>Gamet: rising right, first frame.</summary>
     GametRisingRightFirst,
-    /// <summary>The frame the installed artwork names <c>pipe_norfair_right_1</c>.</summary>
+    /// <summary>Gamet: rising right, second frame.</summary>
     GametRisingRightSecond,
-    /// <summary>The frame the installed artwork names <c>pipe_norfair_right_2</c>.</summary>
+    /// <summary>Gamet: rising right, third frame.</summary>
     GametRisingRightThird,
-    /// <summary>The frame the installed artwork names <c>pipe_norfair_right_3</c>.</summary>
+    /// <summary>Gamet: rising right, fourth frame.</summary>
     GametRisingRightFourth,
-    /// <summary>The frame the installed artwork names <c>pipe_norfair_right_4</c>.</summary>
+    /// <summary>Gamet: rising right, fifth frame.</summary>
     GametRisingRightFifth,
-    /// <summary>The frame the installed artwork names <c>pipe_yellow_fly_left_0</c>.</summary>
+    /// <summary>Geega: flying left, first frame.</summary>
     GeegaFlyingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>pipe_yellow_fly_left_1</c>.</summary>
+    /// <summary>Geega: flying left, second frame.</summary>
     GeegaFlyingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>pipe_yellow_fly_left_2</c>.</summary>
+    /// <summary>Geega: flying left, third frame.</summary>
     GeegaFlyingLeftThird,
-    /// <summary>The frame the installed artwork names <c>pipe_yellow_arc_left_0</c>.</summary>
+    /// <summary>Geega: arcing left, first frame.</summary>
     GeegaArcingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>pipe_yellow_arc_left_1</c>.</summary>
+    /// <summary>Geega: arcing left, second frame.</summary>
     GeegaArcingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>pipe_yellow_arc_left_2</c>.</summary>
+    /// <summary>Geega: arcing left, third frame.</summary>
     GeegaArcingLeftThird,
-    /// <summary>The frame the installed artwork names <c>pipe_yellow_fly_right_0</c>.</summary>
+    /// <summary>Geega: flying right, first frame.</summary>
     GeegaFlyingRightFirst,
-    /// <summary>The frame the installed artwork names <c>pipe_yellow_fly_right_1</c>.</summary>
+    /// <summary>Geega: flying right, second frame.</summary>
     GeegaFlyingRightSecond,
-    /// <summary>The frame the installed artwork names <c>pipe_yellow_fly_right_2</c>.</summary>
+    /// <summary>Geega: flying right, third frame.</summary>
     GeegaFlyingRightThird,
-    /// <summary>The frame the installed artwork names <c>pipe_yellow_arc_right_0</c>.</summary>
+    /// <summary>Geega: arcing right, first frame.</summary>
     GeegaArcingRightFirst,
-    /// <summary>The frame the installed artwork names <c>pipe_yellow_arc_right_1</c>.</summary>
+    /// <summary>Geega: arcing right, second frame.</summary>
     GeegaArcingRightSecond,
-    /// <summary>The frame the installed artwork names <c>pipe_yellow_arc_right_2</c>.</summary>
+    /// <summary>Geega: arcing right, third frame.</summary>
     GeegaArcingRightThird,
-    /// <summary>The frame the installed artwork names <c>fake_kraid_walk_left_0</c>.</summary>
+    /// <summary>Fake Kraid: step forwards facing left, first frame.</summary>
     FakeKraidStepForwardsFacingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>fake_kraid_walk_left_1</c>.</summary>
+    /// <summary>Fake Kraid: step forwards facing left, second frame.</summary>
     FakeKraidStepForwardsFacingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>fake_kraid_walk_left_2</c>.</summary>
+    /// <summary>Fake Kraid: step forwards facing left, third frame.</summary>
     FakeKraidStepForwardsFacingLeftThird,
-    /// <summary>The frame the installed artwork names <c>fake_kraid_walk_left_3</c>.</summary>
+    /// <summary>Fake Kraid: step forwards facing left, fourth frame.</summary>
     FakeKraidStepForwardsFacingLeftFourth,
-    /// <summary>The frame the installed artwork names <c>fake_kraid_spit_left_0</c>.</summary>
+    /// <summary>Fake Kraid: fire spit facing left, first frame.</summary>
     FakeKraidFireSpitFacingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>fake_kraid_spit_left_1</c>.</summary>
+    /// <summary>Fake Kraid: fire spit facing left, second frame.</summary>
     FakeKraidFireSpitFacingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>fake_kraid_spit_left_2</c>.</summary>
+    /// <summary>Fake Kraid: fire spit facing left, third frame.</summary>
     FakeKraidFireSpitFacingLeftThird,
-    /// <summary>The frame the installed artwork names <c>fake_kraid_walk_right_0</c>.</summary>
+    /// <summary>Fake Kraid: step forwards facing right, first frame.</summary>
     FakeKraidStepForwardsFacingRightFirst,
-    /// <summary>The frame the installed artwork names <c>fake_kraid_walk_right_1</c>.</summary>
+    /// <summary>Fake Kraid: step forwards facing right, second frame.</summary>
     FakeKraidStepForwardsFacingRightSecond,
-    /// <summary>The frame the installed artwork names <c>fake_kraid_walk_right_2</c>.</summary>
+    /// <summary>Fake Kraid: step forwards facing right, third frame.</summary>
     FakeKraidStepForwardsFacingRightThird,
-    /// <summary>The frame the installed artwork names <c>fake_kraid_walk_right_3</c>.</summary>
+    /// <summary>Fake Kraid: step forwards facing right, fourth frame.</summary>
     FakeKraidStepForwardsFacingRightFourth,
-    /// <summary>The frame the installed artwork names <c>fake_kraid_spit_right_0</c>.</summary>
+    /// <summary>Fake Kraid: fire spit facing right, first frame.</summary>
     FakeKraidFireSpitFacingRightFirst,
-    /// <summary>The frame the installed artwork names <c>fake_kraid_spit_right_1</c>.</summary>
+    /// <summary>Fake Kraid: fire spit facing right, second frame.</summary>
     FakeKraidFireSpitFacingRightSecond,
-    /// <summary>The frame the installed artwork names <c>fake_kraid_spit_right_2</c>.</summary>
+    /// <summary>Fake Kraid: fire spit facing right, third frame.</summary>
     FakeKraidFireSpitFacingRightThird,
-    /// <summary>The frame the installed artwork names <c>kraid_nail_0</c>.</summary>
+    /// <summary>Kraid: nail loop, first frame.</summary>
     KraidNailLoopFirst,
-    /// <summary>The frame the installed artwork names <c>kraid_nail_1</c>.</summary>
+    /// <summary>Kraid: nail loop, second frame.</summary>
     KraidNailLoopSecond,
-    /// <summary>The frame the installed artwork names <c>kraid_nail_2</c>.</summary>
+    /// <summary>Kraid: nail loop, third frame.</summary>
     KraidNailLoopThird,
-    /// <summary>The frame the installed artwork names <c>kraid_nail_3</c>.</summary>
+    /// <summary>Kraid: nail loop, fourth frame.</summary>
     KraidNailLoopFourth,
-    /// <summary>The frame the installed artwork names <c>kraid_nail_4</c>.</summary>
+    /// <summary>Kraid: nail loop, fifth frame.</summary>
     KraidNailLoopFifth,
-    /// <summary>The frame the installed artwork names <c>kraid_nail_5</c>.</summary>
+    /// <summary>Kraid: nail loop, sixth frame.</summary>
     KraidNailLoopSixth,
-    /// <summary>The frame the installed artwork names <c>kraid_nail_6</c>.</summary>
+    /// <summary>Kraid: nail loop, seventh frame.</summary>
     KraidNailLoopSeventh,
-    /// <summary>The frame the installed artwork names <c>kraid_nail_7</c>.</summary>
+    /// <summary>Kraid: nail loop, eighth frame.</summary>
     KraidNailLoopEighth,
-    /// <summary>The frame the installed artwork names <c>owtch_left_0</c>.</summary>
+    /// <summary>Owtch: moving left loop, first frame.</summary>
     OwtchMovingLeftLoopFirst,
-    /// <summary>The frame the installed artwork names <c>owtch_left_1</c>.</summary>
+    /// <summary>Owtch: moving left loop, second frame.</summary>
     OwtchMovingLeftLoopSecond,
-    /// <summary>The frame the installed artwork names <c>owtch_left_2</c>.</summary>
+    /// <summary>Owtch: moving left loop, third frame.</summary>
     OwtchMovingLeftLoopThird,
-    /// <summary>The frame the installed artwork names <c>stoke_walk_left_0</c>.</summary>
+    /// <summary>Stoke: moving left loop, first frame.</summary>
     StokeMovingLeftLoopFirst,
-    /// <summary>The frame the installed artwork names <c>stoke_walk_left_1</c>.</summary>
+    /// <summary>Stoke: moving left loop, second frame.</summary>
     StokeMovingLeftLoopSecond,
-    /// <summary>The frame the installed artwork names <c>stoke_walk_left_2</c>.</summary>
+    /// <summary>Stoke: moving left loop, third frame.</summary>
     StokeMovingLeftLoopThird,
-    /// <summary>The frame the installed artwork names <c>stoke_walk_left_3</c>.</summary>
+    /// <summary>Stoke: moving left loop, fourth frame.</summary>
     StokeMovingLeftLoopFourth,
-    /// <summary>The frame the installed artwork names <c>stoke_attack_left</c>.</summary>
+    /// <summary>Stoke: attack left.</summary>
     StokeAttackLeft,
-    /// <summary>The frame the installed artwork names <c>stoke_walk_right_0</c>.</summary>
+    /// <summary>Stoke: moving right loop, first frame.</summary>
     StokeMovingRightLoopFirst,
-    /// <summary>The frame the installed artwork names <c>stoke_walk_right_1</c>.</summary>
+    /// <summary>Stoke: moving right loop, second frame.</summary>
     StokeMovingRightLoopSecond,
-    /// <summary>The frame the installed artwork names <c>stoke_walk_right_2</c>.</summary>
+    /// <summary>Stoke: moving right loop, third frame.</summary>
     StokeMovingRightLoopThird,
-    /// <summary>The frame the installed artwork names <c>stoke_walk_right_3</c>.</summary>
+    /// <summary>Stoke: moving right loop, fourth frame.</summary>
     StokeMovingRightLoopFourth,
-    /// <summary>The frame the installed artwork names <c>stoke_attack_right</c>.</summary>
+    /// <summary>Stoke: attack right.</summary>
     StokeAttackRight,
-    /// <summary>The frame the installed artwork names <c>ripper_shared_left_0</c>.</summary>
+    /// <summary>Gripper: moving left, first frame.</summary>
     GRipperMovingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>ripper_shared_left_1</c>.</summary>
+    /// <summary>Gripper: moving left, second frame.</summary>
     GRipperMovingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>ripper_shared_left_2</c>.</summary>
+    /// <summary>Gripper: moving left, third frame.</summary>
     GRipperMovingLeftThird,
-    /// <summary>The frame the installed artwork names <c>ripper_shared_right_0</c>.</summary>
+    /// <summary>Gripper: moving right, first frame.</summary>
     GRipperMovingRightFirst,
-    /// <summary>The frame the installed artwork names <c>ripper_shared_right_1</c>.</summary>
+    /// <summary>Gripper: moving right, second frame.</summary>
     GRipperMovingRightSecond,
-    /// <summary>The frame the installed artwork names <c>ripper_shared_right_2</c>.</summary>
+    /// <summary>Gripper: moving right, third frame.</summary>
     GRipperMovingRightThird,
-    /// <summary>The frame the installed artwork names <c>ripper_shared_frozen_left</c>.</summary>
+    /// <summary>Ripper: shared frozen left.</summary>
     RipperSharedFrozenLeft,
-    /// <summary>The frame the installed artwork names <c>ripper_shared_frozen_right</c>.</summary>
+    /// <summary>Ripper: shared frozen right.</summary>
     RipperSharedFrozenRight,
-    /// <summary>The frame the installed artwork names <c>ripper_left_0</c>.</summary>
+    /// <summary>Ripper: moving left, first frame.</summary>
     RipperMovingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>ripper_left_1</c>.</summary>
+    /// <summary>Ripper: moving left, second frame.</summary>
     RipperMovingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>ripper_left_2</c>.</summary>
+    /// <summary>Ripper: moving left, third frame.</summary>
     RipperMovingLeftThird,
-    /// <summary>The frame the installed artwork names <c>ripper_right_0</c>.</summary>
+    /// <summary>Ripper: moving right, first frame.</summary>
     RipperMovingRightFirst,
-    /// <summary>The frame the installed artwork names <c>ripper_right_1</c>.</summary>
+    /// <summary>Ripper: moving right, second frame.</summary>
     RipperMovingRightSecond,
-    /// <summary>The frame the installed artwork names <c>ripper_right_2</c>.</summary>
+    /// <summary>Ripper: moving right, third frame.</summary>
     RipperMovingRightThird,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_0</c>.</summary>
+    /// <summary>Fireflea: loop, first frame.</summary>
     FirefleaLoopFirst,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_1</c>.</summary>
+    /// <summary>Fireflea: loop, second frame.</summary>
     FirefleaLoopSecond,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_2</c>.</summary>
+    /// <summary>Fireflea: loop, third frame.</summary>
     FirefleaLoopThird,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_3</c>.</summary>
+    /// <summary>Fireflea: loop, fourth frame.</summary>
     FirefleaLoopFourth,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_4</c>.</summary>
+    /// <summary>Fireflea: loop, fifth frame.</summary>
     FirefleaLoopFifth,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_5</c>.</summary>
+    /// <summary>Fireflea: loop, sixth frame.</summary>
     FirefleaLoopSixth,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_6</c>.</summary>
+    /// <summary>Fireflea: loop, seventh frame.</summary>
     FirefleaLoopSeventh,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_7</c>.</summary>
+    /// <summary>Fireflea: loop, eighth frame.</summary>
     FirefleaLoopEighth,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_8</c>.</summary>
+    /// <summary>Fireflea: loop, ninth frame.</summary>
     FirefleaLoopNinth,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_9</c>.</summary>
+    /// <summary>Fireflea: loop, tenth frame.</summary>
     FirefleaLoopTenth,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_10</c>.</summary>
+    /// <summary>Fireflea: loop, eleventh frame.</summary>
     FirefleaLoopEleventh,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_11</c>.</summary>
+    /// <summary>Fireflea: loop, twelfth frame.</summary>
     FirefleaLoopTwelfth,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_12</c>.</summary>
+    /// <summary>Fireflea: loop, thirteenth frame.</summary>
     FirefleaLoopThirteenth,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_13</c>.</summary>
+    /// <summary>Fireflea: loop, fourteenth frame.</summary>
     FirefleaLoopFourteenth,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_14</c>.</summary>
+    /// <summary>Fireflea: loop, fifteenth frame.</summary>
     FirefleaLoopFifteenth,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_15</c>.</summary>
+    /// <summary>Fireflea: loop, sixteenth frame.</summary>
     FirefleaLoopSixteenth,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_16</c>.</summary>
+    /// <summary>Fireflea: loop, seventeenth frame.</summary>
     FirefleaLoopSeventeenth,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_17</c>.</summary>
+    /// <summary>Fireflea: loop, eighteenth frame.</summary>
     FirefleaLoopEighteenth,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_18</c>.</summary>
+    /// <summary>Fireflea: loop, nineteenth frame.</summary>
     FirefleaLoopNineteenth,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_19</c>.</summary>
+    /// <summary>Fireflea: loop, twentieth frame.</summary>
     FirefleaLoopTwentieth,
-    /// <summary>The frame the installed artwork names <c>fireflea_cycle_20</c>.</summary>
+    /// <summary>Fireflea: loop, twenty-first frame.</summary>
     FirefleaLoopTwentyFirst,
-    /// <summary>The frame the installed artwork names <c>magdollite_left_idle_0</c>.</summary>
+    /// <summary>Magdollite: left idle, first frame.</summary>
     MagdolliteLeftIdleFirst,
-    /// <summary>The frame the installed artwork names <c>magdollite_left_idle_1</c>.</summary>
+    /// <summary>Magdollite: left idle, second frame.</summary>
     MagdolliteLeftIdleSecond,
-    /// <summary>The frame the installed artwork names <c>magdollite_left_idle_2</c>.</summary>
+    /// <summary>Magdollite: left idle, third frame.</summary>
     MagdolliteLeftIdleThird,
-    /// <summary>The frame the installed artwork names <c>magdollite_left_throw_0</c>.</summary>
+    /// <summary>Magdollite: left throw, first frame.</summary>
     MagdolliteLeftThrowFirst,
-    /// <summary>The frame the installed artwork names <c>magdollite_left_throw_1</c>.</summary>
+    /// <summary>Magdollite: left throw, second frame.</summary>
     MagdolliteLeftThrowSecond,
-    /// <summary>The frame the installed artwork names <c>magdollite_left_throw_2</c>.</summary>
+    /// <summary>Magdollite: left throw, third frame.</summary>
     MagdolliteLeftThrowThird,
-    /// <summary>The frame the installed artwork names <c>magdollite_left_throw_3</c>.</summary>
+    /// <summary>Magdollite: left throw, fourth frame.</summary>
     MagdolliteLeftThrowFourth,
-    /// <summary>The frame the installed artwork names <c>magdollite_pillar_cap</c>.</summary>
+    /// <summary>Magdollite: pillar cap.</summary>
     MagdollitePillarCap,
-    /// <summary>The frame the installed artwork names <c>magdollite_left_submerge_0</c>.</summary>
+    /// <summary>Magdollite: left raise pillar.</summary>
     MagdolliteLeftRaisePillar,
-    /// <summary>The frame the installed artwork names <c>magdollite_left_submerge_1</c>.</summary>
+    /// <summary>Magdollite: left submerge, second frame.</summary>
     MagdolliteLeftSubmergeSecond,
-    /// <summary>The frame the installed artwork names <c>magdollite_left_submerge_2</c>.</summary>
+    /// <summary>Magdollite: left submerge, third frame.</summary>
     MagdolliteLeftSubmergeThird,
-    /// <summary>The frame the installed artwork names <c>magdollite_right_idle_0</c>.</summary>
+    /// <summary>Magdollite: right idle, first frame.</summary>
     MagdolliteRightIdleFirst,
-    /// <summary>The frame the installed artwork names <c>magdollite_right_idle_1</c>.</summary>
+    /// <summary>Magdollite: right idle, second frame.</summary>
     MagdolliteRightIdleSecond,
-    /// <summary>The frame the installed artwork names <c>magdollite_right_idle_2</c>.</summary>
+    /// <summary>Magdollite: right idle, third frame.</summary>
     MagdolliteRightIdleThird,
-    /// <summary>The frame the installed artwork names <c>magdollite_right_throw_0</c>.</summary>
+    /// <summary>Magdollite: right throw, first frame.</summary>
     MagdolliteRightThrowFirst,
-    /// <summary>The frame the installed artwork names <c>magdollite_right_throw_1</c>.</summary>
+    /// <summary>Magdollite: right throw, second frame.</summary>
     MagdolliteRightThrowSecond,
-    /// <summary>The frame the installed artwork names <c>magdollite_right_throw_2</c>.</summary>
+    /// <summary>Magdollite: right throw, third frame.</summary>
     MagdolliteRightThrowThird,
-    /// <summary>The frame the installed artwork names <c>magdollite_right_throw_3</c>.</summary>
+    /// <summary>Magdollite: right throw, fourth frame.</summary>
     MagdolliteRightThrowFourth,
-    /// <summary>The frame the installed artwork names <c>magdollite_right_submerge_0</c>.</summary>
+    /// <summary>Magdollite: right raise pillar.</summary>
     MagdolliteRightRaisePillar,
-    /// <summary>The frame the installed artwork names <c>magdollite_right_submerge_1</c>.</summary>
+    /// <summary>Magdollite: right submerge, second frame.</summary>
     MagdolliteRightSubmergeSecond,
-    /// <summary>The frame the installed artwork names <c>magdollite_right_submerge_2</c>.</summary>
+    /// <summary>Magdollite: right submerge, third frame.</summary>
     MagdolliteRightSubmergeThird,
-    /// <summary>The frame the installed artwork names <c>magdollite_pillar_phase_0</c>.</summary>
+    /// <summary>Magdollite: pillar phase, first frame.</summary>
     MagdollitePillarPhaseFirst,
-    /// <summary>The frame the installed artwork names <c>magdollite_pillar_phase_1</c>.</summary>
+    /// <summary>Magdollite: pillar phase, second frame.</summary>
     MagdollitePillarPhaseSecond,
-    /// <summary>The frame the installed artwork names <c>magdollite_pillar_phase_2</c>.</summary>
+    /// <summary>Magdollite: pillar phase, third frame.</summary>
     MagdollitePillarPhaseThird,
-    /// <summary>The frame the installed artwork names <c>magdollite_pillar_phase_3</c>.</summary>
+    /// <summary>Magdollite: pillar phase, fourth frame.</summary>
     MagdollitePillarPhaseFourth,
-    /// <summary>The frame the installed artwork names <c>magdollite_pillar_phase_4</c>.</summary>
+    /// <summary>Magdollite: pillar phase, fifth frame.</summary>
     MagdollitePillarPhaseFifth,
-    /// <summary>The frame the installed artwork names <c>magdollite_pillar_phase_5</c>.</summary>
+    /// <summary>Magdollite: pillar phase, sixth frame.</summary>
     MagdollitePillarPhaseSixth,
-    /// <summary>The frame the installed artwork names <c>magdollite_pillar_phase_6</c>.</summary>
+    /// <summary>Magdollite: pillar phase, seventh frame.</summary>
     MagdollitePillarPhaseSeventh,
-    /// <summary>The frame the installed artwork names <c>magdollite_pillar_phase_7</c>.</summary>
+    /// <summary>Magdollite: pillar phase, eighth frame.</summary>
     MagdollitePillarPhaseEighth,
-    /// <summary>The frame the installed artwork names <c>ceres_door_rotating_overlay</c>.</summary>
+    /// <summary>The Ceres door: rotating overlay.</summary>
     CeresDoorRotatingOverlay,
-    /// <summary>The frame the installed artwork names <c>ceres_door_left_hold</c>.</summary>
+    /// <summary>The Ceres door: left hold.</summary>
     CeresDoorLeftHold,
-    /// <summary>The frame the installed artwork names <c>ceres_door_left_transition_0</c>.</summary>
+    /// <summary>The Ceres door: close facing left, fourth frame.</summary>
     CeresDoorCloseFacingLeftFourth,
-    /// <summary>The frame the installed artwork names <c>ceres_door_left_transition_1</c>.</summary>
+    /// <summary>The Ceres door: close facing left, third frame.</summary>
     CeresDoorCloseFacingLeftThird,
-    /// <summary>The frame the installed artwork names <c>ceres_door_left_transition_2</c>.</summary>
+    /// <summary>The Ceres door: close facing left, second frame.</summary>
     CeresDoorCloseFacingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>ceres_door_left_transition_3</c>.</summary>
+    /// <summary>The Ceres door: close facing left, first frame.</summary>
     CeresDoorCloseFacingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>ceres_door_right_hold</c>.</summary>
+    /// <summary>The Ceres door: right hold.</summary>
     CeresDoorRightHold,
-    /// <summary>The frame the installed artwork names <c>ceres_door_right_transition_0</c>.</summary>
+    /// <summary>The Ceres door: Ridley room facing right, fourth frame.</summary>
     CeresDoorRidleyRoomFacingRightFourth,
-    /// <summary>The frame the installed artwork names <c>ceres_door_right_transition_1</c>.</summary>
+    /// <summary>The Ceres door: Ridley room facing right, third frame.</summary>
     CeresDoorRidleyRoomFacingRightThird,
-    /// <summary>The frame the installed artwork names <c>ceres_door_right_transition_2</c>.</summary>
+    /// <summary>The Ceres door: Ridley room facing right, second frame.</summary>
     CeresDoorRidleyRoomFacingRightSecond,
-    /// <summary>The frame the installed artwork names <c>ceres_door_right_transition_3</c>.</summary>
+    /// <summary>The Ceres door: Ridley room facing right, first frame.</summary>
     CeresDoorRidleyRoomFacingRightFirst,
-    /// <summary>The frame the installed artwork names <c>ceres_door_initial</c>.</summary>
+    /// <summary>The Ceres door: initial.</summary>
     CeresDoorInitial,
-    /// <summary>The frame the installed artwork names <c>ceres_door_mode7_left_wall</c>.</summary>
+    /// <summary>The Ceres door: turning floor left wall.</summary>
     CeresDoorTurningFloorLeftWall,
-    /// <summary>The frame the installed artwork names <c>ceres_door_mode7_right_wall</c>.</summary>
+    /// <summary>The Ceres door: turning floor right wall.</summary>
     CeresDoorTurningFloorRightWall,
-    /// <summary>The frame the installed artwork names <c>ceres_door_ridley_private_overlay</c>.</summary>
+    /// <summary>The Ceres door: Ridley private overlay.</summary>
     CeresDoorRidleyPrivateOverlay,
-    /// <summary>The frame the installed artwork names <c>ceres_baby_horizontal</c>.</summary>
+    /// <summary>The Ceres baby Metroid: horizontal.</summary>
     CeresBabyHorizontal,
-    /// <summary>The frame the installed artwork names <c>ceres_baby_round</c>.</summary>
+    /// <summary>The Ceres baby Metroid: round.</summary>
     CeresBabyRound,
-    /// <summary>The frame the installed artwork names <c>ceres_baby_vertical</c>.</summary>
+    /// <summary>The Ceres baby Metroid: vertical.</summary>
     CeresBabyVertical,
-    /// <summary>The frame the installed artwork names <c>rio_pose_0</c>.</summary>
+    /// <summary>Rio: idle, first frame.</summary>
     RioIdleFirst,
-    /// <summary>The frame the installed artwork names <c>rio_pose_1</c>.</summary>
+    /// <summary>Rio: idle, second frame.</summary>
     RioIdleSecond,
-    /// <summary>The frame the installed artwork names <c>rio_pose_2</c>.</summary>
+    /// <summary>Rio: post swoop idle, third frame.</summary>
     RioPostSwoopIdleThird,
-    /// <summary>The frame the installed artwork names <c>rio_pose_3</c>.</summary>
+    /// <summary>Rio: post swoop idle, fourth frame.</summary>
     RioPostSwoopIdleFourth,
-    /// <summary>The frame the installed artwork names <c>rio_pose_4</c>.</summary>
+    /// <summary>Rio: swooping part one, third frame.</summary>
     RioSwoopingPartOneThird,
-    /// <summary>The frame the installed artwork names <c>rio_pose_5</c>.</summary>
+    /// <summary>Rio: swooping part one, fourth frame.</summary>
     RioSwoopingPartOneFourth,
-    /// <summary>The frame the installed artwork names <c>rio_pose_6</c>.</summary>
+    /// <summary>Rio: swooping part one, fifth frame.</summary>
     RioSwoopingPartOneFifth,
-    /// <summary>The frame the installed artwork names <c>rio_pose_7</c>.</summary>
+    /// <summary>Rio: swooping part two, first frame.</summary>
     RioSwoopingPartTwoFirst,
-    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_0</c>.</summary>
+    /// <summary>The Lower Norfair Rio: idle loop, first frame.</summary>
     LowerNorfairRioIdleLoopFirst,
-    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_1</c>.</summary>
+    /// <summary>The Lower Norfair Rio: idle loop, second frame.</summary>
     LowerNorfairRioIdleLoopSecond,
-    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_2</c>.</summary>
+    /// <summary>The Lower Norfair Rio: idle loop, third frame.</summary>
     LowerNorfairRioIdleLoopThird,
-    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_3</c>.</summary>
+    /// <summary>The Lower Norfair Rio: prepare to swoop, second frame.</summary>
     LowerNorfairRioPrepareToSwoopSecond,
-    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_4</c>.</summary>
+    /// <summary>The Lower Norfair Rio: prepare to swoop, third frame.</summary>
     LowerNorfairRioPrepareToSwoopThird,
-    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_5</c>.</summary>
+    /// <summary>The Lower Norfair Rio: prepare to swoop, fourth frame.</summary>
     LowerNorfairRioPrepareToSwoopFourth,
-    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_6</c>.</summary>
+    /// <summary>The Lower Norfair Rio: prepare to swoop, fifth frame.</summary>
     LowerNorfairRioPrepareToSwoopFifth,
-    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_7</c>.</summary>
+    /// <summary>The Lower Norfair Rio: prepare to swoop, sixth frame.</summary>
     LowerNorfairRioPrepareToSwoopSixth,
-    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_8</c>.</summary>
+    /// <summary>The Lower Norfair Rio: prepare to swoop, seventh frame.</summary>
     LowerNorfairRioPrepareToSwoopSeventh,
-    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_9</c>.</summary>
+    /// <summary>The Lower Norfair Rio: prepare to swoop, eighth frame.</summary>
     LowerNorfairRioPrepareToSwoopEighth,
-    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_10</c>.</summary>
+    /// <summary>The Lower Norfair Rio: prepare to swoop, ninth frame.</summary>
     LowerNorfairRioPrepareToSwoopNinth,
-    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_11</c>.</summary>
+    /// <summary>The Lower Norfair Rio: ascending part one, third frame.</summary>
     LowerNorfairRioAscendingPartOneThird,
-    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_12</c>.</summary>
+    /// <summary>The Lower Norfair Rio: ascending part two loop, second frame.</summary>
     LowerNorfairRioAscendingPartTwoLoopSecond,
-    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_13</c>.</summary>
+    /// <summary>The Lower Norfair Rio: ascending part two loop, third frame.</summary>
     LowerNorfairRioAscendingPartTwoLoopThird,
-    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_14</c>.</summary>
+    /// <summary>The Lower Norfair Rio: ascending part two loop, first frame.</summary>
     LowerNorfairRioAscendingPartTwoLoopFirst,
-    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_15</c>.</summary>
+    /// <summary>The Lower Norfair Rio: flames, first frame.</summary>
     LowerNorfairRioFlamesFirst,
-    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_16</c>.</summary>
+    /// <summary>The Lower Norfair Rio: flames, second frame.</summary>
     LowerNorfairRioFlamesSecond,
-    /// <summary>The frame the installed artwork names <c>lower_norfair_rio_pose_17</c>.</summary>
+    /// <summary>The Lower Norfair Rio: flames, third frame.</summary>
     LowerNorfairRioFlamesThird,
-    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_0</c>.</summary>
+    /// <summary>The Norfair Rio: idle, second frame.</summary>
     NorfairRioIdleSecond,
-    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_1</c>.</summary>
+    /// <summary>The Norfair Rio: idle, first frame.</summary>
     NorfairRioIdleFirst,
-    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_2</c>.</summary>
+    /// <summary>The Norfair Rio: idle, third frame.</summary>
     NorfairRioIdleThird,
-    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_3</c>.</summary>
+    /// <summary>The Norfair Rio: flames ascending, first frame.</summary>
     NorfairRioFlamesAscendingFirst,
-    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_4</c>.</summary>
+    /// <summary>The Norfair Rio: flames ascending, second frame.</summary>
     NorfairRioFlamesAscendingSecond,
-    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_5</c>.</summary>
+    /// <summary>The Norfair Rio: flames ascending, third frame.</summary>
     NorfairRioFlamesAscendingThird,
-    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_6</c>.</summary>
+    /// <summary>The Norfair Rio: descending, first frame.</summary>
     NorfairRioDescendingFirst,
-    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_7</c>.</summary>
+    /// <summary>The Norfair Rio: descending, second frame.</summary>
     NorfairRioDescendingSecond,
-    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_8</c>.</summary>
+    /// <summary>The Norfair Rio: descending, third frame.</summary>
     NorfairRioDescendingThird,
-    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_9</c>.</summary>
+    /// <summary>The Norfair Rio: start descending, second frame.</summary>
     NorfairRioStartDescendingSecond,
-    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_10</c>.</summary>
+    /// <summary>The Norfair Rio: start descending, third frame.</summary>
     NorfairRioStartDescendingThird,
-    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_11</c>.</summary>
+    /// <summary>The Norfair Rio: start descending, fourth frame.</summary>
     NorfairRioStartDescendingFourth,
-    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_12</c>.</summary>
+    /// <summary>The Norfair Rio: start descending, fifth frame.</summary>
     NorfairRioStartDescendingFifth,
-    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_13</c>.</summary>
+    /// <summary>The Norfair Rio: start descending, sixth frame.</summary>
     NorfairRioStartDescendingSixth,
-    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_14</c>.</summary>
+    /// <summary>The Norfair Rio: ascending, first frame.</summary>
     NorfairRioAscendingFirst,
-    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_15</c>.</summary>
+    /// <summary>The Norfair Rio: ascending, second frame.</summary>
     NorfairRioAscendingSecond,
-    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_16</c>.</summary>
+    /// <summary>The Norfair Rio: ascending, third frame.</summary>
     NorfairRioAscendingThird,
-    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_17</c>.</summary>
+    /// <summary>The Norfair Rio: flames descending, first frame.</summary>
     NorfairRioFlamesDescendingFirst,
-    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_18</c>.</summary>
+    /// <summary>The Norfair Rio: flames descending, second frame.</summary>
     NorfairRioFlamesDescendingSecond,
-    /// <summary>The frame the installed artwork names <c>norfair_rio_pose_19</c>.</summary>
+    /// <summary>The Norfair Rio: flames descending, third frame.</summary>
     NorfairRioFlamesDescendingThird,
-    /// <summary>The frame the installed artwork names <c>puyo_ground_0</c>.</summary>
+    /// <summary>Puyo: grounded fast, first frame.</summary>
     PuyoGroundedFastFirst,
-    /// <summary>The frame the installed artwork names <c>puyo_ground_1</c>.</summary>
+    /// <summary>Puyo: grounded fast, second frame.</summary>
     PuyoGroundedFastSecond,
-    /// <summary>The frame the installed artwork names <c>puyo_ground_2</c>.</summary>
+    /// <summary>Puyo: grounded fast, third frame.</summary>
     PuyoGroundedFastThird,
-    /// <summary>The frame the installed artwork names <c>puyo_air_0</c>.</summary>
+    /// <summary>Puyo: airborne, first frame.</summary>
     PuyoAirborneFirst,
-    /// <summary>The frame the installed artwork names <c>puyo_air_1</c>.</summary>
+    /// <summary>Puyo: airborne, second frame.</summary>
     PuyoAirborneSecond,
-    /// <summary>The frame the installed artwork names <c>puyo_air_2</c>.</summary>
+    /// <summary>Puyo: airborne, third frame.</summary>
     PuyoAirborneThird,
-    /// <summary>The frame the installed artwork names <c>puyo_air_3</c>.</summary>
+    /// <summary>Puyo: airborne, fourth frame.</summary>
     PuyoAirborneFourth,
-    /// <summary>The frame the installed artwork names <c>puyo_air_4</c>.</summary>
+    /// <summary>Puyo: airborne, fifth frame.</summary>
     PuyoAirborneFifth,
-    /// <summary>The frame the installed artwork names <c>bull_idle_0</c>.</summary>
+    /// <summary>Bull: normal, first frame.</summary>
     BullNormalFirst,
-    /// <summary>The frame the installed artwork names <c>bull_idle_1</c>.</summary>
+    /// <summary>Bull: normal, second frame.</summary>
     BullNormalSecond,
-    /// <summary>The frame the installed artwork names <c>bull_idle_2</c>.</summary>
+    /// <summary>Bull: normal, third frame.</summary>
     BullNormalThird,
-    /// <summary>The frame the installed artwork names <c>alcoon_left_walk_0</c>.</summary>
+    /// <summary>Alcoon: walking left loop, first frame.</summary>
     AlcoonWalkingLeftLoopFirst,
-    /// <summary>The frame the installed artwork names <c>alcoon_left_walk_1</c>.</summary>
+    /// <summary>Alcoon: walking left loop, second frame.</summary>
     AlcoonWalkingLeftLoopSecond,
-    /// <summary>The frame the installed artwork names <c>alcoon_left_walk_2</c>.</summary>
+    /// <summary>Alcoon: walking left loop, third frame.</summary>
     AlcoonWalkingLeftLoopThird,
-    /// <summary>The frame the installed artwork names <c>alcoon_left_walk_3</c>.</summary>
+    /// <summary>Alcoon: walking left loop, fourth frame.</summary>
     AlcoonWalkingLeftLoopFourth,
-    /// <summary>The frame the installed artwork names <c>alcoon_left_fire_0</c>.</summary>
+    /// <summary>Alcoon: fire left, first frame.</summary>
     AlcoonFireLeftFirst,
-    /// <summary>The frame the installed artwork names <c>alcoon_left_fire_1</c>.</summary>
+    /// <summary>Alcoon: fire left, second frame.</summary>
     AlcoonFireLeftSecond,
-    /// <summary>The frame the installed artwork names <c>alcoon_left_fire_2</c>.</summary>
+    /// <summary>Alcoon: fire left, third frame.</summary>
     AlcoonFireLeftThird,
-    /// <summary>The frame the installed artwork names <c>alcoon_left_fire_3</c>.</summary>
+    /// <summary>Alcoon: fire left, fourth frame.</summary>
     AlcoonFireLeftFourth,
-    /// <summary>The frame the installed artwork names <c>alcoon_left_air_up</c>.</summary>
+    /// <summary>Alcoon: left air up.</summary>
     AlcoonLeftAirUp,
-    /// <summary>The frame the installed artwork names <c>alcoon_right_walk_0</c>.</summary>
+    /// <summary>Alcoon: walking right loop, first frame.</summary>
     AlcoonWalkingRightLoopFirst,
-    /// <summary>The frame the installed artwork names <c>alcoon_right_walk_1</c>.</summary>
+    /// <summary>Alcoon: walking right loop, second frame.</summary>
     AlcoonWalkingRightLoopSecond,
-    /// <summary>The frame the installed artwork names <c>alcoon_right_walk_2</c>.</summary>
+    /// <summary>Alcoon: walking right loop, third frame.</summary>
     AlcoonWalkingRightLoopThird,
-    /// <summary>The frame the installed artwork names <c>alcoon_right_walk_3</c>.</summary>
+    /// <summary>Alcoon: walking right loop, fourth frame.</summary>
     AlcoonWalkingRightLoopFourth,
-    /// <summary>The frame the installed artwork names <c>alcoon_right_fire_0</c>.</summary>
+    /// <summary>Alcoon: fire right, first frame.</summary>
     AlcoonFireRightFirst,
-    /// <summary>The frame the installed artwork names <c>alcoon_right_fire_1</c>.</summary>
+    /// <summary>Alcoon: fire right, second frame.</summary>
     AlcoonFireRightSecond,
-    /// <summary>The frame the installed artwork names <c>alcoon_right_fire_2</c>.</summary>
+    /// <summary>Alcoon: fire right, third frame.</summary>
     AlcoonFireRightThird,
-    /// <summary>The frame the installed artwork names <c>alcoon_right_fire_3</c>.</summary>
+    /// <summary>Alcoon: fire right, fourth frame.</summary>
     AlcoonFireRightFourth,
-    /// <summary>The frame the installed artwork names <c>alcoon_right_air_up</c>.</summary>
+    /// <summary>Alcoon: right air up.</summary>
     AlcoonRightAirUp,
-    /// <summary>The frame the installed artwork names <c>beetom_left_crawl_0</c>.</summary>
+    /// <summary>Beetom: crawling left loop, first frame.</summary>
     BeetomCrawlingLeftLoopFirst,
-    /// <summary>The frame the installed artwork names <c>beetom_left_crawl_1</c>.</summary>
+    /// <summary>Beetom: crawling left loop, second frame.</summary>
     BeetomCrawlingLeftLoopSecond,
-    /// <summary>The frame the installed artwork names <c>beetom_left_crawl_2</c>.</summary>
+    /// <summary>Beetom: crawling left loop, third frame.</summary>
     BeetomCrawlingLeftLoopThird,
-    /// <summary>The frame the installed artwork names <c>beetom_left_hop_0</c>.</summary>
+    /// <summary>Beetom: hop left, first frame.</summary>
     BeetomHopLeftFirst,
-    /// <summary>The frame the installed artwork names <c>beetom_left_hop_1</c>.</summary>
+    /// <summary>Beetom: hop left, second frame.</summary>
     BeetomHopLeftSecond,
-    /// <summary>The frame the installed artwork names <c>beetom_left_drain_0</c>.</summary>
+    /// <summary>Beetom: draining left, first frame.</summary>
     BeetomDrainingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>beetom_left_drain_1</c>.</summary>
+    /// <summary>Beetom: draining left, second frame.</summary>
     BeetomDrainingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>beetom_left_drain_2</c>.</summary>
+    /// <summary>Beetom: draining left, third frame.</summary>
     BeetomDrainingLeftThird,
-    /// <summary>The frame the installed artwork names <c>beetom_left_drain_3</c>.</summary>
+    /// <summary>Beetom: draining left loop, first frame.</summary>
     BeetomDrainingLeftLoopFirst,
-    /// <summary>The frame the installed artwork names <c>beetom_left_drain_4</c>.</summary>
+    /// <summary>Beetom: draining left loop, second frame.</summary>
     BeetomDrainingLeftLoopSecond,
-    /// <summary>The frame the installed artwork names <c>beetom_left_drain_5</c>.</summary>
+    /// <summary>Beetom: draining left loop, third frame.</summary>
     BeetomDrainingLeftLoopThird,
-    /// <summary>The frame the installed artwork names <c>beetom_right_crawl_0</c>.</summary>
+    /// <summary>Beetom: crawling right loop, first frame.</summary>
     BeetomCrawlingRightLoopFirst,
-    /// <summary>The frame the installed artwork names <c>beetom_right_crawl_1</c>.</summary>
+    /// <summary>Beetom: crawling right loop, second frame.</summary>
     BeetomCrawlingRightLoopSecond,
-    /// <summary>The frame the installed artwork names <c>beetom_right_crawl_2</c>.</summary>
+    /// <summary>Beetom: crawling right loop, third frame.</summary>
     BeetomCrawlingRightLoopThird,
-    /// <summary>The frame the installed artwork names <c>beetom_right_hop_0</c>.</summary>
+    /// <summary>Beetom: hop right, first frame.</summary>
     BeetomHopRightFirst,
-    /// <summary>The frame the installed artwork names <c>beetom_right_hop_1</c>.</summary>
+    /// <summary>Beetom: hop right, second frame.</summary>
     BeetomHopRightSecond,
-    /// <summary>The frame the installed artwork names <c>beetom_right_drain_0</c>.</summary>
+    /// <summary>Beetom: draining right, first frame.</summary>
     BeetomDrainingRightFirst,
-    /// <summary>The frame the installed artwork names <c>beetom_right_drain_1</c>.</summary>
+    /// <summary>Beetom: draining right, second frame.</summary>
     BeetomDrainingRightSecond,
-    /// <summary>The frame the installed artwork names <c>beetom_right_drain_2</c>.</summary>
+    /// <summary>Beetom: draining right, third frame.</summary>
     BeetomDrainingRightThird,
-    /// <summary>The frame the installed artwork names <c>beetom_right_drain_3</c>.</summary>
+    /// <summary>Beetom: draining right loop, first frame.</summary>
     BeetomDrainingRightLoopFirst,
-    /// <summary>The frame the installed artwork names <c>beetom_right_drain_4</c>.</summary>
+    /// <summary>Beetom: draining right loop, second frame.</summary>
     BeetomDrainingRightLoopSecond,
-    /// <summary>The frame the installed artwork names <c>beetom_right_drain_5</c>.</summary>
+    /// <summary>Beetom: draining right loop, third frame.</summary>
     BeetomDrainingRightLoopThird,
-    /// <summary>The frame the installed artwork names <c>sidehopper_jump_floor</c>.</summary>
+    /// <summary>Sidehopper: jump floor.</summary>
     SidehopperJumpFloor,
-    /// <summary>The frame the installed artwork names <c>sidehopper_land_floor_0</c>.</summary>
+    /// <summary>Sidehopper: floor landed, first frame.</summary>
     SidehopperFloorLandedFirst,
-    /// <summary>The frame the installed artwork names <c>sidehopper_land_floor_1</c>.</summary>
+    /// <summary>Sidehopper: floor landed, second frame.</summary>
     SidehopperFloorLandedSecond,
-    /// <summary>The frame the installed artwork names <c>sidehopper_jump_ceiling</c>.</summary>
+    /// <summary>Sidehopper: jump ceiling.</summary>
     SidehopperJumpCeiling,
-    /// <summary>The frame the installed artwork names <c>sidehopper_land_ceiling_0</c>.</summary>
+    /// <summary>Sidehopper: ceiling landed, first frame.</summary>
     SidehopperCeilingLandedFirst,
-    /// <summary>The frame the installed artwork names <c>sidehopper_land_ceiling_1</c>.</summary>
+    /// <summary>Sidehopper: ceiling landed, second frame.</summary>
     SidehopperCeilingLandedSecond,
-    /// <summary>The frame the installed artwork names <c>dessgeega_jump_floor</c>.</summary>
+    /// <summary>Dessgeega: jump floor.</summary>
     DessgeegaJumpFloor,
-    /// <summary>The frame the installed artwork names <c>dessgeega_land_floor_0</c>.</summary>
+    /// <summary>Dessgeega: floor landed, first frame.</summary>
     DessgeegaFloorLandedFirst,
-    /// <summary>The frame the installed artwork names <c>dessgeega_land_floor_1</c>.</summary>
+    /// <summary>Dessgeega: floor landed, second frame.</summary>
     DessgeegaFloorLandedSecond,
-    /// <summary>The frame the installed artwork names <c>dessgeega_jump_ceiling</c>.</summary>
+    /// <summary>Dessgeega: jump ceiling.</summary>
     DessgeegaJumpCeiling,
-    /// <summary>The frame the installed artwork names <c>dessgeega_land_ceiling_0</c>.</summary>
+    /// <summary>Dessgeega: ceiling landed, first frame.</summary>
     DessgeegaCeilingLandedFirst,
-    /// <summary>The frame the installed artwork names <c>dessgeega_land_ceiling_1</c>.</summary>
+    /// <summary>Dessgeega: ceiling landed, second frame.</summary>
     DessgeegaCeilingLandedSecond,
-    /// <summary>The frame the installed artwork names <c>large_sidehopper_jump_floor</c>.</summary>
+    /// <summary>The large Sidehopper: jump floor.</summary>
     LargeSidehopperJumpFloor,
-    /// <summary>The frame the installed artwork names <c>large_sidehopper_land_floor_0</c>.</summary>
+    /// <summary>The large Sidehopper: floor landed, first frame.</summary>
     LargeSidehopperFloorLandedFirst,
-    /// <summary>The frame the installed artwork names <c>large_sidehopper_land_floor_1</c>.</summary>
+    /// <summary>The large Sidehopper: floor landed, second frame.</summary>
     LargeSidehopperFloorLandedSecond,
-    /// <summary>The frame the installed artwork names <c>large_sidehopper_jump_ceiling</c>.</summary>
+    /// <summary>The large Sidehopper: jump ceiling.</summary>
     LargeSidehopperJumpCeiling,
-    /// <summary>The frame the installed artwork names <c>large_sidehopper_land_ceiling_0</c>.</summary>
+    /// <summary>The large Sidehopper: ceiling landed, first frame.</summary>
     LargeSidehopperCeilingLandedFirst,
-    /// <summary>The frame the installed artwork names <c>large_sidehopper_land_ceiling_1</c>.</summary>
+    /// <summary>The large Sidehopper: ceiling landed, second frame.</summary>
     LargeSidehopperCeilingLandedSecond,
-    /// <summary>The frame the installed artwork names <c>large_dessgeega_jump_floor</c>.</summary>
+    /// <summary>The large Dessgeega: jump floor.</summary>
     LargeDessgeegaJumpFloor,
-    /// <summary>The frame the installed artwork names <c>large_dessgeega_land_floor_0</c>.</summary>
+    /// <summary>The large Dessgeega: floor landed, first frame.</summary>
     LargeDessgeegaFloorLandedFirst,
-    /// <summary>The frame the installed artwork names <c>large_dessgeega_land_floor_1</c>.</summary>
+    /// <summary>The large Dessgeega: floor landed, second frame.</summary>
     LargeDessgeegaFloorLandedSecond,
-    /// <summary>The frame the installed artwork names <c>large_dessgeega_jump_ceiling</c>.</summary>
+    /// <summary>The large Dessgeega: jump ceiling.</summary>
     LargeDessgeegaJumpCeiling,
-    /// <summary>The frame the installed artwork names <c>large_dessgeega_land_ceiling_0</c>.</summary>
+    /// <summary>The large Dessgeega: ceiling landed, first frame.</summary>
     LargeDessgeegaCeilingLandedFirst,
-    /// <summary>The frame the installed artwork names <c>large_dessgeega_land_ceiling_1</c>.</summary>
+    /// <summary>The large Dessgeega: ceiling landed, second frame.</summary>
     LargeDessgeegaCeilingLandedSecond,
-    /// <summary>The frame the installed artwork names <c>choot_idle</c>.</summary>
+    /// <summary>Choot: idle.</summary>
     ChootIdle,
-    /// <summary>The frame the installed artwork names <c>choot_jump</c>.</summary>
+    /// <summary>Choot: jump.</summary>
     ChootJump,
-    /// <summary>The frame the installed artwork names <c>choot_jump_apex</c>.</summary>
+    /// <summary>Choot: jump apex.</summary>
     ChootJumpApex,
-    /// <summary>The frame the installed artwork names <c>choot_fall_end</c>.</summary>
+    /// <summary>Choot: fall end.</summary>
     ChootFallEnd,
-    /// <summary>The frame the installed artwork names <c>hzoomer_upside_right_0</c>.</summary>
+    /// <summary>The horizontal Zoomer: upside right loop, first frame.</summary>
     HZoomerUpsideRightLoopFirst,
-    /// <summary>The frame the installed artwork names <c>hzoomer_upside_right_1</c>.</summary>
+    /// <summary>The horizontal Zoomer: upside right loop, second frame.</summary>
     HZoomerUpsideRightLoopSecond,
-    /// <summary>The frame the installed artwork names <c>hzoomer_upside_right_2</c>.</summary>
+    /// <summary>The horizontal Zoomer: upside right loop, third frame.</summary>
     HZoomerUpsideRightLoopThird,
-    /// <summary>The frame the installed artwork names <c>hzoomer_upside_right_3</c>.</summary>
+    /// <summary>The horizontal Zoomer: upside right loop, fourth frame.</summary>
     HZoomerUpsideRightLoopFourth,
-    /// <summary>The frame the installed artwork names <c>hzoomer_upside_right_4</c>.</summary>
+    /// <summary>The horizontal Zoomer: upside right loop, fifth frame.</summary>
     HZoomerUpsideRightLoopFifth,
-    /// <summary>The frame the installed artwork names <c>hzoomer_upside_left_0</c>.</summary>
+    /// <summary>The horizontal Zoomer: upside left loop, first frame.</summary>
     HZoomerUpsideLeftLoopFirst,
-    /// <summary>The frame the installed artwork names <c>hzoomer_upside_left_1</c>.</summary>
+    /// <summary>The horizontal Zoomer: upside left loop, second frame.</summary>
     HZoomerUpsideLeftLoopSecond,
-    /// <summary>The frame the installed artwork names <c>hzoomer_upside_left_2</c>.</summary>
+    /// <summary>The horizontal Zoomer: upside left loop, third frame.</summary>
     HZoomerUpsideLeftLoopThird,
-    /// <summary>The frame the installed artwork names <c>hzoomer_upside_left_3</c>.</summary>
+    /// <summary>The horizontal Zoomer: upside left loop, fourth frame.</summary>
     HZoomerUpsideLeftLoopFourth,
-    /// <summary>The frame the installed artwork names <c>hzoomer_upside_left_4</c>.</summary>
+    /// <summary>The horizontal Zoomer: upside left loop, fifth frame.</summary>
     HZoomerUpsideLeftLoopFifth,
-    /// <summary>The frame the installed artwork names <c>hzoomer_upside_down_0</c>.</summary>
+    /// <summary>The horizontal Zoomer: upside down loop, first frame.</summary>
     HZoomerUpsideDownLoopFirst,
-    /// <summary>The frame the installed artwork names <c>hzoomer_upside_down_1</c>.</summary>
+    /// <summary>The horizontal Zoomer: upside down loop, second frame.</summary>
     HZoomerUpsideDownLoopSecond,
-    /// <summary>The frame the installed artwork names <c>hzoomer_upside_down_2</c>.</summary>
+    /// <summary>The horizontal Zoomer: upside down loop, third frame.</summary>
     HZoomerUpsideDownLoopThird,
-    /// <summary>The frame the installed artwork names <c>hzoomer_upside_down_3</c>.</summary>
+    /// <summary>The horizontal Zoomer: upside down loop, fourth frame.</summary>
     HZoomerUpsideDownLoopFourth,
-    /// <summary>The frame the installed artwork names <c>hzoomer_upside_down_4</c>.</summary>
+    /// <summary>The horizontal Zoomer: upside down loop, fifth frame.</summary>
     HZoomerUpsideDownLoopFifth,
-    /// <summary>The frame the installed artwork names <c>hzoomer_upside_up_0</c>.</summary>
+    /// <summary>The horizontal Zoomer: upside up loop, first frame.</summary>
     HZoomerUpsideUpLoopFirst,
-    /// <summary>The frame the installed artwork names <c>hzoomer_upside_up_1</c>.</summary>
+    /// <summary>The horizontal Zoomer: upside up loop, second frame.</summary>
     HZoomerUpsideUpLoopSecond,
-    /// <summary>The frame the installed artwork names <c>hzoomer_upside_up_2</c>.</summary>
+    /// <summary>The horizontal Zoomer: upside up loop, third frame.</summary>
     HZoomerUpsideUpLoopThird,
-    /// <summary>The frame the installed artwork names <c>hzoomer_upside_up_3</c>.</summary>
+    /// <summary>The horizontal Zoomer: upside up loop, fourth frame.</summary>
     HZoomerUpsideUpLoopFourth,
-    /// <summary>The frame the installed artwork names <c>hzoomer_upside_up_4</c>.</summary>
+    /// <summary>The horizontal Zoomer: upside up loop, fifth frame.</summary>
     HZoomerUpsideUpLoopFifth,
-    /// <summary>The frame the installed artwork names <c>sbug_right_0</c>.</summary>
+    /// <summary>Sbug: right, first frame.</summary>
     SbugRightFirst,
-    /// <summary>The frame the installed artwork names <c>sbug_right_1</c>.</summary>
+    /// <summary>Sbug: right, second frame.</summary>
     SbugRightSecond,
-    /// <summary>The frame the installed artwork names <c>sbug_right_2</c>.</summary>
+    /// <summary>Sbug: right, third frame.</summary>
     SbugRightThird,
-    /// <summary>The frame the installed artwork names <c>sbug_up_right_0</c>.</summary>
+    /// <summary>Sbug: up right, first frame.</summary>
     SbugUpRightFirst,
-    /// <summary>The frame the installed artwork names <c>sbug_up_right_1</c>.</summary>
+    /// <summary>Sbug: up right, second frame.</summary>
     SbugUpRightSecond,
-    /// <summary>The frame the installed artwork names <c>sbug_up_right_2</c>.</summary>
+    /// <summary>Sbug: up right, third frame.</summary>
     SbugUpRightThird,
-    /// <summary>The frame the installed artwork names <c>sbug_up_0</c>.</summary>
+    /// <summary>Sbug: up, first frame.</summary>
     SbugUpFirst,
-    /// <summary>The frame the installed artwork names <c>sbug_up_1</c>.</summary>
+    /// <summary>Sbug: up, second frame.</summary>
     SbugUpSecond,
-    /// <summary>The frame the installed artwork names <c>sbug_up_2</c>.</summary>
+    /// <summary>Sbug: up, third frame.</summary>
     SbugUpThird,
-    /// <summary>The frame the installed artwork names <c>sbug_up_left_0</c>.</summary>
+    /// <summary>Sbug: up left, first frame.</summary>
     SbugUpLeftFirst,
-    /// <summary>The frame the installed artwork names <c>sbug_up_left_1</c>.</summary>
+    /// <summary>Sbug: up left, second frame.</summary>
     SbugUpLeftSecond,
-    /// <summary>The frame the installed artwork names <c>sbug_up_left_2</c>.</summary>
+    /// <summary>Sbug: up left, third frame.</summary>
     SbugUpLeftThird,
-    /// <summary>The frame the installed artwork names <c>sbug_left_0</c>.</summary>
+    /// <summary>Sbug: left, first frame.</summary>
     SbugLeftFirst,
-    /// <summary>The frame the installed artwork names <c>sbug_left_1</c>.</summary>
+    /// <summary>Sbug: left, second frame.</summary>
     SbugLeftSecond,
-    /// <summary>The frame the installed artwork names <c>sbug_left_2</c>.</summary>
+    /// <summary>Sbug: left, third frame.</summary>
     SbugLeftThird,
-    /// <summary>The frame the installed artwork names <c>sbug_down_left_0</c>.</summary>
+    /// <summary>Sbug: down left, first frame.</summary>
     SbugDownLeftFirst,
-    /// <summary>The frame the installed artwork names <c>sbug_down_left_1</c>.</summary>
+    /// <summary>Sbug: down left, second frame.</summary>
     SbugDownLeftSecond,
-    /// <summary>The frame the installed artwork names <c>sbug_down_left_2</c>.</summary>
+    /// <summary>Sbug: down left, third frame.</summary>
     SbugDownLeftThird,
-    /// <summary>The frame the installed artwork names <c>sbug_down_0</c>.</summary>
+    /// <summary>Sbug: down, first frame.</summary>
     SbugDownFirst,
-    /// <summary>The frame the installed artwork names <c>sbug_down_1</c>.</summary>
+    /// <summary>Sbug: down, second frame.</summary>
     SbugDownSecond,
-    /// <summary>The frame the installed artwork names <c>sbug_down_2</c>.</summary>
+    /// <summary>Sbug: down, third frame.</summary>
     SbugDownThird,
-    /// <summary>The frame the installed artwork names <c>sbug_down_right_0</c>.</summary>
+    /// <summary>Sbug: down right, first frame.</summary>
     SbugDownRightFirst,
-    /// <summary>The frame the installed artwork names <c>sbug_down_right_1</c>.</summary>
+    /// <summary>Sbug: down right, second frame.</summary>
     SbugDownRightSecond,
-    /// <summary>The frame the installed artwork names <c>sbug_down_right_2</c>.</summary>
+    /// <summary>Sbug: down right, third frame.</summary>
     SbugDownRightThird,
-    /// <summary>The frame the installed artwork names <c>fune_left_idle</c>.</summary>
+    /// <summary>Fune: left idle.</summary>
     FuneLeftIdle,
-    /// <summary>The frame the installed artwork names <c>fune_left_active_0</c>.</summary>
+    /// <summary>Fune: active left, second frame.</summary>
     FuneActiveLeftSecond,
-    /// <summary>The frame the installed artwork names <c>fune_left_active_1</c>.</summary>
+    /// <summary>Fune: active left, third frame.</summary>
     FuneActiveLeftThird,
-    /// <summary>The frame the installed artwork names <c>fune_left_active_2</c>.</summary>
+    /// <summary>Fune: active left, fourth frame.</summary>
     FuneActiveLeftFourth,
-    /// <summary>The frame the installed artwork names <c>fune_left_active_3</c>.</summary>
+    /// <summary>Fune: active left, fifth frame.</summary>
     FuneActiveLeftFifth,
-    /// <summary>The frame the installed artwork names <c>fune_right_idle</c>.</summary>
+    /// <summary>Fune: right idle.</summary>
     FuneRightIdle,
-    /// <summary>The frame the installed artwork names <c>fune_right_active_0</c>.</summary>
+    /// <summary>Fune: active right, second frame.</summary>
     FuneActiveRightSecond,
-    /// <summary>The frame the installed artwork names <c>fune_right_active_1</c>.</summary>
+    /// <summary>Fune: active right, third frame.</summary>
     FuneActiveRightThird,
-    /// <summary>The frame the installed artwork names <c>fune_right_active_2</c>.</summary>
+    /// <summary>Fune: active right, fourth frame.</summary>
     FuneActiveRightFourth,
-    /// <summary>The frame the installed artwork names <c>fune_right_active_3</c>.</summary>
+    /// <summary>Fune: active right, fifth frame.</summary>
     FuneActiveRightFifth,
-    /// <summary>The frame the installed artwork names <c>namihe_left_idle</c>.</summary>
+    /// <summary>Namihe: left idle.</summary>
     NamiheLeftIdle,
-    /// <summary>The frame the installed artwork names <c>namihe_left_active_0</c>.</summary>
+    /// <summary>Namihe: active left, second frame.</summary>
     NamiheActiveLeftSecond,
-    /// <summary>The frame the installed artwork names <c>namihe_left_active_1</c>.</summary>
+    /// <summary>Namihe: active left, third frame.</summary>
     NamiheActiveLeftThird,
-    /// <summary>The frame the installed artwork names <c>namihe_left_active_2</c>.</summary>
+    /// <summary>Namihe: active left, fourth frame.</summary>
     NamiheActiveLeftFourth,
-    /// <summary>The frame the installed artwork names <c>namihe_left_active_3</c>.</summary>
+    /// <summary>Namihe: active left, fifth frame.</summary>
     NamiheActiveLeftFifth,
-    /// <summary>The frame the installed artwork names <c>namihe_left_active_4</c>.</summary>
+    /// <summary>Namihe: active left, sixth frame.</summary>
     NamiheActiveLeftSixth,
-    /// <summary>The frame the installed artwork names <c>namihe_right_idle</c>.</summary>
+    /// <summary>Namihe: right idle.</summary>
     NamiheRightIdle,
-    /// <summary>The frame the installed artwork names <c>namihe_right_active_0</c>.</summary>
+    /// <summary>Namihe: active right, second frame.</summary>
     NamiheActiveRightSecond,
-    /// <summary>The frame the installed artwork names <c>namihe_right_active_1</c>.</summary>
+    /// <summary>Namihe: active right, third frame.</summary>
     NamiheActiveRightThird,
-    /// <summary>The frame the installed artwork names <c>namihe_right_active_2</c>.</summary>
+    /// <summary>Namihe: active right, fourth frame.</summary>
     NamiheActiveRightFourth,
-    /// <summary>The frame the installed artwork names <c>namihe_right_active_3</c>.</summary>
+    /// <summary>Namihe: active right, fifth frame.</summary>
     NamiheActiveRightFifth,
-    /// <summary>The frame the installed artwork names <c>namihe_right_active_4</c>.</summary>
+    /// <summary>Namihe: active right, sixth frame.</summary>
     NamiheActiveRightSixth,
-    /// <summary>The frame the installed artwork names <c>kamer_platform_0</c>.</summary>
+    /// <summary>Kamer: platform, first frame.</summary>
     KamerPlatformFirst,
-    /// <summary>The frame the installed artwork names <c>kamer_platform_1</c>.</summary>
+    /// <summary>Kamer: platform, second frame.</summary>
     KamerPlatformSecond,
-    /// <summary>The frame the installed artwork names <c>kamer_platform_2</c>.</summary>
+    /// <summary>Kamer: platform, third frame.</summary>
     KamerPlatformThird,
-    /// <summary>The frame the installed artwork names <c>kamer_platform_3</c>.</summary>
+    /// <summary>Kamer: platform, fourth frame.</summary>
     KamerPlatformFourth,
-    /// <summary>The frame the installed artwork names <c>elevator_platform_0</c>.</summary>
+    /// <summary>The elevator: loop, first frame.</summary>
     ElevatorLoopFirst,
-    /// <summary>The frame the installed artwork names <c>elevator_platform_1</c>.</summary>
+    /// <summary>The elevator: loop, second frame.</summary>
     ElevatorLoopSecond,
-    /// <summary>The frame the installed artwork names <c>draygon_intro_evir_0</c>.</summary>
+    /// <summary>A room sprite object: evir facing left, first frame.</summary>
     SpriteObjectEvirFacingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>draygon_intro_evir_1</c>.</summary>
+    /// <summary>A room sprite object: evir facing left, second frame.</summary>
     SpriteObjectEvirFacingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>draygon_intro_evir_2</c>.</summary>
+    /// <summary>A room sprite object: evir facing left, third frame.</summary>
     SpriteObjectEvirFacingLeftThird,
-    /// <summary>The frame the installed artwork names <c>draygon_intro_evir_3</c>.</summary>
+    /// <summary>A room sprite object: evir facing left, fourth frame.</summary>
     SpriteObjectEvirFacingLeftFourth,
-    /// <summary>The frame the installed artwork names <c>draygon_breath_bubble_0</c>.</summary>
+    /// <summary>A room sprite object: short Draygon breath bubbles, first frame.</summary>
     SpriteObjectShortDraygonBreathBubblesFirst,
-    /// <summary>The frame the installed artwork names <c>draygon_breath_bubble_1</c>.</summary>
+    /// <summary>A room sprite object: short Draygon breath bubbles, second frame.</summary>
     SpriteObjectShortDraygonBreathBubblesSecond,
-    /// <summary>The frame the installed artwork names <c>draygon_breath_bubble_2</c>.</summary>
+    /// <summary>A room sprite object: short Draygon breath bubbles, third frame.</summary>
     SpriteObjectShortDraygonBreathBubblesThird,
-    /// <summary>The frame the installed artwork names <c>draygon_breath_bubble_3</c>.</summary>
+    /// <summary>A room sprite object: short Draygon breath bubbles, fourth frame.</summary>
     SpriteObjectShortDraygonBreathBubblesFourth,
-    /// <summary>The frame the installed artwork names <c>draygon_breath_bubble_4</c>.</summary>
+    /// <summary>A room sprite object: short Draygon breath bubbles, fifth frame.</summary>
     SpriteObjectShortDraygonBreathBubblesFifth,
-    /// <summary>The frame the installed artwork names <c>draygon_breath_bubble_5</c>.</summary>
+    /// <summary>A room sprite object: short Draygon breath bubbles, sixth frame.</summary>
     SpriteObjectShortDraygonBreathBubblesSixth,
-    /// <summary>The frame the installed artwork names <c>draygon_breath_bubble_6</c>.</summary>
+    /// <summary>A room sprite object: short Draygon breath bubbles, seventh frame.</summary>
     SpriteObjectShortDraygonBreathBubblesSeventh,
-    /// <summary>The frame the installed artwork names <c>draygon_breath_bubble_7</c>.</summary>
+    /// <summary>A room sprite object: short Draygon breath bubbles, eighth frame.</summary>
     SpriteObjectShortDraygonBreathBubblesEighth,
-    /// <summary>The frame the installed artwork names <c>draygon_breath_bubble_8</c>.</summary>
+    /// <summary>A room sprite object: short Draygon breath bubbles, ninth frame.</summary>
     SpriteObjectShortDraygonBreathBubblesNinth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_empty</c>.</summary>
+    /// <summary>A room sprite object: empty.</summary>
     SpriteObjectEmpty,
-    /// <summary>The frame the installed artwork names <c>sprite_object_big_dust_cloud_0</c>.</summary>
+    /// <summary>A room sprite object: short big dust cloud, first frame.</summary>
     SpriteObjectShortBigDustCloudFirst,
-    /// <summary>The frame the installed artwork names <c>sprite_object_big_dust_cloud_1</c>.</summary>
+    /// <summary>A room sprite object: short big dust cloud, second frame.</summary>
     SpriteObjectShortBigDustCloudSecond,
-    /// <summary>The frame the installed artwork names <c>sprite_object_big_dust_cloud_2</c>.</summary>
+    /// <summary>A room sprite object: short big dust cloud, third frame.</summary>
     SpriteObjectShortBigDustCloudThird,
-    /// <summary>The frame the installed artwork names <c>sprite_object_big_dust_cloud_3</c>.</summary>
+    /// <summary>A room sprite object: short big dust cloud, fourth frame.</summary>
     SpriteObjectShortBigDustCloudFourth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_big_dust_cloud_4</c>.</summary>
+    /// <summary>A room sprite object: big dust cloud, fifth frame.</summary>
     SpriteObjectBigDustCloudFifth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_big_dust_cloud_5</c>.</summary>
+    /// <summary>A room sprite object: big dust cloud, sixth frame.</summary>
     SpriteObjectBigDustCloudSixth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_big_dust_cloud_6</c>.</summary>
+    /// <summary>A room sprite object: big dust cloud, seventh frame.</summary>
     SpriteObjectBigDustCloudSeventh,
-    /// <summary>The frame the installed artwork names <c>sprite_object_big_dust_cloud_7</c>.</summary>
+    /// <summary>A room sprite object: big dust cloud, eighth frame.</summary>
     SpriteObjectBigDustCloudEighth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_small_explosion_0</c>.</summary>
+    /// <summary>A room sprite object: small explosion, first frame.</summary>
     SpriteObjectSmallExplosionFirst,
-    /// <summary>The frame the installed artwork names <c>sprite_object_small_explosion_1</c>.</summary>
+    /// <summary>A room sprite object: small explosion, second frame.</summary>
     SpriteObjectSmallExplosionSecond,
-    /// <summary>The frame the installed artwork names <c>sprite_object_small_explosion_2</c>.</summary>
+    /// <summary>A room sprite object: small explosion, third frame.</summary>
     SpriteObjectSmallExplosionThird,
-    /// <summary>The frame the installed artwork names <c>sprite_object_small_explosion_3</c>.</summary>
+    /// <summary>A room sprite object: small explosion, fourth frame.</summary>
     SpriteObjectSmallExplosionFourth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_small_explosion_4</c>.</summary>
+    /// <summary>A room sprite object: small explosion, fifth frame.</summary>
     SpriteObjectSmallExplosionFifth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_small_explosion_5</c>.</summary>
+    /// <summary>A room sprite object: small explosion, sixth frame.</summary>
     SpriteObjectSmallExplosionSixth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_dud_shot_0</c>.</summary>
+    /// <summary>A room sprite object: dud shot, first frame.</summary>
     SpriteObjectDudShotFirst,
-    /// <summary>The frame the installed artwork names <c>sprite_object_dud_shot_1</c>.</summary>
+    /// <summary>A room sprite object: dud shot, second frame.</summary>
     SpriteObjectDudShotSecond,
-    /// <summary>The frame the installed artwork names <c>sprite_object_dud_shot_2</c>.</summary>
+    /// <summary>A room sprite object: dud shot, third frame.</summary>
     SpriteObjectDudShotThird,
-    /// <summary>The frame the installed artwork names <c>sprite_object_dud_shot_3</c>.</summary>
+    /// <summary>A room sprite object: dud shot, fourth frame.</summary>
     SpriteObjectDudShotFourth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_dud_shot_4</c>.</summary>
+    /// <summary>A room sprite object: dud shot, fifth frame.</summary>
     SpriteObjectDudShotFifth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_dud_shot_5</c>.</summary>
+    /// <summary>A room sprite object: dud shot, sixth frame.</summary>
     SpriteObjectDudShotSixth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_small_dust_cloud_0</c>.</summary>
+    /// <summary>A room sprite object: small dud shot, second frame.</summary>
     SpriteObjectSmallDudShotSecond,
-    /// <summary>The frame the installed artwork names <c>sprite_object_small_dust_cloud_1</c>.</summary>
+    /// <summary>A room sprite object: small dud shot, third frame.</summary>
     SpriteObjectSmallDudShotThird,
-    /// <summary>The frame the installed artwork names <c>sprite_object_small_dust_cloud_2</c>.</summary>
+    /// <summary>A room sprite object: small dud shot, fourth frame.</summary>
     SpriteObjectSmallDudShotFourth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_small_dust_cloud_3</c>.</summary>
+    /// <summary>A room sprite object: small dud shot, fifth frame.</summary>
     SpriteObjectSmallDudShotFifth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_pirate_landing_dust_cloud_0</c>.</summary>
+    /// <summary>A room sprite object: small dud shot, first frame.</summary>
     SpriteObjectSmallDudShotFirst,
-    /// <summary>The frame the installed artwork names <c>sprite_object_pirate_landing_dust_cloud_1</c>.</summary>
+    /// <summary>A room sprite object: space pirate landing dust cloud, second frame.</summary>
     SpriteObjectSpacePirateLandingDustCloudSecond,
-    /// <summary>The frame the installed artwork names <c>sprite_object_pirate_landing_dust_cloud_2</c>.</summary>
+    /// <summary>A room sprite object: space pirate landing dust cloud, third frame.</summary>
     SpriteObjectSpacePirateLandingDustCloudThird,
-    /// <summary>The frame the installed artwork names <c>sprite_object_pirate_landing_dust_cloud_3</c>.</summary>
+    /// <summary>A room sprite object: space pirate landing dust cloud, fourth frame.</summary>
     SpriteObjectSpacePirateLandingDustCloudFourth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_smoke_0</c>.</summary>
+    /// <summary>A room sprite object: smoke, first frame.</summary>
     SpriteObjectSmokeFirst,
-    /// <summary>The frame the installed artwork names <c>sprite_object_smoke_1</c>.</summary>
+    /// <summary>A room sprite object: smoke, second frame.</summary>
     SpriteObjectSmokeSecond,
-    /// <summary>The frame the installed artwork names <c>sprite_object_smoke_2</c>.</summary>
+    /// <summary>A room sprite object: smoke, third frame.</summary>
     SpriteObjectSmokeThird,
-    /// <summary>The frame the installed artwork names <c>sprite_object_smoke_3</c>.</summary>
+    /// <summary>A room sprite object: smoke, fourth frame.</summary>
     SpriteObjectSmokeFourth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_big_explosion_0</c>.</summary>
+    /// <summary>A room sprite object: big explosion, first frame.</summary>
     SpriteObjectBigExplosionFirst,
-    /// <summary>The frame the installed artwork names <c>sprite_object_big_explosion_1</c>.</summary>
+    /// <summary>A room sprite object: big explosion, second frame.</summary>
     SpriteObjectBigExplosionSecond,
-    /// <summary>The frame the installed artwork names <c>sprite_object_big_explosion_2</c>.</summary>
+    /// <summary>A room sprite object: big explosion, third frame.</summary>
     SpriteObjectBigExplosionThird,
-    /// <summary>The frame the installed artwork names <c>sprite_object_big_explosion_3</c>.</summary>
+    /// <summary>A room sprite object: big explosion, fourth frame.</summary>
     SpriteObjectBigExplosionFourth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_big_explosion_4</c>.</summary>
+    /// <summary>A room sprite object: big explosion, fifth frame.</summary>
     SpriteObjectBigExplosionFifth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_big_explosion_5</c>.</summary>
+    /// <summary>A room sprite object: big explosion, sixth frame.</summary>
     SpriteObjectBigExplosionSixth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_0</c>.</summary>
+    /// <summary>A room sprite object: puromi body, first frame.</summary>
     SpriteObjectPuromiBodyFirst,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_1</c>.</summary>
+    /// <summary>A room sprite object: puromi body, second frame.</summary>
     SpriteObjectPuromiBodySecond,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_2</c>.</summary>
+    /// <summary>A room sprite object: puromi body, fourth frame.</summary>
     SpriteObjectPuromiBodyFourth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_3</c>.</summary>
+    /// <summary>A room sprite object: puromi body, fifth frame.</summary>
     SpriteObjectPuromiBodyFifth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_4</c>.</summary>
+    /// <summary>A room sprite object: puromi body, third frame.</summary>
     SpriteObjectPuromiBodyThird,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_5</c>.</summary>
+    /// <summary>A room sprite object: puromi body, sixth frame.</summary>
     SpriteObjectPuromiBodySixth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_6</c>.</summary>
+    /// <summary>A room sprite object: puromi body, seventh frame.</summary>
     SpriteObjectPuromiBodySeventh,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_7</c>.</summary>
+    /// <summary>A room sprite object: puromi body, eighth frame.</summary>
     SpriteObjectPuromiBodyEighth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_right_explosion_0</c>.</summary>
+    /// <summary>A room sprite object: puromi right explosion, first frame.</summary>
     SpriteObjectPuromiRightExplosionFirst,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_right_explosion_1</c>.</summary>
+    /// <summary>A room sprite object: puromi right explosion, second frame.</summary>
     SpriteObjectPuromiRightExplosionSecond,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_right_explosion_2</c>.</summary>
+    /// <summary>A room sprite object: puromi right explosion, third frame.</summary>
     SpriteObjectPuromiRightExplosionThird,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_right_explosion_3</c>.</summary>
+    /// <summary>A room sprite object: puromi right explosion, fourth frame.</summary>
     SpriteObjectPuromiRightExplosionFourth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_right_explosion_4</c>.</summary>
+    /// <summary>A room sprite object: puromi right explosion, fifth frame.</summary>
     SpriteObjectPuromiRightExplosionFifth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_right_explosion_5</c>.</summary>
+    /// <summary>A room sprite object: puromi right explosion, sixth frame.</summary>
     SpriteObjectPuromiRightExplosionSixth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_right_explosion_6</c>.</summary>
+    /// <summary>A room sprite object: puromi right explosion, seventh frame.</summary>
     SpriteObjectPuromiRightExplosionSeventh,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_left_explosion_0</c>.</summary>
+    /// <summary>A room sprite object: puromi left explosion, first frame.</summary>
     SpriteObjectPuromiLeftExplosionFirst,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_left_explosion_1</c>.</summary>
+    /// <summary>A room sprite object: puromi left explosion, second frame.</summary>
     SpriteObjectPuromiLeftExplosionSecond,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_left_explosion_2</c>.</summary>
+    /// <summary>A room sprite object: puromi left explosion, third frame.</summary>
     SpriteObjectPuromiLeftExplosionThird,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_left_explosion_3</c>.</summary>
+    /// <summary>A room sprite object: puromi left explosion, fourth frame.</summary>
     SpriteObjectPuromiLeftExplosionFourth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_left_explosion_4</c>.</summary>
+    /// <summary>A room sprite object: puromi left explosion, fifth frame.</summary>
     SpriteObjectPuromiLeftExplosionFifth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_left_explosion_5</c>.</summary>
+    /// <summary>A room sprite object: puromi left explosion, sixth frame.</summary>
     SpriteObjectPuromiLeftExplosionSixth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_left_explosion_6</c>.</summary>
+    /// <summary>A room sprite object: puromi left explosion, seventh frame.</summary>
     SpriteObjectPuromiLeftExplosionSeventh,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_splash_0</c>.</summary>
+    /// <summary>A room sprite object: puromi splash, first frame.</summary>
     SpriteObjectPuromiSplashFirst,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_splash_1</c>.</summary>
+    /// <summary>A room sprite object: puromi splash, second frame.</summary>
     SpriteObjectPuromiSplashSecond,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_splash_2</c>.</summary>
+    /// <summary>A room sprite object: puromi splash, third frame.</summary>
     SpriteObjectPuromiSplashThird,
-    /// <summary>The frame the installed artwork names <c>sprite_object_puromi_splash_4</c>.</summary>
+    /// <summary>A room sprite object: puromi splash, fourth frame.</summary>
     SpriteObjectPuromiSplashFourth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_falling_spark_trail_0</c>.</summary>
+    /// <summary>A room sprite object: falling spark trail, first frame.</summary>
     SpriteObjectFallingSparkTrailFirst,
-    /// <summary>The frame the installed artwork names <c>sprite_object_falling_spark_trail_1</c>.</summary>
+    /// <summary>A room sprite object: falling spark trail, second frame.</summary>
     SpriteObjectFallingSparkTrailSecond,
-    /// <summary>The frame the installed artwork names <c>sprite_object_falling_spark_trail_2</c>.</summary>
+    /// <summary>A room sprite object: falling spark trail, third frame.</summary>
     SpriteObjectFallingSparkTrailThird,
-    /// <summary>The frame the installed artwork names <c>sprite_object_falling_spark_trail_3</c>.</summary>
+    /// <summary>A room sprite object: falling spark trail, fourth frame.</summary>
     SpriteObjectFallingSparkTrailFourth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_shell_0</c>.</summary>
+    /// <summary>A room sprite object: Metroid shell, first frame.</summary>
     SpriteObjectMetroidShellFirst,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_shell_1</c>.</summary>
+    /// <summary>A room sprite object: Metroid shell, third frame.</summary>
     SpriteObjectMetroidShellThird,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_shell_2</c>.</summary>
+    /// <summary>A room sprite object: Metroid shell loop, third frame.</summary>
     SpriteObjectMetroidShellLoopThird,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_0</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity, first frame.</summary>
     SpriteObjectMetroidElectricityFirst,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_1</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity, second frame.</summary>
     SpriteObjectMetroidElectricitySecond,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_2</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity, third frame.</summary>
     SpriteObjectMetroidElectricityThird,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_3</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity, fifth frame.</summary>
     SpriteObjectMetroidElectricityFifth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_4</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity, sixth frame.</summary>
     SpriteObjectMetroidElectricitySixth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_5</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity, seventh frame.</summary>
     SpriteObjectMetroidElectricitySeventh,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_6</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity loop, first frame.</summary>
     SpriteObjectMetroidElectricityLoopFirst,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_7</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity loop, second frame.</summary>
     SpriteObjectMetroidElectricityLoopSecond,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_8</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity loop, third frame.</summary>
     SpriteObjectMetroidElectricityLoopThird,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_9</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity, eleventh frame.</summary>
     SpriteObjectMetroidElectricityEleventh,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_10</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity, twelfth frame.</summary>
     SpriteObjectMetroidElectricityTwelfth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_11</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity, thirteenth frame.</summary>
     SpriteObjectMetroidElectricityThirteenth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_12</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity, eighth frame.</summary>
     SpriteObjectMetroidElectricityEighth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_13</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity, ninth frame.</summary>
     SpriteObjectMetroidElectricityNinth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_14</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity, tenth frame.</summary>
     SpriteObjectMetroidElectricityTenth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_15</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity, fourteenth frame.</summary>
     SpriteObjectMetroidElectricityFourteenth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_16</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity, fifteenth frame.</summary>
     SpriteObjectMetroidElectricityFifteenth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_17</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity, sixteenth frame.</summary>
     SpriteObjectMetroidElectricitySixteenth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_18</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity, seventeenth frame.</summary>
     SpriteObjectMetroidElectricitySeventeenth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_19</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity, eighteenth frame.</summary>
     SpriteObjectMetroidElectricityEighteenth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_20</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity, nineteenth frame.</summary>
     SpriteObjectMetroidElectricityNineteenth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_21</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity loop, fifth frame.</summary>
     SpriteObjectMetroidElectricityLoopFifth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_22</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity loop, sixth frame.</summary>
     SpriteObjectMetroidElectricityLoopSixth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_23</c>.</summary>
+    /// <summary>A room sprite object: Metroid electricity loop, seventh frame.</summary>
     SpriteObjectMetroidElectricityLoopSeventh,
-    /// <summary>The frame the installed artwork names <c>sprite_object_yapping_maw_base_facing_down</c>.</summary>
+    /// <summary>A room sprite object: yapping maw base facing down.</summary>
     SpriteObjectYappingMawBaseFacingDown,
-    /// <summary>The frame the installed artwork names <c>sprite_object_yapping_maw_base_facing_up</c>.</summary>
+    /// <summary>A room sprite object: yapping maw base facing up.</summary>
     SpriteObjectYappingMawBaseFacingUp,
-    /// <summary>The frame the installed artwork names <c>sprite_object_evir_facing_right_0</c>.</summary>
+    /// <summary>A room sprite object: evir facing right, first frame.</summary>
     SpriteObjectEvirFacingRightFirst,
-    /// <summary>The frame the installed artwork names <c>sprite_object_evir_facing_right_1</c>.</summary>
+    /// <summary>A room sprite object: evir facing right, second frame.</summary>
     SpriteObjectEvirFacingRightSecond,
-    /// <summary>The frame the installed artwork names <c>sprite_object_evir_facing_right_2</c>.</summary>
+    /// <summary>A room sprite object: evir facing right, third frame.</summary>
     SpriteObjectEvirFacingRightThird,
-    /// <summary>The frame the installed artwork names <c>sprite_object_evir_facing_right_3</c>.</summary>
+    /// <summary>A room sprite object: evir facing right, fourth frame.</summary>
     SpriteObjectEvirFacingRightFourth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_draygon_foaming_at_the_mouth_0</c>.</summary>
+    /// <summary>A room sprite object: Draygon foaming at the mouth, first frame.</summary>
     SpriteObjectDraygonFoamingAtTheMouthFirst,
-    /// <summary>The frame the installed artwork names <c>sprite_object_draygon_foaming_at_the_mouth_1</c>.</summary>
+    /// <summary>A room sprite object: Draygon foaming at the mouth, second frame.</summary>
     SpriteObjectDraygonFoamingAtTheMouthSecond,
-    /// <summary>The frame the installed artwork names <c>sprite_object_draygon_foaming_at_the_mouth_2</c>.</summary>
+    /// <summary>A room sprite object: Draygon foaming at the mouth, third frame.</summary>
     SpriteObjectDraygonFoamingAtTheMouthThird,
-    /// <summary>The frame the installed artwork names <c>sprite_object_draygon_foaming_at_the_mouth_3</c>.</summary>
+    /// <summary>A room sprite object: Draygon foaming at the mouth, fourth frame.</summary>
     SpriteObjectDraygonFoamingAtTheMouthFourth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_draygon_foaming_at_the_mouth_4</c>.</summary>
+    /// <summary>A room sprite object: Draygon foaming at the mouth, fifth frame.</summary>
     SpriteObjectDraygonFoamingAtTheMouthFifth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_draygon_foaming_at_the_mouth_5</c>.</summary>
+    /// <summary>A room sprite object: Draygon foaming at the mouth, sixth frame.</summary>
     SpriteObjectDraygonFoamingAtTheMouthSixth,
-    /// <summary>The frame the installed artwork names <c>sprite_object_draygon_foaming_at_the_mouth_6</c>.</summary>
+    /// <summary>A room sprite object: Draygon foaming at the mouth, seventh frame.</summary>
     SpriteObjectDraygonFoamingAtTheMouthSeventh,
-    /// <summary>The frame the installed artwork names <c>sprite_object_draygon_foaming_at_the_mouth_7</c>.</summary>
+    /// <summary>A room sprite object: Draygon foaming at the mouth, eighth frame.</summary>
     SpriteObjectDraygonFoamingAtTheMouthEighth,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_0</c>.</summary>
+    /// <summary>Yapping Maw: attacking up, first frame.</summary>
     YappingMawAttackingUpFirst,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_1</c>.</summary>
+    /// <summary>Yapping Maw: attacking up, second frame.</summary>
     YappingMawAttackingUpSecond,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_2</c>.</summary>
+    /// <summary>Yapping Maw: attacking up, third frame.</summary>
     YappingMawAttackingUpThird,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_3</c>.</summary>
+    /// <summary>Yapping Maw: attacking up right, first frame.</summary>
     YappingMawAttackingUpRightFirst,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_4</c>.</summary>
+    /// <summary>Yapping Maw: attacking up right, second frame.</summary>
     YappingMawAttackingUpRightSecond,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_5</c>.</summary>
+    /// <summary>Yapping Maw: attacking up right, third frame.</summary>
     YappingMawAttackingUpRightThird,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_6</c>.</summary>
+    /// <summary>Yapping Maw: attacking right, first frame.</summary>
     YappingMawAttackingRightFirst,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_7</c>.</summary>
+    /// <summary>Yapping Maw: attacking right, second frame.</summary>
     YappingMawAttackingRightSecond,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_8</c>.</summary>
+    /// <summary>Yapping Maw: attacking right, third frame.</summary>
     YappingMawAttackingRightThird,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_9</c>.</summary>
+    /// <summary>Yapping Maw: attacking down right, first frame.</summary>
     YappingMawAttackingDownRightFirst,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_10</c>.</summary>
+    /// <summary>Yapping Maw: attacking down right, second frame.</summary>
     YappingMawAttackingDownRightSecond,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_11</c>.</summary>
+    /// <summary>Yapping Maw: attacking down right, third frame.</summary>
     YappingMawAttackingDownRightThird,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_12</c>.</summary>
+    /// <summary>Yapping Maw: attacking down, first frame.</summary>
     YappingMawAttackingDownFirst,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_13</c>.</summary>
+    /// <summary>Yapping Maw: attacking down, second frame.</summary>
     YappingMawAttackingDownSecond,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_14</c>.</summary>
+    /// <summary>Yapping Maw: attacking down, third frame.</summary>
     YappingMawAttackingDownThird,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_15</c>.</summary>
+    /// <summary>Yapping Maw: attacking down left, first frame.</summary>
     YappingMawAttackingDownLeftFirst,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_16</c>.</summary>
+    /// <summary>Yapping Maw: attacking down left, second frame.</summary>
     YappingMawAttackingDownLeftSecond,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_17</c>.</summary>
+    /// <summary>Yapping Maw: attacking down left, third frame.</summary>
     YappingMawAttackingDownLeftThird,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_18</c>.</summary>
+    /// <summary>Yapping Maw: attacking left, first frame.</summary>
     YappingMawAttackingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_19</c>.</summary>
+    /// <summary>Yapping Maw: attacking left, second frame.</summary>
     YappingMawAttackingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_20</c>.</summary>
+    /// <summary>Yapping Maw: attacking left, third frame.</summary>
     YappingMawAttackingLeftThird,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_21</c>.</summary>
+    /// <summary>Yapping Maw: attacking up left, first frame.</summary>
     YappingMawAttackingUpLeftFirst,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_22</c>.</summary>
+    /// <summary>Yapping Maw: attacking up left, second frame.</summary>
     YappingMawAttackingUpLeftSecond,
-    /// <summary>The frame the installed artwork names <c>yapping_maw_pose_23</c>.</summary>
+    /// <summary>Yapping Maw: attacking up left, third frame.</summary>
     YappingMawAttackingUpLeftThird,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_0</c>.</summary>
+    /// <summary>Ki-Hunter: flying left, first frame.</summary>
     KiHunterFlyingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_1</c>.</summary>
+    /// <summary>Ki-Hunter: flying left, second frame.</summary>
     KiHunterFlyingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_2</c>.</summary>
+    /// <summary>Ki-Hunter: flying left, third frame.</summary>
     KiHunterFlyingLeftThird,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_3</c>.</summary>
+    /// <summary>Ki-Hunter: wings left, first frame.</summary>
     KiHunterWingsLeftFirst,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_4</c>.</summary>
+    /// <summary>Ki-Hunter: wings left, second frame.</summary>
     KiHunterWingsLeftSecond,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_5</c>.</summary>
+    /// <summary>Ki-Hunter: wings left, third frame.</summary>
     KiHunterWingsLeftThird,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_6</c>.</summary>
+    /// <summary>Ki-Hunter: flying right, first frame.</summary>
     KiHunterFlyingRightFirst,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_7</c>.</summary>
+    /// <summary>Ki-Hunter: flying right, second frame.</summary>
     KiHunterFlyingRightSecond,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_8</c>.</summary>
+    /// <summary>Ki-Hunter: flying right, third frame.</summary>
     KiHunterFlyingRightThird,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_9</c>.</summary>
+    /// <summary>Ki-Hunter: wings right, first frame.</summary>
     KiHunterWingsRightFirst,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_10</c>.</summary>
+    /// <summary>Ki-Hunter: wings right, second frame.</summary>
     KiHunterWingsRightSecond,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_11</c>.</summary>
+    /// <summary>Ki-Hunter: wings right, third frame.</summary>
     KiHunterWingsRightThird,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_12</c>.</summary>
+    /// <summary>Ki-Hunter: detached wings.</summary>
     KiHunterDetachedWings,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_13</c>.</summary>
+    /// <summary>Ki-Hunter: swoop left, third frame.</summary>
     KiHunterSwoopLeftThird,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_14</c>.</summary>
+    /// <summary>Ki-Hunter: swoop left, first frame.</summary>
     KiHunterSwoopLeftFirst,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_15</c>.</summary>
+    /// <summary>Ki-Hunter: swoop left, second frame.</summary>
     KiHunterSwoopLeftSecond,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_16</c>.</summary>
+    /// <summary>Ki-Hunter: swoop left, fourth frame.</summary>
     KiHunterSwoopLeftFourth,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_17</c>.</summary>
+    /// <summary>Ki-Hunter: swoop left, fifth frame.</summary>
     KiHunterSwoopLeftFifth,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_18</c>.</summary>
+    /// <summary>Ki-Hunter: swoop right, third frame.</summary>
     KiHunterSwoopRightThird,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_19</c>.</summary>
+    /// <summary>Ki-Hunter: swoop right, first frame.</summary>
     KiHunterSwoopRightFirst,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_20</c>.</summary>
+    /// <summary>Ki-Hunter: swoop right, second frame.</summary>
     KiHunterSwoopRightSecond,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_21</c>.</summary>
+    /// <summary>Ki-Hunter: swoop right, fourth frame.</summary>
     KiHunterSwoopRightFourth,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_22</c>.</summary>
+    /// <summary>Ki-Hunter: swoop right, fifth frame.</summary>
     KiHunterSwoopRightFifth,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_23</c>.</summary>
+    /// <summary>Ki-Hunter: jump left, first frame.</summary>
     KiHunterJumpLeftFirst,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_24</c>.</summary>
+    /// <summary>Ki-Hunter: jump left, second frame.</summary>
     KiHunterJumpLeftSecond,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_25</c>.</summary>
+    /// <summary>Ki-Hunter: jump left, third frame.</summary>
     KiHunterJumpLeftThird,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_26</c>.</summary>
+    /// <summary>Ki-Hunter: jump left, fourth frame.</summary>
     KiHunterJumpLeftFourth,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_27</c>.</summary>
+    /// <summary>Ki-Hunter: jump right, first frame.</summary>
     KiHunterJumpRightFirst,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_28</c>.</summary>
+    /// <summary>Ki-Hunter: jump right, second frame.</summary>
     KiHunterJumpRightSecond,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_29</c>.</summary>
+    /// <summary>Ki-Hunter: jump right, third frame.</summary>
     KiHunterJumpRightThird,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_30</c>.</summary>
+    /// <summary>Ki-Hunter: jump right, fourth frame.</summary>
     KiHunterJumpRightFourth,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_31</c>.</summary>
+    /// <summary>Ki-Hunter: spit left, first frame.</summary>
     KiHunterSpitLeftFirst,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_32</c>.</summary>
+    /// <summary>Ki-Hunter: spit left, second frame.</summary>
     KiHunterSpitLeftSecond,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_33</c>.</summary>
+    /// <summary>Ki-Hunter: spit left, third frame.</summary>
     KiHunterSpitLeftThird,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_34</c>.</summary>
+    /// <summary>Ki-Hunter: spit left, fourth frame.</summary>
     KiHunterSpitLeftFourth,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_35</c>.</summary>
+    /// <summary>Ki-Hunter: spit left, fifth frame.</summary>
     KiHunterSpitLeftFifth,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_36</c>.</summary>
+    /// <summary>Ki-Hunter: spit right, first frame.</summary>
     KiHunterSpitRightFirst,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_37</c>.</summary>
+    /// <summary>Ki-Hunter: spit right, second frame.</summary>
     KiHunterSpitRightSecond,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_38</c>.</summary>
+    /// <summary>Ki-Hunter: spit right, third frame.</summary>
     KiHunterSpitRightThird,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_39</c>.</summary>
+    /// <summary>Ki-Hunter: spit right, fourth frame.</summary>
     KiHunterSpitRightFourth,
-    /// <summary>The frame the installed artwork names <c>ki_hunter_pose_40</c>.</summary>
+    /// <summary>Ki-Hunter: spit right, fifth frame.</summary>
     KiHunterSpitRightFifth,
-    /// <summary>The frame the installed artwork names <c>mother_brain_head_0</c>.</summary>
+    /// <summary>Mother Brain: head initial.</summary>
     MotherBrainHeadInitial,
-    /// <summary>The frame the installed artwork names <c>mother_brain_head_1</c>.</summary>
+    /// <summary>Mother Brain: head neutral phase two, second frame.</summary>
     MotherBrainHeadNeutralPhaseTwoSecond,
-    /// <summary>The frame the installed artwork names <c>mother_brain_head_2</c>.</summary>
+    /// <summary>Mother Brain: head stretching phase two, first frame.</summary>
     MotherBrainHeadStretchingPhaseTwoFirst,
-    /// <summary>The frame the installed artwork names <c>mother_brain_head_3</c>.</summary>
+    /// <summary>Mother Brain: head stretching phase two, second frame.</summary>
     MotherBrainHeadStretchingPhaseTwoSecond,
-    /// <summary>The frame the installed artwork names <c>mother_brain_head_4</c>.</summary>
+    /// <summary>Mother Brain: head stretching phase two, third frame.</summary>
     MotherBrainHeadStretchingPhaseTwoThird,
-    /// <summary>The frame the installed artwork names <c>mother_brain_neck_joint</c>.</summary>
+    /// <summary>Mother Brain: neck joint.</summary>
     MotherBrainNeckJoint,
-    /// <summary>The frame the installed artwork names <c>mother_brain_head_6</c>.</summary>
+    /// <summary>Mother Brain: head decapitated loop.</summary>
     MotherBrainHeadDecapitatedLoop,
-    /// <summary>The frame the installed artwork names <c>mother_brain_head_7</c>.</summary>
+    /// <summary>Mother Brain: head decapitated, second frame.</summary>
     MotherBrainHeadDecapitatedSecond,
-    /// <summary>The frame the installed artwork names <c>mother_brain_head_8</c>.</summary>
+    /// <summary>Mother Brain: head stretching phase three, first frame.</summary>
     MotherBrainHeadStretchingPhaseThreeFirst,
-    /// <summary>The frame the installed artwork names <c>mother_brain_head_9</c>.</summary>
+    /// <summary>Mother Brain: head stretching phase three, second frame.</summary>
     MotherBrainHeadStretchingPhaseThreeSecond,
-    /// <summary>The frame the installed artwork names <c>mother_brain_head_10</c>.</summary>
+    /// <summary>Mother Brain: head stretching phase three, third frame.</summary>
     MotherBrainHeadStretchingPhaseThreeThird,
-    /// <summary>The frame the installed artwork names <c>mother_brain_head_11</c>.</summary>
+    /// <summary>Mother Brain: head corpse, fourth frame.</summary>
     MotherBrainHeadCorpseFourth,
-    /// <summary>The frame the installed artwork names <c>mother_brain_head_12</c>.</summary>
+    /// <summary>Mother Brain: head corpse loop.</summary>
     MotherBrainHeadCorpseLoop,
-    /// <summary>The frame the installed artwork names <c>mother_brain_tube_0</c>.</summary>
+    /// <summary>Mother Brain: tube, first frame.</summary>
     MotherBrainTubeFirst,
-    /// <summary>The frame the installed artwork names <c>mother_brain_tube_1</c>.</summary>
+    /// <summary>Mother Brain: tube, second frame.</summary>
     MotherBrainTubeSecond,
-    /// <summary>The frame the installed artwork names <c>mother_brain_tube_2</c>.</summary>
+    /// <summary>Mother Brain: tube, third frame.</summary>
     MotherBrainTubeThird,
-    /// <summary>The frame the installed artwork names <c>mother_brain_tube_3</c>.</summary>
+    /// <summary>Mother Brain: tube, fourth frame.</summary>
     MotherBrainTubeFourth,
-    /// <summary>The frame the installed artwork names <c>mother_brain_tube_4</c>.</summary>
+    /// <summary>Mother Brain: tube, fifth frame.</summary>
     MotherBrainTubeFifth,
-    /// <summary>The frame the installed artwork names <c>dead_torizo_corpse_hook</c>.</summary>
+    /// <summary>The dead Torizo: corpse hook.</summary>
     DeadTorizoCorpseHook,
-    /// <summary>The frame the installed artwork names <c>ridley_tail_segment_small</c>.</summary>
+    /// <summary>Ridley: tail segment small.</summary>
     RidleyTailSegmentSmall,
-    /// <summary>The frame the installed artwork names <c>ridley_tail_segment_medium</c>.</summary>
+    /// <summary>Ridley: tail segment medium.</summary>
     RidleyTailSegmentMedium,
-    /// <summary>The frame the installed artwork names <c>ridley_tail_segment_large</c>.</summary>
+    /// <summary>Ridley: tail segment large.</summary>
     RidleyTailSegmentLarge,
-    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_12</c>.</summary>
+    /// <summary>Ridley: breakup tail tip, thirteenth frame.</summary>
     RidleyBreakupTailTipThirteenth,
-    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_11</c>.</summary>
+    /// <summary>Ridley: breakup tail tip, twelfth frame.</summary>
     RidleyBreakupTailTipTwelfth,
-    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_10</c>.</summary>
+    /// <summary>Ridley: breakup tail tip, eleventh frame.</summary>
     RidleyBreakupTailTipEleventh,
-    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_9</c>.</summary>
+    /// <summary>Ridley: breakup tail tip, tenth frame.</summary>
     RidleyBreakupTailTipTenth,
-    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_8</c>.</summary>
+    /// <summary>Ridley: breakup tail tip, ninth frame.</summary>
     RidleyBreakupTailTipNinth,
-    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_7</c>.</summary>
+    /// <summary>Ridley: breakup tail tip, eighth frame.</summary>
     RidleyBreakupTailTipEighth,
-    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_6</c>.</summary>
+    /// <summary>Ridley: breakup tail tip, seventh frame.</summary>
     RidleyBreakupTailTipSeventh,
-    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_5</c>.</summary>
+    /// <summary>Ridley: breakup tail tip, sixth frame.</summary>
     RidleyBreakupTailTipSixth,
-    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_4</c>.</summary>
+    /// <summary>Ridley: breakup tail tip, fifth frame.</summary>
     RidleyBreakupTailTipFifth,
-    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_3</c>.</summary>
+    /// <summary>Ridley: breakup tail tip, fourth frame.</summary>
     RidleyBreakupTailTipFourth,
-    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_2</c>.</summary>
+    /// <summary>Ridley: breakup tail tip, third frame.</summary>
     RidleyBreakupTailTipThird,
-    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_1</c>.</summary>
+    /// <summary>Ridley: breakup tail tip, second frame.</summary>
     RidleyBreakupTailTipSecond,
-    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_0</c>.</summary>
+    /// <summary>Ridley: breakup tail tip, first frame.</summary>
     RidleyBreakupTailTipFirst,
-    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_15</c>.</summary>
+    /// <summary>Ridley: breakup tail tip, sixteenth frame.</summary>
     RidleyBreakupTailTipSixteenth,
-    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_14</c>.</summary>
+    /// <summary>Ridley: breakup tail tip, fifteenth frame.</summary>
     RidleyBreakupTailTipFifteenth,
-    /// <summary>The frame the installed artwork names <c>ridley_tail_tip_13</c>.</summary>
+    /// <summary>Ridley: breakup tail tip, fourteenth frame.</summary>
     RidleyBreakupTailTipFourteenth,
-    /// <summary>The frame the installed artwork names <c>ridley_wing_left_0</c>.</summary>
+    /// <summary>Ridley: wing facing left, first frame.</summary>
     RidleyWingFacingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>ridley_wing_left_1</c>.</summary>
+    /// <summary>Ridley: wing facing left, second frame.</summary>
     RidleyWingFacingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>ridley_wing_left_2</c>.</summary>
+    /// <summary>Ridley: wing facing left, third frame.</summary>
     RidleyWingFacingLeftThird,
-    /// <summary>The frame the installed artwork names <c>ridley_wing_left_3</c>.</summary>
+    /// <summary>Ridley: wing facing left, fourth frame.</summary>
     RidleyWingFacingLeftFourth,
-    /// <summary>The frame the installed artwork names <c>ridley_wing_left_4</c>.</summary>
+    /// <summary>Ridley: wing facing left, fifth frame.</summary>
     RidleyWingFacingLeftFifth,
-    /// <summary>The frame the installed artwork names <c>ridley_wing_left_5</c>.</summary>
+    /// <summary>Ridley: wing facing left, sixth frame.</summary>
     RidleyWingFacingLeftSixth,
-    /// <summary>The frame the installed artwork names <c>ridley_wing_right_0</c>.</summary>
+    /// <summary>Ridley: wing facing right, first frame.</summary>
     RidleyWingFacingRightFirst,
-    /// <summary>The frame the installed artwork names <c>ridley_wing_right_1</c>.</summary>
+    /// <summary>Ridley: wing facing right, second frame.</summary>
     RidleyWingFacingRightSecond,
-    /// <summary>The frame the installed artwork names <c>ridley_wing_right_2</c>.</summary>
+    /// <summary>Ridley: wing facing right, third frame.</summary>
     RidleyWingFacingRightThird,
-    /// <summary>The frame the installed artwork names <c>ridley_wing_right_3</c>.</summary>
+    /// <summary>Ridley: wing facing right, fourth frame.</summary>
     RidleyWingFacingRightFourth,
-    /// <summary>The frame the installed artwork names <c>ridley_wing_right_4</c>.</summary>
+    /// <summary>Ridley: wing facing right, fifth frame.</summary>
     RidleyWingFacingRightFifth,
-    /// <summary>The frame the installed artwork names <c>ridley_wing_right_5</c>.</summary>
+    /// <summary>Ridley: wing facing right, sixth frame.</summary>
     RidleyWingFacingRightSixth,
-    /// <summary>The frame the installed artwork names <c>sciser_upside_right_0</c>.</summary>
+    /// <summary>Sciser: upside right loop, first frame.</summary>
     SciserUpsideRightLoopFirst,
-    /// <summary>The frame the installed artwork names <c>sciser_upside_right_1</c>.</summary>
+    /// <summary>Sciser: upside right loop, second frame.</summary>
     SciserUpsideRightLoopSecond,
-    /// <summary>The frame the installed artwork names <c>sciser_upside_right_2</c>.</summary>
+    /// <summary>Sciser: upside right loop, third frame.</summary>
     SciserUpsideRightLoopThird,
-    /// <summary>The frame the installed artwork names <c>sciser_upside_left_0</c>.</summary>
+    /// <summary>Sciser: upside left loop, first frame.</summary>
     SciserUpsideLeftLoopFirst,
-    /// <summary>The frame the installed artwork names <c>sciser_upside_left_1</c>.</summary>
+    /// <summary>Sciser: upside left loop, second frame.</summary>
     SciserUpsideLeftLoopSecond,
-    /// <summary>The frame the installed artwork names <c>sciser_upside_left_2</c>.</summary>
+    /// <summary>Sciser: upside left loop, third frame.</summary>
     SciserUpsideLeftLoopThird,
-    /// <summary>The frame the installed artwork names <c>sciser_upside_down_0</c>.</summary>
+    /// <summary>Sciser: upside down loop, first frame.</summary>
     SciserUpsideDownLoopFirst,
-    /// <summary>The frame the installed artwork names <c>sciser_upside_down_1</c>.</summary>
+    /// <summary>Sciser: upside down loop, second frame.</summary>
     SciserUpsideDownLoopSecond,
-    /// <summary>The frame the installed artwork names <c>sciser_upside_down_2</c>.</summary>
+    /// <summary>Sciser: upside down loop, third frame.</summary>
     SciserUpsideDownLoopThird,
-    /// <summary>The frame the installed artwork names <c>sciser_upside_up_0</c>.</summary>
+    /// <summary>Sciser: upside up loop, first frame.</summary>
     SciserUpsideUpLoopFirst,
-    /// <summary>The frame the installed artwork names <c>sciser_upside_up_1</c>.</summary>
+    /// <summary>Sciser: upside up loop, second frame.</summary>
     SciserUpsideUpLoopSecond,
-    /// <summary>The frame the installed artwork names <c>sciser_upside_up_2</c>.</summary>
+    /// <summary>Sciser: upside up loop, third frame.</summary>
     SciserUpsideUpLoopThird,
-    /// <summary>The frame the installed artwork names <c>fly_shared_0</c>.</summary>
+    /// <summary>The fly: flight, first frame.</summary>
     FlyFlightFirst,
-    /// <summary>The frame the installed artwork names <c>fly_shared_1</c>.</summary>
+    /// <summary>The fly: flight, second frame.</summary>
     FlyFlightSecond,
-    /// <summary>The frame the installed artwork names <c>fly_shared_2</c>.</summary>
+    /// <summary>The fly: flight, third frame.</summary>
     FlyFlightThird,
-    /// <summary>The frame the installed artwork names <c>fly_shared_3</c>.</summary>
+    /// <summary>The fly: flight, fourth frame.</summary>
     FlyFlightFourth,
-    /// <summary>The frame the installed artwork names <c>kago_cycle_0</c>.</summary>
+    /// <summary>Kago: slow, first frame.</summary>
     KagoSlowFirst,
-    /// <summary>The frame the installed artwork names <c>kago_cycle_1</c>.</summary>
+    /// <summary>Kago: slow, second frame.</summary>
     KagoSlowSecond,
-    /// <summary>The frame the installed artwork names <c>kago_cycle_2</c>.</summary>
+    /// <summary>Kago: slow, third frame.</summary>
     KagoSlowThird,
-    /// <summary>The frame the installed artwork names <c>face_block_neutral</c>.</summary>
+    /// <summary>The face block: neutral.</summary>
     FaceBlockNeutral,
-    /// <summary>The frame the installed artwork names <c>face_block_samus_left_1</c>.</summary>
+    /// <summary>The blue Brinstar face block: Samus left, second frame.</summary>
     BlueBrinstarFaceBlockSamusLeftSecond,
-    /// <summary>The frame the installed artwork names <c>face_block_samus_left_2</c>.</summary>
+    /// <summary>The blue Brinstar face block: Samus left, third frame.</summary>
     BlueBrinstarFaceBlockSamusLeftThird,
-    /// <summary>The frame the installed artwork names <c>face_block_samus_right_1</c>.</summary>
+    /// <summary>The blue Brinstar face block: Samus right, second frame.</summary>
     BlueBrinstarFaceBlockSamusRightSecond,
-    /// <summary>The frame the installed artwork names <c>face_block_samus_right_2</c>.</summary>
+    /// <summary>The blue Brinstar face block: Samus right, third frame.</summary>
     BlueBrinstarFaceBlockSamusRightThird,
-    /// <summary>The frame the installed artwork names <c>morph_eye_active_0</c>.</summary>
+    /// <summary>The Morph Ball eye: active, first frame.</summary>
     MorphBallEyeActiveFirst,
-    /// <summary>The frame the installed artwork names <c>morph_eye_active_1</c>.</summary>
+    /// <summary>The Morph Ball eye: active, second frame.</summary>
     MorphBallEyeActiveSecond,
-    /// <summary>The frame the installed artwork names <c>morph_eye_active_2</c>.</summary>
+    /// <summary>The Morph Ball eye: active, third frame.</summary>
     MorphBallEyeActiveThird,
-    /// <summary>The frame the installed artwork names <c>morph_eye_active_3</c>.</summary>
+    /// <summary>The Morph Ball eye: active, fourth frame.</summary>
     MorphBallEyeActiveFourth,
-    /// <summary>The frame the installed artwork names <c>morph_eye_active_4</c>.</summary>
+    /// <summary>The Morph Ball eye: active, fifth frame.</summary>
     MorphBallEyeActiveFifth,
-    /// <summary>The frame the installed artwork names <c>morph_eye_active_5</c>.</summary>
+    /// <summary>The Morph Ball eye: active, sixth frame.</summary>
     MorphBallEyeActiveSixth,
-    /// <summary>The frame the installed artwork names <c>morph_eye_active_6</c>.</summary>
+    /// <summary>The Morph Ball eye: active, seventh frame.</summary>
     MorphBallEyeActiveSeventh,
-    /// <summary>The frame the installed artwork names <c>morph_eye_active_7</c>.</summary>
+    /// <summary>The Morph Ball eye: active, eighth frame.</summary>
     MorphBallEyeActiveEighth,
-    /// <summary>The frame the installed artwork names <c>morph_eye_active_8</c>.</summary>
+    /// <summary>The Morph Ball eye: active, ninth frame.</summary>
     MorphBallEyeActiveNinth,
-    /// <summary>The frame the installed artwork names <c>morph_eye_active_9</c>.</summary>
+    /// <summary>The Morph Ball eye: active, tenth frame.</summary>
     MorphBallEyeActiveTenth,
-    /// <summary>The frame the installed artwork names <c>morph_eye_active_10</c>.</summary>
+    /// <summary>The Morph Ball eye: active, eleventh frame.</summary>
     MorphBallEyeActiveEleventh,
-    /// <summary>The frame the installed artwork names <c>morph_eye_active_11</c>.</summary>
+    /// <summary>The Morph Ball eye: active, twelfth frame.</summary>
     MorphBallEyeActiveTwelfth,
-    /// <summary>The frame the installed artwork names <c>morph_eye_active_12</c>.</summary>
+    /// <summary>The Morph Ball eye: active, thirteenth frame.</summary>
     MorphBallEyeActiveThirteenth,
-    /// <summary>The frame the installed artwork names <c>morph_eye_active_13</c>.</summary>
+    /// <summary>The Morph Ball eye: active, fourteenth frame.</summary>
     MorphBallEyeActiveFourteenth,
-    /// <summary>The frame the installed artwork names <c>morph_eye_right_transition</c>.</summary>
+    /// <summary>The Morph Ball eye: right transition.</summary>
     MorphEyeRightTransition,
-    /// <summary>The frame the installed artwork names <c>morph_eye_right_closed</c>.</summary>
+    /// <summary>The Morph Ball eye: right closed.</summary>
     MorphEyeRightClosed,
-    /// <summary>The frame the installed artwork names <c>morph_eye_left_transition</c>.</summary>
+    /// <summary>The Morph Ball eye: left transition.</summary>
     MorphEyeLeftTransition,
-    /// <summary>The frame the installed artwork names <c>morph_eye_left_closed</c>.</summary>
+    /// <summary>The Morph Ball eye: left closed.</summary>
     MorphEyeLeftClosed,
-    /// <summary>The frame the installed artwork names <c>morph_eye_mount_right</c>.</summary>
+    /// <summary>The Morph Ball eye: mount right.</summary>
     MorphEyeMountRight,
-    /// <summary>The frame the installed artwork names <c>morph_eye_mount_down</c>.</summary>
+    /// <summary>The Morph Ball eye: mount down.</summary>
     MorphEyeMountDown,
-    /// <summary>The frame the installed artwork names <c>morph_eye_mount_left</c>.</summary>
+    /// <summary>The Morph Ball eye: mount left.</summary>
     MorphEyeMountLeft,
-    /// <summary>The frame the installed artwork names <c>morph_eye_mount_up</c>.</summary>
+    /// <summary>The Morph Ball eye: mount up.</summary>
     MorphEyeMountUp,
-    /// <summary>The frame the installed artwork names <c>shutter_growing_10px</c>.</summary>
+    /// <summary>The shutter: growing ten pixels.</summary>
     ShutterGrowingTenPixels,
-    /// <summary>The frame the installed artwork names <c>shutter_growing_20px</c>.</summary>
+    /// <summary>The shutter: growing twenty pixels.</summary>
     ShutterGrowingTwentyPixels,
-    /// <summary>The frame the installed artwork names <c>shutter_growing_30px</c>.</summary>
+    /// <summary>The shutter: growing thirty pixels.</summary>
     ShutterGrowingThirtyPixels,
-    /// <summary>The frame the installed artwork names <c>shutter_vertical_40px</c>.</summary>
+    /// <summary>The shutter: forty pixels.</summary>
     ShutterFortyPixels,
-    /// <summary>The frame the installed artwork names <c>shutter_horizontal</c>.</summary>
+    /// <summary>The shutter: horizontal.</summary>
     ShutterHorizontal,
-    /// <summary>The frame the installed artwork names <c>metroid_body_0</c>.</summary>
+    /// <summary>The Metroid: chasing Samus, first frame.</summary>
     MetroidChasingSamusFirst,
-    /// <summary>The frame the installed artwork names <c>metroid_body_1</c>.</summary>
+    /// <summary>The Metroid: chasing Samus, second frame.</summary>
     MetroidChasingSamusSecond,
-    /// <summary>The frame the installed artwork names <c>metroid_body_2</c>.</summary>
+    /// <summary>The Metroid: chasing Samus, third frame.</summary>
     MetroidChasingSamusThird,
-    /// <summary>The frame the installed artwork names <c>metroid_body_3</c>.</summary>
+    /// <summary>The Metroid: chasing Samus, fourth frame.</summary>
     MetroidChasingSamusFourth,
-    /// <summary>The frame the installed artwork names <c>shaktool_final_saw_0</c>.</summary>
+    /// <summary>Shaktool: saw hand final piece, first frame.</summary>
     ShaktoolSawHandFinalPieceFirst,
-    /// <summary>The frame the installed artwork names <c>shaktool_final_saw_1</c>.</summary>
+    /// <summary>Shaktool: saw hand final piece, second frame.</summary>
     ShaktoolSawHandFinalPieceSecond,
-    /// <summary>The frame the installed artwork names <c>shaktool_final_saw_2</c>.</summary>
+    /// <summary>Shaktool: saw hand final piece, third frame.</summary>
     ShaktoolSawHandFinalPieceThird,
-    /// <summary>The frame the installed artwork names <c>shaktool_arm</c>.</summary>
+    /// <summary>Shaktool: arm.</summary>
     ShaktoolArm,
-    /// <summary>The frame the installed artwork names <c>shaktool_head_left</c>.</summary>
+    /// <summary>Shaktool: head left.</summary>
     ShaktoolHeadLeft,
-    /// <summary>The frame the installed artwork names <c>shaktool_head_up_left</c>.</summary>
+    /// <summary>Shaktool: head up left.</summary>
     ShaktoolHeadUpLeft,
-    /// <summary>The frame the installed artwork names <c>shaktool_head_up</c>.</summary>
+    /// <summary>Shaktool: head up.</summary>
     ShaktoolHeadUp,
-    /// <summary>The frame the installed artwork names <c>shaktool_head_up_right</c>.</summary>
+    /// <summary>Shaktool: head up right.</summary>
     ShaktoolHeadUpRight,
-    /// <summary>The frame the installed artwork names <c>shaktool_head_right</c>.</summary>
+    /// <summary>Shaktool: head right.</summary>
     ShaktoolHeadRight,
-    /// <summary>The frame the installed artwork names <c>shaktool_head_down_right</c>.</summary>
+    /// <summary>Shaktool: head down right.</summary>
     ShaktoolHeadDownRight,
-    /// <summary>The frame the installed artwork names <c>shaktool_head_down</c>.</summary>
+    /// <summary>Shaktool: head down.</summary>
     ShaktoolHeadDown,
-    /// <summary>The frame the installed artwork names <c>shaktool_head_down_left</c>.</summary>
+    /// <summary>Shaktool: head down left.</summary>
     ShaktoolHeadDownLeft,
-    /// <summary>The frame the installed artwork names <c>shaktool_primary_saw_0</c>.</summary>
+    /// <summary>Shaktool: saw hand primary piece, first frame.</summary>
     ShaktoolSawHandPrimaryPieceFirst,
-    /// <summary>The frame the installed artwork names <c>shaktool_primary_saw_1</c>.</summary>
+    /// <summary>Shaktool: saw hand primary piece, second frame.</summary>
     ShaktoolSawHandPrimaryPieceSecond,
-    /// <summary>The frame the installed artwork names <c>shaktool_primary_saw_2</c>.</summary>
+    /// <summary>Shaktool: saw hand primary piece, third frame.</summary>
     ShaktoolSawHandPrimaryPieceThird,
-    /// <summary>The frame the installed artwork names <c>tripper_moving_left_0</c>.</summary>
+    /// <summary>Tripper: moving left loop, first frame.</summary>
     TripperMovingLeftLoopFirst,
-    /// <summary>The frame the installed artwork names <c>tripper_moving_left_1</c>.</summary>
+    /// <summary>Tripper: moving left loop, second frame.</summary>
     TripperMovingLeftLoopSecond,
-    /// <summary>The frame the installed artwork names <c>tripper_moving_left_2</c>.</summary>
+    /// <summary>Tripper: moving left loop, third frame.</summary>
     TripperMovingLeftLoopThird,
-    /// <summary>The frame the installed artwork names <c>tripper_moving_right_0</c>.</summary>
+    /// <summary>Tripper: moving right loop, first frame.</summary>
     TripperMovingRightLoopFirst,
-    /// <summary>The frame the installed artwork names <c>tripper_moving_right_1</c>.</summary>
+    /// <summary>Tripper: moving right loop, second frame.</summary>
     TripperMovingRightLoopSecond,
-    /// <summary>The frame the installed artwork names <c>tripper_moving_right_2</c>.</summary>
+    /// <summary>Tripper: moving right loop, third frame.</summary>
     TripperMovingRightLoopThird,
-    /// <summary>The frame the installed artwork names <c>tripper_still_moving_left_0</c>.</summary>
+    /// <summary>Tripper: still moving left loop, first frame.</summary>
     TripperStillMovingLeftLoopFirst,
-    /// <summary>The frame the installed artwork names <c>tripper_still_moving_left_1</c>.</summary>
+    /// <summary>Tripper: still moving left loop, second frame.</summary>
     TripperStillMovingLeftLoopSecond,
-    /// <summary>The frame the installed artwork names <c>tripper_still_moving_left_2</c>.</summary>
+    /// <summary>Tripper: still moving left loop, third frame.</summary>
     TripperStillMovingLeftLoopThird,
-    /// <summary>The frame the installed artwork names <c>tripper_still_moving_right_0</c>.</summary>
+    /// <summary>Tripper: still moving right loop, first frame.</summary>
     TripperStillMovingRightLoopFirst,
-    /// <summary>The frame the installed artwork names <c>tripper_still_moving_right_1</c>.</summary>
+    /// <summary>Tripper: still moving right loop, second frame.</summary>
     TripperStillMovingRightLoopSecond,
-    /// <summary>The frame the installed artwork names <c>tripper_still_moving_right_2</c>.</summary>
+    /// <summary>Tripper: still moving right loop, third frame.</summary>
     TripperStillMovingRightLoopThird,
-    /// <summary>The frame the installed artwork names <c>tripper_frozen_moving_left</c>.</summary>
+    /// <summary>Tripper: frozen moving left.</summary>
     TripperFrozenMovingLeft,
-    /// <summary>The frame the installed artwork names <c>tripper_frozen_moving_right</c>.</summary>
+    /// <summary>Tripper: frozen moving right.</summary>
     TripperFrozenMovingRight,
-    /// <summary>The frame the installed artwork names <c>tripper_kamer_platform_0</c>.</summary>
+    /// <summary>Kamer: moving left loop, first frame.</summary>
     KamerMovingLeftLoopFirst,
-    /// <summary>The frame the installed artwork names <c>tripper_kamer_platform_1</c>.</summary>
+    /// <summary>Kamer: moving left loop, second frame.</summary>
     KamerMovingLeftLoopSecond,
-    /// <summary>The frame the installed artwork names <c>tripper_kamer_platform_2</c>.</summary>
+    /// <summary>Kamer: moving left loop, third frame.</summary>
     KamerMovingLeftLoopThird,
-    /// <summary>The frame the installed artwork names <c>tripper_kamer_platform_3</c>.</summary>
+    /// <summary>Kamer: moving left loop, fourth frame.</summary>
     KamerMovingLeftLoopFourth,
-    /// <summary>The frame the installed artwork names <c>dragon_body_idle_left</c>.</summary>
+    /// <summary>Dragon: body idle left.</summary>
     DragonBodyIdleLeft,
-    /// <summary>The frame the installed artwork names <c>dragon_wing_left_0</c>.</summary>
+    /// <summary>Dragon: wings facing left, first frame.</summary>
     DragonWingsFacingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>dragon_wing_left_1</c>.</summary>
+    /// <summary>Dragon: wings facing left, second frame.</summary>
     DragonWingsFacingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>dragon_body_idle_right</c>.</summary>
+    /// <summary>Dragon: body idle right.</summary>
     DragonBodyIdleRight,
-    /// <summary>The frame the installed artwork names <c>dragon_wing_right_0</c>.</summary>
+    /// <summary>Dragon: wings facing right, first frame.</summary>
     DragonWingsFacingRightFirst,
-    /// <summary>The frame the installed artwork names <c>dragon_wing_right_1</c>.</summary>
+    /// <summary>Dragon: wings facing right, second frame.</summary>
     DragonWingsFacingRightSecond,
-    /// <summary>The frame the installed artwork names <c>dragon_body_attack_left_0</c>.</summary>
+    /// <summary>Dragon: attacking facing left, first frame.</summary>
     DragonAttackingFacingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>dragon_body_attack_left_1</c>.</summary>
+    /// <summary>Dragon: attacking facing left, second frame.</summary>
     DragonAttackingFacingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>dragon_body_attack_left_2</c>.</summary>
+    /// <summary>Dragon: attacking facing left, third frame.</summary>
     DragonAttackingFacingLeftThird,
-    /// <summary>The frame the installed artwork names <c>dragon_body_attack_right_0</c>.</summary>
+    /// <summary>Dragon: attacking facing right, first frame.</summary>
     DragonAttackingFacingRightFirst,
-    /// <summary>The frame the installed artwork names <c>dragon_body_attack_right_1</c>.</summary>
+    /// <summary>Dragon: attacking facing right, second frame.</summary>
     DragonAttackingFacingRightSecond,
-    /// <summary>The frame the installed artwork names <c>dragon_body_attack_right_2</c>.</summary>
+    /// <summary>Dragon: attacking facing right, third frame.</summary>
     DragonAttackingFacingRightThird,
-    /// <summary>The frame the installed artwork names <c>multiviola_spin_0</c>.</summary>
+    /// <summary>Multiviola: flying, first frame.</summary>
     MultiviolaFlyingFirst,
-    /// <summary>The frame the installed artwork names <c>multiviola_spin_1</c>.</summary>
+    /// <summary>Multiviola: flying, second frame.</summary>
     MultiviolaFlyingSecond,
-    /// <summary>The frame the installed artwork names <c>multiviola_spin_2</c>.</summary>
+    /// <summary>Multiviola: flying, third frame.</summary>
     MultiviolaFlyingThird,
-    /// <summary>The frame the installed artwork names <c>multiviola_spin_3</c>.</summary>
+    /// <summary>Multiviola: flying, fourth frame.</summary>
     MultiviolaFlyingFourth,
-    /// <summary>The frame the installed artwork names <c>multiviola_spin_4</c>.</summary>
+    /// <summary>Multiviola: flying, fifth frame.</summary>
     MultiviolaFlyingFifth,
-    /// <summary>The frame the installed artwork names <c>multiviola_spin_5</c>.</summary>
+    /// <summary>Multiviola: flying, sixth frame.</summary>
     MultiviolaFlyingSixth,
-    /// <summary>The frame the installed artwork names <c>multiviola_spin_6</c>.</summary>
+    /// <summary>Multiviola: flying, seventh frame.</summary>
     MultiviolaFlyingSeventh,
-    /// <summary>The frame the installed artwork names <c>multiviola_spin_7</c>.</summary>
+    /// <summary>Multiviola: flying, eighth frame.</summary>
     MultiviolaFlyingEighth,
-    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_1</c>.</summary>
+    /// <summary>The Norfair lava jumper: hidden.</summary>
     NorfairLavaJumperHidden,
-    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_2</c>.</summary>
+    /// <summary>The Norfair lava jumper: jump, second frame.</summary>
     NorfairLavaJumperJumpSecond,
-    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_3</c>.</summary>
+    /// <summary>The Norfair lava jumper: jump, third frame.</summary>
     NorfairLavaJumperJumpThird,
-    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_4</c>.</summary>
+    /// <summary>The Norfair lava jumper: jump, fourth frame.</summary>
     NorfairLavaJumperJumpFourth,
-    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_5</c>.</summary>
+    /// <summary>The Norfair lava jumper: jump, fifth frame.</summary>
     NorfairLavaJumperJumpFifth,
-    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_6</c>.</summary>
+    /// <summary>The Norfair lava jumper: jump, sixth frame.</summary>
     NorfairLavaJumperJumpSixth,
-    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_7</c>.</summary>
+    /// <summary>The Norfair lava jumper: jump, seventh frame.</summary>
     NorfairLavaJumperJumpSeventh,
-    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_8</c>.</summary>
+    /// <summary>The Norfair lava jumper: follower, first frame.</summary>
     NorfairLavaJumperFollowerFirst,
-    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_0</c>.</summary>
+    /// <summary>The Norfair lava jumper: follower, second frame.</summary>
     NorfairLavaJumperFollowerSecond,
-    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_10</c>.</summary>
+    /// <summary>The Norfair lava jumper: follower loop, first frame.</summary>
     NorfairLavaJumperFollowerLoopFirst,
-    /// <summary>The frame the installed artwork names <c>norfair_lava_jumper_pose_9</c>.</summary>
+    /// <summary>The Norfair lava jumper: follower loop, third frame.</summary>
     NorfairLavaJumperFollowerLoopThird,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_17</c>.</summary>
+    /// <summary>The Chozo statue: Lower Norfair initial.</summary>
     ChozoStatueLowerNorfairInitial,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_18</c>.</summary>
+    /// <summary>The Chozo statue: Lower Norfair activated, second frame.</summary>
     ChozoStatueLowerNorfairActivatedSecond,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_19</c>.</summary>
+    /// <summary>The Chozo statue: Lower Norfair activated, third frame.</summary>
     ChozoStatueLowerNorfairActivatedThird,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_20</c>.</summary>
+    /// <summary>The Chozo statue: Lower Norfair activated, fourth frame.</summary>
     ChozoStatueLowerNorfairActivatedFourth,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_21</c>.</summary>
+    /// <summary>The Chozo statue: Lower Norfair activated, fifth frame.</summary>
     ChozoStatueLowerNorfairActivatedFifth,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_22</c>.</summary>
+    /// <summary>The Chozo statue: Lower Norfair activated, sixth frame.</summary>
     ChozoStatueLowerNorfairActivatedSixth,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_23</c>.</summary>
+    /// <summary>The Chozo statue: Lower Norfair activated, seventh frame.</summary>
     ChozoStatueLowerNorfairActivatedSeventh,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_24</c>.</summary>
+    /// <summary>The Chozo statue: Lower Norfair activated, eighth frame.</summary>
     ChozoStatueLowerNorfairActivatedEighth,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_25</c>.</summary>
+    /// <summary>The Chozo statue: Lower Norfair activated, ninth frame.</summary>
     ChozoStatueLowerNorfairActivatedNinth,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_0</c>.</summary>
+    /// <summary>The Chozo statue: Wrecked Ship initial.</summary>
     ChozoStatueWreckedShipInitial,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_1</c>.</summary>
+    /// <summary>The Chozo statue: Wrecked Ship activated, second frame.</summary>
     ChozoStatueWreckedShipActivatedSecond,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_2</c>.</summary>
+    /// <summary>The Chozo statue: Wrecked Ship activated, third frame.</summary>
     ChozoStatueWreckedShipActivatedThird,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_3</c>.</summary>
+    /// <summary>The Chozo statue: Wrecked Ship activated, fourth frame.</summary>
     ChozoStatueWreckedShipActivatedFourth,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_12</c>.</summary>
+    /// <summary>The Chozo statue: Wrecked Ship activated, fifth frame.</summary>
     ChozoStatueWreckedShipActivatedFifth,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_13</c>.</summary>
+    /// <summary>The Chozo statue: Wrecked Ship activated, sixth frame.</summary>
     ChozoStatueWreckedShipActivatedSixth,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_14</c>.</summary>
+    /// <summary>The Chozo statue: Wrecked Ship activated, seventh frame.</summary>
     ChozoStatueWreckedShipActivatedSeventh,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_15</c>.</summary>
+    /// <summary>The Chozo statue: Wrecked Ship activated, eighth frame.</summary>
     ChozoStatueWreckedShipActivatedEighth,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_16</c>.</summary>
+    /// <summary>The Chozo statue: Wrecked Ship activated, ninth frame.</summary>
     ChozoStatueWreckedShipActivatedNinth,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_11</c>.</summary>
+    /// <summary>The Chozo statue: Wrecked Ship activated loop two, first frame.</summary>
     ChozoStatueWreckedShipActivatedLoopTwoFirst,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_4</c>.</summary>
+    /// <summary>The Chozo statue: Wrecked Ship activated loop two, second frame.</summary>
     ChozoStatueWreckedShipActivatedLoopTwoSecond,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_5</c>.</summary>
+    /// <summary>The Chozo statue: Wrecked Ship activated loop two, third frame.</summary>
     ChozoStatueWreckedShipActivatedLoopTwoThird,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_6</c>.</summary>
+    /// <summary>The Chozo statue: Wrecked Ship activated loop two, fourth frame.</summary>
     ChozoStatueWreckedShipActivatedLoopTwoFourth,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_7</c>.</summary>
+    /// <summary>The Chozo statue: Wrecked Ship activated loop two, fifth frame.</summary>
     ChozoStatueWreckedShipActivatedLoopTwoFifth,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_8</c>.</summary>
+    /// <summary>The Chozo statue: Wrecked Ship activated loop two, sixth frame.</summary>
     ChozoStatueWreckedShipActivatedLoopTwoSixth,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_9</c>.</summary>
+    /// <summary>The Chozo statue: Wrecked Ship activated loop two, seventh frame.</summary>
     ChozoStatueWreckedShipActivatedLoopTwoSeventh,
-    /// <summary>The frame the installed artwork names <c>chozo_statue_pose_10</c>.</summary>
+    /// <summary>The Chozo statue: Wrecked Ship activated loop two, eighth frame.</summary>
     ChozoStatueWreckedShipActivatedLoopTwoEighth,
-    /// <summary>The frame the installed artwork names <c>viola_spin_0</c>.</summary>
+    /// <summary>Viola: normal, first frame.</summary>
     ViolaNormalFirst,
-    /// <summary>The frame the installed artwork names <c>viola_spin_1</c>.</summary>
+    /// <summary>Viola: normal, second frame.</summary>
     ViolaNormalSecond,
-    /// <summary>The frame the installed artwork names <c>viola_spin_2</c>.</summary>
+    /// <summary>Viola: normal, third frame.</summary>
     ViolaNormalThird,
-    /// <summary>The frame the installed artwork names <c>viola_spin_3</c>.</summary>
+    /// <summary>Viola: normal, fourth frame.</summary>
     ViolaNormalFourth,
-    /// <summary>The frame the installed artwork names <c>viola_spin_4</c>.</summary>
+    /// <summary>Viola: normal, fifth frame.</summary>
     ViolaNormalFifth,
-    /// <summary>The frame the installed artwork names <c>viola_spin_5</c>.</summary>
+    /// <summary>Viola: normal, sixth frame.</summary>
     ViolaNormalSixth,
-    /// <summary>The frame the installed artwork names <c>viola_spin_6</c>.</summary>
+    /// <summary>Viola: normal, seventh frame.</summary>
     ViolaNormalSeventh,
-    /// <summary>The frame the installed artwork names <c>viola_spin_7</c>.</summary>
+    /// <summary>Viola: normal, eighth frame.</summary>
     ViolaNormalEighth,
-    /// <summary>The frame the installed artwork names <c>rinka_spin_0</c>.</summary>
+    /// <summary>Rinka: ordinary.</summary>
     RinkaOrdinary,
-    /// <summary>The frame the installed artwork names <c>rinka_spin_1</c>.</summary>
+    /// <summary>Rinka: ordinary loop, second frame.</summary>
     RinkaOrdinaryLoopSecond,
-    /// <summary>The frame the installed artwork names <c>rinka_spin_2</c>.</summary>
+    /// <summary>Rinka: ordinary loop, third frame.</summary>
     RinkaOrdinaryLoopThird,
-    /// <summary>The frame the installed artwork names <c>rinka_spin_3</c>.</summary>
+    /// <summary>Rinka: ordinary loop, fourth frame.</summary>
     RinkaOrdinaryLoopFourth,
-    /// <summary>The frame the installed artwork names <c>rinka_spin_4</c>.</summary>
+    /// <summary>Rinka: ordinary loop, fifth frame.</summary>
     RinkaOrdinaryLoopFifth,
-    /// <summary>The frame the installed artwork names <c>dead_torizo_stationary</c>.</summary>
+    /// <summary>The dead Torizo: stationary.</summary>
     DeadTorizoStationary,
-    /// <summary>The frame the installed artwork names <c>dead_zoomer_corpse_0</c>.</summary>
+    /// <summary>The dead Zoomer: corpse, first frame.</summary>
     DeadZoomerCorpseFirst,
-    /// <summary>The frame the installed artwork names <c>dead_zoomer_corpse_2</c>.</summary>
+    /// <summary>The dead Zoomer: corpse, second frame.</summary>
     DeadZoomerCorpseSecond,
-    /// <summary>The frame the installed artwork names <c>dead_zoomer_corpse_4</c>.</summary>
+    /// <summary>The dead Zoomer: corpse, third frame.</summary>
     DeadZoomerCorpseThird,
-    /// <summary>The frame the installed artwork names <c>dead_ripper_corpse_0</c>.</summary>
+    /// <summary>The dead Ripper: corpse, first frame.</summary>
     DeadRipperCorpseFirst,
-    /// <summary>The frame the installed artwork names <c>dead_ripper_corpse_2</c>.</summary>
+    /// <summary>The dead Ripper: corpse, second frame.</summary>
     DeadRipperCorpseSecond,
-    /// <summary>The frame the installed artwork names <c>dead_skree_corpse_0</c>.</summary>
+    /// <summary>The dead Skree: corpse, first frame.</summary>
     DeadSkreeCorpseFirst,
-    /// <summary>The frame the installed artwork names <c>dead_skree_corpse_2</c>.</summary>
+    /// <summary>The dead Skree: corpse, second frame.</summary>
     DeadSkreeCorpseSecond,
-    /// <summary>The frame the installed artwork names <c>dead_skree_corpse_4</c>.</summary>
+    /// <summary>The dead Skree: corpse, third frame.</summary>
     DeadSkreeCorpseThird,
-    /// <summary>The frame the installed artwork names <c>dead_sidehopper_hop_body</c>.</summary>
+    /// <summary>The dead Sidehopper: hop body.</summary>
     DeadSidehopperHopBody,
-    /// <summary>The frame the installed artwork names <c>dead_sidehopper_hop_alt</c>.</summary>
+    /// <summary>The dead Sidehopper: hop alt.</summary>
     DeadSidehopperHopAlt,
-    /// <summary>The frame the installed artwork names <c>dead_sidehopper_idle</c>.</summary>
+    /// <summary>The dead Sidehopper: idle.</summary>
     DeadSidehopperIdle,
-    /// <summary>The frame the installed artwork names <c>dead_sidehopper_corpse</c>.</summary>
+    /// <summary>The dead Sidehopper: corpse.</summary>
     DeadSidehopperCorpse,
-    /// <summary>The frame the installed artwork names <c>dead_sidehopper_initially_dead</c>.</summary>
+    /// <summary>The dead Sidehopper: initially dead.</summary>
     DeadSidehopperInitiallyDead,
-    /// <summary>The frame the installed artwork names <c>mochtroid_flight_0</c>.</summary>
+    /// <summary>Mochtroid: free flight, first frame.</summary>
     MochtroidFreeFlightFirst,
-    /// <summary>The frame the installed artwork names <c>mochtroid_flight_1</c>.</summary>
+    /// <summary>Mochtroid: free flight, second frame.</summary>
     MochtroidFreeFlightSecond,
-    /// <summary>The frame the installed artwork names <c>mochtroid_flight_2</c>.</summary>
+    /// <summary>Mochtroid: free flight, third frame.</summary>
     MochtroidFreeFlightThird,
-    /// <summary>The frame the installed artwork names <c>mochtroid_attached_0</c>.</summary>
+    /// <summary>Mochtroid: attached, first frame.</summary>
     MochtroidAttachedFirst,
-    /// <summary>The frame the installed artwork names <c>mochtroid_attached_1</c>.</summary>
+    /// <summary>Mochtroid: attached, second frame.</summary>
     MochtroidAttachedSecond,
-    /// <summary>The frame the installed artwork names <c>mochtroid_attached_2</c>.</summary>
+    /// <summary>Mochtroid: attached, third frame.</summary>
     MochtroidAttachedThird,
-    /// <summary>The frame the installed artwork names <c>evir_body_left_0</c>.</summary>
+    /// <summary>Evir: body facing left, first frame.</summary>
     EvirBodyFacingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>evir_body_left_1</c>.</summary>
+    /// <summary>Evir: body facing left, second frame.</summary>
     EvirBodyFacingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>evir_body_left_2</c>.</summary>
+    /// <summary>Evir: body facing left, third frame.</summary>
     EvirBodyFacingLeftThird,
-    /// <summary>The frame the installed artwork names <c>evir_body_left_3</c>.</summary>
+    /// <summary>Evir: body facing left, fourth frame.</summary>
     EvirBodyFacingLeftFourth,
-    /// <summary>The frame the installed artwork names <c>evir_body_left_4</c>.</summary>
+    /// <summary>Evir: body facing left, fifth frame.</summary>
     EvirBodyFacingLeftFifth,
-    /// <summary>The frame the installed artwork names <c>evir_body_left_5</c>.</summary>
+    /// <summary>Evir: body facing left, sixth frame.</summary>
     EvirBodyFacingLeftSixth,
-    /// <summary>The frame the installed artwork names <c>evir_arms_left_0</c>.</summary>
+    /// <summary>Evir: arms facing left, first frame.</summary>
     EvirArmsFacingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>evir_arms_left_1</c>.</summary>
+    /// <summary>Evir: arms facing left, second frame.</summary>
     EvirArmsFacingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>evir_arms_left_2</c>.</summary>
+    /// <summary>Evir: arms facing left, third frame.</summary>
     EvirArmsFacingLeftThird,
-    /// <summary>The frame the installed artwork names <c>evir_arms_left_3</c>.</summary>
+    /// <summary>Evir: arms facing left, fourth frame.</summary>
     EvirArmsFacingLeftFourth,
-    /// <summary>The frame the installed artwork names <c>evir_arms_left_4</c>.</summary>
+    /// <summary>Evir: arms facing left, fifth frame.</summary>
     EvirArmsFacingLeftFifth,
-    /// <summary>The frame the installed artwork names <c>evir_body_right_0</c>.</summary>
+    /// <summary>Evir: body facing right, first frame.</summary>
     EvirBodyFacingRightFirst,
-    /// <summary>The frame the installed artwork names <c>evir_body_right_1</c>.</summary>
+    /// <summary>Evir: body facing right, second frame.</summary>
     EvirBodyFacingRightSecond,
-    /// <summary>The frame the installed artwork names <c>evir_body_right_2</c>.</summary>
+    /// <summary>Evir: body facing right, third frame.</summary>
     EvirBodyFacingRightThird,
-    /// <summary>The frame the installed artwork names <c>evir_body_right_3</c>.</summary>
+    /// <summary>Evir: body facing right, fourth frame.</summary>
     EvirBodyFacingRightFourth,
-    /// <summary>The frame the installed artwork names <c>evir_body_right_4</c>.</summary>
+    /// <summary>Evir: body facing right, fifth frame.</summary>
     EvirBodyFacingRightFifth,
-    /// <summary>The frame the installed artwork names <c>evir_body_right_5</c>.</summary>
+    /// <summary>Evir: body facing right, sixth frame.</summary>
     EvirBodyFacingRightSixth,
-    /// <summary>The frame the installed artwork names <c>evir_arms_right_0</c>.</summary>
+    /// <summary>Evir: arms facing right, first frame.</summary>
     EvirArmsFacingRightFirst,
-    /// <summary>The frame the installed artwork names <c>evir_arms_right_1</c>.</summary>
+    /// <summary>Evir: arms facing right, second frame.</summary>
     EvirArmsFacingRightSecond,
-    /// <summary>The frame the installed artwork names <c>evir_arms_right_2</c>.</summary>
+    /// <summary>Evir: arms facing right, third frame.</summary>
     EvirArmsFacingRightThird,
-    /// <summary>The frame the installed artwork names <c>evir_arms_right_3</c>.</summary>
+    /// <summary>Evir: arms facing right, fourth frame.</summary>
     EvirArmsFacingRightFourth,
-    /// <summary>The frame the installed artwork names <c>evir_arms_right_4</c>.</summary>
+    /// <summary>Evir: arms facing right, fifth frame.</summary>
     EvirArmsFacingRightFifth,
-    /// <summary>The frame the installed artwork names <c>evir_projectile_flight</c>.</summary>
+    /// <summary>Evir: projectile flight.</summary>
     EvirProjectileFlight,
-    /// <summary>The frame the installed artwork names <c>evir_projectile_regenerating</c>.</summary>
+    /// <summary>Evir: projectile regenerating.</summary>
     EvirProjectileRegenerating,
-    /// <summary>The frame the installed artwork names <c>work_robot_left_00</c>.</summary>
+    /// <summary>The work robot: facing left walking forwards loop, twelfth frame.</summary>
     WorkRobotFacingLeftWalkingForwardsLoopTwelfth,
-    /// <summary>The frame the installed artwork names <c>work_robot_left_01</c>.</summary>
+    /// <summary>The work robot: initial.</summary>
     WorkRobotInitial,
-    /// <summary>The frame the installed artwork names <c>work_robot_left_02</c>.</summary>
+    /// <summary>The work robot: facing left walking forwards loop, second frame.</summary>
     WorkRobotFacingLeftWalkingForwardsLoopSecond,
-    /// <summary>The frame the installed artwork names <c>work_robot_left_03</c>.</summary>
+    /// <summary>The work robot: facing left walking forwards loop, third frame.</summary>
     WorkRobotFacingLeftWalkingForwardsLoopThird,
-    /// <summary>The frame the installed artwork names <c>work_robot_left_04</c>.</summary>
+    /// <summary>The work robot: facing left walking forwards loop, fourth frame.</summary>
     WorkRobotFacingLeftWalkingForwardsLoopFourth,
-    /// <summary>The frame the installed artwork names <c>work_robot_left_05</c>.</summary>
+    /// <summary>The work robot: facing left walking forwards loop, fifth frame.</summary>
     WorkRobotFacingLeftWalkingForwardsLoopFifth,
-    /// <summary>The frame the installed artwork names <c>work_robot_left_06</c>.</summary>
+    /// <summary>The work robot: facing left walking forwards loop, sixth frame.</summary>
     WorkRobotFacingLeftWalkingForwardsLoopSixth,
-    /// <summary>The frame the installed artwork names <c>work_robot_left_07</c>.</summary>
+    /// <summary>The work robot: facing left walking forwards loop, seventh frame.</summary>
     WorkRobotFacingLeftWalkingForwardsLoopSeventh,
-    /// <summary>The frame the installed artwork names <c>work_robot_left_08</c>.</summary>
+    /// <summary>The work robot: facing left walking forwards loop, eighth frame.</summary>
     WorkRobotFacingLeftWalkingForwardsLoopEighth,
-    /// <summary>The frame the installed artwork names <c>work_robot_left_09</c>.</summary>
+    /// <summary>The work robot: facing left walking forwards loop, ninth frame.</summary>
     WorkRobotFacingLeftWalkingForwardsLoopNinth,
-    /// <summary>The frame the installed artwork names <c>work_robot_left_10</c>.</summary>
+    /// <summary>The work robot: facing left walking forwards loop, tenth frame.</summary>
     WorkRobotFacingLeftWalkingForwardsLoopTenth,
-    /// <summary>The frame the installed artwork names <c>work_robot_left_11</c>.</summary>
+    /// <summary>The work robot: facing left walking forwards loop, eleventh frame.</summary>
     WorkRobotFacingLeftWalkingForwardsLoopEleventh,
-    /// <summary>The frame the installed artwork names <c>work_robot_right_00</c>.</summary>
+    /// <summary>The work robot: approaching fall right, first frame.</summary>
     WorkRobotApproachingFallRightFirst,
-    /// <summary>The frame the installed artwork names <c>work_robot_right_01</c>.</summary>
+    /// <summary>The work robot: approaching fall right, second frame.</summary>
     WorkRobotApproachingFallRightSecond,
-    /// <summary>The frame the installed artwork names <c>work_robot_right_02</c>.</summary>
+    /// <summary>The work robot: approaching fall right, third frame.</summary>
     WorkRobotApproachingFallRightThird,
-    /// <summary>The frame the installed artwork names <c>work_robot_right_03</c>.</summary>
+    /// <summary>The work robot: facing right walking forwards loop, fourth frame.</summary>
     WorkRobotFacingRightWalkingForwardsLoopFourth,
-    /// <summary>The frame the installed artwork names <c>work_robot_right_04</c>.</summary>
+    /// <summary>The work robot: facing right walking forwards loop, fifth frame.</summary>
     WorkRobotFacingRightWalkingForwardsLoopFifth,
-    /// <summary>The frame the installed artwork names <c>work_robot_right_05</c>.</summary>
+    /// <summary>The work robot: facing right walking forwards loop, sixth frame.</summary>
     WorkRobotFacingRightWalkingForwardsLoopSixth,
-    /// <summary>The frame the installed artwork names <c>work_robot_right_06</c>.</summary>
+    /// <summary>The work robot: facing right walking forwards loop, seventh frame.</summary>
     WorkRobotFacingRightWalkingForwardsLoopSeventh,
-    /// <summary>The frame the installed artwork names <c>work_robot_right_07</c>.</summary>
+    /// <summary>The work robot: facing right walking forwards loop, eighth frame.</summary>
     WorkRobotFacingRightWalkingForwardsLoopEighth,
-    /// <summary>The frame the installed artwork names <c>work_robot_right_08</c>.</summary>
+    /// <summary>The work robot: facing right walking forwards loop, ninth frame.</summary>
     WorkRobotFacingRightWalkingForwardsLoopNinth,
-    /// <summary>The frame the installed artwork names <c>work_robot_right_09</c>.</summary>
+    /// <summary>The work robot: facing right walking forwards loop, tenth frame.</summary>
     WorkRobotFacingRightWalkingForwardsLoopTenth,
-    /// <summary>The frame the installed artwork names <c>work_robot_right_10</c>.</summary>
+    /// <summary>The work robot: facing right walking forwards loop, eleventh frame.</summary>
     WorkRobotFacingRightWalkingForwardsLoopEleventh,
-    /// <summary>The frame the installed artwork names <c>work_robot_right_11</c>.</summary>
+    /// <summary>The work robot: facing right walking forwards loop, twelfth frame.</summary>
     WorkRobotFacingRightWalkingForwardsLoopTwelfth,
-    /// <summary>The frame the installed artwork names <c>work_robot_unpowered_neutral</c>.</summary>
+    /// <summary>The work robot: unpowered neutral.</summary>
     WorkRobotUnpoweredNeutral,
-    /// <summary>The frame the installed artwork names <c>work_robot_unpowered_left</c>.</summary>
+    /// <summary>The work robot: unpowered left.</summary>
     WorkRobotUnpoweredLeft,
-    /// <summary>The frame the installed artwork names <c>work_robot_unpowered_right</c>.</summary>
+    /// <summary>The work robot: unpowered right.</summary>
     WorkRobotUnpoweredRight,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_right_up_00</c>.</summary>
+    /// <summary>Yard: outside turn upside right moving up, first frame.</summary>
     YardOutsideTurnUpsideRightMovingUpFirst,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_right_up_01</c>.</summary>
+    /// <summary>Yard: outside turn upside right moving up, second frame.</summary>
     YardOutsideTurnUpsideRightMovingUpSecond,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_right_up_02</c>.</summary>
+    /// <summary>Yard: outside turn upside right moving up, third frame.</summary>
     YardOutsideTurnUpsideRightMovingUpThird,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_top_left_00</c>.</summary>
+    /// <summary>Yard: crawling upside up moving left, first frame.</summary>
     YardCrawlingUpsideUpMovingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_top_left_01</c>.</summary>
+    /// <summary>Yard: crawling upside up moving left, second frame.</summary>
     YardCrawlingUpsideUpMovingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_top_left_02</c>.</summary>
+    /// <summary>Yard: crawling upside up moving left, third frame.</summary>
     YardCrawlingUpsideUpMovingLeftThird,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_top_left_00</c>.</summary>
+    /// <summary>Yard: outside turn upside up moving left, first frame.</summary>
     YardOutsideTurnUpsideUpMovingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_top_left_01</c>.</summary>
+    /// <summary>Yard: outside turn upside up moving left, second frame.</summary>
     YardOutsideTurnUpsideUpMovingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_top_left_02</c>.</summary>
+    /// <summary>Yard: outside turn upside up moving left, third frame.</summary>
     YardOutsideTurnUpsideUpMovingLeftThird,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_left_down_00</c>.</summary>
+    /// <summary>Yard: crawling upside left moving down, first frame.</summary>
     YardCrawlingUpsideLeftMovingDownFirst,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_left_down_01</c>.</summary>
+    /// <summary>Yard: crawling upside left moving down, second frame.</summary>
     YardCrawlingUpsideLeftMovingDownSecond,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_left_down_02</c>.</summary>
+    /// <summary>Yard: crawling upside left moving down, third frame.</summary>
     YardCrawlingUpsideLeftMovingDownThird,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_left_down_00</c>.</summary>
+    /// <summary>Yard: outside turn upside left moving down, first frame.</summary>
     YardOutsideTurnUpsideLeftMovingDownFirst,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_left_down_01</c>.</summary>
+    /// <summary>Yard: outside turn upside left moving down, second frame.</summary>
     YardOutsideTurnUpsideLeftMovingDownSecond,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_left_down_02</c>.</summary>
+    /// <summary>Yard: outside turn upside left moving down, third frame.</summary>
     YardOutsideTurnUpsideLeftMovingDownThird,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_bottom_right_00</c>.</summary>
+    /// <summary>Yard: crawling upside down moving right, first frame.</summary>
     YardCrawlingUpsideDownMovingRightFirst,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_bottom_right_01</c>.</summary>
+    /// <summary>Yard: crawling upside down moving right, second frame.</summary>
     YardCrawlingUpsideDownMovingRightSecond,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_bottom_right_02</c>.</summary>
+    /// <summary>Yard: crawling upside down moving right, third frame.</summary>
     YardCrawlingUpsideDownMovingRightThird,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_bottom_right_00</c>.</summary>
+    /// <summary>Yard: outside turn upside down moving right, first frame.</summary>
     YardOutsideTurnUpsideDownMovingRightFirst,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_bottom_right_01</c>.</summary>
+    /// <summary>Yard: outside turn upside down moving right, second frame.</summary>
     YardOutsideTurnUpsideDownMovingRightSecond,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_bottom_right_02</c>.</summary>
+    /// <summary>Yard: outside turn upside down moving right, third frame.</summary>
     YardOutsideTurnUpsideDownMovingRightThird,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_right_up_00</c>.</summary>
+    /// <summary>Yard: crawling upside right moving up, first frame.</summary>
     YardCrawlingUpsideRightMovingUpFirst,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_right_up_01</c>.</summary>
+    /// <summary>Yard: crawling upside right moving up, second frame.</summary>
     YardCrawlingUpsideRightMovingUpSecond,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_right_up_02</c>.</summary>
+    /// <summary>Yard: crawling upside right moving up, third frame.</summary>
     YardCrawlingUpsideRightMovingUpThird,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_left_up_00</c>.</summary>
+    /// <summary>Yard: outside turn upside left moving up, first frame.</summary>
     YardOutsideTurnUpsideLeftMovingUpFirst,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_left_up_01</c>.</summary>
+    /// <summary>Yard: outside turn upside left moving up, second frame.</summary>
     YardOutsideTurnUpsideLeftMovingUpSecond,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_left_up_02</c>.</summary>
+    /// <summary>Yard: outside turn upside left moving up, third frame.</summary>
     YardOutsideTurnUpsideLeftMovingUpThird,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_top_right_00</c>.</summary>
+    /// <summary>Yard: crawling upside up moving right, first frame.</summary>
     YardCrawlingUpsideUpMovingRightFirst,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_top_right_01</c>.</summary>
+    /// <summary>Yard: crawling upside up moving right, second frame.</summary>
     YardCrawlingUpsideUpMovingRightSecond,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_top_right_02</c>.</summary>
+    /// <summary>Yard: crawling upside up moving right, third frame.</summary>
     YardCrawlingUpsideUpMovingRightThird,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_top_right_00</c>.</summary>
+    /// <summary>Yard: outside turn upside up moving right, first frame.</summary>
     YardOutsideTurnUpsideUpMovingRightFirst,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_top_right_01</c>.</summary>
+    /// <summary>Yard: outside turn upside up moving right, second frame.</summary>
     YardOutsideTurnUpsideUpMovingRightSecond,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_top_right_02</c>.</summary>
+    /// <summary>Yard: outside turn upside up moving right, third frame.</summary>
     YardOutsideTurnUpsideUpMovingRightThird,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_right_down_00</c>.</summary>
+    /// <summary>Yard: crawling upside right moving down, first frame.</summary>
     YardCrawlingUpsideRightMovingDownFirst,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_right_down_01</c>.</summary>
+    /// <summary>Yard: crawling upside right moving down, second frame.</summary>
     YardCrawlingUpsideRightMovingDownSecond,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_right_down_02</c>.</summary>
+    /// <summary>Yard: crawling upside right moving down, third frame.</summary>
     YardCrawlingUpsideRightMovingDownThird,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_right_down_00</c>.</summary>
+    /// <summary>Yard: outside turn upside right moving down, first frame.</summary>
     YardOutsideTurnUpsideRightMovingDownFirst,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_right_down_01</c>.</summary>
+    /// <summary>Yard: outside turn upside right moving down, second frame.</summary>
     YardOutsideTurnUpsideRightMovingDownSecond,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_right_down_02</c>.</summary>
+    /// <summary>Yard: outside turn upside right moving down, third frame.</summary>
     YardOutsideTurnUpsideRightMovingDownThird,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_bottom_left_00</c>.</summary>
+    /// <summary>Yard: crawling upside down moving left, first frame.</summary>
     YardCrawlingUpsideDownMovingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_bottom_left_01</c>.</summary>
+    /// <summary>Yard: crawling upside down moving left, second frame.</summary>
     YardCrawlingUpsideDownMovingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_bottom_left_02</c>.</summary>
+    /// <summary>Yard: crawling upside down moving left, third frame.</summary>
     YardCrawlingUpsideDownMovingLeftThird,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_bottom_left_00</c>.</summary>
+    /// <summary>Yard: outside turn upside down moving left, first frame.</summary>
     YardOutsideTurnUpsideDownMovingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_bottom_left_01</c>.</summary>
+    /// <summary>Yard: outside turn upside down moving left, second frame.</summary>
     YardOutsideTurnUpsideDownMovingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>yard_outside_turn_bottom_left_02</c>.</summary>
+    /// <summary>Yard: outside turn upside down moving left, third frame.</summary>
     YardOutsideTurnUpsideDownMovingLeftThird,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_left_up_00</c>.</summary>
+    /// <summary>Yard: crawling upside left moving up, first frame.</summary>
     YardCrawlingUpsideLeftMovingUpFirst,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_left_up_01</c>.</summary>
+    /// <summary>Yard: crawling upside left moving up, second frame.</summary>
     YardCrawlingUpsideLeftMovingUpSecond,
-    /// <summary>The frame the installed artwork names <c>yard_crawl_left_up_02</c>.</summary>
+    /// <summary>Yard: crawling upside left moving up, third frame.</summary>
     YardCrawlingUpsideLeftMovingUpThird,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_top_left_00</c>.</summary>
+    /// <summary>Yard: inside turn upside up moving left, first frame.</summary>
     YardInsideTurnUpsideUpMovingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_top_left_01</c>.</summary>
+    /// <summary>Yard: inside turn upside up moving left, second frame.</summary>
     YardInsideTurnUpsideUpMovingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_top_left_02</c>.</summary>
+    /// <summary>Yard: inside turn upside up moving left, third frame.</summary>
     YardInsideTurnUpsideUpMovingLeftThird,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_right_up_00</c>.</summary>
+    /// <summary>Yard: inside turn upside right moving up, first frame.</summary>
     YardInsideTurnUpsideRightMovingUpFirst,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_right_up_01</c>.</summary>
+    /// <summary>Yard: inside turn upside right moving up, second frame.</summary>
     YardInsideTurnUpsideRightMovingUpSecond,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_right_up_02</c>.</summary>
+    /// <summary>Yard: inside turn upside right moving up, third frame.</summary>
     YardInsideTurnUpsideRightMovingUpThird,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_bottom_right_00</c>.</summary>
+    /// <summary>Yard: inside turn upside down moving right, first frame.</summary>
     YardInsideTurnUpsideDownMovingRightFirst,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_bottom_right_01</c>.</summary>
+    /// <summary>Yard: inside turn upside down moving right, second frame.</summary>
     YardInsideTurnUpsideDownMovingRightSecond,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_bottom_right_02</c>.</summary>
+    /// <summary>Yard: inside turn upside down moving right, third frame.</summary>
     YardInsideTurnUpsideDownMovingRightThird,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_left_down_00</c>.</summary>
+    /// <summary>Yard: inside turn upside left moving down, first frame.</summary>
     YardInsideTurnUpsideLeftMovingDownFirst,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_left_down_01</c>.</summary>
+    /// <summary>Yard: inside turn upside left moving down, second frame.</summary>
     YardInsideTurnUpsideLeftMovingDownSecond,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_left_down_02</c>.</summary>
+    /// <summary>Yard: inside turn upside left moving down, third frame.</summary>
     YardInsideTurnUpsideLeftMovingDownThird,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_top_right_00</c>.</summary>
+    /// <summary>Yard: inside turn upside up moving right, first frame.</summary>
     YardInsideTurnUpsideUpMovingRightFirst,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_top_right_01</c>.</summary>
+    /// <summary>Yard: inside turn upside up moving right, second frame.</summary>
     YardInsideTurnUpsideUpMovingRightSecond,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_top_right_02</c>.</summary>
+    /// <summary>Yard: inside turn upside up moving right, third frame.</summary>
     YardInsideTurnUpsideUpMovingRightThird,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_left_up_00</c>.</summary>
+    /// <summary>Yard: inside turn upside left moving up, first frame.</summary>
     YardInsideTurnUpsideLeftMovingUpFirst,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_left_up_01</c>.</summary>
+    /// <summary>Yard: inside turn upside left moving up, second frame.</summary>
     YardInsideTurnUpsideLeftMovingUpSecond,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_left_up_02</c>.</summary>
+    /// <summary>Yard: inside turn upside left moving up, third frame.</summary>
     YardInsideTurnUpsideLeftMovingUpThird,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_bottom_left_00</c>.</summary>
+    /// <summary>Yard: inside turn upside down moving left, first frame.</summary>
     YardInsideTurnUpsideDownMovingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_bottom_left_01</c>.</summary>
+    /// <summary>Yard: inside turn upside down moving left, second frame.</summary>
     YardInsideTurnUpsideDownMovingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_bottom_left_02</c>.</summary>
+    /// <summary>Yard: inside turn upside down moving left, third frame.</summary>
     YardInsideTurnUpsideDownMovingLeftThird,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_right_down_00</c>.</summary>
+    /// <summary>Yard: inside turn upside right moving down, first frame.</summary>
     YardInsideTurnUpsideRightMovingDownFirst,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_right_down_01</c>.</summary>
+    /// <summary>Yard: inside turn upside right moving down, second frame.</summary>
     YardInsideTurnUpsideRightMovingDownSecond,
-    /// <summary>The frame the installed artwork names <c>yard_inside_turn_right_down_02</c>.</summary>
+    /// <summary>Yard: inside turn upside right moving down, third frame.</summary>
     YardInsideTurnUpsideRightMovingDownThird,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_top_left_00</c>.</summary>
+    /// <summary>Yard: hiding upside up moving left, first frame.</summary>
     YardHidingUpsideUpMovingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_top_left_01</c>.</summary>
+    /// <summary>Yard: hiding upside up moving left, second frame.</summary>
     YardHidingUpsideUpMovingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>yard_hidden_top_left_00</c>.</summary>
+    /// <summary>Yard: hidden upside up moving left, first frame.</summary>
     YardHiddenUpsideUpMovingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>yard_hidden_top_left_01</c>.</summary>
+    /// <summary>Yard: hidden upside up moving left, second frame.</summary>
     YardHiddenUpsideUpMovingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_bottom_left_00</c>.</summary>
+    /// <summary>Yard: hiding upside down moving left, first frame.</summary>
     YardHidingUpsideDownMovingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_bottom_left_01</c>.</summary>
+    /// <summary>Yard: hiding upside down moving left, second frame.</summary>
     YardHidingUpsideDownMovingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_bottom_left_02</c>.</summary>
+    /// <summary>Yard: hiding upside down moving left, third frame.</summary>
     YardHidingUpsideDownMovingLeftThird,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_bottom_left_03</c>.</summary>
+    /// <summary>Yard: hiding upside down moving left, fourth frame.</summary>
     YardHidingUpsideDownMovingLeftFourth,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_bottom_right_00</c>.</summary>
+    /// <summary>Yard: hiding upside down moving right, first frame.</summary>
     YardHidingUpsideDownMovingRightFirst,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_bottom_right_01</c>.</summary>
+    /// <summary>Yard: hiding upside down moving right, second frame.</summary>
     YardHidingUpsideDownMovingRightSecond,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_bottom_right_02</c>.</summary>
+    /// <summary>Yard: hiding upside down moving right, third frame.</summary>
     YardHidingUpsideDownMovingRightThird,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_bottom_right_03</c>.</summary>
+    /// <summary>Yard: hiding upside down moving right, fourth frame.</summary>
     YardHidingUpsideDownMovingRightFourth,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_top_right_00</c>.</summary>
+    /// <summary>Yard: hiding upside up moving right, first frame.</summary>
     YardHidingUpsideUpMovingRightFirst,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_top_right_01</c>.</summary>
+    /// <summary>Yard: hiding upside up moving right, second frame.</summary>
     YardHidingUpsideUpMovingRightSecond,
-    /// <summary>The frame the installed artwork names <c>yard_hidden_top_right_00</c>.</summary>
+    /// <summary>Yard: hidden upside up moving right, first frame.</summary>
     YardHiddenUpsideUpMovingRightFirst,
-    /// <summary>The frame the installed artwork names <c>yard_hidden_top_right_01</c>.</summary>
+    /// <summary>Yard: hidden upside up moving right, second frame.</summary>
     YardHiddenUpsideUpMovingRightSecond,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_right_up_00</c>.</summary>
+    /// <summary>Yard: hiding upside right moving up, first frame.</summary>
     YardHidingUpsideRightMovingUpFirst,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_right_up_01</c>.</summary>
+    /// <summary>Yard: hiding upside right moving up, second frame.</summary>
     YardHidingUpsideRightMovingUpSecond,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_right_up_02</c>.</summary>
+    /// <summary>Yard: hiding upside right moving up, third frame.</summary>
     YardHidingUpsideRightMovingUpThird,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_right_up_03</c>.</summary>
+    /// <summary>Yard: hiding upside right moving up, fourth frame.</summary>
     YardHidingUpsideRightMovingUpFourth,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_left_up_00</c>.</summary>
+    /// <summary>Yard: hiding upside left moving up, first frame.</summary>
     YardHidingUpsideLeftMovingUpFirst,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_left_up_01</c>.</summary>
+    /// <summary>Yard: hiding upside left moving up, second frame.</summary>
     YardHidingUpsideLeftMovingUpSecond,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_left_up_02</c>.</summary>
+    /// <summary>Yard: hiding upside left moving up, third frame.</summary>
     YardHidingUpsideLeftMovingUpThird,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_left_up_03</c>.</summary>
+    /// <summary>Yard: hiding upside left moving up, fourth frame.</summary>
     YardHidingUpsideLeftMovingUpFourth,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_left_down_00</c>.</summary>
+    /// <summary>Yard: hiding upside left moving down, first frame.</summary>
     YardHidingUpsideLeftMovingDownFirst,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_left_down_01</c>.</summary>
+    /// <summary>Yard: hiding upside left moving down, second frame.</summary>
     YardHidingUpsideLeftMovingDownSecond,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_left_down_02</c>.</summary>
+    /// <summary>Yard: hiding upside left moving down, third frame.</summary>
     YardHidingUpsideLeftMovingDownThird,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_left_down_03</c>.</summary>
+    /// <summary>Yard: hiding upside left moving down, fourth frame.</summary>
     YardHidingUpsideLeftMovingDownFourth,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_right_down_00</c>.</summary>
+    /// <summary>Yard: hiding upside right moving down, first frame.</summary>
     YardHidingUpsideRightMovingDownFirst,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_right_down_01</c>.</summary>
+    /// <summary>Yard: hiding upside right moving down, second frame.</summary>
     YardHidingUpsideRightMovingDownSecond,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_right_down_02</c>.</summary>
+    /// <summary>Yard: hiding upside right moving down, third frame.</summary>
     YardHidingUpsideRightMovingDownThird,
-    /// <summary>The frame the installed artwork names <c>yard_hiding_right_down_03</c>.</summary>
+    /// <summary>Yard: hiding upside right moving down, fourth frame.</summary>
     YardHidingUpsideRightMovingDownFourth,
-    /// <summary>The frame the installed artwork names <c>botwoon_head_00</c>.</summary>
+    /// <summary>Botwoon: head closed up left.</summary>
     BotwoonHeadClosedUpLeft,
-    /// <summary>The frame the installed artwork names <c>botwoon_head_01</c>.</summary>
+    /// <summary>Botwoon: head closed left.</summary>
     BotwoonHeadClosedLeft,
-    /// <summary>The frame the installed artwork names <c>botwoon_head_02</c>.</summary>
+    /// <summary>Botwoon: head closed down left.</summary>
     BotwoonHeadClosedDownLeft,
-    /// <summary>The frame the installed artwork names <c>botwoon_head_03</c>.</summary>
+    /// <summary>Botwoon: head closed down.</summary>
     BotwoonHeadClosedDown,
-    /// <summary>The frame the installed artwork names <c>botwoon_head_04</c>.</summary>
+    /// <summary>Botwoon: head closed down right.</summary>
     BotwoonHeadClosedDownRight,
-    /// <summary>The frame the installed artwork names <c>botwoon_head_05</c>.</summary>
+    /// <summary>Botwoon: head closed right.</summary>
     BotwoonHeadClosedRight,
-    /// <summary>The frame the installed artwork names <c>botwoon_head_06</c>.</summary>
+    /// <summary>Botwoon: head closed up right.</summary>
     BotwoonHeadClosedUpRight,
-    /// <summary>The frame the installed artwork names <c>botwoon_head_07</c>.</summary>
+    /// <summary>Botwoon: head closed up.</summary>
     BotwoonHeadClosedUp,
-    /// <summary>The frame the installed artwork names <c>botwoon_head_08</c>.</summary>
+    /// <summary>Botwoon: head open up left.</summary>
     BotwoonHeadOpenUpLeft,
-    /// <summary>The frame the installed artwork names <c>botwoon_head_09</c>.</summary>
+    /// <summary>Botwoon: head open left.</summary>
     BotwoonHeadOpenLeft,
-    /// <summary>The frame the installed artwork names <c>botwoon_head_10</c>.</summary>
+    /// <summary>Botwoon: head open down left.</summary>
     BotwoonHeadOpenDownLeft,
-    /// <summary>The frame the installed artwork names <c>botwoon_head_11</c>.</summary>
+    /// <summary>Botwoon: head open down.</summary>
     BotwoonHeadOpenDown,
-    /// <summary>The frame the installed artwork names <c>botwoon_head_12</c>.</summary>
+    /// <summary>Botwoon: head open down right.</summary>
     BotwoonHeadOpenDownRight,
-    /// <summary>The frame the installed artwork names <c>botwoon_head_13</c>.</summary>
+    /// <summary>Botwoon: head open right.</summary>
     BotwoonHeadOpenRight,
-    /// <summary>The frame the installed artwork names <c>botwoon_head_14</c>.</summary>
+    /// <summary>Botwoon: head open up right.</summary>
     BotwoonHeadOpenUpRight,
-    /// <summary>The frame the installed artwork names <c>botwoon_head_15</c>.</summary>
+    /// <summary>Botwoon: head open up.</summary>
     BotwoonHeadOpenUp,
-    /// <summary>The frame the installed artwork names <c>gunship_entrance_00</c>.</summary>
+    /// <summary>Samus's gunship: entrance pad opening, first frame.</summary>
     GunshipEntrancePadOpeningFirst,
-    /// <summary>The frame the installed artwork names <c>gunship_entrance_01</c>.</summary>
+    /// <summary>Samus's gunship: entrance pad opening, second frame.</summary>
     GunshipEntrancePadOpeningSecond,
-    /// <summary>The frame the installed artwork names <c>gunship_entrance_02</c>.</summary>
+    /// <summary>Samus's gunship: entrance pad opening, third frame.</summary>
     GunshipEntrancePadOpeningThird,
-    /// <summary>The frame the installed artwork names <c>gunship_entrance_03</c>.</summary>
+    /// <summary>Samus's gunship: entrance pad opening, fourth frame.</summary>
     GunshipEntrancePadOpeningFourth,
-    /// <summary>The frame the installed artwork names <c>gunship_entrance_04</c>.</summary>
+    /// <summary>Samus's gunship: entrance pad opening, fifth frame.</summary>
     GunshipEntrancePadOpeningFifth,
-    /// <summary>The frame the installed artwork names <c>gunship_entrance_05</c>.</summary>
+    /// <summary>Samus's gunship: entrance pad opening, sixth frame.</summary>
     GunshipEntrancePadOpeningSixth,
-    /// <summary>The frame the installed artwork names <c>gunship_entrance_06</c>.</summary>
+    /// <summary>Samus's gunship: entrance pad opening, seventh frame.</summary>
     GunshipEntrancePadOpeningSeventh,
-    /// <summary>The frame the installed artwork names <c>gunship_entrance_07</c>.</summary>
+    /// <summary>Samus's gunship: entrance pad opening, eighth frame.</summary>
     GunshipEntrancePadOpeningEighth,
-    /// <summary>The frame the installed artwork names <c>gunship_entrance_08</c>.</summary>
+    /// <summary>Samus's gunship: entrance pad opening, ninth frame.</summary>
     GunshipEntrancePadOpeningNinth,
-    /// <summary>The frame the installed artwork names <c>gunship_entrance_09</c>.</summary>
+    /// <summary>Samus's gunship: entrance pad opening, tenth frame.</summary>
     GunshipEntrancePadOpeningTenth,
-    /// <summary>The frame the installed artwork names <c>gunship_entrance_10</c>.</summary>
+    /// <summary>Samus's gunship: entrance pad open.</summary>
     GunshipEntrancePadOpen,
-    /// <summary>The frame the installed artwork names <c>gunship_top_hull</c>.</summary>
+    /// <summary>Samus's gunship: top hull.</summary>
     GunshipTopHull,
-    /// <summary>The frame the installed artwork names <c>gunship_bottom_hull</c>.</summary>
+    /// <summary>Samus's gunship: bottom hull.</summary>
     GunshipBottomHull,
-    /// <summary>The frame the installed artwork names <c>tatori_00</c>.</summary>
+    /// <summary>The baby turtle: crawling left, first frame.</summary>
     TurtleBabyCrawlingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>tatori_01</c>.</summary>
+    /// <summary>The baby turtle: crawling left, second frame.</summary>
     TurtleBabyCrawlingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>tatori_02</c>.</summary>
+    /// <summary>The baby turtle: crawling left, third frame.</summary>
     TurtleBabyCrawlingLeftThird,
-    /// <summary>The frame the installed artwork names <c>tatori_03</c>.</summary>
+    /// <summary>The baby turtle: crawling left, fourth frame.</summary>
     TurtleBabyCrawlingLeftFourth,
-    /// <summary>The frame the installed artwork names <c>tatori_04</c>.</summary>
+    /// <summary>The baby turtle: crawling left, fifth frame.</summary>
     TurtleBabyCrawlingLeftFifth,
-    /// <summary>The frame the installed artwork names <c>tatori_05</c>.</summary>
+    /// <summary>The baby turtle: crawling left, sixth frame.</summary>
     TurtleBabyCrawlingLeftSixth,
-    /// <summary>The frame the installed artwork names <c>tatori_06</c>.</summary>
+    /// <summary>The baby turtle: crawling left, seventh frame.</summary>
     TurtleBabyCrawlingLeftSeventh,
-    /// <summary>The frame the installed artwork names <c>tatori_07</c>.</summary>
+    /// <summary>The baby turtle: spinning, first frame.</summary>
     TurtleBabySpinningFirst,
-    /// <summary>The frame the installed artwork names <c>tatori_08</c>.</summary>
+    /// <summary>The baby turtle: spinning, second frame.</summary>
     TurtleBabySpinningSecond,
-    /// <summary>The frame the installed artwork names <c>tatori_09</c>.</summary>
+    /// <summary>The baby turtle: spinning, third frame.</summary>
     TurtleBabySpinningThird,
-    /// <summary>The frame the installed artwork names <c>tatori_10</c>.</summary>
+    /// <summary>The baby turtle: spinning, fourth frame.</summary>
     TurtleBabySpinningFourth,
-    /// <summary>The frame the installed artwork names <c>tatori_11</c>.</summary>
+    /// <summary>The mama turtle: spinning, first frame.</summary>
     TurtleMamaSpinningFirst,
-    /// <summary>The frame the installed artwork names <c>tatori_12</c>.</summary>
+    /// <summary>The mama turtle: spinning, second frame.</summary>
     TurtleMamaSpinningSecond,
-    /// <summary>The frame the installed artwork names <c>tatori_13</c>.</summary>
+    /// <summary>The mama turtle: spinning, third frame.</summary>
     TurtleMamaSpinningThird,
-    /// <summary>The frame the installed artwork names <c>tatori_14</c>.</summary>
+    /// <summary>The mama turtle: enter shell left, first frame.</summary>
     TurtleMamaEnterShellLeftFirst,
-    /// <summary>The frame the installed artwork names <c>tatori_15</c>.</summary>
+    /// <summary>The mama turtle: enter shell left, second frame.</summary>
     TurtleMamaEnterShellLeftSecond,
-    /// <summary>The frame the installed artwork names <c>tatori_16</c>.</summary>
+    /// <summary>The mama turtle: enter shell left, third frame.</summary>
     TurtleMamaEnterShellLeftThird,
-    /// <summary>The frame the installed artwork names <c>tatori_17</c>.</summary>
+    /// <summary>The baby turtle: crawling right, first frame.</summary>
     TurtleBabyCrawlingRightFirst,
-    /// <summary>The frame the installed artwork names <c>tatori_18</c>.</summary>
+    /// <summary>The baby turtle: crawling right, second frame.</summary>
     TurtleBabyCrawlingRightSecond,
-    /// <summary>The frame the installed artwork names <c>tatori_19</c>.</summary>
+    /// <summary>The baby turtle: crawling right, third frame.</summary>
     TurtleBabyCrawlingRightThird,
-    /// <summary>The frame the installed artwork names <c>tatori_20</c>.</summary>
+    /// <summary>The baby turtle: crawling right, fourth frame.</summary>
     TurtleBabyCrawlingRightFourth,
-    /// <summary>The frame the installed artwork names <c>tatori_21</c>.</summary>
+    /// <summary>The baby turtle: crawling right, fifth frame.</summary>
     TurtleBabyCrawlingRightFifth,
-    /// <summary>The frame the installed artwork names <c>tatori_22</c>.</summary>
+    /// <summary>The baby turtle: crawling right, sixth frame.</summary>
     TurtleBabyCrawlingRightSixth,
-    /// <summary>The frame the installed artwork names <c>tatori_23</c>.</summary>
+    /// <summary>The baby turtle: crawling right, seventh frame.</summary>
     TurtleBabyCrawlingRightSeventh,
-    /// <summary>The frame the installed artwork names <c>tatori_24</c>.</summary>
+    /// <summary>The mama turtle: enter shell right, first frame.</summary>
     TurtleMamaEnterShellRightFirst,
-    /// <summary>The frame the installed artwork names <c>tatori_25</c>.</summary>
+    /// <summary>The mama turtle: enter shell right, second frame.</summary>
     TurtleMamaEnterShellRightSecond,
-    /// <summary>The frame the installed artwork names <c>tatori_26</c>.</summary>
+    /// <summary>The mama turtle: enter shell right, third frame.</summary>
     TurtleMamaEnterShellRightThird,
-    /// <summary>The frame the installed artwork names <c>tatori_27</c>.</summary>
+    /// <summary>The mama turtle: enter shell right, fourth frame.</summary>
     TurtleMamaEnterShellRightFourth,
-    /// <summary>The frame the installed artwork names <c>tatori_28</c>.</summary>
+    /// <summary>The baby turtle: hiding right, third frame.</summary>
     TurtleBabyHidingRightThird,
-    /// <summary>The frame the installed artwork names <c>zero_crawler_00</c>.</summary>
+    /// <summary>Zero: upside right loop, first frame.</summary>
     ZeroUpsideRightLoopFirst,
-    /// <summary>The frame the installed artwork names <c>zero_crawler_01</c>.</summary>
+    /// <summary>Zero: upside right loop, second frame.</summary>
     ZeroUpsideRightLoopSecond,
-    /// <summary>The frame the installed artwork names <c>zero_crawler_02</c>.</summary>
+    /// <summary>Zero: upside right loop, third frame.</summary>
     ZeroUpsideRightLoopThird,
-    /// <summary>The frame the installed artwork names <c>zero_crawler_03</c>.</summary>
+    /// <summary>Zero: upside right loop, fourth frame.</summary>
     ZeroUpsideRightLoopFourth,
-    /// <summary>The frame the installed artwork names <c>zero_crawler_04</c>.</summary>
+    /// <summary>Zero: upside left loop, first frame.</summary>
     ZeroUpsideLeftLoopFirst,
-    /// <summary>The frame the installed artwork names <c>zero_crawler_05</c>.</summary>
+    /// <summary>Zero: upside left loop, second frame.</summary>
     ZeroUpsideLeftLoopSecond,
-    /// <summary>The frame the installed artwork names <c>zero_crawler_06</c>.</summary>
+    /// <summary>Zero: upside left loop, third frame.</summary>
     ZeroUpsideLeftLoopThird,
-    /// <summary>The frame the installed artwork names <c>zero_crawler_07</c>.</summary>
+    /// <summary>Zero: upside left loop, fourth frame.</summary>
     ZeroUpsideLeftLoopFourth,
-    /// <summary>The frame the installed artwork names <c>zero_crawler_08</c>.</summary>
+    /// <summary>Zero: upside down loop, first frame.</summary>
     ZeroUpsideDownLoopFirst,
-    /// <summary>The frame the installed artwork names <c>zero_crawler_09</c>.</summary>
+    /// <summary>Zero: upside down loop, second frame.</summary>
     ZeroUpsideDownLoopSecond,
-    /// <summary>The frame the installed artwork names <c>zero_crawler_10</c>.</summary>
+    /// <summary>Zero: upside down loop, third frame.</summary>
     ZeroUpsideDownLoopThird,
-    /// <summary>The frame the installed artwork names <c>zero_crawler_11</c>.</summary>
+    /// <summary>Zero: upside down loop, fourth frame.</summary>
     ZeroUpsideDownLoopFourth,
-    /// <summary>The frame the installed artwork names <c>zero_crawler_12</c>.</summary>
+    /// <summary>Zero: upside up loop, first frame.</summary>
     ZeroUpsideUpLoopFirst,
-    /// <summary>The frame the installed artwork names <c>zero_crawler_13</c>.</summary>
+    /// <summary>Zero: upside up loop, second frame.</summary>
     ZeroUpsideUpLoopSecond,
-    /// <summary>The frame the installed artwork names <c>zero_crawler_14</c>.</summary>
+    /// <summary>Zero: upside up loop, third frame.</summary>
     ZeroUpsideUpLoopThird,
-    /// <summary>The frame the installed artwork names <c>zero_crawler_15</c>.</summary>
+    /// <summary>Zero: upside up loop, fourth frame.</summary>
     ZeroUpsideUpLoopFourth,
-    /// <summary>The frame the installed artwork names <c>etecoon_00</c>.</summary>
+    /// <summary>Etecoon: look right at Samus and run left.</summary>
     EtecoonLookRightAtSamusAndRunLeft,
-    /// <summary>The frame the installed artwork names <c>etecoon_01</c>.</summary>
+    /// <summary>Etecoon: begin running left.</summary>
     EtecoonBeginRunningLeft,
-    /// <summary>The frame the installed artwork names <c>etecoon_02</c>.</summary>
+    /// <summary>Etecoon: running left, first frame.</summary>
     EtecoonRunningLeftFirst,
-    /// <summary>The frame the installed artwork names <c>etecoon_03</c>.</summary>
+    /// <summary>Etecoon: running left, second frame.</summary>
     EtecoonRunningLeftSecond,
-    /// <summary>The frame the installed artwork names <c>etecoon_04</c>.</summary>
+    /// <summary>Etecoon: running left, third frame.</summary>
     EtecoonRunningLeftThird,
-    /// <summary>The frame the installed artwork names <c>etecoon_05</c>.</summary>
+    /// <summary>Etecoon: wall jump left.</summary>
     EtecoonWallJumpLeft,
-    /// <summary>The frame the installed artwork names <c>etecoon_06</c>.</summary>
+    /// <summary>Etecoon: wall jump left loop, first frame.</summary>
     EtecoonWallJumpLeftLoopFirst,
-    /// <summary>The frame the installed artwork names <c>etecoon_07</c>.</summary>
+    /// <summary>Etecoon: wall jump left loop, second frame.</summary>
     EtecoonWallJumpLeftLoopSecond,
-    /// <summary>The frame the installed artwork names <c>etecoon_08</c>.</summary>
+    /// <summary>Etecoon: wall jump left loop, third frame.</summary>
     EtecoonWallJumpLeftLoopThird,
-    /// <summary>The frame the installed artwork names <c>etecoon_09</c>.</summary>
+    /// <summary>Etecoon: wall jump left loop, fourth frame.</summary>
     EtecoonWallJumpLeftLoopFourth,
-    /// <summary>The frame the installed artwork names <c>etecoon_10</c>.</summary>
+    /// <summary>Etecoon: hopping facing left.</summary>
     EtecoonHoppingFacingLeft,
-    /// <summary>The frame the installed artwork names <c>etecoon_11</c>.</summary>
+    /// <summary>Etecoon: continue hopping facing left, first frame.</summary>
     EtecoonContinueHoppingFacingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>etecoon_12</c>.</summary>
+    /// <summary>Etecoon: continue hopping facing left, second frame.</summary>
     EtecoonContinueHoppingFacingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>etecoon_13</c>.</summary>
+    /// <summary>Etecoon: hit ceiling, first frame.</summary>
     EtecoonHitCeilingFirst,
-    /// <summary>The frame the installed artwork names <c>etecoon_14</c>.</summary>
+    /// <summary>Etecoon: wall jump left eligible.</summary>
     EtecoonWallJumpLeftEligible,
-    /// <summary>The frame the installed artwork names <c>etecoon_15</c>.</summary>
+    /// <summary>Etecoon: look left at Samus and run right.</summary>
     EtecoonLookLeftAtSamusAndRunRight,
-    /// <summary>The frame the installed artwork names <c>etecoon_16</c>.</summary>
+    /// <summary>Etecoon: begin running right.</summary>
     EtecoonBeginRunningRight,
-    /// <summary>The frame the installed artwork names <c>etecoon_17</c>.</summary>
+    /// <summary>Etecoon: running right, first frame.</summary>
     EtecoonRunningRightFirst,
-    /// <summary>The frame the installed artwork names <c>etecoon_18</c>.</summary>
+    /// <summary>Etecoon: running right, second frame.</summary>
     EtecoonRunningRightSecond,
-    /// <summary>The frame the installed artwork names <c>etecoon_19</c>.</summary>
+    /// <summary>Etecoon: running right, third frame.</summary>
     EtecoonRunningRightThird,
-    /// <summary>The frame the installed artwork names <c>etecoon_20</c>.</summary>
+    /// <summary>Etecoon: wall jump right.</summary>
     EtecoonWallJumpRight,
-    /// <summary>The frame the installed artwork names <c>etecoon_21</c>.</summary>
+    /// <summary>Etecoon: jumping right, first frame.</summary>
     EtecoonJumpingRightFirst,
-    /// <summary>The frame the installed artwork names <c>etecoon_22</c>.</summary>
+    /// <summary>Etecoon: jumping right, second frame.</summary>
     EtecoonJumpingRightSecond,
-    /// <summary>The frame the installed artwork names <c>etecoon_23</c>.</summary>
+    /// <summary>Etecoon: jumping right, third frame.</summary>
     EtecoonJumpingRightThird,
-    /// <summary>The frame the installed artwork names <c>etecoon_24</c>.</summary>
+    /// <summary>Etecoon: jumping right, fourth frame.</summary>
     EtecoonJumpingRightFourth,
-    /// <summary>The frame the installed artwork names <c>etecoon_25</c>.</summary>
+    /// <summary>Etecoon: hopping facing right.</summary>
     EtecoonHoppingFacingRight,
-    /// <summary>The frame the installed artwork names <c>etecoon_26</c>.</summary>
+    /// <summary>Etecoon: continue hopping facing right, first frame.</summary>
     EtecoonContinueHoppingFacingRightFirst,
-    /// <summary>The frame the installed artwork names <c>etecoon_27</c>.</summary>
+    /// <summary>Etecoon: continue hopping facing right, second frame.</summary>
     EtecoonContinueHoppingFacingRightSecond,
-    /// <summary>The frame the installed artwork names <c>etecoon_28</c>.</summary>
+    /// <summary>Etecoon: continue hopping facing right, third frame.</summary>
     EtecoonContinueHoppingFacingRightThird,
-    /// <summary>The frame the installed artwork names <c>etecoon_29</c>.</summary>
+    /// <summary>Etecoon: wall jump right eligible.</summary>
     EtecoonWallJumpRightEligible,
-    /// <summary>The frame the installed artwork names <c>etecoon_30</c>.</summary>
+    /// <summary>Etecoon: flexing loop, fifth frame.</summary>
     EtecoonFlexingLoopFifth,
-    /// <summary>The frame the installed artwork names <c>dachora_00</c>.</summary>
+    /// <summary>Dachora: running left, first frame.</summary>
     DachoraRunningLeftFirst,
-    /// <summary>The frame the installed artwork names <c>dachora_01</c>.</summary>
+    /// <summary>Dachora: running left, second frame.</summary>
     DachoraRunningLeftSecond,
-    /// <summary>The frame the installed artwork names <c>dachora_02</c>.</summary>
+    /// <summary>Dachora: running left, third frame.</summary>
     DachoraRunningLeftThird,
-    /// <summary>The frame the installed artwork names <c>dachora_03</c>.</summary>
+    /// <summary>Dachora: running left, fourth frame.</summary>
     DachoraRunningLeftFourth,
-    /// <summary>The frame the installed artwork names <c>dachora_04</c>.</summary>
+    /// <summary>Dachora: running left, fifth frame.</summary>
     DachoraRunningLeftFifth,
-    /// <summary>The frame the installed artwork names <c>dachora_05</c>.</summary>
+    /// <summary>Dachora: running left, sixth frame.</summary>
     DachoraRunningLeftSixth,
-    /// <summary>The frame the installed artwork names <c>dachora_06</c>.</summary>
+    /// <summary>Dachora: idle left, first frame.</summary>
     DachoraIdleLeftFirst,
-    /// <summary>The frame the installed artwork names <c>dachora_07</c>.</summary>
+    /// <summary>Dachora: idle left, second frame.</summary>
     DachoraIdleLeftSecond,
-    /// <summary>The frame the installed artwork names <c>dachora_08</c>.</summary>
+    /// <summary>Dachora: idle left, third frame.</summary>
     DachoraIdleLeftThird,
-    /// <summary>The frame the installed artwork names <c>dachora_09</c>.</summary>
+    /// <summary>Dachora: idle left, fourth frame.</summary>
     DachoraIdleLeftFourth,
-    /// <summary>The frame the installed artwork names <c>dachora_10</c>.</summary>
+    /// <summary>Dachora: idle left, fifth frame.</summary>
     DachoraIdleLeftFifth,
-    /// <summary>The frame the installed artwork names <c>dachora_11</c>.</summary>
+    /// <summary>Dachora: blink left, second frame.</summary>
     DachoraBlinkLeftSecond,
-    /// <summary>The frame the installed artwork names <c>dachora_12</c>.</summary>
+    /// <summary>Dachora: blink left, third frame.</summary>
     DachoraBlinkLeftThird,
-    /// <summary>The frame the installed artwork names <c>dachora_13</c>.</summary>
+    /// <summary>Dachora: echo left.</summary>
     DachoraEchoLeft,
-    /// <summary>The frame the installed artwork names <c>dachora_14</c>.</summary>
+    /// <summary>Dachora: running right, first frame.</summary>
     DachoraRunningRightFirst,
-    /// <summary>The frame the installed artwork names <c>dachora_15</c>.</summary>
+    /// <summary>Dachora: running right, second frame.</summary>
     DachoraRunningRightSecond,
-    /// <summary>The frame the installed artwork names <c>dachora_16</c>.</summary>
+    /// <summary>Dachora: running right, third frame.</summary>
     DachoraRunningRightThird,
-    /// <summary>The frame the installed artwork names <c>dachora_17</c>.</summary>
+    /// <summary>Dachora: running right, fourth frame.</summary>
     DachoraRunningRightFourth,
-    /// <summary>The frame the installed artwork names <c>dachora_18</c>.</summary>
+    /// <summary>Dachora: running right, fifth frame.</summary>
     DachoraRunningRightFifth,
-    /// <summary>The frame the installed artwork names <c>dachora_19</c>.</summary>
+    /// <summary>Dachora: running right, sixth frame.</summary>
     DachoraRunningRightSixth,
-    /// <summary>The frame the installed artwork names <c>dachora_20</c>.</summary>
+    /// <summary>Dachora: idle right, first frame.</summary>
     DachoraIdleRightFirst,
-    /// <summary>The frame the installed artwork names <c>dachora_21</c>.</summary>
+    /// <summary>Dachora: idle right, second frame.</summary>
     DachoraIdleRightSecond,
-    /// <summary>The frame the installed artwork names <c>dachora_22</c>.</summary>
+    /// <summary>Dachora: idle right, third frame.</summary>
     DachoraIdleRightThird,
-    /// <summary>The frame the installed artwork names <c>dachora_23</c>.</summary>
+    /// <summary>Dachora: idle right, fourth frame.</summary>
     DachoraIdleRightFourth,
-    /// <summary>The frame the installed artwork names <c>dachora_24</c>.</summary>
+    /// <summary>Dachora: idle right, fifth frame.</summary>
     DachoraIdleRightFifth,
-    /// <summary>The frame the installed artwork names <c>dachora_25</c>.</summary>
+    /// <summary>Dachora: blink right, second frame.</summary>
     DachoraBlinkRightSecond,
-    /// <summary>The frame the installed artwork names <c>dachora_26</c>.</summary>
+    /// <summary>Dachora: blink right, third frame.</summary>
     DachoraBlinkRightThird,
-    /// <summary>The frame the installed artwork names <c>dachora_27</c>.</summary>
+    /// <summary>Dachora: charge right.</summary>
     DachoraChargeRight,
-    /// <summary>The frame the installed artwork names <c>dachora_28</c>.</summary>
+    /// <summary>Dachora: echo right.</summary>
     DachoraEchoRight,
-    /// <summary>The frame the installed artwork names <c>escape_etecoon_00</c>.</summary>
+    /// <summary>The escaping Etecoons: running left low tide loop, first frame.</summary>
     EscapeEtecoonRunningLeftLowTideLoopFirst,
-    /// <summary>The frame the installed artwork names <c>escape_etecoon_01</c>.</summary>
+    /// <summary>The escaping Etecoons: running left low tide loop, second frame.</summary>
     EscapeEtecoonRunningLeftLowTideLoopSecond,
-    /// <summary>The frame the installed artwork names <c>escape_etecoon_02</c>.</summary>
+    /// <summary>The escaping Etecoons: running left low tide loop, third frame.</summary>
     EscapeEtecoonRunningLeftLowTideLoopThird,
-    /// <summary>The frame the installed artwork names <c>escape_etecoon_03</c>.</summary>
+    /// <summary>The escaping Etecoons: running right low tide loop, first frame.</summary>
     EscapeEtecoonRunningRightLowTideLoopFirst,
-    /// <summary>The frame the installed artwork names <c>escape_etecoon_04</c>.</summary>
+    /// <summary>The escaping Etecoons: running right low tide loop, second frame.</summary>
     EscapeEtecoonRunningRightLowTideLoopSecond,
-    /// <summary>The frame the installed artwork names <c>escape_etecoon_05</c>.</summary>
+    /// <summary>The escaping Etecoons: running right low tide loop, third frame.</summary>
     EscapeEtecoonRunningRightLowTideLoopThird,
-    /// <summary>The frame the installed artwork names <c>escape_etecoon_06</c>.</summary>
+    /// <summary>The escaping Etecoons: stationary, first frame.</summary>
     EscapeEtecoonStationaryFirst,
-    /// <summary>The frame the installed artwork names <c>escape_etecoon_07</c>.</summary>
+    /// <summary>The escaping Etecoons: stationary, second frame.</summary>
     EscapeEtecoonStationarySecond,
-    /// <summary>The frame the installed artwork names <c>escape_etecoon_08</c>.</summary>
+    /// <summary>The escaping Etecoons: stationary, third frame.</summary>
     EscapeEtecoonStationaryThird,
-    /// <summary>The frame the installed artwork names <c>escape_etecoon_09</c>.</summary>
+    /// <summary>The escaping Etecoons: stationary, fourth frame.</summary>
     EscapeEtecoonStationaryFourth,
-    /// <summary>The frame the installed artwork names <c>escape_dachora_00</c>.</summary>
+    /// <summary>The escaping Dachora: running around low tide left, first frame.</summary>
     EscapeDachoraRunningAroundLowTideLeftFirst,
-    /// <summary>The frame the installed artwork names <c>escape_dachora_01</c>.</summary>
+    /// <summary>The escaping Dachora: running around low tide left, second frame.</summary>
     EscapeDachoraRunningAroundLowTideLeftSecond,
-    /// <summary>The frame the installed artwork names <c>escape_dachora_02</c>.</summary>
+    /// <summary>The escaping Dachora: running around low tide left, third frame.</summary>
     EscapeDachoraRunningAroundLowTideLeftThird,
-    /// <summary>The frame the installed artwork names <c>escape_dachora_03</c>.</summary>
+    /// <summary>The escaping Dachora: running around low tide left, fourth frame.</summary>
     EscapeDachoraRunningAroundLowTideLeftFourth,
-    /// <summary>The frame the installed artwork names <c>escape_dachora_04</c>.</summary>
+    /// <summary>The escaping Dachora: running around low tide left, fifth frame.</summary>
     EscapeDachoraRunningAroundLowTideLeftFifth,
-    /// <summary>The frame the installed artwork names <c>escape_dachora_05</c>.</summary>
+    /// <summary>The escaping Dachora: running around low tide left, sixth frame.</summary>
     EscapeDachoraRunningAroundLowTideLeftSixth,
-    /// <summary>The frame the installed artwork names <c>escape_dachora_06</c>.</summary>
+    /// <summary>The escaping Dachora: running around low tide right, first frame.</summary>
     EscapeDachoraRunningAroundLowTideRightFirst,
-    /// <summary>The frame the installed artwork names <c>escape_dachora_07</c>.</summary>
+    /// <summary>The escaping Dachora: running around low tide right, second frame.</summary>
     EscapeDachoraRunningAroundLowTideRightSecond,
-    /// <summary>The frame the installed artwork names <c>escape_dachora_08</c>.</summary>
+    /// <summary>The escaping Dachora: running around low tide right, third frame.</summary>
     EscapeDachoraRunningAroundLowTideRightThird,
-    /// <summary>The frame the installed artwork names <c>escape_dachora_09</c>.</summary>
+    /// <summary>The escaping Dachora: running around low tide right, fourth frame.</summary>
     EscapeDachoraRunningAroundLowTideRightFourth,
-    /// <summary>The frame the installed artwork names <c>escape_dachora_10</c>.</summary>
+    /// <summary>The escaping Dachora: running around low tide right, fifth frame.</summary>
     EscapeDachoraRunningAroundLowTideRightFifth,
-    /// <summary>The frame the installed artwork names <c>escape_dachora_11</c>.</summary>
+    /// <summary>The escaping Dachora: running around low tide right, sixth frame.</summary>
     EscapeDachoraRunningAroundLowTideRightSixth,
-    /// <summary>The frame the installed artwork names <c>hibashi_00</c>.</summary>
-    HibashiGraphicsFirst,
-    /// <summary>The frame the installed artwork names <c>hibashi_01</c>.</summary>
-    HibashiGraphicsSecond,
-    /// <summary>The frame the installed artwork names <c>hibashi_02</c>.</summary>
-    HibashiGraphicsThird,
-    /// <summary>The frame the installed artwork names <c>hibashi_03</c>.</summary>
-    HibashiGraphicsFourth,
-    /// <summary>The frame the installed artwork names <c>hibashi_04</c>.</summary>
-    HibashiGraphicsFifth,
-    /// <summary>The frame the installed artwork names <c>hibashi_05</c>.</summary>
-    HibashiGraphicsSixth,
-    /// <summary>The frame the installed artwork names <c>hibashi_06</c>.</summary>
-    HibashiGraphicsSeventh,
-    /// <summary>The frame the installed artwork names <c>hibashi_07</c>.</summary>
-    HibashiGraphicsEighth,
-    /// <summary>The frame the installed artwork names <c>hibashi_08</c>.</summary>
-    HibashiGraphicsNinth,
-    /// <summary>The frame the installed artwork names <c>hibashi_09</c>.</summary>
-    HibashiGraphicsTenth,
-    /// <summary>The frame the installed artwork names <c>hibashi_10</c>.</summary>
-    HibashiGraphicsEleventh,
-    /// <summary>The frame the installed artwork names <c>hibashi_11</c>.</summary>
-    HibashiGraphicsTwelfth,
-    /// <summary>The frame the installed artwork names <c>hibashi_12</c>.</summary>
-    HibashiGraphicsThirteenth,
-    /// <summary>The frame the installed artwork names <c>hibashi_13</c>.</summary>
-    HibashiGraphicsFourteenth,
-    /// <summary>The frame the installed artwork names <c>hibashi_14</c>.</summary>
-    HibashiGraphicsFifteenth,
-    /// <summary>The frame the installed artwork names <c>hibashi_15</c>.</summary>
-    HibashiGraphicsSixteenth,
-    /// <summary>The frame the installed artwork names <c>hibashi_16</c>.</summary>
-    HibashiGraphicsSeventeenth,
-    /// <summary>The frame the installed artwork names <c>hibashi_17</c>.</summary>
-    HibashiGraphicsEighteenth,
-    /// <summary>The frame the installed artwork names <c>hibashi_18</c>.</summary>
-    HibashiGraphicsNineteenth,
-    /// <summary>The frame the installed artwork names <c>hibashi_19</c>.</summary>
-    HibashiGraphicsTwentieth,
-    /// <summary>The frame the installed artwork names <c>hibashi_20</c>.</summary>
-    HibashiGraphicsTwentyFirst,
-    /// <summary>The frame the installed artwork names <c>hibashi_21</c>.</summary>
-    HibashiGraphicsTwentySecond,
-    /// <summary>The frame the installed artwork names <c>hibashi_22</c>.</summary>
-    HibashiGraphicsTwentyThird,
-    /// <summary>The frame the installed artwork names <c>zebetite_00</c>.</summary>
+    /// <summary>Hibashi: eruption, first frame.</summary>
+    HibashiEruptionFirst,
+    /// <summary>Hibashi: eruption, second frame.</summary>
+    HibashiEruptionSecond,
+    /// <summary>Hibashi: eruption, third frame.</summary>
+    HibashiEruptionThird,
+    /// <summary>Hibashi: eruption, fourth frame.</summary>
+    HibashiEruptionFourth,
+    /// <summary>Hibashi: eruption, fifth frame.</summary>
+    HibashiEruptionFifth,
+    /// <summary>Hibashi: eruption, sixth frame.</summary>
+    HibashiEruptionSixth,
+    /// <summary>Hibashi: eruption, seventh frame.</summary>
+    HibashiEruptionSeventh,
+    /// <summary>Hibashi: eruption, eighth frame.</summary>
+    HibashiEruptionEighth,
+    /// <summary>Hibashi: eruption, ninth frame.</summary>
+    HibashiEruptionNinth,
+    /// <summary>Hibashi: eruption, tenth frame.</summary>
+    HibashiEruptionTenth,
+    /// <summary>Hibashi: eruption, eleventh frame.</summary>
+    HibashiEruptionEleventh,
+    /// <summary>Hibashi: eruption, twelfth frame.</summary>
+    HibashiEruptionTwelfth,
+    /// <summary>Hibashi: eruption, thirteenth frame.</summary>
+    HibashiEruptionThirteenth,
+    /// <summary>Hibashi: eruption, fourteenth frame.</summary>
+    HibashiEruptionFourteenth,
+    /// <summary>Hibashi: eruption, fifteenth frame.</summary>
+    HibashiEruptionFifteenth,
+    /// <summary>Hibashi: eruption, sixteenth frame.</summary>
+    HibashiEruptionSixteenth,
+    /// <summary>Hibashi: eruption, seventeenth frame.</summary>
+    HibashiEruptionSeventeenth,
+    /// <summary>Hibashi: eruption, eighteenth frame.</summary>
+    HibashiEruptionEighteenth,
+    /// <summary>Hibashi: eruption, nineteenth frame.</summary>
+    HibashiEruptionNineteenth,
+    /// <summary>Hibashi: eruption, twentieth frame.</summary>
+    HibashiEruptionTwentieth,
+    /// <summary>Hibashi: eruption, twenty-first frame.</summary>
+    HibashiEruptionTwentyFirst,
+    /// <summary>Hibashi: eruption, twenty-second frame.</summary>
+    HibashiEruptionTwentySecond,
+    /// <summary>Hibashi: eruption, twenty-third frame.</summary>
+    HibashiEruptionTwentyThird,
+    /// <summary>The zebetite: first frame.</summary>
     ZebetiteFirst,
-    /// <summary>The frame the installed artwork names <c>zebetite_01</c>.</summary>
+    /// <summary>The zebetite: second frame.</summary>
     ZebetiteSecond,
-    /// <summary>The frame the installed artwork names <c>zebetite_02</c>.</summary>
+    /// <summary>The zebetite: third frame.</summary>
     ZebetiteThird,
-    /// <summary>The frame the installed artwork names <c>zebetite_03</c>.</summary>
+    /// <summary>The zebetite: fourth frame.</summary>
     ZebetiteFourth,
-    /// <summary>The frame the installed artwork names <c>zebetite_04</c>.</summary>
+    /// <summary>The zebetite: fifth frame.</summary>
     ZebetiteFifth,
-    /// <summary>The frame the installed artwork names <c>zebetite_05</c>.</summary>
+    /// <summary>The zebetite: sixth frame.</summary>
     ZebetiteSixth,
-    /// <summary>The frame the installed artwork names <c>zebetite_06</c>.</summary>
+    /// <summary>The zebetite: seventh frame.</summary>
     ZebetiteSeventh,
-    /// <summary>The frame the installed artwork names <c>zebetite_07</c>.</summary>
+    /// <summary>The zebetite: eighth frame.</summary>
     ZebetiteEighth,
-    /// <summary>The frame the installed artwork names <c>zebetite_08</c>.</summary>
+    /// <summary>The zebetite: ninth frame.</summary>
     ZebetiteNinth,
-    /// <summary>The frame the installed artwork names <c>zebetite_09</c>.</summary>
+    /// <summary>The zebetite: tenth frame.</summary>
     ZebetiteTenth,
-    /// <summary>The frame the installed artwork names <c>wrecked_ship_ghost_00</c>.</summary>
+    /// <summary>The Wrecked Ship ghost: floating, first frame.</summary>
     WreckedShipGhostFloatingFirst,
-    /// <summary>The frame the installed artwork names <c>wrecked_ship_ghost_01</c>.</summary>
+    /// <summary>The Wrecked Ship ghost: floating, second frame.</summary>
     WreckedShipGhostFloatingSecond,
-    /// <summary>The frame the installed artwork names <c>wrecked_ship_ghost_02</c>.</summary>
+    /// <summary>The Wrecked Ship ghost: floating, third frame.</summary>
     WreckedShipGhostFloatingThird,
-    /// <summary>The frame the installed artwork names <c>powamp_00</c>.</summary>
+    /// <summary>Powamp: body fast, first frame.</summary>
     PowampBodyFastFirst,
-    /// <summary>The frame the installed artwork names <c>powamp_01</c>.</summary>
+    /// <summary>Powamp: body fast, second frame.</summary>
     PowampBodyFastSecond,
-    /// <summary>The frame the installed artwork names <c>powamp_02</c>.</summary>
+    /// <summary>Powamp: body fast, third frame.</summary>
     PowampBodyFastThird,
-    /// <summary>The frame the installed artwork names <c>powamp_03</c>.</summary>
+    /// <summary>Powamp: balloon inflate, first frame.</summary>
     PowampBalloonInflateFirst,
-    /// <summary>The frame the installed artwork names <c>powamp_04</c>.</summary>
+    /// <summary>Powamp: balloon inflate, second frame.</summary>
     PowampBalloonInflateSecond,
-    /// <summary>The frame the installed artwork names <c>powamp_05</c>.</summary>
+    /// <summary>Powamp: balloon inflate, third frame.</summary>
     PowampBalloonInflateThird,
-    /// <summary>The frame the installed artwork names <c>spark_00</c>.</summary>
+    /// <summary>The spark: flicker on, first frame.</summary>
     SparkFlickerOnFirst,
-    /// <summary>The frame the installed artwork names <c>spark_01</c>.</summary>
+    /// <summary>The spark: flicker on, third frame.</summary>
     SparkFlickerOnThird,
-    /// <summary>The frame the installed artwork names <c>spark_02</c>.</summary>
+    /// <summary>The spark: flicker on, fourth frame.</summary>
     SparkFlickerOnFourth,
-    /// <summary>The frame the installed artwork names <c>spark_03</c>.</summary>
+    /// <summary>The spark: flicker on, fifth frame.</summary>
     SparkFlickerOnFifth,
-    /// <summary>The frame the installed artwork names <c>spark_04</c>.</summary>
+    /// <summary>The spark: active, first frame.</summary>
     SparkActiveFirst,
-    /// <summary>The frame the installed artwork names <c>spark_05</c>.</summary>
+    /// <summary>The spark: active, second frame.</summary>
     SparkActiveSecond,
-    /// <summary>The frame the installed artwork names <c>spark_06</c>.</summary>
+    /// <summary>The spark: active, third frame.</summary>
     SparkActiveThird,
-    /// <summary>The frame the installed artwork names <c>spark_07</c>.</summary>
+    /// <summary>The spark: active, fourth frame.</summary>
     SparkActiveFourth,
-    /// <summary>The frame the installed artwork names <c>shitroid_00</c>.</summary>
+    /// <summary>The baby Metroid: initial, third frame.</summary>
     BabyMetroidInitialThird,
-    /// <summary>The frame the installed artwork names <c>shitroid_01</c>.</summary>
+    /// <summary>The baby Metroid: initial, second frame.</summary>
     BabyMetroidInitialSecond,
-    /// <summary>The frame the installed artwork names <c>shitroid_02</c>.</summary>
+    /// <summary>The baby Metroid: initial, first frame.</summary>
     BabyMetroidInitialFirst,
-    /// <summary>The frame the installed artwork names <c>kraid_lint_00</c>.</summary>
+    /// <summary>Kraid: lint initial.</summary>
     KraidLintInitial,
-    /// <summary>The frame the installed artwork names <c>kraid_lint_01</c>.</summary>
+    /// <summary>Kraid: lint post growth.</summary>
     KraidLintPostGrowth,
-    /// <summary>The frame the installed artwork names <c>nuclear_waffle_00</c>.</summary>
+    /// <summary>The nuclear waffle: body loop, first frame.</summary>
     NuclearWaffleBodyLoopFirst,
-    /// <summary>The frame the installed artwork names <c>nuclear_waffle_01</c>.</summary>
+    /// <summary>The nuclear waffle: body loop, second frame.</summary>
     NuclearWaffleBodyLoopSecond,
-    /// <summary>The frame the installed artwork names <c>nuclear_waffle_02</c>.</summary>
+    /// <summary>The nuclear waffle: body loop, third frame.</summary>
     NuclearWaffleBodyLoopThird,
-    /// <summary>The frame the installed artwork names <c>nuclear_waffle_03</c>.</summary>
+    /// <summary>The nuclear waffle: body loop, fourth frame.</summary>
     NuclearWaffleBodyLoopFourth,
-    /// <summary>The frame the installed artwork names <c>nuclear_waffle_04</c>.</summary>
+    /// <summary>The nuclear waffle: body loop, fifth frame.</summary>
     NuclearWaffleBodyLoopFifth,
-    /// <summary>The frame the installed artwork names <c>nuclear_waffle_05</c>.</summary>
+    /// <summary>The nuclear waffle: body loop, sixth frame.</summary>
     NuclearWaffleBodyLoopSixth,
-    /// <summary>The frame the installed artwork names <c>nuclear_waffle_06</c>.</summary>
+    /// <summary>The nuclear waffle: body loop, seventh frame.</summary>
     NuclearWaffleBodyLoopSeventh,
-    /// <summary>The frame the installed artwork names <c>nuclear_waffle_07</c>.</summary>
+    /// <summary>The nuclear waffle: body loop, eighth frame.</summary>
     NuclearWaffleBodyLoopEighth,
-    /// <summary>The frame the installed artwork names <c>kzan_00</c>.</summary>
+    /// <summary>Kzan: idle.</summary>
     KzanIdle,
-    /// <summary>The frame the installed artwork names <c>polyp_00</c>.</summary>
+    /// <summary>Polyp: stationary.</summary>
     PolypStationary,
-    /// <summary>The frame the installed artwork names <c>ridley_breakup_legs_left</c>.</summary>
+    /// <summary>Ridley: breakup legs left.</summary>
     RidleyBreakupLegsLeft,
-    /// <summary>The frame the installed artwork names <c>ridley_breakup_legs_right</c>.</summary>
+    /// <summary>Ridley: breakup legs right.</summary>
     RidleyBreakupLegsRight,
-    /// <summary>The frame the installed artwork names <c>ridley_breakup_torso_left</c>.</summary>
+    /// <summary>Ridley: breakup torso left.</summary>
     RidleyBreakupTorsoLeft,
-    /// <summary>The frame the installed artwork names <c>ridley_breakup_torso_right</c>.</summary>
+    /// <summary>Ridley: breakup torso right.</summary>
     RidleyBreakupTorsoRight,
-    /// <summary>The frame the installed artwork names <c>ridley_breakup_head_left</c>.</summary>
+    /// <summary>Ridley: breakup head left.</summary>
     RidleyBreakupHeadLeft,
-    /// <summary>The frame the installed artwork names <c>ridley_breakup_head_right</c>.</summary>
+    /// <summary>Ridley: breakup head right.</summary>
     RidleyBreakupHeadRight,
-    /// <summary>The frame the installed artwork names <c>ridley_breakup_claw_left</c>.</summary>
+    /// <summary>Ridley: breakup claw left.</summary>
     RidleyBreakupClawLeft,
-    /// <summary>The frame the installed artwork names <c>ridley_breakup_claw_right</c>.</summary>
+    /// <summary>Ridley: breakup claw right.</summary>
     RidleyBreakupClawRight,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_flinch_left</c>.</summary>
+    /// <summary>The walking space pirate: flinch left.</summary>
     WalkingPirateFlinchLeft,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_flinch_right</c>.</summary>
+    /// <summary>The walking space pirate: flinch right.</summary>
     WalkingPirateFlinchRight,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_left_0</c>.</summary>
+    /// <summary>The walking space pirate: walking left loop, first frame.</summary>
     WalkingPirateWalkingLeftLoopFirst,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_left_1</c>.</summary>
+    /// <summary>The walking space pirate: walking left loop, second frame.</summary>
     WalkingPirateWalkingLeftLoopSecond,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_left_2</c>.</summary>
+    /// <summary>The walking space pirate: walking left loop, third frame.</summary>
     WalkingPirateWalkingLeftLoopThird,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_left_3</c>.</summary>
+    /// <summary>The walking space pirate: walking left loop, fourth frame.</summary>
     WalkingPirateWalkingLeftLoopFourth,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_left_4</c>.</summary>
+    /// <summary>The walking space pirate: walking left loop, fifth frame.</summary>
     WalkingPirateWalkingLeftLoopFifth,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_left_5</c>.</summary>
+    /// <summary>The walking space pirate: walking left loop, sixth frame.</summary>
     WalkingPirateWalkingLeftLoopSixth,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_left_6</c>.</summary>
+    /// <summary>The walking space pirate: walking left loop, seventh frame.</summary>
     WalkingPirateWalkingLeftLoopSeventh,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_left_7</c>.</summary>
+    /// <summary>The walking space pirate: walking left loop, eighth frame.</summary>
     WalkingPirateWalkingLeftLoopEighth,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_left_0</c>.</summary>
+    /// <summary>The walking space pirate: fire lasers left, first frame.</summary>
     WalkingPirateFireLasersLeftFirst,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_left_1</c>.</summary>
+    /// <summary>The walking space pirate: fire lasers left, second frame.</summary>
     WalkingPirateFireLasersLeftSecond,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_left_2</c>.</summary>
+    /// <summary>The walking space pirate: fire lasers left, third frame.</summary>
     WalkingPirateFireLasersLeftThird,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_left_3</c>.</summary>
+    /// <summary>The walking space pirate: fire lasers left, fourth frame.</summary>
     WalkingPirateFireLasersLeftFourth,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_left_4</c>.</summary>
+    /// <summary>The walking space pirate: fire lasers left, fifth frame.</summary>
     WalkingPirateFireLasersLeftFifth,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_left_5</c>.</summary>
+    /// <summary>The walking space pirate: fire lasers left, sixth frame.</summary>
     WalkingPirateFireLasersLeftSixth,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_look_left_0</c>.</summary>
+    /// <summary>The walking space pirate: looking facing left, first frame.</summary>
     WalkingPirateLookingFacingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_look_left_1</c>.</summary>
+    /// <summary>The walking space pirate: looking facing left, second frame.</summary>
     WalkingPirateLookingFacingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_look_left_2</c>.</summary>
+    /// <summary>The walking space pirate: looking facing left, third frame.</summary>
     WalkingPirateLookingFacingLeftThird,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_look_shared</c>.</summary>
+    /// <summary>The walking space pirate: look shared.</summary>
     WalkingPirateLookShared,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_right_0</c>.</summary>
+    /// <summary>The walking space pirate: walking right loop, first frame.</summary>
     WalkingPirateWalkingRightLoopFirst,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_right_1</c>.</summary>
+    /// <summary>The walking space pirate: walking right loop, second frame.</summary>
     WalkingPirateWalkingRightLoopSecond,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_right_2</c>.</summary>
+    /// <summary>The walking space pirate: walking right loop, third frame.</summary>
     WalkingPirateWalkingRightLoopThird,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_right_3</c>.</summary>
+    /// <summary>The walking space pirate: walking right loop, fourth frame.</summary>
     WalkingPirateWalkingRightLoopFourth,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_right_4</c>.</summary>
+    /// <summary>The walking space pirate: walking right loop, fifth frame.</summary>
     WalkingPirateWalkingRightLoopFifth,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_right_5</c>.</summary>
+    /// <summary>The walking space pirate: walking right loop, sixth frame.</summary>
     WalkingPirateWalkingRightLoopSixth,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_right_6</c>.</summary>
+    /// <summary>The walking space pirate: walking right loop, seventh frame.</summary>
     WalkingPirateWalkingRightLoopSeventh,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_walk_right_7</c>.</summary>
+    /// <summary>The walking space pirate: walking right loop, eighth frame.</summary>
     WalkingPirateWalkingRightLoopEighth,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_right_0</c>.</summary>
+    /// <summary>The walking space pirate: fire lasers right, first frame.</summary>
     WalkingPirateFireLasersRightFirst,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_right_1</c>.</summary>
+    /// <summary>The walking space pirate: fire lasers right, second frame.</summary>
     WalkingPirateFireLasersRightSecond,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_right_2</c>.</summary>
+    /// <summary>The walking space pirate: fire lasers right, third frame.</summary>
     WalkingPirateFireLasersRightThird,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_right_3</c>.</summary>
+    /// <summary>The walking space pirate: fire lasers right, fourth frame.</summary>
     WalkingPirateFireLasersRightFourth,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_right_4</c>.</summary>
+    /// <summary>The walking space pirate: fire lasers right, fifth frame.</summary>
     WalkingPirateFireLasersRightFifth,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_fire_right_5</c>.</summary>
+    /// <summary>The walking space pirate: fire lasers right, sixth frame.</summary>
     WalkingPirateFireLasersRightSixth,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_look_right_0</c>.</summary>
+    /// <summary>The walking space pirate: looking facing right, first frame.</summary>
     WalkingPirateLookingFacingRightFirst,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_look_right_1</c>.</summary>
+    /// <summary>The walking space pirate: looking facing right, second frame.</summary>
     WalkingPirateLookingFacingRightSecond,
-    /// <summary>The frame the installed artwork names <c>walking_pirate_look_right_2</c>.</summary>
+    /// <summary>The walking space pirate: looking facing right, third frame.</summary>
     WalkingPirateLookingFacingRightThird,
-    /// <summary>The frame the installed artwork names <c>wall_pirate_fire_jump_left_0</c>.</summary>
+    /// <summary>The wall space pirate: fire and jump left, first frame.</summary>
     WallPirateFireAndJumpLeftFirst,
-    /// <summary>The frame the installed artwork names <c>wall_pirate_fire_jump_left_1</c>.</summary>
+    /// <summary>The wall space pirate: fire and jump left, second frame.</summary>
     WallPirateFireAndJumpLeftSecond,
-    /// <summary>The frame the installed artwork names <c>wall_pirate_fire_jump_left_2</c>.</summary>
+    /// <summary>The wall space pirate: fire and jump left, third frame.</summary>
     WallPirateFireAndJumpLeftThird,
-    /// <summary>The frame the installed artwork names <c>wall_pirate_fire_jump_left_3</c>.</summary>
+    /// <summary>The wall space pirate: fire and jump left, fourth frame.</summary>
     WallPirateFireAndJumpLeftFourth,
-    /// <summary>The frame the installed artwork names <c>wall_pirate_climb_left_0</c>.</summary>
+    /// <summary>The wall space pirate: moving up left wall loop, first frame.</summary>
     WallPirateMovingUpLeftWallLoopFirst,
-    /// <summary>The frame the installed artwork names <c>wall_pirate_climb_left_1</c>.</summary>
+    /// <summary>The wall space pirate: moving up left wall loop, second frame.</summary>
     WallPirateMovingUpLeftWallLoopSecond,
-    /// <summary>The frame the installed artwork names <c>wall_pirate_climb_left_2</c>.</summary>
+    /// <summary>The wall space pirate: moving up left wall loop, third frame.</summary>
     WallPirateMovingUpLeftWallLoopThird,
-    /// <summary>The frame the installed artwork names <c>wall_pirate_climb_left_3</c>.</summary>
+    /// <summary>The wall space pirate: moving up left wall loop, fourth frame.</summary>
     WallPirateMovingUpLeftWallLoopFourth,
-    /// <summary>The frame the installed artwork names <c>wall_pirate_climb_left_4</c>.</summary>
+    /// <summary>The wall space pirate: moving up left wall loop, fifth frame.</summary>
     WallPirateMovingUpLeftWallLoopFifth,
-    /// <summary>The frame the installed artwork names <c>wall_pirate_fire_jump_right_0</c>.</summary>
+    /// <summary>The wall space pirate: fire and jump right, first frame.</summary>
     WallPirateFireAndJumpRightFirst,
-    /// <summary>The frame the installed artwork names <c>wall_pirate_fire_jump_right_1</c>.</summary>
+    /// <summary>The wall space pirate: fire and jump right, second frame.</summary>
     WallPirateFireAndJumpRightSecond,
-    /// <summary>The frame the installed artwork names <c>wall_pirate_fire_jump_right_2</c>.</summary>
+    /// <summary>The wall space pirate: fire and jump right, third frame.</summary>
     WallPirateFireAndJumpRightThird,
-    /// <summary>The frame the installed artwork names <c>wall_pirate_fire_jump_right_3</c>.</summary>
+    /// <summary>The wall space pirate: fire and jump right, fourth frame.</summary>
     WallPirateFireAndJumpRightFourth,
-    /// <summary>The frame the installed artwork names <c>wall_pirate_climb_right_0</c>.</summary>
+    /// <summary>The wall space pirate: moving down right wall loop, first frame.</summary>
     WallPirateMovingDownRightWallLoopFirst,
-    /// <summary>The frame the installed artwork names <c>wall_pirate_climb_right_1</c>.</summary>
+    /// <summary>The wall space pirate: moving down right wall loop, second frame.</summary>
     WallPirateMovingDownRightWallLoopSecond,
-    /// <summary>The frame the installed artwork names <c>wall_pirate_climb_right_2</c>.</summary>
+    /// <summary>The wall space pirate: moving down right wall loop, third frame.</summary>
     WallPirateMovingDownRightWallLoopThird,
-    /// <summary>The frame the installed artwork names <c>wall_pirate_climb_right_3</c>.</summary>
+    /// <summary>The wall space pirate: moving down right wall loop, fourth frame.</summary>
     WallPirateMovingDownRightWallLoopFourth,
-    /// <summary>The frame the installed artwork names <c>wall_pirate_climb_right_4</c>.</summary>
+    /// <summary>The wall space pirate: moving down right wall loop, fifth frame.</summary>
     WallPirateMovingDownRightWallLoopFifth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_0</c>.</summary>
+    /// <summary>The ninja space pirate: claw attack left, first frame.</summary>
     NinjaPirateClawAttackLeftFirst,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_1</c>.</summary>
+    /// <summary>The ninja space pirate: claw attack left, second frame.</summary>
     NinjaPirateClawAttackLeftSecond,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_2</c>.</summary>
+    /// <summary>The ninja space pirate: claw attack left, third frame.</summary>
     NinjaPirateClawAttackLeftThird,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_3</c>.</summary>
+    /// <summary>The ninja space pirate: claw attack left, fourth frame.</summary>
     NinjaPirateClawAttackLeftFourth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_4</c>.</summary>
+    /// <summary>The ninja space pirate: claw attack left, fifth frame.</summary>
     NinjaPirateClawAttackLeftFifth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_5</c>.</summary>
+    /// <summary>The ninja space pirate: claw attack left, sixth frame.</summary>
     NinjaPirateClawAttackLeftSixth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_6</c>.</summary>
+    /// <summary>The ninja space pirate: claw attack left, seventh frame.</summary>
     NinjaPirateClawAttackLeftSeventh,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_7</c>.</summary>
+    /// <summary>The ninja space pirate: claw attack left, eighth frame.</summary>
     NinjaPirateClawAttackLeftEighth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_8</c>.</summary>
+    /// <summary>The ninja space pirate: claw attack left, ninth frame.</summary>
     NinjaPirateClawAttackLeftNinth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_17</c>.</summary>
+    /// <summary>The ninja space pirate: spin jump left loop, first frame.</summary>
     NinjaPirateSpinJumpLeftLoopFirst,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_18</c>.</summary>
+    /// <summary>The ninja space pirate: spin jump left loop, second frame.</summary>
     NinjaPirateSpinJumpLeftLoopSecond,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_19</c>.</summary>
+    /// <summary>The ninja space pirate: spin jump left loop, third frame.</summary>
     NinjaPirateSpinJumpLeftLoopThird,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_20</c>.</summary>
+    /// <summary>The ninja space pirate: spin jump left loop, fourth frame.</summary>
     NinjaPirateSpinJumpLeftLoopFourth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_21</c>.</summary>
+    /// <summary>The ninja space pirate: spin jump left loop, fifth frame.</summary>
     NinjaPirateSpinJumpLeftLoopFifth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_22</c>.</summary>
+    /// <summary>The ninja space pirate: spin jump left loop, sixth frame.</summary>
     NinjaPirateSpinJumpLeftLoopSixth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_23</c>.</summary>
+    /// <summary>The ninja space pirate: spin jump left loop, seventh frame.</summary>
     NinjaPirateSpinJumpLeftLoopSeventh,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_24</c>.</summary>
+    /// <summary>The ninja space pirate: spin jump left loop, eighth frame.</summary>
     NinjaPirateSpinJumpLeftLoopEighth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_49</c>.</summary>
+    /// <summary>The ninja space pirate: active facing left loop, first frame.</summary>
     NinjaPirateActiveFacingLeftLoopFirst,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_50</c>.</summary>
+    /// <summary>The ninja space pirate: active facing left loop, second frame.</summary>
     NinjaPirateActiveFacingLeftLoopSecond,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_51</c>.</summary>
+    /// <summary>The ninja space pirate: active facing left loop, third frame.</summary>
     NinjaPirateActiveFacingLeftLoopThird,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_55</c>.</summary>
+    /// <summary>The ninja space pirate: flinch facing left.</summary>
     NinjaPirateFlinchFacingLeft,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_65</c>.</summary>
+    /// <summary>The ninja space pirate: divekick left jump.</summary>
     NinjaPirateDivekickLeftJump,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_57</c>.</summary>
+    /// <summary>The ninja space pirate: divekick left jump loop.</summary>
     NinjaPirateDivekickLeftJumpLoop,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_58</c>.</summary>
+    /// <summary>The ninja space pirate: divekick left dive.</summary>
     NinjaPirateDivekickLeftDive,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_33</c>.</summary>
+    /// <summary>The ninja space pirate: walk to left post loop, first frame.</summary>
     NinjaPirateWalkToLeftPostLoopFirst,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_34</c>.</summary>
+    /// <summary>The ninja space pirate: walk to left post loop, second frame.</summary>
     NinjaPirateWalkToLeftPostLoopSecond,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_35</c>.</summary>
+    /// <summary>The ninja space pirate: walk to left post loop, third frame.</summary>
     NinjaPirateWalkToLeftPostLoopThird,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_36</c>.</summary>
+    /// <summary>The ninja space pirate: walk to left post loop, fourth frame.</summary>
     NinjaPirateWalkToLeftPostLoopFourth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_37</c>.</summary>
+    /// <summary>The ninja space pirate: walk to left post loop, fifth frame.</summary>
     NinjaPirateWalkToLeftPostLoopFifth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_38</c>.</summary>
+    /// <summary>The ninja space pirate: walk to left post loop, sixth frame.</summary>
     NinjaPirateWalkToLeftPostLoopSixth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_39</c>.</summary>
+    /// <summary>The ninja space pirate: walk to left post loop, seventh frame.</summary>
     NinjaPirateWalkToLeftPostLoopSeventh,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_40</c>.</summary>
+    /// <summary>The ninja space pirate: walk to left post loop, eighth frame.</summary>
     NinjaPirateWalkToLeftPostLoopEighth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_69</c>.</summary>
+    /// <summary>The ninja space pirate: initial facing left loop, first frame.</summary>
     NinjaPirateInitialFacingLeftLoopFirst,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_70</c>.</summary>
+    /// <summary>The ninja space pirate: initial facing left loop, second frame.</summary>
     NinjaPirateInitialFacingLeftLoopSecond,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_71</c>.</summary>
+    /// <summary>The ninja space pirate: initial facing left loop, third frame.</summary>
     NinjaPirateInitialFacingLeftLoopThird,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_75</c>.</summary>
+    /// <summary>The ninja space pirate: land facing left, third frame.</summary>
     NinjaPirateLandFacingLeftThird,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_73</c>.</summary>
+    /// <summary>The ninja space pirate: land facing left, fourth frame.</summary>
     NinjaPirateLandFacingLeftFourth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_52</c>.</summary>
+    /// <summary>The ninja space pirate: land facing left loop, first frame.</summary>
     NinjaPirateLandFacingLeftLoopFirst,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_53</c>.</summary>
+    /// <summary>The ninja space pirate: land facing left loop, second frame.</summary>
     NinjaPirateLandFacingLeftLoopSecond,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_54</c>.</summary>
+    /// <summary>The ninja space pirate: land facing left loop, third frame.</summary>
     NinjaPirateLandFacingLeftLoopThird,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_61</c>.</summary>
+    /// <summary>The ninja space pirate: kick facing left, first frame.</summary>
     NinjaPirateKickFacingLeftFirst,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_67</c>.</summary>
+    /// <summary>The ninja space pirate: kick facing left, second frame.</summary>
     NinjaPirateKickFacingLeftSecond,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_62</c>.</summary>
+    /// <summary>The ninja space pirate: kick facing left, third frame.</summary>
     NinjaPirateKickFacingLeftThird,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_9</c>.</summary>
+    /// <summary>The ninja space pirate: claw attack right, first frame.</summary>
     NinjaPirateClawAttackRightFirst,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_10</c>.</summary>
+    /// <summary>The ninja space pirate: claw attack right, second frame.</summary>
     NinjaPirateClawAttackRightSecond,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_11</c>.</summary>
+    /// <summary>The ninja space pirate: claw attack right, third frame.</summary>
     NinjaPirateClawAttackRightThird,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_12</c>.</summary>
+    /// <summary>The ninja space pirate: claw attack right, fourth frame.</summary>
     NinjaPirateClawAttackRightFourth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_13</c>.</summary>
+    /// <summary>The ninja space pirate: claw attack right, fifth frame.</summary>
     NinjaPirateClawAttackRightFifth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_14</c>.</summary>
+    /// <summary>The ninja space pirate: claw attack right, sixth frame.</summary>
     NinjaPirateClawAttackRightSixth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_15</c>.</summary>
+    /// <summary>The ninja space pirate: claw attack right, seventh frame.</summary>
     NinjaPirateClawAttackRightSeventh,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_16</c>.</summary>
+    /// <summary>The ninja space pirate: claw attack right, eighth frame.</summary>
     NinjaPirateClawAttackRightEighth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_25</c>.</summary>
+    /// <summary>The ninja space pirate: spin jump right loop, first frame.</summary>
     NinjaPirateSpinJumpRightLoopFirst,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_26</c>.</summary>
+    /// <summary>The ninja space pirate: spin jump right loop, second frame.</summary>
     NinjaPirateSpinJumpRightLoopSecond,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_27</c>.</summary>
+    /// <summary>The ninja space pirate: spin jump right loop, third frame.</summary>
     NinjaPirateSpinJumpRightLoopThird,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_28</c>.</summary>
+    /// <summary>The ninja space pirate: spin jump right loop, fourth frame.</summary>
     NinjaPirateSpinJumpRightLoopFourth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_29</c>.</summary>
+    /// <summary>The ninja space pirate: spin jump right loop, fifth frame.</summary>
     NinjaPirateSpinJumpRightLoopFifth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_30</c>.</summary>
+    /// <summary>The ninja space pirate: spin jump right loop, sixth frame.</summary>
     NinjaPirateSpinJumpRightLoopSixth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_31</c>.</summary>
+    /// <summary>The ninja space pirate: spin jump right loop, seventh frame.</summary>
     NinjaPirateSpinJumpRightLoopSeventh,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_32</c>.</summary>
+    /// <summary>The ninja space pirate: spin jump right loop, eighth frame.</summary>
     NinjaPirateSpinJumpRightLoopEighth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_56</c>.</summary>
+    /// <summary>The ninja space pirate: flinch facing right.</summary>
     NinjaPirateFlinchFacingRight,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_66</c>.</summary>
+    /// <summary>The ninja space pirate: divekick right jump.</summary>
     NinjaPirateDivekickRightJump,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_59</c>.</summary>
+    /// <summary>The ninja space pirate: divekick right jump loop.</summary>
     NinjaPirateDivekickRightJumpLoop,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_60</c>.</summary>
+    /// <summary>The ninja space pirate: divekick right dive.</summary>
     NinjaPirateDivekickRightDive,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_41</c>.</summary>
+    /// <summary>The ninja space pirate: walk to right post loop, first frame.</summary>
     NinjaPirateWalkToRightPostLoopFirst,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_42</c>.</summary>
+    /// <summary>The ninja space pirate: walk to right post loop, second frame.</summary>
     NinjaPirateWalkToRightPostLoopSecond,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_43</c>.</summary>
+    /// <summary>The ninja space pirate: walk to right post loop, third frame.</summary>
     NinjaPirateWalkToRightPostLoopThird,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_44</c>.</summary>
+    /// <summary>The ninja space pirate: walk to right post loop, fourth frame.</summary>
     NinjaPirateWalkToRightPostLoopFourth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_45</c>.</summary>
+    /// <summary>The ninja space pirate: walk to right post loop, fifth frame.</summary>
     NinjaPirateWalkToRightPostLoopFifth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_46</c>.</summary>
+    /// <summary>The ninja space pirate: walk to right post loop, sixth frame.</summary>
     NinjaPirateWalkToRightPostLoopSixth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_47</c>.</summary>
+    /// <summary>The ninja space pirate: walk to right post loop, seventh frame.</summary>
     NinjaPirateWalkToRightPostLoopSeventh,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_48</c>.</summary>
+    /// <summary>The ninja space pirate: walk to right post loop, eighth frame.</summary>
     NinjaPirateWalkToRightPostLoopEighth,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_72</c>.</summary>
+    /// <summary>The ninja space pirate: initial facing right loop, first frame.</summary>
     NinjaPirateInitialFacingRightLoopFirst,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_74</c>.</summary>
+    /// <summary>The ninja space pirate: initial facing right loop, third frame.</summary>
     NinjaPirateInitialFacingRightLoopThird,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_63</c>.</summary>
+    /// <summary>The ninja space pirate: kick facing right, first frame.</summary>
     NinjaPirateKickFacingRightFirst,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_68</c>.</summary>
+    /// <summary>The ninja space pirate: kick facing right, second frame.</summary>
     NinjaPirateKickFacingRightSecond,
-    /// <summary>The frame the installed artwork names <c>ninja_pirate_pose_64</c>.</summary>
+    /// <summary>The ninja space pirate: kick facing right, third frame.</summary>
     NinjaPirateKickFacingRightThird,
-    /// <summary>The frame the installed artwork names <c>ridley_body_left</c>.</summary>
+    /// <summary>Ridley: body left.</summary>
     RidleyBodyLeft,
-    /// <summary>The frame the installed artwork names <c>ridley_body_right</c>.</summary>
+    /// <summary>Ridley: body right.</summary>
     RidleyBodyRight,
-    /// <summary>The frame the installed artwork names <c>ridley_body_left_mouth_half_open</c>.</summary>
+    /// <summary>Ridley: body left mouth half open.</summary>
     RidleyBodyLeftMouthHalfOpen,
-    /// <summary>The frame the installed artwork names <c>ridley_body_left_mouth_open</c>.</summary>
+    /// <summary>Ridley: body left mouth open.</summary>
     RidleyBodyLeftMouthOpen,
-    /// <summary>The frame the installed artwork names <c>ridley_body_right_mouth_half_open</c>.</summary>
+    /// <summary>Ridley: body right mouth half open.</summary>
     RidleyBodyRightMouthHalfOpen,
-    /// <summary>The frame the installed artwork names <c>ridley_body_right_mouth_open</c>.</summary>
+    /// <summary>Ridley: body right mouth open.</summary>
     RidleyBodyRightMouthOpen,
-    /// <summary>The frame the installed artwork names <c>ridley_body_left_legs_half_extended</c>.</summary>
+    /// <summary>Ridley: body left legs half extended.</summary>
     RidleyBodyLeftLegsHalfExtended,
-    /// <summary>The frame the installed artwork names <c>ridley_body_left_legs_extended</c>.</summary>
+    /// <summary>Ridley: body left legs extended.</summary>
     RidleyBodyLeftLegsExtended,
-    /// <summary>The frame the installed artwork names <c>ridley_body_right_legs_half_extended</c>.</summary>
+    /// <summary>Ridley: body right legs half extended.</summary>
     RidleyBodyRightLegsHalfExtended,
-    /// <summary>The frame the installed artwork names <c>ridley_body_right_legs_extended</c>.</summary>
+    /// <summary>Ridley: body right legs extended.</summary>
     RidleyBodyRightLegsExtended,
-    /// <summary>The frame the installed artwork names <c>ridley_body_forward</c>.</summary>
+    /// <summary>Ridley: body forward.</summary>
     RidleyBodyForward,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_0</c>.</summary>
+    /// <summary>Draygon: arms facing left idle, first frame.</summary>
     DraygonArmsFacingLeftIdleFirst,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_1</c>.</summary>
+    /// <summary>Draygon: arms facing left idle, second frame.</summary>
     DraygonArmsFacingLeftIdleSecond,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_2</c>.</summary>
+    /// <summary>Draygon: arms facing left idle, third frame.</summary>
     DraygonArmsFacingLeftIdleThird,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_3</c>.</summary>
+    /// <summary>Draygon: arms facing left idle, fourth frame.</summary>
     DraygonArmsFacingLeftIdleFourth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_4</c>.</summary>
+    /// <summary>Draygon: arms facing left idle, fifth frame.</summary>
     DraygonArmsFacingLeftIdleFifth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_5</c>.</summary>
+    /// <summary>Draygon: arms facing left idle, sixth frame.</summary>
     DraygonArmsFacingLeftIdleSixth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_23</c>.</summary>
+    /// <summary>Draygon: arms facing left near swoop apex, first frame.</summary>
     DraygonArmsFacingLeftNearSwoopApexFirst,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_24</c>.</summary>
+    /// <summary>Draygon: arms facing left near swoop apex, second frame.</summary>
     DraygonArmsFacingLeftNearSwoopApexSecond,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_25</c>.</summary>
+    /// <summary>Draygon: arms facing left near swoop apex, third frame.</summary>
     DraygonArmsFacingLeftNearSwoopApexThird,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_26</c>.</summary>
+    /// <summary>Draygon: arms facing left near swoop apex, fourth frame.</summary>
     DraygonArmsFacingLeftNearSwoopApexFourth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_27</c>.</summary>
+    /// <summary>Draygon: tail facing left idle, first frame.</summary>
     DraygonTailFacingLeftIdleFirst,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_28</c>.</summary>
+    /// <summary>Draygon: tail facing left idle, second frame.</summary>
     DraygonTailFacingLeftIdleSecond,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_29</c>.</summary>
+    /// <summary>Draygon: tail facing left idle, third frame.</summary>
     DraygonTailFacingLeftIdleThird,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_30</c>.</summary>
+    /// <summary>Draygon: tail facing left idle, fourth frame.</summary>
     DraygonTailFacingLeftIdleFourth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_31</c>.</summary>
+    /// <summary>Draygon: tail facing left idle, fifth frame.</summary>
     DraygonTailFacingLeftIdleFifth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_32</c>.</summary>
+    /// <summary>Draygon: tail facing left idle, sixth frame.</summary>
     DraygonTailFacingLeftIdleSixth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_33</c>.</summary>
+    /// <summary>Draygon: tail facing left idle, seventh frame.</summary>
     DraygonTailFacingLeftIdleSeventh,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_34</c>.</summary>
+    /// <summary>Draygon: tail facing left initial fake whip, second frame.</summary>
     DraygonTailFacingLeftInitialFakeWhipSecond,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_35</c>.</summary>
+    /// <summary>Draygon: tail facing left initial fake whip, third frame.</summary>
     DraygonTailFacingLeftInitialFakeWhipThird,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_36</c>.</summary>
+    /// <summary>Draygon: tail facing left initial fake whip, fourth frame.</summary>
     DraygonTailFacingLeftInitialFakeWhipFourth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_37</c>.</summary>
+    /// <summary>Draygon: tail facing left initial fake whip, fifth frame.</summary>
     DraygonTailFacingLeftInitialFakeWhipFifth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_38</c>.</summary>
+    /// <summary>Draygon: tail facing left initial fake whip, sixth frame.</summary>
     DraygonTailFacingLeftInitialFakeWhipSixth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_39</c>.</summary>
+    /// <summary>Draygon: tail facing left initial fake whip, seventh frame.</summary>
     DraygonTailFacingLeftInitialFakeWhipSeventh,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_40</c>.</summary>
+    /// <summary>Draygon: tail facing left initial fake whip, eighth frame.</summary>
     DraygonTailFacingLeftInitialFakeWhipEighth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_41</c>.</summary>
+    /// <summary>Draygon: arms facing right idle, first frame.</summary>
     DraygonArmsFacingRightIdleFirst,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_42</c>.</summary>
+    /// <summary>Draygon: arms facing right idle, second frame.</summary>
     DraygonArmsFacingRightIdleSecond,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_43</c>.</summary>
+    /// <summary>Draygon: arms facing right idle, third frame.</summary>
     DraygonArmsFacingRightIdleThird,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_44</c>.</summary>
+    /// <summary>Draygon: arms facing right idle, fourth frame.</summary>
     DraygonArmsFacingRightIdleFourth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_45</c>.</summary>
+    /// <summary>Draygon: arms facing right idle, fifth frame.</summary>
     DraygonArmsFacingRightIdleFifth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_46</c>.</summary>
+    /// <summary>Draygon: arms facing right idle, sixth frame.</summary>
     DraygonArmsFacingRightIdleSixth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_64</c>.</summary>
+    /// <summary>Draygon: arms facing right near swoop apex, first frame.</summary>
     DraygonArmsFacingRightNearSwoopApexFirst,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_65</c>.</summary>
+    /// <summary>Draygon: arms facing right near swoop apex, second frame.</summary>
     DraygonArmsFacingRightNearSwoopApexSecond,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_66</c>.</summary>
+    /// <summary>Draygon: arms facing right near swoop apex, third frame.</summary>
     DraygonArmsFacingRightNearSwoopApexThird,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_67</c>.</summary>
+    /// <summary>Draygon: arms facing right near swoop apex, fourth frame.</summary>
     DraygonArmsFacingRightNearSwoopApexFourth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_68</c>.</summary>
+    /// <summary>Draygon: tail facing right idle, first frame.</summary>
     DraygonTailFacingRightIdleFirst,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_69</c>.</summary>
+    /// <summary>Draygon: tail facing right idle, second frame.</summary>
     DraygonTailFacingRightIdleSecond,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_70</c>.</summary>
+    /// <summary>Draygon: tail facing right idle, third frame.</summary>
     DraygonTailFacingRightIdleThird,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_71</c>.</summary>
+    /// <summary>Draygon: tail facing right idle, fourth frame.</summary>
     DraygonTailFacingRightIdleFourth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_72</c>.</summary>
+    /// <summary>Draygon: tail facing right idle, fifth frame.</summary>
     DraygonTailFacingRightIdleFifth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_73</c>.</summary>
+    /// <summary>Draygon: tail facing right idle, sixth frame.</summary>
     DraygonTailFacingRightIdleSixth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_74</c>.</summary>
+    /// <summary>Draygon: tail facing right idle, seventh frame.</summary>
     DraygonTailFacingRightIdleSeventh,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_75</c>.</summary>
+    /// <summary>Draygon: tail facing right final whips loop, second frame.</summary>
     DraygonTailFacingRightFinalWhipsLoopSecond,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_76</c>.</summary>
+    /// <summary>Draygon: tail facing right final whips loop, third frame.</summary>
     DraygonTailFacingRightFinalWhipsLoopThird,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_77</c>.</summary>
+    /// <summary>Draygon: tail facing right final whips loop, fourth frame.</summary>
     DraygonTailFacingRightFinalWhipsLoopFourth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_78</c>.</summary>
+    /// <summary>Draygon: tail facing right final whips loop, fifth frame.</summary>
     DraygonTailFacingRightFinalWhipsLoopFifth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_79</c>.</summary>
+    /// <summary>Draygon: tail facing right final whips loop, sixth frame.</summary>
     DraygonTailFacingRightFinalWhipsLoopSixth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_80</c>.</summary>
+    /// <summary>Draygon: tail facing right final whips loop, seventh frame.</summary>
     DraygonTailFacingRightFinalWhipsLoopSeventh,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_81</c>.</summary>
+    /// <summary>Draygon: tail facing right final whips loop, eighth frame.</summary>
     DraygonTailFacingRightFinalWhipsLoopEighth,
-    /// <summary>The frame the installed artwork names <c>spore_spawn_dead_0</c>.</summary>
+    /// <summary>Spore Spawn: initial dead.</summary>
     SporeSpawnInitialDead,
-    /// <summary>The frame the installed artwork names <c>spore_spawn_closed_0</c>.</summary>
+    /// <summary>Spore Spawn: initial alive.</summary>
     SporeSpawnInitialAlive,
-    /// <summary>The frame the installed artwork names <c>spore_spawn_opening_0</c>.</summary>
+    /// <summary>Spore Spawn: opening, first frame.</summary>
     SporeSpawnOpeningFirst,
-    /// <summary>The frame the installed artwork names <c>spore_spawn_opening_1</c>.</summary>
+    /// <summary>Spore Spawn: opening, second frame.</summary>
     SporeSpawnOpeningSecond,
-    /// <summary>The frame the installed artwork names <c>spore_spawn_opening_2</c>.</summary>
+    /// <summary>Spore Spawn: opening, third frame.</summary>
     SporeSpawnOpeningThird,
-    /// <summary>The frame the installed artwork names <c>spore_spawn_opening_3</c>.</summary>
+    /// <summary>Spore Spawn: opening, fourth frame.</summary>
     SporeSpawnOpeningFourth,
-    /// <summary>The frame the installed artwork names <c>spore_spawn_opening_4</c>.</summary>
+    /// <summary>Spore Spawn: opening, fifth frame.</summary>
     SporeSpawnOpeningFifth,
-    /// <summary>The frame the installed artwork names <c>spore_spawn_opening_5</c>.</summary>
+    /// <summary>Spore Spawn: death.</summary>
     SporeSpawnDeath,
-    /// <summary>The frame the installed artwork names <c>spore_spawn_opening_6</c>.</summary>
+    /// <summary>Spore Spawn: opening, seventh frame.</summary>
     SporeSpawnOpeningSeventh,
-    /// <summary>The frame the installed artwork names <c>spore_spawn_open_0</c>.</summary>
+    /// <summary>Spore Spawn: open pulse, first frame.</summary>
     SporeSpawnOpenPulseFirst,
-    /// <summary>The frame the installed artwork names <c>spore_spawn_open_1</c>.</summary>
+    /// <summary>Spore Spawn: open pulse, second frame.</summary>
     SporeSpawnOpenPulseSecond,
-    /// <summary>The frame the installed artwork names <c>spore_spawn_open_2</c>.</summary>
+    /// <summary>Spore Spawn: open pulse, third frame.</summary>
     SporeSpawnOpenPulseThird,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_0</c>.</summary>
+    /// <summary>Ceres steam: up.</summary>
     CeresSteamUp,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_1</c>.</summary>
-    CeresSteamUpLoopTwoSecond,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_2</c>.</summary>
-    CeresSteamUpLoopTwoThird,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_3</c>.</summary>
-    CeresSteamUpLoopTwoFourth,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_4</c>.</summary>
-    CeresSteamUpLoopTwoFifth,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_5</c>.</summary>
-    CeresSteamUpLoopTwoSixth,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_6</c>.</summary>
-    CeresSteamUpLoopTwoSeventh,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_7</c>.</summary>
+    /// <summary>Ceres steam: up, second frame.</summary>
+    CeresSteamUpSecond,
+    /// <summary>Ceres steam: up, third frame.</summary>
+    CeresSteamUpThird,
+    /// <summary>Ceres steam: up, fourth frame.</summary>
+    CeresSteamUpFourth,
+    /// <summary>Ceres steam: up, fifth frame.</summary>
+    CeresSteamUpFifth,
+    /// <summary>Ceres steam: up, sixth frame.</summary>
+    CeresSteamUpSixth,
+    /// <summary>Ceres steam: up, seventh frame.</summary>
+    CeresSteamUpSeventh,
+    /// <summary>Ceres steam: left.</summary>
     CeresSteamLeft,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_8</c>.</summary>
-    CeresSteamLeftLoopTwoSecond,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_9</c>.</summary>
-    CeresSteamLeftLoopTwoThird,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_10</c>.</summary>
-    CeresSteamLeftLoopTwoFourth,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_11</c>.</summary>
-    CeresSteamLeftLoopTwoFifth,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_12</c>.</summary>
-    CeresSteamLeftLoopTwoSixth,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_13</c>.</summary>
-    CeresSteamLeftLoopTwoSeventh,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_14</c>.</summary>
+    /// <summary>Ceres steam: left, second frame.</summary>
+    CeresSteamLeftSecond,
+    /// <summary>Ceres steam: left, third frame.</summary>
+    CeresSteamLeftThird,
+    /// <summary>Ceres steam: left, fourth frame.</summary>
+    CeresSteamLeftFourth,
+    /// <summary>Ceres steam: left, fifth frame.</summary>
+    CeresSteamLeftFifth,
+    /// <summary>Ceres steam: left, sixth frame.</summary>
+    CeresSteamLeftSixth,
+    /// <summary>Ceres steam: left, seventh frame.</summary>
+    CeresSteamLeftSeventh,
+    /// <summary>Ceres steam: down.</summary>
     CeresSteamDown,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_15</c>.</summary>
-    CeresSteamDownLoopTwoSecond,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_16</c>.</summary>
-    CeresSteamDownLoopTwoThird,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_17</c>.</summary>
-    CeresSteamDownLoopTwoFourth,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_18</c>.</summary>
-    CeresSteamDownLoopTwoFifth,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_19</c>.</summary>
-    CeresSteamDownLoopTwoSixth,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_20</c>.</summary>
-    CeresSteamDownLoopTwoSeventh,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_21</c>.</summary>
+    /// <summary>Ceres steam: down, second frame.</summary>
+    CeresSteamDownSecond,
+    /// <summary>Ceres steam: down, third frame.</summary>
+    CeresSteamDownThird,
+    /// <summary>Ceres steam: down, fourth frame.</summary>
+    CeresSteamDownFourth,
+    /// <summary>Ceres steam: down, fifth frame.</summary>
+    CeresSteamDownFifth,
+    /// <summary>Ceres steam: down, sixth frame.</summary>
+    CeresSteamDownSixth,
+    /// <summary>Ceres steam: down, seventh frame.</summary>
+    CeresSteamDownSeventh,
+    /// <summary>Ceres steam: right.</summary>
     CeresSteamRight,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_22</c>.</summary>
-    CeresSteamRightLoopTwoSecond,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_23</c>.</summary>
-    CeresSteamRightLoopTwoThird,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_24</c>.</summary>
-    CeresSteamRightLoopTwoFourth,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_25</c>.</summary>
-    CeresSteamRightLoopTwoFifth,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_26</c>.</summary>
-    CeresSteamRightLoopTwoSixth,
-    /// <summary>The frame the installed artwork names <c>ceres_steam_pose_27</c>.</summary>
-    CeresSteamRightLoopTwoSeventh,
-    /// <summary>The frame the installed artwork names <c>oum_pose_0</c>.</summary>
+    /// <summary>Ceres steam: right, second frame.</summary>
+    CeresSteamRightSecond,
+    /// <summary>Ceres steam: right, third frame.</summary>
+    CeresSteamRightThird,
+    /// <summary>Ceres steam: right, fourth frame.</summary>
+    CeresSteamRightFourth,
+    /// <summary>Ceres steam: right, fifth frame.</summary>
+    CeresSteamRightFifth,
+    /// <summary>Ceres steam: right, sixth frame.</summary>
+    CeresSteamRightSixth,
+    /// <summary>Ceres steam: right, seventh frame.</summary>
+    CeresSteamRightSeventh,
+    /// <summary>Oum: facing left idle.</summary>
     OumFacingLeftIdle,
-    /// <summary>The frame the installed artwork names <c>oum_pose_1</c>.</summary>
+    /// <summary>Oum: facing left attacking, second frame.</summary>
     OumFacingLeftAttackingSecond,
-    /// <summary>The frame the installed artwork names <c>oum_pose_2</c>.</summary>
+    /// <summary>Oum: facing left attacking, third frame.</summary>
     OumFacingLeftAttackingThird,
-    /// <summary>The frame the installed artwork names <c>oum_pose_3</c>.</summary>
+    /// <summary>Oum: facing left attacking, fourth frame.</summary>
     OumFacingLeftAttackingFourth,
-    /// <summary>The frame the installed artwork names <c>oum_pose_4</c>.</summary>
+    /// <summary>Oum: facing left attacking, fifth frame.</summary>
     OumFacingLeftAttackingFifth,
-    /// <summary>The frame the installed artwork names <c>oum_pose_5</c>.</summary>
+    /// <summary>Oum: facing left attacking, sixth frame.</summary>
     OumFacingLeftAttackingSixth,
-    /// <summary>The frame the installed artwork names <c>oum_pose_6</c>.</summary>
+    /// <summary>Oum: facing left attacking, seventh frame.</summary>
     OumFacingLeftAttackingSeventh,
-    /// <summary>The frame the installed artwork names <c>oum_pose_7</c>.</summary>
+    /// <summary>Oum: facing left attacking, eighth frame.</summary>
     OumFacingLeftAttackingEighth,
-    /// <summary>The frame the installed artwork names <c>oum_pose_8</c>.</summary>
+    /// <summary>Oum: facing left rolling forwards, second frame.</summary>
     OumFacingLeftRollingForwardsSecond,
-    /// <summary>The frame the installed artwork names <c>oum_pose_9</c>.</summary>
+    /// <summary>Oum: facing left rolling forwards, third frame.</summary>
     OumFacingLeftRollingForwardsThird,
-    /// <summary>The frame the installed artwork names <c>oum_pose_10</c>.</summary>
+    /// <summary>Oum: facing left rolling forwards, fourth frame.</summary>
     OumFacingLeftRollingForwardsFourth,
-    /// <summary>The frame the installed artwork names <c>oum_pose_11</c>.</summary>
+    /// <summary>Oum: facing left rolling forwards, fifth frame.</summary>
     OumFacingLeftRollingForwardsFifth,
-    /// <summary>The frame the installed artwork names <c>oum_pose_12</c>.</summary>
+    /// <summary>Oum: facing left rolling forwards, sixth frame.</summary>
     OumFacingLeftRollingForwardsSixth,
-    /// <summary>The frame the installed artwork names <c>oum_pose_13</c>.</summary>
+    /// <summary>Oum: facing left rolling forwards, seventh frame.</summary>
     OumFacingLeftRollingForwardsSeventh,
-    /// <summary>The frame the installed artwork names <c>oum_pose_14</c>.</summary>
+    /// <summary>Oum: facing left rolling forwards, eighth frame.</summary>
     OumFacingLeftRollingForwardsEighth,
-    /// <summary>The frame the installed artwork names <c>oum_pose_15</c>.</summary>
+    /// <summary>Oum: facing right idle.</summary>
     OumFacingRightIdle,
-    /// <summary>The frame the installed artwork names <c>oum_pose_16</c>.</summary>
+    /// <summary>Oum: facing right attacking, second frame.</summary>
     OumFacingRightAttackingSecond,
-    /// <summary>The frame the installed artwork names <c>oum_pose_17</c>.</summary>
+    /// <summary>Oum: facing right attacking, third frame.</summary>
     OumFacingRightAttackingThird,
-    /// <summary>The frame the installed artwork names <c>oum_pose_18</c>.</summary>
+    /// <summary>Oum: facing right attacking, fourth frame.</summary>
     OumFacingRightAttackingFourth,
-    /// <summary>The frame the installed artwork names <c>oum_pose_19</c>.</summary>
+    /// <summary>Oum: facing right attacking, fifth frame.</summary>
     OumFacingRightAttackingFifth,
-    /// <summary>The frame the installed artwork names <c>oum_pose_20</c>.</summary>
+    /// <summary>Oum: facing right attacking, sixth frame.</summary>
     OumFacingRightAttackingSixth,
-    /// <summary>The frame the installed artwork names <c>oum_pose_21</c>.</summary>
+    /// <summary>Oum: facing right attacking, seventh frame.</summary>
     OumFacingRightAttackingSeventh,
-    /// <summary>The frame the installed artwork names <c>oum_pose_22</c>.</summary>
+    /// <summary>Oum: facing right attacking, eighth frame.</summary>
     OumFacingRightAttackingEighth,
-    /// <summary>The frame the installed artwork names <c>oum_pose_23</c>.</summary>
+    /// <summary>Oum: facing right rolling forwards, second frame.</summary>
     OumFacingRightRollingForwardsSecond,
-    /// <summary>The frame the installed artwork names <c>oum_pose_24</c>.</summary>
+    /// <summary>Oum: facing right rolling forwards, third frame.</summary>
     OumFacingRightRollingForwardsThird,
-    /// <summary>The frame the installed artwork names <c>oum_pose_25</c>.</summary>
+    /// <summary>Oum: facing right rolling forwards, fourth frame.</summary>
     OumFacingRightRollingForwardsFourth,
-    /// <summary>The frame the installed artwork names <c>oum_pose_26</c>.</summary>
+    /// <summary>Oum: facing right rolling forwards, fifth frame.</summary>
     OumFacingRightRollingForwardsFifth,
-    /// <summary>The frame the installed artwork names <c>oum_pose_27</c>.</summary>
+    /// <summary>Oum: facing right rolling forwards, sixth frame.</summary>
     OumFacingRightRollingForwardsSixth,
-    /// <summary>The frame the installed artwork names <c>oum_pose_28</c>.</summary>
+    /// <summary>Oum: facing right rolling forwards, seventh frame.</summary>
     OumFacingRightRollingForwardsSeventh,
-    /// <summary>The frame the installed artwork names <c>oum_pose_29</c>.</summary>
+    /// <summary>Oum: facing right rolling forwards, eighth frame.</summary>
     OumFacingRightRollingForwardsEighth,
-    /// <summary>The frame the installed artwork names <c>crocomire_tongue_fight_0</c>.</summary>
+    /// <summary>Crocomire: tongue fight, first frame.</summary>
     CrocomireTongueFightFirst,
-    /// <summary>The frame the installed artwork names <c>crocomire_tongue_fight_1</c>.</summary>
+    /// <summary>Crocomire: tongue fight, second frame.</summary>
     CrocomireTongueFightSecond,
-    /// <summary>The frame the installed artwork names <c>crocomire_tongue_fight_2</c>.</summary>
+    /// <summary>Crocomire: tongue fight, third frame.</summary>
     CrocomireTongueFightThird,
-    /// <summary>The frame the installed artwork names <c>crocomire_tongue_fight_3</c>.</summary>
+    /// <summary>Crocomire: tongue fight, fourth frame.</summary>
     CrocomireTongueFightFourth,
-    /// <summary>The frame the installed artwork names <c>crocomire_tongue_melting_pose_0</c>.</summary>
+    /// <summary>Crocomire: tongue melting pose, first frame.</summary>
     CrocomireTongueMeltingPoseFirst,
-    /// <summary>The frame the installed artwork names <c>crocomire_tongue_melting_pose_1</c>.</summary>
+    /// <summary>Crocomire: tongue melting pose, second frame.</summary>
     CrocomireTongueMeltingPoseSecond,
-    /// <summary>The frame the installed artwork names <c>crocomire_tongue_melting_pose_2</c>.</summary>
+    /// <summary>Crocomire: tongue melting pose, third frame.</summary>
     CrocomireTongueMeltingPoseThird,
-    /// <summary>The frame the installed artwork names <c>crocomire_tongue_melting_pose_3</c>.</summary>
+    /// <summary>Crocomire: tongue melting pose, fourth frame.</summary>
     CrocomireTongueMeltingPoseFourth,
-    /// <summary>The frame the installed artwork names <c>crocomire_tongue_melting_pose_4</c>.</summary>
+    /// <summary>Crocomire: tongue melting pose, fifth frame.</summary>
     CrocomireTongueMeltingPoseFifth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_0</c>.</summary>
-    CrocomireBodyPowerBombReactionMouthNotOpenLoopFirst,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_1</c>.</summary>
-    CrocomireBodyPowerBombReactionMouthNotOpenLoopSecond,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_2</c>.</summary>
-    CrocomireBodyPowerBombReactionMouthNotOpenLoopThird,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_3</c>.</summary>
-    CrocomireBodyPowerBombReactionMouthNotOpenLoopFourth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_4</c>.</summary>
-    CrocomireBodyPowerBombReactionMouthNotOpenLoopFifth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_5</c>.</summary>
-    CrocomireBodyPowerBombReactionMouthNotOpenLoopSixth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_6</c>.</summary>
-    CrocomireBodyPowerBombReactionMouthNotOpenLoopSeventh,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_7</c>.</summary>
-    CrocomireBodySteppingBackFifth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_8</c>.</summary>
-    CrocomireBodySteppingBackFourth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_9</c>.</summary>
-    CrocomireBodySteppingBackThird,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_10</c>.</summary>
-    CrocomireBodySteppingBackSecond,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_11</c>.</summary>
-    CrocomireBodySteppingBackFirst,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_12</c>.</summary>
+    /// <summary>Crocomire: body charging, first frame.</summary>
+    CrocomireBodyChargingFirst,
+    /// <summary>Crocomire: body charging, second frame.</summary>
+    CrocomireBodyChargingSecond,
+    /// <summary>Crocomire: body charging, third frame.</summary>
+    CrocomireBodyChargingThird,
+    /// <summary>Crocomire: body charging, fourth frame.</summary>
+    CrocomireBodyChargingFourth,
+    /// <summary>Crocomire: body charging, fifth frame.</summary>
+    CrocomireBodyChargingFifth,
+    /// <summary>Crocomire: body charging, sixth frame.</summary>
+    CrocomireBodyChargingSixth,
+    /// <summary>Crocomire: body charging, seventh frame.</summary>
+    CrocomireBodyChargingSeventh,
+    /// <summary>Crocomire: body charging, eighth frame.</summary>
+    CrocomireBodyChargingEighth,
+    /// <summary>Crocomire: body charging, ninth frame.</summary>
+    CrocomireBodyChargingNinth,
+    /// <summary>Crocomire: body charging, tenth frame.</summary>
+    CrocomireBodyChargingTenth,
+    /// <summary>Crocomire: body charging, eleventh frame.</summary>
+    CrocomireBodyChargingEleventh,
+    /// <summary>Crocomire: body charging, twelfth frame.</summary>
+    CrocomireBodyChargingTwelfth,
+    /// <summary>Crocomire: body initial.</summary>
     CrocomireBodyInitial,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_13</c>.</summary>
+    /// <summary>Crocomire: body wait for first second damage, sixth frame.</summary>
     CrocomireBodyWaitForFirstSecondDamageSixth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_14</c>.</summary>
+    /// <summary>Crocomire: body wait for first second damage, fifth frame.</summary>
     CrocomireBodyWaitForFirstSecondDamageFifth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_15</c>.</summary>
+    /// <summary>Crocomire: body wait for first second damage, fourth frame.</summary>
     CrocomireBodyWaitForFirstSecondDamageFourth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_16</c>.</summary>
+    /// <summary>Crocomire: body wait for first second damage, third frame.</summary>
     CrocomireBodyWaitForFirstSecondDamageThird,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_17</c>.</summary>
+    /// <summary>Crocomire: body wait for first second damage, second frame.</summary>
     CrocomireBodyWaitForFirstSecondDamageSecond,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_18</c>.</summary>
+    /// <summary>Crocomire: body wait for first second damage, first frame.</summary>
     CrocomireBodyWaitForFirstSecondDamageFirst,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_19</c>.</summary>
+    /// <summary>Crocomire: body projectile attack, first frame.</summary>
     CrocomireBodyProjectileAttackFirst,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_20</c>.</summary>
+    /// <summary>Crocomire: body projectile attack, second frame.</summary>
     CrocomireBodyProjectileAttackSecond,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_21</c>.</summary>
+    /// <summary>Crocomire: body projectile attack, third frame.</summary>
     CrocomireBodyProjectileAttackThird,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_22</c>.</summary>
+    /// <summary>Crocomire: body projectile attack, fourth frame.</summary>
     CrocomireBodyProjectileAttackFourth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_23</c>.</summary>
+    /// <summary>Crocomire: body projectile attack, fifth frame.</summary>
     CrocomireBodyProjectileAttackFifth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_24</c>.</summary>
+    /// <summary>Crocomire: body projectile attack, sixth frame.</summary>
     CrocomireBodyProjectileAttackSixth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_25</c>.</summary>
+    /// <summary>Crocomire: body projectile attack, seventh frame.</summary>
     CrocomireBodyProjectileAttackSeventh,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_26</c>.</summary>
+    /// <summary>Crocomire: body projectile attack, eighth frame.</summary>
     CrocomireBodyProjectileAttackEighth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_27</c>.</summary>
+    /// <summary>Crocomire: body step forward after delay.</summary>
     CrocomireBodyStepForwardAfterDelay,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_28</c>.</summary>
-    CrocomireBodyStepForwardFourth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_29</c>.</summary>
-    CrocomireBodyStepForwardFifth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_30</c>.</summary>
-    CrocomireBodyStepForwardSixth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_31</c>.</summary>
-    CrocomireBodyStepForwardSeventh,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_32</c>.</summary>
-    CrocomireBodyStepForwardEighth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_33</c>.</summary>
-    CrocomireBodyStepForwardNinth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_34</c>.</summary>
-    CrocomireBodyStepForwardTenth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_35</c>.</summary>
-    CrocomireBodyStepForwardEleventh,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_36</c>.</summary>
-    CrocomireBodyStepForwardTwelfth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_37</c>.</summary>
+    /// <summary>Crocomire: body stepping forward, first frame.</summary>
+    CrocomireBodySteppingForwardFirst,
+    /// <summary>Crocomire: body stepping forward, second frame.</summary>
+    CrocomireBodySteppingForwardSecond,
+    /// <summary>Crocomire: body stepping forward, third frame.</summary>
+    CrocomireBodySteppingForwardThird,
+    /// <summary>Crocomire: body stepping forward, fourth frame.</summary>
+    CrocomireBodySteppingForwardFourth,
+    /// <summary>Crocomire: body stepping forward, fifth frame.</summary>
+    CrocomireBodySteppingForwardFifth,
+    /// <summary>Crocomire: body stepping forward, sixth frame.</summary>
+    CrocomireBodySteppingForwardSixth,
+    /// <summary>Crocomire: body stepping forward, seventh frame.</summary>
+    CrocomireBodySteppingForwardSeventh,
+    /// <summary>Crocomire: body stepping forward, eighth frame.</summary>
+    CrocomireBodySteppingForwardEighth,
+    /// <summary>Crocomire: body stepping forward, ninth frame.</summary>
+    CrocomireBodySteppingForwardNinth,
+    /// <summary>Crocomire: body projectile attack loop, first frame.</summary>
     CrocomireBodyProjectileAttackLoopFirst,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_38</c>.</summary>
+    /// <summary>Crocomire: body projectile attack loop, second frame.</summary>
     CrocomireBodyProjectileAttackLoopSecond,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_39</c>.</summary>
+    /// <summary>Crocomire: body projectile attack loop, third frame.</summary>
     CrocomireBodyProjectileAttackLoopThird,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_40</c>.</summary>
+    /// <summary>Crocomire: body projectile attack loop, fourth frame.</summary>
     CrocomireBodyProjectileAttackLoopFourth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_41</c>.</summary>
+    /// <summary>Crocomire: body projectile attack loop, fifth frame.</summary>
     CrocomireBodyProjectileAttackLoopFifth,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_42</c>.</summary>
+    /// <summary>Crocomire: body melting one top row.</summary>
     CrocomireBodyMeltingOneTopRow,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_43</c>.</summary>
+    /// <summary>Crocomire: body melting one top two rows.</summary>
     CrocomireBodyMeltingOneTopTwoRows,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_44</c>.</summary>
+    /// <summary>Crocomire: body melting one top three rows.</summary>
     CrocomireBodyMeltingOneTopThreeRows,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_45</c>.</summary>
+    /// <summary>Crocomire: body melting one top four rows.</summary>
     CrocomireBodyMeltingOneTopFourRows,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_46</c>.</summary>
+    /// <summary>Crocomire: body melting two top row.</summary>
     CrocomireBodyMeltingTwoTopRow,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_47</c>.</summary>
+    /// <summary>Crocomire: body melting two top two rows.</summary>
     CrocomireBodyMeltingTwoTopTwoRows,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_48</c>.</summary>
+    /// <summary>Crocomire: body melting two top three rows.</summary>
     CrocomireBodyMeltingTwoTopThreeRows,
-    /// <summary>The frame the installed artwork names <c>crocomire_body_49</c>.</summary>
+    /// <summary>Crocomire: body melting two top four rows.</summary>
     CrocomireBodyMeltingTwoTopFourRows,
-    /// <summary>The frame the installed artwork names <c>bomb_torizo_dormant</c>.</summary>
+    /// <summary>Bomb Torizo: dormant.</summary>
     BombTorizoDormant,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_initial</c>.</summary>
+    /// <summary>Golden Torizo: initial.</summary>
     GoldenTorizoInitial,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_0</c>.</summary>
+    /// <summary>Kraid: arm normal, first frame.</summary>
     KraidArmNormalFirst,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_1</c>.</summary>
+    /// <summary>Kraid: arm normal, second frame.</summary>
     KraidArmNormalSecond,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_2</c>.</summary>
+    /// <summary>Kraid: arm normal, third frame.</summary>
     KraidArmNormalThird,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_3</c>.</summary>
+    /// <summary>Kraid: arm normal, fourth frame.</summary>
     KraidArmNormalFourth,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_4</c>.</summary>
+    /// <summary>Kraid: arm normal, fifth frame.</summary>
     KraidArmNormalFifth,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_5</c>.</summary>
+    /// <summary>Kraid: arm normal, sixth frame.</summary>
     KraidArmNormalSixth,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_6</c>.</summary>
+    /// <summary>Kraid: arm normal, seventh frame.</summary>
     KraidArmNormalSeventh,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_7</c>.</summary>
+    /// <summary>Kraid: arm normal, eighth frame.</summary>
     KraidArmNormalEighth,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_8</c>.</summary>
+    /// <summary>Kraid: arm normal, ninth frame.</summary>
     KraidArmNormalNinth,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_9</c>.</summary>
+    /// <summary>Kraid: arm normal, tenth frame.</summary>
     KraidArmNormalTenth,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_10</c>.</summary>
+    /// <summary>Kraid: arm rising or sinking, first frame.</summary>
     KraidArmRisingOrSinkingFirst,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_11</c>.</summary>
+    /// <summary>Kraid: arm rising or sinking, second frame.</summary>
     KraidArmRisingOrSinkingSecond,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_12</c>.</summary>
+    /// <summary>Kraid: arm rising or sinking, third frame.</summary>
     KraidArmRisingOrSinkingThird,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_13</c>.</summary>
+    /// <summary>Kraid: arm rising or sinking, fourth frame.</summary>
     KraidArmRisingOrSinkingFourth,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_14</c>.</summary>
+    /// <summary>Kraid: arm rising or sinking, fifth frame.</summary>
     KraidArmRisingOrSinkingFifth,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_15</c>.</summary>
+    /// <summary>Kraid: arm rising or sinking, sixth frame.</summary>
     KraidArmRisingOrSinkingSixth,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_16</c>.</summary>
+    /// <summary>Kraid: arm rising or sinking, seventh frame.</summary>
     KraidArmRisingOrSinkingSeventh,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_17</c>.</summary>
+    /// <summary>Kraid: arm rising or sinking, eighth frame.</summary>
     KraidArmRisingOrSinkingEighth,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_18</c>.</summary>
+    /// <summary>Kraid: arm rising or sinking, ninth frame.</summary>
     KraidArmRisingOrSinkingNinth,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_19</c>.</summary>
+    /// <summary>Kraid: arm rising or sinking, tenth frame.</summary>
     KraidArmRisingOrSinkingTenth,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_20</c>.</summary>
+    /// <summary>Kraid: arm dying or preparing to lunge, second frame.</summary>
     KraidArmDyingOrPreparingToLungeSecond,
-    /// <summary>The frame the installed artwork names <c>kraid_arm_21</c>.</summary>
+    /// <summary>Kraid: arm dying or preparing to lunge, third frame.</summary>
     KraidArmDyingOrPreparingToLungeThird,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_awake_0</c>.</summary>
-    BombTorizoInitialFourth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_awake_1</c>.</summary>
-    BombTorizoInitialThird,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_awake_2</c>.</summary>
-    BombTorizoInitialResumed,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_awake_3</c>.</summary>
-    BombTorizoInitialSixth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_awake_4</c>.</summary>
-    BombTorizoInitialSeventh,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_awake_5</c>.</summary>
-    BombTorizoInitialEighth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_walk_left_0</c>.</summary>
+    /// <summary>Torizo: facing left standing up, second frame.</summary>
+    TorizoFacingLeftStandingUpSecond,
+    /// <summary>Torizo: facing left standing up, first frame.</summary>
+    TorizoFacingLeftStandingUpFirst,
+    /// <summary>Torizo: facing left seated.</summary>
+    TorizoFacingLeftSeated,
+    /// <summary>Torizo: facing left standing up, fourth frame.</summary>
+    TorizoFacingLeftStandingUpFourth,
+    /// <summary>Torizo: facing left standing up, fifth frame.</summary>
+    TorizoFacingLeftStandingUpFifth,
+    /// <summary>Torizo: facing left standing up, sixth frame.</summary>
+    TorizoFacingLeftStandingUpSixth,
+    /// <summary>Torizo: facing left walking right leg moving, first frame.</summary>
     TorizoFacingLeftWalkingRightLegMovingFirst,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_walk_left_1</c>.</summary>
+    /// <summary>Torizo: facing left walking right leg moving, second frame.</summary>
     TorizoFacingLeftWalkingRightLegMovingSecond,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_walk_left_2</c>.</summary>
+    /// <summary>Torizo: facing left walking right leg moving, third frame.</summary>
     TorizoFacingLeftWalkingRightLegMovingThird,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_walk_left_3</c>.</summary>
+    /// <summary>Torizo: facing left walking right leg moving, fourth frame.</summary>
     TorizoFacingLeftWalkingRightLegMovingFourth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_walk_left_4</c>.</summary>
+    /// <summary>Torizo: facing left walking right leg moving, fifth frame.</summary>
     TorizoFacingLeftWalkingRightLegMovingFifth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_walk_left_5</c>.</summary>
+    /// <summary>Torizo: facing left walking left leg moving, first frame.</summary>
     TorizoFacingLeftWalkingLeftLegMovingFirst,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_walk_left_6</c>.</summary>
+    /// <summary>Torizo: facing left walking left leg moving, second frame.</summary>
     TorizoFacingLeftWalkingLeftLegMovingSecond,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_walk_left_7</c>.</summary>
+    /// <summary>Torizo: facing left walking left leg moving, third frame.</summary>
     TorizoFacingLeftWalkingLeftLegMovingThird,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_walk_left_8</c>.</summary>
+    /// <summary>Torizo: facing left walking left leg moving, fourth frame.</summary>
     TorizoFacingLeftWalkingLeftLegMovingFourth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_walk_left_9</c>.</summary>
+    /// <summary>Torizo: facing left walking left leg moving, fifth frame.</summary>
     TorizoFacingLeftWalkingLeftLegMovingFifth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_0</c>.</summary>
+    /// <summary>Torizo: facing left turning left.</summary>
     TorizoFacingLeftTurningLeft,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_1</c>.</summary>
+    /// <summary>Torizo: facing right walking left leg moving, first frame.</summary>
     TorizoFacingRightWalkingLeftLegMovingFirst,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_2</c>.</summary>
+    /// <summary>Torizo: facing right walking left leg moving, second frame.</summary>
     TorizoFacingRightWalkingLeftLegMovingSecond,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_3</c>.</summary>
+    /// <summary>Torizo: facing right walking left leg moving, third frame.</summary>
     TorizoFacingRightWalkingLeftLegMovingThird,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_4</c>.</summary>
+    /// <summary>Torizo: facing right walking left leg moving, fourth frame.</summary>
     TorizoFacingRightWalkingLeftLegMovingFourth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_5</c>.</summary>
+    /// <summary>Torizo: facing right walking left leg moving, fifth frame.</summary>
     TorizoFacingRightWalkingLeftLegMovingFifth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_6</c>.</summary>
+    /// <summary>Torizo: facing right walking right leg moving, first frame.</summary>
     TorizoFacingRightWalkingRightLegMovingFirst,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_7</c>.</summary>
+    /// <summary>Torizo: facing right walking right leg moving, second frame.</summary>
     TorizoFacingRightWalkingRightLegMovingSecond,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_8</c>.</summary>
+    /// <summary>Torizo: facing right walking right leg moving, third frame.</summary>
     TorizoFacingRightWalkingRightLegMovingThird,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_9</c>.</summary>
+    /// <summary>Torizo: facing right walking right leg moving, fourth frame.</summary>
     TorizoFacingRightWalkingRightLegMovingFourth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_rightward_10</c>.</summary>
+    /// <summary>Torizo: facing right walking right leg moving, fifth frame.</summary>
     TorizoFacingRightWalkingRightLegMovingFifth,
-    /// <summary>The frame the installed artwork names <c>torizo_jump_back_0</c>.</summary>
+    /// <summary>Torizo: facing right jumping forwards, first frame.</summary>
     TorizoFacingRightJumpingForwardsFirst,
-    /// <summary>The frame the installed artwork names <c>torizo_jump_back_1</c>.</summary>
+    /// <summary>Torizo: facing right jumping forwards, second frame.</summary>
     TorizoFacingRightJumpingForwardsSecond,
-    /// <summary>The frame the installed artwork names <c>torizo_jump_back_2</c>.</summary>
+    /// <summary>Torizo: facing right jumping forwards, third frame.</summary>
     TorizoFacingRightJumpingForwardsThird,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_orb_0</c>.</summary>
-    TorizoFacingRightSpewingChozoOrbsRightFootFwdFirst,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_orb_1</c>.</summary>
-    TorizoFacingRightSpewingChozoOrbsRightFootFwdSecond,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_orb_2</c>.</summary>
-    TorizoFacingRightSpewingChozoOrbsRightFootFwdThird,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_orb_3</c>.</summary>
-    TorizoFacingRightSpewingChozoOrbsRightFootFwdFourth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_orb_4</c>.</summary>
-    TorizoFacingRightSpewingChozoOrbsRightFootFwdFifth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_orb_5</c>.</summary>
-    TorizoFacingRightSpewingChozoOrbsRightFootFwdSixth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_0</c>.</summary>
-    TorizoFacingRightSpewingChozoOrbsLeftFootFwdFirst,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_1</c>.</summary>
-    TorizoFacingRightSonicBoomsLeftFootForwardOneSecond,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_2</c>.</summary>
-    TorizoFacingRightSonicBoomsLeftFootForwardOneThird,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_3</c>.</summary>
-    TorizoFacingRightSonicBoomsLeftFootForwardOneFourth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_4</c>.</summary>
-    TorizoFacingRightSonicBoomsLeftFootForwardOneFifth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_5</c>.</summary>
-    TorizoFacingRightSonicBoomsLeftFootForwardOneSixth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_6</c>.</summary>
-    TorizoFacingRightSonicBoomsLeftFootForwardOneSeventh,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_7</c>.</summary>
-    TorizoFacingRightSonicBoomsLeftFootForwardOneEighth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_8</c>.</summary>
-    TorizoFacingRightSonicBoomsLeftFootForwardOneNinth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_9</c>.</summary>
-    TorizoFacingRightSonicBoomsLeftFootForwardOneTenth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_10</c>.</summary>
-    TorizoFacingRightSonicBoomsLeftFootForwardOneEleventh,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_11</c>.</summary>
-    TorizoFacingRightSonicBoomsRightFootForwardOneSecond,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_12</c>.</summary>
-    TorizoFacingRightSonicBoomsRightFootForwardOneThird,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_13</c>.</summary>
-    TorizoFacingRightSonicBoomsRightFootForwardOneFourth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_14</c>.</summary>
-    TorizoFacingRightSonicBoomsRightFootForwardOneFifth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_15</c>.</summary>
-    TorizoFacingRightSonicBoomsRightFootForwardOneSixth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_16</c>.</summary>
-    TorizoFacingRightSonicBoomsRightFootForwardOneSeventh,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_17</c>.</summary>
-    TorizoFacingRightSonicBoomsRightFootForwardOneEighth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_18</c>.</summary>
-    TorizoFacingRightSonicBoomsRightFootForwardOneNinth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_19</c>.</summary>
-    TorizoFacingRightSonicBoomsRightFootForwardOneTenth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_right_sonic_20</c>.</summary>
-    TorizoFacingRightSonicBoomsRightFootForwardOneEleventh,
-    /// <summary>The frame the installed artwork names <c>torizo_falling_left</c>.</summary>
+    /// <summary>Torizo: facing right spewing Chozo orbs right foot forward, first frame.</summary>
+    TorizoFacingRightSpewingChozoOrbsRightFootForwardFirst,
+    /// <summary>Torizo: facing right spewing Chozo orbs right foot forward, second frame.</summary>
+    TorizoFacingRightSpewingChozoOrbsRightFootForwardSecond,
+    /// <summary>Torizo: facing right spewing Chozo orbs right foot forward, third frame.</summary>
+    TorizoFacingRightSpewingChozoOrbsRightFootForwardThird,
+    /// <summary>Torizo: facing right spewing Chozo orbs right foot forward, fourth frame.</summary>
+    TorizoFacingRightSpewingChozoOrbsRightFootForwardFourth,
+    /// <summary>Torizo: facing right spewing Chozo orbs right foot forward, fifth frame.</summary>
+    TorizoFacingRightSpewingChozoOrbsRightFootForwardFifth,
+    /// <summary>Torizo: facing right spewing Chozo orbs right foot forward, sixth frame.</summary>
+    TorizoFacingRightSpewingChozoOrbsRightFootForwardSixth,
+    /// <summary>Torizo: facing right spewing Chozo orbs left foot forward, first frame.</summary>
+    TorizoFacingRightSpewingChozoOrbsLeftFootForwardFirst,
+    /// <summary>Torizo: facing right sonic booms left foot forward, second frame.</summary>
+    TorizoFacingRightSonicBoomsLeftFootForwardSecond,
+    /// <summary>Torizo: facing right sonic booms left foot forward, third frame.</summary>
+    TorizoFacingRightSonicBoomsLeftFootForwardThird,
+    /// <summary>Torizo: facing right sonic booms left foot forward, fourth frame.</summary>
+    TorizoFacingRightSonicBoomsLeftFootForwardFourth,
+    /// <summary>Torizo: facing right sonic booms left foot forward, fifth frame.</summary>
+    TorizoFacingRightSonicBoomsLeftFootForwardFifth,
+    /// <summary>Torizo: facing right sonic booms left foot forward, sixth frame.</summary>
+    TorizoFacingRightSonicBoomsLeftFootForwardSixth,
+    /// <summary>Torizo: facing right sonic booms left foot forward, seventh frame.</summary>
+    TorizoFacingRightSonicBoomsLeftFootForwardSeventh,
+    /// <summary>Torizo: facing right sonic booms left foot forward, eighth frame.</summary>
+    TorizoFacingRightSonicBoomsLeftFootForwardEighth,
+    /// <summary>Torizo: facing right sonic booms left foot forward, ninth frame.</summary>
+    TorizoFacingRightSonicBoomsLeftFootForwardNinth,
+    /// <summary>Torizo: facing right sonic booms left foot forward, tenth frame.</summary>
+    TorizoFacingRightSonicBoomsLeftFootForwardTenth,
+    /// <summary>Torizo: facing right sonic booms left foot forward, eleventh frame.</summary>
+    TorizoFacingRightSonicBoomsLeftFootForwardEleventh,
+    /// <summary>Torizo: facing right sonic booms right foot forward, second frame.</summary>
+    TorizoFacingRightSonicBoomsRightFootForwardSecond,
+    /// <summary>Torizo: facing right sonic booms right foot forward, third frame.</summary>
+    TorizoFacingRightSonicBoomsRightFootForwardThird,
+    /// <summary>Torizo: facing right sonic booms right foot forward, fourth frame.</summary>
+    TorizoFacingRightSonicBoomsRightFootForwardFourth,
+    /// <summary>Torizo: facing right sonic booms right foot forward, fifth frame.</summary>
+    TorizoFacingRightSonicBoomsRightFootForwardFifth,
+    /// <summary>Torizo: facing right sonic booms right foot forward, sixth frame.</summary>
+    TorizoFacingRightSonicBoomsRightFootForwardSixth,
+    /// <summary>Torizo: facing right sonic booms right foot forward, seventh frame.</summary>
+    TorizoFacingRightSonicBoomsRightFootForwardSeventh,
+    /// <summary>Torizo: facing right sonic booms right foot forward, eighth frame.</summary>
+    TorizoFacingRightSonicBoomsRightFootForwardEighth,
+    /// <summary>Torizo: facing right sonic booms right foot forward, ninth frame.</summary>
+    TorizoFacingRightSonicBoomsRightFootForwardNinth,
+    /// <summary>Torizo: facing right sonic booms right foot forward, tenth frame.</summary>
+    TorizoFacingRightSonicBoomsRightFootForwardTenth,
+    /// <summary>Torizo: facing right sonic booms right foot forward, eleventh frame.</summary>
+    TorizoFacingRightSonicBoomsRightFootForwardEleventh,
+    /// <summary>Torizo: falling left.</summary>
     TorizoFallingLeft,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_left_foot_orb_0</c>.</summary>
-    TorizoFacingRightSpewingChozoOrbsLeftFootFwdSecond,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_left_foot_orb_1</c>.</summary>
-    TorizoFacingRightSpewingChozoOrbsLeftFootFwdThird,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_left_foot_orb_2</c>.</summary>
-    TorizoFacingRightSpewingChozoOrbsLeftFootFwdFourth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_left_foot_orb_3</c>.</summary>
-    TorizoFacingRightSpewingChozoOrbsLeftFootFwdFifth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_left_foot_orb_4</c>.</summary>
-    TorizoFacingRightSpewingChozoOrbsLeftFootFwdSixth,
-    /// <summary>The frame the installed artwork names <c>torizo_jump_back_left_0</c>.</summary>
+    /// <summary>Torizo: facing right spewing Chozo orbs left foot forward, second frame.</summary>
+    TorizoFacingRightSpewingChozoOrbsLeftFootForwardSecond,
+    /// <summary>Torizo: facing right spewing Chozo orbs left foot forward, third frame.</summary>
+    TorizoFacingRightSpewingChozoOrbsLeftFootForwardThird,
+    /// <summary>Torizo: facing right spewing Chozo orbs left foot forward, fourth frame.</summary>
+    TorizoFacingRightSpewingChozoOrbsLeftFootForwardFourth,
+    /// <summary>Torizo: facing right spewing Chozo orbs left foot forward, fifth frame.</summary>
+    TorizoFacingRightSpewingChozoOrbsLeftFootForwardFifth,
+    /// <summary>Torizo: facing right spewing Chozo orbs left foot forward, sixth frame.</summary>
+    TorizoFacingRightSpewingChozoOrbsLeftFootForwardSixth,
+    /// <summary>Torizo: facing left jumping forwards, first frame.</summary>
     TorizoFacingLeftJumpingForwardsFirst,
-    /// <summary>The frame the installed artwork names <c>torizo_jump_back_left_1</c>.</summary>
+    /// <summary>Torizo: facing left jumping forwards, third frame.</summary>
     TorizoFacingLeftJumpingForwardsThird,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_0</c>.</summary>
-    TorizoFacingLeftSpewingChozoOrbsRightFootFwdFirst,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_1</c>.</summary>
-    TorizoFacingLeftSpewingChozoOrbsRightFootFwdSecond,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_2</c>.</summary>
-    TorizoFacingLeftSpewingChozoOrbsRightFootFwdThird,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_3</c>.</summary>
-    TorizoFacingLeftSpewingChozoOrbsRightFootFwdFourth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_4</c>.</summary>
-    TorizoFacingLeftSpewingChozoOrbsRightFootFwdFifth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_5</c>.</summary>
-    TorizoFacingLeftSpewingChozoOrbsRightFootFwdSixth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_6</c>.</summary>
-    TorizoFacingLeftSpewingChozoOrbsLeftFootFwdFirst,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_7</c>.</summary>
-    TorizoFacingLeftSpewingChozoOrbsLeftFootFwdSecond,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_8</c>.</summary>
-    TorizoFacingLeftSpewingChozoOrbsLeftFootFwdThird,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_9</c>.</summary>
-    TorizoFacingLeftSpewingChozoOrbsLeftFootFwdFourth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_10</c>.</summary>
-    TorizoFacingLeftSpewingChozoOrbsLeftFootFwdFifth,
-    /// <summary>The frame the installed artwork names <c>golden_torizo_left_orb_11</c>.</summary>
-    TorizoFacingLeftSpewingChozoOrbsLeftFootFwdSixth,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_0</c>.</summary>
-    TorizoFacingLeftSonicBoomsRightFootForwardOneSecond,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_1</c>.</summary>
-    TorizoFacingLeftSonicBoomsRightFootForwardOneThird,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_2</c>.</summary>
-    TorizoFacingLeftSonicBoomsRightFootForwardOneFourth,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_3</c>.</summary>
-    TorizoFacingLeftSonicBoomsRightFootForwardOneFifth,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_4</c>.</summary>
-    TorizoFacingLeftSonicBoomsRightFootForwardOneSixth,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_5</c>.</summary>
-    TorizoFacingLeftSonicBoomsRightFootForwardOneSeventh,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_6</c>.</summary>
-    TorizoFacingLeftSonicBoomsRightFootForwardOneEighth,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_7</c>.</summary>
-    TorizoFacingLeftSonicBoomsRightFootForwardOneNinth,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_8</c>.</summary>
-    TorizoFacingLeftSonicBoomsRightFootForwardOneTenth,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_9</c>.</summary>
-    TorizoFacingLeftSonicBoomsRightFootForwardOneEleventh,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_10</c>.</summary>
-    TorizoFacingLeftSonicBoomsLeftFootForwardOneSecond,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_11</c>.</summary>
-    TorizoFacingLeftSonicBoomsLeftFootForwardOneThird,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_12</c>.</summary>
-    TorizoFacingLeftSonicBoomsLeftFootForwardOneFourth,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_13</c>.</summary>
-    TorizoFacingLeftSonicBoomsLeftFootForwardOneFifth,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_14</c>.</summary>
-    TorizoFacingLeftSonicBoomsLeftFootForwardOneSixth,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_15</c>.</summary>
-    TorizoFacingLeftSonicBoomsLeftFootForwardOneSeventh,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_16</c>.</summary>
-    TorizoFacingLeftSonicBoomsLeftFootForwardOneEighth,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_17</c>.</summary>
-    TorizoFacingLeftSonicBoomsLeftFootForwardOneNinth,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_18</c>.</summary>
-    TorizoFacingLeftSonicBoomsLeftFootForwardOneTenth,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_19</c>.</summary>
-    TorizoFacingLeftSonicBoomsLeftFootForwardOneEleventh,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_20</c>.</summary>
-    TorizoFacingLeftFacelessWalkingLeftLegMovingTrailingResumedFirst,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_21</c>.</summary>
-    TorizoFacingLeftFacelessWalkingLeftLegMovingTrailingResumedSecond,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_22</c>.</summary>
-    TorizoFacingLeftFacelessWalkingLeftLegMovingTrailingResumedThird,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_23</c>.</summary>
-    TorizoFacingLeftFacelessWalkingLeftLegMovingTrailingResumedFourth,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_24</c>.</summary>
-    TorizoFacingLeftFacelessWalkingLeftLegMovingTrailingResumedFifth,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_25</c>.</summary>
-    TorizoFacingLeftFacelessWalkingLeftLegMovingTrailingResumedSixth,
-    /// <summary>The frame the installed artwork names <c>torizo_combat_26</c>.</summary>
-    TorizoFacingLeftFacelessWalkingLeftLegMovingTrailingResumedSeventh,
-    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_standing</c>.</summary>
+    /// <summary>Torizo: facing left spewing Chozo orbs right foot forward, first frame.</summary>
+    TorizoFacingLeftSpewingChozoOrbsRightFootForwardFirst,
+    /// <summary>Torizo: facing left spewing Chozo orbs right foot forward, second frame.</summary>
+    TorizoFacingLeftSpewingChozoOrbsRightFootForwardSecond,
+    /// <summary>Torizo: facing left spewing Chozo orbs right foot forward, third frame.</summary>
+    TorizoFacingLeftSpewingChozoOrbsRightFootForwardThird,
+    /// <summary>Torizo: facing left spewing Chozo orbs right foot forward, fourth frame.</summary>
+    TorizoFacingLeftSpewingChozoOrbsRightFootForwardFourth,
+    /// <summary>Torizo: facing left spewing Chozo orbs right foot forward, fifth frame.</summary>
+    TorizoFacingLeftSpewingChozoOrbsRightFootForwardFifth,
+    /// <summary>Torizo: facing left spewing Chozo orbs right foot forward, sixth frame.</summary>
+    TorizoFacingLeftSpewingChozoOrbsRightFootForwardSixth,
+    /// <summary>Torizo: facing left spewing Chozo orbs left foot forward, first frame.</summary>
+    TorizoFacingLeftSpewingChozoOrbsLeftFootForwardFirst,
+    /// <summary>Torizo: facing left spewing Chozo orbs left foot forward, second frame.</summary>
+    TorizoFacingLeftSpewingChozoOrbsLeftFootForwardSecond,
+    /// <summary>Torizo: facing left spewing Chozo orbs left foot forward, third frame.</summary>
+    TorizoFacingLeftSpewingChozoOrbsLeftFootForwardThird,
+    /// <summary>Torizo: facing left spewing Chozo orbs left foot forward, fourth frame.</summary>
+    TorizoFacingLeftSpewingChozoOrbsLeftFootForwardFourth,
+    /// <summary>Torizo: facing left spewing Chozo orbs left foot forward, fifth frame.</summary>
+    TorizoFacingLeftSpewingChozoOrbsLeftFootForwardFifth,
+    /// <summary>Torizo: facing left spewing Chozo orbs left foot forward, sixth frame.</summary>
+    TorizoFacingLeftSpewingChozoOrbsLeftFootForwardSixth,
+    /// <summary>Torizo: facing left sonic booms right foot forward, second frame.</summary>
+    TorizoFacingLeftSonicBoomsRightFootForwardSecond,
+    /// <summary>Torizo: facing left sonic booms right foot forward, third frame.</summary>
+    TorizoFacingLeftSonicBoomsRightFootForwardThird,
+    /// <summary>Torizo: facing left sonic booms right foot forward, fourth frame.</summary>
+    TorizoFacingLeftSonicBoomsRightFootForwardFourth,
+    /// <summary>Torizo: facing left sonic booms right foot forward, fifth frame.</summary>
+    TorizoFacingLeftSonicBoomsRightFootForwardFifth,
+    /// <summary>Torizo: facing left sonic booms right foot forward, sixth frame.</summary>
+    TorizoFacingLeftSonicBoomsRightFootForwardSixth,
+    /// <summary>Torizo: facing left sonic booms right foot forward, seventh frame.</summary>
+    TorizoFacingLeftSonicBoomsRightFootForwardSeventh,
+    /// <summary>Torizo: facing left sonic booms right foot forward, eighth frame.</summary>
+    TorizoFacingLeftSonicBoomsRightFootForwardEighth,
+    /// <summary>Torizo: facing left sonic booms right foot forward, ninth frame.</summary>
+    TorizoFacingLeftSonicBoomsRightFootForwardNinth,
+    /// <summary>Torizo: facing left sonic booms right foot forward, tenth frame.</summary>
+    TorizoFacingLeftSonicBoomsRightFootForwardTenth,
+    /// <summary>Torizo: facing left sonic booms right foot forward, eleventh frame.</summary>
+    TorizoFacingLeftSonicBoomsRightFootForwardEleventh,
+    /// <summary>Torizo: facing left sonic booms left foot forward, second frame.</summary>
+    TorizoFacingLeftSonicBoomsLeftFootForwardSecond,
+    /// <summary>Torizo: facing left sonic booms left foot forward, third frame.</summary>
+    TorizoFacingLeftSonicBoomsLeftFootForwardThird,
+    /// <summary>Torizo: facing left sonic booms left foot forward, fourth frame.</summary>
+    TorizoFacingLeftSonicBoomsLeftFootForwardFourth,
+    /// <summary>Torizo: facing left sonic booms left foot forward, fifth frame.</summary>
+    TorizoFacingLeftSonicBoomsLeftFootForwardFifth,
+    /// <summary>Torizo: facing left sonic booms left foot forward, sixth frame.</summary>
+    TorizoFacingLeftSonicBoomsLeftFootForwardSixth,
+    /// <summary>Torizo: facing left sonic booms left foot forward, seventh frame.</summary>
+    TorizoFacingLeftSonicBoomsLeftFootForwardSeventh,
+    /// <summary>Torizo: facing left sonic booms left foot forward, eighth frame.</summary>
+    TorizoFacingLeftSonicBoomsLeftFootForwardEighth,
+    /// <summary>Torizo: facing left sonic booms left foot forward, ninth frame.</summary>
+    TorizoFacingLeftSonicBoomsLeftFootForwardNinth,
+    /// <summary>Torizo: facing left sonic booms left foot forward, tenth frame.</summary>
+    TorizoFacingLeftSonicBoomsLeftFootForwardTenth,
+    /// <summary>Torizo: facing left sonic booms left foot forward, eleventh frame.</summary>
+    TorizoFacingLeftSonicBoomsLeftFootForwardEleventh,
+    /// <summary>Torizo: facing right seated.</summary>
+    TorizoFacingRightSeated,
+    /// <summary>Torizo: facing right standing up, first frame.</summary>
+    TorizoFacingRightStandingUpFirst,
+    /// <summary>Torizo: facing right standing up, second frame.</summary>
+    TorizoFacingRightStandingUpSecond,
+    /// <summary>Torizo: facing right standing up, third frame.</summary>
+    TorizoFacingRightStandingUpThird,
+    /// <summary>Torizo: facing right standing up, fourth frame.</summary>
+    TorizoFacingRightStandingUpFourth,
+    /// <summary>Torizo: facing right standing up, fifth frame.</summary>
+    TorizoFacingRightStandingUpFifth,
+    /// <summary>Torizo: facing right standing up, sixth frame.</summary>
+    TorizoFacingRightStandingUpSixth,
+    /// <summary>Mother Brain: body standing.</summary>
     MotherBrainBodyStanding,
-    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_walking_0</c>.</summary>
+    /// <summary>Mother Brain: body walking, first frame.</summary>
     MotherBrainBodyWalkingFirst,
-    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_walking_1</c>.</summary>
+    /// <summary>Mother Brain: body walking, second frame.</summary>
     MotherBrainBodyWalkingSecond,
-    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_walking_2</c>.</summary>
+    /// <summary>Mother Brain: body walking, third frame.</summary>
     MotherBrainBodyWalkingThird,
-    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_walking_3</c>.</summary>
+    /// <summary>Mother Brain: body walking, fourth frame.</summary>
     MotherBrainBodyWalkingFourth,
-    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_walking_4</c>.</summary>
+    /// <summary>Mother Brain: body walking, fifth frame.</summary>
     MotherBrainBodyWalkingFifth,
-    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_walking_5</c>.</summary>
+    /// <summary>Mother Brain: body walking, sixth frame.</summary>
     MotherBrainBodyWalkingSixth,
-    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_walking_6</c>.</summary>
+    /// <summary>Mother Brain: body walking, seventh frame.</summary>
     MotherBrainBodyWalkingSeventh,
-    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_walking_7</c>.</summary>
+    /// <summary>Mother Brain: body walking, eighth frame.</summary>
     MotherBrainBodyWalkingEighth,
-    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_crouched</c>.</summary>
+    /// <summary>Mother Brain: body crouched.</summary>
     MotherBrainBodyCrouched,
-    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_uncrouching</c>.</summary>
+    /// <summary>Mother Brain: body uncrouching.</summary>
     MotherBrainBodyUncrouching,
-    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_leaning_down</c>.</summary>
+    /// <summary>Mother Brain: body leaning down.</summary>
     MotherBrainBodyLeaningDown,
-    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_initial_dummy</c>.</summary>
+    /// <summary>Mother Brain: body initial dummy.</summary>
     MotherBrainBodyInitialDummy,
-    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_death_beam_0</c>.</summary>
+    /// <summary>Mother Brain: body hand beam, second frame.</summary>
     MotherBrainBodyHandBeamSecond,
-    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_death_beam_1</c>.</summary>
+    /// <summary>Mother Brain: body hand beam, third frame.</summary>
     MotherBrainBodyHandBeamThird,
-    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_death_beam_2</c>.</summary>
+    /// <summary>Mother Brain: body hand beam, fourth frame.</summary>
     MotherBrainBodyHandBeamFourth,
-    /// <summary>The frame the installed artwork names <c>mother_brain_body_oam_death_beam_3</c>.</summary>
+    /// <summary>Mother Brain: body hand beam, fifth frame.</summary>
     MotherBrainBodyHandBeamFifth,
-    /// <summary>The frame the installed artwork names <c>phantoon_invulnerable_body_0</c>.</summary>
+    /// <summary>Phantoon: invulnerable body.</summary>
     PhantoonInvulnerableBody,
-    /// <summary>The frame the installed artwork names <c>phantoon_full_hitbox_body_0</c>.</summary>
+    /// <summary>Phantoon: full hitbox body.</summary>
     PhantoonFullHitboxBody,
-    /// <summary>The frame the installed artwork names <c>phantoon_eye_hitbox_body_0</c>.</summary>
+    /// <summary>Phantoon: eye hitbox body.</summary>
     PhantoonEyeHitboxBody,
-    /// <summary>The frame the installed artwork names <c>phantoon_closed_eye_0</c>.</summary>
+    /// <summary>Phantoon: eye closed.</summary>
     PhantoonEyeClosed,
-    /// <summary>The frame the installed artwork names <c>phantoon_opening_eye_0</c>.</summary>
+    /// <summary>Phantoon: eye open, first frame.</summary>
     PhantoonEyeOpenFirst,
-    /// <summary>The frame the installed artwork names <c>phantoon_opening_eye_1</c>.</summary>
+    /// <summary>Phantoon: eye open, second frame.</summary>
     PhantoonEyeOpenSecond,
-    /// <summary>The frame the installed artwork names <c>phantoon_opening_eye_2</c>.</summary>
+    /// <summary>Phantoon: eye open, third frame.</summary>
     PhantoonEyeOpenThird,
-    /// <summary>The frame the installed artwork names <c>phantoon_centered_eye_0</c>.</summary>
+    /// <summary>Phantoon: eyeball centered.</summary>
     PhantoonEyeballCentered,
-    /// <summary>The frame the installed artwork names <c>phantoon_gaze_0</c>.</summary>
+    /// <summary>Phantoon: eye looking up.</summary>
     PhantoonEyeLookingUp,
-    /// <summary>The frame the installed artwork names <c>phantoon_gaze_4</c>.</summary>
+    /// <summary>Phantoon: eye looking down.</summary>
     PhantoonEyeLookingDown,
-    /// <summary>The frame the installed artwork names <c>phantoon_gaze_6</c>.</summary>
+    /// <summary>Phantoon: eye looking left.</summary>
     PhantoonEyeLookingLeft,
-    /// <summary>The frame the installed artwork names <c>phantoon_gaze_2</c>.</summary>
+    /// <summary>Phantoon: eye looking right.</summary>
     PhantoonEyeLookingRight,
-    /// <summary>The frame the installed artwork names <c>phantoon_gaze_5</c>.</summary>
+    /// <summary>Phantoon: eye looking down left.</summary>
     PhantoonEyeLookingDownLeft,
-    /// <summary>The frame the installed artwork names <c>phantoon_gaze_3</c>.</summary>
+    /// <summary>Phantoon: eye looking down right.</summary>
     PhantoonEyeLookingDownRight,
-    /// <summary>The frame the installed artwork names <c>phantoon_gaze_7</c>.</summary>
+    /// <summary>Phantoon: eye looking up left.</summary>
     PhantoonEyeLookingUpLeft,
-    /// <summary>The frame the installed artwork names <c>phantoon_gaze_1</c>.</summary>
+    /// <summary>Phantoon: eye looking up right.</summary>
     PhantoonEyeLookingUpRight,
-    /// <summary>The frame the installed artwork names <c>phantoon_tentacle_0</c>.</summary>
+    /// <summary>Phantoon: tentacles, first frame.</summary>
     PhantoonTentaclesFirst,
-    /// <summary>The frame the installed artwork names <c>phantoon_tentacle_1</c>.</summary>
+    /// <summary>Phantoon: tentacles, second frame.</summary>
     PhantoonTentaclesSecond,
-    /// <summary>The frame the installed artwork names <c>phantoon_tentacle_2</c>.</summary>
+    /// <summary>Phantoon: tentacles, third frame.</summary>
     PhantoonTentaclesThird,
-    /// <summary>The frame the installed artwork names <c>phantoon_mouth_0</c>.</summary>
+    /// <summary>Phantoon: mouth initial.</summary>
     PhantoonMouthInitial,
-    /// <summary>The frame the installed artwork names <c>phantoon_mouth_1</c>.</summary>
+    /// <summary>Phantoon: mouth spawn flame, second frame.</summary>
     PhantoonMouthSpawnFlameSecond,
-    /// <summary>The frame the installed artwork names <c>phantoon_mouth_2</c>.</summary>
+    /// <summary>Phantoon: mouth spawn flame, first frame.</summary>
     PhantoonMouthSpawnFlameFirst,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_6</c>.</summary>
+    /// <summary>Draygon: arms facing left dying, first frame.</summary>
     DraygonArmsFacingLeftDyingFirst,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_7</c>.</summary>
+    /// <summary>Draygon: arms facing left dying, second frame.</summary>
     DraygonArmsFacingLeftDyingSecond,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_8</c>.</summary>
+    /// <summary>Draygon: arms facing left dying, third frame.</summary>
     DraygonArmsFacingLeftDyingThird,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_9</c>.</summary>
+    /// <summary>Draygon: arms facing left dying, fourth frame.</summary>
     DraygonArmsFacingLeftDyingFourth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_10</c>.</summary>
+    /// <summary>Draygon: body facing left fire goop, first frame.</summary>
     DraygonBodyFacingLeftFireGoopFirst,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_11</c>.</summary>
+    /// <summary>Draygon: body facing left fire goop, second frame.</summary>
     DraygonBodyFacingLeftFireGoopSecond,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_12</c>.</summary>
+    /// <summary>Draygon: body facing left fire goop, third frame.</summary>
     DraygonBodyFacingLeftFireGoopThird,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_13</c>.</summary>
+    /// <summary>Draygon: body facing left fire goop, fourth frame.</summary>
     DraygonBodyFacingLeftFireGoopFourth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_14</c>.</summary>
+    /// <summary>Draygon: eye facing left idle, first frame.</summary>
     DraygonEyeFacingLeftIdleFirst,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_15</c>.</summary>
+    /// <summary>Draygon: eye facing left idle, second frame.</summary>
     DraygonEyeFacingLeftIdleSecond,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_16</c>.</summary>
+    /// <summary>Draygon: eye facing left idle, third frame.</summary>
     DraygonEyeFacingLeftIdleThird,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_17</c>.</summary>
+    /// <summary>Draygon: eye facing left dying loop, fifth frame.</summary>
     DraygonEyeFacingLeftDyingLoopFifth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_18</c>.</summary>
+    /// <summary>Draygon: eye facing left idle, fourth frame.</summary>
     DraygonEyeFacingLeftIdleFourth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_19</c>.</summary>
+    /// <summary>Draygon: eye facing left dying loop, third frame.</summary>
     DraygonEyeFacingLeftDyingLoopThird,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_20</c>.</summary>
+    /// <summary>Draygon: eye facing left idle, fifth frame.</summary>
     DraygonEyeFacingLeftIdleFifth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_21</c>.</summary>
+    /// <summary>Draygon: eye facing left idle, sixth frame.</summary>
     DraygonEyeFacingLeftIdleSixth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_22</c>.</summary>
+    /// <summary>Draygon: body facing left reset.</summary>
     DraygonBodyFacingLeftReset,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_47</c>.</summary>
+    /// <summary>Draygon: arms facing right dying, first frame.</summary>
     DraygonArmsFacingRightDyingFirst,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_48</c>.</summary>
+    /// <summary>Draygon: arms facing right dying, second frame.</summary>
     DraygonArmsFacingRightDyingSecond,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_49</c>.</summary>
+    /// <summary>Draygon: arms facing right dying, third frame.</summary>
     DraygonArmsFacingRightDyingThird,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_50</c>.</summary>
+    /// <summary>Draygon: arms facing right dying, fourth frame.</summary>
     DraygonArmsFacingRightDyingFourth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_51</c>.</summary>
+    /// <summary>Draygon: body facing right fire goop, first frame.</summary>
     DraygonBodyFacingRightFireGoopFirst,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_52</c>.</summary>
+    /// <summary>Draygon: body facing right fire goop, second frame.</summary>
     DraygonBodyFacingRightFireGoopSecond,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_53</c>.</summary>
+    /// <summary>Draygon: body facing right fire goop, third frame.</summary>
     DraygonBodyFacingRightFireGoopThird,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_54</c>.</summary>
+    /// <summary>Draygon: body facing right fire goop, fourth frame.</summary>
     DraygonBodyFacingRightFireGoopFourth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_55</c>.</summary>
+    /// <summary>Draygon: eye facing right idle, first frame.</summary>
     DraygonEyeFacingRightIdleFirst,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_56</c>.</summary>
+    /// <summary>Draygon: eye facing right idle, second frame.</summary>
     DraygonEyeFacingRightIdleSecond,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_57</c>.</summary>
+    /// <summary>Draygon: eye facing right idle, third frame.</summary>
     DraygonEyeFacingRightIdleThird,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_58</c>.</summary>
+    /// <summary>Draygon: eye facing right dying loop, fifth frame.</summary>
     DraygonEyeFacingRightDyingLoopFifth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_59</c>.</summary>
+    /// <summary>Draygon: eye facing right idle, fourth frame.</summary>
     DraygonEyeFacingRightIdleFourth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_60</c>.</summary>
+    /// <summary>Draygon: eye facing right dying loop, third frame.</summary>
     DraygonEyeFacingRightDyingLoopThird,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_61</c>.</summary>
+    /// <summary>Draygon: eye facing right idle, fifth frame.</summary>
     DraygonEyeFacingRightIdleFifth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_62</c>.</summary>
+    /// <summary>Draygon: eye facing right idle, sixth frame.</summary>
     DraygonEyeFacingRightIdleSixth,
-    /// <summary>The frame the installed artwork names <c>draygon_frame_63</c>.</summary>
+    /// <summary>Draygon: body facing right reset.</summary>
     DraygonBodyFacingRightReset,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_0</c>.</summary>
+    /// <summary>Crocomire: body skeleton falling, first frame.</summary>
     CrocomireBodySkeletonFallingFirst,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_1</c>.</summary>
+    /// <summary>Crocomire: body skeleton falling, second frame.</summary>
     CrocomireBodySkeletonFallingSecond,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_2</c>.</summary>
+    /// <summary>Crocomire: body skeleton falling, third frame.</summary>
     CrocomireBodySkeletonFallingThird,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_3</c>.</summary>
+    /// <summary>Crocomire: body skeleton falls apart, first frame.</summary>
     CrocomireBodySkeletonFallsApartFirst,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_4</c>.</summary>
+    /// <summary>Crocomire: body skeleton falls apart, second frame.</summary>
     CrocomireBodySkeletonFallsApartSecond,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_5</c>.</summary>
+    /// <summary>Crocomire: body skeleton falls apart, third frame.</summary>
     CrocomireBodySkeletonFallsApartThird,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_6</c>.</summary>
+    /// <summary>Crocomire: body skeleton falls apart, fourth frame.</summary>
     CrocomireBodySkeletonFallsApartFourth,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_7</c>.</summary>
+    /// <summary>Crocomire: body skeleton falls apart, fifth frame.</summary>
     CrocomireBodySkeletonFallsApartFifth,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_8</c>.</summary>
+    /// <summary>Crocomire: body skeleton falls apart, sixth frame.</summary>
     CrocomireBodySkeletonFallsApartSixth,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_9</c>.</summary>
+    /// <summary>Crocomire: body skeleton falls apart, seventh frame.</summary>
     CrocomireBodySkeletonFallsApartSeventh,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_10</c>.</summary>
+    /// <summary>Crocomire: body skeleton falls apart, eighth frame.</summary>
     CrocomireBodySkeletonFallsApartEighth,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_11</c>.</summary>
+    /// <summary>Crocomire: body skeleton falls apart, ninth frame.</summary>
     CrocomireBodySkeletonFallsApartNinth,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_12</c>.</summary>
+    /// <summary>Crocomire: body skeleton falls apart, tenth frame.</summary>
     CrocomireBodySkeletonFallsApartTenth,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_13</c>.</summary>
+    /// <summary>Crocomire: body skeleton falls apart, eleventh frame.</summary>
     CrocomireBodySkeletonFallsApartEleventh,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_14</c>.</summary>
+    /// <summary>Crocomire: body skeleton falls apart, twelfth frame.</summary>
     CrocomireBodySkeletonFallsApartTwelfth,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_15</c>.</summary>
+    /// <summary>Crocomire: body skeleton falls apart, thirteenth frame.</summary>
     CrocomireBodySkeletonFallsApartThirteenth,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_16</c>.</summary>
+    /// <summary>Crocomire: body skeleton falls apart, fourteenth frame.</summary>
     CrocomireBodySkeletonFallsApartFourteenth,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_17</c>.</summary>
+    /// <summary>Crocomire: body skeleton falls apart, fifteenth frame.</summary>
     CrocomireBodySkeletonFallsApartFifteenth,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_18</c>.</summary>
+    /// <summary>Crocomire: body skeleton falls apart, sixteenth frame.</summary>
     CrocomireBodySkeletonFallsApartSixteenth,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_19</c>.</summary>
+    /// <summary>Crocomire: body skeleton falls apart, seventeenth frame.</summary>
     CrocomireBodySkeletonFallsApartSeventeenth,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_20</c>.</summary>
+    /// <summary>Crocomire: body skeleton falls apart, eighteenth frame.</summary>
     CrocomireBodySkeletonFallsApartEighteenth,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_21</c>.</summary>
+    /// <summary>Crocomire: body skeleton stable.</summary>
     CrocomireBodySkeletonStable,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_22</c>.</summary>
+    /// <summary>Crocomire: body dead.</summary>
     CrocomireBodyDead,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_23</c>.</summary>
+    /// <summary>Crocomire: body skeleton flowing down river, first frame.</summary>
     CrocomireBodySkeletonFlowingDownRiverFirst,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_24</c>.</summary>
+    /// <summary>Crocomire: body skeleton flowing down river, second frame.</summary>
     CrocomireBodySkeletonFlowingDownRiverSecond,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_25</c>.</summary>
+    /// <summary>Crocomire: body skeleton flowing down river, third frame.</summary>
     CrocomireBodySkeletonFlowingDownRiverThird,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_26</c>.</summary>
+    /// <summary>Crocomire: body skeleton flowing down river, fourth frame.</summary>
     CrocomireBodySkeletonFlowingDownRiverFourth,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_27</c>.</summary>
+    /// <summary>Crocomire: body skeleton flowing down river, fifth frame.</summary>
     CrocomireBodySkeletonFlowingDownRiverFifth,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_28</c>.</summary>
+    /// <summary>Crocomire: body skeleton flowing down river, sixth frame.</summary>
     CrocomireBodySkeletonFlowingDownRiverSixth,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_29</c>.</summary>
+    /// <summary>Crocomire: body skeleton flowing down river, seventh frame.</summary>
     CrocomireBodySkeletonFlowingDownRiverSeventh,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_30</c>.</summary>
+    /// <summary>Crocomire: body skeleton flowing down river, eighth frame.</summary>
     CrocomireBodySkeletonFlowingDownRiverEighth,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_31</c>.</summary>
+    /// <summary>Crocomire: body skeleton flowing down river, ninth frame.</summary>
     CrocomireBodySkeletonFlowingDownRiverNinth,
-    /// <summary>The frame the installed artwork names <c>crocomire_skeleton_32</c>.</summary>
+    /// <summary>Crocomire: body skeleton flowing down river, tenth frame.</summary>
     CrocomireBodySkeletonFlowingDownRiverTenth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_0</c>.</summary>
+    /// <summary>Kraid: foot neutral.</summary>
     KraidFootNeutral,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_1</c>.</summary>
+    /// <summary>Kraid: foot walking forward, second frame.</summary>
     KraidFootWalkingForwardSecond,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_2</c>.</summary>
+    /// <summary>Kraid: foot walking forward, third frame.</summary>
     KraidFootWalkingForwardThird,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_3</c>.</summary>
+    /// <summary>Kraid: foot walking forward, fourth frame.</summary>
     KraidFootWalkingForwardFourth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_4</c>.</summary>
+    /// <summary>Kraid: foot walking forward, fifth frame.</summary>
     KraidFootWalkingForwardFifth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_5</c>.</summary>
+    /// <summary>Kraid: foot walking forward, sixth frame.</summary>
     KraidFootWalkingForwardSixth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_6</c>.</summary>
+    /// <summary>Kraid: foot walking forward, seventh frame.</summary>
     KraidFootWalkingForwardSeventh,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_7</c>.</summary>
+    /// <summary>Kraid: foot walking forward, eighth frame.</summary>
     KraidFootWalkingForwardEighth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_8</c>.</summary>
+    /// <summary>Kraid: foot walking forward, ninth frame.</summary>
     KraidFootWalkingForwardNinth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_9</c>.</summary>
+    /// <summary>Kraid: foot walking forward, tenth frame.</summary>
     KraidFootWalkingForwardTenth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_10</c>.</summary>
+    /// <summary>Kraid: foot walking forward, eleventh frame.</summary>
     KraidFootWalkingForwardEleventh,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_11</c>.</summary>
+    /// <summary>Kraid: foot walking forward, twelfth frame.</summary>
     KraidFootWalkingForwardTwelfth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_12</c>.</summary>
+    /// <summary>Kraid: foot walking forward, thirteenth frame.</summary>
     KraidFootWalkingForwardThirteenth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_13</c>.</summary>
+    /// <summary>Kraid: foot walking forward, fourteenth frame.</summary>
     KraidFootWalkingForwardFourteenth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_14</c>.</summary>
+    /// <summary>Kraid: foot walking forward, fifteenth frame.</summary>
     KraidFootWalkingForwardFifteenth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_15</c>.</summary>
+    /// <summary>Kraid: foot walking forward, sixteenth frame.</summary>
     KraidFootWalkingForwardSixteenth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_16</c>.</summary>
+    /// <summary>Kraid: foot walking forward, seventeenth frame.</summary>
     KraidFootWalkingForwardSeventeenth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_17</c>.</summary>
+    /// <summary>Kraid: foot walking forward, eighteenth frame.</summary>
     KraidFootWalkingForwardEighteenth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_18</c>.</summary>
+    /// <summary>Kraid: foot walking forward, nineteenth frame.</summary>
     KraidFootWalkingForwardNineteenth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_19</c>.</summary>
+    /// <summary>Kraid: foot walking forward, twentieth frame.</summary>
     KraidFootWalkingForwardTwentieth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_20</c>.</summary>
+    /// <summary>Kraid: foot walking backward, thirteenth frame.</summary>
     KraidFootWalkingBackwardThirteenth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_21</c>.</summary>
+    /// <summary>Kraid: foot walking forward, twenty-first frame.</summary>
     KraidFootWalkingForwardTwentyFirst,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_22</c>.</summary>
+    /// <summary>Kraid: foot walking forward, twenty-second frame.</summary>
     KraidFootWalkingForwardTwentySecond,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_23</c>.</summary>
+    /// <summary>Kraid: foot walking forward, twenty-third frame.</summary>
     KraidFootWalkingForwardTwentyThird,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_24</c>.</summary>
+    /// <summary>Kraid: foot walking forward, twenty-fourth frame.</summary>
     KraidFootWalkingForwardTwentyFourth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_25</c>.</summary>
+    /// <summary>Kraid: foot walking forward, twenty-fifth frame.</summary>
     KraidFootWalkingForwardTwentyFifth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_26</c>.</summary>
+    /// <summary>Kraid: foot walking forward, twenty-sixth frame.</summary>
     KraidFootWalkingForwardTwentySixth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_27</c>.</summary>
+    /// <summary>Kraid: foot walking forward, twenty-seventh frame.</summary>
     KraidFootWalkingForwardTwentySeventh,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_28</c>.</summary>
+    /// <summary>Kraid: foot walking forward, twenty-eighth frame.</summary>
     KraidFootWalkingForwardTwentyEighth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_29</c>.</summary>
+    /// <summary>Kraid: foot walking forward, twenty-ninth frame.</summary>
     KraidFootWalkingForwardTwentyNinth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_30</c>.</summary>
+    /// <summary>Kraid: foot walking forward, thirtieth frame.</summary>
     KraidFootWalkingForwardThirtieth,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_31</c>.</summary>
+    /// <summary>Kraid: foot walking forward, thirty-first frame.</summary>
     KraidFootWalkingForwardThirtyFirst,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_32</c>.</summary>
+    /// <summary>Kraid: foot walking backward, second frame.</summary>
     KraidFootWalkingBackwardSecond,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_33</c>.</summary>
+    /// <summary>Kraid: foot walking backward, first frame.</summary>
     KraidFootWalkingBackwardFirst,
-    /// <summary>The frame the installed artwork names <c>kraid_foot_standing</c>.</summary>
+    /// <summary>Kraid: foot standing.</summary>
     KraidFootStanding,
     /// <summary>
     /// The empty frame every enemy family shares: an enemy showing it draws nothing, and one that collides by its frames'

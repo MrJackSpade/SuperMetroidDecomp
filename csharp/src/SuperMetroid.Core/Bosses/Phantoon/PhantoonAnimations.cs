@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Bosses.Phantoon.PhantoonPartProgram;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Phantoon's typed body, eye, tentacle and mouth animations (#641, #1600), in place of their lists.</summary>
+/// <summary>Phantoon's typed body, eye, tentacle and mouth animations (#641, #1600).</summary>
 internal static class PhantoonAnimations
 {
     /// <summary>The eyelid's dwell on each of its two moving poses.</summary>

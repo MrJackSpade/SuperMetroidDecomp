@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Projectiles.Artwork;
 
 /// <summary>
-/// The program frames that show the empty projectile spritemap (#1513): an enemy's death explosion while it waits to
+/// The program frames that show the empty projectile frame (#1513): an enemy's death explosion while it waits to
 /// respawn or scatters its sprite objects, the falling spark's and Phantoon's flames' blinks, the Torizos' drool delays,
 /// Golden Torizo's eye beam floor impact loop, one pose of the Tourian statues' projectiles, and Botwoon's segments
 /// hidden in the wall. Like
@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles.Artwork;
 /// </summary>
 internal static class EnemyProjectileEmptyFrameDefinitions
 {
-    /// <summary>The program frames that show the empty projectile spritemap.</summary>
+    /// <summary>The program frames that show the empty projectile frame.</summary>
     internal static readonly HashSet<EnemyProjectileFrameId> EmptySpritemapFrames =
     [
         EnemyProjectileFrameId.EnemyDeathRespawnTail,

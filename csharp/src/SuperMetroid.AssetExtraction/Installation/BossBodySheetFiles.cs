@@ -31,7 +31,7 @@ public static class BossBodySheetFiles
     /// Crocomire's melt images once, with the cells its dissolve erases, and no step of it (#1652); 8 keys each frame by the
     /// animation segment or table key that first shows it (#1623).
     /// </summary>
-    private const int ManifestVersion = 8;
+    private const int ManifestVersion = 9;
 
     /// <summary>
     /// Composes every boss's body sheet and writes their manifest; the sheets are returned for the picture store to write

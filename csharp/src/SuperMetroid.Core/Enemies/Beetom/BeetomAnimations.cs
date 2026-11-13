@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>
 /// The Beetom's crawl, hop and drain animations as typed programs (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="BeetomCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="BeetomCue"/> with its typed operands.
 /// </summary>
 internal static class BeetomAnimations
 {

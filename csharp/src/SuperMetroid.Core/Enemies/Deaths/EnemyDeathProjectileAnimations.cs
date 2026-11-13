@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Deaths;
 
 /// <summary>
 /// The generic enemy-death explosions, the drops they become and the respawn tail (#641). Each
-/// frame shows a <see cref="EnemyProjectileFrameId"/> and each command becomes a <see cref="EnemyDeathProjectileCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyDeathProjectileCue"/> with its typed operands.
 /// </summary>
 internal static class EnemyDeathProjectileAnimations
 {

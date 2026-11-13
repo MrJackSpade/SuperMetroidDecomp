@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Skree;
 
 /// <summary>
 /// The Skree's and Metaree's death-particle programs (#641). Each
-/// frame shows a <see cref="EnemyProjectileFrameId"/> and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class SkreeMetareeParticleAnimations
 {

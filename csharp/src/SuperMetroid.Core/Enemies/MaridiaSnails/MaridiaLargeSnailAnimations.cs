@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>
 /// Oum's idle, attacking and rolling animations as typed programs (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="MaridiaLargeSnailCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="MaridiaLargeSnailCue"/> with its typed operands.
 /// </summary>
 internal static class MaridiaLargeSnailAnimations
 {

@@ -19,13 +19,13 @@ internal static class CrocomireBodyLayerPlacementDefinitions
     /// </summary>
     internal static readonly Dictionary<EnemyFrameId, int> Corrections = new()
     {
-        [EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopSecond] = -2,
-        [EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopThird] = -2,
-        [EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopFourth] = -1,
-        [EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopFifth] = -2,
-        [EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopSixth] = -2,
-        [EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopSeventh] = -1,
-        [EnemyFrameId.CrocomireBodySteppingBackFifth] = -1,
+        [EnemyFrameId.CrocomireBodyChargingSecond] = -2,
+        [EnemyFrameId.CrocomireBodyChargingThird] = -2,
+        [EnemyFrameId.CrocomireBodyChargingFourth] = -1,
+        [EnemyFrameId.CrocomireBodyChargingFifth] = -2,
+        [EnemyFrameId.CrocomireBodyChargingSixth] = -2,
+        [EnemyFrameId.CrocomireBodyChargingSeventh] = -1,
+        [EnemyFrameId.CrocomireBodyChargingEighth] = -1,
         [EnemyFrameId.CrocomireBodyProjectileAttackSecond] = -2,
         [EnemyFrameId.CrocomireBodyProjectileAttackThird] = -4,
         [EnemyFrameId.CrocomireBodyProjectileAttackFourth] = -2,

@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <summary>
 /// The authored timing of the Bomb Torizo hand (#1554): the intact hand shows for one update and then rests until Samus
 /// has Bombs; woken, it holds, then drops eight fragments at quickening intervals before the cleared hand and the boss
-/// music. The game's crumble also loads the debris characters the fragments are drawn with (#1406); the fragments show
-/// their own pictures, so that load has no step here and takes no time.
+/// music. The game's crumble also prepares the debris pictures the fragments are drawn with (#1406); the fragments show
+/// their own installed pictures, so that preparation has no step here and takes no time.
 /// </summary>
 internal static class BombTorizoHandCrumbleDefinitions
 {

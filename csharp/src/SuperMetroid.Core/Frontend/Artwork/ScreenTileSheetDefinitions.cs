@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Artwork;
 /// </summary>
 public static class ScreenTileSheetDefinitions
 {
-    /// <summary>The menu's world foreground characters under each Zebes area's world-map palette, which its area map shows.</summary>
+    /// <summary>The file-select world map's foreground picture in each Zebes area's world-map colours, shown while that area is selected.</summary>
     public static IReadOnlyDictionary<AreaId, SpriteSheetId> AreaMapForegrounds { get; } = new Dictionary<AreaId, SpriteSheetId>
     {
         [AreaId.Crateria] = SpriteSheetId.AreaMapForegroundCrateria,
@@ -19,7 +19,7 @@ public static class ScreenTileSheetDefinitions
         [AreaId.Tourian] = SpriteSheetId.AreaMapForegroundTourian,
     };
 
-    /// <summary>The menu's world background characters under each Zebes area's world-map palette, which its area map shows.</summary>
+    /// <summary>The file-select world map's background picture in each Zebes area's world-map colours, shown while that area is selected.</summary>
     public static IReadOnlyDictionary<AreaId, SpriteSheetId> AreaMapBackgrounds { get; } = new Dictionary<AreaId, SpriteSheetId>
     {
         [AreaId.Crateria] = SpriteSheetId.AreaMapBackgroundCrateria,

@@ -46,7 +46,7 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
 
     /// <summary>How the cell at logical map coordinates X 0–63, Y 0–31 looks.</summary>
     public MapCell Cell(Position16<MapTiles> cell) => cells[Index(cell)];
-    /// <summary>Gets the supplied rule snapshot for whether logical cell (X 0–63, Y 0–31) can be discovered, independent of the edited character or blank artwork.</summary>
+    /// <summary>Gets the supplied rule snapshot for whether logical cell (X 0–63, Y 0–31) can be discovered, independent of the cell's edited or blank artwork.</summary>
     public bool IsDiscoverable(Position16<MapTiles> cell) => discoverable[Index(cell)];
     /// <summary>Gets the supplied rule snapshot for whether downloading this area's map reveals logical cell (X 0–63, Y 0–31); no exploration or save bits are changed.</summary>
     public bool IsRevealedByMapStation(Position16<MapTiles> cell) => station[Index(cell)];

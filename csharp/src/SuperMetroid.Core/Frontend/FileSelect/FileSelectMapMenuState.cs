@@ -247,7 +247,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         return Insert(areaScene, roomScene, window.Left, window.Top, window.Right, window.Bottom);
     }
 
-    /// <summary>Overlays an inner scene inside half-open screen bounds while retaining the basis scene's display memory and brightness.</summary>
+    /// <summary>Overlays an inner scene inside half-open screen bounds while retaining the basis scene's paint and brightness.</summary>
     private static LayeredScene Insert(LayeredScene basis, LayeredScene inside,
         int left, int top, int right, int bottom)
     {

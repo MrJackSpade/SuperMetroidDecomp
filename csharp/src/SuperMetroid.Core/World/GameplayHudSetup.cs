@@ -23,7 +23,7 @@ internal sealed class GameplayHudSetup
 
     /// <summary>
     /// Initializes the HUD, as gameplay setup does. The HUD's rows and static top row are its own, and the accepted frame
-    /// shows them in the HUD sheet's pictures, which show the standard HUD characters (#1466). Enemy frames show their own
+    /// shows them in the HUD sheet's pictures (#1466). Enemy frames show their own
     /// pictures throughout (#1513), so setup selects no enemy artwork.
     /// </summary>
     public void InitializeHud(HudSnapshot snapshot)

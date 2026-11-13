@@ -53,7 +53,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// final explosion with Samus still aboard has cleared the whole floor (#1513).
     /// </summary>
     internal CeresFloorShot? FloorShot { get; private set; }
-    /// <summary>Whether the Zebes reveal has loaded its characters and planet map over the station's (#1467).</summary>
+    /// <summary>Whether the Zebes reveal's pictures and planet show in place of the station's (#1467).</summary>
     internal bool ZebesRevealed { get; private set; }
     /// <summary>
     /// The colour the scene shows behind every layer (#1512): black until the scene loads the flight's colours, then the

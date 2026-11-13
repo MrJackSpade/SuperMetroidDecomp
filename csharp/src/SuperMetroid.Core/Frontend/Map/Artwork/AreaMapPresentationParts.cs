@@ -58,7 +58,7 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Escape countdown visual layout and digit presentation.</summary>
     public required EscapeTimerPresentation EscapeTimer { get; init; }
 
-    /// <summary>Gameplay HUD picture and display presentation, separate from the standard HUD character atlas.</summary>
+    /// <summary>Gameplay HUD picture and display presentation, separate from the HUD sheet's pictures.</summary>
     public required GameplayHudPresentation GameplayHud { get; init; }
 
     /// <summary>Selected game-over screen presentation resources.</summary>
@@ -83,7 +83,7 @@ internal sealed record AreaMapPresentationParts
     /// <summary>The colour the title shows behind its floor and objects (#1512).</summary>
     public required RgbColor TitleBackdrop { get; init; }
 
-    /// <summary>Title-screen gradient presentation, separate from its static palette and character artwork.</summary>
+    /// <summary>Title-screen gradient presentation, separate from its static palette and pictures.</summary>
     public required TitleGradientPresentation TitleGradient { get; init; }
 
     /// <summary>Mother Brain's rainbow beam backdrop colours.</summary>

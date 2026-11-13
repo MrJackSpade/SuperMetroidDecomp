@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>The Ceres haze's per-line table dimensions and fade limit.</summary>
+/// <summary>The Ceres haze's fade: how many steps its colour bands strengthen through.</summary>
 public static class CeresHazeDefinitions
 {
-    /// <summary>The haze setup compares its counter to sixteen after writing sixteen table ramps.</summary>
+    /// <summary>The steps the haze's fade takes, from no colour through the whole tint.</summary>
     public const int FadeSteps = 16;
 }

@@ -437,7 +437,7 @@ public sealed class SamusState
     public SamusGrappleState Grapple { get; } = new();
 
     /// <summary>
-    /// The independent opening cover, one-sprite draw, and character load used by aimed weapon
+    /// The arm cannon's independent opening cover and its one-picture draw, used by aimed weapon
     /// poses. Its state is driven by HUD selection rather than by the body animation timer.
     /// </summary>
     public SamusArmCannonState ArmCannon { get; } = new();

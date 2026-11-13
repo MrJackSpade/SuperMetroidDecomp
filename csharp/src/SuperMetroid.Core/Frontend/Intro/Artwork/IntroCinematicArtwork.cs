@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// <summary>
 /// What the game reads of the installed opening cinematic (#1616): its backdrop and the Ceres scenes' backdrop and actor
 /// placements. Its scenes, portrait, narration cards and sprites are drawn from the installed sheets, which the import
-/// pre-colours in the opening's palette (#1512); the palette, picture layouts, characters and compositions those sheets are
+/// pre-colours in the opening's palette (#1512); the palette, picture layouts, source artwork and compositions those sheets are
 /// composed from are the import pipeline's, which also names the content's identity (#1463, #1467). Scene timing remains
 /// compiled game logic.
 /// </summary>

@@ -12,11 +12,11 @@ internal static class CrocomireMeltingDefinitions
     /// </summary>
     public const int ColumnCount = 49;
 
-    /// <summary>Bands of the first melt image, one row of its characters each, shown one per update.</summary>
+    /// <summary>Bands of the first melt image, one eight-pixel row of the image each, shown one per update.</summary>
     public const int FirstPassBandCount = 6;
 
     /// <summary>
-    /// Bands of the second melt image. Its seventh band shows what follows the image's six rows of characters, as the
+    /// Bands of the second melt image. Its seventh band shows what follows the image's six eight-pixel rows, as the game
     /// shows it.
     /// </summary>
     public const int SecondPassBandCount = 7;

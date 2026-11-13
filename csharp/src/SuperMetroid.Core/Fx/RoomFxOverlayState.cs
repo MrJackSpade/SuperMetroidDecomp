@@ -561,7 +561,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             AdvanceLiquidMotion(randomNumber, earthquakeSoundDelay);
         waterSurfaceScreenY = SurfaceScreenLine(camera);
         // Lava/acid uses the same surface-relative vertical scroll equation as water.
-        // Zeroing it anchored the animated characters to the screen instead of
+        // Zeroing it anchored the animated liquid pictures to the screen instead of
         // beginning their first texture row immediately below the liquid boundary.
         Scroll = camera.AsOverlayScroll().WithY(ComputeLiquidVerticalScroll(Surface, camera.Y));
 

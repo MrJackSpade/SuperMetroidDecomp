@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// and projectile timing remain in the compiled simulation. The import composes, once, the whole picture each pose shows
 /// at every picture frame the body sheet covers (#1585) and bakes where each installed frame places the body (#1517);
 /// the body draws its picture by pose and picture frame from the pre-coloured sheet. The tables, compositions,
-/// characters and appearances the import composed the sheets from stay in the import.
+/// source artwork and appearances the import composed the sheets from stay in the import.
 /// </remarks>
 public sealed class InstalledSamusBodyArtwork
 {

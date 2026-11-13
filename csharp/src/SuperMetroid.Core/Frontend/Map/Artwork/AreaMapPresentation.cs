@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>
 /// Immutable map content snapshot, as installed; edits in place never alter exploration rules. It holds only what the game
-/// reads: the import keeps the characters, pages and compositions its screens, the HUD, the world map, the title and the
+/// reads: the import keeps the source artwork, pages and compositions its screens, the HUD, the world map, the title and the
 /// opening and ending text are pictured from to itself and never hands them to the game (#1466, #1583, #1616).
 /// </summary>
 public sealed class AreaMapPresentation : IGameplayPresentationContent
@@ -79,7 +79,7 @@ public sealed class AreaMapPresentation : IGameplayPresentationContent
     public PauseReserveTankPresentation PauseReserveTanks { get; }
     /// <summary>Escape countdown visual layout and digit presentation.</summary>
     public EscapeTimerPresentation EscapeTimer { get; }
-    /// <summary>Gameplay HUD picture and display presentation, separate from the standard HUD character atlas.</summary>
+    /// <summary>Gameplay HUD picture and display presentation, separate from the HUD sheet's pictures.</summary>
     public GameplayHudPresentation GameplayHud { get; }
     /// <summary>Selected game-over screen presentation resources.</summary>
     public GameOverPresentation GameOver { get; }
@@ -98,7 +98,7 @@ public sealed class AreaMapPresentation : IGameplayPresentationContent
     /// sheets by the import.
     /// </summary>
     public RgbColor TitleBackdrop { get; }
-    /// <summary>Title-screen gradient presentation, separate from its static palette and character artwork.</summary>
+    /// <summary>Title-screen gradient presentation, separate from its static palette and pictures.</summary>
     public TitleGradientPresentation TitleGradient { get; }
     /// <summary>Mother Brain's rainbow beam backdrop colours.</summary>
     public MotherBrainRainbowPalettePresentation MotherBrainRainbowPalette { get; }

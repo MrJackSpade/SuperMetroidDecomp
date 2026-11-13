@@ -249,7 +249,7 @@ internal sealed class CeresRidleyGetaway
 
                 // English goes straight to typing the warning; Japanese
                 // first runs the subtitle phase. An earlier version skipped the typing
-                // phase for English, suppressing every character below "EMERGENCY".
+                // phase for English, suppressing every typed character below "EMERGENCY".
                 state.CeresSelfDestructPhase = _roomStatus.JapaneseText
                     ? CeresSelfDestructPhase.JapaneseSubtitle
                     : CeresSelfDestructPhase.TypingWarning;

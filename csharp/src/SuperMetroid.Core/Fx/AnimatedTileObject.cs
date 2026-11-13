@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>The animated-tile objects rooms, room effects and the Tourian statues animate their characters with.
+/// <summary>The animated-tile objects rooms, room effects and the Tourian statues animate their pictures with.
 /// Its values are arbitrary; verification's view names each member's original identity (#1415).
 /// </summary>
 public enum AnimatedTileObject
@@ -40,25 +40,25 @@ public enum AnimatedTileObject
 
     /// <summary>
     /// The lava animation, spawned by the lava room effect.
-    /// Its five-frame loop repaints the liquid's characters.
+    /// Its five-frame loop animates the liquid's pictures.
     /// </summary>
     Lava,
 
     /// <summary>
     /// The acid animation, spawned by the acid room effect.
-    /// Its five-frame loop repaints the liquid's characters.
+    /// Its five-frame loop animates the liquid's pictures.
     /// </summary>
     Acid,
 
     /// <summary>
     /// The rain animation, spawned by the rain room effect.
-    /// Its five-frame loop repaints the rain's characters.
+    /// Its five-frame loop animates the rain's pictures.
     /// </summary>
     Rain,
 
     /// <summary>
     /// The spore animation, spawned by the spore room effect.
-    /// Three ten-tick frames repaint the spores' characters.
+    /// Three ten-tick frames animate the spores' pictures.
     /// </summary>
     Spores,
 }

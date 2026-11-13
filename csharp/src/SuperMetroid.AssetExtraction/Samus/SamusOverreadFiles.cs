@@ -49,7 +49,7 @@ public static class SamusOverreadFiles
     /// </summary>
     /// <param name="directory">The installed overread directory.</param>
     /// <exception cref="InvalidDataException">The file's format or a continuation is invalid.</exception>
-    internal static LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> LoadAnimationContinuation(string directory) =>
+    internal static FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> LoadAnimationContinuation(string directory) =>
         SamusOverreadServicesReader.ReadAnimationContinuation(LoadDocument(directory));
 
     /// <summary>Reads the overread document in <paramref name="directory"/>; its readers check its format.</summary>

@@ -7,7 +7,7 @@ public readonly record struct SignedSixteenSixteen
     /// <summary>Wraps an existing signed 32-bit displacement without altering its whole and fraction bits.</summary>
     private SignedSixteenSixteen(int rawValue) => RawValue = rawValue;
 
-    /// <summary>Gets the signed native word containing sixteen whole and sixteen fractional bits.</summary>
+    /// <summary>The displacement in 65536ths of a pixel: its whole pixels above sixteen fractional bits, signed.</summary>
     public int RawValue { get; }
 
     /// <summary>
@@ -33,7 +33,7 @@ public readonly record struct SignedSixteenSixteen
     /// <summary>The zero displacement.</summary>
     public static SignedSixteenSixteen Zero => default;
 
-    /// <summary>The whole-pixel word as its unsigned native bit pattern.</summary>
+    /// <summary>The whole pixels read as unsigned, 0 through 65535: a displacement of -1 whole pixels reads as 65535.</summary>
     public ushort UnsignedWholePixels => unchecked((ushort)(RawValue >> 16));
 
     /// <summary>The signed whole-pixel word.</summary>
@@ -43,10 +43,10 @@ public readonly record struct SignedSixteenSixteen
     /// <summary>The unsigned fractional word.</summary>
     public ushort Fraction => unchecked((ushort)RawValue);
 
-    /// <summary>Replaces only the whole word, as cartridge routines that store one half do.</summary>
+    /// <summary>Replaces only the whole pixels and keeps the fraction, as the game does when it sets a position's whole pixels alone.</summary>
     public SignedSixteenSixteen WithWholePixels(int wholePixels) => FromParts(wholePixels, Fraction);
 
-    /// <summary>Replaces only the fractional word, as cartridge routines that store one half do.</summary>
+    /// <summary>Replaces only the fraction and keeps the whole pixels, as the game does when it sets a position's fraction alone.</summary>
     public SignedSixteenSixteen WithFraction(int fraction) => FromParts(WholePixels, fraction);
 
     /// <summary>The displacement with no fraction: its whole pixels, the fraction dropped.</summary>
@@ -54,14 +54,14 @@ public readonly record struct SignedSixteenSixteen
 
     /// <summary>
     /// The displacement with its whole pixels lowered to <paramref name="maximumWhole"/> when they lie above it, its
-    /// fraction kept, as routines that clamp only the whole pixels do.
+    /// fraction kept, as the game does when it limits only the whole pixels.
     /// </summary>
     public SignedSixteenSixteen WithWholePixelsAtMost(int maximumWhole) =>
         WholePixels > maximumWhole ? WithWholePixels(maximumWhole) : this;
 
     /// <summary>
     /// The displacement with its whole pixels raised to <paramref name="minimumWhole"/> when they lie below it, its
-    /// fraction kept, as routines that clamp only the whole pixels do.
+    /// fraction kept, as the game does when it limits only the whole pixels.
     /// </summary>
     public SignedSixteenSixteen WithWholePixelsAtLeast(int minimumWhole) =>
         WholePixels < minimumWhole ? WithWholePixels(minimumWhole) : this;

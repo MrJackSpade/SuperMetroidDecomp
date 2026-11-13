@@ -58,7 +58,7 @@ internal static class SamusOverreadServicesReader
 
     /// <summary>What an animation frame past a pose's program reads, which only the import reads to compose Samus's body sheet (#1513).</summary>
     /// <exception cref="InvalidDataException">The document has an unsupported version or an incomplete continuation.</exception>
-    internal static LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> ReadAnimationContinuation(SamusOverreadDocument document)
+    internal static FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> ReadAnimationContinuation(SamusOverreadDocument document)
     {
         Ensure.NotNull(document);
         if (document.Version != SamusOverreadFormat.Version)
@@ -70,7 +70,7 @@ internal static class SamusOverreadServicesReader
     /// Every pose with an animation program, its program's successor and the steps its program's cue-value places read
     /// (#1535).
     /// </summary>
-    private static LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> AnimationContinuation(SamusOverreadDocument document)
+    private static FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> AnimationContinuation(SamusOverreadDocument document)
     {
         IReadOnlyDictionary<string, SamusOverreadDocument.Continuation?> continuations =
             Require(document.AnimationContinuations, nameof(document.AnimationContinuations));
@@ -81,7 +81,7 @@ internal static class SamusOverreadServicesReader
             throw new InvalidDataException($"Samus overread file holds cue-value steps for {cueValueSteps.Count} poses, not {poses.Length}.");
         if (continuations.Count != poses.Length)
             throw new InvalidDataException($"Samus overread file holds {continuations.Count} animation continuations, not {poses.Length}.");
-        var successors = new Dictionary<SamusPoseId, LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep>.Successor?>();
+        var successors = new Dictionary<SamusPoseId, FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep>.Successor?>();
         var cueValues = new Dictionary<SamusPoseId, IReadOnlyDictionary<int, SamusPoseAnimationStep>>();
         foreach (SamusPoseId pose in poses)
         {
@@ -89,13 +89,13 @@ internal static class SamusOverreadServicesReader
                 throw new InvalidDataException($"Samus overread file has no animation continuation for {pose}.");
             successors.Add(pose, continuation is null
                 ? null
-                : new LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep>.Successor(Parse<SamusPoseId>(continuation.Pose, "animation successor"), continuation.Shift));
+                : new FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep>.Successor(Parse<SamusPoseId>(continuation.Pose, "animation successor"), continuation.Shift));
             if (!cueValueSteps.TryGetValue(pose.ToString(), out IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>? steps))
                 throw new InvalidDataException($"Samus overread file has no cue-value steps for {pose}.");
             cueValues.Add(pose, Require(steps, $"cue-value steps for {pose}").ToDictionary(
                 pair => ParseCount(pair.Key, $"{pose} cue-value frame"), pair => CueValueStep(Require(pair.Value, $"{pose} cue-value step"))));
         }
-        return new LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep>(successors, cueValues);
+        return new FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep>(successors, cueValues);
     }
 
     /// <summary>The step a cue value's place reads, from its decoded kind and the values it names.</summary>

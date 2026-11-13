@@ -38,7 +38,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </typeparam>
 /// <typeparam name="TStep">A step of an animation, which a cue value's place reads.</typeparam>
 [CompatibilityService("a frame past an animation's end reads the animation laid out after it, and a frame on a value one of its cues carries reads that value as a step")]
-public sealed class LaidOutAnimationContinuation<TAnimation, TStep>
+public sealed class FramesBeyondAnimation<TAnimation, TStep>
     where TAnimation : notnull
     where TStep : class
 {
@@ -67,7 +67,7 @@ public sealed class LaidOutAnimationContinuation<TAnimation, TStep>
     /// A successor starts no later than the animation before it, or the cue-value steps name an animation outside the layout or a
     /// frame before an animation's start.
     /// </exception>
-    public LaidOutAnimationContinuation(IReadOnlyDictionary<TAnimation, Successor?> successors,
+    public FramesBeyondAnimation(IReadOnlyDictionary<TAnimation, Successor?> successors,
         IReadOnlyDictionary<TAnimation, IReadOnlyDictionary<int, TStep>> cueValueSteps)
     {
         Ensure.NotNull(successors);
@@ -75,7 +75,7 @@ public sealed class LaidOutAnimationContinuation<TAnimation, TStep>
         foreach (KeyValuePair<TAnimation, Successor?> pair in successors)
         {
             if (pair.Value is { Shift: <= 0 })
-                throw new ArgumentException($"The program laid out after {pair.Key} does not start after it.", nameof(successors));
+                throw new ArgumentException($"The animation laid out after {pair.Key} does not start after it.", nameof(successors));
         }
         foreach (KeyValuePair<TAnimation, IReadOnlyDictionary<int, TStep>> pair in cueValueSteps)
         {

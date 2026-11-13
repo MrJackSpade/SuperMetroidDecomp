@@ -40,7 +40,7 @@ internal static class MaridiaLargeSnailBounceVerification
             // On the floor level the lowest pixel row already rests in the floor, so even a sub-pixel fall lands.
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(64, level == floor ? (ushort)49 : (ushort)48));
             state.BouncePhase = phase;
-            state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(start);
+            state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(start);
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
             samus.Position = samus.Position.WithWhole(new(1000, 1000));
             var frame = new ClockedEnemyAiFrame(
@@ -49,7 +49,7 @@ internal static class MaridiaLargeSnailBounceVerification
 
             enemies.MaridiaLargeSnailBehavior.RunMaridiaLargeSnailMainAi(slot, frame);
 
-            AssertEqual(expected, state.YSpeedTableIndex.InTwoHundredFiftySixthsOfRow, $"Oum {context}: record");
+            AssertEqual(expected, state.YSpeedCurvePlace.InTwoHundredFiftySixthsOfRow, $"Oum {context}: record");
             AssertEqual(expectedPhase, state.BouncePhase, $"Oum {context}: bounce phase");
             AssertEqual(expectedSettled, state.RemainingBounces == 0, $"Oum {context}: bounces ended");
         }

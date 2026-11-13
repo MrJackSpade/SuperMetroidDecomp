@@ -58,7 +58,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Global RNG seed written when a Hopper initializes.</summary>
     private const int HopperRandomSeed = 37;
     /// <summary>Terminal place along the quadratic speed table, row 64, that caps the falling half of a hop.</summary>
-    private static readonly EnemyQuadraticSpeedIndex MaximumHopperYSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(64);
+    private static readonly EnemyQuadraticSpeedIndex MaximumHopperYSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromRows(64);
 
     /// <summary>Initializes the Hopper.</summary>
     internal void InitializeHopper(RoomEnemySlot slot)
@@ -84,10 +84,10 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Every Hopper definition authors the same small and big hop heights and speed steps, so the definition
         // selects nothing here; the two hop sizes' starting speeds are still calculated independently.
-        state.SmallHopInitialYSpeedTableIndex = CalculateInitialHopperYSpeedTableIndex(
+        state.SmallHopInitialYSpeedCurvePlace = CalculateInitialHopperYSpeedCurvePlace(
             jumpHeight: 4096,
             tableIndexDelta: 3);
-        state.BigHopInitialYSpeedTableIndex = CalculateInitialHopperYSpeedTableIndex(
+        state.BigHopInitialYSpeedCurvePlace = CalculateInitialHopperYSpeedCurvePlace(
             jumpHeight: 12288,
             tableIndexDelta: 4);
     }
@@ -167,11 +167,11 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Selects big or small quadratic-speed parameters and routes to the facing choice for the next hop.</summary>
     private static void PrepareHopperHop(HopperEnemyState state, HopperHopSize size)
     {
-        state.YSpeedTableIndexDelta = size == HopperHopSize.Big ? 4 : 3;
+        state.YSpeedCurvePlaceDelta = size == HopperHopSize.Big ? 4 : 3;
         state.XVelocity = 3;
-        state.YSpeedTableIndex = size == HopperHopSize.Big
-            ? state.BigHopInitialYSpeedTableIndex
-            : state.SmallHopInitialYSpeedTableIndex;
+        state.YSpeedCurvePlace = size == HopperHopSize.Big
+            ? state.BigHopInitialYSpeedCurvePlace
+            : state.SmallHopInitialYSpeedCurvePlace;
         state.Action = state.UpsideDown
             ? HopperAction.ChooseDirectionUpsideDown
             : HopperAction.ChooseDirectionUpsideUp;
@@ -243,7 +243,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         // Inequality expresses that table exactly. Equality reverses both phases, making
         // each actor collide with its starting surface and then migrate to the opposite one.
         bool useNegativeSpeed = (surface == HopperSurface.Ceiling) != movingAwayFromSurface;
-        SignedSixteenSixteen verticalDisplacement = state.YSpeedTableIndex.Row.Toward(useNegativeSpeed ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
+        SignedSixteenSixteen verticalDisplacement = state.YSpeedCurvePlace.Row.Toward(useNegativeSpeed ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
 
         // Every movement entry resolves Y first. A collision while rising reverses
         // X and changes to the falling half without performing horizontal motion that frame.
@@ -280,28 +280,28 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The game stores the moved-back place and checks whether it is negative: a place before the first row is the apex,
             // replaced by the first row as the hop turns back toward the surface.
-            EnemyQuadraticSpeedIndex next = state.YSpeedTableIndex - EnemyQuadraticSpeedIndex.FromRows(state.YSpeedTableIndexDelta);
+            EnemyQuadraticSpeedIndex next = state.YSpeedCurvePlace - EnemyQuadraticSpeedIndex.FromRows(state.YSpeedCurvePlaceDelta);
             if (next.IsNegative)
             {
-                state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
+                state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start;
                 state.Falling = true;
             }
             else
             {
-                state.YSpeedTableIndex = next;
+                state.YSpeedCurvePlace = next;
             }
             return;
         }
 
         // The game caps the returning record by whether its wrapped difference from the cap is negative; both stay
         // far inside the signed range, so that is the ordinary minimum.
-        state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Min(
-            state.YSpeedTableIndex + EnemyQuadraticSpeedIndex.FromRows(state.YSpeedTableIndexDelta),
-            MaximumHopperYSpeedTableIndex);
+        state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Min(
+            state.YSpeedCurvePlace + EnemyQuadraticSpeedIndex.FromRows(state.YSpeedCurvePlaceDelta),
+            MaximumHopperYSpeedCurvePlace);
     }
 
     /// <summary>Sums the quadratic table's coarse speeds until the authored jump height is reached.</summary>
-    internal static EnemyQuadraticSpeedIndex CalculateInitialHopperYSpeedTableIndex(
+    internal static EnemyQuadraticSpeedIndex CalculateInitialHopperYSpeedCurvePlace(
         int jumpHeight,
         int tableIndexDelta)
     {

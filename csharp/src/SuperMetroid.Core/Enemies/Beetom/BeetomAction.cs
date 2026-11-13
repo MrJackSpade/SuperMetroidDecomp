@@ -22,9 +22,9 @@ public enum BeetomAction
     StartShortHopLeft,
     /// <summary>Despite the inverted label, initializes the rising rightward short hop and its art.</summary>
     StartShortHopRight,
-    /// <summary>Loads the long-hop speed-table index, clears falling, and installs left-facing hop art.</summary>
+    /// <summary>Loads the long-hop speed-curve place, clears falling, and installs left-facing hop art.</summary>
     StartLongHopLeft,
-    /// <summary>Loads the long-hop speed-table index, clears falling, and installs right-facing hop art.</summary>
+    /// <summary>Loads the long-hop speed-curve place, clears falling, and installs right-facing hop art.</summary>
     StartLongHopRight,
     /// <summary>Aims the rising lunge toward Samus and starts the corresponding hop animation.</summary>
     DecideActionSamusInProximity,
@@ -34,7 +34,7 @@ public enum BeetomAction
     StartDrainingRight,
     /// <summary>Restores crawl art from the crawl direction, clears falling, and selects the straight drop.</summary>
     StartDropping,
-    /// <summary>Resets the downward speed-table index to zero after Samus shakes the Beetom off.</summary>
+    /// <summary>Resets the downward speed-curve place to zero after Samus shakes the Beetom off.</summary>
     StartBeingFlung,
     /// <summary>Decrements the idle timer until its signed result is negative, then requests a new action.</summary>
     Idling,

@@ -35,8 +35,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         _ceilingTurn = ceilingTurn;
     }
 
-    /// <summary>Upper bound applied to the airborne speed-table index when it selects a speed.</summary>
-    private static readonly EnemyQuadraticSpeedIndex MaximumPuyoYSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(64);
+    /// <summary>Upper bound applied to the airborne speed-curve place when it selects a speed.</summary>
+    private static readonly EnemyQuadraticSpeedIndex MaximumPuyoYSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromRows(64);
 
     /// <summary>Initializes the Puyo.</summary>
     internal static void InitializePuyo(RoomEnemySlot slot)
@@ -46,7 +46,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var state = new PuyoEnemyState
         {
-            YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start,
+            YSpeedCurvePlace = EnemyQuadraticSpeedIndex.Start,
             HopCooldownTimer = slot.SpawnSettings<PuyoSpawnSettings>().HopCooldown,
             Action = PuyoAction.Grounded,
             // The initialization AI never writes the airborne movement or the inactive extra values. The room loader's
@@ -60,8 +60,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             Falling = false,
             InvertDirection = false,
             InvertedDirection = PuyoDirection.Right,
-            InitialYSpeedTableIndexThreeQuarters = EnemyQuadraticSpeedIndex.Start,
-            InitialYSpeedTableIndexHalf = EnemyQuadraticSpeedIndex.Start,
+            InitialYSpeedCurvePlaceThreeQuarters = EnemyQuadraticSpeedIndex.Start,
+            InitialYSpeedCurvePlaceHalf = EnemyQuadraticSpeedIndex.Start,
         };
         slot.SetSpeciesState(state);
         SetPuyoAnimation(slot, state, PuyoSegment.GroundedFast);
@@ -170,11 +170,11 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             if (!WrappingCounter.IsBehind(swappedJumpHeight, distanceAccumulator))
                 continue;
 
-            state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(timeAccumulator);
+            state.YSpeedCurvePlace = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(timeAccumulator);
             state.Falling = false;
-            state.InitialYSpeedTableIndexHalf = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(timeAccumulator >> 1);
-            state.InitialYSpeedTableIndexThreeQuarters =
-                EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(timeAccumulator >> 2) + state.InitialYSpeedTableIndexHalf;
+            state.InitialYSpeedCurvePlaceHalf = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(timeAccumulator >> 1);
+            state.InitialYSpeedCurvePlaceThreeQuarters =
+                EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(timeAccumulator >> 2) + state.InitialYSpeedCurvePlaceHalf;
             return;
         }
 
@@ -295,7 +295,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves the Puyo.</summary>
     private void MovePuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
-        EnemyQuadraticSpeedRow speedRow = EnemyQuadraticSpeedIndex.Min(state.YSpeedTableIndex, MaximumPuyoYSpeedTableIndex).Row;
+        EnemyQuadraticSpeedRow speedRow = EnemyQuadraticSpeedIndex.Min(state.YSpeedCurvePlace, MaximumPuyoYSpeedCurvePlace).Row;
         SignedSixteenSixteen verticalDisplacement = speedRow.Toward(state.Falling ? EnemySpeedSign.Positive : EnemySpeedSign.Negative);
         bool verticalCollision = _terrain.MoveEnemyVertically(level, slot, verticalDisplacement);
         if (verticalCollision)
@@ -356,36 +356,36 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (state.Direction == PuyoDirection.Right)
             {
-                segment = state.YSpeedTableIndex >=
-                        state.InitialYSpeedTableIndexThreeQuarters
+                segment = state.YSpeedCurvePlace >=
+                        state.InitialYSpeedCurvePlaceThreeQuarters
                     ? PuyoSegment.RightFrame0LeftFrame4
-                    : state.YSpeedTableIndex >= state.InitialYSpeedTableIndexHalf
+                    : state.YSpeedCurvePlace >= state.InitialYSpeedCurvePlaceHalf
                         ? PuyoSegment.RightFrame1LeftFrame3
                         : PuyoSegment.Frame2;
             }
             else
             {
-                segment = state.YSpeedTableIndex >=
-                        state.InitialYSpeedTableIndexThreeQuarters
+                segment = state.YSpeedCurvePlace >=
+                        state.InitialYSpeedCurvePlaceThreeQuarters
                     ? PuyoSegment.RightFrame4LeftFrame0
-                    : state.YSpeedTableIndex >= state.InitialYSpeedTableIndexHalf
+                    : state.YSpeedCurvePlace >= state.InitialYSpeedCurvePlaceHalf
                         ? PuyoSegment.RightFrame3LeftFrame1
                         : PuyoSegment.Frame2;
             }
         }
         else if (state.Direction == PuyoDirection.Right)
         {
-            segment = state.YSpeedTableIndex < state.InitialYSpeedTableIndexHalf
+            segment = state.YSpeedCurvePlace < state.InitialYSpeedCurvePlaceHalf
                 ? PuyoSegment.Frame2
-                : state.YSpeedTableIndex < state.InitialYSpeedTableIndexThreeQuarters
+                : state.YSpeedCurvePlace < state.InitialYSpeedCurvePlaceThreeQuarters
                     ? PuyoSegment.RightFrame3LeftFrame1
                     : PuyoSegment.RightFrame4LeftFrame0;
         }
         else
         {
-            segment = state.YSpeedTableIndex < state.InitialYSpeedTableIndexHalf
+            segment = state.YSpeedCurvePlace < state.InitialYSpeedCurvePlaceHalf
                 ? PuyoSegment.Frame2
-                : state.YSpeedTableIndex < state.InitialYSpeedTableIndexThreeQuarters
+                : state.YSpeedCurvePlace < state.InitialYSpeedCurvePlaceThreeQuarters
                     ? PuyoSegment.RightFrame1LeftFrame3
                     : PuyoSegment.RightFrame0LeftFrame4;
         }

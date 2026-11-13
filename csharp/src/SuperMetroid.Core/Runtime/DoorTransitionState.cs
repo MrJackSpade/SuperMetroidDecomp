@@ -318,7 +318,7 @@ internal sealed class DoorTransitionState
                     runtime.Room.LoadedScope.Enemies.RoomStatus.EnemyDoorTransitionActive = false;
                     // Elevator arrival retains command zero's lock until the platform
                     // reaches rest; its actor, not the room fade, restores Samus movement.
-                    // The elevatube's door program also installs command zero. The fade
+                    // The elevatube's door setup code also installs command zero. The fade
                     // does not replace that handler: release only the temporary door
                     // input gate, never a stationary script's movement ownership.
                     if (runtime.Room.LoadedScope.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive &&

@@ -35,7 +35,7 @@ public sealed class PhantoonBodyState
     /// <summary>The stage of the figure-eight's speed change the body is in.</summary>
     public PhantoonFigureEightStage FigureEightStage { get; internal set; }
 
-    /// <summary>The body's updates before its current function moves on.</summary>
+    /// <summary>The body's updates before its current phase moves on.</summary>
     public int PhaseTimer { get; internal set; }
 
     /// <summary>The encounter phase the body dispatches.</summary>

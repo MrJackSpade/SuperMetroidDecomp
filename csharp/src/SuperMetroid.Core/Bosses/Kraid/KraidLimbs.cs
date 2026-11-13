@@ -18,7 +18,7 @@ internal sealed class KraidLimbs
     private readonly RoomEarthquake _earthquake;
     /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
     private readonly KraidParts _parts;
-    /// <summary>Kraid's state and part lookups, part animations, function timer, random numbers and the sound he last requested.</summary>
+    /// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -191,7 +191,7 @@ internal sealed class KraidLimbs
             arm.AnimationClock.Extend(1);
     }
 
-    /// <summary>Dispatches the foot's lunge, retreat, and grown-form walking functions.</summary>
+    /// <summary>Runs the foot's lunge, retreat, and grown-form walking phases.</summary>
     internal void RunKraidFootMain(RoomEnemySlot foot, int cameraY)
     {
         KraidEnemyState state = _access.RequireKraidState(foot);
@@ -332,7 +332,7 @@ internal sealed class KraidLimbs
         foot.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>Counts down a foot phase and installs its next function at zero.</summary>
+    /// <summary>Counts down a foot phase and starts its next phase at zero.</summary>
     private void TickKraidFootTransitionTimer(RoomEnemySlot foot, KraidFootState part)
     {
         KraidPartState footState = _access.Part(foot);

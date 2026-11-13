@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class CeresRidleyAttackDefinitions
 {
     /// <summary>
-    /// Sixteen attack functions indexed by the room's random number modulo 16
+    /// Sixteen attacks chosen by the room's random number modulo 16
     /// (the attack choice reads the seed; it does not generate another number). Six entries start a
     /// fireball route, five a lunge and five a swoop.
     /// </summary>

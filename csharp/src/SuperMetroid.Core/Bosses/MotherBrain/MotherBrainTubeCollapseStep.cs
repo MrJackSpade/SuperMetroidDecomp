@@ -41,8 +41,8 @@ public enum MotherBrainTubeCollapseStep
     ClearBottomMiddleRightTube,
     /// <summary>After timer underflow requests the main falling-tube enemy whose descent carries the head into ascent setup.</summary>
     SpawnMainTube,
-    /// <summary>Removes the remaining tubes at block (7,7) and installs its own empty step as the terminal subfunction.</summary>
+    /// <summary>Removes the remaining tubes at block (7,7) and installs its own empty step as the last one.</summary>
     ClearBottomMiddleTubes,
-    /// <summary>Inert tube-subfunction endpoint while physical falling actors continue independently.</summary>
+    /// <summary>Inert last tube-collapse step while physical falling actors continue independently.</summary>
     Finished,
 }

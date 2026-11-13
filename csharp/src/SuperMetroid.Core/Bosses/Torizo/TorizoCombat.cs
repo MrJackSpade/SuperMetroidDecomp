@@ -13,7 +13,7 @@ internal sealed class TorizoCombat
     private readonly EnemyCollision _collision;
     /// <summary>Bomb and Golden Torizo's body: its behaviour flags, palette, animation start and the low-health drool it triggers.</summary>
     private readonly TorizoBody _body;
-    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function their branches test.</summary>
+    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the phase their branches test.</summary>
     private readonly TorizoEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>

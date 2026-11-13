@@ -23,7 +23,7 @@ internal sealed class KraidProjectiles
     private readonly EnemyCollision _collision;
     /// <summary>Applies contact damage, death state, and resulting drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Kraid's state and part lookups, part animations, function timer, random numbers and the sound he last requested.</summary>
+    /// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -170,7 +170,7 @@ internal sealed class KraidProjectiles
         lint.Contact = lint.Contact.With(EnemyContact.IgnoresSamus);
     }
 
-    /// <summary>Dispatches a nail's active flight or rebound function.</summary>
+    /// <summary>Runs a nail's active flight or rebound phase.</summary>
     internal void RunKraidNailMain(RoomEnemySlot nail, RoomLevelData? level)
     {
         KraidEnemyState state = _access.RequireKraidState(nail);

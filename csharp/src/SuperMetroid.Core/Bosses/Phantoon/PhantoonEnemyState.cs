@@ -16,7 +16,7 @@ public sealed class PhantoonEnemyState
     /// <summary>Phantoon's body's and his room's colours (#1512).</summary>
     internal PhantoonColours Colours { get; } = new();
 
-    /// <summary>Gets the body, owner of function dispatch, health, motion, and shared encounter values; it runs first.</summary>
+    /// <summary>Gets the body, owner of the phases, health, motion, and shared encounter values; it runs first.</summary>
     public RoomEnemySlot Body { get; }
 
     /// <summary>The body's own state.</summary>

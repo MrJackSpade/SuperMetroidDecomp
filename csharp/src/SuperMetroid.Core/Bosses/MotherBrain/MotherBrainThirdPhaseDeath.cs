@@ -10,7 +10,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// <summary>The corpse rotting away after the final death, with its own rot schedule.</summary>
     internal readonly MotherBrainCorpseRottingState CorpseRotting = new();
 
-    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
+    /// <summary>The state every late-fight phase reads and writes: the body phase and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -54,13 +54,13 @@ internal sealed class MotherBrainThirdPhaseDeath
 
     /// <summary>
     /// The explosion interval timer of the death explosions,
-    /// aliased with the body sub-function counter.
+    /// aliased with the body sub-phase counter.
     /// </summary>
     public int DeathExplosionIntervalTimer { get; internal set; }
 
     /// <summary>
     /// One value under three names: the ascent dust's body
-    /// sub-function timer, the seven-record death-explosion index and the
+    /// sub-phase timer, the seven-record death-explosion index and the
     /// four-record escape-door dust index. Each effect inherits the value
     /// the previous one left unless code explicitly clears it.
     /// </summary>
@@ -89,7 +89,7 @@ internal sealed class MotherBrainThirdPhaseDeath
 
     /// <summary>
     /// Set when the decapitation step installs the brain-slot draw setup before the decapitated head
-    /// starts falling. The separate brain AI is not silently folded into the body function.
+    /// starts falling. The separate brain AI is not silently folded into the body phase.
     /// </summary>
     public bool BrainDrawSetupRequested { get; private set; }
 
@@ -208,7 +208,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death move to back of room body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death move to back of room body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathMoveToBackOfRoom(MotherBrainRainbowBeamStepRequests requests)
@@ -232,7 +232,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death idle whilst exploding body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death idle whilst exploding body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathIdleWhilstExploding(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -245,7 +245,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death stumble to middle of room body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death stumble to middle of room body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathStumbleToMiddleOfRoom(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -270,7 +270,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death disable brain effects body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death disable brain effects body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathDisableBrainEffects(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -298,7 +298,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death setup body fade out body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death setup body fade out body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathSetupBodyFadeOut(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -316,7 +316,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death fade out body body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death fade out body body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathFadeOutBody(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -347,7 +347,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death final few explosions body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death final few explosions body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathFinalFewExplosions(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -360,7 +360,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death realize decapitation body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death realize decapitation body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathRealizeDecapitation()
@@ -375,7 +375,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death brain falls to ground body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death brain falls to ground body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathBrainFallsToGround(MotherBrainRainbowBeamStepRequests requests)
@@ -402,7 +402,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death load corpse tiles body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death load corpse tiles body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathReadyCorpse()
@@ -418,7 +418,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death setup fade to grey body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death setup fade to grey body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathSetupFadeToGrey()
@@ -433,7 +433,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death fade to grey body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death fade to grey body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathFadeToGrey(MotherBrainRainbowBeamStepRequests requests)
@@ -458,7 +458,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death corpse tips over body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death corpse tips over body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathCorpseTipsOver()
@@ -473,7 +473,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death corpse rots away body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death corpse rots away body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathCorpseRotsAway(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -502,7 +502,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death20 frame delay body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death20 frame delay body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeath20FrameDelay()
@@ -519,7 +519,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death load escape timer tiles body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death load escape timer tiles body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathReadyEscapeWarning()
@@ -536,7 +536,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death start escape body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death start escape body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathStartEscape(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -563,7 +563,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death spawn time bomb set subtitle body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death spawn time bomb set subtitle body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathSpawnTimeBombSetSubtitle(MotherBrainRainbowBeamStepRequests requests)
@@ -583,7 +583,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death type out zebes escape text body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death type out zebes escape text body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathTypeOutZebesEscapeText(RainbowBeamAttackFrame frame)
@@ -600,7 +600,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death door exploding start timer body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death door exploding start timer body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathDoorExplodingStartTimer(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -626,7 +626,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death blow up escape door body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death blow up escape door body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathBlowUpEscapeDoor(MotherBrainRainbowBeamStepRequests requests)
@@ -645,7 +645,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death keep earthquake going body function. True when it installs the next body function and the game runs
+    /// Runs the third phase death keep earthquake going body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal static bool RunThirdPhaseDeathKeepEarthquakeGoing(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)

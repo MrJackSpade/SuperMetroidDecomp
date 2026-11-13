@@ -47,7 +47,7 @@ internal sealed class MotherBrainAttacks
                 return;
 
             case MotherBrainHandBeamPhase.Firing:
-                // The charge-beam function is intentionally empty. The body animation owns the
+                // The charge-beam phase is intentionally empty. The body animation owns the
                 // charge effects, projectile emission, 240-frame hold, and phase advance.
                 return;
 
@@ -516,7 +516,7 @@ internal sealed class MotherBrainAttacks
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         MotherBrainRainbowAndDeath.SynchronizeLiveMotherBrainRainbowActor(state, sequence);
         // The death-explosion counter keeps the fake-death ascent dust's last value; the death explosions
-        // start from it. The sub-function counter then holds a value that is always
+        // start from it. The sub-phase counter then holds a value that is always
         // negative, so its first DEC takes the same immediate branch as the sequence's zero.
         sequence.InheritDeathAndEscapeExplosionIndex(state.BodySubPhaseTimer);
         sequence.StartAttackCycle();

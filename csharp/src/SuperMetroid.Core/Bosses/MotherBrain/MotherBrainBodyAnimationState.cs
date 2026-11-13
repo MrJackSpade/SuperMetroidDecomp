@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// animations.
 /// </summary>
 /// <remarks>
-/// Mother Brain's body movement is not performed by her AI function. The AI installs one of
+/// Mother Brain's body movement is not performed by her AI phase. The AI installs one of
 /// the body segments (<see cref="MotherBrainBodySegment"/>); the enemy animation stage later advances
 /// that animation and its cues mutate body position, pose, the background's alignment, footsteps,
 /// and the displayed frame. Keeping that second processing stage explicit is

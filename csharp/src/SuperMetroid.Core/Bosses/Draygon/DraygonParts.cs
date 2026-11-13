@@ -94,7 +94,7 @@ internal sealed class DraygonParts
                 return;
 
             case DraygonPart.Arms:
-                // Body init briefly writes a body function before this record exists. Retail part init
+                // Body init briefly writes a body phase before this record exists. Retail part init
                 // clears that lost write and installs the ordinary idle loop.
                 part.Shading = state.Colours.Sprites;
                 state.Arms = part;

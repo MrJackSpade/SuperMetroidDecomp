@@ -8,7 +8,7 @@ internal static class RidleyCadenceDefinitions
 {
     /// <summary>
     /// The updates on which Norfair Ridley runs his fight: every second update of his body's own update count, on its
-    /// even place. His intangibility, combat preparation and current function all wait out the odd updates.
+    /// even place. His intangibility, combat preparation and current phase all wait out the odd updates.
     /// </summary>
     internal static readonly UpdateCadence NorfairRidleyActsEverySecondUpdate = new(2, 0);
 

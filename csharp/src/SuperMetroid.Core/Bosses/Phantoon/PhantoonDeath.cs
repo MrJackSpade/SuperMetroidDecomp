@@ -22,7 +22,7 @@ internal sealed class PhantoonDeath
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Handles Phantoon's damage, death, and flame drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Phantoon's fades, health colors, wave amplitude, animations and function timer, shared by every phase of the fight.</summary>
+    /// <summary>Phantoon's fades, health colors, wave amplitude, animations and phase timer, shared by every phase of the fight.</summary>
     private readonly PhantoonPresentation _phantoonPresentation;
     /// <summary>Phantoon's attack rounds: figure eights, eye tracking, swoops, flame rain and rage.</summary>
     private readonly PhantoonPatterns _patterns;

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>Mother Brain finishing Samus off: standing up, admiring, and charging and firing the final beam until the Baby Metroid arrives.</summary>
 internal sealed class MotherBrainFinishSamusOffPhases
 {
-    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
+    /// <summary>The state every late-fight phase reads and writes: the body phase and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -41,13 +41,13 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase finish samus off body function. True when it installs the next body function and the game runs
+    /// Runs the second phase finish samus off body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOff(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
         // The low-energy check asks whether a few more onion rings could put Samus at the encounter's intended
-        // low-energy floor. Equality counts as low and changes the body function without falling into the stand-up
+        // low-energy floor. Equality counts as low and changes the body phase without falling into the stand-up
         // handler on this call.
         if (StandUpToFinishOffEnergy(samus.EquippedItems) >= samus.Health)
         {
@@ -81,7 +81,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase finish samus off stand up body function. True when it installs the next body function and the game runs
+    /// Runs the second phase finish samus off stand up body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffStandUp(MotherBrainRainbowBeamStepRequests requests)
@@ -101,7 +101,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase finish samus off admire body function. True when it installs the next body function and the game runs
+    /// Runs the second phase finish samus off admire body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffAdmire()
@@ -118,7 +118,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase finish samus off charge final beam body function. True when it installs the next body function and the game runs
+    /// Runs the second phase finish samus off charge final beam body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffChargeFinalBeam()
@@ -133,7 +133,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase finish samus off load baby tiles body function. True when it installs the next body function and the game runs
+    /// Runs the second phase finish samus off load baby tiles body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffReadyBaby(MotherBrainRainbowBeamStepRequests requests)
@@ -152,7 +152,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase finish samus off fire final beam body function. True when it installs the next body function and the game runs
+    /// Runs the second phase finish samus off fire final beam body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffFireFinalBeam(MotherBrainRainbowBeamStepRequests requests)
@@ -170,13 +170,13 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase final rainbow beam holding body function. True when it installs the next body function and the game runs
+    /// Runs the second phase final rainbow beam holding body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal static bool RunSecondPhaseFinalRainbowBeamHolding()
     {
         // The final beam's holding step is empty. Mother Brain remains here
-        // until the independently spawned Baby actor overwrites her body function
+        // until the independently spawned Baby actor overwrites her body phase
         // with the taken-aback step after latching onto her head.
         return false;
     }

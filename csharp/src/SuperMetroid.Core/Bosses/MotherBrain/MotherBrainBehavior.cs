@@ -87,12 +87,12 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         MotherBrainEnemyState state = Access.RequireCompleteMotherBrainState(body);
 
         // The body main advances the independent room-palette animation before it
-        // dispatches the body function. Keeping that order is visible on the exact frame
+        // runs the body phase. Keeping that order is visible on the exact frame
         // the fake-death flash begins and later when the main tube stops the loop.
         RunMotherBrainRoomFlash(state);
         RunMotherBrainBodyPhase(state, samus, sharedProjectiles);
-        // Every body function returns through the common contact tail. The first-phase
-        // function also has its own authored contact call; retain both sites.
+        // Every body phase returns through the common contact tail. The first-phase
+        // phase also has its own authored contact call; retain both sites.
         if (samus is not null)
             MotherBrainBody.ResolveMotherBrainSamusCollision(state, samus);
     }
@@ -263,7 +263,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Authored smoke puff X offsets cycled while a tube lands.</summary>
     internal static readonly int[] MotherBrainFallingTubeSmokeXOffsets = [-8, 2, -4, 6];
 
-    /// <summary>Dispatches the body function after the phase-one function changes to fake death.</summary>
+    /// <summary>Runs the body phase after the first phase changes to fake death.</summary>
     internal void RunMotherBrainFakeDeath(MotherBrainEnemyState state, SamusState? samus)
     {
         switch (state.Phase)

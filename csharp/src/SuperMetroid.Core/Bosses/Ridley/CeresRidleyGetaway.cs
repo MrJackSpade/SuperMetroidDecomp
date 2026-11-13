@@ -198,7 +198,7 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>
-    /// Runs the shared Ridley function for the Ceres branch: the warning runs through its phases
+    /// Runs the shared Ridley phase for the Ceres branch: the warning runs through its phases
     /// (<see cref="CeresSelfDestructPhase"/>) in order. English skips
     /// only the Japanese subtitle phase and types the game's three-line English warning. Japanese runs the
     /// subtitle phase first, shows its subtitle, and then uses the same typewriter.

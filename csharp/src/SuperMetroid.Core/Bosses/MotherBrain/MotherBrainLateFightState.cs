@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
+/// <summary>The state every late-fight phase reads and writes: the body phase and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
 internal sealed class MotherBrainLateFightState
 {
 
@@ -15,7 +15,7 @@ internal sealed class MotherBrainLateFightState
     /// </summary>
     public MotherBrainBodyAnimationState Body { get; } = new();
 
-    /// <summary>Current body-function equivalent.</summary>
+    /// <summary>Current body phase.</summary>
     public MotherBrainBodyPhase? Phase { get; internal set; }
 
     /// <summary>Mother Brain brain-slot room position used by the final beam's aim vector.</summary>

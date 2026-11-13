@@ -3,7 +3,7 @@
 /// <summary>Mother Brain reviving and killing the Baby Metroid: signs of life, waking, walking up and the attacks on the baby.</summary>
 internal sealed class MotherBrainRevivalPhases
 {
-    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
+    /// <summary>The state every late-fight phase reads and writes: the body phase and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -26,12 +26,12 @@ internal sealed class MotherBrainRevivalPhases
     public int BabyMetroidAttackCounter { get; internal set; }
 
     /// <summary>
-    /// Runs the second phase revive inanimate grey body function. True when it installs the next body function and the game runs
+    /// Runs the second phase revive inanimate grey body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseReviveInanimateGrey()
     {
-        // The inanimate setup only installs the next function and its 768-frame timer. It does not
+        // The inanimate setup only moves to the next phase and sets its 768-frame timer. It does not
         // fall through, so the first pre-decrement belongs to the following call.
         _state.Phase = MotherBrainBodyPhase.SecondPhaseReviveShowSignsOfLife;
         _state.PhaseTimer = 768;
@@ -39,14 +39,14 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive show signs of life body function. True when it installs the next body function and the game runs
+    /// Runs the second phase revive show signs of life body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseReviveShowSignsOfLife()
     {
         // The sign test accepts zero: 768 reaches zero without advancing and only the 769th
         // call underflows to -1. Revival then re-enables both breath producers,
-        // seeds 224, and falls through two function installations to the transition from grey.
+        // seeds 224, and falls through two phase changes to the transition from grey.
         if (--_state.PhaseTimer < 0)
         {
             EnableSmallPurpleBreathGeneration();
@@ -60,7 +60,7 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive transition from grey body function. True when it installs the next body function and the game runs
+    /// Runs the second phase revive transition from grey body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseReviveTransitionFromGrey(MotherBrainRainbowBeamStepRequests requests)
@@ -86,7 +86,7 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive wake up body function. True when it installs the next body function and the game runs
+    /// Runs the second phase revive wake up body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseReviveWakeUp(MotherBrainRainbowBeamStepRequests requests)
@@ -110,7 +110,7 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive wake up stretch body function. True when it installs the next body function and the game runs
+    /// Runs the second phase revive wake up stretch body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseReviveWakeUpStretch()
@@ -126,7 +126,7 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive walk up to baby body function. True when it installs the next body function and the game runs
+    /// Runs the second phase revive walk up to baby body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseReviveWalkUpToBaby(MotherBrainRainbowBeamStepRequests requests)
@@ -149,12 +149,12 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive prepare neck for baby death body function. True when it installs the next body function and the game runs
+    /// Runs the second phase revive prepare neck for baby death body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseRevivePrepareNeckForBabyDeath()
     {
-        // The walk-up setup is a one-call setup function which immediately falls into the walk.
+        // The walk-up setup is a one-call setup phase which immediately falls into the walk.
         // The separate body animation stage may still be finishing the last walk.
         BabyMetroidAttackCounter = 0;
         _state.NeckMovementEnabled = true;
@@ -166,7 +166,7 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive finish preparing for baby death body function. True when it installs the next body function and the game runs
+    /// Runs the second phase revive finish preparing for baby death body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseReviveFinishPreparingForBabyDeath(MotherBrainRainbowBeamStepRequests requests)
@@ -183,7 +183,7 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase murder baby attack body function. True when it installs the next body function and the game runs
+    /// Runs the second phase murder baby attack body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseMurderBabyAttack(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -204,7 +204,7 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase murder baby attack cooldown body function. True when it installs the next body function and the game runs
+    /// Runs the second phase murder baby attack cooldown body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseMurderBabyAttackCooldown()
@@ -215,12 +215,12 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase prepare for final baby attack body function. True when it installs the next body function and the game runs
+    /// Runs the second phase prepare for final baby attack body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhasePrepareForFinalBabyAttack(MotherBrainRainbowBeamStepRequests requests)
     {
-        // This function has no state transition. It requests stand-up and a
+        // This phase has no state transition. It requests stand-up and a
         // fast backward walk toward X 64 every call until the Baby overwrites it.
         _state.MakeBodyStandUp(out bool postureRequested);
         requests.BodyPostureRequested = postureRequested;
@@ -229,7 +229,7 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase execute final baby attack body function. True when it installs the next body function and the game runs
+    /// Runs the second phase execute final baby attack body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseExecuteFinalBabyAttack()
@@ -240,7 +240,7 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase final baby attack holding body function. True when it installs the next body function and the game runs
+    /// Runs the second phase final baby attack holding body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal static bool RunSecondPhaseFinalBabyAttackHolding()

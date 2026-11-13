@@ -5,7 +5,7 @@ using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// What one Mother Brain active-rainbow body-function call asks of the room, gathered while the call runs through its
+/// What one Mother Brain active-rainbow body-phase call asks of the room, gathered while the call runs through its
 /// phases and reported as one <see cref="MotherBrainRainbowBeamAttackStepResult"/>.
 /// </summary>
 internal sealed class MotherBrainRainbowBeamStepRequests

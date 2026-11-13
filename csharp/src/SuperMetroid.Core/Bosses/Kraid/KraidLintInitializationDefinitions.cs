@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidLintInitializationDefinitions
 {
     /// <summary>
-    /// The lints' initial function timers supply the top,
+    /// The lints' initial phase timers supply the top,
     /// middle and bottom delays. Each lint's initializer enables its named part separately;
     /// the lint's alignment step aligns it while its timer counts down to LintProduce.
     /// These cases express independent per-part policies, not a calculated sequence.

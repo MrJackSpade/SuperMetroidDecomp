@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Kraid's state and part lookups, part animations, function timer, random numbers and his sound and music requests.</summary>
+/// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and his sound and music requests.</summary>
 [RoomLifetime]
 internal sealed class KraidEncounterAccess
 {

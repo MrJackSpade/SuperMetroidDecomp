@@ -51,7 +51,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
     /// <summary>
     /// Runs Norfair Ridley's per-frame behaviour and the area-two half of the shared reveal
-    /// dispatcher. Composition is advanced after the selected function, so a velocity change affects the same rendered
+    /// dispatcher. Composition is advanced after the selected phase, so a velocity change affects the same rendered
     /// frame.
     /// </summary>
     private void RunNorfairRidleyMain(
@@ -410,7 +410,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         int choice = _room.Random.Next(RidleyRandomDefinitions.AttackChoice);
         state.Phase = RidleyAttackChoices.Resolve(situation, choice);
 
-        // The selector runs the chosen function at once. Retain that same-frame setup
+        // The choice runs the chosen phase at once. Retain that same-frame setup
         // so timers, animation changes, and velocity all begin on the selected frame.
         RunNorfairRidleyPhase(slot, state, samus, controllerInput, level);
     }
@@ -427,7 +427,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             frame.Camera);
 
     /// <summary>
-    /// Runs Ridley's hurt AI. Function, movement, wing, and tail updates execute only on
+    /// Runs Ridley's hurt AI. Phase, movement, wing, and tail updates execute only on
     /// even actor frames; tail armor, flash/palette work, and the grabbed-Samus lag counter
     /// remain active on every hurt frame.
     /// </summary>
@@ -465,7 +465,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     }
 
     /// <summary>Adds Ridley's hurt behaviour for the post-hit AI window.</summary>
-    /// <remarks>Ridley's hurt AI owns hurt frames instead of falling back to ordinary main AI. Movement/function work runs only
+    /// <remarks>Ridley's hurt AI owns hurt frames instead of falling back to ordinary main AI. Movement and phase work runs only
     /// on even actor frames, while tail projectile armor and hurt palettes remain live on every frame.</remarks>
     internal void AddRidleyHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.DefinitionId == EnemyDefinitionId.Ridley, (slot, frame) => RunNorfairRidleyHurt(

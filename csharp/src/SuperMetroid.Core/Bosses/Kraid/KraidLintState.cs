@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// One of Kraid's lints' own state beside the function every part runs: its X offset from his body and how far it has
+/// One of Kraid's lints' own state beside the phase every part runs: its X offset from his body and how far it has
 /// travelled out of his mouth.
 /// </summary>
 /// <remarks>

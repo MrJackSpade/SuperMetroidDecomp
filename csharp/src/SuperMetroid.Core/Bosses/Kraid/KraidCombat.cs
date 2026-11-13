@@ -22,7 +22,7 @@ internal sealed class KraidCombat
     private readonly KraidParts _parts;
     /// <summary>Checks mouth, body, and part collisions against Samus and shots.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Kraid's state and part lookups, part animations, function timer, random numbers and the sound he last requested.</summary>
+    /// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -94,7 +94,7 @@ internal sealed class KraidCombat
                                EnemyCollision.TouchAi(slot) == EnemyReaction.KraidArmTouch,
             context =>
             {
-                // The arm's push forces the bottom lint's firing function, so it fires immediately after
+                // The arm's push forces the bottom lint's firing phase, so it fires immediately after
                 // the arm launches Samus up and right.
                 // Writes only the whole pixels of the displacement, so preserve both
                 // fractions exactly as they were before contact.
@@ -278,7 +278,7 @@ internal sealed class KraidCombat
         return CoordinateAxis.AsSigned(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) - bounds.Bottom) < 0;
     }
 
-    /// <summary>Switches the body from combat to its scripted death function.</summary>
+    /// <summary>Switches the body from combat to its scripted death phases.</summary>
     private void BeginKraidDeath(KraidEnemyState state)
     {
         state.BodyState.Phase = KraidPhase.DeathInitialize;

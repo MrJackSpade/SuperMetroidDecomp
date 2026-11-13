@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>The phases of the Baby Metroid's entrance.</summary>
 public enum BabyMetroidCutscenePhase
 {
-    /// <summary>No Baby Metroid cutscene function is active.</summary>
+    /// <summary>No Baby Metroid cutscene phase is active.</summary>
     Inactive,
 
     /// <summary>Moves the Baby rapidly into the room until it reaches the first scripted X threshold.</summary>
@@ -18,13 +18,13 @@ public enum BabyMetroidCutscenePhase
     /// <summary>Anchors the Baby to Mother Brain's head and queues the latch sound edge.</summary>
     LatchOntoMotherBrain,
 
-    /// <summary>Requests Mother Brain's stumble-back body function before draining begins.</summary>
+    /// <summary>Requests Mother Brain's stumble-back body phase before draining begins.</summary>
     SetMotherBrainToStumbleBack,
 
     /// <summary>Activates Mother Brain's body and rainbow-beam owners for the energy-drain sequence.</summary>
     ActivateRainbowBeamAndMotherBrainBody,
 
-    /// <summary>Retains the drain attachment until Mother Brain's body function reaches its corpse state.</summary>
+    /// <summary>Retains the drain attachment until Mother Brain's body phase reaches her corpse.</summary>
     WaitForMotherBrainToTurnToCorpse,
 
     /// <summary>Stops transferring energy from Mother Brain and starts the release delay.</summary>

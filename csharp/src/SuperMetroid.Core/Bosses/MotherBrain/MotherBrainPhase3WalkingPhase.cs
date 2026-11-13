@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Reachable third-phase walking functions.</summary>
+/// <summary>Reachable third-phase walking phases.</summary>
 public enum MotherBrainPhase3WalkingPhase
 {
-    /// <summary>No phase-three horizontal walking function is active.</summary>
+    /// <summary>No phase-three horizontal walking phase is active.</summary>
     Inactive,
     /// <summary>Attempts a small forward step while respecting Samus spacing and arena bounds.</summary>
     TryToInchForward,

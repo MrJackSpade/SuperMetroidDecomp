@@ -29,7 +29,7 @@ internal sealed class KraidRise
     private readonly EnemyPresentation _presentation;
     /// <summary>Coordinates Zebetite behavior registered alongside Kraid's room actors.</summary>
     private readonly ZebetiteBehavior _zebetiteBehavior;
-    /// <summary>Kraid's state and part lookups, part animations, function timer, random numbers and the sound he last requested.</summary>
+    /// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     private readonly KraidBackground _background;
@@ -186,7 +186,7 @@ internal sealed class KraidRise
 
             case KraidPhase.GrowDrawRoomBackground:
                 state.BodyState.Phase = KraidPhase.GrowFadeInRoomBackground;
-                // The game clears the value it kept the ceiling rocks in, which is the function timer again.
+                // The game clears the value it kept the ceiling rocks in, which is the phase timer again.
                 state.BodyState.PhaseTimer = 0;
                 // Redrawing Kraid's room background restarts the shared fade step count.
                 _presentation.FadeStepCount.Reset();
@@ -377,7 +377,7 @@ internal sealed class KraidRise
                 {
                     body.Position = body.Position.WithWholeX(176);
                     // The rise's last step does not leave execution at the fight setup.
-                    // That setup immediately installs the thinking function, seeds the random thinking
+                    // That setup immediately enters the thinking phase, seeds the random thinking
                     // timer and selects the roar animation for the first attack.
                     state.HeadPlayback = KraidHeadAnimations.RoarAfterEntryFrame;
                     _head.SetupKraidFirstPhaseThinking(body, state);

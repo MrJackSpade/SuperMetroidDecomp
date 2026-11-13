@@ -74,7 +74,7 @@ internal sealed class MotherBrainHead
         MotherBrainEnemyState state = _access.RequireCompleteMotherBrainState(head);
 
         // The head main first stops drawing her brain and neck. Only an intentionally invisible head
-        // dispatches the shared brain function, which draws them again.
+        // runs the shared brain action, which draws them again.
         state.DrawBrain = false;
         state.DrawNeck = false;
         if (!head.Presence.HasAny(EnemyPresence.Hidden))

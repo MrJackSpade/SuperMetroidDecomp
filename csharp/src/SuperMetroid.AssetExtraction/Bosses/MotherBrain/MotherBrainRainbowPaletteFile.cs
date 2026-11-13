@@ -7,16 +7,19 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
-/// <summary>Reads and writes the installed Mother Brain rainbow palette document.</summary>
+/// <summary>
+/// Reads and writes Mother Brain's rainbow palette document, which is import data (#1637): the extraction writes it to the
+/// map presentation's import-data directory and only the import reads it.
+/// </summary>
 public static class MotherBrainRainbowPaletteFile
 {
-    /// <summary>Installed editable JSON filename for rainbow, drain/revival, fake-death, restoration, and beam-backdrop colors.</summary>
+    /// <summary>The import-data JSON filename for rainbow, drain/revival, fake-death and restoration colors.</summary>
     public const string FileName = "mother-brain-rainbow-palette.json";
 
-    /// <summary>Supported schema version, requiring the brain-only fake-death sequence alongside every other color family.</summary>
-    public const int Version = 3;
+    /// <summary>Supported schema version: 4 holds no beam-backdrop colour, which is installed by purpose (#1637).</summary>
+    public const int Version = 4;
 
-    /// <summary>Loads and compiles bounded RGB5 rainbow, drain, revival, restoration, and beam-backdrop colors; validates frame geometry and channels without importing engine timers or signed loop terminators.</summary>
+    /// <summary>Loads and compiles bounded RGB5 rainbow, drain, revival and restoration colors; validates frame geometry and channels without importing engine timers.</summary>
     /// <param name="json">Caller-owned <c>mother-brain-rainbow-palette.json</c> stream, read from its current position and left open.</param>
     /// <returns>Every installed phase, kept as installed.</returns>
     public static InstalledMotherBrainRainbowPalette Read(Stream json)
@@ -37,10 +40,7 @@ public static class MotherBrainRainbowPaletteFile
                 MotherBrainRainbowPaletteGeometry.BackLegCount, MotherBrainTrailingColor.Required, nameof(document.FromGrey))),
             new InstalledMotherBrainRainbowPalette.PaletteFade(CompileFakeDeathFrames(document.FakeDeathToGrey)),
             CompileFrames([document.Normal], 1, MotherBrainRainbowPaletteGeometry.ColorCount,
-                MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainTrailingColor.Absent, nameof(document.Normal))[0],
-            CompileColor(document.BeamInitial, nameof(document.BeamInitial)),
-            CompileColors(document.BeamCycle, MotherBrainRainbowPaletteGeometry.BeamCycleColorCount,
-                nameof(document.BeamCycle)));
+                MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainTrailingColor.Absent, nameof(document.Normal))[0]);
     }
 
     /// <summary>Requires eight three-ink brain frames, with no rear-leg or trailing color.</summary>
@@ -97,7 +97,7 @@ public static class MotherBrainRainbowPaletteFile
 
     /// <summary>Serializes UTF-8 palette JSON and writes it to the destination.</summary>
     /// <param name="json">Destination written at its current position and left open.</param>
-    /// <param name="document">Bounded RGB5 palette and beam-color sequences to serialize.</param>
+    /// <param name="document">Bounded RGB5 palette sequences to serialize.</param>
     public static void Write(Stream json, MotherBrainRainbowPaletteDocument document)
     {
         json.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));

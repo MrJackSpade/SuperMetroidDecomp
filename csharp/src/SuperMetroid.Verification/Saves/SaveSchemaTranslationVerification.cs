@@ -369,8 +369,7 @@ internal static class SaveSchemaTranslationVerification
         var text = SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingTextPresentation.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Frontend.Ending.EndingTextExtractor.Extract(native), writable: false));
         var ending = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, EndingText = text.Typewriter() });
-        ending.InstalledArtwork.BindSpaceBackdrops(SuperMetroid.AssetExtraction.Frontend.Ending.EndingSpaceBackdropColours.From(RoomPaletteFxPresentationFile.Read(new MemoryStream(
-            SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationExtractor.Extract(native), writable: false))));
+        ending.InstalledArtwork.BindBackdrops(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingBackdrops);
         // The game binds the installed sheets with the ending, which draws its stars from them.
         ending.InstalledArtwork.BindSpriteSheets(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets);
         ending.Stage.Phase = EndingCreditsPhase.ItemPercentageScrollDown;

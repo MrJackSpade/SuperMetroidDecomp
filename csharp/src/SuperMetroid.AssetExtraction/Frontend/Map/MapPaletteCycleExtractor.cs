@@ -5,11 +5,12 @@ using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
-/// <summary>Decodes the native map highlight sequence into colors/durations, not an executable palette program.</summary>
+/// <summary>Decodes the native map highlight sequence into each frame's hold and highlight colour, not an executable palette program or palette rows (#1637).</summary>
 internal static class MapPaletteCycleExtractor
 {
-    /// <summary>Reads timed RGB5 map-highlight frames until the native $FF duration
-    /// terminator and writes the bounded editable palette-cycle document.</summary>
+    /// <summary>Reads timed map-highlight frames until the native $FF duration terminator and writes the bounded editable
+    /// cycle document, each frame's look as the colour its highlight shows.</summary>
+    /// <exception cref="InvalidDataException">The cycle has no terminator, or a frame's highlight colours differ.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var frames = new List<MapPaletteCycleFrame>();
@@ -24,14 +25,15 @@ internal static class MapPaletteCycleExtractor
             }
             if (frame == MapPaletteCycleFile.MaximumFrames)
                 break;
-            var colors = new PaletteRgb5[MapPaletteCycleFormat.ColorCount];
-            for (int color = 0; color < colors.Length; color++)
+            PaletteRgb5[] highlight = [.. MapPaletteCycleFormat.HighlightInks.Select(ink =>
             {
                 int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                    MapSourceDefinitions.Animation.PaletteColors + (frame * colors.Length + color) * sizeof(ushort));
-                colors[color] = new() { Red = word & 31, Green = (word >> 5) & 31, Blue = (word >> 10) & 31 };
-            }
-            frames.Add(new() { DurationTicks = duration, Colors = colors });
+                    MapSourceDefinitions.Animation.PaletteColors + (frame * MapPaletteCycleFormat.ColorCount + ink) * sizeof(ushort));
+                return new PaletteRgb5 { Red = word & 31, Green = (word >> 5) & 31, Blue = (word >> 10) & 31 };
+            })];
+            if (highlight.Distinct().Count() != 1)
+                throw new InvalidDataException($"Map highlight frame {frame}'s highlight colours differ.");
+            frames.Add(new() { DurationTicks = duration, Highlight = highlight[0] });
         }
         throw new InvalidDataException("Map highlight cycle has no terminator within its byte-sized frame range.");
     }

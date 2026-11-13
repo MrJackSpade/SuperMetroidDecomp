@@ -170,14 +170,10 @@ internal static class FileSelectRoomMapVerification
         var paletteFrames = Enumerable.Range(0, 2).Select(frame => new MapPaletteCycleFrame
         {
             DurationTicks = frame == 0 ? 3 : 2,
-            Colors = Enumerable.Range(0, 16).Select(color => new PaletteRgb5
-            {
-                Red = (100 + frame * 16 + color) & 31,
-                Green = ((100 + frame * 16 + color) >> 5) & 31, Blue = 0,
-            }).ToArray(),
+            Highlight = new PaletteRgb5 { Red = (100 + frame * 16) & 31, Green = ((100 + frame * 16) >> 5) & 31, Blue = 0 },
         }).ToArray();
         using var paletteJson = new MemoryStream();
-        MapPaletteCycleFile.Write(paletteJson, new() { Version = 1, Frames = paletteFrames });
+        MapPaletteCycleFile.Write(paletteJson, new() { Version = MapPaletteCycleFile.Version, Frames = paletteFrames });
         paletteJson.Position = 0;
         animations.BindHighlight(MapPaletteCycleFile.Read(paletteJson).Timing);
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

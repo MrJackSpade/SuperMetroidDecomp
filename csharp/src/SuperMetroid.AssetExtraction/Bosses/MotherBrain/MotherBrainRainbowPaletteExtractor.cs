@@ -10,11 +10,15 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
-/// <summary>Installs bank-$AD rainbow and grey-transition colors without copying native control tables.</summary>
+/// <summary>
+/// Writes Mother Brain's rainbow, drain, revival, fake-death and restoration colours to the import data (#1637), without
+/// copying native control tables; only the import reads them, to pre-colour her pictures. The beam backdrop's colours the
+/// game works with are installed by purpose (<see cref="MotherBrainBeamColourExtractor"/>).
+/// </summary>
 internal static class MotherBrainRainbowPaletteExtractor
 {
-    /// <summary>Imports rainbow, drained, revival, fake-death, and beam colors
-    /// into editable RGB5 sequences while checking native table terminators.</summary>
+    /// <summary>Imports rainbow, drained, revival, fake-death and restoration colors
+    /// into RGB5 sequences while checking native table terminators.</summary>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
@@ -39,8 +43,6 @@ internal static class MotherBrainRainbowPaletteExtractor
                 MotherBrainRainbowPaletteGeometry.ColorCount,
                 MotherBrainRainbowPaletteGeometry.ColorCount, false,
                 MotherBrainSourceDefinitions.Palettes.NormalRearLegColors),
-            BeamInitial = PaletteRgb5.From(MotherBrainSourceDefinitions.Beam.InitialColor),
-            BeamCycle = ReadBeamCycle(),
         });
         return json.ToArray();
 
@@ -101,23 +103,6 @@ internal static class MotherBrainRainbowPaletteExtractor
         {
             int word = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             return ToColor(word);
-        }
-
-        PaletteRgb5[] ReadBeamCycle()
-        {
-            var colors = new PaletteRgb5[MotherBrainRainbowPaletteGeometry.BeamCycleColorCount];
-            for (int index = 0; index < colors.Length; index++)
-            {
-                int word = CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainSourceDefinitions.Beam.ColorTable +
-                    index * MotherBrainSourceDefinitions.Beam.ColorEntryBytes));
-                if (!RgbColor.IsColorWord(checked((ushort)word)))
-                    throw new InvalidDataException($"Mother Brain beam cycle ends before color {index}.");
-                colors[index] = ToColor(word);
-            }
-            if (CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainSourceDefinitions.Beam.ColorTable +
-                colors.Length * MotherBrainSourceDefinitions.Beam.ColorEntryBytes)) != ushort.MaxValue)
-                throw new InvalidDataException("Mother Brain beam cycle lacks its native signed terminator.");
-            return colors;
         }
 
         static PaletteRgb5 ToColor(int word) => new()

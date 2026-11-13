@@ -1345,10 +1345,14 @@ internal static class LookupStream3Verification
         }
         var document = new MotherBrainRainbowPaletteDocument
         {
-            Version = 3, Rainbow = rainbow,
+            Version = MotherBrainRainbowPaletteFile.Version, Rainbow = rainbow,
             ToGrey = drain, FromGrey = revival,
-            FakeDeathToGrey = fake, Normal = ReadFull(0xa99474, 0xa99494), BeamInitial = Color(0x3ce0),
-            BeamCycle = Enumerable.Range(0, 38).Select(index => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x88e833 + 4 * index)))).ToArray(),
+            FakeDeathToGrey = fake, Normal = ReadFull(0xa99474, 0xa99494),
+        };
+        var beamDocument = new MotherBrainBeamColourDocument
+        {
+            Version = MotherBrainBeamColourFile.Version, First = Color(0x3ce0),
+            Cycle = Enumerable.Range(0, 38).Select(index => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x88e833 + 4 * index)))).ToArray(),
         };
         InstalledMotherBrainRainbowPalette Load(MotherBrainRainbowPaletteDocument value) => MotherBrainRainbowPaletteFile.Read(
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, ArtworkJson.Options)));
@@ -1375,14 +1379,16 @@ internal static class LookupStream3Verification
         void CheckBeam(MotherBrainRainbowPalettePresentation palette)
         {
             for (int index = 0; index < 38; index++)
-                AssertEqual(RgbColor.FromWord(Word(document.BeamCycle[index])), palette.BeamColor(index),
+                AssertEqual(RgbColor.FromWord(Word(beamDocument.Cycle[index])), palette.BeamColor(index),
                     "stream 3 beam wheel matches every native sampled color");
             AssertEqual(38, palette.BeamCycleLength, "stream 3 beam cycle ends after its last colour");
             AssertEqual(0x3ce0, palette.BeamInitialColor, "stream 3 beam initial fixed color unchanged");
         }
-        CheckBeam(stock.Beam);
+        MotherBrainRainbowPalettePresentation beam = MotherBrainBeamColourFile.Read(
+            new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(beamDocument, ArtworkJson.Options)));
+        CheckBeam(beam);
         foreach (int invalid in new[] { -1, 38, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => stock.Beam.BeamColor(invalid), "stream 3 beam colour index bounds");
+            AssertThrows<InvalidDataException>(() => beam.BeamColor(invalid), "stream 3 beam colour index bounds");
         Check(stock);
         void CheckRainbow(InstalledMotherBrainRainbowPalette palette)
         {

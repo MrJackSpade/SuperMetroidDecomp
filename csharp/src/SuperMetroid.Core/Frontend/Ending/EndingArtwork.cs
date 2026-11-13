@@ -62,20 +62,13 @@ internal sealed class EndingArtwork
 
     /// <summary>
     /// Binds the installed scene backdrops when the game is bound to its installed content (#1544). The running scene keeps
-    /// the backdrop it started with; the next scene starts with its backdrop from the newly bound ones.
+    /// the backdrop it started with; the next scene starts with its backdrop from the newly bound ones. The backdrops of the
+    /// space behind the exploding planet (#1583, #1637) take effect from the next record shown, without resetting a live fade.
     /// </summary>
     internal void BindBackdrops(EndingBackdrops? value)
     {
         _stage.BindBackdrops(value);
-    }
-
-    /// <summary>
-    /// Binds the installed backdrops of the space behind the exploding planet when the game is bound to its installed
-    /// content (#1583). Rebinding affects the next record shown without resetting a live fade.
-    /// </summary>
-    internal void BindSpaceBackdrops(EndingSpaceBackdrops? value)
-    {
-        SpaceBackdrops = value;
+        SpaceBackdrops = value?.Space;
     }
 
     /// <summary>Final logo actor created after the white flash.</summary>

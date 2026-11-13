@@ -295,6 +295,11 @@ public static class MapPresentationExtractor
             file.Write(motherBrainRainbowBytes);
         hashes.Add(MotherBrainRainbowPaletteFile.FileName,
             Convert.ToHexString(SHA256.HashData(motherBrainRainbowBytes)));
+        byte[] motherBrainBeamBytes = MotherBrainBeamColourExtractor.Extract(bus);
+        using (var file = new FileStream(PathOf(MotherBrainBeamColourFile.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(motherBrainBeamBytes);
+        hashes.Add(MotherBrainBeamColourFile.FileName,
+            Convert.ToHexString(SHA256.HashData(motherBrainBeamBytes)));
         byte[] motherBrainRoomColorBytes = MotherBrainRoomColorExtractor.Extract(bus);
         using (var file = new FileStream(PathOf(MotherBrainRoomColorFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(motherBrainRoomColorBytes);

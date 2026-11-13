@@ -5,8 +5,8 @@ using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 namespace SuperMetroid.AssetExtraction.Fx.Artwork;
 
 /// <summary>
-/// The installed colors of room and cinematic palette animations, which only the import reads (#1583): it pre-colours the
-/// sheets each record shows from them. Every record colour is kept as installed. Timing, destinations, instructions, and
+/// The colors of room and cinematic palette animations, import data only the import reads (#1583, #1637): it pre-colours the
+/// sheets each record shows from them. Every record colour is kept as extracted. Timing, destinations, instructions, and
 /// side effects remain compiled engine mechanics.
 /// </summary>
 public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource

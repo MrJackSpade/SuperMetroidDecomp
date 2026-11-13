@@ -53,7 +53,7 @@ internal static class PaletteJsonContractsFixturesVerification
         yield return new("map cycle", PaletteContractDocument(new MapPaletteCycleDocument
         {
             Version = MapPaletteCycleFile.Version, Frames = Enumerable.Range(0, 3).Select(frame => new MapPaletteCycleFrame
-            { DurationTicks = frame + 2, Colors = PaletteContractColors(MapPaletteCycleFormat.ColorCount, frame) }).ToArray(),
+            { DurationTicks = frame + 2, Highlight = PaletteContractColors(1, frame)[0] }).ToArray(),
         }), json => _ = MapPaletteCycleFile.Read(json));
         yield return new("Ceres flight", PaletteContractDocument(new CeresFlightPaletteDocument
         { Version = CeresFlightPaletteFormat.Version, Colors = PaletteContractColors(SnesCgram.ColorCount) }),
@@ -103,8 +103,13 @@ internal static class PaletteJsonContractsFixturesVerification
                 MotherBrainRainbowPaletteGeometry.BackLegCount, true),
             Normal = Frames(1, MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainRainbowPaletteGeometry.ColorCount, false)[0],
             FakeDeathToGrey = PaletteContractRows(MotherBrainFakeDeathPaletteDefinitions.FrameCount, MotherBrainRainbowPaletteGeometry.FakeDeathColors),
-            BeamInitial = PaletteContractColors(1)[0], BeamCycle = PaletteContractColors(MotherBrainRainbowPaletteGeometry.BeamCycleColorCount),
         }), json => _ = MotherBrainRainbowPaletteFile.Read(json));
+        yield return new("Mother Brain beam", PaletteContractDocument(new MotherBrainBeamColourDocument
+        {
+            Version = MotherBrainBeamColourFile.Version,
+            First = PaletteContractColors(1)[0],
+            Cycle = PaletteContractColors(MotherBrainRainbowPaletteGeometry.BeamCycleColorCount),
+        }), json => _ = MotherBrainBeamColourFile.Read(json));
 
         // Only the extractor sees this constructed image. No retail ROM/file is needed
         // and the imported bytes encode colors, not runtime-readable cartridge data.

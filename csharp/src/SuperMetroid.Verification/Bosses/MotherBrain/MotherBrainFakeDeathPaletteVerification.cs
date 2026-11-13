@@ -24,7 +24,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
         void VerifyFade(bool toGrey)
         {
             var expected = new SnesCgram();
-            var enemies = CreateFakeDeathPaletteEnemy(installed);
+            var enemies = CreateFakeDeathPaletteEnemy();
             var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0])
             {
                 Function = toGrey
@@ -67,9 +67,9 @@ internal static class MotherBrainFakeDeathPaletteVerification
         }
     }
 
-    /// <summary>Creates a Mother Brain actor with installed colors.</summary>
-    private static RoomEnemySystem CreateFakeDeathPaletteEnemy(InstalledMotherBrainRainbowPalette colors) =>
-        new(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRainbowColors = colors.Beam } };
+    /// <summary>Creates a Mother Brain actor with her installed beam colours.</summary>
+    private static RoomEnemySystem CreateFakeDeathPaletteEnemy() =>
+        new(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRainbowColors = InstalledFixtures.Maps.MotherBrainRainbowPalette } };
 
     /// <summary>
     /// The colours Mother Brain's sprites show over black: the import's shades of <paramref name="colors"/>, laid as her

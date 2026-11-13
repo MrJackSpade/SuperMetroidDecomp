@@ -15,8 +15,9 @@ internal static class CompiledEnemyVisualSelectorsVerification
             Path.GetFullPath("Super Metroid.smc"));
         // Families that run typed programs (#641) no longer resolve frame operands, so their selectors are gone, and so
         // are the 225 bank-$B4 selectors of the sprite-object lists no spawned object reaches, whose frames #1623 deleted,
-        // and the hit burst's four, whose frames are Samus's weapon effect on her projectile sheets (#1713).
-        AssertEqual(3782, CompiledEnemyVisualSelectorsTooling.Count,
+        // and the hit burst's four, whose frames are Samus's weapon effect on her projectile sheets (#1713),
+        // and the 14 of Stoke and its fireball, which #1686 deleted as no room places Stoke.
+        AssertEqual(3768, CompiledEnemyVisualSelectorsTooling.Count,
             "generated fixed visual-selector count");
         foreach (int index in new[] { int.MinValue, -1, CompiledEnemyVisualSelectorsTooling.Count, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => CompiledEnemyVisualSelectorsTooling.At(index),

@@ -60,7 +60,7 @@ internal sealed class RidleyInteractions
         }
     }
 
-    /// <summary>Requires the extended Ridley hitbox callback and suppresses generic death on shots.</summary>
+    /// <summary>Requires the extended Ridley hitbox reaction and suppresses generic death on shots.</summary>
     internal static void AddRidleyShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Ridley &&
@@ -81,7 +81,7 @@ internal sealed class RidleyInteractions
         });
     }
 
-    /// <summary>Routes bombs through Ridley's shot callback without generic death.</summary>
+    /// <summary>Routes bombs through Ridley's shot reaction without generic death.</summary>
     internal static void AddRidleyBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Ridley &&

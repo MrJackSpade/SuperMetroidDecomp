@@ -19,7 +19,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Provides the active room bus, random source, and persistent boss state.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Supplies frame timing for the body and linked-part AI callbacks.</summary>
+    /// <summary>Supplies frame timing for the body and linked-part AI behaviours.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Draygon's body, eye and tail: their setup, animations and cues.</summary>
     internal DraygonParts Parts { get; }

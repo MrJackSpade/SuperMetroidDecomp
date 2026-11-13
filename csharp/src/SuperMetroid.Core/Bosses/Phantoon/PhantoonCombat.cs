@@ -41,14 +41,14 @@ internal sealed class PhantoonCombat
     internal void AddPhantoonBombReactions(EnemySharedReactions table)
     {
         // Common bomb damage. Rinka, Skree, and Powamp deliberately call the no-death-animation form of common shot
-        // AI; their private callbacks own slot cleanup or a staged death. Gameplay-enemy callbacks reuse the same
+        // AI; their private reactions own the enemy's removal or a staged death. Gameplay-enemy reactions reuse the same
         // post-common steps as beams. Normal bombs cannot freeze, but their damage, staged-death,
-        // child synchronization, recoil, release, and attack side effects are otherwise the same callback tails.
+        // child synchronization, recoil, release, and attack side effects are otherwise the same reaction tails.
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.PhantoonBody &&
                                                        c.SelectedShotAi == EnemyReaction.PhantoonShot)
         {
             RunsGenericDeath = false,
-            // Phantoon's hitbox callback enters the same no-death common damage for bombs as it
+            // Phantoon's hitbox reaction enters the same no-death common damage for bombs as it
             // does for beams and missiles, then consumes the exact damage delta in its encounter reaction state
             // machine. A lethal hit begins the authored death sequence, while sub-threshold damage feeds the
             // eye-close/rage counter instead of deleting a slot.
@@ -128,7 +128,7 @@ internal sealed class PhantoonCombat
 
     /// <summary>
     /// Runs 's five-slot beam/missile walk for Phantoon, then dispatches the
-    /// selected hitbox callback. One projectile resolves per pass, matching the
+    /// selected hitbox reaction. One projectile resolves per pass, matching the
     /// early exit after the first overlapping enemy/component pair.
     /// </summary>
     public int ResolvePhantoonProjectileHits(
@@ -201,8 +201,8 @@ internal sealed class PhantoonCombat
                     $"Phantoon hitbox shot AI {hitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
             }
 
-            // The extended-hitbox walker marks the projectile before Phantoon's hitbox callback.
-            // That callback's damage helper does not convert it into an explosion:
+            // The extended-hitbox walker marks the projectile before Phantoon's hitbox reaction.
+            // That reaction's damage helper does not convert it into an explosion:
             // the projectile's frame behaviour owns the following-frame deletion, while
             // penetrating Plasma retains its type, direction, and animation.
             projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(projectile,
@@ -250,7 +250,7 @@ internal sealed class PhantoonCombat
         return 0;
     }
 
-    /// <summary>Runs the boss-owned tail of Phantoon's hitbox callback after common vulnerability damage.</summary>
+    /// <summary>Runs the boss-owned tail of Phantoon's hitbox reaction after common vulnerability damage.</summary>
     internal void ResolvePhantoonShotReaction(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -546,7 +546,7 @@ internal sealed class PhantoonCombat
         TrigonometryAngle angle,
         int radius)
     {
-        // Unlike the common enemy sine, which never quite reaches one, this callback's
+        // Unlike the common enemy sine, which never quite reaches one, this flame's
         // sine reaches exactly one, so the flame lies at the exact full radius at cardinal angles.
         int xOffset = ReadPhantoonFlameComponent(angle, radius);
         int yOffset = ReadPhantoonFlameComponent(angle.TurnedBy(TrigonometryAngle.HalfTurn).TurnedBy(TrigonometryAngle.QuarterTurn), radius);

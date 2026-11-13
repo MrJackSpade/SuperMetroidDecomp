@@ -26,8 +26,8 @@ internal sealed class TorizoCombat
 
     /// <summary>
     /// Dispatches an already-colliding normal bomb through Torizo's hitbox
-    /// callbacks. The frame-hitbox walker has already set
-    /// its explosion direction bit; this method owns only the species callback and its common
+    /// reactions. The frame-hitbox walker has already set
+    /// its explosion direction bit; this method owns only the species reaction and its common
     /// no-death damage tail.
     /// </summary>
     private void ResolveTorizoNormalBomb(
@@ -43,9 +43,9 @@ internal sealed class TorizoCombat
         TorizoEnemyState state = _access.RequireBombTorizoState(torizo);
         if (selectedShotAi == EnemyReaction.TorizoStandUpSitDownShot)
         {
-            // The transitional callback is a complete no-op in Bomb Torizo's area. Golden Torizo jumps to
+            // The transitional reaction is a complete no-op in Bomb Torizo's area. Golden Torizo jumps to
             // a guarded path, which accepts common damage only outside the active flash and while
-            // while the body's animation is unlocked. This transitional callback never arms the later
+            // while the body's animation is unlocked. This transitional reaction never arms the later
             // counterattack flags or captures a projectile family.
             if (isBombTorizo || torizo.FlashTimer != 0 || state.AnimationLocked)
                 return;
@@ -65,7 +65,7 @@ internal sealed class TorizoCombat
                 $"Torizo normal-bomb hitbox AI {selectedShotAi?.ToString() ?? "(unnamed)"} is not translated.");
         }
 
-        // Both normal callbacks return during the hurt flash. Bomb Torizo also uses its
+        // Both normal reactions return during the hurt flash. Bomb Torizo also uses its
         // awakening guard as a hard rejection; Golden's nonzero guard deliberately falls
         // through to common damage instead.
         if (torizo.FlashTimer != 0 || isBombTorizo && state.AnimationLocked)
@@ -73,7 +73,7 @@ internal sealed class TorizoCombat
 
         if (isGoldenTorizo && !state.AnimationLocked)
         {
-            // A bomb is neither Missile nor Super Missile, so Golden Torizo's shot callback takes its stun branch and arms the
+            // A bomb is neither Missile nor Super Missile, so Golden Torizo's shot reaction takes its stun branch and arms the
             // stun latch before common damage, whether or not the Super-catch latch is set.
             SetBehavior(torizo, TorizoBehaviorFlags.Stunned);
         }
@@ -97,7 +97,7 @@ internal sealed class TorizoCombat
         TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.GoldenHealth, band));
     }
 
-    /// <summary>Runs Bomb Torizo's custom hurt callback.</summary>
+    /// <summary>Runs Bomb Torizo's custom hurt behaviour.</summary>
     internal void ApplyBombTorizoHurt(RoomEnemySlot torizo)
     {
         _body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
@@ -133,14 +133,14 @@ internal sealed class TorizoCombat
     /// <summary>Latches <paramref name="flags"/>.</summary>
     internal void SetBehavior(RoomEnemySlot torizo, TorizoBehaviorFlags flags) => _access.RequireBombTorizoState(torizo).Behavior |= flags;
 
-    /// <summary>Routes overlapping normal bombs through the selected Torizo hitbox callback.</summary>
+    /// <summary>Routes overlapping normal bombs through the selected Torizo hitbox reaction.</summary>
     internal void AddBombTorizoBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecial(c => c.Enemy.DefinitionId is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo,
             c => ResolveTorizoNormalBomb(c.Enemy, c.Bomb, c.SelectedShotAi));
     }
 
-    /// <summary>Validates extended hitbox callbacks, handles catches, and defers death to Torizo's own sequence.</summary>
+    /// <summary>Validates extended hitbox reactions, handles catches, and defers death to Torizo's own sequence.</summary>
     internal void AddBombTorizoShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo &&
@@ -148,9 +148,9 @@ internal sealed class TorizoCombat
                                                          ? EnemyReaction.BombTorizoShot
                                                          : EnemyReaction.GoldenTorizoShot))
         {
-            // Golden's definition installs its own shot callback, but its ordinary extended body hitboxes call the shared
-            // one; that wrapper dispatches to Golden's by area. Stand-up/sit-down maps deliberately use the transitional callback instead. That
-            // callback is a no-op for area-zero Bomb Torizo and a guarded direct-damage path for Golden Torizo, so it
+            // Golden's definition installs its own shot reaction, but its ordinary extended body hitboxes call the shared
+            // one; that wrapper dispatches to Golden's by area. Stand-up/sit-down maps deliberately use the transitional reaction instead. That
+            // reaction is a no-op for area-zero Bomb Torizo and a guarded direct-damage path for Golden Torizo, so it
             // must remain distinguishable below.
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {
@@ -202,9 +202,9 @@ internal sealed class TorizoCombat
         TorizoEnemyState torizoState = _access.RequireBombTorizoState(enemy);
         if (c.HitboxShotAi == EnemyReaction.TorizoStandUpSitDownShot)
         {
-            // The transitional callback returns immediately in area zero. In nonzero areas it calls a guarded path, which admits common
+            // The transitional reaction returns immediately in area zero. In nonzero areas it calls a guarded path, which admits common
             // no-death shot damage only while the flash timer is zero and the body's animation is unlocked. Crucially it
-            // never enters Golden's shot callback, so missiles are not caught, Supers are not reflected, and the
+            // never enters Golden's shot reaction, so missiles are not caught, Supers are not reflected, and the
             // counterattack flags are not armed through these transitional body rectangles.
             if (isBombTorizo || enemy.FlashTimer != 0 || torizoState.AnimationLocked)
             {
@@ -214,14 +214,14 @@ internal sealed class TorizoCombat
         }
         if (enemy.FlashTimer != 0 || isBombTorizo && torizoState.AnimationLocked)
         {
-            // Both callbacks return during a damage flash. Bomb Torizo also rejects shots while its awakening guard
+            // Both reactions return during a damage flash. Bomb Torizo also rejects shots while its awakening guard
             // is set; Golden Torizo's nonzero guard instead routes through common damage below.
             c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
             return true;
         }
 
         // A caught Super bypasses family selection, but still reaches the stun write before common damage.
-        // Animation lock and the transitional hitbox callback bypass that write instead.
+        // Animation lock and the transitional hitbox reaction bypass that write instead.
         if (c.HitboxShotAi == EnemyReaction.BombTorizoShot && isGoldenTorizo &&
             !torizoState.AnimationLocked &&
             _body.HasBehavior(enemy, TorizoBehaviorFlags.CaughtSuperMissile))
@@ -274,7 +274,7 @@ internal sealed class TorizoCombat
 
     /// <summary>
     /// Adds the Torizo hurt reaction for each variant; the common animation runner still
-    /// advances after the hurt callback, as the enemies' update does.
+    /// advances after the hurt behaviour, as the enemies' update does.
     /// </summary>
     internal void AddBombTorizoHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.DefinitionId is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo,

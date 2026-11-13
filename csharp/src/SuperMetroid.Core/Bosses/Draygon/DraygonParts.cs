@@ -28,7 +28,7 @@ internal sealed class DraygonParts
     private readonly RoomSpriteObjects _spriteObjects;
     /// <summary>Updates the body and eye palette bands used by Draygon's presentation.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Supplies frame timing for the body and linked-part AI callbacks.</summary>
+    /// <summary>Supplies frame timing for the body and linked-part AI behaviours.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Receives the sounds Draygon's animations and death request.</summary>
     private readonly EnemyAudioQueue _audio;

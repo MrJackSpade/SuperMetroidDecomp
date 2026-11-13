@@ -521,7 +521,7 @@ internal sealed class KraidProjectiles
             RestartingFallSpeed.Accelerate(rock.Velocity.Y, KraidRockLaunchDefinitions.CeilingRockGravity));
     }
 
-    /// <summary>Binds nail touch callbacks and their shared contact-damage path.</summary>
+    /// <summary>Binds nail touch reactions and their shared contact-damage path.</summary>
     internal void AddKraidNailTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.KraidNail &&

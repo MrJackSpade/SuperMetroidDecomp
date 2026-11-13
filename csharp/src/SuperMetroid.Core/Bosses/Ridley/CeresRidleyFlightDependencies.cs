@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 [RoomLifetime]
 internal sealed record CeresRidleyFlightDependencies
 {
-    /// <summary>Invokes the enemy AI table for Ridley's shared movement callbacks.</summary>
+    /// <summary>Runs Ridley's shared movement behaviours through the enemies' AI dispatch.</summary>
     public required IEnemyDispatch Dispatch { get; init; }
 
     /// <summary>Provides room randomness and Ceres artwork state.</summary>

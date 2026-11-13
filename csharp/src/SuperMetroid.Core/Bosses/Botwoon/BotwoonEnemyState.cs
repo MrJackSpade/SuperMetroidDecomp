@@ -16,11 +16,11 @@ public sealed class BotwoonEnemyState
     /// </summary>
     public BotwoonEnemyFunction? Function { get; internal set; }
 
-    /// <summary>The independent movement callback, choosing direct hole movement or an authored path.</summary>
+    /// <summary>The independent movement behaviour, choosing direct hole movement or an authored path.</summary>
     public BotwoonMovementFunction? MovementFunction { get; internal set; }
 
     /// <summary>
-    /// The independent head callback, controlling movement orientation, aiming, spit-frame admission, and cooldown.
+    /// The independent head behaviour, controlling movement orientation, aiming, spit-frame admission, and cooldown.
     /// </summary>
     public BotwoonHeadFunction? HeadFunction { get; internal set; }
 
@@ -30,7 +30,7 @@ public sealed class BotwoonEnemyState
     public int SegmentSpacingEntries { get; internal set; }
     /// <summary>Frames left of the opening delay, seeded to 256 and counted down to zero before normal traversal begins.</summary>
     public int InitialDelayTimer { get; internal set; }
-    /// <summary>Frames left of the spit-action cooldown, seeded to 48 for the stationary attack and counted down past zero by the head callback before being pinned to zero.</summary>
+    /// <summary>Frames left of the spit-action cooldown, seeded to 48 for the stationary attack and counted down past zero by the head behaviour before being pinned to zero.</summary>
     public int AttackTimer { get; internal set; }
     /// <summary>
     /// Pre-fall death count: seeded to 240 once the tail completes the hole transition and incremented once per update
@@ -91,7 +91,7 @@ public sealed class BotwoonEnemyState
     public int HealthPhase { get; internal set; }
     /// <summary>Whether the head travels within the wall/hole; crossing a hole rectangle toggles this state and hidden movement disables collision.</summary>
     public bool InsideHole { get; internal set; }
-    /// <summary>Inside-hole state observed by the direct-movement callback on its previous call; a difference marks that traversal complete.</summary>
+    /// <summary>Inside-hole state observed by the direct-movement behaviour on its previous call; a difference marks that traversal complete.</summary>
     public bool PreviousInsideHole { get; internal set; }
     /// <summary>Suppresses repeated rectangle-trigger toggles until the last body point reaches the saved ring offset or a new hidden traversal clears it.</summary>
     public bool HoleLatch { get; internal set; }
@@ -99,7 +99,7 @@ public sealed class BotwoonEnemyState
     public bool InitialAction { get; internal set; }
     /// <summary>Movement completion signal, raised when a path ends or on an observed hole-state transition and consumed by the main action dispatcher.</summary>
     public bool PathComplete { get; internal set; }
-    /// <summary>Flag set by the head animation's private spit cue; the five-projectile callback consumes and clears it on emission.</summary>
+    /// <summary>Flag set by the head animation's private spit cue; the five-projectile spit consumes and clears it on emission.</summary>
     public bool SpitFrameReached { get; internal set; }
     /// <summary>Fatal-hit request that preserves ongoing traversal until the final body point completes the next outward hole transition.</summary>
     public bool PendingDeath { get; internal set; }

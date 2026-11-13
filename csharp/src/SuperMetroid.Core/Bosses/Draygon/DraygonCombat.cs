@@ -117,7 +117,7 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>
-    /// The vulnerable eye callback increases future swoop curvature before common shot AI.
+    /// The vulnerable eye's shot reaction increases future swoop curvature before common shot AI.
     /// The comparison keeps the stored value from ever advancing beyond 152.
     /// </summary>
     internal static void AdvanceDraygonShotAcceleration(DraygonEnemyState state)
@@ -162,7 +162,7 @@ internal sealed class DraygonCombat
         (DraygonParts.RequirePart(state.Eye)).RequireSpeciesState<DraygonEyeState>().Function = DraygonEyeFunction.Inert;
         state.Function = DraygonAiFunction.Dying;
 
-        // The death callback releases Samus unconditionally, even during an
+        // The death behaviour releases Samus unconditionally, even during an
         // unrelated movement handler. In particular, this can interrupt a shinespark.
         // The caller then clears Samus's grapple flags, including the owner-release signal.
         if (samus is not null)
@@ -207,7 +207,7 @@ internal sealed class DraygonCombat
                 if (c.HitboxShotAi == EnemyReaction.DudShot)
                 {
                     // Body, claws, and shell use the shared common touch; only the first
-                    // eye rectangle of the two eye-showing body frames reaches Draygon's damage callback.
+                    // eye rectangle of the two eye-showing body frames reaches Draygon's damage reaction.
                     c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
                     _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
                     return true;

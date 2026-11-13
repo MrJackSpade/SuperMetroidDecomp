@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// One room-FX record, its fields decoded at import into the effect, its blend, the visor's animation, the liquid it fills
-/// the room with, the palette effects and animated tiles it starts, and the palette blend they select (#1415, #1526, #1695).
+/// the room with, the palette effects and block animations it starts, and the palette blend they select (#1415, #1526, #1695).
 /// </summary>
 /// <remarks>Its room's effect selection (<see cref="RoomFxSelection"/>) names the entry door that selects it, or holds it as its default (#1546).
 /// <c>BaseYPosition</c> is the liquid surface's starting height,

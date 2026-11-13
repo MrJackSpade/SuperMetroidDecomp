@@ -3,8 +3,8 @@ using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Resolves the two Wrecked Ship treadmill animated-tile objects (<see cref="WreckedShipTreadmillMechanicsDefinitions"/>) by
-/// conveyor direction or by animated-tile object.
+/// Resolves the two Wrecked Ship treadmill block animations (<see cref="WreckedShipTreadmillMechanicsDefinitions"/>) by
+/// conveyor direction or by block animation.
 /// </summary>
 public static class WreckedShipTreadmills
 {
@@ -13,7 +13,7 @@ public static class WreckedShipTreadmills
         WreckedShipTreadmillMechanicsDefinitions.Directions.TryGetValue(direction, out WreckedShipTreadmillLoop? loop)
             ? loop : throw new InvalidDataException($"Unknown Wrecked Ship treadmill direction {direction}.");
 
-    /// <summary>Resolves either named definition; every other animated-tile object returns false/null.</summary>
+    /// <summary>Resolves either named definition; every other block animation returns false/null.</summary>
     public static bool TryResolve(AnimatedTileObject animatedObject, [NotNullWhen(true)] out WreckedShipTreadmillLoop? definition)
     {
         if (!Enum.IsDefined(animatedObject))

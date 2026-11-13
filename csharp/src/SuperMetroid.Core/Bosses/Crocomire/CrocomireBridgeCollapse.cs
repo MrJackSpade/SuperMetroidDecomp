@@ -33,6 +33,13 @@ internal sealed class CrocomireBridgeCollapse
         _access = access;
     }
 
+    /// <summary>
+    /// The updates the collapsing bridge's tongue keeps its last frame before its sleep program is reached, the longest
+    /// wait a timer is given, kept exact (#1627): the tongue keeps counting it down, and its frame and new-frame flag
+    /// follow that count until the sleep takes over.
+    /// </summary>
+    private const int TongueSleepDelay = 32767;
+
     /// <summary>True after the X threshold of 1600 starts the bridge-collapse phase.</summary>
     public bool CrocomireBridgeCollapseStarted { get; private set; }
 
@@ -64,8 +71,7 @@ internal sealed class CrocomireBridgeCollapse
 
         if (state.Tongue is { } tongue)
         {
-            // The sleep is installed behind the maximum timer, so it is reached only after 32767 updates.
-            CrocomireBodyLayer.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Sleep, WrappingCountdown.Start(32767));
+            CrocomireBodyLayer.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Sleep, WrappingCountdown.Start(TongueSleepDelay));
             tongue.Presence = tongue.Presence.With(EnemyPresence.Hidden);
         }
     }

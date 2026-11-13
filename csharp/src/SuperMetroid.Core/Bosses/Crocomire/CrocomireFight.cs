@@ -198,17 +198,29 @@ internal sealed class CrocomireFight
                 : null);
         state.BodyPlayback = new AnimationPlayback<CrocomireBodyProgram>(animation, place);
         body.Timer = counter;
-        // A hold is the script's sleep: the timer wraps from zero and the last frame stays. The body animations
-        // have no pauses or ends.
-        if (outcome is not AnimationShown<CrocomireBodyProgram, CrocomireBodyFrame>.Frame shown)
+        // A hold is the script's sleep: the timer wraps from zero and the last frame stays. A held frame (#1627) shows its
+        // frame for good, its timer left to wrap from zero as a hold's is. The body animations have no pauses or ends.
+        switch (outcome)
         {
-            if (outcome is not AnimationShown<CrocomireBodyProgram, CrocomireBodyFrame>.Held)
+            case AnimationShown<CrocomireBodyProgram, CrocomireBodyFrame>.Frame shown:
+                body.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
+                ShowCrocomireBodyFrame(state, body, shown.Shown);
+                return;
+            case AnimationShown<CrocomireBodyProgram, CrocomireBodyFrame>.HeldFrame held:
+                ShowCrocomireBodyFrame(state, body, held.Shown);
+                return;
+            case AnimationShown<CrocomireBodyProgram, CrocomireBodyFrame>.Held:
+                return;
+            default:
                 throw new InvalidOperationException($"Crocomire's body animation ended an update with {outcome}.");
-            return;
         }
-        body.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
-        state.BodyFrame = shown.Shown;
-        body.Frame = CrocomireBodyFrameSpritemaps.ShownFrames.Of(shown.Shown);
+    }
+
+    /// <summary>Shows <paramref name="frame"/> on Crocomire's body as a newly shown frame.</summary>
+    private static void ShowCrocomireBodyFrame(CrocomireEnemyState state, RoomEnemySlot body, CrocomireBodyFrame frame)
+    {
+        state.BodyFrame = frame;
+        body.Frame = CrocomireBodyFrameSpritemaps.ShownFrames.Of(frame);
         body.NewInstructionFrame = true;
     }
 

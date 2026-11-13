@@ -19,7 +19,7 @@ public static class SuitPickupBeamDefinitions
     public static readonly SignedEightEight MinimumShrinkingSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256);
     /// <summary>Stage-two initial asymmetric edge pair.</summary>
     public static readonly SuitPickupBeamEdges CurvedWideningStart = SuitPickupBeamEdges.Columns(108, 132);
-    /// <summary>Stage-five starting edge pair, whose left edge wraps to the screen's left on the first narrowing.</summary>
+    /// <summary>Stage-five starting edge pair, whose left edge comes round to the screen's left on the first narrowing (<see cref="SuitPickupClosingLineWrap"/>).</summary>
     public static readonly SuitPickupBeamEdges DissipationStart = SuitPickupBeamEdges.Columns(RightmostColumn, 248);
     /// <summary>The lines the beam spans from the top of the screen; its middle line is half way down them.</summary>
     public const int BeamLines = 256;

@@ -1054,6 +1054,9 @@ internal static class FullRunSuitesVerification
         // X-ray's drained refusal against the original's test (#1692).
         new(nameof(SuperMetroid.Verification.Samus.Abilities.XrayRefusedAsDrainedVerification.VerifyXrayRefusedAsDrained),
             SuperMetroid.Verification.Samus.Abilities.XrayRefusedAsDrainedVerification.VerifyXrayRefusedAsDrained),
+        // The suit pickup's closing line against the original's arithmetic (#1692).
+        new(nameof(SuperMetroid.Verification.Samus.Abilities.SuitPickupClosingLineWrapVerification.VerifySuitPickupClosingLineWrap),
+            SuperMetroid.Verification.Samus.Abilities.SuitPickupClosingLineWrapVerification.VerifySuitPickupClosingLineWrap),
         new(nameof(VerifyDoorOrientationDomain), () => VerifyDoorOrientationDomain()),
         new(nameof(VerifyRgbColorDomain), () => VerifyRgbColorDomain()),
         new(nameof(VerifyBabyMetroidFatalBlowShake), () => VerifyBabyMetroidFatalBlowShake()),

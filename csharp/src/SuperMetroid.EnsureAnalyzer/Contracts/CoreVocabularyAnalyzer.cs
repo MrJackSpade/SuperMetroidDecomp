@@ -38,6 +38,9 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         "Rts", "Rtl", "Jsr", "Jsl", "Jmp", "Jml",
         // #1558: the machine's storage widths, its save memory, opcodes, and the program's PLM and enemy-projectile labels.
         "Word", "Byte", "Sram", "Opcode", "Plm", "Eproj",
+        // #1624: the interpreter's vocabulary for the original's streams, which named a cue, a frame, a reveal shape or a
+        // momentum response by the instruction, operand or numbered handler command that carried it.
+        "Command", "Operand", "Instruction",
         // #1685: the cartridge's record headers, which named rooms, room objects, effects, projectiles and enemies by the
         // structure the program stored them in.
         "Header",

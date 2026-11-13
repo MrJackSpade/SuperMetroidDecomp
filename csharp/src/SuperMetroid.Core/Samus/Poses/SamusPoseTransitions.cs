@@ -12,7 +12,7 @@ internal static class SamusPoseTransitions
 
     /// <summary>
     /// Installs the ordinary or aimed falling pose selected by the walk-off transition when a
-    /// grounded movement probe finds no floor. The collision command clears vertical
+    /// grounded movement probe finds no floor. Starting the fall clears vertical
     /// speed and starts downward gravity before the pose is drawn.
     /// </summary>
     public static void ApplyWalkedOffFloorTransition(SamusState samus, 
@@ -42,7 +42,7 @@ RoomLevelData level, SamusPoseId targetPose,
         // A crouched or compact source can grow when falling is selected. The game's
         // pose initializer runs the same pose-expansion collision as an input-driven transition,
         // including its fractional clamp. Skipping it embeds the new body in the
-        // floor after a near-ground unmorph. Rejection also skips command five.
+        // floor after a near-ground unmorph. Rejection also skips starting the fall.
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
 level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
@@ -53,7 +53,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             return;
         }
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
-        // Command five's no-floor branch preserves an ascending
+        // Starting the fall with no floor below preserves an ascending
         // velocity, even if a special handler left it on a standing pose. Crystal
         // Flash can do exactly that; unconditional reset shortens its return arc.
         if (samus.Kinematics.YDirection != SamusVerticalDirection.Up)
@@ -67,7 +67,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         // Alpha publishes the falling radius next frame; pose commit retains the
         // radius used by this frame's grounded movement and collision probes.
         // The pose refresh dispatches the new falling movement type through the falling initializer
-        // before command five initializes the downward state. That initializer derives
+        // before the fall's start initializes the downward state. That initializer derives
         // the mode from extra dash speed; it must not retain the grounded release mode.
         // Base speed itself survives until the next aerial movement behaviour consumes it.
         SamusAerialPoseTransitions.InitializeOrdinaryAerialAcceleration(samus);
@@ -231,7 +231,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// </summary>
     private static void SettleAcceptedLanding(SamusState samus, bool leavingScrewAttack)
     {
-        // Installs the same one-shot input handler used by F8.
+        // Installs the same one-shot input handler a turn animation's transition installs.
         // Its short held-Jump window is evaluated next alpha, not during landing.
         if (!samus.Control.AlphaLocked) samus.InputSnapshot.AutoJumpInputPending = true;
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
@@ -400,7 +400,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             (SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose, SamusPoseId.FallingAimDiagonalUpLeftPose) or
             (SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose, SamusPoseId.FallingAimDiagonalUpRightPose) or
             // Ends every moonwalk turn/jump animation with a transition to
-            // the spin jump. Super-special selection refreshes the pose, but skips the pose
+            // the spin jump. Installing the animation's transition pose refreshes the pose, but skips the pose
             // initializer's later jump initialization. Its unchanged vertical direction permits Moonfall.
             (SamusPoseId.MoonwalkTurnJumpLeftPose or SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
                 SamusPoseId.MoonwalkTurnJumpAimDownLeftPose, SamusPoseId.SpinJumpLeftPose) or

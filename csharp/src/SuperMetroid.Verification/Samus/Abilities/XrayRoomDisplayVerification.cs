@@ -61,9 +61,9 @@ internal static class XrayRoomDisplayVerification
         return 0;
     }
 
-    /// <summary>Runs room admission, reveal-table, extension, tilemap, and overlay checks together.</summary>
+    /// <summary>Runs room admission, reveal-shape, extension, tilemap, and overlay checks together.</summary>
     [VerificationCommand("--xray-reveal")]
-    internal static int XrayRevealCommand()
+    internal static int XrayRevealChecksCommand()
     {
         Suite(nameof(VerifyXrayRoomDisplayRules), () => VerifyXrayRoomDisplayRules());
         Suite(nameof(VerifyXrayRevealTable), () => VerifyXrayRevealTable());

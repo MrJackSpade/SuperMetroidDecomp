@@ -5,33 +5,33 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
-/// <summary>Checks the compiled X-ray reveal commands against the native bank $91 lookup tables.</summary>
+/// <summary>Checks the shape X-ray reveals for every block against the native bank $91 lookup tables.</summary>
 internal static class XrayRevealVerification
 {
     /// <summary>
-    /// Compares the command of every collision type and BTS byte, including wildcard and explicit entries. The blocks each
+    /// Compares the reveal shape of every collision type and BTS byte, including wildcard and explicit entries. The blocks each
     /// copy shows are installed pictures (#1596), which the installation verification compares with the same tables.
     /// </summary>
     internal static void VerifyXrayRevealTable()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int matches = 0;
-        var commands = new HashSet<XrayRevealShape>();
+        var shapes = new HashSet<XrayRevealShape>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int bts = 0; bts <= byte.MaxValue; bts++)
         {
             XrayRevealDefinition? expected = ReadNativeXrayRevealDefinition(
                 bus, type, unchecked((byte)bts));
             XrayRevealShape? found = XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(bts));
-            AssertEqual(expected?.Shape, found, $"retail reveal command {type}/BTS {bts:X2}");
-            if (found is { } command) { matches++; commands.Add(command); }
+            AssertEqual(expected?.Shape, found, $"retail reveal shape {type}/BTS {bts:X2}");
+            if (found is { } shape) { matches++; shapes.Add(shape); }
         }
         AssertEqual(817, matches, "retail reveal lookup matches all wildcard and explicit entries");
-        AssertEqual(7, commands.Count, "all seven reveal commands are decoded");
-        Console.WriteLine("  X-ray reveal tables: all 4096 type/BTS commands match the cartridge; production lookup is ROM-independent.");
+        AssertEqual(7, shapes.Count, "all seven reveal shapes are decoded");
+        Console.WriteLine("  X-ray reveal tables: all 4096 type/BTS shapes match the cartridge; production lookup is ROM-independent.");
     }
 
-    /// <summary>Walks the original block-type, BTS, and command-pointer chains for one block.</summary>
+    /// <summary>Walks the original block-type, BTS, and shape-pointer chains for one block.</summary>
     internal static XrayRevealDefinition? ReadNativeXrayRevealDefinition(
         ISnesAddressSpace bus,
         RoomCollisionType type,
@@ -48,31 +48,31 @@ internal static class XrayRevealVerification
                 ushort value = ReadNativeXrayRevealWord(bus, match);
                 if (value == XrayRevealTableWords.End) return null;
                 if (value != XrayRevealTableWords.AnyBts && value != bts) continue;
-                int commandPointer = ReadNativeXrayRevealWord(bus, match + 2);
-                XrayRevealShape command = SamusIdentityWords.XrayRevealShapes.Decode(
-                    ReadNativeXrayRevealWord(bus, commandPointer), "native X-ray reveal command");
-                return command switch
+                int shapePointer = ReadNativeXrayRevealWord(bus, match + 2);
+                XrayRevealShape shape = SamusIdentityWords.XrayRevealShapes.Decode(
+                    ReadNativeXrayRevealWord(bus, shapePointer), "native X-ray reveal shape");
+                return shape switch
                 {
                     XrayRevealShape.HorizontalExtension or
                         XrayRevealShape.VerticalExtension =>
-                        new(command, 0, 0, 0, 0),
+                        new(shape, 0, 0, 0, 0),
                     XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar =>
-                        new(command, ReadNativeXrayRevealWord(bus, commandPointer + 2), 0, 0, 0),
+                        new(shape, ReadNativeXrayRevealWord(bus, shapePointer + 2), 0, 0, 0),
                     XrayRevealShape.CopyWide =>
-                        new(command,
-                            ReadNativeXrayRevealWord(bus, commandPointer + 2),
-                            ReadNativeXrayRevealWord(bus, commandPointer + 4), 0, 0),
+                        new(shape,
+                            ReadNativeXrayRevealWord(bus, shapePointer + 2),
+                            ReadNativeXrayRevealWord(bus, shapePointer + 4), 0, 0),
                     XrayRevealShape.CopyTall =>
-                        new(command,
-                            ReadNativeXrayRevealWord(bus, commandPointer + 2), 0,
-                            ReadNativeXrayRevealWord(bus, commandPointer + 4), 0),
+                        new(shape,
+                            ReadNativeXrayRevealWord(bus, shapePointer + 2), 0,
+                            ReadNativeXrayRevealWord(bus, shapePointer + 4), 0),
                     XrayRevealShape.CopySquare =>
-                        new(command,
-                            ReadNativeXrayRevealWord(bus, commandPointer + 2),
-                            ReadNativeXrayRevealWord(bus, commandPointer + 4),
-                            ReadNativeXrayRevealWord(bus, commandPointer + 6),
-                            ReadNativeXrayRevealWord(bus, commandPointer + 8)),
-                    _ => throw new InvalidOperationException($"Undefined {nameof(XrayRevealShape)} {command}."),
+                        new(shape,
+                            ReadNativeXrayRevealWord(bus, shapePointer + 2),
+                            ReadNativeXrayRevealWord(bus, shapePointer + 4),
+                            ReadNativeXrayRevealWord(bus, shapePointer + 6),
+                            ReadNativeXrayRevealWord(bus, shapePointer + 8)),
+                    _ => throw new InvalidOperationException($"Undefined {nameof(XrayRevealShape)} {shape}."),
                 };
             }
         }

@@ -1057,7 +1057,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
 
     /// <summary>
-    /// Applies falling input-lookup failure's command eight. Cancel the
+    /// Kills Samus's run speed on a falling input-lookup failure. Cancel the
     /// dash component after movement, preserving the base speed and acceleration mode.
     /// The caller admits only a still-falling body, so no new-fall Y reset is needed.
     /// </summary>

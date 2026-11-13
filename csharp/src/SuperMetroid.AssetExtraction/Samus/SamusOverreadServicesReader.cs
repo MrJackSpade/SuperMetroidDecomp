@@ -67,22 +67,22 @@ internal static class SamusOverreadServicesReader
     }
 
     /// <summary>
-    /// Every pose with an animation program, its program's successor and the steps its program's operand places read
+    /// Every pose with an animation program, its program's successor and the steps its program's cue-value places read
     /// (#1535).
     /// </summary>
     private static LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> AnimationContinuation(SamusOverreadDocument document)
     {
         IReadOnlyDictionary<string, SamusOverreadDocument.Continuation?> continuations =
             Require(document.AnimationContinuations, nameof(document.AnimationContinuations));
-        IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.OperandStep>> operandSteps =
-            Require(document.AnimationOperandSteps, nameof(document.AnimationOperandSteps));
+        IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>> cueValueSteps =
+            Require(document.AnimationCueValueSteps, nameof(document.AnimationCueValueSteps));
         SamusPoseId[] poses = [.. Enum.GetValues<SamusPoseId>().Where(SamusPoseNumbers.HasRecord)];
-        if (operandSteps.Count != poses.Length)
-            throw new InvalidDataException($"Samus overread file holds operand steps for {operandSteps.Count} poses, not {poses.Length}.");
+        if (cueValueSteps.Count != poses.Length)
+            throw new InvalidDataException($"Samus overread file holds cue-value steps for {cueValueSteps.Count} poses, not {poses.Length}.");
         if (continuations.Count != poses.Length)
             throw new InvalidDataException($"Samus overread file holds {continuations.Count} animation continuations, not {poses.Length}.");
         var successors = new Dictionary<SamusPoseId, LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep>.Successor?>();
-        var operands = new Dictionary<SamusPoseId, IReadOnlyDictionary<int, SamusPoseAnimationStep>>();
+        var cueValues = new Dictionary<SamusPoseId, IReadOnlyDictionary<int, SamusPoseAnimationStep>>();
         foreach (SamusPoseId pose in poses)
         {
             if (!continuations.TryGetValue(pose.ToString(), out SamusOverreadDocument.Continuation? continuation))
@@ -90,47 +90,47 @@ internal static class SamusOverreadServicesReader
             successors.Add(pose, continuation is null
                 ? null
                 : new LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep>.Successor(Parse<SamusPoseId>(continuation.Pose, "animation successor"), continuation.Shift));
-            if (!operandSteps.TryGetValue(pose.ToString(), out IReadOnlyDictionary<string, SamusOverreadDocument.OperandStep>? steps))
-                throw new InvalidDataException($"Samus overread file has no operand steps for {pose}.");
-            operands.Add(pose, Require(steps, $"operand steps for {pose}").ToDictionary(
-                pair => ParseCount(pair.Key, $"{pose} operand frame"), pair => OperandStep(Require(pair.Value, $"{pose} operand step"))));
+            if (!cueValueSteps.TryGetValue(pose.ToString(), out IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>? steps))
+                throw new InvalidDataException($"Samus overread file has no cue-value steps for {pose}.");
+            cueValues.Add(pose, Require(steps, $"cue-value steps for {pose}").ToDictionary(
+                pair => ParseCount(pair.Key, $"{pose} cue-value frame"), pair => CueValueStep(Require(pair.Value, $"{pose} cue-value step"))));
         }
-        return new LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep>(successors, operands);
+        return new LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep>(successors, cueValues);
     }
 
-    /// <summary>The step an operand's place reads, from its decoded kind and operands.</summary>
-    /// <exception cref="InvalidDataException">The step lacks an operand its kind needs, or carries one it does not.</exception>
-    private static SamusPoseAnimationStep OperandStep(SamusOverreadDocument.OperandStep step)
+    /// <summary>The step a cue value's place reads, from its decoded kind and the values it names.</summary>
+    /// <exception cref="InvalidDataException">The step lacks a value its kind needs, or carries one it does not.</exception>
+    private static SamusPoseAnimationStep CueValueStep(SamusOverreadDocument.CueValueStep step)
     {
-        SamusOverreadDocument.OperandStepKind kind = Parse<SamusOverreadDocument.OperandStepKind>(step.Kind, "operand step kind");
+        SamusOverreadDocument.CueValueStepKind kind = Parse<SamusOverreadDocument.CueValueStepKind>(step.Kind, "cue-value step kind");
         SamusPoseId Pose(int index, int count) =>
             Require(step.Poses, $"{kind} poses") is { } poses && poses.Count == count
                 ? Parse<SamusPoseId>(poses[index], $"{kind} pose")
-                : throw new InvalidDataException($"Samus overread file's {kind} operand step names {step.Poses?.Count} poses, not {count}.");
+                : throw new InvalidDataException($"Samus overread file's {kind} cue-value step names {step.Poses?.Count} poses, not {count}.");
         int Frame(int index, int count) =>
             Require(step.Frames, $"{kind} frames") is { } frames && frames.Count == count && frames[index] >= 0
                 ? frames[index]
-                : throw new InvalidDataException($"Samus overread file's {kind} operand step names no valid frame {index} of {count}.");
+                : throw new InvalidDataException($"Samus overread file's {kind} cue-value step names no valid frame {index} of {count}.");
         SamusEquipmentFlags Items() => Require(step.Items, $"{kind} items")
-            .Aggregate(SamusEquipmentFlags.None, (items, name) => items | Parse<SamusEquipmentFlags>(name, "operand step item"));
+            .Aggregate(SamusEquipmentFlags.None, (items, name) => items | Parse<SamusEquipmentFlags>(name, "cue-value step item"));
         return kind switch
         {
-            SamusOverreadDocument.OperandStepKind.Delay => step.Ticks is >= 0 and < SamusOverreadSourceDefinitions.FirstAnimationInstructionByte
+            SamusOverreadDocument.CueValueStepKind.Delay => step.Ticks is >= 0 and < SamusOverreadSourceDefinitions.FirstAnimationInstructionByte
                 ? new SamusAnimationDelay(step.Ticks.Value)
-                : throw new InvalidDataException($"Samus overread file's operand delay holds {step.Ticks} ticks."),
-            SamusOverreadDocument.OperandStepKind.Hold => new SamusAnimationHold(),
-            SamusOverreadDocument.OperandStepKind.LoopUnlessLowEnergy => new SamusAnimationLoopUnlessLowEnergy(),
-            SamusOverreadDocument.OperandStepKind.InstallDrainedFall => new SamusAnimationInstallDrainedFall(),
-            SamusOverreadDocument.OperandStepKind.TurnTransition => new SamusAnimationTurnTransition(Pose(0, 1)),
-            SamusOverreadDocument.OperandStepKind.ItemAirborneTransition =>
+                : throw new InvalidDataException($"Samus overread file's cue-value delay holds {step.Ticks} ticks."),
+            SamusOverreadDocument.CueValueStepKind.Hold => new SamusAnimationHold(),
+            SamusOverreadDocument.CueValueStepKind.LoopUnlessLowEnergy => new SamusAnimationLoopUnlessLowEnergy(),
+            SamusOverreadDocument.CueValueStepKind.InstallDrainedFall => new SamusAnimationInstallDrainedFall(),
+            SamusOverreadDocument.CueValueStepKind.TurnTransition => new SamusAnimationTurnTransition(Pose(0, 1)),
+            SamusOverreadDocument.CueValueStepKind.ItemAirborneTransition =>
                 new SamusAnimationItemAirborneTransition(Items(), Pose(0, 4), Pose(1, 4), Pose(2, 4), Pose(3, 4)),
-            SamusOverreadDocument.OperandStepKind.VerticalSpeedTransition => new SamusAnimationVerticalSpeedTransition(Pose(0, 2), Pose(1, 2)),
-            SamusOverreadDocument.OperandStepKind.WallJumpSelect => new SamusAnimationWallJumpSelect(Frame(0, 3), Frame(1, 3), Frame(2, 3)),
-            SamusOverreadDocument.OperandStepKind.ItemTransition => new SamusAnimationItemTransition(Items(), Pose(0, 2), Pose(1, 2)),
-            SamusOverreadDocument.OperandStepKind.Transition => new SamusAnimationTransition(Pose(0, 1)),
-            SamusOverreadDocument.OperandStepKind.Repeat => new SamusAnimationRepeat(Frame(0, 1)),
-            SamusOverreadDocument.OperandStepKind.Restart => new SamusAnimationRestart(),
-            _ => throw new InvalidDataException($"Samus overread file names operand step kind {kind}, which has no step."),
+            SamusOverreadDocument.CueValueStepKind.VerticalSpeedTransition => new SamusAnimationVerticalSpeedTransition(Pose(0, 2), Pose(1, 2)),
+            SamusOverreadDocument.CueValueStepKind.WallJumpSelect => new SamusAnimationWallJumpSelect(Frame(0, 3), Frame(1, 3), Frame(2, 3)),
+            SamusOverreadDocument.CueValueStepKind.ItemTransition => new SamusAnimationItemTransition(Items(), Pose(0, 2), Pose(1, 2)),
+            SamusOverreadDocument.CueValueStepKind.Transition => new SamusAnimationTransition(Pose(0, 1)),
+            SamusOverreadDocument.CueValueStepKind.Repeat => new SamusAnimationRepeat(Frame(0, 1)),
+            SamusOverreadDocument.CueValueStepKind.Restart => new SamusAnimationRestart(),
+            _ => throw new InvalidDataException($"Samus overread file names cue-value step kind {kind}, which has no step."),
         };
     }
 

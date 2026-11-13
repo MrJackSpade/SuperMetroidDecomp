@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// What a frame read past an animation's end, or on a cue's operand, reaches (#1473, #1474, #1535). The
+/// What a frame read past an animation's end, or on a value one of its cues carries, reaches (#1473, #1474, #1535). The
 /// game lays a kind of animation out one after another and reads a frame as the animation's start plus the frame, so
 /// a frame past an animation's end reads the animation laid out after it, shifted by the distance between their starts, and a
-/// frame on the place of a cue's operand reads that operand as a step of its own. The import pipeline decodes
-/// that layout once into each animation's successor and that shift, and the step each operand place reads; no place in the
-/// layout reaches the game.
+/// frame on the place of a value a cue carries reads that value as a step of its own. The import pipeline decodes
+/// that layout once into each animation's successor and that shift, and the step each cue value's place reads; no place in
+/// the layout reaches the game.
 /// </summary>
 /// <remarks>
 /// Consulted when Samus's animation frame names no step of its pose's animation, each time her animation step is read.
@@ -18,8 +18,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// The same reading decides what the Baby's Hyper Beam freeze and its rainbow stop do to a Samus the drain has let go of
 /// (#1535). Both set her animation frame without looking at her pose, to the frames the drained crouch's freeze and
 /// stand-up start at, and a crouch, morph, stand or turn animation ends long before them, so her next animation steps read
-/// the animations laid out after hers, operands included. The right-facing morph at the rainbow stop reads the left-facing
-/// morph's operands as delays into the glitch-ball morphing animation's transition and becomes the right-facing glitch
+/// the animations laid out after hers, cue values included. The right-facing morph at the rainbow stop reads the left-facing
+/// morph's cue values as delays into the glitch-ball morphing animation's transition and becomes the right-facing glitch
 /// ball; the left-facing stand and both unmorphs frozen for the Hyper Beam reach the Draygon-held morphing animation's
 /// transition and become the Draygon-held ball; other reads end in the ordinary poses a later animation's transition names.
 /// The transition poses whose animations these reads run through are never held themselves: their animations run under the
@@ -36,8 +36,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// The identity of an animation. Samus's animations are named by a pose that animates by each, so the identity keeps its
 /// equality when a session is restored.
 /// </typeparam>
-/// <typeparam name="TStep">A step of an animation, which an operand's place reads.</typeparam>
-[CompatibilityService("a frame past an animation program's end reads the program laid out after it, and a frame on an instruction's operand reads the operand as a step")]
+/// <typeparam name="TStep">A step of an animation, which a cue value's place reads.</typeparam>
+[CompatibilityService("a frame past an animation's end reads the animation laid out after it, and a frame on a value one of its cues carries reads that value as a step")]
 public sealed class LaidOutAnimationContinuation<TAnimation, TStep>
     where TAnimation : notnull
     where TStep : class

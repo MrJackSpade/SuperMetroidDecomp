@@ -14,7 +14,7 @@ internal static class SamusGroundedPoseTransitions
     /// Installs the lookup-failure pose of an aimed crouching turn when every input is
     /// released. The definition's fallback is left-facing crouching for all six records,
     /// so the turn is abandoned for left-facing crouch art regardless of its direction.
-    /// Because the pose changes, the prospective pose handler skips command two; only the pose initializer runs.
+    /// Because the pose changes, the prospective pose handler skips the stop; only the pose initializer runs.
     /// </summary>
     public static void ApplyAimedCrouchingTurnInputFallback(SamusState samus, SamusPoseId targetPose)
     {
@@ -27,9 +27,9 @@ internal static class SamusGroundedPoseTransitions
 
 
     /// <summary>
-    /// Applies prospective pose change command two when a turn's input lookup
+    /// Stops Samus's momentum when a turn's input lookup
     /// fails and the pose definition retains the current pose. The three turning movement types
-    /// all select command two in the lookup-failure table. This stops reverse acceleration without
+    /// all stop her on lookup failure. This stops reverse acceleration without
     /// restarting the unfinished turn animation or erasing velocity.
     /// </summary>
     public static void ApplyTurnInputFallback(SamusState samus, SamusMovementType movementType)

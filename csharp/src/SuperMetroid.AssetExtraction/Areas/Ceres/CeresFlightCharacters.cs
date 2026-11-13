@@ -23,7 +23,6 @@ public sealed class CeresFlightCharacters : CeresFlightSourceArtwork
     private CeresFlightCharacters(byte[] floorCharacters, byte[] objectCharacters, CeresFlightSourceArtwork documents)
         : base(documents.FloorMaps.ToArray(), documents.Flight.Backdrop, documents.Sprites, documents.Flight.Actors)
     {
-        Flight = new CeresFlightArtwork(backdrop, actors);
         FloorCharacters = floorCharacters;
         ObjectCharacters = objectCharacters;
     }

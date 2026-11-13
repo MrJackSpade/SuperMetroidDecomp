@@ -36,13 +36,13 @@ internal static class IntroNarrationPictureSheetComposer
     private const int CharacterBytes = IntroFontAtlasFormat.ByteCount / IntroFontAtlasFormat.TileCount;
 
     /// <summary>Composes the sheet from the installed intro artwork and narration font.</summary>
-    internal static ComposedSpriteSheet Compose(IntroCinematicSourceArtwork intro, IntroFontCharacters font)
+    internal static ComposedSpriteSheet Compose(ImportIntroCinematicArtwork intro, IntroFontCharacters font)
     {
         Ensure.NotNull(intro);
         byte[] whole = new byte[IntroTileSetDefinitions.FontFirstTile * CharacterBytes + IntroFontAtlasFormat.ByteCount];
         Ensure.NotNull(font).Characters.Span[..IntroFontAtlasFormat.ByteCount].CopyTo(whole.AsSpan(IntroTileSetDefinitions.FontFirstTile * CharacterBytes));
         byte[] blanked = Blanked(whole);
-        RgbColor[] colours = [.. ImportIntroCinematicArtwork.Imported(intro).Palette.BackgroundColours];
+        RgbColor[] colours = [.. intro.Palette.BackgroundColours];
         int cells = IntroNarrationPictures.PlaneCells;
         int finalRows = IntroArtworkExtentDefinitions.FinalLineWordCount / cells;
         char[] letters = [.. IntroNarrationPictureSheetComposer.Letters];

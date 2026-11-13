@@ -62,7 +62,7 @@ internal static class FrontendFloorSheetComposer
                 EndingFloorShot.EscapeB),
             [SpriteSheetId.EndingPlanetExplosionFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.PlanetExplosion, EndingPaletteId.Explosion), sources,
                 EndingFloorShot.PlanetExplosion),
-            [SpriteSheetId.EndingFlyawayFloor] = sources => EndingShaded(Flyaway(sources.Intro.CeresFlight, sources.EndingPalettes), sources, EndingFloorShot.Flyaway),
+            [SpriteSheetId.EndingFlyawayFloor] = sources => EndingShaded(Flyaway(sources.Intro.FlightCharacters, sources.EndingPalettes), sources, EndingFloorShot.Flyaway),
             [SpriteSheetId.EndingRewardIconFloor] = sources => EndingShaded(RewardIcon(sources.EndingMode7, sources.EndingPalettes), sources, EndingFloorShot.RewardIcon),
         }.ToFrozenDictionary();
 
@@ -151,9 +151,9 @@ internal static class FrontendFloorSheetComposer
     /// record the gunship engine's flicker shows, coloured from <paramref name="paletteFx"/> (#1512).
     /// </summary>
     /// <exception cref="InvalidDataException">The installed views or characters are shorter than the scenes load.</exception>
-    internal static ComposedSpriteSheet Ceres(IntroCinematicSourceArtwork intro, IPaletteFxColorSource paletteFx) =>
-        Ceres(Ensure.NotNull(intro).CeresFlight, intro.CeresDestructionMaps,
-            ImportIntroCinematicArtwork.Imported(intro).FlightPalette, paletteFx);
+    internal static ComposedSpriteSheet Ceres(ImportIntroCinematicArtwork intro, IPaletteFxColorSource paletteFx) =>
+        Ceres(Ensure.NotNull(intro).FlightCharacters, intro.CeresDestructionMaps,
+            intro.FlightPalette, paletteFx);
 
     /// <summary>
     /// The Ceres cinematics' floor in each shot from the flight's installed artwork and the destruction's maps, coloured

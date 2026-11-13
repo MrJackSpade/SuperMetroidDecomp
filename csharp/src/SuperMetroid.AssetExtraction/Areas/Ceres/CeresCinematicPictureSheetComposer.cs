@@ -40,15 +40,15 @@ internal static class CeresCinematicPictureSheetComposer
     /// engine's flicker shades only the gunship's floor.
     /// </summary>
     /// <exception cref="InvalidDataException">A picture's tile names a character the scene never loads.</exception>
-    internal static ComposedSpriteSheet Compose(IntroCinematicSourceArtwork intro) =>
-        Compose(Ensure.NotNull(intro).CeresFlight, intro);
+    internal static ComposedSpriteSheet Compose(ImportIntroCinematicArtwork intro) =>
+        Compose(Ensure.NotNull(intro).FlightCharacters, intro);
 
     /// <summary>
     /// Composes the sheet from the flight artwork <paramref name="ceresFlight"/> and the rest of <paramref name="intro"/>'s
     /// artwork, as an installation whose flight artwork is replaced composes it.
     /// </summary>
     /// <exception cref="InvalidDataException">A picture's tile names a character the scene never loads.</exception>
-    internal static ComposedSpriteSheet Compose(CeresFlightCharacters ceresFlight, IntroCinematicSourceArtwork intro)
+    internal static ComposedSpriteSheet Compose(CeresFlightCharacters ceresFlight, ImportIntroCinematicArtwork intro)
     {
         Ensure.NotNull(ceresFlight);
         Ensure.NotNull(intro);

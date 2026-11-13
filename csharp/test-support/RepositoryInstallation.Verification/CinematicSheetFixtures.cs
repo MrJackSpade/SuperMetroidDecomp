@@ -29,8 +29,8 @@ internal static class CinematicSheetFixtures
     private static readonly ConditionalWeakTable<object, string> identities = new();
 
     /// <summary>The content identity of <paramref name="intro"/>, which covers every artwork its sheets compose from.</summary>
-    private static string Identity(IntroCinematicSourceArtwork intro) =>
-        identities.GetValue(intro, key => ((IntroCinematicSourceArtwork)key).ContentIdentity);
+    private static string Identity(ImportIntroCinematicArtwork intro) =>
+        identities.GetValue(intro, key => ((ImportIntroCinematicArtwork)key).ContentIdentity);
 
     /// <summary>The content identity of <paramref name="flight"/>, which covers every artwork its sheets compose from.</summary>
     private static string Identity(CeresFlightCharacters flight) =>
@@ -46,16 +46,16 @@ internal static class CinematicSheetFixtures
     internal static SpriteSheet CeresFlight(CeresFlightCharacters flight)
     {
         ArgumentNullException.ThrowIfNull(flight);
-        return Identity(flight) == Identity(InstalledFixtures.IntroArtwork.CeresFlight)
+        return Identity(flight) == Identity(InstalledFixtures.IntroArtwork.FlightCharacters)
             ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.CeresFlightSprites)
-            : flights.GetOrAdd(Identity(flight), _ => Load(IntroSpriteSheetComposer.CeresFlightSources(flight, ImportIntroCinematicArtwork.Imported(InstalledFixtures.IntroArtwork).FlightPalette),
+            : flights.GetOrAdd(Identity(flight), _ => Load(IntroSpriteSheetComposer.CeresFlightSources(flight, InstalledFixtures.IntroArtwork.FlightPalette),
                 $"ceres-flight-fixture-{RuntimeHelpers.GetHashCode(flight):X8}"));
     }
 
     extension(CeresDestructionCinematicState self)
     {
         /// <summary>Binds the catalog of <paramref name="intro"/> and the sheets it composes, as the game rebinds both.</summary>
-        internal void BindFixtureDestructionArtwork(IntroCinematicSourceArtwork intro)
+        internal void BindFixtureDestructionArtwork(ImportIntroCinematicArtwork intro)
         {
             self.BindArtwork(intro.BoundCatalog);
             self.BindSpriteSheets(WithIntro(intro));
@@ -79,7 +79,7 @@ internal static class CinematicSheetFixtures
     internal static InstalledSpriteSheets WithFlight(CeresFlightCharacters flight)
     {
         ArgumentNullException.ThrowIfNull(flight);
-        return Identity(flight) == Identity(InstalledFixtures.IntroArtwork.CeresFlight) ? InstalledFixtures.SpriteSheets
+        return Identity(flight) == Identity(InstalledFixtures.IntroArtwork.FlightCharacters) ? InstalledFixtures.SpriteSheets
             : flightSheets.GetOrAdd(Identity(flight), _ =>
             {
                 CeresFlightCharacters key = flight;
@@ -90,7 +90,7 @@ internal static class CinematicSheetFixtures
                     CeresCinematicPictureSheetComposer.Compose(key, InstalledFixtures.IntroArtwork), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresFloor] = LoadTiles(SpriteSheetId.CeresFloor,
                     FrontendFloorSheetComposer.Ceres(key, InstalledFixtures.IntroArtwork.CeresDestructionMaps,
-                        ImportIntroCinematicArtwork.Imported(InstalledFixtures.IntroArtwork).FlightPalette, ImportAreaMapPresentation.RoomPaletteFxOf(InstalledFixtures.Maps)), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
+                        InstalledFixtures.IntroArtwork.FlightPalette, ImportAreaMapPresentation.RoomPaletteFxOf(InstalledFixtures.Maps)), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
                 return new InstalledSpriteSheets(sheets);
             });
     }
@@ -114,16 +114,16 @@ internal static class CinematicSheetFixtures
             $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", tiles.Size, tiles.Pixels, tiles.PaletteIndices);
 
     /// <summary>The installed sheets with the intro sheet <paramref name="intro"/> composes.</summary>
-    internal static InstalledSpriteSheets WithIntro(IntroCinematicSourceArtwork intro)
+    internal static InstalledSpriteSheets WithIntro(ImportIntroCinematicArtwork intro)
     {
         ArgumentNullException.ThrowIfNull(intro);
         return Identity(intro) == Identity(InstalledFixtures.IntroArtwork) ? InstalledFixtures.SpriteSheets
             : intros.GetOrAdd(Identity(intro), _ =>
             {
-                IntroCinematicSourceArtwork key = intro;
+                ImportIntroCinematicArtwork key = intro;
                 var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
                 sheets[SpriteSheetId.IntroSprites] = Load(IntroSpriteSheetComposer.Sources(key), $"intro-fixture-{RuntimeHelpers.GetHashCode(key):X8}");
-                sheets[SpriteSheetId.CeresFlightSprites] = CeresFlight(key.CeresFlight);
+                sheets[SpriteSheetId.CeresFlightSprites] = CeresFlight(key.FlightCharacters);
                 sheets[SpriteSheetId.CeresDestructionSprites] = Load(IntroSpriteSheetComposer.CeresDestructionSources(key), $"ceres-destruction-fixture-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.ZebesRevealSprites] = Load(IntroSpriteSheetComposer.ZebesRevealSources(key), $"zebes-reveal-fixture-{RuntimeHelpers.GetHashCode(key):X8}");
                 // The cinematics' background tiles are pre-coloured from the intro's characters and palettes (#1392).
@@ -145,7 +145,7 @@ internal static class CinematicSheetFixtures
     extension(IntroCinematicState self)
     {
         /// <summary>Binds the catalog of <paramref name="intro"/> and the sheets with the intro sheet it composes, as the game rebinds both.</summary>
-        internal void BindFixtureIntroArtwork(IntroCinematicSourceArtwork intro)
+        internal void BindFixtureIntroArtwork(ImportIntroCinematicArtwork intro)
         {
             self.BindCharacterArtwork(intro.BoundCatalog);
             self.BindSpriteSheets(WithIntro(intro));
@@ -173,7 +173,7 @@ internal static class CinematicSheetFixtures
     /// </summary>
     private static SpriteSheetSources DrawerSources(ICinematicSpriteFrames frames)
     {
-        IntroCinematicSourceArtwork intro = InstalledFixtures.IntroArtwork;
+        ImportIntroCinematicArtwork intro = InstalledFixtures.IntroArtwork;
         if (frames.Family is CinematicSpriteFamily.IntroDiscoveryActor or CinematicSpriteFamily.IntroEggEffect or CinematicSpriteFamily.IntroRinka
             or CinematicSpriteFamily.IntroScientist or CinematicSpriteFamily.IntroMotherBrain or CinematicSpriteFamily.IntroMotherBrainExplosion
             or CinematicSpriteFamily.IntroCaret or CinematicSpriteFamily.IntroNextPageArrow)
@@ -181,7 +181,7 @@ internal static class CinematicSheetFixtures
             return IntroSpriteSheetComposer.Sources([frames], intro);
         }
         ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection);
-        RgbColor[] sprites = [.. ImportIntroCinematicArtwork.Imported(intro).Palette.SpriteColours];
+        RgbColor[] sprites = [.. intro.Palette.SpriteColours];
         return new SpriteSheetSources([.. IntroSpriteSheetComposer.Frames([frames], IntroObjectPage.Of(intro), sizes, (_, _) => FixtureSet)], sprites, sizes,
             PartsKeepOwnRows: true) { Shades = IntroSheetShades.Sprites(sprites) };
     }

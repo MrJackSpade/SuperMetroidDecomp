@@ -19,7 +19,7 @@ internal static class IntroScreenMemory
 {
     /// <summary>The character image of <paramref name="artwork"/> and <paramref name="installedFont"/>, as `$8B:A469-$A529` upload them.</summary>
     [WholeImageFixture("the intro's character image")]
-    internal static byte[] Characters(IntroCinematicSourceArtwork artwork, IntroFontCharacters installedFont, bool japaneseGlyphsBlanked)
+    internal static byte[] Characters(ImportIntroCinematicArtwork artwork, IntroFontCharacters installedFont, bool japaneseGlyphsBlanked)
     {
         ImportIntroCinematicArtwork sources = artwork;
         ReadOnlySpan<byte> font = Ensure.NotNull(installedFont).Characters.Span;
@@ -64,7 +64,7 @@ internal static class IntroScreenMemory
     /// shown; otherwise the cleared staging map's border and blank text rows, the installed final line and its blanked
     /// neighbours, with each shown text cell's letter, or the blank cell, in its colour variant.
     /// </summary>
-    internal static BackgroundTile[] NarrationTiles(IntroNarrationText text, bool firstCardShown, IntroCinematicSourceArtwork artwork)
+    internal static BackgroundTile[] NarrationTiles(IntroNarrationText text, bool firstCardShown, ImportIntroCinematicArtwork artwork)
     {
         var tiles = new BackgroundTile[IntroCinematicDefinitionsPlanesConstants.TextTilemapWordCount];
         if (firstCardShown)
@@ -97,9 +97,9 @@ internal static class IntroScreenMemory
     /// The portrait tilemap the cartridge holds for the eye frame <paramref name="eye"/> the portrait shows (#1467): the
     /// installed portrait with the frame's rectangle over its eye, or the portrait alone before the eye's first frame.
     /// </summary>
-    internal static BackgroundTile[] PortraitTiles(IntroCinematicSourceArtwork artwork, IntroEyeFrame? eye)
+    internal static BackgroundTile[] PortraitTiles(ImportIntroCinematicArtwork artwork, IntroEyeFrame? eye)
     {
-        IntroCinematicSourceArtwork sources = artwork;
+        ImportIntroCinematicArtwork sources = artwork;
         BackgroundTile[] portrait = sources.PortraitTilemap.Span[..IntroCinematicDefinitionsArtworkConstants.SamusHeadTilemapCells].ToArray();
         if (eye is not { } frame)
             return portrait;

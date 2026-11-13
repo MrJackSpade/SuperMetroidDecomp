@@ -70,11 +70,11 @@ internal static class ProjectileSheetComposer
         SamusBeamCombination beams;
         if (sheet == SpriteSheetId.IntroProjectiles)
         {
-            IntroCinematicSourceArtwork intro = inputs.Intro;
+            ImportIntroCinematicArtwork intro = inputs.Intro;
             basePage = IntroObjectPage.Of(intro);
             beams = SamusBeamCombination.Power;
             // The intro loads the beam palette, then its whole palette over it.
-            colours = [.. ImportIntroCinematicArtwork.Imported(intro).Palette.SpriteColours];
+            colours = [.. intro.Palette.SpriteColours];
         }
         else
         {

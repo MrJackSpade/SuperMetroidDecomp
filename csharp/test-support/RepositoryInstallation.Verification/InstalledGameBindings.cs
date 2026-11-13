@@ -27,7 +27,7 @@ internal static class InstalledGameBindings
             ? RepositoryInstallation.Artwork with
             {
                 MapPresentation = InstalledFixtures.Maps,
-                IntroCinematicArt = InstalledFixtures.IntroArtwork,
+                IntroCinematicArt = InstalledFixtures.IntroArtwork.BoundCatalog,
             }
             : installation.LoadGameArtwork(installation.LoadMaps(), installation.LoadProjectiles(), installation.LoadEnemyTiles(), installation.LoadSamusBody());
     }

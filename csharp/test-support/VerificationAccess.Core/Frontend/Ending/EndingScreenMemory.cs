@@ -17,7 +17,7 @@ internal static class EndingScreenMemory
 {
     /// <summary>The image <paramref name="loads"/> leave over the bound artwork.</summary>
     [WholeImageFixture("the ending's VRAM image")]
-    internal static byte[] Compose(EndingScreenLoads loads, EndingFloorCharacters? floor, CeresFlightSourceArtwork? flight, ImportEndingObjectArtwork? objects,
+    internal static byte[] Compose(EndingScreenLoads loads, EndingFloorCharacters? floor, CeresFlightCharacters? flight, ImportEndingObjectArtwork? objects,
         EndingFontCharacters? font, EndingReward reward)
     {
         ArgumentNullException.ThrowIfNull(loads);

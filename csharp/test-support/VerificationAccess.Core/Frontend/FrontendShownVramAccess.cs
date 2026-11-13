@@ -32,7 +32,7 @@ internal static class FrontendShownVramAccess
     /// </summary>
     extension(EndingCreditsState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram() => EndingScreenMemory.Compose(
         EndingScreenLoads.Of(self.Stage.Phase), SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingFloors,
-        SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.IntroArtwork.CeresFlight,
+        SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.IntroArtwork.FlightCharacters,
         SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects,
         // The ending's installed pictures are composed from the installation's ending font (#1583).
         SuperMetroid.AssetExtraction.Frontend.Map.ImportAreaMapPresentation.EndingFontOf(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),

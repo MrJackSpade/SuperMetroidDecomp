@@ -25,7 +25,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
     /// <summary>Compares stock OAM at visible and wrapped origins, then renders the production
     /// discovery scene without cartridge artwork reads.</summary>
     internal static void VerifyIntroDiscoveryActorSpriteArtwork(SuperMetroidAddressSpace bus,
-        IntroCinematicSourceArtwork stock, GameInstallation installation)
+        ImportIntroCinematicArtwork stock, GameInstallation installation)
     {
         const ushort x = 120;
         PictureShade palette = IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors);

@@ -256,7 +256,7 @@ internal static class IntroCinematicArtworkVerification
 
     /// <summary>Compares caret sprite compositions and blink behavior with native OAM output.</summary>
     private static void VerifyIntroCaretSpriteArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
-        IntroCinematicSourceArtwork stock, GameInstallation installation)
+        ImportIntroCinematicArtwork stock, GameInstallation installation)
     {
         Suite(nameof(VerifyCinematicSpriteAnimations), () => VerifyCinematicSpriteAnimations(bus));
         const ushort originX = 8;
@@ -324,7 +324,7 @@ internal static class IntroCinematicArtworkVerification
 
     /// <summary>Checks the installed flashback collision source without rereading its cartridge bytes.</summary>
     private static void VerifyIntroMotherBrainCollision(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
-        IntroCinematicSourceArtwork stock)
+        ImportIntroCinematicArtwork stock)
     {
         RoomTerrainBlock[] native = VerifyIntroMotherBrainCollisionSource(CartridgeImportSource.Require(bus));
         var guarded = NewIntroArtworkSourceReadGuard(bus);
@@ -341,7 +341,7 @@ internal static class IntroCinematicArtworkVerification
 
     /// <summary>Compares installed Mother Brain flashback sprite frames with the cartridge's OAM layout.</summary>
     private static void VerifyIntroMotherBrainSpriteArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
-        IntroCinematicSourceArtwork stock)
+        ImportIntroCinematicArtwork stock)
     {
         // The cartridge oracle takes the sprite set Mother Brain's colouring resolves to as its attribute bits; the port's
         // draw takes the colouring itself.
@@ -373,7 +373,7 @@ internal static class IntroCinematicArtworkVerification
 
     /// <summary>Checks explosion sprite compositions and rejects a document missing a named frame.</summary>
     private static void VerifyIntroMotherBrainExplosionSpriteArtwork(
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, IntroCinematicSourceArtwork stock,
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, ImportIntroCinematicArtwork stock,
         GameInstallation installation)
     {
         const ushort x = 120;

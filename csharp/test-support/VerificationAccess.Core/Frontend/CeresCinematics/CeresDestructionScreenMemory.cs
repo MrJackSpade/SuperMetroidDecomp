@@ -25,7 +25,7 @@ internal static class CeresDestructionScreenMemory
     /// leaves with Samus still aboard, which clears both views and so shows no floor.
     /// </summary>
     [WholeImageFixture("the Ceres destruction's memory image")]
-    internal static byte[] Compose(IntroCinematicSourceArtwork artwork, CeresFloorShot? floor, bool zebesRevealed, bool clearedWithSamusAboard = false)
+    internal static byte[] Compose(ImportIntroCinematicArtwork artwork, CeresFloorShot? floor, bool zebesRevealed, bool clearedWithSamusAboard = false)
     {
         if (clearedWithSamusAboard && floor is not null)
             throw new ArgumentException("The explosion with Samus aboard leaves no floor shot.", nameof(floor));
@@ -33,11 +33,11 @@ internal static class CeresDestructionScreenMemory
         var mode7 = new Mode7Vram(vram);
         var ceres = new CeresVram(vram);
         var views = new byte[CeresFloorShotDefinitions.MapCells];
-        artwork.CeresFlight.FloorMaps.Span.CopyTo(views);
-        artwork.CeresDestructionMaps.Views.Span[..(views.Length - artwork.CeresFlight.FloorMaps.Length)].CopyTo(views.AsSpan(artwork.CeresFlight.FloorMaps.Length));
+        artwork.FlightCharacters.FloorMaps.Span.CopyTo(views);
+        artwork.CeresDestructionMaps.Views.Span[..(views.Length - artwork.FlightCharacters.FloorMaps.Length)].CopyTo(views.AsSpan(artwork.FlightCharacters.FloorMaps.Length));
         if (floor is not null || clearedWithSamusAboard)
         {
-            mode7.LoadCharacters(artwork.CeresFlight.FloorCharacters.Span[..CeresFlightArtworkFileFormat.FloorByteCount]);
+            mode7.LoadCharacters(artwork.FlightCharacters.FloorCharacters.Span[..CeresFlightArtworkFileFormat.FloorByteCount]);
             mode7.FillMap(CeresFloorShotDefinitions.BlankTile, FloorSheetComposer.CellCount);
             mode7.LoadMap(views.AsSpan(CeresFloorShotDefinitions.StationStart, CeresFloorShotDefinitions.StationCells));
             if (clearedWithSamusAboard || floor is CeresFloorShot.Explosion or CeresFloorShot.ZebesApproach)

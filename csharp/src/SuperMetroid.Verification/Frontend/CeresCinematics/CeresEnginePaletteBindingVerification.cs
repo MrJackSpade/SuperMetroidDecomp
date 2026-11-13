@@ -24,7 +24,7 @@ internal static class CeresEnginePaletteBindingVerification
     {
         // The repository installation's shared loads: the scene reads them and never writes them.
         AreaMapPresentation stock = InstalledFixtures.Maps;
-        IntroCinematicSourceArtwork artwork = InstalledFixtures.IntroArtwork;
+        ImportIntroCinematicArtwork artwork = InstalledFixtures.IntroArtwork;
         InstalledSpriteSheets sheets = InstalledFixtures.SpriteSheets;
         RgbColor[] nativeColors = [RgbColor.White, RgbColor.Black]; // Pinned $8D:C880/$C886, not runtime ROM reads.
         var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());

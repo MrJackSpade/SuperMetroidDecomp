@@ -14,10 +14,10 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 internal static class CeresDestructionObjectPage
 {
     /// <summary>The page's characters, with the Zebes reveal's loaded when <paramref name="zebesRevealed"/>.</summary>
-    internal static byte[] Characters(IntroCinematicSourceArtwork artwork, bool zebesRevealed)
+    internal static byte[] Characters(ImportIntroCinematicArtwork artwork, bool zebesRevealed)
     {
         var page = new byte[CeresFlightArtworkFileFormat.ObjectByteCount];
-        artwork.CeresFlight.ObjectCharacters.Span[..CeresFlightArtworkFileFormat.ObjectByteCount].CopyTo(page);
+        artwork.FlightCharacters.ObjectCharacters.Span[..CeresFlightArtworkFileFormat.ObjectByteCount].CopyTo(page);
         // The station's setup loads the standard cinematic sheet over the start of the flight's object characters.
         artwork.IntroObjectCharacters.Characters.Span[..CeresFlightArtworkFileFormat.SharedObjectCharacterBytes].CopyTo(page);
         if (zebesRevealed)

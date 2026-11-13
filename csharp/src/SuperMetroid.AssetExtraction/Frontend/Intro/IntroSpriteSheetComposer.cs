@@ -75,7 +75,7 @@ internal static class IntroSpriteSheetComposer
     }
 
     /// <summary>What the intro sheet composes.</summary>
-    internal static SpriteSheetSources Sources(IntroCinematicSourceArtwork intro)
+    internal static SpriteSheetSources Sources(ImportIntroCinematicArtwork intro)
     {
         Ensure.NotNull(intro);
         return Sources(Families(intro), intro);
@@ -87,11 +87,11 @@ internal static class IntroSpriteSheetComposer
     /// sheet pictures every frame in its own colours.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">A family is not one the opening draws.</exception>
-    internal static SpriteSheetSources Sources(IEnumerable<ICinematicSpriteFrames> families, IntroCinematicSourceArtwork intro)
+    internal static SpriteSheetSources Sources(IEnumerable<ICinematicSpriteFrames> families, ImportIntroCinematicArtwork intro)
     {
         Ensure.NotNull(intro);
         // The intro's actors draw in each colouring and cross-fade level as shades of the sheet (#1512).
-        RgbColor[] sprites = [.. ImportIntroCinematicArtwork.Imported(intro).Palette.SpriteColours];
+        RgbColor[] sprites = [.. intro.Palette.SpriteColours];
         return Compose(families, IntroObjectPage.Of(intro), (family, _) => IntroSheetInks.SpriteSet(IntroFamilyColourings.Of(family)),
             sprites, IntroSheetShades.Sprites(sprites));
     }
@@ -111,7 +111,7 @@ internal static class IntroSpriteSheetComposer
     /// scene's destruction and shared Ceres flight families, over the OBJ characters the station's scene loads, coloured
     /// as the scene loads the flight's palette (#1513).
     /// </summary>
-    internal static SpriteSheetSources CeresDestructionSources(IntroCinematicSourceArtwork intro) =>
+    internal static SpriteSheetSources CeresDestructionSources(ImportIntroCinematicArtwork intro) =>
         DestructionSources(intro, DestructionSceneFamilies(Ensure.NotNull(intro)), CeresSceneActors.Destruction(),
             CeresDestructionObjectPage.Characters(intro, zebesRevealed: false));
 
@@ -119,7 +119,7 @@ internal static class IntroSpriteSheetComposer
     /// What the Zebes reveal's sheet composes: the poses the reveal's actors show over the OBJ characters once the reveal
     /// loads its own (#1513).
     /// </summary>
-    internal static SpriteSheetSources ZebesRevealSources(IntroCinematicSourceArtwork intro) =>
+    internal static SpriteSheetSources ZebesRevealSources(ImportIntroCinematicArtwork intro) =>
         DestructionSources(intro, ZebesRevealFamilies(Ensure.NotNull(intro)), CeresSceneActors.ZebesReveal(),
             CeresDestructionObjectPage.Characters(intro, zebesRevealed: true));
 
@@ -127,11 +127,11 @@ internal static class IntroSpriteSheetComposer
     /// <paramref name="families"/> over the OBJ <paramref name="characters"/> the scene has loaded, each pose in the
     /// colouring <paramref name="colourings"/> names for it.
     /// </summary>
-    private static SpriteSheetSources DestructionSources(IntroCinematicSourceArtwork intro, IEnumerable<ICinematicSpriteFrames> families,
+    private static SpriteSheetSources DestructionSources(ImportIntroCinematicArtwork intro, IEnumerable<ICinematicSpriteFrames> families,
         Dictionary<CinematicSpritePose, CeresSpriteColouring> colourings, byte[] characters)
     {
         SpriteArtwork page = CeresDestructionObjectPage.Of(characters);
-        return CeresSources(families, colourings, page, ImportIntroCinematicArtwork.Imported(intro).FlightPalette);
+        return CeresSources(families, colourings, page, intro.FlightPalette);
     }
 
     /// <summary>The frames the Ceres destruction scene's sheet holds: the poses its actors show before the reveal (#1513).</summary>
@@ -146,7 +146,7 @@ internal static class IntroSpriteSheetComposer
     internal static IEnumerable<string> FrameNames(IntroCinematicSourceArtwork intro) => FrameNames(Families(Ensure.NotNull(intro)));
 
     /// <summary>The frames the Ceres flight sheet of <paramref name="flight"/> holds: the poses its actors show (#1513).</summary>
-    internal static IEnumerable<string> CeresFlightFrameNames(CeresFlightCharacters flight) =>
+    internal static IEnumerable<string> CeresFlightFrameNames(CeresFlightSourceArtwork flight) =>
         FrameNames(FlightFamilies(Ensure.NotNull(flight)));
 
     /// <summary>

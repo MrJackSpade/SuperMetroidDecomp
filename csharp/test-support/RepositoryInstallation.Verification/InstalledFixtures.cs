@@ -338,13 +338,13 @@ internal static class InstalledFixtures
     internal static SamusState CreateSamus() => BindSamus(new SamusState(AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()));
 
     /// <summary>Creates Ceres destruction with installed cinematic art and fixed colors.</summary>
-    internal static CeresDestructionCinematicState CreateDestruction(AudioQueues? audio = null, IntroCinematicSourceArtwork? artwork = null) =>
+    internal static CeresDestructionCinematicState CreateDestruction(AudioQueues? audio = null, ImportIntroCinematicArtwork? artwork = null) =>
         new(audio, Maps.PowerBombFixedColors, (artwork ?? IntroArtwork).BoundCatalog,
             spriteSheets: CinematicSheetFixtures.WithIntro(artwork ?? IntroArtwork));
 
     /// <summary>Creates an intro scene with installed character, projectile, narration, and hurt-color art.</summary>
     internal static IntroCinematicState CreateIntro(AudioQueues? audio = null,
-        IntroCinematicSourceArtwork? characterArtwork = null,
+        ImportIntroCinematicArtwork? characterArtwork = null,
         InstalledSamusBodyArtwork? samusBodyArtwork = null)
     {
         var intro = new IntroCinematicState(new IntroCinematicOverreads(SamusOverreads, BossAndIntroOverreads.ShellFragmentFallPastCurve), audio,

@@ -18,7 +18,7 @@ internal static class CeresExplosionVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var guarded = NewForbiddenPowerBombColorBus(bus);
-        IntroCinematicSourceArtwork artwork = InstalledFixtures.IntroArtwork;
+        ImportIntroCinematicArtwork artwork = InstalledFixtures.IntroArtwork;
         InstalledPowerBombFixedColors stockColors = colors ?? PowerBombFixedColorFile.Read(
             new MemoryStream(PowerBombFixedColorExtractor.Extract(bus)));
         var scene = new CeresDestructionCinematicState(fixedColors: stockColors, artwork: artwork.BoundCatalog,

@@ -31,10 +31,10 @@ internal sealed class SpriteSheetSourceCatalog
     /// <summary>The menus' presentation.</summary>
     private readonly Lazy<AreaMapPresentation> maps;
     /// <summary>The opening cinematic's artwork.</summary>
-    private readonly Lazy<IntroCinematicSourceArtwork> intro;
+    private readonly Lazy<ImportIntroCinematicArtwork> intro;
 
     /// <summary>The ending's sprite artwork.</summary>
-    private readonly Lazy<EndingObjectSourceArtwork> ending;
+    private readonly Lazy<ImportEndingObjectArtwork> ending;
 
     /// <summary>The ending's colours, decoded from the cartridge.</summary>
     private readonly EndingPaletteSet endingPalettes;
@@ -100,8 +100,8 @@ internal sealed class SpriteSheetSourceCatalog
         SpriteSheetId.PauseSprites => PauseSheetComposer.Sources(maps.Value),
         SpriteSheetId.Title => TitleSheetComposer.Sources(maps.Value),
         SpriteSheetId.IntroSprites => IntroSpriteSheetComposer.Sources(intro.Value),
-        SpriteSheetId.CeresFlightSprites => IntroSpriteSheetComposer.CeresFlightSources(intro.Value.CeresFlight,
-            ImportIntroCinematicArtwork.Imported(intro.Value).FlightPalette),
+        SpriteSheetId.CeresFlightSprites => IntroSpriteSheetComposer.CeresFlightSources(intro.Value.FlightCharacters,
+            intro.Value.FlightPalette),
         SpriteSheetId.CeresDestructionSprites => IntroSpriteSheetComposer.CeresDestructionSources(intro.Value),
         SpriteSheetId.ZebesRevealSprites => IntroSpriteSheetComposer.ZebesRevealSources(intro.Value),
         SpriteSheetId.EndingCloudSprites or SpriteSheetId.EndingExplosionSprites or

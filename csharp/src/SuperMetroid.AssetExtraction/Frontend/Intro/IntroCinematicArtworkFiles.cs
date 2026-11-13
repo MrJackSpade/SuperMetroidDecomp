@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
@@ -514,8 +515,9 @@ public static class IntroCinematicArtworkFiles
         }
     }
 
-    /// <summary>Checks the manifest's provenance and coverage, then reads every installed file the game binds as installed.</summary>
-    private static IntroCinematicArtworkParts ReadParts(string directory)
+    /// <summary>Checks that the manifest in <paramref name="directory"/> names this cartridge and every installed file.</summary>
+    /// <exception cref="InvalidDataException">The manifest does not decode or does not describe this installation.</exception>
+    private static void RequireManifest(string directory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         string manifestPath = Path.Combine(directory, IntroCinematicArtworkFormat.ManifestFileName);
@@ -537,7 +539,12 @@ public static class IntroCinematicArtworkFiles
             manifest.StockSha256 is null || manifest.StockSha256.Count != names.Length ||
             names.Any(name => !manifest.StockSha256.ContainsKey(name)))
             throw new InvalidDataException($"Intro artwork manifest {manifestPath} does not describe this installation.");
+    }
 
+    /// <summary>Checks the manifest's provenance and coverage, then reads every installed document the import composes from as installed.</summary>
+    private static IntroCinematicArtworkParts ReadParts(string directory)
+    {
+        RequireManifest(directory);
         IntroBackdrops backdrops = ReadBackdrops(directory);
         return new IntroCinematicArtworkParts { BackgroundPages = Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
                 .Select(page => LoadPage(IntroCinematicArtworkFormat.BackgroundPageFileName(page)))
@@ -557,7 +564,7 @@ public static class IntroCinematicArtworkFiles
             }
         }
 
-        CeresFlightArtwork LoadCeresFlight()
+        CeresFlightSourceArtwork LoadCeresFlight()
         {
             (string mapPath, byte[] map) = ReadInstalled(CeresFlightArtworkFileFormat.MapFileName);
             (string spritesPath, byte[] sprites) = ReadInstalled(CeresFlightSpriteFormat.FileName);

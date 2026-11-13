@@ -25,11 +25,11 @@ internal static class IntroScenePictureSheetComposer
     private const int CharacterPixels = RoomTileCanvas.CharacterPixels;
 
     /// <summary>Composes the sheet from the installed intro artwork.</summary>
-    internal static ComposedSpriteSheet Compose(IntroCinematicSourceArtwork intro)
+    internal static ComposedSpriteSheet Compose(ImportIntroCinematicArtwork intro)
     {
         Ensure.NotNull(intro);
         byte[] characters = intro.BackgroundCharacters.Characters.Span[..IntroArtworkExtentDefinitions.BackgroundCharacterBytes].ToArray();
-        RgbColor[] colours = [.. ImportIntroCinematicArtwork.Imported(intro).Palette.BackgroundColours];
+        RgbColor[] colours = [.. intro.Palette.BackgroundColours];
         int cells = IntroScenePictures.PlaneCells;
         int planeCells = cells * cells;
         IntroScenePage[] pages = Enum.GetValues<IntroScenePage>();
@@ -39,7 +39,7 @@ internal static class IntroScenePictureSheetComposer
         int height = ((pages.Length + 1) * cells + eye.Y) * CharacterPixels;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)width), checked((ushort)height)));
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
-        IntroCinematicSourceArtwork sources = intro;
+        ImportIntroCinematicArtwork sources = intro;
         ReadOnlySpan<BackgroundTile> pageTiles = sources.BackgroundPages.Span;
         for (int page = 0; page < pages.Length; page++)
             frames.Add(IntroScenePictures.Page(pages[page]),

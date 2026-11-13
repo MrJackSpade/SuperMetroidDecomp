@@ -126,9 +126,9 @@ public static class RoomCharacterArtworkFiles
         {
             [RoomCharacterSheetFiles.CreFileName] = new(null),
         };
-        for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        foreach (TilesetDefinition tileset in RoomTilesets.All)
         {
-            RoomCharacterSet set = RoomTilesets.Get(graphicsSet).Characters;
+            RoomCharacterSet set = tileset.Characters;
             sources[RoomCharacterSheetFiles.FileName(set)] = new(set);
         }
         sources[RoomCharacterSheetFiles.FileName(RoomCharacterSet.TourianStatueGhost)] =

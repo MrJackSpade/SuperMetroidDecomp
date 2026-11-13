@@ -1411,17 +1411,17 @@ internal static class LookupStream4Verification
         Suite(nameof(VerifyLookupStream4StatueColors), () => VerifyLookupStream4StatueColors(rom));
         Suite(nameof(VerifyLookupStream4Programs), () => VerifyLookupStream4Programs(rom));
         Suite(nameof(VerifyLookupStream4ProgramConsumers), () => VerifyLookupStream4ProgramConsumers(rom));
-        for (byte theme = 0; theme < RoomTilesetDefinitions.Count; theme++)
+        for (byte theme = 0; theme < RoomGraphicsSetCodec.Count; theme++)
         {
             ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8fe7a7 + 2 * theme));
             int source = 0x8f0000 | pointer;
-            TilesetDefinition actual = RoomTilesets.Get(theme);
+            TilesetDefinition actual = RoomTilesets.Get(RoomGraphicsSetCodec.Decode(theme));
             AssertEqual(Long(source), actual.BlockDefinitionsAddress, "tileset native theme block resource");
             AssertEqual(Long(source + 3), actual.CharacterAddress, "tileset native theme character resource");
             AssertEqual(Long(source + 6), actual.PaletteAddress, "tileset native theme palette resource");
         }
         foreach (byte invalid in new byte[] { 0x1d, 0x7f, 0xff })
-            AssertThrows<InvalidDataException>(() => RoomTilesets.Get(invalid), "tileset exact graphics-theme domain");
+            AssertThrows<InvalidDataException>(() => RoomGraphicsSetCodec.Decode(invalid), "tileset exact graphics-theme domain");
         int Long(int address) => CartridgeImportSource.Require(rom).ReadCartridgeLong(address);
         int[] nativeBackgroundSources = LibraryBackgroundSourceInventory.Scan(rom)
             .Where(instruction => instruction.Command == LibraryBackgroundCommand.Decompress)

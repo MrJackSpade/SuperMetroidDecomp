@@ -89,11 +89,11 @@ internal static class RoomContentIdentityVerification
         }
         RoomCharacterAtlas character = Characters(edited == GameInstallationLayout.RoomCharacterDirectoryName);
         var chars = new Dictionary<int, RoomCharacterAtlas>();
-        IEnumerable<int> sets = Enumerable.Range(0, RoomTilesetDefinitions.Count);
+        IEnumerable<int> sets = Enumerable.Range(0, RoomGraphicsSetCodec.Count);
         if (reverse) sets = sets.Reverse();
         foreach (int set in sets)
         {
-            var definition = RoomTilesets.Get((byte)set);
+            var definition = RoomTilesets.Get(RoomGraphicsSetCodec.Decode(set));
             chars[definition.CharacterAddress] = character;
         }
         bool editLayout = edited == GameInstallationLayout.RoomVisualLayoutDirectoryName;

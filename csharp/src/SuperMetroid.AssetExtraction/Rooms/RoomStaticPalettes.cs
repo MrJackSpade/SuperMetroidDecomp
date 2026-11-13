@@ -15,11 +15,11 @@ public sealed class RoomStaticPalettes
     public RoomStaticPalettes(IReadOnlyDictionary<RoomPaletteSet, RoomStaticPalette> palettes)
     {
         Ensure.NotNull(palettes);
-        for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
+        foreach (TilesetDefinition tileset in RoomTilesets.All)
         {
-            RoomPaletteSet required = RoomTilesets.Get(graphicsSet).Palette;
+            RoomPaletteSet required = tileset.Palette;
             if (!palettes.TryGetValue(required, out RoomStaticPalette? value) || value is null)
-                throw new InvalidDataException($"RoomStaticPalettes lacks graphics set ${graphicsSet:X2}'s {required}.");
+                throw new InvalidDataException($"RoomStaticPalettes lacks graphics set {tileset.GraphicsSet}'s {required}.");
         }
         byRoomPaletteSet = new Dictionary<RoomPaletteSet, RoomStaticPalette>(palettes);
     }

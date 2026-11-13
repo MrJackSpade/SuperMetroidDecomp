@@ -40,7 +40,7 @@ internal static class EtecoonFanfareVerification
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(level) with { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus });
             AssertEqual(0, enemies.Audio.SoundRequests.Count, "transition does not consume the Etecoon fanfare");
             foreach (var state in enemies.EtecoonStates.Where(state => state is not null))
-                AssertEqual((ushort)0xffff, (state ?? throw new InvalidOperationException("Verification requires state.")).FunctionTimer.RawValue, "transition preserves dormant Etecoon timer");
+                AssertTrue((state ?? throw new InvalidOperationException("Verification requires state.")).AwaitingSamus, "the transition keeps the Etecoon dormant");
         }
         enemies.ElevatorBehavior.ElevatorDoorTransitionActive = false;
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(level) with { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus });
@@ -50,6 +50,8 @@ internal static class EtecoonFanfareVerification
             "native Etecoon fanfare identity");
         AssertEqual(15, request.Priority.Requests, "native wake request uses Max15");
         AssertEqual((ushort)256, (enemies.EtecoonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.EtecoonStates[0].")).FunctionTimer.RawValue, "wake begins flexing timer");
+        AssertTrue(!(enemies.EtecoonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.EtecoonStates[0].")).AwaitingSamus,
+            "Samus coming level wakes the Etecoon");
 
         var renderer = AudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
         var queue = AudioQueues.Standalone();

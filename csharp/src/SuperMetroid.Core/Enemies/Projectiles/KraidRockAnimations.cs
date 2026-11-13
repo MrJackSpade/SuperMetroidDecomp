@@ -9,18 +9,16 @@ internal static class KraidRockAnimations
     /// <summary>Frames in the spat rock's burst.</summary>
     internal const int ShotPhaseCount = 5;
 
-    /// <summary>The still poses last the maximum, so the rock holds them for good in play.</summary>
-    private const int StillFrameDuration = 32767;
-
     /// <summary>
-    /// Each rock segment's beats: the shared and right rising rocks show their still pose; the spat rock's burst takes the
-    /// burst's frame behaviour, shows five four-update frames, then deletes itself.
+    /// Each rock segment's beats: the shared and right rising rocks hold their still pose for good (#1627: the original's
+    /// lists show it for the longest frame a list gives and then rest on it); the spat rock's burst takes the burst's frame
+    /// behaviour, shows five four-update frames, then deletes itself.
     /// </summary>
     internal static AnimationSegments<KraidRockProgram, KraidRockFrame, KraidRockCue> Segments { get; } = new(
         new Dictionary<KraidRockProgram, Beat[]>
         {
-            [KraidRockProgram.SharedPose] = [new Beat.Frame(new(KraidRockProgram.SharedPose, 0), StillFrameDuration)],
-            [KraidRockProgram.RisingRightPose] = [new Beat.Frame(new(KraidRockProgram.RisingRightPose, 0), StillFrameDuration)],
+            [KraidRockProgram.SharedPose] = [new Beat.HeldFrame(new(KraidRockProgram.SharedPose, 0))],
+            [KraidRockProgram.RisingRightPose] = [new Beat.HeldFrame(new(KraidRockProgram.RisingRightPose, 0))],
             [KraidRockProgram.SpitRockShot] =
             [
                 new Beat.Event(KraidRockCue.DrawFromSharedSheetFromNextPass),

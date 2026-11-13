@@ -43,7 +43,23 @@ internal static class EnemyExtendedFrameDisplaysVerification
                 pictured++;
         }
         AssertTrue(installed > 0 && pictured > 0, "the installation holds pictured enemy frames");
-        Console.WriteLine($"  Enemy frame displays: {installed} frames, {pictured} pictured, match their compositions.");
+        VerifyDisplayBindingsAreComplete();
+        Console.WriteLine($"  Enemy frame displays: {installed} frames, {pictured} pictured, match their compositions; every binding displays an installed frame.");
+    }
+
+    /// <summary>
+    /// A frame bound to another is displayed through that frame alone (#1627): a binding naming a frame the installation
+    /// does not hold is rejected as the displays are built, rather than the bound frame displaying itself in its place.
+    /// </summary>
+    private static void VerifyDisplayBindingsAreComplete()
+    {
+        EnemyFrameId[] drawn = [.. Enum.GetValues<EnemyFrameId>().Where(frame => !CommonEnemyEmptyFrames.DrawsNothing(frame)).Take(3)];
+        (EnemyFrameId shown, EnemyFrameId displayedFrame, EnemyFrameId missing) = (drawn[0], drawn[1], drawn[2]);
+        var bound = new EnemyFrameDisplays([shown, displayedFrame], [displayedFrame], new() { [shown] = displayedFrame });
+        AssertTrue(bound.TryGetDisplay(shown, out bool boundPicture) && boundPicture,
+            "a bound frame is displayed through the installed frame its binding names");
+        AssertThrows<InvalidDataException>(() => new EnemyFrameDisplays([shown], [shown], new() { [shown] = missing }),
+            "a binding naming a frame the installation does not hold is rejected, even when the bound frame is installed");
     }
 
     /// <summary>Runs the focused enemy frame display check.</summary>

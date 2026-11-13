@@ -12,10 +12,10 @@ using SuperMetroid.Core.Enemies.WorkRobots;
 
 namespace SuperMetroid.Core.World.RoomStates;
 
-/// <summary>The placement lists of the Wrecked Ship room-header region, in authored order.</summary>
+/// <summary>The enemy placement lists of the Wrecked Ship rooms.</summary>
 internal static class WreckedShipRoomEnemyPopulationDefinitions
 {
-    /// <summary>The region's lists, in authored order.</summary>
+    /// <summary>The Wrecked Ship rooms' lists.</summary>
     internal static RoomEnemyPopulationDefinition[] Build() =>
     [
         new(nameof(RoomEnemyPopulationDefinitions.SpongeBathWhenAreaBossDead),

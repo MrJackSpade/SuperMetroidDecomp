@@ -9,14 +9,19 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// <summary>How the grapple connects at each special angle: the stop or its reflection, firing cancellation and the pose a release drops into.</summary>
 internal static class GrappleConnections
 {
-    /// <summary>The record at <paramref name="index"/>: an authored stop or the reflection that follows it.</summary>
-    internal static SpecialConnection SpecialAngle(int index)
-    {
-        if ((uint)index >= SpecialAngleCount) throw new ArgumentOutOfRangeException(nameof(index));
-        SpecialConnection stop = AuthoredStops[index >> 1];
-        return (index & 1) == 0 ? stop : new(RotationAngle.FromRaw(ReflectionAngle) - stop.Angle, SamusPoseMirror.Of(stop.Pose),
-            stop.SamusOffset.MirroredX(), stop.Function);
-    }
+    /// <summary>
+    /// The special connections in the order a swing compares them: each authored stop followed by its left/right
+    /// reflection.
+    /// </summary>
+    internal static IReadOnlyList<SpecialConnection> SpecialConnections { get; } =
+        [.. AuthoredStops.SelectMany(stop => new[] { stop, Reflection(stop) })];
+
+    /// <summary>
+    /// The mirror of <paramref name="stop"/> on the other side: its angle reflected as <see cref="ReflectionTurn"/>
+    /// less its own, its X offset negated and its pose facing the other way; its Y offset and function are shared.
+    /// </summary>
+    internal static SpecialConnection Reflection(SpecialConnection stop) =>
+        new(ReflectionTurn - stop.Angle, SamusPoseMirror.Of(stop.Pose), stop.SamusOffset.MirroredX(), stop.Function);
 
     /// <summary>Grapple cancellation policy for the 28 movement dispatch identities.</summary>
     internal static bool CancelsFiring(SamusMovementType movement) => movement switch

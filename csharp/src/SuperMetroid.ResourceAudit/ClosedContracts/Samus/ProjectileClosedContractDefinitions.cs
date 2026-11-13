@@ -39,7 +39,7 @@ internal static class ProjectileClosedContractDefinitions
         new("SuperMetroid.AssetExtraction.Samus.InstalledGrappleSprites", "grapple-complete-endpoint-and-segments", ["Segment"],
             [new("csharp/src/SuperMetroid.AssetExtraction/Samus/InstalledGrappleSprites.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/GrappleSpriteDefinitions.cs")]),
-        new("SuperMetroid.Core.Samus.Artwork.InstalledGrappleSwingFrames", "grapple-complete-byte-angle-display-map", ["Resolve"],
+        new("SuperMetroid.Core.Samus.Artwork.InstalledGrappleSwingFrames", "grapple-complete-swing-direction-display-map", ["Resolve"],
             [new("csharp/src/SuperMetroid.Core/Samus/Artwork/InstalledGrappleSwingFrames.cs")]),
         new("SuperMetroid.AssetExtraction.Samus.InstalledProjectileSprites", "projectile-production-complete-compositions", ["Frame"],
             [new("csharp/src/SuperMetroid.AssetExtraction/Samus/InstalledProjectileSprites.cs"),

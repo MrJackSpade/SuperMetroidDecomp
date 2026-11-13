@@ -56,8 +56,8 @@ public sealed class MotherBrainRainbowBeamEffect
         TrigonometryAngle halfWidth = angularWidth.WholeStep.DividedBy(2).ToTrigonometryAngle();
         Geometry = new(new(CoordinateAxis.Wrap(head.X + MotherBrainBeamDefinitions.MouthXOffset),
                 CoordinateAxis.Wrap(head.Y + MotherBrainBeamDefinitions.MouthYOffset)),
-            (angle.ToTrigonometryAngle() - halfWidth).RawValue,
-            (angle.ToTrigonometryAngle() + halfWidth).RawValue);
+            angle.ToTrigonometryAngle() - halfWidth,
+            angle.ToTrigonometryAngle() + halfWidth);
     }
 
     /// <summary>The installed colour cycle; fails if rainbow presentation colours were never bound.</summary>

@@ -25,6 +25,9 @@ public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
     /// <param name="units">The computed angle in table units, which may lie outside one turn.</param>
     public static TrigonometryAngle Wrapped(int units) => new(unchecked((byte)units));
 
+    /// <summary>No turn: right.</summary>
+    public static TrigonometryAngle Zero { get; } = new(0);
+
     /// <summary>One quarter turn: up.</summary>
     public static TrigonometryAngle QuarterTurn { get; } = new(0x40);
 
@@ -45,6 +48,27 @@ public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
 
     /// <summary>The angle turned on by <paramref name="turn"/>, wrapping around the full turn.</summary>
     public TrigonometryAngle TurnedBy(TrigonometryAngle turn) => Wrapped(RawValue + turn.RawValue);
+
+    /// <summary>
+    /// The turn from <paramref name="origin"/> to this angle the shorter way round, in steps, -128 through 127: negative
+    /// when this angle lies behind the origin, as an edge compares itself with a limit it may not cross.
+    /// </summary>
+    public int StepsFrom(TrigonometryAngle origin) => unchecked((sbyte)(RawValue - origin.RawValue));
+
+    /// <summary>
+    /// Which of <paramref name="directions"/> equally spaced directions, numbered from zero at <see cref="Zero"/>, lies
+    /// nearest this angle: an angle halfway between two takes the later one, and an angle within half a spacing before
+    /// a full turn takes the first.
+    /// </summary>
+    /// <param name="directions">The number of directions the turn holds, 1 through 256.</param>
+    public int NearestDirection(int directions)
+    {
+        Ensure.BetweenInclusive(1, StepsPerTurn, directions);
+        return (RawValue * directions + StepsPerTurn / 2) / StepsPerTurn % directions;
+    }
+
+    /// <summary>The steps in one full turn.</summary>
+    private const int StepsPerTurn = 256;
 
     /// <summary>The angle turned on by <paramref name="turn"/>, wrapping around the full turn.</summary>
     public static TrigonometryAngle operator +(TrigonometryAngle angle, TrigonometryAngle turn) => angle.TurnedBy(turn);

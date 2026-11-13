@@ -54,7 +54,7 @@ internal static class D3D11WindowPacking
                         oval.Radii.X, oval.Radii.Y);
                     break;
                 case WindowCone cone:
-                    Write(row, ShapeKind.Cone, cone.Apex.X, cone.Apex.Y, cone.FirstEdge, cone.SecondEdge, 0);
+                    Write(row, ShapeKind.Cone, cone.Apex.X, cone.Apex.Y, cone.FirstEdge.RawValue, cone.SecondEdge.RawValue, 0);
                     break;
                 default:
                     throw new NotSupportedException($"The backend cannot draw a {shapes[index].GetType().Name} window shape.");

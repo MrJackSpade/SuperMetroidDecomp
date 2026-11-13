@@ -28,12 +28,12 @@ internal static class ColorWindowSmokeTests
         // Seeded windows of every shape kind (#1468), whole and stepped colours.
         for (int sample = 0; sample < 64; sample++)
         {
-            int firstEdge = random.Next(WindowCone.AngleUnitsPerTurn);
+            int firstEdge = random.Next(RotationAngle.StepsPerTurn);
             int left = random.Next(-32, 256), top = random.Next(-32, 224);
             WindowShape[] shapes =
             [
                 new WindowCone(Offset16<ScreenPixels>.Of(random.Next(-64, 320), random.Next(-64, 288)),
-                    firstEdge, firstEdge + random.Next(WindowCone.AngleUnitsPerTurn / 2)),
+                    new TrigonometryAngle(firstEdge), TrigonometryAngle.Wrapped(firstEdge + random.Next(RotationAngle.StepsPerTurn / 2))),
                 WindowRectangle.Spanning(left, top, left + random.Next(64), top + random.Next(64)),
                 new WindowOval(Offset16<ScreenPixels>.Of(random.Next(-64, 320), random.Next(-64, 288)), random.Next(64),
                     new Extent16<ScreenPixels>(checked((ushort)(1 + random.Next(128))), checked((ushort)(1 + random.Next(128))))),

@@ -12,9 +12,9 @@ internal abstract record ChozoStatueCue
     /// <param name="Offset">Where a <see cref="Footstep"/> cue probes for spikes, relative to the statue; only its X is meaningful.</param>
     internal sealed record Footstep(Offset16<RoomPixels> Offset) : ChozoStatueCue;
 
-    /// <summary>Moves the statue by the operand's carry-motion entry and carries Samus.</summary>
-    /// <param name="CarryRecord">The carry-motion record, 0 through 31, a <see cref="Move"/> cue moves by.</param>
-    internal sealed record Move(int CarryRecord) : ChozoStatueCue;
+    /// <summary>Moves the statue by the operand's carry step and carries Samus.</summary>
+    /// <param name="Step">The facing and carry pose a <see cref="Move"/> cue moves by.</param>
+    internal sealed record Move(ChozoCarryStep Step) : ChozoStatueCue;
 
     /// <summary>Sets the frame behaviour main AI runs.</summary>
     /// <param name="FrameBehavior">The cue's FrameBehavior operand.</param>

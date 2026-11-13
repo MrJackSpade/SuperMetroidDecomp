@@ -23,9 +23,9 @@ internal static class ChootOwnedStateVerification
         ChootEnemyState state = enemies.ChootStates[0]
             ?? throw new InvalidOperationException("The initialized Choot has no state.");
 
-        int initial = state.InitialYSpeedTableIndex;
+        int initial = state.InitialYSpeedTableIndex.WholeRows;
         AssertTrue(initial > 0 && initial % 2 == 0, "the ascent starts at a positive even record index");
-        AssertEqual(initial, state.YSpeedTableIndex, "the ascent starts at the calculated index");
+        AssertEqual(EnemyQuadraticSpeedIndex.FromRows(initial), state.YSpeedTableIndex, "the ascent starts at the calculated index");
         int jumpingUpdates = 0;
         while (state.Function != ChootEnemyFunction.Falling)
         {
@@ -34,7 +34,7 @@ internal static class ChootOwnedStateVerification
             AssertTrue(jumpingUpdates <= initial, "the jump reaches its apex");
         }
         AssertEqual(initial / 2 + 1, jumpingUpdates, "the apex is the update that takes the index below zero");
-        AssertEqual(-2, state.YSpeedTableIndex, "the index stays below zero through the fall");
+        AssertEqual(EnemyQuadraticSpeedIndex.FromRows(-2), state.YSpeedTableIndex, "the index stays below zero through the fall");
         AssertEqual(0, state.FallingPatternFrame, "the fall starts at its first frame");
         Console.WriteLine("Choot owned state: the apex underflow matches.");
     }

@@ -80,10 +80,11 @@ public sealed class PipeBugEnemyState
     /// <summary>Gets the yellow Pipe Bug's countdown before straight flight begins.</summary>
     public int EmergenceDelay { get; internal set; }
     /// <summary>
-    /// The quadratic-speed record a yellow Pipe Bug's arc reads, from 0 through the table's last record. The rising
-    /// phase counts it down from 40 and ends when it would go below zero; the returning phase counts it back up.
+    /// The whole-row place along the quadratic speed table a yellow Pipe Bug's arc reads, from the first row through the
+    /// table's last. The rising phase moves it back from row 40 and ends when it would pass the first row; the returning
+    /// phase moves it back on.
     /// </summary>
-    public int ArcCounter { get; internal set; }
+    public EnemyQuadraticSpeedIndex ArcCounter { get; internal set; }
     /// <summary>Whether a yellow Pipe Bug's arc is in its rising phase rather than its returning one.</summary>
     public bool ArcRising { get; internal set; }
     /// <summary>Gets whether a yellow Pipe Bug has completed its one authored arc.</summary>

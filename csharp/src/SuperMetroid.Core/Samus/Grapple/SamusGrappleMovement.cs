@@ -671,9 +671,10 @@ public static class SamusGrappleMovement
     {
         // Preserve the reverse scan and exact angle equality, not a tolerance
         // around a wall-grab angle. These records govern collision positioning.
-        for (int record = GrappleConnectionDefinitions.SpecialAngleCount - 1; record >= 0; record--)
+        IReadOnlyList<GrappleConnectionDefinitions.SpecialConnection> connections = GrappleConnections.SpecialConnections;
+        for (int place = connections.Count - 1; place >= 0; place--)
         {
-            var special = GrappleConnections.SpecialAngle(record);
+            var special = connections[place];
             if (special.Angle != grapple.Angle)
                 continue;
 
@@ -683,7 +684,7 @@ public static class SamusGrappleMovement
                 GrappleConnectionFunction.LockedInPlace => GrapplePhase.ConnectedLocked,
                 GrappleConnectionFunction.WallGrab => GrapplePhase.WallGrab,
                 GrappleConnectionFunction.Swinging => throw new InvalidDataException(
-                    $"Grapple special-angle record {record} names the swinging function."),
+                    $"Grapple special connection {special} names the swinging function."),
                 _ => throw new InvalidOperationException($"Undefined GrappleConnectionFunction {function}."),
             };
 

@@ -37,7 +37,7 @@ internal static class EyeWindowSnapshotTestsVerification
             ColourAddWindowLayer layer = GameplayEffectCapture.CaptureMorphBallEyeBeam(beam, new Position16<RoomPixels>(512, 768))
                 ?? throw new InvalidOperationException($"eye capture origin {x},{y}; angle {angle}; width {width}");
             var apex = Offset16<ScreenPixels>.Of(unchecked((short)x), unchecked((short)(y - 1)));
-            AssertEqual(ScreenWindow.Of(new WindowCone(apex, angle - width, angle + width), DisplayScreen.HudHeight), layer.Window,
+            AssertEqual(ScreenWindow.Of(new WindowCone(apex, TrigonometryAngle.Wrapped(angle - width), TrigonometryAngle.Wrapped(angle + width)), DisplayScreen.HudHeight), layer.Window,
                 $"eye cone from the line above the eye, origin {x},{y}; angle {angle}; width {width}");
             AssertEqual(new RgbColor(255, 99, 8), layer.Colour, "eye cone adds the beam's colour");
             samples++;

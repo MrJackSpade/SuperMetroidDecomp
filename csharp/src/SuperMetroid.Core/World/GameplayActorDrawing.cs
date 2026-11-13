@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.World;
 
@@ -79,9 +80,13 @@ internal sealed class GameplayActorDrawing
             _room.CeresElevatorArrival?.Draw(_sprites, room.Enemies.Presentation, _room.Camera.PixelPosition);
             if (room.Enemies.IsLoaded)
             {
+                // A hit burst among the sprite objects is one of Samus's weapon effects: it shows the sheet of the beams she
+                // has equipped as it is drawn, as her charge flare does (#1713).
                 room.Enemies.Projectiles.DrawEnemyProjectilesInFrontOfSamus(
                     _sprites,
-                    _room.Camera.PixelPosition, _freeze.TimeIsFrozen);
+                    _room.Camera.PixelPosition,
+                    new SamusHitBurstArtwork(ProjectileArtwork, SamusBeamCombinations.Of(_player.Samus.EquippedBeams)),
+                    _freeze.TimeIsFrozen);
             }
         }
 

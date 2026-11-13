@@ -73,7 +73,7 @@ internal static class FrozenMetroidShellVerification
         {
             var drawn = new SpriteFrameBuffer();
             drawn.BeginFrame();
-            enemies.SpriteObjects.DrawRoomSpriteObjects(drawn, Position16<RoomPixels>.Zero);
+            enemies.SpriteObjects.DrawRoomSpriteObjects(drawn, Position16<RoomPixels>.Zero, EnemyFormatDrawAccess.NoHitBurstSheets);
             drawn.FinalizeFrame();
             var source = new SpriteSource(SpriteSourceKind.RoomSpriteObject, enemies.SpriteObjects.DrawInstanceOf(shell));
             var oam = new OamBuffer();

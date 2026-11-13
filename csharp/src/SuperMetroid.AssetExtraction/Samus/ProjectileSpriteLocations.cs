@@ -32,6 +32,14 @@ internal static class ProjectileSpriteLocations
             ? (ushort)(FirstMainFlare + place * 7)
             : (ushort)((place - 4 < 12 ? FirstRightSpark : FirstLeftSpark) + (place - 4) % 12 * 17))).ToDictionary();
 
+    /// <summary>
+    /// Where each composition of the burst Samus's hit shows at an enemy it hurts lies (#1713): four four-part records, one
+    /// after another from the first.
+    /// </summary>
+    internal static Dictionary<ProjectileSpriteId, SnesAddress> HitBursts() =>
+        HitBurstSpriteDefinitions.All.Select((id, place) => KeyValuePair.Create(id,
+            SamusSourceDefinitions.HitBurstSpritemaps.AddWithinBank(place * RecordBytes(4)))).ToDictionary();
+
     /// <summary>Native bank93 compositions serialize a two-byte part count then five bytes per OAM part.</summary>
     private static int RecordBytes(int parts) => sizeof(ushort) + 5 * parts;
     /// <summary>Finds the selected beam-explosion composition within its variable-size native group.</summary>

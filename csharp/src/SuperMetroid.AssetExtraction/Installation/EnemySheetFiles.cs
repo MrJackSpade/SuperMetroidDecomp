@@ -28,9 +28,10 @@ public static class EnemySheetFiles
     /// animation segment or table key that first shows it (#1623); 31 keys the frames that rule misnamed by what they show
     /// (#1623); 32 keys the Wrecked Ship Chozo statue's walk frames by its walk (#1623); 33 installs the burst a shot or
     /// bomb shows at an enemy it hurts on every set's shared spawned-object sheet (#1713); 34 no longer records the palette row a
-    /// spawned-object variant's pictures were coloured in, which only the composition reads (#1728).
+    /// spawned-object variant's pictures were coloured in, which only the composition reads (#1728); 35 installs the hit burst on
+    /// no enemy sheet, as it is Samus's weapon effect, which her projectile sheets hold (#1713).
     /// </summary>
-    public const int ManifestVersion = 34;
+    public const int ManifestVersion = 35;
 
     /// <summary>The manifest naming each variant's sheets and the variants each population draws.</summary>
     public const string ManifestFileName = "enemy-sheets.json";

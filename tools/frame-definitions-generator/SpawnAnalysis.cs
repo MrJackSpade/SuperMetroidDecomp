@@ -63,7 +63,9 @@ internal sealed class SpawnAnalysis
     {
         RequireMembers(model.EnemyFrameId, Walk.ExcludedEnemyFrames);
         RequireMembers(model.EnemyProjectileFrameId, Walk.ExcludedProjectileFrames);
+        RequireMembers(model.RoomSpriteObjectKind, Walk.ExcludedSpriteObjects);
         RequireEmptyFrames(model);
+        RequireSamusHitBursts(model);
         var analysis = new SpawnAnalysis(model);
         var scanner = new UnitScanner(model);
         var reached = new HashSet<Unit>();
@@ -302,6 +304,38 @@ internal sealed class SpawnAnalysis
         {
             throw new InvalidDataException("The generator's excluded projectile frames (" + string.Join(", ", excluded)
                 + ") are not the frames EnemyProjectileEmptyFrameDefinitions.EmptyFrames lists (" + string.Join(", ", listed) + ").");
+        }
+    }
+
+    /// <summary>
+    /// Requires the sprite-object kinds the generator excludes to be exactly those Core's
+    /// <c>RoomSpriteObjectVisualDefinitions.SamusHitBursts</c> lists as Samus's weapon effects (#1713), so a kind her
+    /// projectile sheets picture is on no enemy sheet and every other kind is on its sheet.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The catalog is missing or lists other kinds.</exception>
+    private static void RequireSamusHitBursts(CoreModel model)
+    {
+        INamedTypeSymbol[] catalogs = [.. model.Types.Where(type => type.Name == "RoomSpriteObjectVisualDefinitions")];
+        if (catalogs is not [var catalog] || catalog.GetMembers("SamusHitBursts") is not [IPropertySymbol property])
+            throw new InvalidDataException("Core declares no single RoomSpriteObjectVisualDefinitions.SamusHitBursts.");
+        var listed = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (SyntaxReference reference in property.DeclaringSyntaxReferences)
+        {
+            if (reference.GetSyntax() is not PropertyDeclarationSyntax { Initializer.Value: var value })
+                continue;
+            SemanticModel semantic = model.ModelOf(value.SyntaxTree);
+            foreach (ExpressionSyntax expression in value.DescendantNodes().OfType<ExpressionSyntax>())
+            {
+                if (semantic.GetSymbolInfo(expression).Symbol is IFieldSymbol member
+                    && SymbolEqualityComparer.Default.Equals(member.ContainingType, model.RoomSpriteObjectKind))
+                    listed.Add(member.Name);
+            }
+        }
+        var excluded = new SortedSet<string>(Walk.ExcludedSpriteObjects, StringComparer.Ordinal);
+        if (!listed.SetEquals(excluded))
+        {
+            throw new InvalidDataException("The generator's excluded sprite objects (" + string.Join(", ", excluded)
+                + ") are not the kinds RoomSpriteObjectVisualDefinitions.SamusHitBursts lists (" + string.Join(", ", listed) + ").");
         }
     }
 

@@ -21,4 +21,7 @@ public static class ProjectileSheetFrames
 
     /// <summary>The frame of a trail pose.</summary>
     public static string TrailFrame(ProjectileTrailFrame pose) => "Trail." + pose;
+
+    /// <summary>The frame of a composition of the burst a hit shows at an enemy it hurts (#1713).</summary>
+    public static string HitBurstFrame(ProjectileSpriteId composition) => "Hit." + composition.Name;
 }

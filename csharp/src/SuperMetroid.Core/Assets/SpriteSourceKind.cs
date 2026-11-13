@@ -29,6 +29,11 @@ public enum SpriteSourceKind
     SamusChargeFlare,
     /// <summary>One side of a projectile trail; the instance is its trail slot times two plus left (0) or right (1).</summary>
     SamusProjectileTrail,
+    /// <summary>
+    /// The burst a hit of Samus's weapon shows at an enemy it hurts (#1713); the instance is its position among the room's
+    /// live sprite objects, in spawn order.
+    /// </summary>
+    SamusHitBurst,
     /// <summary>An enemy, or one component of an extended enemy; the instance is its enemy slot.</summary>
     Enemy,
     /// <summary>An enemy projectile; the instance is its enemy-projectile place.</summary>

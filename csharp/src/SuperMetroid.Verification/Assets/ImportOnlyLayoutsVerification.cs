@@ -91,6 +91,7 @@ internal static class ImportOnlyLayoutsVerification
         string projectiles = GameInstallationLayout.ProjectileDirectoryName;
         yield return (projectiles, ProjectileSpriteDefinitions.FileName);
         yield return (projectiles, ChargeFlareSpriteExtractor.FileName);
+        yield return (projectiles, HitBurstSpriteExtractor.FileName);
         yield return (projectiles, ProjectileTrailVisualDefinitions.FileName);
         yield return (projectiles, GrappleSpriteDefinitions.FileName);
         // The colours only the import pre-colours Samus's sheets in (#1693).

@@ -11,7 +11,8 @@ namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// Composes Samus's projectile sheets (#1392) from the installed stock artwork: each projectile and bomb composition the
-/// context's beam combination shows (#1513), each flare composition, trail pose and the unshown trail, over the OBJ page the context's beam combination binds, coloured from
+/// context's beam combination shows (#1513), each flare composition, trail pose and the unshown trail, and in gameplay the
+/// burst her hit shows at an enemy (#1713), over the OBJ page the context's beam combination binds, coloured from
 /// the sprite rows as that context leaves them: a room load and the combination's beam palette in gameplay, the intro's
 /// own palette in its flashbacks.
 /// </summary>
@@ -42,7 +43,16 @@ internal static class ProjectileSheetComposer
     internal static IEnumerable<string> Frames(SpriteSheetId sheet, InstalledProjectileFrameBindings bindings) =>
         Compositions(Combination(sheet), bindings).Select(ProjectileSheetFrames.ProjectileFrame)
             .Concat(FlareCompositions.Select(ProjectileSheetFrames.FlareFrame))
-            .Concat(Enum.GetValues<ProjectileTrailFrame>().Select(ProjectileSheetFrames.TrailFrame));
+            .Concat(Enum.GetValues<ProjectileTrailFrame>().Select(ProjectileSheetFrames.TrailFrame))
+            .Concat(HitBursts(sheet).Select(ProjectileSheetFrames.HitBurstFrame));
+
+    /// <summary>
+    /// The compositions of the burst a hit shows at an enemy it hurts that <paramref name="sheet"/> holds (#1713): every one on
+    /// each gameplay sheet, as the burst draws from the sheet of the beams Samus has equipped, and none on the intro's, whose
+    /// flashbacks hurt no enemy.
+    /// </summary>
+    private static IEnumerable<ProjectileSpriteId> HitBursts(SpriteSheetId sheet) =>
+        sheet == SpriteSheetId.IntroProjectiles ? [] : HitBurstSpriteDefinitions.All;
 
     /// <summary>
     /// The compositions <paramref name="beams"/>'s projectiles show, in storage order: those of every record the
@@ -101,6 +111,10 @@ internal static class ProjectileSheetComposer
         }
         foreach (ProjectileTrailFrame pose in Enum.GetValues<ProjectileTrailFrame>())
             frames.Add(new(ProjectileSheetFrames.TrailFrame(pose), SpritePartFrames.SmallObject(artwork.Compositions.Trails.Resolve(pose), 0), page));
+        // The burst is one of Samus's weapon effects: it is pictured over the combination's page in her beams' colours, and
+        // shows her beams' current colouring through the sheet's shades as her other beam pictures do.
+        foreach (ProjectileSpriteId composition in HitBursts(sheet))
+            frames.Add(new(ProjectileSheetFrames.HitBurstFrame(composition), artwork.Compositions.HitBursts.Frame(composition), page));
         return new SpriteSheetSources(frames, colours, ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades, Blank: blank);
     }
 

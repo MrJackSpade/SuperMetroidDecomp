@@ -1270,9 +1270,5 @@ internal static class EnemySpritemapDocumentOrder
         EnemyFrameId.RidleyBreakupHeadRight,
         EnemyFrameId.RidleyBreakupClawLeft,
         EnemyFrameId.RidleyBreakupClawRight,
-        EnemyFrameId.SpriteObjectEnemyHitFirst,
-        EnemyFrameId.SpriteObjectEnemyHitSecond,
-        EnemyFrameId.SpriteObjectEnemyHitThird,
-        EnemyFrameId.SpriteObjectEnemyHitFourth,
     ];
 }

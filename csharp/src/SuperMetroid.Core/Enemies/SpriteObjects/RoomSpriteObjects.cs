@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
@@ -89,10 +90,14 @@ internal sealed class RoomSpriteObjects
             spawned.End();
     }
 
-    /// <summary>Draws every live object, in the order they spawned.</summary>
+    /// <summary>
+    /// Draws every live object, in the order they spawned: each from its owner's spawned-object sheet, and a hit burst, one
+    /// of Samus's weapon effects, from her projectile sheets as one of her draws (#1713).
+    /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="camera">Camera position in whole room pixels.</param>
-    internal void DrawRoomSpriteObjects(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
+    /// <param name="hitBursts">What a hit burst draws: Samus's projectile sheets and the beams she has equipped.</param>
+    internal void DrawRoomSpriteObjects(SpriteFrameBuffer sprites, Position16<RoomPixels> camera, SamusHitBurstArtwork hitBursts)
     {
         int instance = 0;
         foreach (RoomSpriteObject spawned in Live)
@@ -105,6 +110,11 @@ internal sealed class RoomSpriteObjects
                 CoordinateAxis.Difference(spawned.Position.Whole.X, camera.X),
                 CoordinateAxis.Difference(spawned.Position.Whole.Y, camera.Y));
 
+            if (RoomSpriteObjectVisualDefinitions.SamusHitBursts.Contains(spawned.Kind))
+            {
+                hitBursts.Draw(sprites, instance++, RoomSpriteObjectVisualDefinitions.HitBurstPictures[spawned.Frame], screen);
+                continue;
+            }
             EnemyFrameId shown = RoomSpriteObjectVisualDefinitions.ShownFrames.Of(spawned.Frame);
             _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomSpriteObject, instance++),
                 EnemySheetDefinitions.SpriteObjectFrameName(shown), screen, spawned.Graphics);

@@ -152,6 +152,12 @@ internal sealed class Walk
         "TorizoDroolFourFrameDelay", "TorizoDroolTwoFrameDelay", "GoldenTorizoEyeBeamFloorImpactLoopFirst", "TourianStatueEyeGlowTenth", "BotwoonHiddenUp",
     ];
 
+    /// <summary>
+    /// RoomSpriteObjectKind members that are Samus's weapon effects and on no enemy sheet (#1713): the kinds Core's
+    /// <c>RoomSpriteObjectVisualDefinitions.SamusHitBursts</c> lists, which her projectile sheets picture.
+    /// </summary>
+    public static readonly string[] ExcludedSpriteObjects = ["EnemyHit"];
+
 
     private readonly CoreModel _model;
     private readonly UnitScanner _scanner;
@@ -584,6 +590,9 @@ internal sealed class Walk
         }
         else if (SymbolEqualityComparer.Default.Equals(type, _model.RoomSpriteObjectKind))
         {
+            // Samus's weapon effects are pictured on her projectile sheets, so no enemy sheet holds them.
+            if (ExcludedSpriteObjects.Contains(member.Name))
+                return;
             if (scan.SpawnCalls.Count == 0 && scan.Reassignments.Count == 0)
             {
                 Spawners.Add(unit);

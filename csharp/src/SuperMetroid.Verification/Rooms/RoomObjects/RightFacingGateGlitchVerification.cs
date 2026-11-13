@@ -157,11 +157,11 @@ internal static class RightFacingGateGlitchVerification
             activationsByColumn[x - firstX] = columnActivations;
         });
         foreach (SharedGameState columnState in gameStateByColumn)
-        {
             columnState.ClearEvent(StoryEvent.ZebesAwake);
-            AssertTrue(SameGraph(columnState, new SharedGameState(new SharedRandom())),
-                "No gate-glitch position writes any other part of the game state its column's positions share");
-        }
+        // One comparison of every column's state with as many new states: a graph comparison per column took about as long
+        // as the whole sweep.
+        AssertTrue(SameGraph(gameStateByColumn, gameStateByColumn.Select(_ => new SharedGameState(new SharedRandom())).ToArray()),
+            "No gate-glitch position writes any other part of the game state its column's positions share");
         // Column by column and row by row within a column, the order the native matrix lists its positives in.
         List<string> actual = [.. activationsByColumn.SelectMany(column => column)];
 

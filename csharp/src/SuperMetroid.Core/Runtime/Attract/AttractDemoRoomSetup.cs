@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Runtime.Attract;
 /// <summary>What a demo scene does to its room once the room has loaded.</summary>
 public enum AttractDemoRoomSetup
 {
-    /// <summary>The Charge Beam demo closes one screen's scroll with a red boundary.</summary>
+    /// <summary>The Charge Beam demo closes one screen to the camera.</summary>
     ChargeBeamScroll,
     /// <summary>The room is left as loaded.</summary>
     NoOp,

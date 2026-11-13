@@ -110,8 +110,8 @@ internal sealed class EnemyRoomEffects
             // The already-defeated branch clears the wall directly with one store
             // during setup; unlike the live crumble room object, it does not wait for its
             // clearing step during the first handler pass.
-            _room.Camera.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Blue);
-            _room.Camera.Scrolls.SetLogicalState(new(1, 0), RoomScrollState.Blue);
+            _room.Camera.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.OpenAlignedToTop);
+            _room.Camera.Scrolls.SetLogicalState(new(1, 0), RoomScrollState.OpenAlignedToTop);
         }
     }
 

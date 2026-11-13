@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Verification.Rooms.RoomObjects;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -135,11 +136,31 @@ internal static class BlockReactionSelectorsVerification
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949139, 8,
             index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.ContactCrumble(ContactCrumbleAt(index))), "contact crumble"));
 
-    /// <summary>Checks the bounded bomb-special BTS domain, including adjacent area aliases.</summary>
+    /// <summary>
+    /// Checks what a normal bomb sets off at every special block whose reaction every area shares, in every area, against
+    /// the cartridge's bombed-special table read on past its sixteen shared reactions into the area tables that follow it
+    /// (the run-on that shows four plain solid blocks as Brinstar's Speed Booster blocks, <c>SpecialBlockBombRunOn</c>), and
+    /// that the shared bytes past that read give a special block no reaction, which a bomb rejects (#1742).
+    /// </summary>
     internal static void VerifyBombSpecialInstructionSelection(CartridgeImportAddressSpace rom)
     {
-        Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949da4, 80,
-            index => BombSpecialNativeList(BombSpecialBlockReactions.ChangeFor(RoomBlockBehaviorCodec.Decode(index).Special)), "bomb special including adjacent area aliases"));
+        const int sharedRead = 80;
+        foreach (AreaId area in AreaIds.All)
+        for (int index = 0; index < sharedRead; index++)
+        {
+            // Independent cartridge header indirection, not the replacement's reaction cases.
+            ushort header = ReadRomWord(rom, 0x949da4 + index * 2);
+            ushort instruction = ReadRomWord(rom, 0x840000 | (header + 2));
+            AssertEqual(instruction, BombSpecialNativeList(BombSpecialBlockReactions.ChangeFor(RoomBlockBehaviorCodec.Decode(index).Special, area)),
+                $"bomb special: native instruction at BTS {index:X2} in {area}");
+        }
+        for (int index = sharedRead; index < 0x80; index++)
+        {
+            SpecialBlockReaction? reaction = RoomBlockBehaviorCodec.Decode(index).Special;
+            AssertTrue(reaction is null, $"bomb special: BTS {index:X2} gives a special block no reaction");
+            AssertThrows<ArgumentOutOfRangeException>(() => BombSpecialBlockReactions.ChangeFor(reaction, AreaId.Brinstar),
+                $"bomb special: rejects BTS {index:X2}, which has no reaction");
+        }
     }
 
     /// <summary>The native list a bomb-special reaction stands for: the shared delete, the speed reveal or a crumble reveal.</summary>

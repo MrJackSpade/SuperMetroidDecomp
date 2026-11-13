@@ -13,8 +13,9 @@ namespace SuperMetroid.Core.Compatibility;
 /// <para>
 /// A scroll check past the scroll cells reads the stored maps in the order the game keeps them: area by area, each area
 /// as runs of eight neighbouring cells of a row, the 32 rows of the left half of the map first and then the right half,
-/// four runs to a row. A run with no explored cell reads as a red scroll, a run whose only explored cell is its last
-/// (rightmost) one reads as a blue scroll, and any other run reads as a green scroll. The stored map after the seventh
+/// four runs to a row. A run with no explored cell reads as a closed screen, a run whose only explored cell is its last
+/// (rightmost) one reads as a screen open with the camera aligned to its top, and any other run reads as an open screen
+/// (the original's red, blue and green scrolls). The stored map after the seventh
 /// area's is never stored and reads as unexplored.
 /// </para>
 /// </summary>
@@ -38,11 +39,11 @@ public sealed class StoredExploredMaps<TArea>
     /// <summary>The camera's reading of a run of eight cells of a stored map.</summary>
     public enum RunReading
     {
-        /// <summary>No cell of the run is explored: the camera reads a red scroll.</summary>
+        /// <summary>No cell of the run is explored: the camera reads a closed screen.</summary>
         NothingExplored,
-        /// <summary>Only the run's last cell is explored: the camera reads a blue scroll.</summary>
+        /// <summary>Only the run's last cell is explored: the camera reads a screen open with the camera aligned to its top.</summary>
         OnlyLastCellExplored,
-        /// <summary>Any other exploration: the camera reads a green scroll.</summary>
+        /// <summary>Any other exploration: the camera reads an open screen.</summary>
         OtherwiseExplored,
     }
 

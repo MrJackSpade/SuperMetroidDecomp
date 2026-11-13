@@ -6,8 +6,9 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// through this codec.
 /// </summary>
 /// <remarks>
-/// The original tells a zero byte (red), a one (blue) and every other value apart, so a byte past the three authored
-/// states, such as one a short explicit table reaches in the data stored after it, reads as green.
+/// The original tells a zero byte (closed), a one (open, aligned to the screen's top) and every other value apart, so a
+/// byte past the three authored states, such as one a short explicit table reaches in the data stored after it, reads as
+/// open.
 /// </remarks>
 [EncodingOwner("room scroll grid byte")]
 internal static class RoomScrollStates
@@ -15,18 +16,18 @@ internal static class RoomScrollStates
     /// <summary>The byte the original stores for <paramref name="state"/>.</summary>
     internal static byte ToStorageByte(this RoomScrollState state) => state switch
     {
-        RoomScrollState.RedBoundary => 0,
-        RoomScrollState.Blue => 1,
-        RoomScrollState.Green => 2,
+        RoomScrollState.Closed => 0,
+        RoomScrollState.OpenAlignedToTop => 1,
+        RoomScrollState.Open => 2,
         _ => throw new ArgumentOutOfRangeException(nameof(state), state, "Not a room scroll state."),
     };
 
     /// <summary>The state the camera reads a stored scroll byte as.</summary>
     internal static RoomScrollState FromStorageByte(int value) => value switch
     {
-        0 => RoomScrollState.RedBoundary,
-        1 => RoomScrollState.Blue,
-        _ => RoomScrollState.Green,
+        0 => RoomScrollState.Closed,
+        1 => RoomScrollState.OpenAlignedToTop,
+        _ => RoomScrollState.Open,
     };
 
     /// <summary>The states the camera reads a run of stored scroll bytes as, in order.</summary>

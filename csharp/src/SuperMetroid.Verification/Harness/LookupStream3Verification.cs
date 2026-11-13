@@ -675,18 +675,23 @@ internal static class LookupStream3Verification
             AssertThrows<InvalidDataException>(
                 () => DoorIdentityWords.SetupRoutines.Decode(undefined, "door setup routine"),
                 "stream 3 undefined door setup routine");
-        // Every cartridge routine the import maps to a setup that only changes screens runs over a grid of red cells and one of blue
-        // cells, so every write differs from the cells it replaces in at least one run; the native writes are compared as
-        // the cells the camera reads them as. A setup the cartridge has two routines for is checked against both.
+        // Every cartridge routine the import maps to a setup that only changes screens runs over a grid of closed cells and one of
+        // top-aligned cells, so every write differs from the cells it replaces in at least one run; the native writes are
+        // compared as the cells the camera reads them as. The setup names its screens by column and row in the room its
+        // doors lead into, so it runs over that room's grid, where the routine's row-major cells are those screens (#1741).
+        // A setup the cartridge has two routines for is checked against both.
+        Dictionary<DoorSetup, Extent16<RoomScreens>> roomSizes = DoorDefinitions.Definitions
+            .GroupBy(door => door.Setup)
+            .ToDictionary(group => group.Key, group => group.First().DestinationRoom.Size);
         foreach ((DoorSetup setup, ushort[] routines) in DoorIdentityWords.SetupRoutines.WordsByIdentity)
         {
             if (setup.RoomEvent != DoorRoomEvent.None || setup.ScreenChanges.Count == 0)
                 continue;
             foreach (ushort routine in routines)
-            foreach (RoomScrollState fill in new[] { RoomScrollState.RedBoundary, RoomScrollState.Blue })
+            foreach (RoomScrollState fill in new[] { RoomScrollState.Closed, RoomScrollState.OpenAlignedToTop })
             {
                 byte[] expected = Enumerable.Repeat(fill.ToStorageByte(), RoomScrollGrid.KeptCellCount).ToArray();
-                var actual = RoomScrollGrid.LoadNativeTable(expected, new Extent16<RoomScreens>(10, 5));
+                var actual = RoomScrollGrid.LoadNativeTable(expected, roomSizes[setup]);
                 ExecuteStream3DoorScroll(rom, routine, expected);
                 setup.ChangeScreens(actual);
                 AssertTrue(actual.KeptStates.SequenceEqual(RoomScrollStates.FromStorageBytes(expected)),

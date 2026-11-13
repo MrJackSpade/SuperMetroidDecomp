@@ -107,9 +107,9 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     internal bool HoldsSpeedBoosterBlocks => Terrain.Any(block =>
         (block.Collision == RoomCollisionType.SpecialBlock &&
             (SpeedBoosterBlocks.TryResolve(block.Behavior, Area, out _) ||
-                (!BombSpecialBlockReactions.IsArea(block.Behavior.Special) && block.Behavior.Special != SpecialBlockReaction.PastTable &&
-                    BombSpecialBlockReactions.ChangeFor(block.Behavior.Special) == SpeedBoosterBlockObjectDefinitions.BombReveal))) ||
-        (IsAreaSpecialAir(block) &&
+                (block.Behavior.Special is not null &&
+                    BombSpecialBlockReactions.ChangeFor(block.Behavior.Special, Area) == SpeedBoosterBlockObjectDefinitions.BombReveal))) ||
+        (IsReactingSpecialAir(block) &&
             SpecialAirReactions.CollisionOf(Area, block.Behavior.SpecialAir) is SpecialAirCollisionReaction.BrinstarSlowRespawningSpeedBlock
                 or SpecialAirCollisionReaction.BrinstarSlowPermanentSpeedBlock or SpecialAirCollisionReaction.DachoraRespawningSpeedBlock
                 or SpecialAirCollisionReaction.PermanentSpeedBlock));
@@ -139,22 +139,21 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         Terrain.Contains(new(EscapeAnimalWallDefinitions.OriginCollisionType, EscapeAnimalWallDefinitions.ReactionBehavior));
 
     /// <summary>Whether the state's terrain holds a special-air block whose area reaction's inside reaction is a Brinstar plant that bites Samus.</summary>
-    internal bool HoldsSamusEaterPlants => Terrain.Any(block => IsAreaSpecialAir(block) &&
+    internal bool HoldsSamusEaterPlants => Terrain.Any(block => IsReactingSpecialAir(block) &&
         SpecialAirReactions.InsideOf(Area, block.Behavior.SpecialAir) is SpecialAirInsideReaction.BrinstarFloorPlant
             or SpecialAirInsideReaction.BrinstarCeilingPlant);
 
     /// <summary>
-    /// Whether <paramref name="block"/> is a special-air block selecting one of its area's special-air reactions. Only those
-    /// reach the area's reactions: the game reads a special-air block with a common reaction through the reactions every
-    /// area shares (the conveyors and the scroll trigger), never through its area's.
+    /// Whether <paramref name="block"/> is a special-air block with a reaction, which its area gives its meaning: a
+    /// reaction that is the same in every area (the conveyors, the scroll trigger, passing through) means nothing to the
+    /// area's reactions.
     /// </summary>
-    private static bool IsAreaSpecialAir(RoomTerrainReaction block) =>
-        block.Collision == RoomCollisionType.SpecialAir && SpecialAirReactions.IsAreaTableReaction(block.Behavior.SpecialAir);
+    private static bool IsReactingSpecialAir(RoomTerrainReaction block) =>
+        block.Collision == RoomCollisionType.SpecialAir && block.Behavior.SpecialAir is not null;
 
     /// <summary>Whether the state's terrain holds a spike block an enemy breaks.</summary>
     internal bool HoldsEnemyBreakableBlocks => Terrain.Any(block => block.Collision == RoomCollisionType.SpikeBlock &&
-        block.Behavior.Spike is not (SpikeReaction.PastEnemyTable or SpikeReaction.AreaPastEnemyTable) &&
-        EnemyBreakableTerrain.IsEnemyBreakable(block.Behavior));
+        block.Behavior.Spike is not null && EnemyBreakableTerrain.IsEnemyBreakable(block.Behavior));
 
     /// <summary>Whether the state's terrain holds a block that collides as another along a row or a column.</summary>
     internal bool HoldsExtensions => Terrain.Any(block =>

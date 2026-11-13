@@ -11,7 +11,7 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The Glass Tunnel Save room's state.</summary>
     public static RoomStateSettings GlassTunnelSave { get; } =
-        new(nameof(GlassTunnelSave), RoomLevelDefinitions.WarehouseSave, RoomGraphicsSet.SaveStation, new RoomMusic(MusicDataSet.RedBrinstar, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.GlassTunnelSave, RoomEnemyPopulationDefinitions.GlassTunnelSave, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GlassTunnelSave, null, RoomSetupBehavior.BossRoomReturnB);
+        new(nameof(GlassTunnelSave), RoomLevelDefinitions.WarehouseSave, RoomGraphicsSet.SaveStation, new RoomMusic(MusicDataSet.RedBrinstar, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.GlassTunnelSave, RoomEnemyPopulationDefinitions.GlassTunnelSave, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GlassTunnelSave, null, RoomSetupBehavior.BossRoomReturnB);
 
 
     /// <summary>The Glass Tunnel room's state 0.</summary>
@@ -126,17 +126,17 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The Maridia Map room's state.</summary>
     public static RoomStateSettings MaridiaMap { get; } =
-        new(nameof(MaridiaMap), RoomLevelDefinitions.CrateriaMap, RoomGraphicsSet.MapStatues, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.MaridiaMap, RoomEnemyPopulationDefinitions.MaridiaMap, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MaridiaMap, null, RoomSetupBehavior.BossRoomReturnB);
+        new(nameof(MaridiaMap), RoomLevelDefinitions.CrateriaMap, RoomGraphicsSet.MapStatues, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.MaridiaMap, RoomEnemyPopulationDefinitions.MaridiaMap, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MaridiaMap, null, RoomSetupBehavior.BossRoomReturnB);
 
 
     /// <summary>The Forgotten Highway Save room's state.</summary>
     public static RoomStateSettings ForgottenHighwaySave { get; } =
-        new(nameof(ForgottenHighwaySave), RoomLevelDefinitions.WarehouseSave, RoomGraphicsSet.SaveStation, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.ForgottenHighwaySave, RoomEnemyPopulationDefinitions.ForgottenHighwaySave, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ForgottenHighwaySave, null, RoomSetupBehavior.None);
+        new(nameof(ForgottenHighwaySave), RoomLevelDefinitions.WarehouseSave, RoomGraphicsSet.SaveStation, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.ForgottenHighwaySave, RoomEnemyPopulationDefinitions.ForgottenHighwaySave, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ForgottenHighwaySave, null, RoomSetupBehavior.None);
 
 
     /// <summary>The Toilet room's state.</summary>
     public static RoomStateSettings Toilet { get; } =
-        new(nameof(Toilet), RoomLevelDefinitions.Toilet, RoomGraphicsSet.SandyMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Toilet, RoomEnemyPopulationDefinitions.Toilet, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.AllGreen, null, RoomMainBehavior.MaridiaElevatube, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Toilet, null, RoomSetupBehavior.BossRoomReturnC);
+        new(nameof(Toilet), RoomLevelDefinitions.Toilet, RoomGraphicsSet.SandyMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Toilet, RoomEnemyPopulationDefinitions.Toilet, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.AllOpen, null, RoomMainBehavior.MaridiaElevatube, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Toilet, null, RoomSetupBehavior.BossRoomReturnC);
 
 
     /// <summary>The Bug Sand Hole room's state.</summary>
@@ -146,7 +146,7 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The West Sand Hall room's state.</summary>
     public static RoomStateSettings WestSandHall { get; } =
-        new(nameof(WestSandHall), RoomLevelDefinitions.WestSandHall, RoomGraphicsSet.SandyMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.WestSandHall, RoomEnemyPopulationDefinitions.WestSandHall, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WestSandHall, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.MaridiaGreenWall, RoomSetupBehavior.BossRoomReturnC);
+        new(nameof(WestSandHall), RoomLevelDefinitions.WestSandHall, RoomGraphicsSet.SandyMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.WestSandHall, RoomEnemyPopulationDefinitions.WestSandHall, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WestSandHall, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.MaridiaGreenWall, RoomSetupBehavior.BossRoomReturnC);
 
 
     /// <summary>The Oasis room's state.</summary>
@@ -156,7 +156,7 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The East Sand Hall room's state.</summary>
     public static RoomStateSettings EastSandHall { get; } =
-        new(nameof(EastSandHall), RoomLevelDefinitions.EastSandHall, RoomGraphicsSet.SandyMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.EastSandHall, RoomEnemyPopulationDefinitions.EastSandHall, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.EastSandHall, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.MaridiaGreenWall, RoomSetupBehavior.BossRoomReturnC);
+        new(nameof(EastSandHall), RoomLevelDefinitions.EastSandHall, RoomGraphicsSet.SandyMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.EastSandHall, RoomEnemyPopulationDefinitions.EastSandHall, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.EastSandHall, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.MaridiaGreenWall, RoomSetupBehavior.BossRoomReturnC);
 
 
     /// <summary>The West Sand Hole room's state.</summary>
@@ -186,7 +186,7 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The Butterfly room's state.</summary>
     public static RoomStateSettings Butterfly { get; } =
-        new(nameof(Butterfly), RoomLevelDefinitions.Butterfly, RoomGraphicsSet.SandyMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Butterfly, RoomEnemyPopulationDefinitions.Butterfly, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Butterfly, null, RoomSetupBehavior.BossRoomReturnC);
+        new(nameof(Butterfly), RoomLevelDefinitions.Butterfly, RoomGraphicsSet.SandyMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Butterfly, RoomEnemyPopulationDefinitions.Butterfly, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Butterfly, null, RoomSetupBehavior.BossRoomReturnC);
 
 
     /// <summary>The Botwoon Hallway room's state.</summary>
@@ -241,12 +241,12 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The Draygon Save room's state.</summary>
     public static RoomStateSettings DraygonSave { get; } =
-        new(nameof(DraygonSave), RoomLevelDefinitions.FrogSave, RoomGraphicsSet.SaveStation, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.DraygonSave, RoomEnemyPopulationDefinitions.DraygonSave, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.DraygonSave, null, RoomSetupBehavior.BossRoomReturnC);
+        new(nameof(DraygonSave), RoomLevelDefinitions.FrogSave, RoomGraphicsSet.SaveStation, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.DraygonSave, RoomEnemyPopulationDefinitions.DraygonSave, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.DraygonSave, null, RoomSetupBehavior.BossRoomReturnC);
 
 
     /// <summary>The Maridia Missile Refill room's state.</summary>
     public static RoomStateSettings MaridiaMissileRefill { get; } =
-        new(nameof(MaridiaMissileRefill), RoomLevelDefinitions.MaridiaMissileRefill, RoomGraphicsSet.BlueRefill, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.MaridiaMissileRefill, RoomEnemyPopulationDefinitions.MaridiaMissileRefill, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MaridiaMissileRefill, null, RoomSetupBehavior.BossRoomReturnC);
+        new(nameof(MaridiaMissileRefill), RoomLevelDefinitions.MaridiaMissileRefill, RoomGraphicsSet.BlueRefill, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.MaridiaMissileRefill, RoomEnemyPopulationDefinitions.MaridiaMissileRefill, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MaridiaMissileRefill, null, RoomSetupBehavior.BossRoomReturnC);
 
 
     /// <summary>The Plasma Beach Quicksand room's state.</summary>

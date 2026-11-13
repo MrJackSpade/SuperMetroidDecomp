@@ -73,10 +73,10 @@ internal sealed class CrocomireFight
             CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.Dead);
             slot.Position = slot.Position.WithWhole(new(576, 144));
             slot.Radius = new(40, 28);
-            _room.Services.RoomScroll.Write(0, RoomScrollState.Blue);
-            _room.Services.RoomScroll.Write(1, RoomScrollState.Blue);
-            _room.Services.RoomScroll.Write(2, RoomScrollState.Blue);
-            _room.Services.RoomScroll.Write(3, RoomScrollState.Blue);
+            _room.Services.RoomScroll.Write(0, RoomScrollState.OpenAlignedToTop);
+            _room.Services.RoomScroll.Write(1, RoomScrollState.OpenAlignedToTop);
+            _room.Services.RoomScroll.Write(2, RoomScrollState.OpenAlignedToTop);
+            _room.Services.RoomScroll.Write(3, RoomScrollState.OpenAlignedToTop);
             _access.PublishCrocomireObject(new Position16<RoomBlocks>(32, 3), CrocomireArenaMutation.ClearInvisibleWall);
             _access.PublishCrocomireObject(new Position16<RoomBlocks>(30, 3), CrocomireArenaMutation.ClearInvisibleWall);
             _access.PublishCrocomireObject(new Position16<RoomBlocks>(97, 11), CrocomireArenaMutation.ClearBridge);
@@ -89,8 +89,8 @@ internal sealed class CrocomireFight
         _zebetiteBehavior.CameraDistance = CameraDistanceMode.BossTracking;
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.Initial);
         slot.CollidesByFrameHitboxes = true;
-        _room.Services.RoomScroll.Write(0, RoomScrollState.RedBoundary);
-        _room.Services.RoomScroll.Write(1, RoomScrollState.RedBoundary);
+        _room.Services.RoomScroll.Write(0, RoomScrollState.Closed);
+        _room.Services.RoomScroll.Write(1, RoomScrollState.Closed);
 
         // The wall's and the projectiles' colours his initializer loads are the import's shades of them, which his wall,
         // the bridge's fragments and his projectiles draw in (#1512).

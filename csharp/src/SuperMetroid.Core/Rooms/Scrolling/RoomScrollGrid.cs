@@ -8,9 +8,9 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// rooms left there.
 /// </summary>
 /// <remarks>
-/// Cells are screen-sized (256x256 pixels), not 16x16 room blocks. Red cells form a camera boundary; blue and green ones
-/// are traversable but align the camera vertically differently. Scroll triggers, doors, enemies and scripted events
-/// change cells during play.
+/// Cells are screen-sized (256x256 pixels), not 16x16 room blocks. Closed cells form a camera boundary; open ones are
+/// traversable, and those open with the camera aligned to the screen's top align the camera vertically differently. Scroll
+/// triggers, doors, enemies and scripted events change cells during play.
 /// </remarks>
 public sealed class RoomScrollGrid
 {
@@ -38,11 +38,11 @@ public sealed class RoomScrollGrid
 
     /// <summary>
     /// The session's scroll cells, cleared as power-on leaves them, with a check past them reading
-    /// <paramref name="storedExploredMaps"/>: a run with nothing explored as red, one whose only explored cell is its last
-    /// as blue, and any other as green.
+    /// <paramref name="storedExploredMaps"/>: a run with nothing explored as closed, one whose only explored cell is its last
+    /// as open with the camera aligned to the screen's top, and any other as open.
     /// </summary>
     public static ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> KeepCellsAcrossRooms(StoredExploredMaps<AreaId> storedExploredMaps) =>
-        new(KeptCellCount, RoomScrollState.RedBoundary, storedExploredMaps, RoomScrollState.Blue, RoomScrollState.Green);
+        new(KeptCellCount, RoomScrollState.Closed, storedExploredMaps, RoomScrollState.OpenAlignedToTop, RoomScrollState.Open);
 
     /// <summary>Loads the scroll data <paramref name="scroll"/> selects into <paramref name="cells"/>, as the room loader does.</summary>
     /// <exception cref="ArgumentException">An explicit table does not hold one state for every kept cell.</exception>
@@ -63,7 +63,7 @@ public sealed class RoomScrollGrid
     }
 
     /// <summary>
-    /// Builds the implicit layout a room state selects when it names no explicit table: every row green except the last,
+    /// Builds the implicit layout a room state selects when it names no explicit table: every row open except the last,
     /// which is <paramref name="lastRowState"/>.
     /// </summary>
     /// <remarks>
@@ -78,7 +78,7 @@ public sealed class RoomScrollGrid
         Validate(lastRowState, nameof(lastRowState));
         var grid = new RoomScrollGrid(cells, size);
         for (int index = 0; index < grid.LogicalCellCount; index++)
-            cells.Write(index, index / size.X == size.Y - 1 ? lastRowState : RoomScrollState.Green);
+            cells.Write(index, index / size.X == size.Y - 1 ? lastRowState : RoomScrollState.Open);
         return grid;
     }
 
@@ -109,6 +109,20 @@ public sealed class RoomScrollGrid
         _cells.Write(index, state);
     }
 
+    /// <summary>
+    /// Sets the screen at <paramref name="screen"/>, in one of the room's columns and in one of its rows or a row past them,
+    /// as a door setup does: a row past the room's own names the kept cells after them, row by row at the room's width.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The column lies outside the room, the screen outside the kept cells, or the state is not a scroll state.
+    /// </exception>
+    public void SetScreen(Position16<RoomScreens> screen, RoomScrollState state)
+    {
+        if (screen.X >= Size.X)
+            throw new ArgumentOutOfRangeException(nameof(screen), screen, "The screen's column lies outside the room.");
+        SetCell(screen.Y * Size.X + screen.X, state);
+    }
+
     /// <summary>Updates one of the room's screens as a scroll trigger would.</summary>
     public void SetLogicalState(Position16<RoomScreens> screen, RoomScrollState state)
     {
@@ -126,7 +140,7 @@ public sealed class RoomScrollGrid
             throw new ArgumentOutOfRangeException(
                 parameterName,
                 state,
-                "Known room scroll states are red boundary, blue, and green.");
+                "Known room scroll states are closed, open, and open with the camera aligned to the screen's top.");
         }
     }
 }

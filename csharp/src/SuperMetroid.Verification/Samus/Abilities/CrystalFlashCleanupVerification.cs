@@ -46,7 +46,7 @@ internal static class CrystalFlashCleanupVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite, camera: new Position16<RoomPixels>(384, 384));
         for (ushort y = 1; y <= 2; y++)
         for (ushort x = 1; x <= 2; x++)
-            runtime.Room.LoadedCamera.Scrolls.SetLogicalState(new(x, y), RoomScrollState.Green);
+            runtime.Room.LoadedCamera.Scrolls.SetLogicalState(new(x, y), RoomScrollState.Open);
         var level = runtime.Room.LoadedLevelData;
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 48; x++)

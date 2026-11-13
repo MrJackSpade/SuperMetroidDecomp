@@ -5,8 +5,8 @@ public static class ShotBlockReactionDefinitions
 {
     /// <summary>
     /// What the dispatcher does with each shootable reaction it handles: the respawning and permanent breaks of every size,
-    /// the Power Bomb and Super Missile blocks, the empty reactions and the collision probe. The empty entries past the
-    /// probe set off the same one-update object as the empty reaction.
+    /// the Power Bomb and Super Missile blocks, the empty reactions and the collision probe. The blocks that ignore shots,
+    /// and the blocks that react only when solid, set off the same one-update object as the empty reaction.
     /// </summary>
     public static readonly IReadOnlyDictionary<ShootableReaction, ShotBlockReaction> Handled =
         new Dictionary<ShootableReaction, ShotBlockReaction>
@@ -25,7 +25,8 @@ public static class ShotBlockReactionDefinitions
             [ShootableReaction.PermanentSuperMissileBlock] = ShotBlockReaction.PermanentSuperMissileBreak,
             [ShootableReaction.Nothing] = ShotBlockReaction.Nothing,
             [ShootableReaction.CollisionProbe] = ShotBlockReaction.CollisionProbe,
-            [ShootableReaction.EmptyEntry] = ShotBlockReaction.Nothing,
+            [ShootableReaction.IgnoresShots] = ShotBlockReaction.Nothing,
+            [ShootableReaction.NothingWhenSolid] = ShotBlockReaction.Nothing,
         };
 
     /// <summary>
@@ -43,9 +44,9 @@ public static class ShotBlockReactionDefinitions
         ShootableReaction.Nothing,
     };
 
-    /// <summary>The reactions the room's area gives shootable blocks.</summary>
-    public static readonly IReadOnlySet<ShootableReaction> AreaReactions = new HashSet<ShootableReaction>
+    /// <summary>The reactions that set nothing off in shootable air, only in a shootable block.</summary>
+    public static readonly IReadOnlySet<ShootableReaction> SolidBlockOnlyReactions = new HashSet<ShootableReaction>
     {
-        ShootableReaction.AreaNothing, ShootableReaction.PastAreaTable,
+        ShootableReaction.NothingWhenSolid,
     };
 }

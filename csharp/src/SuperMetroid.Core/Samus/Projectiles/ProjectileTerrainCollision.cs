@@ -436,13 +436,13 @@ internal sealed class ProjectileTerrainCollision
             return;
         }
 
-        // Nonnegative behaviour 0..15 indexes the ordinary retail shot-block entries, and 16 is
-        // the table's deliberate collision-probe/no-op room object. Negative behaviour
-        // 0..7 is also admitted so shootable-solid can preserve its area-table no-op
-        // slot; shootable-air's method exits without allocating. The RoomObject owner performs
-        // the power-bomb/Super-Missile family checks for entries 8..B synchronously, just as
-        // each setup sees the current projectile type while the room object spawns.
-        bool translatedBehavior = block.Behavior.Shootable is ShootableReaction.AreaNothing or
+        // The breaks, the Power Bomb and Super Missile blocks and the empty reaction are the ordinary
+        // shot-block reactions, and the collision probe is the deliberate no-op room object. The
+        // reaction that sets off only in a shootable block is also admitted so shootable-solid can
+        // preserve its no-op slot; shootable-air's method exits without allocating. The RoomObject
+        // owner performs the power-bomb/Super-Missile family checks synchronously, just as each
+        // setup sees the current projectile type while the room object spawns.
+        bool translatedBehavior = block.Behavior.Shootable is ShootableReaction.NothingWhenSolid or
                 ShootableReaction.AnimalEscape or ShootableReaction.CollisionProbe ||
             ShotBlockReactions.IsLeading(block.Behavior.Shootable);
         if (translatedBehavior)

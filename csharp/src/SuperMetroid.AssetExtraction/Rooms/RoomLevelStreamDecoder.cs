@@ -26,8 +26,9 @@ internal static class RoomLevelStreamDecoder
     /// <param name="stream">The complete decompressed level.</param>
     /// <param name="widthInBlocks">The width every room state using the level gives it.</param>
     /// <exception cref="InvalidDataException">
-    /// The level's size word, foreground, behaviours or background are malformed, or the cartridge's fill is not the
-    /// game's edge-solid block.
+    /// The level's size word, foreground, behaviours or background are malformed, a reacting block's behaviour gives its
+    /// collision kind no reaction (its kind's dispatch would read past the end of its tables, which no retail block does,
+    /// #1742), or the cartridge's fill is not the game's edge-solid block.
     /// </exception>
     internal static InstalledRoomLevel Decode(RoomLevelId level, ReadOnlySpan<byte> stream, int widthInBlocks)
     {
@@ -53,8 +54,13 @@ internal static class RoomLevelStreamDecoder
         var background = ImmutableArray.CreateBuilder<RoomBlockAppearance>(blockCount);
         for (int index = 0; index < blockCount; index++)
         {
-            foreground.Add(RoomLevelWordCodec.Decode(space[index]));
-            behaviors.Add(RoomBlockBehaviorCodec.Decode(stream[behaviorOffset + index]));
+            RoomTerrainBlock block = RoomLevelWordCodec.Decode(space[index]);
+            RoomBlockBehavior behavior = RoomBlockBehaviorCodec.Decode(stream[behaviorOffset + index]);
+            if (!RoomBlockBehaviorCodec.HoldsReaction(block.Collision, behavior))
+                throw new InvalidDataException(
+                    $"Room level {level} block {index} is {block.Collision} with behaviour {behavior}, which gives its kind no reaction.");
+            foreground.Add(block);
+            behaviors.Add(behavior);
             int backgroundByte = index * sizeof(ushort);
             background.Add(RoomLevelWordCodec.DecodeAppearance(backgroundByte < availableBackgroundBytes
                 ? BinaryPrimitives.ReadUInt16LittleEndian(stream[(backgroundOffset + backgroundByte)..])

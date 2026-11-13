@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 internal static class RoomScrollAuthoredBytes
 {
     /// <summary>Whether <paramref name="value"/> is one of the three authored scroll states.</summary>
-    internal static bool IsAuthored(byte value) => Enum.IsDefined((RoomScrollState)value);
+    internal static bool IsAuthored(byte value) => value is 0 or 1 or 2;
 
     /// <summary>The named state an authored byte holds, failing with <paramref name="sourceContext"/> for an untranslated one.</summary>
     /// <exception cref="NotSupportedException">The byte is not an authored scroll state.</exception>

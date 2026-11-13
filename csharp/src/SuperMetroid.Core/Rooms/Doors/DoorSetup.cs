@@ -32,7 +32,7 @@ public sealed class DoorSetup
     {
         Ensure.NotNull(scrolls);
         foreach (DoorScreenChange change in ScreenChanges)
-            scrolls.SetCell(change.Screen, change.State);
+            scrolls.SetScreen(change.Screen, change.State);
     }
 
     /// <inheritdoc/>

@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
-/// What a shootable block or shootable air does with its behaviour (#1722): the reaction the shot, bomb and grapple
+/// What a shootable block or shootable air does with its behaviour (#1722, #1742): the reaction the shot, bomb and grapple
 /// dispatchers select. Its values are arbitrary; a behaviour written for another collision kind is read as one of these
-/// through <see cref="RoomBlockBehavior"/>.
+/// through <see cref="RoomBlockBehavior"/>, or as none when the shootable kinds have no reaction for it.
 /// </summary>
 public enum ShootableReaction
 {
@@ -43,17 +43,20 @@ public enum ShootableReaction
     /// <summary>A Super Missile breaks the block for good; a normal bomb shows it for an update.</summary>
     PermanentSuperMissileBlock,
 
-    /// <summary>The empty reaction among the shot table's leading reactions: a one-update object that leaves the block alone.</summary>
+    /// <summary>
+    /// Every weapon and the grapple beam set off a one-update object that leaves the block alone; the X-ray scope reveals
+    /// the block.
+    /// </summary>
     Nothing,
 
     /// <summary>The collision probe a closed downward gate gives its column: it publishes the shot's collision result.</summary>
     CollisionProbe,
 
     /// <summary>
-    /// An empty entry past the collision probe: a shot's scan does not dispatch it, a bomb rejects it, and the grapple beam
-    /// sets off the one-update object that leaves the block alone.
+    /// Shots pass it by without a reaction and the X-ray scope does not reveal it; the grapple beam sets off the one-update
+    /// object that leaves the block alone, and a bomb has no reaction for it.
     /// </summary>
-    EmptyEntry,
+    IgnoresShots,
 
     /// <summary>The left-facing blue door cap, which a shot opens.</summary>
     BlueDoorCapLeft,
@@ -103,15 +106,9 @@ public enum ShootableReaction
     /// <summary>The wall the escape animals break out through.</summary>
     AnimalEscape,
 
-    /// <summary>A reaction past the end of the shot table: a bomb rejects it and the grapple beam finds no reaction.</summary>
-    PastTable,
-
     /// <summary>
-    /// One of the reactions the room's area gives shootable blocks, every one the empty reaction: shootable air passes a
-    /// bomb or shot without a reaction, and a shootable block sets off the one-update object.
+    /// A shootable block sets off the one-update object that leaves it alone for any weapon or the grapple beam; shootable
+    /// air lets a weapon pass with no reaction at all (<see cref="ShotBlockReactions"/>).
     /// </summary>
-    AreaNothing,
-
-    /// <summary>An area reaction past the area's table: a bomb or shot rejects it.</summary>
-    PastAreaTable,
+    NothingWhenSolid,
 }

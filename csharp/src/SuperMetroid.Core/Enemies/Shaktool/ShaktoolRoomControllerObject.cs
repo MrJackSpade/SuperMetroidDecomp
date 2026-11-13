@@ -37,7 +37,7 @@ internal sealed class ShaktoolRoomControllerObject(IRoomSamusAccess? samus, IGlo
             throw new InvalidOperationException("Shaktool room controller requires scroll, Samus, and event owners.");
         if (context.Frame.PowerBombExplosionActive)
             for (int cell = 0; cell < ShaktoolRoomDefinitions.ScrollCellCount; cell++)
-                scrolls.SetCell(cell, RoomScrollState.Blue);
+                scrolls.SetCell(cell, RoomScrollState.OpenAlignedToTop);
         if (current.Position.X.Whole <= ShaktoolRoomDefinitions.ClearedPathXBoundary)
             return;
         _events.Set(StoryEvent.ShaktoolClearedPath);

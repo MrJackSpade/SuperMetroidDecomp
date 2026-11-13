@@ -70,13 +70,13 @@ internal static class ChozoStatueRoomDefinitions
     /// The Bowling Alley screens the Wrecked Ship statue's waking makes green, in the order it writes them: the second and
     /// third screens of the room's second row.
     /// </summary>
-    public static readonly IReadOnlyList<Position16<RoomScreens>> WakingGreenScreens = [new(1, 1), new(2, 1)];
+    public static readonly IReadOnlyList<Position16<RoomScreens>> WakingOpenScreens = [new(1, 1), new(2, 1)];
 
     /// <summary>
     /// The Bowling Alley screens the Wrecked Ship statue's waking then makes blue, in the order it writes them: the second
     /// and third screens of the room's third row, below the green ones.
     /// </summary>
-    public static readonly IReadOnlyList<Position16<RoomScreens>> WakingBlueScreens = [new(1, 2), new(2, 2)];
+    public static readonly IReadOnlyList<Position16<RoomScreens>> WakingTopAlignedScreens = [new(1, 2), new(2, 2)];
 
     /// <summary>
     /// The Bowling Alley screens the Wrecked Ship statue's release closes, in the order it writes them: the first five
@@ -85,7 +85,7 @@ internal static class ChozoStatueRoomDefinitions
     public static readonly IReadOnlyList<Position16<RoomScreens>> ReleaseClosedScreens = [new(0, 1), new(1, 1), new(2, 1), new(3, 1), new(4, 1)];
 
     /// <summary>The Bowling Alley screen the Wrecked Ship statue's release then makes blue: the third row's second screen.</summary>
-    public static readonly Position16<RoomScreens> ReleaseBlueScreen = new(1, 2);
+    public static readonly Position16<RoomScreens> ReleaseTopAlignedScreen = new(1, 2);
 
     /// <summary>The Bowling Alley screen the Wrecked Ship statue's release closes last: the third row's third screen.</summary>
     public static readonly Position16<RoomScreens> ReleaseClosedLastScreen = new(2, 2);

@@ -1,14 +1,20 @@
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
-/// <summary>Conventionally named values in the room scroll-zone grid.</summary>
+/// <summary>
+/// What a room's screen lets the camera do (#1741): stay out of it, enter it, or enter it with the camera's lowest position
+/// aligned to the screen's top. Its values are arbitrary; the camera starts every screen closed.
+/// </summary>
 public enum RoomScrollState
 {
-    /// <summary>An impassable camera boundary; camera motion may not enter this screen cell.</summary>
-    RedBoundary = 0,
+    /// <summary>The camera may not move into the screen: it is a camera boundary.</summary>
+    Closed,
 
-    /// <summary>A traversable screen cell using the game's blue vertical-alignment behavior.</summary>
-    Blue = 1,
+    /// <summary>
+    /// The camera may move into the screen, and its lowest position aligns the playfield to the screen's top rather than
+    /// the 31 pixels lower that <see cref="Open"/> allows.
+    /// </summary>
+    OpenAlignedToTop,
 
-    /// <summary>A traversable screen cell using the alternate green boundary behavior installed by room scripts.</summary>
-    Green = 2,
+    /// <summary>The camera may move into the screen, down to 31 pixels past the screen's top.</summary>
+    Open,
 }

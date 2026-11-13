@@ -1074,9 +1074,9 @@ internal static class RoomObjectPopulationVerification
             "empty fixture reserves no PLM before Shaktool setup spawn");
         AssertTrue(roomObjects.Shaktool.TrySpawnShaktoolRoomController(scrolls),
             "Shaktool room setup spawns its resident controller");
-        AssertEqual(RoomScrollState.Blue, scrolls.ReadState(0),
+        AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadState(0),
             "Shaktool setup opens the first scroll cell");
-        AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadState(3),
+        AssertEqual(RoomScrollState.Closed, scrolls.ReadState(3),
             "Shaktool setup keeps later scroll cells red");
 
         roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
@@ -1086,7 +1086,7 @@ internal static class RoomObjectPopulationVerification
 
         roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, PowerBombExplosionActive = true });
         for (int cell = 0; cell < ShaktoolRoomDefinitions.ScrollCellCount; cell++)
-            AssertEqual(RoomScrollState.Blue, scrolls.ReadState(cell),
+            AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadState(cell),
                 $"Shaktool power bomb opens scroll cell {cell}");
         AssertEqual(1, roomObjects.SlotTable.ActiveCount,
             "Shaktool controller remains resident until Samus passes the threshold");

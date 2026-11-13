@@ -364,7 +364,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case PhantoonPartCue.SpawnCasualFlame:
-                Patterns.SpawnPhantoonDestroyableFlame(state.Body, PhantoonFlameSpawnType.Casual, 0);
+                Patterns.SpawnPhantoonCasualFlame(state.Body);
                 _audio.QueueEnemySound(PhantoonSoundDefinitions.CasualFlame, PhantoonSoundDefinitions.CasualFlamePriority);
                 return;
 

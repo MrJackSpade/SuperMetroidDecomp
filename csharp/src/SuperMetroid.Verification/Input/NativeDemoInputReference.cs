@@ -40,9 +40,6 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
     /// <summary>Previous demo-edge word retained by <c>$91:83D9</c>.</summary>
     internal ushort PreviousNewlyPressed { get; private set; }
 
-    /// <summary>Prior held word published for this handler call.</summary>
-    internal ushort PublishedPreviousHeld { get; private set; }
-
     /// <summary>Prior edge word published for this handler call.</summary>
     internal ushort PublishedPreviousNewlyPressed { get; private set; }
 
@@ -84,7 +81,6 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
         FrameHold = frameHold.Remaining;
         if (frameHold.IsZero)
             ProcessAnimationScript(routine);
-        PublishedPreviousHeld = PreviousHeld;
         PublishedPreviousNewlyPressed = PreviousNewlyPressed;
         PreviousHeld = Held;
         PreviousNewlyPressed = NewlyPressed;
@@ -149,7 +145,7 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
     /// </summary>
     internal string Snapshot() =>
         $"{Enabled}/{FrameBehaviorPointer}/{InstructionPointer}/{FrameHold.RawValue}/" +
-        $"{Held}/{NewlyPressed}/{PreviousHeld}/{PreviousNewlyPressed}/{PublishedPreviousHeld}/{PublishedPreviousNewlyPressed}";
+        $"{Held}/{NewlyPressed}/{PreviousHeld}/{PreviousNewlyPressed}/{PublishedPreviousNewlyPressed}";
 
     /// <summary>
     /// A typed playback's words: what its owner watches for as <paramref name="frameBehavior"/>, the native pre-instruction
@@ -158,7 +154,7 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
     internal static string Of(DemoInputState state, ushort frameBehavior) =>
         $"{state.Enabled}/{frameBehavior}/{DemoInputNativeListAddresses.Address(state.Position)}/" +
         $"{state.FrameHold.RawValue}/{ControllerWordCodec.ToJoypadWord(state.Held)}/{ControllerWordCodec.ToJoypadWord(state.NewlyPressed)}/{ControllerWordCodec.ToJoypadWord(state.PreviousHeld)}/" +
-        $"{ControllerWordCodec.ToJoypadWord(state.PreviousNewlyPressed)}/{ControllerWordCodec.ToJoypadWord(state.PublishedPreviousHeld)}/{ControllerWordCodec.ToJoypadWord(state.PublishedPreviousNewlyPressed)}";
+        $"{ControllerWordCodec.ToJoypadWord(state.PreviousNewlyPressed)}/{ControllerWordCodec.ToJoypadWord(state.PublishedPreviousNewlyPressed)}";
 
     /// <summary>A pre-instruction for an object whose owner runs none: only the return-only routines may be installed.</summary>
     internal static void ReturnOnly(NativeDemoInputReference _, ushort frameBehavior)

@@ -254,9 +254,6 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Gets the current opening-cinematic state-machine phase.</summary>
     public IntroCinematicPhase Phase { get; private set; }
 
-    /// <summary>True after the final narration fade hands control to the Ceres flight.</summary>
-    public bool NarrationFinished { get; private set; }
-
     /// <summary>True when the SPACE COLONY caption and its final fade have completed.</summary>
     public bool CeresFlightFinished => CurrentCeresFlight?.Finished ?? false;
 
@@ -473,7 +470,6 @@ public sealed class IntroCinematicState : IFrontendScreen
                 fade.FadeOut(ref brightness);
                 if (brightness.IsBlanked)
                 {
-                    NarrationFinished = true;
                     // The Ceres approach immediately replaces the narration display setup with the
                     // Ceres turning-floor scene. Give that scene its own display, colour, and
                     // brightness owner: the narration has just deliberately reached

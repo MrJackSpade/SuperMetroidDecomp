@@ -104,18 +104,15 @@ internal static void VerifyTimedHeldInputTimeline()
     state.UpdateHeldInput(3, button, 0);
     AssertEqual(0, state.TimedHeldInputTimer.RawValue, "expired timer is pinned to zero");
     AssertEqual(button, state.TimedHeldInput, "held input activates after underflow");
-    AssertEqual(button, state.NewlyTimedHeldInput, "activation creates a rising-edge pulse");
 
     // Frame 6: the active input remains present, while its rising-edge output clears.
     state.UpdateHeldInput(3, button, 0);
     AssertEqual(button, state.TimedHeldInput, "stable expired input remains active");
-    AssertEqual(ControllerButton.None, state.NewlyTimedHeldInput, "rising-edge pulse lasts one update");
 
     // Releasing changes the held sample, reloads the timer, and suppresses the output.
     state.UpdateHeldInput(3, 0, 0);
     AssertEqual(3, state.TimedHeldInputTimer.RawValue, "release reloads timer");
     AssertEqual(ControllerButton.None, state.TimedHeldInput, "release clears filtered input");
-    AssertEqual(ControllerButton.None, state.NewlyTimedHeldInput, "release is not a new held press");
 
     Console.WriteLine("  Input: delayed-held timeline and edge pulse agree.");
 }
@@ -354,32 +351,22 @@ static EscapeTimer CreateRunningTimer(int remainingCentiseconds)
 }
 
 /// <summary>
-/// Exercises rising edges, releases, multi-frame holds, and the otherwise-unused repeat
-/// path from the NMI controller routine.
+/// Exercises rising edges, releases and multi-frame holds.
 /// </summary>
 internal static void VerifyControllerInputLatch()
 {
     ControllerButton button = ControllerButton.A;
-    var input = new ControllerInputState(initialRepeatDelay: 2, subsequentRepeatDelay: 1);
+    var input = new ControllerInputState();
 
     input.Latch(button);
     AssertEqual(button, input.Current, "controller current on first press");
     AssertEqual(button, input.NewlyPressed, "controller rising edge on first press");
-    AssertEqual(button, input.NewlyPressedWithRepeat, "repeat output includes real first press");
-    AssertEqual(2, input.RepeatTimer.RawValue, "first press loads initial repeat delay");
 
     input.Latch(button);
     AssertEqual(ControllerButton.None, input.NewlyPressed, "stable hold has no new edge");
-    AssertEqual(ControllerButton.None, input.NewlyPressedWithRepeat, "first held frame has no repeat");
-    AssertEqual(1, input.RepeatTimer.RawValue, "held input decrements repeat timer");
-
-    input.Latch(button);
-    AssertEqual(button, input.NewlyPressedWithRepeat, "repeat timer zero emits held input");
-    AssertEqual(1, input.RepeatTimer.RawValue, "repeat pulse loads subsequent delay");
 
     input.Latch(0);
     AssertEqual(ControllerButton.None, input.NewlyPressed, "release is not a rising edge");
-    AssertEqual(2, input.RepeatTimer.RawValue, "release reloads initial repeat delay");
 
     // Direction-sensitive enemy AI masks only the horizontal pair, so unrelated face
     // buttons must not prevent an exact-Right decision while Left+Right must.

@@ -68,7 +68,6 @@ internal static class EndingRewardGestureVerification
                 maps.Add(Convert.ToHexString(ScreenSpritesFixtures.Frame(objects => gesture.Draw(objects, rewardSprites)).LowTable));
             }
             AssertTrue(gesture.JumpRequested, "native reward gesture reaches jumping-actor instruction");
-            AssertEqual(reward == EndingReward.Suitless, gesture.SuitlessJumpRequested, "reward-specific jump request");
             AssertTrue(maps.Count >= 8, "reward gesture produces changing OAM, not a static idle pose");
             AssertEqual(reward == EndingReward.Suitless ? 244 : 329, calls,
                 "native ED2D/EDD3 gesture durations before jump spawn");

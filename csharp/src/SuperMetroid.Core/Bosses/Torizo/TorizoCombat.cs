@@ -50,7 +50,7 @@ internal sealed class TorizoCombat
             if (isBombTorizo || torizo.FlashTimer != 0 || state.AnimationLocked)
                 return;
 
-            _collision.ApplyCommonNormalBombDamage(torizo, bomb, runGenericDeath: false);
+            _collision.ApplyNormalBombDamage(torizo, bomb);
             if (torizo.Health == 0)
                 BeginBombTorizoDeath(torizo, state);
             return;
@@ -78,7 +78,7 @@ internal sealed class TorizoCombat
             SetBehavior(torizo, TorizoBehaviorFlags.Stunned);
         }
 
-        _collision.ApplyCommonNormalBombDamage(torizo, bomb, runGenericDeath: false);
+        _collision.ApplyNormalBombDamage(torizo, bomb);
         if (torizo.Health == 0)
             BeginBombTorizoDeath(torizo, state);
     }
@@ -164,6 +164,8 @@ internal sealed class TorizoCombat
             },
             BeforeImpact = ResolveTorizoShotBeforeImpact,
             ExemptFromGenericDeath = true,
+            // Both Torizos' shot reactions run the common damage without the hit burst.
+            ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
             AfterCommon = c =>
             {
                 if (c.Enemy.Health == 0)

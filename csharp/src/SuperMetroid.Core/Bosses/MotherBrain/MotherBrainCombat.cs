@@ -268,7 +268,7 @@ internal sealed class MotherBrainCombat
         if (state.Form == MotherBrainForm.FakeDeath)
             return;
 
-        _collision.ApplyCommonNormalBombDamage(head, bomb, runGenericDeath: false);
+        _collision.ApplyNormalBombDamage(head, bomb);
     }
 
     /// <summary>Registers the head-touch reaction for the active body/head pair.</summary>

@@ -34,6 +34,19 @@ internal sealed class EnemyShotReaction(Func<RoomEnemySlot, bool> matches)
     /// <summary>Runs after health is sampled, before vulnerability.</summary>
     internal EnemyShotStage? BeforeVulnerability { get; init; }
 
+    /// <summary>
+    /// Whether a hit that hurts an enemy that is not frozen shows the enemy-hit burst at it, after the hit's damage and
+    /// before its death (<see cref="EnemyCollision"/>). The ordinary shot reaction shows it; a species whose reaction runs
+    /// the common damage without the burst says so, for every hit or for the hits it decides.
+    /// </summary>
+    internal Func<EnemyShotContext, bool> ShowsHitBurst { get; init; } = AlwaysShowsHitBurst;
+
+    /// <summary>The <see cref="ShowsHitBurst"/> of a reaction whose every hurting hit shows the burst.</summary>
+    internal static Func<EnemyShotContext, bool> AlwaysShowsHitBurst { get; } = static _ => true;
+
+    /// <summary>The <see cref="ShowsHitBurst"/> of a reaction that runs the common damage without the burst.</summary>
+    internal static Func<EnemyShotContext, bool> NeverShowsHitBurst { get; } = static _ => false;
+
     /// <summary>Whether a lethal hit leaves the death to the species instead of the generic death animation.</summary>
     internal bool ExemptFromGenericDeath { get; init; }
 

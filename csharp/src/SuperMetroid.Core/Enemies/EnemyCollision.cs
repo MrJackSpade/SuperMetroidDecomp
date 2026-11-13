@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Enemies;
@@ -36,11 +37,14 @@ internal sealed class EnemyCollision
     private readonly EnemySlotTable _slotTable;
     /// <summary>Resizes a power bomb's sweep after each kill it makes.</summary>
     private readonly PowerBombRadiusAfterKill _powerBombRadius;
+    /// <summary>The room's sprite objects, which the burst at an enemy a shot or bomb hurts joins.</summary>
+    private readonly RoomSpriteObjects _spriteObjects;
 
     /// <summary>Binds the enemy and room owners whose state or reactions collisions can change.</summary>
     internal EnemyCollision(EnemyCollisionDependencies dependencies)
     {
         _powerBombRadius = dependencies.PowerBombRadius;
+        _spriteObjects = dependencies.SpriteObjects;
         _dispatch = dependencies.Dispatch;
         _audio = dependencies.Audio;
         _deathsAndDrops = dependencies.DeathsAndDrops;
@@ -311,7 +315,7 @@ internal sealed class EnemyCollision
                 {
                     // The collision walker marks the projectile's direction, not a
                     // terrain impact. Projectile frame behaviours consume that marker
-                    // on the next alpha pass; normal shot AI owns its separate hit graphic.
+                    // on the next alpha pass; the damage below shows its own hit burst at the enemy.
                     // Super Missiles must retain their handler so it also clears their
                     // collision links. Terrain conversion strands a live link that can
                     // damage the enemy again after its flash timer expires.
@@ -359,8 +363,11 @@ internal sealed class EnemyCollision
                     enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
                     // Common shot AI queues the definition's cry before subtracting health,
                     // including lethal hits. Frozen targets suppress this cry; death
-                    // explosion animations retain their separate, later sound owner.
-                    if (enemy.FrozenTimer == 0 && enemy.Definition.HurtSoundEffect is SoundEffectId cry)
+                    // explosion animations retain their separate, later sound owner. The
+                    // same test, made here before a lethal Ice hit freezes the enemy, decides
+                    // the hit burst below, which shows whether or not the enemy has a cry.
+                    bool hurtUnfrozen = enemy.FrozenTimer == 0;
+                    if (hurtUnfrozen && enemy.Definition.HurtSoundEffect is SoundEffectId cry)
                         _audio.QueueEnemySound(cry, SoundRequestPriority.Low);
                     // Every plasma-family hit gives sixteen invincibility frames.
                     // Only a beam combining Plasma gives this; other projectile
@@ -386,6 +393,8 @@ internal sealed class EnemyCollision
                             ? 0
                             : enemy.Health - damage;
                     }
+                    if (hurtUnfrozen && reaction.ShowsHitBurst(shot))
+                        ShowHitBurst(enemy);
                     if (enemy.Health == 0 && !reaction.ExemptFromGenericDeath)
                     {
                         reaction.BeforeGenericDeath?.Invoke(shot);
@@ -536,7 +545,14 @@ internal sealed class EnemyCollision
                         {
                             bombContext = bombContext with { HealthBefore = enemy.Health };
                             reaction?.BeforeCommon?.Invoke(bombContext);
-                            ApplyCommonNormalBombDamage(enemy, bomb, runGenericDeath: reaction?.RunsGenericDeath ?? true);
+                            NormalBombHit hit = HurtByNormalBomb(enemy, bomb);
+                            if (hit == NormalBombHit.HurtUnfrozen &&
+                                (reaction?.ShowsHitBurst ?? EnemyBombReaction.AlwaysShowsHitBurst)(bombContext))
+                            {
+                                ShowHitBurst(enemy);
+                            }
+                            if (hit != NormalBombHit.Dud && (reaction?.RunsGenericDeath ?? true))
+                                StartNormalBombDeathIfKilled(enemy);
                             reaction?.AfterCommon?.Invoke(bombContext);
                         }
                     }
@@ -561,13 +577,17 @@ internal sealed class EnemyCollision
         owner.OwnsPrivateShotReaction(reaction);
 
     /// <summary>
-    /// Executes the branch of the shot AI that skips the death animation,
-    /// followed by the ordinary shot AI's death tail.
+    /// Runs the common damage a normal bomb does through the shot reaction, without the hit burst or the death tail: the
+    /// part of the reaction a species' own bomb handling calls before deciding the enemy's death itself.
     /// </summary>
-    internal void ApplyCommonNormalBombDamage(
-        RoomEnemySlot enemy,
-        SamusBombProjectileSlot bomb,
-        bool runGenericDeath = true)
+    internal void ApplyNormalBombDamage(RoomEnemySlot enemy, SamusBombProjectileSlot bomb) => _ = HurtByNormalBomb(enemy, bomb);
+
+    /// <summary>
+    /// Damages <paramref name="enemy"/> by <paramref name="bomb"/> through its bomb vulnerability: a zero multiplier leaves
+    /// the dud flash and sound instead; otherwise the enemy flashes, is hurt, cries unless frozen and loses the damage.
+    /// </summary>
+    /// <returns>Whether the bomb was a dud, hurt the enemy while it was frozen, or hurt it while it was not.</returns>
+    private NormalBombHit HurtByNormalBomb(RoomEnemySlot enemy, SamusBombProjectileSlot bomb)
     {
         EnemyWeaponVulnerability vulnerability = EnemyVulnerabilities.Of(enemy.Definition).Ordnance.Bomb;
         int damage = vulnerability.DamageFrom(bomb.Damage);
@@ -577,24 +597,49 @@ internal sealed class EnemyCollision
         if (damage == 0)
         {
             _projectiles.CreateBombDudShot(bomb);
-            return;
+            return NormalBombHit.Dud;
         }
 
         enemy.FlashTimer = enemy.HurtFlashFrames + 8;
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
         // The common shot reaction a bomb runs queues the definition's cry before subtracting health, lethal hits
         // included, as it does for a beam or a missile; a frozen enemy makes no cry.
-        if (enemy.FrozenTimer == 0 && enemy.Definition.HurtSoundEffect is SoundEffectId cry)
+        bool hurtUnfrozen = enemy.FrozenTimer == 0;
+        if (hurtUnfrozen && enemy.Definition.HurtSoundEffect is SoundEffectId cry)
             _audio.QueueEnemySound(cry, SoundRequestPriority.Low);
         enemy.Health = damage >= enemy.Health
             ? 0
             : enemy.Health - damage;
-        if (enemy.Health != 0 || !runGenericDeath)
-            return;
+        return hurtUnfrozen ? NormalBombHit.HurtUnfrozen : NormalBombHit.HurtFrozen;
+    }
 
+    /// <summary>The ordinary shot reaction's death tail after a bomb's damage: a killed enemy starts its death.</summary>
+    private void StartNormalBombDeathIfKilled(RoomEnemySlot enemy)
+    {
+        if (enemy.Health != 0)
+            return;
         _deathsAndDrops.StartGenericEnemyDeath(
             enemy,
             EnemyDeathsAndDrops.SelectNormalShotDeathAnimation(enemy, SamusBombProjectileSystem.NormalBombType));
+    }
+
+    /// <summary>
+    /// Shows the enemy-hit burst at <paramref name="enemy"/>'s position: the ordinary shot reaction's sign that a shot or
+    /// bomb hurt an enemy that was not frozen, shown after the damage and before the death. It is a room sprite object
+    /// drawn with the room's graphics, so it takes one of the room's sprite-object places as it spawns.
+    /// </summary>
+    private void ShowHitBurst(RoomEnemySlot enemy) =>
+        _ = _spriteObjects.SpawnRoomSpriteObject(enemy.Position.Whole, RoomSpriteObjectKind.EnemyHit, graphics: default);
+
+    /// <summary>What a normal bomb's common damage did to the enemy it reached.</summary>
+    private enum NormalBombHit
+    {
+        /// <summary>The enemy's bomb vulnerability is zero: the bomb shows the dud flash and the enemy is untouched.</summary>
+        Dud,
+        /// <summary>The bomb hurt an enemy that was frozen, which makes no cry and shows no hit burst.</summary>
+        HurtFrozen,
+        /// <summary>The bomb hurt an enemy that was not frozen.</summary>
+        HurtUnfrozen,
     }
 
     /// <summary>

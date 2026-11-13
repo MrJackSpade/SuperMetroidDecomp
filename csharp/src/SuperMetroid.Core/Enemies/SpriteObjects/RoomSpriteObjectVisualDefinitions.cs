@@ -132,5 +132,9 @@ internal static class RoomSpriteObjectVisualDefinitions
         { RoomSpriteObjectFrame.EvirFacingRight1, EnemyFrameId.SpriteObjectEvirFacingRightSecond },
         { RoomSpriteObjectFrame.EvirFacingRight2, EnemyFrameId.SpriteObjectEvirFacingRightThird },
         { RoomSpriteObjectFrame.EvirFacingRight3, EnemyFrameId.SpriteObjectEvirFacingRightFourth },
+        { RoomSpriteObjectFrame.EnemyHit0, EnemyFrameId.SpriteObjectEnemyHitFirst },
+        { RoomSpriteObjectFrame.EnemyHit1, EnemyFrameId.SpriteObjectEnemyHitSecond },
+        { RoomSpriteObjectFrame.EnemyHit2, EnemyFrameId.SpriteObjectEnemyHitThird },
+        { RoomSpriteObjectFrame.EnemyHit3, EnemyFrameId.SpriteObjectEnemyHitFourth },
     };
 }

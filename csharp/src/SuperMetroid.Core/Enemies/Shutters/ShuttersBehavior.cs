@@ -731,6 +731,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.HorizontalShutterShot)
         {
             ExemptFromGenericDeath = true,
+            // The horizontal shutter's shot reaction runs the common damage without the hit burst.
+            ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
             AfterCommon = c => ReactHorizontalShutter(c.Enemy),
         });
     }

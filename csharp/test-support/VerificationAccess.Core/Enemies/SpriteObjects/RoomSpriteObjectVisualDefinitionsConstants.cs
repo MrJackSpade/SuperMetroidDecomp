@@ -130,6 +130,10 @@ internal static class RoomSpriteObjectVisualDefinitionsConstants
         RoomSpriteObjectFrame.EvirFacingRight1 => 0xdc7d,
         RoomSpriteObjectFrame.EvirFacingRight2 => 0xdcbb,
         RoomSpriteObjectFrame.EvirFacingRight3 => 0xdcf9,
+        RoomSpriteObjectFrame.EnemyHit0 => 0xd857,
+        RoomSpriteObjectFrame.EnemyHit1 => 0xd86d,
+        RoomSpriteObjectFrame.EnemyHit2 => 0xd883,
+        RoomSpriteObjectFrame.EnemyHit3 => 0xd899,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a room sprite-object frame."),
     };
 }

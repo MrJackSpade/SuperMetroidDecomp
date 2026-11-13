@@ -299,6 +299,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
                                                        c.SelectedShotAi == EnemyReaction.ZebetiteShot)
         {
             RunsGenericDeath = false,
+            // The Zebetite's shot reaction runs the common damage without the hit burst.
+            ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
             AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy),
         });
     }
@@ -317,6 +319,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AlwaysUsesCollisionPrelude = true,
             ExemptFromGenericDeath = true,
+            // The Zebetite's shot reaction runs the common damage without the hit burst.
+            ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
             AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy),
         });
     }

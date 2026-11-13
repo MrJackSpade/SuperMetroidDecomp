@@ -371,6 +371,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                                                        c.SelectedShotAi == EnemyReaction.RinkaShot)
         {
             RunsGenericDeath = false,
+            // Rinka's shot reaction runs the common damage without the hit burst.
+            ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
             AfterCommon = c => ResolveRinkaCombatAfterCommon(c.Enemy),
         });
     }
@@ -411,6 +413,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.RinkaShot)
         {
             ExemptFromGenericDeath = true,
+            // Rinka's shot reaction runs the common damage without the hit burst.
+            ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
             AfterCommon = c =>
             {
                 if (!c.Froze)

@@ -799,6 +799,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                                                        c.SelectedShotAi == EnemyReaction.BotwoonShot)
         {
             RunsGenericDeath = false,
+            // Botwoon's shot reaction runs the common damage without the hit burst.
+            ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
             AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
         });
     }
@@ -841,6 +843,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.BotwoonShot)
         {
             ExemptFromGenericDeath = true,
+            // Botwoon's shot reaction runs the common damage without the hit burst.
+            ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
             AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
         });
     }

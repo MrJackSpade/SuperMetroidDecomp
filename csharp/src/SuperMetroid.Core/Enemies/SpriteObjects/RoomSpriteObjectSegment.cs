@@ -49,4 +49,6 @@ internal enum RoomSpriteObjectSegment
     EvirFacingLeft,
     /// <summary>Evir facing right animation.</summary>
     EvirFacingRight,
+    /// <summary>The burst at an enemy a shot or bomb hurts.</summary>
+    EnemyHit,
 }

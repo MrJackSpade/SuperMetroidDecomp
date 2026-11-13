@@ -1144,6 +1144,14 @@ public enum EnemyFrameId
     SpriteObjectMetroidElectricityLoopSixth,
     /// <summary>A room sprite object: Metroid electricity loop, seventh frame.</summary>
     SpriteObjectMetroidElectricityLoopSeventh,
+    /// <summary>A room sprite object: the burst at an enemy a shot or bomb hurts, first frame.</summary>
+    SpriteObjectEnemyHitFirst,
+    /// <summary>A room sprite object: the burst at an enemy a shot or bomb hurts, second frame.</summary>
+    SpriteObjectEnemyHitSecond,
+    /// <summary>A room sprite object: the burst at an enemy a shot or bomb hurts, third frame.</summary>
+    SpriteObjectEnemyHitThird,
+    /// <summary>A room sprite object: the burst at an enemy a shot or bomb hurts, fourth frame.</summary>
+    SpriteObjectEnemyHitFourth,
     /// <summary>A room sprite object: yapping maw base facing down.</summary>
     SpriteObjectYappingMawBaseFacingDown,
     /// <summary>A room sprite object: yapping maw base facing up.</summary>

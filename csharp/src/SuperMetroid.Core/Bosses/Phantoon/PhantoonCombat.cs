@@ -48,6 +48,8 @@ internal sealed class PhantoonCombat
                                                        c.SelectedShotAi == EnemyReaction.PhantoonShot)
         {
             RunsGenericDeath = false,
+            // Phantoon's shot reaction runs the common damage without the hit burst.
+            ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
             // Phantoon's hitbox reaction enters the same no-death common damage for bombs as it
             // does for beams and missiles, then consumes the exact damage delta in its encounter reaction state
             // machine. A lethal hit begins the authored death sequence, while sub-threshold damage feeds the

@@ -38,6 +38,9 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         "Rts", "Rtl", "Jsr", "Jsl", "Jmp", "Jml",
         // #1558: the machine's storage widths, its save memory, opcodes, and the program's PLM and enemy-projectile labels.
         "Word", "Byte", "Sram", "Opcode", "Plm", "Eproj",
+        // #1685: the cartridge's record headers, which named rooms, room objects, effects, projectiles and enemies by the
+        // structure the program stored them in.
+        "Header",
     ];
 
     /// <summary>Endings that keep a word the same hardware word: <c>Banks</c>, <c>Addresses</c>, <c>Banked</c>, <c>Addressing</c>.</summary>
@@ -52,7 +55,7 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true,
         description: "Core is a C# game. Its identifiers say what things are in the game, never which chip, memory or " +
             "cartridge structure the original stored them in, and never number them as the cartridge did in hexadecimal; " +
-            "hardware behaviour the game needs lives in a compatibility service named for the game (#1400, #1554, " +
+            "hardware behaviour the game needs lives in a compatibility service named for the game (#1400, #1554, #1685, " +
             "docs/core-vocabulary.md).");
 
     /// <inheritdoc/>

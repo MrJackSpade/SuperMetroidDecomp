@@ -36,6 +36,15 @@ internal static class CoreVocabularyAnalyzerTests
         Expect("class P { void Run() { int frameCounterByte = 0; } }", "'frameCounterByte' names the hardware ('Byte')");
         Expect("class P { void SaveToSram() { } }", "'SaveToSram' names the hardware ('Sram')");
         Expect("class P { void SpawnEprojInner() { } }", "'SpawnEprojInner' names the hardware ('Eproj')");
+        // The cartridge's record headers, in each kind of declaration a renamed identity used them in (#1685).
+        Expect("sealed class RoomHeaderDefinition { }", "'RoomHeaderDefinition' names the hardware ('Header')");
+        Expect("static class SamusProjectileHeaders { }", "'SamusProjectileHeaders' names the hardware ('Header')");
+        Expect("class P { int Header { get; } }", "'Header' names the hardware ('Header')");
+        Expect("class P { void SpawnEnemyDropFromEnemyHeader() { } }", "'SpawnEnemyDropFromEnemyHeader' names the hardware ('Header')");
+        Expect("class P { void Spawn(int roomObjectHeader) { } }", "'roomObjectHeader' names the hardware ('Header')");
+        Expect("class P { void Run() { int header = 0; _ = header; } }", "'header' names the hardware ('Header')");
+        // Words that begin with the same letters are the game's own: a facing, a head, a heading.
+        Expect("class P { int Heading; int Head; int Headroom; int Headbutt; int HeadedLeft; }");
         Expect("class P { int Banked; }", "'Banked' names the hardware ('Bank')");
         Expect("class P { int[] Pointers = []; }", "'Pointers' names the hardware ('Pointer')");
         Expect("class P { void Run() { try { } catch (System.Exception addressing) { _ = addressing; } } }", "'addressing' names the hardware ('Address')");

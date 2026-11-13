@@ -19,8 +19,8 @@ internal static class KraidSinkScheduleVerification
         AssertEqual(28, callbacks.Count, "Native sinking row count");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            KraidSinkCallback? expected = callbacks.TryGetValue((ushort)raw, out ushort callback) ? KraidNativeListAddresses.NativeSinkCallbacks[callback] : null;
-            AssertEqual(expected, KraidSinkSchedule.CallbackAt((ushort)raw), "Native sinking Y/callback record");
+            KraidSinkStep? expected = callbacks.TryGetValue((ushort)raw, out ushort callback) ? KraidNativeListAddresses.NativeSinkCallbacks[callback] : null;
+            AssertEqual(expected, KraidSinkSchedule.StepAt((ushort)raw), "Native sinking Y/callback record");
         }
     }
 
@@ -42,7 +42,7 @@ internal static class KraidSinkScheduleVerification
         foreach (ushort callback in callbacks.Distinct())
         {
             int code = 0xa70000 | callback;
-            var request = KraidObjects.ForSinkCallback(KraidNativeListAddresses.NativeSinkCallbacks[callback]);
+            var request = KraidObjects.ForSinkStep(KraidNativeListAddresses.NativeSinkCallbacks[callback]);
             if (KraidSinkObjectFieldRomByte(rom, code) == 0x60)
             {
                 AssertEqual<RoomObjectSpawnRequest<KraidRoomMutation>?>(null, request, "Native empty RTS emits no request");
@@ -56,7 +56,7 @@ internal static class KraidSinkScheduleVerification
         }
         AssertEqual(6, count, "Six distinct platform mutations");
         AssertEqual(7, KraidNativeListAddresses.NativeSinkCallbacks.Count, "Every native sink callback has a typed member");
-        AssertTrue(KraidNativeListAddresses.NativeSinkCallbacks.Values.Distinct().Count() == Enum.GetValues<KraidSinkCallback>().Length,
+        AssertTrue(KraidNativeListAddresses.NativeSinkCallbacks.Values.Distinct().Count() == Enum.GetValues<KraidSinkStep>().Length,
             "The typed callbacks are exactly the native routines");
     }
 
@@ -124,7 +124,7 @@ internal static class KraidSinkScheduleVerification
             body.Position = body.Position.WithWholeY((ushort)raw);
             ushort? expected = callbacks.TryGetValue((ushort)raw, out ushort callback) ? callback : null;
             step(body);
-            bool crumble = expected.HasValue && KraidNativeListAddresses.NativeSinkCallbacks[callback] != KraidSinkCallback.NoOperation;
+            bool crumble = expected.HasValue && KraidNativeListAddresses.NativeSinkCallbacks[callback] != KraidSinkStep.NoOperation;
             AssertEqual(crumble ? 1 : 0, requests.Count, "Only native crumble callbacks mutate platforms");
             AssertEqual(crumble ? 1 : 0, enemies.Projectiles.EnemyProjectiles.Count(p => p.Kind != RoomEnemyProjectileKind.None), "Exact native rock count");
             if (!crumble) continue;

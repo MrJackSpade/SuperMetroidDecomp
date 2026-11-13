@@ -30,7 +30,7 @@ internal static class OceanSkyVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var scene = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         var ordinary = (GameplaySceneLayer)scene.Layers[0];
-        Console.WriteLine($"Ocean room: main={runtime.Room.LoadedRoom.State.MainCallback}, sky={runtime.Room.ScrollingSky is not null}");
+        Console.WriteLine($"Ocean room: main={runtime.Room.LoadedRoom.State.MainBehavior}, sky={runtime.Room.ScrollingSky is not null}");
 
         ScrollingSkyState sky = runtime.Room.ScrollingSky ?? throw new InvalidOperationException("Ocean main installs the scrolling sky.");
         AssertEqual(ScrollingSkyChunkTable.Ocean, sky.Variant, "the ocean main reads the ocean chunk table, not the land table");

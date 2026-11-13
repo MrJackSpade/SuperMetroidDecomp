@@ -129,6 +129,6 @@ public sealed class MaridiaElevatubeRoomMainState
         if (IsActive)
             return;
         throw new InvalidDataException(
-            $"Elevatube setup callback {setupCode} selected a room without the elevatube's room main.");
+            $"Door setup {setupCode} drives the elevatube in a room whose room behaviour is not the elevatube.");
     }
 }

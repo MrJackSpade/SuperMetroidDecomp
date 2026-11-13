@@ -11,15 +11,15 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class KraidNativeListAddresses
 {
     /// <summary>Each native sink-callback routine pointer in bank $A7 and the callback it is.</summary>
-    internal static readonly Dictionary<ushort, KraidSinkCallback> NativeSinkCallbacks = new()
+    internal static readonly Dictionary<ushort, KraidSinkStep> NativeSinkCallbacks = new()
     {
-        [0xc6a6] = KraidSinkCallback.NoOperation,
-        [0xc691] = KraidSinkCallback.CrumbleLeftPlatformLeft,
-        [0xc6a7] = KraidSinkCallback.CrumbleRightPlatformMiddle,
-        [0xc6bd] = KraidSinkCallback.CrumbleRightPlatformLeft,
-        [0xc6d3] = KraidSinkCallback.CrumbleLeftPlatformRight,
-        [0xc6e9] = KraidSinkCallback.CrumbleLeftPlatformMiddle,
-        [0xc6ff] = KraidSinkCallback.CrumbleRightPlatformRight,
+        [0xc6a6] = KraidSinkStep.NoOperation,
+        [0xc691] = KraidSinkStep.CrumbleLeftPlatformLeft,
+        [0xc6a7] = KraidSinkStep.CrumbleRightPlatformMiddle,
+        [0xc6bd] = KraidSinkStep.CrumbleRightPlatformLeft,
+        [0xc6d3] = KraidSinkStep.CrumbleLeftPlatformRight,
+        [0xc6e9] = KraidSinkStep.CrumbleLeftPlatformMiddle,
+        [0xc6ff] = KraidSinkStep.CrumbleRightPlatformRight,
     };
 
     /// <summary>Kraid's instruction bank, $A7.</summary>

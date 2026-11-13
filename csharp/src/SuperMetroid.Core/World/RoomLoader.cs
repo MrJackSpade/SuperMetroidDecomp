@@ -802,11 +802,11 @@ internal sealed class RoomLoader
         var wreckedShipTreadmill = new WreckedShipTreadmillAnimatedTilesState();
         scope.WreckedShipTreadmill = wreckedShipTreadmill;
         var maridiaElevatube = new MaridiaElevatubeRoomMainState(
-            active: room.State.MainCallback == RoomMainCallback.MaridiaElevatube,
+            active: room.State.MainBehavior == RoomMainBehavior.MaridiaElevatube,
             _room.RoomMainCarryover);
         scope.MaridiaElevatube = maridiaElevatube;
         var ceresElevatorShaft = new CeresElevatorShaftRoomMainState(
-            active: room.State.MainCallback == RoomMainCallback.CeresElevatorShaft &&
+            active: room.State.MainBehavior == RoomMainBehavior.CeresElevatorShaft &&
                 door.EntersCeresElevatorShaft,
             _room.RoomMainCarryover);
         scope.CeresElevatorShaft = ceresElevatorShaft;
@@ -859,9 +859,9 @@ internal sealed class RoomLoader
         // The sky's banded horizontal motion belongs to the separately spawned sky effect, which the room's FX or
         // setup starts, not to the room's main behaviour.
         RoomFxRecordDefinition? selectedFx = room.State.Fx?.Select(door);
-        bool skyHasBands = ScrollingSkyState.SpawnsBands(selectedFx?.Type, room.State.SetupCallback);
-        scope.ScrollingSky = ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainCallback)
-            ? new ScrollingSkyState(ScrollingSkyState.VariantOf(room.State.MainCallback), skyHasBands)
+        bool skyHasBands = ScrollingSkyState.SpawnsBands(selectedFx?.Type, room.State.SetupBehavior);
+        scope.ScrollingSky = ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainBehavior)
+            ? new ScrollingSkyState(ScrollingSkyState.VariantOf(room.State.MainBehavior), skyHasBands)
             : null;
 
         // The room's pictures carry its tileset's colours (#1512), so the load colours nothing.
@@ -881,7 +881,7 @@ internal sealed class RoomLoader
         roomFxOverlay.BindAudioRequests(_audioRequests);
         scope.FxOverlay = roomFxOverlay;
         roomFxOverlay.PrimeViewport(destinationCamera.PixelPosition);
-        scope.CeresHaze = new CeresHazeState(RoomCallbackDefinitions.CeresHazeSetups.Contains(room.State.SetupCallback),
+        scope.CeresHaze = new CeresHazeState(RoomBehaviorDefinitions.CeresHazeSetups.Contains(room.State.SetupBehavior),
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
         scope.SandTiles = new RoomSandAnimatedTilesState(room.State.Fx, door);
@@ -960,17 +960,17 @@ internal sealed class RoomLoader
         // first gameplay frame would already have streamed a viewport with wrong camera
         // limits.
         _doorTransition.RunDoorSetupCode(door, roomObjects, wreckedShipTreadmill, ceresElevatorShaft, maridiaElevatube);
-        if (room.State.SetupCallback == RoomSetupCallback.SetupShaktoolRoomObject)
+        if (room.State.SetupBehavior == RoomSetupBehavior.SetupShaktoolRoomObject)
             roomObjects.Shaktool.TrySpawnShaktoolRoomController(destinationCamera.Scrolls);
-        if (room.State.SetupCallback == RoomSetupCallback.TurnWallIntoShotBlocksDuringEscape)
+        if (room.State.SetupBehavior == RoomSetupBehavior.TurnWallIntoShotBlocksDuringEscape)
             roomObjects.EscapeAnimals.SetupCrittersEscapeBlock(assets.LevelData,
                 assets.LevelData.GridBlock(new(EscapeAnimalWallDefinitions.WallX, EscapeAnimalWallDefinitions.WallY)));
         // The Climb's escape setup spawns the fake-wall room object; the spawn silently drops it when all
         // forty slots are occupied.
-        if (room.State.SetupCallback == RoomSetupCallback.AutoDestroyWallDuringEscape)
+        if (room.State.SetupBehavior == RoomSetupBehavior.AutoDestroyWallDuringEscape)
             roomObjects.Tourian.TrySpawnOldTourianEscapeShaftWall(assets.LevelData);
         // The mainstreet's escape setup also spawns this room object before writing the quake SetupEscapeRoomEffects owns.
-        if (room.State.SetupCallback == RoomSetupCallback.ClearBlocksAfterSavingAnimalsAndShakeScreen)
+        if (room.State.SetupBehavior == RoomSetupBehavior.ClearBlocksAfterSavingAnimalsAndShakeScreen)
             roomObjects.EscapeAnimals.TrySpawnCrateriaMainstreetEscapePassage(assets.LevelData);
 
         if (entry.RunDoorClosingObject)
@@ -1034,14 +1034,14 @@ internal sealed class RoomLoader
                 for (int row = 0; row < RidleyMapDefinitions.ArenaScreenRows; row++)
                     _system.MarkExploredMapTile(room.AreaIndex, room.MapPosition + new Offset16<MapTiles>(0, row + 1));
         }
-        _escapeEffects.SetupEscapeRoomEffects(room.State.SetupCallback, enemies, scope.EscapeDiagonalQuake);
+        _escapeEffects.SetupEscapeRoomEffects(room.State.SetupBehavior, enemies, scope.EscapeDiagonalQuake);
         // Gate setup runs while the room-object population is constructed, but Enemies.Load
         // subsequently clears the shared projectile pool. Consume those setup
         // requests here—the first point matching the game's completed room teardown—
         // so the closed actor survives into the initial viewport.
         _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(roomObjects, enemies);
         // The Tourian escape setup spawns into the pool that Enemies.Load has just cleared.
-        if (room.State.SetupCallback == RoomSetupCallback.SpawnPrePhantoonRoomEnemyProjectile)
+        if (room.State.SetupBehavior == RoomSetupBehavior.SpawnPrePhantoonRoomEnemyProjectile)
             enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile();
         _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame.RoomEffects, roomObjects, roomFxOverlay, roomPaletteFx, enemies);
         scope.TourianStatues = new TourianStatueSequence(_tourianStatueDependencies, roomFxOverlay, roomPaletteFx, roomObjects, enemies);
@@ -1207,7 +1207,7 @@ internal sealed class RoomLoader
     {
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("A door began with no room loaded.");
         // The elevator shaft's screen is its turning floor, which the door's scroll keeps showing: none of its blocks (#1647).
-        if (RoomTurningFloors.ShowsShaftFloor(scope.Room.State.MainCallback))
+        if (RoomTurningFloors.ShowsShaftFloor(scope.Room.State.MainBehavior))
             return RoomBlockPictureTable.NoneDrawn();
         return scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane, null, RoomScope.BlockArtworkOf(_room.ActiveRoom),
             new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, _enemySession.Looks), []);

@@ -56,10 +56,10 @@ internal sealed class TorizoCombat
             return;
         }
 
-        bool validMainCallback = isBombTorizo
+        bool validShotReaction = isBombTorizo
             ? selectedShotAi == EnemyReaction.BombTorizoShot
             : selectedShotAi is EnemyReaction.BombTorizoShot or EnemyReaction.GoldenTorizoShot;
-        if (!validMainCallback)
+        if (!validShotReaction)
         {
             throw new InvalidDataException(
                 $"Torizo normal-bomb hitbox AI {selectedShotAi?.ToString() ?? "(unnamed)"} is not translated.");

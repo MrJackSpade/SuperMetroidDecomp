@@ -29,42 +29,42 @@ internal sealed class EscapeRoomEffects
         _system = system;
     }
     /// <summary>Initializes the selected room's quake and clears diagonal countdowns only for the two switchers.</summary>
-    internal void SetupEscapeRoomEffects(RoomSetupCallback setup, RoomEnemySystem enemies, EscapeDiagonalQuakeState diagonalQuake)
+    internal void SetupEscapeRoomEffects(RoomSetupBehavior setup, RoomEnemySystem enemies, EscapeDiagonalQuakeState diagonalQuake)
     {
         // The two rooms whose mains switch quake types clear the diagonal countdown in their setup; the other
         // setups leave the countdown the previous room's main left.
-        if (setup is RoomSetupCallback.SetLightHorizontalRoomShaking or
-            RoomSetupCallback.SetupEscapeRoom4ObjectAndMediumHorizontalShaking)
+        if (setup is RoomSetupBehavior.SetLightHorizontalRoomShaking or
+            RoomSetupBehavior.SetupEscapeRoom4ObjectAndMediumHorizontalShaking)
             diagonalQuake.Countdown = WrappingCountdown.Start(0);
         EarthquakeShake? shake = setup switch
         {
-            RoomSetupCallback.SetZebesTimebombEventAndLightHorizontalShaking or
-            RoomSetupCallback.SetLightHorizontalRoomShaking => ZebesEscapeDefinitions.LightHorizontal,
-            RoomSetupCallback.SetMediumHorizontalRoomShaking or
-            RoomSetupCallback.SetupEscapeRoom4ObjectAndMediumHorizontalShaking => ZebesEscapeDefinitions.MediumHorizontal,
-            RoomSetupCallback.ClearBlocksAfterSavingAnimalsAndShakeScreen => ZebesEscapeDefinitions.MainstreetQuake,
-            RoomSetupCallback.ShakeScreenAndCallScrollingSkyLandDuringEscape => ZebesEscapeDefinitions.LandingQuake,
-            RoomSetupCallback.None or RoomSetupCallback.AutoDestroyWallDuringEscape or
-                RoomSetupCallback.TurnWallIntoShotBlocksDuringEscape or
-                RoomSetupCallback.ReturnAfterEscapeWallSetup or RoomSetupCallback.ReturnBeforeEscapeSkySetup or
-                RoomSetupCallback.ScrollingSkyLand or RoomSetupCallback.ScrollingSkyOcean or
-                RoomSetupCallback.Return or RoomSetupCallback.ReturnAfterOceanSkySetup or
-                RoomSetupCallback.ReturnBeforeStatueSetupA or RoomSetupCallback.ReturnBeforeStatueSetupB or
-                RoomSetupCallback.RunStatueUnlockingAnimations or RoomSetupCallback.SharedReturn or
-                RoomSetupCallback.SharedReturnB or RoomSetupCallback.SharedReturnC or
-                RoomSetupCallback.SharedReturnD or RoomSetupCallback.OrdinaryReturn or
-                RoomSetupCallback.SpawnPrePhantoonRoomEnemyProjectile or RoomSetupCallback.BossRoomReturn or
-                RoomSetupCallback.BossRoomReturnB or RoomSetupCallback.BossRoomReturnC or
-                RoomSetupCallback.SetupShaktoolRoomObject or RoomSetupCallback.ReturnBeforeDraygonSetup or
-                RoomSetupCallback.SetPausingCodeForDraygon or RoomSetupCallback.SetCollectedMap or
-                RoomSetupCallback.ReturnBeforeZebesTimebombSetup or
-                RoomSetupCallback.TurnCeresDoorToSolidBlocksAndSpawnHaze or RoomSetupCallback.SpawnCeresHaze or
-                RoomSetupCallback.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze => null,
-            _ => throw new InvalidOperationException($"Undefined RoomSetupCallback {setup}."),
+            RoomSetupBehavior.SetZebesTimebombEventAndLightHorizontalShaking or
+            RoomSetupBehavior.SetLightHorizontalRoomShaking => ZebesEscapeDefinitions.LightHorizontal,
+            RoomSetupBehavior.SetMediumHorizontalRoomShaking or
+            RoomSetupBehavior.SetupEscapeRoom4ObjectAndMediumHorizontalShaking => ZebesEscapeDefinitions.MediumHorizontal,
+            RoomSetupBehavior.ClearBlocksAfterSavingAnimalsAndShakeScreen => ZebesEscapeDefinitions.MainstreetQuake,
+            RoomSetupBehavior.ShakeScreenAndCallScrollingSkyLandDuringEscape => ZebesEscapeDefinitions.LandingQuake,
+            RoomSetupBehavior.None or RoomSetupBehavior.AutoDestroyWallDuringEscape or
+                RoomSetupBehavior.TurnWallIntoShotBlocksDuringEscape or
+                RoomSetupBehavior.ReturnAfterEscapeWallSetup or RoomSetupBehavior.ReturnBeforeEscapeSkySetup or
+                RoomSetupBehavior.ScrollingSkyLand or RoomSetupBehavior.ScrollingSkyOcean or
+                RoomSetupBehavior.Return or RoomSetupBehavior.ReturnAfterOceanSkySetup or
+                RoomSetupBehavior.ReturnBeforeStatueSetupA or RoomSetupBehavior.ReturnBeforeStatueSetupB or
+                RoomSetupBehavior.RunStatueUnlockingAnimations or RoomSetupBehavior.SharedReturn or
+                RoomSetupBehavior.SharedReturnB or RoomSetupBehavior.SharedReturnC or
+                RoomSetupBehavior.SharedReturnD or RoomSetupBehavior.OrdinaryReturn or
+                RoomSetupBehavior.SpawnPrePhantoonRoomEnemyProjectile or RoomSetupBehavior.BossRoomReturn or
+                RoomSetupBehavior.BossRoomReturnB or RoomSetupBehavior.BossRoomReturnC or
+                RoomSetupBehavior.SetupShaktoolRoomObject or RoomSetupBehavior.ReturnBeforeDraygonSetup or
+                RoomSetupBehavior.SetPausingCodeForDraygon or RoomSetupBehavior.SetCollectedMap or
+                RoomSetupBehavior.ReturnBeforeZebesTimebombSetup or
+                RoomSetupBehavior.TurnCeresDoorToSolidBlocksAndSpawnHaze or RoomSetupBehavior.SpawnCeresHaze or
+                RoomSetupBehavior.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze => null,
+            _ => throw new InvalidOperationException($"Undefined room setup {setup}."),
         };
         if (shake is { } quake)
             enemies.Earthquake.Start(quake, WrappingCountdown.LongestStart);
-        if (setup == RoomSetupCallback.SetZebesTimebombEventAndLightHorizontalShaking)
+        if (setup == RoomSetupBehavior.SetZebesTimebombEventAndLightHorizontalShaking)
             _system.SetEvent(SuperMetroid.Core.Progression.StoryEvent.ZebesTimebombSet);
     }
 
@@ -74,11 +74,11 @@ internal sealed class EscapeRoomEffects
         RoomEnemySystem enemies = room.Enemies;
         EscapeDiagonalQuakeState diagonalQuake = room.EscapeDiagonalQuake;
         if (_room.ActiveRoom is null || _room.Camera is null || _room.LevelData is null) return;
-        RoomMainCallback main = _room.ActiveRoom.State.MainCallback;
-        bool nonblank = main is RoomMainCallback.ScrollingSkyLandZebesTimebombSet or
-            RoomMainCallback.SetScreenShakingAndGenerateRandomExplosions;
-        bool light = main == RoomMainCallback.ShakeScreenLightHorizontalAndMediumDiagonal;
-        bool medium = main == RoomMainCallback.ShakeScreenMediumHorizontalAndStrongDiagonal;
+        RoomMainBehavior main = _room.ActiveRoom.State.MainBehavior;
+        bool nonblank = main is RoomMainBehavior.ScrollingSkyLandZebesTimebombSet or
+            RoomMainBehavior.SetScreenShakingAndGenerateRandomExplosions;
+        bool light = main == RoomMainBehavior.ShakeScreenLightHorizontalAndMediumDiagonal;
+        bool medium = main == RoomMainBehavior.ShakeScreenMediumHorizontalAndStrongDiagonal;
         if (!ZebesEscapeDefinitions.ExplosionRoomMains.Contains(main))
             return;
         if (light || medium)

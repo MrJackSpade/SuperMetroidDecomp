@@ -23,5 +23,5 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemySl
     /// <summary>The corpse's rot trigger, when its definition names it as the shot reaction.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
-        DeadTourianBehavior.HasDeadTourianCorpseShotCallback(Slot) && reaction == EnemyCollision.ShotAi(Slot);
+        DeadTourianBehavior.HasDeadTourianCorpseShotReaction(Slot) && reaction == EnemyCollision.ShotAi(Slot);
 }

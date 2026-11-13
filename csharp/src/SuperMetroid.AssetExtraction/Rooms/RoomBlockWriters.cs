@@ -70,9 +70,9 @@ internal static class RoomBlockWriters
             new(FrameBlocks(catalogs.PhantoonDoor.Images), Holding([EnemyDefinitionId.PhantoonBody])),
             // What the state's setup and main routines spawn.
             new(FrameBlocks(catalogs.TourianAccess.Images),
-                state => state.SetupCallback == RoomSetupCallback.RunStatueUnlockingAnimations),
+                state => state.SetupBehavior == RoomSetupBehavior.RunStatueUnlockingAnimations),
             .. PerFrame(catalogs.RevealAndWall.Images, RevealOrWallWrittenIn),
-            new(FrameBlocks(catalogs.MaridiaElevatube.Images), state => state.MainCallback == RoomMainCallback.MaridiaElevatube),
+            new(FrameBlocks(catalogs.MaridiaElevatube.Images), state => state.MainBehavior == RoomMainBehavior.MaridiaElevatube),
             // The X-ray reveal: each reveal where the terrain holds the block it copies over, each tank where one is placed,
             // the extension exit where an extension can lead out, and a room's overlay only there.
             .. XrayRevealWriters(xray),
@@ -229,16 +229,16 @@ internal static class RoomBlockWriters
         RoomObjectFrameDraw<RoomObjectBombedRevealDraw> { Frame: RoomObjectBombedRevealDraw.PowerBomb } => static state => state.HoldsPowerBombBlocks,
         RoomObjectFrameDraw<RoomObjectBombedRevealDraw> { Frame: RoomObjectBombedRevealDraw.SuperMissile } => static state => state.HoldsSuperMissileBlocks,
         RoomObjectFrameDraw<CrateriaMainstreetEscapePassageObjectDefinitions.Draw> =>
-            static state => state.SetupCallback == RoomSetupCallback.ClearBlocksAfterSavingAnimalsAndShakeScreen,
+            static state => state.SetupBehavior == RoomSetupBehavior.ClearBlocksAfterSavingAnimalsAndShakeScreen,
         RoomObjectFrameDraw<OldTourianEscapeShaftWallObjectDefinitions.Draw> =>
-            static state => state.SetupCallback == RoomSetupCallback.AutoDestroyWallDuringEscape,
+            static state => state.SetupBehavior == RoomSetupBehavior.AutoDestroyWallDuringEscape,
         RoomObjectFrameDraw<EscapeAnimalDraw> => BuildsEscapeAnimalWall,
         _ => throw new InvalidDataException($"Reveal and wall frame {draw} is no reveal's or wall's."),
     };
 
     /// <summary>Whether a room state builds the escape animals' rescue wall: its setup turns the wall into shot blocks, or its terrain holds it.</summary>
     private static bool BuildsEscapeAnimalWall(InventoriedRoomState state) =>
-        state.SetupCallback == RoomSetupCallback.TurnWallIntoShotBlocksDuringEscape || state.HoldsEscapeAnimalWall;
+        state.SetupBehavior == RoomSetupBehavior.TurnWallIntoShotBlocksDuringEscape || state.HoldsEscapeAnimalWall;
 
     /// <summary>
     /// One writer for each X-ray reveal: the blocks it copies over the room's, as many as its shape copies, written where the

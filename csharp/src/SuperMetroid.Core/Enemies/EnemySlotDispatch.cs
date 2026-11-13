@@ -59,19 +59,19 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         switch (slot.Entity)
         {
             case IEnemySurroundingsInitialization entity:
-                (entity.FindSurroundingsInitialization() ?? throw Untranslated(slot))(slot, surroundings);
+                (entity.FindSurroundingsInitialization() ?? throw NoInitialization(slot))(slot, surroundings);
                 break;
             case IEnemyInitialization entity:
-                (entity.FindInitialization() ?? throw Untranslated(slot))(slot);
+                (entity.FindInitialization() ?? throw NoInitialization(slot))(slot);
                 break;
             default:
-                throw Untranslated(slot);
+                throw NoInitialization(slot);
         }
     }
 
-    /// <summary>The failure for a slot whose definition names an initialization AI this build does not model.</summary>
-    private static InvalidDataException Untranslated(RoomEnemySlot slot) =>
-        new($"Enemy {slot.DefinitionId} initialization AI is not translated.");
+    /// <summary>The failure for a slot whose species has no initialization behaviour.</summary>
+    private static InvalidDataException NoInitialization(RoomEnemySlot slot) =>
+        new($"Enemy {slot.DefinitionId} has no initialization behaviour.");
 
     /// <summary>Exposes setting up a listed enemy from its population record to the enemy loader.</summary>
     void IEnemyDispatch.InitializeSlotFromDefinition(
@@ -108,7 +108,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
     internal static void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         EnemyMainAiHandler handler = (slot.Entity as IEnemyMainAi)?.FindMain() ?? throw new InvalidDataException(
-            $"Enemy {slot.DefinitionId} main AI is not translated.");
+            $"Enemy {slot.DefinitionId} has no main behaviour.");
         handler(slot, frame);
     }
 }

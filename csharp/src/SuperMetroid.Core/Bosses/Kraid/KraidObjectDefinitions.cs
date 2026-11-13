@@ -49,15 +49,15 @@ public static class KraidObjectDefinitions
     /// surviving platforms share the ceiling row and alternate background blocks by column parity, as in the
     /// sinking steps' authored arguments.
     /// </summary>
-    public static IReadOnlyDictionary<KraidSinkCallback, RoomObjectSpawnRequest<KraidRoomMutation>?> SinkMutations { get; } =
-        new Dictionary<KraidSinkCallback, RoomObjectSpawnRequest<KraidRoomMutation>?>
+    public static IReadOnlyDictionary<KraidSinkStep, RoomObjectSpawnRequest<KraidRoomMutation>?> SinkMutations { get; } =
+        new Dictionary<KraidSinkStep, RoomObjectSpawnRequest<KraidRoomMutation>?>
         {
-            [KraidSinkCallback.NoOperation] = null,
-            [KraidSinkCallback.CrumbleLeftPlatformLeft] = new RoomObjectSpawnRequest<KraidRoomMutation>(new(7, 18), KraidRoomMutation.CrumblePlatformVariant1),
-            [KraidSinkCallback.CrumbleLeftPlatformMiddle] = new RoomObjectSpawnRequest<KraidRoomMutation>(new(8, 18), KraidRoomMutation.CrumblePlatformVariant2),
-            [KraidSinkCallback.CrumbleLeftPlatformRight] = new RoomObjectSpawnRequest<KraidRoomMutation>(new(9, 18), KraidRoomMutation.CrumblePlatformVariant1),
-            [KraidSinkCallback.CrumbleRightPlatformLeft] = new RoomObjectSpawnRequest<KraidRoomMutation>(new(14, 18), KraidRoomMutation.CrumblePlatformVariant2),
-            [KraidSinkCallback.CrumbleRightPlatformMiddle] = new RoomObjectSpawnRequest<KraidRoomMutation>(new(15, 18), KraidRoomMutation.CrumblePlatformVariant1),
-            [KraidSinkCallback.CrumbleRightPlatformRight] = new RoomObjectSpawnRequest<KraidRoomMutation>(new(16, 18), KraidRoomMutation.CrumblePlatformVariant2),
+            [KraidSinkStep.NoOperation] = null,
+            [KraidSinkStep.CrumbleLeftPlatformLeft] = new RoomObjectSpawnRequest<KraidRoomMutation>(new(7, 18), KraidRoomMutation.CrumblePlatformVariant1),
+            [KraidSinkStep.CrumbleLeftPlatformMiddle] = new RoomObjectSpawnRequest<KraidRoomMutation>(new(8, 18), KraidRoomMutation.CrumblePlatformVariant2),
+            [KraidSinkStep.CrumbleLeftPlatformRight] = new RoomObjectSpawnRequest<KraidRoomMutation>(new(9, 18), KraidRoomMutation.CrumblePlatformVariant1),
+            [KraidSinkStep.CrumbleRightPlatformLeft] = new RoomObjectSpawnRequest<KraidRoomMutation>(new(14, 18), KraidRoomMutation.CrumblePlatformVariant2),
+            [KraidSinkStep.CrumbleRightPlatformMiddle] = new RoomObjectSpawnRequest<KraidRoomMutation>(new(15, 18), KraidRoomMutation.CrumblePlatformVariant1),
+            [KraidSinkStep.CrumbleRightPlatformRight] = new RoomObjectSpawnRequest<KraidRoomMutation>(new(16, 18), KraidRoomMutation.CrumblePlatformVariant2),
         };
 }

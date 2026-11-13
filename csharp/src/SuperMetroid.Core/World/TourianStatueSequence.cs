@@ -132,7 +132,7 @@ public sealed class TourianStatueSequence
     /// </remarks>
     private void Begin(RoomObjectSystem roomObjects)
     {
-        Enabled = _room.ActiveRoom?.State.SetupCallback == RoomSetupCallback.RunStatueUnlockingAnimations;
+        Enabled = _room.ActiveRoom?.State.SetupBehavior == RoomSetupBehavior.RunStatueUnlockingAnimations;
         if (!Enabled) return;
         SpawnAnimatedObjects();
         if (_assists.Current.TourianStatuesOpen || _system.HasEvent(StoryEvent.TourianUnlocked))

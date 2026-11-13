@@ -51,7 +51,7 @@ internal static class CrocomirePresentation1193Verification
             runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(512, 0));
         }
         game.GameState = SuperMetroidGameState.MainGameplay;
-        AssertEqual(RoomMainCallback.CrocomireRoomShaking, runtime.Room.LoadedRoom.State.MainCallback,
+        AssertEqual(RoomMainBehavior.CrocomireRoomShaking, runtime.Room.LoadedRoom.State.MainBehavior,
             "Actual Crocomire room selects native shaking callback");
         if (!spikes)
         {

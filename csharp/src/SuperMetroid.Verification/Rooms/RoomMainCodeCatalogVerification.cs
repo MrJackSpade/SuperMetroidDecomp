@@ -25,9 +25,9 @@ internal static class RoomMainCodeCatalogVerification
     /// </summary>
     internal static void VerifyRoomMainCodeCatalog()
     {
-        ushort[] catalog = Enum.GetValues<RoomMainCallback>()
-            .Where(callback => callback != RoomMainCallback.None)
-            .Select(callback => RoomCallbackDefinitions.PointerOf(callback))
+        ushort[] catalog = Enum.GetValues<RoomMainBehavior>()
+            .Where(callback => callback != RoomMainBehavior.None)
+            .Select(callback => RoomBehaviorDefinitions.PointerOf(callback))
             .ToArray();
         AssertEqual(catalog.Length, catalog.Distinct().Count(),
             "room-main callback catalog has no aliases");
@@ -59,8 +59,8 @@ internal static class RoomMainCodeCatalogVerification
                 RoomStateSettings state = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context).State;
                 if (!statePointers.Add(state.Pointer))
                     continue;
-                if (state.MainCallback != RoomMainCallback.None)
-                    retailMainPointers.Add(RoomCallbackDefinitions.PointerOf(state.MainCallback));
+                if (state.MainBehavior != RoomMainBehavior.None)
+                    retailMainPointers.Add(RoomBehaviorDefinitions.PointerOf(state.MainBehavior));
             }
         }
 

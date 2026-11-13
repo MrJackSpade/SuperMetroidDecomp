@@ -666,7 +666,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             {
                 PirateHitboxShotActions.PirateHitboxShotAction pirateAction = PirateHitboxShotActions.SelectPirateNormalBombHitboxShotAction(c.Enemy, c.SelectedShotAi);
                 if (pirateAction != PirateHitboxShotActions.PirateHitboxShotAction.Ignore)
-                    throw new InvalidDataException("Gold Ninja normal-bomb callbacks must ignore the normal-bomb family.");
+                    throw new InvalidDataException("A Gold Ninja Space Pirate's normal-bomb reaction selected an action other than ignoring the bomb.");
                 // Both gold-Ninja component reactions compare the normal-bomb family against the Power Bomb family and return
                 // immediately. The extended collision walker has already marked the bomb, so this is an
                 // accepted physical overlap without damage, impact replacement, reflection, or the Lower-Norfair

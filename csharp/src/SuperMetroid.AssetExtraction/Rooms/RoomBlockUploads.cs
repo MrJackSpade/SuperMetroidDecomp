@@ -72,8 +72,8 @@ internal static class RoomBlockUploads
                 DoorDefinition?[] doors = [.. DoorVariants(library)];
                 names.AddRange(doors.Select(door => RoomBackgroundImage.NameOf(library.Background, door, tileset)));
             }
-            if (ScrollingSkyState.IsScrollingSkyRoomMain(state.MainCallback))
-                names.Add(RoomBackgroundImage.SkyNameOf(ScrollingSkyState.VariantOf(state.MainCallback), tileset));
+            if (ScrollingSkyState.IsScrollingSkyRoomMain(state.MainBehavior))
+                names.Add(RoomBackgroundImage.SkyNameOf(ScrollingSkyState.VariantOf(state.MainBehavior), tileset));
         }
         return [.. names.Distinct(StringComparer.Ordinal)];
     }
@@ -149,10 +149,10 @@ internal static class RoomBlockUploads
                     // Words written over the room show over what its load binds.
                     uploads.AddWriters(writers, Loaded(inputs, tileset), blockArtwork, []);
                 }
-                if (ScrollingSkyState.IsScrollingSkyRoomMain(state.MainCallback))
+                if (ScrollingSkyState.IsScrollingSkyRoomMain(state.MainBehavior))
                 {
                     // The sky's rows show over what the room's load binds.
-                    ScrollingSkyChunkTable variant = ScrollingSkyState.VariantOf(state.MainCallback);
+                    ScrollingSkyChunkTable variant = ScrollingSkyState.VariantOf(state.MainBehavior);
                     uploads.AddBackground(new RoomBackgroundMap(RoomBackgroundImage.SkyNameOf(variant, tileset),
                         BackgroundTileWords.ToWords(inputs.Skies.Tilemap(variant).Tiles), Loaded(inputs, tileset)));
                 }
@@ -203,7 +203,7 @@ internal static class RoomBlockUploads
                     yield return frame;
             }
         }
-        if (state.SetupCallback == RoomSetupCallback.RunStatueUnlockingAnimations)
+        if (state.SetupBehavior == RoomSetupBehavior.RunStatueUnlockingAnimations)
         {
             foreach (TourianStatueAnimationDefinition statue in TourianStatueAnimatedTilePrograms.All)
             {

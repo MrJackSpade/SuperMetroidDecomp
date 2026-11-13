@@ -26,8 +26,8 @@ internal static class RoomCallbackDefinitionsVerification
             .ToArray();
 
         var states = new HashSet<ushort>();
-        var mainCallbacks = new HashSet<RoomMainCallback>();
-        var setupCallbacks = new HashSet<RoomSetupCallback>();
+        var mainCallbacks = new HashSet<RoomMainBehavior>();
+        var setupCallbacks = new HashSet<RoomSetupBehavior>();
         foreach (ushort roomPointer in roomPointers)
         foreach (RoomStateSelectionContext context in BuildRoomStateAuditContexts())
         {
@@ -36,11 +36,11 @@ internal static class RoomCallbackDefinitionsVerification
             if (!states.Add(state.Pointer))
                 continue;
 
-            RoomMainCallback main = state.MainCallback;
-            RoomSetupCallback setup = state.SetupCallback;
-            AssertEqual(main, RoomCallbackDefinitions.ResolveMain(RoomCallbackDefinitions.PointerOf(main)),
+            RoomMainBehavior main = state.MainBehavior;
+            RoomSetupBehavior setup = state.SetupBehavior;
+            AssertEqual(main, RoomBehaviorDefinitions.ResolveMain(RoomBehaviorDefinitions.PointerOf(main)),
                 $"room state $8F:{state.Pointer:X4} main callback round trip");
-            AssertEqual(setup, RoomCallbackDefinitions.ResolveSetup(RoomCallbackDefinitions.PointerOf(setup)),
+            AssertEqual(setup, RoomBehaviorDefinitions.ResolveSetup(RoomBehaviorDefinitions.PointerOf(setup)),
                 $"room state $8F:{state.Pointer:X4} setup callback round trip");
             mainCallbacks.Add(main);
             setupCallbacks.Add(setup);
@@ -48,27 +48,27 @@ internal static class RoomCallbackDefinitionsVerification
 
         AssertEqual(RoomStateDefinitions.RetailStateCount, states.Count,
             "callback audit reaches every compiled retail room state");
-        AssertTrue(mainCallbacks.SetEquals(Enum.GetValues<RoomMainCallback>()),
+        AssertTrue(mainCallbacks.SetEquals(Enum.GetValues<RoomMainBehavior>()),
             "every typed room-main callback occurs in the retail state graph");
-        AssertTrue(setupCallbacks.SetEquals(Enum.GetValues<RoomSetupCallback>()),
+        AssertTrue(setupCallbacks.SetEquals(Enum.GetValues<RoomSetupBehavior>()),
             "every typed room-setup callback occurs in the retail state graph");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomCallbackDefinitions.ResolveMain(0xffff),
+            () => RoomBehaviorDefinitions.ResolveMain(0xffff),
             "room-main dispatch rejects unknown native pointers");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomCallbackDefinitions.ResolveSetup(0xffff),
+            () => RoomBehaviorDefinitions.ResolveSetup(0xffff),
             "room-setup dispatch rejects unknown native pointers");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomCallbackDefinitions.PointerOf((RoomMainCallback)byte.MaxValue),
+            () => RoomBehaviorDefinitions.PointerOf((RoomMainBehavior)byte.MaxValue),
             "room-main reverse mapping rejects unknown typed identities");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomCallbackDefinitions.PointerOf((RoomSetupCallback)byte.MaxValue),
+            () => RoomBehaviorDefinitions.PointerOf((RoomSetupBehavior)byte.MaxValue),
             "room-setup reverse mapping rejects unknown typed identities");
-        AssertTrue(RoomCallbackDefinitions.CeresHazeSetups.Contains(
-                RoomSetupCallback.TurnCeresDoorToSolidBlocksAndSpawnHaze),
+        AssertTrue(RoomBehaviorDefinitions.CeresHazeSetups.Contains(
+                RoomSetupBehavior.TurnCeresDoorToSolidBlocksAndSpawnHaze),
             "Ceres solid-door callback retains its haze side effect");
-        AssertTrue(!RoomCallbackDefinitions.CeresHazeSetups.Contains(
-                RoomSetupCallback.SetMediumHorizontalRoomShaking),
+        AssertTrue(!RoomBehaviorDefinitions.CeresHazeSetups.Contains(
+                RoomSetupBehavior.SetMediumHorizontalRoomShaking),
             "unrelated callback does not acquire Ceres haze");
 
         Console.WriteLine(

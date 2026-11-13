@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Mutually exclusive room-setup behaviors selected by a retail room state. Only the import oracle relates each to the game.</summary>
-public enum RoomSetupCallback
+public enum RoomSetupBehavior
 {
     /// <summary>No room-specific setup behaviour runs.</summary>
     None,

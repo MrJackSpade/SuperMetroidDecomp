@@ -85,12 +85,12 @@ public static class ZebesEscapeDefinitions
     /// tiles, the two rooms whose shaking turns diagonal, and the rooms exploding every fourth update. The escape room
     /// effects run their explosions in exactly these rooms, and the import pictures the explosions only for them.
     /// </summary>
-    public static IReadOnlySet<RoomMainCallback> ExplosionRoomMains { get; } = new HashSet<RoomMainCallback>
+    public static IReadOnlySet<RoomMainBehavior> ExplosionRoomMains { get; } = new HashSet<RoomMainBehavior>
     {
-        RoomMainCallback.ScrollingSkyLandZebesTimebombSet,
-        RoomMainCallback.SetScreenShakingAndGenerateRandomExplosions,
-        RoomMainCallback.ShakeScreenLightHorizontalAndMediumDiagonal,
-        RoomMainCallback.ShakeScreenMediumHorizontalAndStrongDiagonal,
-        RoomMainCallback.GenerateRandomExplosionEveryFourthFrame,
+        RoomMainBehavior.ScrollingSkyLandZebesTimebombSet,
+        RoomMainBehavior.SetScreenShakingAndGenerateRandomExplosions,
+        RoomMainBehavior.ShakeScreenLightHorizontalAndMediumDiagonal,
+        RoomMainBehavior.ShakeScreenMediumHorizontalAndStrongDiagonal,
+        RoomMainBehavior.GenerateRandomExplosionEveryFourthFrame,
     };
 }

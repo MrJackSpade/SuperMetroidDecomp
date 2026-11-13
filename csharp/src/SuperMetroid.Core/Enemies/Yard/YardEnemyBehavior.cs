@@ -433,12 +433,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // Gravity always stores the fraction but stores the whole pixels only below four.
-        SignedSixteenSixteen fallingVelocity = state.AirborneVelocity.Y;
-        SignedSixteenSixteen accelerated = fallingVelocity + SignedSixteenSixteen.FromParts(0, 8192);
-        state.AirborneVelocity = state.AirborneVelocity.WithY(CoordinateAxis.Difference(accelerated.UnsignedWholePixels, 4) < 0
-            ? accelerated
-            : fallingVelocity.WithFraction(accelerated.Fraction));
+        state.AirborneVelocity = state.AirborneVelocity.WithY(YardFallAcceleration.Accelerated(state.AirborneVelocity.Y));
     }
 
     /// <summary>Stops Yard's fall, selects normal or aggressive crawling, and restores crawler velocity from its floor-facing bits.</summary>

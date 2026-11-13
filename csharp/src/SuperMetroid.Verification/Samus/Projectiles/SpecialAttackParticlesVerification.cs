@@ -32,7 +32,106 @@ internal static class SpecialAttackParticlesVerification
         Suite(nameof(VerifySpazerRun), VerifySpazerRun);
         Suite(nameof(VerifySpentSpazerEndsPartnerPlace), VerifySpentSpazerEndsPartnerPlace);
         Suite(nameof(VerifyWaveRun), VerifyWaveRun);
-        Console.WriteLine("Special-attack particles: spawn parts, the whole Spazer and Wave runs and the spent-partner rule match the original's place rules.");
+        Suite(nameof(VerifyLeadParticleHoldsOffOrbitingAttack), VerifyLeadParticleHoldsOffOrbitingAttack);
+        Console.WriteLine("Special-attack particles: spawn parts, the whole Spazer and Wave runs, the spent-partner rule and the lead-particle hold match the original's place rules.");
+    }
+
+    /// <summary>The four beams that start a special attack.</summary>
+    private static readonly SamusBeamFlags[] AttackBeams =
+        [SamusBeamFlags.Wave, SamusBeamFlags.Ice, SamusBeamFlags.Spazer, SamusBeamFlags.Plasma];
+
+    /// <summary>
+    /// The states a running attack can leave its four places in before another attack is tried: every particle running,
+    /// the Ice particles turned outward, the lead particle ended with the rest running, another particle ended with the
+    /// lead running, every particle ended, and the lead's place taken by an ordinary shot once it ended.
+    /// </summary>
+    private enum AttackLeftState
+    {
+        /// <summary>Every particle still runs.</summary>
+        AllRunning,
+
+        /// <summary>Every Ice particle has turned outward; other attacks' particles run on.</summary>
+        TurnedOutward,
+
+        /// <summary>The lead particle has ended; the rest run on.</summary>
+        LeadEnded,
+
+        /// <summary>A particle other than the lead has ended; the lead runs on.</summary>
+        OtherEnded,
+
+        /// <summary>Every particle has ended.</summary>
+        AllEnded,
+
+        /// <summary>The lead particle has ended and an ordinary shot has taken its place.</summary>
+        LeadPlaceReshot,
+    }
+
+    /// <summary>
+    /// Checks the lead-particle hold (<see cref="LeadParticleHoldsOffOrbitingAttack"/>) against the original's start test,
+    /// which refuses an Ice attack while the first projectile place runs an Ice particle's update, inward or outward, and a
+    /// Plasma attack while it runs the Plasma ring's: after each of the four attacks, in each state it can leave its
+    /// places in, each of the four attacks is tried, and it starts exactly when the original's test passes, replacing the
+    /// four places.
+    /// </summary>
+    private static void VerifyLeadParticleHoldsOffOrbitingAttack()
+    {
+        int refused = 0;
+        int started = 0;
+        foreach (SamusBeamFlags first in AttackBeams)
+        foreach (AttackLeftState left in Enum.GetValues<AttackLeftState>())
+        foreach (SamusBeamFlags next in AttackBeams)
+        {
+            (SamusProjectileSystem projectiles, SamusBombProjectileSystem shared, SamusState samus) = StartAttack(first, CentredSamus);
+            Leave(projectiles, left);
+            SamusProjectileFrameBehavior firstPlace = projectiles.Slots[0].FrameBehavior;
+            bool originalStarts = !(next == SamusBeamFlags.Ice && firstPlace is SamusProjectileFrameBehavior.IceCombo or SamusProjectileFrameBehavior.IceComboOutward ||
+                next == SamusBeamFlags.Plasma && firstPlace == SamusProjectileFrameBehavior.PlasmaCombo);
+            SamusProjectile[] before = [.. projectiles.Slots.Take(4)];
+            samus.EquippedBeams = next;
+            string name = $"{next} after {first} left {left}";
+            AssertEqual(originalStarts, projectiles.Combos.TryActivateCombo(samus, shared, out _), $"{name} starts as the first place's test decides");
+            for (int place = 0; place < 4; place++)
+                AssertEqual(originalStarts, !ReferenceEquals(before[place], projectiles.Slots[place]),
+                    $"{name}: place {place} is replaced exactly when the attack starts");
+            if (originalStarts) started++;
+            else refused++;
+        }
+        AssertTrue(refused > 0 && started > 0, "the hold both refuses and admits attacks");
+        Console.WriteLine($"  Lead-particle hold: {started} starts and {refused} refusals across every attack, left state and next attack match the original's first-place test.");
+    }
+
+    /// <summary>Leaves a just-started attack's places in <paramref name="left"/>.</summary>
+    private static void Leave(SamusProjectileSystem projectiles, AttackLeftState left)
+    {
+        switch (left)
+        {
+            case AttackLeftState.AllRunning:
+                break;
+            case AttackLeftState.TurnedOutward:
+                foreach (SamusProjectile particle in projectiles.Slots.Take(4))
+                    if (particle.FrameBehavior == SamusProjectileFrameBehavior.IceCombo)
+                        particle.FrameBehavior = SamusProjectileFrameBehavior.IceComboOutward;
+                break;
+            case AttackLeftState.LeadEnded:
+                projectiles.Animation.ClearProjectile(projectiles.Slots[0]);
+                break;
+            case AttackLeftState.OtherEnded:
+                projectiles.Animation.ClearProjectile(projectiles.Slots[2]);
+                break;
+            case AttackLeftState.AllEnded:
+                foreach (SamusProjectile particle in projectiles.Slots.Take(4).ToArray())
+                    projectiles.Animation.ClearProjectile(particle);
+                break;
+            case AttackLeftState.LeadPlaceReshot:
+                projectiles.Animation.ClearProjectile(projectiles.Slots[0]);
+                SamusProjectile shot = projectiles.SlotTable.Occupy(0);
+                shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false);
+                shot.Damage = 1;
+                shot.FrameBehavior = SamusProjectileFrameBehavior.NoWaveBeam;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(left), left, $"Undefined {nameof(AttackLeftState)}.");
+        }
     }
 
     /// <summary>Checks every particle's part as each of the four attacks starts.</summary>

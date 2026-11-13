@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Choot.Artwork;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Choot;
@@ -179,7 +178,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Choot's typed animation.</summary>
     internal static void AdvanceChootTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, ChootAnimations.Segments, ChootFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, ChootAnimations.Segments,
             static (ChootEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyChootCue(slot, cue) is { } target
                 ? new AnimationContinuation<ChootProgram>(ChootAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

@@ -5,7 +5,6 @@ using static SuperMetroid.Verification.Enemies.EnemyDropsVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.Deaths.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
@@ -50,7 +49,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
             AssertTrue(++updates < 64, "the small explosion converts within its six frames");
         }
         AssertEqual(EnemyDeathProjectileProgram.SmallEnergy, ProgramOf(dying), "the conversion continues at the rolled small-energy drop");
-        AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyDeathProjectileFrameDefinitions.ShownProjectileFrames[new(EnemyProjectilePresentationFrameDefinitions.DeathFrameCount)]),
+        AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.EnemyPickupSmallEnergyFirst),
             dying.PresentationOperandAddress, "the drop's first frame shows on the conversion's own pass");
 
         dying.StateOf<EnemyPickupState>().Lifetime = 1;

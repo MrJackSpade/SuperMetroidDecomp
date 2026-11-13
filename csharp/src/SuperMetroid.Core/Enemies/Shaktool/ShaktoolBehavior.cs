@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Shaktool.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms;
@@ -529,7 +528,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = RequireShaktoolState(slot);
         AnimationPlayback<ShaktoolProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, ShaktoolAnimations.Segments, ref playback, ShaktoolFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, ShaktoolAnimations.Segments, ref playback,
             cue =>
             {
                 ApplyShaktoolCue(slot, state, cue);

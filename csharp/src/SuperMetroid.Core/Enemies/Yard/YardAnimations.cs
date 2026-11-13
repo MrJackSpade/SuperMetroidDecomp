@@ -1,26 +1,27 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Yard.YardCueKind;
 using P = SuperMetroid.Core.Enemies.Yard.YardProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>
 /// The Yard's crawl, turn, hiding and airborne animations as typed programs (#641). Each
-/// frame shows a <see cref="YardFrame"/> pose and each callback becomes a <see cref="YardCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="YardCue"/> with its typed operands.
 /// </summary>
 internal static class YardAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<YardProgram, YardFrame, YardCue> Segments { get; } = new(
-        new Dictionary<YardProgram, AnimationBeat<YardFrame, YardCue>[]>
+    internal static AnimationSegments<YardProgram, EnemyFrameId, YardCue> Segments { get; } = new(
+        new Dictionary<YardProgram, AnimationBeat<EnemyFrameId, YardCue>[]>
     {
         [P.OutsideTurnUpsideRightMovingUp] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
-            Show(21, 7),
-            Show(22, 4),
-            Show(23, 7),
+            Show(EnemyFrameId.YardOutsideTurnRightUp00, 7),
+            Show(EnemyFrameId.YardOutsideTurnRightUp01, 4),
+            Show(EnemyFrameId.YardOutsideTurnRightUp02, 7),
             Cue(new YardCue.MoveBy(new(-4, -8))),
         ],
         [P.CrawlingUpsideUpMovingLeft] =
@@ -28,17 +29,17 @@ internal static class YardAnimations
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideUpMovingLeft)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideUpMovingLeft)),
             Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideUpMovingLeft)),
-            Show(0, 9),
-            Show(1, 13),
-            Show(2, 9),
+            Show(EnemyFrameId.YardCrawlTopLeft00, 9),
+            Show(EnemyFrameId.YardCrawlTopLeft01, 13),
+            Show(EnemyFrameId.YardCrawlTopLeft02, 9),
         ],
         [P.OutsideTurnUpsideUpMovingLeft] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
-            Show(3, 7),
-            Show(4, 4),
-            Show(5, 7),
+            Show(EnemyFrameId.YardOutsideTurnTopLeft00, 7),
+            Show(EnemyFrameId.YardOutsideTurnTopLeft01, 4),
+            Show(EnemyFrameId.YardOutsideTurnTopLeft02, 7),
             Cue(new YardCue.MoveBy(new(-8, 4))),
         ],
         [P.CrawlingUpsideLeftMovingDown] =
@@ -46,17 +47,17 @@ internal static class YardAnimations
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideLeftMovingDown)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideLeftMovingDown)),
             Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideLeftMovingDown)),
-            Show(6, 9),
-            Show(7, 13),
-            Show(8, 9),
+            Show(EnemyFrameId.YardCrawlLeftDown00, 9),
+            Show(EnemyFrameId.YardCrawlLeftDown01, 13),
+            Show(EnemyFrameId.YardCrawlLeftDown02, 9),
         ],
         [P.OutsideTurnUpsideLeftMovingDown] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
-            Show(9, 7),
-            Show(10, 4),
-            Show(11, 7),
+            Show(EnemyFrameId.YardOutsideTurnLeftDown00, 7),
+            Show(EnemyFrameId.YardOutsideTurnLeftDown01, 4),
+            Show(EnemyFrameId.YardOutsideTurnLeftDown02, 7),
             Cue(new YardCue.MoveBy(new(4, 8))),
         ],
         [P.CrawlingUpsideDownMovingRight] =
@@ -64,17 +65,17 @@ internal static class YardAnimations
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideDownMovingRight)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideDownMovingRight)),
             Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideDownMovingRight)),
-            Show(12, 9),
-            Show(13, 13),
-            Show(14, 9),
+            Show(EnemyFrameId.YardCrawlBottomRight00, 9),
+            Show(EnemyFrameId.YardCrawlBottomRight01, 13),
+            Show(EnemyFrameId.YardCrawlBottomRight02, 9),
         ],
         [P.OutsideTurnUpsideDownMovingRight] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
-            Show(15, 7),
-            Show(16, 4),
-            Show(17, 7),
+            Show(EnemyFrameId.YardOutsideTurnBottomRight00, 7),
+            Show(EnemyFrameId.YardOutsideTurnBottomRight01, 4),
+            Show(EnemyFrameId.YardOutsideTurnBottomRight02, 7),
             Cue(new YardCue.MoveBy(new(8, -4))),
         ],
         [P.CrawlingUpsideRightMovingUp] =
@@ -82,17 +83,17 @@ internal static class YardAnimations
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideRightMovingUp)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideRightMovingUp)),
             Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideRightMovingUp)),
-            Show(18, 9),
-            Show(19, 13),
-            Show(20, 9),
+            Show(EnemyFrameId.YardCrawlRightUp00, 9),
+            Show(EnemyFrameId.YardCrawlRightUp01, 13),
+            Show(EnemyFrameId.YardCrawlRightUp02, 9),
         ],
         [P.OutsideTurnUpsideLeftMovingUp] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
-            Show(53, 7),
-            Show(54, 4),
-            Show(55, 7),
+            Show(EnemyFrameId.YardOutsideTurnLeftUp00, 7),
+            Show(EnemyFrameId.YardOutsideTurnLeftUp01, 4),
+            Show(EnemyFrameId.YardOutsideTurnLeftUp02, 7),
             Cue(new YardCue.MoveBy(new(4, -8))),
         ],
         [P.CrawlingUpsideUpMovingRight] =
@@ -100,17 +101,17 @@ internal static class YardAnimations
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideUpMovingRight)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideUpMovingRight)),
             Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideUpMovingRight)),
-            Show(32, 9),
-            Show(33, 13),
-            Show(34, 9),
+            Show(EnemyFrameId.YardCrawlTopRight00, 9),
+            Show(EnemyFrameId.YardCrawlTopRight01, 13),
+            Show(EnemyFrameId.YardCrawlTopRight02, 9),
         ],
         [P.OutsideTurnUpsideUpMovingRight] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
-            Show(35, 7),
-            Show(36, 4),
-            Show(37, 7),
+            Show(EnemyFrameId.YardOutsideTurnTopRight00, 7),
+            Show(EnemyFrameId.YardOutsideTurnTopRight01, 4),
+            Show(EnemyFrameId.YardOutsideTurnTopRight02, 7),
             Cue(new YardCue.MoveBy(new(8, 4))),
         ],
         [P.CrawlingUpsideRightMovingDown] =
@@ -118,17 +119,17 @@ internal static class YardAnimations
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideRightMovingDown)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideRightMovingDown)),
             Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideRightMovingDown)),
-            Show(38, 9),
-            Show(39, 13),
-            Show(40, 9),
+            Show(EnemyFrameId.YardCrawlRightDown00, 9),
+            Show(EnemyFrameId.YardCrawlRightDown01, 13),
+            Show(EnemyFrameId.YardCrawlRightDown02, 9),
         ],
         [P.OutsideTurnUpsideRightMovingDown] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
-            Show(41, 7),
-            Show(42, 4),
-            Show(43, 7),
+            Show(EnemyFrameId.YardOutsideTurnRightDown00, 7),
+            Show(EnemyFrameId.YardOutsideTurnRightDown01, 4),
+            Show(EnemyFrameId.YardOutsideTurnRightDown02, 7),
             Cue(new YardCue.MoveBy(new(-4, 8))),
         ],
         [P.CrawlingUpsideDownMovingLeft] =
@@ -136,17 +137,17 @@ internal static class YardAnimations
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideDownMovingLeft)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideDownMovingLeft)),
             Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideDownMovingLeft)),
-            Show(44, 9),
-            Show(45, 13),
-            Show(46, 9),
+            Show(EnemyFrameId.YardCrawlBottomLeft00, 9),
+            Show(EnemyFrameId.YardCrawlBottomLeft01, 13),
+            Show(EnemyFrameId.YardCrawlBottomLeft02, 9),
         ],
         [P.OutsideTurnUpsideDownMovingLeft] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
-            Show(47, 7),
-            Show(48, 4),
-            Show(49, 7),
+            Show(EnemyFrameId.YardOutsideTurnBottomLeft00, 7),
+            Show(EnemyFrameId.YardOutsideTurnBottomLeft01, 4),
+            Show(EnemyFrameId.YardOutsideTurnBottomLeft02, 7),
             Cue(new YardCue.MoveBy(new(-8, -4))),
         ],
         [P.CrawlingUpsideLeftMovingUp] =
@@ -154,173 +155,173 @@ internal static class YardAnimations
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideLeftMovingUp)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideLeftMovingUp)),
             Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideLeftMovingUp)),
-            Show(50, 9),
-            Show(51, 13),
-            Show(52, 9),
+            Show(EnemyFrameId.YardCrawlLeftUp00, 9),
+            Show(EnemyFrameId.YardCrawlLeftUp01, 13),
+            Show(EnemyFrameId.YardCrawlLeftUp02, 9),
         ],
         [P.InsideTurnUpsideUpMovingLeft] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
-            Show(64, 7),
-            Show(65, 4),
-            Show(66, 7),
+            Show(EnemyFrameId.YardInsideTurnTopLeft00, 7),
+            Show(EnemyFrameId.YardInsideTurnTopLeft01, 4),
+            Show(EnemyFrameId.YardInsideTurnTopLeft02, 7),
         ],
         [P.InsideTurnUpsideRightMovingUp] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
-            Show(67, 7),
-            Show(68, 4),
-            Show(69, 7),
+            Show(EnemyFrameId.YardInsideTurnRightUp00, 7),
+            Show(EnemyFrameId.YardInsideTurnRightUp01, 4),
+            Show(EnemyFrameId.YardInsideTurnRightUp02, 7),
         ],
         [P.InsideTurnUpsideDownMovingRight] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
-            Show(70, 7),
-            Show(71, 4),
-            Show(72, 7),
+            Show(EnemyFrameId.YardInsideTurnBottomRight00, 7),
+            Show(EnemyFrameId.YardInsideTurnBottomRight01, 4),
+            Show(EnemyFrameId.YardInsideTurnBottomRight02, 7),
         ],
         [P.InsideTurnUpsideLeftMovingDown] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
-            Show(73, 7),
-            Show(74, 4),
-            Show(75, 7),
+            Show(EnemyFrameId.YardInsideTurnLeftDown00, 7),
+            Show(EnemyFrameId.YardInsideTurnLeftDown01, 4),
+            Show(EnemyFrameId.YardInsideTurnLeftDown02, 7),
         ],
         [P.InsideTurnUpsideUpMovingRight] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
-            Show(84, 7),
-            Show(85, 4),
-            Show(86, 7),
+            Show(EnemyFrameId.YardInsideTurnTopRight00, 7),
+            Show(EnemyFrameId.YardInsideTurnTopRight01, 4),
+            Show(EnemyFrameId.YardInsideTurnTopRight02, 7),
         ],
         [P.InsideTurnUpsideLeftMovingUp] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
-            Show(87, 7),
-            Show(88, 4),
-            Show(89, 7),
+            Show(EnemyFrameId.YardInsideTurnLeftUp00, 7),
+            Show(EnemyFrameId.YardInsideTurnLeftUp01, 4),
+            Show(EnemyFrameId.YardInsideTurnLeftUp02, 7),
         ],
         [P.InsideTurnUpsideDownMovingLeft] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
-            Show(90, 7),
-            Show(91, 4),
-            Show(92, 7),
+            Show(EnemyFrameId.YardInsideTurnBottomLeft00, 7),
+            Show(EnemyFrameId.YardInsideTurnBottomLeft01, 4),
+            Show(EnemyFrameId.YardInsideTurnBottomLeft02, 7),
         ],
         [P.InsideTurnUpsideRightMovingDown] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.InstructionPending)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: null)),
-            Show(93, 7),
-            Show(94, 4),
-            Show(95, 7),
+            Show(EnemyFrameId.YardInsideTurnRightDown00, 7),
+            Show(EnemyFrameId.YardInsideTurnRightDown01, 4),
+            Show(EnemyFrameId.YardInsideTurnRightDown02, 7),
         ],
         [P.HidingUpsideUpMovingLeft] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Hiding)),
-            Show(24, 5),
-            Show(25, 1),
+            Show(EnemyFrameId.YardHidingTopLeft00, 5),
+            Show(EnemyFrameId.YardHidingTopLeft01, 1),
             Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
         ],
         [P.HiddenUpsideUpMovingLeft] =
         [
-            Show(76, 48),
-            Show(77, 16),
+            Show(EnemyFrameId.YardHiddenTopLeft00, 48),
+            Show(EnemyFrameId.YardHiddenTopLeft01, 16),
         ],
         [P.HidingUpsideDownMovingLeft] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Hiding)),
-            Show(60, 5),
-            Show(61, 1),
+            Show(EnemyFrameId.YardHidingBottomLeft00, 5),
+            Show(EnemyFrameId.YardHidingBottomLeft01, 1),
             Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
-            Show(100, 48),
-            Show(101, 16),
+            Show(EnemyFrameId.YardHidingBottomLeft02, 48),
+            Show(EnemyFrameId.YardHidingBottomLeft03, 16),
         ],
         [P.HidingUpsideDownMovingRight] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Hiding)),
-            Show(28, 5),
-            Show(29, 1),
+            Show(EnemyFrameId.YardHidingBottomRight00, 5),
+            Show(EnemyFrameId.YardHidingBottomRight01, 1),
             Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
-            Show(80, 48),
-            Show(81, 16),
+            Show(EnemyFrameId.YardHidingBottomRight02, 48),
+            Show(EnemyFrameId.YardHidingBottomRight03, 16),
         ],
         [P.HidingUpsideUpMovingRight] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Hiding)),
-            Show(56, 5),
-            Show(57, 1),
+            Show(EnemyFrameId.YardHidingTopRight00, 5),
+            Show(EnemyFrameId.YardHidingTopRight01, 1),
             Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
         ],
         [P.HiddenUpsideUpMovingRight] =
         [
-            Show(96, 48),
-            Show(97, 16),
+            Show(EnemyFrameId.YardHiddenTopRight00, 48),
+            Show(EnemyFrameId.YardHiddenTopRight01, 16),
         ],
         [P.HidingUpsideRightMovingUp] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Hiding)),
-            Show(30, 5),
-            Show(31, 1),
+            Show(EnemyFrameId.YardHidingRightUp00, 5),
+            Show(EnemyFrameId.YardHidingRightUp01, 1),
             Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
-            Show(78, 48),
-            Show(79, 16),
+            Show(EnemyFrameId.YardHidingRightUp02, 48),
+            Show(EnemyFrameId.YardHidingRightUp03, 16),
         ],
         [P.HidingUpsideLeftMovingUp] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Hiding)),
-            Show(62, 5),
-            Show(63, 1),
+            Show(EnemyFrameId.YardHidingLeftUp00, 5),
+            Show(EnemyFrameId.YardHidingLeftUp01, 1),
             Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
-            Show(98, 48),
-            Show(99, 16),
+            Show(EnemyFrameId.YardHidingLeftUp02, 48),
+            Show(EnemyFrameId.YardHidingLeftUp03, 16),
         ],
         [P.HidingUpsideLeftMovingDown] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Hiding)),
-            Show(26, 5),
-            Show(27, 1),
+            Show(EnemyFrameId.YardHidingLeftDown00, 5),
+            Show(EnemyFrameId.YardHidingLeftDown01, 1),
             Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
-            Show(82, 48),
-            Show(83, 16),
+            Show(EnemyFrameId.YardHidingLeftDown02, 48),
+            Show(EnemyFrameId.YardHidingLeftDown03, 16),
         ],
         [P.HidingUpsideRightMovingDown] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Hiding)),
-            Show(58, 5),
-            Show(59, 1),
+            Show(EnemyFrameId.YardHidingRightDown00, 5),
+            Show(EnemyFrameId.YardHidingRightDown01, 1),
             Cue(new YardCue.Command(K.RepeatPreviousPoseUnlessContinuing)),
-            Show(102, 48),
-            Show(103, 16),
+            Show(EnemyFrameId.YardHidingRightDown02, 48),
+            Show(EnemyFrameId.YardHidingRightDown03, 16),
         ],
         [P.AirborneFacingLeft] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Airborne)),
-            Show(31, 3),
+            Show(EnemyFrameId.YardHidingRightUp01, 3),
         ],
         [P.AirborneFacingLeftLoop] =
         [
-            Show(27, 3),
-            Show(29, 3),
-            Show(31, 3),
+            Show(EnemyFrameId.YardHidingLeftDown01, 3),
+            Show(EnemyFrameId.YardHidingBottomRight01, 3),
+            Show(EnemyFrameId.YardHidingRightUp01, 3),
         ],
         [P.AirborneFacingRight] =
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.Airborne)),
-            Show(63, 3),
+            Show(EnemyFrameId.YardHidingLeftUp01, 3),
         ],
         [P.AirborneFacingRightLoop] =
         [
-            Show(59, 3),
-            Show(61, 3),
-            Show(63, 3),
+            Show(EnemyFrameId.YardHidingRightDown01, 3),
+            Show(EnemyFrameId.YardHidingBottomLeft01, 3),
+            Show(EnemyFrameId.YardHidingLeftUp01, 3),
         ],
     });
 
@@ -370,9 +371,9 @@ internal static class YardAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<YardProgram> StartingWith(YardProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<YardFrame, YardCue> Show(int pose, int duration) => new AnimationBeat<YardFrame, YardCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, YardCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, YardCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<YardFrame, YardCue> Cue(YardCue cue) => new AnimationBeat<YardFrame, YardCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, YardCue> Cue(YardCue cue) => new AnimationBeat<EnemyFrameId, YardCue>.Event(cue);
 }

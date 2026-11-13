@@ -1,126 +1,127 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.KiHunters.KiHunterCueKind;
 using P = SuperMetroid.Core.Enemies.KiHunters.KiHunterProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>
 /// The Ki-Hunter body's flight, swoop, hop, landing and spit animations and its wings' animations as typed programs (#641). Each
-/// frame shows a <see cref="KiHunterFrame"/> pose and each callback becomes a <see cref="KiHunterCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="KiHunterCue"/> with its typed operands.
 /// </summary>
 internal static class KiHunterAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<KiHunterProgram, KiHunterFrame, KiHunterCue> Segments { get; } = new(
-        new Dictionary<KiHunterProgram, AnimationBeat<KiHunterFrame, KiHunterCue>[]>
+    internal static AnimationSegments<KiHunterProgram, EnemyFrameId, KiHunterCue> Segments { get; } = new(
+        new Dictionary<KiHunterProgram, AnimationBeat<EnemyFrameId, KiHunterCue>[]>
     {
         [P.FlyingLeft] =
         [
-            Show(0, 2),
-            Show(1, 2),
-            Show(2, 1),
+            Show(EnemyFrameId.KiHunterPose0, 2),
+            Show(EnemyFrameId.KiHunterPose1, 2),
+            Show(EnemyFrameId.KiHunterPose2, 1),
             Cue(new(K.ReturnToFlying)),
         ],
         [P.SwoopLeft] =
         [
-            Show(14, 2),
-            Show(15, 6),
-            Show(14, 2),
-            Show(13, 2),
-            Show(16, 2),
-            Show(17, 32),
+            Show(EnemyFrameId.KiHunterPose14, 2),
+            Show(EnemyFrameId.KiHunterPose15, 6),
+            Show(EnemyFrameId.KiHunterPose14, 2),
+            Show(EnemyFrameId.KiHunterPose13, 2),
+            Show(EnemyFrameId.KiHunterPose16, 2),
+            Show(EnemyFrameId.KiHunterPose17, 32),
         ],
         [P.FlyingRight] =
         [
-            Show(6, 2),
-            Show(7, 2),
-            Show(8, 1),
+            Show(EnemyFrameId.KiHunterPose6, 2),
+            Show(EnemyFrameId.KiHunterPose7, 2),
+            Show(EnemyFrameId.KiHunterPose8, 1),
             Cue(new(K.ReturnToFlying)),
         ],
         [P.SwoopRight] =
         [
-            Show(19, 2),
-            Show(20, 6),
-            Show(19, 2),
-            Show(18, 2),
-            Show(21, 2),
-            Show(22, 32),
+            Show(EnemyFrameId.KiHunterPose19, 2),
+            Show(EnemyFrameId.KiHunterPose20, 6),
+            Show(EnemyFrameId.KiHunterPose19, 2),
+            Show(EnemyFrameId.KiHunterPose18, 2),
+            Show(EnemyFrameId.KiHunterPose21, 2),
+            Show(EnemyFrameId.KiHunterPose22, 32),
         ],
         [P.WingsLeft] =
         [
-            Show(3, 2),
-            Show(4, 2),
-            Show(5, 1),
+            Show(EnemyFrameId.KiHunterPose3, 2),
+            Show(EnemyFrameId.KiHunterPose4, 2),
+            Show(EnemyFrameId.KiHunterPose5, 1),
         ],
         [P.WingsRight] =
         [
-            Show(9, 2),
-            Show(10, 2),
-            Show(11, 1),
+            Show(EnemyFrameId.KiHunterPose9, 2),
+            Show(EnemyFrameId.KiHunterPose10, 2),
+            Show(EnemyFrameId.KiHunterPose11, 1),
         ],
         [P.DetachedWings] =
         [
-            Show(12, 1),
+            Show(EnemyFrameId.KiHunterPose12, 1),
         ],
         [P.JumpLeft] =
         [
-            Show(23, 8),
-            Show(24, 8),
-            Show(25, 11),
-            Show(24, 2),
-            Show(23, 2),
+            Show(EnemyFrameId.KiHunterPose23, 8),
+            Show(EnemyFrameId.KiHunterPose24, 8),
+            Show(EnemyFrameId.KiHunterPose25, 11),
+            Show(EnemyFrameId.KiHunterPose24, 2),
+            Show(EnemyFrameId.KiHunterPose23, 2),
             Cue(new(K.StartHop)),
-            Show(26, 1),
+            Show(EnemyFrameId.KiHunterPose26, 1),
         ],
         [P.JumpRight] =
         [
-            Show(27, 8),
-            Show(28, 8),
-            Show(29, 11),
-            Show(28, 2),
-            Show(27, 2),
+            Show(EnemyFrameId.KiHunterPose27, 8),
+            Show(EnemyFrameId.KiHunterPose28, 8),
+            Show(EnemyFrameId.KiHunterPose29, 11),
+            Show(EnemyFrameId.KiHunterPose28, 2),
+            Show(EnemyFrameId.KiHunterPose27, 2),
             Cue(new(K.StartHop)),
-            Show(30, 1),
+            Show(EnemyFrameId.KiHunterPose30, 1),
         ],
         [P.LandLeft] =
         [
-            Show(23, 8),
-            Show(24, 8),
-            Show(25, 11),
-            Show(24, 8),
+            Show(EnemyFrameId.KiHunterPose23, 8),
+            Show(EnemyFrameId.KiHunterPose24, 8),
+            Show(EnemyFrameId.KiHunterPose25, 11),
+            Show(EnemyFrameId.KiHunterPose24, 8),
             Cue(new(K.StartWinglessThinking)),
-            Show(23, 1),
+            Show(EnemyFrameId.KiHunterPose23, 1),
         ],
         [P.LandRight] =
         [
-            Show(27, 8),
-            Show(28, 8),
-            Show(29, 11),
-            Show(28, 8),
+            Show(EnemyFrameId.KiHunterPose27, 8),
+            Show(EnemyFrameId.KiHunterPose28, 8),
+            Show(EnemyFrameId.KiHunterPose29, 11),
+            Show(EnemyFrameId.KiHunterPose28, 8),
             Cue(new(K.StartWinglessThinking)),
-            Show(27, 1),
+            Show(EnemyFrameId.KiHunterPose27, 1),
         ],
         [P.SpitLeft] =
         [
-            Show(31, 32),
-            Show(32, 6),
-            Show(33, 16),
-            Show(34, 2),
+            Show(EnemyFrameId.KiHunterPose31, 32),
+            Show(EnemyFrameId.KiHunterPose32, 6),
+            Show(EnemyFrameId.KiHunterPose33, 16),
+            Show(EnemyFrameId.KiHunterPose34, 2),
             Cue(new(K.SpitLeft)),
-            Show(35, 24),
+            Show(EnemyFrameId.KiHunterPose35, 24),
             Cue(new(K.StartWinglessThinking)),
-            Show(31, 1),
+            Show(EnemyFrameId.KiHunterPose31, 1),
         ],
         [P.SpitRight] =
         [
-            Show(36, 32),
-            Show(37, 6),
-            Show(38, 16),
-            Show(39, 2),
+            Show(EnemyFrameId.KiHunterPose36, 32),
+            Show(EnemyFrameId.KiHunterPose37, 6),
+            Show(EnemyFrameId.KiHunterPose38, 16),
+            Show(EnemyFrameId.KiHunterPose39, 2),
             Cue(new(K.SpitRight)),
-            Show(40, 24),
+            Show(EnemyFrameId.KiHunterPose40, 24),
             Cue(new(K.StartWinglessThinking)),
-            Show(36, 1),
+            Show(EnemyFrameId.KiHunterPose36, 1),
         ],
     });
 
@@ -145,9 +146,9 @@ internal static class KiHunterAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<KiHunterProgram> StartingWith(KiHunterProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<KiHunterFrame, KiHunterCue> Show(int pose, int duration) => new AnimationBeat<KiHunterFrame, KiHunterCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, KiHunterCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, KiHunterCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<KiHunterFrame, KiHunterCue> Cue(KiHunterCue cue) => new AnimationBeat<KiHunterFrame, KiHunterCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, KiHunterCue> Cue(KiHunterCue cue) => new AnimationBeat<EnemyFrameId, KiHunterCue>.Event(cue);
 }

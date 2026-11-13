@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Shutters.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Samus;
@@ -620,7 +619,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Plays a shutter's cue-free animation on to its next frame after its frame expired.</summary>
     private static AnimationPlayback<ShutterProgram> PlayShutterAnimation(RoomEnemySlot slot, AnimationPlayback<ShutterProgram> playback)
     {
-        EnemyProgramAnimation.Play(slot, ShutterAnimations.Segments, ref playback, ShutterFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, ShutterAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A shutter's cue-free animation raised {cue}."));
         return playback;
     }

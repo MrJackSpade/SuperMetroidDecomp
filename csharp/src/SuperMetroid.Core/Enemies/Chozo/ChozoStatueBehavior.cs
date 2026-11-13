@@ -380,7 +380,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances ChozoStatue's typed animation.</summary>
     internal void AdvanceChozoStatueTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, ChozoStatueAnimations.Segments, ChozoStatueFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, ChozoStatueAnimations.Segments,
             static (ChozoStatueState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyChozoStatueCue(slot, cue, context.Samus, context.Level) is { } target
                 ? new AnimationContinuation<ChozoStatueProgram>(ChozoStatueAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

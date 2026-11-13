@@ -182,9 +182,9 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(EnemySpritemapDefinitionsConstants.PreDraygonBreathFrameCount + 9,
             EnemySpritemapDefinitionsConstants.PreRoomSpriteObjectFrameCount,
             "Draygon breath bubble adds its nine native sprite-object frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreRoomSpriteObjectFrameCount + 263,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreRoomSpriteObjectFrameCount + 110,
             EnemySpritemapDefinitionsConstants.PreYappingMawFrameCount,
-            "remaining room sprite-object programs add 263 distinct visual frames");
+            "remaining room sprite-object programs add 110 distinct visual frames");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreYappingMawFrameCount + 24,
             EnemySpritemapDefinitionsConstants.PreKiHunterFrameCount,
             "Yapping Maw adds 24 distinct OAM frames");
@@ -313,9 +313,9 @@ internal static class EnemySpritemapArtworkVerification
         AssertTrue(YappingMawAnimationsConstants.Spritemaps(Enum.GetValues<YappingMawProgram>()).ToHashSet().SetEquals(installedMawPointers),
             "every installed Yapping Maw frame is shown by a program, and every shown pose is installed");
         AssertEqual(24, installedMawPointers.Count, "Yapping Maw's programs show 24 distinct frames");
-        AssertEqual(276, EnemySpritemapDefinitions.Frames.Count(
+        AssertEqual(123, EnemySpritemapDefinitions.Frames.Count(
                 frame => frame.Bank == EnemySpritemapDefinitions.RoomSpriteObjectBank),
-            "all bank-B4 sprite-object programs select 276 distinct visual frames");
+            "the bank-B4 sprite-object programs the game starts select 123 distinct visual frames");
         HashSet<ushort> installedSpritePointers = EnemySpritemapDefinitions.Frames
             
             .Where(frame => frame.Bank == EnemySpritemapDefinitions.RoomSpriteObjectBank)

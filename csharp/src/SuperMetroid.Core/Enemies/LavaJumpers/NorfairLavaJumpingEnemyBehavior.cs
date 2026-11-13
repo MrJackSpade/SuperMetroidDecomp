@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.LavaJumpers.Artwork;
 using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
@@ -225,7 +224,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
     /// <summary>Advances the Norfair lava-jumping enemy's typed animation.</summary>
     internal static void AdvanceNorfairLavaJumpingEnemyTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, NorfairLavaJumperAnimations.Segments, NorfairLavaJumperFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, NorfairLavaJumperAnimations.Segments,
             static (NorfairLavaJumpingEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

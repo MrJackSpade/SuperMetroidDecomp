@@ -62,6 +62,49 @@ internal static class EnemyProgramAnimation
     }
 
     /// <summary>
+    /// One typed-animation step of a species whose animations show its installed frames directly, as the other overload
+    /// steps one that shows them through <c>frame</c>.
+    /// </summary>
+    internal static void Advance<TState, TSegment, TEvent>(
+        RoomEnemySlot slot,
+        AnimationSegments<TSegment, EnemyFrameId, TEvent> segments,
+        Func<TState, AnimationPlayback<TSegment>> read,
+        Action<TState, AnimationPlayback<TSegment>> write,
+        Func<TState, TEvent, AnimationContinuation<TSegment>?> react)
+        where TState : class
+        where TSegment : struct
+        where TEvent : notnull =>
+        Advance(slot, segments, Shown, read, write, react);
+
+    /// <summary>Plays an animation that shows the species' installed frames directly, as the other overload plays one.</summary>
+    /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
+    internal static void Play<TSegment, TEvent>(
+        RoomEnemySlot slot,
+        AnimationSegments<TSegment, EnemyFrameId, TEvent> segments,
+        ref AnimationPlayback<TSegment> playback,
+        Func<TEvent, AnimationContinuation<TSegment>?> react)
+        where TSegment : struct
+        where TEvent : notnull =>
+        Play(slot, segments, ref playback, Shown, react);
+
+    /// <summary>
+    /// Plays an animation that shows the species' installed frames directly, telling <paramref name="react"/> where the
+    /// play stands just past each event, as the other overload does.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
+    internal static void Play<TSegment, TEvent>(
+        RoomEnemySlot slot,
+        AnimationSegments<TSegment, EnemyFrameId, TEvent> segments,
+        ref AnimationPlayback<TSegment> playback,
+        Func<TEvent, AnimationPlayback<TSegment>, AnimationContinuation<TSegment>?> react)
+        where TSegment : struct
+        where TEvent : notnull =>
+        Play(slot, segments, ref playback, Shown, react);
+
+    /// <summary>An installed frame an animation names outright, which it shows as it is.</summary>
+    private static EnemyFrameId Shown(EnemyFrameId frame) => frame;
+
+    /// <summary>
     /// Plays <paramref name="playback"/> on to its next frame after the slot's frame expired (#1600): a frame becomes the
     /// slot's frame for its duration, a held frame becomes it for good (#1607), a pause holds the slot's frame for its own, a
     /// hold leaves the slot as it is, and the

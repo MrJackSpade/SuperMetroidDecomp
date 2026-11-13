@@ -10,6 +10,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.FuneNamihe;
 
@@ -45,12 +46,11 @@ internal static class FuneNamiheFireballBehaviorVerification
                 AssertTrue(!deleted, $"{program} loops");
             }
         }
-        for (int pose = 0; pose < FuneNamiheFireballFrameToolingDefinitions.PoseCount; pose++)
+        foreach (EnemyProjectileFrameId frame in FuneNamiheFireballFrameToolingDefinitions.Frames)
         {
-            FuneNamiheFireballFrame frame = new(pose);
-            AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, EnemyProjectileProgramFrameSources.Operand(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[frame]), out ushort selected),
-                $"pose {pose} has a calculated selector");
-            AssertEqual(FuneNamiheFireballFrameToolingDefinitions.Spritemap(frame), selected, $"pose {pose}'s calculated selector is its native spritemap");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, EnemyProjectileProgramFrameSources.Operand(frame), out ushort selected),
+                $"frame {frame} has a calculated selector");
+            AssertEqual(FuneNamiheFireballFrameToolingDefinitions.Spritemap(frame), selected, $"frame {frame}'s calculated selector is its native spritemap");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the fireball's native list bytes");
         Console.WriteLine("  Fune/Namihe fireball behavior: both kinds and directions loop as their native lists do and every selector matches.");

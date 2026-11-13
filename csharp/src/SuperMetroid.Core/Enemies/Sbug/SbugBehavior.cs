@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Sbug.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
@@ -403,7 +402,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Sbug's typed animation.</summary>
     internal static void AdvanceSbugTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, SbugAnimations.Segments, SbugFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, SbugAnimations.Segments,
             static (SbugEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"Sbug's cue-free animation raised {cue}."));
 

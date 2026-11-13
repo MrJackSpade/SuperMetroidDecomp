@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.MorphBallEye.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Progression;
@@ -167,7 +166,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         // The tracking loop resumes at the pose for the arc of the turn the angle lies in, one pose for
         // each of the turn's sixteen equal arcs.
         Animation<MorphBallEyeProgram> tracking = MorphBallEyeAnimations.StartingWith(MorphBallEyeProgram.Active);
-        state.Playback = new(tracking, AnimationSegments<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue>.PlaceOf(tracking,
+        state.Playback = new(tracking, AnimationSegments<MorphBallEyeProgram, EnemyFrameId, NoAnimationCue>.PlaceOf(tracking,
             MorphBallEyeProgram.Active, state.Angle.Sector(MorphBallEyeBeamDefinitions.TrackingPoses)));
         eye.FrameHold = WrappingCountdown.Start(1);
     }
@@ -303,7 +302,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances MorphBallEye's typed animation.</summary>
     internal static void AdvanceMorphBallEyeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, MorphBallEyeAnimations.Segments, MorphBallEyeFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, MorphBallEyeAnimations.Segments,
             static (MorphBallEyeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) => throw new InvalidOperationException($"The Morph Ball eye's cue-free animation raised {cue}."));
 

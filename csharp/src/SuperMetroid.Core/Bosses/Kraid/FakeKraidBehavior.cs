@@ -403,7 +403,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Mini-Kraid's typed animation.</summary>
     internal void AdvanceFakeKraidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, FakeKraidAnimations.Segments, FakeKraidFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, FakeKraidAnimations.Segments,
             static (FakeKraidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (_, cue) => ApplyFakeKraidCue(slot, cue, context.Samus, context.Level, context.Camera) is { } action
                 ? new AnimationContinuation<FakeKraidProgram>(FakeKraidAnimations.StartingWith(action), AnimationPlace.StartOfAnimation)

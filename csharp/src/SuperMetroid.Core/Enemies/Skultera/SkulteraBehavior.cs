@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Skultera.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms;
 
@@ -183,7 +182,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Skultera's typed animation.</summary>
     internal static void AdvanceSkulteraTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, SkulteraAnimations.Segments, SkulteraFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, SkulteraAnimations.Segments,
             static (SkulteraEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

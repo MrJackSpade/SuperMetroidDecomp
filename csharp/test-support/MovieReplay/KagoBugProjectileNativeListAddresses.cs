@@ -28,5 +28,5 @@ internal static class KagoBugProjectileNativeListAddresses
     internal static ushort Entry(KagoBugProjectileProgram program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
 
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, KagoBugProjectileAnimations.Segments, KagoBugProjectileAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(KagoBugProjectileFrameDefinitions.ShownProjectileFrames[frame])), KagoBugProjectileCueRules.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, KagoBugProjectileAnimations.Segments, KagoBugProjectileAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), KagoBugProjectileCueRules.Rules);
 }

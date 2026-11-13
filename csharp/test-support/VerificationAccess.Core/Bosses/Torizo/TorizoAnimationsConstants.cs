@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
@@ -12,7 +13,7 @@ internal static class TorizoAnimationsConstants
     /// </summary>
     internal static IEnumerable<ushort> Spritemaps(params TorizoBodyProgram[] programs) =>
         programs.SelectMany(program => TorizoAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<TorizoFrame, TorizoCue>.Frame>()
+            .OfType<AnimationBeat<EnemyFrameId, TorizoCue>.Frame>()
             .Select(frame => TorizoFrameDefinitionsConstants.Spritemap(frame.Shown));
     /// <summary>Every body program, in authored address order.</summary>
     internal static TorizoBodyProgram[] AllPrograms { get; } = Enum.GetValues<TorizoBodyProgram>();

@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Boyon.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -216,7 +215,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Boyon's idle and bouncing loops as typed programs (#641).</summary>
     internal void AdvanceBoyonAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, BoyonAnimations.Segments, BoyonFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, BoyonAnimations.Segments,
             static (BoyonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyBoyonCue(slot, state, cue) is { } target
                 ? new AnimationContinuation<BoyonProgram>(BoyonAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

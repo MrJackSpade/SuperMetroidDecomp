@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Cacatac.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -180,7 +179,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Cacatac's typed animation.</summary>
     internal void AdvanceCacatacTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, CacatacAnimations.Segments, CacatacFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, CacatacAnimations.Segments,
             static (CacatacEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyCacatacCue(slot, state, cue) is { } target
                 ? new AnimationContinuation<CacatacProgram>(CacatacAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

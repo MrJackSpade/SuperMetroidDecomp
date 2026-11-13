@@ -230,7 +230,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         TorizoEnemyState state = Access.RequireBombTorizoState(torizo);
         AnimationPlayback<TorizoBodyProgram> playback = state.BodyPlayback;
         // The death and wake repeats count the body's timer word, as the timer commands do.
-        EnemyProgramAnimation.Play(torizo, TorizoAnimations.Segments, ref playback, TorizoFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(torizo, TorizoAnimations.Segments, ref playback,
             (cue, continuation) => ApplyTorizoCue(torizo, state, inputs, cue, continuation));
         state.BodyPlayback = playback;
     }

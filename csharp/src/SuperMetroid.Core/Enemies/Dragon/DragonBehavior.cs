@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Dragon.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
@@ -327,7 +326,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Dragon's typed animation.</summary>
     internal static void AdvanceDragonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, DragonAnimations.Segments, DragonFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, DragonAnimations.Segments,
             static (DragonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyDragonCue(slot, cue) is { } target
                 ? new AnimationContinuation<DragonProgram>(DragonAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

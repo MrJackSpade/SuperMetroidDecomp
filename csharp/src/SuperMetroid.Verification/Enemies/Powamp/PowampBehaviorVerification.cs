@@ -8,6 +8,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Powamp;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks Powamp's initial animations and the balloon phase its AI derives from the typed cursor.</summary>
 internal static class PowampBehaviorVerification
@@ -63,10 +64,10 @@ internal static class PowampBehaviorVerification
         ushort sequence = NativeEnemyAnimationOracle.EntryOf(PowampNativeListAddresses.Entries, sinking ? PowampProgram.BalloonStartSinking : PowampProgram.BalloonInflate0);
         ushort pointer = (ushort)(NativeEnemyAnimationOracle.EntryOf(PowampNativeListAddresses.Entries, segment) + 4 * passed);
         AssertEqual(pointer, (ushort)(sequence + 4 * shown), context);
-        IReadOnlyList<AnimationBeat<PowampFrame, NoAnimationCue>> beats = PowampAnimations.Segments.Beats(segment);
+        IReadOnlyList<AnimationBeat<EnemyFrameId, NoAnimationCue>> beats = PowampAnimations.Segments.Beats(segment);
         if (passed < beats.Count)
         {
-            AssertEqual(AssertIs<AnimationBeat<PowampFrame, NoAnimationCue>.Frame>(beats[passed], context).Duration,
+            AssertEqual(AssertIs<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>(beats[passed], context).Duration,
                 (int)cartridge.ReadCartridgeWord((PowampNativeListAddresses.Bank << 16) | pointer), $"{context}: native pose record");
         }
     }

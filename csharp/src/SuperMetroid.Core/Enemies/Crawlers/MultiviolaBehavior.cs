@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Crawlers.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms;
 
@@ -121,7 +120,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Multiviola's typed animation.</summary>
     internal static void AdvanceMultiviolaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, MultiviolaAnimations.Segments, MultiviolaFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, MultiviolaAnimations.Segments,
             static (MultiviolaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Multiviola animation raised {cue}."));
 

@@ -395,7 +395,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances WorkRobot's typed animation.</summary>
     internal void AdvanceWorkRobotTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, WorkRobotAnimations.Segments, WorkRobotFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, WorkRobotAnimations.Segments,
             static (WorkRobotEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyWorkRobotCue(slot, state, context, cue) is { } continuesAt
                 ? new AnimationContinuation<WorkRobotProgram>(WorkRobotAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)

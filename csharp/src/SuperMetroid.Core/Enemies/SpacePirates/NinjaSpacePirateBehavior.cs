@@ -653,7 +653,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
     /// <summary>Advances the ninja Space Pirate's typed animation.</summary>
     internal void AdvanceNinjaSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, NinjaSpacePirateAnimations.Segments, NinjaSpacePirateFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, NinjaSpacePirateAnimations.Segments,
             static (NinjaSpacePirateEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyNinjaSpacePirateCue(slot, cue, context.Samus) is { } continuesAt
                 ? new AnimationContinuation<NinjaSpacePirateProgram>(NinjaSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)

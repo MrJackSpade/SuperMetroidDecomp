@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Yard.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Core.Fx;
@@ -88,14 +87,14 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int phase = 0; phase < playing.Phases.Count; phase++)
         {
             AnimationPhase<YardProgram> run = playing.Phases[phase];
-            IReadOnlyList<AnimationBeat<YardFrame, YardCue>> beats = YardAnimations.Segments.Beats(run.Segment);
+            IReadOnlyList<AnimationBeat<EnemyFrameId, YardCue>> beats = YardAnimations.Segments.Beats(run.Segment);
             for (int beat = 0; beat < run.BeatCount; beat++)
             {
-                if (beats[run.FirstBeat + beat] is not AnimationBeat<YardFrame, YardCue>.Event { Raised: YardCue.Command { Kind: YardCueKind.RepeatPreviousPoseUnlessContinuing } })
+                if (beats[run.FirstBeat + beat] is not AnimationBeat<EnemyFrameId, YardCue>.Event { Raised: YardCue.Command { Kind: YardCueKind.RepeatPreviousPoseUnlessContinuing } })
                     continue;
                 if (found is not null)
                     throw new InvalidDataException($"A Yard animation through {run.Segment} has more than one repeat cue.");
-                if (beat == 0 || beats[run.FirstBeat + beat - 1] is not AnimationBeat<YardFrame, YardCue>.Frame)
+                if (beat == 0 || beats[run.FirstBeat + beat - 1] is not AnimationBeat<EnemyFrameId, YardCue>.Frame)
                     throw new InvalidDataException($"Yard repeat cue in {run.Segment} does not follow a pose.");
                 found = new AnimationPlace(phase, beat - 1);
             }
@@ -659,7 +658,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         AnimationPlayback<YardProgram> playback = state.Playback;
         // Only the repeat cue continues elsewhere, and it continues in the animation already playing.
         Animation<YardProgram> playing = playback.Animation;
-        EnemyProgramAnimation.Play(slot, YardAnimations.Segments, ref playback, YardFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, YardAnimations.Segments, ref playback,
             cue => ApplyYardCue(slot, state, cue, playing));
         state.Playback = playback;
     }

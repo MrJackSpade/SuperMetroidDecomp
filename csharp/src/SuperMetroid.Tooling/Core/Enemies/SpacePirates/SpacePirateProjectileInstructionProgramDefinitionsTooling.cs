@@ -1,7 +1,6 @@
 ﻿using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
@@ -17,7 +16,10 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitionsToolin
     public static int MechanicsWordCount => 58;
 
     /// <summary>Counts visual frame operands across the two lasers and two claw programs.</summary>
-    public static int PresentationWordCount => SpacePirateProjectileFrameDefinitions.PoseCount;
+    public static int PresentationWordCount => Frames.Length;
+
+    /// <summary>The frames the lasers and claws show, in the order their animations first show them.</summary>
+    private static readonly EnemyProjectileFrameId[] Frames = [.. SpacePirateProjectileAnimations.Segments.Frames];
     /// <summary>The program lives in bank $86, the enemy-projectile code bank.</summary>
     static int IDeclaredProgramBank.Bank => EnemyProjectileCodePointers.BankBase;
 
@@ -66,6 +68,6 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitionsToolin
 
     /// <summary>Locates a laser or claw projectile drawing operand: the installed artwork key of its pose.</summary>
     public static ushort PresentationWordAddress(int index) => (uint)index < (uint)PresentationWordCount
-        ? EnemyProjectileProgramFrameSources.Operand(SpacePirateProjectileFrameDefinitions.ShownProjectileFrames[new(index)])
+        ? EnemyProjectileProgramFrameSources.Operand(Frames[index])
         : throw new ArgumentOutOfRangeException(nameof(index));
 }

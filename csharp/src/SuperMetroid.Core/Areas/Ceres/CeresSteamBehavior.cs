@@ -35,7 +35,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
             return;
         CeresSteamEnemyState state = slot.RequireSpeciesState<CeresSteamEnemyState>();
         AnimationPlayback<CeresSteamProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, CeresSteamAnimations.Segments, ref playback, CeresSteamFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, CeresSteamAnimations.Segments, ref playback,
             cue => ApplyCeresSteamCue(slot, cue) is { } target
                 ? new AnimationContinuation<CeresSteamProgram>(CeresSteamAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);

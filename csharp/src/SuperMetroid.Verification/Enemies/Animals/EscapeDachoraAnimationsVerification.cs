@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Animals;
 
@@ -36,7 +37,7 @@ internal static class EscapeDachoraAnimationsVerification
             .Concat(EscapeDachoraAnimations.Segments.Beats(EscapeDachoraProgram.RunningAroundLowTideRight))
             .Concat(EscapeDachoraAnimations.Segments.Beats(EscapeDachoraProgram.RunningAroundHighTideLeft))
             .Concat(EscapeDachoraAnimations.Segments.Beats(EscapeDachoraProgram.RunningAroundHighTideRight))
-            .OfType<AnimationBeat<EscapeDachoraFrame, EscapeDachoraCue>.Event>()
+            .OfType<AnimationBeat<EnemyFrameId, EscapeDachoraCue>.Event>()
             .Where(raised => raised.Raised.Kind is EscapeDachoraCueKind.GoToIfAcidHigh or EscapeDachoraCueKind.GoToIfCrittersEscaped)
             .Select(raised => raised.Raised.Target))
         {

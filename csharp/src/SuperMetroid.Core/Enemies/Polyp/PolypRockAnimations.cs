@@ -6,17 +6,17 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 
 /// <summary>
 /// The Polyp's lava-rock program (#641). Each
-/// frame shows a <see cref="PolypRockFrame"/> pose and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class PolypRockAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<PolypRockProgram, PolypRockFrame, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<PolypRockProgram, AnimationBeat<PolypRockFrame, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<PolypRockProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<PolypRockProgram, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.Initial] =
         [
-            Show(0, 1),
+            Show(EnemyProjectileFrameId.PolypRockInitial, 1),
         ],
     });
 
@@ -29,6 +29,6 @@ internal static class PolypRockAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<PolypRockProgram> StartingWith(PolypRockProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<PolypRockFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<PolypRockFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 }

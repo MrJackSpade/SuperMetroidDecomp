@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Puyo.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -413,7 +412,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Puyo's typed animation.</summary>
     internal static void AdvancePuyoTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, PuyoAnimations.Segments, PuyoFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, PuyoAnimations.Segments,
             static (PuyoEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"Puyo's cue-free animation raised {cue}."));
 

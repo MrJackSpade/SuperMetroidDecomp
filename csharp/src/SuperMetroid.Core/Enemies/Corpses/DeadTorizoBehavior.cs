@@ -280,7 +280,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        EnemyProgramAnimation.Play(slot, DeadTorizoAnimations.Segments, ref playback, DeadTorizoFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, DeadTorizoAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A cue-free dead Torizo animation raised {cue}."));
     }
 

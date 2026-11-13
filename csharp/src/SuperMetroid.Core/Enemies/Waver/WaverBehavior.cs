@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Waver.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms;
 
@@ -144,7 +143,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Waver's typed animation.</summary>
     internal static void AdvanceWaverTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, WaverAnimations.Segments, WaverFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, WaverAnimations.Segments,
             static (WaverEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

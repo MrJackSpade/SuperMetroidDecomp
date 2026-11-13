@@ -103,7 +103,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         AnimationPlayback<GunshipProgram> playback = _shipPrograms[slot];
-        EnemyProgramAnimation.Play(slot, GunshipAnimations.Segments, ref playback, GunshipFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, GunshipAnimations.Segments, ref playback,
             cue => throw new InvalidOperationException($"The gunship's programs publish no cue; got {cue}."));
         _shipPrograms[slot] = playback;
     }

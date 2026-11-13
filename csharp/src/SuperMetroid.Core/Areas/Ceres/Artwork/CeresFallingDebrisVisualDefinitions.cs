@@ -16,7 +16,7 @@ internal static class CeresFallingDebrisVisualDefinitions
     internal static IReadOnlyDictionary<CeresFallingDebrisProgram, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
         new Dictionary<CeresFallingDebrisProgram, EnemyProjectileFrameId>
         {
-            [CeresFallingDebrisProgram.Light] = EnemyProjectileFrameId.CeresFallingDebrisFrame00,
-            [CeresFallingDebrisProgram.Dark] = EnemyProjectileFrameId.CeresFallingDebrisFrame01,
+            [CeresFallingDebrisProgram.Light] = EnemyProjectileFrameId.CeresFallingDebrisLight,
+            [CeresFallingDebrisProgram.Dark] = EnemyProjectileFrameId.CeresFallingDebrisDark,
         };
 }

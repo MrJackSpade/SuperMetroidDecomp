@@ -168,7 +168,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             EscapeEtecoonEnemyState state = slot.RequireSpeciesState<EscapeEtecoonEnemyState>();
             AnimationPlayback<EscapeEtecoonProgram> playback = state.Playback;
-            EnemyProgramAnimation.Play(slot, EscapeEtecoonAnimations.Segments, ref playback, EscapeEtecoonFrameDefinitions.ShownFrames.Of,
+            EnemyProgramAnimation.Play(slot, EscapeEtecoonAnimations.Segments, ref playback,
                 cue => ApplyEscapeEtecoonCue(slot, state, samus, cue) is { } target
                     ? new AnimationContinuation<EscapeEtecoonProgram>(EscapeEtecoonAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                     : null);
@@ -177,7 +177,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         EscapeDachoraEnemyState dachora = slot.RequireSpeciesState<EscapeDachoraEnemyState>();
         AnimationPlayback<EscapeDachoraProgram> dachoraPlayback = dachora.Playback;
-        EnemyProgramAnimation.Play(slot, EscapeDachoraAnimations.Segments, ref dachoraPlayback, EscapeDachoraFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, EscapeDachoraAnimations.Segments, ref dachoraPlayback,
             cue => ApplyEscapeDachoraCue(slot, samus, cue) is { } target ? EscapeDachoraAnimations.BranchTargets[target] : null);
         dachora.Playback = dachoraPlayback;
     }

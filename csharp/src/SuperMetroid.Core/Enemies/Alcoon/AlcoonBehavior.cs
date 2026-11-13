@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -407,7 +406,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Alcoon's typed animation.</summary>
     internal void AdvanceAlcoonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, AlcoonAnimations.Segments, AlcoonFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, AlcoonAnimations.Segments,
             static (AlcoonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyAlcoonCue(slot, state, context.Level, cue) is { } walk
                 ? new AnimationContinuation<AlcoonProgram>(AlcoonAnimations.StartingWith(walk), AnimationPlace.StartOfAnimation)

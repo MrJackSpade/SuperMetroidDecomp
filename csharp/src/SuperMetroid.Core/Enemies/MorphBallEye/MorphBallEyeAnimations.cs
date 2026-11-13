@@ -1,86 +1,87 @@
 using P = SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeProgram;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
 /// The Morph Ball eye's tracking, eyelid and mount animations as typed programs (#641). Each
-/// frame shows a <see cref="MorphBallEyeFrame"/> pose and its lists use no owner callbacks.
+/// frame shows a <see cref="EnemyFrameId"/> and its lists use no owner callbacks.
 /// </summary>
 internal static class MorphBallEyeAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<MorphBallEyeProgram, AnimationBeat<MorphBallEyeFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<MorphBallEyeProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<MorphBallEyeProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.Active] =
         [
-            Show(7, 10),
-            Show(7, 10),
-            Show(8, 10),
-            Show(9, 10),
-            Show(10, 10),
-            Show(11, 10),
-            Show(12, 10),
-            Show(13, 10),
-            Show(6, 10),
-            Show(5, 10),
-            Show(4, 10),
-            Show(3, 10),
-            Show(2, 10),
-            Show(1, 10),
-            Show(0, 10),
-            Show(0, 10),
+            Show(EnemyFrameId.MorphEyeActive0, 10),
+            Show(EnemyFrameId.MorphEyeActive0, 10),
+            Show(EnemyFrameId.MorphEyeActive1, 10),
+            Show(EnemyFrameId.MorphEyeActive2, 10),
+            Show(EnemyFrameId.MorphEyeActive3, 10),
+            Show(EnemyFrameId.MorphEyeActive4, 10),
+            Show(EnemyFrameId.MorphEyeActive5, 10),
+            Show(EnemyFrameId.MorphEyeActive6, 10),
+            Show(EnemyFrameId.MorphEyeActive7, 10),
+            Show(EnemyFrameId.MorphEyeActive8, 10),
+            Show(EnemyFrameId.MorphEyeActive9, 10),
+            Show(EnemyFrameId.MorphEyeActive10, 10),
+            Show(EnemyFrameId.MorphEyeActive11, 10),
+            Show(EnemyFrameId.MorphEyeActive12, 10),
+            Show(EnemyFrameId.MorphEyeActive13, 10),
+            Show(EnemyFrameId.MorphEyeActive13, 10),
         ],
         [P.FacingRightDeactivating] =
         [
-            Show(15, 8),
-            Show(3, 48),
-            Show(15, 5),
+            Show(EnemyFrameId.MorphEyeRightTransition, 8),
+            Show(EnemyFrameId.MorphEyeActive10, 48),
+            Show(EnemyFrameId.MorphEyeRightTransition, 5),
         ],
         [P.FacingRightClosed] =
         [
-            Show(14, 48),
+            Show(EnemyFrameId.MorphEyeRightClosed, 48),
         ],
         [P.FacingLeftDeactivating] =
         [
-            Show(17, 8),
-            Show(10, 48),
-            Show(17, 5),
+            Show(EnemyFrameId.MorphEyeLeftTransition, 8),
+            Show(EnemyFrameId.MorphEyeActive3, 48),
+            Show(EnemyFrameId.MorphEyeLeftTransition, 5),
         ],
         [P.FacingLeftClosed] =
         [
-            Show(16, 48),
+            Show(EnemyFrameId.MorphEyeLeftClosed, 48),
         ],
         [P.FacingRightActivating] =
         [
-            Show(14, 32),
-            Show(15, 5),
-            Show(3, 48),
-            Show(15, 8),
+            Show(EnemyFrameId.MorphEyeRightClosed, 32),
+            Show(EnemyFrameId.MorphEyeRightTransition, 5),
+            Show(EnemyFrameId.MorphEyeActive10, 48),
+            Show(EnemyFrameId.MorphEyeRightTransition, 8),
         ],
         [P.FacingLeftActivating] =
         [
-            Show(16, 32),
-            Show(17, 5),
-            Show(10, 48),
-            Show(17, 8),
+            Show(EnemyFrameId.MorphEyeLeftClosed, 32),
+            Show(EnemyFrameId.MorphEyeLeftTransition, 5),
+            Show(EnemyFrameId.MorphEyeActive3, 48),
+            Show(EnemyFrameId.MorphEyeLeftTransition, 8),
         ],
         [P.MountFacingRight] =
         [
-            Show(18, 1),
+            Show(EnemyFrameId.MorphEyeMountRight, 1),
         ],
         [P.MountFacingDown] =
         [
-            Show(19, 1),
+            Show(EnemyFrameId.MorphEyeMountDown, 1),
         ],
         [P.MountFacingLeft] =
         [
-            Show(20, 1),
+            Show(EnemyFrameId.MorphEyeMountLeft, 1),
         ],
         [P.MountFacingUp] =
         [
-            Show(21, 1),
+            Show(EnemyFrameId.MorphEyeMountUp, 1),
         ],
     });
 
@@ -103,6 +104,6 @@ internal static class MorphBallEyeAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MorphBallEyeProgram> StartingWith(MorphBallEyeProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<MorphBallEyeFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<MorphBallEyeFrame, NoAnimationCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 }

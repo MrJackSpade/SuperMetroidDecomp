@@ -503,7 +503,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             return;
         var state = RequireWalkingSpacePirateState(slot);
         AnimationPlayback<WalkingSpacePirateProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, WalkingSpacePirateAnimations.Segments, ref playback, WalkingSpacePirateFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, WalkingSpacePirateAnimations.Segments, ref playback,
             cue => ApplyWalkingSpacePirateCue(slot, cue, context.Samus) is { } continuesAt
                 ? new AnimationContinuation<WalkingSpacePirateProgram>(WalkingSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);

@@ -1,44 +1,45 @@
 using P = SuperMetroid.Core.Enemies.Shutters.ShutterProgram;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
 /// The growing, vertical and horizontal shutters' poses and Kamer's platform loop as typed programs (#641). Each
-/// frame shows a <see cref="ShutterFrame"/> pose and its lists use no owner callbacks.
+/// frame shows a <see cref="EnemyFrameId"/> and its lists use no owner callbacks.
 /// </summary>
 internal static class ShutterAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<ShutterProgram, ShutterFrame, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<ShutterProgram, AnimationBeat<ShutterFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<ShutterProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<ShutterProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.GrowingTenPixels] =
         [
-            Show(0, 1),
+            Show(EnemyFrameId.ShutterGrowing10px, 1),
         ],
         [P.GrowingTwentyPixels] =
         [
-            Show(1, 1),
+            Show(EnemyFrameId.ShutterGrowing20px, 1),
         ],
         [P.GrowingThirtyPixels] =
         [
-            Show(2, 1),
+            Show(EnemyFrameId.ShutterGrowing30px, 1),
         ],
         [P.FortyPixels] =
         [
-            Show(3, 1),
+            Show(EnemyFrameId.ShutterVertical40px, 1),
         ],
         [P.Horizontal] =
         [
-            Show(4, 1),
+            Show(EnemyFrameId.ShutterHorizontal, 1),
         ],
         [P.KamerPlatform] =
         [
-            Show(5, 10),
-            Show(6, 10),
-            Show(7, 10),
-            Show(8, 10),
+            Show(EnemyFrameId.KamerPlatform0, 10),
+            Show(EnemyFrameId.KamerPlatform1, 10),
+            Show(EnemyFrameId.KamerPlatform2, 10),
+            Show(EnemyFrameId.KamerPlatform3, 10),
         ],
     });
 
@@ -56,6 +57,6 @@ internal static class ShutterAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<ShutterProgram> StartingWith(ShutterProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<ShutterFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<ShutterFrame, NoAnimationCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 }

@@ -291,7 +291,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
 
     /// <summary>Advances Elevator's typed animation.</summary>
     internal static void AdvanceElevatorTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, ElevatorAnimations.Segments, ElevatorFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, ElevatorAnimations.Segments,
             static (ElevatorEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Elevator animation raised {cue}."));
 

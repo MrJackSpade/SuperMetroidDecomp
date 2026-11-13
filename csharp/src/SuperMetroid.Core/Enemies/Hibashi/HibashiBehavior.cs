@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Hibashi.Artwork;
 using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Hibashi;
 
@@ -182,7 +181,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Hibashi's typed animation.</summary>
     internal void AdvanceHibashiTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, HibashiAnimations.Segments, HibashiFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, HibashiAnimations.Segments,
             static (HibashiEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyHibashiCue(slot, cue) is { } target
                 ? new AnimationContinuation<HibashiProgram>(HibashiAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

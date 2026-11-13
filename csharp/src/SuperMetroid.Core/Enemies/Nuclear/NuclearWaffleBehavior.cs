@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Nuclear.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 
@@ -331,7 +330,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         NuclearWaffleEnemyState state = slot.SpeciesState<NuclearWaffleEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Nuclear Waffle state.");
         AnimationPlayback<NuclearWaffleProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, NuclearWaffleAnimations.Segments, ref playback, NuclearWaffleFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, NuclearWaffleAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"Nuclear Waffle's cue-free animation raised {cue}."));
         state.Playback = playback;
     }

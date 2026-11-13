@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.MamaTurtles.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Fx;
@@ -890,7 +889,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         MamaTurtleEnemyState state = slot.RequireSpeciesState<MamaTurtleEnemyState>();
         AnimationPlayback<MamaTurtleProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, MamaTurtleAnimations.Segments, ref playback, MamaTurtleFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, MamaTurtleAnimations.Segments, ref playback,
             cue => ApplyMamaTurtleCue(slot, cue) is { } target
                 ? new AnimationContinuation<MamaTurtleProgram>(MamaTurtleAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
@@ -904,7 +903,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         BabyTurtleEnemyState state = slot.RequireSpeciesState<BabyTurtleEnemyState>();
         AnimationPlayback<MamaTurtleProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, MamaTurtleAnimations.Segments, ref playback, MamaTurtleFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, MamaTurtleAnimations.Segments, ref playback,
             cue => ApplyBabyTurtleCue(slot, cue, context.Samus, context.Level) is { } target
                 ? new AnimationContinuation<MamaTurtleProgram>(MamaTurtleAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);

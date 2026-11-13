@@ -18,6 +18,7 @@ namespace SuperMetroid.Verification.Enemies.Alcoon;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks the Alcoon's typed animations through a retail room's movement and fire cues.</summary>
 internal static class AlcoonInstructionProgramDefinitionsVerification
@@ -105,7 +106,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         AssertEqual(42, reachedPoses.Count, $"real Alcoon reaches every reachable pose; missing={missed}");
         AssertTrue(poses.Except(reachedPoses).All(pose =>
                 pose.Program is AlcoonProgram.FireLeft or AlcoonProgram.FireRight &&
-                AlcoonAnimations.Segments.Beats(pose.Program)[pose.Step - 1] is AnimationBeat<AlcoonFrame, AlcoonCue>.Event cue &&
+                AlcoonAnimations.Segments.Beats(pose.Program)[pose.Step - 1] is AnimationBeat<EnemyFrameId, AlcoonCue>.Event cue &&
                 cue.Raised.Kind == AlcoonCueKind.StartWalking),
             "native start-walking cues skip the two trailing unreachable poses");
         Suite(nameof(AlcoonAnimationsVerification.VerifyAlcoonAnimations), () => AlcoonAnimationsVerification.VerifyAlcoonAnimations(rom));

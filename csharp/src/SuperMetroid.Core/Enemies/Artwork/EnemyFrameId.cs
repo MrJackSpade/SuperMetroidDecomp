@@ -954,86 +954,6 @@ public enum EnemyFrameId
     DraygonBreathBubble8,
     /// <summary>The frame the installed artwork names <c>sprite_object_empty</c>.</summary>
     SpriteObjectEmpty,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_30_frame_0</c>.</summary>
-    SpriteObjectUnusedObject30Frame0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_30_frame_1</c>.</summary>
-    SpriteObjectUnusedObject30Frame1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_30_frame_2</c>.</summary>
-    SpriteObjectUnusedObject30Frame2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_31_frame_0</c>.</summary>
-    SpriteObjectUnusedObject31Frame0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_31_frame_1</c>.</summary>
-    SpriteObjectUnusedObject31Frame1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_31_frame_2</c>.</summary>
-    SpriteObjectUnusedObject31Frame2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_32_frame_0</c>.</summary>
-    SpriteObjectUnusedObject32Frame0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_32_frame_1</c>.</summary>
-    SpriteObjectUnusedObject32Frame1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_32_frame_2</c>.</summary>
-    SpriteObjectUnusedObject32Frame2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_33_frame_0</c>.</summary>
-    SpriteObjectUnusedObject33Frame0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_33_frame_1</c>.</summary>
-    SpriteObjectUnusedObject33Frame1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_33_frame_2</c>.</summary>
-    SpriteObjectUnusedObject33Frame2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_34_frame_0</c>.</summary>
-    SpriteObjectUnusedObject34Frame0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_34_frame_1</c>.</summary>
-    SpriteObjectUnusedObject34Frame1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_34_frame_2</c>.</summary>
-    SpriteObjectUnusedObject34Frame2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_35_frame_0</c>.</summary>
-    SpriteObjectUnusedObject35Frame0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_35_frame_1</c>.</summary>
-    SpriteObjectUnusedObject35Frame1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_35_frame_2</c>.</summary>
-    SpriteObjectUnusedObject35Frame2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_36_frame_0</c>.</summary>
-    SpriteObjectUnusedObject36Frame0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_36_frame_1</c>.</summary>
-    SpriteObjectUnusedObject36Frame1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_36_frame_2</c>.</summary>
-    SpriteObjectUnusedObject36Frame2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_37_frame_0</c>.</summary>
-    SpriteObjectUnusedObject37Frame0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_37_frame_1</c>.</summary>
-    SpriteObjectUnusedObject37Frame1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_37_frame_2</c>.</summary>
-    SpriteObjectUnusedObject37Frame2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_0</c>.</summary>
-    SpriteObjectUnusedRockParticles0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_1</c>.</summary>
-    SpriteObjectUnusedRockParticles1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_2</c>.</summary>
-    SpriteObjectUnusedRockParticles2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_3</c>.</summary>
-    SpriteObjectUnusedRockParticles3,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_4</c>.</summary>
-    SpriteObjectUnusedRockParticles4,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_5</c>.</summary>
-    SpriteObjectUnusedRockParticles5,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_6</c>.</summary>
-    SpriteObjectUnusedRockParticles6,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_7</c>.</summary>
-    SpriteObjectUnusedRockParticles7,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_8</c>.</summary>
-    SpriteObjectUnusedRockParticles8,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_9</c>.</summary>
-    SpriteObjectUnusedRockParticles9,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_10</c>.</summary>
-    SpriteObjectUnusedRockParticles10,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_11</c>.</summary>
-    SpriteObjectUnusedRockParticles11,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_12</c>.</summary>
-    SpriteObjectUnusedRockParticles12,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_13</c>.</summary>
-    SpriteObjectUnusedRockParticles13,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_14</c>.</summary>
-    SpriteObjectUnusedRockParticles14,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_rock_particles_15</c>.</summary>
-    SpriteObjectUnusedRockParticles15,
     /// <summary>The frame the installed artwork names <c>sprite_object_big_dust_cloud_0</c>.</summary>
     SpriteObjectBigDustCloud0,
     /// <summary>The frame the installed artwork names <c>sprite_object_big_dust_cloud_1</c>.</summary>
@@ -1050,86 +970,6 @@ public enum EnemyFrameId
     SpriteObjectBigDustCloud6,
     /// <summary>The frame the installed artwork names <c>sprite_object_big_dust_cloud_7</c>.</summary>
     SpriteObjectBigDustCloud7,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_dust_cloud_beam_0</c>.</summary>
-    SpriteObjectUnusedDustCloudBeam0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_dust_cloud_beam_1</c>.</summary>
-    SpriteObjectUnusedDustCloudBeam1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_dust_cloud_beam_2</c>.</summary>
-    SpriteObjectUnusedDustCloudBeam2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_dust_cloud_beam_3</c>.</summary>
-    SpriteObjectUnusedDustCloudBeam3,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_dust_cloud_beam_4</c>.</summary>
-    SpriteObjectUnusedDustCloudBeam4,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_dust_cloud_beam_5</c>.</summary>
-    SpriteObjectUnusedDustCloudBeam5,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_dust_cloud_beam_6</c>.</summary>
-    SpriteObjectUnusedDustCloudBeam6,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_dust_cloud_beam_7</c>.</summary>
-    SpriteObjectUnusedDustCloudBeam7,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_save_station_electricity_0</c>.</summary>
-    SpriteObjectUnusedSaveStationElectricity0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_save_station_electricity_1</c>.</summary>
-    SpriteObjectUnusedSaveStationElectricity1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_save_station_electricity_2</c>.</summary>
-    SpriteObjectUnusedSaveStationElectricity2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_save_station_electricity_3</c>.</summary>
-    SpriteObjectUnusedSaveStationElectricity3,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_save_station_electricity_4</c>.</summary>
-    SpriteObjectUnusedSaveStationElectricity4,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_save_station_electricity_5</c>.</summary>
-    SpriteObjectUnusedSaveStationElectricity5,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_save_station_electricity_6</c>.</summary>
-    SpriteObjectUnusedSaveStationElectricity6,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_save_station_electricity_7</c>.</summary>
-    SpriteObjectUnusedSaveStationElectricity7,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_vertical_gate_0</c>.</summary>
-    SpriteObjectUnusedVerticalGate0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_vertical_gate_1</c>.</summary>
-    SpriteObjectUnusedVerticalGate1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_vertical_gate_2</c>.</summary>
-    SpriteObjectUnusedVerticalGate2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_vertical_gate_3</c>.</summary>
-    SpriteObjectUnusedVerticalGate3,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_vertical_gate_4</c>.</summary>
-    SpriteObjectUnusedVerticalGate4,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_vertical_gate_5</c>.</summary>
-    SpriteObjectUnusedVerticalGate5,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_vertical_gate_6</c>.</summary>
-    SpriteObjectUnusedVerticalGate6,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_vertical_gate_7</c>.</summary>
-    SpriteObjectUnusedVerticalGate7,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_beam_charge_0</c>.</summary>
-    SpriteObjectUnusedBeamCharge0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_beam_charge_1</c>.</summary>
-    SpriteObjectUnusedBeamCharge1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_beam_charge_2</c>.</summary>
-    SpriteObjectUnusedBeamCharge2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_beam_charge_3</c>.</summary>
-    SpriteObjectUnusedBeamCharge3,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_particle_0</c>.</summary>
-    SpriteObjectUnusedMotherBrainElbowParticle0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_particle_1</c>.</summary>
-    SpriteObjectUnusedMotherBrainElbowParticle1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_particle_2</c>.</summary>
-    SpriteObjectUnusedMotherBrainElbowParticle2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_particle_3</c>.</summary>
-    SpriteObjectUnusedMotherBrainElbowParticle3,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_particle_4</c>.</summary>
-    SpriteObjectUnusedMotherBrainElbowParticle4,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_particle_5</c>.</summary>
-    SpriteObjectUnusedMotherBrainElbowParticle5,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_energy_0</c>.</summary>
-    SpriteObjectUnusedMotherBrainElbowEnergy0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_energy_1</c>.</summary>
-    SpriteObjectUnusedMotherBrainElbowEnergy1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_energy_2</c>.</summary>
-    SpriteObjectUnusedMotherBrainElbowEnergy2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_energy_3</c>.</summary>
-    SpriteObjectUnusedMotherBrainElbowEnergy3,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_energy_4</c>.</summary>
-    SpriteObjectUnusedMotherBrainElbowEnergy4,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_mother_brain_elbow_energy_5</c>.</summary>
-    SpriteObjectUnusedMotherBrainElbowEnergy5,
     /// <summary>The frame the installed artwork names <c>sprite_object_small_explosion_0</c>.</summary>
     SpriteObjectSmallExplosion0,
     /// <summary>The frame the installed artwork names <c>sprite_object_small_explosion_1</c>.</summary>
@@ -1142,30 +982,6 @@ public enum EnemyFrameId
     SpriteObjectSmallExplosion4,
     /// <summary>The frame the installed artwork names <c>sprite_object_small_explosion_5</c>.</summary>
     SpriteObjectSmallExplosion5,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_bomb_explosion_0</c>.</summary>
-    SpriteObjectUnusedBombExplosion0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_bomb_explosion_1</c>.</summary>
-    SpriteObjectUnusedBombExplosion1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_bomb_explosion_2</c>.</summary>
-    SpriteObjectUnusedBombExplosion2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_bomb_explosion_3</c>.</summary>
-    SpriteObjectUnusedBombExplosion3,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_bomb_explosion_4</c>.</summary>
-    SpriteObjectUnusedBombExplosion4,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_beam_trail_0</c>.</summary>
-    SpriteObjectUnusedBeamTrail0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_beam_trail_1</c>.</summary>
-    SpriteObjectUnusedBeamTrail1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_beam_trail_2</c>.</summary>
-    SpriteObjectUnusedBeamTrail2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_beam_trail_3</c>.</summary>
-    SpriteObjectUnusedBeamTrail3,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_power_bomb_0</c>.</summary>
-    SpriteObjectUnusedPowerBomb0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_power_bomb_1</c>.</summary>
-    SpriteObjectUnusedPowerBomb1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_power_bomb_2</c>.</summary>
-    SpriteObjectUnusedPowerBomb2,
     /// <summary>The frame the installed artwork names <c>sprite_object_dud_shot_0</c>.</summary>
     SpriteObjectDudShot0,
     /// <summary>The frame the installed artwork names <c>sprite_object_dud_shot_1</c>.</summary>
@@ -1178,10 +994,6 @@ public enum EnemyFrameId
     SpriteObjectDudShot4,
     /// <summary>The frame the installed artwork names <c>sprite_object_dud_shot_5</c>.</summary>
     SpriteObjectDudShot5,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_elevator_pad_0</c>.</summary>
-    SpriteObjectUnusedElevatorPad0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_elevator_pad_1</c>.</summary>
-    SpriteObjectUnusedElevatorPad1,
     /// <summary>The frame the installed artwork names <c>sprite_object_small_dust_cloud_0</c>.</summary>
     SpriteObjectSmallDustCloud0,
     /// <summary>The frame the installed artwork names <c>sprite_object_small_dust_cloud_1</c>.</summary>
@@ -1198,14 +1010,6 @@ public enum EnemyFrameId
     SpriteObjectPirateLandingDustCloud2,
     /// <summary>The frame the installed artwork names <c>sprite_object_pirate_landing_dust_cloud_3</c>.</summary>
     SpriteObjectPirateLandingDustCloud3,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_eye_door_sweat_drop_0</c>.</summary>
-    SpriteObjectUnusedEyeDoorSweatDrop0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_eye_door_sweat_drop_1</c>.</summary>
-    SpriteObjectUnusedEyeDoorSweatDrop1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_eye_door_sweat_drop_2</c>.</summary>
-    SpriteObjectUnusedEyeDoorSweatDrop2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_eye_door_sweat_drop_3</c>.</summary>
-    SpriteObjectUnusedEyeDoorSweatDrop3,
     /// <summary>The frame the installed artwork names <c>sprite_object_smoke_0</c>.</summary>
     SpriteObjectSmoke0,
     /// <summary>The frame the installed artwork names <c>sprite_object_smoke_1</c>.</summary>
@@ -1214,36 +1018,6 @@ public enum EnemyFrameId
     SpriteObjectSmoke2,
     /// <summary>The frame the installed artwork names <c>sprite_object_smoke_3</c>.</summary>
     SpriteObjectSmoke3,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_small_energy_drop_object_13_frame_0</c>.</summary>
-    SpriteObjectUnusedSmallEnergyDropObject13Frame0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_small_energy_drop_object_13_frame_1</c>.</summary>
-    SpriteObjectUnusedSmallEnergyDropObject13Frame1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_small_energy_drop_object_13_frame_2</c>.</summary>
-    SpriteObjectUnusedSmallEnergyDropObject13Frame2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_small_energy_drop_object_13_frame_3</c>.</summary>
-    SpriteObjectUnusedSmallEnergyDropObject13Frame3,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_big_energy_drop_0</c>.</summary>
-    SpriteObjectUnusedBigEnergyDrop0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_big_energy_drop_1</c>.</summary>
-    SpriteObjectUnusedBigEnergyDrop1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_big_energy_drop_2</c>.</summary>
-    SpriteObjectUnusedBigEnergyDrop2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_big_energy_drop_3</c>.</summary>
-    SpriteObjectUnusedBigEnergyDrop3,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_bomb_0</c>.</summary>
-    SpriteObjectUnusedBomb0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_bomb_1</c>.</summary>
-    SpriteObjectUnusedBomb1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_bomb_2</c>.</summary>
-    SpriteObjectUnusedBomb2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_bomb_3</c>.</summary>
-    SpriteObjectUnusedBomb3,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_small_energy_drop_object_16_frame_0</c>.</summary>
-    SpriteObjectUnusedSmallEnergyDropObject16Frame0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_small_energy_drop_object_16_frame_1</c>.</summary>
-    SpriteObjectUnusedSmallEnergyDropObject16Frame1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_small_energy_drop_object_16_frame_2</c>.</summary>
-    SpriteObjectUnusedSmallEnergyDropObject16Frame2,
     /// <summary>The frame the installed artwork names <c>sprite_object_big_explosion_0</c>.</summary>
     SpriteObjectBigExplosion0,
     /// <summary>The frame the installed artwork names <c>sprite_object_big_explosion_1</c>.</summary>
@@ -1256,52 +1030,6 @@ public enum EnemyFrameId
     SpriteObjectBigExplosion4,
     /// <summary>The frame the installed artwork names <c>sprite_object_big_explosion_5</c>.</summary>
     SpriteObjectBigExplosion5,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_38_frame_0</c>.</summary>
-    SpriteObjectUnusedObject38Frame0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_38_frame_1</c>.</summary>
-    SpriteObjectUnusedObject38Frame1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_38_frame_2</c>.</summary>
-    SpriteObjectUnusedObject38Frame2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_38_frame_3</c>.</summary>
-    SpriteObjectUnusedObject38Frame3,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_38_frame_4</c>.</summary>
-    SpriteObjectUnusedObject38Frame4,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_38_frame_5</c>.</summary>
-    SpriteObjectUnusedObject38Frame5,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_39_frame_0</c>.</summary>
-    SpriteObjectUnusedObject39Frame0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_39_frame_1</c>.</summary>
-    SpriteObjectUnusedObject39Frame1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_39_frame_2</c>.</summary>
-    SpriteObjectUnusedObject39Frame2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_39_frame_3</c>.</summary>
-    SpriteObjectUnusedObject39Frame3,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_39_frame_4</c>.</summary>
-    SpriteObjectUnusedObject39Frame4,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_42</c>.</summary>
-    SpriteObjectUnusedObject42,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_40_frame_0</c>.</summary>
-    SpriteObjectUnusedObject40Frame0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_40_frame_1</c>.</summary>
-    SpriteObjectUnusedObject40Frame1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_40_frame_2</c>.</summary>
-    SpriteObjectUnusedObject40Frame2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_40_frame_3</c>.</summary>
-    SpriteObjectUnusedObject40Frame3,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_40_frame_4</c>.</summary>
-    SpriteObjectUnusedObject40Frame4,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_40_frame_5</c>.</summary>
-    SpriteObjectUnusedObject40Frame5,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_41_frame_0</c>.</summary>
-    SpriteObjectUnusedObject41Frame0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_41_frame_1</c>.</summary>
-    SpriteObjectUnusedObject41Frame1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_41_frame_2</c>.</summary>
-    SpriteObjectUnusedObject41Frame2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_41_frame_3</c>.</summary>
-    SpriteObjectUnusedObject41Frame3,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_41_frame_4</c>.</summary>
-    SpriteObjectUnusedObject41Frame4,
     /// <summary>The frame the installed artwork names <c>sprite_object_puromi_0</c>.</summary>
     SpriteObjectPuromi0,
     /// <summary>The frame the installed artwork names <c>sprite_object_puromi_1</c>.</summary>
@@ -1354,8 +1082,6 @@ public enum EnemyFrameId
     SpriteObjectPuromiSplash2,
     /// <summary>The frame the installed artwork names <c>sprite_object_puromi_splash_4</c>.</summary>
     SpriteObjectPuromiSplash4,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_47</c>.</summary>
-    SpriteObjectUnusedObject47,
     /// <summary>The frame the installed artwork names <c>sprite_object_falling_spark_trail_0</c>.</summary>
     SpriteObjectFallingSparkTrail0,
     /// <summary>The frame the installed artwork names <c>sprite_object_falling_spark_trail_1</c>.</summary>
@@ -1370,14 +1096,6 @@ public enum EnemyFrameId
     SpriteObjectMetroidShell1,
     /// <summary>The frame the installed artwork names <c>sprite_object_metroid_shell_2</c>.</summary>
     SpriteObjectMetroidShell2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_metroid_insides_0</c>.</summary>
-    SpriteObjectUnusedMetroidInsides0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_metroid_insides_1</c>.</summary>
-    SpriteObjectUnusedMetroidInsides1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_metroid_insides_2</c>.</summary>
-    SpriteObjectUnusedMetroidInsides2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_metroid_insides_3</c>.</summary>
-    SpriteObjectUnusedMetroidInsides3,
     /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_0</c>.</summary>
     SpriteObjectMetroidElectricity0,
     /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_1</c>.</summary>
@@ -1426,34 +1144,10 @@ public enum EnemyFrameId
     SpriteObjectMetroidElectricity22,
     /// <summary>The frame the installed artwork names <c>sprite_object_metroid_electricity_23</c>.</summary>
     SpriteObjectMetroidElectricity23,
-    /// <summary>The frame the installed artwork names <c>sprite_object_enemy_shot_0</c>.</summary>
-    SpriteObjectEnemyShot0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_enemy_shot_1</c>.</summary>
-    SpriteObjectEnemyShot1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_enemy_shot_2</c>.</summary>
-    SpriteObjectEnemyShot2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_enemy_shot_3</c>.</summary>
-    SpriteObjectEnemyShot3,
     /// <summary>The frame the installed artwork names <c>sprite_object_yapping_maw_base_facing_down</c>.</summary>
     SpriteObjectYappingMawBaseFacingDown,
     /// <summary>The frame the installed artwork names <c>sprite_object_yapping_maw_base_facing_up</c>.</summary>
     SpriteObjectYappingMawBaseFacingUp,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_58_frame_0</c>.</summary>
-    SpriteObjectUnusedObject58Frame0,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_58_frame_1</c>.</summary>
-    SpriteObjectUnusedObject58Frame1,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_58_frame_2</c>.</summary>
-    SpriteObjectUnusedObject58Frame2,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_58_frame_3</c>.</summary>
-    SpriteObjectUnusedObject58Frame3,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_58_frame_4</c>.</summary>
-    SpriteObjectUnusedObject58Frame4,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_58_frame_5</c>.</summary>
-    SpriteObjectUnusedObject58Frame5,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_58_frame_6</c>.</summary>
-    SpriteObjectUnusedObject58Frame6,
-    /// <summary>The frame the installed artwork names <c>sprite_object_unused_object_58_frame_7</c>.</summary>
-    SpriteObjectUnusedObject58Frame7,
     /// <summary>The frame the installed artwork names <c>sprite_object_evir_facing_right_0</c>.</summary>
     SpriteObjectEvirFacingRight0,
     /// <summary>The frame the installed artwork names <c>sprite_object_evir_facing_right_1</c>.</summary>

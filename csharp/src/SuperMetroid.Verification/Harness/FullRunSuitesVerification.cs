@@ -93,6 +93,7 @@ using static SuperMetroid.Verification.Rooms.RoomObjects.ContactCrumbleProgramsV
 using static SuperMetroid.Verification.Audio.ContactDamageSoundVerification;
 using static SuperMetroid.Verification.Enemies.EnemySoundOrderVerification;
 using static SuperMetroid.Verification.Enemies.EnemyBombShotReactionVerification;
+using static SuperMetroid.Verification.Enemies.EnemyHitBurstVerification;
 using static SuperMetroid.Verification.Frontend.Recording.ControllerInputRecordingVerification;
 using static SuperMetroid.Verification.Hardware.WorkRamCellVerification;
 using static SuperMetroid.Verification.Samus.Movement.CrampedAerialLandingVerification;
@@ -1132,6 +1133,10 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyEnemySoundsQueueInRunOrder), () => VerifyEnemySoundsQueueInRunOrder()),
         new(nameof(VerifyProjectileDudSoundsQueueWhenRejected), () => VerifyProjectileDudSoundsQueueWhenRejected()),
         new(nameof(VerifyBombHitCriesOrDuds), () => VerifyBombHitCriesOrDuds()),
+        new(nameof(VerifyShotHitBursts), () => VerifyShotHitBursts()),
+        new(nameof(VerifyBombHitBursts), () => VerifyBombHitBursts()),
+        new(nameof(VerifyPirateHitBursts), () => VerifyPirateHitBursts()),
+        new(nameof(VerifyHitBurstPlaces), () => VerifyHitBurstPlaces()),
         new(nameof(VerifyBombJumpRunMomentum), () => VerifyBombJumpRunMomentum()),
         new(nameof(VerifyBabyMetroidWallClearTiming), () => VerifyBabyMetroidWallClearTiming()),
         new(nameof(VerifyDrainedSparkCrash), () => VerifyDrainedSparkCrash()),

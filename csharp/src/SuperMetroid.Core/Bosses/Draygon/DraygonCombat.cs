@@ -50,6 +50,8 @@ internal sealed class DraygonCombat
                                                        c.SelectedShotAi == EnemyReaction.DraygonShot)
         {
             RunsGenericDeath = false,
+            // Draygon's shot reaction runs the common damage without the hit burst.
+            ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
             BeforeCommon = c => AdvanceDraygonShotAcceleration(RequireCompleteDraygonState(c.Enemy)),
             AfterCommon = c => ResolveDraygonReaction(c.Enemy, c.Samus),
         });
@@ -224,6 +226,8 @@ internal sealed class DraygonCombat
             },
             AfterImpact = c => AdvanceDraygonShotAcceleration(RequireCompleteDraygonState(c.Enemy)),
             ExemptFromGenericDeath = true,
+            // Draygon's shot reaction runs the common damage without the hit burst.
+            ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
             AfterCommon = c => ResolveDraygonReaction(c.Enemy, c.Samus),
         });
     }

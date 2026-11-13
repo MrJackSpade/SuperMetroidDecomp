@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
 
@@ -25,6 +26,9 @@ internal sealed record EnemyCollisionDependencies
 
     /// <summary>Projectiles.</summary>
     public required EnemyProjectileEngine Projectiles { get; init; }
+
+    /// <summary>The room's sprite objects, which the burst at an enemy a shot or bomb hurts joins.</summary>
+    public required RoomSpriteObjects SpriteObjects { get; init; }
 
     /// <summary>Room.</summary>
     public required EnemyRoomBinding Room { get; init; }

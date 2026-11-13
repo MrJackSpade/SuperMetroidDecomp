@@ -358,6 +358,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.MiniKraid)
         {
             RunsGenericDeath = false,
+            // Mini Kraid's shot reaction runs the common damage without the hit burst.
+            ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
             AfterCommon = c =>
             {
                 if (c.SelectedShotAi == EnemyReaction.FakeKraidShot && c.HealthBefore != 0 && c.Enemy.Health == 0)
@@ -421,6 +423,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.MiniKraid &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.FakeKraidShot)
         {
+            // Mini Kraid's shot reaction runs the common damage without the hit burst.
+            ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
             ReplacesGenericDeath = c =>
             {
                 KillFakeKraid(c.Enemy);

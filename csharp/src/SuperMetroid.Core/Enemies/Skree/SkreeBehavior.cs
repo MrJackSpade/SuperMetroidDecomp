@@ -170,6 +170,8 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Skree &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.SkreeShot)
         {
+            // Skree's shot reaction runs the common damage without the hit burst.
+            ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
             BeforeGenericDeath = c => _projectiles.SpawnMetalParticleBurst(c.Enemy, SkreeParticleDefinitions.Burst),
         });
     }
@@ -183,6 +185,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
                                                        c.SelectedShotAi == EnemyReaction.SkreeShot)
         {
             RunsGenericDeath = false,
+            ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
             AfterCommon = c =>
             {
                 if (c.Enemy.Health != 0)

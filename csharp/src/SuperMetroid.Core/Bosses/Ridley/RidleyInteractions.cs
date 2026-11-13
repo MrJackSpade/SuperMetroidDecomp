@@ -77,6 +77,8 @@ internal static class RidleyInteractions
                 return false;
             },
             ExemptFromGenericDeath = true,
+            // Ridley's shot reaction runs the common damage without the hit burst.
+            ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
         });
     }
 
@@ -87,6 +89,7 @@ internal static class RidleyInteractions
                                                        c.SelectedShotAi == EnemyReaction.RidleyShot)
         {
             RunsGenericDeath = false,
+            ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
         });
     }
 

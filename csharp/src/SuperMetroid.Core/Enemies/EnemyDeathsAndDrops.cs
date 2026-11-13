@@ -296,6 +296,10 @@ internal sealed class EnemyDeathsAndDrops
             "Enemy drop selection requires the active Samus state.");
         if (ResolveEnemyDropChances(projectile) is not { } table)
             return EnemyPickupKind.NoDrop;
+        // Every authored table's chances sum to the whole budget, so the pooled weights and the budget left for the major
+        // drops stay within it (#1620).
+        if (table.Total > FullWeightBudget)
+            throw new InvalidDataException($"A drop table's chances sum to {table.Total}, past the {FullWeightBudget} every chance is out of.");
 
         int random;
         do
@@ -318,7 +322,7 @@ internal sealed class EnemyDeathsAndDrops
         var offered = new HashSet<EnemyPickupKind>();
         if (_room.Session.CriticalEnergyDropBias)
         {
-            pooledMinorWeight = WithinWeightPool(table.SmallEnergy + table.BigEnergy);
+            pooledMinorWeight = table.SmallEnergy + table.BigEnergy;
             offered.Add(EnemyPickupKind.SmallEnergy);
             offered.Add(EnemyPickupKind.BigEnergy);
         }
@@ -329,26 +333,23 @@ internal sealed class EnemyDeathsAndDrops
             if (samus.Health != samus.MaxHealth ||
                 samus.ReserveEnergy != samus.MaxReserveEnergy)
             {
-                pooledMinorWeight = WithinWeightPool(
-                    pooledMinorWeight + table.SmallEnergy + table.BigEnergy);
+                pooledMinorWeight += table.SmallEnergy + table.BigEnergy;
                 offered.Add(EnemyPickupKind.SmallEnergy);
                 offered.Add(EnemyPickupKind.BigEnergy);
             }
             if (samus.Missiles != samus.MaxMissiles)
             {
-                pooledMinorWeight = WithinWeightPool(pooledMinorWeight + table.Missile);
+                pooledMinorWeight += table.Missile;
                 offered.Add(EnemyPickupKind.Missile);
             }
             if (samus.SuperMissiles != samus.MaxSuperMissiles)
             {
-                majorAdjustedBudget = WithinWeightPool(
-                    majorAdjustedBudget - table.SuperMissile);
+                majorAdjustedBudget -= table.SuperMissile;
                 offered.Add(EnemyPickupKind.SuperMissile);
             }
             if (samus.PowerBombs != samus.MaxPowerBombs)
             {
-                majorAdjustedBudget = WithinWeightPool(
-                    majorAdjustedBudget - table.PowerBomb);
+                majorAdjustedBudget -= table.PowerBomb;
                 offered.Add(EnemyPickupKind.PowerBomb);
             }
         }
@@ -361,9 +362,9 @@ internal sealed class EnemyDeathsAndDrops
             if (!offered.Contains(kind))
                 continue;
 
-            // The multiply result is sixteen bits and division truncates toward
-            // zero. Inputs are bytes, so ordinary integer arithmetic is identical.
-            accumulated = CoordinateAxis.Wrap(accumulated + majorAdjustedBudget * table.Of(kind) / pooledMinorWeight);
+            // A minor drop's share of the budget the major drops leave, rounded down; the shares and the major chances sum to
+            // at most the whole budget twice over.
+            accumulated += majorAdjustedBudget * table.Of(kind) / pooledMinorWeight;
             if (accumulated >= random)
                 return kind;
         }
@@ -374,7 +375,7 @@ internal sealed class EnemyDeathsAndDrops
             if (!offered.Contains(kind))
                 continue;
 
-            accumulated = CoordinateAxis.Wrap(accumulated + table.Of(kind));
+            accumulated += table.Of(kind);
             if (accumulated >= random)
                 return kind;
         }
@@ -386,7 +387,7 @@ internal sealed class EnemyDeathsAndDrops
     private const int MinorDropColumnCount = 4;
 
     /// <summary>The whole weight budget the drop chances share, before the enabled major drops take their part.</summary>
-    private const int FullWeightBudget = WeightPoolSpan - 1;
+    private const int FullWeightBudget = 255;
 
     /// <summary>
     /// Uses an explicit boss chance table, a saved enemy header's, or none. A death explosion from a cleared enemy slot
@@ -538,16 +539,6 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Measures the absolute distance between two of the room's wrapping coordinates.</summary>
     private static int AbsoluteWrappedDelta(int left, int right) =>
         CoordinateAxis.Distance(left, right);
-
-    /// <summary>The span of the drop-weight pool: every chance is out of 255.</summary>
-    private const int WeightPoolSpan = 256;
-
-    /// <summary>
-    /// A pooled drop weight or remaining budget within the 256-unit pool: a pool summed past 255, or a budget taken below
-    /// zero, continues from the other end, as it does for a table whose chances do not sum to 255.
-    /// </summary>
-    /// <param name="weight">The computed weight, which may lie outside the pool.</param>
-    private static int WithinWeightPool(int weight) => (weight % WeightPoolSpan + WeightPoolSpan) % WeightPoolSpan;
 
     /// <summary>
     /// Runs the respawn cue for the respawning enemy a death actor retains.

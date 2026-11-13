@@ -18,6 +18,7 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.ZebetiteShotShareVerif
 using static SuperMetroid.Verification.Enemies.EnemyOccupantStatesVerification;
 using static SuperMetroid.Verification.Enemies.KilledEnemyCompatibilityVerification;
 using static SuperMetroid.Verification.Bosses.BossRuleRangesVerification;
+using static SuperMetroid.Verification.Enemies.EnemyRuleRangesVerification;
 using static SuperMetroid.Verification.Enemies.Puyo.PuyoCeilingTurnVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFatalBlowShakeVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidHeadTargetVerification;
@@ -874,6 +875,10 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyEnemyOccupantStates), () => VerifyEnemyOccupantStates()),
         new(nameof(VerifyKilledEnemyCompatibility), () => VerifyKilledEnemyCompatibility()),
         new(nameof(VerifyBossRandomRolls), () => VerifyBossRandomRolls()),
+        new(nameof(VerifyMetroidClosingDistance), () => VerifyMetroidClosingDistance()),
+        new(nameof(VerifyYappingMawLinkOffset), () => VerifyYappingMawLinkOffset()),
+        new(nameof(VerifyUnauthoredBeamVulnerability), () => VerifyUnauthoredBeamVulnerability()),
+        new(nameof(VerifyDeletedParentLeftovers), () => VerifyDeletedParentLeftovers()),
         new(nameof(VerifyDeathExplosionRules), () => VerifyDeathExplosionRules()),
         new(nameof(VerifyPuyoCeilingTurn), () => VerifyPuyoCeilingTurn()),
         new(nameof(VerifyJumpNoXMovement), () => VerifyJumpNoXMovement()),

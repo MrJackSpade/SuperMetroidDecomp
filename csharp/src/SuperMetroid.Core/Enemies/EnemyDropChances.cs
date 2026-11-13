@@ -15,6 +15,9 @@ public readonly record struct EnemyDropChances(
     int SuperMissile,
     int PowerBomb)
 {
+    /// <summary>The six chances together, 255 for every authored table.</summary>
+    internal int Total => SmallEnergy + BigEnergy + Missile + Nothing + SuperMissile + PowerBomb;
+
     /// <summary>The chance of the drop <paramref name="kind"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="kind"/> is not a drop.</exception>
     internal int Of(EnemyPickupKind kind) => kind switch

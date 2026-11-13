@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
+using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -43,8 +43,11 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
     /// <summary>8.8 speed assigned at the start of a divekick jump and descent.</summary>
     private const int NinjaPirateInitialDiveSpeed = 1536;
-    /// <summary>The span the posts' half-span is kept within: a wider half-span continues from zero.</summary>
-    private const int PostHalfSpanPixels = 256;
+    /// <summary>
+    /// The widest half-span between a ninja's posts, in pixels: the spin's distance then stays below half the counting
+    /// range as it accumulates. Every retail ninja's posts lie 0 or 192 pixels apart (#1620).
+    /// </summary>
+    private const int LongestPostHalfSpan = 127;
     /// <summary>Maximum horizontal distance at which an idle ninja activates.</summary>
     private const int NinjaPirateActivationDistance = 128;
     /// <summary>Strict distance on both axes for a reaction to the highest occupied projectile.</summary>
@@ -98,18 +101,17 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         requestedHalfSpan >>= 1;
         state.PostsMidpoint = new(CoordinateAxis.Wrap(requestedLeft + requestedHalfSpan), 0);
 
-        // The post setup keeps only the half-span's place within 256 pixels before making it an 8.8 distance, and the
-        // distance the spin covers wraps as it accumulates. The do/while always executes once, including a zero-span
-        // debug population.
-        int distanceInSubpixels = EightEight.FromWhole(requestedHalfSpan % PostHalfSpanPixels);
+        // The spin's speed grows until the distance it covers reaches the half-span; it runs at least once, so posts no
+        // distance apart still spin.
+        int distanceInSubpixels = EightEight.FromWhole(Ensure.BetweenInclusive(0, LongestPostHalfSpan, requestedHalfSpan));
         int speed = 0;
         int accumulatedDistance = 0;
         do
         {
             speed += 32;
-            accumulatedDistance = WrappingCounter.AddCount(accumulatedDistance, speed);
+            accumulatedDistance += speed;
         }
-        while (CoordinateAxis.Difference(accumulatedDistance, distanceInSubpixels) < 0);
+        while (accumulatedDistance < distanceInSubpixels);
 
         state.CalculatedSpinJumpSpeed = speed;
         int adjustedHalfSpan = UnsignedEightEight.Whole(accumulatedDistance);

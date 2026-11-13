@@ -17,8 +17,8 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 [RoomLifetime]
 internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <summary>The span of the lengths the short multiplier distinguishes: a longer length continues from zero.</summary>
-    private const int LengthMultiplierSpan = 256;
+    /// <summary>The 256ths of a pixel in a whole pixel, the fraction a link's product is counted in.</summary>
+    private const int FractionsPerPixel = 256;
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.YappingMaw];
@@ -564,37 +564,24 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         CalculateYappingMawY(angle.TurnedBySteps(-TrigonometryAngle.QuarterTurn.RawValue), length);
 
     /// <summary>
-    /// Computes the link offsets exactly, including the high-byte sine approximation and the unusual
-    /// negative-product construction (<see cref="NegativeLinkOffset"/>). Only length's place within 256 reaches the
-    /// multiplier. The offset is signed, -256 through 510; its consumers wrap it onto the room's axis.
+    /// The offset of a link <paramref name="length"/> along the turn <paramref name="angle"/>, -254 through 254 pixels:
+    /// twice the length the short product uses (<see cref="ShortCircleProduct.RadiusInUse"/>) times the sine's whole
+    /// part, counted in 256ths of a pixel and rounded down to whole pixels, so a point on the negative side with a fraction
+    /// lies a whole pixel further out (#1620: the plain floor of the signed product, which the original's negation and
+    /// byte fill compute for every sine and length); its consumers wrap it onto the room's axis.
     /// </summary>
     internal static int CalculateYappingMawY(TrigonometryAngle angle, int length)
     {
         int signedSample = Trigonometry.SignedSixteenBitSine(
             TrigonometryAngle.Wrapped(-angle.RawValue));
-        bool negative = signedSample < 0;
-        int magnitude = negative ? -signedSample : signedSample;
-        // The short multiplier takes only the length's place within 256. A sample's whole part and that place are
-        // each below 256, so the product stays below 65536.
-        int product = UnsignedEightEight.Whole(magnitude) * (Ensure.AtLeastZero(length) % LengthMultiplierSpan);
-        if (product == 0)
-            return 0;
-
-        if (!negative)
-            return 2 * UnsignedEightEight.Whole(product);
-
-        int negatedProduct = CoordinateAxis.Wrap(-product);
-        return NegativeLinkOffset(2 * UnsignedEightEight.Whole(negatedProduct));
+        int sampleWhole = UnsignedEightEight.Whole(Math.Abs(signedSample));
+        int product = sampleWhole * ShortCircleProduct.RadiusInUse(length);
+        return 2 * WholePixelsRoundedDown(signedSample < 0 ? -product : product);
     }
 
-    /// <summary>
-    /// The negative link offset a doubled negated product stands for: the game keeps only the doubled product's place
-    /// within 256 and fills the rest with ones, so the offset lies 256 below that place, -256 through -1, and a doubled
-    /// product of 256 or more continues from -256.
-    /// </summary>
-    /// <param name="doubledNegatedProduct">The negated product's whole part, doubled, zero or more.</param>
-    private static int NegativeLinkOffset(int doubledNegatedProduct) =>
-        Ensure.AtLeastZero(doubledNegatedProduct) % LengthMultiplierSpan - LengthMultiplierSpan;
+    /// <summary>The whole pixels of <paramref name="fractions"/> 256ths of a pixel, rounded down: a negative fraction reaches the next whole pixel below.</summary>
+    private static int WholePixelsRoundedDown(int fractions) =>
+        fractions >= 0 ? fractions / FractionsPerPixel : -((-fractions + FractionsPerPixel - 1) / FractionsPerPixel);
 
     /// <summary>Routes bomb hits through the Maw's shared shot callback.</summary>
     internal static void AddYappingMawBombReactions(EnemySharedReactions table)

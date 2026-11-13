@@ -69,8 +69,10 @@ public sealed class RoomEnemySlot
     }
 
     /// <summary>
-    /// Empties the slot's identity and drops its occupant's species states, as the deleted-property path does, leaving
-    /// the place's other values.
+    /// Empties the slot's identity and drops its occupant's species states when the occupant is deleted without being
+    /// killed. The place keeps the occupant's last position, health and timers: the enemies that read a deleted partner
+    /// read what it left, through the rule that says so (<see cref="DeletedParentLeftovers"/>, <see cref="FollowUpAfterStruckPart"/>),
+    /// and a partner keeps the species state it took when it was placed.
     /// </summary>
     internal void Unbind()
     {

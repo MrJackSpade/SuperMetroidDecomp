@@ -164,10 +164,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         int targetY,
         RoomLevelData level)
     {
-        // The game constructs a temporary word from the coordinate low-byte subtraction,
-        // shifts it right three, sign-extends bit twelve, then clamps the whole result.
-        // This is observably not a clean full-word delta: crossing a 256-pixel boundary can
-        // reverse the short route. Preserve the byte arithmetic instead of “fixing” it.
+        // The Metroid reckons each distance within a 256-pixel span (MetroidClosingDistance), so a target it has fallen
+        // 128 pixels or more behind reads as lying the other way.
         SignedSixteenSixteen yVelocity = SignedSixteenSixteen.FromWholePixels(
             CalculateMetroidClosingVelocity(targetY, slot.Position.Y.Whole));
         StoreMetroidYVelocity(state, yVelocity);
@@ -181,19 +179,12 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             StoreMetroidXVelocity(state, SignedSixteenSixteen.Zero);
     }
 
-    /// <summary>The span within which a Metroid measures its distance to its target.</summary>
-    private const int ClosingSpan = 256;
-
-    /// <summary>Chooses Metroid's byte-oriented closing speed from wrapped distance to Samus.</summary>
+    /// <summary>Chooses a closing Metroid's speed on one axis from its distance to its target.</summary>
     private static int CalculateMetroidClosingVelocity(int target, int current)
     {
-        // The closing speed is 32 times the signed distance between the two coordinates' places within a 256-pixel
-        // span, -128 through 127: a distance of 128 or more one way reads as the other way.
-        int nearDistance = CoordinateAxis.Wrap(target - current) % ClosingSpan;
-        if (nearDistance >= ClosingSpan / 2)
-            nearDistance -= ClosingSpan;
+        // The closing speed is 32 times the distance the Metroid reckons (MetroidClosingDistance), clamped.
         return Math.Clamp(
-            32 * nearDistance,
+            32 * MetroidClosingDistance.Between(target, current),
             -MetroidMaximumVelocity,
             MetroidMaximumVelocity);
     }

@@ -33,6 +33,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyPartLinks<RoomEnemySlot> _wingsOfBody = new();
     /// <summary>The body each pair of wings found when it was placed, which its room lists right before them.</summary>
     private readonly EnemyPartLinks<RoomEnemySlot> _bodyOfWings = new();
+    /// <summary>
+    /// The settings of the wings each body's wings were placed with, which name the health at which the body loses them;
+    /// a body reads them after its wings were deleted as set up, as a wingless Ki-Hunter's are.
+    /// </summary>
+    private readonly EnemyPartLinks<KiHunterWingsSpawnSettings> _wingSettingsOfBody = new();
 
     /// <summary>Connects Ki-Hunter AI to room collision, projectile, audio and slot services.</summary>
     internal KiHunterBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemySlotTable slotTable)
@@ -127,6 +132,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _bodyOfWings.Place(wings, _slotTable.ListedBefore(wings, 1));
         RoomEnemySlot body = GetKiHunterBody(wings);
+        _wingSettingsOfBody.Place(body, wings.SpawnSettings<KiHunterWingsSpawnSettings>());
         KiHunterEnemyState state = CreateKiHunterState(wings);
 
         wings.Processing = wings.Processing.With(EnemyProcessing.AnimationScript);
@@ -567,7 +573,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         KiHunterEnemyState bodyState = body.RequireSpeciesState<KiHunterEnemyState>();
-        if (body.Health <= wings.SpawnSettings<KiHunterWingsSpawnSettings>().DetachHealth)
+        if (body.Health <= _wingSettingsOfBody.Of(body).DetachHealth)
         {
             if (!bodyState.HasLostWings)
             {

@@ -30,10 +30,9 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FallingPath = fallingPath;
         state.FallingPatternYDistance = ChootFalls.LoopYDistance(fallingPath);
 
-        // The multiply consumes the loop count modulo 256; the authored loop advance is
-        // already below 256. Retail loop counts are nonzero.
-        int jumpHeight = CoordinateAxis.Wrap(
-            slot.SpawnSettings<ChootSpawnSettings>().PatternLoops * state.FallingPatternYDistance);
+        // The jump rises as far as its loops of the falling path fall: one to seven loops of under 256 pixels in every
+        // retail room, so the height stays well within the room (#1620).
+        int jumpHeight = slot.SpawnSettings<ChootSpawnSettings>().PatternLoops * state.FallingPatternYDistance;
         state.InitialYSpeedTableIndex = CalculateInitialChootYSpeedTableIndex(jumpHeight);
         state.InitialFallingPosition = state.SpawnPosition.WithY(CoordinateAxis.Wrap(
             state.SpawnPosition.Y - jumpHeight));

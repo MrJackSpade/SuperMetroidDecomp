@@ -380,7 +380,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("Samus ExtraXDisplacementFraction", samus.Kinematics.ExtraDisplacement.X.Fraction, NativeSnapshotMemory.ExtraXDisplacementFraction);
             Check("Samus ExtraYDisplacement", unchecked((ushort)samus.Kinematics.ExtraDisplacement.Y.WholePixels), NativeSnapshotMemory.ExtraYDisplacement);
             Check("Samus ExtraYDisplacementFraction", samus.Kinematics.ExtraDisplacement.Y.Fraction, NativeSnapshotMemory.ExtraYDisplacementFraction);
-            Check("Samus SlopeCollisionEnable", samus.Kinematics.HorizontalSlopeCollisionEnable, NativeSnapshotMemory.SlopeCollisionEnable);
+            if (!SamusSnapshotWords.AlignsToSlopes(W(NativeSnapshotMemory.SlopeCollisionEnable)))
+                mismatches.Add($"Samus slope alignment: native={W(NativeSnapshotMemory.SlopeCollisionEnable):X4} disables it, which the port never does");
             Check("Samus SpeedDivisor", checked((ushort)samus.HorizontalSpeed.SpeedDivisor), NativeSnapshotMemory.SpeedDivisor);
             Check("Samus ContactDamageIndex", (ushort)samus.HorizontalSpeed.ContactDamageIndex, NativeSnapshotMemory.ContactDamageIndex);
             Check("Samus MorphBallBounceState", SamusSnapshotWords.EncodeBallBounce(samus.MorphBallBounceState), NativeSnapshotMemory.MorphBallBounceState);
@@ -672,11 +673,11 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // Trails are presentation particles nothing in gameplay reads, unbounded and without places (#1625), so
                 // the gameplay comparison holds none of them.
                 Check("Projectile cooldown", runtime.BombProjectiles.CooldownTimer.RawValue, NativeSnapshotMemory.ProjectileCooldown);
-                Check("Beam charge", runtime.Projectiles.Charge.FlareCounter, NativeSnapshotMemory.BeamCharge);
+                Check("Beam charge", SamusSnapshotWords.EncodeBeamCharge(runtime.Projectiles.Charge.Level), NativeSnapshotMemory.BeamCharge);
                 Check("ProjectileCounter", runtime.Projectiles.SlotTable.ProjectileCounter, NativeSnapshotMemory.ProjectileCount);
-                Check("PreviousBeamChargeCounter", runtime.Projectiles.Charge.PreviousBeamChargeCounter, NativeSnapshotMemory.PreviousCharge);
+                Check("PreviousBeamChargeCounter", SamusSnapshotWords.EncodeBeamCharge(runtime.Projectiles.Charge.PreviousCharge), NativeSnapshotMemory.PreviousCharge);
                 Check("ProjectileInvincibilityTimer", runtime.Projectiles.Firing.ProjectileInvincibilityTimer, NativeSnapshotMemory.ProjectileInteractionImmunity);
-                Check("ChargedShotGlowTimer", runtime.Projectiles.Charge.ChargedShotGlowTimer.RawValue, NativeSnapshotMemory.ChargedShotGlow);
+                Check("ChargedShotGlowTimer", SamusSnapshotWords.EncodeChargedShotGlow(runtime.Projectiles.Charge.ChargedShotGlow), NativeSnapshotMemory.ChargedShotGlow);
                 Check("ChargePaletteStep", runtime.Projectiles.Charge.ChargePaletteStep * sizeof(ushort), NativeSnapshotMemory.ChargePaletteIndex);
                 Check("BombCounter", runtime.BombProjectiles.BombCounter, NativeSnapshotMemory.BombCount);
                 // This movie never places a bomb. Check every physical bomb slot and
@@ -699,8 +700,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 if (samus.PendingTransitionShot != SamusSnapshotWords.DecodeTransitionShot(W(NativeSnapshotMemory.PoseShotDirection)))
                     mismatches.Add($"PendingTransitionShot: native={W(NativeSnapshotMemory.PoseShotDirection):X4} port={samus.PendingTransitionShot}");
                 Check("HyperBeam", SamusSnapshotWords.EncodeHyperBeam(samus.HyperBeamEnabled), NativeSnapshotMemory.HyperBeam);
-                if (samus.ResumeChargingBeamSound != SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound)))
-                    mismatches.Add($"ResumeChargingBeamSound: native={W(NativeSnapshotMemory.ResumeChargeSound):X4} port={samus.ResumeChargingBeamSound}");
+                if (samus.ResumeChargingBeamSoundPending != SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound)))
+                    mismatches.Add($"ResumeChargingBeamSound: native={W(NativeSnapshotMemory.ResumeChargeSound):X4} port={samus.ResumeChargingBeamSoundPending}");
 
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)

@@ -379,7 +379,7 @@ public sealed class SamusDrainedState
             SamusBeamFlags.Plasma;
         samus.HyperBeamEnabled = true;
         HyperBeamPaletteFx.Spawn();
-        samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.Clear;
+        samus.ResumeChargingBeamSoundPending = false;
     }
 
     /// <summary>Ends the Samus-side drain lock after release art reaches its transition to the facing standing pose.</summary>

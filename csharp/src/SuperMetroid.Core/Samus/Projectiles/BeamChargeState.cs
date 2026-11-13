@@ -2,42 +2,55 @@ using SuperMetroid.Core.Samus.Palettes;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Beam charge state: the flare counter, the previous charge, the charged-shot glow timer, the charge palette index and the three flare components' frames and timers.</summary>
+/// <summary>
+/// Beam charge state: the charge count and the Hyper Beam's flare, the charge sampled before the charge input, the
+/// charged-shot glow, the charge palette step and the three flare components' frames and timers.
+/// </summary>
 internal sealed class BeamChargeState
 {
-    /// <summary>Clears the charge count alone, as a Varia or Gravity Suit's pickup does (#1577).</summary>
-    internal void ClearCount() => FlareCounter = 0;
-
     /// <summary>
-    /// The flare counter a Hyper Beam shot stores: past every charge threshold, so the Hyper Beam always reads as fully
-    /// charged and never advances it; the largest value the counter holds.
+    /// Clears the charge, its count and the Hyper Beam's flare alike, as a Varia or Gravity Suit's pickup does (#1577)
+    /// and every shot, special attack and cancellation that ends a charge does.
     /// </summary>
-    internal const int HyperBeamFlareCounter = 1 << 15;
+    internal void ClearCount()
+    {
+        FlareCounter = 0;
+        HyperBeamFlare = false;
+    }
 
     /// <summary>
-    /// 60 frames arms a charged shot and 120 is the SBA clamp; the charge advances no further, and a Hyper Beam shot
-    /// stores <see cref="HyperBeamFlareCounter"/>, the setter's upper bound.
+    /// The updates Samus has held the charge: 60 arms a charged shot and 120 is the special-attack clamp, past which the
+    /// charge advances no further. Zero while the Hyper Beam's flare shows (<see cref="HyperBeamFlare"/>).
     /// </summary>
     [IntegerQuantity("updates the charge flare has shown")]
     public int FlareCounter
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, HyperBeamFlareCounter, value);
-    }
-
-    /// <summary>The <see cref="FlareCounter"/> sampled before the current charge-input update.</summary>
-    public int PreviousBeamChargeCounter
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, HyperBeamFlareCounter, value);
+        internal set => field = Ensure.BetweenInclusive(0, BeamChargeDefinitions.SpecialAttackCounter, value);
     }
 
     /// <summary>
-    /// The charged-shot glow timer. Ordinary charged shots use values four through zero for three
-    /// white frames and a fourth-call suit restore. Hyper Beam uses 32788 through 32768
-    /// for ten authored palettes held two calls each before the same restore path.
+    /// Whether the Hyper Beam's flare shows (#1682): a Hyper Beam shot starts it in place of the charge, and it ends when
+    /// the flare's fast sparks show their last frame or anything clears the charge. While it shows, the charge reads as
+    /// past every threshold (<see cref="Level"/>).
     /// </summary>
-    public WrappingCountdown ChargedShotGlowTimer { get; internal set; }
+    public bool HyperBeamFlare { get; private set; }
+
+    /// <summary>The charge as its tests read it now.</summary>
+    public BeamChargeLevel Level => HyperBeamFlare ? BeamChargeLevel.HyperBeam : BeamChargeLevel.Charged(FlareCounter);
+
+    /// <summary>Whether any charge is held: a counted charge or the Hyper Beam's flare.</summary>
+    internal bool IsCharging => Level.IsCharging;
+
+    /// <summary>Whether the charge has reached <paramref name="updates"/>; the Hyper Beam's flare has reached every count.</summary>
+    /// <param name="updates">The charge threshold, in updates held.</param>
+    internal bool HasCharged(int updates) => Level.HasCharged(updates);
+
+    /// <summary>The charge sampled before the current charge-input update.</summary>
+    public BeamChargeLevel PreviousCharge { get; internal set; }
+
+    /// <summary>The glow Samus's suit shows after a charged shot, or none.</summary>
+    public ChargedShotGlow ChargedShotGlow { get; internal set; }
 
     /// <summary>
     /// The charge colour cycle's next step, 0 through 5: each charge-palette call shows it and advances it, and the
@@ -87,9 +100,11 @@ internal sealed class BeamChargeState
         StartFlareTimer(2, 4);
     }
 
-    /// <summary>Hyper Beam's literal stores: frames 29, 5 and 5, each countdown at 3.</summary>
+    /// <summary>Starts the Hyper Beam's flare in place of the charge: frames 29, 5 and 5, each countdown at 3.</summary>
     internal void StartHyperBeamFlare()
     {
+        FlareCounter = 0;
+        HyperBeamFlare = true;
         FlareFrames[0] = 29;
         FlareFrames[1] = 5;
         FlareFrames[2] = 5;
@@ -111,7 +126,7 @@ internal sealed class BeamChargeState
     /// </summary>
     internal void ClearChargeAndFlare()
     {
-        FlareCounter = 0;
+        ClearCount();
         ClearFlare();
     }
 }

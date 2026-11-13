@@ -192,7 +192,7 @@ internal sealed class BeamCombos
             }
         }
         shared.SetSharedCooldown(2);
-        _charge.FlareCounter = 0;
+        _charge.ClearCount();
         return sound;
     }
     /// <summary>The Plasma ring update: the ring grows, shrinks and grows again by its phase.</summary>
@@ -207,7 +207,7 @@ internal sealed class BeamCombos
             return;
         }
         shared.SetSharedCooldown(2);
-        _charge.FlareCounter = 0;
+        _charge.ClearCount();
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(
             slot.ComboAngle, slot.ComboOrbitRadius);
         slot.Position = slot.Position.WithWhole(new(CoordinateAxis.Wrap(orbit.X + samus.Position.X.Whole), CoordinateAxis.Wrap(orbit.Y + samus.Position.Y.Whole)));
@@ -314,7 +314,7 @@ internal sealed class BeamCombos
                             slot.ComboAngle = slot.ComboAngle.TurnedBySteps(TrigonometryAngle.HalfTurn.RawValue);
                             slot.SpazerPhase = SpazerComboPhase.FlyingUpAwayFromPoint;
                             shared.SetSharedCooldown(2);
-                            _charge.FlareCounter = 0;
+                            _charge.ClearCount();
                             return slot.Place == 0 ? SamusSound.SpazerSpecialAttackEnd : null;
                         }
                     }
@@ -333,7 +333,7 @@ internal sealed class BeamCombos
             }
         }
         shared.SetSharedCooldown(2);
-        _charge.FlareCounter = 0;
+        _charge.ClearCount();
         return null;
     }
 
@@ -388,7 +388,7 @@ internal sealed class BeamCombos
         slot.WaveComboVerticalSpeed = AccelerateWaveAxis(slot.WaveComboVerticalSpeed, CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole));
         slot.Position = slot.Position.AdvanceY(slot.WaveComboVerticalSpeed.ToSixteenSixteenDelta());
         shared.SetSharedCooldown(2);
-        _charge.FlareCounter = 0;
+        _charge.ClearCount();
         return slot.Place == 3 && oldXSpeed.IsNegative != slot.Velocity.X.IsNegative ? BeamComboDefinitions.WavePulseSound : null;
     }
 

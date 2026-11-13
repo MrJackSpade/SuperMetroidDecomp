@@ -145,9 +145,8 @@ internal static void VerifySamusBlockCollision()
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(26, 24)),
         Radius = new(5, 5),
-        HorizontalSlopeCollisionEnable = 0,
     };
-    BlockMoveResult wallMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, wallBody, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2) });
+    BlockMoveResult wallMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, wallBody, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
     AssertTrue(wallMove.Collided, "horizontal type-8 solid collision flag");
     AssertEqual(0x00010000, wallMove.AcceptedDisplacement.RawValue, "horizontal type-8 solid clipped amount");
     AssertEqual(27, wallBody.Position.X.Whole, "horizontal type-8 solid whole X");
@@ -180,9 +179,8 @@ internal static void VerifySamusBlockCollision()
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(26, 24)),
         Radius = new(5, 5),
-        HorizontalSlopeCollisionEnable = 0,
     };
-    BlockMoveResult squareWall = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = squareLevel }, squareWallBody, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2) });
+    BlockMoveResult squareWall = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = squareLevel }, squareWallBody, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
     AssertTrue(squareWall.Collided, "horizontal fully-solid square slope collision");
     AssertEqual(0x00010000, squareWall.AcceptedDisplacement.RawValue, "horizontal square-slope 8-pixel clipping");
     AssertEqual(0xffff, squareWallBody.Position.X.Fraction, "horizontal square slope writes right-wall fraction");
@@ -213,9 +211,8 @@ internal static void VerifySamusBlockCollision()
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(26, 24)),
         Radius = new(5, 5),
-        HorizontalSlopeCollisionEnable = 0,
     };
-    BlockMoveResult normalDoorMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = doorLevel }, doorBody, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2) });
+    BlockMoveResult normalDoorMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = doorLevel }, doorBody, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
     AssertTrue(!normalDoorMove.Collided, "normal type-$9 door returns carry clear");
     AssertEqual(0x00020000, normalDoorMove.AcceptedDisplacement.RawValue,
         "normal type-$9 door accepts full horizontal displacement");
@@ -231,7 +228,7 @@ internal static void VerifySamusBlockCollision()
     doorBehavior[1 * width + 2] = RoomBlockBehaviorCodec.Decode(2);
     RoomLevelData elevatorDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(doorForeground, doorBehavior, new RoomBlockAppearance[doorForeground.Length]), RoomLevelData.NothingBeyondGrid(), doors: RoomDoorListDefinitions.ForListPointer(doorListPointer));
     doorBody.Position = doorBody.Position.WithWholeX(26).WithFractionX(0);
-    BlockMoveResult elevatorDoorMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = elevatorDoorLevel }, doorBody, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2) });
+    BlockMoveResult elevatorDoorMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = elevatorDoorLevel }, doorBody, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
     AssertTrue(elevatorDoorMove.Collided, "elevator pseudo-door remains solid");
     AssertEqual(0x00010000, elevatorDoorMove.AcceptedDisplacement.RawValue,
         "elevator pseudo-door uses ordinary solid clipping");
@@ -245,9 +242,8 @@ internal static void VerifySamusBlockCollision()
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(58, 24)),
         Radius = new(5, 5),
-        HorizontalSlopeCollisionEnable = 0,
     };
-    BlockMoveResult rightEdgeMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, rightEdgeBody, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2) });
+    BlockMoveResult rightEdgeMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, rightEdgeBody, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
     AssertTrue(rightEdgeMove.Collided, "prefilled right room edge is solid");
     AssertEqual(0x00010000, rightEdgeMove.AcceptedDisplacement.RawValue,
         "prefilled right room edge clips at logical boundary");
@@ -300,9 +296,8 @@ internal static void VerifySamusBlockCollision()
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(26, 24)),
             Radius = new(5, 5),
-            HorizontalSlopeCollisionEnable = 0,
         };
-        BlockMoveResult dispatcherMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = dispatcherLevel }, dispatcherBody, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2) });
+        BlockMoveResult dispatcherMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = dispatcherLevel }, dispatcherBody, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
 
         AssertEqual(expectedCollision, dispatcherMove.Collided,
             $"body dispatcher {collisionKind} collision topology");

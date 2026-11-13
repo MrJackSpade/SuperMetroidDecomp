@@ -216,13 +216,15 @@ public sealed class SamusProjectileSystem
         Ensure.NotNull(samus);
         LastVisorPaletteStep = default;
 
-        if (Charge.ChargedShotGlowTimer.IsZero)
+        ChargedShotGlow glow = Charge.ChargedShotGlow;
+        if (glow.Kind == ChargedShotGlowKind.None)
         {
             // The charge palette admits the continuously cycling charge palette only while
-            // grapple is inactive and the flare counter, which never passes its 120-update clamp, has reached 60.
+            // grapple is inactive and the charge, a count that never passes its 120-update clamp or the Hyper Beam's
+            // flare, has reached 60.
             bool chargePaletteActive =
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
-                Charge.FlareCounter >= 60;
+                Charge.HasCharged(BeamChargeDefinitions.FullyChargedCounter);
             if (chargePaletteActive)
             {
                 bool pseudoScrew = samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.PseudoScrew;
@@ -257,14 +259,15 @@ public sealed class SamusProjectileSystem
             return LastBeamChargePaletteStep;
         }
 
-        if (!samus.HyperBeamEnabled)
+        if (glow.Kind == ChargedShotGlowKind.ChargedShotFlash)
         {
-            // The glow decrements before its zero test. Starting at four therefore produces
-            // white on timers 3, 2, and 1. Timer 1 -> 0 takes the restore branch, causing
+            // The flash counts its step down before its zero test. Starting at four therefore produces
+            // white on steps 3, 2, and 1. Step 1 -> 0 takes the restore branch, causing
             // the outer handler to restore the complete suit palette on the fourth call.
-            Charge.ChargedShotGlowTimer = Charge.ChargedShotGlowTimer.Decrement().Remaining;
-            if (Charge.ChargedShotGlowTimer.IsZero)
+            glow = glow.Stepped();
+            if (glow.RemainingSteps == 0)
             {
+                Charge.ChargedShotGlow = ChargedShotGlow.None;
                 ProjectileAnimation.LoadNormalSuitPalette(colours, samus);
                 LastBeamChargePaletteStep = new(
                     SamusBeamChargePaletteAction.RestoredNormalSuit);
@@ -272,6 +275,7 @@ public sealed class SamusProjectileSystem
             }
 
             // Every visible suit colour shows the glow's yellow; the import pre-colours the shade (#1512).
+            Charge.ChargedShotGlow = glow;
             colours.ShowSuit(SamusShades.ChargedShotGlow);
 
             LastBeamChargePaletteStep = new(
@@ -279,23 +283,22 @@ public sealed class SamusProjectileSystem
             return LastBeamChargePaletteStep;
         }
 
-        // Hyper's sign bit selects this branch but is not part of the glow step. Odd
-        // values are pure hold calls; glow steps 10..1 show the Hyper Beam glow's frames 9..0.
-        // Each frame consequently remains visible for exactly two calls.
-        if (Charge.ChargedShotGlowTimer.IsInAlternatePhase(1))
+        // The Hyper Beam's glow: odd steps are pure hold calls; even steps 20..2 show the Hyper Beam glow's
+        // frames for glow steps 10..1, frames 9..0. Each frame consequently remains visible for exactly two calls.
+        if (glow.RemainingSteps % 2 == 1)
         {
-            Charge.ChargedShotGlowTimer = Charge.ChargedShotGlowTimer.Decrement().Remaining;
+            Charge.ChargedShotGlow = glow.Stepped();
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.HyperHold);
             return LastBeamChargePaletteStep;
         }
 
-        int glowStep = Charge.ChargedShotGlowTimer.CyclePhase(2, 16);
+        int glowStep = glow.RemainingSteps / 2;
         if (glowStep == 0)
         {
-            // Hyper's final call branches before the decrement. The game explicitly zeroes the
-            // already-32768 timer and reports the glow finished so the outer handler performs the suit copy.
-            Charge.ChargedShotGlowTimer = WrappingCountdown.Start(0);
+            // The glow's final call, at step zero, ends it and reports it finished so the outer handler performs the
+            // suit copy.
+            Charge.ChargedShotGlow = ChargedShotGlow.None;
             ProjectileAnimation.LoadNormalSuitPalette(colours, samus);
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.RestoredNormalSuit);
@@ -305,7 +308,7 @@ public sealed class SamusProjectileSystem
         if (!SamusChargePalettes.IsCompiledHyperShot(glowStep))
             throw new InvalidDataException($"Hyper-shot glow step {glowStep} is not compiled.");
         colours.ShowSuit(SamusShades.HyperShot(SamusChargePalettes.HyperShotFrame(glowStep)));
-        Charge.ChargedShotGlowTimer = Charge.ChargedShotGlowTimer.Decrement().Remaining;
+        Charge.ChargedShotGlow = glow.Stepped();
         LastBeamChargePaletteStep = new(
             SamusBeamChargePaletteAction.HyperPalette);
         return LastBeamChargePaletteStep;
@@ -561,7 +564,7 @@ public sealed class SamusProjectileSystem
     {
         Ensure.NotNull(samus);
 
-        if (Charge.FlareCounter == 0)
+        if (!Charge.IsCharging)
             return default;
 
         if (samus.HyperBeamEnabled)
@@ -581,7 +584,7 @@ public sealed class SamusProjectileSystem
                         // The fast-spark component at offset four owns the global
                         // completion signal. Other zero frames merely stop rearming.
                         if (component == 2)
-                            Charge.FlareCounter = 0;
+                            Charge.ClearCount();
                     }
                     else
                     {
@@ -594,7 +597,8 @@ public sealed class SamusProjectileSystem
         }
 
         // Calls 1..14 initialize/retain the hidden animation state. Call 15 begins drawing
-        // the central flare; calls 30+ additionally draw both orbiting spark components.
+        // the central flare; calls 30+ additionally draw both orbiting spark components. The Hyper Beam's flare counts
+        // no updates, so without the Hyper Beam equipped it shows nothing here.
         if (Charge.FlareCounter == 1)
         {
             Charge.StartChargeFlare();
@@ -712,9 +716,9 @@ public sealed class SamusProjectileSystem
     public void Reset(SamusState? samus = null)
     {
         ClearProjectileData(samus);
-        Charge.FlareCounter = 0;
-        Charge.PreviousBeamChargeCounter = 0;
-        Charge.ChargedShotGlowTimer = WrappingCountdown.Start(0);
+        Charge.ClearCount();
+        Charge.PreviousCharge = BeamChargeLevel.None;
+        Charge.ChargedShotGlow = ChargedShotGlow.None;
         Charge.ClearFlare();
         LastBeamChargePaletteStep = default;
         LastVisorPaletteStep = default;

@@ -213,11 +213,11 @@ public sealed class SamusShinesparkState
         // The windup checks the charge counter before clearing it. A charge that has
         // reached the draw-time sound threshold first queues the charge-cancellation sound; shorter
         // charges are still torn down without a sound call.
-        int cancelledCharge = samus.BeamCharge.FlareCounter;
-        if (cancelledCharge != 0)
+        BeamChargeLevel cancelledCharge = samus.BeamCharge.Level;
+        if (cancelledCharge.IsCharging)
         {
             samus.BeamCharge.ClearChargeAndFlare();
-            if (cancelledCharge >= BeamChargeDefinitions.ChargeSoundStartCounter)
+            if (cancelledCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter))
                 AudioRequests.QueueSound(SamusSound.Silence, SoundRequestPriority.High);
         }
 

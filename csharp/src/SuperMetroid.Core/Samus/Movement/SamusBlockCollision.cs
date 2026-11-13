@@ -356,13 +356,13 @@ public static class SamusBlockCollision
 
         // Align Y to whole pixels after both collision and non-collision paths.
         // Direct callers (notably the prospective-running-pose probe)
-        // omit that wrapper step and must retain the unaligned whole-pixel Y.
+        // omit that wrapper step and must retain the unaligned whole-pixel Y. The game never turns the alignment off
+        // for a move that asks for it (#1682): only a movement type no pose has would have cleared its enable.
         SlopeAlignmentResult alignment = SamusSlopePhysics.AlignYPosition(
             terrain.Level,
             state.Position.Whole,
             state.Radius.Y,
-            horizontalSlopeCollisionEnabled: move.AlignToSlopeAfterMovement &&
-                (state.HorizontalSlopeCollisionEnable & 2) != 0);
+            horizontalSlopeCollisionEnabled: move.AlignToSlopeAfterMovement);
         state.Position = state.Position.WithWholeY(alignment.Position.Y);
         // Only sets this latch; it does not clear a square-floor contact
         // published by the previous vertical pass. The vertical move consumes it before

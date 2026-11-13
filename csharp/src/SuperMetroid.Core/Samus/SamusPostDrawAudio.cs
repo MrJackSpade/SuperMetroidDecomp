@@ -17,14 +17,6 @@ public static class SamusPostDrawAudio
     public static void Step(SamusState samus,
         SamusMovementType previousMovement, ControllerButton controllerInput)
     {
-        // The signed latch takes the game's direct branch to rearming positive one. It
-        // must not play a charge sound or run the spin-stop test on this frame.
-        if (samus.ResumeChargingBeamSound == ResumeChargingBeamSoundLatch.SignedLatch)
-        {
-            samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.ResumeNextPass;
-            return;
-        }
-
         SamusHurtFlashPalette.ConsumeResumeChargingBeamSound(samus, controllerInput);
         var speed = samus.HorizontalSpeed;
         if (speed.EchoSoundFlag != 0 &&
@@ -40,8 +32,8 @@ public static class SamusPostDrawAudio
         samus.LiquidPhysics.QueueMovementSound(SamusSound.SpinJumpEnd, priority: SoundRequestPriority.Essential);
         // Resume on the NEXT post-draw pass, after the spin-stop command. The runtime
         // supplies normalized controls, so X here is the configured Shoot action.
-        if (samus.BeamCharge.FlareCounter >= BeamChargeDefinitions.ChargeSoundStartCounter &&
+        if (samus.BeamCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter) &&
             (controllerInput & ControllerButton.X) != ControllerButton.None)
-            samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.ResumeNextPass;
+            samus.ResumeChargingBeamSoundPending = true;
     }
 }

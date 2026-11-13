@@ -87,11 +87,11 @@ internal static class SamusChargeColorsVerification
         }
         AssertEqual(0, projectiles.Charge.ChargePaletteStep, "six charge phases wrap");
         samus.HyperBeamEnabled = true;
-        projectiles.Charge.ChargedShotGlowTimer = WrappingCountdown.Start(0x8014);
+        projectiles.Charge.ChargedShotGlow = ChargedShotGlow.HyperBeamGlow;
         for (int call = 0; call < 20; call++)
         {
             PictureShade before = samusColours.Suit;
-            ushort glowTimerBefore = projectiles.Charge.ChargedShotGlowTimer.RawValue;
+            int glowStepsBefore = projectiles.Charge.ChargedShotGlow.RemainingSteps;
             var step = projectiles.UpdateBeamChargePalette(samusColours, samus);
             if ((call & 1) != 0)
             {
@@ -104,8 +104,8 @@ internal static class SamusChargeColorsVerification
             int frame = call / 2;
             AssertEqual(SamusBeamChargePaletteAction.HyperPalette, step.Action,
                 $"Hyper-shot call {call} paints");
-            // Even low-five-bit timer offsets $14..$02 select Hyper palettes 0..9.
-            AssertEqual(0x14 - frame * 2, glowTimerBefore & 0x001e, $"Hyper-shot playback frame {frame}");
+            // Even glow steps 20..2 select Hyper palettes 0..9.
+            AssertEqual(20 - frame * 2, glowStepsBefore, $"Hyper-shot playback frame {frame}");
             for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
                 AssertEqual(InstalledFixtures.ImportOf(original).SamusColours.Charge.ResolveHyper(frame, color),
                     samusColours.ShownSuit(installedSources)[color],

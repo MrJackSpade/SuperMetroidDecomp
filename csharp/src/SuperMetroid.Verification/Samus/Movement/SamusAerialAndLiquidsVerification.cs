@@ -390,17 +390,13 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         Pose = SamusPoseId.NormalJumpGunExtendedRightPose,
     }.WithBeamChargeCount(BeamChargeDefinitions.ChargeSoundStartCounter);
     SamusPostDrawAudio.Step(resumeCharge, SamusMovementType.SpinJumping, ControllerButton.X);
-    AssertEqual(ResumeChargingBeamSoundLatch.ResumeNextPass, resumeCharge.ResumeChargingBeamSound, "spin exit defers charge resume");
+    AssertTrue(resumeCharge.ResumeChargingBeamSoundPending, "spin exit defers charge resume");
     AssertEqual(1, resumeCharge.LiquidPhysics.SoundRequests.Count, "only stop is queued on spin exit");
     resumeCharge.LiquidPhysics.BeginFrameSoundRequests();
     SamusPostDrawAudio.Step(resumeCharge, SamusMovementType.NormalJumping, ControllerButton.X);
     AssertEqual(new SoundRequest(SamusSound.ResumeChargingBeam, SoundRequestPriority.High),
         resumeCharge.LiquidPhysics.SoundRequests.Single(), "next frame resumes charge after stop");
-    resumeCharge.LiquidPhysics.BeginFrameSoundRequests();
-    resumeCharge.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.SignedLatch;
-    SamusPostDrawAudio.Step(resumeCharge, SamusMovementType.SpinJumping, ControllerButton.X);
-    AssertEqual(0, resumeCharge.LiquidPhysics.SoundRequests.Count, "negative charge latch bypasses audio work this frame");
-    AssertEqual(ResumeChargingBeamSoundLatch.ResumeNextPass, resumeCharge.ResumeChargingBeamSound, "negative charge latch rearms next-frame resume");
+    AssertTrue(!resumeCharge.ResumeChargingBeamSoundPending, "the resumed charge sound clears the pending resume");
 
     var spaceLaunch = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
     {

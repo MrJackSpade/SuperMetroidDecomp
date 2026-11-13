@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>The seven mutually exclusive meanings of Ceres-door population parameter one.</summary>
+/// <summary>The seven doors and walls a Ceres door placement can start as.</summary>
 internal enum CeresDoorVariant
 {
     /// <summary>Ordinary Ceres door facing right during escape.</summary>

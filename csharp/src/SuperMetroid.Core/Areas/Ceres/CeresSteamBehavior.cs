@@ -111,12 +111,12 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         CeresSteamEnemyState state = slot.RequireSpeciesState<CeresSteamEnemyState>();
         switch (state.Function)
         {
-            // Parameters zero through three use a behaviour that does nothing. Their base
+            // The up, left, down and right vents use a behaviour that does nothing. Their base
             // world position is also their draw position, so no drawing offset is changed.
             case CeresSteamFunction.None:
                 return;
 
-            // Parameters four and five are the vents inside the rotating elevator shaft.
+            // The rotating-elevator vents sit inside the rotating elevator shaft.
             // The rotating-shaft behaviour calls the same transform used for Samus, then stores only
             // transformed-minus-base deltas as the enemy's drawing offsets.
             // Collision continues to use the untransformed world point; drawing consumes

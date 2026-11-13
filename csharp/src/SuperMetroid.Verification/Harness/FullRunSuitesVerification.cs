@@ -1030,6 +1030,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyFrozenTimeEnemyProjectiles), () => VerifyFrozenTimeEnemyProjectiles()),
         new(nameof(VerifyItemCancelClearsCharge), () => VerifyItemCancelClearsCharge()),
         new(nameof(Samus.Projectiles.SpecialAttackParticlesVerification.VerifySpecialAttackParticleParts), Samus.Projectiles.SpecialAttackParticlesVerification.VerifySpecialAttackParticleParts),
+        new(nameof(Samus.Projectiles.ResumeChargingSoundCancelVerification.VerifyFiringCancelsResumeChargingSound), Samus.Projectiles.ResumeChargingSoundCancelVerification.VerifyFiringCancelsResumeChargingSound),
         new(nameof(VerifyDraygonScrollingSpeedCap), () => VerifyDraygonScrollingSpeedCap()),
         new(nameof(VerifyDraygonEscapeDrag), () => VerifyDraygonEscapeDrag()),
         new(nameof(VerifyReleasedSamusFallsOffDraygon), () => VerifyReleasedSamusFallsOffDraygon()),

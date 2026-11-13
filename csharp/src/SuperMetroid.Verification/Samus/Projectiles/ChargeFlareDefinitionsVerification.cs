@@ -124,7 +124,7 @@ internal static class ChargeFlareDefinitionsVerification
             var hyper = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
             var samus = new SuperMetroid.Core.Samus.SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
                 SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), hyper.Charge) { HyperBeamEnabled = true };
-            hyper.Charge.FlareCounter = BeamChargeState.HyperBeamFlareCounter;
+            hyper.Charge.StartHyperBeamFlare();
             ushort[] expectedPhases = [.. startPhases.Select(phase => (ushort)phase)], expectedHolds = [.. startHolds];
             for (int place = 0; place < 3; place++)
             {
@@ -150,7 +150,7 @@ internal static class ChargeFlareDefinitionsVerification
                 AssertEqual(new ChargeFlareComponents(3, Descending: true), shown, "The Hyper Beam's flare shows every component, fast sparks first");
                 AssertTrue(expectedPhases.Select(phase => (int)phase).SequenceEqual(hyper.Charge.FlarePhases)
                     && expectedHolds.SequenceEqual(hyper.Charge.FlareHolds.Select(hold => hold.RawValue))
-                    && expectedLit == (hyper.Charge.FlareCounter != 0),
+                    && expectedLit == hyper.Charge.HyperBeamFlare,
                     $"Hyper Beam flare from [{string.Join(", ", startPhases)}] matches the original count on tick {tick}");
                 hyperTicks++;
             }

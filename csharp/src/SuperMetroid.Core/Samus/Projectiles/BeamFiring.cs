@@ -122,7 +122,7 @@ internal sealed class BeamFiring
                 _charge.HasCharged(BeamChargeDefinitions.FullyChargedCounter);
             _charge.ClearCount();
             _animation.ClearFlareAnimationState();
-            return CompleteBeamRelease(TryFireBeam(
+            return CompleteBeamRelease(samus, TryFireBeam(
                 level,
                 samus,
                 controllerNewInput,
@@ -181,7 +181,7 @@ internal sealed class BeamFiring
             _charge.HasCharged(BeamChargeDefinitions.FullyChargedCounter);
         _charge.ClearCount();
         _animation.ClearFlareAnimationState();
-        return CompleteBeamRelease(TryFireBeam(
+        return CompleteBeamRelease(samus, TryFireBeam(
             level,
             samus,
             controllerNewInput,
@@ -194,9 +194,11 @@ internal sealed class BeamFiring
     /// Applies the shared tail of uncharged and charged beam firing. A
     /// successful shot's own essential-priority sound replaces the charging sound. If allocation or
     /// muzzle initialization rejects a release after counter sixteen, the game queues
-    /// the charge-silencing sound instead so the sustained charge cannot remain audible.
+    /// the charge-silencing sound instead so the sustained charge cannot remain audible; that rejection first cancels a
+    /// pending resume of the charging sound, as a shot does (#1689).
     /// </summary>
     private BeamFiringResult CompleteBeamRelease(
+        SamusState samus,
         BeamShot firing)
     {
         // Charged firing's success path queues the indexed sound value even when an
@@ -207,9 +209,10 @@ internal sealed class BeamFiring
         if (firing.Slot is not null)
             return new(firing.Slot, firing.Sound, Priority: SoundRequestPriority.Essential);
 
-        return _charge.PreviousCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter)
-            ? new(null, SamusSound.Silence, Priority: SoundRequestPriority.Essential)
-            : new(null, null, null);
+        if (!_charge.PreviousCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter))
+            return new(null, null, null);
+        samus.ResumeChargingBeamSoundPending = false;
+        return new(null, SamusSound.Silence, Priority: SoundRequestPriority.Essential);
     }
 
 
@@ -274,6 +277,9 @@ internal sealed class BeamFiring
         slot.Type = SamusProjectileType.Beam(SamusBeamCombinations.Of(samus.EquippedBeams), charged);
         slot.PicturedBeams = slot.Type.BeamCombination;
         ProjectileInvincibilityTimer = 10;
+        // The shot cancels a pending resume of the charging sound where it requests its own sound, before the projectile
+        // is set up, so the next post-draw sound pass does not resume the charge after it (#1689).
+        samus.ResumeChargingBeamSoundPending = false;
 
         // The combination selects one projectile, not four independent animation layers
         // composed by the host. In particular, Spazer's familiar three streaks are one
@@ -369,6 +375,8 @@ internal sealed class BeamFiring
 
         InitializePosition(samus, slot);
         ProjectileInvincibilityTimer = 10;
+        // As for ordinary beams, the shot cancels a pending resume of the charging sound where it requests its own (#1689).
+        samus.ResumeChargingBeamSoundPending = false;
 
         // The Hyper Beam is a charged Plasma beam for its projectile data and animation even though
         // acquisition equips Wave and Plasma, whose pictures its shots show. It first reads the charged

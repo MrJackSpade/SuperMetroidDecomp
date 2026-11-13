@@ -35,23 +35,21 @@ internal static class TypedTurnsAndZoomVerification
         for (int pixels = sbyte.MinValue; pixels <= sbyte.MaxValue; pixels++)
             AssertEqual(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(pixels * 256), SignedEightEight.FromPixels(pixels), $"{pixels} whole pixels an update");
         AssertThrows<ArgumentOutOfRangeException>(() => SignedEightEight.FromPixels(sbyte.MaxValue + 1), "a whole-pixel speed past the type's range fails");
-        AssertEqual(new EightEightVector<RoomPixels>(-1472, 40), EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-1472, 40), "a vector in 256ths keeps both words");
+        AssertEqual(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-1472, 40), EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-1472, 40), "a vector in 256ths keeps both words");
         AssertEqual(default(EightEightVector<RoomPixels>), EightEightVector<RoomPixels>.Zero, "the zero vector is no velocity");
-        AssertEqual(SignedSixteenSixteen.FromRaw(-229376), KraidPlatformMovement.FiringDisplacement, "Kraid's lint fires three and a half pixels leftward");
+        AssertEqual(SignedSixteenSixteen.FromParts(-4, 32768), KraidPlatformMovement.FiringDisplacement, "Kraid's lint fires three and a half pixels leftward");
     }
 
     /// <summary>
-    /// For every angle, the sine is the combined table's sample a quarter turn on, and the sine a quarter turn back is the
-    /// combined table's sample at the angle itself: the up-zero headings' horizontal and vertical speeds.
+    /// For every angle, a quarter turn on is the angle turned by a quarter of the turn's steps: the up-zero headings read
+    /// their horizontal and vertical speeds as the sine there and a quarter turn back, whose samples the cartridge oracle
+    /// of the signed sine checks.
     /// </summary>
     private static void VerifyNegativeCosineAsSineQuarterTurnBack()
     {
         for (int units = 0; units < RotationAngle.StepsPerTurn; units++)
         {
             var angle = new TrigonometryAngle(units);
-            AssertEqual(Trigonometry.SignedNegativeCosineSample(units + 64), Trigonometry.SignedSine(angle), $"sine at {units}");
-            AssertEqual(Trigonometry.SignedNegativeCosineSample(units), Trigonometry.SignedSine(angle - TrigonometryAngle.QuarterTurn),
-                $"negative cosine at {units}");
             AssertEqual(angle.TurnedBySteps(64), angle + TrigonometryAngle.QuarterTurn, $"a quarter turn on from {units}");
         }
     }

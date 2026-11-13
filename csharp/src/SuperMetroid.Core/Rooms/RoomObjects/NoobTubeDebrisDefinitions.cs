@@ -35,13 +35,13 @@ public static class NoobTubeDebrisDefinitions
     public const int CrackYOffset = 48;
 
     /// <summary>The bubbles' initial vertical speed: five pixels upward per update.</summary>
-    public static SignedEightEight BubbleInitialYVelocity { get; } = SignedEightEight.FromSignedRaw(-1280);
+    public static SignedEightEight BubbleInitialYVelocity { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1280);
 
     /// <summary>The released crack's downward speed: three quarters of a pixel per update.</summary>
-    public static SignedEightEight CrackFallVelocity { get; } = SignedEightEight.FromSignedRaw(192);
+    public static SignedEightEight CrackFallVelocity { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(192);
 
     /// <summary>The downward speed a glass shard takes when it enters its falling arc: three quarters of a pixel per update.</summary>
-    public static SignedEightEight ShardFallYVelocity { get; } = SignedEightEight.FromSignedRaw(192);
+    public static SignedEightEight ShardFallYVelocity { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(192);
 
     /// <summary>
     /// The random field a glass shard or air bubble starts its swaying fall from: bits eight to fifteen of the sample,

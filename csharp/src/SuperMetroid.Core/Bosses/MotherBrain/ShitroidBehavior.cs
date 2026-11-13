@@ -49,6 +49,9 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         _slotTable = slotTable;
     }
 
+    /// <summary>The speed a spin-jumping Samus adds to the Shitroid's velocity along the negated bearing to her: a quarter pixel an update.</summary>
+    private static readonly SignedEightEight ContactPushSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64);
+
     /// <summary>The acceleration of the Shitroid's approach to a latch, on each axis.</summary>
     private static readonly SignedEightEight LatchAcceleration = SignedEightEight.FromPixels(2);
 
@@ -641,9 +644,9 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole)));
             RotationAngle angle = RotationAngle.Zero - sourceAngle;
             state.Velocity += new EightEightVector<RoomPixels>(
-                EnemyMath.MultiplySineSample(64, angle.ToTrigonometryAngle()),
+                EnemyMath.MultiplySineSample(ContactPushSpeed, angle.ToTrigonometryAngle()),
                 EnemyMath.MultiplySineSample(
-                    64,
+                    ContactPushSpeed,
                     (angle + RotationAngle.QuarterTurn).ToTrigonometryAngle()));
             return;
         }
@@ -685,7 +688,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         RotationAngle angle = RotationAngle.Zero - sourceAngle;
         // The recoil strength is eight times the damage, capped at 240; no beam, missile or bomb deals the 8192
         // damage whose multiple would pass 65535.
-        int magnitude = Math.Min(8 * collisionDamage, 240);
+        SignedEightEight magnitude = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Math.Min(8 * collisionDamage, 240));
         state.Velocity += new EightEightVector<RoomPixels>(
             EnemyMath.MultiplySineSample(magnitude, angle.ToTrigonometryAngle()),
             EnemyMath.MultiplySineSample(

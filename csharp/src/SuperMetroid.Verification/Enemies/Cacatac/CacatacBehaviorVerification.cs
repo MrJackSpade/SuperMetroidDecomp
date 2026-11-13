@@ -61,7 +61,7 @@ internal static class CacatacBehaviorVerification
     {
         const int onePixel = 65536;
         const int halfPixel = onePixel / 2;
-        var oneAndAHalfPixels = SignedSixteenSixteen.FromRaw(onePixel + halfPixel);
+        var oneAndAHalfPixels = SixteenSixteenWords.ToDisplacement(onePixel + halfPixel);
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         // A random word that keeps the three-in-256 attack gate closed, so every update is a patrol step.
         enemies.VerificationServices().NextRandom = () => 100;

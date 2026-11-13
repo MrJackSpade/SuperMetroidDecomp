@@ -51,7 +51,7 @@ internal static class MagdolliteLavaBehaviorVerification
 
         EnemyProjectile Find(ushort direction) => enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.LavaThrownByMagdollite &&
-                (projectile.Velocity.X.SignedRawValue > 0) == (direction != 0));
+                (projectile.Velocity.X.InTwoHundredFiftySixthsOfPixel > 0) == (direction != 0));
     }
 
     /// <summary>Runs the Magdollite lava's program oracle and behavior suite.</summary>

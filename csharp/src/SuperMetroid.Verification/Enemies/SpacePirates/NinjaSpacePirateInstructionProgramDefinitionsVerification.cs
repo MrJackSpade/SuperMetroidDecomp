@@ -185,7 +185,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             ushort nativeSpeed = unchecked((ushort)(0 - 64));
             enemies.NinjaSpacePirateBehavior.StepNinjaPirateDive(slot, state, level, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
             AssertEqual(nativeSpeed, state.Speed.RawValue, "the dive's speed word wraps from zero to its negative raw value");
-            AssertEqual(-64, state.Speed.SignedRawValue, "the wrapped dive speed reads as minus 64");
+            AssertEqual(-64, state.Speed.InTwoHundredFiftySixthsOfPixel, "the wrapped dive speed reads as minus 64");
             AssertEqual(movingRight ? NinjaSpacePirateFunction.DivekickRightWalkToPost : NinjaSpacePirateFunction.DivekickLeftWalkToPost,
                 state.Function, "a negative dive speed lands the dive");
         }

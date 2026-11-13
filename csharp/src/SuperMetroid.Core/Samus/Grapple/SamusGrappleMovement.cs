@@ -141,9 +141,9 @@ public static class SamusGrappleMovement
     private static SignedSixteenSixteen QuarterExtensionVelocity(
         SignedEightEight velocity, SignedSixteenSixteen previous)
     {
-        SignedSixteenSixteen quarter = SignedSixteenSixteen.FromRaw(velocity.SignedRawValue * QuarterOfVelocityStep);
+        SignedSixteenSixteen quarter = velocity.ScaledBy(QuarterOfVelocityStep);
         int whole = quarter.WholePixels;
-        if (velocity.SignedRawValue >= 0)
+        if (!velocity.IsNegative)
         {
             whole += previous.UnsignedWholePixels / CoarseWholePixels * LeakedWholePerCoarseStep;
             if (previous.Fraction % 2 != 0)

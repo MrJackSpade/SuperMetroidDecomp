@@ -19,6 +19,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [RoomLifetime]
 internal sealed class MotherBrainBody
 {
+    /// <summary>The speed the hand's beam flies at toward Samus: twelve pixels an update.</summary>
+    private static readonly SignedEightEight HandBeamSpeed = SignedEightEight.FromPixels(12);
+
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly BossFrameResultBuilder _frameResults;
     /// <summary>Provides room services, tiles, palette state, and effects used by the encounter.</summary>
@@ -341,8 +344,8 @@ internal sealed class MotherBrainBody
             .ToTableAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
         state.HandBeamNextAngle = angle;
         state.HandBeamNextVelocity = new EightEightVector<RoomPixels>(
-            EnemyMath.MultiplySineSample(3072, angle),
-            EnemyMath.MultiplySineSample(3072, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
+            EnemyMath.MultiplySineSample(HandBeamSpeed, angle),
+            EnemyMath.MultiplySineSample(HandBeamSpeed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 
         beam.StartAnimation(new MotherBrainHandBeamAnimation());
     }

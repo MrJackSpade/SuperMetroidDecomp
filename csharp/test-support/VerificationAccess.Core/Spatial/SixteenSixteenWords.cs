@@ -17,6 +17,20 @@ internal static class SixteenSixteenWords
         (uint)Ensure.BetweenInclusive(0, ushort.MaxValue, whole) << FractionBits |
         (uint)Ensure.BetweenInclusive(0, ushort.MaxValue, fraction);
 
+    /// <summary>
+    /// The signed displacement a recorded whole word and fraction word store, each 0 through 65535: the whole word read
+    /// as signed whole pixels above the fraction.
+    /// </summary>
+    internal static SignedSixteenSixteen ToDisplacement(int whole, int fraction) =>
+        SignedSixteenSixteen.FromParts(unchecked((short)Ensure.BetweenInclusive(0, ushort.MaxValue, whole)), fraction);
+
+    /// <summary>
+    /// The signed displacement a check's 16.16 word pair, held as one signed 32-bit word, stores: its high half read as
+    /// signed whole pixels above its low half's fraction.
+    /// </summary>
+    internal static SignedSixteenSixteen ToDisplacement(int word) =>
+        SignedSixteenSixteen.FromParts(word >> FractionBits, word & ushort.MaxValue);
+
     /// <summary>The whole word of a 16.16 word pair.</summary>
     internal static uint WholeOf(uint raw) => raw >> FractionBits;
 

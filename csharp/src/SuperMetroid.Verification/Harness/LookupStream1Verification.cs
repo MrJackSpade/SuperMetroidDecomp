@@ -1027,8 +1027,8 @@ internal static class LookupStream1Verification
         }
         for (int direction = 0; direction < 8; direction++)
         {
-            AssertEqual(Word(0x86d21a + 2 * direction), PowampMotion.SpikeAcceleration(direction).X.SignedRawValue, "Powamp native spike X acceleration");
-            AssertEqual(Word(0x86d22a + 2 * direction), PowampMotion.SpikeAcceleration(direction).Y.SignedRawValue, "Powamp native spike Y acceleration");
+            AssertEqual(Word(0x86d21a + 2 * direction), PowampMotion.SpikeAcceleration(direction).X.InTwoHundredFiftySixthsOfPixel, "Powamp native spike X acceleration");
+            AssertEqual(Word(0x86d22a + 2 * direction), PowampMotion.SpikeAcceleration(direction).Y.InTwoHundredFiftySixthsOfPixel, "Powamp native spike Y acceleration");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
             AssertThrows<InvalidDataException>(() => PowampMotion.WiggleOffset(invalid), "Powamp wiggle domain");
@@ -1122,8 +1122,8 @@ internal static class LookupStream1Verification
             var slot = new SamusProjectile(0) { Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(combination), Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction) };
             initialize(stationary, slot);
             int speed = unchecked((short)Word(0x90c2d1 + combination * 4 + (direction is 1 or 3 or 6 or 8 ? 2 : 0)));
-            AssertEqual(unchecked((short)(direction is 1 or 2 or 3 ? speed : direction is 6 or 7 or 8 ? -speed : 0)), slot.Velocity.X.SignedRawValue, "stream1 actual initializer X preserves adjacent missile-data overread");
-            AssertEqual(unchecked((short)(direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0)), slot.Velocity.Y.SignedRawValue, "stream1 actual initializer Y preserves adjacent missile-data overread");
+            AssertEqual(unchecked((short)(direction is 1 or 2 or 3 ? speed : direction is 6 or 7 or 8 ? -speed : 0)), slot.Velocity.X.InTwoHundredFiftySixthsOfPixel, "stream1 actual initializer X preserves adjacent missile-data overread");
+            AssertEqual(unchecked((short)(direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0)), slot.Velocity.Y.InTwoHundredFiftySixthsOfPixel, "stream1 actual initializer Y preserves adjacent missile-data overread");
         }
     }
 

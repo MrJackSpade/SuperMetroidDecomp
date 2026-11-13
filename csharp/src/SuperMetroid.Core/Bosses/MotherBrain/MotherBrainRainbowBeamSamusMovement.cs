@@ -49,7 +49,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         {
             // The sine multiply adds a quarter turn before indexing the sine table. Its multiplication returns
             // product bits 8..23, i.e. a signed 8.8 component for the supplied 8.8 speed.
-            MoveVerticallyTowardCeilingOrFloor(samus, cameraCheckpoint, CalculateYVelocity(speed: 4096, RainbowBeamAngle));
+            MoveVerticallyTowardCeilingOrFloor(samus, cameraCheckpoint, CalculateYVelocity(speed: RainbowBeamPushSpeed, RainbowBeamAngle));
 
             // The wall step reports only whether Samus reached the wall; the vertical clamp
             // is reported separately and does not end the forced movement.
@@ -126,11 +126,14 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             reachedBoundary: reachedVerticalBoundary);
     }
 
+    /// <summary>The speed the rainbow beam pushes Samus along its angle at: sixteen pixels an update.</summary>
+    private static readonly SignedEightEight RainbowBeamPushSpeed = SignedEightEight.FromPixels(16);
+
     /// <summary>Projects an 8.8 beam speed onto the vertical axis using the quarter-turn sine lookup.</summary>
-    /// <param name="speed">The beam's speed in 256ths of a pixel an update, never negative.</param>
+    /// <param name="speed">The beam's speed, read unsigned.</param>
     /// <param name="angle">The live beam angle.</param>
     internal static SignedEightEight CalculateYVelocity(
-        int speed,
+        SignedEightEight speed,
         RotationAngle angle)
     {
         // The sine multiply multiplies unsigned speed by the magnitude, selects product bits 8..23,

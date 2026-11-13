@@ -53,9 +53,9 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
     // there instead of allowing a positive recoil; subsequent calls must remain zero.
     for (int call = 1; call < 128; call++)
         movement.StepFallingAfterRainbowBeam(samus, cameraCheckpoint);
-    AssertEqual(0, movement.CustomVelocity.X.SignedRawValue, "rainbow fall X easing clamps at zero");
+    AssertEqual(0, movement.CustomVelocity.X.InTwoHundredFiftySixthsOfPixel, "rainbow fall X easing clamps at zero");
     movement.StepFallingAfterRainbowBeam(samus, cameraCheckpoint);
-    AssertEqual(0, movement.CustomVelocity.X.SignedRawValue, "rainbow fall X easing stays zero");
+    AssertEqual(0, movement.CustomVelocity.X.InTwoHundredFiftySixthsOfPixel, "rainbow fall X easing stays zero");
     AssertEqual(0x00c0, samus.Position.Y.Whole, "rainbow fall clamps at arena floor Y $C0");
     AssertEqual(0, samus.Kinematics.Position.Y.Fraction, "arena floor clamp clears Y subposition");
 

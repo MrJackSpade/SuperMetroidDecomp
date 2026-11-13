@@ -28,8 +28,8 @@ internal static class ShaktoolOrbitAlgorithmVerification
         }
         for (int angle = 0; angle < 256; angle++)
             AssertEqual(new FixedVector<RoomPixels>(
-                    SignedSixteenSixteen.FromRaw(EightEight.FromWhole(Original(angle + 64))),
-                    SignedSixteenSixteen.FromRaw(EightEight.FromWhole(Original(angle)))),
+                    SixteenSixteenWords.ToDisplacement(EightEight.FromWhole(Original(angle + 64))),
+                    SixteenSixteenWords.ToDisplacement(EightEight.FromWhole(Original(angle)))),
                 ShaktoolOrbitTables.Displacement(new TrigonometryAngle((byte)angle)), $"Shaktool displacement {angle}");
     }
 }

@@ -7,5 +7,5 @@ internal static class SpeedBoosterPickupDefinitions
     /// The lava's upward speed once the Speed Booster acquisition message returns: an eighth of a pixel per update
     /// (32/256 of a pixel, upward).
     /// </summary>
-    internal static SignedEightEight LavaRiseVelocity { get; } = SignedEightEight.FromSignedRaw(-32);
+    internal static SignedEightEight LavaRiseVelocity { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-32);
 }

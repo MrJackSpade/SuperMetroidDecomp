@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Rooms.Doors;
 public readonly record struct DoorSamusSpeed
 {
     /// <summary>The default push through a vertical door: one and a half pixels per step.</summary>
-    private static readonly SignedEightEight VerticalDefault = SignedEightEight.FromSignedRaw(384);
+    private static readonly SignedEightEight VerticalDefault = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(384);
 
     /// <summary>The default push through a horizontal door: 200/256 pixel per step.</summary>
-    private static readonly SignedEightEight HorizontalDefault = SignedEightEight.FromSignedRaw(200);
+    private static readonly SignedEightEight HorizontalDefault = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(200);
 
     /// <summary>The door's own speed, or <see langword="null"/> for the axis default.</summary>
     private readonly SignedEightEight? _perStep;
@@ -29,7 +29,7 @@ public readonly record struct DoorSamusSpeed
     /// and a speed, so it lies within a signed 8.8 speed's range.
     /// </summary>
     public static DoorSamusSpeed SubpixelsPerStep(int subpixels) =>
-        new(SignedEightEight.FromSignedRaw(Ensure.AtLeastZero(subpixels)));
+        new(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Ensure.AtLeastZero(subpixels)));
 
     /// <summary>The push per step through a door travelled toward <paramref name="direction"/>, as a forward speed.</summary>
     public SignedEightEight Step(DoorDirection direction) =>

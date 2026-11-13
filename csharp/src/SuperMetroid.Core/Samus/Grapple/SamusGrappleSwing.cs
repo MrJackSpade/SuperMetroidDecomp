@@ -82,12 +82,6 @@ public static class SamusGrappleSwing
     };
 
 
-    /// <summary>Reads the signed negative-cosine table used to project grapple angles into room coordinates.</summary>
-    internal static int ReadSignedSine(int index)
-    {
-        return Trigonometry.SignedNegativeCosineSample(index);
-    }
-
     /// <summary>
     /// The signed negative cosine of <paramref name="angle"/>'s whole step, the table's word at that step: the sine a
     /// quarter turn behind it.
@@ -446,8 +440,8 @@ public static class SamusGrappleSwing
         TrigonometryAngle angle,
         int distance)
     {
-        int xSine = ReadSignedSine(angle.RawValue + 64);
-        int yNegativeCosine = ReadSignedSine(angle.RawValue);
+        int xSine = Trigonometry.SignedSine(angle);
+        int yNegativeCosine = Trigonometry.SignedSine(angle - TrigonometryAngle.QuarterTurn);
 
         // For a block anchor, the collision point biases the low nibble toward the side from
         // which the rope leaves the block: eight for a nonnegative component, seven for a

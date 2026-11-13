@@ -80,7 +80,7 @@ internal static class EnemyQuadraticSpeedsVerification
         foreach (EnemySpeedSign sign in signs)
         {
             int speed = EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticTable, row).Toward(sign).RawValue;
-            maw.Extension = SignedSixteenSixteen.FromRaw(unchecked((int)start));
+            maw.Extension = SixteenSixteenWords.ToDisplacement(unchecked((int)start));
             maw.QuadraticSpeedRow = row;
             maw.QuadraticSpeedSign = sign;
             mawAdditions++;

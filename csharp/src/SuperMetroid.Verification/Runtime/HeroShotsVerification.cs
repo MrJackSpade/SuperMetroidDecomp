@@ -55,13 +55,13 @@ internal static class HeroShotsVerification
                     if (vertical)
                     {
                         uint next = unchecked((new FixedCoordinate(shot.Position.Y.Whole, shot.Position.Y.Fraction).RawValue)
-                            + (uint)((short)(shot.Velocity.Y.SignedRawValue - 16) * 256));
+                            + (uint)((short)(shot.Velocity.Y.InTwoHundredFiftySixthsOfPixel - 16) * 256));
                         cameraY = unchecked((ushort)(SixteenSixteenWords.WholeOf(next) + (cameraMode == 2 ? 64u : 65u)));
                     }
                     else
                     {
                         uint next = unchecked((new FixedCoordinate(shot.Position.X.Whole, shot.Position.X.Fraction).RawValue)
-                            + (uint)((short)(shot.Velocity.X.SignedRawValue + 16) * 256));
+                            + (uint)((short)(shot.Velocity.X.InTwoHundredFiftySixthsOfPixel + 16) * 256));
                         cameraX = unchecked((ushort)(SixteenSixteenWords.WholeOf(next) - (cameraMode == 2 ? 319u : 320u)));
                     }
                 }
@@ -79,8 +79,8 @@ internal static class HeroShotsVerification
                     ushort type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(expected[TypeColumn]) == shot.Type
                         ? expected[TypeColumn] : unchecked((ushort)~expected[TypeColumn]);
                     ushort[] actual = [cameraX, cameraY, shot.Position.X.Whole, shot.Position.X.Fraction,
-                        shot.Position.Y.Whole, shot.Position.Y.Fraction, unchecked((ushort)shot.Velocity.X.SignedRawValue),
-                        unchecked((ushort)shot.Velocity.Y.SignedRawValue), type, checked((ushort)shot.InstructionPointer)];
+                        shot.Position.Y.Whole, shot.Position.Y.Fraction, unchecked((ushort)shot.Velocity.X.InTwoHundredFiftySixthsOfPixel),
+                        unchecked((ushort)shot.Velocity.Y.InTwoHundredFiftySixthsOfPixel), type, checked((ushort)shot.InstructionPointer)];
                     AssertTrue(actual.SequenceEqual(expected),
                         $"Native Hero trace vertical={vertical}, camera={cameraMode}, frame={frame}: actual {string.Join(',', actual.Select(x => x.ToString("X4")))}");
                     comparedFrames++;

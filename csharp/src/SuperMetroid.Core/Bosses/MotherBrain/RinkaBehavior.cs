@@ -43,7 +43,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Health restored to a special Rinka after its death delay.</summary>
     private const int RinkaHealth = 10;
     /// <summary>Flight speed in 8.8 pixels per update (1 + 32/256 pixels), resolved along the original game angle into flight velocity.</summary>
-    private const int RinkaSpeed = 288;
+    private static readonly SignedEightEight RinkaSpeed = SignedEightEight.FromParts(1, 32);
     /// <summary>Number of Mother Brain Rinka actors sharing the eleven spawn resources.</summary>
     private const int RinkaMaximumSpecialActors = 3;
 

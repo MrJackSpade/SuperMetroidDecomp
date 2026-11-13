@@ -58,7 +58,7 @@ internal static class SpecialAttackParticlesVerification
                     AssertTrue(particle.SpazerPartner is null, $"{beam} particle {place} has no Spazer partner");
                     continue;
                 }
-                AssertEqual(OriginalSpazerTurn(place) * 4, particle.SpazerAngleStep,
+                AssertEqual(TrigonometryAngle.Wrapped(OriginalSpazerTurn(place) * 4), particle.SpazerTurnPerUpdate,
                     $"Spazer particle {place} circles the way its place's parity turns");
                 AssertEqual(place >= 2, particle.Type == SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail),
                     $"Spazer particle {place} is a trail exactly when it holds one of the last two places");
@@ -124,7 +124,7 @@ internal static class SpecialAttackParticlesVerification
                     SpazerComboPhase.FlyingUpAwayFromPoint => -OriginalSpazerTurn(place) * 2,
                     _ => throw new InvalidOperationException($"Undefined {nameof(SpazerComboPhase)} {particle.SpazerPhase}."),
                 };
-                AssertEqual(expectedStep, particle.SpazerAngleStep,
+                AssertEqual(TrigonometryAngle.Wrapped(expectedStep), particle.SpazerTurnPerUpdate,
                     $"update {update}: Spazer particle {place} turns its place's way in {particle.SpazerPhase}");
             }
         }

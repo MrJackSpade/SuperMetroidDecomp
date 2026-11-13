@@ -417,16 +417,15 @@ internal sealed class MotherBrainProjectiles
             RoomEnemyProjectileKind.MotherBrainGlassShard,
             graphics: default);
 
-        // The shard's launch angle is a random angle of 0 through 255. It selects signed sine/cosine velocities, and
-        // the sixteenth of a turn it lies in chooses one of sixteen authored shard animation lists.
+        // The shard's launch angle is a random angle of 0 through 255. It selects signed sine/cosine velocities and the
+        // shard's spin animation.
         var angle = new TrigonometryAngle(MotherBrainGlassShardDefinitions.LaunchAngle.Of(_room.Random.Generate()));
         shard.Velocity = shard.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Trigonometry.SignedSine(angle)));
         // The vertical speed is four times the negative cosine, the sine a quarter turn back; a sample lies within one
         // pixel either way, so four times one stays within four.
         shard.Velocity = shard.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
             4 * Trigonometry.SignedSine(angle - TrigonometryAngle.QuarterTurn)));
-        int animationIndex = angle.ToAngle().Sector(16);
-        shard.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassAnimations.ShardProgram(animationIndex)));
+        shard.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassAnimations.ShardPrograms.At(angle)));
         shard.Graphics = MotherBrainGlassShardDefinitions.Graphics(MotherBrainColours.GlassAndTubes);
 
         MotherBrainGlassShardPlacement placement =

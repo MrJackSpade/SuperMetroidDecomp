@@ -51,17 +51,20 @@ internal static class RidleyExplosionDefinitionsVerification
             ushort parameter = unchecked((ushort)(tailIndex * 2));
             AssertEqual(
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(fixedTailOperands[tailIndex]),
-                RidleyNativeProgramOracle.BreakupList(RidleyBreakup.SelectTailFrame(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(parameter), 0)),
+                RidleyNativeProgramOracle.BreakupList(RidleyBreakup.SelectTailFrame(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(parameter), TrigonometryAngle.Zero)),
                 $"Ridley tail fragment instruction ${parameter:X2}");
         }
-        for (int orientation = 0; orientation < 16; orientation++)
+        // Every direction the tip can point selects the cartridge list its orientation numbers: the direction half a pose
+        // on, in sixteenths of a turn.
+        for (int direction = 0; direction < 256; direction++)
         {
+            int orientation = ((direction + 8) & 255) >> 4;
             AssertEqual(
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + orientation * 2)),
                 RidleyNativeProgramOracle.BreakupList(RidleyBreakup.SelectTailFrame(
                     RidleyExplosionPart.TailTip,
-                    orientation)),
-                $"Ridley tail-tip orientation {orientation}");
+                    new TrigonometryAngle(direction))),
+                $"Ridley tail-tip direction {direction}");
         }
 
         RidleyExplosionPart[] bodyParameters =

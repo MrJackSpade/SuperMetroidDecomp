@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.Botwoon.Artwork;
@@ -22,31 +22,31 @@ internal static class BotwoonVisualDefinitionsConstants
             .Select((frame, index) => new NativeEnemySpritemapDefinition(Bank, HeadSpritemap(frame), $"botwoon_head_{index:D2}")),
     ];
     /// <summary>Selects the bank-$B3 closed-mouth spritemap, skipping the unused down-facing-left map.</summary>
-    internal static ushort ClosedMouth(BotwoonFacing facing) => facing switch
+    internal static ushort ClosedMouth(CompassDirection facing) => facing switch
     {
         // Spritemaps_Botwoon_MouthClosed_Priority2_Aiming* at $B3:E329-$E389; the unused down-facing-left map is skipped.
-        BotwoonFacing.UpLeft => 0xe329,
-        BotwoonFacing.Left => 0xe335,
-        BotwoonFacing.DownLeft => 0xe341,
-        BotwoonFacing.Down => 0xe359,
-        BotwoonFacing.DownRight => 0xe365,
-        BotwoonFacing.Right => 0xe371,
-        BotwoonFacing.UpRight => 0xe37d,
-        BotwoonFacing.Up => 0xe389,
+        CompassDirection.UpLeft => 0xe329,
+        CompassDirection.Left => 0xe335,
+        CompassDirection.DownLeft => 0xe341,
+        CompassDirection.Down => 0xe359,
+        CompassDirection.DownRight => 0xe365,
+        CompassDirection.Right => 0xe371,
+        CompassDirection.UpRight => 0xe37d,
+        CompassDirection.Up => 0xe389,
         _ => throw new ArgumentOutOfRangeException(nameof(facing), facing, "Undefined Botwoon facing."),
     };
     /// <summary>Selects the bank-$B3 open-mouth spritemap; diagonal facings carry a third OAM piece.</summary>
-    internal static ushort OpenMouth(BotwoonFacing facing) => facing switch
+    internal static ushort OpenMouth(CompassDirection facing) => facing switch
     {
         // Spritemaps_Botwoon_MouthOpen_Priority2_Aiming* at $B3:E3A1-$E415; diagonal maps carry a third piece.
-        BotwoonFacing.UpLeft => 0xe3a1,
-        BotwoonFacing.Left => 0xe3b2,
-        BotwoonFacing.DownLeft => 0xe3be,
-        BotwoonFacing.Down => 0xe3db,
-        BotwoonFacing.DownRight => 0xe3e7,
-        BotwoonFacing.Right => 0xe3f8,
-        BotwoonFacing.UpRight => 0xe404,
-        BotwoonFacing.Up => 0xe415,
+        CompassDirection.UpLeft => 0xe3a1,
+        CompassDirection.Left => 0xe3b2,
+        CompassDirection.DownLeft => 0xe3be,
+        CompassDirection.Down => 0xe3db,
+        CompassDirection.DownRight => 0xe3e7,
+        CompassDirection.Right => 0xe3f8,
+        CompassDirection.UpRight => 0xe404,
+        CompassDirection.Up => 0xe415,
         _ => throw new ArgumentOutOfRangeException(nameof(facing), facing, "Undefined Botwoon facing."),
     };
 }

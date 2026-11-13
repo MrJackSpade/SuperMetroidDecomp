@@ -30,9 +30,15 @@ internal static class SamusProjectileVelocityWords
         if (slot.FrameBehavior == SamusProjectileFrameBehavior.PlasmaCombo)
             return PlasmaPhaseWord(slot.PlasmaPhase);
         if (slot.FrameBehavior is SamusProjectileFrameBehavior.SpazerCombo or SamusProjectileFrameBehavior.SpazerComboFalling)
-            return unchecked((ushort)slot.SpazerAngleStep);
+            return SignedStepWord(slot.SpazerTurnPerUpdate);
         return slot.Velocity.Y.RawValue;
     }
+
+    /// <summary>
+    /// The signed word the game keeps a turn per update in: the turn's steps on, or, for a turn of more than a half turn,
+    /// the steps back it makes, negative.
+    /// </summary>
+    private static ushort SignedStepWord(TrigonometryAngle turn) => unchecked((ushort)turn.StepsFrom(TrigonometryAngle.Zero));
 
     /// <summary>The number the game counts a Plasma ring's phase by: zero, one and two in the order the ring runs them.</summary>
     private static ushort PlasmaPhaseWord(PlasmaRingPhase phase) => phase switch

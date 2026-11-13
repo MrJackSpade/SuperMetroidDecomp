@@ -13,6 +13,10 @@ public static class BeamComboDefinitions
     public static readonly TrigonometryAngle OrbitTurnOn = new(4);
     /// <summary>The orbit turn each update when a left-facing Samus starts the attack: four steps back, a full circle less four.</summary>
     public static readonly TrigonometryAngle OrbitTurnBack = TrigonometryAngle.Wrapped(-4);
+    /// <summary>The turn a circling Spazer particle makes each update, its own way round: four steps.</summary>
+    public static readonly TrigonometryAngle SpazerCirclingTurn = new(4);
+    /// <summary>The turn a Spazer particle flying up makes each update, toward the point or away from it: two steps.</summary>
+    public static readonly TrigonometryAngle SpazerFlyingTurn = new(2);
     /// <summary>The Wave special beam attack's oscillator cap: eight pixels per update.</summary>
     public static readonly SignedEightEight WaveSpeedLimit = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(2048);
     /// <summary>The Wave special beam attack's per-update acceleration: a quarter of a pixel per update.</summary>

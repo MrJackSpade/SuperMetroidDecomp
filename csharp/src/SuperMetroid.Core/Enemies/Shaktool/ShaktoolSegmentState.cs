@@ -16,10 +16,10 @@ public sealed class ShaktoolSegmentState
     /// </summary>
     public RotationAngle AngularVelocity { get; internal set; }
     /// <summary>
-    /// The centre segment's heading bucket: one of eight eighth-turns in table units (0, 32, ... 224), selected
-    /// from the midpoint of its neighbours' angles and choosing its head animation.
+    /// The compass direction the centre segment's head aims: selected from the midpoint of its neighbours' angles, it
+    /// chooses its head animation and the direction its attack cues move the segments along.
     /// </summary>
-    public int OrientationBucket { get; internal set; }
+    public CompassDirection Orientation { get; internal set; }
     /// <summary>Whether the chain runs reversed, so the centre segment's midpoint flips a half turn; an endpoint swap toggles it.</summary>
     public bool OrientationReversed { get; internal set; }
     /// <summary>
@@ -39,7 +39,7 @@ public sealed class ShaktoolSegmentState
     /// <summary>Empties the orientation, curl progress and reversal together, as the game clears them together.</summary>
     internal void ResetOrientation()
     {
-        OrientationBucket = 0;
+        Orientation = CompassDirection.Up;
         OrientationReversed = false;
         CurlProgress = RotationAngle.Zero;
     }

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
@@ -253,10 +253,9 @@ internal sealed class NorfairRidleyDeath
         {
             RidleyTailSegment tail = state.TailSegments[tailIndex];
             fragment.Position = fragment.Position.WithWhole(tail.Position);
-            int tailTipOrientation = tail.Angle.Direction.TurnedBy(state.TailSegments[5].Angle.Direction)
-                .TurnedBySteps(8).ToAngle().Sector(16);
+            TrigonometryAngle tailTipDirection = tail.Angle.Direction.TurnedBy(state.TailSegments[5].Angle.Direction);
             fragmentState.Playback = new AnimationPlayback<RidleyBreakupFrame>(
-                RidleyBreakupAnimations.StartingWith(RidleyBreakup.SelectTailFrame(part, tailTipOrientation)), AnimationPlace.StartOfAnimation);
+                RidleyBreakupAnimations.StartingWith(RidleyBreakup.SelectTailFrame(part, tailTipDirection)), AnimationPlace.StartOfAnimation);
             return;
         }
 

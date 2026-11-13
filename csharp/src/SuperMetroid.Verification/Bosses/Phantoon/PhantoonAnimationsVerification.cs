@@ -142,7 +142,7 @@ internal static class PhantoonAnimationsVerification
         foreach ((PhantoonFlameProgram program, ushort entry) in FlameEntries)
         {
             RoomEnemySystem enemies = NewFlameSystem();
-            EnemyProjectile flame = SpawnDestroyable(enemies, PhantoonFlameSpawnType.Enraged);
+            EnemyProjectile flame = SpawnDestroyable(enemies, SpawnRageFlame, "rage");
             flame.StartAnimation(new PhantoonFlameAnimation(program));
             var native = new NativeEnemyProjectileListReader(entry, flame.FrameHold.RawValue);
             int drops = 0;
@@ -182,9 +182,9 @@ internal static class PhantoonAnimationsVerification
     }
 
     /// <summary>Spawns one destroyable flame through the real producer.</summary>
-    private static EnemyProjectile SpawnDestroyable(RoomEnemySystem enemies, PhantoonFlameSpawnType type)
+    private static EnemyProjectile SpawnDestroyable(RoomEnemySystem enemies, Func<PhantoonPatterns, RoomEnemySlot, bool> spawn, string producer)
     {
-        AssertTrue(enemies.PhantoonBehavior.Patterns.SpawnPhantoonDestroyableFlame(enemies.SlotTable.Slots[0], type, 0), $"the real {type} producer allocates a flame");
+        AssertTrue(spawn(enemies.PhantoonBehavior.Patterns, enemies.SlotTable.Slots[0]), $"the real {producer} producer allocates a flame");
         return enemies.Projectiles.EnemyProjectiles.Single(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.PhantoonDestroyableFlame);
     }
 
@@ -192,14 +192,18 @@ internal static class PhantoonAnimationsVerification
     private static void VerifyFlameProducers()
     {
         RoomEnemySystem starting = NewFlameSystem();
-        AssertTrue(starting.PhantoonBehavior.Opening.SpawnPhantoonStartingFlame(starting.SlotTable.Slots[0], 0), "the real starting producer allocates a flame");
+        AssertTrue(starting.PhantoonBehavior.Opening.SpawnPhantoonStartingFlame(starting.SlotTable.Slots[0], PhantoonFlameSpawns.StartingFlameStart(0)), "the real starting producer allocates a flame");
         AssertStarted(starting.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PhantoonStartingFlame),
             PhantoonFlameProgram.StartingFlame, "starting flame");
         RoomEnemySystem casual = NewFlameSystem();
-        AssertStarted(SpawnDestroyable(casual, PhantoonFlameSpawnType.Casual), PhantoonFlameProgram.CasualFalling0, "casual flame");
+        AssertStarted(SpawnDestroyable(casual, (patterns, body) => patterns.SpawnPhantoonCasualFlame(body), "casual"), PhantoonFlameProgram.CasualFalling0, "casual flame");
         RoomEnemySystem rage = NewFlameSystem();
-        AssertStarted(SpawnDestroyable(rage, PhantoonFlameSpawnType.Enraged), PhantoonFlameProgram.DestroyableIdle, "rage flame");
+        AssertStarted(SpawnDestroyable(rage, SpawnRageFlame, "rage"), PhantoonFlameProgram.DestroyableIdle, "rage flame");
     }
+
+    /// <summary>Spawns the last flame of an even rage wave, the one the cartridge's first rage parameter starts.</summary>
+    private static bool SpawnRageFlame(PhantoonPatterns patterns, RoomEnemySlot body) =>
+        patterns.SpawnPhantoonRageFlame(body, PhantoonFlameSpawns.EvenRageWave[^1]);
 
     /// <summary>Requires <paramref name="flame"/> to run <paramref name="program"/> from its start.</summary>
     private static void AssertStarted(EnemyProjectile flame, PhantoonFlameProgram program, string label) =>

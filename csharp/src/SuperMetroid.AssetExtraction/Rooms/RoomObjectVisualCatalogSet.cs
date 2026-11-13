@@ -5,6 +5,7 @@ using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
@@ -55,6 +56,9 @@ public sealed record RoomObjectVisualCatalogSet
 
     /// <summary>Draygon cannon.</summary>
     public required InstalledDraygonCannonFrames DraygonCannon { get; init; }
+
+    /// <summary>Phantoon door.</summary>
+    public required InstalledPhantoonDoorFrames PhantoonDoor { get; init; }
 
     /// <summary>Chozo statue.</summary>
     public required InstalledRoomObjectChozoStatueVisuals ChozoStatue { get; init; }
@@ -122,6 +126,7 @@ public sealed record RoomObjectVisualCatalogSet
             EscapeGate = RoomObjectEscapeGateVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectEscapeGateVisualDirectoryName)),
             BombTorizoHand = RoomObjectBombTorizoHandVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectBombTorizoHandVisualDirectoryName)),
             DraygonCannon = RoomObjectDraygonCannonVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectDraygonCannonVisualDirectoryName)),
+            PhantoonDoor = RoomObjectPhantoonDoorVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectPhantoonDoorVisualDirectoryName)),
             ChozoStatue = RoomObjectChozoStatueVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectChozoStatueVisualDirectoryName)),
             LinkedRestore = RoomObjectLinkedRestoreVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectLinkedRestoreVisualDirectoryName)),
             TourianAccess = RoomObjectTourianAccessVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectTourianAccessVisualDirectoryName)),

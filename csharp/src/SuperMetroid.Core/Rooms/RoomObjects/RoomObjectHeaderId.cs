@@ -79,11 +79,6 @@ public enum RoomObjectHeaderId
     /// <summary>A save station.</summary>
     SaveStation,
 
-    /// <summary>Closes Phantoon's arena door for the fight.</summary>
-    DrawPhantoonDoorDuringBossFight,
-
-    /// <summary>Restores Phantoon's arena door after the fight.</summary>
-    RestorePhantoonDoorAfterBossFight,
 
     /// <summary>The lava quake of the Speed Booster room's escape, once the Speed Booster is taken.</summary>
     SpeedBoosterEscape,

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
@@ -24,6 +25,9 @@ internal static class RoomObjectFixtures
     /// <summary>The repository installation's pictures of Draygon's cannon frames, read once per process.</summary>
     private static readonly Lazy<InstalledDraygonCannonFrames> DraygonCannonFrames = new(() => InstalledDraygonCannonFrames.Stock());
 
+    /// <summary>The repository installation's pictures of Phantoon's door frames, read once per process.</summary>
+    private static readonly Lazy<InstalledPhantoonDoorFrames> PhantoonDoorFrames = new(() => InstalledPhantoonDoorFrames.Stock());
+
     /// <summary>The repository installation's pictures of Mother Brain's glass frames, read once per process.</summary>
     private static readonly Lazy<InstalledMotherBrainGlassFrames> MotherBrainGlassFrames = new(() => InstalledMotherBrainGlassFrames.Stock());
 
@@ -42,6 +46,7 @@ internal static class RoomObjectFixtures
     {
         visuals ??= Installed();
         visuals.RoomObjectDraygonCannonVisuals ??= DraygonCannonFrames.Value;
+        visuals.RoomObjectPhantoonDoorVisuals ??= PhantoonDoorFrames.Value;
         visuals.RoomObjectMotherBrainGlassVisuals ??= MotherBrainGlassFrames.Value;
         visuals.RoomObjectEscapeGateVisuals ??= EscapeGateFrames.Value;
         visuals.RoomObjectMotherBrainFakeDeathVisuals ??= MotherBrainFakeDeathFrames.Value;
@@ -91,6 +96,7 @@ internal static class RoomObjectFixtures
         RoomObjectEscapeGateVisuals = EscapeGateFrames.Value,
         RoomObjectBombTorizoHandVisuals = InstalledRoomObjectBombTorizoHandVisuals.Stock(),
         RoomObjectDraygonCannonVisuals = DraygonCannonFrames.Value,
+        RoomObjectPhantoonDoorVisuals = PhantoonDoorFrames.Value,
         RoomObjectChozoStatueVisuals = InstalledRoomObjectChozoStatueVisuals.Stock(),
         RoomObjectLinkedRestoreVisuals = InstalledRoomObjectLinkedRestoreVisuals.Stock(),
         RoomObjectTourianAccessVisuals = RoomObjectTourianAccessVisuals.Stock(),

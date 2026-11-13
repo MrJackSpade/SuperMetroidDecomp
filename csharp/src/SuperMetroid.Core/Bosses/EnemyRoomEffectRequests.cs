@@ -2,6 +2,7 @@ using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -22,6 +23,7 @@ namespace SuperMetroid.Core.Bosses;
 /// <param name="MotherBrainObjects">Mother Brain's room mutations.</param>
 /// <param name="ShitroidObjects">The Shitroid's wall mutations.</param>
 /// <param name="TorizoBellyGlow">The belly glow a Torizo's fight start asks the palette-FX handler for, or null.</param>
+/// <param name="PhantoonDoor">Phantoon's door change: the fight's door or the restored door, or null for none.</param>
 public readonly record struct EnemyRoomEffectRequests(
     BotwoonWallMutation? BotwoonWall,
     SporeSpawnCeilingMutation? SporeSpawnCeiling,
@@ -31,7 +33,8 @@ public readonly record struct EnemyRoomEffectRequests(
     RoomFxRecordDefinition? MotherBrainAcidChange,
     IReadOnlyList<RoomObjectSpawnRequest<MotherBrainRoomMutation>> MotherBrainObjects,
     IReadOnlyList<RoomObjectSpawnRequest<ShitroidWallMutation>> ShitroidObjects,
-    PaletteFxObject? TorizoBellyGlow)
+    PaletteFxObject? TorizoBellyGlow,
+    PhantoonDoorChange? PhantoonDoor)
 {
 
     /// <summary>Two request sets are equal when every value and every list's contents, in order, are equal.</summary>
@@ -40,9 +43,9 @@ public readonly record struct EnemyRoomEffectRequests(
         CrocomireObjects.SequenceEqual(other.CrocomireObjects) && KraidObjects.SequenceEqual(other.KraidObjects) &&
         MotherBrainDeathStep == other.MotherBrainDeathStep && MotherBrainAcidChange == other.MotherBrainAcidChange &&
         MotherBrainObjects.SequenceEqual(other.MotherBrainObjects) && ShitroidObjects.SequenceEqual(other.ShitroidObjects) &&
-        TorizoBellyGlow == other.TorizoBellyGlow;
+        TorizoBellyGlow == other.TorizoBellyGlow && PhantoonDoor == other.PhantoonDoor;
 
     /// <inheritdoc/>
     public override int GetHashCode() => HashCode.Combine(BotwoonWall, SporeSpawnCeiling, CrocomireObjects.Count, KraidObjects.Count,
-        HashCode.Combine(MotherBrainDeathStep, MotherBrainAcidChange, MotherBrainObjects.Count, ShitroidObjects.Count, TorizoBellyGlow));
+        HashCode.Combine(MotherBrainDeathStep, MotherBrainAcidChange, MotherBrainObjects.Count, ShitroidObjects.Count, TorizoBellyGlow, PhantoonDoor));
 }

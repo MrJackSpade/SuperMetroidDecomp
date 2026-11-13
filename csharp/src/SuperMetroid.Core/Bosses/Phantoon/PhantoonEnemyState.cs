@@ -122,12 +122,6 @@ public sealed class PhantoonEnemyState
     /// <summary>Gets whether the powered Wrecked Ship fade over colours zero through 111 and the final deletion/door/music handoff have completed.</summary>
     public bool WreckedShipPowerPaletteComplete { get; internal set; }
 
-    /// <summary>
-    /// The room object at block (0,6) closes/opens the boss door. The room objects are an outer
-    /// owner, so the enemy publishes the exact authored request rather than editing terrain.
-    /// </summary>
-    public RoomObjectHeaderId? BossDoorObjectRequest { get; internal set; }
-
     /// <summary>Gets the encounter's lazily created wave of his body, which advances separately from display latching.</summary>
     public PhantoonBodyWaveEffect BodyWave => field ??= new();
 

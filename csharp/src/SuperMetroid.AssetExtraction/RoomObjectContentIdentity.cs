@@ -3,6 +3,7 @@ using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
@@ -170,6 +171,13 @@ internal static class RoomObjectContentIdentity
     {
         /// <summary>Hashes every cannon frame's picture, in published-name order.</summary>
         public string ContentIdentity => FrameImagesIdentity(nameof(InstalledDraygonCannonFrames), visuals.Images, RoomObjectDraygonCannonVisualFiles.Family);
+    }
+
+    /// <summary>The installed content identity of a <see cref="InstalledPhantoonDoorFrames"/>.</summary>
+    extension(InstalledPhantoonDoorFrames visuals)
+    {
+        /// <summary>Hashes every door frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledPhantoonDoorFrames), visuals.Images, RoomObjectPhantoonDoorVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="InstalledEscapeGateFrames"/>.</summary>

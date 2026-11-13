@@ -33,8 +33,7 @@ internal static class RoomObjectNativeWords
         [RoomObjectHeaderId.CollisionReactionSandFallsSlow] = 0xb73b,
         [RoomObjectHeaderId.CollisionReactionSandFallsFast] = 0xb73f,
         [RoomObjectHeaderId.SaveStation] = 0xb76f,
-        [RoomObjectHeaderId.DrawPhantoonDoorDuringBossFight] = 0xb781,
-        [RoomObjectHeaderId.RestorePhantoonDoorAfterBossFight] = 0xb78b,
+
         [RoomObjectHeaderId.SpeedBoosterEscape] = 0xb8ac,
         [RoomObjectHeaderId.OldTourianEscapeShaftFakeWall] = 0xb964,
         [RoomObjectHeaderId.BombTorizoGreyDoor] = 0xbaf4,

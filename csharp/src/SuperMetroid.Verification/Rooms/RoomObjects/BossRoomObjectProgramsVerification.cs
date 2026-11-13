@@ -8,6 +8,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Botwoon;
+using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.MovieReplay;
@@ -57,6 +58,10 @@ internal static class BossRoomObjectProgramsVerification
             (IImportCartridgeSource cartridge, ushort cursor, out NativeTerrainChanges.NativeStep step) =>
                 TryCrumbleSound(cartridge, cursor, SporeSpawnCeilingMutationDefinitions.CrumbleSoundId, "Spore Spawn ceiling", out step),
             "Spore Spawn ceiling");
+
+    /// <summary>Phantoon's door changes play as their native lists do: each draws its frame for one update and ends (#1678).</summary>
+    internal static void VerifyPhantoonDoorPrograms(ISnesAddressSpace rom) =>
+        CompareChanges(rom, PhantoonDoorEntries, PhantoonDoorChangeDefinitions.Changes, NativeTerrainChanges.NoSteps, "Phantoon door");
 
     /// <summary>
     /// Plays every mutation's native list beside its typed change; every mutation has a list and none of these changes

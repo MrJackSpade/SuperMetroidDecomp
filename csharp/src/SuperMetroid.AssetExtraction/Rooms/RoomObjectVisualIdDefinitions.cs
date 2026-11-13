@@ -2,6 +2,7 @@ using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -49,6 +50,13 @@ internal static class RoomObjectVisualIdDefinitions
         [DraygonCannonDraw.LeftDamagedB] = "left-damaged-b",
         [DraygonCannonDraw.LeftDamagedC] = "left-damaged-c",
         [DraygonCannonDraw.LeftDamagedD] = "left-damaged-d",
+    };
+
+    /// <summary>Each Phantoon door frame's editable artwork key.</summary>
+    internal static readonly Dictionary<PhantoonDoorDraw, string> PhantoonDoor = new()
+    {
+        [PhantoonDoorDraw.FightDoor] = "fight-door",
+        [PhantoonDoorDraw.RestoredDoor] = "restored-door",
     };
 
     /// <summary>Each gate image's stable authored visual identifier.</summary>

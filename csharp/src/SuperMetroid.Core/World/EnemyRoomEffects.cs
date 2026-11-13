@@ -10,13 +10,14 @@ using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 
 namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Room effects enemy AI requests during a pass: the hardcoded room-object spawns of Botwoon, Spore Spawn, Crocomire,
-/// Kraid, Mother Brain, the Shitroid and the Chozo statues, and the downward gates' projectile requests.
+/// Kraid, Mother Brain, the Shitroid, Phantoon and the Chozo statues, and the downward gates' projectile requests.
 /// </summary>
 internal sealed class EnemyRoomEffects
 {
@@ -62,6 +63,7 @@ internal sealed class EnemyRoomEffects
         ApplyPendingKraidObjects(requests, roomObjects);
         ApplyPendingMotherBrainObjects(requests, roomObjects, roomFxOverlay, roomPaletteFx);
         ApplyPendingShitroidWallObjects(requests, roomObjects);
+        ApplyPendingPhantoonDoorObject(requests, roomObjects);
         ApplyPendingChozoStatueObjects(roomObjects, roomFxOverlay, enemies);
         ApplyPendingTorizoBellyGlow(requests, roomPaletteFx);
     }
@@ -214,6 +216,22 @@ internal sealed class EnemyRoomEffects
 
         foreach (RoomObjectSpawnRequest<ShitroidWallMutation> request in requests.ShitroidObjects)
             roomObjects.BossRoomMutations.ShitroidWall.TrySpawn(_room.LevelData, request);
+    }
+
+    /// <summary>
+    /// Spawns the door change Phantoon's fight asked for in the pass (#1678) among the room's objects: the fight's door
+    /// as the starting flames close in, the restored door once the Wrecked Ship's power is back. Its setup holds the
+    /// door's top block solid until its first update draws the door.
+    /// </summary>
+    internal void ApplyPendingPhantoonDoorObject(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects)
+    {
+        if (requests.PhantoonDoor is not { } change)
+            return;
+        if (_room.LevelData is null)
+            throw new InvalidOperationException("Phantoon asked for a door change without active room level data.");
+
+        // A spawn into a full room is lost, as every boss terrain change's is (RoomObjectPlaces).
+        roomObjects.BossRoomMutations.PhantoonDoor.TrySpawn(_room.LevelData, change);
     }
 
     /// <summary>

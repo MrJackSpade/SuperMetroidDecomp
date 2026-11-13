@@ -2,6 +2,7 @@ using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -64,6 +65,7 @@ internal static class RoomObjectDrawAddressCodec
         RoomObjectFrameDraw<MotherBrainFakeDeathDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.MotherBrainFakeDeath[frame],
         RoomObjectFrameDraw<MotherBrainGlassDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.MotherBrainGlass[frame],
         RoomObjectFrameDraw<NoobTubeDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.NoobTube[frame],
+        RoomObjectFrameDraw<PhantoonDoorDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.PhantoonDoor[frame],
         RoomObjectFrameDraw<RoomObjectBombedRevealDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.RoomObjectBombedReveal[frame],
         RoomObjectFrameDraw<SamusEaterDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.SamusEater[frame],
         RoomObjectFrameDraw<SporeSpawnCeilingDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.SporeSpawnCeiling[frame],

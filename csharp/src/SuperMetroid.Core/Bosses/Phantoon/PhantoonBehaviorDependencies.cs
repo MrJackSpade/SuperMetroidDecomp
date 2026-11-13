@@ -36,4 +36,7 @@ internal sealed record PhantoonBehaviorDependencies
 
     /// <summary>The session's installed boss artwork.</summary>
     public required BossArtworkBinding BossArtwork { get; init; }
+
+    /// <summary>The bosses' results of the pass, where the fight asks for its door changes.</summary>
+    public required BossFrameResultBuilder FrameResults { get; init; }
 }

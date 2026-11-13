@@ -2,6 +2,7 @@ using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -36,6 +37,9 @@ internal sealed class BossFrameResultBuilder
     /// <summary>The belly glow a Torizo's fight start asks the palette-FX handler for, or null.</summary>
     internal PaletteFxObject? TorizoBellyGlow { get; set; }
 
+    /// <summary>Phantoon's door change (#1678): the fight's door as the starting flames close in, or the restored door.</summary>
+    internal PhantoonDoorChange? PhantoonDoor { get; set; }
+
     /// <summary>Crocomire's arena mutations, in publication order.</summary>
     internal List<RoomObjectSpawnRequest<CrocomireArenaMutation>> CrocomireObjects { get; } = [];
 
@@ -67,6 +71,7 @@ internal sealed class BossFrameResultBuilder
         BotwoonWall = null;
         SporeSpawnCeiling = null;
         TorizoBellyGlow = null;
+        PhantoonDoor = null;
         CrocomireObjects.Clear();
         KraidObjects.Clear();
         MotherBrainDeathStep = null;
@@ -78,5 +83,5 @@ internal sealed class BossFrameResultBuilder
     /// <summary>The room effects the bosses requested so far.</summary>
     internal EnemyRoomEffectRequests RoomEffects() =>
         new(BotwoonWall, SporeSpawnCeiling, [.. CrocomireObjects], [.. KraidObjects], MotherBrainDeathStep,
-            MotherBrainAcidChange, [.. MotherBrainObjects], [.. ShitroidObjects], TorizoBellyGlow);
+            MotherBrainAcidChange, [.. MotherBrainObjects], [.. ShitroidObjects], TorizoBellyGlow, PhantoonDoor);
 }

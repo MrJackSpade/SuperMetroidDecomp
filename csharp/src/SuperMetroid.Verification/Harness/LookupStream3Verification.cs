@@ -261,14 +261,13 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks file-select border geometry and ordered sprite parts against ROM.</summary>
-    internal static void VerifyStream3FileSelectBorders(ISnesAddressSpace rom, byte[] imported)
+    internal static void VerifyStream3FileSelectBorders(ISnesAddressSpace rom, FileSelectExtraction imported)
     {
-        FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, ArtworkJson.Options);
-        Dictionary<FileSelectBorder, SpriteComposition> Load(FileSelectPresentationDocument document)
-        {
-            var value = FileSelectSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
-            return value.borderSprites;
-        }
+        FileSelectArtworkDocument Read() => RequiredJson.Deserialize<FileSelectArtworkDocument>(imported.Artwork, ArtworkJson.Options);
+        FileSelectLayoutDocument layout = RequiredJson.Deserialize<FileSelectLayoutDocument>(imported.Layout, ArtworkJson.Options);
+        FileSelectSourcePresentation LoadPresentation(FileSelectArtworkDocument document) => FileSelectSourcePresentation.Load(
+            new MemoryStream(imported.Layout), new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+        Dictionary<FileSelectBorder, SpriteComposition> Load(FileSelectArtworkDocument document) => LoadPresentation(document).borderSprites;
         void Confirm(SpriteComposition actual, SpriteVisualPart[] parts)
         {
             var expected = MenuSpriteCompiler.Compile(parts, "independent border oracle");
@@ -286,12 +285,12 @@ internal static class LookupStream3Verification
             var stock = Load(original)[border];
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
-            var presentation = FileSelectSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
+            var presentation = LoadPresentation(original);
             string anchorKey = FileSelectPresentationFormat.BorderName(border);
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             presentation.Presentation.DrawBorder(actualOam, MenuSheetFixtures.FileSelect(presentation), border);
-            var anchor = original.BorderAnchors[anchorKey];
+            var anchor = layout.BorderAnchors[anchorKey];
             MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
                 new(anchor.X, anchor.Y), (ushort)(original.ObjectPalette << 9));
             actualOam.FinishFrame(); expectedOam.FinalizeFrame();
@@ -443,7 +442,8 @@ internal static class LookupStream3Verification
             malformed.Sprites[name][0] = first with { TileColumn = MapSpriteFormat.TileColumns - first.Size / 8 + 1 };
             AssertThrows<InvalidDataException>(() => Load(malformed), "menu part footprint outside the sheet is rejected");
         }
-        ConfirmCursorCaller(SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom), source => FileSelectSourcePresentation.Load(source).cursorSprites);
+        FileSelectExtraction fileSelect = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
+        ConfirmCursorCaller(fileSelect.Artwork, source => FileSelectSourcePresentation.Load(new MemoryStream(fileSelect.Layout), source).cursorSprites);
         ConfirmCursorCaller(SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(rom), source => GameOptionsSourcePresentation.Load(source).cursorSprites);
 
         void ConfirmCursorCaller(byte[] json, Func<Stream, SpriteComposition[]> load)
@@ -488,9 +488,9 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks file-select patch cells, terminators and stock placement against ROM.</summary>
-    internal static void VerifyStream3FileSelectPatches(ISnesAddressSpace rom, byte[] imported, FileSelectSourcePresentation stock)
+    internal static void VerifyStream3FileSelectPatches(ISnesAddressSpace rom, FileSelectExtraction imported, FileSelectSourcePresentation stock)
     {
-        FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, ArtworkJson.Options);
+        FileSelectArtworkDocument Read() => RequiredJson.Deserialize<FileSelectArtworkDocument>(imported.Artwork, ArtworkJson.Options);
         foreach ((FileSelectPatch patch, int address, int count) in new[]
         {
             new VerifyStream3FileSelectPatchesCase(FileSelectPatch.Energy, 0x81b496, 4),
@@ -999,8 +999,7 @@ internal static class LookupStream3Verification
             SuperMetroid.AssetExtraction.Samus.GrappleSwingFrameExtractor.Extract(rom)));
         for (int angle = 0; angle < 256; angle++)
             AssertEqual(rom.ReadCartridgeByte(0x9bc1c2 + angle), swingFrames.Resolve(new TrigonometryAngle((byte)angle)), "stream 3 native calculated swing art frame");
-        byte[] fileSelectJson = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
-        var fileSelect = FileSelectSourcePresentation.Load(new MemoryStream(fileSelectJson));
+        var fileSelect = FileSelectSourcePresentation.Load(SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom));
         var glyphTilemap = new BackgroundTile[1024];
         for (int glyph = 0; glyph < 13; glyph++)
         {
@@ -2120,7 +2119,7 @@ internal static class LookupStream3Verification
         ImportIntroCinematicArtwork stock = SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName));
         static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
         RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
-        ImportIntroCinematicArtwork Copy(byte[] narration) => new(new IntroCinematicArtworkParts { BackgroundPages = pages, PortraitTilemap = Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), InitialNarrationTilemap = Page(narration), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, NextPageArrowSprites = stock.NextPageArrowSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionMaps = stock.CeresDestructionMaps, ZebesRevealMap = stock.ZebesRevealMap, CeresDestructionSprites = stock.CeresDestructionSprites }, new IntroCinematicCharacters(stock.BackgroundCharacters, stock.IntroObjectCharacters, stock.CinematicObjectCharacters, stock.ZebesReveal.Characters, stock.FlightCharacters), stock.Palette, stock.FlightPalette);
+        ImportIntroCinematicArtwork Copy(byte[] narration) => new(new IntroCinematicArtworkParts { CaretSprites = stock.CaretSprites, NextPageArrowSprites = stock.NextPageArrowSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionMaps = stock.CeresDestructionMaps, CeresDestructionSprites = stock.CeresDestructionSprites }, new IntroCinematicLayouts(pages, Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), Page(narration), stock.FinalLine, stock.EyeFrames, stock.ZebesRevealMap), new IntroCinematicCharacters(stock.BackgroundCharacters, stock.IntroObjectCharacters, stock.CinematicObjectCharacters, stock.ZebesReveal.Characters, stock.FlightCharacters), stock.Palette, stock.FlightPalette);
         AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 initial narration words match native");
         var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), characterArtwork: stock.BoundCatalog)
         {
@@ -2152,11 +2151,12 @@ internal static class LookupStream3Verification
     /// <summary>Checks file-select sprite compositions and border parts against native OAM data.</summary>
     internal static void VerifyStream3FileSelectSprites(ISnesAddressSpace rom)
     {
-        byte[] imported = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
+        FileSelectExtraction imported = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
         Suite(nameof(VerifyStream3FileSelectBorders), () => VerifyStream3FileSelectBorders(rom, imported));
-        FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, ArtworkJson.Options);
-        FileSelectSourcePresentation Load(FileSelectPresentationDocument document) => FileSelectSourcePresentation.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+        FileSelectArtworkDocument Read() => RequiredJson.Deserialize<FileSelectArtworkDocument>(imported.Artwork, ArtworkJson.Options);
+        FileSelectLayoutDocument layout = RequiredJson.Deserialize<FileSelectLayoutDocument>(imported.Layout, ArtworkJson.Options);
+        FileSelectSourcePresentation Load(FileSelectArtworkDocument document) => FileSelectSourcePresentation.Load(new MemoryStream(imported.Layout),
+            new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         SpriteComposition Composition(FileSelectSourcePresentation owner, int frame) => owner.helmetSprites[frame];
         var original = Read();
         var stock = Load(original);
@@ -2181,7 +2181,7 @@ internal static class LookupStream3Verification
             AssertThrows<InvalidDataException>(() => Load(malformed), "helmet part footprint outside the sheet is rejected");
         }
         Console.WriteLine("File-select sprites: 114 border parts, 42 helmet parts, out-of-sheet rejection and actual helmet OAM pass; cursor dependency previously confirmed.");
-        void Confirm(FileSelectSourcePresentation actual, FileSelectPresentationDocument expected, int frame)
+        void Confirm(FileSelectSourcePresentation actual, FileSelectArtworkDocument expected, int frame)
         {
             string name = FileSelectParts.HelmetSpriteName(frame);
             var expectedParts = MenuSpriteCompiler.Compile(expected.Sprites[name], name);
@@ -2192,7 +2192,7 @@ internal static class LookupStream3Verification
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             actual.Presentation.DrawHelmet(actualOam, MenuSheetFixtures.FileSelect(actual), frame, 0);
-            var anchor = expected.HelmetAnchors[0];
+            var anchor = layout.HelmetAnchors[0];
             expectedParts.DrawOnScreen(expectedOam, new(anchor.X, anchor.Y), (ushort)(expected.ObjectPalette << 9));
             actualOam.FinishFrame(); expectedOam.FinalizeFrame();
             AssertTrue(actualOam.ImageEquals(expectedOam),
@@ -2230,7 +2230,7 @@ internal static class LookupStream3Verification
         ImportIntroCinematicArtwork Copy(byte[] background)
         {
             RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(background.AsSpan(index * 2048, 2048).ToArray())).ToArray();
-            return new(new IntroCinematicArtworkParts { BackgroundPages = pages, PortraitTilemap = Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), InitialNarrationTilemap = Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, NextPageArrowSprites = stock.NextPageArrowSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionMaps = stock.CeresDestructionMaps, ZebesRevealMap = stock.ZebesRevealMap, CeresDestructionSprites = stock.CeresDestructionSprites }, new IntroCinematicCharacters(stock.BackgroundCharacters, stock.IntroObjectCharacters, stock.CinematicObjectCharacters, stock.ZebesReveal.Characters, stock.FlightCharacters), stock.Palette, stock.FlightPalette);
+            return new(new IntroCinematicArtworkParts { CaretSprites = stock.CaretSprites, NextPageArrowSprites = stock.NextPageArrowSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionMaps = stock.CeresDestructionMaps, CeresDestructionSprites = stock.CeresDestructionSprites }, new IntroCinematicLayouts(pages, Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), stock.FinalLine, stock.EyeFrames, stock.ZebesRevealMap), new IntroCinematicCharacters(stock.BackgroundCharacters, stock.IntroObjectCharacters, stock.CinematicObjectCharacters, stock.ZebesReveal.Characters, stock.FlightCharacters), stock.Palette, stock.FlightPalette);
         }
         byte[] installed = BackgroundTileWordBytes.Of(stock.BackgroundPages.Span);
         var mismatches = new List<string>();
@@ -2353,7 +2353,7 @@ BranchesToSharedBody:true),
         ImportIntroCinematicArtwork stock = SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName));
         static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
         RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
-        ImportIntroCinematicArtwork Copy(byte[] portrait) => new(new IntroCinematicArtworkParts { BackgroundPages = pages, PortraitTilemap = Page(portrait), InitialNarrationTilemap = Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, NextPageArrowSprites = stock.NextPageArrowSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionMaps = stock.CeresDestructionMaps, ZebesRevealMap = stock.ZebesRevealMap, CeresDestructionSprites = stock.CeresDestructionSprites }, new IntroCinematicCharacters(stock.BackgroundCharacters, stock.IntroObjectCharacters, stock.CinematicObjectCharacters, stock.ZebesReveal.Characters, stock.FlightCharacters), stock.Palette, stock.FlightPalette);
+        ImportIntroCinematicArtwork Copy(byte[] portrait) => new(new IntroCinematicArtworkParts { CaretSprites = stock.CaretSprites, NextPageArrowSprites = stock.NextPageArrowSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionMaps = stock.CeresDestructionMaps, CeresDestructionSprites = stock.CeresDestructionSprites }, new IntroCinematicLayouts(pages, Page(portrait), Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), stock.FinalLine, stock.EyeFrames, stock.ZebesRevealMap), new IntroCinematicCharacters(stock.BackgroundCharacters, stock.IntroObjectCharacters, stock.CinematicObjectCharacters, stock.ZebesReveal.Characters, stock.FlightCharacters), stock.Palette, stock.FlightPalette);
         AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 installed portrait words match native");
         AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
         var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), characterArtwork: stock.BoundCatalog)
@@ -2549,7 +2549,7 @@ BranchesToSharedBody:true),
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var data = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
-        Suite(nameof(VerifyStream3FileSelectPatches), () => VerifyStream3FileSelectPatches(rom, data, FileSelectSourcePresentation.Load(new MemoryStream(data))));
+        Suite(nameof(VerifyStream3FileSelectPatches), () => VerifyStream3FileSelectPatches(rom, data, FileSelectSourcePresentation.Load(data)));
         Console.WriteLine("File-select patches: native cells, zero stock fallback and actual placement pass.");
         return 0;
     }

@@ -1529,7 +1529,7 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "File-select identity fixture revision");
-        byte[] source = FileSelectPresentationExtractor.Extract(rom);
+        SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork.FileSelectExtraction source = FileSelectPresentationExtractor.Extract(rom);
         Suite(nameof(VerifyFileSelectPageNames), () => VerifyFileSelectPageNames(source));
         Suite(nameof(VerifyFileSelectPatchNames), () => VerifyFileSelectPatchNames(source));
         Suite(nameof(VerifyFileSelectBorderNames), () => VerifyFileSelectBorderNames(source));

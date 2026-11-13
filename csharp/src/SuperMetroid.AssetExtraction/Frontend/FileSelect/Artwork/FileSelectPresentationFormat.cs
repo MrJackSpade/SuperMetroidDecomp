@@ -6,16 +6,20 @@ using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
-/// <summary>File identity, schema names and fixed dimensions of the installed <c>file-select.json</c>.</summary>
+/// <summary>File identities, schema names and fixed dimensions of the installed <c>file-select.json</c> and its import-data artwork.</summary>
 public static class FileSelectPresentationFormat
 {
     /// <summary>
-    /// Supported file-select presentation JSON schema version: 2 holds each slot field's and slot letter's anchor as the page
-    /// pixel the game shows it at.
+    /// Supported file-select layout JSON schema version: 2 holds each slot field's and slot letter's anchor as the page pixel
+    /// the game shows it at, and 3 holds only the layout the game binds, the artwork being import data (#1638).
     /// </summary>
-    public const int Version = 2;
-    /// <summary>Extracted JSON filename for menu pages, fields, sprite compositions, and layout.</summary>
+    public const int Version = 3;
+    /// <summary>Installed JSON filename for the slot fields, anchors and durations the game binds.</summary>
     public const string FileName = "file-select.json";
+    /// <summary>Supported file-select artwork JSON schema version.</summary>
+    public const int ArtworkVersion = 1;
+    /// <summary>Import-data JSON filename for the menu pages, field patches, glyphs and sprite compositions (#1638).</summary>
+    public const string ArtworkFileName = "file-select-artwork.json";
     /// <summary>Cells across each menu page.</summary>
     public const int PageColumns = FileSelectPresentationDefinitions.PageWidthPixels / CharacterCellConversions.CellPixels;
     /// <summary>Cells down each menu page.</summary>

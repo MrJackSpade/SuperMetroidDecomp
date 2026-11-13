@@ -59,19 +59,6 @@ internal static class GameplayMessageNoticesVerification
             $"Gameplay-message notices: {GameplayMessageNoticeDefinitions.MessageIds.Length} UTF-8 layouts and {comparedWords} installed words match the cartridge with message ROM reads forbidden; YES/NO selection and invalid glyph rejection pass.");
     }
 
-    /// <summary>Checks that the installed gameplay-message notices are the deterministic cartridge extraction.</summary>
-    internal static void VerifyGameplayMessageNoticeAssets(
-        ISnesAddressSpace bus,
-        string stockDirectory)
-    {
-        byte[] deterministic = SuperMetroid.AssetExtraction.Hud.GameplayMessageNoticeExtractor.Extract(bus);
-        AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
-            Path.Combine(stockDirectory, GameplayMessageNoticeDefinitions.FileName))),
-            "installed gameplay-message notices are the deterministic cartridge extraction");
-
-        Console.WriteLine(
-            "Gameplay-message notice catalog: deterministic stock passes.");
-    }
 
     /// <summary>Runs message-notice extraction and rendering checks against the repository ROM.</summary>
     [VerificationCommand("--gameplay-message-notices")]

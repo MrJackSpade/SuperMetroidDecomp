@@ -6,28 +6,16 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
 /// <summary>
-/// The file-select JSON's pages, fields and layout the game binds, with tile-space pages and patches and pixel-space
-/// field and sprite anchors. The document the import pipeline reads also holds the sprite compositions the file-select sheet is
-/// composed from (#1463); each member keeps its place in the document.
+/// The installed file-select JSON (#1463, #1638): the slot fields, anchors and durations the game places its actors by, in
+/// pixel space. The pages, patches, glyphs and sprite compositions the file-select pictures are composed from are import
+/// data (<see cref="FileSelectArtworkDocument"/>), as their cells are the original's packed tile placements.
 /// </summary>
-/// <remarks>Init-only properties hold caller-owned mutable arrays and dictionaries. A loaded presentation parses its own document and compiles artwork from the supplied JSON stream.</remarks>
-public record FileSelectLayoutDocument
+/// <remarks>Init-only properties hold caller-owned mutable arrays and dictionaries.</remarks>
+public sealed record FileSelectLayoutDocument
 {
-    /// <summary>Schema version; must equal the version the import supports.</summary>
+    /// <summary>Schema version; must equal <see cref="FileSelectPresentationFormat.Version"/>.</summary>
     [JsonPropertyOrder(1)]
     public required int Version { get; init; }
-    /// <summary>Exactly the named menu pages, each containing 1024 row-major cells for a 32-by-32 tilemap.</summary>
-    [JsonPropertyOrder(2)]
-    public required Dictionary<string, MapPresentationCell[]> Pages { get; init; }
-    /// <summary>Exactly the energy, empty-slot, and time-colon patches, placed relative to dynamic slot-field anchors.</summary>
-    [JsonPropertyOrder(3)]
-    public required Dictionary<string, FileSelectPatchDocument> Patches { get; init; }
-    /// <summary>Ten tile cells in digit-value order 0-9, including each glyph's palette and tile attributes.</summary>
-    [JsonPropertyOrder(4)]
-    public required MapPresentationCell[] Digits { get; init; }
-    /// <summary>Three tile cells in save-slot order A-C, used when copy or clear text identifies a slot.</summary>
-    [JsonPropertyOrder(5)]
-    public required MapPresentationCell[] SlotLetters { get; init; }
     /// <summary>Three dynamic save-field layouts in slot order for the main file-select page.</summary>
     [JsonPropertyOrder(6)]
     public required FileSelectSlotFieldDocument[] MainSlots { get; init; }
@@ -52,9 +40,6 @@ public record FileSelectLayoutDocument
     /// <summary>Exactly the four named copy/clear slot-letter anchors, each the page pixel its letter is shown at.</summary>
     [JsonPropertyOrder(14)]
     public required Dictionary<string, Position16<PlanePixels>> DynamicAnchors { get; init; }
-    /// <summary>OBJ palette selector 0-7 applied to border, cursor, and helmet compositions.</summary>
-    [JsonPropertyOrder(15)]
-    public required int ObjectPalette { get; init; }
     /// <summary>Menu-update duration 1-65535 for each of the four looping missile-cursor frames.</summary>
     [JsonPropertyOrder(16)]
     public required int CursorFrameDuration { get; init; }

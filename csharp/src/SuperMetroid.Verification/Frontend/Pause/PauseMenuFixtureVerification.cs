@@ -59,7 +59,11 @@ internal static class PauseMenuFixtureVerification
         var singlePart = new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
             TileColumn = 0, TileRow = 0, Size = 8, Priority = 0, Palette = null,
             FlipX = false, FlipY = false };
-        var sprites = Document<MapSpriteDocument>(MapSpriteFormat.JsonFile);
+        // The map sprites' compositions are import data (#1638): the cartridge-derived extraction's.
+        var sprites = JsonSerializer.Deserialize<MapSpriteDocument>(File.ReadAllBytes(Path.Combine(
+            SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(
+                SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName), MapSpriteFormat.JsonFile)),
+            ArtworkJson.Options) ?? throw new InvalidDataException(MapSpriteFormat.JsonFile);
         foreach (string name in new[] { "Indicator.Frame0", "Indicator.Frame1", "Indicator.Frame2" })
             sprites.Frames[name] = [singlePart];
         using var spriteJson = Json(sprites);
@@ -109,10 +113,8 @@ internal static class PauseMenuFixtureVerification
         };
         // The screens and the HUD are pictured from the constructed ROM's characters (#1466).
         return InstalledFixtures.Record(new ImportAreaMapPresentation(new AreaMapPresentation(parts), new InstalledPresentationSources(
-            stock.Messages, stock.RoomFxPages, stock.StaffCredits, stock.EndingTextPresentation, stock.Screens,
-            new PauseScreenArtwork(backdrops, stock.Pause.Wireframes, stock.Pause.EquipmentBase, stock.Pause.EquipmentLabels,
-                stock.Pause.ReserveUi),
-            stock.HighlightColours, constructedSelectors, constructedTanks, stock.GameplayHud, stock.GameOptions, stock.FileSelect)
+            stock.StaffCredits, stock.EndingTextPresentation, stock.Screens,
+            stock.HighlightColours, constructedSelectors, constructedTanks, stock.GameOptions)
             { GameOver = stock.GameOverSource },
             new ImportPresentationCharacters(new MapCharacterArtwork(
                 new MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)), new HudTileAtlas(hud),
@@ -122,6 +124,9 @@ internal static class PauseMenuFixtureVerification
             new ImportPresentationColours(stock.SamusColours, stock.TitlePalette,
                 palettes, stock.CeresRidleyColors, stock.CeresRidleyFloorColors,
                 stock.MotherBrainHealthPalette, stock.MotherBrainRoomColors,
-                stock.RoomFxPaletteBlends, stock.RoomPaletteFx, stock.MotherBrainRainbowColours)));
+                stock.RoomFxPaletteBlends, stock.RoomPaletteFx, stock.MotherBrainRainbowColours),
+            new ImportPresentationDocuments(stock.FileSelect,
+                new PauseScreenArtwork(backdrops, stock.Pause.Wireframes, stock.Pause.EquipmentBase, stock.Pause.EquipmentLabels,
+                    stock.Pause.ReserveUi), stock.RoomFxPages, stock.Messages, stock.GameplayHud)));
     }
 }

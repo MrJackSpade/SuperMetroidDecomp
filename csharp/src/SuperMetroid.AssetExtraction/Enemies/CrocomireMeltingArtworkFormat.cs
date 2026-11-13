@@ -3,13 +3,13 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>Stable filenames and exact four-bit PNG transfer geometry for both melts.</summary>
 public static class CrocomireMeltingArtworkFormat
 {
-    /// <summary>Installed indexed PNG filename for the first dissolve image, assembled from the native bank-$A4 copies beginning at $A07D.</summary>
+    /// <summary>Import-data indexed PNG filename for the first dissolve image, assembled from the native bank-$A4 copies beginning at $A07D.</summary>
     public const string FirstFileName = "crocomire-melt-first.png";
-    /// <summary>Installed indexed PNG filename for the second, eroded dissolve image, assembled from the native bank-$A4 copies beginning at $AC7D.</summary>
+    /// <summary>Import-data indexed PNG filename for the second, eroded dissolve image, assembled from the native bank-$A4 copies beginning at $AC7D.</summary>
     public const string SecondFileName = "crocomire-melt-second.png";
-    /// <summary>Installed editable JSON filename for the first image's 256 BG2 references, corresponding to $A4:9C79.</summary>
+    /// <summary>Import-data JSON filename for the first image's 256 BG2 references, corresponding to $A4:9C79.</summary>
     public const string FirstTilemapFileName = "crocomire-melt-first-tiles.json";
-    /// <summary>Installed editable JSON filename for the second image's 256 BG2 references, corresponding to $A4:9E7B.</summary>
+    /// <summary>Import-data JSON filename for the second image's 256 BG2 references, corresponding to $A4:9E7B.</summary>
     public const string SecondTilemapFileName = "crocomire-melt-second-tiles.json";
     /// <summary>$0E20 compiled 4bpp bytes, or 113 characters, for the first scratch image; bytes beyond the native overlapping-copy extent must remain zero.</summary>
     public const int FirstByteCount = 3616;

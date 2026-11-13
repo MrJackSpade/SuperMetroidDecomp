@@ -24,6 +24,8 @@ using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
+using SuperMetroid.Core.Frontend.FileSelect.Artwork;
+using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
@@ -60,10 +62,19 @@ public static class MapPresentationFiles
     ];
 
     /// <summary>
-    /// The installed documents only the import reads with the pages, which the game's read leaves unread: the map sprites'
-    /// compositions and the title floor's map, read together with their pages.
+    /// The component's documents only the import reads whose entries are the original's packed tile placements (#1638), which
+    /// the extraction writes to its import-data directory beside the pages: the installation never holds them. The manifest
+    /// lists their hashes beside the installed documents'.
     /// </summary>
-    private static readonly string[] ImportCompositionFiles = [MapSpriteFormat.JsonFile, TitleGraphicsFormat.FloorMapFile];
+    internal static readonly string[] ImportDocumentFiles =
+    [
+        FileSelectPresentationFormat.ArtworkFileName, PauseBackdropDefinitions.FileName, PauseWireframeDefinitions.FileName,
+        PauseEquipmentBaseDefinitions.FileName, PauseEquipmentLabelArtworkDefinitions.FileName, PauseReserveUiDefinitions.FileName,
+        RoomFxLayer3TilemapFormat.FileName, GameplayMessageTitleDefinitions.FileName, GameplayMessagePanelDefinitions.FileName,
+        GameplayMessageNoticeDefinitions.FileName, GameplayHudDocumentDefinitions.ArtworkFileName, MapSpriteFormat.JsonFile,
+        TitleGraphicsFormat.FloorMapFile,
+    ];
+
     /// <summary>
     /// The colour documents only the import pre-colours sheets from (#1544), which the extraction writes to the component's
     /// import-data directory beside the pages (#1637), and the game's read leaves unread: the installation never holds them.
@@ -78,8 +89,11 @@ public static class MapPresentationFiles
         CeresRidleyFloorColorFormat.FileName, SamusHyperBeamColorFormat.FileName,
     ];
 
-    /// <summary>Every file of the component's import data: its pages and the colour documents only the import reads.</summary>
-    internal static readonly string[] ImportDataFiles = [.. PageFiles, .. ImportColourFiles];
+    /// <summary>
+    /// Every file of the component's import data: its pages, the colour documents only the import reads and the documents
+    /// holding packed tile placements only the import reads.
+    /// </summary>
+    internal static readonly string[] ImportDataFiles = [.. PageFiles, .. ImportColourFiles, .. ImportDocumentFiles];
 
     /// <summary>
     /// Reads all areas atomically into the catalog the game binds (<see cref="InstalledAreaMapPresentation.Game"/>), beside
@@ -90,7 +104,7 @@ public static class MapPresentationFiles
     {
         using var installed = InstalledMapReader.Open(directory, importData: null);
         GameRead game = ReadGame(installed);
-        installed.RequireAllManifestFilesRead([.. ImportColourFiles, .. ImportCompositionFiles, .. PageFiles]);
+        installed.RequireAllManifestFilesRead([.. ImportColourFiles, .. PageFiles, .. ImportDocumentFiles]);
         return new InstalledAreaMapPresentation(new AreaMapPresentation(game.Parts), game.Sources);
     }
 
@@ -139,18 +153,38 @@ public static class MapPresentationFiles
             Colours(RoomFxPaletteBlendDefinitions.FileName, "room-FX blends", s => RoomFxPaletteBlendFile.Read(s)),
             game.RoomPaletteFx,
             game.MotherBrainRainbow);
+        var documents = new ImportPresentationDocuments(
+            Compile<FileSelectSourcePresentation>([installed.Read(FileSelectPresentationFormat.FileName), installed.Read(FileSelectPresentationFormat.ArtworkFileName)],
+                [FileSelectPresentationFormat.FileName, FileSelectPresentationFormat.ArtworkFileName], installed, "file-select artwork",
+                streams => FileSelectSourcePresentation.Load(streams[0], streams[1])),
+            new PauseScreenArtwork(
+                Document(PauseBackdropDefinitions.FileName, "pause backdrop", s => PauseBackdropPresentation.Load(s)),
+                Document(PauseWireframeDefinitions.FileName, "pause wireframes", s => PauseWireframePresentation.Load(s)),
+                Document(PauseEquipmentBaseDefinitions.FileName, "pause equipment base", s => PauseEquipmentBasePresentation.Load(s)),
+                Document(PauseEquipmentLabelArtworkDefinitions.FileName, "pause equipment labels", s => PauseEquipmentLabelPresentation.Load(s)),
+                Document(PauseReserveUiDefinitions.FileName, "reserve UI presentation", s => PauseReserveUiFile.Read(s))),
+            Document(RoomFxLayer3TilemapFormat.FileName, "room-FX presentation", s => RoomFxLayer3Pages.Load(s)),
+            new GameplayMessageArtwork(
+                Document(GameplayMessageTitleDefinitions.FileName, "gameplay-message titles", s => GameplayMessageTitlePresentation.Load(s)),
+                Document(GameplayMessagePanelDefinitions.FileName, "gameplay-message panels", s => GameplayMessagePanelPresentation.Load(s)),
+                Document(GameplayMessageNoticeDefinitions.FileName, "gameplay-message notices", s => GameplayMessageNoticePresentation.Load(s))),
+            Document(GameplayHudDocumentDefinitions.ArtworkFileName, "gameplay HUD presentation", s => GameplayHudPresentationFile.Read(s)));
         installed.RequireAllManifestFilesRead([]);
-        return new ImportAreaMapPresentation(new AreaMapPresentation(game.Parts), game.Sources, characters, colours);
+        return new ImportAreaMapPresentation(new AreaMapPresentation(game.Parts), game.Sources, characters, colours, documents);
 
         // The import's colours and characters are not part of the presentation's identity: the game reads none of them,
         // and the sheets composed from them carry their own.
         T Colours<T>(string file, string description, Func<Stream, T> compile) where T : class =>
             Compile<T>([installed.Read(file)], [file], installed, description, streams => compile(streams[0]));
 
+        // An import-only document is read from the import data (#1638).
+        T Document<T>(string file, string description, Func<Stream, T> compile) where T : class =>
+            Compile<T>([installed.Read(file)], [file], installed, description, streams => compile(streams[0]));
+
         T Page<T>(string file, string description, Func<Stream, T> compile) where T : class =>
             Pages<T>([file], description, streams => compile(streams[0]));
 
-        // A page is read from the import data and a composition read with it from the documents (#1636).
+        // A page is read from the import data (#1636), and so is the composition read with it (#1638).
         T Pages<T>(string[] files, string description, Func<Stream[], T> compile) where T : class =>
             Compile(files.Select(installed.Read).ToArray(), files, installed, description, compile);
     }
@@ -196,21 +230,13 @@ public static class MapPresentationFiles
         MapSaveMarkerPositions saveMarkers = Resource(MapSaveMarkerFormat.FileName, "save markers", s => MapSaveMarkerFile.Read(s));
         MapArrowPresentation arrows = Resource(MapArrowFormat.FileName, "map arrows", s => MapArrowFile.Read(s));
         MapScreenPresentation screens = Resource(MapScreenDefinitions.FileName, "map screens", s => MapScreenPresentation.Load(s));
-        PauseBackdropPresentation pauseBackdrops = Resource(PauseBackdropDefinitions.FileName, "pause backdrop", s => PauseBackdropPresentation.Load(s));
         PauseSelectorSourcePresentation pauseSelectors = Resource(PauseSelectorFormat.FileName, "pause selectors", s => PauseSelectorSourcePresentation.Load(s));
-        PauseWireframePresentation pauseWireframes = Resource(PauseWireframeDefinitions.FileName, "pause wireframes", s => PauseWireframePresentation.Load(s));
         PauseReserveTankSourcePresentation pauseReserveTanks = Resource(PauseReserveTankFormat.FileName, "reserve tank presentation", s => PauseReserveTankSourcePresentation.Load(s));
-        PauseReserveUiPresentation pauseReserveUi = Resource(PauseReserveUiDefinitions.FileName, "reserve UI presentation", s => PauseReserveUiFile.Read(s));
-        PauseEquipmentBasePresentation pauseEquipmentBase = Resource(PauseEquipmentBaseDefinitions.FileName, "pause equipment base", s => PauseEquipmentBasePresentation.Load(s));
-        PauseEquipmentLabelPresentation pauseEquipmentLabels = Resource(PauseEquipmentLabelArtworkDefinitions.FileName, "pause equipment labels", s => PauseEquipmentLabelPresentation.Load(s));
         EscapeTimerPresentation escapeTimer = Resource(EscapeTimerLayoutDefinitions.FileName, "escape timer presentation", s => EscapeTimerPresentationFile.Load(s));
-        GameplayHudArtwork gameplayHud = Resource(GameplayHudDocumentDefinitions.FileName, "gameplay HUD presentation", s => GameplayHudPresentationFile.Read(s));
+        GameplayHudPresentation gameplayHud = Resource(GameplayHudDocumentDefinitions.FileName, "gameplay HUD layout", s => GameplayHudLayoutFile.Read(s));
         GameOverSourcePresentation gameOver = Resource(GameOverPresentationFormat.FileName, "game-over presentation", s => GameOverSourcePresentation.Load(s));
         GameOptionsSourcePresentation gameOptions = Resource(GameOptionsPresentationFormat.FileName, "options-menu presentation", s => GameOptionsSourcePresentation.Load(s));
-        FileSelectSourcePresentation fileSelect = Resource(FileSelectPresentationFormat.FileName, "file-select presentation", s => FileSelectSourcePresentation.Load(s));
-        GameplayMessageTitlePresentation gameplayMessageTitles = Resource(GameplayMessageTitleDefinitions.FileName, "gameplay-message titles", s => GameplayMessageTitlePresentation.Load(s));
-        GameplayMessagePanelPresentation gameplayMessagePanels = Resource(GameplayMessagePanelDefinitions.FileName, "gameplay-message panels", s => GameplayMessagePanelPresentation.Load(s));
-        GameplayMessageNoticePresentation gameplayMessageNotices = Resource(GameplayMessageNoticeDefinitions.FileName, "gameplay-message notices", s => GameplayMessageNoticePresentation.Load(s));
+        FileSelectPresentation fileSelect = Resource(FileSelectPresentationFormat.FileName, "file-select presentation", s => FileSelectSourcePresentation.ReadLayout(s));
         EscapeTypewriterPresentation escapeTypewriter = Resource(EscapeTypewriterDocumentDefinitions.FileName, "escape typewriter", s => EscapeTypewriterPresentationFile.Load(s));
         IntroNarrationPresentation introNarration = Resource(IntroNarrationFile.FileName, "intro narration", s => IntroNarrationFile.Read(s));
         EndingTextPresentation endingText = Resource(EndingTextDefinitions.FileName, "ending text", s => EndingTextPresentation.Load(s));
@@ -218,15 +244,14 @@ public static class MapPresentationFiles
         TitleGradientPresentation titleGradient = Resource(TitleGradientFile.FileName, "title gradient", s => TitleGradientFile.Read(s));
         RoomPaletteFxPresentation roomPaletteFx = Resource(RoomPaletteFxPresentationFormat.FileName, "room palette effects", s => RoomPaletteFxPresentationFile.Read(s));
         InstalledMotherBrainRainbowPalette motherBrainRainbowPalette = Resource(MotherBrainRainbowPaletteFile.FileName, "Mother Brain rainbow palette", s => MotherBrainRainbowPaletteFile.Read(s));
-        RoomFxLayer3Pages roomFxLayer3Tilemaps = Resource(RoomFxLayer3TilemapFormat.FileName, "room-FX presentation", s => RoomFxLayer3Pages.Load(s));
         InstalledPowerBombGlowColors powerBombGlowColors = Resource(PowerBombGlowColorFile.FileName, "Power Bomb glow colours", s => PowerBombGlowColorFile.Read(s));
         CeresRidleyGetawayBoostDelays ceresRidleyGetawayBoostDelays = Resource(CeresRidleyGetawayBoostDelayFormat.FileName, "Ceres Ridley getaway boost delays", s => CeresRidleyGetawayBoostDelayFiles.Read(s));
-        return new GameRead(new AreaMapPresentationParts { Areas = areas, ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()), HighlightCycle = cycle.Timing, Backdrops = sceneColours.Menus, Labels = labels, Stations = stations, Landmarks = landmarks, SaveMarkers = saveMarkers, Arrows = arrows, PauseSelectors = pauseSelectors.Presentation, PauseReserveTanks = pauseReserveTanks.Presentation, EscapeTimer = escapeTimer, GameplayHud = gameplayHud.Presentation, GameOver = gameOver.Presentation, GameOptions = gameOptions.Presentation, FileSelect = fileSelect.Presentation, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, EndingText = endingText.Typewriter(), TitleBackdrop = sceneColours.TitleBackdrop, TitleGradient = titleGradient, EndingSpaceBackdrops = EndingSpaceBackdropColours.From(roomPaletteFx), MotherBrainRainbowPalette = motherBrainRainbowPalette.Beam, CeresHaze = sceneColours.CeresHaze, PowerBombGlowColors = powerBombGlowColors, CeresRidleyGetawayBoostDelays = ceresRidleyGetawayBoostDelays },
+        return new GameRead(new AreaMapPresentationParts { Areas = areas, ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()), HighlightCycle = cycle.Timing, Backdrops = sceneColours.Menus, Labels = labels, Stations = stations, Landmarks = landmarks, SaveMarkers = saveMarkers, Arrows = arrows, PauseSelectors = pauseSelectors.Presentation, PauseReserveTanks = pauseReserveTanks.Presentation, EscapeTimer = escapeTimer, GameplayHud = gameplayHud, GameOver = gameOver.Presentation, GameOptions = gameOptions.Presentation, FileSelect = fileSelect, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, EndingText = endingText.Typewriter(), TitleBackdrop = sceneColours.TitleBackdrop, TitleGradient = titleGradient, EndingSpaceBackdrops = EndingSpaceBackdropColours.From(roomPaletteFx), MotherBrainRainbowPalette = motherBrainRainbowPalette.Beam, CeresHaze = sceneColours.CeresHaze, PowerBombGlowColors = powerBombGlowColors, CeresRidleyGetawayBoostDelays = ceresRidleyGetawayBoostDelays },
             new InstalledPresentationSources(
-                new GameplayMessageArtwork(gameplayMessageTitles, gameplayMessagePanels, gameplayMessageNotices), roomFxLayer3Tilemaps, staffCredits,
-                endingText, screens, new PauseScreenArtwork(pauseBackdrops, pauseWireframes, pauseEquipmentBase, pauseEquipmentLabels, pauseReserveUi),
+                staffCredits,
+                endingText, screens,
                 cycle, pauseSelectors, pauseReserveTanks,
-                gameplayHud, gameOptions, fileSelect) { GameOver = gameOver }, roomPaletteFx, motherBrainRainbowPalette);
+                gameOptions) { GameOver = gameOver }, roomPaletteFx, motherBrainRainbowPalette);
 
         T Resource<T>(string file, string description, Func<Stream, T> compile) where T : class =>
             MultiFileResource<T>([file], description, streams => compile(streams[0]));
@@ -336,8 +361,8 @@ public static class MapPresentationFiles
         public string PathOf(string file) => Path.GetFullPath(Path.Combine(DirectoryOf(file), file));
 
         /// <summary>
-        /// The directory <paramref name="file"/> is read from: the import data for a page (#1636) or an import colour document
-        /// (#1637), the component's directory for an installed document.
+        /// The directory <paramref name="file"/> is read from: the import data for a page (#1636), an import colour document
+        /// (#1637) or an import-only document (#1638), the component's directory for an installed document.
         /// </summary>
         /// <exception cref="InvalidOperationException">The file is import data and this read is the game's, which reads none.</exception>
         private string DirectoryOf(string file) => !ImportDataFiles.Contains(file) ? directory

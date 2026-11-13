@@ -32,7 +32,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
 
     /// <summary>Compares 34 installed frames and 102 ordered tilemap writes with ROM, then checks guarded rendering.</summary>
     internal static void VerifyInstalledDraygonBg2Frames(
-        SuperMetroidAddressSpace rom, string stockDirectory,
+        SuperMetroidAddressSpace rom, string extractedDirectory,
         ImportEnemyArtwork stock)
     {
         AssertTrue(stock.Bosses.DraygonBg2Frames is not null,
@@ -96,7 +96,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         Suite(nameof(VerifyCompiledSporeSpawnCollision), () => VerifyCompiledSporeSpawnCollision(rom));
 
         EnemyBg2FrameDocument document =
-            RequiredJson.Deserialize<EnemyBg2FrameDocument>(File.ReadAllBytes(Path.Combine(stockDirectory, DraygonBg2FrameDefinitions.FileName)),
+            RequiredJson.Deserialize<EnemyBg2FrameDocument>(File.ReadAllBytes(Path.Combine(extractedDirectory, DraygonBg2FrameDefinitions.FileName)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         EnemyFrameName firstIdentity = DraygonBg2FrameDefinitions.Frames[0];
         EnemyBg2WriteDocument first = document.Frames[firstIdentity.Name][0];

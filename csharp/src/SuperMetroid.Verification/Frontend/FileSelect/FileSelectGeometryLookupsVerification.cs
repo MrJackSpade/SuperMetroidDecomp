@@ -21,10 +21,10 @@ internal static class FileSelectGeometryLookupsVerification
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)),
             "file select geometry oracle revision");
-        byte[] bytes = FileSelectPresentationExtractor.Extract(rom);
-        FileSelectPresentation presentation = FileSelectSourcePresentation.Load(new MemoryStream(bytes)).Presentation;
-        FileSelectPresentationDocument document = RequiredJson.Deserialize<FileSelectPresentationDocument>(
-            bytes, ArtworkJson.Options);
+        FileSelectExtraction extraction = FileSelectPresentationExtractor.Extract(rom);
+        FileSelectPresentation presentation = FileSelectSourcePresentation.Load(extraction).Presentation;
+        FileSelectLayoutDocument document = RequiredJson.Deserialize<FileSelectLayoutDocument>(
+            extraction.Layout, ArtworkJson.Options);
         Suite(nameof(VerifyFileSelectMainCursorY), () => VerifyFileSelectMainCursorY(rom, presentation));
         Suite(nameof(VerifyFileSelectDataCursorY), () => VerifyFileSelectDataCursorY(rom, presentation));
         Suite(nameof(VerifyFileSelectHelmetY), () => VerifyFileSelectHelmetY(rom, document));
@@ -61,7 +61,7 @@ internal static class FileSelectGeometryLookupsVerification
     }
 
     /// <summary>Compares three helmet anchors with native immediate operands and extracted artwork positions.</summary>
-    private static void VerifyFileSelectHelmetY(ISnesAddressSpace rom, FileSelectPresentationDocument document)
+    private static void VerifyFileSelectHelmetY(ISnesAddressSpace rom, FileSelectLayoutDocument document)
     {
         AssertEqual(3, FileSelectLayout.SaveSlotCount, "helmet slot count");
         AssertEqual(3, document.HelmetAnchors.Length, "extracted helmet anchor count");

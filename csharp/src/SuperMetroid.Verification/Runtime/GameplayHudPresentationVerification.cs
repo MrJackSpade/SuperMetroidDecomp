@@ -17,13 +17,10 @@ namespace SuperMetroid.Verification.Runtime;
 internal static class GameplayHudPresentationVerification
 {
     /// <summary>Compares stock HUD tiles with native data without live ROM reads.</summary>
-    internal static void VerifyGameplayHudPresentationAssets(ISnesAddressSpace bus, string stock,
+    internal static void VerifyGameplayHudPresentationAssets(ISnesAddressSpace bus,
         AreaMapPresentation original)
     {
-        string stockPath = Path.Combine(stock, GameplayHudDocumentDefinitions.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationExtractor.Extract(bus);
-        AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
-            "installed gameplay HUD JSON is the deterministic cartridge extraction");
         GameplayHudArtwork presentation = GameplayHudPresentationFile.Read(new MemoryStream(extracted));
         ushort[] stockTopRow = BackgroundTileWordBytes.Words(presentation.TopRowTiles());
         for (int column = 0; column < GameplayHudDocumentDefinitions.TopRowCellCount; column++)

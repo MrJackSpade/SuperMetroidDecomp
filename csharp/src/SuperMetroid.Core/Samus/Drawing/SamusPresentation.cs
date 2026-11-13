@@ -80,7 +80,7 @@ internal sealed class SamusPresentation
     /// literal animation values without calling ordinary pose initialization.
     /// </summary>
     /// <remarks>
-    /// Drained-controller functions one and four do exactly that.
+    /// Standing drained Samus up and putting her back into the drained crouch do exactly that.
     /// The game's animation pass resolves the animation from Pose every call, whereas
     /// this model caches it as a consistency check. This narrow method updates only that
     /// cache plus the controller's explicit writes; it intentionally does not recompute the

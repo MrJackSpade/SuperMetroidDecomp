@@ -353,8 +353,8 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
             }
         }
 
-        // It then clears the solid-vertical collision result, so the transition command
-        // never selects the hit-ceiling command for a transition pose: a blocked rise
+        // It then clears the solid-vertical collision result, so the pose transition
+        // never selects the ceiling hit for a transition pose: a blocked rise
         // keeps its upward speed, which the next frame's speed calculation keeps decaying.
         return new MorphBallMovementResult(vertical, landed, HitCeiling: false);
     }
@@ -423,7 +423,7 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
             samus.HorizontalSpeed);
         BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
         // No-speed Y movement can still go UP when a platform carries Samus. The
-        // game publishes the same deferred ceiling command as a velocity-driven
+        // game publishes the same deferred ceiling hit as a velocity-driven
         // jump. Its speed/direction writes belong to the later winning transition.
         hitCeiling = displacement.IsNegative && result.Collided;
         return result;

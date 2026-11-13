@@ -16,7 +16,7 @@ public sealed class SamusProjectileTrailSide
     public ProjectileTrailFrame? ShownPose { get; internal set; }
     /// <summary>
     /// Room-pixel position the side shows this frame: <see cref="Position"/> when the side last advanced. The trail update
-    /// draws each side right after advancing it, so a sibling's later move command shows only on the next frame.
+    /// draws each side right after advancing it, so a sibling's later move shows only on the next frame.
     /// </summary>
     public Position16<RoomPixels> DisplayedPosition { get; internal set; }
 }

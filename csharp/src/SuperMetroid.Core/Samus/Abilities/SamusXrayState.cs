@@ -104,7 +104,7 @@ public sealed class SamusXrayState
     public XrayVisorPaletteMode VisorPaletteMode { get; private set; }
 
     /// <summary>
-    /// The special suit colouring X-ray runs: X-ray's once the visor command starts it, none after teardown
+    /// The special suit colouring X-ray runs: X-ray's once the visor starts it, none after teardown
     /// restores the suit colours or another colouring takes over.
     /// </summary>
     public SamusSpecialPaletteType SpecialPaletteKind { get; private set; }

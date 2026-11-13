@@ -1157,7 +1157,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         BotwoonBehavior.AddBotwoonBombReactions(table);
         RidleyInteractions.AddRidleyBombReactions(table);
         ShaktoolBehavior.AddShaktoolBombReactions(table);
-        ShuttersBehavior.AddDestroyableShutterBombReactions(table);
+        ShuttersBehavior.AddDestroyableAndHorizontalShutterBombReactions(table);
         EvirBehavior.AddEvirBombReactions(table);
         YappingMawBehavior.AddYappingMawBombReactions(table);
         KagoBehavior.AddKagoBombReactions(table);

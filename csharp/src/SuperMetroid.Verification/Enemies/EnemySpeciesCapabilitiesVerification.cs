@@ -69,7 +69,8 @@ internal static class EnemySpeciesCapabilitiesVerification
 
     /// <summary>
     /// The named private shot callbacks each definition owned in the removed catalog, plus the Metroid's, which its entity
-    /// already answered; every definition not listed owns no named callback.
+    /// already answered, and the horizontal shutter's, which the bomb pass runs (#1718); every definition not listed owns no
+    /// named callback.
     /// </summary>
     private static Dictionary<EnemyDefinitionId, EnemyReaction[]> ExpectedNamedShotCallbacks()
     {
@@ -85,6 +86,7 @@ internal static class EnemySpeciesCapabilitiesVerification
             [EnemyDefinitionId.ShutterShootable] = [EnemyReaction.ShootableVerticalShutterShot],
             [EnemyDefinitionId.Kamer] = [EnemyReaction.ShootableVerticalShutterShot],
             [EnemyDefinitionId.ShutterDestroyable] = [EnemyReaction.DestroyableVerticalShutterShot],
+            [EnemyDefinitionId.ShutterHorizShootable] = [EnemyReaction.HorizontalShutterShot],
             [EnemyDefinitionId.Metaree] = [EnemyReaction.MetareeShot],
             [EnemyDefinitionId.Fireflea] = [EnemyReaction.FirefleaShot],
             [EnemyDefinitionId.Tripper] = [EnemyReaction.TripperShot],

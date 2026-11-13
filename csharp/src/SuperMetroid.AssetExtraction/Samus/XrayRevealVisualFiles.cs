@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Rooms.Xray;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -20,16 +21,17 @@ namespace SuperMetroid.AssetExtraction.Samus;
 [EncodingOwner("retail X-ray reveal table words")]
 public static class XrayRevealVisualFiles
 {
-    /// <summary>Family-relative version-four installed JSON filename for reveal-rule operands, the extension exit block, four tank metatiles, and special-room overlay records.</summary>
+    /// <summary>Family-relative version-five installed JSON filename for reveal-rule operands, the extension exit block, four tank metatiles, and special-room overlay records.</summary>
     public const string VisualFileName = "reveals.json";
-    /// <summary>Stock manifest filename containing version-four format, caller-supplied cartridge provenance, and the reveal JSON's SHA-256.</summary>
+    /// <summary>Stock manifest filename containing version-five format, caller-supplied cartridge provenance, and the reveal JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
     /// <summary>
     /// Schema revision that includes rule operands, tank metatiles, and room-overlay records: revision 3 holds the four tanks'
     /// reveal blocks alone, every other item being revealed as its kind's own picture (#1538); revision 4 holds the block an
-    /// extension chain leaving the room backward shows, which the game kept a compiled copy of (#1615).
+    /// extension chain leaving the room backward shows, which the game kept a compiled copy of (#1615); revision 5 names each
+    /// room overlay by its overlay instead of the cartridge pointer of its list (#1623).
     /// </summary>
-    private const int FormatVersion = 4;
+    private const int FormatVersion = 5;
 
     /// <summary>
     /// The block the cartridge's extension traversal writes when a chain's next step leaves the room backward, at
@@ -107,8 +109,8 @@ public static class XrayRevealVisualFiles
         }
         RoomBlockAppearance[] tankMetatiles = Enumerable.Range(CollectibleBlockPairs.InTurn.Count, InstalledXrayOverlays.TankCount)
             .Select(index => ItemDrawAppearance(bus, index)).ToArray();
-        XrayRoomOverlayEntry[] rooms = XrayRoomOverlaySources.Pointers
-            .Select(pointer => ReadRoomOverlay(bus, pointer)).ToArray();
+        XrayRoomOverlayEntry[] rooms = XrayRoomOverlayDefinitions.All
+            .Select(overlay => ReadRoomOverlay(bus, overlay)).ToArray();
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(
             new XrayRevealVisualDocument(FormatVersion, entries, ExtensionExitBlock, tankMetatiles, rooms),
             JsonOptions);
@@ -121,7 +123,7 @@ public static class XrayRevealVisualFiles
             new XrayRevealVisualManifest(FormatVersion, sourceCartridgeSha256), JsonOptions);
     }
 
-    /// <summary>Validates the installed version-four X-ray presentation as the player left it, retaining native rule selection, copy geometry, extensions, and area gating.</summary>
+    /// <summary>Validates the installed version-five X-ray presentation as the player left it, retaining native rule selection, copy geometry, extensions, and area gating.</summary>
     /// <param name="directory">Family directory containing the installed reveal JSON and its provenance manifest.</param>
     /// <returns>A ROM-independent catalog with copied rule operands, the extension exit block, four tank reveals, and ordered special-room tile lists.</returns>
     /// <remarks>Loading does not repeat cartridge reads. Strict JSON rejects unknown/missing constructor properties. Every entry must name a compiled drawable rule with its shape, every drawable rule must be covered once, and the special rooms keep their identities; blocks, appearances, tile lists and byte-range room coordinates may change.</remarks>
@@ -149,7 +151,7 @@ public static class XrayRevealVisualFiles
                 mappings.Add(new XrayRevealVisualDefinition(entry.CollisionType, RoomBlockBehaviorCodec.Decode(value).Reaction, visual));
         }
         var overlays = new InstalledXrayOverlays(document.TankMetatiles,
-            document.Rooms.Select(room => new XrayRoomOverlayTiles(XrayRoomOverlaySources.Overlay(checked((ushort)room.Pointer)),
+            document.Rooms.Select(room => new XrayRoomOverlayTiles(OverlayNamed(room.Overlay),
                 room.Tiles.Select(tile =>
                     new XrayRoomOverlayVisual(tile.Block, RoomBlockAppearance.Of(tile.Appearance.Block, tile.Appearance.Mirroring))).ToArray())));
         return new InstalledXrayReveals(mappings, overlays, document.ExtensionExitBlock);
@@ -163,15 +165,14 @@ public static class XrayRevealVisualFiles
             document.TankMetatiles.Length != InstalledXrayOverlays.TankCount ||
             document.Rooms.Any(room => room is null))
             throw new InvalidDataException($"X-ray visuals {path} have an incompatible format.");
-        ushort[] nativePointers = XrayRoomOverlaySources.Pointers.ToArray();
-        if (!document.Rooms.Select(room => room.Pointer).SequenceEqual(nativePointers.Select(pointer => (int)pointer)))
+        if (!document.Rooms.Select(room => room.Overlay).SequenceEqual(XrayRoomOverlayDefinitions.All.Select(overlay => overlay.Name), StringComparer.Ordinal))
             throw new InvalidDataException($"X-ray visuals {path} changed room-overlay identities.");
         foreach (XrayRoomOverlayEntry room in document.Rooms)
         {
             if (room.Tiles is null || room.Tiles.Length == 0 ||
                 room.Tiles.Any(tile => tile is null))
                 throw new InvalidDataException(
-                    $"X-ray visuals {path} contain an invalid room overlay ${room.Pointer:X4}.");
+                    $"X-ray visuals {path} contain an invalid room overlay {room.Overlay}.");
         }
         foreach (XrayRevealVisualEntry entry in document.Entries)
         {
@@ -282,9 +283,13 @@ public static class XrayRevealVisualFiles
         TableEnd = 0xffff,
     }
 
-    /// <summary>Reads ordered block-coordinate/metatile pairs from bank $8F until the required zero terminator.</summary>
-    private static XrayRoomOverlayEntry ReadRoomOverlay(ISnesAddressSpace bus, int pointer)
+    /// <summary>
+    /// Reads <paramref name="overlay"/>'s ordered block-coordinate/metatile pairs from its bank-$8F list until the required
+    /// zero terminator.
+    /// </summary>
+    private static XrayRoomOverlayEntry ReadRoomOverlay(ISnesAddressSpace bus, XrayRoomOverlayDefinition overlay)
     {
+        int pointer = XrayRoomOverlaySources.PointerOf(overlay);
         var tiles = new List<XrayRoomOverlayTileDocument>();
         for (int cursor = pointer; cursor <= ushort.MaxValue - 3; cursor += 4)
         {
@@ -293,7 +298,7 @@ public static class XrayRevealVisualFiles
             {
                 if (tiles.Count == 0)
                     throw new InvalidDataException($"X-ray room overlay ${pointer:X4} is empty.");
-                return new XrayRoomOverlayEntry(pointer, tiles.ToArray());
+                return new XrayRoomOverlayEntry(overlay.Name, tiles.ToArray());
             }
             int word = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.XrayRoomOverlayBank.Value | (cursor + 2)));
             RoomTerrainBlock decoded = RoomLevelWordCodec.Decode(checked((ushort)word));
@@ -305,6 +310,10 @@ public static class XrayRevealVisualFiles
         }
         throw new InvalidDataException($"X-ray room overlay ${pointer:X4} has no terminator.");
     }
+
+    /// <summary>The retail overlay an installed room entry names, which <see cref="ValidateStructure"/> has required.</summary>
+    private static XrayRoomOverlayDefinition OverlayNamed(string name) =>
+        XrayRoomOverlayDefinitions.All.Single(overlay => string.Equals(overlay.Name, name, StringComparison.Ordinal));
 
     /// <summary>Reads an installed file before applying strict X-ray JSON deserialization.</summary>
     private static T ReadJson<T>(string path) where T : class =>
@@ -337,12 +346,10 @@ public static class XrayRevealVisualFiles
     /// <param name="BottomRight">The bottom-right block number, or zero when the shape has none.</param>
     private sealed record XrayRevealVisualEntry(RoomCollisionType CollisionType, int[] BehaviorValues,
         string Shape, int TopLeft, int TopRight, int BottomLeft, int BottomRight);
-    /// <summary>One bank-$8F special-room list and its ordered editable block records.</summary>
-    private sealed record XrayRoomOverlayEntry(int Pointer, XrayRoomOverlayTileDocument[] Tiles)
-    {
-        /// <summary>The room overlay list's identity, 0 through 65535.</summary>
-        public int Pointer { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, Pointer);
-    }
+    /// <summary>One room-specific overlay, named by its overlay, and its ordered editable block records.</summary>
+    /// <param name="Overlay">The overlay's name in <see cref="XrayRoomOverlayDefinitions"/>.</param>
+    /// <param name="Tiles">The overlay's block records, in order.</param>
+    private sealed record XrayRoomOverlayEntry(string Overlay, XrayRoomOverlayTileDocument[] Tiles);
 
     /// <summary>Requires explicit X/Y JSON bytes so omitted coordinates cannot become a legal default block.</summary>
     /// <remarks>Keep file admission separate from the runtime value type. A missing coordinate must not become the

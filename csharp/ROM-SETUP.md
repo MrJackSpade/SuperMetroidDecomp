@@ -1061,8 +1061,8 @@ and Power Bomb tanks' reveal blocks; every other item is revealed as the first
 of its own pictures) and `rooms` with special reveal tiles.
 Each room tile's `x`, `y`, and `word` are visual-only: the first two are block
 coordinates, and the word's low ten bits select a metatile while bit 11 selects
-the cartridge's vertical row swap. Keep room pointers and record counts intact;
-they identify which compiled room state owns each list. Installed hosts use
+the cartridge's vertical row swap. Keep each room's `overlay` name and the
+list of rooms intact; the name identifies which overlay a room state shows. Installed hosts use
 these entries without reading the item draw table or room overlay records from
 the ROM during X-ray setup.
 

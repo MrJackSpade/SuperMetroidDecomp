@@ -16,33 +16,18 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 public static class SamusArmCannonArtworkFiles
 {
-    /// <summary>Companion file recording cartridge provenance and hashes of the stock placement and tile assets.</summary>
-    private const string ManifestFileName = "samus-arm-cannon-manifest.json";
-    /// <summary>Strict camel-case JSON options shared by the arm-cannon manifest reader and writer.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        RespectRequiredConstructorParameters = true,
-        WriteIndented = true,
-    };
-
     /// <summary>Exports each pose's selector by the pose's name, bounded bank-$90 drawing descriptors, ten direction styles/tile lists, and twelve cannon-cover characters.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for cover placement/OBJ attributes and bank-$9A character pixels.</param>
-    /// <param name="directory">Artwork directory, created if absent; the companion manifest is overwritten, and <see cref="Install"/> writes the layout.</param>
-    /// <param name="importData">The import-data directory receiving the extracted document (#1638) and the 96-by-8 indexed cover page (#1636), which only the import reads.</param>
-    /// <param name="sourceCartridgeSha256">Caller-supplied provenance hash recorded verbatim.</param>
+    /// <param name="importData">The import-data directory receiving the extracted document (#1638) and the 96-by-8 indexed cover page (#1636), which only the import reads; <see cref="Install"/> writes the layout, and no manifest is written (#1693).</param>
     /// <remarks>The sixteen-color PNG palette is diagnostic. Writes are separate and not rolled back if a later write fails.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="ArgumentException">The directory is blank or the address space lacks cartridge import access.</exception>
     /// <exception cref="InvalidDataException">A direction's cartridge tile list uploads a closed-cover tile or names a source that is no installed cover tile.</exception>
     /// <exception cref="IOException">Filesystem output fails.</exception>
-    public static void Extract(ISnesAddressSpace bus, string directory, string importData, string sourceCartridgeSha256)
+    public static void Extract(ISnesAddressSpace bus, string importData)
     {
         Ensure.NotNull(bus);
-        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(importData);
-        Directory.CreateDirectory(directory);
         Directory.CreateDirectory(importData);
         // The pose table is read by the cartridge's pose numbers and installed by pose name (#1595).
         Dictionary<SamusPoseId, int> descriptors = SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose,
@@ -94,9 +79,6 @@ public static class SamusArmCannonArtworkFiles
         byte[] json = SamusArmCannonSourceArtwork.Write(document);
         File.WriteAllBytes(Path.Combine(importData, SamusArmCannonArtworkFormat.TileFileName), png);
         File.WriteAllBytes(Path.Combine(importData, SamusArmCannonArtworkFormat.ArtworkFileName), json);
-        File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
-            JsonSerializer.SerializeToUtf8Bytes(new Manifest(
-                SamusArmCannonArtworkFormat.Version, sourceCartridgeSha256), JsonOptions));
     }
 
     /// <summary>
@@ -115,49 +97,30 @@ public static class SamusArmCannonArtworkFiles
     }
 
     /// <summary>
-    /// Validates the manifest's provenance and loads what the game binds of the installed arm cannon, as the player may have
-    /// edited it: each pose's drawing order, directions and displacements (#1638). No descriptor, appearance or character
-    /// page is read.
+    /// Loads what the game binds of the installed arm cannon, as the player may have edited it: each pose's drawing order,
+    /// directions and displacements (#1638). No descriptor, appearance, character page or manifest (#1693) is read.
     /// </summary>
-    /// <param name="directory">Artwork directory containing the required layout JSON and pinned-cartridge manifest.</param>
-    /// <exception cref="InvalidDataException">Manifest compatibility, strict JSON or the tables are invalid; admission errors identify the offending filename.</exception>
+    /// <param name="directory">Artwork directory containing the required layout JSON.</param>
+    /// <exception cref="InvalidDataException">Strict JSON or the tables are invalid; admission errors identify the offending filename.</exception>
     /// <exception cref="IOException">A required installed file cannot be read.</exception>
     public static SamusArmCannonLayout Load(string directory)
     {
-        RequireManifest(directory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         return SamusArtworkFile.Read(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName)).Compile(SamusArmCannonLayout.Read);
     }
 
     /// <summary>
     /// Loads the arm cannon as the import reads it (#1638): the extracted document, with its cover appearances and tile
-    /// selections, from the import data <paramref name="importData"/>, under the manifest in <paramref name="directory"/>.
+    /// selections, from the import data <paramref name="importData"/>.
     /// </summary>
-    /// <param name="directory">Artwork directory containing the pinned-cartridge manifest.</param>
     /// <param name="importData">The component's import-data directory, holding the extracted document.</param>
-    /// <exception cref="InvalidDataException">Manifest compatibility, strict JSON, selectors or appearances are invalid; admission errors identify the offending filename.</exception>
+    /// <exception cref="InvalidDataException">Strict JSON, selectors or appearances are invalid; admission errors identify the offending filename.</exception>
     /// <exception cref="IOException">A required file cannot be read.</exception>
-    public static SamusArmCannonSourceArtwork LoadForImport(string directory, string importData)
+    public static SamusArmCannonSourceArtwork LoadForImport(string importData)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(importData);
-        RequireManifest(directory);
         return SamusArmCannonSourceArtwork.FromPlacement(SamusArtworkFile.Read(Path.Combine(importData, SamusArmCannonArtworkFormat.ArtworkFileName))
             .Compile(SamusArmCannonSourceArtwork.LoadPlacement));
-    }
-
-    /// <summary>Requires the manifest in <paramref name="directory"/> to name this format and the pinned cartridge.</summary>
-    /// <exception cref="InvalidDataException">The manifest names another format or source; the error names its file.</exception>
-    private static void RequireManifest(string directory)
-    {
-        SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(directory, ManifestFileName));
-        Manifest manifest = manifestFile.Json<Manifest>(JsonOptions);
-        manifestFile.WithContext(() =>
-        {
-            if (manifest.Version != SamusArmCannonArtworkFormat.Version ||
-                !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
-                    StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException("Arm-cannon manifest does not match the pinned cartridge.");
-            return manifest;
-        });
     }
 
     /// <summary>Loads the cover characters of <paramref name="cannon"/> from the import's page in <paramref name="importData"/> (#1636).</summary>
@@ -171,7 +134,4 @@ public static class SamusArmCannonArtworkFiles
             .Compile(stream => RoomCharacterAtlasPng.Read(stream,
                 SamusArmCannonArtworkFormat.CoverTileCount * SamusArmCannonArtworkFormat.CoverTileByteCount)));
     }
-
-    /// <summary>Expected schema, cartridge revision, placement JSON hash, and indexed PNG hash for stock art.</summary>
-    private sealed record Manifest(int Version, string SourceCartridgeSha256);
 }

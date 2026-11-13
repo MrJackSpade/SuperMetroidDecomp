@@ -18,7 +18,8 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class RoomObjectFrameImageFiles
 {
     /// <summary>The installed document's format; a document naming another is rejected and the content is extracted again.</summary>
-    internal const int FormatVersion = 2;
+    /// <remarks>Revision 3 names no cartridge (#1693): the installation receipt does.</remarks>
+    internal const int FormatVersion = 3;
 
     /// <summary>Camel-case field names, mirroring by name and readable output for the installed document.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -58,17 +59,15 @@ internal static class RoomObjectFrameImageFiles
     /// <summary>Pictures every frame of <paramref name="family"/> from the cartridge and writes the installed document.</summary>
     /// <param name="bus">The cartridge the frames' draw lists are read from.</param>
     /// <param name="directory">The family's installed directory, created if absent; its document must not already exist.</param>
-    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the document.</param>
     /// <param name="family">The room object whose frames are pictured.</param>
     /// <exception cref="InvalidDataException">A frame's draw list differs from the geometry or collision the game draws by.</exception>
     /// <exception cref="IOException">The document already exists or cannot be written.</exception>
-    internal static void Extract<TFrame>(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256,
-        RoomObjectFrameFamily<TFrame> family) where TFrame : notnull
+    internal static void Extract<TFrame>(ISnesAddressSpace bus, string directory, RoomObjectFrameFamily<TFrame> family)
+        where TFrame : notnull
     {
         Ensure.NotNull(bus);
         Ensure.NotNull(family);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         var frames = new List<FrameEntry>();
         foreach (TFrame frame in family.Layouts.Keys)
         {
@@ -77,7 +76,7 @@ internal static class RoomObjectFrameImageFiles
                 .Select(cell => new FrameCell(cell.Key.X, cell.Key.Y, cell.Value.Block, cell.Value.Mirroring)).ToArray()));
         }
         Directory.CreateDirectory(directory);
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new FrameDocument(FormatVersion, sourceCartridgeSha256, frames.ToArray()), JsonOptions);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new FrameDocument(FormatVersion, frames.ToArray()), JsonOptions);
         using var output = new FileStream(Path.Combine(directory, family.FileName), FileMode.CreateNew, FileAccess.Write);
         output.Write(json);
     }
@@ -86,7 +85,7 @@ internal static class RoomObjectFrameImageFiles
     /// <param name="directory">The family's installed directory.</param>
     /// <param name="family">The room object whose frames are loaded.</param>
     /// <exception cref="InvalidDataException">
-    /// The document's format or source is not this importer's, a frame is missing, repeated or unknown, or a frame's
+    /// The document's format is not this importer's, a frame is missing, repeated or unknown, or a frame's
     /// picture does not cover exactly the frame's cells.
     /// </exception>
     /// <exception cref="IOException">The document cannot be read.</exception>
@@ -141,10 +140,8 @@ internal static class RoomObjectFrameImageFiles
     /// <summary>Builds the frames' pictures from an installed document, checking every frame covers exactly its cells.</summary>
     private static RoomObjectFrameImages<TFrame> Create<TFrame>(FrameDocument document, RoomObjectFrameFamily<TFrame> family) where TFrame : notnull
     {
-        if (document.Version != FormatVersion ||
-            !string.Equals(document.SourceCartridgeSha256, SupportedCartridge.Sha256, StringComparison.OrdinalIgnoreCase) ||
-            document.Frames is null)
-            throw new InvalidDataException("the document's format or source is not this importer's.");
+        if (document.Version != FormatVersion || document.Frames is null)
+            throw new InvalidDataException("the document's format is not this importer's.");
         var byId = family.Ids.ToDictionary(pair => pair.Value, pair => pair.Key, StringComparer.Ordinal);
         var images = new Dictionary<TFrame, RoomObjectFrameImage>();
         foreach (FrameEntry entry in document.Frames)
@@ -223,8 +220,8 @@ internal static class RoomObjectFrameImageFiles
             ? throw new InvalidDataException("A room-object draw-list word cannot start at the bank's last byte.")
             : CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, pointer));
 
-    /// <summary>The installed document: its format, the cartridge it was pictured from, and every frame's picture.</summary>
-    private sealed record FrameDocument(int Version, string SourceCartridgeSha256, FrameEntry[] Frames);
+    /// <summary>The installed document: its format and every frame's picture.</summary>
+    private sealed record FrameDocument(int Version, FrameEntry[] Frames);
 
     /// <summary>One frame's picture: its published name and every cell it shows.</summary>
     private sealed record FrameEntry(string Id, FrameCell[] Cells);

@@ -25,11 +25,9 @@ public static class SamusDeathPaletteArtworkFiles
     public const string ArtworkFileName = "samus-death-palettes.json";
     /// <summary>Installed JSON filename for the explosion's death steps and the whiteout colours, named by purpose.</summary>
     public const string StepFileName = "samus-death-steps.json";
-    /// <summary>Installed manifest filename recording the format and cartridge provenance of the death-step document.</summary>
-    public const string ManifestFileName = "samus-death-palettes-manifest.json";
-    /// <summary>Schema revision shared by the death documents and the manifest; 2 installs the death steps by purpose (#1637).</summary>
+    /// <summary>Schema revision shared by the death documents; 2 installs the death steps by purpose (#1637).</summary>
     private const int FormatVersion = 2;
-    /// <summary>Strict camel-case JSON settings for the colour artwork, the death steps and the provenance.</summary>
+    /// <summary>Strict camel-case JSON settings for the colour artwork and the death steps.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -45,14 +43,13 @@ public static class SamusDeathPaletteArtworkFiles
     /// <paramref name="directory"/>.
     /// </summary>
     /// <param name="bus">Cartridge source for native death palette pointer tables, sixteen-color payloads, ShadesOfWhite, and odd-byte explosion selectors.</param>
-    /// <param name="directory">The component's directory, created if absent, receiving the death-step document and its manifest.</param>
+    /// <param name="directory">The component's directory, created if absent, receiving the death-step document and no manifest (#1693).</param>
     /// <param name="importData">The component's import-data directory, created if absent, receiving the death-palette document.</param>
-    /// <param name="sourceCartridgeSha256">Caller-supplied provenance recorded verbatim.</param>
     /// <remarks>Suited order is Power, Varia, Gravity. Separate writes are not rolled back if a later write fails.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="ArgumentException">A directory is null, empty, or whitespace.</exception>
     /// <exception cref="IOException">Filesystem output fails.</exception>
-    public static void Extract(ISnesAddressSpace bus, string directory, string importData, string sourceCartridgeSha256)
+    public static void Extract(ISnesAddressSpace bus, string directory, string importData)
     {
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
@@ -92,34 +89,21 @@ public static class SamusDeathPaletteArtworkFiles
             [.. Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount).Select(steps.ExplosionStep)],
             [.. Enumerable.Range(0, SamusPaletteDefinitions.Death.WhiteoutShadeCount).Select(step => PaletteRgb5.From(steps.WhiteoutColour(step)))]),
             JsonOptions));
-        File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
-            JsonSerializer.SerializeToUtf8Bytes(new ArtworkManifest(FormatVersion,
-                sourceCartridgeSha256), JsonOptions));
     }
 
     /// <summary>
-    /// Validates the manifest's provenance and loads the installed death steps, as the player may have edited them: the death
-    /// step each explosion frame shows and the colour the room whitens to at each whiteout step.
+    /// Loads the installed death steps, as the player may have edited them: the death step each explosion frame shows and the
+    /// colour the room whitens to at each whiteout step.
     /// </summary>
-    /// <param name="directory">The component's directory, holding the death-step document and its provenance manifest.</param>
+    /// <param name="directory">The component's directory, holding the death-step document.</param>
     /// <returns>What the game reads of her death sequence; her death colours are pre-coloured on her sheets.</returns>
-    /// <exception cref="InvalidDataException">Provenance, strict JSON, version, counts, steps or channels are invalid; errors identify the file.</exception>
+    /// <exception cref="InvalidDataException">Strict JSON, version, counts, steps or channels are invalid; errors identify the file.</exception>
     /// <exception cref="IOException">A required installed file cannot be read.</exception>
     public static SamusDeathSteps LoadSteps(string directory)
     {
-        SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(directory, ManifestFileName));
-        ArtworkManifest manifest = manifestFile.Json<ArtworkManifest>(JsonOptions);
-        return manifestFile.WithContext(() => LoadInstalledSteps());
-
-        SamusDeathSteps LoadInstalledSteps()
-        {
-            if (manifest.Version != FormatVersion ||
-                !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
-                    StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException("Samus death-palette manifest does not match the pinned cartridge.");
-            SamusArtworkFile installed = SamusArtworkFile.Read(Path.Combine(directory, StepFileName));
-            return installed.WithContext(() => BuildSteps(installed.Json<StepDocument>(JsonOptions)));
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        SamusArtworkFile installed = SamusArtworkFile.Read(Path.Combine(directory, StepFileName));
+        return installed.WithContext(() => BuildSteps(installed.Json<StepDocument>(JsonOptions)));
     }
 
     /// <summary>Loads the import's fatal-damage colour and death-step artwork, which only the import pre-colours her death shades from.</summary>
@@ -183,6 +167,4 @@ public static class SamusDeathPaletteArtworkFiles
     /// colour the room and every other sprite whiten to at each whiteout step.
     /// </summary>
     private sealed record StepDocument(int Version, int[] ExplosionSteps, PaletteRgb5[] Whiteout);
-    /// <summary>The death-step document's provenance.</summary>
-    private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256);
 }

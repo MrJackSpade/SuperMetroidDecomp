@@ -44,9 +44,10 @@ public static class SamusBodyArtworkFiles
     /// cartridge's pose tables, and installs none for the records no pose names (#1595). Revision twelve installs no
     /// character page: the body halves, the arm cannon's cover tiles and the death explosion's characters are import
     /// data (#1636). Revision thirteen installs only what the game binds of the body: the extracted manifest, with its
-    /// spritemaps, and the atmospheric lists and the arm cannon's appearances are import data (#1638).
+    /// spritemaps, and the atmospheric lists and the arm cannon's appearances are import data (#1638). Revision fourteen
+    /// installs the body without the cartridge's digest and the arm cannon and death documents without manifests (#1693).
     /// </summary>
-    private const int FormatVersion = 13;
+    private const int FormatVersion = 14;
     /// <summary>Each split-DMA definition occupies eight 8x8 tiles across its PNG row.</summary>
     private const int TileWidth = 64;
     /// <summary>Two tile rows reserve sixteen graphics tiles for one DMA definition.</summary>
@@ -134,9 +135,9 @@ public static class SamusBodyArtworkFiles
             frames, top, bottom, spritemapTopBases, spritemapBottomBases,
             spritemapEntries, spritemaps, hashes);
         SamusAtmosphericArtworkFiles.Extract(bus, importData, sourceCartridgeSha256);
-        SamusDeathPaletteArtworkFiles.Extract(bus, directory, importData, sourceCartridgeSha256);
-        SamusDeathTileArtworkFiles.Extract(bus, directory, importData, sourceCartridgeSha256);
-        SamusArmCannonArtworkFiles.Extract(bus, directory, importData, sourceCartridgeSha256);
+        SamusDeathPaletteArtworkFiles.Extract(bus, directory, importData);
+        SamusDeathTileArtworkFiles.Extract(bus, importData);
+        SamusArmCannonArtworkFiles.Extract(bus, importData);
         File.WriteAllBytes(Path.Combine(importData, ArtworkFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
         // The import decides once which body frames the sheet pictures, from the frames her animation shows with what it
@@ -146,7 +147,7 @@ public static class SamusBodyArtworkFiles
         InstalledSamusBody installed = LoadForImport(directory, importData).InstalledBody(continuation);
         SamusArmCannonArtworkFiles.Install(directory, installed.ArmCannon);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
-            JsonSerializer.SerializeToUtf8Bytes(new GameManifest(FormatVersion, sourceCartridgeSha256,
+            JsonSerializer.SerializeToUtf8Bytes(new GameManifest(FormatVersion,
                 SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose,
                     pose => new PoseFrames(installed.GraphicsYOffset(pose), installed.FramesOf(pose).ToDictionary()))), JsonOptions));
     }
@@ -166,9 +167,7 @@ public static class SamusBodyArtworkFiles
         SamusArmCannonLayout armCannon = SamusArmCannonArtworkFiles.Load(directory);
         return manifestFile.WithContext(() =>
         {
-            if (manifest.Version != FormatVersion ||
-                !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256, StringComparison.OrdinalIgnoreCase) ||
-                manifest.Poses is null || !SamusPoseNumbers.CoversRecordedPoses(manifest.Poses) ||
+            if (manifest.Version != FormatVersion || manifest.Poses is null || !SamusPoseNumbers.CoversRecordedPoses(manifest.Poses) ||
                 manifest.Poses.Values.Any(pose => pose is null || pose.Frames is null))
                 throw new InvalidDataException("Samus body manifest does not match this installation.");
             return new InstalledSamusBody(manifest.Poses.ToDictionary(pose => pose.Key, pose => pose.Value.GraphicsYOffset),
@@ -275,7 +274,7 @@ public static class SamusBodyArtworkFiles
                 [.. parts.Select(part => part.ToSpritePart(SpriteArtwork.CharactersPerRow))]))]);
         SamusAtmosphericSourceArtwork atmosphere = SamusAtmosphericArtworkFiles.Load(importData);
         SuperMetroid.Core.Samus.Death.SamusDeathSteps deathSteps = SamusDeathPaletteArtworkFiles.LoadSteps(directory);
-        SamusArmCannonSourceArtwork armCannon = SamusArmCannonArtworkFiles.LoadForImport(directory, importData);
+        SamusArmCannonSourceArtwork armCannon = SamusArmCannonArtworkFiles.LoadForImport(importData);
         return new SamusBodyArtworkParts { TopSetStarts = manifest.TopSetStarts, BottomSetStarts = manifest.BottomSetStarts, PoseFirstFrames = manifest.PoseFirstFrames, Placements = manifest.Placements, Frames = manifest.Frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathSteps = deathSteps, ArmCannon = armCannon };
     }
 
@@ -394,9 +393,8 @@ public static class SamusBodyArtworkFiles
     /// What the installed body JSON holds (#1638): each pose's art origin and the body frames the body sheet pictures.
     /// </summary>
     /// <param name="Version">The body JSON's revision.</param>
-    /// <param name="SourceCartridgeSha256">The cartridge the body was extracted from.</param>
     /// <param name="Poses">Each pose with a record's art origin and pictured frames, keyed by the pose's name.</param>
-    internal sealed record GameManifest(int Version, string SourceCartridgeSha256, Dictionary<SamusPoseId, PoseFrames> Poses);
+    internal sealed record GameManifest(int Version, Dictionary<SamusPoseId, PoseFrames> Poses);
 
     /// <summary>One pose's art origin and the body frames the body sheet pictures of it.</summary>
     /// <param name="GraphicsYOffset">

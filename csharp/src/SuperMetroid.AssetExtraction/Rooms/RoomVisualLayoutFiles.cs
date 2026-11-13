@@ -23,9 +23,10 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </remarks>
 public static class RoomVisualLayoutFiles
 {
-    /// <summary>Stock manifest filename recording provenance and each retail level's name, block dimensions, filename, and JSON byte hash.</summary>
-    public const string ManifestFileName = "room-layouts.json";
-    /// <summary>Schema revision shared by the manifest and per-level layout documents; version 3 holds block numbers and mirroring instead of level words.</summary>
+    /// <summary>
+    /// Schema revision of the per-level layout documents; version 3 holds block numbers and mirroring instead of level words.
+    /// No manifest lists the documents (#1693): the levels are the retail rooms', and each document names its level and size.
+    /// </summary>
     private const int FormatVersion = 4;
 
     /// <summary>The character a document writes for each mirroring.</summary>
@@ -41,7 +42,7 @@ public static class RoomVisualLayoutFiles
     private static readonly IReadOnlyDictionary<char, BlockMirroring> MirroringByCode =
         MirroringCodes.ToDictionary(code => code.Value, code => code.Key);
 
-    /// <summary>Strict camel-case JSON encoding for provenance and layout documents.</summary>
+    /// <summary>Strict camel-case JSON encoding for the layout documents.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -61,90 +62,63 @@ public static class RoomVisualLayoutFiles
 
     /// <summary>Decompresses every distinct retail room level and exports what its foreground and background blocks show, without terrain or behaviours.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for the compressed level streams identified by <see cref="RetailLevels"/>.</param>
-    /// <param name="directory">Family directory, created if absent; receives new per-level JSON files and the required manifest.</param>
-    /// <param name="sourceCartridgeSha256">Nonblank caller-supplied provenance hash, recorded without recomputation and checked against the supported identity on stock load.</param>
+    /// <param name="directory">Family directory, created if absent; receives new per-level JSON files and no manifest (#1693).</param>
     /// <remarks>Widths and heights use 16-pixel blocks. The foreground grid determines height. Create-new writes refuse existing files and do not roll back earlier outputs.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
-    /// <exception cref="ArgumentException">The directory/source hash is blank or the address space lacks cartridge import access.</exception>
+    /// <exception cref="ArgumentException">The directory is blank or the address space lacks cartridge import access.</exception>
     /// <exception cref="InvalidDataException">A compressed level, its foreground or behaviour layer, row stride, or background is invalid.</exception>
     /// <exception cref="IOException">An output exists or filesystem access fails.</exception>
-    public static void Extract(ISnesAddressSpace bus, string directory,
-        string sourceCartridgeSha256)
+    public static void Extract(ISnesAddressSpace bus, string directory)
     {
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
-        var entries = new Dictionary<string, LayoutFileEntry>();
         foreach ((RoomLevelId level, int widthInBlocks) in RetailLevels.OrderBy(item => item.Key.Name, StringComparer.Ordinal))
         {
-            RoomVisualLayoutDocument document = Decode(bus, level, widthInBlocks);
-            byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-            string name = LevelFileName(level);
-            using (var file = new FileStream(Path.Combine(directory, name), FileMode.CreateNew,
-                       FileAccess.Write))
-                file.Write(json);
-            entries.Add(name, new LayoutFileEntry(level.Name, widthInBlocks,
-                document.HeightInBlocks, Convert.ToHexString(SHA256.HashData(json))));
+            byte[] json = JsonSerializer.SerializeToUtf8Bytes(Decode(bus, level, widthInBlocks), JsonOptions);
+            using var file = new FileStream(Path.Combine(directory, LevelFileName(level)), FileMode.CreateNew, FileAccess.Write);
+            file.Write(json);
         }
-        using var manifest = new FileStream(Path.Combine(directory, ManifestFileName),
-            FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(manifest,
-            new LayoutFileManifest(FormatVersion, sourceCartridgeSha256, entries), JsonOptions);
     }
 
-    /// <summary>Checks the complete retail-level manifest, then loads every level's installed initial room visual layout as the player left it.</summary>
-    /// <param name="directory">Family directory containing every per-level JSON file and the required provenance/dimension manifest.</param>
+    /// <summary>Loads every retail level's installed initial room visual layout as the player left it.</summary>
+    /// <param name="directory">Family directory containing every retail level's JSON file.</param>
     /// <returns>A ROM-independent catalog of the installed initial foreground and background appearances, leaving terrain, behaviours and later room-object writes alone.</returns>
-    /// <remarks>Strict JSON must retain the level, original block dimensions, array extents, valid block numbers and mirroring codes; the documents are not compared with cartridge bytes.</remarks>
+    /// <remarks>Strict JSON must retain the level, its rooms' block width, a positive height, array extents, valid block numbers and mirroring codes; the documents are not compared with cartridge bytes.</remarks>
     /// <exception cref="ArgumentException"><paramref name="directory"/> is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Provenance, coverage, strict JSON, level identity, dimensions, block numbers or mirroring codes are invalid.</exception>
-    /// <exception cref="IOException">The manifest or a level file cannot be read.</exception>
+    /// <exception cref="InvalidDataException">A level file is missing, or its strict JSON, level identity, dimensions, block numbers or mirroring codes are invalid.</exception>
+    /// <exception cref="IOException">A level file cannot be read.</exception>
     public static RoomLevelArtworks Load(string directory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        string manifestPath = Path.Combine(directory, ManifestFileName);
-        using var manifestStream = File.OpenRead(manifestPath);
-        LayoutFileManifest manifest = JsonAssetDocument.Read<LayoutFileManifest>(
-            manifestStream, JsonOptions, $"room-layout manifest {manifestPath}");
-        if (manifest.Version != FormatVersion ||
-            !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
-                StringComparison.OrdinalIgnoreCase) ||
-            manifest.Entries is null || manifest.Entries.Count != RetailLevels.Count)
-            throw new InvalidDataException(
-                $"Room-layout manifest {manifestPath} does not cover the pinned retail levels.");
-
         var layouts = new Dictionary<RoomLevelId, RoomLevelArtwork>();
-        foreach ((string name, LayoutFileEntry entry) in manifest.Entries)
+        // The levels are the retail rooms' (#1693): no manifest lists them.
+        foreach ((RoomLevelId level, int width) in RetailLevels.OrderBy(item => item.Key.Name, StringComparer.Ordinal))
         {
-            if (entry?.Level is null || name != LevelFileName(entry.Id) ||
-                !RetailLevels.TryGetValue(entry.Id, out int width) ||
-                entry.Size.X != width || entry.Size.Y <= 0)
-                throw new InvalidDataException(
-                    $"Room-layout manifest {manifestPath} has an invalid level entry.");
-            string path = Path.Combine(directory, name);
+            string path = Path.Combine(directory, LevelFileName(level));
+            if (!File.Exists(path))
+                throw new InvalidDataException($"Room layout {path} is missing.");
             using PooledFileBytes json = PooledFileBytes.Read(path);
             using MemoryStream jsonStream = json.OpenRead();
             RoomVisualLayoutDocument document = JsonAssetDocument.Read<RoomVisualLayoutDocument>(
                 jsonStream, JsonOptions, $"room layout {path}");
             if (document.FormatVersion != FormatVersion ||
-                document.Level != entry.Level ||
-                document.Size != entry.Size ||
+                document.Level != level.Name ||
+                document.Size.X != width || document.Size.Y <= 0 ||
                 document.Foreground is null ||
                 document.Background is null)
                 throw new InvalidDataException($"Room layout {path} has incompatible dimensions or identity.");
             RoomLevelArtwork layout;
             try
             {
-                layout = new RoomLevelArtwork(entry.Id, document.Size,
+                layout = new RoomLevelArtwork(level, document.Size,
                     ReadPlane(document.Foreground), ReadPlane(document.Background));
             }
             catch (Exception error) when (error is InvalidDataException or ArgumentException)
             {
                 throw new InvalidDataException($"Invalid room layout {path}: {error.Message}", error);
             }
-            if (!layouts.TryAdd(entry.Id, layout))
-                throw new InvalidDataException($"Room-layout manifest {manifestPath} repeats a level.");
+            layouts.Add(level, layout);
         }
         return new RoomLevelArtworks(layouts, RoomVisualLayoutSourceDefinitions.All);
     }
@@ -198,22 +172,6 @@ public static class RoomVisualLayoutFiles
             WritePlane([.. decoded.Foreground.Select(block => block.Appearance)]), WritePlane([.. decoded.Background]));
     }
 
-    /// <summary>One retail level's name, block dimensions, and expected stock JSON hash.</summary>
-    [SpatialComponents("External format: room-layouts.json manifest stores widthInBlocks/heightInBlocks.")]
-    private sealed record LayoutFileEntry(string Level, int WidthInBlocks,
-        int HeightInBlocks, string Sha256)
-    {
-        /// <summary>The level the entry names.</summary>
-        [JsonIgnore]
-        public RoomLevelId Id => new(Level);
-
-        /// <summary>Converts the manifest's block width and height into a checked spatial extent.</summary>
-        [JsonIgnore]
-        public Extent16<RoomBlocks> Size => new(checked((ushort)WidthInBlocks), checked((ushort)HeightInBlocks));
-    }
-    /// <summary>Provenance and complete per-level stock file inventory for extracted room layouts.</summary>
-    private sealed record LayoutFileManifest(int Version, string SourceCartridgeSha256,
-        Dictionary<string, LayoutFileEntry> Entries);
     /// <summary>Editable initial foreground and background appearances with fixed level identity and block dimensions.</summary>
     [SpatialComponents("External format: per-level room-layout JSON stores widthInBlocks/heightInBlocks.")]
     private sealed record RoomVisualLayoutDocument(int FormatVersion, string Level,

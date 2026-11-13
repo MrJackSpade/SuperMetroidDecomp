@@ -322,8 +322,7 @@ internal static class InstalledFixtures
     internal static InstalledSpriteSheets SpriteSheetsReloading(SpriteSheetId reloaded)
     {
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(sheet => sheet, SpriteSheets.Get);
-        sheets[reloaded] = SpriteSheetStore.Open(RepositoryInstallation.Installation.SpriteSheetDirectory,
-                SpriteSheetFiles.ManifestFileName, SpriteSheetDefinitions.Sheets.Count)
+        sheets[reloaded] = SpriteSheetStore.Open(RepositoryInstallation.Installation.SpriteSheetDirectory)
             .Read(SpriteSheetDefinitions.FileNames[reloaded]);
         return new InstalledSpriteSheets(sheets);
     }
@@ -347,7 +346,6 @@ internal static class InstalledFixtures
     private static readonly Lazy<SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas> standardObjects =
         Shared<SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas>("standard objects", () =>
             SuperMetroid.AssetExtraction.StandardObjectArtworkFiles.LoadForImport(
-                CartridgeImportContent.Component(GameInstallationLayout.StandardObjectDirectoryName),
                 CartridgeImportContent.ImportData(GameInstallationLayout.StandardObjectDirectoryName)));
 
     /// <summary>

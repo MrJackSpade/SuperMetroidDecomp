@@ -12,11 +12,13 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// </summary>
 public static class BossAndIntroOverreadFiles
 {
-    /// <summary>Decodes every read and writes the results as JSON with a hashed manifest.</summary>
+    /// <summary>
+    /// Decodes every read and writes the results as JSON. No manifest is written (#1693): the document names its own format,
+    /// and the cartridge it was decoded from is the installation receipt's.
+    /// </summary>
     /// <param name="bus">Cartridge source for the reads.</param>
-    /// <param name="directory">Destination directory, created if absent; an existing file and manifest are replaced.</param>
-    /// <param name="sourceCartridgeSha256">Identity written into the manifest; loading requires the supported cartridge.</param>
-    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
+    /// <param name="directory">Destination directory, created if absent; an existing file is replaced.</param>
+    public static void Extract(ISnesAddressSpace bus, string directory)
     {
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
@@ -25,31 +27,14 @@ public static class BossAndIntroOverreadFiles
         BossAndIntroOverreadDocument document = BossAndIntroOverreadDecoding.Decode(cartridge);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, BossAndIntroOverreadFormat.JsonOptions);
         File.WriteAllBytes(Path.Combine(directory, BossAndIntroOverreadFormat.FileName), bytes);
-        File.WriteAllBytes(Path.Combine(directory, BossAndIntroOverreadFormat.ManifestFileName),
-            JsonSerializer.SerializeToUtf8Bytes(
-                new Manifest(BossAndIntroOverreadFormat.Version, sourceCartridgeSha256),
-                BossAndIntroOverreadFormat.JsonOptions));
     }
 
-    /// <summary>Validates the installed file's provenance and digest, then loads it.</summary>
-    /// <param name="directory">Installed overread directory holding the file and its manifest.</param>
-    /// <exception cref="InvalidDataException">The manifest, digest, provenance or file shape is invalid.</exception>
+    /// <summary>Loads the installed file, as the player may have edited it.</summary>
+    /// <param name="directory">Installed overread directory holding the file.</param>
+    /// <exception cref="InvalidDataException">The file's format or shape is invalid.</exception>
     public static BossAndIntroOverreadServices Load(string directory)
     {
-        Manifest manifest;
-        try
-        {
-            manifest = JsonSerializer.Deserialize<Manifest>(
-                File.ReadAllBytes(Path.Combine(directory, BossAndIntroOverreadFormat.ManifestFileName)), BossAndIntroOverreadFormat.JsonOptions) ??
-                throw new InvalidDataException("Boss and intro overread manifest is empty.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid boss and intro overread manifest.", error);
-        }
-        if (manifest.Version != BossAndIntroOverreadFormat.Version ||
-            !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("Boss and intro overread manifest does not match the pinned cartridge.");
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         byte[] bytes = File.ReadAllBytes(Path.Combine(directory, BossAndIntroOverreadFormat.FileName));
         return Read(new MemoryStream(bytes, writable: false));
     }
@@ -91,7 +76,4 @@ public static class BossAndIntroOverreadFiles
 
     /// <summary>Whether a decoded value fits a signed word.</summary>
     private static bool IsSignedWord(int value) => value is >= short.MinValue and <= short.MaxValue;
-
-    /// <summary>Records the schema, cartridge identity and file digest checked on load.</summary>
-    private sealed record Manifest(int Version, string SourceCartridgeSha256);
 }

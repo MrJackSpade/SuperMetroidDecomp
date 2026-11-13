@@ -17,14 +17,13 @@ public static class RoomObjectBlueDoorVisualFiles
     /// <summary>Pictures every blue-door cap frame from the cartridge's draw lists and writes the installed file (#1557).</summary>
     /// <param name="bus">The cartridge, whose draw lists are checked against the frames' geometry and collision.</param>
     /// <param name="directory">The installed directory, created if absent; the file must not already exist.</param>
-    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the file.</param>
     /// <exception cref="InvalidDataException">A draw list differs from the geometry or collision the game draws by.</exception>
-    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256) =>
-        RoomObjectFrameImageFiles.Extract(bus, directory, sourceCartridgeSha256, Family);
+    public static void Extract(ISnesAddressSpace bus, string directory) =>
+        RoomObjectFrameImageFiles.Extract(bus, directory, Family);
 
     /// <summary>Loads the installed blue-door cap pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
-    /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
+    /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
     public static InstalledRoomObjectBlueDoorVisuals Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 

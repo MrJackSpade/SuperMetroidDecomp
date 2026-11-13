@@ -58,7 +58,7 @@ internal static class BossBodySheetFixtures
         string content = Path.Combine(Path.GetFullPath("csharp/test-temp"), "boss-bodies-" + Guid.NewGuid().ToString("N"));
         string directory = Path.Combine(content, GameInstallationLayout.BossBodySheetDirectoryName);
         InstalledSheetFamily family = BossBodySheetFiles.Write([sheet], directory);
-        PictureStoreWriter.Write(content, [family], SupportedCartridge.Sha256);
+        PictureStoreWriter.Write(content, [family]);
         BossBodySheet own = BossBodySheetFiles.LoadEach(directory).Single();
         return new BossBodyArtworkFixture(frames, new BossBodySheets(Enum.GetValues<BossBodyOwner>()
             .Select(boss => boss == owner ? own : InstalledFixtures.BossBodySheets.Of(boss))));

@@ -201,15 +201,14 @@ internal static class RoomVisualLayoutsVerification
 
     /// <summary>
     /// Confirms the stock-only level-stream loader rejects each corrupted installation with a
-    /// path-specific error: a changed or resized stream, a missing file, an unsupported version
-    /// or provenance, and an unknown or missing level.
+    /// path-specific error: a resized stream, a missing file and an unsupported collision-kind
+    /// document version.
     /// </summary>
     private static void VerifyRoomLevelStreamRejections(GameInstallation installed)
     {
         using var scratch = new TestScratchDirectory("room-level-stream-rejections");
         string firstName = RoomLevelStreamFiles.LevelFileName(
             RoomVisualLayoutFiles.RetailLevels.Keys.OrderBy(candidate => candidate.Name, StringComparer.Ordinal).First());
-        const string unknownName = "level-UnknownLevel.bin";
 
         void Expect(string label, string namedFile, Action<string> corrupt)
         {
@@ -231,12 +230,12 @@ internal static class RoomVisualLayoutsVerification
             }
         }
 
-        static void EditManifest(string directory, Action<JsonObject> edit)
+        static void EditKinds(string directory, Action<JsonObject> edit)
         {
-            string path = Path.Combine(directory, RoomLevelStreamFiles.ManifestFileName);
-            JsonObject manifest = RequiredJson.Parse(File.ReadAllText(path)).AsObject();
-            edit(manifest);
-            File.WriteAllText(path, manifest.ToJsonString());
+            string path = Path.Combine(directory, RoomLevelStreamFiles.CollisionKindsFileName);
+            JsonObject kinds = RequiredJson.Parse(File.ReadAllText(path)).AsObject();
+            edit(kinds);
+            File.WriteAllText(path, kinds.ToJsonString());
         }
 
         Expect("length-mismatch", firstName, directory =>
@@ -245,23 +244,8 @@ internal static class RoomVisualLayoutsVerification
             file.WriteByte(0);
         });
         Expect("missing-file", firstName, directory => File.Delete(Path.Combine(directory, firstName)));
-        Expect("wrong-version", RoomLevelStreamFiles.ManifestFileName,
-            directory => EditManifest(directory, manifest => manifest["version"] = 1));
-        Expect("wrong-provenance", RoomLevelStreamFiles.ManifestFileName,
-            directory => EditManifest(directory, manifest => manifest["sourceCartridgeSha256"] = new string('0', 64)));
-        Expect("extra-source", unknownName, directory =>
-        {
-            byte[] stream = [0, 0];
-            File.WriteAllBytes(Path.Combine(directory, unknownName), stream);
-            EditManifest(directory, manifest => manifest.Required("entries").AsObject()[unknownName] = new JsonObject
-            {
-                ["level"] = "UnknownLevel",
-                ["byteCount"] = stream.Length,
-                ["sha256"] = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(stream)),
-            });
-        });
-        Expect("missing-source", firstName,
-            directory => EditManifest(directory, manifest => manifest.Required("entries").AsObject().Remove(firstName)));
+        Expect("wrong-version", RoomLevelStreamFiles.CollisionKindsFileName,
+            directory => EditKinds(directory, kinds => kinds["version"] = 1));
     }
 
 }

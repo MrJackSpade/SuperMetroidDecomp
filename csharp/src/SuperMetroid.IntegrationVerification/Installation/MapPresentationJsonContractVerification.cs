@@ -33,7 +33,8 @@ internal static class MapPresentationJsonContractVerification
                 File.Copy(source, Path.Combine(pages, Path.GetFileName(source)));
             Dictionary<string, string> originalImportHashes = HashFiles(pages);
             string expected = MapPresentationFiles.LoadForImport(stock, pages).Game.ContentIdentity;
-            string manifestPath = Path.Combine(stock, AreaMapCatalogFormat.ManifestFile);
+            // The manifest is import data (#1693).
+            string manifestPath = Path.Combine(pages, AreaMapCatalogFormat.ManifestFile);
             byte[] manifest = File.ReadAllBytes(manifestPath);
             using JsonDocument parsedManifest = JsonDocument.Parse(manifest);
             string[] files = parsedManifest.RootElement.GetProperty("sha256").EnumerateObject()

@@ -31,17 +31,17 @@ internal static class PictureStorePixelIdentityVerification
         GameInstallation installation = RepositoryInstallation.Installation;
         string content = installation.ContentDirectory;
         string storeDirectory = installation.PictureStoreDirectory;
-        string provenancePath = Path.Combine(storeDirectory, PictureStoreFiles.ProvenanceFileName);
-        PictureStoreProvenance provenance;
-        using (FileStream file = File.OpenRead(provenancePath))
-            provenance = JsonAssetDocument.Read<PictureStoreProvenance>(file, PictureStoreProvenance.JsonOptions, $"picture store provenance {provenancePath}");
-        string[] duplicates = DuplicatePixels(provenance, storeDirectory);
+        string indexPath = Path.Combine(storeDirectory, PictureStoreFiles.IndexFileName);
+        PictureStoreIndex index;
+        using (FileStream file = File.OpenRead(indexPath))
+            index = JsonAssetDocument.Read<PictureStoreIndex>(file, PictureStoreIndex.JsonOptions, $"picture store index {indexPath}");
+        string[] duplicates = DuplicatePixels(index, storeDirectory);
         AssertTrue(duplicates.Length == 0,
             $"{duplicates.Length} stored pictures hold the pixels of another:{Environment.NewLine}{string.Join(Environment.NewLine, duplicates)}");
 
-        StoredMapsDocument regionListing = provenance.RecolourRegionMaps
+        StoredMapsDocument regionListing = index.RecolourRegionMaps
             ?? throw new InvalidOperationException("Verification failed: the picture store lists no recolour-region maps.");
-        StoredMapsDocument blendListing = provenance.BlendMaps
+        StoredMapsDocument blendListing = index.BlendMaps
             ?? throw new InvalidOperationException("Verification failed: the picture store lists no blend maps.");
         string regionPath = PictureStoreFiles.RecolourRegionMapsFile(content);
         string blendPath = PictureStoreFiles.BlendMapsFile(content);
@@ -60,7 +60,7 @@ internal static class PictureStorePixelIdentityVerification
                     continue;
                 var shown = new ShownReference(family, sheet, frame, document, picture, new FrameRectangle(entry.Corner, entry.Size));
                 references.Add(shown);
-                unresolved.AddRange(Unresolved(shown, provenance, regionMaps, blendMaps));
+                unresolved.AddRange(Unresolved(shown, index, regionMaps, blendMaps));
             }
         }
         AssertTrue(references.Count > 0, "the installation's sheet frames name stored pictures");
@@ -75,7 +75,7 @@ internal static class PictureStorePixelIdentityVerification
         InstalledPictureStore store = InstalledPictureStore.Open(storeDirectory);
         {
             (ShownReference first, ShownReference second) = example!.Value;
-            StoredPictureDocument listed = provenance.Pictures[first.Picture.Tag];
+            StoredPictureDocument listed = index.Pictures[first.Picture.Tag];
             RgbaPixel[] stored = StorePage.Read(storeDirectory, listed.Page).PixelsOf(listed);
             foreach (ShownReference reference in new[] { first, second })
             {
@@ -95,7 +95,7 @@ internal static class PictureStorePixelIdentityVerification
                 + $"(recolour regions {first.Picture.RecolourRegionMap ?? "none"} and {second.Picture.RecolourRegionMap ?? "none"}, "
                 + $"blending {first.Picture.BlendMap ?? "none"} and {second.Picture.BlendMap ?? "none"}).");
         }
-        Console.WriteLine($"Picture store: {provenance.Pictures.Count} pictures each hold pixels no other holds; {references.Count} frame "
+        Console.WriteLine($"Picture store: {index.Pictures.Count} pictures each hold pixels no other holds; {references.Count} frame "
             + $"references resolve to them and to {regionMaps.Count} recolour-region and {blendMaps.Count} blend maps.");
     }
 
@@ -104,10 +104,10 @@ internal static class PictureStorePixelIdentityVerification
     /// straight from its decoded page, one page at a time; only pictures whose hashes collide are compared pixel by pixel,
     /// reading their pages again.
     /// </summary>
-    private static string[] DuplicatePixels(PictureStoreProvenance provenance, string storeDirectory)
+    private static string[] DuplicatePixels(PictureStoreIndex index, string storeDirectory)
     {
         var byHash = new Dictionary<string, List<string>>(StringComparer.Ordinal);
-        foreach (IGrouping<int, KeyValuePair<string, StoredPictureDocument>> onPage in provenance.Pictures.GroupBy(entry => entry.Value.Page))
+        foreach (IGrouping<int, KeyValuePair<string, StoredPictureDocument>> onPage in index.Pictures.GroupBy(entry => entry.Value.Page))
         {
             StorePage page = StorePage.Read(storeDirectory, onPage.Key);
             using var hasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
@@ -124,7 +124,7 @@ internal static class PictureStorePixelIdentityVerification
         foreach (List<string> tags in byHash.Values.Where(tags => tags.Count > 1))
         {
             // The hash only narrows the comparison: two pictures are one only when every pixel matches.
-            RgbaPixel[][] pixels = [.. tags.Select(tag => provenance.Pictures[tag])
+            RgbaPixel[][] pixels = [.. tags.Select(tag => index.Pictures[tag])
                 .Select(picture => StorePage.Read(storeDirectory, picture.Page).PixelsOf(picture))];
             for (int later = 1; later < tags.Count; later++)
             {
@@ -138,25 +138,25 @@ internal static class PictureStorePixelIdentityVerification
         return [.. duplicates];
     }
 
-    /// <summary>Fails unless the map file holds exactly the maps the provenance lists, each of its listed size.</summary>
+    /// <summary>Fails unless the map file holds exactly the maps the index lists, each of its listed size.</summary>
     private static void AssertListed<T>(StoredMapsDocument listing, Dictionary<string, PictureMap<T>> maps, string kind)
         where T : unmanaged, IEquatable<T>
     {
         AssertTrue(maps.Count > 0, $"the picture store holds {kind} maps");
         AssertTrue(listing.Maps.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(maps.Keys),
-            $"the {kind} map file holds exactly the maps the store's provenance lists");
+            $"the {kind} map file holds exactly the maps the store's index lists");
         string[] misSized = [.. listing.Maps.Where(entry => maps[entry.Key].Size != entry.Value).Select(entry => entry.Key)];
-        AssertTrue(misSized.Length == 0, $"every {kind} map is the size the provenance lists: {string.Join(", ", misSized)}");
+        AssertTrue(misSized.Length == 0, $"every {kind} map is the size the index lists: {string.Join(", ", misSized)}");
         string[] distinct = [.. maps.GroupBy(entry => entry.Value).Where(same => same.Count() > 1).Select(same => string.Join(" = ", same.Select(entry => entry.Key)))];
         AssertTrue(distinct.Length == 0, $"every {kind} map is stored once: {string.Join("; ", distinct)}");
     }
 
     /// <summary>What <paramref name="reference"/> names that the store does not hold as it names it.</summary>
-    private static IEnumerable<string> Unresolved(ShownReference reference, PictureStoreProvenance provenance,
+    private static IEnumerable<string> Unresolved(ShownReference reference, PictureStoreIndex index,
         Dictionary<string, PictureMap<int>> regionMaps, Dictionary<string, PictureMap<bool>> blendMaps)
     {
         InstalledPictureReferenceDocument picture = reference.Picture;
-        if (!provenance.Pictures.TryGetValue(picture.Tag, out StoredPictureDocument? listed))
+        if (!index.Pictures.TryGetValue(picture.Tag, out StoredPictureDocument? listed))
             yield return $"{reference} names picture {picture.Tag}, which the store does not list";
         else if (listed.Page != picture.Page || listed.Corner != picture.Corner || listed.Size != picture.Size)
             yield return $"{reference} names picture {picture.Tag} at another place or size than the store lists it";

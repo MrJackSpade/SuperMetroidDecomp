@@ -21,7 +21,8 @@ public static class RoomObjectSetupBlockFiles
     public const string VisualFileName = "setup-blocks.json";
 
     /// <summary>The installed document's format; a document naming another is rejected and the content is extracted again.</summary>
-    internal const int FormatVersion = 1;
+    /// <remarks>Revision 2 names no cartridge (#1693): the installation receipt does.</remarks>
+    internal const int FormatVersion = 2;
 
     /// <summary>Camel-case field names, mirroring by name and readable output for the installed document.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -35,17 +36,15 @@ public static class RoomObjectSetupBlockFiles
     /// <summary>Pictures every setup block from the level words its setups write and writes the installed file.</summary>
     /// <param name="bus">The cartridge the setups' level words are read from.</param>
     /// <param name="directory">The installed directory, created if absent; the file must not already exist.</param>
-    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the file.</param>
     /// <exception cref="InvalidDataException">
     /// A setup's word collides differently from the block the game writes, two setups of one block disagree, or a block
     /// that keeps the struck block's mirroring is mirrored.
     /// </exception>
     /// <exception cref="IOException">The file already exists or cannot be written.</exception>
-    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
+    public static void Extract(ISnesAddressSpace bus, string directory)
     {
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         var entries = new List<BlockEntry>();
         foreach (RoomObjectSetupBlock block in Enum.GetValues<RoomObjectSetupBlock>())
         {
@@ -53,7 +52,7 @@ public static class RoomObjectSetupBlockFiles
             entries.Add(new BlockEntry(Id(block), shown.Block, shown.Mirroring));
         }
         Directory.CreateDirectory(directory);
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new BlockDocument(FormatVersion, sourceCartridgeSha256, entries.ToArray()), JsonOptions);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new BlockDocument(FormatVersion, entries.ToArray()), JsonOptions);
         using var output = new FileStream(Path.Combine(directory, VisualFileName), FileMode.CreateNew, FileAccess.Write);
         output.Write(json);
     }
@@ -61,7 +60,7 @@ public static class RoomObjectSetupBlockFiles
     /// <summary>Loads the installed setup-block pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">
-    /// The file's format or source is not this importer's, a block is missing, repeated or unknown, shows an invalid
+    /// The file's format is not this importer's, a block is missing, repeated or unknown, shows an invalid
     /// block, or is mirrored where it keeps the struck block's mirroring.
     /// </exception>
     /// <exception cref="IOException">The file cannot be read.</exception>
@@ -142,10 +141,8 @@ public static class RoomObjectSetupBlockFiles
     /// <summary>Builds the pictures from an installed document, checking it names every setup block once.</summary>
     private static InstalledRoomObjectSetupBlocks Create(BlockDocument document)
     {
-        if (document.Version != FormatVersion ||
-            !string.Equals(document.SourceCartridgeSha256, SupportedCartridge.Sha256, StringComparison.OrdinalIgnoreCase) ||
-            document.Blocks is null)
-            throw new InvalidDataException("the document's format or source is not this importer's.");
+        if (document.Version != FormatVersion || document.Blocks is null)
+            throw new InvalidDataException("the document's format is not this importer's.");
         var byId = Enum.GetValues<RoomObjectSetupBlock>().ToDictionary(Id, block => block, StringComparer.Ordinal);
         var blocks = new Dictionary<RoomObjectSetupBlock, RoomBlockAppearance>();
         foreach (BlockEntry entry in document.Blocks)
@@ -186,8 +183,8 @@ public static class RoomObjectSetupBlockFiles
         }
     }
 
-    /// <summary>The installed document: its format, the cartridge it was pictured from, and every setup block's picture.</summary>
-    private sealed record BlockDocument(int Version, string SourceCartridgeSha256, BlockEntry[] Blocks);
+    /// <summary>The installed document: its format and every setup block's picture.</summary>
+    private sealed record BlockDocument(int Version, BlockEntry[] Blocks);
 
     /// <summary>One setup block's picture: its published name, the block it shows and how that block is mirrored.</summary>
     private sealed record BlockEntry(string Id, int Block, BlockMirroring Mirroring);

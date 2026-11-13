@@ -35,10 +35,10 @@ internal static class PictureStoreVisibleBoxVerification
         GameInstallation installation = RepositoryInstallation.Installation;
         string content = installation.ContentDirectory;
         string storeDirectory = installation.PictureStoreDirectory;
-        string provenancePath = Path.Combine(storeDirectory, PictureStoreFiles.ProvenanceFileName);
-        PictureStoreProvenance provenance;
-        using (FileStream file = File.OpenRead(provenancePath))
-            provenance = JsonAssetDocument.Read<PictureStoreProvenance>(file, PictureStoreProvenance.JsonOptions, $"picture store provenance {provenancePath}");
+        string indexPath = Path.Combine(storeDirectory, PictureStoreFiles.IndexFileName);
+        PictureStoreIndex index;
+        using (FileStream file = File.OpenRead(indexPath))
+            index = JsonAssetDocument.Read<PictureStoreIndex>(file, PictureStoreIndex.JsonOptions, $"picture store index {indexPath}");
 
         HashSet<string> wholeSheets = ShownWholeSheets();
         var shownWhole = new HashSet<string>(StringComparer.Ordinal);
@@ -73,7 +73,7 @@ internal static class PictureStoreVisibleBoxVerification
 
         var margined = new List<string>();
         int checkedPictures = 0;
-        foreach (IGrouping<int, KeyValuePair<string, StoredPictureDocument>> onPage in provenance.Pictures.GroupBy(entry => entry.Value.Page))
+        foreach (IGrouping<int, KeyValuePair<string, StoredPictureDocument>> onPage in index.Pictures.GroupBy(entry => entry.Value.Page))
         {
             RgbaPixel[] pixels;
             Extent16<ImagePixels> size;
@@ -116,8 +116,7 @@ internal static class PictureStoreVisibleBoxVerification
             new(GameInstallationLayout.EnemySheetDirectoryName, enemies),
         ];
         PictureStoreWriter.Write(content, [.. families.Select(family => new InstalledSheetFamily(Path.Combine(content, family.Directory),
-            family.Directory + ".json", [.. family.Sheets.Select(sheet => new NamedInstalledSheet(sheet.Name, sheet.Sheet))]))],
-            SupportedCartridge.Sha256);
+            [.. family.Sheets.Select(sheet => new NamedInstalledSheet(sheet.Name, sheet.Sheet))]))]);
 
         InstalledPictureStore store = InstalledPictureStore.Open(Path.Combine(content, PictureStoreFiles.DirectoryName));
         var references = new Dictionary<string, InstalledPictureReferenceDocument>(StringComparer.Ordinal);

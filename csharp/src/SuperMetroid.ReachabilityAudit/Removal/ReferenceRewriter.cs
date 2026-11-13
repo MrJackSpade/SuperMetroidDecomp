@@ -59,6 +59,9 @@ internal sealed class ReferenceRewriter
     /// </summary>
     private readonly HashSet<ISymbol> widened = new(Comparer);
 
+    /// <summary>The moves that reach each member of <see cref="widened"/>, through it or through a field it shares a declaration with.</summary>
+    private readonly Dictionary<ISymbol, HashSet<RelocationMove>> reachedBy = new(Comparer);
+
     /// <summary>
     /// The extension namespaces staying call sites of moved instance members need in scope, by tree; moved code lands in
     /// that namespace already.
@@ -104,11 +107,11 @@ internal sealed class ReferenceRewriter
             foreach (var node in root.DescendantNodes(descendIntoTrivia: true))
             {
                 // Moved code constructing a staying type needs the constructor visible from the target.
-                if (node is BaseObjectCreationExpressionSyntax creation && EnclosingMove(tree, creation) is { Placement: not RelocationPlacement.WholeType } &&
+                if (node is BaseObjectCreationExpressionSyntax creation && EnclosingMove(tree, creation) is { Placement: not RelocationPlacement.WholeType } constructing &&
                     SymbolIdentity.Normalize(model.GetSymbolInfo(creation).Symbol) is IMethodSymbol { MethodKind: MethodKind.Constructor } constructor &&
                     !Moved(constructor))
                 {
-                    Promote(constructor, promotions, false);
+                    Promote(constructor, promotions, false, constructing);
                     continue;
                 }
                 if (node is CrefSyntax cref && cref.Parent is XmlCrefAttributeSyntax attribute)
@@ -160,7 +163,7 @@ internal sealed class ReferenceRewriter
                         RequireExtensionNamespace(tree, model, node, accessed);
                     if (bound is not null && !Moved(bound) && EnclosingMove(tree, node) is { Placement: not RelocationPlacement.WholeType } reaching &&
                         DeclaringOwner(bound) is { } boundOwner && InOwnerChain(reaching.AdapterOwner, boundOwner))
-                        Promote(bound, promotions, IsWritten(binding));
+                        Promote(bound, promotions, IsWritten(binding), reaching);
                     continue;
                 }
                 if (node is MemberAccessExpressionSyntax or QualifiedNameSyntax)
@@ -174,9 +177,9 @@ internal sealed class ReferenceRewriter
                     var bound = SymbolIdentity.Normalize(model.GetSymbolInfo(name).Symbol);
                     if (RenamedTo(bound) is { } renamedMember)
                         Edit(tree, name.Span, renamedMember);
-                    if (left is ThisExpressionSyntax && bound is not null && EnclosingMove(tree, node) is { Placement: RelocationPlacement.ExtensionMember })
+                    if (left is ThisExpressionSyntax && bound is not null && EnclosingMove(tree, node) is { Placement: RelocationPlacement.ExtensionMember } extending)
                     {
-                        Promote(bound, promotions, IsWritten(node));
+                        Promote(bound, promotions, IsWritten(node), extending);
                         continue;
                     }
                     if (bound is not null && MoveOf(bound) is { Placement: RelocationPlacement.ExtensionMember } accessed)
@@ -185,7 +188,7 @@ internal sealed class ReferenceRewriter
                     // one of the owner's extension blocks, reaches it from outside the owner.
                     if (bound is not null && !Moved(bound) && EnclosingMove(tree, node) is { Placement: not RelocationPlacement.WholeType } reaching &&
                         DeclaringOwner(bound) is { } boundOwner && InOwnerChain(reaching.AdapterOwner, boundOwner))
-                        Promote(bound, promotions, IsWritten(node));
+                        Promote(bound, promotions, IsWritten(node), reaching);
                     if (bound is null || MoveOf(bound) is not { Placement: RelocationPlacement.AdapterMember } move)
                         continue;
                     if (model.GetSymbolInfo(left).Symbol is not INamedTypeSymbol) continue;
@@ -238,13 +241,13 @@ internal sealed class ReferenceRewriter
                     symbol.Kind is SymbolKind.Field or SymbolKind.Property or SymbolKind.Method or SymbolKind.Event)
                 {
                     Edit(tree, simple.Span, $"self.{Spelled(symbol, simple)}");
-                    Promote(symbol, promotions, IsWritten(simple));
+                    Promote(symbol, promotions, IsWritten(simple), inside);
                 }
                 else if ((symbol.IsStatic || symbol is INamedTypeSymbol) && symbol.ContainingType is { } staticOwner &&
                     InOwnerChain(inside.AdapterOwner, staticOwner))
                 {
                     Edit(tree, simple.Span, $"{TypeName(staticOwner)}.{Spelled(symbol, simple)}");
-                    Promote(symbol, promotions, IsWritten(simple));
+                    Promote(symbol, promotions, IsWritten(simple), inside);
                 }
                 else if (renamed is not null)
                     Edit(tree, simple.Span, Unshadowed(model, simple, symbol, renamed));
@@ -272,7 +275,10 @@ internal sealed class ReferenceRewriter
                 if (syntax is VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax { Variables.Count: > 1 } shared })
                     foreach (var sibling in shared.Variables)
                         if (SymbolIdentity.Normalize(compilationOf[sibling.SyntaxTree].GetSemanticModel(sibling.SyntaxTree).GetDeclaredSymbol(sibling)) is { } other)
-                            widened.Add(other);
+                            {
+                                widened.Add(other);
+                                Reached(other, reachedBy[field]);
+                            }
         // Moved documentation keeps a cref the target can resolve; one to a member it cannot see becomes text.
         foreach (var (tree, cref, attribute, bound, qualified) in movedCrefs)
         {
@@ -293,7 +299,7 @@ internal sealed class ReferenceRewriter
             string directives = string.Concat(names.Select(name => $"using {name};{newline}"));
             Edit(tree, new TextSpan(unit.Usings.Count > 0 ? unit.Usings[^1].FullSpan.End : 0, 0), directives);
         }
-        return new ReferenceEdits(edits, promotions, setterPromotions, widened);
+        return new ReferenceEdits(edits, promotions, setterPromotions, widened, reachedBy);
     }
 
     /// <summary>Fails unless every reference to a renamed member is covered by an edit that writes its new name.</summary>
@@ -361,12 +367,26 @@ internal sealed class ReferenceRewriter
         symbol.ContainingType?.OriginalDefinition is { } container && HiddenFromTarget(container);
 
     /// <summary>Records that moved code reaches a staying member, and writes its setter when <paramref name="written"/>.</summary>
-    private void Promote(ISymbol symbol, HashSet<ISymbol> into, bool written)
+    private void Promote(ISymbol symbol, HashSet<ISymbol> into, bool written, RelocationMove by)
     {
         if (symbol.DeclaredAccessibility is Accessibility.Private or Accessibility.Protected or Accessibility.ProtectedAndInternal)
+        {
             into.Add(symbol);
+            Reached(symbol, [by]);
+        }
         if (written && symbol is IPropertySymbol { SetMethod.DeclaredAccessibility: Accessibility.Private or Accessibility.Protected or Accessibility.ProtectedAndInternal })
+        {
             setterPromotions.Add(symbol);
+            Reached(symbol, [by]);
+        }
+    }
+
+    /// <summary>Records that <paramref name="moves"/> reach a member that becomes internal for them.</summary>
+    private void Reached(ISymbol symbol, IEnumerable<RelocationMove> moves)
+    {
+        if (!reachedBy.TryGetValue(symbol, out var reaching))
+            reachedBy[symbol] = reaching = [];
+        reaching.UnionWith(moves);
     }
 
     /// <summary>

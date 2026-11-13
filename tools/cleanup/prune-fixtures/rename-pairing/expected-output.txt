@@ -1,0 +1,1 @@
+MANUAL Property SuperMetroid.AssetExtraction.Lists.CursorOffset.Columns (kept in place: it uses SuperMetroid.AssetExtraction.Lists.CursorOffset._xOffset, which must lose its underscore to become internal (SME6354), but as 'xOffset' it would make SME6280 report: 

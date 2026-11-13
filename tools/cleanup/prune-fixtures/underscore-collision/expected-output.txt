@@ -1,0 +1,1 @@
+MANUAL Property SuperMetroid.AssetExtraction.Lists.ListRack.Doubled (kept in place: it uses SuperMetroid.AssetExtraction.Lists.ListRack._places, which must lose its underscore to become internal (SME6354), but 'places' already names SuperMetroid.AssetExtraction.Lists.ListRack.places, csharp/src/SuperMetroid.AssetExtraction/Lists/ListRack.cs:34)

@@ -80,7 +80,7 @@ internal static class Program
                 case ["--solution", var solutionPath, "--relocate", var category, "--to", var targetDirectory]:
                 {
                     var solution = await SolutionLoader.LoadAsync(Path.GetFullPath(solutionPath));
-                    SymbolRelocator.Relocate(solution, ReachabilityAnalysis.Run(solution), category,
+                    await SymbolRelocator.RelocateAsync(solution, ReachabilityAnalysis.Run(solution), category,
                         Path.GetFullPath(targetDirectory), ReachabilityFindings.ProductionAssemblies);
                     return 0;
                 }
@@ -98,7 +98,7 @@ internal static class Program
                     SymbolRemover.Remove(solution, unused, Path.GetFullPath(retiredFields));
                     solution = await SolutionLoader.LoadAsync(Path.GetFullPath(solutionPath));
                     result = ReachabilityAnalysis.Run(solution);
-                    SymbolRelocator.Relocate(solution,
+                    await SymbolRelocator.RelocateAsync(solution,
                         VerificationReferences.SelectUsedDeadCode(result, VerificationReferences.Collect(solution), categories, prefixes),
                         Path.GetFullPath(targetDirectory), ReachabilityFindings.ProductionAssemblies, RelocationStyle.VerificationAccess);
                     return 0;

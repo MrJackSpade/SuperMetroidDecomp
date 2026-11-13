@@ -1,0 +1,1 @@
+MANUAL Method SuperMetroid.Core.Lists.ListWindows.WideWidth(string?) (kept in place: it uses SuperMetroid.Core.Lists.ListWindows.Checked(string?), which checks an argument by hand (title is null), a check that made internal must use Ensure (SME6201): write it with Ensure, csharp/src/SuperMetroid.Core/Lists/ListWindows.cs:12)

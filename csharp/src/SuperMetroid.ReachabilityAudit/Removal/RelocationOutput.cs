@@ -87,19 +87,7 @@ internal static class RelocationOutput
         foreach (var (tree, list) in edits)
         {
             string path = Path.GetFullPath(tree.FilePath);
-            var spans = movedSpans.TryGetValue(tree, out var moved) ? moved : [];
-            var applied = list.Where(e => e.Text == "" && spans.Contains(e.Span) || !spans.Any(s => s.Contains(e.Span)))
-                .Distinct().OrderByDescending(e => e.Span.Start).ThenByDescending(e => e.Span.End).ToList();
-            var text = new StringBuilder(tree.GetText().ToString());
-            int floor = int.MaxValue;
-            foreach (var (span, replacement) in applied)
-            {
-                if (span.End > floor)
-                    throw new InvalidOperationException($"Overlapping relocation edits in {path} at {span}.");
-                text.Remove(span.Start, span.Length).Insert(span.Start, replacement);
-                floor = span.Start;
-            }
-            string output = text.ToString();
+            string output = InPlace(tree, list, movedSpans.TryGetValue(tree, out var moved) ? moved : []);
             if (CSharpSyntaxTree.ParseText(output).GetRoot().DescendantNodes().OfType<BaseTypeDeclarationSyntax>().Any()
                 || CSharpSyntaxTree.ParseText(output).GetRoot().DescendantNodes().OfType<DelegateDeclarationSyntax>().Any())
                 File.WriteAllText(path, output, new UTF8Encoding(HasByteOrderMark(path)));
@@ -120,6 +108,30 @@ internal static class RelocationOutput
                 new UTF8Encoding(!existing || HasByteOrderMark(path)));
         }
         return new PlacedFiles(files.Count, deleted);
+    }
+
+    /// <summary>
+    /// A source tree's text with its edits applied in place: every edit outside the moved declarations, and the removal of
+    /// each moved declaration (an empty edit of exactly its span).
+    /// </summary>
+    /// <param name="tree">The tree.</param>
+    /// <param name="edits">The tree's edits, removals included.</param>
+    /// <param name="movedSpans">The full spans of the declarations that move out of the tree.</param>
+    /// <exception cref="InvalidOperationException">Two applied edits overlap.</exception>
+    internal static string InPlace(SyntaxTree tree, IEnumerable<TextEdit> edits, IReadOnlyList<TextSpan> movedSpans)
+    {
+        var applied = edits.Where(e => e.Text == "" && movedSpans.Contains(e.Span) || !movedSpans.Any(s => s.Contains(e.Span)))
+            .Distinct().OrderByDescending(e => e.Span.Start).ThenByDescending(e => e.Span.End).ToList();
+        var text = new StringBuilder(tree.GetText().ToString());
+        int floor = int.MaxValue;
+        foreach (var (span, replacement) in applied)
+        {
+            if (span.End > floor)
+                throw new InvalidOperationException($"Overlapping relocation edits in {Path.GetFullPath(tree.FilePath)} at {span}.");
+            text.Remove(span.Start, span.Length).Insert(span.Start, replacement);
+            floor = span.Start;
+        }
+        return text.ToString();
     }
 
     /// <summary>Whether a source file starts with a UTF-8 byte-order mark, which rewriting it keeps.</summary>

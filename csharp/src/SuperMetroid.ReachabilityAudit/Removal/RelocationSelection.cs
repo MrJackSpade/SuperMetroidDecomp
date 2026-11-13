@@ -45,6 +45,32 @@ internal sealed class RelocationSelection
         return selection;
     }
 
+    /// <summary>
+    /// Keeps refused moves in place for manual relocation, each with a <c>MANUAL</c> line saying why, and then whatever a
+    /// declaration that now stays uses. Every part of a refused declaration stays with it. Nothing has been edited yet: the
+    /// relocation decides its moves again from what is left.
+    /// </summary>
+    /// <param name="refused">The moves whose promotions are refused, and why.</param>
+    /// <param name="identity">Gives each declaration its key.</param>
+    /// <exception cref="InvalidOperationException">A refused move is not among the moving declarations.</exception>
+    public void Keep(IReadOnlyList<RefusedMove> refused, SymbolIdentity identity)
+    {
+        foreach (var (move, reason) in refused)
+        {
+            string? key = identity.Key(move.Symbol);
+            var parts = found.Where(candidate => identity.Key(candidate.Symbol) == key).ToList();
+            if (parts.Count == 0)
+                throw new InvalidOperationException($"{move.Symbol.ToDisplayString()}, which a refused promotion keeps in place, does not move.");
+            foreach (var part in parts)
+            {
+                found.Remove(part);
+                staying.Add(new(part.Symbol, part.Node, part.Tree, part.Model));
+            }
+            manual.Add($"MANUAL {move.Symbol.Kind} {move.Symbol.ToDisplayString()} (kept in place: it uses {reason}, {Location(identity, move.Node)})");
+        }
+        KeepWhatStayingDeclarationsUse(identity, found, staying, manual);
+    }
+
     /// <summary>Places each selected declaration, keeps in place what a staying one uses, and reports keys matching none.</summary>
     private void Place(IReadOnlyList<ProjectTree> trees, IReadOnlySet<string> targets, SymbolIdentity identity)
     {

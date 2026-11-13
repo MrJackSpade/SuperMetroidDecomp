@@ -34,7 +34,10 @@ namespace SuperMetroid.ReachabilityAudit.Removal;
 /// <see cref="RelocationHolders.ForMoves"/> chooses each owner's holder classes; the promotion step collects every
 /// reference edit (<see cref="ReferenceRewriter"/>), decides what becomes internal and under which name, and collects
 /// again with the new names; the accessibility step writes the promoted declarations; and <see cref="RelocationOutput"/>
-/// renders the moved members into their files and writes every changed file.
+/// renders the moved members into their files and writes every changed file. A promotion that would break a rule the
+/// build enforces (<see cref="PromotionRules"/>, <see cref="PromotedNames"/>, <see cref="RenamePairing"/>) is refused
+/// before anything is written: the moves reaching that member stay for manual relocation, with a <c>MANUAL</c> line saying
+/// why, and the steps run again from the moves left.
 /// </para>
 /// </summary>
 internal static class SymbolRelocator
@@ -42,16 +45,21 @@ internal static class SymbolRelocator
     /// <summary>The promotion step's outcome: the reference edits, collected with the names promoted members take.</summary>
     /// <param name="Collected">The edits and the members that become internal.</param>
     /// <param name="Renames">The new name of each promoted underscore-prefixed member.</param>
-    private sealed record PromotionDecision(ReferenceEdits Collected, RenameMap Renames);
+    /// <param name="Refused">The moves whose promotions are refused, each once, with why; when any is, nothing else applies.</param>
+    private sealed record PromotionDecision(ReferenceEdits Collected, RenameMap Renames, List<RefusedMove> Refused);
 
     /// <summary>Moves the selected reachability category into tool source, rewrites references, and reports manual cases.</summary>
-    public static void Relocate(LoadedSolution solution, ReachabilityResult result, string category,
+    public static Task RelocateAsync(LoadedSolution solution, ReachabilityResult result, string category,
         string targetDirectory, IReadOnlySet<string> shippedAssemblies) =>
-        Relocate(solution, ReachabilityFindings.Classify(result).Where(f => f.Category == category)
+        RelocateAsync(solution, ReachabilityFindings.Classify(result).Where(f => f.Category == category)
             .Select(f => f.Declaration.Key).ToHashSet(), targetDirectory, shippedAssemblies, RelocationStyle.Tooling);
 
-    /// <summary>Moves the declarations with the given keys into the target, rewrites references, and reports manual cases.</summary>
-    public static void Relocate(LoadedSolution solution, IReadOnlySet<string> targets, string targetDirectory,
+    /// <summary>
+    /// Moves the declarations with the given keys into the target, rewrites references, and reports manual cases. When a
+    /// promotion moved code needs is refused, the moves reaching that member stay for manual relocation and the steps run
+    /// again from the moves left, so nothing is written until every remaining move can be made whole.
+    /// </summary>
+    public static async Task RelocateAsync(LoadedSolution solution, IReadOnlySet<string> targets, string targetDirectory,
         IReadOnlySet<string> shippedAssemblies, RelocationStyle style)
     {
         var identity = new SymbolIdentity(solution.RepositoryRoot);
@@ -62,24 +70,39 @@ internal static class SymbolRelocator
             .Select(group => group.First()).ToArray();
 
         var selection = RelocationSelection.Select(trees, targets, identity);
-        var moves = new RelocationMoves(selection.Found, identity);
-        var holders = RelocationHolders.ForMoves(solution, moves, targetDirectory, style, identity);
-        var decision = DecidePromotions(trees, moves, holders, identity, shippedAssemblies);
-        WritePromotions(decision.Collected, decision.Renames, moves, identity);
-        var placed = RelocationOutput.Place(moves, decision.Collected, holders, trees, style, targetDirectory, identity);
-
-        foreach (string line in selection.Manual) Console.WriteLine(line);
-        Console.WriteLine($"Relocated {moves.All.Count} declarations into {placed.Written} files; deleted {placed.Deleted} emptied files; " +
-            $"{decision.Collected.Promotions.Count} members made internal; {decision.Renames.Count} renamed without their underscore; " +
-            $"{selection.Manual.Count} left for manual relocation.");
+        while (true)
+        {
+            var moves = new RelocationMoves(selection.Found, identity);
+            var holders = RelocationHolders.ForMoves(solution, moves, targetDirectory, style, identity);
+            var decision = DecidePromotions(trees, moves, holders, identity, shippedAssemblies);
+            if (decision.Refused.Count == 0)
+            {
+                WritePromotions(decision.Collected, decision.Renames, moves, identity);
+                var renamed = decision.Collected.Widened.Where(symbol => decision.Renames.NewName(symbol) is not null).ToList();
+                decision = decision with { Refused = Refused(decision.Collected, identity,
+                    await RenamePairing.RefusalsAsync(decision.Renames, renamed, decision.Collected, moves, solution, identity)) };
+            }
+            if (decision.Refused.Count > 0)
+            {
+                selection.Keep(decision.Refused, identity);
+                continue;
+            }
+            var placed = RelocationOutput.Place(moves, decision.Collected, holders, trees, style, targetDirectory, identity);
+            foreach (string line in selection.Manual) Console.WriteLine(line);
+            Console.WriteLine($"Relocated {moves.All.Count} declarations into {placed.Written} files; deleted {placed.Deleted} emptied files; " +
+                $"{decision.Collected.Promotions.Count} members made internal; {decision.Renames.Count} renamed without their underscore; " +
+                $"{selection.Manual.Count} left for manual relocation.");
+            return;
+        }
     }
 
     /// <summary>
     /// The promotion step: what becomes internal decides the names it takes (<see cref="PromotedNames"/>) and must keep every
-    /// rule a promotion can break (<see cref="PromotionRules"/>); once names change, the edits are collected again with every
-    /// reference written with its new name, and every reference must be.
+    /// rule a promotion can break (<see cref="PromotionRules"/>); a member that cannot is refused, and the moves reaching it
+    /// with it. Once names change, the edits are collected again with every reference written with its new name, and every
+    /// reference must be.
     /// </summary>
-    /// <exception cref="InvalidOperationException">A promotion breaks a rule, or the rename changes what moved code reaches or misses a reference.</exception>
+    /// <exception cref="InvalidOperationException">The rename changes what moved code reaches or misses a reference.</exception>
     private static PromotionDecision DecidePromotions(IReadOnlyList<ProjectTree> trees, RelocationMoves moves, RelocationHolders holders,
         SymbolIdentity identity, IReadOnlySet<string> shippedAssemblies)
     {
@@ -87,17 +110,34 @@ internal static class SymbolRelocator
             new RenameMap(new Dictionary<string, string>(StringComparer.Ordinal), identity)).Collect();
         var types = new SourceTypes(identity, trees.Select(entry => entry.Compilation));
         var compilationOf = trees.ToDictionary(entry => entry.Tree, entry => entry.Compilation);
-        var renames = new RenameMap(PromotedNames.Plan(collected.Widened, trees, types, identity), identity);
-        PromotionRules.Reject(collected.Widened, [.. collected.SetterPromotions.OfType<IPropertySymbol>()], symbol => renames.NewName(symbol) ?? symbol.Name,
-            types, tree => compilationOf[tree].GetSemanticModel(tree), identity);
+        var plan = PromotedNames.Plan(collected.Widened, trees, types, identity);
+        var renames = new RenameMap(plan.Names, identity);
+        var refusals = new Dictionary<ISymbol, string>(plan.Refusals, SymbolEqualityComparer.Default);
+        foreach (var (symbol, reason) in PromotionRules.Refusals(collected.Widened, [.. collected.SetterPromotions.OfType<IPropertySymbol>()],
+                     member => renames.NewName(member) ?? member.Name, types, tree => compilationOf[tree].GetSemanticModel(tree), identity))
+            refusals.TryAdd(symbol, reason);
+        if (refusals.Count > 0)
+            return new PromotionDecision(collected, renames, Refused(collected, identity, refusals));
         if (renames.Count == 0)
-            return new PromotionDecision(collected, renames);
+            return new PromotionDecision(collected, renames, []);
         var rewriter = new ReferenceRewriter(trees, moves, holders, identity, shippedAssemblies, renames);
         var renamed = rewriter.Collect();
         if (!renamed.Widened.SetEquals(collected.Widened))
             throw new InvalidOperationException("Renaming the promoted underscore-prefixed members changed which members moved code reaches.");
         rewriter.RejectUnwrittenRenames();
-        return new PromotionDecision(renamed, renames);
+        return new PromotionDecision(renamed, renames, []);
+    }
+
+    /// <summary>The moves reaching each refused member, each once, with the first reason that refuses it.</summary>
+    private static List<RefusedMove> Refused(ReferenceEdits collected, SymbolIdentity identity, IReadOnlyDictionary<ISymbol, string> refusals)
+    {
+        var refused = new List<RefusedMove>();
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var (symbol, reason) in refusals.OrderBy(entry => entry.Key.ToDisplayString(), StringComparer.Ordinal))
+            foreach (var move in collected.MovesReaching(symbol).OrderBy(move => move.Symbol.ToDisplayString(), StringComparer.Ordinal))
+                if (seen.Add(identity.Key(move.Symbol) ?? throw new InvalidOperationException($"{move.Symbol.ToDisplayString()} has no repository identity.")))
+                    refused.Add(new RefusedMove(move, reason));
+        return refused;
     }
 
     /// <summary>

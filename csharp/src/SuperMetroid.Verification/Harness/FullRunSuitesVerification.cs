@@ -481,6 +481,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyLowcPlaythroughMovie), () => VerifyLowcPlaythroughMovie("csharp/test-fixtures/replay-traces/lowc")),
         new(nameof(VerifyRuntimeAddressSpaceHasNoCartridgeApi), () => VerifyRuntimeAddressSpaceHasNoCartridgeApi()),
         new(nameof(VerifyDebuggerStateRejectsStaleLayouts), () => VerifyDebuggerStateRejectsStaleLayouts()),
+        new(nameof(VerifyDebuggerStateRestoresCatalogMembers), () => VerifyDebuggerStateRestoresCatalogMembers()),
         new(nameof(VerifyWorkRamCells), () => VerifyWorkRamCells()),
         new(nameof(VerifyCanonicalWordReads), () => VerifyCanonicalWordReads()),
         new(nameof(VerifyPpuMemoryModel), () => VerifyPpuMemoryModel()),

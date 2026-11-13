@@ -88,7 +88,7 @@ internal static class ChargeFlareProductionVerification
         AssertTrue(FlareDraws(runtime).All(draw => ReferenceEquals(PowerBeamSheet(InstalledFixtures.SpriteSheets), draw.Image.Sheet)),
             "Runtime actor pass draws the flare from the bound power-beam sheet");
         InstalledSpriteSheets rebound = InstalledFixtures.SpriteSheetsReloading(SpriteSheetId.ProjectilesPower);
-        game.BindArtwork(game.Artwork with { SpriteSheets = rebound });
+        game.BindArtwork(InstalledFixtures.BareRuntimeArtwork with { SpriteSheets = rebound });
         AssertTrue(FlareDraws(runtime).All(draw => ReferenceEquals(PowerBeamSheet(rebound), draw.Image.Sheet)),
             "Rebinding the sprite sheets reaches the actor pass");
         Console.WriteLine($"Charge-flare production: {ticks} normal and Hyper ticks, state isolation and actor sheet rebinding pass.");

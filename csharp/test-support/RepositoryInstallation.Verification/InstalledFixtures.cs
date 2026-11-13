@@ -207,14 +207,20 @@ internal static class InstalledFixtures
     /// <summary>
     /// The import's read of the installed presentation the game catalog <paramref name="game"/> was taken from: the
     /// installation's, or a fixture's a check recorded (<see cref="Record"/>), so a check that holds only what a runtime or
-    /// screen binds can compose what the import composed from it (#1616).
+    /// screen binds can compose what the import composed from it (#1616). The repository installation's own catalog, which
+    /// runtimes built over its artwork bind, was read from the same documents as the import's read of the cartridge-derived
+    /// extraction (#1636), so it has that read too.
     /// </summary>
     /// <param name="game">The catalog a runtime or screen binds.</param>
     /// <exception cref="InvalidOperationException">The catalog is neither the installation's nor a recorded fixture's.</exception>
     internal static ImportAreaMapPresentation ImportOf(SuperMetroid.Core.Gameplay.IGameplayPresentationContent game) =>
-        ReferenceEquals(SuperMetroid.Core.Ensure.NotNull(game), Maps) ? ImportMaps
+        ReferenceEquals(SuperMetroid.Core.Ensure.NotNull(game), Maps) || IsRepositoryCatalog(game) ? ImportMaps
         : game is AreaMapPresentation catalog && fixtureImports.TryGetValue(catalog, out ImportAreaMapPresentation? recorded) ? recorded
         : throw new InvalidOperationException("The map presentation is neither the repository installation's nor a recorded fixture's; record the import's read of it.");
+
+    /// <summary>Whether <paramref name="game"/> is the map catalog the repository installation's own artwork binds.</summary>
+    private static bool IsRepositoryCatalog(SuperMetroid.Core.Gameplay.IGameplayPresentationContent game) =>
+        RepositoryInstallation.ArtworkLoader.IsValueCreated && ReferenceEquals(game, RepositoryInstallation.Artwork.MapPresentation);
 
     /// <summary>The stock enemy artwork as the import reads it, loaded once per process from the cartridge-derived extraction (#1636).</summary>
     internal static EnemyTileSourceArtwork EnemyTiles => enemyArtwork.Value.Enemies;

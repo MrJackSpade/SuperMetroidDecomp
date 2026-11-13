@@ -178,7 +178,7 @@ internal static class GrappleFlarePresentationVerification
         AssertTrue(!original.SequenceEqual(Draw(runtime)), "Real actor fixture reaches Grapple flare path");
         samus.Grapple.FlareStage = GrappleFlareStage.Shown;
         InstalledSpriteSheets rebound = InstalledFixtures.SpriteSheetsReloading(SpriteSheetId.ProjectilesPower);
-        game.BindArtwork(game.Artwork with { SpriteSheets = rebound });
+        game.BindArtwork(InstalledFixtures.BareRuntimeArtwork with { SpriteSheets = rebound });
         AssertTrue(original.SequenceEqual(Draw(runtime)), "Real Grapple actor draws the same flare from rebound sheets");
         runtime.Sprites.BeginFrame();
         runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);

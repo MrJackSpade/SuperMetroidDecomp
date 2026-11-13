@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.EnemyDropsVerification;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Enemies;
 
@@ -24,6 +25,7 @@ internal static class PowerBombDeathDrawingVerification
     {
         EnemyTileSourceArtwork artwork = InstalledFixtures.EnemyTiles;
         EnemySpritemapCatalog spritemaps = artwork.Spritemaps ?? throw new InvalidOperationException("The installation has no enemy spritemaps.");
+        RoomLevelData openRoom = RoomEnemyFrameFixtures.OpenRoom(new(16, 16));
 
         Confirm(EnemyDefinitionId.Atomic, respawns: false, lethal: true);
         Confirm(EnemyDefinitionId.Sidehopper, respawns: false, lethal: true);
@@ -56,7 +58,7 @@ internal static class PowerBombDeathDrawingVerification
 
             // Freeze only the AI while producing the real draw queue. The following
             // explicit damage call represents the later runtime power-bomb phase.
-            enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(0, 0), TimeIsFrozen = true });
+            enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = true });
             var before = new OamBuffer();
             enemies.Drawing.DrawAsOam(before, new(0, 0));
             AssertTrue(before.NextByteOffset != 0, "live enemy was queued and drawn before power-bomb damage");

@@ -24,8 +24,8 @@ internal interface IEnemyAiFrame
     /// <summary>Controller buttons held this frame.</summary>
     ControllerButton ControllerInput { get; }
 
-    /// <summary>Room collision data, when the frame has a room.</summary>
-    RoomLevelData? Level { get; }
+    /// <summary>The room's collision data.</summary>
+    RoomLevelData Level { get; }
 
     /// <summary>Samus's beam and missile projectiles that main AI may inspect.</summary>
     SamusProjectileSystem? SamusProjectiles { get; }

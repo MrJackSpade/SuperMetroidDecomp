@@ -157,7 +157,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
         /// <summary>Held buttons inherited from the current update.</summary>
         public ControllerButton ControllerInput => frame.ControllerInput;
         /// <summary>Current room collision data visible to wrapped main AI.</summary>
-        public RoomLevelData? Level => frame.Level;
+        public RoomLevelData Level => frame.Level;
         /// <summary>Unavailable projectile service in the common grapple wrapper.</summary>
         public SamusProjectileSystem? SamusProjectiles => null;
         /// <summary>Unavailable turning-floor transform in the common grapple wrapper.</summary>

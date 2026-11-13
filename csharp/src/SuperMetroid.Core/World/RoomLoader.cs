@@ -1033,7 +1033,6 @@ internal sealed class RoomLoader
             Camera = destinationCamera.PixelPosition,
             GunshipScenario = entry.GunshipScenario,
             DeferLoaderTimeCameraReads = viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor,
-            ArtworkFrames = scope.ArtworkFrames,
         });
         // The shared Ridley initializer marks the map explored only for a live boss.
         // Ceres also disables the HUD map, but has no matching exploration list.

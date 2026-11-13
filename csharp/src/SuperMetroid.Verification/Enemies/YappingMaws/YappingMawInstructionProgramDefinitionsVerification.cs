@@ -154,7 +154,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             AssertEqual(((aim + 16) & 255) / 32, YappingMawBehavior.AimSector(new Bearing(aim)), $"Yapping Maw aim {aim} sector number");
 
         static ClockedEnemyAiFrame Frame(SamusState samus) => new(
-            new RoomEnemyFrame { FrameCounter = 0, Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
+            RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
             new FrameCounters(0));
     }
 

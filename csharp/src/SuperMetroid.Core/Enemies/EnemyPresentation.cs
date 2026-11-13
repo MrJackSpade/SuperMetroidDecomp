@@ -8,7 +8,7 @@ using SuperMetroid.Core.Enemies.Corpses;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Enemy presentation state: the room's appearance and animation frames, the boss body layer, the shared gradual-change
+/// Enemy presentation state: the room's appearance, the boss body layer, the shared gradual-change
 /// counter, and drawing from the installed pre-coloured sheets under each draw's shading (#1512).
 /// </summary>
 [RoomLifetime]
@@ -50,21 +50,8 @@ internal sealed class EnemyPresentation
         private set;
     }
 
-    /// <summary>
-    /// The frame each of the room's animations shows (#1406), which an encounter's animated looks, such as Crocomire's
-    /// melting bands, select their pictures by.
-    /// </summary>
-    internal ArtworkFrameSelections ArtworkFrames { get; private set; } = new();
-
-    /// <summary>
-    /// Room load: binds what gameplay shows over the room's backgrounds and the room's animation frames, or a fresh set no
-    /// animation has selected in when <paramref name="frames"/> is null.
-    /// </summary>
-    internal void BindBackgrounds(RoomAppearance appearance, ArtworkFrameSelections? frames = null)
-    {
-        Appearance = Ensure.NotNull(appearance);
-        ArtworkFrames = frames ?? new ArtworkFrameSelections();
-    }
+    /// <summary>Room load: binds what gameplay shows over the room's backgrounds.</summary>
+    internal void BindBackgrounds(RoomAppearance appearance) => Appearance = Ensure.NotNull(appearance);
 
     /// <summary>
     /// The body the room's boss shows its parts' frames on (#1353, #1466, #1515), once a boss that shows one attaches it;

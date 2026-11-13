@@ -55,7 +55,7 @@ internal static class KzanBehaviorVerification
         AssertEqual(new Position16<RoomPixels>(0, 16), state.FallingTarget, "the falling target wraps past the room's bottom edge");
         AssertEqual(new Position16<RoomPixels>(0, 65520), state.RisingTarget, "the rising target is the spawn position");
         var frame = new ClockedEnemyAiFrame(
-            new RoomEnemyFrame { FrameCounter = 0, Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
+            RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
             new FrameCounters(0));
 
         state.Function = KzanEnemyFunction.Falling;

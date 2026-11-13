@@ -41,7 +41,7 @@ internal static class MetroidBombPlacementVerification
         SamusPresentation.InitializeAnimation(samus);
         var target = enemies.SlotTable.Slots[0];
         target.Position = target.Position.WithWhole(new(samus.Position.X.Whole, (ushort)(samus.Position.Y.Whole - 8)));
-        enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
+        enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         enemies.Collision.ResolveOrdinarySamusContact(samus, 0);
         var state = enemies.MetroidStates[0];
         AssertEqual(MetroidAiFunction.AttachedToSamus, (state ?? throw new InvalidOperationException("Verification requires state.")).Function, "real touch attaches Metroid to morphed Samus");
@@ -53,7 +53,7 @@ internal static class MetroidBombPlacementVerification
             ControllerButton input = frame == 0 ? ControllerButton.X : 0;
             bombs.StepFrame(new SamusTerrain { Level = assets.LevelData }, samus, input, input);
             if (firstExplosion < 0 && bombs.Slots.Any(b => !b.Type.IsNone && b.BombTimer.IsZero)) firstExplosion = frame;
-            enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
+            enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
             enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus);
             if (state.Function == MetroidAiFunction.PowerBombEscape && detached < 0) detached = frame;
             if (detached >= 0) break;
@@ -72,7 +72,7 @@ internal static class MetroidBombPlacementVerification
             // Move Samus away to prevent touch from immediately changing the returned
             // Homing state. The escape routine itself ignores her new position.
             samus.Position = samus.Position.WithWholeX(32);
-            enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
+            enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
             AssertEqual(expectedX, target.Position.X.Whole, "native post-bomb escape X");
             AssertEqual(expectedY, target.Position.Y.Whole, "native post-bomb escape Y");
             AssertEqual(frame == 3 ? MetroidAiFunction.Homing : MetroidAiFunction.PowerBombEscape,

@@ -44,7 +44,7 @@ internal static class EvirDeathFrameVerification
         // Contact kills the body after the real scheduler has selected all three slots.
         // Arms and spit are marked deleted by the native contact tail but still receive
         // their already-scheduled calls before next frame's population pass removes them.
-        enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, ResolveSamusContactBeforeAi = true });
+        enemies.StepStandaloneFrame(enemies.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         AssertEqual(EnemyDefinitionId.None, body.DefinitionId, "Screw Attack clears Evir body during contact");
         AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "only body counts as a killed enemy");
         AssertTrue(arms.Presence.HasAny(EnemyPresence.Deleted) && projectile.Presence.HasAny(EnemyPresence.Deleted),
@@ -56,7 +56,7 @@ internal static class EvirDeathFrameVerification
         AssertEqual((ushort)18, projectile.Position.Y.Whole, "idle spit uses cleared body Y plus native offset");
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion),
             "normal death explosion remains alive");
-        enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level });
+        enemies.StepStandaloneFrame(enemies.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         AssertEqual(EnemyDefinitionId.None, arms.DefinitionId, "next frame removes deleted arms");
         AssertEqual(EnemyDefinitionId.None, projectile.DefinitionId, "next frame removes deleted spit");
         AssertEqual(0, enemies.ActiveEnemies.Count, "no orphan Evir remains active");

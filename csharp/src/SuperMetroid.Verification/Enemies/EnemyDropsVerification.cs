@@ -68,13 +68,13 @@ internal static class EnemyDropsVerification
         enemy.Presence = EnemyPresence.RespawnsIfKilled;
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
         var samusColours = new SamusColours();
-        fixture.System.StepFrame(new RoomEnemyFrame { FrameCounter = fixture.System.StandaloneFrameCounter, Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, SamusColours = samusColours, ResolveSamusContactBeforeAi = true });
+        fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, SamusProjectiles = projectiles, SamusColours = samusColours });
         AssertEqual(EnemyDefinitionId.Respawn, enemy.DefinitionId, "contact death retains respawn placeholder");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "contact death counted once");
         AssertEqual(1, enemy.FrameCounter, "death frame dispatches inert placeholder then advances native frame counter");
         AssertEqual(EnemyAiRoutine.Inert, enemy.Definition.MainAi,
             "cached header follows replacement identity into native no-op AI");
-        fixture.System.StepFrame(new RoomEnemyFrame { FrameCounter = fixture.System.StandaloneFrameCounter, Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, SamusColours = samusColours, ResolveSamusContactBeforeAi = true });
+        fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, SamusProjectiles = projectiles, SamusColours = samusColours });
         AssertEqual(0, fixture.System.ActiveEnemies.Count, "placeholder remains excluded next frame");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "placeholder cannot be killed twice");
     }

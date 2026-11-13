@@ -31,7 +31,7 @@ internal static class YardKickVerification
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = pose, Health = 999, MaxHealth = 999,
                 Position = FixedPosition<RoomPixels>.FromWhole(actor.Position.Whole) };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new((ushort)(actor.Position.X.Whole - 128), (ushort)(actor.Position.Y.Whole - 112)), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
+            enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new((ushort)(actor.Position.X.Whole - 128), (ushort)(actor.Position.Y.Whole - 112)), TimeIsFrozen = false, Samus = samus });
             // Seed the airborne touch-admission case. The real contact dispatcher
             // must install the kick and consume the published distance words.
             (state ?? throw new InvalidOperationException("Verification requires state.")).MovementFunction = YardMovementFunction.Airborne;

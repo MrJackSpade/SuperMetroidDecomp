@@ -19,7 +19,4 @@ public interface IRoomEnemyLoad : IRoomEnemyPopulationSource, IRoomEnemyActorCon
 
     /// <summary>What gameplay shows over the room's load (#1466), which its enemies show into.</summary>
     RoomAppearance Appearance { get; }
-
-    /// <summary>The frame each of the room's animations shows (#1406), which its enemies select their pictures into.</summary>
-    ArtworkFrameSelections ArtworkFrames { get; }
 }

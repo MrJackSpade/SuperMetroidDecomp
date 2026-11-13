@@ -32,7 +32,7 @@ internal static class DraygonTurretCadenceVerification
         int StepWith(byte counter8, ushort counter16)
         {
             int before = boss.TurretCadenceChecks;
-            runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData, ShortCounter = counter8, FrameCounter = counter16 });
+            runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = runtime.Player.Samus, ShortCounter = counter8, FrameCounter = counter16 });
             return boss.TurretCadenceChecks - before;
         }
 
@@ -75,7 +75,7 @@ internal static class DraygonTurretCadenceVerification
         ushort bombedX = bombed.Position.X.Whole;
         runtime.Enemies.StepEnemyProjectileInstructions(runtime.Room.LoadedLevelData, runtime.Player.Samus,
             new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), runtime.Enemies.NextStandaloneProjectileFrame(),
-            samusBombs: null, frameCounter: runtime.Enemies.StandaloneFrameCounter);
+            samusBombs: null, frameCounter: runtime.Enemies.FrameContext.RandomEnemyCounter);
         AssertTrue(!bombed.IsActive, "a power-bombed goop loses its projectile ID");
         AssertEqual(0, runtime.Player.IntroducedSamus.XSpeedDivisor, "$86:8D93 clears Samus's X speed divisor");
         AssertTrue(bombed.Position.X.Whole != bombedX, "the goop routine still moves the released slot");

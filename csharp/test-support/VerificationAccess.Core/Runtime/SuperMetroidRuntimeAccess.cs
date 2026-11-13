@@ -64,7 +64,6 @@ internal static class SuperMetroidRuntimeAccess
                 Level = scope.LevelData,
                 Samus = self.Player.Samus,
                 Camera = scope.Camera.PixelPosition,
-                ArtworkFrames = scope.ArtworkFrames,
             });
             return enemies;
         }

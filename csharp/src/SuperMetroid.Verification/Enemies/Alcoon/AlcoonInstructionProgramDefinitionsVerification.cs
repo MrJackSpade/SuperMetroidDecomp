@@ -68,7 +68,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         {
             int maximumX = Math.Max(0, room.Size.X * 256 - 256);
             ushort cameraX = unchecked((ushort)Math.Clamp(actor.Position.X.Whole - 128, 0, maximumX));
-            enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(cameraX, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
+            enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(cameraX, 0), TimeIsFrozen = false, Samus = samus });
             foreach (RoomEnemySlot slot in enemies.SlotTable.Slots)
             {
                 // A playback that has just passed a frame beat is showing that pose; one resting on a held frame stands past

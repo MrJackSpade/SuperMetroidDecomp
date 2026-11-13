@@ -18,7 +18,7 @@ internal static class OwtchPatrolStateVerification
     internal static void VerifyOwtchPatrolState()
     {
         var frame = new ClockedEnemyAiFrame(
-            new RoomEnemyFrame { FrameCounter = 0, Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
+            RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
             new FrameCounters(0));
 
         (RoomEnemySystem enemies, RoomEnemySlot slot, OwtchEnemyState state) = NewOwtch(OwtchBehaviorState.MovingRight);

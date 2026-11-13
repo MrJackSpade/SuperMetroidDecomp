@@ -34,7 +34,7 @@ internal static class GoldenTorizoAttackChoiceVerification
         state.BodyPlayback = TorizoAnimations.Start(TorizoNativeListAddresses.ProgramAt(landedFacingLeft)
             ?? throw new InvalidOperationException("No Torizo program starts at the landing list."));
         torizo.FrameHold = WrappingCountdown.Start(1);
-        runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = 0, Level = runtime.Room.LevelData, ControllerInput = 0, SamusProjectiles = runtime.Projectiles, ShortCounter = 0x2d, FrameCounter = 0xefd8 });
+        runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = 0, ControllerInput = 0, SamusProjectiles = runtime.Projectiles, ShortCounter = 0x2d, FrameCounter = 0xefd8 });
         TorizoBodyProgram runningSegment = TorizoAnimations.SegmentOf(state.BodyPlayback);
         ushort running = TorizoNativeListAddresses.Entry(runningSegment);
         AssertTrue(running is >= sonicBoomsFacingLeft and < 0xcc57,

@@ -75,12 +75,6 @@ internal static class RoomEnemySystemAccess
     extension(RoomEnemySystem self)
     {
         /// <summary>
-        /// The frame counter a check's standalone enemy pass runs at: the system's random enemy counter, which advances
-        /// once a pass.
-        /// </summary>
-        internal int StandaloneFrameCounter => self.FrameContext.RandomEnemyCounter;
-
-        /// <summary>
         /// The next frame of the system's standalone projectile clock, 0 through 255, for a check's projectile pass that
         /// names no frame: the clock advances one frame a pass, as the byte-wide frame counter does.
         /// </summary>

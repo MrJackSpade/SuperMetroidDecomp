@@ -18,11 +18,11 @@ internal static class ScreenFadeVerification
         ScreenBrightness brightness = ScreenBrightness.Lit(0);
         fade.FadeIn(ref brightness);
         AssertEqual(ScreenBrightness.Lit(1), brightness, "a cleared counter wraps negative on its first dispatch and steps brightness");
-        AssertEqual(WrappingCountdown.FromRaw(2), fade.Counter, "the stepping dispatch reloads the counter from the delay");
+        AssertEqual(WrappingCountdown.Start(2), fade.Counter, "the stepping dispatch reloads the counter from the delay");
         fade.FadeIn(ref brightness);
         fade.FadeIn(ref brightness);
         AssertEqual(ScreenBrightness.Lit(1), brightness, "a delay of two consumes the next two dispatches");
-        AssertEqual(WrappingCountdown.FromRaw(0), fade.Counter, "the consumed dispatches count the word down to zero");
+        AssertEqual(WrappingCountdown.Start(0), fade.Counter, "the consumed dispatches count the word down to zero");
         fade.FadeIn(ref brightness);
         AssertEqual(ScreenBrightness.Lit(2), brightness, "the dispatch after zero wraps negative and steps brightness");
 
@@ -35,7 +35,7 @@ internal static class ScreenFadeVerification
         brightness = ScreenBrightness.FullyLit;
         fade.FadeOut(ref brightness);
         AssertEqual(ScreenBrightness.FullyLit, brightness, "a counter at $8000 decrements to a non-negative word and only counts down");
-        AssertEqual(WrappingCountdown.FromRaw(0x7fff), fade.Counter, "the word counter keeps the wrapped word exactly");
+        AssertEqual(WrappingCountdown.Start(0x7fff), fade.Counter, "the word counter keeps the wrapped word exactly");
     }
 
     /// <summary>The slow fades count the delay down, reload it from the counter, clear both at the end and refuse a longer delay.</summary>

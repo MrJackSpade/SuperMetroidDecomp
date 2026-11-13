@@ -97,7 +97,7 @@ internal static class GrappleFlarePresentationVerification
             samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
             samus.Grapple.FlareStage = GrappleFlareStage.Shown;
             samus.Grapple.FlarePicture = new(frame);
-            samus.Grapple.FlareAnimationTimer = WrappingCountdown.FromRaw(timer);
+            samus.Grapple.FlareAnimationTimer = WrappingCountdown.Start(timer);
             samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(256);
             Check(samus, Clone(samus), wholeState: timer == 0 && frame == 0);
         }

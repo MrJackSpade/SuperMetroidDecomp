@@ -519,7 +519,7 @@ public sealed class SamusBombProjectileSystem
             InitializeBomb(slot);
 
             BombSpreadLaunchDefinition launch = SamusBombSpreadLaunches.ForSlot(index);
-            slot.BombTimer = WrappingCountdown.FromRaw(launch.FuseTimer);
+            slot.BombTimer = WrappingCountdown.Start(launch.FuseTimer);
             slot.BombSpreadHorizontal = launch.XVelocity;
             // The held charge adds up to three whole pixels of upward launch speed.
             slot.BombSpreadLaunchVelocity = SignedSixteenSixteen.FromParts(

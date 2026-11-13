@@ -37,8 +37,8 @@ public sealed class ScreenFade
     /// <param name="counter">The dispatches before the first brightness step, 0 through 65535.</param>
     public void SetTiming(int delay, int counter)
     {
-        Delay = WrappingCountdown.FromRaw(delay);
-        Counter = WrappingCountdown.FromRaw(counter);
+        Delay = WrappingCountdown.Start(delay);
+        Counter = WrappingCountdown.Start(counter);
     }
 
     /// <summary>

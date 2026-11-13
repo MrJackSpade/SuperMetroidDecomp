@@ -61,7 +61,7 @@ public readonly record struct WrappingCountdown
     [IntegerQuantity("the countdown's remaining count")]
     private readonly ushort count;
 
-    /// <summary>Stores <paramref name="frames"/> exactly; callers use <see cref="Start"/> or <see cref="FromRaw"/>.</summary>
+    /// <summary>Stores <paramref name="frames"/> exactly; callers use <see cref="Start"/>.</summary>
     private WrappingCountdown(ushort frames) => count = frames;
 
     /// <summary>
@@ -127,16 +127,11 @@ public readonly record struct WrappingCountdown
     }
 
     /// <summary>
-    /// Starts a countdown at <paramref name="frames"/>, 0 through 65535.
+    /// Starts a countdown at <paramref name="frames"/>, 0 through 65535, kept exactly: a duration of 32768 or more starts
+    /// a countdown that already reads as run past zero (<see cref="IsNegative"/>).
     /// </summary>
     public static WrappingCountdown Start(int frames) =>
         new((ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, frames));
-
-    /// <summary>
-    /// A countdown holding exactly <paramref name="frames"/>, 0 through 65535, including a count that already reads as
-    /// run past zero; used where a timer is set from a decoded duration or carried from another owner.
-    /// </summary>
-    public static WrappingCountdown FromRaw(int frames) => new((ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, frames));
 
     /// <summary>
     /// Takes one frame away, wrapping a countdown at zero to 65535. Store <see cref="CountdownStep.Remaining"/> and test

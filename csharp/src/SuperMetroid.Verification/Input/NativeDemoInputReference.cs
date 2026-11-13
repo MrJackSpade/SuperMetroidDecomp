@@ -65,7 +65,7 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
     {
         FrameBehaviorPointer = frameBehaviorPointer;
         InstructionPointer = instructionPointer;
-        FrameHold = WrappingCountdown.FromRaw(frameHold);
+        FrameHold = WrappingCountdown.Start(frameHold);
     }
 
     /// <summary>
@@ -95,7 +95,7 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
             ushort word = readWord(cursor);
             if (word < DemoInputListWords.RoutineWord)
             {
-                FrameHold = WrappingCountdown.FromRaw(word);
+                FrameHold = WrappingCountdown.Start(word);
                 Held = readWord(unchecked((ushort)(cursor + 2)));
                 NewlyPressed = readWord(unchecked((ushort)(cursor + 4)));
                 InstructionPointer = unchecked((ushort)(cursor + DemoInputListWords.InputRecordBytes));
@@ -130,7 +130,7 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
                     cursor = !timer.IsZero ? readWord(cursor) : unchecked((ushort)(cursor + 2));
                     break;
                 case DemoInputInstruction.SetTimer:
-                    Timer = WrappingCountdown.FromRaw(readWord(cursor));
+                    Timer = WrappingCountdown.Start(readWord(cursor));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 default:

@@ -59,7 +59,7 @@ internal static class GrappleTileArtworkVerification
             cases++;
             SamusGrappleState Seed() => new()
             {
-                Phase = GrapplePhase.ConnectedSwinging, PointAnimationFrame = frame, PointAnimationTimer = WrappingCountdown.FromRaw(timer),
+                Phase = GrapplePhase.ConnectedSwinging, PointAnimationFrame = frame, PointAnimationTimer = WrappingCountdown.Start(timer),
                 Angle = RotationAngle.FromRaw((ushort)(sector * 1024 + 1023)), RopeLength = (ushort)(sector % 16 * 8),
                 BeamStart = new(100, 100), Anchor = new(200, 60), FlareStage = GrappleFlareStage.JustFired,
             };

@@ -28,7 +28,7 @@ public sealed class SharedEscapeAndDrainCount
     private int Count { get; set; }
 
     /// <summary>The count as Crystal Flash's ammunition countdown reads it.</summary>
-    public WrappingCountdown AmmoCountdown => WrappingCountdown.FromRaw(Count);
+    public WrappingCountdown AmmoCountdown => WrappingCountdown.Start(Count);
 
     /// <summary>The count as Draygon's escape handler reads it: the presses counted toward the escape, 0 through 65535.</summary>
     public int EscapePresses => Count;

@@ -102,7 +102,7 @@ internal sealed class ProjectileMotion
         slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
         if (slot.TrailTimer.IsZero)
         {
-            slot.TrailTimer = WrappingCountdown.FromRaw(slot.FrameBehavior ==
+            slot.TrailTimer = WrappingCountdown.Start(slot.FrameBehavior ==
                 SamusProjectileFrameBehavior.WaveBeamThreeFrameTrail
                     ? 3
                     : 4);

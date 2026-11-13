@@ -114,7 +114,7 @@ internal static class ProjectileInstructionsVerification
                 : CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x930000 | (entry - 2));
             foreach (ushort timer in new ushort[] { 0, 1, 2, ushort.MaxValue })
             {
-                trailSlot.FrameHold = WrappingCountdown.FromRaw(timer);
+                trailSlot.FrameHold = WrappingCountdown.Start(timer);
                 AssertEqual(expected, ProjectileTrails.GetTrailAnimationFrame(trailSlot), "Trail owner reads the last installed record's frame regardless of timer");
                 AssertEqual(timer, trailSlot.FrameHold.RawValue, "Trail frame lookup leaves timer unchanged");
             }

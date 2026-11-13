@@ -90,7 +90,7 @@ internal sealed class BeamCombos
                 };
                 // The Spazer beam pair's trail countdown starts at zero and so runs its whole wrap before it would
                 // spawn a trail: only the trailing pair leaves trails until the attack falls.
-                if (kind != SamusComboKind.Plasma) slot.TrailTimer = WrappingCountdown.FromRaw(kind == SamusComboKind.Spazer && !part.SpazerTrail ? 0 : 4);
+                if (kind != SamusComboKind.Plasma) slot.TrailTimer = WrappingCountdown.Start(kind == SamusComboKind.Spazer && !part.SpazerTrail ? 0 : 4);
                 slot.ComboAngle = kind is SamusComboKind.Ice or SamusComboKind.Plasma
                     ? part.OrbitStart
                     : default;

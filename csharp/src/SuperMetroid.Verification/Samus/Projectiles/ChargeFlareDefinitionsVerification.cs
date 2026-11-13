@@ -82,7 +82,7 @@ internal static class ChargeFlareDefinitionsVerification
             {
                 expectedPhase = (ushort)start;
                 phases[place] = start;
-                holds[place] = WrappingCountdown.FromRaw(hold);
+                holds[place] = WrappingCountdown.Start(hold);
                 expectedHold = hold;
                 Reference(place, ref expectedPhase, ref expectedHold);
                 system.Animation.AdvanceFlareComponent(component);
@@ -124,7 +124,7 @@ internal static class ChargeFlareDefinitionsVerification
             for (int place = 0; place < 3; place++)
             {
                 hyper.Charge.FlarePhases[place] = startPhases[place];
-                hyper.Charge.FlareHolds[place] = WrappingCountdown.FromRaw(startHolds[place]);
+                hyper.Charge.FlareHolds[place] = WrappingCountdown.Start(startHolds[place]);
             }
             bool expectedLit = true;
             for (int tick = 0; tick < 800 && expectedLit; tick++)

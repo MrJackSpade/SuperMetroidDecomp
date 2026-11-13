@@ -26,7 +26,7 @@ internal static class XrayRefusedAsDrainedVerification
     {
         for (int cooldown = 0; cooldown <= ushort.MaxValue; cooldown++)
         {
-            WrappingCountdown countdown = WrappingCountdown.FromRaw(cooldown);
+            WrappingCountdown countdown = WrappingCountdown.Start(cooldown);
             for (int bombs = 0; bombs <= MostBombs; bombs++)
             {
                 for (int divisor = 0; divisor <= MostSpeedDivisor; divisor++)

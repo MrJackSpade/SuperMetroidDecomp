@@ -669,7 +669,7 @@ internal sealed class EnemyProjectileEngine
         }
 
         SamusSuitDamage.Hurt(samus, projectile.Damage);
-        samus.InvincibilityTimer = WrappingCountdown.FromRaw(projectile.InvincibilityFrames);
+        samus.InvincibilityTimer = WrappingCountdown.Start(projectile.InvincibilityFrames);
         KnockbackHorizontalDirection knockbackXDirection = CoordinateAxis.Difference(
             samus.Position.X.Whole, projectile.Position.X.Whole) >= 0
             ? KnockbackHorizontalDirection.Right

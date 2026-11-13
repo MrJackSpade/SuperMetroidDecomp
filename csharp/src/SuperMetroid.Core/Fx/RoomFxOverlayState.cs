@@ -217,7 +217,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
         LoadSurfaceAndTarget(definition);
         YVelocity = definition.YVelocity;
-        Timer = WrappingCountdown.FromRaw(definition.Timer);
+        Timer = WrappingCountdown.Start(definition.Timer);
         Liquid = definition.Liquid;
         Surface = BaseLine;
 
@@ -454,7 +454,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (yVelocity is { } velocity)
             YVelocity = velocity;
         if (timer is int newTimer)
-            Timer = WrappingCountdown.FromRaw(newTimer);
+            Timer = WrappingCountdown.Start(newTimer);
     }
 
     /// <summary>Removes the liquid's target, as the Speed Booster escape does when Samus has no Speed Booster: the liquid stops.</summary>
@@ -469,7 +469,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Ensure.NotNull(definition);
         LoadSurfaceAndTarget(definition);
         YVelocity = definition.YVelocity;
-        Timer = WrappingCountdown.FromRaw(definition.Timer);
+        Timer = WrappingCountdown.Start(definition.Timer);
         Liquid = definition.Liquid;
         Blend = definition.EffectBlend;
         VisorAnimation = definition.VisorAnimation;

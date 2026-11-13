@@ -224,7 +224,7 @@ internal static class CinematicSpriteAnimationsVerification
                 ushort operand = Word(cartridge, unchecked((ushort)(cursor + 2)));
                 if ((word & CinematicCodePointers.InstructionCommandBit) == 0)
                 {
-                    frameTimer = WrappingCountdown.FromRaw(word);
+                    frameTimer = WrappingCountdown.Start(word);
                     Spritemap = operand;
                     cursor = unchecked((ushort)(cursor + 4));
                     return;
@@ -251,7 +251,7 @@ internal static class CinematicSpriteAnimationsVerification
                         cursor = operand;
                         continue;
                     case SharedWord.SetCounter:
-                        Timer = WrappingCountdown.FromRaw(operand);
+                        Timer = WrappingCountdown.Start(operand);
                         cursor = unchecked((ushort)(cursor + 4));
                         continue;
                     case SharedWord.RepeatWhileCounting:

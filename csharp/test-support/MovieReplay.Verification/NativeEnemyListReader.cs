@@ -64,7 +64,7 @@ internal sealed class NativeEnemyListReader(int bank, ushort cursor, ushort time
                     Cursor = unchecked((ushort)(Cursor + 4));
                     continue;
                 case WordKind.RepeatWhileCounting:
-                    Counter = WrappingCountdown.FromRaw(Counter).Decrement().Remaining.RawValue;
+                    Counter = WrappingCountdown.Start(Counter).Decrement().Remaining.RawValue;
                     Cursor = Counter != 0 ? operand : unchecked((ushort)(Cursor + 4));
                     continue;
                 case WordKind.Wait:

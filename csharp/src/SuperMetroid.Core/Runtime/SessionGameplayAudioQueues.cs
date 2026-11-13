@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Runtime;
 /// while an attract demo plays or a power bomb explodes; a music request is dropped while an attract demo plays.
 /// </summary>
 /// <remarks>
-/// Evidence: the game's music queue routines test the game state (below the demo states) before queueing, and nothing
-/// else; its sound queue routines make their own tests, which the session's queues model.
+/// Evidence: the game's music queues test the game state (below the demo states) before queueing, and nothing
+/// else; its sound queues make their own tests, which the session's queues model.
 /// </remarks>
 /// <param name="queues">The session's queues.</param>
 /// <param name="demo">Whether an attract demo is driving the runtime.</param>

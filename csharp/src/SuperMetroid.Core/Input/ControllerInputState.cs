@@ -68,7 +68,7 @@ public sealed class ControllerInputState
     {
         /// <summary>Prevents a repeated dispose from replacing a later controller sample.</summary>
         private bool disposed;
-        /// <summary>Restores the held and edge words captured before the demo override.</summary>
+        /// <summary>Restores the held and edge buttons captured before the demo override.</summary>
         public void Dispose()
         {
             if (disposed) return;
@@ -79,7 +79,7 @@ public sealed class ControllerInputState
     }
 
     /// <summary>Latches one completed automatic controller sample.</summary>
-    /// <remarks>Raw words are validated where they enter the game (recordings, replays, hosts), not here.</remarks>
+    /// <remarks>Raw input is validated where it enters the game (recordings, replays, hosts), not here.</remarks>
     public void Latch(ControllerButton input)
     {
         Current = input;

@@ -70,7 +70,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     public GameplayMessageBoxPhase Phase { get; private set; }
 
     /// <summary>
-    /// Half-height of the scanline window visible in the most recently completed frame.
+    /// Half-height of the row window visible in the most recently completed frame.
     /// The radius grows and shrinks by exactly two pixels per update.
     /// </summary>
     public int RadiusPixels { get; private set; }

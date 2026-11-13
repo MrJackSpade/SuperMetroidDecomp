@@ -11,7 +11,7 @@ internal static class EscapeTimerCadence
     /// <summary>
     /// The countdown selects its step by the frame counter's phase. Distribute the period budget by cumulative
     /// floor, split each quarter with its odd unit first, then difference a fractional
-    /// accumulator at consecutive frames. No sampled per-frame corrections are stored.
+    /// running sum at consecutive frames. No sampled per-frame corrections are stored.
     /// </summary>
     internal static int Centiseconds(int frameCounter)
     {

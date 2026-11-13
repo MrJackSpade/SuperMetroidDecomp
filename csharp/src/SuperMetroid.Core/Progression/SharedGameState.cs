@@ -99,7 +99,7 @@ public sealed class SharedGameState
     /// </remarks>
     public void SetRandomNumber(int value) => Random.Seed(value);
 
-    /// <summary>Stores the shared RNG state with its two bytes exchanged, as the lava and acid FX routine does.</summary>
+    /// <summary>Stores the shared RNG state with its two halves exchanged, as the lava and acid FX does.</summary>
     internal void SwapRandomHalves() => Random.SwapHalves();
 
     /// <summary>
@@ -132,7 +132,7 @@ public sealed class SharedGameState
     public ControllerButton NewlyTimedHeldInput { get; internal set; }
 
     /// <summary>
-    /// Prior active filtered input. The original routine updates
+    /// Prior active filtered input. The game updates
     /// this only on timer underflow, not on every frame.
     /// </summary>
     public ControllerButton TimedHeldInputPrevious { get; internal set; }
@@ -208,7 +208,7 @@ public sealed class SharedGameState
 
     /// <summary>
     /// Forgets <paramref name="bits"/> as defeated in <paramref name="area"/>, as an otherwise unused original
-    /// routine does; the encounter reset on loading a save uses it.
+    /// step does; the encounter reset on loading a save uses it.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The flags are not all named.</exception>
     public void ClearBossBits(AreaId area, BossBits bits)
@@ -256,7 +256,7 @@ public sealed class SharedGameState
     public bool HasOpenedDoor(LockedDoor door) => Progress.OpenedDoors.Contains(door);
 
     /// <summary>
-    /// Persists a coloured door after its final valid hit, matching the door instruction. Re-entering
+    /// Persists a coloured door after its final valid hit, matching the door cue. Re-entering
     /// the room then converts that coloured cap into its ordinary blue-door counterpart.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="door"/> is not a retail door.</exception>

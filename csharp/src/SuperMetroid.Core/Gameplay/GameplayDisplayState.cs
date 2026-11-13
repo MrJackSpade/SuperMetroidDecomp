@@ -10,7 +10,7 @@ internal sealed class GameplayDisplayState
     /// <summary>
     /// The Ceres elevator shaft's current turning floor. The shaft room main publishes it after the
     /// drawing pass, and sprite producers use it only while calculating their temporary
-    /// rendered origins. The translated consumer never moves physical coordinates.
+    /// rendered origins. The consumer never moves physical coordinates.
     /// </summary>
     public TurningFloorTransform? ActiveTurningFloor { get; set; }
 

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Spatial;
 /// How a turning floor appears on the screen (#1514): the floor image is laid with floor point <see cref="Scroll"/> at the
 /// screen's top-left corner, then turned clockwise by <see cref="Angle"/> and scaled by <see cref="Scale"/> about floor
 /// point <see cref="Center"/>, which stays where that first placement put it. The backend turns the description into its
-/// own matrix.
+/// own transform.
 /// </summary>
 /// <remarks>
 /// A screen pixel <c>p</c> shows the floor point <c>Center + Scale * R * (p + Scroll - Center)</c>, where <c>R</c> turns a

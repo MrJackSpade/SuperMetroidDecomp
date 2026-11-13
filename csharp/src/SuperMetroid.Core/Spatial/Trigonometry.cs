@@ -9,11 +9,11 @@ public static class Trigonometry
 {
     /// <summary>The game's sine table peaking at 32767 and its three
     /// quadrant continuations. These signed samples peak at +/-32767, unlike
-    /// the sign-extended 8.8 table. The positive half equals the stored unsigned
-    /// half-wave shifted right once; sign is restored only after that truncation.</summary>
-    /// <remarks>Independently reviewed for #1165; keep this existing algorithm: for byte angle a, let n = a &amp; 127 and
+    /// the signed 8.8 table. The positive half equals the stored unsigned
+    /// half-wave halved; sign is restored only after that truncation.</summary>
+    /// <remarks>Independently reviewed for #1165; keep this existing algorithm: for angle a in 256ths of a turn, let n = a mod 128 and
     /// U(n) = floor(65535*sin(n*pi/128)). The exact result is floor(U(n)/2),
-    /// negated only when a &gt;= 128. All 256 words match the game's table
+    /// negated only when a &gt;= 128. All 256 values match the game's table
     /// exactly. This preserves
     /// the half-unit scale (32767.5), rather than assuming a scale of 32767.
     /// The #1165 research evaluator used bounded decimal arithmetic, not Math.Sin.
@@ -46,12 +46,12 @@ public static class Trigonometry
         return sample < 0 ? -product : product;
     }
 
-    /// <summary>The game's sign-extended 8.8 sine table and
-    /// its three quadrant continuations. Unlike the byte table, peaks are +/-256.</summary>
+    /// <summary>The game's signed 8.8 sine table and
+    /// its three quadrant continuations. Unlike the small table, peaks are +/-256.</summary>
     /// <remarks>Independently reviewed for #1165; keep this existing algorithm: sign(a)*floor(256*sin((a &amp; 127)*pi/128)),
-    /// with positive sign for a &lt; 128, reproduces the game's words. Treat the
-    /// quarter-turn magnitude as exactly 256; the byte table saturates it to 255.
-    /// The #1165 research also checked the entire 320-word negative-cosine prefix/full
+    /// with positive sign for a &lt; 128, reproduces the game's values. Treat the
+    /// quarter-turn magnitude as exactly 256; the small table saturates it to 255.
+    /// The #1165 research also checked the entire 320-entry negative-cosine prefix/full
     /// sine view. The backend's scroll-wave shader (#1468) draws ripples from
     /// these same samples.
     /// Individual investigation: #625 / #910.</remarks>
@@ -62,10 +62,10 @@ public static class Trigonometry
         return angle.IsInSecondHalf ? -magnitude : magnitude;
     }
 
-    /// <summary>The game's byte sine table and cosine continuation:
+    /// <summary>The game's small sine table and cosine continuation:
     /// min(255, floor(256*sin(index*pi/128))) for index 0..127.</summary>
     /// <remarks>
-    /// Independently checked for #1165 against all 128 NTSC bytes.
+    /// Independently checked for #1165 against all 128 NTSC values.
     /// Scale 256 before truncation; only the exact quarter-turn saturates to 255.
     /// Invalid indices throw ArgumentOutOfRangeException.
     /// Sign, radius truncation and separate whole/fraction negation stay in callers.
@@ -79,7 +79,7 @@ public static class Trigonometry
     /// <summary>The game's unsigned sine table:
     /// floor(65535*sin(index*pi/128)) for index 0..127.</summary>
     /// <remarks>
-    /// Independently checked for #1165 against all 128 original NTSC words.
+    /// Independently checked for #1165 against all 128 NTSC values.
     /// Scale 65535, not saturated 65536; preserve quantization
     /// before multiplication and before SignedSixteenBitSine's shift and sign.
     /// This identifies the exact numerical convention, not the historical authoring tool.

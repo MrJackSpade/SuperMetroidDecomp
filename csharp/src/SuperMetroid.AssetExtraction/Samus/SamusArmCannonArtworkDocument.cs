@@ -17,7 +17,7 @@ public sealed record SamusArmCannonArtworkDocument
     /// exactly those poses; loading requires room for a descriptor.
     /// </summary>
     public required Dictionary<SamusPoseId, int> PoseDescriptors { get; init; }
-    /// <summary>Exactly 608 byte values for $90:C9D9–$CC38: direction and drawing-mode bytes, optional alternate direction/mode, then signed X/Y pixel-offset pairs indexed by body animation frame.</summary>
+    /// <summary>Exactly 656 byte values for $90:C9D9–$CC68: direction and drawing-mode bytes, optional alternate direction/mode, then signed X/Y pixel-offset pairs indexed by body animation frame.</summary>
     public required int[] DrawingData { get; init; }
     /// <summary>Ten cover appearances in native direction order, each one small piece at the origin: character, palette, priority and mirroring.</summary>
     public required SpriteVisualPart[] CoverAppearances { get; init; }

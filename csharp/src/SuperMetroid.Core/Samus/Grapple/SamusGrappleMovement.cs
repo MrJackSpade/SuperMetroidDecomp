@@ -94,6 +94,8 @@ public static class SamusGrappleMovement
         SamusGrappleBeamDrawing.InitializeBeamAnimation(grapple);
 
         QueueGrappleSound(samus, GrappleBeamDefinitions.Sounds.Fire);
+        // The grapple's firing sound, like a beam shot's, cancels a pending resume of the charging sound (#1689).
+        samus.ResumeChargingBeamSoundPending = false;
         // Firing again ends the released-from-swing movement handler, so
         // Samus moves with ordinary physics from this same frame.
         grapple.ReleasedMovementActive = false;

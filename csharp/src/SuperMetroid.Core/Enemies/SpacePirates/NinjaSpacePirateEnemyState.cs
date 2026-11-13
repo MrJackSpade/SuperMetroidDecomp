@@ -67,8 +67,8 @@ public sealed class NinjaSpacePirateEnemyState
     public int SpawnedClawCount { get; internal set; }
 
     /// <summary>
-    /// Changes <see cref="Speed"/> by <paramref name="delta"/> 1/256-pixel units, wrapping past 65535 as the game's
+    /// Changes <see cref="Speed"/> by <paramref name="delta"/>, wrapping past the fastest speed as the game's
     /// speed does.
     /// </summary>
-    internal void ChangeSpeed(int delta) => Speed += SignedEightEight.FromSignedRaw(delta);
+    internal void ChangeSpeed(SignedEightEight delta) => Speed += delta;
 }

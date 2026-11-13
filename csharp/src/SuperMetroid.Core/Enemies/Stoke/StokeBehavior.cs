@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Enemies.Stoke;
 internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
 {
 
-    /// <summary>A Stoke projectile's sideways speed, one pixel per update, in signed 8.8.</summary>
-    private const int StokeProjectileSpeed = 256;
+    /// <summary>A Stoke projectile's sideways speed, one pixel per update.</summary>
+    private static readonly SignedEightEight StokeProjectileSpeed = SignedEightEight.FromParts(1, 0);
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Stoke];
@@ -230,8 +230,8 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             SpriteGraphics.SpawnedBy(stoke));
         projectile.Position = new(new(stoke.Position.X.Whole, stoke.Position.X.Fraction), new(CoordinateAxis.Wrap(stoke.Position.Y.Whole + 2), stoke.Position.Y.Fraction));
         projectile.Velocity = new(
-            SignedEightEight.FromSignedRaw(direction == StokeDirection.Left ? -StokeProjectileSpeed : StokeProjectileSpeed),
-            new SignedEightEight(0));
+            direction == StokeDirection.Left ? -StokeProjectileSpeed : StokeProjectileSpeed,
+            SignedEightEight.Zero);
     }
 
     /// <summary>Runs the projectile's per-frame behaviour: the projectile flies sideways at its speed until it leaves the view.</summary>

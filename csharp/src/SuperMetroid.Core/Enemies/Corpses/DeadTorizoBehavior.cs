@@ -65,7 +65,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         DeadTorizo = new DeadTorizoEnemyState(slot, new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount))
         {
             Function = DeadTorizoFunction.Wait,
-            Velocity = new(default, new SignedEightEight(8)),
+            Velocity = new(default, SignedEightEight.FromParts(0, 8)),
         };
         slot.SetSpeciesState(DeadTorizo);
     }
@@ -115,7 +115,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The rotting corpse's downward acceleration per update, one 256th of a pixel per update.</summary>
-    private static readonly SignedEightEight DeadTorizoRotGravity = SignedEightEight.FromSignedRaw(1);
+    private static readonly SignedEightEight DeadTorizoRotGravity = SignedEightEight.FromParts(0, 1);
 
     /// <summary>Advances the corpse's fall and runs one rot call of its schedule.</summary>
     private void RunDeadTorizoRotting(RoomEnemySlot slot, DeadTorizoEnemyState state)

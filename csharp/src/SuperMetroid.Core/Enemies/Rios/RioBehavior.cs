@@ -35,8 +35,8 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Strict horizontal Samus proximity threshold that starts a dive.</summary>
     private const int RioTriggerDistance = 160;
-    /// <summary>8.8 vertical velocity decrement applied during dive and rebound.</summary>
-    private static readonly SignedEightEight RioGravityStep = SignedEightEight.FromSignedRaw(24);
+    /// <summary>Vertical velocity decrement applied during dive and rebound, 24 256ths of a pixel per update.</summary>
+    private static readonly SignedEightEight RioGravityStep = SignedEightEight.FromParts(0, 24);
 
     /// <summary>Initializes the Rio.</summary>
     internal static void InitializeRio(RoomEnemySlot slot)
@@ -81,8 +81,8 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
 
                 state.Velocity = new EightEightVector<RoomPixels>(
-                    new SignedEightEight(RioLaunchDefinitions.RioXVelocity),
-                    new SignedEightEight(RioLaunchDefinitions.RioYVelocity));
+                    RioLaunchDefinitions.RioXVelocity,
+                    RioLaunchDefinitions.RioYVelocity);
                 if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0)
                     state.Velocity = state.Velocity.ReversedX();
                 InstallRioAnimationScript(
@@ -132,7 +132,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.Velocity.Y.IsNegative)
                 {
                     state.SavedHorizontalVelocity = state.Velocity.X;
-                    state.Velocity = new EightEightVector<RoomPixels>(0, 0);
+                    state.Velocity = new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.Zero);
                     state.Function = RioEnemyFunction.HoveringTowardSamus;
                 }
                 else if (state.AnimationFinished)
@@ -182,7 +182,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     state.Velocity = new EightEightVector<RoomPixels>(
                         state.SavedHorizontalVelocity,
-                        SignedEightEight.FromSignedRaw(-1));
+                        -SignedEightEight.FromParts(0, 1));
                     state.Function = RioEnemyFunction.BouncingBackToPerch;
                     return;
                 }
@@ -240,11 +240,11 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Reads one signed entry from the 8.8 sine/cosine table. Rio consumes
-    /// the raw table sample as an 8.8 velocity; unlike Rinka, it performs no speed multiply.
+    /// The Rio's hover velocity along <paramref name="angle"/>'s sine: one pixel per update at its peak, the sine itself
+    /// with no speed of its own, unlike Rinka's.
     /// </summary>
     internal static SignedEightEight ReadRioSignedSineCosineSample(TrigonometryAngle angle) =>
-        SignedEightEight.FromSignedRaw(Trigonometry.SignedSine(angle));
+        EnemyMath.SineVelocity(angle, 1);
 
     /// <summary>Rejects movement dispatch without active room collision data.</summary>
     private static void RequireRioLevel([NotNull] RoomLevelData? level)

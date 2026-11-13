@@ -17,11 +17,13 @@ public static class PolypLaunchDefinitions
 
     /// <summary>
     /// The horizontal velocity each launch selector chooses: the first eight push right, the second eight push left by
-    /// the same magnitudes, each 16 faster than the last from 96.
+    /// the same magnitudes, each a sixteenth of a pixel per update faster than the last from 96 256ths.
     /// </summary>
-    internal static readonly int[] XVelocities =
+    internal static readonly SignedEightEight[] XVelocities =
     [
-        96, 112, 128, 144, 160, 176, 192, 208,
-        -96, -112, -128, -144, -160, -176, -192, -208,
+        SignedEightEight.FromParts(0, 96), SignedEightEight.FromParts(0, 112), SignedEightEight.FromParts(0, 128), SignedEightEight.FromParts(0, 144),
+        SignedEightEight.FromParts(0, 160), SignedEightEight.FromParts(0, 176), SignedEightEight.FromParts(0, 192), SignedEightEight.FromParts(0, 208),
+        -SignedEightEight.FromParts(0, 96), -SignedEightEight.FromParts(0, 112), -SignedEightEight.FromParts(0, 128), -SignedEightEight.FromParts(0, 144),
+        -SignedEightEight.FromParts(0, 160), -SignedEightEight.FromParts(0, 176), -SignedEightEight.FromParts(0, 192), -SignedEightEight.FromParts(0, 208),
     ];
 }

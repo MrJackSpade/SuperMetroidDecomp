@@ -297,10 +297,15 @@ internal sealed class NoobTubeBehavior
         int angleStep)
     {
         NoobTubeDebrisState debris = projectile.StateOf<NoobTubeDebrisState>();
-        int sine = Trigonometry.SignedSine(debris.SwayAngle);
-        AdvanceNoobTubeShardX(projectile, SignedEightEight.FromSignedRaw(sine >> 2));
+        AdvanceNoobTubeShardX(projectile, SwayVelocity(debris.SwayAngle));
         debris.AdvanceSway(angleStep);
     }
+
+    /// <summary>
+    /// The debris's sideways speed at sway angle <paramref name="angle"/>: a quarter of the one-pixel sine velocity,
+    /// rounded toward decreasing coordinates.
+    /// </summary>
+    internal static SignedEightEight SwayVelocity(TrigonometryAngle angle) => EnemyMath.SineVelocity(angle, 1).DividedRoundingDown(4);
 
     /// <summary>Advances the bubble by its vertical velocity and publishes its own horizontal position.</summary>
     private static void MoveNoobTubeBubbleVertically(EnemyProjectile projectile)

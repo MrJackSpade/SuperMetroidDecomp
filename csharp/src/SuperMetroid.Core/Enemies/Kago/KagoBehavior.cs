@@ -196,10 +196,10 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             AfterCommon = c => ResolveKagoShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
         });
     }
-    /// <summary>Signed eight-eight acceleration added to a bug's vertical velocity each unobstructed airborne frame.</summary>
-    private static readonly SignedEightEight KagoBugGravity = SignedEightEight.FromSignedRaw(224);
-    /// <summary>Signed eight-eight horizontal jump speed, negated for leftward launches.</summary>
-    private const int KagoBugHorizontalSpeed = 512;
+    /// <summary>Acceleration added to a bug's vertical velocity each unobstructed airborne frame, 224 256ths of a pixel per update.</summary>
+    private static readonly SignedEightEight KagoBugGravity = SignedEightEight.FromParts(0, 224);
+    /// <summary>Horizontal jump speed, two pixels per update, negated for leftward launches.</summary>
+    private static readonly SignedEightEight KagoBugHorizontalSpeed = SignedEightEight.FromParts(2, 0);
     /// <summary>Horizontal parent separation that enables the bug to block Samus's projectiles.</summary>
     private const int KagoBugSourceCollisionEnableDistance = 23;
     /// <summary>Beyond this parent separation, the next jump homes toward the shell.</summary>
@@ -286,14 +286,14 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // A wall ends the rising phase immediately in the game: both X velocity
             // and the upward component are replaced before selecting the falling list.
-            projectile.Velocity = new(new SignedEightEight(0), SignedEightEight.FromSignedRaw(256));
+            projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.FromParts(1, 0));
             BeginKagoBugFall(projectile);
             return;
         }
 
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
-            projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(256));
+            projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromParts(1, 0));
             BeginKagoBugFall(projectile);
             return;
         }
@@ -313,7 +313,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         // and deliberately postpones both vertical motion and gravity until the next frame.
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
-            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(0));
+            projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Zero);
             return;
         }
 
@@ -342,9 +342,9 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         EnableKagoBugShotCollisionWhenSeparated(projectile);
 
         int random = ReadKagoRandomNumber();
-        int upwardMagnitude = (KagoDefinitions.JumpHeightSteps.Of(random) * KagoDefinitions.JumpHeightStep) + 2048;
-        // At most three steps over the base, 2816 256ths, so the upward speed lies well inside the 8.8 range.
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(-upwardMagnitude));
+        int upwardPixels = KagoDefinitions.BaseJumpSpeedPixels +
+            KagoDefinitions.JumpHeightSteps.Of(random) * KagoDefinitions.JumpHeightStepPixels;
+        projectile.Velocity = projectile.Velocity.WithY(-SignedEightEight.FromParts(upwardPixels, 0));
 
         RoomEnemySlot source = projectile.StateOf<KagoBugState>().Source;
         int sourceDelta = CoordinateAxis.Difference(source.Position.X.Whole, projectile.Position.X.Whole);
@@ -361,9 +361,9 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             jumpLeft = KagoDefinitions.LeftJump.IsSetIn(random);
         }
 
-        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(jumpLeft
+        projectile.Velocity = projectile.Velocity.WithX(jumpLeft
             ? -KagoBugHorizontalSpeed
-            : KagoBugHorizontalSpeed));
+            : KagoBugHorizontalSpeed);
         projectile.FrameBehavior =
             EnemyProjectileFrameBehavior.KagoBugJump;
     }

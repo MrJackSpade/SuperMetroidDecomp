@@ -41,7 +41,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Strict wrapped X-distance threshold for a random dive opportunity.</summary>
     private const int NorfairRioHorizontalTriggerDistance = 192;
     /// <summary>Signed 8.8 vertical speed decrement applied during dive and return.</summary>
-    private static readonly SignedEightEight NorfairRioGravity = SignedEightEight.FromSignedRaw(32);
+    private static readonly SignedEightEight NorfairRioGravity = SignedEightEight.FromParts(0, 32);
 
     /// <summary>Initializes the Norfair Rio.</summary>
     internal void InitializeNorfairRio(RoomEnemySlot slot)
@@ -111,8 +111,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 // The same random number picks the dive's fast or slow downward launch.
                 state.Velocity = new EightEightVector<RoomPixels>(
-                    new SignedEightEight(RioLaunchDefinitions.NorfairXVelocity),
-                    new SignedEightEight(RioLaunches.NorfairYVelocity(random)));
+                    RioLaunchDefinitions.NorfairXVelocity,
+                    RioLaunches.NorfairYVelocity(random));
                 if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0)
                     state.Velocity = state.Velocity.ReversedX();
                 InstallNorfairRioAnimationScript(
@@ -260,7 +260,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         NorfairRioEnemyState state)
     {
-        state.Velocity = state.Velocity.WithY(SignedEightEight.FromSignedRaw(-1));
+        state.Velocity = state.Velocity.WithY(-SignedEightEight.FromParts(0, 1));
         InstallNorfairRioAnimationScript(
             slot,
             state,

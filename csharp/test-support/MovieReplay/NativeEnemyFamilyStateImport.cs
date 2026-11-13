@@ -380,7 +380,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<FirefleaEnemyState>() is { } firefleaRecord)
         {
-            firefleaRecord.AngularSpeed = SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A);
+            firefleaRecord.AngularSpeed = FirefleaBehavior.TurnPerUpdate(SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A));
             firefleaRecord.Radius = words.C;
             firefleaRecord.Angle = RotationAngle.FromRaw(words.D);
             firefleaRecord.Center = new(words.E, words.F);

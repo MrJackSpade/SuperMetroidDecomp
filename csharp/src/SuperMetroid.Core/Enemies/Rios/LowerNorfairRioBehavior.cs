@@ -41,7 +41,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Samus must be strictly within 112 horizontal pixels to permit a swoop.</summary>
     private const int LowerNorfairRioHorizontalTriggerDistance = 112;
     /// <summary>Each flight update subtracts 32 units from the signed 8.8 vertical velocity.</summary>
-    private static readonly SignedEightEight LowerNorfairRioGravity = SignedEightEight.FromSignedRaw(32);
+    private static readonly SignedEightEight LowerNorfairRioGravity = SignedEightEight.FromParts(0, 32);
 
     /// <summary>Initializes the Lower Norfair Rio.</summary>
     internal void InitializeLowerNorfairRio(RoomEnemySlot slot)
@@ -107,8 +107,8 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 }
 
                 state.Velocity = new(
-                    new SignedEightEight(RioLaunchDefinitions.LowerNorfairXVelocity),
-                    new SignedEightEight(RioLaunchDefinitions.LowerNorfairYVelocity));
+                    RioLaunchDefinitions.LowerNorfairXVelocity,
+                    RioLaunchDefinitions.LowerNorfairYVelocity);
                 if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0)
                     NegateLowerNorfairRioXVelocity(state);
                 InstallLowerNorfairRioAnimationScript(
@@ -240,7 +240,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         RoomEnemySlot slot,
         LowerNorfairRioEnemyState state)
     {
-        state.Velocity = state.Velocity.WithY(SignedEightEight.FromSignedRaw(-1));
+        state.Velocity = state.Velocity.WithY(-SignedEightEight.FromParts(0, 1));
         InstallLowerNorfairRioAnimationScript(
             slot,
             state,

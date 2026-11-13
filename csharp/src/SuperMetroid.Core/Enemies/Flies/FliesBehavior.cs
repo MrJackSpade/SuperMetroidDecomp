@@ -109,11 +109,9 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         FlyEnemyState state,
         SamusState samus)
     {
-        int angle = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToMirroredTableAngle().RawValue;
-        state.Velocity = new(
-            ReadSignedSineCosine(angle + 64) * 2,
-            ReadSignedSineCosine(angle) * 4);
+        TrigonometryAngle angle = EnemyMath.CalculateBearing(
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToMirroredTableAngle();
+        state.Velocity = DiveVelocity(angle);
         state.TargetHeight = new Position16<RoomPixels>(0, samus.Position.Y.Whole);
         state.Function = FlyEnemyFunction.AttackSamus;
     }
@@ -134,26 +132,34 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = FlyEnemyFunction.Retreat;
     }
 
-    /// <summary>Applies the sine and phase-offset cosine table deltas for circular flight.</summary>
+    /// <summary>
+    /// The dive toward Samus along <paramref name="angle"/>, the mirrored table angle of her bearing: two pixels per update
+    /// along its sine across and four along its sine a quarter turn behind (the negative cosine) down.
+    /// </summary>
+    internal static EightEightVector<RoomPixels> DiveVelocity(TrigonometryAngle angle) => new(
+        EnemyMath.SineVelocity(angle, 2),
+        EnemyMath.SineVelocity(angle.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn), 4));
+
+    /// <summary>
+    /// One update's step around the circle at <paramref name="angle"/>: one pixel along its sine across and one along its
+    /// sine a quarter turn behind (the negative cosine) down.
+    /// </summary>
+    internal static EightEightVector<RoomPixels> CircleStep(TrigonometryAngle angle) => new(
+        EnemyMath.SineVelocity(angle, 1),
+        EnemyMath.SineVelocity(angle.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn), 1));
+
+    /// <summary>Steps the fly around its circle at its angle, across before down.</summary>
     private static void MoveFlyAccordingToAngle(RoomEnemySlot slot, FlyEnemyState state)
     {
-        int tableIndex = state.Angle.ToTrigonometryAngle().RawValue;
-        slot.Position = slot.Position.AdvanceX(SignedEightEight.Wrapped(ReadSignedSineCosine(tableIndex + 64)).ToSixteenSixteenDelta());
-        slot.Position = slot.Position.AdvanceY(SignedEightEight.Wrapped(ReadSignedSineCosine(tableIndex)).ToSixteenSixteenDelta());
+        EightEightVector<RoomPixels> step = CircleStep(state.Angle.ToTrigonometryAngle());
+        slot.Position = slot.Position.AdvanceX(step.X.ToSixteenSixteenDelta());
+        slot.Position = slot.Position.AdvanceY(step.Y.ToSixteenSixteenDelta());
     }
 
     /// <summary>Applies the fixed-point dive or retreat velocity to the enemy position.</summary>
     private static void MoveFlyAccordingToVelocities(RoomEnemySlot slot, FlyEnemyState state)
     {
         slot.Position = slot.Position.Advance(state.Velocity.ToSixteenSixteen());
-    }
-
-    /// <summary>Reads the game's negative-cosine table, including the phase-offset range used for horizontal motion.</summary>
-    internal static int ReadSignedSineCosine(int index)
-    {
-        // The backing table begins with negative cosine at index zero, sine at index 64,
-        // and continues far enough for every byte angle plus the cosine phase offset.
-        return Trigonometry.SignedNegativeCosineSample(index);
     }
 
     /// <summary>Advances Flies's typed animation.</summary>

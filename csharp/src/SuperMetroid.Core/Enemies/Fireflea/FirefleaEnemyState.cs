@@ -19,10 +19,10 @@ public sealed class FirefleaEnemyState
     internal AnimationPlayback<FirefleaProgram> Playback { get; set; }
 
     /// <summary>
-    /// The signed angular speed, its spawn speed toward its spawn sign, in 256ths of a turn per update with a fraction
-    /// in 65536ths. The circle advances by an 8.8 turn delta: its whole 256ths and the fraction's top 256ths.
+    /// The turn the circle makes each update: its spawn speed toward its spawn sign read as a turn
+    /// (<see cref="FirefleaBehavior.TurnPerUpdate"/>).
     /// </summary>
-    public SignedSixteenSixteen AngularSpeed { get; internal set; }
+    public RotationAngle AngularSpeed { get; internal set; }
 
     /// <summary>The movement radius in pixels, 8 through 64, from its spawn settings.</summary>
     public int Radius { get; internal set; }

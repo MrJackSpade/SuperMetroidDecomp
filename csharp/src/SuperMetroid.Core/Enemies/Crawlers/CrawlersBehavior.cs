@@ -408,7 +408,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             // A crawler placed without a crawl speed takes the default speed after its first landing.
             if (state.TakesDefaultSpeedOnLanding)
             {
-                state.Velocity = new EightEightVector<RoomPixels>(128, 128);
+                state.Velocity = new EightEightVector<RoomPixels>(SignedEightEight.FromParts(0, 128), SignedEightEight.FromParts(0, 128));
             }
             state.FallingYVelocity = SignedSixteenSixteen.Zero;
             state.ConsecutiveTurnCounter = 0;

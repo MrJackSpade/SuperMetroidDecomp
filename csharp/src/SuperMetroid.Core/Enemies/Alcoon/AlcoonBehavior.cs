@@ -413,12 +413,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? new AnimationContinuation<AlcoonProgram>(AlcoonAnimations.StartingWith(walk), AnimationPlace.StartOfAnimation)
                 : null);
 
-    /// <summary>Initial horizontal fireball speed in 8.8 units.</summary>
-    private static readonly SignedEightEight AlcoonFireballGraphicsHorizontalSpeed = SignedEightEight.FromSignedRaw(1024);
+    /// <summary>Initial horizontal fireball speed, four pixels per update.</summary>
+    private static readonly SignedEightEight AlcoonFireballGraphicsHorizontalSpeed = SignedEightEight.FromParts(4, 0);
     /// <summary>Horizontal speed at which fireball deceleration stops.</summary>
-    private static readonly SignedEightEight AlcoonFireballTerminalHorizontalSpeed = SignedEightEight.FromSignedRaw(512);
-    /// <summary>8.8 horizontal speed reduction applied per fireball update.</summary>
-    private static readonly SignedEightEight AlcoonFireballHorizontalDeceleration = SignedEightEight.FromSignedRaw(64);
+    private static readonly SignedEightEight AlcoonFireballTerminalHorizontalSpeed = SignedEightEight.FromParts(2, 0);
+    /// <summary>Horizontal speed reduction applied per fireball update, a quarter pixel per update.</summary>
+    private static readonly SignedEightEight AlcoonFireballHorizontalDeceleration = SignedEightEight.FromParts(0, 64);
 
     /// <summary>Spits an Alcoon fireball with the vertical speed of <paramref name="launch"/>.</summary>
     internal void SpawnAlcoonFireball(RoomEnemySlot alcoon, AlcoonFireballLaunch launch)

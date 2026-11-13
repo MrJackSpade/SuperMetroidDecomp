@@ -783,8 +783,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 ResolveMagdolliteCombatAfterCommon(context.Slot);
             });
     }
-    /// <summary>Signed 8.8 sideways speed of thrown lava, three pixels per update, negated for a leftward throw.</summary>
-    private const int MagdolliteLavaHorizontalSpeed = 768;
+    /// <summary>Sideways speed of thrown lava, three pixels per update, negated for a leftward throw.</summary>
+    private static readonly SignedEightEight MagdolliteLavaHorizontalSpeed = SignedEightEight.FromParts(3, 0);
 
     /// <summary>Spawns and initializes a Magdollite lava ball.</summary>
     internal void SpawnMagdolliteLava(RoomEnemySlot source, bool throwsRight)
@@ -802,8 +802,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // lava sideways in the overlay's facing.
         projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(CoordinateAxis.Wrap(source.Position.Y.Whole + 2), source.Position.Y.Fraction));
         projectile.Velocity = new(
-            SignedEightEight.FromSignedRaw(throwsRight ? MagdolliteLavaHorizontalSpeed : -MagdolliteLavaHorizontalSpeed),
-            new SignedEightEight(0));
+            throwsRight ? MagdolliteLavaHorizontalSpeed : -MagdolliteLavaHorizontalSpeed,
+            SignedEightEight.Zero);
         projectile.FrameBehavior =
             EnemyProjectileFrameBehavior.MagdolliteLavaFlight;
         projectile.InstallAnimation(new MagdolliteLavaAnimation(throwsRight ? MagdolliteLavaProgram.Right : MagdolliteLavaProgram.Left));

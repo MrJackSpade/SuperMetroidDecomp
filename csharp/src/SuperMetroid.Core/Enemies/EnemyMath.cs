@@ -44,6 +44,8 @@ internal static class EnemyMath
         if (delta.Y < 0)
             quadrant++;
 
+        // The bearing is counted in 256ths of a turn clockwise from up, so right lies a quarter turn on, down a half
+        // turn and left three quarters; each octant turns from its nearer compass direction by the slope's eighth.
         if (absoluteY < absoluteX)
         {
             // The octant is chosen from the full distances; the slope keeps the original's limits, so offsets
@@ -51,19 +53,19 @@ internal static class EnemyMath
             int divided = AimAngleSlope.Of(absoluteY, absoluteX);
             return Bearing.Wrapped(quadrant switch
             {
-                0 => (divided >> 3) + TrigonometryAngle.QuarterTurn.RawValue,
-                1 => TrigonometryAngle.QuarterTurn.RawValue - (divided >> 3),
-                2 => -TrigonometryAngle.QuarterTurn.RawValue - (divided >> 3),
-                _ => (divided >> 3) - TrigonometryAngle.QuarterTurn.RawValue,
+                0 => EnemyTrigonometryAngleDefinitions.QuarterTurn + (divided >> 3),
+                1 => EnemyTrigonometryAngleDefinitions.QuarterTurn - (divided >> 3),
+                2 => -EnemyTrigonometryAngleDefinitions.QuarterTurn - (divided >> 3),
+                _ => (divided >> 3) - EnemyTrigonometryAngleDefinitions.QuarterTurn,
             });
         }
 
         int inverseDivided = AimAngleSlope.Of(absoluteX, absoluteY);
         return Bearing.Wrapped(quadrant switch
         {
-            0 => TrigonometryAngle.HalfTurn.RawValue - (inverseDivided >> 3),
+            0 => EnemyTrigonometryAngleDefinitions.HalfTurn - (inverseDivided >> 3),
             1 => inverseDivided >> 3,
-            2 => (inverseDivided >> 3) + TrigonometryAngle.HalfTurn.RawValue,
+            2 => EnemyTrigonometryAngleDefinitions.HalfTurn + (inverseDivided >> 3),
             _ => -(inverseDivided >> 3),
         });
     }
@@ -166,6 +168,15 @@ internal static class EnemyMath
 
     /// <summary>Whether a table angle's sine component is negative: the angle a half turn on lies in the turn's second half.</summary>
     internal static bool SineIsNegative(TrigonometryAngle angle) => angle.TurnedBy(TrigonometryAngle.HalfTurn).IsInSecondHalf;
+
+    /// <summary>
+    /// The velocity of <paramref name="wholePixels"/> whole pixels per update, 0 through 127, along
+    /// <paramref name="angle"/>'s sine: the signed sine sample, which peaks at one pixel per update, times the whole
+    /// speed. The product of a whole speed loses nothing, so it is the sample scaled exactly; the routines that read the
+    /// sample itself as a velocity take one pixel.
+    /// </summary>
+    internal static SignedEightEight SineVelocity(TrigonometryAngle angle, int wholePixels) =>
+        Trigonometry.MultiplySignedSine(EightEight.FromWhole(Ensure.BetweenInclusive(0, sbyte.MaxValue, wholePixels)), angle);
 
     /// <summary>Multiplies a signed sine-table sample by speed with the game's fixed-point rounding.</summary>
     internal static SignedEightEight MultiplySineSample(int speed, TrigonometryAngle angle) =>

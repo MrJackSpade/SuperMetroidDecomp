@@ -835,7 +835,7 @@ internal sealed class EnemyProjectileEngine
             : RoomEnemyProjectileKind.CeresFallingDebrisLight;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics);
         projectile.Position = projectile.Position.WithWhole(new(xPosition, 42));
-        projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(16));
+        projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.FromParts(0, 16));
         projectile.StartAnimation(animation);
     }
 
@@ -892,7 +892,7 @@ internal sealed class EnemyProjectileEngine
             RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
             graphics: default);
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(samus.Position.X.Whole + definition.XOffset), CoordinateAxis.Wrap(samus.Position.Y.Whole + GunshipDustDefinitions.YOffset)));
-        projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
+        projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);
         projectile.StartAnimation(new GunshipDustAnimation(definition.Program));
     }
 
@@ -965,10 +965,10 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>A Skree or Metaree particle's downward acceleration per update, in 256ths of a pixel per update.</summary>
-    private static readonly SignedEightEight SkreeParticleGravity = SignedEightEight.FromSignedRaw(80);
+    private static readonly SignedEightEight SkreeParticleGravity = SignedEightEight.FromParts(0, 80);
 
     /// <summary>A falling Ceres tile's downward acceleration per update, in 256ths of a pixel per update.</summary>
-    private static readonly SignedEightEight CeresFallingTileGravity = SignedEightEight.FromSignedRaw(16);
+    private static readonly SignedEightEight CeresFallingTileGravity = SignedEightEight.FromParts(0, 16);
 
     /// <summary>Registers Skree/Metaree particle movement with falling acceleration and camera-square deletion.</summary>
     internal static void AddMetalSkreeParticleFrameBehavior(EnemyProjectileHandlerTable table)

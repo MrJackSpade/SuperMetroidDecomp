@@ -1676,22 +1676,22 @@ public enum EnemyFrameId
     ChozoStatueWreckedShipActivatedEighth,
     /// <summary>The Chozo statue: Wrecked Ship activated, ninth frame.</summary>
     ChozoStatueWreckedShipActivatedNinth,
-    /// <summary>The Chozo statue: Wrecked Ship activated loop two, first frame.</summary>
-    ChozoStatueWreckedShipActivatedLoopTwoFirst,
-    /// <summary>The Chozo statue: Wrecked Ship activated loop two, second frame.</summary>
-    ChozoStatueWreckedShipActivatedLoopTwoSecond,
-    /// <summary>The Chozo statue: Wrecked Ship activated loop two, third frame.</summary>
-    ChozoStatueWreckedShipActivatedLoopTwoThird,
-    /// <summary>The Chozo statue: Wrecked Ship activated loop two, fourth frame.</summary>
-    ChozoStatueWreckedShipActivatedLoopTwoFourth,
-    /// <summary>The Chozo statue: Wrecked Ship activated loop two, fifth frame.</summary>
-    ChozoStatueWreckedShipActivatedLoopTwoFifth,
-    /// <summary>The Chozo statue: Wrecked Ship activated loop two, sixth frame.</summary>
-    ChozoStatueWreckedShipActivatedLoopTwoSixth,
-    /// <summary>The Chozo statue: Wrecked Ship activated loop two, seventh frame.</summary>
-    ChozoStatueWreckedShipActivatedLoopTwoSeventh,
-    /// <summary>The Chozo statue: Wrecked Ship activated loop two, eighth frame.</summary>
-    ChozoStatueWreckedShipActivatedLoopTwoEighth,
+    /// <summary>The Chozo statue: Wrecked Ship walking, first frame.</summary>
+    ChozoStatueWreckedShipWalkingFirst,
+    /// <summary>The Chozo statue: Wrecked Ship walking, second frame.</summary>
+    ChozoStatueWreckedShipWalkingSecond,
+    /// <summary>The Chozo statue: Wrecked Ship walking, third frame.</summary>
+    ChozoStatueWreckedShipWalkingThird,
+    /// <summary>The Chozo statue: Wrecked Ship walking, fourth frame.</summary>
+    ChozoStatueWreckedShipWalkingFourth,
+    /// <summary>The Chozo statue: Wrecked Ship walking, fifth frame.</summary>
+    ChozoStatueWreckedShipWalkingFifth,
+    /// <summary>The Chozo statue: Wrecked Ship walking, sixth frame.</summary>
+    ChozoStatueWreckedShipWalkingSixth,
+    /// <summary>The Chozo statue: Wrecked Ship walking, seventh frame.</summary>
+    ChozoStatueWreckedShipWalkingSeventh,
+    /// <summary>The Chozo statue: Wrecked Ship walking, eighth frame.</summary>
+    ChozoStatueWreckedShipWalkingEighth,
     /// <summary>Viola: normal, first frame.</summary>
     ViolaNormalFirst,
     /// <summary>Viola: normal, second frame.</summary>

@@ -1112,14 +1112,14 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.ChozoStatueWreckedShipActivatedSeventh,
         EnemyFrameId.ChozoStatueWreckedShipActivatedEighth,
         EnemyFrameId.ChozoStatueWreckedShipActivatedNinth,
-        EnemyFrameId.ChozoStatueWreckedShipActivatedLoopTwoFirst,
-        EnemyFrameId.ChozoStatueWreckedShipActivatedLoopTwoSecond,
-        EnemyFrameId.ChozoStatueWreckedShipActivatedLoopTwoThird,
-        EnemyFrameId.ChozoStatueWreckedShipActivatedLoopTwoFourth,
-        EnemyFrameId.ChozoStatueWreckedShipActivatedLoopTwoFifth,
-        EnemyFrameId.ChozoStatueWreckedShipActivatedLoopTwoSixth,
-        EnemyFrameId.ChozoStatueWreckedShipActivatedLoopTwoSeventh,
-        EnemyFrameId.ChozoStatueWreckedShipActivatedLoopTwoEighth,
+        EnemyFrameId.ChozoStatueWreckedShipWalkingFirst,
+        EnemyFrameId.ChozoStatueWreckedShipWalkingSecond,
+        EnemyFrameId.ChozoStatueWreckedShipWalkingThird,
+        EnemyFrameId.ChozoStatueWreckedShipWalkingFourth,
+        EnemyFrameId.ChozoStatueWreckedShipWalkingFifth,
+        EnemyFrameId.ChozoStatueWreckedShipWalkingSixth,
+        EnemyFrameId.ChozoStatueWreckedShipWalkingSeventh,
+        EnemyFrameId.ChozoStatueWreckedShipWalkingEighth,
     ];
 
     /// <summary>The frames <c>Enemies/Chozo/ChozoStatueBehavior.cs</c> shows for <c>NoobTubeCrack</c>.</summary>

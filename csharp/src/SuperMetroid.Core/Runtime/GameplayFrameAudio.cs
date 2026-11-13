@@ -24,8 +24,7 @@ internal static class GameplayFrameAudio
     /// <summary>Requests the Speed Booster echo at normal priority, returning what the room library's queue did with it.</summary>
     /// <exception cref="InvalidOperationException">The runtime's requests reach no session queue to answer the echo.</exception>
     private static SoundQueueAdmission QueueEcho(SuperMetroidRuntime runtime) =>
-        runtime.AudioRequests.QueueSound(RoomSound.SpeedBooster, SoundRequestPriority.Normal,
-            soundSuppressed: runtime.PowerBombExplosionSuppressesSounds)
+        runtime.AudioRequests.QueueSound(RoomSound.SpeedBooster, SoundRequestPriority.Normal)
         ?? throw new InvalidOperationException("The Speed Booster's echo needs the session's sound queues to answer it.");
 
     /// <summary>Runs Samus's admitted low-health check.</summary>
@@ -33,7 +32,6 @@ internal static class GameplayFrameAudio
     private static void CheckLowHealth(SuperMetroidRuntime runtime)
     {
         if (runtime.Player.Samus is not { } samus) throw new InvalidOperationException("Health check requires Samus.");
-        samus.HealthWarning.Update(samus.Health, runtime.AudioRequests,
-            soundSuppressed: runtime.PowerBombExplosionSuppressesSounds);
+        samus.HealthWarning.Update(samus.Health, runtime.AudioRequests);
     }
 }

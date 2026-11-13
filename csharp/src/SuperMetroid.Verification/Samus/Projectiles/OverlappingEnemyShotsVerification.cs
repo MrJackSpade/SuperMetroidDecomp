@@ -60,7 +60,7 @@ internal static class OverlappingEnemyShotsVerification
         AssertTrue(shot.IsSpent, "non-piercing shot is marked for deferred removal");
         AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.Missile), shot.Type, "collision preserves the missile until projectile processing");
         var level = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
-        shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);
+        shots.HandleShots(new SamusTerrain { Level = level }, samus, Position16<RoomPixels>.Zero, bombs);
         AssertTrue(shot.Type.IsNone, "next projectile pass consumes the removal marker");
         foreach (var enemy in enemies.SlotTable.Slots.Take(3))
         {

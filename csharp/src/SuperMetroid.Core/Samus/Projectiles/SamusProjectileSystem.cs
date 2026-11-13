@@ -312,7 +312,8 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Runs the power-beam HUD producer and then handles all allocated ordinary slots.
+    /// Runs the power-beam HUD producer and then handles all allocated ordinary slots: <see cref="FireFromHud"/>, then
+    /// <see cref="HandleShots"/>.
     /// </summary>
     /// <param name="terrain">SamusTerrain</param>
     /// <param name="samus">Mutable player owner supplying pose, equipment, charge, and HUD selection.</param>
@@ -323,19 +324,31 @@ public sealed class SamusProjectileSystem
     /// clock once, immediately before calling this method; this method may replace it after
     /// a successful shot just as the game does.
     /// </param>
-    /// <param name="projectileProducerEnabled">Whether to admit the HUD weapon producer; existing ordinary slots still run when this is false, subject to live X-ray freeze.</param>
-    /// <param name="producerSoundSuppressed">Optional captured sound-suppression decision at production; null uses the shared Power Bomb owner's current active state.</param>
-    public SamusProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem sharedProjectiles, bool projectileProducerEnabled = true, bool? producerSoundSuppressed = null)
+    public SamusProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem sharedProjectiles)
     {
+        FireFromHud(terrain, samus, buttons, sharedProjectiles, projectileProducerEnabled: true);
+        HandleShots(terrain, samus, cameraPosition, sharedProjectiles);
+        return LastFrameResult;
+    }
 
+    /// <summary>
+    /// Runs the power-beam HUD producer, the beam and missile share of Samus's HUD handler, which the game runs before it
+    /// handles any projectile: the producer fires and queues its firing sound as it fires (#1620), so the sound is tested
+    /// against the power bomb as it stood before the update's bombs ran. The pass's result reports the firing sound.
+    /// </summary>
+    /// <param name="terrain">SamusTerrain</param>
+    /// <param name="samus">Mutable player owner supplying pose, equipment, charge, and HUD selection.</param>
+    /// <param name="buttons">The buttons Samus's projectile producer reads: held buttons, this frame's new presses, and the previous frame's new presses (#633).</param>
+    /// <param name="sharedProjectiles">Bomb-slot owner carrying the shared projectile cooldown, which a successful shot replaces.</param>
+    /// <param name="projectileProducerEnabled">Whether to admit the HUD weapon producer; the shots are handled whether or not it runs.</param>
+    public void FireFromHud(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, SamusBombProjectileSystem sharedProjectiles, bool projectileProducerEnabled)
+    {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
         Ensure.NotNull(sharedProjectiles);
 
-        int? firedSlot = null;
         SoundEffectId? queuedSound = null;
         SoundRequestPriority? queuedSoundMaximum = null;
-        bool soundSuppressedAtProduction = producerSoundSuppressed ?? sharedProjectiles.PowerBombExplosion.IsActive;
 
         // Humanoid projectile dispatch is selected by the live HUD item. Indices zero/three
         // share the beam producer; index one reaches the missile producer. Ball poses still
@@ -372,7 +385,7 @@ public sealed class SamusProjectileSystem
                 (buttons.ControllerInput & ControllerButton.B) == ControllerButton.None;
             if (samus.SelectedHudItem is HudItem.Beam or HudItem.PowerBomb || xrayBeamFallback)
             {
-                (firedSlot, queuedSound, queuedSoundMaximum) = Firing.HandleBeamInput(
+                (_, queuedSound, queuedSoundMaximum) = Firing.HandleBeamInput(
                     terrain.Level,
                     samus,
                     buttons.ControllerInput,
@@ -383,7 +396,7 @@ public sealed class SamusProjectileSystem
             }
             else if (samus.SelectedHudItem is HudItem.Missile or HudItem.SuperMissile)
             {
-                (firedSlot, queuedSound) = Firing.TryFireMissile(
+                (_, queuedSound) = Firing.TryFireMissile(
                     samus,
                     buttons.ControllerNewInput,
                     buttons.ControllerPreviousNewInput,
@@ -392,20 +405,31 @@ public sealed class SamusProjectileSystem
                     queuedSoundMaximum = SoundRequestPriority.Normal;
             }
         }
-        // The firing routine queues its sound as it fires, before any shot moves.
+        // The firing routine queues its sound as it fires, before any projectile moves.
         if (queuedSound is { } firingSound)
         {
             AudioRequests.QueueSound(firingSound,
-                queuedSoundMaximum ?? throw new InvalidDataException("A projectile sound was queued without its queue limit."),
-                soundSuppressedAtProduction);
+                queuedSoundMaximum ?? throw new InvalidDataException("A projectile sound was queued without its queue limit."));
         }
 
-        // Uncharged and charged firing perform one zero-speed block dispatch before
-        // installing ordinary movement. A muzzle born against a solid door can therefore
-        // already be an explosion before the descending alpha-pass loop begins below.
-        bool collisionStartedExplosion = firedSlot is { } initialCollisionSlot &&
-            SlotTable.Slots[initialCollisionSlot].Type.IsFamily(
-                SamusProjectileFamily.BeamExplosion);
+        LastFrameResult = new SamusProjectileFrameResult(queuedSound, queuedSoundMaximum);
+    }
+
+    /// <summary>
+    /// Handles all allocated ordinary slots, in update order, after the bombs (<see cref="SamusBombProjectileSystem.HandleBombs"/>):
+    /// the shots' share of the game's projectile handling.
+    /// </summary>
+    /// <param name="terrain">SamusTerrain</param>
+    /// <param name="samus">Mutable player owner supplying pose, equipment and the X-ray freeze.</param>
+    /// <param name="cameraPosition">Horizontal and vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
+    /// <param name="sharedProjectiles">Bomb-slot owner carrying the shared cooldown and the power bomb the shots read.</param>
+    public void HandleShots(SamusTerrain terrain, SamusState samus, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem sharedProjectiles)
+    {
+        Ensure.NotNull(terrain.Level);
+        Ensure.NotNull(samus);
+        Ensure.NotNull(sharedProjectiles);
+
+        bool collisionStartedExplosion = false;
         bool projectileDeleted = false;
 
         // Bombs were handled by the companion class first; the shots run in update order here because instruction
@@ -438,8 +462,7 @@ public sealed class SamusProjectileSystem
                 else comboSound = Combos.StepSpazerCombo(samus, slot, sharedProjectiles, cameraPosition.Y);
                 projectileDeleted |= !slot.IsActive;
                 if (comboSound is SoundEffectId sound)
-                    AudioRequests.QueueSound(sound, SoundRequestPriority.Normal,
-                        soundSuppressed: sharedProjectiles.PowerBombExplosion.IsActive);
+                    AudioRequests.QueueSound(sound, SoundRequestPriority.Normal);
             }
             else if (slot.FrameBehavior == SamusProjectileFrameBehavior.NoWaveBeam)
             {
@@ -447,8 +470,7 @@ public sealed class SamusProjectileSystem
                     terrain.Level,
                     slot,
                     cameraPosition,
-                    terrain.RoomObjects,
-                    sharedProjectiles.PowerBombExplosion);
+                    terrain.RoomObjects);
             }
             else if (slot.FrameBehavior is
                 SamusProjectileFrameBehavior.WaveBeamThreeFrameTrail or
@@ -529,12 +551,6 @@ public sealed class SamusProjectileSystem
             if (slot.Playback is not null)
                 projectileDeleted |= Animation.RunProjectileInstructionHandler(slot);
         }
-
-        LastFrameResult = new SamusProjectileFrameResult(
-            queuedSound,
-            queuedSoundMaximum,
-            soundSuppressedAtProduction);
-        return LastFrameResult;
     }
 
     /// <summary>

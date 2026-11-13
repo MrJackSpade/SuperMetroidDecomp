@@ -115,8 +115,6 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// systems at it; the effect's own record before that.
     /// </summary>
     internal GameplayAudioRequests AudioRequests { get; private set; } = new();
-    /// <summary>The room's power-bomb explosion, which suppresses effect sounds while it is active.</summary>
-    private IActivePowerBomb? audioPowerBomb;
     /// <summary>Countdown between quake sound requests in earthquake FX rooms.</summary>
     internal WrappingCountdown EarthquakeSoundTimer { get; set; }
     /// <summary>Position in the room earthquake sound sequence.</summary>
@@ -333,17 +331,13 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (--lavaSoundTimer != 0)
             return;
         lavaSoundTimer = LavaAcidWaveDefinitions.AmbientSoundPeriod;
-        AudioRequests.QueueSound(new SoundRequest(
-            LiquidEffects.LavaAmbientSound(random),
-            LavaAcidWaveDefinitions.AmbientSoundPriority,
-            SoundSuppressed: audioPowerBomb?.IsActive == true));
+        AudioRequests.QueueSound(LiquidEffects.LavaAmbientSound(random), LavaAcidWaveDefinitions.AmbientSoundPriority);
     }
 
     /// <summary>Runs the active effect's per-frame behaviour step and rain animtile handler.</summary>
     public void Step(ArtworkFrameSelections frames, RoomFxOverlayFrame frame)
     {
         Ensure.NotNull(frames);
-        audioPowerBomb = frame.PowerBomb;
         if (!frame.LiquidMotionAlreadyAdvanced)
             SustainedEarthquake = null;
         if (Type == RoomFxType.Fireflea)
@@ -659,10 +653,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if ((uint)EarthquakeSoundSequenceIndex >= (uint)baseDelays.Count)
             EarthquakeSoundSequenceIndex = 0;
 
-        AudioRequests.QueueSound(new SoundRequest(
-            EnemySound.Lavaquake,
-            Priority: SoundRequestPriority.Normal,
-            SoundSuppressed: audioPowerBomb?.IsActive == true));
+        AudioRequests.QueueSound(EnemySound.Lavaquake, SoundRequestPriority.Normal);
         EarthquakeSoundTimer = WrappingCountdown.Start(baseDelays[EarthquakeSoundSequenceIndex])
             .AddFrames(RoomEarthquakeDefinitions.RisingLiquidSoundJitter.Of(randomNumber) + earthquakeSoundDelay.ExtraFrames);
         EarthquakeSoundSequenceIndex++;

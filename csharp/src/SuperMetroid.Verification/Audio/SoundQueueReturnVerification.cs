@@ -20,12 +20,15 @@ internal static class SoundQueueReturnVerification
             ushort expectedAccumulator = ushort.Parse(fields[2], NumberStyles.HexNumber);
             int expectedCount = int.Parse(fields[3], CultureInfo.InvariantCulture);
             int expectedNewSound = int.Parse(fields[4], CultureInfo.InvariantCulture);
-            var queue = AudioQueues.Standalone();
+            var gameplay = new CheckGameplaySoundState();
+            var queue = AudioQueues.Standalone(gameplay);
             queue.AdvanceFrame(default);
             for (int index = 0; index < occupancy; index++)
                 queue.QueueSound(RoomSound.CrocomireAcidDamage, SoundRequestPriority.Essential);
-            SoundQueueAdmission actual = queue.QueueSound(
-                RoomSound.SpeedBooster, SoundRequestPriority.Normal, suppressed);
+            // A suppressed row is a request the queue turns away after its occupancy test, as it does while a power bomb explodes.
+            gameplay.PowerBombExploding = suppressed;
+            SoundQueueAdmission actual = queue.QueueSound(RoomSound.SpeedBooster, SoundRequestPriority.Normal);
+            gameplay.PowerBombExploding = false;
             // The recorded accumulator holds the occupancy in its high byte and the request in its low byte when the
             // threshold admits the request, and the two swapped when it rejects it; the check now asserts the outcome
             // that word encodes instead of the word itself.

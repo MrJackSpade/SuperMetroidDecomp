@@ -17,9 +17,6 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </remarks>
 public sealed class SamusPowerBombExplosionState
 {
-    /// <summary>Whether the explosion is active, as rooms and FX read it.</summary>
-    internal IActivePowerBomb Activity => field ??= new SamusPowerBombActivity(this);
-
     /// <summary>Installed glow colours: installed content, not game state, bound again when a game is restored.</summary>
     public InstalledPowerBombGlowColors? PresentationColors { get; set; }
 

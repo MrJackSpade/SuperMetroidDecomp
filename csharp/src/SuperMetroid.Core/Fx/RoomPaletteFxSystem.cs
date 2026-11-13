@@ -34,8 +34,6 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     private readonly List<ShownPaletteFxFrame> suitShown = [];
     /// <summary>The frames the enemies' groups showed during the current update, in order (#1512).</summary>
     private readonly List<ShownPaletteFxFrame> enemyShown = [];
-    /// <summary>Live Power Bomb state used to suppress colour-effect sound requests.</summary>
-    private IActivePowerBomb? audioPowerBomb;
     /// <summary>Whether the effects run at all and the heat phases, which outlive each room's effects.</summary>
     private readonly PaletteFxSessionState _session;
 
@@ -115,12 +113,11 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// shade, and the frames of Samus's and the enemies' groups are handed to their owners through
     /// <see cref="SuitShown"/> and <see cref="EnemyShown"/>, whose colourings the import pre-colours per frame.
     /// </remarks>
-    /// <param name="conditions">The update's conditions the effects watch, with the live Power Bomb that silences their sounds.</param>
+    /// <param name="conditions">The update's conditions the effects watch.</param>
     /// <exception cref="InvalidOperationException">A frame is shown in colours no gameplay picture shows.</exception>
     public void Step(PaletteFxConditions conditions)
     {
-        audioPowerBomb = Ensure.NotNull(conditions).PowerBomb;
-        RunTurns(conditions, ShowGameplayFrame);
+        RunTurns(Ensure.NotNull(conditions), ShowGameplayFrame);
     }
 
     /// <summary>
@@ -130,7 +127,6 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// <exception cref="InvalidOperationException">A frame is shown in colours no frontend screen shows.</exception>
     internal void StepScreen(PaletteFxConditions conditions)
     {
-        audioPowerBomb = null;
         RunTurns(conditions, ShowScreenFrame);
     }
 
@@ -243,10 +239,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
             if (PaletteFxHeatData.DamageSoundEveryEighthUpdate.IsDue(frameCounter) &&
                 samus.Health > PaletteFxHeatData.DamageSoundEnergyThreshold)
             {
-                AudioRequests.QueueSound(new SoundRequest(
-                    RoomSound.IncrementalEnergy,
-                    PaletteFxHeatData.DamageSoundPriority,
-                    SoundSuppressed: audioPowerBomb?.IsActive == true));
+                AudioRequests.QueueSound(RoomSound.IncrementalEnergy, PaletteFxHeatData.DamageSoundPriority);
             }
         }
 
@@ -269,11 +262,10 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
                 _session.PublishedHeatPhase = publishHeatPhase.Phase;
                 return;
             case PaletteFxCue.QueueSound queueSound:
-                AudioRequests.QueueSound(new SoundRequest(
+                AudioRequests.QueueSound(
                     queueSound.Sound ?? throw new InvalidDataException(
                         $"Colour effect {effect.Effect} queued a sound step without a sound."),
-                    PaletteFxSoundPriorities.InstructionSound,
-                    SoundSuppressed: audioPowerBomb?.IsActive == true));
+                    PaletteFxSoundPriorities.InstructionSound);
                 return;
             default:
                 throw new InvalidOperationException($"Colour effect {effect.Effect} handed on step {cue}, which it keeps itself.");

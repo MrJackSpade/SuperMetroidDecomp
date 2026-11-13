@@ -1,8 +1,6 @@
-using SuperMetroid.Core.Rooms;
-
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>What one effect-overlay FX step reads from the frame: camera, freeze, the power-on rumble delay, RNG, darkness and the power bomb (#633).</summary>
+/// <summary>What one effect-overlay FX step reads from the frame: camera, freeze, the power-on rumble delay, RNG and darkness (#633).</summary>
 public sealed record RoomFxOverlayFrame
 {
     /// <summary>Camera.</summary>
@@ -25,9 +23,6 @@ public sealed record RoomFxOverlayFrame
     /// the enemies' room status for the darkness effect; a step the darkness has no level for is rejected.
     /// </summary>
     public int FirefleaDarknessStep { get; init => field = Ensure.BetweenInclusive(0, FirefleaFxDefinitions.DarknessLevels.Length - 1, value); }
-
-    /// <summary>Power bomb.</summary>
-    public IActivePowerBomb? PowerBomb { get; init; } = null;
 
     /// <summary>Liquid motion already advanced.</summary>
     public bool LiquidMotionAlreadyAdvanced { get; init; } = false;

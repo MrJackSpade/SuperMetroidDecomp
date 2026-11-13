@@ -115,13 +115,6 @@ public sealed class SamusBombProjectileSystem
     internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
 
     /// <summary>
-    /// Sound guard after the per-line effect update but before bomb frame behaviours. The game's
-    /// humanoid weapon production precedes those instructions; the split projectile
-    /// owners must retain this earlier value when a bomb activates later in alpha.
-    /// </summary>
-    public bool SoundSuppressedBeforeProjectileHandling { get; private set; }
-
-    /// <summary>
     /// Advances the Power Bomb explosion's shape independently of Samus's alpha/input handler.
     /// Scripted carries suppress alpha but do not stop the per-line effect phase.
     /// </summary>
@@ -157,22 +150,33 @@ public sealed class SamusBombProjectileSystem
         // Crystal Flash window's own.
         if (powerBombCleanup)
             ResumeSoundsAfterPowerBombExplosion(samus, gameState);
-
-        SoundSuppressedBeforeProjectileHandling = PowerBombExplosion.IsActive;
     }
 
     /// <summary>
     /// Runs the bomb-owned portion of Samus frame-handler alpha, followed by the enemy
-    /// overlap pass that the main gameplay loop invokes before movement-handler beta.
+    /// overlap pass that the main gameplay loop invokes before movement-handler beta: <see cref="RunHudProducer"/>,
+    /// then <see cref="HandleBombs"/>.
     /// </summary>
     public BombProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ControllerButton controllerInput, ControllerButton controllerNewInput, BombJumpOverlapPublication overlap = BombJumpOverlapPublication.Immediate, PowerBombExplosionStep explosion = PowerBombExplosionStep.Advance)
     {
-
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
 
         if (explosion == PowerBombExplosionStep.Advance)
             AdvancePowerBombExplosion(samus, controllerInput);
+        bool beamChargeConsumed = RunHudProducer(samus, controllerInput, controllerNewInput);
+        SamusBombJumpDirection publishedDirection = HandleBombs(terrain, samus, overlap);
+        return new BombProjectileFrameResult(publishedDirection, beamChargeConsumed);
+    }
+
+    /// <summary>
+    /// Runs the bombs' share of Samus's HUD handler, which the game runs before it handles any projectile: the shared
+    /// cooldown, then the morph ball's bomb producer.
+    /// </summary>
+    /// <returns>Whether the producer consumed the beam charge.</returns>
+    public bool RunHudProducer(SamusState samus, ControllerButton controllerInput, ControllerButton controllerNewInput)
+    {
+        Ensure.NotNull(samus);
 
         // The cooldown runs before the movement-type-specific HUD handler. A value of one
         // therefore reaches zero in time for a new Shoot edge during this same frame.
@@ -199,13 +203,20 @@ public sealed class SamusBombProjectileSystem
                 beamChargeConsumed |= rejectedPlacementClearedCharge;
             }
             if (beamChargeConsumed)
-            {
-                AudioRequests.QueueSound(new SoundRequest(
-                    SamusSound.Silence,
-                    Priority: SoundRequestPriority.High,
-                    SoundSuppressed: PowerBombExplosion.IsActive));
-            }
+                AudioRequests.QueueSound(SamusSound.Silence, SoundRequestPriority.High);
         }
+        return beamChargeConsumed;
+    }
+
+    /// <summary>
+    /// Handles the bomb slots in update order, the bombs' share of the game's projectile handling, which runs after
+    /// every HUD producer and before the shots (<see cref="SamusProjectileSystem.HandleShots"/>).
+    /// </summary>
+    /// <returns>The bomb jump direction published, or none when <paramref name="overlap"/> defers it.</returns>
+    public SamusBombJumpDirection HandleBombs(SamusTerrain terrain, SamusState samus, BombJumpOverlapPublication overlap = BombJumpOverlapPublication.Immediate)
+    {
+        Ensure.NotNull(terrain.Level);
+        Ensure.NotNull(samus);
 
         bool explosionStarted = false;
         bool projectileDeleted = false;
@@ -221,9 +232,6 @@ public sealed class SamusBombProjectileSystem
                 continue;
 
             bool wasNormalBomb = slot.Type.Family == SamusProjectileFamily.Bomb;
-            // Spawn queues its startup cue before setting the active bit. Preserve
-            // that earlier guard separately from sounds produced after the frame behaviour.
-            bool soundSuppressedBeforeFrameBehavior = PowerBombExplosion.IsActive;
             bool slotExplosionStarted = RunBombFrameBehavior(
                 terrain.Level,
                 slot,
@@ -237,21 +245,7 @@ public sealed class SamusBombProjectileSystem
                 // The fuse requests this sound at normal priority for every normal bomb
                 // whose fuse expires. Keep the append-only shape because several spread
                 // bombs can expire during one Samus projectile pass.
-                AudioRequests.QueueSound(new SoundRequest(
-                    EnemySound.BombExplosion,
-                    Priority: SoundRequestPriority.Normal,
-                    SoundSuppressed: PowerBombExplosion.IsActive));
-            }
-            else if (slotExplosionStarted)
-            {
-                // The explosion requests its sound at essential priority
-                // immediately before it marks the explosion active and
-                // starts its two per-line effects. Publish it from the same frame that
-                // Spawn installs the explosion's owner.
-                AudioRequests.QueueSound(new SoundRequest(
-                    SamusSound.PowerBombExplosion,
-                    Priority: SoundRequestPriority.Essential,
-                    SoundSuppressed: soundSuppressedBeforeFrameBehavior));
+                AudioRequests.QueueSound(EnemySound.BombExplosion, SoundRequestPriority.Normal);
             }
 
             // The loop still steps the animation after a frame behaviour clears a slot.
@@ -274,7 +268,7 @@ public sealed class SamusBombProjectileSystem
         // shot this frame may suppress overlap before the bomb direction is stored.
         SamusBombJumpDirection publishedDirection = overlap == BombJumpOverlapPublication.Deferred ? SamusBombJumpDirection.None : PublishBombJumpOverlap(samus);
 
-        return new BombProjectileFrameResult(publishedDirection, beamChargeConsumed);
+        return publishedDirection;
     }
 
     /// <summary>Runs the bomb subset of the post-alpha Samus/projectile interaction pass.</summary>
@@ -587,6 +581,18 @@ public sealed class SamusBombProjectileSystem
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
+    /// <summary>
+    /// Starts the power bomb's explosion at <paramref name="position"/>: the explosion requests its sound at essential
+    /// priority immediately before it marks itself active, so the sound passes the queues' power-bomb test before the
+    /// explosion it announces turns later sounds away. A Power Bomb's fuse and the Chainsaw beam's borrowed fuse both
+    /// start it here.
+    /// </summary>
+    internal void SpawnPowerBombExplosion(Position16<RoomPixels> position)
+    {
+        AudioRequests.QueueSound(SamusSound.PowerBombExplosion, SoundRequestPriority.Essential);
+        PowerBombExplosion.Spawn(position);
+    }
+
     /// <summary>Advances one bomb fuse or spread trajectory, starts explosions and visits terrain on the trigger frame.</summary>
     private bool RunBombFrameBehavior(
         RoomLevelData level,
@@ -626,7 +632,7 @@ public sealed class SamusBombProjectileSystem
             }
             if (fuse.SpawnExplosion)
             {
-                PowerBombExplosion.Spawn(slot.Position.Whole);
+                SpawnPowerBombExplosion(slot.Position.Whole);
                 explosionStarted = true;
             }
         }

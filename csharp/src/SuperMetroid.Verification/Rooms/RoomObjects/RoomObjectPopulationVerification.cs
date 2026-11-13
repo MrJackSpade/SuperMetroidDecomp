@@ -1197,9 +1197,9 @@ internal static class RoomObjectPopulationVerification
         bool saving = roomObjects.Stations.ResolveSaveStationConfirmation(saveRequest, accepted: true, level: level);
         AssertTrue(saving, "accepted save resumes the sleeping cartridge PLM");
         // #1269: $84:AFF4-$AFFA run in the PLM pass the message returned into. That pass resumes at the message-close
-        // boundary, so the sound is a one-shot request the frontend publishes there (#1390).
+        // boundary, and the pass queues the sound as it runs (#1390, #1620).
         AssertEqual(new SoundRequest(SamusSound.Saving, SoundRequestPriority.Normal),
-            roomObjects.Stations.ConsumeSavingSoundRequest(), "the confirming pass queues cartridge library-one sound $2E");
+            roomObjects.Sounds.SoundRequests[^1], "the confirming pass queues cartridge library-one sound $2E");
         AssertTrue(Enumerable.Range(0, levelBeforeSave.Length).Any(block => levelBeforeSave[block] !=
                 level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).Terrain),
             "the confirming pass draws the first electricity frame");

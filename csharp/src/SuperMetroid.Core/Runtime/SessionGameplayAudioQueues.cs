@@ -4,13 +4,12 @@ namespace SuperMetroid.Core.Runtime;
 
 /// <summary>
 /// The session's sound and music queues as a runtime's gameplay requests reach them (#1620): each request goes straight
-/// in as it is made, unless an attract demo is playing, whose game state turns gameplay's audio away.
+/// in as it is made. A sound request passes the queues' own test (<see cref="SoundQueueAdmission"/>), which turns it away
+/// while an attract demo plays or a power bomb explodes; a music request is dropped while an attract demo plays.
 /// </summary>
 /// <remarks>
-/// While a demo plays, a sound request is still tested against its queue, so what the queue would have done with it stays
-/// readable (the Speed Booster's echo reads it), but nothing joins the queue; a music request is dropped. Evidence: the
-/// game's sound queue routines test the game state after the queue's occupancy, and its music queue routines test it
-/// before queueing.
+/// Evidence: the game's music queue routines test the game state (below the demo states) before queueing, and nothing
+/// else; its sound queue routines make their own tests, which the session's queues model.
 /// </remarks>
 /// <param name="queues">The session's queues.</param>
 /// <param name="demo">Whether an attract demo is driving the runtime.</param>
@@ -23,8 +22,7 @@ internal sealed class SessionGameplayAudioQueues(AudioQueues queues, IAttractDem
     private readonly IAttractDemoState demo = Ensure.NotNull(demo);
 
     /// <inheritdoc/>
-    public SoundQueueAdmission QueueSound(SoundRequest request) =>
-        queues.QueueSound(request.SoundEffect, request.Priority, request.SoundSuppressed || demo.IsAttractDemo);
+    public SoundQueueAdmission QueueSound(SoundRequest request) => queues.QueueSound(request);
 
     /// <inheritdoc/>
     public void QueueMusic(GameplayMusicRequest request)

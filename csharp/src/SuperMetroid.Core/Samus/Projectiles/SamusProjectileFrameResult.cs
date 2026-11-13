@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 /// <param name="QueuedSoundEffect">The firing sound queued during the pass, if any.</param>
 /// <param name="QueuedSoundMaximum">The queue limit of the firing request, or none with no request.</param>
-/// <param name="QueuedSoundSuppressed">Whether the firing sound request was deliberately suppressed.</param>
 public readonly record struct SamusProjectileFrameResult(
     SoundEffectId? QueuedSoundEffect,
-    SoundRequestPriority? QueuedSoundMaximum,
-    bool QueuedSoundSuppressed = false);
+    SoundRequestPriority? QueuedSoundMaximum);

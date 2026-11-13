@@ -60,7 +60,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         AssertTrue(!shots.Slots[1].IsSpent, "the pair's second slot is not marked");
 
         var level = CreateEmptyRoom(new(16, 16));
-        shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);
+        shots.HandleShots(new SamusTerrain { Level = level }, samus, Position16<RoomPixels>.Zero, bombs);
         head.AiStates = EnemyAiStates.None;
         head.FlashTimer = 0;
         head.InvincibilityTimer = 0;

@@ -172,6 +172,7 @@ using static SuperMetroid.Verification.Samus.Movement.GroundedSpreadTransitionVe
 using static SuperMetroid.Verification.Enemies.Gunship.GunshipLandingVerification;
 using static SuperMetroid.Verification.Hardware.HardwareVerification;
 using static SuperMetroid.Verification.Samus.Abilities.HealthWarningVerification;
+using static SuperMetroid.Verification.Audio.SoundQueuePowerBombAdmissionVerification;
 using static SuperMetroid.Verification.Runtime.HeroShotRuntimeVerification;
 using static SuperMetroid.Verification.Runtime.HeroShotsVerification;
 using static SuperMetroid.Verification.Audio.HostIndependentAudioAcknowledgementsVerification;
@@ -569,6 +570,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyStrictFailureBoundaries), () => VerifyStrictFailureBoundaries()),
         new(nameof(VerifyReserveAutoRecovery), () => VerifyReserveAutoRecovery()),
         new(nameof(VerifyHealthWarning), () => VerifyHealthWarning()),
+        new(nameof(VerifyExplodingPowerBombTurnsEverySoundAway), () => VerifyExplodingPowerBombTurnsEverySoundAway()),
         new(nameof(VerifyReserveAutoFrontend), () => VerifyReserveAutoFrontend()),
         new(nameof(VerifyPauseReserveManual), () => VerifyPauseReserveManual()),
         new(nameof(VerifyPauseReserveArrow), () => VerifyPauseReserveArrow()),

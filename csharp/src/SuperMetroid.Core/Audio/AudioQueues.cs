@@ -38,14 +38,22 @@ public sealed class AudioQueues
     /// <summary>Sound-handler calls, 0 through <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimeCalls"/>, for which a music change withdraws every library's sound request.</summary>
     private int _soundHandlerDowntime;
 
+    /// <summary>The gameplay states every sound request is tested against as it is made (<see cref="SoundSuppression"/>).</summary>
+    private readonly IGameplaySoundState _gameplay;
+
     /// <summary>Creates empty music and sound queues with every library's handler ready, scheduling the power-on data set and requests for the next <see cref="AdvanceFrame"/> rather than executing them immediately.</summary>
     /// <param name="soundHandshakes">
     /// The handshakes the libraries' handlers run, covering every library of <see cref="SoundEffectLibraries.InQueueOrder"/>;
     /// the queues reset them with their own state.
     /// </param>
-    public AudioQueues(SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId> soundHandshakes)
+    /// <param name="gameplay">
+    /// The gameplay states the queues read as each sound request is made: whether an attract demo plays and whether a
+    /// power bomb explodes, which turn an admitted request away.
+    /// </param>
+    internal AudioQueues(SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId> soundHandshakes, IGameplaySoundState gameplay)
     {
         SoundHandshakes = Ensure.NotNull(soundHandshakes);
+        _gameplay = Ensure.NotNull(gameplay);
         Reset();
     }
 
@@ -215,26 +223,23 @@ public sealed class AudioQueues
 
     /// <summary>Queues <paramref name="request"/> and returns what the queue did with it (see the overload taking the request's parts).</summary>
     public SoundQueueAdmission QueueSound(SoundRequest request) =>
-        QueueSound(request.SoundEffect, request.Priority, request.SoundSuppressed);
+        QueueSound(request.SoundEffect, request.Priority);
     /// <summary>
     /// Requests <paramref name="soundEffect"/> from its library's queue: <see cref="SoundQueueAdmission.For"/> decides
-    /// from the queue's waiting requests and the request's priority whether it joins, and an admitted request is queued
-    /// unless sounds are suppressed. The outcome says which happened and how full the queue was; the Speed Booster's
-    /// stage selection reads it after requesting its echo.
+    /// from the queue's waiting requests and the request's priority whether it is admitted, and an admitted request joins
+    /// the queue unless the game turns sounds away now (<see cref="SoundQueueAdmission.Joins"/>: the door's switch
+    /// disables sounds, an attract demo plays or a power bomb explodes). Every sound request, whoever makes it, passes this
+    /// one test. The outcome says whether it was admitted and how full the queue was; the Speed Booster's stage selection
+    /// reads it after requesting its echo.
     /// </summary>
     /// <param name="soundEffect">The sound, whose library selects one of the three independent queues.</param>
-    /// <param name="priority">How full the queue may be for the request to join it; tested before suppression.</param>
-    /// <param name="soundSuppressed">
-    /// Whether sounds are suppressed (sounds disabled, a demo, or an active Power Bomb), tested after the priority.
-    /// Suppression leaves the queue unchanged.
-    /// </param>
+    /// <param name="priority">How full the queue may be for the request to be admitted; tested before suppression.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="soundEffect"/> names no library.</exception>
-    public SoundQueueAdmission QueueSound(
-        SoundEffectId soundEffect, SoundRequestPriority priority, bool soundSuppressed = false)
+    public SoundQueueAdmission QueueSound(SoundEffectId soundEffect, SoundRequestPriority priority)
     {
         SoundQueue queue = QueueOf(soundEffect.Library);
         SoundQueueAdmission admission = SoundQueueAdmission.For(queue.Count, priority);
-        if (!admission.IsAdmitted || soundSuppressed || DoorTransitionSoundsDisabled)
+        if (!admission.Joins(new SoundSuppression(DoorTransitionSoundsDisabled, _gameplay.AttractDemoPlaying, _gameplay.PowerBombExploding)))
             return admission;
 
         // Every priority turns a request away once fifteen wait, so an admitted request always finds room: the game's

@@ -33,8 +33,10 @@ internal sealed class FrontendSession
         Assists = assists ?? GameplayAssists.None;
         display = new FrontendDisplay(hostServices.GameplayFrames);
         // One set of handshakes for the session's whole lifetime, like the clock: each library's handler carries its
-        // phase across menus and gameplay runtimes, and a soft reset returns it to ready with the queues.
-        audio = new AudioQueues(new SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder));
+        // phase across menus and gameplay runtimes, and a soft reset returns it to ready with the queues. Every sound request
+        // is tested against the live runtime's demo and power bomb as it is made.
+        audio = new AudioQueues(new SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder),
+            new SessionGameplaySoundState(this));
         audioSession = new AudioSession(soundClock);
         this.saves = Ensure.NotNull(saves);
         SelectedSaveSlot = saves.ReadSelectedSlot();
@@ -261,14 +263,6 @@ internal sealed class FrontendSession
             audio.QueueSound(SamusSound.Saving, priority: SoundRequestPriority.Normal);
         if (runtime?.MessageBoxes.ConsumeGunshipExitSoundRequest() == true)
             audio.QueueSound(RoomSound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
-        // An accepted save station resumes from the message close boundary too.
-        if (runtime?.Room.Scope?.RoomObjects.Stations.ConsumeSavingSoundRequest() is { } saving)
-            audio.QueueSound(saving);
-        // Suit setup resumes from the message close boundary, outside gameplay. Consume once so
-        // updates without gameplay cannot repeat it.
-        if (runtime?.SuitPickup.ConsumeTransformationSoundRequest() == true)
-            audio.QueueSound(EnemySound.SuitAcquired, priority: SoundRequestPriority.Normal,
-                soundSuppressed: runtime.SuitPickup.TransformationSoundSuppressed);
     }
     /// <summary>
     /// The state-publication half of Samus running out of health and the game timer. The

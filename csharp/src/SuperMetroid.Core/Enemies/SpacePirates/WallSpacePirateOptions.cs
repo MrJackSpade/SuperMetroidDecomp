@@ -9,7 +9,7 @@ public enum WallSpacePirateOptions
 {
     /// <summary>It starts on the left wall with the fast jump and laser.</summary>
     None = 0,
-    /// <summary>Starts the downward-climbing animation and detection function on the right wall; clear selects the left wall.</summary>
+    /// <summary>Starts the downward-climbing animation and detection action on the right wall; clear selects the left wall.</summary>
     StartsOnRightWall = 1,
     /// <summary>
     /// The slow jump and laser timing: the jump turns two 256ths of a turn per update and ends two 256ths of a turn

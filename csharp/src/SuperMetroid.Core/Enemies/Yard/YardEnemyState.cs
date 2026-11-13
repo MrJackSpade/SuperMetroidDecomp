@@ -10,7 +10,7 @@ public sealed class YardEnemyState
 
     /// <summary>
     /// Signed 8.8 horizontal and vertical crawl velocity, each axis used either tangentially or as a normal-axis
-    /// surface probe according to the movement function.
+    /// surface probe according to its movement.
     /// </summary>
     public EightEightVector<RoomPixels> CrawlingVelocity { get; internal set; }
 

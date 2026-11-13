@@ -9,7 +9,7 @@ internal enum MamaTurtleCueKind
     EnterShell,
     /// <summary>Leaves the shell for the current direction while Samus rides the baby; otherwise runs on.</summary>
     LeaveShell,
-    /// <summary>Restores the baby's crawl function and crawl for the current direction.</summary>
+    /// <summary>Restores the baby's crawl action and crawl for the current direction.</summary>
     LeftShell,
     /// <summary>Turns the baby around 48 pixels from its spawn and restarts its crawl for the current direction.</summary>
     LoopOrTurnAround,

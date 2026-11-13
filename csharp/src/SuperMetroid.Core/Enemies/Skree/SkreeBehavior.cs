@@ -33,7 +33,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
-    /// <summary>Starts a Skree in its idle function and initial shared animation.</summary>
+    /// <summary>Starts a Skree in its idle action and initial shared animation.</summary>
     internal static void InitializeSkree(RoomEnemySlot slot)
     {
         var state = new SkreeEnemyState

@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Enemies.Stoke;
 /// </summary>
 public enum StokeDirection
 {
-    /// <summary>Direction zero: left-facing latch installed with the moving-left function by the left resume cue.</summary>
+    /// <summary>Direction zero: left-facing latch installed with the moving-left action by the left resume cue.</summary>
     Left = 0,
-    /// <summary>Direction one: right-facing latch installed with the moving-right function by the right resume cue.</summary>
+    /// <summary>Direction one: right-facing latch installed with the moving-right action by the right resume cue.</summary>
     Right = 1,
 }

@@ -100,7 +100,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AwaitingSamus = true;
     }
 
-    /// <summary>Runs an Etecoon's per-frame behaviour and its function dispatcher.</summary>
+    /// <summary>Runs an Etecoon's per-frame behaviour and its actions.</summary>
     private void RunEtecoonMain(
         RoomEnemySlot slot,
         EtecoonEnemyState state,

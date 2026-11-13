@@ -49,7 +49,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MaxSpeed = settings.MaximumSpeed;
     }
 
-    /// <summary>Runs a Bull's per-frame behaviour through all four of its functions.</summary>
+    /// <summary>Runs a Bull's per-frame behaviour through all four of its actions.</summary>
     internal static void RunBullMain(RoomEnemySlot slot, BullEnemyState state, SamusState? samus)
     {
         state.ShotReactionDisableTimer = state.ShotReactionDisableTimer.Decrement().Remaining;

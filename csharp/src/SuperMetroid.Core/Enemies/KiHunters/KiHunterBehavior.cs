@@ -698,11 +698,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             : KiHunterSegment.FlyingLeft;
     }
 
-    /// <summary>Lets the body's animation cue enter its wingless hop function.</summary>
+    /// <summary>Lets the body's animation cue enter its wingless hop action.</summary>
     private static void StartKiHunterGroundJumpFromCue(KiHunterEnemyState state) =>
         state.Action = KiHunterAction.GroundJump;
 
-    /// <summary>Returns the body to its wingless decision function after an animation cue.</summary>
+    /// <summary>Returns the body to its wingless decision action after an animation cue.</summary>
     private static void StartKiHunterGroundWaitFromCue(KiHunterEnemyState state) =>
         state.Action = KiHunterAction.GroundWait;
 

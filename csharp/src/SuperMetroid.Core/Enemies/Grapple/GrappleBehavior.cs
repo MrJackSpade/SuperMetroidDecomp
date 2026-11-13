@@ -122,7 +122,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 }
 
                 // This common wrapper is Powamp's crucial distinction: it invokes the
-                // enemy's normal main function while the grappled state remains observable, then
+                // enemy's normal main behaviour while the grappled state remains observable, then
                 // clears that state after the actor has moved its grapple anchor.
                 _dispatch.RunMainAi(enemy, new GrappleWrappedAiFrame(frame));
                 enemy.AiStates = EnemyAiStates.None;

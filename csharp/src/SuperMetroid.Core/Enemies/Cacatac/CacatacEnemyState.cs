@@ -2,7 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
-/// The state of a Cacatac: its patrol velocities, direction and function, plus its two patrol bounds.
+/// The state of a Cacatac: its patrol velocities, direction and action, plus its two patrol bounds.
 /// </summary>
 public sealed class CacatacEnemyState
 {

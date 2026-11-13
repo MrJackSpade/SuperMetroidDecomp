@@ -53,7 +53,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(slot, RioAnimations.StartingWith(RioSegment.Idle));
     }
 
-    /// <summary>Runs the Rio's main AI and its five functions.</summary>
+    /// <summary>Runs the Rio's main AI and its five actions.</summary>
     private void RunRioMain(
         RoomEnemySlot slot,
         RioEnemyState state,

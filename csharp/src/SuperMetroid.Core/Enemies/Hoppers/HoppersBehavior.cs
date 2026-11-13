@@ -102,7 +102,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case HopperAction.ChooseHopSize:
-                // The game consumes an entire frame choosing one of two setup functions.
+                // The game consumes an entire frame choosing one of two hop setups.
                 state.Action = HopperDecisions.BigHop.IsSetIn(_room.Random.Generate())
                     ? HopperAction.PrepareBigHop
                     : HopperAction.PrepareSmallHop;
@@ -223,7 +223,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         };
     }
 
-    /// <summary>Starts the landed animation and returns the actor to its wait-for-hop function.</summary>
+    /// <summary>Starts the landed animation and returns the actor to its wait-for-hop action.</summary>
     internal static void LandHopper(RoomEnemySlot slot, HopperEnemyState state)
     {
         SetHopperAnimation(slot, state, ReadHopperAnimation(state, SurfaceOf(state), HopperPhase.Landed));

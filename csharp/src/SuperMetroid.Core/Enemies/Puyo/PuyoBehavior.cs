@@ -49,7 +49,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start,
             HopCooldownTimer = slot.SpawnSettings<PuyoSpawnSettings>().HopCooldown,
             Action = PuyoAction.Grounded,
-            // The initialization AI never writes the airborne function or the inactive extra values. The room loader's
+            // The initialization AI never writes the airborne movement or the inactive extra values. The room loader's
             // cleared enemy allocation therefore leaves them empty until the first hop owns
             // them; do not pre-populate plausible values the game has not written.
             AirborneMovement = null,
@@ -67,7 +67,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         SetPuyoAnimation(slot, state, PuyoSegment.GroundedFast);
     }
 
-    /// <summary>Runs a Puyo's per-frame behaviour and its top-level function dispatch.</summary>
+    /// <summary>Runs a Puyo's per-frame behaviour and its top-level actions.</summary>
     private void RunPuyoMain(
         RoomEnemySlot slot,
         PuyoEnemyState state,

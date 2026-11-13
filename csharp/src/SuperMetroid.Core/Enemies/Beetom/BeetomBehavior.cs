@@ -106,7 +106,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = BeetomAction.DecideAction;
     }
 
-    /// <summary>Runs a Beetom's per-frame behaviour through all of its functions.</summary>
+    /// <summary>Runs a Beetom's per-frame behaviour through all of its actions.</summary>
     private void RunBeetomMain(
         RoomEnemySlot slot,
         BeetomEnemyState state,
@@ -358,7 +358,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         RunBeetomVerticalArc(slot, state, level, risingDelta, fallingDelta);
 
         // The horizontal half still runs on the exact frame that vertical collision changes
-        // the AI function. That ordering is easy to lose when expressing the two axes
+        // the AI action. That ordering is easy to lose when expressing the two axes
         // as a single combined movement vector.
         SignedSixteenSixteen displacement = arc == BeetomArcKind.Lunge
             ? (direction == HorizontalDirection.Left ? SignedSixteenSixteen.FromWholePixels(-3) : SignedSixteenSixteen.FromWholePixels(3))

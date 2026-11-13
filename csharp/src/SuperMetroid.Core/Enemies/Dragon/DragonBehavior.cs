@@ -84,7 +84,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = DragonAction.WaitToRise;
     }
 
-    /// <summary>Runs the Dragon's main AI and its five body functions.</summary>
+    /// <summary>Runs the Dragon's main AI and its five body actions.</summary>
     private void RunDragonMain(RoomEnemySlot slot, DragonEnemyState state, SamusState? samus)
     {
         switch (state.Action)

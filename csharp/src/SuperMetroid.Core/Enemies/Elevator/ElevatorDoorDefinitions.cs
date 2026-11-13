@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Elevator;
 
-/// <summary>Constants of the elevator-door functions for elevator pseudo-doors.</summary>
+/// <summary>The timing of the elevator pseudo-doors.</summary>
 public static class ElevatorDoorDefinitions
 {
     /// <summary>

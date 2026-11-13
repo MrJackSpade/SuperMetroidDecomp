@@ -87,7 +87,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BalloonGrappleTravelDistance = slot.SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance;
     }
 
-    /// <summary>Runs a Powamp's per-frame behaviour and every body function it dispatches.</summary>
+    /// <summary>Runs a Powamp's per-frame behaviour and every body action it runs.</summary>
     internal void RunPowampMain(RoomEnemySlot slot, PowampEnemyState state, RoomLevelData? level)
     {
         if (state.IsBalloon)
@@ -186,7 +186,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // Releasing a grapple during either grappled rising state consumes the frame after
-        // changing the function. In particular it does not realign the balloon on this path.
+        // changing the action. In particular it does not realign the balloon on this path.
         if (hold == PowampHold.Grappled && !grappleAiActive)
         {
             state.Action = PowampAction.InflatedFinishWiggle;
@@ -247,7 +247,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         else
         {
             // Finish-wiggle ignores whether the move hit terrain; terrain clips the displacement
-            // but does not select another function until the horizontal wiggle is centered.
+            // but does not select another action until the horizontal wiggle is centered.
             _terrain.MoveEnemyVertically(level, body, ComposePowampVerticalDisplacement(state));
         }
         AlignPowampBalloonY(body, balloon);

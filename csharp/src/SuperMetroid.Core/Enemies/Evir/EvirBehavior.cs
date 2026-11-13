@@ -524,7 +524,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         firstRelative.FrozenTimer = actor.FrozenTimer;
         firstRelative.AiStates = firstRelative.AiStates | EnemyAiStates.Frozen;
-        // The game compares the following-but-one record's function with the moving spit's. In the retail
+        // The game compares the following-but-one record's action with the moving spit's. In the retail
         // Evir rooms that record is an Evir or an empty slot, never another species.
         if (secondRelative.SpeciesState<EvirEnemyState>()?.Action != EvirAction.ProjectileMoving)
         {

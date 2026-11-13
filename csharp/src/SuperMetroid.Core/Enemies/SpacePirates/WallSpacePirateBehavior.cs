@@ -86,7 +86,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         SnapWallSpacePirateXToTile(slot);
     }
 
-    /// <summary>Runs a wall Space Pirate's per-frame behaviour and its six functions.</summary>
+    /// <summary>Runs a wall Space Pirate's per-frame behaviour and its six actions.</summary>
     private static void RunWallSpacePirateMain(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,

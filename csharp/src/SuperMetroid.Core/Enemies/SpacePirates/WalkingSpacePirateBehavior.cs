@@ -43,7 +43,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         switch (cue)
         {
             case WalkingSpacePirateCue.SetAction setAction:
-                // The pirate animation does not jump to the cue's action. It stores that function
+                // The pirate animation does not jump to the cue's action. It stores that action
                 // for main AI to dispatch next frame, then runs on.
                 RequireWalkingSpacePirateState(slot).Action = setAction.Action;
                 return null;
@@ -159,7 +159,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             "Walking Space Pirate movement requires room collision data.");
     }
 
-    /// <summary>Runs the asymmetric left-walk function.</summary>
+    /// <summary>Runs the asymmetric left walk.</summary>
     private void RunWalkingSpacePirateLeft(
         RoomEnemySlot slot,
         WalkingSpacePirateEnemyState state,
@@ -207,7 +207,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             WalkingSpacePirateSegment.LookingFacingLeft);
     }
 
-    /// <summary>Runs the right-walk function.</summary>
+    /// <summary>Runs the right walk.</summary>
     private void RunWalkingSpacePirateRight(
         RoomEnemySlot slot,
         WalkingSpacePirateEnemyState state,

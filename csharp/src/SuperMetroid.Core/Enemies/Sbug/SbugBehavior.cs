@@ -84,7 +84,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SetSbugFacing(slot, state, state.ForwardFacing);
     }
 
-    /// <summary>Runs an Sbug's per-frame behaviour through its complete function dispatch.</summary>
+    /// <summary>Runs an Sbug's per-frame behaviour through all of its actions.</summary>
     internal void RunSbugMain(RoomEnemySlot slot, SamusState? samus, RoomLevelData? level)
     {
         if (samus is null)
@@ -97,8 +97,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunSbugWait(slot, state, samus);
                 return;
 
-            // Activation functions deliberately consume a frame merely replacing
-            // their own AI function. Movement begins on the following main AI call.
+            // Activation actions deliberately consume a frame merely replacing
+            // their own AI action. Movement begins on the following main AI call.
             case SbugAction.ActivateMoveForward:
                 state.Action = SbugAction.MoveForward;
                 return;

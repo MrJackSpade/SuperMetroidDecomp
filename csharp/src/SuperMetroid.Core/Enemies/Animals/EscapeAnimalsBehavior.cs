@@ -93,7 +93,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             new(EscapeDachoraAnimations.StartingWith(EscapeDachoraSegment.RunningAroundLowTide), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Runs an escaping Etecoon's per-frame behaviour through its complete function dispatch.</summary>
+    /// <summary>Runs an escaping Etecoon's per-frame behaviour through all of its actions.</summary>
     private void RunEscapeEtecoonMain(
         RoomEnemySlot slot,
         EscapeEtecoonEnemyState state,

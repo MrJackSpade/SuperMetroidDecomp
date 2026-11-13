@@ -3,13 +3,13 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// <summary>
 /// The state of one gunship hull or pad slot. Each value is the part's own: the game keeps the top hull's bob timer
 /// with the bottom hull's engine-sound timer, its base Y and landing-brake step with the bottom hull's rumble frame,
-/// and its function with the bottom hull's escape speed, but each hull reads only its own meanings, and the top hull's
+/// and its phase with the bottom hull's escape speed, but each hull reads only its own meanings, and the top hull's
 /// landing brake ends by setting the base Y before anything reads it. Each count is bounded where it is read: the
 /// brake and bob schedules reject a step past their entries, and the engine readying rejects one past its duration.
 /// </summary>
 internal sealed class GunshipPartState
 {
-    /// <summary>The top hull's phase timer, decremented by the waiting functions; 144 updates per pad movement.</summary>
+    /// <summary>The top hull's phase timer, decremented by the waiting phases; 144 updates per pad movement.</summary>
     public int PhaseTimer { get; internal set; }
 
     /// <summary>

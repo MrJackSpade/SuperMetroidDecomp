@@ -70,7 +70,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
     /// <summary>
     /// Runs the lava jumper's main behaviour and
-    /// its rising, flipping and falling functions. Main advances the shared enemy RNG once for every parent and follower
+    /// its rising, flipping and falling actions. Main advances the shared enemy RNG once for every parent and follower
     /// frame; even the follower discards the number, which still affects later room actors.
     /// </summary>
     internal void RunNorfairLavaJumpingEnemyMain(

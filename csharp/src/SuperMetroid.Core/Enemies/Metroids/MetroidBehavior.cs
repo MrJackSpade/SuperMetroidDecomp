@@ -66,7 +66,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Freeze lifetime once Ice damage exhausts the Metroid's threshold.</summary>
     private const int MetroidFrozenDuration = 400;
-    /// <summary>Frames for the attached Metroid's Power Bomb escape function.</summary>
+    /// <summary>Frames for the attached Metroid's Power Bomb escape.</summary>
     private const int MetroidEscapeDuration = 4;
     /// <summary>Whole-pixel limit applied to each axis of Metroid homing velocity.</summary>
     private const int MetroidMaximumVelocity = 3;
@@ -424,7 +424,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         outerBody.ShowFirstFrameKeepingTimer(frozenSegment);
     }
 
-    /// <summary>Restarts a Metroid animation at timer one after its function changes.</summary>
+    /// <summary>Restarts a Metroid animation at timer one after its movement changes.</summary>
     private static void SetMetroidAnimation(RoomEnemySlot slot, MetroidEnemyState state, MetroidSegment segment)
     {
         state.Playback = new(MetroidAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);

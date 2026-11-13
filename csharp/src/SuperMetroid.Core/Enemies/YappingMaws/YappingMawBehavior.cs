@@ -209,7 +209,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = YappingMawAction.BeginExtension;
     }
 
-    /// <summary>Runs the one-frame setup function.</summary>
+    /// <summary>Runs the one-frame setup action.</summary>
     internal static void BeginYappingMawExtension(RoomEnemySlot slot, YappingMawEnemyState state)
     {
         state.Extension = SignedSixteenSixteen.Zero;

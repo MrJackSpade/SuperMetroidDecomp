@@ -84,7 +84,7 @@ internal sealed class EnemyDeathsAndDrops
         EnemyDeathExplosion deathAnimation)
     {
         RecordKill(enemy);
-        // The death installs the dropped-grapple function before clearing the enemy.
+        // The death puts the grapple into its dropped phase before clearing the enemy.
         // Equality is deliberate: this is not a general test for any set grapple bit.
         if (enemy.AiStates == EnemyAiStates.Grappled)
         {
@@ -420,7 +420,7 @@ internal sealed class EnemyDeathsAndDrops
         if (samus is null)
             return;
 
-        // The grapple query reports any non-inactive grapple function. A pickup is immune to its
+        // The grapple query reports any grapple phase but inactive. A pickup is immune to its
         // endpoint for the first sixteen decrements, then uses strict 16-pixel axis tests.
         if (samus.Grapple.Phase != GrapplePhase.Inactive &&
             pickup.Lifetime < EnemyPickupLifetime - EnemyPickupGrappleDelay &&

@@ -161,7 +161,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
     }
 
-    /// <summary>Runs the Magdollite's main AI and its indirect functions.</summary>
+    /// <summary>Runs the Magdollite's main AI and its actions.</summary>
     private void RunMagdolliteMain(
         RoomEnemySlot slot,
         MagdolliteEnemyState state,

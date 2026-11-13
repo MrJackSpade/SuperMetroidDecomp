@@ -11,6 +11,6 @@ internal enum KiHunterCueKind
     SpitRight,
     /// <summary>Hands main AI to the wingless hop.</summary>
     StartHop,
-    /// <summary>Hands main AI back to the wingless decision function.</summary>
+    /// <summary>Hands main AI back to the wingless decision action.</summary>
     StartWinglessThinking,
 }

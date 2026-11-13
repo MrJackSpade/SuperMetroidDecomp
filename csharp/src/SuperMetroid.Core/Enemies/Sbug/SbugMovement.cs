@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Sbug;
 
-/// <summary>Chooses an Sbug's facing, its directional loop and the function its activation behavior starts.</summary>
+/// <summary>Chooses an Sbug's facing, its directional loop and the action its activation behavior starts.</summary>
 internal static class SbugMovement
 {
     /// <summary>The facing <paramref name="heading"/> shows: the facing whose eighth of the turn contains it.</summary>

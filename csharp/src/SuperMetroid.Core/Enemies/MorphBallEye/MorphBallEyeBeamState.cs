@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// </summary>
 public sealed class MorphBallEyeBeamState
 {
-    /// <summary>The beam's lifetime, advanced before enemy AI and separate from the eye's own AI function.</summary>
+    /// <summary>The beam's lifetime, advanced before enemy AI and separate from the eye's own AI action.</summary>
     public MorphBallEyeBeamPhase Phase { get; internal set; }
 
     /// <summary>The eye body that cast the beam, whose position and aim the cone follows; none while no beam exists.</summary>

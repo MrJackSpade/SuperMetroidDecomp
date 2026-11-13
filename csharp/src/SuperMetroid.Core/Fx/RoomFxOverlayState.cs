@@ -291,8 +291,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// Runs liquid motion and shared-state writes for lava, acid and water before
-    /// main-loop random-number generation. Their setup installs the callback on the
-    /// first per-line effect pass; lava/acid's callback then swaps the shared random state on
+    /// main-loop random-number generation. Their setup installs the liquid's motion on the
+    /// first per-line effect pass; lava/acid's motion then swaps the shared random state on
     /// subsequent unfrozen passes, even off screen. Rising/tidal motion also runs during
     /// door fades and pause entry. Visual updates remain in <see cref="Step"/>,
     /// which must not advance that motion twice.
@@ -585,7 +585,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         : LavaAcidWaveDefinitions.HorizontalWavePhaseDuration;
 
     /// <summary>
-    /// Runs the parallel callback trios for lava/acid
+    /// Runs the parallel three-phase motions for lava/acid
     /// and for water. A nonzero velocity first arms the wait phase,
     /// the record timer then expires, and only then does the signed 8.8 velocity move the
     /// 16.16 base position toward the target. Door-specific Norfair entries rely on this
@@ -637,8 +637,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     private void PublishRisingLiquidFeedback(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay)
     {
-        // Water's callbacks only wait/move. Lava and acid's
-        // parallel callbacks additionally request sound and a global earthquake.
+        // Water's phases only wait/move. Lava and acid's
+        // parallel phases additionally request sound and a global earthquake.
         if (Type is not (RoomFxType.Lava or RoomFxType.Acid))
             return;
         HandleEarthquakeSoundEffect(randomNumber, earthquakeSoundDelay);
@@ -836,7 +836,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private static readonly Offset16<OverlaySubpixels> WaterDriftVelocity =
         new(WaterWaveDefinitions.HorizontalSubscrollVelocity, 0);
 
-    /// <summary>The mutually exclusive callbacks installed as the rise function.</summary>
+    /// <summary>The mutually exclusive phases of the liquid's rise.</summary>
     private enum LiquidRisePhase
     {
         /// <summary>Waits until signed velocity points from the current base toward the target.</summary>

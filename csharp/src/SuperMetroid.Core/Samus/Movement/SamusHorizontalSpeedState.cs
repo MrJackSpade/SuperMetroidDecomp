@@ -244,16 +244,16 @@ public sealed class SamusHorizontalSpeedState
     private static readonly UnsignedSixteenSixteen UnboostedExtraRunSpeedCap = new(2, 0);
 
     /// <summary>
-    /// Executes the equipped-Speed-Booster interception when running
-    /// reaches an animation command. True means the command was consumed and frame zero
-    /// was restarted from the authored animation for the new boost stage.
+    /// Takes the cue that closes the run for an equipped Speed Booster when the running
+    /// animation reaches it. True means this call took the cue and restarted the run at
+    /// frame zero on the new boost stage's cadence.
     /// </summary>
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which a full sound queue selects.</param>
-    /// <param name="movementType">Current movement category; only running can consume this animation command.</param>
+    /// <param name="movementType">Current movement category; only running takes this cue.</param>
     /// <param name="controllerInput">Current held buttons; the dash button must be held.</param>
     /// <param name="animationFrameBuffer">Frame-delay adjustment added to the selected stage's first animation delay.</param>
-    /// <param name="animationFrame">Current animation frame, reset to zero only when this call consumes the command.</param>
-    /// <param name="animationFrameTimer">Zero when the command is not consumed; otherwise the new first-frame delay plus the buffer, wrapped to sixteen bits.</param>
+    /// <param name="animationFrame">Current animation frame, reset to zero only when this call takes the cue.</param>
+    /// <param name="animationFrameTimer">Zero when the cue is not taken; otherwise the new first-frame delay plus the buffer, wrapped to sixteen bits.</param>
     /// <param name="requestEchoSound">
     /// Requests the echo's sound as the stage reaches four, returning what its queue did with it, which selects the
     /// restart countdown and the first frame's cadence; or none when no queue answered (a Samus outside a session), when
@@ -277,7 +277,7 @@ public sealed class SamusHorizontalSpeedState
 
         // A cadence countdown already at zero borrows from the stage. A stage advances only
         // when the decremented cadence countdown is zero; that test leaves the stage unchanged.
-        (SamusSpeedBoostCounter decremented, bool cadenceExpired) = SpeedBoostCounter.DecrementForAnimationCommand();
+        (SamusSpeedBoostCounter decremented, bool cadenceExpired) = SpeedBoostCounter.CountDownOneRun();
         SpeedBoostCounter = decremented;
         if (!cadenceExpired)
             return false;
@@ -378,8 +378,8 @@ public sealed class SamusHorizontalSpeedState
 
             if (frame.AnimationFrame < 3)
             {
-                // The wall-jump animation command reserves frames 0..2 for the normal suit colors;
-                // its Screw family begins on frame three and shares the same six colour steps.
+                // The wall-jump animation keeps the normal suit colours on frames 0..2;
+                // its Screw frames begin on frame three and share the same six colour steps.
                 CyclePaletteStep = 0;
                 return paletteCopied;
             }

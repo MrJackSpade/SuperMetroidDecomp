@@ -37,8 +37,9 @@ internal sealed class ChainsawPowerBombCallback
         if (fuse.FastAnimation && slot.Playback is { } live)
             slot.Playback = SamusProjectilePrograms.PlaybackAt(_fuseShift.Shift(SamusProjectilePrograms.BeatOf(live)));
 
+        // The borrowed fuse starts the explosion through the same routine as a Power Bomb's, its sound included.
         if (fuse.SpawnExplosion)
-            sharedProjectiles.PowerBombExplosion.Spawn(slot.Position.Whole);
+            sharedProjectiles.SpawnPowerBombExplosion(slot.Position.Whole);
         if (fuse.DeleteProjectile)
             _animation.ClearProjectile(slot);
 

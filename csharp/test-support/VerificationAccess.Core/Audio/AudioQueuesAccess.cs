@@ -77,9 +77,15 @@ internal static class AudioQueuesAccess
     {
         /// <summary>
         /// Queues over their own sound request handshakes, created for every library as the session's composition root
-        /// creates the session's; for a check whose queues stand alone.
+        /// creates the session's; for a check whose queues stand alone, with no demo playing and no power bomb exploding.
         /// </summary>
-        internal static AudioQueues Standalone() =>
-            new(new SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder));
+        internal static AudioQueues Standalone() => Standalone(new CheckGameplaySoundState());
+
+        /// <summary>
+        /// Standalone queues (see <see cref="Standalone()"/>) that test every sound request against <paramref name="gameplay"/>,
+        /// whose demo and power bomb a check sets.
+        /// </summary>
+        internal static AudioQueues Standalone(IGameplaySoundState gameplay) =>
+            new(new SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder), gameplay);
     }
 }

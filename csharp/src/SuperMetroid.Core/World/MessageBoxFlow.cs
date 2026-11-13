@@ -99,7 +99,7 @@ internal sealed class MessageBoxFlow
     }
 
     /// <summary>Applies the effects that follow a message box closing.</summary>
-    internal void ResolveClosedMessageBox(bool frameSuspended, IRoomObjects roomObjects, SamusBombProjectileSystem bombProjectiles, RoomScope room)
+    internal void ResolveClosedMessageBox(bool frameSuspended, IRoomObjects roomObjects, RoomScope room)
     {
         if (room.Enemies.Gunship.SavePromptPending)
         {
@@ -156,8 +156,7 @@ internal sealed class MessageBoxFlow
         // The resumed dispatch reaches the HUD handler, which shows the new inventory. A
         // suspended frame tail does that itself; a capture without one updates it here.
         if (_player.Samus is not null && !frameSuspended)
-            _hud.UpdateGameplayCounters(_player.Samus, _audioRequests, _freeze.TimeIsFrozen,
-                soundSuppressed: bombProjectiles.PowerBombExplosion.IsActive);
+            _hud.UpdateGameplayCounters(_player.Samus, _audioRequests, _freeze.TimeIsFrozen);
 
         // The message returns directly to the suspended item's script.
         // Varia/Gravity immediately call their shared setup routine; for other items the
@@ -173,8 +172,7 @@ internal sealed class MessageBoxFlow
             _suitPickup.Begin(
                 _player.Samus,
                 _room.Camera.PixelPosition,
-                pendingSuit,
-                soundSuppressed: bombProjectiles.PowerBombExplosion.IsActive);
+                pendingSuit);
             _pendingSuitPickup = null;
         }
         return;

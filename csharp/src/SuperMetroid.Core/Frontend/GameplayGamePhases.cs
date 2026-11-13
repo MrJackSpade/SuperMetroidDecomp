@@ -50,8 +50,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                     samus,
                     session.GameplayRuntime.Clock.Counter);
                 if (reserveStep.RefillSoundRequested)
-                    session.audio.QueueSound(RoomSound.IncrementalEnergy, SoundRequestPriority.Low,
-                        soundSuppressed: session.GameplayRuntime.PowerBombExplosionSuppressesSounds);
+                    session.audio.QueueSound(RoomSound.IncrementalEnergy, SoundRequestPriority.Low);
                 // The reserve-refill state clears the freeze and restores main gameplay
                 // BEFORE calling gameplay. Unfreezing after StepFrame lets
                 // Samus resume while projectiles/enemies remain a frame behind.
@@ -67,7 +66,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // already queued; the queue occupancy they leave decides whether this final
         // normal-priority request joins.
         session.GameplayRuntime.Player.IntroducedSamus.HealthWarning.Update(session.GameplayRuntime.Player.IntroducedSamus.Health,
-            session.GameplayRuntime.AudioRequests, soundSuppressed: session.GameplayRuntime.PowerBombExplosionSuppressesSounds);
+            session.GameplayRuntime.AudioRequests);
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.PausingDarkening"/>.</summary>

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
-/// <summary>The Samus, equipment, enemy, boss and Power Bomb conditions the colour effects watch each update (#633, #1554).</summary>
+/// <summary>The Samus, equipment, enemy and boss conditions the colour effects watch each update (#633, #1554).</summary>
 public sealed record PaletteFxConditions
 {
     /// <summary>
@@ -32,10 +32,4 @@ public sealed record PaletteFxConditions
     /// it. Values outside the counter's range are rejected.
     /// </summary>
     public int FrameCounter { get; init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
-
-    /// <summary>
-    /// The room's live Power Bomb, whose explosion silences the colour effects' sounds while it is active; none on a
-    /// frontend screen or where no bomb is tracked.
-    /// </summary>
-    public IActivePowerBomb? PowerBomb { get; init; }
 }

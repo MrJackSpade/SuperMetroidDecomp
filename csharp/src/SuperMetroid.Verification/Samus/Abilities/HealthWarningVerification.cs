@@ -13,7 +13,8 @@ internal static class HealthWarningVerification
     internal static void VerifyHealthWarning()
     {
         var warning = new SamusHealthWarningState();
-        var audio = AudioQueues.Standalone();
+        var soundState = new CheckGameplaySoundState();
+        var audio = AudioQueues.Standalone(soundState);
         var requests = GameplayAudioRequests.Reaching(audio);
         // The standalone queues are never advanced, so the room library's queue keeps every request since each reset.
         IReadOnlyList<SoundEffectId> roomRequests = audio.WaitingSounds(SoundEffectLibrary.Room);
@@ -28,12 +29,17 @@ internal static class HealthWarningVerification
         {
             audio.Reset();
             if (!suppressed) for (int i = 0; i < 6; i++) audio.QueueSound(RoomSound.Silence, SoundRequestPriority.Normal);
-            warning.Update(30, requests, suppressed);
+            // An exploding power bomb turns the start away in the queue's own test.
+            soundState.PowerBombExploding = suppressed;
+            warning.Update(30, requests);
+            soundState.PowerBombExploding = false;
             AssertTrue(warning.IsActive, "rejected start still sets native latch");
             AssertEqual(suppressed ? 0 : 6, roomRequests.Count, "rejected start does not add a command");
             audio.Reset(); warning.Update(30, requests);
             AssertEqual(0, roomRequests.Count, "lost start is not retried at unchanged critical health");
-            warning.Update(31, requests, soundSuppressed: true);
+            soundState.PowerBombExploding = true;
+            warning.Update(31, requests);
+            soundState.PowerBombExploding = false;
             AssertTrue(!warning.IsActive, "suppressed stop still clears latch");
             warning.Update(31, requests);
             AssertEqual(0, roomRequests.Count, "lost stop is not retried");

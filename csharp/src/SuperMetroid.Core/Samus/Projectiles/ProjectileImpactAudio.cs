@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Samus.Projectiles;
+namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Beam and missile impact sound requests, each queued as the impact happens.</summary>
 internal sealed class ProjectileImpactAudio
@@ -19,16 +19,13 @@ internal sealed class ProjectileImpactAudio
     public void BeginImpactAudioFrame(ImpactAudioContext context) =>
         _cinematicImpactAudioSuppressed = context == ImpactAudioContext.Cinematic;
 
-    /// <summary>Queues enemy-library beam impact audio now, marking it suppressed when a Power Bomb is active.</summary>
-    internal void RequestBeamImpactSound(SamusPowerBombExplosionState powerBomb) =>
-        Requests.QueueSound(new SoundRequest(EnemySound.BeamImpact, SoundRequestPriority.Normal,
-            SoundSuppressed: powerBomb.IsActive));
+    /// <summary>Queues enemy-library beam impact audio now.</summary>
+    internal void RequestBeamImpactSound() => Requests.QueueSound(EnemySound.BeamImpact, SoundRequestPriority.Normal);
 
-    /// <summary>Queues missile impact audio now unless the current cinematic frame suppresses it; an active Power Bomb marks the request suppressed.</summary>
-    internal void RequestMissileImpactSound(SamusPowerBombExplosionState powerBomb)
+    /// <summary>Queues missile impact audio now unless the current cinematic frame omits it.</summary>
+    internal void RequestMissileImpactSound()
     {
         if (!_cinematicImpactAudioSuppressed)
-            Requests.QueueSound(new SoundRequest(EnemySound.MissileImpact, SoundRequestPriority.Normal,
-                SoundSuppressed: powerBomb.IsActive));
+            Requests.QueueSound(EnemySound.MissileImpact, SoundRequestPriority.Normal);
     }
 }

@@ -31,8 +31,7 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusProjectile slot,
         Position16<RoomPixels> cameraPosition,
-        ISamusRoomObjects? roomObjects,
-        SamusPowerBombExplosionState powerBomb)
+        ISamusRoomObjects? roomObjects)
     {
         if (slot.IsSpent)
         {
@@ -72,7 +71,7 @@ internal sealed class ProjectileMotion
         };
 
         if (collided)
-            _terrainCollision.KillBeamOnBlockCollision(slot, powerBomb);
+            _terrainCollision.KillBeamOnBlockCollision(slot);
 
         // The beam update checks the movement window after the direction handler even
         // when collision changed the beam into an explosion. KillBeam moves its

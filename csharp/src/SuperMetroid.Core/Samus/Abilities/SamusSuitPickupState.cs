@@ -32,19 +32,6 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </remarks>
 public sealed class SamusSuitPickupState
 {
-    /// <summary>Holds the setup sound request until the enemy audio owner can publish it once.</summary>
-    private bool _transformationSoundPending;
-    /// <summary>Queue guard captured at suit setup, before deferred host publication.</summary>
-    public bool TransformationSoundSuppressed { get; private set; }
-
-    /// <summary>Consumes the one-shot normal-priority transformation sound request suit setup makes.</summary>
-    public bool ConsumeTransformationSoundRequest()
-    {
-        bool pending = _transformationSoundPending;
-        _transformationSoundPending = false;
-        return pending;
-    }
-
     /// <summary>Whether the post-message transformation currently owns Samus input.</summary>
     public bool IsActive { get; private set; }
 
@@ -102,8 +89,7 @@ public sealed class SamusSuitPickupState
     public void Begin(
         SamusState samus,
         Position16<RoomPixels> cameraPosition,
-        SamusSuitPickupKind kind,
-        bool soundSuppressed = false)
+        SamusSuitPickupKind kind)
     {
         Ensure.NotNull(samus);
         if (IsActive)
@@ -156,8 +142,8 @@ public sealed class SamusSuitPickupState
         samus.WritePreviousXPosition(samus.Position.X.Whole);
         samus.WritePreviousYPosition(samus.Position.Y.Whole);
         IsActive = true;
-        TransformationSoundSuppressed = soundSuppressed;
-        _transformationSoundPending = true;
+        // The setup queues the transformation sound itself, at normal priority, as it runs.
+        samus.AudioRequests.QueueSound(EnemySound.SuitAcquired, SoundRequestPriority.Normal);
     }
 
     /// <summary>Runs one update of the installed light-beam stage step.</summary>

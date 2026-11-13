@@ -257,7 +257,7 @@ internal static class AudioVerification
             () => SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Samus, 0x0100),
             "word-sized sound values outside a request byte fail loudly");
         AssertTrue(
-            MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueSound), [typeof(SoundEffectId), typeof(SoundRequestPriority), typeof(bool)]),
+            MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueSound), [typeof(SoundEffectId), typeof(SoundRequestPriority)]),
             "QueueSound accepts one indivisible sound identity");
         AssertTrue(
             !MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueSound), [typeof(SoundEffectLibrary), typeof(int), typeof(int)]),

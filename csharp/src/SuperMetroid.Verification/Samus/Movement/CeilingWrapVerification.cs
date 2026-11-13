@@ -23,7 +23,6 @@ internal static class CeilingWrapVerification
         // Invoke the real producer collision path with the native probe's stationary
         // projectile registers. This isolates collision/PLM allocation from launch AI.
         var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
-        var powerBomb = new SamusPowerBombExplosionState();
         int cursor = 0, mismatches = 0;
         for (int tileX = 63; tileX <= 65; tileX++)
         {
@@ -34,7 +33,7 @@ internal static class CeilingWrapVerification
                 Direction = SamusProjectileDirection.Right };
             for (int call = 0; call < 45; call++)
             {
-                system.TerrainCollision.RunInitialBeamCollision(level, shot, roomObjects, true, powerBomb);
+                system.TerrainCollision.RunInitialBeamCollision(level, shot, roomObjects, true);
                 int owner = roomObjects.SlotTable.ActiveCount == 0 ? 0 : level.Size.RowMajorIndex(roomObjects.PopulationSlots[0].Block) * 2;
                 string actual = $"{tileX},{call},{roomObjects.SlotTable.ActiveCount},{owner:X4},{RoomLevelWordEncoder.Encode(level.GetCollisionBlockByIndex(tileX).Terrain):X4},{RoomLevelWordEncoder.Encode(level.GetCollisionBlockByIndex(tileX + 1).Terrain):X4}";
                 string expected = native[cursor++];

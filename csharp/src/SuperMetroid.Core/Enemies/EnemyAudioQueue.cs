@@ -1,9 +1,8 @@
-﻿using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// How the enemies queue their sound and music requests, plus the music the room's enemies start when the room loads.
-/// Sounds requested while a power bomb explodes are marked suppressed.
 /// </summary>
 /// <remarks>
 /// Every enemy, boss, enemy projectile and drop queues its sound or music the moment it makes the request, as the game
@@ -22,8 +21,8 @@ internal sealed class EnemyAudioQueue
     internal GameplayAudioRequests Requests { get; private set; } = new();
 
     /// <summary>
-    /// The power-bomb explosion bound for the current enemy frame: the enemy pass refreshes this before AI; later draw and
-    /// room-main requests sample the same owner.
+    /// The power-bomb explosion bound for the current enemy frame, which Norfair Ridley's dodge and Draygon's goop read: the
+    /// enemy pass refreshes this before AI. The sound queues test the explosion themselves (<see cref="SoundQueueAdmission"/>).
     /// </summary>
     internal SamusPowerBombExplosionState? PowerBomb { get; set; }
 
@@ -53,8 +52,7 @@ internal sealed class EnemyAudioQueue
 
     /// <summary>Queues <paramref name="soundEffect"/> now, after the update's earlier sound requests.</summary>
     internal void QueueEnemySound(SoundEffectId soundEffect, SoundRequestPriority priority) =>
-        Requests.QueueSound(new SoundRequest(soundEffect, priority,
-            SoundSuppressed: PowerBomb?.IsActive == true));
+        Requests.QueueSound(soundEffect, priority);
 
     /// <summary>Queues <paramref name="request"/> now, after the update's earlier music requests.</summary>
     internal void QueueEnemyMusic(DelayedMusicRequest request) => Requests.ScheduleMusic(request);

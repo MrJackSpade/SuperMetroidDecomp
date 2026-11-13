@@ -315,8 +315,7 @@ internal sealed class BeamFiring
             level,
             slot,
             roomObjects,
-            waveBeam: beamType.HasWave,
-            sharedProjectiles.PowerBombExplosion);
+            waveBeam: beamType.HasWave);
         if (!initialImpact)
         {
             // The game installs the callback only after muzzle collision. Do not
@@ -394,8 +393,7 @@ internal sealed class BeamFiring
             level,
             slot,
             roomObjects,
-            waveBeam: true,
-            sharedProjectiles.PowerBombExplosion);
+            waveBeam: true);
         slot.FrameBehavior = SamusProjectileFrameBehavior.HyperBeam;
         InitializePowerBeamVelocity(samus.ProjectileInheritance, slot, _unauthoredFiring);
 

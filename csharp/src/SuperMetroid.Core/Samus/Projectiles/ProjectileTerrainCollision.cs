@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
@@ -62,8 +62,7 @@ internal sealed class ProjectileTerrainCollision
         RoomLevelData level,
         SamusProjectile slot,
         ISamusRoomObjects? roomObjects,
-        bool waveBeam,
-        SamusPowerBombExplosionState powerBomb)
+        bool waveBeam)
     {
         // The producer explicitly sets both 8.8 speeds to zero. Firing left is
         // the sole exception: its firing setup writes -1 before the horizontal scan so the
@@ -114,7 +113,7 @@ internal sealed class ProjectileTerrainCollision
 
         if (!waveBeam && collided)
         {
-            KillBeamOnBlockCollision(slot, powerBomb);
+            KillBeamOnBlockCollision(slot);
             return true;
         }
 
@@ -491,10 +490,9 @@ internal sealed class ProjectileTerrainCollision
     /// Kills a beam as block collision does: the
     /// explosion's sound queues (no cinematic test) before the swap.
     /// </summary>
-    internal void KillBeamOnBlockCollision(SamusProjectile slot,
-        SamusPowerBombExplosionState powerBomb)
+    internal void KillBeamOnBlockCollision(SamusProjectile slot)
     {
-        _impactAudio.RequestBeamImpactSound(powerBomb);
+        _impactAudio.RequestBeamImpactSound();
         KillBeam(slot);
     }
 
@@ -542,7 +540,7 @@ internal sealed class ProjectileTerrainCollision
 
         // Impact audio is separate from launch audio and can also originate in enemy
         // collision before the projectile movement owner executes.
-        _impactAudio.RequestMissileImpactSound(sharedProjectiles.PowerBombExplosion);
+        _impactAudio.RequestMissileImpactSound();
         bool wasSuperMissile = slot.Type.IsFamily(SamusProjectileFamily.SuperMissile);
         slot.Type = slot.Type.AsFamily(SamusProjectileFamily.MissileExplosion);
         slot.Playback = SamusProjectilePrograms.Start(

@@ -245,7 +245,7 @@ internal sealed class DoorTransitionRunner
     /// <summary>Enemy and draw owners of the door sound-drain coroutine, without Samus movement.</summary>
     public void RunDoorSoundWaitFrame(ControllerButton controllerInput, RoomScope room)
     {
-        RunDoorSoundWaitPrologue(controllerInput, room.RoomObjects, room.BombProjectiles, room);
+        RunDoorSoundWaitPrologue(controllerInput, room.RoomObjects, room);
         DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, room);
     }
 
@@ -255,9 +255,8 @@ internal sealed class DoorTransitionRunner
     /// precedes the door's own step, so its room-FX sound requests are queued before the door cancels and disables
     /// sounds.
     /// </summary>
-    public void RunDoorSoundWaitPrologue(ControllerButton controllerInput, RoomObjectSystem roomObjects, SamusBombProjectileSystem bombProjectiles, RoomScope room)
+    public void RunDoorSoundWaitPrologue(ControllerButton controllerInput, RoomObjectSystem roomObjects, RoomScope room)
     {
-        roomObjects.Sounds.BindPowerBombAudio(bombProjectiles.PowerBombExplosion.Activity);
         _frameBoundary.BeginAcceptedFrame(controllerInput);
         AdvanceEffectsAndRandom(roomObjects, room);
     }
@@ -271,8 +270,6 @@ internal sealed class DoorTransitionRunner
     internal void DrawDoorTransitionActors(DoorTransitionEnemyProjectiles enemyProjectiles, RoomScope room)
     {
         _sprites.BeginFrame();
-        // The draw handler can queue spin-stop/charge sounds, which the live power bomb silences.
-        _player.Samus?.LiquidPhysics.BindPowerBombAudio(room.BombProjectiles.PowerBombExplosion);
         _enemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Unprepared, _room.Camera?.PreviousSamusPoint, room);
         // The Samus-collision pass belongs to gameplay only.
         if (enemyProjectiles == DoorTransitionEnemyProjectiles.Run)

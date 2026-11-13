@@ -391,16 +391,9 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     public SuperMetroid.Core.Progression.SuperMetroidGameState DispatchGameState { get; set; } = SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay;
 
-    /// <summary>Whether a power-bomb explosion is under way; X-ray setup and the pause check reject one.</summary>
+    /// <summary>Whether a power-bomb explosion is under way; X-ray setup and the pause check reject one, and the sound queues turn every sound away during one.</summary>
     /// <remarks>Before the first room exists there is no explosion.</remarks>
     public bool PowerBombExplosionActive => Room.BombProjectiles?.PowerBombExplosion.IsActive == true;
-
-    /// <summary>
-    /// The power-bomb gate in all three sound queues:
-    /// while the explosion status is negative every
-    /// request is dropped after the occupancy check, whoever makes it.
-    /// </summary>
-    public bool PowerBombExplosionSuppressesSounds => Room.BombProjectiles?.PowerBombExplosion.IsActive == true;
 
     /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork, which outlive each room's effect overlay FX.</summary>
     public RoomFxSession RoomFx { get; } = new();
@@ -508,8 +501,6 @@ internal sealed class SuperMetroidRuntime
         RoomScope scope = Room.LoadedScope;
         Artwork.BindProjectiles(scope.Projectiles, scope.BombProjectiles);
         scope.Projectiles.Earthquakes.BindRoomEarthquake(scope.Enemies.Earthquake);
-        scope.RoomObjects.Sounds.BindPowerBombAudio(scope.BombProjectiles.PowerBombExplosion.Activity);
-        Player.Samus?.Shinespark.BindProjectileOwners(scope.BombProjectiles.PowerBombExplosion);
         scope.BindAudioRequests(AudioRequests);
         Player.Samus?.BindAudioRequests(AudioRequests);
         EnemyRoomEffects.ApplyPendingChozoStatueObjects(scope.RoomObjects, scope.FxOverlay, Room.LoadedScope.Enemies);
@@ -534,13 +525,9 @@ internal sealed class SuperMetroidRuntime
 
         // The power bomb blast belongs to the outer frame, not Samus alpha. A statue carry
         // replaces her handlers while the already-spawned blast continues normally.
-        // Its cleanup runs a Samus command, which can queue sounds before the Samus
-        // handler; the live explosion that silences her sounds is therefore bound here.
+        // Its cleanup runs a Samus command, which can queue sounds before the Samus handler.
         if (Player.Samus is { } samus && !MessageBox.IsActive)
-        {
-            samus.LiquidPhysics.BindPowerBombAudio(Room.LoadedScope.BombProjectiles.PowerBombExplosion);
             Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(samus, Controller1.Current, DispatchGameState);
-        }
     }
 
     /// <summary>Draws the update's random number.</summary>
@@ -586,7 +573,7 @@ internal sealed class SuperMetroidRuntime
         }
         if (Room.Camera is not null)
         {
-            Room.LoadedScope.FxOverlay.Step(Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, EarthquakeSoundDelay = System.EarthquakeSoundDelay, RandomNumber = System.RandomNumber, FirefleaDarknessStep = Room.LoadedScope.Enemies.RoomStatus.FirefleaDarknessStep, PowerBomb = Room.LoadedScope.BombProjectiles.PowerBombExplosion.Activity, LiquidMotionAlreadyAdvanced = Room.LoadedScope.FxOverlay.MovesLiquidBeforeMainLoop });
+            Room.LoadedScope.FxOverlay.Step(Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, EarthquakeSoundDelay = System.EarthquakeSoundDelay, RandomNumber = System.RandomNumber, FirefleaDarknessStep = Room.LoadedScope.Enemies.RoomStatus.FirefleaDarknessStep, LiquidMotionAlreadyAdvanced = Room.LoadedScope.FxOverlay.MovesLiquidBeforeMainLoop });
             // A lava or acid rise sustains the room's earthquake. Apply it before the ordinary shake handler later in
             // this frame so its first displacement is visible immediately.
             if (Room.LoadedScope.FxOverlay.SustainedEarthquake is { } risingLiquidShake)
@@ -638,8 +625,7 @@ internal sealed class SuperMetroidRuntime
             Player.Samus?.Xray.ArePaletteFxSuspended != true)
         {
             Room.LoadedScope.PaletteFx.Step(new PaletteFxConditions { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? 0, TorizoIsDead = Room.LoadedScope.Enemies.SlotTable.Slots.Count == 0 || Room.LoadedScope.Enemies.SlotTable.Slots[0].Health == 0, AreaMiniBossDefeated = Room.ActiveRoom is { } paletteRoom &&
-                    System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Player.Samus?.RoomView, FrameCounter = Clock.Counter,
-                    PowerBomb = Room.LoadedScope.BombProjectiles.PowerBombExplosion.Activity });
+                    System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Player.Samus?.RoomView, FrameCounter = Clock.Counter });
             // Her heat glow and her suit's loading show over her suit as the frames that wrote it (#1512).
             foreach ((PaletteFxColours colours, PaletteFxFrame frame) in Room.LoadedScope.PaletteFx.SuitShown)
                 Player.Colours.LayOverSuit(PaletteFxShades.Of(colours, frame));
@@ -938,8 +924,7 @@ internal sealed class SuperMetroidRuntime
             // The room-object handler has not returned while a pickup message is open.
             // Its newly granted inventory reaches the HUD only after that return.
             if (Player.Samus is not null && !Room.LoadedScope.RoomObjects.CollectibleObjects.HasPendingCollectibleMessage)
-                Hud.UpdateGameplayCounters(Player.Samus, AudioRequests, Freeze.TimeIsFrozen,
-                    soundSuppressed: Room.LoadedScope.BombProjectiles.PowerBombExplosion.IsActive);
+                Hud.UpdateGameplayCounters(Player.Samus, AudioRequests, Freeze.TimeIsFrozen);
         }
     }
 
@@ -1139,7 +1124,7 @@ internal sealed class SuperMetroidRuntime
         if (MessageBox.IsActive)
             return Snapshot(infiniteAmmoGuard);
 
-        MessageBoxes.ResolveClosedMessageBox(frameSuspended: _suspendedFrameTail is not null, Room.LoadedScope.RoomObjects, Room.LoadedScope.BombProjectiles, Room.LoadedScope);
+        MessageBoxes.ResolveClosedMessageBox(frameSuspended: _suspendedFrameTail is not null, Room.LoadedScope.RoomObjects, Room.LoadedScope);
         // The room-object handler returns once the box and its item routine finish; the
         // parked remainder of that gameplay frame runs now, in this same dispatch.
         if (!MessageBox.IsActive && _suspendedFrameTail is { } tail)

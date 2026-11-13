@@ -131,7 +131,7 @@ internal interface IGameplayArtwork
     /// <summary>The blocks room-object setups and block reactions write of their own accord.</summary>
     InstalledRoomObjectSetupBlocks? RoomObjectSetupBlocks { get; }
 
-    /// <summary>X-ray reveal operands and item and special-room overlays.</summary>
+    /// <summary>X-ray reveal shapes and item and special-room overlays.</summary>
     InstalledXrayReveals? XrayRevealVisuals { get; }
 
     /// <summary>Timed projectile frame sprite choices.</summary>

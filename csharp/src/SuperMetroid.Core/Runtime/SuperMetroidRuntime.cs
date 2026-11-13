@@ -386,7 +386,7 @@ internal sealed class SuperMetroidRuntime
     internal IEnemyFrameResults EnemyFrameResults => Room.LoadedScope.Enemies;
 
     /// <summary>
-    /// The game state of the frontend dispatch now running. Samus commands test it from
+    /// The game state of the frontend dispatch now running. Samus's control setups test it from
     /// inside the update; runtime-only hosts run main gameplay.
     /// </summary>
     public SuperMetroid.Core.Progression.SuperMetroidGameState DispatchGameState { get; set; } = SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay;
@@ -525,7 +525,7 @@ internal sealed class SuperMetroidRuntime
 
         // The power bomb blast belongs to the outer frame, not Samus alpha. A statue carry
         // replaces her handlers while the already-spawned blast continues normally.
-        // Its cleanup runs a Samus command, which can queue sounds before the Samus handler.
+        // Its cleanup resumes Samus's sounds, which can queue them before the Samus handler.
         if (Player.Samus is { } samus && !MessageBox.IsActive)
             Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(samus, Controller1.Current, DispatchGameState);
     }
@@ -874,7 +874,7 @@ internal sealed class SuperMetroidRuntime
 
         RoomScope scope = Room.LoadedScope;
         ActorDrawing.DrawGameplayActors(scope, deathOwnsSamus ? SamusDrawOwner.DeathSequence : SamusDrawOwner.Gameplay,
-            // Command zero's beta handler does not dispatch Samus's
+            // The stationary lock's beta handler does not dispatch Samus's
             // palette effects. In particular, automatic Reserve recovery freezes a
             // stored shine instead of consuming it while Samus is stationary.
             tail.Mode.Beta is SamusBetaHandler.SuitPickup or SamusBetaHandler.ScriptLocked ? SamusPaletteEffects.Hold : SamusPaletteEffects.Advance);

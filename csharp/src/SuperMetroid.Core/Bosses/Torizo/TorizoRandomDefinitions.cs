@@ -62,7 +62,7 @@ internal static class TorizoRandomDefinitions
         TorizoProjectileProgram.DroolNoDelay, TorizoProjectileProgram.DroolTwoFrameDelay,
     ];
 
-    /// <summary>Whether a sonic boom flies high, twelve pixels above Torizo's Y rather than twenty below: the sample's bit zero.</summary>
+    /// <summary>Whether a sonic boom flies high, twelve pixels above Torizo's Y rather than twenty below: taken by an odd sample.</summary>
     internal static readonly RandomSampleField SonicBoomHigh = new(0, 1);
 
     /// <summary>A randomized projectile's jitter on one axis, less 128, in 256ths of a pixel: 0 through 255 from the sample.</summary>

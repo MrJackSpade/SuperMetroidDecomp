@@ -180,7 +180,7 @@ internal sealed class CeresRidleyFlight
 
         state.FireballBasePosition = slot.Position.Whole;
         // The fireball function installs the complete retail mouth/fireball animation.
-        // Its fireball commands calculate and spawn actors; leaving this
+        // Its fireball cues calculate and spawn actors; leaving this
         // assignment out produces correct boss motion with a conspicuously silent attack.
         StartRidleyAnimation(state, slot, RidleyBodySegment.Fireballing);
         state.Phase = RidleyPhase.CeresFireballShooting;

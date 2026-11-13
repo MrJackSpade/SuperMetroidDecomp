@@ -3,15 +3,15 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// Compiled form of the complete revealed-block dispatcher: the command each collision kind and reaction selects. The
-/// commands keep the game's copy dimensions, extension traversal and Brinstar-only behaviour; the blocks each copy shows
+/// Compiled form of the complete revealed-block dispatcher: the reveal shape each collision kind and reaction selects. The
+/// shapes keep the game's copy dimensions, extension traversal and Brinstar-only behaviour; the blocks each copy shows
 /// are installed pictures (#1596).
 /// </summary>
 internal static class XrayRevealDefinitions
 {
     /// <summary>The only special-air reaction the table admits.</summary>
     /// <remarks>
-    /// Issue #1028: the special-air table holds one entry for this behaviour and a terminator, then a copy-one command.
+    /// Issue #1028: the special-air table holds one entry for this behaviour and a terminator, then the copy-one shape.
     /// The lookup compares the behaviour exactly, so equality with it is the complete bounded algorithm over
     /// 0..255; every other behaviour returns no reveal. The authored data and all 256 special-air cases in the
     /// independent X-ray reveal oracle agree.
@@ -20,26 +20,26 @@ internal static class XrayRevealDefinitions
 
     /// <summary>The only spike-block reaction the table admits.</summary>
     /// <remarks>
-    /// Issue #1030: the spike-block table holds one entry for this behaviour and a terminator, then a copy-one command.
+    /// Issue #1030: the spike-block table holds one entry for this behaviour and a terminator, then the copy-one shape.
     /// The lookup compares the behaviour exactly, making equality with it the exact bounded rule over 0..255; other
     /// behaviour values return no reveal. The authored data and all 256 spike-block cases in the independent X-ray
     /// reveal oracle agree.
     /// </remarks>
     internal static readonly BlockReaction SpikeRevealReaction = BlockReaction.Common(14);
 
-    /// <summary>The command each special-air reaction selects.</summary>
+    /// <summary>The reveal shape each special-air reaction selects.</summary>
     internal static readonly IReadOnlyDictionary<BlockReaction, XrayRevealShape> SpecialAirReveals = new Dictionary<BlockReaction, XrayRevealShape>
     {
         [SpecialAirRevealReaction] = XrayRevealShape.CopyOne,
     };
 
-    /// <summary>The command each spike-block reaction selects.</summary>
+    /// <summary>The reveal shape each spike-block reaction selects.</summary>
     internal static readonly IReadOnlyDictionary<BlockReaction, XrayRevealShape> SpikeBlockReveals = new Dictionary<BlockReaction, XrayRevealShape>
     {
         [SpikeRevealReaction] = XrayRevealShape.CopyOne,
     };
 
-    /// <summary>The command each special-block reaction selects.</summary>
+    /// <summary>The reveal shape each special-block reaction selects.</summary>
     internal static readonly IReadOnlyDictionary<BlockReaction, XrayRevealShape> SpecialBlockReveals = new Dictionary<BlockReaction, XrayRevealShape>
     {
         [BlockReaction.Common(0)] = XrayRevealShape.CopyOne,
@@ -64,7 +64,7 @@ internal static class XrayRevealDefinitions
         [BlockReaction.AreaSpecific(5)] = XrayRevealShape.CopyBrinstar,
     };
 
-    /// <summary>The command each shootable-block reaction selects.</summary>
+    /// <summary>The reveal shape each shootable-block reaction selects.</summary>
     internal static readonly IReadOnlyDictionary<BlockReaction, XrayRevealShape> ShootableBlockReveals = new Dictionary<BlockReaction, XrayRevealShape>
     {
         [BlockReaction.Common(0)] = XrayRevealShape.CopyOne,
@@ -85,7 +85,7 @@ internal static class XrayRevealDefinitions
         [BlockReaction.Common(15)] = XrayRevealShape.CopyOne,
     };
 
-    /// <summary>The command each grapple-block reaction selects.</summary>
+    /// <summary>The reveal shape each grapple-block reaction selects.</summary>
     internal static readonly IReadOnlyDictionary<BlockReaction, XrayRevealShape> GrappleBlockReveals = new Dictionary<BlockReaction, XrayRevealShape>
     {
         [BlockReaction.Common(0)] = XrayRevealShape.CopyOne,
@@ -93,7 +93,7 @@ internal static class XrayRevealDefinitions
         [BlockReaction.Common(2)] = XrayRevealShape.CopyOne,
     };
 
-    /// <summary>The command each bombable-block reaction selects.</summary>
+    /// <summary>The reveal shape each bombable-block reaction selects.</summary>
     internal static readonly IReadOnlyDictionary<BlockReaction, XrayRevealShape> BombableBlockReveals = new Dictionary<BlockReaction, XrayRevealShape>
     {
         [BlockReaction.Common(0)] = XrayRevealShape.CopyOne,

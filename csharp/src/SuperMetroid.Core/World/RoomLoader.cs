@@ -327,7 +327,7 @@ internal sealed class RoomLoader
         }
 
         // The cinematic refilled health on the preceding frame; the Ceres start then seeds the
-        // hurt check from it. The Ceres-start command locks Samus's state handlers.
+        // hurt check from it. The Ceres start's control setup locks Samus's state handlers.
         samus.Health = samus.MaxHealth;
         samus.PreviousHealthForHurtCheck = samus.Health;
         samus.Kinematics.Position = samus.Kinematics.Position.WithX(new FixedCoordinate(station.Placement.SamusPosition.X, 0)).WithY(new FixedCoordinate(station.Placement.SamusPosition.Y, 0));
@@ -1169,7 +1169,7 @@ internal sealed class RoomLoader
         ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
         _hud.UpdateMinimap(_system, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _assists.Current.MapReveal, PresentationMap = _artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
 
-        // Samus's Ceres-start setup command installs a locked frame handler. Reuse the
+        // Samus's Ceres-start control setup installs a locked frame handler. Reuse the
         // existing runtime switch to ensure ordinary movement cannot begin before the
         // elevator arrival sequence has been modelled.
         _player.GroundedSamusMovementEnabled = false;

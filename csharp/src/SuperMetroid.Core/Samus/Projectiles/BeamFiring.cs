@@ -154,7 +154,7 @@ internal sealed class BeamFiring
 
                 // The flare draw owns both flare graphics and their audio. Its draw-time call
                 // queues the charging sound exactly once at counter sixteen. The
-                // C# renderer is intentionally side-effect free, so publish the same command
+                // C# renderer is intentionally side-effect free, so queue the same sound
                 // here, on the alpha pass that advances the counter to sixteen.
                 if (_charge.FlareCounter == BeamChargeDefinitions.ChargeSoundStartCounter)
                 {
@@ -203,7 +203,7 @@ internal sealed class BeamFiring
     {
         // Charged firing's success path queues the indexed sound value even when an
         // out-of-domain beam combination reads zero from the adjacent table. Allocation,
-        // not a nonzero sound command, distinguishes that success from the shared failure
+        // not a nonzero sound request, distinguishes that success from the shared failure
         // tail which cancels an audible charge. Murder Beam is the observable index-15
         // case: it allocates a persistent projectile while requesting no new sound.
         if (firing.Slot is not null)

@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Samus;
 
-/// <summary>Wall-jump animation boundaries used by the game's spin-sound command.</summary>
+/// <summary>Wall-jump animation boundaries the spin sound's selection reads.</summary>
 internal static class SamusSpinSoundFrames
 {
-    /// <summary>The spin-sound command's first wall-jump frame selecting Space Jump audio.</summary>
+    /// <summary>The first wall-jump frame at which the spin sound selects Space Jump audio.</summary>
     public const int SpaceJump = 13;
-    /// <summary>The spin-sound command's first wall-jump frame selecting Screw Attack audio.</summary>
+    /// <summary>The first wall-jump frame at which the spin sound selects Screw Attack audio.</summary>
     public const int ScrewAttack = 23;
 }

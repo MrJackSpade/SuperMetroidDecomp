@@ -288,7 +288,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.PostCreditsWaitingBackdrop:
                 if (--Stage.PhaseTimer <= 0)
                 {
-                    // Function 132 shows the complete result panel before the following 180-frame hold.
+                    // The backdrop wait's end shows the complete result panel before the following 180-frame hold.
                     _ = InstalledArtwork.EndingText ?? throw new InvalidOperationException("Post-credits text requires installed ending text.");
                     InstalledArtwork.PostCreditsText.ShowResultPanel();
                     Stage.PhaseTimer = 180;
@@ -391,7 +391,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.ItemPercentageScrollDown:
-                // Function 148 moves the shown text down two pixels per call, eighty in all, before the final
+                // The item-percentage scroll moves the shown text down two pixels per call, eighty in all, before the final
                 // message starts above it.
                 InstalledArtwork.PostCreditsText.Drop += EndingSequenceDefinitions.Timing.TextDropPixelsPerCall;
                 if (--Stage.PhaseTimer <= 0)
@@ -414,7 +414,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         // The cinematic runs its colour effects after actors; the ending's colours show the record each holds (#1512, #1597).
         Stage.PaletteFxSystem.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
         if (Stage.PaletteFxSystem.AudioRequests.SoundRequests.Count != 0)
-            throw new InvalidDataException("Ending palette program requested an unhandled audio command.");
+            throw new InvalidDataException("Ending palette program requested an unhandled sound.");
         // The ending follows cinematic actors even while a text-only screen hides sprites.
         // The credits' end enables the already-initialized records when the credits finish.
         if (EndingCreditsPhaseGroups.PostCredits.Contains(Stage.Phase))

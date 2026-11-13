@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Title;
 
-/// <summary>The commands that end a title card: start the next floor scene, or remove the card.</summary>
+/// <summary>The steps that end a title card: start the next floor scene, or remove the card.</summary>
 /// <remarks>The values are arbitrary (#1416).</remarks>
 internal enum TitleSequenceScriptStep
 {

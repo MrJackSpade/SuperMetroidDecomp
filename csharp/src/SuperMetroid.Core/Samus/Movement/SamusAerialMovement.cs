@@ -260,8 +260,8 @@ public static class SamusAerialMovement
         if (wallJumpTriggered)
         {
             // A triggered wall-jump check skips gravity, so gravity and vertical displacement
-            // do not execute on the trigger frame. Runtime pose handling consumes command
-            // five after movement and installs the wall-jump pose with the authored launch speed.
+            // do not execute on the trigger frame. Runtime pose handling consumes the
+            // wall jump after movement and installs the wall-jump pose with the authored launch speed.
             return new AerialMovementResult(
                 Landed: false,
                 HitCeiling: false,

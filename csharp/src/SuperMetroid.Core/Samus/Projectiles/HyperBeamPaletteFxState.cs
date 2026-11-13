@@ -22,7 +22,7 @@ public sealed class HyperBeamPaletteFxState
     /// <summary>Where the Hyper Beam's colour animation resumes between updates.</summary>
     internal AnimationPlace Place { get; private set; }
 
-    /// <summary>True after controller function three has spawned the object.</summary>
+    /// <summary>True after equipping the Hyper Beam has spawned the object.</summary>
     public bool IsActive { get; private set; }
 
     /// <summary>

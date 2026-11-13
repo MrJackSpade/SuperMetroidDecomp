@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public static class PhantoonCasualFlames
 {
     /// <summary>Selects the schedule of pattern <paramref name="index"/>.</summary>
-    /// <param name="index">Selector 0..3, indexing the pattern table.</param>
+    /// <param name="index">The flame pattern, 0 through 3.</param>
     /// <returns>The selected burst's intervals and cooldown.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside 0..3.</exception>
     public static PhantoonCasualFlameSchedule Pattern(int index) =>

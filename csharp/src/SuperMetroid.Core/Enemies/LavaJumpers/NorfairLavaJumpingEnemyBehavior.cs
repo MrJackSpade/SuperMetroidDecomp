@@ -203,7 +203,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         slot.Position = slot.Position.AdvanceY(state.YVelocity.ToSixteenSixteenDelta());
     }
 
-    /// <summary>Runs function six without restarting an unchanged animation.</summary>
+    /// <summary>Starts an animation without restarting an unchanged one.</summary>
     private static void StartNorfairLavaJumpingEnemyAnimation(
         RoomEnemySlot slot,
         NorfairLavaJumpingEnemyState state,

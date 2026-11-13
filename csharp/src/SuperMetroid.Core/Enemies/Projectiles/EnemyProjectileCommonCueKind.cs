@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// What a shared projectile cue does: one per general command a family's typed animation uses without any
+/// What a shared projectile cue does: one per general cue a family's typed animation uses without any
 /// family behavior of its own.
 /// </summary>
 internal enum EnemyProjectileCommonCueKind

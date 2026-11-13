@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// installed falling handler.
 /// </summary>
 /// <remarks>
-/// Mother Brain and the Baby Metroid own when controller functions zero through four are
+/// Mother Brain and the Baby Metroid own when the drain's operations below are
 /// called. This class deliberately does not invent that enemy AI. It owns only the state
 /// mutations made by those calls and the movement handler installed later by the
 /// drained-fall animation cue.
@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public sealed class SamusDrainedState
 {
     /// <summary>
-    /// Latches the immediate suit-palette restore from controller zero or the rainbow-stop command
+    /// Latches the immediate suit-palette restore from letting drained Samus fall or the rainbow stop
     /// until the same frame's palette pass runs.
     /// </summary>
     private bool _suitPaletteRestoreRequested;
@@ -44,17 +44,17 @@ public sealed class SamusDrainedState
 
     /// <summary>
     /// Calls each Hyper Beam palette is held for during the cutscene rainbow cycle, 0 through the Baby's maximum of
-    /// ten: the rainbow-start command starts it at one, the Baby raises it one at a time and never past its maximum,
-    /// and the rainbow-stop command clears it. Each palette advance reloads the common palette timer from it.
+    /// ten: the rainbow start sets it to one, the Baby raises it one at a time and never past its maximum,
+    /// and the rainbow stop clears it. Each palette advance reloads the common palette timer from it.
     /// </summary>
     public int SpecialPaletteFrame { get; private set; }
 
-    /// <summary>Common palette timer initialized to one by the rainbow-start command.</summary>
+    /// <summary>Common palette timer initialized to one by the rainbow start.</summary>
     public int CommonPaletteTimer { get; private set; }
 
     /// <summary>
     /// The step of the Hyper Beam glow the rainbow cycle shows, 0 through the glow's step count minus one: cleared by
-    /// both rainbow commands and advanced by one on each timer expiry, returning to zero after the last step.
+    /// the rainbow start and stop and advanced by one on each timer expiry, returning to zero after the last step.
     /// </summary>
     public int HyperBeamGlowStep { get; private set; }
 
@@ -182,10 +182,10 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>
-    /// Runs Samus's rainbow suit colouring after the Baby drains her, while the rainbow-start command's flag is set.
+    /// Runs Samus's rainbow suit colouring after the Baby drains her, while the rainbow palette is enabled.
     /// </summary>
     /// <remarks>
-    /// While the rainbow-start command's flag is set, this handler has absolute priority over
+    /// While the rainbow palette is enabled, this handler has absolute priority over
     /// charge, Speed Booster, shinespark, Crystal Flash, and X-ray palettes. It loads one
     /// complete Hyper Beam glow shade before touching either timer; the import pre-colours Samus in each of its frames
     /// (#1512). The Baby
@@ -199,7 +199,7 @@ public sealed class SamusDrainedState
 
         if (_suitPaletteRestoreRequested)
         {
-            // The drained palette and the rainbow-stop command choose Gravity before Varia, then Power, as every
+            // The drained palette and the rainbow stop choose Gravity before Varia, then Power, as every
             // other Samus palette restoration path does.
             SamusNormalSuitPalette.Load(colours, equippedItems);
             _suitPaletteRestoreRequested = false;
@@ -223,7 +223,7 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>
-    /// Runs controller function zero, “let drained Samus fall,”.
+    /// Lets drained Samus fall.
     /// </summary>
     public void LetFall(SamusState samus)
     {
@@ -262,7 +262,7 @@ public sealed class SamusDrainedState
 
     /// <summary>
     /// Called only by the drained-fall animation cue; the generic delay
-    /// step performs the command's separate frame increment. The cue does not look at the pose: the drained
+    /// step performs the cue's separate frame increment. The cue does not look at the pose: the drained
     /// crouches' animations hold it, and a landing pose whose frame the Baby's Hyper Beam freeze or rainbow stop sets reads
     /// into the drained crouch's animation and reaches it too, so that pose falls as a drained Samus does (#1535).
     /// </summary>
@@ -317,7 +317,7 @@ public sealed class SamusDrainedState
             impactYSpeed);
     }
 
-    /// <summary>Runs controller function one.</summary>
+    /// <summary>Stands drained Samus up.</summary>
     public void PutStanding(SamusState samus)
     {
         Ensure.NotNull(samus);
@@ -330,7 +330,7 @@ public sealed class SamusDrainedState
         samus.CommitPoseHistory();
     }
 
-    /// <summary>Runs controller function four.</summary>
+    /// <summary>Puts drained Samus back into the drained crouch.</summary>
     public void PutCrouchingOrFalling(SamusState samus)
     {
         Ensure.NotNull(samus);
@@ -343,7 +343,7 @@ public sealed class SamusDrainedState
         samus.CommitPoseHistory();
     }
 
-    /// <summary>Runs controller function two.</summary>
+    /// <summary>Releases drained Samus.</summary>
     public void Release(SamusState samus)
     {
         Ensure.NotNull(samus);
@@ -390,8 +390,8 @@ public sealed class SamusDrainedState
     {
         Ensure.NotNull(samus);
 
-        // Both commands unconditionally choose left-facing knockback KnockbackLeftPose, even when
-        // Samus had faced right. This is why controller zero later selects drained DrainedCrouchingLeftPose.
+        // The rainbow setup unconditionally chooses left-facing knockback KnockbackLeftPose, even when
+        // Samus had faced right. This is why letting her fall later selects DrainedCrouchingLeftPose.
         samus.Pose = SamusPoseId.KnockbackLeftPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);

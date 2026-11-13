@@ -16,7 +16,7 @@ public static class GrappleBeamDefinitions
         public const SamusBeamCombination FiringSelection = SamusBeamCombination.Ice;
     }
 
-    /// <summary>Exact sound queue commands issued by grapple functions.</summary>
+    /// <summary>The exact sound requests the grapple beam makes.</summary>
     public static class Sounds
     {
         /// <summary>Stop the old beam before pose-change refiring.</summary>

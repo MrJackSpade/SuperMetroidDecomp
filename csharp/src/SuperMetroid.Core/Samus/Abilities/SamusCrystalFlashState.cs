@@ -306,7 +306,7 @@ public sealed class SamusCrystalFlashState
         }
 
         // The ammo handler switches to finish art directly; it does not wait for the main
-        // four-frame animation loop to reach a command.
+        // four-frame animation loop to reach a cue.
         Phase = CrystalFlashPhase.Finishing;
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 12, timer: 3);
     }

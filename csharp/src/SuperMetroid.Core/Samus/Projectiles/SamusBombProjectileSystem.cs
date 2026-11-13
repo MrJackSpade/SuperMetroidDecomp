@@ -341,7 +341,7 @@ public sealed class SamusBombProjectileSystem
 
     /// <summary>
     /// Resumes Samus's sounds. In main gameplay a spinning Samus re-queues her spin
-    /// sound through the spin-sound command; otherwise a flare of at least sixteen resumes the charge loop.
+    /// sound through the spin sound's selection; otherwise a flare of at least sixteen resumes the charge loop.
     /// </summary>
     private static void ResumeSoundsAfterPowerBombExplosion(
         SamusState samus,

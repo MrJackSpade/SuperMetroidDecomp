@@ -80,7 +80,7 @@ internal static class StationObjectDraws
         /// <summary>How the cell at <paramref name="cell"/> of <paramref name="run"/>, both in range, collides.</summary>
         private protected abstract RoomCollisionType Collision(int run, int cell);
 
-        /// <summary>Rejects a run outside this layout's command count.</summary>
+        /// <summary>Rejects a run outside this layout's run count.</summary>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new ArgumentOutOfRangeException(nameof(run));

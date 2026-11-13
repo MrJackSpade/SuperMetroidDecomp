@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>The room's liquid effect, which enemy AI drives directly: liquid motion commands from Ridley and the Chozo statue.</summary>
+/// <summary>The room's liquid effect, which enemy AI drives directly: liquid motion requests from Ridley and the Chozo statue.</summary>
 [RoomLifetime]
 internal sealed class EnemyRoomFx
 {
@@ -16,9 +16,9 @@ internal sealed class EnemyRoomFx
     /// </summary>
     internal void BindRoomFx(RoomFxOverlayState roomFx) => FxOverlay = roomFx;
 
-    /// <summary>Applies a liquid target, velocity, and delay at an AI command boundary so the FX timer is not reset each frame.</summary>
+    /// <summary>Applies a liquid target, velocity, and delay when the AI requests it, so the FX timer is not reset each frame.</summary>
     internal void PublishLiquidMotion(int target, SignedEightEight velocity, int delay) =>
-        // Execute at the AI command, not from retained state each frame:
+        // Apply it when the AI requests it, not from retained state each frame:
         // repeated application would continually reset the liquid handler's delay.
         FxOverlay?.SetLiquidMotion(targetYPosition: target, yVelocity: velocity, timer: delay);
 }

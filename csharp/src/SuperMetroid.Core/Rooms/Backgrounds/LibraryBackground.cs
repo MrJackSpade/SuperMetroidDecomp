@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
 /// One library background a room state shows behind its blocks (#1466): a named, pre-coloured picture the import pipeline
-/// composed by running the background's command list once, where the player sees it as such (<see cref="View"/>, #1649).
+/// composed by running the background's drawing script once, where the player sees it as such (<see cref="View"/>, #1649).
 /// A few backgrounds, the scrolling skies', show another picture when the room is entered through particular doors; the
 /// room selects that picture by the door, and every other door shows the background's ordinary picture.
 /// </summary>

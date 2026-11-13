@@ -130,7 +130,7 @@ public sealed class SamusSuitPickupState
             : SamusPoseId.ForwardFacingPowerSuitPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        // Entry's Samus lock command publishes history before locking gameplay.
+        // Entry's suit-pickup lock publishes history before locking gameplay.
         samus.CommitPoseHistory();
         samus.Control.LockForSuitPickup();
 

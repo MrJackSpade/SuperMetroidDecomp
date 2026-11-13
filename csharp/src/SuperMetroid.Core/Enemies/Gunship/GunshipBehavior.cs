@@ -118,7 +118,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
                 ?? throw new InvalidOperationException(
                     "Post-Ceres gunship initialization requires the loader's Samus actor.");
             // Post-Ceres initialization attaches the top hull seventeen pixels above Samus and
-            // enters function three, the high-altitude descent used only after Ceres.
+            // enters the high-altitude descent used only after Ceres.
             slot.Position = slot.Position.WithWrappedWholeY(samus.Position.Y.Whole - 17);
             part.Phase = GunshipPhase.DescendAfterCeres;
         }
@@ -283,7 +283,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Post-Ceres gunship descent lost Samus.");
 
-        // Function three carries all four actors as a rigid body. Above Y=768 it moves
+        // The after-Ceres descent carries all four actors as a rigid body. Above Y=768 it moves
         // 4.5 pixels per call; below that threshold it slows to 2.5 and clamps the
         // top hull to 1119 before beginning the game's seventeen-entry bounce table.
         // The clamp writes only whole positions; subpixels keep this call's sum.

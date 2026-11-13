@@ -62,7 +62,7 @@ public sealed class AudioQueues
 
     /// <summary>
     /// Door-owned part of the sound-disable switch: set after the entry stop
-    /// commands and cleared after the destination fade. The frontend sets it from the
+    /// requests and cleared after the destination fade. The frontend sets it from the
     /// door transition's phase before every frame.
     /// It rejects new SFX only; queued sounds and music continue to advance.
     /// </summary>
@@ -196,7 +196,7 @@ public sealed class AudioQueues
     /// two before its pickup step schedules the room track's return.
     /// That step snapshots the currently playing room track, queues silence after 360
     /// frames, then restores that snapshot eight frames later. Queue clearing is part of
-    /// the first step: retaining an older delayed room command can pre-empt the fanfare.
+    /// the first step: retaining an older delayed room-track request can pre-empt the fanfare.
     /// </remarks>
     public void QueuePermanentItemFanfare()
     {

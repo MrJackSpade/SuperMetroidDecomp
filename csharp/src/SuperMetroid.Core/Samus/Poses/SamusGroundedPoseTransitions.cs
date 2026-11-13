@@ -106,7 +106,7 @@ internal static class SamusGroundedPoseTransitions
         if (!preservesRunningAnimation)
         {
             // This is the pose initializer's ordinary target installation. Replacing Pose
-            // directly would omit radius refresh, animation selection, and command cleanup.
+            // directly would omit the radius refresh and the new animation's start.
             ApplySimpleGroundedPoseChange(samus, sourcePose, targetPose, "Grounded arm");
             return;
         }

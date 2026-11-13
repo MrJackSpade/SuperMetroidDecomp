@@ -199,7 +199,7 @@ public sealed class SuperMetroidGame
         // Publish earlier gameplay requests first, then cancel once at this entry
         // boundary; repeating it while the box is shown would cancel the message's
         // own cursor and saving sounds. A loaded active message is not an entry and
-        // must not inject a new command merely because the host resumed.
+        // must not queue a new cancellation merely because the host resumed.
         if (!messageWasActive && Session.Runtime?.MessageBox.IsActive == true)
             Session.audio.QueueCancelSoundEffects();
         bool musicHandler = false;

@@ -404,7 +404,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             _player.ProspectiveSamusPose = null;
             _player.ProspectiveSamusFallbackPose = null;
         }
-        // Actor commands replace beta before its dispatch in this same update.
+        // Actors' control setups replace beta before its dispatch in this same update.
         frame.RedispatchBeta(DispatchedBetaHandler(frame, samus));
         if (!_freeze.TimeIsFrozen && !frame.DeathOwnsSamus)
             // Ceres Ridley's dedicated updated-beam adapter; ordinary projectiles collide before each enemy's AI.
@@ -479,7 +479,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     }
 
     /// <summary>
-    /// Runs the installed movement owner in priority order: the empty and command betas, grapple, Draygon's grab,
+    /// Runs the installed movement owner in priority order: the empty and scripted betas, grapple, Draygon's grab,
     /// X-ray, Ceres Ridley's ejection, knockback, bomb jump, Crystal Flash, drained, Shinespark, the locked beta, frozen
     /// time and the special type, and otherwise the pose's normal movement-table entry.
     /// </summary>
@@ -534,10 +534,10 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         else if (samus.CeresRidleyEjection.IsActive)
         {
             // The hurt setup installs the hurt pose and clears every prospective pose and
-            // command. Afterwards the damage-boost check suppresses only a
+            // momentum response. Afterwards the damage-boost check suppresses only a
             // damage-boost result selected from a knockback pose; it does not
             // replace the complete input handler. A lookup failure there keeps the
-            // knockback pose and its Stop command, which clears the X acceleration
+            // knockback pose and its Stop momentum response, which clears the X acceleration
             // mode when the pose is committed.
             if (samus.CeresRidleyEjection.InitializationPending)
             {
@@ -598,7 +598,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                     room.RoomObjects);
         }
         // Crystal Flash installs one of three Crystal Flash movement handlers and an
-        // empty pose-input handler. Mother Brain's rainbow command keeps those handlers,
+        // empty pose-input handler. Mother Brain's rainbow-beam setup keeps those handlers,
         // but temporarily replaces frame-handler beta with a lock that calls no
         // movement at all. Once restoring Samus's control reinstalls the normal beta, Flash resumes under
         // the drained pose. The Super Metroid never installs that beta lock, so its
@@ -680,7 +680,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 _player.ProspectiveSamusFallbackPose = null;
             }
         }
-        // Samus's lock command installs an alpha handler which advances existing
+        // Samus's control lock installs an alpha handler which advances existing
         // room.Projectiles but a beta handler which performs no movement at all. All
         // special movement owners above take priority; an otherwise
         // locked standing body must not run generic ground collision or drift while
@@ -1038,7 +1038,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         if (_room.LevelData is null)
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
 
-        // The two front-facing poses enter through controller-locked demo/elevator commands.
+        // The two front-facing poses enter through the controller-locked demo and elevator setups.
         // The actor-owned vertical-collision value remains an explicit producer, while
         // this consumer now includes both the zero-status no-op and the nonzero
         // one-pixel downward block scan.
@@ -1169,8 +1169,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // Samus beta precedes room objects. A lock/unlock issued by a room object
         // affects the next beta, not the animation already owned this frame.
         // The suit pickup lock installs an empty beta, not just locked pose input:
-        // the suspended movement and all of its timers survive, so the unlock
-        // command can resume it after the suit's light-beam transformation (including Blue Suit).
+        // the suspended movement and all of its timers survive, so restoring
+        // Samus's control can resume it after the suit's light-beam transformation (including Blue Suit).
         // The empty beta also skips periodic damage and the energy checks.
         frame.SampleMovementType(SamusPoseMetadata.ReadMovementType(samus));
 
@@ -1221,7 +1221,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // Zero input and an unmatched nonzero table chord both reach the input fallback; a matched
         // same-pose record does not. Writes the prospective pose slot in alpha and
         // commits it after beta movement and animation, so the selection is captured here.
-        // A retained pose still selects a transition slot whose command runs later.
+        // A retained pose still selects a transition slot whose change runs later.
         if (_player.GroundedSamusMovementEnabled && frame.UsePoseDefinitionFallback)
         {
             _player.ProspectiveSamusFallbackPose = SamusLookupFailurePose.Resolve(
@@ -1331,7 +1331,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             samus.LiquidPhysics.ApplyPeriodicDamage(
                 samus,
                 timeIsFrozen: _freeze.TimeIsFrozen);
-            // Locked/elevator/appearance handlers omit the low-energy check; the gunship command
+            // Locked/elevator/appearance handlers omit the low-energy check; the gunship setup
             // installs a dedicated checker. Automatic reserves invoke their external
             // check in the frontend.
             if (frame.Mode.Beta is SamusBetaHandler.Normal or SamusBetaHandler.Gunship && !samus.Xray.OwnsSamusControl)

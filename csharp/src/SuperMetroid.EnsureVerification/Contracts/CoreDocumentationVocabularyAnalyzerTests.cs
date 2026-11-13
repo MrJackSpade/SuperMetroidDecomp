@@ -83,10 +83,28 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>Compares the subtraction's operands; the operands of the comparison are signed.</summary>\nint F => 0; }");
         Expect("class P { // shows the player's instructions; instructions for the player follow the title\n }");
         Expect("class P { /// <summary>A data-management command row; the menu's commands run one at a time.</summary>\nint F => 0; }");
-        Expect("class P { // the pause command one frame later restores the pair; the player commands Samus\n }");
+        Expect("class P { // the player's command one frame later restores the pair; the player commands Samus\n }");
         Expect("class P { /// <summary>The cue carries the values it acts on; the control setup restores Samus's control.</summary>\nint F => 0; }");
         Expect("[System.AttributeUsage(System.AttributeTargets.All)] sealed class CompatibilityServiceAttribute(string behaviour) : System.Attribute { public string Behaviour { get; } = behaviour; }\n" +
             "/// <summary>Evidence: the walking instructions store the delta; command seven reads it.</summary>\n[CompatibilityService(\"walk\")] class Walk { }");
+        // Every other command of the original's streams and dispatchers, and numbered functions and selectors (#1624).
+        Expect("class P { /// <summary>Latches the restore from the rainbow-stop command.</summary>\nint F => 0; }", "('command')");
+        Expect("class P { // the unpause command restores the normal pair\n }", "('command')");
+        Expect("class P { string Name => \"Chozo control command requires an active Samus actor.\"; }", "('command')");
+        Expect("class P { // waits for the opening music commands\n }", "('commands')");
+        Expect("class P { /// <summary>Named for the command list the game builds it with.</summary>\nint F => 0; }", "('command')");
+        Expect("class P { // the special-air table ends with a copy-one command\n }", "('command')");
+        Expect("class P { // Command-to-event conversion\n }", "('Command')");
+        Expect("class P { /// <summary>Runs controller function zero.</summary>\nvoid Run() { } }", "('function zero')");
+        Expect("class P { // Function 26 releases function 25 into the exit\n }", "('Function 26')");
+        Expect("class P { // runs the main AI and functions one through six\n }", "('functions one')");
+        Expect("class P { /// <summary>The population's direction selector two.</summary>\nint F => 0; }", "('selector two')");
+        Expect("class P { /// <summary>Selector 0..3, indexing the pattern table.</summary>\nint F => 0; }", "('Selector 0')");
+        // A menu's, a user's or a person's command, the verb after a person, and a count of the noun after a number are English.
+        Expect("class P { /// <summary>A menu command; a file-select command row reads as slot C; a user's command.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>Handle controller-binding rows and commands.</summary>\nint F => 0; }");
+        Expect("class P { // the player who commands Samus; the options commands\n }");
+        Expect("class P { /// <summary>Checked by the HUD selector one layer above this; a function of the speed.</summary>\nint F => 0; }");
         // Storage and machine vocabulary #1558 left out (#1611).
         Expect("class P { /// <summary>Kept in variable E.</summary>\nint F => 0; }", "('variable E')");
         Expect("class P { // extended word 08 holds it\n }", "('extended word')");

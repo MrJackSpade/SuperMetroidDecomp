@@ -329,11 +329,6 @@ public static class NorfairRoomStateDefinitions
         new(nameof(FastPillarsSetup), RoomLevelDefinitions.FastPillarsSetup, RoomGraphicsSet.HeatedNorfair, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.FastPillarsSetup, RoomEnemyPopulationDefinitions.FastPillarsSetup, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.FastPillarsSetup, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.FastPillarsSetup, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9VerticalPatternBrick, RoomSetupBehavior.SharedReturnD);
 
 
-    /// <summary>The unused room's state.</summary>
-    public static RoomStateSettings UnusedNorfairRoom { get; } =
-        new(nameof(UnusedNorfairRoom), RoomLevelDefinitions.UnusedNorfairRoom, RoomGraphicsSet.HeatedNorfair, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.UnusedNorfairRoom, RoomEnemyPopulationDefinitions.UnusedNorfairRoom, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.UnusedNorfairRoom, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9HorizontalPatternBrick, RoomSetupBehavior.SharedReturnD);
-
-
     /// <summary>The Mickey Mouse room's state.</summary>
     public static RoomStateSettings MickeyMouse { get; } =
         new(nameof(MickeyMouse), RoomLevelDefinitions.MickeyMouse, RoomGraphicsSet.HeatedNorfair, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.MickeyMouse, RoomEnemyPopulationDefinitions.MickeyMouse, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.MickeyMouse, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MickeyMouse, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9PurplePatches, RoomSetupBehavior.SharedReturnD);

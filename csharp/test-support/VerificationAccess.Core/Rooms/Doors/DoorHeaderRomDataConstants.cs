@@ -13,5 +13,10 @@ internal static class DoorHeaderRomDataConstants
     public const ushort PreFxBlockStart = 0x88fe;
     /// <summary>Encoded byte length of one physical door record.</summary>
     public const int RecordByteCount = 12;
+    /// <summary>
+    /// The one door only the Norfair room no door list names ($8F:B3E1) lists (#1686): no room of the game holds it, so it is
+    /// no door of the game.
+    /// </summary>
+    public const ushort UnreferencedRoomDoor = 0x991e;
 
 }

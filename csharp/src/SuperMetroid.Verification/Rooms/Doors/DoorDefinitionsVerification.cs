@@ -23,7 +23,7 @@ internal static class DoorDefinitionsVerification
         Suite(nameof(VerifyRetailDoorHeaders), () => VerifyRetailDoorHeaders(bus));
         Suite(nameof(VerifyRetailDoorListMapping), () => VerifyRetailDoorListMapping(bus));
         Suite(nameof(VerifyCompiledDoorListCollision), () => VerifyCompiledDoorListCollision());
-        Console.WriteLine("Doors: all597 physical headers, full elevator overlap and262 room lists match original ROM; collision resolves without native reads.");
+        Console.WriteLine("Doors: all596 physical headers, full elevator overlap and261 room lists match original ROM; collision resolves without native reads.");
     }
 
     /// <summary>Confirms Landing Site door collision resolves the compiled BTS-indexed transition.</summary>
@@ -40,14 +40,18 @@ internal static class DoorDefinitionsVerification
 
     }
 
-    /// <summary>Enumerates both physical door-header runs around the bank-$83 FX data gap.</summary>
+    /// <summary>
+    /// Enumerates both physical door-header runs around the bank-$83 FX data gap, leaving out the door only the room no door
+    /// reaches lists.
+    /// </summary>
     internal static IEnumerable<ushort> EnumerateRetailDoorPointers()
     {
         for (int pointer = DoorHeaderRomDataConstants.PreFxBlockStart;
              pointer <= DoorHeaderRomDataConstants.PreFxBlockEnd;
              pointer += DoorHeaderRomDataConstants.RecordByteCount)
         {
-            yield return checked((ushort)pointer);
+            if (pointer != DoorHeaderRomDataConstants.UnreferencedRoomDoor)
+                yield return checked((ushort)pointer);
         }
 
         for (int pointer = DoorHeaderRomDataConstants.PostFxBlockStart;

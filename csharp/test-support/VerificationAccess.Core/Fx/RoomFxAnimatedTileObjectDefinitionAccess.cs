@@ -16,8 +16,8 @@ internal static class RoomFxAnimatedTileObjectDefinitionAccess
         AnimatedTileObject.Spores => 0x82ed,
         AnimatedTileObject.WreckedShipTreadmillRightwards or AnimatedTileObject.WreckedShipTreadmillLeftwards
             or AnimatedTileObject.None or AnimatedTileObject.TourianStatuePhantoon or AnimatedTileObject.TourianStatueRidley
-            or AnimatedTileObject.TourianStatueKraid or AnimatedTileObject.TourianStatueDraygon or AnimatedTileObject.Empty
-            or AnimatedTileObject.VerticalSpikes or AnimatedTileObject.CrateriaLake or AnimatedTileObject.UnusedCrateriaLava
+            or AnimatedTileObject.TourianStatueKraid or AnimatedTileObject.TourianStatueDraygon
+            or AnimatedTileObject.VerticalSpikes or AnimatedTileObject.CrateriaLake
             or AnimatedTileObject.BrinstarPlant or AnimatedTileObject.WreckedShipScreen
             => throw new InvalidDataException($"Room-FX object {animatedObject} has no simple frame loop."),
         _ => throw new InvalidDataException($"Undefined room-FX object {animatedObject}."),

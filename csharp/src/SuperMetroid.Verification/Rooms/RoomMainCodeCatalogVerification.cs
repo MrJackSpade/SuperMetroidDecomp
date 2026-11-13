@@ -80,7 +80,7 @@ internal static class RoomMainCodeCatalogVerification
             $"all {retailMainPointers.Count} nonzero callback kinds are catalogued.");
     }
 
-    /// <summary>Extracts a retail room header pointer from a named symbol, excluding the debug room.</summary>
+    /// <summary>Extracts a retail room header pointer from a named symbol, excluding the debug room and the room no door reaches.</summary>
     internal static ushort? TryParseRoomHeaderPointer(string line)
     {
         string[] fields = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -103,7 +103,8 @@ internal static class RoomMainCodeCatalogVerification
 
         // $E82C is the cartridge's developer debug room and deliberately uses area ID 7,
         // outside the seven retail save/map areas accepted by the production room loader.
-        return pointer == 0xe82c ? null : pointer;
+        // $B3E1 is a Norfair room no door list names (#1686), so it is no room of the game.
+        return pointer is 0xe82c or 0xb3e1 ? null : pointer;
     }
 
     /// <summary>Constructs boss, event, and item contexts that expose conditional room states.</summary>

@@ -272,13 +272,6 @@ public static partial class LibraryBackgroundProgramDefinitions
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundSecondPage, 2048, null),
     ]);
 
-    /// <summary>The Norfair9HorizontalPatternBrick library-background program.</summary>
-    public static LibraryBackgroundProgram Norfair9HorizontalPatternBrick { get; } = new(LibraryBackgroundDefinitions.Norfair9HorizontalPatternBrick, [
-        new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.NorfairHorizontalPatternBrick), LibraryBackgroundDestination.TilemapStaging, 0, null),
-        new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 2048, null),
-        new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundSecondPage, 2048, null),
-    ]);
-
     /// <summary>The Norfair9VerticalPatternBrick library-background program.</summary>
     public static LibraryBackgroundProgram Norfair9VerticalPatternBrick { get; } = new(LibraryBackgroundDefinitions.Norfair9VerticalPatternBrick, [
         new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.NorfairVerticalPatternBrick), LibraryBackgroundDestination.TilemapStaging, 0, null),
@@ -513,7 +506,6 @@ public static partial class LibraryBackgroundProgramDefinitions
         Brinstar7BlueGridBlocks,
         Norfair9And10SmallPatternBrownPurpleBright,
         Norfair9And10SmallPatternBrownPurple0,
-        Norfair9HorizontalPatternBrick,
         Norfair9VerticalPatternBrick,
         Norfair9And10CavernStalactites,
         Norfair9And10CavernVertical,

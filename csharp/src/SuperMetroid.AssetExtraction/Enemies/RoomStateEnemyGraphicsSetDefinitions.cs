@@ -186,7 +186,6 @@ internal static class RoomStateEnemyGraphicsSetDefinitions
         [nameof(NorfairRoomStateDefinitions.RidleyWhenAreaBossDead)] = RoomEnemyGraphicsSetDefinitions.Ridley,
         [nameof(NorfairRoomStateDefinitions.LNFarming)] = RoomEnemyGraphicsSetDefinitions.LNFarming,
         [nameof(NorfairRoomStateDefinitions.FastPillarsSetup)] = RoomEnemyGraphicsSetDefinitions.FastPillarsSetup,
-        [nameof(NorfairRoomStateDefinitions.UnusedNorfairRoom)] = RoomEnemyGraphicsSetDefinitions.UnusedNorfairRoom,
         [nameof(NorfairRoomStateDefinitions.MickeyMouse)] = RoomEnemyGraphicsSetDefinitions.MickeyMouse,
         [nameof(NorfairRoomStateDefinitions.Pillar)] = RoomEnemyGraphicsSetDefinitions.Pillar,
         [nameof(NorfairRoomStateDefinitions.Plowerhouse)] = RoomEnemyGraphicsSetDefinitions.Plowerhouse,

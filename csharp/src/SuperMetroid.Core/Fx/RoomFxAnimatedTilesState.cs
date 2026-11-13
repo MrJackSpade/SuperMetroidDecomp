@@ -47,7 +47,7 @@ internal sealed class RoomFxAnimatedTilesState
             RoomFxType.Rain => AnimatedTileObject.Rain,
             RoomFxType.Spores => AnimatedTileObject.Spores,
             RoomFxType.None or RoomFxType.Water or RoomFxType.Fog or RoomFxType.ScrollingSky or
-                RoomFxType.UnusedScrollingSky or RoomFxType.Fireflea or RoomFxType.TourianEntranceStatue or
+                RoomFxType.Fireflea or RoomFxType.TourianEntranceStatue or
                 RoomFxType.CeresRidley or RoomFxType.CeresElevator or RoomFxType.CeresHaze => 0,
             _ => throw new InvalidOperationException($"Undefined RoomFxType {type}."),
         };

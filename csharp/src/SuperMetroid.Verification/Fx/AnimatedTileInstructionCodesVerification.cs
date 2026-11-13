@@ -30,7 +30,7 @@ internal static class AnimatedTileInstructionCodesVerification
             Enum.GetValues<AnimatedTileInstruction>().Select(code => (ushort)code).ToArray(), 14);
         AssertAnimatedTileCatalog(nameof(AnimatedTileObject),
             Enum.GetValues<AnimatedTileObject>().Where(header => header != AnimatedTileObject.None)
-                .Select(FxNativeWords.AnimatedTileObjects.Word).ToArray(), 19);
+                .Select(FxNativeWords.AnimatedTileObjects.Word).ToArray(), 17);
         AssertAnimatedTileCatalog(typeof(AnimatedTileAnimationScriptPointers), 4);
         Suite(nameof(VerifyConstructedAnimatedTileStreams), () => VerifyConstructedAnimatedTileStreams());
 

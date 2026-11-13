@@ -15,16 +15,12 @@ public enum AnimatedTileObject
     TourianStatueKraid,
     /// <summary>The Draygon statue in the Tourian statue room.</summary>
     TourianStatueDraygon,
-    /// <summary>The empty object an unused area bit selects.</summary>
-    Empty,
     /// <summary>Horizontal spikes, gated by the common area flag set's first flag.</summary>
     HorizontalSpikes,
     /// <summary>Vertical spikes, gated by the common area flag set's second flag.</summary>
     VerticalSpikes,
     /// <summary>The Crateria lake, gated by a Crateria area flag.</summary>
     CrateriaLake,
-    /// <summary>The unused Crateria lava object, preserved for its Crateria area flag.</summary>
-    UnusedCrateriaLava,
     /// <summary>The Brinstar plant, gated by a Brinstar area flag.</summary>
     BrinstarPlant,
     /// <summary>The Wrecked Ship screen, gated by a Wrecked Ship area flag.</summary>

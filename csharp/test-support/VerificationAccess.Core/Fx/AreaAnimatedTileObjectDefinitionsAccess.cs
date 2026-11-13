@@ -30,7 +30,9 @@ internal static class AreaAnimatedTileObjectDefinitionsAccess
                     nameof(bit), bit, $"Animated-tile bit must be 0..{AreaAnimatedTileObjectDefinitions.ObjectsPerArea - 1}.");
             }
 
-            return FxNativeWords.AnimatedTileObjects.Word(AreaAnimatedTileObjects.SelectObject(nativeAreaIndex, bit));
+            return AreaAnimatedTileObjects.SelectObject(nativeAreaIndex, bit) is { } selected
+                ? FxNativeWords.AnimatedTileObjects.Word(selected)
+                : FxNativeWords.UnselectedAnimatedTileObject(nativeAreaIndex, bit);
         }
 
         /// <summary>Restricts native animation-list lookup to its eight physical table rows.</summary>

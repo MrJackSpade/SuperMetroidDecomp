@@ -45,7 +45,6 @@ public sealed class SamusLiquidPhysicsState
             case RoomFxType.Rain:
             case RoomFxType.Fog:
             case RoomFxType.ScrollingSky:
-            case RoomFxType.UnusedScrollingSky:
             case RoomFxType.Fireflea:
             case RoomFxType.CeresRidley:
             case RoomFxType.CeresElevator:

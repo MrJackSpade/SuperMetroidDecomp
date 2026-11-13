@@ -12,9 +12,6 @@ public enum RoomBackgroundTilemap
     /// <summary>Norfair's small pattern brown purple (variant 0) background tilemap: <c>Background_Norfair_9_A_SmallPatternBrownPurple_0</c>.</summary>
     NorfairSmallPatternBrownPurple0,
 
-    /// <summary>Norfair's horizontal pattern brick background tilemap: <c>Background_Norfair_9_HorizontalPatternBrick</c>.</summary>
-    NorfairHorizontalPatternBrick,
-
     /// <summary>Norfair's vertical pattern brick background tilemap: <c>Background_Norfair_9_VerticalPatternBrick</c>.</summary>
     NorfairVerticalPatternBrick,
 

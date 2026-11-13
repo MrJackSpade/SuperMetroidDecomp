@@ -20,7 +20,7 @@ internal static class RoomStateSelectionDefinitionsVerification
         ushort[] rooms = File.ReadLines(Path.GetFullPath(Path.Combine("upstream-sm", "assets", "names.txt")))
             .Select(TryParseRoomHeaderPointer).Where(pointer => pointer.HasValue)
             .Select(pointer => (pointer ?? throw new InvalidOperationException("Verification requires pointer."))).Distinct().Order().ToArray();
-        AssertEqual(262, rooms.Length, "Original retail room selector identities");
+        AssertEqual(261, rooms.Length, "Original retail room selector identities");
         var uncompiled = new RoomDefinition("uncompiled fixture room", 0, AreaId.Crateria, new(0, 0), new(1, 1), 0, 0, RoomDoorTransitionStyle.Standard);
         AssertThrows<ArgumentOutOfRangeException>(() => RoomStateSelection.Select(uncompiled, default),
             "Uncompiled room selector rejects before condition evaluation");
@@ -114,8 +114,8 @@ internal static class RoomStateSelectionDefinitionsVerification
         }
         AssertEqual(54, conditional, "All native conditional room programs");
         AssertEqual(61, clauses, "All native conditional branch destinations");
-        AssertEqual(323, reached.Count, "All original selected room states reached by their predicate partitions");
-        Console.WriteLine($"Room selectors: 262 identities, 54 conditional programs, 61 ordered branches, 323 states and {comparisons} native predicate-partition comparisons pass.");
+        AssertEqual(322, reached.Count, "All original selected room states reached by their predicate partitions");
+        Console.WriteLine($"Room selectors: 261 identities, 54 conditional programs, 61 ordered branches, 322 states and {comparisons} native predicate-partition comparisons pass.");
     }
 
     /// <summary>Runs the focused room-state selection catalog check.</summary>

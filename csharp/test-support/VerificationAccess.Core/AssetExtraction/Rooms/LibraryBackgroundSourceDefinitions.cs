@@ -44,7 +44,6 @@ internal static class LibraryBackgroundSourceDefinitions
         [0xbcec] = LibraryBackgroundProgramDefinitions.Brinstar7BlueGridBlocks,
         [0xbe3f] = LibraryBackgroundProgramDefinitions.Norfair9And10SmallPatternBrownPurpleBright,
         [0xbe5a] = LibraryBackgroundProgramDefinitions.Norfair9And10SmallPatternBrownPurple0,
-        [0xbe90] = LibraryBackgroundProgramDefinitions.Norfair9HorizontalPatternBrick,
         [0xbeab] = LibraryBackgroundProgramDefinitions.Norfair9VerticalPatternBrick,
         [0xbec6] = LibraryBackgroundProgramDefinitions.Norfair9And10CavernStalactites,
         [0xbee1] = LibraryBackgroundProgramDefinitions.Norfair9And10CavernVertical,

@@ -34,7 +34,7 @@ internal static class LookupRoomStateSettingsVerification
         0xABDF, 0xAC0D, 0xAC38, 0xAC67, 0xAC90, 0xACC0, 0xACFD, 0xAD28, 0xAD6B, 0xADBA, 0xADEB, 0xAE14,
         0xAE3F, 0xAE81, 0xAEC1, 0xAEEC, 0xAF21, 0xAF4C, 0xAF7F, 0xAFB0, 0xAFDB, 0xB008, 0xB033, 0xB05E,
         0xB087, 0xB0C1, 0xB0EA, 0xB113, 0xB146, 0xB174, 0xB19F, 0xB1C8, 0xB1F2, 0xB243, 0xB295, 0xB2AF,
-        0xB2E7, 0xB312, 0xB340, 0xB35A, 0xB387, 0xB3B2, 0xB3EE, 0xB417, 0xB464, 0xB48F, 0xB4BA, 0xB4F2,
+        0xB2E7, 0xB312, 0xB340, 0xB35A, 0xB387, 0xB3B2, 0xB417, 0xB464, 0xB48F, 0xB4BA, 0xB4F2,
         0xB51D, 0xB567, 0xB592, 0xB5E2, 0xB638, 0xB663, 0xB6A5, 0xB6CE, 0xB6FB, 0xB74E, 0xC9A0, 0xC9BA,
         0xCA1A, 0xCA34, 0xCA64, 0xCA7E, 0xCAC0, 0xCADA, 0xCB08, 0xCB22, 0xCB9D, 0xCBB7, 0xCBE7, 0xCC01,
         0xCC39, 0xCC53, 0xCC81, 0xCC9B, 0xCCDD, 0xCCF7, 0xCD25, 0xCD3F, 0xCD6E, 0xCD88, 0xCDBA, 0xCDD4,
@@ -49,7 +49,7 @@ internal static class LookupRoomStateSettingsVerification
         0xDF71, 0xDF9F, 0xDFB9, 0xDFE9, 0xE003, 0xE033, 0xE04D, 0xE07D, 0xE097, 0xE0C7, 0xE0E1,
     ];
 
-    /// <summary>Compares 323 state identities and every native setting field, the two music bytes as the decoded room music.</summary>
+    /// <summary>Compares 322 state identities and every native setting field, the two music bytes as the decoded room music.</summary>
     internal static void VerifyRoomStateSettings(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyRoomStateIdentities), () => VerifyRoomStateIdentities());
@@ -74,7 +74,7 @@ internal static class LookupRoomStateSettingsVerification
     private static void VerifyRoomStateIdentities()
     {
         var original = OriginalRoomStatePointers.ToHashSet();
-        AssertEqual(323, original.Count, "Original room-state identities");
+        AssertEqual(322, original.Count, "Original room-state identities");
         AssertTrue(RoomStateDefinitions.All.Select(state => state.Pointer).SequenceEqual(OriginalRoomStatePointers),
             "Room-state enumeration preserves the complete original sorted domain");
         for (int value = 0; value <= ushort.MaxValue; value++)

@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 internal static class RoomEnemyGraphicsSetLists
 {
     /// <summary>Number of distinct retail graphics-set identities, including empty sets and separately addressed sets with matching content.</summary>
-    internal const int ListCount = 302;
+    internal const int ListCount = 301;
 
     /// <summary>Total member records across all retail sets; not a count of unique enemy definitions or artwork images.</summary>
     internal const int RecordCount = 425;

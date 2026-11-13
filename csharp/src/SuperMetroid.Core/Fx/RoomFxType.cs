@@ -22,8 +22,6 @@ public enum RoomFxType
     Fog,
     /// <summary>Scrolling exterior-sky background driven by the active room's sky picture.</summary>
     ScrollingSky,
-    /// <summary>An unused retail FX entry that targets the alternate scrolling-sky behaviour.</summary>
-    UnusedScrollingSky,
     /// <summary>Fireflea-room darkness and palette behavior, including enemy-driven light flashes.</summary>
     Fireflea,
     /// <summary>Tourian entrance statue liquid effect, rendered through the water-compatible effect overlay path.</summary>

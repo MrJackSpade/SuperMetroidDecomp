@@ -287,8 +287,6 @@ internal static class RoomEnemyGraphicsSetDefinitions
     internal static RoomEnemyGraphicsSetDefinition LNFireflea { get; } = new(nameof(LNFireflea));
     /// <summary>The enemy graphics set of the Magdollite Tunnel room.</summary>
     internal static RoomEnemyGraphicsSetDefinition MagdolliteTunnel { get; } = new(nameof(MagdolliteTunnel));
-    /// <summary>The enemy graphics set of an unused room state.</summary>
-    internal static RoomEnemyGraphicsSetDefinition UnusedNorfairRoom { get; } = new(nameof(UnusedNorfairRoom));
     /// <summary>The enemy graphics set of the Lava Dive room.</summary>
     internal static RoomEnemyGraphicsSetDefinition LavaDive { get; } = new(nameof(LavaDive));
     /// <summary>The enemy graphics set of the Pillar room.</summary>

@@ -24,7 +24,7 @@ public static class RoomEnemyPopulationDefinitions
     ], ListCount, RecordCount);
 
     /// <summary>Number of distinct populations selected by the compiled retail room states, including empty lists.</summary>
-    public const int ListCount = 302;
+    public const int ListCount = 301;
     /// <summary>Total placement records across the distinct compiled lists, excluding terminators and without counting repeated references from room states.</summary>
     public const int RecordCount = 1658;
 
@@ -304,8 +304,6 @@ public static class RoomEnemyPopulationDefinitions
     public static RoomEnemyPopulationDefinition LNFireflea { get; } = Find(nameof(LNFireflea));
     /// <summary>The enemy population of the Magdollite Tunnel room.</summary>
     public static RoomEnemyPopulationDefinition MagdolliteTunnel { get; } = Find(nameof(MagdolliteTunnel));
-    /// <summary>The enemy population of an unused room state.</summary>
-    public static RoomEnemyPopulationDefinition UnusedNorfairRoom { get; } = Find(nameof(UnusedNorfairRoom));
     /// <summary>The enemy population of the Lava Dive room.</summary>
     public static RoomEnemyPopulationDefinition LavaDive { get; } = Find(nameof(LavaDive));
     /// <summary>The enemy population of the Pillar room.</summary>

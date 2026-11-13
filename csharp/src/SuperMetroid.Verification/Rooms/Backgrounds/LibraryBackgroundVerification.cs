@@ -43,8 +43,8 @@ internal static void VerifyLibraryBackgroundSourceInventory()
     LibraryBackgroundNativeOperand[] workRamTransfers = sources
         .Where(source => source.Command != LibraryBackgroundCommand.Decompress &&
             source.SourceAddress < CartridgeRomFloor).ToArray();
-    AssertEqual(190, sources.Count, "retail library-background source operand count");
-    AssertEqual(66, listCount, "retail source-bearing background list count");
+    AssertEqual(187, sources.Count, "retail library-background source operand count");
+    AssertEqual(65, listCount, "retail source-bearing background list count");
     AssertEqual(Enum.GetValues<RoomBackgroundTilemap>().Length, compressedCount,
         "retail distinct compressed background count is one per named background tilemap");
     // The named tilemaps' cartridge sources (#1414) are exactly the retail decompression operands.
@@ -54,7 +54,7 @@ internal static void VerifyLibraryBackgroundSourceInventory()
             .SequenceEqual(RoomBackgroundSourceDefinitions.Tilemaps.Values.Order()),
         "named background tilemap sources exactly match retail command operands");
     AssertEqual(18, romTransfers.Length, "retail direct ROM background transfer count");
-    AssertEqual(114, workRamTransfers.Length, "retail work-RAM background transfer count");
+    AssertEqual(112, workRamTransfers.Length, "retail work-RAM background transfer count");
     foreach (int source in sources
         .Where(source => source.Command == LibraryBackgroundCommand.Decompress)
         .Select(source => source.SourceAddress).Distinct())

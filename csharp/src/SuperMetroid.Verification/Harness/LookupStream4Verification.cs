@@ -1424,7 +1424,7 @@ internal static class LookupStream4Verification
         int[] nativeBackgroundSources = LibraryBackgroundSourceInventory.Scan(rom)
             .Where(instruction => instruction.Command == LibraryBackgroundCommand.Decompress)
             .Select(instruction => instruction.SourceAddress).Distinct().Order().ToArray();
-        AssertEqual(58, nativeBackgroundSources.Length, "native distinct compressed background source count");
+        AssertEqual(57, nativeBackgroundSources.Length, "native distinct compressed background source count");
         AssertEqual(nativeBackgroundSources.Length, Enum.GetValues<RoomBackgroundTilemap>().Length, "one named background tilemap per native source");
         // Each native decompression source decodes to the named tilemap the extraction table stores there (#1414).
         foreach (int source in nativeBackgroundSources)

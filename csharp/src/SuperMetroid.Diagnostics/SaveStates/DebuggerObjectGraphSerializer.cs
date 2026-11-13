@@ -19,12 +19,20 @@ internal static class DebuggerObjectGraphSerializer
     /// is written as its path among the host's bound objects, not as its contents (#1507), and an object the game's static
     /// members hold as its path among them (<see cref="DefinitionObjects"/>, #1623).
     /// </summary>
-    public static void Serialize(Stream destination, object root, BoundObjectGraph? bound = null)
+    public static void Serialize(Stream destination, object root, BoundObjectGraph? bound = null) =>
+        Serialize(destination, root, bound, DefinitionObjects.Process);
+
+    /// <summary>
+    /// Writes a debugger snapshot as <see cref="Serialize(Stream, object, BoundObjectGraph?)"/> does, naming the objects
+    /// the game's static members hold through <paramref name="definitions"/> instead of the process's index.
+    /// </summary>
+    internal static void Serialize(Stream destination, object root, BoundObjectGraph? bound, DefinitionObjects definitions)
     {
         Ensure.NotNull(destination);
         Ensure.NotNull(root);
+        Ensure.NotNull(definitions);
         using var writer = new BinaryWriter(destination, System.Text.Encoding.UTF8, leaveOpen: true);
-        new GraphWriter(writer, bound).Write(root);
+        new GraphWriter(writer, bound, definitions).Write(root);
     }
 
     /// <summary>The message prefix of every rejection of a state this build cannot restore exactly.</summary>
@@ -35,11 +43,19 @@ internal static class DebuggerObjectGraphSerializer
     /// object's path against <paramref name="bound"/> (#1507) and each static member's object's path to the object this
     /// build's member holds (#1623).
     /// </summary>
-    public static T Deserialize<T>(Stream source, BoundObjectGraph? bound = null) where T : class
+    public static T Deserialize<T>(Stream source, BoundObjectGraph? bound = null) where T : class =>
+        Deserialize<T>(source, bound, DefinitionObjects.Process);
+
+    /// <summary>
+    /// Restores a snapshot as <see cref="Deserialize{T}(Stream, BoundObjectGraph?)"/> does, resolving each static member's
+    /// object's path through <paramref name="definitions"/> instead of the process's index.
+    /// </summary>
+    internal static T Deserialize<T>(Stream source, BoundObjectGraph? bound, DefinitionObjects definitions) where T : class
     {
         Ensure.NotNull(source);
+        Ensure.NotNull(definitions);
         using var reader = new BinaryReader(source, System.Text.Encoding.UTF8, leaveOpen: true);
-        object? root = new GraphReader(reader, bound).ReadState();
+        object? root = new GraphReader(reader, bound, definitions).ReadState();
         return root as T ?? throw new InvalidDataException(
             $"Debugger state root is {root?.GetType().FullName ?? "null"}, expected {typeof(T).FullName}.");
     }
@@ -90,7 +106,7 @@ internal static class DebuggerObjectGraphSerializer
     }
 
     /// <summary>Serializes one graph with reference IDs and strict type/member identities.</summary>
-    private sealed class GraphWriter(BinaryWriter writer, BoundObjectGraph? bound)
+    private sealed class GraphWriter(BinaryWriter writer, BoundObjectGraph? bound, DefinitionObjects definitions)
     {
         /// <summary>Preserves identity for shared objects and cycles.</summary>
         private readonly Dictionary<object, int> references =
@@ -152,7 +168,7 @@ internal static class DebuggerObjectGraphSerializer
                 // A catalog's member or other object a static member holds is named by its path, so a restore holds the
                 // catalog's own object instead of a copy (#1623). A string is written by its text: an interned literal
                 // that a static member also holds is no identity.
-                if (layout.Kind != LayoutKind.String && DefinitionObjects.TryGetPath(value, out string? definitionPath))
+                if (layout.Kind != LayoutKind.String && definitions.TryGetPath(value, out string? definitionPath))
                 {
                     int definitionId = nextReferenceId++;
                     references.Add(value, definitionId);
@@ -635,7 +651,7 @@ internal static class DebuggerObjectGraphSerializer
     }
 
     /// <summary>Restores objects against this build's allowed types and exact field layout.</summary>
-    private sealed class GraphReader(BinaryReader reader, BoundObjectGraph? bound)
+    private sealed class GraphReader(BinaryReader reader, BoundObjectGraph? bound, DefinitionObjects definitions)
     {
         /// <summary>Objects registered before child fields are decoded so cycles can close.</summary>
         private readonly Dictionary<int, object> references = [];
@@ -728,7 +744,7 @@ internal static class DebuggerObjectGraphSerializer
             if (marker == ObjectMarker.Definition)
             {
                 int definitionId = reader.ReadInt32();
-                return Register(definitionId, DefinitionObjects.Resolve(reader.ReadString()));
+                return Register(definitionId, definitions.Resolve(reader.ReadString()));
             }
             if (marker != ObjectMarker.New)
                 throw new InvalidDataException($"Unknown debugger-state object marker {(byte)marker}.");

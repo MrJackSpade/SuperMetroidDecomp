@@ -55,7 +55,7 @@ internal sealed class PhantoonCombat
             AfterCommon = c =>
             {
                 PhantoonEnemyState phantoon = Phantoon ??
-                    throw new InvalidOperationException("Phantoon shot callback has no encounter state.");
+                    throw new InvalidOperationException("Phantoon's shot reaction ran without Phantoon's fight state.");
                 int appliedDamage = c.HealthBefore - c.Enemy.Health;
                 ResolvePhantoonShotReaction(c.Enemy, phantoon, c.Bomb.Type, appliedDamage);
             },

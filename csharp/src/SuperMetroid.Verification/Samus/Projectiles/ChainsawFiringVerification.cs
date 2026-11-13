@@ -262,7 +262,7 @@ internal static class ChainsawFiringVerification
         NotSupportedException chargedFault = AssertThrows<NotSupportedException>(
             () => chargedProjectiles.StepFrame(new SamusTerrain { Level = level }, chargedSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), chargedShared),
             "charged Chainsaw reaches mutable low-WRAM execution");
-        AssertTrue(chargedFault.Message.Contains("enters Samus's mutable state as code", StringComparison.Ordinal),
+        AssertTrue(chargedFault.Message.Contains("is read from Samus's changing state", StringComparison.Ordinal),
             "charged Chainsaw diagnostic names the mutable state it would execute");
         AssertEqual(SamusProjectileFrameBehavior.ChargedChainsawOverrun,
             chargedProjectiles.Slots[0].FrameBehavior,

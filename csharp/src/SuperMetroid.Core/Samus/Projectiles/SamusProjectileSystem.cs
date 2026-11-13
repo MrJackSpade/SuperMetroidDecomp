@@ -524,8 +524,9 @@ public sealed class SamusProjectileSystem
                 // model cannot execute arbitrary mutable data as code; fail at the
                 // same frame-behaviour dispatch seam instead of silently substituting Wave motion.
                 throw new NotSupportedException(
-                    "Charged Chainsaw callback enters Samus's mutable state as code; reproducing it needs full " +
-                    "memory and processor emulation, which is outside the port's scope.");
+                    "A charged Chainsaw shot's frame behaviour is read from Samus's changing state and runs whatever " +
+                    "that state holds; reproducing that needs full memory and processor emulation, which is outside " +
+                    "the emulation scope limit (#1500).");
             }
             else if (slot.FrameBehavior ==
                 SamusProjectileFrameBehavior.MurderBeamMisalignedExecution)
@@ -536,9 +537,9 @@ public sealed class SamusProjectileSystem
                 // game stops making forward progress. Keep that unsafe execution
                 // explicit instead of silently substituting ordinary beam motion.
                 throw new NotSupportedException(
-                    "Unsafe Murder Beam callback enters the middle of unrelated game code; reproducing it needs full " +
-                    "memory and processor emulation, which is outside the port's scope. Only the safe left-facing " +
-                    "zero-list shot is translated.");
+                    "An unsafe Murder Beam shot's frame behaviour starts in the middle of an unrelated part of the " +
+                    "game; reproducing that needs full memory and processor emulation, which is outside the emulation " +
+                    "scope limit (#1500). Only the safe left-facing shot, which has no animation, flies.");
             }
 
             // Killing a projectile replaces rather than clears a live beam. Consequently the

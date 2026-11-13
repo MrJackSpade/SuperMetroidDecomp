@@ -60,7 +60,7 @@ internal sealed class EscapeRoomEffects
                 RoomSetupBehavior.ReturnBeforeZebesTimebombSetup or
                 RoomSetupBehavior.TurnCeresDoorToSolidBlocksAndSpawnHaze or RoomSetupBehavior.SpawnCeresHaze or
                 RoomSetupBehavior.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze => null,
-            _ => throw new InvalidOperationException($"Undefined RoomSetupBehavior {setup}."),
+            _ => throw new InvalidOperationException($"Undefined room setup {setup}."),
         };
         if (shake is { } quake)
             enemies.Earthquake.Start(quake, WrappingCountdown.LongestStart);

@@ -55,7 +55,7 @@ internal sealed class MotherBrainCombat
                 {
                     throw new InvalidDataException(
                         $"Mother Brain's body selected shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"} from " +
-                        $"frame {c.Enemy.Frame}; only the dud-shot callback is ported.");
+                        $"frame {c.Enemy.Frame}; every body rectangle's shot reaction is the dud shot.");
                 }
                 // The common collision prelude still owns Super-Missile quake first.
                 c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);

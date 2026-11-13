@@ -20,9 +20,11 @@ internal static class CeresSteamDefinitionsVerification
         const int functionTable = 0xa6f001;
 
         var guarded = NewCeresSteamDefinitionReadGuard(rom);
-        for (int index = 0; index < 6; index++)
+        // The vents' ways in the order of the cartridge's tables, which a vent's first spawn parameter indexes.
+        CeresSteamVariant[] variants = [CeresSteamVariant.Up, CeresSteamVariant.Left, CeresSteamVariant.Down, CeresSteamVariant.Right, CeresSteamVariant.RotatingElevatorLeft, CeresSteamVariant.RotatingElevatorRight];
+        for (int index = 0; index < variants.Length; index++)
         {
-            var variant = (CeresSteamVariant)index;
+            CeresSteamVariant variant = variants[index];
             CeresSteamInitialization definition =
                 CeresSteamInitializations.Initialization(variant);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + index * 2)),
@@ -35,7 +37,7 @@ internal static class CeresSteamDefinitionsVerification
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().NextRandom = () => 0x001f;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.SetSpawnParameter1(EnemyDefinitionId.Steam, (ushort)variant);
+            slot.SetSpawnParameter1(EnemyDefinitionId.Steam, (ushort)index);
             slot.Bind(EnemyDefinitionId.Steam, slot.Definition);
             enemies.CeresSteamBehavior.InitializeCeresSteam(slot);
 

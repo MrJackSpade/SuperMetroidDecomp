@@ -1451,9 +1451,11 @@ internal static class LookupStream5Verification
             AssertEqual(ReadVerificationWord(rom, 0xa6f52c + 2 * variant), NativeEnemyAnimationOracle.EntryOf(CeresDoorNativeListAddresses.Entries, actual.Program), "Ceres door original instruction dispatch");
             AssertEqual(ReadVerificationWord(rom, 0xa6f72b + 2 * variant), CeresNativeWords.DoorFunctions.Word(actual.MainFunction), "Ceres door original function dispatch");
         }
-        for (ushort variant = 0; variant < 6; variant++)
+        // The vents' ways in the order of the cartridge's tables, which a vent's first spawn parameter indexes.
+        CeresSteamVariant[] steamVariants = [CeresSteamVariant.Up, CeresSteamVariant.Left, CeresSteamVariant.Down, CeresSteamVariant.Right, CeresSteamVariant.RotatingElevatorLeft, CeresSteamVariant.RotatingElevatorRight];
+        for (int variant = 0; variant < steamVariants.Length; variant++)
         {
-            var actual = CeresSteamInitializations.Initialization((CeresSteamVariant)variant);
+            var actual = CeresSteamInitializations.Initialization(steamVariants[variant]);
             AssertEqual(ReadVerificationWord(rom, 0xa6eff5 + 2 * variant), NativeEnemyAnimationOracle.EntryOf(CeresSteamNativeListAddresses.Entries, actual.Program), "Ceres steam original instruction dispatch");
             AssertEqual(ReadVerificationWord(rom, 0xa6f001 + 2 * variant), CeresNativeWords.SteamFunctions.Word(actual.Function), "Ceres steam original function dispatch");
         }

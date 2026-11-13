@@ -17,7 +17,6 @@ internal static class TitleCards
             TitleSequencePhase.SceneThreeZoom or
             TitleSequencePhase.TitleLogoFade or
             TitleSequencePhase.CopyrightFade or
-            TitleSequencePhase.SkipFadeOut or
             TitleSequencePhase.TitleScreenFadeIn or
             TitleSequencePhase.TitleScreen or
             TitleSequencePhase.TitleScreenFadeOut => throw new ArgumentOutOfRangeException(nameof(phase), phase, "Phase shows no title card."),

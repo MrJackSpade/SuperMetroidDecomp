@@ -81,24 +81,12 @@ internal static class TitleSkipWindowVerification
         }
         AssertTrue(AcceptingSteps.IsSubsetOf(natural.Select(update => update.Phase)), "the natural title runs every step that accepts the skip");
 
-        // A press during the skip's own fade-out or fade-in does not restart it.
+        // A press during the skip's own fade-out, on the update it reaches black, or during its fade-in does not restart it.
         List<TitleUpdate> skipping = Trace(at => at == 0 ? ControllerButton.A : ControllerButton.None,
             title => title.Phase == TitleSequencePhase.TitleScreen, SkipRouteBound);
-        foreach (TitleSequencePhase step in new[] { TitleSequencePhase.SkipFadeOut, TitleSequencePhase.TitleScreenFadeIn })
-        {
-            int first = skipping.FindIndex(1, update => update.Phase == step);
-            int last = skipping.FindLastIndex(update => update.Phase == step);
-            AssertTrue(first > 0, $"the skip runs {step} after the update of its press");
-            foreach (int update in new[] { first, last }.Distinct())
-            {
-                foreach (ControllerButton button in SkipButtons)
-                {
-                    AssertEqual(skipping[update], StateAfter(at => at == 0 ? ControllerButton.A : at == update ? button : ControllerButton.None, update),
-                        $"a second {button} press on {step} update {update} leaves the running skip as it is");
-                    cases++;
-                }
-            }
-        }
+        cases += VerifyRunningSkipRefuses(skipping, "the skip's fade-out", update => update.Skip == TitleSkipStage.FadingOut);
+        cases += VerifyRunningSkipRefuses(skipping, "the skip's black", update => update.Skip == TitleSkipStage.Rebuilding);
+        cases += VerifyRunningSkipRefuses(skipping, "the skip's rebuild and fade-in", update => update.Phase == TitleSequencePhase.TitleScreenFadeIn);
 
         // The idle title screen's own confirmation fades to file select; a press during that fade does not skip.
         int confirm = titleScreen + 1;
@@ -118,6 +106,29 @@ internal static class TitleSkipWindowVerification
     }
 
     /// <summary>
+    /// Presses each skip button again on the first and last update after the first skip's press on which
+    /// <paramref name="during"/> holds, and checks that the running skip goes on as it is.
+    /// </summary>
+    /// <returns>The presses checked.</returns>
+    private static int VerifyRunningSkipRefuses(List<TitleUpdate> skipping, string stage, Predicate<TitleUpdate> during)
+    {
+        int first = skipping.FindIndex(1, during);
+        int last = skipping.FindLastIndex(during);
+        AssertTrue(first > 0, $"the skip runs {stage} after the update of its press");
+        int cases = 0;
+        foreach (int update in new[] { first, last }.Distinct())
+        {
+            foreach (ControllerButton button in SkipButtons)
+            {
+                AssertEqual(skipping[update], StateAfter(at => at == 0 ? ControllerButton.A : at == update ? button : ControllerButton.None, update),
+                    $"a second {button} press on {stage}'s update {update} leaves the running skip as it is");
+                cases++;
+            }
+        }
+        return cases;
+    }
+
+    /// <summary>
     /// Presses <paramref name="button"/> on natural title update <paramref name="update"/> and checks the update against the
     /// window: the skip on an accepting step, the idle title screen's own confirmation from its second update, and otherwise
     /// the natural update unchanged.
@@ -132,7 +143,8 @@ internal static class TitleSkipWindowVerification
         title.Step(button);
         if (AcceptingSteps.Contains(expected.Phase))
         {
-            AssertEqual(TitleSequencePhase.SkipFadeOut, title.Phase, $"{place} skips");
+            AssertEqual(TitleSkipStage.FadingOut, title.SkipStage, $"{place} skips");
+            AssertEqual(expected.Phase, title.Phase, $"{place} keeps running its step alongside the skip's fade-out");
             AssertEqual(expected.Brightness - TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep, (int)title.Brightness,
                 $"{place} takes the skip's first fade step on its own update");
             bool fadedIn = false;
@@ -184,12 +196,13 @@ internal static class TitleSkipWindowVerification
     private static TitleUpdate StateAfter(Func<int, ControllerButton> input, int update) =>
         Trace(input, _ => false, update + 1)[update];
 
-    /// <summary>What the skip check's outcome changes in one update: the title's step, brightness and floor zoom.</summary>
-    private static TitleUpdate Capture(TitleSequenceState title) => new(title.Phase, title.Brightness, title.FloorZoom);
+    /// <summary>What the skip check's outcome changes in one update: the title's step, the skip's stage, brightness and floor zoom.</summary>
+    private static TitleUpdate Capture(TitleSequenceState title) => new(title.Phase, title.SkipStage, title.Brightness, title.FloorZoom);
 
-    /// <summary>The title's step, brightness and floor zoom after one update.</summary>
+    /// <summary>The title's step, the skip's stage, brightness and floor zoom after one update.</summary>
     /// <param name="Phase">The step the update ends in.</param>
+    /// <param name="Skip">How far the skip has run alongside the step (#1719).</param>
     /// <param name="Brightness">The screen brightness the update ends at.</param>
     /// <param name="Zoom">The floor's zoom the update ends at.</param>
-    private readonly record struct TitleUpdate(TitleSequencePhase Phase, int Brightness, FloorZoom Zoom);
+    private readonly record struct TitleUpdate(TitleSequencePhase Phase, TitleSkipStage Skip, int Brightness, FloorZoom Zoom);
 }

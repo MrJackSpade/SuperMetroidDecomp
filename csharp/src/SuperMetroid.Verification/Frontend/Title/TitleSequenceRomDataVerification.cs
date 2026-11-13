@@ -80,8 +80,10 @@ internal static class TitleSequenceRomDataVerification
         var skipped = CreateTitleFixture(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom),
             titleGradientPresentation: gradient);
         skipped.Step(ControllerButton.A);
-        AssertEqual(TitleSequencePhase.SkipFadeOut, skipped.Phase,
-            "pre-title A press enters native skip fade-out");
+        AssertEqual(TitleSkipStage.FadingOut, skipped.SkipStage,
+            "pre-title A press starts the skip's fade-out");
+        AssertEqual(TitleSequencePhase.YearText, skipped.Phase,
+            "the skip's fade-out runs alongside the running title card");
         var skipPhases = new HashSet<TitleSequencePhase> { skipped.Phase };
         StepUntil(
             () => skipped.Phase == TitleSequencePhase.TitleScreen,

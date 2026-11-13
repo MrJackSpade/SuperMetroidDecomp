@@ -9,11 +9,11 @@ namespace SuperMetroid.Core.Progression;
 public sealed class ProgressSet<T>
     where T : notnull
 {
-    /// <summary>Every member of the kind, in its declared order.</summary>
+    /// <summary>
+    /// Every member of the kind, in its declared order. A member's place is found in this list itself, so the set holds
+    /// nothing derived from its members' hash codes, which a copy of the set made in another process could not use.
+    /// </summary>
     private readonly IReadOnlyList<T> _kind;
-
-    /// <summary>Each member's place in <see cref="_kind"/>.</summary>
-    private readonly Dictionary<T, int> _places;
 
     /// <summary>Whether each member, by its place, has happened.</summary>
     private readonly bool[] _on;
@@ -24,10 +24,10 @@ public sealed class ProgressSet<T>
     public ProgressSet(IReadOnlyList<T> kind)
     {
         _kind = Ensure.NotNull(kind);
-        _places = new Dictionary<T, int>(kind.Count);
+        var members = new HashSet<T>(kind.Count);
         for (int place = 0; place < kind.Count; place++)
         {
-            if (!_places.TryAdd(kind[place], place))
+            if (!members.Add(kind[place]))
                 throw new ArgumentException($"{kind[place]} is listed twice.", nameof(kind));
         }
         _on = new bool[kind.Count];
@@ -103,9 +103,15 @@ public sealed class ProgressSet<T>
     }
 
     /// <summary>The place of <paramref name="member"/>, rejecting anything that is not one of the kind.</summary>
-    private int Place(T member) => _places.TryGetValue(member, out int place)
-        ? place
-        : throw new ArgumentOutOfRangeException(nameof(member), member, $"{member} is not a {typeof(T).Name} of this set.");
+    private int Place(T member)
+    {
+        for (int place = 0; place < _kind.Count; place++)
+        {
+            if (EqualityComparer<T>.Default.Equals(_kind[place], member))
+                return place;
+        }
+        throw new ArgumentOutOfRangeException(nameof(member), member, $"{member} is not a {typeof(T).Name} of this set.");
+    }
 
     /// <summary>Whether <paramref name="other"/> lists the same members in the same order.</summary>
     private bool SameKind(ProgressSet<T> other) => ReferenceEquals(other._kind, _kind) || other._kind.SequenceEqual(_kind);

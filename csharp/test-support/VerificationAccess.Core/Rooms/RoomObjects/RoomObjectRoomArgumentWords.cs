@@ -45,6 +45,14 @@ internal static class RoomObjectRoomArgumentWords
         RoomObjectHeaderId.SpeedBoosterEscape, RoomObjectHeaderId.WreckedShipAttic,
     ];
 
+    /// <summary>
+    /// Whether <paramref name="header"/>'s retail placements carry a number that nothing reads: a refill station's word
+    /// numbers it in room data, but neither its setup nor its refill reads the number (#1623), so the import places the
+    /// station without an argument and the number is not kept.
+    /// </summary>
+    internal static bool NumbersUnread(RoomObjectHeaderId header) =>
+        header is RoomObjectHeaderId.EnergyStation or RoomObjectHeaderId.MissileStation;
+
     /// <summary>Whether a door word's opening is remembered: its sign bit set means it never is.</summary>
     private static DoorOpeningPersistence Persistence(int word) =>
         (word & NeverPersists) == 0 ? DoorOpeningPersistence.Persistent : DoorOpeningPersistence.Transient;
@@ -74,8 +82,8 @@ internal static class RoomObjectRoomArgumentWords
         {
             return new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(word & ~NeverPersists), Persistence(word));
         }
-        if (header is RoomObjectHeaderId.EnergyStation or RoomObjectHeaderId.MissileStation)
-            return new StationArgument(word);
+        if (NumbersUnread(header))
+            return null;
         if (header == RoomObjectHeaderId.SaveStation)
         {
             return new SaveStationArgument(SuperMetroid.Core.Saves.LoadStationNumberCodec.Decode(
@@ -112,7 +120,6 @@ internal static class RoomObjectRoomArgumentWords
             GreyDoorArgument grey => checked((ushort)((grey.Door.Persists ? 0 : NeverPersists) |
                 (grey.ConditionIndex << GreyConditionShift) | SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(grey.Door.Door))),
             SpentDoorArgument => SpentMark,
-            StationArgument station => checked((ushort)station.Station),
             SaveStationArgument saved => checked((ushort)SuperMetroid.Core.Saves.LoadStationNumberCodec.Number(saved.Station)),
             MetroidRoomArgument metroids => checked((ushort)(metroids.Entry * 2)),
             GateTriggerArgument gate => checked((ushort)(gate.Trigger * 2)),

@@ -15,7 +15,8 @@ internal static class DebuggerObjectGraphSerializer
 {
     /// <summary>
     /// Writes a debugger snapshot while preserving cycles and private field layout. An object <paramref name="bound"/> holds
-    /// is written as its path among the host's bound objects, not as its contents (#1507).
+    /// is written as its path among the host's bound objects, not as its contents (#1507), and an object the game's static
+    /// members hold as its path among them (<see cref="DefinitionObjects"/>, #1623).
     /// </summary>
     public static void Serialize(Stream destination, object root, BoundObjectGraph? bound = null)
     {
@@ -30,7 +31,8 @@ internal static class DebuggerObjectGraphSerializer
 
     /// <summary>
     /// Restores a snapshot only when its root and serialized field identities match this build, resolving each bound
-    /// object's path against <paramref name="bound"/> (#1507).
+    /// object's path against <paramref name="bound"/> (#1507) and each static member's object's path to the object this
+    /// build's member holds (#1623).
     /// </summary>
     public static T Deserialize<T>(Stream source, BoundObjectGraph? bound = null) where T : class
     {
@@ -52,6 +54,8 @@ internal static class DebuggerObjectGraphSerializer
         New,
         /// <summary>A new object ID and the path of an object the host bound into the session follow.</summary>
         Bound,
+        /// <summary>A new object ID and the path of an object the game's static members hold follow (#1623).</summary>
+        Definition,
     }
     /// <summary>Selects the decoder for a newly defined debugger graph value.</summary>
     private enum PayloadKind : byte
@@ -131,6 +135,19 @@ internal static class DebuggerObjectGraphSerializer
                     writer.Write((byte)ObjectMarker.Bound);
                     writer.Write(boundId);
                     writer.Write(path);
+                    return;
+                }
+
+                // A catalog's member or other object a static member holds is named by its path, so a restore holds the
+                // catalog's own object instead of a copy (#1623). A string is written by its text: an interned literal
+                // that a static member also holds is no identity.
+                if (layout.Kind != LayoutKind.String && DefinitionObjects.TryGetPath(value, out string? definitionPath))
+                {
+                    int definitionId = nextReferenceId++;
+                    references.Add(value, definitionId);
+                    writer.Write((byte)ObjectMarker.Definition);
+                    writer.Write(definitionId);
+                    writer.Write(definitionPath);
                     return;
                 }
 
@@ -738,6 +755,11 @@ internal static class DebuggerObjectGraphSerializer
                 string path = reader.ReadString();
                 return Register(boundId, (bound ?? throw new InvalidDataException(
                     "Debugger state names a bound object, but no bound content was supplied to restore it.")).Resolve(path));
+            }
+            if (marker == ObjectMarker.Definition)
+            {
+                int definitionId = reader.ReadInt32();
+                return Register(definitionId, DefinitionObjects.Resolve(reader.ReadString()));
             }
             if (marker != ObjectMarker.New)
                 throw new InvalidDataException($"Unknown debugger-state object marker {(byte)marker}.");

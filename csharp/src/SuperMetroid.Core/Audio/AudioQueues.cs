@@ -3,8 +3,7 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>
 /// The game's music queue and its three sound queues (#1410): each music request waits its delay and plays on the update
 /// the game plays it; a data set change withdraws every library's sound request for
-/// <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimeCalls"/> sound-handler calls; a full music queue drops a
-/// request queued with the shortest delay and overwrites with a scheduled one; and a sound queue admits a request by its
+/// <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimeCalls"/> sound-handler calls; and a sound queue admits a request by its
 /// priority (<see cref="SoundQueueAdmission.For"/>) and hands it to its library through the session's
 /// <see cref="SoundRequestHandshakes{TLibrary, TSound}"/>, which repeat each request until the library accepts it, then
 /// withdraw it.
@@ -17,8 +16,12 @@ namespace SuperMetroid.Core.Audio;
 /// </remarks>
 public sealed class AudioQueues
 {
-    /// <summary>The music requests waiting for the music handler, each with its delay.</summary>
-    internal readonly MusicQueue Music = new();
+    /// <summary>
+    /// The music requests waiting for the music handler, oldest first, each with its delay. The request the handler fetched
+    /// stays first until it has played. No retail path holds more requests than the game's queue keeps without filling it,
+    /// so the queue never refuses or overwrites one (#1692, <c>docs/compatibility-layer.md</c>).
+    /// </summary>
+    internal readonly Queue<QueuedMusic> Music = new();
     /// <summary>Each sound library's own queue of waiting requests.</summary>
     internal readonly Dictionary<SoundEffectLibrary, SoundQueue> SoundQueues =
         SoundEffectLibraries.InQueueOrder.ToDictionary(library => library, _ => new SoundQueue());
@@ -72,10 +75,10 @@ public sealed class AudioQueues
     public MusicTrack? PlayingTrack { get; private set; }
 
     /// <summary>
-    /// What phases waiting for the music to settle read: true while the music queue holds any request, including requests
-    /// a scheduled request overtook (see <see cref="MusicQueue"/>).
+    /// What phases waiting for the music to settle read: true while the music queue holds any request, including the one
+    /// the music handler fetched and is waiting out the delay of.
     /// </summary>
-    public bool HasQueuedMusic => Music.HoldsAnyRequest;
+    public bool HasQueuedMusic => Music.Count != 0;
 
     /// <summary>
     /// What the door transition waits on: true while any sound library has a request waiting in its queue. A request
@@ -105,16 +108,15 @@ public sealed class AudioQueues
     }
 
     /// <summary>
-    /// Queues <paramref name="request"/> to play after the shortest delay (<see cref="MusicQueueDelay.Shortest"/>). A
-    /// full music queue drops it.
+    /// Queues <paramref name="request"/> to play after the shortest delay (<see cref="MusicQueueDelay.Shortest"/>), behind
+    /// the requests waiting.
     /// </summary>
     /// <param name="request">The music request.</param>
     public void QueueMusic(MusicRequest request) =>
-        Music.QueueUnlessFull(new QueuedMusic(request, MusicQueueDelay.Shortest));
+        Music.Enqueue(new QueuedMusic(request, MusicQueueDelay.Shortest));
 
     /// <summary>
-    /// Schedules <paramref name="request"/> to play after <paramref name="delay"/>. A full music queue takes it regardless,
-    /// and the requests waiting in it are overtaken (see <see cref="MusicQueue"/>).
+    /// Schedules <paramref name="request"/> to play after <paramref name="delay"/>, behind the requests waiting.
     /// </summary>
     /// <param name="request">The music request.</param>
     /// <param name="delay">How long it waits on the queue, already lengthened to the shortest delay.</param>
@@ -126,7 +128,7 @@ public sealed class AudioQueues
             throw new ArgumentOutOfRangeException(
                 nameof(delay), delay, "Effective music queue delay must be at least eight frames.");
         }
-        Music.QueueOvertakingWhenFull(new QueuedMusic(request, delay));
+        Music.Enqueue(new QueuedMusic(request, delay));
     }
 
     /// <summary>Queues the data set and track requests performed by ordinary room loading.</summary>
@@ -299,18 +301,18 @@ public sealed class AudioQueues
                 DataSet = change.DataSet;
                 PlayingTrack = null;
                 requests.Add(new AudioRequest.ChangeMusicDataSet(change.DataSet));
-                Music.RetireFetched();
+                Music.Dequeue();
                 _soundHandlerDowntime = AudioQueueDefinitions.MusicChangeSoundDowntimeCalls;
                 return;
             }
 
             PlayingTrack = (pending.Request as MusicRequest.PlayTrack)?.Track;
             requests.Add(AudioRequest.ForTrack(PlayingTrack));
-            Music.RetireFetched();
+            Music.Dequeue();
             _soundHandlerDowntime = AudioQueueDefinitions.MusicChangeSoundDowntimeCalls;
         }
 
-        if (Music.NextToFetch is QueuedMusic next)
+        if (Music.TryPeek(out QueuedMusic? next))
             PendingMusic = new PendingMusicDispatch(next.Request, next.Delay.Updates);
     }
 

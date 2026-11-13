@@ -1057,6 +1057,9 @@ internal static class FullRunSuitesVerification
         // The suit pickup's closing line against the original's arithmetic (#1692).
         new(nameof(SuperMetroid.Verification.Samus.Abilities.SuitPickupClosingLineWrapVerification.VerifySuitPickupClosingLineWrap),
             SuperMetroid.Verification.Samus.Abilities.SuitPickupClosingLineWrapVerification.VerifySuitPickupClosingLineWrap),
+        // The music queue against the original's ring (#1692).
+        new(nameof(SuperMetroid.Verification.Audio.MusicQueueVerification.VerifyMusicQueueMatchesOriginalRing),
+            SuperMetroid.Verification.Audio.MusicQueueVerification.VerifyMusicQueueMatchesOriginalRing),
         new(nameof(VerifyDoorOrientationDomain), () => VerifyDoorOrientationDomain()),
         new(nameof(VerifyRgbColorDomain), () => VerifyRgbColorDomain()),
         new(nameof(VerifyBabyMetroidFatalBlowShake), () => VerifyBabyMetroidFatalBlowShake()),

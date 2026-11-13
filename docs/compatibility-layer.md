@@ -208,6 +208,20 @@ extends the room's filled places, and on the update after the retreat they are t
 step makes them ignore Samus and her weapons. Evidence: the retreat spawns the two door-family enemies, whose
 instruction lists start with the intangibility instruction.
 
+The music queue's overtaking (#1692) is deleted, not a service. The original kept the music queue in eight positions
+with a fetch and a write position: a request queued with the shortest delay was dropped while one position was free,
+and a scheduled request was written regardless, which made the queue read as empty while its overtaken requests still
+counted as queued. Both need seven requests held at once, and no retail path holds more than five: the door's stop and data set, Samus's
+death's three and the frontend scenes' two to three are each followed by a wait for the queue to empty, and a saved
+game's start queues four into an empty queue; a permanent item's fanfare empties the queue before queuing its three, two
+of which are still held once its message box closes; the room's track and a room's enemies' start music are one each;
+every boss event queues at most three (Mother Brain's death, the Baby Metroid's last moments), each shortest-delayed
+request played within nine handler calls; and in the only rooms where an item is collected before a fight's music
+starts, the Torizos', the waking adds at most two to the fanfare's remaining two. The music queue is an ordinary queue of requests in order (`AudioQueues.Music`), and the
+music queue check compares it with a transcription of the original's ring for every sequence of up to seven requests.
+Evidence: the queue routines (`$80:8FC1`, `$80:8FF7`), the handler (`$80:8F0C`) and the queued-music test (`$80:8EF4`),
+and every music request the original queues.
+
 The colour values whose step-wise changes gameplay reads back, `WreckedShipGhostFade` and `KraidEyeGlow` (#1552), are
 values of this module, owned directly by the entity whose colours they are (the ghost's state, Kraid's colours) and
 replaced by each step's result. They count their colours on the game's fade scale, so the layer uses the Assets

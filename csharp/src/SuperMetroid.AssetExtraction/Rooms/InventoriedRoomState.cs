@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.Core.World.RoomStates;
 
@@ -206,7 +207,7 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         var placed = new HashSet<int>();
         foreach (RoomBlockAppearance block in level.Foreground.Span)
             placed.Add(block.Block);
-        if (state.BackgroundScrollModes.Horizontal.Streams || state.BackgroundScrollModes.Vertical.Streams)
+        if (state.BackgroundScrollModes.Source == RoomBackgroundSource.Level)
         {
             foreach (RoomBlockAppearance block in level.Background.Span)
                 placed.Add(block.Block);

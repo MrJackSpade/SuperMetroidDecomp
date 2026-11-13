@@ -630,7 +630,7 @@ internal static void VerifyBackgroundScrollState()
     var state = new BackgroundScrollState
     {
         ForegroundPosition = new(0x1234, 0x0200),
-        BackgroundScrollModes = BackgroundScrollModes.FromHeader(0x80, 0), // Horizontal 128/256 = one-half parallax.
+        BackgroundScrollModes = new(BackgroundAxisScroll.Parallax(128), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level),
     };
 
     state.StepScrolling();
@@ -640,10 +640,10 @@ internal static void VerifyBackgroundScrollState()
     AssertEqual(0x0200, state.BackgroundPosition.Y, "zero mode copies the foreground");
     AssertEqual(0x091a, state.BackgroundScroll.X, "the background's view follows its parallax position");
 
-    // Mode one preserves both the background's position and its view.
+    // A fixed axis preserves both the background's position and its view.
     ushort oldLayer2X = state.BackgroundPosition.X;
     ushort oldBg2X = state.BackgroundScroll.X;
-    state.BackgroundScrollModes = BackgroundScrollModes.FromHeader(1, 1);
+    state.BackgroundScrollModes = new(BackgroundAxisScroll.Fixed, BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed);
     state.ForegroundPosition = new(0x1300, 0x0300);
     state.StepScrolling();
     AssertEqual(oldLayer2X, state.BackgroundPosition.X, "fixed BG2 X position remains unchanged");
@@ -656,7 +656,7 @@ internal static void VerifyBackgroundScrollState()
 
     var destinationParallax = new BackgroundScrollState
     {
-        BackgroundScrollModes = BackgroundScrollModes.FromHeader(0x80, 0x40),
+        BackgroundScrollModes = new(BackgroundAxisScroll.Parallax(128), BackgroundAxisScroll.Parallax(64), RoomBackgroundSource.Level),
     };
     destinationParallax.PrepareDoorOpeningDestination(new(0x0400, 0x0200), new(0x0400, 0x0200));
     AssertEqual((ushort)0x0200, destinationParallax.BackgroundPosition.X,
@@ -667,7 +667,7 @@ internal static void VerifyBackgroundScrollState()
         "door setup publishes the whole destination layer-one position");
 
     // Upward doors derive BG2 from destination+$1F while layer one keeps the destination.
-    var upwardParallax = new BackgroundScrollState { BackgroundScrollModes = BackgroundScrollModes.FromHeader(0x80, 0x40) };
+    var upwardParallax = new BackgroundScrollState { BackgroundScrollModes = new(BackgroundAxisScroll.Parallax(128), BackgroundAxisScroll.Parallax(64), RoomBackgroundSource.Level) };
     upwardParallax.PrepareDoorOpeningDestination(new(0x0400, 0x0220), new(0x0400, 0x021f));
     AssertEqual(new Position16<BackgroundPixels>(0x0200, 0x0087), upwardParallax.BackgroundPosition,
         "upward door setup calculates BG2 from its separate parallax basis");

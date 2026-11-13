@@ -29,7 +29,7 @@ public static class CartridgeRoomStateImporter
         RoomLevelId level = RoomLevelSourceDefinitions.Addresses.Single(pair => pair.Value == levelSource).Key;
         return new RoomStateSettings(RoomStateSourcesConstants.State(statePointer).Name, level, Byte(3), RoomMusicCodec.Decode(Byte(4), Byte(5)),
             Word(6) == 0 ? null : SuperMetroid.Core.Fx.RoomFxDefinitions.Get(Word(6)), SuperMetroid.Core.World.RoomStates.RoomEnemyPopulationDefinitions.Get(Word(8)),
-            SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(Byte(12), Byte(13)),
+            BackgroundScrollCodec.Decode(Byte(12), Byte(13)),
             SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Get(Word(14)), Word(16) == 0 ? null : XrayRoomOverlaySources.Overlay(Word(16)),
             RoomCallbackDefinitions.ResolveMain(Word(18)), SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Get(Word(20)),
             Word(22) == 0 ? null : LibraryBackgroundSources.Program(Word(22)).Background, RoomCallbackDefinitions.ResolveSetup(Word(24)));

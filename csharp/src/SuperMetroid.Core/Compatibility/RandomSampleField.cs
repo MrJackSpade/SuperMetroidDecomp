@@ -16,6 +16,9 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("which bits of the shared random sample each choice reads, exactly as the original masked and shifted its random word")]
 public readonly record struct RandomSampleField(int Shift, int Width)
 {
+    /// <summary>The whole sample, all sixteen bits: the field a choice reads when it compares the random word itself (#1619).</summary>
+    public static RandomSampleField Whole { get; } = new(0, 16);
+
     /// <summary>The field's value in <paramref name="sample"/>, 0 through <see cref="Outcomes"/> minus one.</summary>
     /// <param name="sample">A random sample, 0 through 65535.</param>
     public int Of(int sample) => (sample >> Shift) & (Outcomes - 1);

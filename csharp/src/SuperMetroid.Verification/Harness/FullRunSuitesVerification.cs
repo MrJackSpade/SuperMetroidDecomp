@@ -508,6 +508,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyVramWriteQueue), () => VerifyVramWriteQueue()),
         new(nameof(VerifyEscapeTimerStateMachine), () => VerifyEscapeTimerStateMachine()),
         new(nameof(VerifyEscapeTimerFloor), () => VerifyEscapeTimerFloor()),
+        new(nameof(SuperMetroid.Verification.Compatibility.RandomChanceVerification.VerifyRandomChanceRules),
+            SuperMetroid.Verification.Compatibility.RandomChanceVerification.VerifyRandomChanceRules),
         new(nameof(VerifyControllerInputLatch), () => VerifyControllerInputLatch()),
         new(nameof(VerifyGameOptionsRomDataCatalog), () => VerifyGameOptionsRomDataCatalog()),
         new(nameof(VerifyControllerBindingsAndOptionsSubmenus), () => VerifyControllerBindingsAndOptionsSubmenus()),

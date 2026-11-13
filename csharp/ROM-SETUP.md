@@ -200,10 +200,10 @@ small-OBJ attribute lists for atmospheric type one and the list shared by types
 four, six, and seven. Type two has a zero cartridge pointer and remains a
 mutable-memory read rather than an extracted asset; effect timing and slot motion
 stay compiled.
-`samus-death-palettes.json` exposes the three suited and one suitless ten-palette
-death sequences, the 22 whiteout colors, and the nine visual palette selections;
-the death phases, frame durations, and collision remain compiled. Colors are packed
-SNES RGB5 words from 0 through 32767.
+`samus-death-steps.json` holds what the game works with of her death: the death step
+each of the nine explosion frames shows and the 22 colours the room whitens to, each
+an RGB colour with channels 0..31. Her suited and suitless death colours only
+pre-colour her death shades: they are import data, not installed.
 `samus-death-explosion.png` holds the five 4-bpp death graphics transfers in
 native upload order. Each transfer occupies four 64-pixel-wide tile rows (32
 characters), for a 64x160 image; editing it reskins the explosion without changing
@@ -397,8 +397,8 @@ the ascent reuses the first three brain colors of each `fromGrey` frame.
 The signed loop terminator, beam window geometry, and attack timing remain engine
 logic. A debugger-state load rebinds the current color resource.
 
-Mother Brain's separate fake-death room colors are installed as
-`game/maps/mother-brain-room-colors.json`. Its fourteen `flash` rows and
+Mother Brain's separate fake-death room colors are extracted, as import data, into
+`mother-brain-room-colors.json`. Its fourteen `flash` rows and
 `finalRoom` row each contain two twelve-color source slices; the second slice
 is displayed in two CGRAM destinations. `phaseTwoAttack` and
 `phaseTwoRearLeg` each contain fifteen nontransparent sprite colors.
@@ -477,11 +477,10 @@ words also drive collision and placement; artwork edits do not edit room geometr
 Do not edit stock files or `room-characters.json`: stock hashes are validated and repaired
 from the installed ROM.
 
-Ordinary room-enemy tile uploads and OBJ colors have their own files in
-`game/enemy-tiles/`. Each `enemy-XXXX-tiles.png` and matching
+Ordinary room-enemy tile uploads and OBJ colors are import data, which only the
+import composes the enemy sheets from: each `enemy-XXXX-tiles.png` and matching
 `enemy-XXXX-colors.json` pair is identified by the enemy definition's stable
-four-digit cartridge ID. Edit either file in place; run the extractor again to
-restore the originals. PNG pixels must remain indexed 0..15; its diagnostic PNG
+four-digit cartridge ID, and neither is installed. PNG pixels must remain indexed 0..15; its diagnostic PNG
 palette is only a preview. The JSON contains exactly sixteen RGB5 colors, each
 channel 0..31. Enemy VRAM/CGRAM destinations,
 health, and AI are unchanged by these tile/color edits. This covers
@@ -489,8 +488,8 @@ the ordinary bank-$B4 room graphics-set uploads, not dynamic boss BG2 art or
 enemy-projectile sheets. Restart to load edits; a saved in-room VRAM image may
 retain its old pixels until the next room load.
 Ninja Space Pirates also copy the shared gold-Pirate colors from
-`enemy-F413-colors.json` into OBJ palette seven when initialized; edit that file
-to change the target colors without changing their behavior.
+`enemy-F413-colors.json` into OBJ palette seven when initialized; the import
+pre-colours their gold shade from it.
 
 The ordinary `enemy-ED3F-tiles.png` sheet also supplies Dead Torizo's corpse
 and falling-sand rows. `enemy-ED7F-tiles.png` supplies the dead sidehopper,
@@ -511,61 +510,61 @@ Editing any of these changes those visuals; their row timing, collision, and
 decay mechanics remain compiled.
 
 Magdollite's separate four-frame OBJ color cycle is in
-`game/enemy-tiles/magdollite-palette-cycle.json`, four RGB5 colors per frame. The cartridge's
+the import data's `magdollite-palette-cycle.json`, four RGB5 colors per frame. The cartridge's
 eight-tick cadence, frame order, and selected OBJ palette slot stay in code.
 The installed game uses this asset for the cycle rather than reading its
 colors from the ROM during play.
 Work Robot's six four-color records are similarly editable in
-`game/enemy-tiles/work-robot-palette-cycle.json`. Its 64/16-tick durations, record wrap, and powered/unpowered state
+the import data's `work-robot-palette-cycle.json`. Its 64/16-tick durations, record wrap, and powered/unpowered state
 remain compiled; only the RGB5 words are replaceable.
 Crocomire's fight-body restore, initial wall and projectile transfers,
 skeleton-arm transfer, and wall-spike transfer are in
-`game/enemy-tiles/crocomire-colors.json`. The two initial transfers intentionally contain
+the import data's `crocomire-colors.json`. The two initial transfers intentionally contain
 seventeen words each, including one word across the next palette boundary.
 The white hurt-flash decision, bridge and death phase timing, collision, and
 room progression stay in code.
 Draygon's opening, normal body/sprite, white-flash and eight health-band colors
-are in `game/enemy-tiles/draygon-colors.json`. The
+are in the import data's `draygon-colors.json`. The
 opening transfer includes the first nine colors of the following palette, as
 the cartridge's 25-word copy does. Health thresholds, hurt timing and combat
 stay in code; edits affect only the displayed RGB5 colors.
 Phantoon's eight health palettes, fade-out target and 112-color Wrecked Ship
-power-on target are in `game/enemy-tiles/phantoon-colors.json`. Health-band selection, interpolation, hurt
+power-on target are in the import data's `phantoon-colors.json`. Health-band selection, interpolation, hurt
 timing and boss/death transitions stay in code.
 The Wrecked Ship and Lower Norfair Chozo statue palette pairs, plus the
 n00b-tube crack palette pair, are in
-`game/enemy-tiles/chozo-and-tube-colors.json`. Statue variant, tube behavior and PLM placement remain compiled.
+the import data's `chozo-and-tube-colors.json`. Statue variant, tube behavior and PLM placement remain compiled.
 Spore Spawn's spore palette, four health palettes, and death sprite/level/
-background color frames are in `game/enemy-tiles/spore-spawn-colors.json`.
+background color frames are in the import data's `spore-spawn-colors.json`.
 Health thresholds and death-frame timing remain compiled; this file changes
 only the RGB5 colors selected at those native moments.
 Dachora's default, four speed-boost, and four shine palette frames are in
-`game/enemy-tiles/dachora-colors.json`. The timer and frame selection still
+the import data's `dachora-colors.json`. The timer and frame selection still
 follow the cartridge code; the JSON controls the selected RGB5 colors.
 The live Shitroid encounter's eight four-color normal-cycle frames and three
 sixteen-color initialization targets (sidehopper, Shitroid, and dead sidehopper)
-are in `game/enemy-tiles/shitroid-colors.json`; native palette timing and target destinations remain
+are in the import data's `shitroid-colors.json`; native palette timing and target destinations remain
 compiled. The Mother Brain cutscene Baby Metroid's initial fifteen colors and
 six fade-to-black frames are separate in
-`game/enemy-tiles/baby-metroid-cutscene-colors.json`. The cutscene state machine still selects each fade frame and controls
+the import data's `baby-metroid-cutscene-colors.json`. The cutscene state machine still selects each fade frame and controls
 its timing; this JSON contains only the colors.
 Botwoon's eight health-band sprite palettes are in
-`game/enemy-tiles/botwoon-colors.json`. The initial enemy palette remains in the ordinary
+the import data's `botwoon-colors.json`. The initial enemy palette remains in the ordinary
 enemy color sheet; health thresholds and band progression stay compiled.
 Mother Brain's sixteen paired body/leg death-fade frames and eight corpse-head
 fade frames are in
-`game/enemy-tiles/mother-brain-death-colors.json`; death-phase timing, counter selection, and collision
+the import data's `mother-brain-death-colors.json`; death-phase timing, counter selection, and collision
 remain compiled behavior.
 Zebetite's eight-frame, two-color Tourian pulse is in
-`game/enemy-tiles/zebetite-colors.json`. Its physical-slot-zero counter, eight-frame wrap,
+the import data's `zebetite-colors.json`. Its physical-slot-zero counter, eight-frame wrap,
 and palette destination remain engine behavior.
 Lower Norfair Ridley's initial OBJ colors and fifteen arena-reveal BG color
-rows are in `game/enemy-tiles/norfair-ridley-colors.json`. The reveal's three-call
+rows are in the import data's `norfair-ridley-colors.json`. The reveal's three-call
 cadence, zero-terminator handoff, and liquid-motion trigger remain engine
 behavior. Ridley's health-shade rows are shared with Ceres in
-`game/maps/ceres-ridley-colors.json`.
+the import data's `ceres-ridley-colors.json`.
 The Tourian entrance statue's base, boss statue, four eye-glow, and shared
-grey-transition colors are in `game/enemy-tiles/tourian-statue-colors.json`. Boss-event gates,
+grey-transition colors are in the import data's `tourian-statue-colors.json`. Boss-event gates,
 eye positions, unlock timing, and the four grey-palette destinations remain
 compiled behavior.
 
@@ -619,7 +618,7 @@ silently rereading cartridge art.
 The Evir character sheet is the ordinary extracted enemy PNG; the boss-room
 intro reuses that sheet for its VRAM upload rather than reading raw cartridge bytes.
 The Ceres Baby's four fifteen-color RGB5 palette rows are in
-`game/maps/ceres-ridley-colors.json`; edit that file in place to change colors. Its
+the import data's `ceres-ridley-colors.json`, which the import pre-colours the Baby's sheets from. Its
 `babyShades` rows are separate from the Ridley start/fade/health/alarm/retreat colors. The draw
 program still chooses rows using the cartridge's animation cadence; palette
 edits do not change movement, collisions, or timing. The sixteen `alarm` rows
@@ -754,18 +753,13 @@ The fixed backdrop characters revealed after growth or defeat are the
 `kraid-room-background.png` indexed sheet in the same directory. Its pixel
 indices, not the PNG's preview colors, become 4-bpp VRAM characters. Other Kraid
 character uploads remain outside this set. An invalid sheet fails during load.
-Kraid's `kraid-colors.json` in `game/enemy-tiles/` contains five RGB5 source
-groups: `roomBackdrop`, `initialTarget`, `health`, `secondary`, and `deathArm`.
-The health and secondary groups each contain nine consecutive sixteen-color
-bands (144 colors), including the hurt-flash band; the others contain sixteen
-colors. Changes affect the corresponding live CGRAM writes, while damage
-thresholds, eye-fade steps, and death timing stay in engine code. RGB5/shape
-validation applies on load.
-Base room colors are separately extracted into `game/room-palettes/*.json`, which only the import reads.
-Edit a file to replace its 128 RGB5 colors, keeping
-`version: 1` and each `red`, `green`, and `blue` component in 0..31, then reinstall so the
-import recolours the room sheets; running the extractor again restores the originals. Palette-FX scripts may animate or replace these base
-colors later in the room; this file does not edit those effects or their timing.
+Kraid's colours are import data, which only pre-colour his pictures. The game works with his
+eyes' colours alone: `kraid-eye-colours.json` in `game/enemy-tiles/` holds the three eyes'
+colours under the hurt flash (`hurtFlash`) and under each of his eight health bands
+(`healthBands`), each an RGB colour with channels 0..31, which his eye glow shows, starts
+from and fades back to. Damage thresholds, eye-fade steps, and death timing stay in engine code.
+Base room colors are import data, which only the import pre-colours the room sheets from; they
+are not installed. Palette-FX scripts may animate or replace these base colors later in the room.
 
 Visual 16x16 blocks are composed at installation from `game/room-blocks/*.json`. Each
 ordered `blocks` entry names its four 8x8 children (`topLeft`, `topRight`,
@@ -1112,9 +1106,8 @@ the separate PNG above, while Grapple endpoint/segment pixels use
 compositions and their visual placement rules are separately editable JSON in
 `game/projectiles/`; these edits do not alter projectile collision or motion.
 
-`game/projectiles/beam-palettes.json` holds the ordinary beam colors: twelve
-selections of sixteen colors each; RGB components range from 0 to 31. Charge and
-Hyper animation colors are not controlled by this file. The ten-frame Hyper Beam
+The ordinary beam colors are import data, which only the import pre-colours the
+projectile and frozen-enemy sheets from; they are not installed. The ten-frame Hyper Beam
 projectile palette cycle is `game/projectiles/hyper-beam-fx-colors.json`, eight RGB5
 colors per frame. This changes appearance only: the frame order, two-tick cadence and
 loop remain compiled cartridge behavior. Loading a state refreshes ordinary colors at

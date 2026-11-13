@@ -229,7 +229,7 @@ level, targetPose, frameCounter, roomObjects))
         // Expiry belongs to the post-animation hit interruption, not this mover.
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
+        speed.SelectSpeedsFor(samus.LiquidPhysics.DetermineMovementMedium(samus));
         // The special handler does not replace the pose's speed-table index.
         // Morphed bodies retain their own movement type throughout hurt movement.
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(SamusPoseMetadata.ReadMovementType(samus));

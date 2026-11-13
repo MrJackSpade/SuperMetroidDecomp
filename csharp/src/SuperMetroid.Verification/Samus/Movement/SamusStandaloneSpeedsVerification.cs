@@ -8,21 +8,21 @@ internal static class SamusStandaloneSpeedsVerification
     /// <summary>Compares four compiled records with native arithmetic across base-speed boundaries while rejecting unknown ROM addresses.</summary>
     internal static void VerifySamusStandaloneSpeeds(CartridgeImportAddressSpace rom)
     {
-        static SpeedTableEntry Read(Func<int, byte> readByte, int a)
+        static SamusHorizontalSpeeds Read(Func<int, byte> readByte, int a)
         {
             ushort Word(int offset) => LittleEndianBytes.Word(readByte(a + offset), readByte(a + offset + 1));
             SignedSixteenSixteen Pair(int offset) => SignedSixteenSixteen.FromParts(unchecked((short)Word(offset)), Word(offset + 2));
             return new(Pair(0), Pair(4), Pair(8));
         }
-        var actual = new SamusHorizontalSpeedState();
-        var reference = new SamusHorizontalSpeedState();
-        var calculate = new Func<SpeedTableEntry, uint>(entry => reference.CalculateBaseSpeed(entry).RawValue);
+        var actual = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir);
+        var reference = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir);
+        var calculate = new Func<SamusHorizontalSpeeds, uint>(entry => reference.CalculateBaseSpeed(entry).RawValue);
         var guard = NewSlopeHeightNoReadBus();
         int cases = 0;
         foreach (int address in new[] { 0x909f25, 0x909f31, 0x909f3d, 0x909f49 })
         {
-            SpeedTableEntry native = Read(rom.ReadCartridgeByte, address);
-            AssertTrue(SamusHorizontalMotionDefinitions.TryResolveStandalone(address, out var compiled), "Authored standalone record recognized");
+            SamusHorizontalSpeeds native = Read(rom.ReadCartridgeByte, address);
+            AssertTrue(SamusHorizontalSpeedDefinitions.TryResolveStandalone(address, out var compiled), "Authored standalone record recognized");
             AssertEqual(native, compiled, "All six native standalone words match");
             foreach (SamusAccelerationMode mode in Enum.GetValues<SamusAccelerationMode>())
             foreach (byte multiplier in new byte[] { 0, 1, 255 })
@@ -46,7 +46,7 @@ internal static class SamusStandaloneSpeedsVerification
         // loudly rather than treating executable or presentation bytes as horizontal physics.
         foreach (int invalidAddress in new[] { 0x900100, 0x909f26, 0x90a32d, 0x919f25 })
         {
-            AssertTrue(!SamusHorizontalMotionDefinitions.TryResolveStandalone(invalidAddress, out _), "Unauthored address not silently resolved");
+            AssertTrue(!SamusHorizontalSpeedDefinitions.TryResolveStandalone(invalidAddress, out _), "Unauthored address not silently resolved");
             AssertThrows<InvalidDataException>(
                 () => actual.CalculateBaseSpeedAtAddress(invalidAddress),
                 "Unauthored horizontal record rejected");

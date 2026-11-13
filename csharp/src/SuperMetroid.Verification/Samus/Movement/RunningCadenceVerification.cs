@@ -53,7 +53,7 @@ internal static class RunningCadenceVerification
             "a negative delay is refused");
         AssertEqual(UnauthoredBoostCadence.LongestDelay, longest.Delay(UnauthoredBoostCadence.FrameCount - 1), "refused delays keep what the wings last left");
 
-        var speed = new SamusHorizontalSpeedState();
+        var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir);
         for (int stage = 0; stage <= SamusSpeedBoostCounter.FullStage; stage++)
         {
             speed.SpeedBoostCounter = new SamusSpeedBoostCounter(stage, 0);
@@ -142,7 +142,7 @@ internal static class RunningCadenceVerification
                 () => SoundQueueAdmission.Admitted(6)),
             "An occupancy the queue cannot admit selects no cadence");
 
-        speed = new SamusHorizontalSpeedState();
+        speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir);
         speed.HandleExtraRunSpeed(SamusMovementType.Running, ControllerButton.B, true);
         AssertEqual(new SamusSpeedBoostCounter(0, 1), speed.SpeedBoostCounter, "First running frame seeds native countdown");
         AssertEqual(0x1000, speed.ExtraRunSpeed.Fraction, "Cadence migration leaves run acceleration intact");

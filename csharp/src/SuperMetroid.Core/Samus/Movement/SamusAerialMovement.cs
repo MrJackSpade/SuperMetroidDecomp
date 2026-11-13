@@ -220,7 +220,7 @@ public static class SamusAerialMovement
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
+        speed.SelectSpeedsFor(samus.LiquidPhysics.DetermineMovementMedium(samus));
         AerialBaseSpeedResult calculation =
             speed.CalculateBaseSpeedDecelerationDisallowed(movementType: SamusMovementType.SpinJumping);
 
@@ -389,7 +389,7 @@ public static class SamusAerialMovement
         speed.HandleExtraRunSpeed(movementType, controllerInput: 0,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) != SamusLiquidMedium.Air);
-        speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
+        speed.SelectSpeedsFor(samus.LiquidPhysics.DetermineMovementMedium(samus));
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType);
         var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
@@ -520,15 +520,8 @@ public static class SamusAerialMovement
         // branch until it passes zero and resets mode zero. Only then can an input-free frame
         // clear base speed instead of calling the horizontal mover.
         speed.AccelerationMode = SamusAccelerationMode.Decelerating;
-        SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
-        SamusStandaloneSpeedRecord speedRecord = medium switch
-        {
-            SamusLiquidMedium.Water => SamusStandaloneSpeedRecord.GrappleReleaseWater,
-            SamusLiquidMedium.LavaOrAcid => SamusStandaloneSpeedRecord.GrappleReleaseLavaAcid,
-            SamusLiquidMedium.Air => SamusStandaloneSpeedRecord.GrappleReleaseAir,
-            _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
-        };
-        UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(speedRecord);
+        // The release's speeds are the same in every medium, so the medium Samus is in does not choose them.
+        UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(SamusHorizontalSpeedDefinitions.GrappleRelease);
 
         bool horizontalInput = (controllerInput &
             (ControllerButton.Left | ControllerButton.Right)) != ControllerButton.None;
@@ -573,7 +566,7 @@ public static class SamusAerialMovement
         ISamusRoomObjects? roomObjects)
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
+        speed.SelectSpeedsFor(samus.LiquidPhysics.DetermineMovementMedium(samus));
         AerialBaseSpeedResult calculation =
             speed.CalculateBaseSpeedDecelerationDisallowed(movementType);
 

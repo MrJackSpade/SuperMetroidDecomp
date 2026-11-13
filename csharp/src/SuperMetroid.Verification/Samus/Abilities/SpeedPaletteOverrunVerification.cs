@@ -30,7 +30,7 @@ internal static class SpeedPaletteOverrunVerification
         int traceRow = 1;
         foreach (ushort phase in new ushort[] { 8, 10 })
         {
-            var speed = new SamusHorizontalSpeedState { SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0), SpecialPaletteTimer = 1 };
+            var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0), SpecialPaletteTimer = 1 };
             var samusColours = new SamusColours();
             ushort equipped = ((SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.SpeedBooster).ToEquipmentWord());
             for (int call = 0; call < phase / 2; call++)

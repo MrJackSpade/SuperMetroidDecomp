@@ -17,7 +17,7 @@ internal static class PauseMomentumVerification
         foreach (bool momentum in new[] { false, true })
         foreach (SamusSpeedBoostCounter counter in new[] { new SamusSpeedBoostCounter(0, 0), new SamusSpeedBoostCounter(4, 2) })
         {
-            var speed = new SamusHorizontalSpeedState
+            var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir)
             {
                 BaseSpeed = new UnsignedSixteenSixteen(1, 0x4000),
                 ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0x8000),

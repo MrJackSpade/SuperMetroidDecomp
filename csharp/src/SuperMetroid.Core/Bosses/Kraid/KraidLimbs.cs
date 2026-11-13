@@ -165,7 +165,7 @@ internal sealed class KraidLimbs
         RoomEnemySlot body = _parts.Body;
         RoomEnemySlot arm = _parts.Arm;
         int halfHealth = _access.RequireKraidState(body).HealthEighthThreshold(3);
-        return body.Health < halfHealth && KraidPhaseGroups.BeforeArmSlow.Contains(KraidPartResidentAnimation(arm))
+        return body.Health < halfHealth && KraidPhaseGroups.ArmSwingingNormally.Contains(KraidPartResidentAnimation(arm))
             ? KraidPartSegment.ArmSlow
             : null;
     }
@@ -298,7 +298,7 @@ internal sealed class KraidLimbs
         if (TryBeginKraidGrowth(body, _access.RequireKraidState(body)))
             return;
         RoomEnemySlot arm = _parts.Arm;
-        if (KraidPhaseGroups.BeforeArmNormalPause.Contains(KraidPartResidentAnimation(arm)))
+        if (KraidPhaseGroups.ArmYetToPause.Contains(KraidPartResidentAnimation(arm)))
             return;
         _access.StartKraidPartAnimation(arm, KraidPartSegment.ArmDyingOrPreparingToLunge);
         _access.StartKraidPartAnimation(foot, KraidPartSegment.FootLungeForward);
@@ -355,7 +355,7 @@ internal sealed class KraidLimbs
             return;
         if (CoordinateAxis.Difference(body.Position.X.Whole, 176) >= 0)
             body.Position = body.Position.WithWholeX(176);
-        if (KraidPhaseGroups.BeforeFootWalkingBackwardLoop.Contains(KraidPartResidentAnimation(foot)))
+        if (KraidPhaseGroups.FootYetToLoopBackwardWalk.Contains(KraidPartResidentAnimation(foot)))
             return;
         if (body.Position.X.Whole == 176)
         {
@@ -385,7 +385,7 @@ internal sealed class KraidLimbs
                 return;
             body.Position = body.Position.WithWholeX(target.X);
         }
-        if (KraidPhaseGroups.BeforeFootWalkingBackwardLoop.Contains(KraidPartResidentAnimation(foot)))
+        if (KraidPhaseGroups.FootYetToLoopBackwardWalk.Contains(KraidPartResidentAnimation(foot)))
             return;
         _access.Part(foot).Phase = KraidPhase.WaitToResumePhase;
         _access.Part(foot).PhaseTimer = 180;
@@ -433,7 +433,7 @@ internal sealed class KraidLimbs
                 return;
             body.Position = body.Position.WithWholeX(target.X);
         }
-        if (!KraidPhaseGroups.BeforeFootWalkingBackwardLoop.Contains(KraidPartResidentAnimation(foot)))
+        if (!KraidPhaseGroups.FootYetToLoopBackwardWalk.Contains(KraidPartResidentAnimation(foot)))
         {
             _access.Part(foot).Phase = KraidPhase.FootSecondPhaseThinking;
             _access.StartKraidPartAnimation(foot, KraidPartSegment.FootNeutral);

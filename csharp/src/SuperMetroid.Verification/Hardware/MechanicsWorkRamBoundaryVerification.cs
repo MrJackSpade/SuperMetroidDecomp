@@ -18,14 +18,9 @@ internal static class MechanicsWorkRamBoundaryVerification
             "PLMs must not retain generic bank-data readers");
         AssertTrue(!MetadataShape.DeclaresMethod(typeof(SamusHorizontalSpeedState), "ReadMappedByte", privateStatic),
             "horizontal speed must not retain a mapped CPU-byte reader");
-
-        var readSpeed = new Func<int, SpeedTableEntry>(SamusHorizontalSpeedState.ReadEntryAtRow);
-        AssertThrows<InvalidDataException>(() => readSpeed(-1), "a row before the tables is not authored physics data");
-        AssertThrows<InvalidDataException>(() => readSpeed(SamusHorizontalMotionDefinitions.RowCount),
-            "a row past the tables is not authored physics data");
-        AssertThrows<InvalidDataException>(() => readSpeed(SamusHorizontalMotion.FirstRow(SamusLiquidMedium.LavaOrAcid) + byte.MaxValue),
-            "the furthest movement-type overread is rejected without reading it");
-        Console.WriteLine("Mechanics WRAM boundary: generic PLM/speed readers absent; only authored speed records resolve.");
+        // Samus's speeds are keyed by medium and movement (#1734), so no row past the speeds can be named; the indexed
+        // speeds check covers every medium's and movement's speeds against the cartridge.
+        Console.WriteLine("Mechanics WRAM boundary: generic PLM/speed readers absent.");
     }
 
     /// <summary>Runs the focused PLM and horizontal-speed WRAM ownership check.</summary>

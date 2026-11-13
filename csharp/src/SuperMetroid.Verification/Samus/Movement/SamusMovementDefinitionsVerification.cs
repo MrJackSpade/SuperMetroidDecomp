@@ -90,7 +90,7 @@ internal static class SamusMovementDefinitionsVerification
             TouchRange(bus, table, liquidTableByteCount, $"liquid-indexed table ${table:X6}");
         }
 
-        foreach (int speedRecord in Enum.GetValues<SamusStandaloneSpeedRecord>().Select(SamusHorizontalMotionDefinitions.StandaloneAddressOf))
+        foreach (int speedRecord in SamusHorizontalSpeedDefinitions.StandaloneAddresses)
         {
             TouchRange(bus, speedRecord, SpeedTableEntryConstants.ByteCount,
                 $"standalone speed record ${speedRecord:X6}");

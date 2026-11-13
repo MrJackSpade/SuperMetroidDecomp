@@ -65,7 +65,7 @@ internal static class FullBodyPalettePointerListsVerification
                 items.HasAny(SamusEquipmentFlags.VariaSuit) ? 1 : 0;
             for (int phase = 0; phase < 6; phase++)
             {
-                var speed = new SamusHorizontalSpeedState { CyclePaletteStep = phase };
+                var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { CyclePaletteStep = phase };
                 var actual = new SamusColours();
                 AssertTrue(speed.UpdateSpeedBoosterPalette(actual, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack) }),
                     "Screw Attack copies a palette without reading either pointer table");
@@ -78,7 +78,7 @@ internal static class FullBodyPalettePointerListsVerification
 
             for (int phase = 0; phase < 4; phase++)
             {
-                var speed = new SamusHorizontalSpeedState
+                var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir)
                 {
                     SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0),
                     SpecialPaletteTimer = 1,
@@ -131,7 +131,7 @@ internal static class FullBodyPalettePointerListsVerification
         AssertTrue(!SamusPaletteDefinitions.FullBodyCycles.TryActiveShinesparkPalettePointer(0, 1, out _),
             "active shinespark does not catalogue an unaligned phase offset");
 
-        var adjacentBoost = new SamusHorizontalSpeedState
+        var adjacentBoost = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir)
         {
             SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0),
             SpecialPaletteTimer = 1,

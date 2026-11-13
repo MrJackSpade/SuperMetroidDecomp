@@ -26,7 +26,7 @@ internal static class GameOverSheetComposer
     internal static SpriteSheetSources Sources(AreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
-        GameOverSourcePresentation gameOver = GameOverSourcePresentation.Of(maps.GameOver);
+        GameOverSourcePresentation gameOver = InstalledAreaMapPresentation.GameOverSourceOf(maps);
         SpriteArtwork page = MapSpriteArtwork.Of(ImportAreaMapPresentation.SpritesOf(maps)).Page;
         var frames = new List<SheetFrameSource>();
         foreach (GameOverBabyFrame frame in Enum.GetValues<GameOverBabyFrame>())

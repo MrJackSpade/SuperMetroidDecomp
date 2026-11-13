@@ -107,7 +107,7 @@ internal static class PauseMenuFixtureVerification
             new PauseScreenArtwork(backdrops, InstalledAreaMapPresentation.PauseOf(stock).Wireframes,
                 InstalledAreaMapPresentation.PauseOf(stock).EquipmentBase, InstalledAreaMapPresentation.PauseOf(stock).EquipmentLabels,
                 InstalledAreaMapPresentation.PauseOf(stock).ReserveUi),
-            InstalledAreaMapPresentation.HighlightColoursOf(stock)),
+            InstalledAreaMapPresentation.HighlightColoursOf(stock)) { GameOver = InstalledAreaMapPresentation.GameOverSourceOf(stock) },
             new ImportPresentationCharacters(new MapCharacterArtwork(
                 new MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)), new HudTileAtlas(hud),
                 new MapTileCharacters(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount))),

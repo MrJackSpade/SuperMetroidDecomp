@@ -79,7 +79,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         set => flashbackProjectiles.Animation.FrameBindings = flashbackBombProjectiles.FrameBindings = value;
     }
 
-    /// <summary>Installed background, object, and palette content for the intro scenes.</summary>
+    /// <summary>The opening's installed backdrops and the Ceres scenes' placements (#1616).</summary>
     internal IntroCinematicArtwork? CharacterArtwork { get; private set; }
     /// <summary>Installed Samus body graphics rebound into active flashback actors.</summary>
     private InstalledSamusBodyArtwork? samusBodyArtwork;
@@ -105,7 +105,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             CurrentObjects?.BindNarration(value);
         }
     }
-    /// <summary>Binds the installed background and sprite pictures when the game is bound to its installed content.</summary>
+    /// <summary>Binds the opening's installed backdrops and the Ceres scenes' placements when the game is bound to its installed content.</summary>
     public void BindCharacterArtwork(IntroCinematicArtwork? value)
     {
         CharacterArtwork = value;

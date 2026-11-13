@@ -4,6 +4,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
@@ -27,7 +28,16 @@ public class InstalledAreaMapPresentation : AreaMapPresentation
         Messages = Ensure.NotNull(sources.Messages);
         RoomFxPages = Ensure.NotNull(sources.RoomFxPages);
         HighlightColours = Ensure.NotNull(sources.HighlightColours);
+        GameOverSource = Ensure.NotNull(sources.GameOver);
     }
+
+    /// <summary>The game-over page's tiles, compositions and palette selectors, which only the import reads (#1616).</summary>
+    public GameOverSourcePresentation GameOverSource { get; }
+
+    /// <summary>The game-over source presentation the installed presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static GameOverSourcePresentation GameOverSourceOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.GameOverSource
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no game-over source presentation.");
 
     /// <summary>
     /// The map highlight cycle with each frame's colours (#1512): only the import reads the colours, and the game takes each

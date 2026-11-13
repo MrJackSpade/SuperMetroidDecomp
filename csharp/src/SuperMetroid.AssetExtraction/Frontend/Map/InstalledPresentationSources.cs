@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -29,4 +30,8 @@ internal sealed record InstalledPresentationSources(
     EndingTextPresentation EndingText,
     MapScreenPresentation Screens,
     PauseScreenArtwork Pause,
-    MapPaletteCycle HighlightColours);
+    MapPaletteCycle HighlightColours)
+{
+    /// <summary>The game-over page's tiles, compositions and palette selectors, which the menus' pictures and the game-over sheet are composed from (#1616).</summary>
+    public required GameOverSourcePresentation GameOver { get; init; }
+}

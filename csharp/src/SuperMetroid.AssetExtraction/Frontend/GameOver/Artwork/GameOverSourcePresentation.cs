@@ -13,11 +13,11 @@ using SuperMetroid.AssetExtraction.Map.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
 /// <summary>
-/// The installed game-over presentation as the import pipeline reads it (#1463): beside the palettes and anchors the game
-/// binds, the page's tiles the menus' picture of the page is composed from (#1467) and the Baby, egg and cursor
-/// compositions the game-over sheet is composed from.
+/// The installed game-over presentation as the import pipeline reads it (#1463, #1616): the page's tiles the menus' picture
+/// of the page is composed from (#1467), the Baby, egg and cursor compositions and palette selectors the game-over sheet is
+/// composed from, and what the game binds of it (<see cref="Presentation"/>).
 /// </summary>
-public sealed class GameOverSourcePresentation : GameOverPresentation
+public sealed class GameOverSourcePresentation
 {
     /// <summary>The page's tiles, row by row, which the menus' picture of the page is composed from (#1467).</summary>
     internal readonly BackgroundTile[] page;
@@ -30,15 +30,16 @@ public sealed class GameOverSourcePresentation : GameOverPresentation
 
     /// <summary>Retains the compiled presentation and its compositions.</summary>
     private GameOverSourcePresentation(GameOverPresentationDocument document, BackgroundTile[] tilemap, GameOverBabyPaint babyPaint,
-        GameOverSprites sprites, string contentIdentity) : base(new GameOverPlacements
+        GameOverSprites sprites, string contentIdentity)
+    {
+        Presentation = new GameOverPresentation(new GameOverPlacements
         {
             BabyAnchor = document.BabyAnchor,
             CursorX = document.CursorX,
             YesCursorY = document.YesCursorY,
             NoCursorY = document.NoCursorY,
             CursorFrameDuration = document.CursorFrameDuration,
-        })
-    {
+        });
         BabyPaint = babyPaint;
         ContentIdentity = contentIdentity;
         BabyPaletteIndex = document.BabyPalette;
@@ -49,6 +50,9 @@ public sealed class GameOverSourcePresentation : GameOverPresentation
         eggSprite = sprites.Egg;
         cursorSprites = sprites.Cursors;
     }
+
+    /// <summary>What the game binds of the presentation: the Baby's and the cursor's anchors and the cursor's frame duration.</summary>
+    public GameOverPresentation Presentation { get; }
 
     /// <summary>The Baby's idle and crying colours, which the import pre-colours the Baby's shades in (#1512).</summary>
     internal GameOverBabyPaint BabyPaint { get; }
@@ -162,11 +166,6 @@ public sealed class GameOverSourcePresentation : GameOverPresentation
     /// <summary>The menus' picture of the page: every cell of the page, named for the game to place (#1467).</summary>
     internal ScreenPictureSubject PageSubject() =>
         ScreenPictureSubject.Page(GameOverPresentationDefinitions.PageFrame, page, GameOverPageDefinitions.TilemapWidth);
-
-    /// <summary>The import-side presentation <paramref name="gameOver"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The game-over presentation was not read from installed artwork.</exception>
-    public static GameOverSourcePresentation Of(GameOverPresentation gameOver) => gameOver as GameOverSourcePresentation
-        ?? throw new InvalidDataException("The game-over presentation was not read from installed artwork.");
 
     /// <summary>Checks both coordinates of a game-over screen anchor fit the native OAM byte range.</summary>
     private static void ValidatePoint(Position16<SpritePixels> point, string name)

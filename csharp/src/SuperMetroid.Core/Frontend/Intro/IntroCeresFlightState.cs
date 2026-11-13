@@ -15,7 +15,7 @@ internal sealed class IntroCeresFlightState
     internal RgbColor Backdrop { get; private set; }
     /// <summary>The front-star or rear-view actors' sprite entries over the flight sprite page (#1358).</summary>
     internal readonly ScreenSprites objects;
-    /// <summary>Installed flight artwork the frame is drawn from, rebound whenever the game is bound to its installed content.</summary>
+    /// <summary>The installed flight's backdrop and placements the scene was bound with, rebound whenever the game is bound to its installed content.</summary>
     internal CeresFlightArtwork? Artwork { get; private set; }
     /// <summary>Installed sprite compositions, rebound without restarting the scene.</summary>
     private CinematicSpriteSheet? spriteArtwork;

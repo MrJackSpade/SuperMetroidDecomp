@@ -98,7 +98,7 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>
-    /// Runs the getaway room main until its motion ends. This routine
+    /// Runs the getaway room main until its motion ends. This step
     /// owns presentation only: ordinary Ridley has already been hidden, while Samus remains
     /// in room-world coordinates exactly as she does during the boss-room getaway.
     /// </summary>
@@ -133,15 +133,15 @@ internal sealed class CeresRidleyGetaway
             state.FloorCenter = Position16<FloorPixels>.Zero;
             // The getaway's end hands the same extended actor workspace to the escape-text sequence. Samus's
             // special push/fall handler remains responsible for restoring normal input;
-            // ending the rotating view itself does not unlock her in the original game.
+            // ending the rotating view itself does not unlock her in the game.
             state.Function = RidleyAiFunction.CeresActivateSelfDestruct;
             state.CeresSelfDestructPhase = CeresSelfDestructPhase.Start;
             return;
         }
 
         state.FloorZoom = zoom;
-        // The getaway frame's velocity is added to the vertical word and subtracted from the
-        // horizontal word.
+        // The getaway frame's velocity is added to the vertical offset and subtracted from the
+        // horizontal offset.
         state.FloorOffset = Offset16<FloorPixels>.Wrapped(
             state.FloorOffset.X - frame.Velocity.X,
             state.FloorOffset.Y + frame.Velocity.Y);
@@ -225,8 +225,8 @@ internal sealed class CeresRidleyGetaway
                 if (ReadyCeresEscapeWarning(state))
                 {
                     // The warning setup draws the emergency text immediately after the final
-                    // graphics record. The call was missing from the earlier
-                    // translation, so the letters' artwork was ready but the text never
+                    // graphics step. The call was missing from an earlier
+                    // version, so the letters' artwork was ready but the text never
                     // appeared on screen.
                     DrawCeresEmergencyText();
                     // The warning setup also queues the set's third song after showing the final
@@ -248,7 +248,7 @@ internal sealed class CeresRidleyGetaway
                     : null;
 
                 // English goes straight to typing the warning; Japanese
-                // first runs the subtitle phase. An earlier translation skipped the typing
+                // first runs the subtitle phase. An earlier version skipped the typing
                 // phase for English, suppressing every character below "EMERGENCY".
                 state.CeresSelfDestructPhase = _roomStatus.JapaneseText
                     ? CeresSelfDestructPhase.JapaneseSubtitle
@@ -334,7 +334,7 @@ internal sealed class CeresRidleyGetaway
             DrawCeresOverlay(page);
     }
 
-    /// <summary>Runs the byte-oriented escape-text command stream.</summary>
+    /// <summary>Types the next step of the escape text.</summary>
     private bool StepCeresEscapeTypewriter(RidleyEnemyState state)
     {
         var installed = state.CeresEscapeTypewriter ?? throw new InvalidDataException(

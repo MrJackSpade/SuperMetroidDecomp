@@ -15,8 +15,8 @@ public abstract class KraidPartState
         new(KraidAnimations.StartingWith(KraidPartProgram.FootInitial), AnimationPlace.StartOfAnimation);
 
     /// <summary>
-    /// Gets the function a part's function timer installs when it expires. The original game keeps the foot's in the
-    /// same word as its think timer (<see cref="KraidFootState.ThinkTimer"/>); the foot never reads one after writing the
+    /// Gets the function a part's function timer installs when it expires. The game keeps the foot's in the
+    /// same value as its think timer (<see cref="KraidFootState.ThinkTimer"/>); the foot never reads one after writing the
     /// other (it writes its think timer whenever it starts a second-phase walk and its next function whenever it starts a
     /// timed phase), so each is held on its own.
     /// </summary>

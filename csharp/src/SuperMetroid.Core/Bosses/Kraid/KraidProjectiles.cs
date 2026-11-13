@@ -96,31 +96,31 @@ internal sealed class KraidProjectiles
         }, EnemyProjectileFrameBehavior.KraidCeilingRockFall);
     }
 
-    /// <summary>Ports KraidLintTop's initialization AI.</summary>
+    /// <summary>Runs KraidLintTop's initialization AI.</summary>
     internal void RunKraidLintTopInitializationAi(RoomEnemySlot slot)
     {
         InitializeKraidLint(slot, KraidLintPart.Top);
     }
 
-    /// <summary>Ports KraidLintMiddle's initialization AI.</summary>
+    /// <summary>Runs KraidLintMiddle's initialization AI.</summary>
     internal void RunKraidLintMiddleInitializationAi(RoomEnemySlot slot)
     {
         InitializeKraidLint(slot, KraidLintPart.Middle);
     }
 
-    /// <summary>Ports KraidLintBottom's initialization AI.</summary>
+    /// <summary>Runs KraidLintBottom's initialization AI.</summary>
     internal void RunKraidLintBottomInitializationAi(RoomEnemySlot slot)
     {
         InitializeKraidLint(slot, KraidLintPart.Bottom);
     }
 
-    /// <summary>Ports KraidNail's initialization AI.</summary>
+    /// <summary>Runs KraidNail's initialization AI.</summary>
     internal void RunKraidNailInitializationAi(RoomEnemySlot slot)
     {
         InitializeKraidNail(slot, _parts.FirstNail);
     }
 
-    /// <summary>Ports KraidNailBad's initialization AI.</summary>
+    /// <summary>Runs KraidNailBad's initialization AI.</summary>
     internal void RunKraidNailBadInitializationAi(RoomEnemySlot slot)
     {
         InitializeKraidNail(slot, _parts.SecondNail);
@@ -472,7 +472,7 @@ internal sealed class KraidProjectiles
 
         // Checks support after moving and even on the frame that hides the lint.
         // Publish carry for Samus's later movement dispatcher, rather than teleporting
-        // her here. The clamp changes only the whole pixels; the subpixels keep their borrow.
+        // her here. The clamp changes only the whole pixels; the subpixels keep what the subtraction left.
         if (samus is not null && EnemyCollision.IsEnemyTouchingSamusFromBelow(lint, samus))
         {
             SignedSixteenSixteen carry = samus.Kinematics.ExtraDisplacement.X + KraidPlatformMovement.FiringDisplacement;
@@ -481,7 +481,7 @@ internal sealed class KraidProjectiles
         }
     }
 
-    /// <summary>Adds signed horizontal motion to the body position with word wraparound.</summary>
+    /// <summary>Adds signed horizontal motion to the body position, wrapping around the coordinate range.</summary>
     private static void AddSignedKraidHorizontalDisplacement(
         RoomEnemySlot slot,
         SignedSixteenSixteen displacement)

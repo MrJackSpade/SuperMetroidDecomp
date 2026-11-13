@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// travelled out of his mouth.
 /// </summary>
 /// <remarks>
-/// The original game keeps the X offset in the record value his body keeps its head timer in, and the travel in the one
+/// The game keeps the X offset in the value his body keeps its head timer in, and the travel in the one
 /// a nail keeps its horizontal fraction in (#1476); a lint reads only its own, so each is held on its own.
 /// </remarks>
 public sealed class KraidLintState : KraidPartState

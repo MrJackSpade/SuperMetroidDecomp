@@ -88,7 +88,7 @@ public sealed class BotwoonEnemyState
     public int HalfHealth { get; internal set; }
     /// <summary>Initial maximum health shifted right two, used as the strict threshold for the fastest movement health phase.</summary>
     public int QuarterHealth { get; internal set; }
-    /// <summary>Previous-health extended-word snapshot, initialized from the head's spawn health separately from its maximum/threshold fields.</summary>
+    /// <summary>Previous-health snapshot, initialized from the head's spawn health separately from its maximum/threshold fields.</summary>
     public int PreviousHealth { get; internal set; }
     /// <summary>Movement/spit speed record index 0, 1, or 2, refreshed when choosing a path outside a hole according to half/quarter-health thresholds.</summary>
     [IntegerQuantity("count of health thresholds passed, zero through two, indexing the speed records")]
@@ -131,14 +131,14 @@ public sealed class BotwoonEnemyState
         throw new InvalidOperationException($"Botwoon body segment {index} has not spawned or lost its projectile slot.");
 
     /// <summary>
-    /// Variable 10 for each aliased segment record. One means that body point is travelling inside the
+    /// Whether each body segment is inside a hole: true means that body point is travelling inside the
     /// wall/hole; crossing the head's saved ring offset toggles it.
     /// </summary>
     internal bool[] SegmentInsideHole { get; } = new bool[13];
 
     /// <summary>
-    /// Each body segment's phase, by segment index (#1413). The original game kept it in the segment projectile's X-velocity
-    /// word, which no body motion reads; the phase is the segment's own state here.
+    /// Each body segment's phase, by segment index (#1413). The game kept it in the segment projectile's horizontal
+    /// velocity, which no body motion reads; the phase is the segment's own state here.
     /// </summary>
     internal BotwoonBodyFunction[] SegmentFunctions { get; } = new BotwoonBodyFunction[13];
 

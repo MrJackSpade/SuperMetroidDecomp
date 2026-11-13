@@ -47,7 +47,7 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>
-    /// Ports the area-two branch of the shared initializer. A defeated Ridley
+    /// Runs the Norfair branch of the shared initializer. A defeated Ridley
     /// is deleted before any shared workspace or palette side effects, matching the
     /// boss-bit gate; a live fight begins in layer five below the visible arena.
     /// </summary>
@@ -349,7 +349,7 @@ internal sealed class NorfairRidleyCombat
     /// </summary>
     internal void InitializeNorfairRidleyPogoVelocity(RidleyEnemyState state)
     {
-        // The routine samples the current word; it does not advance shared RNG.
+        // The pogo choice samples the current random number; it does not advance shared RNG.
         int randomIndex = RidleyRandomDefinitions.PogoChoice.Of(_room.Random.Read());
         var definition = RidleyPogo.Read(randomIndex, Math.Min(state.HealthStage, 3) + 2);
         state.PogoUpwardAcceleration = definition.UpwardAcceleration;
@@ -526,7 +526,7 @@ internal sealed class NorfairRidleyCombat
         if (!sharedProjectiles.PowerBombExplosion.IsArmed || state.GrabState != RidleyGrabState.Released)
             return;
 
-        // The power-bomb lunge function resets both tail control words before the lunge.
+        // The power-bomb lunge function resets both tail controls before the lunge.
         state.TailFunctionIndex = RidleyTailFunction.Neutral;
         state.TailAngleDelta = 1;
         state.Function = RidleyAiFunction.NorfairGrabApproach;

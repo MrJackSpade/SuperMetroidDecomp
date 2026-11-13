@@ -8,7 +8,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>The Mini-Kraid species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Mini-Kraid species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -18,7 +18,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new FakeKraidEntity(this, slot, common);
 
-    /// <summary>Provides the existing random word sampled for Mini-Kraid's action decisions.</summary>
+    /// <summary>Provides the existing random number sampled for Mini-Kraid's action decisions.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Checks the walk cue's movement against room collision blocks.</summary>
     private readonly EnemyTerrain _terrain;
@@ -103,7 +103,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new FakeKraidEnemyState();
         slot.SetSpeciesState(state);
 
-        // The routine reads the already-published global random word; it does not advance
+        // The action choice reads the already-published random number; it does not advance
         // the RNG. Use the read callback when available and reserve NextRandom for older
         // isolated callers that did not expose that seam.
         int random = ReadFakeKraidRandomNumber();
@@ -321,7 +321,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile.Delete();
     }
 
-    /// <summary>Samples the room random word without advancing it for the action choice.</summary>
+    /// <summary>Samples the room's random number without advancing it for the action choice.</summary>
     private int ReadFakeKraidRandomNumber() =>
         _room.Random.Read();
 

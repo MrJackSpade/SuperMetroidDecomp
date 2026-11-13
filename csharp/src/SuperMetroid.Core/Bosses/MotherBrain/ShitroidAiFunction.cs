@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The routines Shitroid's main AI dispatches.
-/// Its values are arbitrary; verification's catalog names each member's original routine (#1413).
+/// The behaviours Shitroid's main AI dispatches.
+/// Its values are arbitrary; verification's catalog relates each member to its source (#1413).
 /// </summary>
 public enum ShitroidAiFunction
 {

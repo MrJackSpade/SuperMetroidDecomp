@@ -35,7 +35,7 @@ internal sealed class DraygonGoop
         _movement = movement;
     }
 
-    /// <summary>Ports the two mirrored goop setup functions.</summary>
+    /// <summary>Runs the two mirrored goop setup functions.</summary>
     internal void SetupDraygonGoopPass(
         DraygonEnemyState state,
         HorizontalDirection direction,
@@ -65,7 +65,7 @@ internal sealed class DraygonGoop
         state.FacingRight = direction == HorizontalDirection.Right;
     }
 
-    /// <summary>Ports the oscillating approach.</summary>
+    /// <summary>Runs the oscillating approach.</summary>
     internal void ApproachSamusForDraygonGoop(
         DraygonEnemyState state,
         HorizontalDirection direction,
@@ -88,7 +88,7 @@ internal sealed class DraygonGoop
         MoveDraygonAlongGoopPath(state, direction == HorizontalDirection.Right);
     }
 
-    /// <summary>Ports the firing and off-screen selection.</summary>
+    /// <summary>Runs the firing and off-screen selection.</summary>
     internal void FireDraygonGoop(
         DraygonEnemyState state,
         HorizontalDirection direction,
@@ -140,7 +140,7 @@ internal sealed class DraygonGoop
             : DraygonAiFunction.GoopLeftRecovery;
     }
 
-    /// <summary>Ports the final off-screen movement.</summary>
+    /// <summary>Runs the final off-screen movement.</summary>
     internal void ExitDraygonGoopPass(
         DraygonEnemyState state,
         HorizontalDirection direction,
@@ -185,7 +185,7 @@ internal sealed class DraygonGoop
         DraygonMovement.MoveDraygonHorizontally(state, movingRight);
     }
 
-    /// <summary>Registers goop flight and attachment instructions with the projectile interpreter.</summary>
+    /// <summary>Registers goop flight and attachment cues with the projectile engine.</summary>
     internal void AddDraygonProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>
@@ -254,7 +254,7 @@ internal sealed class DraygonGoop
         EnemyProjectile goop,
         SamusState? samus)
     {
-        // A power-bombed goop frees its place but the routine still moves it and
+        // A power-bombed goop frees its place but its update still moves it and
         // tests Samus. Contact is tested before the room boundary, so a goop that touches
         // Samus outside the boundary still runs its touch list instead of being deleted.
         FreePlaceIfPowerBombed(goop, samus);
@@ -335,7 +335,7 @@ internal sealed class DraygonGoop
     /// <summary>
     /// Frees the place of a Draygon goop or wall-turret shot caught in a power bomb's explosion and clears Samus's
     /// slowdown. Inside the explosion's ellipse the shot finishes its update
-    /// (<see cref="PowerBombedDraygonShotFinishesItsUpdate"/>): the calling routine goes on with it.
+    /// (<see cref="PowerBombedDraygonShotFinishesItsUpdate"/>): the calling update goes on with it.
     /// </summary>
     internal void FreePlaceIfPowerBombed(EnemyProjectile projectile, SamusState? samus)
     {

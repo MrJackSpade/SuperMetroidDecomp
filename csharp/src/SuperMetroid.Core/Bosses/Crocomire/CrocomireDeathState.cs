@@ -64,7 +64,7 @@ public sealed class CrocomireDeathState
     public int DistortionSourceRow { get; internal set; }
 
     /// <summary>
-    /// Per-scanline slope of the melt distortion in 1/65536 of a row; it grows from 256 by 384 a frame and stops
+    /// Per-row slope of the melt distortion in 1/65536 of a row; it grows from 256 by 384 a frame and stops
     /// at the dissolve's maximum.
     /// </summary>
     public int DistortionStep { get; internal set; }
@@ -77,7 +77,7 @@ public sealed class CrocomireDeathState
 
     /// <summary>
     /// Melt shake counter: zero before the first melt, decremented once per dissolve frame and wrapping below zero, and
-    /// its second bit selects the four-pixel X jitter. The original game's hidden-wall rumble later leaves a marker in
+    /// its second bit selects the four-pixel X jitter. The game's hidden-wall rumble later leaves a marker in
     /// the same value (#1476); every melt is over by then and nothing reads the counter again, so the marker is not kept.
     /// The wrap is load-bearing: the first dissolve frame steps the counter from zero, and the jitter's bit is read from
     /// the wrapped count, so the shake starts on the jittered side.
@@ -96,7 +96,7 @@ public sealed class CrocomireDeathState
     /// <summary>True once the death sequence publishes Crocomire's area-miniboss bit.</summary>
     public bool BossBitSet { get; internal set; }
 
-    /// <summary>True once the skeleton-collapse state invokes the boss item-drop routine.</summary>
+    /// <summary>True once the skeleton-collapse state drops the boss's items.</summary>
     public bool ItemDropRequested { get; internal set; }
 
     /// <summary>

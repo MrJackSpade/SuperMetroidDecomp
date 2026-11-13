@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Kraid's body's own state beside the function every part runs: his head-instruction timer, his growth's next ceiling
+/// Kraid's body's own state beside the function every part runs: his head-animation timer, his growth's next ceiling
 /// rock and the rising-rock timer of his rise through the floor.
 /// </summary>
 /// <remarks>
-/// The original game keeps the head timer in the record value a lint keeps its X offset in and a nail its horizontal
-/// whole pixels, and the next ceiling rock and the rising-rock timer in the record value of his function timer (#1476).
+/// The game keeps the head timer in the value a lint keeps its X offset in and a nail its horizontal
+/// whole pixels, and the next ceiling rock and the rising-rock timer in the value of his function timer (#1476).
 /// The rising-rock phases load their timer before reading it, and the ceiling rocks start from the zero the function
 /// timer leaves when it expires into growth, so each is held on its own.
 /// </remarks>
@@ -25,6 +25,6 @@ public sealed class KraidBodyState : KraidPartState
     /// <summary>The updates left in the body's current rising-rock phase; a rock falls at each multiple of its cadence.</summary>
     public int RisingRockTimer { get; internal set; }
 
-    /// <summary>The body's head-instruction timer.</summary>
+    /// <summary>The body's head-animation timer.</summary>
     public int HeadTimer { get; internal set; }
 }

@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Shared translation of Mother Brain's neck math. Both the live room-enemy actor
+/// Mother Brain's shared neck math. Both the live room-enemy actor
 /// and the later rainbow-beam sequence use these exact angle handlers; keeping them here
 /// prevents the two encounter halves from slowly acquiring different articulation rules.
 /// </summary>
@@ -160,7 +160,7 @@ internal static class MotherBrainNeckKinematics
         }
     }
 
-    /// <summary>Ports all five signed sine/cosine position writes: each joint's room-pixel position, indexed by joint.</summary>
+    /// <summary>Computes all five signed sine/cosine positions: each joint's room-pixel position, indexed by joint.</summary>
     /// <param name="body">The body's position.</param>
     /// <param name="lowerAngle">The angle the lower joints hang at.</param>
     /// <param name="upperAngle">The angle the upper joints hang at.</param>
@@ -198,14 +198,14 @@ internal static class MotherBrainNeckKinematics
             CalculateSignedComponent(angle.TurnedBy(TrigonometryAngle.QuarterTurn), distance));
 
     /// <summary>
-    /// The farthest a joint lies from its anchor, in pixels (#1627): the original multiplies the sine by the distance as a
+    /// The farthest a joint lies from its anchor, in pixels (#1627): the game multiplies the sine by the distance as a
     /// signed count of whole pixels, which goes no further, and the neck's distances are 2, 10 and 20, so a farther one is
-    /// rejected rather than given a product the original never forms.
+    /// rejected rather than given a product the game never forms.
     /// </summary>
     private const int FarthestJointDistance = 127;
 
     /// <summary>
-    /// Exact signed multiply/high-word behavior of the sine multiply. A joint lies at most
+    /// The signed sine multiply, keeping the product's whole pixels exactly as the game does. A joint lies at most
     /// <see cref="FarthestJointDistance"/> pixels from its anchor.
     /// </summary>
     internal static int CalculateSignedComponent(

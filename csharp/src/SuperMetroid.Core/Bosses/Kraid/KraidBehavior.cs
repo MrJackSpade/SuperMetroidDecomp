@@ -7,7 +7,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>The Kraid species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Kraid species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -69,7 +69,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// The longest wait a part's timer is loaded with, kept exact (#1627). The lint and fingernail frame timers wait behind
-    /// it so their programs never advance before their routines start them, and a dying Kraid's lints wait behind it as
+    /// it so their programs never advance before their behaviour starts them, and a dying Kraid's lints wait behind it as
     /// their function timer, changing function when it runs out, which gameplay sees.
     /// </summary>
     internal const int KraidStillPartTimer = 32767;
@@ -112,31 +112,31 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         RunKraidCombatFunction(body, state, camera.X);
     }
 
-    /// <summary>Ports Kraid's main AI.</summary>
+    /// <summary>Runs Kraid's main AI.</summary>
     internal void RunKraidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunKraidBodyMain(slot, frame.Samus, frame.Camera, frame.SamusProjectiles, frame.SharedProjectiles);
     }
 
-    /// <summary>Ports KraidArm's main AI.</summary>
+    /// <summary>Runs KraidArm's main AI.</summary>
     internal void RunKraidArmMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         Limbs.RunKraidArmMain(slot, frame.Camera.Y);
     }
 
-    /// <summary>Ports KraidLintTop's main AI.</summary>
+    /// <summary>Runs KraidLintTop's main AI.</summary>
     internal void RunKraidLintTopMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         Projectiles.RunKraidLintMain(slot, frame.Samus);
     }
 
-    /// <summary>Ports KraidFoot's main AI.</summary>
+    /// <summary>Runs KraidFoot's main AI.</summary>
     internal void RunKraidFootMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         Limbs.RunKraidFootMain(slot, frame.Camera.Y);
     }
 
-    /// <summary>Ports KraidNail's main AI.</summary>
+    /// <summary>Runs KraidNail's main AI.</summary>
     internal void RunKraidNailMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         Projectiles.RunKraidNailMain(slot, frame.Level);

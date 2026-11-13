@@ -58,7 +58,7 @@ internal sealed class CrocomireEncounterAccess
             : throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} has no initialized Crocomire body state.");
 
-    /// <summary>Requires the active death-sequence state before processing skeleton or wall instructions.</summary>
+    /// <summary>Requires the active death-sequence state before processing skeleton or wall cues.</summary>
     internal CrocomireDeathState RequireCrocomireDeath() =>
         CrocomireDeath ?? throw new InvalidOperationException(
             "Crocomire death extension is not initialized for the current room.");

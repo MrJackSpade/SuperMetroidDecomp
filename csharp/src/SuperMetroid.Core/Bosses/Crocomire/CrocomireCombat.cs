@@ -34,7 +34,7 @@ internal sealed class CrocomireCombat
         _access = access;
     }
 
-    /// <summary>Ports Crocomire's eight-color body hurt flash.</summary>
+    /// <summary>Runs Crocomire's eight-color body hurt flash.</summary>
     internal void ApplyCrocomireHurtFlash(RoomEnemySlot body)
     {
         bool white = body.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(_frameContext.RandomEnemyCounter);
@@ -46,8 +46,8 @@ internal sealed class CrocomireCombat
     /// <summary>Registers component-specific bomb hit reactions, consulted before the ignoring-shot gate.</summary>
     internal void AddCrocomireBombReactions(EnemySharedReactions table)
     {
-        // Specials consulted before the selected ignoring-shot gate, in the original order.
-        // Crocomire's header names no shot reaction; every live component supplies its own. Normal bombs
+        // Specials consulted before the selected ignoring-shot gate, in the game's order.
+        // Crocomire's species definition names no shot reaction; every live component supplies its own. Normal bombs
         // therefore reach the same hit counter, dust, or mouth reaction selected by the map.
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
                                   c.Enemy.Definition.Shot is null && c.UsesFrameHitboxes &&
@@ -55,7 +55,7 @@ internal sealed class CrocomireCombat
             c => ResolveCrocomireHitboxShot(c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShotAi));
     }
 
-    /// <summary>Registers Crocomire's owned projectile setup, movement, and instruction handlers.</summary>
+    /// <summary>Registers Crocomire's owned projectile setup, movement, and cue handlers.</summary>
     internal void AddCrocomireProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>
@@ -152,7 +152,7 @@ internal sealed class CrocomireCombat
         RoomEnemySlot body = state.Body;
 
         // A shot on his raised or high mouth or his lower body is absorbed: it neither hurts him nor raises dust. The
-        // original counted these and his mouth hits in a count nothing in the fight reads (#1620), so the count is gone.
+        // game counted these and his mouth hits in a count nothing in the fight reads (#1620), so the count is gone.
         if (reaction == EnemyReaction.CrocomireHitCountShot)
             return;
 
@@ -175,7 +175,7 @@ internal sealed class CrocomireCombat
         throw new InvalidOperationException($"Crocomire hitbox shot reaction {reaction?.ToString() ?? "(none)"} is not translated.");
     }
 
-    /// <summary>Ports Crocomire's mouth reaction.</summary>
+    /// <summary>Resolves Crocomire's mouth reaction.</summary>
     private void ResolveCrocomireMouthShot(
         CrocomireEnemyState state,
         RoomEnemySlot body,
@@ -219,7 +219,7 @@ internal sealed class CrocomireCombat
             if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == CrocomireFightFlags.None)
             {
                 // Both regional constants are eight. Keep the branch
-                // explicit because the source distinguishes projectile-attack state even
+                // explicit because the game distinguishes projectile-attack state even
                 // though this release stores identical delay values.
                 body.FrameHold = body.FrameHold.AddFrames(
                     state.FightFunction == CrocomireFightFunction.ProjectileAttack ? 8 : 8);
@@ -267,14 +267,14 @@ internal sealed class CrocomireCombat
 
     /// <summary>
     /// Selects the fully-open, part-open or closed reaction from the mouth of the frame shown, as the power-bomb reaction does
-    /// by scanning the frame's spritemap. Before any frame is shown the body has no spritemap and reacts closed.
+    /// by reading the frame's mouth. Before any frame is shown the body has no frame and reacts closed.
     /// </summary>
     private static CrocomireBodyProgram SelectCrocomirePowerBombProgram(CrocomireEnemyState state) =>
         state.BodyFrame is { } frame
             ? CrocomirePowerBombReactions.ForFrame(frame)
             : CrocomireBodyProgram.PowerBombReactionMouthNotOpen;
 
-    /// <summary>Ports the one-frame vector setup.</summary>
+    /// <summary>Runs the one-frame vector setup.</summary>
     internal void StartCrocomireProjectileFlight(
         EnemyProjectile projectile,
         RoomLevelData level)
@@ -305,10 +305,10 @@ internal sealed class CrocomireCombat
         }
     }
 
-    /// <summary>Projects a projectile angle into signed 8.8 X/Y speed using word shifts.</summary>
+    /// <summary>Projects a projectile angle into signed 8.8 X/Y speed: its sine and negative cosine scaled by the volley's multiplier.</summary>
     internal static EightEightVector<RoomPixels> CalculateCrocomireProjectileVelocity(Bearing bearing)
     {
-        // Preserve the two word shifts, including negative two's-complement bits. The
+        // A negative sine scales exactly as a positive one does. The
         // table is read with the bearing unconverted, so X is its sine and Y its negative cosine.
         TrigonometryAngle heading = bearing.ToMirroredTableAngle();
         return EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(
@@ -319,7 +319,7 @@ internal sealed class CrocomireCombat
     /// <summary>The gravity a falling spike-wall piece gains each update.</summary>
     private static readonly SignedSixteenSixteen SpikeWallPieceGravity = SignedSixteenSixteen.FromSixteenthsOfPixel(3);
 
-    /// <summary>Ports the byte-precise shard motion, whose limits each piece takes from its place in the wall.</summary>
+    /// <summary>Runs the shard motion, exact to the 256th of a pixel, whose limits each piece takes from its place in the wall.</summary>
     internal void RunCrocomireSpikeWallPiece(EnemyProjectile projectile)
     {
         CrocomireSpikeWallPieceState piece = projectile.StateOf<CrocomireSpikeWallPieceState>();
@@ -340,7 +340,7 @@ internal sealed class CrocomireCombat
             .WithWholePixelsAtMost(CrocomireSpikeMotion.MaximumVelocity(piece.Piece));
         projectile.Velocity = projectile.Velocity.WithX(xVelocity);
 
-        // Move X in 256ths of a pixel, as the original projectile mover does: the position's precision finer than a
+        // Move X in 256ths of a pixel, as the game's projectile mover does: the position's precision finer than a
         // 256th of a pixel stays exactly as it was.
         FixedCoordinate x = new FixedCoordinate(projectile.Position.X.Whole, projectile.Position.X.Fraction)
             .MovedBy(xVelocity);
@@ -362,7 +362,7 @@ internal sealed class CrocomireCombat
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
     }
 
-    /// <summary>Ports bridge-fragment vertical collision and gravity.</summary>
+    /// <summary>Runs bridge-fragment vertical collision and gravity.</summary>
     internal static void RunCrocomireBridgeFragment(
         EnemyProjectile projectile,
         RoomLevelData level)

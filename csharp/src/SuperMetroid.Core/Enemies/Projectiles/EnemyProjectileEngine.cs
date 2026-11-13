@@ -55,19 +55,19 @@ internal sealed class EnemyProjectileEngine
     {
         switch (cue)
         {
-            case EnemyProjectileCommonCue.Command { Kind: EnemyProjectileCommonCueKind.Delete }:
+            case EnemyProjectileCommonCue.Signal { Kind: EnemyProjectileCommonCueKind.Delete }:
                 projectile.Delete();
                 break;
             case EnemyProjectileCommonCue.SetFrameBehavior setFrameBehavior:
                 projectile.FrameBehavior = setFrameBehavior.FrameBehavior;
                 break;
-            case EnemyProjectileCommonCue.Command { Kind: EnemyProjectileCommonCueKind.ClearFrameBehavior }:
+            case EnemyProjectileCommonCue.Signal { Kind: EnemyProjectileCommonCueKind.ClearFrameBehavior }:
                 projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
                 break;
             case EnemyProjectileCommonCue.Scatter scatter:
                 Scatter(projectile, scatter.Spread);
                 break;
-            case EnemyProjectileCommonCue.Command { Kind: EnemyProjectileCommonCueKind.ReturnToOrigin }:
+            case EnemyProjectileCommonCue.Signal { Kind: EnemyProjectileCommonCueKind.ReturnToOrigin }:
                 projectile.Position = projectile.Position.WithWhole(projectile.StateOf<AnchoredProjectileState>().Anchor);
                 break;
             default:

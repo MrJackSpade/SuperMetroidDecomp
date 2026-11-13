@@ -71,7 +71,7 @@ internal static class EscapeEtecoonAnimations
         ],
         [P.ExpressGratitudeThenEscape] =
         [
-            Cue(new EscapeEtecoonCue.Command(K.ClearFrameBehavior)),
+            Cue(new EscapeEtecoonCue.Signal(K.ClearFrameBehavior)),
         ],
         [P.ExpressGratitudeThenEscapeLoop] =
         [

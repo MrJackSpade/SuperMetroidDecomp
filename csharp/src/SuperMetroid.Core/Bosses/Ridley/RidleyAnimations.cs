@@ -221,7 +221,7 @@ internal static class RidleyAnimations
         Cue(new RidleyBodyCue.SetFeetDistance(FeetDistanceIndex: index));
 
     /// <summary>Publishes a cue of <paramref name="kind"/> without operands.</summary>
-    private static AnimationBeat<F, RidleyBodyCue> Cue(RidleyBodyCueKind kind) => Cue(new RidleyBodyCue.Command(kind));
+    private static AnimationBeat<F, RidleyBodyCue> Cue(RidleyBodyCueKind kind) => Cue(new RidleyBodyCue.Signal(kind));
 
     /// <summary>Raises <paramref name="cue"/>.</summary>
     private static AnimationBeat<F, RidleyBodyCue> Cue(RidleyBodyCue cue) =>

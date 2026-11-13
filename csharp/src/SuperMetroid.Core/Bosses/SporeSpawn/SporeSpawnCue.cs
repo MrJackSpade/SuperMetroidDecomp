@@ -34,7 +34,7 @@ internal abstract record SporeSpawnCue
     [IndependentFlag("whether an authored cue suppresses spore generation, a fact of the cue data")]
     internal sealed record SetSporeGeneration(bool SporeGenerationSuppressed) : SporeSpawnCue;
 
-    /// <summary>A cue that carries no operand.</summary>
+    /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Command(SporeSpawnCueKind Kind) : SporeSpawnCue;
+    internal sealed record Signal(SporeSpawnCueKind Kind) : SporeSpawnCue;
 }

@@ -38,11 +38,11 @@ internal static class TourianStatueProjectileNativeListAddresses
     /// <summary>Each command the lists use, the cue it becomes and its operand bytes.</summary>
     private static readonly Dictionary<ushort, TourianStatueProjectileAnimationsCommand> Commands = new()
     {
-        [(ushort)NativeEnemyProjectileInstruction.Delete] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Command(TourianStatueProjectileCueKind.Delete)), 0),
-        [(ushort)NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Command(TourianStatueProjectileCueKind.PlayReleaseSound)), 1),
-        [(ushort)TourianStatueInstruction.Earthquake] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Command(TourianStatueProjectileCueKind.Earthquake)), 0),
-        [(ushort)TourianStatueInstruction.SpawnParticle] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Command(TourianStatueProjectileCueKind.SpawnParticle)), 0),
-        [(ushort)TourianStatueInstruction.SpawnTail] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Command(TourianStatueProjectileCueKind.SpawnTail)), 0),
+        [(ushort)NativeEnemyProjectileInstruction.Delete] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Signal(TourianStatueProjectileCueKind.Delete)), 0),
+        [(ushort)NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Signal(TourianStatueProjectileCueKind.PlayReleaseSound)), 1),
+        [(ushort)TourianStatueInstruction.Earthquake] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Signal(TourianStatueProjectileCueKind.Earthquake)), 0),
+        [(ushort)TourianStatueInstruction.SpawnParticle] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Signal(TourianStatueProjectileCueKind.SpawnParticle)), 0),
+        [(ushort)TourianStatueInstruction.SpawnTail] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Exactly(new TourianStatueProjectileCue.Signal(TourianStatueProjectileCueKind.SpawnTail)), 0),
         [(ushort)TourianStatueInstruction.AddY] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Of<TourianStatueProjectileCue.MoveDown>(""), 2),
         [(ushort)NativeEnemyProjectileInstruction.FrameBehaviorInY] = new TourianStatueProjectileAnimationsCommand(NativeCueShape<TourianStatueProjectileCue>.Of<TourianStatueProjectileCue.StartMoving>(""), 2),
     };
@@ -55,7 +55,7 @@ internal static class TourianStatueProjectileNativeListAddresses
             Commands[word].Cue.Check(cue, at);
             switch (cue)
             {
-                case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.PlayReleaseSound }:
+                case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.PlayReleaseSound }:
                     VerificationAssertions.AssertEqual<SoundEffectId>(EnemySound.TourianStatueParticle, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[0]),
                         $"{at}: the import decodes the native sound byte to the release sound");
                     break;
@@ -65,13 +65,13 @@ internal static class TourianStatueProjectileNativeListAddresses
                 case TourianStatueProjectileCue.StartMoving startMoving:
                     VerificationAssertions.AssertEqual(startMoving.Movement, EnemyProjectileFrameBehaviorAccess.FromWord((ushort)(operands[0] | operands[1] << 8)), $"{at}: movement");
                     break;
-                case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.Delete } or TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.Earthquake } or TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.SpawnParticle } or TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.SpawnTail }:
+                case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.Delete } or TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.Earthquake } or TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.SpawnParticle } or TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.SpawnTail }:
                     break;
                 default:
                     throw new InvalidOperationException($"Undefined Tourian statue projectile cue {cue}.");
             }
         },
-        cue => cue is TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.Delete },
+        cue => cue is TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.Delete },
         EndsAt: address => address == ParticleListEnd);
 
     /// <summary>

@@ -28,13 +28,13 @@ internal static class KiHunterAcidSpitAnimations
         ],
         [P.HitFloor] =
         [
-            Cue(new EnemyProjectileCommonCue.Command(CK.ClearFrameBehavior)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.ClearFrameBehavior)),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitHitFloorFirst, 12),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitHitFloorSecond, 10),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitHitFloorThird, 10),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitHitFloorFourth, 8),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitHitFloorFifth, 8),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.Right] =
         [

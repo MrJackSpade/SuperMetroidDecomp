@@ -14,7 +14,7 @@ internal static class TourianStatueProjectileAnimations
     {
         [P.Delete] =
         [
-            Cue(new TourianStatueProjectileCue.Command(K.Delete)),
+            Cue(new TourianStatueProjectileCue.Signal(K.Delete)),
         ],
         [P.Splash] =
         [
@@ -22,7 +22,7 @@ internal static class TourianStatueProjectileAnimations
             Show(EnemyProjectileFrameId.TourianStatueSplashSecond, 8),
             Show(EnemyProjectileFrameId.TourianStatueSplashThird, 8),
             Show(EnemyProjectileFrameId.TourianStatueSplashFourth, 8),
-            Cue(new TourianStatueProjectileCue.Command(K.Delete)),
+            Cue(new TourianStatueProjectileCue.Signal(K.Delete)),
         ],
         [P.EyeGlow] =
         [
@@ -36,19 +36,19 @@ internal static class TourianStatueProjectileAnimations
             Show(EnemyProjectileFrameId.TourianStatueEyeGlowEighth, 6),
             Show(EnemyProjectileFrameId.TourianStatueEyeGlowNinth, 5),
             Show(EnemyProjectileFrameId.TourianStatueEyeGlowTenth, 48),
-            Cue(new TourianStatueProjectileCue.Command(K.PlayReleaseSound)),
-            Cue(new TourianStatueProjectileCue.Command(K.Earthquake)),
-            Cue(new TourianStatueProjectileCue.Command(K.SpawnParticle)),
-            Cue(new TourianStatueProjectileCue.Command(K.SpawnParticle)),
-            Cue(new TourianStatueProjectileCue.Command(K.SpawnParticle)),
-            Cue(new TourianStatueProjectileCue.Command(K.SpawnParticle)),
-            Cue(new TourianStatueProjectileCue.Command(K.Delete)),
+            Cue(new TourianStatueProjectileCue.Signal(K.PlayReleaseSound)),
+            Cue(new TourianStatueProjectileCue.Signal(K.Earthquake)),
+            Cue(new TourianStatueProjectileCue.Signal(K.SpawnParticle)),
+            Cue(new TourianStatueProjectileCue.Signal(K.SpawnParticle)),
+            Cue(new TourianStatueProjectileCue.Signal(K.SpawnParticle)),
+            Cue(new TourianStatueProjectileCue.Signal(K.SpawnParticle)),
+            Cue(new TourianStatueProjectileCue.Signal(K.Delete)),
         ],
         [P.Particle] =
         [
             Show(EnemyProjectileFrameId.TourianStatueParticleFirst, 3),
             Show(EnemyProjectileFrameId.TourianStatueParticleSecond, 3),
-            Cue(new TourianStatueProjectileCue.Command(K.SpawnTail)),
+            Cue(new TourianStatueProjectileCue.Signal(K.SpawnTail)),
             Show(EnemyProjectileFrameId.TourianStatueParticleThird, 3),
             Show(EnemyProjectileFrameId.TourianStatueParticleFourth, 3),
         ],
@@ -61,7 +61,7 @@ internal static class TourianStatueProjectileAnimations
             Show(EnemyProjectileFrameId.TourianStatueTailThird, 4),
             Cue(new TourianStatueProjectileCue.MoveDown(Pixels: 2)),
             Show(EnemyProjectileFrameId.TourianStatueTailFourth, 4),
-            Cue(new TourianStatueProjectileCue.Command(K.Delete)),
+            Cue(new TourianStatueProjectileCue.Signal(K.Delete)),
         ],
         [P.Soul] =
         [

@@ -37,20 +37,20 @@ internal static class RidleyNativeListAddresses
     /// <summary>Each bank-$A6 Ridley instruction the body lists use: the cue it must become and its operand words.</summary>
     internal static readonly Dictionary<ushort, BodyInstruction> BodyInstructions = new()
     {
-        [0xe4be] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Command(RidleyBodyCueKind.Roar)), 0),
-        [0xe4ca] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Command(RidleyBodyCueKind.ClearRoaringFlag)), 0),
+        [0xe4be] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.Roar)), 0),
+        [0xe4ca] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.ClearRoaringFlag)), 0),
         [0xe4d2] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Of<RidleyBodyCue.GoToIfCeresAndSamusLowEnergy>(""), 1),
         [0xe501] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Of<RidleyBodyCue.SetFeetDistance>(""), 1),
         [0xe517] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Of<RidleyBodyCue.GoToUnlessFacingLeft>(""), 1),
         [0xe51f] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Of<RidleyBodyCue.Move>(""), 2),
-        [0xe71c] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Command(RidleyBodyCueKind.FlipLeft)), 0),
-        [0xe727] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Command(RidleyBodyCueKind.FaceForward)), 0),
-        [0xe72f] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Command(RidleyBodyCueKind.FlipRight)), 0),
-        [0xe84d] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Command(RidleyBodyCueKind.AimFireball)), 0),
-        [0xe904] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Command(RidleyBodyCueKind.SpawnFireballWithAfterburn)), 0),
-        [0xe909] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Command(RidleyBodyCueKind.SpawnFireballWithoutAfterburn)), 0),
-        [0xe969] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Command(RidleyBodyCueKind.CeresStartLiftoff)), 0),
-        [0xe976] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Command(RidleyBodyCueKind.StartLiftoff)), 0),
+        [0xe71c] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.FlipLeft)), 0),
+        [0xe727] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.FaceForward)), 0),
+        [0xe72f] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.FlipRight)), 0),
+        [0xe84d] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.AimFireball)), 0),
+        [0xe904] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.SpawnFireballWithAfterburn)), 0),
+        [0xe909] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.SpawnFireballWithoutAfterburn)), 0),
+        [0xe969] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.CeresStartLiftoff)), 0),
+        [0xe976] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.StartLiftoff)), 0),
     };
 
     /// <summary>Each breakup program's native one-frame list in bank $A6 ($A6:CA47..CAEF), in authored order.</summary>

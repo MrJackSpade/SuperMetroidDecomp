@@ -254,7 +254,7 @@ public sealed class SamusDrainedState
         ClearBaseAndVerticalSpeed(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         _suitPaletteRestoreRequested = true;
-        Phase = DrainedSamusPhase.WaitingForFallingCommand;
+        Phase = DrainedSamusPhase.WaitingForFallingCue;
         // Controller commands 0/1/2/4 report themselves handled; their dispatcher
         // then shifts history even for a same-pose command. Hyper (3) does not.
         samus.CommitPoseHistory();

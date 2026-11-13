@@ -30,14 +30,14 @@ internal static class ChozoStatueNativeListAddresses
     internal static readonly Dictionary<ushort, NativeCueShape<ChozoStatueCue>> Instructions = new()
     {
         [0x806b] = NativeCueShape<ChozoStatueCue>.Of<ChozoStatueCue.SetFrameBehavior>("E"),
-        [0x8074] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Command(ChozoStatueCueKind.ClearFrameBehavior)),
-        [0xe429] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Command(ChozoStatueCueKind.StartLoweringAcid)),
-        [0xe436] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Command(ChozoStatueCueKind.SetLoweredAcidPosition)),
-        [0xe43d] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Command(ChozoStatueCueKind.UnlockSamus)),
-        [0xe57f] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Command(ChozoStatueCueKind.PlayGrabSound)),
-        [0xe587] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Command(ChozoStatueCueKind.PlayFootstepSound)),
+        [0x8074] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Signal(ChozoStatueCueKind.ClearFrameBehavior)),
+        [0xe429] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Signal(ChozoStatueCueKind.StartLoweringAcid)),
+        [0xe436] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Signal(ChozoStatueCueKind.SetLoweredAcidPosition)),
+        [0xe43d] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Signal(ChozoStatueCueKind.UnlockSamus)),
+        [0xe57f] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Signal(ChozoStatueCueKind.PlayGrabSound)),
+        [0xe587] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Signal(ChozoStatueCueKind.PlayFootstepSound)),
         [0xe58f] = NativeCueShape<ChozoStatueCue>.Of<ChozoStatueCue.Footstep>("F"),
         [0xe5d8] = NativeCueShape<ChozoStatueCue>.Of<ChozoStatueCue.Move>("R"),
-        [0xe6f0] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Command(ChozoStatueCueKind.ReleaseSamus)),
+        [0xe6f0] = NativeCueShape<ChozoStatueCue>.Exactly(new ChozoStatueCue.Signal(ChozoStatueCueKind.ReleaseSamus)),
     };
 }

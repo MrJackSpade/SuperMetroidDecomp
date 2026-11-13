@@ -72,10 +72,10 @@ public static class XrayRevealVisualFiles
         for (int value = 0; value <= byte.MaxValue; value++)
         {
             XrayRevealDefinition? native = ReadNative(bus, type, value);
-            if (native?.Command != XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(value)))
+            if (native?.Shape != XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(value)))
                 throw new InvalidDataException(
                     $"Compiled X-ray command {type}/behaviour ${value:X2} differs from the cartridge.");
-            if (native is not { } definition || !InstalledXrayReveals.IsDrawable(definition.Command))
+            if (native is not { } definition || !InstalledXrayReveals.IsDrawable(definition.Shape))
                 continue;
             var key = new XrayRevealGroupKey(type, definition);
             if (!groups.TryGetValue(key, out List<int>? values))
@@ -85,7 +85,7 @@ public static class XrayRevealVisualFiles
 
         XrayRevealVisualEntry[] entries = groups
             .Select(pair => new XrayRevealVisualEntry(
-                pair.Key.Type, pair.Value.ToArray(), NameOf(pair.Key.Definition.Command),
+                pair.Key.Type, pair.Value.ToArray(), NameOf(pair.Key.Definition.Shape),
                 pair.Key.Definition.TopLeft, pair.Key.Definition.TopRight,
                 pair.Key.Definition.BottomLeft, pair.Key.Definition.BottomRight))
             .OrderBy(entry => entry.CollisionType)
@@ -166,11 +166,11 @@ public static class XrayRevealVisualFiles
             if (XrayRevealTable.Find(entry.CollisionType, RoomBlockBehaviorCodec.Decode(entry.BehaviorValues[0])) is not { } command ||
                 !InstalledXrayReveals.IsDrawable(command) || entry.Shape != NameOf(command))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid copy shape.");
-            if ((command is XrayRevealCommand.CopyOne or XrayRevealCommand.CopyBrinstar &&
+            if ((command is XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar &&
                     (entry.TopRight != 0 || entry.BottomLeft != 0 || entry.BottomRight != 0)) ||
-                (command == XrayRevealCommand.CopyWide &&
+                (command == XrayRevealShape.CopyWide &&
                     (entry.BottomLeft != 0 || entry.BottomRight != 0)) ||
-                (command == XrayRevealCommand.CopyTall &&
+                (command == XrayRevealShape.CopyTall &&
                     (entry.TopRight != 0 || entry.BottomRight != 0)))
                 throw new InvalidDataException($"X-ray visuals {path} set unused copy operands.");
         }
@@ -190,16 +190,16 @@ public static class XrayRevealVisualFiles
     /// Retain this finite named mapping because pointer arithmetic cannot
     /// derive the serialization labels more clearly or losslessly.
     /// </remarks>
-    private static string NameOf(XrayRevealCommand command) => command switch
+    private static string NameOf(XrayRevealShape command) => command switch
     {
-        XrayRevealCommand.CopyOne => "one",
-        XrayRevealCommand.CopyWide => "wide",
-        XrayRevealCommand.CopyTall => "tall",
-        XrayRevealCommand.CopySquare => "square",
-        XrayRevealCommand.CopyBrinstar => "brinstar-only",
-        XrayRevealCommand.HorizontalExtension or XrayRevealCommand.VerticalExtension =>
+        XrayRevealShape.CopyOne => "one",
+        XrayRevealShape.CopyWide => "wide",
+        XrayRevealShape.CopyTall => "tall",
+        XrayRevealShape.CopySquare => "square",
+        XrayRevealShape.CopyBrinstar => "brinstar-only",
+        XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension =>
             throw new InvalidDataException($"X-ray command {command} has no visual shape."),
-        _ => throw new InvalidOperationException($"Undefined {nameof(XrayRevealCommand)} {command}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(XrayRevealShape)} {command}."),
     };
 
     /// <summary>Walks the bank-$91 collision-kind and behaviour dispatch tables and decodes only the operands owned by the selected copy shape.</summary>
@@ -218,22 +218,22 @@ public static class XrayRevealVisualFiles
                 if ((RevealTableMarker)value == RevealTableMarker.TableEnd) return null;
                 if ((RevealTableMarker)value != RevealTableMarker.AnyBts && value != bts) continue;
                 int pointer = ReadWord(bus, match + 2);
-                XrayRevealCommand command = SamusIdentityWords.XrayRevealCommands.Decode(
+                XrayRevealShape command = SamusIdentityWords.XrayRevealShapes.Decode(
                     ReadWord(bus, pointer), "native X-ray reveal command");
                 return command switch
                 {
-                    XrayRevealCommand.HorizontalExtension or
-                        XrayRevealCommand.VerticalExtension => new(command, 0, 0, 0, 0),
-                    XrayRevealCommand.CopyOne or XrayRevealCommand.CopyBrinstar =>
+                    XrayRevealShape.HorizontalExtension or
+                        XrayRevealShape.VerticalExtension => new(command, 0, 0, 0, 0),
+                    XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar =>
                         new(command, ReadWord(bus, pointer + 2), 0, 0, 0),
-                    XrayRevealCommand.CopyWide =>
+                    XrayRevealShape.CopyWide =>
                         new(command, ReadWord(bus, pointer + 2), ReadWord(bus, pointer + 4), 0, 0),
-                    XrayRevealCommand.CopyTall =>
+                    XrayRevealShape.CopyTall =>
                         new(command, ReadWord(bus, pointer + 2), 0, ReadWord(bus, pointer + 4), 0),
-                    XrayRevealCommand.CopySquare =>
+                    XrayRevealShape.CopySquare =>
                         new(command, ReadWord(bus, pointer + 2), ReadWord(bus, pointer + 4),
                             ReadWord(bus, pointer + 6), ReadWord(bus, pointer + 8)),
-                    _ => throw new InvalidOperationException($"Undefined {nameof(XrayRevealCommand)} {command}."),
+                    _ => throw new InvalidOperationException($"Undefined {nameof(XrayRevealShape)} {command}."),
                 };
             }
         }

@@ -16,7 +16,7 @@ internal abstract record CeresSteamCue
     /// <param name="Alternate">The segment the vent continues at once its timer expires.</param>
     internal sealed record CountDownToActivation(CeresSteamSegment Target, CeresSteamSegment Alternate) : CeresSteamCue;
 
-    /// <summary>A cue that carries no operand.</summary>
+    /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Command(CeresSteamCueKind Kind) : CeresSteamCue;
+    internal sealed record Signal(CeresSteamCueKind Kind) : CeresSteamCue;
 }

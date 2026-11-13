@@ -34,7 +34,7 @@ internal static class TitleCardOracle
             {
                 ushort word = cartridge.ReadCartridgeWord(address);
                 string at = $"{card.Phase} at ${address:X6}";
-                if (step.Command is { } command)
+                if (step.Cue is { } command)
                 {
                     AssertEqual(TitleNativeWords.Instructions.Word(command), word, $"{at}: command");
                     address += TitleNativeWords.InstructionWordByteCount;

@@ -352,7 +352,7 @@ public sealed class SamusBombProjectileSystem
             return;
         if (SamusPoseMetadata.ReadMovementType(samus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
-            if (SamusSpinSoundCommand.Select(samus) is { } spinSound)
+            if (SamusSpinSound.Select(samus) is { } spinSound)
                 samus.LiquidPhysics.QueueMovementSound(spinSound, priority: SoundRequestPriority.High);
             return;
         }

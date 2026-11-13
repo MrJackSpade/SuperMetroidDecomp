@@ -26,7 +26,7 @@ internal abstract record RidleyBodyCue
     /// <param name="FeetDistanceIndex">The claw-height pose a <see cref="SetFeetDistance"/> cue selects: zero standing, one legs half extended, two legs extended.</param>
     internal sealed record SetFeetDistance(int FeetDistanceIndex) : RidleyBodyCue;
 
-    /// <summary>A cue that carries no operand.</summary>
+    /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Command(RidleyBodyCueKind Kind) : RidleyBodyCue;
+    internal sealed record Signal(RidleyBodyCueKind Kind) : RidleyBodyCue;
 }

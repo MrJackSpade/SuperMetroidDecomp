@@ -35,7 +35,7 @@ internal static class DownwardGateProjectileAnimations
         ],
         [P.MovingStep5] =
         [
-            Cue(new DownwardGateProjectileCue.Command(K.ClearFrameBehavior)),
+            Cue(new DownwardGateProjectileCue.Signal(K.ClearFrameBehavior)),
         ],
         [P.Closed] =
         [
@@ -61,7 +61,7 @@ internal static class DownwardGateProjectileAnimations
         ],
         [P.ClosedStep6] =
         [
-            Cue(new DownwardGateProjectileCue.Command(K.Delete)),
+            Cue(new DownwardGateProjectileCue.Signal(K.Delete)),
         ],
     });
 

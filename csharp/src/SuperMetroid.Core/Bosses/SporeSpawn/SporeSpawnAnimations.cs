@@ -62,7 +62,7 @@ internal static class SporeSpawnAnimations
             Cue(new SporeSpawnCue.QueueSound(Sound: SporeSpawnSoundDefinitions.Opening)),
             Show(new(F.Closed, 0), 1),
             .. Enumerable.Range(0, OpeningDurations.Length).Select(pose => Show(new(F.Opening, pose), OpeningDurations[pose])),
-            Cue(new SporeSpawnCue.Command(K.ClearDamagedFlag)),
+            Cue(new SporeSpawnCue.Signal(K.ClearDamagedFlag)),
             Function(SporeSpawnFunction.Idle),
         ],
         [P.OpenPulse] =
@@ -78,7 +78,7 @@ internal static class SporeSpawnAnimations
             Show(new(F.Closed, 0), 1),
             Function(SporeSpawnFunction.Moving),
             Cue(new SporeSpawnCue.SetSporeGeneration(SporeGenerationSuppressed: false)),
-            Cue(new SporeSpawnCue.Command(K.IncreaseMaxXRadius)),
+            Cue(new SporeSpawnCue.Signal(K.IncreaseMaxXRadius)),
             Show(new(F.Closed, 0), ClosedSway),
             Cue(new SporeSpawnCue.SetSporeGeneration(SporeGenerationSuppressed: true)),
             Show(new(F.Closed, 0), SporingSway),
@@ -92,23 +92,23 @@ internal static class SporeSpawnAnimations
         [P.DyingExplosions] =
         [
             Show(new(F.Opening, 5), 1),
-            Cue(new SporeSpawnCue.Command(K.SpawnDyingExplosion)),
+            Cue(new SporeSpawnCue.Signal(K.SpawnDyingExplosion)),
             Wait(DeathBurstWait),
             .. Closing(),
             Show(new(F.Dead, 0), 1),
-            Cue(new SporeSpawnCue.Command(K.Harden)),
+            Cue(new SporeSpawnCue.Signal(K.Harden)),
         ],
         [P.Hardening] =
         [
-            Cue(new SporeSpawnCue.Command(K.SpawnHardeningDust)),
+            Cue(new SporeSpawnCue.Signal(K.SpawnHardeningDust)),
             Wait(DeathBurstWait),
             .. Enumerable.Range(0, DeathPaletteSteps).SelectMany(step => new[]
             {
                 Cue(new SporeSpawnCue.LoadDeathPalette(DeathPaletteStep: step)),
-                Cue(new SporeSpawnCue.Command(K.SpawnHardeningDust)),
+                Cue(new SporeSpawnCue.Signal(K.SpawnHardeningDust)),
                 Show(new(F.Dead, 0), FadeStepDuration),
             }),
-            Cue(new SporeSpawnCue.Command(K.RequestDeathDrops)),
+            Cue(new SporeSpawnCue.Signal(K.RequestDeathDrops)),
         ],
     });
 

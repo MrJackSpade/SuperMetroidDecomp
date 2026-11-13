@@ -88,7 +88,7 @@ internal static class SporeSpawnAnimationsVerification
             case SporeSpawnCue.LoadDeathTargetPalette loadDeathTargetPalette:
                 AssertEqual(operands[0], checked((ushort)(loadDeathTargetPalette.DeathPaletteStep * SporeSpawnSourceDefinitions.ImageBytes)), $"{at}: the cartridge's byte offset names the cue's death image");
                 break;
-            case SporeSpawnCue.Command:
+            case SporeSpawnCue.Signal:
                 break;
             default:
                 throw new InvalidOperationException($"Undefined Spore Spawn cue {cue}.");

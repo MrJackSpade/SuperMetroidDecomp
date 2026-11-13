@@ -903,7 +903,7 @@ internal static void VerifyCartridgeRoomStateSelection()
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
             new RoomStateSelectionContext(
                 null,
-                RoomStateSelectorOperands.MainAreaBoss,
+                RoomStateSelectorConditions.MainAreaBoss,
                 false,
                 false)),
         "room selector main-area boss implicit operand");

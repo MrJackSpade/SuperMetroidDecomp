@@ -43,7 +43,7 @@ public static class CartridgeRoomHeaderImporter
                     cursor = unchecked((ushort)(cursor + 1));
                     break;
                 case RoomStateSelectorCode.MainAreaBossIsDead:
-                    match = selection.IsBossDead(RoomStateSelectorOperands.MainAreaBoss);
+                    match = selection.IsBossDead(RoomStateSelectorConditions.MainAreaBoss);
                     break;
                 case RoomStateSelectorCode.MorphBallAndMissiles:
                     match = selection.HasMorphBallAndMissiles;

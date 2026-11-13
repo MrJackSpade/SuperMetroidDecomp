@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 internal static class XrayRevealFixtures
 {
     /// <summary>Every drawable collision kind and reaction, each showing the blocks <paramref name="shown"/> chooses for its command.</summary>
-    internal static List<XrayRevealVisualDefinition> EveryDrawable(Func<XrayRevealCommand, XrayRevealVisualBlocks> shown)
+    internal static List<XrayRevealVisualDefinition> EveryDrawable(Func<XrayRevealShape, XrayRevealVisualBlocks> shown)
     {
         var entries = new List<XrayRevealVisualDefinition>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
@@ -25,7 +25,7 @@ internal static class XrayRevealFixtures
     /// Complete reveal pictures whose blocks <paramref name="shown"/> chooses per command, with overlays that reveal no special
     /// room and show block zero for every tank, and the cartridge's blank block where an extension chain leaves the room.
     /// </summary>
-    internal static InstalledXrayReveals Complete(Func<XrayRevealCommand, XrayRevealVisualBlocks> shown) =>
+    internal static InstalledXrayReveals Complete(Func<XrayRevealShape, XrayRevealVisualBlocks> shown) =>
         new(EveryDrawable(shown), InstalledXrayOverlays.FromOverlaysForVerification(
             Enumerable.Repeat(RoomBlockAppearance.Of(0), InstalledXrayOverlays.TankCount), []), XrayRevealTableWords.BlankMetatile);
 }

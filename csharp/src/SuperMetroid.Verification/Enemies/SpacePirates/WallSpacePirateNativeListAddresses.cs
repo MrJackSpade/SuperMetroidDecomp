@@ -35,13 +35,13 @@ internal static class WallSpacePirateNativeListAddresses
     {
         [0xee40] = NativeCueShape<WallSpacePirateCue>.Of<WallSpacePirateCue.ClimbLeftWall>("V"),
         [0xee72] = NativeCueShape<WallSpacePirateCue>.Of<WallSpacePirateCue.ClimbRightWall>("V"),
-        [0xeea4] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Command(WallSpacePirateCueKind.ChooseLeftWallDirection)),
-        [0xeebc] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Command(WallSpacePirateCueKind.ChooseRightWallDirection)),
-        [0xeed4] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Command(WallSpacePirateCueKind.PrepareJumpRight)),
-        [0xeefd] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Command(WallSpacePirateCueKind.PrepareJumpLeft)),
-        [0xef2a] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Command(WallSpacePirateCueKind.FireLaserLeft)),
-        [0xef5d] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Command(WallSpacePirateCueKind.FireLaserRight)),
+        [0xeea4] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Signal(WallSpacePirateCueKind.ChooseLeftWallDirection)),
+        [0xeebc] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Signal(WallSpacePirateCueKind.ChooseRightWallDirection)),
+        [0xeed4] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Signal(WallSpacePirateCueKind.PrepareJumpRight)),
+        [0xeefd] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Signal(WallSpacePirateCueKind.PrepareJumpLeft)),
+        [0xef2a] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Signal(WallSpacePirateCueKind.FireLaserLeft)),
+        [0xef5d] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Signal(WallSpacePirateCueKind.FireLaserRight)),
         [0xef83] = NativeCueShape<WallSpacePirateCue>.Of<WallSpacePirateCue.SetFunction>("E"),
-        [0xef93] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Command(WallSpacePirateCueKind.PlayAttackSound)),
+        [0xef93] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Signal(WallSpacePirateCueKind.PlayAttackSound)),
     };
 }

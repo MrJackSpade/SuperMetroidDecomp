@@ -11,8 +11,8 @@ internal static class DownwardGateProjectileCueRules
     /// <summary>Each command the gate's lists use and how the cue it becomes is checked.</summary>
     private static readonly Dictionary<NativeEnemyProjectileInstruction, NativeCueCommand<DownwardGateProjectileCue>> Commands = new()
     {
-        [NativeEnemyProjectileInstruction.Delete] = NativeCueCommand<DownwardGateProjectileCue>.Exactly(new DownwardGateProjectileCue.Command(DownwardGateProjectileCueKind.Delete)),
-        [NativeEnemyProjectileInstruction.ClearFrameBehavior] = NativeCueCommand<DownwardGateProjectileCue>.Exactly(new DownwardGateProjectileCue.Command(DownwardGateProjectileCueKind.ClearFrameBehavior)),
+        [NativeEnemyProjectileInstruction.Delete] = NativeCueCommand<DownwardGateProjectileCue>.Exactly(new DownwardGateProjectileCue.Signal(DownwardGateProjectileCueKind.Delete)),
+        [NativeEnemyProjectileInstruction.ClearFrameBehavior] = NativeCueCommand<DownwardGateProjectileCue>.Exactly(new DownwardGateProjectileCue.Signal(DownwardGateProjectileCueKind.ClearFrameBehavior)),
         [NativeEnemyProjectileInstruction.FrameBehaviorInY] = NativeCueCommand<DownwardGateProjectileCue>.Of<DownwardGateProjectileCue.SetFrameBehavior>(2, (operands, cue, at) =>
             VerificationAssertions.AssertEqual(cue.FrameBehavior, EnemyProjectileFrameBehaviorAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction")),
         [NativeEnemyProjectileInstruction.DownwardGateSetYVelocityInstruction] = NativeCueCommand<DownwardGateProjectileCue>.Of<DownwardGateProjectileCue.SetYVelocity>(2, (operands, cue, at) =>
@@ -22,5 +22,5 @@ internal static class DownwardGateProjectileCueRules
     /// <summary>The oracle rules for the gate's programs.</summary>
     internal static NativeEnemyProjectileCueRules<DownwardGateProjectileCue> Rules { get; } = NativeCueCommand<DownwardGateProjectileCue>.Rules(
         Commands, word => (NativeEnemyProjectileInstruction)word,
-        cue => cue is DownwardGateProjectileCue.Command { Kind: DownwardGateProjectileCueKind.Delete });
+        cue => cue is DownwardGateProjectileCue.Signal { Kind: DownwardGateProjectileCueKind.Delete });
 }

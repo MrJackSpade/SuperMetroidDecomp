@@ -24,7 +24,7 @@ internal abstract record YardCue
     /// <param name="MovementFunction">The cue's MovementFunction operand.</param>
     internal sealed record SetMovementFunction(YardMovementFunction MovementFunction) : YardCue;
 
-    /// <summary>A cue that carries no operand.</summary>
+    /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Command(YardCueKind Kind) : YardCue;
+    internal sealed record Signal(YardCueKind Kind) : YardCue;
 }

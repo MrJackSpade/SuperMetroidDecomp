@@ -54,7 +54,7 @@ internal abstract record TorizoCue
     /// <param name="Swap">The artwork a <see cref="ShowArtwork"/> cue shows.</param>
     internal sealed record ShowArtwork(TorizoArtworkSwap Swap) : TorizoCue;
 
-    /// <summary>A cue that carries no operand.</summary>
+    /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Command(TorizoCueKind Kind) : TorizoCue;
+    internal sealed record Signal(TorizoCueKind Kind) : TorizoCue;
 }

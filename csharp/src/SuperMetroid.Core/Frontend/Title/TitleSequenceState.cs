@@ -411,7 +411,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         objects.FinishFrame();
     }
 
-    /// <summary>Advances the running title card's timed frames and runs its scene or delete commands.</summary>
+    /// <summary>Advances the running title card's timed frames and runs its scene or delete cues.</summary>
     private void StepTextSequence()
     {
         if (--sequenceEntryTimer > 0)
@@ -420,14 +420,14 @@ public sealed class TitleSequenceState : IFrontendScreen
         while (true)
         {
             TitleCardStep step = TitleCards.Steps(textCard)[textCardStep++];
-            if (step.Command is not { } command)
+            if (step.Cue is not { } cue)
             {
                 sequenceEntryTimer = step.Duration;
                 ActiveSprite = step.Sprite;
                 return;
             }
 
-            switch (command)
+            switch (cue)
             {
                 case TitleSequenceScriptStep.TriggerScene0:
                     Phase = TitleSequencePhase.SceneZeroPan;
@@ -460,7 +460,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                     return;
 
                 default:
-                    throw new InvalidOperationException($"Undefined TitleSequenceScriptStep {command}.");
+                    throw new InvalidOperationException($"Undefined TitleSequenceScriptStep {cue}.");
             }
         }
     }

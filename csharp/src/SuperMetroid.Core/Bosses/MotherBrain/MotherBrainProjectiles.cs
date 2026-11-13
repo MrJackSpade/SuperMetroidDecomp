@@ -51,15 +51,15 @@ internal sealed class MotherBrainProjectiles
             case MotherBrainEffectCue.SetRadius setRadius:
                 projectile.Radius = setRadius.Radius;
                 break;
-            case MotherBrainEffectCue.Command { Kind: MotherBrainEffectCueKind.DrawFromSharedSheet }:
+            case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.DrawFromSharedSheet }:
                 projectile.Graphics = SpriteGraphics.SharedStandard;
                 break;
-            case MotherBrainEffectCue.Command { Kind: MotherBrainEffectCueKind.DropDrool }:
+            case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.DropDrool }:
                 // After changing to the falling frame behaviour, the released drool drops twelve pixels before its first
                 // falling frame.
                 projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 12);
                 break;
-            case MotherBrainEffectCue.Command { Kind: MotherBrainEffectCueKind.EndSmallPurpleBreath }:
+            case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.EndSmallPurpleBreath }:
                 (_motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
                     "Mother Brain's small purple breath ran without its encounter state."))
                     .SmallPurpleBreathActive = false;
@@ -67,10 +67,10 @@ internal sealed class MotherBrainProjectiles
             case MotherBrainEffectCue.SetFrameBehavior setFrameBehavior:
                 projectile.FrameBehavior = setFrameBehavior.FrameBehavior;
                 break;
-            case MotherBrainEffectCue.Command { Kind: MotherBrainEffectCueKind.ClearFrameBehavior }:
+            case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.ClearFrameBehavior }:
                 projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
                 break;
-            case MotherBrainEffectCue.Command { Kind: MotherBrainEffectCueKind.Delete }:
+            case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.Delete }:
                 projectile.Delete();
                 break;
             default:

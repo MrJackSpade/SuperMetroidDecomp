@@ -56,7 +56,7 @@ internal static class WalkingSpacePirateAnimations
             Show(EnemyFrameId.WalkingPirateFireLasersLeftFourth, 8),
             Show(EnemyFrameId.WalkingPirateFireLasersLeftThird, 8),
             Show(EnemyFrameId.WalkingPirateFireLasersLeftSecond, 8),
-            Cue(new WalkingSpacePirateCue.Command(K.ChooseMovement)),
+            Cue(new WalkingSpacePirateCue.Signal(K.ChooseMovement)),
         ],
         [P.LookingFacingLeft] =
         [
@@ -99,7 +99,7 @@ internal static class WalkingSpacePirateAnimations
             Show(EnemyFrameId.WalkingPirateFireLasersRightFourth, 8),
             Show(EnemyFrameId.WalkingPirateFireLasersRightThird, 8),
             Show(EnemyFrameId.WalkingPirateFireLasersRightSecond, 8),
-            Cue(new WalkingSpacePirateCue.Command(K.ChooseMovement)),
+            Cue(new WalkingSpacePirateCue.Signal(K.ChooseMovement)),
         ],
         [P.LookingFacingRight] =
         [

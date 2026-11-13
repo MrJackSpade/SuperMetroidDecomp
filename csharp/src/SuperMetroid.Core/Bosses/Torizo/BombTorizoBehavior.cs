@@ -258,7 +258,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.FrameBehavior = setFrameBehavior.FrameBehavior;
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.ClearFrameBehavior }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.ClearFrameBehavior }:
                 state.FrameBehavior = TorizoFrameBehavior.Idle;
                 return null;
 
@@ -266,55 +266,55 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Function = setFunction.Function;
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.BlowUpGut }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.BlowUpGut }:
                 Combat.SetBehavior(torizo, TorizoBehaviorFlags.GutBlownUp);
                 for (int piece = 0; piece < 6; piece++)
                     Attacks.SpawnBombTorizoLowHealthDrool(torizo);
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.MarkFaceBlownUp }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.MarkFaceBlownUp }:
                 Combat.SetBehavior(torizo, TorizoBehaviorFlags.FaceBlownUp);
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.MakeVisible }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.MakeVisible }:
                 torizo.Presence = torizo.Presence.Without(EnemyPresence.Hidden);
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.MakeInvisible }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.MakeInvisible }:
                 torizo.Presence = torizo.Presence.With(EnemyPresence.Hidden);
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.FadeToBlack }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.FadeToBlack }:
                 SetTorizoPaletteTarget(state, TorizoLookKind.Black);
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.FinishDeath }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.FinishDeath }:
                 FinishBombTorizoDeath(state);
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.AdvanceColourFade }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.AdvanceColourFade }:
                 state.Colours.Step(_presentation.FadeStepCount);
                 torizo.Shading = state.Colours.Shading;
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.FadeToNormalColors }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.FadeToNormalColors }:
                 SetTorizoPaletteTarget(state, TorizoLookKind.Normal);
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.StartBombTorizoFight }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.StartBombTorizoFight }:
                 RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
                 // The fight starts the belly's glow, a palette-FX object that ends once the statue dies.
                 _frameResults.TorizoBellyGlow = PaletteFxObject.BombTorizoBelly;
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.NoOperation }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.NoOperation }:
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.LockAnimation }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.LockAnimation }:
                 state.AnimationLocked = true;
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.UnlockAnimation }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.UnlockAnimation }:
                 state.AnimationLocked = false;
                 return null;
 
@@ -330,10 +330,10 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.ReturnPlayback = TorizoAnimations.Start(branch.Target);
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.Return }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.Return }:
                 return TorizoAnimations.ContinueAt(state.ReturnPlayback);
 
-            case TorizoCue.Command { Kind: TorizoCueKind.ResumeInterrupted }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.ResumeInterrupted }:
                 return TorizoAnimations.ContinueAt(state.InterruptedPlayback);
 
             case TorizoCue.LowHealthExplosions explosions:
@@ -343,42 +343,42 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 torizo.FlashTimer = 40;
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.SpawnDeathExplosion }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.SpawnDeathExplosion }:
                 Attacks.SpawnBombTorizoDeathExplosion(torizo);
                 // The animation then waits one update, as the callback's sleep does.
                 torizo.FlashTimer = 1;
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.SpawnLandingDust }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.SpawnLandingDust }:
                 Attacks.SpawnBombTorizoLandingDust(torizo, foot: HorizontalDirection.Right);
                 Attacks.SpawnBombTorizoLandingDust(torizo, foot: HorizontalDirection.Left);
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.SpawnLowHealthDrool }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.SpawnLowHealthDrool }:
                 if (torizo.Health < BombTorizoHeadExplosionHealth)
                     Body.SpawnBombTorizoInitialDrool(torizo);
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.SetTurningAround }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.SetTurningAround }:
                 SetPosture(torizo, Access.Posture(torizo) | TorizoPostureFlags.TurningAround);
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.SteppedLeftWithLeftFoot }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.SteppedLeftWithLeftFoot }:
                 SetPosture(torizo, TorizoPostureFlags.None);
                 state.CountDecisionStep();
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.SteppedRightWithRightFoot }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.SteppedRightWithRightFoot }:
                 SetPosture(torizo, TorizoPostureFlags.FacingRight);
                 state.CountDecisionStep();
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.SteppedLeftWithRightFoot }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.SteppedLeftWithRightFoot }:
                 SetPosture(torizo, TorizoPostureFlags.OppositeLegForward);
                 state.CountDecisionStep();
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.SteppedRightWithLeftFoot }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.SteppedRightWithLeftFoot }:
                 SetPosture(torizo, TorizoPostureFlags.FacingRight | TorizoPostureFlags.OppositeLegForward);
                 state.CountDecisionStep();
                 return null;
@@ -425,7 +425,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return TorizoAnimations.ContinueWith(chooseFirst ? choice.Target : choice.Alternate);
             }
 
-            case TorizoCue.Command { Kind: TorizoCueKind.SpawnBombTorizoChozoOrbs }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.SpawnBombTorizoChozoOrbs }:
                 Attacks.SpawnBombTorizoChozoOrb(torizo);
                 Attacks.SpawnBombTorizoChozoOrb(torizo);
                 Attacks.SpawnBombTorizoChozoOrb(torizo);
@@ -443,32 +443,32 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 Attacks.SpawnBombTorizoExplosiveSwipe(torizo, parameterizedSpawn.Parameter);
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.PlayShotSound }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.PlayShotSound }:
                 PlayTorizoSound(EnemySound.ShotTorizo);
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.PlayFootstepSound }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.PlayFootstepSound }:
                 PlayTorizoSound(EnemySound.ChozoFootsteps);
                 return null;
 
             case TorizoCue.Branch { Kind: TorizoBranchKind.GoToIfAirborne } branch:
                 return torizo.Position.Y.Whole == 375 ? null : TorizoAnimations.ContinueWith(branch.Target);
 
-            case TorizoCue.Command { Kind: TorizoCueKind.LoadGoldenTorizoPalettes }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.LoadGoldenTorizoPalettes }:
                 SetTorizoPaletteTarget(state, TorizoLookKind.Golden);
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.StartGoldenTorizoFight }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.StartGoldenTorizoFight }:
                 RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
                 torizo.Radius = new(18, 48);
                 _frameResults.TorizoBellyGlow = PaletteFxObject.GoldenTorizoBelly;
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.ClearCaughtSuperMissile }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.ClearCaughtSuperMissile }:
                 ClearBehavior(torizo, TorizoBehaviorFlags.CaughtSuperMissile);
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.SpawnEgg }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.SpawnEgg }:
                 Attacks.SpawnGoldenTorizoEgg(torizo);
                 return null;
 
@@ -478,31 +478,31 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     ? TorizoAnimations.ContinueWith(branch.Target)
                     : null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.DisableEyeBeamExplosions }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.DisableEyeBeamExplosions }:
                 state.EyeBeamExplosionsEnabled = false;
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.EnableEyeBeamExplosions }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.EnableEyeBeamExplosions }:
                 state.EyeBeamExplosionsEnabled = true;
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.UnmarkStunned }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.UnmarkStunned }:
                 ClearBehavior(torizo, TorizoBehaviorFlags.Stunned);
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.PlayEggReleasedSound }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.PlayEggReleasedSound }:
                 PlayTorizoSound(EnemySound.CacatacSpikes);
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.PlayLaserSound }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.PlayLaserSound }:
                 PlayTorizoSound(EnemySound.Laser);
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.PlaySonicBoomSound }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.PlaySonicBoomSound }:
                 PlayTorizoSound(EnemySound.TorizoSonicBoom);
                 return null;
 
-            case TorizoCue.Command { Kind: TorizoCueKind.SpawnSuperMissile }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.SpawnSuperMissile }:
                 Attacks.SpawnGoldenTorizoSuperMissile(torizo);
                 return null;
 
@@ -547,7 +547,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     inputs.ControllerInput,
                     branch.Target);
 
-            case TorizoCue.Command { Kind: TorizoCueKind.SpawnGoldenTorizoChozoOrbs }:
+            case TorizoCue.Signal { Kind: TorizoCueKind.SpawnGoldenTorizoChozoOrbs }:
                 Attacks.SpawnGoldenTorizoChozoOrb(torizo);
                 return null;
 

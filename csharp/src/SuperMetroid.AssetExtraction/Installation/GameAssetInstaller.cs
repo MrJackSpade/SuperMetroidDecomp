@@ -396,7 +396,7 @@ public static class GameAssetInstaller
         new(GameInstallationLayout.EnemySheetDirectoryName, InstallerComponentKind.Composition,
             SheetStep("Composing enemy sheets...", (_, d, families) => families.Add(EnemySheetFiles.Extract(InstallationOf(d), d)))),
         new(PictureStoreFiles.DirectoryName, InstallerComponentKind.PictureStore,
-            SheetStep("Writing the picture store...", (_, d, families) => PictureStoreWriter.Write(InstallationOf(d), families.Every(), SupportedCartridge.Sha256))),
+            SheetStep("Writing the picture store...", (_, d, families) => PictureStoreWriter.Write(InstallationOf(d), families.Every()))),
     ];
 
     /// <summary>Why <paramref name="receipt"/> does not name this importer's format and source, or null when it does.</summary>

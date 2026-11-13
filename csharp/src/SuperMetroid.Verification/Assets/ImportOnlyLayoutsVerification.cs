@@ -122,6 +122,8 @@ internal static class ImportOnlyLayoutsVerification
         yield return (GameInstallationLayout.EnemySheetDirectoryName, "enemy-sheets-provenance.json");
         yield return (GameInstallationLayout.RoomBlockSheetDirectoryName, "room-block-sheets-provenance.json");
         yield return (GameInstallationLayout.BossBodySheetDirectoryName, "boss-body-sheets-provenance.json");
+        // The picture store's provenance held its pages' and maps' hashes; its index, pictures.json, holds the rest.
+        yield return (PictureStoreFiles.DirectoryName, "pictures-provenance.json");
     }
 
     /// <summary>

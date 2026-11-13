@@ -208,11 +208,11 @@ internal static class PicturePreview
         /// <summary>Each page's pixels and size, decoded when first read.</summary>
         private readonly Lazy<(Extent16<ImagePixels> Size, RgbaPixel[] Pixels)>[] pages;
 
-        /// <summary>Reads the store's provenance in <paramref name="directory"/>.</summary>
-        private Store(string directory, PictureStoreProvenance provenance)
+        /// <summary>Reads the store's index in <paramref name="directory"/>.</summary>
+        private Store(string directory, PictureStoreIndex index)
         {
-            pictures = provenance.Pictures ?? throw new InvalidDataException($"Picture store {directory} lists no tagged pictures.");
-            pages = [.. Enumerable.Range(0, provenance.PageSha256.Count).Select(page =>
+            pictures = index.Pictures ?? throw new InvalidDataException($"Picture store {directory} lists no tagged pictures.");
+            pages = [.. Enumerable.Range(0, index.PageCount).Select(page =>
                 new Lazy<(Extent16<ImagePixels>, RgbaPixel[])>(() =>
                 {
                     using FileStream stream = File.OpenRead(Path.Combine(directory, PictureStoreFiles.PageFile(page)));
@@ -225,10 +225,10 @@ internal static class PicturePreview
         internal static Store Open(string content)
         {
             string directory = Path.Combine(content, PictureStoreFiles.DirectoryName);
-            string path = Path.Combine(directory, PictureStoreFiles.ProvenanceFileName);
+            string path = Path.Combine(directory, PictureStoreFiles.IndexFileName);
             using FileStream stream = File.OpenRead(path);
-            return new Store(directory, JsonAssetDocument.Read<PictureStoreProvenance>(stream, PictureStoreProvenance.JsonOptions,
-                $"picture store provenance {path}"));
+            return new Store(directory, JsonAssetDocument.Read<PictureStoreIndex>(stream, PictureStoreIndex.JsonOptions,
+                $"picture store index {path}"));
         }
 
         /// <summary>The place of the picture tagged <paramref name="tag"/>, which <paramref name="reader"/> names.</summary>

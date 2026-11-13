@@ -56,15 +56,14 @@ internal static class InstalledPictureRulesVerification
         byte[] page = ClearPage();
         string pageFile = PictureStoreFiles.PageFile(0);
         File.WriteAllBytes(Path.Combine(store, pageFile), page);
-        File.WriteAllBytes(Path.Combine(store, PictureStoreFiles.ProvenanceFileName), JsonSerializer.SerializeToUtf8Bytes(
-            new PictureStoreProvenance(PictureStoreProvenance.FormatVersion, SupportedCartridge.Sha256,
-                new Dictionary<string, string> { [pageFile] = Convert.ToHexString(SHA256.HashData(page)) },
+        File.WriteAllBytes(Path.Combine(store, PictureStoreFiles.IndexFileName), JsonSerializer.SerializeToUtf8Bytes(
+            new PictureStoreIndex(PictureStoreIndex.FormatVersion, PageCount: 1,
                 new Dictionary<string, StoredPictureDocument>(StringComparer.Ordinal)
                 {
                     [EmptyTag] = new StoredPictureDocument { Page = 0, Corner = default, Size = PageSize },
                 },
                 RecolourRegionMaps: null, BlendMaps: null),
-            PictureStoreProvenance.JsonOptions));
+            PictureStoreIndex.JsonOptions));
         InstalledPictureStore pictures = InstalledPictureStore.Open(store);
         var document = new InstalledSheetDocument
         {
@@ -104,15 +103,14 @@ internal static class InstalledPictureRulesVerification
         byte[] page = ClearPage();
         string pageFile = PictureStoreFiles.PageFile(0);
         File.WriteAllBytes(Path.Combine(store, pageFile), page);
-        File.WriteAllBytes(Path.Combine(store, PictureStoreFiles.ProvenanceFileName), JsonSerializer.SerializeToUtf8Bytes(
-            new PictureStoreProvenance(PictureStoreProvenance.FormatVersion, SupportedCartridge.Sha256,
-                new Dictionary<string, string> { [pageFile] = Convert.ToHexString(SHA256.HashData(page)) },
+        File.WriteAllBytes(Path.Combine(store, PictureStoreFiles.IndexFileName), JsonSerializer.SerializeToUtf8Bytes(
+            new PictureStoreIndex(PictureStoreIndex.FormatVersion, PageCount: 1,
                 new Dictionary<string, StoredPictureDocument>(StringComparer.Ordinal)
                 {
                     [EmptyTag] = new StoredPictureDocument { Page = 0, Corner = default, Size = PageSize },
                 },
                 RecolourRegionMaps: null, BlendMaps: null),
-            PictureStoreProvenance.JsonOptions));
+            PictureStoreIndex.JsonOptions));
         InstalledPictureStore pictures = InstalledPictureStore.Open(store);
         const string unlisted = "P0-0001";
         var document = new InstalledSheetDocument

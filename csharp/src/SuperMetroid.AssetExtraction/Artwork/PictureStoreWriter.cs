@@ -34,13 +34,12 @@ internal static class PictureStoreWriter
     /// <summary>Writes the store of <paramref name="families"/> under <paramref name="content"/>, then each family's sheet manifests.</summary>
     /// <param name="content">The content directory the store and the families' directories lie in.</param>
     /// <param name="families">The families, in the order their pictures are written.</param>
-    /// <param name="sourceCartridgeSha256">Identity written into every provenance manifest.</param>
     /// <exception cref="ArgumentException">A family's directory does not lie directly under the content directory, or two families share one.</exception>
     /// <exception cref="InvalidDataException">
     /// A sheet is installed twice under one name, a frame leaves its sheet or shows maps but no pixel, a picture does not fit
     /// a page, or a picture or a map is written twice.
     /// </exception>
-    internal static void Write(string content, IReadOnlyList<InstalledSheetFamily> families, string sourceCartridgeSha256)
+    internal static void Write(string content, IReadOnlyList<InstalledSheetFamily> families)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
         Ensure.NotNull(families);
@@ -80,7 +79,7 @@ internal static class PictureStoreWriter
             picture.Tag = $"P{picture.Page}-{place:D4}";
         }
         IReadOnlyList<Extent16<ImagePixels>> pages = shelves.Pages;
-        WriteStore(root, pages, store, sourceCartridgeSha256);
+        WriteStore(root, pages, store);
         foreach (InstalledSheetFamily family in families)
             WriteManifests(family, [.. placed.Where(sheet => ReferenceEquals(sheet.Family, family))]);
     }
@@ -145,10 +144,10 @@ internal static class PictureStoreWriter
 
     /// <summary>
     /// Writes every page of the store's pictures under <paramref name="root"/>, each picture admitted to the installation's
-    /// registry first, then each kind of map the pictures are shown with, and the store's provenance manifest.
+    /// registry first, then each kind of map the pictures are shown with, and the store's index.
     /// </summary>
     /// <exception cref="InvalidDataException">A picture or a map is written twice.</exception>
-    private static void WriteStore(string root, IReadOnlyList<Extent16<ImagePixels>> pages, StoreContents store, string sourceCartridgeSha256)
+    private static void WriteStore(string root, IReadOnlyList<Extent16<ImagePixels>> pages, StoreContents store)
     {
         var registry = new SheetPictureRegistry();
         var onPage = new List<StoredPicture>[pages.Count];
@@ -161,38 +160,32 @@ internal static class PictureStoreWriter
         }
         string directory = Path.Combine(root, PictureStoreFiles.DirectoryName);
         Directory.CreateDirectory(directory);
-        var written = new string[pages.Count];
         // PNG compression is the slow part; each worker reuses one encoder's buffers for every page it encodes, and each
         // page goes to its own file, so the files are the same as writing the pages one by one.
         Parallel.For(0, pages.Count, () => new RgbaPngBuffers(), (page, _, png) =>
         {
-            written[page] = WritePage(directory, page, pages[page], onPage[page], png);
+            WritePage(directory, page, pages[page], onPage[page], png);
             return png;
         }, png => png.Dispose());
-        var pageHashes = new Dictionary<string, string>(StringComparer.Ordinal);
-        for (int page = 0; page < pages.Count; page++)
-            pageHashes.Add(PictureStoreFiles.PageFile(page), written[page]);
         StoredMapsDocument? regions = store.RecolourRegionMaps.Write(PictureStoreFiles.RecolourRegionMapsFile(root), RecolourRegionMapFile.Encode);
         StoredMapsDocument? blending = store.BlendMaps.Write(PictureStoreFiles.BlendMapsFile(root), BlendMapFile.Encode);
         Dictionary<string, StoredPictureDocument> tagged = store.Pictures.ToDictionary(picture => picture.Tag,
             picture => new StoredPictureDocument { Page = picture.Page, Corner = picture.Corner, Size = picture.Content.Rectangle.Size },
             StringComparer.Ordinal);
-        File.WriteAllBytes(Path.Combine(directory, PictureStoreFiles.ProvenanceFileName), JsonSerializer.SerializeToUtf8Bytes(
-            new PictureStoreProvenance(PictureStoreProvenance.FormatVersion, sourceCartridgeSha256, pageHashes, tagged, regions, blending),
-            PictureStoreProvenance.JsonOptions));
+        File.WriteAllBytes(Path.Combine(directory, PictureStoreFiles.IndexFileName), JsonSerializer.SerializeToUtf8Bytes(
+            new PictureStoreIndex(PictureStoreIndex.FormatVersion, pages.Count, tagged, regions, blending), PictureStoreIndex.JsonOptions));
     }
 
     /// <summary>
     /// Writes page <paramref name="page"/> of <paramref name="size"/> pixels holding the pixels of <paramref name="pictures"/>,
     /// clear black elsewhere, into the store's <paramref name="directory"/>.
     /// </summary>
-    /// <returns>The page file's hash.</returns>
-    private static string WritePage(string directory, int page, Extent16<ImagePixels> size, List<StoredPicture> pictures, RgbaPngBuffers png)
+    private static void WritePage(string directory, int page, Extent16<ImagePixels> size, List<StoredPicture> pictures, RgbaPngBuffers png)
     {
         var planes = new InstalledImagePlanes(new SpriteImagePixels(new RgbaPixel[size.X * size.Y], RecolourRegions: null, Blending: null), size);
         foreach (StoredPicture picture in pictures)
             picture.Content.CopyPixelsTo(planes, picture.Corner);
-        return WriteFile(Path.Combine(directory, PictureStoreFiles.PageFile(page)), RgbaPng.Encode(size, planes.Planes.Pixels, png));
+        WriteFile(Path.Combine(directory, PictureStoreFiles.PageFile(page)), RgbaPng.Encode(size, planes.Planes.Pixels, png));
     }
 
     /// <summary>
@@ -224,13 +217,11 @@ internal static class PictureStoreWriter
     }
 
     /// <summary>Writes a new installed file at <paramref name="path"/>, creating its folder.</summary>
-    /// <returns>The file's SHA-256.</returns>
-    private static string WriteFile(string path, byte[] bytes)
+    private static void WriteFile(string path, byte[] bytes)
     {
         Directory.CreateDirectory(Ensure.NotNull(Path.GetDirectoryName(path)));
-        using (var file = new FileStream(path, FileMode.CreateNew, FileAccess.Write))
-            file.Write(bytes);
-        return Convert.ToHexString(SHA256.HashData(bytes));
+        using var file = new FileStream(path, FileMode.CreateNew, FileAccess.Write);
+        file.Write(bytes);
     }
 
     /// <summary>What the store holds once every sheet is walked: its pictures and the maps they are shown with.</summary>
@@ -282,7 +273,7 @@ internal static class PictureStoreWriter
         /// Writes every map at <paramref name="path"/>, as <paramref name="encode"/> encodes them, each admitted once by its
         /// values first; nothing where no rectangle showed a map of this kind.
         /// </summary>
-        /// <returns>What the provenance lists of the maps, or null where none is written.</returns>
+        /// <returns>What the index lists of the maps, or null where none is written.</returns>
         /// <exception cref="InvalidDataException">A map's values are written twice.</exception>
         internal StoredMapsDocument? Write(string path, Func<List<KeyValuePair<string, PictureMap<T>>>, byte[]> encode)
         {
@@ -295,9 +286,9 @@ internal static class PictureStoreWriter
                     throw new InvalidDataException(
                         $"The {kind} maps {admitted[map]} and {tag} hold the same values, and both were written: a map is written once per installation (#1644).");
             }
+            WriteFile(path, encode(maps));
             return new StoredMapsDocument
             {
-                Sha256 = WriteFile(path, encode(maps)),
                 Maps = maps.ToDictionary(map => map.Key, map => map.Value.Size, StringComparer.Ordinal),
             };
         }

@@ -24,14 +24,14 @@ Every picture any sheet shows is in the picture store, `game/pictures/`:
 | File | Contents |
 |---|---|
 | `game/pictures/pictures-NNNN.png` | a page of pictures: an 8-bit RGBA PNG, numbered from `0000` |
-| `game/pictures/pictures-provenance.json` | the store's format revision, the SHA-256 of every page and map file, every picture's tag and every map's tag |
+| `game/pictures/pictures.json` | the store's index: its format revision, its page count, every picture's tag and place and every map's tag |
 | `game/recolour-regions/pictures.regions` | every recolour-region map a frame shows a picture with, each once |
 | `game/blend-maps/pictures.blendmap` | every blend map a frame shows a picture with, each once |
 
-The maps live apart from the pages, so the store's folder holds only pictures. The store's provenance (format revision 4)
-keeps `pageSha256` for the pages and `pictures` for every stored picture's place by its tag, and apart from them
-`recolourRegionMaps` and `blendMaps`: each the map file's `sha256` and its `maps`, every map's tag with the size of the
-picture it is for. A kind of map is `null` exactly when no frame shows a picture with one, and then no file is written.
+The maps live apart from the pages, so the store's folder holds only pictures and their index. The index (format revision
+5) keeps `pageCount` for the pages and `pictures` for every stored picture's place by its tag, and apart from them
+`recolourRegionMaps` and `blendMaps`: each its `maps`, every map's tag with the size of the picture it is for. It records
+no hash and no cartridge (#1693). A kind of map is `null` exactly when no frame shows a picture with one, and then no file is written.
 
 ## The picture store
 

@@ -5,10 +5,11 @@ using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
-/// The installed pre-rendered audio clips as the import pipeline reads them (#1502): beside the songs, sound effects and
-/// acceptance policies the game plays, the validated clip manifest they came from and the identity of the selected audio.
+/// The installed pre-rendered audio clips as the import pipeline reads them (#1502, #1616): the songs, sound effects and
+/// acceptance policies the game plays, which the game receives alone, beside the validated clip manifest they came from
+/// and the identity of the selected audio.
 /// </summary>
-public sealed class InstalledClipAudioLibrary : ClipAudioLibrary
+public sealed class InstalledClipAudioLibrary
 {
     /// <summary>Game updates per second; the clips' rate is one update's samples this many times.</summary>
     private const int UpdatesPerSecond = 60;
@@ -23,12 +24,16 @@ public sealed class InstalledClipAudioLibrary : ClipAudioLibrary
     /// The rate, an identity, a clip's length, loop bounds or a tempo timeline is invalid, or the manifest repeats an identity.
     /// </exception>
     internal InstalledClipAudioLibrary(AudioClipManifest manifest, string contentIdentity, IAudioClipSource source)
-        : base(Validated(manifest).Music, [.. manifest.SoundEffects.Select(entry => entry.PlayedEntry())], manifest.Unrenderable, source)
     {
+        Clips = new ClipAudioLibrary(Validated(manifest).Music, [.. manifest.SoundEffects.Select(entry => entry.PlayedEntry())],
+            manifest.Unrenderable, source);
         ArgumentException.ThrowIfNullOrWhiteSpace(contentIdentity);
         Manifest = manifest;
         ContentIdentity = contentIdentity;
     }
+
+    /// <summary>The songs, sound effects and acceptance policies the game plays, whose samples the installed clips supply.</summary>
+    public ClipAudioLibrary Clips { get; }
 
     /// <summary>The validated manifest.</summary>
     public AudioClipManifest Manifest { get; }

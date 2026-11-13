@@ -265,7 +265,7 @@ public sealed class PlayableGameControl : UserControl
             projectilePresentation, enemyArtwork);
         // The session binds clips in every configuration so a debugger state always carries
         // its playback state; whether samples reach a device is the host's choice alone.
-        content = new InstalledSessionContent(artwork, selectedAudioAssets);
+        content = new InstalledSessionContent(artwork, selectedAudioAssets.Clips);
         Console.WriteLine($"Projectile compositions: {projectilePresentation.ContentSha256} ({playerDataDirectory}).");
         installedContentIdentity = GameContentIdentity.Create(
             selectedAudioAssets,

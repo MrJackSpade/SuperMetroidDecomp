@@ -71,7 +71,7 @@ internal sealed class InstalledGameSession : IDisposable
             $"projectiles={ContentIdentity.ProjectileContentSha256}.");
         foreach ((string domain, string digest) in ContentIdentity.AdditionalContentSha256.OrderBy(pair => pair.Key))
             Console.WriteLine($"Installed content component: {domain}={digest}.");
-        content = new InstalledSessionContent(artwork, assets);
+        content = new InstalledSessionContent(artwork, assets.Clips);
         Game = GameSessionComposer.Create(saves, Options.Game.ToAssists(), content, saveFile);
         states = DebuggerSaveStateStore.ForInstalledGame(
             root,

@@ -56,8 +56,8 @@ internal static class AudioClipExportVerification
             AssertEqual(catalog.ContentIdentity, clips.Manifest.SourceContentIdentity, "clips name the catalog they were rendered from");
             if (music)
             {
-                VerifyMusic(catalog, clips, GreenBrinstarPhaseExactTrack);
-                MusicClipEntry exported = clips.GetMusic(MusicDataSet.GreenBrinstar, MusicTrackNumbers.Decode(GreenBrinstarPhaseExactTrack));
+                VerifyMusic(catalog, clips.Clips, GreenBrinstarPhaseExactTrack);
+                MusicClipEntry exported = clips.Clips.GetMusic(MusicDataSet.GreenBrinstar, MusicTrackNumbers.Decode(GreenBrinstarPhaseExactTrack));
                 AssertEqual(GreenBrinstarPhaseExactFrames, exported.Clip.Frames, "the loop check renders the exported clip's length");
                 AssertEqual(GreenBrinstarPhaseExactLoopStart, exported.LoopStart, "the loop check starts at the exported loop");
                 VerifyLoaderRejections(scratch.FullName, clips);
@@ -68,7 +68,7 @@ internal static class AudioClipExportVerification
             foreach (SoundEffectId effect in effects)
                 VerifySoundEffect(clips, effect);
             AssertThrows<InvalidDataException>(
-                () => clips.GetSoundEffect(MusicDataSet.EmptyCrateria, EnemySound.EtecoonTheme),
+                () => clips.Clips.GetSoundEffect(MusicDataSet.EmptyCrateria, EnemySound.EtecoonTheme),
                 "an effect whose sample the bank context lacks fails loudly");
             Console.WriteLine(
                 "  Effect clip export: three effects equal an independent render; an effect its bank context cannot render fails loudly.");

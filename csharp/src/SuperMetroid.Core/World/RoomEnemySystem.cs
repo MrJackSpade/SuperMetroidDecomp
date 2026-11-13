@@ -948,10 +948,10 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             if (!frame.TimeIsFrozen)
             {
                 bool ranActorAi = GrappleBehavior.RunCommonGrappleAi(slot, aiFrame);
-                // Hurt AI replaces main AI while the hurt bit is set; the first registered match runs.
-                // Selects the lowest AI bit even when its handler is just
-                // a bare return. Hurt therefore delays frozen AI until flash housekeeping
-                // clears bit two; falling through here prematurely clears flash.
+                // Hurt AI replaces main AI while the enemy is hurt; the first registered match runs.
+                // The grappled, hurt and frozen states are tried in that order, and the first one the enemy is in
+                // selects its handler even when that handler does nothing. Hurt therefore delays frozen AI until
+                // the flash's end clears the hurt state; falling through here prematurely clears flash.
                 if (!ranActorAi &&
                     (slot.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None &&
                     (slot.Entity as IEnemyHurtAi)?.FindHurt() is { } hurt)
@@ -959,8 +959,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     hurt(slot, frame);
                     ranActorAi = true;
                 }
-                // The enemy pass selects the handler from the lowest set AI bit alone. A frozen
-                // clock without bit four (a Geruta flame sharing its parent's freeze)
+                // The enemy pass selects the handler from the first state the enemy is in alone. A frozen
+                // clock without the frozen state (a Geruta flame sharing its parent's freeze)
                 // still runs main AI.
                 if (!ranActorAi && (slot.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None)
                 {
@@ -1007,8 +1007,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 if (ranActorAi)
                 {
                     slot.FrameCounter = WrappingCounter.IncrementCount(slot.FrameCounter);
-                    // The enemy pass skips the animation script whenever frozen bit
-                    // four is present, even if lower-priority hurt bit two selected an
+                    // The enemy pass skips the animation script whenever the enemy is
+                    // frozen, even if the hurt state, tried first, selected an
                     // enemy-specific hurt callback above. Testing only `ranActorAi` here
                     // incorrectly advanced a Metroid's body animation while its frozen
                     // callback still owned the two composited outer sprite objects.

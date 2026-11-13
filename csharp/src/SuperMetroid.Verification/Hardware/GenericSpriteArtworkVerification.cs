@@ -101,8 +101,8 @@ internal static class GenericSpriteArtworkVerification
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
             NarrationPresentation = maps.IntroNarration,
-            ProjectileFrameBindings = projectiles.FrameBindings,
         };
+        intro.BindProjectileFrames(projectiles.FrameBindings);
         intro.BindSpriteSheets(InstalledFixtures.SpriteSheets);
         intro.SetupFirstIllustratedPage();
         var caret = intro.CurrentObjects;

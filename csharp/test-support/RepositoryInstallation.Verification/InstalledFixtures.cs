@@ -415,9 +415,9 @@ internal static class InstalledFixtures
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
-            ProjectileFrameBindings = Projectiles.FrameBindings,
             NarrationPresentation = Maps.IntroNarration,
         };
+        intro.BindProjectileFrames(Projectiles.FrameBindings);
         intro.BindSpriteSheets(CinematicSheetFixtures.WithIntro(characterArtwork ?? IntroArtwork));
         return intro;
     }

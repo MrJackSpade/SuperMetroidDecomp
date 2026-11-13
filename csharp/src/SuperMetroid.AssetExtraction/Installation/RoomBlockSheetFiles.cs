@@ -31,9 +31,10 @@ public static class RoomBlockSheetFiles
     /// player sees as their own pictures, none of the boss rooms', the sky rooms' or the cleared ones (#1649); revision 5
     /// records one period of what each library background shows, its one page where its two pages hold one tilemap, which
     /// the room shows repeated across and down (#1651); revision 8 records each image's size in place of the tilemap words
-    /// it pictures, which the game only counted (#1708).
+    /// it pictures, which the game only counted (#1708); revision 9 names each changing cell's pictures by its image and its
+    /// place in it (#1717).
     /// </summary>
-    private const int BackgroundManifestVersion = 8;
+    private const int BackgroundManifestVersion = 9;
 
     /// <summary>The manifest naming each written picture sheet and the inputs each of its pictures depends on.</summary>
     public const string WrittenManifestFileName = "written-pictures.json";

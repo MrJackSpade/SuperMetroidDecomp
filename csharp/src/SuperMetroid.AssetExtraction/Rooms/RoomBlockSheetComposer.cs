@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Video;
 using System.Collections.Immutable;
-using System.Globalization;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -20,7 +19,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// (#1538). No block
 /// is pictured over a collectible's graphics. Each picture is coloured with the tileset's standard background palette and
 /// named by <see cref="RoomBlockPictureNames"/> from the block's index and the inputs' values, or from the collectible's
-/// kind and frame; with the inputs each block depends on, which the room reads to choose among them. Each block, cell and
+/// kind and frame, or from a background cell's image and place in it (#1717); with the inputs each block depends on, which the room reads to choose among them. Each block, cell and
 /// background picture is installed as its two parts (#1634): the pixels of its back tiles under its own name and those of its
 /// front tiles under <see cref="PictureParts.InFront"/>'s, so the room's passes choose pictures rather than pixels.
 /// </summary>
@@ -213,7 +212,9 @@ internal static class RoomBlockSheetComposer
                 ImmutableArray<AppearanceInput> cellInputs = RoomAppearanceComposition.InputsOver(BgCharacterSet.Tiles, cellTiles.Select(tile => tile.Tile), options);
                 if (cellInputs.IsEmpty)
                     continue;
-                string subject = CellSubject(cellTiles);
+                // Each cell is named by its image and place (#1717). Two cells showing the same pixels are two frames of
+                // the sheet, and the picture store keeps one picture of them (PictureStoreWriter keys it by its pixels).
+                string subject = RoomBlockPictureNames.OfBackgroundCell(background.Name, cell);
                 changing.Add(new RoomBackgroundCell(cell, subject, cellInputs));
                 AddCell(cellTiles, subject, cellInputs);
             }
@@ -290,7 +291,7 @@ internal static class RoomBlockSheetComposer
                 for (int tile = 0; tile < shown.Length && pictured; tile++)
                     pictured = RoomAppearanceComposition.TryShowing(new CharacterSpan(BgCharacterSet.Tiles, cellTiles[tile].Tile, 1), cellInputs, values, options, loaded, out shown[tile]);
                 if (pictured)
-                    pictures.TryAdd(AppearancePictureNames.Of(subject, cellInputs, values), new Picture([.. cellTiles], shown));
+                    pictures.Add(AppearancePictureNames.Of(subject, cellInputs, values), new Picture([.. cellTiles], shown));
             }
         }
     }
@@ -316,14 +317,6 @@ internal static class RoomBlockSheetComposer
             yield return [tiles[first], tiles[first + 1], tiles[first + widthTiles], tiles[first + widthTiles + 1]];
         }
     }
-
-    /// <summary>
-    /// The name a cell's pictures begin with: each of its four tiles' character, colour variant, and an <c>h</c>, <c>v</c>
-    /// and <c>p</c> for each of its mirrorings and its upper priority tier.
-    /// </summary>
-    private static string CellSubject(BackgroundTile[] cell) => string.Join(".", cell.Select(tile =>
-        string.Create(CultureInfo.InvariantCulture,
-            $"{tile.Tile:X3}c{tile.ColourVariant}{(tile.FlipHorizontally ? "h" : "")}{(tile.FlipVertically ? "v" : "")}{(tile.HighPriority ? "p" : "")}")));
 
     /// <summary>
     /// What shows at each of <paramref name="tiles"/>' characters when <paramref name="shown"/> shows over the runs

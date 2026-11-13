@@ -40,14 +40,8 @@ internal static class CrocomireRandomDefinitions
     internal static readonly RandomSampleField FootDustOffset = new(0, 5);
 
     /// <summary>
-    /// The roll that decides whether Crocomire starts a spit attack where his walk offers one: the sample's bits 0-11,
-    /// of which the lowest <see cref="ProjectileAttackRolls"/> start the attack.
+    /// Whether Crocomire starts a spit attack where his walk offers one (#1619): the lowest 1024 of the 4096 rolls of the
+    /// sample's bits 0-11, one chance in four, start the attack.
     /// </summary>
-    internal static readonly RandomSampleField ProjectileAttackRoll = new(0, 12);
-
-    /// <summary>
-    /// The values of <see cref="ProjectileAttackRoll"/>, 0 through 1023, that start a spit attack: a quarter of its
-    /// 4096, one chance in four.
-    /// </summary>
-    internal const int ProjectileAttackRolls = 1024;
+    internal static readonly RandomChance ProjectileAttack = RandomChance.Lowest(1024, new RandomSampleField(0, 12));
 }

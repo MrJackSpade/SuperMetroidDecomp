@@ -406,10 +406,9 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.MoveToSamus:
             {
                 // The route step clears the ordinary cry request and enables health-based
-                // palette selection on *every* route call. The random cry comparison uses
-                // only the low twelve bits and succeeds for 4000 through 4095 (96 of 4096 seeds).
+                // palette selection on *every* route call. The ambient cry takes its own chance.
                 CrySoundEnabled = false;
-                ambientCrySoundQueued = MotherBrainRandomDefinitions.BabyMetroidCryRoll.Of(randomNumber) >= 4000;
+                ambientCrySoundQueued = MotherBrainRandomDefinitions.BabyMetroidCries.IsTakenBy(randomNumber);
 
                 // The route is eight overlapping records. The fixed targets, divisors, and callback identities are
                 // compiled mechanics definitions; sprite/instruction presentation remains separately backed.

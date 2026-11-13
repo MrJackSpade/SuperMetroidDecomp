@@ -230,7 +230,7 @@ public sealed class TitleSequenceState : IFrontendScreen
 
             case TitleSequencePhase.SceneThreeZoom:
                 // The zoom grows only on every second update; reaching the floor's own size completes it.
-                if ((PhaseTimer++ & 1) == 0 && Zoom < FloorZoom.OwnSize)
+                if (TitleSequenceDefinitions.Scenes.FinalZoomStepEverySecondUpdate.IsDue(PhaseTimer++) && Zoom < FloorZoom.OwnSize)
                     Zoom = Zoom.Widened(TitleSequenceDefinitions.Scenes.FinalZoomStep);
                 if (Zoom >= FloorZoom.OwnSize)
                 {

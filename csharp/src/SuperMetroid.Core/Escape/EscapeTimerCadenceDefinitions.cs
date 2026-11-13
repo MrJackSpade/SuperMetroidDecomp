@@ -5,6 +5,11 @@ internal static class EscapeTimerCadenceDefinitions
 {
     /// <summary>The countdown repeats its schedule every 128 frames of the frame counter.</summary>
     internal const int PeriodFrames = 128;
+    /// <summary>
+    /// The frame counter's place in the countdown's period, 0 through <see cref="PeriodFrames"/> less one, which picks the
+    /// centiseconds the frame removes (#1619): the counter's lowest seven bits, so the schedule repeats every 128 frames.
+    /// </summary>
+    internal static readonly UpdateCounterField PeriodPlace = new(0, 7);
     /// <summary>Decimal timer time unit: one second contains100 centiseconds.</summary>
     internal const int CentisecondsPerSecond = 100;
     /// <summary>Nominal NTSC video cadence used to quantize the countdown rate; this is a time-unit parameter, not a host clock dependency.</summary>

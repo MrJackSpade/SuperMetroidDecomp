@@ -159,7 +159,7 @@ internal sealed class DraygonGrab
 
         // The current random number is read without drawing a new one: turret cadence and other
         // actors draw them. A tail-whip roll of zero inserts one 64-frame tail whip.
-        if (DraygonRandomDefinitions.TailWhipRoll.Of(_room.Random.Read()) == 0)
+        if (DraygonRandomDefinitions.TailWhips.IsTakenBy(_room.Random.Read()))
         {
             state.TailWhipTimer = DraygonBehavior.DraygonTailWhipDuration;
             state.Function = DraygonAiFunction.TailWhipWithSamus;

@@ -105,7 +105,7 @@ internal sealed class MotherBrainAttacks
         int random = _room.Random.Read();
         if (state.Head.Health >= 4500)
         {
-            if (random < 4096)
+            if (MotherBrainRandomDefinitions.AttacksAtFullStrength.IsTakenBy(random))
             {
                 // The attack setup installs the attack dispatcher and returns. It does not execute
                 // phase zero until the body's next enemy-AI call.
@@ -116,12 +116,12 @@ internal sealed class MotherBrainAttacks
             return;
         }
 
-        if (random < 8192)
+        if (MotherBrainRandomDefinitions.WalksWhenWounded.IsTakenBy(random))
         {
             HandleMotherBrainWalking(state);
             return;
         }
-        if (random >= 40960)
+        if (MotherBrainRandomDefinitions.AttacksWhenWounded.IsTakenBy(random))
         {
             state.Function = MotherBrainBodyFunction.SecondPhaseTryAttack;
             return;
@@ -174,7 +174,7 @@ internal sealed class MotherBrainAttacks
         state.AttackCooldown = 64;
         state.AttackPhase = MotherBrainAttackPhase.Cooldown;
 
-        int randomLow = MotherBrainRandomDefinitions.AttackRoll.Of(_room.Random.Read());
+        int random = _room.Random.Read();
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
         if (!Enum.IsDefined(movementType))
         {
@@ -186,7 +186,7 @@ internal sealed class MotherBrainAttacks
         {
             // The helper skips the rest of its caller: every airborne route
             // commits immediately and skips the proximity/fallback thresholds entirely.
-            if (randomLow >= 128)
+            if (MotherBrainRandomDefinitions.AttackPresses.IsTakenBy(random))
             {
                 MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.FourOnionRingsPhase2);
                 return;
@@ -200,9 +200,9 @@ internal sealed class MotherBrainAttacks
             return;
         }
 
-        // Grounded movement types attempt a bomb on the upper half of the current random
-        // byte. An already-live bomb falls back to the normal threshold table.
-        if (randomLow >= 128 && state.BombCounter < 1)
+        // Grounded movement types attempt a bomb on the pressing half of the attack roll. An already-live bomb falls back
+        // to the attack Samus's distance chooses.
+        if (MotherBrainRandomDefinitions.AttackPresses.IsTakenBy(random) && state.BombCounter < 1)
         {
             state.Function = MotherBrainBodyFunction.SecondPhaseBombDecideWalking;
             DecideMotherBrainBombWalking(state);
@@ -210,37 +210,32 @@ internal sealed class MotherBrainAttacks
         }
 
         int verticalDistance = CoordinateAxis.Distance(state.Head.Position.Y.Whole + 4, samus.Position.Y.Whole);
-        ReadOnlySpan<int> thresholds = verticalDistance < 32
-            ? [16, 32, 208]
-            : [64, 128, 192];
-        int choice = randomLow < thresholds[0]
-            ? 0
-            : randomLow < thresholds[1]
-                ? 1
-                : randomLow < thresholds[2]
-                    ? 2
-                    : 3;
-
-        switch (choice)
+        WeightedRandomChoice<MotherBrainSecondPhaseAttack> attacks = verticalDistance < 32
+            ? MotherBrainRandomDefinitions.NearAttack
+            : MotherBrainRandomDefinitions.FarAttack;
+        MotherBrainSecondPhaseAttack attack = attacks.Choose(random);
+        switch (attack)
         {
-            case 0:
+            case MotherBrainSecondPhaseAttack.Neutral:
                 MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.NeutralPhase2);
                 return;
-            case 1:
+            case MotherBrainSecondPhaseAttack.FourOnionRings:
                 MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.FourOnionRingsPhase2);
                 return;
-            case 2:
+            case MotherBrainSecondPhaseAttack.Laser:
                 state.Function = MotherBrainBodyFunction.SecondPhaseLaserPositionHeadQuickly;
                 PositionMotherBrainHeadQuicklyForLaser(state, samus);
                 return;
-            case 3 when state.BombCounter >= 1:
+            case MotherBrainSecondPhaseAttack.Bomb when state.BombCounter >= 1:
                 // The bomb branch returns without changing the current head list when one bomb is
                 // already alive. The body still spends the full cooldown in phase one.
                 return;
-            default:
+            case MotherBrainSecondPhaseAttack.Bomb:
                 state.Function = MotherBrainBodyFunction.SecondPhaseBombDecideWalking;
                 DecideMotherBrainBombWalking(state);
                 return;
+            default:
+                throw new InvalidOperationException($"Mother Brain's attack roll chose the undefined attack {attack}.");
         }
     }
 
@@ -261,9 +256,9 @@ internal sealed class MotherBrainAttacks
     internal void DecideMotherBrainBombWalking(MotherBrainEnemyState state)
     {
         int random = _room.Random.Read();
-        if (random < 65408)
+        if (!MotherBrainRandomDefinitions.BombWalkStaysPut.IsTakenBy(random))
         {
-            int targetX = random >= 24576 ? 64 : 96;
+            int targetX = MotherBrainRandomDefinitions.BombWalkShortRetreat.IsTakenBy(random) ? 96 : 64;
             int targetMinusBody = CoordinateAxis.Difference(targetX, state.Body.Position.X.Whole);
             if (targetMinusBody < 0)
             {
@@ -293,7 +288,7 @@ internal sealed class MotherBrainAttacks
     /// </summary>
     private void DecideWhetherMotherBrainCrouchesForBomb(MotherBrainEnemyState state)
     {
-        if (_room.Random.Generate() < 32768)
+        if (BossRandomRolls.InLowerHalf(_room.Random.Generate()))
         {
             FireMotherBrainBomb(state);
             return;
@@ -496,8 +491,7 @@ internal sealed class MotherBrainAttacks
         }
 
         // The original game reads the current random number; it does not draw a new one.
-        if (MotherBrainForwardWalkDefinitions.ForwardWalkRandom.Of(_room.Random.Read()) >=
-            MotherBrainForwardWalkDefinitions.ForwardWalkRandomThreshold)
+        if (MotherBrainForwardWalkDefinitions.ForwardWalk.IsTakenBy(_room.Random.Read()))
             StartMotherBrainForwardWalk(state);
     }
 

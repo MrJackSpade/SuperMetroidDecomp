@@ -498,7 +498,7 @@ internal sealed class PhantoonPatterns
         if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
             return;
 
-        if ((state.EyeState.RageWaveCount & 1) == 0)
+        if (!PhantoonCadenceDefinitions.OddRageWave.IsSetIn(state.EyeState.RageWaveCount))
         {
             for (int direction = PhantoonRageDefinitions.EvenWaveFirstDirection; direction >= 0; direction--)
                 SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Enraged, direction);

@@ -277,7 +277,7 @@ internal sealed class MotherBrainThirdPhaseFight
             !frame.RandomNumberSeed.IsNegative)
             return false;
 
-        if (frame.RandomNumberSeed.LowPart < 128)
+        if (frame.RandomNumberSeed.Takes(MotherBrainRandomDefinitions.ThirdPhaseBombs))
         {
             _state.SetHeadProgram(MotherBrainHeadProgram.BombPhase3);
         }

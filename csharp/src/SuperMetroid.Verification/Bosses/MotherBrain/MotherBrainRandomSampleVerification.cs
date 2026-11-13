@@ -5,7 +5,8 @@ using SuperMetroid.Verification.Harness;
 
 /// <summary>
 /// Confirms that the named questions Mother Brain asks of its random sample answer exactly as the cartridge's tests on
-/// the raw sixteen-bit number do: sign, low byte, and the fields its rolls read.
+/// the raw sixteen-bit number do: sign and the fields its rolls read. The chances the sample takes are confirmed by
+/// <see cref="MotherBrainRandomChancesVerification"/>.
 /// </summary>
 internal static class MotherBrainRandomSampleVerification
 {
@@ -17,14 +18,12 @@ internal static class MotherBrainRandomSampleVerification
             ushort word = unchecked((ushort)raw);
             MotherBrainRandomSample sample = MotherBrainRandomSample.FromGenerator(word);
             AssertEqual(unchecked((short)word) < 0, sample.IsNegative, $"sign of {raw}");
-            AssertEqual(unchecked((byte)word), sample.LowPart, $"low byte of {raw}");
-            AssertEqual(word & 4095, sample.Read(MotherBrainRandomDefinitions.FinishOffAttackRoll), $"finish-off attack roll of {raw}");
             AssertEqual(word % 32, sample.Read(MotherBrainRandomDefinitions.CorpseDustOffset), $"corpse dust offset of {raw}");
             AssertEqual((word & 2) != 0, sample.IsSet(MotherBrainRandomDefinitions.ForwardInchLongerDelay), $"inching delay bit of {raw}");
         }
         AssertTrue(MotherBrainRandomSample.FromGenerator(ushort.MaxValue).IsNegative, "the top value is negative");
         AssertTrue(!MotherBrainRandomSample.FromGenerator((ushort)short.MaxValue).IsNegative, "the largest positive value is not");
-        Console.WriteLine("Mother Brain random sample: all 65536 values answer sign, low byte and field reads as the native word.");
+        Console.WriteLine("Mother Brain random sample: all 65536 values answer sign and field reads as the native word.");
     }
 
     /// <summary>Runs the focused Mother Brain random-sample check from its command-line switch.</summary>

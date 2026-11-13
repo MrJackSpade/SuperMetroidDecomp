@@ -228,9 +228,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         if (_ridleyEncounter.CeresStatus is CeresEscapeStatus.RidleyNotEscaped or CeresEscapeStatus.RidleyEscaped || _earthquake.IsShaking)
             return;
 
-        // One random word in 32 (its strength roll below 128) picks the stronger quake.
-        int strengthRoll = CeresDoorQuakeDefinitions.StrengthRoll.Of(_room.Random.Read());
-        if (strengthRoll < 128)
+        if (CeresDoorQuakeDefinitions.StrongQuake.IsTakenBy(_room.Random.Read()))
         {
             // Rarely select the strong quake.
             _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Diagonal, reach), 4);
@@ -270,10 +268,8 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
 
         Position16<RoomPixels> explosion = slot.Position.Whole + CeresDoorRumble.Offset(state.ExplosionPositionIndex);
 
-        // The shared random sequence advances exactly once per explosion. Values below 16384
-        // select the large explosion; all other values select animation three (smoke).
-        int randomNumber = _room.Random.Generate();
-        MiscDustAnimation animation = randomNumber < 16384
+        // The shared random sequence advances exactly once per explosion; its explosion chance selects the animation.
+        MiscDustAnimation animation = CeresDoorQuakeDefinitions.RumbleExplosion.IsTakenBy(_room.Random.Generate())
             ? CeresDoorExplosionAnimation
             : CeresDoorSmokeAnimation;
         _projectiles.SpawnRoomGraphicsDustExplosion(explosion, animation);

@@ -157,7 +157,7 @@ internal sealed class MotherBrainThirdPhaseDeath
 
             int random = nextRandomNumber();
             int parameter = style == MotherBrainDeathExplosionStyle.Mixed
-                ? random < 16384 ? 0 : random < 57344 ? 1 : 2
+                ? MotherBrainRandomDefinitions.MixedDeathExplosionProgram.Choose(random)
                 : 1;
             requests.Add(new MotherBrainDeathExplosionRequest(
                 Offset: MotherBrainDeathExplosionDefinitions.Anchor(pairIndex + explosionIndex),
@@ -202,10 +202,10 @@ internal sealed class MotherBrainThirdPhaseDeath
         }
 
         // The escape-door dust advances the one shared RNG exactly once per emitted projectile.
-        // Values below a quarter of the range select the smoke animation; all remaining
-        // values retain the preloaded small explosion.
-        int random = nextRandomNumber();
-        MiscDustAnimation animation = random < 16384 ? MiscDustAnimation.Smoke : MiscDustAnimation.SmallExplosion;
+        // Its smoke chance selects the smoke animation; every other sample retains the preloaded small explosion.
+        MiscDustAnimation animation = MotherBrainRandomDefinitions.EscapeDoorDustSmokes.IsTakenBy(nextRandomNumber())
+            ? MiscDustAnimation.Smoke
+            : MiscDustAnimation.SmallExplosion;
         return new DustExplosionRequest(
             Position: position,
             Animation: animation,

@@ -60,11 +60,11 @@ internal sealed class MotherBrainFinishSamusOffPhases
             return false;
         }
 
-        // Above the floor, 4000/4096 low-twelve-bit RNG values do nothing. Every
+        // Above the floor, the hold-back chance does nothing. Every
         // 32nd enemy frame that idle route may ask the posture helper to alternate
         // between standing and leaning down. This is visible body bytecode, not a
         // direct pose assignment, so retain the separate instruction-stage delay.
-        if (frame.RandomNumberSeed.Read(MotherBrainRandomDefinitions.FinishOffAttackRoll) < 4000)
+        if (frame.RandomNumberSeed.Takes(MotherBrainRandomDefinitions.FinishOffHoldsBack))
         {
             if (MotherBrainCadenceDefinitions.FinishOffPostureEveryThirtySecondUpdate.IsDue(frame.EnemyFrameCounter))
                 requests.BodyPostureRequested = _state.MaybeRequestStandUpOrLeanDown(frame.RandomNumberSeed);
@@ -72,10 +72,10 @@ internal sealed class MotherBrainFinishSamusOffPhases
         }
 
         // A weaker 160 nominal-hit threshold biases wounded Samus toward onion
-        // rings. Only when Samus is above it does the top 16/4096 RNG band choose a
+        // rings. Only when Samus is above it does the bomb's chance choose a
         // bomb; all remaining admitted values still choose two onion rings.
         if (CalculateFinishOffHealthThreshold(samus, 160) >= samus.Health ||
-            frame.RandomNumberSeed.Read(MotherBrainRandomDefinitions.FinishOffAttackRoll) < 4080)
+            !frame.RandomNumberSeed.Takes(MotherBrainRandomDefinitions.FinishOffBombs))
         {
             _state.SetHeadProgram(MotherBrainHeadProgram.TwoOnionRingsPhase2);
         }

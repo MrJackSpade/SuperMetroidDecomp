@@ -12,8 +12,10 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The game uses one effect to advance the explosion's stages and a second to configure
 /// the glowing window. The second effect has no independent lifetime: it waits until
 /// the first ends both. Keeping one owner therefore exposes the meaningful state without
-/// inventing a second animation. Every phase transition and every 8.8 fixed-point radius
-/// update below follows the game's explosion stages exactly.
+/// inventing a second animation. Every phase transition and every radius update below follows
+/// the game's explosion stages exactly: the radii and their speed are plain lengths
+/// (<see cref="PowerBombRadius"/>), and the shape stages' growth holds short of 256 pixels
+/// (<see cref="PowerBombGrowthHold"/>).
 /// </remarks>
 public sealed class SamusPowerBombExplosionState
 {
@@ -23,10 +25,10 @@ public sealed class SamusPowerBombExplosionState
     /// <summary>Room-pixel centre copied from the projectile when its fuse reaches zero.</summary>
     public Position16<RoomPixels> Position { get; private set; }
 
-    /// <summary>The pre-explosion flash's unsigned 8.8 radius.</summary>
+    /// <summary>The pre-explosion flash's radius.</summary>
     public PowerBombRadius PreExplosionRadius { get; private set; }
 
-    /// <summary>The damaging explosion's unsigned 8.8 radius.</summary>
+    /// <summary>The damaging explosion's radius.</summary>
     public PowerBombRadius ExplosionRadius { get; internal set; }
 
     /// <summary>
@@ -235,12 +237,12 @@ public sealed class SamusPowerBombExplosionState
             PowerBombGlowSequence.PreExplosion,
             (PreExplosionRadius.WholePixels >> 3) & 15);
 
-        // The white pre-explosion uses addition wrapping at 65536. It subtracts acceleration only while
-        // the newly computed radius is still below 37376.
-        PreExplosionRadius = AdvanceRadiusWrapping(PreExplosionRadius);
+        // The white pre-explosion grows the radius by its speed and slows only while the grown radius is still
+        // below the white limit.
+        PreExplosionRadius += RadiusSpeed;
         if (PreExplosionRadius < PowerBombExplosionDefinitions.PreExplosionWhiteLimit)
         {
-            RadiusSpeed = RadiusSpeed.WrappingSubtract(PowerBombExplosionDefinitions.PreExplosionAcceleration);
+            RadiusSpeed -= PowerBombExplosionDefinitions.PreExplosionSlowing;
             return;
         }
 
@@ -265,16 +267,23 @@ public sealed class SamusPowerBombExplosionState
         return shape;
     }
 
-    /// <summary>Advances a radius by the shared speed with the game's wraparound at 65536.</summary>
-    private PowerBombRadius AdvanceRadiusWrapping(PowerBombRadius radius) => radius.WrappingAdd(RadiusSpeed);
-
     /// <summary>
-    /// Advances a radius by the shared speed unless the sum passes 65535; the overflow test runs before either
-    /// value changes, so an overflowing frame leaves the radius (and the caller's speed update) frozen.
+    /// Grows a radius by the shared speed unless the growth would reach 256 pixels (<see cref="PowerBombGrowthHold"/>);
+    /// the test runs before either value changes, so a held update leaves the radius (and the caller's speed change) as
+    /// they were.
     /// </summary>
-    /// <returns>True with the advanced radius when the sum fits.</returns>
-    private bool TryAdvanceRadiusWithoutOverflow(PowerBombRadius radius, out PowerBombRadius advanced) =>
-        radius.TryAddWithoutCarry(RadiusSpeed, out advanced);
+    /// <returns>True with the grown radius when the radius grows.</returns>
+    private bool TryGrowRadius(PowerBombRadius radius, out PowerBombRadius grown)
+    {
+        if (PowerBombGrowthHold.Holds(radius.WholePixelsGrownBy(RadiusSpeed)))
+        {
+            grown = radius;
+            return false;
+        }
+
+        grown = radius + RadiusSpeed;
+        return true;
+    }
 
     /// <summary>Consumes each yellow shape before advancing to the next and primes the damaging radius at the last shape.</summary>
     private void StepPreExplosionYellow()
@@ -289,12 +298,12 @@ public sealed class SamusPowerBombExplosionState
         // after the logic frame has completed.
         RenderedShape = ConsumeShape(out bool finishedShapes);
 
-        // The overflow test is performed on the sum before either state value is changed.
-        // If it would exceed 65535, both radius and speed remain frozen for this frame.
-        if (TryAdvanceRadiusWithoutOverflow(PreExplosionRadius, out PowerBombRadius nextRadius))
+        // The hold is tested on the growth before either value changes: a growth that would reach 256 pixels leaves
+        // both the radius and its speed as they were for this frame.
+        if (TryGrowRadius(PreExplosionRadius, out PowerBombRadius nextRadius))
         {
             PreExplosionRadius = nextRadius;
-            RadiusSpeed = RadiusSpeed.WrappingSubtract(PowerBombExplosionDefinitions.PreExplosionAcceleration);
+            RadiusSpeed -= PowerBombExplosionDefinitions.PreExplosionSlowing;
         }
 
         if (!finishedShapes)
@@ -315,10 +324,10 @@ public sealed class SamusPowerBombExplosionState
             PowerBombGlowSequence.Explosion,
             ExplosionRadius.WholePixels >> 3);
 
-        ExplosionRadius = AdvanceRadiusWrapping(ExplosionRadius);
+        ExplosionRadius += RadiusSpeed;
         if (ExplosionRadius < PowerBombExplosionDefinitions.ExplosionYellowLimit)
         {
-            RadiusSpeed = RadiusSpeed.WrappingAdd(PowerBombExplosionDefinitions.ExplosionAcceleration);
+            RadiusSpeed += PowerBombExplosionDefinitions.ExplosionAcceleration;
             return;
         }
 
@@ -339,10 +348,10 @@ public sealed class SamusPowerBombExplosionState
 
         RenderedShape = ConsumeShape(out bool finishedShapes);
 
-        if (TryAdvanceRadiusWithoutOverflow(ExplosionRadius, out PowerBombRadius nextRadius))
+        if (TryGrowRadius(ExplosionRadius, out PowerBombRadius nextRadius))
         {
             ExplosionRadius = nextRadius;
-            RadiusSpeed = RadiusSpeed.WrappingAdd(PowerBombExplosionDefinitions.ExplosionAcceleration);
+            RadiusSpeed += PowerBombExplosionDefinitions.ExplosionAcceleration;
         }
 
         if (!finishedShapes)
@@ -393,10 +402,10 @@ public sealed class SamusPowerBombExplosionState
             PowerBombGlowSequence.Explosion,
             ExplosionRadius.WholePixels >> 3);
 
-        ExplosionRadius = AdvanceRadiusWrapping(ExplosionRadius);
+        ExplosionRadius += RadiusSpeed;
         if (ExplosionRadius < PowerBombExplosionDefinitions.CrystalFlashRadiusLimit)
         {
-            RadiusSpeed = RadiusSpeed.WrappingAdd(PowerBombExplosionDefinitions.ExplosionAcceleration);
+            RadiusSpeed += PowerBombExplosionDefinitions.ExplosionAcceleration;
             return;
         }
 

@@ -40,7 +40,7 @@ internal static class NativeSnapshotPauseImport
         game.Session.screenFade.Delay = W(PauseMemory.ScreenFadeDelay);
         game.Session.screenFade.Counter = W(PauseMemory.ScreenFadeCounter);
 
-        runtime.System.TimedHeldInputTimer = WrappingCountdown.FromRaw(W(PauseMemory.TimedHeldTimer));
+        runtime.System.TimedHeldInputTimer = WrappingCountdown.Start(W(PauseMemory.TimedHeldTimer));
         runtime.System.TimedHeldInputTimerReset = W(PauseMemory.TimedHeldReset);
         runtime.System.TimedHeldInput = ControllerWordCodec.FromJoypadWord(W(PauseMemory.TimedHeldInput), "native timed held input");
     }

@@ -307,7 +307,7 @@ internal static void VerifyTypedNativeWords()
         !WrappingCountdown.Start(2).Decrement().IsZeroOrNegative, "DEC, BEQ, BMI expires on zero or on wrapping");
     AssertEqual(WrappingCountdown.Start(0), WrappingCountdown.Start(0).DecrementToZero(), "the saturating countdown never wraps");
     AssertEqual(WrappingCountdown.Start(4), WrappingCountdown.Start(5).DecrementToZero(), "the saturating countdown decrements");
-    AssertEqual((ushort)0x8001, WrappingCountdown.FromRaw(0x8001).RawValue, "a raw countdown word is preserved exactly");
+    AssertEqual((ushort)0x8001, WrappingCountdown.Start(0x8001).RawValue, "a raw countdown word is preserved exactly");
     AssertThrows<ArgumentOutOfRangeException>(() => WrappingCountdown.Start(ushort.MaxValue + 1),
         "a countdown start must fit the native word");
     AssertThrows<ArgumentOutOfRangeException>(() => WrappingCountdown.Start(-1), "a countdown start cannot be negative");
@@ -316,8 +316,8 @@ internal static void VerifyTypedNativeWords()
     // running timer: the rule matches that flag over the whole count for both sustained lengths the game uses.
     foreach (int sustainedFrames in (int[])[16, 32])
         for (int frames = 0; frames <= ushort.MaxValue; frames++)
-            if (WrappingCountdown.FromRaw(frames).Sustained(sustainedFrames).RawValue != (ushort)(frames | sustainedFrames))
-                AssertEqual((ushort)(frames | sustainedFrames), WrappingCountdown.FromRaw(frames).Sustained(sustainedFrames).RawValue,
+            if (WrappingCountdown.Start(frames).Sustained(sustainedFrames).RawValue != (ushort)(frames | sustainedFrames))
+                AssertEqual((ushort)(frames | sustainedFrames), WrappingCountdown.Start(frames).Sustained(sustainedFrames).RawValue,
                     $"sustaining {frames} frames for {sustainedFrames} sets the sustained frames' flag");
     AssertEqual(WrappingCountdown.Start(37), WrappingCountdown.Start(5).Sustained(32), "a countdown in the first half of its round moves on");
     AssertEqual(WrappingCountdown.Start(40), WrappingCountdown.Start(40).Sustained(32), "a countdown in the later half of its round is kept");

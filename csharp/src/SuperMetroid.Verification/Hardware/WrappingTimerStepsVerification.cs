@@ -12,7 +12,7 @@ internal static class WrappingTimerStepsVerification
     /// <summary>Adds and removes frames across both ends of the countdown word.</summary>
     internal static void VerifyCountdownFrameAddition()
     {
-        AssertEqual(0x0010, WrappingCountdown.FromRaw(0xFFF0).AddFrames(32).RawValue, "frames added past $FFFF wrap to the bottom");
+        AssertEqual(0x0010, WrappingCountdown.Start(0xFFF0).AddFrames(32).RawValue, "frames added past $FFFF wrap to the bottom");
         AssertEqual(0x0028, WrappingCountdown.Start(8).AddFrames(32).RawValue, "frames added inside the word add plainly");
         WrappingCountdown shortened = WrappingCountdown.Start(4).AddFrames(-6);
         AssertEqual(0xFFFE, shortened.RawValue, "frames taken below zero wrap to the top");
@@ -37,7 +37,7 @@ internal static class WrappingTimerStepsVerification
     /// <summary>Loads a zero loop count and decrements it, and saturates a countdown at zero.</summary>
     internal static void VerifyCountdownLoadAndSaturation()
     {
-        AssertEqual(0xFFFF, WrappingCountdown.FromRaw(0).Decrement().Remaining.RawValue,
+        AssertEqual(0xFFFF, WrappingCountdown.Start(0).Decrement().Remaining.RawValue,
             "a loop count loaded at zero and decremented runs for $FFFF loops");
         AssertEqual(0, WrappingCountdown.Start(1).DecrementToZero().RawValue, "a saturating countdown reaches zero");
         AssertEqual(0, WrappingCountdown.Start(0).DecrementToZero().RawValue, "a saturating countdown stays at zero");

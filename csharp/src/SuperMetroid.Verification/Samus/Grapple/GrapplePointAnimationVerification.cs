@@ -37,7 +37,7 @@ internal static class GrapplePointAnimationVerification
         foreach (ushort timer in new ushort[] { 0, 1, 5, 32768, 32769, 65535 })
         for (int frame = 0; frame < GrapplePointAnimationDefinitions.FrameCount; frame++)
         {
-            grapple.PointAnimationFrame = frame; grapple.PointAnimationTimer = WrappingCountdown.FromRaw(timer);
+            grapple.PointAnimationFrame = frame; grapple.PointAnimationTimer = WrappingCountdown.Start(timer);
             expectedPointer = unchecked((ushort)(begin + frame * 512));
             CountdownStep expectedStep = WrappingCounter.Decrement(timer);
             expectedTimer = expectedStep.Value;

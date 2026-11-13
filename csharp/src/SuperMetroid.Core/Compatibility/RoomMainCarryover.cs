@@ -25,7 +25,7 @@ public sealed class RoomMainCarryover
     private int Held { get; set; }
 
     /// <summary>The value read as a countdown.</summary>
-    public WrappingCountdown Countdown => WrappingCountdown.FromRaw(Held);
+    public WrappingCountdown Countdown => WrappingCountdown.Start(Held);
 
     /// <summary>The value read as the fraction of a position, 0 through <see cref="FixedCoordinate.LastFraction"/>.</summary>
     public int Fraction => Held;

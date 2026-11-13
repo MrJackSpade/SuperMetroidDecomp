@@ -37,7 +37,7 @@ internal static class ProjectileFrameBindingsVerification
             var nativeShot = new SamusProjectile(0)
             {
                 Playback = SamusProjectileProgramAddresses.PlaybackAt(unchecked((ushort)(pointer + 8))),
-                FrameHold = WrappingCountdown.FromRaw(Word(0)), SpritemapPointer = Word(2),
+                FrameHold = WrappingCountdown.Start(Word(0)), SpritemapPointer = Word(2),
                 Radius = new(CpuBusRegionRead.Read(rom, record + 4), CpuBusRegionRead.Read(rom, record + 5)),
                 Damage = 30,
             };

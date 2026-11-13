@@ -31,7 +31,7 @@ public static class WrappingCounter
     /// tests are the owner's expiry rule.
     /// </summary>
     public static CountdownStep Decrement(int value) =>
-        new(WrappingCountdown.FromRaw(DecrementCount(value)));
+        new(WrappingCountdown.Start(DecrementCount(value)));
 
     /// <summary>Takes one away from a count of 0 through 65535; a count at zero continues from 65535.</summary>
     /// <param name="value">The count, 0 through 65535.</param>

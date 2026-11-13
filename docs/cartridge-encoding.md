@@ -73,8 +73,8 @@ keeps the branch the cartridge takes:
 | `ORA` of a power-of-two frame count into a running timer every update | `WrappingCountdown.Sustained(frames)` |
 
 A site that also reads the timer as a number (a table index, a threshold other than zero or the sign)
-reads `RawValue` explicitly. A countdown is stored as `WrappingCountdown` by the state that owns it. A timer
-view over an enemy slot word (`WrappingCountdown.FromRaw(...)` on read, `RawValue` on write) is scaffolding for a
+reads `RemainingFrames` explicitly. A countdown is stored as `WrappingCountdown` by the state that owns it. A timer
+view over an enemy slot word (`WrappingCountdown.Start(...)` on read, `RemainingFrames` on write) is scaffolding for a
 family whose state still lives in multipurpose slot words; the destination is per-family typed state holding
 the countdown directly, and no new timer is added as a slot-word view.
 

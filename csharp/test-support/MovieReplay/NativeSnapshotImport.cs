@@ -126,7 +126,7 @@ internal static class NativeSnapshotImport
                 Condition = SuperMetroid.Core.Fx.FxNativeWords.RecordedColourEffectCondition(
                     W(NativeSnapshotMemory.PaletteFxFrameBehavior + slot * 2)),
                 UpdatesUntilNextStep = W(NativeSnapshotMemory.PaletteFxFrameHold + slot * 2),
-                Repeats = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.PaletteFxTimer + slot * 2)),
+                Repeats = WrappingCountdown.Start(W(NativeSnapshotMemory.PaletteFxTimer + slot * 2)),
             };
             ColourEffectTurnOrder.Join(importedEffects, imported);
         }
@@ -201,7 +201,7 @@ internal static class NativeSnapshotImport
         samus.EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(W(NativeSnapshotMemory.Beams));
         samus.Health = SamusCountWords.Decode(W(NativeSnapshotMemory.Health));
         samus.MaxHealth = SamusCountWords.Decode(W(NativeSnapshotMemory.MaxHealth));
-        samus.InvincibilityTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.InvincibilityTimer));
+        samus.InvincibilityTimer = WrappingCountdown.Start(W(NativeSnapshotMemory.InvincibilityTimer));
         samus.KnockbackTimer = W(NativeSnapshotMemory.KnockbackTimer);
         samus.KnockbackDirection = (SamusKnockbackDirection)W(NativeSnapshotMemory.KnockbackDirection);
         samus.KnockbackXDirection = (KnockbackHorizontalDirection)W(NativeSnapshotMemory.KnockbackXDirection);
@@ -527,9 +527,9 @@ internal static class NativeSnapshotImport
                 $"Initial enemy projectile {projectile.Place} kind {kind} starts no typed program.");
             VerificationAssertions.AssertEqual(1, NativeEnemyProjectileFamilies.All.Count(family => family.TryResumeAt(cartridge, typed, instruction)),
                 $"initial enemy projectile {projectile.Place} resumes its typed program");
-            projectile.FrameHold = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.EnemyProjectileFrameHold + index));
+            projectile.FrameHold = WrappingCountdown.Start(W(NativeSnapshotMemory.EnemyProjectileFrameHold + index));
             // The slot-only kinds keep nothing but their program's loop count in the native timer word.
-            projectile.LoopCountdown = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.EnemyProjectileTimer + index));
+            projectile.LoopCountdown = WrappingCountdown.Start(W(NativeSnapshotMemory.EnemyProjectileTimer + index));
             projectile.Position = projectile.Position
                 .WithFractionX(W(NativeSnapshotMemory.EnemyProjectileXFraction + index))
                 .WithFractionY(W(NativeSnapshotMemory.EnemyProjectileYFraction + index));

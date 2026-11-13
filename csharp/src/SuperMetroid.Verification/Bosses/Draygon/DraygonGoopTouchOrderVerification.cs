@@ -49,7 +49,7 @@ internal static class DraygonGoopTouchOrderVerification
             if (powerBombed)
             {
                 powerBomb.Spawn(goop.Position.Whole);
-                powerBomb.ExplosionRadius = PowerBombRadius.FromRaw(8192); // 32 pixels in 8.8
+                powerBomb.ExplosionRadius = PowerBombRadius.FromWholePixels(32);
             }
             enemies.FrameContext.SeedFrame(enemies.FrameContext.FrameCounter, CreateProjectileFixture(), new SuperMetroid.Core.Samus.Palettes.SamusColours(), powerBomb);
 

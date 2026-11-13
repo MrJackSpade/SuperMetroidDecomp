@@ -1041,9 +1041,9 @@ internal static void VerifyPowerBombColorMathWindow()
     // The first frame draws radius 4, then advances the live state to radius 52. The oval is that drawn radius wide
     // and three quarters of it tall (#1468): using the already-updated radius would be far wider.
     explosion.StepFrame();
-    AssertEqual(0x0400, explosion.RenderedPreExplosionRadius.RawValue,
+    AssertEqual(PowerBombRadius.FromWholePixels(4), explosion.RenderedPreExplosionRadius,
         "power-bomb renderer retains pre-update radius");
-    AssertEqual(0x3400, explosion.PreExplosionRadius.RawValue,
+    AssertEqual(PowerBombRadius.FromWholePixels(52), explosion.PreExplosionRadius,
         "power-bomb logic advances next-frame radius");
     ColourAddWindowLayer scaled = CaptureWindow();
     AssertEqual(ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(centerX, centerY), new Extent16<ScreenPixels>(4, 3)), DisplayScreen.HudHeight),

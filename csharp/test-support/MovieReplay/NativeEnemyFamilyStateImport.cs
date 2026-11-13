@@ -163,7 +163,7 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<CeresSteamEnemyState>() is { } ceresSteamRecord)
         {
             ceresSteamRecord.Function = words.A == 0 ? null : CeresNativeWords.SteamFunctions.Decode(words.A, "recorded CeresSteamFunction");
-            ceresSteamRecord.ActivationDelay = WrappingCountdown.FromRaw(words.D);
+            ceresSteamRecord.ActivationDelay = WrappingCountdown.Start(words.D);
         }
         if (slot.SpeciesState<CeresDoorEnemyState>() is { } ceresDoorRecord)
         {
@@ -287,7 +287,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<SbugEnemyState>() is { } sbugRecord)
         {
-            sbugRecord.StraightMovementTimer = WrappingCountdown.FromRaw(words.A);
+            sbugRecord.StraightMovementTimer = WrappingCountdown.Start(words.A);
             sbugRecord.Function = words.B == 0 ? null : SbugNativeWords.SbugEnemyFunctions.Decode(words.B, "recorded SbugEnemyFunction");
             sbugRecord.FaceCustomHeading(RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.C)));
             sbugRecord.MovementTimer = unchecked((short)words.F);
@@ -389,14 +389,14 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<VerticalShutterEnemyState>() is { } verticalShutterRecord)
         {
             verticalShutterRecord.Function = words.A == 0 ? null : ShuttersNativeWords.VerticalShutterFunctions.Decode(words.A, "recorded VerticalShutterFunction");
-            verticalShutterRecord.FunctionTimer = WrappingCountdown.FromRaw(words.B);
+            verticalShutterRecord.FunctionTimer = WrappingCountdown.Start(words.B);
             verticalShutterRecord.DownVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
             verticalShutterRecord.UpVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.F), words.E);
         }
         if (slot.SpeciesState<HorizontalShutterEnemyState>() is { } horizontalShutterRecord)
         {
             horizontalShutterRecord.Function = words.A == 0 ? null : ShuttersNativeWords.HorizontalShutterFunctions.Decode(words.A, "recorded HorizontalShutterFunction");
-            horizontalShutterRecord.FunctionTimer = WrappingCountdown.FromRaw(words.B);
+            horizontalShutterRecord.FunctionTimer = WrappingCountdown.Start(words.B);
             horizontalShutterRecord.RightVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
             horizontalShutterRecord.LeftVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.F), words.E);
         }
@@ -410,14 +410,14 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<WorkRobotEnemyState>() is { } workRobotRecord)
         {
             workRobotRecord.LaserVelocity = new(new SignedEightEight(words.A), default);
-            workRobotRecord.LaserCooldown = WrappingCountdown.FromRaw(words.B);
+            workRobotRecord.LaserCooldown = WrappingCountdown.Start(words.B);
             workRobotRecord.BackupPosition = new(words.C, words.D);
             workRobotRecord.FallVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.F), words.E);
         }
         if (slot.SpeciesState<KzanEnemyState>() is { } kzanRecord)
         {
             kzanRecord.Function = words.A == 0 ? null : KzanNativeWords.KzanEnemyFunctions.Decode(words.A, "recorded KzanEnemyFunction");
-            kzanRecord.FallWaitTimer = WrappingCountdown.FromRaw(words.B);
+            kzanRecord.FallWaitTimer = WrappingCountdown.Start(words.B);
             kzanRecord.RisingTarget = new(0, words.C);
             kzanRecord.FallingTarget = new(0, words.D);
         }
@@ -489,7 +489,7 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<EtecoonEnemyState>() is { } etecoonRecord)
         {
             etecoonRecord.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.C, words.D, words.A, words.B);
-            etecoonRecord.FunctionTimer = WrappingCountdown.FromRaw(words.E);
+            etecoonRecord.FunctionTimer = WrappingCountdown.Start(words.E);
             etecoonRecord.Function = words.F == 0 ? null : AnimalsNativeWords.EtecoonAiFunctions.Decode(words.F, "recorded EtecoonAiFunction");
             // A dormant Etecoon's record holds its countdown below zero while it waits for Samus.
             etecoonRecord.AwaitingSamus = etecoonRecord.Function == EtecoonAiFunction.WaitingForSamus && etecoonRecord.FunctionTimer.IsNegative;

@@ -100,7 +100,7 @@ public static class CreditsPresentationExtractor
             switch (command)
             {
                 case CreditsInstruction.SetTimer:
-                    timer = WrappingCountdown.FromRaw(ReadWord(bus, Add(pointer, 2)));
+                    timer = WrappingCountdown.Start(ReadWord(bus, Add(pointer, 2)));
                     pointer = Add(pointer, 4);
                     break;
                 case CreditsInstruction.DecrementTimerAndGoto:

@@ -1195,7 +1195,7 @@ internal sealed class RoomLoader
                 _room.LandingSiteEntry.DownScroller);
         }
 
-        throw new InvalidOperationException("No room header is active.");
+        throw new InvalidOperationException("No room is active.");
     }
 
     /// <summary>

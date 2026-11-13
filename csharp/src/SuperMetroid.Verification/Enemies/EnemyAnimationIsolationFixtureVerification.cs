@@ -73,7 +73,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Enemies.VerificationServices().SetAreaTorizoDefeated = () => BossBitCalls++;
 
             Actor.Bind(EnemyDefinitionId.Boyon, Actor.Definition);
-            Actor.Bind(Actor.DefinitionId, RoomEnemyHeaders.Get(Actor.DefinitionId));
+            Actor.Bind(Actor.DefinitionId, RoomEnemyDefinitionLookup.Get(Actor.DefinitionId));
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
             Actor.Position = Actor.Position.WithWhole(new(128, (ushort)(FloorY - Actor.Radius.Y - 12)));

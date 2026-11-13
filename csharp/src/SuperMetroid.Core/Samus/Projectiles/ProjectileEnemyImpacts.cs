@@ -89,17 +89,17 @@ internal sealed class ProjectileEnemyImpacts
             BeamFiring.InitializePowerBeamVelocity(samus.ProjectileInheritance, slot, _unauthoredFiring);
         }
 
-        SamusProjectileHeader header;
+        SamusProjectileKind kind;
         SamusProjectileProgram? program;
         if (family == SamusProjectileFamily.Beam)
         {
-            header = SamusProjectileSelection.BeamShot(slot.Type.BeamCombination, slot.Type.IsChargedBeam);
+            kind = SamusProjectileSelection.BeamShot(slot.Type.BeamCombination, slot.Type.IsChargedBeam);
             program = SamusProjectileSelection.BeamShotProgram(slot.Type.BeamCombination, slot.Type.IsChargedBeam, slot.Direction);
         }
         else if (family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
         {
-            header = SamusProjectileSelection.NonBeam(family);
-            program = SamusProjectileHeaders.Program(header, slot.Direction);
+            kind = SamusProjectileSelection.NonBeam(family);
+            program = SamusProjectileKinds.Program(kind, slot.Direction);
         }
         else
         {
@@ -110,7 +110,7 @@ internal sealed class ProjectileEnemyImpacts
                 $"Projectile family {family} is not reflectable.");
         }
 
-        slot.Damage = SamusProjectileDamage.Read(header);
+        slot.Damage = SamusProjectileDamage.Read(kind);
         slot.Playback = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.FrameHold = WrappingCountdown.Start(1);

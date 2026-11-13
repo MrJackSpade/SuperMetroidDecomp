@@ -47,7 +47,7 @@ internal static class EnemyGameplayAcceptanceVerification
         foreach (EnemyDefinitionId pointer in RoomEnemyDefinitionCatalog.Pointers.Concat(RoomEnemyAuxiliaryDefinitionCatalog.Pointers))
         {
             RoomEnemyDefinition definition = RoomEnemyAuxiliaryDefinitionCatalog.TryGet(pointer, out var auxiliary)
-                ? auxiliary : RoomEnemyHeaders.Get(pointer);
+                ? auxiliary : RoomEnemyDefinitionLookup.Get(pointer);
             AssertTrue(EnemyVulnerabilities.Of(definition) is not null, $"{pointer} resolves its vulnerabilities");
             if (definition.DropChances is { } chances)
             {
@@ -81,7 +81,7 @@ internal static class EnemyGameplayAcceptanceVerification
             RoomEnemySlot slot = baseline.SlotTable.Slots[index];
             AssertEqual(index, slot.SlotIndex, "linked population slot order");
             AssertEqual(population.Records.Span[index], slot.Spawn.Population, "linked population preserves every spawn word");
-            AssertEqual(RoomEnemyHeaders.Get(slot.DefinitionId), slot.Definition, "linked slot uses compiled header");
+            AssertEqual(RoomEnemyDefinitionLookup.Get(slot.DefinitionId), slot.Definition, "linked slot uses compiled header");
             AssertEqual(slot.Definition.Health, slot.Health, "linked slot starts at compiled health");
             if ((index & 1) != 0)
             {

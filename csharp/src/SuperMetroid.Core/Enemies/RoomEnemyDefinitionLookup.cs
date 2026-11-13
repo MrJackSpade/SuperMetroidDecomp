@@ -2,8 +2,11 @@ using System.Collections.Frozen;
 
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>Finds the retail enemy definitions room states reference, and checks their compiled catalog.</summary>
-public static class RoomEnemyHeaders
+/// <summary>
+/// Looks up the compiled retail enemy definitions by identity: the definitions room states reference, checked when their
+/// catalog is indexed, and the auxiliary definitions runtime-created actors use.
+/// </summary>
+public static class RoomEnemyDefinitionLookup
 {
     /// <summary>Indexes the compiled definitions by identity, checking their count and that each identity is compiled once.</summary>
     /// <exception cref="InvalidDataException">The count changed or an identity repeats.</exception>
@@ -11,7 +14,7 @@ public static class RoomEnemyHeaders
     {
         if (definitions.Length != count)
             throw new InvalidDataException(
-                $"Expected {count} compiled enemy headers, found {definitions.Length}.");
+                $"Expected {count} compiled enemy definitions, found {definitions.Length}.");
         var byId = new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>(definitions.Length);
         foreach (RoomEnemyDefinitionEntry entry in definitions)
         {
@@ -28,4 +31,14 @@ public static class RoomEnemyHeaders
             ? definition
             : throw new ArgumentOutOfRangeException(nameof(definitionId), definitionId,
                 "Not a referenced retail enemy definition.");
+
+    /// <summary>
+    /// The compiled definition for <paramref name="definitionId"/>: an auxiliary definition the retail population needs
+    /// beyond the referenced definitions answers first, and every other identity is a referenced definition.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="definitionId"/> is neither auxiliary nor referenced.</exception>
+    internal static RoomEnemyDefinition Read(EnemyDefinitionId definitionId) =>
+        RoomEnemyAuxiliaryDefinitionCatalog.TryGet(definitionId, out RoomEnemyDefinition auxiliary)
+            ? auxiliary
+            : Get(definitionId);
 }

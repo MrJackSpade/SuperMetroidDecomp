@@ -31,8 +31,8 @@ internal static class ProjectilePresentationContractChecks
                     InstalledGrappleSwingFrames swing, InstalledProjectileSprites sprites, SuperMetroid.Core.Assets.ScreenSprites oam) {
                     placement.Resolve(false, SamusFlareAim.WhileTurning(SamusTurningAim.Down));
                     placement.Resolve(true, SamusFlareAim.AtMuzzle(SamusProjectileDirection.UpFacingLeft));
-                    flare.Frame(53);
-                    flare.Frame(54);
+                    flare.Frame(ChargeFlareSpriteDefinitions.All[27]);
+                    flare.Frame(new ProjectileSpriteId(ProjectileSpriteGroup.FlareFastSparksLeft, 6));
                     trails.Resolve(ProjectileTrailFrame.LeftIce0);
                     trails.Resolve((ProjectileTrailFrame)ProjectileTrailVisualDefinitions.FrameCount);
                     grapple.Segment(3);

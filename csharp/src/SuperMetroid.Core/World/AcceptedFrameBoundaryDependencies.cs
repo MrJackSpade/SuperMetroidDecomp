@@ -29,7 +29,7 @@ internal sealed record AcceptedFrameBoundaryDependencies
     /// <summary>Sprite frame the frame boundary makes visible.</summary>
     public required SpriteFrameBuffer DisplayedSprites { get; init; }
 
-    /// <summary>The enemy words and installed enemy artwork that outlive each room.</summary>
+    /// <summary>The enemy state and installed enemy artwork that outlive each room.</summary>
     public required EnemySession EnemySession { get; init; }
 
     /// <summary>The shown layers the accepted frame latches.</summary>

@@ -154,7 +154,7 @@ internal sealed class MessageBoxFlow
             _hud.UpdateGameplayCounters(_player.Samus, _audioRequests, _freeze.TimeIsFrozen);
 
         // The message returns directly to the suspended item's script.
-        // Varia/Gravity immediately call their shared setup routine; for other items the
+        // Varia/Gravity immediately call their shared setup; for other items the
         // rest of the dispatch already ran when the box opened.
         if (_pendingSuitPickup is { } pendingSuit)
         {

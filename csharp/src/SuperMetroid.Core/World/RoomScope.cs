@@ -26,7 +26,7 @@ internal sealed record RoomScope
     /// <summary>The door whose destination this room is, or the load station's synthetic door.</summary>
     public required DoorDefinition Door { get; init; }
 
-    /// <summary>The selected room and state header.</summary>
+    /// <summary>The selected room and state definition.</summary>
     public required SelectedRoom Room { get; init; }
 
     /// <summary>The room's decompressed, read-only asset graph.</summary>
@@ -46,7 +46,7 @@ internal sealed record RoomScope
 
     /// <summary>
     /// What gameplay has shown over the room's load (#1466): the collectibles its slots show and Kraid's backdrop. With the
-    /// frames its animations selected, the display names its blocks', cells' and words' pictures by it.
+    /// frames its animations selected, the display names its blocks', cells' and written cells' pictures by it.
     /// </summary>
     public required RoomAppearance Appearance { get; init; }
 
@@ -89,7 +89,7 @@ internal sealed record RoomScope
     /// <summary>The turning floor the room shows, or null when it shows none (#1349, #1467, #1649).</summary>
     public required RoomFloor? Floor { get; init; }
 
-    /// <summary>Door, header and library-background data of a Landing Site entry, or null.</summary>
+    /// <summary>Door, room and library-background data of a Landing Site entry, or null.</summary>
     public required LandingSiteEntryState? LandingSiteEntry { get; init; }
 
     /// <summary>Samus's beam and missile projectiles in this room; the held charge lives on the session.</summary>
@@ -98,7 +98,7 @@ internal sealed record RoomScope
     /// <summary>Samus's bombs, power bombs and the shared projectile cooldown in this room.</summary>
     public required SamusBombProjectileSystem BombProjectiles { get; init; }
 
-    /// <summary>The room's effect-overlay FX: liquid, rain, fog and the effect overlay tilemap.</summary>
+    /// <summary>The room's effect-overlay FX: liquid, rain, fog and the effect overlay picture.</summary>
     public required RoomFxOverlayState FxOverlay { get; init; }
 
     /// <summary>The room's palette-FX objects.</summary>

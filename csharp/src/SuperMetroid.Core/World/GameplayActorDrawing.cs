@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 internal sealed class GameplayActorDrawing
 {
-    /// <summary>Supplies installed spritemaps, projectile compositions, and suit palette artwork.</summary>
+    /// <summary>Supplies installed frames, projectile compositions, and suit palette artwork.</summary>
     private readonly RuntimeArtwork _artwork;
     /// <summary>Provides the attract-demo state that can alter ordinary Samus presentation.</summary>
     private readonly IAttractDemoState _attractSession;
@@ -155,7 +155,7 @@ internal sealed class GameplayActorDrawing
             // The Metroid-drain palette step runs after every charge and special-palette family. A Metroid's
             // nonnegative super-special flag takes the alternating boost/normal branch and
             // returns before ordinary hurt flash, just as drained rainbow's negative flag
-            // took the routine's earlier branch.
+            // took the earlier branch.
             bool metroidOwnsSamusPalette = !deathOwnsSamus &&
                 !drainedOwnsSamusPalette &&
                 SamusSpecialSuperPalette.Update(_player.Colours, _player.Samus);
@@ -332,7 +332,7 @@ internal sealed class GameplayActorDrawing
             }
 
             // The frame draws Samus first and immediately draws her projectiles. This is
-            // deliberately after the grapple beam too in the translated composite pass;
+            // deliberately after the grapple beam too in the composite pass;
             // all live beam art still receives later sprite indices than Samus's body.
             room.Projectiles.DrawLiveProjectiles(
                 _sprites,

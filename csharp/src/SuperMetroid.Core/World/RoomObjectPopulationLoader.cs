@@ -20,7 +20,7 @@ internal sealed class RoomObjectPopulationLoader
     private readonly BombTorizoHandObjects _bombTorizoHand;
     /// <summary>Sets up permanent item slots and their dynamic graphics.</summary>
     private readonly CollectibleObjects _collectibleObjects;
-    /// <summary>Sets up eye-door headers after allocating their room-object slots.</summary>
+    /// <summary>Sets up eye-door objects after allocating their room-object slots.</summary>
     private readonly EyeDoorObjects _eyeDoors;
     /// <summary>Sets up downward gates and their collision changes.</summary>
     private readonly GateObjects _gates;
@@ -30,7 +30,7 @@ internal sealed class RoomObjectPopulationLoader
     private readonly RoomObjectSlotTable _slotTable;
     /// <summary>Sets up Maridia's glass tube.</summary>
     private readonly NoobTubeObjects _noobTube;
-    /// <summary>Initializes the Speed Booster escape object when its header appears.</summary>
+    /// <summary>Initializes the Speed Booster escape object when its definition appears.</summary>
     private readonly SpeedBoosterEscapeObjects _speedBoosterEscape;
 
     /// <summary>Connects setup-family services and the shared slot table for one room-object system.</summary>
@@ -47,10 +47,10 @@ internal sealed class RoomObjectPopulationLoader
     }
     /// <summary>
     /// Allocates one decoded room population exactly once, in increasing source-record
-    /// order. Each record is allocated before its setup routine runs, as the original game's room-object spawn
+    /// order. Each record is allocated before its setup runs, as the game's room-object spawn
     /// does. A setup may immediately delete its slot;
     /// the next record can consequently reuse that same highest slot. Retail
-    /// loads require decoded records; no population or header can be read from a bus.
+    /// loads require decoded records; no population or definition is read from game data.
     /// </summary>
     public int LoadRoomPopulation(RoomObjectRoom room, RoomObjectPopulation population, RoomObjectServices services)
     {
@@ -78,7 +78,7 @@ internal sealed class RoomObjectPopulationLoader
                 // coordinates with the room-width multiplier without checking logical
                 // dimensions. The bounded allocation preserves that ordering for
                 // the two shipped off-room door records, whose column past the room's width is the block that many
-                // columns into the following rows; setup routines that genuinely require authored terrain still
+                // columns into the following rows; setups that genuinely require authored terrain still
                 // validate when they consume the block.
                 block = room.Level.ObjectBlock(record.Block);
             }
@@ -128,7 +128,7 @@ internal sealed class RoomObjectPopulationLoader
         return slot;
     }
 
-    /// <summary>Dispatches translated room-population headers to their family setup; returns false for an unsupported header so loading can fail with record context.</summary>
+    /// <summary>Dispatches room-population definitions to their family setup; returns false for an unsupported definition so loading can fail with record context.</summary>
     private bool TryRunRoomPopulationSetup(
         RoomObjectRoom room,
         IAreaBossFlagReader bosses,
@@ -202,7 +202,7 @@ internal sealed class RoomObjectPopulationLoader
         if (header == RoomObjectHeaderId.WreckedShipAttic)
         {
             // The no-op setup changes nothing. Keeping an explicit branch matters: the object must still hold its
-            // place instead of being mistaken for an unknown header.
+            // place instead of being mistaken for an unknown definition.
             slot.Become(new WreckedShipAtticObject());
             return true;
         }

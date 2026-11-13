@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.World;
 
-/// <summary>The compiled retail enemy headers, populations and falling-tube placements.</summary>
+/// <summary>The compiled retail enemy definitions, populations and falling-tube placements.</summary>
 public sealed class CompiledRoomEnemyDefinitions : IRoomEnemyDefinitionSource
 {
     /// <summary>The single compiled source; it holds no state.</summary>

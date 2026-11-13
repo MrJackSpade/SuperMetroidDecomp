@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 /// <param name="PreviousCamera">
 /// The outgoing room's camera, or null for the runtime's first room. A door load inherits its tracking state and both
-/// fraction words (#1266).
+/// fractions (#1266).
 /// </param>
 /// <param name="InheritedCameraPosition">
 /// The camera position an earlier gameplay owner left behind; the first room's camera takes its fractions.

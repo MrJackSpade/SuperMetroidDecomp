@@ -45,7 +45,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// <summary>The room's room objects at their places in the update order, shared by every room-object family.</summary>
     internal RoomObjectSlotTable SlotTable { get; }
 
-    /// <summary>Queues sound requests emitted by room object instructions.</summary>
+    /// <summary>Queues sound requests emitted by room object cues.</summary>
     internal RoomObjectSoundQueue Sounds { get; }
 
     /// <summary>Turns room-object draw-list commands into level changes and background picture updates.</summary>
@@ -66,7 +66,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// <summary>Runs Samus Eater plant damage, release, and room object state.</summary>
     internal SamusEaterObjects SamusEater { get; }
 
-    /// <summary>Runs Tourian room object instructions, including encounter scenery.</summary>
+    /// <summary>Runs Tourian room object cues, including encounter scenery.</summary>
     internal TourianObjects Tourian { get; }
 
     /// <summary>Controls escape animal room triggers and their persistent event.</summary>
@@ -108,7 +108,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// <summary>Handles collectible item reveals, pickup, and persistence.</summary>
     internal CollectibleObjects CollectibleObjects { get; }
 
-    /// <summary>Runs eye door opening and projectile interaction instructions.</summary>
+    /// <summary>Runs eye door opening and projectile interaction cues.</summary>
     internal EyeDoorObjects EyeDoors { get; }
 
     /// <summary>Handles grey door conditions and opening animation.</summary>
@@ -158,7 +158,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
         BossRoomMutations = new BossRoomMutationObjects(SlotTable);
     }
 
-    /// <summary>Door-object instruction owner bound to this room's allocation and draw state.</summary>
+    /// <summary>Door-object owner bound to this room's allocation and draw state.</summary>
     internal DoorObjects DoorObjects { get; }
 
 

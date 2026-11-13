@@ -64,9 +64,9 @@ internal sealed class ActiveRoomState
     private T? View<T>(Func<RoomScopeConstruction, T?> building, Func<RoomScope, T?> loaded) where T : class =>
         _construction is { } construction ? building(construction) : Scope is { } scope ? loaded(scope) : null;
 
-    /// <summary>The selected room/state header for a generic backed room.</summary>
+    /// <summary>The selected room/state definition for a generic backed room.</summary>
     public SelectedRoom? ActiveRoom => View(c => c.Room, s => s.Room);
-    /// <summary>The loaded room's header; gameplay runs only in a loaded room.</summary>
+    /// <summary>The loaded room's definition; gameplay runs only in a loaded room.</summary>
     public SelectedRoom LoadedRoom => ActiveRoom ??
         throw new InvalidOperationException("No room is loaded.");
 
@@ -105,7 +105,7 @@ internal sealed class ActiveRoomState
     /// <summary>Landing Site's scrolling-sky updater after room initialization.</summary>
     public ScrollingSkyState? ScrollingSky => View(c => c.ScrollingSky, s => s.ScrollingSky);
 
-    /// <summary>Door/header/library-background data selected for the current Landing Site entry.</summary>
+    /// <summary>Door, room and library-background data selected for the current Landing Site entry.</summary>
     public LandingSiteEntryState? LandingSiteEntry => View(c => c.LandingSiteEntry, s => s.LandingSiteEntry);
 
     /// <summary>The loading or loaded room's effect-overlay FX, for the accepted-frame publication.</summary>

@@ -15,7 +15,7 @@ internal sealed record EnemyDrawListDependencies
     /// <summary>Frame context.</summary>
     public required EnemyFrameContext FrameContext { get; init; }
 
-    /// <summary>Instructions.</summary>
+    /// <summary>The shared enemy animation.</summary>
     public required EnemyInstructionInterpreter Instructions { get; init; }
 
     /// <summary>Mother brain behavior.</summary>

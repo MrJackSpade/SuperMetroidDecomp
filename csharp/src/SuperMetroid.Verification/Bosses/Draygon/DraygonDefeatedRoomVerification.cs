@@ -33,9 +33,9 @@ internal static class DraygonDefeatedRoomVerification
         var transition = new DoorTransitionState();
         var audio = AudioQueues.Standalone();
         transition.Begin(runtime);
-        for (int frame = 0; transition.Phase != DoorTransitionPhase.HandleTransition && frame < 600; frame++)
+        for (int frame = 0; transition.Phase != DoorTransitionPhase.FinishDoorOpeningScroll && frame < 600; frame++)
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
-        AssertEqual(DoorTransitionPhase.HandleTransition, transition.Phase, "Space Jump exit reaches finalization");
+        AssertEqual(DoorTransitionPhase.FinishDoorOpeningScroll, transition.Phase, "Space Jump exit reaches finalization");
         // $82:E6A2 finalizes the scroll and returns before the E737 actor/fade dispatch, so a
         // destination actor frame can never re-enter scroll finalization (#387).
         transition.Step(runtime, audio, 0, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);

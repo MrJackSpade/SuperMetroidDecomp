@@ -533,8 +533,8 @@ internal sealed class RoomLoader
             ?? throw new InvalidOperationException(
                 "Door-opening scroll lost the source room's view.");
         // The offsets derive from the foreground words staged before setup's first call:
-        // horizontal setups had not yet taken their four-pixel step, and up's
-        // FixDoorsMovingUp path stages the foreground five (the background four) pixels lower.
+        // horizontal setups had not yet taken their four-pixel step, and an upward door's
+        // correction of the source room's top row stages the foreground five (the background four) pixels lower.
         Offset16<RoomPixels> foregroundStaging = direction switch
         {
             DoorDirection.Right => new(-4, 0),

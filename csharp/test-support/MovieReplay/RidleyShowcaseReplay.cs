@@ -296,13 +296,13 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 $"update {frame}: byte NMI counter including native door IRQ reset");
             Check("Game state", GameStateNumberCodec.Encode(game.GameState), NativeSnapshotMemory.GameState);
             Check("Enemy door gate", runtime.Enemies.RoomStatus.EnemyDoorTransitionActive ? (ushort)1 : (ushort)0, NativeSnapshotMemory.EnemyDoorTransition);
-            // Native LoadDoorHeader publishes the destination room pointer before
+            // Native door-header loading publishes the destination room pointer before
             // loading its room/state data. The port keeps that identity in the pending
             // door while ActiveRoom still owns the source room's loaded data.
             ushort selectedRoom = game.DoorTransitionPhaseForVerification is
-                DoorTransitionPhase.AlignSourceCamera or DoorTransitionPhase.FixDoorsMovingUp or
-                DoorTransitionPhase.SetupNewRoom or DoorTransitionPhase.SetupScrolling or
-                DoorTransitionPhase.PlaceSamusAndLoadTiles or DoorTransitionPhase.LoadMoreThingsAndOpenDoor
+                DoorTransitionPhase.AlignSourceCamera or DoorTransitionPhase.DestinationSetupWait or
+                DoorTransitionPhase.MoveToDoorScrollStart or
+                DoorTransitionPhase.PlaceSamusInDestination or DoorTransitionPhase.LoadDestinationRoom
                 ? RoomHeaderDefinitions.PointerOf((runtime.RoomLoader.PendingDoorTransition ?? throw new InvalidDataException("Missing selected destination door")).DestinationRoom)
                 : runtime.Room.LoadedRoom.Pointer;
             Check("Selected room", selectedRoom, NativeSnapshotMemory.Room);
@@ -456,7 +456,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             bool nativeLoading = game.GameState == SuperMetroidGameState.DoorTransition &&
                 W(NativeSnapshotMemory.DoorFunction) is NativeSnapshotMemory.PlaceSamusLoadTiles or NativeSnapshotMemory.LoadMoreThings;
             bool portWaitingForScroll = game.DoorTransitionPhaseForVerification is
-                DoorTransitionPhase.WaitForDoorOpeningScroll or DoorTransitionPhase.FinishDoorLoading;
+                DoorTransitionPhase.WaitForDoorOpeningScroll or DoorTransitionPhase.AlignSamusWithDoorway;
             bool deferLoadingOwners = nativeLoading && portWaitingForScroll;
             // Gameplay holds no colour image (#1512): its pictures show the import's colours under the shadings it publishes.
             ReadOnlySpan<RgbColor> comparedPalette = GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources);
@@ -478,7 +478,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             }
             if (deferLoadingOwners)
             {
-                if (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.FinishDoorLoading)
+                if (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.AlignSamusWithDoorway)
                     Check("Completed-scroll visor", GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources)[XrayScopeDefinitionsPaletteConstants.VisorCgramIndex].ToWord(),
                         NativeSnapshotMemory.PaletteBuffer + XrayScopeDefinitionsPaletteConstants.VisorCgramIndex * 2);
                 ushort[] owners = CaptureLoadedOwners();

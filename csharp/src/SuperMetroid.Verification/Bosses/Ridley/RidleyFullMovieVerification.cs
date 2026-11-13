@@ -768,15 +768,27 @@ internal static class RidleyFullMovieVerification
         int fadeSteps = 0;
         while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.FadeOutSourcePalette && fadeSteps++ < 32)
             game.Step(0);
-        AssertEqual(DoorTransitionPhase.LoadDoorHeader, game.DoorTransitionPhaseForVerification, "source palette fade finishes");
+        AssertEqual(DoorTransitionPhase.BeginDoorDisplay, game.DoorTransitionPhaseForVerification, "source palette fade finishes");
         AssertEqual(0xe19e, runtime.System.RandomNumber, "native update 172 fade endpoint RNG");
         // Original native input-boundary records 173..178. The first dispatch
-        // still runs source HDMA; LoadDoorHeader disables it for the following ones.
+        // still runs source HDMA; beginning the door's display disables it for the following ones.
         ushort[] nativeLoadingRandom = [0x1b76, 0x8a5f, 0xb4ec, 0x89ad, 0xb172, 0x784b];
+        // #1631: each of these updates is one stage, and the destination-setup wait spends exactly two of them
+        // (updates 175 and 176), each drawing its recorded random number.
+        DoorTransitionPhase[] loadingPhases =
+        [
+            DoorTransitionPhase.AlignSourceCamera,
+            DoorTransitionPhase.DestinationSetupWait,
+            DoorTransitionPhase.DestinationSetupWait,
+            DoorTransitionPhase.MoveToDoorScrollStart,
+            DoorTransitionPhase.PlaceSamusInDestination,
+            DoorTransitionPhase.LoadDestinationRoom,
+        ];
         for (int index = 0; index < nativeLoadingRandom.Length; index++)
         {
             game.Step(0);
             AssertEqual(nativeLoadingRandom[index], runtime.System.RandomNumber, $"native loading RNG update {173 + index}");
+            AssertEqual(loadingPhases[index], game.DoorTransitionPhaseForVerification, $"loading update {173 + index} leaves its stage");
             AssertEqual((ushort)(0xa4f1 + index), runtime.Clock.Counter, "loading accepts one NMI per update");
             if (index == 5)
             {
@@ -808,12 +820,12 @@ internal static class RidleyFullMovieVerification
             scrollCalls++;
         }
         AssertEqual(61, scrollCalls, "left trajectory completes on its 61st remaining IRQ call");
-        AssertEqual(DoorTransitionPhase.FinishDoorLoading, game.DoorTransitionPhaseForVerification, "post-scroll NMI remains inside the loading coroutine");
+        AssertEqual(DoorTransitionPhase.AlignSamusWithDoorway, game.DoorTransitionPhaseForVerification, "post-scroll NMI remains inside the loading coroutine");
         AssertEqual(0x3be0, GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources)[XrayScopeDefinitionsPaletteConstants.VisorCgramIndex].ToWord(),
             "final scrolling update publishes native visor green before PLMs");
         AssertEqual(0x00de2000u, samus.Kinematics.Position.X.RawValue, "native source frame 276 scrolling endpoint");
         game.Step(0);
-        AssertEqual(DoorTransitionPhase.HandleAnimatedTiles, game.DoorTransitionPhaseForVerification, "loading alignment precedes music wait");
+        AssertEqual(DoorTransitionPhase.StepDestinationAnimatedTiles, game.DoorTransitionPhaseForVerification, "loading alignment precedes music wait");
         AssertEqual(0x5a88, runtime.System.RandomNumber, "loading continuation does not advance outer RNG");
         AssertEqual(0x00d82000u, samus.Kinematics.Position.X.RawValue, "native final doorway alignment preserves original subposition");
         AssertEqual(yFixed, samus.Kinematics.Position.Y.RawValue, "left door endpoint preserves perpendicular coordinate");
@@ -824,7 +836,7 @@ internal static class RidleyFullMovieVerification
         int musicWaits = 0;
         while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.WaitForMusicQueue && musicWaits++ < 32)
             game.Step(0);
-        AssertEqual(DoorTransitionPhase.HandleTransition, game.DoorTransitionPhaseForVerification, "native music queue reaches final door dispatch");
+        AssertEqual(DoorTransitionPhase.FinishDoorOpeningScroll, game.DoorTransitionPhaseForVerification, "native music queue reaches final door dispatch");
         int nmiBeforeNudge = runtime.Clock.Counter;
         int samusAnimation = samus.AnimationFrame;
         var ridley = runtime.Enemies.SlotTable.Slots[0];

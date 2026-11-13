@@ -164,7 +164,10 @@ public sealed class SuperMetroidGame
         bool pauseInputEpilogue = phaseAudio == GamePhaseAudio.PauseInputEpilogue;
         bool messageWasActive = Session.Runtime?.MessageBox.IsActive == true;
         bool doorAudioDispatch = phaseAudio is GamePhaseAudio.DoorTransition or GamePhaseAudio.DoorTransitionSoundsDisabled;
-        DoorTransitionPhase startingDoorPhase = Session.doorTransition.Phase;
+        // Whether this update continues the door's destination load, and whether it leaves the load running, are read
+        // before the phase steps.
+        bool continuesDoorLoad = Session.doorTransition.ContinuesDestinationLoad;
+        bool leavesDoorLoadRunning = Session.doorTransition.LeavesDestinationLoadRunning;
         // An update that finishes a phase's step waiting out a frame of the display runs
         // neither the update's music processing nor its sound processing.
         bool runsAudioProcessing = DisplayFrameWaitContinuation.RunsAudioProcessing(PhaseIsWaitingOutDisplayFrame);
@@ -172,8 +175,7 @@ public sealed class SuperMetroidGame
         // sees this update's queue; sound processing runs after the phase returns. A
         // message box's updates run only the box's own audio processing (below).
         bool prologueMusicDispatch = runsAudioProcessing && !messageWasActive &&
-            (!doorAudioDispatch || phaseAudio != GamePhaseAudio.DoorTransitionSoundsDisabled ||
-             startingDoorPhase is not (DoorTransitionPhase.WaitForDoorOpeningScroll or DoorTransitionPhase.FinishDoorLoading));
+            (!doorAudioDispatch || phaseAudio != GamePhaseAudio.DoorTransitionSoundsDisabled || !continuesDoorLoad);
         IReadOnlyList<AudioRequest> prologueMusicRequests = prologueMusicDispatch
             ? Session.audio.AdvanceMusicDispatch() : Array.Empty<AudioRequest>();
         // Frames pass on the frame counters while a door loads a new music data set
@@ -199,9 +201,7 @@ public sealed class SuperMetroidGame
         if (!messageWasActive && Session.Runtime?.MessageBox.IsActive == true)
             Session.audio.QueueCancelSoundEffects();
         bool musicHandler = false;
-        int soundHandlers = runsAudioProcessing && (!doorAudioDispatch ||
-            startingDoorPhase is not (DoorTransitionPhase.LoadMoreThingsAndOpenDoor or DoorTransitionPhase.WaitForDoorOpeningScroll))
-            ? 1 : 0;
+        int soundHandlers = runsAudioProcessing && (!doorAudioDispatch || !leavesDoorLoadRunning) ? 1 : 0;
         if (messageWasActive)
         {
             // A message-box update runs exactly the box's own audio processing.

@@ -548,8 +548,8 @@ can show there, and the room draws the one its bindings show now. Each item a ti
 picture (every item but the tanks) has one picture per animation frame (`collectible <item> frame <n>`), which the room
 shows where the item lies whatever was set up before it. X-ray's reveal draws its blocks from the same pictures.
 A room's library background is a full image in the same directory, one for each background, door variant and tileset
-(`{background}[.{door}].{tileset}`): both BG2 pages it loads, the first above the second, with their tilemap words listed
-in `room-backgrounds.json`. A 16x16 cell whose characters the room rebinds, as the Tourian statues' are, draws that
+(`{background}[.{door}].{tileset}`): one period of what its room shows, laid out as the room shows it, with its size and
+changing cells listed in `room-backgrounds.json`. A 16x16 cell whose characters the room rebinds, as the Tourian statues' are, draws that
 cell's block picture while they show something else. The scrolling sky is an image of all its rows the same way, one for each
 sky (`SkyLand`, `SkyOcean`) and tileset. Pictures written over a room's BG1 or BG2 after it loads (the Ceres warning's
 pages and typed glyphs, and the Zebes escape warning's glyphs) are pictured on one sheet per tileset,

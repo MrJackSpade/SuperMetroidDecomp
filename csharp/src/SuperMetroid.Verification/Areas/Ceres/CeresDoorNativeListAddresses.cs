@@ -14,28 +14,28 @@ internal static class CeresDoorNativeListAddresses
     internal const byte Bank = 0xa6;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<CeresDoorProgram>[] Entries =
+    internal static readonly NativeProgramEntry<CeresDoorSegment>[] Entries =
     [
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RidleyRoomFacingRight, 0xf53a),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RidleyRoomFacingRightWait, 0xf55e),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.NormalFacingRight, 0xf56c),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.OpenFacingRight, 0xf578),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.CloseFacingRight, 0xf584),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.ClosedFacingRight, 0xf598),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.ClosedFacingRightWait, 0xf59c),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.NormalFacingLeft, 0xf5be),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.OpenFacingLeft, 0xf5ca),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.CloseFacingLeft, 0xf5d6),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.ClosedFacingLeft, 0xf5ea),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.ClosedFacingLeftWait, 0xf5ee),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RotatingElevatorPreExplosionOverlay, 0xf610),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RotatingElevatorPreExplosionOverlayLoop, 0xf612),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RotatingElevatorInvisibleWall, 0xf61a),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RotatingElevatorInvisibleWallLoop, 0xf622),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RidleyEscapeFloorLeftWall, 0xf62a),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RidleyEscapeFloorLeftWallLoop, 0xf62c),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RidleyEscapeFloorRightWall, 0xf634),
-        new NativeProgramEntry<CeresDoorProgram>(CeresDoorProgram.RidleyEscapeFloorRightWallLoop, 0xf636),
+        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.RidleyRoomFacingRight, 0xf53a),
+        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.RidleyRoomFacingRightWait, 0xf55e),
+        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.NormalFacingRight, 0xf56c),
+        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.OpenFacingRight, 0xf578),
+        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.CloseFacingRight, 0xf584),
+        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.ClosedFacingRight, 0xf598),
+        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.ClosedFacingRightWait, 0xf59c),
+        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.NormalFacingLeft, 0xf5be),
+        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.OpenFacingLeft, 0xf5ca),
+        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.CloseFacingLeft, 0xf5d6),
+        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.ClosedFacingLeft, 0xf5ea),
+        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.ClosedFacingLeftWait, 0xf5ee),
+        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.RotatingElevatorPreExplosionOverlay, 0xf610),
+        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.RotatingElevatorPreExplosionOverlayLoop, 0xf612),
+        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.RotatingElevatorInvisibleWall, 0xf61a),
+        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.RotatingElevatorInvisibleWallLoop, 0xf622),
+        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.RidleyEscapeFloorLeftWall, 0xf62a),
+        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.RidleyEscapeFloorLeftWallLoop, 0xf62c),
+        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.RidleyEscapeFloorRightWall, 0xf634),
+        new NativeProgramEntry<CeresDoorSegment>(CeresDoorSegment.RidleyEscapeFloorRightWallLoop, 0xf636),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

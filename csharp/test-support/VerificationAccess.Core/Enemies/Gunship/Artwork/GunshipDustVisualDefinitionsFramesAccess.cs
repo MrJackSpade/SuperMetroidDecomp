@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Enemies.Gunship.GunshipDustProgram;
+using P = SuperMetroid.Core.Enemies.Gunship.GunshipDustSegment;
 
 namespace SuperMetroid.Core.Enemies.Gunship.Artwork;
 

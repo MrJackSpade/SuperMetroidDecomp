@@ -11,9 +11,9 @@ internal static class KraidRockVisualDefinitionsFramesTooling
         /// <summary>Every frame in installed-artwork order: the two poses, then the burst.</summary>
         internal static IReadOnlyList<KraidRockFrame> ProjectileFrames =>
         [
-            new KraidRockFrame(KraidRockProgram.SharedPose, 0),
-            new KraidRockFrame(KraidRockProgram.RisingRightPose, 0),
-            .. Enumerable.Range(0, KraidRockAnimations.ShotPhaseCount).Select(phase => new KraidRockFrame(KraidRockProgram.SpitRockShot, phase)),
+            new KraidRockFrame(KraidRockSegment.SharedPose, 0),
+            new KraidRockFrame(KraidRockSegment.RisingRightPose, 0),
+            .. Enumerable.Range(0, KraidRockAnimations.ShotPhaseCount).Select(phase => new KraidRockFrame(KraidRockSegment.SpitRockShot, phase)),
         ];
     }
 }

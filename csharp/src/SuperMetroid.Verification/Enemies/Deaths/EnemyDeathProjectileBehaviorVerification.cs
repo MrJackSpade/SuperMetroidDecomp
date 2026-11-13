@@ -29,7 +29,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
             enemy.Bind(EnemyDefinitionId.Sciser, enemy.Definition);
             variant.System.DeathsAndDrops.StartGenericEnemyDeath(enemy, animation);
             EnemyProjectile explosion = variant.System.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
-            AssertEqual(EnemyDeathExplosions.Program(animation), ProgramOf(explosion), $"death variant {animation} starts its program");
+            AssertEqual(EnemyDeathExplosions.Animation(animation), ProgramOf(explosion), $"death variant {animation} starts its program");
         }
 
         SamusState samus = CreateDropTestSamus();
@@ -43,20 +43,20 @@ internal static class EnemyDeathProjectileBehaviorVerification
         fixture.System.DeathsAndDrops.StartGenericEnemyDeath(killed, deathAnimation: EnemyDeathExplosion.Small);
         EnemyProjectile dying = fixture.System.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         int updates = 0;
-        while (ProgramOf(dying) == EnemyDeathProjectileProgram.SmallExplosion)
+        while (ProgramOf(dying) == EnemyDeathProjectileSegment.SmallExplosion)
         {
-            fixture.System.Projectiles.ProcessEnemyProjectileInstructions(dying, samus, Position16<RoomPixels>.Zero);
+            fixture.System.Projectiles.AdvanceEnemyProjectileAnimations(dying, samus, Position16<RoomPixels>.Zero);
             AssertTrue(++updates < 64, "the small explosion converts within its six frames");
         }
-        AssertEqual(EnemyDeathProjectileProgram.SmallEnergy, ProgramOf(dying), "the conversion continues at the rolled small-energy drop");
+        AssertEqual(EnemyDeathProjectileSegment.SmallEnergy, ProgramOf(dying), "the conversion continues at the rolled small-energy drop");
         AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.EnemyPickupSmallEnergyFirst),
             dying.PresentationOperandAddress, "the drop's first frame shows on the conversion's own pass");
 
         dying.StateOf<EnemyPickupState>().Lifetime = 1;
         fixture.System.DeathsAndDrops.RunEnemyPickupFrameBehavior(dying, samus);
-        AssertEqual(EnemyDeathProjectileProgram.RespawnTail, ProgramOf(dying), "an expired drop starts the respawn tail");
+        AssertEqual(EnemyDeathProjectileSegment.RespawnTail, ProgramOf(dying), "an expired drop starts the respawn tail");
         for (int update = 0; update < 70 && dying.IsActive; update++)
-            fixture.System.Projectiles.ProcessEnemyProjectileInstructions(dying, samus, Position16<RoomPixels>.Zero);
+            fixture.System.Projectiles.AdvanceEnemyProjectileAnimations(dying, samus, Position16<RoomPixels>.Zero);
         AssertTrue(!dying.IsActive, "the respawn tail deletes the drop after its blank frame");
         Console.WriteLine("  Enemy death behavior: every variant's program, the same-pass drop conversion and the respawn tail pass.");
     }

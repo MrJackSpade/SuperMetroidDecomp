@@ -37,9 +37,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         BullEnemyState state = _inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous));
         slot.SetSpeciesState(state);
 
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
-        state.Playback = new(BullAnimations.StartingWith(BullProgram.Normal), AnimationPlace.StartOfAnimation);
+        state.Playback = EnemyAnimationPlayback.Start(slot, BullAnimations.StartingWith(BullSegment.Normal));
 
         BullSpawnSettings settings = slot.SpawnSettings<BullSpawnSettings>();
         BullSpeedIntervals intervals = settings.Intervals;
@@ -200,9 +198,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.ShotReactionDisabled)
             return;
 
-        bull.FrameHold = WrappingCountdown.Start(1);
-        bull.Timer = WrappingCountdown.Start(0);
-        state.Playback = new(BullAnimations.StartingWith(BullProgram.Shot), AnimationPlace.StartOfAnimation);
+        state.Playback = EnemyAnimationPlayback.Start(bull, BullAnimations.StartingWith(BullSegment.Shot));
         state.Angle = BullMotion.ShotAngle(projectileDirection);
         state.Acceleration = ShotKickAcceleration;
         state.Speed = ShotKickSpeed;
@@ -212,8 +208,8 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Bull's normal and immune-shot animations as typed programs (#641).</summary>
-    internal static void AdvanceBullAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, BullAnimations.Segments,
+    internal static void AdvanceBullAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, BullAnimations.Segments,
             static (BullEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Bull animation raised {cue}."));
 

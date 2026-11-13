@@ -17,8 +17,8 @@ internal static class YappingMawBodyProjectileBehaviorVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, YappingMawBodyProjectileNativeListAddresses.Extent, "Yapping Maw body");
-        foreach ((ushort facing, YappingMawBodyProjectileProgram program) in new VerifyYappingMawBodyProjectileBehaviorCase[]
-                 { new VerifyYappingMawBodyProjectileBehaviorCase(0, YappingMawBodyProjectileProgram.FacingDown), new VerifyYappingMawBodyProjectileBehaviorCase(1, YappingMawBodyProjectileProgram.FacingUp) })
+        foreach ((ushort facing, YappingMawBodyProjectileSegment program) in new VerifyYappingMawBodyProjectileBehaviorCase[]
+                 { new VerifyYappingMawBodyProjectileBehaviorCase(0, YappingMawBodyProjectileSegment.FacingDown), new VerifyYappingMawBodyProjectileBehaviorCase(1, YappingMawBodyProjectileSegment.FacingUp) })
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot owner = enemies.SlotTable.Slots[0];

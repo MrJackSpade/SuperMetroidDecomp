@@ -462,8 +462,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         {
             foreach (ushort program in new[]
                      {
-                         SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree),
-                         SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Metaree),
+                         SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleSegment.Skree),
+                         SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleSegment.Metaree),
                      })
             {
                 EnemyDefinitionId spawner = BurstSpawner(program);
@@ -534,7 +534,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                          .Where(particle => particle.IsActive))
             {
                 particle.FrameHold = WrappingCountdown.Start(1);
-                enemies.Projectiles.ProcessEnemyProjectileInstructions(particle, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero);
+                enemies.Projectiles.AdvanceEnemyProjectileAnimations(particle, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero);
             }
             var oam = new OamBuffer();
             oam.BeginFrame();
@@ -543,7 +543,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
 
         static EnemyDefinitionId BurstSpawner(ushort program) =>
-            program == SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree)
+            program == SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleSegment.Skree)
                 ? EnemyDefinitionId.Skree : EnemyDefinitionId.Metaree;
 
         // The particles draw from the sheets a set loading their spawner composes from this artwork.
@@ -719,8 +719,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             slot.Position = slot.Position.WithWhole(new(128, 96));
             slot.Graphics = SpawnedGraphics;
             // The first shard's animation opens on its flying loop, whose first beat is the reflecting flicker.
-            slot.StartAnimation(new NoobTubeProjectileAnimation(NoobTubeProjectileProgram.Shard0));
-            enemies.Projectiles.ProcessEnemyProjectileInstructions(slot, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero);
+            slot.StartAnimation(new NoobTubeProjectileAnimation(NoobTubeProjectileSegment.Shard0));
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(slot, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero);
             // It draws from the sheets a set spawning it composes from this artwork.
             slot.Graphics = SpawnedObjectFixtures.LoadSetSpawning(enemies,
                 slot.Frame ?? throw new InvalidOperationException("The shard shows a frame."), SpawnedGraphics);
@@ -760,8 +760,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
     [
         .. new[]
         {
-            EnemyDeathProjectileProgram.SmallEnergy, EnemyDeathProjectileProgram.BigEnergy, EnemyDeathProjectileProgram.Missiles,
-            EnemyDeathProjectileProgram.SuperMissiles, EnemyDeathProjectileProgram.PowerBombs,
+            EnemyDeathProjectileSegment.SmallEnergy, EnemyDeathProjectileSegment.BigEnergy, EnemyDeathProjectileSegment.Missiles,
+            EnemyDeathProjectileSegment.SuperMissiles, EnemyDeathProjectileSegment.PowerBombs,
         }.SelectMany(program => EnemyDeathProjectileAnimations.Segments.Beats(program))
             .Select(beat => beat.ShownFrame).OfType<EnemyProjectileFrameId>().Distinct(),
     ];

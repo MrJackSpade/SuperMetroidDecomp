@@ -120,7 +120,7 @@ internal sealed class TourianUnlockBehavior
         int soulScreenRow = RoomGridConversions.PixelToScreen(projectile.Position.Y.Whole);
         if (soulScreenRow % 2 != 0)
         {
-            projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Delete));
+            projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.Delete));
         }
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y - SoulRiseAcceleration);
     }
@@ -137,7 +137,7 @@ internal sealed class TourianUnlockBehavior
             SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueSplash);
         if (RoomGridConversions.PixelToScreen(projectile.Position.Y.Whole) == 1)
         {
-            projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Delete));
+            projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.Delete));
         }
         else projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + ParticleGravity);
     }

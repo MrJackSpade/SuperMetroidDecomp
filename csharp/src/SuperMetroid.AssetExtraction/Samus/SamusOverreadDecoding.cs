@@ -38,7 +38,6 @@ internal static class SamusOverreadDecoding
             SamusAnimationOperandDecoding.OperandSteps(cartridge),
             SpaceTimeOverwrites(cartridge, lists),
             ChainsawFuseLandings(lists),
-            ChargeFlareDelaysBelowPrograms(cartridge),
             PostureAdmissions(cartridge),
             SpeedBoosterOverrunColours(cartridge),
             UnauthoredBeamLaunchSpeeds(cartridge),
@@ -55,7 +54,7 @@ internal static class SamusOverreadDecoding
     private static Dictionary<string, SamusOverreadDocument.Continuation?> AnimationContinuations(IImportCartridgeSource cartridge)
     {
         SamusAnimationProgramLayout.LaidOutProgram[] laidOut = SamusAnimationProgramLayout.Read(cartridge);
-        var successors = new Dictionary<SamusAnimationProgram, SamusOverreadDocument.Continuation?>();
+        var successors = new Dictionary<SamusPoseAnimation, SamusOverreadDocument.Continuation?>();
         for (int index = 0; index < laidOut.Length; index++)
         {
             successors.Add(laidOut[index].Program, index + 1 < laidOut.Length
@@ -63,7 +62,7 @@ internal static class SamusOverreadDecoding
                 : null);
         }
         return SamusAnimationProgramLayout.PosesWithRecords()
-            .ToDictionary(pose => pose.ToString(), pose => successors[SamusAnimationDelays.ProgramForPose(pose)]);
+            .ToDictionary(pose => pose.ToString(), pose => successors[SamusAnimationDelays.AnimationForPose(pose)]);
     }
 
     /// <summary>
@@ -74,7 +73,7 @@ internal static class SamusOverreadDecoding
         IImportCartridgeSource cartridge, SamusProjectileListLayout lists)
     {
         var result = new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>>>();
-        foreach (SamusProjectileProgram program in SpaceTimeShotPrograms())
+        foreach (SamusProjectileSegment program in SpaceTimeShotPrograms())
         {
             var positions = new Dictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>>();
             // Every place of the segment: before each beat, and at its end.
@@ -93,26 +92,26 @@ internal static class SamusOverreadDecoding
     /// Every segment a SpaceTime shot can animate by: the segments its header selects in every aim direction, and every
     /// segment their animations play.
     /// </summary>
-    internal static SamusProjectileProgram[] SpaceTimeShotPrograms()
+    internal static SamusProjectileSegment[] SpaceTimeShotPrograms()
     {
-        var programs = new HashSet<SamusProjectileProgram>();
-        var pending = new Queue<SamusProjectileProgram>();
+        var programs = new HashSet<SamusProjectileSegment>();
+        var pending = new Queue<SamusProjectileSegment>();
         foreach (bool charged in (bool[])[false, true])
         {
             foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>())
             {
                 if (SamusBeamCallbacks.Resolve(charged, beams).Translated != SamusProjectileFrameBehavior.SpacetimePaletteCopyTail)
                     continue;
-                foreach (SamusProjectileProgram program in EquippedBeamProjectilePrograms.BeamShotPrograms(beams, charged))
+                foreach (SamusProjectileSegment program in EquippedBeamProjectilePrograms.BeamShotPrograms(beams, charged))
                 {
                     if (programs.Add(program))
                         pending.Enqueue(program);
                 }
             }
         }
-        while (pending.TryDequeue(out SamusProjectileProgram program))
+        while (pending.TryDequeue(out SamusProjectileSegment program))
         {
-            foreach (AnimationPhase<SamusProjectileProgram> phase in SamusProjectileAnimations.StartingWith(program).Phases)
+            foreach (AnimationPhase<SamusProjectileSegment> phase in SamusProjectileAnimations.StartingWith(program).Phases)
             {
                 if (programs.Add(phase.Segment))
                     pending.Enqueue(phase.Segment);
@@ -197,7 +196,7 @@ internal static class SamusOverreadDecoding
     private static Dictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Cursor>> ChainsawFuseLandings(SamusProjectileListLayout lists)
     {
         var result = new Dictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Cursor>>();
-        foreach (SamusProjectileProgram program in Enum.GetValues<SamusProjectileProgram>())
+        foreach (SamusProjectileSegment program in Enum.GetValues<SamusProjectileSegment>())
         {
             var landings = new Dictionary<string, SamusOverreadDocument.Cursor>();
             for (int position = 0; position <= SamusProjectileAnimations.Segments.Beats(program).Count; position++)
@@ -211,21 +210,6 @@ internal static class SamusOverreadDecoding
             result.Add(program.ToString(), landings);
         }
         return result;
-    }
-
-    /// <summary>
-    /// The bytes stored just before the charge flare's programs, nearest first: the table naming the programs. The
-    /// original game would read a byte there that is one of its programs' loop or restart codes as that command; the
-    /// port holds every such place as a wait, so a cartridge whose table holds either code is rejected.
-    /// </summary>
-    /// <exception cref="InvalidDataException">A byte below the programs is the loop or restart code.</exception>
-    private static int[] ChargeFlareDelaysBelowPrograms(IImportCartridgeSource cartridge)
-    {
-        int[] delays = [.. Enumerable.Range(1, SuperMetroid.Core.Compatibility.ChargeFlareDelaysBelowPrograms.Places)
-            .Select(distance => (int)cartridge.ReadCartridgeByte(SamusSourceDefinitions.ChargeFlarePrograms.Value - distance))];
-        if (delays.Any(SamusSourceDefinitions.ChargeFlareCommandCodes.Contains))
-            throw new InvalidDataException("A byte below the charge flare's programs reads as a loop or restart, which the port holds as waits.");
-        return delays;
     }
 
     /// <summary>

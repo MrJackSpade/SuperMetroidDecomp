@@ -50,10 +50,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Kago's placement already authors its other processing properties. The initializer
         // sets only the animation-script property so the shared enemy animation animates the shell.
-        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
-        state.Playback = new(KagoAnimations.StartingWith(KagoProgram.Slow), AnimationPlace.StartOfAnimation);
+        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
+        state.Playback = EnemyAnimationPlayback.Start(slot, KagoAnimations.StartingWith(KagoSegment.Slow));
         state.Function = KagoEnemyFunction.InstallNoOp;
         state.DeathAnimationStarted = false;
         state.HitCounter = slot.SpawnSettings<KagoSpawnSettings>().HitCount;
@@ -87,8 +85,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.UsesFastAnimation)
         {
             state.UsesFastAnimation = true;
-            state.Playback = new(KagoAnimations.StartingWith(KagoProgram.Fast), AnimationPlace.StartOfAnimation);
-            slot.FrameHold = WrappingCountdown.Start(1);
+            state.Playback = new(KagoAnimations.StartingWith(KagoSegment.Fast), AnimationPlace.StartOfAnimation);
+            slot.AnimationClock.StepOnNextUpdate();
         }
 
         if (--state.HitCounter < 0)
@@ -140,7 +138,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         table.AddCue<KagoBugProjectileCue>((context, cue) => ApplyKagoBugCue(context.Projectile, cue));
         // A shot bug runs its typed shot program, the list its definition names.
-        table.AddShotAnimation(RoomEnemyProjectileKind.KagoBug, () => new KagoBugProjectileAnimation(KagoBugProjectileProgram.Shot));
+        table.AddShotAnimation(RoomEnemyProjectileKind.KagoBug, () => new KagoBugProjectileAnimation(KagoBugProjectileSegment.Shot));
     }
 
     /// <summary>Carries out one cue of the bugs' programs.</summary>
@@ -169,13 +167,13 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Kago's typed animation.</summary>
-    internal static void AdvanceKagoTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal static void AdvanceKagoTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         KagoEnemyState state = slot.RequireSpeciesState<KagoEnemyState>();
-        AnimationPlayback<KagoProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, KagoAnimations.Segments, ref playback,
+        AnimationPlayback<KagoSegment> playback = state.Playback;
+        EnemyAnimationPlayback.Play(slot, KagoAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A cue-free Kago animation raised {cue}."));
         state.Playback = playback;
     }
@@ -228,7 +226,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         projectile.FrameBehavior =
             EnemyProjectileFrameBehavior.KagoBugWaiting;
-        projectile.StartAnimation(new KraidRockAnimation(KraidRockProgram.SharedPose));
+        projectile.StartAnimation(new KraidRockAnimation(KraidRockSegment.SharedPose));
         return true;
     }
 
@@ -271,7 +269,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileProgram.JumpStart));
+        projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.JumpStart));
         projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
     }
 
@@ -319,7 +317,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
             projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
-            projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileProgram.Landed));
+            projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.Landed));
             return;
         }
 
@@ -331,7 +329,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         projectile.FrameBehavior =
             EnemyProjectileFrameBehavior.KagoBugFall;
-        projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileProgram.Falling));
+        projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.Falling));
     }
 
     /// <summary>Animation cue: starts the bug's jump, including its unusual RNG reuse.</summary>

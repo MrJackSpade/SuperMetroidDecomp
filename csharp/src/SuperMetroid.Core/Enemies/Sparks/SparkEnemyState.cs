@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 public sealed class SparkEnemyState
 {
     /// <summary>The animation the Spark plays and where it stands in it (#1600); none until the Spark is initialized.</summary>
-    internal AnimationPlayback<SparkProgram>? Playback { get; set; }
+    internal AnimationPlayback<SparkSegment>? Playback { get; set; }
 
     /// <summary>The always-active, intermittent or falling-spark behaviour.</summary>
     public SparkEnemyFunction? Function { get; internal set; }

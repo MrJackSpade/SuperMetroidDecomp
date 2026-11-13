@@ -15,10 +15,10 @@ internal sealed record CinematicShownFrames(CinematicSpriteFamily Family, IReadO
     : ICinematicSpriteFrames
 {
     /// <summary>The poses <paramref name="programs"/> show, through every program they go, fall or repeat into; the blank pose draws nothing.</summary>
-    internal static HashSet<CinematicSpritePose> PosesOf(IEnumerable<CinematicSpriteProgram> programs)
+    internal static HashSet<CinematicSpritePose> PosesOf(IEnumerable<CinematicSpriteSegment> programs)
     {
         var shown = new HashSet<CinematicSpritePose>();
-        foreach (CinematicSpriteProgram program in programs)
+        foreach (CinematicSpriteSegment program in programs)
         {
             foreach (CinematicSpritePose pose in CinematicSpriteAnimations.Segments.FramesOf(CinematicSpriteAnimations.StartingWith(program)))
             {

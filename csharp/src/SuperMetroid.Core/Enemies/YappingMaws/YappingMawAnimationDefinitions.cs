@@ -4,16 +4,16 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 internal static class YappingMawAnimationDefinitions
 {
     /// <summary>The eight attack bites in the clockwise octant order, starting facing up.</summary>
-    internal static readonly Dictionary<YappingMawAim, YappingMawProgram> Attacks = new()
+    internal static readonly Dictionary<YappingMawAim, YappingMawSegment> Attacks = new()
     {
-        [YappingMawAim.Up] = YappingMawProgram.AttackingUp,
-        [YappingMawAim.UpRight] = YappingMawProgram.AttackingUpRight,
-        [YappingMawAim.Right] = YappingMawProgram.AttackingRight,
-        [YappingMawAim.DownRight] = YappingMawProgram.AttackingDownRight,
-        [YappingMawAim.Down] = YappingMawProgram.AttackingDown,
-        [YappingMawAim.DownLeft] = YappingMawProgram.AttackingDownLeft,
-        [YappingMawAim.Left] = YappingMawProgram.AttackingLeft,
-        [YappingMawAim.UpLeft] = YappingMawProgram.AttackingUpLeft,
+        [YappingMawAim.Up] = YappingMawSegment.AttackingUp,
+        [YappingMawAim.UpRight] = YappingMawSegment.AttackingUpRight,
+        [YappingMawAim.Right] = YappingMawSegment.AttackingRight,
+        [YappingMawAim.DownRight] = YappingMawSegment.AttackingDownRight,
+        [YappingMawAim.Down] = YappingMawSegment.AttackingDown,
+        [YappingMawAim.DownLeft] = YappingMawSegment.AttackingDownLeft,
+        [YappingMawAim.Left] = YappingMawSegment.AttackingLeft,
+        [YappingMawAim.UpLeft] = YappingMawSegment.AttackingUpLeft,
     };
 
     /// <summary>The aim sectors clockwise from straight up, each a thirty-second of a turn either side of its direction.</summary>

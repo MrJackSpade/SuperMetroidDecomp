@@ -13,10 +13,10 @@ internal static class CeresFallingDebrisVisualDefinitions
     internal static SpriteGraphics Graphics { get; } = SpriteGraphics.SharedIn(CeresDoorShades.InEscapingColours);
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
-    internal static IReadOnlyDictionary<CeresFallingDebrisProgram, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
-        new Dictionary<CeresFallingDebrisProgram, EnemyProjectileFrameId>
+    internal static IReadOnlyDictionary<CeresFallingDebrisSegment, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
+        new Dictionary<CeresFallingDebrisSegment, EnemyProjectileFrameId>
         {
-            [CeresFallingDebrisProgram.Light] = EnemyProjectileFrameId.CeresFallingDebrisLight,
-            [CeresFallingDebrisProgram.Dark] = EnemyProjectileFrameId.CeresFallingDebrisDark,
+            [CeresFallingDebrisSegment.Light] = EnemyProjectileFrameId.CeresFallingDebrisLight,
+            [CeresFallingDebrisSegment.Dark] = EnemyProjectileFrameId.CeresFallingDebrisDark,
         };
 }

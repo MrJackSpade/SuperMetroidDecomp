@@ -22,7 +22,7 @@ internal sealed class IntroScientistCutsceneState
         baby = new IntroDiscoverySprite(
             definition.Position,
             IntroShades.Drawn(definition.Colouring),
-            definition.Program);
+            definition.Animation);
         baby.InstallFrameBehavior(definition.FrameBehavior);
         Background = delivery ? new(32, 8) : new(0, CoordinateAxis.Wrap(-24));
     }
@@ -61,7 +61,7 @@ internal sealed class IntroScientistCutsceneState
         // cinematic-function counter while the intro crossfade counter remains 127.
         if (introCrossfadeTimer == 0)
         {
-            baby.Start(CinematicSpriteProgram.Delete);
+            baby.Start(CinematicSpriteSegment.Delete);
         }
         else if (IntroCadenceDefinitions.LaboratoryStepEveryFourthUpdate.IsDue(cinematicFunctionTimer))
         {

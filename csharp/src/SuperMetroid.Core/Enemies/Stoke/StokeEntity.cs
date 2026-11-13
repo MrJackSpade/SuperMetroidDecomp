@@ -14,5 +14,5 @@ internal sealed class StokeEntity(StokeBehavior species, RoomEnemySlot slot, Ene
     public EnemyMainAiHandler? FindMain() => species.RunStokeMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceStokeTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceStokeTypedAnimation;
 }

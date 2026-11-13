@@ -9,4 +9,4 @@ namespace SuperMetroid.Verification.Enemies.YappingMaws;
 /// <param name="X">The x.</param>
 /// <param name="Y">The y.</param>
 /// <param name="Name">The name.</param>
-internal readonly record struct Cooldown(YappingMawProgram Entry, YappingMawProgram Loop, int Calls, short X, short Y, string Name);
+internal readonly record struct Cooldown(YappingMawSegment Entry, YappingMawSegment Loop, int Calls, short X, short Y, string Name);

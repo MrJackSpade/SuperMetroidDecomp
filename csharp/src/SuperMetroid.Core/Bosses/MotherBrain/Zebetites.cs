@@ -26,7 +26,7 @@ internal static class Zebetites
         return new(
             linkedPair ? ZebetiteGenerationFlags.LinkedPair : ZebetiteGenerationFlags.None,
             linkedPair ? 8 : 24,
-            ZebetiteAnimations.HealthProgram(linkedPair, 1000),
+            ZebetiteAnimations.HealthAnimation(linkedPair, 1000),
             824 - generation * 192,
             111 - separation,
             111 + separation);

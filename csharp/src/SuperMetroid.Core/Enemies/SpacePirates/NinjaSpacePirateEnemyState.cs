@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 public sealed class NinjaSpacePirateEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<NinjaSpacePirateProgram> Playback { get; set; }
+    internal AnimationPlayback<NinjaSpacePirateSegment> Playback { get; set; }
 
     /// <summary>Movement/decision function.</summary>
     public NinjaSpacePirateFunction? Function { get; internal set; }
@@ -19,7 +19,7 @@ public sealed class NinjaSpacePirateEnemyState
     public int CalculatedSpinJumpSpeed { get; internal set; }
 
     /// <summary>The active stance animation, facing Samus, that becoming active continues at.</summary>
-    internal NinjaSpacePirateProgram ActiveProgram { get; set; }
+    internal NinjaSpacePirateSegment ActiveAnimation { get; set; }
 
     /// <summary>
     /// The room position midway between the adjusted posts. Only the X axis is stored and meaningful; Samus and the

@@ -14,16 +14,16 @@ internal static class FuneNamiheNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<FuneNamiheProgram>[] Entries =
+    internal static readonly NativeProgramEntry<FuneNamiheSegment>[] Entries =
     [
-        new NativeProgramEntry<FuneNamiheProgram>(FuneNamiheProgram.FuneIdleLeft, 0x9399),
-        new NativeProgramEntry<FuneNamiheProgram>(FuneNamiheProgram.FuneActiveLeft, 0x939f),
-        new NativeProgramEntry<FuneNamiheProgram>(FuneNamiheProgram.FuneIdleRight, 0x93c9),
-        new NativeProgramEntry<FuneNamiheProgram>(FuneNamiheProgram.FuneActiveRight, 0x93cf),
-        new NativeProgramEntry<FuneNamiheProgram>(FuneNamiheProgram.NamiheIdleLeft, 0x95bd),
-        new NativeProgramEntry<FuneNamiheProgram>(FuneNamiheProgram.NamiheActiveLeft, 0x95c3),
-        new NativeProgramEntry<FuneNamiheProgram>(FuneNamiheProgram.NamiheIdleRight, 0x95f1),
-        new NativeProgramEntry<FuneNamiheProgram>(FuneNamiheProgram.NamiheActiveRight, 0x95f7),
+        new NativeProgramEntry<FuneNamiheSegment>(FuneNamiheSegment.FuneIdleLeft, 0x9399),
+        new NativeProgramEntry<FuneNamiheSegment>(FuneNamiheSegment.FuneActiveLeft, 0x939f),
+        new NativeProgramEntry<FuneNamiheSegment>(FuneNamiheSegment.FuneIdleRight, 0x93c9),
+        new NativeProgramEntry<FuneNamiheSegment>(FuneNamiheSegment.FuneActiveRight, 0x93cf),
+        new NativeProgramEntry<FuneNamiheSegment>(FuneNamiheSegment.NamiheIdleLeft, 0x95bd),
+        new NativeProgramEntry<FuneNamiheSegment>(FuneNamiheSegment.NamiheActiveLeft, 0x95c3),
+        new NativeProgramEntry<FuneNamiheSegment>(FuneNamiheSegment.NamiheIdleRight, 0x95f1),
+        new NativeProgramEntry<FuneNamiheSegment>(FuneNamiheSegment.NamiheActiveRight, 0x95f7),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

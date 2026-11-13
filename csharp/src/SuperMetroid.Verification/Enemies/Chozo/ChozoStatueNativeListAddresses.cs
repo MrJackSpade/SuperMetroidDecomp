@@ -15,15 +15,15 @@ internal static class ChozoStatueNativeListAddresses
     internal const byte Bank = 0xaa;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<ChozoStatueProgram>[] Entries =
+    internal static readonly NativeProgramEntry<ChozoStatueSegment>[] Entries =
     [
-        new NativeProgramEntry<ChozoStatueProgram>(ChozoStatueProgram.LowerNorfairInitial, 0xe39d),
-        new NativeProgramEntry<ChozoStatueProgram>(ChozoStatueProgram.LowerNorfairActivated, 0xe3a7),
-        new NativeProgramEntry<ChozoStatueProgram>(ChozoStatueProgram.LowerNorfairActivatedLoop, 0xe3e5),
-        new NativeProgramEntry<ChozoStatueProgram>(ChozoStatueProgram.WreckedShipInitial, 0xe457),
-        new NativeProgramEntry<ChozoStatueProgram>(ChozoStatueProgram.WreckedShipActivated, 0xe461),
-        new NativeProgramEntry<ChozoStatueProgram>(ChozoStatueProgram.WreckedShipActivatedLoop, 0xe49d),
-        new NativeProgramEntry<ChozoStatueProgram>(ChozoStatueProgram.WreckedShipActivatedLoop2, 0xe4c1),
+        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.LowerNorfairInitial, 0xe39d),
+        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.LowerNorfairActivated, 0xe3a7),
+        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.LowerNorfairActivatedLoop, 0xe3e5),
+        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipInitial, 0xe457),
+        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipActivated, 0xe461),
+        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipActivatedLoop, 0xe49d),
+        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipActivatedLoop2, 0xe4c1),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

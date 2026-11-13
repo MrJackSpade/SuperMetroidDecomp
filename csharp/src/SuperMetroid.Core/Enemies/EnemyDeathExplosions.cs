@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemyDeathExplosions
 {
     /// <summary>The death program <paramref name="explosion"/> starts.</summary>
-    internal static EnemyDeathProjectileProgram Program(EnemyDeathExplosion explosion) => explosion switch
+    internal static EnemyDeathProjectileSegment Animation(EnemyDeathExplosion explosion) => explosion switch
     {
-        EnemyDeathExplosion.Small => EnemyDeathProjectileProgram.SmallExplosion,
-        EnemyDeathExplosion.SamusContact => EnemyDeathProjectileProgram.KilledBySamusContact,
-        EnemyDeathExplosion.Normal => EnemyDeathProjectileProgram.NormalExplosion,
-        EnemyDeathExplosion.MiniKraid => EnemyDeathProjectileProgram.MiniKraidExplosion,
-        EnemyDeathExplosion.Big => EnemyDeathProjectileProgram.BigExplosion,
+        EnemyDeathExplosion.Small => EnemyDeathProjectileSegment.SmallExplosion,
+        EnemyDeathExplosion.SamusContact => EnemyDeathProjectileSegment.KilledBySamusContact,
+        EnemyDeathExplosion.Normal => EnemyDeathProjectileSegment.NormalExplosion,
+        EnemyDeathExplosion.MiniKraid => EnemyDeathProjectileSegment.MiniKraidExplosion,
+        EnemyDeathExplosion.Big => EnemyDeathProjectileSegment.BigExplosion,
         _ => throw new ArgumentOutOfRangeException(nameof(explosion), explosion, "Undefined enemy death explosion."),
     };
 

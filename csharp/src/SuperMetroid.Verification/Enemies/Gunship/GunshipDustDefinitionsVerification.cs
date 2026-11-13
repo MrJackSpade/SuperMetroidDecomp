@@ -29,7 +29,7 @@ internal static class GunshipDustDefinitionsVerification
             ushort instruction = Word(EnemyRomTablePointersGunship.DustInstructionPointers + parameter);
             var definition = GunshipDustDefinitions.LiftoffClouds[cloud];
             AssertEqual(dx, definition.XOffset, "All native dust signed X offsets");
-            AssertEqual(instruction, GunshipDustNativeListAddresses.Entry(definition.Program), "All native dust instruction selections");
+            AssertEqual(instruction, GunshipDustNativeListAddresses.Entry(definition.Animation), "All native dust instruction selections");
             for (int origin = 0; origin <= ushort.MaxValue; origin++)
             {
                 slot.Delete();
@@ -45,7 +45,7 @@ internal static class GunshipDustDefinitionsVerification
                 AssertEqual(unchecked((ushort)(samus.Position.X.Whole + dx)), slot.Position.X.Whole, "Actual dust signed X placement and wrap");
                 AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word(0x86a2c5))), slot.Position.Y.Whole, "Actual dust Y placement and wrap");
                 AssertTrue(slot.Animation is GunshipDustAnimation started &&
-                    started.Playback == new AnimationPlayback<GunshipDustProgram>(GunshipDustAnimations.StartingWith(definition.Program), AnimationPlace.StartOfAnimation), "Actual dust program selection");
+                    started.Playback == new AnimationPlayback<GunshipDustSegment>(GunshipDustAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation), "Actual dust program selection");
                 AssertEqual((ushort)1, slot.FrameHold.RawValue, "Dust begins on first program tick");
                 AssertEqual((ushort)0, slot.Position.X.Fraction, "Dust clears stale X fraction");
                 AssertEqual((ushort)0, slot.Position.Y.Fraction, "Dust clears stale Y fraction");

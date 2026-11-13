@@ -33,12 +33,12 @@ internal static class PolypRockBehaviorVerification
         };
         enemies.PolypBehavior.SpawnPolypRock(source, 16, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-256));
         EnemyProjectile rock = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.PolypRock);
-        AssertTrue(rock.Animation is PolypRockAnimation { PlayingSegment: PolypRockProgram.Initial }, "a spawned rock starts its typed program");
+        AssertTrue(rock.Animation is PolypRockAnimation { PlayingSegment: PolypRockSegment.Initial }, "a spawned rock starts its typed program");
         (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, rock,
-            NativeEnemyProjectileProgramOracle.EntryOf(PolypRockNativeListAddresses.Entries, PolypRockProgram.Initial), 5, "Polyp rock");
+            NativeEnemyProjectileProgramOracle.EntryOf(PolypRockNativeListAddresses.Entries, PolypRockSegment.Initial), 5, "Polyp rock");
         AssertTrue(!deleted, "the rock holds its frame and sleeps");
         rock.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
-        enemies.Projectiles.ProcessEnemyProjectileInstructions(rock, null, Position16<RoomPixels>.Zero);
+        enemies.Projectiles.AdvanceEnemyProjectileAnimations(rock, null, Position16<RoomPixels>.Zero);
         AssertTrue(!rock.IsActive, "the shared shot list still deletes the rock");
         AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.PolypRockInitial), out ushort selected),
             "the rock's frame has a selector");

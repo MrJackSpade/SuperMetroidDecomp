@@ -25,7 +25,7 @@ internal static class EnemyDeathExplosionDefinitionsVerification
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86efd5 + animation * 2));
             EnemyDeathExplosion explosion = EnemyDeathExplosionWords.Selectors.Decode(animation, "death explosion");
             AssertEqual(expected,
-                EnemyDeathProjectileNativeListAddresses.Entry(EnemyDeathExplosions.Program(explosion)),
+                EnemyDeathProjectileNativeListAddresses.Entry(EnemyDeathExplosions.Animation(explosion)),
                 $"enemy death explosion program {animation}");
 
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -38,7 +38,7 @@ internal static class EnemyDeathExplosionDefinitionsVerification
                 enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, dying.Kind,
                 $"production enemy death explosion kind {animation}");
-            AssertEqual(EnemyDeathExplosions.Program(explosion), ProgramOf(dying),
+            AssertEqual(EnemyDeathExplosions.Animation(explosion), ProgramOf(dying),
                 $"production enemy death explosion program {animation}");
             AssertEqual(unchecked((ushort)(0xfff0 + animation)), dying.Position.X.Whole,
                 $"production enemy death explosion X {animation}");
@@ -50,7 +50,7 @@ internal static class EnemyDeathExplosionDefinitionsVerification
         RoomEnemySlot clampedEnemy = clamped.SlotTable.Slots[0];
         clampedEnemy.Bind(EnemyDefinitionId.Sciser, clampedEnemy.Definition);
         clamped.DeathsAndDrops.StartGenericEnemyDeath(clampedEnemy, FirefleaTouchDeathExplosion.AfterSurvivedTouch(5, EnemyDeathExplosionDefinitions.AuthoredOrder));
-        AssertEqual(EnemyDeathProjectileProgram.SmallExplosion,
+        AssertEqual(EnemyDeathProjectileSegment.SmallExplosion,
             ProgramOf(clamped.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive)),
             "a Fireflea health above four starts the small explosion");
 

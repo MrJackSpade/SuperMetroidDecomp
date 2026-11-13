@@ -27,7 +27,7 @@ internal readonly record struct EnemyPropertyState(
     public static EnemyPropertyState Of(RoomEnemySlot slot)
     {
         ArgumentNullException.ThrowIfNull(slot);
-        return new EnemyPropertyState(slot.Contact, slot.Processing, slot.Presence, slot.CollidesByFrameHitboxes, slot.NewInstructionFrame);
+        return new EnemyPropertyState(slot.Contact, slot.Processing, slot.Presence, slot.CollidesByFrameHitboxes, slot.AnimationClock.ShowsNewFrame);
     }
 
     /// <summary>Stores the five parts on <paramref name="slot"/>.</summary>
@@ -38,6 +38,6 @@ internal readonly record struct EnemyPropertyState(
         slot.Processing = Processing;
         slot.Presence = Presence;
         slot.CollidesByFrameHitboxes = CollidesByFrameHitboxes;
-        slot.NewInstructionFrame = NewInstructionFrame;
+        slot.AnimationClock.ShowsNewFrame = NewInstructionFrame;
     }
 }

@@ -11,10 +11,10 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 internal static class WorkRobotLaserNativeListAddresses
 {
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<WorkRobotLaserProgram>[] Entries =
+    internal static readonly NativeProgramEntry<WorkRobotLaserSegment>[] Entries =
     [
-        new NativeProgramEntry<WorkRobotLaserProgram>(WorkRobotLaserProgram.Initial, 0xd2ec),
-        new NativeProgramEntry<WorkRobotLaserProgram>(WorkRobotLaserProgram.Loop, 0xd2f8),
+        new NativeProgramEntry<WorkRobotLaserSegment>(WorkRobotLaserSegment.Initial, 0xd2ec),
+        new NativeProgramEntry<WorkRobotLaserSegment>(WorkRobotLaserSegment.Loop, 0xd2f8),
     ];
 
     /// <summary>The bank-$86 bytes the lists occupy, $86:D2EC-D30B, which production must never read.</summary>

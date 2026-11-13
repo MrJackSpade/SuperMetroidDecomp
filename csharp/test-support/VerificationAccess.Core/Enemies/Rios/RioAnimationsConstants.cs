@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 internal static class RioAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params RioProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params RioSegment[] programs) =>
         programs.SelectMany(program => RioAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, RioCue>.Frame>()
             .Select(frame => RioFrameToolingDefinitions.Spritemap(frame.Shown));

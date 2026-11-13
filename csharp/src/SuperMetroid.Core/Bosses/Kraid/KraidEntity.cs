@@ -35,7 +35,7 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, Ene
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => KraidPartDefinitions.Parts[Slot.DefinitionId] switch
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => KraidPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         KraidPart.Arm or KraidPart.LintTop or KraidPart.LintMiddle or KraidPart.LintBottom or KraidPart.Foot or KraidPart.Nail or KraidPart.NailBad => (enemy, _) => species.Limbs.AdvanceKraidPartAnimation(enemy),
         KraidPart.Kraid => null,

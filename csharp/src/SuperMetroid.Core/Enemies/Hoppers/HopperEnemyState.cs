@@ -35,7 +35,7 @@ public sealed class HopperEnemyState
     public int YSpeedTableIndexDelta { get; internal set; }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<HopperProgram> Playback { get; set; }
+    internal AnimationPlayback<HopperSegment> Playback { get; set; }
     /// <summary>Initial whole-row place within the quadratic speed table's 95 rows, calculated with step 3 and accumulated-height threshold 4096 by summing each row's coarse speed in 256ths of a pixel.</summary>
     public EnemyQuadraticSpeedIndex SmallHopInitialYSpeedTableIndex { get; internal set; }
     /// <summary>Initial whole-row place within the quadratic speed table's 95 rows, calculated with step 4 and accumulated-height threshold 12288 by summing each row's coarse speed in 256ths of a pixel.</summary>

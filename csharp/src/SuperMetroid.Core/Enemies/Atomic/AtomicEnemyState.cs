@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Atomic;
 public sealed class AtomicEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<AtomicProgram> Playback { get; set; }
+    internal AnimationPlayback<AtomicSegment> Playback { get; set; }
 
     /// <summary>
     /// The vertical movement chosen this update; the selected behaviour changes the actor's Y coordinate.

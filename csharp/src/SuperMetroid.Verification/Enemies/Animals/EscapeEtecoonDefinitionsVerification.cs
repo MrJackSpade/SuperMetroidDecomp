@@ -37,7 +37,7 @@ internal static class EscapeEtecoonDefinitionsVerification
                 initialization.FrameBehavior,
                 $"escape Etecoon role {role} pre-instruction");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + parameter)),
-                NativeEnemyAnimationOracle.EntryOf(EscapeEtecoonNativeListAddresses.Entries, initialization.Program),
+                NativeEnemyAnimationOracle.EntryOf(EscapeEtecoonNativeListAddresses.Entries, initialization.Animation),
                 $"escape Etecoon role {role} instruction");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((speedTable + parameter)),
                 initialization.Velocity.X.RawValue,
@@ -71,7 +71,7 @@ internal static class EscapeEtecoonDefinitionsVerification
                 $"production escape Etecoon selector {parameter} Y");
             AssertEqual(expected.FrameBehavior, state.FrameBehavior,
                 $"production escape Etecoon selector {parameter} pre-instruction");
-            AssertEqual(new AnimationPlayback<EscapeEtecoonProgram>(EscapeEtecoonAnimations.StartingWith(expected.Program), AnimationPlace.StartOfAnimation), state.Playback,
+            AssertEqual(new AnimationPlayback<EscapeEtecoonSegment>(EscapeEtecoonAnimations.StartingWith(expected.Animation), AnimationPlace.StartOfAnimation), state.Playback,
                 $"production escape Etecoon selector {parameter} program");
             AssertEqual(expected.Velocity, state.Velocity,
                 $"production escape Etecoon selector {parameter} speed");
@@ -102,23 +102,23 @@ internal static class EscapeEtecoonDefinitionsVerification
         EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
             throw new InvalidDataException("Escape Etecoon test lost typed state.");
         var shown = new HashSet<ushort>();
-        EscapeEtecoonProgram[] programs =
+        EscapeEtecoonSegment[] programs =
         [
-            EscapeEtecoonProgram.RunningLeftLowTide,
-            EscapeEtecoonProgram.RunningLeftHighTide,
-            EscapeEtecoonProgram.RunningRightLowTide,
-            EscapeEtecoonProgram.RunningRightHighTide,
-            EscapeEtecoonProgram.RunningForEscape,
-            EscapeEtecoonProgram.Stationary,
+            EscapeEtecoonSegment.RunningLeftLowTide,
+            EscapeEtecoonSegment.RunningLeftHighTide,
+            EscapeEtecoonSegment.RunningRightLowTide,
+            EscapeEtecoonSegment.RunningRightHighTide,
+            EscapeEtecoonSegment.RunningForEscape,
+            EscapeEtecoonSegment.Stationary,
         ];
-        foreach (EscapeEtecoonProgram program in programs)
+        foreach (EscapeEtecoonSegment program in programs)
         {
             state.Playback = new(EscapeEtecoonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             RunForcedEscapeEtecoonUpdates(etecoon, 7, shown);
         }
 
         ushort xBeforeGratitude = etecoon.Position.X.Whole;
-        state.Playback = new(EscapeEtecoonAnimations.StartingWith(EscapeEtecoonProgram.ExpressGratitudeThenEscape), AnimationPlace.StartOfAnimation);
+        state.Playback = new(EscapeEtecoonAnimations.StartingWith(EscapeEtecoonSegment.ExpressGratitudeThenEscape), AnimationPlace.StartOfAnimation);
         RunForcedEscapeEtecoonUpdates(etecoon, 40, shown);
         AssertTrue(unchecked((short)(etecoon.Position.X.Whole - xBeforeGratitude)) < 0,
             "escape Etecoon gratitude program applies its repeated left displacement");
@@ -162,7 +162,7 @@ internal static class EscapeEtecoonDefinitionsVerification
             [etecoon, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
         for (int step = 0; step < steps; step++)
         {
-            etecoon.FrameHold = WrappingCountdown.Start(1);
+            etecoon.AnimationClock.StepOnNextUpdate();
             EnemyInstructionRunner.Process(arguments);
             shown.Add(etecoon.SpritemapPointer);
         }

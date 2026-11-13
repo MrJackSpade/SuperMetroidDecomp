@@ -6,28 +6,28 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainBabyAnimations
 {
     /// <summary>Every Baby segment.</summary>
-    internal static AnimationSegments<MotherBrainBabyProgram, BabyMetroidFrame, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<MotherBrainBabyProgram, AnimationBeat<BabyMetroidFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<MotherBrainBabySegment, BabyMetroidFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<MotherBrainBabySegment, AnimationBeat<BabyMetroidFrame, NoAnimationCue>[]>
     {
-        [MotherBrainBabyProgram.Initial] = [Show(0, 16), Show(1, 16), Show(2, 16), Show(1, 16)],
-        [MotherBrainBabyProgram.DrainingMotherBrain] = [Show(0, 8), Show(1, 8), Show(2, 5), Show(1, 2)],
-        [MotherBrainBabyProgram.TakingFatalBlow] = [Show(2, 128)],
+        [MotherBrainBabySegment.Initial] = [Show(0, 16), Show(1, 16), Show(2, 16), Show(1, 16)],
+        [MotherBrainBabySegment.DrainingMotherBrain] = [Show(0, 8), Show(1, 8), Show(2, 5), Show(1, 2)],
+        [MotherBrainBabySegment.TakingFatalBlow] = [Show(2, 128)],
     });
 
     /// <summary>The animation that starts at each segment: the pulses cycle for good, and the fatal blow holds its pose.</summary>
-    internal static IReadOnlyDictionary<MotherBrainBabyProgram, Animation<MotherBrainBabyProgram>> StartingAt { get; } = new Dictionary<MotherBrainBabyProgram, Animation<MotherBrainBabyProgram>>
+    internal static IReadOnlyDictionary<MotherBrainBabySegment, Animation<MotherBrainBabySegment>> StartingAt { get; } = new Dictionary<MotherBrainBabySegment, Animation<MotherBrainBabySegment>>
     {
-        [MotherBrainBabyProgram.Initial] = new([Whole(MotherBrainBabyProgram.Initial)], AnimationEnd.LoopsFrom(0)),
-        [MotherBrainBabyProgram.DrainingMotherBrain] = new([Whole(MotherBrainBabyProgram.DrainingMotherBrain)], AnimationEnd.LoopsFrom(0)),
-        [MotherBrainBabyProgram.TakingFatalBlow] = new([Whole(MotherBrainBabyProgram.TakingFatalBlow)], AnimationEnd.Holds),
+        [MotherBrainBabySegment.Initial] = new([Whole(MotherBrainBabySegment.Initial)], AnimationEnd.LoopsFrom(0)),
+        [MotherBrainBabySegment.DrainingMotherBrain] = new([Whole(MotherBrainBabySegment.DrainingMotherBrain)], AnimationEnd.LoopsFrom(0)),
+        [MotherBrainBabySegment.TakingFatalBlow] = new([Whole(MotherBrainBabySegment.TakingFatalBlow)], AnimationEnd.Holds),
     };
 
-    /// <summary>The animation that starts at <paramref name="program"/>, before its first play.</summary>
-    internal static AnimationPlayback<MotherBrainBabyProgram> Starting(MotherBrainBabyProgram program) =>
-        new(StartingAt[program], AnimationPlace.StartOfAnimation);
+    /// <summary>The animation that starts at <paramref name="segment"/>, before its first play.</summary>
+    internal static AnimationPlayback<MotherBrainBabySegment> Starting(MotherBrainBabySegment segment) =>
+        new(StartingAt[segment], AnimationPlace.StartOfAnimation);
 
-    /// <summary>One play of every beat of <paramref name="program"/>.</summary>
-    private static AnimationPhase<MotherBrainBabyProgram> Whole(MotherBrainBabyProgram program) => new(program, 0, Segments.Beats(program).Count, 1);
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<MotherBrainBabySegment> Whole(MotherBrainBabySegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows pose <paramref name="index"/>.</summary>
     private static AnimationBeat<BabyMetroidFrame, NoAnimationCue> Show(int index, int duration) =>

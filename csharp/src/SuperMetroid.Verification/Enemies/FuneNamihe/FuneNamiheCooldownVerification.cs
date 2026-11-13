@@ -33,7 +33,7 @@ internal static class FuneNamiheCooldownVerification
         AssertEqual(0, crossed.CooldownTimer, "ending the wait resets the count");
         AssertEqual(FuneNamiheEnemyFunction.FuneActivityNoOp, crossed.Function, "a count crossing the signed boundary ends the wait");
         AssertTrue(crossed.ShowsActiveAnimation && !crossed.FacingRight, "ending the wait selects the active animation for the same facing");
-        AssertEqual(new AnimationPlayback<FuneNamiheProgram>(FuneNamiheAnimations.StartingWith(FuneNamiheProgram.FuneActiveLeft), AnimationPlace.StartOfAnimation), crossed.Playback,
+        AssertEqual(new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(FuneNamiheSegment.FuneActiveLeft), AnimationPlace.StartOfAnimation), crossed.Playback,
             "ending the wait installs the active program for the same facing");
         Console.WriteLine("  Fune cooldown: short, wrapped and signed-boundary counts pass.");
     }

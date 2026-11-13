@@ -130,7 +130,7 @@ internal sealed class PhantoonDeath
         // The body remains the background producer. Eye/tentacle/mouth become invisible and ignore
         // Samus while preserving every unrelated raw property bit exactly as the death step does.
         EnemyContact hiddenPartContact = body.Contact.With(EnemyContact.IgnoresSamus);
-        EnemyProcessing hiddenPartProcessing = body.Processing.Without(EnemyProcessing.AnimationScript);
+        EnemyProcessing hiddenPartProcessing = body.Processing.Without(EnemyProcessing.Animates);
         EnemyPresence hiddenPartPresence = body.Presence.With(EnemyPresence.Hidden);
         state.Eye.Contact = hiddenPartContact;
         state.Eye.Processing = hiddenPartProcessing;

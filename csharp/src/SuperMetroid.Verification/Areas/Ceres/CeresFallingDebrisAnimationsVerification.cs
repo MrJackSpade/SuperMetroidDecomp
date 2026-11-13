@@ -21,9 +21,9 @@ internal static class CeresFallingDebrisAnimationsVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int updates = 0;
-        foreach ((CeresFallingDebrisProgram program, RoomEnemyProjectileKind kind, ushort entry) in Entries)
+        foreach ((CeresFallingDebrisSegment program, RoomEnemyProjectileKind kind, ushort entry) in Entries)
         {
-            AssertEqual(entry, program == CeresFallingDebrisProgram.Light
+            AssertEqual(entry, program == CeresFallingDebrisSegment.Light
                 ? CeresFallingDebrisVisualDefinitionsConstants.LightDefinitionList
                 : CeresFallingDebrisVisualDefinitionsConstants.DarkDefinitionList, $"the {program} tile definition names its native list");
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -37,7 +37,7 @@ internal static class CeresFallingDebrisAnimationsVerification
             AssertTrue(!deleted, $"the {program} tile sleeps rather than deleting");
             updates += compared;
         }
-        AssertTrue(CeresFallingDebrisVisualDefinitions.Frames.SequenceEqual(Enum.GetValues<CeresFallingDebrisProgram>()),
+        AssertTrue(CeresFallingDebrisVisualDefinitions.Frames.SequenceEqual(Enum.GetValues<CeresFallingDebrisSegment>()),
             "each tile program installs its one frame");
         Console.WriteLine($"  Ceres falling tile programs: {Entries.Length} programs ({updates} updates) match bank $86.");
     }

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 public sealed class WallSpacePirateEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<WallSpacePirateProgram> Playback { get; set; }
+    internal AnimationPlayback<WallSpacePirateSegment> Playback { get; set; }
 
     /// <summary>
     /// AI entry, initialized for the starting wall and replaced by an animation cue as attack, jump, and landing lists

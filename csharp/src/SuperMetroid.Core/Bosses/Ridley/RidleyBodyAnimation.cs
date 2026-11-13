@@ -31,20 +31,20 @@ internal sealed class RidleyBodyAnimation
     /// </summary>
     internal void AdvanceRidleyBodyAnimation(RoomEnemySlot slot, SamusState? samus)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         RidleyEnemyState state = _ridleyEncounter.RequireRidley(slot);
-        AnimationPlayback<RidleyBodyProgram> playback = state.BodyPlayback;
+        AnimationPlayback<RidleyBodySegment> playback = state.BodyPlayback;
         // Ridley's body lists load no loop counter.
-        EnemyProgramAnimation.Play(slot, RidleyAnimations.Segments, ref playback, RidleyBodyFrameDefinitions.ShownFrames.Of,
+        EnemyAnimationPlayback.Play(slot, RidleyAnimations.Segments, ref playback, RidleyBodyFrameDefinitions.ShownFrames.Of,
             cue => ApplyRidleyBodyCue(slot, state, samus, cue) is { } target
-                ? new AnimationContinuation<RidleyBodyProgram>(RidleyAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<RidleyBodySegment>(RidleyAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         state.BodyPlayback = playback;
     }
 
     /// <summary>Carries out one cue of Ridley's body animation, returning the segment whose animation a continue-at cue continues in.</summary>
-    internal RidleyBodyProgram? ApplyRidleyBodyCue(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus, RidleyBodyCue cue)
+    internal RidleyBodySegment? ApplyRidleyBodyCue(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus, RidleyBodyCue cue)
     {
         switch (cue)
         {
@@ -125,7 +125,7 @@ internal sealed class RidleyBodyAnimation
     }
 
     /// <summary>Runs Ceres and Lower Norfair Ridley's body as typed programs in place of their lists (#641).</summary>
-    internal void AdvanceRidleyBodyTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
+    internal void AdvanceRidleyBodyTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context) =>
         AdvanceRidleyBodyAnimation(slot, context.Samus);
 
     /// <summary>
@@ -134,11 +134,11 @@ internal sealed class RidleyBodyAnimation
     /// </summary>
     internal static void AdvanceRidleyBreakupAnimation(RoomEnemySlot fragment)
     {
-        if (!EnemyProgramAnimation.Expire(fragment))
+        if (!fragment.AnimationClock.Expire())
             return;
         RidleyExplosionFragmentState state = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
         AnimationPlayback<RidleyBreakupFrame> playback = state.Playback;
-        EnemyProgramAnimation.Play(fragment, RidleyBreakupAnimations.Segments, ref playback, RidleyBreakupFrameDefinitions.ShownFrames.Of,
+        EnemyAnimationPlayback.Play(fragment, RidleyBreakupAnimations.Segments, ref playback, RidleyBreakupFrameDefinitions.ShownFrames.Of,
             cue => throw new InvalidOperationException("Ridley's breakup animations raise no events."));
         state.Playback = playback;
     }

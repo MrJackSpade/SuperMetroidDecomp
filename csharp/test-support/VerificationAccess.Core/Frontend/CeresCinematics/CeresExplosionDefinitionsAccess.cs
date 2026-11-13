@@ -10,6 +10,6 @@ internal static class CeresExplosionDefinitionsAccess
         /// <summary><c>$8B:CF33</c>, invisible actor whose list owns the three-wave schedule.</summary>
         /// <remarks>Its typed program (native list $8B:CE35) owns the three-wave schedule translated by StepCeresActors, as EventsAtFrame, with a mutable repeat countdown reset by fade completion. Initial/final instruction timing and repeat-before-final ordering are independently verified under #1165.</remarks>
         internal static CinematicActorDefinition SpawnerActor =>
-            new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.CeresExplosionSpawner);
+            new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteSegment.CeresExplosionSpawner);
     }
 }

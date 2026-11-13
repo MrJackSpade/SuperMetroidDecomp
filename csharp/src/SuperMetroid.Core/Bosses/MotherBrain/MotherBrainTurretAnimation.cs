@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class MotherBrainTurretAnimation
     : EnemyProjectileTypedAnimation<MotherBrainTurretPose, MotherBrainTurretFrame, MotherBrainTurretCue>
 {
-    /// <summary>Plays the still pose of <paramref name="program"/> facing <paramref name="direction"/>.</summary>
-    internal MotherBrainTurretAnimation(MotherBrainTurretProgram program, MotherBrainTurretDirection direction)
-        : base(program == MotherBrainTurretProgram.BulletImpact
-            ? throw new ArgumentOutOfRangeException(nameof(program), program, "Only turrets and bullets have direction poses.")
-            : MotherBrainTurretAnimations.StartingAt[new MotherBrainTurretPose(program, direction)])
+    /// <summary>Plays the still pose of <paramref name="segment"/> facing <paramref name="direction"/>.</summary>
+    internal MotherBrainTurretAnimation(MotherBrainTurretSegment segment, MotherBrainTurretDirection direction)
+        : base(segment == MotherBrainTurretSegment.BulletImpact
+            ? throw new ArgumentOutOfRangeException(nameof(segment), segment, "Only turrets and bullets have direction poses.")
+            : MotherBrainTurretAnimations.StartingAt[new MotherBrainTurretPose(segment, direction)])
     {
     }
 

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Boyon.BoyonCueKind;
-using P = SuperMetroid.Core.Enemies.Boyon.BoyonProgram;
+using P = SuperMetroid.Core.Enemies.Boyon.BoyonSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Boyon;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 internal static class BoyonAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<BoyonProgram, EnemyFrameId, BoyonCue> Segments { get; } = new(
-        new Dictionary<BoyonProgram, AnimationBeat<EnemyFrameId, BoyonCue>[]>
+    internal static AnimationSegments<BoyonSegment, EnemyFrameId, BoyonCue> Segments { get; } = new(
+        new Dictionary<BoyonSegment, AnimationBeat<EnemyFrameId, BoyonCue>[]>
     {
         [P.Idle] =
         [
@@ -44,7 +44,7 @@ internal static class BoyonAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<BoyonProgram, Animation<BoyonProgram>> StartingAt { get; } = new Dictionary<BoyonProgram, Animation<BoyonProgram>>
+    internal static IReadOnlyDictionary<BoyonSegment, Animation<BoyonSegment>> StartingAt { get; } = new Dictionary<BoyonSegment, Animation<BoyonSegment>>
     {
         [P.Idle] = new([new(P.Idle, 0, 2, 1), new(P.IdleLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.IdleLoop] = new([new(P.IdleLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
@@ -53,7 +53,7 @@ internal static class BoyonAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<BoyonProgram> StartingWith(BoyonProgram segment) => StartingAt[segment];
+    internal static Animation<BoyonSegment> StartingWith(BoyonSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, BoyonCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, BoyonCue>.Frame(frame, duration);

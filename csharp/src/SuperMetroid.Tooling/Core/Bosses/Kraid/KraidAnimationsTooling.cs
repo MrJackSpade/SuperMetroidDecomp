@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidAnimationsTooling
 {
     /// <summary>The spritemaps the <paramref name="programs"/>' segments show, in beat order, repeats included.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params KraidPartProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params KraidPartSegment[] programs) =>
         programs.SelectMany(program => KraidAnimations.Segments.Beats(program))
             .Select(beat => beat.ShownFrame).OfType<KraidPartFrame>()
             .Select(frame => KraidPartFrameToolingDefinitions.Spritemap(frame));

@@ -11,16 +11,16 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 internal static class SpacePirateProjectileNativeListAddresses
 {
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<SpacePirateProjectileProgram>[] Entries =
+    internal static readonly NativeProgramEntry<SpacePirateProjectileSegment>[] Entries =
     [
-        new NativeProgramEntry<SpacePirateProjectileProgram>(SpacePirateProjectileProgram.LaserLeft, SpacePirateProjectileInstructionProgramDefinitions.LaserLeft),
-        new NativeProgramEntry<SpacePirateProjectileProgram>(SpacePirateProjectileProgram.LaserLeftLoop, SpacePirateProjectileInstructionProgramToolingDefinitions.LaserLeftLoop),
-        new NativeProgramEntry<SpacePirateProjectileProgram>(SpacePirateProjectileProgram.LaserRight, SpacePirateProjectileInstructionProgramToolingDefinitions.LaserRight),
-        new NativeProgramEntry<SpacePirateProjectileProgram>(SpacePirateProjectileProgram.LaserRightLoop, SpacePirateProjectileInstructionProgramToolingDefinitions.LaserRightLoop),
-        new NativeProgramEntry<SpacePirateProjectileProgram>(SpacePirateProjectileProgram.ClawLeft, SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeft),
-        new NativeProgramEntry<SpacePirateProjectileProgram>(SpacePirateProjectileProgram.ClawLeftLoop, SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeftLoop),
-        new NativeProgramEntry<SpacePirateProjectileProgram>(SpacePirateProjectileProgram.ClawRight, SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRight),
-        new NativeProgramEntry<SpacePirateProjectileProgram>(SpacePirateProjectileProgram.ClawRightLoop, SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRightLoop),
+        new NativeProgramEntry<SpacePirateProjectileSegment>(SpacePirateProjectileSegment.LaserLeft, SpacePirateProjectileInstructionProgramDefinitions.LaserLeft),
+        new NativeProgramEntry<SpacePirateProjectileSegment>(SpacePirateProjectileSegment.LaserLeftLoop, SpacePirateProjectileInstructionProgramToolingDefinitions.LaserLeftLoop),
+        new NativeProgramEntry<SpacePirateProjectileSegment>(SpacePirateProjectileSegment.LaserRight, SpacePirateProjectileInstructionProgramToolingDefinitions.LaserRight),
+        new NativeProgramEntry<SpacePirateProjectileSegment>(SpacePirateProjectileSegment.LaserRightLoop, SpacePirateProjectileInstructionProgramToolingDefinitions.LaserRightLoop),
+        new NativeProgramEntry<SpacePirateProjectileSegment>(SpacePirateProjectileSegment.ClawLeft, SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeft),
+        new NativeProgramEntry<SpacePirateProjectileSegment>(SpacePirateProjectileSegment.ClawLeftLoop, SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeftLoop),
+        new NativeProgramEntry<SpacePirateProjectileSegment>(SpacePirateProjectileSegment.ClawRight, SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRight),
+        new NativeProgramEntry<SpacePirateProjectileSegment>(SpacePirateProjectileSegment.ClawRightLoop, SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRightLoop),
     ];
 
     /// <summary>The family's typed programs beside their native lists.</summary>

@@ -14,5 +14,5 @@ internal sealed class HoppersEntity(HoppersBehavior species, RoomEnemySlot slot,
     public EnemyMainAiHandler? FindMain() => species.RunHoppersMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceHoppersTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceHoppersTypedAnimation;
 }

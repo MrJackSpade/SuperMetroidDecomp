@@ -32,7 +32,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     public bool BodyCollidesByFrameHitboxes { get; internal set; }
 
     /// <summary>Whether the body's animation just installed a frame; cleared when the faded body becomes non-interactive.</summary>
-    public bool BodyNewInstructionFrame { get; internal set; }
+    public bool BodyShowsNewFrame { get; internal set; }
 
     /// <summary>How the brain meets Samus and her shots; death makes it ignore Samus.</summary>
     public EnemyContact BrainContact { get; internal set; }
@@ -47,7 +47,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     public bool BrainCollidesByFrameHitboxes { get; internal set; }
 
     /// <summary>Whether the brain's animation just installed a frame; cleared when the rot animation completes.</summary>
-    public bool BrainNewInstructionFrame { get; internal set; }
+    public bool BrainShowsNewFrame { get; internal set; }
 
     /// <summary>Shared Mother Brain hitbox-enable flag cleared at both death boundaries.</summary>
     public bool HitboxesEnabled { get; internal set; } = true;
@@ -157,7 +157,7 @@ internal sealed class MotherBrainThirdPhaseDeath
 
             int random = nextRandomNumber();
             int parameter = style == MotherBrainDeathExplosionStyle.Mixed
-                ? MotherBrainRandomDefinitions.MixedDeathExplosionProgram.Choose(random)
+                ? MotherBrainRandomDefinitions.MixedDeathExplosionAnimation.Choose(random)
                 : 1;
             requests.Add(new MotherBrainDeathExplosionRequest(
                 Offset: MotherBrainDeathExplosionDefinitions.Anchor(pairIndex + explosionIndex),
@@ -262,7 +262,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         requests.BodyWalkRequested = dyingAdvance.Requested;
         if (dyingAdvance.ReachedTarget)
         {
-            _state.SetHeadProgram(MotherBrainHeadProgram.DyingDrool);
+            _state.SetHeadAnimation(MotherBrainHeadSegment.DyingDrool);
             _state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
             _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
             _state.NeckAngleDelta = 1280;
@@ -340,9 +340,9 @@ internal sealed class MotherBrainThirdPhaseDeath
             {
                 BodyClearRequested = true;
                 BodyPresence = BodyPresence.With(EnemyPresence.Hidden);
-                BodyProcessing = BodyProcessing.Without(EnemyProcessing.AnimationScript);
+                BodyProcessing = BodyProcessing.Without(EnemyProcessing.Animates);
                 BodyCollidesByFrameHitboxes = false;
-                BodyNewInstructionFrame = false;
+                BodyShowsNewFrame = false;
                 _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathFinalFewExplosions;
                 _state.FunctionTimer = 16;
             }
@@ -371,7 +371,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     {
         // The body installs the decapitated list and a separate brain-slot draw
         // setup, clears its 8.8 falling velocity, then falls through immediately.
-        _state.SetHeadProgram(MotherBrainHeadProgram.Decapitated);
+        _state.SetHeadAnimation(MotherBrainHeadSegment.Decapitated);
         BrainDrawSetupRequested = true;
         _state.FunctionTimer = 0;
         _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathBrainFallsToGround;
@@ -453,7 +453,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             }
             else
             {
-                _state.SetHeadProgram(MotherBrainHeadProgram.Corpse);
+                _state.SetHeadAnimation(MotherBrainHeadSegment.Corpse);
                 _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathCorpseTipsOver;
                 _state.FunctionTimer = 256;
             }
@@ -495,9 +495,9 @@ internal sealed class MotherBrainThirdPhaseDeath
         // eight-frame-delay music queue. Twenty is loaded and immediately decremented
         // by the fallthrough into the next step, leaving observable timer nineteen now.
         BrainPresence = BrainPresence.With(EnemyPresence.Hidden);
-        BrainProcessing = BrainProcessing.Without(EnemyProcessing.AnimationScript);
+        BrainProcessing = BrainProcessing.Without(EnemyProcessing.Animates);
         BrainCollidesByFrameHitboxes = false;
-        BrainNewInstructionFrame = false;
+        BrainShowsNewFrame = false;
         requests.MusicStopQueued = true;   // Queue the music stop.
         requests.EscapeMusicQueued = true; // Queue the escape music.
         _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeath20FrameDelay;

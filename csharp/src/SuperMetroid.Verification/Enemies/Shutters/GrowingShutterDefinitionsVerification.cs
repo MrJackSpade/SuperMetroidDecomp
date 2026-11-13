@@ -46,7 +46,7 @@ internal static class GrowingShutterDefinitionsVerification
                     int direction = selector < 2 ? 1 : -1;
                     for (int level = 0; level < GrowingShutterEnemyState.SectionCount; level++)
                         AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + direction * 8 * level)), state.SectionOrigin(level).Y, $"Shutter wrapped origin {level}");
-                    AssertTrue(!slot.CollidesByFrameHitboxes && !slot.NewInstructionFrame, "Shutter clears its additional properties");
+                    AssertTrue(!slot.CollidesByFrameHitboxes && !slot.AnimationClock.ShowsNewFrame, "Shutter clears its additional properties");
                 }
             }
         }

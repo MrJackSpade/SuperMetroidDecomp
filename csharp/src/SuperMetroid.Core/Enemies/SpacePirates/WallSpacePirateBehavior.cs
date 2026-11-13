@@ -69,8 +69,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         bool slowJump = (flags & WallSpacePirateOptions.SlowJumpAndLaser) != WallSpacePirateOptions.None;
 
         state.Playback = new(WallSpacePirateAnimations.StartingWith(startsOnRight
-            ? WallSpacePirateProgram.MovingDownRightWall
-            : WallSpacePirateProgram.MovingDownLeftWall), AnimationPlace.StartOfAnimation);
+            ? WallSpacePirateSegment.MovingDownRightWall
+            : WallSpacePirateSegment.MovingDownLeftWall), AnimationPlace.StartOfAnimation);
         state.Function = startsOnRight
             ? WallSpacePirateFunction.ClimbingRightWall
             : WallSpacePirateFunction.ClimbingLeftWall;
@@ -97,20 +97,20 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             case WallSpacePirateFunction.ClimbingLeftWall:
                 if (WallSpacePirateCanAttack(slot, RequireSamus()))
                 {
-                    InstallWallSpacePirateInstruction(
+                    StartWallSpacePirateAnimation(
                         slot,
                         state,
-                        WallSpacePirateProgram.FireAndJumpRight);
+                        WallSpacePirateSegment.FireAndJumpRight);
                 }
                 return;
 
             case WallSpacePirateFunction.ClimbingRightWall:
                 if (WallSpacePirateCanAttack(slot, RequireSamus()))
                 {
-                    InstallWallSpacePirateInstruction(
+                    StartWallSpacePirateAnimation(
                         slot,
                         state,
-                        WallSpacePirateProgram.FireAndJumpLeft);
+                        WallSpacePirateSegment.FireAndJumpLeft);
                 }
                 return;
 
@@ -151,10 +151,10 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         if (state.WallJumpArcAngle != (direction == HorizontalDirection.Right ? state.RightJumpTargetAngle : state.LeftJumpTargetAngle))
             return;
 
-        InstallWallSpacePirateInstruction(
+        StartWallSpacePirateAnimation(
             slot,
             state,
-            direction == HorizontalDirection.Right ? WallSpacePirateProgram.LandedOnRightWall : WallSpacePirateProgram.LandedOnLeftWall);
+            direction == HorizontalDirection.Right ? WallSpacePirateSegment.LandedOnRightWall : WallSpacePirateSegment.LandedOnLeftWall);
         SnapWallSpacePirateXToTile(slot);
     }
 
@@ -193,17 +193,17 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Starts a selected wall-Pirate list on its first animation frame.</summary>
-    private static void InstallWallSpacePirateInstruction(
+    private static void StartWallSpacePirateAnimation(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
-        WallSpacePirateProgram program)
+        WallSpacePirateSegment segment)
     {
-        state.Playback = new(WallSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        state.Playback = new(WallSpacePirateAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
+        slot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Climbs, or after terrain contact returns the opposite climb to continue at; null runs on.</summary>
-    private WallSpacePirateProgram? MoveWallSpacePirateAndReverseOnCollision(
+    private WallSpacePirateSegment? MoveWallSpacePirateAndReverseOnCollision(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
         RoomLevelData? level,
@@ -229,7 +229,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Consumes one random value and returns the chosen up or down climb to continue at.</summary>
-    private WallSpacePirateProgram RandomizeWallSpacePirateClimbDirection(
+    private WallSpacePirateSegment RandomizeWallSpacePirateClimbDirection(
         WallSpacePirateEnemyState state,
         HorizontalDirection wall)
     {
@@ -240,18 +240,18 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Selects the climb animation for a wall side and vertical climb direction.</summary>
-    private static WallSpacePirateProgram SelectWallSpacePirateClimbList(
+    private static WallSpacePirateSegment SelectWallSpacePirateClimbList(
         bool onRightWall,
         WallSpacePirateClimbDirection direction) => new WallSpacePirateClimb(onRightWall, direction) switch
     {
         (false, WallSpacePirateClimbDirection.Down) =>
-            WallSpacePirateProgram.MovingDownLeftWall,
+            WallSpacePirateSegment.MovingDownLeftWall,
         (false, WallSpacePirateClimbDirection.Up) =>
-            WallSpacePirateProgram.MovingUpLeftWall,
+            WallSpacePirateSegment.MovingUpLeftWall,
         (true, WallSpacePirateClimbDirection.Down) =>
-            WallSpacePirateProgram.MovingDownRightWall,
+            WallSpacePirateSegment.MovingDownRightWall,
         (true, WallSpacePirateClimbDirection.Up) =>
-            WallSpacePirateProgram.MovingUpRightWall,
+            WallSpacePirateSegment.MovingUpRightWall,
         _ => throw new InvalidOperationException(
             $"Wall Pirate climb direction {direction} is not binary."),
     };
@@ -294,7 +294,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// contact and a random direction choice always continues at the chosen climb, as the cues return those
     /// animations; every other cue runs on.
     /// </summary>
-    private WallSpacePirateProgram? ApplyWallSpacePirateCue(RoomEnemySlot slot, WallSpacePirateCue cue, RoomLevelData? level)
+    private WallSpacePirateSegment? ApplyWallSpacePirateCue(RoomEnemySlot slot, WallSpacePirateCue cue, RoomLevelData? level)
     {
         WallSpacePirateEnemyState state = slot.RequireSpeciesState<WallSpacePirateEnemyState>();
         switch (cue)
@@ -340,11 +340,11 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Advances the wall Space Pirate's typed animation.</summary>
-    internal void AdvanceWallSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, WallSpacePirateAnimations.Segments,
+    internal void AdvanceWallSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(slot, WallSpacePirateAnimations.Segments,
             static (WallSpacePirateEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyWallSpacePirateCue(slot, cue, context.Level) is { } continuesAt
-                ? new AnimationContinuation<WallSpacePirateProgram>(WallSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<WallSpacePirateSegment>(WallSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
 
     /// <summary>Applies the ordinary Pirate power-bomb callback across wall, walking, and Ninja variants.</summary>

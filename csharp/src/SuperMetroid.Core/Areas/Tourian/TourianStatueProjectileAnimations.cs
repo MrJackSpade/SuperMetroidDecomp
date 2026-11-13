@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Projectiles;
 using K = SuperMetroid.Core.Areas.Tourian.TourianStatueProjectileCueKind;
-using P = SuperMetroid.Core.Areas.Tourian.TourianStatueProjectileProgram;
+using P = SuperMetroid.Core.Areas.Tourian.TourianStatueProjectileSegment;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Areas.Tourian;
 internal static class TourianStatueProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<TourianStatueProjectileProgram, EnemyProjectileFrameId, TourianStatueProjectileCue> Segments { get; } = new(
-        new Dictionary<TourianStatueProjectileProgram, AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>[]>
+    internal static AnimationSegments<TourianStatueProjectileSegment, EnemyProjectileFrameId, TourianStatueProjectileCue> Segments { get; } = new(
+        new Dictionary<TourianStatueProjectileSegment, AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>[]>
     {
         [P.Delete] =
         [
@@ -92,7 +92,7 @@ internal static class TourianStatueProjectileAnimations
     /// directly, with the counter its spawn cleared: its first play counts that zero down, wrapping it, so the animation
     /// replays the longest count more times before it holds.
     /// </summary>
-    internal static IReadOnlyDictionary<TourianStatueProjectileProgram, Animation<TourianStatueProjectileProgram>> StartingAt { get; } = new Dictionary<TourianStatueProjectileProgram, Animation<TourianStatueProjectileProgram>>
+    internal static IReadOnlyDictionary<TourianStatueProjectileSegment, Animation<TourianStatueProjectileSegment>> StartingAt { get; } = new Dictionary<TourianStatueProjectileSegment, Animation<TourianStatueProjectileSegment>>
     {
         [P.Delete] = new([new(P.Delete, 0, 1, 1)], AnimationEnd.Holds),
         [P.Splash] = new([new(P.Splash, 0, 5, 1)], AnimationEnd.Holds),
@@ -107,7 +107,7 @@ internal static class TourianStatueProjectileAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<TourianStatueProjectileProgram> StartingWith(TourianStatueProjectileProgram segment) => StartingAt[segment];
+    internal static Animation<TourianStatueProjectileSegment> StartingWith(TourianStatueProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Frame(frame, duration);

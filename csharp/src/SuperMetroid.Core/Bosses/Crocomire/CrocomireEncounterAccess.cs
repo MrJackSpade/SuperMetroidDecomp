@@ -43,12 +43,10 @@ internal sealed class CrocomireEncounterAccess
     internal void RequestCrocomireMusic(MusicRequest request, MusicQueueDelay delay) =>
         _audio.QueueEnemyMusic(new DelayedMusicRequest(request, delay));
 
-    /// <summary>Starts <paramref name="program"/> on the body from its first step on the next update, as a list install does.</summary>
-    internal static void StartCrocomireBodyProgram(CrocomireEnemyState state, CrocomireBodyProgram program)
+    /// <summary>Starts <paramref name="segment"/> on the body from its first step on the next update, as a list install does.</summary>
+    internal static void StartCrocomireBodyAnimation(CrocomireEnemyState state, CrocomireBodySegment segment)
     {
-        state.BodyPlayback = new AnimationPlayback<CrocomireBodyProgram>(CrocomireBodyAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        state.Body.FrameHold = WrappingCountdown.Start(1);
-        state.Body.Timer = WrappingCountdown.Start(0);
+        state.BodyPlayback = EnemyAnimationPlayback.Start(state.Body, CrocomireBodyAnimations.StartingWith(segment));
     }
 
     /// <summary>Finds the Crocomire encounter owning an enemy slot, failing if its room state is absent.</summary>

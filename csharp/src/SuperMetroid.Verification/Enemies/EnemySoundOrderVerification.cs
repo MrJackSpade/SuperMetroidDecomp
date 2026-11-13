@@ -43,7 +43,7 @@ internal static class EnemySoundOrderVerification
 
         enemies.Audio.BeginFrame();
         foreach (RoomEnemySlot slot in new[] { firstMetroid, boyon, secondMetroid })
-            EnemyInstructionInterpreter.RunsAnimationScript(slot, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+            EnemyAnimationPlayer.AdvanceAnimation(slot, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
 
         SoundEffectId cry = MetroidReactions.RandomCrySoundEffect(CryRandom);
         AssertEqual(EnemyAudioQueueAccess.SoundList([cry, EnemySoundEffectDefinitions.BoyonBounceSound, cry]), enemies.Audio.QueuedSoundList,
@@ -100,15 +100,15 @@ internal static class EnemySoundOrderVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[place];
         slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         slot.SetSpeciesState(new MetroidEnemyState(
             new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyA, default, SpriteGraphics.SharedStandard),
             new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyB, default, SpriteGraphics.SharedStandard))
         {
-            Playback = new(MetroidAnimations.StartingWith(MetroidProgram.ChasingSamus),
-                AnimationSegments<MetroidProgram, EnemyFrameId, MetroidCue>.PlaceOf(MetroidAnimations.StartingWith(MetroidProgram.ChasingSamus),
-                    MetroidProgram.ChasingSamus,
-                    MetroidAnimations.Segments.Beats(MetroidProgram.ChasingSamus).ToList().FindIndex(beat => beat is AnimationBeat<EnemyFrameId, MetroidCue>.Event))),
+            Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
+                AnimationSegments<MetroidSegment, EnemyFrameId, MetroidCue>.PlaceOf(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
+                    MetroidSegment.ChasingSamus,
+                    MetroidAnimations.Segments.Beats(MetroidSegment.ChasingSamus).ToList().FindIndex(beat => beat is AnimationBeat<EnemyFrameId, MetroidCue>.Event))),
         });
         return slot;
     }
@@ -123,8 +123,8 @@ internal static class EnemySoundOrderVerification
         slot.Position = slot.Position.WithWhole(new(256, 512));
         BoyonBehavior.InitializeBoyon(slot);
         BoyonEnemyState state = slot.RequireSpeciesState<BoyonEnemyState>();
-        state.Playback = new AnimationPlayback<BoyonProgram>(BoyonAnimations.StartingWith(BoyonProgram.Bouncing), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        state.Playback = new AnimationPlayback<BoyonSegment>(BoyonAnimations.StartingWith(BoyonSegment.Bouncing), AnimationPlace.StartOfAnimation);
+        slot.AnimationClock.StepOnNextUpdate();
         return slot;
     }
 

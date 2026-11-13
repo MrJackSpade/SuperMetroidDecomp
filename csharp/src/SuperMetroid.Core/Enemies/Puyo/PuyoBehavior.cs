@@ -64,7 +64,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             InitialYSpeedTableIndexHalf = EnemyQuadraticSpeedIndex.Start,
         };
         slot.SetSpeciesState(state);
-        SetPuyoProgram(slot, state, PuyoProgram.GroundedFast);
+        SetPuyoAnimation(slot, state, PuyoSegment.GroundedFast);
     }
 
     /// <summary>Runs a Puyo's per-frame behaviour and its top-level function dispatch.</summary>
@@ -199,21 +199,21 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
                     slot,
                     state,
                     level,
-                    PuyoProgram.GroundedSlow);
+                    PuyoSegment.GroundedSlow);
                 return;
             case PuyoAirborneFunction.NormalBigHop:
                 RunNormalPuyoHop(
                     slot,
                     state,
                     level,
-                    PuyoProgram.GroundedMedium);
+                    PuyoSegment.GroundedMedium);
                 return;
             case PuyoAirborneFunction.NormalLongHop:
                 RunNormalPuyoHop(
                     slot,
                     state,
                     level,
-                    PuyoProgram.GroundedFast);
+                    PuyoSegment.GroundedFast);
                 return;
             case PuyoAirborneFunction.GiantHop:
                 RunGiantPuyoHop(slot, state, level);
@@ -236,14 +236,14 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         PuyoEnemyState state,
         RoomLevelData level,
-        PuyoProgram landingProgram)
+        PuyoSegment landingSegment)
     {
         MovePuyo(slot, state, level);
         if (!state.InvertDirection && state.HoppingAnimationActive)
             return;
 
         state.HoppingAnimationActive = false;
-        SetPuyoProgram(slot, state, landingProgram);
+        SetPuyoAnimation(slot, state, landingSegment);
     }
 
     /// <summary>Runs the Puyo's giant airborne hop.</summary>
@@ -262,7 +262,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.HoppingAnimationActive = false;
-        SetPuyoProgram(slot, state, PuyoProgram.GroundedSlow);
+        SetPuyoAnimation(slot, state, PuyoSegment.GroundedSlow);
     }
 
     /// <summary>Runs the constant-speed collision fall.</summary>
@@ -289,7 +289,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.HopType = PuyoHopType.Giant;
         state.Function = PuyoEnemyFunction.Grounded;
-        SetPuyoProgram(slot, state, PuyoProgram.GroundedSlow);
+        SetPuyoAnimation(slot, state, PuyoSegment.GroundedSlow);
     }
 
     /// <summary>Moves the Puyo.</summary>
@@ -320,7 +320,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Pose selection happens before the index changes, matching the five discrete
         // squash/stretch thresholds in the authored rather than interpolating sprite frames.
-        SetPuyoAirborneProgram(slot, state);
+        SetPuyoAirborneAnimation(slot, state);
 
         state.StepAirborneIndex(EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(Hop(state).YIndexDelta));
 
@@ -349,48 +349,48 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Selects the rising/falling one-frame pose for the current curve index.</summary>
-    private static void SetPuyoAirborneProgram(RoomEnemySlot slot, PuyoEnemyState state)
+    private static void SetPuyoAirborneAnimation(RoomEnemySlot slot, PuyoEnemyState state)
     {
-        PuyoProgram program;
+        PuyoSegment segment;
         if (!state.Falling)
         {
             if (state.Direction == PuyoDirection.Right)
             {
-                program = state.YSpeedTableIndex >=
+                segment = state.YSpeedTableIndex >=
                         state.InitialYSpeedTableIndexThreeQuarters
-                    ? PuyoProgram.RightFrame0LeftFrame4
+                    ? PuyoSegment.RightFrame0LeftFrame4
                     : state.YSpeedTableIndex >= state.InitialYSpeedTableIndexHalf
-                        ? PuyoProgram.RightFrame1LeftFrame3
-                        : PuyoProgram.Frame2;
+                        ? PuyoSegment.RightFrame1LeftFrame3
+                        : PuyoSegment.Frame2;
             }
             else
             {
-                program = state.YSpeedTableIndex >=
+                segment = state.YSpeedTableIndex >=
                         state.InitialYSpeedTableIndexThreeQuarters
-                    ? PuyoProgram.RightFrame4LeftFrame0
+                    ? PuyoSegment.RightFrame4LeftFrame0
                     : state.YSpeedTableIndex >= state.InitialYSpeedTableIndexHalf
-                        ? PuyoProgram.RightFrame3LeftFrame1
-                        : PuyoProgram.Frame2;
+                        ? PuyoSegment.RightFrame3LeftFrame1
+                        : PuyoSegment.Frame2;
             }
         }
         else if (state.Direction == PuyoDirection.Right)
         {
-            program = state.YSpeedTableIndex < state.InitialYSpeedTableIndexHalf
-                ? PuyoProgram.Frame2
+            segment = state.YSpeedTableIndex < state.InitialYSpeedTableIndexHalf
+                ? PuyoSegment.Frame2
                 : state.YSpeedTableIndex < state.InitialYSpeedTableIndexThreeQuarters
-                    ? PuyoProgram.RightFrame3LeftFrame1
-                    : PuyoProgram.RightFrame4LeftFrame0;
+                    ? PuyoSegment.RightFrame3LeftFrame1
+                    : PuyoSegment.RightFrame4LeftFrame0;
         }
         else
         {
-            program = state.YSpeedTableIndex < state.InitialYSpeedTableIndexHalf
-                ? PuyoProgram.Frame2
+            segment = state.YSpeedTableIndex < state.InitialYSpeedTableIndexHalf
+                ? PuyoSegment.Frame2
                 : state.YSpeedTableIndex < state.InitialYSpeedTableIndexThreeQuarters
-                    ? PuyoProgram.RightFrame1LeftFrame3
-                    : PuyoProgram.RightFrame0LeftFrame4;
+                    ? PuyoSegment.RightFrame1LeftFrame3
+                    : PuyoSegment.RightFrame0LeftFrame4;
         }
 
-        SetPuyoProgram(slot, state, program);
+        SetPuyoAnimation(slot, state, segment);
     }
 
     /// <summary>Flips the two-entry direction domain after a terrain impact.</summary>
@@ -403,16 +403,14 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Starts a selected pose or hop animation with a one-tick frame countdown.</summary>
-    private static void SetPuyoProgram(RoomEnemySlot slot, PuyoEnemyState state, PuyoProgram program)
+    private static void SetPuyoAnimation(RoomEnemySlot slot, PuyoEnemyState state, PuyoSegment segment)
     {
-        state.Playback = new(PuyoAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyAnimationPlayback.Start(slot, PuyoAnimations.StartingWith(segment));
     }
 
     /// <summary>Advances Puyo's typed animation.</summary>
-    internal static void AdvancePuyoTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, PuyoAnimations.Segments,
+    internal static void AdvancePuyoTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, PuyoAnimations.Segments,
             static (PuyoEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"Puyo's cue-free animation raised {cue}."));
 

@@ -28,7 +28,7 @@ internal sealed class IntroRinkaSystem
     public IntroRinkaSystem()
     {
         // Reusing the focused animation playback preserves the spawner's exact 74 then 128 frame waits.
-        spawner = new(new(0, 0), IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), IntroRinkaDefinitions.SpawnerActor.Program);
+        spawner = new(new(0, 0), IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), IntroRinkaDefinitions.SpawnerActor.Animation);
     }
 
     /// <summary>One update of the spawner, then of every Rinka.</summary>

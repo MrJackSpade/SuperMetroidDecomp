@@ -29,26 +29,26 @@ internal static class ChootBehaviorVerification
         ChootBehavior.InitializeChoot(slot);
         ChootEnemyState state = enemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ChootStates[0].");
 
-        AssertEqual(new AnimationPlayback<ChootProgram>(ChootAnimations.StartingWith(ChootProgram.Idle), AnimationPlace.StartOfAnimation), state.Playback, "Choot initializer animation");
-        ushort[] idle = ChootAnimationsConstants.Spritemaps(ChootProgram.Idle).ToArray();
+        AssertEqual(new AnimationPlayback<ChootSegment>(ChootAnimations.StartingWith(ChootSegment.Idle), AnimationPlace.StartOfAnimation), state.Playback, "Choot initializer animation");
+        ushort[] idle = ChootAnimationsConstants.Spritemaps(ChootSegment.Idle).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([idle[0], idle[0]], [1, 1]),
             EnemyInstructionRunner.ShownFrames(slot, 3), "Choot idle pose");
         AssertTrue(!slot.Processing.HasAny(EnemyProcessing.OffScreen), "Choot idle program disables off-screen processing");
 
         state.JumpDelayTimer = 0;
         ChootBehavior.PrepareChootJump(slot, state);
-        AssertEqual(new AnimationPlayback<ChootProgram>(ChootAnimations.StartingWith(ChootProgram.Jumping), AnimationPlace.StartOfAnimation), state.Playback,
+        AssertEqual(new AnimationPlayback<ChootSegment>(ChootAnimations.StartingWith(ChootSegment.Jumping), AnimationPlace.StartOfAnimation), state.Playback,
             "Choot real preparation handoff starts the jumping animation");
-        ushort[] jumping = ChootAnimationsConstants.Spritemaps(ChootProgram.Jumping).ToArray();
+        ushort[] jumping = ChootAnimationsConstants.Spritemaps(ChootSegment.Jumping).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([jumping[0], jumping[1], jumping[1]], [8, 1, 1]),
             EnemyInstructionRunner.ShownFrames(slot, 10), "Choot jumping animation");
         AssertTrue(slot.Processing.HasAny(EnemyProcessing.OffScreen), "Choot jumping program enables off-screen processing");
 
         state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(1);
         ChootBehavior.RunChootJump(slot, state);
-        AssertEqual(new AnimationPlayback<ChootProgram>(ChootAnimations.StartingWith(ChootProgram.Falling), AnimationPlace.StartOfAnimation), state.Playback,
+        AssertEqual(new AnimationPlayback<ChootSegment>(ChootAnimations.StartingWith(ChootSegment.Falling), AnimationPlace.StartOfAnimation), state.Playback,
             "Choot real apex handoff starts the falling animation");
-        ushort[] falling = ChootAnimationsConstants.Spritemaps(ChootProgram.Falling).ToArray();
+        ushort[] falling = ChootAnimationsConstants.Spritemaps(ChootSegment.Falling).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([falling[0], falling[1], falling[1]], [8, 1, 1]),
             EnemyInstructionRunner.ShownFrames(slot, 10), "Choot falling animation");
         Console.WriteLine(artwork is null

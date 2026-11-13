@@ -6,15 +6,15 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>A hand beam's typed animation.</summary>
 internal sealed class MotherBrainHandBeamAnimation()
-    : EnemyProjectileTypedAnimation<MotherBrainHandBeamProgram, MotherBrainHandBeamFrame, MotherBrainHandBeamCue>(
-        MotherBrainHandBeamAnimations.StartingAt[MotherBrainHandBeamProgram.Beam])
+    : EnemyProjectileTypedAnimation<MotherBrainHandBeamSegment, MotherBrainHandBeamFrame, MotherBrainHandBeamCue>(
+        MotherBrainHandBeamAnimations.StartingAt[MotherBrainHandBeamSegment.Beam])
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<MotherBrainHandBeamProgram, MotherBrainHandBeamFrame, MotherBrainHandBeamCue> Segments =>
+    private protected override AnimationSegments<MotherBrainHandBeamSegment, MotherBrainHandBeamFrame, MotherBrainHandBeamCue> Segments =>
         MotherBrainHandBeamAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<MotherBrainHandBeamProgram, Animation<MotherBrainHandBeamProgram>> StartingAt =>
+    private protected override IReadOnlyDictionary<MotherBrainHandBeamSegment, Animation<MotherBrainHandBeamSegment>> StartingAt =>
         MotherBrainHandBeamAnimations.StartingAt;
 
     /// <inheritdoc/>

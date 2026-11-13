@@ -106,7 +106,7 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
     internal AnimationShown<TSegment, TFrame> PlayToNextFrame<TCounter>(
         ref Animation<TSegment> animation, ref AnimationPlace place, ref TCounter counter, Func<TEvent, AnimationContinuation<TSegment>?> react)
-        where TCounter : struct, IAnimationRepeatCounter
+        where TCounter : IAnimationRepeatCounter
     {
         Ensure.NotNull(react);
         return PlayToNextFrame(ref animation, ref place, ref counter, (raised, _) => react(raised));
@@ -121,7 +121,7 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     internal AnimationShown<TSegment, TFrame> PlayToNextFrame<TCounter>(
         ref Animation<TSegment> animation, ref AnimationPlace place, ref TCounter counter,
         Func<TEvent, AnimationPlayback<TSegment>, AnimationContinuation<TSegment>?> react)
-        where TCounter : struct, IAnimationRepeatCounter
+        where TCounter : IAnimationRepeatCounter
     {
         Ensure.NotNull(animation);
         Ensure.NotNull(react);
@@ -195,10 +195,10 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
 
     /// <summary>The start of phase <paramref name="phase"/> of <paramref name="animation"/>, loading a counted phase's plays.</summary>
     private static AnimationPlace Enter<TCounter>(Animation<TSegment> animation, int phase, ref TCounter counter)
-        where TCounter : struct, IAnimationRepeatCounter
+        where TCounter : IAnimationRepeatCounter
     {
         if (animation.Phases[phase].CountsRepeats)
-            counter.Repeats = WrappingCountdown.FromRaw(animation.Phases[phase].Plays);
+            counter.Repeats = WrappingCountdown.Start(animation.Phases[phase].Plays);
         return AnimationPlace.StartOf(phase);
     }
 

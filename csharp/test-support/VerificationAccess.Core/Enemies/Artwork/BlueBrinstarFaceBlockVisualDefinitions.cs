@@ -14,11 +14,11 @@ internal static class BlueBrinstarFaceBlockVisualDefinitions
     /// <summary>Publishes the neutral pose and the two turning poses each approach direction shows after it.</summary>
     internal static NativeEnemySpritemapDefinition[] Frames()
     {
-        ushort[] left = [.. BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(BlueBrinstarFaceBlockProgram.SamusLeft)];
-        ushort[] right = [.. BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(BlueBrinstarFaceBlockProgram.SamusRight)];
+        ushort[] left = [.. BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(BlueBrinstarFaceBlockSegment.SamusLeft)];
+        ushort[] right = [.. BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(BlueBrinstarFaceBlockSegment.SamusRight)];
         return
         [
-            new(Bank, BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(BlueBrinstarFaceBlockProgram.Initial).Single(), "face_block_neutral"),
+            new(Bank, BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(BlueBrinstarFaceBlockSegment.Initial).Single(), "face_block_neutral"),
             new(Bank, left[1], "face_block_samus_left_1"),
             new(Bank, left[2], "face_block_samus_left_2"),
             new(Bank, right[1], "face_block_samus_right_1"),

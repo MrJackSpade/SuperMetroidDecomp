@@ -28,7 +28,7 @@ internal static class MotherBrainRoomFlashAudit
 
     /// <summary>Checks all compiled Mother Brain flash presentation operands against the exported entry domain.</summary>
     internal static void Inspect(string source, ResourceIndex exports, AuditReport report) =>
-        RequireOperands(Enumerable.Range(0, MotherBrainRoomPaletteProgramDefinitions.FlashFrameCount)
+        RequireOperands(Enumerable.Range(0, MotherBrainRoomPaletteAnimationDefinitions.FlashFrameCount)
             .Select(MotherBrainRoomColorExtractor.FlashPaletteOperandAddress).ToArray(), source, exports, report);
 
     /// <summary>Converts palette operand addresses to timed-entry keys and records resolved coverage for the resource audit.</summary>
@@ -37,7 +37,7 @@ internal static class MotherBrainRoomFlashAudit
     {
         int before = report.ReferenceCount;
         foreach (ushort operand in operands)
-            report.Require(ResourceDomains.MotherBrainRoomFlash, nameof(MotherBrainRoomPaletteProgramDefinitions),
+            report.Require(ResourceDomains.MotherBrainRoomFlash, nameof(MotherBrainRoomPaletteAnimationDefinitions),
                 Key(checked((ushort)(operand - SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashPaletteOperandOffset))), source, exports);
         report.Coverage.Add(new(ResourceDomains.MotherBrainRoomFlash, report.ReferenceCount - before,
             exports.Count(ResourceDomains.MotherBrainRoomFlash)));
@@ -54,7 +54,7 @@ internal static class MotherBrainRoomFlashAudit
         const ushort syntheticPalettePointer = 0xf000;
         var source = new SyntheticCartridge(
             address => new InvalidDataException($"Room-flash audit requested undeclared bytes at {address:X6}."));
-        for (int index = 0; index < MotherBrainRoomPaletteProgramDefinitions.FlashFrameCount; index++)
+        for (int index = 0; index < MotherBrainRoomPaletteAnimationDefinitions.FlashFrameCount; index++)
             source.SetWord(MotherBrainSourceDefinitions.RoomColors.FlashBank |
                 MotherBrainRoomColorExtractor.FlashPaletteOperandAddress(index), syntheticPalettePointer);
         void AddColors(int start, int count) => source.DeclareZero(start, count * sizeof(ushort));

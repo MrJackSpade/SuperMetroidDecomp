@@ -104,7 +104,7 @@ internal sealed class EnemyDeathsAndDrops
             explosion.Position = explosion.Position.WithWhole(enemy.Position.Whole);
             explosion.DropDefinitionId = enemy.DefinitionId;
             explosion.KilledEnemy = KilledEnemy.Of(enemy, respawns);
-            explosion.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathExplosions.Program(deathAnimation)));
+            explosion.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathExplosions.Animation(deathAnimation)));
         }
 
         enemy.Clear();
@@ -246,7 +246,7 @@ internal sealed class EnemyDeathsAndDrops
     /// respawn tail's. Keeping the actor in its existing place keeps both its retained killed enemy and whether it drops
     /// at all: an explosion in the first place never converts (<see cref="FirstPlaceExplosionLeavesNoPickup"/>).
     /// </summary>
-    internal EnemyDeathProjectileProgram ConvertEnemyDeathExplosionToPickup(EnemyProjectile projectile)
+    internal EnemyDeathProjectileSegment ConvertEnemyDeathExplosionToPickup(EnemyProjectile projectile)
     {
         EnemyPickupKind kind = SelectRandomEnemyDrop(projectile);
         return !FirstPlaceExplosionLeavesNoPickup.BecomesPickup(projectile.Place) || kind is EnemyPickupKind.None or EnemyPickupKind.NoDrop
@@ -255,7 +255,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>Gives the projectile the selected pickup's identity, 400-frame life and collision callback, and returns its program.</summary>
-    internal static EnemyDeathProjectileProgram ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind)
+    internal static EnemyDeathProjectileSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind)
     {
         EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
         projectile.State = new EnemyPickupState(kind, EnemyPickupLifetime);
@@ -264,7 +264,7 @@ internal sealed class EnemyDeathsAndDrops
         // Becoming a pickup clears the persists-on-contact property but retains the other definition bits. The typed
         // representation stores the three collision flags separately from the low damage.
         projectile.PersistsOnSamusContact = false;
-        return animation.Program ?? throw new InvalidOperationException($"Enemy pickup kind {kind} has no drop program.");
+        return animation.Animation ?? throw new InvalidOperationException($"Enemy pickup kind {kind} has no drop program.");
     }
 
     /// <summary>Switches a consumed or rejected drop to the blank, non-interactive deletion tail.</summary>
@@ -272,7 +272,7 @@ internal sealed class EnemyDeathsAndDrops
         projectile.StartAnimation(new EnemyDeathProjectileAnimation(ConfigureDormantPickup(projectile)));
 
     /// <summary>Makes the projectile a blank, non-interactive drop and returns the deletion tail it runs.</summary>
-    private static EnemyDeathProjectileProgram ConfigureDormantPickup(EnemyProjectile projectile)
+    private static EnemyDeathProjectileSegment ConfigureDormantPickup(EnemyProjectile projectile)
     {
         // The blank frame lasts 64 frames before the respawn cue handles a retained respawning enemy
         // and the actor is deleted. Collection and natural expiry use this same tail.
@@ -578,13 +578,13 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>Connects the death and drop programs' cues: sprite spawns, sounds, drop conversion and respawn.</summary>
     internal void ConnectDeathExplosionCues(EnemyProjectileHandlerTable table) =>
-        table.AddBranchingCue<EnemyDeathProjectileProgram, EnemyDeathProjectileCue>((context, cue) => ApplyEnemyDeathProjectileCue(context.Projectile, cue));
+        table.AddBranchingCue<EnemyDeathProjectileSegment, EnemyDeathProjectileCue>((context, cue) => ApplyEnemyDeathProjectileCue(context.Projectile, cue));
 
     /// <summary>
     /// Carries out one cue of the death and drop programs, returning the program a converted explosion continues at, or
     /// null to run on.
     /// </summary>
-    private EnemyDeathProjectileProgram? ApplyEnemyDeathProjectileCue(EnemyProjectile projectile, EnemyDeathProjectileCue cue)
+    private EnemyDeathProjectileSegment? ApplyEnemyDeathProjectileCue(EnemyProjectile projectile, EnemyDeathProjectileCue cue)
     {
         switch (cue.Kind)
         {

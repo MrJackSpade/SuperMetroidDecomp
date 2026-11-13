@@ -48,7 +48,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
             Inner.Enemies.BossArtworkBinding.BodySheets = Sheets;
             ClearBg2();
             Inner.Enemies.Drawing.Enqueue(Body, reached: true);
-            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyInstructionInterpreter.RunsAnimationScript);
+            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyAnimationPlayer.AdvanceAnimation);
         }
 
         /// <summary>Selects a body frame and optionally marks it as a new instruction frame.</summary>
@@ -56,11 +56,11 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         {
             Body.SpritemapPointer = frame;
             Body.CollidesByFrameHitboxes = true;
-            Body.NewInstructionFrame = fresh;
+            Body.AnimationClock.ShowsNewFrame = fresh;
         }
 
         /// <summary>Starts a body program at its next one-tick dispatch.</summary>
-        internal void SetProgram(MotherBrainBodyProgram program) => MotherBrainEncounterAccess.SetMotherBrainBodyProgram(State, program);
+        internal void SetProgram(MotherBrainBodySegment program) => MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(State, program);
 
         /// <summary>Advances the body's actual production instruction processor once and samples the scroll placing her body.</summary>
         internal void Step()

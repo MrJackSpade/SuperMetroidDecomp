@@ -12,10 +12,10 @@ internal static class EnemyPickupDefinitions
     internal static readonly Dictionary<EnemyPickupKind, EnemyPickupAnimationDefinition> Animations = new()
     {
         [EnemyPickupKind.None] = new(null),
-        [EnemyPickupKind.SmallEnergy] = new(EnemyDeathProjectileProgram.SmallEnergy),
-        [EnemyPickupKind.BigEnergy] = new(EnemyDeathProjectileProgram.BigEnergy),
-        [EnemyPickupKind.PowerBomb] = new(EnemyDeathProjectileProgram.PowerBombs),
-        [EnemyPickupKind.Missile] = new(EnemyDeathProjectileProgram.Missiles),
-        [EnemyPickupKind.SuperMissile] = new(EnemyDeathProjectileProgram.SuperMissiles),
+        [EnemyPickupKind.SmallEnergy] = new(EnemyDeathProjectileSegment.SmallEnergy),
+        [EnemyPickupKind.BigEnergy] = new(EnemyDeathProjectileSegment.BigEnergy),
+        [EnemyPickupKind.PowerBomb] = new(EnemyDeathProjectileSegment.PowerBombs),
+        [EnemyPickupKind.Missile] = new(EnemyDeathProjectileSegment.Missiles),
+        [EnemyPickupKind.SuperMissile] = new(EnemyDeathProjectileSegment.SuperMissiles),
     };
 }

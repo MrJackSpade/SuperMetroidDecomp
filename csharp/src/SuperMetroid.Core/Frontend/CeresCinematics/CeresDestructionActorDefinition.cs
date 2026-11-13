@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 [IndependentFlag("independent authored actor facts: horizontal wrap and whether the actor completes the scene")]
 internal readonly record struct CeresDestructionActorDefinition(
     CinematicSpriteFrameBehavior ActiveFrameBehavior,
-    CinematicSpriteProgram Program,
+    CinematicSpriteSegment Animation,
     CeresSpriteColouring Colouring,
     SignedSixteenSixteen HorizontalDelta,
     bool WrapX,

@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Programs;
-using P = SuperMetroid.Core.Bosses.Draygon.DraygonProjectileProgram;
+using P = SuperMetroid.Core.Bosses.Draygon.DraygonProjectileSegment;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -19,8 +19,8 @@ internal static class DraygonProjectileAnimations
     private static readonly int[] BloomDurations = [5, 4, 3, 3, 3, 3, 4, 3, 2, 2, 2, 2, 10, 10, 10, 10];
 
     /// <summary>Every goop and wall-turret segment's beats.</summary>
-    internal static AnimationSegments<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue> Segments { get; } = new(
-        new Dictionary<DraygonProjectileProgram, AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue>[]>
+    internal static AnimationSegments<DraygonProjectileSegment, DraygonProjectileFrame, DraygonProjectileCue> Segments { get; } = new(
+        new Dictionary<DraygonProjectileSegment, AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue>[]>
         {
             [P.GoopTouch] = [Cue(DraygonProjectileCue.StickToSamus)],
             [P.Goop] = [.. Frames(DraygonProjectileFrameKind.Goop, GoopPhaseCount, _ => 10)],
@@ -42,8 +42,8 @@ internal static class DraygonProjectileAnimations
     /// The animation that starts at each segment: the touch runs on into the goop loop, the burst holds after its deletion,
     /// and the bloom fires and runs on into the flight loop.
     /// </summary>
-    internal static IReadOnlyDictionary<DraygonProjectileProgram, Animation<DraygonProjectileProgram>> StartingAt { get; } =
-        new Dictionary<DraygonProjectileProgram, Animation<DraygonProjectileProgram>>
+    internal static IReadOnlyDictionary<DraygonProjectileSegment, Animation<DraygonProjectileSegment>> StartingAt { get; } =
+        new Dictionary<DraygonProjectileSegment, Animation<DraygonProjectileSegment>>
         {
             [P.GoopTouch] = new([new(P.GoopTouch, 0, 1, 1), new(P.Goop, 0, GoopPhaseCount, 1)], AnimationEnd.LoopsFrom(1)),
             [P.Goop] = new([new(P.Goop, 0, GoopPhaseCount, 1)], AnimationEnd.LoopsFrom(0)),
@@ -53,7 +53,7 @@ internal static class DraygonProjectileAnimations
         };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<DraygonProjectileProgram> StartingWith(DraygonProjectileProgram segment) => StartingAt[segment];
+    internal static Animation<DraygonProjectileSegment> StartingWith(DraygonProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>Raises <paramref name="cue"/>.</summary>
     private static AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue> Cue(DraygonProjectileCue cue) =>

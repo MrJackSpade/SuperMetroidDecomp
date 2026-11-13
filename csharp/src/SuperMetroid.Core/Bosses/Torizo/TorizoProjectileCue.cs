@@ -22,11 +22,11 @@ internal abstract record TorizoProjectileCue
 
     /// <summary>Continues at the target while Golden Torizo's eye-beam explosions are disabled.</summary>
     /// <param name="Target">The program a conditional cue continues at.</param>
-    internal sealed record GoToIfEyeBeamExplosionsDisabled(TorizoProjectileProgram Target) : TorizoProjectileCue;
+    internal sealed record GoToIfEyeBeamExplosionsDisabled(TorizoProjectileSegment Target) : TorizoProjectileCue;
 
     /// <summary>Continues at the target one time in four.</summary>
     /// <param name="Target">The program a conditional cue continues at.</param>
-    internal sealed record GoToSometimes(TorizoProjectileProgram Target) : TorizoProjectileCue;
+    internal sealed record GoToSometimes(TorizoProjectileSegment Target) : TorizoProjectileCue;
 
     /// <summary>Requests a sound at the priority the cue states.</summary>
     /// <param name="Sound">The sound a <see cref="PlaySound"/> cue queues.</param>

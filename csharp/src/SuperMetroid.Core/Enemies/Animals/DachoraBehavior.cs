@@ -97,25 +97,24 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The animation-script property both disables Samus collision and admits enemy animation scripts.
         // The population's tangibility property already excludes these actors from host interaction.
-        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
+        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Frame = EnemyFrameId.Empty;
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
 
         if (settings.Role == DachoraRole.SpeedBoostEcho)
         {
             // An echo faces the way the body does; each trail placement later gives it an eight-update life.
             state.Playback = new(DachoraAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
-                ? DachoraProgram.EchoRight
-                : DachoraProgram.EchoLeft), AnimationPlace.StartOfAnimation);
+                ? DachoraSegment.EchoRight
+                : DachoraSegment.EchoLeft), AnimationPlace.StartOfAnimation);
             state.Function = DachoraAiFunction.Echo;
             return;
         }
 
         _echoes.Place(slot, _slotTable.ListedRunAfter(slot, DachoraEchoCount));
         state.Playback = new(DachoraAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
-            ? DachoraProgram.IdleRight
-            : DachoraProgram.IdleLeft), AnimationPlace.StartOfAnimation);
+            ? DachoraSegment.IdleRight
+            : DachoraSegment.IdleLeft), AnimationPlace.StartOfAnimation);
         state.Function = DachoraAiFunction.WaitingForSamus;
     }
 
@@ -184,12 +183,12 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        InstallDachoraInstruction(
+        StartDachoraAnimation(
             slot,
             state,
             state.FacingRight
-                ? DachoraProgram.BlinkRight
-                : DachoraProgram.BlinkLeft);
+                ? DachoraSegment.BlinkRight
+                : DachoraSegment.BlinkLeft);
         state.Function = DachoraAiFunction.BlinkingBeforeRun;
         state.StartBlinking(DachoraBlinkDuration);
         _audio.QueueEnemySound(DachoraActivationSound, priority: SoundRequestPriority.Normal);
@@ -201,12 +200,12 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         if (--state.PhaseTimer != 0)
             return;
 
-        InstallDachoraInstruction(
+        StartDachoraAnimation(
             slot,
             state,
             state.FacingRight
-                ? DachoraProgram.RunningRight
-                : DachoraProgram.RunningLeft);
+                ? DachoraSegment.RunningRight
+                : DachoraSegment.RunningLeft);
         state.Function = state.FacingRight
             ? DachoraAiFunction.RunningRight
             : DachoraAiFunction.RunningLeft;
@@ -230,7 +229,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!hitWall && CoordinateAxis.Difference(slot.Position.X.Whole, DachoraLeftTurnX) >= 0)
             return;
 
-        InstallDachoraInstruction(slot, state, DachoraProgram.RunningRight);
+        StartDachoraAnimation(slot, state, DachoraSegment.RunningRight);
         state.Function = DachoraAiFunction.RunningRight;
         state.SetGlowCycle(frame: 0, ticks: 1);
         state.FacingRight = true;
@@ -248,7 +247,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
         {
             _audio.QueueEnemySound(DachoraWallImpactSound, priority: SoundRequestPriority.Normal);
-            InstallDachoraInstruction(slot, state, DachoraProgram.RunningLeft);
+            StartDachoraAnimation(slot, state, DachoraSegment.RunningLeft);
             state.Function = DachoraAiFunction.RunningLeft;
             state.FacingRight = false;
             state.Speed = SignedSixteenSixteen.Zero;
@@ -261,7 +260,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(slot.Position.X.Whole, DachoraShinesparkX) < 0)
             return;
 
-        InstallDachoraInstruction(slot, state, DachoraProgram.ChargeRight);
+        StartDachoraAnimation(slot, state, DachoraSegment.ChargeRight);
         state.Function = DachoraAiFunction.ChargingShinespark;
         state.StartCharging(DachoraChargeDuration);
         state.SetGlowCycle(frame: 0, ticks: 0);
@@ -334,7 +333,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         // The charge animation is asleep at its launch wait. Stepping past the sleep enters the same
         // right-facing echo animation used by the four trails, exactly as the game does on launch.
         state.Playback = new(DachoraAnimations.StartingWith(DachoraAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         state.Function = DachoraAiFunction.Shinesparking;
 
         RoomEnemySlot[] echoes = RequireDachoraEchoSlots(slot);
@@ -345,11 +344,11 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - 8);
         _audio.QueueEnemySound(DachoraLaunchSound, priority: SoundRequestPriority.Normal);
 
-        DachoraProgram echoList = state.FacingRight
-            ? DachoraProgram.EchoRight
-            : DachoraProgram.EchoLeft;
+        DachoraSegment echoList = state.FacingRight
+            ? DachoraSegment.EchoRight
+            : DachoraSegment.EchoLeft;
         foreach (RoomEnemySlot echo in echoes)
-            InstallDachoraInstruction(echo, echo.RequireSpeciesState<DachoraEnemyState>(), echoList);
+            StartDachoraAnimation(echo, echo.RequireSpeciesState<DachoraEnemyState>(), echoList);
     }
 
     /// <summary>Runs upward acceleration, trail placement, and ceiling collision.</summary>
@@ -377,12 +376,12 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         // Ceiling impact reverses the facing bit before the fall, a visible retail quirk.
         if (!state.FacingRight)
         {
-            InstallDachoraInstruction(slot, state, DachoraProgram.FallingRight);
+            StartDachoraAnimation(slot, state, DachoraSegment.FallingRight);
             state.FacingRight = true;
         }
         else
         {
-            InstallDachoraInstruction(slot, state, DachoraProgram.FallingLeft);
+            StartDachoraAnimation(slot, state, DachoraSegment.FallingLeft);
             state.FacingRight = false;
         }
         state.Function = DachoraAiFunction.Falling;
@@ -411,12 +410,12 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        InstallDachoraInstruction(
+        StartDachoraAnimation(
             slot,
             state,
             state.FacingRight
-                ? DachoraProgram.RunningRight
-                : DachoraProgram.RunningLeft);
+                ? DachoraSegment.RunningRight
+                : DachoraSegment.RunningLeft);
         state.Function = state.FacingRight
             ? DachoraAiFunction.RunningRight
             : DachoraAiFunction.RunningLeft;
@@ -510,31 +509,31 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts an authored Dachora animation at its first tick.</summary>
-    private static void InstallDachoraInstruction(RoomEnemySlot slot, DachoraEnemyState state, DachoraProgram program)
+    private static void StartDachoraAnimation(RoomEnemySlot slot, DachoraEnemyState state, DachoraSegment segment)
     {
-        state.Playback = new(DachoraAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        state.Playback = new(DachoraAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
+        slot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>The faster clone of a run loop, where the speed-up jump lands at the same pose.</summary>
-    private static DachoraProgram FasterDachoraRun(DachoraProgram program) => program switch
+    private static DachoraSegment FasterDachoraRun(DachoraSegment segment) => segment switch
     {
-        DachoraProgram.RunningLeft
-            or DachoraProgram.RunningLeftFast
-            or DachoraProgram.RunningRight
-            or DachoraProgram.RunningRightFast => EnumOrder.Next(program),
-        DachoraProgram.RunningLeftVeryFast or
-            DachoraProgram.IdleLeft or
-            DachoraProgram.BlinkLeft or
-            DachoraProgram.EchoLeft or
-            DachoraProgram.FallingLeft or
-            DachoraProgram.RunningRightVeryFast or
-            DachoraProgram.IdleRight or
-            DachoraProgram.BlinkRight or
-            DachoraProgram.ChargeRight or
-            DachoraProgram.EchoRight or
-            DachoraProgram.FallingRight => throw new InvalidOperationException($"Dachora speed-up from {program}, which has no faster run."),
-        _ => throw new InvalidOperationException($"Dachora speed-up from {program}, which has no faster run."),
+        DachoraSegment.RunningLeft
+            or DachoraSegment.RunningLeftFast
+            or DachoraSegment.RunningRight
+            or DachoraSegment.RunningRightFast => EnumOrder.Next(segment),
+        DachoraSegment.RunningLeftVeryFast or
+            DachoraSegment.IdleLeft or
+            DachoraSegment.BlinkLeft or
+            DachoraSegment.EchoLeft or
+            DachoraSegment.FallingLeft or
+            DachoraSegment.RunningRightVeryFast or
+            DachoraSegment.IdleRight or
+            DachoraSegment.BlinkRight or
+            DachoraSegment.ChargeRight or
+            DachoraSegment.EchoRight or
+            DachoraSegment.FallingRight => throw new InvalidOperationException($"Dachora speed-up from {segment}, which has no faster run."),
+        _ => throw new InvalidOperationException($"Dachora speed-up from {segment}, which has no faster run."),
     };
 
     /// <summary>Uses wrapped signed positions and a strict proximity threshold on one axis.</summary>
@@ -548,12 +547,12 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.Kinematics.YAcceleration.Fraction);
 
     /// <summary>The segment <paramref name="playback"/> is playing: the one its current phase plays, as a sleep rests in it.</summary>
-    private static DachoraProgram Playing(AnimationPlayback<DachoraProgram> playback) =>
+    private static DachoraSegment Playing(AnimationPlayback<DachoraSegment> playback) =>
         playback.Animation.Phases[playback.Place.Phase].Segment;
 
     /// <summary>Advances Dachora's typed animation.</summary>
-    internal static void AdvanceDachoraTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, DachoraAnimations.Segments,
+    internal static void AdvanceDachoraTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, DachoraAnimations.Segments,
             static (DachoraEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Dachora animation raised {cue}."));
 

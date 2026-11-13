@@ -74,14 +74,14 @@ internal static class BossDisplayBindingsFixtureVerification
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
             Actor.Contact = EnemyContact.None;
-            Actor.Processing = EnemyProcessing.AnimationScript;
+            Actor.Processing = EnemyProcessing.Animates;
             Actor.Presence = EnemyPresence.None;
             Enemies.Drawing.Enqueue(Actor, reached: true);
             // The boss draws under the retail graphics set its room loads, whose sheets hold its frames.
             SpawnedObjectFixtures.LoadSetDrawing(Enemies, definition, Actor);
             // A boss that owns BG2 attaches its body layer as its initialisation does, before any of its frames draw on it.
             ClearBg2();
-            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyInstructionInterpreter.RunsAnimationScript);
+            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyAnimationPlayer.AdvanceAnimation);
         }
 
         /// <summary>The boss whose body layer <paramref name="definition"/> draws on, or null for one that draws none.</summary>
@@ -110,7 +110,7 @@ internal static class BossDisplayBindingsFixtureVerification
         {
             Actor.SpritemapPointer = frame;
             Actor.CollidesByFrameHitboxes = true;
-            Actor.NewInstructionFrame = fresh;
+            Actor.AnimationClock.ShowsNewFrame = fresh;
         }
 
         /// <summary>Runs queued enemy drawing into a fresh OAM frame.</summary>

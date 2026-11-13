@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Platforms.PlatformCueKind;
-using P = SuperMetroid.Core.Enemies.Platforms.PlatformProgram;
+using P = SuperMetroid.Core.Enemies.Platforms.PlatformSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Platforms;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 internal static class PlatformAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<PlatformProgram, EnemyFrameId, PlatformCue> Segments { get; } = new(
-        new Dictionary<PlatformProgram, AnimationBeat<EnemyFrameId, PlatformCue>[]>
+    internal static AnimationSegments<PlatformSegment, EnemyFrameId, PlatformCue> Segments { get; } = new(
+        new Dictionary<PlatformSegment, AnimationBeat<EnemyFrameId, PlatformCue>[]>
     {
         [P.KamerMovingLeft] =
         [
@@ -106,7 +106,7 @@ internal static class PlatformAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<PlatformProgram, Animation<PlatformProgram>> StartingAt { get; } = new Dictionary<PlatformProgram, Animation<PlatformProgram>>
+    internal static IReadOnlyDictionary<PlatformSegment, Animation<PlatformSegment>> StartingAt { get; } = new Dictionary<PlatformSegment, Animation<PlatformSegment>>
     {
         [P.KamerMovingLeft] = new([new(P.KamerMovingLeft, 0, 1, 1), new(P.KamerMovingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.KamerMovingLeftLoop] = new([new(P.KamerMovingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
@@ -127,7 +127,7 @@ internal static class PlatformAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<PlatformProgram> StartingWith(PlatformProgram segment) => StartingAt[segment];
+    internal static Animation<PlatformSegment> StartingWith(PlatformSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, PlatformCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, PlatformCue>.Frame(frame, duration);

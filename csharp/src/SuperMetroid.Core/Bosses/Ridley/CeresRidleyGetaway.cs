@@ -244,7 +244,7 @@ internal sealed class CeresRidleyGetaway
                     return;
 
                 state.CeresEscapeTypewriter = _bossArtwork.EscapeTypewriterPresentation is { } presentation
-                    ? new(presentation.Get(EscapeTypewriterProgramId.Ceres))
+                    ? new(presentation.Get(EscapeTypewriterMessageId.Ceres))
                     : null;
 
                 // English goes straight to typing the warning; Japanese

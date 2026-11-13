@@ -14,13 +14,13 @@ public static class SamusPowerBombFuseData
     internal static readonly FrozenDictionary<SamusProjectileSegmentBeat, SamusProjectileSegmentBeat> FastCounterparts =
         new Dictionary<SamusProjectileSegmentBeat, SamusProjectileSegmentBeat>
         {
-            [new(SamusProjectileProgram.PowerBomb, 0)] = new(SamusProjectileProgram.FastPowerBomb, 0),
-            [new(SamusProjectileProgram.PowerBomb, 1)] = new(SamusProjectileProgram.FastPowerBomb, 1),
-            [new(SamusProjectileProgram.PowerBomb, 2)] = new(SamusProjectileProgram.FastPowerBomb, 2),
-            [new(SamusProjectileProgram.PowerBomb, 3)] = new(SamusProjectileProgram.FastPowerBomb, 3),
-            [new(SamusProjectileProgram.Bomb, 1)] = new(SamusProjectileProgram.FastBomb, 0),
-            [new(SamusProjectileProgram.Bomb, 2)] = new(SamusProjectileProgram.FastBomb, 1),
-            [new(SamusProjectileProgram.Bomb, 3)] = new(SamusProjectileProgram.FastBomb, 2),
-            [new(SamusProjectileProgram.Bomb, 4)] = new(SamusProjectileProgram.FastBomb, 3),
+            [new(SamusProjectileSegment.PowerBomb, 0)] = new(SamusProjectileSegment.FastPowerBomb, 0),
+            [new(SamusProjectileSegment.PowerBomb, 1)] = new(SamusProjectileSegment.FastPowerBomb, 1),
+            [new(SamusProjectileSegment.PowerBomb, 2)] = new(SamusProjectileSegment.FastPowerBomb, 2),
+            [new(SamusProjectileSegment.PowerBomb, 3)] = new(SamusProjectileSegment.FastPowerBomb, 3),
+            [new(SamusProjectileSegment.Bomb, 1)] = new(SamusProjectileSegment.FastBomb, 0),
+            [new(SamusProjectileSegment.Bomb, 2)] = new(SamusProjectileSegment.FastBomb, 1),
+            [new(SamusProjectileSegment.Bomb, 3)] = new(SamusProjectileSegment.FastBomb, 2),
+            [new(SamusProjectileSegment.Bomb, 4)] = new(SamusProjectileSegment.FastBomb, 3),
         }.ToFrozenDictionary();
 }

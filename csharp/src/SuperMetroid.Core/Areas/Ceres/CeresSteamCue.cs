@@ -14,7 +14,7 @@ internal abstract record CeresSteamCue
     /// </summary>
     /// <param name="Target">The program the vent continues at while its timer runs.</param>
     /// <param name="Alternate">The program the vent continues at once its timer expires.</param>
-    internal sealed record CountDownToActivation(CeresSteamProgram Target, CeresSteamProgram Alternate) : CeresSteamCue;
+    internal sealed record CountDownToActivation(CeresSteamSegment Target, CeresSteamSegment Alternate) : CeresSteamCue;
 
     /// <summary>A cue that carries no operand.</summary>
     /// <param name="Kind">What the cue does.</param>

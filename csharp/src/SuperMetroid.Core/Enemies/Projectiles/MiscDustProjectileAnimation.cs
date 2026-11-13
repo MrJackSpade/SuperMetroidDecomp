@@ -5,12 +5,12 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Misc dust's typed animation.</summary>
-internal sealed class MiscDustProjectileAnimation(MiscDustProjectileProgram program)
-    : EnemyProjectileFrameAnimation<MiscDustProjectileProgram, EnemyProjectileCommonCue>(MiscDustProjectileAnimations.StartingWith(program))
+internal sealed class MiscDustProjectileAnimation(MiscDustProjectileSegment segment)
+    : EnemyProjectileFrameAnimation<MiscDustProjectileSegment, EnemyProjectileCommonCue>(MiscDustProjectileAnimations.StartingWith(segment))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<MiscDustProjectileProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => MiscDustProjectileAnimations.Segments;
+    private protected override AnimationSegments<MiscDustProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => MiscDustProjectileAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<MiscDustProjectileProgram, Animation<MiscDustProjectileProgram>> StartingAt => MiscDustProjectileAnimations.StartingAt;
+    private protected override IReadOnlyDictionary<MiscDustProjectileSegment, Animation<MiscDustProjectileSegment>> StartingAt => MiscDustProjectileAnimations.StartingAt;
 }

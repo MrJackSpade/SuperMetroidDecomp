@@ -28,8 +28,8 @@ public static class EscapeTypewriterPresentationFile
         if (document.Version != EscapeTypewriterDocumentDefinitions.Version || document.Programs is null)
             throw new InvalidDataException($"Escape typewriter content requires schema version {EscapeTypewriterDocumentDefinitions.Version}.");
 
-        EscapeTypewriterProgramId[] expected = Enum.GetValues<EscapeTypewriterProgramId>()
-            .Where(static id => id != EscapeTypewriterProgramId.None).ToArray();
+        EscapeTypewriterMessageId[] expected = Enum.GetValues<EscapeTypewriterMessageId>()
+            .Where(static id => id != EscapeTypewriterMessageId.None).ToArray();
         if (document.Programs.Count != expected.Length ||
             expected.Any(id => !document.Programs.ContainsKey(id.ToString())))
         {
@@ -37,8 +37,8 @@ public static class EscapeTypewriterPresentationFile
                 "Escape typewriter content requires exactly the Ceres and Zebes programs.");
         }
 
-        var programs = new Dictionary<EscapeTypewriterProgramId, EscapeTypewriterProgram>();
-        foreach (EscapeTypewriterProgramId id in expected)
+        var programs = new Dictionary<EscapeTypewriterMessageId, EscapeTypewriterMessage>();
+        foreach (EscapeTypewriterMessageId id in expected)
         {
             EscapeTypewriterProgramDocument program = document.Programs[id.ToString()]
                 ?? throw new InvalidDataException($"Escape typewriter program {id} is null.");

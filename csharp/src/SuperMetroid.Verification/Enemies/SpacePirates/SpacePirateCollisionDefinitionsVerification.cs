@@ -80,10 +80,10 @@ internal static class SpacePirateCollisionDefinitionsVerification
             AssertTrue(SpacePirateCollisionDefinitions.ComponentsAt(frame.Pointer).Length > 0,
                 $"installed Pirate frame {frame.Name} has fixed collision");
         }
-        foreach (ushort pointer in WallSpacePirateAnimationsConstants.Spritemaps(Enum.GetValues<WallSpacePirateProgram>()))
+        foreach (ushort pointer in WallSpacePirateAnimationsConstants.Spritemaps(Enum.GetValues<WallSpacePirateSegment>()))
             AssertTrue(SpacePirateCollisionDefinitions.ComponentsAt(pointer).Length > 0,
                 $"wall-Pirate shown frame $B2:{pointer:X4} has fixed collision");
-        foreach (ushort pointer in NinjaSpacePirateAnimationsConstants.Spritemaps(Enum.GetValues<NinjaSpacePirateProgram>()))
+        foreach (ushort pointer in NinjaSpacePirateAnimationsConstants.Spritemaps(Enum.GetValues<NinjaSpacePirateSegment>()))
         {
             ninjaFramePointers.Add(pointer);
             AssertTrue(SpacePirateCollisionDefinitions.ComponentsAt(pointer).Length > 0,

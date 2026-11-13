@@ -24,7 +24,7 @@ public sealed class BullEnemyState
     }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<BullProgram> Playback { get; set; }
+    internal AnimationPlayback<BullSegment> Playback { get; set; }
 
     /// <summary>The current delay, target, acceleration, or deceleration step.</summary>
     public BullEnemyFunction? Function { get; internal set; }

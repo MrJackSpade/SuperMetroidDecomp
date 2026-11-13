@@ -49,7 +49,7 @@ internal static class LookupPaletteFxDispatchVerification
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
             AssertEqual(ReadVerificationWord(rom, (0x8d0000 | pointer) + 2),
-                PaletteFxNativeListAddresses.Entry(RoomPaletteFxSelection.Get(pointer).InitialProgram), "Native palette-FX initial program");
+                PaletteFxNativeListAddresses.Entry(RoomPaletteFxSelection.Get(pointer).InitialAnimation), "Native palette-FX initial program");
     }
 
     /// <summary>Runs identity, setup, list, and spawn checks while guarding compiled definition bytes.</summary>

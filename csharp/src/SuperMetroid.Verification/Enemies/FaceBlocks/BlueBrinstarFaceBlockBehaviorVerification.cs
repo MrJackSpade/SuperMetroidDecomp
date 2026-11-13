@@ -24,14 +24,14 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
     internal static void VerifyBlueBrinstarFaceBlockBehavior()
     {
         (RoomEnemySystem enemies, RoomEnemySlot slot, BlueBrinstarFaceBlockEnemyState state) = Create(parameter2: 0);
-        AssertEqual(new AnimationPlayback<BlueBrinstarFaceBlockProgram>(BlueBrinstarFaceBlockAnimations.StartingWith(BlueBrinstarFaceBlockProgram.Initial), AnimationPlace.StartOfAnimation), state.Playback, "face block starts neutral");
-        ushort neutral = BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(BlueBrinstarFaceBlockProgram.Initial).Single();
+        AssertEqual(new AnimationPlayback<BlueBrinstarFaceBlockSegment>(BlueBrinstarFaceBlockAnimations.StartingWith(BlueBrinstarFaceBlockSegment.Initial), AnimationPlace.StartOfAnimation), state.Playback, "face block starts neutral");
+        ushort neutral = BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(BlueBrinstarFaceBlockSegment.Initial).Single();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([neutral, neutral], [1, 1]), EnemyInstructionRunner.ShownFrames(slot, 3), "face block neutral pose");
 
-        foreach ((ushort parameter2, int samusX, BlueBrinstarFaceBlockProgram program) in new[]
+        foreach ((ushort parameter2, int samusX, BlueBrinstarFaceBlockSegment program) in new[]
                  {
-                     new VerifyBlueBrinstarFaceBlockBehaviorCase(0, -32, BlueBrinstarFaceBlockProgram.SamusLeft),
-                     new VerifyBlueBrinstarFaceBlockBehaviorCase(1, 32, BlueBrinstarFaceBlockProgram.SamusRight),
+                     new VerifyBlueBrinstarFaceBlockBehaviorCase(0, -32, BlueBrinstarFaceBlockSegment.SamusLeft),
+                     new VerifyBlueBrinstarFaceBlockBehaviorCase(1, 32, BlueBrinstarFaceBlockSegment.SamusRight),
                  })
         {
             (enemies, slot, state) = Create(parameter2);
@@ -42,7 +42,7 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
             };
             enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(slot, state, samus);
             AssertTrue(state.Activated, $"face block {program} activates");
-            AssertEqual(new AnimationPlayback<BlueBrinstarFaceBlockProgram>(BlueBrinstarFaceBlockAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), state.Playback, $"face block {program} selection");
+            AssertEqual(new AnimationPlayback<BlueBrinstarFaceBlockSegment>(BlueBrinstarFaceBlockAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), state.Playback, $"face block {program} selection");
             int[] holds = [48, 16, 16];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(program), holds),
                 EnemyInstructionRunner.ShownFrames(slot, holds.Sum() + 1), $"face block {program} poses");
@@ -50,7 +50,7 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
 
         AssertEqual(5, BlueBrinstarFaceBlockVisualDefinitions.Frames().Select(frame => frame.Pointer).Distinct().Count(), "five distinct face-block poses");
         AssertTrue(BlueBrinstarFaceBlockVisualDefinitions.Frames().Select(frame => frame.Pointer).ToHashSet().SetEquals(
-                BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(Enum.GetValues<BlueBrinstarFaceBlockProgram>())),
+                BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(Enum.GetValues<BlueBrinstarFaceBlockSegment>())),
             "the exported face-block frames are exactly the poses the programs show");
         Console.WriteLine("  Face block behavior: neutral start, both activation sides and their 48/16/16 turning poses pass.");
     }

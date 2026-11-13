@@ -71,7 +71,7 @@ internal static class MotherBrainGlassShardDefinitionsVerification
         for (int angle = 0; angle < 256; angle++)
         {
             AssertEqual(ReadMotherBrainGlassShardWord(rom, 0x86ce41 + 2 * (angle >> 4)),
-                MotherBrainNativeListAddresses.GlassEntries[MotherBrainGlassAnimations.ShardPrograms.At(new TrigonometryAngle(angle))],
+                MotherBrainNativeListAddresses.GlassEntries[MotherBrainGlassAnimations.ShardAnimations.At(new TrigonometryAngle(angle))],
                 $"Glass shard launch angle {angle} selector");
         }
     }

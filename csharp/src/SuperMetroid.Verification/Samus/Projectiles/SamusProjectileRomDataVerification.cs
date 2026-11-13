@@ -144,11 +144,11 @@ internal static class SamusProjectileRomDataVerification
         TouchRange(bus, SamusProjectileRomDataCollision.SquareSlopeDefinitions,
             4, "projectile square-slope quadrants");
         bus.ReadCartridgeByte(SamusSourceDefinitions.MovementBank.Value |
-            ProjectileTrailNative.InstructionAddress(ProjectileTrailInstruction.MoveLeftDown));
+            ProjectileTrailNative.InstructionAddress(ProjectileTrailCue.MoveLeftDown));
         bus.ReadCartridgeByte(SamusSourceDefinitions.MovementBank.Value |
-            ProjectileTrailNative.InstructionAddress(ProjectileTrailInstruction.MoveRightDown));
+            ProjectileTrailNative.InstructionAddress(ProjectileTrailCue.MoveRightDown));
         bus.ReadCartridgeByte(SamusSourceDefinitions.MovementBank.Value |
-            ProjectileTrailNative.InstructionAddress(ProjectileTrailInstruction.MoveLeftUp));
+            ProjectileTrailNative.InstructionAddress(ProjectileTrailCue.MoveLeftUp));
         bus.ReadCartridgeByte(SamusSourceDefinitions.ProjectileDataBank.Value |
             (ushort)SamusProjectileInstruction.Delete);
         bus.ReadCartridgeByte(SamusSourceDefinitions.ProjectileDataBank.Value |

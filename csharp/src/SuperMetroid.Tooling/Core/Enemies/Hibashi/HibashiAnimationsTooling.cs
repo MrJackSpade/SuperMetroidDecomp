@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 internal static class HibashiAnimationsTooling
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params HibashiProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params HibashiSegment[] programs) =>
         programs.SelectMany(program => HibashiAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, HibashiCue>.Frame>()
             .Select(frame => HibashiFrameToolingDefinitions.Spritemap(frame.Shown));

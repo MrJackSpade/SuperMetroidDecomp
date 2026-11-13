@@ -141,7 +141,7 @@ public static class SamusBodyArtworkFiles
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
         // The import decides once which body frames the sheet pictures, from the frames her animation shows with what it
         // reads past its programs, and installs them with their placements: the game binds those and nothing else.
-        LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation =
+        LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> continuation =
             SamusOverreadServicesReader.ReadAnimationContinuation(SamusOverreadDecoding.Decode(CartridgeImportSource.Require(bus)));
         InstalledSamusBody installed = LoadForImport(directory, importData).InstalledBody(continuation);
         SamusArmCannonArtworkFiles.Install(directory, installed.ArmCannon);

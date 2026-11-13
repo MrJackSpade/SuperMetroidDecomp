@@ -18,16 +18,16 @@ internal static class SbugMovementDefinitions
         SbugFacing.Left, SbugFacing.DownLeft, SbugFacing.Down, SbugFacing.DownRight);
 
     /// <summary>The directional loop each facing shows.</summary>
-    internal static readonly Dictionary<SbugFacing, SbugProgram> FacingPrograms = new()
+    internal static readonly Dictionary<SbugFacing, SbugSegment> FacingAnimations = new()
     {
-        [SbugFacing.Right] = SbugProgram.Right,
-        [SbugFacing.UpRight] = SbugProgram.UpRight,
-        [SbugFacing.Up] = SbugProgram.Up,
-        [SbugFacing.UpLeft] = SbugProgram.UpLeft,
-        [SbugFacing.Left] = SbugProgram.Left,
-        [SbugFacing.DownLeft] = SbugProgram.DownLeft,
-        [SbugFacing.Down] = SbugProgram.Down,
-        [SbugFacing.DownRight] = SbugProgram.DownRight,
+        [SbugFacing.Right] = SbugSegment.Right,
+        [SbugFacing.UpRight] = SbugSegment.UpRight,
+        [SbugFacing.Up] = SbugSegment.Up,
+        [SbugFacing.UpLeft] = SbugSegment.UpLeft,
+        [SbugFacing.Left] = SbugSegment.Left,
+        [SbugFacing.DownLeft] = SbugSegment.DownLeft,
+        [SbugFacing.Down] = SbugSegment.Down,
+        [SbugFacing.DownRight] = SbugSegment.DownRight,
     };
 
     /// <summary>

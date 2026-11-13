@@ -117,7 +117,7 @@ internal sealed class DownwardGateBehavior
     /// </summary>
     private static void ResumeDownwardGate(EnemyProjectile projectile)
     {
-        DownwardGateProjectileProgram sleeping = projectile.Animation is DownwardGateProjectileAnimation gate
+        DownwardGateProjectileSegment sleeping = projectile.Animation is DownwardGateProjectileAnimation gate
             ? gate.PlayingSegment
             : throw new InvalidOperationException($"A downward gate resumed without its typed program; it runs {projectile.Animation}.");
         projectile.StartAnimation(new DownwardGateProjectileAnimation(DownwardGateProjectileAnimations.Resumption[sleeping]));

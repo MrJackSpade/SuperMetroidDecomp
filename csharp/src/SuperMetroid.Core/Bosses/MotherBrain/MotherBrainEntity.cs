@@ -35,7 +35,7 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => MotherBrainPartDefinitions.Parts[Slot.DefinitionId] switch
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => MotherBrainPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         MotherBrainPart.Tubes => (enemy, _) => MotherBrainBody.AdvanceMotherBrainTubeAnimation(enemy),
         MotherBrainPart.Body or MotherBrainPart.Head => species.AdvanceMotherBrainBodyTypedAnimation,

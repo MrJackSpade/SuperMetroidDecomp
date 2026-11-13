@@ -109,7 +109,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         // respawn; ordinary room Rinkas retain the respawn property so their death explosion resurrects
         // the physical slot from its population snapshot.
         slot.Presence = slot.Presence.Without(EnemyPresence.RespawnsIfKilled);
-        slot.Processing = slot.Processing.Without(EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen);
+        slot.Processing = slot.Processing.Without(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
         slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
         if (IsSpecialRinka(slot))
         {
@@ -120,13 +120,13 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 _deferredRinkaSpawnSlots.Add(slot);
             else
                 ReserveSpecialRinkaSpawn(slot, state);
-            slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen);
+            slot.Processing = slot.Processing.With(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
             slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         }
         else
         {
             slot.Presence = slot.Presence.With(EnemyPresence.RespawnsIfKilled);
-            slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
+            slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
             slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         }
 
@@ -163,14 +163,13 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
                 return;
             }
-            state.Playback = new(RinkaAnimations.StartingWith(RinkaProgram.Special), AnimationPlace.StartOfAnimation);
+            state.Playback = new(RinkaAnimations.StartingWith(RinkaSegment.Special), AnimationPlace.StartOfAnimation);
         }
         else
         {
-            state.Playback = new(RinkaAnimations.StartingWith(RinkaProgram.Ordinary), AnimationPlace.StartOfAnimation);
+            state.Playback = new(RinkaAnimations.StartingWith(RinkaSegment.Ordinary), AnimationPlace.StartOfAnimation);
         }
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
     }
 
     /// <summary>True while a door load still owes a special Rinka its spawn choice.</summary>
@@ -476,8 +475,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Rinka's typed animation.</summary>
-    internal static void AdvanceRinkaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, RinkaAnimations.Segments,
+    internal static void AdvanceRinkaTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, RinkaAnimations.Segments,
             static (RinkaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
@@ -555,7 +554,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile.Position = projectile.Position.WithWhole(slot.Position.Whole);
             projectile.DropDefinitionId = slot.DefinitionId;
             projectile.KilledEnemy = KilledEnemy.Of(slot, respawns);
-            projectile.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathProjectileProgram.SmallExplosion));
+            projectile.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathProjectileSegment.SmallExplosion));
         }
 
         slot.Clear();

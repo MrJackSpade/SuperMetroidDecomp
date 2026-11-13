@@ -80,7 +80,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
         // The initial left-facing animation intentionally disagrees with the installed right-facing idle. Because asking for
         // the installed animation again starts nothing, this oddity is observable until the snail first asks for another.
-        state.Playback = new(MaridiaLargeSnailAnimations.StartingWith(MaridiaLargeSnailProgram.FacingLeftIdle), AnimationPlace.StartOfAnimation);
+        state.Playback = new(MaridiaLargeSnailAnimations.StartingWith(MaridiaLargeSnailSegment.FacingLeftIdle), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>
@@ -138,8 +138,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         bool samusIsLeft = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
         if (samusIsLeft)
             state.MovingLeft = true;
-        state.RequestedAnimation = MaridiaLargeSnailPrograms.Idle(samusIsLeft);
-        InstallMaridiaLargeSnailAnimationScript(slot, state);
+        state.RequestedAnimation = MaridiaLargeSnailAnimationChoices.Idle(samusIsLeft);
+        StartMaridiaLargeSnailAnimation(slot, state);
 
         if (!EnemyMath.IsWithinStrictModularDistance(
                 samus.Position.X.Whole,
@@ -149,8 +149,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
         }
 
-        state.RequestedAnimation = MaridiaLargeSnailPrograms.RollingFrom(state.RequestedAnimation);
-        InstallMaridiaLargeSnailAnimationScript(slot, state);
+        state.RequestedAnimation = MaridiaLargeSnailAnimationChoices.RollingFrom(state.RequestedAnimation);
+        StartMaridiaLargeSnailAnimation(slot, state);
         state.Function = MaridiaLargeSnailEnemyFunction.Rolling;
     }
 
@@ -194,8 +194,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             {
                 state.MovingLeft = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
                 state.AttackCooldown = MaridiaLargeSnailInitialAttackCooldown;
-                state.RequestedAnimation = MaridiaLargeSnailPrograms.Attacking(state.MovingLeft);
-                InstallMaridiaLargeSnailAnimationScript(slot, state);
+                state.RequestedAnimation = MaridiaLargeSnailAnimationChoices.Attacking(state.MovingLeft);
+                StartMaridiaLargeSnailAnimation(slot, state);
                 state.Function = MaridiaLargeSnailEnemyFunction.Attacking;
                 return;
             }
@@ -213,8 +213,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
 
         state.AttackAnimationFinished = false;
-        state.RequestedAnimation = MaridiaLargeSnailPrograms.RollingAfter(state.RequestedAnimation);
-        InstallMaridiaLargeSnailAnimationScript(slot, state);
+        state.RequestedAnimation = MaridiaLargeSnailAnimationChoices.RollingAfter(state.RequestedAnimation);
+        StartMaridiaLargeSnailAnimation(slot, state);
         state.Function = MaridiaLargeSnailEnemyFunction.Rolling;
     }
 
@@ -307,8 +307,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
 
         state.MovingLeft = !state.MovingLeft;
-        state.RequestedAnimation = MaridiaLargeSnailPrograms.Reversed(state.RequestedAnimation);
-        InstallMaridiaLargeSnailAnimationScript(slot, state);
+        state.RequestedAnimation = MaridiaLargeSnailAnimationChoices.Reversed(state.RequestedAnimation);
+        StartMaridiaLargeSnailAnimation(slot, state);
     }
 
     /// <summary>Captures whether Samus is within both push ranges and on which side.</summary>
@@ -445,17 +445,15 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>Starts the requested animation only when it differs from the one the snail last started.</summary>
-    internal static void InstallMaridiaLargeSnailAnimationScript(
+    internal static void StartMaridiaLargeSnailAnimation(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state)
     {
         if (state.RequestedAnimation == state.InstalledAnimation)
             return;
         state.InstalledAnimation = state.RequestedAnimation;
-        state.Playback = new(MaridiaLargeSnailAnimations.StartingWith(MaridiaLargeSnailPrograms
-            .Program(state.RequestedAnimation)), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyAnimationPlayback.Start(slot, MaridiaLargeSnailAnimations.StartingWith(MaridiaLargeSnailAnimationChoices
+            .Animation(state.RequestedAnimation)));
     }
 
     /// <summary>
@@ -504,8 +502,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>Advances the Maridia large snail's typed animation.</summary>
-    internal void AdvanceMaridiaLargeSnailTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, MaridiaLargeSnailAnimations.Segments,
+    internal void AdvanceMaridiaLargeSnailTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, MaridiaLargeSnailAnimations.Segments,
             static (MaridiaLargeSnailEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

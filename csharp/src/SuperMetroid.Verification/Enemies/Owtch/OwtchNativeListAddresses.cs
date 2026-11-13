@@ -14,12 +14,12 @@ internal static class OwtchNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<OwtchProgram>[] Entries =
+    internal static readonly NativeProgramEntry<OwtchSegment>[] Entries =
     [
-        new NativeProgramEntry<OwtchProgram>(OwtchProgram.MovingLeft, 0xa3ab),
-        new NativeProgramEntry<OwtchProgram>(OwtchProgram.MovingLeftLoop, 0xa3ad),
-        new NativeProgramEntry<OwtchProgram>(OwtchProgram.MovingRight, 0xa3bd),
-        new NativeProgramEntry<OwtchProgram>(OwtchProgram.MovingRightLoop, 0xa3bf),
+        new NativeProgramEntry<OwtchSegment>(OwtchSegment.MovingLeft, 0xa3ab),
+        new NativeProgramEntry<OwtchSegment>(OwtchSegment.MovingLeftLoop, 0xa3ad),
+        new NativeProgramEntry<OwtchSegment>(OwtchSegment.MovingRight, 0xa3bd),
+        new NativeProgramEntry<OwtchSegment>(OwtchSegment.MovingRightLoop, 0xa3bf),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

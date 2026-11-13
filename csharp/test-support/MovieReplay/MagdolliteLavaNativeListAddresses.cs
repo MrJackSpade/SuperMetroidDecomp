@@ -11,19 +11,19 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 internal static class MagdolliteLavaNativeListAddresses
 {
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<MagdolliteLavaProgram>[] Entries =
+    internal static readonly NativeProgramEntry<MagdolliteLavaSegment>[] Entries =
     [
-        new NativeProgramEntry<MagdolliteLavaProgram>(MagdolliteLavaProgram.SharedDelete, 0x84fc),
-        new NativeProgramEntry<MagdolliteLavaProgram>(MagdolliteLavaProgram.Left, 0xdfd8),
-        new NativeProgramEntry<MagdolliteLavaProgram>(MagdolliteLavaProgram.Right, 0xdfde),
-        new NativeProgramEntry<MagdolliteLavaProgram>(MagdolliteLavaProgram.Shot, 0xdfe4),
+        new NativeProgramEntry<MagdolliteLavaSegment>(MagdolliteLavaSegment.SharedDelete, 0x84fc),
+        new NativeProgramEntry<MagdolliteLavaSegment>(MagdolliteLavaSegment.Left, 0xdfd8),
+        new NativeProgramEntry<MagdolliteLavaSegment>(MagdolliteLavaSegment.Right, 0xdfde),
+        new NativeProgramEntry<MagdolliteLavaSegment>(MagdolliteLavaSegment.Shot, 0xdfe4),
     ];
 
     /// <summary>The bank-$86 bytes the lists occupy, $86:DFD8-DFE9, which production must never read.</summary>
     internal static readonly MotherBrainEffectNativeListAddressesExtent Extent = new MotherBrainEffectNativeListAddressesExtent(0xdfd8, 0xdfea);
 
     /// <summary>The native entry of <paramref name="program"/>.</summary>
-    internal static ushort Entry(MagdolliteLavaProgram program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
+    internal static ushort Entry(MagdolliteLavaSegment program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
 
     /// <summary>The family's typed programs beside their native lists.</summary>
     internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, MagdolliteLavaAnimations.Segments, MagdolliteLavaAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), MagdolliteLavaCueRules.Rules);

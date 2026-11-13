@@ -13,7 +13,7 @@ public abstract record ProjectileTrailStep
 
     /// <summary>Moves a sprite one pixel and continues with the next step at once.</summary>
     /// <param name="Movement">The sprite and direction moved.</param>
-    public sealed record Move(ProjectileTrailInstruction Movement) : ProjectileTrailStep;
+    public sealed record Move(ProjectileTrailCue Movement) : ProjectileTrailStep;
 
     /// <summary>Shows <see cref="Frame"/> for <see cref="Duration"/> updates.</summary>
     /// <param name="Duration">The updates the frame lasts.</param>

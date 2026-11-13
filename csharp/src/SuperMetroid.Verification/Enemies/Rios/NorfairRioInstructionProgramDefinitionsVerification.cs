@@ -28,15 +28,15 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         // telling main AI it has finished.
         NorfairRioInstructionProgramDefinitionsProgram[] programs =
         [
-            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioProgram.Idle, 5, 8, false, "idle"),
-            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioProgram.StartDescending, 7, -16, true, "start descending"),
-            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioProgram.Descending, 5, -12, false, "descending"),
-            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioProgram.StartAscending, 9, 12, true, "start ascending"),
-            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioProgram.Ascending, 5, 12, false, "ascending"),
-            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioProgram.FlamesAscending, 5, 0, false, "ascending flames"),
-            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioProgram.FlamesDescending, 5, 0, false, "descending flames"),
+            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioSegment.Idle, 5, 8, false, "idle"),
+            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioSegment.StartDescending, 7, -16, true, "start descending"),
+            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioSegment.Descending, 5, -12, false, "descending"),
+            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioSegment.StartAscending, 9, 12, true, "start ascending"),
+            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioSegment.Ascending, 5, 12, false, "ascending"),
+            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioSegment.FlamesAscending, 5, 0, false, "ascending flames"),
+            new NorfairRioInstructionProgramDefinitionsProgram(NorfairRioSegment.FlamesDescending, 5, 0, false, "descending flames"),
         ];
-        foreach ((NorfairRioProgram entry, int calls, short offset, bool signal, string name) in programs)
+        foreach ((NorfairRioSegment entry, int calls, short offset, bool signal, string name) in programs)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, NorfairRioEnemyState state) =
                 NewNorfairRioInstructionSystem(entry);
@@ -70,7 +70,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition));
         parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         enemies.NorfairRioBehavior.InitializeNorfairRio(parent);
-        AssertEqual(new AnimationPlayback<NorfairRioProgram>(NorfairRioAnimations.StartingWith(NorfairRioProgram.Idle), AnimationPlace.StartOfAnimation),
+        AssertEqual(new AnimationPlayback<NorfairRioSegment>(NorfairRioAnimations.StartingWith(NorfairRioSegment.Idle), AnimationPlace.StartOfAnimation),
             enemies.SlotTable.Slots[0].EntityState<NorfairRioEntity, NorfairRioEnemyState>()?.Playback,
             "Norfair Rio parent initializer selects idle");
 
@@ -79,21 +79,21 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
         follower.SetSpawnParameter1(EnemyDefinitionId.Geruta, 0x8000);
         enemies.NorfairRioBehavior.InitializeNorfairRio(follower);
-        AssertEqual(new AnimationPlayback<NorfairRioProgram>(NorfairRioAnimations.StartingWith(NorfairRioProgram.FlamesAscending), AnimationPlace.StartOfAnimation),
+        AssertEqual(new AnimationPlayback<NorfairRioSegment>(NorfairRioAnimations.StartingWith(NorfairRioSegment.FlamesAscending), AnimationPlace.StartOfAnimation),
             enemies.SlotTable.Slots[1].EntityState<NorfairRioEntity, NorfairRioEnemyState>()?.Playback,
             "Norfair Rio follower initializer selects ascending flames");
     }
 
     /// <summary>Seeds a Geruta-backed Norfair Rio actor with an instruction entry and optional installed artwork.</summary>
     internal static NewNorfairRioInstructionSystemResult NewNorfairRioInstructionSystem(
-            NorfairRioProgram entry,
+            NorfairRioSegment entry,
             ImportEnemyArtwork? art = null)
     {
         var enemies = new RoomEnemySystem((art is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(art.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = art?.Bosses };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Geruta, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         var state = new NorfairRioEnemyState { Playback = new(NorfairRioAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
         slot.SetSpeciesState(state);
         return new NewNorfairRioInstructionSystemResult(enemies, slot, state);
@@ -106,7 +106,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
     {
         for (int call = 0; call < count; call++)
         {
-            slot.FrameHold = WrappingCountdown.Start(1);
+            slot.AnimationClock.StepOnNextUpdate();
             EnemyInstructionRunner.Process(arguments);
         }
     }

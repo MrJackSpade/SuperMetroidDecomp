@@ -302,9 +302,9 @@ internal static class WrittenPictureSheetComposer
     /// <exception cref="InvalidDataException">The writer's installed artwork is missing.</exception>
     private static IEnumerable<WrittenSubject> Subjects(RoomBlockSheetInputs inputs, TileWordWriter writer) => writer switch
     {
-        TileWordWriter.ZebesEscapeText => Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes)),
+        TileWordWriter.ZebesEscapeText => Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterMessageId.Zebes)),
         TileWordWriter.CeresEscapeText => [.. CeresWarningPages(inputs),
-            .. Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Ceres))],
+            .. Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterMessageId.Ceres))],
         _ => throw new InvalidDataException($"Undefined tile word writer {writer}."),
     };
 
@@ -328,7 +328,7 @@ internal static class WrittenPictureSheetComposer
     }
 
     /// <summary>Each glyph <paramref name="program"/> types, once, named as the typewriter names it, from its program's tile base.</summary>
-    private static IEnumerable<WrittenSubject> Typed(EscapeTypewriterProgram program)
+    private static IEnumerable<WrittenSubject> Typed(EscapeTypewriterMessage program)
     {
         BackgroundTile tileBase = EscapeTypewriterGlyphTiles.TileBaseOf(program.Id);
         var typed = new HashSet<char>();

@@ -32,7 +32,7 @@ internal sealed class IntroEggSlimeDrop
         sprite = new IntroDiscoverySprite(
             babyPosition,
             colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
-            program: definition.Program);
+            segment: definition.Animation);
         sprite.InstallFrameBehavior(definition.FrameBehavior);
     }
 
@@ -63,7 +63,7 @@ internal sealed class IntroEggSlimeDrop
             {
                 // Landing changes both animation and frame behaviour, freezing the impact point
                 // while the puddle animation plays four ten-frame frames and deletes the actor.
-                sprite.Start(CinematicSpriteProgram.MetroidEggParticleHitGround);
+                sprite.Start(CinematicSpriteSegment.MetroidEggParticleHitGround);
                 sprite.InstallFrameBehavior(
                     CinematicSpriteFrameBehavior.NoOp);
                 motionEnabled = false;

@@ -39,7 +39,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of the Alcoon's animations: spitting a fireball, starting to walk, or stepping. Starting to walk
     /// always continues at the walk for the Alcoon's facing, and a step that meets a wall turns it round to the other walk.
     /// </summary>
-    private AlcoonProgram? ApplyAlcoonCue(RoomEnemySlot slot, AlcoonEnemyState state, RoomLevelData? level, AlcoonCue cue)
+    private AlcoonSegment? ApplyAlcoonCue(RoomEnemySlot slot, AlcoonEnemyState state, RoomLevelData? level, AlcoonCue cue)
     {
         switch (cue.Kind)
         {
@@ -89,8 +89,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.StepCounter = 0;
         state.SpawnPosition = slot.Position.Whole;
-        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
-        state.Playback = new(AlcoonAnimations.StartingWith(AlcoonProgram.WalkingLeft), AnimationPlace.StartOfAnimation);
+        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
+        state.Playback = new(AlcoonAnimations.StartingWith(AlcoonSegment.WalkingLeft), AnimationPlace.StartOfAnimation);
         state.Function = AlcoonEnemyFunction.WaitingForSamus;
         SetupAlcoonJumpMovement(state);
 
@@ -174,12 +174,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (signedXDistance < 0)
         {
             state.Velocity = state.Velocity.WithWholeX(-2);
-            InstallAlcoonInstruction(slot, state, AlcoonProgram.AirborneLeftLookingUp);
+            StartAlcoonAnimation(slot, state, AlcoonSegment.AirborneLeftLookingUp);
         }
         else
         {
             state.Velocity = state.Velocity.WithWholeX(2);
-            InstallAlcoonInstruction(slot, state, AlcoonProgram.AirborneRightLookingUp);
+            StartAlcoonAnimation(slot, state, AlcoonSegment.AirborneRightLookingUp);
         }
         state.Function = AlcoonEnemyFunction.EmergingRising;
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonEmergeSound, priority: SoundRequestPriority.Normal);
@@ -194,12 +194,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Function = AlcoonEnemyFunction.EmergingFalling;
-        InstallAlcoonInstruction(
+        StartAlcoonAnimation(
             slot,
             state,
             state.Velocity.X.WholePixels < 0
-                ? AlcoonProgram.AirborneLeftLookingForward
-                : AlcoonProgram.AirborneRightLookingForward);
+                ? AlcoonSegment.AirborneLeftLookingForward
+                : AlcoonSegment.AirborneRightLookingForward);
     }
 
     /// <summary>Applies collision-aware descent, then chooses the initial walking direction toward Samus.</summary>
@@ -224,12 +224,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Precedes(samus.Position.X.Whole, slot.Position.X.Whole))
         {
             state.Velocity = state.Velocity.WithWholeX(-2);
-            InstallAlcoonInstruction(slot, state, AlcoonProgram.WalkingLeft);
+            StartAlcoonAnimation(slot, state, AlcoonSegment.WalkingLeft);
         }
         else
         {
             state.Velocity = state.Velocity.WithWholeX(2);
-            InstallAlcoonInstruction(slot, state, AlcoonProgram.WalkingRight);
+            StartAlcoonAnimation(slot, state, AlcoonSegment.WalkingRight);
         }
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
         state.StepCounter = 1;
@@ -256,12 +256,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Function = AlcoonEnemyFunction.HidingRising;
             state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.FromParts(-4, 0));
-            InstallAlcoonInstruction(
+            StartAlcoonAnimation(
                 slot,
                 state,
                 state.Velocity.X.WholePixels < 0
-                    ? AlcoonProgram.AirborneLeftLookingForward
-                    : AlcoonProgram.AirborneRightLookingForward);
+                    ? AlcoonSegment.AirborneLeftLookingForward
+                    : AlcoonSegment.AirborneRightLookingForward);
             return;
         }
 
@@ -273,12 +273,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samusIsLeft != movingLeft)
             return;
 
-        InstallAlcoonInstruction(
+        StartAlcoonAnimation(
             slot,
             state,
             movingLeft
-                ? AlcoonProgram.FireLeft
-                : AlcoonProgram.FireRight);
+                ? AlcoonSegment.FireLeft
+                : AlcoonSegment.FireRight);
         state.Function = AlcoonEnemyFunction.WaitingForFireAnimation;
     }
 
@@ -339,28 +339,28 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Switches Alcoon's animation so its first step runs on the next update.</summary>
-    private static void InstallAlcoonInstruction(RoomEnemySlot slot, AlcoonEnemyState state, AlcoonProgram program)
+    private static void StartAlcoonAnimation(RoomEnemySlot slot, AlcoonEnemyState state, AlcoonSegment segment)
     {
-        state.Playback = new(AlcoonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        state.Playback = new(AlcoonAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
+        slot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Runs the Alcoon's start-walking cue and returns the walk the animation continues at.</summary>
-    private AlcoonProgram StartAlcoonWalking(AlcoonEnemyState state)
+    private AlcoonSegment StartAlcoonWalking(AlcoonEnemyState state)
     {
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
         int count = AlcoonWalkDefinitions.StepCount.Of(_room.Random.Read());
         state.StepCounter = count == 0 ? 2 : count;
         return state.Velocity.X.WholePixels < 0
-            ? AlcoonProgram.WalkingLeft
-            : AlcoonProgram.WalkingRight;
+            ? AlcoonSegment.WalkingLeft
+            : AlcoonSegment.WalkingRight;
     }
 
     /// <summary>
     /// Implements both movement cues: the animation runs on unless a wall turns the Alcoon
     /// round, when it continues at the other walk's first pose.
     /// </summary>
-    private AlcoonProgram? MoveAlcoonHorizontally(
+    private AlcoonSegment? MoveAlcoonHorizontally(
         RoomEnemySlot slot,
         AlcoonEnemyState state,
         RoomLevelData? level)
@@ -378,8 +378,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int oldVelocity = state.Velocity.X.WholePixels;
         state.Velocity = state.Velocity.WithWholeX(-oldVelocity);
         return oldVelocity >= 0
-            ? AlcoonProgram.WalkingLeftLoop
-            : AlcoonProgram.WalkingRightLoop;
+            ? AlcoonSegment.WalkingLeftLoop
+            : AlcoonSegment.WalkingRightLoop;
     }
 
     /// <summary>Connects Alcoon fireballs to their movement frame behaviour.</summary>
@@ -404,11 +404,11 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Alcoon's typed animation.</summary>
-    internal void AdvanceAlcoonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, AlcoonAnimations.Segments,
+    internal void AdvanceAlcoonTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(slot, AlcoonAnimations.Segments,
             static (AlcoonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyAlcoonCue(slot, state, context.Level, cue) is { } walk
-                ? new AnimationContinuation<AlcoonProgram>(AlcoonAnimations.StartingWith(walk), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<AlcoonSegment>(AlcoonAnimations.StartingWith(walk), AnimationPlace.StartOfAnimation)
                 : null);
 
     /// <summary>Initial horizontal fireball speed, four pixels per update.</summary>

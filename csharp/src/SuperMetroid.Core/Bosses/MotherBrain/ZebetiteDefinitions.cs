@@ -10,11 +10,11 @@ internal static class ZebetiteDefinitions
 
     /// <summary>Embedded primary spawn record.</summary>
     internal static readonly RoomEnemyPopulationRecord PrimarySpawn =
-        new(EnemyDefinitionId.Zebetite, new(0, 0), EnemyContact.None, EnemyProcessing.AnimationScript, EnemyPresence.None, CollidesByFrameHitboxes: false, new ZebetiteSpawnSettings(ZebetiteHalf.Primary));
+        new(EnemyDefinitionId.Zebetite, new(0, 0), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, CollidesByFrameHitboxes: false, new ZebetiteSpawnSettings(ZebetiteHalf.Primary));
 
     /// <summary>Embedded linked-half spawn record.</summary>
     internal static readonly RoomEnemyPopulationRecord LinkedSpawn =
-        new(EnemyDefinitionId.Zebetite, new(0, 0), EnemyContact.None, EnemyProcessing.AnimationScript, EnemyPresence.None, CollidesByFrameHitboxes: false, new ZebetiteSpawnSettings(ZebetiteHalf.Linked));
+        new(EnemyDefinitionId.Zebetite, new(0, 0), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, CollidesByFrameHitboxes: false, new ZebetiteSpawnSettings(ZebetiteHalf.Linked));
 
     /// <summary>The exact embedded enemy population record of each half.</summary>
     internal static readonly Dictionary<ZebetiteHalf, RoomEnemyPopulationRecord> SpawnPopulations = new()

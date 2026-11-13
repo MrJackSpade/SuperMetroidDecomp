@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 public sealed class OwtchEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<OwtchProgram> Playback { get; set; }
+    internal AnimationPlayback<OwtchSegment> Playback { get; set; }
 
     /// <summary>
     /// The signed 16.16 rightward patrol speed in pixels per update, taken from the shared linear-speed table.

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 public sealed class BabyTurtleEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<MamaTurtleProgram> Playback { get; set; }
+    internal AnimationPlayback<MamaTurtleSegment> Playback { get; set; }
 
     /// <summary>Gets the current Baby Turtle AI function.</summary>
     public BabyTurtleAiFunction? Function { get; internal set; }

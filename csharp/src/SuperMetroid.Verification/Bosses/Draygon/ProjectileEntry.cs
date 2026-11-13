@@ -5,4 +5,4 @@ namespace SuperMetroid.Verification.Bosses.Draygon;
 /// <summary>The program and entry of one projectile entry.</summary>
 /// <param name="Program">The program.</param>
 /// <param name="Entry">The entry.</param>
-internal readonly record struct ProjectileEntry(DraygonProjectileProgram Program, ushort Entry);
+internal readonly record struct ProjectileEntry(DraygonProjectileSegment Program, ushort Entry);

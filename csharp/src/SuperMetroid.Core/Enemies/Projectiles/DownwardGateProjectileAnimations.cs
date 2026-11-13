@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Rooms.RoomObjects.DownwardGateProjectileCueKind;
-using P = SuperMetroid.Core.Rooms.RoomObjects.DownwardGateProjectileProgram;
+using P = SuperMetroid.Core.Rooms.RoomObjects.DownwardGateProjectileSegment;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 internal static class DownwardGateProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<DownwardGateProjectileProgram, EnemyProjectileFrameId, DownwardGateProjectileCue> Segments { get; } = new(
-        new Dictionary<DownwardGateProjectileProgram, AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue>[]>
+    internal static AnimationSegments<DownwardGateProjectileSegment, EnemyProjectileFrameId, DownwardGateProjectileCue> Segments { get; } = new(
+        new Dictionary<DownwardGateProjectileSegment, AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue>[]>
     {
         [P.Moving] =
         [
@@ -66,7 +66,7 @@ internal static class DownwardGateProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<DownwardGateProjectileProgram, Animation<DownwardGateProjectileProgram>> StartingAt { get; } = new Dictionary<DownwardGateProjectileProgram, Animation<DownwardGateProjectileProgram>>
+    internal static IReadOnlyDictionary<DownwardGateProjectileSegment, Animation<DownwardGateProjectileSegment>> StartingAt { get; } = new Dictionary<DownwardGateProjectileSegment, Animation<DownwardGateProjectileSegment>>
     {
         [P.Moving] = new([new(P.Moving, 0, 3, 1)], AnimationEnd.Holds),
         [P.MovingStep2] = new([new(P.MovingStep2, 0, 1, 1)], AnimationEnd.Holds),
@@ -82,13 +82,13 @@ internal static class DownwardGateProjectileAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<DownwardGateProjectileProgram> StartingWith(DownwardGateProjectileProgram segment) => StartingAt[segment];
+    internal static Animation<DownwardGateProjectileSegment> StartingWith(DownwardGateProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>
     /// The program each sleeping program resumes with when its owner wakes it, keyed by
     /// the program that slept.
     /// </summary>
-    internal static IReadOnlyDictionary<DownwardGateProjectileProgram, DownwardGateProjectileProgram> Resumption { get; } = new Dictionary<DownwardGateProjectileProgram, DownwardGateProjectileProgram>
+    internal static IReadOnlyDictionary<DownwardGateProjectileSegment, DownwardGateProjectileSegment> Resumption { get; } = new Dictionary<DownwardGateProjectileSegment, DownwardGateProjectileSegment>
     {
         [P.Moving] = P.MovingStep2,
         [P.MovingStep2] = P.MovingStep3,

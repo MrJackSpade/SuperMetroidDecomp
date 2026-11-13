@@ -22,7 +22,7 @@ internal static class ShutterBehaviorVerification
     /// </summary>
     internal static void VerifyShutterBehavior()
     {
-        VerifyPose(EnemyDefinitionId.ShutterGrowing, ShutterProgram.GrowingTenPixels,
+        VerifyPose(EnemyDefinitionId.ShutterGrowing, ShutterSegment.GrowingTenPixels,
             (enemies, slot) =>
             {
                 slot.SetSpawnSettings(new GrowingShutterSpawnSettings(
@@ -33,11 +33,11 @@ internal static class ShutterBehaviorVerification
             enemies => enemies.SlotTable.Slots[0].EntityState<ShuttersEntity, GrowingShutterEnemyState>()?.Playback);
         foreach (EnemyDefinitionId definition in new[] { EnemyDefinitionId.ShutterShootable, EnemyDefinitionId.ShutterDestroyable })
         {
-            VerifyPose(definition, ShutterProgram.FortyPixels,
+            VerifyPose(definition, ShutterSegment.FortyPixels,
                 (enemies, slot) => ShuttersBehavior.InitializeVerticalShutter(slot),
                 enemies => enemies.SlotTable.Slots[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Playback);
         }
-        VerifyPose(EnemyDefinitionId.ShutterHorizShootable, ShutterProgram.Horizontal,
+        VerifyPose(EnemyDefinitionId.ShutterHorizShootable, ShutterSegment.Horizontal,
             (enemies, slot) => ShuttersBehavior.InitializeHorizontalShutter(slot),
             enemies => enemies.SlotTable.Slots[0].EntityState<ShuttersEntity, HorizontalShutterEnemyState>()?.Playback);
 
@@ -45,20 +45,20 @@ internal static class ShutterBehaviorVerification
         RoomEnemySlot kamer = NewSlot(kamerSystem, EnemyDefinitionId.Kamer);
         kamer.Bind(EnemyDefinitionId.Kamer, kamer.Definition);
         ShuttersBehavior.InitializeVerticalShutter(kamer);
-        AssertEqual(new AnimationPlayback<ShutterProgram>(ShutterAnimations.StartingWith(ShutterProgram.KamerPlatform), AnimationPlace.StartOfAnimation),
+        AssertEqual(new AnimationPlayback<ShutterSegment>(ShutterAnimations.StartingWith(ShutterSegment.KamerPlatform), AnimationPlace.StartOfAnimation),
             kamerSystem.SlotTable.Slots[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Playback, "Kamer vertical platform starts its loop");
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(ShutterAnimations.Segments, ShutterProgram.KamerPlatform, ShutterFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(kamer, EnemyInstructionRunner.LoopUpdates(ShutterAnimations.Segments, ShutterProgram.KamerPlatform)),
+        AssertEqual(EnemyInstructionRunner.ExpectedLoop(ShutterAnimations.Segments, ShutterSegment.KamerPlatform, ShutterFrameToolingDefinitions.Spritemap),
+            EnemyInstructionRunner.ShownFrames(kamer, EnemyInstructionRunner.LoopUpdates(ShutterAnimations.Segments, ShutterSegment.KamerPlatform)),
             "Kamer platform loop and its goto");
         Console.WriteLine("  Shutter behavior: every shutter starts its pose and Kamer runs its platform loop.");
 
-        void VerifyPose(EnemyDefinitionId definition, ShutterProgram program, Action<RoomEnemySystem, RoomEnemySlot> initialize,
-            Func<RoomEnemySystem, AnimationPlayback<ShutterProgram>?> playback)
+        void VerifyPose(EnemyDefinitionId definition, ShutterSegment program, Action<RoomEnemySystem, RoomEnemySlot> initialize,
+            Func<RoomEnemySystem, AnimationPlayback<ShutterSegment>?> playback)
         {
             RoomEnemySystem enemies = NewSystem();
             RoomEnemySlot slot = NewSlot(enemies, definition);
             initialize(enemies, slot);
-            AssertEqual(new AnimationPlayback<ShutterProgram>(ShutterAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), playback(enemies), $"shutter {definition} initial animation");
+            AssertEqual(new AnimationPlayback<ShutterSegment>(ShutterAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), playback(enemies), $"shutter {definition} initial animation");
             ushort pose = ShutterAnimationsConstants.Spritemaps(program).Single();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([pose, pose], [1, 1]),
                 EnemyInstructionRunner.ShownFrames(slot, 3), $"shutter {definition} shows and holds its pose");
@@ -126,10 +126,10 @@ internal static class ShutterBehaviorVerification
     /// </summary>
     internal static void VerifyShutterExportFrames(CartridgeImportAddressSpace rom)
     {
-        ShutterProgram[] programs =
+        ShutterSegment[] programs =
         [
-            ShutterProgram.GrowingTenPixels, ShutterProgram.GrowingTwentyPixels, ShutterProgram.GrowingThirtyPixels,
-            ShutterProgram.FortyPixels, ShutterProgram.Horizontal,
+            ShutterSegment.GrowingTenPixels, ShutterSegment.GrowingTwentyPixels, ShutterSegment.GrowingThirtyPixels,
+            ShutterSegment.FortyPixels, ShutterSegment.Horizontal,
         ];
         NativeEnemySpritemapDefinition[] frames = ShutterVisualDefinitions.Frames();
         AssertEqual(programs.Length, frames.Length, "one exported shutter composition per pose");

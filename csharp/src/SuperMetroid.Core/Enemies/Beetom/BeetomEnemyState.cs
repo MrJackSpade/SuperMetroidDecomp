@@ -37,7 +37,7 @@ public sealed class BeetomEnemyState
     /// <summary>Controller input last observed by initialization or the attached counter; any differing input, including releases, decrements <see cref="ButtonCounter"/>.</summary>
     public ControllerButton PreviousController1Input { get; internal set; }
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<BeetomProgram> Playback { get; set; }
+    internal AnimationPlayback<BeetomSegment> Playback { get; set; }
     /// <summary>Short-hop starting place, the first row a multiple of four along whose integrated quadratic speeds reach the short hop's height.</summary>
     public EnemyQuadraticSpeedIndex InitialShortLeapYSpeedIndex { get; internal set; }
     /// <summary>Long-hop starting place, the first row a multiple of five along whose integrated quadratic speeds reach the long hop's height.</summary>

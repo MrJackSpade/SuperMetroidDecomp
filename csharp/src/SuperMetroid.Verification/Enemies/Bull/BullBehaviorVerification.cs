@@ -26,18 +26,18 @@ internal static class BullBehaviorVerification
         slot.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
         enemies.BullBehavior.InitializeBull(slot);
         BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException("Bull initializer did not publish typed state.");
-        AssertEqual(new AnimationPlayback<BullProgram>(BullAnimations.StartingWith(BullProgram.Normal), AnimationPlace.StartOfAnimation), state.Playback, "Bull initializer animation");
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(BullAnimations.Segments, BullProgram.Normal, BullFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(BullAnimations.Segments, BullProgram.Normal)),
+        AssertEqual(new AnimationPlayback<BullSegment>(BullAnimations.StartingWith(BullSegment.Normal), AnimationPlace.StartOfAnimation), state.Playback, "Bull initializer animation");
+        AssertEqual(EnemyInstructionRunner.ExpectedLoop(BullAnimations.Segments, BullSegment.Normal, BullFrameToolingDefinitions.Spritemap),
+            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(BullAnimations.Segments, BullSegment.Normal)),
             "Bull normal loop");
 
         BullBehavior.ResolveBullImmuneShot(slot, state, SamusProjectileDirection.Right);
-        AssertEqual(new AnimationPlayback<BullProgram>(BullAnimations.StartingWith(BullProgram.Shot), AnimationPlace.StartOfAnimation), state.Playback, "Bull immune-shot animation");
-        ushort[] shot = BullAnimationsConstants.Spritemaps(BullProgram.ShotLoop).ToArray();
-        ushort[] expected = [.. Enumerable.Repeat(shot, 5).SelectMany(frames => frames), BullAnimationsConstants.Spritemaps(BullProgram.Normal).First()];
+        AssertEqual(new AnimationPlayback<BullSegment>(BullAnimations.StartingWith(BullSegment.Shot), AnimationPlace.StartOfAnimation), state.Playback, "Bull immune-shot animation");
+        ushort[] shot = BullAnimationsConstants.Spritemaps(BullSegment.ShotLoop).ToArray();
+        ushort[] expected = [.. Enumerable.Repeat(shot, 5).SelectMany(frames => frames), BullAnimationsConstants.Spritemaps(BullSegment.Normal).First()];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames(expected, Enumerable.Repeat(3, expected.Length)),
             EnemyInstructionRunner.ShownFrames(slot, 61), "Bull shot program repeats five times and returns to normal");
-        AssertEqual((ushort)0, slot.Timer.RawValue, "Bull shot loop exhausts its native repeat timer");
+        AssertEqual((ushort)0, slot.AnimationClock.Repeats.RawValue, "Bull shot loop exhausts its native repeat timer");
         Console.WriteLine("  Bull behavior: the normal loop and the five-repeat immune-shot reaction run as the cartridge does.");
     }
 

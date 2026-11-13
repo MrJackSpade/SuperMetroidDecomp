@@ -1,4 +1,4 @@
-﻿using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnProjectileProgram;
+﻿using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnProjectileSegment;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 internal static class SporeSpawnProjectileAnimationsConstants
 {
     /// <summary>The poses of each program's run.</summary>
-    internal static int PoseCount(SporeSpawnProjectileProgram program) => program switch
+    internal static int PoseCount(SporeSpawnProjectileSegment program) => program switch
     {
         P.SpawnerClosed or P.Stalk => 1,
         P.SpawnerRelease => SporeSpawnProjectileAnimations.ReleaseDurations.Length,

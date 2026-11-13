@@ -30,7 +30,7 @@ internal static class MagdolliteLavaBehaviorVerification
         source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
         enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, throwsRight: false);
         enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, throwsRight: true);
-        foreach ((ushort direction, MagdolliteLavaProgram program) in new VerifyMagdolliteLavaBehaviorCase[] { new VerifyMagdolliteLavaBehaviorCase(0, MagdolliteLavaProgram.Left), new VerifyMagdolliteLavaBehaviorCase(1, MagdolliteLavaProgram.Right) })
+        foreach ((ushort direction, MagdolliteLavaSegment program) in new VerifyMagdolliteLavaBehaviorCase[] { new VerifyMagdolliteLavaBehaviorCase(0, MagdolliteLavaSegment.Left), new VerifyMagdolliteLavaBehaviorCase(1, MagdolliteLavaSegment.Right) })
         {
             EnemyProjectile lava = Find(direction);
             AssertTrue(lava.Animation is MagdolliteLavaAnimation animation && animation.PlayingSegment == program, $"direction {direction} starts {program}");
@@ -39,8 +39,8 @@ internal static class MagdolliteLavaBehaviorVerification
         }
 
         EnemyProjectile shot = Find(0);
-        shot.StartAnimation(new MagdolliteLavaAnimation(MagdolliteLavaProgram.Shot));
-        (bool removed, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, shot, MagdolliteLavaNativeListAddresses.Entry(MagdolliteLavaProgram.Shot), 4, "shot lava");
+        shot.StartAnimation(new MagdolliteLavaAnimation(MagdolliteLavaSegment.Shot));
+        (bool removed, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, shot, MagdolliteLavaNativeListAddresses.Entry(MagdolliteLavaSegment.Shot), 4, "shot lava");
         AssertTrue(removed && updates == 1, "the shot program deletes the lava on its first pass");
         // $86:DFEA allocates its pickup at the shot lava's position.
         EnemyProjectile drop = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup);

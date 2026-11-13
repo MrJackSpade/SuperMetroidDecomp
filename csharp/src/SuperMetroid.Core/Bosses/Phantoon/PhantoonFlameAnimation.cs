@@ -5,15 +5,15 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>A Phantoon flame's typed animation.</summary>
-internal sealed class PhantoonFlameAnimation(PhantoonFlameProgram program)
-    : EnemyProjectileTypedAnimation<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue>(PhantoonFlameAnimations.StartingWith(program))
+internal sealed class PhantoonFlameAnimation(PhantoonFlameSegment segment)
+    : EnemyProjectileTypedAnimation<PhantoonFlameSegment, PhantoonFlameFrame, PhantoonFlameCue>(PhantoonFlameAnimations.StartingWith(segment))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue> Segments =>
+    private protected override AnimationSegments<PhantoonFlameSegment, PhantoonFlameFrame, PhantoonFlameCue> Segments =>
         PhantoonFlameAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<PhantoonFlameProgram, Animation<PhantoonFlameProgram>> StartingAt =>
+    private protected override IReadOnlyDictionary<PhantoonFlameSegment, Animation<PhantoonFlameSegment>> StartingAt =>
         PhantoonFlameAnimations.StartingAt;
 
     /// <inheritdoc/>

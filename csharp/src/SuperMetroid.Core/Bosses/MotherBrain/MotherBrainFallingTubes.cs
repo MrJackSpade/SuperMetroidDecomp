@@ -21,8 +21,8 @@ internal static class MotherBrainFallingTubes
         int compositionBottom = main ? MainBottom : outer ? OuterBottom : InnerBottom;
         Position16<RoomPixels> position = new(x, BottomBaseline - compositionBottom);
         EnemyProcessing processing = main
-            ? EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen
-            : EnemyProcessing.AnimationScript;
+            ? EnemyProcessing.Animates | EnemyProcessing.OffScreen
+            : EnemyProcessing.Animates;
         return new(EnemyDefinitionId.MotherBrainTubes, position, EnemyContact.SolidToSamus, processing, EnemyPresence.None,
             CollidesByFrameHitboxes: false, new MotherBrainTubeSpawnSettings(piece, main ? MainFallDelay : 0));
     }

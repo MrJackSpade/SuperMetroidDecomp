@@ -119,7 +119,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.SecondSetSong));
                 torizo.Contact = torizo.Contact.Without(EnemyContact.SolidToSamus);
-                TorizoBody.StartTorizoBodyProgram(torizo, state, TorizoAnimations.Start(TorizoAnimations.AfterSleep(TorizoAnimations.SegmentOf(state.BodyPlayback))));
+                TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimations.AfterSleep(TorizoAnimations.SegmentOf(state.BodyPlayback))));
                 state.AwakeningReleased = true;
                 return;
 
@@ -132,7 +132,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 // lower-right trigger rectangle. This is the authored statue wake-up gate.
                 if (samus is not null && samus.Position.Y.Whole > 320 && samus.Position.X.Whole > 368)
                 {
-                    TorizoBody.StartTorizoBodyProgram(torizo, state, TorizoAnimations.Start(TorizoAnimations.AfterSleep(TorizoAnimations.SegmentOf(state.BodyPlayback))));
+                    TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimations.AfterSleep(TorizoAnimations.SegmentOf(state.BodyPlayback))));
                 }
                 return;
 
@@ -218,19 +218,19 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances BombTorizo's typed animation.</summary>
-    internal void AdvanceBombTorizoTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    internal void AdvanceBombTorizoTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context)
     {
-        AdvanceTorizoAnimation(slot, new TorizoInstructionInputs { Samus = context.Samus, Level = context.Level, ControllerInput = context.ControllerInput, FrameCounter = _frameContext.FrameCounter });
+        AdvanceTorizoAnimation(slot, new TorizoCueInputs { Samus = context.Samus, Level = context.Level, ControllerInput = context.ControllerInput, FrameCounter = _frameContext.FrameCounter });
     }
     /// <summary>Runs Bomb or Golden Torizo's body program where the shared enemy animation would.</summary>
-    internal void AdvanceTorizoAnimation(RoomEnemySlot torizo, TorizoInstructionInputs inputs)
+    internal void AdvanceTorizoAnimation(RoomEnemySlot torizo, TorizoCueInputs inputs)
     {
-        if (!EnemyProgramAnimation.Expire(torizo))
+        if (!torizo.AnimationClock.Expire())
             return;
         TorizoEnemyState state = Access.RequireBombTorizoState(torizo);
-        AnimationPlayback<TorizoBodyProgram> playback = state.BodyPlayback;
+        AnimationPlayback<TorizoBodySegment> playback = state.BodyPlayback;
         // The death and wake repeats count the body's frame timer, as the timer commands do.
-        EnemyProgramAnimation.Play(torizo, TorizoAnimations.Segments, ref playback,
+        EnemyAnimationPlayback.Play(torizo, TorizoAnimations.Segments, ref playback,
             (cue, continuation) => ApplyTorizoCue(torizo, state, inputs, cue, continuation));
         state.BodyPlayback = playback;
     }
@@ -245,15 +245,15 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Carries out one cue of Bomb or Golden Torizo's body animation, returning where a branch, call or return
     /// continues the play, or null to play on. <paramref name="continuation"/> is where the play stands just past the
-    /// cue: the return point a call saves. <see cref="TorizoInstructionInputs.FrameCounter"/> is the frame
+    /// cue: the return point a call saves. <see cref="TorizoCueInputs.FrameCounter"/> is the frame
     /// counter, which both attack choosers add; only whether it lies in the second half of each sixteen-frame cycle survives.
     /// </summary>
-    internal AnimationContinuation<TorizoBodyProgram>? ApplyTorizoCue(
+    internal AnimationContinuation<TorizoBodySegment>? ApplyTorizoCue(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
-        TorizoInstructionInputs inputs,
+        TorizoCueInputs inputs,
         TorizoCue cue,
-        AnimationPlayback<TorizoBodyProgram> continuation)
+        AnimationPlayback<TorizoBodySegment> continuation)
     {
         switch (cue)
         {
@@ -395,10 +395,10 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Walk { Kind: TorizoWalkKind.WalkBombTorizo } walk:
-                return Choices.ProcessBombTorizoWalkInstruction(torizo, state, inputs.Samus, TorizoMovement.RequireBombTorizoLevel(inputs.Level), new TorizoWalkStep { Step = walk.Step, CollisionFacingRight = TorizoBodyProgram.FacingLeftTurningLeft, CollisionFacingLeft = TorizoBodyProgram.FacingRightTurningRight });
+                return Choices.ProcessBombTorizoWalkAnimation(torizo, state, inputs.Samus, TorizoMovement.RequireBombTorizoLevel(inputs.Level), new TorizoWalkStep { Step = walk.Step, CollisionFacingRight = TorizoBodySegment.FacingLeftTurningLeft, CollisionFacingLeft = TorizoBodySegment.FacingRightTurningRight });
 
             case TorizoCue.Walk { Kind: TorizoWalkKind.WalkFacelessBombTorizo } walk:
-                return Choices.ProcessBombTorizoWalkInstruction(torizo, state, inputs.Samus, TorizoMovement.RequireBombTorizoLevel(inputs.Level), new TorizoWalkStep { Step = walk.Step, CollisionFacingRight = TorizoBodyProgram.FacingLeftFacelessTurningLeft, CollisionFacingLeft = TorizoBodyProgram.FacingRightFacelessTurningRight });
+                return Choices.ProcessBombTorizoWalkAnimation(torizo, state, inputs.Samus, TorizoMovement.RequireBombTorizoLevel(inputs.Level), new TorizoWalkStep { Step = walk.Step, CollisionFacingRight = TorizoBodySegment.FacingLeftFacelessTurningLeft, CollisionFacingLeft = TorizoBodySegment.FacingRightFacelessTurningRight });
 
             case TorizoCue.Branch { Kind: TorizoBranchKind.GoToIfRising } branch:
                 return state.Velocity.Y.IsNegative ? TorizoAnimations.ContinueWith(branch.Target) : null;
@@ -571,7 +571,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             case TorizoCue.Walk { Kind: TorizoWalkKind.WalkGoldenTorizo } walk:
-                return Choices.ProcessGoldenTorizoWalkInstruction(
+                return Choices.ProcessGoldenTorizoWalkAnimation(
                     torizo,
                     state,
                     inputs.Samus,

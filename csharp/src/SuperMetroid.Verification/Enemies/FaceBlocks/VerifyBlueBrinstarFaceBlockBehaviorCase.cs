@@ -6,4 +6,4 @@ namespace SuperMetroid.Verification.Enemies.FaceBlocks;
 /// <param name="Parameter2">The parameter2.</param>
 /// <param name="SamusX">The samus x.</param>
 /// <param name="Program">The program.</param>
-internal readonly record struct VerifyBlueBrinstarFaceBlockBehaviorCase(ushort Parameter2, int SamusX, BlueBrinstarFaceBlockProgram Program);
+internal readonly record struct VerifyBlueBrinstarFaceBlockBehaviorCase(ushort Parameter2, int SamusX, BlueBrinstarFaceBlockSegment Program);

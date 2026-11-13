@@ -15,11 +15,11 @@ internal static class ProjectileTrailNative
     private const int ChargedSelectionOffset = 16;
 
     /// <summary>The bank-$90 address of the movement instruction a move step names.</summary>
-    internal static ushort InstructionAddress(ProjectileTrailInstruction movement) => movement switch
+    internal static ushort InstructionAddress(ProjectileTrailCue movement) => movement switch
     {
-        ProjectileTrailInstruction.MoveLeftDown => 0xb525,
-        ProjectileTrailInstruction.MoveRightDown => 0xb587,
-        ProjectileTrailInstruction.MoveLeftUp => 0xb5b3,
+        ProjectileTrailCue.MoveLeftDown => 0xb525,
+        ProjectileTrailCue.MoveRightDown => 0xb587,
+        ProjectileTrailCue.MoveLeftUp => 0xb5b3,
         _ => throw new ArgumentOutOfRangeException(nameof(movement), movement, "Undefined trail movement."),
     };
 
@@ -27,19 +27,19 @@ internal static class ProjectileTrailNative
     extension(ProjectileTrailDefinitions)
     {
         /// <summary>$90:B4C9, the empty program.</summary>
-        internal static ushort Empty => ProjectileTrailSources.Start(ProjectileTrailProgram.Empty);
+        internal static ushort Empty => ProjectileTrailSources.Start(ProjectileTrailSegment.Empty);
         /// <summary>$90:B4CB, the left ice program.</summary>
-        internal static ushort LeftIce => ProjectileTrailSources.Start(ProjectileTrailProgram.LeftIce);
+        internal static ushort LeftIce => ProjectileTrailSources.Start(ProjectileTrailSegment.LeftIce);
         /// <summary>$90:B52D, the right ice program.</summary>
-        internal static ushort RightIce => ProjectileTrailSources.Start(ProjectileTrailProgram.RightIce);
+        internal static ushort RightIce => ProjectileTrailSources.Start(ProjectileTrailSegment.RightIce);
         /// <summary>$90:B58F, the wave program.</summary>
-        internal static ushort Wave => ProjectileTrailSources.Start(ProjectileTrailProgram.Wave);
+        internal static ushort Wave => ProjectileTrailSources.Start(ProjectileTrailSegment.Wave);
         /// <summary>$90:B5A1, the missile program.</summary>
-        internal static ushort Missile => ProjectileTrailSources.Start(ProjectileTrailProgram.Missile);
+        internal static ushort Missile => ProjectileTrailSources.Start(ProjectileTrailSegment.Missile);
     }
 
     /// <summary>The programs' native mechanics words.</summary>
-    extension(ProjectileTrailProgramDefinitions)
+    extension(ProjectileTrailAnimationDefinitions)
     {
         /// <summary>The native word of the step stored at bus address <paramref name="address"/>: a pose's duration, a move's instruction, zero for the end.</summary>
         internal static bool TryRead(int address, out ushort word)
@@ -47,7 +47,7 @@ internal static class ProjectileTrailNative
             word = 0;
             if ((address & ~0xffff) != SamusSourceDefinitions.MovementBank.Value)
                 return false;
-            foreach ((ProjectileTrailProgram program, ProjectileTrailStep[] steps) in ProjectileTrailProgramDefinitions.Programs)
+            foreach ((ProjectileTrailSegment program, ProjectileTrailStep[] steps) in ProjectileTrailAnimationDefinitions.Animations)
             for (int step = 0; step < steps.Length; step++)
             {
                 if (ProjectileTrailSources.Address(new ProjectileTrailCursor(program, step)) != (ushort)address)
@@ -65,7 +65,7 @@ internal static class ProjectileTrailNative
         }
 
         /// <summary>The native word of the step stored at <paramref name="address"/>; any other address is rejected.</summary>
-        internal static ushort Read(int address) => ProjectileTrailProgramDefinitions.TryRead(address, out ushort word)
+        internal static ushort Read(int address) => ProjectileTrailAnimationDefinitions.TryRead(address, out ushort word)
             ? word
             : throw new InvalidDataException($"Projectile trail program word ${address:X6} is outside compiled mechanics data.");
     }

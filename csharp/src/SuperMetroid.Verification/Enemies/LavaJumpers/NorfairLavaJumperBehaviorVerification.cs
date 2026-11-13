@@ -29,20 +29,20 @@ internal static class NorfairLavaJumperBehaviorVerification
         enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(parent);
         NorfairLavaJumpingEnemyState parentState = enemies.NorfairLavaJumpingEnemyStates[0]
             ?? throw new InvalidOperationException("Verification requires enemies.NorfairLavaJumpingEnemyStates[0].");
-        AssertEqual(new AnimationPlayback<NorfairLavaJumperProgram>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperProgram.Hidden), AnimationPlace.StartOfAnimation), parentState.Playback,
+        AssertEqual(new AnimationPlayback<NorfairLavaJumperSegment>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Hidden), AnimationPlace.StartOfAnimation), parentState.Playback,
             "lava-jumper parent starts hidden");
         // The initializer leaves the population's instruction timer; start the hidden pose on the next update.
-        parent.FrameHold = WrappingCountdown.Start(1);
-        ushort hidden = NorfairLavaJumperAnimationsConstants.Spritemaps(NorfairLavaJumperProgram.Hidden).Single();
+        parent.AnimationClock.StepOnNextUpdate();
+        ushort hidden = NorfairLavaJumperAnimationsConstants.Spritemaps(NorfairLavaJumperSegment.Hidden).Single();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([hidden, hidden], [1, 1]), EnemyInstructionRunner.ShownFrames(parent, 3),
             "lava-jumper hidden pose");
 
         enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain(parent, parentState);
         parentState.YVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1080); // Past the native switch velocity, still rising.
         enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain(parent, parentState);
-        AssertEqual(new AnimationPlayback<NorfairLavaJumperProgram>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperProgram.Jump), AnimationPlace.StartOfAnimation), parentState.Playback,
+        AssertEqual(new AnimationPlayback<NorfairLavaJumperSegment>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Jump), AnimationPlace.StartOfAnimation), parentState.Playback,
             "real lava-jumper rise handoff starts the jump animation");
-        ushort[] jump = NorfairLavaJumperAnimationsConstants.Spritemaps(NorfairLavaJumperProgram.Jump).ToArray();
+        ushort[] jump = NorfairLavaJumperAnimationsConstants.Spritemaps(NorfairLavaJumperSegment.Jump).ToArray();
         int[] holds = [1, 5, 9, 7, 3, 10, 1];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. jump, jump[^1]], [.. holds, 1]),
             EnemyInstructionRunner.ShownFrames(parent, holds.Sum() + 2), "lava-jumper jump animation");
@@ -55,11 +55,11 @@ internal static class NorfairLavaJumperBehaviorVerification
         enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(follower);
         NorfairLavaJumpingEnemyState followerState = enemies.NorfairLavaJumpingEnemyStates[1]
             ?? throw new InvalidOperationException("Verification requires enemies.NorfairLavaJumpingEnemyStates[1].");
-        AssertEqual(new AnimationPlayback<NorfairLavaJumperProgram>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperProgram.Follower), AnimationPlace.StartOfAnimation), followerState.Playback,
+        AssertEqual(new AnimationPlayback<NorfairLavaJumperSegment>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation), followerState.Playback,
             "real follower initializer starts the follower loop");
-        follower.FrameHold = WrappingCountdown.Start(1);
-        ushort[] startup = NorfairLavaJumperAnimationsConstants.Spritemaps(NorfairLavaJumperProgram.Follower).ToArray();
-        ushort[] loop = NorfairLavaJumperAnimationsConstants.Spritemaps(NorfairLavaJumperProgram.FollowerLoop).ToArray();
+        follower.AnimationClock.StepOnNextUpdate();
+        ushort[] startup = NorfairLavaJumperAnimationsConstants.Spritemaps(NorfairLavaJumperSegment.Follower).ToArray();
+        ushort[] loop = NorfairLavaJumperAnimationsConstants.Spritemaps(NorfairLavaJumperSegment.FollowerLoop).ToArray();
         ushort[] expected = [.. startup, .. loop, startup[0]];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames(expected, expected.Select(_ => 1)),
             EnemyInstructionRunner.ShownFrames(follower, expected.Length), "follower loop runs once and starts over");

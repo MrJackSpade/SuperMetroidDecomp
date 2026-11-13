@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainEffectCueKind;
-using P = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainEffectProgram;
+using P = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainEffectSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainEffectAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MotherBrainEffectProgram, EnemyProjectileFrameId, MotherBrainEffectCue> Segments { get; } = new(
-        new Dictionary<MotherBrainEffectProgram, AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>[]>
+    internal static AnimationSegments<MotherBrainEffectSegment, EnemyProjectileFrameId, MotherBrainEffectCue> Segments { get; } = new(
+        new Dictionary<MotherBrainEffectSegment, AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>[]>
     {
         [P.OnionRing] =
         [
@@ -129,7 +129,7 @@ internal static class MotherBrainEffectAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<MotherBrainEffectProgram, Animation<MotherBrainEffectProgram>> StartingAt { get; } = new Dictionary<MotherBrainEffectProgram, Animation<MotherBrainEffectProgram>>
+    internal static IReadOnlyDictionary<MotherBrainEffectSegment, Animation<MotherBrainEffectSegment>> StartingAt { get; } = new Dictionary<MotherBrainEffectSegment, Animation<MotherBrainEffectSegment>>
     {
         [P.OnionRing] = new([new(P.OnionRing, 0, 12, 1)], AnimationEnd.Holds),
         [P.OnionRingHit] = new([new(P.OnionRingHit, 0, 9, 1)], AnimationEnd.Holds),
@@ -144,7 +144,7 @@ internal static class MotherBrainEffectAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<MotherBrainEffectProgram> StartingWith(MotherBrainEffectProgram segment) => StartingAt[segment];
+    internal static Animation<MotherBrainEffectSegment> StartingWith(MotherBrainEffectSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>.Frame(frame, duration);

@@ -190,7 +190,7 @@ internal sealed class CeresRidleyBabyScene
 
         if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
         {
-            if (AdvanceCeresBabyDrawInstruction(state) is { } babyFrame)
+            if (AdvanceCeresBabyDrawAnimation(state) is { } babyFrame)
             {
                 _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresBaby), babyFrame,
                     state.BabyPosition.Whole.ToScreen(camera), EnemyShades.HurtFlashLook);
@@ -217,7 +217,7 @@ internal sealed class CeresRidleyBabyScene
     /// Runs the Baby's typed cutscene program one draw update and returns its current frame. The Baby's draw counts the
     /// elapsed updates up and advances once they reach the pose's duration; the next pose starts at one.
     /// </summary>
-    internal EnemyFrameId? AdvanceCeresBabyDrawInstruction(RidleyEnemyState state)
+    internal EnemyFrameId? AdvanceCeresBabyDrawAnimation(RidleyEnemyState state)
     {
         if (state.BabyPoseDuration != 0 && state.BabyPoseDuration != state.BabyFrameHold)
         {
@@ -225,16 +225,16 @@ internal sealed class CeresRidleyBabyScene
             return CeresBabyFrame(state.BabyCurrentPose);
         }
 
-        Animation<CeresBabyProgram> animation = state.BabyPlayback.Animation;
+        Animation<CeresBabySegment> animation = state.BabyPlayback.Animation;
         AnimationPlace place = state.BabyPlayback.Place;
         // The Baby's animations count no repeats, so nothing reads or writes this counter.
         WrappingCountdown counter = WrappingCountdown.Start(0);
-        AnimationShown<CeresBabyProgram, CeresBabyPose> outcome = CeresBabyAnimations.Segments.PlayToNextFrame(ref animation, ref place, ref counter,
+        AnimationShown<CeresBabySegment, CeresBabyPose> outcome = CeresBabyAnimations.Segments.PlayToNextFrame(ref animation, ref place, ref counter,
             cue => ApplyCeresBabyCue(state, cue) is { } target
-                ? new AnimationContinuation<CeresBabyProgram>(CeresBabyAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<CeresBabySegment>(CeresBabyAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
-        state.BabyPlayback = new AnimationPlayback<CeresBabyProgram>(animation, place);
-        if (outcome is not AnimationShown<CeresBabyProgram, CeresBabyPose>.Frame shown)
+        state.BabyPlayback = new AnimationPlayback<CeresBabySegment>(animation, place);
+        if (outcome is not AnimationShown<CeresBabySegment, CeresBabyPose>.Frame shown)
             throw new InvalidOperationException($"The Ceres Baby's animation ended a draw update with {outcome}.");
         state.BabyPoseDuration = shown.Duration;
         state.BabyFrameHold = 1;
@@ -247,7 +247,7 @@ internal sealed class CeresRidleyBabyScene
         pose is { } shown ? CeresBabyFrameDefinitions.ShownFrames.Of(shown) : null;
 
     /// <summary>Carries out one cue of the Baby's animation, returning the segment whose animation a branch continues in, or null to play on.</summary>
-    private CeresBabyProgram? ApplyCeresBabyCue(RidleyEnemyState state, CeresBabyCue cue)
+    private CeresBabySegment? ApplyCeresBabyCue(RidleyEnemyState state, CeresBabyCue cue)
     {
         switch (cue)
         {

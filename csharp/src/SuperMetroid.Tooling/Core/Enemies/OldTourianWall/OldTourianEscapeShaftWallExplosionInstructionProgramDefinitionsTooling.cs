@@ -6,8 +6,8 @@ using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.OldTourianWall;
 
-/// <summary>Development-tool members of <see cref="OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions"/>; never linked by player hosts.</summary>
-[ToolingFor(typeof(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions))]
+/// <summary>Development-tool members of <see cref="OldTourianEscapeShaftWallExplosionAnimationDefinitions"/>; never linked by player hosts.</summary>
+[ToolingFor(typeof(OldTourianEscapeShaftWallExplosionAnimationDefinitions))]
 internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, IDeclaredProgramBank
 {
     /// <summary>The six pose operands, in list order.</summary>
@@ -29,13 +29,13 @@ internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefi
     [
         new(0xb443, (ushort)EnemyProjectileInstruction.ClearFrameBehavior),
         new(0xb445, (ushort)EnemyProjectileInstruction.TimerInY),
-        new(0xb447, checked(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.BurstCount)),
+        new(0xb447, checked(OldTourianEscapeShaftWallExplosionAnimationDefinitions.BurstCount)),
         new(OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop, (ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius),
-        new(0xb44b, ScatterWord(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.XRange, OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.Center.X)),
-        new(0xb44d, ScatterWord(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.YRange, OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.Center.Y)),
+        new(0xb44b, ScatterWord(OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter.XRange, OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter.Center.X)),
+        new(0xb44d, ScatterWord(OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter.YRange, OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter.Center.Y)),
         new(0xb44f, (ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6),
         .. FrameOperands.Select((operand, frame) => new InstructionMechanicsWord(
-            (ushort)(operand - 2), (ushort)OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.FrameDurations[frame])),
+            (ushort)(operand - 2), (ushort)OldTourianEscapeShaftWallExplosionAnimationDefinitions.FrameDurations[frame])),
         new(0xb46a, (ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero),
         new(0xb46c, OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop),
         new(0xb46e, (ushort)EnemyProjectileInstruction.Delete),

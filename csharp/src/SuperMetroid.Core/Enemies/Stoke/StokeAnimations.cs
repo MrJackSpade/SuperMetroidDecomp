@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Stoke.StokeCueKind;
-using P = SuperMetroid.Core.Enemies.Stoke.StokeProgram;
+using P = SuperMetroid.Core.Enemies.Stoke.StokeSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Stoke;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Stoke;
 internal static class StokeAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<StokeProgram, EnemyFrameId, StokeCue> Segments { get; } = new(
-        new Dictionary<StokeProgram, AnimationBeat<EnemyFrameId, StokeCue>[]>
+    internal static AnimationSegments<StokeSegment, EnemyFrameId, StokeCue> Segments { get; } = new(
+        new Dictionary<StokeSegment, AnimationBeat<EnemyFrameId, StokeCue>[]>
     {
         [P.MovingLeft] =
         [
@@ -52,7 +52,7 @@ internal static class StokeAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<StokeProgram, Animation<StokeProgram>> StartingAt { get; } = new Dictionary<StokeProgram, Animation<StokeProgram>>
+    internal static IReadOnlyDictionary<StokeSegment, Animation<StokeSegment>> StartingAt { get; } = new Dictionary<StokeSegment, Animation<StokeSegment>>
     {
         [P.MovingLeft] = new([new(P.MovingLeft, 0, 1, 1), new(P.MovingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.MovingLeftLoop] = new([new(P.MovingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
@@ -63,7 +63,7 @@ internal static class StokeAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<StokeProgram> StartingWith(StokeProgram segment) => StartingAt[segment];
+    internal static Animation<StokeSegment> StartingWith(StokeSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, StokeCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, StokeCue>.Frame(frame, duration);

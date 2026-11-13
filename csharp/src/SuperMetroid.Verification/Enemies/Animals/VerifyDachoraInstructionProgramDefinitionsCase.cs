@@ -6,4 +6,4 @@ namespace SuperMetroid.Verification.Enemies.Animals;
 /// <param name="Slow">The slow.</param>
 /// <param name="Fast">The fast.</param>
 /// <param name="Fastest">The fastest.</param>
-internal readonly record struct VerifyDachoraInstructionProgramDefinitionsCase(DachoraProgram Slow, DachoraProgram Fast, DachoraProgram Fastest);
+internal readonly record struct VerifyDachoraInstructionProgramDefinitionsCase(DachoraSegment Slow, DachoraSegment Fast, DachoraSegment Fastest);

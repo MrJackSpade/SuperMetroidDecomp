@@ -68,12 +68,12 @@ internal static class PhantoonPatternsVerification
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(eyeBody.Position.X.Whole + x)), unchecked((ushort)(eyeBody.Position.Y.Whole + y)))),
             });
-            AssertEqual(PhantoonEyeGaze.EyeProgram(direction),
+            AssertEqual(PhantoonEyeGaze.EyeAnimation(direction),
                 eyeState.PlayingProgram(trackingEye),
                 $"production Phantoon eye direction {direction}");
         }
         AssertThrows<InvalidDataException>(
-            () => PhantoonEyeGaze.EyeProgram((CompassDirection)Enum.GetValues<CompassDirection>().Length),
+            () => PhantoonEyeGaze.EyeAnimation((CompassDirection)Enum.GetValues<CompassDirection>().Length),
             "Phantoon eye direction beyond the eight directions");
         var shotEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var shotBody = shotEnemies.SlotTable.Slots[0];

@@ -83,7 +83,7 @@ internal static class SamusOperandPlaceReadsVerification
 
     /// <summary>The instruction a decoded program holds at window position <paramref name="place"/>.</summary>
     /// <exception cref="InvalidDataException">No program's run ends with an instruction there.</exception>
-    private static SamusAnimationInstruction DecodedInstructionAt(IImportCartridgeSource cartridge, int place)
+    private static SamusAnimationCue DecodedInstructionAt(IImportCartridgeSource cartridge, int place)
     {
         for (int number = 0; number < SamusAnimationProgramCodec.PoseCount; number++)
         {
@@ -101,7 +101,7 @@ internal static class SamusOperandPlaceReadsVerification
 
     /// <summary>The pose <paramref name="instruction"/> publishes for a Samus with no items who is not moving vertically.</summary>
     /// <exception cref="InvalidDataException">The instruction publishes no pose.</exception>
-    private static SamusPoseId PublishedPose(SamusAnimationInstruction instruction) => instruction switch
+    private static SamusPoseId PublishedPose(SamusAnimationCue instruction) => instruction switch
     {
         SamusAnimationTransition transition => transition.Pose,
         SamusAnimationTurnTransition turn => turn.Pose,

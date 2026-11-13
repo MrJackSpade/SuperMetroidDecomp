@@ -37,7 +37,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         // beginning of every main-AI call, so the speeds are already set when the room
         // finishes loading, before the first frame.
         CalculateMultiviolaVelocityMagnitudes(state);
-        state.Playback = new(MultiviolaAnimations.StartingWith(MultiviolaProgram.Flying), AnimationPlace.StartOfAnimation);
+        state.Playback = new(MultiviolaAnimations.StartingWith(MultiviolaSegment.Flying), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Runs the Multiviola's main AI.</summary>
@@ -108,8 +108,8 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Multiviola's typed animation.</summary>
-    internal static void AdvanceMultiviolaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, MultiviolaAnimations.Segments,
+    internal static void AdvanceMultiviolaTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, MultiviolaAnimations.Segments,
             static (MultiviolaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Multiviola animation raised {cue}."));
 

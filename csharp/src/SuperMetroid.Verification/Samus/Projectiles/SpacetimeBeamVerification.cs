@@ -145,7 +145,7 @@ internal static class SpacetimeBeamVerification
         var service = InstalledFixtures.SamusOverreads.Projectiles.SpaceTimeOverwrite;
         int reaching = 0;
         int situations = 0;
-        foreach (SamusProjectileProgram program in SamusOverreadDecoding.SpaceTimeShotPrograms())
+        foreach (SamusProjectileSegment program in SamusOverreadDecoding.SpaceTimeShotPrograms())
         for (int position = 0; position <= SamusProjectileAnimations.Segments.Beats(program).Count; position++)
         for (int slot = 0; slot < SamusProjectileSystem.SlotCount; slot++)
         {
@@ -166,7 +166,7 @@ internal static class SpacetimeBeamVerification
         }
         AssertTrue(reaching > 0, "Some SpaceTime animation positions copy into progression");
         AssertThrows<ArgumentOutOfRangeException>(() => service.For(new SamusProjectileSegmentBeat(
-            SamusProjectileProgram.PowerUpFacingRight, 0), 0), "A position no SpaceTime shot holds is rejected");
+            SamusProjectileSegment.PowerUpFacingRight, 0), 0), "A position no SpaceTime shot holds is rejected");
         Console.WriteLine($"SpaceTime overwrite: {situations} positions and slots match the original copy, {reaching} of them reaching progression.");
     }
 

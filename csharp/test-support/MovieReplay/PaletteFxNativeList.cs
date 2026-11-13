@@ -32,9 +32,9 @@ internal enum PaletteFxNativeControlKind
 /// <param name="Address">Its native address; for a run on into the next list, that list's entry.</param>
 /// <param name="Target">The list it continues at or replays, where it names one.</param>
 /// <param name="Count">The timer it sets, where it sets one.</param>
-internal sealed record PaletteFxNativeControl(PaletteFxNativeControlKind Kind, int AfterBeat, ushort Address, PaletteFxProgram? Target, int? Count);
+internal sealed record PaletteFxNativeControl(PaletteFxNativeControlKind Kind, int AfterBeat, ushort Address, PaletteFxSegment? Target, int? Count);
 
 /// <summary>Where a live object resumes (#1600): the animation it plays, named by its first segment, and its place in it.</summary>
 /// <param name="Animation">The first segment of the animation it plays.</param>
 /// <param name="Place">Its place in that animation.</param>
-internal readonly record struct PaletteFxImportedPlace(PaletteFxProgram Animation, SuperMetroid.Core.Programs.AnimationPlace Place);
+internal readonly record struct PaletteFxImportedPlace(PaletteFxSegment Animation, SuperMetroid.Core.Programs.AnimationPlace Place);

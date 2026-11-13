@@ -23,7 +23,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// ordinal; null where the copy stops before progression.
 /// </param>
 /// <param name="ChainsawFuseLandings">Where the Chainsaw fuse moves each animation position, by program name, then by step position.</param>
-/// <param name="ChargeFlareDelaysBelowPrograms">The delays a charge-flare frame reads below the flare's programs, nearest first.</param>
 /// <param name="PostureAdmissions">Whether the posture-transition admission admits weapons, by the name of each pose outside its table.</param>
 /// <param name="SpeedBoosterOverrunColours">The colours Gravity copies on each Speed Booster step past its cycle, by step name.</param>
 /// <param name="UnauthoredBeamLaunchSpeeds">The speeds each Spazer and Plasma beam combination launches at, by combination name.</param>
@@ -36,7 +35,6 @@ internal sealed record SamusOverreadDocument(
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.OperandStep>> AnimationOperandSteps,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>>> SpaceTimeOverwrites,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Cursor>> ChainsawFuseLandings,
-    IReadOnlyList<int> ChargeFlareDelaysBelowPrograms,
     IReadOnlyDictionary<string, bool> PostureAdmissions,
     IReadOnlyDictionary<string, IReadOnlyList<PaletteRgb5>> SpeedBoosterOverrunColours,
     IReadOnlyDictionary<string, SamusOverreadDocument.LaunchSpeeds> UnauthoredBeamLaunchSpeeds,

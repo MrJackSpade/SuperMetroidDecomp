@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 internal static class LowerNorfairRioAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params LowerNorfairRioProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params LowerNorfairRioSegment[] programs) =>
         programs.SelectMany(program => LowerNorfairRioAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, LowerNorfairRioCue>.Frame>()
             .Select(frame => LowerNorfairRioFrameToolingDefinitions.Spritemap(frame.Shown));

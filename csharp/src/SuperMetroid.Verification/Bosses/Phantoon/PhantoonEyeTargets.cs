@@ -34,7 +34,7 @@ internal static class PhantoonEyeTargets
         foreach (EyeTarget target in targets)
         {
             AssertEqual(cartridge.ReadCartridgeWord(CartridgeGazeTable + target.CartridgeSelector * 2),
-                PhantoonNativeListAddresses.PartEntry(PhantoonEyeGaze.EyeProgram(target.Direction)),
+                PhantoonNativeListAddresses.PartEntry(PhantoonEyeGaze.EyeAnimation(target.Direction)),
                 $"native Phantoon eye gaze {target.Direction}");
         }
         AssertEqual(cartridge.ReadCartridgeWord(CartridgeGazeTable + DownSelector * 2),

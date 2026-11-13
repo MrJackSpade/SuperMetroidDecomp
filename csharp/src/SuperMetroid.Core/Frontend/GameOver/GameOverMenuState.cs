@@ -241,8 +241,8 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         var content = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.GameOver);
-        GameOverBabyScriptStep instruction = GameOverBabyAnimation.Get(BabyStep ?? 0);
-        content.GameOver.DrawBaby(sprites, sheet, instruction.Frame, BabyColours);
+        GameOverBabyScriptStep step = GameOverBabyAnimation.Get(BabyStep ?? 0);
+        content.GameOver.DrawBaby(sprites, sheet, step.Frame, BabyColours);
         content.GameOver.DrawEgg(sprites, sheet);
         content.GameOver.DrawCursor(sprites, sheet, missile.Frame, SelectedItem != YesNoChoice.Yes);
         sprites.FinishFrame();

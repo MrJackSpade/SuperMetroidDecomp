@@ -28,22 +28,22 @@ internal static class KraidNativeListAddresses
     /// <summary>Each typed part program's native entry point in bank $A7, in authored order.</summary>
     internal static readonly PartEntryValue[] PartEntries =
     [
-        new PartEntryValue(KraidPartProgram.FootInitial, 0x86e7),
-        new PartEntryValue(KraidPartProgram.FootNeutral, 0x86ed),
-        new PartEntryValue(KraidPartProgram.FootWalkingForward, 0x86f3),
-        new PartEntryValue(KraidPartProgram.FootWalkingForwardFinished, 0x87bb),
-        new PartEntryValue(KraidPartProgram.FootLungeForward, 0x87bd),
-        new PartEntryValue(KraidPartProgram.FootLungeForwardFinished, 0x8885),
-        new PartEntryValue(KraidPartProgram.FootWalkingBackward, 0x8887),
-        new PartEntryValue(KraidPartProgram.FootWalkingBackwardLoop, 0x8939),
-        new PartEntryValue(KraidPartProgram.ArmNormal, 0x89f3),
-        new PartEntryValue(KraidPartProgram.ArmNormalPause, 0x8a37),
-        new PartEntryValue(KraidPartProgram.ArmSlow, 0x8a41),
-        new PartEntryValue(KraidPartProgram.ArmRisingOrSinking, 0x8aa4),
-        new PartEntryValue(KraidPartProgram.ArmDyingOrPreparingToLunge, 0x8af0),
-        new PartEntryValue(KraidPartProgram.LintInitial, 0x8afe),
-        new PartEntryValue(KraidPartProgram.LintPostGrowth, 0x8b04),
-        new PartEntryValue(KraidPartProgram.NailLoop, 0x8b0a),
+        new PartEntryValue(KraidPartSegment.FootInitial, 0x86e7),
+        new PartEntryValue(KraidPartSegment.FootNeutral, 0x86ed),
+        new PartEntryValue(KraidPartSegment.FootWalkingForward, 0x86f3),
+        new PartEntryValue(KraidPartSegment.FootWalkingForwardFinished, 0x87bb),
+        new PartEntryValue(KraidPartSegment.FootLungeForward, 0x87bd),
+        new PartEntryValue(KraidPartSegment.FootLungeForwardFinished, 0x8885),
+        new PartEntryValue(KraidPartSegment.FootWalkingBackward, 0x8887),
+        new PartEntryValue(KraidPartSegment.FootWalkingBackwardLoop, 0x8939),
+        new PartEntryValue(KraidPartSegment.ArmNormal, 0x89f3),
+        new PartEntryValue(KraidPartSegment.ArmNormalPause, 0x8a37),
+        new PartEntryValue(KraidPartSegment.ArmSlow, 0x8a41),
+        new PartEntryValue(KraidPartSegment.ArmRisingOrSinking, 0x8aa4),
+        new PartEntryValue(KraidPartSegment.ArmDyingOrPreparingToLunge, 0x8af0),
+        new PartEntryValue(KraidPartSegment.LintInitial, 0x8afe),
+        new PartEntryValue(KraidPartSegment.LintPostGrowth, 0x8b04),
+        new PartEntryValue(KraidPartSegment.NailLoop, 0x8b0a),
     ];
 
     /// <summary>The bank-$A7 part callbacks and the cue each must become; the no-operation callback has none.</summary>
@@ -60,11 +60,11 @@ internal static class KraidNativeListAddresses
     };
 
     /// <summary>The part program whose native list starts at <paramref name="address"/>, if one does.</summary>
-    internal static KraidPartProgram? PartProgramAt(ushort address) =>
-        PartEntries.Where(item => item.Entry == address).Select(item => (KraidPartProgram?)item.Program).SingleOrDefault();
+    internal static KraidPartSegment? PartProgramAt(ushort address) =>
+        PartEntries.Where(item => item.Entry == address).Select(item => (KraidPartSegment?)item.Program).SingleOrDefault();
 
     /// <summary>The native entry point of <paramref name="program"/>.</summary>
-    internal static ushort PartEntry(KraidPartProgram program) => PartEntries.Single(item => item.Program == program).Entry;
+    internal static ushort PartEntry(KraidPartSegment program) => PartEntries.Single(item => item.Program == program).Entry;
 
     /// <summary>Whether the native part entries ascend, so the typed declaration order is the authored order.</summary>
     internal static bool PartEntriesAscend => PartEntries.Zip(PartEntries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends);
@@ -72,8 +72,8 @@ internal static class KraidNativeListAddresses
     /// <summary>Each typed rock program's native entry point in bank $86.</summary>
     internal static readonly RockEntry[] RockEntries =
     [
-        new RockEntry(KraidRockProgram.SharedPose, 0x9c7d),
-        new RockEntry(KraidRockProgram.RisingRightPose, 0x9c83),
-        new RockEntry(KraidRockProgram.SpitRockShot, 0x9c89),
+        new RockEntry(KraidRockSegment.SharedPose, 0x9c7d),
+        new RockEntry(KraidRockSegment.RisingRightPose, 0x9c83),
+        new RockEntry(KraidRockSegment.SpitRockShot, 0x9c89),
     ];
 }

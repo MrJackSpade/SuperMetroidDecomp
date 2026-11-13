@@ -21,13 +21,13 @@ public static class OldTourianEscapeAccentPaletteFxColorDefinitions
         {
             Owner = OldTourianEscapeAccentPaletteOwner.OrangeRailings,
             Object = PaletteFxObject.OldTourianBackgroundRailingsFlashYellow,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.OldTourianBackgroundRailingsFlashYellowCycle, ColorsPerFrame),
+            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.OldTourianBackgroundRailingsFlashYellowCycle, ColorsPerFrame),
         },
         new()
         {
             Owner = OldTourianEscapeAccentPaletteOwner.YellowPanels,
             Object = PaletteFxObject.OldTourianBackgroundPanelsFlashYellow,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.OldTourianBackgroundPanelsFlashYellowCycle, ColorsPerFrame),
+            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.OldTourianBackgroundPanelsFlashYellowCycle, ColorsPerFrame),
         },
     ];
 }

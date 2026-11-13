@@ -13,7 +13,7 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 internal sealed class PipeBugNativeInstructionPointers
 {
     /// <summary>Each segment's native list.</summary>
-    private readonly Dictionary<PipeBugProgram, NativeEnemyList<PipeBugProgram>> lists;
+    private readonly Dictionary<PipeBugSegment, NativeEnemyList<PipeBugSegment>> lists;
 
     /// <summary>Walks every typed Pipe Bug segment beside its native list, failing on any mismatch.</summary>
     internal PipeBugNativeInstructionPointers(IImportCartridgeSource cartridge) =>
@@ -23,10 +23,10 @@ internal sealed class PipeBugNativeInstructionPointers
                 (word, _, _, at) => throw new InvalidDataException($"{at}: the Pipe Bug lists use no owner instruction ${word:X4}.")));
 
     /// <summary>The native instruction pointer <paramref name="playback"/> stands for.</summary>
-    internal ushort Pointer(AnimationPlayback<PipeBugProgram> playback) =>
+    internal ushort Pointer(AnimationPlayback<PipeBugSegment> playback) =>
         NativeEnemyAnimationOracle.PointerOf(lists, PipeBugNativeListAddresses.Entries, PipeBugAnimations.StartingAt, playback);
 
     /// <summary>The playback native pointer <paramref name="address"/> stands for: an animation's start when it is a segment entry.</summary>
-    internal AnimationPlayback<PipeBugProgram> PlaybackAt(ushort address) =>
+    internal AnimationPlayback<PipeBugSegment> PlaybackAt(ushort address) =>
         NativeEnemyAnimationOracle.PlaybackAt(lists, PipeBugNativeListAddresses.Entries, PipeBugAnimations.StartingAt, address);
 }

@@ -7,6 +7,6 @@ internal static class MotherBrainGlassAnimationAccess
     extension(MotherBrainGlassAnimation self)
     {
         /// <summary>The segment played.</summary>
-        internal MotherBrainGlassProgram Program => self.PlayingSegment;
+        internal MotherBrainGlassSegment Program => self.PlayingSegment;
     }
 }

@@ -266,13 +266,13 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(129, decisionCalls, "$80 decision timer expires on 129th DEC/BPL call");
     AssertEqual(MotherBrainBodyFunction.SecondPhaseFinishSamusOff, attack.State.Phase,
         "post-drain health below $190 chooses finish-Samus chain");
-    AssertEqual(MotherBrainBodyProgram.WalkForwardReallySlow, attack.State.Body.Program,
+    AssertEqual(MotherBrainBodySegment.WalkForwardReallySlow, attack.State.Body.Animation,
         "low-health decision immediately requests the native forward body walk");
-    MotherBrainHeadProgram? headBeforeFinishThreshold = attack.State.HeadProgram;
+    MotherBrainHeadSegment? headBeforeFinishThreshold = attack.State.HeadAnimation;
     MotherBrainRainbowBeamAttackStepResult finishThreshold = attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
     AssertEqual(MotherBrainBodyFunction.SecondPhaseFinishSamusOff, finishThreshold.PhaseAfter,
         "399 energy remains above no-suit finish threshold 340");
-    AssertEqual(headBeforeFinishThreshold, attack.State.HeadProgram,
+    AssertEqual(headBeforeFinishThreshold, attack.State.HeadAnimation,
         "RNG zero takes finish-off no-attack branch");
 
     // Boundary 700 uses command five; 699 uses `$18`. The second fixture also proves that

@@ -15,7 +15,7 @@ internal static class EndingTypedTexts
     /// <summary>The ending's typed texts, by the programs that type them.</summary>
     internal static CinematicTypedTexts Texts { get; } = new(
     [
-        EndingActorDefinitions.OperationWasText.Program, EndingActorDefinitions.CompletedSuccessfullyText.Program,
-        EndingActorDefinitions.ClearTimeText.Program,
+        EndingActorDefinitions.OperationWasText.Animation, EndingActorDefinitions.CompletedSuccessfullyText.Animation,
+        EndingActorDefinitions.ClearTimeText.Animation,
     ]);
 }

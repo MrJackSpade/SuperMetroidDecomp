@@ -25,19 +25,19 @@ internal static class DeadTourianBehaviorVerification
         corpse.Bind(corpse.DefinitionId, default(RoomEnemyDefinition));
         corpse.SetSpawnParameter1(EnemyDefinitionId.CorpseSidehopper, 0);
         enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(corpse);
-        AssertEqual(new AnimationPlayback<DeadTourianProgram>(DeadTourianAnimations.StartingWith(DeadTourianProgram.SidehopperIdle), AnimationPlace.StartOfAnimation),
+        AssertEqual(new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(DeadTourianSegment.SidehopperIdle), AnimationPlace.StartOfAnimation),
             corpse.RequireSpeciesState<DeadSidehopperEnemyState>().Playback, "real dead Sidehopper initializer starts the alive-idle pose");
 
-        foreach (DeadTourianProgram pose in new[] { DeadTourianProgram.SidehopperIdle, DeadTourianProgram.SidehopperCorpse, DeadTourianProgram.SidehopperInitiallyDead })
+        foreach (DeadTourianSegment pose in new[] { DeadTourianSegment.SidehopperIdle, DeadTourianSegment.SidehopperCorpse, DeadTourianSegment.SidehopperInitiallyDead })
         {
-            DeadSidehopperBehavior.SetDeadSidehopperProgram(corpse, corpse.RequireSpeciesState<DeadSidehopperEnemyState>(), pose);
+            DeadSidehopperBehavior.SetDeadSidehopperAnimation(corpse, corpse.RequireSpeciesState<DeadSidehopperEnemyState>(), pose);
             ushort frame = DeadTourianAnimationsConstants.Spritemaps(pose).Single();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]),
                 EnemyInstructionRunner.ShownFrames(corpse, 3), $"dead Sidehopper {pose} pose");
         }
 
-        DeadSidehopperBehavior.SetDeadSidehopperProgram(corpse, corpse.RequireSpeciesState<DeadSidehopperEnemyState>(), DeadTourianProgram.SidehopperHopping);
-        ushort[] hop = DeadTourianAnimationsConstants.Spritemaps(DeadTourianProgram.SidehopperHopping).ToArray();
+        DeadSidehopperBehavior.SetDeadSidehopperAnimation(corpse, corpse.RequireSpeciesState<DeadSidehopperEnemyState>(), DeadTourianSegment.SidehopperHopping);
+        ushort[] hop = DeadTourianAnimationsConstants.Spritemaps(DeadTourianSegment.SidehopperHopping).ToArray();
         int[] holds = [2, 4, 5, 48, 5, 4, 5, 4];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames(hop, holds),
             EnemyInstructionRunner.ShownFrames(corpse, holds.Sum() + 1), "dead Sidehopper hop");

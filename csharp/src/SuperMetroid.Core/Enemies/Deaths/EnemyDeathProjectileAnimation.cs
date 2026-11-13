@@ -4,12 +4,12 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Deaths;
 
 /// <summary>Enemy death and drop's typed animation.</summary>
-internal sealed class EnemyDeathProjectileAnimation(EnemyDeathProjectileProgram program)
-    : EnemyProjectileFrameAnimation<EnemyDeathProjectileProgram, EnemyDeathProjectileCue>(EnemyDeathProjectileAnimations.StartingWith(program))
+internal sealed class EnemyDeathProjectileAnimation(EnemyDeathProjectileSegment segment)
+    : EnemyProjectileFrameAnimation<EnemyDeathProjectileSegment, EnemyDeathProjectileCue>(EnemyDeathProjectileAnimations.StartingWith(segment))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<EnemyDeathProjectileProgram, EnemyProjectileFrameId, EnemyDeathProjectileCue> Segments => EnemyDeathProjectileAnimations.Segments;
+    private protected override AnimationSegments<EnemyDeathProjectileSegment, EnemyProjectileFrameId, EnemyDeathProjectileCue> Segments => EnemyDeathProjectileAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<EnemyDeathProjectileProgram, Animation<EnemyDeathProjectileProgram>> StartingAt => EnemyDeathProjectileAnimations.StartingAt;
+    private protected override IReadOnlyDictionary<EnemyDeathProjectileSegment, Animation<EnemyDeathProjectileSegment>> StartingAt => EnemyDeathProjectileAnimations.StartingAt;
 }

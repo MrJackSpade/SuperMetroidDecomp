@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Enemies.Ripper.RipperProgram;
+using P = SuperMetroid.Core.Enemies.Ripper.RipperSegment;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 internal static class RipperAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<RipperProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<RipperProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
+    internal static AnimationSegments<RipperSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<RipperSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.GRipperMovingLeft] =
         [
@@ -59,7 +59,7 @@ internal static class RipperAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<RipperProgram, Animation<RipperProgram>> StartingAt { get; } = new Dictionary<RipperProgram, Animation<RipperProgram>>
+    internal static IReadOnlyDictionary<RipperSegment, Animation<RipperSegment>> StartingAt { get; } = new Dictionary<RipperSegment, Animation<RipperSegment>>
     {
         [P.GRipperMovingLeft] = new([new(P.GRipperMovingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.GRipperMovingRight] = new([new(P.GRipperMovingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
@@ -70,7 +70,7 @@ internal static class RipperAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<RipperProgram> StartingWith(RipperProgram segment) => StartingAt[segment];
+    internal static Animation<RipperSegment> StartingWith(RipperSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

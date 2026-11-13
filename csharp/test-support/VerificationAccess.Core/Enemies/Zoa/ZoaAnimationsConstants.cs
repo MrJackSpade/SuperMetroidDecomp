@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 internal static class ZoaAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params ZoaProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params ZoaSegment[] programs) =>
         programs.SelectMany(program => ZoaAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, ZoaCue>.Frame>()
             .Select(frame => ZoaFrameToolingDefinitions.Spritemap(frame.Shown));

@@ -20,7 +20,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <c>Backdrop2A</c>), an address run into a name (<c>Projectile86E314Frame</c>, <c>Projectile86C76eFrame</c>), or a
 /// family of a type's members numbered in hexadecimal (<c>Row9</c> beside <c>RowA</c>). A name that says <c>Callback</c>
 /// names the original's function-pointer dispatch (#1624, <see cref="DispatchWords"/>) unless what it declares holds a C#
-/// delegate the port passes (<see cref="HoldsDelegate"/>). See <c>docs/core-vocabulary.md</c>.
+/// delegate the port passes (<see cref="HoldsDelegate"/>). A name that says <c>Function</c> names the enemy record's AI
+/// function field (#1701, <see cref="BehaviourFieldWords"/>) under the same delegate allowance. See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
@@ -69,6 +70,17 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     /// </summary>
     internal static readonly ImmutableArray<string> DispatchWords = ["Callback"];
 
+    /// <summary>
+    /// The enemy record's AI function field (#1701), matched as whole camel-case words like <see cref="DispatchWords"/>: the
+    /// cartridge stored an enemy's or a boss's behaviour state, a part's wait and the state a cue installs as the routine
+    /// pointer its record's function field held, and a Core name that says <c>Function</c> (a <c>TorizoFunction</c> enum, a
+    /// <c>Function</c>, <c>SetFunction</c> or <c>FunctionTimer</c> member, a <c>function</c> local) names that field instead of
+    /// the phase, action or movement it selects. A declaration that holds a C# delegate the port passes (a <c>Func&lt;int&gt;</c>
+    /// field or parameter, a delegate type) is a genuine function and keeps the word, and a word that only shares its letters
+    /// (<c>Functional</c>, <c>Func</c>, <c>Functor</c>) is another word.
+    /// </summary>
+    internal static readonly ImmutableArray<string> BehaviourFieldWords = ["Function"];
+
     /// <summary>Endings that keep a word the same hardware word: <c>Banks</c>, <c>Addresses</c>, <c>Banked</c>, <c>Addressing</c>.</summary>
     private static readonly string[] Endings = ["", "s", "es", "ed", "ing"];
 
@@ -81,7 +93,8 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true,
         description: "Core is a C# game. Its identifiers say what things are in the game, never which chip, memory or " +
             "cartridge structure the original stored them in, never number them as the cartridge did in hexadecimal, and " +
-            "never call a behaviour the callback the original dispatched it through; hardware behaviour the game needs lives in " +
+            "never call a behaviour the callback the original dispatched it through or the function field its record held; " +
+            "hardware behaviour the game needs lives in " +
             "a compatibility service named for the game (#1400, #1554, #1624, #1685, #1694, #1701, docs/core-vocabulary.md).");
 
     /// <inheritdoc/>
@@ -263,7 +276,7 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     /// <summary>
     /// What a declared name says that Core may not, as the diagnostic states it, or null when it says nothing of the machine.
     /// <paramref name="holdsDelegate"/> says whether the declaration holds a C# delegate; it is asked only of a name that
-    /// says a dispatch word.
+    /// says a dispatch word or a behaviour-field word.
     /// </summary>
     internal static string? Finding(string identifier, Func<bool> holdsDelegate)
     {
@@ -271,6 +284,8 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             return $"names the hardware ('{word}')";
         if (ContainedWord(identifier, DispatchWords) is { } dispatch && !holdsDelegate())
             return $"names the original's dispatch ('{dispatch}') where it declares no delegate";
+        if (ContainedWord(identifier, BehaviourFieldWords) is { } field && !holdsDelegate())
+            return $"names the enemy record's AI function field ('{field}') where it declares no delegate";
         return HexCode(identifier) is { } code ? $"spells the cartridge value '{code}' in hexadecimal" : null;
     }
 

@@ -74,8 +74,44 @@ internal static class CoreVocabularyAnalyzerTests
         Expect("class P { void Run() { int enemyFunctionTimer = 0; _ = enemyFunctionTimer; } }",
             "'enemyFunctionTimer' names the hardware ('EnemyFunction')");
         Expect("class P { int AIFunction; }", "'AIFunction' names the hardware ('AiFunction')");
-        // Each word alone, and the words apart or in another order, are the game's own: a phase, an action, a fight, an enemy.
-        Expect("class P { int Function; int NextFunction; int FunctionTimer; int EnemyState; int FightPhase; int AiState; int FunctionalEnemy; int EnemyFunctional; int FunctionEnemy; int AidFunction; }");
+        // The words apart or in another order, and words that only share the field's letters, are the game's own: a phase,
+        // an action, a fight, an enemy, a functional part.
+        Expect("class P { int EnemyState; int FightPhase; int AiState; int FunctionalEnemy; int EnemyFunctional; int Functor; int Func; int Functionality; }");
+        // The record's function field alone, in each kind of declaration a renamed behaviour state, wait or cue used it in
+        // (#1701): an enum, a state's property, a cue record and its member, a timer, a method, an enum member, a plural
+        // table, a parameter and a local, none of which holds a delegate.
+        Expect("public enum TorizoFunction { Idle = 1 }",
+            "'TorizoFunction' names the enemy record's AI function field ('Function') where it declares no delegate");
+        Expect("enum Phase { Idle } class P { Phase? Function { get; set; } }",
+            "'Function' names the enemy record's AI function field ('Function') where it declares no delegate");
+        Expect("enum Phase { Idle } abstract record Cue { internal sealed record SetFunction(Phase Phase) : Cue; }",
+            "'SetFunction' names the enemy record's AI function field ('Function') where it declares no delegate");
+        Expect("enum Phase { Idle } record SetPhase(Phase Function);",
+            "'Function' names the enemy record's AI function field ('Function') where it declares no delegate");
+        Expect("class P { int FunctionTimer { get; set; } }",
+            "'FunctionTimer' names the enemy record's AI function field ('Function') where it declares no delegate");
+        Expect("class P { void TickKraidFunctionTimer() { } }",
+            "'TickKraidFunctionTimer' names the enemy record's AI function field ('Function') where it declares no delegate");
+        Expect("enum KraidPhase { HandleFunctionTimer }",
+            "'HandleFunctionTimer' names the enemy record's AI function field ('Function') where it declares no delegate");
+        Expect("static class Tables { internal static readonly int[] SegmentFunctions = []; }",
+            "'SegmentFunctions' names the enemy record's AI function field ('Function') where it declares no delegate");
+        Expect("enum Phase { Idle } class P { void Run(Phase function) { } }",
+            "'function' names the enemy record's AI function field ('Function') where it declares no delegate");
+        Expect("enum Phase { Idle } class P { void Run() { Phase nextFunction = Phase.Idle; _ = nextFunction; } }",
+            "'nextFunction' names the enemy record's AI function field ('Function') where it declares no delegate");
+        // A method's name is its own even when it returns a delegate.
+        Expect("class P { System.Func<int> ReadFunction() => () => 0; }",
+            "'ReadFunction' names the enemy record's AI function field ('Function') where it declares no delegate");
+        // A C# delegate the port passes is a genuine function: a delegate type, and a field, property, parameter or local
+        // whose type is a delegate or a collection of them.
+        Expect("delegate int ScoreFunction(); class P { System.Func<int>? Function; System.Func<int, int> HashFunction { get; } = x => x; }");
+        Expect("class P { int Run(System.Func<int> function) { System.Func<int>[] functions = [function]; return functions[0](); } }");
+        // A file is named for its type: a delegate type's file keeps the word, an enum's file does not.
+        ExpectFile("delegate int ScoreFunction();", "ScoreFunction.cs");
+        ExpectFile("public enum TorizoFunction { Idle = 1 }", "TorizoFunction.cs",
+            "'TorizoFunction' names the enemy record's AI function field ('Function')",
+            "'TorizoFunction' names the enemy record's AI function field ('Function')");
         // The original's function-pointer dispatch, in each kind of declaration a renamed Core identifier used it in (#1624):
         // an enum of room behaviours and its catalog, a record's member, a plural catalog, a method, a constant, a
         // parameter and a local, none of which holds a delegate.

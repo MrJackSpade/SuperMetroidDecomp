@@ -56,21 +56,6 @@ internal static class SamusOverreadServicesReader
             straddledTerrain);
     }
 
-    /// <summary>
-    /// Builds the colours Samus's palette loaders read past their tables, which only the import reads to pre-colour her
-    /// sheets (#1512).
-    /// </summary>
-    /// <exception cref="InvalidDataException">The document has an unsupported version or an incomplete colour run.</exception>
-    internal static SamusOverrunColours ReadColours(SamusOverrunColourDocument document)
-    {
-        Ensure.NotNull(document);
-        if (document.Version != SamusOverreadFormat.ColourVersion)
-            throw new InvalidDataException("Samus overrun colour file has an unsupported version.");
-        return new SamusOverrunColours(
-            SpeedBoosterColours(Require(document.SpeedBoosterOverrunColours, nameof(document.SpeedBoosterOverrunColours))),
-            ChainsawColours(Require(document.ChainsawBeamColours, nameof(document.ChainsawBeamColours))));
-    }
-
     /// <summary>What an animation frame past a pose's program reads, which only the import reads to compose Samus's body sheet (#1513).</summary>
     /// <exception cref="InvalidDataException">The document has an unsupported version or an incomplete continuation.</exception>
     internal static LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> ReadAnimationContinuation(SamusOverreadDocument document)
@@ -257,23 +242,6 @@ internal static class SamusOverreadServicesReader
         return new(admissions.ToDictionary(pair => Parse<SamusPoseId>(pair.Key, "posture-admission pose"), pair => pair.Value));
     }
 
-    /// <summary>The colours of each Speed Booster step past Gravity's cycle, one suit row each.</summary>
-    private static SpeedBoosterOverrunColours<SpeedBoosterPaletteOverrun, RgbColor> SpeedBoosterColours(
-        IReadOnlyDictionary<string, IReadOnlyList<PaletteRgb5>> colours)
-    {
-        var result = new Dictionary<SpeedBoosterPaletteOverrun, IReadOnlyList<RgbColor>>();
-        foreach (SpeedBoosterPaletteOverrun step in Enum.GetValues<SpeedBoosterPaletteOverrun>())
-        {
-            if (!colours.TryGetValue(step.ToString(), out IReadOnlyList<PaletteRgb5>? row) ||
-                row.Count != SamusColourSets.ColoursPerSet)
-                throw new InvalidDataException($"Samus overread file holds no suit row of colours for Speed Booster {step}.");
-            result.Add(step, [.. row.Select(colour => colour.ToRgbColor())]);
-        }
-        if (colours.Count != result.Count)
-            throw new InvalidDataException($"Samus overread file holds colours for {colours.Count} Speed Booster steps, not {result.Count}.");
-        return new(result);
-    }
-
     /// <summary>The launch speeds and cooldowns of every Spazer and Plasma combination, which the firing tables do not author.</summary>
     private static UnauthoredBeamFiring<SamusBeamCombination> UnauthoredFiring(
         IReadOnlyDictionary<string, SamusOverreadDocument.LaunchSpeeds> speeds,
@@ -317,12 +285,6 @@ internal static class SamusOverreadServicesReader
             throw new InvalidDataException($"Samus overread file holds crash departures for {departures.Count} poses, not {result.Count}.");
         return new(result);
     }
-
-    /// <summary>The Chainsaw beam's sixteen colours.</summary>
-    private static ChainsawBeamColours<RgbColor> ChainsawColours(IReadOnlyList<PaletteRgb5> colours) =>
-        colours.Count == ChainsawBeamColours<RgbColor>.ColourCount
-            ? new([.. colours.Select(colour => colour.ToRgbColor())])
-            : throw new InvalidDataException($"Samus overread file holds {colours.Count} Chainsaw beam colours, not {ChainsawBeamColours<RgbColor>.ColourCount}.");
 
     /// <summary>Requires a document member.</summary>
     private static T Require<T>(T? value, string name) where T : class =>

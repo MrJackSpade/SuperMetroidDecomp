@@ -26,13 +26,6 @@ internal static class SamusOverreadFormat
     internal const int Version = 20;
     /// <summary>JSON filename holding the decoded over-read results.</summary>
     internal const string FileName = "samus-overreads.json";
-    /// <summary>Supported revision of the import data's overrun colour document (<see cref="ColourFileName"/>).</summary>
-    internal const int ColourVersion = 1;
-    /// <summary>
-    /// JSON filename, in the component's import data, holding the colours Samus's palette loaders read past their tables,
-    /// which only the import reads to pre-colour her sheets (#1693).
-    /// </summary>
-    internal const string ColourFileName = "samus-overrun-colours.json";
     /// <summary>Shared camel-case, case-insensitive JSON options that reject unknown fields; the file is written compactly.</summary>
     internal static readonly JsonSerializerOptions JsonOptions = new()
     {

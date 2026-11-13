@@ -390,7 +390,7 @@ using static SuperMetroid.Verification.Audio.SpcSoundLibrary2PointersVerificatio
 using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterCollisionBlocksVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterVisualsVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RevealAndWallVisualsVerification;
-using static SuperMetroid.Verification.Samus.Abilities.SpeedPaletteOverrunVerification;
+using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterInheritedStepVerification;
 using static SuperMetroid.Verification.Enemies.Spike.SpikeDamageBoostVerification;
 using static SuperMetroid.Verification.Samus.Artwork.SamusLandingDrawVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorTransitionAutosaveVerification;
@@ -914,7 +914,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyPauseMapArrows), () => VerifyPauseMapArrows()),
         new(nameof(VerifyPauseMapAreaLabels), () => VerifyPauseMapAreaLabels()),
         new(nameof(VerifyPauseMapPosition), () => VerifyPauseMapPosition()),
-        new(nameof(VerifySpeedPaletteOverrun), () => VerifySpeedPaletteOverrun()),
+        new(nameof(VerifySpeedBoosterInheritedStep), () => VerifySpeedBoosterInheritedStep()),
         new(nameof(VerifyInvalidBeamSelection), () => VerifyInvalidBeamSelection()),
         new(nameof(VerifyInvalidBeamGraphics), () => VerifyInvalidBeamGraphics()),
         new(nameof(VerifyMovedSamusCameraTracking), () => VerifyMovedSamusCameraTracking()),

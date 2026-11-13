@@ -26,10 +26,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="UnauthoredBeamLaunchSpeeds">The speeds each Spazer and Plasma beam combination launches at, by combination name.</param>
 /// <param name="UnauthoredBeamCooldowns">The cooldowns each Spazer and Plasma beam combination waits, by combination name.</param>
 /// <param name="DrainedCrashDepartures">The angles a Shinespark crash finishing in each drained pose releases its echoes at, by pose name.</param>
-/// <remarks>
-/// The colours Samus's palette loaders read past their tables are import data (<see cref="SamusOverrunColourDocument"/>,
-/// #1693): only the import pre-colours her sheets from them.
-/// </remarks>
 internal sealed record SamusOverreadDocument(
     int Version,
     IReadOnlyDictionary<string, SamusOverreadDocument.Continuation?> AnimationContinuations,

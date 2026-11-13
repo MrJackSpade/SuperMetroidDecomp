@@ -107,10 +107,11 @@ internal static class SaveRamCodecVerification
 
     /// <summary>
     /// The slot fields saves now carry as <see cref="int"/> (item-load counter, clock, dispatcher route and checkpoint)
-    /// hold every value their SRAM field can: the range's ends survive SRAM, store and SRAM again byte for byte, and a
-    /// value past the range is rejected instead of wrapping into the image. The debug build's placement-mode word and
-    /// the never-read word after it always encode as the words the game's own saves hold, whatever an imported image
-    /// held there.
+    /// hold every value their own domain does: the item-load counter's range ends and the clock's latest reading survive
+    /// SRAM, store and SRAM again byte for byte, a value past its domain is rejected instead of wrapping into the image, and
+    /// an imported image whose clock words lie outside the clock's domain is rejected on decode (#1692). The debug build's
+    /// placement-mode word and the never-read word after it always encode as the words the game's own saves hold, whatever
+    /// an imported image held there.
     /// </summary>
     internal static void VerifyWidenedSlotFieldsRoundTrip()
     {
@@ -120,10 +121,10 @@ internal static class SaveRamCodecVerification
         {
             LoadedItemCount = SaveFieldValue.MaximumValue,
             StartupRoute = SaveLoadingGameState.CeresDestruction,
-            GameTimeFrames = SaveFieldValue.MaximumValue,
+            GameTimeFrames = 59,
             GameTimeSeconds = 0,
-            GameTimeMinutes = SaveFieldValue.MaximumValue,
-            GameTimeHours = SaveFieldValue.MaximumValue,
+            GameTimeMinutes = 59,
+            GameTimeHours = 99,
         };
         written.SaveSlot(0, extremes);
         byte[] image = SaveRamCodec.Encode(written, maps);
@@ -151,10 +152,29 @@ internal static class SaveRamCodecVerification
         AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.GreenBrinstarSave, slot.Checkpoint), "the checkpoint decodes to the station it was saved at");
         AssertEqual(1, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.AreaOffset), "the checkpoint's area word holds Brinstar's number");
         AssertEqual(1, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.SaveStationOffset), "the checkpoint's station word holds its number in Brinstar's list");
-        AssertEqual(SaveFieldValue.MaximumValue, slot.GameTimeHours, "the clock's hours decode their largest value");
-        AssertEqual(SaveFieldValue.MaximumValue, slot.GameTimeMinutes, "the clock's minutes decode their largest value");
-        AssertEqual(SaveFieldValue.MaximumValue, slot.GameTimeFrames, "the clock's frames decode their largest value");
+        AssertEqual(99, slot.GameTimeHours, "the clock's hours decode their largest reading");
+        AssertEqual(59, slot.GameTimeMinutes, "the clock's minutes decode their largest reading");
+        AssertEqual(59, slot.GameTimeFrames, "the clock's frames decode their largest reading");
         AssertEqual(0, slot.GameTimeSeconds, "the clock's seconds decode zero");
+        int[] clockOffsets =
+        [
+            SaveRamLayout.GameTimeFramesOffset, SaveRamLayout.GameTimeSecondsOffset,
+            SaveRamLayout.GameTimeMinutesOffset, SaveRamLayout.GameTimeHoursOffset,
+        ];
+        foreach (int offset in clockOffsets)
+        {
+            int firstOutside = offset == SaveRamLayout.GameTimeHoursOffset ? 100 : 60;
+            foreach (int word in new[] { firstOutside, ushort.MaxValue })
+            {
+                byte[] clockPayload = SaveRamCodec.EncodePayload(SaveRamCodec.ToSnapshot(slot), maps);
+                clockPayload[offset] = (byte)word;
+                clockPayload[offset + 1] = (byte)(word >> 8);
+                byte[] clockImage = (byte[])image.Clone();
+                SaveRamCodec.WriteSlot(clockImage, 0, clockPayload);
+                AssertThrows<InvalidDataException>(() => SaveRamCodec.Decode(clockImage, maps),
+                    $"an imported clock word {word} at slot offset {offset} outside the clock's domain is rejected");
+            }
+        }
         AssertEqual(SaveFieldValue.MaximumValue, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.LoadedItemCountOffset),
             "the item-load counter's SRAM field holds the counter's largest value");
 
@@ -162,13 +182,15 @@ internal static class SaveRamCodecVerification
                  {
                      new VerifyWidenedSlotFieldsRoundTripCase("item-load counter", extremes with { LoadedItemCount = SaveFieldValue.MaximumValue + 1 }),
                      new VerifyWidenedSlotFieldsRoundTripCase("clock minutes", extremes with { GameTimeMinutes = -1 }),
+                     new VerifyWidenedSlotFieldsRoundTripCase("clock frames", extremes with { GameTimeFrames = 60 }),
+                     new VerifyWidenedSlotFieldsRoundTripCase("clock hours", extremes with { GameTimeHours = 100 }),
                  })
         {
             AssertThrows<InvalidOperationException>(() => written.SaveSlot(1, outOfRange),
-                $"a {field} past the SRAM field's range is rejected instead of wrapping");
+                $"a {field} past its domain is rejected instead of wrapping");
         }
         AssertTrue(written.ReadSlot(1) is null, "a rejected save leaves its slot unchanged");
-        Console.WriteLine("Save slot fields: full-range values round-trip through SRAM exactly; out-of-range values are rejected.");
+        Console.WriteLine("Save slot fields: full-domain values round-trip through SRAM exactly; out-of-domain values are rejected.");
     }
 
     /// <summary>

@@ -222,6 +222,14 @@ music queue check compares it with a transcription of the original's ring for ev
 Evidence: the queue routines (`$80:8FC1`, `$80:8FF7`), the handler (`$80:8F0C`) and the queued-music test (`$80:8EF4`),
 and every music request the original queues.
 
+The game clock's save-word width (#1692) is incidental representation, not a service. Each component was a word the
+clock incremented and compared by its sign, so a loaded save holding a component outside the clock's domain would
+wrap at 65,536; play never leaves the domain, since every component rolls over at its unit and the hours saturate at
+99:59:59.59, so no save the game writes holds such a value. The clock holds its domain (`GameTimeState`: frames,
+seconds and minutes 0 to 59, hours 0 to 99), the JSON and save-image codecs reject a slot whose clock lies outside it,
+and `SaveFieldValue` remains only for the item-load counter. The game time check steps every reading of the clock
+against a transcription of the original's clock (`$82:DB69`).
+
 The colour values whose step-wise changes gameplay reads back, `WreckedShipGhostFade` and `KraidEyeGlow` (#1552), are
 values of this module, owned directly by the entity whose colours they are (the ghost's state, Kraid's colours) and
 replaced by each step's result. They count their colours on the game's fade scale, so the layer uses the Assets

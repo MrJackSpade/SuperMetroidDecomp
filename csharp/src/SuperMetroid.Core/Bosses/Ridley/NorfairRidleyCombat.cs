@@ -164,7 +164,7 @@ internal sealed class NorfairRidleyCombat
     internal static bool TickNorfairRidleySwoopPhase(
         RidleyEnemyState state,
         int angleDelta,
-        int targetAngle,
+        RotationAngle targetAngle,
         int targetMagnitude,
         RidleyAiFunction nextFunction,
         int nextTimer)
@@ -606,13 +606,13 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>The sideways speed a pogo bounce starts from when Ridley has none: three quarters of a pixel an update.</summary>
-    private static readonly SignedEightEight PogoRestartSpeed = SignedEightEight.FromSignedRaw(192);
+    private static readonly SignedEightEight PogoRestartSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(192);
 
     /// <summary>The least upward speed Ridley lifts a grabbed Samus with.</summary>
-    private static readonly SignedEightEight GrabLiftMinimumSpeed = SignedEightEight.FromSignedRaw(512);
+    private static readonly SignedEightEight GrabLiftMinimumSpeed = SignedEightEight.FromPixels(2);
 
     /// <summary>The fastest Ridley falls on a pogo bounce: six pixels an update.</summary>
-    private static readonly SignedEightEight PogoMaximumFallSpeed = SignedEightEight.FromSignedRaw(1536);
+    private static readonly SignedEightEight PogoMaximumFallSpeed = SignedEightEight.FromPixels(6);
 
     /// <summary>Chooses the next bounce's direction from position and the current seed.</summary>
     internal void SetRidleyPogoHorizontalDirection(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus)

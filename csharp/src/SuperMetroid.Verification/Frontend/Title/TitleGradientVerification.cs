@@ -361,7 +361,7 @@ internal static class TitleGradientVerification
             new MemoryStream(extracted, writable: false));
         for (ushort zoom = 0; zoom < 256; zoom++)
         {
-            if (!presentation.Resolve(zoom).Equals(
+            if (!presentation.Resolve(FloorZoom.FromTwoHundredFiftySixths(zoom)).Equals(
                     TitleGradientDecoder.Decode(CartridgeImportSource.Require(bus), zoom)))
                 throw new InvalidDataException($"Extracted title gradient differs at zoom ${zoom:X2}.");
         }

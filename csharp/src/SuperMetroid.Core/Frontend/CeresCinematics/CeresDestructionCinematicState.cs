@@ -96,11 +96,11 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Signed 16.16 camera offset applied to the turning-floor Ceres or Zebes scene.</summary>
     internal FixedPosition<FloorPixels> Background { get; private set; } = new(new(CoordinateAxis.Wrap(-44), 0), new(CoordinateAxis.Wrap(-112), 0));
     /// <summary>
-    /// The floor's zoom in 256ths of a floor pixel per screen pixel (256 shows it at its own size). Every producer keeps it within zero through
-    /// <see cref="CeresDestructionSceneDefinitions.Motion.FarZebesScaleLimit"/> plus one fast step, and the only decrease
-    /// is guarded by the minimum-scale test, so it never wraps.
+    /// The floor's zoom. Every producer keeps it within zero through
+    /// <see cref="CeresDestructionSceneDefinitions.Motion.FarZebesZoomLimit"/> plus one fast step, and the only decrease
+    /// is guarded by the minimum-zoom test, so it never falls below zero.
     /// </summary>
-    internal int Zoom { get; private set; } = CeresDestructionSceneDefinitions.Motion.IdentityScale;
+    internal FloorZoom Zoom { get; private set; } = FloorZoom.OwnSize;
     /// <summary>How far the scene has turned its floor clockwise.</summary>
     private RotationAngle angle;
     /// <summary>Master brightness from zero (black) to fifteen (full); the slow fades clamp every step to that range.</summary>
@@ -241,7 +241,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
             case CeresDestructionPhase.FadeInAndDrift:
                 StepInitialDrift();
-                Zoom++;
+                Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.CeresZoomStep);
                 StepSlowFadeIn();
                 if (brightness == 15)
                 {
@@ -254,13 +254,13 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 StepInitialDrift();
                 if (Zoom < CeresDestructionSceneDefinitions.Motion.CeresZoomLimit)
                 {
-                    Zoom++;
+                    Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.CeresZoomStep);
                 }
                 else
                 {
-                    // The final blast snaps the scale to 768, creates the final blast, and
+                    // The final blast snaps the zoom to the explosion's, creates the final blast, and
                     // installs the flying-away function on this exact handler call.
-                    Zoom = CeresDestructionSceneDefinitions.Motion.CeresExplosionScale;
+                    Zoom = CeresDestructionSceneDefinitions.Motion.CeresExplosionZoom;
                     SpawnFinalCeresExplosion();
                     Phase = CeresDestructionPhase.FlyingAwayFromExplosion;
                 }
@@ -269,14 +269,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             case CeresDestructionPhase.FlyingAwayFromExplosion:
                 Background = Background.WithX(Background.X.WithWhole(CoordinateAxis.Wrap(Background.X.Whole + 2)));
                 angle = angle.TurnedBySteps(-1);
-                if (Zoom < CeresDestructionSceneDefinitions.Motion.MinimumScale)
+                if (Zoom < CeresDestructionSceneDefinitions.Motion.MinimumZoom)
                 {
                     phaseTimer = CeresDestructionSceneDefinitions.Timing.ExplosionHoldFrames;
                     Phase = CeresDestructionPhase.HoldAfterExplosion;
                 }
                 else
                 {
-                    Zoom -= CeresDestructionSceneDefinitions.Motion.SlowScaleStep;
+                    Zoom = Zoom.Narrowed(CeresDestructionSceneDefinitions.Motion.SlowZoomStep);
                 }
                 break;
 
@@ -324,8 +324,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             case CeresDestructionPhase.FlyingTowardZebesA:
                 Background = Background.WithY(Background.Y.MovedBy(CeresDestructionSceneDefinitions.Motion.EighthPixel));
                 Background = Background.WithX(Background.X.MovedBy(CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel));
-                if (Zoom < CeresDestructionSceneDefinitions.Motion.ZebesApproachScaleLimit)
-                    Zoom += 4;
+                if (Zoom < CeresDestructionSceneDefinitions.Motion.ZebesApproachZoomLimit)
+                    Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.NearZebesZoomStep);
                 else
                     Phase = CeresDestructionPhase.FlyingTowardZebesB;
                 StepZebesActors(motion: ZebesActorsMotion.Holding);
@@ -340,7 +340,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 }
                 else
                 {
-                    Zoom += CeresDestructionSceneDefinitions.Motion.SlowScaleStep;
+                    Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.SlowZoomStep);
                     angle = angle.TurnedBySteps(-1);
                 }
                 StepZebesActors(motion: ZebesActorsMotion.Holding);
@@ -349,9 +349,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             case CeresDestructionPhase.FlyingTowardZebesC:
                 Background = Background.WithY(Background.Y.MovedBy(CeresDestructionSceneDefinitions.Motion.EighthPixel));
                 Background = Background.WithX(Background.X.MovedBy(CeresDestructionSceneDefinitions.Motion.EighthPixel));
-                if (Zoom < CeresDestructionSceneDefinitions.Motion.FarZebesScaleLimit)
+                if (Zoom < CeresDestructionSceneDefinitions.Motion.FarZebesZoomLimit)
                 {
-                    Zoom += CeresDestructionSceneDefinitions.Motion.FastScaleStep;
+                    Zoom = Zoom.Widened(CeresDestructionSceneDefinitions.Motion.FastZoomStep);
                 }
                 else
                 {
@@ -445,7 +445,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         actors.Clear();
         Background = FixedPosition<FloorPixels>.Zero;
         angle = RotationAngle.Zero;
-        Zoom = CeresDestructionSceneDefinitions.Motion.IdentityScale;
+        Zoom = FloorZoom.OwnSize;
         brightness = 0;
         fadeCounter = 1;
         phaseTimer = CeresDestructionSceneDefinitions.Timing.InitialMosaicSize;
@@ -459,7 +459,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         Background = new(Background.X.WithWhole(CeresDestructionSceneDefinitions.Sprites.ZebesInitialBackgroundX),
             Background.Y.WithWrappedWhole(-104));
         angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
-        Zoom = CeresDestructionSceneDefinitions.Motion.IdentityScale;
+        Zoom = FloorZoom.OwnSize;
         actors.Clear();
         ZebesPlanetActor = CreateZebesActor(0);
         actors.Add(ZebesPlanetActor);
@@ -732,7 +732,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 Background = new(Background.X.WithWhole(CeresDestructionSceneDefinitions.Motion.FloorExitX),
                     Background.Y.WithWrappedWhole(-112));
                 angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
-                Zoom = CeresDestructionSceneDefinitions.Motion.MinimumScale;
+                Zoom = CeresDestructionSceneDefinitions.Motion.MinimumZoom;
                 Phase = CeresDestructionPhase.FlyingTowardZebesA;
                 return;
 

@@ -16,6 +16,15 @@ public readonly record struct EightEightVector<TSpace>(SignedEightEight X, Signe
     {
     }
 
+    /// <summary>No velocity on either axis.</summary>
+    public static EightEightVector<TSpace> Zero => default;
+
+    /// <summary>
+    /// The velocity of <paramref name="x"/> and <paramref name="y"/> 256ths of a pixel an update, each -32768 through 32767.
+    /// </summary>
+    public static EightEightVector<TSpace> FromTwoHundredFiftySixthsOfPixel(int x, int y) =>
+        new(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(x), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(y));
+
     /// <summary>Replaces the X axis.</summary>
     public EightEightVector<TSpace> WithX(SignedEightEight x) => this with { X = x };
 
@@ -34,8 +43,8 @@ public readonly record struct EightEightVector<TSpace>(SignedEightEight X, Signe
 
     /// <summary>Scales the signed raw 8.8 words of each axis, wrapping at sixteen bits.</summary>
     public static EightEightVector<TSpace> operator *(EightEightVector<TSpace> vector, int factor) =>
-        new(SignedEightEight.Wrapped(vector.X.SignedRawValue * factor),
-            SignedEightEight.Wrapped(vector.Y.SignedRawValue * factor));
+        new(SignedEightEight.Wrapped(vector.X.InTwoHundredFiftySixthsOfPixel * factor),
+            SignedEightEight.Wrapped(vector.Y.InTwoHundredFiftySixthsOfPixel * factor));
 
     /// <summary>The same velocity as the 16.16 displacement used by position adders.</summary>
     public FixedVector<TSpace> ToSixteenSixteen() => new(X.ToSixteenSixteenDelta(), Y.ToSixteenSixteenDelta());

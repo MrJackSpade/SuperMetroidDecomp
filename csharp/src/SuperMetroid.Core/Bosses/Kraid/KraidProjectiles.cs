@@ -475,8 +475,7 @@ internal sealed class KraidProjectiles
         // her here. The clamp changes only the whole pixels; the subpixels keep their borrow.
         if (samus is not null && EnemyCollision.IsEnemyTouchingSamusFromBelow(lint, samus))
         {
-            SignedSixteenSixteen carry = samus.Kinematics.ExtraDisplacement.X +
-                SignedSixteenSixteen.FromRaw(KraidPlatformMovement.FiringDisplacement);
+            SignedSixteenSixteen carry = samus.Kinematics.ExtraDisplacement.X + KraidPlatformMovement.FiringDisplacement;
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(
                 carry.WithWholePixelsAtLeast(KraidPlatformMovement.MinimumCarryWholePixels));
         }
@@ -485,9 +484,9 @@ internal sealed class KraidProjectiles
     /// <summary>Adds signed horizontal motion to the body position with word wraparound.</summary>
     private static void AddSignedKraidHorizontalDisplacement(
         RoomEnemySlot slot,
-        int displacement)
+        SignedSixteenSixteen displacement)
     {
-        slot.Position = slot.Position.WithX(slot.Position.X.MovedBy(SignedSixteenSixteen.FromRaw(displacement)));
+        slot.Position = slot.Position.WithX(slot.Position.X.MovedBy(displacement));
     }
 
     /// <summary>Updates a spit rock's flight and removes it at its boundary.</summary>

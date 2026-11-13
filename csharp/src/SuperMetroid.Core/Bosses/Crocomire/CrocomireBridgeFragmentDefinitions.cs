@@ -27,7 +27,7 @@ internal static class CrocomireBridgeFragmentDefinitions
     /// The gravity on a falling bridge fragment, in 256ths of a pixel an update, each update; the fall restarts as
     /// <see cref="RestartingFallSpeed"/> states.
     /// </summary>
-    internal static readonly SignedEightEight Gravity = SignedEightEight.FromSignedRaw(24);
+    internal static readonly SignedEightEight Gravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
 
     /// <summary>The number of bridge fragments the collapse launches, one per authored column.</summary>
     internal const int FragmentCount = 11;

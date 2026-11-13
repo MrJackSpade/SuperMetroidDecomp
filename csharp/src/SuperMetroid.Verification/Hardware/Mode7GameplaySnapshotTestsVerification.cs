@@ -53,7 +53,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
         var getaway = runtime.Enemies.RidleyEncounter.CeresRidley;
         (getaway ?? throw new InvalidOperationException("Verification requires getaway.")).GetawayActive = true;
         getaway.FloorAngle = RotationAngle.FromSteps(5);
-        getaway.FloorZoom = 240;
+        getaway.FloorZoom = FloorZoom.FromTwoHundredFiftySixths(240);
         getaway.FloorCenter = new Position16<FloorPixels>(128, 120);
         getaway.FloorOffset = new Offset16<FloorPixels>(7, 19);
         // The getaway's floor reaches the display at the accepted frame boundary (#1307).
@@ -61,7 +61,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
         RgbaPixel[] retail = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
         var retained = new DisplayPacket(0, GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "retail Ridley capture resolves mixed bands and haze");
-        getaway.GetawayActive = false; getaway.FloorZoom = 0;
+        getaway.GetawayActive = false; getaway.FloorZoom = default;
         runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "Ridley packet survives mode exit and live memory replacement");
         AssertThrows<ArgumentOutOfRangeException>(() => new TurningRoomLayer(default, RoomBackgroundsFixtures.BlankMode7Floor(), 31), "HUD must cover complete tile rows");

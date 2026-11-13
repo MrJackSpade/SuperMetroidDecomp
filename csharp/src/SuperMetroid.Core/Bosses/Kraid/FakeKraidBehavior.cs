@@ -75,10 +75,10 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The gravity Mini-Kraid's spit gains each update.</summary>
-    private static readonly SignedEightEight SpitGravity = SignedEightEight.FromSignedRaw(64);
+    private static readonly SignedEightEight SpitGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64);
 
     /// <summary>The fastest Mini-Kraid's spit falls: four pixels an update.</summary>
-    private static readonly SignedEightEight SpitMaximumFallSpeed = SignedEightEight.FromSignedRaw(1024);
+    private static readonly SignedEightEight SpitMaximumFallSpeed = SignedEightEight.FromPixels(4);
 
     /// <summary>Whole pixels per frame a body spike travels horizontally, toward the side Mini-Kraid faces.</summary>
     private const int SpikePixelsPerFrame = 2;
@@ -290,8 +290,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         int spikePixelsPerFrame = kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft
             ? -SpikePixelsPerFrame
             : SpikePixelsPerFrame;
-        projectile.Velocity = new(SignedEightEight.FromSignedRaw(spikePixelsPerFrame * SubpixelsPerPixel),
-            new SignedEightEight(0));
+        projectile.Velocity = new(SignedEightEight.FromPixels(spikePixelsPerFrame), SignedEightEight.Zero);
         state.SpawnedSpikeCount++;
         return true;
     }

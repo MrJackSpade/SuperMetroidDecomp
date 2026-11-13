@@ -120,13 +120,13 @@ internal sealed class CeresRidleyBehavior
                 break;
 
             case RidleyAiFunction.ClearVelocity:
-                state.Velocity = new EightEightVector<RoomPixels>(0, 0);
+                state.Velocity = EightEightVector<RoomPixels>.Zero;
                 break;
 
             case RidleyAiFunction.CeresLiftoffAccelerating:
                 // The rising step adds -16 to the 8.8 Y velocity before the common movement pass. Ridley rises from rest
                 // until he passes line 112 of his chamber, so the speed stays a few pixels an update.
-                state.Velocity = state.Velocity.WithY(state.Velocity.Y - SignedEightEight.FromSignedRaw(16));
+                state.Velocity = state.Velocity.WithY(state.Velocity.Y - SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16));
                 if (CoordinateAxis.Difference(slot.Position.Y.Whole, 112) < 0)
                 {
                     state.Function = RidleyAiFunction.CeresLiftoffDecelerating;
@@ -177,7 +177,7 @@ internal sealed class CeresRidleyBehavior
                 CeresRidleyFlight.TickCeresRidleySwoopPhase(
                     state,
                     angleDelta: -32,
-                    targetAngle: -1024,
+                    targetAngle: RotationAngle.Zero - RotationAngle.FromSteps(4),
                     targetMagnitude: 768,
                     nextFunction: RidleyAiFunction.CeresSwoopDescendingAimingLeft,
                     nextTimer: 36);
@@ -187,7 +187,7 @@ internal sealed class CeresRidleyBehavior
                 CeresRidleyFlight.TickCeresRidleySwoopPhase(
                     state,
                     angleDelta: -512,
-                    targetAngle: -16384,
+                    targetAngle: RotationAngle.ThreeQuarterTurn,
                     targetMagnitude: 768,
                     nextFunction: RidleyAiFunction.CeresSwoopAscendingAimingUp,
                     nextTimer: 28);
@@ -205,7 +205,7 @@ internal sealed class CeresRidleyBehavior
                 CeresRidleyFlight.TickCeresRidleySwoopPhase(
                     state,
                     angleDelta: -512,
-                    targetAngle: -30720,
+                    targetAngle: RotationAngle.Zero - SwoopClimbTarget,
                     targetMagnitude: 768,
                     nextFunction: RidleyAiFunction.CeresSwoopAscendingAimingUpFaster,
                     nextTimer: 1);
@@ -213,7 +213,7 @@ internal sealed class CeresRidleyBehavior
 
             case RidleyAiFunction.CeresSwoopAscendingAimingUpFaster:
                 CeresRidleyFlight.UpdateRidleySwoopVelocity(
-                    state, angleDelta: -768, targetAngle: -30720, targetMagnitude: 768);
+                    state, angleDelta: -768, targetAngle: RotationAngle.Zero - SwoopClimbTarget, targetMagnitude: 768);
                 if (--state.FunctionTimer < 0)
                 {
                     state.Function = RidleyAiFunction.CeresHovering;
@@ -328,9 +328,12 @@ internal sealed class CeresRidleyBehavior
     }
 
     /// <summary>The fastest 8.8 speed the acceleration clamps to toward a lower target: five pixels per update.</summary>
-    internal static readonly SignedEightEight CeresRidleyMaximumSpeed = SignedEightEight.FromSignedRaw(1280);
+    internal static readonly SignedEightEight CeresRidleyMaximumSpeed = SignedEightEight.FromPixels(5);
     /// <summary>The fastest 8.8 speed toward a higher target: five pixels per update the other way.</summary>
     internal static readonly SignedEightEight CeresRidleyMinimumSpeed = -CeresRidleyMaximumSpeed;
+
+    /// <summary>The heading a swoop climbs toward, turned the swooping way: fifteen thirty-seconds of a turn.</summary>
+    internal static readonly RotationAngle SwoopClimbTarget = RotationAngle.FromSteps(120);
 
     /// <summary>Ports Ceres Ridley's main dispatcher.</summary>
     internal void RunCeresRidleyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>

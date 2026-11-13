@@ -55,19 +55,13 @@ public readonly record struct FloorView
     /// <summary>What shows beyond the floor's edges.</summary>
     public FloorOverflowMode Outside { get; init; }
 
-    /// <summary>
-    /// The view of a scene's floor turned by <paramref name="angle"/> at a zoom the scene counts in 256ths: a zoom of 256
-    /// shows the floor at its own size, and each larger step shows it smaller.
-    /// </summary>
+    /// <summary>The view of a scene's floor turned by <paramref name="angle"/> and shown at <paramref name="zoom"/>.</summary>
     /// <param name="angle">How far the scene has turned the floor clockwise.</param>
-    /// <param name="zoom">The scene's zoom, in 256ths of a floor pixel per screen pixel, zero or more.</param>
+    /// <param name="zoom">How far the scene has zoomed the floor.</param>
     /// <param name="centre">The floor point the floor turns and scales about.</param>
     /// <param name="scroll">The floor point placed at the screen's top-left corner before the floor is turned and scaled.</param>
     /// <param name="outside">What shows beyond the floor's edges.</param>
-    public static FloorView Turned(RotationAngle angle, int zoom, Offset16<FloorPixels> centre, Offset16<FloorPixels> scroll,
+    public static FloorView Turned(RotationAngle angle, FloorZoom zoom, Offset16<FloorPixels> centre, Offset16<FloorPixels> scroll,
         FloorOverflowMode outside = FloorOverflowMode.Transparent) =>
-        new(angle.Radians, (double)Ensure.AtLeastZero(zoom) / ZoomStepsPerFloorPixel, centre, scroll, outside);
-
-    /// <summary>The steps a scene's zoom counts for one floor pixel per screen pixel.</summary>
-    private const int ZoomStepsPerFloorPixel = 256;
+        new(angle.Radians, zoom.FloorPixelsPerScreenPixel, centre, scroll, outside);
 }

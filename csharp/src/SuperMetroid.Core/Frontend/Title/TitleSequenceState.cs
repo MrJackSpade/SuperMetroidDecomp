@@ -81,7 +81,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>The floor's pan position, whose whole pixels are read as signed.</summary>
     private FixedPosition<FloorPixels> panPosition;
     /// <summary>The floor's zoom in 256ths of a floor pixel per screen pixel, animated from the close-up scene to the floor's own size.</summary>
-    internal int Zoom { get; private set; }
+    internal FloorZoom Zoom { get; private set; }
     /// <summary>Current screen brightness applied after composing title layers.</summary>
     internal int Brightness { get; private set; }
     /// <summary>The frame of the Baby Metroid's pulse animation the floor shows.</summary>
@@ -229,10 +229,10 @@ public sealed class TitleSequenceState : IFrontendScreen
                 break;
 
             case TitleSequencePhase.SceneThreeZoom:
-                // The zoom grows only on every second update.
-                if ((PhaseTimer++ & 1) == 0 && Zoom < TitleSequenceDefinitions.Scenes.IdentityScale)
-                    Zoom++;
-                if (Zoom >= TitleSequenceDefinitions.Scenes.IdentityScale)
+                // The zoom grows only on every second update; reaching the floor's own size completes it.
+                if ((PhaseTimer++ & 1) == 0 && Zoom < FloorZoom.OwnSize)
+                    Zoom = Zoom.Widened(TitleSequenceDefinitions.Scenes.FinalZoomStep);
+                if (Zoom >= FloorZoom.OwnSize)
                 {
                     ActiveSprite = TitleSprite.SuperMetroidLogo;
                     ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
@@ -496,7 +496,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         ActiveObjectColouring = TitleSequenceDefinitions.Sprites.LogoColouring;
         floorBackgroundEnabled = true;
         panPosition = new(panPosition.X.WithWhole(0), panPosition.Y.WithWhole(0));
-        Zoom = TitleSequenceDefinitions.Scenes.IdentityScale;
+        Zoom = FloorZoom.OwnSize;
     }
 
     /// <summary>Opens the idle title screen at full brightness with its demo countdown.</summary>
@@ -518,12 +518,12 @@ public sealed class TitleSequenceState : IFrontendScreen
         babyFrameTimer = TitleSequenceDefinitions.Timing.BabyFrameDuration;
     }
 
-    /// <summary>Installs a compiled turning-floor scene's position and scale while clearing the previous text sprite.</summary>
+    /// <summary>Installs a compiled turning-floor scene's position and zoom while clearing the previous text sprite.</summary>
     private void ApplyScene(TitleFloorSceneDefinition definition)
     {
         Phase = definition.Phase;
         floorBackgroundEnabled = true;
-        Zoom = definition.Scale;
+        Zoom = definition.Zoom;
         panPosition = new(panPosition.X.WithWhole(CoordinateAxis.Wrap(definition.Position.X)),
             panPosition.Y.WithWhole(CoordinateAxis.Wrap(definition.Position.Y)));
         ActiveSprite = null;

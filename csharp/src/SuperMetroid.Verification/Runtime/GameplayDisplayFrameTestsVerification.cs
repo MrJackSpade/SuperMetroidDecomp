@@ -219,7 +219,7 @@ internal static class GameplayDisplayFrameTestsVerification
             ?? throw new InvalidOperationException("Ceres Ridley room has no Ridley.");
         getaway.GetawayActive = true;
         getaway.FloorAngle = RotationAngle.FromSteps(5);
-        getaway.FloorZoom = 240;
+        getaway.FloorZoom = FloorZoom.FromTwoHundredFiftySixths(240);
         getaway.FloorCenter = new Position16<FloorPixels>(128, 120);
         getaway.FloorOffset = new Offset16<FloorPixels>(7, 19);
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,

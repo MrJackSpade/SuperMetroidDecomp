@@ -35,7 +35,7 @@ internal sealed class EndingZebesExplosion
         _stage.SpawnSprite(EndingActorDefinitions.ExplosionGlow, EndingSpriteRole.ExplosionGlow);
         _stage.SpawnSprite(EndingActorDefinitions.ExplosionStars, EndingSpriteRole.ExplosionStars);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(0), default);
-        _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialScale;
+        _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialZoom;
         _stage.FloorAngle = RotationAngle.Zero;
         _stage.Brightness = 0;
         _stage.RestartFadeCadence();
@@ -66,7 +66,7 @@ internal sealed class EndingZebesExplosion
     /// <summary>Interpolates explosion palettes on alternating calls and then enters the explosion's hold.</summary>
     internal void StepExplosionCrossfade()
     {
-        _stage.FloorZoom += EndingExplosionFadeDefinitions.ZoomStep;
+        _stage.FloorZoom = _stage.FloorZoom.Widened(EndingExplosionFadeDefinitions.ZoomStep);
         if (EndingCadenceDefinitions.ExplosionFadeStepEverySecondUpdate.IsDue(_stage.PhaseTimer))
         {
             explosionFadeStep++;

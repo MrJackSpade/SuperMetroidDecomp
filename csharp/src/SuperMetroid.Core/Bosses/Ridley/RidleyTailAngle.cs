@@ -26,6 +26,10 @@ public readonly record struct RidleyTailAngle : IComparable<RidleyTailAngle>
     /// <summary>The angle turned <paramref name="steps"/> 256ths of a turn counterclockwise.</summary>
     public RidleyTailAngle TurnedCounterclockwise(int steps) => new(StepsFromStraightDown + steps);
 
+    /// <summary>The angle turned counterclockwise by the turn <paramref name="direction"/> makes from zero.</summary>
+    public RidleyTailAngle TurnedCounterclockwise(TrigonometryAngle direction) =>
+        TurnedCounterclockwise(direction.ToAngle().Sector(RotationAngle.StepsPerTurn));
+
     /// <summary>The angle turned <paramref name="steps"/> 256ths of a turn clockwise.</summary>
     public RidleyTailAngle TurnedClockwise(int steps) => new(StepsFromStraightDown - steps);
 

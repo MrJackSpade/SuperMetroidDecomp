@@ -8,7 +8,7 @@ internal static class EndingCloudMotion
     /// limit. Movement begins on the next call; active side clouds move diagonally while
     /// top and bottom clouds move vertically without retesting zoom.
     /// </summary>
-    public static void Step(EndingSprite wrapper, int scale)
+    public static void Step(EndingSprite wrapper, FloorZoom zoom)
     {
         bool side = wrapper.Role is EndingSpriteRole.CloudRightA or EndingSpriteRole.CloudRightB
             or EndingSpriteRole.CloudLeftA or EndingSpriteRole.CloudLeftB;
@@ -20,8 +20,8 @@ internal static class EndingCloudMotion
         {
             // Changing a frame behaviour does not execute the new callback immediately.
             // Once activated, movement no longer tests the zoom threshold.
-            wrapper.CloudMoving = side ? scale >= EndingMotionDefinitions.CloudMotionStartScale
-                : scale < EndingMotionDefinitions.CloudSceneBScaleLimit;
+            wrapper.CloudMoving = side ? zoom >= EndingMotionDefinitions.CloudMotionStartZoom
+                : zoom < EndingMotionDefinitions.CloudSceneBZoomLimit;
             return;
         }
         var sprite = wrapper.Sprite;

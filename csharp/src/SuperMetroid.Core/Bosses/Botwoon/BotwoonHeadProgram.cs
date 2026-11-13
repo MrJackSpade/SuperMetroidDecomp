@@ -11,12 +11,12 @@ internal readonly record struct BotwoonHeadProgram(BotwoonHeadProgramKind Kind, 
     /// closed-mouth programs.
     /// </summary>
     internal static BotwoonHeadProgram MovingToward(Bearing bearing) =>
-        new(BotwoonHeadProgramKind.Moving, BotwoonAnimations.FacingOfOctant(bearing.RawValue >> 5));
+        new(BotwoonHeadProgramKind.Moving, BotwoonAnimations.FacingOfOctant(bearing.Sector(8)));
 
     /// <summary>
     /// The spitting head for a byte angle, biased half an octant so Samus is aimed at the
     /// nearest octant.
     /// </summary>
     internal static BotwoonHeadProgram SpittingToward(Bearing bearing) =>
-        new(BotwoonHeadProgramKind.Spitting, BotwoonAnimations.FacingOfOctant(Bearing.Wrapped(bearing.RawValue + 16).RawValue >> 5));
+        new(BotwoonHeadProgramKind.Spitting, BotwoonAnimations.FacingOfOctant(bearing.TurnedBySteps(16).Sector(8)));
 }

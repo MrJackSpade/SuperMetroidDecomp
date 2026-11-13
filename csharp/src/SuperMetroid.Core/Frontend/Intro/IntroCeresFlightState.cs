@@ -31,10 +31,11 @@ internal sealed class IntroCeresFlightState
     /// <summary>The floor point the scene places at the screen's top-left, advanced with the star actor or rear-view drift.</summary>
     private FixedPosition<FloorPixels> background = new(new(CoordinateAxis.Wrap(-72), 0), new(CoordinateAxis.Wrap(-104), 0));
     /// <summary>
-    /// The floor's zoom in 256ths of a floor pixel per screen pixel: 512 at the start, shrunk by 16 per update while at least 32 (ending at 16)
-    /// for the front approach, then grown by 16 below 3072 and by 32 below 8192 for the rear view, ending at 8192.
+    /// The floor's zoom: two floor pixels per screen pixel at the start, narrowed by the slow step per update while at
+    /// least an eighth (ending at a sixteenth) for the front approach, then widened by the slow step below twelve and by
+    /// the fast step below thirty-two for the rear view, ending at thirty-two (<see cref="CeresFlightRenderDefinitions"/>).
     /// </summary>
-    private int zoom = 512;
+    private FloorZoom zoom = CeresFlightRenderDefinitions.FrontInitialZoom;
     /// <summary>How far the scene has turned its floor clockwise.</summary>
     private RotationAngle angle = RotationAngle.FromSteps(224);
     /// <summary>
@@ -136,9 +137,9 @@ internal sealed class IntroCeresFlightState
                 break;
 
             case IntroCeresFlightPhase.FlyingIntoCamera:
-                if (zoom >= 32)
+                if (zoom >= CeresFlightRenderDefinitions.FrontNarrowingFloor)
                 {
-                    zoom -= 16;
+                    zoom = zoom.Narrowed(CeresFlightRenderDefinitions.SlowZoomStep);
                 }
                 else
                 {
@@ -280,12 +281,12 @@ internal sealed class IntroCeresFlightState
         flashIntensity = Math.Max(0, flashIntensity - 1);
 
         // The rear view drifts left by an eighth of a pixel and grows the rear-of-gunship turning
-        // image in two bands: +16 until 3072, then +32 until 8192.
+        // image in two bands: the slow step until twelve floor pixels per screen pixel, then the fast step until thirty-two.
         background = background.WithX(background.X.MovedBy(-SignedSixteenSixteen.FromSixteenthsOfPixel(2)));
-        if (zoom < 3072)
-            zoom += 16;
-        else if (zoom < 8192)
-            zoom += 32;
+        if (zoom < CeresFlightRenderDefinitions.RearSlowWideningLimit)
+            zoom = zoom.Widened(CeresFlightRenderDefinitions.SlowZoomStep);
+        else if (zoom < CeresFlightRenderDefinitions.RearFastWideningLimit)
+            zoom = zoom.Widened(CeresFlightRenderDefinitions.FastZoomStep);
         else
             SetupSpaceColonyTitle();
     }
@@ -401,7 +402,7 @@ internal sealed class IntroCeresFlightState
                 $"Ceres front stars name invalid frame behaviour " +
                 $"{stars.FrameBehavior}.");
         }
-        // The rush lasts while the zoom falls from 512 by 16 an update, about 32 updates, so the speed rises from four
+        // The rush lasts while the zoom falls from two floor pixels by a sixteenth an update, about 32 updates, so the speed rises from four
         // pixels an update one way to at most twelve the other.
         starsVelocity += CeresFlightActorDefinitions.FrontStarAcceleration;
         SignedEightEight velocity = starsVelocity;

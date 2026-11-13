@@ -190,7 +190,7 @@ internal sealed class DraygonGrab
             return;
         }
 
-        state.SpiralAngleDelta = state.SpiralAngleDelta.AddRaw(-1);
+        state.SpiralAngleDelta -= DraygonBehavior.DraygonSpiralTurnSlowing;
         state.SpiralAngle += state.SpiralAngleDelta.WholeStep;
 
         state.SpiralCenter = state.SpiralCenter.AdvanceY(DraygonBehavior.DraygonSpiralCenterLift);

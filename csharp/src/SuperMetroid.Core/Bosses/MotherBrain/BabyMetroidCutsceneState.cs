@@ -245,7 +245,7 @@ public sealed class BabyMetroidCutsceneState
         {
             bool reachedLatchPoint = AccelerateTowardsPoint(
                 samus.Position.Whole + SamusLatchOffset,
-                acceleration: SignedEightEight.FromSignedRaw(16));
+                acceleration: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16));
             if (reachedLatchPoint)
             {
                 Velocity = default;
@@ -322,7 +322,7 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody:
             {
                 Position16<RoomPixels> target = head + BrainLatchOffset;
-                bool reachedTarget = AccelerateTowardsPoint(target, acceleration: SignedEightEight.FromSignedRaw(512));
+                bool reachedTarget = AccelerateTowardsPoint(target, acceleration: SignedEightEight.FromPixels(2));
                 if (reachedTarget)
                 {
                     // The helper predicts whole-pixel overshoot but does not itself store
@@ -593,7 +593,7 @@ public sealed class BabyMetroidCutsceneState
                 // The cutscene's shake first adds -1 to the Y velocity,
                 // which the common mover then applies, and places the Baby at the saved origin
                 // plus the undoubled shaking offsets.
-                Velocity = Velocity.WithY(Velocity.Y - SignedEightEight.FromSignedRaw(1));
+                Velocity = Velocity.WithY(Velocity.Y - SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1));
                 int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
                 Position = Position.WithWhole(FatalBlowOrigin + ShakingOffsets[shakingIndex]);
                 if (--FunctionTimer < 0)
@@ -782,13 +782,13 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>The drag the Baby's death fall takes from its sideways speed each update.</summary>
-    private static readonly SignedEightEight DeathFallDrag = SignedEightEight.FromSignedRaw(32);
+    private static readonly SignedEightEight DeathFallDrag = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
 
     /// <summary>The gravity the Baby's death fall adds to its vertical speed each update.</summary>
-    private static readonly SignedEightEight DeathFallGravity = SignedEightEight.FromSignedRaw(2);
+    private static readonly SignedEightEight DeathFallGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(2);
 
     /// <summary>The fastest the Baby approaches a point, on each axis, in either direction: five pixels an update.</summary>
-    private static readonly SignedEightEight ApproachMaximumSpeed = SignedEightEight.FromSignedRaw(1280);
+    private static readonly SignedEightEight ApproachMaximumSpeed = SignedEightEight.FromPixels(5);
 
     /// <summary>Slows the horizontal speed by the death fall's drag and adds its gravity to the vertical speed.</summary>
     private void AccelerateDownwardsForDeath()
@@ -861,7 +861,7 @@ public sealed class BabyMetroidCutsceneState
 
         // The turn stops at the target angle: the signed difference from the target says
         // whether this step would carry the heading past it.
-        RotationAngle candidateAngle = Angle.AddRaw(angleDelta);
+        RotationAngle candidateAngle = Angle.TurnedByFractionsOfStep(angleDelta);
         if (angleDelta < 0)
         {
             Angle = candidateAngle.TurnFrom(targetAngle) >= 0

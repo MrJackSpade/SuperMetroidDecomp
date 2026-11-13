@@ -78,7 +78,7 @@ internal sealed class TorizoMovement
 
         state.Function = TorizoFunction.Falling;
         state.FrameBehavior = TorizoFrameBehavior.Idle;
-        state.Velocity = new EightEightVector<RoomPixels>(0, 256);
+        state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 256);
 
         // Init writes the shared colours' targets and then selects the encounter-specific body
         // colours. This runtime exposes the live colours rather than separate current/target
@@ -189,11 +189,11 @@ internal sealed class TorizoMovement
         SignedSixteenSixteen displacement = state.Velocity.Y.ToSixteenSixteenDelta();
         if (_terrain.MoveEnemyVertically(level, torizo, displacement))
         {
-            int velocity = state.Velocity.Y.SignedRawValue;
+            int velocity = state.Velocity.Y.InTwoHundredFiftySixthsOfPixel;
             if (velocity is >= 0 and not 256)
             {
                 _earthquake.Start(LandingShake, 32);
-                state.Velocity = state.Velocity.WithY(new SignedEightEight(256));
+                state.Velocity = state.Velocity.WithY(SignedEightEight.FromPixels(1));
             }
             return;
         }
@@ -219,7 +219,7 @@ internal sealed class TorizoMovement
                 state.Velocity.Y.ToSixteenSixteenDelta()))
         {
             TorizoBody.StartTorizoBodyProgram(torizo, state, state.ReturnPlayback);
-            state.Velocity = state.Velocity.WithY(new SignedEightEight(256));
+            state.Velocity = state.Velocity.WithY(SignedEightEight.FromPixels(1));
             _earthquake.Start(LandingShake, 32);
             return;
         }
@@ -256,7 +256,7 @@ internal sealed class TorizoMovement
             TorizoBody.StartTorizoBodyProgram(torizo, _access.RequireBombTorizoState(torizo), TorizoAnimations.Start(_access.FacesRight(torizo)
                 ? TorizoBodyProgram.FacingRightFalling0
                 : TorizoBodyProgram.FacingLeftFalling0));
-            state.Velocity = new EightEightVector<RoomPixels>(0, 256);
+            state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 256);
         }
     }
 
@@ -284,7 +284,7 @@ internal sealed class TorizoMovement
             TorizoBody.StartTorizoBodyProgram(torizo, _access.RequireBombTorizoState(torizo), TorizoAnimations.Start(_access.FacesRight(torizo)
                 ? TorizoBodyProgram.FacingRightFalling0
                 : TorizoBodyProgram.FacingLeftFalling0));
-            state.Velocity = new EightEightVector<RoomPixels>(0, 256);
+            state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 256);
         }
     }
 

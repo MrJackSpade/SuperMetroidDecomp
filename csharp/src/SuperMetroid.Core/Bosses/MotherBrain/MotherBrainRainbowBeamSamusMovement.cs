@@ -43,7 +43,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         Ensure.NotNull(cameraCheckpoint);
 
         FixedPosition<RoomPixels> before = Capture(samus);
-        bool reachedWall = MoveHorizontallyTowardWall(samus, cameraCheckpoint, SignedEightEight.FromSignedRaw(4096));
+        bool reachedWall = MoveHorizontallyTowardWall(samus, cameraCheckpoint, SignedEightEight.FromPixels(16));
 
         if (!reachedWall)
         {
@@ -78,7 +78,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // instead of introducing a host integer comparison with different wraps.
         int difference = CoordinateAxis.Difference(124, samus.Position.Y.Whole);
         bool reachedVerticalBoundary = MoveVerticallyTowardCeilingOrFloor(
-            samus, cameraCheckpoint, SignedEightEight.FromSignedRaw(difference >= 0 ? 64 : -64));
+            samus, cameraCheckpoint, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(difference >= 0 ? 64 : -64));
 
         return CreateResult(
             before,
@@ -95,7 +95,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     }
 
     /// <summary>How much the leftward push slows on each update of Samus's fall from the beam.</summary>
-    private static readonly SignedEightEight FallingPushSlowing = SignedEightEight.FromSignedRaw(2);
+    private static readonly SignedEightEight FallingPushSlowing = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(2);
 
     /// <summary>
     /// Steps Samus's fall: ease horizontal speed toward zero by 2/256, add
@@ -115,7 +115,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         CustomVelocity = CustomVelocity.WithX(SignedEightEight.Min(CustomVelocity.X + FallingPushSlowing, SignedEightEight.Zero));
         MoveHorizontallyTowardWall(samus, cameraCheckpoint, CustomVelocity.X);
 
-        CustomVelocity += new EightEightVector<RoomPixels>(0, 24);
+        CustomVelocity += EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 24);
         bool reachedVerticalBoundary =
             MoveVerticallyTowardCeilingOrFloor(samus, cameraCheckpoint, CustomVelocity.Y);
 

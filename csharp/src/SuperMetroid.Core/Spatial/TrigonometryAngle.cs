@@ -6,8 +6,11 @@ namespace SuperMetroid.Core.Spatial;
 /// is the form with a fraction, whose whole units are this value.
 /// </summary>
 [EncodingOwner("sine-table byte angle")]
-public readonly record struct TrigonometryAngle
+public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
 {
+    /// <summary>Orders angles by how far they lie through the turn from zero.</summary>
+    public int CompareTo(TrigonometryAngle other) => RawValue.CompareTo(other.RawValue);
+
     /// <summary>The angle of <paramref name="rawValue"/> table units, 0 through 255.</summary>
     /// <param name="rawValue">The angle in table units, 0 through 255.</param>
     public TrigonometryAngle(int rawValue) => RawValue = checked((byte)rawValue);
@@ -42,6 +45,28 @@ public readonly record struct TrigonometryAngle
 
     /// <summary>The angle turned on by <paramref name="turn"/>, wrapping around the full turn.</summary>
     public TrigonometryAngle TurnedBy(TrigonometryAngle turn) => Wrapped(RawValue + turn.RawValue);
+
+    /// <summary>The angle turned on by <paramref name="turn"/>, wrapping around the full turn.</summary>
+    public static TrigonometryAngle operator +(TrigonometryAngle angle, TrigonometryAngle turn) => angle.TurnedBy(turn);
+
+    /// <summary>
+    /// The angle turned back by <paramref name="turn"/>, wrapping below zero: the sine a quarter turn back is the negative
+    /// cosine the up-zero headings read their vertical speed from.
+    /// </summary>
+    public static TrigonometryAngle operator -(TrigonometryAngle angle, TrigonometryAngle turn) =>
+        Wrapped(angle.RawValue - turn.RawValue);
+
+    /// <summary>Whether <paramref name="left"/> lies earlier in the turn from zero than <paramref name="right"/>.</summary>
+    public static bool operator <(TrigonometryAngle left, TrigonometryAngle right) => left.RawValue < right.RawValue;
+
+    /// <summary>Whether <paramref name="left"/> lies later in the turn from zero than <paramref name="right"/>.</summary>
+    public static bool operator >(TrigonometryAngle left, TrigonometryAngle right) => left.RawValue > right.RawValue;
+
+    /// <summary>Whether <paramref name="left"/> lies no later in the turn from zero than <paramref name="right"/>.</summary>
+    public static bool operator <=(TrigonometryAngle left, TrigonometryAngle right) => left.RawValue <= right.RawValue;
+
+    /// <summary>Whether <paramref name="left"/> lies no earlier in the turn from zero than <paramref name="right"/>.</summary>
+    public static bool operator >=(TrigonometryAngle left, TrigonometryAngle right) => left.RawValue >= right.RawValue;
 
     /// <summary>
     /// This angle carried into the half turn from zero up to (not including) <see cref="HalfTurn"/>, keeping its

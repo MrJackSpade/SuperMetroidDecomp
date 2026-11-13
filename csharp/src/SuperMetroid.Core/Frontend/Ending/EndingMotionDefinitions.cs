@@ -1,8 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// The ending's floor zoom and angle thresholds, the gunship's motion and the credits' scroll (#1416). Zooms are 8.8
-/// scales, where 256 is unity.
+/// The ending's floor zoom and angle thresholds, the gunship's motion and the credits' scroll (#1416).
 /// </summary>
 public static class EndingMotionDefinitions
 {
@@ -12,38 +11,44 @@ public static class EndingMotionDefinitions
     /// <summary>The floor point, in floor pixels, the atmospheric and explosion scenes' floor turns about.</summary>
     public static Offset16<FloorPixels> AtmosphericFloorCenter => new(128, 128);
 
-    /// <summary>The unity zoom.</summary>
-    public const int IdentityScale = 256;
-
     /// <summary>The escape scenes' initial floor angle.</summary>
     public static TrigonometryAngle EscapeInitialAngle { get; } = new(32);
 
-    /// <summary>The escape and explosion scenes' initial zoom.</summary>
-    public const int EscapeInitialScale = 64;
+    /// <summary>The escape and explosion scenes' initial zoom: a quarter floor pixel per screen pixel.</summary>
+    public static FloorZoom EscapeInitialZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(64);
 
-    /// <summary>The zoom at which escape scenes A and B begin fading out.</summary>
-    public const int EscapeEndScale = 384;
+    /// <summary>The zoom at which escape scenes A and B begin fading out: one and a half floor pixels per screen pixel.</summary>
+    public static FloorZoom EscapeEndZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(384);
 
     /// <summary>The zoom enabling side-cloud motion in escape scene A.</summary>
-    public const int CloudMotionStartScale = 96;
+    public static FloorZoom CloudMotionStartZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(96);
 
     /// <summary>The zoom below which scene B's top and bottom clouds keep moving.</summary>
-    public const int CloudSceneBScaleLimit = 176;
+    public static FloorZoom CloudSceneBZoomLimit { get; } = FloorZoom.FromTwoHundredFiftySixths(176);
 
-    /// <summary>The space view's initial zoom for the gunship's emergence.</summary>
-    public const int PlanetEscapeInitialScale = 3072;
+    /// <summary>The space view's initial zoom for the gunship's emergence: twelve floor pixels per screen pixel.</summary>
+    public static FloorZoom PlanetEscapeInitialZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(12);
 
     /// <summary>The zoom below which fast spinning gives way to the slower emergence.</summary>
-    public const int PlanetFastEndScale = 1456;
+    public static FloorZoom PlanetFastEndZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(1456);
 
     /// <summary>The zoom below which the accelerating fly-to-camera phase starts.</summary>
-    public const int PlanetSlowEndScale = 1184;
+    public static FloorZoom PlanetSlowEndZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(1184);
 
     /// <summary>The fly-to-camera zoom below which the ship turns toward its exit angle on every fourth update.</summary>
-    public const int PlanetTurnStartScale = 384;
+    public static FloorZoom PlanetTurnStartZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(384);
 
     /// <summary>The fly-to-camera zoom below which gunship colours are restored and the operation-success message begins.</summary>
-    public const int PlanetExitScale = 32;
+    public static FloorZoom PlanetExitZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(32);
+
+    /// <summary>The fast emergence's zoom change each update, in 256ths of a floor pixel per screen pixel.</summary>
+    public const int PlanetFastZoomStep = 8;
+
+    /// <summary>The slow emergence's zoom change each update, in 256ths of a floor pixel per screen pixel.</summary>
+    public const int PlanetSlowZoomStep = 2;
+
+    /// <summary>The fly-to-camera phase's zoom change each update, in 256ths of a floor pixel per screen pixel.</summary>
+    public const int PlanetFlyToCameraZoomStep = 4;
 
     /// <summary>The fly-to-camera phase's initial horizontal velocity: half a pixel per update.</summary>
     public static SignedSixteenSixteen PlanetInitialVelocity => SignedSixteenSixteen.FromSixteenthsOfPixel(8);

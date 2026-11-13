@@ -29,7 +29,7 @@ internal static class CeresRidleyGetawayDefinitionsVerification
                 continue;
             }
             AssertTrue(!frame.IsFinished, "Ceres getaway authored frames do not end the getaway");
-            AssertEqual(nativeZoom, frame.Zoom, "Ceres getaway exact native zoom");
+            AssertEqual(FloorZoom.FromTwoHundredFiftySixths(nativeZoom), frame.Zoom, "Ceres getaway exact native zoom");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6af2f + offset))), frame.Velocity.Y, "Ceres getaway exact native Y increment");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b00f + offset))), frame.Velocity.X, "Ceres getaway exact native X subtraction");
         }

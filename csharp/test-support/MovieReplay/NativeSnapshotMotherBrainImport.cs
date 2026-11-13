@@ -113,8 +113,8 @@ internal static class NativeSnapshotMotherBrainImport
             new SignedEightEight(W(MotherBrainMemory.DeathBeamNext + 8)),
             new SignedEightEight(W(MotherBrainMemory.DeathBeamNext + 10)));
         // The game reads only the low byte of each aim angle, the byte angle it stored.
-        state.HandBeamNextAngle = W(MotherBrainMemory.DeathBeamNext + 12) & byte.MaxValue;
-        state.OnionRingsTargetAngle = W(MotherBrainMemory.OnionRingsTargetAngle) & byte.MaxValue;
+        state.HandBeamNextAngle = new TrigonometryAngle(W(MotherBrainMemory.DeathBeamNext + 12) & byte.MaxValue);
+        state.OnionRingsTargetAngle = new TrigonometryAngle(W(MotherBrainMemory.OnionRingsTargetAngle) & byte.MaxValue);
         state.RainbowBeamAngularWidth = RotationAngle.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth));
         if (RainbowSequenceFunctions.Contains(state.Function))
             ImportNativeMotherBrainRainbowSequence(state, state.Function, W);

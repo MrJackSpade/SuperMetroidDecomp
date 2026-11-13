@@ -441,9 +441,9 @@ internal sealed class PhantoonCombat
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualBouncing));
         flame.FrameHold = WrappingCountdown.Start(1);
         flame.Position = flame.Position.WithWrappedWholeY(flame.Position.Y.Whole - 8);
-        flame.Velocity = flame.Velocity.WithY(SignedEightEight.FromSignedRaw(-768));
+        flame.Velocity = flame.Velocity.WithY(SignedEightEight.FromPixels(-3));
         // The flame's drift reads the frame counter that wraps at 65536.
-        flame.Velocity = flame.Velocity.WithX(SignedEightEight.FromSignedRaw(
+        flame.Velocity = flame.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
             PhantoonCadenceDefinitions.RisingFlameDriftsLeft.IsSetIn(frameCounter) ? -128 : 128));
     }
 
@@ -459,7 +459,7 @@ internal sealed class PhantoonCombat
             casual.Bounces++;
             if (casual.Bounces < 3)
             {
-                flame.Velocity = flame.Velocity.WithY(SignedEightEight.FromSignedRaw(casual.Bounces == 1 ? -512 : -256));
+                flame.Velocity = flame.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(casual.Bounces == 1 ? -512 : -256));
                 return;
             }
             RestPhantoonCasualFlame(flame);

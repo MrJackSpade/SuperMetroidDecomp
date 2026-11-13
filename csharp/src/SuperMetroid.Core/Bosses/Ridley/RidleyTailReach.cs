@@ -23,8 +23,7 @@ internal static class RidleyTailReach
     /// <see cref="RidleyTailDefinitions.ForbiddenForwardStart"/> up to (not including) <see cref="RidleyTailDefinitions.ForbiddenForwardEnd"/>.
     /// </summary>
     internal static bool AimsThroughBody(TrigonometryAngle direction) =>
-        direction.RawValue >= RidleyTailDefinitions.ForbiddenForwardStart.RawValue &&
-        direction.RawValue < RidleyTailDefinitions.ForbiddenForwardEnd.RawValue;
+        direction >= RidleyTailDefinitions.ForbiddenForwardStart && direction < RidleyTailDefinitions.ForbiddenForwardEnd;
 
     /// <summary>Reads one of the seven segments' values, rejecting a segment outside the tail.</summary>
     private static T Segment<T>(T[] table, int segmentIndex) =>

@@ -153,9 +153,9 @@ internal sealed class TorizoChoices
         RoomEnemySlot torizo,
         TorizoEnemyState state)
     {
-        state.Velocity = new EightEightVector<RoomPixels>(
-            _access.FacesRight(torizo) ? 512 : -512, -1472);
-        state.JumpAcceleration = new EightEightVector<RoomPixels>(0, 40);
+        state.Velocity = new(SignedEightEight.FromPixels(_access.FacesRight(torizo) ? 2 : -2),
+            SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1472));
+        state.JumpAcceleration = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 40);
         torizo.FrameHold = WrappingCountdown.Start(1);
     }
 
@@ -164,9 +164,9 @@ internal sealed class TorizoChoices
         RoomEnemySlot torizo,
         TorizoEnemyState state)
     {
-        state.Velocity = new EightEightVector<RoomPixels>(
-            _access.FacesRight(torizo) ? -768 : 768, -1152);
-        state.JumpAcceleration = new EightEightVector<RoomPixels>(0, 40);
+        state.Velocity = new(SignedEightEight.FromPixels(_access.FacesRight(torizo) ? -3 : 3),
+            SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1152));
+        state.JumpAcceleration = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 40);
         torizo.FrameHold = WrappingCountdown.Start(1);
     }
 
@@ -224,9 +224,9 @@ internal sealed class TorizoChoices
 
         // The jump-back launches away from the currently faced direction at 3 px/frame and
         // starts with -4.5 px/frame vertical speed, adding 40/256 px/frame each tick.
-        state.Velocity = new EightEightVector<RoomPixels>(
-            _access.FacesRight(torizo) ? -768 : 768, -1152);
-        state.JumpAcceleration = new EightEightVector<RoomPixels>(0, 40);
+        state.Velocity = new(SignedEightEight.FromPixels(_access.FacesRight(torizo) ? -3 : 3),
+            SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1152));
+        state.JumpAcceleration = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 40);
         torizo.FrameHold = WrappingCountdown.Start(1);
         return TorizoAnimations.ContinueWith(target);
     }

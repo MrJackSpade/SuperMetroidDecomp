@@ -41,10 +41,10 @@ internal sealed class EndingStage
     internal FixedPosition<FloorPixels> FloorPosition { get; set; }
 
     /// <summary>
-    /// Turning-floor scale in 8.8 units (256 is unity), initially the identity. Every scene starts it at an authored
-    /// scale and moves it by a few units per call toward a bound it stops at, so it stays positive and small.
+    /// The turning floor's zoom, initially its own size. Every scene starts it at an authored zoom and moves it by a few
+    /// 256ths per call toward a bound it stops at, so it stays positive and small.
     /// </summary>
-    internal int FloorZoom { get; set; } = EndingMotionDefinitions.IdentityScale;
+    internal FloorZoom FloorZoom { get; set; } = FloorZoom.OwnSize;
 
     /// <summary>Turning-floor byte-angle shared by the escape and planet scenes.</summary>
     internal RotationAngle FloorAngle { get; set; }

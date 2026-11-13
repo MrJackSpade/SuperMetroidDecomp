@@ -64,10 +64,12 @@ public sealed class MotherBrainRainbowBeamEffect
     private void ResolveGeometry(Position16<RoomPixels> head, Position16<RoomPixels> camera,
         RotationAngle angle, RotationAngle angularWidth)
     {
-        int halfWidth = angularWidth.ToTrigonometryAngle().RawValue / 2;
-        int a = angle.ToTrigonometryAngle().TurnedBySteps(-halfWidth).RawValue;
-        int b = angle.ToTrigonometryAngle().TurnedBySteps(halfWidth).RawValue;
-        int quadrant = (a / TrigonometryAngle.QuarterTurn.RawValue) * 4 + b / TrigonometryAngle.QuarterTurn.RawValue;
+        // The cone's edges lie half its whole-step width either side of its direction; the quarter turns the two
+        // edges lie in choose how it is drawn.
+        TrigonometryAngle halfWidth = angularWidth.WholeStep.DividedBy(2).ToTrigonometryAngle();
+        TrigonometryAngle firstEdge = angle.ToTrigonometryAngle() - halfWidth;
+        TrigonometryAngle secondEdge = angle.ToTrigonometryAngle() + halfWidth;
+        int quadrant = firstEdge.ToAngle().Sector(4) * 4 + secondEdge.ToAngle().Sector(4);
         var direction = MotherBrainBeamQuadrants.DirectionForPair(quadrant);
         // The leftward-straddling case is empty: retain the previous geometry for a beam straddling left.
         if (direction == MotherBrainBeamDirection.Retain) return;
@@ -79,7 +81,8 @@ public sealed class MotherBrainRainbowBeamEffect
         int originY = CoordinateAxis.Difference(head.Y + MotherBrainBeamDefinitions.MouthYOffset, camera.Y);
         if (originY is <= MotherBrainBeamDefinitions.FirstLine or >= MotherBrainBeamDefinitions.EndLine)
             throw new InvalidDataException($"Mother Brain beam mouth Y={originY} is outside its scanline work area.");
-        Geometry = new(CoordinateAxis.Difference(head.X + MotherBrainBeamDefinitions.MouthXOffset, camera.X), originY, a, b);
+        Geometry = new(CoordinateAxis.Difference(head.X + MotherBrainBeamDefinitions.MouthXOffset, camera.X), originY,
+            firstEdge.RawValue, secondEdge.RawValue);
     }
 
     /// <summary>The installed colour cycle; fails if rainbow presentation colours were never bound.</summary>

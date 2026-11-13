@@ -518,7 +518,7 @@ internal static class LookupStream4Verification
             int count = fast ? 16 : 8, address = fast ? 0x8BDD02 : 0x8BDDAD;
             var state = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0 });
             state.Stage.FloorPosition = state.Stage.FloorPosition.WithWholeX(100).WithFractionX(0xC000);
-            state.Stage.FloorZoom = 0xC00; state.Stage.PhaseTimer = 100;
+            state.Stage.FloorZoom = FloorZoom.FromFloorPixelsPerScreenPixel(12); state.Stage.PhaseTimer = 100;
             state.Stage.Phase = fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow;
             Action step = fast ? state.Flyaway.StepPlanetEscapeFast : state.Flyaway.StepPlanetEscapeSlow;
             uint expected = 100u << 16 | 0xC000;
@@ -530,12 +530,12 @@ internal static class LookupStream4Verification
                 expectedZoom -= fast ? 8 : 2;
                 step();
                 AssertEqual(RotationAngle.FromSteps((byte)expectedAngle), state.Stage.FloorAngle, "rotation context advances independently of selected signs");
-                AssertEqual((ushort)expectedZoom, state.Stage.FloorZoom, "zoom context advances independently of selected signs");
+                AssertEqual(FloorZoom.FromTwoHundredFiftySixths(expectedZoom), state.Stage.FloorZoom, "zoom context advances independently of selected signs");
                 AssertEqual(FixedCoordinate.WholeOf(unchecked((int)expected)), state.Stage.FloorPosition.X.Whole, "production shake whole position follows native indexed values");
                 AssertEqual((ushort)expected, state.Stage.FloorPosition.X.Fraction, "production shake fraction preserves carry/borrow");
                 AssertEqual((ushort)((frame + 1) % count), state.Flyaway.PlanetMotionIndex, "production shake advances after selection and wraps native mask");
             }
-            state.Stage.FloorZoom = fast ? EndingMotionDefinitions.PlanetFastEndScale : EndingMotionDefinitions.PlanetSlowEndScale;
+            state.Stage.FloorZoom = fast ? EndingMotionDefinitions.PlanetFastEndZoom : EndingMotionDefinitions.PlanetSlowEndZoom;
             state.Flyaway.PlanetMotionIndex = (ushort)(count - 1);
             state.Stage.FloorPosition = state.Stage.FloorPosition.WithWholeX(0).WithFractionX(0x4000);
             step();
@@ -2346,7 +2346,7 @@ internal static class LookupStream4Verification
             var selected = zoomStock;
             var ridley = new RidleyEnemyState();
             IReadOnlyList<SheetShade> zoomRoom = RidleySheetShades.CeresRoom(ceresStock, selected);
-            Action<ushort> apply = appliedZoom => CeresRidleyGetaway.UpdateCeresRidleyFloorZoomColours(ridley, appliedZoom);
+            Action<ushort> apply = appliedZoom => CeresRidleyGetaway.UpdateCeresRidleyFloorZoomColours(ridley, FloorZoom.FromTwoHundredFiftySixths(appliedZoom));
             for (int row = 0; row < 9; row++)
             {
                 apply((ushort)(row * 256 + 255));

@@ -539,7 +539,7 @@ internal sealed class PhantoonPatterns
     private static void BeginPhantoonSwoop(
         PhantoonEnemyState state)
     {
-        state.TentaclesState.SwoopVelocity = new(new SignedEightEight(1024), new SignedEightEight(1024));
+        state.TentaclesState.SwoopVelocity = new(SignedEightEight.FromPixels(4), SignedEightEight.FromPixels(4));
         state.TentaclesState.SwoopTargetX = 0;
         state.TentaclesState.SwoopReturning = false;
         state.BodyState.Function = PhantoonAiFunction.Swooping;
@@ -717,7 +717,7 @@ internal sealed class PhantoonPatterns
         switch (type)
         {
             case PhantoonFlameSpawnType.Casual:
-                flame.Velocity = flame.Velocity.WithX(new SignedEightEight(0));
+                flame.Velocity = flame.Velocity.WithX(SignedEightEight.Zero);
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 32)));
                 flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualFalling0));
                 flame.FrameBehavior =
@@ -789,7 +789,7 @@ internal sealed class PhantoonPatterns
             SpriteGraphics.SpawnedBy(body));
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.DestroyableIdle));
         flame.Position = flame.Position.WithFractionX(0).WithFractionY(0);
-        flame.Velocity = flame.Velocity.WithY(new SignedEightEight(0));
+        flame.Velocity = flame.Velocity.WithY(SignedEightEight.Zero);
         return flame;
     }
 }

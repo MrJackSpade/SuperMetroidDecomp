@@ -292,24 +292,23 @@ internal sealed class DraygonParts
             return;
 
         eyeState.LookAngle = bearing;
-        int angle = bearing.RawValue;
-        DraygonProgram look = angle switch
+        // The quarter of the turn centred on up, right, down or left that the bearing lies in chooses the look.
+        int quarter = bearing.TurnedBySteps(RotationAngle.StepsPerTurn / 8).Sector(4);
+        DraygonProgram look = quarter switch
         {
-            < 32 => facing == HorizontalDirection.Right
+            0 => facing == HorizontalDirection.Right
                 ? DraygonProgram.EyeFacingRightLookingUp
                 : DraygonProgram.EyeFacingLeftLookingUp,
-            < 96 => facing == HorizontalDirection.Right
+            1 => facing == HorizontalDirection.Right
                 ? DraygonProgram.EyeFacingRightLookingRight
                 : DraygonProgram.EyeFacingLeftLookingRight,
-            < 160 => facing == HorizontalDirection.Right
+            2 => facing == HorizontalDirection.Right
                 ? DraygonProgram.EyeFacingRightLookingDown
                 : DraygonProgram.EyeFacingLeftLookingDown,
-            < 224 => facing == HorizontalDirection.Right
+            3 => facing == HorizontalDirection.Right
                 ? DraygonProgram.EyeFacingRightLookingLeft
                 : DraygonProgram.EyeFacingLeftLookingLeft,
-            _ => facing == HorizontalDirection.Right
-                ? DraygonProgram.EyeFacingRightLookingUp
-                : DraygonProgram.EyeFacingLeftLookingUp,
+            _ => throw new InvalidOperationException($"Draygon's eye bearing {bearing} lies in no quarter of the turn."),
         };
         StartDraygonProgram(eye, look);
         eye.Timer = WrappingCountdown.Start(0);

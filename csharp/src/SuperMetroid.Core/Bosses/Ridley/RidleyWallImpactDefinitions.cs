@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class RidleyWallImpactDefinitions
 {
     /// <summary>The wall impact compares the larger absolute 8.8 velocity against 2.5 pixels/frame.</summary>
-    public static readonly SignedEightEight MinimumSpeed = SignedEightEight.FromSignedRaw(640);
+    public static readonly SignedEightEight MinimumSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(640);
     /// <summary>The wall impact's strong side-to-side earthquake, outside Norfair, shaking the background and enemies only.</summary>
     public static readonly EarthquakeShake Earthquake =
         new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Horizontal, EarthquakeReach.BackgroundAndEnemies);

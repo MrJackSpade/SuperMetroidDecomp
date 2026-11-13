@@ -353,6 +353,7 @@ using static SuperMetroid.Verification.Enemies.SpacePirates.SpacePirateCollision
 using static SuperMetroid.Verification.Samus.Projectiles.SpacetimeBeamVerification;
 using static SuperMetroid.Verification.Enemies.Sparks.SparkCrashAlignmentVerification;
 using static SuperMetroid.Verification.Spatial.SpatialValuesVerification;
+using static SuperMetroid.Verification.Spatial.TypedTurnsAndZoomVerification;
 using static SuperMetroid.Verification.Audio.SpcDriverMemoryVerification;
 using static SuperMetroid.Verification.Audio.SpcSoundLibrary2PointersVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterCollisionBlocksVerification;
@@ -547,6 +548,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyManagedSnesDsp), () => VerifyManagedSnesDsp()),
         new(nameof(VerifyTypedNativeWords), () => VerifyTypedNativeWords()),
         new(nameof(VerifySamusSpatialValues), () => VerifySamusSpatialValues()),
+        new(nameof(VerifyTypedTurnsAndZoom), () => VerifyTypedTurnsAndZoom()),
         new(nameof(VerifyPhantoonWaveLifecycle), () => VerifyPhantoonWaveLifecycle()),
         new(nameof(VerifyBackgroundMosaicWidth), () => VerifyBackgroundMosaicWidth()),
         new(nameof(VerifyOamSpritemapPacking), () => VerifyOamSpritemapPacking()),

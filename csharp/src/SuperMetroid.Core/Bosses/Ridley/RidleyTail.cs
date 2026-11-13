@@ -177,7 +177,7 @@ internal sealed class RidleyTail
                 targetDirection = RidleyTailDefinitions.ForbiddenForwardEnd;
             RidleyTailAngle target = RidleyTailDefinitions.LeftWhipTargetBase
                 .TurnedByWholeTurns(-turnsBeyond)
-                .TurnedCounterclockwise(targetDirection.RawValue);
+                .TurnedCounterclockwise(targetDirection);
             if (target < root.Angle)
             {
                 state.ClockwiseWhipTarget = target;
@@ -190,7 +190,7 @@ internal sealed class RidleyTail
                 targetDirection = RidleyTailDefinitions.ForbiddenForwardStart;
             RidleyTailAngle target = RidleyTailDefinitions.RightWhipTargetBase
                 .TurnedByWholeTurns(turnsBeyond)
-                .TurnedCounterclockwise(targetDirection.RawValue);
+                .TurnedCounterclockwise(targetDirection);
             if (target >= root.Angle)
             {
                 state.CounterClockwiseWhipTarget = target;

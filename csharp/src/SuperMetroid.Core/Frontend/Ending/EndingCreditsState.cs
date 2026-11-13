@@ -145,7 +145,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.EscapeSceneA:
                 StepAtmosphericTransform(2);
                 EscapeScenes.StepEscapeClouds();
-                if (Stage.FloorZoom >= EndingMotionDefinitions.EscapeEndScale)
+                if (Stage.FloorZoom >= EndingMotionDefinitions.EscapeEndZoom)
                 {
                     Stage.RestartFadeCadence();
                     Stage.Phase = EndingCreditsPhase.FadeOutEscapeSceneA;
@@ -169,7 +169,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.EscapeSceneB:
                 StepAtmosphericTransform(3);
                 EscapeScenes.StepEscapeClouds();
-                if (Stage.FloorZoom >= EndingMotionDefinitions.EscapeEndScale)
+                if (Stage.FloorZoom >= EndingMotionDefinitions.EscapeEndZoom)
                 {
                     Stage.RestartFadeCadence();
                     Stage.Phase = EndingCreditsPhase.FadeOutEscapeSceneB;
@@ -423,13 +423,16 @@ internal sealed class EndingCreditsState : IFrontendScreen
         Flyaway.CinematicFrame++;
     }
 
-    /// <summary>Rotates the turning floor every other cinematic call while applying the current zoom delta.</summary>
-    private void StepAtmosphericTransform(int scaleDelta)
+    /// <summary>
+    /// Rotates the turning floor every other cinematic call while widening its zoom by <paramref name="zoomStep"/> 256ths
+    /// of a floor pixel per screen pixel.
+    /// </summary>
+    private void StepAtmosphericTransform(int zoomStep)
     {
         // The floor turns during both fades as well as the fully visible interval.
         if (EndingCadenceDefinitions.AtmosphereFloorTurnEverySecondUpdate.IsDue(Flyaway.CinematicFrame))
             Stage.FloorAngle = Stage.FloorAngle.TurnedBySteps(-1);
-        Stage.FloorZoom += scaleDelta;
+        Stage.FloorZoom = Stage.FloorZoom.Widened(zoomStep);
     }
 
     /// <summary>The programs showing the clear-time digits, indexed by digit.</summary>

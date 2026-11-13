@@ -223,7 +223,7 @@ internal sealed class TorizoAttacks
             int liftCarry = jitteredY >= TorizoMotionDefinitions.InitialDroolLift ? 1 : 0;
             projectile.Position = projectile.Position.WithWrappedWholeY(jitteredY - TorizoMotionDefinitions.InitialDroolLift);
             // The jitter is five bits, so the fall speed lies between 48 and 80 256ths of a pixel.
-            projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(TorizoRandomDefinitions.DroolFallJitter.Of(random) + 48 + liftCarry));
+            projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(TorizoRandomDefinitions.DroolFallJitter.Of(random) + 48 + liftCarry));
             // A jitter that carries the drool past the last pixel of the coordinate space moves
             // its side offset one pixel further right. Every branch stores a zero X velocity.
             int jitteredX = _room.Random.Next(TorizoRandomDefinitions.InitialDroolXJitter) + torizo.Position.X.Whole;
@@ -233,7 +233,7 @@ internal sealed class TorizoAttacks
                 : _access.FacesRight(torizo)
                     ? CoordinateAxis.Wrap(jitteredX + TorizoMotionDefinitions.InitialDroolSideOffset + pastLastPixel)
                     : CoordinateAxis.Wrap(jitteredX - TorizoMotionDefinitions.InitialDroolSideOffset + pastLastPixel));
-            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(0));
+            projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Zero);
             return;
         }
         projectile.Position = projectile.Position.WithWrappedWholeY(torizo.Position.Y.Whole - 5);
@@ -241,21 +241,21 @@ internal sealed class TorizoAttacks
         // The recurring low-health drool chooses a random direction. The
         // turning branch's angle is a random turning angle; the X velocity is the sign-extended
         // sine and the Y velocity the negative cosine of that angle.
-        int angle;
+        TrigonometryAngle angle;
         if (_access.Posture(torizo).HasFlag(TorizoPostureFlags.TurningAround))
         {
-            angle = TorizoRandomDefinitions.DroolTurningAngle.Of(random);
+            angle = new(TorizoRandomDefinitions.DroolTurningAngle.Of(random));
         }
         else
         {
             int baseAngle = _access.FacesRight(torizo) ? 32 : 224;
             // The spread of up to fifteen units, less eight, keeps either facing's angle on the turn.
-            angle = baseAngle + TorizoRandomDefinitions.DroolFacingSpread.Of(random) - 8;
+            angle = new(baseAngle + TorizoRandomDefinitions.DroolFacingSpread.Of(random) - 8);
         }
-        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(
-            Trigonometry.SignedSine(new TrigonometryAngle(angle))));
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(
-            Trigonometry.SignedNegativeCosineSample(angle)));
+        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
+            Trigonometry.SignedSine(angle)));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
+            Trigonometry.SignedSine(angle - TrigonometryAngle.QuarterTurn)));
         projectile.Position = projectile.Position.WithWholeX(_access.FacesRight(torizo)
             ? CoordinateAxis.Wrap(torizo.Position.X.Whole + 8)
             : CoordinateAxis.Wrap(torizo.Position.X.Whole - 8));
@@ -370,13 +370,13 @@ internal sealed class TorizoAttacks
         if (_access.FacesRight(torizo))
         {
             projectile.Position = projectile.Position.WithWrappedWholeX(torizo.Position.X.Whole + 32);
-            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(624));
+            projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(624));
             projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileProgram.SonicBoomFiredRight));
         }
         else
         {
             projectile.Position = projectile.Position.WithWrappedWholeX(torizo.Position.X.Whole - 32);
-            projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(-624));
+            projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-624));
             projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileProgram.SonicBoomFiredLeft));
         }
     }
@@ -453,16 +453,16 @@ internal sealed class TorizoAttacks
             torizo,
             TorizoRandomizedProjectiles.GoldenEyeBeam(facingRight));
 
-        // The original game works in word indices, twice these table units, and wraps its sum at a full circle; the sum
-        // never leaves the circle, so the wrap never applies.
-        int sineIndex = _room.Random.Next(TorizoRandomDefinitions.EyeBeamSpread) - 8 + 96 + (facingRight ? 0 : 64);
-        // The combined table starts at negative cosine, not sine. Its
-        // quarter-turn offset selects sine for X; the unshifted sample gives Y.
-        // The samples lie within one pixel either way, so eight times one stays within eight.
-        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(8 *
-            Trigonometry.SignedNegativeCosineSample(sineIndex + 64)));
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(8 *
-            Trigonometry.SignedNegativeCosineSample(sineIndex)));
+        // The beam's heading is its facing's three eighths of a turn (or a quarter further, facing left) spread by up to
+        // eight steps either way; the sum never leaves the turn.
+        var heading = new TrigonometryAngle(
+            _room.Random.Next(TorizoRandomDefinitions.EyeBeamSpread) - 8 + 96 + (facingRight ? 0 : 64));
+        // The heading points up at zero: the horizontal speed is its sine and the vertical speed its negative cosine,
+        // the sine a quarter turn back. The samples lie within one pixel either way, so eight times one stays within eight.
+        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(8 *
+            Trigonometry.SignedSine(heading)));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(8 *
+            Trigonometry.SignedSine(heading - TrigonometryAngle.QuarterTurn)));
     }
 
     /// <summary>Applies the projectile definition and draws horizontal jitter before vertical jitter.</summary>
@@ -481,7 +481,7 @@ internal sealed class TorizoAttacks
 
     /// <summary>A randomized projectile's jitter on one axis: the random number's lower byte less 128, in 256ths of a pixel.</summary>
     private static SignedEightEight VelocityJitter(int random) =>
-        SignedEightEight.FromSignedRaw(TorizoRandomDefinitions.VelocityJitter.Of(random) - 128);
+        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(TorizoRandomDefinitions.VelocityJitter.Of(random) - 128);
 
     /// <summary>Places a foot-specific dust effect 48 pixels below the statue after a landing step.</summary>
     internal void SpawnBombTorizoLandingDust(RoomEnemySlot torizo, HorizontalDirection foot)
@@ -621,9 +621,7 @@ internal sealed class TorizoAttacks
         {
             // The hatch timer steps the sleeping list past its sleep.
             projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileAnimations.AfterSleep(RunningTorizoProjectileProgram(projectile))));
-            projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(egg.FacingRight
-                ? 256
-                : -256));
+            projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromPixels(egg.FacingRight ? 1 : -1));
             return;
         }
 
@@ -657,7 +655,7 @@ internal sealed class TorizoAttacks
         {
             projectile.FrameBehavior =
                 EnemyProjectileFrameBehavior.GoldenTorizoEggDrop;
-            projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(0));
+            projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Zero);
             return;
         }
 
@@ -726,14 +724,14 @@ internal sealed class TorizoAttacks
     {
         TrigonometryAngle bearing = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).ToMirroredTableAngle();
-        int angle = (awayFromSamus ? bearing.InSecondHalfTurn() : bearing.InFirstHalfTurn()).RawValue;
+        TrigonometryAngle angle = awayFromSamus ? bearing.InSecondHalfTurn() : bearing.InFirstHalfTurn();
 
         // Preserve the up-zero angle convention: X is sine, Y is
-        // negative cosine. Starting both reads at sine rotates the shot.
-        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(4 *
-            Trigonometry.SignedNegativeCosineSample(angle + 64)));
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(4 *
-            Trigonometry.SignedNegativeCosineSample(angle)));
+        // negative cosine, the sine a quarter turn back. Starting both reads at sine rotates the shot.
+        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4 *
+            Trigonometry.SignedSine(angle)));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4 *
+            Trigonometry.SignedSine(angle - TrigonometryAngle.QuarterTurn)));
     }
 
     /// <summary>Selects wall or floor impact artwork when the eye beam strikes terrain.</summary>
@@ -803,7 +801,7 @@ internal sealed class TorizoAttacks
 
         projectile.StartAnimation(new TorizoProjectileAnimation(definition.Program));
         projectile.Position = projectile.Position.WithWhole(request.RoomObjectBlock.ToRoomPixels() + definition.Offset);
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(definition.YVelocity));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(definition.YVelocity));
         projectile.State = new BombTorizoStatueFragmentState(definition.Acceleration);
         return projectile;
     }

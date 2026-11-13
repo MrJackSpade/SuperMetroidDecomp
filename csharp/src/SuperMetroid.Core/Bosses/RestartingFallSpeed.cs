@@ -17,6 +17,6 @@ internal static class RestartingFallSpeed
     /// <param name="gravity">The downward acceleration, zero or more.</param>
     /// <exception cref="ArgumentOutOfRangeException">The speed or the gravity points upward.</exception>
     internal static SignedEightEight Accelerate(SignedEightEight speed, SignedEightEight gravity) =>
-        SignedEightEight.FromSignedRaw(
-            (Ensure.AtLeastZero(speed.SignedRawValue) + Ensure.AtLeastZero(gravity.SignedRawValue)) % RestartSpeed);
+        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
+            (Ensure.AtLeastZero(speed.InTwoHundredFiftySixthsOfPixel) + Ensure.AtLeastZero(gravity.InTwoHundredFiftySixthsOfPixel)) % RestartSpeed);
 }

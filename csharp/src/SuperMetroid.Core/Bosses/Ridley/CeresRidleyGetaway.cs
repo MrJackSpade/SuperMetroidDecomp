@@ -72,9 +72,9 @@ internal sealed class CeresRidleyGetaway
         state.GetawayActive = true;
         state.GetawayFinished = false;
         state.GetawayFrameIndex = 0;
-        state.FloorAngle = RotationAngle.FromSteps(0, 1);
+        state.FloorAngle = CeresRidleyGetawayDefinitions.InitialAngle;
         state.FloorOffset = new Offset16<FloorPixels>(-128, 32);
-        state.FloorZoom = 2048;
+        state.FloorZoom = CeresRidleyGetawayDefinitions.InitialZoom;
         state.FloorCenter = new Position16<FloorPixels>(64, 64);
         state.GetawayBabyFrame = 0;
         state.GetawayWingFrame = 0;
@@ -121,7 +121,7 @@ internal sealed class CeresRidleyGetaway
             samus.CeresRidleyEjection.Request(samus);
 
         var frame = CeresRidleyGetawayCurve.FromIndex(frameIndex);
-        int zoom = frame.Zoom;
+        FloorZoom zoom = frame.Zoom;
         if (frame.IsFinished)
         {
             // The getaway's end restores the ordinary view and clears all rotation and scroll values.
@@ -147,7 +147,7 @@ internal sealed class CeresRidleyGetaway
             state.FloorOffset.Y + frame.Velocity.Y);
 
         UpdateCeresRidleyFloorZoomColours(state, zoom);
-        state.FloorAngle = state.FloorAngle.AddRaw(48);
+        state.FloorAngle += CeresRidleyGetawayDefinitions.TurnPerFrame;
 
         // The Baby capsule advances on every fourth frame of the frame counter using 0,1,2,1. Only the
         // floor's two rows that show that animation are redrawn.
@@ -183,12 +183,12 @@ internal sealed class CeresRidleyGetaway
 
     /// <summary>Selects the zoom-dependent fifteen-color Ceres getaway palette without replacing transparent color zero.</summary>
     /// <param name="state">The getaway's Ridley, whose room colours show the floor.</param>
-    /// <param name="zoom">The floor's zoom, in 256ths of a floor pixel per screen pixel.</param>
-    internal static void UpdateCeresRidleyFloorZoomColours(RidleyEnemyState state, int zoom)
+    /// <param name="zoom">The floor's zoom.</param>
+    internal static void UpdateCeresRidleyFloorZoomColours(RidleyEnemyState state, FloorZoom zoom)
     {
         // The floor's shade is chosen by the zoom's whole floor pixels per screen pixel.
         // There are fifteen colors; palette entry zero remains the shared transparent color.
-        int zoomStep = UnsignedEightEight.Whole(zoom);
+        int zoomStep = zoom.WholeFloorPixelsPerScreenPixel;
         if (zoomStep < CeresRidleyPaletteDefinitions.GetawayZoomStepCount)
         {
             Ensure.NotNull(state).Colours.ShowFloorZoom(zoomStep);
@@ -281,7 +281,7 @@ internal sealed class CeresRidleyGetaway
 
             case CeresSelfDestructPhase.Finishing:
                 UpdateCeresSelfDestructAlarm(state, _ridleyEncounter.Parts.Body.FrameCounter);
-                state.Velocity = new EightEightVector<RoomPixels>(0, 0);
+                state.Velocity = EightEightVector<RoomPixels>.Zero;
                 state.Function = RidleyAiFunction.CeresSelfDestructPaletteOnly;
                 _ridleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
                 // The escape-text sequence sets the area-boss bit inside Ridley's AI, so later slots (the

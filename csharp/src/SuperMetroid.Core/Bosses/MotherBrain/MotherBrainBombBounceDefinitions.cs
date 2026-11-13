@@ -11,7 +11,7 @@ internal static class MotherBrainBombBounceDefinitions
     internal const int FallAcceleration = 7;
 
     /// <summary>The drag taken from the bomb's sideways speed on every update of its first fall, stopping at rest.</summary>
-    internal static readonly SignedEightEight FallDrag = SignedEightEight.FromSignedRaw(2);
+    internal static readonly SignedEightEight FallDrag = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(2);
 
     /// <summary>The gravity after each bounce, from the first to the eighth and last.</summary>
     internal static readonly int[] BounceAccelerations = [16, 32, 64, 112, 176, 240, 304, 368];

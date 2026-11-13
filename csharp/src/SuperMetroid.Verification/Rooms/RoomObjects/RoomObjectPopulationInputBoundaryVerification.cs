@@ -64,9 +64,12 @@ internal static class RoomObjectPopulationInputBoundaryVerification
             "a decoded write past the scroll grid is rejected before allocation");
         AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
             [trigger with { ScrollProgram = [new(0, (RoomScrollState)3)] }]), "invalid decoded scroll states are rejected");
-        AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
-            Enumerable.Repeat(second, RoomObjectPopulation.MaximumPlacementCount + 1)),
-            "a population cannot hold more placements than a room's population holds");
+        // A population holds any number of placements, in order (#1627); the room's places bound how many objects it holds.
+        RoomObjectPlacement[] many = [.. Enumerable.Range(0, 300).Select(index => second with { Block = new(checked((ushort)(index % 8)), checked((ushort)(index / 8))) })];
+        var large = new RoomObjectPopulation($"$8F:{0x9000:X4}", many);
+        AssertEqual(300, large.Placements.Length, "a population keeps more than 255 placements");
+        AssertTrue(large.Placements.ToArray().Select(placement => placement.Block).SequenceEqual(many.Select(placement => placement.Block)),
+            "a large population keeps its placements in authored order");
         AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
             [extension with { ScrollProgram = Array.Empty<RoomScrollWrite>() }]), "an extension cannot own a resident scroll program");
 

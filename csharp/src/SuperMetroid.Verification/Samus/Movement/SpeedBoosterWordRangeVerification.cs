@@ -53,8 +53,11 @@ internal static class SpeedBoosterWordRangeVerification
         AssertThrows<ArgumentOutOfRangeException>(() => range.SpeedBoostCounter = new SamusSpeedBoostCounter(-1, 0), "the stage is never negative");
         AssertThrows<ArgumentOutOfRangeException>(() => range.SpeedDivisor = SamusHorizontalSpeedState.LargestSpeedDivisor + 1,
             "no more goop sticks to Samus than five");
-        AssertThrows<ArgumentOutOfRangeException>(() => range.DecelerationMultiplier = byte.MaxValue + 1,
-            "the multiplier never holds more than eight bits");
+        range.DecelerationMultiplier = SuperMetroid.Core.Compatibility.MultipliedDeceleration.LargestMultiplier;
+        AssertEqual(SuperMetroid.Core.Compatibility.MultipliedDeceleration.LargestMultiplier, range.DecelerationMultiplier,
+            "the multiplier holds the largest multiplier the multiplied deceleration scales by");
+        AssertThrows<ArgumentOutOfRangeException>(() => range.DecelerationMultiplier = SuperMetroid.Core.Compatibility.MultipliedDeceleration.LargestMultiplier + 1,
+            "the multiplier stays below a whole deceleration");
 
         // A full boost captures into the first slot, then the second, and the step past it returns the cursor to the first.
         var boosted = new SamusHorizontalSpeedState

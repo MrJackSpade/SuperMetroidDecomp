@@ -738,11 +738,10 @@ false);
                     $"Shinespark crash orbit stage {CrashOrbitStage} is undefined.");
         }
 
-        // The projectile sine lookup consumes an angle and radius below 256 and returns offsets wrapping
-        // at 65536. Both additions below deliberately retain that unsigned wrapping.
-        int orbitRadius = Ensure.BetweenInclusive(0, byte.MaxValue, CrashRadius);
-        FirstOrbitingCopy = samus.Position.Whole + ProjectileSinLookup(FirstCrashEchoAngle, orbitRadius);
-        SecondOrbitingCopy = samus.Position.Whole + ProjectileSinLookup(SecondCrashEchoAngle, orbitRadius);
+        // The copies stand the crash radius, 0 through 16, from Samus along their angles; placing them past the room's edge
+        // continues from its other end, as every room position does.
+        FirstOrbitingCopy = samus.Position.Whole + ProjectileSinLookup(FirstCrashEchoAngle, CrashRadius);
+        SecondOrbitingCopy = samus.Position.Whole + ProjectileSinLookup(SecondCrashEchoAngle, CrashRadius);
 
         return new ShinesparkMovementResult(
 false);

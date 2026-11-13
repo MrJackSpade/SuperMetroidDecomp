@@ -169,8 +169,8 @@ public static class HostOptionsIni
                     endingTimeOverrideSeen = true;
                     if (!value.Equals("None", StringComparison.OrdinalIgnoreCase))
                     {
-                        if (!ushort.TryParse(value, out ushort minutes) || minutes > 5999)
-                            throw Invalid(sourceName, lineNumber, $"{key} must be None or total minutes from 0 through 5999");
+                        if (!ushort.TryParse(value, out ushort minutes) || minutes > SuperMetroid.Core.Progression.GameTimeState.LongestPlayMinutes)
+                            throw Invalid(sourceName, lineNumber, $"{key} must be None or total minutes from 0 through {SuperMetroid.Core.Progression.GameTimeState.LongestPlayMinutes}");
                         endingTimeOverrideMinutes = minutes;
                     }
                     continue;

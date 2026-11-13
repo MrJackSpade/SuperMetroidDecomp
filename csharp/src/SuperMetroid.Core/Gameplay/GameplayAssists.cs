@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Gameplay;
 
@@ -77,13 +78,14 @@ public sealed record GameplayAssists
     public bool SkipOpeningCinematic { get; init; }
 
     /// <summary>
-    /// The clear time, in total minutes from 0 through 65535, the ending reads to choose its time display and reward;
-    /// <see langword="null"/> reads the actual play time. The saved play time is never changed.
+    /// The clear time, in total minutes from 0 through <see cref="GameTimeState.LongestPlayMinutes"/>, the play times the
+    /// game clock reaches (#1627), that the ending reads to choose its time display and reward; <see langword="null"/>
+    /// reads the actual play time. The saved play time is never changed.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The minutes are outside 0 through 65535.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The minutes are a play time the clock never reaches.</exception>
     public int? EndingClearTimeMinutes
     {
         get;
-        init => field = value is { } minutes ? Ensure.BetweenInclusive(0, ushort.MaxValue, minutes) : null;
+        init => field = value is { } minutes ? Ensure.BetweenInclusive(0, GameTimeState.LongestPlayMinutes, minutes) : null;
     }
 }

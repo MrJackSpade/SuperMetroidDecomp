@@ -43,7 +43,7 @@ public sealed class RoomLevelData
     private RoomLevelPlane? PublishedForeground { get; set; }
 
     /// <summary>Copies a room's grid; an installed layout changes only what the blocks initially show.</summary>
-    /// <param name="size">Room size in 16-pixel blocks: the width is the row-major stride, 1..255, and the height is positive.</param>
+    /// <param name="size">Room size in 16-pixel blocks: the width is the row-major stride and both are positive (#1627).</param>
     /// <param name="planes">The foreground terrain, behaviour and background appearances, each exactly width times height entries in row-major order.</param>
     /// <param name="beyondRoom">
     /// The terrain past the grid, built for this room's lifetime: from its installed level for a room load, or
@@ -51,7 +51,7 @@ public sealed class RoomLevelData
     /// </param>
     /// <param name="doors">Optional door list; null is suitable only for fixtures that never resolve a door block.</param>
     /// <param name="visualLayout">Optional matching-sized initial appearances of both planes; terrain, behaviours and the terrain beyond the room stay unchanged.</param>
-    /// <exception cref="ArgumentOutOfRangeException">Width is outside 1..255 or height is nonpositive.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Width or height is nonpositive.</exception>
     /// <exception cref="ArgumentException">A plane has the wrong size.</exception>
     /// <exception cref="InvalidDataException">The selected visual layout does not match the room dimensions.</exception>
     public RoomLevelData(
@@ -61,8 +61,8 @@ public sealed class RoomLevelData
         IReadOnlyList<DoorListEntry>? doors = null,
         RoomLevelArtwork? visualLayout = null)
     {
-        if (size.X is <= 0 or > byte.MaxValue)
-            throw new ArgumentOutOfRangeException(nameof(size), "Room width must be 1..255 blocks.");
+        if (size.X <= 0)
+            throw new ArgumentOutOfRangeException(nameof(size), "Room width must be positive.");
         if (size.Y <= 0)
             throw new ArgumentOutOfRangeException(nameof(size), "Room height must be positive.");
 

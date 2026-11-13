@@ -980,7 +980,7 @@ public static class SamusBlockCollision
             int whole = CoordinateAxis.Difference((leadingBoundary & ~15) - state.Radius.X, state.Position.X.Whole);
             if (whole < 0)
                 whole = 0;
-            state.Position = state.Position.WithFractionX(ushort.MaxValue);
+            state.Position = state.Position.WithFractionX(FixedCoordinate.LastFraction);
             return SignedSixteenSixteen.FromWholePixels(whole);
         }
     }
@@ -1005,7 +1005,7 @@ public static class SamusBlockCollision
             (leadingBoundary & ~7) - state.Radius.X, state.Position.X.Whole);
         if (rightWhole < 0)
             rightWhole = 0;
-        state.Position = state.Position.WithFractionX(ushort.MaxValue);
+        state.Position = state.Position.WithFractionX(FixedCoordinate.LastFraction);
         return SignedSixteenSixteen.FromWholePixels(rightWhole);
     }
 
@@ -1028,7 +1028,7 @@ public static class SamusBlockCollision
             int whole = CoordinateAxis.Difference((leadingBoundary & ~15) - state.Radius.Y, state.Position.Y.Whole);
             if (whole < 0)
                 whole = 0;
-            state.Position = state.Position.WithFractionY(ushort.MaxValue);
+            state.Position = state.Position.WithFractionY(FixedCoordinate.LastFraction);
             return SignedSixteenSixteen.FromWholePixels(whole);
         }
     }
@@ -1053,7 +1053,7 @@ public static class SamusBlockCollision
             (leadingBoundary & ~7) - state.Radius.Y, state.Position.Y.Whole);
         if (downWhole < 0)
             downWhole = 0;
-        state.Position = state.Position.WithFractionY(ushort.MaxValue);
+        state.Position = state.Position.WithFractionY(FixedCoordinate.LastFraction);
 
         // Only the downward square-slope clip writes this flag. The no-speed vertical move consumes it to use
         // a one-pixel grounding probe instead of total-horizontal-speed-plus-one.
@@ -1064,16 +1064,14 @@ public static class SamusBlockCollision
     /// <summary>Counts tile rows touched by Samus's current vertical collision extent.</summary>
     private static int GetVerticalBlockSpan(SamusKinematicsState state)
     {
-        int alignedTop = CoordinateAxis.Wrap(state.Position.Y.Whole - state.Radius.Y);
-        alignedTop &= ushort.MaxValue & ~15;
+        int alignedTop = RoomGridConversions.BlockStart(CoordinateAxis.Wrap(state.Position.Y.Whole - state.Radius.Y));
         return CoordinateAxis.Wrap(state.Radius.Y + state.Position.Y.Whole - 1 - alignedTop) >> 4;
     }
 
     /// <summary>Counts tile columns touched by Samus's current horizontal collision extent.</summary>
     private static int GetHorizontalBlockSpan(SamusKinematicsState state)
     {
-        int alignedLeft = CoordinateAxis.Wrap(state.Position.X.Whole - state.Radius.X);
-        alignedLeft &= ushort.MaxValue & ~15;
+        int alignedLeft = RoomGridConversions.BlockStart(CoordinateAxis.Wrap(state.Position.X.Whole - state.Radius.X));
         return CoordinateAxis.Wrap(state.Radius.X + state.Position.X.Whole - 1 - alignedLeft) >> 4;
     }
 

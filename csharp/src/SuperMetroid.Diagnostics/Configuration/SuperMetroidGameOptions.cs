@@ -54,10 +54,11 @@ public sealed record SuperMetroidGameOptions
     public bool PreventEscapeTimeout { get; init; }
 
     /// <summary>
-    /// Optional total minutes, 0 through 65535 (the options file and recordings accept up to 5999), used only for ending
-    /// time/reward selection; null preserves actual playtime and the saved play time is never changed.
+    /// Optional total minutes, 0 through <see cref="SuperMetroid.Core.Progression.GameTimeState.LongestPlayMinutes"/>, the
+    /// play times the game clock reaches, used only for ending time/reward selection; null preserves actual playtime and
+    /// the saved play time is never changed.
     /// </summary>
-    public int? EndingTimeOverrideMinutes { get; init => field = value is { } minutes ? Ensure.BetweenInclusive(0, ushort.MaxValue, minutes) : null; }
+    public int? EndingTimeOverrideMinutes { get; init => field = value is { } minutes ? Ensure.BetweenInclusive(0, SuperMetroid.Core.Progression.GameTimeState.LongestPlayMinutes, minutes) : null; }
 
     /// <summary>Temporary map visibility used by the HUD and pause-map presentations.</summary>
     /// <remarks>

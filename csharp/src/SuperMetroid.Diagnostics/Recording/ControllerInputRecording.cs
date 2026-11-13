@@ -92,7 +92,7 @@ public sealed record ControllerInputRecording
         // recordings retail-authentic, and zero-minute overrides remain representable.
         if (GameOptions.EndingTimeOverrideMinutes is { } endingMinutes)
         {
-            if (endingMinutes > 5999) throw new InvalidDataException("Ending override exceeds 99:59.");
+            if (endingMinutes > SuperMetroid.Core.Progression.GameTimeState.LongestPlayMinutes) throw new InvalidDataException("Ending override exceeds 99:59.");
             BinaryPrimitives.WriteUInt16LittleEndian(header[21..], (ushort)(endingMinutes + 1));
         }
         BinaryPrimitives.WriteInt32LittleEndian(header[60..], InitialSaveRam.Length);

@@ -9,11 +9,13 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 public sealed class RoomBlockCells
 {
     /// <summary>Holds a plane's blocks.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The plane has no blocks along an axis.</exception>
     /// <exception cref="ArgumentException">The cells do not fill the plane.</exception>
     public RoomBlockCells(Extent16<RoomBlocks> size, ImmutableArray<RoomBlockCell> cells)
     {
-        Ensure.BetweenInclusive(1, ushort.MaxValue, size.X);
-        Ensure.BetweenInclusive(1, ushort.MaxValue, size.Y);
+        // A plane is at least one block along each axis; its size's own type holds its far bound (#1627).
+        if (size.X == 0 || size.Y == 0)
+            throw new ArgumentOutOfRangeException(nameof(size), size, "A room plane is at least one block along each axis.");
         Ensure.LengthEqual(cells.AsSpan(), size.X * size.Y);
         Size = size;
         Cells = cells;

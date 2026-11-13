@@ -31,8 +31,8 @@ public sealed class InstalledSamusBodyArtwork
     /// <param name="content">Where each pose's frames place the body, each pose's art origin and the catalogs it binds.</param>
     /// <remarks>The import supplies every pose the game's tables describe; which poses those are is its knowledge.</remarks>
     /// <exception cref="InvalidDataException">
-    /// A pose has no frame list, the art origins do not cover exactly the poses with frames, or an art origin lies outside
-    /// -128 through 127 pixels.
+    /// A pose has no frame list, or the art origins do not cover exactly the poses with frames. An art origin is any number
+    /// of pixels above or below Samus's center (#1627).
     /// </exception>
     internal InstalledSamusBodyArtwork(SamusBodyArtworkContent content)
     {
@@ -46,8 +46,6 @@ public sealed class InstalledSamusBodyArtwork
         if (content.GraphicsYOffsets.Count != content.OriginRises.Count ||
             content.OriginRises.Keys.Any(pose => !content.GraphicsYOffsets.ContainsKey(pose)))
             throw new InvalidDataException("Samus art origins do not cover exactly the poses with body frames.");
-        if (content.GraphicsYOffsets.Values.Any(value => value is < sbyte.MinValue or > sbyte.MaxValue))
-            throw new InvalidDataException("Samus art origins must lie from -128 through 127 pixels.");
         this.graphicsYOffsets = content.GraphicsYOffsets.ToDictionary();
         this.originRises = content.OriginRises.ToDictionary();
         DeathSteps = content.DeathSteps;

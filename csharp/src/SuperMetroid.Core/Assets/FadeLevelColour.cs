@@ -22,14 +22,11 @@ public readonly record struct FadeLevelColour
     /// </summary>
     private const int LevelsPerSpread = (FullLevel + 1) / ChannelValuesPerLevel;
 
-    /// <summary>What <see cref="LevelByChannel"/> holds for a plain channel value that is no level's.</summary>
-    private const int NotALevel = -1;
-
     /// <summary>
-    /// The level whose plain value each channel value 0-<see cref="RgbColor.FullChannel"/> is, or <see cref="NotALevel"/>,
-    /// so reading a colour's levels costs a look-up a channel.
+    /// The level whose plain value each channel value 0-<see cref="RgbColor.FullChannel"/> is, or none for a value that is
+    /// no level's (#1627), so reading a colour's levels costs a look-up a channel.
     /// </summary>
-    private static readonly int[] LevelByChannel = LevelsByChannel();
+    private static readonly int?[] LevelByChannel = LevelsByChannel();
 
     /// <summary>Makes a colour from its three levels, each 0-<see cref="FullLevel"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">A level is outside 0-<see cref="FullLevel"/>.</exception>
@@ -100,8 +97,7 @@ public readonly record struct FadeLevelColour
     /// <exception cref="ArgumentException"><paramref name="channel"/> is not the plain value of a level.</exception>
     private static int LevelOf(int channel, RgbColor colour)
     {
-        int level = LevelByChannel[channel];
-        return level != NotALevel
+        return LevelByChannel[channel] is int level
             ? level
             : throw new ArgumentException($"{colour} is not a colour of thirty-two levels a channel.", nameof(colour));
     }
@@ -110,10 +106,9 @@ public readonly record struct FadeLevelColour
     private static int Shown(int level) => level * ChannelValuesPerLevel + level / LevelsPerSpread;
 
     /// <summary>Builds <see cref="LevelByChannel"/>: each level at its plain value, every other channel value no level's.</summary>
-    private static int[] LevelsByChannel()
+    private static int?[] LevelsByChannel()
     {
-        var levels = new int[RgbColor.FullChannel + 1];
-        Array.Fill(levels, NotALevel);
+        var levels = new int?[RgbColor.FullChannel + 1];
         for (int level = 0; level <= FullLevel; level++)
             levels[Shown(level)] = level;
         return levels;

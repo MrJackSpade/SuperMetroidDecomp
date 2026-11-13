@@ -25,11 +25,16 @@ internal sealed class SamusInputSnapshot
     /// </summary>
     public ControllerButton PreviousDrawNewInput { get; internal set; }
 
-    /// <summary>0 through 65535: consecutive held-Jump history updated by the post-draw input filter.</summary>
+    /// <summary>
+    /// Consecutive held-Jump history updated by the post-draw input filter: a wrapping count, 0 through
+    /// <see cref="WrappingCounter.LargestCount"/>, kept narrow because its wrap is gameplay (#1627). A Jump held past the
+    /// largest count continues from zero, and the auto-jump compares the count with its limit by the sign of their
+    /// difference, so a hold long enough reads as fresh again (<see cref="JumpHoldReadsAsFresh"/>).
+    /// </summary>
     public int AutoJumpTimer
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, value);
     }
 
     /// <summary>Held input published by the post-draw input filter and the main loop's tail.</summary>
@@ -64,15 +69,12 @@ internal sealed class SamusInputSnapshot
     }
 
     /// <summary>
-    /// The held-jump count from which a hold reads as fresh again: the game compares the hold with the auto-jump limit by
-    /// the sign of their difference, so a jump held for half the counter's 65536-update range past the limit counts as
-    /// pressed again, until the count continues from zero.
+    /// Whether a jump held for <paramref name="heldUpdates"/> reads as below the auto-jump limit: the game compares the
+    /// hold with the limit by the sign of their difference (<see cref="WrappingCounter.IsBehind"/>), so a jump held for
+    /// half the count's range past the limit counts as pressed again, until the count continues from zero.
     /// </summary>
-    private const int JumpHoldReadsFreshFrom = 32768 + SamusAutoJumpDefinitions.TimerComparisonLimit;
-
-    /// <summary>Whether a jump held for <paramref name="heldUpdates"/> reads as below the auto-jump limit.</summary>
     private static bool JumpHoldReadsAsFresh(int heldUpdates) =>
-        heldUpdates is < SamusAutoJumpDefinitions.TimerComparisonLimit or >= JumpHoldReadsFreshFrom;
+        WrappingCounter.IsBehind(heldUpdates, SamusAutoJumpDefinitions.TimerComparisonLimit);
 
     /// <summary>Publishes held input without advancing Samus's draw-time owners.</summary>
     internal void PublishMainLoopHeldInput(ControllerButton held) => PreviousDrawHeldInput = held;

@@ -5,11 +5,6 @@ internal static class GrapplePointAnimationDefinitions
 {
     /// <summary>The endpoint animation shows four frames before returning to the first.</summary>
     internal const int FrameCount = 4;
-    /// <summary>
-    /// The endpoint animation advances its tile source, wrapping at 65536, by one frame's tiles, so the frame it names
-    /// repeats every 128 frames and the end test compares the signed distance past the last frame.
-    /// </summary>
-    internal const int SourceCycleFrames = 128;
     /// <summary>NTSC delay: five, decremented through zero for a six-call interval.</summary>
     internal const int Delay = 5;
 }

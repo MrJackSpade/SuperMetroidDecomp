@@ -1,0 +1,1 @@
+MANUAL Property SuperMetroid.Core.Lists.ListTally.Doubled (kept in place: it uses SuperMetroid.Core.Lists.ListTally.counted, a mutable field of the class SuperMetroid.Core.Lists.ListTally, which made internal other types could write directly (SME6436): give the class a named operation or a property for what this code needs, csharp/src/SuperMetroid.Core/Lists/ListTally.cs:16)

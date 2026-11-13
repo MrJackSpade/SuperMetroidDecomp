@@ -6,10 +6,11 @@ using SuperMetroid.ReachabilityAudit.Declarations;
 namespace SuperMetroid.ReachabilityAudit.Removal;
 
 /// <summary>
-/// The rules a staying member breaks when <see cref="SymbolRelocator"/> makes it internal for moved code, each of which
-/// fails the run rather than being written. A promotion changes only a declaration's accessibility (and, for an
-/// underscore-prefixed field or property, its name: <see cref="PromotedNames"/>), so these are the rules the build enforces
-/// that look at accessibility:
+/// The rules a staying member breaks when <see cref="SymbolRelocator"/> makes it internal for moved code. Such a promotion
+/// is refused, and the moved code reaching the member stays for manual relocation with a <c>MANUAL</c> line saying why,
+/// before any edit is made. A promotion changes only a declaration's accessibility (and, for an underscore-prefixed field
+/// or property, its name: <see cref="PromotedNames"/>), so these are the rules the build enforces that look at
+/// accessibility:
 /// <list type="bullet">
 /// <item>SME6436 reports a non-private mutable instance field of a class: other types would write it directly. A private
 /// one moved code uses cannot be made internal; the class needs a named operation or a property for it.</item>
@@ -28,52 +29,54 @@ internal static class PromotionRules
     private static readonly HashSet<string> ArgumentExceptions =
         ["System.ArgumentException", "System.ArgumentNullException", "System.ArgumentOutOfRangeException"];
 
-    /// <summary>Fails when making each promoted member internal, under the name it takes, would break one of the rules.</summary>
+    /// <summary>Why making each refused promoted member internal, under the name it takes, would break one of the rules.</summary>
     /// <param name="promoted">The staying members that become internal, every field sharing a declaration with one included.</param>
     /// <param name="setters">The staying properties whose private or protected setter becomes internal.</param>
     /// <param name="nameOf">The name each promoted member has once promoted.</param>
     /// <param name="types">The repository types and their derived types.</param>
     /// <param name="modelOf">The semantic model of a repository tree.</param>
     /// <param name="identity">Says which trees are repository source.</param>
-    /// <exception cref="InvalidOperationException">A promotion would break one of the rules.</exception>
-    public static void Reject(IReadOnlyCollection<ISymbol> promoted, IReadOnlyCollection<IPropertySymbol> setters, Func<ISymbol, string> nameOf,
-        SourceTypes types, Func<SyntaxTree, SemanticModel> modelOf, SymbolIdentity identity)
+    /// <returns>The reason for each refused member; a refused setter is the property's.</returns>
+    public static Dictionary<ISymbol, string> Refusals(IReadOnlyCollection<ISymbol> promoted, IReadOnlyCollection<IPropertySymbol> setters,
+        Func<ISymbol, string> nameOf, SourceTypes types, Func<SyntaxTree, SemanticModel> modelOf, SymbolIdentity identity)
     {
         var promotedSet = promoted.ToHashSet(SymbolEqualityComparer.Default);
+        var refusals = new Dictionary<ISymbol, string>(SymbolEqualityComparer.Default);
         foreach (var symbol in promoted.OrderBy(symbol => symbol.ToDisplayString(), StringComparer.Ordinal))
         {
-            RejectExposedField(symbol, promotedSet);
+            string? refusal = ExposedField(symbol, promotedSet);
             if (symbol.DeclaredAccessibility == Accessibility.Private)
-                foreach (var declaration in SymbolRelocator.DeclarationsOf(identity, symbol))
-                    RejectArgumentGuard(symbol, declaration, modelOf);
-            RejectHiding(symbol, nameOf(symbol), types);
+                foreach (var declaration in RelocationSymbols.DeclarationsOf(identity, symbol))
+                    refusal ??= ArgumentGuard(symbol, declaration, modelOf);
+            refusal ??= Hiding(symbol, nameOf(symbol), types);
+            if (refusal is not null)
+                refusals[symbol] = refusal;
         }
         foreach (var property in setters.OrderBy(property => property.ToDisplayString(), StringComparer.Ordinal))
-            if (property.SetMethod is { DeclaredAccessibility: Accessibility.Private } setter)
-                foreach (var declaration in SymbolRelocator.DeclarationsOf(identity, setter))
-                    RejectArgumentGuard(setter, declaration, modelOf);
+            if (!refusals.ContainsKey(property) && property.SetMethod is { DeclaredAccessibility: Accessibility.Private } setter)
+                foreach (var declaration in RelocationSymbols.DeclarationsOf(identity, setter))
+                    if (ArgumentGuard(setter, declaration, modelOf) is { } refusal)
+                        refusals.TryAdd(property, refusal);
+        return refusals;
     }
 
-    /// <summary>Fails when the member is a private mutable instance field of a class that only its own class could reach (SME6436).</summary>
-    /// <exception cref="InvalidOperationException">The field would be exposed for other types to write.</exception>
-    private static void RejectExposedField(ISymbol symbol, HashSet<ISymbol> promoted)
+    /// <summary>Why the member stays private: it is a private mutable instance field of a class (SME6436); or null.</summary>
+    private static string? ExposedField(ISymbol symbol, HashSet<ISymbol> promoted)
     {
         if (symbol is not IFieldSymbol { IsStatic: false, IsConst: false, IsReadOnly: false, IsImplicitlyDeclared: false,
                 DeclaredAccessibility: Accessibility.Private, ContainingType.TypeKind: TypeKind.Class } field)
-            return;
+            return null;
         // A field of a type nested privately is reached only by the type declaring it, unless that type becomes internal too.
         for (var type = field.ContainingType; type is not null; type = type.ContainingType)
             if (type.DeclaredAccessibility == Accessibility.Private && !promoted.Contains(type))
-                return;
-        throw new InvalidOperationException($"Moved code uses {field.ToDisplayString()}, a mutable field of the class " +
-            $"{field.ContainingType.ToDisplayString()} ({Where(field)}). Made internal, other types could write it directly " +
-            "(SME6436), so it stays private: give the class a named operation or a property for what the moved code needs, " +
-            "and the next run moves the code.");
+                return null;
+        return $"{field.ToDisplayString()}, a mutable field of the class {field.ContainingType.ToDisplayString()}, " +
+            "which made internal other types could write directly (SME6436): give the class a named operation or a property " +
+            "for what this code needs";
     }
 
-    /// <summary>Fails when a private method or accessor that becomes internal checks an argument by hand (SME6201).</summary>
-    /// <exception cref="InvalidOperationException">The declaration's body holds a hand-written argument check.</exception>
-    private static void RejectArgumentGuard(ISymbol symbol, SyntaxNode declaration, Func<SyntaxTree, SemanticModel> modelOf)
+    /// <summary>Why a private method or accessor stays private: its body checks an argument by hand (SME6201); or null.</summary>
+    private static string? ArgumentGuard(ISymbol symbol, SyntaxNode declaration, Func<SyntaxTree, SemanticModel> modelOf)
     {
         // A check inside a lambda or local function belongs to that function, which SME6201 judges on its own.
         foreach (var check in declaration.DescendantNodes(node => node is not (AnonymousFunctionExpressionSyntax or LocalFunctionStatementSyntax))
@@ -86,32 +89,30 @@ internal static class PromotionRules
                 !arguments.Arguments.Any(argument => argument.Expression is InvocationExpressionSyntax { Expression: IdentifierNameSyntax { Identifier.ValueText: "nameof" } }) ||
                 modelOf(check.SyntaxTree).GetTypeInfo(creation).Type?.ToDisplayString() is not { } thrown || !ArgumentExceptions.Contains(thrown))
                 continue;
-            throw new InvalidOperationException($"Moved code uses {symbol.ToDisplayString()}, which checks an argument by hand " +
-                $"({check.Condition}, {Where(check)}). Made internal, that check must use Ensure (SME6201), so it stays private: " +
-                "write the check with Ensure, and the next run moves the code.");
+            return $"{symbol.ToDisplayString()}, which checks an argument by hand ({check.Condition}), a check " +
+                "that made internal must use Ensure (SME6201): write it with Ensure";
         }
+        return null;
     }
 
     /// <summary>
-    /// Fails when a type deriving from the member's owner declares a member of the name the promoted member takes without
-    /// <c>new</c>: once the promoted member is internal, the derived member hides it (CS0108). A method of other parameters
-    /// overloads it instead.
+    /// Why the member stays private: a type deriving from its owner declares a member of the name it takes without
+    /// <c>new</c>, which would hide it once it is internal (CS0108); or null. A method of other parameters overloads it instead.
     /// </summary>
-    /// <exception cref="InvalidOperationException">A derived type's member would hide the promoted member.</exception>
-    private static void RejectHiding(ISymbol symbol, string name, SourceTypes types)
+    private static string? Hiding(ISymbol symbol, string name, SourceTypes types)
     {
         // A constructor is not inherited, so a derived type's constructors hide nothing.
         if (symbol.ContainingType is not { } owner || symbol is IMethodSymbol { MethodKind: not MethodKind.Ordinary })
-            return;
+            return null;
         foreach (var derived in types.DerivedFrom(owner))
             foreach (var member in derived.GetMembers(name).Where(member => !member.IsImplicitlyDeclared))
             {
                 if (symbol is IMethodSymbol method && member is IMethodSymbol other && !SameParameters(method, other) || Hides(member))
                     continue;
-                throw new InvalidOperationException($"Moved code uses {symbol.ToDisplayString()}, and {member.ToDisplayString()} " +
-                    $"({Where(member)}), in a type deriving from {owner.ToDisplayString()}, takes its name '{name}': made internal, " +
-                    "it would be hidden (CS0108), so it stays private. Rename one of them, and the next run moves the code.");
+                return $"{symbol.ToDisplayString()}, whose name '{name}' {member.ToDisplayString()} takes in a type " +
+                    $"deriving from {owner.ToDisplayString()}, which made internal it would hide (CS0108): rename one of them";
             }
+        return null;
     }
 
     /// <summary>Whether two methods take the same parameter types and kinds.</summary>
@@ -123,11 +124,4 @@ internal static class PromotionRules
     private static bool Hides(ISymbol member) => member.DeclaringSyntaxReferences.Select(reference => reference.GetSyntax())
         .Select(syntax => syntax is VariableDeclaratorSyntax { Parent.Parent: BaseFieldDeclarationSyntax field } ? field : syntax)
         .OfType<MemberDeclarationSyntax>().Any(declaration => declaration.Modifiers.Any(SyntaxKind.NewKeyword));
-
-    /// <summary>Where a symbol is declared, for a failure message.</summary>
-    private static string Where(ISymbol symbol) =>
-        symbol.Locations.FirstOrDefault(location => location.IsInSource) is { } location ? location.GetLineSpan().ToString() : symbol.ToDisplayString();
-
-    /// <summary>Where a node is, for a failure message.</summary>
-    private static string Where(SyntaxNode node) => node.GetLocation().GetLineSpan().ToString();
 }

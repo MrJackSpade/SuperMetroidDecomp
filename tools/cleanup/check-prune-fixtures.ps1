@@ -1,9 +1,9 @@
 # Confirms the reachability prune on its fixtures (tools/cleanup/README.md, "Fixtures").
 #
 # Each tools/cleanup/prune-fixtures/<name> directory holds input/ (a small repository whose csharp/Fixture.slnx lists
-# projects named like the repository's shipped, host and verification projects) and either expected/ (every file that
-# repository must hold after the prune) or expected-error.txt (text the prune's failure must print, for a shape the
-# prune must refuse). For each fixture, or only the names given, the check:
+# projects named like the repository's shipped, host and verification projects), expected/ (every file that repository
+# must hold after the prune) and, optionally, expected-output.txt (text the prune's output must hold, such as the MANUAL
+# line of a move it keeps in place). For each fixture, or only the names given, the check:
 #   1. copies input/ into a new temporary directory and writes csharp/Directory.Build.props there, importing the
 #      repository's csharp/Directory.Build.props, naming the repository's csharp/test-support as RepositoryTestSupport,
 #      so the fixture's host can take the console error policy, and adding the repository's analyzer
@@ -13,10 +13,10 @@
 #      repository's own modules, which a fixture does not have, and a prune changes no namespace or file path they read;
 #   2. restores csharp/Fixture.slnx and runs the reachability prune on it exactly as tools/cleanup/run.ps1 does, with
 #      csharp/test-support/VerificationAccess.Core as the destination;
-#   3. with expected/, compares every file of the copy (less bin/, obj/ and the files step 1 added) with expected/,
-#      byte for byte, including which files exist, then builds the pruned copy's csharp/Fixture.slnx with
-#      tools/build.ps1, so an analyzer finding fails the fixture as it fails the cleanup's build;
-#      with expected-error.txt, requires the prune to fail, printing that text, and to leave every file of input/ as it was.
+#   3. requires the prune's output to hold expected-output.txt when there is one, compares every file of the copy (less
+#      bin/, obj/ and the files step 1 added) with expected/, byte for byte, including which files exist;
+#   4. builds the pruned copy's csharp/Fixture.slnx with tools/build.ps1, so an analyzer finding fails the fixture as it
+#      fails the cleanup's build.
 # Before the fixtures it builds SuperMetroid.ReachabilityAudit once in Release, as the cleanup does, which builds the
 # analyzer in Release too. A failed fixture keeps its copy and names it; a passing one is deleted. Exits nonzero when any
 # fixture fails.
@@ -70,11 +70,8 @@ function Test-Fixture([string]$Fixture) {
     $failures = [Collections.Generic.List[string]]::new()
     $inputDirectory = Join-Path $fixtures "$Fixture/input"
     $expected = Join-Path $fixtures "$Fixture/expected"
-    $expectedError = Join-Path $fixtures "$Fixture/expected-error.txt"
-    if (-not (Test-Path -LiteralPath $inputDirectory -PathType Container)) { throw "Fixture $Fixture has no $inputDirectory." }
-    $refuses = Test-Path -LiteralPath $expectedError -PathType Leaf
-    if ($refuses -eq (Test-Path -LiteralPath $expected -PathType Container)) {
-        throw "Fixture $Fixture must hold exactly one of $expected and $expectedError."
+    foreach ($required in @($inputDirectory, $expected)) {
+        if (-not (Test-Path -LiteralPath $required -PathType Container)) { throw "Fixture $Fixture has no $required." }
     }
     $copy = Join-Path ([IO.Path]::GetTempPath()) "prune-fixture-$Fixture-$([guid]::NewGuid().ToString('N'))"
     $null = New-Item -ItemType Directory -Path $copy
@@ -104,17 +101,15 @@ function Test-Fixture([string]$Fixture) {
         ForEach-Object { "$_" })
     $pruneExit = $LASTEXITCODE
     $output | Out-Host
-    if ($refuses) {
-        # The prune must refuse the shape, saying why, and write nothing.
-        $text = [IO.File]::ReadAllText($expectedError).Trim()
-        if ($pruneExit -eq 0) { $failures.Add("the prune succeeded; it must fail with: $text") }
-        elseif (-not ($output -join "`n").Contains($text, [StringComparison]::Ordinal)) { $failures.Add("the prune's failure does not say: $text") }
-        Test-SameFiles $copy $inputDirectory $failures
-        return @{ Failures = $failures; Copy = $copy }
-    }
     if ($pruneExit -ne 0) {
         $failures.Add("the prune failed (exit $pruneExit)")
         return @{ Failures = $failures; Copy = $copy }
+    }
+    $expectedOutput = Join-Path $fixtures "$Fixture/expected-output.txt"
+    if (Test-Path -LiteralPath $expectedOutput -PathType Leaf) {
+        # A line the prune must print, such as the MANUAL line of a move it keeps in place.
+        $text = [IO.File]::ReadAllText($expectedOutput).Trim()
+        if (-not ($output -join "`n").Contains($text, [StringComparison]::Ordinal)) { $failures.Add("the prune's output does not say: $text") }
     }
     Test-SameFiles $copy $expected $failures
 

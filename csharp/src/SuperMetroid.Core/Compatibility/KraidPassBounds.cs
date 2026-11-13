@@ -27,6 +27,20 @@ public struct KraidPassBounds
     /// <summary>The bottom a mouth hit that does no damage leaves per place its dud flash takes.</summary>
     private const int BottomPerDudFlashPlace = 2;
 
+    /// <summary>
+    /// The top a damaging mouth hit leaves: 3750 pixels above the room's top, so every later projectile in the pass passes
+    /// the top test. Evidence: the common shot reaction leaves its vulnerability lookup, the location of Kraid's
+    /// vulnerability table, in the working value the next projectile's signed comparison reads as the top (#1413); the
+    /// enemy definitions check confirms the table's location is this coordinate.
+    /// </summary>
+    public const int TopAfterMouthHit = -3750;
+
+    /// <summary>
+    /// The left bound a mouth hit that does no damage leaves: six pixels from the room's left. Evidence: the dud flash's
+    /// spawn leaves its object selector in the working value the next projectile's comparison reads as the left bound.
+    /// </summary>
+    public const int LeftAfterDud = 6;
+
     /// <summary>The upper vertical bound, as a wrapped room coordinate.</summary>
     private int _top;
 
@@ -64,24 +78,22 @@ public struct KraidPassBounds
     /// <param name="shotRight">The projectile's right edge in room pixels.</param>
     public void LeaveRightEdgeAsBottom(int shotRight) => Bottom = Wrap(shotRight);
 
-    /// <summary>Leaves the bounds a damaging mouth hit leaves.</summary>
+    /// <summary>Leaves the bounds a damaging mouth hit leaves: the given bottom and <see cref="TopAfterMouthHit"/>.</summary>
     /// <param name="bottom">The bottom <see cref="KraidMouthHitBound"/> gives for the hit.</param>
-    /// <param name="top">The top far above the room the hit leaves.</param>
-    public void LeaveAfterMouthHit(int bottom, int top)
+    public void LeaveAfterMouthHit(int bottom)
     {
         Bottom = Wrap(bottom);
-        _top = Wrap(top);
+        _top = Wrap(TopAfterMouthHit);
     }
 
-    /// <summary>Leaves the bounds a mouth hit that does no damage leaves.</summary>
+    /// <summary>Leaves the bounds a mouth hit that does no damage leaves, with <see cref="LeftAfterDud"/> as the left bound.</summary>
     /// <param name="dudFlashPlace">The place the dud flash the hit spawned took, or null when it took none.</param>
     /// <param name="shot">The projectile's position in room pixels.</param>
-    /// <param name="left">The fixed left bound the flash leaves.</param>
-    public void LeaveAfterDud(int? dudFlashPlace, Position16<RoomPixels> shot, int left)
+    public void LeaveAfterDud(int? dudFlashPlace, Position16<RoomPixels> shot)
     {
         Bottom = dudFlashPlace is { } place ? Ensure.AtLeastZero(place) * BottomPerDudFlashPlace : shot.X;
         _top = shot.Y;
-        _left = Wrap(left);
+        _left = LeftAfterDud;
     }
 
     /// <summary>Leaves the bounds a body hit leaves.</summary>

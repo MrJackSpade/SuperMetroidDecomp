@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Fireflea.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
@@ -113,15 +113,15 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         // The touch kills the Fireflea whatever it left, in the explosion FirefleaTouchDeathExplosion names. Queue that
         // death program before clearing the actor so its artwork and sound can run.
         if (slot.DefinitionId != EnemyDefinitionId.None)
-            _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: EnemyDeathExplosions.ForLeftoverNumber(
-                FirefleaTouchDeathExplosion.AuthoredExplosionAfterSurvivedTouch(slot.Health)));
+            _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation:
+                FirefleaTouchDeathExplosion.AfterSurvivedTouch(slot.Health, EnemyDeathExplosionDefinitions.AuthoredOrder));
         else
         {
             // Common attacking contact already ran the death; the Fireflea's touch reaction runs it again on the cleared
             // slot. It spawns at (0,0) with the slot's current header (zero, or the placeholder), clears any placeholder,
             // and counts a second kill.
-            _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: EnemyDeathExplosions.ForLeftoverNumber(
-                FirefleaTouchDeathExplosion.AuthoredExplosionAfterKillingTouch));
+            _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation:
+                FirefleaTouchDeathExplosion.AfterKillingTouch(EnemyDeathExplosionDefinitions.AuthoredOrder));
         }
         AdvanceFirefleaDarkness();
     }

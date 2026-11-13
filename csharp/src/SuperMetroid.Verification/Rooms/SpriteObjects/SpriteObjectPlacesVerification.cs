@@ -44,9 +44,9 @@ internal static class SpriteObjectPlacesVerification
 
         var shot = new Position16<RoomPixels>(300, 200);
         KraidPassBounds placed = KraidPassBounds.Placed(left: 0, top: 0, bottom: 0);
-        placed.LeaveAfterDud(endedPlace, shot, left: 0);
+        placed.LeaveAfterDud(endedPlace, shot);
         AssertEqual(endedPlace * 2, placed.Bottom, "a dud whose flash took a place leaves twice the place as the bottom");
-        placed.LeaveAfterDud(null, shot, left: 0);
+        placed.LeaveAfterDud(null, shot);
         AssertEqual<int>(shot.X, placed.Bottom, "a dud whose flash took no place leaves the shot's X as the bottom");
 
         objects.EndAll();

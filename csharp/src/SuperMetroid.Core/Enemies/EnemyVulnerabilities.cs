@@ -25,10 +25,8 @@ public sealed record EnemyVulnerabilities(
 
     /// <summary>How the enemy takes the beam combination <paramref name="combination"/>.</summary>
     /// <remarks>
-    /// The four combinations that pair Spazer with Plasma exist only through glitched equipment. The authored tables
-    /// list twelve beam combinations followed by the missile, Super Missile, bomb and Power Bomb entries, and the game
-    /// looks those four combinations up past the twelve, so they take the missile, Super Missile, bomb and Power Bomb
-    /// responses in that order. That lookup is gameplay a glitched beam can reach.
+    /// The four combinations that pair Spazer with Plasma, which only the pause screen's same-frame toggle equips, take
+    /// the missile, Super Missile, bomb and Power Bomb responses (<see cref="UnauthoredBeamVulnerability"/>).
     /// </remarks>
     internal EnemyWeaponVulnerability ForBeam(SamusBeamCombination combination) => combination switch
     {
@@ -44,10 +42,16 @@ public sealed record EnemyVulnerabilities(
         SamusBeamCombination.PlasmaWave => Plasma.Wave,
         SamusBeamCombination.PlasmaIce => Plasma.Ice,
         SamusBeamCombination.PlasmaIceWave => Plasma.IceWave,
-        SamusBeamCombination.SpazerPlasma => Ordnance.Missile,
-        SamusBeamCombination.SpazerPlasmaWave => Ordnance.SuperMissile,
-        SamusBeamCombination.SpazerPlasmaIce => Ordnance.Bomb,
-        SamusBeamCombination.SpazerPlasmaIceWave => Ordnance.PowerBomb,
+        SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or SamusBeamCombination.SpazerPlasmaIce or
+            SamusBeamCombination.SpazerPlasmaIceWave => UnauthoredBeamVulnerability.Response(
+                combination, UnauthoredCombinations, [Ordnance.Missile, Ordnance.SuperMissile, Ordnance.Bomb, Ordnance.PowerBomb]),
         _ => throw new ArgumentOutOfRangeException(nameof(combination), combination, "Undefined beam combination."),
     };
+
+    /// <summary>The four combinations that pair Spazer with Plasma, in the order they count.</summary>
+    private static readonly SamusBeamCombination[] UnauthoredCombinations =
+    [
+        SamusBeamCombination.SpazerPlasma, SamusBeamCombination.SpazerPlasmaWave, SamusBeamCombination.SpazerPlasmaIce,
+        SamusBeamCombination.SpazerPlasmaIceWave,
+    ];
 }

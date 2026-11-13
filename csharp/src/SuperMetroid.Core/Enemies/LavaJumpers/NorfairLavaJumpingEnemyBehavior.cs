@@ -19,6 +19,8 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     private readonly EnemySlotTable _slotTable;
     /// <summary>The parent each follower found when it was placed, which its room lists right before it.</summary>
     private readonly EnemyPartLinks<RoomEnemySlot> _parents = new();
+    /// <summary>The state of the parent each follower found when it was placed, which a deleted parent leaves (<see cref="DeletedParentLeftovers"/>).</summary>
+    private readonly EnemyPartLinks<NorfairLavaJumpingEnemyState> _parentStates = new();
 
     /// <summary>Receives the species' end-of-update sound requests.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -54,6 +56,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
             // neighbouring enemies, so reject reordered/custom populations explicitly.
             _parents.Place(slot, _slotTable.ListedBefore(slot, 1));
             ValidateNorfairLavaJumpingEnemyParent(slot);
+            _parentStates.Place(slot, GetPrecedingNorfairLavaJumpingEnemySlot(slot).RequireSpeciesState<NorfairLavaJumpingEnemyState>());
             state.Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperProgram.Follower), AnimationPlace.StartOfAnimation);
             state.Function = NorfairLavaJumpingEnemyFunction.FollowParent;
             return;
@@ -151,24 +154,18 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     {
         RoomEnemySlot parent = GetPrecedingNorfairLavaJumpingEnemySlot(follower);
 
-        // These four reads index the enemy drawing queue
-        // at fixed offsets. For a follower one slot after
-        // its parent, those reads alias the preceding enemy record exactly:
-        // health, frozen timer, the parent's Y velocity, and Y position respectively.
+        // The follower reads its parent's health, freeze, vertical speed and position; a parent deleted without a kill is
+        // read as it left them (DeletedParentLeftovers), and a killed parent's emptied place ends the follower.
         if (parent.Health == 0)
         {
             follower.Presence = follower.Presence.With(EnemyPresence.Deleted);
             return;
         }
 
-        // Pair identity is checked at population initialization, not on every AI frame.
-        // The flame routine reads the preceding physical record even after its
-        // header has been cleared: script deletion does not zero health or movement words.
-        // Requiring a live definition here rejects valid retained-record reads (#322).
-
+        // The pair is checked when the follower is placed, not on every update.
         follower.FrozenTimer = parent.FrozenTimer;
-        NorfairLavaJumpingEnemyState parentState = parent.SpeciesState<NorfairLavaJumpingEnemyState>() ??
-            throw new InvalidDataException($"The Norfair lava-jumping follower in slot {follower.SlotIndex} has no parent state.");
+        NorfairLavaJumpingEnemyState parentState = DeletedParentLeftovers.Parent(
+            parent.SpeciesState<NorfairLavaJumpingEnemyState>(), _parentStates.Of(follower));
         if (parent.FrozenTimer != 0 || !parentState.YVelocity.IsNegative)
         {
             // The second half appears only while the parent is travelling upward. At the

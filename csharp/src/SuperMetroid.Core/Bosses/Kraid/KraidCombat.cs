@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -157,9 +157,7 @@ internal sealed class KraidCombat
                     state.MouthFlags |= KraidMouthFlags.Hit;
                 // A Super Missile's leftover changes the next shot's signed compare; rebuilding a clean rectangle here
                 // doubles close-range damage.
-                bounds.LeaveAfterMouthHit(
-                    KraidMouthHitBound.After(MouthFamily(shot.Type.Family), MouthHit(shot)),
-                    KraidContactDefinitions.ShotUpperBoundAfterHit);
+                bounds.LeaveAfterMouthHit(KraidMouthHitBound.After(MouthFamily(shot.Type.Family), MouthHit(shot)));
                 // Every beam takes Kraid's charged-beam multiplier; the other families take their own.
                 int multiplier = type.Family switch
                 {
@@ -185,7 +183,7 @@ internal sealed class KraidCombat
                 {
                     RoomSpriteObject dud = _spriteObjects.SpawnRoomSpriteObject(
                         shot.Position, RoomSpriteObjectKind.EnemyProjectileDud, graphics: default);
-                    bounds.LeaveAfterDud(_spriteObjects.PlaceOf(dud), shot.Position, KraidContactDefinitions.ShotLeftBoundAfterDud);
+                    bounds.LeaveAfterDud(_spriteObjects.PlaceOf(dud), shot.Position);
                     _audio.QueueEnemySound(SamusSound.DudShot, priority: SoundRequestPriority.Low);
                 }
                 projectile.MarkCollision();

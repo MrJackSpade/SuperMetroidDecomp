@@ -73,8 +73,8 @@ internal static class PowerBombShapeVerification
             explosion.RenderedPhase = phase;
             for (int radius = 0; radius < 256; radius++)
             {
-                explosion.RenderedPreExplosionRadius = PowerBombRadius.FromRaw(EightEight.FromWhole(radius) | 123);
-                explosion.RenderedExplosionRadius = PowerBombRadius.FromRaw(EightEight.FromWhole(radius) | 234);
+                explosion.RenderedPreExplosionRadius = PowerBombRadius.FromPixels(radius, 123);
+                explosion.RenderedExplosionRadius = PowerBombRadius.FromPixels(radius, 234);
                 ColourAddWindowLayer layer = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0))
                     ?? throw new InvalidOperationException("An active Power Bomb captures its window.");
                 int tall = radius * 3 / 4;
@@ -91,7 +91,7 @@ internal static class PowerBombShapeVerification
         {
             explosion.Spawn(new(unchecked((ushort)centerX), unchecked((ushort)centerY)));
             explosion.RenderedPhase = PowerBombExplosionPhase.ExplosionYellow;
-            explosion.RenderedExplosionRadius = PowerBombRadius.FromRaw(EightEight.FromWhole(radius));
+            explosion.RenderedExplosionRadius = PowerBombRadius.FromWholePixels(radius);
             explosion.GlowColor = explosion.GlowColor.FadeLevels.WithRed(31).ToColour();
             ColourAddWindowLayer layer = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0))
                 ?? throw new InvalidOperationException("An active Power Bomb captures its window.");

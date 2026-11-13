@@ -187,7 +187,7 @@ internal static class ChainsawFiringVerification
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             interferenceLevel,
             new(32, 32),
-            PowerBombRadius.FromRaw(0x1000),
+            PowerBombRadius.FromWholePixels(16),
             interferenceReactions,
             interferenceObjects,
             AreaId.Crateria,
@@ -195,7 +195,7 @@ internal static class ChainsawFiringVerification
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             interferenceLevel,
             new(32, 32),
-            PowerBombRadius.FromRaw(0x1000),
+            PowerBombRadius.FromWholePixels(16),
             interferenceReactions,
             interferenceObjects,
             AreaId.Crateria,
@@ -216,7 +216,7 @@ internal static class ChainsawFiringVerification
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             breakingLevel,
             new(32, 32),
-            PowerBombRadius.FromRaw(0x1000),
+            PowerBombRadius.FromWholePixels(16),
             breakingReactions,
             breakingObjects,
             AreaId.Crateria,
@@ -224,7 +224,7 @@ internal static class ChainsawFiringVerification
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             breakingLevel,
             new(32, 32),
-            PowerBombRadius.FromRaw(0x1000),
+            PowerBombRadius.FromWholePixels(16),
             breakingReactions,
             breakingObjects,
             AreaId.Crateria,

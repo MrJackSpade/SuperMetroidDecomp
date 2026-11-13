@@ -9,12 +9,14 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 /// </summary>
 internal static class CrystalFlashAfterglowVerification
 {
-    /// <summary>Compares every radius around the limit with the 256ths arithmetic.</summary>
+    /// <summary>Compares every radius with the original's 256ths arithmetic over its sixteen-bit radius.</summary>
     internal static void VerifyCrystalFlashAfterglow()
     {
-        for (int radius = 0; radius <= ushort.MaxValue; radius++)
+        for (int whole = 0; whole < 256; whole++)
+        for (int fraction = 0; fraction < 256; fraction++)
         {
-            PowerBombRadius typed = PowerBombRadius.FromRaw(radius);
+            int radius = whole * 256 + fraction;
+            PowerBombRadius typed = PowerBombRadius.FromPixels(whole, fraction);
             bool belowLimit = typed < PowerBombExplosionDefinitions.CrystalFlashRadiusLimit;
             if (belowLimit != radius < 8192)
                 throw new InvalidDataException($"Radius {radius} lies {(belowLimit ? "below" : "at or past")} the Crystal Flash limit.");

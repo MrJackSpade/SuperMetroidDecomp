@@ -74,6 +74,7 @@ using static SuperMetroid.Verification.Areas.Ceres.CeresHazeVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyWallVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresSteamCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ChainsawFiringVerification;
+using static SuperMetroid.Verification.Samus.Projectiles.PowerBombRadiusVerification;
 using static SuperMetroid.Verification.Frontend.Intro.CinematicCrystalFlashVerification;
 using static SuperMetroid.Verification.Frontend.Intro.CinematicSnapshotTestsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.CinematicTextGlowVerification;
@@ -954,6 +955,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyPowerBombRuntimeRendererIntegration), () => VerifyPowerBombRuntimeRendererIntegration()),
         new(nameof(VerifyPowerBombFuse), () => VerifyPowerBombFuse()),
         new(nameof(VerifyPowerBombBoundary), () => VerifyPowerBombBoundary()),
+        new(nameof(VerifyPowerBombExplosionFollowsTheOriginal), () => VerifyPowerBombExplosionFollowsTheOriginal()),
+        new(nameof(VerifyPowerBombGrowthHold), () => VerifyPowerBombGrowthHold()),
         new(nameof(VerifyPowerBombDeathRadius), () => VerifyPowerBombDeathRadius()),
         new(nameof(VerifyRespawnedEnemyContact), () => VerifyRespawnedEnemyContact()),
         new(nameof(VerifyVerticalOffScreenDeletion), () => VerifyVerticalOffScreenDeletion()),

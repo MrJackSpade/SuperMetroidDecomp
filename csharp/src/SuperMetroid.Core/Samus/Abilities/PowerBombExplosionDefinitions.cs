@@ -9,10 +9,10 @@ public static class PowerBombExplosionDefinitions
     public static readonly PowerBombRadius InitialRadius = PowerBombRadius.FromWholePixels(4);
     /// <summary>Initial pre-explosion radial speed: forty-eight pixels per update.</summary>
     public static readonly PowerBombRadius InitialPreExplosionSpeed = PowerBombRadius.FromWholePixels(48);
-    /// <summary>Pre-explosion unsigned 8.8 acceleration.</summary>
-    public const int PreExplosionAcceleration = 128;
-    /// <summary>Explosion unsigned 8.8 acceleration.</summary>
-    public const int ExplosionAcceleration = 48;
+    /// <summary>The pre-explosion flash's slowing: its speed drops by half a pixel an update each update it grows.</summary>
+    public static readonly PowerBombRadius PreExplosionSlowing = PowerBombRadius.FromFraction(128);
+    /// <summary>The explosion's acceleration: its speed rises by three sixteenths of a pixel an update each update it grows.</summary>
+    public static readonly PowerBombRadius ExplosionAcceleration = PowerBombRadius.FromFraction(48);
     /// <summary>
     /// The horizontal radius, in pixels, of each yellow oval the pre-explosion's last frames walk, one per frame. Each
     /// is the radius a blast starting at four pixels and forty-eight pixels a frame, slowing by half a pixel a frame,

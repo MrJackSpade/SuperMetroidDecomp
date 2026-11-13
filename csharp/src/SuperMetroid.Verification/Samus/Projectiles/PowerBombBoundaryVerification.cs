@@ -12,19 +12,19 @@ internal static class PowerBombBoundaryVerification
     internal static void VerifyPowerBombBoundary()
     {
         var level = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(new RoomTerrainBlock[25], new RoomBlockBehavior[25], new RoomBlockAppearance[25]), RoomLevelData.NothingBeyondGrid());
-        Check(32, 32, 0x1000, [new BotwoonRadiusOpcode(1,1), new BotwoonRadiusOpcode(2,1), new BotwoonRadiusOpcode(3,1), new BotwoonRadiusOpcode(1,1), new BotwoonRadiusOpcode(1,2),
+        Check(32, 32, 16, [new BotwoonRadiusOpcode(1,1), new BotwoonRadiusOpcode(2,1), new BotwoonRadiusOpcode(3,1), new BotwoonRadiusOpcode(1,1), new BotwoonRadiusOpcode(1,2),
             new BotwoonRadiusOpcode(1,2), new BotwoonRadiusOpcode(2,2), new BotwoonRadiusOpcode(3,2), new BotwoonRadiusOpcode(3,1), new BotwoonRadiusOpcode(3,2)]);
-        Check(0, 0, 0x1000, [new BotwoonRadiusOpcode(0,0), new BotwoonRadiusOpcode(1,0), new BotwoonRadiusOpcode(0,0), new BotwoonRadiusOpcode(0,0), new BotwoonRadiusOpcode(1,0), new BotwoonRadiusOpcode(1,0)]);
+        Check(0, 0, 16, [new BotwoonRadiusOpcode(0,0), new BotwoonRadiusOpcode(1,0), new BotwoonRadiusOpcode(0,0), new BotwoonRadiusOpcode(0,0), new BotwoonRadiusOpcode(1,0), new BotwoonRadiusOpcode(1,0)]);
         Check(32, 32, 0, [new BotwoonRadiusOpcode(2,2), new BotwoonRadiusOpcode(2,2), new BotwoonRadiusOpcode(2,2), new BotwoonRadiusOpcode(2,2)]);
 
-        void Check(ushort x, ushort y, ushort radius, BotwoonRadiusOpcode[] expected)
+        void Check(ushort x, ushort y, int radiusPixels, BotwoonRadiusOpcode[] expected)
         {
             // Both a normal Power Bomb and the Chainsaw word pass through the same
             // boundary walker. This checks traversal only, not their PLM damage class.
             foreach (ushort type in new ushort[] { 0x0300, 0x800d })
             {
                 var visited = new List<BombBlockReaction>();
-                SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(level, new(x, y), PowerBombRadius.FromRaw(radius),
+                SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(level, new(x, y), PowerBombRadius.FromWholePixels(radiusPixels),
                     visited, null, AreaId.Crateria, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
                 // A visit into this inert air room leaves no state besides its reaction entry,
                 // so only the inclusive visit count (corner revisits included) is observable.

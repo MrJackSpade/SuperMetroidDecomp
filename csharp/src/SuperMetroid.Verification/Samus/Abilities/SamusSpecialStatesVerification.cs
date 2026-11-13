@@ -208,11 +208,11 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash spawn clears one-at-a-time Power Bomb flag");
     AssertEqual(PowerBombExplosionPhase.CrystalFlashExplosion, crystalWindow.Phase,
         "Crystal Flash installs bank-$88 stage-one pre-instruction");
-    AssertEqual(0x0400, crystalWindow.ExplosionRadius.RawValue,
+    AssertEqual(PowerBombRadius.FromWholePixels(4), crystalWindow.ExplosionRadius,
         "Crystal Flash bubble begins at radius four");
 
-    // Seventeen calls remain below `$20.00`; call eighteen adds the old `$0330` speed,
-    // reaches `$20B0`, and installs the afterglow. Its rendered table still used `$1D80`.
+    // Seventeen calls remain below 32 pixels; call eighteen adds the old speed of 3 and 48/256 pixels,
+    // reaches 32 and 176/256 pixels, and installs the afterglow. Its rendered table still used 29 and a half pixels.
     for (int hdmaCall = 1; hdmaCall <= 17; hdmaCall++)
         AssertTrue(!crystalWindow.StepFrame(), $"Crystal Flash expansion call {hdmaCall}");
     AssertEqual(PowerBombExplosionPhase.CrystalFlashExplosion, crystalWindow.Phase,
@@ -220,9 +220,9 @@ internal static void VerifySamusCrystalFlash()
     AssertTrue(!crystalWindow.StepFrame(), "Crystal Flash expansion transition is not cleanup");
     AssertEqual(PowerBombExplosionPhase.CrystalFlashAfterglow, crystalWindow.Phase,
         "Crystal Flash call eighteen installs afterglow");
-    AssertEqual(0x20b0, crystalWindow.ExplosionRadius.RawValue,
+    AssertEqual(PowerBombRadius.FromPixels(32, 176), crystalWindow.ExplosionRadius,
         "Crystal Flash transition radius preserves 8.8 acceleration sum");
-    AssertEqual(0x1d80, crystalWindow.RenderedExplosionRadius.RawValue,
+    AssertEqual(PowerBombRadius.FromPixels(29, 128), crystalWindow.RenderedExplosionRadius,
         "Crystal Flash transition renders pre-update radius");
     AssertEqual(4, crystalWindow.GlowColor.FadeLevels.Red,
         "Crystal Flash transition selects shared fixed-color entry three");

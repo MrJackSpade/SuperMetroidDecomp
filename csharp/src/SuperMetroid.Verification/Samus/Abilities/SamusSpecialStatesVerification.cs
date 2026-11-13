@@ -470,7 +470,7 @@ internal static void VerifySamusXray()
         SamusXrayDisplaySnapshot.Capture(standing, null) ?? throw new InvalidOperationException("Active X-ray has no display snapshot."),
         new Position16<RoomPixels>(0, 0));
     AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(103, 184),
-            RotationAngle.QuarterTurn.ToTrigonometryAngle().RawValue - 10, RotationAngle.QuarterTurn.ToTrigonometryAngle().RawValue + 10), DisplayScreen.HudHeight),
+            new TrigonometryAngle(54), new TrigonometryAngle(74)), DisplayScreen.HudHeight),
         xrayWindow, "the full X-ray beam is a cone from Samus's eye, ten units either side of her aim");
 
     AssertTrue(standing.Xray.UpdatePalette(xrayColours, standing.EquippedItems),

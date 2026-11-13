@@ -105,9 +105,9 @@ public static class GameplayEffectCapture
         if (beam.Phase is MorphBallEyeBeamPhase.Inactive or MorphBallEyeBeamPhase.PendingInitialization)
             return null;
         Offset16<ScreenPixels> eye = beam.Origin.RelativeToCamera(cameraPosition);
-        int angle = beam.Angle.ToTrigonometryAngle().RawValue;
+        TrigonometryAngle angle = beam.Angle.ToTrigonometryAngle();
         var cone = new WindowCone(eye.WithY(eye.Y - EyeWindowRenderDefinitions.ApexYOffset),
-            angle - beam.AngularWidth, angle + beam.AngularWidth);
+            angle.TurnedBySteps(-beam.AngularWidth), angle.TurnedBySteps(beam.AngularWidth));
         return new(ScreenWindow.Of(cone, HudHeight), beam.Color);
     }
 
@@ -121,9 +121,8 @@ public static class GameplayEffectCapture
     public static ColourAddWindowLayer CaptureMotherBrainRainbowBeam(MotherBrainRainbowBeamRenderSnapshot beam,
         Position16<RoomPixels> cameraPosition)
     {
-        int down = WindowCone.AngleUnitsPerTurn / 2;
         var cone = new WindowCone(beam.Cone.Mouth.RelativeToCamera(cameraPosition),
-            down - beam.Cone.UpperEdge, down - beam.Cone.LowerEdge);
+            TrigonometryAngle.HalfTurn - beam.Cone.UpperEdge, TrigonometryAngle.HalfTurn - beam.Cone.LowerEdge);
         return new(ScreenWindow.Of(cone, HudHeight), beam.Color);
     }
 
@@ -280,8 +279,9 @@ public static class GameplayEffectCapture
             (xray.FacingLeft ? -XrayWindowRenderDefinitions.EyeHorizontalOffset : XrayWindowRenderDefinitions.EyeHorizontalOffset);
         int eyeY = samusOnScreen.Y -
             (xray.Crouching ? XrayWindowRenderDefinitions.CrouchingEyeHeight : XrayWindowRenderDefinitions.StandingEyeHeight);
-        int angle = xray.Angle.ToTrigonometryAngle().RawValue;
-        var cone = new WindowCone(Offset16<ScreenPixels>.Of(eyeX, eyeY), angle - xray.AngularWidth, angle + xray.AngularWidth);
+        TrigonometryAngle angle = xray.Angle.ToTrigonometryAngle();
+        var cone = new WindowCone(Offset16<ScreenPixels>.Of(eyeX, eyeY),
+            angle.TurnedBySteps(-xray.AngularWidth), angle.TurnedBySteps(xray.AngularWidth));
         return ScreenWindow.Of(cone, HudHeight);
     }
 

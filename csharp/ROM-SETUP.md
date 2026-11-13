@@ -86,7 +86,7 @@ Within either platform's application-data root:
 - `game/intro-cinematic/`: the opening's and the Ceres scenes' backdrops and actor placements. Their
   character pages, layouts, Mode 7 maps, compositions, palettes and manifest are import data.
 - `game/room-layouts/`: stock BG1/BG2 visual block-reference JSON for every room level source.
-- `game/room-level-streams/`: stock-only native level allocations (collision, BTS and
+- `game/room-level-streams/`: stock-only typed terrain (collision kinds, block behaviours and
   streaming baseline) for every room level source. These files are not artwork.
 - `game/xray-reveals/`: stock visual metatile choices for X-ray block reveals.
 - `game/installation.json`: extraction format version and ROM identity. Outside the audio directory, no installed
@@ -683,11 +683,14 @@ exported as zero visual references. The renderer receives edited references,
 while collision, BTS, slopes and hazards use the unmodified native level
 allocation. Subsequent PLM draws apply their own visual bindings where installed.
 Invalid values fail with the offending path.
-For all 246 retail level sources, that collision/BTS and streaming baseline is
+For all 246 retail level sources, that terrain and streaming baseline is
 extracted at installation into `game/room-level-streams/` as one
-`level-*.bin` file per level: the complete, unmodified decompressor output, one
-file per retail level, whose collision kinds `room-level-streams.json` names by
-the position the files write them at (#1693). These files are
+`level-*.bin` file per level: each block's collision kind, block and mirroring,
+and each foreground block's behaviour as the reading its collision kind takes
+(a reacting block's reaction list and entry, a slope's shape and mirroring, an
+extension's signed offset, a door's door-list entry; air and solid blocks hold
+none), with no behaviour byte (#1709). The collision kinds
+`room-level-streams.json` names by the position the files write them at (#1693). These files are
 not artwork, and a missing or corrupt file fails with its path. Installed desktop and Android room loads do not decompress these
 level streams from the ROM. The room-layout JSON changes only rendered
 visual words; it cannot modify the installed physical allocation or the native

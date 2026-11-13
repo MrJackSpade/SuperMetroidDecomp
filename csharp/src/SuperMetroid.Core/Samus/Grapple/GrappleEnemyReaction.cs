@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>
 /// The seven reactions the grapple beam's enemy collision returns.
-/// Values intentionally match the game's reaction order rather than introducing host ordering.
+/// Values intentionally match the game's reaction order rather than introducing another ordering.
 /// </summary>
 public enum GrappleEnemyReaction
 {

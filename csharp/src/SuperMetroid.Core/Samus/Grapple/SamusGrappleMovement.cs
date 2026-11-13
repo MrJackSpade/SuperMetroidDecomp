@@ -31,7 +31,7 @@ public static class SamusGrappleMovement
     /// <summary>
     /// Fires the grapple beam (cancelling it when it cannot fire), stopping immediately
     /// before its function's return. The current pose supplies all direction/origin
-    /// policy; no host aiming vector is accepted.
+    /// policy; no separate aiming vector is accepted.
     /// </summary>
     public static void BeginFiring(SamusState samus, ControllerButton controllerInput = ControllerButton.None)
     {
@@ -336,7 +336,7 @@ public static class SamusGrappleMovement
 
         // The special-angle snap clamps the camera's previous position against the position from
         // the start of this frame after a special-angle snap. Retain that exact sample now;
-        // the host runtime consumes the optional corrected values returned below.
+        // the runtime consumes the optional corrected values returned below.
         Position16<RoomPixels> previousPosition = samus.Position.Whole;
 
         // The swing first checks Shoot. Releasing it does not immediately install jumping
@@ -1067,7 +1067,7 @@ public static class SamusGrappleMovement
         }
 
         // The connection pose commands 9 and 10 share one tail. Speed-booster bookkeeping
-        // has no host field yet, but every modeled speed cleared there is reset here.
+        // is not modeled yet, but every modeled speed cleared there is reset here.
         // AccelerationMode is deliberately retained: the common tail does not write it.
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.HorizontalSpeed.ExtraRunSpeed = default;

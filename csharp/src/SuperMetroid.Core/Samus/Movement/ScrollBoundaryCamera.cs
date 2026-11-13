@@ -288,7 +288,7 @@ public sealed class ScrollBoundaryCamera
     /// <remarks>
     /// This step does not chase Samus. It gently pushes a camera that is sitting inside
     /// a red (zero) scroll cell toward a legal adjacent cell, or back from a red cell on its
-    /// right. The extra two pixels are the game's, not a host smoothing rule.
+    /// right. The extra two pixels are the game's, not an invented smoothing rule.
     /// </remarks>
     private void HandleHorizontalAutoscrolling(bool timeIsFrozen)
     {

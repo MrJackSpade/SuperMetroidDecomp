@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <remarks>
 /// This class deliberately holds the game's own fields rather than a desktop particle
 /// effect. Firing, damage and animation records, and terrain movement each keep
-/// their own seam. Keeping those seams separate prevents a convenient host sprite from
+/// their own seam. Keeping those seams separate prevents a convenient stand-in sprite from
 /// replacing the actual projectile lifecycle.
 ///
 /// The implemented producer covers ordinary and charged plain power beams. The shared slot

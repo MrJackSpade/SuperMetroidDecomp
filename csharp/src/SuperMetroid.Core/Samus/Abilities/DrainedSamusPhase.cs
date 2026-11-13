@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>Named host equivalents for the otherwise opaque drain pose/handler state.</summary>
+/// <summary>The phases of Samus's drained pose and movement lock.</summary>
 public enum DrainedSamusPhase
 {
     /// <summary>No drained movement/pose lock is owned by this state, either before setup, after release art completes, or after another owner replaces the movement handler.</summary>

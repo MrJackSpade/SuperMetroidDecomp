@@ -170,7 +170,7 @@ public sealed class SamusCrystalFlashState
         samus.Xray.RelinquishPaletteHandler();
         samus.DraygonGrabbed.RelinquishMovementHandler();
         // Flash admission can occur after the Super Metroid has already installed drained
-        // crouching art. Crystal Flash then replaces that pose/movement owner; if the host kept
+        // crouching art. Crystal Flash then replaces that pose/movement owner; if the drained state kept
         // its synthetic Drained phase alive, it would re-lock Samus after Flash completed
         // instead of reproducing the documented adjacent timing that frees the stun.
         samus.Drained.RelinquishMovementHandler();

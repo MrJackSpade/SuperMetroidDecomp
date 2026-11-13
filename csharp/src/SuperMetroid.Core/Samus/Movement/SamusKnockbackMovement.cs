@@ -399,7 +399,7 @@ level, targetPose, frameCounter, roomObjects))
         if (samus.Shinespark.Phase is not (ShinesparkPhase.Inactive or ShinesparkPhase.Stored))
             samus.Shinespark.RelinquishMovementHandler();
         // The exact knockback-end cleanup shared by humanoid and morphed completion. The falling
-        // flag has no independent host field yet; Y-direction two is its movement-visible
+        // flag has no field of its own; Y-direction two is its movement-visible
         // publication and is consumed by every normal/ball dispatcher.
         samus.KnockbackDirection = SamusKnockbackDirection.None;
         samus.KnockbackActive = false;

@@ -17,7 +17,7 @@ public enum XraySuspendedSubsystems
     None = 0,
     /// <summary>The enemy projectiles, which X-ray setup disables; suppresses enemy-projectile updates and drawing independently of shared time freeze.</summary>
     EnemyProjectiles = 1 << 0,
-    /// <summary>Host mask for the room-object enable cleared by X-ray setup; suspends room-object processing, including door-transition room objects.</summary>
+    /// <summary>The room objects, which X-ray setup disables; suspends room-object processing, including door-transition room objects.</summary>
     RoomObjects = 1 << 1,
     /// <summary>The animated tiles, which X-ray setup disables; prevents animated-tile objects from advancing.</summary>
     AnimatedTiles = 1 << 2,

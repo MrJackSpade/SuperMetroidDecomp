@@ -27,7 +27,7 @@ public sealed class SamusDrainedState
     /// </summary>
     private bool _suitPaletteRestoreRequested;
 
-    /// <summary>Host-readable substitute for the active pose/handler combination.</summary>
+    /// <summary>The drained phase: the active pose and movement handler.</summary>
     public DrainedSamusPhase Phase { get; private set; }
 
     /// <summary>

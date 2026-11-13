@@ -93,7 +93,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
 
         // The game subtracts the foreground directly from Samus's live position because its death
         // renderer adds the foreground back before drawing. Retain world coordinates in Samus
-        // for this host's shared camera/minimap model and capture the mathematically identical
+        // for the shared camera/minimap model and capture the mathematically identical
         // screen-space pair here for the eventual explosion-frame path.
         ScreenPosition = samus.Position.Whole.ToScreen(cameraPosition);
 
@@ -197,7 +197,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
 
             case SamusDeathSequencePhase.Complete:
                 // The game advances to the room fade with no Samus draw. The outer game-state
-                // owner is not part of this gameplay host, so remain locked.
+                // owner is outside this sequence, so remain locked.
                 break;
 
             case SamusDeathSequencePhase.Inactive:

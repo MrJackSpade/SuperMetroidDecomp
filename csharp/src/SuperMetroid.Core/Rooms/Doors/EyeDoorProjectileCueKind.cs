@@ -9,6 +9,6 @@ internal enum EyeDoorProjectileCueKind
     ClearFrameBehavior,
     /// <summary>Deletes the projectile.</summary>
     Delete,
-    /// <summary>Installs a movement routine.</summary>
+    /// <summary>Installs a movement behaviour.</summary>
     SetFrameBehavior,
 }

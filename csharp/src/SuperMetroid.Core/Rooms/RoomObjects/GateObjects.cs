@@ -106,7 +106,7 @@ internal sealed class GateObjects
 
         // Spawning the trigger still probes the fixed room-object pool even though every trigger setup deletes its
         // temporary slot synchronously. A saturated pool therefore drops the collision just
-        // as the original game does.
+        // as the game does.
         if (_slotTable.Spawn() is not { } temporary)
             return true;
         temporary.Block = position;

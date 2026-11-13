@@ -2,7 +2,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.LevelData;
 
-/// <summary>Named bomb-special reactions selected through their room-object headers.</summary>
+/// <summary>Named bomb-special reactions selected through their room-object definitions.</summary>
 public static class BombSpecialBlockReactions
 {
     /// <summary>Sixteen normal entries followed by eight area tables.

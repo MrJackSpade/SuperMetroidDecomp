@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The three parallel item presentations encoded by header ranges.</summary>
+/// <summary>The three parallel item presentations encoded by definition ranges.</summary>
 public enum CollectiblePresentation
 {
     /// <summary>The item begins visible and can be acquired by Samus contact.</summary>

@@ -23,7 +23,7 @@ public readonly record struct RoomStateSelectionContext(
             ? Events?.Contains(storyEvent) == true
             : throw new ArgumentOutOfRangeException(nameof(storyEvent), storyEvent, "Undefined story event.");
 
-    /// <summary>Tests whether the selected area's boss-state word contains any bit from a validated known mask.</summary>
+    /// <summary>Tests whether the selected area's boss-defeat flags contain any of a validated known mask.</summary>
     /// <param name="mask">A mask composed only of established <see cref="BossBits"/> values; zero is allowed.</param>
     /// <returns>True when at least one selected boss-defeat bit is set; a zero mask returns false.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The mask contains an unproven boss-state bit.</exception>

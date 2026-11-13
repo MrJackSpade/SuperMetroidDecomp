@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>Mutually exclusive room-main behaviors selected by a retail room state. Which routine each names is known only to the import oracle.</summary>
+/// <summary>Mutually exclusive room-main behaviors selected by a retail room state. Only the import oracle relates each to the game.</summary>
 public enum RoomMainCallback
 {
     /// <summary>No room-specific main callback runs.</summary>

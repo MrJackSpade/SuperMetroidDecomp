@@ -2,7 +2,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>Fixed operands embedded by selector routines rather than by room data.</summary>
+/// <summary>Fixed operands embedded by selectors rather than by room data.</summary>
 public static class RoomStateSelectorOperands
 {
     /// <summary>

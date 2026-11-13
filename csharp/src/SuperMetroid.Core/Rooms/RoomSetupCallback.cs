@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>Mutually exclusive room-setup behaviors selected by a retail room state. Which routine each names is known only to the import oracle.</summary>
+/// <summary>Mutually exclusive room-setup behaviors selected by a retail room state. Only the import oracle relates each to the game.</summary>
 public enum RoomSetupCallback
 {
     /// <summary>No room-specific setup callback runs.</summary>
@@ -11,9 +11,9 @@ public enum RoomSetupCallback
     AutoDestroyWallDuringEscape,
     /// <summary>Creates the escape wall's shootable blocks.</summary>
     TurnWallIntoShotBlocksDuringEscape,
-    /// <summary>The no-op setup entry following the escape-wall routines.</summary>
+    /// <summary>The no-op setup entry following the escape-wall setups.</summary>
     ReturnAfterEscapeWallSetup,
-    /// <summary>The no-op setup entry preceding the escape-sky routine.</summary>
+    /// <summary>The no-op setup entry preceding the escape-sky setup.</summary>
     ReturnBeforeEscapeSkySetup,
     /// <summary>Initializes the escape land sky and landing-area quake.</summary>
     ShakeScreenAndCallScrollingSkyLandDuringEscape,

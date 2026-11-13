@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 internal static class DoorScrollProgramDefinitions
 {
-    /// <summary>The ordered scroll writes of each setup routine that only rewrites scroll cells.</summary>
+    /// <summary>The ordered scroll writes of each setup that only rewrites scroll cells.</summary>
     internal static IReadOnlyDictionary<DoorSetupCode, IReadOnlyList<DoorScrollWrite>> Writes { get; } =
         new Dictionary<DoorSetupCode, IReadOnlyList<DoorScrollWrite>>
         {
@@ -89,7 +89,7 @@ internal static class DoorScrollProgramDefinitions
             [DoorSetupCode.DoorASM_Scroll_18_Blue_19_Red] = [new(24, RoomScrollState.Blue), new(25, RoomScrollState.RedBoundary)],
         };
 
-    /// <summary>The setup routines that write no scroll cells.</summary>
+    /// <summary>The setups that write no scroll cells.</summary>
     internal static IReadOnlySet<DoorSetupCode> WithoutScrollWrites { get; } = new HashSet<DoorSetupCode>
     {
         DoorSetupCode.None,

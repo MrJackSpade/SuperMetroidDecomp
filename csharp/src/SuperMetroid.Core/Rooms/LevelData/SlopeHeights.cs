@@ -8,7 +8,7 @@ public static class SlopeHeights
     /// <remarks>
     /// Independently reviewed for #1165 against the NTSC J/U v1.0 release.
     /// Flat, half-block, V, stair and rational-slope families below reproduce all 512
-    /// original bytes. Integer division floors nonnegative profile coordinates; the
+    /// authored values. Integer division floors nonnegative profile coordinates; the
     /// third-height family carries its division phase across tile seams. Steep slopes
     /// encode heights above sixteen as twenty, not a saturation to twenty. Shape 17
     /// is an explicit authored overhang (twenty until column thirteen, then sixteen).

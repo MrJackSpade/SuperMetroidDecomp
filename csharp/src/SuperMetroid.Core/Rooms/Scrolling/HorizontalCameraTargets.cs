@@ -6,7 +6,7 @@ internal static class HorizontalCameraTargets
     /// <summary>
     /// Select Samus's screen-relative target. Normal tracking places
     /// Samus 32 pixels either side of viewport center; boss tracking uses its distinct
-    /// facing policy. Edge modes ignore facing. The caller retains the original reversal rules.
+    /// facing policy. Edge modes ignore facing. The caller retains the game's reversal rules.
     /// </summary>
     internal static int Offset(CameraDistanceMode mode, bool facingRight) => mode switch
     {

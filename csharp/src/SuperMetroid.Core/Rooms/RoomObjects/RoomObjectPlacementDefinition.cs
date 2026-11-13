@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>One compiled room-object population record: its header, block and room argument.</summary>
-/// <param name="Header">The room-object header.</param>
+/// <summary>One compiled room-object population record: its identity, block and room argument.</summary>
+/// <param name="Header">The room-object identity.</param>
 /// <param name="Block">The block it is placed on.</param>
 /// <param name="Argument">The decoded room argument, or null.</param>
 /// <param name="Cannon">The Draygon wall cannon a cannon placement controls; null for every other room object.</param>

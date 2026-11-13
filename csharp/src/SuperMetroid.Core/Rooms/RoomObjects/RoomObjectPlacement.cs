@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// One decoded placement and its setup metadata. Program payloads are
 /// bounded domain records, not a store that can supply arbitrary values.
 /// </summary>
-/// <param name="Header">Decoded room-object header selecting setup and script identities.</param>
+/// <param name="Header">Decoded room-object identity selecting setup and script identities.</param>
 /// <param name="Block">Placement in 16-pixel room blocks.</param>
 /// <param name="Argument">What the setup reads, decoded at import; null for a room object placed without one.</param>
 /// <param name="ScrollProgram">A constructed scroll trigger's ordered scroll writes, the program ending after its last write; null when the placement runs a retail program or is not a scroll trigger. Population construction copies and validates it.</param>

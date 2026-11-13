@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The setup routine a door runs while Samus passes through it: the complete set the retail doors name, plus none.
-/// The values are arbitrary; the import pipeline translates the doors' setup routines (#1414).
+/// The setup a door runs while Samus passes through it: the complete set the retail doors name, plus none.
+/// The values are arbitrary; the import pipeline maps the doors' setups to them (#1414).
 /// </summary>
 public enum DoorSetupCode
 {
-    /// <summary>The door header names no setup routine.</summary>
+    /// <summary>The door definition names no setup.</summary>
     None = 1,
 
     /// <summary>Starts the Wrecked Ship treadmill for Samus entering from the west.</summary>
@@ -44,7 +44,7 @@ public enum DoorSetupCode
     /// <summary>Turns room scroll cell 4 blue.</summary>
     DoorASM_Scroll_4_Blue = 12,
 
-    /// <summary>Turns room scroll cell 6 green. A second routine making the same change.</summary>
+    /// <summary>Turns room scroll cell 6 green. A second setup making the same change.</summary>
     DoorASM_Scroll_6_Green_duplicate = 13,
 
     /// <summary>Turns room scroll cell 3 green.</summary>
@@ -77,7 +77,7 @@ public enum DoorSetupCode
     /// <summary>Turns room scroll cells 32, 36 and 37 green.</summary>
     DoorASM_Scroll_20_24_25_Green = 23,
 
-    /// <summary>Turns room scroll cell 2 blue. A second routine making the same change.</summary>
+    /// <summary>Turns room scroll cell 2 blue. A second setup making the same change.</summary>
     DoorASM_Scroll_2_Blue_duplicate = 24,
 
     /// <summary>Turns room scroll cell 0 green.</summary>
@@ -107,7 +107,7 @@ public enum DoorSetupCode
     /// <summary>Turns room scroll cells 15 and 18 green.</summary>
     DoorASM_Scroll_F_12_Green = 33,
 
-    /// <summary>Turns room scroll cell 6 green. A third routine making the same change.</summary>
+    /// <summary>Turns room scroll cell 6 green. A third setup making the same change.</summary>
     DoorASM_Scroll_6_Green_duplicate_again = 34,
 
     /// <summary>
@@ -158,19 +158,19 @@ public enum DoorSetupCode
     /// <summary>Turns room scroll cell 0 blue and cells 1, 2 and 3 red.</summary>
     DoorASM_Scroll_0_Blue_1_2_3_Red = 49,
 
-    /// <summary>Turns room scroll cell 0 green. A second routine making the same change.</summary>
+    /// <summary>Turns room scroll cell 0 green. A second setup making the same change.</summary>
     DoorASM_Scroll_0_Green_duplicate = 50,
 
     /// <summary>Turns room scroll cells 0 and 1 blue and cell 4 red.</summary>
     DoorASM_Scroll_0_1_Blue_4_Red = 51,
 
-    /// <summary>Turns room scroll cell 0 blue and cell 3 red. A second routine making the same change.</summary>
+    /// <summary>Turns room scroll cell 0 blue and cell 3 red. A second setup making the same change.</summary>
     DoorASM_Scroll_0_Blue_3_Red_duplicate = 52,
 
-    /// <summary>Turns room scroll cell 0 blue. A second routine making the same change.</summary>
+    /// <summary>Turns room scroll cell 0 blue. A second setup making the same change.</summary>
     DoorASM_Scroll_0_Blue_duplicate = 53,
 
-    /// <summary>Turns room scroll cell 0 blue and cell 1 red. A second routine making the same change.</summary>
+    /// <summary>Turns room scroll cell 0 blue and cell 1 red. A second setup making the same change.</summary>
     DoorASM_Scroll_0_Blue_1_Red_duplicate = 54,
 
     /// <summary>Turns room scroll cell 24 blue.</summary>
@@ -188,7 +188,7 @@ public enum DoorSetupCode
     /// <summary>Turns room scroll cell 1 blue.</summary>
     DoorASM_Scroll_1_Blue = 59,
 
-    /// <summary>Turns room scroll cell 0 green. A third routine making the same change.</summary>
+    /// <summary>Turns room scroll cell 0 green. A third setup making the same change.</summary>
     DoorASM_Scroll_0_Green_duplicate_again = 60,
 
     /// <summary>Turns room scroll cell 3 red and cell 4 blue.</summary>
@@ -218,7 +218,7 @@ public enum DoorSetupCode
     /// <summary>Turns room scroll cell 10 red and cell 11 blue.</summary>
     DoorASM_Scroll_A_Red_B_Blue = 69,
 
-    /// <summary>Turns room scroll cell 0 red and cell 4 blue. A second routine making the same change.</summary>
+    /// <summary>Turns room scroll cell 0 red and cell 4 blue. A second setup making the same change.</summary>
     DoorASM_Scroll_0_Red_4_Blue_duplicate = 70,
 
     /// <summary>Turns room scroll cell 0 red and cell 1 blue.</summary>
@@ -230,25 +230,25 @@ public enum DoorSetupCode
     /// <summary>Turns room scroll cells 0 and 2 red and cell 1 blue.</summary>
     DoorASM_Scroll_0_2_Red_1_Blue = 73,
 
-    /// <summary>Turns room scroll cell 1 blue. A second routine making the same change.</summary>
+    /// <summary>Turns room scroll cell 1 blue. A second setup making the same change.</summary>
     DoorASM_Scroll_1_Blue_duplicate = 74,
 
     /// <summary>Turns room scroll cell 6 blue.</summary>
     DoorASM_Scroll_6_Blue = 75,
 
-    /// <summary>Turns room scroll cell 4 red. A second routine making the same change.</summary>
+    /// <summary>Turns room scroll cell 4 red. A second setup making the same change.</summary>
     DoorASM_Scroll_4_Red_duplicate = 76,
 
     /// <summary>Turns room scroll cells 4 and 7 red.</summary>
     DoorASM_Scroll_4_7_Red = 77,
 
-    /// <summary>Turns room scroll cell 1 blue and cell 2 red. A second routine making the same change.</summary>
+    /// <summary>Turns room scroll cell 1 blue and cell 2 red. A second setup making the same change.</summary>
     DoorASM_Scroll_1_Blue_2_Red_duplicate = 78,
 
-    /// <summary>Turns room scroll cells 0 and 2 green. A second routine making the same change.</summary>
+    /// <summary>Turns room scroll cells 0 and 2 green. A second setup making the same change.</summary>
     DoorASM_Scroll_0_2_Green_duplicate = 79,
 
-    /// <summary>Turns room scroll cells 0 and 1 green. A second routine making the same change.</summary>
+    /// <summary>Turns room scroll cells 0 and 1 green. A second setup making the same change.</summary>
     DoorASM_Scroll_0_1_Green_duplicate = 80,
 
     /// <summary>
@@ -259,7 +259,7 @@ public enum DoorSetupCode
 
     /// <summary>
     /// Entering the Ceres elevator shaft: selects the turning floor and installs
-    /// the shaft's initial matrix and center.
+    /// the shaft's initial rotation and center.
     /// </summary>
     DoorASM_ToCeresElevatorShaft = 82,
 

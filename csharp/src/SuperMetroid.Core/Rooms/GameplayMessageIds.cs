@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>
 /// One-based indices into the gameplay-message definition table.
 /// Keeping the identities here makes callers describe the message they request
-/// instead of scattering otherwise opaque byte literals through room-object and frontend code.
+/// instead of scattering otherwise opaque literals through room-object and frontend code.
 /// </summary>
 public static class GameplayMessageIds
 {

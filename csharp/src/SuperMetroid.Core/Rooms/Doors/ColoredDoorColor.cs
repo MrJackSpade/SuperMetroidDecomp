@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>The three projectile-gated door families in header order.</summary>
+/// <summary>The three projectile-gated door families in authored order.</summary>
 public enum ColoredDoorColor
 {
     /// <summary>Yellow cap, which accepts Power Bomb hits.</summary>

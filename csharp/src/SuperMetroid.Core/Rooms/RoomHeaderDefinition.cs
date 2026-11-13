@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// Application-owned copy of the fixed eleven-byte metadata preceding a retail room's
+/// Application-owned copy of the fixed metadata preceding a retail room's
 /// state-selection program.
 /// </summary>
 /// <param name="Name">The room's name.</param>

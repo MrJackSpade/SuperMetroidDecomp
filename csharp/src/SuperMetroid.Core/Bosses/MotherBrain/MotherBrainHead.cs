@@ -10,7 +10,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain's head and brain: their setup, neck, programs, cues and drawing.</summary>
+/// <summary>Mother Brain's head and brain: their setup, neck, animations, cues and drawing.</summary>
 [RoomLifetime]
 internal sealed class MotherBrainHead
 {
@@ -32,7 +32,7 @@ internal sealed class MotherBrainHead
     private readonly IMotherBrainRoomActors _roomActors;
     /// <summary>Mother Brain's projectiles: bombs, onion rings, drool, lasers, hand beams, turret shots and the tank's glass.</summary>
     private readonly MotherBrainProjectiles _projectileAttacks;
-    /// <summary>Mother Brain's state lookups, body and brain program setters, timers and room-object requests.</summary>
+    /// <summary>Mother Brain's state lookups, body and brain animation setters, timers and room-object requests.</summary>
     private readonly MotherBrainEncounterAccess _access;
 
 
@@ -58,9 +58,9 @@ internal sealed class MotherBrainHead
             throw new InvalidDataException("Mother Brain's head appeared before her body.");
 
         head.Health = 3000;
-        // The brain initializer gives the head enemy the dummy program for life (the encounter state's
+        // The brain initializer gives the head enemy the dummy animation for life (the encounter state's
         // head-slot cursor starts there): its dummy frame is the head's collision hitbox.
-        // The visible brain runs a separate program.
+        // The visible brain runs a separate animation.
         head.AnimationClock.StepOnNextUpdate();
         head.Contact = head.Contact.With(EnemyContact.BlocksPlasmaBeam);
         head.Presence = head.Presence.With(EnemyPresence.Hidden);
@@ -267,9 +267,9 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>Carries out one event of a brain animation.</summary>
-    /// <returns>The program whose animation a random hold or drool event continues at; otherwise null.</returns>
+    /// <returns>The segment whose animation a random hold or drool event continues at; otherwise null.</returns>
     /// <remarks>
-    /// The brain program advances in her brain's draw, after the enemy update has collected the frame's legacy
+    /// The brain animation advances in her brain's draw, after the enemy update has collected the frame's legacy
     /// sound slots, so its sounds go straight to the enemy audio queue at their limits (#1391).
     /// </remarks>
     private MotherBrainHeadSegment? ApplyMotherBrainHeadCue(MotherBrainEnemyState state, SamusState? samus, MotherBrainHeadCue cue)

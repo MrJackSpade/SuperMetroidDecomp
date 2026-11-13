@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>The cues Spore Spawn's projectile programs publish.</summary>
+/// <summary>The cues Spore Spawn's projectile animations publish.</summary>
 internal enum SporeSpawnProjectileCue
 {
     /// <summary>Releases a spore at the emitter.</summary>

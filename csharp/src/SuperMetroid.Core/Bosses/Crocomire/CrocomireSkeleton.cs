@@ -24,7 +24,7 @@ internal sealed class CrocomireSkeleton
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Owns camera-distance mode changes during Crocomire's arena sequence.</summary>
     private readonly ZebetiteBehavior _zebetiteBehavior;
-    /// <summary>Crocomire's state lookups, body program start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
+    /// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
 
 

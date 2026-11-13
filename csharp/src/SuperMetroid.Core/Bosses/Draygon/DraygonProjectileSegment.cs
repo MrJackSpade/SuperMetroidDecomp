@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>Draygon's goop and wall-turret projectile programs.</summary>
+/// <summary>Draygon's goop and wall-turret projectile animations.</summary>
 public enum DraygonProjectileSegment
 {
     /// <summary>Sticks the goop to Samus, then runs on into the goop loop.</summary>

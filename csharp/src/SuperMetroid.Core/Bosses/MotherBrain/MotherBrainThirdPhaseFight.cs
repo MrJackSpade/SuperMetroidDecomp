@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>Mother Brain's third phase: recovering, setting up and fighting Samus after the baby cutscene.</summary>
 internal sealed class MotherBrainThirdPhaseFight
 {
-    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head programs and the brain's flags, with the walking and posture requests they share.</summary>
+    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -14,8 +14,8 @@ internal sealed class MotherBrainThirdPhaseFight
 
     /// <summary>
     /// The phase-three walking function.
-    /// This is deliberately separate from the visible body program: the function
-    /// decides what Mother Brain wants to do only while the program-owned pose is standing.
+    /// This is deliberately separate from the visible body animation: the function
+    /// decides what Mother Brain wants to do only while the animation-owned pose is standing.
     /// </summary>
     public MotherBrainPhase3WalkingPhase Phase3WalkingPhase { get; private set; } =
         MotherBrainPhase3WalkingPhase.Inactive;
@@ -57,7 +57,7 @@ internal sealed class MotherBrainThirdPhaseFight
     /// <summary>Schedules phase-three inching and two retreat speeds only while the body is standing.</summary>
     private bool StepPhase3WalkingHandler(MotherBrainRandomSample randomNumberSeed)
     {
-        // The phase-three scheduler refuses to call the walking function while the body program advertises any
+        // The phase-three scheduler refuses to call the walking function while the body animation advertises any
         // nonzero pose. This makes each request edge-triggered: the requested walk runs to
         // its standing cue before the scheduler is allowed to inspect its target again.
         if (_state.Body.Pose != MotherBrainBodyPose.Standing)
@@ -270,7 +270,7 @@ internal sealed class MotherBrainThirdPhaseFight
         StepPhase3NeckHandler();
         requests.BodyWalkRequested = StepPhase3WalkingHandler(frame.RandomNumberSeed);
 
-        // The walking program changes pose later in the enemy animation stage. The
+        // The walking animation changes pose later in the enemy animation stage. The
         // AI therefore still sees pose zero on the call that requests a walk and may
         // also select an attack, since it reads the pose after the handler runs.
         if (_state.Body.Pose != MotherBrainBodyPose.Standing || Phase3DisableAttacks ||

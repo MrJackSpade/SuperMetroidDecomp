@@ -4,12 +4,12 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The typed programs Mother Brain projectiles start at spawn (#1395): the family's spawners initialize a projectile from its
-/// definition and then start the program its kind names.
+/// The typed animations Mother Brain projectiles start at spawn (#1395): the family's spawners initialize a projectile from its
+/// definition and then start the animation its kind names.
 /// </summary>
 internal static class MotherBrainProjectileStarts
 {
-    /// <summary>Each kind's initial program.</summary>
+    /// <summary>Each kind's initial animation.</summary>
     private static readonly Dictionary<RoomEnemyProjectileKind, Func<EnemyProjectileAnimation>> InitialAnimations = new()
     {
         [RoomEnemyProjectileKind.MotherBrainTopRightTube] = () => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopRight),
@@ -27,11 +27,11 @@ internal static class MotherBrainProjectileStarts
         [RoomEnemyProjectileKind.MotherBrainEscapeSubtitle] = () => new MotherBrainEffectAnimation(MotherBrainEffectSegment.EscapeSubtitle),
     };
 
-    /// <summary>The typed program a <paramref name="kind"/> projectile starts, or null when its spawner starts none.</summary>
+    /// <summary>The typed animation a <paramref name="kind"/> projectile starts, or null when its spawner starts none.</summary>
     internal static EnemyProjectileAnimation? ForKind(RoomEnemyProjectileKind kind) =>
         InitialAnimations.TryGetValue(kind, out Func<EnemyProjectileAnimation>? start) ? start() : null;
 
-    /// <summary>Initializes <paramref name="projectile"/> from its definition and starts the typed program its kind names.</summary>
+    /// <summary>Initializes <paramref name="projectile"/> from its definition and starts the typed animation its kind names.</summary>
     internal static void Initialize(EnemyProjectile projectile, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
     {
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics);

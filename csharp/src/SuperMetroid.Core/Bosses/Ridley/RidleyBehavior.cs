@@ -25,7 +25,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     private readonly CeresRidleyBehavior _ceresRidleyBehavior;
     /// <summary>Checks active door-transition state before the Norfair intro.</summary>
     private readonly EnemyRoomStatus _roomStatus;
-    /// <summary>Runs Ridley's body and breakup programs and applies their cues.</summary>
+    /// <summary>Runs Ridley's body and breakup animations and applies their cues.</summary>
     internal RidleyBodyAnimation Animation { get; }
 
     /// <summary>Ridley's hitboxes, weapon reactions, intangibility and health palette.</summary>
@@ -419,7 +419,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         state.Function = RidleyAttackChoices.Resolve(situation, choice);
 
         // The selector runs the chosen function at once. Retain that same-frame setup
-        // so timers, program changes, and velocity all begin on the selected frame.
+        // so timers, animation changes, and velocity all begin on the selected frame.
         RunNorfairRidleyFunction(slot, state, samus, controllerInput, level);
     }
 

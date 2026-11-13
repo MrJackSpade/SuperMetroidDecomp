@@ -61,7 +61,7 @@ public sealed class CrocomireEnemyState
     /// <summary>The fight latches.</summary>
     public CrocomireFightFlags FightFlags { get; internal set; }
 
-    /// <summary>The fight-AI function, run when the body program's fight-AI cue fires rather than once per main-AI frame.</summary>
+    /// <summary>The fight-AI function, run when the body animation's fight-AI cue fires rather than once per main-AI frame.</summary>
     public CrocomireFightFunction FightFunction { get; internal set; }
 
     /// <summary>

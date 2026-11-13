@@ -11,7 +11,7 @@ internal sealed class TorizoCombat
 {
     /// <summary>Applies shot, bomb, and touch damage through the shared collision rules.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Bomb and Golden Torizo's body: its behaviour flags, palette, program start and the low-health drool it triggers.</summary>
+    /// <summary>Bomb and Golden Torizo's body: its behaviour flags, palette, animation start and the low-health drool it triggers.</summary>
     private readonly TorizoBody _body;
     /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function their branches test.</summary>
     private readonly TorizoEncounterAccess _access;
@@ -273,7 +273,7 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>
-    /// Adds the Torizo hurt reaction for each variant; the common program runner still
+    /// Adds the Torizo hurt reaction for each variant; the common animation runner still
     /// advances after the hurt callback, as the enemies' update does.
     /// </summary>
     internal void AddBombTorizoHurtAi(EnemySharedReactions table) =>

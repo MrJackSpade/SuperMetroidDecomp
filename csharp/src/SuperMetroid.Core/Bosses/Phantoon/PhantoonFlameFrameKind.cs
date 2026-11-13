@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>The flame program a Phantoon flame frame belongs to.</summary>
+/// <summary>The flame animation a Phantoon flame frame belongs to.</summary>
 internal enum PhantoonFlameFrameKind
 {
     /// <summary>The destroyable flame's idle loop.</summary>

@@ -340,7 +340,7 @@ internal sealed class CeresRidleyGetaway
         var installed = state.CeresEscapeTypewriter ?? throw new InvalidDataException(
             "Ceres warning text requires installed typewriter artwork.");
         bool completed = installed.Step(out EscapeTypewriterGlyph? glyph);
-        // The Ceres program types over the room's foreground (#1348), as part of the warning (#1555).
+        // The Ceres message types over the room's foreground (#1348), as part of the warning (#1555).
         if (glyph is { } typed)
             _ridleyEncounter.ShowCeresWarning(new WrittenPicture(typed.Picture, typed.Corner));
         state.CeresEscapeTextDelayTimer = installed.DelayTimer;

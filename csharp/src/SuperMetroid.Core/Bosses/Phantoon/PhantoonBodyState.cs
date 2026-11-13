@@ -45,7 +45,7 @@ public sealed class PhantoonBodyState
         internal set => _function = value;
     }
 
-    /// <summary>Whether the body takes the flame-rain branch when the eye-close program picks the next pattern.</summary>
+    /// <summary>Whether the body takes the flame-rain branch when the eye-close animation picks the next pattern.</summary>
     public bool FlameRainRequested { get; internal set; }
 
     /// <summary>

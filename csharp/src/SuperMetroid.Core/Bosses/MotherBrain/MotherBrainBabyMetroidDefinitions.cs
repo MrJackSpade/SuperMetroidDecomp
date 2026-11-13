@@ -13,7 +13,7 @@ internal static class MotherBrainBabyMetroidDefinitions
     /// subsequently replaces the actor coordinates, but the record remains its physical spawn
     /// snapshot and supplies its properties. Its initialization parameter is zero: the
     /// game's record carries the Baby's first animation there, which the cutscene's own
-    /// program replaces and nothing reads.
+    /// animation replaces and nothing reads.
     /// </summary>
     internal static readonly RoomEnemyPopulationRecord SpawnPopulation =
         new(EnemyDefinitionId.BabyMetroidCutscene, new(384, 64),

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>Spore Spawn's typed projectile programs (#641), in the authored order of their lists.</summary>
+/// <summary>Spore Spawn's typed projectile animations (#641), in authored order.</summary>
 internal enum SporeSpawnProjectileSegment
 {
     /// <summary>The closed ceiling emitter.</summary>

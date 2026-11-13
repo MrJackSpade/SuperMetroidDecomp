@@ -22,7 +22,7 @@ internal sealed class TorizoMovement
     /// <summary>The medium up-and-down foreground shake a landing statue starts.</summary>
     private static readonly EarthquakeShake LandingShake =
         new(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground);
-    /// <summary>Bomb and Golden Torizo's body: its behaviour flags, palette, program start and the low-health drool it triggers.</summary>
+    /// <summary>Bomb and Golden Torizo's body: its behaviour flags, palette, animation start and the low-health drool it triggers.</summary>
     private readonly TorizoBody _body;
     /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function their branches test.</summary>
     private readonly TorizoEncounterAccess _access;
@@ -135,7 +135,7 @@ internal sealed class TorizoMovement
         RunBombTorizoFrameBehavior(torizo, state, level);
     }
 
-    /// <summary>Dispatches the movement callback installed by the current Bomb or Golden program.</summary>
+    /// <summary>Dispatches the movement callback installed by the current Bomb or Golden animation.</summary>
     internal void RunBombTorizoFrameBehavior(
         RoomEnemySlot torizo,
         TorizoEnemyState state,

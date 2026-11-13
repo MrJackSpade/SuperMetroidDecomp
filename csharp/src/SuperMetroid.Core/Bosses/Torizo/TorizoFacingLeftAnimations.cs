@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Bomb Torizo's programs while it faces left: turning, walking, attacks, jumps and falls, with its face and without.</summary>
+/// <summary>Bomb Torizo's animations while it faces left: turning, walking, attacks, jumps and falls, with its face and without.</summary>
 internal static class TorizoFacingLeftAnimations
 {
     /// <summary>Each segment and its beats.</summary>

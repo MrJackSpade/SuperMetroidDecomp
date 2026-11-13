@@ -82,7 +82,7 @@ public sealed class TorizoEnemyState
     /// <summary>The behaviour the Torizo runs before each animation step while active.</summary>
     public TorizoFrameBehavior FrameBehavior { get; internal set; }
 
-    /// <summary>Host lifecycle latch set when the awakening check observes the hand trigger gone and resumes Bomb Torizo's awakening animation script.</summary>
+    /// <summary>Host lifecycle latch set when the awakening check observes the hand trigger gone and resumes Bomb Torizo's awakening animation.</summary>
     public bool AwakeningReleased { get; internal set; }
     /// <summary>Host latch preventing repeat entry into the death script after lethal damage; remains set for this state instance.</summary>
     public bool DeathStarted { get; internal set; }

@@ -9,7 +9,7 @@ internal sealed class MotherBrainRainbowAttackPhases
 {
     /// <summary>Owns the forced Samus movement during beam capture and the later drain sequence.</summary>
     private readonly MotherBrainRainbowBeamSamusMovement _movement ;
-    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head programs and the brain's flags, with the walking and posture requests they share.</summary>
+    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -82,7 +82,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>Resets the phase-two head list and starts the 256-count neck extension before beam charging.</summary>
     internal void BeginExtendingNeckForAttack()
     {
-        // The rainbow setup resets the neutral phase-two head program and selects the
+        // The rainbow setup resets the neutral phase-two head animation and selects the
         // ordinary 2/4 neck geometry before beginning its first 256-count wait.
         _state.SetHeadAnimation(MotherBrainHeadSegment.NeutralPhase2);
         _state.NeckAngleDelta = 64;
@@ -125,7 +125,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         }
 
         // The colours step only on their phase of the body's update count. The colour
-        // program itself remains presentation work, but its cadence is observable.
+        // animation itself remains presentation work, but its cadence is observable.
         requests.ColoursRequested = MotherBrainCadenceDefinitions.RainbowColoursStep.IsSetIn(enemyFrameCounter);
 
         if (growth == MotherBrainRainbowBeamGrowth.Widening)

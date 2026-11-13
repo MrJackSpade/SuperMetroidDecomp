@@ -20,7 +20,7 @@ internal sealed class CrocomireBridgeCollapse
     private readonly ZebetiteBehavior _zebetiteBehavior;
     /// <summary>Crocomire's body layer: where it is placed, the canvas his death assembles it on, the tongue placed with it and the acid smoke drawn with it.</summary>
     private readonly CrocomireBodyLayer _bodyLayer;
-    /// <summary>Crocomire's state lookups, body program start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
+    /// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -34,7 +34,7 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>
-    /// The updates the collapsing bridge's tongue keeps its last frame before its sleep program is reached, the longest
+    /// The updates the collapsing bridge's tongue keeps its last frame before its sleep animation is reached, the longest
     /// wait a timer is given, kept exact (#1627): the tongue keeps counting it down, and its frame and new-frame flag
     /// follow that count until the sleep takes over.
     /// </summary>
@@ -278,7 +278,7 @@ internal sealed class CrocomireBridgeCollapse
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + remaining.WholePixels);
     }
 
-    /// <summary>Selects the body melting program for the rows still above the acid.</summary>
+    /// <summary>Selects the body melting animation for the rows still above the acid.</summary>
     internal static void SelectCrocomireRisingAnimation(CrocomireEnemyState state)
     {
         int y = state.Body.Position.Y.Whole;

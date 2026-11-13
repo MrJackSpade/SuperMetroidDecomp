@@ -13,7 +13,7 @@ internal sealed class BotwoonProjectileAnimation : EnemyProjectileTypedAnimation
     {
     }
 
-    /// <summary>The segment program shown, or null for a spit.</summary>
+    /// <summary>The segment animation shown, or null for a spit.</summary>
     internal BotwoonBodyAnimationSegment? Segment => PlayingSegment == BotwoonBodyAnimationSegment.Spit ? null : PlayingSegment;
 
     /// <summary>A spit's cycling animation.</summary>
@@ -26,10 +26,10 @@ internal sealed class BotwoonProjectileAnimation : EnemyProjectileTypedAnimation
             : new(segment);
 
     /// <summary>
-    /// Switches a segment to <paramref name="program"/>'s animation from its first frame. An unchanged program keeps
+    /// Switches a segment to <paramref name="program"/>'s animation from its first frame. An unchanged animation keeps
     /// running, as the game only restarts an animation that differs from the one it is showing.
     /// </summary>
-    /// <returns>Whether the program changed.</returns>
+    /// <returns>Whether the animation changed.</returns>
     internal bool Install(BotwoonBodyAnimationSegment program)
     {
         if (Segment is not { } segment)

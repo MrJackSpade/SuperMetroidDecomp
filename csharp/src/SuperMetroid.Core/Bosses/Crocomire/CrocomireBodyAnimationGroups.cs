@@ -3,14 +3,14 @@ using System.Collections.Frozen;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// The body programs Crocomire's fight and death test as groups (#1452). The game tests the body's program
-/// by its place in the program layout, so each test admits the programs laid out on one side of one animation; each
-/// group names those programs instead of ordering the program identities.
+/// The body animations Crocomire's fight and death test as groups (#1452). The game tests the body's animation
+/// by its place in the segment layout, so each test admits the segments laid out on one side of one animation; each
+/// group names those animations instead of ordering the animation identities.
 /// </summary>
 internal static class CrocomireBodyAnimationGroups
 {
     /// <summary>
-    /// The programs laid out before the stepping-back list. The stepping fight function steps forward again only once
+    /// The animations laid out before the stepping-back list. The stepping fight function steps forward again only once
     /// the continuation has left them.
     /// </summary>
     internal static readonly FrozenSet<CrocomireBodySegment> BeforeSteppingBack = new[]
@@ -21,7 +21,7 @@ internal static class CrocomireBodyAnimationGroups
     }.ToFrozenSet();
 
     /// <summary>
-    /// The programs laid out before the roar's closing-mouth loop. The damage wait roars again only once the
+    /// The animations laid out before the roar's closing-mouth loop. The damage wait roars again only once the
     /// continuation has left them.
     /// </summary>
     internal static readonly FrozenSet<CrocomireBodySegment> BeforeRoarCloseMouthLoop = new[]

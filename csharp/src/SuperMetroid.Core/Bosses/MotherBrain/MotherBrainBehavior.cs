@@ -29,13 +29,13 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Mother Brain's projectiles: bombs, onion rings, drool, lasers, hand beams, turret shots and the tank's glass.</summary>
     internal MotherBrainProjectiles Projectiles { get; }
 
-    /// <summary>Mother Brain's head and brain: their setup, neck, programs, cues and drawing.</summary>
+    /// <summary>Mother Brain's head and brain: their setup, neck, animations, cues and drawing.</summary>
     internal MotherBrainHead Head { get; }
 
-    /// <summary>Mother Brain's state lookups, body and brain program setters, timers and room-object requests.</summary>
+    /// <summary>Mother Brain's state lookups, body and brain animation setters, timers and room-object requests.</summary>
     internal MotherBrainEncounterAccess Access { get; }
 
-    /// <summary>Mother Brain's body and tank: their setup, programs, movement, footsteps and the first phase.</summary>
+    /// <summary>Mother Brain's body and tank: their setup, animations, movement, footsteps and the first phase.</summary>
     internal MotherBrainBody Body { get; }
 
     /// <summary>Mother Brain's false death: the fade to gray, the tubes collapsing and falling, the room rows and the fade back.</summary>
@@ -86,7 +86,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         MotherBrainEnemyState state = Access.RequireCompleteMotherBrainState(body);
 
-        // The body main advances the independent room-palette animation script before it
+        // The body main advances the independent room-palette animation before it
         // dispatches the body function. Keeping that order is visible on the exact frame
         // the fake-death flash begins and later when the main tube stops the loop.
         RunMotherBrainRoomFlash(state);

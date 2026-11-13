@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnBodySegment;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>Spore Spawn's typed body programs (#641).</summary>
+/// <summary>Spore Spawn's typed body animations (#641).</summary>
 internal static class SporeSpawnAnimations
 {
     /// <summary>How long the living room waits before the descent.</summary>
@@ -34,7 +34,7 @@ internal static class SporeSpawnAnimations
     /// <summary>The opening poses' dwells, closed through fully open.</summary>
     private static readonly int[] OpeningDurations = [8, 8, 8, 7, 7, 6, 1];
 
-    /// <summary>Every body program.</summary>
+    /// <summary>Every body animation.</summary>
     internal static AnimationSegments<SporeSpawnBodySegment, SporeSpawnFrame, SporeSpawnCue> Segments { get; } = new(
         new Dictionary<SporeSpawnBodySegment, AnimationBeat<SporeSpawnFrame, SporeSpawnCue>[]>
     {

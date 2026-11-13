@@ -2,16 +2,16 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>A gameplay cue of Draygon's programs.</summary>
+/// <summary>A gameplay cue of Draygon's animations.</summary>
 internal abstract record DraygonCue
 {
-    /// <summary>Starts a program on each of the four parts: body, eye, tail and arms.</summary>
+    /// <summary>Starts an animation on each of the four parts: body, eye, tail and arms.</summary>
     internal sealed record StartPartAnimations(DraygonSegment Body, DraygonSegment Eye, DraygonSegment Tail, DraygonSegment Arms) : DraygonCue;
 
     /// <summary>Gives the eye its tracking function.</summary>
     internal sealed record SetEyeFunction(DraygonEyeFunction Function) : DraygonCue;
 
-    /// <summary>Gives the part running the program (the eye) its tracking function.</summary>
+    /// <summary>Gives the part running the animation (the eye) its tracking function.</summary>
     internal sealed record SetOwnEyeFunction(DraygonEyeFunction Function) : DraygonCue;
 
     /// <summary>Displaces the body's background graphics while the tail whips.</summary>

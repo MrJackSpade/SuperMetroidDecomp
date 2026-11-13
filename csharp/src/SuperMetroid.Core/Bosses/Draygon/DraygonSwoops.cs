@@ -11,7 +11,7 @@ internal sealed class DraygonSwoops
 {
     /// <summary>Provides the active room bus, random source, and persistent boss state.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Draygon's body, eye and tail: their setup, programs and cues.</summary>
+    /// <summary>Draygon's body, eye and tail: their setup, animations and cues.</summary>
     private readonly DraygonParts _parts;
     /// <summary>The wall turrets' firing cadence during Draygon's fight.</summary>
     private readonly DraygonTurrets _turrets;

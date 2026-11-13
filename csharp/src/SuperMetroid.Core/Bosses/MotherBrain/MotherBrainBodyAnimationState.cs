@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 /// <remarks>
 /// Mother Brain's body movement is not performed by her AI function. The AI installs one of
-/// the body programs (<see cref="MotherBrainBodySegment"/>); the enemy animation stage later advances
-/// that program and its cues mutate body position, pose, the background's alignment, footsteps,
+/// the body segments (<see cref="MotherBrainBodySegment"/>); the enemy animation stage later advances
+/// that animation and its cues mutate body position, pose, the background's alignment, footsteps,
 /// and the displayed frame. Keeping that second processing stage explicit is
 /// essential: replacing a requested walk with a direct X adjustment would skip roughly ninety
 /// visible animation frames and would change when the AI observes pose zero again.
@@ -19,7 +19,7 @@ public sealed class MotherBrainBodyAnimationState
     public Position16<RoomPixels> Position { get; set; }
 
     /// <summary>
-    /// Body pose. The admitted programs publish standing, walking, the
+    /// Body pose. The admitted animations publish standing, walking, the
     /// posture transition, crouched and leaning down.
     /// </summary>
     public MotherBrainBodyPose Pose { get; set; }
@@ -27,12 +27,12 @@ public sealed class MotherBrainBodyAnimationState
     /// <summary>The encounter stage, consulted by shot reactions and the footstep sound gate.</summary>
     public MotherBrainForm Form { get; set; }
 
-    /// <summary>The body program most recently requested, or null before the first request.</summary>
+    /// <summary>The body animation most recently requested, or null before the first request.</summary>
     public MotherBrainBodySegment? Animation { get; private set; }
 
     /// <summary>
-    /// Requests a body program; the physical body slot starts it on the next enemy
-    /// animation-script stage.
+    /// Requests a body animation; the physical body slot starts it on the next enemy
+    /// animation stage.
     /// </summary>
     public void SetAnimation(MotherBrainBodySegment segment) => Animation = segment;
 }

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The Zebetites' health-tier programs, order: five for the large barrier, then five for the halves of
+/// The Zebetites' health-tier animations, order: five for the large barrier, then five for the halves of
 /// a split pair. Each shows its tier's pose once and sleeps.
 /// </summary>
 public enum ZebetiteSegment

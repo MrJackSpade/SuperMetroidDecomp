@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The programs of Mother Brain's room turrets and their bullets.</summary>
+/// <summary>The animations of Mother Brain's room turrets and their bullets.</summary>
 public enum MotherBrainTurretSegment
 {
     /// <summary>A turret's pose for one of the eight directions.</summary>

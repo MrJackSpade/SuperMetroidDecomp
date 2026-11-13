@@ -19,7 +19,7 @@ internal sealed class DraygonGrab
     private readonly RoomSpriteObjects _spriteObjects;
     /// <summary>Restricts camera scrolling while Draygon controls the arena.</summary>
     private readonly SamusScrollCap _scrollCap;
-    /// <summary>Draygon's body, eye and tail: their setup, programs and cues.</summary>
+    /// <summary>Draygon's body, eye and tail: their setup, animations and cues.</summary>
     private readonly DraygonParts _parts;
     /// <summary>The wall turrets' firing cadence during Draygon's fight.</summary>
     private readonly DraygonTurrets _turrets;

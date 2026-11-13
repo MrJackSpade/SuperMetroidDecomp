@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Which branch a <see cref="TorizoCue.Branch"/> cue is. A branch, call or link to another body program.</summary>
+/// <summary>Which branch a <see cref="TorizoCue.Branch"/> cue is. A branch, call or link to another body animation.</summary>
 internal enum TorizoBranchKind
 {
     /// <summary>Saves the target as the return point.</summary>

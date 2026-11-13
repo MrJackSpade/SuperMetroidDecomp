@@ -2,7 +2,7 @@
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>A gameplay cue of Mother Brain's body programs.</summary>
+/// <summary>A gameplay cue of Mother Brain's body animations.</summary>
 internal abstract record MotherBrainBodyCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>

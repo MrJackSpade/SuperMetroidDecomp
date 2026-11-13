@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// Compiled mechanics and dispatch metadata for Lower Norfair Ridley's
-/// twelve death-breakup actors. The selected animation scripts remain authored data.
+/// twelve death-breakup actors. The selected animations remain authored data.
 /// </summary>
 internal static class RidleyExplosionDefinitions
 {

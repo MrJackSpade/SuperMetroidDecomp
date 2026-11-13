@@ -8,7 +8,7 @@ internal static class MotherBrainFallingTubes
 {
     /// <summary>
     /// Resolves the selected piece's placement. Parameter one is the piece's offset, consumed by the tube's
-    /// initializer. The record's animation script is unused: the piece runs its typed program (#641), so the field is
+    /// initializer. The record's animation is unused: the piece runs its typed animation (#641), so the field is
     /// zero. Placement magnitudes and the main delay remain independent required inputs.
     /// </summary>
     internal static RoomEnemyPopulationRecord Get(MotherBrainTubePiece piece)

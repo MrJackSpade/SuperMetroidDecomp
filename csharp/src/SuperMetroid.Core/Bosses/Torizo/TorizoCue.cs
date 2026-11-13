@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>One cue of Torizo's body programs, with the operands it carries.</summary>
+/// <summary>One cue of Torizo's body animations, with the operands it carries.</summary>
 internal abstract record TorizoCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
@@ -8,15 +8,15 @@ internal abstract record TorizoCue
     {
     }
 
-    /// <summary>A branch, call or link to another body program.</summary>
+    /// <summary>A branch, call or link to another body animation.</summary>
     /// <param name="Kind">What the branch tests or does.</param>
-    /// <param name="Target">The program a branch, call or link cue continues at or saves.</param>
+    /// <param name="Target">The segment a branch, call or link cue continues at or saves.</param>
     internal sealed record Branch(TorizoBranchKind Kind, TorizoBodySegment Target) : TorizoCue;
 
-    /// <summary>A two-way branch or call between two body programs.</summary>
+    /// <summary>A two-way branch or call between two body animations.</summary>
     /// <param name="Kind">What the choice tests.</param>
-    /// <param name="Target">The program a branch, call or link cue continues at or saves.</param>
-    /// <param name="Alternate">The program a two-way branch or call continues at otherwise.</param>
+    /// <param name="Target">The segment a branch, call or link cue continues at or saves.</param>
+    /// <param name="Alternate">The segment a two-way branch or call continues at otherwise.</param>
     internal sealed record Choice(TorizoChoiceKind Kind, TorizoBodySegment Target, TorizoBodySegment Alternate) : TorizoCue;
 
     /// <summary>Stands Bomb Torizo up or sits it down, moving it by a movement-table entry.</summary>
@@ -37,7 +37,7 @@ internal abstract record TorizoCue
     internal sealed record ParameterizedSpawn(TorizoParameterizedSpawnKind Kind, int Parameter) : TorizoCue;
 
     /// <summary>
-    /// Spawns the low-health explosions and flashes; the program then waits forty updates.
+    /// Spawns the low-health explosions and flashes; the animation then waits forty updates.
     /// </summary>
     /// <param name="Site">Where the explosions burst.</param>
     internal sealed record LowHealthExplosions(BombTorizoExplosionSite Site) : TorizoCue;

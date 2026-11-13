@@ -36,7 +36,7 @@ internal sealed class MotherBrainRainbowAndDeath
     private readonly IMotherBrainRoomActors _roomActors;
     /// <summary>Mother Brain's projectiles: bombs, onion rings, drool, lasers, hand beams, turret shots and the tank's glass.</summary>
     private readonly MotherBrainProjectiles _projectileAttacks;
-    /// <summary>Mother Brain's state lookups, body and brain program setters, timers and room-object requests.</summary>
+    /// <summary>Mother Brain's state lookups, body and brain animation setters, timers and room-object requests.</summary>
     private readonly MotherBrainEncounterAccess _access;
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
@@ -183,7 +183,7 @@ internal sealed class MotherBrainRainbowAndDeath
             throw new InvalidOperationException(
                 "Mother Brain entered a rainbow function without its live sequence owner.");
 
-        // The body program and articulated-head AI ran through the physical room records on
+        // The body animation and articulated-head AI ran through the physical room records on
         // previous frames. Import that state before dispatch so walk completion and neck
         // aiming are decided from the same state the game would read.
         SynchronizeLiveMotherBrainRainbowActor(state, sequence);
@@ -227,8 +227,8 @@ internal sealed class MotherBrainRainbowAndDeath
     {
         RoomEnemySlot head = state.Head;
 
-        // The brain-program request resets the physical list timer only when body AI requests a new list.
-        // The dedicated latch is essential because the running program advances away from
+        // The brain-animation request resets the physical list timer only when body AI requests a new list.
+        // The dedicated latch is essential because the running animation advances away from
         // the list origin while the request itself remains unchanged.
         if (sequence.State.HeadAnimation is { } headSegment &&
             (step is { HeadAnimationRequested: true } ||

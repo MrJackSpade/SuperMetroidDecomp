@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>What a cue of Torizo's body programs does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of Torizo's body animations does: one per kind of step its lists use.</summary>
 internal enum TorizoCueKind
 {
     /// <summary>Clears the body's frame behaviour.</summary>
@@ -31,9 +31,9 @@ internal enum TorizoCueKind
     UnlockAnimation,
     /// <summary>Resumes at the saved return point.</summary>
     Return,
-    /// <summary>Resumes the program the gut explosion interrupted.</summary>
+    /// <summary>Resumes the animation the gut explosion interrupted.</summary>
     ResumeInterrupted,
-    /// <summary>Spawns a death explosion; the program then waits one update.</summary>
+    /// <summary>Spawns a death explosion; the animation then waits one update.</summary>
     SpawnDeathExplosion,
     /// <summary>Spawns the landing dust clouds.</summary>
     SpawnLandingDust,

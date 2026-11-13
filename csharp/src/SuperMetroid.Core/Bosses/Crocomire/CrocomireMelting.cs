@@ -14,7 +14,7 @@ internal sealed class CrocomireMelting
 {
     /// <summary>Crocomire's body layer: where it is placed, what his body shows on it, the tongue placed with it and the acid smoke drawn with it.</summary>
     private readonly CrocomireBodyLayer _bodyLayer;
-    /// <summary>Crocomire's state lookups, body program start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
+    /// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
@@ -29,7 +29,7 @@ internal sealed class CrocomireMelting
 
     /// <summary>
     /// Shows the first melting image of Crocomire's death hop. Only
-    /// this first melt hands the tongue its melting program and moves it onto the body.
+    /// this first melt hands the tongue its melting animation and moves it onto the body.
     /// </summary>
     internal void ShowFirstCrocomireMeltImage(CrocomireEnemyState state)
     {

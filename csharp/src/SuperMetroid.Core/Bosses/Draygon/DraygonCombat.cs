@@ -14,7 +14,7 @@ internal sealed class DraygonCombat
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Evaluates Samus and projectile contacts against Draygon's linked parts.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Draygon's body, eye and tail: their setup, programs and cues.</summary>
+    /// <summary>Draygon's body, eye and tail: their setup, animations and cues.</summary>
     private readonly DraygonParts _parts;
     /// <summary>Draygon grabbing Samus: the chase, the spiral carry, the tail whips and the release.</summary>
     private readonly DraygonGrab _grab;

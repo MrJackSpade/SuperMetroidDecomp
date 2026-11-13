@@ -3,8 +3,8 @@ using System.Collections.Frozen;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// The AI functions and part programs Kraid's encounter tests as groups (#1452). The game tests a function or
-/// part program by its place in the program's layout, so each test admits every member laid out on one side of one
+/// The AI functions and part animations Kraid's encounter tests as groups (#1452). The game tests a function or
+/// part animation by its place in the animation's layout, so each test admits every member laid out on one side of one
 /// behaviour or animation; each group names those members instead of ordering the identities. The rise functions are
 /// laid out after the death functions, so a test for "the death sequence has begun" also admits them.
 /// </summary>
@@ -42,7 +42,7 @@ internal static class KraidFunctionGroups
         KraidAiFunction.RaiseRocksEvery16Frames, KraidAiFunction.RaiseRocksEvery8Frames, KraidAiFunction.RaiseBody,
     }.ToFrozenSet();
 
-    /// <summary>The part programs laid out before the slow arm swing: the feet's and the normal arm's.</summary>
+    /// <summary>The part animations laid out before the slow arm swing: the feet's and the normal arm's.</summary>
     internal static readonly FrozenSet<KraidPartSegment> BeforeArmSlow = new[]
     {
         KraidPartSegment.FootInitial, KraidPartSegment.FootNeutral, KraidPartSegment.FootWalkingForward,
@@ -51,7 +51,7 @@ internal static class KraidFunctionGroups
         KraidPartSegment.ArmNormalPause,
     }.ToFrozenSet();
 
-    /// <summary>The part programs laid out before the normal arm's pause: the feet's and the normal arm swing.</summary>
+    /// <summary>The part animations laid out before the normal arm's pause: the feet's and the normal arm swing.</summary>
     internal static readonly FrozenSet<KraidPartSegment> BeforeArmNormalPause = new[]
     {
         KraidPartSegment.FootInitial, KraidPartSegment.FootNeutral, KraidPartSegment.FootWalkingForward,
@@ -59,7 +59,7 @@ internal static class KraidFunctionGroups
         KraidPartSegment.FootWalkingBackward, KraidPartSegment.FootWalkingBackwardLoop, KraidPartSegment.ArmNormal,
     }.ToFrozenSet();
 
-    /// <summary>The foot programs laid out before the backward walk's loop: the foot has not yet settled into walking back.</summary>
+    /// <summary>The foot animations laid out before the backward walk's loop: the foot has not yet settled into walking back.</summary>
     internal static readonly FrozenSet<KraidPartSegment> BeforeFootWalkingBackwardLoop = new[]
     {
         KraidPartSegment.FootInitial, KraidPartSegment.FootNeutral, KraidPartSegment.FootWalkingForward,

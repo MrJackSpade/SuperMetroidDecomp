@@ -43,7 +43,7 @@ internal sealed class MotherBrainProjectiles
         _roomActors = roomActors;
     }
 
-    /// <summary>Carries out one cue of Mother Brain's effect programs.</summary>
+    /// <summary>Carries out one cue of Mother Brain's effect animations.</summary>
     private void ApplyMotherBrainEffectCue(EnemyProjectile projectile, MotherBrainEffectCue cue)
     {
         switch (cue)
@@ -182,7 +182,7 @@ internal sealed class MotherBrainProjectiles
         }, EnemyProjectileFrameBehavior.MotherBrainDeathSubtitleScreenPin);
 
         table.AddCue<MotherBrainEffectCue>((context, cue) => ApplyMotherBrainEffectCue(context.Projectile, cue));
-        // A touched onion ring runs its typed impact program, the list its definition names.
+        // A touched onion ring runs its typed impact animation, the list its definition names.
         table.AddTouchAnimation(RoomEnemyProjectileKind.MotherBrainOnionRing,
             () => new MotherBrainEffectAnimation(MotherBrainEffectSegment.OnionRingHit));
 
@@ -335,7 +335,7 @@ internal sealed class MotherBrainProjectiles
         CoordinateAxis.Distance(first.Y, second.Y) <
             firstRadius.Y + secondRadius.Y;
 
-    /// <summary>Advances a death explosion projectile through its installed program.</summary>
+    /// <summary>Advances a death explosion projectile through its installed animation.</summary>
     internal void RunMotherBrainDeathExplosion(EnemyProjectile projectile)
     {
         var body = _motherBrainEncounter.MotherBrain?.Body ?? throw new InvalidOperationException("Body-relative death explosion has no Mother Brain owner.");

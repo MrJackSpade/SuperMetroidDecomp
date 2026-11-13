@@ -205,7 +205,7 @@ internal sealed class NorfairRidleyDeath
         void SpawnPart(RidleyExplosionPart part)
         {
             // The embedded entries all use the same zero position and properties and name one
-            // body part. Initialization replaces position and program from the still-live
+            // body part. Initialization replaces position and animation from the still-live
             // shared Ridley joints below.
             RoomEnemyPopulationRecord population = new(
                 EnemyDefinitionId.RidleyExplosion,

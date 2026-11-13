@@ -34,6 +34,6 @@ internal sealed record CrocomireFightDependencies
     /// <summary>Updates boss completion and room-state flags.</summary>
     public required EnemyRoomStatus RoomStatus { get; init; }
 
-    /// <summary>Crocomire's state lookups, body program start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
+    /// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
     public required CrocomireEncounterAccess Access { get; init; }
 }

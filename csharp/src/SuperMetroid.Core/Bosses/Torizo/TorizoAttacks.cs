@@ -37,7 +37,7 @@ internal sealed class TorizoAttacks
     public TorizoEnemyState? GoldenTorizo =>
         _access.TorizoState is { IsGolden: true } ? _access.TorizoState : null;
 
-    /// <summary>Installs movement handlers and typed program cues for statue fragments, orbs, attacks, and reflected missiles.</summary>
+    /// <summary>Installs movement handlers and typed animation cues for statue fragments, orbs, attacks, and reflected missiles.</summary>
     internal void AddBombTorizoProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>
@@ -104,7 +104,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>
-    /// Carries out one cue of a Torizo projectile's program, returning the program a conditional cue continues at, or
+    /// Carries out one cue of a Torizo projectile's animation, returning the segment a conditional cue continues at, or
     /// null to run on.
     /// </summary>
     internal TorizoProjectileSegment? ApplyTorizoProjectileCue(EnemyProjectile projectile, SamusState? samus, TorizoProjectileCue cue)
@@ -190,7 +190,7 @@ internal sealed class TorizoAttacks
     internal void SpawnBombTorizoLowHealthDrool(RoomEnemySlot torizo) =>
         SpawnBombTorizoDrool(torizo, RoomEnemyProjectileKind.BombTorizoLowHealthDrool);
 
-    /// <summary>Allocates either drool program and consumes room RNG in the variant-specific order.</summary>
+    /// <summary>Allocates either drool animation and consumes room RNG in the variant-specific order.</summary>
     internal void SpawnBombTorizoDrool(
         RoomEnemySlot torizo,
         RoomEnemyProjectileKind kind)
@@ -339,7 +339,7 @@ internal sealed class TorizoAttacks
                 facingRight: _access.FacesRight(torizo)));
     }
 
-    /// <summary>Starts Bomb Torizo's sonic-boom program at one of two randomized body heights.</summary>
+    /// <summary>Starts Bomb Torizo's sonic-boom animation at one of two randomized body heights.</summary>
     internal void SpawnBombTorizoSonicBoom(RoomEnemySlot torizo)
         => SpawnTorizoSonicBoom(
             torizo,
@@ -419,7 +419,7 @@ internal sealed class TorizoAttacks
                 movingRight: state.Posture.HasFlag(TorizoPostureFlags.FacingRight)));
     }
 
-    /// <summary>Attaches a caught super missile above the active hand and selects its facing-dependent program.</summary>
+    /// <summary>Attaches a caught super missile above the active hand and selects its facing-dependent animation.</summary>
     internal void SpawnGoldenTorizoSuperMissile(RoomEnemySlot torizo)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
@@ -523,7 +523,7 @@ internal sealed class TorizoAttacks
             projectile.Delete();
     }
 
-    /// <summary>Accelerates the sonic boom horizontally and switches to its non-damaging wall-impact program.</summary>
+    /// <summary>Accelerates the sonic boom horizontally and switches to its non-damaging wall-impact animation.</summary>
     internal static void RunBombTorizoSonicBoomFrameBehavior(
         EnemyProjectile projectile,
         RoomLevelData level)
@@ -663,7 +663,7 @@ internal sealed class TorizoAttacks
             : projectile.Velocity.X - TorizoMotionDefinitions.EggAcceleration);
     }
 
-    /// <summary>Accelerates the egg downward until floor contact selects the facing-specific break program.</summary>
+    /// <summary>Accelerates the egg downward until floor contact selects the facing-specific break animation.</summary>
     internal static void RunGoldenTorizoEggFall(
         EnemyProjectile projectile,
         RoomLevelData level)

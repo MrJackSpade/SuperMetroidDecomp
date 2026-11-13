@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Golden Torizo's own programs.</summary>
+/// <summary>Golden Torizo's own animations.</summary>
 internal static class GoldenTorizoAnimations
 {
     /// <summary>Each segment and its beats.</summary>

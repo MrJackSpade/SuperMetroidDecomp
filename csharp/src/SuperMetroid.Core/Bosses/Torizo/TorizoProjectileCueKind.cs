@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>What a cue of Torizo's projectile programs does: one per command its lists use.</summary>
+/// <summary>What a cue of Torizo's projectile animations does: one per command its lists use.</summary>
 internal enum TorizoProjectileCueKind
 {
     /// <summary>Stops the projectile's movement.</summary>

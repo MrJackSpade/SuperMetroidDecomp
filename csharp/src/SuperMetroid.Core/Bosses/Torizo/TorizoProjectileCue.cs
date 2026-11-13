@@ -2,7 +2,7 @@
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>One cue of Torizo's projectile programs, with the operands its command carries.</summary>
+/// <summary>One cue of Torizo's projectile animations, with the operands its command carries.</summary>
 internal abstract record TorizoProjectileCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
@@ -21,11 +21,11 @@ internal abstract record TorizoProjectileCue
     internal sealed record SetProperties(EnemyProjectilePropertyFlags Properties, EnemyProjectileDepth? Depth = null) : TorizoProjectileCue;
 
     /// <summary>Continues at the target while Golden Torizo's eye-beam explosions are disabled.</summary>
-    /// <param name="Target">The program a conditional cue continues at.</param>
+    /// <param name="Target">The segment a conditional cue continues at.</param>
     internal sealed record GoToIfEyeBeamExplosionsDisabled(TorizoProjectileSegment Target) : TorizoProjectileCue;
 
     /// <summary>Continues at the target one time in four.</summary>
-    /// <param name="Target">The program a conditional cue continues at.</param>
+    /// <param name="Target">The segment a conditional cue continues at.</param>
     internal sealed record GoToSometimes(TorizoProjectileSegment Target) : TorizoProjectileCue;
 
     /// <summary>Requests a sound at the priority the cue states.</summary>

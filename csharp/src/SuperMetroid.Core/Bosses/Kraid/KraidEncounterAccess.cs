@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and his sound and music requests.</summary>
+/// <summary>Kraid's state and part lookups, part animations, function timer, random numbers and his sound and music requests.</summary>
 [RoomLifetime]
 internal sealed class KraidEncounterAccess
 {
@@ -42,12 +42,12 @@ internal sealed class KraidEncounterAccess
         slot.Presence = slot.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
     }
 
-    /// <summary>Installs <paramref name="segment"/> as the part's program, from its start; the caller sets the timer.</summary>
+    /// <summary>Installs <paramref name="segment"/> as the part's animation, from its start; the caller sets the timer.</summary>
     internal void SetKraidPartAnimation(RoomEnemySlot part, KraidPartSegment segment) =>
         _parts.StateOf(RequireKraidState(part), part).Playback =
             new AnimationPlayback<KraidPartSegment>(KraidAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
 
-    /// <summary>Sets a part's program and runs its first step on the next frame.</summary>
+    /// <summary>Sets a part's animation and runs its first step on the next frame.</summary>
     internal void StartKraidPartAnimation(RoomEnemySlot part, KraidPartSegment segment)
     {
         SetKraidPartAnimation(part, segment);

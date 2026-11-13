@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The ordinary and Mother Brain Rinkas' hide, fire and spin animations as typed programs (#641), one per list a spawn, branch or resumed sleep enters, in authored order.
+/// The ordinary and Mother Brain Rinkas' hide, fire and spin animations (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Generated from the verified lists; see <see cref="RinkaAnimations"/>.
 /// </summary>
 internal enum RinkaSegment

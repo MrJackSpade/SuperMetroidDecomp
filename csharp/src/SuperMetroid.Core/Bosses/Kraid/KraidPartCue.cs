@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Gameplay cues of Kraid's part programs.</summary>
+/// <summary>Gameplay cues of Kraid's part animations.</summary>
 internal enum KraidPartCue
 {
     /// <summary>Raises Kraid's body one pixel as the foot lifts.</summary>

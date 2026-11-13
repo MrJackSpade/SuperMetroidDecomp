@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Gameplay cues of the glass programs.</summary>
+/// <summary>Gameplay cues of the glass animations.</summary>
 internal enum MotherBrainGlassCue
 {
     /// <summary>Deletes the finished sparkle.</summary>

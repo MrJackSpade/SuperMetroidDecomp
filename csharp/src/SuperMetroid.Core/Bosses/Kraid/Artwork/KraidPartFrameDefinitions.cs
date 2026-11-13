@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 /// <summary>
 /// The presentation boundary of Kraid's foot, arm, lints and fingernails (#641): the frames
-/// their typed programs show. Gameplay animates <see cref="KraidPartFrame"/> values; only this catalog knows the
+/// their typed animations show. Gameplay animates <see cref="KraidPartFrame"/> values; only this catalog knows the
 /// frames.
 /// </summary>
 internal static class KraidPartFrameDefinitions

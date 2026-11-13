@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// Ridley's typed body programs (#641), in the authored order of their lists. Each entry program first
+/// Ridley's typed body animations (#641), in authored order. Each entry animation first
 /// redirects to its right-facing counterpart unless Ridley faces left, as the lists do.
 /// </summary>
 internal enum RidleyBodySegment

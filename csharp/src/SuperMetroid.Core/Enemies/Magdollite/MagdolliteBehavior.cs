@@ -664,9 +664,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the shared post-combat tail.</summary>
     private void ResolveMagdolliteCombatAfterCommon(RoomEnemySlot current)
     {
-        // The callback reaches the two enemies listed after the current one (FollowUpAfterStruckPart). Ordinary
-        // touch/shot reaches only the collision-enabled head, but power bombs may expose
-        // this retail cross-record quirk, so do not silently normalize current to a group.
+        // The follow-up reaches the two enemies listed after the part that was hit (FollowUpAfterStruckPart): a power
+        // bomb also kills the rising body and the tracking overlay, whose follow-ups reach the enemies listed after the
+        // Magdollite.
         IReadOnlyList<RoomEnemySlot?> recipients = _partners.Of(current).FollowUpRecipients;
         RoomEnemySlot? following = recipients[0];
         RoomEnemySlot? secondFollowing = recipients[1];

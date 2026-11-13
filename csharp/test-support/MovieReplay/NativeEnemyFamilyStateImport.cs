@@ -367,9 +367,10 @@ internal static class NativeEnemyFamilyStateImport
         {
             boyonRecord.SpeedMultiplier = words.A;
             boyonRecord.Speed = words.B;
-            boyonRecord.JumpHeight = words.C;
-            boyonRecord.DistanceAccumulator = words.D;
-            boyonRecord.SpeedTableIndex = words.E;
+            boyonRecord.JumpHeight = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.C);
+            boyonRecord.ArcDistance = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.D);
+            // The rise leaves the curve index one below the top entry, the word's largest value, past the top.
+            boyonRecord.CurvePlace = words.E == ushort.MaxValue ? BoyonCurvePlace.PastTheTop : BoyonCurvePlace.AtEntry(words.E);
             boyonRecord.Bouncing = words.F != 0;
         }
         if (slot.SpeciesState<GrowingShutterEnemyState>() is { } growingShutterRecord)

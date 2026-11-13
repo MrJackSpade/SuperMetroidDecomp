@@ -315,7 +315,7 @@ internal static class NativeEnemyFamilyStateImport
             enemies.ZebetiteBehavior.SharedPaletteCycle = words.C;
         if (slot.SpeciesState<ChozoStatueState>() is { } chozoStatueRecord)
         {
-            chozoStatueRecord.CarryRecord = words.C / 2;
+            chozoStatueRecord.CarryStep = ChozoNativeWords.CarryStep(words.C / 2);
             chozoStatueRecord.FrameBehavior = words.F == 0 ? null : ChozoNativeWords.ChozoStatueFrameBehaviors.Decode(words.F, "recorded ChozoStatueFrameBehavior");
         }
         if (slot.SpeciesState<YardEnemyState>() is { } yardRecord)

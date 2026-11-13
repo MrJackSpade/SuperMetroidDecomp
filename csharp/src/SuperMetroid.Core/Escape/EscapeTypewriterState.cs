@@ -113,7 +113,7 @@ public sealed class EscapeTypewriterState
         {
             glyph = new(Corner, EscapeTypewriterGlyph.PictureOf(ProgramId, character));
             GlyphsWritten++;
-            ClickRequested = GlyphsWritten % 2 == 0;
+            ClickRequested = EscapeTypewriterDefinitions.ClickEverySecondGlyph.IsDue(GlyphsWritten);
         }
         Corner += new Offset16<PlanePixels>(EscapeTypewriterDefinitions.GlyphAdvance, 0);
         return glyph;

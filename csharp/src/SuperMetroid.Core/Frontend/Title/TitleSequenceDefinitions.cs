@@ -69,6 +69,11 @@ public static class TitleSequenceDefinitions
         public const int SceneTwoEndY = 163;
         /// <summary>The unscaled zoom, in 1/256 units; reaching it completes the final zoom.</summary>
         public const int IdentityScale = 256;
+        /// <summary>
+        /// The updates of the final zoom on which the zoom grows one step (#1619): every second update of the phase's own
+        /// count, on its even place, from the first.
+        /// </summary>
+        public static readonly UpdateCadence FinalZoomStepEverySecondUpdate = new(2, 0);
         /// <summary>The floor scenes' rotation: none; the scenes pan and zoom only.</summary>
         public static RotationAngle Rotation => RotationAngle.Zero;
         /// <summary>The floor point the floor scenes zoom about.</summary>

@@ -15,7 +15,7 @@ internal static class EscapeTimerCadence
     /// </summary>
     internal static int Centiseconds(int frameCounter)
     {
-        int frame = frameCounter & (PeriodFrames - 1);
+        int frame = PeriodPlace.Of(frameCounter);
         int quarterFrames = PeriodFrames / QuarterCount;
         int halfFrames = quarterFrames / HalvesPerQuarter;
         int quarter = frame / quarterFrames;

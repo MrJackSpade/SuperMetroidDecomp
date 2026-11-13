@@ -9,6 +9,12 @@ public static class EscapeTypewriterDefinitions
     /// <summary>The key click the Ceres typewriter plays for every other glyph.</summary>
     public static readonly SoundEffectId CeresClick = EnemySound.CeresTypewriter;
 
+    /// <summary>
+    /// The glyphs whose typing requests the key click (#1619): every second glyph of the count written, on its even place,
+    /// from the second glyph on.
+    /// </summary>
+    internal static readonly UpdateCadence ClickEverySecondGlyph = new(2, 0);
+
     /// <summary>The delay between typed characters; unchanged and outside the installed programs table payload. No timing exemption is claimed.</summary>
     public const int CharacterDelayFrames = 2;
 

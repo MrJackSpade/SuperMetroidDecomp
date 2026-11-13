@@ -230,7 +230,8 @@ public sealed class TitleSequenceState : IFrontendScreen
 
             case TitleSequencePhase.SceneThreeZoom:
                 // The zoom grows only on every second update.
-                if ((PhaseTimer++ & 1) == 0 && Zoom < TitleSequenceDefinitions.Scenes.IdentityScale)
+                if (TitleSequenceDefinitions.Scenes.FinalZoomStepEverySecondUpdate.IsDue(PhaseTimer++) &&
+                    Zoom < TitleSequenceDefinitions.Scenes.IdentityScale)
                     Zoom++;
                 if (Zoom >= TitleSequenceDefinitions.Scenes.IdentityScale)
                 {

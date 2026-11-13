@@ -15,8 +15,7 @@ public sealed class TitleGradientPresentation
     internal TitleGradientPresentation(ScreenGradient[] variants) => this.variants = variants;
 
     /// <summary>Returns the gradient the title shows at <paramref name="zoom"/>.</summary>
-    /// <param name="zoom">The title floor's zoom; only bits 4..7 select a gradient, with all other bits ignored.</param>
+    /// <param name="zoom">The title floor's zoom, whose bucket (<see cref="TitleGradientFormat.ZoomBucket"/>) selects a gradient.</param>
     /// <returns>The selected gradient, covering the whole screen.</returns>
-    public ScreenGradient Resolve(int zoom) =>
-        variants[(zoom >> 4) % TitleGradientFormat.VariantCount];
+    public ScreenGradient Resolve(int zoom) => variants[TitleGradientFormat.ZoomBucket.Of(zoom)];
 }

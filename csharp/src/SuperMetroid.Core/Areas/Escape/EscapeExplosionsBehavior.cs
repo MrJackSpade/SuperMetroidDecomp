@@ -27,7 +27,7 @@ internal sealed class EscapeExplosionsBehavior
     {
         int choice = ZebesEscapeDefinitions.ExplosionChoice.Of(random);
         // Preserve the game's unchanged-X branch, not the upstream C port's bugfix.
-        if (choice < 8)
+        if (choice < ZebesEscapeExplosionDefinitions.Choices.Length)
         {
             inheritedX = choice;
             if (ZebesEscapeExplosions.ForIndex(choice).SoundEffect is SoundEffectId sound)

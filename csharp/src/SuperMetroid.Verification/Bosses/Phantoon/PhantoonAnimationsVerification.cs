@@ -159,7 +159,7 @@ internal static class PhantoonAnimationsVerification
                 AssertEqual(native.Operand, flame.PresentationOperandAddress, $"{at}: frame");
                 AssertEqual(native.Counter, flame.LoopCountdown.RemainingFrames, $"{at}: loop counter");
             }
-            AssertEqual(drops, enemies.PhantoonFlameDropRequests.Count, $"Phantoon flame {program}: drop requests");
+            AssertEqual(drops, enemies.ActiveEnemyDropPickups, $"Phantoon flame {program}: drop requests");
             bool deletes = program is PhantoonFlameSegment.CasualResting or PhantoonFlameSegment.Dying or PhantoonFlameSegment.RainImpact
                 or PhantoonFlameSegment.Delete or PhantoonFlameSegment.DestroyableShot;
             AssertEqual(deletes, native.Deleted, $"Phantoon flame {program}: deletion matches the native list");

@@ -130,7 +130,8 @@ internal static class RidleyFullMovieVerification
         runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
         AssertEqual(RidleyAiFunction.NorfairDeathComplete, state.Function, "death finish selects native C600 return");
         AssertTrue(body.Presence.HasAny(EnemyPresence.Deleted), "death finish publishes deletion");
-        AssertTrue(state.BossDefeatPublished && runtime.Enemies.RidleyBehavior.Death.RidleyDeathDropRequested, "death finish publishes boss defeat and drops");
+        AssertTrue(runtime.System.HasAnyBossBits(AreaId.Norfair, BossBits.AreaBoss) && runtime.Enemies.ActiveEnemyDropPickups > 0,
+            "death finish publishes boss defeat and drops");
         int random = runtime.System.RandomNumber;
         runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
         AssertEqual(random, runtime.System.RandomNumber, "terminal return does not spawn another drop scatter");
@@ -322,11 +323,9 @@ internal static class RidleyFullMovieVerification
             samus.PoseHistory.PreviousPose = pose;
             SamusMovementType spinMovement = SamusMovementType.SpinJumping;
             samus.PoseHistory.PreviousMovement = spinMovement;
-            samus.PoseHistory.LastDifferentPose = SamusPoseId.RunningAimUpRightPose;
             samus.PoseHistory.LastDifferentMovement = SamusMovementType.Running;
             runtime.StepFrame(0);
             AssertEqual(pose, samus.PoseHistory.PreviousPose, "fallback retains spin pose");
-            AssertEqual(pose, samus.PoseHistory.LastDifferentPose, "fallback commits same-pose history");
             AssertEqual(spinMovement, samus.PoseHistory.LastDifferentMovement, "fallback publishes older spin movement");
             AssertTrue(samus.PoseHistory.AllowsWallJumpProbe, "next update admits native wall observation");
         }

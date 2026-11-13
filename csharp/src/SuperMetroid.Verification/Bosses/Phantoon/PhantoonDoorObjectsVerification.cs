@@ -158,7 +158,6 @@ internal static class PhantoonDoorObjectsVerification
         // Past the power's last step: this update completes the power coming back.
         state.EyeState.FadeNumerator = 14;
         enemies.PhantoonBehavior.Death.ActivateWreckedShipAfterPhantoon(state.Body, state);
-        AssertTrue(state.WreckedShipPowerPaletteComplete, "the Wrecked Ship's power has come back");
         AssertEqual((PhantoonDoorChange?)PhantoonDoorChange.RestoredDoor, results.PhantoonDoor, "the power's return asks for the restored door");
 
         Dictionary<Offset16<RoomBlocks>, RoomTerrainBlock> before = NativeTerrain(rom, Frames[0].Pointer, out _);

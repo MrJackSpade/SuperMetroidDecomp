@@ -43,7 +43,5 @@ internal static class NativeSnapshotPauseImport
         runtime.System.TimedHeldInputTimer = WrappingCountdown.FromRaw(W(PauseMemory.TimedHeldTimer));
         runtime.System.TimedHeldInputTimerReset = W(PauseMemory.TimedHeldReset);
         runtime.System.TimedHeldInput = ControllerWordCodec.FromJoypadWord(W(PauseMemory.TimedHeldInput), "native timed held input");
-        runtime.System.NewlyTimedHeldInput = ControllerWordCodec.FromJoypadWord(W(PauseMemory.TimedHeldNew), "native newly timed held input");
-        runtime.System.TimedHeldInputPrevious = ControllerWordCodec.FromJoypadWord(W(PauseMemory.TimedHeldPrevious), "native previous timed held input");
     }
 }

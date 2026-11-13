@@ -120,7 +120,6 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.SecondSetSong));
                 torizo.Contact = torizo.Contact.Without(EnemyContact.SolidToSamus);
                 TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimations.AfterSleep(TorizoAnimations.SegmentOf(state.BodyPlayback))));
-                state.AwakeningReleased = true;
                 return;
 
             case TorizoFunction.Active:
@@ -172,7 +171,6 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private void FinishBombTorizoDeath(TorizoEnemyState state)
     {
         _room.Services.Bosses.SetDefeated(BossBits.AreaTorizo);
-        state.BossBitSet = true;
 
         // The two statues share one chance table but use different
         // arena rectangles: Bomb Torizo uses the 128x64 upper room region, while Golden
@@ -184,7 +182,6 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             xScatter: state.IsGolden ? EnemyDropScatterDefinitions.WideArenaHorizontalScatter : EnemyDropScatterDefinitions.NarrowArenaHorizontalScatter,
             yBase: state.IsGolden ? 288 : 96,
             yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
-        state.ItemDropRequested = true;
         RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
     }
 

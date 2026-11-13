@@ -99,9 +99,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         slot.Position = slot.Position.WithWhole(new(488, 184));
         slot.Radius = slot.Radius.WithY(21);
 
-        DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(
-            slot,
-            graphicsVariant: 0);
+        DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(slot);
         SetDeadSidehopperAnimation(slot, state, DeadTourianSegment.SidehopperIdle);
         state.Function = DeadSidehopperAiFunction.AliveWaitForCamera;
         // The victim shows the colours the Shitroid's entry gives it, the target the room's colours fade to (#1512).
@@ -113,9 +111,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Runs the already-dead Tourian layout.</summary>
     private static void InitializeAlternateDeadSidehopper(RoomEnemySlot slot)
     {
-        DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(
-            slot,
-            graphicsVariant: 2);
+        DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(slot);
         SetDeadSidehopperAnimation(slot, state, DeadTourianSegment.SidehopperInitiallyDead);
         state.DrainStage = null;
         slot.Shading = state.Shading;
@@ -123,11 +119,9 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Allocates slot state with the corpse's own rot schedule and its own rows.</summary>
-    private static DeadSidehopperEnemyState InitializeDeadSidehopperCorpseState(
-        RoomEnemySlot slot,
-        int graphicsVariant)
+    private static DeadSidehopperEnemyState InitializeDeadSidehopperCorpseState(RoomEnemySlot slot)
     {
-        var state = new DeadSidehopperEnemyState(slot, graphicsVariant, new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
+        var state = new DeadSidehopperEnemyState(slot, new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
         slot.SetSpeciesState(state);
         return state;
     }
@@ -396,10 +390,9 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state)
     {
-        state.ProcessCallCount++;
         bool stillRotting = state.Rot.Step(
             state.Rows.MoveRow,
-            _ => FinishDeadSidehopperCorpseRow(slot, state));
+            _ => FinishDeadSidehopperCorpseRow(slot));
         if (!stillRotting)
             state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
     }
@@ -407,15 +400,9 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>The rows <paramref name="slot"/>'s frames show: its corpse's own, as its rot calls have left them (#1539).</summary>
     internal static CorpseRotRows ShownDeadSidehopperRows(RoomEnemySlot slot) => RequireDeadSidehopperState(slot).Rows.Shown;
 
-    /// <summary>Records a completed row, spawns dust at its randomized X offset, and conditionally requests sound.</summary>
-    private void FinishDeadSidehopperCorpseRow(
-        RoomEnemySlot slot,
-        DeadSidehopperEnemyState state)
-    {
-        state.FinishedEntryCount++;
+    /// <summary>Spawns a completed row's dust at its randomized X offset, and conditionally requests sound.</summary>
+    private void FinishDeadSidehopperCorpseRow(RoomEnemySlot slot) =>
         _rowDust.Spawn(slot, _room.Random.Read(), _projectiles, _frameContext.RandomEnemyCounter);
-        state.DustSpawnCount++;
-    }
 
 
 

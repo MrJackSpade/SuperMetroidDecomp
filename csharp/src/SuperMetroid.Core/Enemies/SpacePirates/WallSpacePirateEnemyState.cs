@@ -17,16 +17,6 @@ public sealed class WallSpacePirateEnemyState
     public WallSpacePirateFunction? Function { get; internal set; }
 
     /// <summary>
-    /// The room position the prepare-jump cues aim the jump at: the departure X plus or minus its jump span. Only the X
-    /// axis is stored; no gameplay reads it back.
-    /// </summary>
-    public Position16<RoomPixels> WallJumpDestination
-    {
-        get;
-        internal set => field = new(value.X, 0);
-    }
-
-    /// <summary>
     /// Binary direction; starts downward, reverses on a blocked vertical move, and is reselected from whether the
     /// random sample is odd by the climb animation's direction cues.
     /// </summary>
@@ -51,6 +41,4 @@ public sealed class WallSpacePirateEnemyState
     public RotationAngle LeftJumpTargetAngle { get; internal set; }
     /// <summary>Table units the jump angle steps each update, two for slow or four for fast jumps; subtracted when jumping right and added when jumping left.</summary>
     public int JumpAngleDelta { get; internal set; }
-    /// <summary>Host diagnostic count of successfully allocated lasers since this enemy state was initialized; shared projectile-pool exhaustion does not increment it.</summary>
-    public int SpawnedLaserCount { get; internal set; }
 }

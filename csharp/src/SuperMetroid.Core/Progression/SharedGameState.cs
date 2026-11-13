@@ -128,17 +128,6 @@ public sealed class SharedGameState
     public ControllerButton TimedHeldInput { get; internal set; }
 
     /// <summary>
-    /// Rising-edge bits for <see cref="TimedHeldInput"/>.
-    /// </summary>
-    public ControllerButton NewlyTimedHeldInput { get; internal set; }
-
-    /// <summary>
-    /// Prior active filtered input. The game updates
-    /// this only on timer underflow, not on every frame.
-    /// </summary>
-    public ControllerButton TimedHeldInputPrevious { get; internal set; }
-
-    /// <summary>
     /// Advances the shared RNG seed exactly as the game's generator
     /// does, preserving the two half-by-half products, the overflow into the upper half,
     /// and the final addition wrapping past 65535. Every caller observes the updated seed.
@@ -189,14 +178,9 @@ public sealed class SharedGameState
                 // The game pins the expired timer to zero. Continued stable input therefore
                 // underflows again on every update, keeping TimedHeldInput active.
                 TimedHeldInputTimer = WrappingCountdown.Start(0);
-                TimedHeldInputPrevious = TimedHeldInput;
                 TimedHeldInput = heldInput;
             }
         }
-
-        // This is the standard rising-edge expression: current & (previous XOR current).
-        // It produces a one-update pulse when a delayed button first becomes active.
-        NewlyTimedHeldInput = TimedHeldInput & (TimedHeldInputPrevious ^ TimedHeldInput);
     }
 
     /// <summary>Records <paramref name="bits"/> as defeated in <paramref name="area"/>.</summary>

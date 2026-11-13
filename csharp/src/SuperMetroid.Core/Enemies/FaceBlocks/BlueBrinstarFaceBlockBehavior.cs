@@ -80,7 +80,6 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         // *different* from this marker.
         state.FacesRight = slot.SpawnSettings<FaceBlockSpawnSettings>().Facing == HorizontalDirection.Right;
         state.Activated = false;
-        state.LastHorizontalDelta = 0;
     }
 
     /// <summary>Runs the Blue Brinstar face block's main AI.</summary>
@@ -102,11 +101,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             slot.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
             return;
 
-        // The horizontal distance is recorded after the Y test but before the X test, including on frames
-        // that fail horizontal range or side, so a frame that fails the X test still
-        // records the vertical distance.
+        // The signed room-coordinate difference wraps across the room's wrapping axis.
         int horizontalDelta = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole);
-        state.LastHorizontalDelta = horizontalDelta;
         if (Math.Abs(horizontalDelta) >= slot.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
             return;
 

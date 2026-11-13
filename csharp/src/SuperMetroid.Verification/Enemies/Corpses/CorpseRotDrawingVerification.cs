@@ -123,7 +123,7 @@ internal static class CorpseRotDrawingVerification
             if (call > 0)
             {
                 still = rotting.Step(new Position16<RoomPixels>(128, 112), MotherBrainRandomSample.FromGenerator(unchecked((ushort)(call * 37))), call).StillRotting;
-                ReplaySchedule(authored, rotting);
+                ReplaySchedule(authored, call);
             }
             compared += AssertDrawsWhole(sheet.Frame(name), sheets.Under(set).Enemy(EnemyDefinitionId.MotherBrainHead).CorpsePlacement(name), rotting.Shown,
                 authored, $"Mother Brain's corpse after rot call {call}");
@@ -132,12 +132,12 @@ internal static class CorpseRotDrawingVerification
     }
 
     /// <summary>
-    /// Brings <paramref name="authored"/> to the rot Mother Brain's corpse has taken: her state runs its schedule itself, so the
-    /// authored rot follows a schedule of its own through as many calls.
+    /// Brings <paramref name="authored"/> to the rot Mother Brain's corpse has taken in <paramref name="calls"/> rot calls:
+    /// her state runs its schedule itself, so the authored rot follows a schedule of its own through as many calls.
     /// </summary>
-    private static void ReplaySchedule(AuthoredRot authored, MotherBrainCorpseRottingState rotting)
+    private static void ReplaySchedule(AuthoredRot authored, int calls)
     {
-        while (authored.Calls < rotting.ProcessCallCount)
+        while (authored.Calls < calls)
             authored.Call();
     }
 
@@ -148,8 +148,8 @@ internal static class CorpseRotDrawingVerification
     private static void VerifyCorpsesOfOneKindRotApart()
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var rotting = new DeadSidehopperEnemyState(enemies.SlotTable.Slots[0], 2, new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
-        var intact = new DeadSidehopperEnemyState(enemies.SlotTable.Slots[1], 2, new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
+        var rotting = new DeadSidehopperEnemyState(enemies.SlotTable.Slots[0], new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
+        var intact = new DeadSidehopperEnemyState(enemies.SlotTable.Slots[1], new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
         while (rotting.Rot.Step(rotting.Rows.MoveRow, _ => { }))
         {
         }

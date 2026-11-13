@@ -15,9 +15,6 @@ public sealed class PhantoonEyeState
     /// <summary>The eye's updates before it opens.</summary>
     public int ClosedTimer { get; internal set; }
 
-    /// <summary>The eye's shot marker, chosen when the eye is hit.</summary>
-    public int ShotMarker { get; internal set => field = Ensure.AtLeastZero(value); }
-
     /// <summary>Whether the eye's figure-eight runs the path backwards.</summary>
     public bool FigureEightReversed { get; internal set; }
 

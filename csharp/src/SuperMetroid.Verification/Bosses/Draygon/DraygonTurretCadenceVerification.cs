@@ -30,16 +30,19 @@ internal static class DraygonTurretCadenceVerification
         AssertEqual(DraygonAiFunction.IntroInitialDelay, (boss ?? throw new InvalidOperationException("Verification requires boss.")).Function, "fight intro waits before the dance");
 
         RoomEnemyFrame? stepped = null;
+        // The turret check fires a wall turret from a whole cannon at Samus, so a check is seen as a new turret in the pool.
+        int WallTurrets() => runtime.Enemies.Projectiles.EnemyProjectiles.Count(p =>
+            p.IsActive && p.Kind == RoomEnemyProjectileKind.DraygonWallTurret);
         int StepWith(byte counter8, ushort counter16)
         {
-            int before = boss.TurretCadenceChecks;
+            int before = WallTurrets();
             stepped = runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = runtime.Player.Samus, ShortCounter = counter8, FrameCounter = counter16 };
             runtime.Enemies.StepStandaloneFrame(stepped);
-            return boss.TurretCadenceChecks - before;
+            return WallTurrets() - before;
         }
 
         AssertEqual(1, StepWith(counter8: 0x01, counter16: 0x3000),
-            "a $05B6 multiple of $40 runs the turret check whatever $05B5 holds");
+            "a $05B6 multiple of $40 runs the turret check, firing a wall turret, whatever $05B5 holds");
         // #1620: the enemy pass hands the enemies the power bomb explosion of its frame's bombs, which Draygon's shots read.
         AssertTrue(stepped is not null && ReferenceEquals(stepped.SharedProjectiles.PowerBombExplosion, runtime.Enemies.FrameContext.PowerBombExplosion),
             "the enemy pass's frame context holds its frame's power bomb explosion");

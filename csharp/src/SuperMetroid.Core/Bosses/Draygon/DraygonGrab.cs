@@ -98,7 +98,6 @@ internal sealed class DraygonGrab
         state.SpiralAngle = DraygonBehavior.DraygonInitialSpiralAngle;
         state.SpiralAngleDelta = DraygonBehavior.DraygonInitialSpiralAngleDelta;
         state.Function = DraygonAiFunction.CarrySamus;
-        state.SuccessfulGrabs++;
     }
 
     /// <summary>Runs the one-frame grapple rejection.</summary>

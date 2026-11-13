@@ -143,7 +143,7 @@ internal static class SporeSpawnAnimationsVerification
                 AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
                 AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
             }
-            AssertEqual(drops, enemies.SporeSpawnDropRequests.Count, $"Spore Spawn projectile {program}: drop requests");
+            AssertEqual(drops, enemies.ActiveEnemyDropPickups, $"Spore Spawn projectile {program}: drop requests");
             AssertEqual(program == SporeSpawnProjectileSegment.SporeShot, native.Deleted, $"Spore Spawn projectile {program}: only the shot deletes");
         }
         return updates;

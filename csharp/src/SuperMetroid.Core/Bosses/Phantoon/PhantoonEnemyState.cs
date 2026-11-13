@@ -94,33 +94,17 @@ public sealed class PhantoonEnemyState
     /// </summary>
     public bool Translucent { get; internal set; }
 
-
-    /// <summary>The eight requested/allocated starting flames are counted independently.</summary>
-    public int StartingFlameRequests { get; internal set; }
-    /// <summary>Gets the number of introductory flame requests that acquired a live projectile slot.</summary>
-    public int StartingFlamesSpawned { get; internal set; }
-
     /// <summary>Position zero through two in the repeating three-sound materialization cycle; the next materialization plays this one and advances it.</summary>
     public int MaterializationSoundIndex { get; internal set; }
-    /// <summary>Gets the count of projectile collisions accepted by the vulnerable body path, including hits whose vulnerability produces zero damage.</summary>
-    public int AcceptedProjectileHits { get; internal set; }
 
-    /// <summary>Death choreography observability: physical explosions and mosaic size.</summary>
-    public int DeathExplosionRequests { get; internal set; }
-    /// <summary>Gets the number of death-explosion requests that allocated a physical effect actor.</summary>
-    public int DeathExplosionsSpawned { get; internal set; }
     /// <summary>
     /// Gets the live pixelation block size of his body in screen pixels before display latching: one (no quantization) until
     /// the dying fade grows it one pixel every sixteenth frame up to sixteen, and one again once the body is cleared.
     /// </summary>
     public int MosaicBlockSize { get; internal set; } = 1;
 
-    /// <summary>Gets whether the final death step has requested the authored sixteen-pickup arena scatter.</summary>
-    public bool ItemDropRequested { get; internal set; }
     /// <summary>Gets whether the final death step has published the persistent area-boss defeat flag.</summary>
     public bool BossDefeatPersisted { get; internal set; }
-    /// <summary>Gets whether the powered Wrecked Ship fade over colours zero through 111 and the final deletion/door/music handoff have completed.</summary>
-    public bool WreckedShipPowerPaletteComplete { get; internal set; }
 
     /// <summary>Gets the encounter's lazily created wave of his body, which advances separately from display latching.</summary>
     public PhantoonBodyWaveEffect BodyWave => field ??= new();

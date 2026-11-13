@@ -248,7 +248,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     ineligibleHistory.Kinematics.Position = ineligibleHistory.Kinematics.Position.WithFractionX(0x4321);
     var rejectedContact = SamusAerialMovement.StepSpinJump(
 level, ineligibleHistory, (ControllerButton.Left | ControllerButton.A), 0, 0);
-    AssertTrue(!rejectedContact.WallContact && !rejectedContact.WallJumpTriggered,
+    AssertTrue(!rejectedContact.WallJumpTriggered,
         "native history gate rejects before the wall probe");
     AssertEqual(0, ineligibleHistory.AnimationFrame, "rejected history cannot rewind wall animation");
     AssertEqual(0x4321, ineligibleHistory.Kinematics.Position.X.Fraction,
@@ -256,7 +256,7 @@ level, ineligibleHistory, (ControllerButton.Left | ControllerButton.A), 0, 0);
     earlyContact.SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling;
     AerialMovementResult contactFrame = SamusAerialMovement.StepSpinJump(
 level, earlyContact, (ControllerButton.Left | ControllerButton.A), 0, 0);
-    AssertTrue(contactFrame.WallContact && !contactFrame.WallJumpTriggered, "early wall chord contacts without launch");
+    AssertTrue(!contactFrame.WallJumpTriggered, "early wall chord contacts without launch");
     AssertEqual(0x0a, earlyContact.AnimationFrame, "early wall contact rewinds to frame A");
     // Carry clear at $90:90BD lets $90:90BF's vertical movement run and write its own
     // result; only a triggered launch publishes the wall-jump result.
@@ -268,7 +268,7 @@ level, earlyContact, (ControllerButton.Left | ControllerButton.A), 0, 0);
     var heldOnly = CreateSpinSamus(animationFrame: 0x0b);
     AerialMovementResult heldOnlyFrame = SamusAerialMovement.StepSpinJump(
 level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
-    AssertTrue(heldOnlyFrame.WallContact && !heldOnlyFrame.WallJumpTriggered,
+    AssertTrue(!heldOnlyFrame.WallJumpTriggered,
         "eligible held Jump without a fresh edge remains contact only");
     AssertEqual(SamusVerticalCollisionResult.None, heldOnly.SolidVerticalCollisionResult,
         "held-only wall contact leaves collision result clear");
@@ -284,7 +284,6 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
         ControllerButton.A);
     AssertTrue(triggerFrame.WallJumpTriggered, "eligible fresh jump press triggers wall jump");
     AssertEqual(beforeTriggerY, eligible.Position.Y.Whole, "wall trigger frame preserves Y");
-    AssertEqual(7, triggerFrame.WallDistance, "wall trigger reports clipped seven-pixel distance");
     AssertEqual(SamusVerticalCollisionResult.WallJump, eligible.SolidVerticalCollisionResult,
         "terrain wall jump publishes native solid-vertical result five");
 
@@ -300,8 +299,6 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
         ControllerButton.A);
     AssertTrue(opposedRightWallTrigger.WallJumpTriggered,
         "Left+Right uses native Left-first priority at a right wall");
-    AssertEqual(triggerFrame.WallDistance, opposedRightWallTrigger.WallDistance,
-        "Left+Right and Left-only report the same right-wall distance");
 
     // Mirror the fixture to the wall's right. Right alone probes left and launches; adding
     // Left changes the first native branch to a rightward probe, so no wall is contacted.
@@ -327,12 +324,11 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
         (ControllerButton.Left | ControllerButton.Right | ControllerButton.A),
         0,
         ControllerButton.A);
-    AssertTrue(!opposedLeftWallResult.WallContact && !opposedLeftWallResult.WallJumpTriggered,
+    AssertTrue(!opposedLeftWallResult.WallJumpTriggered,
         "Left+Right cannot launch from a left wall because Left wins the native branch");
 
     // Repeat the same eligible chord with a native solid-enemy snapshot in front of the
-    // terrain. `$90:9E64` must publish that exact slot for enemy AI's shake response; a
-    // terrain-backed wall jump deliberately does not write this word.
+    // terrain: the solid enemy is the wall the jump launches from.
     var enemyEligible = CreateSpinSamus(animationFrame: 0x0b);
     enemyEligible.Kinematics.InteractiveEnemies =
     [
@@ -350,11 +346,8 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
         0,
         ControllerButton.A);
     AssertTrue(enemyTrigger.WallJumpTriggered, "solid enemy can trigger ordinary wall jump");
-    AssertEqual(7, enemyTrigger.WallDistance, "enemy wall jump retains directional gap");
     AssertEqual(SamusVerticalCollisionResult.WallJump, enemyEligible.SolidVerticalCollisionResult,
         "enemy wall jump publishes native solid-vertical result five");
-    AssertEqual(9, enemyEligible.EnemySlotToShake ?? -1,
-        "enemy wall jump publishes contacted slot for shake");
 
     // Bank $91:F2D3 clears only base speed; bank $90:9949 installs Y launch speed and
     // likewise leaves the Dash pair/flag alone. Seed a visible fractional value here so

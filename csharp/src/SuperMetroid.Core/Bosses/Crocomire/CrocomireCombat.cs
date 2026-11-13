@@ -229,7 +229,6 @@ internal sealed class CrocomireCombat
             }
             state.FightFlags = (state.FightFlags & ~(CrocomireFightFlags.DamageReactionPending | CrocomireFightFlags.ClawTouchedSamus)) |
                 CrocomireFightFlags.DamageReactionPending;
-            state.ReactionTimer = 10;
         }
 
         body.FlashTimer += 14;
@@ -260,7 +259,6 @@ internal sealed class CrocomireCombat
 
         state.FightFlags = (state.FightFlags & ~(CrocomireFightFlags.ClawTouchedSamus | CrocomireFightFlags.Engaged)) |
             CrocomireFightFlags.Engaged;
-        state.ReactionTimer = 10;
         body.FlashTimer += 4;
         body.AiStates |= EnemyAiStates.Hurt;
         state.FightFunction = CrocomireFightFunction.PowerBombCharge;

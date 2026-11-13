@@ -53,7 +53,6 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         state.Playback = EnemyAnimationPlayback.Start(slot, KagoAnimations.StartingWith(KagoSegment.Slow));
         state.Function = KagoEnemyFunction.InstallNoOp;
-        state.DeathAnimationStarted = false;
         state.HitCounter = slot.SpawnSettings<KagoSpawnSettings>().HitCount;
     }
 
@@ -98,14 +97,12 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
                 _roomStatus.RecordKill();
             }
-            state.DeathAnimationStarted = true;
         }
 
         // The game spawns even on the lethal eleventh callback, after requesting Kago's
         // death animation. Pool exhaustion is silent and therefore does not roll back the
         // counter, earthquake, or animation transition.
-        if (SpawnKagoBug(slot))
-            state.SpawnedBugCount++;
+        _ = SpawnKagoBug(slot);
     }
 
     /// <summary>Routes bomb hits through common shot AI before applying Kago's quake, counter, and bug spawn.</summary>

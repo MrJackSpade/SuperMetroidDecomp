@@ -241,8 +241,6 @@ level, right, unchecked((ushort)(frame + 1))),
                 $"Hyper Beam palette-FX call {call + 1} color {color}");
         }
     }
-    AssertEqual(1, left.Drained.HyperBeamPaletteFx.CompletedCycles,
-        "Hyper Beam palette-FX completes one cycle on call twenty-one");
     AssertEqual(beamsBefore[0], drainedColours.ShownBeams(drainedSources)[0],
         "Hyper Beam palette-FX preserves color before its range");
     AssertEqual(beamsBefore[9], drainedColours.ShownBeams(drainedSources)[9],
@@ -709,20 +707,16 @@ internal static void VerifySamusGrabbedByDraygon()
         var history = historySamus.PoseHistory;
         history.PreviousPose = SamusPoseId.SpinJumpRightPose;
         history.PreviousMovement = SamusMovementType.SpinJumping;
-        history.LastDifferentPose = SamusPoseId.WallJumpLeftPose;
         history.LastDifferentMovement = SamusMovementType.WallJumping;
         SamusPoseId grabbedPose = facingRight ? SamusPoseId.DraygonGrabbedNeutralRightPose : SamusPoseId.DraygonGrabbedNeutralLeftPose;
         SamusMovementType grabbedMetadata = SamusMovementType.DraygonHeld;
         historySamus.DraygonGrabbed.Begin(historySamus, facingRight);
-        AssertEqual(SamusPoseId.SpinJumpRightPose, history.LastDifferentPose, "Draygon grab shifts previous pose");
         AssertEqual(SamusMovementType.SpinJumping, history.LastDifferentMovement, "Draygon grab shifts previous metadata");
         AssertEqual(grabbedPose, history.PreviousPose, "Draygon grab commits grabbed pose");
         AssertEqual(grabbedMetadata, history.PreviousMovement, "Draygon grab commits grabbed metadata");
         historySamus.DraygonGrabbed.Begin(historySamus, facingRight);
-        AssertEqual(grabbedPose, history.LastDifferentPose, "repeated Draygon grab still shifts history");
         AssertEqual(grabbedMetadata, history.LastDifferentMovement, "repeated grab shifts metadata");
         historySamus.DraygonGrabbed.Release(historySamus);
-        AssertEqual(grabbedPose, history.LastDifferentPose, "Draygon release retains prior grabbed pose");
         AssertEqual(grabbedMetadata, history.LastDifferentMovement, "Draygon release retains prior grabbed metadata");
         AssertEqual(historySamus.Pose, history.PreviousPose, "Draygon release commits standing pose");
         AssertEqual(SamusMovementType.Standing, history.PreviousMovement, "Draygon release commits standing metadata");
@@ -737,7 +731,7 @@ internal static void VerifySamusGrabbedByDraygon()
 
     samus.DraygonGrabbed.ApplyOwnerPosition(
         samus, ownerPosition: new(0x0100, 0x0180), draygonFacingRight: true);
-    AssertEqual(8, samus.Position.X.Whole - samus.DraygonGrabbed.OwnerPosition.X,
+    AssertEqual(8, samus.Position.X.Whole - 0x0100,
         "right-facing claw offset is +8");
     AssertEqual(0x0108, samus.Position.X.Whole, "right-facing owner placement X");
     AssertEqual(0x01a8, samus.Position.Y.Whole, "owner placement Y is body plus $28");
@@ -820,7 +814,7 @@ internal static void VerifySamusGrabbedByDraygon()
     samus.DraygonGrabbed.Begin(samus, draygonFacingRight: false);
     samus.DraygonGrabbed.ApplyOwnerPosition(
         samus, ownerPosition: new(0x0100, 0x0180), draygonFacingRight: false);
-    AssertEqual(-8, samus.Position.X.Whole - samus.DraygonGrabbed.OwnerPosition.X,
+    AssertEqual(-8, samus.Position.X.Whole - 0x0100,
         "left-facing claw offset is -8");
     AssertEqual(0x00f8, samus.Position.X.Whole, "left-facing owner placement X");
     samus.DraygonGrabbed.Release(samus);

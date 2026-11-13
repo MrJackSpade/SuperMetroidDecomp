@@ -2,26 +2,15 @@ using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Verification.Frontend;
 
-/// <summary>Checks the controller's repeat delays and the held-input reload.</summary>
+/// <summary>Checks the held-input reload.</summary>
 internal static class ControllerRepeatDelayVerification
 {
 /// <summary>
-/// The controller repeat delays and the held-input reload are frame counts that are only reloaded into countdowns: a
-/// delay of zero still lets the countdown wrap below zero exactly as before, and a delay past the countdown's range is
-/// rejected where it is set.
+/// The held-input reload is a frame count that is only reloaded into a countdown: a reload of zero still lets the
+/// countdown wrap below zero exactly as before, and a reload past the countdown's range is rejected where it is given.
 /// </summary>
 internal static void VerifyRepeatAndHeldInputDelays()
 {
-    var controller = new ControllerInputState();
-    controller.Latch(ControllerButton.Left);
-    controller.Latch(ControllerButton.Left);
-    AssertEqual(ushort.MaxValue, controller.RepeatTimer.RawValue, "a zero repeat delay wraps the repeat countdown below zero");
-    AssertEqual(ControllerButton.None, controller.NewlyPressedWithRepeat, "a wrapped repeat countdown does not pulse");
-    AssertThrows<ArgumentOutOfRangeException>(() => controller.InitialRepeatDelay = ushort.MaxValue + 1,
-        "a repeat delay past the countdown's range is rejected");
-    AssertThrows<ArgumentOutOfRangeException>(() => new ControllerInputState(subsequentRepeatDelay: -1),
-        "a negative repeat delay is rejected");
-
     var system = new SuperMetroid.Core.Progression.SharedGameState(new SharedRandom());
     system.UpdateHeldInput(0, ControllerButton.Left, ControllerButton.None);
     AssertEqual(ControllerButton.None, system.TimedHeldInput, "a held-input change restarts the delay");

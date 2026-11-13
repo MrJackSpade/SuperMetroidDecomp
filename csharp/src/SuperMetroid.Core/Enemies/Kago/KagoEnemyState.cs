@@ -18,10 +18,4 @@ public sealed class KagoEnemyState
     /// is negative, so population value ten permits eleven accepted shots.
     /// </summary>
     public int HitCounter { get; internal set; }
-
-    /// <summary>Set after Kago requests death animation variant four.</summary>
-    public bool DeathAnimationStarted { get; internal set; }
-
-    /// <summary>Number of Kago bugs successfully allocated from this shell.</summary>
-    public int SpawnedBugCount { get; internal set; }
 }

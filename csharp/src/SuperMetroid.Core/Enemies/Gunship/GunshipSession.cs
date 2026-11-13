@@ -8,5 +8,5 @@ internal sealed class GunshipSession(GunshipBehavior gunship) : IGunshipSession
     public bool SavePromptPending => gunship.GunshipSavePromptPending;
 
     /// <inheritdoc/>
-    public void AnswerSavePrompt(bool save) => gunship.AnswerGunshipSavePrompt(save);
+    public void AnswerSavePrompt() => gunship.AnswerGunshipSavePrompt();
 }

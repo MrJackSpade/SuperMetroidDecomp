@@ -25,8 +25,6 @@ internal sealed class PhantoonCombat
     private readonly EnemyCollision _collision;
     /// <summary>Handles Phantoon's damage, death, and flame drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Flame-destruction drop requests published during the current room encounter.</summary>
-    internal readonly List<PhantoonFlameDropRequest> PhantoonFlameDropRequests = new();
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal PhantoonCombat(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops)
@@ -59,7 +57,6 @@ internal sealed class PhantoonCombat
                 PhantoonEnemyState phantoon = Phantoon ??
                     throw new InvalidOperationException("Phantoon shot callback has no encounter state.");
                 int appliedDamage = c.HealthBefore - c.Enemy.Health;
-                phantoon.AcceptedProjectileHits++;
                 ResolvePhantoonShotReaction(c.Enemy, phantoon, c.Bomb.Type, appliedDamage);
             },
         });
@@ -242,7 +239,6 @@ internal sealed class PhantoonCombat
             }
 
             int appliedDamage = healthBefore - body.Health;
-            state.AcceptedProjectileHits++;
             ResolvePhantoonShotReaction(
                 body,
                 state,
@@ -307,9 +303,9 @@ internal sealed class PhantoonCombat
 
             if (vulnerableWindow)
             {
-                int shotPattern = _room.Random.Next(PhantoonRandomDefinitions.ShotPattern);
-                state.EyeState.ShotMarker = PhantoonPatternDefinitions.ShotEyeMarkers[shotPattern];
-                state.MouthState.ShotPattern = shotPattern;
+                // A vulnerable hit draws a random number the game keeps but nothing reads; the draw itself advances the
+                // shared random sequence.
+                _ = _room.Random.Next(PhantoonRandomDefinitions.ShotPattern);
                 state.TentaclesState.RearmHurtFlash();
                 if (!state.TentaclesState.SwoopRequested)
                 {
@@ -357,7 +353,6 @@ internal sealed class PhantoonCombat
         state.EyeState.FadeComplete = false;
         state.BodyWave.InitializeDeathScroll(state.BodyLayerPlacement.X);
         state.Translucent = true;
-        state.MouthState.ShotPattern = 1;
     }
 
     /// <summary>Holds an intro flame until its delayed orbit begins.</summary>
@@ -584,8 +579,7 @@ internal sealed class PhantoonCombat
 
     /// <summary>
     /// Runs the flame's drop step: the flame's exact position and the Phantoon eye's enemy definition go to the
-    /// enemy drop spawner. The pickup owner is an outer subsystem, so publish the same request with the
-    /// definition's item table rather than silently discarding the drop.
+    /// enemy drop spawner, which places the pickup from the definition's item table.
     /// </summary>
     internal void RequestPhantoonFlameDrop(EnemyProjectile flame)
     {
@@ -596,7 +590,6 @@ internal sealed class PhantoonCombat
         }
 
         RoomEnemyDefinition eye = _room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.PhantoonEye);
-        PhantoonFlameDropRequests.Add(new PhantoonFlameDropRequest());
         _deathsAndDrops.SpawnEnemyDropFromChanceTable(
             flame.Position.Whole,
             eye.DropChances);

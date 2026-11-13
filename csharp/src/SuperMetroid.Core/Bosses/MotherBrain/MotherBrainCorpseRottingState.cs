@@ -5,9 +5,8 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain's corpse rotting away after her final death: her corpse's own rot schedule, the rot calls made, the rows
-/// that have fallen, and the corpse's own rows as the rot has left them, which her corpse's frame is drawn whole through
-/// (#1539).
+/// Mother Brain's corpse rotting away after her final death: her corpse's own rot schedule and the corpse's own rows as
+/// the rot has left them, which her corpse's frame is drawn whole through (#1539).
 /// </summary>
 public sealed class MotherBrainCorpseRottingState
 {
@@ -20,12 +19,6 @@ public sealed class MotherBrainCorpseRottingState
     /// <summary>The corpse's rows as its rot calls have left them.</summary>
     private readonly RottingCorpseRows rows = new(EntryCount);
 
-    /// <summary>Number of rot calls made.</summary>
-    public uint ProcessCallCount { get; private set; }
-
-    /// <summary>Number of rows that have fallen so far.</summary>
-    public uint FinishedEntryCount { get; private set; }
-
     /// <summary>The corpse's rows as its rot calls so far have left them (#1539).</summary>
     internal CorpseRotRows Shown => rows.Shown;
 
@@ -35,7 +28,6 @@ public sealed class MotherBrainCorpseRottingState
         MotherBrainRandomSample randomNumberSeed,
         int mainEnemyExecutionCounter)
     {
-        ProcessCallCount++;
         var dustRequests = new List<MotherBrainCorpseDustRequest>(capacity: 1);
 
         bool stillRotting = Schedule.Step(
@@ -44,7 +36,6 @@ public sealed class MotherBrainCorpseRottingState
             {
                 // The rotting step samples the already-existing global seed; it does not advance
                 // RNG. One dust projectile is emitted for every fallen row.
-                FinishedEntryCount++;
                 dustRequests.Add(new MotherBrainCorpseDustRequest(
                     Position: brainPosition + new Offset16<RoomPixels>(
                         randomNumberSeed.Read(MotherBrainRandomDefinitions.CorpseDustOffset) - 16,

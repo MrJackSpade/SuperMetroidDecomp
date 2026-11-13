@@ -805,7 +805,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Installs typed body or wing state at the physical enemy-slot index.</summary>
     private static KiHunterEnemyState CreateKiHunterState(RoomEnemySlot slot)
     {
-        var state = new KiHunterEnemyState(slot);
+        var state = new KiHunterEnemyState();
         slot.SetSpeciesState(state);
         return state;
     }

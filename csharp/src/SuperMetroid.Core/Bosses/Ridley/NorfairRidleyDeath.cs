@@ -69,9 +69,6 @@ internal sealed class NorfairRidleyDeath
             _ridleyEncounter.Ridley ?? throw new InvalidOperationException(
                 "A Ridley breakup actor has no shared Ridley owner."));
 
-    /// <summary>Last item-drop request published by Ridley's death.</summary>
-    public bool RidleyDeathDropRequested { get; private set; }
-
     /// <summary>
     /// Runs the death roar. Ridley continues converging on the death point throughout the roar;
     /// expiry freezes velocity and starts lowering the room acid before entering the long
@@ -87,7 +84,7 @@ internal sealed class NorfairRidleyDeath
             return;
 
         state.Velocity = EightEightVector<RoomPixels>.Zero;
-        RidleyLiquidMotion.Publish(_roomFx, state, RidleyLiquidDefinitions.DrainedHeight,
+        RidleyLiquidMotion.Publish(_roomFx, RidleyLiquidDefinitions.DrainedHeight,
             RidleyLiquidDefinitions.DrainVelocity, RidleyLiquidDefinitions.DrainDelay);
         state.DeathExplosionTimer = 0;
         state.DeathExplosionCount = 0;
@@ -153,7 +150,6 @@ internal sealed class NorfairRidleyDeath
             return;
 
         _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);
-        state.BossDefeatPublished = true;
 
         // The death drops scatter sixteen pickups through Ridley's authored 128x64 arena
         // rectangle. The body is deleted immediately afterward, so the drop actors must
@@ -165,7 +161,6 @@ internal sealed class NorfairRidleyDeath
             xScatter: EnemyDropScatterDefinitions.NarrowArenaHorizontalScatter,
             yBase: 320,
             yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
-        RidleyDeathDropRequested = true;
         _audio.RequestRidleyMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
         body.Presence = body.Presence.With(EnemyPresence.Deleted);
         state.Function = RidleyAiFunction.NorfairDeathComplete;

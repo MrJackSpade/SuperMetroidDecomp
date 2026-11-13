@@ -360,11 +360,11 @@ public static class SamusGrappleMovement
         }
 
         SamusGrappleSwing.ApplyRopeAndDirectionInput(grapple, controllerInput, newlyPressedInput);
-        bool ropeLengthBlocked = SamusGrappleSwing.ApplyRopeLengthDelta(terrain.Level, samus, grapple);
+        SamusGrappleSwing.ApplyRopeLengthDelta(terrain.Level, samus, grapple);
         SamusGrappleSwing.CalculateGravity(grapple);
         SamusGrappleSwing.IntegrateAngularVelocity(grapple);
         SamusGrappleSwing.ApplyJumpImpulse(grapple, newlyPressedInput);
-        GrappleSwingCollisionResult swingCollision = SamusGrappleSwing.AdvanceAngleWithTerrainCollision(
+        SamusGrappleSwing.AdvanceAngleWithTerrainCollision(
             terrain.Level,
             samus,
             grapple);
@@ -378,12 +378,7 @@ public static class SamusGrappleMovement
                 previousPosition,
                 out GrappleMovementResult special))
         {
-            return special with
-            {
-                TerrainCollided = swingCollision.Collided,
-                CollisionDistanceFromFeet = swingCollision.DistanceFromFeet,
-                RopeLengthBlocked = ropeLengthBlocked,
-            };
+            return special;
         }
 
         bool enemyAnchorHeld = TryRetainEnemyAnchor(grapple, enemyCollision);
@@ -400,30 +395,18 @@ public static class SamusGrappleMovement
             if (grapple.AngularVelocity == 0 && grapple.Angle == RotationAngle.HalfTurn)
             {
                 grapple.Phase = GrapplePhase.Dropped;
-                return new GrappleMovementResult(
-                    grapple.Phase,
-                    TerrainCollided: swingCollision.Collided,
-                    CollisionDistanceFromFeet: swingCollision.DistanceFromFeet,
-                    RopeLengthBlocked: ropeLengthBlocked);
+                return new GrappleMovementResult(grapple.Phase);
             }
 
             SamusGrappleSwing.PropelSamusFromSwing(samus, grapple);
             grapple.ReleasedMovementActive = true;
             grapple.Phase = GrapplePhase.ReleaseFromSwing;
-            return new GrappleMovementResult(
-                grapple.Phase,
-                TerrainCollided: swingCollision.Collided,
-                CollisionDistanceFromFeet: swingCollision.DistanceFromFeet,
-                RopeLengthBlocked: ropeLengthBlocked);
+            return new GrappleMovementResult(grapple.Phase);
         }
 
         SamusGrappleSwing.PositionSamusFromPendulum(samus, grapple);
 
-        return new GrappleMovementResult(
-            grapple.Phase,
-            TerrainCollided: swingCollision.Collided,
-            CollisionDistanceFromFeet: swingCollision.DistanceFromFeet,
-            RopeLengthBlocked: ropeLengthBlocked);
+        return new GrappleMovementResult(grapple.Phase);
     }
 
     /// <summary>Holds the connected pose while Shoot and the stored block or enemy support the endpoint; otherwise queues cancellation.</summary>
@@ -570,12 +553,6 @@ public static class SamusGrappleMovement
         bool jumpNew = (newlyPressedInput & ControllerButton.A) != ControllerButton.None;
         if (wall.Collided && jumpNew)
         {
-            if (wall.EnemyCollision is { EnemySlot: int enemySlot })
-            {
-                // The wall jump requests the contacted enemy's shake only when the
-                // fresh Jump edge actually accepts the grapple wall jump.
-                samus.EnemySlotToShake = enemySlot;
-            }
             grapple.Phase = GrapplePhase.WallJumping;
             return new GrappleMovementResult(
                 grapple.Phase);

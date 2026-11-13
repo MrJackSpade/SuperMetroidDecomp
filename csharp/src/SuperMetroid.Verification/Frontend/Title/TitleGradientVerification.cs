@@ -359,11 +359,16 @@ internal static class TitleGradientVerification
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Title.TitleGradientExtractor.Extract(bus);
         TitleGradientPresentation presentation = TitleGradientFile.Read(
             new MemoryStream(extracted, writable: false));
+        // The gradient the game loads from the installed file, every stop's line, colour and blend, is the import's
+        // decoding of the cartridge at every zoom (#1709).
+        TitleGradientPresentation installed = InstalledFixtures.Maps.TitleGradient;
         for (ushort zoom = 0; zoom < 256; zoom++)
         {
-            if (!presentation.Resolve(FloorZoom.FromTwoHundredFiftySixths(zoom)).Equals(
-                    TitleGradientDecoder.Decode(CartridgeImportSource.Require(bus), zoom)))
+            ScreenGradient decoded = TitleGradientDecoder.Decode(CartridgeImportSource.Require(bus), zoom);
+            if (!presentation.Resolve(FloorZoom.FromTwoHundredFiftySixths(zoom)).Equals(decoded))
                 throw new InvalidDataException($"Extracted title gradient differs at zoom ${zoom:X2}.");
+            if (!installed.Resolve(FloorZoom.FromTwoHundredFiftySixths(zoom)).Equals(decoded))
+                throw new InvalidDataException($"Installed title gradient differs at zoom ${zoom:X2}.");
         }
         Suite(nameof(VerifyTitleGradientValidation), () => VerifyTitleGradientValidation(extracted));
 
@@ -442,8 +447,10 @@ internal static class TitleGradientVerification
         document = document with { Version = version };
 
         TitleGradientVariant first = document.Variants[0];
-        document.Variants[0] = first with { ZoomHighNibble = 1 };
-        Reject("title gradient rejects mismatched variant identity");
+        TitleGradientVariant[] variants = document.Variants;
+        document = document with { Variants = variants[1..] };
+        Reject("title gradient rejects a missing zoom bucket");
+        document = document with { Variants = variants };
         document.Variants[0] = first with { Stops = [] };
         Reject("title gradient rejects a variant without stops");
         document.Variants[0] = first;
@@ -459,6 +466,11 @@ internal static class TitleGradientVerification
         first.Stops[1] = second with { Line = ScreenGeometry.ScreenHeightPixels };
         Reject("title gradient rejects a stop below the screen");
         first.Stops[1] = second;
+        first.Stops[0] = top with { Blend = "Subtracts" };
+        Reject("title gradient rejects a blend it does not name");
+        first.Stops[0] = top with { Blend = "0" };
+        Reject("title gradient rejects a blend by number");
+        first.Stops[0] = top;
 
         string extractedText = System.Text.Encoding.UTF8.GetString(extracted);
         void RejectText(string text, string description) => AssertThrows<InvalidDataException>(
@@ -469,14 +481,22 @@ internal static class TitleGradientVerification
         AssertTrue(extractedText.Contains(versionField, StringComparison.Ordinal), "extracted title gradient states its schema version");
         RejectText(extractedText.Replace(versionField, versionField + ",\n  \"nativeAddress\": 9192685", StringComparison.Ordinal),
             "title gradient rejects native-address escape hatch");
-        // A stop's blend is named layers and a direction; the revision-1 control byte is not accepted beside or instead of them.
-        AssertTrue(extractedText.Contains("\"blendsFloor\": ", StringComparison.Ordinal), "extracted title gradient names each stop's blended layers");
-        RejectText(extractedText.Replace("\"blendsFloor\": ", "\"colorMathControl\": 161,\n        \"blendsFloor\": ", StringComparison.Ordinal),
+        // A stop's blend is named; neither the revision-1 control byte nor the revision-3 layers and direction are accepted
+        // beside the name, and no variant carries the zoom bucket it is listed at.
+        AssertTrue(extractedText.Contains("\"blend\": \"DarkensFloorAndBackdrop\"", StringComparison.Ordinal) &&
+            extractedText.Contains("\"blend\": \"BrightensFloorBackdropAndSprites\"", StringComparison.Ordinal),
+            "extracted title gradient names each stop's blend");
+        RejectText(extractedText.Replace("\"blend\": ", "\"colorMathControl\": 161,\n          \"blend\": ", StringComparison.Ordinal),
             "title gradient rejects a color-math control byte");
-        string withoutDirection = System.Text.RegularExpressions.Regex.Replace(
-            extractedText, ",\\s*\"subtracts\": (true|false)", string.Empty);
-        AssertTrue(withoutDirection != extractedText, "extracted title gradient states each stop's blend direction");
-        RejectText(withoutDirection, "title gradient rejects a stop without its blend direction");
+        RejectText(extractedText.Replace("\"blend\": ", "\"subtracts\": true,\n          \"blend\": ", StringComparison.Ordinal),
+            "title gradient rejects a blend direction beside the blend's name");
+        string withoutBlend = System.Text.RegularExpressions.Regex.Replace(
+            extractedText, ",\\s*\"blend\": \"[A-Za-z]+\"", string.Empty);
+        AssertTrue(withoutBlend != extractedText, "extracted title gradient states each stop's blend");
+        RejectText(withoutBlend, "title gradient rejects a stop without its blend");
+        AssertTrue(!extractedText.Contains("zoomHighNibble", StringComparison.Ordinal), "extracted title gradient keys no variant by its zoom bucket");
+        RejectText(extractedText.Replace("\"stops\": ", "\"zoomHighNibble\": 0,\n      \"stops\": ", StringComparison.Ordinal),
+            "title gradient rejects a variant keyed by its zoom bucket");
         // The revision-2 per-line arrays are not accepted in place of stops.
         AssertTrue(extractedText.Contains("\"stops\": ", StringComparison.Ordinal), "extracted title gradient describes each variant by its stops");
         RejectText(extractedText.Replace("\"stops\": ", "\"lines\": ", StringComparison.Ordinal),

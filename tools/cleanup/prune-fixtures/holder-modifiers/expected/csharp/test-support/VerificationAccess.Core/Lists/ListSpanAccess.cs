@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.AssetExtraction.Lists;
+﻿namespace SuperMetroid.Desktop.Lists;
 
 /// <summary>Verification access to <see cref="ListSpan"/> members production does not use.</summary>
 internal static class ListSpanAccess

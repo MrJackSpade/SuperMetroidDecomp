@@ -6,7 +6,7 @@ internal sealed class ListLayout
     /// <summary>Each list's entry.</summary>
     private readonly int[] _entries;
     /// <summary>The word just before each list.</summary>
-    internal readonly int[] _prefixes;
+    internal readonly int[] prefixes;
 
     /// <summary>Lays the lists out.</summary>
     /// <param name="entries">Each list's entry.</param>
@@ -14,7 +14,7 @@ internal sealed class ListLayout
     internal ListLayout(int[] entries, int[] prefixes)
     {
         _entries = entries;
-        _prefixes = prefixes;
+        this.prefixes = prefixes;
     }
 
     /// <summary>The entry of list <paramref name="list"/>.</summary>

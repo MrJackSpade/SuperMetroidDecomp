@@ -9,6 +9,6 @@ internal static class ListLayoutAccess
         /// <summary>The position just after list <paramref name="list"/>'s entry.</summary>
         internal int Second(int list) => self.Position(list) + 1;
         /// <summary>The word just before list <paramref name="list"/>.</summary>
-        internal int Prefix(int list) => self._prefixes[list];
+        internal int Prefix(int list) => self.prefixes[list];
     }
 }

@@ -1,4 +1,4 @@
-using SuperMetroid.AssetExtraction.Lists;
+using SuperMetroid.Desktop.Lists;
 
 namespace SuperMetroid.Verification.Lists;
 

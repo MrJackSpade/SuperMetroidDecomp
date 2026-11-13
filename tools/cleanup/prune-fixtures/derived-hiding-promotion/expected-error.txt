@@ -1,0 +1,1 @@
+Moved code uses SuperMetroid.AssetExtraction.Lists.StridedList.stride, and SuperMetroid.AssetExtraction.Lists.WideList.stride

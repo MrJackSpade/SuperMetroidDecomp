@@ -141,9 +141,8 @@ public sealed class SamusHorizontalSpeedState
     public SamusAccelerationMode AccelerationMode { get; set; }
 
     /// <summary>
-    /// Optional deceleration multiplier, 0 through 255. Zero selects the table's plain
-    /// deceleration; nonzero multiplies the whole deceleration and only the upper half of its
-    /// fraction, as the game's asymmetric products do.
+    /// Optional deceleration multiplier in 256ths, 0 through 255. Zero selects the table's plain
+    /// deceleration; nonzero scales it by <see cref="MultipliedDeceleration"/>.
     /// </summary>
     public int DecelerationMultiplier
     {
@@ -219,9 +218,9 @@ public sealed class SamusHorizontalSpeedState
                 SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, cadence: SamusRunningCadences.CountdownAfterAdvance(0));
             }
 
-            if (ExtraRunSpeed.PartsAtLeast(new UnsignedSixteenSixteen(7, 0)))
+            if (SamusSpeedMagnitude.ReadsAtCap(ExtraRunSpeed, BoostedExtraRunSpeedCap))
             {
-                ExtraRunSpeed = new UnsignedSixteenSixteen(7, 0);
+                ExtraRunSpeed = BoostedExtraRunSpeedCap;
                 PublishBoostContactDamage();
                 return;
             }
@@ -237,13 +236,12 @@ public sealed class SamusHorizontalSpeedState
             SpeedBoostCounter = default;
         }
 
-        // The game compares the two words separately with signed tests. This
-        // intentionally is not a conventional unsigned 32-bit >= comparison. The retail
-        // no-booster fractional cap is zero, so a normal progression reaches 2.0000 and
-        // clamps there on the following call before another 0.1000 can be added.
-        if (ExtraRunSpeed.PartsAtLeast(new UnsignedSixteenSixteen(2, 0)))
+        // The cap test reads the whole pixels and the fraction each on their own (SamusSpeedMagnitude.ReadsAtCap). The
+        // cap has no fraction, so a normal progression reaches exactly two pixels and is held there on the following
+        // call before another sixteenth of a pixel can be added.
+        if (SamusSpeedMagnitude.ReadsAtCap(ExtraRunSpeed, UnboostedExtraRunSpeedCap))
         {
-            ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0);
+            ExtraRunSpeed = UnboostedExtraRunSpeedCap;
             PublishBoostContactDamage();
             return;
         }
@@ -251,6 +249,12 @@ public sealed class SamusHorizontalSpeedState
         AddExtraRunAcceleration();
         PublishBoostContactDamage();
     }
+
+    /// <summary>The extra run speed the Speed Booster's dash is held at: seven pixels an update.</summary>
+    private static readonly UnsignedSixteenSixteen BoostedExtraRunSpeedCap = new(7, 0);
+
+    /// <summary>The extra run speed a dash without the Speed Booster is held at: two pixels an update.</summary>
+    private static readonly UnsignedSixteenSixteen UnboostedExtraRunSpeedCap = new(2, 0);
 
     /// <summary>
     /// Executes the equipped-Speed-Booster interception when running
@@ -351,7 +355,7 @@ public sealed class SamusHorizontalSpeedState
 
         // Tests the suit-palette Gravity bit before it asks whether
         // Samus's *bottom* boundary lies under water or lava/acid. Power and Varia Samus
-        // return carry-set immediately when submerged: the current colours, common
+        // return at once when submerged: the current colours, common
         // timer, and palette-list offset all remain untouched. Gravity Suit bypasses this
         // gate and continues into the ordinary Screw Attack / Speed Booster logic even
         // though the raw room-FX comparison still says the body is underwater. The caller
@@ -725,9 +729,9 @@ public sealed class SamusHorizontalSpeedState
 
         if (AccelerationMode != SamusAccelerationMode.Accelerating)
         {
-            BaseSpeed -= ScaledDeceleration(entry);
+            BaseSpeed -= MultipliedDeceleration.Of(entry.Deceleration, DecelerationMultiplier);
 
-            // The sign test reads only the whole pixels. Once deceleration crosses
+            // The test reads only the whole pixels. Once deceleration crosses
             // below zero it clears both halves and returns to acceleration mode zero.
             if (SamusSpeedMagnitude.HasPassedZero(BaseSpeed.Whole))
             {
@@ -739,15 +743,10 @@ public sealed class SamusHorizontalSpeedState
         {
             BaseSpeed += entry.Acceleration;
 
-            // Does not use a normal unsigned 32-bit >= comparison. Preserve its
-            // signed word-subtraction quirk, including the fact that exact equality does
-            // not count as greater and therefore is left untouched.
+            // The maximum replaces a speed that reads as past it (SamusSpeedMagnitude.ReadsPastLimit); a speed exactly
+            // at its maximum is left untouched.
             UnsignedSixteenSixteen maximum = UnsignedSixteenSixteen.FromDisplacement(entry.MaximumSpeed);
-            if (IsGreaterThanQuirked(
-                    BaseSpeed.Whole,
-                    BaseSpeed.Fraction,
-                    maximum.Whole,
-                    maximum.Fraction))
+            if (SamusSpeedMagnitude.ReadsPastLimit(BaseSpeed, maximum))
             {
                 BaseSpeed = maximum;
             }
@@ -760,7 +759,7 @@ public sealed class SamusHorizontalSpeedState
     /// Calculates the horizontal base speed with deceleration disallowed.
     /// Despite the name, acceleration-mode bit zero still selects the
     /// turning/deceleration branch; modes zero and two both accelerate toward the table
-    /// maximum. The returned flag is the routine's carry result and is important to spin
+    /// maximum. The returned reached-maximum result is important to spin
     /// jump's decision to retain horizontal motion.
     /// </summary>
     public AerialBaseSpeedResult CalculateBaseSpeedDecelerationDisallowed(
@@ -770,10 +769,9 @@ public sealed class SamusHorizontalSpeedState
 
         if (AccelerationMode == SamusAccelerationMode.Turning)
         {
-            // This is byte-for-byte the same asymmetric multiplier calculation used by
-            // the deceleration-allowed routine. The distinction between the two
-            // entry points is the bit test above and their carry result, not the subtract.
-            BaseSpeed -= ScaledDeceleration(entry);
+            // This is the same multiplied deceleration the deceleration-allowed calculation uses. The distinction
+            // between the two calculations is the turning test above and their reached-maximum result, not the subtract.
+            BaseSpeed -= MultipliedDeceleration.Of(entry.Deceleration, DecelerationMultiplier);
             if (SamusSpeedMagnitude.HasPassedZero(BaseSpeed.Whole))
             {
                 BaseSpeed = default;
@@ -786,13 +784,10 @@ public sealed class SamusHorizontalSpeedState
 
         BaseSpeed += entry.Acceleration;
 
-        // The comparisons are signed, wrapping at 65536. Exact equality in both halves is
-        // deliberately *not* considered a cap: the routine reports no cap in that case.
+        // The same maximum test as the deceleration-allowed calculation: a speed exactly at its maximum is
+        // deliberately *not* capped, and the calculation reports no cap in that case.
         UnsignedSixteenSixteen maximum = UnsignedSixteenSixteen.FromDisplacement(entry.MaximumSpeed);
-        bool exceedsMaximum = SamusSpeedMagnitude.Exceeds(BaseSpeed.Whole, maximum.Whole) ||
-            (BaseSpeed.Whole == maximum.Whole &&
-             SamusSpeedMagnitude.Exceeds(BaseSpeed.Fraction, maximum.Fraction));
-        if (exceedsMaximum)
+        if (SamusSpeedMagnitude.ReadsPastLimit(BaseSpeed, maximum))
         {
             BaseSpeed = maximum;
             return new AerialBaseSpeedResult(BaseSpeed, ReachedMaximum: true);
@@ -824,45 +819,13 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>
     /// Calculates the non-collision portion of a leftward displacement.
     /// Left is <c>extra displacement - total speed</c>, not merely
-    /// a sign bit attached to the rightward result.
+    /// the rightward result reversed.
     /// </summary>
     public SignedSixteenSixteen CalculateLeftDisplacement(UnsignedSixteenSixteen baseSpeed, SignedSixteenSixteen extraDisplacement = default) =>
         ClampDisplacement(extraDisplacement - CalculateTotalSpeed(baseSpeed).AsDisplacement());
 
     /// <summary>Whether Samus has any base speed: either its whole pixels or its fraction is nonzero.</summary>
     public bool HasBaseSpeed => BaseSpeed != default;
-
-    /// <summary>
-    /// The deceleration one frame removes. Without a multiplier it is the table's value; with
-    /// one, the whole part is multiplied in full but only the upper half of the fraction is,
-    /// and each product keeps only what fits its half, as the game's byte multiplies do.
-    /// Combining them as ordinary fixed-point multiplication would be cleaner, but would not be
-    /// what the game executes.
-    /// </summary>
-    private SignedSixteenSixteen ScaledDeceleration(SpeedTableEntry entry)
-    {
-        if (DecelerationMultiplier == 0)
-            return entry.Deceleration;
-
-        int wholeProduct = DecelerationMultiplier * UnsignedSixteenSixteen.FromDisplacement(entry.Deceleration).Whole;
-        int fractionProduct = DecelerationMultiplier * EightEight.WholeOf(entry.Deceleration.Fraction);
-        return SignedSixteenSixteen.FromParts(
-            CoordinateAxis.AsSigned(EightEight.WholeOf(wholeProduct)),
-            fractionProduct);
-    }
-
-    /// <summary>Compares split words with the game's signed subtraction and strict low-word tie rule.</summary>
-    private static bool IsGreaterThanQuirked(
-        int valueHigh,
-        int valueLow,
-        int comparisonHigh,
-        int comparisonLow)
-    {
-        if (!SamusSpeedMagnitude.IsAtLeast(valueHigh, comparisonHigh))
-            return false;
-
-        return valueHigh != comparisonHigh || SamusSpeedMagnitude.Exceeds(valueLow, comparisonLow);
-    }
 
     /// <summary>Clamps the whole-pixel part to plus or minus fifteen while preserving fractional displacement.</summary>
     private static SignedSixteenSixteen ClampDisplacement(SignedSixteenSixteen displacement) =>

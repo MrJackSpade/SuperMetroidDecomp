@@ -330,6 +330,10 @@ using static SuperMetroid.Verification.Samus.Abilities.SamusShinesparkVerificati
 using static SuperMetroid.Verification.Samus.Abilities.SamusSpecialSequenceDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SamusSpecialStatesVerification;
 using static SuperMetroid.Verification.Samus.Movement.SamusTerrainMovementVerification;
+using static SuperMetroid.Verification.Samus.Movement.SolidEnemyProbeReachVerification;
+using static SuperMetroid.Verification.Samus.Movement.SamusSpeedLimitVerification;
+using static SuperMetroid.Verification.Samus.Movement.MultipliedDecelerationVerification;
+using static SuperMetroid.Verification.Samus.Movement.InsideBlockTopSampleVerification;
 using static SuperMetroid.Verification.Samus.SamusTurnsAndKnockbackVerification;
 using static SuperMetroid.Verification.Samus.Palettes.SamusVisorColorsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.XrayScopeDefinitionsVerification;
@@ -637,6 +641,10 @@ internal static class FullRunSuitesVerification
         new(nameof(MiscDustProjectileBehaviorVerification.VerifyMiscDustProjectileBehavior), () => MiscDustProjectileBehaviorVerification.VerifyMiscDustProjectileBehavior(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
         new(nameof(VerifyBabyMetroidCutsceneEntrance), () => VerifyBabyMetroidCutsceneEntrance()),
         new(nameof(VerifySamusSolidEnemyCollision), () => VerifySamusSolidEnemyCollision()),
+        new(nameof(VerifySolidEnemyProbeReach), () => VerifySolidEnemyProbeReach()),
+        new(nameof(VerifySamusSpeedLimits), () => VerifySamusSpeedLimits()),
+        new(nameof(VerifyMultipliedDeceleration), () => VerifyMultipliedDeceleration()),
+        new(nameof(VerifyInsideBlockTopSample), () => VerifyInsideBlockTopSample()),
         new(nameof(VerifySamusAerialMovement), () => VerifySamusAerialMovement()),
         new(nameof(VerifyZeroDistanceJumpContact), () => VerifyZeroDistanceJumpContact()),
         new(nameof(VerifyShinesparkEnemyStop), () => VerifyShinesparkEnemyStop()),

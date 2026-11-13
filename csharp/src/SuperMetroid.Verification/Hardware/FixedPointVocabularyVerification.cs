@@ -16,32 +16,11 @@ internal static class FixedPointVocabularyVerification
     /// <summary>Runs every #1326 confirmation.</summary>
     internal static void VerifyFixedPointVocabulary()
     {
-        VerifyWordsAtLeast();
         VerifyFixedProducts();
         VerifyBearingConversion();
         VerifyCarryArithmetic();
         VerifySpeedBoostCounter();
-        Console.WriteLine("Fixed-point vocabulary: caps, sine products, bearings, carries and the boost counter match the replaced forms.");
-    }
-
-    /// <summary>The extra-run caps' separate-word test, including fractions where an unsigned 32-bit test disagrees.</summary>
-    private static void VerifyWordsAtLeast()
-    {
-        int disagreements = 0;
-        foreach (int cap in new[] { 2, 7 })
-        foreach (int whole in new[] { 0, 1, 2, 3, 7, 8, 0x7fff, 0x8000, 0xffff })
-        foreach (int fraction in new[] { 0, 1, 0x7fff, 0x8000, 0xffff })
-        {
-            var speed = new UnsignedSixteenSixteen(whole, fraction);
-            var capSpeed = new UnsignedSixteenSixteen(cap, 0);
-            bool replaced = unchecked((short)(whole - cap)) >= 0 && unchecked((short)fraction) >= 0;
-            AssertEqual(replaced, speed.PartsAtLeast(capSpeed), $"cap {cap} against {whole:X4}.{fraction:X4}");
-            if (replaced != (speed.RawValue >= capSpeed.RawValue))
-                disagreements++;
-        }
-        AssertTrue(disagreements > 0, "some samples separate the word test from an unsigned 32-bit comparison");
-        AssertTrue(!new UnsignedSixteenSixteen(3, 0x8000).PartsAtLeast(new UnsignedSixteenSixteen(2, 0)),
-            "a fraction word of $8000 fails the cap although 3.8000 exceeds 2.0000");
+        Console.WriteLine("Fixed-point vocabulary: sine products, bearings, carries and the boost counter match the replaced forms.");
     }
 
     /// <summary>The 8-bit sine fixed products keep the replaced tuple's words, including the independent negation.</summary>

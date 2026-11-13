@@ -3,14 +3,13 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Literal translation of Samus-versus-solid-enemy collision detection.
+/// Samus's collision with solid enemies: which solid or frozen enemy stops a move, and how far she may still travel.
 /// </summary>
 /// <remarks>
-/// This is intentionally a probe, not an enemy simulation. The caller supplies the current
-/// interactive-enemy list in slot order. That order matters:
-/// the original routine returns the first colliding entry, not the geometrically nearest one.
-/// All positions and arithmetic wrap at 65536 so wraparound, signed branch tests, and pixel
-/// rounding agree with the original rather than with conventional geometry.
+/// This is a probe, not an enemy simulation. The caller supplies the current interactive-enemy list in slot order, and
+/// that order matters: the first enemy that stops the move is returned, not the geometrically nearest one. Room
+/// coordinates wrap past either end of the room's space (<see cref="CoordinateAxis"/>), so an enemy that lies just past
+/// the room's edge from Samus is still close to her, and the gaps are read as signed distances across that space.
 /// </remarks>
 public static class SamusSolidEnemyCollision
 {
@@ -22,13 +21,13 @@ public static class SamusSolidEnemyCollision
     /// Active interactive enemies in slot order. Non-solid, unfrozen entries remain in
     /// the list because the loop encounters and rejects them individually.
     /// </param>
-    /// <param name="direction">Low two bits of collision movement direction.</param>
+    /// <param name="direction">The probe's direction: left, right, up or down.</param>
     /// <param name="distance">Whole pixels of the requested collision distance.</param>
     /// <param name="distanceSubposition">Fraction of the requested collision distance.</param>
     /// <returns>The first qualifying body's current leading-edge gap, or the requested whole distance with no enemy when no collision is found.</returns>
-    /// <remarks>No whole position or enemy body is changed. Exact current-edge contact clears <paramref name="state"/>'s Y subposition even for horizontal probes. The distance pair is an unsigned 16.16 magnitude; direction supplies its sign.</remarks>
+    /// <remarks>No whole position or enemy body is changed. Exact current-edge contact clears <paramref name="state"/>'s Y subposition even for horizontal probes. The distance is a magnitude; direction supplies its sign.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="state"/> or <paramref name="interactiveEnemies"/> is null.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is not one of the four directional values 0..3; NonDirectionalProbe is not accepted here.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is not one of the four directions; NonDirectionalProbe is not accepted here.</exception>
     public static SolidEnemyCollisionResult Probe(
         SamusKinematicsState state,
         IReadOnlyList<SolidEnemyCollisionBody> interactiveEnemies,
@@ -43,48 +42,43 @@ public static class SamusSolidEnemyCollision
             SamusCollisionDirection.Up or SamusCollisionDirection.Down))
             throw new ArgumentOutOfRangeException(nameof(direction));
 
-        // Constructs only a whole-pixel target for the broad overlap
-        // test. Fractional motion is rounded one extra pixel outward whenever its resulting
-        // subposition is nonzero, and two pixels whenever the subposition carries or
-        // borrows. Although this can look like an off-by-one in C#, it is the game's exact subtract or add
-        // followed by a decrement or increment, whose zero test reads the result of the last step.
-        Position16<RoomPixels> target = BuildRoundedTarget(
-            state, direction, FixedCoordinate.Of(distance, distanceSubposition));
+        // The broad overlap test uses only a whole-pixel target, which the probe's reach rule places past Samus's
+        // reached centre (SolidEnemyProbeReach).
+        Position16<RoomPixels> target = BuildTarget(
+            state, direction, new UnsignedSixteenSixteen(distance, distanceSubposition));
 
         foreach (SolidEnemyCollisionBody enemy in interactiveEnemies)
         {
             if (!enemy.Solid)
                 continue;
 
-            // The rounded future center must overlap on both axes.
-            // Tangency is not overlap here; the unsigned comparison requires the
-            // center distance to be strictly less than the sum of both radii.
+            // The target centre must overlap the enemy on both axes. Tangency is not overlap: the centres must lie
+            // strictly closer than the sum of both radii.
             if (!StrictlyOverlaps(target.X, state.Radius.X, enemy.Position.X, enemy.Radius.X) ||
                 !StrictlyOverlaps(target.Y, state.Radius.Y, enemy.Position.Y, enemy.Radius.Y))
             {
                 continue;
             }
 
-            // The broad test says the future boxes overlap. The directional test now uses
-            // the *current* leading edges to distinguish an approaching gap from an enemy
-            // Samus is already embedded in. A negative result skips that enemy.
+            // The broad test says the future boxes overlap. The directional test now uses the *current* leading edges to
+            // tell an approaching gap from an enemy Samus is already embedded in: a negative gap skips that enemy.
             int gap = direction switch
             {
-                SamusCollisionDirection.Left => CoordinateAxis.Wrap(
+                SamusCollisionDirection.Left => CoordinateAxis.AsSigned(
                     state.Position.X.Whole - state.Radius.X - enemy.Position.X - enemy.Radius.X),
-                SamusCollisionDirection.Right => CoordinateAxis.Wrap(
+                SamusCollisionDirection.Right => CoordinateAxis.AsSigned(
                     enemy.Position.X - enemy.Radius.X - state.Position.X.Whole - state.Radius.X),
-                SamusCollisionDirection.Up => CoordinateAxis.Wrap(
+                SamusCollisionDirection.Up => CoordinateAxis.AsSigned(
                     state.Position.Y.Whole - state.Radius.Y - enemy.Position.Y - enemy.Radius.Y),
-                SamusCollisionDirection.Down => CoordinateAxis.Wrap(
+                SamusCollisionDirection.Down => CoordinateAxis.AsSigned(
                     enemy.Position.Y - enemy.Radius.Y - state.Position.Y.Whole - state.Radius.Y),
-                // Probe rejected values outside zero through three above. Keep a throwing
-                // arm anyway so this switch stays honest if the public enum later grows.
+                // Probe rejected the non-directional probe above. Keep a throwing arm anyway so this switch stays honest
+                // if the public enum later grows.
                 SamusCollisionDirection.NonDirectionalProbe => throw new InvalidOperationException("Unreachable collision direction."),
                 _ => throw new InvalidOperationException("Unreachable collision direction."),
             };
 
-            if (gap != 0 && (gap & 1 << 15) != 0)
+            if (gap < 0)
                 continue;
 
             bool wasTouching = gap == 0;
@@ -113,19 +107,19 @@ public static class SamusSolidEnemyCollision
             WasTouching: false);
     }
 
-    /// <summary>Applies the directional 16.16 movement to the relevant axis and rounds its fractional target outward for the broad-phase test.</summary>
-    private static Position16<RoomPixels> BuildRoundedTarget(
+    /// <summary>The whole-pixel centre the broad test checks: Samus's centre with the probe's axis moved to the pixel the reach tests.</summary>
+    private static Position16<RoomPixels> BuildTarget(
         SamusKinematicsState state,
         SamusCollisionDirection direction,
-        FixedCoordinate reach)
+        UnsignedSixteenSixteen reach)
     {
         Position16<RoomPixels> target = state.Position.Whole;
         return direction switch
         {
-            SamusCollisionDirection.Left => target.WithX(RoundNegative(state.Position.X, reach)),
-            SamusCollisionDirection.Right => target.WithX(RoundPositive(state.Position.X, reach)),
-            SamusCollisionDirection.Up => target.WithY(RoundNegative(state.Position.Y, reach)),
-            SamusCollisionDirection.Down => target.WithY(RoundPositive(state.Position.Y, reach)),
+            SamusCollisionDirection.Left => target.WithX(SolidEnemyProbeReach.TestedPixelBack(state.Position.X, reach)),
+            SamusCollisionDirection.Right => target.WithX(SolidEnemyProbeReach.TestedPixelForward(state.Position.X, reach)),
+            SamusCollisionDirection.Up => target.WithY(SolidEnemyProbeReach.TestedPixelBack(state.Position.Y, reach)),
+            SamusCollisionDirection.Down => target.WithY(SolidEnemyProbeReach.TestedPixelForward(state.Position.Y, reach)),
             // The pose-observation probe targets Samus's current position.
             SamusCollisionDirection.NonDirectionalProbe => target,
             _ => throw new InvalidOperationException($"Undefined SamusCollisionDirection {direction}."),
@@ -133,79 +127,13 @@ public static class SamusSolidEnemyCollision
     }
 
     /// <summary>
-    /// Models the game's subtraction, including fractional borrow and the extra outward decrement selected by the
-    /// zero flag. The whole target is a room coordinate word: each decrement wraps at sixteen bits through the
-    /// compatibility counter, so a target at zero continues from 65535 exactly as the game's decrement does.
+    /// Whether two boxes overlap on one axis: their centres' distance across the wrapping room space is strictly less
+    /// than the sum of their radii.
     /// </summary>
-    private static int RoundNegative(FixedCoordinate target, FixedCoordinate reach)
-    {
-        int whole = CoordinateAxis.Wrap(target.Whole - reach.Whole);
-
-        // The subtraction may borrow from the whole part. Model that borrow explicitly,
-        // because the subtraction below keeps only the fraction word.
-        bool borrowed = target.Fraction < reach.Fraction;
-        int fraction = CoordinateAxis.Wrap(target.Fraction - reach.Fraction);
-        // After a borrow the decrement's zero test reads the whole target, so it
-        // tests the whole pixels rather than the fraction and a second decrement follows unless it is 0.
-        if (borrowed)
-        {
-            whole = WrappingCounter.DecrementCount(whole);
-            if (whole != 0)
-                whole = WrappingCounter.DecrementCount(whole);
-        }
-        else if (fraction != 0)
-        {
-            whole = WrappingCounter.DecrementCount(whole);
-        }
-
-        return whole;
-    }
-
-    /// <summary>
-    /// Models the game's addition, including fractional carry and the extra outward increment selected by the
-    /// zero flag. Each increment wraps the whole coordinate word at sixteen bits through the compatibility counter, so
-    /// 65535 continues at zero exactly as the game's increment does.
-    /// </summary>
-    private static int RoundPositive(FixedCoordinate target, FixedCoordinate reach)
-    {
-        int whole = CoordinateAxis.Wrap(target.Whole + reach.Whole);
-
-        // The add carries the fraction's overflow into the whole pixels before the
-        // nonzero-fraction increment performs its outward pixel rounding.
-        int fractionSum = target.Fraction + reach.Fraction;
-        // After an overflow the increment's zero test reads the whole target, so it
-        // tests the whole pixels rather than the fraction and a second increment follows unless it is 0.
-        if (fractionSum > ushort.MaxValue)
-        {
-            whole = WrappingCounter.IncrementCount(whole);
-            if (whole != 0)
-                whole = WrappingCounter.IncrementCount(whole);
-        }
-        else if (fractionSum != 0)
-        {
-            whole = WrappingCounter.IncrementCount(whole);
-        }
-
-        return whole;
-    }
-
-    /// <summary>Compares wrapped center distance against both radii using the unsigned borrow and strict comparison rules.</summary>
     private static bool StrictlyOverlaps(
         int firstPosition,
         int firstRadius,
         int secondPosition,
-        int secondRadius)
-    {
-        // Obtains a wrapped absolute center delta by negating it. This
-        // intentionally leaves 32768 unchanged, matching the two's-complement edge.
-        int absoluteDelta = CoordinateAxis.Distance(secondPosition, firstPosition);
-
-        // The original subtracts the enemy radius first. Borrow means overlap immediately;
-        // otherwise an unsigned comparison accepts only a remainder smaller than Samus's radius.
-        if (absoluteDelta < secondRadius)
-            return true;
-
-        int remainder = CoordinateAxis.Wrap(absoluteDelta - secondRadius);
-        return remainder < firstRadius;
-    }
+        int secondRadius) =>
+        CoordinateAxis.Distance(secondPosition, firstPosition) < firstRadius + secondRadius;
 }

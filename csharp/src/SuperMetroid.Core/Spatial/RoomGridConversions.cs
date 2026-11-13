@@ -74,6 +74,25 @@ public static class RoomGridConversions
     /// <summary>The first pixel of the eight-pixel half block holding an unsigned room pixel coordinate.</summary>
     public static int HalfBlockStart(int pixel) => RequirePixel(pixel) - pixel % HalfBlockPixels;
 
+    /// <summary>The block column or row, 0 through 4095, holding an unsigned room pixel coordinate along one axis.</summary>
+    public static int PixelToBlock(int pixel) => RequirePixel(pixel) / BlockPixels;
+
+    /// <summary>
+    /// The block boundary nearest an unsigned room pixel coordinate, 0 through 65536: a coordinate in the first half of its
+    /// block rounds back to the block's first pixel, one in the second half on to the next block's. The boundary past the
+    /// last block lies one beyond the coordinate range, for the caller to wrap.
+    /// </summary>
+    public static int NearestBlockBoundary(int pixel) => (RequirePixel(pixel) + HalfBlockPixels) / BlockPixels * BlockPixels;
+
+    /// <summary>
+    /// The centre of the 16-pixel step, counted from zero, that a signed pixel displacement of -32768 through 32767 lies
+    /// in: the displacement rounded toward lower values to a whole number of blocks, plus half a block, so -32760 through
+    /// 32760. A displacement of 20 gives 24, one of -8 gives -8 and one of -20 gives -24.
+    /// </summary>
+    public static int BlockStepCentre(int displacement) =>
+        Ensure.BetweenInclusive(short.MinValue, short.MaxValue, displacement)
+        - (displacement % BlockPixels + BlockPixels) % BlockPixels + HalfBlockPixels;
+
     /// <summary>The block row, 0 through 15, that an unsigned room pixel coordinate lies on within its room screen.</summary>
     public static int BlockRowWithinScreen(int pixel) => OffsetWithinScreen(pixel) / BlockPixels;
 

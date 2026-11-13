@@ -2,22 +2,26 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// The masks Torizo's AI and spawns apply to the room's random numbers. A decision that tests a mask is
-/// taken when every masked bit is clear, so each mask's bit count sets its odds.
+/// The fields of the room's random numbers Torizo's AI and spawns read. A decision that needs several single-bit fields
+/// is taken when every one of them reads zero, so the number of fields sets its odds.
 /// </summary>
 internal static class TorizoRandomDefinitions
 {
-    /// <summary>Bomb Torizo drools while hurt when the sample has none of its four tested bits set: one time in sixteen.</summary>
-    internal static readonly TorizoRandomBits LowHealthDrool = TorizoRandomBits.At(1, 6, 8, 15);
+    /// <summary>Bomb Torizo drools while hurt when four single-bit fields of the sample all read zero: one time in sixteen.</summary>
+    internal static readonly TorizoRandomDecision LowHealthDrool = TorizoRandomDecision.WhenAllClear(
+        new RandomSampleField(1, 1), new RandomSampleField(6, 1), new RandomSampleField(8, 1), new RandomSampleField(15, 1));
 
-    /// <summary>Golden Torizo's low-health call is taken when the sample has neither of its two tested bits set: one time in four.</summary>
-    internal static readonly TorizoRandomBits LowHealthCall = TorizoRandomBits.At(1, 8);
+    /// <summary>Golden Torizo's low-health call is taken when two single-bit fields of the sample both read zero: one time in four.</summary>
+    internal static readonly TorizoRandomDecision LowHealthCall = TorizoRandomDecision.WhenAllClear(
+        new RandomSampleField(1, 1), new RandomSampleField(8, 1));
 
-    /// <summary>Golden Torizo's medium-range attack is taken when the sample has neither of its two tested bits set: one time in four.</summary>
-    internal static readonly TorizoRandomBits MediumRangeAttack = TorizoRandomBits.At(4, 8);
+    /// <summary>Golden Torizo's medium-range attack is taken when two single-bit fields of the sample both read zero: one time in four.</summary>
+    internal static readonly TorizoRandomDecision MediumRangeAttack = TorizoRandomDecision.WhenAllClear(
+        new RandomSampleField(4, 1), new RandomSampleField(8, 1));
 
-    /// <summary>Golden Torizo's forward leap goes while held directions draw a sample with neither of its two tested bits set: one time in four.</summary>
-    internal static readonly TorizoRandomBits ForwardLeap = TorizoRandomBits.At(0, 8);
+    /// <summary>Golden Torizo's forward leap goes while held directions draw a sample whose two single-bit fields both read zero: one time in four.</summary>
+    internal static readonly TorizoRandomDecision ForwardLeap = TorizoRandomDecision.WhenAllClear(
+        new RandomSampleField(0, 1), new RandomSampleField(8, 1));
 
     /// <summary>The initial drool's added fall speed, 0 through 31 in raw 8.8 units: the selection modulo 32.</summary>
     internal static readonly RandomSampleField DroolFallJitter = new(0, 5);

@@ -17,10 +17,10 @@ internal static class CrocomireSpikeMotionDefinitions
     ];
 
     /// <summary>
-    /// Each piece's acceleration limit is sixteen times its acceleration increment: the increment shifted
-    /// left this far. The saturated increment keeps the largest limit at 65280, so no limit leaves the acceleration's range.
+    /// Each piece's acceleration limit is this many times its acceleration increment. The saturated increment keeps the
+    /// largest limit at 65280, so no limit leaves the acceleration's range.
     /// </summary>
-    internal const int MaximumAccelerationShift = 4;
+    internal const int MaximumAccelerationPerIncrement = 16;
 
     /// <summary>
     /// The fastest whole-pixel horizontal speed, in pixels per frame, of each piece from the top: the top four

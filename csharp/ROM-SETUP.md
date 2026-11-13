@@ -67,8 +67,10 @@ extract and validate their audio on startup. No ROM is copied out of the APK.
 
 Within either platform's application-data root:
 
-- `game/SuperMetroid.smc`: validated, unheadered ROM copy retained by default;
-  optional only while all extracted assets remain complete and valid.
+- `import/SuperMetroid.smc`: the import's validated, unheadered ROM copy, retained by default beside the
+  content and never inside `game/`; optional only while all extracted assets remain complete and valid. An
+  installation from an older release, whose copy lay inside `game/`, is extracted again only from a ROM you
+  choose.
 - `game/audio/`: extracted audio streams, WAVs, and metadata catalog.
 - `game/maps/gameplay-hud.json`: the HUD's layout, the screen pixel each of its pictures shows at; the HUD's
   tiles, whose cells are the original's packed tile placements, are import data the import pictures the HUD from.

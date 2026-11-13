@@ -41,8 +41,8 @@ internal static class ChozoGrabAnimationVerification
         samus.AnimationFrameTimer = WrappingCountdown.Start(3);
         samus.Position = samus.Position.WithWhole(new(0x4a * 16 + 8, (ushort)(0x17 * 16 - samus.Kinematics.Radius.Y)));
         var level = runtime.Room.LoadedLevelData;
-        var block = level.GetCollisionBlockByIndex(level.GetBlockIndex(new(0x4a, 0x17)));
-        AssertEqual(ChozoStatueRoomDefinitions.WreckedShipHandBehavior, block.Behavior,
+        var handBlock = new Position16<RoomBlocks>(0x4a, 0x17);
+        AssertEqual(ChozoStatueRoomDefinitions.WreckedShipHandBehavior, level.GetCollisionBlock(handBlock).Behavior,
             "fixture uses the retail statue hand block");
         var expectedExplosion = new SamusPowerBombExplosionState
         {
@@ -58,7 +58,7 @@ internal static class ChozoGrabAnimationVerification
             expectedExplosion.Arm();
             expectedExplosion.Spawn(new(bombX, samus.Position.Y.Whole));
         }
-        runtime.RoomObjects.ChozoStatue.NotifyChozoStatueHandCollision(level, block, samus, samus.Pose, movingDown: true);
+        runtime.RoomObjects.ChozoStatue.NotifyChozoStatueHandCollision(level, handBlock, samus, samus.Pose, movingDown: true);
         AssertTrue(samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked && samus.Control.AlphaLocked,
             "hand trigger installs native stationary handlers");
         // The waking statue's named screens are the Bowling Alley's original scroll cells 7 and 8 (green), then 13 and 14

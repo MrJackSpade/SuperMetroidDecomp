@@ -75,8 +75,6 @@ internal static class SpeedBoosterCollisionBlocksVerification
             level.GetCollisionBlockByIndex(blockIndex).Terrain.Appearance,
             "accepted setup installs cartridge visual parent $0B6");
         RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
-        AssertEqual(RoomObjectKind.SpeedBlockRespawning, slot.Kind,
-            "BTS $0E selects the standard respawning header");
         AssertTrue(slot.Behaviour is BlockReactionObject { Change: var respawning } && respawning == SpeedBoosterBlockObjectDefinitions.RespawningCrumble,
             "BTS $0E starts the respawning program");
 
@@ -125,9 +123,9 @@ internal static class SpeedBoosterCollisionBlocksVerification
 
         AssertTrue(!result.Collided,
             "stage-four horizontal contact passes through permanent speed terrain");
-        AssertEqual(RoomObjectKind.SpeedBlockPermanent,
-            roomObjects.PopulationSlots.Single().Kind,
-            "BTS $0F selects the standard permanent header");
+        AssertTrue(roomObjects.PopulationSlots.Single().Behaviour is BlockReactionObject { Change: var permanent }
+                && permanent == SpeedBoosterBlockObjectDefinitions.PermanentCrumble,
+            "BTS $0F starts the permanent program");
 
         for (int frame = 0; frame < 12 && roomObjects.SlotTable.ActiveCount != 0; frame++)
             StepSpeedBoosterObject(roomObjects, level);
@@ -159,8 +157,6 @@ internal static class SpeedBoosterCollisionBlocksVerification
             AssertTrue(!result.Collided,
                 $"Brinstar BTS ${bts:X2} clears through the production collision path");
             RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
-            AssertEqual(expected.Kind, slot.Kind,
-                $"Brinstar BTS ${bts:X2} selects its exact PLM header");
             AssertTrue(slot.Behaviour is BlockReactionObject { Change: var started } && started == expected.Change,
                 $"Brinstar BTS ${bts:X2} starts its exact typed program");
             AssertEqual(RoomCollisionType.Air,

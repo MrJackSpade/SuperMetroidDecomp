@@ -67,9 +67,9 @@ internal static class DoorMusicTimingVerification
             var phase = game.DoorTransitionPhaseForVerification;
             if (phase == DoorTransitionPhase.WaitForMusicQueue && musicWaitFrame < 0)
                 musicWaitFrame = frame;
-            game.Step(0);
+            FrontendFrame update = game.Step(0);
             // Bank loads and music-port writes are published in the update the CPU issues them.
-            foreach (var audioEvent in game.AudioEventsForVerification)
+            foreach (var audioEvent in update.Audio.Events)
             {
                 if (audioEvent is AudioEvent.ChangeMusicDataSet) uploadFrame = frame;
                 if (audioEvent == new AudioEvent.SelectMusicTrack(MusicTrack.FirstSetSong))

@@ -120,7 +120,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         {
             AssertEqual(expected.GameState, actual.Frame.GameState, "gameplay captured state cadence");
             AssertEqual(expected.Phase, actual.Frame.Phase, "gameplay captured phase");
-            AssertSequenceEqual(legacy.AudioEventsForVerification, packets.AudioEventsForVerification, "gameplay capture audio event order");
+            AssertSequenceEqual(expected.Audio.Events, actual.Frame.Audio.Events, "gameplay capture audio event order");
             // A packet holds everything the renderer draws, so two packets that describe the same frame or reach the same
             // values show equal pixels; only packets that differ in both are drawn and their pixels compared.
             AssertTrue(ScenePixels.Same(legacy.GetRetainedDisplay(), actual.Snapshot),

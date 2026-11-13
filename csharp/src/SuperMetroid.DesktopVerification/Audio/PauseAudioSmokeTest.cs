@@ -39,7 +39,7 @@ public static class PauseAudioSmokeTest
         {
             FrontendFrame next = game.Step(input);
             game.CopyAudioFrame(samples);
-            commandCount += game.AudioEventsForVerification.Count(audioEvent => audioEvent is not AudioEvent.ClockStep);
+            commandCount += next.Audio.Events.Count(audioEvent => audioEvent is not AudioEvent.ClockStep);
             continuity.Observe(samples);
             frames++;
             if (next.GameState is SuperMetroidGameState.PausingDarkening or SuperMetroidGameState.Pausing or
@@ -49,10 +49,10 @@ public static class PauseAudioSmokeTest
                 pauseFrames++;
                 // The driver starts the cancellations at a poll after the CPU writes them, so
                 // collect every start while the pause owns the frame, not only PauseScreenFadeIn's.
-                pauseSoundStarts.AddRange(game.AudioEventsForVerification
+                pauseSoundStarts.AddRange(next.Audio.Events
                     .OfType<AudioEvent.StartSoundEffect>()
                     .Select(audioEvent => audioEvent.SoundEffect));
-                if (game.AudioEventsForVerification.Any(audioEvent => audioEvent is AudioEvent.ChangeMusicDataSet))
+                if (next.Audio.Events.Any(audioEvent => audioEvent is AudioEvent.ChangeMusicDataSet))
                 {
                     throw new InvalidDataException(
                         $"Pause state {next.GameState} restarted an SPC data upload.");

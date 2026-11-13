@@ -47,7 +47,7 @@ internal static class PauseReserveManualVerification
             AssertEqual(23 + i, samus.Health, "returning resumes saved transfer without another A");
             AssertEqual(7 - i, samus.ReserveEnergy, "reserve counts down each resumed frame");
             AssertEqual(PauseMenuLayoutConstants.ReserveSupplyDigitZeroTile + 7 - i,
-                pause.ReadReserveSupplyDigit(2).Raw, "visible supply digit updates on transfer frame");
+                pause.ReadReserveSupplyDigit(RetailPresentationFixture(), 2).Raw, "visible supply digit updates on transfer frame");
         }
         AssertEqual(0, pause.SelectedItem, "exhaustion returns to mode item");
         pause.Step(0, ControllerButton.A);

@@ -41,40 +41,40 @@ internal static class PauseScreenMemory
     }
 
     /// <summary>
-    /// The memory image <paramref name="menu"/> shows: its screen's characters with the tilemaps the cartridge lays out for
-    /// what it shows over them (#1467).
+    /// The memory image <paramref name="menu"/> shows: the characters of <paramref name="artwork"/>, the presentation its
+    /// fixture bound it to, with the tilemaps the cartridge lays out for what it shows over them (#1467).
     /// </summary>
     [WholeImageFixture("the pause screen's memory image")]
-    internal static byte[] Compose(PauseMenuState menu)
+    internal static byte[] Compose(PauseMenuState menu, AreaMapPresentation artwork)
     {
         PauseScreen screen = menu.screen;
         var image = new SnesVram();
-        image.LoadBytes(0, ComposedCharacters(screen.Artwork));
+        image.LoadBytes(0, ComposedCharacters(artwork));
         var pause = new PauseVram(image);
-        pause.Bg1Tilemap.Write(BackgroundTileWordBytes.Words(menu.ShownBg1Tiles));
-        pause.Bg2Tilemap.Write(BackgroundTileWordBytes.Words(menu.ShownBg2Tiles));
-        pause.Bg3Tilemap.Write(BackgroundTileWordBytes.Words(screen.Bg3Tiles));
+        pause.Bg1Tilemap.Write(BackgroundTileWordBytes.Words(menu.ShownBg1Tiles(artwork)));
+        pause.Bg2Tilemap.Write(BackgroundTileWordBytes.Words(menu.ShownBg2Tiles(artwork)));
+        pause.Bg3Tilemap.Write(BackgroundTileWordBytes.Words(screen.Bg3Tiles(artwork)));
         return image.CaptureImage();
     }
 
     /// <summary>
-    /// Whether <paramref name="left"/> and <paramref name="right"/> show the same memory image (#1532). <see cref="Compose"/>
-    /// is a function of what the two menus show alone: the screen's artwork, whose characters and layouts it reads, the
-    /// page shown, the area map, the equipment page it shows on the equipment page, the area and button highlight the
-    /// frame shows and the retained HUD. Menus that show equal values of each therefore hold the same image without
-    /// composing either; only menus that differ in one are composed and compared byte for byte. The answer is the
-    /// composed comparison's in every case.
+    /// Whether <paramref name="left"/> and <paramref name="right"/>, both bound to <paramref name="artwork"/>, show the same
+    /// memory image (#1532). <see cref="Compose"/> is a function of the artwork, whose characters and layouts it reads, and
+    /// of what the two menus show: the page shown, the area map, the equipment page it shows on the equipment page, the area
+    /// and button highlight the frame shows and the retained HUD. Menus that show equal values of each therefore hold the
+    /// same image without composing either; only menus that differ in one are composed and compared byte for byte. The
+    /// answer is the composed comparison's in every case.
     /// </summary>
-    internal static bool SameImage(PauseMenuState left, PauseMenuState right)
+    internal static bool SameImage(PauseMenuState left, PauseMenuState right, AreaMapPresentation artwork)
     {
         Ensure.NotNull(left);
         Ensure.NotNull(right);
-        return SameShown(left, right) || Compose(left).AsSpan().SequenceEqual(Compose(right));
+        return SameShown(left, right) || Compose(left, artwork).AsSpan().SequenceEqual(Compose(right, artwork));
     }
 
-    /// <summary>Whether the two menus show equal values of everything <see cref="Compose"/> reads.</summary>
+    /// <summary>Whether the two menus show equal values of everything <see cref="Compose"/> reads besides the artwork.</summary>
     private static bool SameShown(PauseMenuState left, PauseMenuState right) =>
-        ReferenceEquals(left.screen.Artwork, right.screen.Artwork) && left.ScreenMode == right.ScreenMode
+        left.ScreenMode == right.ScreenMode
         && left.area == right.area && left.ButtonHighlight == right.ButtonHighlight
         && SameMap(left.ShownMap, right.ShownMap)
         && (left.ScreenMode == PauseScreenMode.Map || SameEquipment(left.EquipmentPage, right.EquipmentPage))
@@ -94,10 +94,4 @@ internal static class PauseScreenMemory
     private static bool SameHud(ShownHud left, ShownHud right) =>
         ReferenceEquals(left, right) || left.Images.AsSpan().SequenceEqual(right.Images.AsSpan());
 
-    /// <summary>Reads a pause screen's memory image.</summary>
-    extension(PauseScreen self)
-    {
-        /// <summary>The character image of the screen's bound artwork.</summary>
-        internal byte[] Characters => Characters(self.Artwork);
-    }
 }

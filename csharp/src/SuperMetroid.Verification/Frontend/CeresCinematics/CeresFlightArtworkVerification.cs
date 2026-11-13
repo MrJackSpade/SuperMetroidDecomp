@@ -71,9 +71,9 @@ internal static class CeresFlightArtworkVerification
             if (enteredPhase || tick % 97 == 0)
             {
                 LayeredScene original = native.CaptureRenderSnapshot();
-                byte[] originalVram = native.ShownVram();
+                byte[] originalVram = native.ShownVram(reference.BoundCatalog);
                 LayeredScene compiled = installed.CaptureRenderSnapshot();
-                byte[] compiledVram = installed.ShownVram();
+                byte[] compiledVram = installed.ShownVram(stock.BoundCatalog);
                 AssertTrue(compiled.Brightness == original.Brightness &&
                         compiledVram.SequenceEqual(originalVram) &&
                         compiled.Paint.Backdrop == original.Paint.Backdrop &&

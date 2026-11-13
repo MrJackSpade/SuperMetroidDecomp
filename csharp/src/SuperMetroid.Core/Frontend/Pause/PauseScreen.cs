@@ -18,8 +18,7 @@ internal sealed class PauseScreen
     /// <summary>Installs the map, pause interface, HUD and menu sprite artwork, and the sheets its backgrounds draw from.</summary>
     public PauseScreen(AreaMapPresentation artwork, InstalledSpriteSheets? sheets)
     {
-        Artwork = Ensure.NotNull(artwork);
-        Backdrop = artwork.Backdrops.Pause;
+        Backdrop = Ensure.NotNull(artwork).Backdrops.Pause;
         Objects = new ScreenSprites();
         BindScreenTiles(sheets);
     }
@@ -121,26 +120,14 @@ internal sealed class PauseScreen
     /// </summary>
     internal PicturedHud ShownHudPictures() => pictured ??= HudPictures.Pictured(Hud, PictureShading.Standard);
 
-    /// <summary>The installed artwork the screen draws.</summary>
-    [AllowNull]
-    public AreaMapPresentation Artwork
-    {
-        get => field ?? throw new InvalidOperationException("The pause screen's artwork is bound when the game is bound to its installed content.");
-        private set;
-    }
-
     /// <summary>The solid colour the pause screen shows where nothing is drawn (#1512).</summary>
     public RgbColor Backdrop { get; private set; }
 
     /// <summary>The pause sprite entries over the installed menu sprite page.</summary>
     public ScreenSprites Objects { get; }
 
-    /// <summary>Rebinds the installed artwork and the backdrop it names, keeping the sprite entries.</summary>
-    public void BindArtwork(AreaMapPresentation artwork)
-    {
-        Artwork = Ensure.NotNull(artwork);
-        Backdrop = artwork.Backdrops.Pause;
-    }
+    /// <summary>Rebinds the backdrop the installed artwork names, keeping the sprite entries.</summary>
+    public void BindArtwork(AreaMapPresentation artwork) => Backdrop = Ensure.NotNull(artwork).Backdrops.Pause;
 
     /// <summary>What the screen paints with: its backdrop (#1512); its sprites are drawn by its sprite layer (#1514).</summary>
     internal FramePaint Paint() => new(Backdrop);

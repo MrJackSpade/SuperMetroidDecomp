@@ -57,8 +57,6 @@ internal static class CoreAccess
         internal AudioQueues AudioForVerification => game.Session.audio;
         /// <summary>The acknowledgements the session's SPC port model published for the next update.</summary>
         internal SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> AudioAcknowledgementsForVerification => game.Session.audioSession.Acknowledgements;
-        /// <summary>The most recent update's ordered semantic audio events.</summary>
-        internal IReadOnlyList<AudioEvent> AudioEventsForVerification => game.Session.LastAudioEvents;
         /// <summary>Reads the session frame clock's 16-bit counter, which the frontend advances while no runtime exists.</summary>
         internal int MenuNmiFrameCounterForVerification => game.Session.frameClock.Counter;
         /// <summary>Reads the active Ceres destruction cinematic, if that phase owns the frontend.</summary>
@@ -211,22 +209,9 @@ internal static class CoreAccess
         internal bool SamusLoadAppearanceActive => runtime.SamusLoadAppearanceFramesRemaining != 0;
     }
 
-    /// <summary>Finds a unique population PLM and snapshots active stations in processing order.</summary>
+    /// <summary>Snapshots active stations in processing order.</summary>
     extension(RoomObjectSystem roomObjects)
     {
-
-        /// <summary>The one active slot running <paramref name="headerPointer"/>; throws unless exactly one does.</summary>
-        internal RoomObjectSlotSnapshot SinglePopulationSlot(RoomObjectKind headerPointer)
-        {
-            RoomObjectSlotSnapshot[] matches = roomObjects.PopulationSlots
-                .Where(slot => slot.Kind == headerPointer).ToArray();
-            return matches.Length switch
-            {
-                1 => matches[0],
-                0 => throw new InvalidOperationException($"No active PLM uses header {headerPointer}."),
-                _ => throw new InvalidOperationException($"More than one active PLM uses header {headerPointer}."),
-            };
-        }
 
         /// <summary>Active station PLMs, in processing order.</summary>
         internal IReadOnlyList<StationObjectSnapshot> StationSnapshots

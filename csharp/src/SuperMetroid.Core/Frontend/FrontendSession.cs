@@ -201,10 +201,6 @@ internal sealed class FrontendSession
     internal BrightnessFade DeathFade { get; } = new(15, 0);
     /// <summary>The ending transition after the Zebes escape, one level darker every frame.</summary>
     internal BrightnessFade EscapeFade { get; } = new(15, 0);
-    /// <summary>The most recent update's ordered semantic audio events; the session has already rendered them.</summary>
-    internal IReadOnlyList<AudioEvent> LastAudioEvents { get; private set; } = Array.Empty<AudioEvent>();
-    /// <summary>Advances the audio session by this update's commands and keeps the events it publishes.</summary>
-    internal void AdvanceAudio(IReadOnlyList<AudioRequest> requests) => LastAudioEvents = audioSession.Advance(requests);
     /// <summary>The room state whose music was last queued.</summary>
     internal RoomStateSettings? LastAudioRoomState { get; set; }
     /// <summary>Forgets the room whose music was last queued, so the next runtime's room music is queued from scratch.</summary>

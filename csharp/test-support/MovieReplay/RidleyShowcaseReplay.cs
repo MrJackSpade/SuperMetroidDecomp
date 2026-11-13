@@ -462,7 +462,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             {
                 // The pause screen holds no colours; its pictures show the import's colours under the shadings it names (#1512).
                 PauseMenuState menu = game.Session.ScreenAs<PauseMenuState>() ?? throw new InvalidDataException("Native pause palette requires the active pause menu.");
-                comparedPalette = PauseShownColours.Of(menu);
+                comparedPalette = PauseShownColours.Of(menu, game.Session.Artwork.MapPresentation
+                    ?? throw new InvalidDataException("The pause screen is bound to the map presentation the game was bound with."));
                 comparedColours = PauseShownColours.ComparedIn(menu);
             }
             if (!deferLoadingOwners)
@@ -599,11 +600,13 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 {
                     int offset = slotIndex * 2;
                     bool active = roomObjectSlots.TryGetValue(slotIndex, out var slot);
-                    Check($"PLM {slotIndex} header", active ? RoomObjectNativeWords.Word(slot.Kind) : (ushort)0, NativeSnapshotMemory.RoomObjectHeaders + offset);
+                    // The movie's room objects are grey doors, whose header is the one their variant is placed with (#1691).
+                    VerificationAssertions.AssertTrue(!active || slot.Behaviour is GreyDoorObject,
+                        $"Movie PLM {slot.Behaviour?.GetType().Name ?? "with no typed object"} needs a family-variable coverage mapping");
+                    Check($"PLM {slotIndex} header", active ? RoomObjectNativeWords.Word(GreyDoorPlacedKinds.Of(((GreyDoorObject)slot.Behaviour!).Variant)) : (ushort)0,
+                        NativeSnapshotMemory.RoomObjectHeaders + offset);
                     if (!active || W(NativeSnapshotMemory.RoomObjectHeaders + offset) == 0) continue;
-                    var greyDoor = runtime.RoomObjects.GreyDoorSnapshots.FirstOrDefault(door => door.Kind == slot.Kind && door.Block == slot.Block);
-                    VerificationAssertions.AssertTrue(greyDoor.Kind != RoomObjectKind.None,
-                        $"Movie PLM {slot.Kind} needs a family-variable coverage mapping");
+                    GreyDoorObjectSnapshot greyDoor = runtime.RoomObjects.GreyDoorSnapshots.Single(door => ReferenceEquals(door.Door, slot.Behaviour));
                     GreyDoorObject typedDoor = greyDoor.Door;
                     Check($"PLM {slotIndex} grey-door condition", (ushort)((int)greyDoor.Condition * 2), NativeSnapshotMemory.RoomObjectFamilyVariable + offset);
                     // Grey doors require one hit. Opening owns the incremented counter;
@@ -643,10 +646,11 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     }
                     // A spent cap's word is compared by its spent mark; the open doors the cartridge leaves beside it are read by nothing.
                     if (slot.SpentCap)
-                        CheckValue($"PLM {slotIndex} RoomArgument spent mark", slot.RoomArgument,
+                        CheckValue($"PLM {slotIndex} RoomArgument spent mark", slot.RoomArgument ?? throw new InvalidDataException("A spent cap's word is its spent mark."),
                             W(NativeSnapshotMemory.RoomObjectRoomArgument + offset) & RoomObjectRoomArgumentWords.SpentMark);
                     else
-                        Check($"PLM {slotIndex} RoomArgument", slot.RoomArgument, NativeSnapshotMemory.RoomObjectRoomArgument + offset);
+                        Check($"PLM {slotIndex} RoomArgument", slot.RoomArgument ?? throw new InvalidDataException("A grey door's word is its typed argument's."),
+                            NativeSnapshotMemory.RoomObjectRoomArgument + offset);
                     // The update the cap's next image draws, or its sequence ends: the updates its shown image has left.
                     // The native sleep leaves the countdown at zero and lets it run on from $FFFF; a resting cap counts
                     // nothing, so only a resting door's countdown is left uncompared.

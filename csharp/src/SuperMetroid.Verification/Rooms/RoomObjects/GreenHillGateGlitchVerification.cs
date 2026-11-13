@@ -79,16 +79,16 @@ internal static class GreenHillGateGlitchVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.GreenHillZone);
         RoomObjectSlotSnapshot gate = runtime.RoomObjects.PopulationSlots.Single(slot =>
-            slot.Kind == RoomObjectKind.DownwardGate);
+            slot.Behaviour is DownwardGateObject);
         AssertEqual(runtime.Room.LoadedLevelData.BlockAt(0x1be4), gate.Block, "authored Green Hill gate block");
         RoomObjectSlotSnapshot trigger = runtime.RoomObjects.PopulationSlots.Single(slot =>
-            slot.Kind == RoomObjectKind.DownwardGateShotBlock);
+            slot.HoldsDownwardGateShotBlock);
         AssertEqual((ushort)0, trigger.RoomArgument,
             "authored Green Hill trigger selects the blue-left gate table");
         runtime.StepFrame(0);
         runtime.StepFrame(0);
         gate = runtime.RoomObjects.PopulationSlots.Single(slot =>
-            slot.Kind == RoomObjectKind.DownwardGate);
+            slot.Behaviour is DownwardGateObject);
         EnemyProjectile gateActor = runtime.Enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.IsActive &&
             projectile.Kind == RoomEnemyProjectileKind.DownwardGateClosed);
@@ -120,7 +120,7 @@ internal static class GreenHillGateGlitchVerification
                 input |= ControllerButton.X;
             runtime.StepFrame(input);
             gate = runtime.RoomObjects.PopulationSlots.Single(slot =>
-                slot.Kind == RoomObjectKind.DownwardGate);
+                slot.Behaviour is DownwardGateObject);
             if (gate.Behaviour is not DownwardGateObject { Triggered: true })
                 continue;
             openFrame = frame;

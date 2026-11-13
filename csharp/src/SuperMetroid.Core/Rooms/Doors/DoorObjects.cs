@@ -74,7 +74,6 @@ internal sealed class DoorObjects
         if (_slotTable.Spawn() is not { } slot)
             return false;
 
-        slot.Kind = fallback.Kind;
         slot.Block = block;
         slot.Become(fallback.BlueCapFacing is { } facing
             ? new BlueDoorCapObject(facing, BlueDoorCapPhase.Closing)
@@ -189,20 +188,9 @@ internal sealed class DoorObjects
         if (projectileType.Family == SamusProjectileFamily.PowerBomb)
             return false;
 
-        RoomObjectKind blueDoorKind = orientation switch
-        {
-            ColoredDoorOrientation.Left => RoomObjectKind.BlueDoorFacingLeft,
-            ColoredDoorOrientation.Right => RoomObjectKind.BlueDoorFacingRight,
-            ColoredDoorOrientation.Up => RoomObjectKind.BlueDoorFacingUp,
-            ColoredDoorOrientation.Down => RoomObjectKind.BlueDoorFacingDown,
-            _ => throw new InvalidOperationException(
-                "A validated blue-door facing escaped its four-way kind table."),
-        };
-
         if (_slotTable.Spawn() is not { } slot)
             return false;
 
-        slot.Kind = blueDoorKind;
         slot.Block = position;
         slot.Become(new BlueDoorCapObject(orientation, BlueDoorCapPhase.Opening));
         // The spawn leaves the argument the game's first door, the Landing Site's green door, which a later closing

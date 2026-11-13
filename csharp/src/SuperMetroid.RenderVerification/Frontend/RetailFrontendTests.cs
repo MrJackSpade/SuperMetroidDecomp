@@ -55,7 +55,7 @@ internal static class RetailFrontendTests
             var actual = captured.StepCaptured(input);
             if (expected.GameState != actual.Frame.GameState || expected.Phase != actual.Frame.Phase ||
                 expected.FrameNumber != actual.Frame.FrameNumber ||
-                !legacy.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification))
+                !expected.Audio.Events.SequenceEqual(actual.Frame.Audio.Events))
                 throw new InvalidOperationException($"Frontend state/audio diverged at tick {tick}.");
             states.Add(expected.GameState);
             var packet = actual.Snapshot;

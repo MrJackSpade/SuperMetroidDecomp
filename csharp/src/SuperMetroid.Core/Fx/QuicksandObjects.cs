@@ -33,9 +33,9 @@ internal sealed class QuicksandObjects
     /// <returns>False only when the room-object pool is full.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is not a sand reaction.</exception>
     public bool TrySpawnQuicksandReaction(Position16<RoomBlocks> block, SpecialAirInsideReaction reaction) =>
-        TrySpawn(block, QuicksandDefinitions.InsideObjects.TryGetValue(reaction, out RoomObjectKind identity)
-            ? identity
-            : throw new ArgumentOutOfRangeException(nameof(reaction), reaction, "Only the four inside sand reactions place a sand reaction."));
+        QuicksandDefinitions.InsideObjects.ContainsKey(reaction)
+            ? TrySpawn(block)
+            : throw new ArgumentOutOfRangeException(nameof(reaction), reaction, "Only the four inside sand reactions place a sand reaction.");
 
     /// <summary>
     /// Allocates one transient sand-reaction room object at the sand <paramref name="block"/> Samus's movement reached, as
@@ -46,17 +46,16 @@ internal sealed class QuicksandObjects
     /// <returns>False only when the room-object pool is full.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is not a sand reaction.</exception>
     public bool TrySpawnQuicksandReaction(Position16<RoomBlocks> block, SpecialAirCollisionReaction reaction) =>
-        TrySpawn(block, QuicksandDefinitions.CollisionObjects.TryGetValue(reaction, out RoomObjectKind identity)
-            ? identity
-            : throw new ArgumentOutOfRangeException(nameof(reaction), reaction, "Only the four collision sand reactions place a sand reaction."));
+        QuicksandDefinitions.CollisionObjects.ContainsKey(reaction)
+            ? TrySpawn(block)
+            : throw new ArgumentOutOfRangeException(nameof(reaction), reaction, "Only the four collision sand reactions place a sand reaction.");
 
-    /// <summary>Places the sand reaction object <paramref name="identity"/> names at <paramref name="block"/>; it leaves on its first update.</summary>
-    private bool TrySpawn(Position16<RoomBlocks> block, RoomObjectKind identity)
+    /// <summary>Places a sand reaction object at <paramref name="block"/>; it leaves on its first update.</summary>
+    private bool TrySpawn(Position16<RoomBlocks> block)
     {
         if (_slotTable.Spawn() is not { } slot)
             return false;
 
-        slot.Kind = identity;
         slot.Block = block;
         slot.Become(new TerrainChangeObject(TerrainChange.MadeAtSpawn));
         return true;

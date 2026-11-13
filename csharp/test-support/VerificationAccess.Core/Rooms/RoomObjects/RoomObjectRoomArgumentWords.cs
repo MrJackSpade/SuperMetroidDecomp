@@ -106,14 +106,28 @@ internal static class RoomObjectRoomArgumentWords
     }
 
     /// <summary>
-    /// The native word of an argument: the hit count for a cannon or the glass once set up, the scroll program's place for
-    /// a scroll trigger, the fixed or filler word of a placement that carries nothing, else zero.
+    /// The native word of a placement's argument: its typed argument's word, the scroll program's place for a scroll
+    /// trigger, the fixed or filler word of a placement that carries nothing, else zero.
     /// </summary>
-    internal static ushort Encode(RoomObjectKind header, RoomObjectRoomArgument? argument, int? hitCounter, RoomScrollChange? scroll)
-    {
-        if (hitCounter is { } hits && (DraygonCannonObjects.IsDraygonCannonKind(header) || header == RoomObjectKind.MotherBrainGlass))
-            return unchecked((ushort)hits);
-        return argument switch
+    internal static ushort Encode(RoomObjectKind header, RoomObjectRoomArgument? argument, RoomScrollChange? scroll) =>
+        ArgumentWord(argument) ?? (header == RoomObjectKind.ScrollTrigger && scroll is { } program ? RoomScrollProgramNative.Addresses[program]
+            : FixedWords.TryGetValue(header, out ushort fixedWord) ? fixedWord
+            : FillerHeaders.Contains(header) || header == RoomObjectKind.ScrollTrigger ? Filler
+            : (ushort)0);
+
+    /// <summary>
+    /// The native word of a live object's argument (#1691): the hit count for a cannon or the glass once set up, else its
+    /// typed argument's word, else the scroll program's place for a scroll trigger. A live object that holds none of these
+    /// has no word here: the cartridge's is its placement's filler or its spawner's, which names no state the port keeps.
+    /// </summary>
+    private static ushort? HeldWord(RoomObjectSlot slot) =>
+        HitWord(slot) is { } hits ? unchecked((ushort)hits)
+        : ArgumentWord(slot.Argument)
+            ?? ((slot.Behaviour as ScrollTriggerObject)?.Change is { } program ? (ushort?)RoomScrollProgramNative.Addresses[program] : null);
+
+    /// <summary>The native word of a typed argument, or null for none.</summary>
+    private static ushort? ArgumentWord(RoomObjectRoomArgument? argument) =>
+        argument switch
         {
             CollectedItemArgument item => checked((ushort)SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(item.Location)),
             DoorBitArgument door => checked((ushort)(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(door.Door) | (door.Persists ? 0 : NeverPersists))),
@@ -123,13 +137,9 @@ internal static class RoomObjectRoomArgumentWords
             SaveStationArgument saved => checked((ushort)SuperMetroid.Core.Saves.LoadStationNumberCodec.Number(saved.Station)),
             MetroidRoomArgument metroids => checked((ushort)(metroids.Entry * 2)),
             GateTriggerArgument gate => checked((ushort)(gate.Trigger * 2)),
-            null when header == RoomObjectKind.ScrollTrigger && scroll is { } program => RoomScrollProgramNative.Addresses[program],
-            null when FixedWords.TryGetValue(header, out ushort fixedWord) => fixedWord,
-            null when FillerHeaders.Contains(header) || header == RoomObjectKind.ScrollTrigger => Filler,
-            null => 0,
+            null => null,
             _ => throw new InvalidOperationException($"Undefined room argument {argument}."),
         };
-    }
 
     /// <summary>
     /// The part of a spent cap's word the port keeps: its never-persists mark. The cartridge also leaves the bits of the
@@ -154,15 +164,14 @@ internal static class RoomObjectRoomArgumentWords
     /// <summary>The native room-argument word of a live slot.</summary>
     extension(RoomObjectSlot slot)
     {
-        /// <summary>The word native work RAM holds for the slot's argument.</summary>
-        internal ushort NativeRoomArgument => Encode(slot.Kind, slot.Argument, HitWord(slot),
-            (slot.Behaviour as ScrollTriggerObject)?.Change);
+        /// <summary>The word native work RAM holds for the slot's argument, or null where the port keeps nothing it stands for.</summary>
+        internal ushort? NativeRoomArgument => HeldWord(slot);
     }
 
     /// <summary>The native room-argument word of a placement.</summary>
     extension(RoomObjectPlacement placement)
     {
         /// <summary>The word the cartridge stores for the placement's argument.</summary>
-        internal ushort NativeRoomArgument => Encode(placement.Kind, placement.Argument, null, placement.CompiledScrollChange);
+        internal ushort NativeRoomArgument => Encode(placement.Kind, placement.Argument, placement.CompiledScrollChange);
     }
 }

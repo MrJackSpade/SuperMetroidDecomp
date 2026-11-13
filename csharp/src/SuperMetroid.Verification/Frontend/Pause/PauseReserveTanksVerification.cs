@@ -41,7 +41,7 @@ internal static class PauseReserveTanksVerification
                 // drawing only one that differs (#1532).
                 var capture = pause.CaptureRenderSnapshot();
                 var actual = DisplayRendering.Render(capture);
-                byte[] captureVram = pause.ShownVram();
+                byte[] captureVram = pause.ShownVram(RetailPresentationFixture());
                 var native = new OamBuffer();
                 native.BeginFrame();
                 int tank = 0;
@@ -66,7 +66,7 @@ internal static class PauseReserveTanksVerification
                     AssertTrue(SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ShowsNativeColours(draw.Image.Sheet,
                             PictureShading.Standard.KeyColours(draw.Image.Sheet), nativeColours.Colors),
                         $"pause sprite {draw.Image.Sheet.Name} shows the cartridge's pause sprite colours {capacity}/{supply}");
-                var expected = DisplayRendering.Render(capture.WithNativeColoursAndOam(captureVram, PauseShownColours.Of(pause), objects, native.LastFinalizedSpriteCount, SuperMetroid.AssetExtraction.Frontend.PauseSheetDefinitions.ObjectSelection));
+                var expected = DisplayRendering.Render(capture.WithNativeColoursAndOam(captureVram, PauseShownColours.Of(pause, RetailPresentationFixture()), objects, native.LastFinalizedSpriteCount, SuperMetroid.AssetExtraction.Frontend.PauseSheetDefinitions.ObjectSelection));
                 // This rectangle encloses the tank strip and end-cap, but not the
                 // independently animated equipment selector. BG remains identical.
                 for (int y = 88; y < 120; y++)

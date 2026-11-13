@@ -67,12 +67,12 @@ internal static class PauseShownColours
             .Where(colour => colour is not (ArrowShadeColour or ArrowLightColour))];
     }
 
-    /// <summary>The colours <paramref name="pause"/>'s pictures show now.</summary>
-    /// <exception cref="InvalidOperationException">The pause screen's presentation was not read from an installation.</exception>
-    internal static RgbColor[] Of(PauseMenuState pause)
+    /// <summary>The colours <paramref name="pause"/>'s pictures show now, bound to <paramref name="maps"/> by its fixture.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="maps"/> was not read from an installation.</exception>
+    internal static RgbColor[] Of(PauseMenuState pause, AreaMapPresentation maps)
     {
         Ensure.NotNull(pause);
-        AreaMapPresentation maps = pause.screen.Artwork;
+        Ensure.NotNull(maps);
         // The pause colours are import knowledge (#1544): the game reads no palette document, so they come from the import's read.
         RgbColor[] colours = InstalledFixtures.ImportMaps.Palettes.Pause.ToArray();
         // Only the map's highlighted sprites show the cycle (#1544): the equipment page's selector and reserve strip,

@@ -262,7 +262,7 @@ internal sealed class EnemyTerrain
             RoomCollisionType.SpikeAir or
             RoomCollisionType.SpecialAir or
             RoomCollisionType.ShootableAir or
-            RoomCollisionType.UnusedAir or
+            RoomCollisionType.UnrevealedAir or
             RoomCollisionType.BombableAir => false,
             RoomCollisionType.Slope when block.Behavior.Slope.IsNonSquare =>
                 treatNonSquareSlopesAsWalls,
@@ -296,7 +296,7 @@ internal sealed class EnemyTerrain
             RoomCollisionType.SpikeAir or
             RoomCollisionType.SpecialAir or
             RoomCollisionType.ShootableAir or
-            RoomCollisionType.UnusedAir or
+            RoomCollisionType.UnrevealedAir or
             RoomCollisionType.BombableAir => false,
             RoomCollisionType.Slope when block.Behavior.Slope.IsNonSquare =>
                 NonSquareVerticalSlopeIsSolid(
@@ -366,7 +366,7 @@ internal sealed class EnemyTerrain
             Offset16<RoomBlocks>.Of(0, block.Behavior.ExtensionOffset),
         RoomCollisionType.Air or RoomCollisionType.Slope or RoomCollisionType.SpikeAir or
             RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or
-            RoomCollisionType.HorizontalExtension or RoomCollisionType.UnusedAir or
+            RoomCollisionType.HorizontalExtension or RoomCollisionType.UnrevealedAir or
             RoomCollisionType.BombableAir or RoomCollisionType.SolidBlock or RoomCollisionType.DoorBlock or
             RoomCollisionType.SpikeBlock or RoomCollisionType.SpecialBlock or
             RoomCollisionType.ShootableBlock or RoomCollisionType.VerticalExtension or

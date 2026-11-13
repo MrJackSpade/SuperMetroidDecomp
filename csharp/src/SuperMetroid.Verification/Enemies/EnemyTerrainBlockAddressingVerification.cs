@@ -272,7 +272,7 @@ internal static class EnemyTerrainBlockAddressingVerification
     /// <summary>The kinds the eye door projectiles' edge scan passes through, as its scan tests them.</summary>
     private static bool EyeDoorPassable(RoomCollisionType kind) => kind is
         RoomCollisionType.Air or RoomCollisionType.SpikeAir or RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or
-        RoomCollisionType.UnusedAir or RoomCollisionType.BombableAir or RoomCollisionType.HorizontalExtension or
+        RoomCollisionType.UnrevealedAir or RoomCollisionType.BombableAir or RoomCollisionType.HorizontalExtension or
         RoomCollisionType.VerticalExtension or RoomCollisionType.GrappleBlock;
 
     /// <summary>The kinds the shared axis move passes through: the kinds its unconditional block reactions do not stop.</summary>
@@ -428,7 +428,7 @@ internal static class EnemyTerrainBlockAddressingVerification
         // The leading edge's column five of row one, in a room four blocks wide, is the block one column into row two.
         var broken = Position16<RoomBlocks>.Of(1, 2);
         terrain[size.RowMajorIndex(broken)] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpikeBlock);
-        behaviors[size.RowMajorIndex(broken)] = RoomBlockBehavior.Reacting(BlockReaction.Common(EnemyBreakableTerrainDefinitions.BreakableReaction));
+        behaviors[size.RowMajorIndex(broken)] = RoomBlockBehavior.Reacting(SpikeReaction.EnemyBreakable);
         var level = new RoomLevelData(size, new RoomLevelPlanes(terrain, behaviors,
             [.. Enumerable.Repeat(RoomBlockAppearance.Of(0), size.Area)]), RoomLevelData.NothingBeyondGrid());
         var roomObjects = RoomObjectFixtures.Unbound();

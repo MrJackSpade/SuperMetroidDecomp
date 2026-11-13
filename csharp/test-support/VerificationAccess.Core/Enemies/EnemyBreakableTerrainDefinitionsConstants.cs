@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Enemies;
 
-/// <summary>Cartridge values and helpers of <see cref="EnemyBreakableTerrainDefinitions"/> that only verification reads.</summary>
+/// <summary>Cartridge values and helpers of <see cref="EnemyBreakableTerrain"/> that only verification reads.</summary>
 internal static class EnemyBreakableTerrainDefinitionsConstants
 {
     /// <summary>$84:CD53, sound plus four timed crumble draws, then deletion.</summary>

@@ -1,34 +1,51 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
-/// <summary>The common shootable reactions the shot-block dispatcher handles, by entry.</summary>
+/// <summary>The shootable reactions the shot-block dispatcher handles, and what it does with each.</summary>
 public static class ShotBlockReactionDefinitions
 {
     /// <summary>
-    /// The reactions of the first common entries, in entry order: four respawning and four permanent breaks (one, two
-    /// wide, two tall and two by two blocks), the respawning and permanent Power Bomb and Super Missile blocks, four
-    /// empty entries and the collision probe.
+    /// What the dispatcher does with each shootable reaction it handles: the respawning and permanent breaks of every size,
+    /// the Power Bomb and Super Missile blocks, the empty reactions and the collision probe. The empty entries past the
+    /// probe set off the same one-update object as the empty reaction.
     /// </summary>
-    public static readonly IReadOnlyList<ShotBlockReaction> LeadingEntries =
-    [
-        ShotBlockReaction.RespawningBreak, ShotBlockReaction.RespawningBreak,
-        ShotBlockReaction.RespawningBreak, ShotBlockReaction.RespawningBreak,
-        ShotBlockReaction.PermanentBreak, ShotBlockReaction.PermanentBreak,
-        ShotBlockReaction.PermanentBreak, ShotBlockReaction.PermanentBreak,
-        ShotBlockReaction.RespawningPowerBombBreak, ShotBlockReaction.PermanentPowerBombBreak,
-        ShotBlockReaction.RespawningSuperMissileBreak, ShotBlockReaction.PermanentSuperMissileBreak,
-        ShotBlockReaction.Nothing, ShotBlockReaction.Nothing, ShotBlockReaction.Nothing, ShotBlockReaction.Nothing,
-        ShotBlockReaction.CollisionProbe,
-    ];
+    public static readonly IReadOnlyDictionary<ShootableReaction, ShotBlockReaction> Dispatched =
+        new Dictionary<ShootableReaction, ShotBlockReaction>
+        {
+            [ShootableReaction.RespawningBreak1x1] = ShotBlockReaction.RespawningBreak,
+            [ShootableReaction.RespawningBreak2x1] = ShotBlockReaction.RespawningBreak,
+            [ShootableReaction.RespawningBreak1x2] = ShotBlockReaction.RespawningBreak,
+            [ShootableReaction.RespawningBreak2x2] = ShotBlockReaction.RespawningBreak,
+            [ShootableReaction.PermanentBreak1x1] = ShotBlockReaction.PermanentBreak,
+            [ShootableReaction.PermanentBreak2x1] = ShotBlockReaction.PermanentBreak,
+            [ShootableReaction.PermanentBreak1x2] = ShotBlockReaction.PermanentBreak,
+            [ShootableReaction.PermanentBreak2x2] = ShotBlockReaction.PermanentBreak,
+            [ShootableReaction.RespawningPowerBombBlock] = ShotBlockReaction.RespawningPowerBombBreak,
+            [ShootableReaction.PermanentPowerBombBlock] = ShotBlockReaction.PermanentPowerBombBreak,
+            [ShootableReaction.RespawningSuperMissileBlock] = ShotBlockReaction.RespawningSuperMissileBreak,
+            [ShootableReaction.PermanentSuperMissileBlock] = ShotBlockReaction.PermanentSuperMissileBreak,
+            [ShootableReaction.Nothing] = ShotBlockReaction.Nothing,
+            [ShootableReaction.CollisionProbe] = ShotBlockReaction.CollisionProbe,
+            [ShootableReaction.EmptyEntry] = ShotBlockReaction.Nothing,
+        };
 
-    /// <summary>The first permanent break's entry; the permanent breaks follow the respawning ones in the same order.</summary>
-    public const int FirstPermanentBreakEntry = 4;
+    /// <summary>
+    /// The table's leading reactions, which every weapon's scan dispatches to the table: the breaks, the Power Bomb and
+    /// Super Missile blocks and the empty reaction.
+    /// </summary>
+    public static readonly IReadOnlySet<ShootableReaction> LeadingReactions = new HashSet<ShootableReaction>
+    {
+        ShootableReaction.RespawningBreak1x1, ShootableReaction.RespawningBreak2x1,
+        ShootableReaction.RespawningBreak1x2, ShootableReaction.RespawningBreak2x2,
+        ShootableReaction.PermanentBreak1x1, ShootableReaction.PermanentBreak2x1,
+        ShootableReaction.PermanentBreak1x2, ShootableReaction.PermanentBreak2x2,
+        ShootableReaction.RespawningPowerBombBlock, ShootableReaction.PermanentPowerBombBlock,
+        ShootableReaction.RespawningSuperMissileBlock, ShootableReaction.PermanentSuperMissileBlock,
+        ShootableReaction.Nothing,
+    };
 
-    /// <summary>The last of the unused entries that directly follow <see cref="LeadingEntries"/>.</summary>
-    public const int LastFollowingUnusedEntry = 63;
-
-    /// <summary>The unused entry that lies after the door, collectible and gate entries.</summary>
-    public const int LoneUnusedEntry = 78;
-
-    /// <summary>The entry the closed downward gate gives its column: the collision probe.</summary>
-    public static readonly BlockReaction CollisionProbe = BlockReaction.Common(16);
+    /// <summary>The reactions the room's area gives shootable blocks.</summary>
+    public static readonly IReadOnlySet<ShootableReaction> AreaReactions = new HashSet<ShootableReaction>
+    {
+        ShootableReaction.AreaNothing, ShootableReaction.PastAreaTable,
+    };
 }

@@ -26,21 +26,21 @@ public static class SamusInsideBlockReactions
             if (block.Position is null || !SamusBlockCollision.TryResolveExtension(level, ref block) ||
                 block.CollisionType != RoomCollisionType.SpecialAir)
                 return;
-            if (!block.Behavior.Reaction.IsAreaSpecific)
+            if (!SpecialAirReactions.IsArea(block.Behavior.SpecialAir))
             {
                 // Admits only inside-block sample one (the center).
                 // Feet/head contacts belong to the separate movement scans. Keeping
                 // this center wake-up lets a lower trigger win after the torso clears
                 // an upper trigger, without changing room-object slot priority.
-                if (centerPoint && block.Behavior.Reaction == BlockReactionDefinitions.ScrollTrigger &&
+                if (centerPoint && block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
                     (roomObjects is null || !roomObjects.Scrolls.TryNotifyScrollTouch(block.At)))
                     throw new InvalidOperationException($"Inside scroll trigger block {block.Position} has no active room-object owner.");
                 // The normal table contains conveyors; area-table entries below own
                 // sand. Both must be visited in the same bottom/center/top order.
-                ApplyConveyor(block.Behavior.Reaction);
+                ApplyConveyor(block.Behavior.SpecialAir);
                 return;
             }
-            SpecialAirInsideReaction reaction = SpecialAirReactions.InsideOf(area, block.Behavior.Reaction);
+            SpecialAirInsideReaction reaction = SpecialAirReactions.InsideOf(area, block.Behavior.SpecialAir);
             // A sand reaction takes a room-object place before it acts; with every place taken it does nothing.
             if (QuicksandReactions.PlacesObject(reaction) && roomObjects is not null &&
                 !roomObjects.Quicksand.TrySpawnQuicksandReaction(block.At, reaction))
@@ -114,7 +114,7 @@ public static class SamusInsideBlockReactions
         }
         ISamusRoomObjects RequireRoomObjects() =>
             roomObjects ?? throw new InvalidOperationException("Samus Eater reaction requires the room-object owner.");
-        void ApplyConveyor(BlockReaction reaction)
+        void ApplyConveyor(SpecialAirReaction reaction)
         {
             // The common special-air reactions include the conveyors; only they react here.
             if (!ConveyorBlockDefinitions.Conveyors.TryGetValue(reaction, out ConveyorBlock conveyor)) return;
@@ -156,8 +156,8 @@ public static class SamusInsideBlockReactions
         ISamusRoomObjects? roomObjects = terrain.RoomObjects;
         SamusKinematicsState body = contact.Body;
         surfaceContact = false;
-        if (!block.Behavior.Reaction.IsAreaSpecific) return SpecialAirCollisionOutcome.PassesThrough;
-        SpecialAirCollisionReaction reaction = SpecialAirReactions.CollisionOf(body.SandCollisionArea, block.Behavior.Reaction);
+        if (!SpecialAirReactions.IsArea(block.Behavior.SpecialAir)) return SpecialAirCollisionOutcome.PassesThrough;
+        SpecialAirCollisionReaction reaction = SpecialAirReactions.CollisionOf(body.SandCollisionArea, block.Behavior.SpecialAir);
         // A sand reaction takes a room-object place before it acts; with every place taken Samus passes as through air.
         if (QuicksandReactions.PlacesObject(reaction) && roomObjects is not null &&
             !roomObjects.Quicksand.TrySpawnQuicksandReaction(block.At, reaction))

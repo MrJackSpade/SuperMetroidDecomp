@@ -80,11 +80,11 @@ internal static class SpeedBoosterBlockObjectDefinitions
     /// The crumble of each Speed Booster block the common special-block reactions select, in every area: the respawning
     /// block and the permanent one.
     /// </summary>
-    public static readonly IReadOnlyDictionary<BlockReaction, BlockReactionChange> CommonBlocks =
-        new Dictionary<BlockReaction, BlockReactionChange>
+    public static readonly IReadOnlyDictionary<SpecialBlockReaction, BlockReactionChange> CommonBlocks =
+        new Dictionary<SpecialBlockReaction, BlockReactionChange>
         {
-            [BlockReaction.Common(14)] = RespawningCrumble,
-            [BlockReaction.Common(15)] = PermanentCrumble,
+            [SpecialBlockReaction.RespawningSpeedBlock] = RespawningCrumble,
+            [SpecialBlockReaction.PermanentSpeedBlock] = PermanentCrumble,
         };
 
     /// <summary>
@@ -92,12 +92,12 @@ internal static class SpeedBoosterBlockObjectDefinitions
     /// slow permanent blocks, the Dachora room's respawning block (which crumbles as the common one does) and the permanent
     /// block.
     /// </summary>
-    public static readonly IReadOnlyDictionary<BlockReaction, BlockReactionChange> BrinstarBlocks =
-        new Dictionary<BlockReaction, BlockReactionChange>
+    public static readonly IReadOnlyDictionary<SpecialBlockReaction, BlockReactionChange> BrinstarBlocks =
+        new Dictionary<SpecialBlockReaction, BlockReactionChange>
         {
-            [BlockReaction.AreaSpecific(2)] = SlowRespawningCrumble,
-            [BlockReaction.AreaSpecific(3)] = SlowPermanentCrumble,
-            [BlockReaction.AreaSpecific(4)] = RespawningCrumble,
-            [BlockReaction.AreaSpecific(5)] = PermanentCrumble,
+            [SpecialBlockReaction.BrinstarSlowRespawningSpeedBlock] = SlowRespawningCrumble,
+            [SpecialBlockReaction.BrinstarSlowPermanentSpeedBlockOrNorfairChozoHand] = SlowPermanentCrumble,
+            [SpecialBlockReaction.BrinstarRespawningSpeedBlock] = RespawningCrumble,
+            [SpecialBlockReaction.BrinstarPermanentSpeedBlock] = PermanentCrumble,
         };
 }

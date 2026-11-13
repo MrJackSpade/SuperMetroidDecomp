@@ -35,8 +35,8 @@ internal static class RoomObjectBombedRevealProgramDefinitions
         Reveal.Crumble2x1 => RoomObjectAnimationScriptsConstants.CrumbleReveal2x1,
         Reveal.Crumble1x2 => RoomObjectAnimationScriptsConstants.CrumbleReveal1x2,
         Reveal.Crumble2x2 => RoomObjectAnimationScriptsConstants.CrumbleReveal2x2,
-        Reveal.PowerBomb => RoomObjectAnimationScriptsConstants.BombedPowerBombBlockUnused,
-        Reveal.SuperMissile => RoomObjectAnimationScriptsConstants.BombedSuperMissileBlockUnused,
+        Reveal.PowerBomb => RoomObjectAnimationScriptsConstants.BombedPowerBombBlockReveal,
+        Reveal.SuperMissile => RoomObjectAnimationScriptsConstants.BombedSuperMissileBlockReveal,
         _ => throw new InvalidOperationException($"Undefined bombed-reveal list {reveal}."),
     };
 

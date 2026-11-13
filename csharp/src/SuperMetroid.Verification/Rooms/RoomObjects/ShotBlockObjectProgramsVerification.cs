@@ -208,11 +208,11 @@ internal static class ShotBlockObjectProgramsVerification
         ushort[] fields = [0xd066,0xd06a,0xd06e,0xd072];
         for (int size = 0; size < fields.Length; size++)
             AssertEqual(ReadRomWord(rom, 0x840000 | fields[size]),
-                RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.RespawningShot(size)), "respawning shot native shape selection");
+                RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.RespawningShot(RespawningShotAt(size))), "respawning shot native shape selection");
         for (int size = 4; size <= byte.MaxValue; size++)
-            AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionChanges.RespawningShot(size), "respawning shot rejects other BTS values without masking");
+            AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionChanges.RespawningShot(RespawningShotAt(size)), "respawning shot rejects other BTS values without masking");
         foreach (int size in new[] {int.MinValue,-1,256,int.MaxValue})
-            AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionChanges.RespawningShot(size), "respawning shot size domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionChanges.RespawningShot(RespawningShotAt(size)), "respawning shot size domain");
     }
 
     /// <summary>Checks the four permanent shapes after the caller's BTS offset and rejects invalid selector inputs.</summary>
@@ -221,12 +221,18 @@ internal static class ShotBlockObjectProgramsVerification
         ushort[] fields = [0xd076,0xd07a,0xd07e,0xd082];
         for (int size = 0; size < fields.Length; size++)
             AssertEqual(ReadRomWord(rom, 0x840000 | fields[size]),
-                RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.PermanentShot(size)), "permanent shot native shape selection after caller subtracts four");
+                RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.PermanentShot(PermanentShotAt(size))), "permanent shot native shape selection after caller subtracts four");
         for (int size = 4; size <= byte.MaxValue; size++)
-            AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionChanges.PermanentShot(size), "permanent shot rejects out-of-range size without masking");
+            AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionChanges.PermanentShot(PermanentShotAt(size)), "permanent shot rejects out-of-range size without masking");
         foreach (int size in new[] {int.MinValue,-1,256,int.MaxValue})
-            AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionChanges.PermanentShot(size), "permanent shot size domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionChanges.PermanentShot(PermanentShotAt(size)), "permanent shot size domain");
     }
+
+    /// <summary>The shootable reaction the BTS of respawning shape <paramref name="size"/> decodes as.</summary>
+    private static ShootableReaction RespawningShotAt(int size) => RoomBlockBehaviorCodec.Decode(size).Shootable;
+
+    /// <summary>The shootable reaction the BTS of permanent shape <paramref name="size"/> decodes as: four past the respawning shapes.</summary>
+    private static ShootableReaction PermanentShotAt(int size) => RoomBlockBehaviorCodec.Decode(unchecked(size + 4)).Shootable;
 
     /// <summary>Lists the thirteen native timed-list layouts used to derive control and draw operand addresses.</summary>
     private static ShotBlockNativeProgramLayoutsResult[] ShotBlockNativeProgramLayouts() =>

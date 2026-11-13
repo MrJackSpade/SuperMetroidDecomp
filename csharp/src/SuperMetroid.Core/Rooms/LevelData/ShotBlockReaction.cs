@@ -28,7 +28,4 @@ public enum ShotBlockReaction
     /// The collision probe: it publishes the shot's collision result, then spawns a one-frame object that does nothing.
     /// </summary>
     CollisionProbe,
-
-    /// <summary>An entry no retail block uses: it spawns the object that does nothing.</summary>
-    Unused,
 }

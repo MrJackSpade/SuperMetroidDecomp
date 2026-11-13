@@ -691,10 +691,13 @@ For all 246 retail level sources, that terrain and streaming baseline is
 extracted at installation into `game/room-level-streams/` as one
 `level-*.bin` file per level: each block's collision kind, block and mirroring,
 and each foreground block's behaviour as the reading its collision kind takes
-(a reacting block's reaction list and entry, a slope's shape and mirroring, an
-extension's signed offset, a door's door-list entry; air and solid blocks hold
-none), with no behaviour byte (#1709). The collision kinds
-`room-level-streams.json` names by the position the files write them at (#1693). These files are
+(a reacting block's reaction by name, such as `RespawningBreak2x1` for a shot
+block or `RightwardConveyorOnFoot` for special air; a slope's shape and
+mirroring, an extension's signed offset, a door's door-list entry; air and solid
+blocks hold none), with no behaviour byte or reaction number (#1709, #1722). The
+collision kinds `room-level-streams.json` names by the position the files write
+them at (#1693), and its `reactions` name each reacting kind's reactions by the
+position the files write them at (#1722). These files are
 not artwork, and a missing or corrupt file fails with its path. Installed desktop and Android room loads do not decompress these
 level streams from the ROM. The room-layout JSON changes only rendered
 visual words; it cannot modify the installed physical allocation or the native
@@ -926,9 +929,9 @@ unchanged.
 X-ray reveal art is installed as `game/xray-reveals/reveals.json`. In the
 installed file, edit its `topLeft`, `topRight`,
 `bottomLeft`, or `bottomRight` metatile indices, and restart. Each entry names
-the collision type and the `reactions` that select it, each by its list
-(`Common` or `AreaSpecific`) and `entry` (0..127), plus its read-only copy
-shape. The installer groups identical cartridge rules to keep the file short;
+the collision type and the `reactions` that select it, each named as the
+reaction that collision type reads (none for a type that reads none, such as
+air), plus its read-only copy shape (#1722). The installer groups identical cartridge rules to keep the file short;
 changing the rule keys, shape, count, or unused operands is rejected. The
 visual indices may be 0..4095, but each selected metatile must exist in the
 room's combined CRE/area block definitions when X-ray is used. The compiled

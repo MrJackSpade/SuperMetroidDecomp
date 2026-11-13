@@ -21,16 +21,17 @@ namespace SuperMetroid.AssetExtraction.Samus;
 [EncodingOwner("retail X-ray reveal table words")]
 public static class XrayRevealVisualFiles
 {
-    /// <summary>Family-relative version-six installed JSON filename for reveal-rule operands, the extension exit block, four tank metatiles, and special-room overlay records.</summary>
+    /// <summary>Family-relative version-seven installed JSON filename for reveal-rule operands, the extension exit block, four tank metatiles, and special-room overlay records.</summary>
     public const string VisualFileName = "reveals.json";
     /// <summary>
     /// Schema revision that includes rule operands, tank metatiles, and room-overlay records: revision 3 holds the four tanks'
     /// reveal blocks alone, every other item being revealed as its kind's own picture (#1538); revision 4 holds the block an
     /// extension chain leaving the room backward shows, which the game kept a compiled copy of (#1615); revision 5 names each
     /// room overlay by its overlay instead of the cartridge pointer of its list (#1623); revision 6 names the reactions each
-    /// rule covers by their list and entry instead of the game's behaviour bytes (#1709).
+    /// rule covers by their list and entry instead of the game's behaviour bytes (#1709); revision 7 names each reaction as
+    /// the reaction its collision kind reads, and a kind that reads none by no reaction, and names unrevealed air (#1722).
     /// </summary>
-    private const int FormatVersion = 6;
+    private const int FormatVersion = 7;
 
     /// <summary>
     /// The block the cartridge's extension traversal writes when a chain's next step leaves the room backward, at
@@ -67,8 +68,8 @@ public static class XrayRevealVisualFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Directory.CreateDirectory(directory);
 
-        var groups = new Dictionary<XrayRevealGroupKey,
-            List<BlockReaction>>();
+        var groups = new Dictionary<XrayRevealGroupKey, List<Enum?>>();
+        var grouped = new Dictionary<XrayRevealVisualKeyDocument, XrayRevealGroupKey?>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int value = 0; value <= byte.MaxValue; value++)
         {
@@ -77,23 +78,33 @@ public static class XrayRevealVisualFiles
             if (native?.Shape != XrayRevealTable.Find(type, behavior))
                 throw new InvalidDataException(
                     $"Compiled X-ray command {type}/behaviour ${value:X2} differs from the cartridge.");
-            if (native is not { } definition || !InstalledXrayReveals.IsDrawable(definition.Shape))
+            // Every behaviour holding the same reaction for the kind must reveal the same blocks: the installation names the
+            // reaction, not the behaviour.
+            Enum? reaction = behavior.ReactionUnder(type);
+            XrayRevealGroupKey? key = native is { } drawn && InstalledXrayReveals.IsDrawable(drawn.Shape) ? new XrayRevealGroupKey(type, drawn) : null;
+            var named = new XrayRevealVisualKeyDocument(type, reaction);
+            if (grouped.TryGetValue(named, out XrayRevealGroupKey? earlier))
+            {
+                if (earlier != key)
+                    throw new InvalidDataException($"X-ray reveal {type}/{reaction} differs between the behaviours holding it, at ${value:X2}.");
                 continue;
-            var key = new XrayRevealGroupKey(type, definition);
-            if (!groups.TryGetValue(key, out List<BlockReaction>? reactions))
-                groups.Add(key, reactions = []);
-            reactions.Add(behavior.Reaction);
+            }
+            grouped.Add(named, key);
+            if (key is not { } drawable)
+                continue;
+            if (!groups.TryGetValue(drawable, out List<Enum?>? reactions))
+                groups.Add(drawable, reactions = []);
+            reactions.Add(reaction);
         }
 
         XrayRevealVisualEntry[] entries = groups
             .Select(pair => new XrayRevealVisualEntry(
-                pair.Key.Type, [.. pair.Value.Select(reaction => new XrayRevealReactionDocument(reaction.Scope, reaction.Entry))],
+                pair.Key.Type, [.. pair.Value.OfType<Enum>().Select(reaction => reaction.ToString())],
                 NameOf(pair.Key.Definition.Shape),
                 pair.Key.Definition.TopLeft, pair.Key.Definition.TopRight,
                 pair.Key.Definition.BottomLeft, pair.Key.Definition.BottomRight))
             .OrderBy(entry => entry.CollisionType)
-            .ThenBy(entry => entry.Reactions[0].Scope)
-            .ThenBy(entry => entry.Reactions[0].Entry)
+            .ThenBy(entry => entry.Reactions.Length == 0 ? -1 : ReactionsOf(entry.CollisionType).Select(reaction => reaction.ToString()).ToList().IndexOf(entry.Reactions[0]))
             .ToArray();
         // The first draws reveal the item set up in each block pair as that pair's first frame, which shows the item's own
         // picture; the port reveals such an item as its kind's first frame (#1538). The tanks' draws follow, in tank order.
@@ -117,7 +128,7 @@ public static class XrayRevealVisualFiles
         file.Write(json);
     }
 
-    /// <summary>Validates the installed version-six X-ray presentation as the player left it, retaining native rule selection, copy geometry, extensions, and area gating.</summary>
+    /// <summary>Validates the installed version-seven X-ray presentation as the player left it, retaining native rule selection, copy geometry, extensions, and area gating.</summary>
     /// <param name="directory">Family directory containing the installed reveal JSON.</param>
     /// <returns>A ROM-independent catalog with copied rule operands, the extension exit block, four tank reveals, and ordered special-room tile lists.</returns>
     /// <remarks>Loading does not repeat cartridge reads. Strict JSON rejects unknown/missing constructor properties. Every entry must name a compiled drawable rule with its shape, every drawable rule must be covered once, and the special rooms keep their identities; blocks, appearances, tile lists and byte-range room coordinates may change.</remarks>
@@ -135,8 +146,8 @@ public static class XrayRevealVisualFiles
         foreach (XrayRevealVisualEntry entry in document.Entries)
         {
             var visual = new XrayRevealVisualBlocks(entry.TopLeft, entry.TopRight, entry.BottomLeft, entry.BottomRight);
-            foreach (XrayRevealReactionDocument reaction in entry.Reactions)
-                mappings.Add(new XrayRevealVisualDefinition(entry.CollisionType, reaction.Reaction, visual));
+            foreach (Enum? reaction in ReadingsNamed(entry))
+                mappings.Add(new XrayRevealVisualDefinition(entry.CollisionType, reaction, visual));
         }
         var overlays = new InstalledXrayOverlays(document.TankMetatiles,
             document.Rooms.Select(room => new XrayRoomOverlayTiles(OverlayNamed(room.Overlay),
@@ -164,11 +175,12 @@ public static class XrayRevealVisualFiles
         }
         foreach (XrayRevealVisualEntry entry in document.Entries)
         {
-            if (entry is null || entry.Reactions is null || entry.Reactions.Length == 0 ||
-                entry.Reactions.Any(reaction => reaction is null || !Enum.IsDefined(reaction.Scope) ||
-                    reaction.Entry is < 0 or > BlockReaction.LastEntry))
+            if (entry is null || entry.Reactions is null || !Enum.IsDefined(entry.CollisionType) ||
+                (BlockReactionFamilies.Of(entry.CollisionType) is null ? entry.Reactions.Length != 0 : entry.Reactions.Length == 0) ||
+                entry.Reactions.Any(name => name is null ||
+                    !ReactionsOf(entry.CollisionType).Any(reaction => string.Equals(reaction.ToString(), name, StringComparison.Ordinal))))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid reaction group.");
-            if (XrayRevealTable.Find(entry.CollisionType, RoomBlockBehavior.Reacting(entry.Reactions[0].Reaction)) is not { } command ||
+            if (XrayRevealTable.Find(entry.CollisionType, ReadingsNamed(entry)[0]) is not { } command ||
                 !InstalledXrayReveals.IsDrawable(command) || entry.Shape != NameOf(command))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid copy shape.");
             if ((command is XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar &&
@@ -325,24 +337,32 @@ public static class XrayRevealVisualFiles
         RoomBlockAppearance[] TankMetatiles, XrayRoomOverlayEntry[] Rooms);
     /// <summary>One compiled collision-kind and reaction rule's editable blocks with its fixed copy shape.</summary>
     /// <param name="CollisionType">The rule's collision kind.</param>
-    /// <param name="Reactions">The reactions the rule covers.</param>
+    /// <param name="Reactions">The reactions the rule covers, named as the kind's reactions; none for a kind that reads none.</param>
     /// <param name="Shape">The rule's copy shape.</param>
     /// <param name="TopLeft">The top-left block number.</param>
     /// <param name="TopRight">The top-right block number, or zero when the shape has none.</param>
     /// <param name="BottomLeft">The bottom-left block number, or zero when the shape has none.</param>
     /// <param name="BottomRight">The bottom-right block number, or zero when the shape has none.</param>
-    private sealed record XrayRevealVisualEntry(RoomCollisionType CollisionType, XrayRevealReactionDocument[] Reactions,
+    private sealed record XrayRevealVisualEntry(RoomCollisionType CollisionType, string[] Reactions,
         string Shape, int TopLeft, int TopRight, int BottomLeft, int BottomRight);
 
-    /// <summary>One reaction a rule covers, named by its list and its entry in that list.</summary>
-    /// <param name="Scope">The list the reaction is an entry of: <c>Common</c> or <c>AreaSpecific</c>.</param>
-    /// <param name="Entry">The reaction's entry in its list, 0 through 127.</param>
-    private sealed record XrayRevealReactionDocument(BlockReactionScope Scope, int Entry)
-    {
-        /// <summary>The reaction, once <see cref="ValidateStructure"/> has admitted the list and entry.</summary>
-        [JsonIgnore]
-        public BlockReaction Reaction => new(Scope, Entry);
-    }
+    /// <summary>A collision kind and the reaction it reads, for checking that each is revealed alike.</summary>
+    /// <param name="Type">The collision kind.</param>
+    /// <param name="Reaction">The reaction it reads, or null for a kind that reads none.</param>
+    private readonly record struct XrayRevealVisualKeyDocument(RoomCollisionType Type, Enum? Reaction);
+
+    /// <summary>Every reaction <paramref name="type"/> reads, none for a kind that reads none.</summary>
+    private static IReadOnlyList<Enum> ReactionsOf(RoomCollisionType type) =>
+        BlockReactionFamilies.Of(type) is { } family ? BlockReactionFamilies.Reactions(family) : [];
+
+    /// <summary>
+    /// The reactions an entry, which <see cref="ValidateStructure"/> has admitted, names: each one it lists, or a single
+    /// null for a kind that reads none.
+    /// </summary>
+    private static IReadOnlyList<Enum?> ReadingsNamed(XrayRevealVisualEntry entry) =>
+        entry.Reactions.Length == 0
+            ? [null]
+            : [.. entry.Reactions.Select(name => ReactionsOf(entry.CollisionType).Single(reaction => string.Equals(reaction.ToString(), name, StringComparison.Ordinal)))];
     /// <summary>One room-specific overlay, named by its overlay, and its ordered editable block records.</summary>
     /// <param name="Overlay">The overlay's name in <see cref="XrayRoomOverlayDefinitions"/>.</param>
     /// <param name="Tiles">The overlay's block records, in order.</param>

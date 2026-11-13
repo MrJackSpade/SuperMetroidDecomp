@@ -249,7 +249,7 @@ internal static class RoomBlockWriters
     {
         foreach ((XrayRevealVisualKey key, XrayRevealVisualBlocks visual) in xray.blocks)
         {
-            XrayRevealShape command = XrayRevealTable.Find(key.Type, RoomBlockBehavior.Reacting(key.Reaction))
+            XrayRevealShape command = XrayRevealTable.Find(key.Type, key.Reaction)
                 ?? throw new InvalidDataException($"X-ray visual {key.Type}/reaction {key.Reaction} has no reveal rule.");
             bool brinstar = command == XrayRevealShape.CopyBrinstar;
             var blocks = new HashSet<int> { visual.TopLeft };

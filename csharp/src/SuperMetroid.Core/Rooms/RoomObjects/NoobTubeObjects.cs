@@ -43,7 +43,7 @@ internal sealed class NoobTubeObjects
             origin.WithCollision(NoobTubeObjectDefinitions.OriginCollision));
         level.SetBehavior(
             slot.Block,
-            RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger));
+            RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
     }
 
     /// <summary>Whether the tube was broken on an earlier visit (its event is set).</summary>

@@ -4,22 +4,26 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>
-/// The codec of the cartridge's block behaviour byte (#1551): the one place its layout is known. The byte stored beside
-/// each level word means what the block's collision kind makes of it, so the import decodes every reading at once into a
-/// <see cref="RoomBlockBehavior"/>:
+/// The codec of the cartridge's block behaviour byte (#1551, #1722): the one place its layout and the dispatch tables'
+/// numbering are known. The byte stored beside each level word means what the block's collision kind makes of it, so the
+/// import decodes every reading at once into one of the kept <see cref="RoomBlockBehavior"/>s:
 /// <list type="bullet">
-/// <item>a reaction: bit seven selects the area's reactions over the common ones, and the low seven bits are the entry;</item>
+/// <item>a reaction: bit seven selects the area's table over the common one, and the low seven bits are the entry, which
+/// each reacting kind's dispatch tables give their own meaning;</item>
 /// <item>a slope: the low five bits are the shape, bit six mirrors it left to right and bit seven top to bottom;</item>
 /// <item>an extension: the whole byte, two's complement, is the signed offset;</item>
 /// <item>a door: the low seven bits are the door-list entry.</item>
 /// </list>
-/// Only the import and checks that compare the game's own bytes convert through it: the installation holds each block's
-/// behaviour as the reading its collision kind takes, and the X-ray reveals' rules by their reactions (#1709), so nothing
-/// the game loads holds the byte.
+/// Only the import, the generator of the kept behaviours and checks that compare the game's own bytes convert through it:
+/// the installation holds each block's behaviour as the reading its collision kind takes, and the X-ray reveals' rules by
+/// their reactions' names (#1709, #1722), so nothing the game loads holds the byte.
 /// </summary>
 [EncodingOwner("room block behaviour byte")]
 public static class RoomBlockBehaviorCodec
 {
+    /// <summary>The number of behaviour bytes.</summary>
+    public const int ByteCount = 256;
+
     /// <summary>The bit selecting the area's reactions, a slope's vertical mirroring, and an extension's sign.</summary>
     private const int HighBit = 0x80;
 
@@ -32,23 +36,175 @@ public static class RoomBlockBehaviorCodec
     /// <summary>The bits naming a slope's shape.</summary>
     private const int SlopeShapeMask = 0x1F;
 
-    /// <summary>Decodes a behaviour byte into every reading the block's collision kinds may take of it.</summary>
+    /// <summary>The byte each kept behaviour's first holder is, for <see cref="Encode"/>.</summary>
+    private static readonly Lazy<Dictionary<RoomBlockBehavior, int>> Bytes = new(() =>
+        Enumerable.Range(0, ByteCount).ToDictionary(Decode, value => value));
+
+    /// <summary>Decodes a behaviour byte into the kept behaviour holding every reading the block's collision kinds take of it.</summary>
+    /// <param name="value">The byte, 0 through 255.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a byte, or no kept behaviour holds its readings.</exception>
+    public static RoomBlockBehavior Decode(int value) => RoomBlockBehavior.Holding(ReadingsOf(value));
+
+    /// <summary>Encodes a behaviour as its byte.</summary>
+    /// <param name="behavior">A decoded behaviour, or one a room object wrote.</param>
+    public static int Encode(RoomBlockBehavior behavior) => Bytes.Value[behavior];
+
+    /// <summary>Decodes a behaviour byte into every reading the block's collision kinds take of it.</summary>
     /// <param name="value">The byte, 0 through 255.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a byte.</exception>
-    public static RoomBlockBehavior Decode(int value)
+    public static RoomBlockReadings ReadingsOf(int value)
     {
         Ensure.BetweenInclusive(0, byte.MaxValue, value);
-        bool high = (value & HighBit) != 0;
+        bool area = (value & HighBit) != 0;
         int entry = value & EntryMask;
-        var reaction = new BlockReaction(high ? BlockReactionScope.AreaSpecific : BlockReactionScope.Common, entry);
         BlockMirroring mirroring = ((value & SlopeHorizontalBit) != 0 ? BlockMirroring.Horizontal : BlockMirroring.None) |
-            (high ? BlockMirroring.Vertical : BlockMirroring.None);
-        var slope = new SlopeGeometry(value & SlopeShapeMask, mirroring);
-        return new RoomBlockBehavior(reaction, slope, unchecked((sbyte)value), entry);
+            (area ? BlockMirroring.Vertical : BlockMirroring.None);
+        return new RoomBlockReadings(
+            ShootableOf(area, entry), BombableOf(area, entry), SpecialOf(area, entry), SpecialAirOf(area, entry),
+            SpikeOf(area, entry), GrappleOf(area, entry), new SlopeGeometry(value & SlopeShapeMask, mirroring),
+            unchecked((sbyte)value), entry);
     }
 
-    /// <summary>Encodes a behaviour as its byte, from its reaction, which holds the whole byte.</summary>
-    /// <param name="behavior">A decoded behaviour, or one a room object wrote.</param>
-    public static int Encode(RoomBlockBehavior behavior) =>
-        (behavior.Reaction.IsAreaSpecific ? HighBit : 0) | behavior.Reaction.Entry;
+    /// <summary>The shot, bomb and grapple dispatchers' table entry for a shootable block.</summary>
+    private static ShootableReaction ShootableOf(bool area, int entry) => new TableEntry(area, entry) switch
+    {
+        (true, < 8) => ShootableReaction.AreaNothing,
+        (true, _) => ShootableReaction.PastAreaTable,
+        (false, 0) => ShootableReaction.RespawningBreak1x1,
+        (false, 1) => ShootableReaction.RespawningBreak2x1,
+        (false, 2) => ShootableReaction.RespawningBreak1x2,
+        (false, 3) => ShootableReaction.RespawningBreak2x2,
+        (false, 4) => ShootableReaction.PermanentBreak1x1,
+        (false, 5) => ShootableReaction.PermanentBreak2x1,
+        (false, 6) => ShootableReaction.PermanentBreak1x2,
+        (false, 7) => ShootableReaction.PermanentBreak2x2,
+        (false, 8) => ShootableReaction.RespawningPowerBombBlock,
+        (false, 9) => ShootableReaction.PermanentPowerBombBlock,
+        (false, 10) => ShootableReaction.RespawningSuperMissileBlock,
+        (false, 11) => ShootableReaction.PermanentSuperMissileBlock,
+        (false, < 16) => ShootableReaction.Nothing,
+        (false, 16) => ShootableReaction.CollisionProbe,
+        (false, < 64) => ShootableReaction.EmptyEntry,
+        (false, 64) => ShootableReaction.BlueDoorCapLeft,
+        (false, 65) => ShootableReaction.BlueDoorCapRight,
+        (false, 66) => ShootableReaction.BlueDoorCapUp,
+        (false, 67) => ShootableReaction.BlueDoorCapDown,
+        (false, 68) => ShootableReaction.ResidentObjectTrigger,
+        (false, 69) => ShootableReaction.CollectibleTrigger,
+        (false, 70) => ShootableReaction.GateTriggerBlueLeft,
+        (false, 71) => ShootableReaction.GateTriggerBlueRight,
+        (false, 72) => ShootableReaction.GateTriggerRedLeft,
+        (false, 73) => ShootableReaction.GateTriggerRedRight,
+        (false, 74) => ShootableReaction.GateTriggerGreenLeft,
+        (false, 75) => ShootableReaction.GateTriggerGreenRight,
+        (false, 76) => ShootableReaction.GateTriggerYellowLeft,
+        (false, 77) => ShootableReaction.GateTriggerYellowRight,
+        (false, 78) => ShootableReaction.EmptyEntry,
+        (false, 79) => ShootableReaction.AnimalEscape,
+        (false, _) => ShootableReaction.PastTable,
+    };
+
+    /// <summary>The bomb-block table's entry for a bombable block.</summary>
+    private static BombableReaction BombableOf(bool area, int entry) => new TableEntry(area, entry) switch
+    {
+        (true, _) => BombableReaction.AreaIgnored,
+        (false, 0) => BombableReaction.RespawningBreak1x1,
+        (false, 1) => BombableReaction.RespawningBreak2x1,
+        (false, 2) => BombableReaction.RespawningBreak1x2,
+        (false, 3) => BombableReaction.RespawningBreak2x2,
+        (false, 4) => BombableReaction.PermanentBreak1x1,
+        (false, 5) => BombableReaction.PermanentBreak2x1,
+        (false, 6) => BombableReaction.PermanentBreak1x2,
+        (false, 7) => BombableReaction.PermanentBreak2x2,
+        (false, < 16) => BombableReaction.Nothing,
+        (false, _) => BombableReaction.PastTable,
+    };
+
+    /// <summary>
+    /// The special-block dispatchers' entry for a special block. The bombed-special table's common entries run on past
+    /// the reactions every area shares into the area tables, so entries 26 through 29 read Brinstar's Speed Booster blocks.
+    /// </summary>
+    private static SpecialBlockReaction SpecialOf(bool area, int entry) => new TableEntry(area, entry) switch
+    {
+        (true, 0) => SpecialBlockReaction.WreckedShipChozoHand,
+        (true, 2) => SpecialBlockReaction.BrinstarSlowRespawningSpeedBlock,
+        (true, 3) => SpecialBlockReaction.BrinstarSlowPermanentSpeedBlockOrNorfairChozoHand,
+        (true, 4) => SpecialBlockReaction.BrinstarRespawningSpeedBlock,
+        (true, 5) => SpecialBlockReaction.BrinstarPermanentSpeedBlock,
+        (true, < 8) => SpecialBlockReaction.AreaSolid,
+        (true, _) => SpecialBlockReaction.PastAreaTable,
+        (false, 0) => SpecialBlockReaction.RespawningCrumble1x1,
+        (false, 1) => SpecialBlockReaction.RespawningCrumble2x1,
+        (false, 2) => SpecialBlockReaction.RespawningCrumble1x2,
+        (false, 3) => SpecialBlockReaction.RespawningCrumble2x2,
+        (false, 4) => SpecialBlockReaction.PermanentCrumble1x1,
+        (false, 5) => SpecialBlockReaction.PermanentCrumble2x1,
+        (false, 6) => SpecialBlockReaction.PermanentCrumble1x2,
+        (false, 7) => SpecialBlockReaction.PermanentCrumble2x2,
+        (false, < 14) => SpecialBlockReaction.XrayRevealedSolid,
+        (false, 14) => SpecialBlockReaction.RespawningSpeedBlock,
+        (false, 15) => SpecialBlockReaction.PermanentSpeedBlock,
+        (false, >= 26 and <= 29) => SpecialBlockReaction.BombRevealsSpeedBlock,
+        (false, 69) => SpecialBlockReaction.CollectibleTrigger,
+        (false, 71) => SpecialBlockReaction.MapStationRight,
+        (false, 72) => SpecialBlockReaction.MapStationLeft,
+        (false, 73) => SpecialBlockReaction.EnergyStationRight,
+        (false, 74) => SpecialBlockReaction.EnergyStationLeft,
+        (false, 75) => SpecialBlockReaction.MissileStationRight,
+        (false, 76) => SpecialBlockReaction.MissileStationLeft,
+        (false, 77) => SpecialBlockReaction.SaveStationFloor,
+        (false, < 80) => SpecialBlockReaction.Solid,
+        (false, _) => SpecialBlockReaction.PastTable,
+    };
+
+    /// <summary>The special-air dispatchers' entry for a special-air block.</summary>
+    private static SpecialAirReaction SpecialAirOf(bool area, int entry) => new TableEntry(area, entry) switch
+    {
+        (true, 0) => SpecialAirReaction.IceFloorPlantChozoHandOrQuicksandSurface,
+        (true, 1) => SpecialAirReaction.CeilingPlantOrQuicksandSurface,
+        (true, 2) => SpecialAirReaction.SlowRespawningSpeedBlockOrQuicksandSurface,
+        (true, 3) => SpecialAirReaction.SlowPermanentSpeedBlockChozoHandOrSubmergingQuicksand,
+        (true, 4) => SpecialAirReaction.RespawningSpeedBlockOrSlowSandfall,
+        (true, 5) => SpecialAirReaction.PermanentSpeedBlockOrFastSandfall,
+        (true, < 16) => SpecialAirReaction.AreaNothing,
+        (true, _) => SpecialAirReaction.PastAreaTable,
+        (false, 8) => SpecialAirReaction.RightwardConveyorOnFoot,
+        (false, 9) => SpecialAirReaction.LeftwardConveyorOnFoot,
+        (false, 10) => SpecialAirReaction.RightwardConveyor,
+        (false, 11) => SpecialAirReaction.LeftwardConveyor,
+        (false, 70) => SpecialAirReaction.ScrollTrigger,
+        (false, _) => SpecialAirReaction.PassesThrough,
+    };
+
+    /// <summary>The spike dispatchers' entry for a spike block or spike air; the enemy's spike table reads both lists alike.</summary>
+    private static SpikeReaction SpikeOf(bool area, int entry) => new TableEntry(area, entry) switch
+    {
+        (true, < 15) => SpikeReaction.AreaHarmless,
+        (true, 15) => SpikeReaction.AreaEnemyBreakable,
+        (true, _) => SpikeReaction.AreaPastEnemyTable,
+        (false, 0) => SpikeReaction.HeavySpike,
+        (false, 1) => SpikeReaction.LightSpike,
+        (false, 2) => SpikeReaction.DamagingSpikeAir,
+        (false, 3) => SpikeReaction.TurretSpike,
+        (false, 14) => SpikeReaction.XrayRevealed,
+        (false, 15) => SpikeReaction.EnemyBreakable,
+        (false, < 16) => SpikeReaction.Harmless,
+        (false, _) => SpikeReaction.PastEnemyTable,
+    };
+
+    /// <summary>One entry of a reacting kind's dispatch tables: the common or the area's table, and the entry in it.</summary>
+    /// <param name="Area">Whether the entry is of the area's table.</param>
+    /// <param name="Index">The entry, 0 through 127.</param>
+    private readonly record struct TableEntry(bool Area, int Index);
+
+    /// <summary>The grapple dispatcher's entry for a grapple block.</summary>
+    private static GrappleReaction GrappleOf(bool area, int entry) => new TableEntry(area, entry) switch
+    {
+        (true, _) => GrappleReaction.Rejected,
+        (false, 0) => GrappleReaction.Anchor,
+        (false, 1) => GrappleReaction.RespawningBreakableAnchor,
+        (false, 2) => GrappleReaction.PermanentBreakableAnchor,
+        (false, 3) => GrappleReaction.UnrevealedAnchor,
+        (false, _) => GrappleReaction.PastTable,
+    };
 }

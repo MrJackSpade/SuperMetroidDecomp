@@ -748,7 +748,7 @@ public static class SamusGrappleMovement
                 case RoomCollisionType.Air:
                 case RoomCollisionType.SpikeAir:
                 case RoomCollisionType.SpecialAir:
-                case RoomCollisionType.UnusedAir:
+                case RoomCollisionType.UnrevealedAir:
                     return GrappleBlockReaction.Passes;
 
                 // Slopes and these solid-family entries stop the beam without connecting,
@@ -765,9 +765,9 @@ public static class SamusGrappleMovement
                     // the empty reaction, which stops the beam without latching, and immediately deletes; behaviour
                     // three alone uses Draygon's broken-turret setup, which adds
                     // one whole periodic-damage unit and latches the beam.
-                    if (block.Behavior.Reaction.IsAreaSpecific)
+                    if (SpikeReactions.IsArea(block.Behavior.Spike))
                         return GrappleBlockReaction.Passes;
-                    if (block.Behavior.Reaction == GrappleBlockReactionDefinitions.BrokenTurretSpike)
+                    if (block.Behavior.Spike == SpikeReaction.TurretSpike)
                     {
                         samus.LiquidPhysics.AccumulatePeriodicDamage(
                             subDamage: 0,
@@ -790,9 +790,9 @@ public static class SamusGrappleMovement
                     // The reaction rejects bit-seven behaviour. Values zero and three spawn the persistent
                     // grapple room object, whose setup connects the beam.
                     // The persistent room object has no level mutation, so this result is complete.
-                    if (block.Behavior.Reaction.IsAreaSpecific)
+                    if (block.Behavior.Grapple == GrappleReaction.Rejected)
                         return GrappleBlockReaction.Passes;
-                    if (GrappleBlockReactionDefinitions.PersistentAnchors.Contains(block.Behavior.Reaction))
+                    if (block.Behavior.Grapple is GrappleReaction.Anchor or GrappleReaction.UnrevealedAnchor)
                         return GrappleBlockReaction.Connects;
 
                     // behaviour one/two spawn the breakable grapple room objects. Their setup synchronously saves the
@@ -800,8 +800,7 @@ public static class SamusGrappleMovement
                     // executes its first timer/draw record later in this same gameplay frame.
                     // A caller which omitted the independent room owner cannot honestly
                     // preserve that lifecycle, so keep the missing integration seam explicit.
-                    if (block.Behavior.Reaction == GrappleBlockReactionDefinitions.RespawningBreakableAnchor ||
-                        block.Behavior.Reaction == GrappleBlockReactionDefinitions.PermanentBreakableAnchor)
+                    if (block.Behavior.Grapple is GrappleReaction.RespawningBreakableAnchor or GrappleReaction.PermanentBreakableAnchor)
                     {
                         if (roomObjects is null)
                         {
@@ -842,7 +841,7 @@ public static class SamusGrappleMovement
                         roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.At, block.Behavior, projectileType: SamusProjectileType.None);
                     else if (block.Behavior.TryGetBlueDoorOrientation(out _))
                         roomObjects.DoorObjects.TrySpawnBlueDoorOpening(level, block.At, block.Behavior, projectileType: SamusProjectileType.None);
-                    else if (block.Behavior.Reaction == BlockReactionDefinitions.ResidentObjectTrigger)
+                    else if (block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
                     {
                         // Generic shot-trigger setup also belongs to the grapple table.
                         // Notify the resident actor with no weapon family; its own
@@ -851,7 +850,7 @@ public static class SamusGrappleMovement
                             throw new InvalidOperationException(
                                 $"Grapple trigger block {block.Position} has no resident room-object owner.");
                     }
-                    else if (block.Behavior.Reaction == BlockReactionDefinitions.CollectibleTrigger)
+                    else if (block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
                         roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
                     else
                     {
@@ -867,7 +866,7 @@ public static class SamusGrappleMovement
                         catch (UnsupportedShotBlockReactionException error)
                         {
                             throw new UnmodeledBehaviorException(
-                                $"grapple-shootable/type-{block.CollisionType}/behaviour-{block.Behavior.Reaction}",
+                                $"grapple-shootable/type-{block.CollisionType}/behaviour-{block.Behavior.Shootable}",
                                 $"Grapple shootable dispatch type {block.CollisionType}/behaviour ({block.Behavior}) " +
                                 $"at block {block.Position} has no translated table entry.",
                                 error);

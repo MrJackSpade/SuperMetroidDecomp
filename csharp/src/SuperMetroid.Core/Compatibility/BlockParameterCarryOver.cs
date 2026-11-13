@@ -1,65 +1,57 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// How the behaviour a room object writes for one collision kind reads under every other kind the block later takes
-/// (#1551). A block keeps one behaviour through a change of its collision kind, and each kind reads that same behaviour
-/// its own way: a reacting kind as an entry of its common or area reactions, a slope as a shape with its two
-/// reflections, an extension as a signed offset, and a door as an entry of the room's door list. A behaviour written as
-/// any one of these readings therefore carries the other three, related as stated here.
+/// How a behaviour written for one collision kind reads under every other kind the block later takes (#1551, #1722). A
+/// block keeps one behaviour through a change of its collision kind, and each kind reads that same behaviour its own way:
+/// each reacting kind as its own reaction (a shot block's break, a bomb block's, a crumble or Speed Booster block, a
+/// conveyor, a spike's damage, a grapple anchor), a slope as a shape with its two reflections, an extension as a signed
+/// offset and a door as an entry of the room's door list. The behaviours a block can keep are therefore each one complete
+/// set of readings, and a behaviour written as any one reading is the first kept behaviour holding that reading.
 /// </summary>
 /// <remarks>
 /// <para>
-/// Consulted whenever a room object writes a block's behaviour (a door cap's trigger, a scroll's extension, a statue's
-/// slopes), so that a later change of the block's collision kind, by the object's own draws or by another object, finds
-/// the reading the game finds. Behaviours the installation holds are decoded once, with every reading, by the import's
-/// codec of the game's block behaviour.
+/// Consulted whenever a behaviour is written as one kind's reading: when a room object writes a block's behaviour (a door
+/// cap's trigger, a scroll's extension, a statue's slopes) and when the installation's level files, which hold each block's
+/// behaviour as its collision kind's reading, are loaded; a later change of the block's collision kind, by the object's own
+/// draws or by another object, then finds the reading the game finds. One converter per reading, created once with the kept
+/// behaviours; lifetime: the process's, holding no state that changes.
 /// </para>
 /// <para>
-/// Evidence: the original game stores one behaviour byte beside each block's level word and keeps it when a block's
-/// level word is rewritten. Its reaction dispatchers test the byte's sign to choose the area's table and index with the
-/// low seven bits; the slope handlers read the low five bits as the shape and bits six and seven as the reflections; the
-/// extension handlers read the byte sign-extended; and the door handler indexes the door list with the low seven bits.
-/// Reading the area's reactions therefore coincides with a negative offset and with a vertical reflection, and entries
-/// from 64 coincide with a horizontal reflection.
+/// Evidence: the original game stores one behaviour byte beside each block's level word and keeps it when a block's level
+/// word is rewritten. Its reaction dispatchers test the byte's sign to choose the area's table and index with the low seven
+/// bits; the slope handlers read the low five bits as the shape and bits six and seven as the reflections; the extension
+/// handlers read the byte sign-extended; and the door handler indexes the door list with the low seven bits. The kept
+/// behaviours are the import codec's decoding of every byte under every kind, in the byte's order, so the first holding a
+/// reading is the byte the game's own writes of that reading store; the carry-over check compares every kind's reading of
+/// every behaviour written as each other kind's reading with that decoding.
 /// </para>
 /// </remarks>
+/// <typeparam name="TBehavior">A kept behaviour: every reading of one parameter the block keeps.</typeparam>
+/// <typeparam name="TReading">One kind's reading of it.</typeparam>
 [CompatibilityService("a block behaviour written for one collision kind is read by every kind the block later takes as the single parameter the block keeps")]
-public static class BlockParameterCarryOver
+public sealed class BlockParameterCarryOver<TBehavior, TReading>
+    where TBehavior : class
+    where TReading : notnull
 {
-    /// <summary>The entries each reaction list holds; an extension's offset spans as many backward as forward.</summary>
-    public const int EntriesPerReactionList = 128;
+    /// <summary>The first kept behaviour holding each reading.</summary>
+    private readonly Dictionary<TReading, TBehavior> carrying = [];
 
-    /// <summary>The slope shapes; a reaction entry reads as a slope shape in a cycle of this length.</summary>
-    public const int SlopeShapes = 32;
+    /// <summary>Indexes the kept behaviours by the reading <paramref name="read"/> takes of each, the first winning.</summary>
+    /// <param name="kept">Every behaviour a block can keep, in the order the game numbers them.</param>
+    /// <param name="read">The reading the converter writes behaviours as.</param>
+    /// <exception cref="ArgumentNullException">An argument is null.</exception>
+    public BlockParameterCarryOver(IEnumerable<TBehavior> kept, Func<TBehavior, TReading> read)
+    {
+        Ensure.NotNull(kept);
+        Ensure.NotNull(read);
+        foreach (TBehavior behavior in kept)
+            carrying.TryAdd(read(Ensure.NotNull(behavior)), behavior);
+    }
 
-    /// <summary>The first reaction entry that reads as a slope reflected left to right.</summary>
-    public const int FirstHorizontallyReflectedEntry = 64;
-
-    /// <summary>The extension offset a reaction reads as: an area reaction reads as a backward offset.</summary>
-    /// <param name="areaSpecific">Whether the reaction is one of the area's.</param>
-    /// <param name="entry">The reaction's entry, 0 through 127.</param>
-    public static int ExtensionOffsetOf(bool areaSpecific, int entry) =>
-        areaSpecific ? entry - EntriesPerReactionList : entry;
-
-    /// <summary>Whether an extension offset reads as one of the area's reactions: a backward offset does.</summary>
-    /// <param name="offset">The offset, -128 through 127.</param>
-    public static bool IsAreaSpecificReaction(int offset) => offset < 0;
-
-    /// <summary>The reaction entry an extension offset reads as.</summary>
-    /// <param name="offset">The offset, -128 through 127.</param>
-    public static int ReactionEntryOf(int offset) => offset < 0 ? offset + EntriesPerReactionList : offset;
-
-    /// <summary>The slope shape a reaction entry reads as.</summary>
-    /// <param name="entry">The reaction's entry, 0 through 127.</param>
-    public static int SlopeShapeOf(int entry) => entry % SlopeShapes;
-
-    /// <summary>Whether a reaction entry reads as a slope reflected left to right.</summary>
-    /// <param name="entry">The reaction's entry, 0 through 127.</param>
-    public static bool ReflectsSlopeHorizontally(int entry) => entry >= FirstHorizontallyReflectedEntry;
-
-    /// <summary>The reaction entry a slope reads as: its shape, past the reflected entries when reflected left to right.</summary>
-    /// <param name="shape">The slope's shape, 0 through 31.</param>
-    /// <param name="reflectedHorizontally">Whether the slope is reflected left to right.</param>
-    public static int ReactionEntryOf(int shape, bool reflectedHorizontally) =>
-        shape + (reflectedHorizontally ? FirstHorizontallyReflectedEntry : 0);
+    /// <summary>The behaviour a write of <paramref name="reading"/> keeps: the first kept behaviour holding it.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">No kept behaviour holds <paramref name="reading"/>.</exception>
+    public TBehavior Carrying(TReading reading) =>
+        carrying.TryGetValue(reading, out TBehavior? behavior)
+            ? behavior
+            : throw new ArgumentOutOfRangeException(nameof(reading), reading, "No kept block behaviour holds this reading.");
 }

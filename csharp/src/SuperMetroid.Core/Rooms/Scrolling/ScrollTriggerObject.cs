@@ -59,6 +59,6 @@ internal sealed class ScrollTriggerObject : RoomObjectBehaviour
         Ensure.NotNull(level);
         Triggered = false;
         level.SetTerrain(block, level.GetCollisionBlock(block).Terrain.WithCollision(RoomCollisionType.SpecialAir));
-        level.SetBehavior(block, RoomBlockBehavior.Reacting(BlockReactionDefinitions.ScrollTrigger));
+        level.SetBehavior(block, RoomBlockBehavior.Reacting(SpecialAirReaction.ScrollTrigger));
     }
 }

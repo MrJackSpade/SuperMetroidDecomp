@@ -281,7 +281,7 @@ internal static void VerifySamusBlockCollision()
         new SamusTerrainMovementVerifySamusBlockCollisionCase2(RoomCollisionType.SpikeAir, false),
         new SamusTerrainMovementVerifySamusBlockCollisionCase2(RoomCollisionType.SpecialAir, false),
         new SamusTerrainMovementVerifySamusBlockCollisionCase2(RoomCollisionType.ShootableAir, false),
-        new SamusTerrainMovementVerifySamusBlockCollisionCase2(RoomCollisionType.UnusedAir, false),
+        new SamusTerrainMovementVerifySamusBlockCollisionCase2(RoomCollisionType.UnrevealedAir, false),
         new SamusTerrainMovementVerifySamusBlockCollisionCase2(RoomCollisionType.BombableAir, false),
         new SamusTerrainMovementVerifySamusBlockCollisionCase2(RoomCollisionType.SpikeBlock, true),
         new SamusTerrainMovementVerifySamusBlockCollisionCase2(RoomCollisionType.SpecialBlock, true),

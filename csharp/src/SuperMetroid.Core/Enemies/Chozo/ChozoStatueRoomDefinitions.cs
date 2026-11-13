@@ -21,10 +21,10 @@ internal static class ChozoStatueRoomDefinitions
     public static readonly RoomBlockBehavior SecondSlopeBehavior = RoomBlockBehavior.Sloping(new SlopeGeometry(19, BlockMirroring.None));
 
     /// <summary>The special-solid behaviour of the Wrecked Ship hand's block in that area's behaviour table.</summary>
-    public static readonly RoomBlockBehavior WreckedShipHandBehavior = RoomBlockBehavior.Reacting(BlockReaction.AreaSpecific(0));
+    public static readonly RoomBlockBehavior WreckedShipHandBehavior = RoomBlockBehavior.Reacting(SpecialBlockReaction.WreckedShipChozoHand);
 
     /// <summary>The special-solid behaviour of the Lower Norfair hand's block in Norfair's behaviour table.</summary>
-    public static readonly RoomBlockBehavior LowerNorfairHandBehavior = RoomBlockBehavior.Reacting(BlockReaction.AreaSpecific(3));
+    public static readonly RoomBlockBehavior LowerNorfairHandBehavior = RoomBlockBehavior.Reacting(SpecialBlockReaction.BrinstarSlowPermanentSpeedBlockOrNorfairChozoHand);
 
     /// <summary>
     /// The block the crumbling plug writes when the hand's trigger spawns it: its setup never chooses one, so it writes

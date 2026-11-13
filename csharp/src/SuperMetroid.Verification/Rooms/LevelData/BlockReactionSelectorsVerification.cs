@@ -99,12 +99,10 @@ internal static class BlockReactionSelectorsVerification
     /// </summary>
     internal static void VerifyContactCrumbleSelection()
     {
-        for (int index = 0; index <= BlockReaction.LastEntry; index++)
+        for (int index = 0; index < RoomBlockBehaviorCodec.ByteCount; index++)
         {
-            bool selected = BlockReactionDefinitions.ContactCrumbles.TryGetMeaning(BlockReaction.Common(index), out _);
-            AssertEqual(index < 8, selected, $"common special-block BTS {index:X2} selects a crumble block exactly when it is one of the first eight");
-            AssertTrue(!BlockReactionDefinitions.ContactCrumbles.TryGetMeaning(BlockReaction.AreaSpecific(index), out _),
-                $"area special-block reaction {index} selects no crumble block");
+            bool selected = RoomBlockBehaviorCodec.Decode(index).TryGetContactCrumble(out _);
+            AssertEqual(index < 8, selected, $"special-block BTS {index:X2} selects a crumble block exactly when it is one of the first eight");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionChanges.ContactCrumble((ContactCrumbleBlock)(-1)),
             "contact crumble program rejects an undefined crumble block");
@@ -112,25 +110,25 @@ internal static class BlockReactionSelectorsVerification
 
     /// <summary>The crumble block common special-block reaction <paramref name="index"/> selects, rejecting any other index.</summary>
     private static ContactCrumbleBlock ContactCrumbleAt(int index) =>
-        index is >= 0 and <= BlockReaction.LastEntry &&
-            BlockReactionDefinitions.ContactCrumbles.TryGetMeaning(BlockReaction.Common(index), out ContactCrumbleBlock crumble)
+        index is >= 0 and < RoomBlockBehaviorCodec.ByteCount &&
+            RoomBlockBehaviorCodec.Decode(index).TryGetContactCrumble(out ContactCrumbleBlock crumble)
             ? crumble
             : throw new ArgumentOutOfRangeException(nameof(index), index, "The reaction selects no crumble block.");
 
     /// <summary>Checks collision-triggered bomb PLM instruction selection through native headers.</summary>
     internal static void VerifyCollisionBombInstructionSelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94936b, 8,
-            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.CollisionBomb(index)), "collision bomb"));
+            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.CollisionBomb(RoomBlockBehaviorCodec.Decode(index).Bombable)), "collision bomb"));
 
     /// <summary>Checks projectile-triggered bomb reaction instruction selection through native headers.</summary>
     internal static void VerifyReactionBombInstructionSelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94a012, 8,
-            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.ReactionBomb(index)), "bomb reaction"));
+            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.ReactionBomb(RoomBlockBehaviorCodec.Decode(index).Bombable)), "bomb reaction"));
 
-    /// <summary>Checks crumble-reveal instruction selection for the four native sizes.</summary>
+    /// <summary>Checks crumble-reveal instruction selection for the eight crumble blocks, revealed by their four native sizes.</summary>
     internal static void VerifyCrumbleRevealInstructionSelection(CartridgeImportAddressSpace rom) =>
-        Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949da4, 4,
-            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.CrumbleReveal(index)), "crumble reveal"));
+        Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949da4, 8,
+            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.CrumbleReveal(RoomBlockBehaviorCodec.Decode(index).Special)), "crumble reveal"));
 
     /// <summary>Checks contact-crumble instruction selection for the eight native reactions.</summary>
     internal static void VerifyContactCrumbleInstructionSelection(CartridgeImportAddressSpace rom) =>
@@ -140,9 +138,8 @@ internal static class BlockReactionSelectorsVerification
     /// <summary>Checks the bounded bomb-special BTS domain, including adjacent area aliases.</summary>
     internal static void VerifyBombSpecialInstructionSelection(CartridgeImportAddressSpace rom)
     {
-        AssertEqual(80, BombSpecialBlockReactions.Count, "bounded native normal-BTS compatibility extent");
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949da4, 80,
-            index => BombSpecialNativeList(BombSpecialBlockReactions.ChangeAt(index)), "bomb special including adjacent area aliases"));
+            index => BombSpecialNativeList(BombSpecialBlockReactions.ChangeFor(RoomBlockBehaviorCodec.Decode(index).Special)), "bomb special including adjacent area aliases"));
     }
 
     /// <summary>The native list a bomb-special reaction stands for: the shared delete, the speed reveal or a crumble reveal.</summary>

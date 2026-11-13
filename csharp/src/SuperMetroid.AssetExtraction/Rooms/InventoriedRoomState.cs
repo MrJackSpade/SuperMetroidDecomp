@@ -43,9 +43,6 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     IReadOnlySet<EnemyDefinitionId> Enemies, RoomSetupBehavior SetupBehavior, RoomMainBehavior MainBehavior,
     IReadOnlySet<DoorDefinition> Entrances, XrayRoomOverlayDefinition? XrayOverlay)
 {
-    /// <summary>The bomb-block reactions bombable blocks select, entries zero through seven.</summary>
-    private const int BombBlockReactionCount = 8;
-
     /// <summary>The shot-block reactions whose blocks any weapon breaks and that grow back.</summary>
     private static readonly HashSet<ShotBlockReaction> RespawningShotBreaks = [ShotBlockReaction.RespawningBreak];
 
@@ -73,8 +70,12 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     /// <summary>Whether the state draws its level's blocks: every state but the Ceres elevator shaft's, whose screen is its Mode 7 floor (#1647).</summary>
     internal bool DrawsLevel => !RoomTurningFloors.ShowsShaftFloor(MainBehavior);
 
-    /// <summary>Whether a block of the state's terrain collides as <paramref name="collision"/> and selects <paramref name="reaction"/>.</summary>
-    internal bool Holds(RoomCollisionType collision, BlockReaction reaction) => Terrain.Contains(new(collision, reaction));
+    /// <summary>
+    /// Whether a block of the state's terrain collides as <paramref name="collision"/> and selects <paramref name="reaction"/>,
+    /// the reaction that kind reads; null for a kind that reads none, which any block of the kind holds.
+    /// </summary>
+    internal bool Holds(RoomCollisionType collision, Enum? reaction) =>
+        Terrain.Any(block => block.Collision == collision && Equals(block.Behavior.ReactionUnder(collision), reaction));
 
     /// <summary>Whether the state's terrain holds a shot block that any weapon breaks and that grows back, or a Wave shot's straddled read sets one off.</summary>
     internal bool HoldsRespawningShotBlocks => HoldsShotBlocks(RespawningShotBreaks);
@@ -93,11 +94,11 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
 
     /// <summary>Whether the state's terrain holds a bomb block: a bombable block selecting one of the eight bomb-block reactions.</summary>
     internal bool HoldsBombBlocks => Terrain.Any(block =>
-        block.Collision is RoomCollisionType.BombableBlock or RoomCollisionType.BombableAir && block.Reaction.IsCommonEntryBelow(BombBlockReactionCount));
+        block.Collision is RoomCollisionType.BombableBlock or RoomCollisionType.BombableAir && BombableReactions.IsBreak(block.Behavior.Bombable));
 
     /// <summary>Whether the state's terrain holds a crumble block: a special block whose reaction selects one of the crumble blocks.</summary>
     internal bool HoldsCrumbleBlocks => Terrain.Any(block =>
-        block.Collision == RoomCollisionType.SpecialBlock && BlockReactionDefinitions.ContactCrumbles.TryGetMeaning(block.Reaction, out _));
+        block.Collision == RoomCollisionType.SpecialBlock && block.Behavior.TryGetContactCrumble(out _));
 
     /// <summary>
     /// Whether the state's terrain holds a Speed Booster block: a special block whose reaction selects one in the state's
@@ -105,18 +106,17 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     /// </summary>
     internal bool HoldsSpeedBoosterBlocks => Terrain.Any(block =>
         (block.Collision == RoomCollisionType.SpecialBlock &&
-            (SpeedBoosterBlocks.TryResolve(RoomBlockBehavior.Reacting(block.Reaction), Area, out _) ||
-                (block.Reaction.IsCommonEntryBelow(BombSpecialBlockReactions.Count) &&
-                    BombSpecialBlockReactions.ChangeAt(block.Reaction.Entry) == SpeedBoosterBlockObjectDefinitions.BombReveal))) ||
+            (SpeedBoosterBlocks.TryResolve(block.Behavior, Area, out _) ||
+                (!BombSpecialBlockReactions.IsArea(block.Behavior.Special) && block.Behavior.Special != SpecialBlockReaction.PastTable &&
+                    BombSpecialBlockReactions.ChangeFor(block.Behavior.Special) == SpeedBoosterBlockObjectDefinitions.BombReveal))) ||
         (IsAreaSpecialAir(block) &&
-            SpecialAirReactions.CollisionOf(Area, block.Reaction) is SpecialAirCollisionReaction.BrinstarSlowRespawningSpeedBlock
+            SpecialAirReactions.CollisionOf(Area, block.Behavior.SpecialAir) is SpecialAirCollisionReaction.BrinstarSlowRespawningSpeedBlock
                 or SpecialAirCollisionReaction.BrinstarSlowPermanentSpeedBlock or SpecialAirCollisionReaction.DachoraRespawningSpeedBlock
                 or SpecialAirCollisionReaction.PermanentSpeedBlock));
 
     /// <summary>Whether the state's terrain holds a Grapple block that breaks under the beam.</summary>
     internal bool HoldsBreakableGrappleBlocks => Terrain.Any(block => block.Collision == RoomCollisionType.GrappleBlock &&
-        (block.Reaction == GrappleBlockReactionDefinitions.RespawningBreakableAnchor ||
-            block.Reaction == GrappleBlockReactionDefinitions.PermanentBreakableAnchor));
+        block.Behavior.Grapple is GrappleReaction.RespawningBreakableAnchor or GrappleReaction.PermanentBreakableAnchor);
 
     /// <summary>
     /// Whether the state's terrain holds a shootable block whose reaction selects a blue-door cap facing
@@ -124,7 +124,7 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     /// </summary>
     internal bool HoldsBlueDoorCap(ColoredDoorOrientation facing) => Terrain.Concat(StraddledShots).Any(block =>
         block.Collision is RoomCollisionType.ShootableBlock or RoomCollisionType.ShootableAir &&
-        BlockReactionDefinitions.BlueDoorCaps.TryGetMeaning(block.Reaction, out ColoredDoorOrientation cap) && cap == facing);
+        block.Behavior.TryGetBlueDoorOrientation(out ColoredDoorOrientation cap) && cap == facing);
 
     /// <summary>
     /// Whether the state's terrain holds a shootable block whose reaction selects a downward gate's trigger, or a Wave
@@ -132,15 +132,15 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     /// </summary>
     internal bool HoldsDownwardGateTriggers => Terrain.Concat(StraddledShots).Any(block =>
         block.Collision is RoomCollisionType.ShootableBlock or RoomCollisionType.ShootableAir &&
-        BlockReactionDefinitions.DownwardGateTriggers.TryGetMeaning(block.Reaction, out _));
+        block.Behavior.TryGetDownwardGateTrigger(out _));
 
     /// <summary>Whether the state's terrain holds the escape animals' rescue wall.</summary>
     internal bool HoldsEscapeAnimalWall =>
-        Holds(EscapeAnimalWallDefinitions.OriginCollisionType, EscapeAnimalWallDefinitions.ReactionBehavior.Reaction);
+        Terrain.Contains(new(EscapeAnimalWallDefinitions.OriginCollisionType, EscapeAnimalWallDefinitions.ReactionBehavior));
 
     /// <summary>Whether the state's terrain holds a special-air block whose area reaction's inside reaction is a Brinstar plant that bites Samus.</summary>
     internal bool HoldsSamusEaterPlants => Terrain.Any(block => IsAreaSpecialAir(block) &&
-        SpecialAirReactions.InsideOf(Area, block.Reaction) is SpecialAirInsideReaction.BrinstarFloorPlant
+        SpecialAirReactions.InsideOf(Area, block.Behavior.SpecialAir) is SpecialAirInsideReaction.BrinstarFloorPlant
             or SpecialAirInsideReaction.BrinstarCeilingPlant);
 
     /// <summary>
@@ -149,12 +149,12 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     /// area shares (the conveyors and the scroll trigger), never through its area's.
     /// </summary>
     private static bool IsAreaSpecialAir(RoomTerrainReaction block) =>
-        block.Collision == RoomCollisionType.SpecialAir && block.Reaction.IsAreaEntryBelow(SpecialAirReactions.EntriesPerArea);
+        block.Collision == RoomCollisionType.SpecialAir && SpecialAirReactions.IsAreaTableReaction(block.Behavior.SpecialAir);
 
     /// <summary>Whether the state's terrain holds a spike block an enemy breaks.</summary>
     internal bool HoldsEnemyBreakableBlocks => Terrain.Any(block => block.Collision == RoomCollisionType.SpikeBlock &&
-        block.Reaction.Entry < EnemyBreakableTerrainDefinitions.ReactionCount &&
-        EnemyBreakableTerrain.IsEnemyBreakable(RoomBlockBehavior.Reacting(block.Reaction)));
+        block.Behavior.Spike is not (SpikeReaction.PastEnemyTable or SpikeReaction.AreaPastEnemyTable) &&
+        EnemyBreakableTerrain.IsEnemyBreakable(block.Behavior));
 
     /// <summary>Whether the state's terrain holds a block that collides as another along a row or a column.</summary>
     internal bool HoldsExtensions => Terrain.Any(block =>
@@ -191,7 +191,7 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     /// <summary>Whether <paramref name="block"/> collides as shootable and its reaction is a shot block of one of <paramref name="kinds"/>.</summary>
     private static bool SelectsShotBlock(RoomTerrainReaction block, HashSet<ShotBlockReaction> kinds) =>
         block.Collision is RoomCollisionType.ShootableBlock or RoomCollisionType.ShootableAir &&
-        ShotBlockReactions.Of(block.Reaction) is { } reaction && kinds.Contains(reaction);
+        ShotBlockReactions.Of(block.Behavior.Shootable) is { } reaction && kinds.Contains(reaction);
 
     /// <summary>
     /// What of <paramref name="state"/> of <paramref name="room"/> decides the blocks it can show: <paramref name="level"/>
@@ -220,7 +220,7 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         }
         var reactions = new HashSet<RoomTerrainReaction>();
         for (int index = 0; index < terrain.Foreground.Length; index++)
-            reactions.Add(new(terrain.Foreground[index].Collision, terrain.Behaviors[index].Reaction));
+            reactions.Add(new(terrain.Foreground[index].Collision, terrain.Behaviors[index]));
         var headers = new HashSet<RoomObjectKind>();
         foreach (RoomObjectPlacement placement in state.ObjectPopulation.Placements.Span)
             headers.Add(placement.Kind);

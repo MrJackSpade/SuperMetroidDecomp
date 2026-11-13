@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal static class DraygonCannonDefinitions
 {
     /// <summary>A live cannon's own block: shootable, with the behaviour that routes a shot to the cannon.</summary>
-    internal static readonly DraygonCannonTerrain LiveCannon = new(RoomCollisionType.ShootableBlock, RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger));
+    internal static readonly DraygonCannonTerrain LiveCannon = new(RoomCollisionType.ShootableBlock, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
 
     /// <summary>The block below a live cannon: a vertical extension of the block one row above.</summary>
     internal static readonly DraygonCannonTerrain LiveCannonExtension = new(RoomCollisionType.VerticalExtension, RoomBlockBehavior.Extending(-1));
 
     /// <summary>Both blocks of a destroyed cannon: the spike-block family with the destroyed-cannon behaviour.</summary>
-    internal static readonly DraygonCannonTerrain DestroyedCannon = new(RoomCollisionType.SpikeBlock, RoomBlockBehavior.Reacting(GrappleBlockReactionDefinitions.BrokenTurretSpike));
+    internal static readonly DraygonCannonTerrain DestroyedCannon = new(RoomCollisionType.SpikeBlock, RoomBlockBehavior.Reacting(SpikeReaction.TurretSpike));
 
     /// <summary>
     /// The hit counter a Super Missile sets: far enough past <see cref="HitsToDestroy"/> that the next counted hit

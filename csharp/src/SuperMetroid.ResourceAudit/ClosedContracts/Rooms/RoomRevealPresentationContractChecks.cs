@@ -32,7 +32,7 @@ internal static class RoomRevealPresentationContractChecks
             using SuperMetroid.Core.Samus.Abilities.Artwork;
             class RevealConsumer {
                 void Inspect(InstalledXrayReveals reveals, InstalledXrayOverlays overlays) {
-                    reveals.Apply(RoomCollisionType.ShootableBlock, RoomBlockBehavior.Reacting(BlockReaction.Common(2)));
+                    reveals.Apply(RoomCollisionType.ShootableBlock, RoomBlockBehavior.Reacting(ShootableReaction.RespawningBreak1x2));
                     reveals.Apply(RoomCollisionType.SolidBlock, RoomBlockBehavior.None);
                     reveals.Apply(RoomCollisionType.HorizontalExtension, RoomBlockBehavior.Extending(3));
                     overlays.TankMetatile(InWorldCollectibleKind.EnergyTank);
@@ -68,13 +68,13 @@ internal static class RoomRevealPresentationContractChecks
     [ReflectionAudit("signature contract: the retired three-input Apply overload must not exist")]
     private static void ConfirmSingleXrayIdentity()
     {
-        // Construct the already identified 305-entry provider contract from compiled
+        // Construct the already identified 42-entry provider contract from compiled
         // rules, not ROM or room input. Four chosen requests confirm this API change.
         var entries = new List<XrayRevealVisualDefinition>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
-        for (int value = 0; value <= byte.MaxValue; value++)
-            if (XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(value)) is { } command && InstalledXrayReveals.IsDrawable(command))
-                entries.Add(new(type, RoomBlockBehaviorCodec.Decode(value).Reaction, new(1, 2, 3, 4)));
+        foreach (Enum? reaction in BlockReactionFamilies.ReadingsOf(type))
+            if (XrayRevealTable.Find(type, reaction) is { } command && InstalledXrayReveals.IsDrawable(command))
+                entries.Add(new(type, reaction, new(1, 2, 3, 4)));
         // The overlays are required with the reveals (#1596); every required room overlay shows one block.
         var overlays = new InstalledXrayOverlays(Enumerable.Repeat(RoomBlockAppearance.Of(0), InstalledXrayOverlays.TankCount),
             XrayRoomOverlayDefinitions.All.Select(overlay => new XrayRoomOverlayTiles(overlay,

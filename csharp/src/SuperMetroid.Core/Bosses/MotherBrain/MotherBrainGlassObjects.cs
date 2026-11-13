@@ -54,7 +54,7 @@ internal sealed class MotherBrainGlassObjects
         slot.Become(new MotherBrainGlassObject(this));
         RoomCollisionBlock original = level.GetCollisionBlock(slot.Block);
         level.SetTerrain(slot.Block, original.Terrain.WithCollision(RoomCollisionType.SolidBlock));
-        level.SetBehavior(slot.Block, RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger));
+        level.SetBehavior(slot.Block, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
 
         _motherBrainGlassSlot = slot;
         MotherBrainGlassWasLoaded = true;

@@ -642,6 +642,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyCartridgeAudioQueues), () => VerifyCartridgeAudioQueues()),
         new(nameof(VerifyManagedSnesDsp), () => VerifyManagedSnesDsp()),
         new(nameof(VerifyTypedNativeWords), () => VerifyTypedNativeWords()),
+        new(nameof(SuperMetroid.Verification.Rooms.LevelData.BlockParameterCarryOverVerification.VerifyBlockParameterCarryOver),
+            SuperMetroid.Verification.Rooms.LevelData.BlockParameterCarryOverVerification.VerifyBlockParameterCarryOver),
         new(nameof(VerifySamusSpatialValues), () => VerifySamusSpatialValues()),
         new(nameof(VerifyTypedTurnsAndZoom), () => VerifyTypedTurnsAndZoom()),
         // The typed angle steps, the X-ray aim, the combo orbit and the Crystal Flash radius (#1684).

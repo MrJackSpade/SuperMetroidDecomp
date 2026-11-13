@@ -307,7 +307,7 @@ internal sealed class ProjectileTerrainCollision
         // reaction does not use the ordinary behaviour 0..F shot-block table: its reaction
         // finds and triggers the already-loaded permanent-item room object at this origin.
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
-            block.Behavior.Reaction == BlockReactionDefinitions.CollectibleTrigger)
+            block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
         {
             _ = roomObjects?.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
             return true;
@@ -315,8 +315,9 @@ internal sealed class ProjectileTerrainCollision
 
         // Both the solid and the shootable resident-object trigger collision routes allocate the generic shot trigger,
         // which publishes the live projectile type to the resident room object at this block.
+        // A solid block's route reads its behaviour as the shot block's reaction.
         if (block.CollisionType == RoomCollisionType.SolidBlock &&
-            block.Behavior.Reaction == BlockReactionDefinitions.ResidentObjectTrigger)
+            block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
         {
             NotifyResidentProjectileHit(roomObjects, block, slot.Type);
             return true;
@@ -324,7 +325,7 @@ internal sealed class ProjectileTerrainCollision
 
         if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
         {
-            if (block.Behavior.Reaction.IsShotCollisionProbe)
+            if (block.Behavior.Shootable == ShootableReaction.CollisionProbe)
             {
                 // Gate setup ends the caller's span and forces its collision counter.
                 // A full room-object pool skips setup entirely, so it must not end the scan.
@@ -366,7 +367,7 @@ internal sealed class ProjectileTerrainCollision
                 case RoomCollisionType.SpikeAir:
                 case RoomCollisionType.SpecialAir:
                 case RoomCollisionType.ShootableAir:
-                case RoomCollisionType.UnusedAir:
+                case RoomCollisionType.UnrevealedAir:
                 case RoomCollisionType.BombableAir:
                 case RoomCollisionType.SolidBlock:
                 case RoomCollisionType.DoorBlock:
@@ -414,7 +415,7 @@ internal sealed class ProjectileTerrainCollision
         // The intact n00b tube, colored doors, eye doors, grey doors, and other resident
         // actors all share the shootable resident-object trigger. The resident room object determines the accepted family
         // after the generic shot trigger publishes the projectile type.
-        if (block.Behavior.Reaction == BlockReactionDefinitions.ResidentObjectTrigger)
+        if (block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
         {
             NotifyResidentProjectileHit(roomObjects, block, slot.Type);
             return;
@@ -441,10 +442,9 @@ internal sealed class ProjectileTerrainCollision
         // slot; shootable-air's method exits without allocating. The RoomObject owner performs
         // the power-bomb/Super-Missile family checks for entries 8..B synchronously, just as
         // each setup sees the current projectile type while the room object spawns.
-        bool translatedBehavior = block.Behavior.Reaction.IsAreaEntryBelow(8) ||
-            block.Behavior == EscapeAnimalWallDefinitions.ReactionBehavior ||
-            block.Behavior.Reaction.IsCommonEntryBelow(16) ||
-            block.Behavior.Reaction.IsShotCollisionProbe;
+        bool translatedBehavior = block.Behavior.Shootable is ShootableReaction.AreaNothing or
+                ShootableReaction.AnimalEscape or ShootableReaction.CollisionProbe ||
+            ShotBlockReactions.IsLeading(block.Behavior.Shootable);
         if (translatedBehavior)
         {
             roomObjects.BlockReactions.TrySpawnProjectileShotBlock(

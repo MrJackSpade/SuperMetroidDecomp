@@ -95,7 +95,7 @@ internal static class StraddledShotReactions
                         throw new InvalidDataException($"A Wave shot's straddled read at block {read.Block} runs past the {blocks}-block level.");
                     RoomCollisionType collision = straddled.Straddling(level.Foreground[read.Block], level.Foreground[read.Block + 1]).Collision;
                     if (collision is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
-                        reactions.Add(new(collision, level.Behaviors[read.Block].Reaction));
+                        reactions.Add(new(collision, level.Behaviors[read.Block]));
                 }
             }
         }

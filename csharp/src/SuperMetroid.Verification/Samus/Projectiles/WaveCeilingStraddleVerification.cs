@@ -85,8 +85,7 @@ internal static class WaveCeilingStraddleVerification
         int index = RoomWidth + column;
         terrain[index] = solid;
         terrain[index + 1] = tail;
-        int entry = ShotBlockReactionDefinitions.LeadingEntries.ToList().IndexOf(ShotBlockReaction.RespawningBreak);
-        behaviors[index] = RoomBlockBehavior.Reacting(BlockReaction.Common(entry));
+        behaviors[index] = RoomBlockBehavior.Reacting(ShootableReaction.RespawningBreak1x1);
         RoomLevelData level = CreateRoom(new(RoomWidth, RoomHeight), terrain, behaviors);
         RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
         var shot = new SamusProjectile(0)

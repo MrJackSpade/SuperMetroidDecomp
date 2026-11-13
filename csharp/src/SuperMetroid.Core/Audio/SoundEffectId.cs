@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Audio;
 /// <remarks>
 /// The library is part of the identity because it decides which queue a request waits in and which sounds interrupt one
 /// another. Each library's sounds convert implicitly, so callers name the sound itself. The identity holds no number:
-/// the import pipeline alone maps a sound to its request in the installed sound program.
+/// the import pipeline alone maps a sound to the installed sound effect it requests.
 /// </remarks>
 public readonly record struct SoundEffectId
 {

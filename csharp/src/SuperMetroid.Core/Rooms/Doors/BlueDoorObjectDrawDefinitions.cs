@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 internal static class BlueDoorObjectDrawDefinitions
 {
-    /// <summary>The physical closed-cap alias frame, which shows frame zero's picture with only its first cell solid.</summary>
-    internal const int AliasFrame = -1;
+    /// <summary>The opening frame whose picture the physical closed-cap alias shows, with only its first cell solid.</summary>
+    internal const int AliasPictureFrame = 0;
 
     /// <summary>
     /// How the four cells of each of the twenty blue-cap draws collide, in authored run order. The alias makes only its
@@ -19,7 +19,7 @@ internal static class BlueDoorObjectDrawDefinitions
     internal static IReadOnlyDictionary<BlueDoorCaps.Draw, IReadOnlyList<RoomCollisionType>> Collisions { get; } =
         new Dictionary<BlueDoorCaps.Draw, IReadOnlyList<RoomCollisionType>>
         {
-            [new BlueDoorCaps.Draw(ColoredDoorOrientation.Left, AliasFrame)] =
+            [new BlueDoorCaps.Draw(ColoredDoorOrientation.Left, null)] =
             [
                 RoomCollisionType.SolidBlock,
                 RoomCollisionType.VerticalExtension,
@@ -54,7 +54,7 @@ internal static class BlueDoorObjectDrawDefinitions
                 RoomCollisionType.Air,
                 RoomCollisionType.SolidBlock,
             ],
-            [new BlueDoorCaps.Draw(ColoredDoorOrientation.Right, AliasFrame)] =
+            [new BlueDoorCaps.Draw(ColoredDoorOrientation.Right, null)] =
             [
                 RoomCollisionType.SolidBlock,
                 RoomCollisionType.VerticalExtension,
@@ -89,7 +89,7 @@ internal static class BlueDoorObjectDrawDefinitions
                 RoomCollisionType.Air,
                 RoomCollisionType.SolidBlock,
             ],
-            [new BlueDoorCaps.Draw(ColoredDoorOrientation.Up, AliasFrame)] =
+            [new BlueDoorCaps.Draw(ColoredDoorOrientation.Up, null)] =
             [
                 RoomCollisionType.SolidBlock,
                 RoomCollisionType.HorizontalExtension,
@@ -124,7 +124,7 @@ internal static class BlueDoorObjectDrawDefinitions
                 RoomCollisionType.SolidBlock,
                 RoomCollisionType.SolidBlock,
             ],
-            [new BlueDoorCaps.Draw(ColoredDoorOrientation.Down, AliasFrame)] =
+            [new BlueDoorCaps.Draw(ColoredDoorOrientation.Down, null)] =
             [
                 RoomCollisionType.SolidBlock,
                 RoomCollisionType.HorizontalExtension,

@@ -16,8 +16,8 @@ internal sealed class DownwardGateObject(GateObjects owner) : RoomObjectBehaviou
     /// <summary>Where the gate is in its course.</summary>
     internal DownwardGatePhase Phase { get; private set; } = DownwardGatePhase.Starting;
 
-    /// <summary>The image of its closing or reopening the gate shows.</summary>
-    internal int Frame { get; private set; }
+    /// <summary>The image of its closing or reopening the gate shows; none until its movement shows its first image (#1627).</summary>
+    internal int? Frame { get; private set; }
 
     /// <summary>Whether an accepted shot on one of its triggers has set the gate off since it last rested.</summary>
     internal bool Triggered { get; private set; }
@@ -39,7 +39,7 @@ internal sealed class DownwardGateObject(GateObjects owner) : RoomObjectBehaviou
         {
             WakeArmed = false;
             Phase = Phase == DownwardGatePhase.RestingOpen ? DownwardGatePhase.Closing : DownwardGatePhase.Reopening;
-            Frame = -1;
+            Frame = null;
             _updatesBeforeNextStep = 1;
         }
         if (--_updatesBeforeNextStep != 0)
@@ -60,37 +60,42 @@ internal sealed class DownwardGateObject(GateObjects owner) : RoomObjectBehaviou
                 _updatesBeforeNextStep = 1;
                 return;
             case DownwardGatePhase.Closing:
-                Frame++;
-                if (Frame == DownwardGateMovementDefinitions.Closing.Count)
+                int closingImage = NextImage();
+                Frame = closingImage;
+                if (closingImage == DownwardGateMovementDefinitions.Closing.Count)
                 {
                     Show(place, context, DownwardGateMovementDefinitions.ClosedImage, 1, DownwardGatePhase.ShowingClosed);
                     return;
                 }
-                if (Frame == DownwardGateMovementDefinitions.ClosingMovementStart)
+                if (closingImage == DownwardGateMovementDefinitions.ClosingMovementStart)
                 {
                     _owner.SpawnMovingGateProjectile(place);
                     context.QueueSound(DownwardGateDefinitions.MovementSound, DownwardGateMovementDefinitions.MovementSoundPriority);
                 }
-                ShowFrame(place, context, DownwardGateMovementDefinitions.Closing[Frame]);
+                ShowFrame(place, context, DownwardGateMovementDefinitions.Closing[closingImage]);
                 return;
             case DownwardGatePhase.Reopening:
-                Frame++;
-                if (Frame == DownwardGateMovementDefinitions.Reopening.Count)
+                int reopeningImage = NextImage();
+                Frame = reopeningImage;
+                if (reopeningImage == DownwardGateMovementDefinitions.Reopening.Count)
                 {
                     Show(place, context, DownwardGateMovementDefinitions.OpenImage, 1, DownwardGatePhase.ShowingOpen);
                     return;
                 }
-                if (Frame == 0)
+                if (reopeningImage == 0)
                 {
                     _owner.WakeGateProjectile(place);
                     context.QueueSound(DownwardGateDefinitions.MovementSound, DownwardGateMovementDefinitions.MovementSoundPriority);
                 }
-                ShowFrame(place, context, DownwardGateMovementDefinitions.Reopening[Frame]);
+                ShowFrame(place, context, DownwardGateMovementDefinitions.Reopening[reopeningImage]);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(DownwardGatePhase)} {Phase}.");
         }
     }
+
+    /// <summary>The image after the one the gate shows: its movement's first when it has shown none.</summary>
+    private int NextImage() => Frame is int shown ? shown + 1 : 0;
 
     /// <summary>Clears the gate's trigger and lets it rest in <paramref name="phase"/>, its wake armed from the next update.</summary>
     private void Rest(DownwardGatePhase phase)

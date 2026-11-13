@@ -1609,20 +1609,20 @@ internal static class LookupStream5Verification
             "Ceres palette serializes every colour of both owners");
         IReadOnlyDictionary<string, byte[]> files = SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightArtworkExtractor.Extract(rom);
         var catalog = CeresFlightCharacters.Read(Open(CeresFlightArtworkFileFormat.FloorFileName),
-            Open(CeresFlightArtworkFileFormat.ObjectFileName), Open(CeresFlightSpriteFormat.FileName),
-            CeresFlightSourceArtwork.Read(Open(CeresFlightArtworkFileFormat.MapFileName), stock.Backdrop,
-                Open(CeresFlightActorLayoutFormat.FileName)));
-        // The installed documents' identity covers the maps, backdrop and placements; the import's adds the compositions,
-        // which are import data like the characters (#1636, #1638).
-        string documentsHash = SelectedPresentationHash.Create("CeresFlightArtworkCatalog-v3", content =>
+            Open(CeresFlightArtworkFileFormat.ObjectFileName), Open(CeresFlightArtworkFileFormat.MapFileName),
+            Open(CeresFlightSpriteFormat.FileName),
+            CeresFlightSourceArtwork.Read(stock.Backdrop, Open(CeresFlightActorLayoutFormat.FileName)));
+        // The installed documents' identity covers the backdrop and placements; the import's adds the maps and the
+        // compositions, which are import data like the characters (#1636, #1638, #1693).
+        string documentsHash = SelectedPresentationHash.Create("CeresFlightArtworkCatalog-v4", content =>
         {
-            content.Append("mode7-maps", catalog.FloorMaps.Span);
             content.AppendColors("backdrop", [stock.Backdrop]);
             content.Append("actors", Convert.FromHexString(catalog.Flight.Actors.ContentIdentity));
         });
-        string expectedHash = SelectedPresentationHash.Create("CeresFlightImportArtwork-v1", content =>
+        string expectedHash = SelectedPresentationHash.Create("CeresFlightImportArtwork-v2", content =>
         {
             content.Append("documents", Convert.FromHexString(documentsHash));
+            content.Append("mode7-maps", catalog.FloorMaps.Span);
             content.Append("sprites", Convert.FromHexString(catalog.Sprites.ContentIdentity));
         });
         AssertEqual(expectedHash, catalog.ContentIdentity, "Ceres flight canonical hash covers its backdrop; its colours are the import's alone (#1544)");

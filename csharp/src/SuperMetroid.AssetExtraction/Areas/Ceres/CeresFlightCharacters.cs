@@ -9,34 +9,41 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>
 /// The approach to Ceres as the import pipeline reads it (#1409, #1636): its Mode 7 floor characters as chunky 8-bit pixels
-/// and its OBJ characters as SNES 4-bpp planar bytes, and its compositions, whose parts are the original's packed sprite
-/// placements (#1638), from the opening's import data, which the flight sheets compose from, beside the installed maps. Its colours are a palette document only the import reads
+/// and its OBJ characters as SNES 4-bpp planar bytes, its Mode 7 floor maps (#1693) and its compositions, whose parts are
+/// the original's packed sprite placements (#1638), from the opening's import data, which the flight sheets compose from,
+/// beside the installed documents. Its colours are a palette document only the import reads
 /// (<see cref="ImportIntroCinematicArtwork.FlightPalette"/>); the game keeps their backdrop, which the opening's backdrop
 /// document names (#1544).
 /// </summary>
 public sealed class CeresFlightCharacters : CeresFlightSourceArtwork
 {
-    /// <summary>Retains compiled characters with the installed documents they are drawn by.</summary>
+    /// <summary>Retains compiled characters and maps with the installed documents they are drawn by.</summary>
     /// <param name="floorCharacters">The chunky Mode 7 floor characters.</param>
     /// <param name="objectCharacters">The planar 4-bpp OBJ characters.</param>
+    /// <param name="floorMaps">Front 768 map bytes followed by rear 768 map bytes.</param>
     /// <param name="sprites">The approach's compositions.</param>
-    /// <param name="documents">The installed maps, backdrop and actor placements.</param>
-    private CeresFlightCharacters(byte[] floorCharacters, byte[] objectCharacters, CeresFlightSpritePresentation sprites,
-        CeresFlightSourceArtwork documents)
-        : base(documents.FloorMaps.ToArray(), documents.Flight.Backdrop, documents.Flight.Actors)
+    /// <param name="documents">The installed backdrop and actor placements.</param>
+    private CeresFlightCharacters(byte[] floorCharacters, byte[] objectCharacters, byte[] floorMaps,
+        CeresFlightSpritePresentation sprites, CeresFlightSourceArtwork documents)
+        : base(documents.Flight.Backdrop, documents.Flight.Actors)
     {
         FloorCharacters = floorCharacters;
         ObjectCharacters = objectCharacters;
+        FloorMaps = floorMaps;
         Sprites = sprites;
     }
 
     /// <summary>Selected six-frame compositions for stars, station, asteroids, and vortex, shared with the Ceres destruction scene's sheets.</summary>
     public CeresFlightSpritePresentation Sprites { get; }
 
-    /// <summary>Identity of the installed documents and of the compositions the flight sheets are composed from.</summary>
-    public override string ContentIdentity => SelectedPresentationHash.Create("CeresFlightImportArtwork-v1", content =>
+    /// <summary>Front 768 map bytes followed by rear 768 map bytes, which the import pictures into the flight's floors (#1467).</summary>
+    public ReadOnlyMemory<byte> FloorMaps { get; }
+
+    /// <summary>Identity of the installed documents and of the maps and compositions the flight sheets are composed from.</summary>
+    public override string ContentIdentity => SelectedPresentationHash.Create("CeresFlightImportArtwork-v2", content =>
     {
         content.Append("documents", Convert.FromHexString(base.ContentIdentity));
+        content.Append("mode7-maps", FloorMaps.Span);
         content.Append("sprites", Convert.FromHexString(Sprites.ContentIdentity));
     });
 
@@ -51,19 +58,22 @@ public sealed class CeresFlightCharacters : CeresFlightSourceArtwork
     public SpriteArtwork ObjectPage => field ??= new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.CeresFlightObjects),
         ObjectCharacters.Span[..CeresFlightArtworkFileFormat.ObjectByteCount]);
 
-    /// <summary>Compiles the Ceres approach's character pages into native characters bound to its compositions and installed documents.</summary>
+    /// <summary>Compiles the Ceres approach's character pages and maps into native characters bound to its compositions and installed documents.</summary>
     /// <param name="floorPng">128-by-128 indexed page with 256 palette entries, supplying 256 chunky 8-bpp characters.</param>
     /// <param name="objectPng">256-by-128 indexed page with sixteen palette entries, supplying 512 planar 4-bpp characters.</param>
+    /// <param name="mapJson">Version-one document containing both ordered 768-byte front/rear map slices.</param>
     /// <param name="spritesJson">Document containing the six required named OAM compositions.</param>
-    /// <param name="documents">The installed maps, backdrop and actor placements the characters are drawn by.</param>
+    /// <param name="documents">The installed backdrop and actor placements the characters are drawn by.</param>
     /// <returns>A catalog owning newly compiled transfer bytes and the installed presentation resources.</returns>
     /// <remarks>Reads from the streams' current positions without disposing them. Page pixel indices define characters; the separate palette resource defines rendered colors.</remarks>
     /// <exception cref="ArgumentNullException">Any argument is null.</exception>
-    /// <exception cref="InvalidDataException">A page has an invalid format, dimensions, palette size or compiled transfer length.</exception>
-    public static CeresFlightCharacters Read(Stream floorPng, Stream objectPng, Stream spritesJson, CeresFlightSourceArtwork documents)
+    /// <exception cref="InvalidDataException">A page has an invalid format, dimensions, palette size or compiled transfer length, or the map document an invalid schema or map index.</exception>
+    public static CeresFlightCharacters Read(Stream floorPng, Stream objectPng, Stream mapJson, Stream spritesJson,
+        CeresFlightSourceArtwork documents)
     {
         Ensure.NotNull(floorPng);
         Ensure.NotNull(objectPng);
+        Ensure.NotNull(mapJson);
         Ensure.NotNull(spritesJson);
         Ensure.NotNull(documents);
         IndexedPngImage floorImage = IndexedPng.Read(floorPng,
@@ -79,7 +89,8 @@ public sealed class CeresFlightCharacters : CeresFlightSourceArtwork
         if (characters.Length != CeresFlightArtworkFileFormat.FloorByteCount ||
             objectCharacters.Length != CeresFlightArtworkFileFormat.ObjectByteCount)
             throw new InvalidDataException("Ceres flight PNGs compile to unexpected DMA lengths.");
-        return new CeresFlightCharacters(characters, objectCharacters, CeresFlightSpritePresentation.Load(spritesJson), documents);
+        return new CeresFlightCharacters(characters, objectCharacters, ReadMaps(mapJson),
+            CeresFlightSpritePresentation.Load(spritesJson), documents);
     }
 
 
@@ -87,7 +98,7 @@ public sealed class CeresFlightCharacters : CeresFlightSourceArtwork
     /// <param name="mapJson">Version-one document containing both ordered 768-byte front/rear map slices.</param>
     /// <returns>Front 768 map bytes followed by rear 768 map bytes.</returns>
     /// <exception cref="InvalidDataException">The document has an unsupported version, dimensions, array length, or tile index.</exception>
-    internal static byte[] ReadMaps(Stream mapJson)
+    private static byte[] ReadMaps(Stream mapJson)
     {
         CeresFlightMapDocument document = ReadMap(Ensure.NotNull(mapJson));
         byte[] map = new byte[2 * CeresFlightArtworkFileFormat.MapCellsPerView];

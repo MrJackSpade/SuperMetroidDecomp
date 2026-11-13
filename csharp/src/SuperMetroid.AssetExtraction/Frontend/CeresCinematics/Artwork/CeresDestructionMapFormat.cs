@@ -5,7 +5,7 @@ public static class CeresDestructionMapFormat
 {
     /// <summary>Supported schema revision for the Ceres destruction Mode 7 map document.</summary>
     public const int Version = 1;
-    /// <summary>Installed JSON filename for the two destruction map views followed by the native clear-map slice.</summary>
+    /// <summary>Import-data JSON filename for the two destruction map views followed by the native clear-map slice (#1693).</summary>
     public const string FileName = "ceres-destruction-mode7-maps.json";
     /// <summary>Number of eight-bit Mode 7 map cells per row in each exported Ceres slice.</summary>
     public const int MapWidth = 32;

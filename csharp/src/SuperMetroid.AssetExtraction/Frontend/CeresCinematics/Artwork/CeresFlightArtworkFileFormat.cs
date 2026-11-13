@@ -10,7 +10,7 @@ public static class CeresFlightArtworkFileFormat
     public const int Version = 2;
     /// <summary>Indexed PNG filename for the shared gunship/Ceres chunky Mode-7 characters.</summary>
     public const string FloorFileName = "ceres-flight-mode7-characters.png";
-    /// <summary>JSON filename for the two ordered approach map slices, distinct from the later destruction map slice.</summary>
+    /// <summary>Import-data JSON filename for the two ordered approach map slices, distinct from the later destruction map slice (#1693).</summary>
     public const string MapFileName = "ceres-flight-mode7-maps.json";
     /// <summary>Indexed PNG filename for the space/Ceres planar OBJ characters and reused SPACE COLONY background characters.</summary>
     public const string ObjectFileName = "ceres-flight-object-characters.png";

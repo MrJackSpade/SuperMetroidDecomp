@@ -3997,6 +3997,7 @@ internal static class SpawnedObjectFrameDefinitions
     private static readonly RoomSpriteObjectKind[] BombTorizoSharedSpriteObjects =
     [
         RoomSpriteObjectKind.DustCloud,
+        RoomSpriteObjectKind.EnemyProjectileDud,
         RoomSpriteObjectKind.SmallExplosion,
         RoomSpriteObjectKind.Smoke,
     ];
@@ -5966,6 +5967,15 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The room sprite objects <c>DownwardGateBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly RoomSpriteObjectKind[] CommonDownwardGateBehaviorSpriteObjects = [];
 
+    /// <summary>The projectile frames <c>EnemyCollision</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly EnemyProjectileFrameId[] CommonEnemyCollisionProjectiles = [];
+
+    /// <summary>The room sprite objects <c>EnemyCollision</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly RoomSpriteObjectKind[] CommonEnemyCollisionSpriteObjects =
+    [
+        RoomSpriteObjectKind.EnemyHit,
+    ];
+
     /// <summary>The projectile frames <c>EnemyDeathsAndDrops</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonEnemyDeathsAndDropsProjectiles =
     [
@@ -6021,6 +6031,15 @@ internal static class SpawnedObjectFrameDefinitions
         RoomSpriteObjectKind.DustCloud,
         RoomSpriteObjectKind.SmallExplosion,
         RoomSpriteObjectKind.Smoke,
+    ];
+
+    /// <summary>The projectile frames <c>EnemyProjectileEngine.CreateBombDudShot</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly EnemyProjectileFrameId[] CommonEnemyProjectileEngineCreateBombDudShotProjectiles = [];
+
+    /// <summary>The room sprite objects <c>EnemyProjectileEngine.CreateBombDudShot</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
+    private static readonly RoomSpriteObjectKind[] CommonEnemyProjectileEngineCreateBombDudShotSpriteObjects =
+    [
+        RoomSpriteObjectKind.EnemyProjectileDud,
     ];
 
     /// <summary>The projectile frames <c>EnemyProjectileEngine.CreateEnemyProjectileDudShot</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
@@ -7010,7 +7029,9 @@ internal static class SpawnedObjectFrameDefinitions
     [
         new("CeresElevatorArrivalState", new(CommonCeresElevatorArrivalStateProjectiles, CommonCeresElevatorArrivalStateSpriteObjects)),
         new("DownwardGateBehavior", new(CommonDownwardGateBehaviorProjectiles, CommonDownwardGateBehaviorSpriteObjects)),
+        new("EnemyCollision", new(CommonEnemyCollisionProjectiles, CommonEnemyCollisionSpriteObjects)),
         new("EnemyDeathsAndDrops", new(CommonEnemyDeathsAndDropsProjectiles, CommonEnemyDeathsAndDropsSpriteObjects)),
+        new("EnemyProjectileEngine.CreateBombDudShot", new(CommonEnemyProjectileEngineCreateBombDudShotProjectiles, CommonEnemyProjectileEngineCreateBombDudShotSpriteObjects)),
         new("EnemyProjectileEngine.CreateEnemyProjectileDudShot", new(CommonEnemyProjectileEngineCreateEnemyProjectileDudShotProjectiles, CommonEnemyProjectileEngineCreateEnemyProjectileDudShotSpriteObjects)),
         new("EnemyProjectileEngine.SpawnRoomGraphicsDustExplosion", new(CommonEnemyProjectileEngineSpawnRoomGraphicsDustExplosionProjectiles, CommonEnemyProjectileEngineSpawnRoomGraphicsDustExplosionSpriteObjects)),
         new("EnemyProjectileEngine.SpawnSaveStationElectricity", new(CommonEnemyProjectileEngineSpawnSaveStationElectricityProjectiles, CommonEnemyProjectileEngineSpawnSaveStationElectricitySpriteObjects)),

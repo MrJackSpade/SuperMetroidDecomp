@@ -251,4 +251,12 @@ internal enum RoomSpriteObjectFrame
     EvirFacingRight2,
     /// <summary>Evir facing right, frame 3.</summary>
     EvirFacingRight3,
+    /// <summary>Enemy hit burst, frame 0: its four mirrored pieces nearest its centre.</summary>
+    EnemyHit0,
+    /// <summary>Enemy hit burst, frame 1.</summary>
+    EnemyHit1,
+    /// <summary>Enemy hit burst, frame 2.</summary>
+    EnemyHit2,
+    /// <summary>Enemy hit burst, frame 3: its four mirrored pieces farthest from its centre.</summary>
+    EnemyHit3,
 }

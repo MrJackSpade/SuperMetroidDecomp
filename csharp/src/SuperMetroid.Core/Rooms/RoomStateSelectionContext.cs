@@ -2,7 +2,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>Facts inspected by the game's room-state selector functions.</summary>
+/// <summary>Facts the game's room-state conditions inspect.</summary>
 /// <param name="Events">A detached copy of the story events that have happened; null when none has.</param>
 /// <param name="BossBits">The bosses defeated in the room's area.</param>
 /// <param name="HasMorphBallAndMissiles">Whether Samus carries the morph ball and missiles.</param>

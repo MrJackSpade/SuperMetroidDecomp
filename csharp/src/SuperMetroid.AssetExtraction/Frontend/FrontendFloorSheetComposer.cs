@@ -54,8 +54,8 @@ internal static class FrontendFloorSheetComposer
     private static readonly FrozenDictionary<SpriteSheetId, Func<ScreenTileSources, ComposedSpriteSheet>> Composers =
         new Dictionary<SpriteSheetId, Func<ScreenTileSources, ComposedSpriteSheet>>
         {
-            [SpriteSheetId.TitleFloor] = sources => Title(ImportAreaMapPresentation.TitleGraphicsOf(sources.Maps), ImportAreaMapPresentation.TitlePaletteOf(sources.Maps)),
-            [SpriteSheetId.CeresFloor] = sources => Ceres(sources.Intro, ImportAreaMapPresentation.RoomPaletteFxOf(sources.Maps)),
+            [SpriteSheetId.TitleFloor] = sources => Title(sources.Maps.TitleGraphics, sources.Maps.TitlePalette),
+            [SpriteSheetId.CeresFloor] = sources => Ceres(sources.Intro, sources.Maps.RoomPaletteFx),
             [SpriteSheetId.EndingEscapeAFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.EscapeA, EndingPaletteId.Escape), sources,
                 EndingFloorShot.EscapeA),
             [SpriteSheetId.EndingEscapeBFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.EscapeB, EndingPaletteId.Escape), sources,
@@ -231,7 +231,7 @@ internal static class FrontendFloorSheetComposer
     {
         Manifest = floor.Manifest with
         {
-            Shades = SheetShade.Documents(EndingScreenShades.Scenery(EndingScreenShades.Screen(sources.EndingPalettes, ImportAreaMapPresentation.RoomPaletteFxOf(sources.Maps)),
+            Shades = SheetShade.Documents(EndingScreenShades.Scenery(EndingScreenShades.Screen(sources.EndingPalettes, sources.Maps.RoomPaletteFx),
                 [EndingFloorDefinitions.Scenery[shot]])),
         },
     };

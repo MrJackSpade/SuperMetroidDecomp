@@ -1,25 +1,28 @@
+using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
-using SuperMetroid.AssetExtraction.Fx;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>
-/// The installed map presentation as the game reads it (#1466, #1544, #1636): what the game binds, with the installed
-/// documents its picture sheets' frames are named from and the import composes from. It reads no character page: the
-/// characters are import data the installation never holds, which the import reads with
-/// <see cref="ImportAreaMapPresentation"/>, as it does the colours only the import reads.
+/// The installed map presentation (#1466, #1544, #1616, #1636): the catalog the game binds (<see cref="Game"/>), and beside
+/// it the installed documents its picture sheets' frames are named from and the import composes from, which the game never
+/// receives. It reads no character page: the characters are import data the installation never holds, which the import
+/// reads with <see cref="ImportAreaMapPresentation"/>, as it does the colours only the import reads.
 /// </summary>
-public class InstalledAreaMapPresentation : AreaMapPresentation
+public class InstalledAreaMapPresentation
 {
-    /// <summary>Takes the presentation's parts and the installed documents it was read with.</summary>
-    internal InstalledAreaMapPresentation(AreaMapPresentationParts parts, InstalledPresentationSources sources) : base(parts)
+    /// <summary>Takes the catalog the game binds and the installed documents it was read with.</summary>
+    internal InstalledAreaMapPresentation(AreaMapPresentation game, InstalledPresentationSources sources)
     {
+        Game = Ensure.NotNull(game);
         Ensure.NotNull(sources);
         Screens = Ensure.NotNull(sources.Screens);
         Pause = Ensure.NotNull(sources.Pause);
@@ -28,27 +31,25 @@ public class InstalledAreaMapPresentation : AreaMapPresentation
         Messages = Ensure.NotNull(sources.Messages);
         RoomFxPages = Ensure.NotNull(sources.RoomFxPages);
         HighlightColours = Ensure.NotNull(sources.HighlightColours);
+        PauseSelectors = Ensure.NotNull(sources.PauseSelectors);
+        PauseReserveTanks = Ensure.NotNull(sources.PauseReserveTanks);
+        GameplayHud = Ensure.NotNull(sources.GameplayHud);
+        GameOptions = Ensure.NotNull(sources.GameOptions);
+        FileSelect = Ensure.NotNull(sources.FileSelect);
         GameOverSource = Ensure.NotNull(sources.GameOver);
     }
 
+    /// <summary>The catalog the game binds: only what the game reads of the installed presentation (#1616).</summary>
+    public AreaMapPresentation Game { get; }
+
     /// <summary>The game-over page's tiles, compositions and palette selectors, which only the import reads (#1616).</summary>
     public GameOverSourcePresentation GameOverSource { get; }
-
-    /// <summary>The game-over source presentation the installed presentation <paramref name="maps"/> was read with.</summary>
-    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
-    public static GameOverSourcePresentation GameOverSourceOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.GameOverSource
-        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no game-over source presentation.");
 
     /// <summary>
     /// The map highlight cycle with each frame's colours (#1512): only the import reads the colours, and the game takes each
     /// frame's hold from the same frames (<see cref="AreaMapPresentation.HighlightCycle"/>).
     /// </summary>
     public MapPaletteCycle HighlightColours { get; }
-
-    /// <summary>The highlight cycle the installed map presentation <paramref name="maps"/> was read with.</summary>
-    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
-    public static MapPaletteCycle HighlightColoursOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.HighlightColours
-        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no highlight colours.");
 
     /// <summary>The editable gameplay messages, whose words the import composes each message box image from (#1466).</summary>
     public GameplayMessageArtwork Messages { get; }
@@ -62,34 +63,39 @@ public class InstalledAreaMapPresentation : AreaMapPresentation
     /// <summary>The pause screen's backdrops, wireframes and equipment-page artwork, which the import pictures into the pause sheet (#1467).</summary>
     public PauseScreenArtwork Pause { get; }
 
-    /// <summary>The pause screen's artwork the installed map presentation <paramref name="maps"/> was read with.</summary>
-    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
-    public static PauseScreenArtwork PauseOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.Pause
-        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no pause screen artwork.");
-
-    /// <summary>The map screens' pages the installed map presentation <paramref name="maps"/> was read with.</summary>
-    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
-    public static MapScreenPresentation ScreensOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.Screens
-        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no map screens.");
-
     /// <summary>The editable staff credits, which the import pictures into the ending's credits rows (#1467).</summary>
     public CreditsPresentation StaffCredits { get; }
 
     /// <summary>The editable ending text, whose pages and glyphs the import pictures and whose typewriter characters it compiles (#1467).</summary>
     public EndingTextPresentation EndingTextPresentation { get; }
 
-    /// <summary>The staff credits the installed map presentation <paramref name="maps"/> was read with.</summary>
-    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
-    public static CreditsPresentation StaffCreditsOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.StaffCredits
-        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no staff credits.");
+    /// <summary>
+    /// The equipment selectors' frame compositions, which the import composes the pause sheet from, with the anchors and
+    /// timing the game binds (<see cref="AreaMapPresentation.PauseSelectors"/>).
+    /// </summary>
+    public PauseSelectorSourcePresentation PauseSelectors { get; }
 
-    /// <summary>The ending text the installed map presentation <paramref name="maps"/> was read with.</summary>
-    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
-    public static EndingTextPresentation EndingTextOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.EndingTextPresentation
-        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no ending text.");
+    /// <summary>
+    /// The reserve strip's frame compositions, which the import composes the pause sheet from, with the anchors the game
+    /// binds (<see cref="AreaMapPresentation.PauseReserveTanks"/>).
+    /// </summary>
+    public PauseReserveTankSourcePresentation PauseReserveTanks { get; }
 
-    /// <summary>The room effects' pages the installed map presentation <paramref name="maps"/> was read with.</summary>
-    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
-    public static RoomFxLayer3Pages RoomFxPagesOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.RoomFxPages
-        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no room effect pages.");
+    /// <summary>
+    /// The gameplay HUD's tiles, which the import pictures every HUD image from, with the layout the game binds
+    /// (<see cref="AreaMapPresentation.GameplayHud"/>).
+    /// </summary>
+    public GameplayHudArtwork GameplayHud { get; }
+
+    /// <summary>
+    /// The options screen's pages, labels and compositions, which the import composes the options and menu sheets from, with
+    /// the anchors the game binds (<see cref="AreaMapPresentation.GameOptions"/>).
+    /// </summary>
+    public GameOptionsSourcePresentation GameOptions { get; }
+
+    /// <summary>
+    /// The file-select screen's pages, fields and compositions, which the import composes the file-select and menu sheets
+    /// from, with the layout the game binds (<see cref="AreaMapPresentation.FileSelect"/>).
+    /// </summary>
+    public FileSelectSourcePresentation FileSelect { get; }
 }

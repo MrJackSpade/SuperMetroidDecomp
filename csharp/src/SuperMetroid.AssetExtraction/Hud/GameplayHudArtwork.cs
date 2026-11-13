@@ -12,21 +12,24 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// <summary>
 /// The installed gameplay HUD as the import reads it (#1466): the layout the game places the HUD's images by, and the
 /// tiles each image is pictured from. The HUD's writers lay those tiles out as the cartridge's HUD routines write them;
-/// the import pictures every image the game can place from them, and verification compares them with the cartridge's.
+/// the import pictures every image the game can place from them, and verification compares them with the cartridge's. The
+/// game receives only the layout (<see cref="Presentation"/>), never the tiles (#1616).
 /// </summary>
-public sealed class GameplayHudArtwork : GameplayHudPresentation
+public sealed class GameplayHudArtwork
 {
     /// <summary>The decoded tiles and layout.</summary>
     private readonly GameplayHudArtworkParts parts;
 
     /// <summary>Takes the import's decoded, validated HUD tiles and layout.</summary>
     /// <exception cref="ArgumentException">The parts do not hold one tile for each cell.</exception>
-    internal GameplayHudArtwork(GameplayHudArtworkParts parts) : base(Layout(parts)) => this.parts = parts;
+    internal GameplayHudArtwork(GameplayHudArtworkParts parts)
+    {
+        Presentation = new GameplayHudPresentation(Layout(parts));
+        this.parts = parts;
+    }
 
-    /// <summary>The artwork <paramref name="presentation"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The presentation was not read from installed artwork.</exception>
-    public static GameplayHudArtwork Of(GameplayHudPresentation presentation) => presentation as GameplayHudArtwork
-        ?? throw new InvalidDataException("The HUD presentation was not read from installed artwork.");
+    /// <summary>The layout the game places the HUD's images by; the tiles they are pictured from stay with the import (#1616).</summary>
+    public GameplayHudPresentation Presentation { get; }
 
     /// <summary>Gets the tile used to clear mutable HUD cells.</summary>
     internal BackgroundTile Blank => parts.Blank;
@@ -184,7 +187,6 @@ public sealed class GameplayHudArtwork : GameplayHudPresentation
             throw new ArgumentException("The gameplay HUD's artwork does not hold one picture for each of its cells.", nameof(parts));
         return new GameplayHudPresentationParts
         {
-            ContentIdentity = parts.ContentIdentity,
             EnergyTankCorners = [.. parts.EnergyTankCells.Select(Shown)],
             HealthAnchor = Shown(parts.HealthAnchor),
             MissileAmmoAnchor = Shown(parts.MissileAmmoAnchor),

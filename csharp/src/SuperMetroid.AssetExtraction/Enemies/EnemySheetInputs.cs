@@ -63,7 +63,7 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
     /// The installed map presentation, which holds the colours the Ceres Ridley and Mother Brain encounters load over
     /// their sprites (#1512); null for fixtures that draw neither encounter.
     /// </summary>
-    internal AreaMapPresentation? Maps { get; init; }
+    internal ImportAreaMapPresentation? Maps { get; init; }
 
     /// <summary>The installed beam colours at <paramref name="path"/>.</summary>
     private static InstalledBeamPalettes LoadBeamPalettes(string path)

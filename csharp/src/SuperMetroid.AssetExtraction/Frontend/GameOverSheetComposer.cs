@@ -23,18 +23,18 @@ internal static class GameOverSheetComposer
     private const int GroupColours = 16;
 
     /// <summary>What the game-over sheet composes.</summary>
-    internal static SpriteSheetSources Sources(AreaMapPresentation maps)
+    internal static SpriteSheetSources Sources(ImportAreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
-        GameOverSourcePresentation gameOver = InstalledAreaMapPresentation.GameOverSourceOf(maps);
-        SpriteArtwork page = MapSpriteArtwork.Of(ImportAreaMapPresentation.SpritesOf(maps)).Page;
+        GameOverSourcePresentation gameOver = maps.GameOverSource;
+        SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
         var frames = new List<SheetFrameSource>();
         foreach (GameOverBabyFrame frame in Enum.GetValues<GameOverBabyFrame>())
             frames.Add(Frame(GameOverPresentationNames.BabyFrameName(frame), gameOver.babySprites[frame], page, gameOver.BabyPaletteIndex));
         frames.Add(Frame(GameOverPresentationDefinitions.EggFrame, gameOver.eggSprite, page, gameOver.EggPaletteIndex));
         for (int frame = 0; frame < GameOverPresentationDefinitions.CursorFrameCount; frame++)
             frames.Add(Frame(GameOverPresentationNames.CursorFrameName(frame), gameOver.cursorSprites[frame], page, gameOver.CursorPaletteIndex));
-        RgbColor[] colours = ImportAreaMapPresentation.PalettesOf(maps).FileSelect[SpriteColours..].ToArray();
+        RgbColor[] colours = maps.Palettes.FileSelect[SpriteColours..].ToArray();
         int babyInk = gameOver.BabyPaletteIndex * GroupColours;
         gameOver.BabyPaint.Colours(GameOverBabyPalette.Idle).CopyTo(colours.AsSpan(babyInk, GroupColours));
         return new SpriteSheetSources(frames, colours, ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true)

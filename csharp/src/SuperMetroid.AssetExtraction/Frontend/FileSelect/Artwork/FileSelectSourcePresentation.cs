@@ -13,10 +13,11 @@ using SuperMetroid.AssetExtraction.Map.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
 /// <summary>
-/// The installed file-select presentation as the import pipeline reads it (#1463): beside the pages, fields and layout
-/// the game binds, the border, cursor and helmet compositions the file-select sheet is composed from.
+/// The installed file-select presentation as the import pipeline reads it (#1463): the layout the game binds
+/// (<see cref="Presentation"/>), and the pages, fields and the border, cursor and helmet compositions the file-select
+/// sheets are composed from, which the game never receives (#1616).
 /// </summary>
-public sealed class FileSelectSourcePresentation : FileSelectPresentation
+public sealed class FileSelectSourcePresentation
 {
     /// <summary>Each bordered heading's sprite.</summary>
     internal readonly Dictionary<FileSelectBorder, SpriteComposition> borderSprites;
@@ -28,8 +29,8 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
     /// <summary>Stores the compiled presentation and its sprite compositions.</summary>
     private FileSelectSourcePresentation(FileSelectPresentationDocument document, FileSelectPages pages,
         FileSelectGlyphs glyphs, FileSelectSprites sprites, string contentIdentity)
-        : base(Placements(document))
     {
+        Presentation = new FileSelectPresentation(Placements(document));
         ContentIdentity = contentIdentity;
         ObjectPalette = document.ObjectPalette;
         this.pages = pages.Foreground;
@@ -41,6 +42,9 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
         cursorSprites = sprites.Cursors;
         helmetSprites = sprites.Helmets;
     }
+
+    /// <summary>The slot fields, anchors and durations the game places its actors by.</summary>
+    public FileSelectPresentation Presentation { get; }
 
     /// <summary>Uppercase SHA-256 digest of the loaded JSON bytes, identifying the selected presentation including its encoding.</summary>
     public string ContentIdentity { get; }
@@ -245,11 +249,6 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
             ArtworkJson.Options);
         output.Write(bytes);
     }
-
-    /// <summary>The import-side presentation <paramref name="fileSelect"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The file-select presentation was not read from installed artwork.</exception>
-    public static FileSelectSourcePresentation Of(FileSelectPresentation fileSelect) => fileSelect as FileSelectSourcePresentation
-        ?? throw new InvalidDataException("The file-select presentation was not read from installed artwork.");
 
     /// <summary>Rejects authored field patches or time digits that would escape the page.</summary>
     private static void ValidatePatchPlacements(

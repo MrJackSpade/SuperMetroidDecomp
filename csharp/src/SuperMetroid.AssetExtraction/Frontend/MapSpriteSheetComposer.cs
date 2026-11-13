@@ -21,10 +21,10 @@ internal static class MapSpriteSheetComposer
     private const int SpriteColours = 128;
 
     /// <summary>What the map sprite sheet composes.</summary>
-    internal static SpriteSheetSources Sources(AreaMapPresentation maps) => Sources(ImportAreaMapPresentation.SpritesOf(Ensure.NotNull(maps)), maps);
+    internal static SpriteSheetSources Sources(ImportAreaMapPresentation maps) => Sources(Ensure.NotNull(maps).Sprites, maps);
 
     /// <summary>What the map sprite sheet composes from <paramref name="sprites"/>, coloured with the menus of <paramref name="maps"/>.</summary>
-    internal static SpriteSheetSources Sources(MapSpriteCompositions sprites, AreaMapPresentation maps)
+    internal static SpriteSheetSources Sources(MapSpriteCompositions sprites, ImportAreaMapPresentation maps)
     {
         Ensure.NotNull(sprites);
         Ensure.NotNull(maps);
@@ -37,7 +37,7 @@ internal static class MapSpriteSheetComposer
                 MapSpriteColouringSets.SpriteSet(colourings[0])), colourings);
         })];
         ColouringPictures<MapSpriteColouring> pictures = ColouringPictures<MapSpriteColouring>.Of(frames, MapSpriteColouringSets.SpriteSet);
-        MapStaticPalettes palettes = ImportAreaMapPresentation.PalettesOf(maps);
+        MapStaticPalettes palettes = maps.Palettes;
         RgbColor[] fileSelect = palettes.FileSelect[SpriteColours..].ToArray();
         RgbColor[] pause = palettes.Pause[SpriteColours..].ToArray();
         // Each colouring's shade shows its set's colours on each screen over the sets its sprites are pictured in.
@@ -50,7 +50,7 @@ internal static class MapSpriteSheetComposer
         }
         // The highlight cycle shows each frame's colours over the highlighted sprites, in place of their drawn shade.
         int highlighted = MapSpriteColouringSets.SpriteSet(MapSpriteColouring.Highlighted);
-        MapPaletteCycle highlight = InstalledAreaMapPresentation.HighlightColoursOf(maps);
+        MapPaletteCycle highlight = maps.HighlightColours;
         for (int frame = 0; frame < highlight.FrameCount; frame++)
         {
             shades.Add(SheetShade.DrawnOver(MapSpriteShades.Highlight(frame), highlighted, pictures.SetsOf(MapSpriteColouring.Highlighted),

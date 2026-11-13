@@ -30,11 +30,6 @@ public sealed class GameplayMessageArtwork(
     /// <summary>The station and save notices, or null.</summary>
     public GameplayMessageNoticePresentation? Notices { get; } = notices;
 
-    /// <summary>The installed messages <paramref name="maps"/> was read with.</summary>
-    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
-    public static GameplayMessageArtwork Of(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.Messages
-        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no installed messages.");
-
     /// <summary>
     /// The tile words of <paramref name="shown"/>, 32 per row: a notice with its save choice's selection row, a panel with
     /// the glyph of the button it names, or a title.

@@ -19,15 +19,15 @@ internal static class GameOptionsSheetComposer
     private const int SpriteColours = 128;
 
     /// <summary>What the options sheet composes.</summary>
-    internal static SpriteSheetSources Sources(AreaMapPresentation maps) => Sources(Ensure.NotNull(maps).GameOptions, maps);
+    internal static SpriteSheetSources Sources(ImportAreaMapPresentation maps) => Sources(Ensure.NotNull(maps).GameOptions, maps);
 
     /// <summary>What the options sheet composes from <paramref name="options"/>, over the menus of <paramref name="maps"/>.</summary>
-    internal static SpriteSheetSources Sources(GameOptionsPresentation options, AreaMapPresentation maps)
+    internal static SpriteSheetSources Sources(GameOptionsSourcePresentation options, ImportAreaMapPresentation maps)
     {
         Ensure.NotNull(options);
         Ensure.NotNull(maps);
-        SpriteArtwork page = MapSpriteArtwork.Of(ImportAreaMapPresentation.SpritesOf(maps)).Page;
-        GameOptionsSourcePresentation source = GameOptionsSourcePresentation.Of(options);
+        SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
+        GameOptionsSourcePresentation source = options;
         int palette = source.CursorPalette;
         var frames = new List<SheetFrameSource>();
         foreach (GameOptionsPage menuPage in GameOptionsPresentationFormat.MenuPages)
@@ -40,6 +40,6 @@ internal static class GameOptionsSheetComposer
             string name = GameOptionsNames.CursorSpriteName(frame);
             frames.Add(new(name, source.cursorSprites[frame].ToFrame(name, 0), page, palette));
         }
-        return new SpriteSheetSources(frames, ImportAreaMapPresentation.PalettesOf(maps).FileSelect[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true);
+        return new SpriteSheetSources(frames, maps.Palettes.FileSelect[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true);
     }
 }

@@ -29,7 +29,7 @@ internal static class RoomSheetShades
     {
         Ensure.NotNull(inputs);
         SelectedRoom[] rooms = [.. RoomsOf(tileset)];
-        var shades = new List<SheetShade>(PaletteFxRoomShades.Of(rooms, ImportAreaMapPresentation.RoomPaletteFxOf(inputs.Maps)));
+        var shades = new List<SheetShade>(PaletteFxRoomShades.Of(rooms, inputs.Maps.RoomPaletteFx));
         if (rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Kraid)))
         {
             RgbColor[] standard = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
@@ -68,7 +68,7 @@ internal static class RoomSheetShades
     {
         TileWordWriter.ZebesEscapeText => [],
         TileWordWriter.CeresEscapeText => RidleySheetShades.CeresWarning(
-            SuperMetroid.AssetExtraction.Frontend.Map.ImportAreaMapPresentation.CeresRidleyColorsOf(inputs.Maps)),
+            inputs.Maps.CeresRidleyColors),
         _ => throw new InvalidDataException($"Undefined tile word writer {writer}."),
     };
 
@@ -123,7 +123,7 @@ internal static class RoomSheetShades
     {
         Ensure.NotNull(inputs);
         RgbColor[] standard = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
-        return [.. DoorFadeHudShades.Of(standard), .. RoomFxBlendSheetShades.Of(SuperMetroid.AssetExtraction.Frontend.Map.ImportAreaMapPresentation.RoomFxPaletteBlendsOf(inputs.Maps)),
+        return [.. DoorFadeHudShades.Of(standard), .. RoomFxBlendSheetShades.Of(inputs.Maps.RoomFxPaletteBlends),
             .. HoldsPhantoon(RoomsOf(tileset)) ? PhantoonSheetShades.PowerOn(inputs.Bosses, standard) : []];
     }
 

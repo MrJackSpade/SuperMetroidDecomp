@@ -29,7 +29,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal sealed record RoomBlockSheetInputs(RoomCharacterAtlases Characters, RoomMetatileCatalog Metatiles,
     RoomStaticPalettes Palettes, RoomFxAnimatedTileAtlas AnimatedTiles,
     BossSourceArtwork Bosses, HudTileAtlas Hud, RoomBackgroundTilemaps BackgroundTilemaps, RoomSkyTilemaps Skies,
-    EscapeTypewriterPresentation EscapeTypewriter, AreaMapPresentation Maps, EnemySheetInputs Objects)
+    EscapeTypewriterPresentation EscapeTypewriter, ImportAreaMapPresentation Maps, EnemySheetInputs Objects)
 {
     /// <summary>Loads the stock artwork from installed content.</summary>
     internal static RoomBlockSheetInputs Load(string content)
@@ -37,18 +37,18 @@ internal sealed record RoomBlockSheetInputs(RoomCharacterAtlases Characters, Roo
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
         string map = Path.Combine(content, GameInstallationLayout.MapDirectoryName);
         string roomCharacters = Path.Combine(content, GameInstallationLayout.RoomCharacterDirectoryName);
-        AreaMapPresentation maps = MapPresentationFiles.LoadForImport(map, ImportDataDirectory.Of(map));
+        ImportAreaMapPresentation maps = MapPresentationFiles.LoadForImport(map, ImportDataDirectory.Of(map));
         EnemySheetInputs objects = EnemySheetInputs.Load(content);
         return new(
             RoomCharacterArtworkFiles.LoadForImport(roomCharacters, ImportDataDirectory.Of(roomCharacters)),
             RoomMetatileArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomMetatileDirectoryName)),
             RoomStaticPaletteArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomPaletteDirectoryName)),
-            ImportAreaMapPresentation.RoomFxAnimatedTilesOf(maps),
+            maps.RoomFxAnimatedTiles,
             objects.Bosses,
-            MapCharacterArtwork.Of(maps).Hud,
+            maps.Characters.Hud,
             RoomBackgroundTilemapArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomBackgroundTilemapDirectoryName)),
             RoomSkyTilemapArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomBackgroundTilemapDirectoryName)),
-            maps.EscapeTypewriter,
+            maps.Game.EscapeTypewriter,
             maps,
             objects);
     }

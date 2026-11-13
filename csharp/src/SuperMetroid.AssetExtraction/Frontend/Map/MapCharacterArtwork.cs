@@ -11,9 +11,4 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="Map">The map screens' characters.</param>
 /// <param name="Hud">The HUD's characters.</param>
 /// <param name="Pause">The pause interface's characters.</param>
-public sealed record MapCharacterArtwork(MapTileCharacters Map, HudTileAtlas Hud, MapTileCharacters Pause)
-{
-    /// <summary>The characters the import's map presentation <paramref name="maps"/> was read with (#1636).</summary>
-    /// <exception cref="InvalidOperationException">The presentation was not read for the import.</exception>
-    public static MapCharacterArtwork Of(AreaMapPresentation maps) => ImportAreaMapPresentation.Imported(maps, "map characters").Characters;
-}
+public sealed record MapCharacterArtwork(MapTileCharacters Map, HudTileAtlas Hud, MapTileCharacters Pause);

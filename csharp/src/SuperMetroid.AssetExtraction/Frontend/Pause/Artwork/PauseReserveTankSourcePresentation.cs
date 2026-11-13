@@ -9,10 +9,11 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>
-/// The installed reserve-strip presentation as the import pipeline reads it (#1463): beside the anchors and palette the
-/// game binds, the reserve visuals' compositions the pause sheet is composed from, kept as installed (#1615).
+/// The installed reserve-strip presentation as the import pipeline reads it (#1463): the anchors the game binds
+/// (<see cref="Presentation"/>), and the reserve visuals' compositions the pause sheet is composed from, kept as installed
+/// (#1615), which the game never receives (#1616).
 /// </summary>
-public sealed class PauseReserveTankSourcePresentation : PauseReserveTankPresentation
+public sealed class PauseReserveTankSourcePresentation
 {
     /// <summary>The installed composition of each of the ten reserve visual roles.</summary>
     private readonly Dictionary<PauseReserveTankVisual, SpriteComposition> frames;
@@ -20,11 +21,14 @@ public sealed class PauseReserveTankSourcePresentation : PauseReserveTankPresent
     /// <summary>Stores the installed anchors, frame art, and the sprite set the strip's frames are composed in.</summary>
     private PauseReserveTankSourcePresentation(Position16<SpritePixels>[] anchors,
         Dictionary<PauseReserveTankVisual, SpriteComposition> frames, int spriteSet)
-        : base(anchors)
     {
+        Presentation = new PauseReserveTankPresentation(anchors);
         this.frames = frames;
         SpriteSet = spriteSet;
     }
+
+    /// <summary>The strip anchors the game binds.</summary>
+    public PauseReserveTankPresentation Presentation { get; }
 
     /// <summary>The sprite set the pause sheet composes every reserve-strip frame in.</summary>
     internal int SpriteSet { get; }
@@ -69,9 +73,4 @@ public sealed class PauseReserveTankSourcePresentation : PauseReserveTankPresent
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         output.Write(bytes);
     }
-
-    /// <summary>The import-side presentation <paramref name="tanks"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The reserve-strip presentation was not read from installed artwork.</exception>
-    public static PauseReserveTankSourcePresentation Of(PauseReserveTankPresentation tanks) => tanks as PauseReserveTankSourcePresentation
-        ?? throw new InvalidDataException("The reserve-strip presentation was not read from installed artwork.");
 }

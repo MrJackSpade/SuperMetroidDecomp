@@ -22,16 +22,16 @@ internal static class FileSelectSheetComposer
     private const int SpriteColours = 128;
 
     /// <summary>What the file-select sheet composes.</summary>
-    internal static SpriteSheetSources Sources(AreaMapPresentation maps) =>
+    internal static SpriteSheetSources Sources(ImportAreaMapPresentation maps) =>
         Sources(Ensure.NotNull(maps).FileSelect, maps);
 
     /// <summary>What the file-select sheet composes from <paramref name="fileSelect"/>, over the menus of <paramref name="maps"/>.</summary>
-    internal static SpriteSheetSources Sources(FileSelectPresentation fileSelect, AreaMapPresentation maps)
+    internal static SpriteSheetSources Sources(FileSelectSourcePresentation fileSelect, ImportAreaMapPresentation maps)
     {
         Ensure.NotNull(fileSelect);
         Ensure.NotNull(maps);
-        SpriteArtwork page = MapSpriteArtwork.Of(ImportAreaMapPresentation.SpritesOf(maps)).Page;
-        FileSelectSourcePresentation source = FileSelectSourcePresentation.Of(fileSelect);
+        SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
+        FileSelectSourcePresentation source = fileSelect;
         int palette = source.ObjectPalette;
         var frames = new List<SheetFrameSource>();
         foreach (FileSelectBorder border in FileSelectPresentationFormat.Borders)
@@ -56,7 +56,7 @@ internal static class FileSelectSheetComposer
             frames.Add(new(name, new SpriteFrame(name, [.. FileCopyArrowPartDefinitions.Parts(shape)
                 .SelectToArray(part => SpritePartFrames.Part(part.Part, firstCharacter: 0))]), page));
         }
-        RgbColor[] sprites = ImportAreaMapPresentation.PalettesOf(maps).FileSelect[SpriteColours..].ToArray();
+        RgbColor[] sprites = maps.Palettes.FileSelect[SpriteColours..].ToArray();
         return new SpriteSheetSources(frames, sprites, ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true)
         {
             Shades = [.. CopyArrowShades(sprites)],

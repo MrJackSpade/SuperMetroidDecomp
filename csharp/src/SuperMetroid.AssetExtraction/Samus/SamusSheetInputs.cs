@@ -45,8 +45,8 @@ internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, Spr
         string introDirectory = Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName);
         ImportIntroCinematicArtwork intro = IntroCinematicArtworkFiles.LoadForImport(introDirectory, ImportDataDirectory.Of(introDirectory));
         // Her colour tables are the ones the map presentation was read with, edits included.
-        AreaMapPresentation maps = MapPresentationFiles.LoadForImport(map, ImportDataDirectory.Of(map));
-        SamusMapColourTables tables = ImportAreaMapPresentation.SamusColoursOf(maps);
+        ImportAreaMapPresentation maps = MapPresentationFiles.LoadForImport(map, ImportDataDirectory.Of(map));
+        SamusMapColourTables tables = maps.SamusColours;
         string overreads = Path.Combine(content, GameInstallationLayout.SamusOverreadDirectoryName);
         SamusOverrunColours overruns = SamusOverreadFiles.LoadColours(overreads);
         var sources = new SamusShadeSources(
@@ -65,7 +65,7 @@ internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, Spr
             tables.CrystalFlash,
             projectiles.Presentation.HyperBeamFxColors,
             SamusDeathPaletteArtworkFiles.Load(samusBody),
-            ImportAreaMapPresentation.RoomPaletteFxOf(maps));
+            maps.RoomPaletteFx);
         SamusBodyCharacterArtwork body = SamusBodyArtworkFiles.LoadCharacters(samusBody, samusBodyImportData);
         return new(
             projectiles,

@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 /// <summary>
 /// The installed reserve-strip origins, independent of reserve energy and fill selection; the installation is their only
 /// source (#1596). The strip is drawn from the installed pause sheet, whose reserve compositions belong to the import
-/// pipeline that reads the installed presentation (#1463).
+/// pipeline that reads the installed presentation and never reach the game (#1463, #1616).
 /// </summary>
-public abstract class PauseReserveTankPresentation
+public sealed class PauseReserveTankPresentation
 {
     /// <summary>The installed anchor of each strip position, tanks then the trailing cap.</summary>
     internal readonly Position16<SpritePixels>[] anchors;

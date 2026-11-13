@@ -29,7 +29,7 @@ internal sealed class SpriteSheetSourceCatalog
     private readonly Lazy<SamusSheetInputs> samus;
 
     /// <summary>The menus' presentation.</summary>
-    private readonly Lazy<AreaMapPresentation> maps;
+    private readonly Lazy<ImportAreaMapPresentation> maps;
     /// <summary>The opening cinematic's artwork.</summary>
     private readonly Lazy<ImportIntroCinematicArtwork> intro;
 
@@ -77,7 +77,7 @@ internal sealed class SpriteSheetSourceCatalog
         : EndingPictureSheetComposer.Sheets.Contains(sheet) ? EndingPictureSheetComposer.Compose(sheet, ScreenTiles())
         : sheet == SpriteSheetId.CeresCinematicPictures ? CeresCinematicPictureSheetComposer.Compose(intro.Value)
         : sheet == SpriteSheetId.IntroScenePictures ? IntroScenePictureSheetComposer.Compose(intro.Value)
-        : sheet == SpriteSheetId.IntroNarrationPictures ? IntroNarrationPictureSheetComposer.Compose(intro.Value, ImportAreaMapPresentation.IntroFontOf(maps.Value))
+        : sheet == SpriteSheetId.IntroNarrationPictures ? IntroNarrationPictureSheetComposer.Compose(intro.Value, maps.Value.IntroFont)
         : SpriteSheetComposer.Compose(For(sheet), DefaultPalette, DefaultPriority);
 
     /// <summary>The stock artwork the screen tile sheets compose from.</summary>
@@ -107,7 +107,7 @@ internal sealed class SpriteSheetSourceCatalog
         SpriteSheetId.EndingCloudSprites or SpriteSheetId.EndingExplosionSprites or
             SpriteSheetId.EndingSuitedRewardSprites or SpriteSheetId.EndingSuitlessRewardSprites or
             SpriteSheetId.EndingShootingSprites =>
-            EndingSpriteSheetComposer.Sources(sheet, ending.Value, endingPalettes, ImportAreaMapPresentation.EndingFontOf(maps.Value), ImportAreaMapPresentation.RoomPaletteFxOf(maps.Value)),
+            EndingSpriteSheetComposer.Sources(sheet, ending.Value, endingPalettes, maps.Value.EndingFont, maps.Value.RoomPaletteFx),
         SpriteSheetId.Grapple or SpriteSheetId.SamusBody or
             SpriteSheetId.SamusOverlays or SpriteSheetId.SamusAtmosphere or SpriteSheetId.SamusDeath or
             SpriteSheetId.IntroProjectiles or SpriteSheetId.ProjectilesPower or SpriteSheetId.ProjectilesWave or

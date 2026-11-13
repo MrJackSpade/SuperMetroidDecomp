@@ -19,11 +19,11 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>
-/// Immutable map content snapshot, as installed; edits in place never alter exploration rules. The import reads it with
-/// the characters its screens, the HUD, the world map, the title and the opening and ending text are pictured from, which
-/// the game never reads (#1466, #1583).
+/// Immutable map content snapshot, as installed; edits in place never alter exploration rules. It holds only what the game
+/// reads: the import keeps the characters, pages and compositions its screens, the HUD, the world map, the title and the
+/// opening and ending text are pictured from to itself and never hands them to the game (#1466, #1583, #1616).
 /// </summary>
-public class AreaMapPresentation : IGameplayPresentationContent
+public sealed class AreaMapPresentation : IGameplayPresentationContent
 {
     /// <summary>One validated map view per retail area in area-ID order.</summary>
     private readonly IAreaMapView[] areas;
@@ -105,7 +105,6 @@ public class AreaMapPresentation : IGameplayPresentationContent
     public EndingSpaceBackdrops EndingSpaceBackdrops { get; }
     /// <summary>Mother Brain's rainbow beam backdrop colours.</summary>
     public MotherBrainRainbowPalettePresentation MotherBrainRainbowPalette { get; }
-    /// <summary>Selected room-FX effect overlay pages, separate from animated characters and palette-blend colors.</summary>
     /// <summary>The Ceres haze's installed tints.</summary>
     public CeresHazeTints CeresHaze { get; }
     /// <summary>Fixed colours for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>

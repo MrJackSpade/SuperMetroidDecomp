@@ -4,6 +4,9 @@ using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -23,6 +26,12 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// The map highlight cycle with its colours, which the map sprite sheet's highlight shades are pre-coloured from (#1512).
 /// The game reads the same document for each frame's hold: a frame's hold and its look are one record of the effect.
 /// </param>
+/// <param name="PauseSelectors">The equipment selectors' frame compositions with the anchors and timing the game binds (#1616).</param>
+/// <param name="PauseReserveTanks">The reserve strip's frame compositions with the anchors the game binds (#1616).</param>
+/// <param name="GameplayHud">The gameplay HUD's tiles with the layout the game binds (#1616).</param>
+/// <param name="GameOptions">The options screen's pages, labels and compositions with the anchors the game binds (#1616).</param>
+/// <param name="FileSelect">The file-select screen's pages, fields and compositions with the layout the game binds (#1616).</param>
+[ArchitectureReview("context-bag", "The installed documents an installed map presentation was read with; every member is immutable artwork data the import composes pictures from, not a service.")]
 internal sealed record InstalledPresentationSources(
     GameplayMessageArtwork Messages,
     RoomFxLayer3Pages RoomFxPages,
@@ -30,7 +39,12 @@ internal sealed record InstalledPresentationSources(
     EndingTextPresentation EndingText,
     MapScreenPresentation Screens,
     PauseScreenArtwork Pause,
-    MapPaletteCycle HighlightColours)
+    MapPaletteCycle HighlightColours,
+    PauseSelectorSourcePresentation PauseSelectors,
+    PauseReserveTankSourcePresentation PauseReserveTanks,
+    GameplayHudArtwork GameplayHud,
+    GameOptionsSourcePresentation GameOptions,
+    FileSelectSourcePresentation FileSelect)
 {
     /// <summary>The game-over page's tiles, compositions and palette selectors, which the menus' pictures and the game-over sheet are composed from (#1616).</summary>
     public required GameOverSourcePresentation GameOver { get; init; }

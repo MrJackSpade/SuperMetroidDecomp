@@ -59,15 +59,11 @@ internal static class InterfacePresentationContractDefinitions
             [ContractTypeNames.MetadataName(typeof(CinematicSpriteSheet)),
              ContractTypeNames.MetadataName(typeof(CeresSceneSpriteSheet)),
              ContractTypeNames.MetadataName(typeof(TypedTextSpriteSheet))],
-        // The installed presentation is the same catalog read from an installation (#1527); the import's read adds the
-        // colours only the import reads (#1544).
-        "SuperMetroid.Core.Gameplay.IGameplayPresentationContent" => [ContractTypeNames.MetadataName(typeof(AreaMapPresentation)),
-            ContractTypeNames.MetadataName(typeof(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation)),
-            ContractTypeNames.MetadataName(typeof(SuperMetroid.AssetExtraction.Frontend.Map.ImportAreaMapPresentation))],
+        // The installed presentation's game catalog is the one implementation: the import's reads hold it beside the source
+        // artwork and colours only the import reads, and implement neither contract (#1616).
+        "SuperMetroid.Core.Gameplay.IGameplayPresentationContent" => [ContractTypeNames.MetadataName(typeof(AreaMapPresentation))],
         "SuperMetroid.Core.Map.IAreaMapSource" => [ContractTypeNames.MetadataName(typeof(AreaMapPresentation)),
-            ContractTypeNames.MetadataName(typeof(IGameplayPresentationContent)),
-            ContractTypeNames.MetadataName(typeof(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation)),
-            ContractTypeNames.MetadataName(typeof(SuperMetroid.AssetExtraction.Frontend.Map.ImportAreaMapPresentation))],
+            ContractTypeNames.MetadataName(typeof(IGameplayPresentationContent))],
         _ => null,
     };
 }

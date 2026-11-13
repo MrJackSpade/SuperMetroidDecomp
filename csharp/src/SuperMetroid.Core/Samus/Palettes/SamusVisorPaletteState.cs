@@ -37,7 +37,7 @@ public sealed class SamusVisorPaletteState
     /// <param name="colours">Samus's shown colours.</param>
     /// <param name="specialSamusPaletteType">The special palette that owns Samus's colours, if any.</param>
     /// <param name="roomVisorAnimation">Whether the room animates the visor (<see cref="RoomFxOverlayState.VisorAnimation"/>).</param>
-    public SamusVisorPaletteStepResult Update(
+    public void Update(
         SamusColours colours,
         SamusSpecialPaletteType specialSamusPaletteType,
         RoomVisorAnimation roomVisorAnimation)
@@ -48,7 +48,7 @@ public sealed class SamusVisorPaletteState
         // preserving the countdown and shade so ordinary room animation resumes where it stopped.
         if (specialSamusPaletteType == SamusSpecialPaletteType.Xray)
         {
-            return new SamusVisorPaletteStepResult();
+            return;
         }
 
         // Every other room resets the animation on every call. Besides disabling the animation,
@@ -58,13 +58,13 @@ public sealed class SamusVisorPaletteState
         {
             Timer = ResetTimer;
             NextShade = SamusPaletteDefinitions.Visor.CycleFirstShade;
-            return new SamusVisorPaletteStepResult();
+            return;
         }
 
         Timer = DecrementTimer(Timer);
         if (Timer != 0)
         {
-            return new SamusVisorPaletteStepResult();
+            return;
         }
 
         // The visor handler reloads the expired countdown to the frame delay and keeps the shade.
@@ -78,8 +78,6 @@ public sealed class SamusVisorPaletteState
         NextShade = nextShade < SamusPaletteDefinitions.Visor.CycleEndShade
             ? nextShade
             : SamusPaletteDefinitions.Visor.CycleFirstShade;
-
-        return new SamusVisorPaletteStepResult();
     }
 
     /// <summary>

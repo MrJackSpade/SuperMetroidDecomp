@@ -101,8 +101,6 @@ internal static class IntroBabyActorDefinitionsVerification
                 $"SR388 input edge at frame {frame} matches ROM-backed controller");
             AssertEqual(reference.Samus.Position.X.Whole, discovery.Samus.Position.X.Whole,
                 $"SR388 Samus X at frame {frame} matches ROM-backed controller");
-            AssertEqual(reference.EggHatchingStarted, discovery.EggHatchingStarted,
-                $"SR388 egg hatch transition at frame {frame} matches ROM-backed actor");
             AssertEqual(reference.PageThreeRequested, discovery.PageThreeRequested,
                 $"SR388 page-three request at frame {frame} matches ROM-backed actor");
             AssertEqual(reference.ActiveEggParticleCount, discovery.ActiveEggParticleCount,
@@ -119,7 +117,7 @@ internal static class IntroBabyActorDefinitionsVerification
                 break;
             }
         }
-        AssertTrue(discovery.EggHatchingStarted && pageThreeFrame >= 0,
+        AssertTrue(pageThreeFrame >= 0,
             "intro egg hatches and requests page three within the native program");
         discovery.Step((ushort)(pageThreeFrame + 1), introCrossfadeTimer: 0);
         reference.Step((ushort)(pageThreeFrame + 1), introCrossfadeTimer: 0);

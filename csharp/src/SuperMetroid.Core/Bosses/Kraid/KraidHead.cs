@@ -123,9 +123,7 @@ internal sealed class KraidHead
         if (state.DisplayedHeadFrame is { MouthStage: KraidHeadFrame.FullyOpenMouthStage } &&
             KraidCadenceDefinitions.SpitRockEverySixteenthMouthUpdate.IsDue(state.BodyState.HeadTimer))
         {
-            state.SpitRockRequestCount++;
-            if (SpawnKraidSpitRock(body))
-                state.SpawnedSpitRockCount++;
+            _ = SpawnKraidSpitRock(body);
             _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
         }
     }
@@ -154,7 +152,7 @@ internal sealed class KraidHead
         // The head's animations count no repeats, so nothing reads or writes this counter.
         WrappingCountdown repeats = WrappingCountdown.Start(0);
         AnimationShown<KraidHeadSegment, KraidHeadFrame> outcome = KraidHeadAnimations.Segments.PlayToNextFrame(
-            playback.Animation, ref place, ref repeats, cue => PublishKraidHeadCue(cue, state));
+            playback.Animation, ref place, ref repeats, PublishKraidHeadCue);
         state.HeadPlayback = playback with { Place = place };
         switch (outcome)
         {
@@ -175,14 +173,13 @@ internal sealed class KraidHead
         }
     }
 
-    /// <summary>Plays a head animation's cry; a roar is also counted.</summary>
-    private void PublishKraidHeadCue(KraidHeadCue cue, KraidEnemyState state)
+    /// <summary>Plays a head animation's cry.</summary>
+    private void PublishKraidHeadCue(KraidHeadCue cue)
     {
         switch (cue)
         {
             case KraidHeadCue.Roar:
                 _access.RequestKraidSound(KraidSoundDefinitions.HeadRoar);
-                state.RoarRequestCount++;
                 return;
 
             case KraidHeadCue.DyingCry:

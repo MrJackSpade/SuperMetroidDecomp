@@ -48,12 +48,6 @@ internal sealed record MotherBrainLiveActorSnapshot
     /// <summary>Whether the brain's animation just installed a frame; cleared when the rot animation completes.</summary>
     public required bool BrainShowsNewFrame { get; init; }
 
-    /// <summary>Lower neck angle updated by the brain-slot handler. The final beam has already lowered it to three sixteenths of a turn before the Baby interrupts the body.</summary>
-    public required RotationAngle LowerNeckAngle { get; init; }
-
-    /// <summary>Upper neck angle, correspondingly lowered to an eighth of a turn.</summary>
-    public required RotationAngle UpperNeckAngle { get; init; }
-
     /// <summary>Neck movement enabled.</summary>
     public required bool NeckMovementEnabled { get; init; }
 
@@ -62,9 +56,6 @@ internal sealed record MotherBrainLiveActorSnapshot
 
     /// <summary>The upper neck movement selected by the current actor phase.</summary>
     public required MotherBrainNeckMovement UpperNeckMovement { get; init; }
-
-    /// <summary>Number of live Mother Brain bomb enemy projectiles.</summary>
-    public required int BombCounter { get; init; }
 
     /// <summary>Shared Mother Brain hitbox-enable flag cleared at both death boundaries.</summary>
     public required bool HitboxesEnabled { get; init; }

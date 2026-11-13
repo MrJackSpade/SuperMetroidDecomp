@@ -36,9 +36,6 @@ public sealed class DemoInputState
     /// <summary>The buttons the demo newly pressed on the previous step.</summary>
     public ControllerButton PreviousNewlyPressed { get; private set; }
 
-    /// <summary>The held buttons pressed before this step, which Samus's input filter reads as the previous held input.</summary>
-    public ControllerButton PublishedPreviousHeld { get; private set; }
-
     /// <summary>The newly pressed buttons pressed before this step, which Samus's input filter reads as the previous new input.</summary>
     public ControllerButton PublishedPreviousNewlyPressed { get; private set; }
 
@@ -54,7 +51,6 @@ public sealed class DemoInputState
         NewlyPressed = 0;
         PreviousHeld = 0;
         PreviousNewlyPressed = 0;
-        PublishedPreviousHeld = 0;
         PublishedPreviousNewlyPressed = 0;
     }
 
@@ -105,7 +101,6 @@ public sealed class DemoInputState
 
         // Pressing hands the demo's previous buttons to the drawing-input history before it
         // replaces the live held and newly pressed buttons and remembers the new ones.
-        PublishedPreviousHeld = PreviousHeld;
         PublishedPreviousNewlyPressed = PreviousNewlyPressed;
         PreviousHeld = Held;
         PreviousNewlyPressed = NewlyPressed;

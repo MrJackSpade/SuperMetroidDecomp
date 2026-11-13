@@ -10,7 +10,7 @@ internal static class CrocomireSeparateValuesVerification
 {
     /// <summary>
     /// Confirms that the values the cartridge keeps in one record word are held apart (#1476): the queued steps leave the
-    /// rumble step alone, and the reaction timer leaves the vertical speed alone.
+    /// rumble step alone.
     /// </summary>
     internal static void VerifyCrocomireSeparateValues()
     {
@@ -21,9 +21,7 @@ internal static class CrocomireSeparateValuesVerification
 
         state.StepCounter = 5;
         AssertEqual(0, state.RumbleStep, "the queued steps leave the rumble step alone");
-        state.ReactionTimer = 10;
-        AssertTrue(state.VerticalSpeed.IsZero, "the reaction timer leaves the vertical speed alone");
-        Console.WriteLine("Crocomire separate values: the steps, rumble step, reaction timer and speed are held apart.");
+        Console.WriteLine("Crocomire separate values: the steps and rumble step are held apart.");
     }
 
     /// <summary>Runs the focused Crocomire separate-values check.</summary>

@@ -268,10 +268,7 @@ internal sealed class MotherBrainFakeDeath
         }
 
         // SpawnEnemy silently fails when all 32 records are occupied.
-        if (_dispatch.SpawnEnemy(population) is null)
-            return;
-        if (_motherBrainEncounter.MotherBrain is not null)
-            _motherBrainEncounter.MotherBrain.SpawnedFallingTubeCount++;
+        _ = _dispatch.SpawnEnemy(population);
     }
 
     /// <summary>Initializes a falling tube.</summary>

@@ -67,12 +67,6 @@ public sealed class SamusDraygonGrabbedState
     /// </summary>
     public bool ReleasePublishedToOwner { get; private set; }
 
-    /// <summary>Most recently supplied whole-pixel Draygon body position.</summary>
-    public Position16<RoomPixels> OwnerPosition { get; private set; }
-
-    /// <summary>Direction used by Draygon's AI: false/zero left, true/nonzero right.</summary>
-    public bool OwnerFacingRight { get; private set; }
-
     /// <summary>
     /// Sets Samus into the grabbed-by-Draygon pose.
     /// </summary>
@@ -94,7 +88,6 @@ public sealed class SamusDraygonGrabbedState
         samus.CrystalFlash.RelinquishMovementHandler();
         PreviousDpadInput = 0;
         ReleasePublishedToOwner = false;
-        OwnerFacingRight = draygonFacingRight;
         // Forced grab owns its history shift; no ordinary input slot is consumed.
         samus.CommitPoseHistory();
         // Empties every prospective-pose slot. The super-special one is Samus's;
@@ -119,9 +112,6 @@ public sealed class SamusDraygonGrabbedState
             throw new InvalidOperationException(
                 "Draygon places only a held Samus or one whose escape it has not yet seen.");
         }
-
-        OwnerPosition = ownerPosition;
-        OwnerFacingRight = draygonFacingRight;
 
         samus.Position = samus.Position.WithWhole(ownerPosition + new Offset16<RoomPixels>(draygonFacingRight ? 8 : -8, 40));
 

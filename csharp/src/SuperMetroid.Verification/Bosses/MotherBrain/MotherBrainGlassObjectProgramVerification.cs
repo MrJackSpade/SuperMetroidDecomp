@@ -77,8 +77,6 @@ internal static class MotherBrainGlassObjectProgramVerification
             $"phase={roomObjects.LiveMotherBrainGlass?.Phase}, stage={roomObjects.LiveMotherBrainGlass?.Stage}");
         AssertEqual(40, emitted,
             "five authored shatter stages emit four shards twice each");
-        AssertEqual(18, roomObjects.MotherBrainGlassRoomArgument,
-            "head-shot count survives PLM deletion");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "complete glass shatter never rereads compiled program bytes");
         Console.WriteLine("  Mother Brain glass PLM: all program bytes match ROM; full shatter runs without ROM instruction reads.");

@@ -113,9 +113,9 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<EvirEnemyState?> EvirStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.SpeciesState<EvirEnemyState>())];
 
-        /// <summary>Special drops a dying Metroid has requested this frame.</summary>
-        internal IReadOnlyList<MetroidDropRequest> MetroidDropRequests =>
-            self.MetroidBehavior.MetroidDropRequests;
+        /// <summary>The enemy drops waiting in the projectile pool: each drop an enemy makes takes a pickup's place there.</summary>
+        internal int ActiveEnemyDropPickups =>
+            self.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup);
 
         /// <summary>Companion/corpse state indexed by physical enemy slot.</summary>
         internal IReadOnlyList<DeadSidehopperEnemyState?> DeadSidehoppers =>
@@ -241,10 +241,6 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<BlueBrinstarFaceBlockEnemyState?> BlueBrinstarFaceBlockStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<BlueBrinstarFaceBlockEntity, BlueBrinstarFaceBlockEnemyState>())];
 
-        /// <summary>Frame-local drops requested by destroyed free-floating spores.</summary>
-        internal IReadOnlyList<SporeSpawnDropRequest> SporeSpawnDropRequests =>
-            self.SporeSpawnBehavior.SporeSpawnDropRequests;
-
         /// <summary>Dead Zoomer/Ripper/Skree state indexed by physical enemy slot.</summary>
         internal IReadOnlyList<DeadTourianCorpseEnemyState?> DeadTourianCorpses =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DeadTourianEntity, DeadTourianCorpseEnemyState>())];
@@ -326,10 +322,6 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<ChootEnemyState?> ChootStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<ChootEntity, ChootEnemyState>())];
 
-        /// <summary>Pickup requests emitted by shot destroyable flames in this room load.</summary>
-        internal IReadOnlyList<PhantoonFlameDropRequest> PhantoonFlameDropRequests =>
-            self.PhantoonBehavior.Combat.PhantoonFlameDropRequests;
-
         /// <summary>Typed native state for every loaded Yapping Maw slot.</summary>
         internal IReadOnlyList<YappingMawEnemyState?> YappingMawStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<YappingMawEntity, YappingMawEnemyState>())];
@@ -353,10 +345,6 @@ internal static class RoomEnemySystemAccess
         /// <summary>Growing shutter extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<GrowingShutterEnemyState?> GrowingShutterStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<ShuttersEntity, GrowingShutterEnemyState>())];
-
-        /// <summary>Pickup requests emitted by shot Chozo orbs during this room load.</summary>
-        internal IReadOnlyList<TorizoOrbDropRequest> TorizoOrbDropRequests =>
-            self.BombTorizoBehavior.Attacks.TorizoOrbDropRequests;
 
         /// <summary>Number of live actors in the shared bank-$86 enemy-projectile pool.</summary>
         internal int ActiveEnemyProjectileCount =>

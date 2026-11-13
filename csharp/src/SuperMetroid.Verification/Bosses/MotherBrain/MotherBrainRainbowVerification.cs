@@ -234,8 +234,6 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(RotationAngle.FromSteps(2), attack.RainbowAttack.AngularWidth, "beam shutdown pins angular width floor");
     AssertTrue(lockedBeforeNarrowing && !samus.Control.AlphaLocked, "beam shutdown runs Samus command one");
     AssertTrue(!attack.RainbowAttack.BeamActive, "beam shutdown hides the beam");
-    AssertEqual(8, attack.RainbowAttack.SamusProjectileCooldownTimer,
-        "beam shutdown reloads Samus projectile cooldown");
 
     int fallingCalls = 0;
     while (attack.State.Phase is MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall or

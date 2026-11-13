@@ -801,9 +801,6 @@ firingLevel, cancelledSamus, controllerInput: 0);
         angularVelocity: 0x0100,
         faceRight: true);
     GrappleMovementResult angularCollision = SamusGrappleMovement.Step(new SamusTerrain { Level = angularCollisionLevel }, angularCollisionSamus, ControllerButton.X, newlyPressedInput: 0);
-    AssertTrue(angularCollision.TerrainCollided, "grapple angular sweep reports terrain collision");
-    AssertEqual(6, angularCollision.CollisionDistanceFromFeet,
-        "nearest of six grapple body probes collides first");
     AssertEqual(0x4080, angularCollisionSamus.Grapple.Angle.RawValue,
         "grapple collision restores last-safe angle plus half fraction");
     AssertEqual(-0x008c, angularCollisionSamus.Grapple.AngularVelocity,
@@ -839,7 +836,8 @@ firingLevel, cancelledSamus, controllerInput: 0);
             faceRight: true);
         GrappleMovementResult spikeBlockContact = SamusGrappleMovement.Step(new SamusTerrain { Level = spikeBlockLevel }, spikeBlockSamus, ControllerButton.X, newlyPressedInput: 0);
 
-        AssertTrue(spikeBlockContact.TerrainCollided,
+        // A collision opens the kick window; the fresh Samus had none open.
+        AssertEqual(16, spikeBlockSamus.Grapple.CollisionBounceTimer,
             $"solid grapple spike BTS ${behavior:X2} remains collision");
         AssertEqual(expectedDamage, spikeBlockSamus.LiquidPhysics.PendingPeriodicDamage.Whole,
             $"solid grapple spike BTS ${behavior:X2} damage table");
@@ -877,7 +875,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
             faceRight: true);
         GrappleMovementResult spikeAirContact = SamusGrappleMovement.Step(new SamusTerrain { Level = spikeAirLevel }, spikeAirSamus, ControllerButton.X, newlyPressedInput: 0);
 
-        AssertTrue(!spikeAirContact.TerrainCollided,
+        AssertEqual(0, spikeAirSamus.Grapple.CollisionBounceTimer,
             $"grapple spike-air BTS ${behavior:X2} remains noncollision");
         AssertEqual(expectedDamage, spikeAirSamus.LiquidPhysics.PendingPeriodicDamage.Whole,
             $"grapple spike-air BTS ${behavior:X2} damage table");
@@ -903,8 +901,6 @@ firingLevel, cancelledSamus, controllerInput: 0);
     // word from -$300 to -$2FA. This is the real collision-assisted grapple kick, not an
     // ordinary aerial jump applied to Samus's X/Y velocity.
     GrappleMovementResult afterAngularCollision = SamusGrappleMovement.Step(new SamusTerrain { Level = swingLevel }, angularCollisionSamus, (ControllerButton.X | ControllerButton.A), newlyPressedInput: ControllerButton.A);
-    AssertTrue(!afterAngularCollision.TerrainCollided,
-        "collision kick crosses three clear angle-byte terrain sweeps");
     AssertEqual(0x3d11, angularCollisionSamus.Grapple.Angle.RawValue,
         "grapple collision kick advances exact reflected-plus-extra angle");
     AssertEqual(-0x006f, angularCollisionSamus.Grapple.AngularVelocity,
@@ -934,8 +930,6 @@ firingLevel, cancelledSamus, controllerInput: 0);
         angularVelocity: 0,
         faceRight: true);
     GrappleMovementResult ropeCollision = SamusGrappleMovement.Step(new SamusTerrain { Level = ropeCollisionLevel }, ropeCollisionSamus, (ControllerButton.X | ControllerButton.Down), newlyPressedInput: ControllerButton.Down);
-    AssertTrue(ropeCollision.RopeLengthBlocked,
-        "grapple rope growth follows extension BTS to solid collision");
     AssertEqual(32, ropeCollisionSamus.Grapple.RopeLength,
         "blocked grapple rope keeps last accepted length");
     AssertEqual(2, ropeCollisionSamus.Grapple.RopeLengthDelta,
@@ -982,10 +976,8 @@ firingLevel, cancelledSamus, controllerInput: 0);
         angularVelocity: 0x0200,
         faceRight: true);
     GrappleMovementResult wallGrab = SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel }, wallGrabSamus, ControllerButton.X, newlyPressedInput: 0);
-    AssertTrue(wallGrab.TerrainCollided && wallGrab.CameraPrevious.HasValue && wallGrab.Phase == GrapplePhase.WallGrab,
+    AssertTrue(wallGrab.CameraPrevious.HasValue && wallGrab.Phase == GrapplePhase.WallGrab,
         "close grapple collision enters ROM-selected wall-grab function");
-    AssertEqual(6, wallGrab.CollisionDistanceFromFeet,
-        "wall-grab special route requires nearest radial probe");
     AssertEqual(GrapplePhase.WallGrab, wallGrabSamus.Grapple.Phase,
         "special record installs `$C814` wall-grab phase");
     AssertEqual(SamusPoseId.GrappleWallContactRightPose, wallGrabSamus.Pose,

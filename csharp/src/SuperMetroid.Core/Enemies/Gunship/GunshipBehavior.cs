@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>
 /// The gunship: its top and bottom initialization, landing, save prompt, Samus boarding and exit, and the
-/// post-Ceres and escape lift-offs, with the frame events and save answer it publishes.
+/// post-Ceres and escape lift-offs, with the frame events it publishes.
 /// </summary>
 [RoomLifetime]
 internal sealed class GunshipBehavior : IEnemyEntityFactory
@@ -58,17 +58,13 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     private SamusState? _samusAtEnemyInitialization;
     /// <summary>Whether gunship restoration has requested the save message box and is awaiting <see cref="GunshipBehavior.AnswerGunshipSavePrompt"/> before its exit animation can resume.</summary>
     public bool GunshipSavePromptPending { get; internal set; }
-    /// <summary>Persistent Yes/No result of the latest gunship save answer, reset on room load; true requests outer-runtime save-file persistence rather than performing a save itself.</summary>
-    public bool GunshipSaveRequested { get; internal set; }
 
     /// <summary>
-    /// Supplies the choice normally returned by the save message box after restoration. Save-file
-    /// persistence remains an outer-runtime seam; the actor publishes a Yes choice while
-    /// continuing the game's identical exit animation for either answer.
+    /// Resumes the ship once the save message box has its answer. The ship plays the same exit animation for either
+    /// answer; the message box flow makes the save itself, as a save station's, when the answer is yes.
     /// </summary>
-    /// <param name="save">True to request outer-runtime persistence, or false to resume the exit animation without requesting a save.</param>
     /// <exception cref="InvalidOperationException">The system is not loaded or no gunship save prompt is awaiting a response.</exception>
-    public void AnswerGunshipSavePrompt(bool save)
+    public void AnswerGunshipSavePrompt()
     {
         _room.EnsureLoaded();
         if (!GunshipSavePromptPending)
@@ -78,7 +74,6 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         RoomEnemySlot top = ship.Top;
         RoomEnemySlot pad = ship.EntrancePad;
         GunshipSavePromptPending = false;
-        GunshipSaveRequested = save;
         Part(top).Function = GunshipFunction.WaitForExitPadToOpen;
         StartGunshipAnimation(pad, GunshipSegment.EntrancePadOpening);
         Part(top).FunctionTimer = 144;

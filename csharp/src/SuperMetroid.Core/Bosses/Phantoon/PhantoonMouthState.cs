@@ -40,13 +40,4 @@ public sealed class PhantoonMouthState
     /// <see cref="PhantoonBodyLayer.Hidden"/> before <see cref="PhantoonBodyVisibilityEffect"/> first reads it.
     /// </summary>
     public PhantoonBodyLayer BodyLayer { get; internal set; } = PhantoonBodyLayer.Hidden;
-
-    /// <summary>The mouth's shot pattern, 0 through 7, drawn when a vulnerable shot lands; the death sequence writes one.</summary>
-    public int ShotPattern { get; internal set => field = Ensure.AtLeastZero(value); }
-
-    /// <summary>
-    /// Starts the mouth as a Phantoon part: no shot pattern. No reader consumes this value before a phase sets it
-    /// (#1472).
-    /// </summary>
-    internal void StartPart() => ShotPattern = 0;
 }

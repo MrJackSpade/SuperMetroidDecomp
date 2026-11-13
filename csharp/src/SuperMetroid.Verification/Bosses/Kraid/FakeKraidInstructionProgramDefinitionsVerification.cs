@@ -129,7 +129,9 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
 
             RunFrames(enemies, slot, samus, level, 60);
 
-            AssertEqual(2, state.SpawnedSpitCount,
+            // The instruction runner moves no projectile, so every spit the program spawned is still in the pool.
+            AssertEqual(2, enemies.Projectiles.EnemyProjectiles.Count(projectile =>
+                    projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.FakeKraidSpit),
                 $"Fake Kraid {program} spawns its projectile pair");
             AssertEqual((SoundEffectId?)KraidSoundDefinitions.MiniKraidCry, enemies.Audio.LatestSound,
                 $"Fake Kraid {program} publishes its cry");

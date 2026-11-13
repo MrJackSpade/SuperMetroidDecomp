@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 public readonly record struct KilledEnemy
 {
     /// <summary>No killed enemy: a drop spawned directly rather than from a death.</summary>
-    public static KilledEnemy None { get; } = new() { IsDirectDrop = true };
+    public static KilledEnemy None => default;
 
     /// <summary>The enemy in <paramref name="slot"/>, which respawns when the explosion ends if <paramref name="respawns"/>.</summary>
     /// <param name="slot">The killed enemy's place.</param>
@@ -20,7 +20,4 @@ public readonly record struct KilledEnemy
 
     /// <summary>Whether the explosion's respawn cue rebuilds the enemy from its snapshot.</summary>
     public bool Respawns { get; private init; }
-
-    /// <summary>Whether this is <see cref="None"/>: the drop was spawned directly rather than from a death.</summary>
-    public bool IsDirectDrop { get; private init; }
 }

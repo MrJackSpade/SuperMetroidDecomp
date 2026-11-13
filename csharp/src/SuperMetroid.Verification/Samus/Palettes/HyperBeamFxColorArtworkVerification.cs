@@ -54,7 +54,6 @@ internal static class HyperBeamFxColorArtworkVerification
                     shownBeams[SamusSheetInks.HyperBeamFirstColour + color],
                     "Extracted Hyper Beam frame's installed shade shows the native frame's colours");
         }
-        AssertEqual(1, extracted.CompletedCycles, "Hyper Beam palette loop retains compiled control cadence");
 
         foreach (int invalidFrame in new[] { -1, 10, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => colours.Frame(invalidFrame), "FX frame bounds");

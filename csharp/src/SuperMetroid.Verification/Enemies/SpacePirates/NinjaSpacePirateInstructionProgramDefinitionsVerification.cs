@@ -199,7 +199,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             slot.AnimationClock.StepOnNextUpdate();
             RunFrames(enemies, slot, samus, 40);
             NinjaSpacePirateEnemyState state = (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NinjaSpacePirateStates[0]."));
-            AssertEqual(1, (state ?? throw new InvalidOperationException("Verification requires state.")).SpawnedClawCount,
+            AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.PirateClaw),
                 $"ninja Pirate claw program {program} first spawn count");
             EnemyProjectile claw = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
             AssertEqual(

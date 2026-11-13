@@ -121,7 +121,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + DeadTorizoRotGravity);
         MoveWithEightEightVelocity(slot, state.Velocity);
         state.ProcessCallCount++;
-        bool stillRotting = state.Rot.Step(state.Rows.MoveRow, _ => FinishDeadTorizoCorpseRow(state));
+        bool stillRotting = state.Rot.Step(state.Rows.MoveRow, _ => FinishDeadTorizoCorpseRow());
         if (!stillRotting)
             state.Function = DeadTorizoFunction.NoOperation;
     }
@@ -195,15 +195,13 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         return false;
     }
 
-    /// <summary>Records a finished rot row, spawns dust from shared RNG, and optionally publishes sound.</summary>
-    private void FinishDeadTorizoCorpseRow(DeadTorizoEnemyState state)
+    /// <summary>Spawns a finished rot row's dust from shared RNG, and optionally publishes sound.</summary>
+    private void FinishDeadTorizoCorpseRow()
     {
-        state.FinishedEntryCount++;
         int random = _room.Random.Read();
         _projectiles.SpawnRoomGraphicsDustExplosion(
             new(CorpseDustDefinitions.TorizoSpread.Of(random) + 272, 188),
             MiscDustAnimation.CorpseDustCloud);
-        state.DustSpawnCount++;
         if (CorpseCadenceDefinitions.DustSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter))
             _audio.QueueEnemySound(EnemySound.LiquidDamage, priority: SoundRequestPriority.Normal);
     }

@@ -26,10 +26,10 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
 
         Suite(nameof(VerifyProductionInitialization), () => VerifyProductionInitialization(
             parameter1: 0,
-            graphicsVariant: 0));
+            DeadSidehopperAiFunction.AliveWaitForCamera));
         Suite(nameof(VerifyProductionInitialization), () => VerifyProductionInitialization(
             parameter1: 2,
-            graphicsVariant: 2));
+            DeadSidehopperAiFunction.WaitForSamusCollision));
 
         Console.WriteLine(
             "Dead sidehopper corpse definitions: both decoded configuration records' upload lists and heights, and both production initializers' own fresh rot schedules pass.");
@@ -51,10 +51,13 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
         AssertEqual(DeadSidehopperCorpseDefinitions.RowCount, configuration.RowCount, $"{context} corpse height");
     }
 
-    /// <summary>Checks the state installed for one alive or initially dead enemy parameter.</summary>
+    /// <summary>
+    /// Checks the state installed for one alive or initially dead enemy parameter: the parameter chooses the living victim,
+    /// which waits for the camera, or the corpse already dead, which waits for Samus to touch it.
+    /// </summary>
     private static void VerifyProductionInitialization(
         ushort parameter1,
-        ushort graphicsVariant)
+        DeadSidehopperAiFunction startingFunction)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = InstalledFixtures.BossArtwork };
         Action<RoomEnemySlot> initialize = enemies.DeadSidehopperBehavior.InitializeDeadSidehopper;
@@ -65,8 +68,8 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
         initialize(slot);
 
         DeadSidehopperEnemyState state = (enemies.DeadSidehoppers[0] ?? throw new InvalidOperationException("Verification requires enemies.DeadSidehoppers[0]."));
-        AssertEqual(graphicsVariant, state.GraphicsVariant,
-            $"dead sidehopper parameter {parameter1} graphics variant");
+        AssertEqual<DeadSidehopperAiFunction?>(startingFunction, state.Function,
+            $"dead sidehopper parameter {parameter1} starting function");
         CorpseRotScheduleChecks.AssertFreshSchedule(DeadSidehopperCorpseDefinitions.RowCount, state.Rot, $"dead sidehopper parameter {parameter1}");
     }
 

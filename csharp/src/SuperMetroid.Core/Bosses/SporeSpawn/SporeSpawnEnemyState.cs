@@ -64,8 +64,6 @@ public sealed class SporeSpawnEnemyState
     public bool ScrollClampHookActive { get; internal set; }
     /// <summary>Host guard recording that zero health has already triggered projectile cleanup, the defeated flag, the death animation, and the ceiling-crumble request.</summary>
     public bool DeathStarted { get; internal set; }
-    /// <summary>Whether the death cue has published its sixteen boss item-drop attempts; separate from individual destroyed-spore drops and actual drop-pool allocation success.</summary>
-    public bool DeathDropRequested { get; internal set; }
     /// <summary>Defeated-area miniboss flag sampled at room initialization; selects the solid dead body and cleared ceiling instead of the live fight setup.</summary>
     public bool LoadedAsDefeated { get; internal set; }
 

@@ -24,9 +24,6 @@ internal static class CrocomireMeltingDefinitions
     /// <summary>Lowest background source row the distortion stretches back to, in both passes.</summary>
     public const int LowestDistortionSourceRow = 88;
 
-    /// <summary>Height at which the distortion band stops, in both passes.</summary>
-    public const int DistortionEndY = 48;
-
     /// <summary>
     /// The lines the melt's stretch can reach, counted from the first gameplay line: the band starts and ends within
     /// them, and those below the screen are never shown.

@@ -69,9 +69,6 @@ public sealed class CrocomireDeathState
     /// </summary>
     public int DistortionStep { get; internal set; }
 
-    /// <summary>Height at which the current distortion band stops, from the active pass.</summary>
-    public int DistortionEndY { get; internal set; }
-
     /// <summary>Body X captured immediately before each melting distortion starts; the melt shake jitters around it.</summary>
     public int BodyXBeforeMelting { get; internal set; }
 
@@ -92,12 +89,6 @@ public sealed class CrocomireDeathState
 
     /// <summary>Pixels per frame the rumble offset moves toward its target, loaded from each completed negative target.</summary>
     public int RumbleDelta { get; internal set; }
-
-    /// <summary>True once the death sequence publishes Crocomire's area-miniboss bit.</summary>
-    public bool BossBitSet { get; internal set; }
-
-    /// <summary>True once the skeleton-collapse state drops the boss's items.</summary>
-    public bool ItemDropRequested { get; internal set; }
 
     /// <summary>
     /// The stretch the melt sags his body layer through (#1468): his body layer's vertical scroll, levelled at each pass's

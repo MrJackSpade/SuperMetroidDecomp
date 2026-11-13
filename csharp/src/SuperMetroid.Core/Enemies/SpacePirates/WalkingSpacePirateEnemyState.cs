@@ -33,7 +33,4 @@ public sealed class WalkingSpacePirateEnemyState
         get;
         internal set => field = new(value.X, 0);
     }
-
-    /// <summary>Successful allocations from the actor's three-shot firing animations.</summary>
-    public int SpawnedLaserCount { get; internal set; }
 }

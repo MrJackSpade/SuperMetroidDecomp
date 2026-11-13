@@ -75,7 +75,8 @@ internal static class LowerNorfairHandVerification
         for (int frame = 0; frame < 3000 && !runtime.Player.GroundedSamusMovementEnabled; frame++)
         {
             runtime.StepFrame(0);
-            if (!sawStartCommand && runtime.Enemies.ChozoStatueBehavior.ChozoStatueAcidLoweringStarted)
+            // The statue's lowering cue is the one write of the acid's lowering velocity.
+            if (!sawStartCommand && runtime.RoomFxOverlay.YVelocity.RawValue == 64)
             {
                 sawStartCommand = true;
                 AssertEqual((ushort)32, runtime.RoomFxOverlay.Timer.RawValue, "start instruction writes live delay once");

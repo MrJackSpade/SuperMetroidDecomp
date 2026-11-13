@@ -73,9 +73,6 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Number of independently randomized drops after a frozen Metroid dies.</summary>
     private const int MetroidSpecialDropCount = 5;
 
-    /// <summary>Drop publications generated after a frozen Metroid's death animation begins.</summary>
-    internal readonly List<MetroidDropRequest> MetroidDropRequests = new();
-
     /// <summary>Initializes the Metroid.</summary>
     internal void InitializeMetroid(RoomEnemySlot slot)
     {
@@ -389,7 +386,6 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             var scatter = new Offset16<RoomPixels>(
                 EnemyDropScatterDefinitions.HorizontalScatter.Of(random) - 16,
                 EnemyDropScatterDefinitions.VerticalScatter.Of(random) - 16);
-            MetroidDropRequests.Add(new MetroidDropRequest());
             _deathsAndDrops.SpawnEnemyDropFromDefinition(origin + scatter, EnemyDefinitionId.Metroid);
         }
     }

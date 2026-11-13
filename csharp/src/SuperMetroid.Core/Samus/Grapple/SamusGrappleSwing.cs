@@ -167,13 +167,13 @@ public static class SamusGrappleSwing
 
 
     /// <summary>Walks each intermediate rope length against terrain, stopping at the last clear length to prevent tunneling.</summary>
-    internal static bool ApplyRopeLengthDelta(
+    internal static void ApplyRopeLengthDelta(
         RoomLevelData level,
         SamusState samus,
         SamusGrappleState grapple)
     {
         if (grapple.RopeLengthDelta == 0)
-            return false;
+            return;
 
         // The rope-length adjustment does not jump directly by two pixels. It walks each intermediate length
         // and collision-tests Samus's leading edge, which prevents a fast rope adjustment
@@ -218,14 +218,13 @@ public static class SamusGrappleSwing
                 // length rather than the colliding candidate. It deliberately leaves the
                 // signed delta alive so a held adjustment retries on the following frame.
                 grapple.RopeLength = currentLength;
-                return true;
+                return;
             }
 
             currentLength = candidateLength;
         }
 
         grapple.RopeLength = targetLength;
-        return false;
     }
 
 
@@ -333,7 +332,7 @@ public static class SamusGrappleSwing
 
 
     /// <summary>Sweeps each traversed angle-table step against terrain and reflects or locks at the last clear angle.</summary>
-    internal static GrappleSwingCollisionResult AdvanceAngleWithTerrainCollision(
+    internal static void AdvanceAngleWithTerrainCollision(
         RoomLevelData level,
         SamusState samus,
         SamusGrappleState grapple)
@@ -345,7 +344,7 @@ public static class SamusGrappleSwing
         int factor = grapple.Submerged ? 160 : 256;
         int magnitude = EightEight.Multiply(Math.Abs(combined), factor);
         if (magnitude == 0)
-            return new GrappleSwingCollisionResult(Collided: false, DistanceFromFeet: 0);
+            return;
 
         int signedDelta = combined < 0 ? -magnitude : magnitude;
         RotationAngle targetAngle = grapple.Angle.TurnedByFractionsOfStep(signedDelta);
@@ -391,7 +390,7 @@ public static class SamusGrappleSwing
                     grapple.JumpImpulse = ReversedAtHalfSpeed(grapple.JumpImpulse);
                 }
 
-                return collision;
+                return;
             }
 
             lastSafeStep = candidateStep;
@@ -415,8 +414,6 @@ public static class SamusGrappleSwing
             grapple.JumpImpulse = Math.Max(0, grapple.JumpImpulse - 6);
         else if (grapple.JumpImpulse < 0)
             grapple.JumpImpulse = Math.Min(0, grapple.JumpImpulse + 6);
-
-        return new GrappleSwingCollisionResult(Collided: false, DistanceFromFeet: 0);
     }
 
 

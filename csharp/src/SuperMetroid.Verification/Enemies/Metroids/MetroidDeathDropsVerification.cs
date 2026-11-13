@@ -59,7 +59,7 @@ internal static class MetroidDeathDropsVerification
         for (int slot = explosion + 1; slot < projectiles.Count; slot++)
             AssertTrue(projectiles[slot].Kind != RoomEnemyProjectileKind.EnemyDeathPickup,
                 $"no drop sits above the explosion (slot {slot})");
-        AssertEqual(5, runtime.Enemies.MetroidDropRequests.Count, "the Metroid requests its five special drops");
+        AssertEqual(5, runtime.Enemies.ActiveEnemyDropPickups, "the Metroid requests its five special drops");
     }
 
     /// <summary>Runs the focused Metroid death-drop verification command.</summary>

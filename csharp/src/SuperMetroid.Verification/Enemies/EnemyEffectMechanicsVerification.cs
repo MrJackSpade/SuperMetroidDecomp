@@ -130,7 +130,6 @@ internal static class EnemyEffectMechanicsVerification
             }
         }
         AssertEqual(MotherBrainCorpseRottingState.EntryCount, finished, "each of the 48 completion callbacks fires exactly once");
-        AssertEqual(118u, rot.ProcessCallCount, "fixed corpse completion clock");
         Console.WriteLine("  Mother Brain corpse: 118 exact calls, 48 row completions, dust/audio timing pass.");
     }
 

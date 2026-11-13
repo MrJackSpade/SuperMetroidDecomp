@@ -292,9 +292,9 @@ internal static class KraidAnimationsVerification
         AssertTrue(enemies.KraidBehavior.Background.SpawnKraidCeilingRock(96), "the real ceiling producer allocates its rock");
         var state = new KraidEnemyState();
         random = 0;
-        enemies.KraidBehavior.Rise.RequestKraidRisingRock(source, state);
+        enemies.KraidBehavior.Rise.RequestKraidRisingRock(source);
         random = 16;
-        enemies.KraidBehavior.Rise.RequestKraidRisingRock(source, state);
+        enemies.KraidBehavior.Rise.RequestKraidRisingRock(source);
         random = 2;
         AssertTrue(enemies.KagoBehavior.SpawnKagoBug(source), "the real Kago producer allocates its bug");
         foreach ((RoomEnemyProjectileKind kind, KraidRockSegment program) in new[]

@@ -17,6 +17,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
@@ -55,6 +56,9 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         (SnesCgram nativeCgram, RidleyEnemyState nativeState) = CreateReference();
         (RoomEnemySystem installed, RoomEnemySlot installedSlot,
             RidleyEnemyState installedState) = Create(guard, stock);
+        // The reveal's terminator hands the battle liquid height to the room's liquid.
+        var installedLiquid = new RoomFxOverlayState(new RoomFxSession());
+        installed.RoomFx.BindRoomFx(installedLiquid);
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(Shown(installedState, stock))),
             "Norfair Ridley initial palette matches all native CGRAM entries");
         for (int call = 0; call <= NorfairRidleyPaletteDefinitions.RevealStepCount * 3; call++)
@@ -72,7 +76,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         }
         AssertEqual(RidleyAiFunction.ClearVelocity, installedState.Function,
             "Norfair Ridley reveal zero terminator enters the native movement handoff");
-        AssertEqual(RidleyLiquidDefinitions.BattleHeight, installedState.FxTargetYPosition,
+        AssertEqual<int?>(RidleyLiquidDefinitions.BattleHeight, installedLiquid.TargetSurface,
             "Norfair Ridley reveal terminator publishes the battle liquid height");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Installed Norfair Ridley reveal never rereads color or pointer ROM data");

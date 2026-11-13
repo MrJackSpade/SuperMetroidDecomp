@@ -63,25 +63,22 @@ internal static class KraidSinkScheduleVerification
     /// <summary>Reads a native callback byte for the independent PLM argument oracle.</summary>
     private static byte KraidSinkObjectFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Exercises each production callback and checks its rock X, PLM request count, and event count.</summary>
+    /// <summary>Exercises each production callback and checks its rock X and PLM request count.</summary>
     private static void VerifyKraidSinkRockPlacement(CartridgeImportAddressSpace rom,
         Dictionary<ushort, ushort> callbacks)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        var state = new KraidEnemyState();
         enemies.VerificationServices().ReadRandom = () => 0;
-        Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.Death.ProcessKraidSinkTable;
+        Action<RoomEnemySlot> step = enemies.KraidBehavior.Death.ProcessKraidSinkTable;
         var requests = enemies.BossFrameResults.KraidObjects;
         foreach (var entry in callbacks.DistinctBy(entry => entry.Value))
         {
             foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Delete();
             requests.Clear();
-            state.SinkTableEventCount = 0;
             enemies.SlotTable.Slots[0].Position = enemies.SlotTable.Slots[0].Position.WithWholeY(entry.Key);
-            step(enemies.SlotTable.Slots[0], state);
+            step(enemies.SlotTable.Slots[0]);
             int code = 0xa70000 | entry.Value;
             bool empty = KraidSinkRockPlacementRomByte(rom, code) == 0x60;
-            AssertEqual(1, state.SinkTableEventCount, "Every callback including RTS counts once");
             AssertEqual(empty ? 0 : 1, requests.Count, "Sinking callback mutation count");
             AssertEqual(empty ? 0 : 1, enemies.Projectiles.EnemyProjectiles.Count(p => p.Kind != RoomEnemyProjectileKind.None),
                 "Sinking callback rock count");
@@ -116,20 +113,17 @@ internal static class KraidSinkScheduleVerification
             return;
         }
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        var state = new KraidEnemyState();
         enemies.VerificationServices().ReadRandom = () => 0;
-        Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.Death.ProcessKraidSinkTable;
+        Action<RoomEnemySlot> step = enemies.KraidBehavior.Death.ProcessKraidSinkTable;
         var requests = enemies.BossFrameResults.KraidObjects;
         var body = enemies.SlotTable.Slots[0];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Delete();
             requests.Clear();
-            state.SinkTableEventCount = 0;
             body.Position = body.Position.WithWholeY((ushort)raw);
             ushort? expected = callbacks.TryGetValue((ushort)raw, out ushort callback) ? callback : null;
-            step(body, state);
-            AssertEqual(expected.HasValue ? 1 : 0, state.SinkTableEventCount, "Only scheduled rows count, including empty RTS");
+            step(body);
             bool crumble = expected.HasValue && KraidNativeListAddresses.NativeSinkCallbacks[callback] != KraidSinkCallback.NoOperation;
             AssertEqual(crumble ? 1 : 0, requests.Count, "Only native crumble callbacks mutate platforms");
             AssertEqual(crumble ? 1 : 0, enemies.Projectiles.EnemyProjectiles.Count(p => p.Kind != RoomEnemyProjectileKind.None), "Exact native rock count");

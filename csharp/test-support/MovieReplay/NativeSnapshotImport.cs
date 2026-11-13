@@ -216,7 +216,6 @@ internal static class NativeSnapshotImport
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, W(NativeSnapshotMemory.Animation), W(NativeSnapshotMemory.AnimationTimer));
         samus.PoseHistory.PreviousPose = SamusPoseNumbering.FromNumber(W(NativeSnapshotMemory.PreviousPose));
         samus.PoseHistory.PreviousMovement = SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.PreviousDirection));
-        samus.PoseHistory.LastDifferentPose = SamusPoseNumbering.FromNumber(W(NativeSnapshotMemory.LastDifferentPose));
         samus.PoseHistory.LastDifferentMovement = SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.LastDifferentDirection));
         samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.BaseSpeed), W(NativeSnapshotMemory.BaseFraction));
         samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.ExtraSpeed), W(NativeSnapshotMemory.ExtraFraction));

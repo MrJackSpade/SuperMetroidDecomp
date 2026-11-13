@@ -137,11 +137,6 @@ internal static class RoomObjectSystemAccess
         /// <summary>Whether the cartridge's room population installed PLM <c>$D6DE</c>.</summary>
         internal bool MotherBrainGlassWasLoaded => self.MotherBrainGlass.MotherBrainGlassWasLoaded;
 
-        /// <summary>The glass's hit count, kept after the glass leaves the room.</summary>
-        internal int MotherBrainGlassRoomArgument => LiveGlass(self) is { } glass
-            ? glass.Hits
-            : self.MotherBrainGlass.MotherBrainGlassLastRoomArgument;
-
         /// <summary>The live glass, or null once it has left the room.</summary>
         internal MotherBrainGlassObject? LiveMotherBrainGlass => LiveGlass(self);
 

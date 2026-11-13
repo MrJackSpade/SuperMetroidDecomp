@@ -84,7 +84,6 @@ internal sealed class CrocomireFight
         }
 
         state.DeathPhase = CrocomireDeathPhase.Fighting;
-        state.ReactionTimer = 0;
         state.FightFunction = CrocomireFightFunction.Sleeping;
         // On the living branch only.
         _zebetiteBehavior.CameraDistance = CameraDistanceMode.BossTracking;
@@ -448,7 +447,6 @@ internal sealed class CrocomireFight
                         CrocomireFightFlags.UnusedClawsMoving | CrocomireFightFlags.DamageReactionPending | CrocomireFightFlags.UnusedKeptByChargeReset)) |
                         CrocomireFightFlags.Engaged | CrocomireFightFlags.UnusedForwardStepsDone;
                     state.StepCounter = 1;
-                    state.ReactionTimer = 10;
                     state.FightFunction = CrocomireFightFunction.SteppingBack;
                     _access.RequestCrocomireSound(CrocomireSoundDefinitions.UnusedChargeInterrupted);
                     return null;

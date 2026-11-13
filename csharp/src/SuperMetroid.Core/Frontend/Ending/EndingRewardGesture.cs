@@ -12,8 +12,6 @@ internal sealed class EndingRewardGesture
     private readonly List<IntroDiscoverySprite> actors = [];
     /// <summary>Signals that the jumping-actor handoff must be consumed before another gesture tick.</summary>
     public bool JumpRequested { get; private set; }
-    /// <summary>Distinguishes the suitless jump request from the suited handoff.</summary>
-    public bool SuitlessJumpRequested { get; private set; }
 
     /// <summary>Spawns the suitless pair or the suited head, body, and arm in the reward's allocation order.</summary>
     public EndingRewardGesture(EndingReward reward)
@@ -46,7 +44,6 @@ internal sealed class EndingRewardGesture
         switch (cue)
         {
             case CinematicSpriteCueKind.SpawnSuitlessJump:
-                SuitlessJumpRequested = true;
                 JumpRequested = true;
                 return;
             case CinematicSpriteCueKind.SpawnSuitedJump:

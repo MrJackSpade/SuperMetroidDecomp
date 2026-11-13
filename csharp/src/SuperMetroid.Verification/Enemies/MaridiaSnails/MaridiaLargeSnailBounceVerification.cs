@@ -22,13 +22,13 @@ internal static class MaridiaLargeSnailBounceVerification
         RoomLevelData air = VerificationHelpersVerification.CreateEmptyRoom(new(8, 8));
         RoomLevelData floor = VerificationHelpersVerification.CreateSolidRowsRoom(new(8, 8), firstSolidRow: 4, solidRowCount: 4);
 
-        foreach ((string context, RoomLevelData level, MaridiaLargeSnailBounceFunction phase, int start, int expected, MaridiaLargeSnailBounceFunction expectedPhase, bool expectedSettled) in
+        foreach ((string context, RoomLevelData level, MaridiaLargeSnailBouncePhase phase, int start, int expected, MaridiaLargeSnailBouncePhase expectedPhase, bool expectedSettled) in
                  new VerifyMaridiaLargeSnailBounceRecordCase[]
                  {
-                     new VerifyMaridiaLargeSnailBounceRecordCase("falling in the air past the cap", air, MaridiaLargeSnailBounceFunction.Falling, 16200, 16384, MaridiaLargeSnailBounceFunction.Falling, false),
-                     new VerifyMaridiaLargeSnailBounceRecordCase("falling in the air below the cap", air, MaridiaLargeSnailBounceFunction.Falling, 1000, 1384, MaridiaLargeSnailBounceFunction.Falling, false),
-                     new VerifyMaridiaLargeSnailBounceRecordCase("landing with a low record", floor, MaridiaLargeSnailBounceFunction.Falling, 1000, -2712, MaridiaLargeSnailBounceFunction.Rising, true),
-                     new VerifyMaridiaLargeSnailBounceRecordCase("rising past zero", air, MaridiaLargeSnailBounceFunction.Rising, 200, 0, MaridiaLargeSnailBounceFunction.Falling, false),
+                     new VerifyMaridiaLargeSnailBounceRecordCase("falling in the air past the cap", air, MaridiaLargeSnailBouncePhase.Falling, 16200, 16384, MaridiaLargeSnailBouncePhase.Falling, false),
+                     new VerifyMaridiaLargeSnailBounceRecordCase("falling in the air below the cap", air, MaridiaLargeSnailBouncePhase.Falling, 1000, 1384, MaridiaLargeSnailBouncePhase.Falling, false),
+                     new VerifyMaridiaLargeSnailBounceRecordCase("landing with a low record", floor, MaridiaLargeSnailBouncePhase.Falling, 1000, -2712, MaridiaLargeSnailBouncePhase.Rising, true),
+                     new VerifyMaridiaLargeSnailBounceRecordCase("rising past zero", air, MaridiaLargeSnailBouncePhase.Rising, 200, 0, MaridiaLargeSnailBouncePhase.Falling, false),
                  })
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -39,7 +39,7 @@ internal static class MaridiaLargeSnailBounceVerification
             slot.Radius = new(16, 16);
             // On the floor level the lowest pixel row already rests in the floor, so even a sub-pixel fall lands.
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(64, level == floor ? (ushort)49 : (ushort)48));
-            state.BounceFunction = phase;
+            state.BouncePhase = phase;
             state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(start);
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
             samus.Position = samus.Position.WithWhole(new(1000, 1000));
@@ -50,7 +50,7 @@ internal static class MaridiaLargeSnailBounceVerification
             enemies.MaridiaLargeSnailBehavior.RunMaridiaLargeSnailMainAi(slot, frame);
 
             AssertEqual(expected, state.YSpeedTableIndex.InTwoHundredFiftySixthsOfRow, $"Oum {context}: record");
-            AssertEqual(expectedPhase, state.BounceFunction, $"Oum {context}: bounce phase");
+            AssertEqual(expectedPhase, state.BouncePhase, $"Oum {context}: bounce phase");
             AssertEqual(expectedSettled, state.RemainingBounces == 0, $"Oum {context}: bounces ended");
         }
         Console.WriteLine("  Oum bounce record: caps at 16384, keeps a negative record after a late impact and clamps to zero rising.");

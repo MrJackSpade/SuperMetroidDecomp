@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>The phase a dead Zoomer, Ripper or Skree corpse's main AI runs.</summary>
-public enum DeadTourianCorpseFunction
+public enum DeadTourianCorpsePhase
 {
     /// <summary>Waits for Samus to collide with the solid corpse.</summary>
     Waiting,

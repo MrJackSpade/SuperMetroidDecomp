@@ -875,7 +875,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual((ushort)RidleyPhase.InitialDelay, (ushort)state.Phase,
         "Ceres Ridley door-clear transition");
-    AssertEqual(511, state.FunctionTimer, "Ceres Ridley first delay decrement");
+    AssertEqual(511, state.PhaseTimer, "Ceres Ridley first delay decrement");
     var nativeRidleyRom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
         Path.GetFullPath("Super Metroid.smc"));
     ushort initialRidleyMap = CartridgeImportSource.Require(nativeRidleyRom).ReadCartridgeWord(0xa6e53e);
@@ -894,7 +894,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley eye table terminator starts body fade");
     AssertTrue(state.MovementAnimationEnabled,
         "Ceres Ridley eye fade enables composite animation");
-    AssertEqual(RidleyTailFunction.None, state.TailFunctionIndex,
+    AssertEqual(RidleyTailAction.None, state.TailAction,
         "Ceres Ridley resting tail has not started its liftoff motion");
     // Native evidence (100% movie, source frame 3645): once the eye fade enables
     // composite animation, all seven inactive segments share the tail-root position
@@ -909,7 +909,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual((ushort)RidleyPhase.WaitBeforeRoar, (ushort)state.Phase,
         "Ceres Ridley body fade completes");
-    AssertEqual(4, state.FunctionTimer, "Ceres Ridley pre-roar timer");
+    AssertEqual(4, state.PhaseTimer, "Ceres Ridley pre-roar timer");
     AssertEqual(0x5000 + 0x14a / 2, Shown()[0x91],
         "Ceres Ridley final body-fade row reaches OBJ palette one");
     AssertTrue(!ridley.Contact.HasAny(EnemyContact.IgnoresSamus),

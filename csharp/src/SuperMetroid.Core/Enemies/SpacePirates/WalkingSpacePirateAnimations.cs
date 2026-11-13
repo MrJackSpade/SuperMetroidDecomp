@@ -17,17 +17,17 @@ internal static class WalkingSpacePirateAnimations
     {
         [P.FlinchFacingLeft] =
         [
-            Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.NoOperation)),
+            Cue(new WalkingSpacePirateCue.SetAction(Action: WalkingSpacePirateAction.NoOperation)),
             Show(EnemyFrameId.WalkingPirateFlinchLeft, 16),
         ],
         [P.FlinchFacingRight] =
         [
-            Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.NoOperation)),
+            Cue(new WalkingSpacePirateCue.SetAction(Action: WalkingSpacePirateAction.NoOperation)),
             Show(EnemyFrameId.WalkingPirateFlinchRight, 16),
         ],
         [P.WalkingLeft] =
         [
-            Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.WalkingLeft)),
+            Cue(new WalkingSpacePirateCue.SetAction(Action: WalkingSpacePirateAction.WalkingLeft)),
         ],
         [P.WalkingLeftLoop] =
         [
@@ -42,7 +42,7 @@ internal static class WalkingSpacePirateAnimations
         ],
         [P.FireLasersLeft] =
         [
-            Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.AnimationOwnedNoOperation)),
+            Cue(new WalkingSpacePirateCue.SetAction(Action: WalkingSpacePirateAction.AnimationOwnedNoOperation)),
             Show(EnemyFrameId.WalkingPirateFireLasersLeftFirst, 24),
             Show(EnemyFrameId.WalkingPirateFireLasersLeftSecond, 8),
             Show(EnemyFrameId.WalkingPirateFireLasersLeftThird, 8),
@@ -60,7 +60,7 @@ internal static class WalkingSpacePirateAnimations
         ],
         [P.LookingFacingLeft] =
         [
-            Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.AnimationOwnedNoOperation)),
+            Cue(new WalkingSpacePirateCue.SetAction(Action: WalkingSpacePirateAction.AnimationOwnedNoOperation)),
             Show(EnemyFrameId.WalkingPirateLookingFacingLeftFirst, 32),
             Show(EnemyFrameId.WalkingPirateLookingFacingLeftSecond, 10),
             Show(EnemyFrameId.WalkingPirateLookingFacingLeftThird, 32),
@@ -70,7 +70,7 @@ internal static class WalkingSpacePirateAnimations
         ],
         [P.WalkingRight] =
         [
-            Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.WalkingRight)),
+            Cue(new WalkingSpacePirateCue.SetAction(Action: WalkingSpacePirateAction.WalkingRight)),
         ],
         [P.WalkingRightLoop] =
         [
@@ -85,7 +85,7 @@ internal static class WalkingSpacePirateAnimations
         ],
         [P.FireLasersRight] =
         [
-            Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.AnimationOwnedNoOperation)),
+            Cue(new WalkingSpacePirateCue.SetAction(Action: WalkingSpacePirateAction.AnimationOwnedNoOperation)),
             Show(EnemyFrameId.WalkingPirateFireLasersRightFirst, 24),
             Show(EnemyFrameId.WalkingPirateFireLasersRightSecond, 8),
             Show(EnemyFrameId.WalkingPirateFireLasersRightThird, 8),
@@ -103,7 +103,7 @@ internal static class WalkingSpacePirateAnimations
         ],
         [P.LookingFacingRight] =
         [
-            Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.AnimationOwnedNoOperation)),
+            Cue(new WalkingSpacePirateCue.SetAction(Action: WalkingSpacePirateAction.AnimationOwnedNoOperation)),
             Show(EnemyFrameId.WalkingPirateLookingFacingRightFirst, 32),
             Show(EnemyFrameId.WalkingPirateLookingFacingRightSecond, 10),
             Show(EnemyFrameId.WalkingPirateLookingFacingRightThird, 32),

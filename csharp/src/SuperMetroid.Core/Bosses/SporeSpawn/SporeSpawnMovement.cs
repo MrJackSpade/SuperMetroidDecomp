@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// The five behaviours Spore Spawn's main AI dispatches.
 /// Its values are arbitrary; verification's catalog relates each member to its source (#1413).
 /// </summary>
-public enum SporeSpawnFunction
+public enum SporeSpawnMovement
 {
     /// <summary>Performs no main-AI movement while its animations control the idle or open phase.</summary>
     Idle = 1,

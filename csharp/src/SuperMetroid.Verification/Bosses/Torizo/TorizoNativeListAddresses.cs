@@ -154,7 +154,7 @@ internal static class TorizoNativeListAddresses
     {
         [0x806b] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.SetFrameBehavior>(""), [TorizoOperand.FrameBehavior]),
         [0x8074] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.ClearFrameBehavior)), []),
-        [0xb09c] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.SetFunction>(""), [TorizoOperand.Function]),
+        [0xb09c] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.SetPhase>(""), [TorizoOperand.Function]),
         [0xb11d] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.BlowUpGut)), []),
         [0xb1be] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.MarkFaceBlownUp)), []),
         [0xb224] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Signal(TorizoCueKind.MakeVisible)), []),

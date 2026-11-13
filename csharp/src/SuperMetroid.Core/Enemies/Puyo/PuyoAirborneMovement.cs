@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 /// Puyo's airborne behaviours; entries zero through six of its hop table select them.
 /// Its values are arbitrary.
 /// </summary>
-public enum PuyoAirborneFunction
+public enum PuyoAirborneMovement
 {
     /// <summary>Moves the small normal hop and selects the slow grounded animation on landing or terrain collision.</summary>
     NormalShortHop = 1,

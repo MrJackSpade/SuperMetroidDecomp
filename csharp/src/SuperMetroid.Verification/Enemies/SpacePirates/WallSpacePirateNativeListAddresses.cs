@@ -41,7 +41,7 @@ internal static class WallSpacePirateNativeListAddresses
         [0xeefd] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Signal(WallSpacePirateCueKind.PrepareJumpLeft)),
         [0xef2a] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Signal(WallSpacePirateCueKind.FireLaserLeft)),
         [0xef5d] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Signal(WallSpacePirateCueKind.FireLaserRight)),
-        [0xef83] = NativeCueShape<WallSpacePirateCue>.Of<WallSpacePirateCue.SetFunction>("E"),
+        [0xef83] = NativeCueShape<WallSpacePirateCue>.Of<WallSpacePirateCue.SetAction>("E"),
         [0xef93] = NativeCueShape<WallSpacePirateCue>.Exactly(new WallSpacePirateCue.Signal(WallSpacePirateCueKind.PlayAttackSound)),
     };
 }

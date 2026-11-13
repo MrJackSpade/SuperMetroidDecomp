@@ -32,7 +32,7 @@ public sealed class PowampEnemyState
     public int BalloonGrappleTravelDistance { get; internal set; }
 
     /// <summary>The body's countdown, decremented once per relevant main-AI invocation; initialized to 60 for rest, ten for inflation/deflation, or 32 for death, and expires at zero or signed underflow.</summary>
-    public int FunctionTimer { get; internal set; }
+    public int ActionTimer { get; internal set; }
 
     /// <summary>The main-AI behaviour; balloons keep the no-op.</summary>
     public PowampAction? Action { get; internal set; }

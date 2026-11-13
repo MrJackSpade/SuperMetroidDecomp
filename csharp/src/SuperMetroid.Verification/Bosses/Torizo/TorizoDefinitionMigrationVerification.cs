@@ -15,8 +15,8 @@ internal static class TorizoDefinitionMigrationVerification
     /// <summary>Compares the new definitions, sources and native words with the values the deleted catalogs held.</summary>
     internal static void VerifyTorizoDefinitionMigration()
     {
-        AssertEqual(0xc6ab, TorizoNativeWords.Functions.Word(TorizoFunction.Idle), "idle function routine");
-        AssertEqual(0xd5e6, TorizoNativeWords.Functions.Word(TorizoFunction.GoldenFrameBehavior), "golden normal movement routine");
+        AssertEqual(0xc6ab, TorizoNativeWords.Phases.Word(TorizoPhase.Idle), "idle function routine");
+        AssertEqual(0xd5e6, TorizoNativeWords.Phases.Word(TorizoPhase.GoldenFrameBehavior), "golden normal movement routine");
         AssertEqual(0xc95e, TorizoNativeWords.FrameBehaviors.Word(TorizoFrameBehavior.Idle), "idle movement routine");
 
         // The latches sit where the cartridge's parameter words keep them.

@@ -16,5 +16,5 @@ internal static class MotherBrainPainfulWalkingDefinitions
     internal static readonly int[] NeckAngleDeltas = [5 * 256, 4 * 256 / 2, 3 * 256 / 4, 2 * 256 / 8];
 
     /// <summary>By pair: each successive forward/backward pair adds sixteen pause ticks.</summary>
-    internal static readonly int[] FunctionTimers = [16, 32, 48, 64];
+    internal static readonly int[] PauseTimers = [16, 32, 48, 64];
 }

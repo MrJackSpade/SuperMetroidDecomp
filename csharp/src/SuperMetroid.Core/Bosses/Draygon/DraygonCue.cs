@@ -8,11 +8,11 @@ internal abstract record DraygonCue
     /// <summary>Starts an animation on each of the four parts: body, eye, tail and arms.</summary>
     internal sealed record StartPartAnimations(DraygonSegment Body, DraygonSegment Eye, DraygonSegment Tail, DraygonSegment Arms) : DraygonCue;
 
-    /// <summary>Gives the eye its tracking function.</summary>
-    internal sealed record SetEyeFunction(DraygonEyeFunction Function) : DraygonCue;
+    /// <summary>Gives the eye its tracking action.</summary>
+    internal sealed record SetEyeAction(DraygonEyeAction Action) : DraygonCue;
 
-    /// <summary>Gives the part running the animation (the eye) its tracking function.</summary>
-    internal sealed record SetOwnEyeFunction(DraygonEyeFunction Function) : DraygonCue;
+    /// <summary>Gives the part running the animation (the eye) its tracking action.</summary>
+    internal sealed record SetOwnEyeAction(DraygonEyeAction Action) : DraygonCue;
 
     /// <summary>Displaces the body's background graphics while the tail whips.</summary>
     internal sealed record DisplaceBodyGraphics(Offset16<BackgroundPixels> Offset) : DraygonCue;

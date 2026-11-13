@@ -430,33 +430,33 @@ internal static class MotherBrainNativeListAddresses
     /// <summary>The room flash's goto opcode and its target, the flash's first record.</summary>
     internal static readonly RoomFlashGotoValue RoomFlashGoto = new RoomFlashGotoValue(0x9b0f, 0xd046);
 
-    /// <summary>Each native <see cref="MotherBrainTubeCollapseFunction"/> routine pointer and the function it decodes to.</summary>
-    internal static readonly Dictionary<ushort, MotherBrainTubeCollapseFunction> NativeTubeCollapseFunctions = new()
+    /// <summary>Each native <see cref="MotherBrainTubeCollapseStep"/> routine pointer and the function it decodes to.</summary>
+    internal static readonly Dictionary<ushort, MotherBrainTubeCollapseStep> NativeTubeCollapseSteps = new()
     {
-        [0x8949] = MotherBrainTubeCollapseFunction.WaitForFourFreeProjectileSlots,
-        [0x896e] = MotherBrainTubeCollapseFunction.ClearBottomLeftTube,
-        [0x8983] = MotherBrainTubeCollapseFunction.SpawnTopRightTube,
-        [0x89a0] = MotherBrainTubeCollapseFunction.ClearCeilingColumn9,
-        [0x89b5] = MotherBrainTubeCollapseFunction.SpawnTopLeftTube,
-        [0x89d2] = MotherBrainTubeCollapseFunction.ClearCeilingColumn6,
-        [0x89e7] = MotherBrainTubeCollapseFunction.SpawnBottomRightTube,
-        [0x89fa] = MotherBrainTubeCollapseFunction.ClearBottomRightTube,
-        [0x8a0f] = MotherBrainTubeCollapseFunction.SpawnBottomMiddleLeftTube,
-        [0x8a22] = MotherBrainTubeCollapseFunction.ClearBottomMiddleLeftTube,
-        [0x8a37] = MotherBrainTubeCollapseFunction.SpawnTopMiddleLeftTube,
-        [0x8a54] = MotherBrainTubeCollapseFunction.ClearCeilingColumn7,
-        [0x8a69] = MotherBrainTubeCollapseFunction.SpawnTopMiddleRightTube,
-        [0x8a86] = MotherBrainTubeCollapseFunction.ClearCeilingColumn8,
-        [0x8a9b] = MotherBrainTubeCollapseFunction.SpawnBottomMiddleRightTube,
-        [0x8aae] = MotherBrainTubeCollapseFunction.ClearBottomMiddleRightTube,
-        [0x8ac3] = MotherBrainTubeCollapseFunction.SpawnMainTube,
-        [0x8ad6] = MotherBrainTubeCollapseFunction.ClearBottomMiddleTubes,
-        [0x8ae4] = MotherBrainTubeCollapseFunction.Finished,
+        [0x8949] = MotherBrainTubeCollapseStep.WaitForFourFreeProjectileSlots,
+        [0x896e] = MotherBrainTubeCollapseStep.ClearBottomLeftTube,
+        [0x8983] = MotherBrainTubeCollapseStep.SpawnTopRightTube,
+        [0x89a0] = MotherBrainTubeCollapseStep.ClearCeilingColumn9,
+        [0x89b5] = MotherBrainTubeCollapseStep.SpawnTopLeftTube,
+        [0x89d2] = MotherBrainTubeCollapseStep.ClearCeilingColumn6,
+        [0x89e7] = MotherBrainTubeCollapseStep.SpawnBottomRightTube,
+        [0x89fa] = MotherBrainTubeCollapseStep.ClearBottomRightTube,
+        [0x8a0f] = MotherBrainTubeCollapseStep.SpawnBottomMiddleLeftTube,
+        [0x8a22] = MotherBrainTubeCollapseStep.ClearBottomMiddleLeftTube,
+        [0x8a37] = MotherBrainTubeCollapseStep.SpawnTopMiddleLeftTube,
+        [0x8a54] = MotherBrainTubeCollapseStep.ClearCeilingColumn7,
+        [0x8a69] = MotherBrainTubeCollapseStep.SpawnTopMiddleRightTube,
+        [0x8a86] = MotherBrainTubeCollapseStep.ClearCeilingColumn8,
+        [0x8a9b] = MotherBrainTubeCollapseStep.SpawnBottomMiddleRightTube,
+        [0x8aae] = MotherBrainTubeCollapseStep.ClearBottomMiddleRightTube,
+        [0x8ac3] = MotherBrainTubeCollapseStep.SpawnMainTube,
+        [0x8ad6] = MotherBrainTubeCollapseStep.ClearBottomMiddleTubes,
+        [0x8ae4] = MotherBrainTubeCollapseStep.Finished,
     };
 
-    /// <summary>Each native <see cref="MotherBrainBrainFunction"/> routine pointer and the function it decodes to.</summary>
-    internal static readonly Dictionary<ushort, MotherBrainBrainFunction> NativeBrainFunctions = new()
+    /// <summary>Each native <see cref="MotherBrainBrainAction"/> routine pointer and the function it decodes to.</summary>
+    internal static readonly Dictionary<ushort, MotherBrainBrainAction> NativeBrainActions = new()
     {
-        [0x87a2] = MotherBrainBrainFunction.SetupBrainAndNeckToBeDrawn,
-        [0x87d0] = MotherBrainBrainFunction.SetupBrainToBeDrawn,
+        [0x87a2] = MotherBrainBrainAction.SetupBrainAndNeckToBeDrawn,
+        [0x87d0] = MotherBrainBrainAction.SetupBrainToBeDrawn,
     };}

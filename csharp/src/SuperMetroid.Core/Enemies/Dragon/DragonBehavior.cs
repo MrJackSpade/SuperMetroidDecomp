@@ -124,14 +124,14 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         DragonEnemyState bodyState,
         SamusState? samus)
     {
-        if (--bodyState.FunctionTimer >= 0)
+        if (--bodyState.ActionTimer >= 0)
             return;
         if (samus is null)
             throw new InvalidOperationException("Dragon facing selection requires the active Samus actor.");
 
         RoomEnemySlot wing = GetDragonWing(body);
         DragonEnemyState wingState = wing.RequireSpeciesState<DragonEnemyState>();
-        bodyState.FunctionTimer = DragonRiseOrSinkFrames;
+        bodyState.ActionTimer = DragonRiseOrSinkFrames;
         bodyState.Action = DragonAction.Rising;
 
         // The wait records the sign of (Samus X - body X) as the body's facing. The following animation
@@ -151,7 +151,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Rises out of the lava.</summary>
     internal void RunDragonRising(RoomEnemySlot body, DragonEnemyState bodyState)
     {
-        if (--bodyState.FunctionTimer < 0)
+        if (--bodyState.ActionTimer < 0)
         {
             bodyState.RequestedAnimation =
                 DragonPhases.AttackingWithSameFacing(
@@ -188,7 +188,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         bodyState.RequestedAnimation =
             DragonPhases.IdleWithSameFacing(
                 bodyState.RequestedAnimation);
-        bodyState.FunctionTimer = DragonWaitBeforeSinkFrames;
+        bodyState.ActionTimer = DragonWaitBeforeSinkFrames;
         bodyState.Action = DragonAction.WaitToSink;
     }
 
@@ -197,10 +197,10 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body,
         DragonEnemyState bodyState)
     {
-        if (--bodyState.FunctionTimer != 0)
+        if (--bodyState.ActionTimer != 0)
             return;
 
-        bodyState.FunctionTimer = DragonRiseOrSinkFrames;
+        bodyState.ActionTimer = DragonRiseOrSinkFrames;
         bodyState.Action = DragonAction.Sinking;
         StartDragonAnimation(body, bodyState);
     }
@@ -208,9 +208,9 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sinks back into the lava.</summary>
     private void RunDragonSinking(RoomEnemySlot body, DragonEnemyState bodyState)
     {
-        if (--bodyState.FunctionTimer < 0)
+        if (--bodyState.ActionTimer < 0)
         {
-            bodyState.FunctionTimer = DragonWaitBeforeRiseFrames;
+            bodyState.ActionTimer = DragonWaitBeforeRiseFrames;
             bodyState.Action = DragonAction.WaitToRise;
         }
 

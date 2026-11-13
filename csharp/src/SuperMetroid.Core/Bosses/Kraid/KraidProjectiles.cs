@@ -78,8 +78,8 @@ internal sealed class KraidProjectiles
         _access.SetKraidPartAnimation(nail, KraidPartSegment.NailLoop);
         nail.Frame = EnemyFrameId.KraidNailLoopFirst;
         _parts.NailStateOf(state, nail).PhaseToResume = KraidPhase.FingernailInitialize;
-        _parts.NailStateOf(state, nail).Phase = KraidPhase.HandleFunctionTimer;
-        _parts.NailStateOf(state, nail).FunctionTimer = 64;
+        _parts.NailStateOf(state, nail).Phase = KraidPhase.WaitToResumePhase;
+        _parts.NailStateOf(state, nail).PhaseTimer = 64;
     }
 
     /// <summary>Registers the rock projectile initializers and per-frame handlers.</summary>
@@ -183,8 +183,8 @@ internal sealed class KraidProjectiles
         KraidNailState part = _parts.NailStateOf(state, nail);
         switch (_parts.NailStateOf(state, nail).Phase)
         {
-            case KraidPhase.HandleFunctionTimer:
-                KraidEncounterAccess.TickKraidFunctionTimer(part);
+            case KraidPhase.WaitToResumePhase:
+                KraidEncounterAccess.TickKraidPhaseTimer(part);
                 return;
 
             case KraidPhase.FingernailInitialize:
@@ -226,7 +226,7 @@ internal sealed class KraidProjectiles
             case KraidPhase.LintCharge:
             case KraidPhase.LintFire:
             case KraidPhase.AlignPartToKraid:
-            case KraidPhase.DecrementFunctionTimerAndStartWalk:
+            case KraidPhase.FootWaitBeforeWalk:
             case KraidPhase.FootFirstPhaseThinking:
             case KraidPhase.AdvanceHeadAnimationAndTimer:
             case KraidPhase.FootSecondPhaseThinking:
@@ -373,8 +373,8 @@ internal sealed class KraidProjectiles
             case KraidPhase.GlowEye:
             case KraidPhase.UnglowEye:
             case KraidPhase.FingernailWaitForLint:
-            case KraidPhase.HandleFunctionTimer:
-            case KraidPhase.DecrementFunctionTimerAndStartWalk:
+            case KraidPhase.WaitToResumePhase:
+            case KraidPhase.FootWaitBeforeWalk:
             case KraidPhase.FootFirstPhaseThinking:
             case KraidPhase.AdvanceHeadAnimationAndTimer:
             case KraidPhase.FootSecondPhaseThinking:
@@ -421,7 +421,7 @@ internal sealed class KraidProjectiles
     internal void AlignKraidPart(RoomEnemySlot partSlot, KraidPartState part)
     {
         partSlot.Position = partSlot.Position.WithWrappedWholeX(_parts.Body.Position.X.Whole - partSlot.Radius.X);
-        KraidEncounterAccess.TickKraidFunctionTimer(part);
+        KraidEncounterAccess.TickKraidPhaseTimer(part);
     }
 
     /// <summary>Starts a lint projectile from the attached part.</summary>
@@ -435,19 +435,19 @@ internal sealed class KraidProjectiles
         if (_access.LintState(lint).LintTravel >= 32)
         {
             _access.LintState(lint).Phase = KraidPhase.LintCharge;
-            _access.LintState(lint).FunctionTimer = 30;
+            _access.LintState(lint).PhaseTimer = 30;
         }
     }
 
     /// <summary>Advances the visible lint charge before firing.</summary>
     private void ChargeKraidLint(RoomEnemySlot lint)
     {
-        lint.Shading = KraidCadenceDefinitions.LintChargeShowsOwnColours.IsSetIn(_access.LintState(lint).FunctionTimer)
+        lint.Shading = KraidCadenceDefinitions.LintChargeShowsOwnColours.IsSetIn(_access.LintState(lint).PhaseTimer)
             ? _access.RequireKraidState(lint).Colours.Parts
             : EnemyShades.HurtFlashLook;
         lint.Position = lint.Position.WithWrappedWholeX(
             _access.LintState(lint).LintXOffset + _parts.Body.Position.X.Whole - _access.LintState(lint).LintTravel);
-        if (--_access.LintState(lint).FunctionTimer == 0)
+        if (--_access.LintState(lint).PhaseTimer == 0)
         {
             _access.LintState(lint).Phase = KraidPhase.LintFire;
             _access.RequestKraidSound(KraidSoundDefinitions.LintFire);
@@ -464,7 +464,7 @@ internal sealed class KraidProjectiles
         {
             lint.Presence = lint.Presence.With(EnemyPresence.Hidden);
             part.Phase = KraidPhase.AlignPartToKraid;
-            part.FunctionTimer = 300;
+            part.PhaseTimer = 300;
             part.PhaseToResume = KraidPhase.LintProduce;
             part.LintTravel = 0;
         }

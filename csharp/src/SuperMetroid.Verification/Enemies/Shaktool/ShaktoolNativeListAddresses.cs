@@ -47,6 +47,6 @@ internal static class ShaktoolNativeListAddresses
         [0xd94a] = new ShaktoolNativeListAddressesInstruction(ShaktoolCueKind.Lower, ""),
         [0xd953] = new ShaktoolNativeListAddressesInstruction(ShaktoolCueKind.Raise, ""),
         [0xd99f] = new ShaktoolNativeListAddressesInstruction(ShaktoolCueKind.Nothing, ""),
-        [0xd9ba] = new ShaktoolNativeListAddressesInstruction(ShaktoolCueKind.ResetFunctions, ""),
+        [0xd9ba] = new ShaktoolNativeListAddressesInstruction(ShaktoolCueKind.ResetFrameBehaviors, ""),
     };
 }

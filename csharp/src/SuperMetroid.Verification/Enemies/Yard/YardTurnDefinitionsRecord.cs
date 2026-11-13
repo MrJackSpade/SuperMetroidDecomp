@@ -6,4 +6,4 @@ namespace SuperMetroid.Verification.Enemies.Yard;
 /// <param name="Movement">The movement.</param>
 /// <param name="Disabled">The disabled.</param>
 /// <param name="Address">The address.</param>
-internal readonly record struct YardTurnDefinitionsRecord(YardMovementFunction Movement, bool Disabled, int Address);
+internal readonly record struct YardTurnDefinitionsRecord(YardMovement Movement, bool Disabled, int Address);

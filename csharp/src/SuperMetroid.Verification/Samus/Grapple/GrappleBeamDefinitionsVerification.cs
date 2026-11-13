@@ -108,9 +108,9 @@ internal static class GrappleBeamDefinitionsVerification
             {
                 ushort function = CartridgeImportSource.Require(bus).ReadCartridgeWord((connectionTable + direction * 4));
                 ushort handler = CartridgeImportSource.Require(bus).ReadCartridgeWord((connectionTable + direction * 4 + 2));
-                AssertTrue(SamusGrappleConnectionNative.Functions.Decode(function, "grapple connection function") is
-                    GrappleConnectionFunction.Swinging or
-                    GrappleConnectionFunction.LockedInPlace,
+                AssertTrue(SamusGrappleConnectionNative.Kinds.Decode(function, "grapple connection function") is
+                    GrappleConnectionKind.Swinging or
+                    GrappleConnectionKind.LockedInPlace,
                     $"Grapple connection function ${function:X4} is catalogued");
                 AssertTrue(SamusGrappleConnectionNative.Handlers.TryDecode(handler, out _),
                     $"Grapple connection handler ${handler:X4} is catalogued");

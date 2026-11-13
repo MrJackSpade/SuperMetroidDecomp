@@ -784,7 +784,7 @@ internal static void VerifySamusHurtFlashPalette()
     // Cinematic call two suppresses impact audio and uses the dedicated intro palette in
     // place of equipment-selected colors. Odd call one remains the common hurt palette.
     var cinematic = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { EquippedItems = SamusEquipmentFlags.GravitySuit }.WithHurtFlashCount(2);
-    cinematic.LiquidPhysics.CinematicFunctionActive = true;
+    cinematic.LiquidPhysics.CinematicActive = true;
     SamusHurtFlashPalette.Update(
         samusColours, cinematic, controllerInput: 0);
     RgbColor[] cinematicSuit = samusColours.ShownSuit(hurtSources);

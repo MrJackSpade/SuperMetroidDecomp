@@ -36,7 +36,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         switch (cue.Kind)
         {
-            case CrawlerCueKind.SetFunction:
+            case CrawlerCueKind.SetMovement:
                 state.Action = cue.Action;
                 return null;
             default:

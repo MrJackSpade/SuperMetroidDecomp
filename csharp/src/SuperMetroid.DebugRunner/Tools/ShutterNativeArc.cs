@@ -57,7 +57,7 @@ internal static class ShutterNativeArc
             scenario.Runtime.StepFrame(scenario.Input(frame), new RuntimeFrameRequest());
             if (frame >= ShutterBombArcScenario.FirstArcFrame)
                 Console.WriteLine($"frame {frame}: {scenario.ArcRow(frame)} pose={(int)SamusPoseNumbers.Number(scenario.Samus.Pose):X2} " +
-                    $"shutter={(ushort)((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Function ?? throw new InvalidOperationException("The live shutter has no function.")):X4} up={shutter.MovedUpRestTime:X4} down={shutter.MovedDownRestTime:X4} " +
+                    $"shutter={(ushort)((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Action ?? throw new InvalidOperationException("The live shutter has no function.")):X4} up={shutter.MovedUpRestTime:X4} down={shutter.MovedDownRestTime:X4} " +
                     $"rev={shutter.ReactionDirection} act={(shutter.ShotActivated ? 1 : 0):X4}");
         }
         return 0;
@@ -145,7 +145,7 @@ internal static class ShutterNativeArc
             Word(0xF84 + offset, slot.Radius.Y); Word(0xF86 + offset, 0x8000);
         }
         var shutter = runtime.Room.LoadedScope.Enemies.VerticalShutterStates[0];
-        Word(0xFA8, (ushort)((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Function ?? throw new InvalidOperationException("The live shutter has no function.")));
+        Word(0xFA8, (ushort)((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Action ?? throw new InvalidOperationException("The live shutter has no function.")));
         Word(0xFB0, shutter.UpVelocity.Fraction); Word(0xFB2, shutter.UpVelocity.UnsignedWholePixels);
         Word(0xFAC, shutter.DownVelocity.Fraction); Word(0xFAE, shutter.DownVelocity.UnsignedWholePixels);
         Word(0x780E, ShutterTriggerModeCodec.ToNativeOffset(shutter.TriggerMode)); Word(0x7818, shutter.ShotActivated ? 1 : 0);

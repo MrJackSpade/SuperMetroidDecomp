@@ -53,9 +53,9 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         switch (cue)
         {
-            case YardCue.SetMovementFunction setMovementFunction:
+            case YardCue.SetMovement setMovement:
                 // Yard animation owns movement dispatch: the operand is a movement behaviour, not a branch.
-                state.MovementFunction = setMovementFunction.MovementFunction;
+                state.Movement = setMovement.Movement;
                 return null;
             case YardCue.SetHidingAnimation setHidingAnimation:
                 state.HidingAnimation = setHidingAnimation.OptionalTarget;
@@ -110,7 +110,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var state = new YardEnemyState
         {
-            MovementFunction = YardMovementFunction.AwaitingAnimationCue,
+            Movement = YardMovement.AwaitingAnimationCue,
             // The population entry selects the initial animations and velocity signs, but
             // does not set the live direction. Only the direction cue does. A
             // first-frame hide can bypass it and keeps the first direction.
@@ -159,32 +159,32 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         HandleYardHiding(slot, state, samus);
         UpdateYardSolidProperty(slot, state, samus);
 
-        switch (state.MovementFunction)
+        switch (state.Movement)
         {
-            case YardMovementFunction.AwaitingAnimationCue:
+            case YardMovement.AwaitingAnimationCue:
                 return;
-            case YardMovementFunction.Hiding:
+            case YardMovement.Hiding:
                 RunYardHidingMovement(slot, state, level);
                 return;
-            case YardMovementFunction.Airborne:
+            case YardMovement.Airborne:
                 RunYardAirborneMovement(slot, state, samus, level);
                 return;
             // Direction-changing animation can publish the new direction one frame before
             // it installs the matching movement behaviour. The game dispatches through that behaviour,
             // not by the temporarily newer direction field.
-            case YardMovementFunction.CrawlingUpsideUpMovingLeft:
-            case YardMovementFunction.CrawlingUpsideLeftMovingDown:
-            case YardMovementFunction.CrawlingUpsideDownMovingRight:
-            case YardMovementFunction.CrawlingUpsideRightMovingUp:
-            case YardMovementFunction.CrawlingUpsideUpMovingRight:
-            case YardMovementFunction.CrawlingUpsideRightMovingDown:
-            case YardMovementFunction.CrawlingUpsideDownMovingLeft:
-            case YardMovementFunction.CrawlingUpsideLeftMovingUp:
+            case YardMovement.CrawlingUpsideUpMovingLeft:
+            case YardMovement.CrawlingUpsideLeftMovingDown:
+            case YardMovement.CrawlingUpsideDownMovingRight:
+            case YardMovement.CrawlingUpsideRightMovingUp:
+            case YardMovement.CrawlingUpsideUpMovingRight:
+            case YardMovement.CrawlingUpsideRightMovingDown:
+            case YardMovement.CrawlingUpsideDownMovingLeft:
+            case YardMovement.CrawlingUpsideLeftMovingUp:
                 RunYardCrawlingMovement(slot, state, level);
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Yard function {state.MovementFunction?.ToString() ?? "none"} is not translated.");
+                    $"Yard function {state.Movement?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -226,14 +226,14 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         bool solid;
-        if (state.MovementFunction == YardMovementFunction.Airborne)
+        if (state.Movement == YardMovement.Airborne)
         {
             solid = false;
         }
         else if (state.Behavior == YardBehavior.AggressiveCrawling)
         {
             solid = !samus.HorizontalSpeed.HasRunningMomentum &&
-                state.MovementFunction == YardMovementFunction.AwaitingAnimationCue;
+                state.Movement == YardMovement.AwaitingAnimationCue;
         }
         else if (samus.HorizontalSpeed.HasRunningMomentum)
         {
@@ -274,13 +274,13 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         YardEnemyState state,
         RoomLevelData level)
     {
-        bool movesVertically = state.MovementFunction is
-            YardMovementFunction.CrawlingUpsideLeftMovingDown or
-            YardMovementFunction.CrawlingUpsideRightMovingUp or
-            YardMovementFunction.CrawlingUpsideRightMovingDown or
-            YardMovementFunction.CrawlingUpsideLeftMovingUp;
+        bool movesVertically = state.Movement is
+            YardMovement.CrawlingUpsideLeftMovingDown or
+            YardMovement.CrawlingUpsideRightMovingUp or
+            YardMovement.CrawlingUpsideRightMovingDown or
+            YardMovement.CrawlingUpsideLeftMovingUp;
         YardTurnDefinition turn = YardTurns.ForMovement(
-            state.MovementFunction ?? throw new InvalidOperationException("A turning Yard has no movement function."),
+            state.Movement ?? throw new InvalidOperationException("A turning Yard has no movement function."),
             state.TurnTransitionDisabled);
 
         // The lookahead offset is temporary, but the normal-axis probe movement is not.
@@ -393,7 +393,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Behavior == YardBehavior.Dropped)
             return;
         state.Behavior = YardBehavior.Dropped;
-        state.MovementFunction = YardMovementFunction.Airborne;
+        state.Movement = YardMovement.Airborne;
         SetYardAirborneLists(slot, state);
         state.AirborneVelocity = FixedVector<RoomPixels>.Zero;
     }
@@ -465,7 +465,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         var landing = new EightEightVector<RoomPixels>(state.CrawlSpeed, state.CrawlSpeed);
         state.CrawlingVelocity = state.BlockSide == CrawlerSurfaceOrientation.UpsideRight ? landing.ReversedX() : landing;
         slot.Frame = EnemyFrameId.Empty;
-        state.MovementFunction = YardMovementFunction.AwaitingAnimationCue;
+        state.Movement = YardMovement.AwaitingAnimationCue;
         state.Playback = EnemyAnimationPlayback.Start(slot, YardAnimations.StartingWith(state.HidingAnimation ??
             throw new InvalidDataException("A landing Yard has no hiding animation to resume.")));
     }
@@ -498,7 +498,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static bool TurnYardAround(YardEnemyState state)
     {
         if (state.Behavior == YardBehavior.Hiding ||
-            state.MovementFunction == YardMovementFunction.AwaitingAnimationCue)
+            state.Movement == YardMovement.AwaitingAnimationCue)
         {
             return false;
         }
@@ -510,7 +510,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HidingAnimation = definition.HidingAnimation;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
         SetYardCrawlingVelocities(state, state.Direction);
-        state.MovementFunction = definition.MovementFunction;
+        state.Movement = definition.Movement;
         state.TurnTransitionDisabled = true;
         state.TurnTransitionDisableCounter = 0;
         return true;
@@ -523,7 +523,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         state.Behavior = YardBehavior.Kicked;
-        state.MovementFunction = YardMovementFunction.Airborne;
+        state.Movement = YardMovement.Airborne;
         SetYardAirborneLists(slot, state);
 
         SignedSixteenSixteen horizontal = samus.HorizontalDistanceMovedPlusOne;
@@ -542,7 +542,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         state.Behavior = YardBehavior.BeamLaunched;
-        state.MovementFunction = YardMovementFunction.Airborne;
+        state.Movement = YardMovement.Airborne;
         SetYardAirborneLists(slot, state);
         // Only the whole pixels are stored; both fractions keep their previous values.
         state.AirborneVelocity = state.AirborneVelocity.WithWhole(new Offset16<RoomPixels>(
@@ -562,10 +562,10 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         ControllerButton controllerInput)
     {
         bool aggressiveCrawlRejectsKick = state.Behavior == YardBehavior.AggressiveCrawling &&
-            state.MovementFunction != YardMovementFunction.AwaitingAnimationCue &&
+            state.Movement != YardMovement.AwaitingAnimationCue &&
             SamusIsDirectingTowardYard(state, controllerInput);
         bool kickRequested = !aggressiveCrawlRejectsKick &&
-            (state.MovementFunction == YardMovementFunction.Airborne ||
+            (state.Movement == YardMovement.Airborne ||
              samus.HorizontalSpeed.HasRunningMomentum);
 
         if (kickRequested)
@@ -578,7 +578,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         // A hidden shell awaiting its animation, a falling shell, and an already kicked shell
         // deliberately do nothing on overlap. Every other route enters normal enemy touch,
         // restores the population's idle speed, optionally turns, then resumes behavior zero.
-        if (state.MovementFunction == YardMovementFunction.AwaitingAnimationCue ||
+        if (state.Movement == YardMovement.AwaitingAnimationCue ||
             state.Behavior is YardBehavior.Dropped or YardBehavior.Kicked)
         {
             return;

@@ -22,12 +22,12 @@ internal static class CorpsesNativeWords
         [DeadSidehopperAction.Rotting] = 0xdaba,
     });
 
-    /// <summary>The routine word naming each <see cref="DeadTorizoFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<DeadTorizoFunction> DeadTorizoFunctions = new(new Dictionary<DeadTorizoFunction, ushort>
+    /// <summary>The routine word naming each <see cref="DeadTorizoPhase"/>.</summary>
+    internal static readonly NativeWordIdentities<DeadTorizoPhase> DeadTorizoPhases = new(new Dictionary<DeadTorizoPhase, ushort>
     {
-        [DeadTorizoFunction.Wait] = 0xd3ad,
-        [DeadTorizoFunction.PreRot] = 0xd3c8,
-        [DeadTorizoFunction.Rotting] = 0xd3e6,
-        [DeadTorizoFunction.NoOperation] = 0xd3c7,
+        [DeadTorizoPhase.Wait] = 0xd3ad,
+        [DeadTorizoPhase.PreRot] = 0xd3c8,
+        [DeadTorizoPhase.Rotting] = 0xd3e6,
+        [DeadTorizoPhase.NoOperation] = 0xd3c7,
     });
 }

@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// The tail controllers Ridley's AI installs.
 /// The table's two trailing entries (7 and 8) have no producer.
 /// </summary>
-public enum RidleyTailFunction
+public enum RidleyTailAction
 {
-    /// <summary>An empty function: the tail retains its offsets.</summary>
+    /// <summary>An empty action: the tail retains its offsets.</summary>
     None = 0,
     /// <summary>The neutral tail.</summary>
     Neutral = 1,

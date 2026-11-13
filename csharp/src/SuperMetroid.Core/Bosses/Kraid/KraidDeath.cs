@@ -90,7 +90,7 @@ internal sealed class KraidDeath
                 foreach (RoomEnemySlot lint in _parts.Lints)
                 {
                     _parts.LintStateOf(state, lint).Phase = KraidPhase.AlignPartToKraid;
-                    _parts.LintStateOf(state, lint).FunctionTimer = KraidBehavior.KraidStillPartTimer;
+                    _parts.LintStateOf(state, lint).PhaseTimer = KraidBehavior.KraidStillPartTimer;
                 }
                 state.ShowBody();
                 return;
@@ -168,8 +168,8 @@ internal sealed class KraidDeath
             case KraidPhase.LintFire:
             case KraidPhase.FingernailWaitForLint:
             case KraidPhase.AlignPartToKraid:
-            case KraidPhase.HandleFunctionTimer:
-            case KraidPhase.DecrementFunctionTimerAndStartWalk:
+            case KraidPhase.WaitToResumePhase:
+            case KraidPhase.FootWaitBeforeWalk:
             case KraidPhase.FootFirstPhaseThinking:
             case KraidPhase.AdvanceHeadAnimationAndTimer:
             case KraidPhase.FootSecondPhaseThinking:
@@ -283,13 +283,13 @@ internal sealed class KraidDeath
     /// <summary>Consumes sink-table entries as the body descends.</summary>
     internal void ProcessKraidSinkTable(RoomEnemySlot body)
     {
-        if (KraidSinkSchedule.StepAt(body.Position.Y.Whole) is KraidSinkStep function)
+        if (KraidSinkSchedule.StepAt(body.Position.Y.Whole) is KraidSinkStep step)
         {
             // Every eight-pixel sinking row runs its step, including the
             // deliberately empty step used by rows whose only job is clearing a strip of his body.
             // Do not merge that step with the adjacent crumble step: they are
             // distinct steps in the retail schedule.
-            if (KraidObjects.ForSinkStep(function) is { } request)
+            if (KraidObjects.ForSinkStep(step) is { } request)
             {
                 // Each sinking rock starts at the left pixel edge of the removed block.
                 _background.SpawnKraidCeilingRock(request.Block.X * 16);

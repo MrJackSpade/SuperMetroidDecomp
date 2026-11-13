@@ -40,20 +40,20 @@ internal static class PhantoonTimersVerification
             randomValue = (ushort)raw;
             int priorCalls = calls;
             open(state);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd41 + (raw & 7) * 2)), state.BodyState.FunctionTimer, "Real open-window timer masks full RNG word");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd41 + (raw & 7) * 2)), state.BodyState.PhaseTimer, "Real open-window timer masks full RNG word");
             AssertEqual(PhantoonPhase.EyeTracksSamus, state.BodyState.Phase, "Open-window phase handoff");
             second(state);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd53 + (raw & 7) * 2)), state.EyeState.ClosedTimer, "Real second-round timer masks full RNG word");
             state.EyeState.FadeComplete = true; // Completed fade; retain the actual fade-to-rain transition.
             rain(state);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd63 + (raw & 7) * 2)), state.BodyState.FunctionTimer, "Real rain hiding timer masks full RNG word");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd63 + (raw & 7) * 2)), state.BodyState.PhaseTimer, "Real rain hiding timer masks full RNG word");
             AssertEqual(PhantoonPhase.SpawnFlameRain, state.BodyState.Phase, "Rain timer phase handoff");
             AssertEqual(priorCalls + 3, calls, "Each selection consumes exactly one RNG call");
         }
         // $A7:D5A6 indexes the eye-closed timers with the 16-bit NMI_FrameCounter.
         for (int nmi = 0; nmi < 256; nmi++)
         {
-            state.BodyState.FunctionTimer = 1;
+            state.BodyState.PhaseTimer = 1;
             int priorCalls = calls;
             enemies.FrameContext.SeedFrame((ushort)nmi, InstalledFixtures.CreateProjectileSystem(), new SuperMetroid.Core.Samus.Palettes.SamusColours());
             first(state);

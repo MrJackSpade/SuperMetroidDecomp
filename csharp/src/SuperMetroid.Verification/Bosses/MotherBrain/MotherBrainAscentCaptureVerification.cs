@@ -16,7 +16,7 @@ internal static class MotherBrainAscentCaptureVerification
         // A frame shows the room's backgrounds once an accepted NMI has latched them.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(Layer().Bands.IsEmpty, "No ascent bands before the rise starts");
-        (state ?? throw new InvalidOperationException("Verification requires state.")).FunctionTimer = 0;
+        (state ?? throw new InvalidOperationException("Verification requires state.")).PhaseTimer = 0;
         SuperMetroid.Core.Bosses.MotherBrain.MotherBrainAscent.PrepareMotherBrainForRising(state);
         AssertTrue(state.RisingFloorClipActive, "Production rising setup starts the floor's clip");
         var captured = Layer();

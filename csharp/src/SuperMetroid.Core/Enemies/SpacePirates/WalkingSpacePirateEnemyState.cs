@@ -12,7 +12,7 @@ public sealed class WalkingSpacePirateEnemyState
     internal AnimationPlayback<WalkingSpacePirateSegment> Playback { get; set; }
 
     /// <summary>The current behaviour.</summary>
-    public WalkingSpacePirateFunction? Function { get; internal set; }
+    public WalkingSpacePirateAction? Action { get; internal set; }
 
     /// <summary>
     /// Left patrol post. Only the X axis is stored and meaningful (Y reads zero): a leftward walk turns back once the

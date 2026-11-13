@@ -96,7 +96,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         };
         slot.SetSpeciesState(state);
 
-        state.Function = initialization.Function;
+        state.Action = initialization.Action;
     }
 
     /// <summary>Runs the Ceres steam's main AI.</summary>
@@ -109,11 +109,11 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         slot.Health = CeresSteamIndestructibleHealth;
 
         CeresSteamEnemyState state = slot.RequireSpeciesState<CeresSteamEnemyState>();
-        switch (state.Function)
+        switch (state.Action)
         {
             // The up, left, down and right vents use a behaviour that does nothing. Their base
             // world position is also their draw position, so no drawing offset is changed.
-            case CeresSteamFunction.None:
+            case CeresSteamAction.None:
                 return;
 
             // The rotating-elevator vents sit inside the rotating elevator shaft.
@@ -121,7 +121,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
             // transformed-minus-base deltas as the enemy's drawing offsets.
             // Collision continues to use the untransformed world point; drawing consumes
             // these offsets later, when the enemy is drawn.
-            case CeresSteamFunction.ApplyRotatingElevatorOffset:
+            case CeresSteamAction.ApplyRotatingElevatorOffset:
                 if (floorTransform is not TurningFloorTransform transform)
                 {
                     throw new InvalidOperationException(
@@ -134,7 +134,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Ceres steam function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Ceres steam function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 

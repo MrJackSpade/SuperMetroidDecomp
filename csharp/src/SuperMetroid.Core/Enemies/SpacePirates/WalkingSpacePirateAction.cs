@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// The behaviour a walking Space Pirate's main AI runs.
 /// Its values are arbitrary.
 /// </summary>
-public enum WalkingSpacePirateFunction
+public enum WalkingSpacePirateAction
 {
     /// <summary>The shared empty behaviour copied by initialization and flinch animations.</summary>
     NoOperation = 1,

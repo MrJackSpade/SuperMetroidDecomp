@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// </summary>
 internal sealed class GunshipPartState
 {
-    /// <summary>The top hull's function timer, decremented by the waiting functions; 144 updates per pad movement.</summary>
-    public int FunctionTimer { get; internal set; }
+    /// <summary>The top hull's phase timer, decremented by the waiting functions; 144 updates per pad movement.</summary>
+    public int PhaseTimer { get; internal set; }
 
     /// <summary>
     /// The updates the takeoff has spent readying the engines so far, fewer than
@@ -39,8 +39,8 @@ internal sealed class GunshipPartState
     /// </summary>
     public int RumbleFrame { get; internal set; }
 
-    /// <summary>The function the top hull dispatches.</summary>
-    public GunshipFunction Function { get; internal set; }
+    /// <summary>The phase the top hull dispatches.</summary>
+    public GunshipPhase Phase { get; internal set; }
 
     /// <summary>
     /// The bottom hull's upward escape speed, raised each update up to its cap (<see cref="AccelerateEscape"/>). It

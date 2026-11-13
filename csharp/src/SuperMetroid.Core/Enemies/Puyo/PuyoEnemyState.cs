@@ -28,7 +28,7 @@ public sealed class PuyoEnemyState
     public PuyoAction? Action { get; internal set; }
 
     /// <summary>The current hop's airborne behaviour.</summary>
-    public PuyoAirborneFunction? AirborneFunction { get; internal set; }
+    public PuyoAirborneMovement? AirborneMovement { get; internal set; }
 
     /// <summary>
     /// The hop being made, whose definition drives the airborne motion; it is kept when a collision changes <see

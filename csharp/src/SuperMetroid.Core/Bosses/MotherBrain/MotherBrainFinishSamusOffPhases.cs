@@ -51,7 +51,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         // handler on this call.
         if (StandUpToFinishOffEnergy(samus.EquippedItems) >= samus.Health)
         {
-            _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOffStandUp;
+            _state.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOffStandUp;
             return false;
         }
 
@@ -93,8 +93,8 @@ internal sealed class MotherBrainFinishSamusOffPhases
         requests.BodyPostureRequested = postureRequested;
         if (stoodUp)
         {
-            _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOffAdmire;
-            _state.FunctionTimer = 16;
+            _state.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOffAdmire;
+            _state.PhaseTimer = 16;
             return true;
         }
         return false;
@@ -108,11 +108,11 @@ internal sealed class MotherBrainFinishSamusOffPhases
     {
         // Stand-up falls through here, so the freshly written 16 becomes 15
         // on the same AI call. The sign test accepts zero and expires only after underflow.
-        if (--_state.FunctionTimer < 0)
+        if (--_state.PhaseTimer < 0)
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.StretchingPhase2);
-            _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOffChargeFinalBeam;
-            _state.FunctionTimer = 256;
+            _state.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOffChargeFinalBeam;
+            _state.PhaseTimer = 256;
         }
         return false;
     }
@@ -123,10 +123,10 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffChargeFinalBeam()
     {
-        if (--_state.FunctionTimer < 0)
+        if (--_state.PhaseTimer < 0)
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.ChargingRainbowBeam);
-            _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOffReadyBaby;
+            _state.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOffReadyBaby;
             return true;
         }
         return false;
@@ -145,8 +145,8 @@ internal sealed class MotherBrainFinishSamusOffPhases
             _state.RetractHead();
             _state.BabyMetroidSpawned = true;
             requests.BabySpawnRequested = true;
-            _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOffFireFinalBeam;
-            _state.FunctionTimer = 256;
+            _state.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOffFireFinalBeam;
+            _state.PhaseTimer = 256;
         }
         return false;
     }
@@ -157,14 +157,14 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffFireFinalBeam(MotherBrainRainbowBeamStepRequests requests)
     {
-        if (--_state.FunctionTimer < 0)
+        if (--_state.PhaseTimer < 0)
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.FiringRainbowBeam);
             _state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
             _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
             _state.NeckAngleDelta = 1280;
             requests.FinalBeamSoundQueued = true; // The final beam's sound.
-            _state.Phase = MotherBrainBodyFunction.SecondPhaseFinalRainbowBeamHolding;
+            _state.Phase = MotherBrainBodyPhase.SecondPhaseFinalRainbowBeamHolding;
         }
         return false;
     }

@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// </summary>
 internal static class SporeSpawnNativeWords
 {
-    /// <summary>The bank-$A5 routine word naming each <see cref="SporeSpawnFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<SporeSpawnFunction> SporeSpawnFunctions = new(new Dictionary<SporeSpawnFunction, ushort>
+    /// <summary>The bank-$A5 routine word naming each <see cref="SporeSpawnMovement"/>.</summary>
+    internal static readonly NativeWordIdentities<SporeSpawnMovement> SporeSpawnMovements = new(new Dictionary<SporeSpawnMovement, ushort>
     {
-        [SporeSpawnFunction.Idle] = 0xeb1a,
-        [SporeSpawnFunction.Descending] = 0xeb1b,
-        [SporeSpawnFunction.Moving] = 0xeb52,
-        [SporeSpawnFunction.SetupDeath] = 0xeb9b,
-        [SporeSpawnFunction.Dying] = 0xebee,
+        [SporeSpawnMovement.Idle] = 0xeb1a,
+        [SporeSpawnMovement.Descending] = 0xeb1b,
+        [SporeSpawnMovement.Moving] = 0xeb52,
+        [SporeSpawnMovement.SetupDeath] = 0xeb9b,
+        [SporeSpawnMovement.Dying] = 0xebee,
     });
 }

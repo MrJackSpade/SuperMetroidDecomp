@@ -31,8 +31,8 @@ internal static class DraygonDefinitionMigrationVerification
         AssertEqual(0x77, DraygonCannonDefinitions.SuperMissileHitCounterSeed, "Super Missile hit counter");
         AssertEqual(3, DraygonCannonDefinitions.HitsToDestroy, "hits to destroy");
 
-        AssertEqual(0x804b, DraygonNativeWords.EyeFunctions.Word(DraygonEyeFunction.Inert), "inert eye routine");
-        AssertEqual(0xc513, DraygonNativeWords.EyeFunctions.Word(DraygonEyeFunction.FacingRight), "right-facing eye routine");
+        AssertEqual(0x804b, DraygonNativeWords.EyeActions.Word(DraygonEyeAction.Inert), "inert eye routine");
+        AssertEqual(0xc513, DraygonNativeWords.EyeActions.Word(DraygonEyeAction.FacingRight), "right-facing eye routine");
         Console.WriteLine("Draygon definition migration: colours, cannon terrain and eye identities keep their values.");
     }
 

@@ -140,7 +140,7 @@ internal static class MurderBeamVerification
         var phaseBoundary = new MotherBrainRainbowBeamAttackSequence();
         phaseBoundary.StartFinishOffSequence();
         phaseBoundary.BeginPhase3RecoveryFromBabyCutscene();
-        AssertEqual(MotherBrainBodyFunction.ThirdPhaseRecoverMakeSomeDistance,
+        AssertEqual(MotherBrainBodyPhase.ThirdPhaseRecoverMakeSomeDistance,
             phaseBoundary.State.Phase, "Mother Brain enters the phase-three recovery boundary");
         for (int frame = 0; frame < 120; frame++)
         {

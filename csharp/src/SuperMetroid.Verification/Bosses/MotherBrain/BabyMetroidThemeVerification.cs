@@ -43,7 +43,7 @@ internal static class BabyMetroidThemeVerification
             if (frame == 72)
             {
                 AssertEqual(BabyMetroidCutscenePhase.PrepareSamusForHyperBeam, step.PhaseAfter, "Theme starts at preparation transition");
-                AssertEqual(11, baby.FunctionTimer, "Theme transition retains same-call Hyper Beam preparation decrement");
+                AssertEqual(11, baby.PhaseTimer, "Theme transition retains same-call Hyper Beam preparation decrement");
             }
         }
         Console.WriteLine("Baby Metroid music: fatal stop, 72-frame theme boundary, ordered data/track, eight-frame delays and no duplicate requests passed.");

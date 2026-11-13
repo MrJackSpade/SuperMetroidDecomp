@@ -75,7 +75,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             // binding a body to an unrelated actor.
             _balloons.Place(slot, _slotTable.ListedBefore(slot, 1));
             RequirePowampBalloon(slot);
-            state.FunctionTimer = PowampRestFrames;
+            state.ActionTimer = PowampRestFrames;
             state.Action = PowampAction.DeflatedResting;
             SetPowampAnimation(slot, state, PowampSegment.BodySlow);
             return;
@@ -146,7 +146,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             SetPowampAnimation(balloon.Slot, balloon.State, PowampSegment.BalloonInflate0);
             state.Action = PowampAction.Inflating;
-            state.FunctionTimer = PowampTransitionFrames;
+            state.ActionTimer = PowampTransitionFrames;
         }
         AlignPowampBalloonY(body, balloon);
     }
@@ -291,7 +291,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             body.Position = body.Position.WithWholeY(balloon.State.BalloonSpawn.Y);
             state.Action = PowampAction.DeflatedResting;
-            state.FunctionTimer = PowampRestFrames;
+            state.ActionTimer = PowampRestFrames;
             SetPowampAnimation(body, state, PowampSegment.BodySlow);
         }
         AlignPowampBalloonY(body, balloon);
@@ -315,7 +315,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.Action = PowampAction.DeathSequence;
-        state.FunctionTimer = PowampDeathDelayFrames;
+        state.ActionTimer = PowampDeathDelayFrames;
         AlignPowampBalloonY(body, balloon);
     }
 
@@ -460,14 +460,14 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartPowampDeflating(PowampEnemyState state, PowampBalloon balloon)
     {
         state.Action = PowampAction.Deflating;
-        state.FunctionTimer = PowampTransitionFrames;
+        state.ActionTimer = PowampTransitionFrames;
         SetPowampAnimation(balloon.Slot, balloon.State, PowampSegment.BalloonStartSinking);
     }
 
     /// <summary>Decrements the timer, treating zero and below as elapsed.</summary>
     private static bool TickPowampTimer(PowampEnemyState state)
     {
-        return --state.FunctionTimer <= 0;
+        return --state.ActionTimer <= 0;
     }
 
     /// <summary>The body's vertical displacement for terrain movement.</summary>

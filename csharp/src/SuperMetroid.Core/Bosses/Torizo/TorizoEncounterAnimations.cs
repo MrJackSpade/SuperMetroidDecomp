@@ -14,7 +14,7 @@ internal static class TorizoEncounterAnimations
     {
         [P.SpecialCallableBlowUpBombTorizosGut] =
         [
-            Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Idle)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Idle)),
             Cue(new TorizoCue.Signal(K.LockAnimation)),
             Cue(new TorizoCue.LowHealthExplosions(BombTorizoExplosionSite.Gut)),
             Wait(40),
@@ -23,13 +23,13 @@ internal static class TorizoEncounterAnimations
             ShowArtwork(1),
             ShowArtwork(2),
             ShowArtwork(3),
-            Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Active)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
             Cue(new TorizoCue.Signal(K.UnlockAnimation)),
             Cue(new TorizoCue.Signal(K.ResumeInterrupted)),
         ],
         [P.CallableBlowUpBombTorizosFace] =
         [
-            Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Idle)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Idle)),
             Cue(new TorizoCue.Signal(K.LockAnimation)),
             Cue(new TorizoCue.LowHealthExplosions(BombTorizoExplosionSite.Face)),
             Wait(40),
@@ -44,13 +44,13 @@ internal static class TorizoEncounterAnimations
             ShowArtwork(10),
             ShowArtwork(11),
             ShowArtwork(12),
-            Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Active)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
             Cue(new TorizoCue.Signal(K.UnlockAnimation)),
             Cue(new TorizoCue.Signal(K.Return)),
         ],
         [P.DeathSequence0] =
         [
-            Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Idle)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Idle)),
             Cue(new TorizoCue.Signal(K.LockAnimation)),
         ],
         [P.DeathSequence1] =
@@ -91,11 +91,11 @@ internal static class TorizoEncounterAnimations
             Cue(new TorizoCue.Signal(K.SteppedLeftWithRightFoot)),
             Cue(new TorizoCue.Signal(K.LockAnimation)),
             Show(EnemyFrameId.BombTorizoDormant, 1),
-            Cue(new TorizoCue.SetFunction(Function: TorizoFunction.WaitForHandTrigger)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.WaitForHandTrigger)),
         ],
         [P.BombTorizoInitial0Resumed] =
         [
-            Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Falling)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Falling)),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 48),
             ShowArtwork(13),
             Show(EnemyFrameId.TorizoFacingLeftSeated, 32),

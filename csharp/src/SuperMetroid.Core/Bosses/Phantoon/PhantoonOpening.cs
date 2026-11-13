@@ -31,12 +31,12 @@ internal sealed class PhantoonOpening
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
+        if (!PhantoonPresentation.TickPhantoonPhaseTimer(state.BodyState))
             return;
 
         _ = SpawnPhantoonStartingFlame(body, PhantoonFlameSpawns.StartingFlameStart(state.BodyState.StartingFlameIndex));
         _audio.QueueEnemySound(PhantoonSoundDefinitions.StartingFlame, PhantoonSoundDefinitions.StartingFlamePriority);
-        state.BodyState.FunctionTimer = 30;
+        state.BodyState.PhaseTimer = 30;
         state.BodyState.StartingFlameIndex = WrappingCounter.IncrementCount(state.BodyState.StartingFlameIndex);
         if (state.BodyState.StartingFlameIndex < 8)
             return;
@@ -44,16 +44,16 @@ internal sealed class PhantoonOpening
         state.BodyState.StartingFlameIndex = 0;
         state.TentaclesState.RoundDamage = 0;
         state.BodyState.Phase = PhantoonPhase.WaitBeforeActivatingStartingFlames;
-        state.BodyState.FunctionTimer = 30;
+        state.BodyState.PhaseTimer = 30;
         _frameResults.PhantoonDoor = PhantoonDoorChange.FightDoor;
     }
 
     /// <summary>Holds the body between intro flame spawns.</summary>
     internal static void RunPhantoonStartingFlamePause(PhantoonBodyState body)
     {
-        if (!PhantoonPresentation.TickPhantoonFunctionTimer(body))
+        if (!PhantoonPresentation.TickPhantoonPhaseTimer(body))
             return;
-        body.FunctionTimer = 240;
+        body.PhaseTimer = 240;
         body.StartingFlamesActive = true;
         body.Phase = PhantoonPhase.WaitForStartingFlamesToDisappear;
     }
@@ -62,14 +62,14 @@ internal sealed class PhantoonOpening
     internal void RunPhantoonStartingFlameOrbitWait(
         PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
+        if (!PhantoonPresentation.TickPhantoonPhaseTimer(state.BodyState))
             return;
 
         state.BodyState.StartingFlamesActive = false;
         state.Translucent = true;
         state.BodyState.Phase = PhantoonPhase.WavyFadeIn;
         state.MouthState.BodyLayer = PhantoonBodyLayer.Shown;
-        state.BodyState.FunctionTimer = 120;
+        state.BodyState.PhaseTimer = 120;
         state.MouthState.WaveAmplitude = PhantoonBehavior.PhantoonIntroMaximumAmplitude;
         state.MouthState.WaveAmplitudeShrinking = false;
         state.EyeState.FadeComplete = false;
@@ -91,11 +91,11 @@ internal sealed class PhantoonOpening
         {
             state.BodyState.Phase = PhantoonPhase.PickFirstRoundPattern;
             state.MouthState.BodyLayer = PhantoonBodyLayer.Shown;
-            state.BodyState.FunctionTimer = 30;
+            state.BodyState.PhaseTimer = 30;
             return;
         }
 
-        if (PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
+        if (PhantoonPresentation.TickPhantoonPhaseTimer(state.BodyState))
             state.MouthState.WaveAmplitudeShrinking = true;
     }
 

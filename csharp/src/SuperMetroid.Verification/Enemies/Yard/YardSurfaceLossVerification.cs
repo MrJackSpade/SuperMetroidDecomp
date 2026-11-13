@@ -18,11 +18,11 @@ internal static class YardSurfaceLossVerification
     internal static void VerifyYardSurfaceLoss()
     {
         RoomLevelData air = VerificationHelpersVerification.CreateEmptyRoom(new(64, 64));
-        foreach ((int counted, int expected, YardBehavior expectedBehavior, YardMovementFunction expectedMovement) in
+        foreach ((int counted, int expected, YardBehavior expectedBehavior, YardMovement expectedMovement) in
                  new VerifyYardSurfaceLossCase[]
                  {
-                     new VerifyYardSurfaceLossCase(2, 3, YardBehavior.NormalCrawling, YardMovementFunction.CrawlingUpsideUpMovingRight),
-                     new VerifyYardSurfaceLossCase(3, 4, YardBehavior.Dropped, YardMovementFunction.Airborne),
+                     new VerifyYardSurfaceLossCase(2, 3, YardBehavior.NormalCrawling, YardMovement.CrawlingUpsideUpMovingRight),
+                     new VerifyYardSurfaceLossCase(3, 4, YardBehavior.Dropped, YardMovement.Airborne),
                  })
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -31,7 +31,7 @@ internal static class YardSurfaceLossVerification
             slot.Radius = new(8, 8);
             var state = new YardEnemyState()
             {
-                MovementFunction = YardMovementFunction.CrawlingUpsideUpMovingRight,
+                Movement = YardMovement.CrawlingUpsideUpMovingRight,
                 Behavior = YardBehavior.NormalCrawling,
                 CrawlingVelocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(256, 256),
                 ConsecutiveTurnCounter = counted,
@@ -42,7 +42,7 @@ internal static class YardSurfaceLossVerification
             string context = $"Yard missing its surface after {counted} misses";
             AssertEqual(expected, state.ConsecutiveTurnCounter, $"{context}: count");
             AssertEqual(expectedBehavior, state.Behavior, $"{context}: behavior");
-            AssertEqual(expectedMovement, state.MovementFunction, $"{context}: movement");
+            AssertEqual(expectedMovement, state.Movement, $"{context}: movement");
         }
         Console.WriteLine("  Yard surface loss: the fourth consecutive missed surface drops the Yard.");
     }

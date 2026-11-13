@@ -172,7 +172,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     attack.State.Body.Position = new(64, 100);
 
     attack.RainbowAttack.StartActiveBeam(samus);
-    AssertEqual(MotherBrainBodyFunction.SecondPhaseRainbowMoveSamusTowardWall, attack.State.Phase,
+    AssertEqual(MotherBrainBodyPhase.SecondPhaseRainbowMoveSamusTowardWall, attack.State.Phase,
         "active rainbow start installs wall-motion function");
     AssertEqual(SamusPoseId.KnockbackLeftPose, samus.Pose,
         "active rainbow start runs native drained setup command");
@@ -184,7 +184,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
 
     MotherBrainRainbowBeamAttackStepResult wall = attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 2, MainEnemyExecutionCounter = 1 });
     AssertEqual(0x00eb, samus.Position.X.Whole, "actor sequence moves Samus to hardcoded wall");
-    AssertEqual(MotherBrainBodyFunction.SecondPhaseRainbowOneFrameDelay, attack.State.Phase,
+    AssertEqual(MotherBrainBodyPhase.SecondPhaseRainbowOneFrameDelay, attack.State.Phase,
         "wall carry installs one-frame-delay function");
     AssertTrue(wall.SoundQueued && wall.ColoursRequested,
         "wall function runs sound and bit-one palette cadence");
@@ -193,7 +193,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
         "zero explosion timer increments to literal offset record one");
 
     MotherBrainRainbowBeamAttackStepResult delay = attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 2 });
-    AssertEqual(MotherBrainBodyFunction.SecondPhaseRainbowStartDrainingSamus, attack.State.Phase,
+    AssertEqual(MotherBrainBodyPhase.SecondPhaseRainbowStartDrainingSamus, attack.State.Phase,
         "zero delay timer underflows and schedules drain initializer");
     AssertEqual<MotherBrainEarthquakeRequest?>(new(MotherBrainDeathDefinitions.RainbowBeamEarthquake, 8), delay.Earthquake,
         "delay underflow starts the rainbow beam's strong diagonal foreground earthquake for eight frames");
@@ -201,8 +201,8 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     int drainCalls = 0;
     int queuedBeamSounds = (wall.SoundQueued ? 1 : 0) + (delay.SoundQueued ? 1 : 0);
     int explosions = wall.Explosion is null ? 0 : 1;
-    while (attack.State.Phase is MotherBrainBodyFunction.SecondPhaseRainbowStartDrainingSamus or
-           MotherBrainBodyFunction.SecondPhaseRainbowDrainingSamus)
+    while (attack.State.Phase is MotherBrainBodyPhase.SecondPhaseRainbowStartDrainingSamus or
+           MotherBrainBodyPhase.SecondPhaseRainbowDrainingSamus)
     {
         MotherBrainRainbowBeamAttackStepResult drain = attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = unchecked((ushort)drainCalls), MainEnemyExecutionCounter = unchecked((ushort)drainCalls) });
         drainCalls++;
@@ -220,12 +220,12 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(7, queuedBeamSounds, "count six queues seven rainbow beam sound attempts");
     AssertTrue(explosions > 1, "explosion timer continues across wall and drain phases");
     AssertEqual(RotationAngle.FromSteps(12), attack.RainbowAttack.AngularWidth, "drain widening clamps at twelve steps");
-    AssertEqual(MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring, attack.State.Phase,
+    AssertEqual(MotherBrainBodyPhase.SecondPhaseRainbowFinishFiring, attack.State.Phase,
         "drain timer underflow installs finish-firing function");
 
     int narrowingCalls = 0;
     bool lockedBeforeNarrowing = samus.Control.AlphaLocked;
-    while (attack.State.Phase == MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring)
+    while (attack.State.Phase == MotherBrainBodyPhase.SecondPhaseRainbowFinishFiring)
     {
         attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         narrowingCalls++;
@@ -236,39 +236,39 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertTrue(!attack.RainbowAttack.BeamActive, "beam shutdown hides the beam");
 
     int fallingCalls = 0;
-    while (attack.State.Phase is MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall or
-           MotherBrainBodyFunction.SecondPhaseRainbowWaitForSamusToLand)
+    while (attack.State.Phase is MotherBrainBodyPhase.SecondPhaseRainbowLetSamusFall or
+           MotherBrainBodyPhase.SecondPhaseRainbowWaitForSamusToLand)
     {
         MotherBrainRainbowBeamAttackStepResult falling = attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         fallingCalls++;
         AssertTrue(falling.Movement is not null,
             $"custom post-beam fall call {fallingCalls} owns Samus coordinates");
     }
-    AssertEqual(MotherBrainBodyFunction.SecondPhaseRainbowLowerHead, attack.State.Phase,
+    AssertEqual(MotherBrainBodyPhase.SecondPhaseRainbowLowerHead, attack.State.Phase,
         "custom falling carry installs lower-head function");
     AssertEqual(0x00c0, samus.Position.Y.Whole, "custom falling reaches hardcoded floor $C0");
     AssertEqual(SamusPoseId.DrainedCrouchingLeftPose, samus.Pose,
         "let-fall controller selects left drained pose from forced $54 direction");
 
     attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
-    AssertEqual(MotherBrainBodyFunction.SecondPhaseRainbowDecideNextAction, attack.State.Phase,
+    AssertEqual(MotherBrainBodyPhase.SecondPhaseRainbowDecideNextAction, attack.State.Phase,
         "lower-head function installs decision timer");
-    AssertEqual(0x0080, attack.State.FunctionTimer, "lower-head function seeds $80 timer");
+    AssertEqual(0x0080, attack.State.PhaseTimer, "lower-head function seeds $80 timer");
 
     int decisionCalls = 0;
-    while (attack.State.Phase == MotherBrainBodyFunction.SecondPhaseRainbowDecideNextAction)
+    while (attack.State.Phase == MotherBrainBodyPhase.SecondPhaseRainbowDecideNextAction)
     {
         attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         decisionCalls++;
     }
     AssertEqual(129, decisionCalls, "$80 decision timer expires on 129th DEC/BPL call");
-    AssertEqual(MotherBrainBodyFunction.SecondPhaseFinishSamusOff, attack.State.Phase,
+    AssertEqual(MotherBrainBodyPhase.SecondPhaseFinishSamusOff, attack.State.Phase,
         "post-drain health below $190 chooses finish-Samus chain");
     AssertEqual(MotherBrainBodySegment.WalkForwardReallySlow, attack.State.Body.Animation,
         "low-health decision immediately requests the native forward body walk");
     MotherBrainHeadSegment? headBeforeFinishThreshold = attack.State.HeadAnimation;
     MotherBrainRainbowBeamAttackStepResult finishThreshold = attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
-    AssertEqual(MotherBrainBodyFunction.SecondPhaseFinishSamusOff, finishThreshold.PhaseAfter,
+    AssertEqual(MotherBrainBodyPhase.SecondPhaseFinishSamusOff, finishThreshold.PhaseAfter,
         "399 energy remains above no-suit finish threshold 340");
     AssertEqual(headBeforeFinishThreshold, attack.State.HeadAnimation,
         "RNG zero takes finish-off no-attack branch");
@@ -292,7 +292,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     lowAttack.Step(low, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 1 });
     lowAttack.Step(low, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 2 });
     MotherBrainRainbowBeamAttackStepResult firstDrain = lowAttack.Step(low, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
-    AssertEqual(MotherBrainBodyFunction.SecondPhaseRainbowDrainingSamus, firstDrain.PhaseAfter,
+    AssertEqual(MotherBrainBodyPhase.SecondPhaseRainbowDrainingSamus, firstDrain.PhaseAfter,
         "drain initializer falls through into first resource tick");
     AssertEqual(0, low.Missiles,
         "depleted missiles clear even when a different HUD item is selected");

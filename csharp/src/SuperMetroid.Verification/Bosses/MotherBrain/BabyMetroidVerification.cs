@@ -104,7 +104,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         baby.Step(samus, motherBrain, HeadOf(motherBrain));
     AssertEqual(BabyMetroidCutscenePhase.DashOntoScreen, baby.Phase,
         "Baby dash delay retains function at timer zero");
-    AssertEqual(0, baby.FunctionTimer, "Baby dash delay exact zero boundary");
+    AssertEqual(0, baby.PhaseTimer, "Baby dash delay exact zero boundary");
     AssertEqual(new Position16<RoomPixels>(0x0140, 0x0060), baby.Position.Whole, "Baby remains still through call 248");
 
     baby.Step(samus, motherBrain, HeadOf(motherBrain));
@@ -131,7 +131,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         calls++;
         sawBodyStumbleRequest |= latch.BodyStumbleRequested;
         sawMotherBrainInterrupt |= motherBrain.State.Phase ==
-            MotherBrainBodyFunction.SecondPhaseDrainedByBabyTakenAback;
+            MotherBrainBodyPhase.SecondPhaseDrainedByBabyTakenAback;
         sawLatchSound |= latch.LatchSoundQueued;
 
         if (calls == 259)
@@ -170,15 +170,15 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         "Baby pin changes whole coordinates but retains native subpositions");
     AssertEqual(MotherBrainBodySegment.WalkBackwardReallyFast, motherBrain.State.Body.Animation,
         "Baby stumble uses animation-delay index two");
-    AssertEqual(MotherBrainBodyFunction.SecondPhaseDrainedByBabyTakenAback,
+    AssertEqual(MotherBrainBodyPhase.SecondPhaseDrainedByBabyTakenAback,
         motherBrain.State.Phase,
         "Baby installs Mother Brain $BE38 for the following actor turn");
 
     MotherBrainRainbowBeamAttackStepResult takenAback = motherBrain.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
-    AssertEqual(MotherBrainBodyFunction.SecondPhaseDrainedByBabyRegainBalance,
+    AssertEqual(MotherBrainBodyPhase.SecondPhaseDrainedByBabyRegainBalance,
         takenAback.PhaseAfter,
         "Mother Brain taken-aback setup falls through into regain balance");
-    AssertEqual(0x002f, motherBrain.State.FunctionTimer,
+    AssertEqual(0x002f, motherBrain.State.PhaseTimer,
         "Mother Brain first regain call decrements $30 to $2F");
     AssertEqual(MotherBrainForm.DrainedByBabyMetroid, motherBrain.State.Body.Form, "Baby drain changes Mother Brain to her drained form");
     AssertEqual(MotherBrainNeckMovement.Raise, motherBrain.State.LowerNeckMovement,
@@ -189,13 +189,13 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         "Mother Brain taken-aback neck delta");
 
     int regainCalls = 1;
-    while (motherBrain.State.Phase == MotherBrainBodyFunction.SecondPhaseDrainedByBabyRegainBalance)
+    while (motherBrain.State.Phase == MotherBrainBodyPhase.SecondPhaseDrainedByBabyRegainBalance)
     {
         motherBrain.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         regainCalls++;
     }
     AssertEqual(49, regainCalls, "Mother Brain regain balance includes setup fallthrough call");
-    AssertEqual(MotherBrainBodyFunction.SecondPhaseDrainedByBabyFiringRainbowBeam,
+    AssertEqual(MotherBrainBodyPhase.SecondPhaseDrainedByBabyFiringRainbowBeam,
         motherBrain.State.Phase,
         "Mother Brain advances to painful firing function");
     AssertEqual(MotherBrainNeckMovement.BobDown, motherBrain.State.LowerNeckMovement,

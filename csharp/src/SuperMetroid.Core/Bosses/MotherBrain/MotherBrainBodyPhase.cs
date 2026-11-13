@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The phases Mother Brain's body dispatcher runs; unrelated phases are not interchangeable.
 /// Its values are arbitrary; verification's catalog relates each member to its source (#1413).
 /// </summary>
-public enum MotherBrainBodyFunction
+public enum MotherBrainBodyPhase
 {
     /// <summary>Observes the tank-bound head's health and hands zero-health defeat to the fake-death descent.</summary>
     FirstPhase = 1,
@@ -122,9 +122,9 @@ public enum MotherBrainBodyFunction
     SecondPhaseFinishSamusOffChargeFinalBeam,
     /// <summary>Readies the Baby Metroid's arrival one update per call; the last retracts the head, spawns the baby, and seeds a 256-count firing wait.</summary>
     SecondPhaseFinishSamusOffReadyBaby,
-    /// <summary>Expires the final wait, starts the firing head animation, neck extension and its sound, then installs its own empty step as the holding function.</summary>
+    /// <summary>Expires the final wait, starts the firing head animation, neck extension and its sound, then installs its own empty step as the holding phase.</summary>
     SecondPhaseFinishSamusOffFireFinalBeam,
-    /// <summary>Inert step that waits until the independently running baby latches on and replaces the body function.</summary>
+    /// <summary>Inert step that waits until the independently running baby latches on and replaces the body phase.</summary>
     SecondPhaseFinalRainbowBeamHolding,
     /// <summary>The body's next turn after baby attachment changes form/neck motion and immediately starts the 48-count regain-balance pause.</summary>
     SecondPhaseDrainedByBabyTakenAback,
@@ -162,7 +162,7 @@ public enum MotherBrainBodyFunction
     SecondPhaseMurderBabyAttack,
     /// <summary>Waits for the 64-count timer's signed underflow before returning to baby-attack selection.</summary>
     SecondPhaseMurderBabyAttackCooldown,
-    /// <summary>Repeatedly requests standing and backward walking to X 64; the baby owns replacement of this body function.</summary>
+    /// <summary>Repeatedly requests standing and backward walking to X 64; the baby owns replacement of this body phase.</summary>
     SecondPhasePrepareForFinalBabyAttack,
     /// <summary>Installs the final targeted head volley and selects the following inert step.</summary>
     SecondPhaseExecuteFinalBabyAttack,

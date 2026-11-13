@@ -33,8 +33,8 @@ internal static class MotherBrainLaterContactVerification
         foreach (string contact in new[] { "body", "neck", "no-damage side", "post-dispatch position" })
         {
             body.Position = body.Position.WithWhole(new(128, 128));
-            state.Function = MotherBrainBodyFunction.FakeDeathAscentContinuePausing;
-            state.FunctionTimer = contact == "post-dispatch position" ? 0 : 100;
+            state.Phase = MotherBrainBodyPhase.FakeDeathAscentContinuePausing;
+            state.PhaseTimer = contact == "post-dispatch position" ? 0 : 100;
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(158, 128)), Health = 500 };
             samus.Kinematics.Radius = new(8, 16);
             ushort expectedX = 20;

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// The behaviours of the unused horizontal shutter.
 /// Its values are arbitrary.
 /// </summary>
-public enum HorizontalShutterFunction
+public enum HorizontalShutterAction
 {
     /// <summary>Installs the trigger-mode table entry for the following AI update.</summary>
     Initial = 1,

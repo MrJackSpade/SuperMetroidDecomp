@@ -121,7 +121,7 @@ internal sealed class TorizoCombat
         if (state.DeathStarted)
             return;
         state.DeathStarted = true;
-        state.Function = TorizoFunction.Idle;
+        state.Phase = TorizoPhase.Idle;
         TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoBodySegment.DeathSequence0));
         SetBehavior(torizo, TorizoBehaviorFlags.GutBlownUp | TorizoBehaviorFlags.FaceBlownUp);
         // The normal Torizo shot reaction makes the actor intangible when
@@ -235,7 +235,7 @@ internal sealed class TorizoCombat
             {
                 c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
                 c.Projectile.IsSpent = false;
-                torizoState.Function = TorizoFunction.Idle;
+                torizoState.Phase = TorizoPhase.Idle;
                 enemy.AnimationClock.StepOnNextUpdate();
                 _access.RequireBombTorizoState(enemy).BodyPlayback = TorizoAnimations.Start(_access.FacesRight(enemy)
                     ? TorizoBodySegment.GoldenDodgeTurningRight
@@ -245,11 +245,11 @@ internal sealed class TorizoCombat
 
             if (c.Family == SamusProjectileFamily.SuperMissile)
             {
-                if (c.Samus is not null && _access.BombTorizoFunction12IsNonNegative(enemy, c.Samus))
+                if (c.Samus is not null && _access.FacesSamus(enemy, c.Samus))
                 {
                     c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
                     SetBehavior(enemy, TorizoBehaviorFlags.CaughtSuperMissile);
-                    torizoState.Function = TorizoFunction.Idle;
+                    torizoState.Phase = TorizoPhase.Idle;
                     c.Projectile.IsSpent = true;
                     enemy.AnimationClock.StepOnNextUpdate();
                     _access.RequireBombTorizoState(enemy).BodyPlayback = TorizoAnimations.Start(_access.Posture(enemy).HasFlag(TorizoPostureFlags.OppositeLegForward)

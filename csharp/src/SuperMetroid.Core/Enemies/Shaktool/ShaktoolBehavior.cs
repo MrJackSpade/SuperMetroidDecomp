@@ -440,7 +440,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
                 // Explicit empty step used between the two long attack pauses.
                 break;
 
-            case ShaktoolCueKind.ResetFunctions:
+            case ShaktoolCueKind.ResetFrameBehaviors:
             {
                 RoomEnemySlot[] group = GetShaktoolGroup(slot);
                 for (int index = 0; index < ShaktoolSegmentCount; index++)

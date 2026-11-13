@@ -8,6 +8,6 @@ namespace SuperMetroid.Core.World;
 internal sealed class EnemyAttractDemoHooks(KraidBehavior kraid) : IEnemyAttractDemoHooks
 {
     /// <inheritdoc/>
-    public void SetKraidFunctionTimer(int frames) =>
-        (kraid.Access.Kraid ?? throw new InvalidDataException("The Kraid demo requires Kraid's encounter state.")).BodyState.FunctionTimer = frames;
+    public void SetKraidPhaseTimer(int frames) =>
+        (kraid.Access.Kraid ?? throw new InvalidDataException("The Kraid demo requires Kraid's encounter state.")).BodyState.PhaseTimer = frames;
 }

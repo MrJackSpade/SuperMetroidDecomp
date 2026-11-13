@@ -83,7 +83,7 @@ internal sealed class CeresRidleyBehavior
                 if (_roomStatus.EnemyDoorTransitionActive)
                     break;
                 state.Phase = RidleyPhase.InitialDelay;
-                state.FunctionTimer = 512;
+                state.PhaseTimer = 512;
                 CeresRidleyFlight.TickCeresRidleyInitialDelay(state);
                 break;
 
@@ -100,16 +100,16 @@ internal sealed class CeresRidleyBehavior
                 break;
 
             case RidleyPhase.WaitBeforeRoar:
-                if (--state.FunctionTimer < 0)
+                if (--state.PhaseTimer < 0)
                 {
                     CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.OpeningRoar);
-                    state.FunctionTimer = 252;
+                    state.PhaseTimer = 252;
                     state.Phase = RidleyPhase.WaitBeforeLiftoff;
                 }
                 break;
 
             case RidleyPhase.WaitBeforeLiftoff:
-                if (--state.FunctionTimer < 0)
+                if (--state.PhaseTimer < 0)
                 {
                     state.FadeStep = 0;
                     CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.TransitionToFlying);
@@ -120,7 +120,7 @@ internal sealed class CeresRidleyBehavior
                     state.WingAnimationTimerDelta = 8;
                     foreach (RidleyTailSegment segment in state.TailSegments)
                         segment.Active = true;
-                    state.TailFunctionIndex = RidleyTailFunction.Neutral;
+                    state.TailAction = RidleyTailAction.Neutral;
                     state.Phase = RidleyPhase.ClearVelocity;
                 }
                 break;
@@ -159,7 +159,7 @@ internal sealed class CeresRidleyBehavior
             case RidleyPhase.CeresLungeSetup:
                 CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.CeresLunge);
                 state.Phase = RidleyPhase.CeresLungeMain;
-                state.FunctionTimer = 64;
+                state.PhaseTimer = 64;
                 CeresRidleyFlight.TickCeresRidleyLunge(slot, state, samus);
                 break;
 
@@ -169,7 +169,7 @@ internal sealed class CeresRidleyBehavior
 
             case RidleyPhase.CeresSwoopSetup:
                 state.Phase = RidleyPhase.CeresSwoopMoveToPosition;
-                state.FunctionTimer = 10;
+                state.PhaseTimer = 10;
                 state.SwoopAngleAccumulator = RotationAngle.Zero;
                 state.IdleTailWhipEnabled = false;
                 CeresRidleyFlight.TickCeresRidleySwoopMoveToPosition(slot, state);
@@ -220,7 +220,7 @@ internal sealed class CeresRidleyBehavior
             case RidleyPhase.CeresSwoopAscendingAimingUpFaster:
                 CeresRidleyFlight.UpdateRidleySwoopVelocity(
                     state, angleDelta: -768, targetAngle: RotationAngle.Zero - SwoopClimbTarget, targetMagnitude: 768);
-                if (--state.FunctionTimer < 0)
+                if (--state.PhaseTimer < 0)
                 {
                     state.Phase = RidleyPhase.CeresHovering;
                     state.HoverCounter = 0;
@@ -237,7 +237,7 @@ internal sealed class CeresRidleyBehavior
                 break;
 
             case RidleyPhase.CeresWaitBeforeRetrievingBaby:
-                if (--state.FunctionTimer < 0)
+                if (--state.PhaseTimer < 0)
                 {
                     CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.RetrieveBabyMetroid);
                     state.Phase = RidleyPhase.CeresRetrieveBaby;

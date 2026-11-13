@@ -30,7 +30,7 @@ internal static class MotherBrainTubeTimingVerification
         const EnemyDefinitionId fallingTube = EnemyDefinitionId.MotherBrainTubes;
         int Tubes() => runtime.Enemies.SlotTable.Slots.Count(slot => slot.DefinitionId == fallingTube);
 
-        state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.WaitForFourFreeProjectileSlots;
+        state.TubeCollapseStep = MotherBrainTubeCollapseStep.WaitForFourFreeProjectileSlots;
         int firstSpawn = -1, secondSpawn = -1;
         for (int frame = 0; frame < 200 && secondSpawn < 0; frame++)
         {

@@ -21,7 +21,7 @@ public sealed class BabyTurtleEnemyState
     public Offset16<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>Gets the phase-specific Baby Turtle countdown.</summary>
-    public int FunctionTimer { get; internal set; }
+    public int ActionTimer { get; internal set; }
     /// <summary>Gets the reaction countdown used while the child is not carrying Samus.</summary>
     public int NotCarryingSamusReactionTimer { get; internal set; }
 }

@@ -22,25 +22,25 @@ internal static class CeresDoorInitializationDefinitions
         new Dictionary<CeresDoorVariant, CeresDoorInitializationDefinition>
         {
             [CeresDoorVariant.NormalFacingRight] = new(
-                CeresDoorFunction.HandleEarthquakeDuringEscape,
+                CeresDoorAction.HandleEarthquakeDuringEscape,
                 CeresDoorSegment.NormalFacingRight),
             [CeresDoorVariant.NormalFacingLeft] = new(
-                CeresDoorFunction.HandleEarthquakeDuringEscape,
+                CeresDoorAction.HandleEarthquakeDuringEscape,
                 CeresDoorSegment.NormalFacingLeft),
             [CeresDoorVariant.RotatingElevatorPreExplosionOverlay] = new(
-                CeresDoorFunction.RotatingElevatorRoomDefault,
+                CeresDoorAction.RotatingElevatorRoomDefault,
                 CeresDoorSegment.RotatingElevatorPreExplosionOverlay),
             [CeresDoorVariant.RidleyRoomFacingRight] = new(
-                CeresDoorFunction.HandleEarthquakeDuringEscapeInRidleysRoom,
+                CeresDoorAction.HandleEarthquakeDuringEscapeInRidleysRoom,
                 CeresDoorSegment.RidleyRoomFacingRight),
             [CeresDoorVariant.RotatingElevatorInvisibleWall] = new(
-                CeresDoorFunction.HandleEarthquakeDuringEscape,
+                CeresDoorAction.HandleEarthquakeDuringEscape,
                 CeresDoorSegment.RotatingElevatorInvisibleWall),
             [CeresDoorVariant.RidleyEscapeFloorLeftWall] = new(
-                CeresDoorFunction.RidleyEscapeFloorWall,
+                CeresDoorAction.RidleyEscapeFloorWall,
                 CeresDoorSegment.RidleyEscapeFloorLeftWall),
             [CeresDoorVariant.RidleyEscapeFloorRightWall] = new(
-                CeresDoorFunction.RidleyEscapeFloorWall,
+                CeresDoorAction.RidleyEscapeFloorWall,
                 CeresDoorSegment.RidleyEscapeFloorRightWall),
         };
 }

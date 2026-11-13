@@ -189,7 +189,7 @@ internal sealed class MotherBrainCombat
             // clears the body function timer on recoil underflow and stores the counter
             // immediately, before common projectile damage runs.
             sequence.ApplyPhase2Or3ShotReaction(reactionProjectile);
-            state.FunctionTimer = sequence.State.FunctionTimer;
+            state.PhaseTimer = sequence.State.PhaseTimer;
         }
         else
         {

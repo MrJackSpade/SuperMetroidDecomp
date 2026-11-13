@@ -14,7 +14,7 @@ public sealed class WallSpacePirateEnemyState
     /// AI entry, initialized for the starting wall and replaced by an animation cue as attack, jump, and landing animations
     /// advance.
     /// </summary>
-    public WallSpacePirateFunction? Function { get; internal set; }
+    public WallSpacePirateAction? Action { get; internal set; }
 
     /// <summary>
     /// Binary direction; starts downward, reverses on a blocked vertical move, and is reselected from whether the

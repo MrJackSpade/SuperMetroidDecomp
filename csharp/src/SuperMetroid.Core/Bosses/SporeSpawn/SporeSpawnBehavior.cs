@@ -111,7 +111,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var state = new SporeSpawnEnemyState(body)
         {
-            Function = SporeSpawnFunction.Idle,
+            Movement = SporeSpawnMovement.Idle,
             StalkAnchor = body.Position.Whole + new Offset16<RoomPixels>(0, -72),
             MovementCenter = body.Position.Whole,
         };
@@ -152,30 +152,30 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body,
         SporeSpawnEnemyState state)
     {
-        switch (state.Function)
+        switch (state.Movement)
         {
-            case SporeSpawnFunction.Idle:
+            case SporeSpawnMovement.Idle:
                 return;
 
-            case SporeSpawnFunction.Descending:
+            case SporeSpawnMovement.Descending:
                 RunSporeSpawnDescent(body, state);
                 return;
 
-            case SporeSpawnFunction.Moving:
+            case SporeSpawnMovement.Moving:
                 RunSporeSpawnMovement(body, state);
                 return;
 
-            case SporeSpawnFunction.SetupDeath:
+            case SporeSpawnMovement.SetupDeath:
                 SetupSporeSpawnDeathVelocity(body, state);
                 return;
 
-            case SporeSpawnFunction.Dying:
+            case SporeSpawnMovement.Dying:
                 RunSporeSpawnDying(body, state);
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Spore Spawn function {state.Function} is not translated.");
+                    $"Spore Spawn function {state.Movement} is not translated.");
         }
     }
 
@@ -245,7 +245,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Distance(body.Position.X.Whole, SporeSpawnDeathCenterX) < 8 &&
             CoordinateAxis.Distance(body.Position.Y.Whole, SporeSpawnDeathCenterY) < 8)
         {
-            state.Function = SporeSpawnFunction.Idle;
+            state.Movement = SporeSpawnMovement.Idle;
         }
 
         UpdateSporeSpawnStalks(state);
@@ -464,7 +464,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         SporeSpawnEnemyState state = RequireSporeSpawnState(body);
         if (body.FlashTimer != 0)
         {
-            state.Function = SporeSpawnFunction.Moving;
+            state.Movement = SporeSpawnMovement.Moving;
 
             // Below 400 health the code doubles angular speed while preserving its
             // current sign. At exactly 400 it leaves the existing delta untouched.
@@ -561,8 +561,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.RequestDeathDrops }:
                 RequestSporeSpawnDeathDrops();
                 return;
-            case SporeSpawnCue.SetFunction setFunction:
-                state.Function = setFunction.Function;
+            case SporeSpawnCue.SetMovement setMovement:
+                state.Movement = setMovement.Movement;
                 return;
             case SporeSpawnCue.LoadDeathPalette loadDeathPalette:
                 LoadSporeSpawnDeathPalette(loadDeathPalette.DeathPaletteStep);

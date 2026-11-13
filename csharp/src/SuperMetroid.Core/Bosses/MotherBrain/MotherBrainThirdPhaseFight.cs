@@ -46,7 +46,7 @@ internal sealed class MotherBrainThirdPhaseFight
 
     /// <summary>Countdown shared by the two phase-three recoil functions; it stops at zero.</summary>
     [IntegerQuantity("frames left in the recoil; the death sequence waits for the tenth")]
-    public int Phase3NeckFunctionTimer { get; private set; }
+    public int Phase3NeckRecoilTimer { get; private set; }
 
     /// <summary>
     /// Whether phase-three attacks are suspended. Hyper Beam recoil sets it
@@ -162,16 +162,16 @@ internal sealed class MotherBrainThirdPhaseFight
                 _state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
                 _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.RecoilRecovery;
-                Phase3NeckFunctionTimer = 16;
+                Phase3NeckRecoilTimer = 16;
 
                 // The neck step falls directly into its successor; the newly loaded sixteen is already
                 // fifteen when this single handler call returns.
                 goto case MotherBrainPhase3NeckPhase.RecoilRecovery;
 
             case MotherBrainPhase3NeckPhase.RecoilRecovery:
-                if (Phase3NeckFunctionTimer != 0)
+                if (Phase3NeckRecoilTimer != 0)
                 {
-                    Phase3NeckFunctionTimer--;
+                    Phase3NeckRecoilTimer--;
                     return;
                 }
 
@@ -190,15 +190,15 @@ internal sealed class MotherBrainThirdPhaseFight
                 _state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
                 _state.UpperNeckMovement = MotherBrainNeckMovement.Raise;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.HyperBeamRecoil;
-                Phase3NeckFunctionTimer = 11;
+                Phase3NeckRecoilTimer = 11;
 
                 // Setup also falls through, making the externally visible first timer 10.
                 goto case MotherBrainPhase3NeckPhase.HyperBeamRecoil;
 
             case MotherBrainPhase3NeckPhase.HyperBeamRecoil:
-                if (Phase3NeckFunctionTimer != 0)
+                if (Phase3NeckRecoilTimer != 0)
                 {
-                    Phase3NeckFunctionTimer--;
+                    Phase3NeckRecoilTimer--;
                     return;
                 }
 
@@ -223,8 +223,8 @@ internal sealed class MotherBrainThirdPhaseFight
         // request uses target X-14 and delay index two; the ordinary helper may
         // legitimately reject it at the arena's hard left limit.
         _state.Body.Form = MotherBrainForm.ThirdPhase;
-        _state.Phase = MotherBrainBodyFunction.ThirdPhaseRecoverSetupForFighting;
-        _state.FunctionTimer = 32;
+        _state.Phase = MotherBrainBodyPhase.ThirdPhaseRecoverSetupForFighting;
+        _state.PhaseTimer = 32;
         requests.BodyWalkRequested = _state.RequestWalkBackward(
             CoordinateAxis.Wrap(_state.Body.Position.X - 14),
             animationDelay: 2).Requested;
@@ -239,9 +239,9 @@ internal sealed class MotherBrainThirdPhaseFight
     {
         // The timer of 32 remains valid through zero and expires only when it wraps negative,
         // yielding 33 setup calls after the one-frame recovery producer above.
-        if (--_state.FunctionTimer < 0)
+        if (--_state.PhaseTimer < 0)
         {
-            _state.Phase = MotherBrainBodyFunction.ThirdPhaseFightingMain;
+            _state.Phase = MotherBrainBodyPhase.ThirdPhaseFightingMain;
             Phase3NeckPhase = MotherBrainPhase3NeckPhase.Normal;
             Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.TryToInchForward;
 
@@ -263,7 +263,7 @@ internal sealed class MotherBrainThirdPhaseFight
         // writes until the following body turn; no phase-two behavior leaks through.
         if (_state.BrainHealth == 0)
         {
-            _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathMoveToBackOfRoom;
+            _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathMoveToBackOfRoom;
             return false;
         }
 
@@ -286,8 +286,8 @@ internal sealed class MotherBrainThirdPhaseFight
             _state.SetHeadAnimation(MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3);
         }
 
-        _state.Phase = MotherBrainBodyFunction.ThirdPhaseFightingAttackCooldown;
-        _state.FunctionTimer = 64;
+        _state.Phase = MotherBrainBodyPhase.ThirdPhaseFightingAttackCooldown;
+        _state.PhaseTimer = 64;
         return false;
     }
 
@@ -299,8 +299,8 @@ internal sealed class MotherBrainThirdPhaseFight
     {
         // The attack cooldown accepts timer zero and returns to main only after underflow. It
         // does not fall through, so neck and walking handlers pause for all 65 calls.
-        if (--_state.FunctionTimer < 0)
-            _state.Phase = MotherBrainBodyFunction.ThirdPhaseFightingMain;
+        if (--_state.PhaseTimer < 0)
+            _state.Phase = MotherBrainBodyPhase.ThirdPhaseFightingMain;
         return false;
     }
 

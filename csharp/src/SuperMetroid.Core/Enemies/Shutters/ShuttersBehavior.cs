@@ -71,14 +71,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             GrowingShutterGrowth.Up => true,
             _ => throw new InvalidOperationException($"Growing shutter growth {settings.Growth} is not a direction."),
         };
-        state.Function = settings.Wait switch
+        state.Action = settings.Wait switch
         {
             GrowingShutterWait.Timer => growsUp
-                ? GrowingShutterFunction.WaitToGrowUpForTimer
-                : GrowingShutterFunction.WaitToGrowDownForTimer,
+                ? GrowingShutterAction.WaitToGrowUpForTimer
+                : GrowingShutterAction.WaitToGrowDownForTimer,
             GrowingShutterWait.SamusNear => growsUp
-                ? GrowingShutterFunction.WaitToGrowUpForProximity
-                : GrowingShutterFunction.WaitToGrowDownForProximity,
+                ? GrowingShutterAction.WaitToGrowUpForProximity
+                : GrowingShutterAction.WaitToGrowDownForProximity,
             _ => throw new InvalidOperationException($"Growing shutter wait {settings.Wait} is not a wait."),
         };
 
@@ -103,37 +103,37 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState? samus,
         Position16<RoomPixels> camera)
     {
-        switch (state.Function)
+        switch (state.Action)
         {
-            case GrowingShutterFunction.WaitToGrowDownForTimer:
+            case GrowingShutterAction.WaitToGrowDownForTimer:
                 if (AdvanceGrowingShutterTimer(state))
                     ActivateGrowingShutter(slot, state, direction: VerticalDirection.Down, camera);
                 return;
 
-            case GrowingShutterFunction.WaitToGrowUpForTimer:
+            case GrowingShutterAction.WaitToGrowUpForTimer:
                 if (AdvanceGrowingShutterTimer(state))
                     ActivateGrowingShutter(slot, state, direction: VerticalDirection.Up, camera);
                 return;
 
-            case GrowingShutterFunction.WaitToGrowDownForProximity:
+            case GrowingShutterAction.WaitToGrowDownForProximity:
                 if (samus is null)
                     throw new InvalidOperationException("Growing-shutter proximity AI requires Samus state.");
                 if (IsSamusWithinShutterHorizontalDistance(slot, samus, state.ActivationDistance))
                     ActivateGrowingShutter(slot, state, direction: VerticalDirection.Down, camera);
                 return;
 
-            case GrowingShutterFunction.WaitToGrowUpForProximity:
+            case GrowingShutterAction.WaitToGrowUpForProximity:
                 if (samus is null)
                     throw new InvalidOperationException("Growing-shutter proximity AI requires Samus state.");
                 if (IsSamusWithinShutterHorizontalDistance(slot, samus, state.ActivationDistance))
                     ActivateGrowingShutter(slot, state, direction: VerticalDirection.Up, camera);
                 return;
 
-            case GrowingShutterFunction.GrowDown:
+            case GrowingShutterAction.GrowDown:
                 GrowShutterDown(slot, state);
                 return;
 
-            case GrowingShutterFunction.GrowUp:
+            case GrowingShutterAction.GrowUp:
                 if (samus is null)
                     throw new InvalidOperationException("Upward growing-shutter carry requires Samus state.");
                 GrowShutterUp(slot, state, samus);
@@ -141,7 +141,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Growing shutter function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Growing shutter function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -164,9 +164,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         VerticalDirection direction,
         Position16<RoomPixels> camera)
     {
-        state.Function = direction == VerticalDirection.Up
-            ? GrowingShutterFunction.GrowUp
-            : GrowingShutterFunction.GrowDown;
+        state.Action = direction == VerticalDirection.Up
+            ? GrowingShutterAction.GrowUp
+            : GrowingShutterAction.GrowDown;
         QueueShutterActivationSoundIfOnScreen(slot, camera);
     }
 
@@ -296,7 +296,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.TravelDistance = settings.TravelDistance;
         state.ProximityDistance = settings.ProximityDistance;
         state.WaitTime = settings.WaitTime;
-        state.FunctionTimer = WrappingCountdown.Start(settings.WaitTime);
+        state.ActionTimer = WrappingCountdown.Start(settings.WaitTime);
 
         Position16<RoomPixels> spawn = slot.Position.Whole;
         var travel = new Offset16<RoomPixels>(state.TravelDistance, 0);
@@ -308,7 +308,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.LeftEndpoint = spawn - travel;
         }
 
-        state.Function = HorizontalShutterFunction.Initial;
+        state.Action = HorizontalShutterAction.Initial;
         state.MovingSamus = false;
         state.ShotActivated = false;
         slot.CollidesByFrameHitboxes = false;
@@ -326,22 +326,22 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Horizontal-shutter AI requires Samus state.");
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case HorizontalShutterFunction.Initial:
-                SelectInitialHorizontalShutterFunction(state);
+            case HorizontalShutterAction.Initial:
+                SelectInitialHorizontalShutterAction(state);
                 break;
 
-            case HorizontalShutterFunction.WaitForTimer:
-                state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
-                if (state.FunctionTimer.IsZero)
+            case HorizontalShutterAction.WaitForTimer:
+                state.ActionTimer = state.ActionTimer.Decrement().Remaining;
+                if (state.ActionTimer.IsZero)
                 {
-                    state.FunctionTimer = WrappingCountdown.Start(state.WaitTime);
+                    state.ActionTimer = WrappingCountdown.Start(state.WaitTime);
                     ActivateHorizontalShutter(state);
                 }
                 break;
 
-            case HorizontalShutterFunction.WaitForHorizontalProximity:
+            case HorizontalShutterAction.WaitForHorizontalProximity:
                 if (IsSamusWithinShutterHorizontalDistance(
                     slot,
                     samus,
@@ -351,38 +351,38 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 break;
 
-            case HorizontalShutterFunction.Activate:
+            case HorizontalShutterAction.Activate:
                 ActivateHorizontalShutter(state);
                 break;
 
-            case HorizontalShutterFunction.InitialNoOp:
-            case HorizontalShutterFunction.PermanentNoOp:
+            case HorizontalShutterAction.InitialNoOp:
+            case HorizontalShutterAction.PermanentNoOp:
                 break;
 
-            case HorizontalShutterFunction.MovingLeft:
+            case HorizontalShutterAction.MovingLeft:
                 MoveHorizontalShutter(slot, state, samus, controllerInput, direction: HorizontalDirection.Left);
                 break;
 
-            case HorizontalShutterFunction.MovingRight:
+            case HorizontalShutterAction.MovingRight:
                 MoveHorizontalShutter(slot, state, samus, controllerInput, direction: HorizontalDirection.Right);
                 break;
 
-            case HorizontalShutterFunction.StoppedAfterMovingLeft:
+            case HorizontalShutterAction.StoppedAfterMovingLeft:
                 RunHorizontalShutterStopped(state, end: HorizontalDirection.Left);
                 break;
 
-            case HorizontalShutterFunction.StoppedAfterMovingRight:
+            case HorizontalShutterAction.StoppedAfterMovingRight:
                 RunHorizontalShutterStopped(state, end: HorizontalDirection.Right);
                 break;
 
             default:
                 throw new InvalidDataException(
-                    $"Horizontal shutter function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Horizontal shutter function {state.Action?.ToString() ?? "none"} is not translated.");
         }
 
         // An idle shutter reacts when one of Samus's four solid-enemy collisions
         // names this enemy and she has contact damage (e.g. screw attack).
-        if (state.Function is not (HorizontalShutterFunction.MovingLeft or HorizontalShutterFunction.MovingRight) &&
+        if (state.Action is not (HorizontalShutterAction.MovingLeft or HorizontalShutterAction.MovingRight) &&
             SamusContactsIdleShutter(slot, samus))
         {
             ReactHorizontalShutter(slot);
@@ -397,24 +397,24 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         _ => throw new InvalidOperationException($"Undefined {nameof(ShutterHeading)} {heading}."),
     };
 
-    /// <summary>Selects the population's timer, proximity, activation, or idle initial function.</summary>
-    internal static void SelectInitialHorizontalShutterFunction(HorizontalShutterEnemyState state)
+    /// <summary>Selects the population's timer, proximity, activation, or idle initial action.</summary>
+    internal static void SelectInitialHorizontalShutterAction(HorizontalShutterEnemyState state)
     {
-        state.Function = state.TriggerMode switch
+        state.Action = state.TriggerMode switch
         {
-            ShutterTriggerMode.Timer => HorizontalShutterFunction.WaitForTimer,
-            ShutterTriggerMode.HorizontalProximity => HorizontalShutterFunction.WaitForHorizontalProximity,
-            ShutterTriggerMode.Immediate => HorizontalShutterFunction.Activate,
-            ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction => HorizontalShutterFunction.InitialNoOp,
+            ShutterTriggerMode.Timer => HorizontalShutterAction.WaitForTimer,
+            ShutterTriggerMode.HorizontalProximity => HorizontalShutterAction.WaitForHorizontalProximity,
+            ShutterTriggerMode.Immediate => HorizontalShutterAction.Activate,
+            ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction => HorizontalShutterAction.InitialNoOp,
             _ => throw new InvalidDataException($"Horizontal shutter trigger mode {state.TriggerMode} is invalid."),
         };
     }
 
     /// <summary>Starts movement in the population's primary direction.</summary>
     private static void ActivateHorizontalShutter(HorizontalShutterEnemyState state) =>
-        state.Function = state.PrimaryDirection == ShutterHeading.LeftOrUp
-            ? HorizontalShutterFunction.MovingLeft
-            : HorizontalShutterFunction.MovingRight;
+        state.Action = state.PrimaryDirection == ShutterHeading.LeftOrUp
+            ? HorizontalShutterAction.MovingLeft
+            : HorizontalShutterAction.MovingRight;
 
     /// <summary>
     /// Moves toward the left or right endpoint, carries Samus on contact (Samus on the leading side, pushing against the
@@ -452,11 +452,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         int restTime = direction == HorizontalDirection.Left ? state.MovedLeftRestTime : state.MovedRightRestTime;
         if (restTime == PermanentStopRestTime)
         {
-            state.Function = HorizontalShutterFunction.PermanentNoOp;
+            state.Action = HorizontalShutterAction.PermanentNoOp;
             return;
         }
-        state.FunctionTimer = WrappingCountdown.Start(restTime);
-        state.Function = direction == HorizontalDirection.Left ? HorizontalShutterFunction.StoppedAfterMovingLeft : HorizontalShutterFunction.StoppedAfterMovingRight;
+        state.ActionTimer = WrappingCountdown.Start(restTime);
+        state.Action = direction == HorizontalDirection.Left ? HorizontalShutterAction.StoppedAfterMovingLeft : HorizontalShutterAction.StoppedAfterMovingRight;
     }
 
     /// <summary>
@@ -465,14 +465,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static void RunHorizontalShutterStopped(HorizontalShutterEnemyState state, HorizontalDirection end)
     {
-        CountdownStep timer = state.FunctionTimer.Decrement();
-        state.FunctionTimer = timer.Remaining;
+        CountdownStep timer = state.ActionTimer.Decrement();
+        state.ActionTimer = timer.Remaining;
         if (timer.IsNonNegative)
             return;
         bool reversesIntoPrimary = (state.PrimaryDirection == ShutterHeading.LeftOrUp) != (end == HorizontalDirection.Left);
-        state.Function = state.TriggerMode == ShutterTriggerMode.HorizontalProximity && reversesIntoPrimary
-            ? HorizontalShutterFunction.WaitForHorizontalProximity
-            : end == HorizontalDirection.Left ? HorizontalShutterFunction.MovingRight : HorizontalShutterFunction.MovingLeft;
+        state.Action = state.TriggerMode == ShutterTriggerMode.HorizontalProximity && reversesIntoPrimary
+            ? HorizontalShutterAction.WaitForHorizontalProximity
+            : end == HorizontalDirection.Left ? HorizontalShutterAction.MovingRight : HorizontalShutterAction.MovingLeft;
     }
 
     /// <summary>Tests shutter and Samus radius boxes before applying horizontal carry.</summary>
@@ -490,7 +490,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         ControllerButton controllerInput)
     {
         HorizontalShutterEnemyState state = slot.RequireSpeciesState<HorizontalShutterEnemyState>();
-        if (state.Function != HorizontalShutterFunction.PermanentNoOp)
+        if (state.Action != HorizontalShutterAction.PermanentNoOp)
             return;
 
         bool samusIsLeft = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
@@ -518,13 +518,13 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.ShotActivated = true;
         }
 
-        if (state.Function is HorizontalShutterFunction.MovingLeft or HorizontalShutterFunction.MovingRight)
+        if (state.Action is HorizontalShutterAction.MovingLeft or HorizontalShutterAction.MovingRight)
             return;
 
         state.ReactionDirection = Opposite(state.ReactionDirection);
-        state.Function = state.ReactionDirection == ShutterHeading.LeftOrUp
-            ? HorizontalShutterFunction.MovingLeft
-            : HorizontalShutterFunction.MovingRight;
+        state.Action = state.ReactionDirection == ShutterHeading.LeftOrUp
+            ? HorizontalShutterAction.MovingLeft
+            : HorizontalShutterAction.MovingRight;
     }
 
     /// <summary>Restarts the stationary shutter pose after movement or reaction.</summary>
@@ -774,7 +774,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.TravelDistance = settings.TravelDistance;
         state.ProximityDistance = settings.ProximityDistance;
         state.WaitTime = settings.WaitTime;
-        state.FunctionTimer = WrappingCountdown.Start(settings.WaitTime);
+        state.ActionTimer = WrappingCountdown.Start(settings.WaitTime);
 
         Position16<RoomPixels> spawn = slot.Position.Whole;
         var travel = new Offset16<RoomPixels>(0, state.TravelDistance);
@@ -786,7 +786,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.UpperEndpoint = spawn - travel;
         }
 
-        state.Function = VerticalShutterFunction.Initial;
+        state.Action = VerticalShutterAction.Initial;
         state.MovingSamus = false;
         state.ShotActivated = false;
         slot.CollidesByFrameHitboxes = false;
@@ -807,19 +807,19 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         // The initial function calls through its parameter table during this very AI
         // call; it does not spend a frame installing the selected wait function.
         // Keep Initial live until activation writes the moving function, as does.
-        switch (state.Function == VerticalShutterFunction.Initial
-            ? SelectInitialVerticalShutterFunction(state) : state.Function)
+        switch (state.Action == VerticalShutterAction.Initial
+            ? SelectInitialVerticalShutterAction(state) : state.Action)
         {
-            case VerticalShutterFunction.WaitForTimer:
-                state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
-                if (state.FunctionTimer.IsZero)
+            case VerticalShutterAction.WaitForTimer:
+                state.ActionTimer = state.ActionTimer.Decrement().Remaining;
+                if (state.ActionTimer.IsZero)
                 {
-                    state.FunctionTimer = WrappingCountdown.Start(state.WaitTime);
+                    state.ActionTimer = WrappingCountdown.Start(state.WaitTime);
                     ActivateVerticalShutter(slot, state, camera);
                 }
                 break;
 
-            case VerticalShutterFunction.WaitForHorizontalProximity:
+            case VerticalShutterAction.WaitForHorizontalProximity:
                 if (samus is null)
                     throw new InvalidOperationException("Vertical-shutter proximity AI requires Samus state.");
                 if (IsSamusWithinShutterHorizontalDistance(
@@ -831,43 +831,43 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 break;
 
-            case VerticalShutterFunction.Activate:
+            case VerticalShutterAction.Activate:
                 ActivateVerticalShutter(slot, state, camera);
                 break;
 
-            case VerticalShutterFunction.InitialNoOp:
-            case VerticalShutterFunction.PermanentNoOp:
+            case VerticalShutterAction.InitialNoOp:
+            case VerticalShutterAction.PermanentNoOp:
                 break;
 
-            case VerticalShutterFunction.MovingUp:
+            case VerticalShutterAction.MovingUp:
                 if (samus is null)
                     throw new InvalidOperationException("Moving vertical shutter requires Samus state.");
                 MoveVerticalShutter(slot, state, samus, direction: VerticalDirection.Up);
                 break;
 
-            case VerticalShutterFunction.MovingDown:
+            case VerticalShutterAction.MovingDown:
                 if (samus is null)
                     throw new InvalidOperationException("Moving vertical shutter requires Samus state.");
                 MoveVerticalShutter(slot, state, samus, direction: VerticalDirection.Down);
                 break;
 
-            case VerticalShutterFunction.StoppedAfterMovingUp:
+            case VerticalShutterAction.StoppedAfterMovingUp:
                 RunVerticalShutterStopped(slot, state, camera, end: VerticalDirection.Up);
                 break;
 
-            case VerticalShutterFunction.StoppedAfterMovingDown:
+            case VerticalShutterAction.StoppedAfterMovingDown:
                 RunVerticalShutterStopped(slot, state, camera, end: VerticalDirection.Down);
                 break;
 
-            case VerticalShutterFunction.Initial:
+            case VerticalShutterAction.Initial:
             default:
                 throw new InvalidDataException(
-                    $"Vertical shutter function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Vertical shutter function {state.Action?.ToString() ?? "none"} is not translated.");
         }
 
         // An idle shutter reacts when one of Samus's four solid-enemy collisions
         // names this enemy and she has contact damage (e.g. screw attack).
-        if (state.Function is not (VerticalShutterFunction.MovingUp or VerticalShutterFunction.MovingDown) &&
+        if (state.Action is not (VerticalShutterAction.MovingUp or VerticalShutterAction.MovingDown) &&
             SamusContactsIdleShutter(slot, samus ?? throw new InvalidOperationException(
                 "Vertical-shutter AI requires Samus state for its contact reaction.")))
         {
@@ -875,15 +875,15 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Selects the vertical population's timer, proximity, activation, or idle initial function.</summary>
-    internal static VerticalShutterFunction SelectInitialVerticalShutterFunction(VerticalShutterEnemyState state)
+    /// <summary>Selects the vertical population's timer, proximity, activation, or idle initial action.</summary>
+    internal static VerticalShutterAction SelectInitialVerticalShutterAction(VerticalShutterEnemyState state)
     {
         return state.TriggerMode switch
         {
-            ShutterTriggerMode.Timer => VerticalShutterFunction.WaitForTimer,
-            ShutterTriggerMode.HorizontalProximity => VerticalShutterFunction.WaitForHorizontalProximity,
-            ShutterTriggerMode.Immediate => VerticalShutterFunction.Activate,
-            ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction => VerticalShutterFunction.InitialNoOp,
+            ShutterTriggerMode.Timer => VerticalShutterAction.WaitForTimer,
+            ShutterTriggerMode.HorizontalProximity => VerticalShutterAction.WaitForHorizontalProximity,
+            ShutterTriggerMode.Immediate => VerticalShutterAction.Activate,
+            ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction => VerticalShutterAction.InitialNoOp,
             _ => throw new InvalidDataException($"Vertical shutter trigger mode {state.TriggerMode} is invalid."),
         };
     }
@@ -894,9 +894,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         VerticalShutterEnemyState state,
         Position16<RoomPixels> camera)
     {
-        state.Function = state.PrimaryDirection == ShutterHeading.LeftOrUp
-            ? VerticalShutterFunction.MovingUp
-            : VerticalShutterFunction.MovingDown;
+        state.Action = state.PrimaryDirection == ShutterHeading.LeftOrUp
+            ? VerticalShutterAction.MovingUp
+            : VerticalShutterAction.MovingDown;
         QueueShutterActivationSoundIfOnScreen(slot, camera);
     }
 
@@ -938,11 +938,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         int restTime = atTop ? state.MovedUpRestTime : state.MovedDownRestTime;
         if (restTime == PermanentStopRestTime)
         {
-            state.Function = VerticalShutterFunction.PermanentNoOp;
+            state.Action = VerticalShutterAction.PermanentNoOp;
             return;
         }
-        state.FunctionTimer = WrappingCountdown.Start(restTime);
-        state.Function = atTop ? VerticalShutterFunction.StoppedAfterMovingUp : VerticalShutterFunction.StoppedAfterMovingDown;
+        state.ActionTimer = WrappingCountdown.Start(restTime);
+        state.Action = atTop ? VerticalShutterAction.StoppedAfterMovingUp : VerticalShutterAction.StoppedAfterMovingDown;
     }
 
     /// <summary>
@@ -955,15 +955,15 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera,
         VerticalDirection end)
     {
-        CountdownStep timer = state.FunctionTimer.Decrement();
-        state.FunctionTimer = timer.Remaining;
+        CountdownStep timer = state.ActionTimer.Decrement();
+        state.ActionTimer = timer.Remaining;
         if (timer.IsNonNegative)
             return;
 
         bool reversesIntoPrimary = (state.PrimaryDirection == ShutterHeading.LeftOrUp) != (end == VerticalDirection.Up);
-        state.Function = state.TriggerMode == ShutterTriggerMode.HorizontalProximity && reversesIntoPrimary
-            ? VerticalShutterFunction.WaitForHorizontalProximity
-            : end == VerticalDirection.Up ? VerticalShutterFunction.MovingDown : VerticalShutterFunction.MovingUp;
+        state.Action = state.TriggerMode == ShutterTriggerMode.HorizontalProximity && reversesIntoPrimary
+            ? VerticalShutterAction.WaitForHorizontalProximity
+            : end == VerticalDirection.Up ? VerticalShutterAction.MovingDown : VerticalShutterAction.MovingUp;
         QueueShutterActivationSoundIfOnScreen(slot, camera);
     }
 
@@ -1008,15 +1008,15 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.ShotActivated = true;
         }
 
-        bool moving = state.Function is VerticalShutterFunction.MovingUp or VerticalShutterFunction.MovingDown;
+        bool moving = state.Action is VerticalShutterAction.MovingUp or VerticalShutterAction.MovingDown;
         if (healthAfterHit is { } health ? DestroyedShutterReaction.FindsMoving(moving, health) : moving)
         {
             return;
         }
 
-        state.Function = state.ReactionDirection == ShutterHeading.LeftOrUp
-            ? VerticalShutterFunction.MovingUp
-            : VerticalShutterFunction.MovingDown;
+        state.Action = state.ReactionDirection == ShutterHeading.LeftOrUp
+            ? VerticalShutterAction.MovingUp
+            : VerticalShutterAction.MovingDown;
         state.ReactionDirection = Opposite(state.ReactionDirection);
         QueueShutterActivationSoundIfOnScreen(slot, camera);
     }

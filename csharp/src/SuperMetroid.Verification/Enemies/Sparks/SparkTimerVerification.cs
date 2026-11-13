@@ -11,13 +11,13 @@ internal static class SparkTimerVerification
     /// </summary>
     internal static void VerifySparkTimer()
     {
-        var state = new SparkEnemyState { FunctionTimer = 1 };
+        var state = new SparkEnemyState { ActionTimer = 1 };
         AssertTrue(SparkBehavior.DecrementSparkTimerAndTestExpired(state), "a countdown at one expires");
-        AssertEqual(1, state.FunctionTimer, "the expiring update leaves the countdown for its reset");
+        AssertEqual(1, state.ActionTimer, "the expiring update leaves the countdown for its reset");
 
-        state.FunctionTimer = 0;
+        state.ActionTimer = 0;
         AssertTrue(!SparkBehavior.DecrementSparkTimerAndTestExpired(state), "a countdown at zero does not expire");
-        AssertEqual(-1, state.FunctionTimer, "a countdown at zero steps below zero");
+        AssertEqual(-1, state.ActionTimer, "a countdown at zero steps below zero");
         Console.WriteLine("Spark timer: the expiry and the zero wrap match.");
     }
 

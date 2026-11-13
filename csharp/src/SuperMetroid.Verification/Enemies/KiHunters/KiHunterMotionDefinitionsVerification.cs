@@ -38,7 +38,7 @@ internal static class KiHunterMotionDefinitionsVerification
             EnemyQuadraticSpeedIndex speed = EnemyQuadraticSpeedIndex.FromRows(1);
             ushort angle = unchecked((ushort)(raw + delta(speed, EnemySpeedSign.Negative)));
             state.WingArcAngle = RotationAngle.FromRaw((ushort)raw);
-            state.WingFunction = KiHunterWingFunction.Orbit;
+            state.WingMovement = KiHunterWingMovement.Orbit;
             state.DetachedSpeedIndex = speed;
             state.OrbitCenter = new Position16<RoomPixels>((ushort)raw, (ushort)(ushort.MaxValue - raw));
             state.OrbitOffset = new Offset16<RoomPixels>(13, 17);
@@ -51,7 +51,7 @@ internal static class KiHunterMotionDefinitionsVerification
             // to three quarters (the cartridge's sign test of the angle plus a quarter turn, across its wrap).
             bool changesArc = angle >= RotationAngle.QuarterTurn.RawValue && angle < RotationAngle.ThreeQuarterTurn.RawValue;
             arcChanges += changesArc ? 1 : 0;
-            AssertEqual(changesArc ? KiHunterWingFunction.FallingCollisionArc : KiHunterWingFunction.Orbit, state.WingFunction,
+            AssertEqual(changesArc ? KiHunterWingMovement.FallingCollisionArc : KiHunterWingMovement.Orbit, state.WingMovement,
                 $"Detached orbit at advanced angle {angle} changes arc only within the middle half turn");
             AssertEqual(changesArc ? speedReset : 256, state.DetachedSpeedIndex.InTwoHundredFiftySixthsOfRow,
                 $"Detached orbit at advanced angle {angle} restores the reset on an arc change or lands a slowing step on 256");
@@ -65,10 +65,10 @@ internal static class KiHunterMotionDefinitionsVerification
         foreach ((int before, int after) in new[] { new VerifyKiHunterMotionDefinitionsCase(1000, 616), new VerifyKiHunterMotionDefinitionsCase(384, 0), new VerifyKiHunterMotionDefinitionsCase(383, 256), new VerifyKiHunterMotionDefinitionsCase(0, 256) })
         {
             state.WingArcAngle = RotationAngle.Zero;
-            state.WingFunction = KiHunterWingFunction.Orbit;
+            state.WingMovement = KiHunterWingMovement.Orbit;
             state.DetachedSpeedIndex = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(before);
             orbit(slot, state);
-            AssertEqual(KiHunterWingFunction.Orbit, state.WingFunction, $"Detached orbit from speed index {before} keeps orbiting");
+            AssertEqual(KiHunterWingMovement.Orbit, state.WingMovement, $"Detached orbit from speed index {before} keeps orbiting");
             AssertEqual(after, state.DetachedSpeedIndex.InTwoHundredFiftySixthsOfRow, $"Detached orbit slows speed index {before} by one step or lands on 256");
         }
         Console.WriteLine("KiHunter motion: native constants, 65536 bus-free orbit placements, arc changes and speed steps, and all gravity fractional carries pass.");

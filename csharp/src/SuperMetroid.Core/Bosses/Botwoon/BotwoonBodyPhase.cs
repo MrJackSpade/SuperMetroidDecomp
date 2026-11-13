@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>Botwoon's body-segment phases, each naming the behaviour it runs; the segment's state holds the member (#1413).</summary>
-internal enum BotwoonBodyFunction
+internal enum BotwoonBodyPhase
 {
     /// <summary>Enemy projectile behaviour: botwoons body, main.</summary>
     Main = 1,

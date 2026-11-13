@@ -43,22 +43,22 @@ internal sealed class CeresRidleyBabyScene
     /// <summary>Keeps the Baby at Ridley's arm anchor, falls independently, then follows the grasp point on retrieval.</summary>
     internal static void TickCeresBaby(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        switch (state.BabyFunction)
+        switch (state.BabyAction)
         {
-            case CeresBabyFunction.CarriedInArms:
+            case CeresBabyAction.CarriedInArms:
                 // Before the fake retreat, the Baby remains at Ridley's original left-hand
                 // anchor. This function is also why the retrieval target begins coherent
                 // even though the Baby is not a separate RoomEnemySlot.
                 state.BabyPosition = state.BabyPosition.WithWhole(slot.Position.Whole + CeresBabyArmsAnchor);
                 return;
 
-            case CeresBabyFunction.Drop:
+            case CeresBabyAction.Drop:
                 state.BabyPosition = state.BabyPosition.WithFractionY(0);
                 state.BabyVerticalVelocity = SignedEightEight.Zero;
-                state.BabyFunction = CeresBabyFunction.Dropped;
-                goto case CeresBabyFunction.Dropped;
+                state.BabyAction = CeresBabyAction.Dropped;
+                goto case CeresBabyAction.Dropped;
 
-            case CeresBabyFunction.Dropped:
+            case CeresBabyAction.Dropped:
                 // The falling speed only grows from zero and the fall ends at Y=192, so it stays a few pixels an
                 // update.
                 state.BabyVerticalVelocity += CeresBabyFallGravity;
@@ -66,24 +66,24 @@ internal sealed class CeresRidleyBabyScene
                 if (CoordinateAxis.Difference(state.BabyPosition.Y.Whole, 192) >= 0)
                 {
                     state.BabyPosition = state.BabyPosition.WithWholeY(192);
-                    state.BabyFunction = CeresBabyFunction.Idle;
+                    state.BabyAction = CeresBabyAction.Idle;
                 }
                 return;
 
-            case CeresBabyFunction.CarriedInFeet:
+            case CeresBabyAction.CarriedInFeet:
                 // Once the hand rectangles overlap, the Baby follows the grasp point for
                 // the real retreat and disappears with Ridley at the status-one handoff.
                 state.BabyPosition = state.BabyPosition.WithWhole(slot.Position.Whole + CeresBabyFeetAnchor);
                 return;
 
-            case CeresBabyFunction.Idle:
+            case CeresBabyAction.Idle:
                 return;
 
-            case CeresBabyFunction.None:
+            case CeresBabyAction.None:
                 throw new InvalidOperationException("The Ceres Baby Metroid has no behavior function.");
 
             default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresBabyFunction)} {state.BabyFunction}.");
+                throw new InvalidOperationException($"Undefined {nameof(CeresBabyAction)} {state.BabyAction}.");
         }
     }
 

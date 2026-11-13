@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// The Ceres door's and wall's main behaviours.
 /// Its values are arbitrary.
 /// </summary>
-internal enum CeresDoorFunction
+internal enum CeresDoorAction
 {
     /// <summary>Shakes the screen while Ceres self-destructs.</summary>
     HandleEarthquakeDuringEscape = 1,

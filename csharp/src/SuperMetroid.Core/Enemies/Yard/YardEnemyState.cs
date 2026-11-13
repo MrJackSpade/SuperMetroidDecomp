@@ -36,10 +36,10 @@ public sealed class YardEnemyState
     }
 
     /// <summary>
-    /// movement dispatcher function, which may lag a direction cue by one update and therefore owns dispatch
+    /// movement dispatcher, which may lag a direction cue by one update and therefore owns dispatch
     /// independently of <see cref="Direction"/>.
     /// </summary>
-    public YardMovementFunction? MovementFunction { get; internal set; }
+    public YardMovement? Movement { get; internal set; }
 
     /// <summary>
     /// Extra values zero through three: signed 16.16 airborne velocity in pixels per AI update (Y fraction/whole,

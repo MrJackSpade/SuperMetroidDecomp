@@ -41,19 +41,19 @@ internal static class SporeSpawnAnimations
         [P.InitialDead] =
         [
             Cue(new SporeSpawnCue.LoadDeathTargetPalette(DeathPaletteStep: DeathPaletteSteps - 1)),
-            Function(SporeSpawnFunction.Idle),
+            SelectMovement(SporeSpawnMovement.Idle),
             Show(new(F.Dead, 0), 1),
         ],
         [P.InitialAlive] =
         [
             Show(new(F.Closed, 0), DescentWait),
-            Function(SporeSpawnFunction.Descending),
+            SelectMovement(SporeSpawnMovement.Descending),
             Show(new(F.Closed, 0), 1),
         ],
         [P.FightStarted] =
         [
             Cue(new SporeSpawnCue.SetMaxXRadiusAndAngleDelta(MaximumXRadius: FirstMaximumXRadius, AngleDelta: 1)),
-            Function(SporeSpawnFunction.Moving),
+            SelectMovement(SporeSpawnMovement.Moving),
             Show(new(F.Closed, 0), FirstSway),
         ],
         [P.OpenAndStop] =
@@ -63,7 +63,7 @@ internal static class SporeSpawnAnimations
             Show(new(F.Closed, 0), 1),
             .. Enumerable.Range(0, OpeningDurations.Length).Select(pose => Show(new(F.Opening, pose), OpeningDurations[pose])),
             Cue(new SporeSpawnCue.Signal(K.ClearDamagedFlag)),
-            Function(SporeSpawnFunction.Idle),
+            SelectMovement(SporeSpawnMovement.Idle),
         ],
         [P.OpenPulse] =
         [
@@ -76,7 +76,7 @@ internal static class SporeSpawnAnimations
         [
             .. Closing(),
             Show(new(F.Closed, 0), 1),
-            Function(SporeSpawnFunction.Moving),
+            SelectMovement(SporeSpawnMovement.Moving),
             Cue(new SporeSpawnCue.SetSporeGeneration(SporeGenerationSuppressed: false)),
             Cue(new SporeSpawnCue.Signal(K.IncreaseMaxXRadius)),
             Show(new(F.Closed, 0), ClosedSway),
@@ -85,9 +85,9 @@ internal static class SporeSpawnAnimations
         ],
         [P.Death] =
         [
-            Function(SporeSpawnFunction.SetupDeath),
+            SelectMovement(SporeSpawnMovement.SetupDeath),
             Show(new(F.Opening, 5), 1),
-            Function(SporeSpawnFunction.Dying),
+            SelectMovement(SporeSpawnMovement.Dying),
         ],
         [P.DyingExplosions] =
         [
@@ -130,9 +130,9 @@ internal static class SporeSpawnAnimations
     private static IEnumerable<AnimationBeat<SporeSpawnFrame, SporeSpawnCue>> Closing() =>
         Enumerable.Range(0, OpeningDurations.Length - 1).Reverse().Select(pose => Show(new(F.Opening, pose), PoseDuration));
 
-    /// <summary>Selects <paramref name="function"/> as the main-AI function.</summary>
-    private static AnimationBeat<SporeSpawnFrame, SporeSpawnCue> Function(SporeSpawnFunction function) =>
-        Cue(new SporeSpawnCue.SetFunction(Function: function));
+    /// <summary>Selects <paramref name="movement"/> as the main-AI movement.</summary>
+    private static AnimationBeat<SporeSpawnFrame, SporeSpawnCue> SelectMovement(SporeSpawnMovement movement) =>
+        Cue(new SporeSpawnCue.SetMovement(Movement: movement));
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<SporeSpawnFrame, SporeSpawnCue> Cue(SporeSpawnCue cue) =>

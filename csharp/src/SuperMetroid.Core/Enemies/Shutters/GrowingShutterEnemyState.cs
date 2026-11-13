@@ -26,10 +26,10 @@ public sealed class GrowingShutterEnemyState
     internal AnimationPlayback<ShutterSegment> Playback { get; set; }
 
     /// <summary>
-    /// The dispatcher behaviour; initialization selects a wait function and activation replaces it with a growth
-    /// function.
+    /// The dispatcher behaviour; initialization selects a wait action and activation replaces it with a growth
+    /// action.
     /// </summary>
-    public GrowingShutterFunction? Function { get; internal set; }
+    public GrowingShutterAction? Action { get; internal set; }
 
     /// <summary>
     /// The timer-mode activation wait: tested for expiry before each decrement, so a wait of N activates on call N + 1

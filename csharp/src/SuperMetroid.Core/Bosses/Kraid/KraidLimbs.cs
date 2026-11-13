@@ -137,7 +137,7 @@ internal sealed class KraidLimbs
             return false;
 
         state.BodyState.Phase = KraidPhase.AdvanceHeadAnimationAndTimer;
-        state.BodyState.FunctionTimer = 180;
+        state.BodyState.PhaseTimer = 180;
         state.BodyState.PhaseToResume = KraidPhase.GrowReleaseCamera;
 
         KraidHeadGrowthResume resume = KraidHeadAnimations.ReadsAt(state.HeadPlayback).Growth;
@@ -211,7 +211,7 @@ internal sealed class KraidLimbs
             case KraidPhase.FootFirstPhaseThinking:
                 if (TryBeginKraidGrowth(body, state))
                     return;
-                KraidEncounterAccess.TickKraidFunctionTimer(part);
+                KraidEncounterAccess.TickKraidPhaseTimer(part);
                 return;
             case KraidPhase.FootPrepareFirstPhaseLunge:
                 PrepareKraidFirstPhaseLunge(body, foot);
@@ -219,11 +219,11 @@ internal sealed class KraidLimbs
             case KraidPhase.FootFirstPhaseLunge:
                 RunKraidFirstPhaseLunge(body, foot, part);
                 return;
-            case KraidPhase.DecrementFunctionTimerAndStartWalk:
+            case KraidPhase.FootWaitBeforeWalk:
                 TickKraidFootTransitionTimer(foot, part);
                 return;
-            case KraidPhase.HandleFunctionTimer:
-                KraidEncounterAccess.TickKraidFunctionTimer(part);
+            case KraidPhase.WaitToResumePhase:
+                KraidEncounterAccess.TickKraidPhaseTimer(part);
                 return;
             case KraidPhase.FootFirstPhaseRetreat:
                 RunKraidFirstPhaseRetreat(body, foot, part);
@@ -303,7 +303,7 @@ internal sealed class KraidLimbs
         _access.StartKraidPartAnimation(arm, KraidPartSegment.ArmDyingOrPreparingToLunge);
         _access.StartKraidPartAnimation(foot, KraidPartSegment.FootLungeForward);
         _access.Part(foot).Phase = KraidPhase.FootFirstPhaseLunge;
-        _access.Part(foot).FunctionTimer = 0;
+        _access.Part(foot).PhaseTimer = 0;
     }
 
     /// <summary>Moves the small-form foot and body through the forward lunge.</summary>
@@ -321,8 +321,8 @@ internal sealed class KraidLimbs
         if (body.Position.X.Whole == 92)
         {
             part.PhaseToResume = KraidPhase.FootFirstPhaseRetreat;
-            _access.Part(foot).Phase = KraidPhase.DecrementFunctionTimerAndStartWalk;
-            _access.Part(foot).FunctionTimer = 1;
+            _access.Part(foot).Phase = KraidPhase.FootWaitBeforeWalk;
+            _access.Part(foot).PhaseTimer = 1;
             _access.SetKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
         }
         else
@@ -336,9 +336,9 @@ internal sealed class KraidLimbs
     private void TickKraidFootTransitionTimer(RoomEnemySlot foot, KraidFootState part)
     {
         KraidPartState footState = _access.Part(foot);
-        if (footState.FunctionTimer == 0)
+        if (footState.PhaseTimer == 0)
             return;
-        if (--footState.FunctionTimer == 0)
+        if (--footState.PhaseTimer == 0)
         {
             _access.Part(foot).Phase = part.PhaseToResume;
             _access.StartKraidPartAnimation(foot, KraidPartSegment.FootWalkingBackward);
@@ -363,7 +363,7 @@ internal sealed class KraidLimbs
             _access.StartKraidPartAnimation(arm, KraidPartSegment.ArmNormal);
             _access.StartKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
             _access.Part(foot).Phase = KraidPhase.FootFirstPhaseThinking;
-            _access.Part(foot).FunctionTimer = 300;
+            _access.Part(foot).PhaseTimer = 300;
             part.PhaseToResume = KraidPhase.FootPrepareFirstPhaseLunge;
         }
         else
@@ -387,8 +387,8 @@ internal sealed class KraidLimbs
         }
         if (KraidPhaseGroups.BeforeFootWalkingBackwardLoop.Contains(KraidPartResidentAnimation(foot)))
             return;
-        _access.Part(foot).Phase = KraidPhase.HandleFunctionTimer;
-        _access.Part(foot).FunctionTimer = 180;
+        _access.Part(foot).Phase = KraidPhase.WaitToResumePhase;
+        _access.Part(foot).PhaseTimer = 180;
         part.PhaseToResume = KraidPhase.FootSecondPhaseInitialize;
         _access.StartKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
     }

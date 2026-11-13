@@ -52,7 +52,7 @@ internal sealed class TorizoChoices
             SamusPoseId.MorphBallMovingLeftPose or SamusPoseId.SpringBallGroundRightPose or
             SamusPoseId.SpringBallGroundLeftPose or SamusPoseId.SpringBallMovingRightPose or
             SamusPoseId.SpringBallMovingLeftPose;
-        if (_access.BombTorizoFunction12IsNonNegative(torizo, samus) ||
+        if (_access.FacesSamus(torizo, samus) ||
             distance < 4 || distance >= 40 || !isGroundedBall)
         {
             return null;
@@ -73,7 +73,7 @@ internal sealed class TorizoChoices
         if (samus is null)
             return null;
         int distance = CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole);
-        if (!_access.BombTorizoFunction12IsNonNegative(torizo, samus) ||
+        if (!_access.FacesSamus(torizo, samus) ||
             distance < 32 || distance >= 96 || !TorizoRandomDefinitions.MediumRangeAttack.IsTakenBy(_room.Random.Generate()))
         {
             return null;
@@ -94,7 +94,7 @@ internal sealed class TorizoChoices
         if (samus is null)
             return null;
         int distance = CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole);
-        if (distance < 112 || !_access.BombTorizoFunction12IsNonNegative(torizo, samus))
+        if (distance < 112 || !_access.FacesSamus(torizo, samus))
             return null;
         ControllerButton heldButtons = controllerInput;
         if (state.SamusSpaceJumpFrames <= 360 &&
@@ -120,7 +120,7 @@ internal sealed class TorizoChoices
             return null;
         int distance = CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole);
         if (state.DecisionCounter < 8 &&
-            (distance >= 32 || !_access.BombTorizoFunction12IsNonNegative(torizo, samus)))
+            (distance >= 32 || !_access.FacesSamus(torizo, samus)))
         {
             return null;
         }
@@ -227,7 +227,7 @@ internal sealed class TorizoChoices
         TorizoBodySegment target)
     {
         if (samus is null || CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole) >= 32 ||
-            !_access.BombTorizoFunction12IsNonNegative(torizo, samus))
+            !_access.FacesSamus(torizo, samus))
         {
             return null;
         }

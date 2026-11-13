@@ -27,9 +27,9 @@ internal static class BabyMetroidRouteDefinitions
     internal const int FirstExtraEightLeg = 5;
 
     /// <summary>The wrong-way horizontal speed addition of each movement step.</summary>
-    internal static readonly Dictionary<BabyMetroidRouteMovementFunction, int> WrongWayOffScreenXSpeeds = new()
+    internal static readonly Dictionary<BabyMetroidRouteMovement, int> WrongWayOffScreenXSpeeds = new()
     {
-        [BabyMetroidRouteMovementFunction.GradualAccelerationExtraEight] = 8,
-        [BabyMetroidRouteMovementFunction.GradualAccelerationExtraSixteen] = 16,
+        [BabyMetroidRouteMovement.GradualAccelerationExtraEight] = 8,
+        [BabyMetroidRouteMovement.GradualAccelerationExtraSixteen] = 16,
     };
 }

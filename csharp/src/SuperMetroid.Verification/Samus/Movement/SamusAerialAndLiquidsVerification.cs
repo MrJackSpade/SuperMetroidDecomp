@@ -361,7 +361,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
             EquippedItems = gravity ? SamusEquipmentFlags.GravitySuit : 0,
         };
         ordinary.LiquidPhysics.WaterSurfaceY = submerged ? 0 : null;
-        ordinary.LiquidPhysics.CinematicFunctionActive = cinematic;
+        ordinary.LiquidPhysics.CinematicActive = cinematic;
         SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(ordinary, SamusPoseId.SpinJumpRightPose);
         bool expectedSound = !cinematic && (!submerged || gravity);
         AssertEqual(expectedSound ? 1 : 0, ordinary.LiquidPhysics.SoundRequests.Count,
@@ -1282,7 +1282,7 @@ internal static void VerifySamusAtmosphericEffects()
         new UnsignedSixteenSixteen(0x8005, 1));
     AssertEqual(new SoundRequest(RoomSound.Landing, SoundRequestPriority.Normal),
         landing.LiquidPhysics.SoundRequests.Single(), "whole speed $8005 is below five as a signed word");
-    landing.LiquidPhysics.CinematicFunctionActive = true;
+    landing.LiquidPhysics.CinematicActive = true;
     landing.LiquidPhysics.BeginFrameSoundRequests();
     int beforeCinematic = landingParticles.Count;
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
@@ -1292,7 +1292,7 @@ internal static void VerifySamusAtmosphericEffects()
         "cinematic landing suppresses both sound libraries");
     AssertEqual(beforeCinematic + 2, landingParticles.Count, "Norfair cinematic still dispatches landing dust");
     AssertEqual(SamusParticleKind.Dust, landingParticles[^1].Kind, "Norfair cinematic landing particles are dust");
-    landing.LiquidPhysics.CinematicFunctionActive = false;
+    landing.LiquidPhysics.CinematicActive = false;
 
     landing.LiquidPhysics.ConfigureWater(surfaceY: 111);
     int beforeSurface = landingParticles.Count;

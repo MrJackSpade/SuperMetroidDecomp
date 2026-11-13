@@ -75,7 +75,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         ushort Read(int address) => ReadSporeSpawnProgramWord(rom, unchecked((ushort)address));
         ushort instruction = initial, timer = 1, loop = 0, visual = 0;
         ushort properties = 0, extra = 0, radius = 48;
-        var function = SporeSpawnFunction.Idle;
+        var movement = SporeSpawnMovement.Idle;
         bool drops = false;
         var trace = new List<SporeSpawnProgramFrame>(frames);
         for (int frame = 0; frame < frames; frame++)
@@ -123,7 +123,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
                         case 0xe82d: radius = Read(cursor + 2); cursor += 6; break;
                         case 0xe87c: properties = (ushort)((properties & 0x5bff) | 0xa000); cursor += 2; break;
                         case 0xe8b1: drops = true; cursor += 2; break;
-                        case 0xe8ba: function = SporeSpawnNativeWords.SporeSpawnFunctions.Decode(Read(cursor + 2), "Spore Spawn function operand"); cursor += 4; break;
+                        case 0xe8ba: movement = SporeSpawnNativeWords.SporeSpawnMovements.Decode(Read(cursor + 2), "Spore Spawn function operand"); cursor += 4; break;
                         case 0xe872: case 0xe895: case 0xe8ca: case 0xe91c: cursor += 4; break;
                         case 0xe771: case 0xe96e: case 0xe9b1: cursor += 2; break;
                         default: throw new InvalidDataException($"Unexpected native Spore Spawn opcode {opcode:X4} at {cursor:X4}.");
@@ -132,7 +132,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
                 AssertTrue(stopped, "native Spore Spawn instruction tick terminates");
             }
             trace.Add(new SporeSpawnProgramFrame(instruction, timer, visual,
-                new(128, 624), 960, properties, extra, function, 0, radius, false, drops));
+                new(128, 624), 960, properties, extra, movement, 0, radius, false, drops));
         }
         return trace;
     }
@@ -147,7 +147,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
             NativeBodyInstruction(steps, state), slot.AnimationClock.Hold.RawValue,
             slot.SpritemapPointer, slot.Position.Whole,
             checked((ushort)slot.Health), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodePropertyWord(properties)), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodeExtraPropertyWord(properties)),
-            state.Function, state.Angle.ToTrigonometryAngle().RawValue, checked((ushort)state.MaximumXRadius),
+            state.Movement, state.Angle.ToTrigonometryAngle().RawValue, checked((ushort)state.MaximumXRadius),
             state.DeathStarted, system.ActiveEnemyDropPickups > 0);
     }
 
@@ -156,6 +156,6 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         ushort Instruction, ushort Timer, ushort VisualFrame,
         Position16<RoomPixels> Position, ushort Health,
         ushort Properties, ushort ExtraProperties,
-        SporeSpawnFunction Function, ushort Angle, ushort MaximumXRadius,
+        SporeSpawnMovement Movement, ushort Angle, ushort MaximumXRadius,
         bool DeathStarted, bool DeathDropRequested);
 }

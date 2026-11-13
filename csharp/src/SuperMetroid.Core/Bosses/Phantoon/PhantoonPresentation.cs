@@ -64,8 +64,8 @@ internal sealed class PhantoonPresentation
         return false;
     }
 
-    /// <summary>Counts the body function timer down and reports its expiry: reaching zero or running past it.</summary>
-    internal static bool TickPhantoonFunctionTimer(PhantoonBodyState body) => --body.FunctionTimer <= 0;
+    /// <summary>Counts the body phase timer down and reports its expiry: reaching zero or running past it.</summary>
+    internal static bool TickPhantoonPhaseTimer(PhantoonBodyState body) => --body.PhaseTimer <= 0;
 
     /// <summary>The health band <paramref name="body"/>'s health shows: zero through seven.</summary>
     internal static int HealthBand(RoomEnemySlot body) => Math.Min(7, Math.Max(0, (body.Health - 1) / 312));

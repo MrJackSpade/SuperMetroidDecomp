@@ -62,7 +62,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         DeadTorizo = new DeadTorizoEnemyState(slot, new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount))
         {
-            Function = DeadTorizoFunction.Wait,
+            Phase = DeadTorizoPhase.Wait,
             Velocity = new(default, SignedEightEight.FromParts(0, 8)),
         };
         slot.SetSpeciesState(DeadTorizo);
@@ -82,33 +82,33 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             TriggerDeadTorizoRotting(slot);
         }
 
-        switch (state.Function ?? throw new InvalidDataException("Dead Torizo has no corpse function."))
+        switch (state.Phase ?? throw new InvalidDataException("Dead Torizo has no corpse function."))
         {
-            case DeadTorizoFunction.Wait:
+            case DeadTorizoPhase.Wait:
                 if (samus?.Kinematics.DidCollideWithSolidEnemy(slot.SlotIndex) == true)
-                    state.Function = DeadTorizoFunction.PreRot;
+                    state.Phase = DeadTorizoPhase.PreRot;
                 break;
 
-            case DeadTorizoFunction.PreRot:
+            case DeadTorizoPhase.PreRot:
                 state.PreRotDelayCounter++;
                 if (state.PreRotDelayCounter >= 16)
                 {
                     slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
-                    state.Function = DeadTorizoFunction.Rotting;
+                    state.Phase = DeadTorizoPhase.Rotting;
                     RunDeadTorizoRotting(slot, state);
                 }
                 break;
 
-            case DeadTorizoFunction.Rotting:
+            case DeadTorizoPhase.Rotting:
                 RunDeadTorizoRotting(slot, state);
                 break;
 
-            case DeadTorizoFunction.NoOperation:
+            case DeadTorizoPhase.NoOperation:
                 break;
 
             default:
                 throw new InvalidDataException(
-                    $"Dead Torizo function {state.Function} is not translated.");
+                    $"Dead Torizo function {state.Phase} is not translated.");
         }
     }
 
@@ -123,7 +123,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ProcessCallCount++;
         bool stillRotting = state.Rot.Step(state.Rows.MoveRow, _ => FinishDeadTorizoCorpseRow());
         if (!stillRotting)
-            state.Function = DeadTorizoFunction.NoOperation;
+            state.Phase = DeadTorizoPhase.NoOperation;
     }
 
     /// <summary>Shot/touch tail.</summary>
@@ -131,7 +131,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         DeadTorizoEnemyState state = RequireDeadTorizoState(slot);
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
-        state.Function = DeadTorizoFunction.Rotting;
+        state.Phase = DeadTorizoPhase.Rotting;
     }
 
     /// <summary>Power-bomb entry.</summary>

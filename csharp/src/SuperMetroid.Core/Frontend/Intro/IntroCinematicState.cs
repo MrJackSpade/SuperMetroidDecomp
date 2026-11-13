@@ -594,7 +594,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         };
         // Shared Samus handlers read the active cinematic function to select
         // intro palette restoration and suppress gameplay-only sound/landing effects.
-        CurrentFlashbackSamus.LiquidPhysics.CinematicFunctionActive = true;
+        CurrentFlashbackSamus.LiquidPhysics.CinematicActive = true;
         CurrentFlashbackSamus.Presentation.BindArtwork(samusBodyArtwork);
         CurrentFlashbackSamus.Presentation.BindSheets(spriteSheets);
         SamusPoseMetadata.RefreshCollisionRadii(CurrentFlashbackSamus);

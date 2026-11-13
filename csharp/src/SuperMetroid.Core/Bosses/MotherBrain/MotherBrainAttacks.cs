@@ -56,7 +56,7 @@ internal sealed class MotherBrainAttacks
                 state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
                 state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
                 state.HandBeamPhase = MotherBrainHandBeamPhase.BackUp;
-                state.Function = MotherBrainBodyFunction.SecondPhaseThinking;
+                state.Phase = MotherBrainBodyPhase.SecondPhaseThinking;
                 return;
 
             default:
@@ -109,7 +109,7 @@ internal sealed class MotherBrainAttacks
             {
                 // The attack setup installs the attack dispatcher and returns. It does not execute
                 // phase zero until the body's next enemy-AI call.
-                state.Function = MotherBrainBodyFunction.SecondPhaseTryAttack;
+                state.Phase = MotherBrainBodyPhase.SecondPhaseTryAttack;
                 return;
             }
             HandleMotherBrainWalking(state);
@@ -123,13 +123,13 @@ internal sealed class MotherBrainAttacks
         }
         if (MotherBrainRandomDefinitions.AttacksWhenWounded.IsTakenBy(random))
         {
-            state.Function = MotherBrainBodyFunction.SecondPhaseTryAttack;
+            state.Phase = MotherBrainBodyPhase.SecondPhaseTryAttack;
             return;
         }
         // The hand-beam setup installs the ordinary red hand-beam dispatcher. It does not execute phase
         // zero until the next body AI call; the rainbow beam's dispatcher is separate and
         // entered only when health reaches zero.
-        state.Function = MotherBrainBodyFunction.SecondPhaseHandBeam;
+        state.Phase = MotherBrainBodyPhase.SecondPhaseHandBeam;
     }
 
     /// <summary>
@@ -156,7 +156,7 @@ internal sealed class MotherBrainAttacks
 
             case MotherBrainAttackPhase.EndAttack:
                 state.AttackPhase = MotherBrainAttackPhase.ChooseAttack;
-                state.Function = MotherBrainBodyFunction.SecondPhaseThinking;
+                state.Phase = MotherBrainBodyPhase.SecondPhaseThinking;
                 return;
 
             default:
@@ -195,7 +195,7 @@ internal sealed class MotherBrainAttacks
             // The laser branch abandons the strategy helper's caller, then installs and
             // jumps to the quick laser aim. Calling the first body state here reproduces that same-frame
             // tail call rather than introducing an otherwise visible idle frame.
-            state.Function = MotherBrainBodyFunction.SecondPhaseLaserPositionHeadQuickly;
+            state.Phase = MotherBrainBodyPhase.SecondPhaseLaserPositionHeadQuickly;
             PositionMotherBrainHeadQuicklyForLaser(state, samus);
             return;
         }
@@ -204,7 +204,7 @@ internal sealed class MotherBrainAttacks
         // to the attack Samus's distance chooses.
         if (MotherBrainRandomDefinitions.AttackPresses.IsTakenBy(random) && state.BombCounter < 1)
         {
-            state.Function = MotherBrainBodyFunction.SecondPhaseBombDecideWalking;
+            state.Phase = MotherBrainBodyPhase.SecondPhaseBombDecideWalking;
             DecideMotherBrainBombWalking(state);
             return;
         }
@@ -223,7 +223,7 @@ internal sealed class MotherBrainAttacks
                 MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.FourOnionRingsPhase2);
                 return;
             case MotherBrainSecondPhaseAttack.Laser:
-                state.Function = MotherBrainBodyFunction.SecondPhaseLaserPositionHeadQuickly;
+                state.Phase = MotherBrainBodyPhase.SecondPhaseLaserPositionHeadQuickly;
                 PositionMotherBrainHeadQuicklyForLaser(state, samus);
                 return;
             case MotherBrainSecondPhaseAttack.Bomb when state.BombCounter >= 1:
@@ -231,7 +231,7 @@ internal sealed class MotherBrainAttacks
                 // already alive. The body still spends the full cooldown in phase one.
                 return;
             case MotherBrainSecondPhaseAttack.Bomb:
-                state.Function = MotherBrainBodyFunction.SecondPhaseBombDecideWalking;
+                state.Phase = MotherBrainBodyPhase.SecondPhaseBombDecideWalking;
                 DecideMotherBrainBombWalking(state);
                 return;
             default:
@@ -265,7 +265,7 @@ internal sealed class MotherBrainAttacks
                 state.BodyTargetXPosition = targetX;
                 if (!TryWalkMotherBrainBackwards(state, targetX))
                 {
-                    state.Function = MotherBrainBodyFunction.SecondPhaseBombWalkingBackwards;
+                    state.Phase = MotherBrainBodyPhase.SecondPhaseBombWalkingBackwards;
                     return;
                 }
             }
@@ -294,7 +294,7 @@ internal sealed class MotherBrainAttacks
             return;
         }
 
-        state.Function = MotherBrainBodyFunction.SecondPhaseBombCrouch;
+        state.Phase = MotherBrainBodyPhase.SecondPhaseBombCrouch;
         CrouchMotherBrainForBomb(state);
     }
 
@@ -309,14 +309,14 @@ internal sealed class MotherBrainAttacks
     private static void FireMotherBrainBomb(MotherBrainEnemyState state)
     {
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.BombPhase2);
-        state.Function = MotherBrainBodyFunction.SecondPhaseBombFired;
-        state.FunctionTimer = 44;
+        state.Phase = MotherBrainBodyPhase.SecondPhaseBombFired;
+        state.PhaseTimer = 44;
     }
 
     /// <summary>Waits after the bomb, including its stand-up fallthrough.</summary>
     internal static void WaitAfterMotherBrainBomb(MotherBrainEnemyState state)
     {
-        if (--state.FunctionTimer >= 0)
+        if (--state.PhaseTimer >= 0)
             return;
 
         if (TryMakeMotherBrainStand(state))
@@ -325,7 +325,7 @@ internal sealed class MotherBrainAttacks
             return;
         }
 
-        state.Function = MotherBrainBodyFunction.SecondPhaseBombStandUp;
+        state.Phase = MotherBrainBodyPhase.SecondPhaseBombStandUp;
 
         // The wait falls directly into the stand-up, so a crouched body calls the helper twice on
         // this frame. Both calls restart the same animation and timer, and the stand-up
@@ -342,7 +342,7 @@ internal sealed class MotherBrainAttacks
 
     /// <summary>Returns the body and head to their neutral thinking phase after a bomb.</summary>
     private static void FinishMotherBrainBombAttack(MotherBrainEnemyState state) =>
-        state.Function = MotherBrainBodyFunction.SecondPhaseThinking;
+        state.Phase = MotherBrainBodyPhase.SecondPhaseThinking;
 
     /// <summary>
     /// Walks Mother Brain backwards toward <paramref name="targetX"/> at the medium gait; the hard floor at X=48 reports
@@ -423,8 +423,8 @@ internal sealed class MotherBrainAttacks
         state.LowerNeckMovement = targetMovement;
         state.UpperNeckMovement = targetMovement;
         state.NeckAngleDelta = 512;
-        state.Function = MotherBrainBodyFunction.SecondPhaseLaserPositionHeadSlowlyAndFire;
-        state.FunctionTimer = 4;
+        state.Phase = MotherBrainBodyPhase.SecondPhaseLaserPositionHeadSlowlyAndFire;
+        state.PhaseTimer = 4;
     }
 
     /// <summary>
@@ -440,8 +440,8 @@ internal sealed class MotherBrainAttacks
 
         state.NeckAngleDelta = state.NeckAngleDelta >= 0 ? 256 : -256;
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.Laser);
-        state.Function = MotherBrainBodyFunction.SecondPhaseLaserFinishAttack;
-        state.FunctionTimer = 16;
+        state.Phase = MotherBrainBodyPhase.SecondPhaseLaserFinishAttack;
+        state.PhaseTimer = 16;
     }
 
     /// <summary>
@@ -458,7 +458,7 @@ internal sealed class MotherBrainAttacks
 
         state.LowerNeckMovement = MotherBrainNeckMovement.BobUp;
         state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
-        state.Function = MotherBrainBodyFunction.SecondPhaseThinking;
+        state.Phase = MotherBrainBodyPhase.SecondPhaseThinking;
         RunMotherBrainSecondPhaseThinking(state, samus);
     }
 
@@ -518,7 +518,7 @@ internal sealed class MotherBrainAttacks
         // The death-explosion counter keeps the fake-death ascent dust's last value; the death explosions
         // start from it. The sub-function counter then holds a value that is always
         // negative, so its first DEC takes the same immediate branch as the sequence's zero.
-        sequence.InheritDeathAndEscapeExplosionIndex(state.BodySubFunctionTimer);
+        sequence.InheritDeathAndEscapeExplosionIndex(state.BodySubPhaseTimer);
         sequence.StartAttackCycle();
         state.RainbowBeamSequence = sequence;
         state.NextRainbowFrame = 0;

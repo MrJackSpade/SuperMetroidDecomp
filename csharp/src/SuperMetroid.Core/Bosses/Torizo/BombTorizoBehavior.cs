@@ -101,17 +101,17 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState? samus,
         RoomLevelData? level)
     {
-        switch (state.Function)
+        switch (state.Phase)
         {
-            case TorizoFunction.Idle:
+            case TorizoPhase.Idle:
                 return;
 
-            case TorizoFunction.Falling:
+            case TorizoPhase.Falling:
                 Body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
                 Movement.ApplyBombTorizoGravity(torizo, state, TorizoMovement.RequireBombTorizoLevel(level));
                 return;
 
-            case TorizoFunction.WaitForHandTrigger:
+            case TorizoPhase.WaitForHandTrigger:
                 // Bomb Torizo sleeps, solid, while its statue's hand still stands in the room.
                 torizo.Contact = torizo.Contact.With(EnemyContact.SolidToSamus);
                 if (_room.Services.RoomObjects.BombTorizoHandRemains)
@@ -122,11 +122,11 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimations.AfterSleep(TorizoAnimations.SegmentOf(state.BodyPlayback))));
                 return;
 
-            case TorizoFunction.Active:
+            case TorizoPhase.Active:
                 Movement.RunBombTorizoActiveState(torizo, state, level);
                 return;
 
-            case TorizoFunction.GoldenWaitForSamus:
+            case TorizoPhase.GoldenWaitForSamus:
                 // The wake-up step advances the animation only after Samus has entered the
                 // lower-right trigger rectangle. This is the authored statue wake-up gate.
                 if (samus is not null && samus.Position.Y.Whole > 320 && samus.Position.X.Whole > 368)
@@ -135,19 +135,19 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 return;
 
-            case TorizoFunction.GoldenGravity:
+            case TorizoPhase.GoldenGravity:
                 Body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
                 Movement.ApplyBombTorizoGravity(torizo, state, TorizoMovement.RequireBombTorizoLevel(level));
                 return;
 
-            case TorizoFunction.GoldenFrameBehavior:
+            case TorizoPhase.GoldenFrameBehavior:
                 Body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
                 Movement.RunBombTorizoFrameBehavior(torizo, state, level);
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Torizo main function {state.Function} is not translated.");
+                    $"Torizo main function {state.Phase} is not translated.");
         }
     }
 
@@ -262,8 +262,8 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.FrameBehavior = TorizoFrameBehavior.Idle;
                 return null;
 
-            case TorizoCue.SetFunction setFunction:
-                state.Function = setFunction.Function;
+            case TorizoCue.SetPhase setPhase:
+                state.Phase = setPhase.Phase;
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.BlowUpGut }:

@@ -291,11 +291,11 @@ public static class SamusGrappleMovement
     public static void RefreshLiquidPhysicsFlag(SamusState samus)
     {
         Ensure.NotNull(samus);
-        bool functionCanRetainLiquid = samus.Grapple.Phase is
+        bool phaseCanRetainLiquid = samus.Grapple.Phase is
             GrapplePhase.Firing or GrapplePhase.ConnectedSwinging or
             GrapplePhase.ConnectedLocked or GrapplePhase.WallGrab or
             GrapplePhase.WallGrabRelease;
-        samus.Grapple.Submerged = functionCanRetainLiquid &&
+        samus.Grapple.Submerged = phaseCanRetainLiquid &&
             samus.LiquidPhysics.DetermineGrappleSubmersion(samus);
     }
 
@@ -652,14 +652,14 @@ public static class SamusGrappleMovement
             if (special.Angle != grapple.Angle)
                 continue;
 
-            GrappleConnectionFunction function = special.Function;
-            GrapplePhase phase = function switch
+            GrappleConnectionKind kind = special.Kind;
+            GrapplePhase phase = kind switch
             {
-                GrappleConnectionFunction.LockedInPlace => GrapplePhase.ConnectedLocked,
-                GrappleConnectionFunction.WallGrab => GrapplePhase.WallGrab,
-                GrappleConnectionFunction.Swinging => throw new InvalidDataException(
+                GrappleConnectionKind.LockedInPlace => GrapplePhase.ConnectedLocked,
+                GrappleConnectionKind.WallGrab => GrapplePhase.WallGrab,
+                GrappleConnectionKind.Swinging => throw new InvalidDataException(
                     $"Grapple special connection {special} names the swinging function."),
-                _ => throw new InvalidOperationException($"Undefined GrappleConnectionFunction {function}."),
+                _ => throw new InvalidOperationException($"Undefined GrappleConnectionFunction {kind}."),
             };
 
             samus.Pose = special.Pose;
@@ -928,7 +928,7 @@ public static class SamusGrappleMovement
                 ? GrappleConnectionTable.Crouching
                 : GrappleConnectionTable.Default;
         var connection = GrappleConnections.ResolveConnection(connectionTable, grapple.FireDirection);
-        GrappleConnectionFunction nextFunction = connection.Function;
+        GrappleConnectionKind nextKind = connection.Kind;
         GrappleConnectionHandler handler = connection.Handler;
 
         // Each tiny connection handler installs one prospective grappling pose and then jumps
@@ -958,14 +958,14 @@ public static class SamusGrappleMovement
                 new GrappleConnectedPose(SamusPoseId.GrappleCrouchingLeftPose, false),
             _ => throw new InvalidOperationException($"Undefined GrappleConnectionHandler {handler}."),
         };
-        GrappleConnectionFunction expectedFunction = swinging
-            ? GrappleConnectionFunction.Swinging
-            : GrappleConnectionFunction.LockedInPlace;
-        if (nextFunction != expectedFunction)
+        GrappleConnectionKind expectedKind = swinging
+            ? GrappleConnectionKind.Swinging
+            : GrappleConnectionKind.LockedInPlace;
+        if (nextKind != expectedKind)
         {
             throw new InvalidDataException(
-                $"Grapple connection handler {handler} requires function {expectedFunction}, " +
-                $"but the record names {nextFunction}.");
+                $"Grapple connection handler {handler} requires function {expectedKind}, " +
+                $"but the record names {nextKind}.");
         }
 
         // Both the connection and the fired beam derive the angle from the body position that fired the beam,

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// Yard's movement behaviour.
 /// Its values are arbitrary.
 /// </summary>
-public enum YardMovementFunction
+public enum YardMovement
 {
     /// <summary>Empty behaviour: main movement remains idle until an animation cue installs a movement behaviour.</summary>
     AwaitingAnimationCue = 1,

@@ -78,7 +78,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot head = enemies.SlotTable.Slots[0];
-            var state = new BotwoonEnemyState() { MovementFunction = BotwoonMovementFunction.LoadAuthoredPath,
+            var state = new BotwoonEnemyState() { Movement = BotwoonMovement.LoadAuthoredPath,
                 PathChoice = offset / RecordBytes, Speed = 0 };
             ushort pointer = ReadRomWord(rom, 0xb3e150 + offset);
             short direction = (short)ReadRomWord(rom, 0xb3e152 + offset);
@@ -89,7 +89,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             AssertEqual(direction < 0 ? BotwoonPathTraversal.Backward : BotwoonPathTraversal.Forward, state.PathTraversal,
                 "Botwoon production path direction");
             AssertEqual(ReadRomWord(rom, 0xb3e154 + offset), RecordBytes * state.TargetHoleIndex, "Botwoon production destination");
-            AssertEqual(BotwoonMovementFunction.FollowAuthoredPath, state.MovementFunction, "Botwoon path handoff");
+            AssertEqual(BotwoonMovement.FollowAuthoredPath, state.Movement, "Botwoon path handoff");
         }
         AssertEqual(32, BotwoonNavigationDefinitions.PathChoiceCount, "Botwoon has 32 path choices");
         foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
@@ -172,7 +172,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             RoomEnemySlot head = enemies.SlotTable.Slots[0];
             var state = new BotwoonEnemyState()
             {
-                MovementFunction = BotwoonMovementFunction.LoadAuthoredPath,
+                Movement = BotwoonMovement.LoadAuthoredPath,
                 PathChoice = choice,
                 Speed = 0,
             };
@@ -182,7 +182,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             AssertEqual(descriptor.Traversal, state.PathTraversal, $"Botwoon production path {choice} direction");
             AssertEqual(descriptor.TargetHoleIndex, state.TargetHoleIndex,
                 $"Botwoon production path {choice} target hole");
-            AssertEqual(BotwoonMovementFunction.FollowAuthoredPath, state.MovementFunction,
+            AssertEqual(BotwoonMovement.FollowAuthoredPath, state.Movement,
                 $"Botwoon production path {choice} handoff");
         }
 
@@ -214,7 +214,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                     movementHead.Position = movementHead.Position.WithWhole(new(0x8000, 0x8000));
                     var state = new BotwoonEnemyState()
                     {
-                        MovementFunction = BotwoonMovementFunction.FollowAuthoredPath,
+                        Movement = BotwoonMovement.FollowAuthoredPath,
                         PathIndex = path,
                         PathStep = step,
                         PathTraversal = traversal,
@@ -275,7 +275,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             head.Position = head.Position.WithWhole(hole.Target);
             var state = new BotwoonEnemyState()
             {
-                MovementFunction = BotwoonMovementFunction.MoveTowardHole,
+                Movement = BotwoonMovement.MoveTowardHole,
                 TargetHoleIndex = holeIndex,
                 Speed = 0,
             };
@@ -315,7 +315,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         RoomEnemySlot invalidHead = invalidEnemies.SlotTable.Slots[0];
         var invalidState = new BotwoonEnemyState()
         {
-            MovementFunction = BotwoonMovementFunction.LoadAuthoredPath,
+            Movement = BotwoonMovement.LoadAuthoredPath,
             PathChoice = BotwoonNavigationDefinitions.PathChoiceCount,
             PathIndex = 7,
             PathStep = 77,
@@ -333,7 +333,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             "Botwoon invalid path leaves direction unchanged");
         AssertEqual(3, invalidState.TargetHoleIndex,
             "Botwoon invalid path leaves target unchanged");
-        AssertEqual(BotwoonMovementFunction.LoadAuthoredPath, invalidState.MovementFunction,
+        AssertEqual(BotwoonMovement.LoadAuthoredPath, invalidState.Movement,
             "Botwoon invalid path leaves callback unchanged");
 
         Console.WriteLine(

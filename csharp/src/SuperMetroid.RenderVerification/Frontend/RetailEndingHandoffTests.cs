@@ -55,7 +55,7 @@ internal static class RetailEndingHandoffTests
                 slot.DefinitionId == EnemyDefinitionId.ShipTop);
             // Stage the existing accelerating integrator near its native completion
             // threshold. It—not the fixture—publishes the frontend escape event.
-            GunshipPartState.Of(top).Function = GunshipFunction.AcceleratingLiftoff;
+            GunshipPartState.Of(top).Phase = GunshipPhase.AcceleratingLiftoff;
             // The staged hull starts outside this fixture's camera. Explicitly keep
             // its AI active; this is handoff coverage, not full departure validation.
             top.Processing = top.Processing.With(EnemyProcessing.OffScreen);

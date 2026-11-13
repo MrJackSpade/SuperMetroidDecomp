@@ -42,7 +42,7 @@ internal static class ShutterScrewContactVerification
 
             runtime.Enemies.ShuttersBehavior.RunVerticalShutterMain(shutter, state, samus, Position16<RoomPixels>.Zero);
             string context = $"contact damage {contactDamage}";
-            AssertEqual(reacts, state.Function is VerticalShutterFunction.MovingUp or VerticalShutterFunction.MovingDown,
+            AssertEqual(reacts, state.Action is VerticalShutterAction.MovingUp or VerticalShutterAction.MovingDown,
                 $"{context}: the idle shutter starts moving");
             AssertEqual(reacts, state.ShotActivated, $"{context}: the shot-activation flag");
         }

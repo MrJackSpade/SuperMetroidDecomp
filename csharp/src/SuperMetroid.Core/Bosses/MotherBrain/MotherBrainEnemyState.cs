@@ -26,16 +26,16 @@ public sealed class MotherBrainEnemyState
     /// <summary>The contact regions that currently hurt Samus: the brain alone at room entry, all three from the ascent.</summary>
     public MotherBrainHitboxParts HitboxesEnabled { get; internal set; }
 
-    /// <summary>The body record's function, selecting first-phase, resurrection, combat, or cutscene control for its next AI turn.</summary>
-    public MotherBrainBodyFunction Function { get; internal set; }
-    /// <summary>The brain record's independent function, selecting its custom head-only or head-and-neck draw setup.</summary>
-    public MotherBrainBrainFunction BrainFunction { get; internal set; }
+    /// <summary>The body record's phase, selecting first-phase, resurrection, combat, or cutscene control for its next AI turn.</summary>
+    public MotherBrainBodyPhase Phase { get; internal set; }
+    /// <summary>The brain record's independent action, selecting its custom head-only or head-and-neck draw setup.</summary>
+    public MotherBrainBrainAction BrainAction { get; internal set; }
 
     /// <summary>
     /// The body function's timer. Every fake-death pause counts it down and moves on once it runs past zero;
     /// zero therefore expires immediately at -1.
     /// </summary>
-    public int FunctionTimer { get; internal set; }
+    public int PhaseTimer { get; internal set; }
 
     /// <summary>
     /// Body-animation state written by private animation cues. The body AI reads this
@@ -61,7 +61,7 @@ public sealed class MotherBrainEnemyState
     public int RoomFlashTimer { get; internal set; }
 
     /// <summary>Head-record sub-dispatch and its independent underflow timer.</summary>
-    public MotherBrainTubeCollapseFunction TubeCollapseFunction { get; internal set; }
+    public MotherBrainTubeCollapseStep TubeCollapseStep { get; internal set; }
     /// <summary>Independent countdown used by selected tube spawn stages; a stage expires once it runs past zero.</summary>
     public int TubeCollapseTimer { get; internal set; }
 
@@ -172,7 +172,7 @@ public sealed class MotherBrainEnemyState
     public EscapeTypewriterState? EscapeTypewriter { get; internal set; }
 
     /// <summary>Four-frame cadence cursor for the eight ascent dust positions.</summary>
-    public int BodySubFunctionTimer { get; internal set; }
+    public int BodySubPhaseTimer { get; internal set; }
 
     /// <summary>Zero-based colour step used while leaving fake-death grey.</summary>
     public int GrayTransitionCounter { get; internal set; }

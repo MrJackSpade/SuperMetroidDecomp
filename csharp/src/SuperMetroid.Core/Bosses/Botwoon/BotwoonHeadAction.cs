@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>Botwoon's head and attack behaviour: what his head does each update. Members start at one, as for <see cref="BotwoonPhase"/>.</summary>
-public enum BotwoonHeadFunction
+public enum BotwoonHeadAction
 {
     /// <summary>Derives orientation from delayed head positions and selects hidden/tangible drawing according to hole state.</summary>
     AnimateFromMovement = 1,

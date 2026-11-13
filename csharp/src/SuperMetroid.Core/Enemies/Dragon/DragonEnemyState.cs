@@ -17,7 +17,7 @@ public sealed class DragonEnemyState
     public bool FacingLeft { get; internal set; }
 
     /// <summary>The body's countdown while waiting, rising, or sinking.</summary>
-    public int FunctionTimer { get; internal set; }
+    public int ActionTimer { get; internal set; }
 
     /// <summary>The body's shots left while attacking; initialized to three before the first volley.</summary>
     public int AttackCounter { get; internal set; }

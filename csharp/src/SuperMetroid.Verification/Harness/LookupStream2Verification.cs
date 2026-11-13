@@ -831,13 +831,13 @@ internal static class LookupStream2Verification
             KraidLintState lintState = enemies.KraidBehavior.Parts.LintStateOf(state, lint);
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7a916 + native * 2));
             AssertEqual(expected, KraidLints.InitialDelay(lintParts[native]), "Native per-part initial delay");
-            AssertEqual(expected, lintState.FunctionTimer, "Actual post-growth timer write");
+            AssertEqual(expected, lintState.PhaseTimer, "Actual post-growth timer write");
             AssertEqual(0, lintState.LintTravel, "Actual lint growth resets extension");
             AssertEqual(KraidPhase.LintProduce, lintState.PhaseToResume, "Actual lint continuation");
             for (int remaining = expected - 1; remaining >= 0; remaining--)
             {
                 align(lint, lintState);
-                AssertEqual(remaining, lintState.FunctionTimer, "Actual per-part countdown");
+                AssertEqual(remaining, lintState.PhaseTimer, "Actual per-part countdown");
                 AssertEqual((remaining == 0 ? KraidPhase.LintProduce : KraidPhase.AlignPartToKraid),
                     lintState.Phase, "Actual lint transition occurs on its own final tick");
                 AssertEqual(unchecked((ushort)(body.Position.X.Whole - lint.Radius.X)), lint.Position.X.Whole, "Alignment continues during delay");
@@ -1202,7 +1202,7 @@ internal static class LookupStream2Verification
         AssertEqual(5, enumerated, "Gunship enumerates every transfer");
         AssertEqual(GunshipTakeoffDefinitions.EngineReadyingDuration, enumerated, "the readying lasts one update a native transfer");
         AssertEqual(0, part.EngineReadyingElapsed, "Gunship completes its readying phase");
-        AssertEqual(GunshipFunction.FireUpEngines, part.Function, "Gunship starts engines after fifth transfer");
+        AssertEqual(GunshipPhase.FireUpEngines, part.Phase, "Gunship starts engines after fifth transfer");
         Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, the readying's duration, takeoff look and phase handoff pass.");
     }
     /// <summary>Checks reserve arrow RGB5 colors and the shades the import pre-colours the arrow in (#1512).</summary>

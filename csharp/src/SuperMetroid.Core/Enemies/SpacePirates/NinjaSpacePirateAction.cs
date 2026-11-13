@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// The behaviour a ninja Space Pirate's main AI runs.
 /// Its values are arbitrary.
 /// </summary>
-public enum NinjaSpacePirateFunction
+public enum NinjaSpacePirateAction
 {
     /// <summary>Shared return stub used while the animation owns the actor.</summary>
     NoOperation = 1,

@@ -46,7 +46,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the tail tip's contact damage before Samus's suit reduction: fifteen in Ceres, 120 in Lower Norfair.</summary>
     public int TailDamage { get; internal set; }
     /// <summary>Gets the current AI phase's countdown, which times how long the phase lasts.</summary>
-    public int FunctionTimer { get; internal set; }
+    public int PhaseTimer { get; internal set; }
     /// <summary>
     /// Gets the shared reveal fade's step: the eye-fade schedule step (zero through 64), the body-fade shade (zero through
     /// fifteen), or the Lower Norfair reveal step (zero through fifteen). Each fade resets it to zero when it completes.
@@ -67,7 +67,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the decrement (zero through 48) selected from velocity magnitude for the wing countdown; nonnegative vertical motion halves it.</summary>
     public int WingAnimationTimerDelta { get; internal set; }
     /// <summary>Gets the shared tail-controller index; zero retains offsets, one selects neutral control, and the other defined indexes select pogo/stab variants.</summary>
-    public RidleyTailFunction TailFunctionIndex { get; internal set; }
+    public RidleyTailAction TailAction { get; internal set; }
     /// <summary>Gets the angular step (zero through eight) used by shared tail segment motion and stagger propagation.</summary>
     public int TailAngleDelta { get; internal set; }
     /// <summary>Gets the facing-dependent furthest-clockwise angle clockwise tail movement may reach.</summary>
@@ -157,7 +157,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the Ceres Baby's elapsed draw-update count in its current pose, compared with the pose's duration and restarted at one.</summary>
     public int BabyFrameHold { get; internal set; }
     /// <summary>Gets the Ceres Baby's behavior selecting hand attachment, falling setup, falling motion, or idle.</summary>
-    public CeresBabyFunction BabyFunction { get; internal set; }
+    public CeresBabyAction BabyAction { get; internal set; }
     /// <summary>The pose the Ceres Baby's animation currently shows, or null before it has shown one.</summary>
     internal CeresBabyPose? BabyCurrentPose { get; set; }
     /// <summary>

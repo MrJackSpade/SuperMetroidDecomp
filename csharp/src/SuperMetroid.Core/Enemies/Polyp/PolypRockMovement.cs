@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 /// The movement behaviour a Polyp rock runs.
 /// Its values are arbitrary.
 /// </summary>
-internal enum PolypRockFunction
+internal enum PolypRockMovement
 {
     /// <summary>The rock rises.</summary>
     Rising,

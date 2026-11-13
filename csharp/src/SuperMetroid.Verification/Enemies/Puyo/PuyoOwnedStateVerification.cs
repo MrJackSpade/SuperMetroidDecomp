@@ -40,7 +40,7 @@ internal static class PuyoOwnedStateVerification
         PuyoBehavior.InitializePuyo(slot);
         PuyoEnemyState state = enemies.PuyoStates[0]
             ?? throw new InvalidOperationException("The initialized Puyo has no state.");
-        AssertEqual(null, state.AirborneFunction, "a fresh Puyo has no airborne behaviour");
+        AssertEqual(null, state.AirborneMovement, "a fresh Puyo has no airborne behaviour");
         Console.WriteLine("Puyo owned state: the apex and the overlong-fall restart match.");
     }
 

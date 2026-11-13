@@ -49,12 +49,12 @@ internal sealed class RidleyTail
         if (state.TailSegments.Length != 7)
             throw new InvalidDataException("Ceres Ridley requires seven tail segments.");
 
-        if (state.TailFunctionIndex != RidleyTailFunction.None)
+        if (state.TailAction != RidleyTailAction.None)
         {
             state.TailMinimumClockwiseAngle = RidleyTailReach.MinimumClockwise(state.FacingDirection);
             state.TailMaximumCounterClockwiseAngle = RidleyTailReach.MaximumCounterClockwise(state.FacingDirection);
 
-            if (state.TailFunctionIndex == RidleyTailFunction.Neutral)
+            if (state.TailAction == RidleyTailAction.Neutral)
             {
                 HandleCeresRidleyNeutralTailControl(slot, state, samus);
                 for (int index = 0; index < state.TailSegments.Length; index++)
@@ -512,29 +512,29 @@ internal sealed class RidleyTail
     /// <summary>Live pogo tail controllers.</summary>
     internal void TickRidleyPogoTail(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus)
     {
-        RidleyTailFunction function = state.TailFunctionIndex;
-        bool pointed = function is RidleyTailFunction.PogoSetup or RidleyTailFunction.PointDown or RidleyTailFunction.Stab;
-        if (!pointed && function is not (RidleyTailFunction.Pogo or RidleyTailFunction.StabSetup))
-            throw new InvalidDataException($"Ridley tail function {function} is not translated.");
+        RidleyTailAction action = state.TailAction;
+        bool pointed = action is RidleyTailAction.PogoSetup or RidleyTailAction.PointDown or RidleyTailAction.Stab;
+        if (!pointed && action is not (RidleyTailAction.Pogo or RidleyTailAction.StabSetup))
+            throw new InvalidDataException($"Ridley tail function {action} is not translated.");
 
         state.TailMinimumClockwiseAngle = RidleyTailReach.MinimumClockwise(state.FacingDirection);
         state.TailMaximumCounterClockwiseAngle = RidleyTailReach.MaximumCounterClockwise(state.FacingDirection);
         if (pointed)
         {
-            state.TailAngleDelta = function == RidleyTailFunction.Stab ? 3 : 8;
+            state.TailAngleDelta = action == RidleyTailAction.Stab ? 3 : 8;
             state.ClockwiseWhipTarget = state.FacingDirection == RidleyFacing.Left ? null : RidleyTailDefinitions.DownAngle;
             state.CounterClockwiseWhipTarget = state.FacingDirection == RidleyFacing.Left ? RidleyTailDefinitions.DownAngle : null;
         }
-        HandleRidleyPogoTailControl(slot, state, samus, function == RidleyTailFunction.StabSetup);
+        HandleRidleyPogoTailControl(slot, state, samus, action == RidleyTailAction.StabSetup);
         for (int index = 0; index < state.TailSegments.Length; index++)
             TickRidleyTailSegment(state, index);
         if (pointed && !state.TailSegments.Any(segment => segment.Active))
-            state.TailFunctionIndex = RidleyTailFunction.Pogo;
+            state.TailAction = RidleyTailAction.Pogo;
         // The setup/stab wrappers overwrite the result of the shared pointed-tail step.
-        if (function == RidleyTailFunction.PogoSetup)
-            state.TailFunctionIndex = RidleyTailFunction.PointDown;
-        else if (function == RidleyTailFunction.Stab)
-            state.TailFunctionIndex = RidleyTailFunction.Stab;
+        if (action == RidleyTailAction.PogoSetup)
+            state.TailAction = RidleyTailAction.PointDown;
+        else if (action == RidleyTailAction.Stab)
+            state.TailAction = RidleyTailAction.Stab;
     }
 
     /// <summary>Triggers pogo whips from random/proximity gates and extends the tail downward as Ridley descends.</summary>
@@ -552,7 +552,7 @@ internal sealed class RidleyTail
         if (state.TailSegments.Any(segment => segment.Active)) return;
         if (!state.Velocity.Y.IsNegative)
         {
-            state.TailFunctionIndex = stabbing ? RidleyTailFunction.Stab : RidleyTailFunction.StabSetup;
+            state.TailAction = stabbing ? RidleyTailAction.Stab : RidleyTailAction.StabSetup;
             if (stabbing)
             {
                 foreach (var segment in state.TailSegments)

@@ -82,7 +82,7 @@ internal sealed class NorfairRidleyCombat
             WingFrame = 0,
             WingAnimationTimer = 0,
             WingAnimationTimerDelta = 0,
-            TailFunctionIndex = RidleyTailFunction.None,
+            TailAction = RidleyTailAction.None,
             TailAngleDelta = 1,
             TailMinimumClockwiseAngle = RidleyTailDefinitions.InitialMinimumClockwise,
             TailMaximumCounterClockwiseAngle = RidleyTailDefinitions.InitialMaximumCounterClockwise,
@@ -104,10 +104,10 @@ internal sealed class NorfairRidleyCombat
     /// </summary>
     internal void TickNorfairRidleyArenaReveal(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        if (--state.FunctionTimer >= 0)
+        if (--state.PhaseTimer >= 0)
             return;
 
-        state.FunctionTimer = 2;
+        state.PhaseTimer = 2;
         int step = state.FadeStep;
         bool hasPalette;
         if (step > NorfairRidleyPaletteDefinitions.RevealStepCount)
@@ -127,14 +127,14 @@ internal sealed class NorfairRidleyCombat
         state.WingAnimationTimerDelta = 8;
         foreach (RidleyTailSegment segment in state.TailSegments)
             segment.Active = true;
-        state.TailFunctionIndex = RidleyTailFunction.Neutral;
+        state.TailAction = RidleyTailAction.Neutral;
         state.Phase = RidleyPhase.ClearVelocity;
     }
 
     /// <summary>Steers Ridley to the facing-dependent hover point until timeout or arrival.</summary>
     internal static void TickNorfairRidleyHover(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        if (NorfairRidleyMovement.TickRidleyFunctionTimer(state))
+        if (NorfairRidleyMovement.TickRidleyPhaseTimer(state))
         {
             state.Phase = RidleyPhase.NorfairSelectAttack;
             return;
@@ -214,13 +214,13 @@ internal sealed class NorfairRidleyCombat
         if (RidleyRandomDefinitions.PogoFireballs.IsTakenBy(_room.Random.Read()) && !state.Roaring && state.FacingDirection != RidleyFacing.Turning)
             CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.Fireballing);
 
-        if (!NorfairRidleyMovement.TickRidleyFunctionTimer(state))
+        if (!NorfairRidleyMovement.TickRidleyPhaseTimer(state))
             return;
 
         state.Phase = direction == VerticalDirection.Down
             ? RidleyPhase.NorfairPogoAscending
             : RidleyPhase.NorfairPogoDescending;
-        state.FunctionTimer = 128;
+        state.PhaseTimer = 128;
         SelectNorfairRidleyFacingAnimation(slot, state);
     }
 
@@ -229,7 +229,7 @@ internal sealed class NorfairRidleyCombat
     {
         state.TailExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed;
         state.IdealInterSegmentTailAngle = 16;
-        state.TailFunctionIndex = RidleyTailFunction.Neutral;
+        state.TailAction = RidleyTailAction.Neutral;
         state.Phase = RidleyPhase.NorfairFireballMoveToSide;
     }
 
@@ -243,7 +243,7 @@ internal sealed class NorfairRidleyCombat
         {
             SelectNorfairRidleyFacingAnimation(slot, state);
             state.Phase = RidleyPhase.NorfairFireballMoveToHeight;
-            state.FunctionTimer = 32;
+            state.PhaseTimer = 32;
             TickNorfairRidleyGroundAttackMoveToHeight(slot, state, samus);
             return;
         }
@@ -259,14 +259,14 @@ internal sealed class NorfairRidleyCombat
         SamusState? samus)
     {
         NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, slot.Position.Whole.WithY(288), divisor: 16);
-        if (!NorfairRidleyMovement.TickRidleyFunctionTimer(state))
+        if (!NorfairRidleyMovement.TickRidleyPhaseTimer(state))
             return;
 
-        state.TailFunctionIndex = RidleyTailFunction.PogoSetup;
+        state.TailAction = RidleyTailAction.PogoSetup;
         _ridleyTail.TickRidleyPogoTail(slot, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);
         state.Phase = RidleyPhase.NorfairFireballAttack;
-        state.FunctionTimer = RidleyRandomDefinitions.FireballAttackTimer.Of(_room.Random.Read()) + 128;
+        state.PhaseTimer = RidleyRandomDefinitions.FireballAttackTimer.Of(_room.Random.Read()) + 128;
     }
 
     /// <summary>Checks claw grab, accelerates downward, and bounces the tail on terrain contact.</summary>
@@ -281,7 +281,7 @@ internal sealed class NorfairRidleyCombat
         {
             // Every acceleration clamps Ridley's speed to a few pixels an update, so it always has a magnitude.
             state.Velocity = state.Velocity.WithY(-SignedEightEight.Max(GrabLiftMinimumSpeed, state.Velocity.Y.Magnitude()));
-            state.TailFunctionIndex = RidleyTailFunction.Neutral;
+            state.TailAction = RidleyTailAction.Neutral;
             state.TailAngleDelta = 1;
             BeginNorfairRidleyGrab(slot, state, samus);
             return;
@@ -304,7 +304,7 @@ internal sealed class NorfairRidleyCombat
             state.TailSegments[index].Distance = RidleyTailReach.RestDistance(index);
             state.TailSegments[index].TargetDistance = RidleyTailDefinitions.BounceDistance;
         }
-        state.TailFunctionIndex = RidleyTailFunction.Pogo;
+        state.TailAction = RidleyTailAction.Pogo;
         state.PogoBounceCount++;
         if (state.PogoBounceCount >= 2)
         {
@@ -320,9 +320,9 @@ internal sealed class NorfairRidleyCombat
         RidleyEnemyState state,
         SamusState? samus)
     {
-        if (samus is null || samus.Position.Y.Whole < 352 || NorfairRidleyMovement.TickRidleyFunctionTimer(state))
+        if (samus is null || samus.Position.Y.Whole < 352 || NorfairRidleyMovement.TickRidleyPhaseTimer(state))
         {
-            state.TailFunctionIndex = RidleyTailFunction.Neutral;
+            state.TailAction = RidleyTailAction.Neutral;
             state.TailAngleDelta = 1;
             state.Phase = RidleyPhase.NorfairSelectAttack;
             return;
@@ -431,9 +431,9 @@ internal sealed class NorfairRidleyCombat
                 ? 256
                 : CoordinateAxis.Wrap(slot.Position.Y.Whole - 64));
         state.Phase = RidleyPhase.NorfairCarryMoveToAnchor;
-        state.FunctionTimer = 32;
+        state.PhaseTimer = 32;
         NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, state.Target, 16);
-        NorfairRidleyMovement.TickRidleyFunctionTimer(state);
+        NorfairRidleyMovement.TickRidleyPhaseTimer(state);
     }
 
     /// <summary>Decays Samus's grab offset and positions her at Ridley's moving claw.</summary>
@@ -527,7 +527,7 @@ internal sealed class NorfairRidleyCombat
             return;
 
         // The power-bomb lunge function resets both tail controls before the lunge.
-        state.TailFunctionIndex = RidleyTailFunction.Neutral;
+        state.TailAction = RidleyTailAction.Neutral;
         state.TailAngleDelta = 1;
         state.Phase = RidleyPhase.NorfairGrabApproach;
     }
@@ -567,7 +567,7 @@ internal sealed class NorfairRidleyCombat
     {
         CeresRidleyFlight.StartRidleyAnimation(state, body, RidleyBodySegment.DeathRoar);
         state.Phase = RidleyPhase.NorfairDeathExplosions;
-        state.FunctionTimer = 32;
+        state.PhaseTimer = 32;
     }
 
     /// <summary>Handles a missed lunge: death has priority over power-bomb dodge and ordinary retreat.</summary>

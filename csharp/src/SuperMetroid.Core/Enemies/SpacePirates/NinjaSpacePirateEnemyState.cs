@@ -9,8 +9,8 @@ public sealed class NinjaSpacePirateEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<NinjaSpacePirateSegment> Playback { get; set; }
 
-    /// <summary>Movement/decision function.</summary>
-    public NinjaSpacePirateFunction? Function { get; internal set; }
+    /// <summary>Movement/decision action.</summary>
+    public NinjaSpacePirateAction? Action { get; internal set; }
 
     /// <summary>The active stance animation, facing Samus, that becoming active continues at.</summary>
     internal NinjaSpacePirateSegment ActiveAnimation { get; set; }

@@ -52,7 +52,7 @@ internal sealed class NorfairRidleyDeath
         state.GrabState = RidleyGrabState.Released;
         samus?.Control.Unlock();
         state.TailWhipRequest = 1;
-        state.TailFunctionIndex = RidleyTailFunction.Neutral;
+        state.TailAction = RidleyTailAction.Neutral;
         // The hurt timer is left untouched once death owns the fight.
         if (state.FightMode != RidleyFightMode.Dying)
         {
@@ -80,7 +80,7 @@ internal sealed class NorfairRidleyDeath
     {
         NorfairRidleyMovement.MoveNorfairRidleyToward(body, state, new Position16<RoomPixels>(128, 328),
             RidleyInertiaDefinitions.DeathDivisor, RidleyInertiaDefinitions.DeathReversalBoost);
-        if (!NorfairRidleyMovement.TickRidleyFunctionTimer(state))
+        if (!NorfairRidleyMovement.TickRidleyPhaseTimer(state))
             return;
 
         state.Velocity = EightEightVector<RoomPixels>.Zero;
@@ -89,7 +89,7 @@ internal sealed class NorfairRidleyDeath
         state.DeathExplosionTimer = 0;
         state.DeathExplosionCount = 0;
         state.Phase = RidleyPhase.NorfairDeathFall;
-        state.FunctionTimer = 160;
+        state.PhaseTimer = 160;
         TickNorfairRidleyDeathExplosions(body, state, samus: null);
     }
 
@@ -104,7 +104,7 @@ internal sealed class NorfairRidleyDeath
         SamusState? samus)
     {
         SpawnSmallExplosionNearNorfairRidley(body, state);
-        if (!NorfairRidleyMovement.TickRidleyFunctionTimer(state))
+        if (!NorfairRidleyMovement.TickRidleyPhaseTimer(state))
             return;
 
         if (state.GrabState != RidleyGrabState.Released)
@@ -126,16 +126,16 @@ internal sealed class NorfairRidleyDeath
         state.MovementAnimationEnabled = false;
         body.Presence = body.Presence.With(EnemyPresence.Hidden);
         state.Phase = RidleyPhase.NorfairDeathWait;
-        state.FunctionTimer = 32;
+        state.PhaseTimer = 32;
     }
 
     /// <summary>The breakup's deliberate 32-frame pre-wait before the final 256 frames.</summary>
     internal static void TickNorfairRidleyBreakupWait(RidleyEnemyState state)
     {
-        if (!NorfairRidleyMovement.TickRidleyFunctionTimer(state))
+        if (!NorfairRidleyMovement.TickRidleyPhaseTimer(state))
             return;
         state.Phase = RidleyPhase.NorfairDeathFinish;
-        state.FunctionTimer = 256;
+        state.PhaseTimer = 256;
     }
 
     /// <summary>
@@ -146,7 +146,7 @@ internal sealed class NorfairRidleyDeath
         RoomEnemySlot body,
         RidleyEnemyState state)
     {
-        if (!NorfairRidleyMovement.TickRidleyFunctionTimer(state))
+        if (!NorfairRidleyMovement.TickRidleyPhaseTimer(state))
             return;
 
         _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);

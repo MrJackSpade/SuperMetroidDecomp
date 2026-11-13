@@ -11,13 +11,13 @@ public sealed class HorizontalShutterEnemyState
     /// The dispatcher behaviour of the retail-unused horizontal shutter, retained across wait, movement, and
     /// endpoint-rest updates.
     /// </summary>
-    public HorizontalShutterFunction? Function { get; internal set; }
+    public HorizontalShutterAction? Action { get; internal set; }
 
     /// <summary>
     /// Wrapping AI-update countdown; initial wait tests for zero after decrement, whereas endpoint rests test for
     /// signed underflow.
     /// </summary>
-    public WrappingCountdown FunctionTimer { get; internal set; }
+    public WrappingCountdown ActionTimer { get; internal set; }
 
     /// <summary>
     /// Rightward signed 16.16 velocity in pixels per update, also supplied to an overlapping Samus's extra-X

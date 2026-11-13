@@ -74,7 +74,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             AttackCooldown = MaridiaLargeSnailInitialAttackCooldown,
             MovingLeft = false,
             RemainingBounces = MaridiaLargeSnailInitialBounceCount,
-            BounceFunction = MaridiaLargeSnailBounceFunction.Falling,
+            BouncePhase = MaridiaLargeSnailBouncePhase.Falling,
         };
         slot.SetSpeciesState(state);
 
@@ -170,7 +170,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             // No floor one pixel below means Oum walked off a ledge. Retail restarts the
             // complete three-impact settling sequence without skipping horizontal work.
             state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
-            state.BounceFunction = MaridiaLargeSnailBounceFunction.Falling;
+            state.BouncePhase = MaridiaLargeSnailBouncePhase.Falling;
             state.RemainingBounces = MaridiaLargeSnailInitialBounceCount;
         }
 
@@ -224,9 +224,9 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         MaridiaLargeSnailEnemyState state,
         RoomLevelData level)
     {
-        switch (state.BounceFunction)
+        switch (state.BouncePhase)
         {
-            case MaridiaLargeSnailBounceFunction.Falling:
+            case MaridiaLargeSnailBouncePhase.Falling:
                 // The record stays within 3712 256ths of a record below the start through record 64, so the game's
                 // signed comparisons are ordinary comparisons.
                 state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Min(
@@ -246,15 +246,15 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 state.YSpeedTableIndex -= MaridiaLargeSnailImpactIndexLoss;
                 if (state.YSpeedTableIndex.IsNegative)
                     state.RemainingBounces = 0;
-                state.BounceFunction = MaridiaLargeSnailBounceFunction.Rising;
+                state.BouncePhase = MaridiaLargeSnailBouncePhase.Rising;
                 return;
 
-            case MaridiaLargeSnailBounceFunction.Rising:
+            case MaridiaLargeSnailBouncePhase.Rising:
                 state.YSpeedTableIndex -= MaridiaLargeSnailBounceAcceleration;
                 if (state.YSpeedTableIndex.IsNegative)
                 {
                     state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
-                    state.BounceFunction = MaridiaLargeSnailBounceFunction.Falling;
+                    state.BouncePhase = MaridiaLargeSnailBouncePhase.Falling;
                     return;
                 }
 
@@ -269,7 +269,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             default:
                 throw new InvalidDataException(
                     $"Maridia Large Snail bounce function " +
-                    $"{state.BounceFunction?.ToString() ?? "none"} is not translated.");
+                    $"{state.BouncePhase?.ToString() ?? "none"} is not translated.");
         }
     }
 

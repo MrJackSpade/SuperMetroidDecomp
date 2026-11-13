@@ -80,12 +80,12 @@ internal sealed class MotherBrainHead
         if (!head.Presence.HasAny(EnemyPresence.Hidden))
             return;
 
-        switch (state.BrainFunction)
+        switch (state.BrainAction)
         {
-            case MotherBrainBrainFunction.SetupBrainToBeDrawn:
+            case MotherBrainBrainAction.SetupBrainToBeDrawn:
                 state.DrawBrain = true;
                 return;
-            case MotherBrainBrainFunction.SetupBrainAndNeckToBeDrawn:
+            case MotherBrainBrainAction.SetupBrainAndNeckToBeDrawn:
                 StepMotherBrainNeck(
                     state,
                     samus ?? throw new InvalidOperationException(
@@ -97,7 +97,7 @@ internal sealed class MotherBrainHead
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain brain function {state.BrainFunction} is not translated.");
+                    $"Mother Brain brain function {state.BrainAction} is not translated.");
         }
     }
 

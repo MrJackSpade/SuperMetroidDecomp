@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <summary>The state of one Ceres door.</summary>
 internal sealed class CeresDoorEnemyState
 {
-    /// <summary>The main-AI function.</summary>
-    public CeresDoorFunction? Function { get; internal set; }
+    /// <summary>The main-AI action.</summary>
+    public CeresDoorAction? Action { get; internal set; }
 
     /// <summary>The door's animation and where it stands in it (#1600), set when the door initializes.</summary>
     internal AnimationPlayback<CeresDoorSegment> Playback { get; set; }

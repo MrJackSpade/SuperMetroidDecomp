@@ -58,12 +58,12 @@ internal sealed class KraidEncounterAccess
     internal int ReadKraidRandomNumber() =>
         _room.Random.Read();
 
-    /// <summary>Counts a Kraid function timer down and installs its next state at zero.</summary>
-    internal static void TickKraidFunctionTimer(KraidPartState part)
+    /// <summary>Counts a Kraid phase timer down and installs its next state at zero.</summary>
+    internal static void TickKraidPhaseTimer(KraidPartState part)
     {
-        if (part.FunctionTimer == 0)
+        if (part.PhaseTimer == 0)
             return;
-        if (--part.FunctionTimer == 0)
+        if (--part.PhaseTimer == 0)
             part.Phase = part.PhaseToResume;
     }
 

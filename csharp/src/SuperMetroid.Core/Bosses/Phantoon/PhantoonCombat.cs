@@ -294,7 +294,7 @@ internal sealed class PhantoonCombat
             if (state.TentaclesState.RoundDamage >= PhantoonBehavior.PhantoonDamageThreshold)
             {
                 if (swooping)
-                    state.BodyState.FunctionTimer = 1;
+                    state.BodyState.PhaseTimer = 1;
                 else
                     ClosePhantoonAfterDamage(body, state, PhantoonPhase.FadeOutWhileSwooping);
                 state.TentaclesState.RearmHurtFlash();
@@ -310,8 +310,8 @@ internal sealed class PhantoonCombat
                 if (!state.TentaclesState.SwoopRequested)
                 {
                     state.TentaclesState.SwoopRequested = true;
-                    if (state.BodyState.FunctionTimer >= 16)
-                        state.BodyState.FunctionTimer = 16;
+                    if (state.BodyState.PhaseTimer >= 16)
+                        state.BodyState.PhaseTimer = 16;
                 }
                 return;
             }
@@ -328,7 +328,7 @@ internal sealed class PhantoonCombat
         PhantoonPhase fadeOut)
     {
         state.BodyState.Phase = fadeOut;
-        state.BodyState.FunctionTimer = 0;
+        state.BodyState.PhaseTimer = 0;
         RoomEnemySlot eye = state.Eye;
         state.TentaclesState.SwoopRequested = false;
         state.TentaclesState.RoundDamage = 0;

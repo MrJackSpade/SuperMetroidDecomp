@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 internal sealed class PolypRockState(EnemyQuadraticSpeedIndex speedIndex) : EnemyProjectileState
 {
     /// <summary>The part of its arc the rock is in; it starts rising.</summary>
-    internal PolypRockFunction Phase { get; set; } = PolypRockFunction.Rising;
+    internal PolypRockMovement Phase { get; set; } = PolypRockMovement.Rising;
 
     /// <summary>
     /// The rock's vertical speed as a whole-row place on the quadratic speed table: it moves back two rows each update

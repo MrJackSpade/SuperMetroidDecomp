@@ -68,7 +68,7 @@ internal static class TorizoBellyGlowEndVerification
         RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         torizo.Bind(definition, RoomEnemyDefinitionLookup.Get(definition));
         torizo.Health = 800;
-        var state = new TorizoEnemyState(torizo, isGolden) { Function = TorizoFunction.Falling, FrameBehavior = TorizoFrameBehavior.Idle };
+        var state = new TorizoEnemyState(torizo, isGolden) { Phase = TorizoPhase.Falling, FrameBehavior = TorizoFrameBehavior.Idle };
         enemies.BombTorizoBehavior.Access.TorizoState = state;
         enemies.BossFrameResults.Begin();
         AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(

@@ -81,7 +81,7 @@ internal sealed class DraygonParts
         {
             case DraygonPart.Eye:
                 // Inert until the body publishes facing AI.
-                var eyeState = new DraygonEyeState { Function = DraygonEyeFunction.Inert };
+                var eyeState = new DraygonEyeState { Action = DraygonEyeAction.Inert };
                 part.SetSpeciesState(eyeState);
                 state.Eye = part;
                 state.StartAnimation(part, DraygonSegment.EyeFacingLeftIdle);
@@ -116,20 +116,20 @@ internal sealed class DraygonParts
         if (part.DefinitionId != EnemyDefinitionId.DraygonEye)
             throw new InvalidDataException("Draygon part dispatcher received another family.");
 
-        DraygonEyeFunction function = part.RequireSpeciesState<DraygonEyeState>().Function
+        DraygonEyeAction action = part.RequireSpeciesState<DraygonEyeState>().Action
             ?? throw new InvalidDataException("Draygon's eye has no function.");
-        switch (function)
+        switch (action)
         {
-            case DraygonEyeFunction.Inert:
+            case DraygonEyeAction.Inert:
                 return;
-            case DraygonEyeFunction.FacingLeft:
+            case DraygonEyeAction.FacingLeft:
                 TrackSamusWithDraygonEye(part, samus, facing: HorizontalDirection.Left);
                 return;
-            case DraygonEyeFunction.FacingRight:
+            case DraygonEyeAction.FacingRight:
                 TrackSamusWithDraygonEye(part, samus, facing: HorizontalDirection.Right);
                 return;
             default:
-                throw new InvalidOperationException($"Undefined Draygon eye function {function}.");
+                throw new InvalidOperationException($"Undefined Draygon eye function {action}.");
         }
     }
 
@@ -209,11 +209,11 @@ internal sealed class DraygonParts
                 state.Eye.AnimationClock.StepOnNextUpdate();
                 state.Body.AnimationClock.StepOnNextUpdate();
                 return;
-            case DraygonCue.SetEyeFunction eyeFunction:
-                (RequirePart(state.Eye)).RequireSpeciesState<DraygonEyeState>().Function = eyeFunction.Function;
+            case DraygonCue.SetEyeAction eyeAction:
+                (RequirePart(state.Eye)).RequireSpeciesState<DraygonEyeState>().Action = eyeAction.Action;
                 return;
-            case DraygonCue.SetOwnEyeFunction ownFunction:
-                part.RequireSpeciesState<DraygonEyeState>().Function = ownFunction.Function;
+            case DraygonCue.SetOwnEyeAction ownAction:
+                part.RequireSpeciesState<DraygonEyeState>().Action = ownAction.Action;
                 return;
             case DraygonCue.DisplaceBodyGraphics displace:
                 state.BodyGraphicsDisplacement = displace.Offset;
@@ -231,8 +231,8 @@ internal sealed class DraygonParts
             case DraygonCue.SetBodyIntangible:
                 state.Body.Contact = state.Body.Contact.With(EnemyContact.IgnoresSamus);
                 return;
-            case DraygonCue.SetBodyPhase bodyFunction:
-                state.Phase = bodyFunction.Phase;
+            case DraygonCue.SetBodyPhase bodyPhase:
+                state.Phase = bodyPhase.Phase;
                 return;
             case DraygonCue.TailWhipHit:
                 ApplyDraygonTailWhipHit(state, samus);

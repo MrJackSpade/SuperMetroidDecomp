@@ -167,7 +167,7 @@ public sealed class SamusLiquidPhysicsState
     public AreaId AreaIndex => RoomIdentity.Area;
 
     /// <summary>Nonzero cinematic-function state suppresses ordinary footstep audio.</summary>
-    public bool CinematicFunctionActive { get; set; }
+    public bool CinematicActive { get; set; }
 
     /// <summary>
     /// Configures the water surface, or none, and whether Samus ignores it, while preserving the ordinary or statue room's
@@ -441,7 +441,7 @@ public sealed class SamusLiquidPhysicsState
         // Ends the spin-loop sound separately from the impact. The test is
         // on PREVIOUS movement type and pose because landing selection has not run yet.
         // Cinematics suppress both the ordinary-spin and Screw Attack end-sound requests.
-        if (!CinematicFunctionActive && previousMovementType is
+        if (!CinematicActive && previousMovementType is
             SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
             QueueSound(previousPose is SamusPoseId.ScrewAttackRightPose or
@@ -458,7 +458,7 @@ public sealed class SamusLiquidPhysicsState
         if (!hardLanding && impactYSpeed.Fraction == 0)
             return;
 
-        if (!CinematicFunctionActive)
+        if (!CinematicActive)
         {
             QueueSound(hardLanding
                     ? RoomSound.HardLanding
@@ -520,7 +520,7 @@ public sealed class SamusLiquidPhysicsState
     {
         // Crateria's cinematic path shows no landing effect, ending the bubbles' landing wait, before consulting room
         // data. This is distinct from the sound suppression already applied by the caller.
-        if (CinematicFunctionActive)
+        if (CinematicActive)
         {
             EndLandingEffectWait();
             return;
@@ -741,7 +741,7 @@ public sealed class SamusLiquidPhysicsState
         bool useWetFootsteps = AreaIndex == AreaId.Maridia;
         if (AreaIndex == AreaId.Crateria)
         {
-            if (CinematicFunctionActive)
+            if (CinematicActive)
             {
                 useWetFootsteps = false;
             }
@@ -769,7 +769,7 @@ public sealed class SamusLiquidPhysicsState
         // Graphics are independent of the ordinary step sound. Cinematics, bosses, an
         // a stored shinespark, and boost stage four each suppress the footstep sound.
         // This is the special-palette timer, not the palette cycle timer: the latter is already nonzero during boost buildup.
-        if (!CinematicFunctionActive &&
+        if (!CinematicActive &&
             !bossPresent &&
             !SamusInputSnapshot.HoldsShine(samus) &&
             !samus.HorizontalSpeed.SpeedBoostCounter.IsAtFullStage)

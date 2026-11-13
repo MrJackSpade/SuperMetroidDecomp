@@ -39,7 +39,7 @@ internal static class YardDirectionDefinitionsVerification
                 SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.NumberOf(definition.OppositeDirection),
                 $"Yard direction {direction} opposite");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((movementAddress + direction * 2)),
-                YardNativeWords.YardMovementFunctions.Word(definition.MovementFunction),
+                YardNativeWords.YardMovements.Word(definition.Movement),
                 $"Yard direction {direction} movement function");
         }
 
@@ -82,14 +82,14 @@ internal static class YardDirectionDefinitionsVerification
             AssertYardDirectionState(state, initial,
                 $"Yard initializer direction {direction}",
                 assertMovementFunction: false);
-            AssertEqual(YardMovementFunction.AwaitingAnimationCue, state.MovementFunction,
+            AssertEqual(YardMovement.AwaitingAnimationCue, state.Movement,
                 $"Yard initializer direction {direction} pending function");
 
             // The population selector does not initialize the live direction word;
             // animation bytecode normally publishes it before a turn. Seed each of the
             // eight legal bytecode values to exercise the production turn dispatcher.
             state.Direction = SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction);
-            state.MovementFunction = initial.MovementFunction;
+            state.Movement = initial.Movement;
             bool turned = YardEnemyBehavior.TurnYardAround(state);
             AssertTrue(turned, $"Yard direction {direction} production turn");
             YardDirectionDefinition opposite =
@@ -118,7 +118,7 @@ internal static class YardDirectionDefinitionsVerification
                 $"Yard detach facing {facing}");
 
             state.Behavior = YardBehavior.NormalCrawling;
-            state.MovementFunction = YardMovementFunction.CrawlingUpsideUpMovingLeft;
+            state.Movement = YardMovement.CrawlingUpsideUpMovingLeft;
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
             {
                 Pose = facing == 0
@@ -156,7 +156,7 @@ internal static class YardDirectionDefinitionsVerification
             $"{name} airborne facing");
         if (assertMovementFunction)
         {
-            AssertEqual(expected.MovementFunction, state.MovementFunction,
+            AssertEqual(expected.Movement, state.Movement,
                 $"{name} movement function");
         }
     }

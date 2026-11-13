@@ -42,10 +42,10 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     {
         switch (cue)
         {
-            case WalkingSpacePirateCue.SetFunction setFunction:
+            case WalkingSpacePirateCue.SetAction setAction:
                 // The pirate animation does not jump to the operand. It stores that function
                 // for main AI to dispatch next frame, then runs on.
-                RequireWalkingSpacePirateState(slot).Function = setFunction.Function;
+                RequireWalkingSpacePirateState(slot).Action = setAction.Action;
                 return null;
             case WalkingSpacePirateCue.FireLaserLeft fireLaserLeft:
                 SpawnWalkingSpacePirateLaser(slot, direction: HorizontalDirection.Left, fireLaserLeft.LaserHeight);
@@ -111,7 +111,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             (options & WalkingSpacePirateOptions.StartsFacingRight) != WalkingSpacePirateOptions.None
             ? WalkingSpacePirateSegment.WalkingRight
             : WalkingSpacePirateSegment.WalkingLeft), AnimationPlace.StartOfAnimation);
-        state.Function = WalkingSpacePirateFunction.NoOperation;
+        state.Action = WalkingSpacePirateAction.NoOperation;
 
         // The game's additions wrap past 65535. A modded patrol radius can therefore straddle the
         // world-coordinate seam; keeping ushort arithmetic preserves its signed comparison.
@@ -127,23 +127,23 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         RoomLevelData? level,
         SamusProjectileSystem? samusProjectiles)
     {
-        switch (state.Function)
+        switch (state.Action)
         {
-            case WalkingSpacePirateFunction.NoOperation:
-            case WalkingSpacePirateFunction.AnimationOwnedNoOperation:
+            case WalkingSpacePirateAction.NoOperation:
+            case WalkingSpacePirateAction.AnimationOwnedNoOperation:
                 break;
 
-            case WalkingSpacePirateFunction.WalkingLeft:
+            case WalkingSpacePirateAction.WalkingLeft:
                 RunWalkingSpacePirateLeft(slot, state, RequireSamus(), RequireLevel());
                 break;
 
-            case WalkingSpacePirateFunction.WalkingRight:
+            case WalkingSpacePirateAction.WalkingRight:
                 RunWalkingSpacePirateRight(slot, state, RequireSamus(), RequireLevel());
                 break;
 
             default:
                 throw new InvalidDataException(
-                    $"Walking Space Pirate function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Walking Space Pirate function {state.Action?.ToString() ?? "none"} is not translated.");
         }
 
         // The slow-laser option enables the retail flinch detector after normal AI.

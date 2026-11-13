@@ -173,18 +173,18 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectile projectile,
         Position16<RoomPixels> camera)
     {
-        PolypRockFunction phase = projectile.StateOf<PolypRockState>().Phase;
+        PolypRockMovement phase = projectile.StateOf<PolypRockState>().Phase;
         switch (phase)
         {
-            case PolypRockFunction.Rising:
+            case PolypRockMovement.Rising:
                 StepRisingPolypRock(projectile);
                 break;
-            case PolypRockFunction.Falling:
+            case PolypRockMovement.Falling:
                 StepFallingPolypRock(projectile);
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Undefined {nameof(PolypRockFunction)} {phase}.");
+                    $"Undefined {nameof(PolypRockMovement)} {phase}.");
         }
 
         CacatacBehavior.DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
@@ -200,7 +200,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             // Crossing below zero consumes an entire apex frame: retail installs falling
             // state and returns before either vertical or horizontal movement.
             rock.SpeedIndex = EnemyQuadraticSpeedIndex.Start;
-            rock.Phase = PolypRockFunction.Falling;
+            rock.Phase = PolypRockMovement.Falling;
             return;
         }
 

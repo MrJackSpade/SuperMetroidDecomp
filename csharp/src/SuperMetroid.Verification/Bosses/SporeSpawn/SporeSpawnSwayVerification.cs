@@ -30,7 +30,7 @@ internal static class SporeSpawnSwayVerification
             body.Position = body.Position.WithWhole(new(128, 624));
             var state = new SporeSpawnEnemyState(body)
             {
-                Function = SporeSpawnFunction.Moving,
+                Movement = SporeSpawnMovement.Moving,
                 MovementCenter = body.Position.Whole,
                 MaximumXRadius = 48,
                 AngleDelta = delta,

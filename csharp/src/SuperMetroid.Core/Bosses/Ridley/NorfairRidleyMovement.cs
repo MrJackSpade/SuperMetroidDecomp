@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>How Norfair Ridley accelerates and moves toward a target, and the function timer its steps count down.</summary>
 internal static class NorfairRidleyMovement
 {
-    /// <summary>Counts the function timer down and reports whether it ran past zero.</summary>
-    internal static bool TickRidleyFunctionTimer(RidleyEnemyState state) => --state.FunctionTimer < 0;
+    /// <summary>Counts the phase timer down and reports whether it ran past zero.</summary>
+    internal static bool TickRidleyPhaseTimer(RidleyEnemyState state) => --state.PhaseTimer < 0;
 
     /// <summary>Accelerates both 8.8 velocity axes toward a target using inertia divisors.</summary>
     internal static void MoveNorfairRidleyToward(

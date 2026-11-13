@@ -79,7 +79,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         BeetomEnemyState state = _inheritance.Inherit(slot.SlotIndex, static previous => new BeetomEnemyState(previous));
         slot.SetSpeciesState(state);
 
-        state.FunctionTimer = 0;
+        state.ActionTimer = 0;
         state.Action = null;
         state.Falling = false;
         state.AttachedToSamus = false;
@@ -126,7 +126,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 ChooseDistantBeetomAction(state);
                 return;
             case BeetomAction.StartIdling:
-                state.FunctionTimer = 32;
+                state.ActionTimer = 32;
                 state.Action = BeetomAction.Idling;
                 return;
             case BeetomAction.StartCrawlingLeft:
@@ -165,7 +165,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Action = BeetomAction.BeingFlung;
                 return;
             case BeetomAction.Idling:
-                if (--state.FunctionTimer < 0)
+                if (--state.ActionTimer < 0)
                     state.Action = BeetomAction.DecideAction;
                 return;
             case BeetomAction.CrawlingLeft:
@@ -320,9 +320,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Probes eight pixels ahead for a ledge, then crawls or reverses at terrain.</summary>
     private void RunBeetomCrawl(RoomEnemySlot slot, BeetomEnemyState state, RoomLevelData level, HorizontalDirection direction)
     {
-        if (--state.FunctionTimer < 0)
+        if (--state.ActionTimer < 0)
         {
-            state.FunctionTimer = 64;
+            state.ActionTimer = 64;
             state.Action = BeetomAction.DecideAction;
             return;
         }

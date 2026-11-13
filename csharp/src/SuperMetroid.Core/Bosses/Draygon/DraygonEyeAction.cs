@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>What the Draygon eye does each update (#1413: the values are arbitrary).</summary>
-internal enum DraygonEyeFunction
+internal enum DraygonEyeAction
 {
     /// <summary>The eye is inert.</summary>
     Inert = 1,

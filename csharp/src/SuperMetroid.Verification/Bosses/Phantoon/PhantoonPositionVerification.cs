@@ -53,7 +53,7 @@ internal static class PhantoonPositionVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Phantoon);
         PhantoonEnemyState loaded = runtime.Enemies.PhantoonBehavior.Combat.Phantoon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.PhantoonBehavior.Phantoon.");
-        AssertEqual(120, loaded.BodyState.FunctionTimer,
+        AssertEqual(120, loaded.BodyState.PhaseTimer,
             "Original NTSC Phantoon initializer waits 120 frames, not PAL's 96");
         var samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(40, 184));

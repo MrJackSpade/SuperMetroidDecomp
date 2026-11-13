@@ -16,10 +16,10 @@ internal static class PolypNativeWords
         [PolypAction.Cooldown] = 0xb5ea,
     });
 
-    /// <summary>The routine word naming each <see cref="PolypRockFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<PolypRockFunction> PolypRockFunctions = new(new Dictionary<PolypRockFunction, ushort>
+    /// <summary>The routine word naming each <see cref="PolypRockMovement"/>.</summary>
+    internal static readonly NativeWordIdentities<PolypRockMovement> PolypRockMovements = new(new Dictionary<PolypRockMovement, ushort>
     {
-        [PolypRockFunction.Rising] = 0xbc16,
-        [PolypRockFunction.Falling] = 0xbc8f,
+        [PolypRockMovement.Rising] = 0xbc16,
+        [PolypRockMovement.Falling] = 0xbc8f,
     });
 }

@@ -20,7 +20,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     public int PainfulWalkingAnimationDelay { get; internal set; }
 
     /// <summary>Pause timer used after each completed forward/backward body animation.</summary>
-    public int PainfulWalkingFunctionTimer { get; private set; }
+    public int PainfulWalkingPauseTimer { get; private set; }
 
     /// <summary>True while the nested painful-walk function is on its forward half.</summary>
     public bool PainfulWalkingForward { get; internal set; }
@@ -31,9 +31,9 @@ internal sealed class MotherBrainDrainedByBabyPhases
         // The game stores four separate functions (request forward, wait forward,
         // request backward, wait backward). Two booleans express the same state without
         // hiding when a body animation is actually installed.
-        if (PainfulWalkingFunctionTimer != 0)
+        if (PainfulWalkingPauseTimer != 0)
         {
-            if (--PainfulWalkingFunctionTimer == 0)
+            if (--PainfulWalkingPauseTimer == 0)
             {
                 PainfulWalkingStage++;
                 PainfulWalkingForward = !PainfulWalkingForward;
@@ -47,7 +47,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         if (walk.ReachedTarget)
         {
             int timerIndex = Math.Min(PainfulWalkingStage, 7);
-            PainfulWalkingFunctionTimer = MotherBrainPainfulWalking.FunctionTimer(timerIndex);
+            PainfulWalkingPauseTimer = MotherBrainPainfulWalking.PauseTimer(timerIndex);
         }
         return walk.Requested;
     }
@@ -65,8 +65,8 @@ internal sealed class MotherBrainDrainedByBabyPhases
         _state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
         _state.UpperNeckMovement = MotherBrainNeckMovement.Raise;
         _state.NeckAngleDelta = 1792;
-        _state.Phase = MotherBrainBodyFunction.SecondPhaseDrainedByBabyRegainBalance;
-        _state.FunctionTimer = 48;
+        _state.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyRegainBalance;
+        _state.PhaseTimer = 48;
         return true;
     }
 
@@ -77,7 +77,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     internal bool RunSecondPhaseDrainedByBabyRegainBalance(MotherBrainRainbowBeamStepRequests requests)
     {
         requests.ColoursRequested = true;
-        if (--_state.FunctionTimer < 0)
+        if (--_state.PhaseTimer < 0)
         {
             // The regain-balance step contains an apparent missing store: it loads one and then
             // immediately reloads the neck-enable flag. Preserve that no-op rather
@@ -85,10 +85,10 @@ internal sealed class MotherBrainDrainedByBabyPhases
             PainfulWalkingForward = true;
             PainfulWalkingStage = 0;
             PainfulWalkingAnimationDelay = 2;
-            PainfulWalkingFunctionTimer = 0;
+            PainfulWalkingPauseTimer = 0;
             _state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
             _state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
-            _state.Phase = MotherBrainBodyFunction.SecondPhaseDrainedByBabyFiringRainbowBeam;
+            _state.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyFiringRainbowBeam;
         }
         return false;
     }
@@ -119,7 +119,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         if (PainfulWalkingStage == 6)
         {
             _state.RainbowBeamSoundPlaying = false;
-            _state.Phase = MotherBrainBodyFunction.SecondPhaseDrainedByBabyRainbowBeamRunOut;
+            _state.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyRainbowBeamRunOut;
             requests.SoundQueued = true; // The rainbow-drain sound stops as the beam runs out.
         }
         return false;
@@ -138,7 +138,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
             _state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
             _state.UpperNeckMovement = MotherBrainNeckMovement.Raise;
             _state.SetHeadAnimation(MotherBrainHeadSegment.DyingDrool);
-            _state.Phase = MotherBrainBodyFunction.SecondPhaseDrainedByBabyMoveToBackOfRoom;
+            _state.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyMoveToBackOfRoom;
             return true;
         }
         return false;
@@ -157,7 +157,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         requests.BodyWalkRequested = moveToBack.Requested;
         if (moveToBack.ReachedTarget)
         {
-            _state.Phase = MotherBrainBodyFunction.SecondPhaseDrainedByBabyGoIntoLowPowerMode;
+            _state.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyGoIntoLowPowerMode;
             _state.UpperNeckMovement = MotherBrainNeckMovement.None;
             return true;
         }
@@ -180,8 +180,8 @@ internal sealed class MotherBrainDrainedByBabyPhases
                 return false;
             _state.Body.SetAnimation(MotherBrainBodySegment.CrouchFast);
             requests.BodyPostureRequested = true;
-            _state.Phase = MotherBrainBodyFunction.SecondPhaseDrainedByBabyPrepareTransitionToGrey;
-            _state.FunctionTimer = 64;
+            _state.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyPrepareTransitionToGrey;
+            _state.PhaseTimer = 64;
         }
         return false;
     }
@@ -192,11 +192,11 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyPrepareTransitionToGrey()
     {
-        if (--_state.FunctionTimer < 0)
+        if (--_state.PhaseTimer < 0)
         {
             _state.GreyTransitionCounter = 0;
-            _state.Phase = MotherBrainBodyFunction.SecondPhaseDrainedByBabyTransitionToGrey;
-            _state.FunctionTimer = 16;
+            _state.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyTransitionToGrey;
+            _state.PhaseTimer = 16;
             return true;
         }
         return false;
@@ -208,9 +208,9 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyTransitionToGrey(MotherBrainRainbowBeamStepRequests requests)
     {
-        if (--_state.FunctionTimer < 0)
+        if (--_state.PhaseTimer < 0)
         {
-            _state.FunctionTimer = 16;
+            _state.PhaseTimer = 16;
 
             // The grey-transition list has eight nonzero palette entries followed by an end marker.
             // The caller increments its counter, passes the old index, and treats
@@ -224,7 +224,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
                 _state.Phase2CorpseState = MotherBrainPhase2CorpseState.Corpse;
                 _state.DisableSmallPurpleBreathGeneration();
                 _state.Body.Form = MotherBrainForm.SecondPhase;
-                _state.Phase = MotherBrainBodyFunction.SecondPhaseReviveInanimateGrey;
+                _state.Phase = MotherBrainBodyPhase.SecondPhaseReviveInanimateGrey;
             }
         }
         return false;

@@ -24,10 +24,10 @@ internal static class KiHuntersNativeWords
         [KiHunterAction.DetachedWing] = 0xf7cf,
     });
 
-    /// <summary>The routine word naming each <see cref="KiHunterWingFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<KiHunterWingFunction> KiHunterWingFunctions = new(new Dictionary<KiHunterWingFunction, ushort>
+    /// <summary>The routine word naming each <see cref="KiHunterWingMovement"/>.</summary>
+    internal static readonly NativeWordIdentities<KiHunterWingMovement> KiHunterWingMovements = new(new Dictionary<KiHunterWingMovement, ushort>
     {
-        [KiHunterWingFunction.Orbit] = 0xf7db,
-        [KiHunterWingFunction.FallingCollisionArc] = 0xf8ad,
+        [KiHunterWingMovement.Orbit] = 0xf7db,
+        [KiHunterWingMovement.FallingCollisionArc] = 0xf8ad,
     });
 }

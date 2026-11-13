@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The functions Mother Brain's separate brain record runs.</summary>
-public enum MotherBrainBrainFunction
+/// <summary>The actions Mother Brain's separate brain record runs.</summary>
+public enum MotherBrainBrainAction
 {
     /// <summary>Advances neck geometry unless time is frozen, attaches the head to joint 4, and draws her brain and neck.</summary>
     SetupBrainAndNeckToBeDrawn = 1,

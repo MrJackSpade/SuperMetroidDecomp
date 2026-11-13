@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Grapple;
 
-/// <summary>Grapple functions a connection record installs after the pose handler runs.</summary>
-public enum GrappleConnectionFunction
+/// <summary>The kinds of grapple connection a connection record installs after the pose handler runs.</summary>
+public enum GrappleConnectionKind
 {
     /// <summary>Locked-in-place connection handler.</summary>
     LockedInPlace,

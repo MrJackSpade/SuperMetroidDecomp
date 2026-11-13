@@ -89,7 +89,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
         slot.Shading = TourianCorpseShades.InDrainedColours;
-        state.Function = DeadTourianCorpseFunction.Waiting;
+        state.Phase = DeadTourianCorpsePhase.Waiting;
         state.Playback = DeadSidehopperBehavior.StartDeadTourianAnimation(slot, definition.InitialAnimation);
     }
 
@@ -97,28 +97,28 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunDeadTourianCorpseMain(RoomEnemySlot slot, SamusState? samus)
     {
         DeadTourianCorpseEnemyState state = RequireDeadTourianCorpseState(slot);
-        switch (state.Function)
+        switch (state.Phase)
         {
-            case DeadTourianCorpseFunction.Waiting:
+            case DeadTourianCorpsePhase.Waiting:
                 if (samus?.Kinematics.DidCollideWithSolidEnemy(slot.SlotIndex) == true)
-                    state.Function = DeadTourianCorpseFunction.PreRotDelay;
+                    state.Phase = DeadTourianCorpsePhase.PreRotDelay;
                 return;
-            case DeadTourianCorpseFunction.PreRotDelay:
+            case DeadTourianCorpsePhase.PreRotDelay:
                 state.CountPreRotDelayCall();
                 if (state.PreRotDelayCounter >= 16)
                 {
-                    state.Function = DeadTourianCorpseFunction.Rotting;
+                    state.Phase = DeadTourianCorpsePhase.Rotting;
                     slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
                 }
                 return;
-            case DeadTourianCorpseFunction.Rotting:
+            case DeadTourianCorpsePhase.Rotting:
                 RunDeadTourianCorpseRotting(slot, state);
                 return;
-            case DeadTourianCorpseFunction.Finished:
+            case DeadTourianCorpsePhase.Finished:
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Dead {state.Profile.Species} function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Dead {state.Profile.Species} function {state.Phase?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -126,7 +126,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void TriggerDeadTourianCorpseRotting(RoomEnemySlot slot)
     {
         DeadTourianCorpseEnemyState state = RequireDeadTourianCorpseState(slot);
-        state.Function = DeadTourianCorpseFunction.Rotting;
+        state.Phase = DeadTourianCorpsePhase.Rotting;
         slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
     }
@@ -150,7 +150,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Rows.MoveRow,
             _ => FinishDeadTourianCorpseRow(slot));
         if (!stillRotting)
-            state.Function = DeadTourianCorpseFunction.Finished;
+            state.Phase = DeadTourianCorpsePhase.Finished;
     }
 
     /// <summary>The rows <paramref name="slot"/>'s frames show: its corpse's own, as its rot calls have left them (#1539).</summary>

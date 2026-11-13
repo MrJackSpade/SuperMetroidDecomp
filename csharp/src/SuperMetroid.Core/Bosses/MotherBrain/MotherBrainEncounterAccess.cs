@@ -56,7 +56,7 @@ internal sealed class MotherBrainEncounterAccess
     /// </summary>
     internal static bool DecrementMotherBrainTimerPastZero(MotherBrainEnemyState state)
     {
-        return --state.FunctionTimer < 0;
+        return --state.PhaseTimer < 0;
     }
 
     /// <summary>Restarts the body enemy on <paramref name="segment"/> with its initial timer.</summary>

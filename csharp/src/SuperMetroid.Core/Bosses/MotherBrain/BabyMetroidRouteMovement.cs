@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The steering behaviours the Baby Metroid route records name.
 /// Its values are arbitrary; verification's catalog relates each member to its source (#1413).
 /// </summary>
-internal enum BabyMetroidRouteMovementFunction
+internal enum BabyMetroidRouteMovement
 {
     /// <summary>Gradual acceleration with wrong-way extra eight.</summary>
     GradualAccelerationExtraEight = 1,

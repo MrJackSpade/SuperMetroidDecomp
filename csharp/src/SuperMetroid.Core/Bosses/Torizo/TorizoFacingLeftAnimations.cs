@@ -14,14 +14,14 @@ internal static class TorizoFacingLeftAnimations
     {
         [P.FacingLeftTurningLeft] =
         [
-            Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Falling)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Falling)),
             Cue(new TorizoCue.Signal(K.SetTurningAround)),
             Show(EnemyFrameId.TorizoFacingLeftTurningLeft, 24),
         ],
         [P.FacingLeftWalkingRightLegMoving] =
         [
             Cue(new TorizoCue.Signal(K.SteppedLeftWithLeftFoot)),
-            Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Active)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
             Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.AirTransition)),
             Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
             Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
@@ -44,7 +44,7 @@ internal static class TorizoFacingLeftAnimations
         [P.FacingLeftWalkingLeftLegMoving] =
         [
             Cue(new TorizoCue.Signal(K.SteppedLeftWithRightFoot)),
-            Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Active)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
             Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.AirTransition)),
             Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
             Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
@@ -327,14 +327,14 @@ internal static class TorizoFacingLeftAnimations
         ],
         [P.FacingLeftFacelessTurningLeft] =
         [
-            Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Falling)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Falling)),
             Cue(new TorizoCue.Signal(K.SetTurningAround)),
             Show(EnemyFrameId.TorizoFacingLeftTurningLeft, 8),
         ],
         [P.FacingLeftFacelessWalkingRightLegMoving] =
         [
             Cue(new TorizoCue.Signal(K.SteppedLeftWithLeftFoot)),
-            Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Active)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
             Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.AirTransition)),
             Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
             Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
@@ -353,7 +353,7 @@ internal static class TorizoFacingLeftAnimations
         [P.FacingLeftFacelessWalkingLeftLegMoving] =
         [
             Cue(new TorizoCue.Signal(K.SteppedLeftWithRightFoot)),
-            Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Active)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Active)),
             Cue(new TorizoCue.SetFrameBehavior(FrameBehavior: TorizoFrameBehavior.AirTransition)),
             Cue(new TorizoCue.Signal(K.SpawnLowHealthDrool)),
             Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
@@ -373,11 +373,11 @@ internal static class TorizoFacingLeftAnimations
         [
             Cue(new TorizoCue.Signal(K.SteppedRightWithLeftFoot)),
             Show(EnemyFrameId.BombTorizoDormant, 1),
-            Cue(new TorizoCue.SetFunction(Function: TorizoFunction.WaitForHandTrigger)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.WaitForHandTrigger)),
         ],
         [P.FacingLeftFacelessWalkingLeftLegMovingTrailingResumed] =
         [
-            Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Falling)),
+            Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Falling)),
             Show(EnemyFrameId.TorizoFacingRightSeated, 32),
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Step: 8)),
             Show(EnemyFrameId.TorizoFacingRightStandingUpFirst, 16),

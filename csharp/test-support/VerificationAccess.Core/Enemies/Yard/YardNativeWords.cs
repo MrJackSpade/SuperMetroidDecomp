@@ -8,19 +8,19 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// </summary>
 internal static class YardNativeWords
 {
-    /// <summary>The routine word naming each <see cref="YardMovementFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<YardMovementFunction> YardMovementFunctions = new(new Dictionary<YardMovementFunction, ushort>
+    /// <summary>The routine word naming each <see cref="YardMovement"/>.</summary>
+    internal static readonly NativeWordIdentities<YardMovement> YardMovements = new(new Dictionary<YardMovement, ushort>
     {
-        [YardMovementFunction.AwaitingAnimationCue] = 0xcf5f,
-        [YardMovementFunction.Hiding] = 0xcf60,
-        [YardMovementFunction.CrawlingUpsideUpMovingLeft] = 0xcfa6,
-        [YardMovementFunction.CrawlingUpsideLeftMovingDown] = 0xcfb7,
-        [YardMovementFunction.CrawlingUpsideDownMovingRight] = 0xcfbd,
-        [YardMovementFunction.CrawlingUpsideRightMovingUp] = 0xcfce,
-        [YardMovementFunction.CrawlingUpsideUpMovingRight] = 0xcfd4,
-        [YardMovementFunction.CrawlingUpsideRightMovingDown] = 0xcfe5,
-        [YardMovementFunction.CrawlingUpsideDownMovingLeft] = 0xcfeb,
-        [YardMovementFunction.CrawlingUpsideLeftMovingUp] = 0xcffc,
-        [YardMovementFunction.Airborne] = 0xd1b3,
+        [YardMovement.AwaitingAnimationCue] = 0xcf5f,
+        [YardMovement.Hiding] = 0xcf60,
+        [YardMovement.CrawlingUpsideUpMovingLeft] = 0xcfa6,
+        [YardMovement.CrawlingUpsideLeftMovingDown] = 0xcfb7,
+        [YardMovement.CrawlingUpsideDownMovingRight] = 0xcfbd,
+        [YardMovement.CrawlingUpsideRightMovingUp] = 0xcfce,
+        [YardMovement.CrawlingUpsideUpMovingRight] = 0xcfd4,
+        [YardMovement.CrawlingUpsideRightMovingDown] = 0xcfe5,
+        [YardMovement.CrawlingUpsideDownMovingLeft] = 0xcfeb,
+        [YardMovement.CrawlingUpsideLeftMovingUp] = 0xcffc,
+        [YardMovement.Airborne] = 0xd1b3,
     });
 }

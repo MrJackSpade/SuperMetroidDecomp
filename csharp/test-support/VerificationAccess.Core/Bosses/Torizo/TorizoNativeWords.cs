@@ -8,16 +8,16 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 internal static class TorizoNativeWords
 {
-    /// <summary>The routine word naming each <see cref="TorizoFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<TorizoFunction> Functions = new(new Dictionary<TorizoFunction, ushort>
+    /// <summary>The routine word naming each <see cref="TorizoPhase"/>.</summary>
+    internal static readonly NativeWordIdentities<TorizoPhase> Phases = new(new Dictionary<TorizoPhase, ushort>
     {
-        [TorizoFunction.Idle] = 0xc6ab,
-        [TorizoFunction.Falling] = 0xc6bf,
-        [TorizoFunction.WaitForHandTrigger] = 0xc6c6,
-        [TorizoFunction.Active] = 0xc6ff,
-        [TorizoFunction.GoldenWaitForSamus] = 0xd5c2,
-        [TorizoFunction.GoldenGravity] = 0xd5df,
-        [TorizoFunction.GoldenFrameBehavior] = 0xd5e6,
+        [TorizoPhase.Idle] = 0xc6ab,
+        [TorizoPhase.Falling] = 0xc6bf,
+        [TorizoPhase.WaitForHandTrigger] = 0xc6c6,
+        [TorizoPhase.Active] = 0xc6ff,
+        [TorizoPhase.GoldenWaitForSamus] = 0xd5c2,
+        [TorizoPhase.GoldenGravity] = 0xd5df,
+        [TorizoPhase.GoldenFrameBehavior] = 0xd5e6,
     });
 
     /// <summary>The routine word naming each <see cref="TorizoFrameBehavior"/>.</summary>

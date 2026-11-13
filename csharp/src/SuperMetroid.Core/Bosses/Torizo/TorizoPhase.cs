@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>The main function a Bomb or Golden Torizo runs (#1413: the values are arbitrary).</summary>
-public enum TorizoFunction
+/// <summary>The main phase a Bomb or Golden Torizo runs (#1413: the values are arbitrary).</summary>
+public enum TorizoPhase
 {
     /// <summary>Dormant.</summary>
     Idle = 1,

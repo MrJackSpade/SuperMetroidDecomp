@@ -206,7 +206,7 @@ internal static class BotwoonAnimationsVerification
         // A falling segment starts at the quadratic table's first row and moves on three quarters of a row each update
         // it has not landed; the whole rows of its place before the update choose the speed it falls by.
         body.Position = body.Position.WithWholeY(0);
-        state.SegmentFunctions[1] = BotwoonBodyFunction.Falling;
+        state.SegmentPhases[1] = BotwoonBodyPhase.Falling;
         FixedPosition<RoomPixels> expected = body.Position;
         foreach ((int update, int rows) in new[] { (1, 0), (2, 0), (3, 1), (4, 2) })
         {
@@ -220,7 +220,7 @@ internal static class BotwoonAnimationsVerification
         runBody(body, 0);
         // The landed phase is the segment's own state (#1413); this no longer asserts the cartridge's RTS word in the
         // X-velocity slot.
-        AssertEqual(BotwoonBodyFunction.Landed, state.SegmentFunctions[1], "a landed body enters its inert landed phase");
+        AssertEqual(BotwoonBodyPhase.Landed, state.SegmentPhases[1], "a landed body enters its inert landed phase");
         AssertTrue(body.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustProjectileSegment.BigExplosion },
             "a landed body runs the shared misc-dust big explosion");
         Pass(body);

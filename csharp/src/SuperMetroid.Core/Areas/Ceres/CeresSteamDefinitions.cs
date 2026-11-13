@@ -9,7 +9,7 @@ public static class CeresSteamDefinitions
 
 
     /// <summary>
-    /// The parallel animation/function tables, indexed
+    /// Each vent's animation and action, keyed
     /// by the six authored <see cref="CeresSteamVariant"/> values.
     /// The six animations are one per direction.
     /// Variants 0..3 use directions 0..3 (up, left, down, right); rotating
@@ -17,9 +17,9 @@ public static class CeresSteamDefinitions
     /// indexes them by variant; production accepts only the six variants and
     /// rejects a seventh. The constant stride describes four distinct
     /// animations, while the last two entries are deliberate aliases.
-    /// The separate six-entry function table follows
+    /// The actions follow
     /// the rule <c>variant &lt; 4</c> exactly: ordinary
-    /// directions use the return function, while both rotating-room variants
+    /// directions take no action, while both rotating-room variants
     /// apply the graphical transform. The same bounded index selects both
     /// fields; the adjacent tables have independent value rules.
     /// </summary>

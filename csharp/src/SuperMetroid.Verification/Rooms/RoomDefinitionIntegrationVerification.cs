@@ -175,15 +175,15 @@ internal static class RoomDefinitionIntegrationVerification
             }
         }
 
-        foreach (RoomMainCallback callback in Enum.GetValues<RoomMainCallback>())
+        foreach (RoomMainBehavior callback in Enum.GetValues<RoomMainBehavior>())
         {
-            ushort pointer = RoomCallbackDefinitions.PointerOf(callback);
+            ushort pointer = RoomBehaviorDefinitions.PointerOf(callback);
             if (pointer != 0)
                 forbidden.Add(RoomHeaderRomDataConstants.BankAddress | pointer);
         }
-        foreach (RoomSetupCallback callback in Enum.GetValues<RoomSetupCallback>())
+        foreach (RoomSetupBehavior callback in Enum.GetValues<RoomSetupBehavior>())
         {
-            ushort pointer = RoomCallbackDefinitions.PointerOf(callback);
+            ushort pointer = RoomBehaviorDefinitions.PointerOf(callback);
             if (pointer != 0)
                 forbidden.Add(RoomHeaderRomDataConstants.BankAddress | pointer);
         }

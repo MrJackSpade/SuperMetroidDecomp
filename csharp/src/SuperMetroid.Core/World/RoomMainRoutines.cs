@@ -35,7 +35,7 @@ internal sealed class RoomMainRoutines
     /// <summary>The hidden-wall branch of Crocomire's room shaking.</summary>
     internal void RunCrocomireComebackRoomMain(RoomScope room)
     {
-        if (_room.ActiveRoom?.State.MainCallback != RoomMainCallback.CrocomireRoomShaking ||
+        if (_room.ActiveRoom?.State.MainBehavior != RoomMainBehavior.CrocomireRoomShaking ||
             room.Enemies.RoomMainHooks.Crocomire is not { } boss ||
             boss.Body.Presence.HasAny(EnemyPresence.Hidden) ||
             boss.DeathPhase != CrocomireDeathPhase.RumbleHiddenWall)
@@ -103,8 +103,8 @@ internal sealed class RoomMainRoutines
     /// </summary>
     internal void RunCeresFallingDebrisRoomMain(RoomScope room)
     {
-        if (_room.ActiveRoom?.State.MainCallback !=
-                RoomMainCallback.SpawnCeresPreElevatorHallFallingDebris ||
+        if (_room.ActiveRoom?.State.MainBehavior !=
+                RoomMainBehavior.SpawnCeresPreElevatorHallFallingDebris ||
             room.Enemies.Ceres.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
             return;
 

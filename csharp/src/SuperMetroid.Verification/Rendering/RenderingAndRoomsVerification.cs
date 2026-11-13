@@ -1072,20 +1072,20 @@ internal static void VerifyPowerBombColorMathWindow()
 internal static void VerifyScrollingSkyState()
 {
     AssertTrue(
-        ScrollingSkyState.IsLandRoomMain(RoomMainCallback.ScrollingSkyLand),
+        ScrollingSkyState.IsLandRoomMain(RoomMainBehavior.ScrollingSkyLand),
         "$8F:C116 selects land scrolling sky");
     AssertTrue(
-        ScrollingSkyState.IsLandRoomMain(RoomMainCallback.ScrollingSkyLandZebesTimebombSet),
+        ScrollingSkyState.IsLandRoomMain(RoomMainBehavior.ScrollingSkyLandZebesTimebombSet),
         "$8F:C120 selects land scrolling sky before quake work");
     AssertTrue(
-        !ScrollingSkyState.IsLandRoomMain(RoomMainCallback.ScrollingSkyOcean),
+        !ScrollingSkyState.IsLandRoomMain(RoomMainBehavior.ScrollingSkyOcean),
         "$8F:C11B ocean wrapper is not silently treated as land sky");
 
-    AssertEqual(ScrollingSkyChunkTable.Land, ScrollingSkyState.VariantOf(RoomMainCallback.ScrollingSkyLandZebesTimebombSet),
+    AssertEqual(ScrollingSkyChunkTable.Land, ScrollingSkyState.VariantOf(RoomMainBehavior.ScrollingSkyLandZebesTimebombSet),
         "land sky mains read the land chunk table");
-    AssertEqual(ScrollingSkyChunkTable.Ocean, ScrollingSkyState.VariantOf(RoomMainCallback.ScrollingSkyOcean),
+    AssertEqual(ScrollingSkyChunkTable.Ocean, ScrollingSkyState.VariantOf(RoomMainBehavior.ScrollingSkyOcean),
         "the ocean main reads the ocean chunk table");
-    AssertThrows<ArgumentOutOfRangeException>(() => ScrollingSkyState.VariantOf(RoomMainCallback.None),
+    AssertThrows<ArgumentOutOfRangeException>(() => ScrollingSkyState.VariantOf(RoomMainBehavior.None),
         "a room main without a sky has no chunk table");
 
     var sky = new ScrollingSkyState(ScrollingSkyChunkTable.Land);

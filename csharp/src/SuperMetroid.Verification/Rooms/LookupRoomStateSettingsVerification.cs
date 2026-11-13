@@ -159,13 +159,13 @@ internal static class LookupRoomStateSettingsVerification
             "X-ray source view is repeatable after complete enumeration");
     }
     /// <summary>Checks the per-frame room callback pointer in each state.</summary>
-    private static void VerifyRoomStateMainCodePointer(CartridgeImportAddressSpace rom) => VerifyRoomStateField(rom, state => RoomCallbackDefinitions.PointerOf(state.MainCallback), "MainCodePointer");
+    private static void VerifyRoomStateMainCodePointer(CartridgeImportAddressSpace rom) => VerifyRoomStateField(rom, state => RoomBehaviorDefinitions.PointerOf(state.MainBehavior), "MainCodePointer");
     /// <summary>Checks the room's PLM population pointer in each state.</summary>
     private static void VerifyRoomStateObjectPointer(CartridgeImportAddressSpace rom) => VerifyRoomStateField(rom, state => state.RoomObjectPointer, "RoomObjectPointer");
     /// <summary>Checks the scripted background-data pointer in each state.</summary>
     private static void VerifyRoomStateBackgroundDataPointer(CartridgeImportAddressSpace rom) => VerifyRoomStateField(rom, state => state.BackgroundDataPointer, "BackgroundDataPointer");
     /// <summary>Checks the one-time room setup callback pointer in each state.</summary>
-    private static void VerifyRoomStateSetupCodePointer(CartridgeImportAddressSpace rom) => VerifyRoomStateField(rom, state => RoomCallbackDefinitions.PointerOf(state.SetupCallback), "SetupCodePointer");
+    private static void VerifyRoomStateSetupCodePointer(CartridgeImportAddressSpace rom) => VerifyRoomStateField(rom, state => RoomBehaviorDefinitions.PointerOf(state.SetupBehavior), "SetupCodePointer");
 
     /// <summary>Compares a selected field both through lookup and sorted enumeration for all native identities.</summary>
     private static void VerifyRoomStateField<T>(CartridgeImportAddressSpace rom,

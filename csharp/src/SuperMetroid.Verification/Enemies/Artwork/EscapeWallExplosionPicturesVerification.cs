@@ -26,7 +26,7 @@ internal static class EscapeWallExplosionPicturesVerification
         EnemyProjectileFrameId[] explosion = [.. SpawnedObjectFrameDefinitions.Common
             .Single(common => common.Spawner == nameof(OldTourianEscapeShaftWallBehavior)).Objects.Projectiles];
         VerificationAssertions.AssertTrue(explosion.Length > 0, "the fake wall's explosion shows frames");
-        RoomStateSettings[] states = [.. RoomStateDefinitions.All.Where(state => state.SetupCallback == RoomSetupCallback.AutoDestroyWallDuringEscape)];
+        RoomStateSettings[] states = [.. RoomStateDefinitions.All.Where(state => state.SetupBehavior == RoomSetupBehavior.AutoDestroyWallDuringEscape)];
         VerificationAssertions.AssertTrue(states.Length > 0, "a room state's setup spawns the fake wall");
         SpriteGraphics shared = SpriteGraphics.SharedIn(PictureShading.Standard);
         foreach (RoomStateSettings state in states)

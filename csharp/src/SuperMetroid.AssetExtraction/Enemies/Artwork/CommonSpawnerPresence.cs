@@ -17,10 +17,10 @@ internal sealed record CommonSpawnerPresence
     public IReadOnlyList<RoomObjectKind> RoomObjects { get; init; } = [];
 
     /// <summary>The room mains that run the spawner.</summary>
-    public IReadOnlyList<RoomMainCallback> Mains { get; init; } = [];
+    public IReadOnlyList<RoomMainBehavior> Mains { get; init; } = [];
 
     /// <summary>The room setups that run the spawner.</summary>
-    public IReadOnlyList<RoomSetupCallback> Setups { get; init; } = [];
+    public IReadOnlyList<RoomSetupBehavior> Setups { get; init; } = [];
 
     /// <summary>The enemies whose presence runs the spawner.</summary>
     public IReadOnlyList<EnemyDefinitionId> Enemies { get; init; } = [];
@@ -38,7 +38,7 @@ internal sealed record CommonSpawnerPresence
         Ensure.NotNull(drawn);
         if ((AnyEnemy && drawn.Count > 0) || Enemies.Any(drawn.Contains))
             return true;
-        return states.Any(state => Mains.Contains(state.MainCallback) || Setups.Contains(state.SetupCallback)
+        return states.Any(state => Mains.Contains(state.MainBehavior) || Setups.Contains(state.SetupBehavior)
             || state.ObjectPopulation.Placements.Span.Any(placement => RoomObjects.Contains(placement.Kind)));
     }
 }

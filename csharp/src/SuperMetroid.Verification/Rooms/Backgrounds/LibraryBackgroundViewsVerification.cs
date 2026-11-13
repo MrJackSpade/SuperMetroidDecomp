@@ -66,11 +66,11 @@ internal static class LibraryBackgroundViewsVerification
         RoomStateSettings sky = CrateriaRoomStateDefinitions.LandingSiteDefault;
         TilesetDefinition skyTileset = RoomTilesets.Get(sky.GraphicsSet);
         string[] skyNames = [.. RoomBlockUploads.BackgroundNamesOf([sky])];
-        string[] skyRows = [RoomBackgroundImage.SkyNameOf(ScrollingSkyState.VariantOf(sky.MainCallback), skyTileset)];
+        string[] skyRows = [RoomBackgroundImage.SkyNameOf(ScrollingSkyState.VariantOf(sky.MainBehavior), skyTileset)];
         AssertTrue(skyNames.SequenceEqual(skyRows, StringComparer.Ordinal),
             $"a sky room installs only its sky's rows, not [{string.Join(", ", skyNames)}]");
         AssertBindsNone(sky.Background, LibraryBackgroundView.SkyRows, "a sky room");
-        AssertThrows<InvalidDataException>(() => RoomBlockUploads.BackgroundNamesOf([sky with { SetupCallback = RoomSetupCallback.Return }]),
+        AssertThrows<InvalidDataException>(() => RoomBlockUploads.BackgroundNamesOf([sky with { SetupBehavior = RoomSetupBehavior.Return }]),
             "a background showing the sky's rows in a room without the sky's bands is refused");
 
         // Nothing: the Parlor's state loading the Ceres elevator shaft's cleared background.

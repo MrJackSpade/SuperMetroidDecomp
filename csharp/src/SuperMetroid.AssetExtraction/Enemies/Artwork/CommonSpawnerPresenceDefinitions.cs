@@ -59,13 +59,13 @@ internal static class CommonSpawnerPresenceDefinitions
     ];
 
     /// <summary>The Ceres rooms whose ceiling tiles fall during the escape.</summary>
-    private static readonly RoomMainCallback[] FallingDebris = [RoomMainCallback.SpawnCeresPreElevatorHallFallingDebris];
+    private static readonly RoomMainBehavior[] FallingDebris = [RoomMainBehavior.SpawnCeresPreElevatorHallFallingDebris];
 
     /// <summary>The Ceres elevator rooms, where Samus arrives on the elevator pad.</summary>
-    private static readonly RoomMainCallback[] CeresElevator = [RoomMainCallback.CeresElevatorShaft];
+    private static readonly RoomMainBehavior[] CeresElevator = [RoomMainBehavior.CeresElevatorShaft];
 
     /// <summary>The Tourian statue room, whose unlocking plays the statues' souls, glows and dust.</summary>
-    private static readonly CommonSpawnerPresence StatueUnlocking = new() { Setups = [RoomSetupCallback.RunStatueUnlockingAnimations] };
+    private static readonly CommonSpawnerPresence StatueUnlocking = new() { Setups = [RoomSetupBehavior.RunStatueUnlockingAnimations] };
 
     /// <summary>The escape rooms that set off random explosions.</summary>
     private static readonly CommonSpawnerPresence EscapeExplosions = new() { Mains = [.. ZebesEscapeDefinitions.ExplosionRoomMains] };
@@ -88,7 +88,7 @@ internal static class CommonSpawnerPresenceDefinitions
     /// <summary>Ridley's fight code, with the getaway that follows Ceres Ridley's fight.</summary>
     private static readonly CommonSpawnerPresence RidleyGetaway = new()
     {
-        Enemies = Ridleys, Mains = [RoomMainCallback.HandleCeresRidleyGetawayCutscene], Shades = [CommonSpawnerShades.RidleySprites],
+        Enemies = Ridleys, Mains = [RoomMainBehavior.HandleCeresRidleyGetawayCutscene], Shades = [CommonSpawnerShades.RidleySprites],
     };
 
     /// <summary>Code every enemy runs: its death, its drop, its collision with shots.</summary>
@@ -109,7 +109,7 @@ internal static class CommonSpawnerPresenceDefinitions
         [nameof(NoobTubeBehavior)] = new() { RoomObjects = [RoomObjectKind.NoobTube], Shades = [CommonSpawnerShades.TubeCracks] },
         [nameof(OldTourianEscapeShaftWallBehavior)] = new()
         {
-            RoomObjects = [RoomObjectKind.OldTourianEscapeShaftFakeWall], Setups = [RoomSetupCallback.AutoDestroyWallDuringEscape],
+            RoomObjects = [RoomObjectKind.OldTourianEscapeShaftFakeWall], Setups = [RoomSetupBehavior.AutoDestroyWallDuringEscape],
         },
         [nameof(DownwardGateBehavior)] = new() { RoomObjects = Gates },
         [Engine(nameof(EnemyProjectileEngine.SpawnSaveStationElectricity))] =
@@ -138,7 +138,7 @@ internal static class CommonSpawnerPresenceDefinitions
         [nameof(CeresRidleyBehavior)] = RidleyGetaway,
         [nameof(CrocomireEncounterAccess)] = new() { Enemies = [EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue] },
         [nameof(CorpseRowDust)] = new() { Enemies = Corpses },
-        [nameof(PrePhantoonRoomBehavior)] = new() { Setups = [RoomSetupCallback.SpawnPrePhantoonRoomEnemyProjectile] },
+        [nameof(PrePhantoonRoomBehavior)] = new() { Setups = [RoomSetupBehavior.SpawnPrePhantoonRoomEnemyProjectile] },
     };
 
     /// <summary>The name of the enemy projectile engine's spawn service <paramref name="member"/>.</summary>

@@ -42,15 +42,15 @@ internal static class GunshipMotionDefinitions
     /// <summary>The landed ship's X, where Samus stands to board.</summary>
     internal const int LandedX = 1152;
 
-    /// <summary>The escaping ship's starting 8.8 upward velocity.</summary>
-    internal const int EscapeStartVelocity = 512;
+    /// <summary>The escaping ship's starting upward speed: two pixels an update.</summary>
+    internal static readonly SignedEightEight EscapeStartVelocity = SignedEightEight.FromPixels(2);
 
-    /// <summary>The escaping ship's 8.8 acceleration per call.</summary>
-    internal const int EscapeAcceleration = 64;
+    /// <summary>The escaping ship's acceleration each update: a quarter pixel an update.</summary>
+    internal static readonly SignedEightEight EscapeAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64);
 
-    /// <summary>The escaping velocity, ten whole pixels per update, whose reaching caps it.</summary>
-    internal const int EscapeVelocityCapTrigger = 2560;
+    /// <summary>The whole pixels an update the escaping speed's whole part reaches when the cap applies: ten.</summary>
+    internal const int EscapeVelocityCapTriggerPixels = 10;
 
-    /// <summary>The escaping ship's capped 8.8 velocity.</summary>
-    internal const int EscapeVelocityCap = 2304;
+    /// <summary>The escaping ship's capped upward speed: nine pixels an update.</summary>
+    internal static readonly SignedEightEight EscapeVelocityCap = SignedEightEight.FromPixels(9);
 }

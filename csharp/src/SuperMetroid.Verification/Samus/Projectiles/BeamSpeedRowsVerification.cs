@@ -45,10 +45,10 @@ internal static class BeamSpeedRowsVerification
             // The fire frame's beam pre-instruction adds one direction-indexed acceleration
             // word to the speed-row velocity before the slot is observable.
             EightEightVector<RoomPixels> acceleration = SamusProjectileAccelerations.For(SamusProjectileWordCodec.DecodeDirection(direction)).Beam;
-            int ax = acceleration.X.SignedRawValue;
-            int ay = acceleration.Y.SignedRawValue;
-            AssertEqual(unchecked((short)(x + ax)), shot.Velocity.X.SignedRawValue, $"beam {combination} direction {direction} native speed-row X");
-            AssertEqual(unchecked((short)(y + ay)), shot.Velocity.Y.SignedRawValue, $"beam {combination} direction {direction} native speed-row Y");
+            int ax = acceleration.X.InTwoHundredFiftySixthsOfPixel;
+            int ay = acceleration.Y.InTwoHundredFiftySixthsOfPixel;
+            AssertEqual(unchecked((short)(x + ax)), shot.Velocity.X.InTwoHundredFiftySixthsOfPixel, $"beam {combination} direction {direction} native speed-row X");
+            AssertEqual(unchecked((short)(y + ay)), shot.Velocity.Y.InTwoHundredFiftySixthsOfPixel, $"beam {combination} direction {direction} native speed-row Y");
         }
         // Unlike the twelve identical authored rows, the Spazer and Plasma combinations C..F read different words past
         // the speed table, which the installed service holds (#1500). Each pair is the two words at its four-byte row.
@@ -74,17 +74,17 @@ internal static class BeamSpeedRowsVerification
         {
             SamusDirectionAccelerations accelerations = SamusProjectileAccelerations.For(SamusProjectileWordCodec.DecodeDirection(direction));
             short RomWord(int address) => unchecked((short)retail.ReadCartridgeWord(address));
-            AssertEqual(RomWord(SamusSourceDefinitionsConstants.BeamXAccelerations + direction * 2), accelerations.Beam.X.SignedRawValue,
+            AssertEqual(RomWord(SamusSourceDefinitionsConstants.BeamXAccelerations + direction * 2), accelerations.Beam.X.InTwoHundredFiftySixthsOfPixel,
                 $"direction {direction} beam X acceleration matches the pinned ROM");
-            AssertEqual(RomWord(SamusSourceDefinitionsConstants.BeamYAccelerations + direction * 2), accelerations.Beam.Y.SignedRawValue,
+            AssertEqual(RomWord(SamusSourceDefinitionsConstants.BeamYAccelerations + direction * 2), accelerations.Beam.Y.InTwoHundredFiftySixthsOfPixel,
                 $"direction {direction} beam Y acceleration matches the pinned ROM");
-            AssertEqual(RomWord(SamusSourceDefinitionsConstants.MissileAccelerations + direction * 4), accelerations.Missile.X.SignedRawValue,
+            AssertEqual(RomWord(SamusSourceDefinitionsConstants.MissileAccelerations + direction * 4), accelerations.Missile.X.InTwoHundredFiftySixthsOfPixel,
                 $"direction {direction} missile X acceleration matches the pinned ROM");
-            AssertEqual(RomWord(SamusSourceDefinitionsConstants.MissileAccelerations + direction * 4 + 2), accelerations.Missile.Y.SignedRawValue,
+            AssertEqual(RomWord(SamusSourceDefinitionsConstants.MissileAccelerations + direction * 4 + 2), accelerations.Missile.Y.InTwoHundredFiftySixthsOfPixel,
                 $"direction {direction} missile Y acceleration matches the pinned ROM");
-            AssertEqual(RomWord(SamusSourceDefinitionsConstants.SuperMissileAccelerations + direction * 4), accelerations.SuperMissile.X.SignedRawValue,
+            AssertEqual(RomWord(SamusSourceDefinitionsConstants.SuperMissileAccelerations + direction * 4), accelerations.SuperMissile.X.InTwoHundredFiftySixthsOfPixel,
                 $"direction {direction} Super Missile X acceleration matches the pinned ROM");
-            AssertEqual(RomWord(SamusSourceDefinitionsConstants.SuperMissileAccelerations + direction * 4 + 2), accelerations.SuperMissile.Y.SignedRawValue,
+            AssertEqual(RomWord(SamusSourceDefinitionsConstants.SuperMissileAccelerations + direction * 4 + 2), accelerations.SuperMissile.Y.InTwoHundredFiftySixthsOfPixel,
                 $"direction {direction} Super Missile Y acceleration matches the pinned ROM");
         }
         for (ushort combination = 0; combination < 16; combination++)
@@ -95,9 +95,9 @@ internal static class BeamSpeedRowsVerification
             int speed = unchecked((short)retail.ReadCartridgeWord((0x90c2d1 + combination * 4 +
                 (direction is 1 or 3 or 6 or 8 ? 2 : 0))));
             AssertEqual(unchecked((short)(direction is 1 or 2 or 3 ? speed : direction is 6 or 7 or 8 ? -speed : 0)),
-                slot.Velocity.X.SignedRawValue, "Actual initializer retains combination-dependent adjacent-table overreads X");
+                slot.Velocity.X.InTwoHundredFiftySixthsOfPixel, "Actual initializer retains combination-dependent adjacent-table overreads X");
             AssertEqual(unchecked((short)(direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0)),
-                slot.Velocity.Y.SignedRawValue, "Actual initializer retains combination-dependent adjacent-table overreads Y");
+                slot.Velocity.Y.InTwoHundredFiftySixthsOfPixel, "Actual initializer retains combination-dependent adjacent-table overreads Y");
         }
         for (ushort weapon = 1; weapon <= 2; weapon++)
         for (byte direction = 0; direction < 10; direction++)
@@ -134,8 +134,8 @@ internal static class BeamSpeedRowsVerification
                 y = unchecked(y + (uint)SixteenSixteen.FromEightEight(vy));
                 var owner = projectiles.Slots[0];
                 AssertTrue(owner.IsActive, "Motion fixture retains its visible missile owner");
-                AssertEqual((short)vx, owner.Velocity.X.SignedRawValue, "Native missile acceleration X across ignition and movement");
-                AssertEqual((short)vy, owner.Velocity.Y.SignedRawValue, "Native missile acceleration Y across ignition and movement");
+                AssertEqual((short)vx, owner.Velocity.X.InTwoHundredFiftySixthsOfPixel, "Native missile acceleration X across ignition and movement");
+                AssertEqual((short)vy, owner.Velocity.Y.InTwoHundredFiftySixthsOfPixel, "Native missile acceleration Y across ignition and movement");
                 AssertEqual(x, new FixedCoordinate(owner.Position.X.Whole, owner.Position.X.Fraction).RawValue, "Missile X trajectory retains fixed-point carry");
                 AssertEqual(y, new FixedCoordinate(owner.Position.Y.Whole, owner.Position.Y.Fraction).RawValue, "Missile Y trajectory retains fixed-point carry");
             }

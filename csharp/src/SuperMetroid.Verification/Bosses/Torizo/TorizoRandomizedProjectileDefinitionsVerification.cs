@@ -34,11 +34,11 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
                 $"{name} instruction");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), definition.Offset.X,
                 $"{name} X offset");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4))), definition.BaseVelocity.X.SignedRawValue,
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4))), definition.BaseVelocity.X.InTwoHundredFiftySixthsOfPixel,
                 $"{name} base X velocity");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6))), definition.Offset.Y,
                 $"{name} Y offset");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 8))), definition.BaseVelocity.Y.SignedRawValue,
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 8))), definition.BaseVelocity.Y.InTwoHundredFiftySixthsOfPixel,
                 $"{name} base Y velocity");
 
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
@@ -53,11 +53,11 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
                 $"{name} production program");
             AssertEqual(unchecked((ushort)(1000 + definition.Offset.X)), projectile.Position.X.Whole,
                 $"{name} production X");
-            AssertEqual(unchecked((ushort)(definition.BaseVelocity.X.SignedRawValue - 128)), projectile.Velocity.X.RawValue,
+            AssertEqual(unchecked((ushort)(definition.BaseVelocity.X.InTwoHundredFiftySixthsOfPixel - 128)), projectile.Velocity.X.RawValue,
                 $"{name} production X jitter");
             AssertEqual(unchecked((ushort)(500 + definition.Offset.Y)), projectile.Position.Y.Whole,
                 $"{name} production Y");
-            AssertEqual(unchecked((ushort)(definition.BaseVelocity.Y.SignedRawValue + 127)), projectile.Velocity.Y.RawValue,
+            AssertEqual(unchecked((ushort)(definition.BaseVelocity.Y.InTwoHundredFiftySixthsOfPixel + 127)), projectile.Velocity.Y.RawValue,
                 $"{name} production Y jitter");
             AssertEqual(2, randomCall, $"{name} independent RNG calls");
         }
@@ -120,9 +120,9 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
             $"{methodName} facing {facingRight} Y");
         if (!velocityIsReplaced)
         {
-            AssertEqual(unchecked((ushort)(expected.BaseVelocity.X.SignedRawValue - 128)), projectile.Velocity.X.RawValue,
+            AssertEqual(unchecked((ushort)(expected.BaseVelocity.X.InTwoHundredFiftySixthsOfPixel - 128)), projectile.Velocity.X.RawValue,
                 $"{methodName} facing {facingRight} X jitter");
-            AssertEqual(unchecked((ushort)(expected.BaseVelocity.Y.SignedRawValue - 128)), projectile.Velocity.Y.RawValue,
+            AssertEqual(unchecked((ushort)(expected.BaseVelocity.Y.InTwoHundredFiftySixthsOfPixel - 128)), projectile.Velocity.Y.RawValue,
                 $"{methodName} facing {facingRight} Y jitter");
         }
     }

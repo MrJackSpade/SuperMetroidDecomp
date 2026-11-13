@@ -26,12 +26,12 @@ internal static class CompiledProjectileMathVerification
             int address = EnemyMathReferenceData.SignedNegativeCosine + i * 2;
             native[i] = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
-        var enemy = new Func<ushort, byte, int>((speed, angle) => EnemyMath.MultiplySineSample(speed, new TrigonometryAngle(angle)).RawValue);
-        var baby = new Func<ushort, byte, int>((babySpeed, babyAngle) => BabyMetroidCutsceneState.CalculateVelocityComponent(babySpeed, new TrigonometryAngle(babyAngle)).RawValue);
-        var rainbow = new Func<ushort, RotationAngle, int>((rainbowSpeed, rainbowAngle) => MotherBrainRainbowBeamSamusMovement.CalculateYVelocity(rainbowSpeed, rainbowAngle).RawValue);
+        var enemy = new Func<ushort, byte, int>((speed, angle) => EnemyMath.MultiplySineSample(new SignedEightEight(speed), new TrigonometryAngle(angle)).RawValue);
+        var baby = new Func<ushort, byte, int>((babySpeed, babyAngle) => BabyMetroidCutsceneState.CalculateVelocityComponent(new SignedEightEight(babySpeed), new TrigonometryAngle(babyAngle)).RawValue);
+        var rainbow = new Func<ushort, RotationAngle, int>((rainbowSpeed, rainbowAngle) => MotherBrainRainbowBeamSamusMovement.CalculateYVelocity(new SignedEightEight(rainbowSpeed), rainbowAngle).RawValue);
         var flyCircle = new Func<TrigonometryAngle, EightEightVector<RoomPixels>>(FliesBehavior.CircleStep);
         var flyDive = new Func<TrigonometryAngle, EightEightVector<RoomPixels>>(FliesBehavior.DiveVelocity);
-        var eye = new Func<byte, int>(angle => EyeDoorBehavior.ReadEyeDoorAcceleration(new TrigonometryAngle(angle)).SignedRawValue);
+        var eye = new Func<byte, int>(angle => EyeDoorBehavior.ReadEyeDoorAcceleration(new TrigonometryAngle(angle)).InTwoHundredFiftySixthsOfPixel);
         var rio = new Func<byte, int>(angle => RioBehavior.ReadRioSignedSineCosineSample(new TrigonometryAngle(angle)).RawValue);
         // The native view's index runs a quarter turn ahead of the angle it holds: its first 64 words are the negative cosine.
         var shaktool = new Func<int, int>(index => ShaktoolBehavior.ReadShaktoolCommonSineSample(TrigonometryAngle.Wrapped(index - 64)).RawValue);
@@ -67,7 +67,7 @@ internal static class CompiledProjectileMathVerification
             // Subtract a quarter-turn so the rainbow wrapper's explicit cosine
             // offset should select the same sample. Poison the fractional byte.
             var cosineAngle = RotationAngle.FromSteps(unchecked((byte)(angle - 64))).AddRaw(255);
-            if (Trigonometry.MultiplySignedSine((ushort)speed, new TrigonometryAngle((byte)angle)).RawValue != expected ||
+            if (Trigonometry.MultiplySignedSine(new SignedEightEight(speed), new TrigonometryAngle((byte)angle)).RawValue != expected ||
                 enemy((ushort)speed, (byte)angle) != expected || baby((ushort)speed, (byte)angle) != expected ||
                 rainbow((ushort)speed, cosineAngle) != expected)
                 throw new InvalidDataException($"Signed projectile product differs: angle={angle}, speed={speed}.");

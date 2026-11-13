@@ -33,7 +33,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                 state.StateTimer = raw;
                 state.DrainStage = drainStage;
                 state.JumpPhase = phase;
-                state.Velocity = new EightEightVector<RoomPixels>(0x1234, 0x1234);
+                state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(4660, 4660);
                 state.Playback = new(DeadTourianAnimations.StartingWith(DeadTourianProgram.SidehopperCorpse), AnimationPlace.StartOfAnimation);
                 slot.FrameHold = WrappingCountdown.Start(9);
                 slot.Timer = WrappingCountdown.Start(17);

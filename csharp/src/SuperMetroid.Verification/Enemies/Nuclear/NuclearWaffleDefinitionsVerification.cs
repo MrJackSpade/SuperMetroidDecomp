@@ -113,7 +113,7 @@ internal static class NuclearWaffleDefinitionsVerification
         enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(slot);
         NuclearWaffleEnemyState state = enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Nuclear Waffle has no state.");
         AssertTrue(state.SweepsForward, "Nuclear Waffle direction one sweeps forward");
-        AssertEqual(SignedSixteenSixteen.FromRaw(oneUnit + oneUnit / 2), state.AngularSpeed, "Nuclear Waffle speed record 24 is 1.5 units per update");
+        AssertEqual(SixteenSixteenWords.ToDisplacement(oneUnit + oneUnit / 2), state.AngularSpeed, "Nuclear Waffle speed record 24 is 1.5 units per update");
 
         enemies.NuclearWaffleBehavior.RunNuclearWaffleMainAi(slot, Frame());
         AssertEqual(NuclearWaffleEnemyFunction.Sweeping, state.Function, "Nuclear Waffle zero wait expires on the first update");
@@ -124,7 +124,7 @@ internal static class NuclearWaffleDefinitionsVerification
             if (update == 96)
                 enemies.Audio.BeginFrame();
             enemies.NuclearWaffleBehavior.RunNuclearWaffleMainAi(slot, Frame());
-            AssertEqual(SignedSixteenSixteen.FromRaw(startAngle * oneUnit + (update + 1) * (oneUnit + oneUnit / 2)), state.SweepAngle,
+            AssertEqual(SixteenSixteenWords.ToDisplacement(startAngle * oneUnit + (update + 1) * (oneUnit + oneUnit / 2)), state.SweepAngle,
                 $"Nuclear Waffle sweep angle after sweep update {update}");
             AssertEqual(update == finishingUpdate ? NuclearWaffleEnemyFunction.Waiting : NuclearWaffleEnemyFunction.Sweeping, state.Function,
                 $"Nuclear Waffle sweep finishes only on update {finishingUpdate} (update {update})");

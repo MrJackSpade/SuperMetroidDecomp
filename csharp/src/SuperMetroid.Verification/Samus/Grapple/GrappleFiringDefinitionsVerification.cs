@@ -69,8 +69,8 @@ internal static class GrappleFiringDefinitionsVerification
                 grapple.Phase = GrapplePhase.Inactive;
                 samus.LiquidPhysics.BeginFrameSoundRequests();
                 SamusGrappleMovement.BeginFiring(samus);
-                AssertEqual(vx, grapple.ExtensionVelocity.X.SignedRawValue, "Actual launch X velocity");
-                AssertEqual(vy, grapple.ExtensionVelocity.Y.SignedRawValue, "Actual launch Y velocity");
+                AssertEqual(vx, grapple.ExtensionVelocity.X.InTwoHundredFiftySixthsOfPixel, "Actual launch X velocity");
+                AssertEqual(vy, grapple.ExtensionVelocity.Y.InTwoHundredFiftySixthsOfPixel, "Actual launch Y velocity");
                 AssertEqual(angle, grapple.Angle.RawValue, "Actual launch angle");
                 AssertEqual(angle, grapple.MirroredAngle.RawValue, "Actual mirrored angle");
                 AssertEqual(x, grapple.OriginOffset.X, "Actual physical origin X");
@@ -144,8 +144,8 @@ internal static class GrappleFiringDefinitionsVerification
             samus.LiquidPhysics.BeginFrameSoundRequests();
             SamusGrappleMovement.BeginFiring(samus, input);
             AssertEqual((SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)direction, grapple.FireDirection, "Held aim selection");
-            AssertEqual(Word(0x9bc0db + direction * 2), grapple.ExtensionVelocity.X.SignedRawValue, "Held launch X");
-            AssertEqual(Word(0x9bc0ef + direction * 2), grapple.ExtensionVelocity.Y.SignedRawValue, "Held launch Y");
+            AssertEqual(Word(0x9bc0db + direction * 2), grapple.ExtensionVelocity.X.InTwoHundredFiftySixthsOfPixel, "Held launch X");
+            AssertEqual(Word(0x9bc0ef + direction * 2), grapple.ExtensionVelocity.Y.InTwoHundredFiftySixthsOfPixel, "Held launch Y");
             AssertEqual(unchecked((ushort)Word(0x9bc104 + direction * 2)), grapple.Angle.RawValue, "Held launch angle");
             AssertEqual(512 + Word(0x9bc122 + direction * 2), grapple.Anchor.X, "Held anchor X");
             AssertEqual(506 + Word(0x9bc136 + direction * 2), grapple.Anchor.Y, "Held anchor Y correction");

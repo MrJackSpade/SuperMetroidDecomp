@@ -112,6 +112,8 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
                 "claw completes all eight authored frames and loops");
         }
 
+        Suite(nameof(VerifyNinjaPirateClawFlightSpeed), VerifyNinjaPirateClawFlightSpeed);
+
         RoomEnemySystem deleteSystem = NewSystem();
         RoomEnemySlot deleteSource = deleteSystem.SlotTable.Slots[0];
         var deleteState = new NinjaSpacePirateEnemyState();
@@ -174,6 +176,33 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             for (int tick = 0; tick < count; tick++)
                 RunForcedTick(enemies, projectile);
         }
+    }
+
+    /// <summary>
+    /// A thrown claw's flight, stepped for 2200 updates from its eight-pixel launch, moves exactly as the cartridge's word
+    /// arithmetic does: the speed word's high byte in pixels each update, out along the throw while 32 256ths come off the
+    /// word, back once the word reaches zero, then faster by 32 each update past the word's top, where the returning speed
+    /// starts again from rest.
+    /// </summary>
+    private static void VerifyNinjaPirateClawFlightSpeed()
+    {
+        var claw = new NinjaPirateClawState(SignedEightEight.FromPixels(8));
+        int nativeWord = 2048;
+        bool nativeOutbound = true;
+        bool wrapped = false;
+        for (int update = 0; update < 2200; update++)
+        {
+            int nativePixels = nativeWord >> 8;
+            int nativeStep = nativeOutbound ? nativePixels : -nativePixels;
+            bool nativeReturning = !nativeOutbound;
+            nativeWord = (nativeOutbound ? nativeWord - 32 : nativeWord + 32) & ushort.MaxValue;
+            if (nativeOutbound && nativeWord == 0)
+                nativeOutbound = false;
+            wrapped |= nativeReturning && nativeWord == 0;
+            AssertEqual(nativeStep, claw.StepAlongThrow(), $"claw step on update {update}");
+            AssertEqual(nativeOutbound, claw.Outbound, $"claw direction after update {update}");
+        }
+        AssertTrue(wrapped, "the returning claw's speed passes the top of its range within the checked updates");
     }
 
     /// <summary>Rejects compiled projectile mechanics reads and records presentation operands used by production.</summary>

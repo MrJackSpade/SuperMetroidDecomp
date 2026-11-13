@@ -471,7 +471,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             RoomEnemySlot bottom = Pieces(top).Bottom;
             Part(top).Function = GunshipFunction.ReadyTakeoffEngines;
             Part(top).EngineReadyingElapsed = 0;
-            Part(bottom).EscapeVelocity = 0;
+            Part(bottom).EscapeVelocity = SignedEightEight.Zero;
             Part(bottom).RumbleFrame = 0;
             _frameResults.Gunship = GunshipFrameEvent.EscapeTakeoffStarted;
             return;
@@ -593,12 +593,10 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             throw new InvalidOperationException("Escaping gunship lost Samus.");
         RoomEnemySlot bottom = Pieces(top).Bottom;
         GunshipPartState bottomPart = Part(bottom);
-        bottomPart.EscapeVelocity += GunshipMotionDefinitions.EscapeAcceleration;
-        if (UnsignedEightEight.WithoutFraction(bottomPart.EscapeVelocity) >= GunshipMotionDefinitions.EscapeVelocityCapTrigger)
-            bottomPart.EscapeVelocity = GunshipMotionDefinitions.EscapeVelocityCap;
+        bottomPart.AccelerateEscape();
 
         samus.Kinematics.Position = samus.Kinematics.Position.WithY(samus.Kinematics.Position.Y.MovedBy(
-            -SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(bottomPart.EscapeVelocity)));
+            -bottomPart.EscapeVelocity.ToSixteenSixteenDelta()));
         MoveGunshipAndSamusToY(top, samus, samus.Position.Y.Whole);
     }
 

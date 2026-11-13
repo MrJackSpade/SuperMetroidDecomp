@@ -74,9 +74,9 @@ internal sealed class FallingSparksBehavior
         if (spark.VerticalSpeed.WholePixels >= 0)
         {
             // The enemy-projectile vertical mover, slope reactions included, reads the spark's whole speed in
-            // pixels as an 8.8 speed in 1/256ths of a pixel.
+            // pixels, zero or more on this branch, as that many 256ths of a pixel an update.
             if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Vertical,
-                    new SignedEightEight(spark.VerticalSpeed.UnsignedWholePixels)))
+                    SignedEightEight.FromTwoHundredFiftySixthsOfPixel(spark.VerticalSpeed.WholePixels)))
             {
                 BeginFallingSparkFloorImpact(projectile);
                 return;

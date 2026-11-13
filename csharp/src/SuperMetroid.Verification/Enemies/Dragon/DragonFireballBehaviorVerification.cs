@@ -38,9 +38,9 @@ internal static class DragonFireballBehaviorVerification
         state.FacingLeft = false;
         enemies.DragonBehavior.SpawnDragonFireball(body, state);
         EnemyProjectile left = enemies.Projectiles.EnemyProjectiles.Single(
-            projectile => projectile.Kind == RoomEnemyProjectileKind.DragonFireball && projectile.Velocity.X.SignedRawValue < 0);
+            projectile => projectile.Kind == RoomEnemyProjectileKind.DragonFireball && projectile.Velocity.X.InTwoHundredFiftySixthsOfPixel < 0);
         EnemyProjectile right = enemies.Projectiles.EnemyProjectiles.Single(
-            projectile => projectile.Kind == RoomEnemyProjectileKind.DragonFireball && projectile.Velocity.X.SignedRawValue >= 0);
+            projectile => projectile.Kind == RoomEnemyProjectileKind.DragonFireball && projectile.Velocity.X.InTwoHundredFiftySixthsOfPixel >= 0);
         foreach ((EnemyProjectile fireball, DragonFireballProgram rising, DragonFireballProgram falling) in new[]
                  {
                      new VerifyDragonFireballBehaviorCase(left, DragonFireballProgram.RisingLeft, DragonFireballProgram.FallingLeft),
@@ -50,7 +50,7 @@ internal static class DragonFireballBehaviorVerification
             AssertEqual(rising, ProgramOf(fireball), $"the fireball starts {rising}");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, fireball, Entry(rising), 25, rising.ToString());
             AssertTrue(!deleted, $"{rising} loops");
-            fireball.Velocity = fireball.Velocity.WithY(SignedEightEight.FromSignedRaw(-16));
+            fireball.Velocity = fireball.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-16));
             DragonBehavior.RunDragonFireballFrameBehavior(fireball, 0);
             AssertEqual(falling, ProgramOf(fireball), $"the zero crossing selects {falling}");
             AssertEqual((ushort)1, fireball.FrameHold.RawValue, $"the switch to {falling} requests a same-pass frame");

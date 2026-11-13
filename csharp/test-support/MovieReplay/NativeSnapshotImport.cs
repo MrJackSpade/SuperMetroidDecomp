@@ -294,7 +294,7 @@ internal static class NativeSnapshotImport
         runtime.RoomFxOverlay.LavaAcidOverlayFrameBehaviorInstalled = true;
         runtime.RoomFxOverlay.LiquidMotionStopped = !lavaAcidObjectLive;
         runtime.RoomFxOverlay.TidePhase = RotationAngle.FromRaw(W(NativeSnapshotMemory.TidePhase));
-        runtime.RoomFxOverlay.TideOffset = SignedSixteenSixteen.FromRaw(unchecked((int)(SixteenSixteenWords.Compose(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction)))));
+        runtime.RoomFxOverlay.TideOffset = SixteenSixteenWords.ToDisplacement(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction));
         runtime.RoomFxOverlay.BaseY = (runtime.RoomFxOverlay.BaseY
             ?? throw new InvalidDataException("The imported acid room's effect names no surface.")).WithFraction(W(NativeSnapshotMemory.LiquidBaseFraction));
         // The surface word is a signed line: one a tide carries above the room's top is negative.

@@ -176,9 +176,9 @@ internal static class EnemyMath
     /// sample itself as a velocity take one pixel.
     /// </summary>
     internal static SignedEightEight SineVelocity(TrigonometryAngle angle, int wholePixels) =>
-        Trigonometry.MultiplySignedSine(EightEight.FromWhole(Ensure.BetweenInclusive(0, sbyte.MaxValue, wholePixels)), angle);
+        Trigonometry.MultiplySignedSine(SignedEightEight.FromPixels(Ensure.BetweenInclusive(0, sbyte.MaxValue, wholePixels)), angle);
 
     /// <summary>Multiplies a signed sine-table sample by speed with the game's fixed-point rounding.</summary>
-    internal static SignedEightEight MultiplySineSample(int speed, TrigonometryAngle angle) =>
+    internal static SignedEightEight MultiplySineSample(SignedEightEight speed, TrigonometryAngle angle) =>
         Trigonometry.MultiplySignedSine(speed, angle);
 }

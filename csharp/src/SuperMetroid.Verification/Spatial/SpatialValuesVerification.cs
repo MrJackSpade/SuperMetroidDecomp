@@ -71,7 +71,7 @@ internal static class SpatialValuesVerification
         var position = new FixedPosition<RoomPixels>(new FixedCoordinate(0x0100, 0xffff), new FixedCoordinate(0x0200, 0x0001));
         AssertEqual(new Position16<RoomPixels>(0x0100, 0x0200), position.Whole, "whole position drops subpixels");
         AssertEqual(0x0100ffffu, position.X.RawValue, "X assembles as unsigned 16.16");
-        var advanced = position.AdvanceX(SignedSixteenSixteen.FromRaw(1));
+        var advanced = position.AdvanceX(SignedSixteenSixteen.FromParts(0, 1));
         AssertEqual(new FixedCoordinate(0x0101, 0), advanced.X, "advance carries into the whole word");
         AssertEqual(position.Y, advanced.Y, "advancing X leaves Y");
         var translated = position - new Offset16<RoomPixels>(0, 0x0201);

@@ -91,7 +91,7 @@ internal static class PipeBugBehaviorVerification
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             slot.SetSpawnParameter2(EnemyDefinitionId.Geega, 24);
             PipeBugEnemyState state = Initialize(enemies, slot, EnemyDefinitionId.Geega, 0);
-            AssertEqual(SignedSixteenSixteen.FromRaw(onePixel + onePixel / 2), state.PositiveVelocity, "yellow Pipe Bug speed record 24 is 1.5 pixels");
+            AssertEqual(SixteenSixteenWords.ToDisplacement(onePixel + onePixel / 2), state.PositiveVelocity, "yellow Pipe Bug speed record 24 is 1.5 pixels");
             state.Function = PipeBugEnemyFunction.YellowArcRight;
             state.ArcRising = true;
             state.ArcCounter = 1;

@@ -118,10 +118,10 @@ internal static class MotherBrainTurretDefinitionsVerification
                 definition.BulletOffset.Y,
                 $"Mother Brain turret bullet Y offset {direction}");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bfbf + wordOffset))),
-                definition.BulletVelocity.X.SignedRawValue,
+                definition.BulletVelocity.X.InTwoHundredFiftySixthsOfPixel,
                 $"Mother Brain turret bullet X velocity {direction}");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bfcf + wordOffset))),
-                definition.BulletVelocity.Y.SignedRawValue,
+                definition.BulletVelocity.Y.InTwoHundredFiftySixthsOfPixel,
                 $"Mother Brain turret bullet Y velocity {direction}");
 
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);

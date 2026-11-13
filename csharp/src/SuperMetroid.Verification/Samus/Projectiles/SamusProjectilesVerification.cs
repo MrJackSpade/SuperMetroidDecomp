@@ -1048,7 +1048,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "missile selects `$90:AF68` pre-instruction family");
     AssertEqual(SamusMissileIgnition.Ignited, missile.MissileIgnition,
         "first alpha pass ignites the missile");
-    AssertEqual(0x0100, missile.Velocity.X.SignedRawValue,
+    AssertEqual(0x0100, missile.Velocity.X.InTwoHundredFiftySixthsOfPixel,
         "right missile begins at one pixel per frame after ignition");
     AssertEqual(76, missile.Position.X.Whole,
         "right missile moves one whole pixel on its ignition frame");
@@ -1518,7 +1518,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "super ignition counts visible owner plus invisible link");
     AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), super.Type, "super owner is a Super Missile");
     AssertEqual(0x012c, super.Damage, "super owner reads retail 300 damage");
-    AssertEqual(0x0100, super.Velocity.X.SignedRawValue,
+    AssertEqual(0x0100, super.Velocity.X.InTwoHundredFiftySixthsOfPixel,
         "super ignition begins at one pixel per frame");
     AssertEqual(SamusMissileIgnition.Ignited, super.MissileIgnition, "super owner has ignited");
     AssertEqual(1, super.SuperMissileLinkPlace,
@@ -1593,7 +1593,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var pillarLink = pillarProjectiles.Slots[1];
     pillarLink.Position = pillarLink.Position.WithWholeY(0xd1);
     pillarOwner.Position = pillarOwner.Position.WithWhole(new(0x12f, 0xd1));
-    pillarOwner.Velocity = pillarOwner.Velocity.WithX(SignedEightEight.FromSignedRaw(0x1100));
+    pillarOwner.Velocity = pillarOwner.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0x1100));
     pillarOwner.Position = pillarOwner.Position.WithFractionX(0);
     pillarLink.Position = pillarLink.Position.WithWholeX(0x128);
     pillarLink.Radius = pillarLink.Radius.WithX(8);
@@ -1689,7 +1689,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "the Super Missile and its link are in flight");
     skippedLink.Position = skippedLink.Position.WithWholeX(0x5c);
     skippedOwner.Position = skippedOwner.Position.WithWholeX(0x5c).WithFractionX(0);
-    skippedOwner.Velocity = skippedOwner.Velocity.WithX(SignedEightEight.FromSignedRaw(0x1400));
+    skippedOwner.Velocity = skippedOwner.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0x1400));
     skippedBombs.StepFrame(new SamusTerrain { Level = skippedWall }, skippedSamus, 0, 0);
     skippedProjectiles.StepFrame(new SamusTerrain { Level = skippedWall, RoomObjects = skippedObjects }, skippedSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), skippedBombs);
     AssertEqual(SamusProjectileFamily.MissileExplosion, skippedOwner.Type.Family,

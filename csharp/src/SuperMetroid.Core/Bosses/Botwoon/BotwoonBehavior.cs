@@ -70,10 +70,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int BotwoonDeathDelayStart = 240;
     /// <summary>The pre-fall death count at which the head starts falling.</summary>
     private const int BotwoonDeathDelayEnd = 256;
-    /// <summary>Fall acceleration added each airborne update, in 256ths of a quadratic-speed step.</summary>
-    private const int BotwoonDeathFallAcceleration = 192;
-    /// <summary>Fall acceleration units per whole quadratic-speed step.</summary>
-    private const int BotwoonDeathFallUnitsPerStep = 256;
+    /// <summary>Fall acceleration added each airborne update: three quarters of a quadratic-speed record.</summary>
+    private static readonly EnemyQuadraticSpeedIndex BotwoonDeathFallAcceleration = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(192);
     /// <summary>Updates the wall-explosion phase lasts before the boss is removed.</summary>
     private const int BotwoonWallExplosionDuration = 192;
     /// <summary>Wall-explosion update from which the explosion timers run.</summary>
@@ -676,7 +674,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Accelerates the defeated head down to Y=200, then hides it and waits for body landing.</summary>
     private void RunBotwoonHeadFall(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        SignedSixteenSixteen displacement = EnemyQuadraticSpeeds.Row(state.DeathFallAccumulator / BotwoonDeathFallUnitsPerStep).Positive;
+        SignedSixteenSixteen displacement = state.DeathFallAccumulator.Row.Positive;
         head.Position = head.Position.AdvanceY(displacement);
         if (CoordinateAxis.Difference(head.Position.Y.Whole, 200) < 0)
         {

@@ -579,7 +579,7 @@ internal static void VerifySamusSolidEnemyCollision()
         Radius = new(5, 10),
         InteractiveEnemies = [frozen],
     };
-    BlockMoveResult integratedHorizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = airRoom }, integrated, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromRaw(2 << 16) });
+    BlockMoveResult integratedHorizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = airRoom }, integrated, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2) });
     AssertTrue(integratedHorizontal.Collided, "ordinary horizontal mover reports enemy collision");
     AssertEqual(101, integrated.Position.X.Whole, "ordinary horizontal mover clips to enemy gap");
     AssertTrue(integratedHorizontal.EnemyCollision is not null,
@@ -591,7 +591,7 @@ internal static void VerifySamusSolidEnemyCollision()
 
     integrated.Position = integrated.Position.WithWholeY(100);
     integrated.InteractiveEnemies = [below];
-    BlockMoveResult integratedVertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = airRoom }, integrated, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromRaw(2 << 16), ScanLeftToRight = true });
+    BlockMoveResult integratedVertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = airRoom }, integrated, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
     AssertTrue(integratedVertical.Collided, "ordinary vertical mover reports enemy collision");
     AssertEqual(101, integrated.Position.Y.Whole, "ordinary vertical mover clips to enemy gap");
     AssertEqual(7, integratedVertical.EnemyCollision?.EnemySlot,

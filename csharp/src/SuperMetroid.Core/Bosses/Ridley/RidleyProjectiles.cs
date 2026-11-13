@@ -32,7 +32,7 @@ internal sealed class RidleyProjectiles
     /// <summary>Sprite colour set used for fireballs and every afterburn stage.</summary>
     private static readonly SpriteGraphics FireballGraphicsIndex = SpriteGraphics.SharedIn(EnemyShades.InProjectileLook);
     /// <summary>The fireball's 8.8 speed: five pixels per update.</summary>
-    private const int FireballSpeed = 1280;
+    private static readonly SignedEightEight FireballSpeed = SignedEightEight.FromPixels(5);
 
     /// <summary>The start of the arc a left-facing Ridley aims his fireballs within.</summary>
     private static readonly TrigonometryAngle LeftFacingAimStart = new(176);

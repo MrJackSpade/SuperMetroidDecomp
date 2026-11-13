@@ -14,8 +14,14 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new BullEntity(this, slot, common);
 
-    /// <summary>Each Bull acceleration or deceleration tick changes the 8.8 rate by 24.</summary>
-    private const int BullAccelerationDelta = 24;
+    /// <summary>Each Bull acceleration or deceleration tick changes the acceleration by 24 256ths of a pixel an update.</summary>
+    private static readonly SignedEightEight BullAccelerationDelta = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
+
+    /// <summary>The acceleration an immune shot's kick starts the Bull's braking with: a pixel an update.</summary>
+    private static readonly SignedEightEight ShotKickAcceleration = SignedEightEight.FromPixels(1);
+
+    /// <summary>The speed an immune shot kicks the Bull away at: six pixels an update.</summary>
+    private static readonly SignedEightEight ShotKickSpeed = SignedEightEight.FromPixels(6);
     /// <summary>Bulls wait sixteen enemy frames before retargeting Samus.</summary>
     private const int BullMovementDelayFrames = 16;
 
@@ -43,7 +49,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DecelerationIntervalTimerReset = intervals.Deceleration;
         state.ActivationTimer = BullMovementDelayFrames;
         state.Function = BullEnemyFunction.MovementDelay;
-        state.MaxSpeed = settings.MaximumSpeed;
+        state.MaxSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(settings.MaximumSpeed);
     }
 
     /// <summary>Runs a Bull's per-frame behaviour through all four of its functions.</summary>
@@ -90,9 +96,9 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.HasStopped)
                 {
                     state.Function = BullEnemyFunction.MovementDelay;
-                    state.Acceleration = 0;
-                    state.AccelerationDelta = 0;
-                    state.Speed = 0;
+                    state.Acceleration = SignedEightEight.Zero;
+                    state.AccelerationDelta = SignedEightEight.Zero;
+                    state.Speed = SignedEightEight.Zero;
                     return;
                 }
                 MoveBull(slot, state);
@@ -167,16 +173,18 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Moves one axis of the Bull by its speed along the sine: the sine's magnitude in whole 256ths (its finer part
-    /// dropped) times the speed in 256ths of a pixel, a step up or left reversed as <see cref="BullBackwardStep"/> reverses it.
+    /// dropped) times the speed in 256ths of a pixel, read unsigned as the game's multiply reads it, a step up or left
+    /// reversed as <see cref="BullBackwardStep"/> reverses it.
     /// </summary>
     private static FixedCoordinate AddBullComponent(
         FixedCoordinate position,
         int sine,
-        int speed)
+        SignedEightEight speed)
     {
         // The sine's magnitude is below 128 256ths and the speed below 65536 256ths, so the step fits a 16.16 displacement.
         int sineTwoFiftySixths = UnsignedEightEight.Whole(Math.Abs(sine));
-        SignedSixteenSixteen forward = UnsignedSixteenSixteen.ProductOfTwoFiftySixths(sineTwoFiftySixths, speed).AsDisplacement();
+        SignedSixteenSixteen forward = UnsignedSixteenSixteen.ProductOfTwoFiftySixths(
+            sineTwoFiftySixths, speed.UnsignedTwoHundredFiftySixthsOfPixel).AsDisplacement();
         SignedSixteenSixteen displacement = sine < 0 ? BullBackwardStep.Of(forward) : forward;
 
         // The displacement moves the position as one 16.16 value: a fraction that passes a whole pixel moves the whole
@@ -197,8 +205,8 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         bull.Timer = WrappingCountdown.Start(0);
         state.Playback = new(BullAnimations.StartingWith(BullProgram.Shot), AnimationPlace.StartOfAnimation);
         state.Angle = BullMotion.ShotAngle(projectileDirection);
-        state.Acceleration = 256;
-        state.Speed = 1536;
+        state.Acceleration = ShotKickAcceleration;
+        state.Speed = ShotKickSpeed;
         state.Function = BullEnemyFunction.Decelerating;
         state.ShotReactionDisableTimer = WrappingCountdown.Start(48);
         state.ShotReactionDisabled = true;

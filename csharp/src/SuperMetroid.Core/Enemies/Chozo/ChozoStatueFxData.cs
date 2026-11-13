@@ -6,6 +6,6 @@ internal static class ChozoStatueFxData
     /// <summary>Delay before motion.</summary>
     public const int LoweringDelay = 32;
 
-    /// <summary>Downward 8.8 velocity.</summary>
-    public const int LoweringVelocity = 64;
+    /// <summary>The acid's downward speed while the statue lowers it: a quarter pixel an update.</summary>
+    public static readonly SignedEightEight LoweringVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64);
 }

@@ -78,8 +78,8 @@ internal static class MurderBeamVerification
             "safe left-facing data record selects no animation list");
         AssertEqual((ushort)0, shot.Radius.X, "safe Murder Beam X radius");
         AssertEqual((ushort)0, shot.Radius.Y, "safe Murder Beam Y radius");
-        AssertEqual(0, shot.Velocity.X.SignedRawValue, "safe Murder Beam X speed");
-        AssertEqual(0, shot.Velocity.Y.SignedRawValue, "safe Murder Beam Y speed");
+        AssertEqual(0, shot.Velocity.X.InTwoHundredFiftySixthsOfPixel, "safe Murder Beam X speed");
+        AssertEqual(0, shot.Velocity.Y.InTwoHundredFiftySixthsOfPixel, "safe Murder Beam Y speed");
         AssertTrue(!shot.IsActive, "zero-list Murder Beam is not animated or drawn");
         AssertTrue(shot.HasEnemyCollisionPayload,
             "zero-list Murder Beam remains visible to bank-$A0 enemy collision");

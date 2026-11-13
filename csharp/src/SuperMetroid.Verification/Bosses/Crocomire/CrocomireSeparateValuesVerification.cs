@@ -22,7 +22,7 @@ internal static class CrocomireSeparateValuesVerification
         state.StepCounter = 5;
         AssertEqual(0, state.RumbleStep, "the queued steps leave the rumble step alone");
         state.ReactionTimer = 10;
-        AssertEqual(0, state.VerticalSpeed, "the reaction timer leaves the vertical speed alone");
+        AssertTrue(state.VerticalSpeed.IsZero, "the reaction timer leaves the vertical speed alone");
         Console.WriteLine("Crocomire separate values: the steps, rumble step, reaction timer and speed are held apart.");
     }
 

@@ -26,15 +26,15 @@ internal static class YardAirborneVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.StepFrame(0);
-        AssertEqual(SignedSixteenSixteen.FromRaw(0x00010000), runtime.Player.IntroducedSamus.HorizontalDistanceMovedPlusOne,
+        AssertEqual(SignedSixteenSixteen.FromWholePixels(1), runtime.Player.IntroducedSamus.HorizontalDistanceMovedPlusOne,
             "stationary native distance includes one pixel for the next Yard kick");
         runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithFractionX(0xE000);
         runtime.StepFrame(0);
-        AssertEqual(SignedSixteenSixteen.FromRaw(0x0001E000), runtime.Player.IntroducedSamus.HorizontalDistanceMovedPlusOne,
+        AssertEqual(SignedSixteenSixteen.FromParts(1, 57344), runtime.Player.IntroducedSamus.HorizontalDistanceMovedPlusOne,
             "Yard receives full fractional camera checkpoint displacement");
         runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithFractionX(0xC000);
         runtime.StepFrame(0);
-        AssertEqual(SignedSixteenSixteen.FromRaw(0x0000E000), runtime.Player.IntroducedSamus.HorizontalDistanceMovedPlusOne,
+        AssertEqual(SignedSixteenSixteen.FromParts(0, 57344), runtime.Player.IntroducedSamus.HorizontalDistanceMovedPlusOne,
             "native integer-only direction test allows biased distance below one pixel");
     }
 
@@ -60,8 +60,8 @@ internal static class YardAirborneVerification
             (state ?? throw new InvalidOperationException("Verification requires state.")).MovementFunction = YardMovementFunction.Airborne;
             state.Behavior = behavior;
             state.AirborneVelocity = new FixedVector<RoomPixels>(
-                SignedSixteenSixteen.FromRaw(unchecked((int)initialX)),
-                SignedSixteenSixteen.FromRaw(unchecked((int)initialY)));
+                SixteenSixteenWords.ToDisplacement(unchecked((int)initialX)),
+                SixteenSixteenWords.ToDisplacement(unchecked((int)initialY)));
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
                 Pose = SamusPoseId.FacingRightNormalPose, Health = 999, MaxHealth = 999 };
             SamusPoseMetadata.RefreshCollisionRadii(samus);

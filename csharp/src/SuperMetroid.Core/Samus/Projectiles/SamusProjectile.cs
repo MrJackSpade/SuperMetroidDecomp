@@ -120,6 +120,16 @@ public sealed class SamusProjectile
     /// <summary>The phase of a Spazer special-attack particle, set when the attack starts.</summary>
     public SpazerComboPhase SpazerPhase { get; internal set; }
 
+    /// <summary>The part a special-attack particle plays, set when the attack starts (#1683); null for any other projectile.</summary>
+    internal SpecialAttackParticle? AttackParticle { get; set; }
+
+    /// <summary>
+    /// The Spazer special-attack particle this one is paired with, set when the attack starts (#1683): a beam particle
+    /// and the trailing particle that turns the same way. A spent particle ends its partner's place with itself
+    /// (<see cref="SpentSpazerParticleEndsPartnerPlace"/>).
+    /// </summary>
+    internal SamusProjectile? SpazerPartner { get; set; }
+
     /// <summary>The expanding radius, in pixels, of a Shinespark crash echo.</summary>
     public int EchoRadius { get; internal set => field = Ensure.AtLeastZero(value); }
 
@@ -169,6 +179,8 @@ public sealed class SamusProjectile
         PlasmaPhase = PlasmaRingPhase.Expanding;
         SpazerAngleStep = 0;
         SpazerPhase = SpazerComboPhase.Circling;
+        AttackParticle = null;
+        SpazerPartner = null;
         EchoRadius = 0;
         EchoAngle = default;
         ChainsawPowerBombFuse = WrappingCountdown.Start(0);

@@ -104,7 +104,7 @@ internal static class ProjectileCompositionsVerification
         }
     }
 
-    /// <summary>Checks shot, explosion, and bomb draw owners preserve OAM, flicker, and projectile state without ROM reads.</summary>
+    /// <summary>Checks shot, explosion, and bomb draw owners preserve OAM and projectile state without ROM reads.</summary>
     private static void VerifyProjectileCompositionOwners()
     {
         int comparisons = 0;
@@ -127,18 +127,17 @@ internal static class ProjectileCompositionsVerification
             bomb.Playback = ProjectileFixturePlaybacks.Active; bomb.SpritemapPointer = id;
             bomb.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type); bomb.PicturedBeams = pictured; bomb.Position = bomb.Position.WithWhole(new(coordinate, coordinate));
             bomb.BombTimer = WrappingCountdown.Start(1);
-            foreach (ushort parity in new ushort[] { 0, 1, 2, 3 })
             {
                 var native = new SpriteFrameBuffer(); var extracted = new SpriteFrameBuffer();
                 native.BeginFrame(); extracted.BeginFrame();
-                shots.DrawLiveProjectiles(native, Position16<RoomPixels>.Zero, parity, artwork);
+                shots.DrawLiveProjectiles(native, Position16<RoomPixels>.Zero, artwork);
                 shots.DrawExplosions(native, Position16<RoomPixels>.Zero, artwork);
                 bombs.Draw(native, Position16<RoomPixels>.Zero, artwork);
-                shots.DrawLiveProjectiles(extracted, Position16<RoomPixels>.Zero, parity, artwork);
+                shots.DrawLiveProjectiles(extracted, Position16<RoomPixels>.Zero, artwork);
                 shots.DrawExplosions(extracted, Position16<RoomPixels>.Zero, artwork);
                 bombs.Draw(extracted, Position16<RoomPixels>.Zero, artwork);
                 AssertTrue(native.FinalizeAsOam().ImageEquals(extracted.FinalizeAsOam()),
-                    "Production projectile composition preserves admission, flicker and OAM");
+                    "Production projectile composition preserves admission and OAM");
                 AssertEqual(native.Draws.Length, extracted.Draws.Length, "Composition owner publishes the same draws");
                 AssertEqual(123, shot.Damage, "Composition does not mutate damage");
                 AssertEqual((ushort)7, shot.Radius.X, "Composition does not mutate X radius");

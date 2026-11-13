@@ -68,18 +68,6 @@ internal static class SamusCadenceDefinitions
     internal static readonly UpdateCounterField HurtColoursShown = new(0, 1);
 
     /// <summary>
-    /// The phase of the frame counter on which an uncharged power, ice or wave shot in an even slot is drawn: set on odd
-    /// updates; a shot in an odd slot is drawn while it is clear, so neighbouring shots flicker on opposite updates.
-    /// </summary>
-    internal static readonly UpdateCounterField BeamDrawnInEvenSlot = new(0, 1);
-
-    /// <summary>
-    /// The phase of the frame counter on which an uncharged spazer or plasma shot in an odd slot is drawn: set for two
-    /// updates of every four; a shot in an even slot is drawn while it is clear.
-    /// </summary>
-    internal static readonly UpdateCounterField WideBeamDrawnInOddSlot = new(1, 1);
-
-    /// <summary>
     /// The updates on which Samus riding an elevator is drawn: every second update of the frame counter, on its even
     /// place, so she flickers on the elevator.
     /// </summary>

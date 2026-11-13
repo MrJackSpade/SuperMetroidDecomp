@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.TestSupport.VerificationImporters;
 
@@ -79,14 +80,69 @@ internal static class SamusSnapshotWords
         _ => throw new InvalidOperationException($"Undefined {nameof(SamusBallBounceState)} {state}."),
     };
 
-    /// <summary>Decodes <c>$0DC0</c>: zero, one, or any word with bit 15 set.</summary>
-    internal static ResumeChargingBeamSoundLatch DecodeResumeChargingBeamSound(ushort word) => word switch
+    /// <summary>
+    /// Decodes <c>$0DC0</c>: zero or one, the only words the game writes there (#1682). A word with bit 15 set, which
+    /// the post-draw check would rearm to one, is never written, and is rejected like any other undefined word.
+    /// </summary>
+    internal static bool DecodeResumeChargingBeamSound(ushort word) => word switch
     {
-        0 => ResumeChargingBeamSoundLatch.Clear,
-        1 => ResumeChargingBeamSoundLatch.ResumeNextPass,
-        >= 1 << 15 => ResumeChargingBeamSoundLatch.SignedLatch,
+        0 => false,
+        1 => true,
         _ => throw new InvalidDataException($"Resume-charging-beam sound word ${word:X4} is not a native latch state."),
     };
+
+    /// <summary>The bit of <c>$0B18</c> that marks the Hyper Beam's glow; the glow's step count sits below it.</summary>
+    private const int HyperBeamGlowMarker = 1 << 15;
+
+    /// <summary>
+    /// Decodes <c>$0B18</c> (#1682): zero for no glow, one through four for an ordinary charged shot's flash, and
+    /// <see cref="HyperBeamGlowMarker"/> plus zero through twenty for the Hyper Beam's glow; other words are rejected.
+    /// </summary>
+    internal static ChargedShotGlow DecodeChargedShotGlow(ushort word) => word switch
+    {
+        0 => ChargedShotGlow.None,
+        <= 4 => ChargedShotGlow.Of(ChargedShotGlowKind.ChargedShotFlash, word),
+        >= HyperBeamGlowMarker and <= HyperBeamGlowMarker + 20 =>
+            ChargedShotGlow.Of(ChargedShotGlowKind.HyperBeamGlow, word - HyperBeamGlowMarker),
+        _ => throw new InvalidDataException($"Charged-shot glow word ${word:X4} is not a native glow state."),
+    };
+
+    /// <summary>Encodes a charged-shot glow as the <c>$0B18</c> word the game keeps it in.</summary>
+    internal static ushort EncodeChargedShotGlow(ChargedShotGlow glow) => glow.Kind switch
+    {
+        ChargedShotGlowKind.None => 0,
+        ChargedShotGlowKind.ChargedShotFlash => checked((ushort)glow.RemainingSteps),
+        ChargedShotGlowKind.HyperBeamGlow => checked((ushort)(HyperBeamGlowMarker + glow.RemainingSteps)),
+        _ => throw new InvalidOperationException($"Undefined {nameof(ChargedShotGlowKind)} {glow.Kind}."),
+    };
+
+    /// <summary>The <c>$0CD0</c>/<c>$0DC2</c> word the Hyper Beam's flare keeps in place of a charge count.</summary>
+    private const ushort HyperBeamFlareWord = 1 << 15;
+
+    /// <summary>
+    /// Decodes a beam charge word, <c>$0CD0</c> or <c>$0DC2</c> (#1682): a count of zero through the special-attack clamp,
+    /// or the Hyper Beam's flare; other words are rejected.
+    /// </summary>
+    internal static BeamChargeLevel DecodeBeamCharge(ushort word) => word switch
+    {
+        <= BeamChargeDefinitions.SpecialAttackCounter => BeamChargeLevel.Charged(word),
+        HyperBeamFlareWord => BeamChargeLevel.HyperBeam,
+        _ => throw new InvalidDataException($"Beam charge word ${word:X4} is neither a charge count nor the Hyper Beam's flare."),
+    };
+
+    /// <summary>Encodes a beam charge as the word the game keeps it in.</summary>
+    internal static ushort EncodeBeamCharge(BeamChargeLevel charge) =>
+        charge.HyperBeamFlare ? HyperBeamFlareWord : checked((ushort)charge.FlareCounter);
+
+    /// <summary>The bit of <c>$0A46</c> that enables Samus's slope alignment after a horizontal move.</summary>
+    private const int SlopeAlignmentBit = 1 << 1;
+
+    /// <summary>
+    /// Whether <c>$0A46</c> enables Samus's slope alignment after a horizontal move (#1682). The game writes only three,
+    /// which enables it, outside a movement type no retail pose reaches, so the port has no state that disables it and
+    /// a recorded word that does is not a state it can hold.
+    /// </summary>
+    internal static bool AlignsToSlopes(ushort word) => (word & SlopeAlignmentBit) != 0;
 
     /// <summary>The bits of a pose-history word's facing byte, below its movement byte.</summary>
     private const int HistoryFacingBits = 8;

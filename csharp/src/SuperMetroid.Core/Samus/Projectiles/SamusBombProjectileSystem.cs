@@ -352,7 +352,7 @@ public sealed class SamusBombProjectileSystem
                 samus.LiquidPhysics.QueueMovementSound(spinSound, priority: SoundRequestPriority.High);
             return;
         }
-        if (samus.BeamCharge.FlareCounter >= ChargeSoundFlareThreshold)
+        if (samus.BeamCharge.HasCharged(ChargeSoundFlareThreshold))
             samus.LiquidPhysics.QueueMovementSound(SamusSound.ResumeChargingBeam, priority: SoundRequestPriority.High);
     }
 
@@ -417,7 +417,7 @@ public sealed class SamusBombProjectileSystem
             // no bomb leaves a carried partial charge alive beyond its lifetime.
             // Earlier equipment/power-bomb guards do not execute helper two and must
             // preserve charge. Publish through the existing runtime palette/SFX bridge.
-            rejectedPlacementClearedCharge = samus.BeamCharge.FlareCounter != 0;
+            rejectedPlacementClearedCharge = samus.BeamCharge.IsCharging;
             return null;
         }
 
@@ -473,7 +473,7 @@ public sealed class SamusBombProjectileSystem
             // The outer Morph-Ball handler cancels charge before testing HUD selection
             //. Releasing Shoot must also cancel with Power Bombs selected;
             // only held Shoot reaches their branch. Runtime consumes the palette/SFX bridge.
-            return samus.BeamCharge.FlareCounter != 0
+            return samus.BeamCharge.IsCharging
                 ? BombSpreadAdmission.ChargeCancelled
                 : BombSpreadAdmission.NotApplicable;
         }
@@ -483,7 +483,7 @@ public sealed class SamusBombProjectileSystem
             return BombSpreadAdmission.NotApplicable;
 
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs) ||
-            samus.BeamCharge.FlareCounter < MorphBallBombDefinitions.RequiredChargeFrames ||
+            !samus.BeamCharge.HasCharged(MorphBallBombDefinitions.RequiredChargeFrames) ||
             BombCounter != 0)
         {
             return BombSpreadAdmission.NotApplicable;

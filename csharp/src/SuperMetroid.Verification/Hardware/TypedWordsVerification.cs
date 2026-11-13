@@ -70,10 +70,29 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(false, SamusSnapshotWords.DecodeHyperBeam(0), "hyper beam zero imports as disabled");
     AssertThrows<InvalidDataException>(() => SamusSnapshotWords.DecodeHyperBeam(1), "undefined hyper beam word is rejected");
     AssertEqual(SamusSnapshotWords.HyperBeamEnabledWord, SamusSnapshotWords.EncodeHyperBeam(true), "enabled hyper beam encodes as $8000");
-    AssertEqual(ResumeChargingBeamSoundLatch.Clear, SamusSnapshotWords.DecodeResumeChargingBeamSound(0), "resume latch zero is clear");
-    AssertEqual(ResumeChargingBeamSoundLatch.ResumeNextPass, SamusSnapshotWords.DecodeResumeChargingBeamSound(1), "resume latch one resumes next pass");
-    AssertEqual(ResumeChargingBeamSoundLatch.SignedLatch, SamusSnapshotWords.DecodeResumeChargingBeamSound(ushort.MaxValue), "resume latch $FFFF is the signed latch");
+    AssertEqual(false, SamusSnapshotWords.DecodeResumeChargingBeamSound(0), "resume latch zero is clear");
+    AssertEqual(true, SamusSnapshotWords.DecodeResumeChargingBeamSound(1), "resume latch one resumes next pass");
+    AssertThrows<InvalidDataException>(() => SamusSnapshotWords.DecodeResumeChargingBeamSound(ushort.MaxValue), "a resume latch word the game never writes is rejected");
     AssertThrows<InvalidDataException>(() => SamusSnapshotWords.DecodeResumeChargingBeamSound(2), "undefined resume latch word is rejected");
+
+    // The snapshot boundary decodes $0B18, $0CD0/$0DC2 and $0A46 into typed state (#1682): every word the game writes
+    // round-trips, and every other word is rejected.
+    for (ushort word = 0; word <= 4; word++)
+        AssertEqual(word, SamusSnapshotWords.EncodeChargedShotGlow(SamusSnapshotWords.DecodeChargedShotGlow(word)), $"charged-shot glow word {word} round-trips");
+    AssertEqual(ChargedShotGlow.ChargedShotFlash, SamusSnapshotWords.DecodeChargedShotGlow(4), "a charged shot's glow word four is its flash's start");
+    for (ushort word = 1 << 15; word <= (1 << 15) + 20; word++)
+        AssertEqual(word, SamusSnapshotWords.EncodeChargedShotGlow(SamusSnapshotWords.DecodeChargedShotGlow(word)), $"Hyper Beam glow word {word:X4} round-trips");
+    AssertEqual(ChargedShotGlow.HyperBeamGlow, SamusSnapshotWords.DecodeChargedShotGlow((1 << 15) + 20), "the Hyper Beam shot's glow word is its glow's start");
+    AssertEqual(ChargedShotGlow.Of(ChargedShotGlowKind.HyperBeamGlow, 0), SamusSnapshotWords.DecodeChargedShotGlow(1 << 15), "the Hyper Beam glow's last step is its marker alone");
+    AssertThrows<InvalidDataException>(() => SamusSnapshotWords.DecodeChargedShotGlow(5), "a glow word past the flash is rejected");
+    AssertThrows<InvalidDataException>(() => SamusSnapshotWords.DecodeChargedShotGlow((1 << 15) + 21), "a glow word past the Hyper Beam glow is rejected");
+    for (ushort word = 0; word <= BeamChargeDefinitions.SpecialAttackCounter; word++)
+        AssertEqual(word, SamusSnapshotWords.EncodeBeamCharge(SamusSnapshotWords.DecodeBeamCharge(word)), $"beam charge word {word} round-trips");
+    AssertEqual(BeamChargeLevel.HyperBeam, SamusSnapshotWords.DecodeBeamCharge(1 << 15), "beam charge $8000 is the Hyper Beam's flare");
+    AssertEqual((ushort)(1 << 15), SamusSnapshotWords.EncodeBeamCharge(BeamChargeLevel.HyperBeam), "the Hyper Beam's flare encodes as $8000");
+    AssertThrows<InvalidDataException>(() => SamusSnapshotWords.DecodeBeamCharge(BeamChargeDefinitions.SpecialAttackCounter + 1), "a charge past the clamp is rejected");
+    AssertTrue(SamusSnapshotWords.AlignsToSlopes(3), "the slope-alignment word the game writes enables the alignment");
+    AssertTrue(!SamusSnapshotWords.AlignsToSlopes(1), "a slope-alignment word without its enable bit disables it");
 
     // Samus counts are signed words: the cartridge's Crystal Flash drain takes an ammunition count below zero.
     AssertEqual(SamusQuantity.MaximumValue, SamusCountWords.Decode(0x7fff), "the largest count word decodes");

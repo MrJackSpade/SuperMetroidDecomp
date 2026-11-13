@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
@@ -91,17 +92,15 @@ public static class SamusHurtFlashPalette
     }
 
     /// <summary>
-    /// Consumes the charging-audio latch in the same post-draw position as
-    /// the game's post-draw check. The only producer writes positive one, but the
-    /// property retains the whole value so later power-bomb and door handlers can share it.
+    /// Consumes the pending charging-sound resume in the same post-draw position as the game's post-draw check.
     /// </summary>
-    /// <param name="samus">Owner of the resume-charging flag, which is cleared whenever nonzero regardless of the held buttons.</param>
+    /// <param name="samus">Owner of the resume-charging flag, which is cleared whenever set regardless of the held buttons.</param>
     /// <param name="controllerInput">Current held buttons; X must still be held to queue the resume-charging sound.</param>
     /// <returns>Whether the nonzero latch caused a resume-charging sound request; this is not confirmation of playback.</returns>
     public static bool ConsumeResumeChargingBeamSound(SamusState samus, ControllerButton controllerInput)
     {
         Ensure.NotNull(samus);
-        if (samus.ResumeChargingBeamSound == ResumeChargingBeamSoundLatch.Clear)
+        if (!samus.ResumeChargingBeamSoundPending)
             return false;
 
         bool queued = (controllerInput & ControllerButton.X) != ControllerButton.None;
@@ -110,7 +109,7 @@ public static class SamusHurtFlashPalette
             samus.LiquidPhysics.QueueMovementSound(SamusSound.ResumeChargingBeam, priority: SoundRequestPriority.High);
         }
 
-        samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.Clear;
+        samus.ResumeChargingBeamSoundPending = false;
         return queued;
     }
 
@@ -134,10 +133,10 @@ public static class SamusHurtFlashPalette
                         : SamusHurtFlashRecoveryAction.SpinJumpSound;
             }
 
-            if (samus.BeamCharge.FlareCounter >= 16 &&
+            if (samus.BeamCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter) &&
                 (controllerInput & ControllerButton.X) != ControllerButton.None)
             {
-                samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.ResumeNextPass;
+                samus.ResumeChargingBeamSoundPending = true;
                 return SamusHurtFlashRecoveryAction.ResumeChargingBeamRequested;
             }
 

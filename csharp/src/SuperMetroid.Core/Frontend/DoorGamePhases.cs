@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
@@ -44,7 +45,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
         }
         // The door's spin-sound check tests the shot binding; the action latch holds it as X.
         else if ((session.GameplayRuntime.Controller1.Current & ControllerButton.X) == ControllerButton.None &&
-            session.GameplayRuntime.BeamCharge.FlareCounter < 16)
+            !session.GameplayRuntime.BeamCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter))
         {
             session.audio.QueueSound(SamusSound.Silence,
                 priority: SoundRequestPriority.Essential);

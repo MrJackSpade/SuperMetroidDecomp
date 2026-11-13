@@ -51,7 +51,6 @@ public sealed class SamusKinematicsState
         probe.YDirection = YDirection;
         probe.SandCollisionArea = SandCollisionArea;
         probe.YAcceleration = YAcceleration;
-        probe.HorizontalSlopeCollisionEnable = HorizontalSlopeCollisionEnable;
         probe.PositionAdjustedBySlope = PositionAdjustedBySlope;
         // Probes still call the solid-enemy detector before blocks. The
         // per-frame actor snapshots are immutable, so the probe shares them.
@@ -124,13 +123,6 @@ public sealed class SamusKinematicsState
 
     /// <summary>The gravity applied to vertical speed.</summary>
     public UnsignedSixteenSixteen YAcceleration { get; set; }
-
-    /// <summary>Horizontal slope collision settings; one of them enables post-X Y alignment.</summary>
-    public int HorizontalSlopeCollisionEnable
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    } = 3;
 
     /// <summary>Flag set when square collision or non-square alignment changes Y.</summary>
     public bool PositionAdjustedBySlope { get; set; }

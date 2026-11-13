@@ -109,12 +109,8 @@ internal static class SpeedBoosterEchoStopVerification
         AssertEqual(1, echoRequests, "reaching stage four requests the echo's start sound");
         AssertEqual(1, speed.EchoSoundFlag, "consuming the start event retains the persistent echo flag");
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0, 0);
-        samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.SignedLatch;
         SamusPostDrawAudio.Step(samus, SamusMovementType.Standing, 0);
-        AssertEqual(1, speed.EchoSoundFlag, "negative charging latch skips echo cleanup in native order");
-        AssertEqual(0, samus.LiquidPhysics.SoundRequests.Count, "negative charging latch sends no stop");
-        SamusPostDrawAudio.Step(samus, SamusMovementType.Standing, 0);
-        AssertEqual(0, speed.EchoSoundFlag, "next post-draw pass consumes the echo flag");
+        AssertEqual(0, speed.EchoSoundFlag, "the post-draw pass after the boost ends consumes the echo flag");
         AssertEqual(RoomSound.SpeedBoosterEnd, samus.LiquidPhysics.SoundRequests.Single().SoundEffect,
             "deferred producer receives the same native stop");
 

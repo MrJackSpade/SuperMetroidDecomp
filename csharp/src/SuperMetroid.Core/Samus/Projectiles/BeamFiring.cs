@@ -58,16 +58,16 @@ internal sealed class BeamFiring
     public void ConsumePseudoScrewCharge(SamusColours colours, SamusState samus)
     {
         _charge.ChargePaletteStep = 0;
-        _charge.FlareCounter = 0;
+        _charge.ClearCount();
         _animation.ClearFlareAnimationState();
         ProjectileAnimation.LoadNormalSuitPalette(colours, samus);
     }
 
-    /// <summary>Clears the charge counter, its prior sample, and all flare animation layers.</summary>
+    /// <summary>Clears the charge, its prior sample, and all flare animation layers.</summary>
     private void CancelCharge()
     {
-        _charge.FlareCounter = 0;
-        _charge.PreviousBeamChargeCounter = 0;
+        _charge.ClearCount();
+        _charge.PreviousCharge = BeamChargeLevel.None;
         _animation.ClearFlareAnimationState();
     }
 
@@ -81,7 +81,7 @@ internal sealed class BeamFiring
         ISamusRoomObjects? roomObjects)
     {
         const ControllerButton shoot = ControllerButton.X;
-        _charge.PreviousBeamChargeCounter = _charge.FlareCounter;
+        _charge.PreviousCharge = _charge.Level;
 
         // The fire handler gives the Hyper flag priority over Charge equipment. It still uses
         // held Shoot rather than a new edge, with its own 21-frame cooldown preventing a
@@ -98,7 +98,7 @@ internal sealed class BeamFiring
         bool held = (controllerInput & shoot) != ControllerButton.None;
         if (!chargeEquipped)
         {
-            _charge.FlareCounter = 0;
+            _charge.ClearCount();
             _animation.ClearFlareAnimationState();
             (int? slot, SoundEffectId? sound) = held
                 ? TryFireBeam(
@@ -119,8 +119,8 @@ internal sealed class BeamFiring
             // transition installs new body art. Values below 60 release an ordinary beam;
             // values 60+ release the charged family through the same allocation gate.
             bool forcedChargedRelease =
-                _charge.FlareCounter >= BeamChargeDefinitions.FullyChargedCounter;
-            _charge.FlareCounter = 0;
+                _charge.HasCharged(BeamChargeDefinitions.FullyChargedCounter);
+            _charge.ClearCount();
             _animation.ClearFlareAnimationState();
             return CompleteBeamRelease(TryFireBeam(
                 level,
@@ -136,7 +136,7 @@ internal sealed class BeamFiring
             // The charge handler increments through 120 and fires one ordinary shot on the first
             // held frame. Charge Beam therefore changes sustained-fire semantics rather
             // than suppressing the familiar initial power shot.
-            if (_charge.FlareCounter < BeamChargeDefinitions.SpecialAttackCounter)
+            if (!_charge.HasCharged(BeamChargeDefinitions.SpecialAttackCounter))
             {
                 _charge.FlareCounter++;
                 if (_charge.FlareCounter == 1)
@@ -166,7 +166,7 @@ internal sealed class BeamFiring
                 // The game tries the special beam attack only on the call after charge reaches 120.
                 // Successful activation clears flare animation and restores the suit;
                 // failed family dispatch leaves charge intact, including its ammo debit.
-                _charge.FlareCounter = 0;
+                _charge.ClearCount();
                 _animation.ClearFlareAnimationState();
                 samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
                 return new(null, comboSound, SoundRequestPriority.Normal);
@@ -174,12 +174,12 @@ internal sealed class BeamFiring
             return new(null, null, null);
         }
 
-        if (_charge.FlareCounter == 0)
+        if (!_charge.IsCharging)
             return new(null, null, null);
 
         bool releaseCharged =
-            _charge.FlareCounter >= BeamChargeDefinitions.FullyChargedCounter;
-        _charge.FlareCounter = 0;
+            _charge.HasCharged(BeamChargeDefinitions.FullyChargedCounter);
+        _charge.ClearCount();
         _animation.ClearFlareAnimationState();
         return CompleteBeamRelease(TryFireBeam(
             level,
@@ -207,8 +207,7 @@ internal sealed class BeamFiring
         if (firing.Slot is not null)
             return new(firing.Slot, firing.Sound, Priority: SoundRequestPriority.Essential);
 
-        return _charge.PreviousBeamChargeCounter >=
-            BeamChargeDefinitions.ChargeSoundStartCounter
+        return _charge.PreviousCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter)
             ? new(null, SamusSound.Silence, Priority: SoundRequestPriority.Essential)
             : new(null, null, null);
     }
@@ -305,7 +304,7 @@ internal sealed class BeamFiring
 
         SoundEffectId? sound = SamusProjectileSoundRouting.Resolve(charged, beamType);
         if (charged)
-            _charge.ChargedShotGlowTimer = WrappingCountdown.Start(4);
+            _charge.ChargedShotGlow = ChargedShotGlow.ChargedShotFlash;
 
         // Uncharged and charged firing explicitly zero both speeds and call
         // the directional or Wave beam collision check before installing the frame behaviour and
@@ -397,12 +396,10 @@ internal sealed class BeamFiring
         slot.FrameBehavior = SamusProjectileFrameBehavior.HyperBeam;
         InitializePowerBeamVelocity(samus.ProjectileInheritance, slot, _unauthoredFiring);
 
-        // These are literal stores. 32788 is not an ordinary four-call
-        // glow timer: its sign bit identifies Hyper's palette phase to the later consumer.
+        // The shot starts the Hyper Beam's own suit glow, and its flare in place of the charge.
         sharedProjectiles.SetSharedCooldown(21);
-        _charge.ChargedShotGlowTimer = WrappingCountdown.Start((1 << 15) | 20);
+        _charge.ChargedShotGlow = ChargedShotGlow.HyperBeamGlow;
         _charge.StartHyperBeamFlare();
-        _charge.FlareCounter = BeamChargeState.HyperBeamFlareCounter;
 
         SoundEffectId? sound = SamusProjectileSoundRouting.Resolve(
             charged: true, hyperBeamType);

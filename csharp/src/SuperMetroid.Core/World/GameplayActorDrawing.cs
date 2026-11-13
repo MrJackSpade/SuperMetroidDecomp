@@ -337,7 +337,7 @@ internal sealed class GameplayActorDrawing
             room.Projectiles.DrawLiveProjectiles(
                 _sprites,
                 _room.Camera.PixelPosition,
-                _clock.Counter, ProjectileArtwork);
+                ProjectileArtwork);
             // The ordinary projectile draw is immediately followed by the projectile
             // trails. Trails are detached world-space objects, so they must keep
             // animating after their source beam has collided or left the viewport.

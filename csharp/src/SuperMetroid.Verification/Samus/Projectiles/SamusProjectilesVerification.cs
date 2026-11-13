@@ -242,9 +242,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             $"beam combination {beamType} selects native pre-instruction family");
     }
 
-    // Spazer/plasma art takes `$93:8275` rather than the ordinary power/ice/wave flicker
-    // branch. Host slot zero is visible while NMI bit one is clear and suppressed while it
-    // is set—the opposite comparison and a different counter bit from entry-zero power.
+    // An uncharged Spazer shot is drawn on every update (#1683): the draw depends on neither its place nor the update.
     var spazerFlickerSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
     {
         Pose = rightPose,
@@ -261,17 +259,14 @@ internal static void VerifySamusPowerBeamProjectiles()
     spazerFlickerBombs.StepFrame(new SamusTerrain { Level = air }, spazerFlickerSamus, 0, 0);
     spazerFlickerProjectiles.StepFrame(new SamusTerrain { Level = air }, spazerFlickerSamus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), spazerFlickerBombs);
     ProjectileDrawArtwork spazerArtwork = InstalledFixtures.ProjectileArtwork();
-    OamBuffer spazerFlickerOam = SpriteFrameBuffer.DrawnOam(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, spazerArtwork));
+    OamBuffer spazerFlickerOam = SpriteFrameBuffer.DrawnOam(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, spazerArtwork));
     AssertTrue(spazerFlickerOam.LastFinalizedSpriteCount != 0,
-        "even-slot Spazer draws while NMI bit one is clear");
+        "uncharged Spazer shot draws");
     SamusProjectile spazerShot = spazerFlickerProjectiles.Slots[0];
     AssertProjectileEntry(
-        DrawnEntries(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, spazerArtwork)),
+        DrawnEntries(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, spazerArtwork)),
         new SpriteSource(SpriteSourceKind.SamusProjectile, 0), ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(spazerShot.SpritemapPointer)), SamusBeamCombination.Spazer,
         new Position16<ScreenPixels>(spazerShot.Position.X.Whole, spazerShot.Position.Y.Whole), "Spazer shot");
-    spazerFlickerOam = SpriteFrameBuffer.DrawnOam(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 2, spazerArtwork));
-    AssertEqual(0, spazerFlickerOam.LastFinalizedSpriteCount,
-        "even-slot Spazer suppresses while NMI bit one is set");
 
     // The initial firing pass changes timer four to three. Three more wave passes cause the
     // first trail allocation and expose the only cadence distinction in `$B0C3/$B0E4`.
@@ -509,8 +504,8 @@ internal static void VerifySamusPowerBeamProjectiles()
         "charged power beam queues ROM sound");
     AssertEqual(0x001e, chargeBombs.CooldownTimer.RawValue,
         "charged power beam installs charged cooldown");
-    AssertEqual(4, chargeProjectiles.Charge.ChargedShotGlowTimer.RawValue,
-        "charged release installs glow timer");
+    AssertEqual(ChargedShotGlow.ChargedShotFlash, chargeProjectiles.Charge.ChargedShotGlow,
+        "charged release starts the charged shot's flash");
     AssertEqual(0, chargeProjectiles.Charge.FlareCounter,
         "charged release clears flare counter");
 
@@ -528,7 +523,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         {
             AssertEqual(SamusBeamChargePaletteAction.OrdinaryWhite, paletteStep.Action,
                 $"ordinary charged glow call {call + 1} selects white branch");
-            AssertEqual(unchecked((ushort)(3 - call)), chargeProjectiles.Charge.ChargedShotGlowTimer.RawValue,
+            AssertEqual(ChargedShotGlow.Of(ChargedShotGlowKind.ChargedShotFlash, 3 - call), chargeProjectiles.Charge.ChargedShotGlow,
                 $"ordinary charged glow call {call + 1} decrements before branch");
             AssertEqual(SamusShades.ChargedShotGlow, chargedGlowColours.Suit,
                 $"ordinary charged glow call {call + 1} shows the glow's shade, which leaves transparent color zero to the sheet");
@@ -550,7 +545,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             }
         }
     }
-    AssertEqual(0, chargeProjectiles.Charge.ChargedShotGlowTimer.RawValue,
+    AssertEqual(ChargedShotGlow.None, chargeProjectiles.Charge.ChargedShotGlow,
         "ordinary charged glow ends exactly on fourth palette call");
 
     // Recreate `$91:F5CF-$F5E6 -> $90:B82D/$BA5F -> $90:EB20`: a new Shoot edge while
@@ -670,10 +665,10 @@ internal static void VerifySamusPowerBeamProjectiles()
             SoundEffectLibrary.Samus, nativeChargedSounds[8]),
         hyperResult.QueuedSoundEffect,
         "Hyper Beam indexes charged sound entry eight");
-    AssertEqual(0x8014, hyperProjectiles.Charge.ChargedShotGlowTimer.RawValue,
-        "Hyper Beam installs signed palette/glow phase `$8014`");
-    AssertEqual(0x8000, hyperProjectiles.Charge.FlareCounter,
-        "Hyper Beam arms descending flare sentinel");
+    AssertEqual(ChargedShotGlow.HyperBeamGlow, hyperProjectiles.Charge.ChargedShotGlow,
+        "Hyper Beam starts its own glow, twenty steps long");
+    AssertEqual(BeamChargeLevel.HyperBeam, hyperProjectiles.Charge.Level,
+        "Hyper Beam starts its descending flare in place of the charge");
 
     // `$8014` supplies ten descending even table offsets with an odd no-write hold after
     // each one. The twenty-first call sees `$8000`, skips the padding pointer, and restores
@@ -684,7 +679,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     for (int call = 0; call < 21; call++)
     {
         PictureShade suitBefore = hyperGlowColours.Suit;
-        ushort hyperTimerBefore = hyperProjectiles.Charge.ChargedShotGlowTimer.RawValue;
+        int hyperStepsBefore = hyperProjectiles.Charge.ChargedShotGlow.RemainingSteps;
         SamusBeamChargePaletteStepResult paletteStep =
             hyperProjectiles.UpdateBeamChargePalette(hyperGlowColours, hyperSamus);
         if (call < 20 && (call & 1) == 0)
@@ -692,11 +687,10 @@ internal static void VerifySamusPowerBeamProjectiles()
             int palette = call / 2;
             AssertEqual(SamusBeamChargePaletteAction.HyperPalette, paletteStep.Action,
                 $"Hyper body glow call {call + 1} loads palette");
-            // The timer's even low-five-bit value is the `$91:D829` byte offset; offsets
-            // descend from $14, selecting palettes 0..9 in order.
-            AssertEqual(0x14 - palette * 2, hyperTimerBefore & 0x001e,
+            // The glow's even steps descend from twenty, selecting palettes 0..9 in order.
+            AssertEqual(20 - palette * 2, hyperStepsBefore,
                 $"Hyper body glow call {call + 1} uses descending table index");
-            AssertEqual(SamusShades.HyperShot((0x14 - palette * 2) / 2 - 1), hyperGlowColours.Suit,
+            AssertEqual(SamusShades.HyperShot((20 - palette * 2) / 2 - 1), hyperGlowColours.Suit,
                 $"Hyper body palette {palette} shows its Hyper-shot frame");
             RgbColor[] hyperSuit = hyperGlowColours.ShownSuit(projSources);
             for (int color = 0; color < 16; color++)
@@ -722,8 +716,8 @@ internal static void VerifySamusPowerBeamProjectiles()
                     "Hyper body glow restore shows the Power Suit palette");
         }
     }
-    AssertEqual(0, hyperProjectiles.Charge.ChargedShotGlowTimer.RawValue,
-        "Hyper body glow clears signed timer after 21 calls");
+    AssertEqual(ChargedShotGlow.None, hyperProjectiles.Charge.ChargedShotGlow,
+        "Hyper body glow ends after 21 calls");
 
     // Its three components begin at frames 29/5/5 with timer three. Fast sparks (component
     // two) own completion, so exactly fifteen draw calls count five records down to zero.
@@ -734,15 +728,12 @@ internal static void VerifySamusPowerBeamProjectiles()
         AssertTrue(hyperFlareOam.LastFinalizedSpriteCount != 0,
             $"Hyper Beam descending flare call {call + 1} draws ROM spritemaps");
     }
-    AssertEqual(0, hyperProjectiles.Charge.FlareCounter,
-        "Hyper Beam fast-spark frame one clears flare sentinel");
+    AssertEqual(BeamChargeLevel.None, hyperProjectiles.Charge.Level,
+        "Hyper Beam fast-spark frame one ends the flare");
 
-    // `$93:8268` exempts charged-family bit `$0010` from ordinary beam flicker. Slot zero
-    // would be suppressed on even NMI under the uncharged rule, making this a direct guard
-    // against accidentally applying that branch to the charged projectile.
-    OamBuffer chargedOam = SpriteFrameBuffer.DrawnOam(frame => chargeProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, InstalledFixtures.ProjectileArtwork()));
+    OamBuffer chargedOam = SpriteFrameBuffer.DrawnOam(frame => chargeProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork()));
     AssertTrue(chargedOam.LastFinalizedSpriteCount != 0,
-        "charged power beam bypasses ordinary alternating-frame flicker");
+        "charged power beam draws");
 
     // The release frame has already changed trail timer 4 to 3. Three more alpha passes
     // reach zero and allocate native trail byte index `$22` before the third pass moves the
@@ -1055,12 +1046,12 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0xa25b, missile.SpritemapPointer,
         "missile instruction handler selects first bank-$93 art record");
 
-    OamBuffer missileOam = SpriteFrameBuffer.DrawnOam(frame => missileProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, InstalledFixtures.ProjectileArtwork()));
+    OamBuffer missileOam = SpriteFrameBuffer.DrawnOam(frame => missileProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork()));
     AssertEqual(1, missileOam.LastFinalizedSpriteCount,
         "missile family bypasses ordinary beam alternating-frame flicker");
     ProjectileDrawArtwork missileArtwork = InstalledFixtures.ProjectileArtwork();
     AssertProjectileEntry(
-        DrawnEntries(frame => missileProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, missileArtwork)),
+        DrawnEntries(frame => missileProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, missileArtwork)),
         new SpriteSource(SpriteSourceKind.SamusProjectile, 0), ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(missile.SpritemapPointer)), SamusBeamCombinations.Of(missileSamus.EquippedBeams),
         new Position16<ScreenPixels>(missile.Position.X.Whole, missile.Position.Y.Whole), "Missile");
 
@@ -1534,11 +1525,11 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     // The link instruction list is intentionally invisible; only the owner contributes an
     // OBJ after its own bank-$93 program selects `$A030`.
-    OamBuffer superOam = SpriteFrameBuffer.DrawnOam(frame => superProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, InstalledFixtures.ProjectileArtwork()));
+    OamBuffer superOam = SpriteFrameBuffer.DrawnOam(frame => superProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork()));
     AssertEqual(1, superOam.LastFinalizedSpriteCount, "super owner draws while link spritemap is empty");
     ProjectileDrawArtwork superArtwork = InstalledFixtures.ProjectileArtwork();
     AssertProjectileEntry(
-        DrawnEntries(frame => superProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, superArtwork)),
+        DrawnEntries(frame => superProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, superArtwork)),
         new SpriteSource(SpriteSourceKind.SamusProjectile, 0), ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(super.SpritemapPointer)), SamusBeamCombinations.Of(superSamus.EquippedBeams),
         new Position16<ScreenPixels>(super.Position.X.Whole, super.Position.Y.Whole), "Super missile owner");
 

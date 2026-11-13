@@ -12,30 +12,21 @@ public static class SamusGrappleBeamDrawing
     /// <summary>The rope's cycle of pictures.</summary>
     private const int RopeCycle = GrappleBeamDefinitions.Rendering.SegmentAnimationFrameCount;
 
-    /// <summary>
-    /// Reports whether grapple's replacement Samus draw handler is still installed.
-    /// </summary>
+    /// <summary>How Samus draws during <paramref name="phase"/>.</summary>
     /// <remarks>
-    /// Cancellation, release, drop, and grapple wall-jump are one-call teardown functions.
-    /// On the frame that installs one of them, the grapple draw handler is still the selected handler even
-    /// though its signed function-range test falls back to the ordinary body/echo path.
-    /// Keeping that distinction explicit prevents the normal charge flare from leaking into
-    /// the teardown frame; the ordinary draw handler, which owns that flare, has not been restored yet.
+    /// Cancellation, release, drop and the grapple wall jump each last one call. On the frame one of them begins, the
+    /// grapple still owns Samus's drawing, so the ordinary charge flare stays hidden, but neither the grapple's flare nor
+    /// its beam draws: Samus and her echoes draw alone.
     /// </remarks>
-    public static bool UsesGrappleDrawingHandler(GrapplePhase phase) =>
-        phase != GrapplePhase.Inactive;
-
-
-    /// <summary>
-    /// Mirrors the grapple draw handler's signed function-range test for the beam-specific path.
-    /// </summary>
-    public static bool UsesBeamSpecificDrawingPath(GrapplePhase phase) => phase is
-        GrapplePhase.Firing or
-        GrapplePhase.ConnectedSwinging or
-        GrapplePhase.ConnectedLocked or
-        GrapplePhase.WallGrab or
-        GrapplePhase.WallGrabRelease;
-
+    public static SamusGrappleDrawing DrawingFor(GrapplePhase phase) => phase switch
+    {
+        GrapplePhase.Inactive => SamusGrappleDrawing.Ordinary,
+        GrapplePhase.Firing or GrapplePhase.ConnectedSwinging or GrapplePhase.ConnectedLocked or GrapplePhase.WallGrab or
+            GrapplePhase.WallGrabRelease => SamusGrappleDrawing.Beam,
+        GrapplePhase.CancelPending or GrapplePhase.ReleaseFromSwing or GrapplePhase.WallJumping or GrapplePhase.Dropped =>
+            SamusGrappleDrawing.Teardown,
+        _ => throw new ArgumentOutOfRangeException(nameof(phase), phase, $"Undefined {nameof(GrapplePhase)}."),
+    };
 
     /// <summary>
     /// Draws the grapple beam's flare. Call before atmosphere and Samus,
@@ -52,7 +43,7 @@ public static class SamusGrappleBeamDrawing
         Ensure.NotNull(sprites);
 
         SamusGrappleState grapple = samus.Grapple;
-        if (!UsesBeamSpecificDrawingPath(grapple.Phase) || grapple.FlareStage == GrappleFlareStage.None)
+        if (DrawingFor(grapple.Phase) != SamusGrappleDrawing.Beam || grapple.FlareStage == GrappleFlareStage.None)
             return false;
 
         // While firing, the grapple draw handler recomputes the hand origins immediately before the flare. Grapple
@@ -165,7 +156,7 @@ public static class SamusGrappleBeamDrawing
     {
         Ensure.NotNull(grapple);
         Ensure.NotNull(sprites);
-        if (!UsesBeamSpecificDrawingPath(grapple.Phase))
+        if (DrawingFor(grapple.Phase) != SamusGrappleDrawing.Beam)
             return;
 
         // The pair is a begin/end range, not two animation frames. Each

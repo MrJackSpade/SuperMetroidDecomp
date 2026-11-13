@@ -17,6 +17,12 @@ internal static class EndingShootingStarDefinitions
     internal const int DoubleAccelerationFrame = 2;
     /// <summary>Each small sprite is centered four pixels before its position.</summary>
     internal const int SpriteOffset = 4;
+    /// <summary>
+    /// The last pixel of the square field the stars fly in, on both axes: the screen's width, so a star leaving through
+    /// the bottom of the screen flies on until it is as far down as the right edge is across. A star past it, or nearer
+    /// the top or left than <see cref="SpriteOffset"/>, returns to the origin.
+    /// </summary>
+    internal const int FieldFarEdge = ScreenGeometry.ScreenWidthPixels - 1;
     /// <summary>The <see cref="SpriteOffset"/> centering applied on both axes.</summary>
     internal static Offset16<ScreenPixels> SpriteCenter => new(CoordinateAxis.AsSigned(SpriteOffset), CoordinateAxis.AsSigned(SpriteOffset));
     /// <summary>The shooting stars: X/Y acceleration, animation period, initial delay.</summary>

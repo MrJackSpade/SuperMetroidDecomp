@@ -416,6 +416,9 @@ using static SuperMetroid.Verification.Samus.Abilities.XrayTilemapVerification;
 using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawGrappleReleaseVerification;
 using static SuperMetroid.Verification.Areas.Escape.ZebesEscapeFadeVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.ZeroDistanceJumpContactVerification;
+using static SuperMetroid.Verification.Frontend.Ending.EndingShootingStarFieldVerification;
+using static SuperMetroid.Verification.Frontend.Map.MapAnimationLimitsVerification;
+using static SuperMetroid.Verification.Runtime.Attract.AttractDemoLoadWaitsVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationOracles;
 using System.Collections.Frozen;
@@ -1070,5 +1073,8 @@ internal static class FullRunSuitesVerification
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
         new(nameof(VerifyCeresEscapeHandoff), () => VerifyCeresEscapeHandoff()),
         new(nameof(VerifyCeresDestructionCinematic), () => VerifyCeresDestructionCinematic()),
+        new(nameof(VerifyEndingShootingStarField), () => VerifyEndingShootingStarField()),
+        new(nameof(VerifyMapAnimationLimits), () => VerifyMapAnimationLimits()),
+        new(nameof(VerifyAttractDemoLoadWaits), () => VerifyAttractDemoLoadWaits()),
     ];
 }

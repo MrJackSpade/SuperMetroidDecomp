@@ -96,7 +96,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
         $stationAreas[$match.Groups[1].Value] = $match.Groups[2].Value
     }
     $stationsByAreaNumber = @{}
-    foreach ($match in [regex]::Matches([IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Saves/LoadStationNumberCodec.cs')), '\[LoadStationDefinitions\.(\w+)\] = (\d+),')) {
+    foreach ($match in [regex]::Matches([IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.AssetExtraction/Progression/LoadStationNumberCodec.cs')), '\[LoadStationDefinitions\.(\w+)\] = (\d+),')) {
         $stationsByAreaNumber['{0}:{1}' -f $stationAreas[$match.Groups[1].Value], $match.Groups[2].Value] = $match.Groups[1].Value
     }
     # Each population's rooms, from the room states that load it and the rooms whose state selection offers those states,

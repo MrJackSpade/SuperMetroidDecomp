@@ -21,8 +21,11 @@ public sealed record SaveProgressionJsonDocument
     /// <summary>The doors opened for good, by name, in the order room data lists them (schema six, #1553).</summary>
     public required string[] OpenedDoors { get; init; }
 
-    /// <summary>Each area's used save stations and elevators, one entry per area in area order.</summary>
-    public required SaveAreaStationsJsonDocument[] UsedStations { get; init; }
+    /// <summary>
+    /// The save stations and elevators used, by name, in the order <see cref="LoadStationDefinitions.Usable"/> lists them
+    /// (schema nine, #1723).
+    /// </summary>
+    public required string[] UsedStations { get; init; }
 
     /// <summary>The areas whose map has been acquired, in area order.</summary>
     public required AreaId[] AcquiredMaps { get; init; }

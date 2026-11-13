@@ -1,4 +1,6 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
@@ -40,7 +42,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
                     ZebetiteColorFormat.FrameCount * ZebetiteColorFormat.ColorsPerFrame *
                     sizeof(ushort)),
             address => $"Installed Zebetite pulse read migrated ROM color ${address:X6}.");
-        RoomEnemySystem installed = Create(guard, stock);
+        RoomEnemySystem installed = Create(guard, stock, new SharedFadeStepCount());
         for (int call = 0; call < ZebetiteColorFormat.FrameCount * 2; call++)
         {
             ReferenceCycle(nativeCgram, ref nativeCounter);
@@ -57,13 +59,25 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             "Installed Zebetite pulse never reads migrated ROM colors");
 
         byte[] stockBytes = File.ReadAllBytes(Path.Combine(stockDirectory, ZebetiteColorFile.FileName));
-        RoomEnemySystem selected = Create(guard, stock);
-        selected.ZebetiteBehavior.PaletteChangeNumber = 1;
+        // A door's fade into the room runs the room's enemies before each of its steps on the shared fade count (#1724):
+        // the pulse steps on the fade's first update, holds while the fade is under way and steps again once it completes.
+        var fadeStepCount = new SharedFadeStepCount();
+        RoomEnemySystem selected = Create(guard, stock, fadeStepCount);
+        var doorFade = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeDenominator, fadeStepCount);
         int counterBeforeGate = Counter(selected);
         Cycle(selected);
-        AssertEqual(counterBeforeGate, Counter(selected),
-            "Zebetite palette-change gate remains an engine-owned condition");
-        selected.ZebetiteBehavior.PaletteChangeNumber = 0;
+        AssertEqual((counterBeforeGate + 1) % ZebetiteDefinitions.PaletteCycleLength, Counter(selected),
+            "the Zebetite pulse steps on a door fade's first update, before the fade takes its first step");
+        AssertTrue(!doorFade.Step(), "the door fade takes its first step");
+        counterBeforeGate = Counter(selected);
+        do
+            Cycle(selected);
+        while (!doorFade.Step());
+        AssertEqual(counterBeforeGate, Counter(selected), "the Zebetite pulse holds through the rest of the door fade");
+        Cycle(selected);
+        AssertEqual((counterBeforeGate + 1) % ZebetiteDefinitions.PaletteCycleLength, Counter(selected),
+            "the Zebetite pulse steps again once the door fade completes");
+        counterBeforeGate = Counter(selected);
         (selected.SlotTable.Slots[0].SpeciesState<ZebetiteEnemyState>() ?? throw new InvalidOperationException("Verification requires the primary Zebetite state.")).IsSecondaryHalf = true;
         Cycle(selected);
         AssertEqual(counterBeforeGate, Counter(selected),
@@ -77,9 +91,10 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         Console.WriteLine("  Zebetite colors: 16 native RGB5 words, sixteen live pulse calls, full CGRAM, ROM guard, gates and channel rejection pass.");
 
         static RoomEnemySystem Create(
-            ISnesAddressSpace source, ImportEnemyArtwork artwork)
+            ISnesAddressSpace source, ImportEnemyArtwork artwork, SharedFadeStepCount fadeStepCount)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies),
+                RoomEnemyCompatibilityFixtures.ForNewRoom(fadeStepCount, new UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };
             RoomEnemySlot primarySlot = enemies.SlotTable.Slots[0];
             primarySlot.SetSpawnSettings(new ZebetiteSpawnSettings(ZebetiteHalf.Primary));
             var primary = new ZebetiteEnemyState(primarySlot.Spawn.Population);

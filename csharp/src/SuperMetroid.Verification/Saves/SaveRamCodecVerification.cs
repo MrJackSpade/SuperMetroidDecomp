@@ -235,7 +235,7 @@ internal static class SaveRamCodecVerification
         var time = new GameTimeState();
         time.Load(frames: 12, seconds: 34, minutes: 5, hours: 1);
         return SuperMetroidSaveSnapshot.Capture(samus, system,
-            new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Saves.LoadStationNumberCodec.Decode(area, 1, "save fixture"), GameTime = time });
+            new SaveSnapshotContext { Checkpoint = SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Decode(area, 1, "save fixture"), GameTime = time });
     }
 
     /// <summary>The native payload a decoded slot re-encodes to, for field-by-field comparison.</summary>

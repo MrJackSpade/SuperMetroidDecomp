@@ -1,11 +1,13 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
 
-namespace SuperMetroid.Core.Saves;
+namespace SuperMetroid.AssetExtraction.Progression;
 
 /// <summary>
-/// The numbers each area's load-station list gives its load stations, which the save files keep a checkpoint and the
-/// used-station record by, and which room data names a save station's load station with. The save codecs and the import
-/// number stations here; the game names stations and never sees the number.
+/// The numbers each area's load-station list gives its load stations, which the cartridge's save image keeps a checkpoint
+/// and the used-station table by, which schemas before nine of the game's own save listed them by, and which room data
+/// names a save station's load station with. The import, the save-image codec and the legacy save upgrade number stations
+/// here; the game and its save name stations and never see the number.
 /// </summary>
 public static class LoadStationNumberCodec
 {

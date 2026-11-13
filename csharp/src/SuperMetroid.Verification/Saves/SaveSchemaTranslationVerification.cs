@@ -98,13 +98,37 @@ internal static class SaveSchemaTranslationVerification
                 $"schema three's loading-state word ${word:X4} becomes its startup route");
         }
 
+        // A schema-eight save names its checkpoint and used stations by their numbers in each area's station list (#1723);
+        // the current schema's strict reader rejects the numbers, and the save upgrades to the stations' names: the same
+        // save as the current schema writes, and the same saves. A checkpoint number naming no load station is rejected.
+        AssertTrue(json.Contains($"\"checkpoint\": \"{nameof(LoadStationDefinitions.Gunship)}\"", StringComparison.Ordinal) &&
+            json.Contains($"\"{nameof(LoadStationDefinitions.CrocomireSave)}\"", StringComparison.Ordinal) &&
+            json.Contains($"\"{nameof(LoadStationDefinitions.MaridiaElevator)}\"", StringComparison.Ordinal),
+            "the current schema names the checkpoint and used stations by their load stations");
+        JsonObject schemaEight = RequiredJson.Parse(json).AsObject();
+        schemaEight["schemaVersion"] = 8;
+        ToSchemaEightSlots(schemaEight);
+        AssertEqual(0, schemaEight.Required("slots").Required(0).Required("checkpoint").Required("saveStation").GetValue<int>(),
+            "the schema-eight fixture numbers the gunship as Crateria's station list does");
+        JsonObject eightAsCurrent = RequiredJson.Parse(schemaEight.ToJsonString()).AsObject();
+        eightAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        AssertInvalidJsonSave(eightAsCurrent.ToJsonString(), "checkpoint");
+        GameSaveJsonDocument upgradedEight = LegacyGameSaveJson.Deserialize(schemaEight.ToJsonString(), "game save", out bool migratedEight);
+        AssertTrue(migratedEight, "a schema-eight save is upgraded");
+        AssertEqual(json, GameSaveJsonCodec.Serialize(upgradedEight), "a schema-eight save upgrades to the save the current schema writes");
+        AssertSameBytes(SaveRamCodec.Encode(GameSaveJsonCodec.ToStore(upgradedEight, RetailPresentationFixture()), RetailPresentationFixture()),
+            SaveRamCodec.Encode(ram, RetailPresentationFixture()), "a schema-eight save upgrades to the same saves");
+        JsonObject badEight = RequiredJson.Parse(schemaEight.ToJsonString()).AsObject();
+        badEight.Required("slots").Required(0).Required("checkpoint")["saveStation"] = 7;
+        AssertInvalidLegacyJsonSave(badEight.ToJsonString(), "which is no load station");
+
         // A schema-seven save carries the count of item set-ups, which nothing in the game reads (#1691); the current
         // schema's strict reader rejects it, and the save upgrades to the same saves without it.
         JsonObject schemaSeven = RequiredJson.Parse(json).AsObject();
         schemaSeven["schemaVersion"] = 7;
         ToSchemaSevenSlots(schemaSeven);
-        JsonObject sevenAsCurrent = RequiredJson.Parse(schemaSeven.ToJsonString()).AsObject();
-        sevenAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        JsonObject sevenAsCurrent = RequiredJson.Parse(json).AsObject();
+        sevenAsCurrent.Required("slots").Required(0)["loadedItemCount"] = 65535;
         AssertInvalidJsonSave(sevenAsCurrent.ToJsonString(), "loadedItemCount");
         GameSaveJsonDocument upgradedSeven = LegacyGameSaveJson.Deserialize(schemaSeven.ToJsonString(), "game save", out bool migratedSeven);
         AssertTrue(migratedSeven, "a schema-seven save is upgraded");
@@ -123,8 +147,8 @@ internal static class SaveSchemaTranslationVerification
         sixSlot["cartridgeDebugFlag"] = 0;
         sixSlot["newFileMarker"] = 65535;
         // The current schema's strict reader never takes schema six's numbers in place of the names.
-        JsonObject sixAsCurrent = RequiredJson.Parse(schemaSix.ToJsonString()).AsObject();
-        sixAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        JsonObject sixAsCurrent = RequiredJson.Parse(json).AsObject();
+        sixAsCurrent.Required("slots").Required(0)["reserveMode"] = sixSlot.Required("reserveMode").DeepClone();
         AssertInvalidJsonSave(sixAsCurrent.ToJsonString(), "reserveMode");
         GameSaveJsonDocument upgradedSix = LegacyGameSaveJson.Deserialize(schemaSix.ToJsonString(), "game save", out bool migratedSix);
         AssertTrue(migratedSix, "a schema-six save is upgraded");
@@ -281,10 +305,48 @@ internal static class SaveSchemaTranslationVerification
     }
 
     /// <summary>
-    /// Rewrites each slot as schema seven wrote it (#1691): with the count of item set-ups, here the largest a save field holds.
+    /// Rewrites each slot as schema eight wrote it (#1723): the checkpoint as its area and its number in the area's station
+    /// list, and the used stations as one entry per area in area order, each listing its stations' numbers ascending.
+    /// </summary>
+    internal static void ToSchemaEightSlots(JsonObject root)
+    {
+        foreach (JsonNode? slotNode in root.Required("slots").AsArray())
+        {
+            if (slotNode is null) continue;
+            JsonObject slot = slotNode.AsObject();
+            string checkpointName = slot.Required("checkpoint").GetValue<string>();
+            LoadStation checkpoint = LoadStationDefinitions.All.Single(station => station.Name == checkpointName);
+            slot["checkpoint"] = new JsonObject
+            {
+                ["area"] = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(checkpoint.Area.ToString()),
+                ["saveStation"] = LoadStationNumberCodec.Number(checkpoint),
+            };
+            JsonObject progression = slot.Required("progression").AsObject();
+            LoadStation[] used = [.. progression.Required("usedStations").AsArray().Select(entry =>
+                LoadStationDefinitions.Usable.Single(station => station.Name == entry?.GetValue<string>()))];
+            var areas = new JsonArray();
+            foreach (AreaId area in AreaIds.All)
+            {
+                var numbers = new JsonArray();
+                foreach (int number in used.Where(station => station.Area == area).Select(LoadStationNumberCodec.Number).Order())
+                    numbers.Add(number);
+                areas.Add(new JsonObject
+                {
+                    ["area"] = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(area.ToString()),
+                    ["stations"] = numbers,
+                });
+            }
+            progression["usedStations"] = areas;
+        }
+    }
+
+    /// <summary>
+    /// Rewrites each slot as schema eight wrote it (<see cref="ToSchemaEightSlots"/>), then as schema seven wrote it
+    /// (#1691): with the count of item set-ups, here the largest a save field holds.
     /// </summary>
     private static void ToSchemaSevenSlots(JsonObject root)
     {
+        ToSchemaEightSlots(root);
         foreach (JsonNode? slotNode in root.Required("slots").AsArray())
         {
             if (slotNode is null) continue;

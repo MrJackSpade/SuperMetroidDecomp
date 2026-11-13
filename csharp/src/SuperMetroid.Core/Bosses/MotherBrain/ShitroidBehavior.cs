@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -33,18 +34,18 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The room's enemies, among which the Baby Metroid's victim is placed directly after it (<see cref="BabyMetroidVictim"/>).</summary>
     private readonly EnemySlotTable _slotTable;
 
-    /// <summary>Controls whether the normal membrane palette can advance during the Zebetite sequence.</summary>
-    private readonly ZebetiteBehavior _zebetiteBehavior;
+    /// <summary>The fade step count every gradual fade shares, past whose start the membrane pulse holds.</summary>
+    private readonly SharedFadeStepCount _fadeStepCount;
     /// <summary>Receives the Baby Metroid's cries and music changes.</summary>
     private readonly EnemyAudioQueue _audio;
 
 
     /// <summary>Connects the Tourian Baby Metroid to room, victim, palette, audio and Zebetite owners.</summary>
-    internal ShitroidBehavior(EnemyRoomBinding room, EnemySlotTable slotTable, ZebetiteBehavior zebetiteBehavior, BossFrameResultBuilder frameResults, EnemyAudioQueue audio)
+    internal ShitroidBehavior(EnemyRoomBinding room, EnemySlotTable slotTable, SharedFadeStepCount fadeStepCount, BossFrameResultBuilder frameResults, EnemyAudioQueue audio)
     {
         _audio = audio;
         _frameResults = frameResults;
-        _zebetiteBehavior = zebetiteBehavior;
+        _fadeStepCount = fadeStepCount;
         _room = room;
         _slotTable = slotTable;
     }
@@ -135,7 +136,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Health = RestoredHealth;
         RunShitroidState(slot, state, samus, sharedProjectiles);
         DeadTorizoBehavior.MoveWithEightEightVelocity(slot, state.Velocity);
-        if (_zebetiteBehavior.PaletteChangeNumber == 0)
+        // The room's enemies run between a door fade's steps; the membrane pulse waits for the fade.
+        if (!_fadeStepCount.IsPastStart)
             StepShitroidMembranePulse(state);
     }
 

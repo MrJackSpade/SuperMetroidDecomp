@@ -101,7 +101,7 @@ public static class GameSaveJsonCodec
     private static GameSaveSlotJsonDocument CaptureSlot(SuperMetroidSaveSlot slot) => new()
     {
         Slot = slot.Slot,
-        Checkpoint = new SaveCheckpointJsonDocument(slot.Checkpoint.Area, LoadStationNumberCodec.Number(slot.Checkpoint)),
+        Checkpoint = slot.Checkpoint.Name,
         Resources = new SaveResourcesJsonDocument(
             slot.Health,
             slot.MaxHealth,
@@ -149,8 +149,7 @@ public static class GameSaveJsonCodec
         DefeatedBosses = [.. RetailAreas.Select(area => new SaveAreaBossesJsonDocument(area, progress.BossesDefeatedIn(area)))],
         CollectedItems = [.. progress.CollectedItems.Members.Select(location => location.Name)],
         OpenedDoors = [.. progress.OpenedDoors.Members.Select(door => door.Name)],
-        UsedStations = [.. RetailAreas.Select(area => new SaveAreaStationsJsonDocument(area,
-            [.. progress.UsedStations.Members.Where(station => station.Area == area).Select(LoadStationNumberCodec.Number).Order()]))],
+        UsedStations = [.. progress.UsedStations.Members.Select(station => station.Name)],
         AcquiredMaps = [.. RetailAreas.Where(progress.HasAreaMap)],
         ExploredAreas = [.. RetailAreas.Select(area => new ExploredAreaJsonDocument(area,
             [.. progress.ExploredCells(area).Select(MapCoordinateJsonDocument.FromCell)]))],
@@ -202,12 +201,11 @@ public static class GameSaveJsonCodec
         };
     }
 
-    /// <summary>The load station a slot's checkpoint names by its area and its number in the area's station list.</summary>
+    /// <summary>The load station a slot's checkpoint names.</summary>
     /// <exception cref="InvalidDataException">The checkpoint names no load station.</exception>
-    private static LoadStation Checkpoint(SaveCheckpointJsonDocument checkpoint, string property) =>
-        Enum.IsDefined(checkpoint.Area)
-            ? LoadStationNumberCodec.Decode(checkpoint.Area, checkpoint.SaveStation, property)
-            : throw new InvalidDataException($"{property}.area names no area");
+    private static LoadStation Checkpoint(string checkpoint, string property) =>
+        LoadStationDefinitions.All.SingleOrDefault(station => string.Equals(station.Name, checkpoint, StringComparison.Ordinal))
+            ?? throw new InvalidDataException($"{property} '{checkpoint}' names no load station");
 
     /// <summary>Requires a supported schema, valid selected slot, and exactly the game's slot count.</summary>
     private static void Validate(GameSaveJsonDocument document)
@@ -342,12 +340,7 @@ public static class GameSaveJsonCodec
                 throw new InvalidDataException($"{property}.defeatedBosses names an unknown boss in {area}");
             progress.SetDefeatedBosses(area, bosses);
         }
-        foreach (AreaId area in DecodeAreaOrder(progression.UsedStations.Select(entry => entry?.Area), $"{property}.usedStations"))
-        {
-            int[] stations = progression.UsedStations[ListPosition(area)].Stations ??
-                throw new InvalidDataException($"{property}.usedStations of {area} is required");
-            DecodeStations(stations, area, progress.UsedStations, $"{property}.usedStations of {area}");
-        }
+        DecodeNamed(progression.UsedStations, LoadStationDefinitions.Usable, station => station.Name, progress.UsedStations, $"{property}.usedStations");
         int previousMap = -1;
         foreach (AreaId area in progression.AcquiredMaps)
         {
@@ -446,27 +439,6 @@ public static class GameSaveJsonCodec
                 throw new InvalidDataException($"{property} must list each once, in the order room data lists them");
             happened.Add(kind[place]);
             previous = place;
-        }
-    }
-
-    /// <summary>
-    /// Records the stations of <paramref name="area"/> the save lists by their numbers as used, rejecting duplicates and
-    /// disorder. A number that names no station Samus uses is not kept, as the other save decoders drop it.
-    /// </summary>
-    private static void DecodeStations(int[] numbers, AreaId area, ProgressSet<LoadStation> used, string property)
-    {
-        int previous = -1;
-        for (int index = 0; index < numbers.Length; index++)
-        {
-            int number = numbers[index];
-            if (number <= previous)
-                throw new InvalidDataException($"{property} must be strictly increasing without duplicates");
-            previous = number;
-            // A save written while the used-station record kept every number can list such a number: a glitched beam's
-            // overwrite of the record marks numbers no station has. They name no station, nothing in the game reads them
-            // and the record has no place for them, so they are dropped rather than rejected.
-            if (LoadStationNumberCodec.Find(area, number) is { } station && LoadStationDefinitions.Usable.Contains(station))
-                used.Add(station);
         }
     }
 }

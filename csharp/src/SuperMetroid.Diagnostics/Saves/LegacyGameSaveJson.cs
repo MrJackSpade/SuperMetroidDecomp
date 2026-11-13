@@ -15,7 +15,8 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// schema five (#1553) listed event-table bits no story event uses by number, and the Chozo orbs, item locations and
 /// doors by room-data number, which become the locations and doors they number; schema six (#1605) kept the HUD
 /// selection and reserve-tank mode as numbers, which become their names, and two settings the game never reads; schema
-/// seven (#1691) kept the count of item set-ups, which nothing in the game reads.
+/// seven (#1691) kept the count of item set-ups, which nothing in the game reads; schema eight (#1723) named the
+/// checkpoint and used stations by their numbers in each area's station list, which become the stations' names.
 /// </summary>
 public static class LegacyGameSaveJson
 {
@@ -53,7 +54,7 @@ public static class LegacyGameSaveJson
         return GameSaveJsonCodec.Deserialize(current, sourceName);
     }
 
-    /// <summary>One-way upgrade of schemas one through seven to the current schema; the current schema is returned unchanged.</summary>
+    /// <summary>One-way upgrade of schemas one through eight to the current schema; the current schema is returned unchanged.</summary>
     private static string Upgrade(string json, out int sourceSchemaVersion)
     {
         JsonObject root = JsonNode.Parse(json) as JsonObject ??
@@ -74,11 +75,93 @@ public static class LegacyGameSaveJson
         if (sourceSchemaVersion <= SchemaSix)
             UpgradeSchemaSix(root);
         // Schema one kept the count only in its preserved image, which its upgrade does not read the count from.
-        if (sourceSchemaVersion >= SchemaTwo)
+        if (sourceSchemaVersion is >= SchemaTwo and <= SchemaSeven)
             UpgradeSchemaSeven(root);
+        if (sourceSchemaVersion <= SchemaEight)
+            UpgradeSchemaEight(root);
         root["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
         return root.ToJsonString();
     }
+
+    /// <summary>The last schema that kept the count of item set-ups.</summary>
+    private const int SchemaSeven = 7;
+
+    /// <summary>The schema that named stations by their numbers in each area's station list.</summary>
+    private const int SchemaEight = 8;
+
+    /// <summary>
+    /// Schema eight to nine (#1723): schemas one through eight named a slot's checkpoint by its area and its number in the
+    /// area's station list, and listed each area's used stations by those numbers, one entry per area in area order; both
+    /// become the stations' names, the used stations in the order <see cref="LoadStationDefinitions.Usable"/> lists them. A
+    /// checkpoint number that names no load station is rejected, as schema eight's reader rejected it. A used-station
+    /// number that names no station Samus uses, which a glitched beam's overwrite of the record could set while saves
+    /// kept every number, names nothing the game reads and, as schema eight's reader dropped it, is not carried.
+    /// </summary>
+    private static void UpgradeSchemaEight(JsonObject root)
+    {
+        JsonArray slots = root["slots"] as JsonArray ?? throw new InvalidDataException("slots is required");
+        for (int index = 0; index < slots.Count; index++)
+        {
+            if (slots[index] is null) continue;
+            JsonObject slot = slots[index] as JsonObject ?? throw new InvalidDataException($"slots[{index}] must be an object");
+            string checkpointPath = $"slots[{index}].checkpoint";
+            JsonObject checkpoint = slot["checkpoint"] as JsonObject ?? throw new InvalidDataException($"{checkpointPath} is required");
+            AreaId checkpointArea = SchemaEightArea(checkpoint["area"], $"{checkpointPath}.area");
+            slot["checkpoint"] = SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Decode(
+                checkpointArea, SchemaEightInteger(checkpoint["saveStation"], $"{checkpointPath}.saveStation"), checkpointPath).Name;
+
+            JsonObject progression = slot["progression"] as JsonObject ??
+                throw new InvalidDataException($"slots[{index}].progression is required");
+            string usedPath = $"slots[{index}].progression.usedStations";
+            JsonArray areas = Take(progression, "usedStations", index);
+            if (areas.Count != AreaIds.All.Count)
+                throw new InvalidDataException($"{usedPath} must contain {AreaIds.All.Count} areas");
+            var used = new HashSet<LoadStation>();
+            for (int position = 0; position < areas.Count; position++)
+            {
+                JsonObject entry = areas[position] as JsonObject ??
+                    throw new InvalidDataException($"{usedPath}[{position}] must be an object");
+                AreaId area = SchemaEightArea(entry["area"], $"{usedPath}[{position}].area");
+                if (area != AreaIds.All[position])
+                    throw new InvalidDataException($"{usedPath}[{position}] is out of area order");
+                JsonArray numbers = entry["stations"] as JsonArray ??
+                    throw new InvalidDataException($"{usedPath} of {area} is required");
+                int previous = -1;
+                foreach (JsonNode? listed in numbers)
+                {
+                    int number = SchemaEightInteger(listed, $"{usedPath} of {area}");
+                    if (number <= previous)
+                        throw new InvalidDataException($"{usedPath} of {area} must be strictly increasing without duplicates");
+                    previous = number;
+                    if (SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Find(area, number) is { } station &&
+                        LoadStationDefinitions.Usable.Contains(station))
+                        used.Add(station);
+                }
+            }
+            var named = new JsonArray();
+            foreach (LoadStation station in LoadStationDefinitions.Usable.Where(used.Contains))
+                named.Add(station.Name);
+            progression["usedStations"] = named;
+        }
+    }
+
+    /// <summary>The area a schema-eight entry names, as the schema's reader named areas.</summary>
+    private static AreaId SchemaEightArea(JsonNode? node, string property)
+    {
+        string name = node is JsonValue value && value.TryGetValue(out string? text) ? text
+            : throw new InvalidDataException($"{property} must be an area name");
+        foreach (AreaId area in AreaIds.All)
+        {
+            if (string.Equals(EnumName(area), name, StringComparison.OrdinalIgnoreCase))
+                return area;
+        }
+        throw new InvalidDataException($"{property} '{name}' names no area");
+    }
+
+    /// <summary>A schema-eight integer.</summary>
+    private static int SchemaEightInteger(JsonNode? node, string property) =>
+        node is JsonValue value && value.TryGetValue(out int number) ? number
+            : throw new InvalidDataException($"{property} must be an integer");
 
     /// <summary>The schema that listed item locations and doors by room-data number.</summary>
     private const int SchemaFive = 5;
@@ -326,7 +409,7 @@ public static class LegacyGameSaveJson
                 foreach (int bit in Numbers(stations, index))
                 {
                     if (bit / UsedStationBitsPerArea == area &&
-                        LoadStationNumberCodec.Find(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), bit % UsedStationBitsPerArea) is { } station &&
+                        SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Find(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), bit % UsedStationBitsPerArea) is { } station &&
                         LoadStationDefinitions.Usable.Contains(station))
                         areaStations.Add(bit % UsedStationBitsPerArea);
                 }

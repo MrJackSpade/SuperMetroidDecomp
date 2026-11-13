@@ -25,7 +25,7 @@ internal static class MapSaveMarkerCoordinatesVerification
                 int x = ReadVerificationWord(rom, address);
                 AssertTrue(x != ushort.MaxValue, "native marker view has sixteen slots");
                 if (x == ushort.MaxValue - 1) continue;
-                LoadStation marked = SuperMetroid.Core.Saves.LoadStationNumberCodec.Find(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), station)
+                LoadStation marked = SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Find(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), station)
                     ?? throw new InvalidDataException($"Native marker slot {area}/{station} numbers no load station.");
                 points.Add(marked.Name, new(checked((ushort)x), ReadVerificationWord(rom, address + 2)));
             }

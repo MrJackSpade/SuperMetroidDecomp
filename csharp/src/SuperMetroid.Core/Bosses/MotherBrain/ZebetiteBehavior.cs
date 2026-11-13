@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Deaths;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -42,6 +43,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyCollision _collision;
     /// <summary>Receives the Zebetite's shot sound.</summary>
     private readonly EnemyAudioQueue _audio;
+    /// <summary>The fade step count every gradual fade shares, past whose start the pulse holds.</summary>
+    private readonly SharedFadeStepCount _fadeStepCount;
 
 
     /// <summary>Captures the shared systems used by Zebetite initialization, AI, and reactions.</summary>
@@ -56,19 +59,13 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         _earthquake = dependencies.Earthquake;
         _slotTable = dependencies.SlotTable;
         _roomStatus = dependencies.RoomStatus;
+        _fadeStepCount = dependencies.FadeStepCount;
     }
 
     /// <summary>Health ceiling applied while an active Zebetite regenerates each update.</summary>
     private const int ZebetiteMaximumHealth = 1000;
     /// <summary>The sound a Zebetite makes when a shot hits it.</summary>
     private static readonly SoundEffectId ZebetiteShotSound = RoomSound.MissileDoorHit;
-
-    /// <summary>
-    /// The count of scripted palette fades in progress. A
-    /// nonzero count suppresses the Zebetite's private two-color cycle; normal gameplay leaves
-    /// this at zero.
-    /// </summary>
-    public int PaletteChangeNumber { get; set; }
 
     /// <summary>
     /// How far ahead of Samus the camera aims, shared by every boss that retargets the camera.
@@ -198,10 +195,13 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             SpawnZebetite(ZebetiteHalf.Primary);
     }
 
-    /// <summary>Steps the shared pulse when no fade suppresses it.</summary>
+    /// <summary>
+    /// Steps the shared pulse, which holds while the shared fade count is past a fade's start: the room's enemies run
+    /// between a door fade's steps, and the pulse waits for the fade.
+    /// </summary>
     internal void CycleZebetitePalette(RoomEnemySlot slot)
     {
-        if (PaletteChangeNumber != 0 || slot.RequireSpeciesState<ZebetiteEnemyState>().IsSecondaryHalf)
+        if (_fadeStepCount.IsPastStart || slot.RequireSpeciesState<ZebetiteEnemyState>().IsSecondaryHalf)
             return;
 
         int paletteCycle = (SharedPaletteCycle + 1) % ZebetiteDefinitions.PaletteCycleLength;

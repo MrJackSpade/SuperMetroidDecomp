@@ -70,7 +70,7 @@ internal static class FileSelectMapGraphicsPixelsAccess
         foreach (LoadStation station in LoadStationDefinitions.Usable)
         {
             int area = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(station.Area);
-            if (area < usedStationMasks.Length && (usedStationMasks[area] & (1 << SuperMetroid.Core.Saves.LoadStationNumberCodec.Number(station))) != 0)
+            if (area < usedStationMasks.Length && (usedStationMasks[area] & (1 << SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Number(station))) != 0)
                 progress.UsedStations.Add(station);
         }
         return progress;

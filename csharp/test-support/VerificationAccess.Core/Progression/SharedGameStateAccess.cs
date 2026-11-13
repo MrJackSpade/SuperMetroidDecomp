@@ -47,7 +47,7 @@ internal static class SharedGameStateAccess
         internal bool IsMapTileExplored(int areaIndex, Position16<MapTiles> cell) => self.IsMapTileExplored(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(areaIndex), cell);
 
         /// <summary>Marks the station the area with index <paramref name="areaIndex"/> numbers <paramref name="station"/> used.</summary>
-        internal void MarkSaveStationUsed(int areaIndex, int station) => self.MarkSaveStationUsed(SuperMetroid.Core.Saves.LoadStationNumberCodec.Decode(
+        internal void MarkSaveStationUsed(int areaIndex, int station) => self.MarkSaveStationUsed(SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Decode(
             SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(areaIndex), station, "A native fixture's used station"));
 
         /// <summary>Whether the area with index <paramref name="areaIndex"/> has its map.</summary>

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>
-/// The room's sprite objects (#1591): program-driven decorative effects (dust, splashes, explosions, shells) that enemies
+/// The room's sprite objects (#1591): animation-driven decorative effects (dust, splashes, explosions, shells) that enemies
 /// and projectiles spawn, step and draw independently of enemies and enemy projectiles. Each spawn creates a fresh
 /// object; the room steps and draws the live ones in the order they spawned, and forgets each once it ends. There is no
 /// limit on how many are live at once.
@@ -77,7 +77,7 @@ internal sealed class RoomSpriteObjects
     /// <summary>Steps every live object whose updates are enabled, in the order they spawned.</summary>
     internal void StepRoomSpriteObjects()
     {
-        // No program spawns another object, so the list does not change while it is stepped.
+        // No animation spawns another object, so the list does not change while it is stepped.
         foreach (RoomSpriteObject spawned in _objects)
             spawned.Step();
     }

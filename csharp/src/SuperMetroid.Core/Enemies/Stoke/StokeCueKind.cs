@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Stoke;
 
-/// <summary>What a cue of Stoke's programs does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of Stoke's animations does: one per kind of step its lists use.</summary>
 internal enum StokeCueKind
 {
     /// <summary>Makes main AI walk Stoke left.</summary>

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
 /// <summary>
-/// Alcoon's fireball program (#641). Each
+/// Alcoon's fireball animation (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class AlcoonFireballAnimations

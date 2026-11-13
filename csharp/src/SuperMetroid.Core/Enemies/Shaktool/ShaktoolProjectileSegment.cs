@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>
-/// Shaktool's attack-circle programs (#641), one per animation a spawn, branch or family step enters, in authored order.
+/// Shaktool's attack-circle animations (#641): one segment per animation a spawn, branch or family step enters, in authored order.
 /// Their steps are <see cref="ShaktoolProjectileAnimations"/>.
 /// </summary>
 internal enum ShaktoolProjectileSegment

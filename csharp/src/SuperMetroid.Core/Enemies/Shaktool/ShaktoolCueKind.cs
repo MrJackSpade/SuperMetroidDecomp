@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
-/// <summary>What a cue of the Shaktool's programs does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of the Shaktool's animations does: one per kind of step its lists use.</summary>
 internal enum ShaktoolCueKind
 {
     /// <summary>Lowers the segment one pixel away from its target angle.</summary>

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Skree;
 
-/// <summary>What a cue of the Skree's and Metaree's programs does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of the Skree's and Metaree's animations does: one per kind of step its lists use.</summary>
 internal enum SkreeMetareeCueKind
 {
     /// <summary>Keeps processing the enemy while it is off screen.</summary>

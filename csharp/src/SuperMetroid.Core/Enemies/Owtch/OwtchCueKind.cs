@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Owtch;
 
-/// <summary>What a cue of Owtch's programs does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of Owtch's animations does: one per kind of step its lists use.</summary>
 internal enum OwtchCueKind
 {
     /// <summary>Makes main AI move Owtch left.</summary>

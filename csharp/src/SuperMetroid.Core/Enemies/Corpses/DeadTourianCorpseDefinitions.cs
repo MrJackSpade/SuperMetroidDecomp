@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// Initializer and corpse-rotting metadata for dead Tourian enemies: each corpse's pose program and its height in pixel
+/// Initializer and corpse-rotting metadata for dead Tourian enemies: each corpse's pose animation and its height in pixel
 /// rows, sixteen for the Zoomer and Ripper and thirty-two for the Skree.
 /// </summary>
 internal static class DeadTourianCorpseDefinitions

@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// How an enemy projectile moves itself on each projectile pass, before its program advances. Its values are arbitrary.
+/// How an enemy projectile moves itself on each projectile pass, before its animation advances. Its values are arbitrary.
 /// Verification's view relates each member to its source.
 /// </summary>
 internal enum EnemyProjectileFrameBehavior
 {
     /// <summary>
-    /// The projectile does not move itself: it holds still while its program plays, or its owner positions it. A freed
+    /// The projectile does not move itself: it holds still while its animation plays, or its owner positions it. A freed
     /// slot holds it too.
     /// </summary>
     Stationary,

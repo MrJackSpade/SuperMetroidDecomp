@@ -20,7 +20,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Supplies the room's apex overreads.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Allocates the lava shots emitted by the overlay's program.</summary>
+    /// <summary>Allocates the lava shots emitted by the overlay's animation.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>The room's enemy places, where each Magdollite part finds the others when it is placed.</summary>
     private readonly EnemySlotTable _slotTable;
@@ -490,7 +490,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         return slot.Position.Whole - before;
     }
 
-    /// <summary>Restarts the animation only when the desired program differs from the installed one.</summary>
+    /// <summary>Restarts the animation only when the desired segment differs from the installed one.</summary>
     private static void StartMagdolliteAnimation(
         RoomEnemySlot slot,
         MagdolliteEnemyState state)
@@ -703,7 +703,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Connects thrown-lava movement, its typed programs' cues and its shot program to the projectile engine.</summary>
+    /// <summary>Connects thrown-lava movement, its typed animations' cues and its shot animation to the projectile engine.</summary>
     internal void AddMagdolliteProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>
@@ -715,7 +715,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShotAnimation(RoomEnemyProjectileKind.LavaThrownByMagdollite, () => new MagdolliteLavaAnimation(MagdolliteLavaSegment.Shot));
     }
 
-    /// <summary>Carries out one cue of the thrown lava's programs.</summary>
+    /// <summary>Carries out one cue of the thrown lava's animations.</summary>
     private void ApplyMagdolliteLavaCue(EnemyProjectile projectile, MagdolliteLavaCue cue)
     {
         switch (cue.Kind)

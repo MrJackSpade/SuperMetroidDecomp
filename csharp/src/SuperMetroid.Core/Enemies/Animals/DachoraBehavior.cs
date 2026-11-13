@@ -95,7 +95,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state);
 
-        // The animation-script property both disables Samus collision and admits enemy animation scripts.
+        // The animating property both disables Samus collision and admits enemy animations.
         // The population's tangibility property already excludes these actors from host interaction.
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Frame = EnemyFrameId.Empty;

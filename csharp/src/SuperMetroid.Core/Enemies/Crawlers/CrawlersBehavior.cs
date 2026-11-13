@@ -532,7 +532,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunHZoomerMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         RunHZoomerMain(slot, frame.Samus, frame.Level);
 
-    /// <summary>Runs the crawlers' surface animations as typed programs (#641).</summary>
+    /// <summary>Runs the crawlers' surface animations (#641).</summary>
     internal static void AdvanceCrawlerTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
         EnemyAnimationPlayback.Advance(slot, CrawlerAnimations.Segments,
             static (CrawlerEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,

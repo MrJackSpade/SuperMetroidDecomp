@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Enemies.SpacePirates;
 
-/// <summary>What a cue of the wall Space Pirates' programs does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of the wall Space Pirates' animations does: one per kind of step its lists use.</summary>
 internal enum WallSpacePirateCueKind
 {
     /// <summary>Picks a random climb direction and continues at that left-wall climb.</summary>

@@ -25,7 +25,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Maximum horizontal Samus distance, in pixels, that triggers an attack from circular flight.</summary>
     private const int FlyAttackHorizontalRange = 112;
 
-    /// <summary>Starts a newly loaded fly at angle zero with its flight program and clockwise motion.</summary>
+    /// <summary>Starts a newly loaded fly at angle zero with its flight animation and clockwise motion.</summary>
     internal static void InitializeFly(RoomEnemySlot slot)
     {
         var state = new FlyEnemyState

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
 /// The behaviour an Etecoon's main AI runs each frame. The names describe the actor-side work of each
-/// behaviour; animation is owned by the Etecoon's typed programs.
+/// behaviour; animation is owned by the Etecoon's typed animations.
 /// Its values are arbitrary.
 /// </summary>
 public enum EtecoonAiFunction

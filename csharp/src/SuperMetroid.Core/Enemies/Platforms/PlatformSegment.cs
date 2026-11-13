@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>
-/// The Tripper's and Kamer's vertically moving and still platform loops as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// The Tripper's and Kamer's vertically moving and still platform loops (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Their steps are <see cref="PlatformAnimations"/>.
 /// </summary>
 internal enum PlatformSegment

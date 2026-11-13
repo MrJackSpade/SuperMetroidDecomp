@@ -105,7 +105,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Every Ki-Hunter list is run by the shared enemy animation. The
         // game's name calls this property "disable Samus collision", but the live engine
-        // proves it is the animation-script flag.
+        // proves it is the animating flag.
         body.Processing = body.Processing.With(EnemyProcessing.Animates);
         state.HasLostWings = false;
         StartKiHunterAnimation(body, state, KiHunterSegment.FlyingLeft);

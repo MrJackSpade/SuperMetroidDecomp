@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Enemies.Zoa;
 
-/// <summary>Chooses a Zoa's animation by its facing and movement (#1624), and the program each animation plays.</summary>
+/// <summary>Chooses a Zoa's animation by its facing and movement (#1624), and the segment each animation plays.</summary>
 internal static class ZoaAnimationChoices
 {
-    /// <summary>The program <paramref name="selector"/> plays.</summary>
+    /// <summary>The animation <paramref name="selector"/> plays.</summary>
     internal static ZoaSegment Animation(ZoaAnimationSelector selector) =>
         ZoaAnimationDefinitions.Animations.TryGetValue(selector, out ZoaSegment segment)
             ? segment

@@ -292,7 +292,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 : BeetomSegment.HopRight);
     }
 
-    /// <summary>Starts the attached blood-drain program for the current facing.</summary>
+    /// <summary>Starts the attached blood-drain animation for the current facing.</summary>
     internal static void StartBeetomDrain(RoomEnemySlot slot, BeetomEnemyState state, HorizontalDirection side)
     {
         SetBeetomAnimation(

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Deaths;
 
-/// <summary>What a cue of an enemy's death explosion and drop programs does: one per command its lists use.</summary>
+/// <summary>What a cue of an enemy's death explosion and drop animations does: one per command its lists use.</summary>
 internal enum EnemyDeathProjectileCueKind
 {
     /// <summary>Turns the explosion into its rolled drop, or into the respawn tail when nothing drops.</summary>

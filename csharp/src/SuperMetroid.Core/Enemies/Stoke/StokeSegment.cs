@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Stoke;
 
 /// <summary>
-/// Stoke's walking and fire-spitting animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Stoke's walking and fire-spitting animations (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Their steps are <see cref="StokeAnimations"/>.
 /// </summary>
 internal enum StokeSegment

@@ -424,7 +424,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         outerBody.Graphics = MetroidOuterBodyDefinitions.FrozenGraphics;
         outerBody.UpdatesDisabled = true;
         // Drawing reads the selected record even while animation is disabled.
-        // Show the frozen program's first frame without resetting the retained timer.
+        // Show the frozen animation's first frame without resetting the retained timer.
         outerBody.ShowFirstFrameKeepingTimer(frozenSegment);
     }
 
@@ -546,7 +546,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Registers hurt AI ahead of frozen AI when both handlers are active; the animation program still advances.</summary>
+    /// <summary>Registers hurt AI ahead of frozen AI when both handlers are active; the animation still advances.</summary>
     internal static void AddMetroidHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.DefinitionId == EnemyDefinitionId.Metroid, (slot, _) => ApplyMetroidHurt(slot));
 

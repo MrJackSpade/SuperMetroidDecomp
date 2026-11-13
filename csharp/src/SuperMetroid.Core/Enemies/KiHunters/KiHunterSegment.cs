@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>
-/// The Ki-Hunter body's flight, swoop, hop, landing and spit animations and its wings' animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// The Ki-Hunter body's flight, swoop, hop, landing and spit animations and its wings' animations (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Their steps are <see cref="KiHunterAnimations"/>.
 /// </summary>
 internal enum KiHunterSegment

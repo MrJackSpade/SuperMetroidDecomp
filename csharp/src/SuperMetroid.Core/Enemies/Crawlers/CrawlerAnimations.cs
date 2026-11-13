@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>
-/// The Sciser, Zero, Viola, orange Zoomer and shared Zoomer/Zeela/Sova surface animations as typed programs (#641). Each
+/// The Sciser, Zero, Viola, orange Zoomer and shared Zoomer/Zeela/Sova surface animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="CrawlerCue"/> with its typed operands.
 /// </summary>
 internal static class CrawlerAnimations

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
-/// <summary>What a cue of the Sidehoppers' and Dessgeegas' programs does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of the Sidehoppers' and Dessgeegas' animations does: one per kind of step its lists use.</summary>
 internal enum HopperCueKind
 {
     /// <summary>Queues the enemy-library sound in its operand.</summary>

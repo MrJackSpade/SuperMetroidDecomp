@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>
-/// Oum's idle, attacking and rolling animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Oum's idle, attacking and rolling animations (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Their steps are <see cref="MaridiaLargeSnailAnimations"/>.
 /// </summary>
 internal enum MaridiaLargeSnailSegment

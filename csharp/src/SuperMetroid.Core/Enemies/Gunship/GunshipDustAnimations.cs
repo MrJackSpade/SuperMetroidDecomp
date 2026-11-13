@@ -4,12 +4,12 @@ using P = SuperMetroid.Core.Enemies.Gunship.GunshipDustSegment;
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>
-/// The gunship liftoff dust clouds' typed programs (#641). Each cloud loads its general
+/// The gunship liftoff dust clouds' typed animations (#641). Each cloud loads its general
 /// timer with one, shows its poses, counts the timer down past its single repeat and deletes itself.
 /// </summary>
 internal static class GunshipDustAnimations
 {
-    /// <summary>Every dust program.</summary>
+    /// <summary>Every dust animation.</summary>
     internal static AnimationSegments<GunshipDustSegment, GunshipDustFrame, GunshipDustCue> Segments { get; } = new(
         new Dictionary<GunshipDustSegment, AnimationBeat<GunshipDustFrame, GunshipDustCue>[]>
     {

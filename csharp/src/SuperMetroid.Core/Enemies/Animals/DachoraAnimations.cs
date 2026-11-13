@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The Dachora's run, idle, blink, shinespark charge, echo and fall animations as typed programs (#641). Each
+/// The Dachora's run, idle, blink, shinespark charge, echo and fall animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
 internal static class DachoraAnimations
@@ -165,7 +165,7 @@ internal static class DachoraAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DachoraSegment> StartingWith(DachoraSegment segment) => StartingAt[segment];
 
-    /// <summary>The program a sleeping animation resumes into when its owner wakes it.</summary>
+    /// <summary>The segment a sleeping animation resumes into when its owner wakes it.</summary>
     internal static DachoraSegment AfterSleep(DachoraSegment segment) => segment switch
     {
         P.ChargeRight => P.EchoRight,

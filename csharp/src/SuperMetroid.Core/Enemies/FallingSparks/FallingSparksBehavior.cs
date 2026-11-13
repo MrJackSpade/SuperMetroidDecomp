@@ -111,7 +111,7 @@ internal sealed class FallingSparksBehavior
         projectile.Position = projectile.Position.AdvanceX(projectile.StateOf<FallingSparkState>().HorizontalStep);
 
     /// <summary>
-    /// Switches a falling spark to its floor-impact program and scales its stored
+    /// Switches a falling spark to its floor-impact animation and scales its stored
     /// horizontal delta by four, the fraction's overflow passing into the whole.
     /// </summary>
     internal static void BeginFallingSparkFloorImpact(EnemyProjectile projectile)

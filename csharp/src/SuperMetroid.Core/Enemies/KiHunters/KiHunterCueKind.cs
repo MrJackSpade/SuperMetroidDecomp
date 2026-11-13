@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
-/// <summary>What a cue of the Ki-Hunter's programs does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of the Ki-Hunter's animations does: one per kind of step its lists use.</summary>
 internal enum KiHunterCueKind
 {
     /// <summary>Returns to the flying animation for the current direction and restarts attached wings to match.</summary>

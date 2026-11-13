@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
-/// <summary>What a cue of the escaping Dachora's programs does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of the escaping Dachora's animations does: one per kind of step its lists use.</summary>
 internal enum EscapeDachoraCueKind
 {
     /// <summary>Continues at the target once the rising acid is above Y 206.</summary>

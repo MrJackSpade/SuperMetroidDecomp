@@ -96,7 +96,7 @@ internal sealed class EnemyCollision
 
             // Touch collision does not read the invisible property as a collision flag;
             // it suppresses rendering only. Hibashi relies on that distinction: its second
-            // slot remains invisible while its program moves a live hitbox.
+            // slot remains invisible while its animation moves a live hitbox.
             // Both Ridley definitions use a hand-authored extended body plus a separately
             // solved tail tip. The enemy pass dispatches its body at this same pre-AI seam;
             // tail processing checks the tip later. Do not flatten either to the definition's
@@ -359,7 +359,7 @@ internal sealed class EnemyCollision
                     enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
                     // Common shot AI queues the definition's cry before subtracting health,
                     // including lethal hits. Frozen targets suppress this cry; death
-                    // explosion programs retain their separate, later sound owner.
+                    // explosion animations retain their separate, later sound owner.
                     if (enemy.FrozenTimer == 0 && enemy.Definition.HurtSoundEffect is SoundEffectId cry)
                         _audio.QueueEnemySound(cry, SoundRequestPriority.Low);
                     // Every plasma-family hit gives sixteen invincibility frames.
@@ -503,7 +503,7 @@ internal sealed class EnemyCollision
                     continue;
 
                 // The bomb collision marks the physical bomb before dispatch. Unlike an
-                // ordinary beam impact, the bomb is already running its explosion program;
+                // ordinary beam impact, the bomb is already running its explosion animation;
                 // common shot AI must not replace it with an impact animation.
                 bomb.IsSpent = true;
                 var bombContext = new EnemyBombContext(

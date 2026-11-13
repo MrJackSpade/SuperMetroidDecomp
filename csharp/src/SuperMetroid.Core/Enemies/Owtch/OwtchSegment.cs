@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>
-/// Owtch's left and right shell-cycling animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Owtch's left and right shell-cycling animations (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Their steps are <see cref="OwtchAnimations"/>.
 /// </summary>
 internal enum OwtchSegment

@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The escaping Etecoons' typed programs (#641). Each
+/// The escaping Etecoons' typed animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="EscapeEtecoonCue"/> with its typed operands.
 /// </summary>
 internal static class EscapeEtecoonAnimations

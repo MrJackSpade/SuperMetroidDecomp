@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>
-/// The Sciser, Zero, Viola, orange Zoomer and shared Zoomer/Zeela/Sova surface animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// The Sciser, Zero, Viola, orange Zoomer and shared Zoomer/Zeela/Sova surface animations (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Their steps are <see cref="CrawlerAnimations"/>.
 /// </summary>
 internal enum CrawlerSegment

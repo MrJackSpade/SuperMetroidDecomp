@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>
-/// The gunship hull's and entrance pad's typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// The gunship hull's and entrance pad's typed animations (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Their steps are <see cref="GunshipAnimations"/>.
 /// </summary>
 internal enum GunshipSegment

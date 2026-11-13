@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>
-/// The Yard's crawl, turn, hiding and airborne animations as typed programs (#641). Each
+/// The Yard's crawl, turn, hiding and airborne animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="YardCue"/> with its typed operands.
 /// </summary>
 internal static class YardAnimations

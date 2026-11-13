@@ -3,7 +3,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>A Kraid rock's (or the Kago bug's initial) typed animation.</summary>
-/// <param name="segment">The program to play.</param>
+/// <param name="segment">The animation to play.</param>
 internal sealed class KraidRockAnimation(KraidRockSegment segment)
     : EnemyProjectileTypedAnimation<KraidRockSegment, KraidRockFrame, KraidRockCue>(KraidRockAnimations.StartingWith(segment))
 {

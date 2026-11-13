@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>
-/// Dragon's idle, wing and attack animations as typed programs (#641). Each
+/// Dragon's idle, wing and attack animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="DragonCue"/> with its typed operands.
 /// </summary>
 internal static class DragonAnimations

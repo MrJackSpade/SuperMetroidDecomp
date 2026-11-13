@@ -14,12 +14,12 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// The enemy-projectile engine: the room's eighteen enemy-projectile places, spawning a fresh projectile into a free
-/// place and its definition setup, the per-frame pass (frame behaviours, then each program), the program runner,
+/// place and its definition setup, the per-frame pass (frame behaviours, then each animation), the animation runner,
 /// both draw-priority passes and the Samus collision passes. Species behavior arrives through registered handlers; the
 /// engine names no species.
 /// <para>
 /// The places are ordered, and gameplay reads the order: spawns take the free place searched from the last down, and
-/// every pass (movement and programs, collisions, drawing) runs from the last place down, so a projectile spawned below
+/// every pass (movement and animations, collisions, drawing) runs from the last place down, so a projectile spawned below
 /// the one being run runs later in the same pass and one spawned above it waits for the next.
 /// </para>
 /// </summary>
@@ -50,7 +50,7 @@ internal sealed class EnemyProjectileEngine
         return table;
     }
 
-    /// <summary>Carries out one shared command of a typed projectile program.</summary>
+    /// <summary>Carries out one shared command of a typed projectile animation.</summary>
     private void ApplyCommonCue(EnemyProjectile projectile, EnemyProjectileCommonCue cue)
     {
         switch (cue)
@@ -107,7 +107,7 @@ internal sealed class EnemyProjectileEngine
         Enumerable.Range(0, PlaceCount)
             .Select(place => new EnemyProjectile(place, default))
             .ToArray();
-    /// <summary>The frame counter of 0 through 255 sampled by the current projectile pass; verification drives it to step programs.</summary>
+    /// <summary>The frame counter of 0 through 255 sampled by the current projectile pass; verification drives it to step animations.</summary>
     internal int CurrentFrame8 { get; set; }
 
     /// <summary>The pixels along each axis of the cells a shot and an enemy projectile meet in: they meet only inside the same cell.</summary>
@@ -228,7 +228,7 @@ internal sealed class EnemyProjectileEngine
         return hitCount;
     }
 
-    /// <summary>One projectile pass: every live projectile's frame behaviour, then its program.</summary>
+    /// <summary>One projectile pass: every live projectile's frame behaviour, then its animation.</summary>
     internal void RunPass(
         RoomLevelData level,
         SamusState? samus,
@@ -240,7 +240,7 @@ internal sealed class EnemyProjectileEngine
         Ensure.NotNull(level);
 
         // The pass runs the places from the last down, reading each place when it reaches it rather than a pass-start
-        // snapshot. The distinction is observable whenever a frame behaviour or program cue spawns another projectile:
+        // snapshot. The distinction is observable whenever a frame behaviour or animation cue spawns another projectile:
         // spawns search from the last place down, so one spawned below the place being run is reached later in THIS
         // pass, and one spawned above it waits for the next.
         CurrentFrame8 = frameCycle;
@@ -258,11 +258,11 @@ internal sealed class EnemyProjectileEngine
                 camera,
                 frameCycle,
                 samusBombs);
-            // The program that runs next is that of whatever projectile the place holds after the frame behaviour, live
+            // The animation that runs next is that of whatever projectile the place holds after the frame behaviour, live
             // or not. A projectile that ended and spawned its replacement into its own place hands the rest of the pass
-            // to the replacement, whose program starts in this pass. One that freed its place without ending finishes
-            // its update with its program (a power-bombed Draygon goop that reaches Samus sticks to her through its
-            // touch program, PowerBombedDraygonShotFinishesItsUpdate). One that ended plays no program, so nothing runs.
+            // to the replacement, whose animation starts in this pass. One that freed its place without ending finishes
+            // its update with its animation (a power-bombed Draygon goop that reaches Samus sticks to her through its
+            // touch animation, PowerBombedDraygonShotFinishesItsUpdate). One that ended plays no animation, so nothing runs.
             AdvanceEnemyProjectileAnimations(_places[place], samus, camera);
         }
     }
@@ -367,7 +367,7 @@ internal sealed class EnemyProjectileEngine
             // Every placement is published wherever it lies; the display clips it to the view (#1520).
             Position16<ScreenPixels> screen = (projectile.Position.Whole + shake).ToScreen(camera);
 
-            // The blank frame, and the program frames showing the empty picture, draw nothing (#1513).
+            // The blank frame, and the animation frames showing the empty picture, draw nothing (#1513).
             if (!EnemyProjectileEmptyFrames.DrawsNothing(frame))
                 _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile, place),
                     EnemySheetDefinitions.ProjectileFrameName(frame), screen, projectile.Graphics);
@@ -404,13 +404,13 @@ internal sealed class EnemyProjectileEngine
         EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
         projectile.Kind = kind;
         projectile.FrameBehavior = definition.FrameBehavior;
-        // The spawn starts the program timer at one, so the first step runs on the first pass. A kind without
-        // a typed start has its spawner start the program its producer chooses.
+        // The spawn starts the animation timer at one, so the first step runs on the first pass. A kind without
+        // a typed start has its spawner start the animation its producer chooses.
         projectile.FrameHold = WrappingCountdown.Start(1);
         if (EnemyProjectileTypedStarts.Initial(kind) is { } animation)
             projectile.StartAnimation(animation);
 
-        // The spawn shows the blank frame before the first program tick. It is intentionally not the program's first
+        // The spawn shows the blank frame before the first animation tick. It is intentionally not the animation's first
         // frame; advances to that on its own pass.
         projectile.Frame = EnemyProjectileFrameId.Blank;
         projectile.Radius = definition.Radius;
@@ -424,7 +424,7 @@ internal sealed class EnemyProjectileEngine
         projectile.Graphics = graphics;
     }
 
-    /// <summary>Runs the projectile's current frame behaviour before its program advances.</summary>
+    /// <summary>Runs the projectile's current frame behaviour before its animation advances.</summary>
     private void RunEnemyProjectileFrameBehavior(
         EnemyProjectile projectile,
         RoomLevelData level,
@@ -706,7 +706,7 @@ internal sealed class EnemyProjectileEngine
         return knockbackXDirection;
     }
 
-    /// <summary>Advances a projectile's typed program one projectile pass.</summary>
+    /// <summary>Advances a projectile's typed animation one projectile pass.</summary>
     internal void AdvanceEnemyProjectileAnimations(
         EnemyProjectile projectile,
         SamusState? samus,
@@ -718,7 +718,7 @@ internal sealed class EnemyProjectileEngine
             return;
         }
 
-        // A projectile its frame behaviour ended this pass, or one spawned without a program, runs nothing.
+        // A projectile its frame behaviour ended this pass, or one spawned without an animation, runs nothing.
         if (!projectile.IsActive)
             return;
         throw new InvalidOperationException($"Enemy projectile {projectile.Kind} in place {projectile.Place} runs no program.");
@@ -844,7 +844,7 @@ internal sealed class EnemyProjectileEngine
         projectile.StartAnimation(animation);
     }
 
-    /// <summary>Deletes a gunship dust cloud when its program ends.</summary>
+    /// <summary>Deletes a gunship dust cloud when its animation ends.</summary>
     internal static void AddGunshipDustCues(EnemyProjectileHandlerTable table) =>
         table.AddCue<GunshipDustCue>((context, cue) =>
         {

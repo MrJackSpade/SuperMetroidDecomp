@@ -46,7 +46,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
                 "Wrecked Ship ghost requires retail physical slot zero for indexed Samus reads.");
         }
 
-        // The initializer sets the animation-script, intangibility and invisibility properties. In this host those mean
+        // The initializer sets the animating, intangibility and invisibility properties. In this host those mean
         // animation processing, exclusion from Samus interaction, and invisibility.
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);

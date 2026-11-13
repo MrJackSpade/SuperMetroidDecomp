@@ -112,8 +112,8 @@ internal sealed class DownwardGateBehavior
     }
 
     /// <summary>
-    /// Steps a gate past the sleep its program holds, as stepping its program one entry on with a one-update timer
-    /// does: the program resumes with the one authored after that sleep.
+    /// Steps a gate past the sleep its animation holds, as stepping its animation one entry on with a one-update timer
+    /// does: the animation resumes with the one authored after that sleep.
     /// </summary>
     private static void ResumeDownwardGate(EnemyProjectile projectile)
     {
@@ -123,7 +123,7 @@ internal sealed class DownwardGateBehavior
         projectile.StartAnimation(new DownwardGateProjectileAnimation(DownwardGateProjectileAnimations.Resumption[sleeping]));
     }
 
-    /// <summary>Carries out one cue of the gate's programs.</summary>
+    /// <summary>Carries out one cue of the gate's animations.</summary>
     private static void ApplyDownwardGateCue(EnemyProjectile projectile, DownwardGateProjectileCue cue)
     {
         switch (cue)

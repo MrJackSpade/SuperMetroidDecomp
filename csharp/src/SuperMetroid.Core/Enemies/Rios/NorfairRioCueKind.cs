@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Rios;
 
-/// <summary>What a cue of the Norfair Rio's programs does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of the Norfair Rio's animations does: one per kind of step its lists use.</summary>
 internal enum NorfairRioCueKind
 {
     /// <summary>Places the flames level with the Norfair Rio.</summary>

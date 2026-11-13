@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Skree;
 
-/// <summary>The cues Skree and Metaree share in their common animation programs.</summary>
+/// <summary>The cues Skree and Metaree share in their common animations.</summary>
 internal static class SkreeMetareeCues
 {
     /// <summary>
@@ -8,7 +8,7 @@ internal static class SkreeMetareeCues
     /// the following enemy frame and starts the dive, exactly matching the animation-to-AI hand-off.
     /// </summary>
     /// <param name="slot">The enemy.</param>
-    /// <param name="cue">The cue the program published.</param>
+    /// <param name="cue">The cue the animation published.</param>
     /// <param name="markAttackReady">Sets the species state's attack-ready flag.</param>
     internal static void Apply(RoomEnemySlot slot, SkreeMetareeCue cue, Action markAttackReady)
     {

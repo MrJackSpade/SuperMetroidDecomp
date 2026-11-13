@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>
-/// Kago's slow and post-hit animation loops as typed programs (#641). Each
+/// Kago's slow and post-hit animation loops (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
 internal static class KagoAnimations

@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Skree;
 
 /// <summary>
-/// The Skree's and Metaree's idling, wind-up, diving and stop animations as typed programs (#641). Each
+/// The Skree's and Metaree's idling, wind-up, diving and stop animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="SkreeMetareeCue"/> with its typed operands.
 /// </summary>
 internal static class SkreeMetareeAnimations

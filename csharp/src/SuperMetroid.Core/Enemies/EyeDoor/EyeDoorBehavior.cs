@@ -28,7 +28,7 @@ internal sealed class EyeDoorBehavior
 
     /// <summary>
     /// Replays spawning a projectile with room graphics and the definition-specific initializer selected
-    /// by the eye-door room object's program. The room object's block and room argument are retained
+    /// by the eye-door room object's animation. The room object's block and room argument are retained
     /// because the game initializers read both directly from their spawning room object.
     /// </summary>
     public void SpawnEyeDoorProjectile(
@@ -250,7 +250,7 @@ internal sealed class EyeDoorBehavior
         MiscDustPlacementDefinition placement = MiscDustProjectiles.SmokePlacement(placementIndex);
 
         int random = _room.Random.Read();
-        // Stores only the program, keeping the definition's one-update timer.
+        // Stores only the animation, keeping the definition's one-update timer.
         projectile.InstallAnimation(new MiscDustProjectileAnimation(segment));
 
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + new Offset16<RoomPixels>(
@@ -313,14 +313,14 @@ internal sealed class EyeDoorBehavior
     /// <summary>A falling sweat drop's downward acceleration per update, in 256ths of a pixel per update.</summary>
     private static readonly SignedEightEight EyeDoorSweatGravity = SignedEightEight.FromParts(0, 12);
 
-    /// <summary>Sends an eye-door shot into its typed impact program, stopping its movement as the list switch does.</summary>
+    /// <summary>Sends an eye-door shot into its typed impact animation, stopping its movement as the list switch does.</summary>
     private static void StartEyeDoorProjectileImpact(EnemyProjectile projectile)
     {
         projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Impact));
     }
 
-    /// <summary>Carries out one cue of the eye-door shot's programs.</summary>
+    /// <summary>Carries out one cue of the eye-door shot's animations.</summary>
     private static void ApplyEyeDoorProjectileCue(EnemyProjectile projectile, IRoomSamus? samus, EyeDoorProjectileCue cue)
     {
         switch (cue.Kind)
@@ -479,7 +479,7 @@ internal sealed class EyeDoorBehavior
     internal void AddEyeDoorProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddCue<EyeDoorProjectileCue>((context, cue) => ApplyEyeDoorProjectileCue(context.Projectile, context.Samus?.RoomView, cue));
-        // A shot eye-door projectile runs its typed shot program, the list its definition names.
+        // A shot eye-door projectile runs its typed shot animation, the list its definition names.
         table.AddShotAnimation(RoomEnemyProjectileKind.EyeDoorProjectile, () => new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Shot));
 
         table.AddFrameBehavior(context =>

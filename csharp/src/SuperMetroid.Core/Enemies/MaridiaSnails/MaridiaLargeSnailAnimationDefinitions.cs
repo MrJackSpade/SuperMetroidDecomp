@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
-/// <summary>The program each of Oum's animations plays.</summary>
+/// <summary>The segment each of Oum's animations plays.</summary>
 internal static class MaridiaLargeSnailAnimationDefinitions
 {
-    /// <summary>The facing-specific program of each idle, roll and attack animation.</summary>
+    /// <summary>The facing-specific segment of each idle, roll and attack animation.</summary>
     internal static readonly Dictionary<MaridiaLargeSnailAnimation, MaridiaLargeSnailSegment> Animations = new()
     {
         [MaridiaLargeSnailAnimation.FacingRightIdle] = MaridiaLargeSnailSegment.FacingRightIdle,

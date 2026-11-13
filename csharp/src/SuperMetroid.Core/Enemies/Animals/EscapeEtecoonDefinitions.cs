@@ -5,7 +5,7 @@ internal static class EscapeEtecoonDefinitions
 {
 
     /// <summary>
-    /// The position, action, program and horizontal speed each of the
+    /// The position, action, animation and horizontal speed each of the
     /// left walker, right walker and event-waiting roles starts with.
     /// </summary>
     internal static readonly Dictionary<EscapeEtecoonRole, EscapeEtecoonInitialization> Initializations = new()

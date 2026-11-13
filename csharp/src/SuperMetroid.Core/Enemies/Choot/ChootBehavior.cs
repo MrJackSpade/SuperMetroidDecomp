@@ -89,7 +89,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = ChootEnemyFunction.PreparingJump;
     }
 
-    /// <summary>Decrements the delay until it turns negative, then starts the jumping program.</summary>
+    /// <summary>Decrements the delay until it turns negative, then starts the jumping animation.</summary>
     internal static void PrepareChootJump(RoomEnemySlot slot, ChootEnemyState state)
     {
         if (--state.JumpDelayTimer >= 0)
@@ -137,7 +137,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             // The last loop's end restores exact spawn coordinates/subpositions, reinstalls
-            // the idle program, and rearms the same calculated ascent for the next activation.
+            // the idle animation, and rearms the same calculated ascent for the next activation.
             state.YSpeedTableIndex = state.InitialYSpeedTableIndex;
             slot.Position = FixedPosition<RoomPixels>.FromWhole(state.SpawnPosition);
             SetChootAnimation(slot, state, ChootSegment.Idle);
@@ -170,7 +170,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             $"Choot jump-height calculation did not reach {jumpHeight} pixels.");
     }
 
-    /// <summary>Installs the idle, jumping, or falling program and restarts its frame timers.</summary>
+    /// <summary>Installs the idle, jumping, or falling animation and restarts its frame timers.</summary>
     private static void SetChootAnimation(
         RoomEnemySlot slot,
         ChootEnemyState state,

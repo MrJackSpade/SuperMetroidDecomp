@@ -1,16 +1,16 @@
 namespace SuperMetroid.Core.Enemies.Skree;
 
-/// <summary>Chooses a Skree's or Metaree's program for its animation phase.</summary>
+/// <summary>Chooses a Skree's or Metaree's segment for its animation phase.</summary>
 internal static class SkreeMetareeAnimationChoices
 {
-    /// <summary>The Metaree program of <paramref name="phase"/>.</summary>
+    /// <summary>The Metaree animation of <paramref name="phase"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="phase"/> is outside the four-entry table.</exception>
     internal static SkreeMetareeSegment MetareeAnimation(SkreeMetareeAnimationPhase phase) =>
         SkreeMetareeAnimationDefinitions.MetareeAnimations.TryGetValue(phase, out SkreeMetareeSegment segment)
             ? segment
             : throw InvalidPhase(phase, "Metaree");
 
-    /// <summary>The Skree program of <paramref name="phase"/>.</summary>
+    /// <summary>The Skree animation of <paramref name="phase"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="phase"/> is outside the four-entry table.</exception>
     internal static SkreeMetareeSegment SkreeAnimation(SkreeMetareeAnimationPhase phase) =>
         SkreeMetareeAnimationDefinitions.SkreeAnimations.TryGetValue(phase, out SkreeMetareeSegment segment)

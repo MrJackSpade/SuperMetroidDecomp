@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
-/// <summary>Chooses a Cacatac spike's animation program and launch speeds by its direction.</summary>
+/// <summary>Chooses a Cacatac spike's animation and launch speeds by its direction.</summary>
 internal static class CacatacSpikes
 {
-    /// <summary>The named animation program of a spike launched in <paramref name="direction"/>.</summary>
+    /// <summary>The named animation of a spike launched in <paramref name="direction"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the ten selectors.</exception>
     internal static CacatacProjectileSegment Animation(CacatacSpikeDirection direction) =>
         CacatacProjectileDefinitions.Animations.TryGetValue(direction, out CacatacProjectileSegment segment)

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Sparks;
 
-/// <summary>What a cue of the Wrecked Ship Spark's programs does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of the Wrecked Ship Spark's animations does: one per kind of step its lists use.</summary>
 internal enum SparkCueKind
 {
     /// <summary>Removes the Spark from Samus, beam and grapple collision.</summary>

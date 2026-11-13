@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Enemies.Dragon;
 
-/// <summary>Dragon's animation phases: their programs and the same phase or phase pair with another facing.</summary>
+/// <summary>Dragon's animation phases: their segments and the same phase or phase pair with another facing.</summary>
 internal static class DragonPhases
 {
-    /// <summary>The program of an animation.</summary>
+    /// <summary>The segment of an animation.</summary>
     /// <exception cref="InvalidDataException"><paramref name="selector"/> is outside the six.</exception>
     internal static DragonSegment Animation(DragonAnimationSelector selector) =>
         DragonAnimationDefinitions.Animations.TryGetValue(selector, out DragonSegment segment)

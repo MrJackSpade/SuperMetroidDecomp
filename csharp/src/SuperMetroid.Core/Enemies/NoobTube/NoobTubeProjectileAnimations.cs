@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Enemies.NoobTube;
 
 /// <summary>
-/// The n00b tube's crack, glass shard and released-air bubble programs (#641). Each
+/// The n00b tube's crack, glass shard and released-air bubble animations (#641). Each
 /// frame shows a <see cref="NoobTubeProjectileFrame"/> pose and each cue is a <see cref="NoobTubeProjectileCue"/> with its typed operands.
 /// </summary>
 internal static class NoobTubeProjectileAnimations

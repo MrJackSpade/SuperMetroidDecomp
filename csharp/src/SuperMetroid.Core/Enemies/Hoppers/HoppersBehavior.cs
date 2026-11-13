@@ -326,7 +326,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             "Hopper initial-speed calculation did not reach its authored jump height.");
     }
 
-    /// <summary>Selects the program for this kind's facing and jumping or landing half.</summary>
+    /// <summary>Selects the animation for this kind's facing and jumping or landing half.</summary>
     private static HopperSegment ReadHopperAnimation(
         HopperEnemyState state,
         HopperSurface surface,

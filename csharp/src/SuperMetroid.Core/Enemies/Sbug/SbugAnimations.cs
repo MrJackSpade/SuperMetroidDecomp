@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Sbug;
 
 /// <summary>
-/// Sbug's eight directional animation loops as typed programs (#641). Each
+/// Sbug's eight directional animation loops (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
 internal static class SbugAnimations

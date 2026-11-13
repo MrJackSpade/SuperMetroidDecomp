@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>
-/// Bull's normal and immune-shot animations as typed programs (#641). Each
+/// Bull's normal and immune-shot animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
 internal static class BullAnimations

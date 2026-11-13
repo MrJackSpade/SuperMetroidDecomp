@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
-/// <summary>Compiled program selection and launch-speed definitions for Cacatac spikes.</summary>
+/// <summary>Compiled animation selection and launch-speed definitions for Cacatac spikes.</summary>
 internal static class CacatacProjectileDefinitions
 {
 
@@ -20,7 +20,7 @@ internal static class CacatacProjectileDefinitions
         SignedEightEight.FromParts(1, 128));
 
     /// <summary>
-    /// Each spike direction and facing's named animation program.
+    /// Each spike direction and facing's named animation.
     /// </summary>
     internal static readonly Dictionary<CacatacSpikeDirection, CacatacProjectileSegment> Animations = new()
     {

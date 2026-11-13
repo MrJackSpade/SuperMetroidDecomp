@@ -58,7 +58,7 @@ internal sealed class EnemyProjectileHandlerTable
             throw new InvalidOperationException($"Enemy projectile cue {typeof(TCue).Name} is registered twice.");
     }
 
-    /// <summary>Registers the handler that carries out every cue of type <typeparamref name="TCue"/> and may redirect its program.</summary>
+    /// <summary>Registers the handler that carries out every cue of type <typeparamref name="TCue"/> and may redirect its animation.</summary>
     internal void AddBranchingCue<TSegment, TCue>(EnemyProjectileBranchingCueHandler<TSegment, TCue> handler)
         where TSegment : struct
     {
@@ -67,8 +67,8 @@ internal sealed class EnemyProjectileHandlerTable
     }
 
     /// <summary>
-    /// Carries out <paramref name="cue"/> of a program animation with its family's registered handler, returning the
-    /// program a branching handler redirects to, or null.
+    /// Carries out <paramref name="cue"/> of a typed animation with its family's registered handler, returning the
+    /// segment a branching handler redirects to, or null.
     /// </summary>
     internal TSegment? PublishAnimationCue<TSegment, TCue>(EnemyProjectileCueContext context, TCue cue)
         where TSegment : struct

@@ -158,17 +158,17 @@ internal sealed class KraidCombat
                 // A Super Missile's leftover changes the next shot's signed compare; rebuilding a clean rectangle here
                 // doubles close-range damage.
                 bounds.LeaveAfterMouthHit(KraidMouthHitBound.After(MouthFamily(shot.Type.Family), MouthHit(shot)));
-                // Every beam takes Kraid's charged-beam multiplier; the other families take their own.
-                int multiplier = type.Family switch
+                // Every beam takes Kraid's charged-beam response; the other families take their own.
+                EnemyWeaponVulnerability vulnerability = type.Family switch
                 {
-                    SamusProjectileFamily.Beam => EnemyVulnerabilities.Of(body.Definition).ChargedBeam.Multiplier,
+                    SamusProjectileFamily.Beam => EnemyVulnerabilities.Of(body.Definition).ChargedBeam,
                     SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile or
                     SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb =>
-                        EnemyCollision.ReadProjectileVulnerability(body, type).Multiplier,
-                    SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion => 0,
+                        EnemyCollision.ReadProjectileVulnerability(body, type),
+                    SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion => EnemyWeaponVulnerability.NoDamage,
                     _ => throw new InvalidOperationException($"Undefined SamusProjectileFamily {type.Family}."),
                 };
-                int damage = (shot.Damage >> 1) * multiplier;
+                int damage = vulnerability.DamageFrom(shot.Damage);
                 if (damage != 0)
                 {
                     body.Health = damage >= body.Health

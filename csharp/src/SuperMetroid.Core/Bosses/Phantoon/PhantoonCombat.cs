@@ -226,7 +226,7 @@ internal sealed class PhantoonCombat
             }
             else
             {
-                int damage = (projectileDamage >> 1) * vulnerability.Multiplier;
+                int damage = vulnerability.DamageFrom(projectileDamage);
                 if (damage != 0)
                 {
                     body.FlashTimer = body.HurtFlashFrames + 8;

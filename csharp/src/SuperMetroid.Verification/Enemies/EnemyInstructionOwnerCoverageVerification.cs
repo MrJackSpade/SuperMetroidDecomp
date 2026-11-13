@@ -133,8 +133,8 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 owned.Add(definitionPointer);
         }
 
-        AssertEqual(163, definitions.Length,
-            "owner audit enumerates every named retail enemy definition");
+        AssertEqual(161, definitions.Length,
+            "owner audit enumerates every named retail enemy definition a room places or code spawns");
         AssertTrue(translated.Count > 100,
             "owner audit recognizes the translated retail initializer surface");
         AssertTrue(owned.Count > 90,
@@ -181,7 +181,14 @@ internal static class EnemyInstructionOwnerCoverageVerification
     private static bool IsUnportedSpecies(InvalidDataException exception, EnemyDefinitionId definitionPointer) =>
         exception.Message.EndsWith($" holds {definitionPointer}, whose species AI is not ported.", StringComparison.Ordinal);
 
-    /// <summary>Extracts distinct bank-$A0 enemy headers named in the pinned symbol inventory.</summary>
+    /// <summary>The bank-$A0 headers of Bang and the spinning turtle eye, which no room places and no code spawns.</summary>
+    private static readonly HashSet<ushort> UnplacedEnemyHeaders = [0xdb3f, 0xf153];
+
+    /// <summary>
+    /// Extracts the species of the distinct bank-$A0 enemy headers named in the pinned symbol inventory. A header no
+    /// room places and no code spawns (Bang, the spinning turtle eye) is cartridge inventory with no species, and is
+    /// not one.
+    /// </summary>
     private static EnemyDefinitionId[] ReadNamedRetailEnemyDefinitions()
     {
         string symbolPath = Path.GetFullPath(
@@ -191,10 +198,12 @@ internal static class EnemyInstructionOwnerCoverageVerification
             .Where(fields => fields.Length == 2 &&
                 fields[0].StartsWith("0xa0", StringComparison.Ordinal) &&
                 fields[1].StartsWith("kEnemyDef_", StringComparison.Ordinal))
-            .Select(fields => EnemyDefinitionIds.FromHeaderPointer(ushort.Parse(
+            .Select(fields => ushort.Parse(
                 fields[0].AsSpan(4),
                 NumberStyles.AllowHexSpecifier,
-                CultureInfo.InvariantCulture)))
+                CultureInfo.InvariantCulture))
+            .Where(header => !UnplacedEnemyHeaders.Contains(header))
+            .Select(header => EnemyDefinitionIds.FromHeaderPointer(header))
             .Distinct()
             .Order()
             .ToArray();

@@ -110,8 +110,6 @@ public enum EnemyDefinitionId
     /// <summary>The <c>Respawn</c> enemy definition.</summary>
     /// <remarks>Reserves a killed actor's slot until it respawns; its AI is inert.</remarks>
     Respawn,
-    /// <summary>The <c>Bang</c> enemy definition.</summary>
-    Bang,
     /// <summary>The <c>Skree</c> enemy definition.</summary>
     Skree,
     /// <summary>The <c>Yard</c> enemy definition.</summary>
@@ -304,8 +302,6 @@ public enum EnemyDefinitionId
     /// <summary>The <c>Chozo</c> enemy definition.</summary>
     /// <remarks>The shared Chozo statue definition.</remarks>
     Chozo,
-    /// <summary>The unused spinning turtle eye.</summary>
-    UnusedSpinningTurtleEye,
     /// <summary>The <c>Zeb</c> enemy definition.</summary>
     /// <remarks>The normal Brinstar Pipe Bug.</remarks>
     Zeb,

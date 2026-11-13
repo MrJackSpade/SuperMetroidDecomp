@@ -185,7 +185,6 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.Zoa:
             case EnemyDefinitionId.Viola:
             case EnemyDefinitionId.Respawn:
-            case EnemyDefinitionId.Bang:
             case EnemyDefinitionId.Skree:
             case EnemyDefinitionId.Yard:
             case EnemyDefinitionId.Reflec:
@@ -273,7 +272,6 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.Shaktool:
             case EnemyDefinitionId.NoobTubeCrack:
             case EnemyDefinitionId.Chozo:
-            case EnemyDefinitionId.UnusedSpinningTurtleEye:
             case EnemyDefinitionId.Geega:
             case EnemyDefinitionId.Botwoon:
             case EnemyDefinitionId.EtecoonEscape:

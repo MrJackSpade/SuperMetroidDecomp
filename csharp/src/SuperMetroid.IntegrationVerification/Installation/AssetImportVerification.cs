@@ -12,8 +12,14 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// <summary>Checks cartridge import validation, extracted-content reuse and repair, and ROM-free startup.</summary>
 internal static class AssetImportVerification
 {
-/// <summary>Exercises invalid imports first, then optional retail extraction, audio parity, cancellation, recovery, and host startup.</summary>
-[PrivateInstallation("Checks the importer itself: rejected non-ROM and wrong-revision input, cancellation, extracted-content reuse, repair after the selected document is gone, and recovery.")]
+/// <summary>
+/// Exercises invalid imports first, then one retail import that every reading check shares, ROM-free startup and the
+/// rejection of outdated content on a copy of it, one repair, and cancellation and recovery that extract nothing (#1680).
+/// </summary>
+[PrivateInstallation("Checks the importer itself. Two runs extract: the import of a headered, user-named ROM, which every " +
+    "reading check shares, and the repair from the installed copy once that document is gone, which only a completed " +
+    "extraction can show regenerates damaged content exactly. ROM-free startup and cancellation work on copies of the " +
+    "import, and every rejection and the cancelled repair stop before any component extracts.")]
 public static int Run(string? romPath)
 {
 using var temporaryScratch = new TestScratchDirectory("import-verification");
@@ -53,37 +59,12 @@ try
     rom.CopyTo(headered, SupportedCartridge.CopierHeaderByteCount);
     File.WriteAllBytes(input, headered);
     string root = Path.Combine(temporary, "app-data");
+    // The first of the check's two extractions: every check below that reads extracted content reads this import.
     GameInstallation installed = GameAssetInstaller.Install(input, root);
     Check(File.ReadAllBytes(input).SequenceEqual(headered), "original selected ROM is preserved");
     Check(File.ReadAllBytes(installed.RomPath).SequenceEqual(rom), "installed ROM strips only the copier header");
     Check(GameAssetInstaller.TryOpenExtractedContent(root) is not null,
         "complete extracted content is recognized with its source-revision receipt");
-    string heldRom = Path.Combine(temporary, "temporarily-held-installed-rom.smc");
-    File.Move(installed.RomPath, heldRom);
-    try
-    {
-        GameInstallation? romFreeContent = GameAssetInstaller.TryOpenExtractedContent(root);
-        Check(romFreeContent is not null && romFreeContent.LoadAudio().CanonicalSampleCount == 112,
-            "installed presentation assets remain usable without the private ROM copy");
-        Check(GameAssetInstaller.OpenOrRepair(root) is not null,
-            "normal host startup accepts complete extracted content without a ROM copy");
-        (romFreeContent ?? throw new InvalidOperationException("Complete ROM-free installation was not reopened."))
-            .RequireExtractedContent();
-        using (var romFreeSession = new SuperMetroid.Diagnostics.Sessions.InstalledGameSession(root))
-        {
-            for (int frame = 0; frame < 90; frame++)
-                romFreeSession.Game.StepCaptured(0);
-            string saved = romFreeSession.SaveSlot(0);
-            Check(saved.Contains("slot 0", StringComparison.OrdinalIgnoreCase),
-                "an installed session boots from extracted assets with no ROM copy and saves a debugger state");
-        }
-        Check(GameAssetInstaller.EnsureInstalled(root) is null,
-            "repair requires a ROM even though validated extracted content can boot");
-    }
-    finally
-    {
-        File.Move(heldRom, installed.RomPath);
-    }
     var catalog = ExtractedAudioAssetCatalog.Load(installed.AudioDirectory);
     Check(catalog.CanonicalSampleCount == 112 && catalog.SourceMappingCount == 935, "all canonical samples and source aliases extracted");
     Console.WriteLine($"PASS installed runtime resources: {catalog.CanonicalSampleCount} WAV samples, {catalog.SourceMappingCount} aliases.");
@@ -114,6 +95,28 @@ try
     }
     Check(audible > 0, "newly extracted resources produce audible title music through the production renderer");
 
+    // A copy of the import without its private ROM, so the import itself never loses its ROM: startup without one is
+    // checked on the copy, first with the import's current content and below with its receipt naming another format.
+    using var romFree = new PrivateInstallationCopy(root);
+    File.Delete(romFree.Installation.RomPath);
+    GameInstallation? romFreeContent = GameAssetInstaller.TryOpenExtractedContent(romFree.Root);
+    Check(romFreeContent is not null && romFreeContent.LoadAudio().CanonicalSampleCount == 112,
+        "installed presentation assets remain usable without the private ROM copy");
+    Check(GameAssetInstaller.OpenOrRepair(romFree.Root) is not null,
+        "normal host startup accepts complete extracted content without a ROM copy");
+    (romFreeContent ?? throw new InvalidOperationException("Complete ROM-free installation was not reopened."))
+        .RequireExtractedContent();
+    using (var romFreeSession = new SuperMetroid.Diagnostics.Sessions.InstalledGameSession(romFree.Root))
+    {
+        for (int frame = 0; frame < 90; frame++)
+            romFreeSession.Game.StepCaptured(0);
+        string saved = romFreeSession.SaveSlot(0);
+        Check(saved.Contains("slot 0", StringComparison.OrdinalIgnoreCase),
+            "an installed session boots from extracted assets with no ROM copy and saves a debugger state");
+    }
+    Check(GameAssetInstaller.EnsureInstalled(romFree.Root) is null,
+        "repair requires a ROM even though validated extracted content can boot");
+
     string receipt = Path.Combine(installed.ContentDirectory, GameInstallationLayout.ReceiptFileName);
     DateTime installedAt = File.GetLastWriteTimeUtc(receipt);
     File.WriteAllText(Path.Combine(installed.AudioDirectory, "user-note.txt"), "keep custom files");
@@ -132,28 +135,25 @@ try
     // The receipt alone decides whether content is current (#1532): content extracted for another format is rebuilt, and
     // every file with it.
     string currentReceipt = File.ReadAllText(receipt);
-    File.WriteAllText(receipt, currentReceipt.Replace($"\"FormatVersion\":{GameInstallationLayout.FormatVersion}",
-        $"\"FormatVersion\":{GameInstallationLayout.FormatVersion - 1}", StringComparison.Ordinal));
+    string outdatedReceipt = currentReceipt.Replace($"\"FormatVersion\":{GameInstallationLayout.FormatVersion}",
+        $"\"FormatVersion\":{GameInstallationLayout.FormatVersion - 1}", StringComparison.Ordinal);
+    File.WriteAllText(receipt, outdatedReceipt);
     Check(File.ReadAllText(receipt) != currentReceipt, "the fixture names an outdated format in the receipt");
     Check(GameAssetInstaller.TryOpenExtractedContent(root) is null,
         "content extracted for another format is not mistaken for current ROM-free content");
-    File.Move(installed.RomPath, heldRom);
-    try
-    {
-        Check(GameAssetInstaller.OpenOrRepair(root) is null,
-            "startup rejects outdated extracted content when no ROM can extract it again");
-        Reject<InvalidDataException>(installed.RequireExtractedContent);
-    }
-    finally
-    {
-        File.Move(heldRom, installed.RomPath);
-    }
+    File.WriteAllText(Path.Combine(romFree.Installation.ContentDirectory, GameInstallationLayout.ReceiptFileName), outdatedReceipt);
+    Check(GameAssetInstaller.OpenOrRepair(romFree.Root) is null,
+        "startup rejects outdated extracted content when no ROM can extract it again");
+    Reject<InvalidDataException>(romFree.Installation.RequireExtractedContent);
     File.Delete(input);
+    // The second and last extraction: repair extracts again from the installed copy, the selected document being gone,
+    // and only a completed extraction shows that it publishes content replacing the damaged file exactly.
     Check(GameAssetInstaller.EnsureInstalled(root) is not null, "repair works after the original selected document is gone");
     Check(File.ReadAllBytes(waveform).SequenceEqual(waveBefore), "re-extraction regenerates the damaged waveform exactly");
     Check(File.ReadAllBytes(save).SequenceEqual(saveBefore) && File.ReadAllText(settings) == HostOptionsIni.DefaultFileContents,
         "repair preserves saves and configuration outside content");
 
+    // The unsupported ROM is rejected as it is read and the locked-out import as it takes the setup lock: neither extracts.
     byte[] wrong = (byte[])rom.Clone();
     wrong[0] ^= 1;
     string wrongPath = Path.Combine(temporary, "unsupported.smc");
@@ -167,17 +167,21 @@ try
         Reject<IOException>(() => GameAssetInstaller.Install(romCopy, root));
     }
 
-    File.Delete(receipt);
-    using (var cancellation = new CancellationTokenSource())
-    {
-        var progress = new InlineProgress(message => { if (message == "Extracting audio…") cancellation.Cancel(); });
-        Reject<OperationCanceledException>(() => GameAssetInstaller.EnsureInstalled(root, cancellation.Token, progress));
-    }
-    Check(File.Exists(installed.RomPath) && Directory.GetDirectories(root, ".game.install-*").Length == 0,
-        "cancelled repair retains old content and cleans its staging directory");
-    GameAssetInstaller.EnsureInstalled(root);
+    // The repair published the damaged content aside; the recovery check below moves the current content there instead.
     string previous = Path.Combine(root, ".game.previous");
     if (Directory.Exists(previous)) Directory.Delete(previous, recursive: true);
+    // A copy of the repaired import without its receipt, so the cancelled repair leaves the import itself current.
+    using (var interrupted = new PrivateInstallationCopy(root))
+    {
+        File.Delete(Path.Combine(interrupted.Installation.ContentDirectory, GameInstallationLayout.ReceiptFileName));
+        using var cancellation = new CancellationTokenSource();
+        // Cancelled at the first component's report, once the staging directory holds the ROM: reports are serialized and
+        // each component checks for cancellation after its report, so no component extracts.
+        var progress = new InlineProgress(_ => cancellation.Cancel());
+        Reject<OperationCanceledException>(() => GameAssetInstaller.EnsureInstalled(interrupted.Root, cancellation.Token, progress));
+        Check(File.Exists(interrupted.Installation.RomPath) && Directory.GetDirectories(interrupted.Root, ".game.install-*").Length == 0,
+            "cancelled repair retains old content and cleans its staging directory");
+    }
     Directory.Move(installed.ContentDirectory, previous);
     Check(GameAssetInstaller.EnsureInstalled(root) is not null && File.Exists(installed.RomPath),
         "startup recovers interruption between directory publication steps");

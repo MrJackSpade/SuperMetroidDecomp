@@ -390,7 +390,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 EnemyDropScatterDefinitions.HorizontalScatter.Of(random) - 16,
                 EnemyDropScatterDefinitions.VerticalScatter.Of(random) - 16);
             MetroidDropRequests.Add(new MetroidDropRequest());
-            _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(origin + scatter, EnemyDefinitionId.Metroid);
+            _deathsAndDrops.SpawnEnemyDropFromDefinition(origin + scatter, EnemyDefinitionId.Metroid);
         }
     }
 

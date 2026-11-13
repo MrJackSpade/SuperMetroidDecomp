@@ -913,7 +913,7 @@ internal static class DebuggerObjectGraphSerializer
                     $"Primitive array {type.FullName} declares {byteLength} bytes, " +
                     $"expected {bytes.Length}.");
             }
-            // Fill the array's own memory directly; no intermediate copy of large VRAM/WRAM images.
+            // Fill the array's own memory directly; no intermediate copy of large arrays such as installed images.
             while (!bytes.IsEmpty)
             {
                 int read = reader.Read(bytes);

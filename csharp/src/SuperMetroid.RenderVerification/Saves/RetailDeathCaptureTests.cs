@@ -56,7 +56,7 @@ internal static class RetailDeathCaptureTests
         if (legacy.GameState != SuperMetroidGameState.MainGameplay) throw new InvalidOperationException("Death fixture startup failed.");
         foreach (var game in new[] { legacy, captured })
         {
-            game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
+            game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
             game.GameplayRuntimeForVerification.FrameBoundary.BeginAcceptedFrame(0);
             game.GameplayRuntimeForVerification.Player.IntroducedSamus.Health = 0;
             game.GameplayRuntimeForVerification.Player.IntroducedSamus.MaxReserveEnergy = ReserveCaptureFixtureDefinitions.Capacity;

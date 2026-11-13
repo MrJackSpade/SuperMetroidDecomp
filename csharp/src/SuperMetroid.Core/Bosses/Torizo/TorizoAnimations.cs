@@ -5,10 +5,10 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// Bomb and Golden Torizo's typed body animations (#641, #1600), in place of their lists. Generated from the verified
-/// lists: each frame shows a <see cref="EnemyFrameId"/>, each callback becomes a <see cref="TorizoCue"/>
-/// with its typed operands, and each artwork swap names its <see cref="TorizoArtworkSwap"/>
-/// entry. A callback that sleeps for a fixed time is its cue followed by a wait of that length.
+/// Bomb and Golden Torizo's typed body animations (#641, #1600): each frame shows a <see cref="EnemyFrameId"/>,
+/// each cue is a <see cref="TorizoCue"/> with its typed operands, and each artwork swap names its
+/// <see cref="TorizoArtworkSwap"/> entry. A cue that pauses for a fixed time is followed by a wait of that
+/// length.
 /// </summary>
 internal static class TorizoAnimations
 {
@@ -140,7 +140,7 @@ internal static class TorizoAnimations
             : playback.Animation.Phases[playback.Place.Phase].Segment;
 
     /// <summary>
-    /// The program a sleeping list resumes into when the AI steps its program past the sleep, as Bomb Torizo's wake
+    /// The program a sleeping animation resumes into when the AI wakes it, as Bomb Torizo's wake
     /// and Golden Torizo's trigger do.
     /// </summary>
     internal static TorizoBodySegment AfterSleep(TorizoBodySegment segment) => segment switch

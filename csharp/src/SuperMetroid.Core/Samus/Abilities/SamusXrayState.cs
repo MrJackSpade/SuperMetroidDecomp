@@ -79,20 +79,22 @@ public sealed class SamusXrayState
     public RotationAngle Angle { get; private set; }
 
     /// <summary>
-    /// The beam's half-width as a 16.16 value in 256-per-turn angle units: zero at admission, grown by
-    /// <see cref="AngularWideningSpeed"/> on each widening call, and clamped to exactly ten when its whole part
-    /// would reach eleven. The widening adds move the fraction's overflow into the whole part exactly as the game does.
+    /// The angle from the beam's centre to each of its edges, with its fraction of a step: zero at admission, grown by
+    /// <see cref="AngularWideningSpeed"/> on each widening call, and clamped to exactly
+    /// <see cref="XrayScopeDefinitions.Window.WidestHalfWidth"/> once it would reach a step beyond. The widening adds
+    /// carry the fraction into whole steps exactly as the game does; the widening step is a whole number of 256ths of a
+    /// step, so no finer fraction ever arises.
     /// </summary>
-    public SignedSixteenSixteen AngularHalfWidth { get; private set; }
+    public RotationAngle AngularHalfWidth { get; private set; }
 
-    /// <summary>The whole angle units of <see cref="AngularHalfWidth"/>, 0 through 10, which aim clamps and the window read.</summary>
-    public int AngularWidth => AngularHalfWidth.WholePixels;
+    /// <summary>The whole steps of <see cref="AngularHalfWidth"/>, none through ten, which aim clamps and the window read.</summary>
+    public TrigonometryAngle AngularWidth => AngularHalfWidth.ToTrigonometryAngle();
 
     /// <summary>
-    /// The 16.16 widening speed in angle units per call: zero at admission and raised by the fixed widening step
-    /// before each widening call adds it to <see cref="AngularHalfWidth"/>.
+    /// The widening speed, the turn the half-width grows by each call: zero at admission and raised by the fixed
+    /// widening step before each widening call adds it to <see cref="AngularHalfWidth"/>.
     /// </summary>
-    public SignedSixteenSixteen AngularWideningSpeed { get; private set; }
+    public RotationAngle AngularWideningSpeed { get; private set; }
 
     /// <summary>
     /// The visor-colour sequence X-ray's suit colouring runs: widening at admission, full beam once the colouring
@@ -201,8 +203,8 @@ public sealed class SamusXrayState
         // same-frame hurt expiry wins that later arbitration, the beam effect's lifecycle,
         // frozen-time flag, and four subsystem disables still remain live: X-Mode.
         Angle = facingLeft ? RotationAngle.ThreeQuarterTurn : RotationAngle.QuarterTurn;
-        AngularHalfWidth = SignedSixteenSixteen.Zero;
-        AngularWideningSpeed = SignedSixteenSixteen.Zero;
+        AngularHalfWidth = RotationAngle.Zero;
+        AngularWideningSpeed = RotationAngle.Zero;
         VisorPaletteMode = XrayVisorPaletteMode.Widening;
         WarmUp = XrayWarmUp.Started;
         BeamPhase = XrayBeamPhase.NoBeam;
@@ -289,8 +291,8 @@ public sealed class SamusXrayState
         WarmUp = XrayWarmUp.Over;
         BeamPhase = XrayBeamPhase.NoBeam;
         Angle = RotationAngle.Zero;
-        AngularHalfWidth = SignedSixteenSixteen.Zero;
-        AngularWideningSpeed = SignedSixteenSixteen.Zero;
+        AngularHalfWidth = RotationAngle.Zero;
+        AngularWideningSpeed = RotationAngle.Zero;
         VisorPaletteMode = XrayVisorPaletteMode.Widening;
         SpecialPaletteKind = SamusSpecialPaletteType.None;
         VisorShade = 0;
@@ -419,14 +421,14 @@ public sealed class SamusXrayState
                     break;
                 }
 
-                // The 16.16 adds reproduce the game's fraction overflow exactly: the widening
-                // speed gains the fixed fractional step per call, and both speed and width can
-                // overflow into their whole parts before the ten-unit clamp.
+                // The adds carry the fractions into whole steps exactly as the game does: the widening
+                // speed gains the fixed fractional step per call, and the width grows by the speed until
+                // its whole steps pass the widest half-width, where it is clamped.
                 AngularWideningSpeed += XrayScopeDefinitions.Window.WideningStep;
                 AngularHalfWidth += AngularWideningSpeed;
-                if (AngularHalfWidth.WholePixels >= 11)
+                if (AngularHalfWidth.WholeStep > XrayScopeDefinitions.Window.WidestHalfWidth)
                 {
-                    AngularHalfWidth = SignedSixteenSixteen.FromParts(10, 0);
+                    AngularHalfWidth = XrayScopeDefinitions.Window.WidestHalfWidth;
                     BeamPhase = XrayBeamPhase.Full;
                 }
                 break;
@@ -438,11 +440,12 @@ public sealed class SamusXrayState
                     break;
                 }
 
-                // Aiming gives Up priority when opposite directions are both held.
+                // Aiming gives Up priority when opposite directions are both held, turning the beam one angle unit
+                // while keeping its edge within the facing-dependent limit.
                 if ((controllerInput & ControllerButton.Up) != ControllerButton.None)
-                    MoveAngleUp();
+                    Angle = AimedUp(Angle, AngularWidth);
                 else if ((controllerInput & ControllerButton.Down) != ControllerButton.None)
-                    MoveAngleDown();
+                    Angle = AimedDown(Angle, AngularWidth);
                 break;
 
             case XrayBeamPhase.RestoreFirstHalf:
@@ -527,90 +530,76 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// The whole steps of the beam's centre, from which its edges lie <see cref="AngularWidth"/> steps either side. The
-    /// clamps compare those edges unwrapped, so an edge may lie below zero or past a full turn.
+    /// The beam's centre after one update of aiming up from <paramref name="center"/> with edges
+    /// <paramref name="halfWidth"/> steps either side. Facing right (a centre before the half turn), up turns back
+    /// toward the angle zero, which the earlier edge may not cross; facing left, up turns on toward the full turn,
+    /// which the later edge may not cross.
     /// </summary>
-    private int CenterSteps => Angle.ToTrigonometryAngle().RawValue;
+    /// <param name="center">The beam's centre.</param>
+    /// <param name="halfWidth">The whole steps from the centre to each edge, none through ten.</param>
+    internal static RotationAngle AimedUp(RotationAngle center, TrigonometryAngle halfWidth) => center < RotationAngle.HalfTurn
+        ? TurnedBackToEarlierEdgeLimit(center, halfWidth, RotationAngle.Zero)
+        : TurnedOnToLaterEdgeLimit(center, halfWidth, RotationAngle.Zero);
 
-    /// <summary>The whole steps of straight down, which the beam's lower or upper edge may not cross.</summary>
-    private const int HalfTurnSteps = RotationAngle.StepsPerTurn / 2;
+    /// <summary>
+    /// The beam's centre after one update of aiming down from <paramref name="center"/> with edges
+    /// <paramref name="halfWidth"/> steps either side. Facing right, down turns on toward straight down, which the
+    /// later edge may not cross; facing left, down turns back toward straight down, which the earlier edge may not cross.
+    /// </summary>
+    /// <param name="center">The beam's centre.</param>
+    /// <param name="halfWidth">The whole steps from the centre to each edge, none through ten.</param>
+    internal static RotationAngle AimedDown(RotationAngle center, TrigonometryAngle halfWidth) => center < RotationAngle.HalfTurn
+        ? TurnedOnToLaterEdgeLimit(center, halfWidth, RotationAngle.HalfTurn)
+        : TurnedBackToEarlierEdgeLimit(center, halfWidth, RotationAngle.HalfTurn);
 
-    /// <summary>Rotates the beam upward one angle unit while keeping its edge within the facing-dependent limit.</summary>
-    private void MoveAngleUp()
+    /// <summary>
+    /// Turns <paramref name="center"/> back one step unless its earlier edge already rests on <paramref name="limit"/>;
+    /// an edge that lies, or would lie, beyond the limit is clamped exactly onto it.
+    /// </summary>
+    private static RotationAngle TurnedBackToEarlierEdgeLimit(RotationAngle center, TrigonometryAngle halfWidth, RotationAngle limit)
     {
-        if (Angle < RotationAngle.HalfTurn)
-        {
-            // Right-facing upper limit is `angle - width >= 0`. Equality returns without
-            // movement; crossing clamps the center to exactly the current half-width.
-            int candidate = CenterSteps - AngularWidth;
-            if (candidate == 0)
-                return;
-            if (candidate < 0)
-            {
-                Angle = RotationAngle.FromSteps(AngularWidth);
-                return;
-            }
+        int edge = EarlierEdgeStepsFrom(center, halfWidth, limit);
+        if (edge == 0)
+            return center;
+        if (edge < 0)
+            return limit + halfWidth.ToAngle();
 
-            Angle = Angle.TurnedBySteps(-1);
-            if (CenterSteps - AngularWidth < 0)
-                Angle = RotationAngle.FromSteps(AngularWidth);
-            return;
-        }
-
-        // Left-facing up rotates toward 256; clamp the upper beam edge at exactly 256.
-        int leftEdge = CenterSteps + AngularWidth;
-        if (leftEdge == RotationAngle.StepsPerTurn)
-            return;
-        if (leftEdge > RotationAngle.StepsPerTurn)
-        {
-            Angle = RotationAngle.WrappedSteps(RotationAngle.StepsPerTurn - AngularWidth);
-            return;
-        }
-
-        Angle = Angle.TurnedBySteps(1);
-        if (CenterSteps + AngularWidth > RotationAngle.StepsPerTurn)
-            Angle = RotationAngle.WrappedSteps(RotationAngle.StepsPerTurn - AngularWidth);
+        RotationAngle turned = center.TurnedBySteps(-1);
+        return EarlierEdgeStepsFrom(turned, halfWidth, limit) < 0 ? limit + halfWidth.ToAngle() : turned;
     }
 
-    /// <summary>Rotates the beam downward one angle unit while keeping its edge on the correct side of straight down.</summary>
-    private void MoveAngleDown()
+    /// <summary>
+    /// Turns <paramref name="center"/> on one step unless its later edge already rests on <paramref name="limit"/>; an
+    /// edge that lies, or would lie, beyond the limit is clamped exactly onto it.
+    /// </summary>
+    private static RotationAngle TurnedOnToLaterEdgeLimit(RotationAngle center, TrigonometryAngle halfWidth, RotationAngle limit)
     {
-        if (Angle < RotationAngle.HalfTurn)
-        {
-            // Right-facing down rotates toward straight down; keep the lower edge at or below it.
-            int lowerEdge = CenterSteps + AngularWidth;
-            if (lowerEdge == HalfTurnSteps)
-                return;
-            if (lowerEdge > HalfTurnSteps)
-            {
-                Angle = RotationAngle.WrappedSteps(
-                    HalfTurnSteps - AngularWidth);
-                return;
-            }
+        int edge = LaterEdgeStepsFrom(center, halfWidth, limit);
+        if (edge == 0)
+            return center;
+        if (edge > 0)
+            return limit - halfWidth.ToAngle();
 
-            Angle = Angle.TurnedBySteps(1);
-            if (CenterSteps + AngularWidth > HalfTurnSteps)
-                Angle = RotationAngle.WrappedSteps(
-                    HalfTurnSteps - AngularWidth);
-            return;
-        }
-
-        // Left-facing down rotates toward straight down from above and clamps its upper edge.
-        int upperEdge = CenterSteps - AngularWidth;
-        if (upperEdge == HalfTurnSteps)
-            return;
-        if (upperEdge < HalfTurnSteps)
-        {
-            Angle = RotationAngle.WrappedSteps(
-                HalfTurnSteps + AngularWidth);
-            return;
-        }
-
-        Angle = Angle.TurnedBySteps(-1);
-        if (CenterSteps - AngularWidth < HalfTurnSteps)
-            Angle = RotationAngle.WrappedSteps(
-                HalfTurnSteps + AngularWidth);
+        RotationAngle turned = center.TurnedBySteps(1);
+        return LaterEdgeStepsFrom(turned, halfWidth, limit) > 0 ? limit - halfWidth.ToAngle() : turned;
     }
+
+    /// <summary>
+    /// How far the edge <paramref name="halfWidth"/> steps earlier in the turn than <paramref name="center"/> lies on
+    /// from <paramref name="limit"/>, the shorter way round: negative once it has crossed back over the limit. The centre
+    /// stays on the limit's side of the turn and the half-width is at most ten steps, so the edge never lies further than
+    /// that behind the limit.
+    /// </summary>
+    private static int EarlierEdgeStepsFrom(RotationAngle center, TrigonometryAngle halfWidth, RotationAngle limit) =>
+        (center.ToTrigonometryAngle() - halfWidth).StepsFrom(limit.ToTrigonometryAngle());
+
+    /// <summary>
+    /// How far the edge <paramref name="halfWidth"/> steps later in the turn than <paramref name="center"/> lies on from
+    /// <paramref name="limit"/>, the shorter way round: positive once it has crossed over the limit, which it never lies
+    /// further than ten steps beyond.
+    /// </summary>
+    private static int LaterEdgeStepsFrom(RotationAngle center, TrigonometryAngle halfWidth, RotationAngle limit) =>
+        (center.ToTrigonometryAngle() + halfWidth).StepsFrom(limit.ToTrigonometryAngle());
 
     /// <summary>Restores Samus' normal pose and handlers, subsystem enables, palette request, and beam state.</summary>
     private void Finish(SamusState samus)
@@ -648,8 +637,8 @@ public sealed class SamusXrayState
         WarmUp = XrayWarmUp.Over;
         BeamPhase = XrayBeamPhase.NoBeam;
         Angle = RotationAngle.Zero;
-        AngularHalfWidth = SignedSixteenSixteen.Zero;
-        AngularWideningSpeed = SignedSixteenSixteen.Zero;
+        AngularHalfWidth = RotationAngle.Zero;
+        AngularWideningSpeed = RotationAngle.Zero;
         VisorPaletteMode = XrayVisorPaletteMode.RestoreSuitPalette;
         samus.AudioRequests.QueueSound(SamusSound.XrayEnd, SoundRequestPriority.Normal);
     }

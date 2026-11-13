@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// A selection a random sample makes (#1461): the bits of the sample one choice reads, by their position and width.
-/// The cartridge draws a choice by masking its random word; a catalog names the field the choice reads instead of the
+/// The game draws a choice by masking its random number; a catalog names the field the choice reads instead of the
 /// mask, and this type is the one place that reads a field from a sample.
 /// </summary>
 /// <remarks>
@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("which bits of the shared random sample each choice reads, exactly as the original masked and shifted its random word")]
 public readonly record struct RandomSampleField(int Shift, int Width)
 {
-    /// <summary>The whole sample, all sixteen bits: the field a choice reads when it compares the random word itself (#1619).</summary>
+    /// <summary>The whole sample, all sixteen bits: the field a choice reads when it compares the random number itself (#1619).</summary>
     public static RandomSampleField Whole { get; } = new(0, 16);
 
     /// <summary>The field's value in <paramref name="sample"/>, 0 through <see cref="Outcomes"/> minus one.</summary>
@@ -25,7 +25,7 @@ public readonly record struct RandomSampleField(int Shift, int Width)
 
     /// <summary>
     /// The field's value in <paramref name="sample"/> advanced <paramref name="steps"/> places, continuing past the field's
-    /// last value from zero (#1619): the roll a choice reads when the original added a counter to the field it drew and
+    /// last value from zero (#1619): the roll a choice reads when the game added a counter to the field it drew and
     /// kept the field's bits of the sum, so the counter moves the roll's outcome while the sample still decides it.
     /// </summary>
     /// <param name="sample">A random sample, 0 through 65535.</param>

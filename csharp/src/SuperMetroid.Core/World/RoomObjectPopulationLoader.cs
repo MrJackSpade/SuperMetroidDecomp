@@ -64,12 +64,12 @@ internal sealed class RoomObjectPopulationLoader
         for (int recordIndex = 0; recordIndex < population.Placements.Length; recordIndex++)
         {
             RoomObjectPlacement placement = population.Placements.Span[recordIndex];
-            RoomObjectHeaderId header = placement.Header.Header;
-            if (DraygonCannonObjects.IsDraygonCannonHeader(header) != placement.Cannon.HasValue)
+            RoomObjectKind objectKind = placement.Kind;
+            if (DraygonCannonObjects.IsDraygonCannonKind(objectKind) != placement.Cannon.HasValue)
                 throw new InvalidDataException(
-                    $"Room-object population {population.Name} record {recordIndex} ({header}) must carry a cannon-control word exactly when it is a Draygon cannon.");
+                    $"Room-object population {population.Name} record {recordIndex} ({objectKind}) must carry a cannon-control word exactly when it is a Draygon cannon.");
             var record = new RoomObjectPopulationRecord(
-                recordIndex, header, placement.Block, placement.Argument);
+                recordIndex, objectKind, placement.Block, placement.Argument);
 
             Position16<RoomBlocks> block;
             try
@@ -86,7 +86,7 @@ internal sealed class RoomObjectPopulationLoader
             {
                 throw new InvalidDataException(
                     $"Room-object population {population.Name} record {recordIndex} " +
-                    $"header {header} has block outside the room's allocated blocks " +
+                    $"room object {objectKind} has block outside the room's allocated blocks " +
                     $"({record.Block.X},{record.Block.Y}) and argument {record.Argument}.",
                     error);
             }
@@ -103,8 +103,8 @@ internal sealed class RoomObjectPopulationLoader
                 slot.Delete();
                 throw new NotSupportedException(
                     $"Room-object population {population.Name} record {recordIndex} " +
-                    $"uses untranslated header " +
-                    $"{header} at block ({record.Block.X},{record.Block.Y}) " +
+                    $"uses untranslated room-object kind " +
+                    $"{objectKind} at block ({record.Block.X},{record.Block.Y}) " +
                     $"with argument {record.Argument}.");
             }
 
@@ -122,7 +122,7 @@ internal sealed class RoomObjectPopulationLoader
         if (_slotTable.Spawn() is not { } slot)
             return null;
 
-        slot.Header = record.Header;
+        slot.Kind = record.Kind;
         slot.Block = block;
         slot.Argument = record.Argument;
         return slot;
@@ -139,9 +139,9 @@ internal sealed class RoomObjectPopulationLoader
         RoomLevelData level = room.Level;
         SharedGameState system = room.System;
         AreaId areaIndex = room.AreaIndex;
-        RoomObjectHeaderId header = record.Header;
+        RoomObjectKind objectKind = record.Kind;
         if (DoorObjects.TryIdentifyColoredDoor(
-                header,
+                objectKind,
                 out ColoredDoorColor color,
                 out ColoredDoorOrientation coloredOrientation))
         {
@@ -149,25 +149,25 @@ internal sealed class RoomObjectPopulationLoader
             return true;
         }
 
-        if (GreyDoorObjects.TryIdentifyGreyDoor(header, out ColoredDoorOrientation greyOrientation))
+        if (GreyDoorObjects.TryIdentifyGreyDoor(objectKind, out ColoredDoorOrientation greyOrientation))
         {
             GreyDoorObjects.SetupGreyDoorSlot(level, slot,
-                new GreyDoorVariant(greyOrientation, BombTorizo: header == RoomObjectHeaderId.BombTorizoGreyDoor));
+                new GreyDoorVariant(greyOrientation, BombTorizo: objectKind == RoomObjectKind.BombTorizoGreyDoor));
             return true;
         }
 
-        if (header is RoomObjectHeaderId.ScrollTrigger or
-            RoomObjectHeaderId.RightwardsScrollExtension or
-            RoomObjectHeaderId.LeftwardsScrollExtension or
-            RoomObjectHeaderId.DownwardsScrollExtension or
-            RoomObjectHeaderId.UpwardsScrollExtension)
+        if (objectKind is RoomObjectKind.ScrollTrigger or
+            RoomObjectKind.RightwardsScrollExtension or
+            RoomObjectKind.LeftwardsScrollExtension or
+            RoomObjectKind.DownwardsScrollExtension or
+            RoomObjectKind.UpwardsScrollExtension)
         {
-            ScrollObjects.SetupScrollSlot(level, slot, header, placement.ScrollChange, placement.CompiledScrollChange);
+            ScrollObjects.SetupScrollSlot(level, slot, objectKind, placement.ScrollChange, placement.CompiledScrollChange);
             return true;
         }
 
         if (CollectibleObjects.TryIdentifyPermanentCollectible(
-                header,
+                objectKind,
                 out InWorldCollectibleKind kind,
                 out CollectiblePresentation presentation))
         {
@@ -175,31 +175,31 @@ internal sealed class RoomObjectPopulationLoader
             return true;
         }
 
-        if (header == RoomObjectHeaderId.MotherBrainGlass)
+        if (objectKind == RoomObjectKind.MotherBrainGlass)
         {
             _motherBrainGlass.SetupMotherBrainGlassSlot(level, record, slot);
             return true;
         }
 
-        if (header == RoomObjectHeaderId.BombTorizoHand)
+        if (objectKind == RoomObjectKind.BombTorizoHand)
         {
             _bombTorizoHand.SetupBombTorizoHandSlot(slot, bosses);
             return true;
         }
 
-        if (header == RoomObjectHeaderId.MetroidRoomClearance)
+        if (objectKind == RoomObjectKind.MetroidRoomClearance)
         {
             TourianObjects.SetupMetroidsClearedSlot(slot);
             return true;
         }
 
-        if (header == RoomObjectHeaderId.SpeedBoosterEscape)
+        if (objectKind == RoomObjectKind.SpeedBoosterEscape)
         {
             _speedBoosterEscape.SetupSpeedBoosterEscapeSlot(slot);
             return true;
         }
 
-        if (header == RoomObjectHeaderId.WreckedShipAttic)
+        if (objectKind == RoomObjectKind.WreckedShipAttic)
         {
             // The no-op setup changes nothing. Keeping an explicit branch matters: the object must still hold its
             // place instead of being mistaken for an unknown definition.
@@ -207,45 +207,45 @@ internal sealed class RoomObjectPopulationLoader
             return true;
         }
 
-        if (header == RoomObjectHeaderId.NoobTube)
+        if (objectKind == RoomObjectKind.NoobTube)
         {
             _noobTube.SetupNoobTubeSlot(level, slot);
             return true;
         }
 
-        if (header == RoomObjectHeaderId.MotherBrainEscapeRoomGate)
+        if (objectKind == RoomObjectKind.MotherBrainEscapeRoomGate)
         {
             DoorObjects.SetupDoorTransitionDeactivatedSlot(level, slot);
             slot.Become(new MotherBrainEscapeGateObject(MotherBrainEscapeGateDefinitions.Shut));
             return true;
         }
 
-        if (header == RoomObjectHeaderId.DownwardGate)
+        if (objectKind == RoomObjectKind.DownwardGate)
         {
             _gates.SetupDownwardGateSlot(level, slot);
             return true;
         }
 
-        if (header == RoomObjectHeaderId.DownwardGateShotBlock)
+        if (objectKind == RoomObjectKind.DownwardGateShotBlock)
         {
             GateObjects.SetupDownwardGateShotBlock(level, slot);
             return true;
         }
 
-        if (EyeDoorObjects.IsEyeDoorHeader(header))
+        if (EyeDoorObjects.IsEyeDoorKind(objectKind))
         {
-            _eyeDoors.SetupEyeDoorSlot(level, slot, header);
+            _eyeDoors.SetupEyeDoorSlot(level, slot, objectKind);
             return true;
         }
 
-        if (DraygonCannonObjects.SetupOf(header) is { } cannonSetup)
+        if (DraygonCannonObjects.SetupOf(objectKind) is { } cannonSetup)
         {
             DraygonCannonObjects.SetupDraygonCannonSlot(level, slot, cannonSetup, placement.Cannon
-                ?? throw new InvalidDataException($"Draygon cannon placement {header} carries no cannon-control word."));
+                ?? throw new InvalidDataException($"Draygon cannon placement {objectKind} carries no cannon-control word."));
             return true;
         }
 
-        if (StationObjects.TrySetupStationOrElevator(level, system, areaIndex, slot, header))
+        if (StationObjects.TrySetupStationOrElevator(level, system, areaIndex, slot, objectKind))
             return true;
 
         return false;

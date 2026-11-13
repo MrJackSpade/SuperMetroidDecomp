@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's body state.</summary>
 /// <remarks>
-/// The original game keeps the queued steps, the death-phase delay, the rumble step and the vertical acceleration in
-/// one record value; the reaction timer, the vertical speed and the skeleton speed's fraction in a second; and the
+/// The game keeps the queued steps, the death-phase delay, the rumble step and the vertical acceleration in
+/// one value; the reaction timer, the vertical speed and the skeleton speed's fraction in a second; and the
 /// projectile counter, the vertical subpixel and the skeleton speed's whole pixels in a third (#1476). Each is held on
 /// its own here because no phase's behaviour depends on what another meaning left behind: every phase starts its
 /// values (the bridge collapse and each melt pass start the sink from rest, the pause loads its delay, the rumble its
@@ -36,7 +36,7 @@ public sealed class CrocomireEnemyState
 
     /// <summary>
     /// The segment the body's animation rests in. Resting after the last beat of a list that runs on into the next, it
-    /// already rests in the next, as the body's script position then lies inside it.
+    /// already rests in the next, as the body's animation position then lies inside it.
     /// </summary>
     internal CrocomireBodySegment BodyResidentAnimation =>
         ResidentSegment(BodyPlayback);
@@ -76,7 +76,7 @@ public sealed class CrocomireEnemyState
         internal set => field = Ensure.BetweenInclusive(0, MaximumStepCount, value);
     }
 
-    /// <summary>The largest queued step count the fight AI's signed comparisons read as the original game does.</summary>
+    /// <summary>The largest queued step count the fight AI's signed comparisons read as the game does.</summary>
     private const int MaximumStepCount = short.MaxValue;
 
     /// <summary>
@@ -103,7 +103,7 @@ public sealed class CrocomireEnemyState
 
     /// <summary>
     /// During combat: the shot and power-bomb reaction timer, cleared at wake-up and set to ten by every reaction. No
-    /// shipped routine reads it back.
+    /// retail behaviour reads it back.
     /// </summary>
     public int ReactionTimer { get; internal set; }
 
@@ -120,7 +120,7 @@ public sealed class CrocomireEnemyState
     public int ShotsSpat { get; internal set; }
 
     /// <summary>
-    /// In the unused claw attack: the fight function restored when the claws stop. The original game parks it in the
+    /// In the unused claw attack: the fight function restored when the claws stop. The game parks it in the
     /// projectile counter's value; only that unused attack writes or reads it, so it is kept apart.
     /// </summary>
     internal CrocomireFightFunction SavedFightFunction { get; set; }

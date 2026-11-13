@@ -280,7 +280,9 @@ internal static class RoomObjectProgramsVerification
     {
         ArgumentNullException.ThrowIfNull(gate);
         downwardGateAddresses ??= DownwardGateAddresses(rom);
-        int frame = gate.Phase is DownwardGatePhase.Closing or DownwardGatePhase.Reopening ? gate.Frame : 0;
+        int frame = gate.Phase is DownwardGatePhase.Closing or DownwardGatePhase.Reopening
+            ? gate.Frame ?? throw new InvalidDataException($"A moving downward gate in {gate.Phase} ended an update showing no image.")
+            : 0;
         return downwardGateAddresses.TryGetValue(new GateState(gate.Phase, frame), out ushort address)
             ? address
             : throw new InvalidDataException($"A downward gate in {gate.Phase} at image {frame} has no native instruction.");
@@ -325,7 +327,7 @@ internal static class RoomObjectProgramsVerification
         }
 
         var addresses = new Dictionary<GateState, ushort>();
-        int closed = Word(RoomObjectNativeWords.Word(RoomObjectHeaderId.DownwardGate) + 2);
+        int closed = Word(RoomObjectNativeWords.Word(RoomObjectKind.DownwardGate) + 2);
         addresses[new GateState(DownwardGatePhase.Starting, 0)] = checked((ushort)closed);
         int reopen = Resting(closed, DownwardGateMovementDefinitions.ClosedImage, DownwardGatePhase.ShowingClosed, DownwardGatePhase.RestingClosed, addresses);
         AssertEqual(RoomObjectInstruction.WakeDownwardGateProjectile, At(reopen), "reopening wakes the gate projectile");

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
 /// The wall Space Pirates' climb, jump and laser animations as typed programs (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="WallSpacePirateCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="WallSpacePirateCue"/> with its typed operands.
 /// </summary>
 internal static class WallSpacePirateAnimations
 {

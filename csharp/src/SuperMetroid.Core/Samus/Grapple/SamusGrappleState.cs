@@ -194,13 +194,14 @@ public sealed class SamusGrappleState
     /// <summary>Gets or sets the grapple endpoint animation countdown.</summary>
     public WrappingCountdown PointAnimationTimer { get; set; }
     /// <summary>
-    /// Endpoint animation frame, normally zero through three. The advance keeps every ordinal it produces below
-    /// 128 and restored ordinals are 0 through 255; other writes are rejected.
+    /// Endpoint animation frame, one of the endpoint's <see cref="GrapplePointAnimationDefinitions.FrameCount"/> frames (#1627):
+    /// a fresh beam starts at the first and every advance steps on from a frame of the cycle, returning to the first past
+    /// the last, so no frame outside the cycle exists; writing one is rejected.
     /// </summary>
     public int PointAnimationFrame
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+        set => field = Ensure.BetweenInclusive(0, GrapplePointAnimationDefinitions.FrameCount - 1, value);
     }
 
     /// <summary>

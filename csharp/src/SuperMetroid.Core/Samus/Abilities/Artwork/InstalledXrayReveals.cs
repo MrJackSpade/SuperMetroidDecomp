@@ -11,7 +11,7 @@ public sealed class InstalledXrayReveals
 {
     /// <summary>Installed reveal blocks keyed by collision kind and reaction.</summary>
     /// <remarks>
-    /// Issue #1037: of every collision kind's reading of every reaction, the original data has 305 drawable pairs; the
+    /// Issue #1037: of every collision kind's reading of every reaction, the game's data has 305 drawable pairs; the
     /// constructor requires exactly those pairs and rejects duplicates. The player edits the blocks in reveals.json while
     /// the command and copy dimensions remain fixed, so no single formula can reproduce every valid installation: retain
     /// this bounded indexed store for the installed visual data.
@@ -82,16 +82,16 @@ public sealed class InstalledXrayReveals
 
     /// <summary>Whether this compiled command carries authored visual blocks.</summary>
     /// <remarks>
-    /// Issue #1036: the original data has seven reachable
+    /// Issue #1036: the game's data has seven reachable
     /// revealed-block commands. Five
     /// copy one, Brinstar-only one, wide, tall, and square operand tiles;
     /// and two traverse vertical and horizontal extensions
     /// instead. The exact bounded classification is membership in those
-    /// five copy identities, with false for every other ushort. The
+    /// five copy identities, with false for every other command. The
     /// independent 16-by-256 reveal oracle finds all seven commands;
     /// its drawable behaviour groups total 305, matching the installed visual
     /// catalog's exhaustive coverage assertion. Named membership is
-    /// clearer than a range of the commands' layout, since the two extension routines
+    /// clearer than a range of the commands' layout, since the two extension commands
     /// precede the copy commands but are not drawable.
     /// </remarks>
     public static bool IsDrawable(XrayRevealCommand command) => command is

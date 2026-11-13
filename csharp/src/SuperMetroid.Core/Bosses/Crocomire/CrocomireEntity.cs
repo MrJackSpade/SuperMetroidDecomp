@@ -49,7 +49,7 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
             CrocomireCombat.FindCrocomireTongueHitboxReaction(Slot, out reaction);
     }
 
-    /// <summary>The Crocomire body takes normal bombs on its frames' hitboxes although its header names no shot reaction.</summary>
+    /// <summary>The Crocomire body takes normal bombs on its frames' hitboxes although its species definition names no shot reaction.</summary>
     public bool AdmitsNormalBombs(bool collidesByFrameHitboxes) =>
         Slot.DefinitionId == EnemyDefinitionId.Crocomire && Slot.Definition.Shot is null && collidesByFrameHitboxes;
 
@@ -63,7 +63,7 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
         EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
 
     /// <summary>Crocomire's own hitbox shot reactions.</summary>
-    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         reaction is EnemyReaction.CrocomireHitCountShot or EnemyReaction.CrocomireDustHitboxShot or
             EnemyReaction.CrocomireMouthShot or EnemyReaction.CrocomireAlternateDustHitboxShot;

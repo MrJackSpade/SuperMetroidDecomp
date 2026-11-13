@@ -27,6 +27,19 @@ internal sealed class DraygonDeath
         _parts = parts;
     }
 
+    /// <summary>
+    /// The pixels along each axis of one cell of the coarse grid the burial drift aims across. Draygon aims from his cell to
+    /// the burial point's, so each coordinate's place within its cell is discarded and near the burial point the drift takes
+    /// slightly different directions than an aim across whole pixels would.
+    /// </summary>
+    private const int BurialAimCellPixels = 4;
+
+    /// <summary>The bearing a dying Draygon at <paramref name="body"/> drifts along, aimed across the burial drift's coarse grid.</summary>
+    internal static TrigonometryAngle BurialDriftAngle(Position16<RoomPixels> body) =>
+        EnemyMath.CalculateBearing(new(
+            CoordinateAxis.Difference(DraygonBehavior.DraygonDeathTargetX / BurialAimCellPixels, body.X / BurialAimCellPixels),
+            CoordinateAxis.Difference(DraygonBehavior.DraygonDeathTargetY / BurialAimCellPixels, body.Y / BurialAimCellPixels))).ToTableAngle();
+
     /// <summary>Moves the dying body toward the burial point and changes its linked eye pose.</summary>
     internal void DriftDyingDraygonToBurialPoint(DraygonEnemyState state)
     {
@@ -39,13 +52,7 @@ internal sealed class DraygonDeath
                 graphics: default);
         }
 
-        // Retail quarters both coordinates before calculating this angle. That is not an
-        // algebraic simplification: logical shifts discard low coordinate bits and thereby
-        // select slightly different table vectors near the destination.
-        TrigonometryAngle movementAngle = EnemyMath.CalculateBearing(new(
-            CoordinateAxis.Difference(64, (body.Position.X.Whole >> 2)),
-            CoordinateAxis.Difference(120, (body.Position.Y.Whole >> 2)))).ToTableAngle();
-        MoveDraygonAtMovementAngle(body, movementAngle, speed: 1);
+        MoveDraygonAtMovementAngle(body, BurialDriftAngle(body.Position.Whole), speed: 1);
 
         if (!EnemyMath.IsWithinStrictModularDistance(body.Position.X.Whole, DraygonBehavior.DraygonDeathTargetX, 4) ||
             !EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, DraygonBehavior.DraygonDeathTargetY, 4))

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Which run of Kraid's part spritemaps a <see cref="KraidPartFrame"/> indexes.</summary>
+/// <summary>Which run of Kraid's part pictures a <see cref="KraidPartFrame"/> indexes.</summary>
 public enum KraidPartFrameKind
 {
     /// <summary>The foot's standing pose before the rise ends.</summary>

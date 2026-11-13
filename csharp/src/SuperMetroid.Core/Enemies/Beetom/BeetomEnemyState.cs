@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 /// </summary>
 public sealed class BeetomEnemyState
 {
-    /// <summary>The largest quadratic-speed record index a falling or flung Beetom accelerates to.</summary>
-    internal const int MaximumYSpeedTableIndex = 64;
+    /// <summary>The furthest place along the quadratic speed table a falling or flung Beetom accelerates to: row 64.</summary>
+    internal static readonly EnemyQuadraticSpeedIndex MaximumYSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(64);
 
     /// <summary>
     /// Starts one Beetom, facing the way the previous Beetom in its slot last faced, or left for the slot's first.
@@ -23,11 +23,11 @@ public sealed class BeetomEnemyState
     internal BeetomEnemyState(BeetomEnemyState? previous) => FacingRight = previous?.FacingRight ?? false;
 
     /// <summary>
-    /// Quadratic-speed record index for the current arc, from zero to <see cref="MaximumYSpeedTableIndex"/> or the
-    /// arc's larger starting index: rising lowers it by the arc's step and restarts it at zero at the apex, falling
-    /// raises it up to the maximum, so it never leaves that range.
+    /// The current arc's whole-row place along the quadratic speed table, from its first row to
+    /// <see cref="MaximumYSpeedTableIndex"/> or the arc's later starting place: rising moves it back by the arc's step and
+    /// restarts it at the first row at the apex, falling moves it on up to the maximum, so it never leaves that range.
     /// </summary>
-    public int YSpeedTableIndex { get; internal set; }
+    public EnemyQuadraticSpeedIndex YSpeedTableIndex { get; internal set; }
     /// <summary>The per-update behaviour, including separate decision and setup updates.</summary>
     public BeetomEnemyFunction? Function { get; internal set; }
     /// <summary>Idle/crawl countdown in gameplay updates; it expires when a step takes it below zero, not on reaching zero.</summary>
@@ -38,12 +38,12 @@ public sealed class BeetomEnemyState
     public ControllerButton PreviousController1Input { get; internal set; }
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<BeetomSegment> Playback { get; set; }
-    /// <summary>Short-hop starting record index, the first multiple of four whose integrated quadratic speeds reach the short hop's height.</summary>
-    public int InitialShortLeapYSpeedIndex { get; internal set; }
-    /// <summary>Long-hop starting record index, the first multiple of five whose integrated quadratic speeds reach the long hop's height.</summary>
-    public int InitialLongLeapYSpeedIndex { get; internal set; }
-    /// <summary>Lunge starting record index, the first multiple of three whose integrated quadratic speeds reach the lunge's height.</summary>
-    public int InitialLungeYSpeedIndex { get; internal set; }
+    /// <summary>Short-hop starting place, the first row a multiple of four along whose integrated quadratic speeds reach the short hop's height.</summary>
+    public EnemyQuadraticSpeedIndex InitialShortLeapYSpeedIndex { get; internal set; }
+    /// <summary>Long-hop starting place, the first row a multiple of five along whose integrated quadratic speeds reach the long hop's height.</summary>
+    public EnemyQuadraticSpeedIndex InitialLongLeapYSpeedIndex { get; internal set; }
+    /// <summary>Lunge starting place, the first row a multiple of three along whose integrated quadratic speeds reach the lunge's height.</summary>
+    public EnemyQuadraticSpeedIndex InitialLungeYSpeedIndex { get; internal set; }
     /// <summary>Arc phase: false uses the rising speed-table half; passing the apex switches to the falling half at index zero.</summary>
     public bool Falling { get; internal set; }
     /// <summary>Attachment latch set on first touch and cleared after escape or the common-shot callback; it prevents repeated attachment setup.</summary>
@@ -52,21 +52,21 @@ public sealed class BeetomEnemyState
     public bool FacingRight { get; internal set; }
 
     /// <summary>
-    /// One rising update of an arc: lowers the speed index by <paramref name="step"/>; once that would pass below
-    /// zero the arc has reached its apex, so the index restarts at zero and the arc falls.
+    /// One rising update of an arc: moves the place back by <paramref name="rows"/> rows; once that would pass the
+    /// first row the arc has reached its apex, so the place restarts at the first row and the arc falls.
     /// </summary>
-    /// <param name="step">The arc's rising step, three to five records.</param>
-    internal void StepRisingSpeed(int step)
+    /// <param name="rows">The arc's rising step, three to five rows.</param>
+    internal void StepRisingSpeed(int rows)
     {
-        YSpeedTableIndex -= step;
-        if (YSpeedTableIndex >= 0)
+        YSpeedTableIndex -= EnemyQuadraticSpeedIndex.FromRows(rows);
+        if (!YSpeedTableIndex.IsNegative)
             return;
-        YSpeedTableIndex = 0;
+        YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
         Falling = true;
     }
 
-    /// <summary>One falling update: raises the speed index by <paramref name="step"/>, holding at <see cref="MaximumYSpeedTableIndex"/>.</summary>
-    /// <param name="step">The arc's falling step, one to five records.</param>
-    internal void StepFallingSpeed(int step) =>
-        YSpeedTableIndex = Math.Min(MaximumYSpeedTableIndex, YSpeedTableIndex + step);
+    /// <summary>One falling update: moves the place on by <paramref name="rows"/> rows, holding at <see cref="MaximumYSpeedTableIndex"/>.</summary>
+    /// <param name="rows">The arc's falling step, one to five rows.</param>
+    internal void StepFallingSpeed(int rows) =>
+        YSpeedTableIndex = EnemyQuadraticSpeedIndex.Min(MaximumYSpeedTableIndex, YSpeedTableIndex + EnemyQuadraticSpeedIndex.FromRows(rows));
 }

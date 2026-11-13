@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Waver;
 
 /// <summary>
 /// Waver's steady and spinning animations as typed programs (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="WaverCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="WaverCue"/> with its typed operands.
 /// </summary>
 internal static class WaverAnimations
 {

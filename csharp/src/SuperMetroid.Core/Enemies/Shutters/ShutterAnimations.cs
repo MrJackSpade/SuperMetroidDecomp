@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
 /// The growing, vertical and horizontal shutters' poses and Kamer's platform loop as typed programs (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and its lists use no owner callbacks.
+/// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
 internal static class ShutterAnimations
 {

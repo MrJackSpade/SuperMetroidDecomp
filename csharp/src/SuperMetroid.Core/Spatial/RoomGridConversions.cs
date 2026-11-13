@@ -17,15 +17,15 @@ public static class RoomGridConversions
     private const int HalfBlockPixels = 8;
 
     /// <summary>
-    /// The block containing an unsigned room pixel, exactly as the native <c>LSR ×4</c> collision
-    /// paths derive it from each sixteen-bit coordinate word.
+    /// The block containing an unsigned room pixel, exactly as the game's collision
+    /// paths derive it from each coordinate: the coordinate divided by 16.
     /// </summary>
     public static Position16<RoomBlocks> ToRoomBlock(this Position16<RoomPixels> position) =>
         new((ushort)(position.X >> 4), (ushort)(position.Y >> 4));
 
     /// <summary>
-    /// The room-pixel top-left corner of a block: each axis shifted left four bits, wrapping at
-    /// sixteen bits, as the native <c>ASL ×4</c> block-to-pixel paths do.
+    /// The room-pixel top-left corner of a block: each axis multiplied by 16, wrapping at
+    /// sixteen bits, as the game's block-to-pixel paths do.
     /// </summary>
     public static Position16<RoomPixels> ToRoomPixels(this Position16<RoomBlocks> block) =>
         new(unchecked((ushort)(block.X << 4)), unchecked((ushort)(block.Y << 4)));
@@ -54,14 +54,14 @@ public static class RoomGridConversions
 
     /// <summary>
     /// A room pixel coordinate's offset within its 16-pixel block, 0 through 15. The coordinate is read as the
-    /// sixteen-bit word the cartridge's arithmetic leaves, so a sum that wrapped below zero or past 65535 keeps the
+    /// sixteen-bit coordinate the game's arithmetic leaves, so a sum that wrapped below zero or past 65535 keeps the
     /// offset of its wrapped coordinate.
     /// </summary>
     public static int OffsetWithinBlock(int pixel) => unchecked((ushort)pixel) % BlockPixels;
 
     /// <summary>
     /// How far a room pixel coordinate lies before the last pixel of its block, 0 through 15: its offset measured from
-    /// the block's far edge, read from the coordinate's wrapped sixteen-bit word as <see cref="OffsetWithinBlock"/> is.
+    /// the block's far edge, read from the coordinate's wrapped sixteen-bit value as <see cref="OffsetWithinBlock"/> is.
     /// </summary>
     public static int OffsetFromBlockEnd(int pixel) => BlockPixels - 1 - OffsetWithinBlock(pixel);
 
@@ -73,6 +73,25 @@ public static class RoomGridConversions
 
     /// <summary>The first pixel of the eight-pixel half block holding an unsigned room pixel coordinate.</summary>
     public static int HalfBlockStart(int pixel) => RequirePixel(pixel) - pixel % HalfBlockPixels;
+
+    /// <summary>The block column or row, 0 through 4095, holding an unsigned room pixel coordinate along one axis.</summary>
+    public static int PixelToBlock(int pixel) => RequirePixel(pixel) / BlockPixels;
+
+    /// <summary>
+    /// The block boundary nearest an unsigned room pixel coordinate, 0 through 65536: a coordinate in the first half of its
+    /// block rounds back to the block's first pixel, one in the second half on to the next block's. The boundary past the
+    /// last block lies one beyond the coordinate range, for the caller to wrap.
+    /// </summary>
+    public static int NearestBlockBoundary(int pixel) => (RequirePixel(pixel) + HalfBlockPixels) / BlockPixels * BlockPixels;
+
+    /// <summary>
+    /// The centre of the 16-pixel step, counted from zero, that a signed pixel displacement of -32768 through 32767 lies
+    /// in: the displacement rounded toward lower values to a whole number of blocks, plus half a block, so -32760 through
+    /// 32760. A displacement of 20 gives 24, one of -8 gives -8 and one of -20 gives -24.
+    /// </summary>
+    public static int BlockStepCentre(int displacement) =>
+        Ensure.BetweenInclusive(short.MinValue, short.MaxValue, displacement)
+        - (displacement % BlockPixels + BlockPixels) % BlockPixels + HalfBlockPixels;
 
     /// <summary>The block row, 0 through 15, that an unsigned room pixel coordinate lies on within its room screen.</summary>
     public static int BlockRowWithinScreen(int pixel) => OffsetWithinScreen(pixel) / BlockPixels;

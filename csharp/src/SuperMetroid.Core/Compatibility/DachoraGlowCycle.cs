@@ -6,11 +6,11 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Gameplay behaviour reproduced: an update counted off a cycle with no updates left borrows from the frame, so a cleared
-/// cycle becomes frame 255 with 255 updates left; a step adds its frames and updates together, so updates past 255 carry
+/// Gameplay behaviour reproduced: an update counted off a cycle with no updates left takes one from the frame, so a cleared
+/// cycle becomes frame 255 with 255 updates left; a step adds its frames and updates together, so updates past 255 overflow
 /// into the frame and a step from the top of the count wraps to the bottom; a cycle's end is tested by the sign of the
 /// difference between the count and the end's count. The running Dachora requests its Speed Booster sound on the update its
-/// cycle stands at frame zero with one update left, so when the cycle borrows, carries and restarts decides when that sound
+/// cycle stands at frame zero with one update left, so when the cycle underflows, overflows and restarts decides when that sound
 /// is requested and when each glow frame shows.
 /// </para>
 /// <para>

@@ -409,9 +409,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, state.AirborneVelocity.X))
             {
-                // The game negates whole pixels and fraction separately. This is intentionally one
-                // whole pixel away from a conventional negation when the fraction is 0.
-                state.AirborneVelocity = state.AirborneVelocity.WithX(NegatePartsSeparately(state.AirborneVelocity.X));
+                state.AirborneVelocity = state.AirborneVelocity.WithX(YardAirborneReversal.Reversed(state.AirborneVelocity.X));
                 state.BouncedHorizontally = true;
                 _audio.QueueEnemySound(YardBounceSound, priority: SoundRequestPriority.Low);
             }
@@ -438,7 +436,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             }
 
-            state.AirborneVelocity = state.AirborneVelocity.WithY(NegatePartsSeparately(state.AirborneVelocity.Y));
+            state.AirborneVelocity = state.AirborneVelocity.WithY(YardAirborneReversal.Reversed(state.AirborneVelocity.Y));
             state.BouncedHorizontally = false;
             return;
         }
@@ -546,7 +544,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen horizontal = samus.HorizontalDistanceMovedPlusOne;
         SignedSixteenSixteen kick = YardKicks.ForHorizontalSpeed(horizontal.UnsignedWholePixels);
         if (SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left))
-            horizontal = NegatePartsSeparately(horizontal);
+            horizontal = YardAirborneReversal.Reversed(horizontal);
         state.AirborneVelocity = new FixedVector<RoomPixels>(
             horizontal,
             kick);
@@ -566,10 +564,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left ? -1 : 1,
             -1));
     }
-
-    /// <summary>Negates the whole and fraction parts independently, as Yard's collision handlers do.</summary>
-    private static SignedSixteenSixteen NegatePartsSeparately(SignedSixteenSixteen velocity) =>
-        velocity.NegatedPartsSeparately();
 
     /// <summary>Negates one raw 8.8 crawl velocity, wrapping in its signed range.</summary>
     private static SignedEightEight NegateEightEight(SignedEightEight velocity) =>

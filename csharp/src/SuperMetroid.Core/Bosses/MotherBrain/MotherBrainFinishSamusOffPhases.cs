@@ -17,17 +17,12 @@ internal sealed class MotherBrainFinishSamusOffPhases
 
     /// <summary>Applies Gravity/Varia damage reduction and the extra scaling used only by the 80-damage beam strike.</summary>
     /// <remarks>The nominal damage is 80 or 160, so the scaled threshold never exceeds 340.</remarks>
-    private static int CalculateFinishOffHealthThreshold(SamusState samus, int nominalDamage)
+    internal static int CalculateFinishOffHealthThreshold(SamusEquipmentFlags equippedItems, int nominalDamage)
     {
-        // Suit damage reduction gives Gravity Suit priority and divides damage by four. Otherwise
-        // Varia's bit zero divides by two; Power Suit leaves it untouched. The low-energy check
-        // then multiplies the divided 80 result by four, while the next check deliberately
-        // does not multiply the divided 160 result. The caller selects that distinction.
-        int divided = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? nominalDamage >> 2
-            : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? nominalDamage >> 1
-                : nominalDamage;
+        // The nominal damage takes the suits' ordinary division. The low-energy check then multiplies the divided 80
+        // result by four, while the next check deliberately does not multiply the divided 160 result. The caller
+        // selects that distinction.
+        int divided = SamusSuitDamage.Reduce(nominalDamage, equippedItems);
 
         return nominalDamage == 80
             ? divided * 4 + 20
@@ -54,7 +49,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         // damage is 80, suit-divided, multiplied by four, then padded by twenty.
         // The sign test treats equality as done and changes the body
         // function without falling into the stand-up handler on this call.
-        if (CalculateFinishOffHealthThreshold(samus, 80) >= samus.Health)
+        if (CalculateFinishOffHealthThreshold(samus.EquippedItems, 80) >= samus.Health)
         {
             _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOffStandUp;
             return false;
@@ -74,7 +69,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         // A weaker 160 nominal-hit threshold biases wounded Samus toward onion
         // rings. Only when Samus is above it does the bomb's chance choose a
         // bomb; all remaining admitted values still choose two onion rings.
-        if (CalculateFinishOffHealthThreshold(samus, 160) >= samus.Health ||
+        if (CalculateFinishOffHealthThreshold(samus.EquippedItems, 160) >= samus.Health ||
             !frame.RandomNumberSeed.Takes(MotherBrainRandomDefinitions.FinishOffBombs))
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.TwoOnionRingsPhase2);

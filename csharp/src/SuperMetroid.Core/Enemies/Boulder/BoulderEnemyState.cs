@@ -70,7 +70,7 @@ public sealed class BoulderEnemyState
     /// <summary>Saved Y position with its subpixel, compared with the current Y to detect stationary rolling; captured at initialization and on the final bounce, then refreshed after each rolling update.</summary>
     public FixedCoordinate PreviousY { get; internal set; }
     /// <summary>
-    /// Original population position in room pixels: X retained
+    /// The population's spawn position in room pixels: X retained
     /// (the movement does not consume it later), and Y before
     /// the initial upward offset, which the first fall snaps to before rebounding.
     /// </summary>

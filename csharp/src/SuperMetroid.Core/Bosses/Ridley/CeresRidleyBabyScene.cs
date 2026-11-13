@@ -145,8 +145,8 @@ internal sealed class CeresRidleyBabyScene
 
     /// <summary>
     /// Replays the direct branch to the Baby and door draw taken while Ridley's movement and
-    /// animation word is zero. This is deliberately separate from the later draw below:
-    /// the original game executes this path inside Ridley's enemy-main call, before the ordinary
+    /// animation are off. This is deliberately separate from the later draw below:
+    /// the game runs this path inside Ridley's main AI, before the ordinary
     /// drawing queues, so the Baby appears with the room and before Ridley's composite.
     /// </summary>
     public void DrawCeresRidleyImmediateBabyAndDoor(
@@ -217,7 +217,7 @@ internal sealed class CeresRidleyBabyScene
     }
 
     /// <summary>
-    /// Runs the Baby's typed cutscene program one draw update and returns its current spritemap. The Baby's draw counts the
+    /// Runs the Baby's typed cutscene program one draw update and returns its current frame. The Baby's draw counts the
     /// elapsed updates up and advances once they reach the pose's duration; the next pose starts at one.
     /// </summary>
     internal EnemyFrameId? AdvanceCeresBabyDrawAnimation(RidleyEnemyState state)

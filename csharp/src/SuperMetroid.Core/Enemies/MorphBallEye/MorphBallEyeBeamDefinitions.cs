@@ -13,9 +13,9 @@ internal static class MorphBallEyeBeamDefinitions
     /// <summary>The beam cycles through sixteen colours.</summary>
     internal const int ColorCycleLength = 16;
 
-    /// <summary>How much faster the widening beam's half-width grows each update: a quarter angle unit.</summary>
-    internal static SignedSixteenSixteen WidthGrowthStep { get; } = SignedSixteenSixteen.FromParts(0, 16384);
+    /// <summary>How much faster the widening beam's half-width grows each update: a quarter step.</summary>
+    internal static RotationAngle WidthGrowthStep { get; } = RotationAngle.FromSteps(0, 64);
 
-    /// <summary>The whole angular half-width, in angle units, at which a widening beam is full.</summary>
-    internal const int FullAngularWidth = 4;
+    /// <summary>The half-width at which a widening beam is full: four whole steps either side of its centre.</summary>
+    internal static RotationAngle FullHalfWidth { get; } = RotationAngle.FromSteps(4);
 }

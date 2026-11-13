@@ -134,9 +134,9 @@ internal sealed class EnemyFramePhase
                 // Ceres from the fight to the escape; the actor sets the boss bit itself.
                 _enemyRoomEffects.StartCeresEscape();
             }
-            if (result.CameraXOverride is int cameraX)
+            if (result.CameraXOverride is int shitroidCameraX)
             {
-                int shitroidCameraX = Ensure.BetweenInclusive(0, ushort.MaxValue, cameraX);
+                // The camera's and the foreground's positions hold the written X to the room's coordinates (#1627).
                 // The Shitroid writes the camera X position during the enemy pass, before the ordinary
                 // scrolling later in this frame. Do not route it through entry
                 // placement, which would clear subposition and ideal-camera state.

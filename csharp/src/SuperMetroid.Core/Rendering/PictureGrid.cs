@@ -20,8 +20,9 @@ public sealed class PictureGrid : IEquatable<PictureGrid>
     /// <exception cref="ArgumentException">The squares do not fill the grid, or a picture is not one square in size.</exception>
     public PictureGrid(Extent16<MapTiles> size, ImmutableArray<GridPicture?> cells)
     {
-        Ensure.BetweenInclusive(1, ushort.MaxValue, size.X);
-        Ensure.BetweenInclusive(1, ushort.MaxValue, size.Y);
+        // A grid is at least one square along each axis; its size's own type holds its far bound (#1627).
+        if (size.X == 0 || size.Y == 0)
+            throw new ArgumentOutOfRangeException(nameof(size), size, "A picture grid is at least one square along each axis.");
         if (cells.IsDefault)
             throw new ArgumentException("A picture grid needs its cells.", nameof(cells));
         Ensure.LengthEqual(cells.AsSpan(), size.X * size.Y);

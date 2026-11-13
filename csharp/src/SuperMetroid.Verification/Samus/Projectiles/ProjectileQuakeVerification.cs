@@ -27,7 +27,7 @@ internal static class ProjectileQuakeVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Statues);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
         var enemies = runtime.Enemies;
         enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, runtime.Player.Samus);
         var actor = enemies.Projectiles.EnemyProjectiles.First(p => p.Kind == RoomEnemyProjectileKind.TourianStatueRidley);

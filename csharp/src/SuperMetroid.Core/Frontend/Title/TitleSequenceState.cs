@@ -189,7 +189,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         bool rebuildConsolePaletteFxAfterStep = false;
 
         // The title admits B, Start, or A during every pre-title cinematic function. The
-        // original performs a fast fade-out, reconstructs the final title objects, then a
+        // game performs a fast fade-out, reconstructs the final title objects, then a
         // fast fade-in. Do not jump straight to a host menu: those intermediate frames and
         // their brightness levels are observable in recorded traces.
         bool confirmPressed =

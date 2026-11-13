@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.World.RoomStates;
 public static class RoomStateLists
 {
     /// <summary>Returns the default first, then every alternative in authored order.</summary>
-    public static IReadOnlyList<RoomStateSettings> GetStates(RoomHeaderDefinition room)
+    public static IReadOnlyList<RoomStateSettings> GetStates(RoomDefinition room)
     {
         RoomStateChoice program = RoomStateSelection.ChoiceFor(Ensure.NotNull(room));
         return [program.Default, .. program.Branches.Select(branch => branch.State)];

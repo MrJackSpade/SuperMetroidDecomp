@@ -5,7 +5,7 @@ using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>The Ceres Ridley species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Ceres Ridley species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class CeresRidleyBehavior
 {
@@ -57,9 +57,9 @@ internal sealed class CeresRidleyBehavior
     private const int RestoredHealth = 32767;
 
     /// <summary>
-    /// Ports the Ceres dispatcher reached through the end of the battle. The
+    /// Runs the Ceres dispatcher reached through the end of the battle. The
     /// reveal, liftoff, hover, two authored termination conditions, upward retreat,
-    /// palette handoff, and <c>ceres_status = 1</c> publication all retain their original order.
+    /// palette handoff, and <c>RidleyEscaped</c> publication all keep the game's order.
     /// Ridley's later rotating getaway presentation remains a room-main concern, not enemy AI.
     /// </summary>
     internal void RunCeresRidleyMain(
@@ -70,7 +70,7 @@ internal sealed class CeresRidleyBehavior
         slot.Health = RestoredHealth;
 
         // The palette selection runs after the boss dispatcher and before movement. None of the
-        // translated dispatcher branches mutate the flash timer, so selecting the two
+        // dispatcher branches mutate the flash timer, so selecting the two
         // draw palettes here is equivalent while keeping their decision ahead of the
         // shared movement/composition continuation below.
         if (state.MovementAnimationEnabled && _ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
@@ -341,7 +341,7 @@ internal sealed class CeresRidleyBehavior
     /// <summary>The heading a swoop climbs toward, turned the swooping way: fifteen thirty-seconds of a turn.</summary>
     internal static readonly RotationAngle SwoopClimbTarget = RotationAngle.FromSteps(120);
 
-    /// <summary>Ports Ceres Ridley's main dispatcher.</summary>
+    /// <summary>Runs Ceres Ridley's main dispatcher.</summary>
     internal void RunCeresRidleyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         RunCeresRidleyMain(slot, frame.Samus);
 }

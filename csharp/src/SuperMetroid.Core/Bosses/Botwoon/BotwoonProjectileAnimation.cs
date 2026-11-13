@@ -27,7 +27,7 @@ internal sealed class BotwoonProjectileAnimation : EnemyProjectileTypedAnimation
 
     /// <summary>
     /// Switches a segment to <paramref name="program"/>'s animation from its first frame. An unchanged program keeps
-    /// running, as the original game only reinstalls a list that differs from the one it installed.
+    /// running, as the game only restarts an animation that differs from the one it is showing.
     /// </summary>
     /// <returns>Whether the program changed.</returns>
     internal bool Install(BotwoonBodyAnimationSegment program)

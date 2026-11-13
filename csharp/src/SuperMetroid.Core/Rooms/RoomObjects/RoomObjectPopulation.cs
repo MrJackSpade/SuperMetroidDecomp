@@ -8,9 +8,6 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 public sealed class RoomObjectPopulation
 {
-    /// <summary>The most placements one room's object population holds.</summary>
-    public const int MaximumPlacementCount = 255;
-
     /// <summary>Owned placement records kept in the order the room-object allocator consumes them.</summary>
     private readonly RoomObjectPlacement[] placements;
 
@@ -19,43 +16,43 @@ public sealed class RoomObjectPopulation
     /// <summary>Validated placement records in allocation order; scroll programs are owned copies.</summary>
     public ReadOnlyMemory<RoomObjectPlacement> Placements => placements;
 
-    /// <summary>Copies an ordered, bounded decoded population and validates scroll programs before any room-object slots are allocated.</summary>
+    /// <summary>Copies an ordered decoded population and validates scroll programs before any room-object slots are allocated.</summary>
     /// <param name="name">The population's name, used in diagnostics.</param>
-    /// <param name="records">The placements in order; at most <see cref="MaximumPlacementCount"/>.</param>
+    /// <param name="records">
+    /// The placements in order, any number of them (#1627): the room's places, not the population, bound how many objects
+    /// it holds at once (<see cref="SuperMetroid.Core.Compatibility.RoomObjectPlaces"/>).
+    /// </param>
     /// <exception cref="ArgumentNullException">The sequence or one of its placements is null.</exception>
-    /// <exception cref="InvalidDataException">There are too many placements, one is an empty placement, or a setup-specific payload is invalid.</exception>
+    /// <exception cref="InvalidDataException">One is an empty placement, or a setup-specific payload is invalid.</exception>
     public RoomObjectPopulation(string name, IEnumerable<RoomObjectPlacement> records)
     {
         Ensure.NotNull(records);
         Name = Ensure.NotNull(name);
-        // Never enumerate an unbounded caller sequence: one placement past the limit is enough to reject it.
-        placements = records.Take(MaximumPlacementCount + 1).Select(CopyPlacement).ToArray();
-        if (placements.Length > MaximumPlacementCount)
-            throw new InvalidDataException($"Room-object population {name} exceeds the most placements a room can hold.");
+        placements = records.Select(CopyPlacement).ToArray();
     }
 
     /// <summary>Builds a retail population from its compiled records, binding scroll triggers to their compiled program identities.</summary>
     /// <param name="name">The population's name.</param>
-    /// <param name="records">Each record's room-object identity, block coordinates and room argument, in authored order.</param>
+    /// <param name="records">Each record's room-object kind, block coordinates and room argument, in authored order.</param>
     internal static RoomObjectPopulation FromRecords(string name, RoomObjectPlacementDefinition[] records) =>
         new(name, Ensure.NotNull(records).Select(record => new RoomObjectPlacement(
-            RoomObjectHeaders.Get(record.Header), record.Block, record.Argument, Cannon: record.Cannon)
+            RoomObjectKinds.RequirePlaced(record.Kind), record.Block, record.Argument, Cannon: record.Cannon)
             { CompiledScrollChange = record.ScrollChange }));
 
     /// <summary>Copies one placement's scroll program and rejects a malformed one.</summary>
     private static RoomObjectPlacement CopyPlacement(RoomObjectPlacement placement)
     {
         Ensure.NotNull(placement);
-        if (placement.Header.Header == RoomObjectHeaderId.None)
+        if (placement.Kind == RoomObjectKind.None)
             throw new InvalidDataException("A decoded room-object placement cannot be an empty placement.");
         RoomScrollWrite[]? animation = placement.ScrollChange?.ToArray();
         RoomScrollChange? compiledChange = animation is null ? placement.CompiledScrollChange : null;
         if (compiledChange is not null)
         {
-            if (placement.Header.Header != RoomObjectHeaderId.ScrollTrigger)
+            if (placement.Kind != RoomObjectKind.ScrollTrigger)
                 throw new InvalidDataException("Only a scroll trigger may run a retail scroll program.");
         }
-        else if (placement.Header.Header == RoomObjectHeaderId.ScrollTrigger)
+        else if (placement.Kind == RoomObjectKind.ScrollTrigger)
         {
             if (animation is null || animation.Length >= RoomScrollGrid.KeptCellCount)
                 throw new InvalidDataException("A decoded scroll room object needs a bounded write program.");

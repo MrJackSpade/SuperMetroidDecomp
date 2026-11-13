@@ -63,9 +63,9 @@ public sealed class SbugEnemyState
     public SignedSixteenSixteen RightXVelocity { get; internal set; }
     /// <summary>Spawn-computed signed 16.16 vertical displacement for angle <c>InitialAngle + 32</c>, used by the right zigzag leg.</summary>
     public SignedSixteenSixteen RightYVelocity { get; internal set; }
-    /// <summary>Current signed 16.16 horizontal displacement in pixels per AI update, computed from the custom angle and negated whole and fraction separately on reversal.</summary>
+    /// <summary>Current signed 16.16 horizontal displacement in pixels per AI update, computed from the custom angle and turned to its opposite when the Sbug reverses.</summary>
     public SignedSixteenSixteen CustomXVelocity { get; internal set; }
-    /// <summary>Current signed 16.16 vertical displacement in pixels per AI update, computed from the custom angle and negated whole and fraction separately on reversal.</summary>
+    /// <summary>Current signed 16.16 vertical displacement in pixels per AI update, computed from the custom angle and turned to its opposite when the Sbug reverses.</summary>
     public SignedSixteenSixteen CustomYVelocity { get; internal set; }
 
     /// <summary>Spawn-computed facing for the spawn heading; selects the forward loop.</summary>

@@ -256,7 +256,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                     state,
                     RequireChozoSamus(samus),
                     RequireChozoLevel(level),
-                    move.CarryRecord);
+                    move.Step);
                 return null;
 
             case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.ReleaseSamus }:
@@ -274,10 +274,10 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         ChozoStatueState state,
         SamusState samus,
         RoomLevelData level,
-        int carryRecord)
+        ChozoCarryStep carryStep)
     {
-        var motion = ChozoCarry.Read(carryRecord);
-        state.CarryRecord = carryRecord;
+        var motion = ChozoCarry.Read(carryStep);
+        state.CarryStep = carryStep;
         int signedVelocity = motion.Velocity;
 
         // The slope-ignoring horizontal mover receives a signed 8.8 speed promoted to 16.16 by
@@ -292,7 +292,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(Math.Abs(signedVelocity)));
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, statue);
 
-        // The two 32-entry tables are joint offsets indexed by the same record.
+        // The hand offset belongs to the same carry step as the velocity.
         // Writing Samus after collision reproduces the cutscene's absolute ownership.
         samus.Position = samus.Position.WithWhole(new(CoordinateAxis.Wrap(statue.Position.X.Whole + motion.SamusOffset.X), CoordinateAxis.Wrap(statue.Position.Y.Whole + motion.SamusOffset.Y)));
     }

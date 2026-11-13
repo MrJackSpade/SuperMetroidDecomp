@@ -11,7 +11,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
-/// <summary>The Botwoon species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Botwoon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -341,7 +341,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Restricts target distance to the signed angle routine's supported range, exactly as the original clamps it (#1627):
+    /// Restricts target distance to the range the signed bearing supports, exactly as the game clamps it (#1627):
     /// beyond <see cref="HoleBearingReach"/> pixels either way it reads as that reach, except that a distance of exactly
     /// 256 pixels upward or leftward is kept as it is. The bearing toward his hole, and so his path, follows these values.
     /// </summary>
@@ -478,7 +478,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.HoleLatch)
             return;
 
-        // The original game tests the holes from the last to the first and latches the first it finds.
+        // The game tests the holes from the last to the first and latches the first it finds.
         for (int holeIndex = BotwoonNavigationDefinitions.HoleCount - 1; holeIndex >= 0; holeIndex--)
         {
             BotwoonHoleDefinition hole = BotwoonNavigation.HoleAt(holeIndex);
@@ -580,7 +580,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RunBotwoonHeadFunction(head, state, samus);
     }
 
-    /// <summary>Restarts the head instruction timer only when its selected program changes.</summary>
+    /// <summary>Restarts the head animation timer only when its selected program changes.</summary>
     private static void StartBotwoonHeadAnimation(
         RoomEnemySlot head,
         BotwoonEnemyState state,
@@ -598,7 +598,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs Botwoon's head animation where the enemy instruction interpreter would: the frame
+    /// Runs Botwoon's head animation where the shared enemy animation runs: the frame
     /// expires on the update its timer would, and a newly shown frame raises the
     /// new-frame flag exactly as a timed frame does.
     /// </summary>
@@ -698,8 +698,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.WallCrumbleRequested = true;
 
         // Botwoon's death drop emits sixteen independent pickup
-        // requests. Each position uses both bytes of one RNG result: X samples low seven
-        // bits and Y samples bits 8..13. Each pickup is materialized immediately as
+        // requests. Each position uses both halves of one RNG result: X is the sample modulo 128
+        // and Y the sample divided by 256, modulo 64. Each pickup is materialized immediately as
         // a real pickup actor from the head definition's item chances.
         for (int dropIndex = 0; dropIndex < BotwoonSpecialDropCount; dropIndex++)
         {
@@ -825,7 +825,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }, EnemyProjectileFrameBehavior.BotwoonSpitFlight);
     }
 
-    /// <summary>Ports Botwoon's main AI.</summary>
+    /// <summary>Runs Botwoon's main AI.</summary>
     internal void RunBotwoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunBotwoonMain(slot, RequireBotwoonState(slot), frame.Samus);

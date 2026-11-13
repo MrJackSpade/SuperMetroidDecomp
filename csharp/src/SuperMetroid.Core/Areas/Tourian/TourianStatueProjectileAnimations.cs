@@ -88,8 +88,8 @@ internal static class TourianStatueProjectileAnimations
     });
 
     /// <summary>
-    /// The animation that starts at each segment an owner can start or restart at. A particle starts its counted list
-    /// directly, with the counter its spawn cleared: its first play counts that zero down, wrapping it, so the list
+    /// The animation that starts at each segment an owner can start or restart at. A particle starts its counted animation
+    /// directly, with the counter its spawn cleared: its first play counts that zero down, wrapping it, so the animation
     /// replays the longest count more times before it holds.
     /// </summary>
     internal static IReadOnlyDictionary<TourianStatueProjectileSegment, Animation<TourianStatueProjectileSegment>> StartingAt { get; } = new Dictionary<TourianStatueProjectileSegment, Animation<TourianStatueProjectileSegment>>

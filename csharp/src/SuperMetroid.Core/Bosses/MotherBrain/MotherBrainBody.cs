@@ -295,26 +295,14 @@ internal sealed class MotherBrainBody
             // Only contact to the right of body X+24 hurts Samus. Contact
             // elsewhere still installs the displacement and timers above without damage.
             if (CoordinateAxis.AsSigned(state.Body.Position.X.Whole + 24 - samus.Position.X.Whole) < 0)
-                DamageSamusFromMotherBrainBody(state.Body, samus);
+            {
+                // The hurting touch is an ordinary enemy touch: suit-divided damage, the hit's invincibility, and
+                // knockback away from her body.
+                EnemyCollision.ApplyNormalEnemyTouchDamage(samus, state.Body.Definition.Damage, state.Body.Position.X.Whole);
+            }
             return true;
         }
         return false;
-    }
-
-    /// <summary>Applies body contact damage while preserving Samus's invulnerability timing.</summary>
-    private static void DamageSamusFromMotherBrainBody(RoomEnemySlot body, SamusState samus)
-    {
-        int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? body.Definition.Damage >> 2
-            : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? body.Definition.Damage >> 1
-                : body.Definition.Damage;
-        samus.Health = samus.Health <= damage
-            ? 0
-            : samus.Health - damage;
-        samus.InvincibilityTimer = WrappingCountdown.Start(96);
-        samus.KnockbackTimer = 5;
-        samus.KnockbackXDirection = samus.Position.X.Whole >= body.Position.X.Whole ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left;
     }
 
     /// <summary>

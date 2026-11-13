@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 internal static class RoomFxSourceDefinitions
 {
     /// <summary>Each compiled FX header, by its bank-$83 pointer.</summary>
-    internal static IReadOnlyDictionary<ushort, RoomFxHeader> ByPointer { get; } = new Dictionary<ushort, RoomFxHeader>
+    internal static IReadOnlyDictionary<ushort, RoomFxSelection> ByPointer { get; } = new Dictionary<ushort, RoomFxSelection>
     {
         [0x8000] = RoomFxDefinitions.LandingSiteWhenZebesTimebombSet,
         [0x8010] = RoomFxDefinitions.ParlorWhenZebesTimebombSet,

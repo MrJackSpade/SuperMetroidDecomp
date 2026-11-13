@@ -1023,20 +1023,21 @@ internal static class LookupStream1Verification
             AssertEqual(Word(0xa8c277 + 2 * pose), PowampMotion.BalloonOffset(pose, false), "Powamp native rising balloon offset");
             AssertEqual(Word(0xa8c27d + 2 * pose), PowampMotion.BalloonOffset(pose, true), "Powamp native sinking balloon offset");
         }
-        for (int direction = 0; direction < 8; direction++)
+        CompassDirection[] spikeDirections = SuperMetroid.Verification.Enemies.Powamp.PowampSpikeCartridgeOrder.Directions;
+        for (int place = 0; place < spikeDirections.Length; place++)
         {
-            AssertEqual(Word(0x86d21a + 2 * direction), PowampMotion.SpikeAcceleration(direction).X.InTwoHundredFiftySixthsOfPixel, "Powamp native spike X acceleration");
-            AssertEqual(Word(0x86d22a + 2 * direction), PowampMotion.SpikeAcceleration(direction).Y.InTwoHundredFiftySixthsOfPixel, "Powamp native spike Y acceleration");
+            CompassDirection direction = spikeDirections[place];
+            AssertEqual(Word(0x86d21a + 2 * place), PowampMotion.SpikeAcceleration(direction).X.InTwoHundredFiftySixthsOfPixel, $"Powamp native spike {direction} X acceleration");
+            AssertEqual(Word(0x86d22a + 2 * place), PowampMotion.SpikeAcceleration(direction).Y.InTwoHundredFiftySixthsOfPixel, $"Powamp native spike {direction} Y acceleration");
         }
+        AssertTrue(PowampMotionDefinitions.SpikeFiringOrder.SequenceEqual(spikeDirections.Reverse()),
+            "Powamp fires its spikes from the cartridge table's last direction back to its first");
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
             AssertThrows<InvalidDataException>(() => PowampMotion.WiggleOffset(invalid), "Powamp wiggle domain");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
             for (int sinking = 0; sinking < 2; sinking++)
                 AssertThrows<ArgumentOutOfRangeException>(() => PowampMotion.BalloonOffset(invalid, sinking != 0), "Powamp balloon pose domain");
-        foreach (int invalid in new[] { int.MinValue, -1, 8, int.MaxValue })
-        {
-            AssertThrows<InvalidDataException>(() => PowampMotion.SpikeAcceleration(invalid), "Powamp spike direction domain");
-        }
+        AssertThrows<InvalidDataException>(() => PowampMotion.SpikeAcceleration((CompassDirection)spikeDirections.Length), "Powamp spike direction domain");
     }
 
     /// <summary>Reads Powamp native wiggle and balloon offset words.</summary>
@@ -1286,7 +1287,7 @@ internal static class LookupStream1Verification
             AssertThrows<InvalidDataException>(() =>
             {
                 if (SuperMetroid.Core.Rooms.RoomObjects.RoomObjectRoomArgumentWords.Decode(
-                    SuperMetroid.Core.Rooms.RoomObjects.RoomObjectHeaderId.MetroidRoomClearance, invalid)
+                    SuperMetroid.Core.Rooms.RoomObjects.RoomObjectKind.MetroidRoomClearance, invalid)
                     is SuperMetroid.Core.Rooms.RoomObjects.MetroidRoomArgument metroids)
                     _ = SuperMetroid.Core.Rooms.RoomObjects.MetroidsClearedEvents.ResolveEvent(metroids.Entry);
             }, "quota event argument domain");
@@ -1451,7 +1452,7 @@ internal static class LookupStream1Verification
         SamusArmCannonSourceArtwork Load(SamusArmCannonArtworkDocument value) => SamusArmCannonSourceArtwork.FromPlacement(
             SamusArmCannonSourceArtwork.LoadPlacement(new MemoryStream(SamusArmCannonSourceArtwork.Write(value))));
         var stock = Load(document);
-        const int start = 0xC9D9, count = 608;
+        const int start = 0xC9D9, count = SamusArmCannonArtworkFormat.DrawingDataByteCount;
         for (int index = 0; index < count; index++)
         {
             ushort address = (ushort)(start + index);
@@ -1459,7 +1460,7 @@ internal static class LookupStream1Verification
         }
         foreach (ushort address in new ushort[] { 0, start - 1, start + count, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => stock.ReadDrawingByteAt(address), "cannon drawing bounds remain exact");
-        Console.WriteLine("Cannon drawing: the 608-byte installed window holds the cartridge's bytes and its bounds are exact.");
+        Console.WriteLine($"Cannon drawing: the {count}-byte extracted window holds the cartridge's bytes and its bounds are exact.");
     }
 
     /// <summary>Reads native arm-cannon drawing control and placement words.</summary>
@@ -1873,8 +1874,8 @@ internal static class LookupStream1Verification
             }
         }
         // The installation holds each pose's typed placement (#1638): the descriptor's own reading at every animation frame
-        // the pose shows that the drawing window holds, and no displacement at any other frame; the installed document reads
-        // back as written.
+        // the pose shows, which the drawing window holds and which is the pair of bytes the cartridge's cover draw reads for
+        // that frame, and no displacement at any other frame; the installed document reads back as written.
         SamusShownFrames shown = SamusShownFrames.Of(InstalledFixtures.AnimationContinuation);
         SamusArmCannonLayout installed = stock.Installed(InstalledFixtures.AnimationContinuation);
         int installedFrames = 0;
@@ -1884,11 +1885,17 @@ internal static class LookupStream1Verification
             AssertEqual(decoded.DrawOrder, placed.DrawOrder, $"Installed cannon draw order of {pose}");
             AssertEqual(decoded.FirstDirection, placed.FirstDirection, $"Installed cannon direction of {pose}");
             AssertEqual(decoded.LaterDirection, placed.LaterDirection, $"Installed cannon later direction of {pose}");
+            int pointer = LittleEndianBytes.Word(LookupStream1CannonPlacementRomByte(rom, 0x90c7df + SamusPoseNumbers.Number(pose) * 2), LookupStream1CannonPlacementRomByte(rom, 0x90c7e0 + SamusPoseNumbers.Number(pose) * 2));
+            int displacements = pointer + ((LookupStream1CannonPlacementRomByte(rom, 0x900000 | pointer) & 128) != 0 ? 4 : 2);
             for (int frame = 0; frame <= byte.MaxValue; frame++)
             {
-                if (shown.TryPictureFrame(pose, frame, out _) && decoded.Offsets.ContainsKey(frame))
+                if (shown.TryPictureFrame(pose, frame, out _))
                 {
+                    AssertTrue(decoded.Offsets.ContainsKey(frame), $"The drawing window holds the cannon displacement of {pose} at shown frame {frame}");
                     AssertEqual(decoded.Offset(frame), placed.Offset(frame), $"Installed cannon displacement of {pose} at frame {frame}");
+                    AssertEqual(Offset16<RoomPixels>.Of(unchecked((sbyte)LookupStream1CannonPlacementRomByte(rom, 0x900000 | (displacements + frame * 2))),
+                            unchecked((sbyte)LookupStream1CannonPlacementRomByte(rom, 0x900000 | (displacements + frame * 2 + 1)))),
+                        placed.Offset(frame), $"Installed cannon displacement of {pose} at frame {frame} is the pair the cartridge reads");
                     installedFrames++;
                 }
                 else
@@ -1900,7 +1907,7 @@ internal static class LookupStream1Verification
         }
         AssertEqual(installed.ContentIdentity, SamusArmCannonLayout.Read(new MemoryStream(installed.Write())).ContentIdentity,
             "Installed cannon layout reads back as written");
-        Console.WriteLine($"Cannon placement:608 extracted native bytes,the canonical hash, {draws} actual OAM draws and {installedFrames} installed pose frames pass.");
+        Console.WriteLine($"Cannon placement: {document.DrawingData.Length} extracted native bytes, the canonical hash, {draws} actual OAM draws and {installedFrames} installed pose frames pass.");
     }
 
     /// <summary>Reads Samus arm-cannon placement source words.</summary>

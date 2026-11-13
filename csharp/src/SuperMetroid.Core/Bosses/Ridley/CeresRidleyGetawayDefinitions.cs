@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Immutable NTSC Ceres getaway zoom and translation curves.</summary>
+/// <summary>Immutable NTSC Ceres getaway zoom and drift curves.</summary>
 public static class CeresRidleyGetawayDefinitions
 {
     /// <summary>The floor's zoom as the getaway sets it up, before its first frame: eight floor pixels per screen pixel.</summary>
@@ -13,7 +13,7 @@ public static class CeresRidleyGetawayDefinitions
     internal static RotationAngle TurnPerFrame { get; } = RotationAngle.FromSteps(0, 48);
 
     /// <summary>
-    /// The getaway's zoom and translation at each serialized byte index, then its terminal entry. Zoom holds,
+    /// The getaway's zoom and drift at each step, then its terminal entry. Zoom holds,
     /// shrinks in two ramps around two held steps, then shrinks to its floor; the drift rises, holds, then falls away
     /// ever faster.
     /// </summary>

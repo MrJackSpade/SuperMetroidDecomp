@@ -127,13 +127,14 @@ public sealed class SamusHorizontalSpeedState
     public SamusAccelerationMode AccelerationMode { get; set; }
 
     /// <summary>
-    /// Optional deceleration multiplier in 256ths, 0 through 255. Zero selects the table's plain
-    /// deceleration; nonzero scales it by <see cref="MultipliedDeceleration"/>.
+    /// Optional deceleration multiplier in 256ths, 0 through <see cref="MultipliedDeceleration.LargestMultiplier"/>, the
+    /// multipliers the multiplied-deceleration rule scales by (#1627). Zero selects the table's plain deceleration; nonzero
+    /// scales it by <see cref="MultipliedDeceleration"/>.
     /// </summary>
     public int DecelerationMultiplier
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+        set => field = Ensure.BetweenInclusive(0, MultipliedDeceleration.LargestMultiplier, value);
     }
 
     /// <summary>

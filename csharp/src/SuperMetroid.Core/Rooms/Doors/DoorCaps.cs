@@ -14,7 +14,7 @@ internal static class DoorCaps
     /// </summary>
     internal static RoomObjectDraw Image(DoorCapPaint paint, ColoredDoorOrientation orientation, DoorCapFrame image) => image switch
     {
-        DoorCapFrame.Clear => RoomObjectDraw.Of(new GreyDoorCaps.Draw(orientation, GreyDoorObjectDrawDefinitions.ClearFrame)),
+        DoorCapFrame.Clear => RoomObjectDraw.Of(GreyDoorCaps.Draw.ClearedOf(orientation)),
         DoorCapFrame.Closed0 => Closed(paint, orientation, 0),
         DoorCapFrame.Closed1 => Closed(paint, orientation, 1),
         DoorCapFrame.Closed2 => Closed(paint, orientation, 2),

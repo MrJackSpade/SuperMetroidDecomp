@@ -103,7 +103,7 @@ internal sealed class GreyDoorObjects
     /// replacing the range the room-object definitions implied).
     /// </summary>
     internal static bool TryIdentifyGreyDoor(
-        RoomObjectHeaderId header,
+        RoomObjectKind kind,
         out ColoredDoorOrientation orientation) =>
-        DoorObjectHeaderDefinitions.GreyDoors.TryGetValue(header, out orientation);
+        DoorObjectKindDefinitions.GreyDoors.TryGetValue(kind, out orientation);
 }

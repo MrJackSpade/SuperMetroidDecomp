@@ -38,7 +38,7 @@ internal static class RoomBlockUploads
 {
     /// <summary>The tilesets some retail room state loads, each once in room order: those a block sheet is composed for.</summary>
     internal static IReadOnlyList<TilesetDefinition> Tilesets() =>
-        [.. RetailRoomHeaders.All.SelectMany(RoomStateLists.GetStates)
+        [.. RetailRooms.All.SelectMany(RoomStateLists.GetStates)
             .Select(state => RoomTilesets.Get(state.GraphicsSet)).Distinct()];
 
     /// <summary>
@@ -47,11 +47,11 @@ internal static class RoomBlockUploads
     /// state loads installs no floor.
     /// </summary>
     internal static IReadOnlyList<TilesetDefinition> FloorTilesets() =>
-        [.. RetailRoomHeaders.All.SelectMany(RoomStateLists.GetStates).Where(RoomTurningFloors.ShowsOne)
+        [.. RetailRooms.All.SelectMany(RoomStateLists.GetStates).Where(RoomTurningFloors.ShowsOne)
             .Select(state => RoomTilesets.Get(state.GraphicsSet)).Distinct()];
 
     /// <summary>The installed name of every background image some retail room state shows, each once (#1536), as <see cref="BackgroundNamesOf"/> names them.</summary>
-    internal static IReadOnlyList<string> BackgroundNames() => BackgroundNamesOf(RetailRoomHeaders.All.SelectMany(RoomStateLists.GetStates));
+    internal static IReadOnlyList<string> BackgroundNames() => BackgroundNamesOf(RetailRooms.All.SelectMany(RoomStateLists.GetStates));
 
     /// <summary>
     /// The installed name of every background image one of <paramref name="states"/> shows, each once (#1536): in the
@@ -84,7 +84,7 @@ internal static class RoomBlockUploads
     /// rooms show.
     /// </summary>
     internal static IEnumerable<RoomFxType> EffectPagesOf(TilesetDefinition tileset) =>
-        RetailRoomHeaders.All.SelectMany(RoomStateLists.GetStates).Where(state => RoomTilesets.Get(state.GraphicsSet) == tileset)
+        RetailRooms.All.SelectMany(RoomStateLists.GetStates).Where(state => RoomTilesets.Get(state.GraphicsSet) == tileset)
             .SelectMany(EffectsIn).Distinct();
 
     /// <summary>The rooms of each tileset and what they show over their characters, in room order.</summary>
@@ -93,7 +93,7 @@ internal static class RoomBlockUploads
     {
         Ensure.NotNull(inputs);
         var tilesets = new Dictionary<TilesetDefinition, TilesetUploads>();
-        foreach (RoomHeaderDefinition room in RetailRoomHeaders.All)
+        foreach (RoomDefinition room in RetailRooms.All)
         {
             bool ceres = room.AreaIndex == AreaId.Ceres;
             foreach (RoomStateSettings state in RoomStateLists.GetStates(room))
@@ -170,7 +170,7 @@ internal static class RoomBlockUploads
         var placed = new HashSet<InWorldCollectibleKind>();
         foreach (RoomObjectPlacement placement in state.ObjectPopulation.Placements.Span)
         {
-            if (CollectibleObjects.TryIdentifyPermanentCollectible(placement.Header.Header, out InWorldCollectibleKind kind, out _)
+            if (CollectibleObjects.TryIdentifyPermanentCollectible(placement.Kind, out InWorldCollectibleKind kind, out _)
                 && CollectibleObjects.ShowsOwnPicture(kind))
                 placed.Add(kind);
         }
@@ -249,7 +249,7 @@ internal static class RoomBlockUploads
     /// first page alone where both hold one tilemap, over the characters the room loads. Two different pages are laid out
     /// as the room shows them (#1617): one above the other where <paramref name="pagesStacked"/>, otherwise side by side.
     /// </summary>
-    private static RoomBackgroundMap Replay(RoomBlockSheetInputs inputs, RoomHeaderDefinition room, TilesetDefinition tileset,
+    private static RoomBackgroundMap Replay(RoomBlockSheetInputs inputs, RoomDefinition room, TilesetDefinition tileset,
         LibraryBackgroundProgram program, DoorDefinition? door, bool pagesStacked)
     {
         BgArtworkBindings content = Loaded(inputs, tileset);

@@ -94,11 +94,11 @@ internal static class EnemyExtendedFrameArtworkVerification
             "walking/wall Pirate distinct extended-frame count");
         AssertEqual(EnemyExtendedFrameDefinitions.WallFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("wall_pirate_", StringComparison.Ordinal)),
+                frame => frame.LegacyName.StartsWith("wall_pirate_", StringComparison.Ordinal)),
             "all wall-Pirate visual frame identities are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.NinjaFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("ninja_pirate_", StringComparison.Ordinal)),
+                frame => frame.LegacyName.StartsWith("ninja_pirate_", StringComparison.Ordinal)),
             "all ninja-Pirate visual frame identities are installed");
         var differing = new List<string>();
         foreach (EnemyFrameName frame in EnemyExtendedFrameDefinitions.Frames)
@@ -124,7 +124,7 @@ internal static class EnemyExtendedFrameArtworkVerification
                     checked((ushort)drawnBase));
                 // Mother Brain's initial body frame, drawn only while her body is hidden, reads only the head artwork her
                 // room loads, so it shows nothing (#1513), though the cartridge writes its records.
-                bool shownBlank = frame.Name == "mother_brain_body_oam_initial_dummy" && installed.NextByteOffset == 0;
+                bool shownBlank = frame.Frame == EnemyFrameId.MotherBrainBodyInitialDummy && installed.NextByteOffset == 0;
                 if (!shownBlank && !installed.StandsFor(native, apartFromPriority: true))
                     differing.Add($"{frame.Name} at {x:X4},{y:X4}: native {Records(native)}, installed {Records(installed)}");
             }
@@ -139,79 +139,79 @@ internal static class EnemyExtendedFrameArtworkVerification
         Suite(nameof(VerifyInstalledSporeSpawnSelectorPrograms), () => VerifyInstalledSporeSpawnSelectorPrograms(rom, stock));
         AssertEqual(BossSpriteFrameDefinitions.RidleyFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("ridley_body_", StringComparison.Ordinal)),
+                frame => frame.LegacyName.StartsWith("ridley_body_", StringComparison.Ordinal)),
             "all Ceres/Lower Norfair Ridley body frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.CeresSteamFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("ceres_steam_", StringComparison.Ordinal)),
+                frame => frame.LegacyName.StartsWith("ceres_steam_", StringComparison.Ordinal)),
             "all selected Ceres steam visual frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.OumFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("oum_", StringComparison.Ordinal)),
+                frame => frame.LegacyName.StartsWith("oum_", StringComparison.Ordinal)),
             "all selected Oum visual frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.CrocomireSpriteFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("crocomire_tongue_", StringComparison.Ordinal)),
+                frame => frame.LegacyName.StartsWith("crocomire_oam_", StringComparison.Ordinal)),
             "all selected Crocomire tongue visual frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.CrocomireBodyFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("crocomire_body_", StringComparison.Ordinal)),
+                frame => frame.LegacyName.StartsWith("crocomire_body_", StringComparison.Ordinal)),
             "all selected Crocomire fight-body OAM frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.KraidArmFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("kraid_arm_", StringComparison.Ordinal)),
+                frame => frame.LegacyName.StartsWith("kraid_arm_", StringComparison.Ordinal)),
             "all Kraid arm visual frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.GoldenTorizoAwakeningFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("golden_torizo_awake_", StringComparison.Ordinal)),
+                frame => frame.LegacyName.StartsWith("golden_torizo_awake_", StringComparison.Ordinal)),
             "all Golden Torizo awakening visual frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.GoldenTorizoWalkingFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("golden_torizo_walk_left_", StringComparison.Ordinal)),
+                frame => frame.LegacyName.StartsWith("golden_torizo_walk_left_", StringComparison.Ordinal)),
             "all Golden Torizo walking-left visual frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.GoldenTorizoRightwardFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("golden_torizo_rightward_", StringComparison.Ordinal)),
+                frame => frame.LegacyName.StartsWith("golden_torizo_rightward_", StringComparison.Ordinal)),
             "all Golden Torizo turning/walking-right visual frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.TorizoJumpBackFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("torizo_jump_back_", StringComparison.Ordinal) &&
-                    !frame.Name.StartsWith("torizo_jump_back_left_", StringComparison.Ordinal)),
+                frame => frame.LegacyName.StartsWith("torizo_jump_back_", StringComparison.Ordinal) &&
+                    !frame.LegacyName.StartsWith("torizo_jump_back_left_", StringComparison.Ordinal)),
             "all shared Torizo jump-back visual frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.TorizoJumpBackLeftNewFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("torizo_jump_back_left_", StringComparison.Ordinal)),
+                frame => frame.LegacyName.StartsWith("torizo_jump_back_left_", StringComparison.Ordinal)),
             "both new left-facing Torizo jump-back visual frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.GoldenTorizoRightOrbFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("golden_torizo_right_orb_", StringComparison.Ordinal)),
+                frame => frame.LegacyName.StartsWith("golden_torizo_right_orb_", StringComparison.Ordinal)),
             "all Golden Torizo right-orb visual frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.GoldenTorizoLeftOrbFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("golden_torizo_left_orb_", StringComparison.Ordinal)),
+                frame => frame.LegacyName.StartsWith("golden_torizo_left_orb_", StringComparison.Ordinal)),
             "all Golden Torizo left-orb visual frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.GoldenTorizoRightSonicFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("golden_torizo_right_sonic_", StringComparison.Ordinal)),
+                frame => frame.LegacyName.StartsWith("golden_torizo_right_sonic_", StringComparison.Ordinal)),
             "all Golden Torizo right-sonic visual frames are installed");
         AssertEqual(EnemyExtendedFrameDefinitions.TorizoFallingLeftFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("torizo_falling_left", StringComparison.Ordinal)),
+                frame => frame.LegacyName.StartsWith("torizo_falling_left", StringComparison.Ordinal)),
             "shared Torizo falling-left visual frame is installed");
         AssertEqual(EnemyExtendedFrameDefinitions.GoldenTorizoLeftFootOrbFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("golden_torizo_left_foot_orb_", StringComparison.Ordinal)),
+                frame => frame.LegacyName.StartsWith("golden_torizo_left_foot_orb_", StringComparison.Ordinal)),
             "all new Golden Torizo left-foot orb visual frames are installed");
         AssertEqual(BossSpriteFrameDefinitions.DraygonSpriteFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("draygon_", StringComparison.Ordinal) && !DraygonBodyLayerFrameDefinitions.Frames.Contains(frame.Frame)),
+                frame => frame.LegacyName.StartsWith("draygon_", StringComparison.Ordinal) && !DraygonBodyLayerFrameDefinitions.Frames.Contains(frame.Frame)),
             "all selected ordinary-OAM Draygon extended frames are installed");
         AssertEqual(BossSpriteFrameDefinitions.SporeSpawnSpriteFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
-                frame => frame.Name.StartsWith("spore_spawn_", StringComparison.Ordinal)),
+                frame => frame.LegacyName.StartsWith("spore_spawn_", StringComparison.Ordinal)),
             "all selected Spore Spawn extended frames are installed");
         var draygonOamPointers = EnemyExtendedFrameDefinitions.Frames
-            .Where(frame => frame.Name.StartsWith("draygon_", StringComparison.Ordinal) && !DraygonBodyLayerFrameDefinitions.Frames.Contains(frame.Frame))
+            .Where(frame => frame.LegacyName.StartsWith("draygon_", StringComparison.Ordinal) && !DraygonBodyLayerFrameDefinitions.Frames.Contains(frame.Frame))
             .Select(frame => frame.Pointer)
             .ToHashSet();
         HashSet<ushort> draygonBg2Pointers = VerifyNativeDraygonBg2FrameSelectors(rom, draygonOamPointers);

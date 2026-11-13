@@ -29,14 +29,19 @@ internal static class SamusGrappleVerification
 internal static void VerifySamusGrappleSwingAndRelease()
 {
     var bus = new TestAddressSpace();
+    // The displayed swing picture of each swing direction, installed as its own document (#1684).
+    var swingFrames = new int[GrappleSwingDirection.Count];
     void BindGrapplePresentation(SamusState state)
     {
         BindSyntheticSamusRendering(bus, state);
         // Capture the fixture's currently authored visual offsets at construction time.
         state.Grapple.FlarePlacement = ChargeFlarePlacementFile.LoadGrapple(
             new MemoryStream(GrappleFlarePlacementExtractor.Extract(bus)));
-        state.Grapple.SwingFrames = GrappleSwingFrameFile.Load(
-            new MemoryStream(GrappleSwingFrameExtractor.Extract(bus)));
+        state.Grapple.SwingFrames = GrappleSwingFrameFile.Load(new MemoryStream(GrappleSwingFrameFile.Write(new()
+        {
+            Version = GrappleSwingFrameFile.Version,
+            Frames = [.. swingFrames],
+        })));
     }
     SamusState CreateSamus(SamusPoseId pose, Position16<RoomPixels> position)
     {
@@ -151,7 +156,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
 
     // Samus at Y=56 puts the corrected firing endpoint at Y=50 inside the target.
     // Samus minus its centered anchor is (-24,0), exactly angle $C0.
-    WriteGrappleSwingFrame(bus, angle: 0xc0, frame: 5);
+    WriteGrappleSwingFrame(swingFrames, angle: 0xc0, frame: 5);
 
     SamusState firingSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
     firingSamus.Kinematics.YSpeed = firingSamus.Kinematics.YSpeed.WithWhole(1); // selects moving-vertically connection table $C3EE
@@ -591,10 +596,9 @@ firingLevel, cancelledSamus, controllerInput: 0);
     // At length 50 those offsets become (0,50) and (-1,49). Negative X also
     // changes the block-anchor low nibble from eight to seven.
 
-    // Override displayed frames independently of the native physical body offsets.
-    // Both angles retain right-facing body offset (0,+46), despite art frames three/four.
-    WriteGrappleSwingFrame(bus, angle: 0x80, frame: 3);
-    WriteGrappleSwingFrame(bus, angle: 0x81, frame: 4);
+    // Override the displayed frame independently of the native physical body offsets.
+    // Angles $80 and $81 share swing direction 16, which keeps right-facing body offset (0,+46) despite art frame three.
+    WriteGrappleSwingFrame(swingFrames, angle: 0x80, frame: 3);
 
     // The already-connected pendulum fixture uses an intentionally empty 32x16 room. Its
     // six-point sweep must stay in bounds while proving that no invented terrain response
@@ -634,7 +638,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
     AssertEqual(153, samus.Grapple.BeamStart.Y, "advanced grapple beam-start Y");
     AssertEqual(198, samus.Position.X.Whole, "advanced grapple native body X");
     AssertEqual(199, samus.Position.Y.Whole, "advanced grapple native body Y");
-    AssertEqual(4, samus.AnimationFrame, "advanced grapple angle art frame");
+    AssertEqual(3, samus.AnimationFrame, "advanced grapple angle keeps its swing direction's art frame");
 
     // `$90:EB86` remains installed for every noninactive host phase, but its signed native
     // function-pointer test selects beam-specific graphics only through `$9B:C832`. The
@@ -778,7 +782,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
 
     // Angle $40 is exactly rightward; the next sample $41 is (+255,+6).
     // Keep those native values and place terrain at the actual nearest probe.
-    WriteGrappleSwingFrame(bus, angle: 0x40, frame: 0);
+    WriteGrappleSwingFrame(swingFrames, angle: 0x40, frame: 0);
 
     // Anchor (128,128) is biased to (136,136). With length 32, candidate angle $41's
     // nearest probe is 40 pixels from the anchor at (175,136), block (10,8). Gravity adds
@@ -961,7 +965,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
     // reaches (143,150), solid block (8,9), rather than an invented horizontal wall.
     // Bank $94 must stop at `$6A80`; bank $9B must then consume record four's literal
     // `$B9`, (+24,+16), `$C814` tuple rather than inventing a host-side angle range.
-    WriteGrappleSwingFrame(bus, angle: 0x6a, frame: 0);
+    WriteGrappleSwingFrame(swingFrames, angle: 0x6a, frame: 0);
 
     var specialBlocks = new RoomTerrainBlock[16 * 16];
     specialBlocks[8 * 16 + 8] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock); // `$B9`'s later 16-pixel left wall probe
@@ -1084,7 +1088,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
     // into block (7,7); a two-byte angular step guarantees that sample is visited after
     // quadrant gravity. Releasing Shoot queues `$C856`, whose movement-type-$16` fallback
     // byte in the literal `$B6` definition selects stable crouch `$27` one call later.
-    WriteGrappleSwingFrame(bus, angle: 0xd6, frame: 0);
+    WriteGrappleSwingFrame(swingFrames, angle: 0xd6, frame: 0);
     var lockedBlocks = new RoomTerrainBlock[16 * 16];
     lockedBlocks[7 * 16 + 7] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData lockedLevel = CreateRoom(new(16, 16), lockedBlocks, new RoomBlockBehavior[lockedBlocks.Length]);
@@ -1145,11 +1149,11 @@ static void WriteGrappleFlareOrigin(TestAddressSpace bus, int direction, Offset1
 }
 
 /// <summary>
-/// Sets the <c>$9B:C1C2</c> swing-frame table entry selected by swing-angle high byte
-/// <paramref name="angle"/> to animation frame <paramref name="frame"/>.
+/// Sets the displayed animation frame of the swing direction nearest swing-angle step <paramref name="angle"/> to
+/// <paramref name="frame"/>.
 /// </summary>
-static void WriteGrappleSwingFrame(TestAddressSpace bus, byte angle, byte frame) =>
-    WriteTestByte(bus, 0x9bc1c2 + angle, frame);
+static void WriteGrappleSwingFrame(int[] frames, byte angle, byte frame) =>
+    frames[GrappleSwingDirection.Nearest(new TrigonometryAngle(angle)).Number] = frame;
 
     /// <summary>Runs the focused Samus grapple movement and presentation check.</summary>
     [VerificationCommand("--samus-grapple")]

@@ -30,7 +30,7 @@ internal static class EnemyQuadraticSpeedsVerification
         AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeeds.Row(-1), "negative quadratic row");
         AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeeds.Row(EnemyQuadraticSpeedDefinitions.RowCount), "quadratic row past the table");
         if (definitionsOnly) return;
-        var addRock = new Action<EnemyProjectile, int, EnemySpeedSign>(PolypBehavior.AddPolypRockQuadraticStep);
+        var addRock = new Action<EnemyProjectile, EnemyQuadraticSpeedIndex, EnemySpeedSign>(PolypBehavior.AddPolypRockQuadraticStep);
         var rock = new EnemyProjectile(0, default);
         foreach (uint origin in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (int index = 0; index < EnemyQuadraticSpeedDefinitions.RowCount; index++)
@@ -39,12 +39,12 @@ internal static class EnemyQuadraticSpeedsVerification
             int speed = EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticProjectileCopy, index).Toward(sign).RawValue;
             uint expected = unchecked(origin + (uint)speed);
             rock.Position = rock.Position.WithY(new(FixedCoordinate.WholeOf(unchecked((int)origin)), unchecked((ushort)origin)));
-            addRock(rock, index, sign);
+            addRock(rock, EnemyQuadraticSpeedIndex.FromRows(index), sign);
             AssertEqual(expected, rock.Position.Y.RawValue, "Polyp real split-word carry/wrap");
         }
-        AssertThrows<InvalidDataException>(() => addRock(rock, EnemyQuadraticSpeedDefinitions.RowCount, EnemySpeedSign.Positive), "Polyp invalid speed remains loud");
-        var beetom = new Func<int, int, int>(BeetomBehavior.CalculateInitialBeetomYSpeedIndex);
-        var hopper = new Func<int, int, int>(HoppersBehavior.CalculateInitialHopperYSpeedTableIndex);
+        AssertThrows<InvalidDataException>(() => addRock(rock, EnemyQuadraticSpeedIndex.FromRows(EnemyQuadraticSpeedDefinitions.RowCount), EnemySpeedSign.Positive), "Polyp invalid speed remains loud");
+        var beetom = new Func<int, int, EnemyQuadraticSpeedIndex>(BeetomBehavior.CalculateInitialBeetomYSpeedIndex);
+        var hopper = new Func<int, int, EnemyQuadraticSpeedIndex>(HoppersBehavior.CalculateInitialHopperYSpeedTableIndex);
         int initialIndexCases = 0;
         foreach (ushort delta in new ushort[] { 1, 2, 4 })
         for (int height = 0; height <= ushort.MaxValue; height++)
@@ -55,8 +55,8 @@ internal static class EnemyQuadraticSpeedsVerification
                 accumulated = unchecked((ushort)(accumulated + EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, index, EnemySpeedSign.Positive)));
                 if (unchecked((short)(accumulated - height)) < 0)
                     continue;
-                AssertEqual(index, beetom((ushort)height, delta), "Beetom coarse-speed hop integration");
-                AssertEqual(index, hopper((ushort)height, delta), "Hopper coarse-speed hop integration");
+                AssertEqual(EnemyQuadraticSpeedIndex.FromRows(index), beetom((ushort)height, delta), "Beetom coarse-speed hop integration");
+                AssertEqual(EnemyQuadraticSpeedIndex.FromRows(index), hopper((ushort)height, delta), "Hopper coarse-speed hop integration");
                 initialIndexCases++;
                 break;
             }
@@ -68,21 +68,21 @@ internal static class EnemyQuadraticSpeedsVerification
         // is taken there; one 256th taller runs on past the table's last row and is rejected; a delta of zero settles on
         // its first pass or never.
         int fiftiethRow = EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, 50, EnemySpeedSign.Positive);
-        AssertEqual(50, beetom(fiftiethRow, 50), "Beetom's climb settled by row fifty ends there");
-        AssertEqual(50, hopper(fiftiethRow, 50), "Hopper's climb settled by row fifty ends there");
+        AssertEqual(EnemyQuadraticSpeedIndex.FromRows(50), beetom(fiftiethRow, 50), "Beetom's climb settled by row fifty ends there");
+        AssertEqual(EnemyQuadraticSpeedIndex.FromRows(50), hopper(fiftiethRow, 50), "Hopper's climb settled by row fifty ends there");
         AssertThrows<InvalidDataException>(() => beetom(fiftiethRow + 1, 50), "Beetom's climb past the table's last row is rejected");
         AssertThrows<InvalidDataException>(() => hopper(fiftiethRow + 1, 50), "Hopper's climb past the table's last row is rejected");
-        AssertEqual(0, beetom(0, 0), "Beetom's climb of no height with no delta settles on the first row");
-        AssertEqual(0, hopper(0, 0), "Hopper's climb of no height with no delta settles on the first row");
+        AssertEqual(EnemyQuadraticSpeedIndex.Start, beetom(0, 0), "Beetom's climb of no height with no delta settles on the first row");
+        AssertEqual(EnemyQuadraticSpeedIndex.Start, hopper(0, 0), "Hopper's climb of no height with no delta settles on the first row");
         AssertThrows<InvalidDataException>(() => beetom(1, 0), "Beetom's climb with no delta never reaches a height");
         AssertThrows<InvalidDataException>(() => hopper(1, 0), "Hopper's climb with no delta never reaches a height");
 
-        var wings = new Func<EnemyQuadraticSpeedIndex, EnemySpeedSign, RotationAngle>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
+        var wings = new Func<EnemyQuadraticSpeedIndex, EnemySpeedSign, int>(KiHunterBehavior.DetachedWingCoarseSpeed);
         for (int index = 0; index < EnemyQuadraticSpeedDefinitions.RowCount; index++)
         for (int low = 0; low < 256; low++)
         foreach (EnemySpeedSign sign in signs)
-            AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, index, sign), wings(EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(index * 256 + low), sign).RawValue,
-                "KiHunter high-byte index and coarse angle delta");
+            AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, index, sign), wings(EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(index * 256 + low), sign),
+                "KiHunter high-byte index and coarse wing orbit speed");
 
         var addMaw = new Action<YappingMawEnemyState>(YappingMawBehavior.AddYappingMawQuadraticSpeed);
         var maw = new YappingMawEnemyState(new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0]);
@@ -93,13 +93,13 @@ internal static class EnemyQuadraticSpeedsVerification
         {
             int speed = EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticTable, row).Toward(sign).RawValue;
             maw.Extension = SixteenSixteenWords.ToDisplacement(unchecked((int)start));
-            maw.QuadraticSpeedRow = row;
+            maw.QuadraticSpeedRow = EnemyQuadraticSpeedIndex.FromRows(row);
             maw.QuadraticSpeedSign = sign;
             mawAdditions++;
             uint expected = unchecked(start + (uint)speed);
             addMaw(maw);
             AssertEqual(expected, unchecked((uint)maw.Extension.RawValue), "Yapping Maw real split-word integration");
-            AssertEqual(row + 1, maw.QuadraticSpeedRow, "Yapping Maw row advance");
+            AssertEqual(EnemyQuadraticSpeedIndex.FromRows(row + 1), maw.QuadraticSpeedRow, "Yapping Maw row advance");
             AssertEqual(sign, maw.QuadraticSpeedSign, "Yapping Maw speed sign held across the addition");
         }
         Console.WriteLine("Compiled quadratic speeds: all 95 rows and their coarse speeds match both cartridge copies.");

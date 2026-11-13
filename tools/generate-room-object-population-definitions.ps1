@@ -1,6 +1,6 @@
 param(
     [string] $RomPath = 'Super Metroid.smc',
-    [switch] $HeadersOnly
+    [switch] $KindsOnly
 )
 
 $ErrorActionPreference = 'Stop'
@@ -8,17 +8,17 @@ try {
     if ($IsWindows) {
         Add-Type -TypeDefinition @"
 using System.Runtime.InteropServices;
-public static class RoomObjectHeaderGenerationProcessPolicy {
+public static class RoomObjectPopulationGenerationProcessPolicy {
     [DllImport("kernel32.dll")] public static extern uint SetErrorMode(uint mode);
 }
 "@
-        [void][RoomObjectHeaderGenerationProcessPolicy]::SetErrorMode(0x8003)
+        [void][RoomObjectPopulationGenerationProcessPolicy]::SetErrorMode(0x8003)
     }
     $repoRoot = [IO.Path]::GetFullPath((Split-Path -Parent $PSScriptRoot))
     $romFile = [IO.Path]::GetFullPath((Join-Path $repoRoot $RomPath))
     $populationFile = Join-Path $repoRoot 'csharp/test-support/VerificationAccess.Tooling/Rooms/RoomObjectPopulationSourceDefinitions.cs'
     $outputFile = Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectPopulationDefinitions.cs'
-    $headerOutputFile = Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectHeaderDefinitions.Generated.cs'
+    $kindOutputFile = Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectKindDefinitions.Generated.cs'
     $scrollOutputFile = Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectScrollChangeDefinitions.Generated.cs'
     $scrollIdentityFile = Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomScrollChange.cs'
     $scrollNativeFile = Join-Path $repoRoot 'csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomScrollProgramNative.cs'
@@ -40,16 +40,16 @@ public static class RoomObjectHeaderGenerationProcessPolicy {
         throw "Expected 284 distinct retail PLM populations, found $($ordered.Count)."
     }
 
-    $headerNames = @{}
-    # RoomObjectHeaderId's values are arbitrary (#1414); verification's native-word table names each header word.
-    $headerCatalog = [IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomObjectNativeWords.cs'))
-    foreach ($match in [regex]::Matches($headerCatalog, '(?m)^        \[RoomObjectHeaderId\.(\w+)\] = 0x([0-9a-fA-F]+),\r?$')) {
+    $kindNames = @{}
+    # RoomObjectKind's values are arbitrary (#1414); verification's native-word table names the kind of each header word.
+    $kindCatalog = [IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomObjectNativeWords.cs'))
+    foreach ($match in [regex]::Matches($kindCatalog, '(?m)^        \[RoomObjectKind\.(\w+)\] = 0x([0-9a-fA-F]+),\r?$')) {
         $word = [Convert]::ToInt32($match.Groups[2].Value, 16)
-        if ($word -ne 0) { $headerNames[$word] = $match.Groups[1].Value }
+        if ($word -ne 0) { $kindNames[$word] = $match.Groups[1].Value }
     }
     # The import decodes each placement's room argument into what the PLM's setup reads (#1452): a collectible's item
     # location, a door, a grey door's condition and door, a save station's load station, a Metroid-cleared entry or a gate trigger. Doors and
-    # item locations are named identities (#1553): each is named for the first population that places it and its header,
+    # item locations are named identities (#1553): each is named for the first population that places it and its kind,
     # with its block where two would share a name; the room-data number stays in the import pipeline's numbering. Scroll
     # triggers carry their program and Draygon cannons their control word instead; filler and fixed unread words become
     # the absence of an argument.
@@ -79,7 +79,7 @@ public static class RoomObjectHeaderGenerationProcessPolicy {
             $type = if ($name -eq 'DownwardGateShotBlock') { 'GateTriggerArgument' } else { 'MetroidRoomArgument' }
             return 'new {0}({1})' -f $type, ($word -shr 1)
         }
-        throw ('Retail header {0} has no decoded room argument for {1:X4}.' -f $name, $word)
+        throw ('Room-object kind {0} has no decoded room argument for {1:X4}.' -f $name, $word)
     }
     # Each population's area, from the area room-state catalog that loads it, and each load station by its area and number,
     # from the station identities and the save codec's numbering (#1623).
@@ -115,10 +115,10 @@ public static class RoomObjectHeaderGenerationProcessPolicy {
     $lines.Add('internal static class RoomObjectPopulationDefinitions')
     $lines.Add('{')
     $recordTotal = 0
-    # The first placement of each door and item location, by room-data number: its population, header and block.
+    # The first placement of each door and item location, by room-data number: its population, kind and block.
     $doorPlacements = @{}
     $itemPlacements = @{}
-    $headers = [Collections.Generic.HashSet[int]]::new()
+    $placedWords = [Collections.Generic.HashSet[int]]::new()
     $scrollProgramPointers = [Collections.Generic.HashSet[int]]::new()
     # Each scroll program is named for the first population that places it and its order among that population's scroll
     # triggers.
@@ -138,16 +138,16 @@ public static class RoomObjectHeaderGenerationProcessPolicy {
             if ($offset -ge $rom.Length - 1) {
                 throw ('Population $8F:{0:X4} exceeds the cartridge.' -f $pointer)
             }
-            $header = [int]$rom[$offset] -bor ([int]$rom[$offset + 1] -shl 8)
-            if ($header -eq 0) {
+            $kindWord = [int]$rom[$offset] -bor ([int]$rom[$offset + 1] -shl 8)
+            if ($kindWord -eq 0) {
                 break
             }
             if (++$count -gt 256 || $offset -ge $rom.Length - 5) {
                 throw ('Population $8F:{0:X4} has no bounded terminator.' -f $pointer)
             }
-            [void] $headers.Add($header)
+            [void] $placedWords.Add($kindWord)
             $scrollProgram = ''
-            if ($header -eq 0xB703) {
+            if ($kindWord -eq 0xB703) {
                 $scrollProgramPointer = [int]$rom[$offset + 4] -bor ([int]$rom[$offset + 5] -shl 8)
                 [void] $scrollProgramPointers.Add($scrollProgramPointer)
                 if (-not $scrollNames.ContainsKey($scrollProgramPointer)) {
@@ -156,16 +156,16 @@ public static class RoomObjectHeaderGenerationProcessPolicy {
                 $scrollProgram = ', ScrollChange: RoomScrollChange.{0}' -f $scrollNames[$scrollProgramPointer]
                 $scrollIndex++
             }
-            if (-not $headerNames.ContainsKey($header)) { throw ('Retail header {0:X4} lacks a domain name.' -f $header) }
+            if (-not $kindNames.ContainsKey($kindWord)) { throw ('Retail header word {0:X4} names no room-object kind.' -f $kindWord) }
             $argument = [int]$rom[$offset + 4] -bor ([int]$rom[$offset + 5] -shl 8)
-            if ($headerNames[$header].StartsWith('DraygonCannon')) {
+            if ($kindNames[$kindWord].StartsWith('DraygonCannon')) {
                 if (-not $draygonCannonControls.ContainsKey($argument)) {
                     throw ('Draygon cannon argument {0:X4} names no control word.' -f $argument)
                 }
                 $argumentText = 'null, DraygonWallCannon.{0}' -f $draygonCannonControls[$argument]
             }
             else {
-                $argumentText = Format-RoomArgument $headerNames[$header] $argument
+                $argumentText = Format-RoomArgument $kindNames[$kindWord] $argument
                 if ($argumentText -match '^@@STATION:(\d+)@@$') {
                     [string[]] $areas = @()
                     if ($populationAreas.ContainsKey($name)) { $areas = [string[]] @($populationAreas[$name]) }
@@ -178,11 +178,11 @@ public static class RoomObjectHeaderGenerationProcessPolicy {
                     $placements = if ($token.Groups[1].Value -eq 'DOOR') { $doorPlacements } else { $itemPlacements }
                     $number = [int]$token.Groups[2].Value
                     if (-not $placements.ContainsKey($number)) {
-                        $placements[$number] = [pscustomobject]@{ Base = $name + $headerNames[$header]; X = $rom[$offset + 2]; Y = $rom[$offset + 3] }
+                        $placements[$number] = [pscustomobject]@{ Base = $name + $kindNames[$kindWord]; X = $rom[$offset + 2]; Y = $rom[$offset + 3] }
                     }
                 }
             }
-            $lines.Add(('        new(RoomObjectHeaderId.{0}, new({1}, {2}), {3}{4}),' -f $headerNames[$header], $rom[$offset + 2], $rom[$offset + 3], $argumentText, $scrollProgram))
+            $lines.Add(('        new(RoomObjectKind.{0}, new({1}, {2}), {3}{4}),' -f $kindNames[$kindWord], $rom[$offset + 2], $rom[$offset + 3], $argumentText, $scrollProgram))
             $offset += 6
         }
         $recordTotal += $count
@@ -275,35 +275,35 @@ public static class RoomObjectHeaderGenerationProcessPolicy {
     foreach ($number in @($itemNames.Keys | Sort-Object)) { $numberLines.Add(('        new({0}, ItemLocationDefinitions.{1}),' -f $number, $itemNames[$number])) }
     $numberLines.Add('    ];')
     $numberLines.Add('}')
-    if (-not $HeadersOnly) {
+    if (-not $KindsOnly) {
         [IO.File]::WriteAllLines($outputFile, $lines, [Text.UTF8Encoding]::new($false))
         [IO.File]::WriteAllLines($doorCatalogFile, $doorCatalog, [Text.UTF8Encoding]::new($false))
         [IO.File]::WriteAllLines($itemCatalogFile, $itemCatalog, [Text.UTF8Encoding]::new($false))
         [IO.File]::WriteAllLines($placementNumbersFile, $numberLines, [Text.UTF8Encoding]::new($false))
     }
 
-    $orderedHeaders = @($headers | Sort-Object)
-    if ($orderedHeaders.Count -ne 70) {
-        throw "Expected 70 distinct retail PLM headers, found $($orderedHeaders.Count)."
+    $placedKindWords = @($placedWords | Sort-Object)
+    if ($placedKindWords.Count -ne 70) {
+        throw "Expected 70 distinct placed room-object kinds, found $($placedKindWords.Count)."
     }
-    $headerLines = [Collections.Generic.List[string]]::new()
-    $headerLines.Add('// <auto-generated/>')
-    $headerLines.Add('namespace SuperMetroid.Core.Rooms.RoomObjects;')
-    $headerLines.Add('')
-    $headerLines.Add('/// <summary>The room-object identities retail room populations place; regenerate with tools/generate-room-object-population-definitions.ps1 -HeadersOnly.</summary>')
-    $headerLines.Add('internal static partial class RoomObjectHeaderDefinitions')
-    $headerLines.Add('{')
-    $headerLines.Add('    /// <summary>Every room object a retail room population places.</summary>')
-    $headerLines.Add('    internal static readonly IReadOnlySet<RoomObjectHeaderId> RetailHeaders = new HashSet<RoomObjectHeaderId>')
-    $headerLines.Add('    {')
-    foreach ($header in $orderedHeaders) {
-        if (-not $headerNames.ContainsKey($header)) { throw ('Retail header {0:X4} lacks a domain name.' -f $header) }
-        $headerLines.Add(('        RoomObjectHeaderId.{0},' -f $headerNames[$header]))
+    $kindLines = [Collections.Generic.List[string]]::new()
+    $kindLines.Add('// <auto-generated/>')
+    $kindLines.Add('namespace SuperMetroid.Core.Rooms.RoomObjects;')
+    $kindLines.Add('')
+    $kindLines.Add('/// <summary>The room-object kinds retail room populations place; regenerate with tools/generate-room-object-population-definitions.ps1 -KindsOnly.</summary>')
+    $kindLines.Add('internal static partial class RoomObjectKindDefinitions')
+    $kindLines.Add('{')
+    $kindLines.Add('    /// <summary>Every room-object kind a retail room population places.</summary>')
+    $kindLines.Add('    internal static readonly IReadOnlySet<RoomObjectKind> Placed = new HashSet<RoomObjectKind>')
+    $kindLines.Add('    {')
+    foreach ($kindWord in $placedKindWords) {
+        if (-not $kindNames.ContainsKey($kindWord)) { throw ('Retail header word {0:X4} names no room-object kind.' -f $kindWord) }
+        $kindLines.Add(('        RoomObjectKind.{0},' -f $kindNames[$kindWord]))
     }
-    $headerLines.Add('    };')
-    $headerLines.Add('}')
-    [IO.File]::WriteAllLines($headerOutputFile, $headerLines, [Text.UTF8Encoding]::new($false))
-    if ($HeadersOnly) { Write-Output "Generated $($orderedHeaders.Count) named retail header cases."; exit 0 }
+    $kindLines.Add('    };')
+    $kindLines.Add('}')
+    [IO.File]::WriteAllLines($kindOutputFile, $kindLines, [Text.UTF8Encoding]::new($false))
+    if ($KindsOnly) { Write-Output "Generated $($placedKindWords.Count) placed room-object kinds."; exit 0 }
 
     $orderedScrollPrograms = @($scrollProgramPointers | Sort-Object)
     if ($orderedScrollPrograms.Count -ne 173) {
@@ -398,7 +398,7 @@ public static class RoomObjectHeaderGenerationProcessPolicy {
     $nativeLines.Add('        }.ToFrozenDictionary();')
     $nativeLines.Add('}')
     [IO.File]::WriteAllLines($scrollNativeFile, $nativeLines, [Text.UTF8Encoding]::new($false))
-    Write-Output "Generated $($ordered.Count) PLM populations, $recordTotal records, $($orderedHeaders.Count) headers and $($orderedScrollPrograms.Count) scroll programs."
+    Write-Output "Generated $($ordered.Count) PLM populations, $recordTotal records, $($placedKindWords.Count) placed kinds and $($orderedScrollPrograms.Count) scroll programs."
 }
 catch {
     [Console]::Error.WriteLine($_.Exception.ToString())

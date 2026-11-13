@@ -279,23 +279,25 @@ internal sealed class DraygonParts
             return;
 
         eyeState.LookAngle = bearing;
-        // The quarter of the turn centred on up, right, down or left that the bearing lies in chooses the look.
-        int quarter = bearing.TurnedBySteps(RotationAngle.StepsPerTurn / 8).Sector(4);
-        DraygonSegment look = quarter switch
+        // The straight direction nearest the bearing, up, right, down or left, chooses the look.
+        CompassDirection direction = bearing.NearestStraightDirection();
+        DraygonSegment look = direction switch
         {
-            0 => facing == HorizontalDirection.Right
+            CompassDirection.Up => facing == HorizontalDirection.Right
                 ? DraygonSegment.EyeFacingRightLookingUp
                 : DraygonSegment.EyeFacingLeftLookingUp,
-            1 => facing == HorizontalDirection.Right
+            CompassDirection.Right => facing == HorizontalDirection.Right
                 ? DraygonSegment.EyeFacingRightLookingRight
                 : DraygonSegment.EyeFacingLeftLookingRight,
-            2 => facing == HorizontalDirection.Right
+            CompassDirection.Down => facing == HorizontalDirection.Right
                 ? DraygonSegment.EyeFacingRightLookingDown
                 : DraygonSegment.EyeFacingLeftLookingDown,
-            3 => facing == HorizontalDirection.Right
+            CompassDirection.Left => facing == HorizontalDirection.Right
                 ? DraygonSegment.EyeFacingRightLookingLeft
                 : DraygonSegment.EyeFacingLeftLookingLeft,
-            _ => throw new InvalidOperationException($"Draygon's eye bearing {bearing} lies in no quarter of the turn."),
+            CompassDirection.UpRight or CompassDirection.DownRight or CompassDirection.DownLeft or CompassDirection.UpLeft =>
+                throw new InvalidOperationException($"Draygon's eye bearing {bearing} is nearest the diagonal {direction}."),
+            _ => throw new InvalidOperationException($"Draygon's eye bearing {bearing} is nearest no straight direction."),
         };
         StartDraygonAnimation(eye, look);
         eye.AnimationClock.ClearRepeats();
@@ -321,18 +323,10 @@ internal sealed class DraygonParts
             throw new InvalidOperationException("Draygon's tail-hit instruction requires Samus state.");
 
         state.SwoopAcceleration = DraygonBehavior.DraygonInitialSwoopAcceleration;
-        int rawDamage = state.Body.Definition.Damage;
-        int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? rawDamage >> 2
-            : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? rawDamage >> 1
-                : rawDamage;
-        samus.Health = samus.Health <= damage
-            ? 0
-            : samus.Health - damage;
+        SamusSuitDamage.Hurt(samus, state.Body.Definition.Damage);
 
         // The tail hit also publishes the same 32-frame, type-seven quake used by the
-        // original grabbed-tail impact. Keeping it on the shared room-enemy surface lets
+        // game's grabbed-tail impact. Keeping it on the shared room-enemy surface lets
         // the ordinary camera renderer observe the hit instead of reducing it to HP loss.
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 32);
 

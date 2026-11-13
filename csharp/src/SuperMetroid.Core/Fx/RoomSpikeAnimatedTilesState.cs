@@ -14,7 +14,7 @@ public sealed class RoomSpikeAnimatedTilesState
     /// <summary>Spawns one room's horizontal spikes, at most once, from the door-selected FX record.</summary>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
-    public RoomSpikeAnimatedTilesState(RoomFxHeader? fx, DoorDefinition? door)
+    public RoomSpikeAnimatedTilesState(RoomFxSelection? fx, DoorDefinition? door)
     {
         if (fx?.Select(door) is not { } record) return;
         if (record.AnimatedTiles.Contains(AnimatedTileObject.HorizontalSpikes))

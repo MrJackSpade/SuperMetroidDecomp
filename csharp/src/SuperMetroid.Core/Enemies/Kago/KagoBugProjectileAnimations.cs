@@ -7,14 +7,14 @@ namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>
 /// The Kago bugs' landing, falling, jumping and shot programs (#641). Each
-/// frame shows a <see cref="EnemyProjectileFrameId"/> and each command becomes a <see cref="KagoBugProjectileCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="KagoBugProjectileCue"/> with its typed operands.
 /// </summary>
 internal static class KagoBugProjectileAnimations
 {
     /// <summary>
     /// The updates a landed bug's idle pose shows before its animation starts the landing again (#1607), kept exact (#1627):
     /// when it runs out the landing replays and raises its idle cue again, which gameplay sees. The falling and jumping poses
-    /// are held instead: their lists show the same pose again, so they rest on it for good.
+    /// are held instead: their animations show the same pose again, so they rest on it for good.
     /// </summary>
     private const int LongestPose = 32767;
 

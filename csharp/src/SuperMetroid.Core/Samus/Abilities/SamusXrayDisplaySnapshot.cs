@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <param name="WarmUp">The beam's warm-up; <see cref="XrayWarmUp.Over"/> once the beam steps.</param>
 /// <param name="BeamPhase">The beam's current phase.</param>
 /// <param name="Angle">Beam aim in 256 table units per turn.</param>
-/// <param name="AngularWidth">Beam half-width in whole angle-table units, 0 through 10.</param>
+/// <param name="AngularWidth">Beam half-width in whole steps, none through ten.</param>
 /// <param name="SamusPosition">Samus's whole room-pixel position.</param>
 /// <param name="FacingLeft">Whether Samus's current pose faces left.</param>
 /// <param name="Crouching">Whether Samus's current pose has the crouching movement type.</param>
@@ -21,7 +21,7 @@ public readonly record struct SamusXrayDisplaySnapshot(
     XrayWarmUp WarmUp,
     XrayBeamPhase BeamPhase,
     RotationAngle Angle,
-    int AngularWidth,
+    TrigonometryAngle AngularWidth,
     Position16<RoomPixels> SamusPosition,
     bool FacingLeft,
     bool Crouching)

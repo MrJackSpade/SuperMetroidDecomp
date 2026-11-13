@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Compatibility;
 /// How a door transition counts frames on the short frame counter: from the update that places Samus for the new room's
 /// tiles through the update that finishes the door's scroll, every update leaves the short counter at zero, while the
 /// long counter keeps counting. The first update after the transition hands the screen back therefore sees the short
-/// counter at one, and every enemy, projectile or minimap blink that samples it starts from there. The original program
-/// produced this by drawing each scrolling frame with a routine that also cleared the short counter's neighbouring
-/// word, but the count it leaves is gameplay-observable.
+/// counter at one, and every enemy, projectile or minimap blink that samples it starts from there. The game produced
+/// this as a side effect of drawing each scrolling frame, which also cleared the short
+/// counter, but the count it leaves is gameplay-observable.
 /// </summary>
 /// <remarks>
 /// Started when the transition places Samus for tile loading, consulted on every update of the transition after that

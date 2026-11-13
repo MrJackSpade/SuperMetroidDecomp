@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>
 /// The Shaktool's saw-hand, arm and head animations as typed programs (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="ShaktoolCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="ShaktoolCue"/> with its typed operands.
 /// </summary>
 internal static class ShaktoolAnimations
 {

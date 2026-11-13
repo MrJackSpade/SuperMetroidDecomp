@@ -151,7 +151,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
 
         // Every aim falls in the sector it lies nearest: the aim turned on half a sector, around the turn, in eighths.
         for (int aim = 0; aim <= byte.MaxValue; aim++)
-            AssertEqual(((aim + 16) & 255) / 32, YappingMawBehavior.AimSector(new Bearing(aim)), $"Yapping Maw aim {aim} sector number");
+            AssertEqual(YappingMawAnimationDefinitions.Aims.At(((aim + 16) & 255) / 32), YappingMawBehavior.AimOf(new Bearing(aim)), $"Yapping Maw aim {aim} sector");
 
         static ClockedEnemyAiFrame Frame(SamusState samus) => new(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },

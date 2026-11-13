@@ -4,11 +4,11 @@ namespace SuperMetroid.Core.Spatial;
 [EncodingOwner("signed 8.8 fixed-point number")]
 public readonly record struct SignedEightEight : IComparable<SignedEightEight>
 {
-    /// <summary>The value whose two's-complement word is <paramref name="rawValue"/>, 0 through 65535.</summary>
-    /// <param name="rawValue">The unchanged two's-complement word containing eight whole and eight fractional bits.</param>
+    /// <summary>The value whose sixteen-bit two's-complement form is <paramref name="rawValue"/>, 0 through 65535.</summary>
+    /// <param name="rawValue">The unchanged two's-complement form, eight whole and eight fractional bits.</param>
     public SignedEightEight(int rawValue) => RawValue = checked((ushort)rawValue);
 
-    /// <summary>The unchanged two's-complement word containing eight whole and eight fractional bits.</summary>
+    /// <summary>The unchanged two's-complement form, eight whole and eight fractional bits.</summary>
     public ushort RawValue { get; init; }
 
     /// <summary>No velocity at all.</summary>
@@ -31,26 +31,26 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
     public int InTwoHundredFiftySixthsOfPixel => unchecked((short)RawValue);
 
     /// <summary>
-    /// The value a raw computation lands on: a sum or difference of 8.8 words, in 1/256 units, wraps at sixteen bits,
+    /// The value a raw computation lands on: a sum or difference of 8.8 values, in 1/256 units, wraps at sixteen bits,
     /// so a velocity stepped past the largest positive value continues from the most negative one and the reverse,
     /// as the game's velocity arithmetic does.
     /// </summary>
     /// <param name="rawValue">The computed raw value, in 1/256 units, which may lie outside sixteen bits.</param>
     public static SignedEightEight Wrapped(int rawValue) => new(unchecked((ushort)rawValue));
 
-    /// <summary>The velocity reversed: its raw word negated, wrapping at sixteen bits, so the most negative value stays.</summary>
+    /// <summary>The velocity reversed: its raw value negated, wrapping at sixteen bits, so the most negative value stays.</summary>
     public SignedEightEight Negated() => Wrapped(-RawValue);
 
     /// <summary>
-    /// The whole part's eight bits read as an unsigned count of pixels, 0 through 255, as routines that take only the
-    /// velocity's high byte do: a negative velocity's whole part reads 256 larger.
+    /// The whole part's eight bits read as an unsigned count of pixels, 0 through 255, as behaviours that take only the
+    /// velocity's whole part do: a negative velocity's whole part reads 256 larger.
     /// </summary>
     [IntegerQuantity("whole-pixel byte of an 8.8 velocity")]
     public int UnsignedWholePixels => EightEight.WholeOf(RawValue);
 
     /// <summary>
     /// The speed in 256ths of a pixel an update read without its sign, 0 through 65535, as a multiply that takes the whole
-    /// word as an unsigned magnitude does: a negative velocity reads 65536 larger.
+    /// value as an unsigned magnitude does: a negative velocity reads 65536 larger.
     /// </summary>
     [IntegerQuantity("unsigned reading of an 8.8 speed in 256ths of a pixel an update")]
     public int UnsignedTwoHundredFiftySixthsOfPixel => RawValue;
@@ -118,14 +118,14 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
 
     /// <summary>
     /// The velocity's whole quarter pixels an update, rounded toward decreasing coordinates, as the game reads a speed's
-    /// quarter pixels from its word.
+    /// quarter pixels from its 8.8 value.
     /// </summary>
     [IntegerQuantity("whole quarter pixels of a signed 8.8 speed")]
     public int WholeQuarterPixels => InTwoHundredFiftySixthsOfPixel >> 6;
 
     /// <summary>
     /// The velocity with its whole pixels lowered to <paramref name="maximumWhole"/>, -128 through 127, when they lie above
-    /// it, its fraction kept, as routines that cap only a speed's whole byte do.
+    /// it, its fraction kept, as behaviours that cap only a speed's whole part do.
     /// </summary>
     public SignedEightEight WithWholePixelsAtMost(int maximumWhole) =>
         WholePixels > maximumWhole ? FromParts(maximumWhole, FractionSubpixels) : this;
@@ -149,7 +149,7 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
 
     /// <summary>
     /// The velocity divided by <paramref name="divisor"/>, a positive whole number, rounding toward decreasing coordinates,
-    /// as the game halves or quarters a velocity by shifting its word.
+    /// as the game halves or quarters a velocity by shifting it.
     /// </summary>
     public SignedEightEight DividedRoundingDown(int divisor)
     {

@@ -641,7 +641,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             int random = _room.Random.Generate();
             Position16<RoomPixels> drop = new(SporeSpawnRandomDefinitions.DropX.Of(random) + 64, SporeSpawnRandomDefinitions.DropY.Of(random) + 528);
             SporeSpawnDropRequests.Add(new SporeSpawnDropRequest());
-            _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(drop, EnemyDefinitionId.SporeSpawn);
+            _deathsAndDrops.SpawnEnemyDropFromDefinition(drop, EnemyDefinitionId.SporeSpawn);
         }
         state.DeathDropRequested = true;
     }
@@ -769,7 +769,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Projectile {spore.Kind} reached Spore Spawn's spore drop step.");
         }
         SporeSpawnDropRequests.Add(new SporeSpawnDropRequest());
-        _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(
+        _deathsAndDrops.SpawnEnemyDropFromDefinition(
             spore.Position.Whole,
             EnemyDefinitionId.SporeSpawnStalk);
     }

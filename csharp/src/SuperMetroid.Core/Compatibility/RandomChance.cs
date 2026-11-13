@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// A chance a random choice takes (#1619): of the values one field of a random sample can read, a run at the bottom or at
-/// the top of the field's range takes the chance and every other value passes it by. The original took these chances by
-/// comparing its random word, or a field of it, with a threshold; a catalog names the chance, the field it reads and how
+/// the top of the field's range takes the chance and every other value passes it by. The game took these chances by
+/// comparing its random number, or a field of it, with a threshold; a catalog names the chance, the field it reads and how
 /// many of the field's values take it instead of the threshold, and this type is the one place that compares a sample with
 /// one.
 /// </summary>
@@ -54,7 +54,7 @@ public readonly record struct RandomChance
     /// <summary>
     /// Whether the chance is taken on <paramref name="sample"/> once its field's roll has advanced
     /// <paramref name="advancedBy"/> places (#1619), as <see cref="RandomSampleField.OfAdvancedBy"/> advances it: a chance
-    /// the original took by adding a counter to the field it drew before comparing the sum with its threshold.
+    /// the game took by adding a counter to the field it drew before comparing the sum with its threshold.
     /// </summary>
     /// <param name="sample">A random sample, 0 through 65535.</param>
     /// <param name="advancedBy">The counter added to the field's roll, zero or more.</param>

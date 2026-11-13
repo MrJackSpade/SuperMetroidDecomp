@@ -307,7 +307,7 @@ internal static class MotherBrainAnimations
     });
 
     /// <summary>
-    /// The brain animation that starts at each brain program: each plays on through the programs its list runs on into or
+    /// The brain animation that starts at each brain program: each plays on through the programs it runs on into or
     /// continues at, looping from the first one it reaches again.
     /// </summary>
     internal static IReadOnlyDictionary<H, Animation<H>> HeadStartingAt { get; } = new Dictionary<H, Animation<H>>

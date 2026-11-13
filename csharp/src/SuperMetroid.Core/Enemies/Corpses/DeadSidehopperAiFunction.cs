@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// The routines a dead sidehopper's main AI dispatches.
+/// The behaviours a dead sidehopper's main AI dispatches.
 /// Its values are arbitrary.
 /// </summary>
 public enum DeadSidehopperAiFunction

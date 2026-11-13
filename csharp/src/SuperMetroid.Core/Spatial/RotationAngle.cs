@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Spatial;
 /// A rotation angle that wraps at a full turn, measured in steps of a 256th of a turn, each with a 256th-of-a-step
 /// fraction. Callers speak in angles: the named turns, angle arithmetic and comparison, the sector a heading lies in, and
 /// the trigonometry angle (<see cref="ToTrigonometryAngle"/>) the sine and cosine lookups read, the angle's whole steps. Keeping
-/// the fraction lets grapple and neck motion turn at sub-step precision while byte-angle callers share the same turns.
+/// the fraction lets grapple and neck motion turn at sub-step precision while whole-step callers share the same turns.
 /// </summary>
 [EncodingOwner("8.8 rotation angle word")]
 public readonly record struct RotationAngle : IComparable<RotationAngle>
@@ -36,6 +36,9 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     /// <summary>Zero turns: the sine wave's zero angle.</summary>
     public static RotationAngle Zero { get; } = FromSteps(0);
 
+    /// <summary>One eighth of a turn on from <see cref="Zero"/>: the turn between neighbouring compass directions.</summary>
+    public static RotationAngle EighthTurn { get; } = FromSteps(StepsPerTurn / 8);
+
     /// <summary>One quarter turn on from <see cref="Zero"/>: where the sine wave peaks.</summary>
     public static RotationAngle QuarterTurn { get; } = FromSteps(StepsPerTurn / 4);
 
@@ -55,6 +58,9 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     public static RotationAngle FromSteps(int steps, int fraction) =>
         new(checked((ushort)(Ensure.BetweenInclusive(0, StepsPerTurn - 1, steps) * FractionsPerStep +
             Ensure.BetweenInclusive(0, FractionsPerStep - 1, fraction))));
+
+    /// <summary>The angle halfway through whole step <paramref name="step"/>: the step with half a step's fraction.</summary>
+    public static RotationAngle MiddleOfStep(TrigonometryAngle step) => FromSteps(step.RawValue, FractionsPerStep / 2);
 
     /// <summary>The angle a computation in 256ths of a step lands on: past a full turn, or below zero, it continues around the circle.</summary>
     public static RotationAngle NormalizeRaw(int rawValue) => new(unchecked((ushort)rawValue));

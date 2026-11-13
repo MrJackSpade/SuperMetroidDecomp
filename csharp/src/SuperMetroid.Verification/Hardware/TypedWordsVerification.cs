@@ -665,6 +665,9 @@ internal static void VerifyTypedNativeWords()
     AssertThrows<ArgumentOutOfRangeException>(
         () => new RoomIdentity((AreaId)SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count, 0),
         "room identity rejects forged area enum");
+    // A room's index is any index within its area (#1627).
+    AssertEqual(300, new RoomIdentity(AreaId.Crateria, 300).RoomIndex, "room identity keeps an index past 255");
+    AssertThrows<ArgumentOutOfRangeException>(() => new RoomIdentity(AreaId.Crateria, -1), "room identity rejects a negative index");
     AssertTrue(RoomIdentities.UsesTourianStyleLandingDust(
             RoomIdentities.BrinstarDirectLandingDust),
         "named Brinstar dust room matches shared landing policy");

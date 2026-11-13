@@ -38,11 +38,11 @@ internal static class MotherBrainBeamWindowVerification
         void Step() => beam.Step(true, new(100, 95), RotationAngle.QuarterTurn, Width(64));
         Step();
         AssertEqual(installedColours.BeamInitialColor, beam.Color, "the beam's first update shows its initial colour");
-        AssertEqual(new MotherBrainRainbowBeamGeometry(new(114, 100), 32, 96),
+        AssertEqual(new MotherBrainRainbowBeamGeometry(new(114, 100), new TrigonometryAngle(32), new TrigonometryAngle(96)),
             beam.Geometry, "the beam publishes the mouth's room position and both wrapped edges");
         // The beam's edges are measured from straight down: 32 and 96 reflect to the screen's 96 and 32, a cone from
         // up-right to down-right of the mouth, below the HUD (#1468).
-        AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), 32, 96), DisplayScreen.HudHeight),
+        AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), new TrigonometryAngle(32), new TrigonometryAngle(96)), DisplayScreen.HudHeight),
             Cone(beam), "right beam is a cone from the mouth between its reflected edges");
         RgbaPixel[] drawn = Draw(Cone(beam));
         int[] upperApex = LitColumns(drawn, 99);
@@ -69,7 +69,7 @@ internal static class MotherBrainBeamWindowVerification
         AssertEqual(31, beam.Color, "colour zero repeats after the restart");
         MotherBrainRainbowBeamRenderSnapshot snapshot = beam.RenderSnapshot
             ?? throw new InvalidOperationException("The shown beam publishes its cone.");
-        AssertEqual(new MotherBrainRainbowBeamRenderSnapshot(beam.Color, new(new(114, 100), 32, 96)), snapshot,
+        AssertEqual(new MotherBrainRainbowBeamRenderSnapshot(beam.Color, new(new(114, 100), new TrigonometryAngle(32), new TrigonometryAngle(96))), snapshot,
             "the shown beam publishes its colour and cone by value");
         ColourAddWindowLayer capture = GameplayEffectCapture.CaptureMotherBrainRainbowBeam(snapshot, default);
         AssertEqual(snapshot.Color, capture.Colour, "the captured layer adds the beam's colour");
@@ -85,7 +85,7 @@ internal static class MotherBrainBeamWindowVerification
             beam.Step(true, new(100, 95), RotationAngle.FromSteps(angle), Width(2));
             bool up = angle is 96 or 128 or 160;
             MotherBrainRainbowBeamGeometry geometry = beam.Geometry ?? throw new InvalidOperationException("The beam aimed.");
-            AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), 128 - geometry.UpperEdge, 128 - geometry.LowerEdge),
+            AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), TrigonometryAngle.HalfTurn - geometry.UpperEdge, TrigonometryAngle.HalfTurn - geometry.LowerEdge),
                 DisplayScreen.HudHeight), Cone(beam), $"quadrant {angle} reflects its edges into the cone's");
             AssertEqual(0, LitColumns(Draw(Cone(beam)), up ? 101 : 98).Length,
                 $"quadrant {angle} stays on its ray side of the mouth");
@@ -93,7 +93,7 @@ internal static class MotherBrainBeamWindowVerification
         VerifyLeftwardCone(beam);
         beam.Step(true, new(356, 95), RotationAngle.QuarterTurn, Width(64));
         AssertEqual(new Position16<RoomPixels>(370, 100), beam.Geometry?.Mouth, "the mouth stays where it lies in the room");
-        AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), 32, 96), DisplayScreen.HudHeight),
+        AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), new TrigonometryAngle(32), new TrigonometryAngle(96)), DisplayScreen.HudHeight),
             Cone(beam, new(256, 0)), "a scrolled camera places the cone like the unscrolled head");
         Console.WriteLine("  Mother Brain beam: cones from the mouth in any direction, HUD exclusion, camera placement, color stride/reset and owned capture agree.");
     }
@@ -107,10 +107,10 @@ internal static class MotherBrainBeamWindowVerification
         beam.Step(true, new(100, 95), RotationAngle.FromSteps(128), Width(32));
         ScreenWindow up = Cone(beam);
         beam.Step(true, new(100, 95), RotationAngle.ThreeQuarterTurn, Width(2));
-        AssertEqual(new MotherBrainRainbowBeamGeometry(new(114, 100), 191, 193), beam.Geometry,
+        AssertEqual(new MotherBrainRainbowBeamGeometry(new(114, 100), new TrigonometryAngle(191), new TrigonometryAngle(193)), beam.Geometry,
             "a leftward aim publishes its own edges");
         AssertTrue(Cone(beam) != up, "a leftward aim does not keep the earlier cone");
-        AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), 128 - 193, 128 - 191), DisplayScreen.HudHeight),
+        AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), TrigonometryAngle.Wrapped(128 - 193), TrigonometryAngle.Wrapped(128 - 191)), DisplayScreen.HudHeight),
             Cone(beam), "a leftward aim reflects its edges into the cone's");
         int[] mouthLine = LitColumns(Draw(Cone(beam)), 100);
         AssertTrue(mouthLine.Length != 0 && mouthLine[0] == 0 && mouthLine[^1] <= 116,

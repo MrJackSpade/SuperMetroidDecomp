@@ -22,7 +22,7 @@ internal static class StatueWalkDefinitionsVerification
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xaad59a + step * 2)), GoldenTorizoWalk.Velocity(step), "Torizo walking step velocity");
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         Func<RoomEnemySlot, TorizoEnemyState, SamusState?, RoomLevelData, int, AnimationContinuation<TorizoBodySegment>?> walk = enemies.BombTorizoBehavior.Choices.ProcessGoldenTorizoWalkAnimation;
-        Action<RoomEnemySlot, ChozoStatueState, SamusState, RoomLevelData, int> carry = enemies.ChozoStatueBehavior.ProcessChozoStatueMovement;
+        Action<RoomEnemySlot, ChozoStatueState, SamusState, RoomLevelData, ChozoCarryStep> carry = enemies.ChozoStatueBehavior.ProcessChozoStatueMovement;
         var level = CreateEmptyRoom(new(32, 32));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Radius = new(8, 8);
@@ -39,10 +39,15 @@ internal static class StatueWalkDefinitionsVerification
             AssertEqual((ushort)123, slot.Position.X.Fraction, "Torizo preserves subpixel state");
             AssertTrue(next is null, "Torizo walking step runs on without a wall");
         }
-        for (int record = 0; record < ChozoCarryMotionDefinitions.RecordCount; record++)
+        // Every cartridge record that holds a carry step: its facing and pose read the record's words. The four still
+        // records closing each facing's sixteen are named by no cue and hold no step.
+        int carrySteps = 0;
+        foreach (int record in ChozoNativeWords.StepRecords)
         {
             int offset = record * 2;
-            var data = ChozoCarry.Read(record);
+            ChozoCarryStep step = ChozoNativeWords.CarryStep(record);
+            var data = ChozoCarry.Read(step);
+            carrySteps++;
             short velocity = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaae630 + offset)));
             short xOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaae670 + offset)));
             short yOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaae6b0 + offset)));
@@ -51,8 +56,8 @@ internal static class StatueWalkDefinitionsVerification
             AssertEqual(yOffset, data.SamusOffset.Y, "Chozo native hand Y");
             slot.Position = new(new(256, 0x8123), new(256, 0x8123));
             uint start = 0x01008123;
-            carry(slot, statue, samus, level, record);
-            AssertEqual(record, statue.CarryRecord, "Chozo carry record");
+            carry(slot, statue, samus, level, step);
+            AssertEqual(step, statue.CarryStep, "Chozo carry step");
             uint x = unchecked(start + (uint)(SixteenSixteen.FromEightEight(velocity)));
             uint y = start + (uint)(SixteenSixteen.FromEightEight(Math.Abs((int)velocity)));
             AssertEqual(FixedCoordinate.WholeOf(unchecked((int)x)), slot.Position.X.Whole, "Chozo real signed X movement");
@@ -64,8 +69,7 @@ internal static class StatueWalkDefinitionsVerification
         }
         AssertThrows<ArgumentOutOfRangeException>(() => GoldenTorizoWalk.Velocity(GoldenTorizoWalk.StepCount), "Torizo step past the walk");
         AssertThrows<ArgumentOutOfRangeException>(() => GoldenTorizoWalk.Velocity(-1), "Torizo negative walking step");
-        AssertThrows<InvalidDataException>(() => ChozoCarry.Read(ChozoCarryMotionDefinitions.RecordCount), "Chozo record past the table remains invalid");
-        AssertThrows<InvalidDataException>(() => ChozoCarry.Read(-1), "Chozo negative record remains invalid");
-        Console.WriteLine("Statue walking: 20 Torizo walking steps, 96 Chozo words and 52 real movement/carry calls match without a bus.");
+        AssertEqual(24, carrySteps, "both facings' four holding poses and twice-walked four-step strides");
+        Console.WriteLine($"Statue walking: 20 Torizo walking steps, {carrySteps * 3} Chozo words and {GoldenTorizoWalk.StepCount + carrySteps} real movement/carry calls match without a bus.");
     }
 }

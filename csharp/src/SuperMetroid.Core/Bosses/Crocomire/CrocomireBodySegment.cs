@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's body, melting and skeleton animation programs, declared in the order the original game authors them.
+/// Crocomire's body, melting and skeleton animation programs, declared in the order the game authors them.
 /// The fight AI depends on that order: it asks whether the program it is running lies at or after
-/// a given program, as the original routines compare script positions.
+/// a given program, as the game's fight compares animation positions.
 /// </summary>
 public enum CrocomireBodySegment
 {

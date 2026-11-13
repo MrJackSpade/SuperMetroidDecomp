@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnBodySegment;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>Spore Spawn's typed body programs (#641), in place of its lists.</summary>
+/// <summary>Spore Spawn's typed body programs (#641).</summary>
 internal static class SporeSpawnAnimations
 {
     /// <summary>How long the living room waits before the descent.</summary>

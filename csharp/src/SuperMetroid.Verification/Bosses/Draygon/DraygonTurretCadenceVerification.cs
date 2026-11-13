@@ -25,7 +25,7 @@ internal static class DraygonTurretCadenceVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon, camera: new Position16<RoomPixels>(256, 288));
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon, camera: new Position16<RoomPixels>(256, 288));
         var boss = runtime.Enemies.DraygonBehavior.Parts.Draygon;
         AssertEqual(DraygonAiFunction.IntroInitialDelay, (boss ?? throw new InvalidOperationException("Verification requires boss.")).Function, "fight intro waits before the dance");
 

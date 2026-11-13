@@ -39,7 +39,7 @@ internal static class HiddenSoakTests
                 Step(tick % 47 == 0 ? ControllerButton.Start : ControllerButton.None);
             Check(game.GameState == SuperMetroidGameState.MainGameplay, "soak startup failed");
             var runtime = game.RuntimeForVerification ?? throw new InvalidOperationException("Soak has no active runtime.");
-            RoomHeaderDefinition room = paused ? RoomHeaderDefinitions.GlassTunnel : RoomHeaderDefinitions.AlphaPowerBomb;
+            RoomDefinition room = paused ? RoomDefinitions.GlassTunnel : RoomDefinitions.AlphaPowerBomb;
             runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             Step(0);

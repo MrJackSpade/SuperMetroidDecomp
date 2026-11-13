@@ -44,7 +44,7 @@ internal static class ChootBehaviorVerification
             EnemyInstructionRunner.ShownFrames(slot, 10), "Choot jumping animation");
         AssertTrue(slot.Processing.HasAny(EnemyProcessing.OffScreen), "Choot jumping program enables off-screen processing");
 
-        state.YSpeedTableIndex = 1;
+        state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(1);
         ChootBehavior.RunChootJump(slot, state);
         AssertEqual(new AnimationPlayback<ChootSegment>(ChootAnimations.StartingWith(ChootSegment.Falling), AnimationPlace.StartOfAnimation), state.Playback,
             "Choot real apex handoff starts the falling animation");

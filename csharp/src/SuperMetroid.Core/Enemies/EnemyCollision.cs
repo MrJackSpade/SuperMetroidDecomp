@@ -440,7 +440,7 @@ internal sealed class EnemyCollision
             bool usesIgnoreShotAi = ShotAi(enemy) == EnemyReaction.Ignore;
             bool usesPrivateShotAi = HasPrivateNormalBombShotAi(enemy, ShotAi(enemy));
             bool usesFrameHitboxes = enemy.CollidesByFrameHitboxes;
-            bool headerWithholdsFrameHitboxShots = usesFrameHitboxes &&
+            bool definitionWithholdsFrameHitboxShots = usesFrameHitboxes &&
                 enemy.Definition.ShotHitboxScan == EnemyHitboxScan.Withheld;
             bool admittedByOccupant = enemy.Entity is IEnemyNormalBombAdmission admission &&
                 admission.AdmitsNormalBombs(usesFrameHitboxes);
@@ -449,7 +449,7 @@ internal sealed class EnemyCollision
                 enemy.Frame is null ||
                 enemy.InvincibilityTimer != 0 ||
                 enemy.Presence.HasAny(EnemyPresence.Deleted) ||
-                headerWithholdsFrameHitboxShots ||
+                definitionWithholdsFrameHitboxShots ||
                 usesFrameHitboxes &&
                     enemy.Contact.HasAny(EnemyContact.IgnoresSamus))
             {
@@ -940,10 +940,7 @@ internal sealed class EnemyCollision
     {
         // The suit's damage division quarters the source definition's damage for Gravity or halves
         // it for Varia before normal touch publishes the invincibility/hurt request.
-        int damage = SamusSuitDamage.Reduce(damageBeforeSuit, samus.EquippedItems);
-        samus.Health = samus.Health <= damage
-            ? 0
-            : samus.Health - damage;
+        SamusSuitDamage.Hurt(samus, damageBeforeSuit);
         samus.InvincibilityTimer = WrappingCountdown.Start(96);
         KnockbackHorizontalDirection direction = samus.Position.X.Whole >= damageSourceX ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left;
         // The contact publishes a hit request; Samus admits it only when no

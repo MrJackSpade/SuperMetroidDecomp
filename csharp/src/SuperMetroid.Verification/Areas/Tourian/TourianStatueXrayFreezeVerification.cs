@@ -24,7 +24,7 @@ internal static class TourianStatueXrayFreezeVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)
             runtime.System.SetBossBits(area, BossBits.AreaBoss);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Statues);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
         AssertTrue(runtime.TourianStatues.Enabled, "the statue room runs the statue sequence");
         runtime.Player.IntroducedSamus.Control.LockHandlers();
 

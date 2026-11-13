@@ -19,6 +19,12 @@ public sealed class GameTimeState
     private const int MaximumHours = 99;
 
     /// <summary>
+    /// The longest play time, in whole minutes, the clock reaches in play: 99 hours and 59 minutes, where it saturates
+    /// (#1627).
+    /// </summary>
+    public const int LongestPlayMinutes = MaximumHours * UnitsPerNextUnit + UnitsPerNextUnit - 1;
+
+    /// <summary>
     /// The sub-second counter, advanced once per accepted gameplay update: 0 through 59 in play, any save-field value
     /// (0 through 65,535) after loading a save that holds one.
     /// </summary>

@@ -7,7 +7,7 @@ using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Enemies.Kago;
 
-/// <summary>The Kago species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Kago species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -17,13 +17,13 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new KagoEntity(slot, common);
 
-    /// <summary>Provides the room random word sampled by bug spawns and jumps without advancing the generator.</summary>
+    /// <summary>Provides the room's random number sampled by bug spawns and jumps without advancing the generator.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates Kago bugs from the ordinary enemy projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Receives the short quake requested by each shell hit.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Creates the parent-header drop requested by a shot Kago bug.</summary>
+    /// <summary>Creates the parent's drop requested by a shot Kago bug.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Tracks the Kago death request in the room's defeated-enemy count.</summary>
     private readonly EnemyRoomStatus _roomStatus;
@@ -49,7 +49,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
         // Kago's placement already authors its other processing properties. The initializer
-        // sets only the animation-script property so the common animation interpreter animates the shell.
+        // sets only the animation-script property so the shared enemy animation animates the shell.
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         state.Playback = EnemyAnimationPlayback.Start(slot, KagoAnimations.StartingWith(KagoSegment.Slow));
         state.Function = KagoEnemyFunction.InstallNoOp;
@@ -76,7 +76,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Runs the Kago-owned tail of the Kago's shot reaction. The caller has
     /// already executed common normal-enemy shot AI, exactly matching the leading call in
-    /// the game routine.
+    /// the game's reaction.
     /// </summary>
     internal void ResolveKagoShotAfterCommon(RoomEnemySlot slot, KagoEnemyState state)
     {
@@ -178,7 +178,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = playback;
     }
 
-    /// <summary>Ports Kago's main AI.</summary>
+    /// <summary>Runs Kago's main AI.</summary>
     internal static void RunKagoMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunKagoMain(slot.RequireSpeciesState<KagoEnemyState>());
@@ -230,7 +230,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         return true;
     }
 
-    /// <summary>Ports the enemy-library sound countdown shared by every live bug state.</summary>
+    /// <summary>Runs the shared enemy sound countdown every live bug state uses.</summary>
     private void StepKagoBugSound(EnemyProjectile projectile)
     {
         KagoBugState bug = projectile.StateOf<KagoBugState>();
@@ -306,7 +306,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         StepKagoBugSound(projectile);
         EnableKagoBugShotCollisionWhenSeparated(projectile);
 
-        // The routine is an if/else-if chain. A wall consumes this frame, zeros X,
+        // The bug's update is an if/else-if chain. A wall consumes this frame, zeros X,
         // and deliberately postpones both vertical motion and gravity until the next frame.
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
@@ -376,12 +376,12 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Shot-animation cue: requests the bug's drop.</summary>
     internal void RequestKagoBugDrop(EnemyProjectile projectile)
     {
-        _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(
+        _deathsAndDrops.SpawnEnemyDropFromDefinition(
             projectile.Position.Whole,
             EnemyDefinitionId.Kago);
     }
 
-    /// <summary>Samples the shared random word without consuming a new value, matching the bug routines' seed reuse.</summary>
+    /// <summary>Samples the shared random number without consuming a new value, matching the bugs' seed reuse.</summary>
     private int ReadKagoRandomNumber() =>
         _room.Random.Read();
 }

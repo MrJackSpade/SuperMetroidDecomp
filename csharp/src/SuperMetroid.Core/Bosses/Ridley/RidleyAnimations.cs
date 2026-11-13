@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Bosses.Ridley.RidleyBodySegment;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Ridley's typed body animations (#641, #1600), shared by Ceres and Lower Norfair, in place of their lists.</summary>
+/// <summary>Ridley's typed body animations (#641, #1600), shared by Ceres and Lower Norfair.</summary>
 internal static class RidleyAnimations
 {
     /// <summary>How long the standing pose lasts before the program sleeps.</summary>
@@ -30,7 +30,7 @@ internal static class RidleyAnimations
     /// <summary>The claw-height pose for extended legs.</summary>
     private const int FeetExtended = 2;
 
-    /// <summary>Every body segment's beats; each list sleeps after its last, but the fireballing lists, which run on into their ends.</summary>
+    /// <summary>Every body segment's beats; each sleeps after its last, but the fireballing segments, which run on into their ends.</summary>
     internal static AnimationSegments<RidleyBodySegment, F, RidleyBodyCue> Segments { get; } = new(
         new Dictionary<RidleyBodySegment, AnimationBeat<F, RidleyBodyCue>[]>
     {
@@ -63,7 +63,7 @@ internal static class RidleyAnimations
     });
 
     /// <summary>
-    /// The animation that starts at each segment: its list played once, then a sleep on its last frame; a fireballing list
+    /// The animation that starts at each segment: its segment played once, then a sleep on its last frame; a fireballing segment
     /// runs on into its end, authored next, which sleeps.
     /// </summary>
     internal static IReadOnlyDictionary<RidleyBodySegment, Animation<RidleyBodySegment>> StartingAt { get; } = new Dictionary<RidleyBodySegment, Animation<RidleyBodySegment>>
@@ -161,7 +161,7 @@ internal static class RidleyAnimations
 
     /// <summary>
     /// Two fireball bursts of one facing, either cut short to <paramref name="end"/> in Ceres when Samus is low on
-    /// energy; the left-facing list aims once more before its second roar, and the list runs on into its end.
+    /// energy; the left-facing burst aims once more before its second roar, and the animation runs on into its end.
     /// </summary>
     private static AnimationBeat<F, RidleyBodyCue>[] Fireballing(Side side, RidleyBodySegment end,
         AnimationBeat<F, RidleyBodyCue>[] beforeSecondBurst)

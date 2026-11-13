@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// source or destination room sets it, the transition hides the foreground below the HUD and does not keep the common
 /// room elements' colours while the source palette fades.
 /// </remarks>
-public sealed record SelectedRoom(RoomHeaderDefinition Definition, RoomStateSettings State)
+public sealed record SelectedRoom(RoomDefinition Definition, RoomStateSettings State)
 {
     /// <summary>The room's per-area index, 0 through 255.</summary>
     public int RoomIndex => Definition.RoomIndex;
@@ -47,9 +47,9 @@ public sealed record SelectedRoom(RoomHeaderDefinition Definition, RoomStateSett
     /// <summary>Logical area/room pair.</summary>
     public RoomIdentity Identity => new(AreaIndex, RoomIndex);
 
-    /// <summary>Builds a room entirely from compiled fixed metadata, selection, and state payloads.</summary>
+    /// <summary>Selects <paramref name="room"/>'s state for <paramref name="selection"/> from the compiled room definitions.</summary>
     public static SelectedRoom LoadUsingCompiledSelection(
-        RoomHeaderDefinition room,
+        RoomDefinition room,
         RoomStateSelectionContext selection = default) =>
         new(Ensure.NotNull(room), RoomStateSelection.Select(room, selection));
 }

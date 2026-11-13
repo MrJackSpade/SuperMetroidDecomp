@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// What a frame read past an animation program's end, or on an instruction's operand, reaches (#1473, #1474, #1535). The
-/// original game lays a kind of program out one after another and reads a frame as the program's start plus the frame, so
+/// What a frame read past an animation program's end, or on a cue's operand, reaches (#1473, #1474, #1535). The
+/// game lays a kind of program out one after another and reads a frame as the program's start plus the frame, so
 /// a frame past a program's end reads the program laid out after it, shifted by the distance between their starts, and a
-/// frame on the place of an instruction's operand reads that operand as a step of its own. The import pipeline decodes
+/// frame on the place of a cue's operand reads that operand as a step of its own. The import pipeline decodes
 /// that layout once into each program's successor and that shift, and the step each operand place reads; no place in the
 /// layout reaches the game.
 /// </summary>
@@ -28,8 +28,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// <para>
 /// The typed animations whose gameplay reads which list a resting animation stands in (#1600) keep their lists' layout in
 /// the same terms: a list that runs on into the list authored after it, directly after its last beat, has that list as
-/// its successor, starting as many beats later, so a play resting after that beat reads the next list, as the original
-/// game's script pointer then rests at its entry.
+/// its successor, starting as many beats later, so a play resting after that beat reads the next list, as the game's
+/// animation position then rests at its entry.
 /// </para>
 /// </remarks>
 /// <typeparam name="TAnimation">
@@ -101,7 +101,7 @@ public sealed class LaidOutAnimationContinuation<TAnimation, TStep>
                 : new Read(next.Animation, frame - next.Shift, next.Shift);
 
     /// <summary>
-    /// The step <paramref name="frame"/> of <paramref name="animation"/> reads when it lands on an instruction's operand, in
+    /// The step <paramref name="frame"/> of <paramref name="animation"/> reads when it lands on a cue's operand, in
     /// the program's own frame numbering; null when the frame is no operand's place of the program.
     /// </summary>
     /// <exception cref="ArgumentException"><paramref name="animation"/> is not in the layout.</exception>

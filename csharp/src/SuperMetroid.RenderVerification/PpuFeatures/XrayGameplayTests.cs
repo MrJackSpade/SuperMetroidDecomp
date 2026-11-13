@@ -226,9 +226,9 @@ internal static class XrayGameplayTests
         // A seeded window (#1468): a cone from an apex on or off the screen joined with a rectangle, within a band of lines.
         static ScreenWindow RandomWindow(Random random)
         {
-            int firstEdge = random.Next(WindowCone.AngleUnitsPerTurn);
+            int firstEdge = random.Next(RotationAngle.StepsPerTurn);
             var cone = new WindowCone(Offset16<ScreenPixels>.Of(random.Next(-64, 320), random.Next(-64, 288)),
-                firstEdge, firstEdge + random.Next(WindowCone.AngleUnitsPerTurn / 2));
+                new TrigonometryAngle(firstEdge), TrigonometryAngle.Wrapped(firstEdge + random.Next(RotationAngle.StepsPerTurn / 2)));
             int left = random.Next(-32, 256), top = random.Next(-32, 224);
             var rectangle = WindowRectangle.Spanning(left, top, left + random.Next(128), top + random.Next(128));
             int firstLine = random.Next(224);

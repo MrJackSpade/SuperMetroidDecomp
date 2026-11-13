@@ -28,10 +28,10 @@ internal static class RoomArtworkRenderParityVerification
         // The installed artwork is loaded once and bound by each installed-art runtime, which only reads it.
         RoomCharacterAtlases installedCharacters = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.RoomCharacters;
         InstalledRoomArtwork installedBlockSheets = installation.LoadRoomBlockSheets();
-        foreach ((string name, RoomHeaderDefinition expectedRoom, bool useRealLandingDoor) in new[]
+        foreach ((string name, RoomDefinition expectedRoom, bool useRealLandingDoor) in new[]
         {
-            new VerifyRoomArtworkRenderParityCase("Ceres elevator overlap", RoomHeaderDefinitions.CeresElev, false),
-            new VerifyRoomArtworkRenderParityCase("Landing Site sky", RoomHeaderDefinitions.LandingSite, true),
+            new VerifyRoomArtworkRenderParityCase("Ceres elevator overlap", RoomDefinitions.CeresElev, false),
+            new VerifyRoomArtworkRenderParityCase("Landing Site sky", RoomDefinitions.LandingSite, true),
         })
         {
             SuperMetroidRuntime native = LoadRoom(installedArt: false);

@@ -144,7 +144,7 @@ internal static class RoomCharacterInstallationVerification
         var stockBackgroundVram = new SnesVram();
         SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeBackgroundVram,
             ceres.State.BackgroundDataPointer, activeDoorPointer: 0);
-        LibraryBackgroundReplay.Execute(stockBackgroundVram, LibraryBackgroundProgramDefinitions.Get(ceres.State.BackgroundDataPointer), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = stockBackgrounds });
+        LibraryBackgroundReplay.Execute(stockBackgroundVram, LibraryBackgroundProgramDefinitions.Get(ceres.State.BackgroundDataPointer), activeDoor: FixtureRooms.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = stockBackgrounds });
         AssertTrue(nativeBackgroundVram.ImageEquals(stockBackgroundVram),
             "extracted Ceres background tilemap retains native VRAM words");
 
@@ -173,7 +173,7 @@ internal static class RoomCharacterInstallationVerification
     private static SnesVram ShownVram(LibraryBackgroundProgram program, LibraryBackgroundArtwork artwork)
     {
         var vram = new SnesVram();
-        LibraryBackgroundReplay.Execute(vram, program, activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: artwork);
+        LibraryBackgroundReplay.Execute(vram, program, activeDoor: FixtureRooms.UnmatchedDoor, artwork: artwork);
         return vram;
     }
 

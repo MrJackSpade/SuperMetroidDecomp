@@ -12,7 +12,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
-/// <summary>The Yapping Maw species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Yapping Maw species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -50,22 +50,22 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case YappingMawCueKind.HoldSamusUpRight:
-                SetYappingMawHeldOffset(state, directionIndex: 1);
+                SetYappingMawHeldOffset(state, YappingMawAim.UpRight);
                 break;
             case YappingMawCueKind.HoldSamusUpLeft:
-                SetYappingMawHeldOffset(state, directionIndex: 7);
+                SetYappingMawHeldOffset(state, YappingMawAim.UpLeft);
                 break;
             case YappingMawCueKind.HoldSamusDownRight:
-                SetYappingMawHeldOffset(state, directionIndex: 3);
+                SetYappingMawHeldOffset(state, YappingMawAim.DownRight);
                 break;
             case YappingMawCueKind.HoldSamusDownLeft:
-                SetYappingMawHeldOffset(state, directionIndex: 5);
+                SetYappingMawHeldOffset(state, YappingMawAim.DownLeft);
                 break;
             case YappingMawCueKind.HoldSamusUp:
-                SetYappingMawHeldOffset(state, directionIndex: 0);
+                SetYappingMawHeldOffset(state, YappingMawAim.Up);
                 break;
             case YappingMawCueKind.HoldSamusDown:
-                SetYappingMawHeldOffset(state, directionIndex: 4);
+                SetYappingMawHeldOffset(state, YappingMawAim.Down);
                 break;
             case YappingMawCueKind.PlayBiteSound:
                 PlayYappingMawAttackSound(state);
@@ -79,6 +79,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int YappingMawGrabSafetyDistance = 32;
     /// <summary>Maximum extension curl admitted by the four-link solver, in whole angle units.</summary>
     private const int YappingMawMaximumCurl = 128;
+    /// <summary>The curl, in whole angle units, per angle step each link of the chain bends by: the bend step is a quarter of the curl.</summary>
+    private const int CurlPerBendStep = 4;
     /// <summary>Cooldown after Samus is released before the Maw can grab again.</summary>
     private const int YappingMawGrabCooldownFrames = 48;
     /// <summary>Delay after full retraction before Samus input is released.</summary>
@@ -211,7 +213,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void BeginYappingMawExtension(RoomEnemySlot slot, YappingMawEnemyState state)
     {
         state.Extension = SignedSixteenSixteen.Zero;
-        state.QuadraticSpeedRow = 0;
+        state.QuadraticSpeedRow = EnemyQuadraticSpeedIndex.Start;
         state.QuadraticSpeedSign = EnemySpeedSign.Positive;
         state.SegmentRadius = state.DistanceToSamus / 2;
         state.CurlAngle = state.AimAngle.ToTableAngle().ToAngle();
@@ -221,14 +223,20 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             CalculateYappingMawX(TrigonometryAngle.HalfTurn, state.SegmentRadius),
             CalculateYappingMawY(TrigonometryAngle.HalfTurn, state.SegmentRadius / 2));
 
-        int direction = AimSector(state.AimAngle);
-        YappingMawAim aim = YappingMawAnimationDefinitions.Aims.At(direction);
+        YappingMawAim aim = AimOf(state.AimAngle);
         state.Aim = aim;
         state.Playback = EnemyAnimationPlayback.Start(slot, YappingMawAnimations.StartingWith(YappingMawBites.AttackForDirection(aim)));
 
-        state.HeldSamusOffset = YappingMawAttackGeometry.HeldSamusOffset(direction);
+        state.HeldSamusOffset = YappingMawAttackGeometry.HeldSamusOffset(aim);
         state.Function = YappingMawAiFunction.ExtendingOrRetracting;
     }
+
+    /// <summary>
+    /// The angle steps each link of the chain bends by for a curl of <paramref name="curl"/> whole angle units. The
+    /// extension only runs while the curl is 0 through <see cref="YappingMawMaximumCurl"/>: setup starts it at zero, the
+    /// clamp caps it, and the update that carries it negative leaves the extension; a curl outside that range is refused.
+    /// </summary>
+    internal static int BendStepOf(int curl) => Ensure.BetweenInclusive(0, YappingMawMaximumCurl, curl) / CurlPerBendStep;
 
     /// <summary>Runs the curved four-link solver and state transition.</summary>
     private void AdvanceYappingMawExtension(
@@ -236,11 +244,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         YappingMawEnemyState state,
         SamusState samus)
     {
-        // The function only runs while the curl's whole part is in [0, YappingMawMaximumCurl]: setup starts it at zero,
-        // the clamp below caps it, and the update that carries it negative leaves this function. In that range a
-        // quarter of the signed whole part equals the game's two logical right shifts of the word; the check fails
-        // loudly if that range is ever violated.
-        int bendStep = Ensure.BetweenInclusive(0, YappingMawMaximumCurl, state.Extension.WholePixels) / 4;
+        int bendStep = BendStepOf(state.Extension.WholePixels);
         // The bend corrects the eight offsets in one chain, link by link and X before Y (YappingMawBendChain).
         var chain = new YappingMawBendChain();
         for (int segment = 0; segment < 4; segment++)
@@ -284,7 +288,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 // the same row's negative speed, or from a negative speed on to the next row's positive one.
                 if (state.QuadraticSpeedSign == EnemySpeedSign.Negative)
                 {
-                    state.QuadraticSpeedRow++;
+                    state.QuadraticSpeedRow += EnemyQuadraticSpeedIndex.OneRow;
                     state.QuadraticSpeedSign = EnemySpeedSign.Positive;
                 }
                 else
@@ -337,8 +341,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Adds the current quadratic speed to the curl, carrying the fraction, then advances the record.</summary>
     internal static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
     {
-        state.Extension += EnemyQuadraticSpeeds.Row(state.QuadraticSpeedRow).Toward(state.QuadraticSpeedSign);
-        state.QuadraticSpeedRow++;
+        state.Extension += state.QuadraticSpeedRow.Row.Toward(state.QuadraticSpeedSign);
+        state.QuadraticSpeedRow += EnemyQuadraticSpeedIndex.OneRow;
     }
 
     /// <summary>Waits after retraction, including decrement-underflow expiration on frame 65.</summary>
@@ -411,7 +415,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Runs after common shot AI on the Maw the hit struck. Ice releases a living Maw's captive; death additionally
-    /// destroys all four body eprojs and the root sprite object, which the killed Maw's state still names.
+    /// destroys all four body-link projectiles and the root sprite object, which the killed Maw's state still names.
     /// </summary>
     private static void ResolveYappingMawShotAfterCommon(
         RoomEnemySlot slot,
@@ -461,7 +465,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             state.RootSpriteObject.Graphics = state.RootSpriteObject.Graphics.In(shading);
     }
 
-    /// <summary>Flashes the frozen colours against the original colours during the last 89 ticks.</summary>
+    /// <summary>Flashes the frozen colours against the Maw's own colours during the last 89 ticks.</summary>
     private static PictureShading SelectYappingMawFrozenShading(
         PictureShading originalShading,
         int frozenTimer)
@@ -479,9 +483,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Animation callback used by all six held-Samus offset cues.</summary>
     internal static void SetYappingMawHeldOffset(
         YappingMawEnemyState state,
-        int directionIndex)
+        YappingMawAim aim)
     {
-        state.HeldSamusOffset = YappingMawAttackGeometry.HeldSamusOffset(directionIndex);
+        state.HeldSamusOffset = YappingMawAttackGeometry.HeldSamusOffset(aim);
     }
 
     /// <summary>Publishes the attack sound only when this Maw is visible.</summary>
@@ -503,7 +507,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Position = projectile.Position.WithWhole(position);
     }
 
-    /// <summary>The root plus one solved link's signed word offsets, wrapping at sixteen bits.</summary>
+    /// <summary>The root plus one solved link's signed offsets, wrapping around the coordinate range.</summary>
     private static Position16<RoomPixels> YappingMawLinkPosition(YappingMawEnemyState state, int segment) =>
         state.Origin + state.SegmentOffsets[segment];
 
@@ -518,7 +522,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// The axis distance, in pixels, from which the Maw's target distance is that axis's distance alone, kept exact
-    /// (#1627): nearer on both axes, the distance is the sum of two short products, which the original forms only below it,
+    /// (#1627): nearer on both axes, the distance is the sum of two short products, which the game forms only below it,
     /// and the Maw's reach follows whichever it measures.
     /// </summary>
     private const int ShortProductReach = 255;
@@ -530,7 +534,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int deltaX = CoordinateAxis.Difference(samus.X, origin.X);
         int absoluteX = Math.Abs(deltaX);
-        // The farthest difference's magnitude, 32768, is compared as the game's signed word reads it.
+        // The farthest difference's magnitude, 32768, is compared as the game's signed comparison reads it.
         if (CoordinateAxis.Difference(absoluteX, ShortProductReach) >= 0)
             return new YappingMawTarget(absoluteX, default);
 
@@ -549,12 +553,12 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Which of the eight directions, numbered clockwise from up, the aim <paramref name="aim"/> points in: eight equal
-    /// sectors, each centred on its direction, so the aim is turned on half a sector before its sector is read. The
+    /// Which of the eight aims the bearing <paramref name="aim"/> points in: eight equal sectors in the aims' clockwise
+    /// order from up, each centred on its direction, so the aim is turned on half a sector before its sector is read. The
     /// bearing's units are read through its mirrored table angle, which counts the same units.
     /// </summary>
-    internal static int AimSector(Bearing aim) =>
-        aim.ToMirroredTableAngle().ToAngle().TurnedBySteps(EnemyTrigonometryAngleDefinitions.EighthTurn / 2).Sector(8);
+    internal static YappingMawAim AimOf(Bearing aim) => YappingMawAnimationDefinitions.Aims.At(
+        aim.ToMirroredTableAngle().ToAngle().TurnedBySteps(EnemyTrigonometryAngleDefinitions.EighthTurn / 2).Sector(8));
 
     /// <summary>X is the Y helper a quarter turn behind.</summary>
     internal static int CalculateYappingMawX(TrigonometryAngle angle, int length) =>
@@ -564,8 +568,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The offset of a link <paramref name="length"/> along the turn <paramref name="angle"/>, -254 through 254 pixels:
     /// twice the length the short product uses (<see cref="ShortCircleProduct.RadiusInUse"/>) times the sine's whole
     /// part, counted in 256ths of a pixel and rounded down to whole pixels, so a point on the negative side with a fraction
-    /// lies a whole pixel further out (#1620: the plain floor of the signed product, which the original's negation and
-    /// byte fill compute for every sine and length); its consumers wrap it onto the room's axis.
+    /// lies a whole pixel further out (#1620: the plain floor of the signed product, which the game's negation and
+    /// sign fill compute for every sine and length); its consumers wrap it onto the room's axis.
     /// </summary>
     internal static int CalculateYappingMawY(TrigonometryAngle angle, int length)
     {
@@ -590,7 +594,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Ports YappingMaw's main AI.</summary>
+    /// <summary>Runs YappingMaw's main AI.</summary>
     internal void RunYappingMawMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunYappingMawMain(

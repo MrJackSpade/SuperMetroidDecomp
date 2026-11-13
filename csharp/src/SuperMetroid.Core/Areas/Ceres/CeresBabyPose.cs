@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>A Ceres Baby Metroid squish pose; its spritemap is confined to <see cref="Artwork.CeresBabyFrameDefinitions"/>.</summary>
+/// <summary>A Ceres Baby Metroid squish pose; its picture is confined to <see cref="Artwork.CeresBabyFrameDefinitions"/>.</summary>
 internal enum CeresBabyPose
 {
     /// <summary>Squished horizontally.</summary>

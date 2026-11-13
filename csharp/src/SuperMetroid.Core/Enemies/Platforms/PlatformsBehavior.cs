@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -74,8 +74,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.VerticallyMovingArtInstalled = false;
         state.VerticallyStillArtInstalled = false;
         state.RestingHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole) + new Offset16<RoomPixels>(0, 1);
-        state.YSpeedTableIndex = 0;
-        state.MaximumYSpeedTableIndex = settings.VerticalAccelerationUpdates;
+        state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
+        state.MaximumYSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(settings.VerticalAccelerationUpdates);
     }
 
     /// <summary>Runs the Tripper and Kamer's main AI.</summary>
@@ -106,7 +106,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         // selected vertical state. Preserve that slightly surprising ordering: a new phase
         // can use quadratic entry one now, then begins from entry zero on its next frame.
         if (state.YMovement != state.PreviousYMovement)
-            state.YSpeedTableIndex = 0;
+            state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
         state.PreviousYMovement = state.YMovement;
     }
 
@@ -201,18 +201,18 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         // from their depressed position to one pixel below their original spawn center.
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, state.RestingHeight.Y) < 0)
         {
-            state.YSpeedTableIndex = 0;
+            state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
             SetPlatformVerticallyStillAnimation(slot, state);
             return;
         }
 
         SetPlatformVerticallyMovingAnimation(slot, state);
         IncrementAndClampPlatformYSpeed(state);
-        SignedSixteenSixteen displacement = EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Negative;
+        SignedSixteenSixteen displacement = state.YSpeedTableIndex.Row.Negative;
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
             return;
 
-        state.YSpeedTableIndex = 0;
+        state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
         SetPlatformVerticallyStillAnimation(slot, state);
     }
 
@@ -239,10 +239,10 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(CoordinateAxis.AsSigned(xDelta), 0);
 
         int preVerticalY = slot.Position.Y.Whole;
-        SignedSixteenSixteen displacement = EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Positive;
+        SignedSixteenSixteen displacement = state.YSpeedTableIndex.Row.Positive;
         if (_terrain.MoveEnemyVertically(level, slot, displacement))
         {
-            state.YSpeedTableIndex = 0;
+            state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
             SetPlatformVerticallyStillAnimation(slot, state);
         }
 
@@ -253,13 +253,13 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Steps the quadratic-speed table index without crossing its variant-specific cap. The index stays within
-    /// 0 through the cap (at most 255) and one step can only reach 256, so the game's signed comparison
-    /// is an ordinary one.
+    /// Steps the place along the quadratic speed table one row on without crossing its variant-specific cap. The place
+    /// stays within the first row through the cap (at most row 255) and one step can only reach row 256, so the game's
+    /// signed comparison is an ordinary one.
     /// </summary>
     internal static void IncrementAndClampPlatformYSpeed(PlatformEnemyState state)
     {
-        state.YSpeedTableIndex++;
+        state.YSpeedTableIndex += EnemyQuadraticSpeedIndex.OneRow;
         if (state.YSpeedTableIndex >= state.MaximumYSpeedTableIndex)
             state.YSpeedTableIndex = state.MaximumYSpeedTableIndex;
     }

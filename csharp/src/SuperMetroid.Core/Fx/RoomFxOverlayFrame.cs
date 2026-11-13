@@ -13,10 +13,11 @@ public sealed record RoomFxOverlayFrame
     public required PowerOnEarthquakeSoundDelay EarthquakeSoundDelay { get; init; }
 
     /// <summary>
-    /// The shared random number this frame, 0 through 65535, sampled without advancing it: its low two bits lengthen
-    /// the next rising-liquid earthquake-sound delay. Values outside the random number's range are rejected.
+    /// The shared random number this frame, 0 through <see cref="SharedRandomState.LargestValue"/>, sampled without
+    /// advancing it: its low two bits lengthen the next rising-liquid earthquake-sound delay. A value the shared random
+    /// sequence never holds is rejected (#1627).
     /// </summary>
-    public int RandomNumber { get; init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
+    public int RandomNumber { get; init => field = Ensure.BetweenInclusive(0, SharedRandomState.LargestValue, value); }
 
     /// <summary>
     /// The room's Fireflea darkness step this frame (none, then one more per Fireflea killed, at most six), copied from

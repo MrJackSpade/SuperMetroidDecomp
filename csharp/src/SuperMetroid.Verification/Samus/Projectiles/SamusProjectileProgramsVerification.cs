@@ -82,27 +82,27 @@ internal static class SamusProjectileProgramsVerification
         AssertTrue(records.SequenceEqual(SamusProjectileRecordDefinitions.TimedRecordAddresses), "the record addresses are the timed records in address order");
 
         int fields = 0;
-        foreach (SamusProjectileHeader kind in Enum.GetValues<SamusProjectileHeader>())
+        foreach (SamusProjectileKind kind in Enum.GetValues<SamusProjectileKind>())
         {
             ushort header = SamusProjectileHeaderNative.Address(kind);
             int kept = FirstListReadHeaders.Contains(kind) ? 1 : HeaderListFields;
             if (kept < HeaderListFields)
             {
-                AssertThrows<ArgumentOutOfRangeException>(() => SamusProjectileHeaders.ProgramAtField(kind, kept), $"{kind} keeps only the list field its shots read");
-                AssertThrows<ArgumentOutOfRangeException>(() => SamusProjectileHeaders.Animation(kind, SamusProjectileDirection.UpFacingRight), $"{kind} is read by no direction");
+                AssertThrows<ArgumentOutOfRangeException>(() => SamusProjectileKinds.ProgramAtField(kind, kept), $"{kind} keeps only the list field its shots read");
+                AssertThrows<ArgumentOutOfRangeException>(() => SamusProjectileKinds.Animation(kind, SamusProjectileDirection.UpFacingRight), $"{kind} is read by no direction");
             }
             else
-                AssertThrows<ArgumentOutOfRangeException>(() => SamusProjectileHeaders.SoleAnimation(kind), $"{kind} is read by direction");
+                AssertThrows<ArgumentOutOfRangeException>(() => SamusProjectileKinds.SoleAnimation(kind), $"{kind} is read by direction");
             for (int field = 0; field < kept; field++, fields++)
             {
                 ushort native = Word(header + sizeof(ushort) * (1 + field));
                 string at = $"projectile header $93:{header:X4} field {field}";
                 if (!byEntry.TryGetValue(native, out SamusProjectileSegment program))
                     throw new InvalidDataException($"{at}: native word ${native:X4} is not a list, but every header field the port keeps names one.");
-                AssertEqual(program, SamusProjectileHeaders.ProgramAtField(header, field), $"{at}: list");
+                AssertEqual(program, SamusProjectileKinds.ProgramAtField(header, field), $"{at}: list");
             }
         }
-        ushort powerBomb = SamusProjectileHeaderNative.Address(SamusProjectileHeader.PowerBomb);
+        ushort powerBomb = SamusProjectileHeaderNative.Address(SamusProjectileKind.PowerBomb);
         foreach (SamusProjectileDirection direction in Enum.GetValues<SamusProjectileDirection>())
         {
             ushort native = Word(powerBomb + sizeof(ushort) * (1 + direction.ToAimIndex()));
@@ -126,17 +126,17 @@ internal static class SamusProjectileProgramsVerification
     /// special-attack particles; the port keeps none of the words after it. The Murder Beam's read past the Power Bomb
     /// header is its own rule, checked against the same words.
     /// </summary>
-    private static readonly HashSet<SamusProjectileHeader> FirstListReadHeaders =
+    private static readonly HashSet<SamusProjectileKind> FirstListReadHeaders =
     [
-        SamusProjectileHeader.SuperMissileLink, SamusProjectileHeader.PowerBomb, SamusProjectileHeader.Bomb,
-        SamusProjectileHeader.PlasmaSBA, SamusProjectileHeader.WaveSBA, SamusProjectileHeader.SpazerSBA,
+        SamusProjectileKind.SuperMissileLink, SamusProjectileKind.PowerBomb, SamusProjectileKind.Bomb,
+        SamusProjectileKind.PlasmaSBA, SamusProjectileKind.WaveSBA, SamusProjectileKind.SpazerSBA,
     ];
 
     /// <summary>The headers that hold only their first list field; every other header holds all ten.</summary>
-    private static readonly HashSet<SamusProjectileHeader> FirstListOnlyHeaders =
+    private static readonly HashSet<SamusProjectileKind> FirstListOnlyHeaders =
     [
-        SamusProjectileHeader.SuperMissileLink, SamusProjectileHeader.PowerBomb, SamusProjectileHeader.Bomb,
-        SamusProjectileHeader.PlasmaSBA, SamusProjectileHeader.WaveSBA, SamusProjectileHeader.SpazerSBA,
+        SamusProjectileKind.SuperMissileLink, SamusProjectileKind.PowerBomb, SamusProjectileKind.Bomb,
+        SamusProjectileKind.PlasmaSBA, SamusProjectileKind.WaveSBA, SamusProjectileKind.SpazerSBA,
     ];
 
     /// <summary>
@@ -153,10 +153,10 @@ internal static class SamusProjectileProgramsVerification
         int compared = 0;
         foreach (ProjectileSelectorWord selector in SamusProjectileHeaderNative.Selectors())
         {
-            AssertEqual(word(selector.Address), SamusProjectileHeaderNative.Address(selector.Header), $"{label}: selector {selector.Address:X6} selects {selector.Header}");
+            AssertEqual(word(selector.Address), SamusProjectileHeaderNative.Address(selector.Kind), $"{label}: selector {selector.Address:X6} selects {selector.Kind}");
             compared++;
         }
-        foreach (SamusProjectileHeader header in Enum.GetValues<SamusProjectileHeader>())
+        foreach (SamusProjectileKind header in Enum.GetValues<SamusProjectileKind>())
         {
             int at = SamusSourceDefinitions.ProjectileDataBank.Value | SamusProjectileHeaderNative.Address(header);
             AssertEqual(word(at), checked((ushort)SamusProjectileDamage.Read(header)), $"{label}: {header} damage");
@@ -164,7 +164,7 @@ internal static class SamusProjectileProgramsVerification
             int fields = FirstListOnlyHeaders.Contains(header) ? 1 : HeaderListFields;
             for (int field = 0; field < fields; field++, compared++)
                 AssertEqual(word(at + sizeof(ushort) * (1 + field)),
-                    SamusProjectileProgramAddresses.Entry(SamusProjectileHeaders.ProgramAtField(header, field)),
+                    SamusProjectileProgramAddresses.Entry(SamusProjectileKinds.ProgramAtField(header, field)),
                     $"{label}: {header} list field {field}");
         }
         return compared;

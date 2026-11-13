@@ -2,7 +2,7 @@ using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's typed tongue and projectile animations (#641, #1600), in place of their lists.</summary>
+/// <summary>Crocomire's typed tongue and projectile animations (#641, #1600).</summary>
 internal static class CrocomireAnimations
 {
     /// <summary>Frames in the mouth projectile's looping flight.</summary>
@@ -44,8 +44,8 @@ internal static class CrocomireAnimations
 
     /// <summary>
     /// The projectile segments, one per projectile kind: the fight projectile's six three-update frames; the bridge
-    /// fragment's and spike-wall piece's one still frame, held for good (#1627: the original's lists show it for the
-    /// longest frame a list gives, after which it still shows that frame); the shot fight projectile's five four-update explosion frames,
+    /// fragment's and spike-wall piece's one still frame, held for good (#1627: it shows for the
+    /// longest duration a frame can have, after which it still shows that frame); the shot fight projectile's five four-update explosion frames,
     /// then a drop with Crocomire's chances and deletion.
     /// </summary>
     internal static AnimationSegments<CrocomireProjectileFrameKind, CrocomireProjectileFrame, CrocomireProjectileCue> ProjectileSegments { get; } = new(

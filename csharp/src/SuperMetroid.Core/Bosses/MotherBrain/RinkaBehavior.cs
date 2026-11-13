@@ -50,7 +50,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// The eleven authored Japan/USA spawn points. Mother Brain's
     /// three special actors compete for these resources and may rewrite their spawn snapshots
-    /// when the original point is outside the current screen. The even reservation token is
+    /// when their authored point is outside the current screen. The even reservation token is
     /// derived from each point's position in this table.
     /// </summary>
     private static readonly Position16<RoomPixels>[] RinkaSpawnPoints =

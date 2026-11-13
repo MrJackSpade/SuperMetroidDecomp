@@ -7,14 +7,14 @@ internal readonly record struct BotwoonHeadAnimationSegment(BotwoonHeadAnimation
     internal static BotwoonHeadAnimationSegment Hidden => new(BotwoonHeadAnimationSegmentKind.Hidden, BotwoonFacing.Up);
 
     /// <summary>
-    /// The visible moving head for a byte angle: its octant selects one of the eight
+    /// The visible moving head for a bearing: its octant selects one of the eight
     /// closed-mouth programs.
     /// </summary>
     internal static BotwoonHeadAnimationSegment MovingToward(Bearing bearing) =>
         new(BotwoonHeadAnimationSegmentKind.Moving, BotwoonAnimations.FacingOfOctant(bearing.Sector(8)));
 
     /// <summary>
-    /// The spitting head for a byte angle, biased half an octant so Samus is aimed at the
+    /// The spitting head for a bearing, biased half an octant so Samus is aimed at the
     /// nearest octant.
     /// </summary>
     internal static BotwoonHeadAnimationSegment SpittingToward(Bearing bearing) =>

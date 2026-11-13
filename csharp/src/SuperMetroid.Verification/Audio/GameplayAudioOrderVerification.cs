@@ -142,7 +142,7 @@ internal static class GameplayAudioOrderVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CrateriaKihunter);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CrateriaKihunter);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.FacingLeftNormalPose;
         samus.Position = samus.Position.WithWhole(new(64, 128));

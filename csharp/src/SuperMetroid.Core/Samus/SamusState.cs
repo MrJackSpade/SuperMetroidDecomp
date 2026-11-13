@@ -749,11 +749,9 @@ level,
         int wholePixels = displacement.WholePixels;
         if (Math.Abs(wholePixels) >= 8)
         {
-            // Computes `(wholePixels & 65520) | 8`. Retain the literal
-            // two's-complement expression rather than replacing it with a magnitude
-            // shortcut; negative probes deliberately produce -8 for the known pose radii.
-            // The whole pixels lie within -32768 through 32767, and so does the intermediate boundary.
-            BlockMoveResult intermediate = Probe(SignedSixteenSixteen.FromWholePixels((wholePixels & ~15) | 8));
+            // The intermediate probe is the centre of the block step the displacement lies in, rounded toward lower
+            // values rather than by magnitude: negative probes deliberately produce -8 for the known pose radii.
+            BlockMoveResult intermediate = Probe(SignedSixteenSixteen.FromWholePixels(RoomGridConversions.BlockStepCentre(wholePixels)));
             if (intermediate.Collided)
                 return intermediate;
         }
@@ -864,19 +862,19 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
 
     /// <summary>
     /// Applies this frame's whole previous-position writes before scrolling calculates
-    /// distance; the fractions are kept. Its normal tail subsequently replaces the complete checkpoint.
+    /// distance; the fractions are kept. Its normal tail subsequently replaces the complete checkpoint. The written X is
+    /// a whole pixel of the room's coordinates, which <see cref="FixedCoordinate"/> holds (#1627).
     /// </summary>
     internal FixedPosition<RoomPixels> ApplyPreviousPositionWrites(FixedPosition<RoomPixels> previous)
     {
-        int correctedY = CoordinateAxis.Wrap((_poseCollisionPreviousYPosition ?? previous.Y.Whole)
-            + _poseAlignmentPreviousYDelta);
-        int xPosition = Ensure.BetweenInclusive(0, ushort.MaxValue, _previousXPositionWrite ?? previous.X.Whole);
+        var written = new FixedPosition<RoomPixels>(
+            FixedCoordinate.Of(_previousXPositionWrite ?? previous.X.Whole, previous.X.Fraction),
+            FixedCoordinate.Of(CoordinateAxis.Wrap((_poseCollisionPreviousYPosition ?? previous.Y.Whole) + _poseAlignmentPreviousYDelta),
+                previous.Y.Fraction));
         _poseCollisionPreviousYPosition = null;
         _poseAlignmentPreviousYDelta = 0;
         _previousXPositionWrite = null;
-        return new FixedPosition<RoomPixels>(
-            FixedCoordinate.Of(xPosition, previous.X.Fraction),
-            FixedCoordinate.Of(correctedY, previous.Y.Fraction));
+        return written;
     }
 
     /// <summary>Persistent low-energy warning state, shared by beta and reserve recovery.</summary>

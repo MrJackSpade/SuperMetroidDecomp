@@ -108,7 +108,7 @@ internal static class BossRoomObjectProgramsVerification
         ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
         RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
         int frames = 0;
-        foreach ((RoomObjectHeaderId header, DraygonCannonSetup setup) in DraygonCannonDefinitions.Setups)
+        foreach ((RoomObjectKind header, DraygonCannonSetup setup) in DraygonCannonDefinitions.Setups)
         {
             DraygonCannonLook look = DraygonCannonAnimationDefinitions.Looks[setup.Orientation];
             string at = $"Draygon cannon {header}";
@@ -184,7 +184,7 @@ internal static class BossRoomObjectProgramsVerification
                     $"{at} shard {shard}");
         }
 
-        int entry = Word(RoomObjectNativeWords.Word(RoomObjectHeaderId.MotherBrainGlass) + 2);
+        int entry = Word(RoomObjectNativeWords.Word(RoomObjectKind.MotherBrainGlass) + 2);
         AssertEqual(RoomObjectInstruction.GotoIfAreaBossBitSet, At(entry), "glass first checks Mother Brain");
         AssertEqual(ProgressionTableCodec.EncodeBossMask(BossBits.AreaBoss), ReadOperandByte(cartridge, entry + 2), "glass area-boss bit");
         int bossDead = Word(entry + 3);
@@ -248,7 +248,7 @@ internal static class BossRoomObjectProgramsVerification
             AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(image)), (int)Word(cursor + 2), $"{at} image");
         }
 
-        int cursor = Word(RoomObjectNativeWords.Word(RoomObjectHeaderId.BombTorizoHand) + 2);
+        int cursor = Word(RoomObjectNativeWords.Word(RoomObjectKind.BombTorizoHand) + 2);
         AssertShown(cursor, BombTorizoHandCrumbleDefinitions.RestingImage, 1, "resting hand");
         AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(cursor + 4), "hand arms its wake");
         AssertEqual(BombTorizoHandObjectProgramDefinitionsConstants.WakeIfSamusHasBombsFrameBehavior, Word(cursor + 6), "hand bomb wake");

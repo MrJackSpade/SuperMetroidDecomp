@@ -3,65 +3,65 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Which projectile definition each shot, bomb, special attack and echo starts from, by what fires it: a beam combination and
+/// Which projectile kind each shot, bomb, special attack and echo is, by what fires it: a beam combination and
 /// whether the shot was charged, a projectile family, or an echo.
 /// </summary>
 internal static class SamusProjectileSelectionDefinitions
 {
-    /// <summary>The definition each retail beam combination's uncharged shot starts from.</summary>
-    internal static readonly IReadOnlyDictionary<SamusBeamCombination, SamusProjectileHeader> UnchargedBeamShots =
-        new Dictionary<SamusBeamCombination, SamusProjectileHeader>
+    /// <summary>The kind of each retail beam combination's uncharged shot.</summary>
+    internal static readonly IReadOnlyDictionary<SamusBeamCombination, SamusProjectileKind> UnchargedBeamShots =
+        new Dictionary<SamusBeamCombination, SamusProjectileKind>
         {
-            [SamusBeamCombination.Power] = SamusProjectileHeader.UnchargedPower,
-            [SamusBeamCombination.Wave] = SamusProjectileHeader.UnchargedWave,
-            [SamusBeamCombination.Ice] = SamusProjectileHeader.UnchargedIce,
-            [SamusBeamCombination.IceWave] = SamusProjectileHeader.UnchargedIceWave,
-            [SamusBeamCombination.Spazer] = SamusProjectileHeader.UnchargedSpazer,
-            [SamusBeamCombination.SpazerWave] = SamusProjectileHeader.UnchargedSpazerWave,
-            [SamusBeamCombination.SpazerIce] = SamusProjectileHeader.UnchargedSpazerIce,
-            [SamusBeamCombination.SpazerIceWave] = SamusProjectileHeader.UnchargedSpazerIceWave,
-            [SamusBeamCombination.Plasma] = SamusProjectileHeader.UnchargedPlasma,
-            [SamusBeamCombination.PlasmaWave] = SamusProjectileHeader.UnchargedPlasmaWave,
-            [SamusBeamCombination.PlasmaIce] = SamusProjectileHeader.UnchargedPlasmaIce,
-            [SamusBeamCombination.PlasmaIceWave] = SamusProjectileHeader.UnchargedPlasmaIceWave,
+            [SamusBeamCombination.Power] = SamusProjectileKind.UnchargedPower,
+            [SamusBeamCombination.Wave] = SamusProjectileKind.UnchargedWave,
+            [SamusBeamCombination.Ice] = SamusProjectileKind.UnchargedIce,
+            [SamusBeamCombination.IceWave] = SamusProjectileKind.UnchargedIceWave,
+            [SamusBeamCombination.Spazer] = SamusProjectileKind.UnchargedSpazer,
+            [SamusBeamCombination.SpazerWave] = SamusProjectileKind.UnchargedSpazerWave,
+            [SamusBeamCombination.SpazerIce] = SamusProjectileKind.UnchargedSpazerIce,
+            [SamusBeamCombination.SpazerIceWave] = SamusProjectileKind.UnchargedSpazerIceWave,
+            [SamusBeamCombination.Plasma] = SamusProjectileKind.UnchargedPlasma,
+            [SamusBeamCombination.PlasmaWave] = SamusProjectileKind.UnchargedPlasmaWave,
+            [SamusBeamCombination.PlasmaIce] = SamusProjectileKind.UnchargedPlasmaIce,
+            [SamusBeamCombination.PlasmaIceWave] = SamusProjectileKind.UnchargedPlasmaIceWave,
         };
 
-    /// <summary>The definition each retail beam combination's charged shot starts from.</summary>
-    internal static readonly IReadOnlyDictionary<SamusBeamCombination, SamusProjectileHeader> ChargedBeamShots =
-        new Dictionary<SamusBeamCombination, SamusProjectileHeader>
+    /// <summary>The kind of each retail beam combination's charged shot.</summary>
+    internal static readonly IReadOnlyDictionary<SamusBeamCombination, SamusProjectileKind> ChargedBeamShots =
+        new Dictionary<SamusBeamCombination, SamusProjectileKind>
         {
-            [SamusBeamCombination.Power] = SamusProjectileHeader.ChargedPower,
-            [SamusBeamCombination.Wave] = SamusProjectileHeader.ChargedWave,
-            [SamusBeamCombination.Ice] = SamusProjectileHeader.ChargedIce,
-            [SamusBeamCombination.IceWave] = SamusProjectileHeader.ChargedIceWave,
-            [SamusBeamCombination.Spazer] = SamusProjectileHeader.ChargedSpazer,
-            [SamusBeamCombination.SpazerWave] = SamusProjectileHeader.ChargedSpazerWave,
-            [SamusBeamCombination.SpazerIce] = SamusProjectileHeader.ChargedSpazerIce,
-            [SamusBeamCombination.SpazerIceWave] = SamusProjectileHeader.ChargedSpazerIceWave,
-            [SamusBeamCombination.Plasma] = SamusProjectileHeader.ChargedPlasma,
-            [SamusBeamCombination.PlasmaWave] = SamusProjectileHeader.ChargedPlasmaWave,
-            [SamusBeamCombination.PlasmaIce] = SamusProjectileHeader.ChargedPlasmaIce,
-            [SamusBeamCombination.PlasmaIceWave] = SamusProjectileHeader.ChargedPlasmaIceWave,
+            [SamusBeamCombination.Power] = SamusProjectileKind.ChargedPower,
+            [SamusBeamCombination.Wave] = SamusProjectileKind.ChargedWave,
+            [SamusBeamCombination.Ice] = SamusProjectileKind.ChargedIce,
+            [SamusBeamCombination.IceWave] = SamusProjectileKind.ChargedIceWave,
+            [SamusBeamCombination.Spazer] = SamusProjectileKind.ChargedSpazer,
+            [SamusBeamCombination.SpazerWave] = SamusProjectileKind.ChargedSpazerWave,
+            [SamusBeamCombination.SpazerIce] = SamusProjectileKind.ChargedSpazerIce,
+            [SamusBeamCombination.SpazerIceWave] = SamusProjectileKind.ChargedSpazerIceWave,
+            [SamusBeamCombination.Plasma] = SamusProjectileKind.ChargedPlasma,
+            [SamusBeamCombination.PlasmaWave] = SamusProjectileKind.ChargedPlasmaWave,
+            [SamusBeamCombination.PlasmaIce] = SamusProjectileKind.ChargedPlasmaIce,
+            [SamusBeamCombination.PlasmaIceWave] = SamusProjectileKind.ChargedPlasmaIceWave,
         };
 
     /// <summary>
     /// What each Spazer and Plasma combination fires: its uncharged shot is the charged shot of the combination without
     /// Spazer and Plasma, and its charged shot a missile, a Super Missile or a Power Bomb.
     /// </summary>
-    internal static readonly UnauthoredBeamShots<SamusBeamCombination, SamusProjectileHeader> UnauthoredShots = new(
-        new Dictionary<SamusBeamCombination, SamusProjectileHeader>
+    internal static readonly UnauthoredBeamShots<SamusBeamCombination, SamusProjectileKind> UnauthoredShots = new(
+        new Dictionary<SamusBeamCombination, SamusProjectileKind>
         {
-            [SamusBeamCombination.SpazerPlasma] = SamusProjectileHeader.ChargedPower,
-            [SamusBeamCombination.SpazerPlasmaWave] = SamusProjectileHeader.ChargedWave,
-            [SamusBeamCombination.SpazerPlasmaIce] = SamusProjectileHeader.ChargedIce,
-            [SamusBeamCombination.SpazerPlasmaIceWave] = SamusProjectileHeader.ChargedIceWave,
+            [SamusBeamCombination.SpazerPlasma] = SamusProjectileKind.ChargedPower,
+            [SamusBeamCombination.SpazerPlasmaWave] = SamusProjectileKind.ChargedWave,
+            [SamusBeamCombination.SpazerPlasmaIce] = SamusProjectileKind.ChargedIce,
+            [SamusBeamCombination.SpazerPlasmaIceWave] = SamusProjectileKind.ChargedIceWave,
         },
-        new Dictionary<SamusBeamCombination, SamusProjectileHeader>
+        new Dictionary<SamusBeamCombination, SamusProjectileKind>
         {
-            [SamusBeamCombination.SpazerPlasma] = SamusProjectileHeader.Missile,
-            [SamusBeamCombination.SpazerPlasmaWave] = SamusProjectileHeader.Missile,
-            [SamusBeamCombination.SpazerPlasmaIce] = SamusProjectileHeader.SuperMissile,
-            [SamusBeamCombination.SpazerPlasmaIceWave] = SamusProjectileHeader.PowerBomb,
+            [SamusBeamCombination.SpazerPlasma] = SamusProjectileKind.Missile,
+            [SamusBeamCombination.SpazerPlasmaWave] = SamusProjectileKind.Missile,
+            [SamusBeamCombination.SpazerPlasmaIce] = SamusProjectileKind.SuperMissile,
+            [SamusBeamCombination.SpazerPlasmaIceWave] = SamusProjectileKind.PowerBomb,
         });
 
     /// <summary>The combination whose charged shot is the Murder Beam: all four beams.</summary>
@@ -86,35 +86,35 @@ internal static class SamusProjectileSelectionDefinitions
     internal static readonly MurderBeamDirectionAnimations<SamusProjectileDirection, SamusProjectileSegment> MurderBeamAnimations =
         new(MurderBeamDirectionAnimations);
 
-    /// <summary>The definition each fired missile and placed bomb starts from, by its projectile family.</summary>
-    internal static readonly IReadOnlyDictionary<SamusProjectileFamily, SamusProjectileHeader> NonBeamProjectiles =
-        new Dictionary<SamusProjectileFamily, SamusProjectileHeader>
+    /// <summary>The kind of each fired missile and placed bomb, by its projectile family.</summary>
+    internal static readonly IReadOnlyDictionary<SamusProjectileFamily, SamusProjectileKind> NonBeamProjectiles =
+        new Dictionary<SamusProjectileFamily, SamusProjectileKind>
         {
-            [SamusProjectileFamily.Missile] = SamusProjectileHeader.Missile,
-            [SamusProjectileFamily.SuperMissile] = SamusProjectileHeader.SuperMissile,
-            [SamusProjectileFamily.PowerBomb] = SamusProjectileHeader.PowerBomb,
-            [SamusProjectileFamily.Bomb] = SamusProjectileHeader.Bomb,
+            [SamusProjectileFamily.Missile] = SamusProjectileKind.Missile,
+            [SamusProjectileFamily.SuperMissile] = SamusProjectileKind.SuperMissile,
+            [SamusProjectileFamily.PowerBomb] = SamusProjectileKind.PowerBomb,
+            [SamusProjectileFamily.Bomb] = SamusProjectileKind.Bomb,
         };
 
     /// <summary>
-    /// The definition each special attack's particles start from, by the retail beam combination that fires it; the Ice
-    /// attack's particles start from the charged Ice shot instead, and the other combinations have no particle definition.
+    /// The kind of each special attack's particles, by the retail beam combination that fires it; the Ice attack's
+    /// particles are charged Ice shots instead, and the other combinations' attacks have no particles of their own.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<SamusBeamCombination, SamusProjectileHeader> SpecialAttacks =
-        new Dictionary<SamusBeamCombination, SamusProjectileHeader>
+    internal static readonly IReadOnlyDictionary<SamusBeamCombination, SamusProjectileKind> SpecialAttacks =
+        new Dictionary<SamusBeamCombination, SamusProjectileKind>
         {
-            [SamusBeamCombination.Wave] = SamusProjectileHeader.WaveSBA,
-            [SamusBeamCombination.Spazer] = SamusProjectileHeader.SpazerSBA,
-            [SamusBeamCombination.SpazerWave] = SamusProjectileHeader.SpazerSBA,
-            [SamusBeamCombination.Plasma] = SamusProjectileHeader.PlasmaSBA,
-            [SamusBeamCombination.PlasmaWave] = SamusProjectileHeader.PlasmaSBA,
+            [SamusBeamCombination.Wave] = SamusProjectileKind.WaveSBA,
+            [SamusBeamCombination.Spazer] = SamusProjectileKind.SpazerSBA,
+            [SamusBeamCombination.SpazerWave] = SamusProjectileKind.SpazerSBA,
+            [SamusBeamCombination.Plasma] = SamusProjectileKind.PlasmaSBA,
+            [SamusBeamCombination.PlasmaWave] = SamusProjectileKind.PlasmaSBA,
         };
 
-    /// <summary>The definition each echo starts from.</summary>
-    internal static readonly IReadOnlyDictionary<SamusBeamEcho, SamusProjectileHeader> Echoes =
-        new Dictionary<SamusBeamEcho, SamusProjectileHeader>
+    /// <summary>The kind of each echo.</summary>
+    internal static readonly IReadOnlyDictionary<SamusBeamEcho, SamusProjectileKind> Echoes =
+        new Dictionary<SamusBeamEcho, SamusProjectileKind>
         {
-            [SamusBeamEcho.SpazerComboTrail] = SamusProjectileHeader.SpazerSBATrail,
-            [SamusBeamEcho.ShinesparkEcho] = SamusProjectileHeader.ShinesparkEcho,
+            [SamusBeamEcho.SpazerComboTrail] = SamusProjectileKind.SpazerSBATrail,
+            [SamusBeamEcho.ShinesparkEcho] = SamusProjectileKind.ShinesparkEcho,
         };
 }

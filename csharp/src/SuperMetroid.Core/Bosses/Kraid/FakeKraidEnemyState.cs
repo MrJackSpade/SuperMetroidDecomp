@@ -3,7 +3,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// The state of Fake Kraid. “Mini-Kraid” is the name used by the item-drop and projectile routines; both names refer to
+/// The state of Fake Kraid. “Mini-Kraid” is the name its item drops and projectiles use; both names refer to
 /// the same enemy definition.
 /// </summary>
 public sealed class FakeKraidEnemyState

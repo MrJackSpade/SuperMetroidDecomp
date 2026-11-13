@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>
 /// The Evir body's and arms' facing loops and its projectile's spit and regeneration animations as typed programs (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="EvirCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="EvirCue"/> with its typed operands.
 /// </summary>
 internal static class EvirAnimations
 {

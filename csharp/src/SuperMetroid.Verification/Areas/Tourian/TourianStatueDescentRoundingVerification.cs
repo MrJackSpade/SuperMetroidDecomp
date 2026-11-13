@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Areas.Tourian;
 namespace SuperMetroid.Verification.Areas.Tourian;
 
 using SuperMetroid.Verification.Harness;
@@ -24,7 +25,7 @@ internal static class TourianStatueDescentRoundingVerification
         foreach (StoryEvent grey in new[] { StoryEvent.PhantoonStatueGrey, StoryEvent.RidleyStatueGrey,
                      StoryEvent.DraygonStatueGrey, StoryEvent.KraidStatueGrey })
             runtime.System.SetEvent(grey);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Statues);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
         runtime.Player.IntroducedSamus.Control.LockHandlers();
 
         StepUntil(() => runtime.TourianStatues.VerticalOffset != 0, _ => runtime.StepFrame(0),
@@ -40,6 +41,13 @@ internal static class TourianStatueDescentRoundingVerification
             maximumFrames: 1000, context: "the statues finish descending");
         AssertEqual(-240, runtime.TourianStatues.VerticalOffset,
             "Tourian unlocks the frame the whole word first reads $FF10");
+        // The descent stops at its authored distance, which bounds the offset the frame boundary latches (#1627).
+        for (int frame = 0; frame < 3; frame++)
+            runtime.StepFrame(0);
+        AssertEqual(-TourianStatueSequenceDefinitions.DescentDistance, runtime.TourianStatues.VerticalOffset,
+            "the finished descent stays at its authored distance");
+        AssertEqual(-TourianStatueSequenceDefinitions.DescentDistance, runtime.Display.Latched.TourianStatueVerticalOffset,
+            "the frame boundary latches the finished descent's offset as it is");
         Console.WriteLine("Tourian statue descent rounding: the signed 16.16 descent floors and unlocks at $FF10.");
     }
 

@@ -211,7 +211,7 @@ internal sealed class CrocomireSkeleton
 
         // The death drops emit sixteen independent pickup projectiles across Crocomire's
         // authored arena rectangle. These are not a single pickup at the corpse position:
-        // each actor advances RNG again while selecting its own drop from Crocomire's header.
+        // each actor advances RNG again while selecting its own drop from Crocomire's species definition.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.Crocomire,
             count: 16,

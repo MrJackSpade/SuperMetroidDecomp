@@ -3,14 +3,14 @@ using System.Collections.Frozen;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// The AI functions and part programs Kraid's encounter tests as groups (#1452). The original game tests a function or
+/// The AI functions and part programs Kraid's encounter tests as groups (#1452). The game tests a function or
 /// part program by its place in the program's layout, so each test admits every member laid out on one side of one
-/// routine or animation; each group names those members instead of ordering the identities. The rise functions are
+/// behaviour or animation; each group names those members instead of ordering the identities. The rise functions are
 /// laid out after the death functions, so a test for "the death sequence has begun" also admits them.
 /// </summary>
 internal static class KraidFunctionGroups
 {
-    /// <summary>The functions laid out before the death sequence's first routine: combat, growth and the parts' AI.</summary>
+    /// <summary>The functions laid out before the death sequence's first step: combat, growth and the parts' AI.</summary>
     internal static readonly FrozenSet<KraidAiFunction> BeforeDeath = new[]
     {
         KraidAiFunction.None, KraidAiFunction.NoOperation, KraidAiFunction.GrowBreakCeilingPlatforms,
@@ -28,7 +28,7 @@ internal static class KraidFunctionGroups
         KraidAiFunction.GrowReleaseCamera,
     }.ToFrozenSet();
 
-    /// <summary>The functions laid out before Kraid starts sinking: everything before death and the death sequence's fade and tilemap updates.</summary>
+    /// <summary>The functions laid out before Kraid starts sinking: everything before death and the death sequence's fade and body-layer updates.</summary>
     internal static readonly FrozenSet<KraidAiFunction> BeforeSinking = BeforeDeath.Concat(new[]
     {
         KraidAiFunction.DeathInitialize, KraidAiFunction.DeathFadeOut, KraidAiFunction.DeathShowUpperBody,

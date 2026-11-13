@@ -40,7 +40,7 @@ internal static class PauseDoorShinesparkVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.System.SetEvent(StoryEvent.ZebesAwake);
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor);
+            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
             foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
             var words = new RoomTerrainBlock[32 * 16];
             var bts = new RoomBlockBehavior[words.Length];

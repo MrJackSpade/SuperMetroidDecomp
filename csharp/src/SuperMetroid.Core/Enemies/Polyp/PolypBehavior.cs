@@ -139,10 +139,10 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Projectile frame behaviour installed on each launched rock.</summary>
     private const EnemyProjectileFrameBehavior PolypRockFrameBehavior =
         EnemyProjectileFrameBehavior.PolypRockFlight;
-    /// <summary>Each rock frame advances the quadratic speed-table index by two records.</summary>
-    private const int PolypRockGravityStep = 2;
-    /// <summary>Falling rocks stop accelerating at speed index 64.</summary>
-    private const int PolypRockTerminalSpeedIndex = 64;
+    /// <summary>Each rock frame moves its place along the quadratic speed table by two rows.</summary>
+    private static readonly EnemyQuadraticSpeedIndex PolypRockGravityStep = EnemyQuadraticSpeedIndex.FromRows(2);
+    /// <summary>Falling rocks stop accelerating at row 64.</summary>
+    private static readonly EnemyQuadraticSpeedIndex PolypRockTerminalSpeedIndex = EnemyQuadraticSpeedIndex.FromRows(64);
 
     /// <summary>
     /// Spawns a lava rock from the Polyp and initializes it.
@@ -163,7 +163,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             SpriteGraphics.SpawnedBy(source));
         projectile.InstallAnimation(new PolypRockAnimation(PolypRockSegment.Initial));
         projectile.FrameBehavior = PolypRockFrameBehavior;
-        projectile.State = new PolypRockState(initialYSpeed);
+        projectile.State = new PolypRockState(EnemyQuadraticSpeedIndex.FromRows(initialYSpeed));
         projectile.Velocity = new(xVelocity, SignedEightEight.Zero);
         projectile.Position = source.Position;
     }
@@ -195,11 +195,11 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         PolypRockState rock = projectile.StateOf<PolypRockState>();
         rock.SpeedIndex -= PolypRockGravityStep;
-        if (rock.SpeedIndex < 0)
+        if (rock.SpeedIndex.IsNegative)
         {
             // Crossing below zero consumes an entire apex frame: retail installs falling
             // state and returns before either vertical or horizontal movement.
-            rock.SpeedIndex = 0;
+            rock.SpeedIndex = EnemyQuadraticSpeedIndex.Start;
             rock.Phase = PolypRockFunction.Falling;
             return;
         }
@@ -207,7 +207,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         // The rock integrates two adjacent quadratic samples per frame, first
         // index velocity+1 and then velocity. This is why the table index changes by two
         // while the visual arc still advances at gameplay-frame rate.
-        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex + 1, sign: EnemySpeedSign.Negative);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex + EnemyQuadraticSpeedIndex.OneRow, sign: EnemySpeedSign.Negative);
         AddPolypRockQuadraticStep(projectile, rock.SpeedIndex, sign: EnemySpeedSign.Negative);
         MovePolypRockHorizontally(projectile);
     }
@@ -220,7 +220,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         if (rock.SpeedIndex >= PolypRockTerminalSpeedIndex)
             rock.SpeedIndex = PolypRockTerminalSpeedIndex;
 
-        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex - 1, sign: EnemySpeedSign.Positive);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex - EnemyQuadraticSpeedIndex.OneRow, sign: EnemySpeedSign.Positive);
         AddPolypRockQuadraticStep(projectile, rock.SpeedIndex, sign: EnemySpeedSign.Positive);
         MovePolypRockHorizontally(projectile);
     }
@@ -231,11 +231,11 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void AddPolypRockQuadraticStep(
         EnemyProjectile projectile,
-        int tableIndex,
+        EnemyQuadraticSpeedIndex tableIndex,
         EnemySpeedSign sign)
     {
         // A fraction past a whole pixel carries into the whole pixels, and the whole pixels wrap around the room.
-        SignedSixteenSixteen speed = EnemyQuadraticSpeeds.Row(tableIndex).Toward(sign);
+        SignedSixteenSixteen speed = tableIndex.Row.Toward(sign);
         projectile.Position = projectile.Position.WithY(projectile.Position.Y.MovedBy(speed));
     }
 

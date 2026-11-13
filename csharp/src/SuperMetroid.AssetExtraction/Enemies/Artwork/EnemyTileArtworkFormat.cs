@@ -12,7 +12,7 @@ public static class EnemyTileArtworkFormat
     /// installs the enemy frames' display bindings and no enemy composition (#1638); 78 binds no frame no animation shows (#1623);
     /// 79 names each frame for the animation segment or table key that first shows it (#1623).
     /// </summary>
-    public const int Version = 79;
+    public const int Version = 80;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
         $"gunship-liftoff-{index + 1}-tiles.png";

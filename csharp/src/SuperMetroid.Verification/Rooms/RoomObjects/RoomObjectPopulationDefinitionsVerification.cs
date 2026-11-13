@@ -87,8 +87,8 @@ internal static class RoomObjectPopulationDefinitionsVerification
             address => $"Retail PLM population was reread at ${address:X6}.");
         if (headerRead is null)
             return guard;
-        bool IsHeader(int address) => RoomObjectHeaderDefinitionsTooling.All.Any(header =>
-            address >= (0x840000 | RoomObjectNativeWords.Word(header.Header)) && address < (0x840000 | RoomObjectNativeWords.Word(header.Header)) + 4);
+        bool IsHeader(int address) => RoomObjectKindDefinitionsTooling.All.Any(header =>
+            address >= (0x840000 | RoomObjectNativeWords.Word(header)) && address < (0x840000 | RoomObjectNativeWords.Word(header)) + 4);
         return guard.Observe(IsHeader, _ => headerRead())
             .Forbid(IsHeader, address => $"Retail PLM header was reread at ${address:X6}.");
     }

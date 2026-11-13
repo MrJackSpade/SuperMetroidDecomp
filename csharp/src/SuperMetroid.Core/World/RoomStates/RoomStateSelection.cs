@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 public static class RoomStateSelection
 {
     /// <summary>Selects a state with first-match precedence.</summary>
-    public static RoomStateSettings Select(RoomHeaderDefinition room, RoomStateSelectionContext selection)
+    public static RoomStateSettings Select(RoomDefinition room, RoomStateSelectionContext selection)
     {
         RoomStateChoice animation = ChoiceFor(Ensure.NotNull(room));
         foreach (RoomStateBranch branch in animation.Branches)
@@ -21,7 +21,7 @@ public static class RoomStateSelection
     }
 
     /// <summary>The program of <paramref name="room"/>, which must be a compiled retail room.</summary>
-    internal static RoomStateChoice ChoiceFor(RoomHeaderDefinition room) =>
+    internal static RoomStateChoice ChoiceFor(RoomDefinition room) =>
         RoomStateSelectionDefinitions.Choices.TryGetValue(room, out RoomStateChoice? animation) ? animation
             : throw new ArgumentOutOfRangeException(nameof(room), room.Name, "Room is not one of the 262 compiled retail rooms.");
 }

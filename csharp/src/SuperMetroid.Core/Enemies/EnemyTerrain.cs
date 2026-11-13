@@ -100,7 +100,7 @@ internal sealed class EnemyTerrain
             int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockStart(targetEdge) - slot.Radius.X);
             if (aligned >= slot.Position.X.Whole)
                 slot.Position = slot.Position.WithWholeX(aligned);
-            slot.Position = slot.Position.WithFractionX(RoomPixelMasks.LastFraction);
+            slot.Position = slot.Position.WithFractionX(FixedCoordinate.LastFraction);
         }
         return true;
     }
@@ -157,7 +157,7 @@ internal sealed class EnemyTerrain
             int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockStart(targetEdge) - slot.Radius.Y);
             if (aligned >= slot.Position.Y.Whole)
                 slot.Position = slot.Position.WithWholeY(aligned);
-            slot.Position = slot.Position.WithFractionY(RoomPixelMasks.LastFraction);
+            slot.Position = slot.Position.WithFractionY(FixedCoordinate.LastFraction);
         }
         return true;
     }
@@ -509,7 +509,7 @@ internal sealed class EnemyTerrain
         int downwardAdjustment = height - bottomWithinBlock - 1;
         if (height - bottomWithinBlock != 1 && downwardAdjustment >= 0)
             return false;
-        slot.Position = slot.Position.WithY(new(CoordinateAxis.Wrap(targetCenter + downwardAdjustment), RoomPixelMasks.LastFraction));
+        slot.Position = slot.Position.WithY(new(CoordinateAxis.Wrap(targetCenter + downwardAdjustment), FixedCoordinate.LastFraction));
         return true;
     }
 

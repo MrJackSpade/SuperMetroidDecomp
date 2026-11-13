@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Spatial;
 
-/// <summary>An unsigned sixteen-bit position whose axes wrap at the native word boundary.</summary>
+/// <summary>An unsigned sixteen-bit position whose axes wrap past 65535.</summary>
 /// <remarks>
 /// This type is the one owner of the room-coordinate wrap: room, scroll and grid positions wrap at sixteen bits per
 /// axis, and the game's behaviour at room edges, in door transitions and in the reproduced glitches depends on it
@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Spatial;
 public readonly record struct Position16<TSpace>
     where TSpace : ISpatialSpace
 {
-    /// <summary>The position at two coordinates that must already be sixteen-bit words, 0 through 65535.</summary>
+    /// <summary>The position at two coordinates that must already lie in 0 through 65535.</summary>
     /// <param name="x">The horizontal coordinate.</param>
     /// <param name="y">The vertical coordinate.</param>
     public Position16(int x, int y)
@@ -33,7 +33,7 @@ public readonly record struct Position16<TSpace>
     /// <summary>The origin.</summary>
     public static Position16<TSpace> Zero => default;
 
-    /// <summary>The position at two coordinates that must already be sixteen-bit words, 0 through 65535.</summary>
+    /// <summary>The position at two coordinates that must already lie in 0 through 65535.</summary>
     public static Position16<TSpace> Of(int x, int y) => new(x, y);
 
     /// <summary>
@@ -42,10 +42,10 @@ public readonly record struct Position16<TSpace>
     /// </summary>
     public static Position16<TSpace> Wrapped(int x, int y) => new(CoordinateAxis.Wrap(x), CoordinateAxis.Wrap(y));
 
-    /// <summary>Replaces the X axis with a coordinate that must already be a sixteen-bit word.</summary>
+    /// <summary>Replaces the X axis with a coordinate that must already lie in 0 through 65535.</summary>
     public Position16<TSpace> WithX(int x) => this with { X = checked((ushort)x) };
 
-    /// <summary>Replaces the Y axis with a coordinate that must already be a sixteen-bit word.</summary>
+    /// <summary>Replaces the Y axis with a coordinate that must already lie in 0 through 65535.</summary>
     public Position16<TSpace> WithY(int y) => this with { Y = checked((ushort)y) };
 
     /// <summary>Translates by a signed offset, wrapping each axis at sixteen bits.</summary>

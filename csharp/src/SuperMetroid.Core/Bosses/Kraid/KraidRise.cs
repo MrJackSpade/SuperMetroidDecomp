@@ -73,7 +73,7 @@ internal sealed class KraidRise
             _frameResults.KraidObjects.AddRange(KraidObjectDefinitions.DefeatedRoom);
             // The body owns the sinking: a defeated room's body starts at hiding his body layer's halves and
             // the death's four-update wait. The other seven physical records take their own dead initializer and
-            // remain deleted as in the original game.
+            // remain deleted as in the game.
             state.BodyState.Function = KraidAiFunction.DeathHideUpperBody;
             return;
         }
@@ -188,13 +188,13 @@ internal sealed class KraidRise
 
             case KraidAiFunction.GrowDrawRoomBackground:
                 state.BodyState.Function = KraidAiFunction.GrowFadeInRoomBackground;
-                // The original game clears the value it kept the ceiling rocks in, which is the function timer again.
+                // The game clears the value it kept the ceiling rocks in, which is the function timer again.
                 state.BodyState.FunctionTimer = 0;
                 // Redrawing Kraid's room background restarts the shared fade step count.
                 _presentation.FadeStepCount.Reset();
-                // The background redraw queues this character upload on the same frame that it
-                // initializes palette-six fading. Without it, the foreground's authored repeating
-                // room-background blocks decode an uninitialized character as transparent,
+                // The background redraw shows the room's backdrop on the same frame that it
+                // starts the backdrop's colour fade. Without it, the foreground's authored repeating
+                // room-background blocks show an unset tile as transparent,
                 // exposing the filler rectangle of Kraid's body layer above his head.
                 ShowKraidRoomBackdrop();
                 return;

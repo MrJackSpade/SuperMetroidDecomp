@@ -3,8 +3,8 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 
 /// <summary>
-/// The presentation boundary of Spore Spawn's projectiles (#641): the list entries the projectile
-/// definitions name, and the projectile frame each typed frame shows.
+/// The presentation boundary of Spore Spawn's projectiles (#641): the projectile frame each
+/// typed frame shows.
 /// </summary>
 internal static class SporeSpawnProjectileVisualDefinitions
 {

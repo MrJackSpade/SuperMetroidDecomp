@@ -94,7 +94,7 @@ internal static class RoomFxRecordCodec
 
     /// <summary>
     /// Decodes the sixteen bytes of a record in a room of <paramref name="area"/>, whose lists its effect bits select from.
-    /// The record's door word is its header's selection (<see cref="RoomFxHeader"/>), which the catalog generator reads.
+    /// The record's door word is its entry door in its room's effect selection (<see cref="RoomFxSelection"/>), which the catalog generator reads.
     /// </summary>
     /// <exception cref="InvalidDataException">A field names no effect, blend or palette blend, or the effect blend is not one the effect shows; the message names <paramref name="context"/>.</exception>
     internal static RoomFxRecordDefinition Decode(AreaId area, ReadOnlySpan<byte> native, string context)

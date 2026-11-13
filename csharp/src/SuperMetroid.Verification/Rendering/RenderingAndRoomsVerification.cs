@@ -165,6 +165,17 @@ internal static void VerifyHudState()
     AssertEqual(SyntheticHudWord(new(25, 4), explored: false), hud.TileWords(hudArtwork)[26], "minimap top-left unvisited map-station tile");
     AssertEqual(SyntheticHudWord(new(27, 5), explored: true), hud.TileWords(hudArtwork)[60], "minimap explored center tile");
 
+    // A room's map position is any map coordinate (#1627): a column past 255 continues across the area map's columns, and
+    // a row below the map's rows explores and shows nothing.
+    var wideMapSystem = new SharedGameState(new SharedRandom());
+    wideMapSystem.SetAreaMapAcquired(0);
+    hud.UpdateMinimap(wideMapSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17 + 256, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    AssertEqual(new Position16<MapTiles>(27, 5), hud.MinimapCenter, "a map column past 255 continues across the area map's columns");
+    AssertTrue(wideMapSystem.IsMapTileExplored(AreaId.Crateria, new(27, 5)), "the wrapped column explores the cell Samus stands in");
+    var deepMapSystem = new SharedGameState(new SharedRandom());
+    hud.UpdateMinimap(deepMapSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 300), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    AssertTrue(!deepMapSystem.IsMapTileExplored(AreaId.Crateria, new(27, 5)), "a map row below the area map explores nothing");
+
     var noMapSystem = new SharedGameState(new SharedRandom());
     hud.UpdateMinimap(noMapSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 0, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual((int)new MapTileWord(SyntheticMapWord(new(27, 5))).ForHud(explored: true).WithLocationBlink().Raw, hud.TileWords(hudArtwork)[60],

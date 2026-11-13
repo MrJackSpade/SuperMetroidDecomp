@@ -234,24 +234,25 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         MorphBallEyeEnemyState state = body.RequireSpeciesState<MorphBallEyeEnemyState>();
 
         MorphBallEyeBeam.Color = MorphBallEyeBeamDefinitions.InitialColor;
-        MorphBallEyeBeam.AngularHalfWidth = SignedSixteenSixteen.Zero;
-        MorphBallEyeBeam.AngularHalfWidthGrowth = SignedSixteenSixteen.Zero;
+        MorphBallEyeBeam.AngularHalfWidth = RotationAngle.Zero;
+        MorphBallEyeBeam.AngularHalfWidthGrowth = RotationAngle.Zero;
         MorphBallEyeBeam.ColorIndex = 0;
         state.IsActivated = true;
         MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Widening;
     }
 
     /// <summary>
-    /// Accelerates the beam's angular half-width by a quarter table unit per update until its whole part reaches four;
-    /// that update sets the whole part to four, keeping the fraction, and the beam is full.
+    /// Accelerates the beam's angular half-width by a quarter step per update until its whole steps reach four;
+    /// that update sets the whole steps to four, keeping the fraction, and the beam is full.
     /// </summary>
     private void WidenMorphBallEyeBeam()
     {
         MorphBallEyeBeam.AngularHalfWidthGrowth += MorphBallEyeBeamDefinitions.WidthGrowthStep;
         MorphBallEyeBeam.AngularHalfWidth += MorphBallEyeBeam.AngularHalfWidthGrowth;
-        if (MorphBallEyeBeam.AngularWidth >= MorphBallEyeBeamDefinitions.FullAngularWidth)
+        RotationAngle width = MorphBallEyeBeam.AngularHalfWidth;
+        if (width >= MorphBallEyeBeamDefinitions.FullHalfWidth)
         {
-            MorphBallEyeBeam.AngularHalfWidth = MorphBallEyeBeam.AngularHalfWidth.WithWholePixels(MorphBallEyeBeamDefinitions.FullAngularWidth);
+            MorphBallEyeBeam.AngularHalfWidth = MorphBallEyeBeamDefinitions.FullHalfWidth + (width - width.WholeStep);
             MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Full;
         }
     }

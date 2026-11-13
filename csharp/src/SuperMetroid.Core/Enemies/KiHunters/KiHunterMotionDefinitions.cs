@@ -27,10 +27,10 @@ public static class KiHunterMotionDefinitions
     /// <summary>A leftward swoop's angular acceleration: minus an eighth of a table step per frame.</summary>
     public static SignedSixteenSixteen LeftSwoopAcceleration { get; } = -RightSwoopAcceleration;
 
-    /// <summary>The detached wing orbit's offset angle, seven-eighths of a byte-angle turn.</summary>
+    /// <summary>The detached wing orbit's offset angle, seven-eighths of a turn.</summary>
     public static TrigonometryAngle DetachedOrbitOffsetAngle { get; } = new(224);
 
-    /// <summary>The detached wing's falling-arc offset angle, five-eighths of a byte-angle turn.</summary>
+    /// <summary>The detached wing's falling-arc offset angle, five-eighths of a turn.</summary>
     public static TrigonometryAngle FallingArcOffsetAngle { get; } = new(160);
 
     /// <summary>The detached wing orbit's starting rotation angle, an eighth of a turn below zero.</summary>

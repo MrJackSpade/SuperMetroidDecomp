@@ -7,8 +7,8 @@ public sealed class ChozoStatueState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<ChozoStatueSegment> Playback { get; set; }
 
-    /// <summary>The carry-motion record, 0 through 31, the statue last moved by.</summary>
-    public int CarryRecord { get; internal set; }
+    /// <summary>The carry step the statue last moved by.</summary>
+    public ChozoCarryStep CarryStep { get; internal set; }
 
     /// <summary>The frame behaviour the statue runs, or none.</summary>
     public ChozoStatueFrameBehavior? FrameBehavior { get; internal set; }

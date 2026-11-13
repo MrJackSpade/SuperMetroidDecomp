@@ -50,6 +50,6 @@ internal static class RepeatingFloors
     /// shows nothing beyond its floor.
     /// </summary>
     internal static bool Repeats(TilesetDefinition tileset) =>
-        RetailRoomHeaders.All.SelectMany(RoomStateLists.GetStates)
+        RetailRooms.All.SelectMany(RoomStateLists.GetStates)
             .Any(state => RoomTurningFloors.Of(state) == RoomTurningFloor.ElevatorShaft && RoomTilesets.Get(state.GraphicsSet) == tileset);
 }

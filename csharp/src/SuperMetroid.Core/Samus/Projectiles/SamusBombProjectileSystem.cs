@@ -73,11 +73,15 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Owner of the flash, damaging radius, and armed flag.</summary>
     public SamusPowerBombExplosionState PowerBombExplosion { get; } = new();
 
-    /// <summary>How many bombs Samus has out by the placing count; kept separately from the free-slot search.</summary>
+    /// <summary>
+    /// How many bombs Samus has out by the placing count, 0 through the bomb slots' count (#1627); kept separately from the
+    /// free-slot search. A placement counts one only below the slot count, a spread or the Shitroid's drain sets the count
+    /// whole, and a bomb that ends takes one away, staying at zero when the count was already cleared.
+    /// </summary>
     public int BombCounter
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, SlotCount, value);
     }
 
     /// <summary>
@@ -546,7 +550,7 @@ public sealed class SamusBombProjectileSystem
         // Helper two increments both values before the caller searches for storage. The
         // caller immediately replaces cooldown with table entry five (16) after init.
         CooldownTimer = CooldownTimer.AddFrames(1);
-        BombCounter = WrappingCounter.IncrementCount(BombCounter);
+        BombCounter++;
 
         return true;
     }
@@ -573,11 +577,11 @@ public sealed class SamusBombProjectileSystem
     internal static void InitializeBomb(
         SamusBombProjectileSlot slot)
     {
-        SamusProjectileHeader header = SamusProjectileSelection.NonBeam(slot.Type.Family);
+        SamusProjectileKind kind = SamusProjectileSelection.NonBeam(slot.Type.Family);
 
-        slot.Damage = SamusProjectileDamage.Read(header);
+        slot.Damage = SamusProjectileDamage.Read(kind);
 
-        slot.Playback = SamusProjectilePlayback.Start(SamusProjectileHeaders.SoleAnimation(header));
+        slot.Playback = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
@@ -1134,9 +1138,8 @@ public sealed class SamusBombProjectileSystem
         if (!wasActive)
             return;
 
-        // Consistent state cannot underflow, but the clamp is real.
-        CountdownStep remaining = WrappingCounter.Decrement(BombCounter);
-        BombCounter = remaining.IsNegative ? 0 : remaining.Remaining.RemainingFrames;
+        // A count the Shitroid's drain cleared while bombs were out stays at zero as they end.
+        BombCounter = Math.Max(0, BombCounter - 1);
     }
 
 }

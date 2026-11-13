@@ -184,8 +184,8 @@ exits nonzero when any fixture fails.
 `tools/cleanup/prune-fixtures/<name>/` confirms the dead-code prune the same way: `input/` is a small repository whose
 `csharp/Fixture.slnx` lists projects named like the shipped, host and verification projects (the reachability audit
 knows them by name), with test-support shared through `.projitems`, and `expected/` is every file of it after the prune.
-A fixture for a shape the prune must refuse holds `expected-error.txt` in place of `expected/`: text the prune's failure
-must print.
+A fixture may also hold `expected-output.txt`: text the prune's output must hold, such as the `MANUAL` line of a move it
+keeps in place.
 
 ```powershell
 pwsh -File tools/cleanup/check-prune-fixtures.ps1                         # every prune fixture
@@ -201,8 +201,8 @@ console error policy) and adds `SuperMetroid.EnsureAnalyzer` to every project, a
 (SME6402-SME6405) place the repository's own modules, which a fixture does not have, and a prune changes no namespace or
 path they read. The check restores the copy, runs the prune on it with the arguments `run.ps1` uses and
 `csharp/test-support/VerificationAccess.Core` as the destination, compares every file with `expected/` as above, and
-builds the pruned copy, so an analyzer finding fails the fixture as it fails the cleanup's build. For a refused shape it
-requires the prune to fail, printing `expected-error.txt`, and to leave every file of `input/` as it was. `holder-collision` holds the shapes of the
+builds the pruned copy, so an analyzer finding fails the fixture as it fails the cleanup's build; with
+`expected-output.txt` it also requires the prune's output to hold that text. `holder-collision` holds the shapes of the
 2026-11-13 failure at a7f8ec16e6: a moved instance member whose `<Owner>Access` class another test-support folder
 already declares (it is merged into), a moved static member whose `<Owner>Constants` name an instance class holds (the
 first free name, `<Owner>Constants2`, is used), and `inheritdoc` and `see` crefs to both, which follow them.
@@ -234,11 +234,15 @@ follows, `nameof` and crefs among them, the constructor's assignment, which a pa
 `this.places`. `shared-field-promotion` promotes one of two underscore-prefixed fields declared together, which become
 internal together and both lose the underscore. `moved-private-cref` moves documentation naming a private member that
 moved code does not use: the test-support assembly compiles against the shipped project's reference assembly, which holds
-no private member, so the cref becomes text (a labelled one its label) instead of failing CS1574. Four fixtures hold
-shapes the prune refuses, failing the run before it writes anything: `underscore-collision`, where the underscore-less
-name is taken (SME6354 cannot be met by renaming); `mutable-field-promotion`, a class's mutable field in Core
-(SME6436); `argument-guard-promotion`, a private method that checks its argument by hand (SME6201); and
-`derived-hiding-promotion`, a private member whose name a derived type's member takes (CS0108).
+no private member, so the cref becomes text (a labelled one its label) instead of failing CS1574. Five fixtures hold
+promotions the prune refuses: the moved code that needs one stays where it is, untouched, with a `MANUAL` line naming
+the member, the rule and what to do (`expected-output.txt`), and the rest of the run goes on. `underscore-collision`:
+the underscore-less name is taken (SME6354 cannot be met by renaming); `rename-pairing`: the underscore-less
+`xOffset` would pair with a `yOffset` already there (SME6280); `mutable-field-promotion`: a class's mutable field in
+Core (SME6436); `argument-guard-promotion`: a private method that checks its argument by hand (SME6201);
+`derived-hiding-promotion`: a private member whose name a derived type's member takes (CS0108). Each of the five
+failed on the tool before: the first four promotions failed the whole run, and the pairing rename left a tree that did
+not build.
 
 The prune puts an owner's moved members in the class its style names, in the owner's namespace, unless a project
 compiling the destination already knows that name. It then merges into that class when it is one static class (abstract,
@@ -259,8 +263,10 @@ member is written once from its two parts, and the run fails when they are not b
 
 A staying member becomes internal (a promotion) when moved code reaches it: through its owner's name, `this`, a receiver
 or a conditional access, or by constructing its type. A promotion changes only accessibility, so the rules it can break
-are the build's rules that read accessibility (`PromotionRules` and `PromotedNames` in the same folder), each met or
-refused before anything is written:
+are the build's rules that read accessibility (`PromotionRules`, `PromotedNames` and `RenamePairing` in the same
+folder), each met or refused before anything is written. A refused promotion keeps the moves that reach the member in
+place for manual relocation, with a `MANUAL` line (`kept in place: it uses <member>, <why>`), keeps in place whatever a
+declaration that now stays uses, and the steps run again from the moves left; nothing is half-applied:
 
 - SME6354 (an underscore-prefixed field or property is private): the member is renamed to its name without the
   underscore, which the rule's message asks for ("a member without the underscore") and which every rule that reads a
@@ -269,7 +275,11 @@ refused before anything is written:
   promoted with it and renamed too. The rename is refused when the name is taken by the owner, a containing or base
   type or a derived type, when the name already means something else in the owner or a derived type, when code reaches
   a member of that name through the owner's type, or when something reads the old name as text (a string literal, an
-  inactive `#if` branch, a serialization or reflection attribute).
+  inactive `#if` branch, a serialization or reflection attribute). The rules that read members' names as pairs or
+  families (SME6280-SME6283, SME6351-SME6353, SME6415-SME6417) compare raw names, so losing the underscore can pair a
+  renamed `xOffset` with a `yOffset`: the prune runs those rules' own analyzers, loaded from the repository analyzer
+  assemblies each project's build runs, on each owner's file as it will be written, and refuses the renames of a file
+  where they report a new error.
 - SME6436 (no mutable field of a class is exposed, Core): a private mutable instance field is refused; its class needs
   a named operation or a property for what the moved code needs.
 - SME6201 (a non-private method or accessor checks arguments with Ensure): a private one that checks an argument by hand

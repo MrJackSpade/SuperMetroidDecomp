@@ -21,7 +21,7 @@ internal static class DraygonGoopDropsVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon);
         runtime.Player.IntroducedSamus.Health = 10;
         var enemies = runtime.Enemies;
         var goop = enemies.Projectiles.EnemyProjectiles[^1];

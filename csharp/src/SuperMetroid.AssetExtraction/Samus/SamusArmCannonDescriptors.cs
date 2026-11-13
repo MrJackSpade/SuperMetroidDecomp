@@ -83,16 +83,16 @@ public sealed class SamusArmCannonDescriptors
 
     /// <summary>
     /// The placements the installation holds (#1638): each pose's drawing order and directions, and the displacement of
-    /// every animation frame <paramref name="shown"/> says the pose shows, which are the frames the cover is drawn at, whose
-    /// displacement the drawing window holds. A displacement read past the pose's own descriptor is the value the game reads
-    /// there. A shown frame whose displacement lies past the window has none, as the window's placements have none there.
+    /// every animation frame <paramref name="shown"/> says the pose shows, which are the frames the cover is drawn at. A
+    /// displacement read past the pose's own descriptor is the value the game reads there.
     /// </summary>
+    /// <exception cref="InvalidDataException">A shown frame's displacement lies past the drawing window.</exception>
     internal SamusArmCannonLayout Installed(SamusShownFrames shown)
     {
         Ensure.NotNull(shown);
         return new SamusArmCannonLayout(SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, pose =>
             Decode(poseDescriptors[pose], Enumerable.Range(0, InstalledSamusBody.AnimationFrames)
-                .Where(frame => shown.TryPictureFrame(pose, frame, out _) && WithinWindow(poseDescriptors[pose], frame)))));
+                .Where(frame => shown.TryPictureFrame(pose, frame, out _)))));
     }
 
     /// <summary>Each pose's placement over every animation frame the drawing window holds; poses sharing a descriptor share it.</summary>
@@ -133,10 +133,6 @@ public sealed class SamusArmCannonDescriptors
     /// <summary>Where <paramref name="descriptor"/>'s displacements begin: after its one or two direction and mode pairs.</summary>
     private int DisplacementsStart(int descriptor) => descriptor +
         ((drawingData[descriptor] & FrameDependentDirectionFlag) != 0 ? FrameDependentHeaderBytes : SingleDirectionHeaderBytes);
-
-    /// <summary>Whether animation frame <paramref name="frame"/>'s displacement of <paramref name="descriptor"/> lies within the drawing window.</summary>
-    private bool WithinWindow(int descriptor, int frame) =>
-        DisplacementsStart(descriptor) + frame * DisplacementBytes + 1 < drawingData.Length;
 
     /// <summary>The signed X and Y displacement stored at <paramref name="at"/> for animation frame <paramref name="frame"/>.</summary>
     /// <exception cref="InvalidDataException">The displacement lies past the drawing window.</exception>

@@ -2,38 +2,38 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Projectile damage by definition, independent of the definitions' direction programs.</summary>
+/// <summary>Projectile damage by kind, independent of the kinds' direction programs.</summary>
 internal static class SamusProjectileDamageDefinitions
 {
     /// <summary>The damage a Shinespark echo starts with.</summary>
     internal const int ShinesparkEchoDamage = 4096;
 
-    /// <summary>The value each key selects; Beam looks it up.</summary>
-    internal static readonly IReadOnlyDictionary<SamusProjectileHeader, SamusBeamCombination> Beams = new Dictionary<SamusProjectileHeader, SamusBeamCombination>
+    /// <summary>The beams each beam shot kind fires; Beam looks it up.</summary>
+    internal static readonly IReadOnlyDictionary<SamusProjectileKind, SamusBeamCombination> Beams = new Dictionary<SamusProjectileKind, SamusBeamCombination>
     {
-        [SamusProjectileHeader.UnchargedPower] = SamusBeamCombination.Power,
-        [SamusProjectileHeader.UnchargedSpazer] = SamusBeamCombination.Spazer,
-        [SamusProjectileHeader.UnchargedSpazerIce] = SamusBeamCombination.SpazerIce,
-        [SamusProjectileHeader.UnchargedSpazerIceWave] = SamusBeamCombination.SpazerIceWave,
-        [SamusProjectileHeader.UnchargedPlasmaIceWave] = SamusBeamCombination.PlasmaIceWave,
-        [SamusProjectileHeader.UnchargedIce] = SamusBeamCombination.Ice,
-        [SamusProjectileHeader.UnchargedWave] = SamusBeamCombination.Wave,
-        [SamusProjectileHeader.UnchargedPlasma] = SamusBeamCombination.Plasma,
-        [SamusProjectileHeader.UnchargedIceWave] = SamusBeamCombination.IceWave,
-        [SamusProjectileHeader.UnchargedSpazerWave] = SamusBeamCombination.SpazerWave,
-        [SamusProjectileHeader.UnchargedPlasmaWave] = SamusBeamCombination.PlasmaWave,
-        [SamusProjectileHeader.UnchargedPlasmaIce] = SamusBeamCombination.PlasmaIce,
-        [SamusProjectileHeader.ChargedPower] = SamusBeamCombination.Power,
-        [SamusProjectileHeader.ChargedSpazer] = SamusBeamCombination.Spazer,
-        [SamusProjectileHeader.ChargedSpazerIce] = SamusBeamCombination.SpazerIce,
-        [SamusProjectileHeader.ChargedSpazerIceWave] = SamusBeamCombination.SpazerIceWave,
-        [SamusProjectileHeader.ChargedPlasmaIceWave] = SamusBeamCombination.PlasmaIceWave,
-        [SamusProjectileHeader.ChargedIce] = SamusBeamCombination.Ice,
-        [SamusProjectileHeader.ChargedPlasma] = SamusBeamCombination.Plasma,
-        [SamusProjectileHeader.ChargedWave] = SamusBeamCombination.Wave,
-        [SamusProjectileHeader.ChargedIceWave] = SamusBeamCombination.IceWave,
-        [SamusProjectileHeader.ChargedSpazerWave] = SamusBeamCombination.SpazerWave,
-        [SamusProjectileHeader.ChargedPlasmaIce] = SamusBeamCombination.PlasmaIce,
-        [SamusProjectileHeader.ChargedPlasmaWave] = SamusBeamCombination.PlasmaWave,
+        [SamusProjectileKind.UnchargedPower] = SamusBeamCombination.Power,
+        [SamusProjectileKind.UnchargedSpazer] = SamusBeamCombination.Spazer,
+        [SamusProjectileKind.UnchargedSpazerIce] = SamusBeamCombination.SpazerIce,
+        [SamusProjectileKind.UnchargedSpazerIceWave] = SamusBeamCombination.SpazerIceWave,
+        [SamusProjectileKind.UnchargedPlasmaIceWave] = SamusBeamCombination.PlasmaIceWave,
+        [SamusProjectileKind.UnchargedIce] = SamusBeamCombination.Ice,
+        [SamusProjectileKind.UnchargedWave] = SamusBeamCombination.Wave,
+        [SamusProjectileKind.UnchargedPlasma] = SamusBeamCombination.Plasma,
+        [SamusProjectileKind.UnchargedIceWave] = SamusBeamCombination.IceWave,
+        [SamusProjectileKind.UnchargedSpazerWave] = SamusBeamCombination.SpazerWave,
+        [SamusProjectileKind.UnchargedPlasmaWave] = SamusBeamCombination.PlasmaWave,
+        [SamusProjectileKind.UnchargedPlasmaIce] = SamusBeamCombination.PlasmaIce,
+        [SamusProjectileKind.ChargedPower] = SamusBeamCombination.Power,
+        [SamusProjectileKind.ChargedSpazer] = SamusBeamCombination.Spazer,
+        [SamusProjectileKind.ChargedSpazerIce] = SamusBeamCombination.SpazerIce,
+        [SamusProjectileKind.ChargedSpazerIceWave] = SamusBeamCombination.SpazerIceWave,
+        [SamusProjectileKind.ChargedPlasmaIceWave] = SamusBeamCombination.PlasmaIceWave,
+        [SamusProjectileKind.ChargedIce] = SamusBeamCombination.Ice,
+        [SamusProjectileKind.ChargedPlasma] = SamusBeamCombination.Plasma,
+        [SamusProjectileKind.ChargedWave] = SamusBeamCombination.Wave,
+        [SamusProjectileKind.ChargedIceWave] = SamusBeamCombination.IceWave,
+        [SamusProjectileKind.ChargedSpazerWave] = SamusBeamCombination.SpazerWave,
+        [SamusProjectileKind.ChargedPlasmaIce] = SamusBeamCombination.PlasmaIce,
+        [SamusProjectileKind.ChargedPlasmaWave] = SamusBeamCombination.PlasmaWave,
     };
 }

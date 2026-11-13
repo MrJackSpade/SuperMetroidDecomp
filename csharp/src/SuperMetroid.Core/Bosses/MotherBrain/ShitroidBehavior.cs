@@ -15,7 +15,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The Baby Metroid (Shitroid) species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Baby Metroid (Shitroid) species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -81,10 +81,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (Shitroid is not null)
             throw new InvalidDataException("A room population contains more than one Shitroid.");
 
-        // The processing property is the scheduler's animation-processing bit; another bit blocks plasma
-        // from piercing the actor. The original's name for the processing bit says it disables Samus
-        // collision, but the scheduler also consumes that same bit for animation, so
-        // the translated property enum retains the directly observed scheduler meaning.
+        // The processing property is the scheduler's animation-processing flag; another flag blocks plasma
+        // from piercing the actor. The game's name for the processing flag says it disables Samus
+        // collision, but the scheduler also consumes that same flag for animation, so
+        // the property enum retains the directly observed scheduler meaning.
         slot.Contact = slot.Contact.With(EnemyContact.BlocksPlasmaBeam);
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.AnimationClock.Restart();
@@ -131,7 +131,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         _shitroidCamera = camera;
 
         // Shitroid's private shot handler applies recoil but no health loss. The main AI
-        // redundantly restores its health every processed frame, exactly as the original game does.
+        // redundantly restores its health every processed frame, exactly as the game does.
         slot.Health = RestoredHealth;
         DispatchShitroidState(slot, state, samus, sharedProjectiles);
         DeadTorizoBehavior.MoveWithEightEightVelocity(slot, state.Velocity);
@@ -319,7 +319,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (ShitroidOverlapsRectangle(slot, Position16<RoomPixels>.Wrapped(-128, 64), new(8, 8)))
                 {
                     state.Velocity = default;
-                    // The leave step clears instruction processing and invisibility as Shitroid
+                    // The leave step clears animation processing and invisibility as Shitroid
                     // reaches the off-screen destination, leaving a dormant non-drawn actor.
                     slot.Processing = slot.Processing.Without(EnemyProcessing.Animates);
                     slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
@@ -492,7 +492,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWhole(
             samus.Position.Whole + ShitroidShakeOffsets[shakeIndex] + new Offset16<RoomPixels>(rightOfShake, -20));
 
-        // The drain step subtracts four without Varia and two with it. The original
+        // The drain step subtracts four without Varia and two with it. The game's
         // expression is written as `health + (equipped & 1) + (-4 or -3)`, so reducing
         // those branches to three/two loses one point on both paths and materially shifts
         // the frame on which the Super Metroid forces Samus into drained crouching art.
@@ -627,7 +627,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         CoordinateAxis.Distance(center.X, slot.Position.X.Whole) < slot.Radius.X + radius.X + 1 &&
         CoordinateAxis.Distance(center.Y, slot.Position.Y.Whole) < slot.Radius.Y + radius.Y + 1;
 
-    /// <summary>Ports the private touch callback.</summary>
+    /// <summary>Resolves the Baby's private touch reaction.</summary>
     private void ResolveShitroidTouch(RoomEnemySlot slot, SamusState samus)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
@@ -638,7 +638,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.SpinJumping &&
             CoordinateAxis.Difference(samus.Position.X.Whole, 512) >= 0)
         {
-            // The expression `128 - angle + 128`, truncated to a byte, is simply the
+            // The push heading, a half turn less the source angle and then a half turn more, is simply the
             // negated source angle. Magnitude 64 is added to the current 8.8 velocity.
             RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
                 CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole),
@@ -672,7 +672,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the recoil-only shot callback: the Baby recoils away from <paramref name="recoilOrigin"/>.</summary>
+    /// <summary>Resolves the recoil-only shot reaction: the Baby recoils away from <paramref name="recoilOrigin"/>.</summary>
     private void ResolveShitroidShot(
         RoomEnemySlot slot,
         int collisionDamage,
@@ -744,7 +744,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Slot.Shading = state.Shading;
     }
 
-    /// <summary>Starts <paramref name="segment"/> with both instruction timers reset.</summary>
+    /// <summary>Starts <paramref name="segment"/> with both animation timers reset.</summary>
     private void SetShitroidAnimation(RoomEnemySlot slot, ShitroidSegment segment)
     {
         RequireShitroidState(slot).Playback = ShitroidAnimations.Starting(segment);
@@ -788,20 +788,20 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             c => ResolveShitroidShot(c.Enemy, c.Bomb.Damage, MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Slots)));
     }
 
-    /// <summary>Ports Shitroid's initialization AI.</summary>
+    /// <summary>Runs Shitroid's initialization AI.</summary>
     internal void RunShitroidInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
         InitializeShitroid(slot, surroundings.Camera.X);
     }
 
-    /// <summary>Ports Shitroid's main AI.</summary>
+    /// <summary>Runs Shitroid's main AI.</summary>
     internal void RunShitroidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunShitroidMain(slot, frame.Samus, frame.Camera, frame.SharedProjectiles);
     }
 
     /// <summary>
-    /// Plays the Shitroid's animation where the enemy instruction interpreter would: the frame expires on the update its
+    /// Plays the Shitroid's animation where the shared enemy animation runs: the frame expires on the update its
     /// timer would, and a newly shown frame raises the new-frame flag. Its animations only cycle.
     /// </summary>
     internal void AdvanceShitroidAnimation(RoomEnemySlot slot)
@@ -821,7 +821,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue)
         {
             case ShitroidCue.MaybeRemorseCry:
-                // The cue samples the existing random word; it does not generate a new one.
+                // The cue samples the existing random number; it does not generate a new one.
                 if (BossRandomRolls.InLowerHalf(_room.Random.Read()))
                     return new(ShitroidAnimations.StartingAt[ShitroidSegment.Remorse], AnimationPlace.StartOfAnimation);
                 RequestShitroidSound(ShitroidSoundDefinitions.RemorseCry);

@@ -51,6 +51,6 @@ internal sealed record RoomEnemyFrame
     /// <summary>The game's frame counter.</summary>
     public required int FrameCounter { get; init; }
 
-    /// <summary>The camera's frame-start Samus checkpoint under the live previous-position words that Draygon and Yapping Maw cap; null when no camera owns them.</summary>
+    /// <summary>The camera's frame-start Samus checkpoint under the live previous positions that Draygon and Yapping Maw cap; null when no camera owns them.</summary>
     public FixedPosition<RoomPixels>? SamusPreviousPositionCheckpoint { get; init; } = null;
 }

@@ -78,15 +78,26 @@ internal static class MorphBallEyeBehaviorVerification
         MorphBallEyeBeamState beam = enemies.MorphBallEyeBehavior.MorphBallEyeBeam;
         beam.Phase = MorphBallEyeBeamPhase.Widening;
         int[] widths = [0, 0, 1, 2, 3, 4];
+        // #1684: every update against the 16.16 arithmetic the typed angles replace: the growth gains 16384/65536 of a
+        // step, the width the growth, and the update whose whole width reaches four sets it to four, keeping its fraction.
+        // A typed angle's 256ths of a step are the 16.16 value's 65536ths over 256: the 16.16 fraction's low byte stays zero.
+        const int sixteenSixteenStep = 16384;
+        int sixteenSixteenGrowth = 0;
+        int sixteenSixteenWidth = 0;
         for (int update = 0; update < widths.Length; update++)
         {
             enemies.MorphBallEyeBehavior.StepMorphBallEyeBeam();
-            AssertEqual(widths[update], beam.AngularWidth, $"eye beam whole width after widening update {update + 1}");
+            sixteenSixteenGrowth += sixteenSixteenStep;
+            sixteenSixteenWidth += sixteenSixteenGrowth;
+            if (sixteenSixteenWidth >> 16 >= 4)
+                sixteenSixteenWidth = 4 << 16 | (sixteenSixteenWidth & 65535);
+            AssertEqual(new TrigonometryAngle(widths[update]), beam.AngularWidth, $"eye beam whole width after widening update {update + 1}");
+            AssertEqual(sixteenSixteenGrowth, beam.AngularHalfWidthGrowth.RawValue << 8, $"eye beam growth after widening update {update + 1} equals the 16.16 growth");
+            AssertEqual(sixteenSixteenWidth, beam.AngularHalfWidth.RawValue << 8, $"eye beam half-width after widening update {update + 1} equals the 16.16 width");
             AssertEqual(update == widths.Length - 1 ? MorphBallEyeBeamPhase.Full : MorphBallEyeBeamPhase.Widening, beam.Phase,
                 $"eye beam phase after widening update {update + 1}");
         }
-        AssertEqual(SignedSixteenSixteen.FromParts(MorphBallEyeBeamDefinitions.FullAngularWidth, MorphBallEyeBeamDefinitions.WidthGrowthStep.Fraction),
-            beam.AngularHalfWidth, "a full beam keeps the fraction it overshot with");
+        AssertEqual(RotationAngle.FromSteps(4, 64), beam.AngularHalfWidth, "a full beam keeps the fraction it overshot with");
 
         beam.Phase = MorphBallEyeBeamPhase.Deactivating;
         beam.Color = MorphBallEyeBeamDefinitions.InitialColor;

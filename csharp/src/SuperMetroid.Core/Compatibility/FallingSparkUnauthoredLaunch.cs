@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// The sideways drift a falling spark takes when its random launch choice lies past the seven authored launches
-/// (#1500). The choice takes three random bits, so one choice in eight reads the record after the last launch: two words
-/// of the spark's own code, which make a fast leftward drift. The import pipeline decodes that drift once.
+/// (#1500). The choice is one of eight, so one choice in eight reads the entry after the last launch: the start
+/// of the spark's own code, which makes a fast leftward drift. The import pipeline decodes that drift once.
 /// </summary>
 /// <remarks>
 /// Consulted when a spark is spawned, after it takes its random number, on the one choice of eight past the authored

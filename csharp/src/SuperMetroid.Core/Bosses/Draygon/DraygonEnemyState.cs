@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Draygon's encounter-wide state and the values of his body. The four visible enemy records remain physical <see cref="RoomEnemySlot"/> instances; the eye's record values live
+/// Draygon's encounter-wide state and the values of his body. The four visible enemy parts remain physical <see cref="RoomEnemySlot"/> instances; the eye's values live
 /// in its own <see cref="DraygonEyeState"/>.
 /// </summary>
 public sealed class DraygonEnemyState

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
 /// Kraid's part functions, held in each part's function and its next-function alias. Each
-/// member names the routine it ports; the part stores the member, not the routine. Members are
+/// member names the behaviour it runs; the part stores the member. Members are
 /// declared in the game's authored order, which Kraid's death tests compare, and start at one.
 /// </summary>
 public enum KraidAiFunction
@@ -51,7 +51,7 @@ public enum KraidAiFunction
     DecrementFunctionTimerAndStartWalk,
     /// <summary>The first-phase foot's thinking entry before its independently timed lunge.</summary>
     FootFirstPhaseThinking,
-    /// <summary>Processes Kraid's private head instruction stream and its timer.</summary>
+    /// <summary>Processes Kraid's private head program and its timer.</summary>
     AdvanceHeadAnimationAndTimer,
     /// <summary>Counts the second-phase foot's think delay and selects a walking target.</summary>
     FootSecondPhaseThinking,
@@ -67,7 +67,7 @@ public enum KraidAiFunction
     MainAttackWithMouthOpen,
     /// <summary>Selects the fingernail's starting side, animation, and firing transition.</summary>
     FingernailInitialize,
-    /// <summary>Advances the fingernail's independent firing instruction stream.</summary>
+    /// <summary>Advances the fingernail's independent firing program.</summary>
     FingernailFire,
     /// <summary>Prepares the first-phase foot's forward lunge.</summary>
     FootPrepareFirstPhaseLunge,

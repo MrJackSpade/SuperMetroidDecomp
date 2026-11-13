@@ -159,7 +159,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         CarrySamusWithKzanIfTouchingFromBelow(slot, state, samus);
 
         // The game caps the speed by the sign of its difference from the cap; both stay far
-        // below the sign bit, so that is the ordinary minimum.
+        // inside the signed range, so that is the ordinary minimum.
         SignedSixteenSixteen accelerated = state.FallingSpeed + KzanFallAcceleration;
         state.FallingSpeed = (accelerated - KzanMaximumFallingSpeed).IsNegative ? accelerated : KzanMaximumFallingSpeed;
     }
@@ -171,7 +171,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Function = KzanEnemyFunction.Rising;
     }
 
-    /// <summary>Subtracts one-half pixel per update, stops at the original height, and carries Samus by the whole-pixel step.</summary>
+    /// <summary>Subtracts one-half pixel per update, stops at the spawn height, and carries Samus by the whole-pixel step.</summary>
     private static void RunKzanRising(
         RoomEnemySlot slot,
         KzanEnemyState state,

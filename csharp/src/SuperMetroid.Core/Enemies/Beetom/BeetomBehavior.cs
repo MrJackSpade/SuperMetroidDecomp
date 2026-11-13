@@ -9,7 +9,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Enemies.Beetom;
 
-/// <summary>The Beetom species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Beetom species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -161,7 +161,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 StartBeetomDrop(slot, state);
                 return;
             case BeetomEnemyFunction.StartBeingFlung:
-                state.YSpeedTableIndex = 0;
+                state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
                 state.Function = BeetomEnemyFunction.BeingFlung;
                 return;
             case BeetomEnemyFunction.Idling:
@@ -254,7 +254,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void StartBeetomHop(
         RoomEnemySlot slot,
         BeetomEnemyState state,
-        int initialYSpeedIndex,
+        EnemyQuadraticSpeedIndex initialYSpeedIndex,
         HorizontalDirection direction,
         BeetomHopLength length)
     {
@@ -380,7 +380,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!state.Falling)
         {
-            if (_terrain.MoveEnemyVertically(level, slot, EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Negative))
+            if (_terrain.MoveEnemyVertically(level, slot, state.YSpeedTableIndex.Row.Negative))
             {
                 state.Function = BeetomEnemyFunction.StartDropping;
                 return;
@@ -390,7 +390,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (_terrain.MoveEnemyVertically(level, slot, EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Positive))
+        if (_terrain.MoveEnemyVertically(level, slot, state.YSpeedTableIndex.Row.Positive))
         {
             state.Function = BeetomEnemyFunction.DecideAction;
             return;
@@ -446,7 +446,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves opposite the pre-escape facing until a floor or wall selects its next action.</summary>
     private void RunFlungBeetom(RoomEnemySlot slot, BeetomEnemyState state, RoomLevelData level)
     {
-        if (_terrain.MoveEnemyVertically(level, slot, EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Positive))
+        if (_terrain.MoveEnemyVertically(level, slot, state.YSpeedTableIndex.Row.Positive))
             state.Function = BeetomEnemyFunction.DecideAction;
         else
             state.StepFallingSpeed(1);
@@ -461,18 +461,19 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Sums the quadratic table's coarse speeds until a jump height is reached.</summary>
-    internal static int CalculateInitialBeetomYSpeedIndex(int targetHeight, int tableIndexDelta)
+    internal static EnemyQuadraticSpeedIndex CalculateInitialBeetomYSpeedIndex(int targetHeight, int tableIndexDelta)
     {
-        int tableIndex = 0;
+        EnemyQuadraticSpeedIndex tableIndex = EnemyQuadraticSpeedIndex.Start;
         int accumulatedHeight = 0;
         // Each pass moves the row on by the delta, so the height is reached within the table's rows or never: past them
-        // the row lookup rejects the climb, and a delta of zero sums the first row's speed of zero only (#1627).
+        // the row lookup rejects the climb before the place could grow further, and a delta of zero sums the first row's
+        // speed of zero only (#1627).
         for (int iteration = 0; iteration < EnemyQuadraticSpeedDefinitions.RowCount; iteration++)
         {
-            tableIndex = WrappingCounter.AddCount(tableIndex, tableIndexDelta);
+            tableIndex += EnemyQuadraticSpeedIndex.FromRows(tableIndexDelta);
             // The height sums each row's coarse speed, in 256ths of a pixel; summing full speeds changes every arc.
             accumulatedHeight = WrappingCounter.AddCount(accumulatedHeight,
-                EnemyQuadraticSpeeds.Row(tableIndex).CoarseToward(EnemySpeedSign.Positive));
+                tableIndex.Row.CoarseToward(EnemySpeedSign.Positive));
             if (CoordinateAxis.Difference(accumulatedHeight, targetHeight) >= 0)
                 return tableIndex;
         }
@@ -510,14 +511,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         // subtraction directly, then reproduce those two clearing stores.
         if (!BeetomCadenceDefinitions.DrainDamageEverySixtyFourthUpdate.IsDue(slot.FrameCounter))
             return;
-        int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? slot.Definition.Damage >> 2
-            : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? slot.Definition.Damage >> 1
-                : slot.Definition.Damage;
-        samus.Health = samus.Health <= damage
-            ? 0
-            : samus.Health - damage;
+        SamusSuitDamage.Hurt(samus, slot.Definition.Damage);
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
         samus.KnockbackTimer = 0;
     }
@@ -540,7 +534,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AttachedToSamus = false;
     }
 
-    /// <summary>Installs a Beetom animation and primes its instruction timer.</summary>
+    /// <summary>Installs a Beetom animation and primes its animation timer.</summary>
     private static void SetBeetomAnimation(
         RoomEnemySlot slot,
         BeetomEnemyState state,
@@ -575,13 +569,13 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Ports Beetom's initialization AI.</summary>
+    /// <summary>Runs Beetom's initialization AI.</summary>
     internal void RunBeetomInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
         InitializeBeetom(slot, surroundings.Samus, surroundings.ControllerInput);
     }
 
-    /// <summary>Ports Beetom's main AI.</summary>
+    /// <summary>Runs Beetom's main AI.</summary>
     internal void RunBeetomMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunBeetomMain(slot, slot.RequireSpeciesState<BeetomEnemyState>(), frame.Samus, frame.Level, frame.ControllerInput);

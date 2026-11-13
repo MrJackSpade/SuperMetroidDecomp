@@ -94,8 +94,7 @@ internal sealed class StationObjects
 
         IRoomSamus samus = _samus?.Current
             ?? throw new InvalidOperationException("Confirmed save station has no live Samus owner.");
-        // Rounds Samus to the nearest block boundary.
-        samus.Position = samus.Position.WithWrappedWholeX(((samus.Position.X.Whole + 8) >> 4) << 4);
+        samus.Position = samus.Position.WithWrappedWholeX(RoomGridConversions.NearestBlockBoundary(samus.Position.X.Whole));
         samus.FaceForward();
         samus.Control.LockHandlers();
 
@@ -152,10 +151,10 @@ internal sealed class StationObjects
         SharedGameState system,
         AreaId area,
         RoomObjectSlot slot,
-        RoomObjectHeaderId placed)
+        RoomObjectKind placed)
     {
         Ensure.NotNull(slot);
-        if (placed == RoomObjectHeaderId.ElevatorPlatform)
+        if (placed == RoomObjectKind.ElevatorPlatform)
         {
             // The deactivating setup leaves a solid block solid and any other block air, keeping its appearance; the
             // platform then plays its loop.
@@ -399,7 +398,7 @@ internal sealed class StationObjects
         IRoomSamus samus = _samus?.Current
             ?? throw new InvalidOperationException("Save-station collision requires the room's Samus owner.");
         int probeX = CoordinateAxis.Wrap(samus.Position.X.Whole - SaveStationTriggerGeometry.HorizontalProbeOffset);
-        return (probeX >> SaveStationTriggerGeometry.BlockCoordinateShift) == block.X;
+        return RoomGridConversions.PixelToBlock(probeX) == block.X;
     }
 
     /// <summary>Samus, whom <paramref name="owner"/> reads and changes.</summary>

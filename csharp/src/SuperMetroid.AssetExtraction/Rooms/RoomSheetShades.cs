@@ -136,7 +136,7 @@ internal static class RoomSheetShades
 
     /// <summary>Every retail room state that loads <paramref name="tileset"/>, with its room.</summary>
     private static IEnumerable<SelectedRoom> RoomsOf(TilesetDefinition tileset) =>
-        RetailRoomHeaders.All.SelectMany(room => RoomStateLists.GetStates(room)
+        RetailRooms.All.SelectMany(room => RoomStateLists.GetStates(room)
             .Where(state => RoomTilesets.Get(state.GraphicsSet) == tileset)
             .Select(state => new SelectedRoom(room, state)));
 }

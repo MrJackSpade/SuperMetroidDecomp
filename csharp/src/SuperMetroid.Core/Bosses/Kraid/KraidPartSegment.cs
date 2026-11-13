@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// The programs of Kraid's foot, arm, lints and fingernails, declared in the order the original game authors them.
-/// Kraid's routines depend on that order: they ask whether a part's program lies before a given program,
-/// as the original routines compare script positions.
+/// The programs of Kraid's foot, arm, lints and fingernails, declared in the order the game authors them.
+/// Kraid's behaviour depends on that order: it asks whether a part's program lies before a given program,
+/// as the game compares animation positions.
 /// </summary>
 public enum KraidPartSegment
 {

@@ -5,11 +5,11 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
 /// Torizo's state beyond its ordinary enemy record, kept in named fields rather than in
-/// shared boss variables, so no common enemy field takes on a second meaning.
+/// shared boss values, so no common enemy field takes on a second meaning.
 /// </summary>
 public sealed class TorizoEnemyState
 {
-    /// <summary>Attaches variant-specific boss variables to the existing physical enemy slot.</summary>
+    /// <summary>Attaches variant-specific boss state to the existing physical enemy slot.</summary>
     internal TorizoEnemyState(RoomEnemySlot slot, bool isGolden)
     {
         Slot = slot;

@@ -75,7 +75,7 @@ internal static class CeresFlightActorDefinitions
         HorizontalDelta = VortexHorizontalDelta,
     };
 
-    /// <summary>The drifting callback's movement: an eighth of a pixel leftward, borrowing into the whole X, with no
+    /// <summary>The drifting callback's movement: an eighth of a pixel leftward, taking from the whole X as the fraction passes zero, with no
     /// nine-bit wrap.</summary>
     private static SignedSixteenSixteen VortexHorizontalDelta { get; } = -SignedSixteenSixteen.FromSixteenthsOfPixel(2);
 }

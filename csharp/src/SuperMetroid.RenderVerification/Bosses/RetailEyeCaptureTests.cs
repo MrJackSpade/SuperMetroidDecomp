@@ -23,7 +23,7 @@ internal static class RetailEyeCaptureTests
         var runtime = RepositoryInstallation.CreateRuntime();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MorphBall,
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MorphBall,
             new Position16<RoomPixels>(EyeCaptureFixture.CameraX, EyeCaptureFixture.CameraY));
         var body = runtime.Enemies.SlotTable.Slots[1];
         var samus = runtime.Player.IntroducedSamus;
@@ -34,7 +34,7 @@ internal static class RetailEyeCaptureTests
         for (int tick = 0; tick < 96; tick++)
         {
             runtime.StepFrame(0);
-            firstBeam |= runtime.Display.DisplayedMorphBallEyeBeam is { Phase: MorphBallEyeBeamPhase.Widening, AngularWidth: 0 };
+            firstBeam |= runtime.Display.DisplayedMorphBallEyeBeam is { Phase: MorphBallEyeBeamPhase.Widening } widening && widening.AngularWidth == TrigonometryAngle.Zero;
             fullBeam |= runtime.Display.DisplayedMorphBallEyeBeam is { Phase: MorphBallEyeBeamPhase.Full };
             var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
             var packet = new DisplayPacket((ushort)tick, GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));

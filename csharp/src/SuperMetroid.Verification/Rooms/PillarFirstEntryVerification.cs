@@ -24,7 +24,7 @@ internal static class PillarFirstEntryVerification
     /// <summary>Stages the neighboring doorway and lets the normal coroutine load population, FX, graphics, and PLMs.</summary>
     internal static void VerifyPillarFirstEntry()
     {
-        RoomHeaderDefinition source = RoomHeaderDefinitions.FastPillarsSetup, destination = RoomHeaderDefinitions.Pillar;
+        RoomDefinition source = RoomDefinitions.FastPillarsSetup, destination = RoomDefinitions.Pillar;
 
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);

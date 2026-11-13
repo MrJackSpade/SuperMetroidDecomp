@@ -26,6 +26,9 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.DrainingShitroidFallSh
 using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawBendChainVerification;
 using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleWallReversalVerification;
 using static SuperMetroid.Verification.Enemies.Kzan.KzanRiseStepVerification;
+using static SuperMetroid.Verification.Enemies.Crawlers.MultiviolaLeftOrUpSpeedVerification;
+using static SuperMetroid.Verification.Enemies.Yard.YardAirborneReversalVerification;
+using static SuperMetroid.Verification.Enemies.Sbug.SbugReversalVerification;
 using static SuperMetroid.Verification.Enemies.Puyo.PuyoCeilingTurnVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFatalBlowShakeVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidHeadTargetVerification;
@@ -430,6 +433,13 @@ using static SuperMetroid.Verification.Runtime.Attract.AttractDemoLoadWaitsVerif
 using static SuperMetroid.Verification.Enemies.EnemyMathBoundsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonTrailRingVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingWavySamusWaveVerification;
+using static SuperMetroid.Verification.Samus.Projectiles.SamusBombCountVerification;
+using static SuperMetroid.Verification.Samus.Artwork.SamusArtOriginRangeVerification;
+using static SuperMetroid.Verification.Samus.SamusSuitDamageVerification;
+using static SuperMetroid.Verification.Rooms.RoomGridBoundsVerification;
+using static SuperMetroid.Verification.Compatibility.CompatibilitySubpixelInputsVerification;
+using static SuperMetroid.Verification.Rooms.Doors.DoorCapAbsentFramesVerification;
+using static SuperMetroid.Verification.Samus.SamusPreviousPositionWritesVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationOracles;
 using System.Collections.Frozen;
@@ -549,6 +559,14 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Bosses.Crocomire.CrocomireRandomChancesVerification.VerifyCrocomireRandomChances),
         new(nameof(SuperMetroid.Verification.Bosses.Draygon.DraygonRandomChancesVerification.VerifyDraygonRandomChances),
             SuperMetroid.Verification.Bosses.Draygon.DraygonRandomChancesVerification.VerifyDraygonRandomChances),
+        new(nameof(SuperMetroid.Verification.Bosses.Draygon.DraygonBurialDriftVerification.VerifyDraygonBurialDrift),
+            SuperMetroid.Verification.Bosses.Draygon.DraygonBurialDriftVerification.VerifyDraygonBurialDrift),
+        new(nameof(SuperMetroid.Verification.Bosses.Crocomire.CrocomireMouthShotHoldVerification.VerifyCrocomireMouthShotHold),
+            SuperMetroid.Verification.Bosses.Crocomire.CrocomireMouthShotHoldVerification.VerifyCrocomireMouthShotHold),
+        new(nameof(SuperMetroid.Verification.Enemies.Projectiles.EnemyProjectileCoarseContactVerification.VerifyEnemyProjectileCoarseContactCells),
+            SuperMetroid.Verification.Enemies.Projectiles.EnemyProjectileCoarseContactVerification.VerifyEnemyProjectileCoarseContactCells),
+        new(nameof(SuperMetroid.Verification.Enemies.YappingMaws.YappingMawBendStepVerification.VerifyYappingMawBendStep),
+            SuperMetroid.Verification.Enemies.YappingMaws.YappingMawBendStepVerification.VerifyYappingMawBendStep),
         new(nameof(SuperMetroid.Verification.Bosses.Phantoon.PhantoonCounterPhasesVerification.VerifyPhantoonCounterPhases),
             SuperMetroid.Verification.Bosses.Phantoon.PhantoonCounterPhasesVerification.VerifyPhantoonCounterPhases),
         new(nameof(SuperMetroid.Verification.Areas.Ceres.CeresDoorRandomChancesVerification.VerifyCeresDoorRandomChances),
@@ -610,6 +628,17 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyTypedNativeWords), () => VerifyTypedNativeWords()),
         new(nameof(VerifySamusSpatialValues), () => VerifySamusSpatialValues()),
         new(nameof(VerifyTypedTurnsAndZoom), () => VerifyTypedTurnsAndZoom()),
+        // The typed angle steps, the X-ray aim, the combo orbit and the Crystal Flash radius (#1684).
+        new(nameof(SuperMetroid.Verification.Spatial.TypedAngleStepsVerification.VerifyTypedAngleSteps),
+            SuperMetroid.Verification.Spatial.TypedAngleStepsVerification.VerifyTypedAngleSteps),
+        new(nameof(SuperMetroid.Verification.Spatial.TypedDirectionBucketsVerification.VerifyTypedDirectionBuckets),
+            SuperMetroid.Verification.Spatial.TypedDirectionBucketsVerification.VerifyTypedDirectionBuckets),
+        new(nameof(SuperMetroid.Verification.Samus.Abilities.XrayAimClampVerification.VerifyXrayAimClamp),
+            SuperMetroid.Verification.Samus.Abilities.XrayAimClampVerification.VerifyXrayAimClamp),
+        new(nameof(SuperMetroid.Verification.Samus.Projectiles.ComboSineOffsetVerification.VerifyComboSineOffset),
+            SuperMetroid.Verification.Samus.Projectiles.ComboSineOffsetVerification.VerifyComboSineOffset),
+        new(nameof(SuperMetroid.Verification.Samus.Abilities.CrystalFlashAfterglowVerification.VerifyCrystalFlashAfterglow),
+            SuperMetroid.Verification.Samus.Abilities.CrystalFlashAfterglowVerification.VerifyCrystalFlashAfterglow),
         new(nameof(VerifyPhantoonWaveLifecycle), () => VerifyPhantoonWaveLifecycle()),
         new(nameof(VerifyBackgroundMosaicWidth), () => VerifyBackgroundMosaicWidth()),
         new(nameof(VerifyOamSpritemapPacking), () => VerifyOamSpritemapPacking()),
@@ -987,6 +1016,9 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyYappingMawBendChain), () => VerifyYappingMawBendChain()),
         new(nameof(VerifyMamaTurtleWallReversal), () => VerifyMamaTurtleWallReversal()),
         new(nameof(VerifyKzanRiseStep), () => VerifyKzanRiseStep()),
+        new(nameof(VerifyMultiviolaLeftOrUpSpeed), () => VerifyMultiviolaLeftOrUpSpeed()),
+        new(nameof(VerifyYardAirborneReversal), () => VerifyYardAirborneReversal()),
+        new(nameof(VerifySbugReversal), () => VerifySbugReversal()),
         new(nameof(VerifyPuyoCeilingTurn), () => VerifyPuyoCeilingTurn()),
         new(nameof(VerifyJumpNoXMovement), () => VerifyJumpNoXMovement()),
         new(nameof(VerifySaveConfirmationCadence), () => VerifySaveConfirmationCadence()),
@@ -1045,6 +1077,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyFrozenTimeEnemyProjectiles), () => VerifyFrozenTimeEnemyProjectiles()),
         new(nameof(VerifyItemCancelClearsCharge), () => VerifyItemCancelClearsCharge()),
         new(nameof(Samus.Projectiles.SpecialAttackParticlesVerification.VerifySpecialAttackParticleParts), Samus.Projectiles.SpecialAttackParticlesVerification.VerifySpecialAttackParticleParts),
+        new(nameof(Samus.Projectiles.ResumeChargingSoundCancelVerification.VerifyFiringCancelsResumeChargingSound), Samus.Projectiles.ResumeChargingSoundCancelVerification.VerifyFiringCancelsResumeChargingSound),
         new(nameof(VerifyDraygonScrollingSpeedCap), () => VerifyDraygonScrollingSpeedCap()),
         new(nameof(VerifyDraygonEscapeDrag), () => VerifyDraygonEscapeDrag()),
         new(nameof(VerifyReleasedSamusFallsOffDraygon), () => VerifyReleasedSamusFallsOffDraygon()),
@@ -1131,5 +1164,17 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyEnemyMathBounds), () => VerifyEnemyMathBounds()),
         new(nameof(VerifyBotwoonTrailRing), () => VerifyBotwoonTrailRing()),
         new(nameof(VerifyEndingWavySamusWave), () => VerifyEndingWavySamusWave()),
+        new(nameof(VerifySamusBombCount), () => VerifySamusBombCount()),
+        new(nameof(VerifySamusArtOriginRange), () => VerifySamusArtOriginRange()),
+        new(nameof(VerifySamusSuitDamage), () => VerifySamusSuitDamage()),
+        new(nameof(VerifySamusPeriodicSuitDamage), () => VerifySamusPeriodicSuitDamage()),
+        new(nameof(SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainFinishOffThresholdVerification.VerifyMotherBrainFinishOffThreshold),
+            SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainFinishOffThresholdVerification.VerifyMotherBrainFinishOffThreshold),
+        new(nameof(SuperMetroid.Verification.Samus.Grapple.GrappleExtensionArithmeticVerification.VerifyGrappleExtensionArithmetic),
+            SuperMetroid.Verification.Samus.Grapple.GrappleExtensionArithmeticVerification.VerifyGrappleExtensionArithmetic),
+        new(nameof(VerifyRoomGridBounds), () => VerifyRoomGridBounds()),
+        new(nameof(VerifyCompatibilitySubpixelInputs), () => VerifyCompatibilitySubpixelInputs()),
+        new(nameof(VerifyDoorCapAbsentFrames), () => VerifyDoorCapAbsentFrames()),
+        new(nameof(VerifySamusPreviousPositionWrites), () => VerifySamusPreviousPositionWrites()),
     ];
 }

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -161,7 +161,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int guard = 0; guard <= WrappingCounter.LargestCount; guard++)
         {
             timeAccumulator = WrappingCounter.AddCount(timeAccumulator, xSpeed);
-            EnemyQuadraticSpeedRow speedRow = EnemyQuadraticSpeeds.Row(UnsignedEightEight.Whole(timeAccumulator));
+            EnemyQuadraticSpeedRow speedRow = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(timeAccumulator).Row;
 
             // Summing each row's coarse speed, in 256ths of a pixel, gives the 8.8 distance estimate used only to
             // find the initial curve row.

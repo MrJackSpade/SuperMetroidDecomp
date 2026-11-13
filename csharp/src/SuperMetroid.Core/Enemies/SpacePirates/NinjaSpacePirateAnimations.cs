@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
 /// The ninja Space Pirates' stance, kick, claw, spin-jump and divekick animations as typed programs (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="NinjaSpacePirateCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="NinjaSpacePirateCue"/> with its typed operands.
 /// </summary>
 internal static class NinjaSpacePirateAnimations
 {

@@ -14,6 +14,6 @@ public enum MorphBallEyeAiFunction
     Active,
     /// <summary>Waits for the 32-update closing countdown to reach zero or wrap negative, then resumes proximity waiting.</summary>
     Deactivating,
-    /// <summary>The decorative mount's inert behaviour, selected by population parameter 2's sign bit; it does not track Samus or own the beam.</summary>
+    /// <summary>The decorative mount's inert behaviour, selected by a negative population parameter 2; it does not track Samus or own the beam.</summary>
     MountNoOp,
 }

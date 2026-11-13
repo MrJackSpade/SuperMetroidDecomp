@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
 /// The escaping Dachora's typed animations (#641, #1600). Each frame shows a <see cref="EnemyFrameId"/> and
-/// each callback becomes a <see cref="EscapeDachoraCue"/> with its typed operands. Around the shaft it runs five laps
+/// each cue is a <see cref="EscapeDachoraCue"/> with its typed operands. Around the shaft it runs five laps
 /// left and five right, counted on its timer; a branch continues the play where <see cref="BranchTargets"/> says.
 /// </summary>
 internal static class EscapeDachoraAnimations

@@ -57,13 +57,13 @@ public static class RoomEarthquakeDefinitions
     /// The six rooms whose special-FX initialization silences quake sounds, in the order the game compares them;
     /// every other room keeps them.
     /// </summary>
-    public static IReadOnlyList<RoomHeaderDefinition> SoundSuppressedRooms { get; } =
+    public static IReadOnlyList<RoomDefinition> SoundSuppressedRooms { get; } =
     [
-        RoomHeaderDefinitions.BombTorizo,
-        RoomHeaderDefinitions.Climb,
-        RoomHeaderDefinitions.Ridley,
-        RoomHeaderDefinitions.Pillar,
-        RoomHeaderDefinitions.MotherBrain,
-        RoomHeaderDefinitions.TourianEscape4,
+        RoomDefinitions.BombTorizo,
+        RoomDefinitions.Climb,
+        RoomDefinitions.Ridley,
+        RoomDefinitions.Pillar,
+        RoomDefinitions.MotherBrain,
+        RoomDefinitions.TourianEscape4,
     ];
 }

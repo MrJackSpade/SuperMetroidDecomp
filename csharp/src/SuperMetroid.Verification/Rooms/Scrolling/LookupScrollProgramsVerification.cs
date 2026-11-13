@@ -37,7 +37,7 @@ internal static class LookupScrollProgramsVerification
             AssertEqual(null, customized.Placements.Span[0].CompiledScrollChange,"Explicit custom writes replace the retail program");
             AssertTrue(customized.Placements.Span[0].ScrollChange!.SequenceEqual([new RoomScrollWrite(1, RoomScrollState.Green)]),"Explicit custom writes survive placement copy");
             AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
-                [new RoomObjectPlacement(RoomObjectHeaders.Get(RoomObjectHeaderId.ScrollTrigger),new(0, 0),null)]),
+                [new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.ScrollTrigger),new(0, 0),null)]),
                 "Constructed scroll still requires decoded program");
         }
         int totalPairs = 0, totalBytes = 0;

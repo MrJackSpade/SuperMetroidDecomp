@@ -328,7 +328,7 @@ namespace matches its path (`Core/Bosses/Kraid` is `SuperMetroid.Core.Bosses.Kra
 | `Samus` | Samus state, with `Movement`, `Poses`, `Projectiles`, `Grapple`, `Abilities` (X-ray, Crystal Flash, Shinespark, Speed Booster, morph), `Palettes`, `Drawing`, `Death` and `Hud` |
 | `Enemies` | the shared enemy engine, one directory per enemy family, `Projectiles` (the enemy-projectile engine), `Drawing` and `Artwork` |
 | `Bosses/<Boss>` | one boss encounter: its AI, room objects, projectiles and `Artwork` |
-| `Rooms` | room headers, states and loading, with `LevelData`, `Backgrounds`, `Scrolling`, `RoomObjects`, `Doors`, `SpriteObjects`, `Xray` and `Artwork` |
+| `Rooms` | rooms, states and loading, with `LevelData`, `Backgrounds`, `Scrolling`, `RoomObjects`, `Doors`, `SpriteObjects`, `Xray` and `Artwork` |
 | `Fx` | room FX, animated tiles and HDMA, with `PaletteFx` |
 | `Areas/<Area>` | scripted gameplay sequences that belong to one place (Ceres, the escapes, Tourian, Maridia) |
 | `Gameplay` | the services every gameplay domain shares within a frame: the NMI clock and handler, time freeze, display state, host options and tester tools, runtime artwork, actor drawing, the game-state word, and the narrow contracts gameplay reads from the frontend (`IGameplayPresentationContent`, `IAttractDemoState`) |
@@ -397,7 +397,7 @@ so nothing resets for the next room. See [room-scope.md](room-scope.md).
 
 **SME6412** keeps rooms, room states and doors identified by their definitions (#1333): a field, property, parameter
 or method named as a room, room-state or door pointer with a number type is reported. Runtime code names a room by
-its `RoomHeaderDefinition`, a state by its `RoomStateSettings` and a door by its `DoorDefinition`; the native
+its `RoomDefinition`, a state by its `RoomStateSettings` and a door by its `DoorDefinition`; the native
 bank-$8F and bank-$83 pointers are the import pipeline's knowledge.
 
 `SuperMetroid.BuildPolicyVerification` checks what an analyzer cannot: every directory under `csharp/src`,

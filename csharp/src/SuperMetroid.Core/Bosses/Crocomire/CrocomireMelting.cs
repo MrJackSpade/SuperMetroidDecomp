@@ -141,7 +141,7 @@ internal sealed class CrocomireMelting
 
     /// <summary>
     /// The frame of <paramref name="band"/>'s animation that shows <paramref name="picture"/>, which the extraction pictures
-    /// his tile words over (#1392, #1406).
+    /// for each band (#1392, #1406).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="band"/> is not a band of either melt image.</exception>
     internal static ArtworkFrame MeltBandFrame(CrocomireMeltBandPicture picture, int band) =>
@@ -238,7 +238,7 @@ internal sealed class CrocomireMelting
             Math.Min(distortionLine + ScreenGeometry.GameplayHudHeightPixels, ScreenGeometry.ScreenHeightPixels);
     }
 
-    /// <summary>Ends the current dissolve and selects the next death-scene instruction phase.</summary>
+    /// <summary>Ends the current dissolve and selects the next death-scene phase.</summary>
     internal void CompleteCrocomireMeltingDissolve(CrocomireEnemyState state)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();

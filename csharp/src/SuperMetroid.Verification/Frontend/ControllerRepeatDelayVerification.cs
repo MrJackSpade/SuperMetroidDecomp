@@ -28,7 +28,9 @@ internal static void VerifyRepeatAndHeldInputDelays()
     system.UpdateHeldInput(0, ControllerButton.Left, ControllerButton.None);
     AssertEqual(ControllerButton.Left, system.TimedHeldInput, "a zero reload activates on the first stable update by wrapping below zero");
     AssertEqual(0, system.TimedHeldInputTimer.RawValue, "the expired held-input countdown is pinned to zero");
-    AssertThrows<ArgumentOutOfRangeException>(() => system.UpdateHeldInput(ushort.MaxValue + 1, ControllerButton.Left, ControllerButton.None),
-        "a held-input reload past the countdown's range is rejected");
+    system.UpdateHeldInput(WrappingCountdown.LongestStart, ControllerButton.Right, ControllerButton.None);
+    AssertEqual(WrappingCountdown.LongestStart, system.TimedHeldInputTimer.RawValue, "the longest reload starts the countdown at its longest start");
+    AssertThrows<ArgumentOutOfRangeException>(() => system.UpdateHeldInput(WrappingCountdown.LongestStart + 1, ControllerButton.Left, ControllerButton.None),
+        "a held-input reload past the countdown's longest start is rejected");
 }
 }

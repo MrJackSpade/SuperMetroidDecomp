@@ -25,19 +25,19 @@ public sealed class RainbowBeamCameraCheckpoint
     private HiddenFraction _vertical;
 
     /// <summary>Hides the coarse part of a horizontal push that left Samus's sub-pixel at <paramref name="fraction"/>.</summary>
-    /// <param name="fraction">Samus's horizontal sub-pixel position after the push, 0 through 65535.</param>
+    /// <param name="fraction">Samus's horizontal sub-pixel position after the push, 0 through <see cref="FixedCoordinate.LastFraction"/>.</param>
     public void HideCoarseHorizontalMovement(int fraction) => _horizontal = _horizontal.WithCoarse(fraction);
 
     /// <summary>Hides the coarse part of a vertical push that left Samus's sub-pixel at <paramref name="fraction"/>.</summary>
-    /// <param name="fraction">Samus's vertical sub-pixel position after the push, 0 through 65535.</param>
+    /// <param name="fraction">Samus's vertical sub-pixel position after the push, 0 through <see cref="FixedCoordinate.LastFraction"/>.</param>
     public void HideCoarseVerticalMovement(int fraction) => _vertical = _vertical.WithCoarse(fraction);
 
     /// <summary>Hides a horizontal push completely: the record takes Samus's whole sub-pixel position.</summary>
-    /// <param name="fraction">Samus's horizontal sub-pixel position, 0 through 65535.</param>
+    /// <param name="fraction">Samus's horizontal sub-pixel position, 0 through <see cref="FixedCoordinate.LastFraction"/>.</param>
     public void HideHorizontalMovement(int fraction) => _horizontal = HiddenFraction.Complete(fraction);
 
     /// <summary>Hides a vertical push completely: the record takes Samus's whole sub-pixel position.</summary>
-    /// <param name="fraction">Samus's vertical sub-pixel position, 0 through 65535.</param>
+    /// <param name="fraction">Samus's vertical sub-pixel position, 0 through <see cref="FixedCoordinate.LastFraction"/>.</param>
     public void HideVerticalMovement(int fraction) => _vertical = HiddenFraction.Complete(fraction);
 
     /// <summary>
@@ -70,7 +70,7 @@ public sealed class RainbowBeamCameraCheckpoint
 
     /// <summary>One axis's hidden sub-pixel: what part of the record it replaces, and with what.</summary>
     /// <param name="Extent">How much of the record is replaced.</param>
-    /// <param name="Fraction">The replacing sub-pixel, 0 through 65535; only its coarse part counts for a coarse extent.</param>
+    /// <param name="Fraction">The replacing sub-pixel, 0 through <see cref="FixedCoordinate.LastFraction"/>; only its coarse part counts for a coarse extent.</param>
     private readonly record struct HiddenFraction(HiddenExtent Extent, int Fraction)
     {
         /// <summary>A sub-pixel's coarse steps: the 1/256ths of a pixel the push moves Samus by.</summary>
@@ -78,7 +78,7 @@ public sealed class RainbowBeamCameraCheckpoint
 
         /// <summary>The whole sub-pixel <paramref name="fraction"/> replaces the record's.</summary>
         public static HiddenFraction Complete(int fraction) =>
-            new(HiddenExtent.Complete, Ensure.BetweenInclusive(0, ushort.MaxValue, fraction));
+            new(HiddenExtent.Complete, Ensure.BetweenInclusive(0, FixedCoordinate.LastFraction, fraction));
 
         /// <summary>
         /// The coarse part of <paramref name="fraction"/> also replaces the record's; a fine part an earlier complete
@@ -86,7 +86,7 @@ public sealed class RainbowBeamCameraCheckpoint
         /// </summary>
         public HiddenFraction WithCoarse(int fraction)
         {
-            Ensure.BetweenInclusive(0, ushort.MaxValue, fraction);
+            Ensure.BetweenInclusive(0, FixedCoordinate.LastFraction, fraction);
             return Extent == HiddenExtent.Complete
                 ? new(HiddenExtent.Complete, Coarse(fraction) + Fine(Fraction))
                 : new(HiddenExtent.Coarse, Coarse(fraction));

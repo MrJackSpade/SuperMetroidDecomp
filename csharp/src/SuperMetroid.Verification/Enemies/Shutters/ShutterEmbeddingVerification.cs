@@ -33,7 +33,7 @@ internal static class ShutterEmbeddingVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.XrayScope, new Position16<RoomPixels>(0, 0));
+            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope, new Position16<RoomPixels>(0, 0));
             var samus = runtime.Player.IntroducedSamus;
             var platform = runtime.Enemies.SlotTable.Slots[slot];
             samus.Pose = SamusPoseId.MorphBallGroundRightPose;

@@ -4,11 +4,11 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal static class StationKindDefinitions
 {
     /// <summary>Each station room object's kind.</summary>
-    internal static readonly IReadOnlyDictionary<RoomObjectHeaderId, StationKind> Kinds = new Dictionary<RoomObjectHeaderId, StationKind>
+    internal static readonly IReadOnlyDictionary<RoomObjectKind, StationKind> Kinds = new Dictionary<RoomObjectKind, StationKind>
     {
-        [RoomObjectHeaderId.MapStation] = StationKind.Map,
-        [RoomObjectHeaderId.EnergyStation] = StationKind.Energy,
-        [RoomObjectHeaderId.MissileStation] = StationKind.Missile,
-        [RoomObjectHeaderId.SaveStation] = StationKind.Save,
+        [RoomObjectKind.MapStation] = StationKind.Map,
+        [RoomObjectKind.EnergyStation] = StationKind.Energy,
+        [RoomObjectKind.MissileStation] = StationKind.Missile,
+        [RoomObjectKind.SaveStation] = StationKind.Save,
     };
 }

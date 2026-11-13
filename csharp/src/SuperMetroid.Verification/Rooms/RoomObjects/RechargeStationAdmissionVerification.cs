@@ -29,7 +29,7 @@ internal static class RechargeStationAdmissionVerification
         {
             var bus = new TestAddressSpace();
             SeedRoomObjectPopulationRom(bus);
-            RoomObjectHeaderId header = missile ? RoomObjectHeaderId.MissileStation : RoomObjectHeaderId.EnergyStation;
+            RoomObjectKind header = missile ? RoomObjectKind.MissileStation : RoomObjectKind.EnergyStation;
             SeedRoomObjectPopulation(bus, 0x9000, [(byte)RoomObjectNativeWords.Word(header), LittleEndianBytes.HighByte(RoomObjectNativeWords.Word(header)), 8, 8, 0, 0, 0, 0]);
             var level = CreateRoom(new(32, 16), new RoomTerrainBlock[512], new RoomBlockBehavior[512]);
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 199, MaxHealth = 199, Missiles = 15, MaxMissiles = 15 };

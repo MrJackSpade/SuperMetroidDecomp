@@ -136,7 +136,7 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>
-    /// Runs the tongue's animation where the enemy instruction interpreter would, with the timer gate
+    /// Runs the tongue's animation where the shared enemy animation runs, with the timer gate
     /// and new-frame flag.
     /// </summary>
     internal void AdvanceCrocomireTongueAnimation(RoomEnemySlot tongue)
@@ -164,7 +164,7 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>
-    /// Runs Crocomire's body program where the enemy animation-script interpreter would: the frame expires on the
+    /// Runs Crocomire's body program where the shared enemy animation runs: the frame expires on the
     /// update its timer would, and a newly shown frame raises the new-frame flag exactly as an
     /// authored timed frame does.
     /// </summary>
@@ -429,7 +429,7 @@ internal sealed class CrocomireFight
             case CrocomireFightFunction.PowerBombCharge:
             {
                 // The charge consumes one step and ends once fewer than two remain; a count that would drop below
-                // zero ends it the same way, as the game's wrapped word reads negative.
+                // zero ends it the same way, as the game's wrapped count reads negative.
                 int remaining = state.StepCounter - 1;
                 if (remaining < 2)
                 {
@@ -544,7 +544,7 @@ internal sealed class CrocomireFight
         }
     }
 
-    /// <summary>Holds the damage-reaction instruction until its timer permits the next step.</summary>
+    /// <summary>Holds the damage-reaction cue until its timer permits the next step.</summary>
     private static CrocomireBodySegment? RunCrocomireWaitingForDamage(
         CrocomireEnemyState state,
         CrocomireBodySegment continuation,
@@ -563,7 +563,7 @@ internal sealed class CrocomireFight
 
     /// <summary>Moves Crocomire through ordinary ignore-slopes collision with 16.16 displacement.</summary>
     private bool MoveCrocomire(RoomEnemySlot slot, RoomLevelData level, int pixels) =>
-        // The instruction callbacks pass a whole ±4 pixels in 16.16 into the ordinary ignore-slopes
+        // The cues pass a whole ±4 pixels in 16.16 into the ordinary ignore-slopes
         // enemy mover; retaining 16.16 here preserves collision-edge alignment.
         slot.DefinitionId == EnemyDefinitionId.Crocomire &&
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, SignedSixteenSixteen.FromWholePixels(pixels));

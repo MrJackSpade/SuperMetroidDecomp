@@ -14,13 +14,13 @@ public static class DoorClosingObjects
         DoorClosingBehavior.None => null,
         DoorClosingBehavior.BlueDoorCloses => orientation.Direction switch
         {
-            DoorDirection.Right => new(RoomObjectHeaderId.BlueDoorClosingFacingRight, ColoredDoorOrientation.Right),
-            DoorDirection.Left => new(RoomObjectHeaderId.BlueDoorClosingFacingLeft, ColoredDoorOrientation.Left),
-            DoorDirection.Down => new(RoomObjectHeaderId.BlueDoorClosingFacingDown, ColoredDoorOrientation.Down),
-            DoorDirection.Up => new(RoomObjectHeaderId.BlueDoorClosingFacingUp, ColoredDoorOrientation.Up),
+            DoorDirection.Right => new(RoomObjectKind.BlueDoorClosingFacingRight, ColoredDoorOrientation.Right),
+            DoorDirection.Left => new(RoomObjectKind.BlueDoorClosingFacingLeft, ColoredDoorOrientation.Left),
+            DoorDirection.Down => new(RoomObjectKind.BlueDoorClosingFacingDown, ColoredDoorOrientation.Down),
+            DoorDirection.Up => new(RoomObjectKind.BlueDoorClosingFacingUp, ColoredDoorOrientation.Up),
             _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, "Undefined door direction."),
         },
-        DoorClosingBehavior.EscapeGateCloses => new(RoomObjectHeaderId.MotherBrainEscapeRoomGateClosing, BlueCapFacing: null),
+        DoorClosingBehavior.EscapeGateCloses => new(RoomObjectKind.MotherBrainEscapeRoomGateClosing, BlueCapFacing: null),
         _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, "Undefined door closing behavior."),
     };
 }

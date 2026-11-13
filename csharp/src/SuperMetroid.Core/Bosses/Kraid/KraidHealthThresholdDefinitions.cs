@@ -6,6 +6,4 @@ internal static class KraidHealthThresholdDefinitions
     /// <summary>Kraid's initialization accumulates eight multiples of an eighth of the initial health.</summary>
     public const int EighthCount = 8;
 
-    /// <summary>An eighth of the initial health is the health shifted right this far, truncating.</summary>
-    public const int EighthShift = 3;
 }

@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// The enemy-projectile engine: the room's eighteen enemy-projectile places, spawning a fresh projectile into a free
-/// place and its definition setup, the per-frame pass (frame behaviours, then each program), the program interpreter,
+/// place and its definition setup, the per-frame pass (frame behaviours, then each program), the program runner,
 /// both draw-priority passes and the Samus collision passes. Species behavior arrives through registered handlers; the
 /// engine names no species.
 /// <para>
@@ -81,7 +81,7 @@ internal sealed class EnemyProjectileEngine
     private readonly EnemyPresentation _presentation;
     /// <summary>Owns dust and explosion sprites separate from the projectile places.</summary>
     private readonly RoomSpriteObjects _spriteObjects;
-    /// <summary>Publishes room quake effects requested by projectile instructions.</summary>
+    /// <summary>Publishes room quake effects requested by projectile cues.</summary>
     private readonly RoomEarthquake _earthquake;
     /// <summary>Queues species projectile sounds under queue limits.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -110,8 +110,11 @@ internal sealed class EnemyProjectileEngine
     /// <summary>The frame counter of 0 through 255 sampled by the current projectile pass; verification drives it to step programs.</summary>
     internal int CurrentFrame8 { get; set; }
 
-    /// <summary>A shot meets an enemy projectile only inside the same 32-pixel cell: the shift that selects the cell.</summary>
-    private const int CoarseContactCellShift = 5;
+    /// <summary>The pixels along each axis of the cells a shot and an enemy projectile meet in: they meet only inside the same cell.</summary>
+    private const int CoarseContactCellPixels = 32;
+
+    /// <summary>The coarse contact cell, along one axis, holding an unsigned room pixel coordinate.</summary>
+    internal static int CoarseContactCell(int pixel) => Ensure.BetweenInclusive(0, ushort.MaxValue, pixel) / CoarseContactCellPixels;
 
     /// <summary>The pixel offset within a 16-pixel block.</summary>
     private const int BlockPixelMask = 15;
@@ -186,14 +189,14 @@ internal sealed class EnemyProjectileEngine
                 // The path intentionally compares only 32-pixel cells. It does not
                 // run the radius overlap used by ordinary enemies, a coarse quirk preserved
                 // here instead of “fixing” shots near a cell corner.
-                if (enemyProjectile.Position.X.Whole >> CoarseContactCellShift != shot.Position.X.Whole >> CoarseContactCellShift ||
-                    enemyProjectile.Position.Y.Whole >> CoarseContactCellShift != shot.Position.Y.Whole >> CoarseContactCellShift)
+                if (CoarseContactCell(enemyProjectile.Position.X.Whole) != CoarseContactCell(shot.Position.X.Whole) ||
+                    CoarseContactCell(enemyProjectile.Position.Y.Whole) != CoarseContactCell(shot.Position.Y.Whole))
                 {
                     continue;
                 }
 
                 // The collision handler only marks non-plasma shots spent. It does not call the
-                // ordinary enemy-impact routine and therefore cannot turn a freshly fired
+                // ordinary enemy impact and therefore cannot turn a freshly fired
                 // Super Missile (or its invisible link) into an explosion in the producer
                 // frame. Its own frame behaviour consumes the mark on the next projectile pass.
                 if (!shot.Type.HasAnyBeam(SamusBeamFlags.Plasma))
@@ -364,7 +367,7 @@ internal sealed class EnemyProjectileEngine
             // Every placement is published wherever it lies; the display clips it to the view (#1520).
             Position16<ScreenPixels> screen = (projectile.Position.Whole + shake).ToScreen(camera);
 
-            // The blank frame, and the program frames showing the empty spritemap, draw nothing (#1513).
+            // The blank frame, and the program frames showing the empty picture, draw nothing (#1513).
             if (!EnemyProjectileEmptyFrames.DrawsNothing(frame))
                 _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile, place),
                     EnemySheetDefinitions.ProjectileFrameName(frame), screen, projectile.Graphics);
@@ -390,7 +393,7 @@ internal sealed class EnemyProjectileEngine
     /// <summary>
     /// Copies the definition record a projectile spawn installs.
     /// Family initializers may then replace fields exactly as their
-    /// authored initializer does; centralizing the copy prevents each projectile translation
+    /// authored initializer does; centralizing the copy prevents each projectile kind
     /// from inventing subtly different radius/property semantics.
     /// </summary>
     internal static void InitializeEnemyProjectileFromDefinition(
@@ -548,9 +551,9 @@ internal sealed class EnemyProjectileEngine
             return true;
         }
 
-        // Resolve type-$5/$D behaviour links before dispatching the final block family, just as
-        // the projectile collision loop does. Type zero is air; type nine is a door
-        // and remains a wall to an enemy projectile.
+        // Resolve horizontal- and vertical-extension links before dispatching the final block kind, just as
+        // the projectile collision loop does. Air is open, while a door
+        // remains a wall to an enemy projectile.
         if (EnemyTerrain.ResolveEnemyCollisionBlock(level, block) is not { } collisionBlock)
             return true;
 
@@ -661,7 +664,7 @@ internal sealed class EnemyProjectileEngine
         SamusState samus)
     {
         // The Samus-collision pass already made the pass-level invincibility/contact-damage decision.
-        // Do not re-read the timer here: the first hit writes it, but the original loop
+        // Do not re-read the timer here: the first hit writes it, but the game's loop
         // deliberately continues testing the other projectiles in this same pass.
         // The pass skips either zero radius before overlap testing. A zero
         // radius is not a point-shaped hazard: decorative wall shards use it to
@@ -677,10 +680,7 @@ internal sealed class EnemyProjectileEngine
             return null;
         }
 
-        int damage = SamusSuitDamage.Reduce(projectile.Damage, samus.EquippedItems);
-        samus.Health = samus.Health <= damage
-            ? 0
-            : samus.Health - damage;
+        SamusSuitDamage.Hurt(samus, projectile.Damage);
         samus.InvincibilityTimer = WrappingCountdown.FromRaw(projectile.InvincibilityFrames);
         KnockbackHorizontalDirection knockbackXDirection = CoordinateAxis.Difference(
             samus.Position.X.Whole, projectile.Position.X.Whole) >= 0
@@ -746,7 +746,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Uses RNG rejection and sign bits to reposition a projectile within <paramref name="scatter"/>'s fields.
+    /// Uses RNG rejection and random signs to reposition a projectile within <paramref name="scatter"/>'s fields.
     /// Each axis rejects negative candidate offsets, while two independent bits from the first random sample choose
     /// the eventual signs. This peculiar rejection loop is observable in Bomb Torizo's sonic-boom wall impact, so a
     /// host RNG approximation would produce a visibly different debris cloud and desynchronize later randomness.
@@ -817,7 +817,7 @@ internal sealed class EnemyProjectileEngine
         projectile.Position = projectile.Position.WithWhole(position);
 
         // The dust-cloud-or-explosion initializer ignores the definition's placeholder list and
-        // indexes this literal thirty-word table with the spawn parameter. Parameter three
+        // indexes this literal thirty-entry table with the spawn parameter. Parameter three
         // selects the small explosion for Rinka; Boulder passes 17 for its impact cloud.
         projectile.StartAnimation(new MiscDustProjectileAnimation(segment));
     }

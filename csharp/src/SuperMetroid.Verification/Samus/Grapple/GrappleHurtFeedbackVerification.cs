@@ -30,7 +30,7 @@ internal static class GrappleHurtFeedbackVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
         foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
         var level = CreateRoom(new(32, 16), new RoomTerrainBlock[512], new RoomBlockBehavior[512]);
         runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
@@ -47,7 +47,7 @@ internal static class GrappleHurtFeedbackVerification
         AssertEqual(GrapplePhase.ConnectedSwinging, samus.Grapple.Phase, "fixture is hanging from an attached grapple");
         var target = runtime.Enemies.SlotTable.Slots[0];
         target.Bind(EnemyDefinitionId.Ripper, target.Definition);
-        target.Bind(target.DefinitionId, RoomEnemyHeaders.Get(target.DefinitionId));
+        target.Bind(target.DefinitionId, RoomEnemyDefinitionLookup.Get(target.DefinitionId));
         target.Position = target.Position.WithWhole(samus.Position.Whole);
         target.Radius = new(8, 8);
         target.Frame = EnemyFrameId.RipperMovingLeftFirst; // Contact admits only an enemy showing a frame.

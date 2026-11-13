@@ -49,8 +49,8 @@ internal static class ProjectileHostBindingVerification
     {
         CheckFlare((actual.GrappleFlarePlacement ?? throw new InvalidOperationException("Verification requires actual.GrappleFlarePlacement.")), expected.FlarePlacement);
         if (actual.GrappleSwingFrames is null) throw new InvalidDataException("Host did not bind Grapple swing frames.");
-        for (int angle = 0; angle < 256; angle++)
-            if (actual.GrappleSwingFrames.Resolve(new TrigonometryAngle((byte)angle)) != expected.SwingFrames.Resolve(new TrigonometryAngle((byte)angle)))
+        foreach (SuperMetroid.Core.Samus.Grapple.GrappleSwingDirection direction in SuperMetroid.Core.Samus.Grapple.GrappleSwingDirection.All)
+            if (actual.GrappleSwingFrames.Resolve(direction) != expected.SwingFrames.Resolve(direction))
                 throw new InvalidDataException("Host restored stale Grapple swing frames.");
     }
 

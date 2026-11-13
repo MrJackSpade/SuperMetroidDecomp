@@ -31,6 +31,10 @@ internal static class PowampSpikeBehaviorVerification
         AssertEqual(8, spikes.Length, "a burst spawns all eight spikes");
         // Spawning searches the pool from its last place down, so the eighth spike takes the lowest of the eight places.
         AssertEqual<int?>(spikes.Min(spike => spike.Place), lastSpikePlace, "the burst reports the place of the last spike it fired");
+        // The cartridge's burst counts its direction down from the table's last, so the highest place flies up and left.
+        AssertTrue(spikes.OrderByDescending(spike => spike.Place).Select(spike => spike.StateOf<PowampSpikeState>().Direction)
+                .SequenceEqual(PowampSpikeCartridgeOrder.Directions.Reverse()),
+            "the burst's spikes take their pool places in the cartridge's firing order");
         foreach (EnemyProjectile spike in spikes)
         {
             AssertEqual(PowampSpikeSegment.Initial, ProgramOf(spike), $"spike {spike.StateOf<PowampSpikeState>().Direction} starts its looping program");

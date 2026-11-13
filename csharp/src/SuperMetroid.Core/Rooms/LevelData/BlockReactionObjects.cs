@@ -84,7 +84,7 @@ internal sealed class BlockReactionObjects
         RoomCollisionBlock block = level.GetCollisionBlock(position);
         slot.Block = position;
 
-        // This is not the original appearance. The setup deliberately replaces the block and its mirroring with the
+        // This is not the block's earlier appearance. The setup deliberately replaces the block and its mirroring with the
         // bomb-block parent; multi-block restorations then add extension blocks around this parent.
         RoomBlockAppearance parent = _drawing.SetupBlock(RoomObjectSetupBlock.BombBlockParent);
         slot.RestoreTerrain = new RoomTerrainBlock(parent, block.CollisionType);
@@ -110,14 +110,14 @@ internal sealed class BlockReactionObjects
         ContactCrumbleBlock crumble)
     {
         Ensure.NotNull(level);
-        RoomObjectHeaderId header = RoomObjectHeaders.ContactCrumbleOf(crumble);
+        RoomObjectKind kind = RoomObjectKinds.ContactCrumbleOf(crumble);
         BlockReactionChange change = BlockReactionChanges.ContactCrumble(crumble);
 
         if (_slotTable.Spawn() is not { } slot)
             return false;
 
         RoomCollisionBlock block = level.GetCollisionBlock(position);
-        slot.Header = header;
+        slot.Kind = kind;
         slot.Block = position;
         // The struck block keeps only its collision; the parent shows unmirrored, whatever the block's mirroring (#1581).
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.CrumbleBlockParent));
@@ -170,7 +170,7 @@ internal sealed class BlockReactionObjects
             return false;
 
         RoomCollisionBlock block = level.GetCollisionBlock(position);
-        slot.Header = definition.Header;
+        slot.Kind = definition.Kind;
         slot.Block = position;
         // The struck block keeps only its collision; the parent shows unmirrored, whatever the block's mirroring (#1581).
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.SpeedBoosterBlockParent));
@@ -218,7 +218,7 @@ internal sealed class BlockReactionObjects
             return true;
         }
 
-        // The setup discards the original appearance rather than preserving the visible block. Dimension-specific final
+        // The setup discards the earlier appearance rather than preserving the visible block. Dimension-specific final
         // draws reconstruct linked extension blocks; the 1x1 respawn tail uses this exact restore block.
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.BombBlockParent));
         slot.RestoreTerrain = restore;

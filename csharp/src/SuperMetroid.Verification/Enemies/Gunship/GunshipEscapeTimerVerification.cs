@@ -32,7 +32,7 @@ internal static class GunshipEscapeTimerVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0x0400, 0x0400));
         var samus = runtime.Player.IntroducedSamus;
         var top = runtime.Enemies.SlotTable.Slots.First(slot => slot.NativeHeader.InitializationAiPointer == 0xa644);

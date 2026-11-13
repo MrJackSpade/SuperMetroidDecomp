@@ -36,10 +36,16 @@ public static class CoordinateAxis
 
     /// <summary>
     /// A coordinate read as a signed offset from the space's origin, -32768 through 32767: a coordinate stored above
-    /// or left of the origin has wrapped to a large word and reads negative.
+    /// or left of the origin has wrapped to a large value and reads negative.
     /// </summary>
     /// <param name="coordinate">The coordinate or computed displacement.</param>
     public static int AsSigned(int coordinate) => unchecked((short)coordinate);
+
+    /// <summary>
+    /// The farthest coordinate past the origin that a signed reading (<see cref="AsSigned"/>) still finds at or past the
+    /// origin: one further reads as lying above or left of it (#1627).
+    /// </summary>
+    public const int LastNonNegative = short.MaxValue;
 
     /// <summary>
     /// The distance between two coordinates regardless of direction, 0 through 32768: the magnitude of their wrapped

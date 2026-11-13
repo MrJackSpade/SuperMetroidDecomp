@@ -245,16 +245,16 @@ internal static class EyeDoorObjectsVerification
         ushort convertInstruction;
         if (orientation == EyeDoorOrientation.Right)
         {
-            eyeHeader = RoomObjectNativeWords.Word(RoomObjectHeaderId.EyeDoorEyeFacingRight);
-            doorHeader = RoomObjectNativeWords.Word(RoomObjectHeaderId.EyeDoorFacingRight);
-            bottomHeader = RoomObjectNativeWords.Word(RoomObjectHeaderId.EyeDoorBottomFacingRight);
+            eyeHeader = RoomObjectNativeWords.Word(RoomObjectKind.EyeDoorEyeFacingRight);
+            doorHeader = RoomObjectNativeWords.Word(RoomObjectKind.EyeDoorFacingRight);
+            bottomHeader = RoomObjectNativeWords.Word(RoomObjectKind.EyeDoorBottomFacingRight);
             convertInstruction = (ushort)RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingRight;
         }
         else
         {
-            eyeHeader = RoomObjectNativeWords.Word(RoomObjectHeaderId.EyeDoorEyeFacingLeft);
-            doorHeader = RoomObjectNativeWords.Word(RoomObjectHeaderId.EyeDoorFacingLeft);
-            bottomHeader = RoomObjectNativeWords.Word(RoomObjectHeaderId.EyeDoorBottomFacingLeft);
+            eyeHeader = RoomObjectNativeWords.Word(RoomObjectKind.EyeDoorEyeFacingLeft);
+            doorHeader = RoomObjectNativeWords.Word(RoomObjectKind.EyeDoorFacingLeft);
+            bottomHeader = RoomObjectNativeWords.Word(RoomObjectKind.EyeDoorBottomFacingLeft);
             convertInstruction = (ushort)RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingLeft;
         }
 

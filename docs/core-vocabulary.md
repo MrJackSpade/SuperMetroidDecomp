@@ -22,7 +22,9 @@ The words, kept in one place in the analyzer (`CoreVocabularyAnalyzer.HardwareWo
 
 `Snes`, `Vram`, `Cgram`, `Oam`, `Obj`, `Dma`, `Hdma`, `Nmi`, `Apu`, `Spc`, `Dsp`, `Wram`, `Ppu`, `Native`, `Rom`, `Bank`,
 `Pointer`, `Address`, `Cartridge`, `Mode7`, `Register`, and the CPU's return and jump mnemonics `Rts`, `Rtl`, `Jsr`,
-`Jsl`, `Jmp`, `Jml` that routine labels carry (#1481). An underscore-separated part that is a cartridge address (four or six
+`Jsl`, `Jmp`, `Jml` that routine labels carry (#1481), the storage widths, save memory, opcodes and program labels
+`Word`, `Byte`, `Sram`, `Opcode`, `Plm`, `Eproj` (#1558), and `Header`, the cartridge's record headers that named rooms,
+room objects, effects, projectiles and enemies by the structure the program stored them in (#1685). An underscore-separated part that is a cartridge address (four or six
 hexadecimal digits with at least one decimal digit, as in `RTS_86BB30` or `Instr_A0B3`) is reported as well.
 
 A name that spells a cartridge value in hexadecimal is reported too (#1554): a run of two or more capital hexadecimal

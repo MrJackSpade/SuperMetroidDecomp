@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// The working value a room's main routine leaves behind for the next room's (#1470). Each room main keeps its own state;
+/// The working value a room's main behaviour leaves behind for the next room's (#1470). Each room main keeps its own state;
 /// a main that does not set its value up itself starts from what the previous room's main left, read in its own terms.
 /// The Ceres hall's falling debris first waits as long as the elevator shaft's last turn step reads as a countdown, an
 /// escape room whose setup does not clear its diagonal quake carries on the previous room's, and the Maridia elevatube
@@ -27,15 +27,15 @@ public sealed class RoomMainCarryover
     /// <summary>The value read as a countdown.</summary>
     public WrappingCountdown Countdown => WrappingCountdown.FromRaw(Held);
 
-    /// <summary>The value read as the fraction of a position, 0 through 65535.</summary>
+    /// <summary>The value read as the fraction of a position, 0 through <see cref="FixedCoordinate.LastFraction"/>.</summary>
     public int Fraction => Held;
 
     /// <summary>Leaves a countdown.</summary>
     public void LeaveCountdown(WrappingCountdown countdown) => Held = countdown.RemainingFrames;
 
     /// <summary>Leaves the fraction of a position.</summary>
-    /// <param name="fraction">The fraction, 0 through 65535.</param>
-    public void LeaveFraction(int fraction) => Held = Ensure.BetweenInclusive(0, ushort.MaxValue, fraction);
+    /// <param name="fraction">The fraction, 0 through <see cref="FixedCoordinate.LastFraction"/>.</param>
+    public void LeaveFraction(int fraction) => Held = Ensure.BetweenInclusive(0, FixedCoordinate.LastFraction, fraction);
 
     /// <summary>Leaves a step of a turn that sweeps forward and back.</summary>
     /// <param name="step">The step, 0 through 32767.</param>

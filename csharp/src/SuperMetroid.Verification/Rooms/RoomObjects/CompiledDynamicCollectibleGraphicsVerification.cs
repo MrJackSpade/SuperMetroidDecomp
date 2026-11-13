@@ -60,9 +60,9 @@ internal static class CompiledDynamicCollectibleGraphicsVerification
                         return true;
                     int kind = (int)graphic.Kind;
                     return new ushort[]
-                        { RoomObjectNativeWords.Word(RoomObjectHeaderId.ExposedEnergyTank),
-                          RoomObjectNativeWords.Word(RoomObjectHeaderId.ChozoEnergyTank),
-                          RoomObjectNativeWords.Word(RoomObjectHeaderId.ShotBlockEnergyTank) }.Any(baseHeader =>
+                        { RoomObjectNativeWords.Word(RoomObjectKind.ExposedEnergyTank),
+                          RoomObjectNativeWords.Word(RoomObjectKind.ChozoEnergyTank),
+                          RoomObjectNativeWords.Word(RoomObjectKind.ShotBlockEnergyTank) }.Any(baseHeader =>
                     {
                         ushort header = checked((ushort)(baseHeader + kind * 4));
                         int instructionAddress = 0x840000 | ReadCollectibleGraphicsWord(source, header + 2);

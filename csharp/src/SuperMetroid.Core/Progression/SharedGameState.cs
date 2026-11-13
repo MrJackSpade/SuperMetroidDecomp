@@ -114,11 +114,12 @@ public sealed class SharedGameState
     public WrappingCountdown TimedHeldInputTimer { get; internal set; }
 
     /// <summary>
-    /// Held-input countdown reload value, 0 through 65,535: any value the held-input countdown can start at. A value of
-    /// N requires N + 1 stable update calls after the held-input value changes. The value is only ever reloaded into
-    /// <see cref="TimedHeldInputTimer"/>, never counted itself; that countdown keeps the wrap.
+    /// Held-input countdown reload value, 0 through <see cref="WrappingCountdown.LongestStart"/>: any value the held-input
+    /// countdown can start at (#1627). A value of N requires N + 1 stable update calls after the held-input value changes.
+    /// The value is only ever reloaded into <see cref="TimedHeldInputTimer"/>, never counted itself; that countdown keeps
+    /// the wrap.
     /// </summary>
-    public int TimedHeldInputTimerReset { get; internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
+    public int TimedHeldInputTimerReset { get; internal set => field = Ensure.BetweenInclusive(0, WrappingCountdown.LongestStart, value); }
 
     /// <summary>
     /// Filtered input. Bits appear after their buttons have remained
@@ -139,7 +140,7 @@ public sealed class SharedGameState
 
     /// <summary>
     /// Advances the shared RNG seed exactly as the game's generator
-    /// does, preserving the two half-by-half products, the carry into the upper half,
+    /// does, preserving the two half-by-half products, the overflow into the upper half,
     /// and the final addition wrapping past 65535. Every caller observes the updated seed.
     /// </summary>
     /// <returns>The new RNG state as a sample, 0 through 65535, also stored in <see cref="Random"/>.</returns>

@@ -22,7 +22,7 @@ internal static class FirefleaDoubleDeathVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LNFireflea);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LNFireflea);
         var samus = runtime.Player.IntroducedSamus;
         RoomEnemySlot fireflea = runtime.Enemies.SlotTable.Slots.First(slot =>
             slot.DefinitionId == EnemyDefinitionId.Fireflea);

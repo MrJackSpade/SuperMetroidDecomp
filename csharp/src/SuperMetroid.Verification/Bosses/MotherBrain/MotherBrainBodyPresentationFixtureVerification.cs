@@ -35,7 +35,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
             Inner = new EnemyAnimationFixture(artwork);
             EnemyDefinitionId bodyId = EnemyDefinitionId.MotherBrainBody;
             Body.Bind(bodyId, Body.Definition);
-            Body.Bind(Body.DefinitionId, RoomEnemyHeaders.Get(bodyId));
+            Body.Bind(Body.DefinitionId, RoomEnemyDefinitionLookup.Get(bodyId));
             Body.Position = Body.Position.WithWhole(new(128, 128));
             // She draws under the retail graphics set her room loads, whose sheets hold her frames, at the tile base and
             // palette row it gives her (#1459).

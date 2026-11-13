@@ -25,7 +25,7 @@ internal static class DraygonBodyPublicationVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon);
         DraygonEnemyState draygon = runtime.Enemies.DraygonBehavior.Parts.Draygon
             ?? throw new InvalidOperationException("Draygon's room loads Draygon.");
         Position16<BackgroundPixels> roomScroll = runtime.BackgroundScroll.BackgroundScroll;

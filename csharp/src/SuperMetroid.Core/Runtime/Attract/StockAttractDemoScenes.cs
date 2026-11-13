@@ -106,7 +106,7 @@ public static class StockAttractDemoScenes
     private static AttractDemoScene Stage(Demonstration demonstration) => demonstration switch
     {
         Demonstration.LandingSite => new(
-            Room: RoomHeaderDefinitions.LandingSite,
+            Room: RoomDefinitions.LandingSite,
             Door: CrateriaDoorDefinitions.Parlor1,
             CameraPosition: CameraAtScreen(new(4, 4)),
             SamusOffset: new(1, 64),
@@ -122,7 +122,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractLandingSite),
         Demonstration.MissileDoor => new(
-            Room: RoomHeaderDefinitions.ConstructionZone,
+            Room: RoomDefinitions.ConstructionZone,
             Door: BrinstarDoorDefinitions.MorphBall1,
             CameraPosition: CameraAtScreen(new(0, 0)),
             SamusOffset: new(-46, GroundedY(8, demonstration)),
@@ -138,7 +138,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractMissileDoor),
         Demonstration.PreSporeSpawnHall => new(
-            Room: RoomHeaderDefinitions.SporeSpawnKihunters,
+            Room: RoomDefinitions.SporeSpawnKihunters,
             Door: BrinstarDoorDefinitions.BigPink0,
             CameraPosition: CameraAtScreen(new(1, 0)),
             SamusOffset: new(-32, GroundedY(13, demonstration)),
@@ -154,7 +154,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractPreSporeSpawnHall),
         Demonstration.SpeedBooster => new(
-            Room: RoomHeaderDefinitions.FrogSpeedway,
+            Room: RoomDefinitions.FrogSpeedway,
             Door: NorfairDoorDefinitions.UpperNorfairFarming0,
             CameraPosition: CameraAtScreen(new(7, 0)),
             SamusOffset: new(72, GroundedY(10, demonstration)),
@@ -170,7 +170,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractSpeedBooster),
         Demonstration.GrappleBeam => new(
-            Room: RoomHeaderDefinitions.SpikyAcidSnakesTunnel,
+            Room: RoomDefinitions.SpikyAcidSnakesTunnel,
             Door: NorfairDoorDefinitions.UpperNorfairRefill1,
             CameraPosition: CameraAtScreen(new(0, 0)),
             SamusOffset: new(-62, GroundedY(10, demonstration)),
@@ -186,7 +186,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractGrappleBeam),
         Demonstration.PseudoScrewAttack => new(
-            Room: RoomHeaderDefinitions.BigPink,
+            Room: RoomDefinitions.BigPink,
             Door: BrinstarDoorDefinitions.GreenHillZone0,
             CameraPosition: CameraAtScreen(new(2, 6)),
             SamusOffset: new(39, GroundedY(10, demonstration)),
@@ -202,7 +202,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractPseudoScrewAttack),
         Demonstration.IceBeam => new(
-            Room: RoomHeaderDefinitions.BelowSpazer,
+            Room: RoomDefinitions.BelowSpazer,
             Door: MaridiaDoorDefinitions.WestTunnel1,
             CameraPosition: CameraAtScreen(new(1, 1)),
             SamusOffset: new(86, GroundedY(10, demonstration)),
@@ -218,7 +218,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractIceBeam),
         Demonstration.FirefleaRoom => new(
-            Room: RoomHeaderDefinitions.GreenBrinstarFirefleas,
+            Room: RoomDefinitions.GreenBrinstarFirefleas,
             Door: BrinstarDoorDefinitions.GreenBrinstarMainShaft3,
             CameraPosition: CameraAtScreen(new(2, 0)),
             SamusOffset: new(73, GroundedY(10, demonstration)),
@@ -234,7 +234,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractFirefleaRoom),
         Demonstration.BrinstarDiagonalRoom => new(
-            Room: RoomHeaderDefinitions.GreenHillZone,
+            Room: RoomDefinitions.GreenHillZone,
             Door: BrinstarDoorDefinitions.BigPink3,
             CameraPosition: CameraAtScreen(new(5, 3)),
             SamusOffset: new(-30, GroundedY(12, demonstration)),
@@ -250,7 +250,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractBrinstarDiagonalRoom),
         Demonstration.LowerNorfairEntrance => new(
-            Room: RoomHeaderDefinitions.LavaDive,
+            Room: RoomDefinitions.LavaDive,
             Door: NorfairDoorDefinitions.KronicBoost2,
             CameraPosition: CameraAtScreen(new(3, 0)),
             SamusOffset: new(75, GroundedY(10, demonstration)),
@@ -266,7 +266,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractLowerNorfairEntrance),
         Demonstration.ScrewAttack => new(
-            Room: RoomHeaderDefinitions.Flyway,
+            Room: RoomDefinitions.Flyway,
             Door: CrateriaDoorDefinitions.Parlor3,
             CameraPosition: CameraAtScreen(new(0, 0)),
             SamusOffset: new(-15, GroundedY(13, demonstration)),
@@ -282,7 +282,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractScrewAttack),
         Demonstration.Dachora => new(
-            Room: RoomHeaderDefinitions.Dachora,
+            Room: RoomDefinitions.Dachora,
             Door: BrinstarDoorDefinitions.BigPink1,
             CameraPosition: CameraAtScreen(new(4, 2)),
             SamusOffset: new(5, 128),
@@ -298,7 +298,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractDachora),
         Demonstration.PrePhantoonHall => new(
-            Room: RoomHeaderDefinitions.Basement,
+            Room: RoomDefinitions.Basement,
             Door: WreckedShipDoorDefinitions.WreckedShipMainShaft3,
             CameraPosition: CameraAtScreen(new(2, 0)),
             SamusOffset: new(4, 96),
@@ -314,7 +314,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractPrePhantoonHall),
         Demonstration.DiagonalShinespark => new(
-            Room: RoomHeaderDefinitions.LandingSite,
+            Room: RoomDefinitions.LandingSite,
             Door: CrateriaDoorDefinitions.Parlor1,
             CameraPosition: CameraAtScreen(new(3, 4)),
             SamusOffset: new(0, 176),
@@ -330,7 +330,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractDiagonalShinespark),
         Demonstration.EyeDoor => new(
-            Room: RoomHeaderDefinitions.KraidEyeDoor,
+            Room: RoomDefinitions.KraidEyeDoor,
             Door: BrinstarDoorDefinitions.MiniKraid1,
             CameraPosition: CameraAtScreen(new(0, 1)),
             SamusOffset: new(-46, GroundedY(10, demonstration)),
@@ -346,7 +346,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractEyeDoor),
         Demonstration.RedBrinstarElevator => new(
-            Room: RoomHeaderDefinitions.Caterpillar,
+            Room: RoomDefinitions.Caterpillar,
             Door: BrinstarDoorDefinitions.AlphaPowerBomb0,
             CameraPosition: CameraAtScreen(new(0, 7)),
             SamusOffset: new(-86, GroundedY(10, demonstration)),
@@ -362,7 +362,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractRedBrinstarElevator),
         Demonstration.Kraid => new(
-            Room: RoomHeaderDefinitions.Kraid,
+            Room: RoomDefinitions.Kraid,
             Door: BrinstarDoorDefinitions.KraidEyeDoor1,
             CameraPosition: CameraAtScreen(new(0, 1)),
             SamusOffset: new(-65, GroundedY(10, demonstration)),
@@ -378,7 +378,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractKraid),
         Demonstration.TourianEntrance => new(
-            Room: RoomHeaderDefinitions.Statues,
+            Room: RoomDefinitions.Statues,
             Door: CrateriaDoorDefinitions.StatuesHallway1,
             CameraPosition: CameraAtScreen(new(0, 0)),
             SamusOffset: new(-79, GroundedY(10, demonstration)),
@@ -394,7 +394,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractTourianEntrance),
         Demonstration.GauntletEntrance => new(
-            Room: RoomHeaderDefinitions.LandingSite,
+            Room: RoomDefinitions.LandingSite,
             Door: DoorDefinitions.DemoSet3024,
             CameraPosition: CameraAtScreen(new(6, 2)),
             SamusOffset: new(48, 128),
@@ -410,7 +410,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractGauntletEntrance),
         Demonstration.AdvancedGrappleBeam => new(
-            Room: RoomHeaderDefinitions.MtEverest,
+            Room: RoomDefinitions.MtEverest,
             Door: MaridiaDoorDefinitions.RedFish0,
             CameraPosition: CameraAtScreen(new(2, 0)),
             SamusOffset: new(0, GroundedY(12, demonstration)),
@@ -426,7 +426,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractAdvancedGrappleBeam),
         Demonstration.InfiniteBombJump => new(
-            Room: RoomHeaderDefinitions.LandingSite,
+            Room: RoomDefinitions.LandingSite,
             Door: DoorDefinitions.DemoSet3024,
             CameraPosition: CameraAtScreen(new(6, 2)),
             SamusOffset: new(32, 123),
@@ -442,7 +442,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractInfiniteBombJump),
         Demonstration.SpecialBeamAttack => new(
-            Room: RoomHeaderDefinitions.GreenBrinstarMainShaft,
+            Room: RoomDefinitions.GreenBrinstarMainShaft,
             Door: BrinstarDoorDefinitions.BrinstarPreMap1,
             CameraPosition: CameraAtScreen(new(0, 4)),
             SamusOffset: new(-73, GroundedY(10, demonstration)),
@@ -458,7 +458,7 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             Input: AttractDemoInputDefinitions.AttractSpecialBeamAttack),
         Demonstration.CrystalFlash => new(
-            Room: RoomHeaderDefinitions.LandingSite,
+            Room: RoomDefinitions.LandingSite,
             Door: DoorDefinitions.DemoSet3024,
             CameraPosition: CameraAtScreen(new(6, 2)),
             SamusOffset: new(4, GroundedY(10, demonstration)),
@@ -528,7 +528,7 @@ public static class StockAttractDemoScenes
         _ => throw new ArgumentOutOfRangeException(nameof(demonstration)),
     };
 
-    /// <summary>Chosen loadouts share actual item abilities, rather than repeating full equipment words. Stage membership and additional abilities remain selected performance inputs; the unassigned shinespark bit is preserved without inventing an ability.</summary>
+    /// <summary>Chosen loadouts share actual item abilities, rather than repeating full equipment sets. Stage membership and additional abilities remain selected performance inputs; the unassigned shinespark flag is preserved without inventing an ability.</summary>
     private static SamusEquipmentFlags ItemsFor(Demonstration demonstration)
     {
         const SamusEquipmentFlags mobility = SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall |

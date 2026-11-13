@@ -8,7 +8,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
-/// <summary>The Ki-Hunter species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Ki-Hunter species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -78,7 +78,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Grounded decision delay between jumps or spits.</summary>
     private const int KiHunterGroundWaitFrames = 12;
-    /// <summary>Cooldown after an acid-spit instruction.</summary>
+    /// <summary>Cooldown after an acid-spit cue.</summary>
     private const int KiHunterSpitWaitFrames = 24;
     /// <summary>Horizontal Samus range admitted by the grounded acid attack.</summary>
     private const int KiHunterGroundAttackDistance = 96;
@@ -103,8 +103,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         _wingsOfBody.Place(body, _slotTable.ListedAfter(body, 1));
         KiHunterEnemyState state = CreateKiHunterState(body);
 
-        // Every Ki-Hunter list is interpreted by the common enemy bytecode engine. The
-        // original name calls this property "disable Samus collision", but the live engine
+        // Every Ki-Hunter list is run by the shared enemy animation. The
+        // game's name calls this property "disable Samus collision", but the live engine
         // proves it is the animation-script flag.
         body.Processing = body.Processing.With(EnemyProcessing.Animates);
         state.HasLostWings = false;
@@ -254,7 +254,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.MaximumAngularVelocity = -2;
             state.AngularAcceleration = KiHunterMotionDefinitions.LeftSwoopAcceleration;
-            // A leftward swoop starts one step short of the whole turn, as the original's does, and steps down to the half turn.
+            // A leftward swoop starts one step short of the whole turn, as the game's does, and steps down to the half turn.
             state.SwoopAngle = RotationAngle.StepsPerTurn - 1;
             state.AnimationChangeAngle = 240;
             state.Velocity = state.Velocity.WithWholeX(-1);
@@ -500,12 +500,12 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Advances the detached wings' orbit, including its odd authored word read.</summary>
+    /// <summary>Advances the detached wings' orbit, including its odd authored speed read.</summary>
     internal static void RunDetachedKiHunterWingOrbit(RoomEnemySlot wings, KiHunterEnemyState state)
     {
-        state.WingArcAngle += ReadKiHunterQuadraticAngleDelta(
+        state.WingArcAngle = state.WingArcAngle.TurnedByFractionsOfStep(DetachedWingCoarseSpeed(
             state.DetachedSpeedIndex,
-            sign: EnemySpeedSign.Negative);
+            sign: EnemySpeedSign.Negative));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
         TrigonometryAngle trigonometryAngle = state.WingArcAngle.ToTrigonometryAngle();
         wings.Position = wings.Position.WithWhole(state.OrbitCenter + EnemyMath.CircleOffset(trigonometryAngle, radius) - state.OrbitOffset);
@@ -524,9 +524,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterEnemyState state,
         RoomLevelData level)
     {
-        state.WingArcAngle += ReadKiHunterQuadraticAngleDelta(
+        state.WingArcAngle = state.WingArcAngle.TurnedByFractionsOfStep(DetachedWingCoarseSpeed(
             state.DetachedSpeedIndex,
-            sign: EnemySpeedSign.Positive);
+            sign: EnemySpeedSign.Positive));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
         TrigonometryAngle trigonometryAngle = state.WingArcAngle.ToTrigonometryAngle();
         int desiredY = CoordinateAxis.Wrap(
@@ -564,8 +564,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot wings = GetKiHunterWings(body);
         if (body.Health == 0)
         {
-            // The routine assigns exactly the deletion property, stripping processing and any other
-            // population flags rather than merely ORing the deleted bit.
+            // The game assigns exactly the deletion property, stripping processing and any other
+            // population flags rather than merely adding the deleted flag.
             wings.Contact = EnemyContact.None;
             wings.Processing = EnemyProcessing.None;
             wings.Presence = EnemyPresence.Deleted;
@@ -657,14 +657,15 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The detached wing's orbit turn each update: a quadratic row's coarse speed in the direction it turns, its whole
-    /// pixels read as whole steps of the turn and its 256ths of a pixel as 256ths of a step. A speed toward decreasing
-    /// coordinates is the speed's value continued around the turn, so it turns the orbit back.
+    /// The detached wing's speed along its orbit each update: its quadratic row's coarse speed in the direction it turns,
+    /// in 256ths of a pixel, 0 through 65535. The orbit turns a 256th of a step for each 256th of a pixel of it, so its
+    /// whole pixels turn whole steps; a speed toward decreasing coordinates is the speed's value continued around the
+    /// turn, so it turns the orbit back.
     /// </summary>
-    internal static RotationAngle ReadKiHunterQuadraticAngleDelta(EnemyQuadraticSpeedIndex speedIndex, EnemySpeedSign sign)
+    internal static int DetachedWingCoarseSpeed(EnemyQuadraticSpeedIndex speedIndex, EnemySpeedSign sign)
     {
         // The orbit steps by the coarse speed; stepping by the full speed changes the orbit.
-        return RotationAngle.FromRaw(speedIndex.Row.CoarseToward(sign));
+        return speedIndex.Row.CoarseToward(sign);
     }
 
     /// <summary>Slows a detached wing by one speed step, landing on the slowest index when the step would go below zero.</summary>
@@ -697,11 +698,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             : KiHunterSegment.FlyingLeft;
     }
 
-    /// <summary>Lets the body's animation instruction enter its wingless hop function.</summary>
+    /// <summary>Lets the body's animation cue enter its wingless hop function.</summary>
     private static void StartKiHunterGroundJumpFromCue(KiHunterEnemyState state) =>
         state.Function = KiHunterEnemyFunction.GroundJump;
 
-    /// <summary>Returns the body to its wingless decision function after an animation instruction.</summary>
+    /// <summary>Returns the body to its wingless decision function after an animation cue.</summary>
     private static void StartKiHunterGroundWaitFromCue(KiHunterEnemyState state) =>
         state.Function = KiHunterEnemyFunction.GroundWait;
 
@@ -756,7 +757,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         // private shot tail on a fatal hit. The game nevertheless keeps the
         // dead body's physical slot and accesses the next slot to delete its wings. Once the
         // typed state has established this slot as a body, a cleared definition is
-        // therefore valid until the callback finishes; revalidating only the mutable header
+        // therefore valid until the callback finishes; revalidating only the mutable definition
         // converts the ordinary fatal-shot path into a host exception. A place the room set up as a body stays one.
         bool initializedBody = _wingsOfBody.IsPlaced(body);
         if (!IsKiHunterBodyDefinition(body.DefinitionId) && !initializedBody)

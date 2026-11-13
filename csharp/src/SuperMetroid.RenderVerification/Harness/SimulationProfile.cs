@@ -21,8 +21,8 @@ internal static class SimulationProfile
     {
         var results = new[]
         {
-            Measure(RoomHeaderDefinitions.AlphaPowerBomb, paused: false),
-            Measure(RoomHeaderDefinitions.GlassTunnel, paused: true),
+            Measure(RoomDefinitions.AlphaPowerBomb, paused: false),
+            Measure(RoomDefinitions.GlassTunnel, paused: true),
         };
         Console.WriteLine("Simulation timing baseline: " + JsonSerializer.Serialize(new
         {
@@ -41,7 +41,7 @@ internal static class SimulationProfile
     }
 
     /// <summary>Warms one installed room, captures unpaced frames with desktop audio, and summarizes their timing samples.</summary>
-    private static object Measure(RoomHeaderDefinition room, bool paused)
+    private static object Measure(RoomDefinition room, bool paused)
     {
         var game = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(),
             new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true, SamusCannotDie = true });

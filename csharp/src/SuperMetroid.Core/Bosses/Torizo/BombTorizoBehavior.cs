@@ -529,7 +529,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     branch.Target);
 
             case TorizoCue.Branch { Kind: TorizoBranchKind.CallSometimesIfHealthLow } branch:
-                if (torizo.Health > 1928 || !TorizoRandomDefinitions.LowHealthCall.AllClear(_room.Random.Generate()))
+                if (torizo.Health > 1928 || !TorizoRandomDefinitions.LowHealthCall.IsTakenBy(_room.Random.Generate()))
                     return null;
                 state.DecisionCounter = 0;
                 state.ReturnPlayback = continuation;

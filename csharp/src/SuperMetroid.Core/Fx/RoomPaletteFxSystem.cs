@@ -80,7 +80,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
     public static RoomPaletteFxSystem ForRoom(
         PaletteFxSessionState session,
-        RoomFxHeader? fx,
+        RoomFxSelection? fx,
         DoorDefinition? door,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated) =>
@@ -93,7 +93,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// <param name="equippedItems">Samus's equipment, which selects suit-dependent programs.</param>
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
     /// <param name="suppliedDefinition">A record to use instead of the door's selection.</param>
-    internal static RoomPaletteFxSystem ForRecord(PaletteFxSessionState session, RoomFxHeader? fx, DoorDefinition? door,
+    internal static RoomPaletteFxSystem ForRecord(PaletteFxSessionState session, RoomFxSelection? fx, DoorDefinition? door,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
         RoomFxRecordDefinition? suppliedDefinition)
     {

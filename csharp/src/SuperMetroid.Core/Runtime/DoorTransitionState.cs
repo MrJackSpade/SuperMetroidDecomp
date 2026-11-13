@@ -81,7 +81,7 @@ internal sealed class DoorTransitionState
         runtime.Room.LoadedScope.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
         door = runtime.RoomLoader.PendingDoorTransition;
         sourceIsolated = runtime.Room.ActiveRoom?.UsesIsolatedDoorTransition
-            ?? throw new InvalidOperationException("Door transition requires a source room header.");
+            ?? throw new InvalidOperationException("Door transition requires a source room.");
         destinationIsolated = runtime.RoomLoader.PendingDoorDestinationUsesIsolatedDoorTransition;
         sourceSamus = runtime.Player.Samus.Position;
         FadeSteps = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeDenominator, runtime.FadeStepCount);
@@ -215,7 +215,7 @@ internal sealed class DoorTransitionState
                 // elevator AI stays frozen through the final palette fade. The destination stays dark until its fade in
                 // takes its first step.
                 runtime.RoomLoader.BeginDoorOpeningScroll(
-                    door ?? throw new InvalidOperationException("Door header was not captured."),
+                    door ?? throw new InvalidOperationException("The transition's door was not captured."),
                     sourceSamus,
                     loaderProgress,
                     completedLoadingScrollUpdates: 1);

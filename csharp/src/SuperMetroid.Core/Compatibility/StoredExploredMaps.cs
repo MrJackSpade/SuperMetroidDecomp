@@ -139,7 +139,7 @@ public sealed class StoredExploredMaps<TArea>
         {
             // Rejected, not read: past the eighth stored map the check reads unrelated work memory, which only a camera
             // above a room nine or more screens wide reaches. Reproducing it needs the whole of the game's work memory,
-            // which the port does not keep (emulation scope limits, #1500).
+            // which this simulation does not keep (emulation scope limits, #1500).
             throw new ArgumentOutOfRangeException(nameof(cellsPast), cellsPast,
                 "A camera scroll check indexes past every stored explored map, into memory the port does not reproduce.");
         }

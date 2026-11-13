@@ -68,7 +68,7 @@ public sealed record SuperMetroidSaveSlot(
     /// <summary>Whether the saved icon-cancel setting is enabled.</summary>
     public bool IconCancelEnabled { get; init; }
 
-    /// <summary>The persistent excess-missile accumulator.</summary>
+    /// <summary>The persistent excess-missile count.</summary>
     public int ReserveMissiles { get; init; }
 
     /// <summary>Whether the alternate Japanese text setting is enabled.</summary>
@@ -80,7 +80,7 @@ public sealed record SuperMetroidSaveSlot(
     /// </summary>
     public int LoadedItemCount { get; init; }
 
-    /// <summary>Restores the subset already represented by the translated Samus owner.</summary>
+    /// <summary>Restores the subset the Samus state represents.</summary>
     public void ApplyTo(SamusState samus)
     {
         Ensure.NotNull(samus);

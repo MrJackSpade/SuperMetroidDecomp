@@ -74,7 +74,7 @@ internal sealed class TorizoChoices
             return null;
         int distance = CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole);
         if (!_access.BombTorizoFunction12IsNonNegative(torizo, samus) ||
-            distance < 32 || distance >= 96 || !TorizoRandomDefinitions.MediumRangeAttack.AllClear(_room.Random.Generate()))
+            distance < 32 || distance >= 96 || !TorizoRandomDefinitions.MediumRangeAttack.IsTakenBy(_room.Random.Generate()))
         {
             return null;
         }
@@ -99,7 +99,7 @@ internal sealed class TorizoChoices
         ControllerButton heldButtons = controllerInput;
         if (state.SamusSpaceJumpFrames <= 360 &&
             (!heldButtons.HasAny(ControllerButtons.HorizontalDirections) ||
-                TorizoRandomDefinitions.ForwardLeap.AllClear(_room.Random.Generate())))
+                TorizoRandomDefinitions.ForwardLeap.IsTakenBy(_room.Random.Generate())))
         {
             return null;
         }

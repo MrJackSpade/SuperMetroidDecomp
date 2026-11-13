@@ -19,7 +19,7 @@ internal static class PuromiArcPositionVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Pillar);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Pillar);
 
         EnemyProjectile[] bodies = runtime.Enemies.Projectiles.EnemyProjectiles
             .Where(projectile => projectile.Kind == RoomEnemyProjectileKind.NuclearWaffleBody)

@@ -109,12 +109,12 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
         const byte eyeY = 4;
         const ushort doorBit = 5;
         ushort[] headers = orientation == EyeDoorOrientation.Left
-            ? [RoomObjectNativeWords.Word(RoomObjectHeaderId.EyeDoorEyeFacingLeft),
-                RoomObjectNativeWords.Word(RoomObjectHeaderId.EyeDoorFacingLeft),
-                RoomObjectNativeWords.Word(RoomObjectHeaderId.EyeDoorBottomFacingLeft)]
-            : [RoomObjectNativeWords.Word(RoomObjectHeaderId.EyeDoorEyeFacingRight),
-                RoomObjectNativeWords.Word(RoomObjectHeaderId.EyeDoorFacingRight),
-                RoomObjectNativeWords.Word(RoomObjectHeaderId.EyeDoorBottomFacingRight)];
+            ? [RoomObjectNativeWords.Word(RoomObjectKind.EyeDoorEyeFacingLeft),
+                RoomObjectNativeWords.Word(RoomObjectKind.EyeDoorFacingLeft),
+                RoomObjectNativeWords.Word(RoomObjectKind.EyeDoorBottomFacingLeft)]
+            : [RoomObjectNativeWords.Word(RoomObjectKind.EyeDoorEyeFacingRight),
+                RoomObjectNativeWords.Word(RoomObjectKind.EyeDoorFacingRight),
+                RoomObjectNativeWords.Word(RoomObjectKind.EyeDoorBottomFacingRight)];
         var bank84 = new byte[0x8000];
         for (int offset = 0; offset < bank84.Length; offset++)
             bank84[offset] = EyeDoorRetailProgramPathRomByte(rom, 0x848000 + offset);

@@ -45,7 +45,7 @@ internal static class BotwoonNavigationDefinitions
 
     /// <summary>
     /// How many steps before an authored path's end a backward walk starts. The walk begins on the path's
-    /// second-to-last step, so it never takes the last one, as the original game's backward walks do.
+    /// second-to-last step, so it never takes the last one, as the game's backward walks do.
     /// </summary>
     internal const int BackwardStartStepsBeforeEnd = 2;
 }

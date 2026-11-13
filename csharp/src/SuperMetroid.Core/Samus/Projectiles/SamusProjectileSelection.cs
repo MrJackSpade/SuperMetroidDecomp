@@ -3,51 +3,51 @@ using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileSelectionDefinit
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Which projectile definition a beam shot, missile, bomb, special attack or echo starts from.</summary>
+/// <summary>Which projectile kind a beam shot, missile, bomb, special attack or echo is.</summary>
 internal static class SamusProjectileSelection
 {
     /// <summary>
-    /// The definition a shot of <paramref name="beams"/> starts from, charged when <paramref name="charged"/>. A Spazer and
+    /// The kind a shot of <paramref name="beams"/> is, charged when <paramref name="charged"/>. A Spazer and
     /// Plasma combination fires what the game selects past the beam selectors (<see cref="UnauthoredBeamShots{TBeams, TProjectile}"/>).
     /// </summary>
-    internal static SamusProjectileHeader BeamShot(SamusBeamCombination beams, bool charged) => beams.IsRetail
+    internal static SamusProjectileKind BeamShot(SamusBeamCombination beams, bool charged) => beams.IsRetail
         ? Lookup(charged ? ChargedBeamShots : UnchargedBeamShots, beams)
         : UnauthoredShots.Shot(beams, charged);
 
     /// <summary>
     /// The animation a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, runs fired in
-    /// <paramref name="direction"/>, or null for none: its definition's list for the direction, except the Murder Beam's,
-    /// which reads past the Power Bomb definition it takes its damage from (<see cref="MurderBeamDirectionAnimations{TDirection, TAnimation}"/>).
+    /// <paramref name="direction"/>, or null for none: its kind's program for the direction, except the Murder Beam's,
+    /// which reads past the Power Bomb kind it takes its damage from (<see cref="MurderBeamDirectionAnimations{TDirection, TAnimation}"/>).
     /// </summary>
     internal static SamusProjectileSegment? BeamShotAnimation(SamusBeamCombination beams, bool charged, SamusProjectileDirection direction) =>
         IsMurderBeam(beams, charged)
             ? MurderBeamAnimations.Animation(direction)
-            : SamusProjectileHeaders.Animation(BeamShot(beams, charged), direction);
+            : SamusProjectileKinds.Animation(BeamShot(beams, charged), direction);
 
     /// <summary>Whether a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, is the Murder Beam's.</summary>
     internal static bool IsMurderBeam(SamusBeamCombination beams, bool charged) => charged && beams == MurderBeam;
 
-    /// <summary>The definition a fired missile or placed bomb of <paramref name="family"/> starts from.</summary>
+    /// <summary>The kind a fired missile or placed bomb of <paramref name="family"/> is.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No missile or bomb is of the family.</exception>
-    internal static SamusProjectileHeader NonBeam(SamusProjectileFamily family) => Lookup(NonBeamProjectiles, family);
+    internal static SamusProjectileKind NonBeam(SamusProjectileFamily family) => Lookup(NonBeamProjectiles, family);
 
     /// <summary>
-    /// The definition the particles of the special attack <paramref name="beams"/> fires start from, or null for a combination
-    /// whose attack has no particle definition.
+    /// The kind of the particles of the special attack <paramref name="beams"/> fires, or null for a combination whose attack
+    /// has no particles of its own.
     /// </summary>
     /// <exception cref="InvalidOperationException">The combination pairs Spazer with Plasma, which fires no special attack.</exception>
-    internal static SamusProjectileHeader? SpecialAttack(SamusBeamCombination beams) =>
+    internal static SamusProjectileKind? SpecialAttack(SamusBeamCombination beams) =>
         !beams.IsRetail ? throw new InvalidOperationException($"{beams} fires no special attack.")
-            : SpecialAttacks.TryGetValue(beams, out SamusProjectileHeader header) ? header : null;
+            : SpecialAttacks.TryGetValue(beams, out SamusProjectileKind kind) ? kind : null;
 
-    /// <summary>The definition <paramref name="echo"/> starts from.</summary>
-    internal static SamusProjectileHeader Echo(SamusBeamEcho echo) => Lookup(Echoes, echo);
+    /// <summary>The kind <paramref name="echo"/> is.</summary>
+    internal static SamusProjectileKind Echo(SamusBeamEcho echo) => Lookup(Echoes, echo);
 
-    /// <summary>The definition <paramref name="selections"/> names for <paramref name="key"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The selections name no definition for the key.</exception>
-    private static SamusProjectileHeader Lookup<TKey>(IReadOnlyDictionary<TKey, SamusProjectileHeader> selections, TKey key)
+    /// <summary>The kind <paramref name="selections"/> names for <paramref name="key"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The selections name no kind for the key.</exception>
+    private static SamusProjectileKind Lookup<TKey>(IReadOnlyDictionary<TKey, SamusProjectileKind> selections, TKey key)
         where TKey : notnull =>
-        selections.TryGetValue(key, out SamusProjectileHeader header)
-            ? header
-            : throw new ArgumentOutOfRangeException(nameof(key), key, "No projectile header is selected for this key.");
+        selections.TryGetValue(key, out SamusProjectileKind kind)
+            ? kind
+            : throw new ArgumentOutOfRangeException(nameof(key), key, "No projectile kind is selected for this key.");
 }

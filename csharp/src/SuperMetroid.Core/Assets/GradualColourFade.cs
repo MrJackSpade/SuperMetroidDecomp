@@ -14,13 +14,13 @@ public sealed record GradualColourFade : ColourEffect
     /// <summary>Keeps a fade's fixed colour, direction, length and the steps it has taken.</summary>
     /// <param name="endpoint">The fixed colour: the one faded toward, or the one faded in from.</param>
     /// <param name="direction">Whether the colour shown fades toward the fixed colour or in from it.</param>
-    /// <param name="denominator">The fade's length: its last moving step is this one, one through 65534.</param>
+    /// <param name="denominator">The fade's length: its last moving step is this one, one through <see cref="LongestDenominator"/>.</param>
     /// <param name="steps">The step counter's value at each step taken, in order.</param>
     public GradualColourFade(RgbColor endpoint, GradualFadeDirection direction, int denominator, ImmutableArray<int> steps)
     {
         if (!Enum.IsDefined(direction))
             throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined gradual fade direction.");
-        Denominator = Ensure.BetweenInclusive(1, ushort.MaxValue - 1, denominator);
+        Denominator = Ensure.BetweenInclusive(1, LongestDenominator, denominator);
         Endpoint = endpoint;
         Direction = direction;
         Steps = steps.IsDefault ? [] : steps;
@@ -31,6 +31,12 @@ public sealed record GradualColourFade : ColourEffect
 
     /// <summary>Whether the colour shown fades toward <see cref="Endpoint"/> or in from it.</summary>
     public GradualFadeDirection Direction { get; }
+
+    /// <summary>
+    /// The longest fade (#1627): any length whose step after the last, the one that reaches the far colour, is still a
+    /// count of steps.
+    /// </summary>
+    public const int LongestDenominator = int.MaxValue - 1;
 
     /// <summary>The fade's length: its last moving step is this one.</summary>
     public int Denominator { get; }

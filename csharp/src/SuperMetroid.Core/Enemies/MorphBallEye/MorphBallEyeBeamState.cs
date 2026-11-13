@@ -14,17 +14,18 @@ public sealed class MorphBallEyeBeamState
     public RoomEnemySlot? Body { get; internal set; }
 
     /// <summary>
-    /// The beam's half-width as a 16.16 value in 256-per-turn angle units: zero when the beam appears, grown by
-    /// <see cref="AngularHalfWidthGrowth"/> each widening update with the fraction carrying into the whole part, and
-    /// set to a whole part of four, keeping its fraction, on the update its whole part reaches four.
+    /// The angle from the beam's centre to each of its edges, with its fraction of a step: zero when the beam appears,
+    /// grown by <see cref="AngularHalfWidthGrowth"/> each widening update with the fraction carrying into whole steps,
+    /// and set to four whole steps, keeping its fraction, on the update it reaches four. The growth step is a whole
+    /// number of 256ths of a step, so no finer fraction ever arises.
     /// </summary>
-    public SignedSixteenSixteen AngularHalfWidth { get; internal set; }
+    public RotationAngle AngularHalfWidth { get; internal set; }
 
-    /// <summary>The whole angle units of <see cref="AngularHalfWidth"/>, zero through four, which the beam's window geometry uses.</summary>
-    public int AngularWidth => AngularHalfWidth.WholePixels;
+    /// <summary>The whole steps of <see cref="AngularHalfWidth"/>, none through four, which the beam's window geometry uses.</summary>
+    public TrigonometryAngle AngularWidth => AngularHalfWidth.ToTrigonometryAngle();
 
-    /// <summary>The 16.16 widening speed in angle units per update: zero when the beam appears and raised by a quarter unit before each widening update adds it.</summary>
-    public SignedSixteenSixteen AngularHalfWidthGrowth { get; internal set; }
+    /// <summary>The widening speed, the turn the half-width grows by each update: zero when the beam appears and raised by a quarter step before each widening update adds it.</summary>
+    public RotationAngle AngularHalfWidthGrowth { get; internal set; }
 
     /// <summary>Position in the sixteen-step yellow brightness cycle, 0 through 15: the colour shown next.</summary>
     public int ColorIndex { get; internal set; }
@@ -58,8 +59,8 @@ public sealed class MorphBallEyeBeamState
     {
         Phase = MorphBallEyeBeamPhase.Inactive;
         Body = null;
-        AngularHalfWidth = SignedSixteenSixteen.Zero;
-        AngularHalfWidthGrowth = SignedSixteenSixteen.Zero;
+        AngularHalfWidth = RotationAngle.Zero;
+        AngularHalfWidthGrowth = RotationAngle.Zero;
         ColorIndex = 0;
         Color = RgbColor.Black;
     }

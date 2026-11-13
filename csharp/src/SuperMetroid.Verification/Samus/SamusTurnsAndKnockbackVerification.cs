@@ -25,7 +25,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     var bus = new TestAddressSpace();
 
     foreach (var (timer, accepts) in new VerifySamusAerialTurnsAndWallJumpCase[]
-        { new VerifySamusAerialTurnsAndWallJumpCase(0, false), new VerifySamusAerialTurnsAndWallJumpCase(1, true), new VerifySamusAerialTurnsAndWallJumpCase(8, true), new VerifySamusAerialTurnsAndWallJumpCase(9, false), new VerifySamusAerialTurnsAndWallJumpCase(32767, false), new VerifySamusAerialTurnsAndWallJumpCase(32768, false), new VerifySamusAerialTurnsAndWallJumpCase(65535, true) })
+        { new VerifySamusAerialTurnsAndWallJumpCase(0, false), new VerifySamusAerialTurnsAndWallJumpCase(1, true), new VerifySamusAerialTurnsAndWallJumpCase(8, true), new VerifySamusAerialTurnsAndWallJumpCase(9, false), new VerifySamusAerialTurnsAndWallJumpCase(32767, false), new VerifySamusAerialTurnsAndWallJumpCase(32768, false), new VerifySamusAerialTurnsAndWallJumpCase(32776, false), new VerifySamusAerialTurnsAndWallJumpCase(32777, true), new VerifySamusAerialTurnsAndWallJumpCase(65535, true) })
     {
         var autoJump = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { InputSnapshot = { AutoJumpTimer = timer, AutoJumpInputPending = true } };
         ControllerButton physical = ControllerButton.X;
@@ -44,8 +44,8 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     wrappingAutoJump.InputSnapshot.PublishMainLoopHeldInput(ControllerButton.A);
     wrappingAutoJump.InputSnapshot.SnapshotDrawInput(ControllerButton.A, 0);
     AssertEqual(0, wrappingAutoJump.InputSnapshot.AutoJumpTimer, "held Jump wraps the auto-jump timer from 65535 to zero");
-    AssertThrows<ArgumentOutOfRangeException>(() => wrappingAutoJump.InputSnapshot.AutoJumpTimer = ushort.MaxValue + 1,
-        "the auto-jump timer rejects a value above sixteen bits");
+    AssertThrows<ArgumentOutOfRangeException>(() => wrappingAutoJump.InputSnapshot.AutoJumpTimer = SuperMetroid.Core.Compatibility.WrappingCounter.LargestCount + 1,
+        "the auto-jump timer rejects a count past the largest it wraps from");
 
     // F8 must yield to precisely the four ordinary jump targets selected by
     // alpha, even when the turn animation expires on that same frame (#474).

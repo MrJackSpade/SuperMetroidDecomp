@@ -584,9 +584,9 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     internal int? SpawnPowampSpikeBurst(RoomEnemySlot body, PictureShading look)
     {
         int? lastSpikePlace = null;
-        // The spike loop counts from seven down to zero. Allocation independently searches the
+        // The spikes fire in their authored order. Allocation independently searches the
         // eighteen-slot pool from the last slot downward on every iteration.
-        for (int direction = 7; direction >= 0; direction--)
+        foreach (CompassDirection direction in PowampMotionDefinitions.SpikeFiringOrder)
         {
             EnemyProjectile? spike = _projectiles.AllocateEnemyProjectile();
             if (spike is null)
@@ -613,7 +613,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectile spike,
         RoomLevelData level)
     {
-        int direction = spike.StateOf<PowampSpikeState>().Direction;
+        CompassDirection direction = spike.StateOf<PowampSpikeState>().Direction;
 
         EightEightVector<RoomPixels> acceleration = PowampMotion.SpikeAcceleration(direction);
         spike.Velocity = spike.Velocity.WithX(spike.Velocity.X + acceleration.X);

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// The value of the game's shared random sequence: one sixteen-bit value every random consumer draws from. Advancing it
 /// and exchanging its two bytes are its only operations; a sample is the state read as an int, and the game often draws
 /// two independent random bytes from one sample, one per axis or choice. Which value each consumer draws is
-/// gameplay-observable, so the advance is the original's exactly.
+/// gameplay-observable, so the advance is the game's exactly.
 /// </summary>
 /// <remarks>
 /// Held by the session's <see cref="SharedRandom"/>, which advances it whenever a consumer draws. Evidence: the original's
@@ -23,6 +23,12 @@ public readonly record struct SharedRandomState
 
     /// <summary>The values the state holds: an advance wraps at this.</summary>
     private const int StateSpan = 65536;
+
+    /// <summary>
+    /// The largest value the state holds, and so the largest sample a consumer copies from it: an advance wraps past it
+    /// (#1627).
+    /// </summary>
+    public const int LargestValue = StateSpan - 1;
 
     /// <summary>Each byte of the state is multiplied by five.</summary>
     private const int Multiplier = 5;
@@ -55,14 +61,14 @@ public readonly record struct SharedRandomState
     {
         int products = LowerHalf(Value) * Multiplier + LowerHalf(UpperHalf(Value) * Multiplier) * HalfSpan;
         int raised = products + HalfSpan;
-        int pastSixteenBits = raised > ushort.MaxValue ? 1 : 0;
+        int pastSixteenBits = raised > LargestValue ? 1 : 0;
         return new SharedRandomState((raised + Increment + pastSixteenBits) % StateSpan);
     }
 
-    /// <summary>The state with its two bytes exchanged, as the lava and acid FX routine stores it back.</summary>
+    /// <summary>The state with its two bytes exchanged, as the lava and acid effect stores it back.</summary>
     public SharedRandomState WithHalvesSwapped() =>
         new(LowerHalf(Value) << HalfBits | UpperHalf(Value));
 
     /// <summary>A sample checked to lie in 0 through 65535.</summary>
-    private static int RequireSample(int sample) => Ensure.BetweenInclusive(0, ushort.MaxValue, sample);
+    private static int RequireSample(int sample) => Ensure.BetweenInclusive(0, LargestValue, sample);
 }

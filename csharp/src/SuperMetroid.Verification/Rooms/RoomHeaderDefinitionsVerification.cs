@@ -38,22 +38,22 @@ internal static class RoomHeaderDefinitionsVerification
     private static void VerifyRoomHeaderIdentities(ushort[] rooms)
     {
         AssertEqual(262, rooms.Length, "Independent retail room roster");
-        AssertTrue(RetailRoomHeaders.All.Select(header => header.Pointer).SequenceEqual(rooms),
+        AssertTrue(RetailRooms.All.Select(header => header.Pointer).SequenceEqual(rooms),
             "Header enumeration preserves original sorted identities");
         var known = rooms.ToHashSet();
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             ushort pointer = (ushort)value;
             bool expected = known.Contains(pointer);
-            AssertEqual(expected, RoomHeaderDefinitions.Contains(pointer), $"Room membership {pointer:X4}");
+            AssertEqual(expected, RoomDefinitions.Contains(pointer), $"Room membership {pointer:X4}");
             if (expected)
             {
-                AssertEqual(pointer, RoomHeaderDefinitions.Get(pointer).Pointer, "Header preserves selected identity");
-                AssertEqual(pointer, SelectedRoom.LoadUsingCompiledSelection(RoomHeaderDefinitions.Get(pointer)).Pointer,
+                AssertEqual(pointer, RoomDefinitions.Get(pointer).Pointer, "Header preserves selected identity");
+                AssertEqual(pointer, SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.Get(pointer)).Pointer,
                     "Production header construction preserves identity without a cartridge capability");
             }
             else
-                AssertThrows<ArgumentOutOfRangeException>(() => RoomHeaderDefinitions.Get(pointer),
+                AssertThrows<ArgumentOutOfRangeException>(() => RoomDefinitions.Get(pointer),
                     "Non-header address is rejected");
         }
     }
@@ -85,7 +85,7 @@ internal static class RoomHeaderDefinitionsVerification
         {
             int settings = rom.ReadCartridgeByte((0x8f0000 | pointer) + 8);
             bool expected = (settings & 1) != 0;
-            AssertEqual(expected, RoomHeaderDefinitions.Get(pointer).UsesIsolatedDoorTransition,
+            AssertEqual(expected, RoomDefinitions.Get(pointer).UsesIsolatedDoorTransition,
                 $"Room {pointer:X4} settings ${settings:X2} isolated door transition");
             if (!expected && settings != 0) sawOtherBitsOnly = true;
         }
@@ -96,19 +96,19 @@ internal static class RoomHeaderDefinitionsVerification
 
     /// <summary>Compares one selected header field in direct and enumerated views with its cartridge bytes.</summary>
     private static void VerifyRoomHeaderField(CartridgeImportAddressSpace rom, ushort[] rooms,
-        int offset, Func<RoomHeaderDefinition, int> field)
+        int offset, Func<RoomDefinition, int> field)
     {
-        RoomHeaderDefinition[] enumerated = RetailRoomHeaders.All.ToArray();
+        RoomDefinition[] enumerated = RetailRooms.All.ToArray();
         for (int index = 0; index < rooms.Length; index++)
         {
             ushort pointer = rooms[index];
             int address = 0x8f0000 | pointer;
             int expected = rom.ReadCartridgeByte(address + offset);
             if (offset == 9) expected |= rom.ReadCartridgeByte(address + 10) << 8;
-            AssertEqual(expected, field(RoomHeaderDefinitions.Get(pointer)), $"Room {pointer:X4} native field {offset}");
+            AssertEqual(expected, field(RoomDefinitions.Get(pointer)), $"Room {pointer:X4} native field {offset}");
             AssertEqual(expected, field(enumerated[index]), $"Room {pointer:X4} enumerated field {offset}");
             if (offset == 1)
-                AssertEqual(expected, (int)SelectedRoom.LoadUsingCompiledSelection(RoomHeaderDefinitions.Get(pointer)).AreaIndex, "Production area view");
+                AssertEqual(expected, (int)SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.Get(pointer)).AreaIndex, "Production area view");
         }
     }
 

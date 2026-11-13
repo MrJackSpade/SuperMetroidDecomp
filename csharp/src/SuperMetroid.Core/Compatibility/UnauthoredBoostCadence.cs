@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// with that frame's ten delays for the rest of the session. The capsule's frames leave them as they were.
 /// </summary>
 /// <remarks>
-/// Owned by the session (<c>FrontendSession</c>), which outlives every gameplay runtime as the original's memory does, and
+/// Owned by the session (<c>FrontendSession</c>), which outlives every gameplay runtime as the game's memory does, and
 /// handed to each runtime, whose room loader and attract demo give it to every Samus they build and to every room's
 /// enemies, and to the opening cinematic for its flashbacks' Samus.
 /// Recorded during the enemy pass, when the getaway's floor update advances the wing animation (every eighth frame of
@@ -34,8 +34,11 @@ public sealed class UnauthoredBoostCadence
     /// <summary>The cadence countdown the boost restarts with on this cadence.</summary>
     public const int CountdownAfterAdvance = 0;
 
-    /// <summary>The longest delay, in ticks, one running frame of the cadence can take.</summary>
-    public const int LongestDelay = byte.MaxValue;
+    /// <summary>
+    /// The longest delay, in ticks, one running frame of the cadence can take: a running frame's delay is added to Samus's
+    /// animation frame timer, a countdown that takes any count up to its longest start (#1627).
+    /// </summary>
+    public const int LongestDelay = WrappingCountdown.LongestStart;
 
     /// <summary>The ten delays, by running frame: all zero until the getaway first draws its wings.</summary>
     private int[] delays = new int[FrameCount];

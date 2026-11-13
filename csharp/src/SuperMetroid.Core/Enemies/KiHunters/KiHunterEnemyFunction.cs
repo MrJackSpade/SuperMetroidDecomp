@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>
-/// The routine a Ki-Hunter's main AI runs each frame.
+/// The behaviour a Ki-Hunter's main AI runs each frame.
 /// Its values are arbitrary.
 /// </summary>
 public enum KiHunterEnemyFunction
@@ -16,16 +16,16 @@ public enum KiHunterEnemyFunction
     FallingAfterWingLoss,
     /// <summary>Aims a two-pixel-per-frame hop toward Samus with an RNG-selected initial upward speed of seven or eight pixels per frame.</summary>
     StartGroundJump,
-    /// <summary>Leaves movement to the jump, landing, or spit animation until its instruction stream selects the next function.</summary>
+    /// <summary>Leaves movement to the jump, landing, or spit animation until its cues select the next function.</summary>
     NoOp,
     /// <summary>Advances the collision-bearing ballistic hop and starts the landing animation after downward collision.</summary>
     GroundJump,
     /// <summary>Counts down the post-landing or post-spit wait, then spits within 96 horizontal pixels or prepares another hop.</summary>
     GroundWait,
-    /// <summary>Installs the acid-spit list facing Samus and suspends movement while bytecode owns the attack.</summary>
+    /// <summary>Installs the acid-spit list facing Samus and suspends movement while the animation owns the attack.</summary>
     SelectAcidSpit,
     /// <summary>Copies X and Y from the physically preceding body slot.</summary>
     FollowBody,
-    /// <summary>Dispatches the detached wing's secondary arc function stored in its extended variable zero.</summary>
+    /// <summary>Dispatches the detached wing's secondary arc function.</summary>
     DetachedWing,
 }

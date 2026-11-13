@@ -100,7 +100,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         // The game treats each coordinate difference as signed, divides it by four,
-        // shifts that result left eight fractional bits, and subtracts it from velocity.
+        // takes that result as 256ths of a pixel, and subtracts it from velocity.
         // This is a proportional attraction toward Samus—not a fixed-speed seek—and the
         // accumulated fraction is observable before either whole component reaches ±3.
         int yDifference = CoordinateAxis.Difference(slot.Position.Y.Whole, samus.Position.Y.Whole);
@@ -223,14 +223,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             // Samus's movement phase can consume them. Apply only the suit-divided health
             // change; starting the host knockback state and trying to undo its pose would
             // introduce side effects the game never reaches.
-            int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-                ? slot.Definition.Damage >> 2
-                : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                    ? slot.Definition.Damage >> 1
-                    : slot.Definition.Damage;
-            samus.Health = samus.Health <= damage
-                ? 0
-                : samus.Health - damage;
+            SamusSuitDamage.Hurt(samus, slot.Definition.Damage);
         }
         else
         {

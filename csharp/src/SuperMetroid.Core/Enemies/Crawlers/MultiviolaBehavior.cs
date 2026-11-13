@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms;
 
@@ -60,7 +60,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         // The products are magnitudes; the signs of the heading's cosine and sine give each axis its direction.
         if (!EnemyMath.CosineIsNegative(state.Heading))
         {
-            NegateWithoutFractionOverflow(ref state, axis: Axis.Horizontal);
+            TurnLeftOrUp(state, Axis.Horizontal);
         }
 
         SignedSixteenSixteen horizontalDisplacement = state.Velocity.X;
@@ -77,7 +77,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         if (!EnemyMath.SineIsNegative(state.Heading))
-            NegateWithoutFractionOverflow(ref state, axis: Axis.Vertical);
+            TurnLeftOrUp(state, Axis.Vertical);
 
         SignedSixteenSixteen verticalDisplacement = state.Velocity.Y;
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
@@ -95,28 +95,17 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyMath.AbsoluteSineSpeed(state.Heading, magnitude).AsDisplacement());
     }
 
-    /// <summary>
-    /// Reproduces the Multiviola's split negation. This is not
-    /// a conventional negation: when the fraction is zero, its wrapped increment
-    /// does not reach the already-negated whole pixels, leaving the velocity exactly
-    /// one pixel/frame too negative. The game behaves this way, and the result is observable.
-    /// </summary>
-    private static void NegateWithoutFractionOverflow(
-        ref MultiviolaEnemyState state,
-        Axis axis)
+    /// <summary>Turns the Multiviola's speed along <paramref name="axis"/> leftward or upward (<see cref="MultiviolaLeftOrUpSpeed"/>).</summary>
+    private static void TurnLeftOrUp(MultiviolaEnemyState state, Axis axis)
     {
         if (axis == Axis.Horizontal)
         {
-            state.Velocity = state.Velocity.WithX(NegateWithoutFractionOverflow(state.Velocity.X));
+            state.Velocity = state.Velocity.WithX(MultiviolaLeftOrUpSpeed.Of(state.Velocity.X));
             return;
         }
 
-        state.Velocity = state.Velocity.WithY(NegateWithoutFractionOverflow(state.Velocity.Y));
+        state.Velocity = state.Velocity.WithY(MultiviolaLeftOrUpSpeed.Of(state.Velocity.Y));
     }
-
-    /// <summary>Negates the whole and fraction parts separately and increments the fraction, without passing its overflow on.</summary>
-    private static SignedSixteenSixteen NegateWithoutFractionOverflow(SignedSixteenSixteen axis) =>
-        axis.ComplementedWholeNegatedFraction();
 
     /// <summary>Advances Multiviola's typed animation.</summary>
     internal static void AdvanceMultiviolaTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>

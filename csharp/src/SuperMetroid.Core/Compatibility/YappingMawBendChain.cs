@@ -28,8 +28,8 @@ internal struct YappingMawBendChain
     /// The offset <paramref name="offset"/> becomes when moved by <paramref name="correction"/>, and by one pixel more
     /// when the previous offset of the chain passed the end of the coordinate space; records whether this one does.
     /// </summary>
-    /// <param name="offset">The link's offset, as its coordinate word, 0 through 65535.</param>
-    /// <param name="correction">The bend's correction, as its coordinate word, 0 through 65535.</param>
+    /// <param name="offset">The link's offset, as its coordinate, 0 through 65535.</param>
+    /// <param name="correction">The bend's correction, as its coordinate, 0 through 65535.</param>
     /// <exception cref="ArgumentOutOfRangeException">An offset or correction lies outside the coordinate space.</exception>
     internal int Corrected(int offset, int correction)
     {

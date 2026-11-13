@@ -37,7 +37,7 @@ internal sealed class CeresRidleyFlight
     }
 
     /// <summary>
-    /// Sets up the Ceres branch of Ridley's initializer. The shared routine also
+    /// Sets up the Ceres branch of Ridley's initializer. The shared initializer also
     /// initializes Norfair Ridley, but selecting that branch here would be fiction:
     /// this loader currently has no saved boss-bit input and the playable path is fresh Ceres.
     /// </summary>
@@ -45,7 +45,7 @@ internal sealed class CeresRidleyFlight
     {
         _ridleyEncounter.Parts.RequireBody(slot, "Ceres Ridley");
 
-        // Ceres Ridley's initialization clears the shared boss tilemap workspace, disables the minimap, and
+        // Ceres Ridley's initialization clears the shared boss drawing workspace, disables the minimap, and
         // marks the room explored. Those consumers are not yet represented by RoomEnemySystem;
         // every actor-owned write that follows is retained below.
         slot.CollidesByFrameHitboxes = true;
@@ -147,7 +147,7 @@ internal sealed class CeresRidleyFlight
         {
             // The hover-box overlap test returns zero on rectangle overlap. The hover wait therefore waits
             // only while Ridley is still outside the hover box, with 124 as the authentic
-            // timeout. The previous translation inverted this branch and selected attacks
+            // timeout. An earlier version inverted this branch and selected attacks
             // while he was still above the arena, making every fireball route hit its
             // intentional 48-frame bailout before the mouth animation could begin.
             state.HoverCounter++;
@@ -162,7 +162,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>The least vertical speed Ridley keeps, either way, while he moves into his fireball position.</summary>
     private static readonly SignedEightEight FireballMoveMinimumSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128);
 
-    /// <summary>Steers Ridley into his fireball position and installs the mouth/fireball instruction stream.</summary>
+    /// <summary>Steers Ridley into his fireball position and installs the mouth/fireball program.</summary>
     internal void TickCeresRidleyFireballMove(RoomEnemySlot slot, RidleyEnemyState state)
     {
         // Every acceleration clamps Ridley to five pixels an update, so his speed always has a magnitude.
@@ -230,7 +230,7 @@ internal sealed class CeresRidleyFlight
         }
     }
 
-    /// <summary>Steers Ridley toward the swoop start point with the shared acceleration routine.</summary>
+    /// <summary>Steers Ridley toward the swoop start point with the shared acceleration.</summary>
     internal static void TickCeresRidleySwoopMoveToPosition(
         RoomEnemySlot slot,
         RidleyEnemyState state)
@@ -374,8 +374,8 @@ internal sealed class CeresRidleyFlight
         state.TailFunctionIndex = RidleyTailFunction.None;
         state.Function = RidleyAiFunction.CeresPublishEscapeHandoff;
 
-        // The retreat recolours the chamber: its walls and its first tiles. The original game also copied the first tiles'
-        // colours into Ridley's own sprite colours; the port's sprites keep their own colours (#1544).
+        // The retreat recolours the chamber: its walls and its first tiles. The game also copied the first tiles'
+        // colours into Ridley's own sprite colours; his sprites here keep their own colours (#1544).
         state.Colours.ShowRetreat();
     }
 
@@ -389,7 +389,7 @@ internal sealed class CeresRidleyFlight
         Position16<RoomPixels> target,
         int divisor)
     {
-        // Division truncates like the original quotient and a zero quotient is promoted
+        // Division truncates like the game's quotient and a zero quotient is promoted
         // to one, ensuring that even a one-pixel error continues to change velocity.
         divisor = RidleyInertia.Divisor(divisor);
 
@@ -442,7 +442,7 @@ internal sealed class CeresRidleyFlight
         RidleyEnemyState state,
         RidleyWallImpact wallImpact = RidleyWallImpact.None)
     {
-        // The bounds clamp calls the impact routine only when proposed X is strictly below the
+        // The bounds clamp runs the impact only when proposed X is strictly below the
         // left bound, before zeroing X velocity. Vertical speed can meet its threshold
         // even when horizontal motion is slow; the right and vertical clamps do not call it.
         FixedCoordinate proposedX = IntegrateUnclampedAxis(slot.Position.X, state.Velocity.X);
@@ -479,7 +479,7 @@ internal sealed class CeresRidleyFlight
         int minimum,
         int maximum)
     {
-        // Ridley's velocities are signed 8.8 values that the original game adds, in 256ths of a pixel, to the
+        // Ridley's velocities are signed 8.8 values that the game adds, in 256ths of a pixel, to the
         // ordinary 16.16 position's fraction.
         FixedCoordinate moved = position.MovedBy(velocity);
 

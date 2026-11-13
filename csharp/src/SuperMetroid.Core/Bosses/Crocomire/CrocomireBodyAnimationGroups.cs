@@ -3,7 +3,7 @@ using System.Collections.Frozen;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// The body programs Crocomire's fight and death test as groups (#1452). The original game tests the body's program
+/// The body programs Crocomire's fight and death test as groups (#1452). The game tests the body's program
 /// by its place in the program layout, so each test admits the programs laid out on one side of one animation; each
 /// group names those programs instead of ordering the program identities.
 /// </summary>

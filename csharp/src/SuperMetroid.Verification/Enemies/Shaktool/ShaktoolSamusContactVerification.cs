@@ -23,7 +23,7 @@ internal static class ShaktoolSamusContactVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Shaktool);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Shaktool);
         RoomEnemySlot segment = runtime.Enemies.SlotTable.Slots[0];
         AssertEqual(EnemyDefinitionId.Shaktool, segment.DefinitionId, "slot zero is a Shaktool segment");
         AssertEqual(EnemyReaction.ShaktoolTouch, EnemyCollision.TouchAi(segment), "Shaktool's header touch callback");

@@ -563,7 +563,7 @@ internal static class CrocomireBodyAnimations
     internal static Animation<CrocomireBodySegment> StartingWith(CrocomireBodySegment segment) => StartingAt[segment];
 
     /// <summary>
-    /// The segment each list that runs on into the list authored next, directly after its last beat, continues into: a body
+    /// The segment each segment that runs on past its last beat continues into, directly after that beat: a body
     /// resting after that beat already stands in the next, which the fight AI and the skeleton's rest test read.
     /// </summary>
     internal static IReadOnlyDictionary<CrocomireBodySegment, CrocomireBodySegment> RunsOnInto { get; } = new Dictionary<CrocomireBodySegment, CrocomireBodySegment>
@@ -599,8 +599,8 @@ internal static class CrocomireBodyAnimations
         new AnimationBeat<CrocomireBodyFrame, CrocomireBodyCue>.HeldFrame(frame);
 
     /// <summary>
-    /// The updates each melting pass's first-row frame shows before its list shows it again, the longest frame a list
-    /// gives, kept exact (#1627): these two lists loop on their frame, so the frame shows anew, raising the new-frame flag,
+    /// The updates each melting pass's first-row frame shows before its animation shows it again, the longest duration a
+    /// frame can have, kept exact (#1627): these two animations loop on their frame, so the frame shows anew, raising the new-frame flag,
     /// each time the count runs out, and a shot's added updates move when.
     /// </summary>
     private const int LoopingMeltFrameDuration = 32767;

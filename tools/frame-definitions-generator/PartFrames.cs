@@ -191,8 +191,8 @@ internal sealed record PartFrameConfiguration(
                 ["Metaree"] = ["MetareeIdling", "MetareePreparingAttack", "MetareeDiving", "MetareeStopAnimating"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
-        // A hopper runs the programs of the variant its header names (0 Sidehopper, 1 large Sidehopper, 2 large Dessgeega,
-        // 3 Dessgeega), on the floor or the ceiling its placement mounts it on.
+        // A hopper runs the programs of the kind its definition is (HopperKindDefinitions: the Tourian Sidehopper is a large
+        // Sidehopper), on the floor or the ceiling its placement mounts it on.
         new("HoppersBehavior", null, null, "HopperAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
@@ -202,14 +202,7 @@ internal sealed record PartFrameConfiguration(
                 ["SidehopperLarge"] = HopperVariant("LargeSidehopper"),
                 ["SidehopperTourian"] = HopperVariant("LargeSidehopper"),
             },
-            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null,
-            [
-                new("Sidehopper", "RoomEnemyDefinition", "VariantIndex", ["0"]),
-                new("SidehopperLarge", "RoomEnemyDefinition", "VariantIndex", ["1"]),
-                new("SidehopperTourian", "RoomEnemyDefinition", "VariantIndex", ["1"]),
-                new("DessgeegaLarge", "RoomEnemyDefinition", "VariantIndex", ["2"]),
-                new("Dessgeega", "RoomEnemyDefinition", "VariantIndex", ["3"]),
-            ]),
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         // A Fune or Namihe runs the idle and active programs its placements' variant selects, facing either way.
         new("FuneNamiheBehavior", null, null, "FuneNamiheAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)

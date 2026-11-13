@@ -4,8 +4,8 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>
-/// Typed projection of the unusually large Yapping Maw extension blocks.
-/// Names describe the words' actual consumers; arrays keep
+/// The Yapping Maw's unusually large state.
+/// Names describe the values' actual consumers; arrays keep
 /// the four identical tongue-link calculations inspectable without four copies of every
 /// property.
 /// </summary>
@@ -19,12 +19,12 @@ public sealed class YappingMawEnemyState
 
     /// <summary>Physical enemy slot representing the moving mouth, distinct from the four body-projectile slots and the stationary root sprite object.</summary>
     public RoomEnemySlot Owner { get; }
-    /// <summary>Host projection of the variable-A dispatcher entry, initialized to neutral and advanced by targeting, curl completion, and cooldown expiration.</summary>
+    /// <summary>The behaviour main AI runs, initialized to neutral and advanced by targeting, curl completion, and cooldown expiration.</summary>
     public YappingMawAiFunction Function { get; internal set; }
 
     /// <summary>
-    /// The immovable population position in whole room pixels, retained in variables
-    /// 0C/0D; link and mouth positions are offsets from this root
+    /// The immovable population position in whole room pixels, retained for the whole fight;
+    /// link and mouth positions are offsets from this root
     /// rather than accumulated movement.
     /// </summary>
     public Position16<RoomPixels> Origin { get; internal set; }
@@ -32,7 +32,7 @@ public sealed class YappingMawEnemyState
     /// <summary>
     /// Final signed offsets from the root for the four successive tongue points (Y
     /// positive downward). Link zero is nearest the root, link
-    /// three is the mouth; the first three also position decorative eprojs.
+    /// three is the mouth; the first three also position decorative body-link projectiles.
     /// </summary>
     public Offset16<RoomPixels>[] SegmentOffsets { get; } = new Offset16<RoomPixels>[4];
 
@@ -70,10 +70,10 @@ public sealed class YappingMawEnemyState
     public SignedSixteenSixteen Extension { get; internal set; }
 
     /// <summary>
-    /// The row of the quadratically increasing common enemy speeds the next curl update adds: each update moves one
-    /// row on, so the curl accelerates out and, after the turn-around, back.
+    /// The whole-row place along the quadratically increasing common enemy speeds the next curl update adds: each
+    /// update moves one row on, so the curl accelerates out and, after the turn-around, back.
     /// </summary>
-    public int QuadraticSpeedRow { get; internal set; }
+    public EnemyQuadraticSpeedIndex QuadraticSpeedRow { get; internal set; }
 
     /// <summary>
     /// Which of the row's two speeds the curl adds: the positive one while the tongue extends, the negative one after
@@ -123,6 +123,6 @@ public sealed class YappingMawEnemyState
     /// <summary>The root/base object selected by population parameter two.</summary>
     public RoomSpriteObject? RootSpriteObject { get; internal set; }
 
-    /// <summary>One variable-27..2E curl correction per tongue link, changed only by calculations.</summary>
+    /// <summary>One curl correction per tongue link, changed only by calculations.</summary>
     internal Offset16<RoomPixels>[] Corrections { get; } = new Offset16<RoomPixels>[4];
 }

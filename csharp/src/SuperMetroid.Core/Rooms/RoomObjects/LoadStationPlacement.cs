@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="CameraPosition">The initial camera top-left.</param>
 /// <param name="SamusOffset">Samus's placement relative to the camera, X from the screen's horizontal centre and Y from the camera top.</param>
 public sealed record LoadStationPlacement(
-    RoomHeaderDefinition Room,
+    RoomDefinition Room,
     DoorDefinition Door,
     Position16<RoomPixels> CameraPosition,
     Offset16<RoomPixels> SamusOffset)

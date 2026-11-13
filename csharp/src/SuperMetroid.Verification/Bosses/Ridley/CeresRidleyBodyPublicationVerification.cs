@@ -27,7 +27,7 @@ internal static class CeresRidleyBodyPublicationVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(RoomBlockArtwork.Sprites, runtime.Display.Latched.Rooms?.BlockArtwork,
             "the arena's backgrounds draw from the object character page");

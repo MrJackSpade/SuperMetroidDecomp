@@ -11,15 +11,17 @@ public readonly record struct RoomIdentity
 {
     /// <summary>Creates a logical gameplay room key from a validated retail area and that area's room index.</summary>
     /// <param name="area">One of the seven retail world-area identities.</param>
-    /// <param name="roomIndex">Per-area room index, 0 through 255; values are intentionally not globally unique.</param>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is outside the retail domain.</exception>
+    /// <param name="roomIndex">Per-area room index, zero or more (#1627); values are intentionally not globally unique.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="area"/> is outside the retail domain, or <paramref name="roomIndex"/> is negative.
+    /// </exception>
     public RoomIdentity(AreaId area, int roomIndex)
     {
         // Enum casts can manufacture arbitrary values. Validate at construction so a room
         // identity can safely cross table and dispatcher boundaries without another guard.
         _ = AreaIds.Require(area);
         Area = area;
-        RoomIndex = Ensure.BetweenInclusive(0, byte.MaxValue, roomIndex);
+        RoomIndex = Ensure.AtLeastZero(roomIndex);
     }
 
     /// <summary>The room's validated retail world area.</summary>

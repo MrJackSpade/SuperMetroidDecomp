@@ -21,14 +21,23 @@ internal static class ChozoStatueAnimationsVerification
                     var instruction = Instructions[word];
                     instruction.Check(cue, at);
                     for (int index = 0; index < operands.Length; index++)
-                        AssertEqual(operands[index], instruction.Operands[index] switch
                     {
-                        // The native operands are the footstep's signed X word and the carry record's byte offset.
-                        'F' => unchecked((ushort)AssertIs<ChozoStatueCue.Footstep>(cue, $"{at}: cue").Offset.X),
-                        'R' => checked((ushort)(AssertIs<ChozoStatueCue.Move>(cue, $"{at}: cue").CarryRecord * 2)),
-                        'E' => ChozoNativeWords.ChozoStatueFrameBehaviors.Word(AssertIs<ChozoStatueCue.SetFrameBehavior>(cue, $"{at}: cue").FrameBehavior),
-                        _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
-                    }, $"{at}: operand {index}");
+                        // The native carry operand is a record's byte offset: the record names the cue's carry step.
+                        if (instruction.Operands[index] == 'R')
+                        {
+                            AssertEqual(ChozoNativeWords.CarryStep(operands[index] / 2),
+                                AssertIs<ChozoStatueCue.Move>(cue, $"{at}: cue").Step, $"{at}: operand {index} carry step");
+                            continue;
+                        }
+
+                        AssertEqual(operands[index], instruction.Operands[index] switch
+                        {
+                            // The other native operands are the footstep's signed X word and the frame behaviour's word.
+                            'F' => unchecked((ushort)AssertIs<ChozoStatueCue.Footstep>(cue, $"{at}: cue").Offset.X),
+                            'E' => ChozoNativeWords.ChozoStatueFrameBehaviors.Word(AssertIs<ChozoStatueCue.SetFrameBehavior>(cue, $"{at}: cue").FrameBehavior),
+                            _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
+                        }, $"{at}: operand {index}");
+                    }
                 }));
         Console.WriteLine($"  Chozo statue animations: {Entries.Length} segments ({beats} beats) and {ChozoStatueAnimations.StartingAt.Count} animations match bank $AA.");
     }

@@ -20,7 +20,7 @@ public sealed class DeadSidehopperEnemyState
         GraphicsVariant = graphicsVariant;
     }
 
-    /// <summary>The enemy slot owning this corpse's position, collision properties and instruction timing.</summary>
+    /// <summary>The enemy slot owning this corpse's position, collision properties and animation timing.</summary>
     public RoomEnemySlot Slot { get; }
     /// <summary>Silhouette selected by the population parameter: 0 for the initially living Shitroid victim or 2 for the already dead Tourian corpse, selecting initial graphics and row-copy column layouts.</summary>
     public int GraphicsVariant { get; }

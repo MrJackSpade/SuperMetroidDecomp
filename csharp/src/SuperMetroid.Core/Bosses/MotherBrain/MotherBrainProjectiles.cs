@@ -262,7 +262,7 @@ internal sealed class MotherBrainProjectiles
             Position16<RoomPixels> position = bomb.Position.Whole;
             DeleteMotherBrainBomb(bomb, state);
             _projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.SmallDustCloud);
-            _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(
+            _deathsAndDrops.SpawnEnemyDropFromDefinition(
                 position,
                 state.Head.DefinitionId);
             return true;
@@ -459,7 +459,7 @@ internal sealed class MotherBrainProjectiles
         shard.Velocity = shard.Velocity.WithY(shard.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32));
 
         // The condition itself consumes one random value every live shard frame; a successful
-        // sparkle consumes two more below. Bits 5 and 10 of the sample both clear: one sample in four.
+        // sparkle consumes two more below. Both of the sample's sparkle checks clear: one sample in four.
         int sparkleSample = _room.Random.Generate();
         if (!MotherBrainGlassShardDefinitions.SparkleCheckLowBit.IsSetIn(sparkleSample) &&
             !MotherBrainGlassShardDefinitions.SparkleCheckHighBit.IsSetIn(sparkleSample))
@@ -625,14 +625,7 @@ internal sealed class MotherBrainProjectiles
         if (samus is not null && MotherBrainOnionRingOverlapsSamus(ring, samus))
         {
             Position16<RoomPixels> ringPosition = ring.Position.Whole;
-            int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-                ? 80 >> 2
-                : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                    ? 80 >> 1
-                    : 80;
-            samus.Health = samus.Health <= damage
-                ? 0
-                : samus.Health - damage;
+            SamusSuitDamage.Hurt(samus, 80);
             samus.InvincibilityTimer = WrappingCountdown.Start(96);
             samus.KnockbackTimer = 5;
             samus.KnockbackXDirection = CoordinateAxis.Difference(samus.Position.X.Whole, ringPosition.X) >= 0

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
 /// A compass bearing of 256 units per turn, as the enemies' aim-at calculation produces it: zero points up and the
-/// bearing advances clockwise, so <c>$40</c> is right and <c>$80</c> down. The sine and cosine lookups take the other
+/// bearing advances clockwise, so <c>64</c> is right and <c>128</c> down. The sine and cosine lookups take the other
 /// convention, <see cref="TrigonometryAngle"/>; <see cref="ToTableAngle"/> converts between them.
 /// </summary>
 [EncodingOwner("clockwise byte bearing")]
@@ -26,7 +26,7 @@ public readonly record struct Bearing
 
     /// <summary>
     /// The table angle of the same number of units: the bearing's direction mirrored across the line between up and
-    /// right, since the bearing counts clockwise from up and the table angle the other way from right. Aim routines that
+    /// right, since the bearing counts clockwise from up and the table angle the other way from right. Aim calculations that
     /// take this angle read its sine as X and its cosine as Y, which turns the mirror back into the bearing's direction.
     /// </summary>
     public TrigonometryAngle ToMirroredTableAngle() => new(RawValue);
@@ -40,6 +40,17 @@ public readonly record struct Bearing
     /// </summary>
     /// <param name="sectors">The number of arcs the turn divides into, 1 through 256.</param>
     public int Sector(int sectors) => RawValue * Ensure.BetweenInclusive(1, RotationAngle.StepsPerTurn, sectors) / RotationAngle.StepsPerTurn;
+
+    /// <summary>
+    /// The straight direction, up, right, down or left, nearest the bearing: the one whose quarter of the turn, centred
+    /// on it, holds the bearing. A bearing exactly halfway between two takes the later one clockwise.
+    /// </summary>
+    public CompassDirection NearestStraightDirection() =>
+        StraightDirectionsClockwise[TurnedBySteps(RotationAngle.StepsPerTurn / 8).Sector(StraightDirectionsClockwise.Length)];
+
+    /// <summary>The four straight directions in clockwise order from up, each a quarter of the turn on from the last.</summary>
+    private static readonly CompassDirection[] StraightDirectionsClockwise =
+        [CompassDirection.Up, CompassDirection.Right, CompassDirection.Down, CompassDirection.Left];
 
     /// <inheritdoc />
     public override string ToString() => $"{RawValue}/256 turn clockwise from up";

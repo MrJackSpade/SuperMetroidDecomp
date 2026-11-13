@@ -29,11 +29,29 @@ public static class ZebesEscapeDefinitions
     public static readonly EarthquakeShake StrongDiagonal =
         new(EarthquakeStrength.Strong, EarthquakeDirection.Diagonal, EarthquakeReach.ForegroundBackgroundAndEnemies);
 
-    /// <summary>A lightly shaking room turns diagonal on an update whose random number is below this.</summary>
-    public const int LightChance = 512;
+    /// <summary>
+    /// The chance a lightly shaking room turns diagonal on an update (#1619): the lowest 512 of the 65536 random samples,
+    /// one update in 128.
+    /// </summary>
+    public static readonly RandomChance LightShakeTurnsDiagonal = RandomChance.Lowest(512, RandomSampleField.Whole);
 
-    /// <summary>A medium shaking room turns diagonal on an update whose random number is below this.</summary>
-    public const int MediumChance = 384;
+    /// <summary>
+    /// The chance a medium shaking room turns diagonal on an update (#1619): the lowest 384 of the 65536 random samples,
+    /// three updates in 512.
+    /// </summary>
+    public static readonly RandomChance MediumShakeTurnsDiagonal = RandomChance.Lowest(384, RandomSampleField.Whole);
+
+    /// <summary>
+    /// The updates on which an outdoor escape room sets off an explosion (#1619): every second update of the frame clock's
+    /// counter, on its even place.
+    /// </summary>
+    internal static readonly UpdateCadence OutdoorExplosionEverySecondUpdate = new(2, 0);
+
+    /// <summary>
+    /// The updates on which an indoor escape room sets off an explosion (#1619): every fourth update of the frame clock's
+    /// counter, on the period's first place.
+    /// </summary>
+    internal static readonly UpdateCadence IndoorExplosionEveryFourthUpdate = new(4, 0);
 
     /// <summary>
     /// The random selection that places an explosion across the screen: its pixels right of the camera's left edge, 256

@@ -153,9 +153,10 @@ internal sealed class KraidRise
                 if (KraidCadenceDefinitions.CeilingBreakRockEveryEighthUpdate.IsDue(body.FrameCounter))
                     RequestKraidRisingRock(body, state);
                 body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole +
-                    ((body.Position.Y.Whole & 2) == 0 ? 1 : -1));
+                    (KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(body.Position.Y.Whole) ? -1 : 1));
                 body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 1);
-                if ((body.Position.Y.Whole & 3) == 0 && state.BodyState.CeilingRock < KraidCeilingRocks.Count)
+                if (KraidCadenceDefinitions.CeilingRockEveryFourthRow.IsDue(body.Position.Y.Whole) &&
+                    state.BodyState.CeilingRock < KraidCeilingRocks.Count)
                 {
                     int rock = state.BodyState.CeilingRock;
                     if (_background.SpawnKraidCeilingRock(KraidCeilingRocks.X(rock)))
@@ -374,7 +375,7 @@ internal sealed class KraidRise
                     KraidCadenceDefinitions.RaisedBodySecondRockOfEight.IsDue(_earthquake.RemainingFrames))
                     RequestKraidRisingRock(body, state);
                 body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole +
-                    ((body.Position.Y.Whole & 2) == 0 ? -1 : 1));
+                    (KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(body.Position.Y.Whole) ? 1 : -1));
                 AddSignedKraidVerticalDisplacement(body, RisingBodyLift);
                 if (CoordinateAxis.Difference(body.Position.Y.Whole, 457) < 0)
                 {

@@ -46,9 +46,22 @@ public sealed class WeightedRandomChoice<TOutcome>
 
     /// <summary>The outcome <paramref name="sample"/> chooses.</summary>
     /// <param name="sample">A random sample, 0 through 65535.</param>
-    public TOutcome Choose(int sample)
+    public TOutcome Choose(int sample) => ChooseAt(Field.Of(sample));
+
+    /// <summary>
+    /// The outcome <paramref name="sample"/> chooses once its field's roll has advanced <paramref name="advancedBy"/> places
+    /// (#1619), as <see cref="RandomSampleField.OfAdvancedBy"/> advances it: a choice the original made by adding a counter
+    /// to the field it drew before comparing the sum with its thresholds.
+    /// </summary>
+    /// <param name="sample">A random sample, 0 through 65535.</param>
+    /// <param name="advancedBy">The counter added to the field's roll, zero or more.</param>
+    public TOutcome Choose(int sample, int advancedBy) => ChooseAt(Field.OfAdvancedBy(sample, advancedBy));
+
+    /// <summary>The outcome the field's value <paramref name="fieldValue"/> chooses.</summary>
+    /// <param name="fieldValue">A value of <see cref="Field"/>, 0 through its outcomes less one.</param>
+    private TOutcome ChooseAt(int fieldValue)
     {
-        int value = Field.Of(sample);
+        int value = fieldValue;
         foreach (WeightedRandomOutcome<TOutcome> outcome in _outcomes)
         {
             if (value < outcome.Values)
@@ -56,6 +69,6 @@ public sealed class WeightedRandomChoice<TOutcome>
             value -= outcome.Values;
         }
 
-        throw new InvalidOperationException($"Field value {Field.Of(sample)} lies past the choice's {Field.Outcomes} values.");
+        throw new InvalidOperationException($"Field value {fieldValue} lies past the choice's {Field.Outcomes} values.");
     }
 }

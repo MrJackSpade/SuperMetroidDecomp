@@ -10,7 +10,7 @@ internal static class KraidSinkSchedule
     /// </summary>
     public static KraidSinkCallback? CallbackAt(int y)
     {
-        if (y < 304 || y > 520 || (y & 7) != 0)
+        if (y < 304 || y > 520 || !KraidCadenceDefinitions.SinkRowEveryEighthPixel.IsDue(y))
             return null;
         return y switch
         {

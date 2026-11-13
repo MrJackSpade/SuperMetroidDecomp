@@ -125,11 +125,8 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         MoveStokeAndTurnAtTerrain(slot, state, level, horizontalDisplacement);
 
-        // The shared random sequence advances before the comparison. Only sums of zero and one, within 256,
-        // attack; the wrap past 255 is intentional and observable.
-        int random = _room.Random.Generate();
-        int attackRoll = (StokeAttackDefinitions.AttackRoll.Of(random) + slot.FrameCounter) % StokeAttackDefinitions.AttackRoll.Outcomes;
-        if (attackRoll >= 2)
+        // The shared random sequence advances on every moving update, whether or not the roll attacks.
+        if (!StokeAttackDefinitions.Attacks.IsTakenBy(_room.Random.Generate(), advancedBy: slot.FrameCounter))
             return;
 
         // The attack animation owns Stoke until its trailing branch reaches the resume-moving cue and that

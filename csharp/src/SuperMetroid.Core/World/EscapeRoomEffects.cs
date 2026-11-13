@@ -13,7 +13,7 @@ internal sealed class EscapeRoomEffects
 {
     /// <summary>Suppresses explosion generation while gameplay time is frozen.</summary>
     private readonly GameplayTimeFreeze _freeze;
-    /// <summary>Sets the two- or four-frame explosion cadence.</summary>
+    /// <summary>Paces the explosions on the escape's two- or four-update cadence.</summary>
     private readonly FrameClock _clock;
     /// <summary>Provides the active room callback, camera and level.</summary>
     private readonly ActiveRoomState _room;
@@ -89,13 +89,17 @@ internal sealed class EscapeRoomEffects
                 if (diagonalQuake.Countdown.IsZero)
                     enemies.Earthquake.ChangeShake(light ? ZebesEscapeDefinitions.LightHorizontal : ZebesEscapeDefinitions.MediumHorizontal);
             }
-            else if (_system.NextRandom() < (light ? ZebesEscapeDefinitions.LightChance : ZebesEscapeDefinitions.MediumChance))
+            else if ((light ? ZebesEscapeDefinitions.LightShakeTurnsDiagonal : ZebesEscapeDefinitions.MediumShakeTurnsDiagonal)
+                .IsTakenBy(_system.NextRandom()))
             {
                 diagonalQuake.Countdown = WrappingCountdown.Start(ZebesEscapeDefinitions.DiagonalFrames);
                 enemies.Earthquake.ChangeShake(light ? ZebesEscapeDefinitions.MediumDiagonal : ZebesEscapeDefinitions.StrongDiagonal);
             }
         }
-        if (!_freeze.TimeIsFrozen && (_clock.Counter & (nonblank ? 1 : 3)) == 0)
+        UpdateCadence explosionCadence = nonblank
+            ? ZebesEscapeDefinitions.OutdoorExplosionEverySecondUpdate
+            : ZebesEscapeDefinitions.IndoorExplosionEveryFourthUpdate;
+        if (!_freeze.TimeIsFrozen && explosionCadence.IsDue(_clock.Counter))
         {
             int random = _system.NextRandom();
             Position16<RoomPixels> explosion = new(

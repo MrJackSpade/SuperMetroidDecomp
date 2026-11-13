@@ -23,6 +23,15 @@ public readonly record struct RandomSampleField(int Shift, int Width)
     /// <param name="sample">A random sample, 0 through 65535.</param>
     public int Of(int sample) => (sample >> Shift) & (Outcomes - 1);
 
+    /// <summary>
+    /// The field's value in <paramref name="sample"/> advanced <paramref name="steps"/> places, continuing past the field's
+    /// last value from zero (#1619): the roll a choice reads when the original added a counter to the field it drew and
+    /// kept the field's bits of the sum, so the counter moves the roll's outcome while the sample still decides it.
+    /// </summary>
+    /// <param name="sample">A random sample, 0 through 65535.</param>
+    /// <param name="steps">How far the counter advances the roll, zero or more.</param>
+    public int OfAdvancedBy(int sample, int steps) => (Of(sample) + Ensure.AtLeastZero(steps)) & (Outcomes - 1);
+
     /// <summary>How many values the field can take.</summary>
     public int Outcomes => 1 << Width;
 

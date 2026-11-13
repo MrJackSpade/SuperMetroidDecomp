@@ -15,6 +15,12 @@ public sealed record EnemyTileArtworkParts
     /// <summary>Palettes.</summary>
     public required IReadOnlyDictionary<EnemyDefinitionId, EnemyPaletteSheet> Palettes { get; init; }
 
+    /// <summary>The characters of the artwork graphics sets load for no enemy (#1686).</summary>
+    internal IReadOnlyDictionary<UnplacedEnemyArtwork, RoomCharacterAtlas> UnplacedSheets { get; init; } = new Dictionary<UnplacedEnemyArtwork, RoomCharacterAtlas>();
+
+    /// <summary>The colours of the artwork graphics sets load for no enemy (#1686).</summary>
+    internal IReadOnlyDictionary<UnplacedEnemyArtwork, EnemyPaletteSheet> UnplacedPalettes { get; init; } = new Dictionary<UnplacedEnemyArtwork, EnemyPaletteSheet>();
+
     /// <summary>Spritemaps.</summary>
     public EnemySpritemapCatalog? Spritemaps { get; init; } = null;
 

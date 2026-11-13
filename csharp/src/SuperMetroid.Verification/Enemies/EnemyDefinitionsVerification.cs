@@ -20,6 +20,9 @@ using SuperMetroid.AssetExtraction.World.RoomStates;
 /// <summary>Checks compiled enemy headers and auxiliary Mother Brain tube placements against retail records.</summary>
 internal static class EnemyDefinitionsVerification
 {
+    /// <summary>The Reflec's bank-$A0 header, whose artwork two graphics sets load though no picture shows it (#1686).</summary>
+    private const ushort ReflecHeader = 0xdbff;
+
     /// <summary>Walks room populations and graphics sets to establish exact coverage of all referenced enemy headers.</summary>
     internal static void VerifyCompiledEnemyDefinitions()
     {
@@ -45,9 +48,15 @@ internal static class EnemyDefinitionsVerification
             {
                 ushort pointerWord = ReadVerificationWord(bus, graphicsAddress);
                 if (pointerWord == 0xffff) break;
-                EnemyDefinitionId pointer = EnemyDefinitionIds.FromHeaderPointer(pointerWord);
-                referencedPointers.Add(pointer);
                 graphicsAddress += 4;
+                // A set also loads artwork for no enemy (#1686): three headers' the import uploads, and the Reflec's.
+                if (!EnemyDefinitionIds.TryFromHeaderPointer(pointerWord, out EnemyDefinitionId pointer))
+                {
+                    AssertTrue(SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.UnplacedArtworkHeaders.TryDecode(pointerWord, out _)
+                        || pointerWord == ReflecHeader, $"graphics-set header ${pointerWord:X4} is an enemy or artwork loaded for no enemy");
+                    continue;
+                }
+                referencedPointers.Add(pointer);
             }
         }
 

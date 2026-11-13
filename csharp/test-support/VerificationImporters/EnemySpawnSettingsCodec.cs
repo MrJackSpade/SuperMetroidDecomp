@@ -43,7 +43,6 @@ using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Enemies.Skultera;
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Enemies.Sparks;
-using SuperMetroid.Core.Enemies.Stoke;
 using SuperMetroid.Core.Enemies.Waver;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Enemies.YappingMaws;
@@ -162,7 +161,6 @@ internal static class EnemySpawnSettingsCodec
         [EnemyDefinitionId.PirateGoldNinja] = words => new NinjaSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? NinjaSpacePirateOptions.StartsAtLeftPostFacingRight : NinjaSpacePirateOptions.None), PostDistance: Bits(words.Parameter2, 0, 16)),
         [EnemyDefinitionId.PirateSilverNinja] = words => new NinjaSpacePirateSpawnSettings(Options: (Has(words.Parameter1, 0) ? NinjaSpacePirateOptions.StartsAtLeftPostFacingRight : NinjaSpacePirateOptions.None), PostDistance: Bits(words.Parameter2, 0, 16)),
         [EnemyDefinitionId.Spark] = words => new SparkSpawnSettings(Start: SparkStart(Bits(words.Parameter1, 0, 16)), BaseActionTime: Has(words.Parameter2, 15) ? throw Unmapped("BaseFunctionTime", words.Parameter2) : Bits(words.Parameter2, 0, 15)),
-        [EnemyDefinitionId.Stoke] = words => new StokeSpawnSettings(Direction: Bits(words.Parameter1, 0, 16) switch { 0 => StokeDirection.Left, 1 => StokeDirection.Right, var other => throw Unmapped("Direction", other) }, Speed: EnemySpawnSelectors.LinearSpeed("Stoke speed", Bits(words.Parameter2, 0, 16))),
         [EnemyDefinitionId.Waver] = words => new WaverSpawnSettings(Facing: Bits(words.Parameter1, 0, 1) switch { 0 => HorizontalDirection.Left, 1 => HorizontalDirection.Right, var other => throw Unmapped("Facing", other) }),
         [EnemyDefinitionId.Robot] = words => new WorkRobotSpawnSettings(Pose: WorkRobotPose(Bits(words.Parameter1, 0, 16))),
         [EnemyDefinitionId.RobotNoPower] = words => new WorkRobotSpawnSettings(Pose: WorkRobotPose(Bits(words.Parameter1, 0, 16))),
@@ -236,7 +234,6 @@ internal static class EnemySpawnSettingsCodec
         WallSpacePirateSpawnSettings s => Checked(EnemyDefinitionId.PirateGoldWall, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((((s.Options & WallSpacePirateOptions.StartsOnRightWall) != 0) ? 1 << 0 : 0) | (((s.Options & WallSpacePirateOptions.SlowJumpAndLaser) != 0) ? 1 << 15 : 0)), Parameter2: Place(s.JumpSpan, 0, 16))),
         NinjaSpacePirateSpawnSettings s => Checked(EnemyDefinitionId.PirateGoldNinja, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((((s.Options & NinjaSpacePirateOptions.StartsAtLeftPostFacingRight) != 0) ? 1 << 0 : 0)), Parameter2: Place(s.PostDistance, 0, 16))),
         SparkSpawnSettings s => Checked(EnemyDefinitionId.Spark, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Position(SparkStarts, s.Start, "Spark start"), Parameter2: Place(s.BaseActionTime, 0, 15))),
-        StokeSpawnSettings s => Checked(EnemyDefinitionId.Stoke, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Direction switch { StokeDirection.Left => 0, StokeDirection.Right => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: Place(EnemySpawnSelectors.LinearSpeedRow("Stoke speed", s.Speed), 0, 16))),
         WaverSpawnSettings s => Checked(EnemyDefinitionId.Waver, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Facing switch { HorizontalDirection.Left => 0, HorizontalDirection.Right => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: 0)),
         WorkRobotSpawnSettings s => Checked(EnemyDefinitionId.Robot, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Position(WorkRobotPoses, s.Pose, "Work Robot pose"), Parameter2: 0)),
         YappingMawSpawnSettings s => Checked(EnemyDefinitionId.YappingMaw, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(s.ActivationDistance, 0, 16), Parameter2: ((s.Attack switch { VerticalDirection.Down => 0, VerticalDirection.Up => 1, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0))),

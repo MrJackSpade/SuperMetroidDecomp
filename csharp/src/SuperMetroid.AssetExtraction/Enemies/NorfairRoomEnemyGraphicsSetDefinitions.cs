@@ -36,7 +36,6 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.RedKihunterShaft), [
             new(EnemyDefinitionId.KihunterRed),
-            new(EnemyDefinitionId.Reflec),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FastRipper), [
             new(EnemyDefinitionId.Ripper2),

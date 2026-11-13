@@ -157,7 +157,6 @@ internal static class SoundEffectCommandDefinitions
         [EnemySound.MetroidDrain] = 0x50,
         [EnemySound.ShotCoven] = 0x51,
         [EnemySound.BabyMetroidRemorse] = 0x52,
-        [EnemySound.ShotMiniCrocomire] = 0x53,
         [EnemySound.ShotCrocomire] = 0x54,
         [EnemySound.ShotBeetom] = 0x55,
         [EnemySound.SuitAcquired] = 0x56,

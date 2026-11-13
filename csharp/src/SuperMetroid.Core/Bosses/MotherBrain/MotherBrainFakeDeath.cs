@@ -294,7 +294,7 @@ internal sealed class MotherBrainFakeDeath
     internal void RunMotherBrainFallingTubeMain(RoomEnemySlot tube)
     {
         MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
-        switch (tubeState.Action ?? throw new InvalidDataException("A falling tube has no function."))
+        switch (tubeState.Action ?? throw new InvalidDataException("A falling tube has no action."))
         {
             case MotherBrainTubeAction.NonMainTube:
                 FallMotherBrainSideTube(tube);

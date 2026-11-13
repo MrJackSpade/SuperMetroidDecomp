@@ -163,7 +163,6 @@ internal static class NoobTubeProjectileBehaviorVerification
                     RoomEnemyProjectileKind.PirateClaw or
                     RoomEnemyProjectileKind.PolypRock or
                     RoomEnemyProjectileKind.CacatacSpike or
-                    RoomEnemyProjectileKind.StokeProjectile or
                     RoomEnemyProjectileKind.NamiheFireball or
                     RoomEnemyProjectileKind.FuneFireball or
                     RoomEnemyProjectileKind.LavaThrownByMagdollite or

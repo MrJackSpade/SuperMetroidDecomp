@@ -26,7 +26,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// an encoding, may describe the hardware. One diagnostic per comment or literal; there is no allowance list.
 /// #1624 adds the interpreter vocabulary of the original's streams: operands, instructions and numbered, Samus and
 /// animation commands, then every other command of the original's streams and dispatchers and numbered functions and
-/// selectors. #1632 adds the display path's hardware vocabulary: the tile characters pictures were assembled
+/// selectors, then the original's dispatch named as a function without a number. #1632 adds the display path's hardware
+/// vocabulary: the tile characters pictures were assembled
 /// from, video and display memory, and per-line tables. #1726 adds the processor's arithmetic and the original's display
 /// and sound records: underflows, sign tests and sign bits, tile attributes and values, per-line effect objects and
 /// voices keyed on.
@@ -104,6 +105,21 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         @"|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty)\b" +
         @"(?![-\s]+(?:frames?|updates?|ticks?|times?|steps?|pixels?|seconds?|beats?|layers?|levels?|rows?|columns?|more|fewer" +
         @"|less|of)\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original's dispatch named as a function without a number (#1624): the routine an enemy, part, boss or phase
+    /// runs (a door's main function, the eye's function, a body, death, growth, movement, corpse or crawl function, a
+    /// tube that has no function, a handler that requires a function). A Core action, phase, movement or connection says
+    /// what it is. English stays legal: a mathematical function (a function of each colour, a pure function of the
+    /// velocity, math or trigonometric functions, functions in a clause about arithmetic or mathematics), C#'s own (a
+    /// local, lambda or anonymous function, a function delegate) and writing one (inventing, writing, defining or
+    /// declaring a function).
+    /// </summary>
+    private static readonly Regex FunctionProse = new(
+        @"(?<!\b(?:pure|math|mathematical|trigonometric|arithmetic|local|lambda|anonymous|invent(?:s|ed|ing)?|writ(?:e|es|ing)" +
+        @"|wrote|written|defin(?:e|es|ed|ing)|declar(?:e|es|ed|ing))\s+(?:(?:an?|the|new)\s+)?)" +
+        @"\bfunctions?\b(?!\s+(?:of|delegates?)\b)(?![^.;:!?]*\b(?:arithmetic|mathematics|maths?)\b)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
@@ -379,6 +395,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : ProgramProse.Match(text) is { Success: true } program ? program.Value
             : InterpreterProse.Match(text) is { Success: true } interpreter ? interpreter.Value
             : DispatchProse.Match(text) is { Success: true } dispatch ? dispatch.Value
+            : FunctionProse.Match(text) is { Success: true } function ? function.Value
             : CpuProse.Match(text) is { Success: true } cpu ? cpu.Value
             : StorageProse.Match(text) is { Success: true } storage ? storage.Value
             : OperationProse.Match(text) is { Success: true } operation ? operation.Value

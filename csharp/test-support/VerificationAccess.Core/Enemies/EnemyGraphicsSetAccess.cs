@@ -54,8 +54,8 @@ internal static class EnemyGraphicsSetAccess
             GraphicsSetCharacterLayout layout = GraphicsSetCharacterLayout.Of(FixtureGraphicsSetMembers.MembersOf(self));
             foreach (GraphicsSetMemberCharacters member in layout.Members)
             {
-                if (layout.TileBaseOf(member.DefinitionId) == tileBase)
-                    return SpawnedObjectOwner.Of(member.DefinitionId);
+                if (member.DefinitionId is { } enemy && layout.TileBaseOf(enemy) == tileBase)
+                    return SpawnedObjectOwner.Of(enemy);
             }
             if (tileBase == EnemyCharacterBaseDefinitions.MotherBrainTankGlassCharacters
                 && layout.Members.Any(member => member.DefinitionId == EnemyDefinitionId.MotherBrainBody))

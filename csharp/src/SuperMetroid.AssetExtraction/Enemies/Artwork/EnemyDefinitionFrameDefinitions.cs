@@ -2232,21 +2232,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.SparkActiveFourth,
     ];
 
-    /// <summary>The frames <c>Enemies/Stoke/StokeBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] Stoke =
-    [
-        EnemyFrameId.StokeMovingLeftLoopFirst,
-        EnemyFrameId.StokeMovingLeftLoopSecond,
-        EnemyFrameId.StokeMovingLeftLoopThird,
-        EnemyFrameId.StokeMovingLeftLoopFourth,
-        EnemyFrameId.StokeAttackLeft,
-        EnemyFrameId.StokeMovingRightLoopFirst,
-        EnemyFrameId.StokeMovingRightLoopSecond,
-        EnemyFrameId.StokeMovingRightLoopThird,
-        EnemyFrameId.StokeMovingRightLoopFourth,
-        EnemyFrameId.StokeAttackRight,
-    ];
-
     /// <summary>The frames <c>Enemies/Waver/WaverBehavior.cs</c> shows.</summary>
     private static readonly EnemyFrameId[] Waver =
     [
@@ -2550,7 +2535,6 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.SidehopperLarge] = SidehopperLargeFrames,
             [EnemyDefinitionId.SidehopperTourian] = SidehopperLargeFrames,
             [EnemyDefinitionId.Respawn] = InertEnemy,
-            [EnemyDefinitionId.TourianStatueGhost] = InertEnemy,
             [EnemyDefinitionId.Kago] = Kago,
             [EnemyDefinitionId.KihunterGreen] = KihunterGreenFrames,
             [EnemyDefinitionId.KihunterGreenWings] = KihunterGreenWingsFrames,
@@ -2607,7 +2591,6 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.PirateMagentaWall] = WallSpacePirate,
             [EnemyDefinitionId.PirateSilverWall] = WallSpacePirate,
             [EnemyDefinitionId.Spark] = Spark,
-            [EnemyDefinitionId.Stoke] = Stoke,
             [EnemyDefinitionId.Waver] = Waver,
             [EnemyDefinitionId.Robot] = RobotFrames,
             [EnemyDefinitionId.RobotNoPower] = RobotNoPowerFrames,

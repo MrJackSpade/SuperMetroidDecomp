@@ -74,8 +74,8 @@ internal static class SpawnedObjectFixtures
         {
             foreach (var record in RoomEnemyGraphicsSetLists.MembersOf(set).Records.ToArray())
             {
-                if (spawns.TryGetValue(record.DefinitionId, out SpawnedObjects? spawned) && spawned.Projectiles.Contains(frame))
-                    return (set, record.DefinitionId);
+                if (record.DefinitionId is { } enemy && spawns.TryGetValue(enemy, out SpawnedObjects? spawned) && spawned.Projectiles.Contains(frame))
+                    return (set, enemy);
             }
         }
         return (null, null);

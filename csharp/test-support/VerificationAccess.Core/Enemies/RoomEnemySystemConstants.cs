@@ -19,8 +19,6 @@ internal static class RoomEnemySystemConstants
     public const ushort NinjaPiratePaletteNormal = 0x0200;
     /// <summary>Sound effect queued for the Ninja Pirate's claw kick or dive.</summary>
     public const ushort NinjaPirateSoundClawKickOrDive = 0x0066;
-    /// <summary>Pre-instruction selected for Stoke's fireball projectile.</summary>
-    public const EnemyProjectileFrameBehavior StokeProjectileFrameBehavior = EnemyProjectileFrameBehavior.StokeFireballFlight;
 
     /// <summary>Provides native room-enemy AI, instruction, palette, sound, and hitbox references for verification.</summary>
     extension(RoomEnemySystem)
@@ -39,7 +37,5 @@ internal static class RoomEnemySystemConstants
         internal static ushort NinjaPiratePaletteNormal => RoomEnemySystemConstants.NinjaPiratePaletteNormal;
         /// <inheritdoc cref="RoomEnemySystemConstants.NinjaPirateSoundClawKickOrDive"/>
         internal static ushort NinjaPirateSoundClawKickOrDive => RoomEnemySystemConstants.NinjaPirateSoundClawKickOrDive;
-        /// <inheritdoc cref="RoomEnemySystemConstants.StokeProjectileFrameBehavior"/>
-        internal static EnemyProjectileFrameBehavior StokeProjectileFrameBehavior => RoomEnemySystemConstants.StokeProjectileFrameBehavior;
     }
 }

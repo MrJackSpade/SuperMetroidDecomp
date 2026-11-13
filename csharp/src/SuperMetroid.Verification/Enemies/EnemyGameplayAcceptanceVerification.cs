@@ -103,7 +103,7 @@ internal static class EnemyGameplayAcceptanceVerification
             var characters = new byte[SpriteArtworkPlacements.TableByteCount];
             foreach (SuperMetroid.AssetExtraction.Enemies.GraphicsSetMemberCharacters entry in enemies.GraphicsSet.Entries)
             {
-                ReadOnlySpan<byte> tiles = artwork.Enemies.TilesOf(entry.DefinitionId).Span;
+                ReadOnlySpan<byte> tiles = entry.Member.TilesIn(artwork.Enemies).Span;
                 int first = LoadedFirstByte(entry);
                 int shown = Math.Min(tiles.Length, characters.Length - first);
                 if (shown > 0)

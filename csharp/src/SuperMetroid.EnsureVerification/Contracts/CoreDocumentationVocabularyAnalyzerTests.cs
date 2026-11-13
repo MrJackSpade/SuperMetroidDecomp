@@ -105,6 +105,17 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>Handle controller-binding rows and commands.</summary>\nint F => 0; }");
         Expect("class P { // the player who commands Samus; the options commands\n }");
         Expect("class P { /// <summary>Checked by the HUD selector one layer above this; a function of the speed.</summary>\nint F => 0; }");
+        // The original's dispatch named as a function without a number (#1624), in documentation, line comments and
+        // string literals.
+        Expect("class P { string Name => \"A Ceres door has no main function.\"; }", "('function')");
+        Expect("class P { string Name => $\"Kraid body function {1} has ended.\"; }", "('function')");
+        Expect("class P { /// <summary>Sets the eye's function when the fight starts.</summary>\nint F => 0; }", "('function')");
+        Expect("class P { // the body functions the rainbow sequence runs\n }", "('functions')");
+        Expect("class P { /* the record names the swinging function */ }", "('function')");
+        // A mathematical function, C#'s own and writing one are English.
+        Expect("class P { /// <summary>A function of each colour; a pure function of the velocity; thresholds and functions are copied from retail arithmetic.</summary>\nint F => 0; }");
+        Expect("class P { // inventing a function for them would only re-encode the ordering; sine without platform math functions\n }");
+        Expect("class P { /// <summary>Runs a local function, a lambda function and a function delegate; defining a function is the code's.</summary>\nint F => 0; }");
         // Storage and machine vocabulary #1558 left out (#1611).
         Expect("class P { /// <summary>Kept in variable E.</summary>\nint F => 0; }", "('variable E')");
         Expect("class P { // extended word 08 holds it\n }", "('extended word')");

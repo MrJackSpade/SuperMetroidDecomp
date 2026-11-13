@@ -84,7 +84,7 @@ internal sealed class GraphicsSetCharacterLayout
     /// observed, and a set that would observe it is rejected rather than reproduced (#1412).
     /// </remarks>
     /// <exception cref="InvalidDataException">
-    /// The set has more than four members, places a member after one shown at a fixed block, names an enemy whose tile set
+    /// The set has more than four members, places a member after one shown at a fixed block, names a record whose tile set
     /// the import does not catalogue, or a member's tiles leave the enemy tile area.
     /// </exception>
     private static List<GraphicsSetMemberCharacters> LayOut(RoomEnemyGraphicsSetMembers set)
@@ -96,21 +96,19 @@ internal sealed class GraphicsSetCharacterLayout
 
         foreach (RoomEnemyGraphicsSetMember source in set.Records.Span)
         {
-            EnemyDefinitionId enemy = source.DefinitionId;
             if (members.Count == MaximumMembers)
                 throw new InvalidDataException($"Enemy graphics set {set.Name} has more than the four members a room's enemy graphics can hold.");
             if (followsFixedBlock)
-                throw new InvalidDataException($"Enemy graphics set {set.Name} places {enemy} after a member shown at a fixed block.");
+                throw new InvalidDataException($"Enemy graphics set {set.Name} places {source.Name} after a member shown at a fixed block.");
 
-            int byteCount = EnemyTileSetDefinitions.ByteCounts.TryGetValue(enemy, out int catalogued) ? catalogued
-                : throw new InvalidDataException($"Enemy graphics set {set.Name} loads {enemy}, whose tile set the import does not catalogue.");
-            bool atFixedBlock = EnemyTileSetDefinitions.FixedBlocks.TryGetValue(enemy, out int block);
-            int stagingOffset = atFixedBlock ? block * StagingBlockByteCount : nextStagingOffset;
+            int byteCount = source.TileByteCount;
+            int? block = source.FixedBlock;
+            int stagingOffset = block is { } fixedBlock ? fixedBlock * StagingBlockByteCount : nextStagingOffset;
             if (stagingOffset + byteCount > EnemyTileAreaByteCount)
-                throw new InvalidDataException($"Enemy {enemy}'s tiles would leave the enemy tile area: offset {stagingOffset}, size {byteCount}.");
+                throw new InvalidDataException($"Graphics-set record {source.Name}'s tiles would leave the enemy tile area: offset {stagingOffset}, size {byteCount}.");
 
-            members.Add(new GraphicsSetMemberCharacters(enemy, nextEnemyTileIndex, stagingOffset, byteCount));
-            followsFixedBlock = atFixedBlock;
+            members.Add(new GraphicsSetMemberCharacters(source, nextEnemyTileIndex, stagingOffset, byteCount));
+            followsFixedBlock = block is not null;
             nextEnemyTileIndex += byteCount / TileByteCount;
             nextStagingOffset += byteCount;
         }

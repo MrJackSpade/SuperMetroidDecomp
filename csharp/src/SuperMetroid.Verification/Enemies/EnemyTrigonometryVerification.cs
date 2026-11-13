@@ -23,7 +23,6 @@ using SuperMetroid.Verification.Enemies.MorphBallEye;
 using SuperMetroid.Verification.Enemies.Dragon;
 using SuperMetroid.Verification.Enemies.FaceBlocks;
 using SuperMetroid.Verification.Enemies.Cacatac;
-using SuperMetroid.Verification.Enemies.Stoke;
 using SuperMetroid.Verification.Enemies.Owtch;
 using SuperMetroid.Verification.Enemies.PipeBugs;
 using SuperMetroid.Verification.Enemies.Crawlers;
@@ -337,8 +336,6 @@ internal static class EnemyTrigonometryVerification
         new(nameof(PolypRockBehaviorVerification.VerifyPolypRockBehavior), () => PolypRockBehaviorVerification.VerifyPolypRockBehavior(LoadRepositoryRom())),
         new(nameof(KiHunterAcidSpitAnimationsVerification.VerifyKiHunterAcidSpitAnimations), () => KiHunterAcidSpitAnimationsVerification.VerifyKiHunterAcidSpitAnimations(LoadRepositoryRom())),
         new(nameof(KiHunterAcidSpitBehaviorVerification.VerifyKiHunterAcidSpitBehavior), () => KiHunterAcidSpitBehaviorVerification.VerifyKiHunterAcidSpitBehavior(LoadRepositoryRom())),
-        new(nameof(StokeProjectileAnimationsVerification.VerifyStokeProjectileAnimations), () => StokeProjectileAnimationsVerification.VerifyStokeProjectileAnimations(LoadRepositoryRom())),
-        new(nameof(StokeProjectileBehaviorVerification.VerifyStokeProjectileBehavior), () => StokeProjectileBehaviorVerification.VerifyStokeProjectileBehavior(LoadRepositoryRom())),
         new(nameof(NuclearWaffleProjectileAnimationsVerification.VerifyNuclearWaffleProjectileAnimations), () => NuclearWaffleProjectileAnimationsVerification.VerifyNuclearWaffleProjectileAnimations(LoadRepositoryRom())),
         new(nameof(NuclearWaffleProjectileBehaviorVerification.VerifyNuclearWaffleProjectileBehavior), () => NuclearWaffleProjectileBehaviorVerification.VerifyNuclearWaffleProjectileBehavior(LoadRepositoryRom())),
         new(nameof(KagoBugProjectileAnimationsVerification.VerifyKagoBugProjectileAnimations), () => KagoBugProjectileAnimationsVerification.VerifyKagoBugProjectileAnimations(LoadRepositoryRom())),
@@ -390,8 +387,6 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyKiHunterInstructionProgramDefinitions), () => VerifyKiHunterInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(OwtchAnimationsVerification.VerifyOwtchAnimations), () => OwtchAnimationsVerification.VerifyOwtchAnimations(LoadRepositoryRom())),
         new(nameof(OwtchBehaviorVerification.VerifyOwtchBehavior), () => OwtchBehaviorVerification.VerifyOwtchBehavior()),
-        new(nameof(StokeAnimationsVerification.VerifyStokeAnimations), () => StokeAnimationsVerification.VerifyStokeAnimations(LoadRepositoryRom())),
-        new(nameof(StokeBehaviorVerification.VerifyStokeBehavior), () => StokeBehaviorVerification.VerifyStokeBehavior()),
         new(nameof(VerifyRipperAnimations), () => VerifyRipperAnimations(LoadRepositoryRom())),
         new(nameof(VerifyRipperBehavior), () => VerifyRipperBehavior(LoadRepositoryRom())),
         new(nameof(VerifyKzanAnimations), () => VerifyKzanAnimations(LoadRepositoryRom())),

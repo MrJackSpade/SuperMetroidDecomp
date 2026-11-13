@@ -252,7 +252,7 @@ internal sealed class KraidRise
             case KraidPhase.RaiseBody:
             case KraidPhase.None:
             default:
-                throw new InvalidOperationException($"Kraid body function {state.BodyState.Phase} is not a growth function.");
+                throw new InvalidOperationException($"Kraid body phase {state.BodyState.Phase} is not a growth phase.");
         }
     }
 

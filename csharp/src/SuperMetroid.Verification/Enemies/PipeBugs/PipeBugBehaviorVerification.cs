@@ -136,7 +136,6 @@ internal static class PipeBugBehaviorVerification
                 break;
             case EnemyDefinitionId.None:
             case EnemyDefinitionId.Boyon:
-            case EnemyDefinitionId.Stoke:
             case EnemyDefinitionId.MamaTurtle:
             case EnemyDefinitionId.BabyTurtle:
             case EnemyDefinitionId.Puyo:
@@ -185,7 +184,6 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.Respawn:
             case EnemyDefinitionId.Skree:
             case EnemyDefinitionId.Yard:
-            case EnemyDefinitionId.Reflec:
             case EnemyDefinitionId.HZoomer:
             case EnemyDefinitionId.Zeela:
             case EnemyDefinitionId.Sova:
@@ -256,7 +254,6 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.MotherBrainTubes:
             case EnemyDefinitionId.CorpseTorizo:
             case EnemyDefinitionId.CorpseSidehopper:
-            case EnemyDefinitionId.CorpseSidehopper2:
             case EnemyDefinitionId.CorpseZoomer:
             case EnemyDefinitionId.CorpseRipper:
             case EnemyDefinitionId.CorpseSkree:
@@ -266,7 +263,6 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.GoldenTorizo:
             case EnemyDefinitionId.GoldenTorizoOrb:
             case EnemyDefinitionId.TourianStatue:
-            case EnemyDefinitionId.TourianStatueGhost:
             case EnemyDefinitionId.Shaktool:
             case EnemyDefinitionId.NoobTubeCrack:
             case EnemyDefinitionId.Chozo:

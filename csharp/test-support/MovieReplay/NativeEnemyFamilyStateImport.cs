@@ -57,7 +57,6 @@ using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Enemies.Skultera;
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Enemies.Sparks;
-using SuperMetroid.Core.Enemies.Stoke;
 using SuperMetroid.Core.Enemies.Waver;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.World;
@@ -544,22 +543,6 @@ internal static class NativeEnemyFamilyStateImport
             choot.FallingPatternLoopCounter = unchecked((short)words.D);
             choot.FallingPath = words.E == 0 ? null : ChootNativeWords.ChootFallingPaths.Decode(words.E, "recorded Choot falling pattern");
             choot.FallingPatternYDistance = words.F;
-        }
-        if (enemies.StokeStates[index] is { } stoke)
-        {
-            stoke.RightVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A);
-            stoke.LeftVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
-            stoke.Direction = (StokeDirection)words.E;
-            stoke.Action = words.F switch
-            {
-                0 => null,
-                0x8a75 => StokeAction.IdleDuringAttack,
-                // The two moving routines must agree with the direction word, which alone carries the side.
-                0x8a43 when stoke.Direction == StokeDirection.Left => StokeAction.Moving,
-                0x8a5c when stoke.Direction != StokeDirection.Left => StokeAction.Moving,
-                _ => throw new InvalidDataException(
-                    $"Recorded Stoke function ${words.F:X4} does not agree with direction word ${words.E:X4}."),
-            };
         }
         if (enemies.SkulteraStates[index] is { } skultera)
         {

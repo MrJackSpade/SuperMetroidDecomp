@@ -22,5 +22,5 @@ internal static class BabyMetroidRoute
     internal static int GetWrongWayOffScreenXSpeed(BabyMetroidRouteMovement movement) =>
         BabyMetroidRouteDefinitions.WrongWayOffScreenXSpeeds.TryGetValue(movement, out int speed)
             ? speed
-            : throw new InvalidDataException($"Baby route names unknown movement function {movement}.");
+            : throw new InvalidDataException($"Baby route names unknown movement {movement}.");
 }

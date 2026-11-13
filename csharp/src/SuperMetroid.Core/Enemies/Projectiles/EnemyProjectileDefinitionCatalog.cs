@@ -164,8 +164,6 @@ EnemyProjectileFrameBehavior.Stationary, new(8, 8), 20, EnemyProjectilePropertyF
         [RoomEnemyProjectileKind.PolypRock] = new(
 EnemyProjectileFrameBehavior.PolypRockFlight,             new(2, 2), 16, EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.CacatacSpike] = new(EnemyProjectileFrameBehavior.CacatacSpikeFlight, new(2, 2), 5, EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
-        [RoomEnemyProjectileKind.StokeProjectile] = new(
-EnemyProjectileFrameBehavior.StokeFireballFlight,             new(2, 2), 5, EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),
         [RoomEnemyProjectileKind.NamiheFireball] = new(
             EnemyProjectileFrameBehavior.FuneNamiheFireballFlight,
             new(4, 8), 200, EnemyProjectilePropertyFlags.None, Depth: EnemyProjectileDepth.BehindSamus, SamusTouch: EnemyProjectileSamusTouch.KeepsAnimation),

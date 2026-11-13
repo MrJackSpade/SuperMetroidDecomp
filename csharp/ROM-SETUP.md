@@ -461,7 +461,7 @@ compiled behavior.
 
 The enemy-tile import data contains `enemy-compositions.json` with named Boyon,
 Cacatac, Boulder, Atomic, Skultera, Waver, Skree, Metaree, Zoa, and the
-Brinstar/Norfair/yellow Pipe Bug, Fake Kraid, Kraid fingernail, Owtch, Stoke,
+Brinstar/Norfair/yellow Pipe Bug, Fake Kraid, Kraid fingernail, Owtch,
 the three Ripper variants, Fireflea, Magdollite, Ceres door visual frames
 (including the Ridley-room private overlay), the Ceres Baby's three poses,
 Rio's eight idle/swoop compositions, Lower Norfair Rio's eighteen parent/flame

@@ -60,8 +60,6 @@ using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
 using SuperMetroid.Core.Enemies.FaceBlocks;
 using SuperMetroid.Core.Enemies.Cacatac.Artwork;
 using SuperMetroid.Core.Enemies.Cacatac;
-using SuperMetroid.Core.Enemies.Stoke.Artwork;
-using SuperMetroid.Core.Enemies.Stoke;
 using SuperMetroid.Core.Enemies.Owtch.Artwork;
 using SuperMetroid.Core.Enemies.Owtch;
 using SuperMetroid.Core.Enemies.PipeBugs.Artwork;
@@ -240,8 +238,6 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(PipeBugAnimations), "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/PipeBugAnimations.cs");
         RequireSegmentFrames(OwtchAnimations.Segments, OwtchFrameToolingDefinitions.Spritemap, OwtchFrameToolingDefinitions.Bank,
             nameof(OwtchAnimations), "csharp/src/SuperMetroid.Core/Enemies/Owtch/OwtchAnimations.cs");
-        RequireSegmentFrames(StokeAnimations.Segments, StokeFrameToolingDefinitions.Spritemap, StokeFrameToolingDefinitions.Bank,
-            nameof(StokeAnimations), "csharp/src/SuperMetroid.Core/Enemies/Stoke/StokeAnimations.cs");
         RequireSegmentFrames(CacatacAnimations.Segments, CacatacFrameToolingDefinitions.Spritemap, CacatacFrameToolingDefinitions.Bank,
             nameof(CacatacAnimations), "csharp/src/SuperMetroid.Core/Enemies/Cacatac/CacatacAnimations.cs");
         RequireSegmentFrames(BlueBrinstarFaceBlockAnimations.Segments, BlueBrinstarFaceBlockFrameToolingDefinitions.Spritemap, BlueBrinstarFaceBlockFrameToolingDefinitions.Bank,

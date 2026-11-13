@@ -206,8 +206,8 @@ internal static class EnemyTileArtworkVerification
         {
             ImportEnemyArtwork stock = InstalledFixtures.EnemyArtwork;
             string[] files = Directory.GetFiles(importData, "enemy-????-tiles.png");
-            AssertEqual(EnemyTileArtworkFormat.RetailDefinitionCount, files.Length,
-                "one indexed page per distinct retail enemy graphics definition");
+            AssertEqual(EnemyTileArtworkFormat.RetailEntryCount, files.Length,
+                "one indexed page per distinct retail enemy graphics definition and per artwork a set loads for no enemy");
             _ = VerifyInstalledCrocomireMeltingTilemap(
                 bus, stock, CrocomireMeltingIllustration.First,
                 CrocomireBodySegment.MeltingOneTopRow);
@@ -223,8 +223,19 @@ internal static class EnemyTileArtworkVerification
             }
             foreach (string file in files)
             {
-                EnemyDefinitionId pointer = EnemyDefinitionIds.FromHeaderPointer(
-                    Convert.ToUInt16(Path.GetFileName(file).Substring(6, 4), 16));
+                int header = Convert.ToUInt16(Path.GetFileName(file).Substring(6, 4), 16);
+                if (!EnemyDefinitionIds.TryFromHeaderPointer(header, out EnemyDefinitionId pointer))
+                {
+                    // Artwork a graphics set loads for no enemy (#1686) holds the cartridge tiles its header names.
+                    UnplacedEnemyArtwork unplaced = SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.UnplacedArtworkHeaders
+                        .Decode(header, "header of unplaced enemy artwork");
+                    int unplacedBytes = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSetAt(bus, header).ByteCount;
+                    byte[] unplacedNative = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+                        SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSourceAt(bus, header), unplacedBytes);
+                    AssertTrue(stock.Enemies.UnplacedTilesOf(unplaced).Span.SequenceEqual(unplacedNative),
+                        $"unplaced artwork {unplaced}'s extracted tiles hold the cartridge tiles its header names");
+                    continue;
+                }
                 int byteCount = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, pointer).ByteCount;
                 byte[] native = ReadNativeEnemyTiles(bus, pointer, byteCount);
                 AssertTrue(stock.Enemies.TilesOf(pointer).Span.SequenceEqual(native),
@@ -244,7 +255,7 @@ internal static class EnemyTileArtworkVerification
                 }
             }
         }
-            Console.WriteLine("  Enemy artwork: 122 retail tile/color sheets, Crocomire melts, Kraid body/head maps, backdrop PNG, palette effects and four HUD-derived death restores, plus Boyon/Cacatac/Boulder/Atomic/Skultera/Waver/Skree/Metaree/Zoa/Pipe Bug/Fake Kraid/Kraid nail/Owtch/Stoke/Ripper/Fireflea/Magdollite/Ceres door/Ceres Baby/Rio/Lower Norfair Rio/Norfair Rio/Puyo/Bull/Alcoon/Beetom/Sidehopper/Dessgeega/Choot/HZoomer/Sbug/Fune/Namihe/Kamer platform/Elevator/Zeela/Sova/Zoomer/Stone Zoomer visual frames pass stock parity.");
+            Console.WriteLine("  Enemy artwork: 118 retail enemy and 3 unplaced tile/color sheets, Crocomire melts, Kraid body/head maps, backdrop PNG, palette effects and four HUD-derived death restores, plus Boyon/Cacatac/Boulder/Atomic/Skultera/Waver/Skree/Metaree/Zoa/Pipe Bug/Fake Kraid/Kraid nail/Owtch/Ripper/Fireflea/Magdollite/Ceres door/Ceres Baby/Rio/Lower Norfair Rio/Norfair Rio/Puyo/Bull/Alcoon/Beetom/Sidehopper/Dessgeega/Choot/HZoomer/Sbug/Fune/Namihe/Kamer platform/Elevator/Zeela/Sova/Zoomer/Stone Zoomer visual frames pass stock parity.");
             Console.WriteLine("  Sciser, shared Mellow/Mella/Memu, Kago, face-block, Morph Ball eye, shutter, ordinary Metroid, Shaktool, Tripper/Kamer, Dragon, Multiviola, Norfair lava-jumper, Chozo statue, Viola, and Rinka OAM frames: cartridge parity and installed draws pass.");
     }
 

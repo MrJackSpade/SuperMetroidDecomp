@@ -41,7 +41,7 @@ internal static class CommonSpawnerPresenceDefinitions
     /// <summary>The corpses whose rot and crumble raise dust.</summary>
     private static readonly EnemyDefinitionId[] Corpses =
     [
-        EnemyDefinitionId.CorpseTorizo, EnemyDefinitionId.CorpseSidehopper, EnemyDefinitionId.CorpseSidehopper2,
+        EnemyDefinitionId.CorpseTorizo, EnemyDefinitionId.CorpseSidehopper,
         EnemyDefinitionId.CorpseZoomer, EnemyDefinitionId.CorpseRipper, EnemyDefinitionId.CorpseSkree,
     ];
 

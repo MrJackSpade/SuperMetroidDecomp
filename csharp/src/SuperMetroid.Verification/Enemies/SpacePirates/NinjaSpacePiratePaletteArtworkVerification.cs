@@ -52,7 +52,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         {
             EnemySheetInputs inputs = EnemySheetFixtures.Inputs with { Enemies = artwork.Enemies };
             RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
-                RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => IsNinja(record.DefinitionId)));
+                RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId is { } member && IsNinja(member)));
             EnemySheetSource source = EnemySheetComposer.Sources(inputs, set).Enemies.First(sheet => IsNinja(sheet.Enemy));
             ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, 0);
             return (sheet.Manifest.Shades ?? throw new InvalidOperationException("The ninja's sheet installs its shades."))

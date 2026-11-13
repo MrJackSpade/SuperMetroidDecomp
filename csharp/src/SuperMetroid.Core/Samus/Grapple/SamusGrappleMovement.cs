@@ -658,7 +658,7 @@ public static class SamusGrappleMovement
                 GrappleConnectionKind.LockedInPlace => GrapplePhase.ConnectedLocked,
                 GrappleConnectionKind.WallGrab => GrapplePhase.WallGrab,
                 GrappleConnectionKind.Swinging => throw new InvalidDataException(
-                    $"Grapple special connection {special} names the swinging function."),
+                    $"Grapple special connection {special} names the swinging connection."),
                 _ => throw new InvalidOperationException($"The grapple has no connection {kind}."),
             };
 
@@ -963,7 +963,7 @@ public static class SamusGrappleMovement
         if (nextKind != expectedKind)
         {
             throw new InvalidDataException(
-                $"Grapple connection handler {handler} requires function {expectedKind}, " +
+                $"Grapple connection handler {handler} requires connection {expectedKind}, " +
                 $"but the record names {nextKind}.");
         }
 

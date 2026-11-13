@@ -66,15 +66,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 enemies.VerificationServices().ReadRandom = () => 0;
 
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-                try
-                {
-                    slot.Bind(definitionPointer, slot.Definition);
-                }
-                catch (InvalidDataException exception) when (IsUnportedSpecies(exception, definitionPointer))
-                {
-                    // The registry refuses a room-placed header whose species AI no code ports.
-                    continue;
-                }
+                slot.Bind(definitionPointer, slot.Definition);
                 slot.Bind(slot.DefinitionId, definition);
                 slot.Radius = new(definition.Radius.X, definition.Radius.Y);
                 slot.Health = definition.Health;
@@ -133,7 +125,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 owned.Add(definitionPointer);
         }
 
-        AssertEqual(153, definitions.Length,
+        AssertEqual(149, definitions.Length,
             "owner audit enumerates every named retail enemy definition a room places or code spawns");
         AssertTrue(translated.Count > 100,
             "owner audit recognizes the translated retail initializer surface");
@@ -177,15 +169,14 @@ internal static class EnemyInstructionOwnerCoverageVerification
             StringComparison.Ordinal) &&
         invalid.Message.EndsWith(" is not translated.", StringComparison.Ordinal);
 
-    /// <summary>Whether binding <paramref name="definitionPointer"/> failed because no retail room places it and it has no species.</summary>
-    private static bool IsUnportedSpecies(InvalidDataException exception, EnemyDefinitionId definitionPointer) =>
-        exception.Message.EndsWith($" holds {definitionPointer}, which no retail room places and which has no species.", StringComparison.Ordinal);
-
     /// <summary>
     /// The bank-$A0 headers no room places and no code spawns: Bang, the spinning turtle eye, the horizontal shutter, the
-    /// second Sbug, the green and red wall pirates and the grey, green, red and magenta ninja pirates (#1686).
+    /// second Sbug, the green and red wall pirates, the grey, green, red and magenta ninja pirates, and the four whose
+    /// artwork only graphics sets load, Stoke, the Reflec, the dead Sidehopper's second record and the Tourian statue ghost
+    /// (#1686).
     /// </summary>
-    private static readonly HashSet<ushort> UnplacedEnemyHeaders = [0xd57f, 0xd8bf, 0xdb3f, 0xf153, 0xf393, 0xf3d3, 0xf4d3, 0xf513, 0xf553, 0xf5d3];
+    private static readonly HashSet<ushort> UnplacedEnemyHeaders =
+        [0xceff, 0xd57f, 0xd8bf, 0xdb3f, 0xdbff, 0xedbf, 0xf03f, 0xf153, 0xf393, 0xf3d3, 0xf4d3, 0xf513, 0xf553, 0xf5d3];
 
     /// <summary>
     /// Extracts the species of the distinct bank-$A0 enemy headers named in the pinned symbol inventory. A header no

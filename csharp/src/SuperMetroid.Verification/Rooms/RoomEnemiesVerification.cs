@@ -1468,9 +1468,9 @@ static void SeedCeresRidleyRoomEntryCartridge(
     for (int record = 0; record < ceresRidleyRecords.Length; record++)
     {
         int recordAddress = (0xb40000 | tilesetPointer) + record * 4;
-        WriteTestWord(bus, recordAddress, TestAddressSpace.FixtureHeaderPointer(ceresRidleyRecords[record].DefinitionId));
+        WriteTestWord(bus, recordAddress, TestAddressSpace.FixtureHeaderPointer(ceresRidleyRecords[record]));
         WriteTestWord(bus, recordAddress + 2, RoomEnemyGraphicsSetMember.NativePlacement(ceresRidleyRows[record],
-            SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.FixedBlocks.GetValueOrDefault(ceresRidleyRecords[record].DefinitionId)));
+            ceresRidleyRecords[record].FixedBlock ?? 0));
     }
     WriteTestWord(bus, (0xb40000 | tilesetPointer) + ceresRidleyRecords.Length * 4, 0xffff);
     for (int color = 0; color < 16; color++)

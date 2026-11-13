@@ -34,26 +34,17 @@ internal static class RidleySupplementalVisualDefinitions
         { 19, EnemyFrameId.RidleyWingFacingRightSecond },
     };
 
-    /// <summary>The installed frame each sixteenth-turn tail-tip sector shows.</summary>
-    internal static EnemyFrameTable<int> TailTipFrames { get; } = new()
-    {
-        { 0, EnemyFrameId.RidleyBreakupTailTipFirst },
-        { 1, EnemyFrameId.RidleyBreakupTailTipSecond },
-        { 2, EnemyFrameId.RidleyBreakupTailTipThird },
-        { 3, EnemyFrameId.RidleyBreakupTailTipFourth },
-        { 4, EnemyFrameId.RidleyBreakupTailTipFifth },
-        { 5, EnemyFrameId.RidleyBreakupTailTipSixth },
-        { 6, EnemyFrameId.RidleyBreakupTailTipSeventh },
-        { 7, EnemyFrameId.RidleyBreakupTailTipEighth },
-        { 8, EnemyFrameId.RidleyBreakupTailTipNinth },
-        { 9, EnemyFrameId.RidleyBreakupTailTipTenth },
-        { 10, EnemyFrameId.RidleyBreakupTailTipEleventh },
-        { 11, EnemyFrameId.RidleyBreakupTailTipTwelfth },
-        { 12, EnemyFrameId.RidleyBreakupTailTipThirteenth },
-        { 13, EnemyFrameId.RidleyBreakupTailTipFourteenth },
-        { 14, EnemyFrameId.RidleyBreakupTailTipFifteenth },
-        { 15, EnemyFrameId.RidleyBreakupTailTipSixteenth },
-    };
+    /// <summary>
+    /// The installed frame the drawn tail tip shows for each sixteenth of the turn its direction can point into, in turn
+    /// order: each frame's sixteenth is centred on it, so the first opens half a frame before straight down.
+    /// </summary>
+    internal static TurnArcs<EnemyFrameId> TailTipFrames { get; } = new(TrigonometryAngle.Wrapped(-8),
+        EnemyFrameId.RidleyBreakupTailTipFirst, EnemyFrameId.RidleyBreakupTailTipSecond, EnemyFrameId.RidleyBreakupTailTipThird,
+        EnemyFrameId.RidleyBreakupTailTipFourth, EnemyFrameId.RidleyBreakupTailTipFifth, EnemyFrameId.RidleyBreakupTailTipSixth,
+        EnemyFrameId.RidleyBreakupTailTipSeventh, EnemyFrameId.RidleyBreakupTailTipEighth, EnemyFrameId.RidleyBreakupTailTipNinth,
+        EnemyFrameId.RidleyBreakupTailTipTenth, EnemyFrameId.RidleyBreakupTailTipEleventh, EnemyFrameId.RidleyBreakupTailTipTwelfth,
+        EnemyFrameId.RidleyBreakupTailTipThirteenth, EnemyFrameId.RidleyBreakupTailTipFourteenth, EnemyFrameId.RidleyBreakupTailTipFifteenth,
+        EnemyFrameId.RidleyBreakupTailTipSixteenth);
 
     /// <summary>The installed frame each of the six drawn tail links shows, large to small.</summary>
     internal static EnemyFrameTable<int> SegmentFrames { get; } = new()

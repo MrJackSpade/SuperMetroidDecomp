@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
@@ -107,12 +107,9 @@ internal sealed class CeresRidleyBabyScene
         if (state.TailSegments.Length == 7)
         {
             RidleyTailSegment tip = state.TailSegments[6];
-            // The tip's sixteen poses split its direction, turned by the link before it and
-            // half a pose on, into sixteenths of a turn.
-            int tipIndex = tip.Angle.Direction.TurnedBy(state.TailSegments[5].Angle.Direction)
-                .TurnedBySteps(8).ToAngle().Sector(16);
-            EnemyFrameId tipFrame = RidleySupplementalVisualDefinitions.TailTipFrames.Of(
-                tipIndex);
+            // The tip's pose follows its direction turned by the link before it.
+            EnemyFrameId tipFrame = RidleySupplementalVisualDefinitions.TailTipFrames.At(
+                tip.Angle.Direction.TurnedBy(state.TailSegments[5].Angle.Direction));
             DrawRidleyWorldSpritemap(
                 sprites,
                 new SpriteSource(SpriteSourceKind.RidleyTail, 6),

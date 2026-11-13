@@ -635,6 +635,8 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Spatial.TypedDirectionBucketsVerification.VerifyTypedDirectionBuckets),
         new(nameof(SuperMetroid.Verification.Spatial.CompassDirectionPicksVerification.VerifyCompassDirectionPicks),
             SuperMetroid.Verification.Spatial.CompassDirectionPicksVerification.VerifyCompassDirectionPicks),
+        new(nameof(SuperMetroid.Verification.Spatial.TurnArcPicksVerification.VerifyTurnArcPicks),
+            SuperMetroid.Verification.Spatial.TurnArcPicksVerification.VerifyTurnArcPicks),
         new(nameof(SuperMetroid.Verification.Samus.Abilities.XrayAimClampVerification.VerifyXrayAimClamp),
             SuperMetroid.Verification.Samus.Abilities.XrayAimClampVerification.VerifyXrayAimClamp),
         new(nameof(SuperMetroid.Verification.Samus.Projectiles.ComboSineOffsetVerification.VerifyComboSineOffset),

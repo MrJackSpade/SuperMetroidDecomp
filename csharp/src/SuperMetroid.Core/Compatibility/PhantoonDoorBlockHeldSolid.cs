@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// coming back), and by the changes' timing, whose first frame draws after <see cref="HeldUpdates"/>. Evidence: both of
 /// Phantoon's hard-coded door spawns run the shared deactivating setup on the block they are spawned at, which keeps
 /// only the solid bit of the block's collision kind, so the door's transition block becomes a solid block; their
-/// programs draw the door on their first update and end on the next.
+/// animations draw the door on their first update and end on the next.
 /// </remarks>
 [CompatibilityService("each of Phantoon's door changes makes the door's top transition block solid from its spawn until its first update draws the door")]
 public static class PhantoonDoorBlockHeldSolid

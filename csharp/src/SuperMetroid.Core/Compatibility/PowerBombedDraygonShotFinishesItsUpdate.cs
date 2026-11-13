@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// What a power bomb's explosion does to a Draygon goop or wall-turret shot it catches (#1590): the shot frees its
 /// enemy-projectile place at once but finishes the update it was caught in. It still moves, a flying goop still tests
 /// Samus and, on reaching her, sticks to her and slows her again after the explosion has cleared her slowdown, and its
-/// program still runs this pass; where it moved to is what it leaves in its place for the next projectile spawned there
+/// animation still runs this pass; where it moved to is what it leaves in its place for the next projectile spawned there
 /// (<see cref="EnemyProjectileHandOver"/>). From the next pass on it takes no part in the game.
 /// </summary>
 /// <remarks>

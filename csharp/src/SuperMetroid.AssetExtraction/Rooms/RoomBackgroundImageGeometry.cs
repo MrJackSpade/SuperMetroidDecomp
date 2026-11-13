@@ -55,7 +55,7 @@ internal static class RoomBackgroundImageGeometry
     /// entrance's statues set the same two pages one above the other (<c>$4A</c>, <c>$88:DBA4</c>); either way the hardware
     /// wraps the scroll past the map's edges, so the layer shows the pages over and over, across and down. Where the second
     /// page holds the first page's tilemap word for word, as every list that copies one staged page to both pages leaves
-    /// them (a 2 KiB transfer from the staging to each page, such as <c>Crateria0Rocks</c>'s), every tile of the layer shows
+    /// them (a 2 KiB transfer from the staging to each page, such as <c>CrateriaRocks</c>'s), every tile of the layer shows
     /// the first page's tile at the same place in its page, over the same characters and colours: the layer is the one page
     /// repeated across and down with the page's period. A background whose pages differ, such as Kraid's or the Tourian
     /// statues', keeps both.

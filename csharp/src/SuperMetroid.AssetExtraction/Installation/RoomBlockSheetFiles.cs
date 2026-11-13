@@ -32,9 +32,10 @@ public static class RoomBlockSheetFiles
     /// records one period of what each library background shows, its one page where its two pages hold one tilemap, which
     /// the room shows repeated across and down (#1651); revision 8 records each image's size in place of the tilemap words
     /// it pictures, which the game only counted (#1708); revision 9 names each changing cell's pictures by its image and its
-    /// place in it (#1717).
+    /// place in it (#1717); revision 10 names each library background by what it shows and where, not by the cartridge's
+    /// tileset numbers (#1720).
     /// </summary>
-    private const int BackgroundManifestVersion = 9;
+    private const int BackgroundManifestVersion = 10;
 
     /// <summary>The manifest naming each written picture sheet and the inputs each of its pictures depends on.</summary>
     public const string WrittenManifestFileName = "written-pictures.json";

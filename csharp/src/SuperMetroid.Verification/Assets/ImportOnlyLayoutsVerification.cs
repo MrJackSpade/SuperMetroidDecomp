@@ -47,6 +47,16 @@ internal static class ImportOnlyLayoutsVerification
         yield return (intro, IntroFinalLineTilemapFormat.FileName);
         yield return (intro, IntroEyeTilemapFormat.FileName);
         yield return (intro, ZebesRevealArtworkFormat.MapFileName);
+        yield return (intro, IntroCaretSpriteFormat.FileName);
+        yield return (intro, IntroNextPageArrowSpriteFormat.FileName);
+        yield return (intro, IntroMotherBrainSpriteFormat.FileName);
+        yield return (intro, IntroMotherBrainExplosionSpriteFormat.FileName);
+        yield return (intro, IntroRinkaSpriteFormat.FileName);
+        yield return (intro, IntroEggEffectSpriteFormat.FileName);
+        yield return (intro, IntroDiscoveryActorSpriteFormat.FileName);
+        yield return (intro, IntroScientistSpriteFormat.FileName);
+        yield return (intro, CeresFlightSpriteFormat.FileName);
+        yield return (intro, CeresDestructionSpriteFormat.FileName);
         foreach (string document in MapPresentationFiles.ImportDocumentFiles)
             yield return (GameInstallationLayout.MapDirectoryName, document);
         string projectiles = GameInstallationLayout.ProjectileDirectoryName;

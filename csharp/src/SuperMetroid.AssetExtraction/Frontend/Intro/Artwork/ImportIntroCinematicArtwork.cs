@@ -4,29 +4,33 @@ using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>
-/// The opening cinematic as the import reads it (#1544, #1636, #1638): its installed documents with its characters and
-/// layouts, from the component's import data, and the colours only the import pre-colours the opening's, the Ceres scenes'
+/// The opening cinematic as the import reads it (#1544, #1636, #1638): its installed documents with its characters,
+/// layouts and sprite compositions, from the component's import data, and the colours only the import pre-colours the opening's, the Ceres scenes'
 /// and the ending flyaway's sheets in. The game reads none of them; its own read of the opening
 /// (<see cref="IntroCinematicArtworkFiles.Load"/>) reads no character page or layout and leaves the colour documents unread.
 /// </summary>
 public sealed class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
 {
     /// <summary>Takes the opening's installed documents, its characters and layouts and the colours only the import reads.</summary>
-    /// <param name="parts">The opening's scene artwork and sprite compositions.</param>
+    /// <param name="parts">The opening's scene artwork and the destruction's maps.</param>
+    /// <param name="sprites">The opening's and the Ceres destruction scene's sprite compositions.</param>
     /// <param name="layouts">The opening's scene, portrait, narration, subtitle, eye and Zebes reveal layouts.</param>
     /// <param name="characters">The opening's characters; their Ceres approach takes the documents' place.</param>
     /// <param name="palette">The opening narration's colours.</param>
     /// <param name="flightPalette">The Ceres approach's colours.</param>
     /// <exception cref="ArgumentNullException">A part, a layout, the characters or a palette is null.</exception>
     /// <exception cref="InvalidDataException">The scene pages, portrait, narration or Zebes tilemaps, or the reveal's characters, are malformed.</exception>
-    public ImportIntroCinematicArtwork(IntroCinematicArtworkParts parts, IntroCinematicLayouts layouts, IntroCinematicCharacters characters,
-        IntroCinematicPalette palette, CeresFlightPalette flightPalette)
+    public ImportIntroCinematicArtwork(IntroCinematicArtworkParts parts, IntroCinematicSprites sprites, IntroCinematicLayouts layouts,
+        IntroCinematicCharacters characters, IntroCinematicPalette palette, CeresFlightPalette flightPalette)
         : base(Ensure.NotNull(parts) with { CeresFlight = Ensure.NotNull(characters).CeresFlight })
     {
+        Sprites = Ensure.NotNull(sprites);
         Ensure.NotNull(layouts);
         Ensure.NotNull(layouts.BackgroundPages);
         if (layouts.BackgroundPages.Count != IntroCinematicArtworkFormat.BackgroundPageCount)
@@ -66,6 +70,37 @@ public sealed class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
 
     /// <summary>Cells in one 32-by-32 opening tilemap page.</summary>
     private const int PageCells = 32 * 32;
+
+    /// <summary>The opening's and the Ceres destruction scene's sprite compositions, which their sheets are composed from.</summary>
+    public IntroCinematicSprites Sprites { get; }
+
+    /// <summary>The compositions of <paramref name="family"/>: the Ceres approach's are the flight's, the others the opening's.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The family is not an opening or Ceres family.</exception>
+    internal ICinematicSpriteFrames SpritesOf(CinematicSpriteFamily family) => family switch
+    {
+        CinematicSpriteFamily.IntroDiscoveryActor => Sprites.DiscoveryActor,
+        CinematicSpriteFamily.IntroEggEffect => Sprites.EggEffect,
+        CinematicSpriteFamily.IntroRinka => Sprites.Rinka,
+        CinematicSpriteFamily.IntroScientist => Sprites.Scientist,
+        CinematicSpriteFamily.IntroMotherBrain => Sprites.MotherBrain,
+        CinematicSpriteFamily.IntroMotherBrainExplosion => Sprites.MotherBrainExplosion,
+        CinematicSpriteFamily.IntroCaret => Sprites.Caret,
+        CinematicSpriteFamily.IntroNextPageArrow => Sprites.NextPageArrow,
+        CinematicSpriteFamily.CeresFlight => FlightCharacters.Sprites,
+        CinematicSpriteFamily.CeresDestruction => Sprites.CeresDestruction,
+        CinematicSpriteFamily.EndingCloud or CinematicSpriteFamily.EndingExplosion or CinematicSpriteFamily.EndingCompletionText or
+            CinematicSpriteFamily.EndingReward or CinematicSpriteFamily.EndingLogo or CinematicSpriteFamily.EndingAnimalEscape =>
+            throw new ArgumentOutOfRangeException(nameof(family), family, "The family is not an opening or Ceres cinematic family."),
+        _ => throw new ArgumentOutOfRangeException(nameof(family), family, "Undefined cinematic family."),
+    };
+
+    /// <summary>Identity of the installed documents and of the compositions the opening's sheets are composed from.</summary>
+    public override string ContentIdentity => SelectedPresentationHash.Create("IntroCinematicImportArtwork-v1", content =>
+    {
+        content.Append("documents", Convert.FromHexString(base.ContentIdentity));
+        content.Append("sprites", Convert.FromHexString(Sprites.ContentIdentity));
+        content.Append("ceres-flight-sprites", Convert.FromHexString(FlightCharacters.Sprites.ContentIdentity));
+    });
 
     /// <summary>The four ordered 32x32 scene pages' tiles.</summary>
     public ReadOnlyMemory<BackgroundTile> BackgroundPages => backgroundPages;

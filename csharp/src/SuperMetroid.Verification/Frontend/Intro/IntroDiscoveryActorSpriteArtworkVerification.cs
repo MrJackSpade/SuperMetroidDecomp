@@ -25,7 +25,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
     /// <summary>Compares stock OAM at visible and wrapped origins, then renders the production
     /// discovery scene without cartridge artwork reads.</summary>
     internal static void VerifyIntroDiscoveryActorSpriteArtwork(SuperMetroidAddressSpace bus,
-        ImportIntroCinematicArtwork stock, GameInstallation installation)
+        ImportIntroCinematicArtwork stock)
     {
         const ushort x = 120;
         PictureShade palette = IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors);
@@ -48,7 +48,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                CinematicSheetFixtures.Drawer(stock.DiscoveryActorSprites).Draw(definition.Pose, installed, new(x, y),
+                CinematicSheetFixtures.Drawer(stock.Sprites.DiscoveryActor).Draw(definition.Pose, installed, new(x, y),
                     palette);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
@@ -59,7 +59,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
 
         IntroDiscoveryActorSpriteDocument document =
             RequiredJson.Deserialize<IntroDiscoveryActorSpriteDocument>(
-                File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, IntroDiscoveryActorSpriteFormat.FileName)),
+                File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName), IntroDiscoveryActorSpriteFormat.FileName)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroDiscoveryActors);

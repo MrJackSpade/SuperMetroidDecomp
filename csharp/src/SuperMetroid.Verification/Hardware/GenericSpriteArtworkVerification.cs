@@ -138,7 +138,7 @@ internal static class GenericSpriteArtworkVerification
         explosions.SpawnFourthHitExplosions();
         explosions.Step(introCrossfadeTimer: 1);
         var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
-        explosions.Draw(actual, CinematicSheetFixtures.Drawer(introArtwork.MotherBrainExplosionSprites));
+        explosions.Draw(actual, CinematicSheetFixtures.Drawer(introArtwork.Sprites.MotherBrainExplosion));
         actual.FinalizeFrame();
         expected = new OamBuffer();
         expected.BeginFrame();

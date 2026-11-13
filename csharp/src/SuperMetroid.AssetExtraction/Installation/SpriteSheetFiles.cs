@@ -81,9 +81,6 @@ public static class SpriteSheetFiles
         // The pause sheet is named from the stock selector presentation installed beside it.
         var maps = new Lazy<InstalledAreaMapPresentation>(() => MapPresentationFiles.Load(
             Path.Combine(content, GameInstallationLayout.MapDirectoryName)));
-        // The intro sheet is named from the stock intro compositions installed beside it.
-        var intro = new Lazy<IntroCinematicSourceArtwork>(() => IntroCinematicArtworkFiles.Load(
-            Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName)));
         // The ending sheets are named from the stock ending compositions installed beside them.
         var ending = new Lazy<EndingObjectSourceArtwork>(() => EndingObjectArtworkFiles.Load(
             Path.Combine(content, GameInstallationLayout.EndingObjectDirectoryName)));
@@ -93,7 +90,7 @@ public static class SpriteSheetFiles
         foreach (SpriteSheetId sheet in SpriteSheetDefinitions.Sheets)
         {
             SpriteSheet loaded = store.Read(SpriteSheetDefinitions.FileNames[sheet]);
-            if (!loaded.HoldsExactly(FrameNames(sheet, body, maps, intro, ending, projectiles)))
+            if (!loaded.HoldsExactly(FrameNames(sheet, body, maps, ending, projectiles)))
                 throw new InvalidDataException($"Sprite sheet {FrameFile(sheet)} does not hold exactly the frames its family draws.");
             sheets.Add(sheet, loaded);
         }
@@ -108,7 +105,7 @@ public static class SpriteSheetFiles
                     _ = TitleFloors.Of(installed, pose);
                 continue;
             }
-            foreach (string frame in FrameNames(sheet, body, maps, intro, ending, projectiles))
+            foreach (string frame in FrameNames(sheet, body, maps, ending, projectiles))
                 _ = FloorShots.Of(installed, sheet, frame);
         }
         return installed;
@@ -119,11 +116,10 @@ public static class SpriteSheetFiles
     /// <param name="sheet">The sheet.</param>
     /// <param name="body">The body sheet's frames, the bodies Samus can show with the installed body.</param>
     /// <param name="maps">The menus' presentation, whose selector frames name the pause sheet's.</param>
-    /// <param name="intro">The opening cinematic's artwork, whose compositions name the intro sheet's frames.</param>
     /// <param name="ending">The ending's sprite artwork, whose compositions name the ending sheets' frames.</param>
     /// <param name="projectiles">The projectile frame bindings, whose compositions name the projectile sheets' frames.</param>
     internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<IReadOnlyList<string>> body,
-        Lazy<InstalledAreaMapPresentation> maps, Lazy<IntroCinematicSourceArtwork> intro, Lazy<EndingObjectSourceArtwork> ending,
+        Lazy<InstalledAreaMapPresentation> maps, Lazy<EndingObjectSourceArtwork> ending,
         Lazy<InstalledProjectileFrameBindings> projectiles) => sheet switch
     {
         SpriteSheetId.IntroScenePictures => IntroScenePictureSheetComposer.FrameNames,
@@ -160,10 +156,11 @@ public static class SpriteSheetFiles
             SpriteSheetId.AreaMapBackgroundNorfair or SpriteSheetId.AreaMapBackgroundWreckedShip or
             SpriteSheetId.AreaMapBackgroundMaridia or SpriteSheetId.AreaMapBackgroundTourian => [AreaMapPictures.WorldBackgroundFrame],
         SpriteSheetId.Title => TitleSheetComposer.FrameNames(),
-        SpriteSheetId.IntroSprites => IntroSpriteSheetComposer.FrameNames(intro.Value),
-        SpriteSheetId.CeresFlightSprites => IntroSpriteSheetComposer.CeresFlightFrameNames(intro.Value.CeresFlight),
-        SpriteSheetId.CeresDestructionSprites => IntroSpriteSheetComposer.CeresDestructionFrameNames(intro.Value),
-        SpriteSheetId.ZebesRevealSprites => IntroSpriteSheetComposer.ZebesRevealFrameNames(intro.Value),
+        // The opening's and the Ceres scenes' sheets are named from their families' poses (#1638).
+        SpriteSheetId.IntroSprites => IntroSpriteSheetComposer.FrameNames(),
+        SpriteSheetId.CeresFlightSprites => IntroSpriteSheetComposer.CeresFlightFrameNames(),
+        SpriteSheetId.CeresDestructionSprites => IntroSpriteSheetComposer.CeresDestructionFrameNames(),
+        SpriteSheetId.ZebesRevealSprites => IntroSpriteSheetComposer.ZebesRevealFrameNames(),
         SpriteSheetId.EndingCloudSprites or SpriteSheetId.EndingExplosionSprites or
             SpriteSheetId.EndingSuitedRewardSprites or SpriteSheetId.EndingSuitlessRewardSprites or
             SpriteSheetId.EndingShootingSprites =>

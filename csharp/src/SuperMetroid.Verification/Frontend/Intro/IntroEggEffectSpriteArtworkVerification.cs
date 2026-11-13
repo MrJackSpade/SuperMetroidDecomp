@@ -25,7 +25,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
     /// <summary>Compares stock frames at visible and wrapped origins, then
     /// checks live particles draw the installed art without rereading cartridge maps.</summary>
     internal static void VerifyIntroEggEffectSpriteArtwork(SuperMetroidAddressSpace bus,
-        IntroCinematicSourceArtwork stock, GameInstallation installation)
+        ImportIntroCinematicArtwork stock)
     {
         const ushort x = 120;
         PictureShade palette = IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors);
@@ -48,7 +48,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                CinematicSheetFixtures.Drawer(stock.EggEffectSprites).Draw(definition.Pose, installed, new(x, y),
+                CinematicSheetFixtures.Drawer(stock.Sprites.EggEffect).Draw(definition.Pose, installed, new(x, y),
                     palette);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
@@ -59,7 +59,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
 
         IntroEggEffectSpriteDocument document =
             RequiredJson.Deserialize<IntroEggEffectSpriteDocument>(
-                File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, IntroEggEffectSpriteFormat.FileName)),
+                File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName), IntroEggEffectSpriteFormat.FileName)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroEggEffects);
@@ -67,7 +67,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
         fragment.Step();
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
-        fragment.Draw(stockOam, CinematicSheetFixtures.Drawer(stock.EggEffectSprites));
+        fragment.Draw(stockOam, CinematicSheetFixtures.Drawer(stock.Sprites.EggEffect));
         stockOam.FinalizeFrame();
         var nativeLiveOam = new OamBuffer();
         nativeLiveOam.BeginFrame();
@@ -82,7 +82,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
             slime.Step();
             var slimeOam = ScreenSpritesFixtures.Blank();
             slimeOam.BeginFrame();
-            slime.Draw(slimeOam, CinematicSheetFixtures.Drawer(stock.EggEffectSprites));
+            slime.Draw(slimeOam, CinematicSheetFixtures.Drawer(stock.Sprites.EggEffect));
             slimeOam.FinalizeFrame();
         }
 

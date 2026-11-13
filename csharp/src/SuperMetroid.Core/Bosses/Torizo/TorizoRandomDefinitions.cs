@@ -47,7 +47,7 @@ internal static class TorizoRandomDefinitions
 
     /// <summary>
     /// The low-health drool's delay entry, 0 through 7 of the eight-entry list whose entries repeat the no-delay,
-    /// two-frame and four-frame lists: the sample divided by four, modulo 8.
+    /// two-frame and four-frame drool animations: the sample divided by four, modulo 8.
     /// </summary>
     internal static readonly RandomSampleField LowHealthDroolDelay = new(2, 3);
 

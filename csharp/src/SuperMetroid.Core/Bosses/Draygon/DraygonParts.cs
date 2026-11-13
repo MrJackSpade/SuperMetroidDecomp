@@ -134,7 +134,7 @@ internal sealed class DraygonParts
         }
     }
 
-    /// <summary>Restarts a linked Draygon part's animation on its next update, as a list install does.</summary>
+    /// <summary>Restarts a linked Draygon part's animation on its next update, as starting an animation does.</summary>
     internal void StartDraygonAnimation(RoomEnemySlot part, DraygonSegment segment)
     {
         DraygonEnemyState state = Draygon ??

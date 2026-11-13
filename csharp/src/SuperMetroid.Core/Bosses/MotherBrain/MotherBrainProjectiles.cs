@@ -182,7 +182,7 @@ internal sealed class MotherBrainProjectiles
         }, EnemyProjectileFrameBehavior.MotherBrainDeathSubtitleScreenPin);
 
         table.AddCue<MotherBrainEffectCue>((context, cue) => ApplyMotherBrainEffectCue(context.Projectile, cue));
-        // A touched onion ring runs its typed impact animation, the list its definition names.
+        // A touched onion ring runs its typed impact animation, the animation its definition names.
         table.AddTouchAnimation(RoomEnemyProjectileKind.MotherBrainOnionRing,
             () => new MotherBrainEffectAnimation(MotherBrainEffectSegment.OnionRingHit));
 
@@ -801,7 +801,7 @@ internal sealed class MotherBrainProjectiles
             MotherBrainTurrets.ForDirection(direction);
         bullet.Velocity = definition.BulletVelocity;
         bullet.Position = bullet.Position.WithWhole(turret.Position.Whole + definition.BulletOffset);
-        // The bullet list's first cue jumps to the pose for this direction.
+        // The bullet animation's first cue jumps to the pose for this direction.
         bullet.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretSegment.BulletPose, direction));
     }
 

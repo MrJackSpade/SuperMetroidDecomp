@@ -8,7 +8,7 @@ public enum CrocomireFightFunction
 {
     /// <summary>Restarts the initial animation with timer one.</summary>
     ResetAnimation,
-    /// <summary>Installs the forward-step list and returns the fight to sleeping.</summary>
+    /// <summary>Starts the forward-step animation and returns the fight to sleeping.</summary>
     StepForward,
     /// <summary>Wakes into the first-damage wait when Samus is within 224 horizontal pixels.</summary>
     Sleeping,
@@ -16,7 +16,7 @@ public enum CrocomireFightFunction
     SteppingForward,
     /// <summary>Spawns shots with successive even parameters through 18 unless damage interrupts with a backward step.</summary>
     ProjectileAttack,
-    /// <summary>Retains the charge list until a damage latch selects backward stepping.</summary>
+    /// <summary>Keeps the charge animation until a damage latch selects backward stepping.</summary>
     NearSpikeWallCharge,
     /// <summary>Consumes one queued step per animation dispatch before returning to forward stepping.</summary>
     SteppingBack,

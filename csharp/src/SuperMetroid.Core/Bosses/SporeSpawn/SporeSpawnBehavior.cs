@@ -386,7 +386,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         RunSporeSpawnMain(slot, RequireSporeSpawnState(slot));
     }
 
-    /// <summary>Plays Spore Spawn's body animation where the shared enemy animation would run its list.</summary>
+    /// <summary>Plays Spore Spawn's body animation in place of the shared enemy animation.</summary>
     internal void AdvanceSporeSpawnAnimation(RoomEnemySlot body)
     {
         if (!body.AnimationClock.Expire())
@@ -483,7 +483,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             // Only the first damaging hit during an open phase reverses direction and
-            // closes the head. The open-phase step clears this guard when the list permits it.
+            // closes the head. The open-phase step clears this guard when the animation permits it.
             if (!state.Damaged)
             {
                 state.AngleDelta = -state.AngleDelta;

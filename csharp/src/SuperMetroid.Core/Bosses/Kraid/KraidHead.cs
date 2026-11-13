@@ -144,7 +144,7 @@ internal sealed class KraidHead
 
     /// <summary>
     /// Plays Kraid's head animation to its next pose: cries on the way are announced, and a pose installs its duration as
-    /// the head timer and shows its image; at its list's end the animation holds there.
+    /// the head timer and shows its image; at its segment's end the animation holds there.
     /// </summary>
     internal KraidHeadAnimationResult RunKraidHeadAnimationStep(KraidEnemyState state)
     {

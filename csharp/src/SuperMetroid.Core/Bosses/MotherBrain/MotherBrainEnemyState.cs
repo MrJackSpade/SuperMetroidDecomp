@@ -290,7 +290,7 @@ public sealed class MotherBrainEnemyState
     /// <summary>
     /// Last Baby animation copied into its physical slot. The slot's cursor advances
     /// independently, so this latch changes only when Baby AI explicitly invokes the
-    /// set-list helper.
+    /// helper that starts its animation.
     /// </summary>
     internal MotherBrainBabySegment BabyAppliedAnimation { get; set; }
 
@@ -324,7 +324,7 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>
     /// Last <see cref="MotherBrainLateFightState.SmallPurpleBreathGenerationWriteCount"/>
-    /// published to <see cref="SmallPurpleBreathGenerationEnabled"/>, so a brain-list clear
+    /// published to <see cref="SmallPurpleBreathGenerationEnabled"/>, so a brain-animation clear
     /// survives until the body next writes the flag.
     /// </summary>
     internal uint RainbowAppliedSmallPurpleBreathWrites { get; set; }

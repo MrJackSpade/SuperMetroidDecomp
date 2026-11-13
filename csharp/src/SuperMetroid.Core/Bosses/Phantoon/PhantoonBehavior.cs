@@ -372,7 +372,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Starts the eye's Samus-tracking list for the current attack phase.</summary>
+    /// <summary>Starts the eye's Samus-tracking animation for the current attack phase.</summary>
     internal void BeginPhantoonEyeTracking(PhantoonEnemyState state)
     {
         state.TentaclesState.SwoopRequested = false;

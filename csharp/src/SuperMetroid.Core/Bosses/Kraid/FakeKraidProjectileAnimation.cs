@@ -21,7 +21,7 @@ internal sealed class FakeKraidProjectileAnimation(FakeKraidProjectilePose pose)
 
     /// <summary>
     /// Each pose's segment: the spit and the left and right spikes each hold their pose for good (#1627). The game's
-    /// lists show it for the longest frame a list gives and then sleep on it; nothing reads the projectile's frame timer,
+    /// animations show it for the longest frame an animation gives and then sleep on it; nothing reads the projectile's frame timer,
     /// so the pose simply stays until a shot deletes it.
     /// </summary>
     private static AnimationSegments<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> PoseSegments { get; } = new(

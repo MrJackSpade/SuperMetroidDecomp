@@ -81,7 +81,7 @@ public enum CrocomireDeathPhase
     DelaySkeletonFall,
     /// <summary>Arcs the skeleton back into the arena.</summary>
     ArcSkeletonIntoArena,
-    /// <summary>Waits for the falls-apart list to reach its terminal image.</summary>
+    /// <summary>Waits for the falls-apart animation to reach its terminal image.</summary>
     WaitForSkeletonTerminalImage,
     /// <summary>Reopens the four left scroll cells and clears the wall.</summary>
     ClearWallAndOpenScrolls,

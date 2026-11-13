@@ -12,10 +12,10 @@ internal enum TorizoBehaviorFlags
     CaughtSuperMissile = 1,
     /// <summary>
     /// Golden Torizo is stunned. A Super Missile hit or another family's shot arms it, the stun-health branch consumes
-    /// it, and the stun list's unmark command clears it.
+    /// it, and the stun animation's unmark cue clears it.
     /// </summary>
     Stunned = 2,
-    /// <summary>Bomb Torizo's face is blown up; its faceless lists walk on from here.</summary>
+    /// <summary>Bomb Torizo's face is blown up; its faceless animations walk on from here.</summary>
     FaceBlownUp = 4,
     /// <summary>Bomb Torizo's gut is blown up, which its first low-health interruption sets.</summary>
     GutBlownUp = 8,

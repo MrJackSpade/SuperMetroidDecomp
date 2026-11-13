@@ -35,7 +35,7 @@ internal sealed class RidleyBodyAnimation
             return;
         RidleyEnemyState state = _ridleyEncounter.RequireRidley(slot);
         AnimationPlayback<RidleyBodySegment> playback = state.BodyPlayback;
-        // Ridley's body lists load no loop counter.
+        // Ridley's body animations load no loop counter.
         EnemyAnimationPlayback.Play(slot, RidleyAnimations.Segments, ref playback, RidleyBodyFrameDefinitions.ShownFrames.Of,
             cue => ApplyRidleyBodyCue(slot, state, samus, cue) is { } target
                 ? new AnimationContinuation<RidleyBodySegment>(RidleyAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
@@ -60,7 +60,7 @@ internal sealed class RidleyBodyAnimation
                 }
                 if (samus.Health >= 30)
                     return null;
-                // The fireball list stores 8 to the Ridley timer before it continues elsewhere,
+                // The fireball animation stores 8 in the Ridley timer before it continues elsewhere,
                 // cutting the fireball hover short.
                 state.FunctionTimer = 8;
                 return goToIfCeresAndSamusLowEnergy.Target;
@@ -112,7 +112,7 @@ internal sealed class RidleyBodyAnimation
             }
             case RidleyBodyCue.Command { Kind: RidleyBodyCueKind.StartLiftoff }:
             {
-                // The shared roar/liftoff list hands control to the real fight at
+                // The shared roar/liftoff animation hands control to the real fight at
                 // the fight's start and supplies the initial upward 8.8 velocity in the same tick.
                 RidleyEnemyState norfairLiftoff = _ridleyEncounter.RequireNorfairRidley(slot);
                 norfairLiftoff.Function = RidleyAiFunction.NorfairEnterArena;
@@ -124,7 +124,7 @@ internal sealed class RidleyBodyAnimation
         }
     }
 
-    /// <summary>Runs Ceres and Lower Norfair Ridley's body as typed animations in place of their lists (#641).</summary>
+    /// <summary>Runs Ceres and Lower Norfair Ridley's body as typed animations (#641).</summary>
     internal void AdvanceRidleyBodyTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context) =>
         AdvanceRidleyBodyAnimation(slot, context.Samus);
 

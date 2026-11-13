@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// Ridley's typed body animations (#641), in authored order. Each entry animation first
-/// redirects to its right-facing counterpart unless Ridley faces left, as the lists do.
+/// redirects to its right-facing counterpart unless Ridley faces left, as the game's animations do.
 /// </summary>
 internal enum RidleyBodySegment
 {
@@ -41,6 +41,6 @@ internal enum RidleyBodySegment
     /// <summary>Taking off.</summary>
     TransitionToFlying,
     /// <summary>The right-facing take-off.</summary>
-    /// <remarks>It calls the Lower Norfair lift-off, as the list does.</remarks>
+    /// <remarks>It calls the Lower Norfair lift-off, as the game's animation does.</remarks>
     TransitionToFlyingFacingRight,
 }

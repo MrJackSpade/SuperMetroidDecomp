@@ -7,7 +7,7 @@ internal enum TorizoProjectileCueKind
     ClearFrameBehavior,
     /// <summary>Deletes the projectile.</summary>
     Delete,
-    /// <summary>Continues at the egg's facing hatched list.</summary>
+    /// <summary>Continues at the egg's facing hatched segment.</summary>
     Hatch,
     /// <summary>Aims a thrown super missile at Samus.</summary>
     AimSuperMissileTowardSamus,

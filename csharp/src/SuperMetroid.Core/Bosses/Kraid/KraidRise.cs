@@ -382,7 +382,7 @@ internal sealed class KraidRise
                     body.Position = body.Position.WithWholeX(176);
                     // The rise's last step does not leave execution at the fight setup.
                     // That setup immediately installs the thinking function, seeds the random thinking
-                    // timer and selects the roar list for the first attack.
+                    // timer and selects the roar animation for the first attack.
                     state.HeadPlayback = KraidHeadAnimations.RoarAfterEntryFrame;
                     _head.SetupKraidFirstPhaseThinking(body, state);
 

@@ -71,8 +71,7 @@ internal static class InstalledFixtures
     /// are read from the cartridge-derived extraction (#1636).
     /// </summary>
     private static readonly Lazy<RoomCharacterAtlases> roomCharacters = Shared<RoomCharacterAtlases>("room characters", () =>
-        RoomCharacterArtworkFiles.LoadForImport(CartridgeImportContent.Component(GameInstallationLayout.RoomCharacterDirectoryName),
-            CartridgeImportContent.ImportData(GameInstallationLayout.RoomCharacterDirectoryName)));
+        RoomCharacterArtworkFiles.LoadForImport(CartridgeImportContent.ImportData(GameInstallationLayout.RoomCharacterDirectoryName)));
 
     /// <summary>
     /// Lazy stock block compositions, which extraction composes the block sheets from (#1431). They are import data no
@@ -106,8 +105,7 @@ internal static class InstalledFixtures
 
     /// <summary>Lazy enemy, boss and area artwork as the import reads it, characters included, from the cartridge-derived extraction (#1636).</summary>
     private static readonly Lazy<ImportEnemyArtwork> enemyArtwork = Shared<ImportEnemyArtwork>("enemy artwork", () =>
-        EnemyTileArtworkFiles.LoadForImport(CartridgeImportContent.Component(GameInstallationLayout.EnemyTileDirectoryName),
-            CartridgeImportContent.ImportData(GameInstallationLayout.EnemyTileDirectoryName)));
+        EnemyTileArtworkFiles.LoadForImport(CartridgeImportContent.ImportData(GameInstallationLayout.EnemyTileDirectoryName)));
 
     /// <summary>Lazy installed projectile documents and bindings, as the game reads them.</summary>
     private static readonly Lazy<InstalledProjectilePresentation> projectiles = Shared<InstalledProjectilePresentation>("projectiles", () => RepositoryInstallation.Installation.LoadProjectiles());
@@ -138,7 +136,6 @@ internal static class InstalledFixtures
     private static readonly Lazy<SuperMetroid.AssetExtraction.Frontend.Ending.EndingFloorCharacters> endingFloors =
         Shared<SuperMetroid.AssetExtraction.Frontend.Ending.EndingFloorCharacters>("ending floors", () =>
             SuperMetroid.AssetExtraction.Frontend.Ending.EndingMode7ArtworkFiles.LoadForImport(
-                CartridgeImportContent.Component(GameInstallationLayout.EndingMode7DirectoryName),
                 CartridgeImportContent.ImportData(GameInstallationLayout.EndingMode7DirectoryName)));
 
     /// <summary>The ending Mode 7 floors the cartridge's floor loads are compared with.</summary>
@@ -148,7 +145,6 @@ internal static class InstalledFixtures
     private static readonly Lazy<SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.ImportEndingObjectArtwork> endingObjects =
         Shared<SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.ImportEndingObjectArtwork>("ending objects", () =>
             SuperMetroid.AssetExtraction.Frontend.Ending.EndingObjectArtworkFiles.LoadForImport(
-                CartridgeImportContent.Component(GameInstallationLayout.EndingObjectDirectoryName),
                 CartridgeImportContent.ImportData(GameInstallationLayout.EndingObjectDirectoryName)));
 
     /// <summary>The ending object artwork as the import reads it, characters included.</summary>

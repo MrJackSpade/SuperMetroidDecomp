@@ -78,10 +78,10 @@ public static class EnemySheetFiles
         var loaded = names.ToDictionary(name => name, store.Read, StringComparer.Ordinal);
         // The sheets' frames are named from the display bindings installed beside them, without a character (#1636) or a
         // composition (#1638).
-        var bindings = new Lazy<InstalledEnemyFrameDisplays>(() => EnemyTileArtworkReader.Open(
+        var bindings = new Lazy<InstalledEnemyFrameDisplays>(() => EnemyTileArtworkFiles.FrameDisplays(
             Path.Combine(Path.GetDirectoryName(Path.GetFullPath(directory))
                 ?? throw new ArgumentException($"Directory {directory} has no installation above it.", nameof(directory)),
-                GameInstallationLayout.EnemyTileDirectoryName)).FrameDisplays());
+                GameInstallationLayout.EnemyTileDirectoryName)));
         var variants = new Dictionary<string, EnemyArtworkVariant<SpriteSheet>>(StringComparer.Ordinal);
         foreach ((string name, EnemyVariantDocument entry) in manifest.Variants)
         {

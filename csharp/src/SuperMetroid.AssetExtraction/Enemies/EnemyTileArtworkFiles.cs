@@ -43,8 +43,9 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// (<see cref="SuperMetroid.AssetExtraction.Installation.ImportDataDirectory"/>), which the sheets compose from and the
 /// installer deletes before it publishes. So do the boss layouts and the enemy compositions only the import composes the
 /// body and enemy sheets from (#1638), whose entries are the original's packed placements; the installation holds the
-/// pictures they compose and the enemy frames' display bindings. The other documents, Kraid's eye colours among them, are
-/// installed, and the player edits them in place.
+/// pictures they compose and the enemy frames' display bindings. So does the manifest of all of them, keyed by the
+/// cartridge's enemy headers (#1693). The game reads only the documents it binds, the frames' displays and Kraid's eye
+/// colours (<see cref="Load"/>), which are installed, and the player edits them in place.
 /// </summary>
 public static class EnemyTileArtworkFiles
 {
@@ -58,7 +59,7 @@ public static class EnemyTileArtworkFiles
 
     /// <summary>Writes the complete retail enemy-art installation: character sheets, palettes, sprite compositions, and supplemental boss and cutscene resources.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying room-enemy graphics definitions and the associated artwork sources.</param>
-    /// <param name="directory">Stock output directory, created if needed; existing resource and manifest files are overwritten. Its pages go to its import-data directory.</param>
+    /// <param name="directory">Stock output directory, created if needed; existing resource and manifest files are overwritten. Its pages and the manifest go to its import-data directory.</param>
     /// <param name="sourceCartridgeSha256">Nonempty source-cartridge SHA-256 recorded in the manifest alongside each stock resource's hash.</param>
     /// <remarks>Deduplicates ordinary sheets by enemy-definition identity and verifies retail coverage. Indexed PNG colors are diagnostic; RGB5 palettes and visual JSON remain separate.</remarks>
     /// <exception cref="InvalidDataException">Native definitions, coverage, artwork sizes, or palette representation are invalid.</exception>
@@ -383,26 +384,72 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(tourianStatueColors)),
             Convert.ToHexString(SHA256.HashData(skeletonPng)),
             Convert.ToHexString(SHA256.HashData(auxiliaryColors)));
-        File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName),
+        // The manifest names every file by the cartridge's enemy headers and pins the import data's hashes: only the import reads it (#1693).
+        File.WriteAllBytes(Path.Combine(importData, EnemyTileArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
 
     /// <summary>
-    /// Checks the manifest, then reads what the game binds from the installed documents (#1636): every frame's display and
-    /// Kraid's eye colours (#1637). It reads no character page or colour document only the import reads; the installation
-    /// holds none.
+    /// Reads what the game binds from the installed documents (#1636): every frame's display (#1638) and Kraid's eye colours
+    /// (#1637), with the identity of the documents the directory holds. It opens no manifest (#1693), character page or
+    /// colour document only the import reads; the installation holds none.
     /// </summary>
-    public static InstalledEnemyArtwork Load(string directory) => EnemyTileArtworkReader.Open(directory).LoadInstalled();
+    /// <param name="directory">The installed enemy directory.</param>
+    /// <exception cref="InvalidDataException">An installed document is invalid.</exception>
+    public static InstalledEnemyArtwork Load(string directory)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        return new(FrameDisplays(directory).Displays(), KraidEyes(directory),
+            SelectedPresentationHash.Create("enemy-directory-v2", content =>
+            {
+                // Every installed document, framed by name in name order: the directory holds no character page (#1636).
+                foreach (string path in Directory.EnumerateFiles(directory).Order(StringComparer.Ordinal))
+                    content.Append(Path.GetFileName(path), File.ReadAllBytes(path));
+            }));
+    }
 
     /// <summary>
-    /// Checks the manifest, then compiles the extracted documents in <paramref name="directory"/> and the characters and
-    /// colour documents in its import data <paramref name="importData"/> into the enemy, boss and area catalogs the import
-    /// composes from.
+    /// The installed display bindings of every enemy frame in <paramref name="directory"/> (#1638), which the game reads and
+    /// the enemy sheets' frames are named from.
     /// </summary>
-    /// <param name="directory">The component's directory, holding the manifest and the documents.</param>
-    /// <param name="importData">The component's import-data directory, holding the character and tile pages and the colour documents.</param>
-    public static ImportEnemyArtwork LoadForImport(string directory, string importData) =>
-        EnemyTileArtworkReader.Open(directory).LoadForImport(importData);
+    /// <exception cref="InvalidDataException">A binding is invalid.</exception>
+    internal static InstalledEnemyFrameDisplays FrameDisplays(string directory)
+    {
+        try
+        {
+            return EnemyFrameDisplayFiles.Load(new MemoryStream(
+                File.ReadAllBytes(Path.Combine(directory, EnemyFrameDisplayFiles.FileName)), writable: false));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                $"Invalid enemy display bindings in {directory}: {error.Message}",
+                error);
+        }
+    }
+
+    /// <summary>Kraid's installed eye colours in <paramref name="directory"/>, which gameplay's eye glow reads back (#1512, #1637).</summary>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
+    private static KraidEyeColours KraidEyes(string directory)
+    {
+        string path = Path.Combine(directory, KraidEyeColourFile.FileName);
+        try
+        {
+            return KraidEyeColourFile.Read(new MemoryStream(File.ReadAllBytes(path), writable: false));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException($"Invalid Kraid eye colour file {path}: {error.Message}", error);
+        }
+    }
+
+    /// <summary>
+    /// Checks the manifest, then compiles the characters, colour documents, layouts and compositions of the import data
+    /// <paramref name="importData"/> into the enemy, boss and area catalogs the import composes from.
+    /// </summary>
+    /// <param name="importData">The component's import-data directory, holding the manifest, the character and tile pages, the colour documents, the layouts and the compositions.</param>
+    public static ImportEnemyArtwork LoadForImport(string importData) =>
+        EnemyTileArtworkReader.Open(importData).LoadForImport(importData);
 
     /// <summary>
     /// SHA-256 of the 122 sorted four-digit bank-$A0 header pointers joined with commas, independently

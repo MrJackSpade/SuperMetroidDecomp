@@ -30,7 +30,7 @@ internal static class MapSaveMarkersVerification
                 ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectBank | (pointer + index * 4));
                 AssertTrue(x != ushort.MaxValue, "all sixteen native save/elevator slots precede the terminator");
                 bool usable = x != ushort.MaxValue - 1;
-                LoadStation? station = SuperMetroid.Core.Saves.LoadStationNumberCodec.Find(area, index);
+                LoadStation? station = SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Find(area, index);
                 AssertEqual(usable, station is not null && MapSaveMarkers.IsMarked(station),
                     "a station has a marker exactly where the original marker list has one");
                 if (usable && station is not null)
@@ -50,7 +50,7 @@ internal static class MapSaveMarkersVerification
             for (int mask = 0; mask <= ushort.MaxValue; mask++)
             {
                 foreach (LoadStation station in areaStations)
-                    usedStations.Set(station, (mask & (1 << SuperMetroid.Core.Saves.LoadStationNumberCodec.Number(station))) != 0);
+                    usedStations.Set(station, (mask & (1 << SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Number(station))) != 0);
                 AssertEqual((mask & nativeMask) != 0, MapSaveMarkers.HasUsedMarker(area, usedStations),
                     "every set of used stations retains native area-label eligibility");
             }

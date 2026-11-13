@@ -13,8 +13,8 @@ public sealed record GameSaveSlotJsonDocument
     /// <summary>The zero-based save slot whose state this object represents.</summary>
     public required int Slot { get; init; }
 
-    /// <summary>The area and load-station pair used to resume gameplay.</summary>
-    public required SaveCheckpointJsonDocument Checkpoint { get; init; }
+    /// <summary>The load station the save resumes at, by its <see cref="LoadStation.Name"/> (schema nine, #1723).</summary>
+    public required string Checkpoint { get; init; }
 
     /// <summary>Current and acquired energy, ammunition, and reserve quantities.</summary>
     public required SaveResourcesJsonDocument Resources { get; init; }

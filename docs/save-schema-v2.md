@@ -93,3 +93,13 @@ which the save-image codec, SpaceTime's overwrite and the schema-five upgrade us
 each item and door number into the name of the placement it numbers and drops what nothing reads: event bits no story
 event uses, the orb list, and item or door numbers no retail placement has. The save-image codec reads and writes the
 same tables and leaves the orb table clear.
+
+## Schema nine (#1723)
+
+Schema nine names a slot's checkpoint by its load station's `LoadStationDefinitions` name and lists its used stations
+by name, in the order `LoadStationDefinitions.Usable` lists them; a name that is no load station, or no station Samus
+uses, is rejected. The numbers each area's station list gives its stations live only in AssetExtraction
+(`LoadStationNumberCodec`), which the map import, the room-population generator, the save-image codec and the upgrade use. The upgrade from schema
+eight turns the checkpoint's area and number into its station's name, rejecting a number that names no load station,
+and each area's used-station numbers into the names of the stations they number, dropping numbers that name no station
+Samus uses, which nothing in the game reads.

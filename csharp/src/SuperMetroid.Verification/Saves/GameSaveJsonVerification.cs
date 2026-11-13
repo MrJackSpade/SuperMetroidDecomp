@@ -224,7 +224,7 @@ internal static class GameSaveJsonVerification
 
     /// <summary>
     /// The JSON numbers the slot document now holds as <see cref="int"/> keep the range the schema always had: the
-    /// largest load station, the startup route and the named HUD selection and reserve-tank mode
+    /// named checkpoint, the startup route and the named HUD selection and reserve-tank mode
     /// survive store, document, JSON, document and store again with the same SRAM image, and a number outside its
     /// field's range, a numbered selection or mode and fields the game never reads, the new-file word and the item set-up
     /// count, are rejected at parse instead of
@@ -251,8 +251,7 @@ internal static class GameSaveJsonVerification
         AssertEqual(HudItem.XRay, slot.HudItem, "JSON carries the last selection of the HUD ring");
         AssertEqual(ReserveTankMode.Manual, slot.ReserveMode, "JSON carries the manual reserve-tank mode");
         AssertEqual(SaveLoadingGameState.CeresDestruction, slot.StartupRoute, "JSON names the save's startup route");
-        AssertEqual(AreaId.Maridia, slot.Checkpoint.Area, "JSON names the checkpoint's area");
-        AssertEqual(3, slot.Checkpoint.SaveStation, "JSON numbers the checkpoint in its area's station list");
+        AssertEqual(nameof(LoadStationDefinitions.DraygonSave), slot.Checkpoint, "JSON names the checkpoint's load station");
         AssertEqual(7, slot.Resources.ReserveMissiles, "JSON carries the reserve-missile count");
 
         string json = GameSaveJsonCodec.Serialize(document);
@@ -265,7 +264,7 @@ internal static class GameSaveJsonVerification
             ? json.Replace(from, to, StringComparison.Ordinal)
             : throw new InvalidOperationException($"The fixture JSON lacks {from}.");
         AssertInvalidJsonSave(Replaced("\"hudItem\": \"xRay\"", "\"hudItem\": 5"), "hudItem");
-        AssertInvalidJsonSave(Replaced("\"saveStation\": 3", "\"saveStation\": 7"), "load station");
+        AssertInvalidJsonSave(Replaced("\"checkpoint\": \"DraygonSave\"", "\"checkpoint\": \"Draygon\""), "load station");
         AssertInvalidJsonSave(Replaced("\"reserveMode\": \"manual\"", "\"reserveMode\": \"overflow\""), "reserveMode");
         AssertInvalidJsonSave(Replaced("\"hudItem\": \"xRay\"", "\"hudItem\": \"xRay\",\n      \"newFileMarker\": 1"), "newFileMarker");
         AssertInvalidJsonSave(Replaced("\"hudItem\": \"xRay\"", "\"hudItem\": \"xRay\",\n      \"loadedItemCount\": 0"), "loadedItemCount");
@@ -277,9 +276,10 @@ internal static class GameSaveJsonVerification
 
     /// <summary>
     /// #1623: a used-station number that names no station Samus uses, which the SpaceTime beam's overwrite of the record
-    /// set while saves kept every number's bit, is dropped by the JSON decoder as the save-RAM table decoder drops its bit,
-    /// so such a save loads with the same used stations from either; and every usable station round-trips, alone, through
-    /// the JSON save and the save-RAM table.
+    /// set while saves kept every number's bit, is dropped by the schema-eight upgrade (#1723) as the save-RAM table decoder
+    /// drops its bit, so such a save loads with the same used stations from either; the current schema, which names the
+    /// stations, rejects a name that is no station Samus uses; and every usable station round-trips, alone, through the
+    /// JSON save and the save-RAM table.
     /// </summary>
     internal static void VerifyUsedStationNumbersWithoutStation()
     {
@@ -311,16 +311,28 @@ internal static class GameSaveJsonVerification
             AssertTrue(read.UsedStations.Members.SequenceEqual([station]), $"the save-RAM table keeps {station} used, and nothing else");
         }
 
-        // Norfair's list numbers stations 0 through 5 and 8 through 10: 6 and 15 name none.
-        JsonNode overwritten = JsonNode.Parse(SavedJson(LoadStationDefinitions.CrocomireSave))
-            ?? throw new InvalidOperationException("The JSON save is empty.");
+        // The current schema names the stations; a name that is no station Samus uses is rejected.
+        JsonObject named = RequiredJson.Parse(SavedJson(LoadStationDefinitions.CrocomireSave)).AsObject();
+        JsonObject namedProgression = named.Required("slots").Required(0).Required("progression").AsObject();
+        AssertTrue(namedProgression.Required("usedStations").AsArray().Select(name => name?.GetValue<string>())
+                .SequenceEqual([nameof(LoadStationDefinitions.CrocomireSave)]),
+            "the fixture save names the Crocomire save station");
+        namedProgression["usedStations"] = new JsonArray(nameof(LoadStationDefinitions.ZebesArrival));
+        AssertInvalidJsonSave(named.ToJsonString(), "usedStations");
+
+        // Schema eight listed used stations by their numbers (#1723); Norfair's list numbers stations 0 through 5 and 8
+        // through 10, so 6 and 15 name none, and the upgrade drops them.
+        JsonObject overwritten = RequiredJson.Parse(SavedJson(LoadStationDefinitions.CrocomireSave)).AsObject();
+        overwritten["schemaVersion"] = 8;
+        ToSchemaEightSlots(overwritten);
         JsonObject norfair = overwritten.Required("slots").Required(0).Required("progression").Required("usedStations").AsArray()
             .Select(entry => entry?.AsObject() ?? throw new InvalidOperationException("A used-station entry is null."))
             .Single(entry => entry.Required("area").GetValue<string>() == "norfair");
         AssertTrue(norfair.Required("stations").AsArray().Select(number => number?.GetValue<int>()).SequenceEqual([3]),
-            "the fixture save lists the Crocomire save station by its number");
+            "the schema-eight fixture lists the Crocomire save station by its number");
         norfair["stations"] = new JsonArray(3, 6, 15);
-        PersistentProgress fromJson = Loaded(overwritten.ToJsonString());
+        PersistentProgress fromJson = (GameSaveJsonCodec.ToStore(LegacyGameSaveJson.Deserialize(overwritten.ToJsonString(), "game save", out _), maps)
+            .ReadSlot(0) ?? throw new InvalidOperationException("The upgraded JSON save lost slot 0.")).Progression;
 
         Array.Clear(table);
         table[SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(AreaId.Norfair) * sizeof(ushort)] = 1 << 3 | 1 << 6;
@@ -328,10 +340,10 @@ internal static class GameSaveJsonVerification
         var fromTable = new PersistentProgress();
         SuperMetroid.AssetExtraction.Progression.ProgressionTableCodec.ReadUsedStations(table, fromTable);
         AssertTrue(fromJson.UsedStations.Members.SequenceEqual([LoadStationDefinitions.CrocomireSave]),
-            "a JSON save listing numbers that name no station loads with only the station it names");
+            "a schema-eight save listing numbers that name no station upgrades with only the station it names");
         AssertTrue(fromTable.UsedStations.Members.SequenceEqual(fromJson.UsedStations.Members),
             "the save-RAM table's bits for those numbers decode to the same used stations");
-        Console.WriteLine($"  Used stations: all {LoadStationDefinitions.Usable.Count} usable stations round-trip alone; numbers naming no station are dropped by both decoders.");
+        Console.WriteLine($"  Used stations: all {LoadStationDefinitions.Usable.Count} usable stations round-trip alone; numbers naming no station are dropped by the upgrade and the table decoder.");
     }
 
     /// <summary>Confirms malformed save JSON is rejected with a diagnostic naming the invalid field or value.</summary>

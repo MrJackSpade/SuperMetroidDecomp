@@ -64,7 +64,7 @@ internal static class BossMapMarkersVerification
                 // format and restore path, entirely in disposable memory.
                 var source = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
                 source.SaveSlot(0,
-                    SuperMetroidSaveSnapshot.Capture(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), system, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Saves.LoadStationNumberCodec.Decode(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), 0, "boss map fixture") }));
+                    SuperMetroidSaveSnapshot.Capture(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), system, new SaveSnapshotContext { Checkpoint = SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Decode(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), 0, "boss map fixture") }));
                 string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(source));
                 var restored = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
                 var slot = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(json), RetailPresentationFixture()).ReadSlot(0) ??
@@ -79,7 +79,7 @@ internal static class BossMapMarkersVerification
                     RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
                 var savedGraphics = savedMenu.roomGraphics;
                 var liveGraphics = new FileSelectRoomMapGraphics(system, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
-                var marker = new FileSelectStationMarker(SuperMetroid.Core.Saves.LoadStationNumberCodec.Decode(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), 0, "boss map fixture"), RetailPresentationFixture().SaveMarkers);
+                var marker = new FileSelectStationMarker(SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Decode(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), 0, "boss map fixture"), RetailPresentationFixture().SaveMarkers);
                 ushort scrollX = unchecked((ushort)(x - 128)), scrollY = unchecked((ushort)(y - 112));
                 AssertTrue(liveGraphics.Render(new(scrollX, scrollY), marker).SequenceEqual(
                     savedGraphics.Render(new(scrollX, scrollY), marker)),

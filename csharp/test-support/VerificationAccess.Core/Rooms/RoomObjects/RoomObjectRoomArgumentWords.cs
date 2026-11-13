@@ -86,7 +86,7 @@ internal static class RoomObjectRoomArgumentWords
             return null;
         if (header == RoomObjectKind.SaveStation)
         {
-            return new SaveStationArgument(SuperMetroid.Core.Saves.LoadStationNumberCodec.Decode(
+            return new SaveStationArgument(SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Decode(
                 area ?? throw new InvalidDataException($"A save station's argument ${word:X4} names its station only in a room's area."),
                 word, "A save station's room argument"));
         }
@@ -134,7 +134,7 @@ internal static class RoomObjectRoomArgumentWords
             GreyDoorArgument grey => checked((ushort)((grey.Door.Persists ? 0 : NeverPersists) |
                 (grey.ConditionIndex << GreyConditionShift) | SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(grey.Door.Door))),
             SpentDoorArgument => SpentMark,
-            SaveStationArgument saved => checked((ushort)SuperMetroid.Core.Saves.LoadStationNumberCodec.Number(saved.Station)),
+            SaveStationArgument saved => checked((ushort)SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Number(saved.Station)),
             MetroidRoomArgument metroids => checked((ushort)(metroids.Entry * 2)),
             GateTriggerArgument gate => checked((ushort)(gate.Trigger * 2)),
             null => null,

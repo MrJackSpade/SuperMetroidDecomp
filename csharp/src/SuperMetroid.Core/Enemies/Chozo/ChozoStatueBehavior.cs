@@ -200,8 +200,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Carries out one cue of the Chozo statues' animations: every callback reachable from lists
-    /// the four statue animations. Every cue runs on to the next step, so none redirects.
+    /// Carries out one cue of the Chozo statues' animations: every cue
+    /// the four statue animations raise. Every cue runs on to the next step, so none redirects.
     /// </summary>
     private ChozoStatueProgram? ApplyChozoStatueCue(
         RoomEnemySlot statue,

@@ -96,13 +96,6 @@ public sealed record GameInstallation(string Root)
     public string EnemySheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EnemySheetDirectoryName);
     /// <summary>Loads every installed enemy sheet.</summary>
     public InstalledEnemySheets LoadEnemySheets() => EnemySheetFiles.Load(EnemySheetDirectory);
-    /// <summary>Loads the installed artwork only the import reads, which the installed content's identity covers (#1616).</summary>
-    /// <param name="samusBody">The Samus body the host loaded once and bound the game's body catalog from.</param>
-    public InstalledArtworkSources LoadArtworkSources(InstalledSamusBody samusBody) => new()
-    {
-        SamusBody = Ensure.NotNull(samusBody),
-        Intro = LoadIntroCinematicArt(),
-    };
     /// <summary>Installed projectile artwork and presentation selectors, which the player edits in place.</summary>
     public string ProjectileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.ProjectileDirectoryName);
     /// <summary>Installed Samus body documents the game binds, which the player edits in place.</summary>
@@ -114,9 +107,6 @@ public sealed record GameInstallation(string Root)
     public InstalledSamusBody LoadSamusBody() => SamusBodyArtworkFiles.Load(SamusBodyDirectory);
     /// <summary>Installed opening-cinematic artwork, which the player edits in place.</summary>
     public string IntroCinematicDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.IntroCinematicDirectoryName);
-    /// <summary>Loads the installed opening-cinematic artwork, which only the import reads.</summary>
-    public IntroCinematicSourceArtwork LoadIntroCinematicArt() =>
-        IntroCinematicArtworkFiles.Load(IntroCinematicDirectory);
     /// <summary>Loads what the game binds of the installed opening cinematic: its backdrops and the Ceres scenes' placements (#1616).</summary>
     public IntroCinematicArtwork LoadIntroCinematic() =>
         IntroCinematicArtworkFiles.LoadCinematic(IntroCinematicDirectory);

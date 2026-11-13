@@ -28,7 +28,14 @@ internal static class SamusOverreadDecoding
     /// </summary>
     internal static readonly SamusPoseId[] DrainedCrashPoses = [SamusPoseId.DrainedCrouchingRightPose, SamusPoseId.DrainedCrouchingLeftPose];
 
-    /// <summary>Decodes every glitch read into the installed document.</summary>
+    /// <summary>
+    /// Decodes the colours Samus's palette loaders read past their tables into the import data's document (#1693), which only
+    /// the import reads to pre-colour her sheets.
+    /// </summary>
+    internal static SamusOverrunColourDocument DecodeColours(IImportCartridgeSource cartridge) =>
+        new(SamusOverreadFormat.ColourVersion, SpeedBoosterOverrunColours(cartridge), ChainsawPaletteColours(cartridge));
+
+    /// <summary>Decodes every glitch read the game reads into the installed document.</summary>
     internal static SamusOverreadDocument Decode(IImportCartridgeSource cartridge)
     {
         SamusProjectileListLayout lists = SamusProjectileListEntries.Read(cartridge);
@@ -39,11 +46,9 @@ internal static class SamusOverreadDecoding
             SpaceTimeOverwrites(cartridge, lists),
             ChainsawFuseLandings(lists),
             PostureAdmissions(cartridge),
-            SpeedBoosterOverrunColours(cartridge),
             UnauthoredBeamLaunchSpeeds(cartridge),
             UnauthoredBeamCooldowns(cartridge),
-            DrainedCrashDepartures(cartridge),
-            ChainsawPaletteColours(cartridge));
+            DrainedCrashDepartures(cartridge));
     }
 
     /// <summary>

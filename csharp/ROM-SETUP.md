@@ -974,12 +974,11 @@ origins, collision or motion. The Mother Brain intro flashback shares the
 installed projectile, explosion and trail pictures, including after loading a
 debugger state.
 
-The ten-frame Hyper Beam
-projectile palette cycle is `game/projectiles/hyper-beam-fx-colors.json`, eight RGB5
-colors per frame. This changes appearance only: the frame order, two-tick cadence and
-loop remain compiled cartridge behavior. Loading a state refreshes ordinary colors at
-the next accepted display update, but preserves an active Crystal Flash or Hyper
-palette.
+The ten-frame Hyper Beam colour cycle is import data (#1693): the import pre-colours
+Samus's installed sheets in each of its frames, and the installation holds no copy of
+it. The frame order, two-tick cadence and loop remain compiled game behavior. Loading a
+state refreshes ordinary colors at the next accepted display update, but preserves an
+active Crystal Flash or Hyper Beam shade.
 
 Restart to load edits. Loading a debugger state retains the current session's
 projectile catalogs rather than restoring old artwork from the state.

@@ -61,11 +61,11 @@ internal static class SamusOverreadServicesReader
     /// sheets (#1512).
     /// </summary>
     /// <exception cref="InvalidDataException">The document has an unsupported version or an incomplete colour run.</exception>
-    internal static SamusOverrunColours ReadColours(SamusOverreadDocument document)
+    internal static SamusOverrunColours ReadColours(SamusOverrunColourDocument document)
     {
         Ensure.NotNull(document);
-        if (document.Version != SamusOverreadFormat.Version)
-            throw new InvalidDataException("Samus overread file has an unsupported version.");
+        if (document.Version != SamusOverreadFormat.ColourVersion)
+            throw new InvalidDataException("Samus overrun colour file has an unsupported version.");
         return new SamusOverrunColours(
             SpeedBoosterColours(Require(document.SpeedBoosterOverrunColours, nameof(document.SpeedBoosterOverrunColours))),
             ChainsawColours(Require(document.ChainsawBeamColours, nameof(document.ChainsawBeamColours))));

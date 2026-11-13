@@ -98,7 +98,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.Enemies.KraidBehavior.Access.Kraid = kraid;
         AssertPending(runtime, registers => registers.BackgroundScroll == before.BackgroundScroll, "Kraid's body on the background");
         // The view shows the body row below where his body lies against the frame's camera at the screen's top (#1514, #1617).
-        AssertPublished(runtime, registers => registers.BackgroundScroll == GameplaySceneView.ShownAtScreenTop(
+        AssertPublished(runtime, registers => registers.BackgroundScroll == GameplaySceneView.LayerPixelAtScreenTop(
             BossBodyPlacement.Shown(kraid.BodyOrigin, runtime.Display.Latched.Scrolls.ForegroundPosition)), "Kraid's body on the background");
         runtime.Enemies.KraidBehavior.Access.Kraid = null;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -134,7 +134,7 @@ internal static class GameplayDisplayFrameTestsVerification
             "sky bands are read live during display");
         AssertPending(runtime, registers => registers.BackgroundScroll.Y == before.BackgroundScroll.Y, "the sky's vertical scroll");
         // The view shows the sky row below the published scroll at the screen's top (#1514).
-        AssertPublished(runtime, registers => registers.BackgroundScroll.Y == GameplaySceneView.ShownRowAtScreenTop(SkyLayer1Y), "the sky's vertical scroll");
+        AssertPublished(runtime, registers => registers.BackgroundScroll.Y == GameplaySceneView.LayerRowAtScreenTop(SkyLayer1Y), "the sky's vertical scroll");
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }

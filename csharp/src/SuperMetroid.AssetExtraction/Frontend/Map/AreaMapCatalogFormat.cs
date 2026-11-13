@@ -11,11 +11,12 @@ public static class AreaMapCatalogFormat
     /// installs her beam backdrop's colours by purpose, and states each highlight frame's look as its highlight colour (#1637);
     /// 84 also installs no document of packed tile placements only the import reads (#1638); 85 installs the menus' and the
     /// ending text's layouts alone, their extracted documents and the map screens being import data (#1638); 86 installs no
-    /// manifest, which is import data (#1693).
+    /// manifest, which is import data (#1693); 87 installs neither the staff credits nor the highlight cycle's colours, which
+    /// are import data, and installs the highlight cycle as each frame's hold alone (#1693).
     /// </summary>
-    public const int Version = 86;
-    /// <summary>Manifest-bound non-area artwork files, including Ceres Mode-7 colors, the scene colours (#1544), Mother Brain's beam colours (#1637) and the file-select, HUD, menu and ending-text artwork (#1638).</summary>
-    public const int SharedResourceCount = 71;
+    public const int Version = 87;
+    /// <summary>Manifest-bound non-area artwork files, including Ceres Mode-7 colors, the scene colours (#1544), Mother Brain's beam colours (#1637), the file-select, HUD, menu and ending-text artwork (#1638) and the highlight cycle's holds and colours (#1693).</summary>
+    public const int SharedResourceCount = 72;
     /// <summary>Bundled authored reveal mask: logical row-major cell indexes, not SRAM offsets or editable engine code.</summary>
     public const string StationRevealFile = "station-reveal.json";
     /// <summary>

@@ -110,8 +110,7 @@ internal static class PauseMenuFixtureVerification
             CeresRidleyGetawayBoostDelays = game.CeresRidleyGetawayBoostDelays,
         };
         // The screens and the HUD are pictured from the constructed ROM's characters (#1466).
-        return InstalledFixtures.Record(new ImportAreaMapPresentation(new AreaMapPresentation(parts), new InstalledPresentationSources(
-            stock.StaffCredits, stock.HighlightColours),
+        return InstalledFixtures.Record(new ImportAreaMapPresentation(new AreaMapPresentation(parts),
             new ImportPresentationCharacters(new MapCharacterArtwork(
                 new MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)), new HudTileAtlas(hud),
                 new MapTileCharacters(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount))),
@@ -120,10 +119,11 @@ internal static class PauseMenuFixtureVerification
             new ImportPresentationColours(stock.SamusColours, stock.TitlePalette,
                 palettes, stock.CeresRidleyColors, stock.CeresRidleyFloorColors,
                 stock.MotherBrainHealthPalette, stock.MotherBrainRoomColors,
-                stock.RoomFxPaletteBlends, stock.RoomPaletteFx, stock.MotherBrainRainbowColours),
+                stock.RoomFxPaletteBlends, stock.RoomPaletteFx, stock.MotherBrainRainbowColours, stock.HighlightColours),
             new ImportPresentationDocuments(stock.FileSelect,
                 new PauseScreenArtwork(backdrops, stock.Pause.Wireframes, stock.Pause.EquipmentBase, stock.Pause.EquipmentLabels,
                     stock.Pause.ReserveUi), stock.RoomFxPages, stock.Messages, stock.GameplayHud, stock.Screens,
-                new ImportMenuDocuments(constructedSelectors, constructedTanks, stock.GameOverSource, stock.GameOptions, stock.EndingTextPresentation))));
+                new ImportMenuDocuments(constructedSelectors, constructedTanks, stock.GameOverSource, stock.GameOptions, stock.EndingTextPresentation),
+                stock.StaffCredits)));
     }
 }

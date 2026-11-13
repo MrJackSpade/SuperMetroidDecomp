@@ -3,6 +3,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 
@@ -12,25 +13,29 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// </summary>
 public static class InstalledArtworkIdentity
 {
-    /// <summary>Fingerprints an already loaded set; nothing is read here. Every catalog must be bound.</summary>
+    /// <summary>
+    /// Fingerprints the bound content (#1616, #1693): the artwork set the host bound, the enemy directory and the Samus body
+    /// it was bound from. Nothing is read here: every identity is taken from content the host already loaded to bind the
+    /// game, and every catalog must be bound.
+    /// </summary>
     /// <param name="artwork">The bound artwork set.</param>
     /// <param name="enemies">The installed enemy directory the set's enemy frames and Kraid's colours were bound from.</param>
-    /// <param name="sources">The installed artwork only the import reads, which the game binds none of (#1616).</param>
+    /// <param name="samusBody">The Samus body the host loaded once and bound the set's body catalog from.</param>
     /// <remarks>
     /// The tilesets' colours and the starting and common sprite colours are palette documents only the import reads, to
     /// pre-colour the sheets the game shows (#1544), and the character pages are import data the installation never holds
     /// (#1636); the sheets' identities stand for them, and no host loads them.
     /// </remarks>
     public static IEnumerable<KeyValuePair<string, string>> Create(GameArtwork artwork, InstalledEnemyArtwork enemies,
-        InstalledArtworkSources sources)
+        InstalledSamusBody samusBody)
     {
         Ensure.NotNull(artwork);
         Ensure.NotNull(enemies);
-        Ensure.NotNull(sources);
-        if (!ReferenceEquals(artwork.SamusBodyArt, sources.SamusBody.Gameplay))
+        Ensure.NotNull(samusBody);
+        if (!ReferenceEquals(artwork.SamusBodyArt, samusBody.Gameplay))
             throw new InvalidOperationException("The installed artwork set's Samus body was not bound from the body whose identity is asked for.");
         return RoomPresentationIdentity.Create(Require(artwork.RoomVisualLayouts))
-            .Append(KeyValuePair.Create(GameInstallationLayout.SamusBodyDirectoryName, sources.SamusBody.ContentIdentity))
+            .Append(KeyValuePair.Create(GameInstallationLayout.SamusBodyDirectoryName, samusBody.ContentIdentity))
             .Concat(RoomObjectPresentationIdentity.Create(new RoomObjectVisualCatalogSet
             {
                 ShotBlock = Require(artwork.RoomObjectShotBlockVisuals),
@@ -65,7 +70,7 @@ public static class InstalledArtworkIdentity
             }))
             .Concat(GameplayPresentationIdentity.Create(Require(artwork.XrayRevealVisuals)))
             .Concat(EndingPresentationIdentity.Create(Require(artwork.EndingBackdrops)))
-            .Append(KeyValuePair.Create(GameInstallationLayout.IntroCinematicDirectoryName, sources.Intro.ContentIdentity))
+            .Append(KeyValuePair.Create(GameInstallationLayout.IntroCinematicDirectoryName, Require(artwork.IntroCinematicArt).ContentIdentity))
             .Append(KeyValuePair.Create(GameInstallationLayout.SpriteSheetDirectoryName, Require(artwork.SpriteSheets).ContentIdentity))
             .Append(KeyValuePair.Create(GameInstallationLayout.EnemySheetDirectoryName, Require(artwork.EnemySheets).ContentIdentity))
             .Append(KeyValuePair.Create(GameInstallationLayout.RoomBlockSheetDirectoryName, Require(artwork.RoomBlockSheets).ContentIdentity))

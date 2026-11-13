@@ -46,7 +46,7 @@ internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, Spr
         ImportAreaMapPresentation maps = MapPresentationFiles.LoadForImport(map, ImportDataDirectory.Of(map));
         SamusMapColourTables tables = maps.SamusColours;
         string overreads = Path.Combine(content, GameInstallationLayout.SamusOverreadDirectoryName);
-        SamusOverrunColours overruns = SamusOverreadFiles.LoadColours(overreads);
+        SamusOverrunColours overruns = SamusOverreadFiles.LoadColours(ImportDataDirectory.Of(overreads));
         var sources = new SamusShadeSources(
             palettes.Starting,
             [.. intro.Palette.SpriteColours.AsSpan(SamusSheetInks.Suit, SamusSheetInks.GroupColours)],
@@ -61,7 +61,7 @@ internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, Spr
             projectiles.BeamPalettes,
             overruns.Chainsaw,
             tables.CrystalFlash,
-            projectiles.Presentation.HyperBeamFxColors,
+            projectiles.HyperBeamFxColors,
             SamusDeathPaletteArtworkFiles.LoadForImport(samusBodyImportData),
             maps.RoomPaletteFx);
         SamusBodyCharacterArtwork body = SamusBodyArtworkFiles.LoadCharacters(samusBody, samusBodyImportData);

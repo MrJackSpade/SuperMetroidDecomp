@@ -73,14 +73,14 @@ internal static class PhantoonPositionVerification
             var layer = (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
             AssertEqual(displayedX, layer.View.BackgroundScroll.X, "Phantoon captured horizontal register follows accepted NMI");
             // The view shows the background row below his placement at the screen's top (#1514).
-            AssertEqual(GameplaySceneView.ShownRowAtScreenTop(displayedY), layer.View.BackgroundScroll.Y, "Phantoon captured vertical register follows accepted NMI");
+            AssertEqual(GameplaySceneView.LayerRowAtScreenTop(displayedY), layer.View.BackgroundScroll.Y, "Phantoon captured vertical register follows accepted NMI");
             // $A7:CEA6 anchors the BG2 image's (40,40) origin to the body. Assert the
             // rendered anchor against the physical body, not merely two copied fields.
             if (phantoon.EyeState.WaveLength is null)
             {
                 AssertEqual(displayedBodyX, unchecked((ushort)(40 - layer.View.BackgroundScroll.X)),
                     "Phantoon displayed BG2 anchor shares the collision body's horizontal position");
-                AssertEqual(displayedBodyY, unchecked((ushort)(40 - (layer.View.BackgroundScroll.Y - ScreenGeometry.LayerRowsAboveSprites))),
+                AssertEqual(displayedBodyY, unchecked((ushort)(40 - (layer.View.BackgroundScroll.Y - ScreenGeometry.LayerRowsHiddenAboveScreen))),
                     "Phantoon displayed BG2 anchor shares the collision body's vertical position");
             }
             positions.Add(new MotherBrainRinkaDoorSpawnExpected(phantoon.Body.Position.X.Whole, phantoon.Body.Position.Y.Whole));

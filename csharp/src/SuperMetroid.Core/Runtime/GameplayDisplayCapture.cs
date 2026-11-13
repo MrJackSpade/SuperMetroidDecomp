@@ -116,8 +116,8 @@ public static class GameplayDisplayCapture
         ScreenLayers displayedLayers = latched.ShownLayers;
         // The cameras become the pixels the layers show at the screen's top-left corner (#1514): the layers show one row
         // below their cameras, so the backend draws the view with no offset of its own.
-        var view = new GameplaySceneView(GameplaySceneView.ShownAtScreenTop(foregroundScroll),
-            GameplaySceneView.ShownAtScreenTop(new Position16<BackgroundPixels>(kraidBody is { } kraidX ? Add(kraidX.X, shake.Background.X)
+        var view = new GameplaySceneView(GameplaySceneView.LayerPixelAtScreenTop(foregroundScroll),
+            GameplaySceneView.LayerPixelAtScreenTop(new Position16<BackgroundPixels>(kraidBody is { } kraidX ? Add(kraidX.X, shake.Background.X)
                 : crocomireBody is { } crocomireX ? Add(crocomireX.X, shake.Background.X) : backgroundScroll.X,
                 kraidBody is { } kraidY ? Add(kraidY.Y, shake.Background.Y)
                 : crocomireBody is { } crocomireY ? Add(crocomireY.Y, shake.Background.Y)

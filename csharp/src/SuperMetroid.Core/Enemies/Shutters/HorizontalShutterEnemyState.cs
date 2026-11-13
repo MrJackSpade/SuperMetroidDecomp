@@ -14,8 +14,8 @@ public sealed class HorizontalShutterEnemyState
     public HorizontalShutterAction? Action { get; internal set; }
 
     /// <summary>
-    /// Wrapping AI-update countdown; initial wait tests for zero after decrement, whereas endpoint rests test for
-    /// signed underflow.
+    /// Wrapping AI-update countdown; initial wait tests for zero after decrement, whereas endpoint rests wait for
+    /// it to pass zero.
     /// </summary>
     public WrappingCountdown ActionTimer { get; internal set; }
 

@@ -94,7 +94,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     public void PublishElevatorDoorContact() => ElevatorFlags = ElevatorJourneyFlag.DoorContact;
 
     /// <summary>
-    /// Resuming gameplay reloads the tiles through the elevator's tile reload, whose first
+    /// Resuming gameplay reloads the room's pictures through the elevator's picture reload, whose first
     /// write clears the elevator's journey status. Unpausing mid-ride therefore leaves the elevator's pseudo-door
     /// unarmed: reaching it starts the door at once, without the 48-frame down-elevator wait.
     /// </summary>

@@ -145,7 +145,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PreviousPosition = slot.Position.Whole;
         slot.Position = slot.Position.AdvanceY(state.FallingSpeed);
 
-        // The comparison tests only the sign of the wrapped difference, which the spatial difference
+        // The comparison checks only whether the wrapped difference is negative, which the spatial difference
         // keeps: coordinates near the room's edge retain the same game behavior.
         if ((slot.Position.Whole - state.FallingTarget).Y >= 0)
         {
@@ -157,7 +157,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
         CarrySamusWithKzanIfTouchingFromBelow(slot, state, samus);
 
-        // The game caps the speed by the sign of its difference from the cap; both stay far
+        // The game caps the speed by whether its difference from the cap is negative; both stay far
         // inside the signed range, so that is the ordinary minimum.
         SignedSixteenSixteen accelerated = state.FallingSpeed + KzanFallAcceleration;
         state.FallingSpeed = (accelerated - KzanMaximumFallingSpeed).IsNegative ? accelerated : KzanMaximumFallingSpeed;

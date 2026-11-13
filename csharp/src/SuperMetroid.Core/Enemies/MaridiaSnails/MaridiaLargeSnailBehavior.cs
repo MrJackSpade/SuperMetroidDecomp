@@ -259,7 +259,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 }
 
                 // The rising half reads the negative member of the same quadratic row. The record is not
-                // negative here, so its whole records are the row the game's sign-clearing AND selects.
+                // negative here, so its whole records are the row the game selects by the speed's magnitude.
                 _terrain.MoveEnemyVertically(
                     level,
                     slot,

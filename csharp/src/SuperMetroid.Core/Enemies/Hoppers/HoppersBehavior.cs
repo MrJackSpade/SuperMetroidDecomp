@@ -278,7 +278,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (movingAwayFromSurface)
         {
-            // The game stores the moved-back place and branches on its sign: a place before the first row is the apex,
+            // The game stores the moved-back place and checks whether it is negative: a place before the first row is the apex,
             // replaced by the first row as the hop turns back toward the surface.
             EnemyQuadraticSpeedIndex next = state.YSpeedTableIndex - EnemyQuadraticSpeedIndex.FromRows(state.YSpeedTableIndexDelta);
             if (next.IsNegative)
@@ -293,8 +293,8 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The game caps the returning record by the sign of its word difference from the cap; both stay far
-        // below the word's sign bit, so that is the ordinary minimum.
+        // The game caps the returning record by whether its wrapped difference from the cap is negative; both stay
+        // far inside the signed range, so that is the ordinary minimum.
         state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Min(
             state.YSpeedTableIndex + EnemyQuadraticSpeedIndex.FromRows(state.YSpeedTableIndexDelta),
             MaximumHopperYSpeedTableIndex);

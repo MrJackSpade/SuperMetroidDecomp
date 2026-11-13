@@ -16,8 +16,8 @@ public sealed class VerticalShutterEnemyState
     public VerticalShutterAction? Action { get; internal set; }
 
     /// <summary>
-    /// Wrapping AI-update countdown; initial waiting activates at zero, while endpoint resting resumes on signed
-    /// underflow.
+    /// Wrapping AI-update countdown; initial waiting activates at zero, while endpoint resting resumes once
+    /// it passes zero.
     /// </summary>
     public WrappingCountdown ActionTimer { get; internal set; }
     /// <summary>Downward signed 16.16 velocity in pixels per update, from the common linear-speed table.</summary>

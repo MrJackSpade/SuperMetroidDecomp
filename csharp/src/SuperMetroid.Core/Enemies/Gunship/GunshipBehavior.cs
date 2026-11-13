@@ -178,7 +178,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         RoomEnemySlot bottom = Pieces(top).Bottom;
 
         // The solid bottom decrements its engine-sound timer and reloads 70 on
-        // one/underflow. The engine sound is requested before the reload, exactly as it is in
+        // one or past zero. The engine sound is requested before the reload, exactly as it is in
         // the gunship top's main behaviour; this periodic producer continues while the ship is idling/bobbing.
         if (--Part(bottom).EngineSoundTimer <= 0)
         {
@@ -426,7 +426,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
     }
 
-    /// <summary>Decrements the phase timer, treating one and signed underflow as expiry.</summary>
+    /// <summary>Decrements the phase timer, treating one and a step past zero as expiry.</summary>
     private static bool TickGunshipPhaseTimer(RoomEnemySlot top)
     {
         return --Part(top).PhaseTimer <= 0;

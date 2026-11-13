@@ -28,7 +28,7 @@ internal static class MetroidBehaviorDefinitions
     /// <summary>A sixteenth of a health point, in the units of the drain counter.</summary>
     private const int SixteenthHealth = 4096;
 
-    /// <summary>Gravity Suit Samus loses one health each time this fraction underflows the drain counter: three sixteenths.</summary>
+    /// <summary>Gravity Suit Samus loses one health each time subtracting this fraction takes the drain counter past zero: three sixteenths.</summary>
     internal const int GravityDrainFraction = 3 * SixteenthHealth;
 
     /// <summary>Varia Suit Samus's drain fraction: six sixteenths.</summary>

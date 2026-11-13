@@ -85,15 +85,15 @@ public sealed class YappingMawEnemyState
     public int RetractedDelayTimer { get; internal set; }
 
     /// <summary>
-    /// The distance from its spawn settings below which an attack starts. The game compares it by the sign of a
-    /// wrapped difference, so a distance of 32768 or more behaves as the game's
+    /// The distance from its spawn settings below which an attack starts. The game compares it by a
+    /// wrapped difference read as signed, so a distance of 32768 or more behaves as the game's
     /// wrapped comparison does; <see cref="IsWithinActivationDistance"/> owns that comparison.
     /// </summary>
     public int ActivationDistance { get; internal set; }
 
     /// <summary>
     /// Whether <paramref name="distance"/> is strictly inside <see cref="ActivationDistance"/>, judged as the game
-    /// does by the sign of their difference wrapped to sixteen bits.
+    /// does by their difference wrapped to sixteen bits and read as signed.
     /// </summary>
     internal bool IsWithinActivationDistance(int distance) =>
         CoordinateAxis.Difference(distance, ActivationDistance) < 0;

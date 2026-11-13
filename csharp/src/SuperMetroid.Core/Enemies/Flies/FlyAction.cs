@@ -12,6 +12,6 @@ public enum FlyAction
     AntiClockwiseCircle,
     /// <summary>Advances the sampled attack velocity until crossing the saved Samus Y, then reverses vertical velocity and retreats.</summary>
     AttackSamus,
-    /// <summary>Continues with reversed Y velocity until the accumulated attack duration counts down through signed underflow, then starts a 24-update idle cooldown.</summary>
+    /// <summary>Continues with reversed Y velocity until the accumulated attack duration counts down past zero, then starts a 24-update idle cooldown.</summary>
     Retreat,
 }

@@ -30,7 +30,7 @@ public sealed class DeadTourianCorpseEnemyState
     /// </summary>
     public int PreRotDelayCounter { get; internal set; }
 
-    /// <summary>Assembly-internal reaction profile and tile-row layout of this corpse's species.</summary>
+    /// <summary>Assembly-internal reaction profile and row layout of this corpse's species.</summary>
     internal DeadTourianBehavior.DeadTourianCorpseProfile Profile { get; }
 
     /// <summary>Counts one pre-rot AI call.</summary>

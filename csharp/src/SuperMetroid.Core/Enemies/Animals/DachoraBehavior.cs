@@ -300,8 +300,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         // The collision result is discarded; the probe keeps Dachora glued to room slopes.
         _terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(1));
 
-        // The game compares the whole and fraction parts separately, each by the sign of its difference
-        // from the cap's; a fraction of half a pixel or more therefore also counts as below the cap.
+        // The game compares the whole and fraction parts separately, each by whether its difference
+        // from the cap's is negative; a fraction of half a pixel or more therefore also counts as below the cap.
         SignedSixteenSixteen speed = state.Speed;
         bool belowMaximum = speed.WholePixels < DachoraMaximumSpeed.WholePixels ||
             WrappingCounter.IsBehind(speed.Fraction, DachoraMaximumSpeed.Fraction);
@@ -364,7 +364,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.VerticalAcceleration += SamusGravity(samus);
         state.Speed += state.VerticalAcceleration;
 
-        // The cap replaces only the whole pixels, compared by the sign of their wrapped difference; the fraction is kept.
+        // The cap replaces only the whole pixels, compared by their wrapped difference read as signed; the fraction is kept.
         SignedSixteenSixteen speed = state.Speed;
         SignedSixteenSixteen capped = speed.WholePixels >= DachoraShinesparkMaximumWholeSpeed
             ? speed.WithWholePixels(DachoraShinesparkMaximumWholeSpeed)

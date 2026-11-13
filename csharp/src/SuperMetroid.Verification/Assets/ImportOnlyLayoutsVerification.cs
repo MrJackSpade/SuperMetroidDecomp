@@ -2,6 +2,8 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -27,6 +29,14 @@ internal static class ImportOnlyLayoutsVerification
         foreach (KraidHeadFrame head in KraidHeadTilemapFormat.HeadsByMouthStage)
             yield return (enemyTiles, KraidBackgroundArtworkFormat.HeadFileName(head.MouthStage));
         yield return (enemyTiles, CeresWarningGlyphDefinitions.FileName);
+        string intro = GameInstallationLayout.IntroCinematicDirectoryName;
+        for (int page = 0; page < IntroCinematicArtworkFormat.BackgroundPageCount; page++)
+            yield return (intro, IntroCinematicArtworkFormat.BackgroundPageFileName(page));
+        yield return (intro, IntroCinematicArtworkFormat.PortraitTilemapFileName);
+        yield return (intro, IntroCinematicArtworkFormat.InitialNarrationTilemapFileName);
+        yield return (intro, IntroFinalLineTilemapFormat.FileName);
+        yield return (intro, IntroEyeTilemapFormat.FileName);
+        yield return (intro, ZebesRevealArtworkFormat.MapFileName);
     }
 
     /// <summary>

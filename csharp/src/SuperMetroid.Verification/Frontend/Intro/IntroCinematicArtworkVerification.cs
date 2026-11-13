@@ -184,8 +184,9 @@ internal static class IntroCinematicArtworkVerification
                 "the restored stock shows exact cartridge opening palette colors");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed opening palette never rereads its cartridge source");
-            string dividerStockPath = Path.Combine(installation.IntroCinematicDirectory,
-                IntroFinalLineTilemapFormat.FileName);
+            // The divider is a layout only the import reads (#1638): its document is the cartridge-derived extraction's.
+            string dividerStockPath = Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(
+                SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName), IntroFinalLineTilemapFormat.FileName);
             IntroFinalLineTilemapDocument dividerDocument =
                 JsonSerializer.Deserialize<IntroFinalLineTilemapDocument>(
                     File.ReadAllBytes(dividerStockPath),
@@ -206,16 +207,6 @@ internal static class IntroCinematicArtworkVerification
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed opening divider never rereads its cartridge source");
 
-            string pageStockPath = Path.Combine(installation.IntroCinematicDirectory,
-                IntroCinematicArtworkFormat.BackgroundPageFileName(0));
-            byte[] stockPage = File.ReadAllBytes(pageStockPath);
-            File.WriteAllBytes(pageStockPath, [0]);
-            AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
-                "a corrupt stock BG page is rejected");
-            File.WriteAllBytes(pageStockPath, stockPage);
-            AssertTrue(installation.LoadIntroCinematicArt().BackgroundPages.Span.SequenceEqual(
-                    stock.BackgroundPages.Span),
-                "the restored stock shows all four native cinematic BG pages");
             Console.WriteLine(
                 "Intro art: three extracted character pages, seven full tilemaps, eye/caret/Mother Brain/explosion/Rinka/egg-effect/discovery/scientist compositions and full RGB5 palette; native parity and strict failures pass.");
         }

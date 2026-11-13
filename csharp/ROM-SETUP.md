@@ -241,31 +241,20 @@ debugger state rebinds the current sheets. Palette colors, scene tilemaps, sprit
 compositions, scrolling, and timing are not changed by these PNGs. An invalid file fails
 with its path; running the extractor again restores the originals.
 
-The same directory also contains `intro-background-page-0.json` through
-`intro-background-page-3.json`. Each file describes one ordered 32x32 BG tilemap page
-with tile column/row, palette, priority and flip fields. Edit a page in place to change
-its placement without changing character
-pixels or scene timing. These pages are reloaded after debugger-state restoration.
-`intro-portrait-tilemap.json` and `intro-initial-narration-tilemap.json` use the same
-32x32 schema. The initial narration page applies only before the first illustrated
-page begins; restoring a later debugger state preserves its live typewriter text.
+The opening's layouts are import data, never installed: the four scene pages
+`intro-background-page-0.json` through `intro-background-page-3.json`, the portrait
+`intro-portrait-tilemap.json`, the first narration card `intro-initial-narration-tilemap.json`,
+the subtitle line `intro-final-text-divider.json`, the portrait's four blinking-eye rectangles
+`intro-samus-eye-frames.json` and the Zebes reveal's `zebes-reveal-tilemap.json`. Their cells are
+the original's packed tile placements; the import composes the scene, narration and planet
+pictures from them, and the installation holds those pictures, which a player edits in place.
+The cartridge's blink script, frame durations and portrait placement remain compiled behavior.
 `intro-narration-palette.json` in the same directory contains the opening scene's
 256 native-precision RGB5 colors, which only the import reads to pre-colour the opening's
 sheets; edit it and reinstall to recolor them without changing narration timing or scene
 transitions. `intro-backdrops.json` holds the colours the opening shows where nothing is
 drawn: the narration's `opening` backdrop and the Ceres scenes' `ceresFlight` backdrop. The
 game reads these colours and neither palette document; edit them in place, each channel 0–31.
-`intro-final-text-divider.json` contains the 32-by-4 ordered BG3 tile references
-beneath the illustrated text pages. Edit it in place to change
-tile positions, palette selections, priority, or flips. Live text, caret
-motion, and page timing stay in code; a restored illustrated page replaces only
-those four divider rows.
-`intro-samus-eye-frames.json` contains four ordered 3-by-2 BG2 tile rectangles
-for the portrait's blinking eye. Each cell can change its tile, palette,
-priority, or flips. The cartridge's blink
-script, frame durations, and portrait placement remain compiled behavior; a
-restored illustrated page reapplies the active rectangle without restarting
-its blink timer.
 `intro-caret-sprites.json` contains the illustrated-page text caret's visible
 OAM composition. Its blink alternates this one frame with no sprite; the three
 nearby ROM spritemaps are not caret frames. Sprite offsets, tile regions,
@@ -299,10 +288,8 @@ instruction timing, and scene handoffs remain compiled.
 
 Ceres destruction reuses those character sheets and the approach's front/rear maps.
 Its two station views and clear-map slice are in `ceres-destruction-mode7-maps.json`
-(three ordered 32x24 views). The following planet reveal uses
-`zebes-reveal-tilemap.json` (one 32x32 BG page) and
-`zebes-reveal-characters.png` (256x128 indexed). Each can be edited separately in
-place; restored debugger states rebind these visuals
+(three ordered 32x24 views). The following planet reveal's picture is composed by the import
+from its layout and characters, both import data; restored debugger states rebind these visuals
 without restarting the destruction or descent timeline. Explosion, actor and
 camera behavior remain compiled cartridge logic.
 `ceres-destruction-sprites.json` adds the 23 distinct station-blast, explosion,

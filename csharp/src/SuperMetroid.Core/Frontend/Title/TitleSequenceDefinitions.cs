@@ -18,6 +18,16 @@ public static class TitleSequenceDefinitions
         public const PaletteFxObject FastLights = PaletteFxObject.TitleScreenFlickeringDisplays;
     }
 
+    /// <summary>The colour effects that fade the logo and the copyright in from black as each first shows (#1714).</summary>
+    public static class Fades
+    {
+        /// <summary>The logo's fade, started on the update the final zoom completes and the logo first shows.</summary>
+        public const PaletteFxObject Logo = PaletteFxObject.FadeInSuperMetroidTitleLogo;
+
+        /// <summary>The copyright's fade, started on the update the logo's hold ends and the copyright first shows.</summary>
+        public const PaletteFxObject Copyright = PaletteFxObject.FadeInNintendoCopyright;
+    }
+
     /// <summary>The tracks the normal and skip paths select.</summary>
     public static class Music
     {
@@ -91,6 +101,17 @@ public static class TitleSequenceDefinitions
         public const TitleSpriteColouring LogoColouring = TitleSpriteColouring.Logo;
         /// <summary>The colouring the copyright draws in.</summary>
         public const TitleSpriteColouring CopyrightColouring = TitleSpriteColouring.Copyright;
+
+        /// <summary>
+        /// The colour group of each colouring whose colours a fade animates (#1714): a composition drawn in the colouring
+        /// shows the record the fade last showed over its drawn colours.
+        /// </summary>
+        public static IReadOnlyDictionary<TitleSpriteColouring, PaletteFxColours> FadedColours { get; } =
+            new Dictionary<TitleSpriteColouring, PaletteFxColours>
+            {
+                [TitleSpriteColouring.Logo] = PaletteFxColours.TitleLogo,
+                [TitleSpriteColouring.Copyright] = PaletteFxColours.NintendoCopyright,
+            };
     }
 
     /// <summary>The title's animated artwork.</summary>

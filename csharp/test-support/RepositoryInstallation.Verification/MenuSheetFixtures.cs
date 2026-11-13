@@ -155,7 +155,7 @@ internal static class MenuSheetFixtures
     private static InstalledSpriteSheets ComposeTitle(TitleGraphicsCharacters graphics)
     {
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
-        sheets[SpriteSheetId.Title] = Load(SpriteSheetId.Title, TitleSheetComposer.Sources(graphics, InstalledFixtures.ImportMaps.TitlePalette),
+        sheets[SpriteSheetId.Title] = Load(SpriteSheetId.Title, TitleSheetComposer.Sources(graphics, InstalledFixtures.ImportMaps.TitlePalette, InstalledFixtures.ImportMaps.RoomPaletteFx),
             $"title-{RuntimeHelpers.GetHashCode(graphics):X8}");
         // The title's floor is composed from these graphics (#1392, #1467).
         sheets[SpriteSheetId.TitleFloor] = LoadTiles(SpriteSheetId.TitleFloor,
@@ -197,7 +197,7 @@ internal static class MenuSheetFixtures
             {
                 TitleGraphicsCharacters graphics = InstalledFixtures.ImportMaps.TitleGraphics;
                 var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
-                sheets[SpriteSheetId.Title] = Load(SpriteSheetId.Title, TitleSheetComposer.Sources(graphics, key),
+                sheets[SpriteSheetId.Title] = Load(SpriteSheetId.Title, TitleSheetComposer.Sources(graphics, key, InstalledFixtures.ImportMaps.RoomPaletteFx),
                     $"title-palette-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.TitleFloor] = LoadTiles(SpriteSheetId.TitleFloor,
                     FrontendFloorSheetComposer.Title(graphics, key), $"title-palette-{RuntimeHelpers.GetHashCode(key):X8}");

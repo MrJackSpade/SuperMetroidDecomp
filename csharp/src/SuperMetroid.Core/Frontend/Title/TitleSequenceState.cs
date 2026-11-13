@@ -46,8 +46,11 @@ public sealed class TitleSequenceState : IFrontendScreen
 
     /// <summary>Queues the opening music and title transitions when audio is available.</summary>
     private readonly AudioQueues? audio;
-    /// <summary>Runs the two console-light palette-FX animations during the title sequence.</summary>
-    private RoomPaletteFxSystem consolePaletteFx = new(new PaletteFxSessionState());
+    /// <summary>
+    /// Runs the title's colour effects (#1714): the two console lights for the whole sequence, and the logo's and the
+    /// copyright's fades from the updates they first show.
+    /// </summary>
+    private RoomPaletteFxSystem colourEffects = new(new PaletteFxSessionState());
     /// <summary>The title and copyright sprite entries in drawing order, over the title sprite page (#1358).</summary>
     internal readonly ScreenSprites objects;
     /// <summary>Preserves newly pressed input edges for title skip and file-select entry.</summary>
@@ -135,7 +138,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         // Title setup expands the four artwork streams; the title binds that
         // artwork and its capture places the turning floor, the sprites and the Baby's pose.
         objects = new ScreenSprites();
-        ResetConsolePaletteFx();
+        RestartColourEffects();
 
         // The Year object's frame behaviour forces full brightness on the first
         // processing frame; its position and palette come from its definition.
@@ -186,7 +189,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     public void Step(ControllerButton controllerInput)
     {
         controller.Latch(controllerInput);
-        bool rebuildConsolePaletteFxAfterStep = false;
+        bool restartColourEffectsAfterStep = false;
 
         // The title admits B, Start, or A during every pre-title cinematic function. The
         // game performs a fast fade-out, reconstructs the final title objects, then a
@@ -239,17 +242,20 @@ public sealed class TitleSequenceState : IFrontendScreen
                     ActiveObjectColouring = TitleSequenceDefinitions.Sprites.LogoColouring;
                     Phase = TitleSequencePhase.TitleLogoFade;
                     PhaseTimer = TitleSequenceDefinitions.Timing.LogoHoldFrames;
+                    // The logo starts its fade as it first shows; the effect shows its first record when the colour
+                    // effects step at the end of this update, so the logo first shows black.
+                    colourEffects.Start(TitleSequenceDefinitions.Fades.Logo, 0);
                 }
                 break;
 
             case TitleSequencePhase.TitleLogoFade:
                 if (--PhaseTimer <= 0)
                 {
-                    // The copyright holds for 32 frames before arming the
-                    // 900-frame demo countdown. The palette FX itself remains future work;
-                    // its final palette is already the visible colour source.
+                    // The copyright first shows, and starts its fade, as the logo's hold ends; it holds for 32 updates
+                    // before arming the 900-update demo countdown.
                     Phase = TitleSequencePhase.CopyrightFade;
                     PhaseTimer = TitleSequenceDefinitions.Timing.CopyrightHoldFrames;
+                    colourEffects.Start(TitleSequenceDefinitions.Fades.Copyright, 0);
                 }
                 break;
 
@@ -269,7 +275,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                     audio?.QueueMusic(
                         MusicRequest.SelectTrack(TitleSequenceDefinitions.Music.ImmediateTitleTrack));
                     EnterImmediateTitleObjects();
-                    rebuildConsolePaletteFxAfterStep = true;
+                    restartColourEffectsAfterStep = true;
                     Phase = TitleSequencePhase.TitleScreenFadeIn;
                 }
                 break;
@@ -314,21 +320,24 @@ public sealed class TitleSequenceState : IFrontendScreen
         }
 
         StepBabyMetroidAnimation();
-        // The title runs the same colour effects as rooms. Its two console
-        // animations own their colors and timers; nothing else synthesizes a blink.
-        consolePaletteFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+        // The title runs the same colour effects as rooms. The console lights and the
+        // logo's and copyright's fades own their colours and timers; nothing else synthesizes a blink or a fade.
+        colourEffects.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
         // The skip reconstruction follows the palette effects for this frame. Restart
         // only here, not when the subsequent fade-in arms the title idle countdown.
-        if (rebuildConsolePaletteFxAfterStep)
-            ResetConsolePaletteFx();
+        if (restartColourEffectsAfterStep)
+            RestartColourEffects();
     }
 
-    /// <summary>Restarts the slow and fast console-light palette animations at the title seam.</summary>
-    private void ResetConsolePaletteFx()
+    /// <summary>
+    /// Restarts the slow and fast console-light animations at the title seam, ending every other colour effect: a logo or
+    /// copyright fade the skip interrupts stops, and the rebuilt logo and copyright show their drawn colours (#1714).
+    /// </summary>
+    private void RestartColourEffects()
     {
-        consolePaletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
-        consolePaletteFx.Start(TitleSequenceDefinitions.ConsolePaletteFx.SlowLights, 0);
-        consolePaletteFx.Start(TitleSequenceDefinitions.ConsolePaletteFx.FastLights, 0);
+        colourEffects = new RoomPaletteFxSystem(new PaletteFxSessionState());
+        colourEffects.Start(TitleSequenceDefinitions.ConsolePaletteFx.SlowLights, 0);
+        colourEffects.Start(TitleSequenceDefinitions.ConsolePaletteFx.FastLights, 0);
     }
 
     /// <summary>
@@ -364,18 +373,36 @@ public sealed class TitleSequenceState : IFrontendScreen
         get
         {
             PictureShading shading = PictureShading.Standard;
-            if (consolePaletteFx.FrameOf(PaletteFxColours.BabyMetroidTubeLight) is { } tube)
+            if (colourEffects.FrameOf(PaletteFxColours.BabyMetroidTubeLight) is { } tube)
                 shading = shading.With(PaletteFxShades.Of(PaletteFxColours.BabyMetroidTubeLight, tube));
-            if (consolePaletteFx.FrameOf(PaletteFxColours.TitleScreenDisplays) is { } displays)
+            if (colourEffects.FrameOf(PaletteFxColours.TitleScreenDisplays) is { } displays)
                 shading = shading.With(PaletteFxShades.Of(PaletteFxColours.TitleScreenDisplays, displays));
             return shading;
         }
     }
 
-    /// <summary>The copyright's shading: its drawn colours, with its glyph colours restored once the skip has rebuilt the title objects (#1512).</summary>
-    internal PictureShading CopyrightShading => CopyrightRestored
+    /// <summary>
+    /// The copyright's shading: its drawn colours, with its glyph colours restored once the skip has rebuilt the title
+    /// objects (#1512), and the record its fade last showed laid over them (#1714).
+    /// </summary>
+    internal PictureShading CopyrightShading => Faded(TitleSequenceDefinitions.Sprites.CopyrightColouring, CopyrightRestored
         ? PictureShading.Shaded(TitleShades.Drawn(TitleSequenceDefinitions.Sprites.CopyrightColouring)).With(TitleShades.RestoredCopyright)
-        : PictureShading.Shaded(TitleShades.Drawn(TitleSequenceDefinitions.Sprites.CopyrightColouring));
+        : PictureShading.Shaded(TitleShades.Drawn(TitleSequenceDefinitions.Sprites.CopyrightColouring)));
+
+    /// <summary>The active composition's shading: its colouring's drawn colours, with the record a fade of them last showed (#1714).</summary>
+    internal PictureShading ActiveShading =>
+        Faded(ActiveObjectColouring, PictureShading.Shaded(TitleShades.Drawn(ActiveObjectColouring)));
+
+    /// <summary>
+    /// <paramref name="drawn"/> with the record the fade of <paramref name="colouring"/>'s colours last showed laid over
+    /// it (#1714): a fade that has ended keeps showing its last record, and a colouring no fade animates, or one whose
+    /// fade has not started, shows <paramref name="drawn"/>.
+    /// </summary>
+    private PictureShading Faded(TitleSpriteColouring colouring, PictureShading drawn) =>
+        TitleSequenceDefinitions.Sprites.FadedColours.TryGetValue(colouring, out PaletteFxColours colours)
+        && colourEffects.FrameOf(colours) is { } frame
+            ? drawn.With(PaletteFxShades.Of(colours, frame))
+            : drawn;
 
     /// <summary>Resolves the installed title gradient at the floor's current zoom.</summary>
     private ScreenGradient ResolveTitleGradient()
@@ -397,7 +424,7 @@ public sealed class TitleSequenceState : IFrontendScreen
             // after masking the stored attributes. It does not add a base tile;
             // confusing it with the enemy loader makes the title art uniformly blue.
             TitleSpriteDrawing.DrawSprite(sheet, sprite, objects,
-                ActiveOrigin.ToSpritePosition(), ActiveObjectColouring);
+                ActiveOrigin.ToSpritePosition(), ActiveShading);
         }
 
         if (Phase is TitleSequencePhase.CopyrightFade or TitleSequencePhase.SkipFadeOut or TitleSequencePhase.TitleScreenFadeIn or

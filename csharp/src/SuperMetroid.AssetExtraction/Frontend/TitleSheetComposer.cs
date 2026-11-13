@@ -8,26 +8,34 @@ using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>
 /// Composes the title sheet (#1392): each title composition over the title OBJ page, its palette-inheriting parts in the
-/// sprite set of the colouring the title draws it in (#1513), coloured as the title loads its palette, with a shade for each colouring the compositions draw in and for
-/// the copyright's colours as the skip restores them (#1512).
+/// sprite set of the colouring the title draws it in (#1513), coloured as the title loads its palette, with a shade for each colouring the compositions draw in, for
+/// the copyright's colours as the skip restores them (#1512) and for each record the logo's and copyright's fades show (#1714).
 /// </summary>
 internal static class TitleSheetComposer
 {
 
     /// <summary>What the title sheet composes.</summary>
     internal static SpriteSheetSources Sources(ImportAreaMapPresentation maps) =>
-        Sources(Ensure.NotNull(maps).TitleGraphics, maps.TitlePalette);
+        Sources(Ensure.NotNull(maps).TitleGraphics, maps.TitlePalette, maps.RoomPaletteFx);
 
-    /// <summary>What the title sheet composes from <paramref name="graphics"/>, coloured with <paramref name="palette"/>.</summary>
-    internal static SpriteSheetSources Sources(TitleGraphicsCharacters graphics, TitlePalettePresentation palette)
+    /// <summary>
+    /// What the title sheet composes from <paramref name="graphics"/>, coloured with <paramref name="palette"/>, its fades'
+    /// records coloured from <paramref name="paletteFx"/>.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A fade's record has no installed colour, or writes past its colours.</exception>
+    internal static SpriteSheetSources Sources(TitleGraphicsCharacters graphics, TitlePalettePresentation palette, IPaletteFxColorSource paletteFx)
     {
         TitleGraphicsCharacters characters = Ensure.NotNull(graphics);
         Ensure.NotNull(palette);
+        Ensure.NotNull(paletteFx);
         // Each composition's palette-inheriting parts are pictured in the sprite set of the one colouring the title draws
         // it in (#1513), so the sheet shows every frame in its own colours. A card's reveals are pictured as the glyphs they
         // type, each once: a reveal's glyph is the parts it adds to the reveal before it, and a reveal adding none types a
@@ -73,6 +81,13 @@ internal static class TitleSheetComposer
         shades.Add(new SheetShade(TitleShades.RestoredCopyright,
             [copyright + TitleSheetInks.CopyrightWhiteColour, copyright + TitleSheetInks.CopyrightRedColour],
             [palette.SkipCopyrightWhite, palette.SkipCopyrightRed]));
+        // The logo and the copyright show each record their fades show over the inks each fade recolours (#1714), laid
+        // over their drawn shades.
+        foreach (PaletteFxColours faded in TitleSheetInks.Fades)
+        {
+            shades.AddRange(PaletteFxScreenShades.Of([TitleSequenceDefinitions.Fades.Logo, TitleSequenceDefinitions.Fades.Copyright],
+                faded, TitleSheetInks.Fade(faded), paletteFx));
+        }
         return new SpriteSheetSources(frames, sprites,
             ObjectSelectionCodec.Sizes(TitleSourceDefinitions.ObjectSizeAndBaseSelector), PartsKeepOwnRows: true, Blank: blank)
         {

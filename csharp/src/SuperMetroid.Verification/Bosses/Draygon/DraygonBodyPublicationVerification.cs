@@ -36,8 +36,8 @@ internal static class DraygonBodyPublicationVerification
             runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
             // His body lies in the room at his body's position, moved by his body graphics' displacement (#1617).
             var expected = new Position16<RoomPixels>(
-                unchecked((ushort)(body.X + 450 - draygon.BodyGraphicsDisplacement.X)),
-                unchecked((ushort)(body.Y + 192 - draygon.BodyGraphicsDisplacement.Y)));
+                unchecked((ushort)(body.X + DraygonBackgroundData.HorizontalOrigin - draygon.BodyGraphicsDisplacement.X)),
+                unchecked((ushort)(body.Y + DraygonBackgroundData.VerticalOrigin - draygon.BodyGraphicsDisplacement.Y)));
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             DraygonBodyPlacement placement = runtime.Display.Latched.Bosses.DraygonBody
                 ?? throw new InvalidOperationException("Draygon publishes his body placement.");

@@ -19,7 +19,16 @@ using SuperMetroid.TestSupport.FrameRendering;
 /// <summary>Checks Draygon's pre-battle X-Ray masking and later combat visibility.</summary>
 internal static class DraygonPrebattleXrayVerification
 {
-    /// <summary>Verifies that the native TM HDMA range hides wrapped body art during X-Ray without hiding the combat body.</summary>
+    /// <summary>The rendered screen's width in pixels, one row of the render's pixels.</summary>
+    private const int ScreenWidth = 256;
+
+    /// <summary>The farthest across or down from its area's corner Draygon's body pictures reach, in pixels.</summary>
+    private const int BodyAreaExtent = 128;
+
+    /// <summary>
+    /// Verifies that pre-battle X-Ray in the arena's corner shows none of Draygon's offscreen body, with or without the native
+    /// background-line range, and that the body still displays at battle start.
+    /// </summary>
     internal static void VerifyDraygonPrebattleXray()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -59,8 +68,12 @@ internal static class DraygonPrebattleXrayVerification
         int wrapped = unmasked.Zip(hidden, (first, second) => first != second).Count(differs => differs);
         Console.WriteLine($"Pre-battle Draygon: body={boss.Body.Position.X.Whole:X4}/{boss.Body.Position.Y.Whole:X4}, Samus={samus.Position.X.Whole}/{samus.Position.Y.Whole}, camera={r.ForegroundScroll.X}/{r.ForegroundScroll.Y}; exposed={exposed}, unmasked={wrapped} pixels.");
 
-        AssertTrue(wrapped > 0, "the reported corner visibly exposes repeated body art without native clipping");
-        AssertEqual(0, exposed, "pre-battle X-Ray hides the offscreen body exactly like native TM HDMA");
+        // The reported exposure (#1260) was the body layer's art repeating into the corner. Since #1617 the body reaches the
+        // display placed at the body's own room position, which before the battle lies off the view, so no repeated art
+        // reaches the corner even with the background lines unclipped; the battle-start check below shows the same body
+        // placement does display once it is in view.
+        AssertEqual(0, wrapped, "the pre-battle body, placed at its own position off the view, shows nothing even unclipped");
+        AssertEqual(0, exposed, "pre-battle X-Ray shows none of the offscreen body");
 
         // End X-Ray, then stage the native end of the intro rather than replaying the dance.
         for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);
@@ -79,9 +92,19 @@ internal static class DraygonPrebattleXrayVerification
             new DisplayLayer[] { new GameplaySceneLayer(ordinary.View with
                 { ShownLayers = ordinary.View.ShownLayers & ~ScreenLayers.Background }, ordinary.Rooms, ordinary.BackgroundLineScrolls),
                 combat.Layers[1] }, combat.Brightness);
-        int visible = DisplayRendering.Render(combat).Zip(DisplayRendering.Render(combatWithoutBg2), (first, second) => first != second).Count(differs => differs);
-        Console.WriteLine($"Battle-start Draygon body: {visible} visible pixels.");
-        AssertTrue(visible > 0, "battle start still displays Draygon's body");
+        RgbaPixel[] withBody = DisplayRendering.Render(combat), withoutBody = DisplayRendering.Render(combatWithoutBg2);
+        int[] shown = [.. Enumerable.Range(0, withBody.Length).Where(index => withBody[index] != withoutBody[index])];
+        // #1680: his body's pictures lie once in the room at his parts' area, whose top-left corner is the published origin;
+        // the screen shows them there against the room pixel at its top-left corner, starting at the area's corner.
+        DraygonBodyPlacement placement = runtime.Display.Latched.Bosses.DraygonBody ?? throw new InvalidOperationException("Draygon publishes his body placement.");
+        Offset16<ScreenPixels> corner = placement.BodyOrigin.RelativeToCamera(ordinary.View.ForegroundScroll);
+        Console.WriteLine($"Battle-start Draygon body: {shown.Length} visible pixels; body={boss.Body.Position.X.Whole}/{boss.Body.Position.Y.Whole}, " +
+            $"its area's corner on screen {corner.X}/{corner.Y}.");
+        AssertTrue(shown.Length > 0, "battle start still displays Draygon's body");
+        AssertEqual(corner.X, shown.Min(index => index % ScreenWidth), "the body's leftmost shown pixel is its area's left edge");
+        AssertEqual(corner.Y, shown.Min(index => index / ScreenWidth), "the body's topmost shown pixel is its area's top edge");
+        AssertTrue(shown.Max(index => index % ScreenWidth) < corner.X + BodyAreaExtent && shown.Max(index => index / ScreenWidth) < corner.Y + BodyAreaExtent,
+            "the body shows within its parts' area around his body, not a repeat of the layer away from it");
 
         RgbaPixel[] RenderWithRegisters(GameplaySceneView registers)
         {

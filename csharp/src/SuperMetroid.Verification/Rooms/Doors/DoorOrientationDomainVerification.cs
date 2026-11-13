@@ -43,9 +43,7 @@ internal static class DoorOrientationDomainVerification
         // The pseudo-doors' overlapped bytes ($91/$93 at offset 3) are not orientations.
         foreach (ushort pseudo in new[] { DoorDefinitionsAccess.SharedElevatorPseudoDoorPointer, DoorDefinitionsAccess.MaridiaTourianElevatorPseudoDoorPointer })
             AssertThrows<ArgumentOutOfRangeException>(() => DoorDefinitions.Get(pseudo), $"pseudo-door ${pseudo:X4} is not a header");
-        foreach (ElevatorPseudoDoor pseudo in Enum.GetValues<ElevatorPseudoDoor>())
-            AssertTrue(DoorListEntry.ElevatorPseudoDoor(pseudo).IsElevatorPseudoDoor, $"{pseudo} pseudo-door entry");
-        AssertThrows<ArgumentOutOfRangeException>(() => DoorListEntry.ElevatorPseudoDoor((ElevatorPseudoDoor)2), "an undefined pseudo-door is rejected");
+        AssertTrue(DoorListEntry.ElevatorPseudoDoor.IsElevatorPseudoDoor, "the elevator pseudo-door entry");
 
         Console.WriteLine("Door orientation domain: decode/encode, rejection and pseudo-door entries agree.");
     }

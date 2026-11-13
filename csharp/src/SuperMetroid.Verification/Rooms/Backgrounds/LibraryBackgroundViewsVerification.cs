@@ -58,7 +58,7 @@ internal static class LibraryBackgroundViewsVerification
             EnemyPopulation = RoomEnemyPopulationDefinitions.PhantoonDefault,
         };
         AssertEqual(0, RoomBlockUploads.BackgroundNamesOf([boss]).Count, "a background showing the boss's body installs no picture");
-        AssertBindsNone(boss.Background, LibraryBackgroundView.BossBody, "a room showing the boss's body on its background");
+        AssertBindsNone(boss.Background, "a room showing the boss's body on its background");
         AssertThrows<InvalidDataException>(() => RoomBlockUploads.BackgroundNamesOf([pictured with { Background = LibraryBackgroundDefinitions.PhantoonDefault }]),
             "a background showing a boss's body in a room with no boss is refused");
 
@@ -69,22 +69,22 @@ internal static class LibraryBackgroundViewsVerification
         string[] skyRows = [RoomBackgroundImage.SkyNameOf(ScrollingSkyState.VariantOf(sky.MainCallback), skyTileset)];
         AssertTrue(skyNames.SequenceEqual(skyRows, StringComparer.Ordinal),
             $"a sky room installs only its sky's rows, not [{string.Join(", ", skyNames)}]");
-        AssertBindsNone(sky.Background, LibraryBackgroundView.SkyRows, "a sky room");
+        AssertBindsNone(sky.Background, "a sky room");
         AssertThrows<InvalidDataException>(() => RoomBlockUploads.BackgroundNamesOf([sky with { SetupCallback = RoomSetupCallback.Return }]),
             "a background showing the sky's rows in a room without the sky's bands is refused");
 
         // Nothing: the Parlor's state loading the Ceres elevator shaft's cleared background.
         RoomStateSettings cleared = pictured with { Background = LibraryBackgroundDefinitions.CeresElev };
         AssertEqual(0, RoomBlockUploads.BackgroundNamesOf([cleared]).Count, "a cleared background installs no picture");
-        AssertBindsNone(cleared.Background, LibraryBackgroundView.Nothing, "a room whose background is cleared");
+        AssertBindsNone(cleared.Background, "a room whose background is cleared");
 
         AssertEqual(RoomLibraryBackgroundPicture.NoneLoaded, RoomLibraryBackgroundPicture.Of(null, NoLookup), "a room loading no library background binds none");
         Console.WriteLine("  Library background views: the boss's body, the sky's rows and a cleared background install and bind no picture.");
     }
 
-    /// <summary>Asserts a room loading <paramref name="background"/> binds no picture but what <paramref name="view"/> names, looking none up.</summary>
-    private static void AssertBindsNone(LibraryBackground? background, LibraryBackgroundView view, string where) =>
-        AssertEqual<RoomLibraryBackgroundPicture>(new RoomLibraryBackgroundPicture.ShownOtherwise(view),
+    /// <summary>Asserts a room loading <paramref name="background"/>, seen as something else, binds no picture, looking none up.</summary>
+    private static void AssertBindsNone(LibraryBackground? background, string where) =>
+        AssertEqual(RoomLibraryBackgroundPicture.SeenOtherwise,
             RoomLibraryBackgroundPicture.Of(background, NoLookup), $"{where} binds no background picture");
 
     /// <summary>A picture lookup a background the player does not see as its own picture never makes.</summary>

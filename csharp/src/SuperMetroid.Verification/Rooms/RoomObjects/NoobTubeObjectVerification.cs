@@ -70,7 +70,7 @@ internal static class NoobTubeObjectVerification
         var roomObjects = RoomObjectFixtures.Unbound();
         RoomBlockAppearance originShown = level.GetCollisionBlock(new(blockX, blockY)).Terrain.Appearance;
 
-        int parsed = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Maridia), RoomObjectPopulationImporter.Read(guarded, populationPointer), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubeObjectDefinitions.BrokenEvent && brokenEvent, SetEvent = eventNumber =>
+        int parsed = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Maridia), RoomObjectPopulationImporter.Read(guarded, populationPointer), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubeObjectDefinitions.BrokenEvent && brokenEvent, SetEvent = eventNumber =>
             {
                 AssertEqual(NoobTubeObjectDefinitions.BrokenEvent, eventNumber,
                     "n00b tube writes its cartridge event");
@@ -316,7 +316,7 @@ internal static class NoobTubeObjectVerification
         samus.LiquidPhysics.ConfigureFor(roomFx);
         var guarded = NewNoobTubeProgramReadGuard(bus);
         var roomObjects = RoomObjectFixtures.Unbound();
-        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Maridia), RoomObjectPopulationImporter.Read(guarded, populationPointer), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubeObjectDefinitions.BrokenEvent, SetEvent = _ => throw new InvalidOperationException(
+        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Maridia), RoomObjectPopulationImporter.Read(guarded, populationPointer), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubeObjectDefinitions.BrokenEvent, SetEvent = _ => throw new InvalidOperationException(
                 "Already-broken n00b tube must not set its event again.") }, RoomFx = new RoomObjectFx(roomFx, () => samus), Earthquake = new FixtureRoomEarthquake { WriteStart = (_, _) => throw new InvalidOperationException(
                 "Already-broken n00b tube must not start an earthquake.") }, Enemies = new FixtureObjectEnemyEffects { NoobTubeProjectile = projectiles.Add } });
 

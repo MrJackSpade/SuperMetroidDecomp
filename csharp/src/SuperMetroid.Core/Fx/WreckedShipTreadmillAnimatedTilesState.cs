@@ -23,9 +23,6 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     /// <summary>Whether one of the two door-spawned objects occupies its slot.</summary>
     public bool IsActive { get; private set; }
 
-    /// <summary>Direction selected by the object definition passed when the object spawns.</summary>
-    public WreckedShipTreadmillDirection Direction { get; private set; }
-
     /// <summary>Index of the next entry in the four-frame animation.</summary>
     public int NextFrameIndex { get; private set; }
 
@@ -50,7 +47,6 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     {
 
         IsActive = true;
-        Direction = direction;
         NextFrameIndex = 0;
         if (!WreckedShipTreadmills.TryResolve(animatedObject, out _compiledMechanics))
             throw new InvalidDataException($"Wrecked Ship treadmill {animatedObject} is not compiled.");

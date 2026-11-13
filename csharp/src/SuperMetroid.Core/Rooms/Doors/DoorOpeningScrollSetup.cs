@@ -23,10 +23,4 @@ internal sealed record DoorOpeningScrollSetup
 
     /// <summary>The camera's position at the scroll's end.</summary>
     public required Position16<RoomPixels> FinalCameraPosition { get; init; }
-
-    /// <summary>The second background layer's position at the scroll's end.</summary>
-    public required Position16<BackgroundPixels> FinalBackgroundPosition { get; init; }
-
-    /// <summary>Samus's position at the scroll's end.</summary>
-    public required FixedPosition<RoomPixels> FinalSamusPosition { get; init; }
 }

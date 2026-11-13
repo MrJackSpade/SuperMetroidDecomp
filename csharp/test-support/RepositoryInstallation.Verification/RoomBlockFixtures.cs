@@ -36,6 +36,14 @@ internal static class RoomBlockFixtures
     /// </summary>
     /// <exception cref="ArgumentException">The definitions are not whole blocks.</exception>
     internal static RoomBlockPictureTable Pictures(ReadOnlySpan<BackgroundTile> definitions, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette,
+        int characterWord = 0) => Pictured(definitions, image, palette, characterWord).Pictures;
+
+    /// <summary>
+    /// The sheet <see cref="Pictures"/> installs <paramref name="definitions"/>' blocks in, and the picture of each block
+    /// from it.
+    /// </summary>
+    /// <exception cref="ArgumentException">The definitions are not whole blocks.</exception>
+    internal static PicturedBlocks Pictured(ReadOnlySpan<BackgroundTile> definitions, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette,
         int characterWord = 0)
     {
         PaintedBlocks painted = Paint(definitions, image, palette, characterWord);
@@ -43,8 +51,14 @@ internal static class RoomBlockFixtures
         SpriteSheet sheet = SpriteSheetFileConstants.Load(composed.Manifest with { Backdrop = 0 }, "blocks-fixture",
             composed.Size, composed.Pixels, composed.PaletteIndices);
         var blocks = new RoomBlockSheet(default(TilesetDefinition), sheet, Appearances(painted.Count));
-        return new RoomBlockPictureTable(blocks, [.. Enumerable.Range(0, painted.Count).Select(block => (LayeredPicture?)blocks.Picture($"{block}"))]);
+        return new PicturedBlocks(blocks,
+            new RoomBlockPictureTable([.. Enumerable.Range(0, painted.Count).Select(block => (LayeredPicture?)blocks.Picture($"{block}"))]));
     }
+
+    /// <summary>A fixture's block sheet and the picture of each of its blocks.</summary>
+    /// <param name="Sheet">The sheet the blocks are installed in.</param>
+    /// <param name="Pictures">The picture of each block, from <paramref name="Sheet"/>.</param>
+    internal sealed record PicturedBlocks(RoomBlockSheet Sheet, RoomBlockPictureTable Pictures);
 
     /// <summary>
     /// The whole picture of each of <paramref name="definitions"/>' blocks, painted as <see cref="Pictures"/> paints them but

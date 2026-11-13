@@ -153,7 +153,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
         var trigger = new Position16<RoomBlocks>(ChozoStatueRoomDefinitions.LowerNorfairTriggerX, ChozoStatueRoomDefinitions.LowerNorfairTriggerY);
         level.SetTerrain(trigger, RoomTerrainBlock.Of(0x1f4, BlockMirroring.None, RoomCollisionType.ShootableBlock));
         RoomObjectSystem roomObjects = RoomObjectFixtures.Bound(
-            new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Norfair),
+            new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Norfair),
             new RoomObjectServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true } },
             RoomObjectFixtures.Unbound());
         AssertTrue(roomObjects.ChozoStatue.TrySpawnChozoStatueObject(level,

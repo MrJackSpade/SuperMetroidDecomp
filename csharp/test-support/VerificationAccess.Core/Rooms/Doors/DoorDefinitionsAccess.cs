@@ -326,9 +326,14 @@ internal static class DoorDefinitionsAccess
     /// <summary>The door-list word of an entry.</summary>
     extension(DoorListEntry self)
     {
-        /// <summary>The word the cartridge's door list stores for this entry.</summary>
-        internal ushort Pointer => self.Door is { } door
-            ? DoorHeaderSourcesConstants.PointerOf(door)
-            : self.PseudoDoor == ElevatorPseudoDoor.Shared ? SharedElevatorPseudoDoorPointer : MaridiaTourianElevatorPseudoDoorPointer;
+        /// <summary>The word the cartridge's door list stores for this entry's physical door, or null for the elevator pseudo-door.</summary>
+        internal ushort? Pointer => self.Door is { } door ? DoorHeaderSourcesConstants.PointerOf(door) : null;
     }
+
+    /// <summary>
+    /// The physical door a cartridge door-list word names, or null for either of the two addresses the cartridge keeps the
+    /// elevator pseudo-door at, which are one entry.
+    /// </summary>
+    internal static ushort? DoorPointerOf(ushort listWord) =>
+        listWord is SharedElevatorPseudoDoorPointer or MaridiaTourianElevatorPseudoDoorPointer ? null : listWord;
 }

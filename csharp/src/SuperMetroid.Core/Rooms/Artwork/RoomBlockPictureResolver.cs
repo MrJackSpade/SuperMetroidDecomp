@@ -86,7 +86,7 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
         }
         RoomBlockPictureTable resolved = pictures is null
             ? previous ?? throw new InvalidOperationException("An unchanged resolution has no table.")
-            : new RoomBlockPictureTable(Sheet, pictures);
+            : new RoomBlockPictureTable(pictures);
         table = resolved;
         return resolved;
     }

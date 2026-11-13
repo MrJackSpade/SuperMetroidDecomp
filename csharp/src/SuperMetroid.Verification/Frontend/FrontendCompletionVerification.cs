@@ -222,8 +222,7 @@ internal static void VerifyDoorOpeningTrajectories()
             door,
             source,
             new Position16<RoomPixels>(destinationX, finalCameraY),
-            finalBackground,
-            postNudge);
+            finalBackground);
 
         // $82:E3C0 rebases both axes before the later E6A2 nudge. The
         // perpendicular axis must not start at the supplied post-nudge endpoint.
@@ -325,7 +324,7 @@ internal static void VerifyDoorOpeningTrajectories()
             $"door direction {direction} snap leaves layer two at its streamed endpoint");
         AssertEqual(0, trajectory.RemainingFrames,
             $"door direction {direction} exhausts IRQ frame count");
-        AssertTrue(trajectory.SamusPosition != trajectory.FinalSamusPosition,
+        AssertTrue(trajectory.SamusPosition != postNudge,
             $"door direction {direction} leaves $82:E6A2 nudge for its later phase");
     }
 

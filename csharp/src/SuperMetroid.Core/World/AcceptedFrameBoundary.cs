@@ -241,7 +241,7 @@ internal sealed class AcceptedFrameBoundary
         // The planes the latch shows are the level data's, which nothing changes before this frame boundary's pictures resolve.
         // The elevator shaft's screen is its turning floor alone: it draws none of its level's blocks (#1647).
         RoomBlockPictureTable pictures = RoomTurningFloors.ShowsShaftFloor(scope.Room.State.MainCallback)
-            ? RoomBlockPictureTable.NoneDrawn(scope.Assets.BlockSheet)
+            ? RoomBlockPictureTable.NoneDrawn()
             : scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane,
                 rooms.Background is null ? null : scope.LevelData.BackgroundPlane, rooms.BlockArtwork, appearance,
                 reveal?.Blocks.OfType<RevealedBlock>().Select(block => block.Definition) ?? []);

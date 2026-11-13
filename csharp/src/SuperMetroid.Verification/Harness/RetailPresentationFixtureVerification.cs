@@ -13,7 +13,7 @@ internal static class RetailPresentationFixtureVerification
     internal static GameplayMessageBoxState CreateGameplayMessageFixture() => new(new SuperMetroid.Core.Compatibility.SaveChoiceInputCadence());
 
     /// <summary>The installed title, panel and notice artwork the message box images are composed from.</summary>
-    internal static GameplayMessageArtwork RetailMessageFixture() => GameplayMessageArtwork.Of(RetailPresentationFixture());
+    internal static GameplayMessageArtwork RetailMessageFixture() => RetailImportPresentationFixture().Messages;
 
     /// <summary>Creates a pause menu using the retail address space and installed map presentation.</summary>
     internal static PauseMenuState CreateRetailPauseFixture(PauseMenuEntry entry) =>
@@ -25,4 +25,11 @@ internal static class RetailPresentationFixtureVerification
     /// </summary>
     internal static AreaMapPresentation RetailPresentationFixture() =>
         InstalledFixtures.Maps;
+
+    /// <summary>
+    /// The shared installation's map presentation as the import reads it: <see cref="RetailPresentationFixture"/> beside the
+    /// source artwork and colours the import composes pictures from, which the game never receives (#1616).
+    /// </summary>
+    internal static SuperMetroid.AssetExtraction.Frontend.Map.ImportAreaMapPresentation RetailImportPresentationFixture() =>
+        InstalledFixtures.ImportMaps;
 }

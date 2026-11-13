@@ -909,8 +909,8 @@ internal static class LookupStream4Verification
                     AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Every stock icon cell");
             }
             {
-                var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(HudSnapshot.CeresDebug with{EquippedItems=(SamusEquipmentFlags.XrayScope|SamusEquipmentFlags.GrappleBeam),MaxMissiles=1,MaxSuperMissiles=1,MaxPowerBombs=1});
-                for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudDefinitions.IconNames[item]];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),hud.TileWords[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Actual HUD inventory draws installed icon");}
+                var hud=new HudState();hud.BindPresentation(selected.Presentation);hud.Initialize(HudSnapshot.CeresDebug with{EquippedItems=(SamusEquipmentFlags.XrayScope|SamusEquipmentFlags.GrappleBeam),MaxMissiles=1,MaxSuperMissiles=1,MaxPowerBombs=1});
+                for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudDefinitions.IconNames[item]];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),hud.TileWords(selected)[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Actual HUD inventory draws installed icon");}
             }
             for(int item=0;item<5;item++)selected.TryApplyIcon(tiles,item);
             for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudDefinitions.IconNames[item]];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Occupied icon guard preserves current cells");}
@@ -956,9 +956,9 @@ internal static class LookupStream4Verification
                 AssertEqual(expected,tiles[index],"Stock template cell");
             }
             {
-                var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(HudSnapshot.CeresDebug);
-                for(int row=0;row<3;row++)for(int x=26;x<32;x++)AssertEqual(tiles[row*32+x],hud.TileWords[row*32+x],"Actual initializer preserves selected initial minimap and border");
-                for(int x=1;x<=4;x++)AssertEqual(tiles[64+x],hud.TileWords[64+x],"Actual initializer preserves selected ENERGY typography");
+                var hud=new HudState();hud.BindPresentation(selected.Presentation);hud.Initialize(HudSnapshot.CeresDebug);
+                for(int row=0;row<3;row++)for(int x=26;x<32;x++)AssertEqual(tiles[row*32+x],hud.TileWords(selected)[row*32+x],"Actual initializer preserves selected initial minimap and border");
+                for(int x=1;x<=4;x++)AssertEqual(tiles[64+x],hud.TileWords(selected)[64+x],"Actual initializer preserves selected ENERGY typography");
             }
         }
         Console.WriteLine("HUD template:96native words,the document hash,the full application and the actual initializer pass.");
@@ -1006,7 +1006,7 @@ internal static class LookupStream4Verification
             var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);
             using var output=new MemoryStream();GameplayHudPresentationFile.Write(output,document);byte[] bytes=output.ToArray();
             var selected=GameplayHudPresentationFile.Read(new MemoryStream(bytes));
-            var hud=new HudState();hud.BindPresentation(selected);
+            var hud=new HudState();hud.BindPresentation(selected.Presentation);
             hud.Initialize(HudSnapshot.CeresDebug with{ReserveMode=ReserveTankMode.Auto,ReserveHealth=1});
             foreach(bool full in new[]{true,false})
             {
@@ -1015,11 +1015,11 @@ internal static class LookupStream4Verification
                 for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),tiles[GameplayHudStockCells.AutoReserveCellIndex(cell)],"All twelve stock AUTO cells");
                 for(int tile=0;tile<96;tile++)if(tile%32 is not(8 or 9))AssertEqual((ushort)0x1234,tiles[tile],"AUTO leaves other HUD cells unchanged");
                 hud.UpdateGameplayCounters(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()){Health=99,MaxHealth=99,ReserveTankMode=ReserveTankMode.Auto,ReserveEnergy=(ushort)(full?1:0)});
-                for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),hud.TileWords[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Actual HUD reserve state chooses exact supplied AUTO cells");
+                for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),hud.TileWords(selected)[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Actual HUD reserve state chooses exact supplied AUTO cells");
             }
             // The HUD is drawn from its current values (#1555): manual reserves show the AUTO cells cleared.
             hud.UpdateGameplayCounters(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()){Health=99,MaxHealth=99,ReserveTankMode=ReserveTankMode.Manual,ReserveEnergy=1});
-            for(int cell=0;cell<6;cell++)AssertEqual(selected.Blank.PackedWord,hud.TileWords[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Manual reserves clear AUTO");
+            for(int cell=0;cell<6;cell++)AssertEqual(selected.Blank.PackedWord,hud.TileWords(selected)[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Manual reserves clear AUTO");
         }
         Console.WriteLine("HUD AUTO:12native words,the document hash,actual state updates,manual clear/readguard/neighbors pass.");
     }

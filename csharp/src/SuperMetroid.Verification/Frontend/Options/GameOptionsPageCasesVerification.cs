@@ -19,7 +19,7 @@ internal static class GameOptionsPageCasesVerification
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Options page oracle revision");
-        GameOptionsPresentation presentation = GameOptionsSourcePresentation.Load(
+        GameOptionsSourcePresentation presentation = GameOptionsSourcePresentation.Load(
             new MemoryStream(GameOptionsPresentationExtractor.Extract(rom)));
         OriginalOrder[] originalOrder =
         [

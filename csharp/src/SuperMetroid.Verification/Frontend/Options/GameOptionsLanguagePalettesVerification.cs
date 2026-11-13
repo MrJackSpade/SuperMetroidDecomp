@@ -23,7 +23,7 @@ internal static class GameOptionsLanguagePalettesVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)),
             "options toggle oracle revision");
         using var extracted = new MemoryStream(GameOptionsPresentationExtractor.Extract(bus));
-        GameOptionsPresentation presentation = GameOptionsSourcePresentation.Load(extracted);
+        GameOptionsSourcePresentation presentation = GameOptionsSourcePresentation.Load(extracted);
         for (int setting = 0; setting < 2; setting++)
         {
             GameOptionsToggleLayout layout = GameOptionsPageCells.ToggleLayout(setting);
@@ -75,7 +75,7 @@ internal static class GameOptionsLanguagePalettesVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)),
             "options language oracle revision");
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(bus);
-        GameOptionsPresentation presentation = GameOptionsSourcePresentation.Load(new MemoryStream(extracted));
+        GameOptionsSourcePresentation presentation = GameOptionsSourcePresentation.Load(new MemoryStream(extracted));
         AreaMapPresentation installed = RetailPresentationFixture();
         AssertEqual(4, GameOptionsDefinitions.LanguagePaletteRegionCount, "native language highlight has four regions");
         foreach (int index in new[] { int.MinValue, -1, 4, int.MaxValue })
@@ -89,7 +89,7 @@ internal static class GameOptionsLanguagePalettesVerification
         {
             bool japanese = language != 0;
             var menu = new GameOptionsMenuState(japaneseText: japanese, mapPresentation: installed, spriteSheets: MenuSheetFixtures.For(installed));
-            ReadOnlySpan<byte> vram = menu.ShownPageBytes(installed);
+            ReadOnlySpan<byte> vram = menu.ShownPageBytes(RetailImportPresentationFixture());
             byte[] editablePage = presentation.CreatePageBytes(GameOptionsScreen.Primary);
             presentation.ApplyLanguage(editablePage, japanese);
 

@@ -429,7 +429,7 @@ internal static class RoomBlockPicturesVerification
             GameplayDisplayLatch latched = runtime.Display.Latched;
             FxOverlayPlane plane = latched.FxOverlay ?? throw new InvalidOperationException($"{room.Name} latches no BG3 plane.");
             // The plane names its pictures (#1466); the installed pages spell the words the cartridge writes for them.
-            ushort[] planeWords = plane.WordsIn(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.RoomFxPagesOf(InstalledFixtures.Maps));
+            ushort[] planeWords = plane.WordsIn(InstalledFixtures.ImportMaps.RoomFxPages);
             AssertTrue(latched.Rooms?.FxOverlay is not null, $"{room.Name}: BG3 draws from its pictures");
             ReadOnlySpan<byte> vram = runtime.ComposedVram();
             BgCharacterSet layer3 = BgCharacterSet.Layer3;
@@ -668,7 +668,7 @@ internal static class RoomBlockPicturesVerification
     private static RoomFxAnimatedTileAtlas AnimatedTilesOf(SuperMetroidRuntime runtime, string room) =>
         runtime.Artwork.MapPresentation is null ? throw new InvalidOperationException($"{room}: the runtime has no installed presentation.")
             // The animated tiles' characters are import data no installation holds: the cartridge-derived extraction's (#1636).
-            : ImportAreaMapPresentation.RoomFxAnimatedTilesOf(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps);
+            : SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportMaps.RoomFxAnimatedTiles;
 
     /// <summary>
     /// Asserts each picture the displayed BG1 resolves by block identity and appearance (#1431, #1466) paints, pixel for

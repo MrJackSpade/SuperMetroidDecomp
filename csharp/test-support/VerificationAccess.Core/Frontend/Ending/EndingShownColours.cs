@@ -29,7 +29,7 @@ internal static class EndingShownColours
     {
         Ensure.NotNull(ending);
         EndingPaletteSet palettes = InstalledFixtures.EndingColours;
-        IPaletteFxColorSource paletteFx = ImportAreaMapPresentation.RoomPaletteFxOf(InstalledFixtures.Maps);
+        IPaletteFxColorSource paletteFx = InstalledFixtures.ImportMaps.RoomPaletteFx;
         return EndingScreenShades.Screen(palettes, paletteFx).ToDictionary(shade => shade.Shade);
     }
 

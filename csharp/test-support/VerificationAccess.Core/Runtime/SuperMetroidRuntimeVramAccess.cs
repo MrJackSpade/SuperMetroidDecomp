@@ -64,7 +64,7 @@ internal static class SuperMetroidRuntimeVramAccess
             artwork.WithRoomCharacters(self.Artwork.RoomCharacterArt);
             // The HUD's characters are import data no installation holds; they are the cartridge-derived extraction's (#1636).
             if (self.Artwork.MapPresentation is not null)
-                artwork.WithHud(SuperMetroid.AssetExtraction.Frontend.Map.MapCharacterArtwork.Of(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps).Hud);
+                artwork.WithHud(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportMaps.Characters.Hud);
             // Kraid's backdrop is the installation's, which the runtime's installed sheets are composed from (#1583).
             if (SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork.KraidBackground is { } kraid)
                 artwork.WithKraidBackground(kraid);

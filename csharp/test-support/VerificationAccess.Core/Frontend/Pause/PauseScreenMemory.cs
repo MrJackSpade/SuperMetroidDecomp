@@ -32,10 +32,10 @@ internal static class PauseScreenMemory
     {
         var image = new SnesVram();
         var pause = new PauseVram(image);
-        MapCharacterArtwork characters = MapCharacterArtwork.Of(artwork);
+        MapCharacterArtwork characters = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(artwork).Characters;
         characters.Map.LoadTo(pause.MapCharacters);
         characters.Pause.LoadTo(pause.InterfaceCharacters);
-        ImportAreaMapPresentation.SpritesOf(artwork).LoadArtworkTo(pause.ObjectCharacters);
+        SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(artwork).Sprites.LoadArtworkTo(pause.ObjectCharacters);
         characters.Hud.LoadTo(image);
         return image.CaptureImage();
     }

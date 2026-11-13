@@ -242,7 +242,7 @@ internal static class LookupStream3Verification
             string anchorKey = GameOptionsPresentationFormat.MenuName(page);
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
-            presentation.DrawHeading(actualOam, MenuSheetFixtures.GameOptions(presentation), page, 3);
+            presentation.Presentation.DrawHeading(actualOam, MenuSheetFixtures.GameOptions(presentation), page, 3);
             var point = original.HeadingAnchors[anchorKey];
             MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
                 new(point.X, unchecked((ushort)(point.Y - 3))), (ushort)(original.CursorPalette << 9));
@@ -290,7 +290,7 @@ internal static class LookupStream3Verification
             string anchorKey = FileSelectPresentationFormat.BorderName(border);
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
-            presentation.DrawBorder(actualOam, MenuSheetFixtures.FileSelect(presentation), border);
+            presentation.Presentation.DrawBorder(actualOam, MenuSheetFixtures.FileSelect(presentation), border);
             var anchor = original.BorderAnchors[anchorKey];
             MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
                 new(anchor.X, anchor.Y), (ushort)(original.ObjectPalette << 9));
@@ -586,7 +586,7 @@ internal static class LookupStream3Verification
         })
             for (int row = 0; row < count; row++)
                 AssertEqual(new Position16<SpritePixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4 + 2))),
-                    loaded.CursorPosition(page, row), "native options cursor anchor");
+                    loaded.Presentation.CursorPosition(page, row), "native options cursor anchor");
         for (int button = 0; button < 7; button++)
         for (int cell = 0; cell < 6; cell++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f659 + button * 12 + cell * 2)),
@@ -594,7 +594,7 @@ internal static class LookupStream3Verification
                 "native options glyph composition preserves each tile and flip");
         Confirm(stock, loaded);
 
-        void Confirm(GameOptionsPresentationDocument document, GameOptionsPresentation presentation)
+        void Confirm(GameOptionsPresentationDocument document, GameOptionsSourcePresentation presentation)
         {
             foreach (bool japanese in new[] { false, true })
             {
@@ -637,14 +637,14 @@ internal static class LookupStream3Verification
             {
                 Position16<SpritePixels>[] cursors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
                 for (int row = 0; row < cursors.Length; row++)
-                    AssertEqual(cursors[row], presentation.CursorPosition(page, row), "options stock cursor");
+                    AssertEqual(cursors[row], presentation.Presentation.CursorPosition(page, row), "options stock cursor");
             }
             foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
             {
                 Position16<SpritePixels> heading = document.HeadingAnchors[GameOptionsPresentationFormat.MenuName(page)];
                 var actual = ScreenSpritesFixtures.Blank();
                 var expected = new OamBuffer();
-                presentation.DrawHeading(actual, MenuSheetFixtures.GameOptions(presentation), page, 3);
+                presentation.Presentation.DrawHeading(actual, MenuSheetFixtures.GameOptions(presentation), page, 3);
                 MenuSpriteCompiler.Compile(document.Sprites[GameOptionsNames.HeadingSpriteName(page)], "heading oracle")
                     .DrawOnScreen(expected, new(checked(heading.X), unchecked((ushort)(heading.Y - 3))),
                         SnesObjAttributeWord.Create(0, document.CursorPalette, 0).PaletteBits);
@@ -653,7 +653,7 @@ internal static class LookupStream3Verification
                     "options stock heading origin and scroll");
             }
             AssertThrows<ArgumentOutOfRangeException>(() => presentation.ApplyControllerLabel(new byte[2048], -1, 0), "options invalid action");
-            AssertThrows<ArgumentOutOfRangeException>(() => presentation.CursorPosition((GameOptionsPage)byte.MaxValue, 0), "options invalid page");
+            AssertThrows<ArgumentOutOfRangeException>(() => presentation.Presentation.CursorPosition((GameOptionsPage)byte.MaxValue, 0), "options invalid page");
         }
         static void Paint(byte[] page, int[] cells, int palette)
         {
@@ -1237,7 +1237,7 @@ internal static class LookupStream3Verification
 
     /// <summary>The installation's enemy, boss and area artwork with its escape timer, which Mother Brain's pages copy (#1513).</summary>
     private static SuperMetroid.TestSupport.VerificationOracles.EnemyTileTransfers InstalledPageResolver =>
-        new(InstalledFixtures.EnemyArtwork, timer: ImportAreaMapPresentation.EscapeTimerTilesOf(InstalledFixtures.Maps));
+        new(InstalledFixtures.EnemyArtwork, timer: InstalledFixtures.ImportMaps.EscapeTimerTiles);
 
     /// <summary>Checks corpse row offsets and rot row/page transfer placement against native source and destination words.</summary>
     private static void VerifyStream3CorpseGeometry(ISnesAddressSpace rom)
@@ -2210,7 +2210,7 @@ internal static class LookupStream3Verification
                 AssertEqual(expectedParts.Part(part), selected.Part(part), "exact selected helmet part");
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
-            actual.DrawHelmet(actualOam, MenuSheetFixtures.FileSelect(actual), frame, 0);
+            actual.Presentation.DrawHelmet(actualOam, MenuSheetFixtures.FileSelect(actual), frame, 0);
             var anchor = expected.HelmetAnchors[0];
             expectedParts.DrawOnScreen(expectedOam, new(anchor.X, anchor.Y), (ushort)(expected.ObjectPalette << 9));
             actualOam.FinishFrame(); expectedOam.FinalizeFrame();

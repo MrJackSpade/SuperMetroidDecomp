@@ -22,7 +22,7 @@ internal static class PauseBackdropsVerification
     /// <summary>Checks native VRAM and pixels across fades and debugger restores, and the Boots-to-Plasma toggle.</summary>
     internal static void VerifyPauseBackdrops(ISnesAddressSpace bus, AreaMapPresentation original)
     {
-        AssertTrue(InstalledAreaMapPresentation.PauseOf(original).Backdrops.CreateButtonTilemap().SequenceEqual(BackgroundTileWordBytes.Tiles(
+        AssertTrue(InstalledFixtures.ImportOf(original).Pause.Backdrops.CreateButtonTilemap().SequenceEqual(BackgroundTileWordBytes.Tiles(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0xb6e400, 0x400))), "all native mutable button tiles survive extraction");
         // A debugger save state binds the installed content rather than writing it, as the debugger's store does, so
         // the round trip below carries only the pause session's own state.
@@ -32,7 +32,7 @@ internal static class PauseBackdropsVerification
             byte[] expected = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0xb6e000, 0x800);
             ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82965f + (int)area * 2);
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0x820000 | label, 24).CopyTo(expected, 170 * 2);
-            var tiles = new BackgroundTile[PauseBackdropDefinitions.Cells]; InstalledAreaMapPresentation.PauseOf(original).Backdrops.LoadTo(tiles, area);
+            var tiles = new BackgroundTile[PauseBackdropDefinitions.Cells]; InstalledFixtures.ImportOf(original).Pause.Backdrops.LoadTo(tiles, area);
             AssertTrue(BackgroundTileWordBytes.Tiles(expected).SequenceEqual(tiles), "all 1024 backdrop tiles match native frame plus unmasked area lettering");
             var pause = Create(area, original);
             // Compare at every page/fade position, including the instant R/L updates buttons before ScreenMode
@@ -65,7 +65,7 @@ internal static class PauseBackdropsVerification
         glitch.Step(0, (ControllerButton.Left | ControllerButton.A));
         AssertEqual((ushort)12, samus.EquippedBeams.ToEquipmentWord(), "fixture actually performs native Boots-to-Plasma simultaneous-input glitch");
         byte[] glitchPage = glitch.ShownVram().AsSpan(0x6000, 0x800).ToArray();
-        BackgroundTile[] template = InstalledAreaMapPresentation.PauseOf(original).EquipmentBase.CreateTilemap();
+        BackgroundTile[] template = InstalledFixtures.ImportOf(original).Pause.EquipmentBase.CreateTilemap();
         AssertEqual(BackgroundTileWords.ToWord(template[0x514 / sizeof(ushort)]), BinaryPrimitives.ReadUInt16LittleEndian(glitchPage.AsSpan(0x514)),
             "the cell after Plasma's label shows the template, not the cartridge's overrun");
         Console.WriteLine("Pause backdrops: seven native frames/labels, button artwork, debugger restores and the Boots-to-Plasma toggle pass.");

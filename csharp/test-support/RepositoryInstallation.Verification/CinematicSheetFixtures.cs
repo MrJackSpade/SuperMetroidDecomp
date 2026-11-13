@@ -90,7 +90,7 @@ internal static class CinematicSheetFixtures
                     CeresCinematicPictureSheetComposer.Compose(key, InstalledFixtures.IntroArtwork), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresFloor] = LoadTiles(SpriteSheetId.CeresFloor,
                     FrontendFloorSheetComposer.Ceres(key, InstalledFixtures.IntroArtwork.CeresDestructionMaps,
-                        InstalledFixtures.IntroArtwork.FlightPalette, ImportAreaMapPresentation.RoomPaletteFxOf(InstalledFixtures.Maps)), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
+                        InstalledFixtures.IntroArtwork.FlightPalette, InstalledFixtures.ImportMaps.RoomPaletteFx), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
                 return new InstalledSpriteSheets(sheets);
             });
     }
@@ -102,7 +102,7 @@ internal static class CinematicSheetFixtures
     internal static SpriteSheet CeresFloor(IPaletteFxColorSource paletteFx)
     {
         ArgumentNullException.ThrowIfNull(paletteFx);
-        return ReferenceEquals(paletteFx, ImportAreaMapPresentation.RoomPaletteFxOf(InstalledFixtures.Maps))
+        return ReferenceEquals(paletteFx, InstalledFixtures.ImportMaps.RoomPaletteFx)
             ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.CeresFloor)
             : LoadTiles(SpriteSheetId.CeresFloor, FrontendFloorSheetComposer.Ceres(InstalledFixtures.IntroArtwork, paletteFx),
                 $"engine-{RuntimeHelpers.GetHashCode(paletteFx):X8}");
@@ -127,17 +127,17 @@ internal static class CinematicSheetFixtures
                 sheets[SpriteSheetId.CeresDestructionSprites] = Load(IntroSpriteSheetComposer.CeresDestructionSources(key), $"ceres-destruction-fixture-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.ZebesRevealSprites] = Load(IntroSpriteSheetComposer.ZebesRevealSources(key), $"zebes-reveal-fixture-{RuntimeHelpers.GetHashCode(key):X8}");
                 // The cinematics' background tiles are pre-coloured from the intro's characters and palettes (#1392).
-                var tileSources = new ScreenTileSources(() => InstalledFixtures.Maps, () => key,
+                var tileSources = new ScreenTileSources(() => InstalledFixtures.ImportMaps, () => key,
                     () => InstalledFixtures.EndingObjects, () => InstalledFixtures.EndingColours,
                     () => InstalledFixtures.EndingFloors);
                 sheets[SpriteSheetId.IntroNarrationPictures] = LoadTiles(SpriteSheetId.IntroNarrationPictures,
-                    IntroNarrationPictureSheetComposer.Compose(key, ImportAreaMapPresentation.IntroFontOf(InstalledFixtures.Maps)), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
+                    IntroNarrationPictureSheetComposer.Compose(key, InstalledFixtures.ImportMaps.IntroFont), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.IntroScenePictures] = LoadTiles(SpriteSheetId.IntroScenePictures,
                     IntroScenePictureSheetComposer.Compose(key), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresCinematicPictures] = LoadTiles(SpriteSheetId.CeresCinematicPictures,
                     CeresCinematicPictureSheetComposer.Compose(key), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresFloor] = LoadTiles(SpriteSheetId.CeresFloor,
-                    FrontendFloorSheetComposer.Ceres(key, ImportAreaMapPresentation.RoomPaletteFxOf(InstalledFixtures.Maps)), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
+                    FrontendFloorSheetComposer.Ceres(key, InstalledFixtures.ImportMaps.RoomPaletteFx), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 return new InstalledSpriteSheets(sheets);
             });
     }

@@ -17,7 +17,7 @@ internal static class PauseSelectorDurationsVerification
     {
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, ArtworkJson.Options);
-        var stock = PauseSelectorSourcePresentation.Load(new MemoryStream(bytes));
+        PauseSelectorPresentation stock = PauseSelectorSourcePresentation.Load(new MemoryStream(bytes)).Presentation;
         Suite(nameof(VerifyPauseSelectorNativeDurations), () => VerifyPauseSelectorNativeDurations(rom, stock));
         foreach (int invalid in new[] { -1, int.MinValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Duration(invalid), "negative selector phase rejected");
@@ -29,7 +29,7 @@ internal static class PauseSelectorDurationsVerification
         static PauseSelectorPresentation Load(PauseSelectorDocument document)
         {
             using var stream = new MemoryStream(); PauseSelectorSourcePresentation.Write(stream, document); stream.Position = 0;
-            return PauseSelectorSourcePresentation.Load(stream);
+            return PauseSelectorSourcePresentation.Load(stream).Presentation;
         }
     }
 

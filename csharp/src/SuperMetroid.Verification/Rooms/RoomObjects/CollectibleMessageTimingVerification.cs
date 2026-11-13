@@ -51,13 +51,13 @@ internal static class CollectibleMessageTimingVerification
             RoomBlockCell cell = bg1.Blocks.Cells[itemIndex];
             return (cell, bg1.Pictures?.Picture(cell.Definition));
         }
-        ushort[] HudWords() => runtime.Hud.TileWords.WhereToArray((_, index) => index % 32 < 26);
+        ushort[] HudWords() => runtime.Hud.TileWords(runtime.InstalledHudArtwork).WhereToArray((_, index) => index % 32 < 26);
         // The displayed HUD is the one the last accepted NMI latched, laid out as tilemap words below its static top row;
         // the HUD's images are latched rather than written into VRAM (#1466).
         ushort[] VisibleHudWords()
         {
             ushort[] shown = runtime.AcceptedHudWords;
-            return Enumerable.Range(0, runtime.Hud.TileWords.Length)
+            return Enumerable.Range(0, runtime.Hud.TileWords(runtime.InstalledHudArtwork).Length)
                 .Where(index => index % 32 < 26)
                 .Select(index => shown[FxOverlayPlaneConstants.Columns + index]).ToArray();
         }
@@ -98,7 +98,7 @@ internal static class CollectibleMessageTimingVerification
         AssertEqual(199, samus.MaxHealth, "return grants no duplicate energy");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(beforeTile != ShownBlock(), "post-message NMI displays the empty pickup block");
-        ushort[] drawn = runtime.Hud.TileWords;
+        ushort[] drawn = runtime.Hud.TileWords(runtime.InstalledHudArtwork);
         ushort[] published = runtime.AcceptedHudWords;
         for (int i = 0; i < drawn.Length; i++)
             if (i % 32 < 26)

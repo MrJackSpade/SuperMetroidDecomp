@@ -95,7 +95,7 @@ internal static class FileSelectRoomMapVerification
             var retailIcons = new FileSelectMapIcons(system, area);
             retailIcons.BindStations(RetailPresentationFixture().Stations);
             retailIcons.BindLandmarks(RetailPresentationFixture().Landmarks);
-            retailIcons.BindSprites(MenuSheetFixtures.MapSprites(ImportAreaMapPresentation.SpritesOf(RetailPresentationFixture())));
+            retailIcons.BindSprites(MenuSheetFixtures.MapSprites(RetailImportPresentationFixture().Sprites));
             var retailOam = ScreenSpritesFixtures.Blank();
             retailOam.BeginFrame();
             retailIcons.DrawBeforeMarker(retailOam, new(0, 0));

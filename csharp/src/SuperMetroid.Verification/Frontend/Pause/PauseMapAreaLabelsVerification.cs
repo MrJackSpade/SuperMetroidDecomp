@@ -32,7 +32,7 @@ internal static class PauseMapAreaLabelsVerification
             var labels = new FileSelectMapIcons(system, area);
             var presentation = RetailPresentationFixture();
             labels.BindLandmarks(presentation.Landmarks);
-            labels.BindSprites(MenuSheetFixtures.MapSprites(ImportAreaMapPresentation.SpritesOf(presentation)));
+            labels.BindSprites(MenuSheetFixtures.MapSprites(InstalledFixtures.ImportOf(presentation).Sprites));
             var gated = ScreenSpritesFixtures.Blank(); gated.BeginFrame();
             labels.DrawElevatorLabels(gated, new(0, 0));
             gated.FinishFrame();

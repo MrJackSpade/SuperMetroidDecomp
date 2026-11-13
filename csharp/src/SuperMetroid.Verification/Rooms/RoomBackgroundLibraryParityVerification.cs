@@ -29,7 +29,7 @@ internal static class RoomBackgroundLibraryParityVerification
         RoomBackgroundTilemaps backgrounds = installed.LoadRoomBackgroundTilemaps();
         RoomSkyTilemaps skies = installed.LoadRoomSkyTilemaps();
         RoomCharacterAtlases characters = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.RoomCharacters;
-        HudTileAtlas hud = MapCharacterArtwork.Of(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps).Hud;
+        HudTileAtlas hud = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportMaps.Characters.Hud;
         int cases = 0;
 
         foreach (LibraryBackgroundProgram program in LibraryBackgroundSourceDefinitions.All)

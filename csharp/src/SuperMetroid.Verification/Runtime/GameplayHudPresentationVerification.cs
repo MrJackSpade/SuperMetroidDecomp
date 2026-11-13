@@ -44,8 +44,8 @@ internal static class GameplayHudPresentationVerification
         topRowRuntime.Artwork.MapPresentation = original;
         // The HUD draws its images over the BG3 plane's top rows (#1466): its current images, as the installed artwork lays
         // their tiles out, show the installed HUD row.
-        GameplayHudPresentation boundHud = topRowRuntime.Hud.Presentation ?? throw new InvalidOperationException("The runtime binds the HUD artwork.");
-        AssertTrue(BackgroundTileWordBytes.Words(GameplayHudArtwork.Of(boundHud).Rows(topRowRuntime.Hud.Shown()))[..GameplayHudDocumentDefinitions.TopRowCellCount]
+        _ = topRowRuntime.Hud.Presentation ?? throw new InvalidOperationException("The runtime binds the HUD layout.");
+        AssertTrue(BackgroundTileWordBytes.Words(topRowRuntime.InstalledHudArtwork.Rows(topRowRuntime.Hud.Shown()))[..GameplayHudDocumentDefinitions.TopRowCellCount]
             .SequenceEqual(stockTopRow),
             "the HUD's images show the installed immutable HUD row without source reads");
         ushort equipment = ((SamusEquipmentFlags.XrayScope | SamusEquipmentFlags.GrappleBeam).ToEquipmentWord());
@@ -58,11 +58,11 @@ internal static class GameplayHudPresentationVerification
             ReserveHealth: 50, ReserveMode: ReserveTankMode.Auto);
         var native = new HudState();
         var installed = new HudState();
-        native.BindPresentation(presentation);
-        installed.BindPresentation(presentation);
+        native.BindPresentation(presentation.Presentation);
+        installed.BindPresentation(presentation.Presentation);
         native.Initialize(snapshot);
         installed.Initialize(snapshot);
-        AssertTrue(native.Tiles.SequenceEqual(installed.Tiles),
+        AssertTrue(native.Tiles(presentation).SequenceEqual(installed.Tiles(presentation)),
             "installed HUD template, icons, tanks, counters, AUTO and highlight match native");
 
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
@@ -82,7 +82,7 @@ internal static class GameplayHudPresentationVerification
         };
         native.UpdateGameplayCounters(samus);
         installed.UpdateGameplayCounters(samus);
-        AssertTrue(native.Tiles.SequenceEqual(installed.Tiles),
+        AssertTrue(native.Tiles(presentation).SequenceEqual(installed.Tiles(presentation)),
             "installed live HUD updates match native without presentation ROM reads");
         AssertEqual(native.SelectionSoundRequestedThisFrame, installed.SelectionSoundRequestedThisFrame,
             "installed HUD retains selection-sound mechanics");
@@ -93,7 +93,7 @@ internal static class GameplayHudPresentationVerification
         installedSystem.SetAreaMapAcquired(AreaId.Crateria);
         native.UpdateMinimap(nativeSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), FrameCounter = 0, PresentationMap = original.Get(AreaId.Crateria) });
         installed.UpdateMinimap(installedSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), FrameCounter = 0, PresentationMap = original.Get(AreaId.Crateria) });
-        AssertTrue(native.Tiles.SequenceEqual(installed.Tiles),
+        AssertTrue(native.Tiles(presentation).SequenceEqual(installed.Tiles(presentation)),
             "installed minimap anchor matches native and needs no HUD visual ROM data");
 
         Console.WriteLine("Gameplay HUD presentation: exact stock/live parity and ROM guard pass.");

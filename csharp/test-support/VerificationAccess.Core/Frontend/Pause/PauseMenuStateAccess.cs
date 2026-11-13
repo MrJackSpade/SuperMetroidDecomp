@@ -86,7 +86,7 @@ internal static class PauseMenuStateAccess
         /// The equipment page's tiles as the cartridge's tilemap holds what the page shows this frame (#1467, #1515), laid
         /// out the way the import lays out a shown page.
         /// </summary>
-        internal BackgroundTile[] ShownEquipmentTiles => PauseEquipmentPageLayout.LayOut(self.screen.Artwork, self.EquipmentPage);
+        internal BackgroundTile[] ShownEquipmentTiles => PauseEquipmentPageLayout.LayOut(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(self.screen.Artwork), self.EquipmentPage);
 
         /// <summary>
         /// Reads one of the three reserve-supply digits as the equipment page shows it (#1467, #1515): the tile the import
@@ -98,7 +98,7 @@ internal static class PauseMenuStateAccess
                 throw new ArgumentOutOfRangeException(nameof(digitIndex));
 
             int tile = PauseMenuLayoutConstants.ReserveSupplyDigitsByteOffset / sizeof(ushort) + digitIndex;
-            return new SnesBgTilemapWord(BackgroundTileWords.ToWord(PauseEquipmentPageLayout.LayOut(self.screen.Artwork, self.EquipmentPage)[tile]));
+            return new SnesBgTilemapWord(BackgroundTileWords.ToWord(PauseEquipmentPageLayout.LayOut(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(self.screen.Artwork), self.EquipmentPage)[tile]));
         }
     }
 }

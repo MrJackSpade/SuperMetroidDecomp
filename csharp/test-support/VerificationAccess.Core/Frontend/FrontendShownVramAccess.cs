@@ -35,7 +35,7 @@ internal static class FrontendShownVramAccess
         SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.IntroArtwork.FlightCharacters,
         SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects,
         // The ending's installed pictures are composed from the installation's ending font (#1583).
-        SuperMetroid.AssetExtraction.Frontend.Map.ImportAreaMapPresentation.EndingFontOf(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
+        SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportMaps.EndingFont,
         self.Stage.EndingReward); }
 
     /// <summary>The title screen's composed image.</summary>

@@ -67,15 +67,15 @@ internal static class PauseShownColours
         Ensure.NotNull(pause);
         AreaMapPresentation maps = pause.screen.Artwork;
         // The pause colours are import knowledge (#1544): the game reads no palette document, so they come from the import's read.
-        RgbColor[] colours = ImportAreaMapPresentation.PalettesOf(InstalledFixtures.Maps).Pause.ToArray();
+        RgbColor[] colours = InstalledFixtures.ImportMaps.Palettes.Pause.ToArray();
         // Only the map's highlighted sprites show the cycle (#1544): the equipment page's selector and reserve strip,
         // which the cartridge draws in the same colour group, show their own colours.
         if (ShownHighlight(pause) is int frame)
-            InstalledAreaMapPresentation.HighlightColoursOf(maps).Colours(frame).CopyTo(colours.AsSpan(HighlightFirstColour));
+            InstalledFixtures.ImportOf(maps).HighlightColours.Colours(frame).CopyTo(colours.AsSpan(HighlightFirstColour));
         PictureShading arrow = pause.ReserveArrowShading;
         if (!arrow.IsStandard)
         {
-            PauseReserveArrowColours arrowColours = InstalledAreaMapPresentation.PauseOf(maps).ReserveUi.ArrowColours;
+            PauseReserveArrowColours arrowColours = InstalledFixtures.ImportOf(maps).Pause.ReserveUi.ArrowColours;
             PictureShade shade = arrow.Shades.Single();
             ReserveArrowColors shown = shade == PauseReserveArrowShades.Solid ? arrowColours.Solid : arrowColours.Pulse(shade.Step);
             colours[ArrowShadeColour] = shown.Color6;

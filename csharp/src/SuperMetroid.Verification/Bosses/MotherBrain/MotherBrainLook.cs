@@ -30,7 +30,7 @@ internal static class MotherBrainLook
     /// room and her body layer, then those over her own sprites and the Baby, as the import pre-colours them from
     /// <paramref name="maps"/> and <paramref name="bosses"/>.
     /// </summary>
-    internal static ushort[] Over(MotherBrainEnemyState state, AreaMapPresentation maps, BossSourceArtwork bosses, ushort[] colours)
+    internal static ushort[] Over(MotherBrainEnemyState state, SuperMetroid.AssetExtraction.Frontend.Map.ImportAreaMapPresentation maps, BossSourceArtwork bosses, ushort[] colours)
     {
         ArgumentNullException.ThrowIfNull(state);
         IReadOnlyList<SheetShade> room = MotherBrainSheetShades.Room(maps);

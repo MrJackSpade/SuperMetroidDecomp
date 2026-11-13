@@ -64,7 +64,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         Type type = typeof(RoomEnemySystem);
         // The Baby's colours are sprite palette seven from colour one, CGRAM byte $01E2.
         int destination = 0x01e2 / 2;
-        ushort[] Shown() => MotherBrainLook.Over(motherBrain, InstalledFixtures.Maps, stock.Bosses, BossShadeColours.Filled(0x1234));
+        ushort[] Shown() => MotherBrainLook.Over(motherBrain, InstalledFixtures.ImportMaps, stock.Bosses, BossShadeColours.Filled(0x1234));
         enemies.BabyMetroidCutsceneBehavior.ShowBabyMetroidArrival();
         ushort[] cgram = Shown();
         AssertEqual(0x1234, cgram[destination - 1],

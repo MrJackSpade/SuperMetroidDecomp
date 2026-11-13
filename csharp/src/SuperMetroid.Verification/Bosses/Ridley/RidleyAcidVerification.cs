@@ -81,7 +81,7 @@ internal static class RidleyAcidVerification
             var memory = FramePaint.FromNativeGameplay(GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources), runtime.DisplayedSprites.Draws);
             // The room's effect page: the acid page the room effect chose (#1514).
             var effect = GameplayEffectCapture.CaptureRoomFxOverlay((fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")),
-                FxOverlayFixtures.PageOf(fx.EffectPlane, InstalledAreaMapPresentation.RoomFxPagesOf(InstalledFixtures.Maps), runtime.ComposedVram(),
+                FxOverlayFixtures.PageOf(fx.EffectPlane, InstalledFixtures.ImportMaps.RoomFxPages, runtime.ComposedVram(),
                     GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources)));
             var baseline = DisplayRendering.Render(new LayeredScene(memory, [], 15));
             var actual = DisplayRendering.Render(new LayeredScene(memory,

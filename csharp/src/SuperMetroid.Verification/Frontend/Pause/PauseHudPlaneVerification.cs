@@ -71,7 +71,7 @@ internal static class PauseHudPlaneVerification
 
     /// <summary>The words <paramref name="hud"/>'s images lay out over pause's HUD rows, over the cleared cell.</summary>
     private static ushort[] HudWords(PauseMenuState pause, ShownHud hud) =>
-        BackgroundTileWordBytes.Words(GameplayHudArtwork.Of(pause.screen.Artwork.GameplayHud).RowsOver(hud, PauseHudPlaneDefinitions.ClearedCell));
+        BackgroundTileWordBytes.Words(InstalledFixtures.ImportOf(pause.screen.Artwork).GameplayHud.RowsOver(hud, PauseHudPlaneDefinitions.ClearedCell));
 
     /// <summary>Runs the pause HUD plane check.</summary>
     [VerificationCommand("--pause-hud-plane")]

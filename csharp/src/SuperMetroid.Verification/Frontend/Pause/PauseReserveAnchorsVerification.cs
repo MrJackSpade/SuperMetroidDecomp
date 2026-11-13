@@ -17,7 +17,7 @@ internal static class PauseReserveAnchorsVerification
     {
         byte[] bytes = PauseReserveTankExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseReserveTankDocument>(bytes, ArtworkJson.Options);
-        var stock = PauseReserveTankSourcePresentation.Load(new MemoryStream(bytes));
+        PauseReserveTankPresentation stock = PauseReserveTankSourcePresentation.Load(new MemoryStream(bytes)).Presentation;
         Suite(nameof(VerifyPauseReserveAnchorField), () => VerifyPauseReserveAnchorField(rom, document, stock, true));
         Suite(nameof(VerifyPauseReserveAnchorField), () => VerifyPauseReserveAnchorField(rom, document, stock, false));
         foreach (int invalid in new[] { int.MinValue, -1, 6, 256, int.MaxValue })

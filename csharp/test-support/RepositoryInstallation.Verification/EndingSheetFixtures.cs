@@ -38,18 +38,18 @@ internal static class EndingSheetFixtures
         ArgumentNullException.ThrowIfNull(objects);
         string identity = objects.ContentIdentity;
         return identity == stockIdentity.Value ? InstalledFixtures.SpriteSheets
-            : composed.GetOrAdd(identity, key => Compose(objects, palettes.Value, InstalledFixtures.Maps, key[..8]));
+            : composed.GetOrAdd(identity, key => Compose(objects, palettes.Value, InstalledFixtures.ImportMaps, key[..8]));
     }
 
     /// <summary>
     /// The installed sheets with the ending sheets <paramref name="objects"/> composes over <paramref name="colours"/> and
     /// <paramref name="maps"/>, named by <paramref name="tag"/>: its sprite and picture sheets.
     /// </summary>
-    private static InstalledSpriteSheets Compose(ImportEndingObjectArtwork objects, EndingPaletteSet colours, AreaMapPresentation maps, string tag)
+    private static InstalledSpriteSheets Compose(ImportEndingObjectArtwork objects, EndingPaletteSet colours, ImportAreaMapPresentation maps, string tag)
     {
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
         foreach (SpriteSheetId sheet in EndingSpriteSheetsConstants.Sheets)
-            sheets[sheet] = CinematicSheetFixtures.Load(EndingSpriteSheetComposer.Sources(sheet, objects, colours, ImportAreaMapPresentation.EndingFontOf(maps), ImportAreaMapPresentation.RoomPaletteFxOf(maps)),
+            sheets[sheet] = CinematicSheetFixtures.Load(EndingSpriteSheetComposer.Sources(sheet, objects, colours, maps.EndingFont, maps.RoomPaletteFx),
                 $"{SpriteSheetDefinitions.FileNames[sheet]}-fixture-{tag}");
         // The ending's background pictures are pre-coloured from these objects, colours and maps (#1392, #1467).
         var tileSources = new ScreenTileSources(() => maps, () => InstalledFixtures.IntroArtwork, () => objects, () => colours,

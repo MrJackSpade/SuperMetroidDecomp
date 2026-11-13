@@ -48,6 +48,6 @@ internal static class TitleScreenMemory
     /// </summary>
     [WholeImageFixture("the title screen's memory image")]
     internal static byte[] Compose(TitleSequenceState title) =>
-        Compose(SuperMetroid.AssetExtraction.Frontend.Map.ImportAreaMapPresentation.TitleGraphicsOf(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
+        Compose(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportMaps.TitleGraphics,
             TitleFloorTileDefinitions.BabyPages[TitleSequenceDefinitions.Graphics.BabyAnimation[title.BabyFrame]]);
 }

@@ -229,7 +229,7 @@ internal static class RidleyFullMovieVerification
             {
                 for (int y = 0; y < 3; y++)
                 for (int x = 0; x < 5; x++)
-                    AssertEqual(MapTileWords.HudBlank.Raw, runtime.Hud.TileWords[26 + y * HudStateConstants.WidthInTiles + x],
+                    AssertEqual(MapTileWords.HudBlank.Raw, runtime.Hud.TileWords(runtime.InstalledHudArtwork)[26 + y * HudStateConstants.WidthInTiles + x],
                         "Ridley blanks all fifteen minimap tiles");
                 runtime.Hud.EnableMinimapAfterDoorEntry();
                 AssertTrue(!runtime.Hud.MinimapDisabled, "door entry restores minimap updates");

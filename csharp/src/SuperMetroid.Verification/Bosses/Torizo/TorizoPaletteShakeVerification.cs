@@ -88,7 +88,7 @@ internal static class TorizoPaletteShakeVerification
         // The import pre-colours each step: the black fade's last moving step and the normal fade's are their targets'.
         IReadOnlyList<SheetShade> shades = TorizoSheetShades.Of(InstalledFixtures.EnemyTiles.AuxiliaryColors
             ?? throw new InvalidOperationException("The installed enemy artwork holds the Torizos' colours."),
-            ImportAreaMapPresentation.RoomPaletteFxOf(InstalledFixtures.Maps), PaletteFxObject.BombTorizoBelly);
+            InstalledFixtures.ImportMaps.RoomPaletteFx, PaletteFxObject.BombTorizoBelly);
         SheetShade toBlack = shades.Single(shade => shade.Shade == TorizoShades.Fading(new TorizoLook(TorizoLookKind.Normal), new TorizoLook(TorizoLookKind.Black), 1, 13));
         AssertTrue(toBlack.Inks.SequenceEqual(Enumerable.Range(16, 32)), "The fades recolour only sprite rows one and two");
         AssertTrue(toBlack.Colours.All(colour => colour == RgbColor.Black), "The black fade's last step is black");

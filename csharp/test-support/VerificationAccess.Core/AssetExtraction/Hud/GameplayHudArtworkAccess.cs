@@ -1,5 +1,6 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Hud;
@@ -38,42 +39,35 @@ internal static class GameplayHudArtworkAccess
 
         /// <summary>Draws one energy tank full or empty into the three drawn rows.</summary>
         internal void DrawEnergyTank(Span<BackgroundTile> tiles, int tank, HudEnergyTank shown) =>
-            artwork.Write(tiles, artwork.EnergyTank(tank, shown), 1);
+            artwork.Write(tiles, artwork.Presentation.EnergyTank(tank, shown), 1);
 
         /// <summary>Draws the two-digit energy count into the three drawn rows.</summary>
         internal void DrawEnergyCount(Span<BackgroundTile> tiles, int remainder)
         {
-            foreach (PlacedHudImage placed in artwork.EnergyCount(remainder))
+            foreach (PlacedHudImage placed in artwork.Presentation.EnergyCount(remainder))
                 artwork.Write(tiles, placed, 1);
         }
 
         /// <summary>Draws an ammunition count into the three drawn rows.</summary>
         internal void ApplyAmmo(Span<BackgroundTile> tiles, HudAmmoCounter counter, int value)
         {
-            foreach (PlacedHudImage placed in artwork.Ammo(counter, value))
+            foreach (PlacedHudImage placed in artwork.Presentation.Ammo(counter, value))
                 artwork.Write(tiles, placed, 1);
         }
 
         /// <summary>Draws the AUTO reserve indicator as <paramref name="indicator"/> shows it into the three drawn rows.</summary>
         internal void ApplyAutoReserve(Span<BackgroundTile> tiles, HudReserveIndicator indicator)
         {
-            foreach (PlacedHudImage placed in artwork.AutoReserve(indicator))
+            foreach (PlacedHudImage placed in artwork.Presentation.AutoReserve(indicator))
                 artwork.Write(tiles, placed, 1);
         }
 
         /// <summary>Clears the AUTO reserve indicator in the three drawn rows.</summary>
         internal void ClearAutoReserve(Span<BackgroundTile> tiles) => artwork.ApplyAutoReserve(tiles, HudReserveIndicator.Cleared);
 
-        /// <summary>The cell index in the three drawn rows of minimap cell <paramref name="output"/>.</summary>
-        internal int MinimapCellIndex(Position16<MapTiles> output)
-        {
-            Position16<CharacterCells> cell = Cell(artwork.MinimapCell(output, MinimapHiddenCell.Instance));
-            return (cell.Y - 1) * GameplayHudDocumentDefinitions.Columns + cell.X;
-        }
-
         /// <summary>Draws one minimap cell into the three drawn rows.</summary>
         internal void DrawMinimapCell(Span<BackgroundTile> tiles, Position16<MapTiles> output, MinimapCell cell) =>
-            artwork.Write(tiles, artwork.MinimapCell(output, cell), 1);
+            artwork.Write(tiles, artwork.Presentation.MinimapCell(output, cell), 1);
 
         /// <summary>
         /// Writes <paramref name="placed"/>'s tiles into <paramref name="tiles"/>, rows of the HUD from
@@ -93,6 +87,17 @@ internal static class GameplayHudArtworkAccess
                     throw new InvalidDataException($"HUD image {placed.Image.FrameName} runs past the rows written.");
                 tiles[row * columns + column] = image.Tiles[y * image.Size.X + x];
             }
+        }
+    }
+
+    /// <summary>Where the HUD's layout places its minimap.</summary>
+    extension(GameplayHudPresentation presentation)
+    {
+        /// <summary>The cell index in the three drawn rows of minimap cell <paramref name="output"/>.</summary>
+        internal int MinimapCellIndex(Position16<MapTiles> output)
+        {
+            Position16<CharacterCells> cell = Cell(presentation.MinimapCell(output, MinimapHiddenCell.Instance));
+            return (cell.Y - 1) * GameplayHudDocumentDefinitions.Columns + cell.X;
         }
     }
 

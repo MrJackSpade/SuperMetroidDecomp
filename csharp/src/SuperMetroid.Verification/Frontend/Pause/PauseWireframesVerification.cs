@@ -35,7 +35,7 @@ internal static class PauseWireframesVerification
                 BackgroundTileWordBytes.Tiles(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (pointer + row * 16), 16))
                     .CopyTo(expected, PauseWireframeDefinitions.FirstPageTile + row * PauseWireframeDefinitions.PageColumns);
             BackgroundTile[] actual = Enumerable.Repeat(sentinel, PauseWireframeDefinitions.PageTiles).ToArray();
-            InstalledAreaMapPresentation.PauseOf(original).Wireframes.ApplyTo(actual, kind);
+            InstalledFixtures.ImportOf(original).Pause.Wireframes.ApplyTo(actual, kind);
             AssertTrue(expected.SequenceEqual(actual), "all 136 native wireframe tiles and untouched surrounding cells match");
             ushort items = (ushort)(((int)kind & 1) * 0x100 | ((int)kind >> 1));
             foreach (bool gravity in new[] { false, true })
@@ -79,8 +79,8 @@ internal static class PauseWireframesVerification
         AssertEqual(new CursorBeforeRestore(PauseEquipmentCategory.Suits, 0), new CursorBeforeRestore(toggles.SelectedCategory, toggles.SelectedItem), "actual navigation returns to Varia");
         toggles.Step(0, ControllerButton.A); AssertPage(toggles, original, PauseWireframeKind.VariaSuit);
 
-        AssertThrows<ArgumentOutOfRangeException>(() => InstalledAreaMapPresentation.PauseOf(original).Wireframes.ApplyTo(new BackgroundTile[PauseWireframeDefinitions.PageTiles], (PauseWireframeKind)4), "invalid compiled selector rejected");
-        AssertThrows<ArgumentException>(() => InstalledAreaMapPresentation.PauseOf(original).Wireframes.ApplyTo(new BackgroundTile[16], PauseWireframeKind.PowerSuit), "short patch target rejected before partial write");
+        AssertThrows<ArgumentOutOfRangeException>(() => InstalledFixtures.ImportOf(original).Pause.Wireframes.ApplyTo(new BackgroundTile[PauseWireframeDefinitions.PageTiles], (PauseWireframeKind)4), "invalid compiled selector rejected");
+        AssertThrows<ArgumentException>(() => InstalledFixtures.ImportOf(original).Pause.Wireframes.ApplyTo(new BackgroundTile[16], PauseWireframeKind.PowerSuit), "short patch target rejected before partial write");
         Console.WriteLine("Pause wireframes: four exact patches/untouched surroundings, 576 guarded native transition frames and actual equipment toggles pass.");
 
         static void EnterEquipment(PauseMenuState pause)
@@ -88,7 +88,7 @@ internal static class PauseWireframesVerification
         static void AssertPage(PauseMenuState pause, AreaMapPresentation catalog, PauseWireframeKind kind)
         {
             BackgroundTile[] actual = BackgroundTileWordBytes.Tiles(pause.ShownVram().AsSpan(0x6000, 0x800));
-            BackgroundTile[] expected = actual.ToArray(); InstalledAreaMapPresentation.PauseOf(catalog).Wireframes.ApplyTo(expected, kind);
+            BackgroundTile[] expected = actual.ToArray(); InstalledFixtures.ImportOf(catalog).Pause.Wireframes.ApplyTo(expected, kind);
             AssertTrue(expected.SequenceEqual(actual), "actual equipment page contains the selected current-content wireframe patch");
         }
     }

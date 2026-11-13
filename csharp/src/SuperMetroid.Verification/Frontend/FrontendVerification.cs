@@ -134,7 +134,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
         SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(addressSpace));
     var fixturePresentation = MapPresentationFiles.LoadForImport(mapDirectory, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName));
     var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-    var menu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation, spriteSheets: MenuSheetFixtures.For(fixturePresentation));
+    var menu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation.Game, spriteSheets: MenuSheetFixtures.For(fixturePresentation));
     ReadOnlySpan<ushort> tilemap = menu.BackgroundTilemap(fixturePresentation);
 
     // Native empty-slot origins are energy-field X plus one $40-byte row: rows 6, 11,
@@ -190,7 +190,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     AssertTrue(saved.Progression.ExploredCells(AreaId.Crateria).SequenceEqual([new Position16<MapTiles>(24, 1), new Position16<MapTiles>(37, 1)]),
         "the saved explored cells");
 
-    var savedMenu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation, spriteSheets: MenuSheetFixtures.For(fixturePresentation));
+    var savedMenu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation.Game, spriteSheets: MenuSheetFixtures.For(fixturePresentation));
     ReadOnlySpan<ushort> savedTilemap = savedMenu.BackgroundTilemap(fixturePresentation);
     AssertEqual(0x209d, savedTilemap[0x15c / 2], "saved slot ENERGY first tile");
     AssertEqual(0x2069, savedTilemap[(0x15c + 0x42) / 2], "saved slot energy tens");
@@ -205,7 +205,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
 
     // Drive the real newly-pressed latch and fade states into COPY. Slot zero is the only
     // nonempty source, destination one is the first native choice, and YES is the default.
-    var copyMenu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation, spriteSheets: MenuSheetFixtures.For(fixturePresentation));
+    var copyMenu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation.Game, spriteSheets: MenuSheetFixtures.For(fixturePresentation));
     AdvanceFileSelectToMain(copyMenu);
     PulseFileSelect(copyMenu, ControllerButton.Down);
     PulseFileSelect(copyMenu, ControllerButton.Down);
@@ -231,7 +231,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     // Re-enter the main screen from the copied SRAM image and clear slot A. This exercises
     // the actual confirmation default and the native four-directory invalidation, not a
     // host-only hidden flag.
-    var clearMenu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation, spriteSheets: MenuSheetFixtures.For(fixturePresentation));
+    var clearMenu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation.Game, spriteSheets: MenuSheetFixtures.For(fixturePresentation));
     AdvanceFileSelectToMain(clearMenu);
     for (int move = 0; move < 4; move++)
         PulseFileSelect(clearMenu, ControllerButton.Down);

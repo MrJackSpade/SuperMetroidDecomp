@@ -79,7 +79,7 @@ internal static class CrocomirePresentation1193Verification
                 if (frame % 8 == 0)
                 {
                     AssertEqual(sources[sourceIndex++], AnimatedTileFrameArtwork.SourceOf(shown), "Spikes follow 0/1/2/1/0 ping-pong sequence");
-                    AssertTrue(ImportAreaMapPresentation.RoomFxAnimatedTilesOf(maps).TryResolve(AnimatedTileFrameArtwork.SourceOf(shown), 0x80, out _),
+                    AssertTrue(InstalledFixtures.ImportOf(maps).RoomFxAnimatedTiles.TryResolve(AnimatedTileFrameArtwork.SourceOf(shown), 0x80, out _),
                         "Installed spike frame of four 4bpp characters exists");
                 }
             }

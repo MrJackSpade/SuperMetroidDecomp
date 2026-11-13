@@ -621,7 +621,8 @@ program still chooses rows using the cartridge's animation cadence; palette
 edits do not change movement, collisions, or timing. The sixteen `alarm` rows
 are edited the same way; their cadence and wrap remain engine behavior. Only the
 current document version loads; re-run the extractor to restore the original file.
-The separate `enemy-projectile-compositions.json` contains the Ceres elevator
+The separate `enemy-projectile-compositions.json`, import data whose parts are the original's packed sprite placements
+(the import composes the spawned-object sheets from it, and the installation holds their pictures), contains the Ceres elevator
 platform/pad, Skree/Metaree debris, and named timed-frame OAM compositions for
 translated Mother Brain, dust, Ceres Ridley, Phantoon, Crocomire, Draygon,
 Alcoon fireballs, Golden Torizo eggs/missiles/eye beams, and Bomb/Golden Torizo

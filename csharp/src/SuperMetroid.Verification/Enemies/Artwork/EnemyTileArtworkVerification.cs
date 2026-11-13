@@ -141,8 +141,10 @@ internal static class EnemyTileArtworkVerification
     /// <summary>Checks installed enemy projectile spritemaps against retail.</summary>
     private static void VerifyEnemyProjectileFrameArtwork()
     {
-        var (bus, directory, stock) = new EnemyTileFixture();
-        Suite(nameof(VerifyInstalledEnemyProjectileSpritemaps), () => VerifyInstalledEnemyProjectileSpritemaps(bus, directory, stock));
+        var (bus, _, stock) = new EnemyTileFixture();
+        // The compositions are import data (#1638): their document is the cartridge-derived extraction's.
+        string importData = CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.EnemyTileDirectoryName);
+        Suite(nameof(VerifyInstalledEnemyProjectileSpritemaps), () => VerifyInstalledEnemyProjectileSpritemaps(bus, importData, stock));
     }
 
     /// <summary>Checks Kraid's installed background and colours against retail.</summary>

@@ -165,7 +165,7 @@ internal sealed class EnemyTileArtworkReader
         CrocomireMeltingArtwork crocomire = CrocomireMelting(importData);
         CrocomireSkeletonArtwork skeleton = CrocomireSkeleton(importData);
         EnemySpritemapCatalog spritemaps = Spritemaps();
-        EnemyProjectileSpritemapCatalog projectileSpritemaps = ProjectileSpritemaps();
+        EnemyProjectileSpritemapCatalog projectileSpritemaps = ProjectileSpritemaps(importData);
         EnemyExtendedFrameCatalog extendedFrames = ExtendedFrames();
         PhantoonBg2FrameCatalog phantoonBg2Frames = PhantoonBg2Frames(importData);
         DraygonBg2FrameCatalog draygonBg2Frames = DraygonBg2Frames(importData);
@@ -331,19 +331,19 @@ internal sealed class EnemyTileArtworkReader
         }
     }
 
-    /// <summary>The enemy projectiles' compositions.</summary>
+    /// <summary>The enemy projectiles' compositions, import data whose parts are packed sprite placements (#1638).</summary>
     /// <exception cref="InvalidDataException">A composition is invalid.</exception>
-    internal EnemyProjectileSpritemapCatalog ProjectileSpritemaps()
+    internal static EnemyProjectileSpritemapCatalog ProjectileSpritemaps(string importData)
     {
         try
         {
             return EnemyProjectileSpritemapDocuments.Load(new MemoryStream(
-                Read(EnemyProjectileSpritemapDefinitions.FileName), writable: false));
+                ReadPage(importData, EnemyProjectileSpritemapDefinitions.FileName), writable: false));
         }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(
-                "Invalid installed enemy-projectile compositions.", error);
+                "Invalid extracted enemy-projectile compositions.", error);
         }
     }
 

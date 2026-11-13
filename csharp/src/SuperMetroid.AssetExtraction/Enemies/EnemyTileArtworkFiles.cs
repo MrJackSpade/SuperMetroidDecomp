@@ -161,7 +161,8 @@ public static class EnemyTileArtworkFiles
         File.WriteAllBytes(Path.Combine(directory, EnemySpritemapDefinitions.FileName),
             spritemapJson);
         byte[] projectileSpritemapJson = EnemyProjectileSpritemapFiles.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory,
+        // The enemy projectiles' compositions only compose the spawned-object sheets: their parts are packed sprite placements (#1638).
+        File.WriteAllBytes(Path.Combine(importData,
             EnemyProjectileSpritemapDefinitions.FileName), projectileSpritemapJson);
         byte[] extendedJson = EnemyExtendedFrameFiles.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, EnemyExtendedFrameDefinitions.FileName),

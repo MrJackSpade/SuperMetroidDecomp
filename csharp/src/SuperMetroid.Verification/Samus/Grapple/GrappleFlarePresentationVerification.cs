@@ -35,19 +35,26 @@ internal static class GrappleFlarePresentationVerification
         // each writes the same bytes for it, and no round trip holds it (each clone is taken before Check binds it), so the
         // captures name only the fixture's installed content and never index a content list of their own (#1532).
         object[] content = InstalledFixtures.BoundContent;
+        // Every case draws from the same installed projectile sheets, so the draw artwork is built once (#1680).
+        SuperMetroid.Core.Samus.Projectiles.ProjectileDrawArtwork artwork = InstalledFixtures.ProjectileArtwork();
         foreach (int address in new[] { GrappleBeamDefinitions.Firing.RightFlareSpritemapOffsets, GrappleBeamDefinitions.Firing.LeftFlareSpritemapOffsets })
             AssertEqual((ushort)0, ReadNativeGrappleFlareSpritemapOffset(bus, address), "Both native Grapple-facing rows start at the selector table's main-flare pictures, which both facings share");
         int cases = 0;
+        // The phase, pose, stage and coordinate cases each reseed every value the flare draw reads or writes on one pair of
+        // Samus states built and bound once, so a case costs a draw, not two whole Samus states (#1680).
+        SamusState seededNative = NewSamus(), seededActual = NewSamus();
+        var bound = new HashSet<SamusState>(ReferenceEqualityComparer.Instance);
         foreach (GrapplePhase phase in Enum.GetValues<GrapplePhase>())
         foreach (SamusPoseId pose in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose, SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose })
         foreach (GrappleFlareStage stage in Enum.GetValues<GrappleFlareStage>())
         foreach (ushort coordinate in new ushort[] { 0, 1, 100, 255, 256, 511, 32768, 65535 })
         {
-            SamusState native = Seed(), actual = Seed();
+            SamusState native = Seed(seededNative), actual = Seed(seededActual);
             Check(native, actual, wholeState: cases == 0);
-            SamusState Seed()
+            SamusState Seed(SamusState samus)
             {
-                var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
+                samus.Pose = pose;
+                samus.Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate));
                 samus.Grapple.Phase = phase;
                 samus.Grapple.FireDirection = pose is SamusPoseId.FacingLeftNormalPose or SamusPoseId.MovingLeftNormalPose
                     ? SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left
@@ -101,9 +108,12 @@ internal static class GrappleFlarePresentationVerification
         // beam starts, so each case compares those and the first case of each group compares her whole state (#1567).
         void Check(SamusState native, SamusState actual, bool wholeState)
         {
+            // Binding the body fixture hashes the body's characters, so each Samus state is bound once, on its first case
+            // (#1680); every clone is still taken before its first case binds it.
             foreach (SamusState samus in new[] { native, actual })
             {
-                samus.Presentation.BindBodyFixture(body);
+                if (bound.Add(samus))
+                    samus.Presentation.BindBodyFixture(body);
                 samus.Grapple.FlarePlacement = flarePlacement;
             }
             int expectedFrame = native.Grapple.FlarePicture.Index;
@@ -127,9 +137,9 @@ internal static class GrappleFlarePresentationVerification
                 }
             }
             var aFrame = new SpriteFrameBuffer(); var bFrame = new SpriteFrameBuffer();
-            bool visible = SamusGrappleBeamDrawing.DrawFlareBeforeSamus(native, aFrame, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork());
+            bool visible = SamusGrappleBeamDrawing.DrawFlareBeforeSamus(native, aFrame, Position16<RoomPixels>.Zero, artwork);
             OamBuffer a = aFrame.FinalizeAsOam();
-            AssertEqual(visible, SamusGrappleBeamDrawing.DrawFlareBeforeSamus(actual, bFrame, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork()), "Grapple sheet retains native flare visibility");
+            AssertEqual(visible, SamusGrappleBeamDrawing.DrawFlareBeforeSamus(actual, bFrame, Position16<RoomPixels>.Zero, artwork), "Grapple sheet retains native flare visibility");
             OamBuffer b = bFrame.FinalizeAsOam();
 
             AssertEqual(new CheckCase(expectedFrame, expectedTimer), new CheckCase(actual.Grapple.FlarePicture.Index, actual.Grapple.FlareAnimationTimer.RawValue), "Grapple shared compiled cadence matches independent native reads");
@@ -140,6 +150,9 @@ internal static class GrappleFlarePresentationVerification
             cases++;
         }
         SamusState Clone(SamusState source) => RoundTrip(source, content);
+
+        static SamusState NewSamus() => new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
+            SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
     }
 
     /// <summary>The grapple state a flare draw writes.</summary>

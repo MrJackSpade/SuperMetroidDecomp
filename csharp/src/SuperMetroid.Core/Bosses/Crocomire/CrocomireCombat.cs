@@ -175,8 +175,15 @@ internal sealed class CrocomireCombat
         throw new InvalidOperationException($"Crocomire hitbox shot reaction {reaction?.ToString() ?? "(none)"} is not translated.");
     }
 
+    /// <summary>
+    /// The frames a mouth shot that starts a damage reaction adds to the hold of Crocomire's current animation frame,
+    /// whatever his fight is doing: the game keeps one value for the projectile attack and one for every other fight
+    /// function, and both are this.
+    /// </summary>
+    internal const int MouthShotReactionHoldFrames = 8;
+
     /// <summary>Resolves Crocomire's mouth reaction.</summary>
-    private void ResolveCrocomireMouthShot(
+    internal void ResolveCrocomireMouthShot(
         CrocomireEnemyState state,
         RoomEnemySlot body,
         SamusProjectileType projectileType,
@@ -218,11 +225,7 @@ internal sealed class CrocomireCombat
             state.StepCounter += stepCount;
             if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == CrocomireFightFlags.None)
             {
-                // Both regional constants are eight. Keep the branch
-                // explicit because the game distinguishes projectile-attack state even
-                // though this release stores identical delay values.
-                body.FrameHold = body.FrameHold.AddFrames(
-                    state.FightFunction == CrocomireFightFunction.ProjectileAttack ? 8 : 8);
+                body.FrameHold = body.FrameHold.AddFrames(MouthShotReactionHoldFrames);
             }
             state.FightFlags = (state.FightFlags & ~(CrocomireFightFlags.DamageReactionPending | CrocomireFightFlags.ClawTouchedSamus)) |
                 CrocomireFightFlags.DamageReactionPending;

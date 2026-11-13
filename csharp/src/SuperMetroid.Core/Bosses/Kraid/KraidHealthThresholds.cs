@@ -7,6 +7,6 @@ internal static class KraidHealthThresholds
     public static int Eighth(int initialHealth, int index)
     {
         if ((uint)index >= KraidHealthThresholdDefinitions.EighthCount) throw new ArgumentOutOfRangeException(nameof(index));
-        return (initialHealth >> KraidHealthThresholdDefinitions.EighthShift) * (index + 1);
+        return Ensure.AtLeastZero(initialHealth) / KraidHealthThresholdDefinitions.EighthCount * (index + 1);
     }
 }

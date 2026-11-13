@@ -49,7 +49,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     }
 
     /// <summary>
-    /// The step of the elevator room's six-colour glow the rotating-room door cycles, which the room's tiles show as
+    /// The step of the elevator room's six-colour glow the rotating-room door cycles, which the room's pictures show as
     /// <see cref="CeresDoorShades.ElevatorRoomGlow"/> (#1512); null before the door first cycles it.
     /// </summary>
     internal int? ElevatorRoomGlowStep { get; private set; }
@@ -134,7 +134,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         }
     }
 
-    /// <summary>Initial countdown whose underflow ends the 49-update destruction sequence.</summary>
+    /// <summary>Initial countdown that ends the 49-update destruction sequence when it passes zero.</summary>
     private const int CeresDoorRumbleDuration = 48;
     /// <summary>Reload value for the interval between destruction effects.</summary>
     private const int CeresDoorRumbleInterval = 4;

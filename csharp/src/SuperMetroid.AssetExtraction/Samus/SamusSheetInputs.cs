@@ -20,7 +20,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="StandardObjects">The standard OBJ sheet as a page.</param>
 /// <param name="Palettes">The starting and common sprite colours a room load copies.</param>
 /// <param name="Intro">The intro's characters and palette.</param>
-/// <param name="SamusBody">Samus's body characters, bound to the body's frame selections and spritemaps.</param>
+/// <param name="SamusBody">Samus's body characters, bound to the body's frame selections and spritemaps as the import reads them.</param>
 /// <param name="DeathTiles">The characters of Samus's suit explosion.</param>
 /// <param name="ArmCannonCover">The arm cannon's cover characters, bound to its installed placement.</param>
 /// <param name="ShadeSources">The colour tables her shades are pre-coloured from.</param>

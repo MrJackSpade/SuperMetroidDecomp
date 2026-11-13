@@ -3,10 +3,14 @@ using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Versioned <c>samus-arm-cannon.json</c> placement, cover-appearance, and tile-selection tables; pixels are supplied separately by <c>samus-arm-cannon-tiles.png</c>, and opening/closing mechanics remain runtime-owned.</summary>
+/// <summary>
+/// The extracted arm-cannon document, import data as <c>samus-arm-cannon-artwork.json</c> (#1638): placement,
+/// cover-appearance, and tile-selection tables; pixels are supplied separately by <c>samus-arm-cannon-tiles.png</c>, and
+/// opening/closing mechanics remain runtime-owned. The installation holds only its layout (<see cref="SamusArmCannonLayoutDocument"/>).
+/// </summary>
 public sealed record SamusArmCannonArtworkDocument
 {
-    /// <summary>Placement schema revision; loading currently requires version 4.</summary>
+    /// <summary>Document schema revision; loading requires <see cref="SamusArmCannonArtworkFormat.Version"/>.</summary>
     public required int Version { get; init; }
     /// <summary>
     /// Where each pose with a record's descriptor begins within <see cref="DrawingData"/>, keyed by the pose's name, for

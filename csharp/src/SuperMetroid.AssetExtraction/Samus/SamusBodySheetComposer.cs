@@ -42,7 +42,7 @@ internal static class SamusBodySheetComposer
         var blank = new List<string>();
         var overlaid = new Dictionary<SpriteArtwork, SpriteArtwork>(ReferenceEqualityComparer.Instance);
         var colourings = new Dictionary<string, PictureShade[]>(StringComparer.Ordinal);
-        foreach (SheetBody body in Bodies(characters.Body, inputs.AnimationContinuation))
+        foreach (SheetBody body in Bodies(characters.Body, characters.Body.InstalledBody(inputs.AnimationContinuation)))
         {
             if (body.Picture is not { } picture)
             {
@@ -132,34 +132,29 @@ internal static class SamusBodySheetComposer
 
     /// <summary>
     /// The names of the frames the body sheet installed under <paramref name="content"/> holds, pictured or showing nothing:
-    /// every pose and picture frame the game can show with the installed body.
+    /// every body frame the installed body names (#1638), which reads no import data.
     /// </summary>
     /// <param name="content">The installation's content directory.</param>
     internal static IReadOnlyList<string> FrameNames(string content)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
-        return [.. Bodies(
-            SamusBodyArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName)),
-            SamusOverreadFiles.LoadAnimationContinuation(Path.Combine(content, GameInstallationLayout.SamusOverreadDirectoryName)))
-            .Select(body => body.Name)];
+        return [.. SamusBodyArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName))
+            .Frames.Select(frame => frame.Name)];
     }
 
     /// <summary>
-    /// Every pose and picture frame the game can show, in pose and frame order, with the picture it shows, which bodies
-    /// composed alike share with the colouring <see cref="SamusBodyColouringDefinitions"/> names for any pose that shows
-    /// it. A body whose halves reach past the table draws nothing the sheet could hold: the draw rejects it.
+    /// Every body frame the body sheet pictures, in pose and frame order, with the picture it shows, which bodies composed
+    /// alike share with the colouring <see cref="SamusBodyColouringDefinitions"/> names for any pose that shows it.
     /// </summary>
     /// <exception cref="InvalidDataException">Poses with two different colourings show one picture.</exception>
-    private static List<SheetBody> Bodies(SamusBodySources body, LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation)
+    private static List<SheetBody> Bodies(SamusBodySources body, InstalledSamusBody installed)
     {
         SamusSpritemapSources spritemaps = body.Spritemaps;
         var bodies = new List<SheetBody>();
         var pictures = new Dictionary<SamusBodyPictureKey, SheetPicture>();
-        foreach (SamusShownBody shown in SamusShownFrames.Of(continuation).Bodies(body))
+        foreach (SamusShownBody shown in body.SheetBodies(installed))
         {
             SamusBodyComposition drawn = shown.Composition;
-            if (!Covers(spritemaps, drawn.Top) || (drawn.Bottom is { } lower && !Covers(spritemaps, lower)))
-                continue;
             string name = shown.Frame.Name;
             // A body with no composition and no chest cover shows nothing (owner decision on #1318).
             if (spritemaps.PictureKey(drawn, shown.Pictures) is not { } key)
@@ -183,10 +178,6 @@ internal static class SamusBodySheetComposer
         }
         return bodies;
     }
-
-    /// <summary>Whether <paramref name="half"/>'s animation frame is one the table holds for its pose half.</summary>
-    private static bool Covers(SamusSpritemapSources spritemaps, SamusBodyHalfFrame half) =>
-        (uint)half.AnimationFrame < (uint)spritemaps.Frames(half).Count;
 
     /// <summary>
     /// <paramref name="drawn"/> as one whole frame: the top half's parts, the chest cover at its place, then the bottom

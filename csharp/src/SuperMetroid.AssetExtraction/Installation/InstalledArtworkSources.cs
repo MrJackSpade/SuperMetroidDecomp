@@ -10,8 +10,8 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// </summary>
 public sealed record InstalledArtworkSources
 {
-    /// <summary>Samus's body sources, whose game catalog the installed artwork set binds (#1616).</summary>
-    public required SamusBodySources SamusBody { get; init; }
+    /// <summary>What the game binds of Samus's installed body, whose game catalog the installed artwork set binds (#1616, #1638).</summary>
+    public required InstalledSamusBody SamusBody { get; init; }
 
     /// <summary>The opening cinematic's and the Ceres scenes' maps and sprite compositions.</summary>
     public required IntroCinematicSourceArtwork Intro { get; init; }

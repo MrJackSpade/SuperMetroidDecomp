@@ -19,7 +19,7 @@ internal static class ElevatorInputDefinitionsVerification
     internal static void VerifyElevatorInputDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyElevatorDirectionInputMapping), () => VerifyElevatorDirectionInputMapping(rom));
-        var bodyArtwork = SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles.Load(RepositoryInstallation.Installation.SamusBodyDirectory);
+        var bodyArtwork = InstalledFixtures.SamusBody;
         const int inputTable = 0xa394e2;
 
         for (ushort direction = 0; direction < 2; direction++)

@@ -1,18 +1,19 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Magdollite.MagdolliteLavaCueKind;
 using P = SuperMetroid.Core.Enemies.Magdollite.MagdolliteLavaProgram;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
 /// The Magdollite's thrown-lava programs (#641). Each
-/// frame shows a <see cref="MagdolliteLavaFrame"/> pose and each command becomes a <see cref="MagdolliteLavaCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each command becomes a <see cref="MagdolliteLavaCue"/> with its typed operands.
 /// </summary>
 internal static class MagdolliteLavaAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MagdolliteLavaProgram, MagdolliteLavaFrame, MagdolliteLavaCue> Segments { get; } = new(
-        new Dictionary<MagdolliteLavaProgram, AnimationBeat<MagdolliteLavaFrame, MagdolliteLavaCue>[]>
+    internal static AnimationSegments<MagdolliteLavaProgram, EnemyProjectileFrameId, MagdolliteLavaCue> Segments { get; } = new(
+        new Dictionary<MagdolliteLavaProgram, AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>[]>
     {
         [P.SharedDelete] =
         [
@@ -20,11 +21,11 @@ internal static class MagdolliteLavaAnimations
         ],
         [P.Left] =
         [
-            Show(0, 1),
+            Show(EnemyProjectileFrameId.MagdolliteLavaFrame00, 1),
         ],
         [P.Right] =
         [
-            Show(1, 1),
+            Show(EnemyProjectileFrameId.MagdolliteLavaFrame01, 1),
         ],
         [P.Shot] =
         [
@@ -44,9 +45,9 @@ internal static class MagdolliteLavaAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MagdolliteLavaProgram> StartingWith(MagdolliteLavaProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<MagdolliteLavaFrame, MagdolliteLavaCue> Show(int pose, int duration) => new AnimationBeat<MagdolliteLavaFrame, MagdolliteLavaCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<MagdolliteLavaFrame, MagdolliteLavaCue> Cue(MagdolliteLavaCue cue) => new AnimationBeat<MagdolliteLavaFrame, MagdolliteLavaCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue> Cue(MagdolliteLavaCue cue) => new AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>.Event(cue);
 }

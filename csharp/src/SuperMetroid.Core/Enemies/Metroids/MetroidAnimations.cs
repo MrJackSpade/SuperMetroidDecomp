@@ -1,50 +1,51 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Metroids.MetroidCueKind;
 using P = SuperMetroid.Core.Enemies.Metroids.MetroidProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
 /// The Metroid's chasing and draining pulse loops as typed programs (#641). Each
-/// frame shows a <see cref="MetroidFrame"/> pose and each callback becomes a <see cref="MetroidCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="MetroidCue"/> with its typed operands.
 /// </summary>
 internal static class MetroidAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MetroidProgram, MetroidFrame, MetroidCue> Segments { get; } = new(
-        new Dictionary<MetroidProgram, AnimationBeat<MetroidFrame, MetroidCue>[]>
+    internal static AnimationSegments<MetroidProgram, EnemyFrameId, MetroidCue> Segments { get; } = new(
+        new Dictionary<MetroidProgram, AnimationBeat<EnemyFrameId, MetroidCue>[]>
     {
         [P.ChasingSamus] =
         [
-            Show(0, 16),
-            Show(1, 16),
-            Show(2, 6),
-            Show(3, 10),
-            Show(1, 16),
-            Show(0, 16),
-            Show(1, 16),
-            Show(2, 6),
-            Show(3, 10),
-            Show(1, 16),
-            Show(0, 16),
-            Show(1, 16),
-            Show(2, 6),
-            Show(3, 10),
-            Show(1, 16),
-            Show(0, 16),
-            Show(1, 16),
-            Show(2, 6),
-            Show(3, 10),
-            Show(1, 16),
+            Show(EnemyFrameId.MetroidBody0, 16),
+            Show(EnemyFrameId.MetroidBody1, 16),
+            Show(EnemyFrameId.MetroidBody2, 6),
+            Show(EnemyFrameId.MetroidBody3, 10),
+            Show(EnemyFrameId.MetroidBody1, 16),
+            Show(EnemyFrameId.MetroidBody0, 16),
+            Show(EnemyFrameId.MetroidBody1, 16),
+            Show(EnemyFrameId.MetroidBody2, 6),
+            Show(EnemyFrameId.MetroidBody3, 10),
+            Show(EnemyFrameId.MetroidBody1, 16),
+            Show(EnemyFrameId.MetroidBody0, 16),
+            Show(EnemyFrameId.MetroidBody1, 16),
+            Show(EnemyFrameId.MetroidBody2, 6),
+            Show(EnemyFrameId.MetroidBody3, 10),
+            Show(EnemyFrameId.MetroidBody1, 16),
+            Show(EnemyFrameId.MetroidBody0, 16),
+            Show(EnemyFrameId.MetroidBody1, 16),
+            Show(EnemyFrameId.MetroidBody2, 6),
+            Show(EnemyFrameId.MetroidBody3, 10),
+            Show(EnemyFrameId.MetroidBody1, 16),
             Cue(new(K.PlayRandomCry)),
         ],
         [P.DrainingSamus] =
         [
-            Show(0, 16),
-            Show(1, 16),
-            Show(2, 6),
-            Show(3, 10),
-            Show(1, 16),
+            Show(EnemyFrameId.MetroidBody0, 16),
+            Show(EnemyFrameId.MetroidBody1, 16),
+            Show(EnemyFrameId.MetroidBody2, 6),
+            Show(EnemyFrameId.MetroidBody3, 10),
+            Show(EnemyFrameId.MetroidBody1, 16),
             Cue(new(K.PlayDrainingSound)),
         ],
     });
@@ -59,9 +60,9 @@ internal static class MetroidAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MetroidProgram> StartingWith(MetroidProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<MetroidFrame, MetroidCue> Show(int pose, int duration) => new AnimationBeat<MetroidFrame, MetroidCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, MetroidCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, MetroidCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<MetroidFrame, MetroidCue> Cue(MetroidCue cue) => new AnimationBeat<MetroidFrame, MetroidCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, MetroidCue> Cue(MetroidCue cue) => new AnimationBeat<EnemyFrameId, MetroidCue>.Event(cue);
 }

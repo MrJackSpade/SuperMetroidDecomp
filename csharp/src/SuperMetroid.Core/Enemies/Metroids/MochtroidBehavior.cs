@@ -1,6 +1,5 @@
 ﻿using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Metroids.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -249,7 +248,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Mochtroid's typed animation.</summary>
     internal static void AdvanceMochtroidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, MochtroidAnimations.Segments, MochtroidFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, MochtroidAnimations.Segments,
             static (MochtroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) => throw new InvalidOperationException($"Mochtroid's cue-free animation raised {cue}."));
 

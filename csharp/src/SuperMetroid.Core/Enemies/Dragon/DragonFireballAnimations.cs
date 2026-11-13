@@ -6,33 +6,33 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>
 /// Dragon's rising and falling fireball programs (#641). Each
-/// frame shows a <see cref="DragonFireballFrame"/> pose and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class DragonFireballAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<DragonFireballProgram, DragonFireballFrame, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<DragonFireballProgram, AnimationBeat<DragonFireballFrame, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<DragonFireballProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<DragonFireballProgram, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.RisingLeft] =
         [
-            Show(0, 5),
-            Show(1, 5),
+            Show(EnemyProjectileFrameId.DragonFireballFrame00, 5),
+            Show(EnemyProjectileFrameId.DragonFireballFrame01, 5),
         ],
         [P.RisingRight] =
         [
-            Show(2, 5),
-            Show(3, 5),
+            Show(EnemyProjectileFrameId.DragonFireballFrame02, 5),
+            Show(EnemyProjectileFrameId.DragonFireballFrame03, 5),
         ],
         [P.FallingLeft] =
         [
-            Show(4, 5),
-            Show(5, 5),
+            Show(EnemyProjectileFrameId.DragonFireballFrame04, 5),
+            Show(EnemyProjectileFrameId.DragonFireballFrame05, 5),
         ],
         [P.FallingRight] =
         [
-            Show(6, 5),
-            Show(7, 5),
+            Show(EnemyProjectileFrameId.DragonFireballFrame06, 5),
+            Show(EnemyProjectileFrameId.DragonFireballFrame07, 5),
         ],
     });
 
@@ -48,6 +48,6 @@ internal static class DragonFireballAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DragonFireballProgram> StartingWith(DragonFireballProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<DragonFireballFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<DragonFireballFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 }

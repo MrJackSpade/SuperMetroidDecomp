@@ -1,36 +1,37 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.SpacePirates.WallSpacePirateCueKind;
 using P = SuperMetroid.Core.Enemies.SpacePirates.WallSpacePirateProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
 /// The wall Space Pirates' climb, jump and laser animations as typed programs (#641). Each
-/// frame shows a <see cref="WallSpacePirateFrame"/> pose and each callback becomes a <see cref="WallSpacePirateCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="WallSpacePirateCue"/> with its typed operands.
 /// </summary>
 internal static class WallSpacePirateAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue> Segments { get; } = new(
-        new Dictionary<WallSpacePirateProgram, AnimationBeat<WallSpacePirateFrame, WallSpacePirateCue>[]>
+    internal static AnimationSegments<WallSpacePirateProgram, EnemyFrameId, WallSpacePirateCue> Segments { get; } = new(
+        new Dictionary<WallSpacePirateProgram, AnimationBeat<EnemyFrameId, WallSpacePirateCue>[]>
     {
         [P.FireAndJumpLeft] =
         [
             Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.AttackAnimationOnRightWall)),
-            Show(14, 9),
-            Show(15, 15),
+            Show(EnemyFrameId.WallPirateFireJumpLeft0, 9),
+            Show(EnemyFrameId.WallPirateFireJumpLeft1, 15),
             Cue(new WallSpacePirateCue.Command(K.FireLaserLeft)),
             Wait(32),
             Cue(new WallSpacePirateCue.Command(K.PrepareJumpLeft)),
             Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.WallJumpingLeft)),
             Cue(new WallSpacePirateCue.Command(K.PlayAttackSound)),
-            Show(16, 10),
-            Show(17, 1),
+            Show(EnemyFrameId.WallPirateFireJumpLeft2, 10),
+            Show(EnemyFrameId.WallPirateFireJumpLeft3, 1),
         ],
         [P.LandedOnLeftWall] =
         [
             Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.ClimbingLeftWall)),
-            Show(16, 10),
+            Show(EnemyFrameId.WallPirateFireJumpLeft2, 10),
         ],
         [P.MovingUpLeftWall] =
         [
@@ -38,21 +39,21 @@ internal static class WallSpacePirateAnimations
         ],
         [P.MovingUpLeftWallLoop] =
         [
-            Show(0, 10),
+            Show(EnemyFrameId.WallPirateClimbLeft0, 10),
             Cue(new WallSpacePirateCue.ClimbLeftWall(ClimbPixels: -3)),
-            Show(1, 8),
+            Show(EnemyFrameId.WallPirateClimbLeft1, 8),
             Cue(new WallSpacePirateCue.ClimbLeftWall(ClimbPixels: -3)),
-            Show(2, 5),
+            Show(EnemyFrameId.WallPirateClimbLeft2, 5),
             Cue(new WallSpacePirateCue.ClimbLeftWall(ClimbPixels: -3)),
-            Show(3, 8),
+            Show(EnemyFrameId.WallPirateClimbLeft3, 8),
             Cue(new WallSpacePirateCue.ClimbLeftWall(ClimbPixels: -3)),
-            Show(4, 10),
+            Show(EnemyFrameId.WallPirateClimbLeft4, 10),
             Cue(new WallSpacePirateCue.ClimbLeftWall(ClimbPixels: -3)),
-            Show(3, 8),
+            Show(EnemyFrameId.WallPirateClimbLeft3, 8),
             Cue(new WallSpacePirateCue.ClimbLeftWall(ClimbPixels: -3)),
-            Show(2, 5),
+            Show(EnemyFrameId.WallPirateClimbLeft2, 5),
             Cue(new WallSpacePirateCue.ClimbLeftWall(ClimbPixels: -3)),
-            Show(1, 8),
+            Show(EnemyFrameId.WallPirateClimbLeft1, 8),
             Cue(new WallSpacePirateCue.Command(K.ChooseLeftWallDirection)),
         ],
         [P.MovingDownLeftWall] =
@@ -61,40 +62,40 @@ internal static class WallSpacePirateAnimations
         ],
         [P.MovingDownLeftWallLoop] =
         [
-            Show(0, 10),
+            Show(EnemyFrameId.WallPirateClimbLeft0, 10),
             Cue(new WallSpacePirateCue.ClimbLeftWall(ClimbPixels: 3)),
-            Show(1, 8),
+            Show(EnemyFrameId.WallPirateClimbLeft1, 8),
             Cue(new WallSpacePirateCue.ClimbLeftWall(ClimbPixels: 3)),
-            Show(2, 5),
+            Show(EnemyFrameId.WallPirateClimbLeft2, 5),
             Cue(new WallSpacePirateCue.ClimbLeftWall(ClimbPixels: 3)),
-            Show(3, 8),
+            Show(EnemyFrameId.WallPirateClimbLeft3, 8),
             Cue(new WallSpacePirateCue.ClimbLeftWall(ClimbPixels: 3)),
-            Show(4, 10),
+            Show(EnemyFrameId.WallPirateClimbLeft4, 10),
             Cue(new WallSpacePirateCue.ClimbLeftWall(ClimbPixels: 3)),
-            Show(3, 8),
+            Show(EnemyFrameId.WallPirateClimbLeft3, 8),
             Cue(new WallSpacePirateCue.ClimbLeftWall(ClimbPixels: 3)),
-            Show(2, 5),
+            Show(EnemyFrameId.WallPirateClimbLeft2, 5),
             Cue(new WallSpacePirateCue.ClimbLeftWall(ClimbPixels: 3)),
-            Show(1, 8),
+            Show(EnemyFrameId.WallPirateClimbLeft1, 8),
             Cue(new WallSpacePirateCue.Command(K.ChooseLeftWallDirection)),
         ],
         [P.FireAndJumpRight] =
         [
             Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.AttackAnimationOnLeftWall)),
-            Show(5, 9),
-            Show(6, 1),
+            Show(EnemyFrameId.WallPirateFireJumpRight0, 9),
+            Show(EnemyFrameId.WallPirateFireJumpRight1, 1),
             Cue(new WallSpacePirateCue.Command(K.FireLaserRight)),
             Wait(32),
             Cue(new WallSpacePirateCue.Command(K.PrepareJumpRight)),
             Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.WallJumpingRight)),
             Cue(new WallSpacePirateCue.Command(K.PlayAttackSound)),
-            Show(7, 10),
-            Show(8, 1),
+            Show(EnemyFrameId.WallPirateFireJumpRight2, 10),
+            Show(EnemyFrameId.WallPirateFireJumpRight3, 1),
         ],
         [P.LandedOnRightWall] =
         [
             Cue(new WallSpacePirateCue.SetFunction(Function: WallSpacePirateFunction.ClimbingRightWall)),
-            Show(7, 10),
+            Show(EnemyFrameId.WallPirateFireJumpRight2, 10),
         ],
         [P.MovingDownRightWall] =
         [
@@ -102,21 +103,21 @@ internal static class WallSpacePirateAnimations
         ],
         [P.MovingDownRightWallLoop] =
         [
-            Show(9, 10),
+            Show(EnemyFrameId.WallPirateClimbRight0, 10),
             Cue(new WallSpacePirateCue.ClimbRightWall(ClimbPixels: 3)),
-            Show(10, 8),
+            Show(EnemyFrameId.WallPirateClimbRight1, 8),
             Cue(new WallSpacePirateCue.ClimbRightWall(ClimbPixels: 3)),
-            Show(11, 5),
+            Show(EnemyFrameId.WallPirateClimbRight2, 5),
             Cue(new WallSpacePirateCue.ClimbRightWall(ClimbPixels: 3)),
-            Show(12, 8),
+            Show(EnemyFrameId.WallPirateClimbRight3, 8),
             Cue(new WallSpacePirateCue.ClimbRightWall(ClimbPixels: 3)),
-            Show(13, 10),
+            Show(EnemyFrameId.WallPirateClimbRight4, 10),
             Cue(new WallSpacePirateCue.ClimbRightWall(ClimbPixels: 3)),
-            Show(12, 8),
+            Show(EnemyFrameId.WallPirateClimbRight3, 8),
             Cue(new WallSpacePirateCue.ClimbRightWall(ClimbPixels: 3)),
-            Show(11, 5),
+            Show(EnemyFrameId.WallPirateClimbRight2, 5),
             Cue(new WallSpacePirateCue.ClimbRightWall(ClimbPixels: 3)),
-            Show(10, 8),
+            Show(EnemyFrameId.WallPirateClimbRight1, 8),
             Cue(new WallSpacePirateCue.Command(K.ChooseRightWallDirection)),
         ],
         [P.MovingUpRightWall] =
@@ -125,21 +126,21 @@ internal static class WallSpacePirateAnimations
         ],
         [P.MovingUpRightWallLoop] =
         [
-            Show(9, 10),
+            Show(EnemyFrameId.WallPirateClimbRight0, 10),
             Cue(new WallSpacePirateCue.ClimbRightWall(ClimbPixels: -3)),
-            Show(10, 8),
+            Show(EnemyFrameId.WallPirateClimbRight1, 8),
             Cue(new WallSpacePirateCue.ClimbRightWall(ClimbPixels: -3)),
-            Show(11, 5),
+            Show(EnemyFrameId.WallPirateClimbRight2, 5),
             Cue(new WallSpacePirateCue.ClimbRightWall(ClimbPixels: -3)),
-            Show(12, 8),
+            Show(EnemyFrameId.WallPirateClimbRight3, 8),
             Cue(new WallSpacePirateCue.ClimbRightWall(ClimbPixels: -3)),
-            Show(13, 10),
+            Show(EnemyFrameId.WallPirateClimbRight4, 10),
             Cue(new WallSpacePirateCue.ClimbRightWall(ClimbPixels: -3)),
-            Show(12, 8),
+            Show(EnemyFrameId.WallPirateClimbRight3, 8),
             Cue(new WallSpacePirateCue.ClimbRightWall(ClimbPixels: -3)),
-            Show(11, 5),
+            Show(EnemyFrameId.WallPirateClimbRight2, 5),
             Cue(new WallSpacePirateCue.ClimbRightWall(ClimbPixels: -3)),
-            Show(10, 8),
+            Show(EnemyFrameId.WallPirateClimbRight1, 8),
             Cue(new WallSpacePirateCue.Command(K.ChooseRightWallDirection)),
         ],
     });
@@ -160,12 +161,12 @@ internal static class WallSpacePirateAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<WallSpacePirateProgram> StartingWith(WallSpacePirateProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<WallSpacePirateFrame, WallSpacePirateCue> Show(int pose, int duration) => new AnimationBeat<WallSpacePirateFrame, WallSpacePirateCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, WallSpacePirateCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, WallSpacePirateCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<WallSpacePirateFrame, WallSpacePirateCue> Cue(WallSpacePirateCue cue) => new AnimationBeat<WallSpacePirateFrame, WallSpacePirateCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, WallSpacePirateCue> Cue(WallSpacePirateCue cue) => new AnimationBeat<EnemyFrameId, WallSpacePirateCue>.Event(cue);
 
     /// <summary>Waits <paramref name="updates"/> updates on the current frame.</summary>
-    private static AnimationBeat<WallSpacePirateFrame, WallSpacePirateCue> Wait(int updates) => new AnimationBeat<WallSpacePirateFrame, WallSpacePirateCue>.Pause(updates);
+    private static AnimationBeat<EnemyFrameId, WallSpacePirateCue> Wait(int updates) => new AnimationBeat<EnemyFrameId, WallSpacePirateCue>.Pause(updates);
 }

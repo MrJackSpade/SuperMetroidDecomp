@@ -7,124 +7,124 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Mother Brain's onion-ring, bomb, rainbow-charge, drool, escape-door, purple-breath and subtitle programs (#641), in place of their lists. Generated from the verified lists: each
-/// frame shows a <see cref="MotherBrainEffectFrame"/> pose and each command becomes a <see cref="MotherBrainEffectCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each command becomes a <see cref="MotherBrainEffectCue"/> with its typed operands.
 /// </summary>
 internal static class MotherBrainEffectAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MotherBrainEffectProgram, MotherBrainEffectFrame, MotherBrainEffectCue> Segments { get; } = new(
-        new Dictionary<MotherBrainEffectProgram, AnimationBeat<MotherBrainEffectFrame, MotherBrainEffectCue>[]>
+    internal static AnimationSegments<MotherBrainEffectProgram, EnemyProjectileFrameId, MotherBrainEffectCue> Segments { get; } = new(
+        new Dictionary<MotherBrainEffectProgram, AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>[]>
     {
         [P.OnionRing] =
         [
             Cue(new MotherBrainEffectCue.SetRadius(Radius: new(1, 1))),
-            Show(0, 16),
+            Show(EnemyProjectileFrameId.MotherBrainBlueRing00, 16),
             Cue(new MotherBrainEffectCue.SetRadius(Radius: new(2, 2))),
-            Show(1, 10),
+            Show(EnemyProjectileFrameId.MotherBrainBlueRing01, 10),
             Cue(new MotherBrainEffectCue.SetRadius(Radius: new(3, 3))),
-            Show(2, 8),
+            Show(EnemyProjectileFrameId.MotherBrainBlueRing02, 8),
             Cue(new MotherBrainEffectCue.SetRadius(Radius: new(4, 4))),
-            Show(3, 7),
+            Show(EnemyProjectileFrameId.MotherBrainBlueRing03, 7),
             Cue(new MotherBrainEffectCue.SetRadius(Radius: new(5, 5))),
-            Show(4, 6),
+            Show(EnemyProjectileFrameId.MotherBrainBlueRing04, 6),
             Cue(new MotherBrainEffectCue.SetRadius(Radius: new(6, 6))),
-            Show(5, 5),
+            Show(EnemyProjectileFrameId.MotherBrainBlueRing05, 5),
         ],
         [P.OnionRingHit] =
         [
             Cue(new MotherBrainEffectCue.Command(K.DrawFromSharedSheet)),
             Cue(new MotherBrainEffectCue.Command(K.ClearFrameBehavior)),
-            Show(6, 5),
-            Show(7, 5),
-            Show(8, 5),
-            Show(9, 5),
-            Show(10, 5),
-            Show(11, 5),
+            Show(EnemyProjectileFrameId.MotherBrainBlueRingImpact00, 5),
+            Show(EnemyProjectileFrameId.MotherBrainBlueRingImpact01, 5),
+            Show(EnemyProjectileFrameId.MotherBrainBlueRingImpact02, 5),
+            Show(EnemyProjectileFrameId.MotherBrainBlueRingImpact03, 5),
+            Show(EnemyProjectileFrameId.MotherBrainBlueRingImpact04, 5),
+            Show(EnemyProjectileFrameId.MotherBrainBlueRingImpact05, 5),
             Cue(new MotherBrainEffectCue.Command(K.Delete)),
         ],
         [P.Bomb] =
         [
-            Show(12, 6),
-            Show(13, 5),
-            Show(14, 4),
-            Show(15, 3),
-            Show(16, 2),
-            Show(17, 2),
-            Show(18, 3),
-            Show(19, 4),
-            Show(20, 5),
+            Show(EnemyProjectileFrameId.MotherBrainBombFrame00, 6),
+            Show(EnemyProjectileFrameId.MotherBrainBombFrame01, 5),
+            Show(EnemyProjectileFrameId.MotherBrainBombFrame02, 4),
+            Show(EnemyProjectileFrameId.MotherBrainBombFrame03, 3),
+            Show(EnemyProjectileFrameId.MotherBrainBombFrame04, 2),
+            Show(EnemyProjectileFrameId.MotherBrainBombFrame05, 2),
+            Show(EnemyProjectileFrameId.MotherBrainBombFrame06, 3),
+            Show(EnemyProjectileFrameId.MotherBrainBombFrame07, 4),
+            Show(EnemyProjectileFrameId.MotherBrainBombFrame08, 5),
         ],
         [P.RainbowBeamCharging] =
         [
-            Show(21, 5),
-            Show(22, 5),
-            Show(23, 5),
-            Show(24, 5),
-            Show(25, 5),
-            Show(26, 5),
+            Show(EnemyProjectileFrameId.MotherBrainRainbowBeamChargingFrame00, 5),
+            Show(EnemyProjectileFrameId.MotherBrainRainbowBeamChargingFrame01, 5),
+            Show(EnemyProjectileFrameId.MotherBrainRainbowBeamChargingFrame02, 5),
+            Show(EnemyProjectileFrameId.MotherBrainRainbowBeamChargingFrame03, 5),
+            Show(EnemyProjectileFrameId.MotherBrainRainbowBeamChargingFrame04, 5),
+            Show(EnemyProjectileFrameId.MotherBrainRainbowBeamChargingFrame05, 5),
             Cue(new MotherBrainEffectCue.Command(K.Delete)),
         ],
         [P.Drool] =
         [
-            Show(27, 10),
-            Show(28, 10),
-            Show(29, 10),
-            Show(30, 10),
-            Show(31, 10),
+            Show(EnemyProjectileFrameId.MotherBrainDroolAttached00, 10),
+            Show(EnemyProjectileFrameId.MotherBrainDroolAttached01, 10),
+            Show(EnemyProjectileFrameId.MotherBrainDroolAttached02, 10),
+            Show(EnemyProjectileFrameId.MotherBrainDroolAttached03, 10),
+            Show(EnemyProjectileFrameId.MotherBrainDroolAttached04, 10),
             Cue(new MotherBrainEffectCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.MotherBrainDroolFall)),
             Cue(new MotherBrainEffectCue.Command(K.DropDrool)),
-            Show(32, 10),
+            Show(EnemyProjectileFrameId.MotherBrainDroolReleased, 10),
         ],
         [P.DroolHitFloor] =
         [
             Cue(new MotherBrainEffectCue.Command(K.ClearFrameBehavior)),
-            Show(33, 10),
-            Show(34, 10),
-            Show(35, 10),
-            Show(36, 10),
+            Show(EnemyProjectileFrameId.MotherBrainDroolHitFloorFrame00, 10),
+            Show(EnemyProjectileFrameId.MotherBrainDroolHitFloorFrame01, 10),
+            Show(EnemyProjectileFrameId.MotherBrainDroolHitFloorFrame02, 10),
+            Show(EnemyProjectileFrameId.MotherBrainDroolHitFloorFrame03, 10),
             Cue(new MotherBrainEffectCue.Command(K.Delete)),
         ],
         [P.EscapeDoorParticle] =
         [
-            Show(37, 1),
-            Show(38, 1),
-            Show(39, 1),
-            Show(40, 1),
-            Show(41, 3),
-            Show(42, 3),
-            Show(43, 4),
-            Show(44, 4),
+            Show(EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame00, 1),
+            Show(EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame01, 1),
+            Show(EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame02, 1),
+            Show(EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame03, 1),
+            Show(EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame04, 3),
+            Show(EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame05, 3),
+            Show(EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame06, 4),
+            Show(EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame07, 4),
         ],
         [P.PurpleBreathBig] =
         [
             Cue(new MotherBrainEffectCue.Command(K.ClearFrameBehavior)),
-            Show(45, 8),
-            Show(46, 8),
-            Show(47, 9),
-            Show(48, 9),
-            Show(49, 10),
-            Show(50, 10),
-            Show(51, 11),
-            Show(52, 11),
+            Show(EnemyProjectileFrameId.MotherBrainPurpleBreathBigFrame00, 8),
+            Show(EnemyProjectileFrameId.MotherBrainPurpleBreathBigFrame01, 8),
+            Show(EnemyProjectileFrameId.MotherBrainPurpleBreathBigFrame02, 9),
+            Show(EnemyProjectileFrameId.MotherBrainPurpleBreathBigFrame03, 9),
+            Show(EnemyProjectileFrameId.MotherBrainPurpleBreathBigFrame04, 10),
+            Show(EnemyProjectileFrameId.MotherBrainPurpleBreathBigFrame05, 10),
+            Show(EnemyProjectileFrameId.MotherBrainPurpleBreathBigFrame06, 11),
+            Show(EnemyProjectileFrameId.MotherBrainPurpleBreathBigFrame07, 11),
             Cue(new MotherBrainEffectCue.Command(K.Delete)),
         ],
         [P.PurpleBreathSmall] =
         [
             Cue(new MotherBrainEffectCue.Command(K.ClearFrameBehavior)),
-            Show(53, 8),
-            Show(54, 8),
-            Show(55, 10),
-            Show(56, 10),
-            Show(57, 11),
-            Show(58, 11),
-            Show(59, 12),
-            Show(60, 12),
+            Show(EnemyProjectileFrameId.MotherBrainPurpleBreathSmallFrame00, 8),
+            Show(EnemyProjectileFrameId.MotherBrainPurpleBreathSmallFrame01, 8),
+            Show(EnemyProjectileFrameId.MotherBrainPurpleBreathSmallFrame02, 10),
+            Show(EnemyProjectileFrameId.MotherBrainPurpleBreathSmallFrame03, 10),
+            Show(EnemyProjectileFrameId.MotherBrainPurpleBreathSmallFrame04, 11),
+            Show(EnemyProjectileFrameId.MotherBrainPurpleBreathSmallFrame05, 11),
+            Show(EnemyProjectileFrameId.MotherBrainPurpleBreathSmallFrame06, 12),
+            Show(EnemyProjectileFrameId.MotherBrainPurpleBreathSmallFrame07, 12),
             Cue(new MotherBrainEffectCue.Command(K.EndSmallPurpleBreath)),
             Cue(new MotherBrainEffectCue.Command(K.Delete)),
         ],
         [P.EscapeSubtitle] =
         [
-            Show(61, 1),
+            Show(EnemyProjectileFrameId.MotherBrainEscapeSubtitleFrame00, 1),
         ],
     });
 
@@ -146,9 +146,9 @@ internal static class MotherBrainEffectAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MotherBrainEffectProgram> StartingWith(MotherBrainEffectProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<MotherBrainEffectFrame, MotherBrainEffectCue> Show(int pose, int duration) => new AnimationBeat<MotherBrainEffectFrame, MotherBrainEffectCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<MotherBrainEffectFrame, MotherBrainEffectCue> Cue(MotherBrainEffectCue cue) => new AnimationBeat<MotherBrainEffectFrame, MotherBrainEffectCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue> Cue(MotherBrainEffectCue cue) => new AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>.Event(cue);
 }

@@ -17,6 +17,7 @@ namespace SuperMetroid.Verification.Enemies;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks that the enemies' sounds reach the sound queues in the order the enemies make them (#1620).</summary>
 internal static class EnemySoundOrderVerification
@@ -105,9 +106,9 @@ internal static class EnemySoundOrderVerification
             new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyB, default, SpriteGraphics.SharedStandard))
         {
             Playback = new(MetroidAnimations.StartingWith(MetroidProgram.ChasingSamus),
-                AnimationSegments<MetroidProgram, MetroidFrame, MetroidCue>.PlaceOf(MetroidAnimations.StartingWith(MetroidProgram.ChasingSamus),
+                AnimationSegments<MetroidProgram, EnemyFrameId, MetroidCue>.PlaceOf(MetroidAnimations.StartingWith(MetroidProgram.ChasingSamus),
                     MetroidProgram.ChasingSamus,
-                    MetroidAnimations.Segments.Beats(MetroidProgram.ChasingSamus).ToList().FindIndex(beat => beat is AnimationBeat<MetroidFrame, MetroidCue>.Event))),
+                    MetroidAnimations.Segments.Beats(MetroidProgram.ChasingSamus).ToList().FindIndex(beat => beat is AnimationBeat<EnemyFrameId, MetroidCue>.Event))),
         });
         return slot;
     }

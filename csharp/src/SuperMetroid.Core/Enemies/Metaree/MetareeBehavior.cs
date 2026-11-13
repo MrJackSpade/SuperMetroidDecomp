@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Skree.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -213,7 +212,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Metaree's typed animation.</summary>
     internal static void AdvanceMetareeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, SkreeMetareeAnimations.Segments, SkreeMetareeFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, SkreeMetareeAnimations.Segments,
             static (MetareeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

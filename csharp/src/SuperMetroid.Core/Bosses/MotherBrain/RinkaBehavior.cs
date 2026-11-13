@@ -477,7 +477,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Rinka's typed animation.</summary>
     internal static void AdvanceRinkaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, RinkaAnimations.Segments, RinkaFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, RinkaAnimations.Segments,
             static (RinkaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

@@ -1,60 +1,61 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Magdollite.MagdolliteCueKind;
 using P = SuperMetroid.Core.Enemies.Magdollite.MagdolliteProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
 /// The Magdollite head's idle, submerge and emerge animations, its body's pillar stacks and its overlay's throw and cap animations as typed programs (#641). Each
-/// frame shows a <see cref="MagdolliteFrame"/> pose and each callback becomes a <see cref="MagdolliteCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="MagdolliteCue"/> with its typed operands.
 /// </summary>
 internal static class MagdolliteAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MagdolliteProgram, MagdolliteFrame, MagdolliteCue> Segments { get; } = new(
-        new Dictionary<MagdolliteProgram, AnimationBeat<MagdolliteFrame, MagdolliteCue>[]>
+    internal static AnimationSegments<MagdolliteProgram, EnemyFrameId, MagdolliteCue> Segments { get; } = new(
+        new Dictionary<MagdolliteProgram, AnimationBeat<EnemyFrameId, MagdolliteCue>[]>
     {
         [P.LeftIdle] =
         [
-            Show(0, 13),
-            Show(1, 13),
-            Show(2, 13),
-            Show(1, 13),
+            Show(EnemyFrameId.MagdolliteLeftIdle0, 13),
+            Show(EnemyFrameId.MagdolliteLeftIdle1, 13),
+            Show(EnemyFrameId.MagdolliteLeftIdle2, 13),
+            Show(EnemyFrameId.MagdolliteLeftIdle1, 13),
         ],
         [P.LeftThrow] =
         [
             Cue(new(K.PlaySoundIfOnScreen, Sound: MagdolliteSoundDefinitions.Throw)),
             Cue(new(K.SetAnimationBusy)),
             Cue(new(K.StartCooldown)),
-            Show(3, 26),
-            Show(4, 8),
+            Show(EnemyFrameId.MagdolliteLeftThrow0, 26),
+            Show(EnemyFrameId.MagdolliteLeftThrow1, 8),
             Cue(new(K.ShiftLeftUp4)),
-            Show(5, 5),
+            Show(EnemyFrameId.MagdolliteLeftThrow2, 5),
             Cue(new(K.SpawnLava)),
-            Show(5, 5),
+            Show(EnemyFrameId.MagdolliteLeftThrow2, 5),
             Cue(new(K.SpawnLava)),
-            Show(5, 5),
+            Show(EnemyFrameId.MagdolliteLeftThrow2, 5),
             Cue(new(K.SpawnLava)),
             Cue(new(K.ShiftLeftUp4Again)),
-            Show(6, 5),
+            Show(EnemyFrameId.MagdolliteLeftThrow3, 5),
             Cue(new(K.ClearAnimationBusy)),
         ],
         [P.LeftSubmerge] =
         [
             Cue(new(K.SetAnimationBusy)),
-            Show(1, 5),
+            Show(EnemyFrameId.MagdolliteLeftIdle1, 5),
             Cue(new(K.MoveDown2)),
-            Show(1, 5),
-            Show(9, 5),
-            Show(10, 5),
+            Show(EnemyFrameId.MagdolliteLeftIdle1, 5),
+            Show(EnemyFrameId.MagdolliteLeftSubmerge1, 5),
+            Show(EnemyFrameId.MagdolliteLeftSubmerge2, 5),
             Cue(new(K.MoveDown2)),
-            Show(10, 5),
+            Show(EnemyFrameId.MagdolliteLeftSubmerge2, 5),
             Cue(new(K.SinkAndShowParts)),
         ],
         [P.LeftRaisePillar] =
         [
             Cue(new(K.MoveWithPillarUp1)),
-            Show(8, 1),
+            Show(EnemyFrameId.MagdolliteLeftSubmerge0, 1),
             Cue(new(K.ClearAnimationBusy)),
         ],
         [P.LeftEmerge] =
@@ -65,58 +66,58 @@ internal static class MagdolliteAnimations
         [P.LeftLowerPillar] =
         [
             Cue(new(K.MoveWithPillarDown1)),
-            Show(8, 1),
+            Show(EnemyFrameId.MagdolliteLeftSubmerge0, 1),
             Cue(new(K.SurfaceAndHideParts)),
-            Show(10, 5),
+            Show(EnemyFrameId.MagdolliteLeftSubmerge2, 5),
             Cue(new(K.MoveUp2)),
-            Show(10, 5),
-            Show(9, 5),
-            Show(1, 5),
+            Show(EnemyFrameId.MagdolliteLeftSubmerge2, 5),
+            Show(EnemyFrameId.MagdolliteLeftSubmerge1, 5),
+            Show(EnemyFrameId.MagdolliteLeftIdle1, 5),
             Cue(new(K.MoveUp2)),
-            Show(1, 5),
+            Show(EnemyFrameId.MagdolliteLeftIdle1, 5),
             Cue(new(K.ClearAnimationBusy)),
         ],
         [P.RightIdle] =
         [
-            Show(11, 13),
-            Show(12, 13),
-            Show(13, 13),
-            Show(12, 13),
+            Show(EnemyFrameId.MagdolliteRightIdle0, 13),
+            Show(EnemyFrameId.MagdolliteRightIdle1, 13),
+            Show(EnemyFrameId.MagdolliteRightIdle2, 13),
+            Show(EnemyFrameId.MagdolliteRightIdle1, 13),
         ],
         [P.RightThrow] =
         [
             Cue(new(K.PlaySoundIfOnScreen, Sound: MagdolliteSoundDefinitions.Throw)),
             Cue(new(K.SetAnimationBusy)),
             Cue(new(K.StartCooldown)),
-            Show(14, 26),
-            Show(15, 8),
+            Show(EnemyFrameId.MagdolliteRightThrow0, 26),
+            Show(EnemyFrameId.MagdolliteRightThrow1, 8),
             Cue(new(K.ShiftRightUp4)),
-            Show(16, 5),
+            Show(EnemyFrameId.MagdolliteRightThrow2, 5),
             Cue(new(K.SpawnLava)),
-            Show(16, 5),
+            Show(EnemyFrameId.MagdolliteRightThrow2, 5),
             Cue(new(K.SpawnLava)),
-            Show(16, 5),
+            Show(EnemyFrameId.MagdolliteRightThrow2, 5),
             Cue(new(K.SpawnLava)),
             Cue(new(K.ShiftRightUp8)),
-            Show(17, 5),
+            Show(EnemyFrameId.MagdolliteRightThrow3, 5),
             Cue(new(K.ClearAnimationBusy)),
         ],
         [P.RightSubmerge] =
         [
             Cue(new(K.SetAnimationBusy)),
-            Show(12, 5),
+            Show(EnemyFrameId.MagdolliteRightIdle1, 5),
             Cue(new(K.MoveDown2)),
-            Show(12, 5),
-            Show(19, 5),
-            Show(20, 5),
+            Show(EnemyFrameId.MagdolliteRightIdle1, 5),
+            Show(EnemyFrameId.MagdolliteRightSubmerge1, 5),
+            Show(EnemyFrameId.MagdolliteRightSubmerge2, 5),
             Cue(new(K.MoveDown2)),
-            Show(20, 5),
+            Show(EnemyFrameId.MagdolliteRightSubmerge2, 5),
             Cue(new(K.SinkAndShowParts)),
         ],
         [P.RightRaisePillar] =
         [
             Cue(new(K.MoveWithPillarUp1)),
-            Show(18, 1),
+            Show(EnemyFrameId.MagdolliteRightSubmerge0, 1),
             Cue(new(K.ClearAnimationBusy)),
         ],
         [P.RightEmerge] =
@@ -127,52 +128,52 @@ internal static class MagdolliteAnimations
         [P.RightLowerPillar] =
         [
             Cue(new(K.MoveWithPillarDown1)),
-            Show(18, 1),
+            Show(EnemyFrameId.MagdolliteRightSubmerge0, 1),
             Cue(new(K.SurfaceAndHideParts)),
-            Show(20, 5),
+            Show(EnemyFrameId.MagdolliteRightSubmerge2, 5),
             Cue(new(K.MoveUp2)),
-            Show(20, 5),
-            Show(19, 5),
-            Show(12, 5),
+            Show(EnemyFrameId.MagdolliteRightSubmerge2, 5),
+            Show(EnemyFrameId.MagdolliteRightSubmerge1, 5),
+            Show(EnemyFrameId.MagdolliteRightIdle1, 5),
             Cue(new(K.MoveUp2)),
-            Show(12, 5),
+            Show(EnemyFrameId.MagdolliteRightIdle1, 5),
             Cue(new(K.ClearAnimationBusy)),
         ],
         [P.PillarPhase0] =
         [
-            Show(21, 1),
+            Show(EnemyFrameId.MagdollitePillarPhase0, 1),
         ],
         [P.PillarPhase1] =
         [
-            Show(22, 1),
+            Show(EnemyFrameId.MagdollitePillarPhase1, 1),
         ],
         [P.PillarPhase2] =
         [
-            Show(23, 1),
+            Show(EnemyFrameId.MagdollitePillarPhase2, 1),
         ],
         [P.PillarPhase3] =
         [
-            Show(24, 1),
+            Show(EnemyFrameId.MagdollitePillarPhase3, 1),
         ],
         [P.PillarPhase4] =
         [
-            Show(25, 1),
+            Show(EnemyFrameId.MagdollitePillarPhase4, 1),
         ],
         [P.PillarPhase5] =
         [
-            Show(26, 1),
+            Show(EnemyFrameId.MagdollitePillarPhase5, 1),
         ],
         [P.PillarPhase6] =
         [
-            Show(27, 1),
+            Show(EnemyFrameId.MagdollitePillarPhase6, 1),
         ],
         [P.PillarPhase7] =
         [
-            Show(28, 1),
+            Show(EnemyFrameId.MagdollitePillarPhase7, 1),
         ],
         [P.PillarCap] =
         [
-            Show(7, 1),
+            Show(EnemyFrameId.MagdollitePillarCap, 1),
         ],
     });
 
@@ -201,9 +202,9 @@ internal static class MagdolliteAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MagdolliteProgram> StartingWith(MagdolliteProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<MagdolliteFrame, MagdolliteCue> Show(int pose, int duration) => new AnimationBeat<MagdolliteFrame, MagdolliteCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, MagdolliteCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, MagdolliteCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<MagdolliteFrame, MagdolliteCue> Cue(MagdolliteCue cue) => new AnimationBeat<MagdolliteFrame, MagdolliteCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, MagdolliteCue> Cue(MagdolliteCue cue) => new AnimationBeat<EnemyFrameId, MagdolliteCue>.Event(cue);
 }

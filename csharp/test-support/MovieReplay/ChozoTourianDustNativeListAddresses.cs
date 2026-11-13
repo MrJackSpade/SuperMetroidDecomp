@@ -26,5 +26,5 @@ internal static class ChozoTourianDustNativeListAddresses
     internal static ushort Entry(ChozoTourianDustProgram program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
 
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, ChozoTourianDustAnimations.Segments, ChozoTourianDustAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(ChozoTourianDustFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, ChozoTourianDustAnimations.Segments, ChozoTourianDustAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), NativeEnemyProjectileCommonCues.Rules);
 }

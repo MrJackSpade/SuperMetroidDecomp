@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Powamp.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -526,7 +525,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Powamp's typed animation.</summary>
     internal static void AdvancePowampTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, PowampAnimations.Segments, PowampFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, PowampAnimations.Segments,
             static (PowampEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"Powamp's cue-free animation raised {cue}."));
 

@@ -6,25 +6,25 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
 /// <summary>
 /// Fune and Namihe's fireball programs (#641). Each
-/// frame shows a <see cref="FuneNamiheFireballFrame"/> pose and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class FuneNamiheFireballAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<FuneNamiheFireballProgram, FuneNamiheFireballFrame, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<FuneNamiheFireballProgram, AnimationBeat<FuneNamiheFireballFrame, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<FuneNamiheFireballProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<FuneNamiheFireballProgram, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.Left] =
         [
-            Show(0, 5),
-            Show(1, 5),
-            Show(2, 5),
+            Show(EnemyProjectileFrameId.FuneNamiheFireballFrame00, 5),
+            Show(EnemyProjectileFrameId.FuneNamiheFireballFrame01, 5),
+            Show(EnemyProjectileFrameId.FuneNamiheFireballFrame02, 5),
         ],
         [P.Right] =
         [
-            Show(3, 5),
-            Show(4, 5),
-            Show(5, 5),
+            Show(EnemyProjectileFrameId.FuneNamiheFireballFrame03, 5),
+            Show(EnemyProjectileFrameId.FuneNamiheFireballFrame04, 5),
+            Show(EnemyProjectileFrameId.FuneNamiheFireballFrame05, 5),
         ],
     });
 
@@ -38,6 +38,6 @@ internal static class FuneNamiheFireballAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<FuneNamiheFireballProgram> StartingWith(FuneNamiheFireballProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<FuneNamiheFireballFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<FuneNamiheFireballFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 }

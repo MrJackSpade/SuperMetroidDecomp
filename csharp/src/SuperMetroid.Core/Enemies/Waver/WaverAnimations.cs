@@ -1,41 +1,42 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Waver.WaverCueKind;
 using P = SuperMetroid.Core.Enemies.Waver.WaverProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Waver;
 
 /// <summary>
 /// Waver's steady and spinning animations as typed programs (#641). Each
-/// frame shows a <see cref="WaverFrame"/> pose and each callback becomes a <see cref="WaverCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="WaverCue"/> with its typed operands.
 /// </summary>
 internal static class WaverAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<WaverProgram, WaverFrame, WaverCue> Segments { get; } = new(
-        new Dictionary<WaverProgram, AnimationBeat<WaverFrame, WaverCue>[]>
+    internal static AnimationSegments<WaverProgram, EnemyFrameId, WaverCue> Segments { get; } = new(
+        new Dictionary<WaverProgram, AnimationBeat<EnemyFrameId, WaverCue>[]>
     {
         [P.SteadyFacingLeft] =
         [
-            Show(2, 1),
+            Show(EnemyFrameId.WaverSteadyLeft, 1),
         ],
         [P.SteadyFacingRight] =
         [
-            Show(7, 1),
+            Show(EnemyFrameId.WaverSteadyRight, 1),
         ],
         [P.SpinningFacingLeft] =
         [
-            Show(3, 8),
-            Show(4, 8),
-            Show(0, 8),
-            Show(1, 8),
+            Show(EnemyFrameId.WaverSpinLeft0, 8),
+            Show(EnemyFrameId.WaverSpinLeft1, 8),
+            Show(EnemyFrameId.WaverSpinLeft2, 8),
+            Show(EnemyFrameId.WaverSpinLeft3, 8),
             Cue(new(K.FinishSpin)),
         ],
         [P.SpinningFacingRight] =
         [
-            Show(8, 8),
-            Show(9, 8),
-            Show(5, 8),
-            Show(6, 8),
+            Show(EnemyFrameId.WaverSpinRight0, 8),
+            Show(EnemyFrameId.WaverSpinRight1, 8),
+            Show(EnemyFrameId.WaverSpinRight2, 8),
+            Show(EnemyFrameId.WaverSpinRight3, 8),
             Cue(new(K.FinishSpin)),
         ],
     });
@@ -52,9 +53,9 @@ internal static class WaverAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<WaverProgram> StartingWith(WaverProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<WaverFrame, WaverCue> Show(int pose, int duration) => new AnimationBeat<WaverFrame, WaverCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, WaverCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, WaverCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<WaverFrame, WaverCue> Cue(WaverCue cue) => new AnimationBeat<WaverFrame, WaverCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, WaverCue> Cue(WaverCue cue) => new AnimationBeat<EnemyFrameId, WaverCue>.Event(cue);
 }

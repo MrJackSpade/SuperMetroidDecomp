@@ -6,26 +6,26 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>
 /// The Work Robot's laser programs (#641). Each
-/// frame shows a <see cref="WorkRobotLaserFrame"/> pose and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class WorkRobotLaserAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<WorkRobotLaserProgram, WorkRobotLaserFrame, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<WorkRobotLaserProgram, AnimationBeat<WorkRobotLaserFrame, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<WorkRobotLaserProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<WorkRobotLaserProgram, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.Initial] =
         [
-            Show(0, 4),
-            Show(1, 4),
-            Show(2, 4),
+            Show(EnemyProjectileFrameId.WorkRobotLaserFrame00, 4),
+            Show(EnemyProjectileFrameId.WorkRobotLaserFrame01, 4),
+            Show(EnemyProjectileFrameId.WorkRobotLaserFrame02, 4),
         ],
         [P.Loop] =
         [
-            Show(3, 4),
-            Show(4, 4),
-            Show(5, 4),
-            Show(6, 4),
+            Show(EnemyProjectileFrameId.WorkRobotLaserFrame03, 4),
+            Show(EnemyProjectileFrameId.WorkRobotLaserFrame04, 4),
+            Show(EnemyProjectileFrameId.WorkRobotLaserFrame05, 4),
+            Show(EnemyProjectileFrameId.WorkRobotLaserFrame06, 4),
         ],
     });
 
@@ -39,6 +39,6 @@ internal static class WorkRobotLaserAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<WorkRobotLaserProgram> StartingWith(WorkRobotLaserProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<WorkRobotLaserFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<WorkRobotLaserFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 }

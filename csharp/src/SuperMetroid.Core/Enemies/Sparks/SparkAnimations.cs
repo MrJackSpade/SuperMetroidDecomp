@@ -1,58 +1,59 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Sparks.SparkCueKind;
 using P = SuperMetroid.Core.Enemies.Sparks.SparkProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Sparks;
 
 /// <summary>
 /// The Wrecked Ship Spark's flicker, active and emitter animations as typed programs (#641). Each
-/// frame shows a <see cref="SparkFrame"/> pose and each callback becomes a <see cref="SparkCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="SparkCue"/> with its typed operands.
 /// </summary>
 internal static class SparkAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<SparkProgram, SparkFrame, SparkCue> Segments { get; } = new(
-        new Dictionary<SparkProgram, AnimationBeat<SparkFrame, SparkCue>[]>
+    internal static AnimationSegments<SparkProgram, EnemyFrameId, SparkCue> Segments { get; } = new(
+        new Dictionary<SparkProgram, AnimationBeat<EnemyFrameId, SparkCue>[]>
     {
         [P.FlickerOn] =
         [
             Cue(new(K.BecomeTangible)),
-            Show(5, 1),
-            Show(0, 2),
-            Show(5, 1),
-            Show(0, 2),
-            Show(6, 1),
-            Show(0, 2),
-            Show(6, 1),
-            Show(0, 1),
-            Show(7, 2),
-            Show(8, 2),
+            Show(EnemyFrameId.Spark00, 1),
+            Show(EnemyFrameId.NorfairLavaJumperPose0, 2),
+            Show(EnemyFrameId.Spark00, 1),
+            Show(EnemyFrameId.NorfairLavaJumperPose0, 2),
+            Show(EnemyFrameId.Spark01, 1),
+            Show(EnemyFrameId.NorfairLavaJumperPose0, 2),
+            Show(EnemyFrameId.Spark01, 1),
+            Show(EnemyFrameId.NorfairLavaJumperPose0, 1),
+            Show(EnemyFrameId.Spark02, 2),
+            Show(EnemyFrameId.Spark03, 2),
         ],
         [P.Active] =
         [
-            Show(1, 3),
-            Show(2, 3),
-            Show(3, 3),
-            Show(4, 3),
+            Show(EnemyFrameId.Spark04, 3),
+            Show(EnemyFrameId.Spark05, 3),
+            Show(EnemyFrameId.Spark06, 3),
+            Show(EnemyFrameId.Spark07, 3),
         ],
         [P.FlickerOut] =
         [
-            Show(5, 1),
-            Show(5, 1),
-            Show(6, 1),
-            Show(6, 1),
-            Show(7, 1),
-            Show(0, 1),
-            Show(7, 1),
-            Show(0, 1),
+            Show(EnemyFrameId.Spark00, 1),
+            Show(EnemyFrameId.Spark00, 1),
+            Show(EnemyFrameId.Spark01, 1),
+            Show(EnemyFrameId.Spark01, 1),
+            Show(EnemyFrameId.Spark02, 1),
+            Show(EnemyFrameId.NorfairLavaJumperPose0, 1),
+            Show(EnemyFrameId.Spark02, 1),
+            Show(EnemyFrameId.NorfairLavaJumperPose0, 1),
             Cue(new(K.BecomeIntangible)),
         ],
         [P.Emitter] =
         [
-            Show(5, 3),
-            Show(6, 3),
-            Show(7, 3),
-            Show(8, 3),
+            Show(EnemyFrameId.Spark00, 3),
+            Show(EnemyFrameId.Spark01, 3),
+            Show(EnemyFrameId.Spark02, 3),
+            Show(EnemyFrameId.Spark03, 3),
         ],
     });
 
@@ -68,9 +69,9 @@ internal static class SparkAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<SparkProgram> StartingWith(SparkProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<SparkFrame, SparkCue> Show(int pose, int duration) => new AnimationBeat<SparkFrame, SparkCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, SparkCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, SparkCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<SparkFrame, SparkCue> Cue(SparkCue cue) => new AnimationBeat<SparkFrame, SparkCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, SparkCue> Cue(SparkCue cue) => new AnimationBeat<EnemyFrameId, SparkCue>.Event(cue);
 }

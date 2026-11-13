@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
@@ -61,7 +62,7 @@ internal static class FrameColouringDefinitions
     /// the Tourian statue scene's statue programs, drawn in the scene's entrance colours.
     /// </summary>
     internal static IReadOnlyDictionary<EnemyProjectileFrameId, FrameColouring> Projectiles { get; } = new Dictionary<EnemyProjectileFrameId, FrameColouring>(
-        BossProjectiles.Concat(TourianStatueProjectileFrameDefinitions.ShownProjectileFrames.Values.Distinct()
+        BossProjectiles.Concat(TourianStatueProjectileAnimations.Segments.Frames
             .Select(frame => KeyValuePair.Create(frame, TourianStatueEntrance))));
 
     /// <summary>

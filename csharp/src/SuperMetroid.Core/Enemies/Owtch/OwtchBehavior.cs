@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Owtch.Artwork;
 namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>The Owtch species owner: its per-room state, AI routines and the interactions it registers.</summary>
@@ -206,7 +205,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Owtch's typed animation.</summary>
     internal static void AdvanceOwtchTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, OwtchAnimations.Segments, OwtchFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, OwtchAnimations.Segments,
             static (OwtchEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

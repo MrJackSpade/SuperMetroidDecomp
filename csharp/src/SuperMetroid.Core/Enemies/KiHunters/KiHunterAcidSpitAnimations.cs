@@ -7,45 +7,45 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>
 /// The Ki-Hunter's acid-spit programs (#641). Each
-/// frame shows a <see cref="KiHunterAcidSpitFrame"/> pose and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class KiHunterAcidSpitAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<KiHunterAcidSpitProgram, KiHunterAcidSpitFrame, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<KiHunterAcidSpitProgram, AnimationBeat<KiHunterAcidSpitFrame, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<KiHunterAcidSpitProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<KiHunterAcidSpitProgram, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.Left] =
         [
-            Show(0, 3),
-            Show(1, 3),
-            Show(2, 4),
-            Show(3, 3),
-            Show(4, 1),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitFrame00, 3),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitFrame01, 3),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitFrame02, 4),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitFrame03, 3),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitFrame04, 1),
             Cue(new EnemyProjectileCommonCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.KiHunterAcidLaunchLeft)),
-            Show(5, 1),
-            Show(6, 1),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitFrame05, 1),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitFrame06, 1),
         ],
         [P.HitFloor] =
         [
             Cue(new EnemyProjectileCommonCue.Command(CK.ClearFrameBehavior)),
-            Show(7, 12),
-            Show(8, 10),
-            Show(9, 10),
-            Show(10, 8),
-            Show(11, 8),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitFrame07, 12),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitFrame08, 10),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitFrame09, 10),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitFrame10, 8),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitFrame11, 8),
             Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
         ],
         [P.Right] =
         [
-            Show(12, 3),
-            Show(13, 3),
-            Show(14, 4),
-            Show(15, 3),
-            Show(16, 1),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitFrame12, 3),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitFrame13, 3),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitFrame14, 4),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitFrame15, 3),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitFrame16, 1),
             Cue(new EnemyProjectileCommonCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.KiHunterAcidLaunchRight)),
-            Show(17, 1),
-            Show(18, 1),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitFrame17, 1),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitFrame18, 1),
         ],
     });
 
@@ -60,9 +60,9 @@ internal static class KiHunterAcidSpitAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<KiHunterAcidSpitProgram> StartingWith(KiHunterAcidSpitProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<KiHunterAcidSpitFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<KiHunterAcidSpitFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<KiHunterAcidSpitFrame, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<KiHunterAcidSpitFrame, EnemyProjectileCommonCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Event(cue);
 }

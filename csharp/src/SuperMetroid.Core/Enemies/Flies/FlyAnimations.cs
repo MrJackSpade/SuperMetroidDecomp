@@ -1,24 +1,25 @@
 using P = SuperMetroid.Core.Enemies.Flies.FlyProgram;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Flies;
 
 /// <summary>
 /// The shared Mellow, Mella and Memu flight loop as a typed program (#641). Each
-/// frame shows a <see cref="FlyFrame"/> pose and its lists use no owner callbacks.
+/// frame shows a <see cref="EnemyFrameId"/> and its lists use no owner callbacks.
 /// </summary>
 internal static class FlyAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<FlyProgram, FlyFrame, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<FlyProgram, AnimationBeat<FlyFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<FlyProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<FlyProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.Flight] =
         [
-            Show(0, 2),
-            Show(1, 2),
-            Show(2, 2),
-            Show(3, 2),
+            Show(EnemyFrameId.FlyShared0, 2),
+            Show(EnemyFrameId.FlyShared1, 2),
+            Show(EnemyFrameId.FlyShared2, 2),
+            Show(EnemyFrameId.FlyShared3, 2),
         ],
     });
 
@@ -31,6 +32,6 @@ internal static class FlyAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<FlyProgram> StartingWith(FlyProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<FlyFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<FlyFrame, NoAnimationCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 }

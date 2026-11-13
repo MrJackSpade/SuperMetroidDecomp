@@ -1,18 +1,19 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Bosses.Kraid.FakeKraidCueKind;
 using P = SuperMetroid.Core.Bosses.Kraid.FakeKraidProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
 /// Mini-Kraid's action choice, step and spit animations as typed programs (#641), in place of their lists. Generated from the verified lists: each
-/// frame shows a <see cref="FakeKraidFrame"/> pose and each callback becomes a <see cref="FakeKraidCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="FakeKraidCue"/> with its typed operands.
 /// </summary>
 internal static class FakeKraidAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<FakeKraidProgram, FakeKraidFrame, FakeKraidCue> Segments { get; } = new(
-        new Dictionary<FakeKraidProgram, AnimationBeat<FakeKraidFrame, FakeKraidCue>[]>
+    internal static AnimationSegments<FakeKraidProgram, EnemyFrameId, FakeKraidCue> Segments { get; } = new(
+        new Dictionary<FakeKraidProgram, AnimationBeat<EnemyFrameId, FakeKraidCue>[]>
     {
         [P.ChooseActionFacingLeft] =
         [
@@ -20,10 +21,10 @@ internal static class FakeKraidAnimations
         ],
         [P.StepForwardsFacingLeft] =
         [
-            Show(0, 16),
-            Show(1, 12),
-            Show(2, 8),
-            Show(3, 12),
+            Show(EnemyFrameId.FakeKraidWalkLeft0, 16),
+            Show(EnemyFrameId.FakeKraidWalkLeft1, 12),
+            Show(EnemyFrameId.FakeKraidWalkLeft2, 8),
+            Show(EnemyFrameId.FakeKraidWalkLeft3, 12),
             Cue(new(K.Move)),
         ],
         [P.ChooseAlternateActionFacingLeft] =
@@ -32,20 +33,20 @@ internal static class FakeKraidAnimations
         ],
         [P.StepBackwardsFacingLeft] =
         [
-            Show(0, 16),
+            Show(EnemyFrameId.FakeKraidWalkLeft0, 16),
             Cue(new(K.Move)),
-            Show(3, 12),
-            Show(2, 8),
-            Show(1, 12),
+            Show(EnemyFrameId.FakeKraidWalkLeft3, 12),
+            Show(EnemyFrameId.FakeKraidWalkLeft2, 8),
+            Show(EnemyFrameId.FakeKraidWalkLeft1, 12),
         ],
         [P.FireSpitFacingLeft] =
         [
-            Show(4, 16),
+            Show(EnemyFrameId.FakeKraidSpitLeft0, 16),
             Cue(new(K.PlayCrySound)),
-            Show(5, 8),
+            Show(EnemyFrameId.FakeKraidSpitLeft1, 8),
             Cue(new(K.SpitLeft)),
-            Show(6, 16),
-            Show(5, 8),
+            Show(EnemyFrameId.FakeKraidSpitLeft2, 16),
+            Show(EnemyFrameId.FakeKraidSpitLeft1, 8),
         ],
         [P.ChooseActionFacingRight] =
         [
@@ -53,10 +54,10 @@ internal static class FakeKraidAnimations
         ],
         [P.StepForwardsFacingRight] =
         [
-            Show(7, 16),
-            Show(8, 12),
-            Show(9, 8),
-            Show(10, 12),
+            Show(EnemyFrameId.FakeKraidWalkRight0, 16),
+            Show(EnemyFrameId.FakeKraidWalkRight1, 12),
+            Show(EnemyFrameId.FakeKraidWalkRight2, 8),
+            Show(EnemyFrameId.FakeKraidWalkRight3, 12),
             Cue(new(K.Move)),
         ],
         [P.ChooseAlternateActionFacingRight] =
@@ -65,20 +66,20 @@ internal static class FakeKraidAnimations
         ],
         [P.StepBackwardsFacingRight] =
         [
-            Show(7, 16),
+            Show(EnemyFrameId.FakeKraidWalkRight0, 16),
             Cue(new(K.Move)),
-            Show(10, 12),
-            Show(9, 8),
-            Show(8, 12),
+            Show(EnemyFrameId.FakeKraidWalkRight3, 12),
+            Show(EnemyFrameId.FakeKraidWalkRight2, 8),
+            Show(EnemyFrameId.FakeKraidWalkRight1, 12),
         ],
         [P.FireSpitFacingRight] =
         [
-            Show(11, 16),
+            Show(EnemyFrameId.FakeKraidSpitRight0, 16),
             Cue(new(K.PlayCrySound)),
-            Show(12, 8),
+            Show(EnemyFrameId.FakeKraidSpitRight1, 8),
             Cue(new(K.SpitRight)),
-            Show(13, 16),
-            Show(12, 8),
+            Show(EnemyFrameId.FakeKraidSpitRight2, 16),
+            Show(EnemyFrameId.FakeKraidSpitRight1, 8),
         ],
     });
 
@@ -100,9 +101,9 @@ internal static class FakeKraidAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<FakeKraidProgram> StartingWith(FakeKraidProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<FakeKraidFrame, FakeKraidCue> Show(int pose, int duration) => new AnimationBeat<FakeKraidFrame, FakeKraidCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, FakeKraidCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, FakeKraidCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<FakeKraidFrame, FakeKraidCue> Cue(FakeKraidCue cue) => new AnimationBeat<FakeKraidFrame, FakeKraidCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, FakeKraidCue> Cue(FakeKraidCue cue) => new AnimationBeat<EnemyFrameId, FakeKraidCue>.Event(cue);
 }

@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Crawlers.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -539,7 +538,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the crawlers' surface animations as typed programs (#641).</summary>
     internal static void AdvanceCrawlerTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, CrawlerAnimations.Segments, CrawlerFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, CrawlerAnimations.Segments,
             static (CrawlerEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyCrawlerCue(state, cue) is { } target
                 ? new AnimationContinuation<CrawlerProgram>(CrawlerAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

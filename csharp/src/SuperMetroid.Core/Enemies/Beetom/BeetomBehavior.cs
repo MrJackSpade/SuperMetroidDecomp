@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Beetom.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -590,7 +589,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Beetom's typed animation.</summary>
     internal static void AdvanceBeetomTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, BeetomAnimations.Segments, BeetomFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, BeetomAnimations.Segments,
             static (BeetomEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyBeetomCue(slot, cue) is { } target
                 ? new AnimationContinuation<BeetomProgram>(BeetomAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.YappingMaws.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
@@ -612,7 +611,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances YappingMaw's typed animation.</summary>
     internal void AdvanceYappingMawTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, YappingMawAnimations.Segments, YappingMawFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, YappingMawAnimations.Segments,
             static (YappingMawEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

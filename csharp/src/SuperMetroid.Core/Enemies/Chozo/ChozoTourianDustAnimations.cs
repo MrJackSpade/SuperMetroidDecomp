@@ -7,32 +7,32 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>
 /// The Wrecked Ship Chozo's footstep and explosion dust and the Tourian statue's descent dust (#641). Each
-/// frame shows a <see cref="ChozoTourianDustFrame"/> pose and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class ChozoTourianDustAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<ChozoTourianDustProgram, AnimationBeat<ChozoTourianDustFrame, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<ChozoTourianDustProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<ChozoTourianDustProgram, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.Footsteps] =
         [
             Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(XRange: new(0, 4), YRange: new(0, 4), Center: new(0, 3)))),
-            Show(0, 2),
-            Show(1, 2),
-            Show(2, 2),
-            Show(3, 2),
+            Show(EnemyProjectileFrameId.ChozoTourianDustFrame00, 2),
+            Show(EnemyProjectileFrameId.ChozoTourianDustFrame01, 2),
+            Show(EnemyProjectileFrameId.ChozoTourianDustFrame02, 2),
+            Show(EnemyProjectileFrameId.ChozoTourianDustFrame03, 2),
             Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
         ],
         [P.SpikeClearingExplosions] =
         [
             Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(XRange: new(0, 4), YRange: new(0, 4), Center: new(0, 3)))),
-            Show(4, 5),
-            Show(5, 5),
-            Show(6, 5),
-            Show(7, 5),
-            Show(8, 5),
-            Show(9, 5),
+            Show(EnemyProjectileFrameId.ChozoTourianDustFrame04, 5),
+            Show(EnemyProjectileFrameId.ChozoTourianDustFrame05, 5),
+            Show(EnemyProjectileFrameId.ChozoTourianDustFrame06, 5),
+            Show(EnemyProjectileFrameId.ChozoTourianDustFrame07, 5),
+            Show(EnemyProjectileFrameId.ChozoTourianDustFrame08, 5),
+            Show(EnemyProjectileFrameId.ChozoTourianDustFrame09, 5),
             Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
         ],
         [P.TourianDescentDust] =
@@ -42,10 +42,10 @@ internal static class ChozoTourianDustAnimations
         [
             Cue(new EnemyProjectileCommonCue.Command(CK.ReturnToOrigin)),
             Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(XRange: new(0, 6), YRange: new(0, 2), Center: new(0, 0)))),
-            Show(10, 2),
-            Show(11, 2),
-            Show(12, 2),
-            Show(13, 2),
+            Show(EnemyProjectileFrameId.ChozoTourianDustFrame10, 2),
+            Show(EnemyProjectileFrameId.ChozoTourianDustFrame11, 2),
+            Show(EnemyProjectileFrameId.ChozoTourianDustFrame12, 2),
+            Show(EnemyProjectileFrameId.ChozoTourianDustFrame13, 2),
             Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
         ],
     });
@@ -61,9 +61,9 @@ internal static class ChozoTourianDustAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<ChozoTourianDustProgram> StartingWith(ChozoTourianDustProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<ChozoTourianDustFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<ChozoTourianDustFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<ChozoTourianDustFrame, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<ChozoTourianDustFrame, EnemyProjectileCommonCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Event(cue);
 }

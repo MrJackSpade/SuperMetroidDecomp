@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
+using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -19,9 +19,10 @@ internal static class WorkRobotResourceChecks
             name => name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal);
         var programs = EnemyProjectilePresentationFrameSets.All.ToDictionary(
             frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal);
-        for (int index = 0; index < WorkRobotLaserFrameDefinitions.PoseCount; index++)
+        EnemyProjectileFrameId[] lasers = [.. WorkRobotLaserAnimations.Segments.Frames];
+        for (int index = 0; index < lasers.Length; index++)
         {
-            EnemyProjectileFrameId laser = WorkRobotLaserFrameDefinitions.ShownProjectileFrames[new(index)];
+            EnemyProjectileFrameId laser = lasers[index];
             Require(EnemyProjectilePresentationFrameSets.All.ToArray().Any(frame => frame.Frame == laser),
                 $"Work Robot laser frame {laser} must be included in the installed program-frame set");
             string name = EnemyProjectilePresentationFrameSets.All.ToArray()
@@ -38,9 +39,9 @@ internal static class WorkRobotResourceChecks
             Frames = frames, ProgramFrames = programs,
         };
         EnemyProjectileSpritemapCatalog stock = Load(document);
-        for (int index = 0; index < WorkRobotLaserFrameDefinitions.PoseCount; index++)
+        for (int index = 0; index < lasers.Length; index++)
         {
-            EnemyProjectileFrameId laser = WorkRobotLaserFrameDefinitions.ShownProjectileFrames[new(index)];
+            EnemyProjectileFrameId laser = lasers[index];
             Require(stock.GetProgramFrame(laser).Span.Length == 1 &&
                 stock.GetProgramFrame(laser).Span[0].Offset.X == index,
                 $"installed Work Robot frame {laser} must preserve its actual draw composition");

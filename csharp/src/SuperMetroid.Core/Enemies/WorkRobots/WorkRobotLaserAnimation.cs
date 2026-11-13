@@ -6,15 +6,11 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>Work Robot laser's typed animation.</summary>
 internal sealed class WorkRobotLaserAnimation(WorkRobotLaserProgram program)
-    : EnemyProjectileTypedAnimation<WorkRobotLaserProgram, WorkRobotLaserFrame, EnemyProjectileCommonCue>(WorkRobotLaserAnimations.StartingWith(program))
+    : EnemyProjectileFrameAnimation<WorkRobotLaserProgram, EnemyProjectileCommonCue>(WorkRobotLaserAnimations.StartingWith(program))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<WorkRobotLaserProgram, WorkRobotLaserFrame, EnemyProjectileCommonCue> Segments => WorkRobotLaserAnimations.Segments;
+    private protected override AnimationSegments<WorkRobotLaserProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => WorkRobotLaserAnimations.Segments;
 
     /// <inheritdoc/>
     private protected override IReadOnlyDictionary<WorkRobotLaserProgram, Animation<WorkRobotLaserProgram>> StartingAt => WorkRobotLaserAnimations.StartingAt;
-
-    /// <inheritdoc/>
-    private protected override EnemyProjectileFrameId Present(WorkRobotLaserFrame frame) =>
-        WorkRobotLaserFrameDefinitions.ShownProjectileFrames[frame];
 }

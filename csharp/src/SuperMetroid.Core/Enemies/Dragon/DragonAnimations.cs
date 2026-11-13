@@ -1,53 +1,54 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Dragon.DragonCueKind;
 using P = SuperMetroid.Core.Enemies.Dragon.DragonProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>
 /// Dragon's idle, wing and attack animations as typed programs (#641). Each
-/// frame shows a <see cref="DragonFrame"/> pose and each callback becomes a <see cref="DragonCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="DragonCue"/> with its typed operands.
 /// </summary>
 internal static class DragonAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<DragonProgram, DragonFrame, DragonCue> Segments { get; } = new(
-        new Dictionary<DragonProgram, AnimationBeat<DragonFrame, DragonCue>[]>
+    internal static AnimationSegments<DragonProgram, EnemyFrameId, DragonCue> Segments { get; } = new(
+        new Dictionary<DragonProgram, AnimationBeat<EnemyFrameId, DragonCue>[]>
     {
         [P.IdleFacingLeft] =
         [
-            Show(0, 1),
+            Show(EnemyFrameId.DragonBodyIdleLeft, 1),
         ],
         [P.WingsFacingLeft] =
         [
-            Show(4, 5),
-            Show(5, 5),
+            Show(EnemyFrameId.DragonWingLeft0, 5),
+            Show(EnemyFrameId.DragonWingLeft1, 5),
         ],
         [P.IdleFacingRight] =
         [
-            Show(6, 1),
+            Show(EnemyFrameId.DragonBodyIdleRight, 1),
         ],
         [P.WingsFacingRight] =
         [
-            Show(10, 5),
-            Show(11, 5),
+            Show(EnemyFrameId.DragonWingRight0, 5),
+            Show(EnemyFrameId.DragonWingRight1, 5),
         ],
         [P.AttackingFacingLeft] =
         [
-            Show(1, 32),
-            Show(2, 3),
-            Show(3, 7),
-            Show(2, 3),
-            Show(1, 1),
+            Show(EnemyFrameId.DragonBodyAttackLeft0, 32),
+            Show(EnemyFrameId.DragonBodyAttackLeft1, 3),
+            Show(EnemyFrameId.DragonBodyAttackLeft2, 7),
+            Show(EnemyFrameId.DragonBodyAttackLeft1, 3),
+            Show(EnemyFrameId.DragonBodyAttackLeft0, 1),
             Cue(new(K.FinishAttack)),
         ],
         [P.AttackingFacingRight] =
         [
-            Show(7, 32),
-            Show(8, 3),
-            Show(9, 7),
-            Show(8, 3),
-            Show(7, 1),
+            Show(EnemyFrameId.DragonBodyAttackRight0, 32),
+            Show(EnemyFrameId.DragonBodyAttackRight1, 3),
+            Show(EnemyFrameId.DragonBodyAttackRight2, 7),
+            Show(EnemyFrameId.DragonBodyAttackRight1, 3),
+            Show(EnemyFrameId.DragonBodyAttackRight0, 1),
             Cue(new(K.FinishAttack)),
         ],
     });
@@ -66,9 +67,9 @@ internal static class DragonAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DragonProgram> StartingWith(DragonProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<DragonFrame, DragonCue> Show(int pose, int duration) => new AnimationBeat<DragonFrame, DragonCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, DragonCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, DragonCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<DragonFrame, DragonCue> Cue(DragonCue cue) => new AnimationBeat<DragonFrame, DragonCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, DragonCue> Cue(DragonCue cue) => new AnimationBeat<EnemyFrameId, DragonCue>.Event(cue);
 }

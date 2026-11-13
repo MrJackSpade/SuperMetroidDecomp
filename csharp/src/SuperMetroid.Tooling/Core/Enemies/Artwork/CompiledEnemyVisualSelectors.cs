@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
@@ -48,7 +49,7 @@ internal static partial class CompiledEnemyVisualSelectors
     /// <summary>Resolves special and calculated sprite operands, then searches literal bank entries.</summary>
     internal static bool TryGet(byte bank, ushort operandAddress, out ushort pointer)
     {
-        if ((EnemyInstructionBank)bank == EnemyInstructionBank.Bank86 && PolypRockFrameToolingDefinitions.TryFrame(operandAddress, out PolypRockFrame rock))
+        if ((EnemyInstructionBank)bank == EnemyInstructionBank.Bank86 && PolypRockFrameToolingDefinitions.TryFrame(operandAddress, out EnemyProjectileFrameId rock))
         {
             pointer = PolypRockFrameToolingDefinitions.Spritemap(rock);
             return true;
@@ -58,9 +59,9 @@ internal static partial class CompiledEnemyVisualSelectors
         {
             pointer = (EnemyInstructionBank)bank switch
             {
-                EnemyInstructionBank.Bank86 => AlcoonFireballFrameToolingDefinitions.TryFrame(operandAddress, out AlcoonFireballFrame fireball)
+                EnemyInstructionBank.Bank86 => AlcoonFireballFrameToolingDefinitions.TryFrame(operandAddress, out EnemyProjectileFrameId fireball)
                     ? AlcoonFireballFrameToolingDefinitions.Spritemap(fireball)
-                    : FuneNamiheFireballFrameToolingDefinitions.TryFrame(operandAddress, out FuneNamiheFireballFrame fune)
+                    : FuneNamiheFireballFrameToolingDefinitions.TryFrame(operandAddress, out EnemyProjectileFrameId fune)
                         ? FuneNamiheFireballFrameToolingDefinitions.Spritemap(fune)
                         : throw new InvalidDataException($"Calculated selector $86:{operandAddress:X4} names no fireball frame."),
                 _ => throw new InvalidOperationException($"Undefined enemy instruction bank ${bank:X2}."),

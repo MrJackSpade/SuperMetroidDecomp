@@ -1,87 +1,88 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.YappingMaws.YappingMawCueKind;
 using P = SuperMetroid.Core.Enemies.YappingMaws.YappingMawProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>
 /// The Yapping Maw's eight attack bites and six cooldown animations as typed programs (#641). Each
-/// frame shows a <see cref="YappingMawFrame"/> pose and each callback becomes a <see cref="YappingMawCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="YappingMawCue"/> with its typed operands.
 /// </summary>
 internal static class YappingMawAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<YappingMawProgram, YappingMawFrame, YappingMawCue> Segments { get; } = new(
-        new Dictionary<YappingMawProgram, AnimationBeat<YappingMawFrame, YappingMawCue>[]>
+    internal static AnimationSegments<YappingMawProgram, EnemyFrameId, YappingMawCue> Segments { get; } = new(
+        new Dictionary<YappingMawProgram, AnimationBeat<EnemyFrameId, YappingMawCue>[]>
     {
         [P.AttackingUp] =
         [
-            Show(0, 5),
-            Show(1, 3),
+            Show(EnemyFrameId.YappingMawPose0, 5),
+            Show(EnemyFrameId.YappingMawPose1, 3),
             Cue(new(K.PlayBiteSound)),
-            Show(2, 80),
-            Show(1, 3),
+            Show(EnemyFrameId.YappingMawPose2, 80),
+            Show(EnemyFrameId.YappingMawPose1, 3),
         ],
         [P.AttackingUpRight] =
         [
-            Show(3, 5),
-            Show(4, 3),
+            Show(EnemyFrameId.YappingMawPose3, 5),
+            Show(EnemyFrameId.YappingMawPose4, 3),
             Cue(new(K.PlayBiteSound)),
-            Show(5, 80),
-            Show(4, 3),
+            Show(EnemyFrameId.YappingMawPose5, 80),
+            Show(EnemyFrameId.YappingMawPose4, 3),
         ],
         [P.AttackingRight] =
         [
-            Show(6, 5),
-            Show(7, 3),
+            Show(EnemyFrameId.YappingMawPose6, 5),
+            Show(EnemyFrameId.YappingMawPose7, 3),
             Cue(new(K.PlayBiteSound)),
-            Show(8, 80),
-            Show(7, 3),
+            Show(EnemyFrameId.YappingMawPose8, 80),
+            Show(EnemyFrameId.YappingMawPose7, 3),
         ],
         [P.AttackingDownRight] =
         [
-            Show(9, 5),
-            Show(10, 3),
+            Show(EnemyFrameId.YappingMawPose9, 5),
+            Show(EnemyFrameId.YappingMawPose10, 3),
             Cue(new(K.PlayBiteSound)),
-            Show(11, 80),
-            Show(10, 3),
+            Show(EnemyFrameId.YappingMawPose11, 80),
+            Show(EnemyFrameId.YappingMawPose10, 3),
         ],
         [P.AttackingDown] =
         [
-            Show(12, 5),
-            Show(13, 3),
+            Show(EnemyFrameId.YappingMawPose12, 5),
+            Show(EnemyFrameId.YappingMawPose13, 3),
             Cue(new(K.PlayBiteSound)),
-            Show(14, 80),
-            Show(13, 3),
+            Show(EnemyFrameId.YappingMawPose14, 80),
+            Show(EnemyFrameId.YappingMawPose13, 3),
         ],
         [P.AttackingDownLeft] =
         [
-            Show(15, 5),
-            Show(16, 3),
+            Show(EnemyFrameId.YappingMawPose15, 5),
+            Show(EnemyFrameId.YappingMawPose16, 3),
             Cue(new(K.PlayBiteSound)),
-            Show(17, 80),
-            Show(16, 3),
+            Show(EnemyFrameId.YappingMawPose17, 80),
+            Show(EnemyFrameId.YappingMawPose16, 3),
         ],
         [P.AttackingLeft] =
         [
-            Show(18, 5),
-            Show(19, 3),
+            Show(EnemyFrameId.YappingMawPose18, 5),
+            Show(EnemyFrameId.YappingMawPose19, 3),
             Cue(new(K.PlayBiteSound)),
-            Show(20, 80),
-            Show(19, 3),
+            Show(EnemyFrameId.YappingMawPose20, 80),
+            Show(EnemyFrameId.YappingMawPose19, 3),
         ],
         [P.AttackingUpLeft] =
         [
-            Show(21, 5),
-            Show(22, 3),
+            Show(EnemyFrameId.YappingMawPose21, 5),
+            Show(EnemyFrameId.YappingMawPose22, 3),
             Cue(new(K.PlayBiteSound)),
-            Show(23, 80),
-            Show(22, 3),
+            Show(EnemyFrameId.YappingMawPose23, 80),
+            Show(EnemyFrameId.YappingMawPose22, 3),
         ],
         [P.CooldownUpRight] =
         [
             Cue(new(K.HoldSamusUpRight)),
-            Show(5, 4),
+            Show(EnemyFrameId.YappingMawPose5, 4),
         ],
         [P.CooldownUp] =
         [
@@ -89,30 +90,30 @@ internal static class YappingMawAnimations
         ],
         [P.CooldownUpLoop] =
         [
-            Show(2, 80),
-            Show(1, 3),
-            Show(0, 5),
-            Show(1, 3),
+            Show(EnemyFrameId.YappingMawPose2, 80),
+            Show(EnemyFrameId.YappingMawPose1, 3),
+            Show(EnemyFrameId.YappingMawPose0, 5),
+            Show(EnemyFrameId.YappingMawPose1, 3),
             Cue(new(K.PlayBiteSound)),
         ],
         [P.CooldownUpLeft] =
         [
             Cue(new(K.HoldSamusUpLeft)),
-            Show(23, 4),
+            Show(EnemyFrameId.YappingMawPose23, 4),
             Cue(new(K.HoldSamusUp)),
         ],
         [P.CooldownUpLeftLoop] =
         [
-            Show(2, 80),
-            Show(1, 3),
-            Show(0, 5),
-            Show(1, 3),
+            Show(EnemyFrameId.YappingMawPose2, 80),
+            Show(EnemyFrameId.YappingMawPose1, 3),
+            Show(EnemyFrameId.YappingMawPose0, 5),
+            Show(EnemyFrameId.YappingMawPose1, 3),
             Cue(new(K.PlayBiteSound)),
         ],
         [P.CooldownDownRight] =
         [
             Cue(new(K.HoldSamusDownRight)),
-            Show(11, 4),
+            Show(EnemyFrameId.YappingMawPose11, 4),
         ],
         [P.CooldownDown] =
         [
@@ -120,24 +121,24 @@ internal static class YappingMawAnimations
         ],
         [P.CooldownDownLoop] =
         [
-            Show(14, 80),
-            Show(13, 3),
-            Show(12, 5),
-            Show(13, 3),
+            Show(EnemyFrameId.YappingMawPose14, 80),
+            Show(EnemyFrameId.YappingMawPose13, 3),
+            Show(EnemyFrameId.YappingMawPose12, 5),
+            Show(EnemyFrameId.YappingMawPose13, 3),
             Cue(new(K.PlayBiteSound)),
         ],
         [P.CooldownDownLeft] =
         [
             Cue(new(K.HoldSamusDownLeft)),
-            Show(17, 4),
+            Show(EnemyFrameId.YappingMawPose17, 4),
             Cue(new(K.HoldSamusDown)),
         ],
         [P.CooldownDownLeftLoop] =
         [
-            Show(14, 80),
-            Show(13, 3),
-            Show(12, 5),
-            Show(13, 3),
+            Show(EnemyFrameId.YappingMawPose14, 80),
+            Show(EnemyFrameId.YappingMawPose13, 3),
+            Show(EnemyFrameId.YappingMawPose12, 5),
+            Show(EnemyFrameId.YappingMawPose13, 3),
             Cue(new(K.PlayBiteSound)),
         ],
     });
@@ -168,9 +169,9 @@ internal static class YappingMawAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<YappingMawProgram> StartingWith(YappingMawProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<YappingMawFrame, YappingMawCue> Show(int pose, int duration) => new AnimationBeat<YappingMawFrame, YappingMawCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, YappingMawCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, YappingMawCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<YappingMawFrame, YappingMawCue> Cue(YappingMawCue cue) => new AnimationBeat<YappingMawFrame, YappingMawCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, YappingMawCue> Cue(YappingMawCue cue) => new AnimationBeat<EnemyFrameId, YappingMawCue>.Event(cue);
 }

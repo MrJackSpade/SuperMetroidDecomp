@@ -202,7 +202,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         DeadTourianCorpseEnemyState state = RequireDeadTourianCorpseState(slot);
         AnimationPlayback<DeadTourianProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, DeadTourianAnimations.Segments, ref playback, DeadTourianFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, DeadTourianAnimations.Segments, ref playback,
             cue => throw new InvalidDataException($"A corpse pose published {cue.Kind}."));
         state.Playback = playback;
     }

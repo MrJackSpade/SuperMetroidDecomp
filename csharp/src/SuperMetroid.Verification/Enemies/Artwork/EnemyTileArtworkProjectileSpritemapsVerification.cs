@@ -1,16 +1,24 @@
+using SuperMetroid.Core.Enemies.FuneNamihe;
+using SuperMetroid.Core.Enemies.Powamp;
+using SuperMetroid.Core.Enemies.Dragon;
+using SuperMetroid.Core.Enemies.KiHunters;
+using SuperMetroid.Core.Enemies.EyeDoor;
+using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.Core.Enemies.Magdollite;
+using SuperMetroid.Core.Enemies.FallingSparks;
+using SuperMetroid.Core.Enemies.SaveStation;
+using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.Core.Enemies.Deaths.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 using SuperMetroid.Core.Enemies.KiHunters.Artwork;
 using SuperMetroid.Core.Enemies.Powamp.Artwork;
-using SuperMetroid.Core.Enemies.FallingSparks.Artwork;
 using SuperMetroid.Core.Enemies.Dragon.Artwork;
 using SuperMetroid.Core.Enemies.Gunship.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
@@ -41,8 +49,6 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.NoobTube;
-using SuperMetroid.Core.Enemies.EyeDoor.Artwork;
-using SuperMetroid.Core.Enemies.SaveStation.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -154,10 +160,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             nativeCeres.ImageEquals(installedCeres),
             "Ceres Ridley fireball uses installed OAM without visual ROM reads");
         for (int index = 0;
-             index < AlcoonFireballFrameToolingDefinitions.PoseCount;
+             index < AlcoonFireballFrameToolingDefinitions.Frames.Length;
              index++)
         {
-            ushort operand = EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameDefinitions.ShownProjectileFrames[new(index)]);
+            ushort operand = EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameToolingDefinitions.Frames[index]);
             OamBuffer nativeAlcoon = DrawReferenceProgramFrame(stock, operand, bus,
                 RoomEnemyProjectileKind.AlcoonFireball);
             OamBuffer installedAlcoon = DrawProgramFrame(stock, operand,
@@ -243,12 +249,9 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
         var genericDeathFamilies = new TorizoFamily[]
         {
-            new TorizoFamily("enemy pickup", RoomEnemyProjectileKind.EnemyDeathPickup,
-                EnemyDeathProjectileFrameDefinitions.PoseCount - EnemyProjectilePresentationFrameDefinitions.DeathFrameCount,
-                index => EnemyProjectileProgramFrameSources.Operand(EnemyDeathProjectileFrameDefinitions.ShownProjectileFrames[new(EnemyProjectilePresentationFrameDefinitions.DeathFrameCount + index)])),
-            new TorizoFamily("enemy death", RoomEnemyProjectileKind.EnemyDeathExplosion,
-                EnemyProjectilePresentationFrameDefinitions.DeathFrameCount,
-                index => EnemyProjectileProgramFrameSources.Operand(EnemyDeathProjectileFrameDefinitions.ShownProjectileFrames[new(index)])),
+            ShownFamily("enemy pickup", RoomEnemyProjectileKind.EnemyDeathPickup, PickupFrames),
+            ShownFamily("enemy death", RoomEnemyProjectileKind.EnemyDeathExplosion,
+                EnemyDeathProjectileAnimations.Segments.Frames.Except(PickupFrames)),
         };
         foreach ((string family, RoomEnemyProjectileKind kind, int count,
                      Func<int, ushort> addressAt) in genericDeathFamilies)
@@ -270,36 +273,18 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             new TorizoFamily("Ceres falling debris", RoomEnemyProjectileKind.CeresFallingDebrisLight,
                 CeresFallingDebrisVisualDefinitions.Frames.Count,
                 index => EnemyProjectileProgramFrameSources.Operand(CeresFallingDebrisVisualDefinitions.ShownProjectileFrames[CeresFallingDebrisVisualDefinitions.Frames[index]])),
-            new TorizoFamily("save-station electricity", RoomEnemyProjectileKind.SaveStationElectricity,
-                SaveStationElectricityFrameDefinitions.PoseCount,
-                index => EnemyProjectileProgramFrameSources.Operand(SaveStationElectricityFrameDefinitions.ShownProjectileFrames[new(index)])),
+            ShownFamily("save-station electricity", RoomEnemyProjectileKind.SaveStationElectricity, SaveStationElectricityAnimations.Segments.Frames),
             new TorizoFamily("gunship dust", RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
                 GunshipDustVisualDefinitions.Frames.Count,
                 index => EnemyProjectileProgramFrameSources.Operand(GunshipDustVisualDefinitions.ShownProjectileFrames[GunshipDustVisualDefinitions.Frames[index]])),
-            new TorizoFamily("falling spark", RoomEnemyProjectileKind.FallingSpark,
-                FallingSparkFrameDefinitions.PoseCount,
-                index => EnemyProjectileProgramFrameSources.Operand(FallingSparkFrameDefinitions.ShownProjectileFrames[new(index)])),
-            new TorizoFamily("Magdollite lava", RoomEnemyProjectileKind.LavaThrownByMagdollite,
-                MagdolliteLavaFrameDefinitions.PoseCount,
-                index => EnemyProjectileProgramFrameSources.Operand(MagdolliteLavaFrameDefinitions.ShownProjectileFrames[new(index)])),
-            new TorizoFamily("Chozo/Tourian dust", RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep,
-                ChozoTourianDustFrameDefinitions.PoseCount,
-                index => EnemyProjectileProgramFrameSources.Operand(ChozoTourianDustFrameDefinitions.ShownProjectileFrames[new(index)])),
-            new TorizoFamily("eye-door sweat", RoomEnemyProjectileKind.EyeDoorSweat,
-                EyeDoorSweatFrameDefinitions.PoseCount,
-                index => EnemyProjectileProgramFrameSources.Operand(EyeDoorSweatFrameDefinitions.ShownProjectileFrames[new(index)])),
-            new TorizoFamily("Ki Hunter acid spit", RoomEnemyProjectileKind.KiHunterAcidSpitLeft,
-                KiHunterAcidSpitFrameDefinitions.PoseCount,
-                index => EnemyProjectileProgramFrameSources.Operand(KiHunterAcidSpitFrameDefinitions.ShownProjectileFrames[new(index)])),
-            new TorizoFamily("Fune/Namihe fireball", RoomEnemyProjectileKind.FuneFireball,
-                FuneNamiheFireballFrameToolingDefinitions.PoseCount,
-                index => EnemyProjectileProgramFrameSources.Operand(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[new(index)])),
-            new TorizoFamily("Dragon fireball", RoomEnemyProjectileKind.DragonFireball,
-                DragonFireballFrameDefinitions.PoseCount,
-                index => EnemyProjectileProgramFrameSources.Operand(DragonFireballFrameDefinitions.ShownProjectileFrames[new(index)])),
-            new TorizoFamily("Powamp spike", RoomEnemyProjectileKind.PowampSpike,
-                PowampSpikeFrameDefinitions.PoseCount,
-                index => EnemyProjectileProgramFrameSources.Operand(PowampSpikeFrameDefinitions.ShownProjectileFrames[new(index)])),
+            ShownFamily("falling spark", RoomEnemyProjectileKind.FallingSpark, FallingSparkAnimations.Segments.Frames),
+            ShownFamily("Magdollite lava", RoomEnemyProjectileKind.LavaThrownByMagdollite, MagdolliteLavaAnimations.Segments.Frames),
+            ShownFamily("Chozo/Tourian dust", RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep, ChozoTourianDustAnimations.Segments.Frames),
+            ShownFamily("eye-door sweat", RoomEnemyProjectileKind.EyeDoorSweat, EyeDoorSweatAnimations.Segments.Frames),
+            ShownFamily("Ki Hunter acid spit", RoomEnemyProjectileKind.KiHunterAcidSpitLeft, KiHunterAcidSpitAnimations.Segments.Frames),
+            ShownFamily("Fune/Namihe fireball", RoomEnemyProjectileKind.FuneFireball, FuneNamiheFireballAnimations.Segments.Frames),
+            ShownFamily("Dragon fireball", RoomEnemyProjectileKind.DragonFireball, DragonFireballAnimations.Segments.Frames),
+            ShownFamily("Powamp spike", RoomEnemyProjectileKind.PowampSpike, PowampSpikeAnimations.Segments.Frames),
         };
         foreach ((string family, RoomEnemyProjectileKind kind, int count,
                      Func<int, ushort> addressAt) in environmentAndAttackFamilies)
@@ -769,4 +754,22 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
     /// <summary>The installed artwork key of each frame of Torizo projectile family <paramref name="family"/>, by index.</summary>
     private static Func<int, ushort> TorizoFrameKey(TorizoProjectileFamily family) =>
         index => EnemyProjectileProgramFrameSources.Operand(TorizoProjectileVisualDefinitions.ShownProjectileFrames[TorizoProjectileVisualDefinitions.Frames(family)[index]]);
+
+    /// <summary>The drops a dying enemy leaves: the frames of the pickup animations.</summary>
+    private static readonly EnemyProjectileFrameId[] PickupFrames =
+    [
+        .. new[]
+        {
+            EnemyDeathProjectileProgram.SmallEnergy, EnemyDeathProjectileProgram.BigEnergy, EnemyDeathProjectileProgram.Missiles,
+            EnemyDeathProjectileProgram.SuperMissiles, EnemyDeathProjectileProgram.PowerBombs,
+        }.SelectMany(program => EnemyDeathProjectileAnimations.Segments.Beats(program))
+            .Select(beat => beat.ShownFrame).OfType<EnemyProjectileFrameId>().Distinct(),
+    ];
+
+    /// <summary>A projectile family drawn as <paramref name="kind"/>, whose frames are <paramref name="frames"/>.</summary>
+    private static TorizoFamily ShownFamily(string name, RoomEnemyProjectileKind kind, IEnumerable<EnemyProjectileFrameId> frames)
+    {
+        EnemyProjectileFrameId[] shown = [.. frames];
+        return new TorizoFamily(name, kind, shown.Length, index => EnemyProjectileProgramFrameSources.Operand(shown[index]));
+    }
 }

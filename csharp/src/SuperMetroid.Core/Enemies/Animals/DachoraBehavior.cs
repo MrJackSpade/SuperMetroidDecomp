@@ -553,7 +553,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Dachora's typed animation.</summary>
     internal static void AdvanceDachoraTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, DachoraAnimations.Segments, DachoraFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, DachoraAnimations.Segments,
             static (DachoraEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Dachora animation raised {cue}."));
 

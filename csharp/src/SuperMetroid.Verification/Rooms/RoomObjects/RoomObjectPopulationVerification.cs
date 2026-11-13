@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.SaveStation;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -45,7 +46,6 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Enemies.SaveStation.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
@@ -1264,8 +1264,7 @@ internal static class RoomObjectPopulationVerification
             OffsetX = 0, OffsetY = 0, TileColumn = 1, TileRow = 0,
             Size = 8, Priority = 1, Palette = 0, FlipX = false, FlipY = false,
         };
-        HashSet<EnemyProjectileFrameId> electricityFrames = Enumerable.Range(0, SaveStationElectricityFrameDefinitions.PoseCount)
-            .Select(index => SaveStationElectricityFrameDefinitions.ShownProjectileFrames[new(index)]).ToHashSet();
+        HashSet<EnemyProjectileFrameId> electricityFrames = [.. SaveStationElectricityAnimations.Segments.Frames];
         var artworkDocument = new EnemyProjectileSpritemapDocument
         {
             Version = EnemyProjectileSpritemapDocuments.Version,
@@ -1296,7 +1295,7 @@ internal static class RoomObjectPopulationVerification
             "save electricity starts two blocks above the station PLM");
 
         enemies.StepEnemyProjectiles(level, samus: null);
-        AssertEqual(EnemyProjectileProgramFrameSources.Operand(SaveStationElectricityFrameDefinitions.ShownProjectileFrames[new(0)]),
+        AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.SaveStationElectricityFrame00),
             electricity.PresentationOperandAddress, "save electricity selects its first installed frame through its typed program");
         AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, electricity.SpritemapPointer,
             "installed program artwork does not retain a cartridge spritemap pointer");

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Programs;
 using System.Diagnostics.CodeAnalysis;
-using SuperMetroid.Core.Enemies.Ripper.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
@@ -208,7 +207,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         RipperEnemyState state = slot.RequireSpeciesState<RipperEnemyState>();
         AnimationPlayback<RipperProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, RipperAnimations.Segments, ref playback, RipperFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, RipperAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"Ripper's cue-free animation raised {cue}."));
         state.Playback = playback;
     }

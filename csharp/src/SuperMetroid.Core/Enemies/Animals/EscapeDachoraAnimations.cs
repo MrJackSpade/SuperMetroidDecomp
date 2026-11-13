@@ -1,53 +1,54 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Animals.EscapeDachoraCueKind;
 using P = SuperMetroid.Core.Enemies.Animals.EscapeDachoraProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The escaping Dachora's typed animations (#641, #1600). Each frame shows a <see cref="EscapeDachoraFrame"/> pose and
+/// The escaping Dachora's typed animations (#641, #1600). Each frame shows a <see cref="EnemyFrameId"/> and
 /// each callback becomes a <see cref="EscapeDachoraCue"/> with its typed operands. Around the shaft it runs five laps
 /// left and five right, counted on its timer; a branch continues the play where <see cref="BranchTargets"/> says.
 /// </summary>
 internal static class EscapeDachoraAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<EscapeDachoraProgram, EscapeDachoraFrame, EscapeDachoraCue> Segments { get; } = new(
-        new Dictionary<EscapeDachoraProgram, AnimationBeat<EscapeDachoraFrame, EscapeDachoraCue>[]>
+    internal static AnimationSegments<EscapeDachoraProgram, EnemyFrameId, EscapeDachoraCue> Segments { get; } = new(
+        new Dictionary<EscapeDachoraProgram, AnimationBeat<EnemyFrameId, EscapeDachoraCue>[]>
     {
         [P.RunningAroundLowTide] =
         [
         ],
         [P.RunningAroundLowTideLeft] =
         [
-            Show(0, 3),
+            Show(EnemyFrameId.EscapeDachora00, 3),
             Cue(new(K.MoveLeft)),
-            Show(1, 3),
+            Show(EnemyFrameId.EscapeDachora01, 3),
             Cue(new(K.MoveLeft)),
-            Show(2, 3),
+            Show(EnemyFrameId.EscapeDachora02, 3),
             Cue(new(K.MoveLeft)),
-            Show(3, 3),
+            Show(EnemyFrameId.EscapeDachora03, 3),
             Cue(new(K.MoveLeft)),
-            Show(4, 3),
+            Show(EnemyFrameId.EscapeDachora04, 3),
             Cue(new(K.MoveLeft)),
-            Show(5, 3),
+            Show(EnemyFrameId.EscapeDachora05, 3),
             Cue(new(K.MoveLeft)),
             Cue(new(K.GoToIfAcidHigh, Target: P.RunningAroundHighTideLeftLoop)),
             Cue(new(K.GoToIfCrittersEscaped, Target: P.RunningForEscape)),
         ],
         [P.RunningAroundLowTideRight] =
         [
-            Show(6, 3),
+            Show(EnemyFrameId.EscapeDachora06, 3),
             Cue(new(K.MoveRight)),
-            Show(7, 3),
+            Show(EnemyFrameId.EscapeDachora07, 3),
             Cue(new(K.MoveRight)),
-            Show(8, 3),
+            Show(EnemyFrameId.EscapeDachora08, 3),
             Cue(new(K.MoveRight)),
-            Show(9, 3),
+            Show(EnemyFrameId.EscapeDachora09, 3),
             Cue(new(K.MoveRight)),
-            Show(10, 3),
+            Show(EnemyFrameId.EscapeDachora10, 3),
             Cue(new(K.MoveRight)),
-            Show(11, 3),
+            Show(EnemyFrameId.EscapeDachora11, 3),
             Cue(new(K.MoveRight)),
             Cue(new(K.GoToIfAcidHigh, Target: P.RunningAroundHighTideRightLoop)),
             Cue(new(K.GoToIfCrittersEscaped, Target: P.RunningForEscapeAccelerating)),
@@ -57,17 +58,17 @@ internal static class EscapeDachoraAnimations
         ],
         [P.RunningAroundHighTideLeft] =
         [
-            Show(0, 2),
+            Show(EnemyFrameId.EscapeDachora00, 2),
             Cue(new(K.MoveLeft)),
-            Show(1, 2),
+            Show(EnemyFrameId.EscapeDachora01, 2),
             Cue(new(K.MoveLeft)),
-            Show(2, 2),
+            Show(EnemyFrameId.EscapeDachora02, 2),
             Cue(new(K.MoveLeft)),
-            Show(3, 2),
+            Show(EnemyFrameId.EscapeDachora03, 2),
             Cue(new(K.MoveLeft)),
-            Show(4, 2),
+            Show(EnemyFrameId.EscapeDachora04, 2),
             Cue(new(K.MoveLeft)),
-            Show(5, 2),
+            Show(EnemyFrameId.EscapeDachora05, 2),
             Cue(new(K.MoveLeft)),
             Cue(new(K.GoToIfCrittersEscaped, Target: P.RunningForEscape)),
         ],
@@ -76,17 +77,17 @@ internal static class EscapeDachoraAnimations
         ],
         [P.RunningAroundHighTideRight] =
         [
-            Show(6, 2),
+            Show(EnemyFrameId.EscapeDachora06, 2),
             Cue(new(K.MoveRight)),
-            Show(7, 2),
+            Show(EnemyFrameId.EscapeDachora07, 2),
             Cue(new(K.MoveRight)),
-            Show(8, 2),
+            Show(EnemyFrameId.EscapeDachora08, 2),
             Cue(new(K.MoveRight)),
-            Show(9, 2),
+            Show(EnemyFrameId.EscapeDachora09, 2),
             Cue(new(K.MoveRight)),
-            Show(10, 2),
+            Show(EnemyFrameId.EscapeDachora10, 2),
             Cue(new(K.MoveRight)),
-            Show(11, 2),
+            Show(EnemyFrameId.EscapeDachora11, 2),
             Cue(new(K.MoveRight)),
             Cue(new(K.GoToIfCrittersEscaped, Target: P.RunningForEscapeAccelerating)),
         ],
@@ -95,48 +96,48 @@ internal static class EscapeDachoraAnimations
         ],
         [P.RunningForEscape] =
         [
-            Show(0, 30),
+            Show(EnemyFrameId.EscapeDachora00, 30),
         ],
         [P.RunningForEscapeAccelerating] =
         [
-            Show(6, 90),
+            Show(EnemyFrameId.EscapeDachora06, 90),
             Cue(new(K.MoveRight)),
-            Show(7, 5),
+            Show(EnemyFrameId.EscapeDachora07, 5),
             Cue(new(K.MoveRight)),
-            Show(8, 5),
+            Show(EnemyFrameId.EscapeDachora08, 5),
             Cue(new(K.MoveRight)),
-            Show(9, 4),
+            Show(EnemyFrameId.EscapeDachora09, 4),
             Cue(new(K.MoveRight)),
-            Show(10, 4),
+            Show(EnemyFrameId.EscapeDachora10, 4),
             Cue(new(K.MoveRight)),
-            Show(11, 4),
+            Show(EnemyFrameId.EscapeDachora11, 4),
             Cue(new(K.MoveRight)),
-            Show(6, 3),
+            Show(EnemyFrameId.EscapeDachora06, 3),
             Cue(new(K.MoveRight)),
-            Show(7, 3),
+            Show(EnemyFrameId.EscapeDachora07, 3),
             Cue(new(K.MoveRight)),
-            Show(8, 3),
+            Show(EnemyFrameId.EscapeDachora08, 3),
             Cue(new(K.MoveRight)),
-            Show(9, 2),
+            Show(EnemyFrameId.EscapeDachora09, 2),
             Cue(new(K.MoveRight)),
-            Show(10, 2),
+            Show(EnemyFrameId.EscapeDachora10, 2),
             Cue(new(K.MoveRight)),
-            Show(11, 2),
+            Show(EnemyFrameId.EscapeDachora11, 2),
             Cue(new(K.MoveRight)),
         ],
         [P.RunningForEscapeMaximumSpeed] =
         [
-            Show(6, 1),
+            Show(EnemyFrameId.EscapeDachora06, 1),
             Cue(new(K.MoveRight)),
-            Show(7, 1),
+            Show(EnemyFrameId.EscapeDachora07, 1),
             Cue(new(K.MoveRight)),
-            Show(8, 1),
+            Show(EnemyFrameId.EscapeDachora08, 1),
             Cue(new(K.MoveRight)),
-            Show(9, 1),
+            Show(EnemyFrameId.EscapeDachora09, 1),
             Cue(new(K.MoveRight)),
-            Show(10, 1),
+            Show(EnemyFrameId.EscapeDachora10, 1),
             Cue(new(K.MoveRight)),
-            Show(11, 1),
+            Show(EnemyFrameId.EscapeDachora11, 1),
             Cue(new(K.MoveRight)),
         ],
     });
@@ -184,9 +185,9 @@ internal static class EscapeDachoraAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<EscapeDachoraProgram> StartingWith(EscapeDachoraProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EscapeDachoraFrame, EscapeDachoraCue> Show(int pose, int duration) => new AnimationBeat<EscapeDachoraFrame, EscapeDachoraCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, EscapeDachoraCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, EscapeDachoraCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EscapeDachoraFrame, EscapeDachoraCue> Cue(EscapeDachoraCue cue) => new AnimationBeat<EscapeDachoraFrame, EscapeDachoraCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, EscapeDachoraCue> Cue(EscapeDachoraCue cue) => new AnimationBeat<EnemyFrameId, EscapeDachoraCue>.Event(cue);
 }

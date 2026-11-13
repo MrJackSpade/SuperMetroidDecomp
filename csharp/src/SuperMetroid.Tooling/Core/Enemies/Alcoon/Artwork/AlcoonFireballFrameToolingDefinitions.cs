@@ -1,33 +1,39 @@
 ﻿using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.Alcoon;
 
 namespace SuperMetroid.Core.Enemies.Alcoon.Artwork;
 
-/// <summary>Development-tool members of <see cref="AlcoonFireballFrameDefinitions"/>; never linked by player hosts.</summary>
+/// <summary>Development-tool members of <see cref="AlcoonFireballAnimations"/>; never linked by player hosts.</summary>
 internal static class AlcoonFireballFrameToolingDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 4;
+    /// <summary>The frames the family's animations show, in the order they first show them.</summary>
+    internal static readonly EnemyProjectileFrameId[] Frames = [.. AlcoonFireballAnimations.Segments.Frames];
 
     /// <summary>
     /// The bank-$8D spritemap the native operand of <paramref name="frame"/> selects, for artwork catalogs that resolve
     /// the frame through its spritemap rather than an installed composition.
     /// </summary>
-    internal static ushort Spritemap(AlcoonFireballFrame frame) => frame.Pose switch
+    internal static ushort Spritemap(EnemyProjectileFrameId frame) => Spritemaps.TryGetValue(frame, out ushort spritemap)
+        ? spritemap
+        : throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Alcoon fireball pose.");
+
+    /// <summary>The bank-$8D spritemap each frame's native operand selects.</summary>
+    private static readonly Dictionary<EnemyProjectileFrameId, ushort> Spritemaps = new()
     {
-        0 => 0x8404,
-        1 => 0x840b,
-        2 => 0x8412,
-        3 => 0x8419,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Alcoon fireball pose."),
+        [EnemyProjectileFrameId.AlcoonFireballFrame00] = 0x8404,
+        [EnemyProjectileFrameId.AlcoonFireballFrame01] = 0x840b,
+        [EnemyProjectileFrameId.AlcoonFireballFrame02] = 0x8412,
+        [EnemyProjectileFrameId.AlcoonFireballFrame03] = 0x8419,
     };
 
-    /// <summary>The pose whose program frame is stored at bank-$86 operand <paramref name="key"/>, if one is.</summary>
-    internal static bool TryFrame(ushort key, out AlcoonFireballFrame frame)
+    /// <summary>The frame whose program frame is stored at bank-$86 operand <paramref name="key"/>, if one is.</summary>
+    internal static bool TryFrame(ushort key, out EnemyProjectileFrameId frame)
     {
-        for (int pose = 0; pose < AlcoonFireballFrameToolingDefinitions.PoseCount; pose++)
+        foreach (EnemyProjectileFrameId candidate in Frames)
         {
-            frame = new(pose);
-            if (EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameDefinitions.ShownProjectileFrames[frame]) == key)
+            frame = candidate;
+            if (EnemyProjectileProgramFrameSources.Operand(frame) == key)
                 return true;
         }
         frame = default;

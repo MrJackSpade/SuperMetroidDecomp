@@ -1,28 +1,29 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateCueKind;
 using P = SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
 /// The walking Space Pirates' walk, look, flinch and laser animations as typed programs (#641). Each
-/// frame shows a <see cref="WalkingSpacePirateFrame"/> pose and each callback becomes a <see cref="WalkingSpacePirateCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="WalkingSpacePirateCue"/> with its typed operands.
 /// </summary>
 internal static class WalkingSpacePirateAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<WalkingSpacePirateProgram, WalkingSpacePirateFrame, WalkingSpacePirateCue> Segments { get; } = new(
-        new Dictionary<WalkingSpacePirateProgram, AnimationBeat<WalkingSpacePirateFrame, WalkingSpacePirateCue>[]>
+    internal static AnimationSegments<WalkingSpacePirateProgram, EnemyFrameId, WalkingSpacePirateCue> Segments { get; } = new(
+        new Dictionary<WalkingSpacePirateProgram, AnimationBeat<EnemyFrameId, WalkingSpacePirateCue>[]>
     {
         [P.FlinchFacingLeft] =
         [
             Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.NoOperation)),
-            Show(35, 16),
+            Show(EnemyFrameId.WalkingPirateFlinchLeft, 16),
         ],
         [P.FlinchFacingRight] =
         [
             Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.NoOperation)),
-            Show(36, 16),
+            Show(EnemyFrameId.WalkingPirateFlinchRight, 16),
         ],
         [P.WalkingLeft] =
         [
@@ -30,42 +31,42 @@ internal static class WalkingSpacePirateAnimations
         ],
         [P.WalkingLeftLoop] =
         [
-            Show(0, 10),
-            Show(1, 10),
-            Show(2, 10),
-            Show(3, 10),
-            Show(4, 10),
-            Show(5, 10),
-            Show(6, 10),
-            Show(7, 10),
+            Show(EnemyFrameId.WalkingPirateWalkLeft0, 10),
+            Show(EnemyFrameId.WalkingPirateWalkLeft1, 10),
+            Show(EnemyFrameId.WalkingPirateWalkLeft2, 10),
+            Show(EnemyFrameId.WalkingPirateWalkLeft3, 10),
+            Show(EnemyFrameId.WalkingPirateWalkLeft4, 10),
+            Show(EnemyFrameId.WalkingPirateWalkLeft5, 10),
+            Show(EnemyFrameId.WalkingPirateWalkLeft6, 10),
+            Show(EnemyFrameId.WalkingPirateWalkLeft7, 10),
         ],
         [P.FireLasersLeft] =
         [
             Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.AnimationOwnedNoOperation)),
-            Show(16, 24),
-            Show(17, 8),
-            Show(18, 8),
-            Show(19, 8),
+            Show(EnemyFrameId.WalkingPirateFireLeft0, 24),
+            Show(EnemyFrameId.WalkingPirateFireLeft1, 8),
+            Show(EnemyFrameId.WalkingPirateFireLeft2, 8),
+            Show(EnemyFrameId.WalkingPirateFireLeft3, 8),
             Cue(new WalkingSpacePirateCue.FireLaserLeft(LaserHeight: 8)),
-            Show(20, 8),
+            Show(EnemyFrameId.WalkingPirateFireLeft4, 8),
             Cue(new WalkingSpacePirateCue.FireLaserLeft(LaserHeight: 2)),
-            Show(21, 24),
+            Show(EnemyFrameId.WalkingPirateFireLeft5, 24),
             Cue(new WalkingSpacePirateCue.FireLaserLeft(LaserHeight: -8)),
-            Show(20, 8),
-            Show(19, 8),
-            Show(18, 8),
-            Show(17, 8),
+            Show(EnemyFrameId.WalkingPirateFireLeft4, 8),
+            Show(EnemyFrameId.WalkingPirateFireLeft3, 8),
+            Show(EnemyFrameId.WalkingPirateFireLeft2, 8),
+            Show(EnemyFrameId.WalkingPirateFireLeft1, 8),
             Cue(new WalkingSpacePirateCue.Command(K.ChooseMovement)),
         ],
         [P.LookingFacingLeft] =
         [
             Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.AnimationOwnedNoOperation)),
-            Show(28, 32),
-            Show(29, 10),
-            Show(30, 32),
-            Show(29, 10),
-            Show(28, 32),
-            Show(34, 8),
+            Show(EnemyFrameId.WalkingPirateLookLeft0, 32),
+            Show(EnemyFrameId.WalkingPirateLookLeft1, 10),
+            Show(EnemyFrameId.WalkingPirateLookLeft2, 32),
+            Show(EnemyFrameId.WalkingPirateLookLeft1, 10),
+            Show(EnemyFrameId.WalkingPirateLookLeft0, 32),
+            Show(EnemyFrameId.WalkingPirateLookShared, 8),
         ],
         [P.WalkingRight] =
         [
@@ -73,42 +74,42 @@ internal static class WalkingSpacePirateAnimations
         ],
         [P.WalkingRightLoop] =
         [
-            Show(8, 10),
-            Show(9, 10),
-            Show(10, 10),
-            Show(11, 10),
-            Show(12, 10),
-            Show(13, 10),
-            Show(14, 10),
-            Show(15, 10),
+            Show(EnemyFrameId.WalkingPirateWalkRight0, 10),
+            Show(EnemyFrameId.WalkingPirateWalkRight1, 10),
+            Show(EnemyFrameId.WalkingPirateWalkRight2, 10),
+            Show(EnemyFrameId.WalkingPirateWalkRight3, 10),
+            Show(EnemyFrameId.WalkingPirateWalkRight4, 10),
+            Show(EnemyFrameId.WalkingPirateWalkRight5, 10),
+            Show(EnemyFrameId.WalkingPirateWalkRight6, 10),
+            Show(EnemyFrameId.WalkingPirateWalkRight7, 10),
         ],
         [P.FireLasersRight] =
         [
             Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.AnimationOwnedNoOperation)),
-            Show(22, 24),
-            Show(23, 8),
-            Show(24, 8),
-            Show(25, 8),
+            Show(EnemyFrameId.WalkingPirateFireRight0, 24),
+            Show(EnemyFrameId.WalkingPirateFireRight1, 8),
+            Show(EnemyFrameId.WalkingPirateFireRight2, 8),
+            Show(EnemyFrameId.WalkingPirateFireRight3, 8),
             Cue(new WalkingSpacePirateCue.FireLaserRight(LaserHeight: 8)),
-            Show(26, 8),
+            Show(EnemyFrameId.WalkingPirateFireRight4, 8),
             Cue(new WalkingSpacePirateCue.FireLaserRight(LaserHeight: 2)),
-            Show(27, 24),
+            Show(EnemyFrameId.WalkingPirateFireRight5, 24),
             Cue(new WalkingSpacePirateCue.FireLaserRight(LaserHeight: -8)),
-            Show(26, 8),
-            Show(25, 8),
-            Show(24, 8),
-            Show(23, 8),
+            Show(EnemyFrameId.WalkingPirateFireRight4, 8),
+            Show(EnemyFrameId.WalkingPirateFireRight3, 8),
+            Show(EnemyFrameId.WalkingPirateFireRight2, 8),
+            Show(EnemyFrameId.WalkingPirateFireRight1, 8),
             Cue(new WalkingSpacePirateCue.Command(K.ChooseMovement)),
         ],
         [P.LookingFacingRight] =
         [
             Cue(new WalkingSpacePirateCue.SetFunction(Function: WalkingSpacePirateFunction.AnimationOwnedNoOperation)),
-            Show(31, 32),
-            Show(32, 10),
-            Show(33, 32),
-            Show(32, 10),
-            Show(31, 32),
-            Show(34, 8),
+            Show(EnemyFrameId.WalkingPirateLookRight0, 32),
+            Show(EnemyFrameId.WalkingPirateLookRight1, 10),
+            Show(EnemyFrameId.WalkingPirateLookRight2, 32),
+            Show(EnemyFrameId.WalkingPirateLookRight1, 10),
+            Show(EnemyFrameId.WalkingPirateLookRight0, 32),
+            Show(EnemyFrameId.WalkingPirateLookShared, 8),
         ],
     });
 
@@ -130,9 +131,9 @@ internal static class WalkingSpacePirateAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<WalkingSpacePirateProgram> StartingWith(WalkingSpacePirateProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<WalkingSpacePirateFrame, WalkingSpacePirateCue> Show(int pose, int duration) => new AnimationBeat<WalkingSpacePirateFrame, WalkingSpacePirateCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, WalkingSpacePirateCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, WalkingSpacePirateCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<WalkingSpacePirateFrame, WalkingSpacePirateCue> Cue(WalkingSpacePirateCue cue) => new AnimationBeat<WalkingSpacePirateFrame, WalkingSpacePirateCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, WalkingSpacePirateCue> Cue(WalkingSpacePirateCue cue) => new AnimationBeat<EnemyFrameId, WalkingSpacePirateCue>.Event(cue);
 }

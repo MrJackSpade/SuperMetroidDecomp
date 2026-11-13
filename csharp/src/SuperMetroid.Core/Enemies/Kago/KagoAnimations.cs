@@ -1,31 +1,32 @@
 using P = SuperMetroid.Core.Enemies.Kago.KagoProgram;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>
 /// Kago's slow and post-hit animation loops as typed programs (#641). Each
-/// frame shows a <see cref="KagoFrame"/> pose and its lists use no owner callbacks.
+/// frame shows a <see cref="EnemyFrameId"/> and its lists use no owner callbacks.
 /// </summary>
 internal static class KagoAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<KagoProgram, KagoFrame, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<KagoProgram, AnimationBeat<KagoFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<KagoProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<KagoProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.Slow] =
         [
-            Show(0, 10),
-            Show(1, 10),
-            Show(2, 10),
-            Show(1, 10),
+            Show(EnemyFrameId.KagoCycle0, 10),
+            Show(EnemyFrameId.KagoCycle1, 10),
+            Show(EnemyFrameId.KagoCycle2, 10),
+            Show(EnemyFrameId.KagoCycle1, 10),
         ],
         [P.Fast] =
         [
-            Show(0, 3),
-            Show(1, 3),
-            Show(2, 3),
-            Show(1, 3),
+            Show(EnemyFrameId.KagoCycle0, 3),
+            Show(EnemyFrameId.KagoCycle1, 3),
+            Show(EnemyFrameId.KagoCycle2, 3),
+            Show(EnemyFrameId.KagoCycle1, 3),
         ],
     });
 
@@ -39,6 +40,6 @@ internal static class KagoAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<KagoProgram> StartingWith(KagoProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<KagoFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<KagoFrame, NoAnimationCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 }

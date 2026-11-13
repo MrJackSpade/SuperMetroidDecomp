@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Metroids.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -461,7 +460,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Metroid's typed animation.</summary>
     internal void AdvanceMetroidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, MetroidAnimations.Segments, MetroidFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, MetroidAnimations.Segments,
             static (MetroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Hoppers.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -364,7 +363,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         HopperEnemyState state = slot.RequireSpeciesState<HopperEnemyState>();
         AnimationPlayback<HopperProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, HopperAnimations.Segments, ref playback, HopperFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, HopperAnimations.Segments, ref playback,
             cue => ApplyHopperCue(slot, state, cue) is { } target
                 ? new AnimationContinuation<HopperProgram>(HopperAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);

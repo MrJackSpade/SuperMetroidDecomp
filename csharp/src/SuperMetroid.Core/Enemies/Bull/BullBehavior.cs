@@ -1,6 +1,5 @@
 ﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Enemies.Bull.Artwork;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Bull;
@@ -214,7 +213,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Bull's normal and immune-shot animations as typed programs (#641).</summary>
     internal static void AdvanceBullAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, BullAnimations.Segments, BullFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, BullAnimations.Segments,
             static (BullEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Bull animation raised {cue}."));
 

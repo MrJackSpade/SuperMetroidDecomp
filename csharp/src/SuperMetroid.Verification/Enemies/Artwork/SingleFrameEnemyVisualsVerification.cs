@@ -9,6 +9,7 @@ using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -43,10 +44,10 @@ internal static class SingleFrameEnemyVisualsVerification
 
         byte[] projectileBytes = EnemyProjectileSpritemapFiles.Extract(rom);
         var projectileStock = EnemyProjectileSpritemapDocuments.Load(new MemoryStream(projectileBytes));
-        var rockParts = projectileStock.GetProgramFrame(PolypRockFrameDefinitions.ShownProjectileFrames[new(0)]);
+        var rockParts = projectileStock.GetProgramFrame(EnemyProjectileFrameId.PolypRock00);
         var rockActual = new OamBuffer();
         rockActual.AddEnemySpritemap(rockParts.Span, new Position16<SpritePixels>(128, 112), 0x0c00, 0x20);
-        ushort rockPointer = PolypRockFrameToolingDefinitions.Spritemap(new(0));
+        ushort rockPointer = PolypRockFrameToolingDefinitions.Spritemap(EnemyProjectileFrameId.PolypRock00);
         var rockExpected = new OamBuffer();
         ImportedSpritemapOracle.DrawEnemy(rom, rockExpected, new NativeEnemySpritemapDraw { Bank = 0x8d, Pointer = rockPointer, Origin = new(128, 112), PaletteBits = 0x0c00, BaseTileIndex = 0x20 });
         CompareOam(rockExpected, rockActual, "Polyp rock");

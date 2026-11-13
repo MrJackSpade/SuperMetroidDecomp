@@ -7,28 +7,28 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Enemies.SaveStation;
 
 /// <summary>
-/// The save-station electricity's twenty eight-pose cycles (#1296). Each frame shows a <see cref="SaveStationElectricityFrame"/> pose and each
+/// The save-station electricity's twenty eight-pose cycles (#1296). Each frame shows a <see cref="EnemyProjectileFrameId"/> and each
 /// command becomes an <see cref="EnemyProjectileCommonCue"/>.
 /// </summary>
 internal static class SaveStationElectricityAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<SaveStationElectricityProgram, SaveStationElectricityFrame, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<SaveStationElectricityProgram, AnimationBeat<SaveStationElectricityFrame, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<SaveStationElectricityProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<SaveStationElectricityProgram, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.Start] =
         [
         ],
         [P.Cycle] =
         [
-            Show(0, 1),
-            Show(1, 1),
-            Show(2, 1),
-            Show(3, 1),
-            Show(4, 1),
-            Show(5, 1),
-            Show(6, 1),
-            Show(7, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricityFrame00, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricityFrame01, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricityFrame02, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricityFrame03, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricityFrame04, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricityFrame05, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricityFrame06, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricityFrame07, 1),
             Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
         ],
     });
@@ -42,9 +42,9 @@ internal static class SaveStationElectricityAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<SaveStationElectricityProgram> StartingWith(SaveStationElectricityProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<SaveStationElectricityFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<SaveStationElectricityFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<SaveStationElectricityFrame, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<SaveStationElectricityFrame, EnemyProjectileCommonCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Event(cue);
 }

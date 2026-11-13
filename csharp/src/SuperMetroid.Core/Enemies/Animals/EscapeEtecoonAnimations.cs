@@ -1,18 +1,19 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Animals.EscapeEtecoonCueKind;
 using P = SuperMetroid.Core.Enemies.Animals.EscapeEtecoonProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
 /// The escaping Etecoons' typed programs (#641). Each
-/// frame shows a <see cref="EscapeEtecoonFrame"/> pose and each callback becomes a <see cref="EscapeEtecoonCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="EscapeEtecoonCue"/> with its typed operands.
 /// </summary>
 internal static class EscapeEtecoonAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<EscapeEtecoonProgram, EscapeEtecoonFrame, EscapeEtecoonCue> Segments { get; } = new(
-        new Dictionary<EscapeEtecoonProgram, AnimationBeat<EscapeEtecoonFrame, EscapeEtecoonCue>[]>
+    internal static AnimationSegments<EscapeEtecoonProgram, EnemyFrameId, EscapeEtecoonCue> Segments { get; } = new(
+        new Dictionary<EscapeEtecoonProgram, AnimationBeat<EnemyFrameId, EscapeEtecoonCue>[]>
     {
         [P.RunningLeftLowTide] =
         [
@@ -20,17 +21,17 @@ internal static class EscapeEtecoonAnimations
         ],
         [P.RunningLeftLowTideLoop] =
         [
-            Show(0, 5),
-            Show(1, 5),
-            Show(2, 5),
-            Show(1, 5),
+            Show(EnemyFrameId.EscapeEtecoon00, 5),
+            Show(EnemyFrameId.EscapeEtecoon01, 5),
+            Show(EnemyFrameId.EscapeEtecoon02, 5),
+            Show(EnemyFrameId.EscapeEtecoon01, 5),
         ],
         [P.RunningLeftHighTide] =
         [
-            Show(0, 3),
-            Show(1, 3),
-            Show(2, 3),
-            Show(1, 3),
+            Show(EnemyFrameId.EscapeEtecoon00, 3),
+            Show(EnemyFrameId.EscapeEtecoon01, 3),
+            Show(EnemyFrameId.EscapeEtecoon02, 3),
+            Show(EnemyFrameId.EscapeEtecoon01, 3),
         ],
         [P.RunningRightLowTide] =
         [
@@ -38,17 +39,17 @@ internal static class EscapeEtecoonAnimations
         ],
         [P.RunningRightLowTideLoop] =
         [
-            Show(3, 6),
-            Show(4, 6),
-            Show(5, 6),
-            Show(4, 6),
+            Show(EnemyFrameId.EscapeEtecoon03, 6),
+            Show(EnemyFrameId.EscapeEtecoon04, 6),
+            Show(EnemyFrameId.EscapeEtecoon05, 6),
+            Show(EnemyFrameId.EscapeEtecoon04, 6),
         ],
         [P.RunningRightHighTide] =
         [
-            Show(3, 3),
-            Show(4, 3),
-            Show(5, 3),
-            Show(4, 3),
+            Show(EnemyFrameId.EscapeEtecoon03, 3),
+            Show(EnemyFrameId.EscapeEtecoon04, 3),
+            Show(EnemyFrameId.EscapeEtecoon05, 3),
+            Show(EnemyFrameId.EscapeEtecoon04, 3),
         ],
         [P.RunningForEscape] =
         [
@@ -56,17 +57,17 @@ internal static class EscapeEtecoonAnimations
         ],
         [P.RunningForEscapeLoop] =
         [
-            Show(3, 3),
-            Show(4, 3),
-            Show(5, 3),
-            Show(4, 3),
+            Show(EnemyFrameId.EscapeEtecoon03, 3),
+            Show(EnemyFrameId.EscapeEtecoon04, 3),
+            Show(EnemyFrameId.EscapeEtecoon05, 3),
+            Show(EnemyFrameId.EscapeEtecoon04, 3),
         ],
         [P.Stationary] =
         [
-            Show(6, 64),
-            Show(7, 8),
-            Show(9, 64),
-            Show(8, 8),
+            Show(EnemyFrameId.EscapeEtecoon06, 64),
+            Show(EnemyFrameId.EscapeEtecoon07, 8),
+            Show(EnemyFrameId.EscapeEtecoon08, 64),
+            Show(EnemyFrameId.EscapeEtecoon09, 8),
         ],
         [P.ExpressGratitudeThenEscape] =
         [
@@ -74,16 +75,16 @@ internal static class EscapeEtecoonAnimations
         ],
         [P.ExpressGratitudeThenEscapeLoop] =
         [
-            Show(0, 8),
+            Show(EnemyFrameId.EscapeEtecoon00, 8),
             Cue(new EscapeEtecoonCue.Move(Offset: -3)),
-            Show(1, 8),
+            Show(EnemyFrameId.EscapeEtecoon01, 8),
             Cue(new EscapeEtecoonCue.Move(Offset: -3)),
-            Show(2, 8),
+            Show(EnemyFrameId.EscapeEtecoon02, 8),
             Cue(new EscapeEtecoonCue.Move(Offset: -3)),
-            Show(1, 8),
+            Show(EnemyFrameId.EscapeEtecoon01, 8),
             Cue(new EscapeEtecoonCue.Move(Offset: -3)),
-            Show(6, 64),
-            Show(7, 8),
+            Show(EnemyFrameId.EscapeEtecoon06, 64),
+            Show(EnemyFrameId.EscapeEtecoon07, 8),
         ],
     });
 
@@ -105,9 +106,9 @@ internal static class EscapeEtecoonAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<EscapeEtecoonProgram> StartingWith(EscapeEtecoonProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EscapeEtecoonFrame, EscapeEtecoonCue> Show(int pose, int duration) => new AnimationBeat<EscapeEtecoonFrame, EscapeEtecoonCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, EscapeEtecoonCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, EscapeEtecoonCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EscapeEtecoonFrame, EscapeEtecoonCue> Cue(EscapeEtecoonCue cue) => new AnimationBeat<EscapeEtecoonFrame, EscapeEtecoonCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, EscapeEtecoonCue> Cue(EscapeEtecoonCue cue) => new AnimationBeat<EnemyFrameId, EscapeEtecoonCue>.Event(cue);
 }

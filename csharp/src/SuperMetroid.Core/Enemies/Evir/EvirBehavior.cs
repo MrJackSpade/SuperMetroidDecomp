@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Evir.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 
@@ -575,7 +574,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = slot.RequireSpeciesState<EvirEnemyState>();
         AnimationPlayback<EvirProgram> playback = state.Playback ??
             throw new InvalidOperationException($"Evir slot {slot.SlotIndex} has no installed animation.");
-        EnemyProgramAnimation.Play(slot, EvirAnimations.Segments, ref playback, EvirFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, EvirAnimations.Segments, ref playback,
             cue => ApplyEvirCue(slot, state, cue) is { } target
                 ? new AnimationContinuation<EvirProgram>(EvirAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);

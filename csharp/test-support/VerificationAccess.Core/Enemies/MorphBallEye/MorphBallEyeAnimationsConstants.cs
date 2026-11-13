@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core.Enemies.MorphBallEye.Artwork;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
@@ -9,6 +10,6 @@ internal static class MorphBallEyeAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params MorphBallEyeProgram[] programs) =>
         programs.SelectMany(program => MorphBallEyeAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<MorphBallEyeFrame, NoAnimationCue>.Frame>()
+            .OfType<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>()
             .Select(frame => MorphBallEyeFrameToolingDefinitions.Spritemap(frame.Shown));
 }

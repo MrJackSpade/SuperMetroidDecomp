@@ -23,5 +23,5 @@ internal static class StokeProjectileNativeListAddresses
     internal static ushort Entry(StokeProjectileProgram program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
 
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, StokeProjectileAnimations.Segments, StokeProjectileAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(StokeProjectileFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, StokeProjectileAnimations.Segments, StokeProjectileAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), NativeEnemyProjectileCommonCues.Rules);
 }

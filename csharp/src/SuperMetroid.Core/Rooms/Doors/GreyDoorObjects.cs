@@ -42,9 +42,9 @@ internal sealed class GreyDoorObjects
         SharedGameState system = RequireSystem();
         return condition switch
         {
-            GreyDoorCondition.AreaBossDefeated => system.HasAnyBossBits(_area, BossBits.AreaBoss),
-            GreyDoorCondition.AreaMiniBossDefeated => system.HasAnyBossBits(_area, BossBits.AreaMiniBoss),
-            GreyDoorCondition.AreaTorizoDefeated => system.HasAnyBossBits(_area, BossBits.AreaTorizo),
+            GreyDoorCondition.AreaBossDefeated => system.HasDefeatedAnyOf(_area, DefeatedBosses.AreaBoss),
+            GreyDoorCondition.AreaMiniBossDefeated => system.HasDefeatedAnyOf(_area, DefeatedBosses.AreaMiniBoss),
+            GreyDoorCondition.AreaTorizoDefeated => system.HasDefeatedAnyOf(_area, DefeatedBosses.AreaTorizo),
             GreyDoorCondition.EnemyDeathQuota => frame.EnemyDeaths >= frame.EnemyDeathQuota,
             GreyDoorCondition.Never => false,
             GreyDoorCondition.TourianStatueFinished => _tourianStatue?.IsFinished == true,

@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The runtime's state as the services one room's enemy AI calls (#633): the shared
-/// RNG, event and boss bits, the room's scroll zones, Samus's control lock, Mother Brain's room
-/// effects and the active room-object population. Boss bits belong to the room's area.
+/// RNG, events and defeated bosses, the room's scroll zones, Samus's control lock, Mother Brain's room
+/// effects and the active room-object population. Defeated bosses belong to the room's area.
 /// </summary>
 [RoomLifetime]
 internal sealed class RoomEnemyRuntimeServices(
@@ -31,7 +31,7 @@ internal sealed class RoomEnemyRuntimeServices(
     public IGlobalEventFlags Events => progress;
     /// <summary>Exposes the persistent Zebetite count to the Zebetites.</summary>
     public IZebetiteProgress ZebetiteProgress => progress;
-    /// <summary>Exposes boss bits for the active room's area.</summary>
+    /// <summary>Exposes defeated bosses for the active room's area.</summary>
     public IAreaBossFlags Bosses => progress;
     /// <summary>Exposes active room-object presence to enemy AI.</summary>
     public IRoomObjectPresence RoomObjects => this;

@@ -27,7 +27,7 @@ internal sealed class EnemyRoomEffects
     private readonly SamusFrameState _player;
     /// <summary>Provides active level, area, FX record, and room scroll state.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Records boss bits and the Zebes timebomb event requested by the encounter.</summary>
+    /// <summary>Records defeated bosses and the Zebes timebomb event requested by the encounter.</summary>
     private readonly SharedGameState _system;
 
     /// <summary>Binds the room systems needed to consume enemy publications immediately after their AI pass.</summary>
@@ -177,8 +177,8 @@ internal sealed class EnemyRoomEffects
                 _player.IntroducedSamus.Drained.RelinquishTimerHackHandler();
             if (death.MotherBrainEscapeTimerStartRequested)
                 _escapeTimer.RequestMotherBrainStart(); // The runtime already owns per-frame timer processing/drawing.
-            if (death.MotherBrainBossBitRequested)
-                _system.SetBossBits(_room.LoadedRoom.AreaIndex, BossBits.AreaMiniBoss);
+            if (death.MotherBrainDefeatRecordRequested)
+                _system.RecordBossesDefeated(_room.LoadedRoom.AreaIndex, DefeatedBosses.AreaMiniBoss);
             if (death.ZebesTimebombEventRequested)
                 _system.SetEvent(StoryEvent.ZebesTimebombSet);
         }

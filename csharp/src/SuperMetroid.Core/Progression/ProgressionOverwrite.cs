@@ -24,7 +24,7 @@ namespace SuperMetroid.Core.Progression;
 public sealed record ProgressionOverwrite(
     DecidedFlags<StoryEvent> Events,
     int? ZebetitesDestroyed,
-    IReadOnlyDictionary<AreaId, BossBits> AreaBosses,
+    IReadOnlyDictionary<AreaId, DefeatedBosses> AreaBosses,
     DecidedFlags<ItemLocation> CollectedItems,
     DecidedFlags<LockedDoor> OpenedDoors,
     DecidedFlags<LoadStation> UsedStations,

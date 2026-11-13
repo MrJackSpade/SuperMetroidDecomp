@@ -56,7 +56,7 @@ internal sealed class TorizoMovement
         // The area's Torizo defeat is shared by the Bomb and Golden Torizo encounters, but it is stored
         // per area. The room loader supplies the current area's accessor, keeping the actor
         // independent from save-memory layout and avoiding a room-number special case.
-        if (_room.Services.Bosses.IsDefeated(BossBits.AreaTorizo))
+        if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaTorizo))
         {
             torizo.Presence = torizo.Presence.With(EnemyPresence.Deleted);
             return;

@@ -29,7 +29,7 @@ public static class SamusTerrainHazardCollision
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
 
-        // The spike reaction makes Wrecked Ship's heavy spike blocks harmless until Phantoon's area-boss bit is set.
+        // The spike reaction makes Wrecked Ship's heavy spike blocks harmless until Phantoon is defeated.
         // Every other area admits that reaction unconditionally.
         samus.HeavySpikeDamageEnabled =
             area != AreaId.WreckedShip || areaBossDefeated;

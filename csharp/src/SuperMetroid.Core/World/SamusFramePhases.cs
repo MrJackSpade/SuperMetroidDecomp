@@ -295,12 +295,12 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 _room.LevelData,
                 samus,
                 _room.ActiveRoom.AreaIndex,
-                _system.HasAnyBossBits(_room.ActiveRoom.AreaIndex, BossBits.AreaBoss));
+                _system.HasDefeatedAnyOf(_room.ActiveRoom.AreaIndex, DefeatedBosses.AreaBoss));
         }
 
         if (!_freeze.TimeIsFrozen && !frame.InputHandlingLocked(samus) && _room.ActiveRoom is { } insideRoom)
             SamusInsideBlockReactions.PrepareFrame(_room.LevelData, samus, insideRoom.AreaIndex,
-                _system.HasAnyBossBits(insideRoom.AreaIndex, BossBits.AreaBoss), room.RoomObjects);
+                _system.HasDefeatedAnyOf(insideRoom.AreaIndex, DefeatedBosses.AreaBoss), room.RoomObjects);
 
         // The input phase order is cooldown -> movement-type HUD projectile producer ->
         // projectile handling. The outer gameplay loop then runs overlap

@@ -191,7 +191,7 @@ internal static class SamusOverreadServicesReader
                     $"Samus overread file's SpaceTime overwrite leaves {overwrite.ZebetitesDestroyed} Zebetites destroyed, not 0 through {PersistentProgress.ZebetiteCount}."),
             Require(overwrite.AreaBosses, nameof(overwrite.AreaBosses)).ToDictionary(
                 area => Parse<AreaId>(area.Key, "SpaceTime boss area"),
-                area => area.Value.Aggregate(BossBits.None, (bosses, name) => bosses | Parse<BossBits>(name, "SpaceTime boss"))),
+                area => area.Value.Aggregate(DefeatedBosses.None, (bosses, name) => bosses | Parse<DefeatedBosses>(name, "SpaceTime boss"))),
             Decided(Require(overwrite.CollectedItems, nameof(overwrite.CollectedItems)), ItemLocationsByName, "SpaceTime item location"),
             Decided(Require(overwrite.OpenedDoors, nameof(overwrite.OpenedDoors)), LockedDoorsByName, "SpaceTime door"),
             Decided(Require(overwrite.UsedStations, nameof(overwrite.UsedStations)), UsedStationsByName, "SpaceTime used station"),

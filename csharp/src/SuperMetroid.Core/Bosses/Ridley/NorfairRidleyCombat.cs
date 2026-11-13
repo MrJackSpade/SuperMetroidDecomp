@@ -49,13 +49,13 @@ internal sealed class NorfairRidleyCombat
     /// <summary>
     /// Runs the Norfair branch of the shared initializer. A defeated Ridley
     /// is deleted before any shared workspace or palette side effects, matching the
-    /// boss-bit gate; a live fight begins in layer five below the visible arena.
+    /// defeated-boss gate; a live fight begins in layer five below the visible arena.
     /// </summary>
     internal void InitializeNorfairRidley(RoomEnemySlot slot)
     {
         _ridleyEncounter.Parts.RequireBody(slot, "Lower Norfair Ridley");
 
-        if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
+        if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
             slot.Presence = slot.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);

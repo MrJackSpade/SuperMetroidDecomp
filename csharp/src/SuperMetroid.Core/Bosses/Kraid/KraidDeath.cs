@@ -134,13 +134,13 @@ internal sealed class KraidDeath
                 if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToRoomColors))
                     return;
                 _access.RequestKraidMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
-                if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
+                if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
                 {
                     state.BodyState.Phase = KraidPhase.DeathFinishedWasDead;
                 }
                 else
                 {
-                    _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);
+                    _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);
                     state.BodyState.Phase = KraidPhase.DeathFinishedWasAlive;
                 }
                 return;
@@ -202,7 +202,7 @@ internal sealed class KraidDeath
     /// </summary>
     private void MarkKraidDeadUnlessDeadAtLeftEdge(RoomEnemySlot body, int cameraX)
     {
-        if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss) && cameraX == 0)
+        if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss) && cameraX == 0)
             return;
         KraidEncounterAccess.MarkKraidPartDead(body);
     }

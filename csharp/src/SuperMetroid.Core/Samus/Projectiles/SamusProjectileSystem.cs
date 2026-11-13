@@ -501,9 +501,9 @@ public sealed class SamusProjectileSystem
             {
                 Motion.RunSuperMissileLinkFrameBehavior(slot);
             }
-            else if (slot.FrameBehavior == SamusProjectileFrameBehavior.SpacetimePaletteCopyTail)
+            else if (slot.FrameBehavior == SamusProjectileFrameBehavior.SpaceTimeProgressionOverwrite)
             {
-                Combos.RunSpacetimePaletteCopyTail(terrain.Progression, slot);
+                Combos.RunSpaceTimeProgressionOverwrite(terrain.Progression, slot);
             }
             else if (slot.FrameBehavior == SamusProjectileFrameBehavior.ChainsawPowerBomb)
             {

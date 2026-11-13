@@ -131,7 +131,7 @@ internal sealed class EnemyFramePhase
             if (result.CeresEscapeStarted)
             {
                 // Ceres Ridley starts the escape timer on the same enemy pass that moves
-                // Ceres from the fight to the escape; the actor sets the boss bit itself.
+                // Ceres from the fight to the escape; the actor records the boss's defeat itself.
                 _enemyRoomEffects.StartCeresEscape();
             }
             if (result.CameraXOverride is int shitroidCameraX)

@@ -170,35 +170,35 @@ public sealed class SharedGameState
         }
     }
 
-    /// <summary>Records <paramref name="bits"/> as defeated in <paramref name="area"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The flags are not all named.</exception>
-    public void SetBossBits(AreaId area, BossBits bits)
+    /// <summary>Records <paramref name="bosses"/> as defeated in <paramref name="area"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The bosses are not all named.</exception>
+    public void RecordBossesDefeated(AreaId area, DefeatedBosses bosses)
     {
-        ProvenBossBits.Validate(bits, "Boss-state set mask");
-        Progress.SetDefeatedBosses(area, Progress.DefeatedBosses(area) | bits);
+        ProvenDefeatedBosses.Validate(bosses, "Defeated bosses to record");
+        Progress.SetDefeatedBosses(area, Progress.BossesDefeatedIn(area) | bosses);
     }
 
     /// <summary>
-    /// Forgets <paramref name="bits"/> as defeated in <paramref name="area"/>, as an otherwise unused original
+    /// Forgets <paramref name="bosses"/> as defeated in <paramref name="area"/>, as an otherwise unused original
     /// step does; the encounter reset on loading a save uses it.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The flags are not all named.</exception>
-    public void ClearBossBits(AreaId area, BossBits bits)
+    /// <exception cref="ArgumentOutOfRangeException">The bosses are not all named.</exception>
+    public void ForgetBossesDefeated(AreaId area, DefeatedBosses bosses)
     {
-        ProvenBossBits.Validate(bits, "Boss-state clear mask");
-        Progress.SetDefeatedBosses(area, Progress.DefeatedBosses(area) & ~bits);
+        ProvenDefeatedBosses.Validate(bosses, "Defeated bosses to forget");
+        Progress.SetDefeatedBosses(area, Progress.BossesDefeatedIn(area) & ~bosses);
     }
 
-    /// <summary>Whether any of <paramref name="bits"/> is defeated in <paramref name="area"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The flags are not all named.</exception>
-    public bool HasAnyBossBits(AreaId area, BossBits bits)
+    /// <summary>Whether any of <paramref name="bosses"/> is defeated in <paramref name="area"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The bosses are not all named.</exception>
+    public bool HasDefeatedAnyOf(AreaId area, DefeatedBosses bosses)
     {
-        ProvenBossBits.Validate(bits, "Boss-state query mask");
-        return (Progress.DefeatedBosses(area) & bits) != BossBits.None;
+        ProvenDefeatedBosses.Validate(bosses, "Defeated bosses to ask for");
+        return (Progress.BossesDefeatedIn(area) & bosses) != DefeatedBosses.None;
     }
 
     /// <summary>The bosses defeated in <paramref name="area"/>.</summary>
-    public BossBits GetBossBits(AreaId area) => Progress.DefeatedBosses(area);
+    public DefeatedBosses BossesDefeatedIn(AreaId area) => Progress.BossesDefeatedIn(area);
 
     /// <summary>Marks an event as having occurred.</summary>
     public void SetEvent(StoryEvent eventNumber) => Progress.SetEvent(eventNumber);

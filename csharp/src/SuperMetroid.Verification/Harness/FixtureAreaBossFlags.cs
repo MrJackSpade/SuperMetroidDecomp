@@ -2,7 +2,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Verification.Harness;
 
-/// <summary>Area boss bits a focused enemy fixture installs (#633), per <see cref="BossBits"/> kind.</summary>
+/// <summary>Area boss bosses a focused enemy fixture installs (#633), per <see cref="DefeatedBosses"/> kind.</summary>
 internal sealed class FixtureAreaBossFlags : IAreaBossFlags
 {
     /// <summary>Answers the area-boss query.</summary>
@@ -24,22 +24,22 @@ internal sealed class FixtureAreaBossFlags : IAreaBossFlags
     public Action? SetTorizoDefeated { get; init; }
 
     /// <summary>Selects exactly one installed boss-kind query and rejects unsupported bit combinations.</summary>
-    public bool IsDefeated(BossBits bits) => (bits switch
+    public bool IsDefeated(DefeatedBosses bosses) => (bosses switch
     {
-        BossBits.AreaBoss => IsBossDefeated,
-        BossBits.AreaMiniBoss => IsMiniBossDefeated,
-        BossBits.AreaTorizo => IsTorizoDefeated,
-        BossBits.None => throw new ArgumentOutOfRangeException(nameof(bits), bits, "Enemy AI queries one boss kind at a time."),
-        _ => throw new ArgumentOutOfRangeException(nameof(bits), bits, "Enemy AI queries one boss kind at a time."),
-    } ?? throw new InvalidOperationException($"The enemy fixture did not install a {bits} query."))();
+        DefeatedBosses.AreaBoss => IsBossDefeated,
+        DefeatedBosses.AreaMiniBoss => IsMiniBossDefeated,
+        DefeatedBosses.AreaTorizo => IsTorizoDefeated,
+        DefeatedBosses.None => throw new ArgumentOutOfRangeException(nameof(bosses), bosses, "Enemy AI queries one boss kind at a time."),
+        _ => throw new ArgumentOutOfRangeException(nameof(bosses), bosses, "Enemy AI queries one boss kind at a time."),
+    } ?? throw new InvalidOperationException($"The enemy fixture did not install a {bosses} query."))();
 
     /// <summary>Selects exactly one installed boss-kind setter and rejects unsupported bit combinations.</summary>
-    public void SetDefeated(BossBits bits) => (bits switch
+    public void SetDefeated(DefeatedBosses bosses) => (bosses switch
     {
-        BossBits.AreaBoss => SetBossDefeated,
-        BossBits.AreaMiniBoss => SetMiniBossDefeated,
-        BossBits.AreaTorizo => SetTorizoDefeated,
-        BossBits.None => throw new ArgumentOutOfRangeException(nameof(bits), bits, "Enemy AI sets one boss kind at a time."),
-        _ => throw new ArgumentOutOfRangeException(nameof(bits), bits, "Enemy AI sets one boss kind at a time."),
-    } ?? throw new InvalidOperationException($"The enemy fixture did not install a {bits} set."))();
+        DefeatedBosses.AreaBoss => SetBossDefeated,
+        DefeatedBosses.AreaMiniBoss => SetMiniBossDefeated,
+        DefeatedBosses.AreaTorizo => SetTorizoDefeated,
+        DefeatedBosses.None => throw new ArgumentOutOfRangeException(nameof(bosses), bosses, "Enemy AI sets one boss kind at a time."),
+        _ => throw new ArgumentOutOfRangeException(nameof(bosses), bosses, "Enemy AI sets one boss kind at a time."),
+    } ?? throw new InvalidOperationException($"The enemy fixture did not install a {bosses} set."))();
 }

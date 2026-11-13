@@ -70,8 +70,8 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>Whether starting the escape timer was requested.</summary>
     internal bool MotherBrainEscapeTimerStartRequested { get; set; }
 
-    /// <summary>Whether Mother Brain's boss bit was requested.</summary>
-    internal bool MotherBrainBossBitRequested { get; set; }
+    /// <summary>Whether recording Mother Brain's defeat was requested.</summary>
+    internal bool MotherBrainDefeatRecordRequested { get; set; }
 
     /// <summary>Whether the Zebes time-bomb event was requested.</summary>
     internal bool ZebesTimebombEventRequested { get; set; }
@@ -105,6 +105,6 @@ internal sealed class MotherBrainRainbowBeamStepRequests
             DeathExplosions, CorpseDustRequests, MusicStopQueued, EscapeMusicQueued,
             EscapeMusicTrackQueued, EscapePaletteFxRequests,
             EscapeTypewriterSetupRequested, TimeBombSetSubtitleSpawnRequested, EscapeDoorExplosion, TimerHandlingEnableRequested,
-            MotherBrainEscapeTimerStartRequested, MotherBrainBossBitRequested, ZebesTimebombEventRequested, EscapeDoorParticleSpawns,
+            MotherBrainEscapeTimerStartRequested, MotherBrainDefeatRecordRequested, ZebesTimebombEventRequested, EscapeDoorParticleSpawns,
             EscapeDoorObject, Earthquake, SamusProjectileCooldown);
 }

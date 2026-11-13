@@ -29,7 +29,7 @@ public sealed class TourianStatueSequence
     private readonly RoomFxOverlayState _roomFxOverlay;
     /// <summary>Creates the palette effect selected by a statue animated-tile cue.</summary>
     private readonly RoomPaletteFxSystem _roomPaletteFx;
-    /// <summary>Tracks boss and statue events, area boss bits, RNG, and the final Tourian unlock event.</summary>
+    /// <summary>Tracks boss and statue events, the area's defeated bosses, RNG, and the final Tourian unlock event.</summary>
     private readonly SharedGameState _system;
     /// <summary>The open-statues assist skips tile playback and starts the statue at its completed offset.</summary>
     private readonly ActiveAssists _assists;
@@ -219,7 +219,7 @@ public sealed class TourianStatueSequence
                 case TourianStatueTileCueKind.GoToIfGrey:
                     return _system.HasEvent(definition.GreyEvent) ? branch : null;
                 case TourianStatueTileCueKind.GoToIfBossDefeated:
-                    return _system.HasAnyBossBits(definition.BossArea, definition.DefeatedBossBits) ? branch : null;
+                    return _system.HasDefeatedAnyOf(definition.BossArea, definition.DefeatedBosses) ? branch : null;
                 case TourianStatueTileCueKind.ClearAnimating:
                     statue.Animation.Animating &= ~definition.Statue;
                     return null;

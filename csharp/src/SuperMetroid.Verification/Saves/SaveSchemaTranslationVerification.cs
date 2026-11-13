@@ -39,7 +39,7 @@ internal static class SaveSchemaTranslationVerification
         };
         var system = new SharedGameState(new SharedRandom());
         // Progress in every set schema two listed by table position, so its upgrade is exercised (#1475).
-        system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss | BossBits.AreaTorizo);
+        system.RecordBossesDefeated(AreaId.Brinstar, DefeatedBosses.AreaBoss | DefeatedBosses.AreaTorizo);
         system.MarkSaveStationUsed(LoadStationDefinitions.CrocomireSave);
         system.Progress.UsedStations.Add(LoadStationDefinitions.MaridiaElevator);
         system.SetAreaMapAcquired(AreaId.WreckedShip);

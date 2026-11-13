@@ -8,5 +8,5 @@ public static class RoomStateSelectorConditions
     /// <summary>
     /// The main-area-boss-dead room state check always tests the area's main boss flag.
     /// </summary>
-    public const BossBits MainAreaBoss = BossBits.AreaBoss;
+    public const DefeatedBosses MainAreaBoss = DefeatedBosses.AreaBoss;
 }

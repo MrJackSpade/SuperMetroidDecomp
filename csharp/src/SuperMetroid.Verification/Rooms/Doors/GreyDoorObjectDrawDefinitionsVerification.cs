@@ -120,7 +120,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
 
                 // The default room argument selects the boss-defeated condition. A
                 // closed door must flash only after the cartridge event bit changes.
-                system.SetBossBits(AreaId.Crateria, BossBits.AreaBoss);
+                system.RecordBossesDefeated(AreaId.Crateria, DefeatedBosses.AreaBoss);
                 roomObjects.Step(level);
                 AssertEqual(GreyDoorPhase.Flashing, roomObjects.GreyDoorSnapshots.Single().Phase,
                     $"resident grey door {header} unlocks after boss event");
@@ -198,7 +198,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
             room.RoomObjects.Step(room.Level, new RoomObjectFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = SamusEquipmentFlags.Bombs });
         AssertEqual(GreyDoorPhase.Locked, room.RoomObjects.GreyDoorSnapshots.Single().Phase,
             "collected Bombs let the special closing list rejoin its resident owner");
-        room.System.SetBossBits(AreaId.Crateria, BossBits.AreaTorizo);
+        room.System.RecordBossesDefeated(AreaId.Crateria, DefeatedBosses.AreaTorizo);
         room.RoomObjects.Step(room.Level);
         AssertEqual(GreyDoorPhase.Flashing, room.RoomObjects.GreyDoorSnapshots.Single().Phase,
             "Bomb Torizo defeat unlocks the special grey door");

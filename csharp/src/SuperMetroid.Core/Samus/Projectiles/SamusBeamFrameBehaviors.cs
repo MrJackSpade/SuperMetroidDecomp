@@ -29,8 +29,8 @@ internal static class SamusBeamFrameBehaviors
         SamusBeamCombination.SpazerPlasmaIce => charged
             ? Runs(SamusBeamFrameBehaviorChoice.ChargedChainsawOverrun,
                 SamusProjectileFrameBehavior.ChargedChainsawOverrun)
-            : Runs(SamusBeamFrameBehaviorChoice.SpacetimePaletteCopyTail,
-                SamusProjectileFrameBehavior.SpacetimePaletteCopyTail),
+            : Runs(SamusBeamFrameBehaviorChoice.SpaceTimeProgressionOverwrite,
+                SamusProjectileFrameBehavior.SpaceTimeProgressionOverwrite),
         SamusBeamCombination.SpazerPlasmaIceWave => charged
             ? Runs(SamusBeamFrameBehaviorChoice.MurderBeamMisalignedExecution,
                 SamusProjectileFrameBehavior.MurderBeamMisalignedExecution)

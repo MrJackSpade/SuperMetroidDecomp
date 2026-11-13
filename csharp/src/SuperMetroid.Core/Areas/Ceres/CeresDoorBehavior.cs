@@ -104,7 +104,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                 // past the branch to the intangible setup.
                 // Hardcoding the early-game branch stranded the invisible 8x32 actor at
                 // X=8 and clipped Samus at X=29 after the getaway cutscene.
-                return _room.Services.Bosses.IsDefeated(BossBits.AreaBoss) ? null : cue.Target;
+                return _room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss) ? null : cue.Target;
             case CeresDoorCueKind.GoToIfRidleyNotEscaped:
                 return _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ? null : cue.Target;
             case CeresDoorCueKind.MakeIntangible:

@@ -186,7 +186,7 @@ internal static class BossRoomObjectProgramsVerification
 
         int entry = Word(RoomObjectNativeWords.Word(RoomObjectKind.MotherBrainGlass) + 2);
         AssertEqual(RoomObjectInstruction.GotoIfAreaBossBitSet, At(entry), "glass first checks Mother Brain");
-        AssertEqual(ProgressionTableCodec.EncodeBossMask(BossBits.AreaBoss), ReadOperandByte(cartridge, entry + 2), "glass area-boss bit");
+        AssertEqual(ProgressionTableCodec.EncodeBossMask(DefeatedBosses.AreaBoss), ReadOperandByte(cartridge, entry + 2), "glass area-boss bit");
         int bossDead = Word(entry + 3);
         AssertEqual(RoomObjectInstruction.GotoIfEventSet, At(entry + 5), "glass then checks its destroyed event");
         AssertEqual((ushort)StoryEvent.MotherBrainGlassDestroyed.Number(), Word(entry + 7), "glass destroyed event");

@@ -862,26 +862,26 @@ internal static void VerifyCartridgeRoomStateSelection()
     eventBytes.Add(StoryEvent.ZebesAwake);
     AssertEqual((ushort)0x9100,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
-            new RoomStateSelectionContext(eventBytes, BossBits.None, false, false)),
+            new RoomStateSelectionContext(eventBytes, DefeatedBosses.None, false, false)),
         "room selector event branch");
     AssertEqual((ushort)0x9120,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
-            new RoomStateSelectionContext(null, BossBits.AreaTorizo, false, false)),
+            new RoomStateSelectionContext(null, DefeatedBosses.AreaTorizo, false, false)),
         "room selector boss branch");
     AssertEqual((ushort)0x9140,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
-            new RoomStateSelectionContext(null, BossBits.None, true, false)),
+            new RoomStateSelectionContext(null, DefeatedBosses.None, true, false)),
         "room selector Morph Ball and missiles branch");
     AssertEqual((ushort)0x9160,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
-            new RoomStateSelectionContext(null, BossBits.None, false, true)),
+            new RoomStateSelectionContext(null, DefeatedBosses.None, false, true)),
         "room selector power-bomb branch");
 
     // The interpreter must return at the first successful command; later facts do not
     // override the event-selected pointer merely because they are also true.
     AssertEqual((ushort)0x9100,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
-            new RoomStateSelectionContext(eventBytes, BossBits.AreaTorizo, true, true)),
+            new RoomStateSelectionContext(eventBytes, DefeatedBosses.AreaTorizo, true, true)),
         "room selector preserves cartridge priority");
 
     // The Tourian-specific routine owns its boss-bit operand in executable code rather

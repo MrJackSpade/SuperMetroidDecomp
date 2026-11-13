@@ -37,7 +37,7 @@ internal sealed class DoorTransitionRunner
     private readonly SamusFrameState _player;
     /// <summary>Holds destination room data, camera, and background streamer.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Provides boss bits and advances main-loop random state.</summary>
+    /// <summary>Provides defeated bosses and advances main-loop random state.</summary>
     private readonly SharedGameState _system;
 
     /// <summary>Captures the runtime services used by the door's setup and its wait updates.</summary>
@@ -141,7 +141,7 @@ internal sealed class DoorTransitionRunner
         _ = roomObjects.WreckedShipTreadmill.TrySpawnWreckedShipEntranceTreadmill(
             _room.LevelData,
             direction,
-            _system.HasAnyBossBits(_room.ActiveRoom.AreaIndex, BossBits.AreaBoss));
+            _system.HasDefeatedAnyOf(_room.ActiveRoom.AreaIndex, DefeatedBosses.AreaBoss));
     }
 
     /// <summary>Positions Samus for the selected elevatube entrance and attempts its room-object spawn.</summary>

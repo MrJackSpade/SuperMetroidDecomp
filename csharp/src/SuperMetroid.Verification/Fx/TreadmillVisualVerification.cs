@@ -33,7 +33,7 @@ internal static class TreadmillVisualVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.System.SetBossBits(AreaId.WreckedShip, BossBits.AreaBoss);
+            runtime.System.RecordBossesDefeated(AreaId.WreckedShip, DefeatedBosses.AreaBoss);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Get(pointer));
             var room = runtime.Room.LoadedRoom;
             ushort record = RoomFxDefinitions.SelectedRecordPointer(room.State.Fx, null);

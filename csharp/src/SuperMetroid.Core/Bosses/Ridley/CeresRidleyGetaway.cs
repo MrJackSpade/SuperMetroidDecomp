@@ -283,9 +283,9 @@ internal sealed class CeresRidleyGetaway
                 state.Velocity = EightEightVector<RoomPixels>.Zero;
                 state.Phase = RidleyPhase.CeresSelfDestructPaletteOnly;
                 _ridleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
-                // The escape-text sequence sets the area-boss bit inside Ridley's AI, so later slots (the
+                // The escape-text sequence records the area boss's defeat inside Ridley's AI, so later slots (the
                 // room's exit door) observe it in this same enemy update.
-                _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);
+                _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);
                 _frameResults.CeresEscapeStarted = true;
                 return;
 

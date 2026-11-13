@@ -229,7 +229,7 @@ internal sealed class PhantoonDeath
         state.Mouth.Presence = body.Presence;
         if (!state.BossDefeatPersisted)
         {
-            _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);
+            _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);
             state.BossDefeatPersisted = true;
         }
         _frameResults.PhantoonDoor = PhantoonDoorChange.RestoredDoor;

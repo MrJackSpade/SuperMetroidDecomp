@@ -167,8 +167,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             CheckSet("Used stations", portProgress.UsedStations, nativeProgress.UsedStations);
             foreach (AreaId area in Enum.GetValues<AreaId>())
             {
-                if (portProgress.DefeatedBosses(area) != nativeProgress.DefeatedBosses(area))
-                    mismatches.Add($"{area} bosses: native={nativeProgress.DefeatedBosses(area)} port={portProgress.DefeatedBosses(area)}");
+                if (portProgress.BossesDefeatedIn(area) != nativeProgress.BossesDefeatedIn(area))
+                    mismatches.Add($"{area} bosses: native={nativeProgress.BossesDefeatedIn(area)} port={portProgress.BossesDefeatedIn(area)}");
                 if (portProgress.HasAreaMap(area) != nativeProgress.HasAreaMap(area))
                     mismatches.Add($"{area} map: native={nativeProgress.HasAreaMap(area)} port={portProgress.HasAreaMap(area)}");
             }
@@ -754,7 +754,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                         SamusProjectileFrameBehavior.PlasmaCombo or
                         SamusProjectileFrameBehavior.SpazerComboFalling or
                         SamusProjectileFrameBehavior.ShinesparkEcho or
-                        SamusProjectileFrameBehavior.SpacetimePaletteCopyTail or
+                        SamusProjectileFrameBehavior.SpaceTimeProgressionOverwrite or
                         SamusProjectileFrameBehavior.ChainsawPowerBomb or
                         SamusProjectileFrameBehavior.ChargedChainsawOverrun or
                         SamusProjectileFrameBehavior.MurderBeamMisalignedExecution => throw new InvalidDataException($"Movie projectile callback {projectile.FrameBehavior} needs a native identity mapping"),

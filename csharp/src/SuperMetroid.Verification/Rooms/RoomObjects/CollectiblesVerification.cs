@@ -473,7 +473,7 @@ internal static class CollectiblesVerification
         sourceSystem.SetOpenedDoorBit(91);
         sourceSystem.SetOpenedDoorBit(172);
         sourceSystem.SetEvent(StoryEvent.TourianUnlocked);
-        sourceSystem.SetBossBits(2, BossBits.AreaBoss | BossBits.AreaTorizo);
+        sourceSystem.RecordBossesDefeated(2, DefeatedBosses.AreaBoss | DefeatedBosses.AreaTorizo);
         var sourceSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             CollectedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Ice),
@@ -497,9 +497,9 @@ internal static class CollectiblesVerification
         AssertTrue(restoredSystem.HasOpenedDoorBit(172), "last opened door round-trips");
         AssertTrue(restoredSystem.HasEvent(StoryEvent.TourianUnlocked),
             "event bytes round-trip through SRAM");
-        AssertTrue(restoredSystem.HasAnyBossBits(2, BossBits.AreaBoss),
+        AssertTrue(restoredSystem.HasDefeatedAnyOf(2, DefeatedBosses.AreaBoss),
             "area boss byte round-trips through SRAM");
-        AssertTrue(restoredSystem.HasAnyBossBits(2, BossBits.AreaTorizo),
+        AssertTrue(restoredSystem.HasDefeatedAnyOf(2, DefeatedBosses.AreaTorizo),
             "area Torizo bit round-trips through SRAM");
         AssertEqual(sourceSamus.CollectedBeams, restoredSamus.CollectedBeams,
             "collected beam word round-trips independently from equipped beams");

@@ -37,7 +37,7 @@ internal static class BossResetOnLoadVerification
         };
         // Every boss of every area, every event and door, and every third pickup.
         foreach (AreaId area in AreaIds.All)
-            snapshot.Progress.SetDefeatedBosses(area, BossBitMasks.AllKnown);
+            snapshot.Progress.SetDefeatedBosses(area, DefeatedBossKinds.AllKnown);
         snapshot.Progress.Events.AddAll();
         snapshot.Progress.OpenedDoors.AddAll();
         for (int place = 0; place < ItemLocationDefinitions.All.Count; place++)
@@ -59,7 +59,7 @@ internal static class BossResetOnLoadVerification
             foreach (AreaId area in AreaIds.All)
             {
                 bool resetArea = enabled && area != AreaId.Tourian;
-                AssertEqual(resetArea ? BossBits.None : BossBitMasks.AllKnown, runtime.System.GetBossBits(area),
+                AssertEqual(resetArea ? DefeatedBosses.None : DefeatedBossKinds.AllKnown, runtime.System.BossesDefeatedIn(area),
                     $"boss/miniboss/Torizo load policy area {area}, enabled={enabled}");
             }
             foreach (StoryEvent storyEvent in Enum.GetValues<StoryEvent>())
@@ -86,9 +86,9 @@ internal static class BossResetOnLoadVerification
                     $"loaded progression selects encounter state for room {room:X4}");
             }
             // Prove this is not a continuously enforced immortality/respawn mode.
-            runtime.System.SetBossBits(AreaId.Brinstar, BossBits.AreaMiniBoss);
+            runtime.System.RecordBossesDefeated(AreaId.Brinstar, DefeatedBosses.AreaMiniBoss);
             _ = runtime.RoomLoader.LoadSelectedRoom(RoomDefinitions.SporeSpawn);
-            AssertTrue(runtime.System.HasAnyBossBits(AreaId.Brinstar, BossBits.AreaMiniBoss),
+            AssertTrue(runtime.System.HasDefeatedAnyOf(AreaId.Brinstar, DefeatedBosses.AreaMiniBoss),
                 "subsequent defeat persists until another explicit save load");
         }
         AssertTrue((saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")).Progression.SameAs(slot.Progression),

@@ -130,7 +130,7 @@ internal static class RidleyFullMovieVerification
         runtime.Enemies.RidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
         AssertEqual(RidleyPhase.NorfairDeathComplete, state.Phase, "death finish selects native C600 return");
         AssertTrue(body.Presence.HasAny(EnemyPresence.Deleted), "death finish publishes deletion");
-        AssertTrue(runtime.System.HasAnyBossBits(AreaId.Norfair, BossBits.AreaBoss) && runtime.Enemies.ActiveEnemyDropPickups > 0,
+        AssertTrue(runtime.System.HasDefeatedAnyOf(AreaId.Norfair, DefeatedBosses.AreaBoss) && runtime.Enemies.ActiveEnemyDropPickups > 0,
             "death finish publishes boss defeat and drops");
         int random = runtime.System.RandomNumber;
         runtime.Enemies.RidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
@@ -219,7 +219,7 @@ internal static class RidleyFullMovieVerification
             foreach (AreaId area in Enum.GetValues<AreaId>())
                 foreach (Position16<MapTiles> cell in runtime.System.Progress.ExploredCells(area).ToList())
                     runtime.System.Progress.SetExplored(area, cell, explored: false);
-            if (defeated) runtime.System.SetBossBits(AreaId.Norfair, BossBits.AreaBoss);
+            if (defeated) runtime.System.RecordBossesDefeated(AreaId.Norfair, DefeatedBosses.AreaBoss);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
             var room = runtime.Room.LoadedRoom;
             AssertEqual(!defeated, runtime.Hud.MinimapDisabled, "only live Ridley disables the minimap");

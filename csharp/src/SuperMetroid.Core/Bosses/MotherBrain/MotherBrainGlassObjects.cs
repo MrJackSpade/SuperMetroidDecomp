@@ -81,7 +81,7 @@ internal sealed class MotherBrainGlassObjects
     internal void BeginMotherBrainGlassFrame() => _motherBrainGlassProjectileRequests.Clear();
 
     /// <summary>Whether Mother Brain, the area boss, is dead.</summary>
-    internal bool IsBossDead() => _bosses?.IsDefeated(BossBits.AreaBoss) == true;
+    internal bool IsBossDead() => _bosses?.IsDefeated(DefeatedBosses.AreaBoss) == true;
 
     /// <summary>Whether the glass was destroyed on an earlier visit.</summary>
     internal bool IsGlassDestroyed() => _events?.Has(StoryEvent.MotherBrainGlassDestroyed) == true;

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// Runs the two animated-tile objects spawned by Wrecked Ship entrance door setup. The door
-/// chooses a direction; the object then waits for Phantoon's area-boss bit and afterwards
+/// chooses a direction; the object then waits for Phantoon's defeat and afterwards
 /// shows its four treadmill frames in a loop, one frame per pass, each selected as the frame its treadmill's tiles show
 /// (#1406).
 /// </summary>
@@ -14,7 +14,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
 {
     /// <summary>Passes left before the object next shows a frame or re-tests the boss wait.</summary>
     private int _frameHold;
-    /// <summary>Whether the object is still waiting for Phantoon's area-boss bit before its first frame.</summary>
+    /// <summary>Whether the object is still waiting for Phantoon's defeat before its first frame.</summary>
     private bool _waitingForAreaBoss;
 
     /// <summary>The selected direction's object definition, which names its frame art.</summary>
@@ -59,7 +59,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
 
     /// <summary>
     /// Runs one animated-tile handler pass and publishes the source selected for the following
-    /// frame boundary. While Phantoon's area-boss bit is clear, the wait holds the object for
+    /// frame boundary. While Phantoon is not yet defeated, the wait holds the object for
     /// another pass and no source exists; once the bit is set, the four frames loop forever.
     /// </summary>
     public void Step(

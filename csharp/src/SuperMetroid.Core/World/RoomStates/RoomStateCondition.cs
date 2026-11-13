@@ -13,7 +13,7 @@ internal abstract record RoomStateCondition
     internal static RoomStateCondition Event(StoryEvent eventNumber) => new EventSet(eventNumber);
 
     /// <summary>Satisfied once any boss of <paramref name="bosses"/> in the room's area is dead.</summary>
-    internal static RoomStateCondition BossDead(BossBits bosses) => new BossesDead(bosses);
+    internal static RoomStateCondition BossDead(DefeatedBosses bosses) => new BossesDead(bosses);
 
     /// <summary>Satisfied while Samus carries power bombs.</summary>
     internal static RoomStateCondition PowerBombs { get; } = new PowerBombsCarried();
@@ -32,7 +32,7 @@ internal abstract record RoomStateCondition
     }
 
     /// <summary>A defeated-boss test against the room's area.</summary>
-    private sealed record BossesDead(BossBits Bosses) : RoomStateCondition
+    private sealed record BossesDead(DefeatedBosses Bosses) : RoomStateCondition
     {
         /// <inheritdoc/>
         internal override bool IsMet(RoomStateSelectionContext selection) => selection.IsBossDead(Bosses);

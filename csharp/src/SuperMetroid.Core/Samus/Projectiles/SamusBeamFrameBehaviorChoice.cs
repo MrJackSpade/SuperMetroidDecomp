@@ -17,11 +17,11 @@ internal enum SamusBeamFrameBehaviorChoice
     UnchargedCombinationTwelveOverrun,
     /// <summary>
     /// The invalid beam-combination fourteen entry read two entries beyond
-    /// the uncharged firing's authored frame behaviours. It enters the middle of the beam palette loader's
-    /// sprite-palette store, then falls into its increment/loop tail with projectile-owned
-    /// X and Y. Later animation frames can therefore copy a large range of game data through memory.
+    /// the uncharged firing's authored frame behaviours: the Spacetime shot's progression overwrite. From an animation that
+    /// reaches far enough, the shot's frame behaviour turns saved progression on and off as
+    /// <see cref="SuperMetroid.Core.Compatibility.SpaceTimeProgressionOverwrite{TCursor, TOverwrite}"/> decodes it.
     /// </summary>
-    SpacetimePaletteCopyTail,
+    SpaceTimeProgressionOverwrite,
     /// <summary>
     /// The invalid beam-combination thirteen entry produced by indexing two
     /// entries beyond the uncharged authored frame behaviours. It starts partway into

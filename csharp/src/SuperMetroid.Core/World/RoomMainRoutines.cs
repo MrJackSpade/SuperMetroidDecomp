@@ -21,7 +21,7 @@ internal sealed class RoomMainRoutines
     private readonly SamusFrameState _player;
     /// <summary>Active room behaviour and area identity used to dispatch room-main work.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Boss bits and the random number sampled by room-main behaviours.</summary>
+    /// <summary>Defeated bosses and the random number sampled by room-main behaviours.</summary>
     private readonly SharedGameState _system;
 
     /// <summary>Binds the room, enemy, tile, and memory owners used by room-main behaviours.</summary>
@@ -73,17 +73,17 @@ internal sealed class RoomMainRoutines
         room.SandTiles.Step(room.ArtworkFrames);
         room.SpikeTiles.Step(room.ArtworkFrames);
         if (_room.ActiveRoom is not null)
-            room.TreadmillTiles.Step(_system.HasAnyBossBits(_room.ActiveRoom.AreaIndex, BossBits.AreaBoss), room.ArtworkFrames);
+            room.TreadmillTiles.Step(_system.HasDefeatedAnyOf(_room.ActiveRoom.AreaIndex, DefeatedBosses.AreaBoss), room.ArtworkFrames);
         room.TourianStatues.StepTiles();
 
         // The Wrecked Ship treadmill door code creates an ordinary animated-tile object. Its
-        // handler shows one treadmill frame a pass only after Phantoon's area-boss bit is set.
+        // handler shows one treadmill frame a pass only after Phantoon is defeated.
         if (room.WreckedShipTreadmill.IsActive)
         {
             AreaId areaIndex = _room.ActiveRoom?.AreaIndex ?? throw new InvalidOperationException(
                 "A live Wrecked Ship treadmill animation has no active room.");
             room.WreckedShipTreadmill.Step(
-                _system.HasAnyBossBits(areaIndex, BossBits.AreaBoss),
+                _system.HasDefeatedAnyOf(areaIndex, DefeatedBosses.AreaBoss),
                 room.ArtworkFrames);
         }
     }

@@ -59,7 +59,7 @@ public static class ProgressionTableCodec
     private const int ZebetiteCounterBits = 3;
 
     /// <summary>The proven boss flags in the order of their bits, lowest first.</summary>
-    private static readonly BossBits[] BossFlagBits = [BossBits.AreaBoss, BossBits.AreaMiniBoss, BossBits.AreaTorizo];
+    private static readonly DefeatedBosses[] BossFlagBits = [DefeatedBosses.AreaBoss, DefeatedBosses.AreaMiniBoss, DefeatedBosses.AreaTorizo];
 
     /// <summary>Records exactly the item locations the collected-item <paramref name="table"/> stores as collected.</summary>
     /// <exception cref="ArgumentException">The table is not sixty-four bytes.</exception>
@@ -229,7 +229,7 @@ public static class ProgressionTableCodec
     {
         Ensure.NotNull(progress);
         Ensure.LengthEqual(table, AreaBossByteCount);
-        foreach (KeyValuePair<AreaId, BossBits> area in AreaBossesPrefix(table))
+        foreach (KeyValuePair<AreaId, DefeatedBosses> area in AreaBossesPrefix(table))
             progress.SetDefeatedBosses(area.Key, area.Value);
     }
 
@@ -241,13 +241,13 @@ public static class ProgressionTableCodec
         Ensure.LengthEqual(table, AreaBossByteCount);
         table.Clear();
         for (int index = 0; index < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count; index++)
-            table[index] = EncodeBossMask(progress.DefeatedBosses(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(index)));
+            table[index] = EncodeBossMask(progress.BossesDefeatedIn(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(index)));
     }
 
     /// <summary>The defeated bosses of each area <paramref name="copied"/>, the area-boss table's leading bytes, covers.</summary>
-    public static IReadOnlyDictionary<AreaId, BossBits> AreaBossesPrefix(ReadOnlySpan<byte> copied)
+    public static IReadOnlyDictionary<AreaId, DefeatedBosses> AreaBossesPrefix(ReadOnlySpan<byte> copied)
     {
-        var areas = new Dictionary<AreaId, BossBits>();
+        var areas = new Dictionary<AreaId, DefeatedBosses>();
         for (int index = 0; index < Math.Min(copied.Length, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count); index++)
             areas.Add(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(index), StoredBosses(copied[index]));
         return areas;
@@ -259,10 +259,10 @@ public static class ProgressionTableCodec
     /// </summary>
     /// <param name="value">An area's boss byte, as the table or a copy of it holds it.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a byte.</exception>
-    public static BossBits StoredBosses(int value)
+    public static DefeatedBosses StoredBosses(int value)
     {
         _ = Ensure.BetweenInclusive(0, byte.MaxValue, value);
-        BossBits bosses = BossBits.None;
+        DefeatedBosses bosses = DefeatedBosses.None;
         for (int bit = 0; bit < BossFlagBits.Length; bit++)
         {
             if ((value & (1 << bit)) != 0)
@@ -273,13 +273,13 @@ public static class ProgressionTableCodec
 
     /// <summary>The boss byte that records <paramref name="bosses"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="bosses"/> holds a value that names no boss.</exception>
-    public static byte EncodeBossMask(BossBits bosses)
+    public static byte EncodeBossMask(DefeatedBosses bosses)
     {
-        ProvenBossBits.Validate(bosses, "Encoded boss mask");
+        ProvenDefeatedBosses.Validate(bosses, "Encoded boss mask");
         int value = 0;
         for (int bit = 0; bit < BossFlagBits.Length; bit++)
         {
-            if ((bosses & BossFlagBits[bit]) != BossBits.None)
+            if ((bosses & BossFlagBits[bit]) != DefeatedBosses.None)
                 value |= 1 << bit;
         }
         return checked((byte)value);

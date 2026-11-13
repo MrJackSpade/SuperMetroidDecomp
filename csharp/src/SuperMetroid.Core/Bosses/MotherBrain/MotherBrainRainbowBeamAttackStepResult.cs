@@ -29,7 +29,7 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     DustExplosionRequest? EscapeDoorExplosion,
     bool TimerHandlingEnableRequested,
     bool MotherBrainEscapeTimerStartRequested,
-    bool MotherBrainBossBitRequested,
+    bool MotherBrainDefeatRecordRequested,
     bool ZebesTimebombEventRequested,
     IReadOnlyList<MotherBrainEscapeDoorParticleSpawnRequest> EscapeDoorParticleSpawns,
     RoomObjectSpawnRequest<MotherBrainRoomMutation>? EscapeDoorObject,

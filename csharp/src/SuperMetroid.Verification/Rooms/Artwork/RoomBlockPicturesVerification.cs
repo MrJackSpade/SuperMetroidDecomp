@@ -81,7 +81,7 @@ internal static class RoomBlockPicturesVerification
         Check(RoomDefinitions.WreckedShipMainShaft, expectUploads: true,
             RoomStateLists.GetStates(RoomDefinitions.WreckedShipMainShaft)
                 .Single(state => state.Fx?.Records.Any(record => !record.AnimatedTiles.IsEmpty) == true),
-            runtime => runtime.System.SetBossBits((int)AreaId.WreckedShip, BossBits.AreaBoss));
+            runtime => runtime.System.RecordBossesDefeated((int)AreaId.WreckedShip, DefeatedBosses.AreaBoss));
     }
 
     /// <summary>

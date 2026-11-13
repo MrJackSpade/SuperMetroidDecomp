@@ -41,7 +41,7 @@ internal sealed class KraidProjectiles
     private void InitializeKraidLint(RoomEnemySlot lint, KraidLintPart expected)
     {
         KraidEnemyState state = _access.RequireKraidState(lint);
-        if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
+        if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             KraidEncounterAccess.MarkKraidPartDead(lint);
             return;

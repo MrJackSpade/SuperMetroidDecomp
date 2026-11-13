@@ -91,7 +91,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // A previously defeated Botwoon does not allocate body actors. The room loader
         // installs the permanent open wall and makes both one-screen scroll entries blue.
-        if (_room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss))
+        if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {
             _frameResults.BotwoonWall = BotwoonWallMutation.Clear;
             head.Presence = head.Presence.With(EnemyPresence.Deleted);
@@ -711,13 +711,13 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SmallExplosionTimer = 0;
     }
 
-    /// <summary>Runs the 192-frame wall sequence, then sets the boss bit and queues delayed music.</summary>
+    /// <summary>Runs the 192-frame wall sequence, then records the boss's defeat and queues delayed music.</summary>
     private void RunBotwoonWallExplosions(RoomEnemySlot head, BotwoonEnemyState state)
     {
         if (state.WallExplosionFrame >= BotwoonWallExplosionDuration)
         {
             head.Presence = head.Presence.With(EnemyPresence.Deleted);
-            _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
+            _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaMiniBoss);
             // The death sequence invokes the shortest-delay request for the elevator song only after the complete 192-frame
             // wall-explosion phase, not when health first reaches zero.
             _audio.QueueEnemyMusic(new DelayedMusicRequest(

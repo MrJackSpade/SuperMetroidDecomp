@@ -611,7 +611,7 @@ internal static class LookupStream5Verification
         {
             var system = new SharedGameState(new SharedRandom());
             if (downloaded) system.SetAreaMapAcquired(area);
-            if (defeated) system.SetBossBits(area, BossBits.AreaBoss);
+            if (defeated) system.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
             var icons = new FileSelectMapIcons(system, area);
             icons.BindLandmarks(layout); icons.BindSprites(MenuSheetFixtures.MapSprites(sprites));
             var actual = ScreenSpritesFixtures.Blank(); var expected = ScreenSpritesFixtures.Blank();
@@ -646,7 +646,7 @@ internal static class LookupStream5Verification
             }
             actual.FinishFrame(); expected.FinishFrame();
             AssertTrue(actual.ImageEquals(expected), "Actual native ordered landmark OAM");
-            AssertEqual(defeated ? BossBits.AreaBoss : BossBits.None, system.GetBossBits(area), "Drawing preserves boss bits");
+            AssertEqual(defeated ? DefeatedBosses.AreaBoss : DefeatedBosses.None, system.BossesDefeatedIn(area), "Drawing preserves boss bits");
             AssertEqual(downloaded, system.HasAreaMap(area), "Drawing preserves map state");
             void Draw(MapSpriteId id, int x, int y, MapSpriteColouring colouring) => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(sprites), id, expected, new(unchecked((ushort)(x - 7)), unchecked((ushort)(y - 9))), MapSpriteScreen.FileSelect, colouring);
         }

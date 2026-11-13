@@ -27,7 +27,7 @@ internal static class PersistentProgressAccess
             self.Events.Members.SequenceEqual(other.Events.Members) && self.ZebetitesDestroyed == other.ZebetitesDestroyed &&
             self.CollectedItems.Members.SequenceEqual(other.CollectedItems.Members) && self.OpenedDoors.Members.SequenceEqual(other.OpenedDoors.Members) &&
             self.UsedStations.Members.SequenceEqual(other.UsedStations.Members) &&
-            AreaIds.All.All(area => self.DefeatedBosses(area) == other.DefeatedBosses(area) && self.HasAreaMap(area) == other.HasAreaMap(area) &&
+            AreaIds.All.All(area => self.BossesDefeatedIn(area) == other.BossesDefeatedIn(area) && self.HasAreaMap(area) == other.HasAreaMap(area) &&
                 self.ExploredCells(area).SequenceEqual(other.ExploredCells(area)));
 
         /// <summary>Records every cell of every area's map as explored.</summary>

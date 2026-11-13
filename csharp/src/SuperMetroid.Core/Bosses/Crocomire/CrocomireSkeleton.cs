@@ -236,7 +236,7 @@ internal sealed class CrocomireSkeleton
     {
         _access.RequestCrocomireMusic(MusicRequest.SelectTrack(MusicTrack.SecondSetSong), MusicQueueDelay.Shortest);
         _zebetiteBehavior.CameraDistance = CameraDistanceMode.NormalTracking;
-        _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
+        _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaMiniBoss);
         _access.SpawnCrocomireDust(state, -16);
         _access.SpawnCrocomireDust(state, 16);
         state.DeathPhase = state.DeathPhase.Next();

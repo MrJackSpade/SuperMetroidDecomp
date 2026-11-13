@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The game-state services enemy AI calls during a room: the union of every child operation's
-/// service contract plus the RNG, events, boss bits and room-object presence the AI uses directly.
+/// service contract plus the RNG, events, defeated bosses and room-object presence the AI uses directly.
 /// </summary>
 public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoomServices
 {
@@ -20,7 +20,7 @@ public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoom
     /// <summary>How many Zebetites have been destroyed.</summary>
     IZebetiteProgress ZebetiteProgress { get; }
 
-    /// <summary>The current area's boss bits.</summary>
+    /// <summary>The current area's defeated bosses.</summary>
     IAreaBossFlags Bosses { get; }
 
     /// <summary>The active room-object population.</summary>

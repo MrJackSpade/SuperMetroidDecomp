@@ -90,7 +90,7 @@ internal static class CeresHazeVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley);
         AssertTrue(runtime.CeresHaze.Enabled && !runtime.CeresHaze.IsRed, "Ridley room spawns blue haze");
-        runtime.System.SetBossBits(runtime.Room.LoadedRoom.AreaIndex, BossBits.AreaBoss);
+        runtime.System.RecordBossesDefeated(runtime.Room.LoadedRoom.AreaIndex, DefeatedBosses.AreaBoss);
         for (int frame = 0; frame < 30; frame++) runtime.CeresHaze.Step();
         AssertTrue(!runtime.CeresHaze.IsRed, "defeat cannot replace the current room's HDMA channel");
         runtime.Room.LoadedLevelData.ResolveDoorCollision(RoomBlockBehavior.None, runtime.Player.IntroducedSamus.Pose.ForRoomCollision());

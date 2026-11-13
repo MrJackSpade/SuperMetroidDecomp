@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Bosses;
 /// <param name="SporeSpawnCeiling">Spore Spawn's ceiling room object: the defeated-room clear or the death crumble.</param>
 /// <param name="CrocomireObjects">Crocomire's arena mutations.</param>
 /// <param name="KraidObjects">Kraid's ceiling and platform mutations.</param>
-/// <param name="MotherBrainDeathStep">Mother Brain's death-sequence step and its palette, timer, boss-bit and event requests.</param>
+/// <param name="MotherBrainDeathStep">Mother Brain's death-sequence step and its palette, timer, defeated-boss and event requests.</param>
 /// <param name="MotherBrainAcidChange">The change Mother Brain's fight makes to her room's acid (<see cref="MotherBrainRoomFxDefinitions"/>), or null for none.</param>
 /// <param name="MotherBrainObjects">Mother Brain's room mutations.</param>
 /// <param name="ShitroidObjects">The Shitroid's wall mutations.</param>

@@ -193,7 +193,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
                 enemies.AttractDemoHooks.SetKraidPhaseTimer(AttractDemoDefinitions.KraidPhaseTimer);
                 break;
             case AttractDemoRoomSetup.DefeatedKraid:
-                _system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss);
+                _system.RecordBossesDefeated(AreaId.Brinstar, DefeatedBosses.AreaBoss);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined AttractDemoRoomSetup {roomSetup}.");

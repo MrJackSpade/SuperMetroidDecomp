@@ -37,7 +37,7 @@ internal static class CeresSaveStartupVerification
         // The repository's installation binds the process's shared catalogs; a fresh load would be the check's own cost.
         var maps = InstalledFixtures.Maps;
         var departureProgress = new PersistentProgress();
-        departureProgress.SetDefeatedBosses(AreaId.Ceres, BossBits.AreaBoss);
+        departureProgress.SetDefeatedBosses(AreaId.Ceres, DefeatedBosses.AreaBoss);
         var departure = new SuperMetroidSaveSnapshot
         {
             Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CeresElevator,
@@ -69,7 +69,7 @@ internal static class CeresSaveStartupVerification
             "#1153 mode $22 dispatches the destruction cinematic, not the initial shaft/map");
         var runtime = game.GameplayRuntimeForVerification;
         AssertTrue(runtime.Room.ActiveRoom is null, "#1153 destruction load creates no Ceres room");
-        AssertTrue(runtime.System.HasAnyBossBits(AreaId.Ceres, BossBits.AreaBoss),
+        AssertTrue(runtime.System.HasDefeatedAnyOf(AreaId.Ceres, DefeatedBosses.AreaBoss),
             "#1153 destruction load retains the defeated-Ridley flag");
         AssertEqual(77, runtime.Player.IntroducedSamus.Health, "#1153 destruction load retains energy");
         AssertEqual(2, runtime.GameTime.Minutes, "#1153 destruction load retains minutes");
@@ -107,7 +107,7 @@ internal static class CeresSaveStartupVerification
         var arrivalSlot = fresh.Saves.ReadSlot(0);
         AssertEqual(SaveLoadingGameState.CeresElevatorArrival, (arrivalSlot ?? throw new InvalidOperationException("Verification requires arrivalSlot.")).StartupRoute,
             "#1153 initial automatic save records native mode $1F");
-        AssertEqual(BossBits.None, arrivalSlot.Progression.DefeatedBosses(AreaId.Ceres),
+        AssertEqual(DefeatedBosses.None, arrivalSlot.Progression.BossesDefeatedIn(AreaId.Ceres),
             "#1153 initial checkpoint does not activate the escape");
 
         // Reload the captured initial checkpoint through options, not Load State.
@@ -131,7 +131,7 @@ internal static class CeresSaveStartupVerification
         var loaded = reload.GameplayRuntimeForVerification;
         AssertEqual(fresh.GameplayRuntimeForVerification.Room.LoadedRoom.State.Pointer,
             loaded.Room.LoadedRoom.State.Pointer, "#1153 initial room state is unchanged by normal reload");
-        AssertTrue(!loaded.System.HasAnyBossBits(AreaId.Ceres, BossBits.AreaBoss),
+        AssertTrue(!loaded.System.HasDefeatedAnyOf(AreaId.Ceres, DefeatedBosses.AreaBoss),
             "#1153 initial reload does not set the defeated-Ridley flag");
         AssertEqual(SuperMetroid.Core.Enemies.CeresEscapeStatus.RidleyNotEscaped, loaded.Enemies.RidleyEncounter.CeresStatus,
             "#1153 initial reload leaves station activation inactive");
@@ -185,12 +185,12 @@ internal static class CeresSaveStartupVerification
 
         // Exercise the same atomic saver used at the escape blackout. A boss flag
         // must be captured alongside $22, not erased to manufacture a fresh station.
-        loaded.System.SetBossBits(AreaId.Ceres, BossBits.AreaBoss);
+        loaded.System.RecordBossesDefeated(AreaId.Ceres, DefeatedBosses.AreaBoss);
         AutomaticCheckpointSaver.SaveCeresDeparture(reloadSaves, loaded, 0);
         var escapeSlot = reloadSaves.ReadSlot(0);
         AssertEqual(SaveLoadingGameState.CeresDestruction, (escapeSlot ?? throw new InvalidOperationException("Verification requires escapeSlot.")).StartupRoute,
             "#1153 escape-blackout saver records native mode $22");
-        AssertEqual(BossBits.AreaBoss, escapeSlot.Progression.DefeatedBosses(AreaId.Ceres),
+        AssertEqual(DefeatedBosses.AreaBoss, escapeSlot.Progression.BossesDefeatedIn(AreaId.Ceres),
             "#1153 escape checkpoint retains defeated-Ridley progression");
 
         // Stub only the already-reported landing event, not an entire flight.

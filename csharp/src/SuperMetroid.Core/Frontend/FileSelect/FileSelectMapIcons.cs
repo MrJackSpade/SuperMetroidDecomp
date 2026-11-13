@@ -32,14 +32,14 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
             "Map boss markers require installed landmark layout.");
         // Each listed marker consumes the next defeated-boss flag in marker order, and a marker that is neither defeated
         // nor shown by the area's map consumes one more; an empty entry consumes one.
-        BossBits defeated = system.GetBossBits(area);
+        DefeatedBosses defeated = system.BossesDefeatedIn(area);
         int flag = 0;
         foreach (string? id in MapLandmarks.Bosses(area))
         {
             if (id is not null)
             {
                 Position16<MapPixels> point = layout.Get(id);
-                bool dead = flag < BossBitMasks.InMarkerOrder.Count && defeated.HasFlag(BossBitMasks.InMarkerOrder[flag]);
+                bool dead = flag < DefeatedBossKinds.InMarkerOrder.Count && defeated.HasFlag(DefeatedBossKinds.InMarkerOrder[flag]);
                 flag++;
                 if (dead)
                 {

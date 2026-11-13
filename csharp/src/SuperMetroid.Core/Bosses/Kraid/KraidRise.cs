@@ -60,7 +60,7 @@ internal sealed class KraidRise
         _access.Kraid = new KraidEnemyState();
         KraidEnemyState state = _access.Kraid;
         _access.AttachKraidPart(body, state);
-        if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
+        if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             // The defeated-room initializer installs the dead-room background palette before the shared part initializer
             // marks every physical actor invisible/deleted/non-interactive. Its two calls

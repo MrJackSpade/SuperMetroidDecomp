@@ -3,11 +3,11 @@
 /// <summary>The seven entries of the grey-door condition table.</summary>
 public enum GreyDoorCondition
 {
-    /// <summary>Condition-table index 0: the current area's major-boss bit must be set.</summary>
+    /// <summary>Condition-table index 0: the current area's major boss must be defeated.</summary>
     AreaBossDefeated,
-    /// <summary>Condition-table index 1: the current area's miniboss bit must be set.</summary>
+    /// <summary>Condition-table index 1: the current area's mini-boss must be defeated.</summary>
     AreaMiniBossDefeated,
-    /// <summary>Condition-table index 2: the current area's Torizo boss bit must be set.</summary>
+    /// <summary>Condition-table index 2: the current area's Torizo must be defeated.</summary>
     AreaTorizoDefeated,
     /// <summary>Condition-table index 3: room enemy deaths must reach the configured quota; satisfying it also sets the Zebes-awake event.</summary>
     EnemyDeathQuota,

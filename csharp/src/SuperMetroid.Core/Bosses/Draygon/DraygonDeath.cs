@@ -128,7 +128,7 @@ internal sealed class DraygonDeath
         state.Eye.Presence = body.Presence;
         if (!state.BossDefeatPersisted)
         {
-            _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);
+            _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);
             state.BossDefeatPersisted = true;
         }
         _spriteObjects.EndAll();

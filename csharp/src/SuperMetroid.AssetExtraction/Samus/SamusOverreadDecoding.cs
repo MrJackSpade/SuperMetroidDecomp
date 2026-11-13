@@ -105,7 +105,7 @@ internal static class SamusOverreadDecoding
         {
             foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>())
             {
-                if (SamusBeamFrameBehaviors.Resolve(charged, beams).FrameBehavior != SamusProjectileFrameBehavior.SpacetimePaletteCopyTail)
+                if (SamusBeamFrameBehaviors.Resolve(charged, beams).FrameBehavior != SamusProjectileFrameBehavior.SpaceTimeProgressionOverwrite)
                     continue;
                 foreach (SamusProjectileSegment program in EquippedBeamProjectilePrograms.BeamShotPrograms(beams, charged))
                 {
@@ -203,8 +203,8 @@ internal static class SamusOverreadDecoding
         new([.. kind.Where(decided.Decided.Contains).Select(name)], [.. kind.Where(decided.Set.Contains).Select(name)]);
 
     /// <summary>The names of the boss flags <paramref name="bosses"/> holds.</summary>
-    private static IEnumerable<string> BossFlagNames(BossBits bosses) =>
-        BossBitMasks.InMarkerOrder.Where(flag => bosses.HasFlag(flag)).Select(flag => flag.ToString());
+    private static IEnumerable<string> BossFlagNames(DefeatedBosses bosses) =>
+        DefeatedBossKinds.InMarkerOrder.Where(flag => bosses.HasFlag(flag)).Select(flag => flag.ToString());
 
     /// <summary>
     /// Where the Chainsaw fuse's fast-list offset moves every animation position that lands on one; a position whose move

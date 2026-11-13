@@ -33,7 +33,7 @@ public sealed class CeresHazeState
     private int _counter;
     /// <summary>Whether the loaded room setup owns a haze effect; false makes updates inert and suppresses the renderer's layer, independently of the stored fade phase.</summary>
     public bool Enabled { get; private set; }
-    /// <summary>Channel selection sampled once when the haze starts: true chooses the Ridley-dead red ramp, false the Ridley-alive blue ramp; later boss-bit changes do not retarget it.</summary>
+    /// <summary>Channel selection sampled once when the haze starts: true chooses the Ridley-dead red ramp, false the Ridley-alive blue ramp; later defeats do not retarget it.</summary>
     public bool IsRed { get; private set; }
     /// <summary>Last published strength in steps of the haze's fade, not a frame count: fade-in writes 0..15, fade-out writes 16..1, and zero counter retains the final strength one.</summary>
     public int Intensity { get; private set; }

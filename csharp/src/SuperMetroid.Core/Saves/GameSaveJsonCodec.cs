@@ -18,9 +18,9 @@ public static class GameSaveJsonCodec
     /// <summary>Known beam bits accepted by the named save schema.</summary>
     private static readonly SamusBeamFlags AllBeamFlags =
         Enum.GetValues<SamusBeamFlags>().Aggregate((left, right) => left | right);
-    /// <summary>Known boss-defeat bits accepted by the named save schema.</summary>
-    private static readonly BossBits AllBossFlags =
-        Enum.GetValues<BossBits>().Aggregate((left, right) => left | right);
+    /// <summary>Known defeated bosses accepted by the named save schema.</summary>
+    private static readonly DefeatedBosses AllBossFlags =
+        Enum.GetValues<DefeatedBosses>().Aggregate((left, right) => left | right);
 
     /// <summary>Captures all meaningful persistent state without a duplicate raw save-memory image.</summary>
     public static GameSaveJsonDocument Capture(SaveSlotStore saves)
@@ -146,7 +146,7 @@ public static class GameSaveJsonCodec
     {
         Events = [.. progress.Events.Members.Select(storyEvent => storyEvent.ToString())],
         ZebetitesDestroyed = progress.ZebetitesDestroyed,
-        DefeatedBosses = [.. RetailAreas.Select(area => new SaveAreaBossesJsonDocument(area, progress.DefeatedBosses(area)))],
+        DefeatedBosses = [.. RetailAreas.Select(area => new SaveAreaBossesJsonDocument(area, progress.BossesDefeatedIn(area)))],
         CollectedItems = [.. progress.CollectedItems.Members.Select(location => location.Name)],
         OpenedDoors = [.. progress.OpenedDoors.Members.Select(door => door.Name)],
         UsedStations = [.. RetailAreas.Select(area => new SaveAreaStationsJsonDocument(area,
@@ -337,8 +337,8 @@ public static class GameSaveJsonCodec
         DecodeNamed(progression.OpenedDoors, LockedDoorDefinitions.All, door => door.Name, progress.OpenedDoors, $"{property}.openedDoors");
         foreach (AreaId area in DecodeAreaOrder(progression.DefeatedBosses.Select(entry => entry?.Area), $"{property}.defeatedBosses"))
         {
-            BossBits bosses = progression.DefeatedBosses[ListPosition(area)].Bosses;
-            if ((bosses & ~AllBossFlags) != BossBits.None)
+            DefeatedBosses bosses = progression.DefeatedBosses[ListPosition(area)].Bosses;
+            if ((bosses & ~AllBossFlags) != DefeatedBosses.None)
                 throw new InvalidDataException($"{property}.defeatedBosses names an unknown boss in {area}");
             progress.SetDefeatedBosses(area, bosses);
         }

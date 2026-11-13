@@ -68,6 +68,16 @@ internal sealed class EnemyRoomEffects
         ApplyPendingTorizoBellyGlow(requests, roomPaletteFx);
     }
 
+    /// <summary>
+    /// Starts the colour effect an enemy's placement or AI started, if any, among the room's colour effects (#1733): the
+    /// gunship's glow, which its top hull's placement starts.
+    /// </summary>
+    internal void StartEnemyColourEffect(PaletteFxObject? effect, RoomPaletteFxSystem roomPaletteFx)
+    {
+        if (effect is { } started)
+            Ensure.NotNull(roomPaletteFx).Start(started, _player.Samus?.EquippedItems ?? 0);
+    }
+
     /// <summary>Starts the belly glow a Torizo's fight start asked for among the room's colour effects, watching that Torizo.</summary>
     internal void ApplyPendingTorizoBellyGlow(EnemyRoomEffectRequests requests, RoomPaletteFxSystem roomPaletteFx)
     {

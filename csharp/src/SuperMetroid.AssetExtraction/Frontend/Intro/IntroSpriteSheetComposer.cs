@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
@@ -120,13 +121,16 @@ internal static class IntroSpriteSheetComposer
 
     /// <summary>
     /// What the Ceres flight sheet of <paramref name="flight"/> composes: the poses its actors show, each in its colouring
-    /// (#1513), in the flight's colours <paramref name="colours"/>.
+    /// (#1513), in the flight's colours <paramref name="colours"/>, with a shade for each record the station's navigation
+    /// lights show, coloured from <paramref name="paletteFx"/> (#1733).
     /// </summary>
-    internal static SpriteSheetSources CeresFlightSources(CeresFlightCharacters flight, CeresFlightPalette colours)
+    /// <exception cref="InvalidDataException">A navigation lights record has no installed colour.</exception>
+    internal static SpriteSheetSources CeresFlightSources(CeresFlightCharacters flight, CeresFlightPalette colours, IPaletteFxColorSource paletteFx)
     {
         Ensure.NotNull(flight);
         ICinematicSpriteFrames[] families = [.. FlightPoses().Select(entry => CinematicShownFrames.Of(flight.Sprites, entry.Poses, _ => true))];
-        return CeresSources(families, CeresSceneActors.Flight(), flight.ObjectPage, Ensure.NotNull(colours));
+        return CeresSources(families, CeresSceneActors.Flight(), flight.ObjectPage, Ensure.NotNull(colours),
+            CeresSheetInks.StationNavigationLightShades(Ensure.NotNull(paletteFx)));
     }
 
     /// <summary>
@@ -136,25 +140,28 @@ internal static class IntroSpriteSheetComposer
     /// </summary>
     internal static SpriteSheetSources CeresDestructionSources(ImportIntroCinematicArtwork intro) =>
         DestructionSources(intro, SceneFamilies(Ensure.NotNull(intro), DestructionScenePoses()), CeresSceneActors.Destruction(),
-            CeresDestructionObjectPage.Characters(intro, zebesRevealed: false));
+            CeresDestructionObjectPage.Characters(intro, zebesRevealed: false), []);
 
     /// <summary>
     /// What the Zebes reveal's sheet composes: the poses the reveal's actors show over the OBJ characters once the reveal
-    /// loads its own (#1513).
+    /// loads its own (#1513), with a shade for each record the PLANET ZEBES caption's fades show, coloured from
+    /// <paramref name="paletteFx"/> (#1733).
     /// </summary>
-    internal static SpriteSheetSources ZebesRevealSources(ImportIntroCinematicArtwork intro) =>
+    /// <exception cref="InvalidDataException">A caption fade record has no installed colour.</exception>
+    internal static SpriteSheetSources ZebesRevealSources(ImportIntroCinematicArtwork intro, IPaletteFxColorSource paletteFx) =>
         DestructionSources(intro, SceneFamilies(Ensure.NotNull(intro), ZebesRevealPoses()), CeresSceneActors.ZebesReveal(),
-            CeresDestructionObjectPage.Characters(intro, zebesRevealed: true));
+            CeresDestructionObjectPage.Characters(intro, zebesRevealed: true), CeresSheetInks.ZebesTitleFadeShades(Ensure.NotNull(paletteFx)));
 
     /// <summary>
     /// <paramref name="families"/> over the OBJ <paramref name="characters"/> the scene has loaded, each pose in the
-    /// colouring <paramref name="colourings"/> names for it.
+    /// colouring <paramref name="colourings"/> names for it, with <paramref name="effects"/>, the shades of the colour effects
+    /// the scene's actors show.
     /// </summary>
     private static SpriteSheetSources DestructionSources(ImportIntroCinematicArtwork intro, IEnumerable<ICinematicSpriteFrames> families,
-        Dictionary<CinematicSpritePose, CeresSpriteColouring> colourings, byte[] characters)
+        Dictionary<CinematicSpritePose, CeresSpriteColouring> colourings, byte[] characters, IReadOnlyList<SheetShade> effects)
     {
         SpriteArtwork page = CeresDestructionObjectPage.Of(characters);
-        return CeresSources(families, colourings, page, intro.FlightPalette);
+        return CeresSources(families, colourings, page, intro.FlightPalette, effects);
     }
 
     /// <summary>The frames the Ceres destruction scene's sheet holds: the poses its actors show before the reveal (#1513).</summary>
@@ -173,14 +180,17 @@ internal static class IntroSpriteSheetComposer
     /// <summary>
     /// Each Ceres family's composition of every pose over <paramref name="page"/>, each in the sprite set of the colouring
     /// <paramref name="colourings"/> names for it, coloured in the flight's sprite colours with a drawn shade for each
-    /// colouring a Ceres actor draws in (#1512, #1513). The engine flicker recolours a background colour, which no sprite
-    /// shows, so the sprite sheets need no palette-effect shade.
+    /// colouring a Ceres actor draws in (#1512, #1513) and <paramref name="effects"/>, the shades of the colour effects the
+    /// scene's actors show (#1733). The engine flicker and the floor's navigation lights recolour background colours, which
+    /// no sprite shows.
     /// </summary>
     private static SpriteSheetSources CeresSources(IEnumerable<ICinematicSpriteFrames> families,
-        Dictionary<CinematicSpritePose, CeresSpriteColouring> colourings, SpriteArtwork page, CeresFlightPalette palette)
+        Dictionary<CinematicSpritePose, CeresSpriteColouring> colourings, SpriteArtwork page, CeresFlightPalette palette,
+        IReadOnlyList<SheetShade> effects)
     {
         RgbColor[] sprites = [.. Ensure.NotNull(palette).SpriteColours];
-        return Compose(families, page, (_, pose) => CeresSheetInks.SpriteSet(colourings[pose]), sprites, CeresSheetInks.DrawnShades(sprites));
+        return Compose(families, page, (_, pose) => CeresSheetInks.SpriteSet(colourings[pose]), sprites,
+            [.. CeresSheetInks.DrawnShades(sprites), .. effects]);
     }
 
     /// <summary>

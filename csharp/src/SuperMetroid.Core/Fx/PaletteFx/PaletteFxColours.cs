@@ -25,7 +25,7 @@ public enum PaletteFxColours
     PlanetZebesText,
     /// <summary>The background lights of the old Mother Brain fight in the intro.</summary>
     OldMotherBrainBackgroundLights,
-    /// <summary>The glow on the gunship in the ending.</summary>
+    /// <summary>The glow of the landed gunship's lights on Zebes, which every gunship placement starts.</summary>
     GunshipGlow,
     /// <summary>The zoomed-out exploding Zebes, faded out.</summary>
     ZoomedOutExplodingZebes,

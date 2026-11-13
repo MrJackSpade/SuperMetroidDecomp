@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Fx.PaletteFx;
+
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>The opening cinematic's shared definitions: its text layout, crossfade timing, music, actors' sounds, and the narration caret.</summary>
@@ -18,6 +20,12 @@ public static class IntroCinematicDefinitions
         /// <summary>Updates per crossfade step.</summary>
         public const int StepFrames = 4;
     }
+
+    /// <summary>
+    /// The old Mother Brain fight's blinking background lights (#1733), started as a crossfade into a flashback ends while
+    /// Samus draws first, and ended on the update the cinematic starts page two.
+    /// </summary>
+    public const PaletteFxObject FightLights = PaletteFxObject.OldMotherBrainFightBackgroundLights;
 
     /// <summary>The music the opening's scene changes start.</summary>
     public static class Music

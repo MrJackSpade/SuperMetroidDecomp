@@ -7,6 +7,8 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Enemies.Gunship;
 
@@ -130,6 +132,21 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
         part.BobTimer = 1;
         part.BobPhase = 0;
+        // Every placement, landed or descending after Ceres, starts the lights' glow among the room's colour effects.
+        _frameResults.ColourEffect = GunshipLightDefinitions.Glow;
+    }
+
+    /// <summary>
+    /// Shows record <paramref name="record"/> of the lights' glow (#1733) on all three pieces, which draw their lights in the
+    /// colour the glow recolours; each record replaces the one before it.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The room's top hull has not been placed.</exception>
+    internal void ShowGlow(PaletteFxFrame record)
+    {
+        GunshipPieces ship = _ship ?? throw new InvalidOperationException("The gunship's glow shows in a room whose gunship is not placed.");
+        PictureShading glow = PictureShading.Shaded(PaletteFxShades.Of(PaletteFxColours.GunshipGlow, record));
+        foreach (RoomEnemySlot piece in ship.All)
+            piece.Shading = glow;
     }
 
     /// <summary>Initializes bottom hull or pad from the enemies its room lists before it.</summary>

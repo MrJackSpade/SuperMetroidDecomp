@@ -19,6 +19,12 @@ internal static class IntroSheetInks
     internal const int VariantColours = 4;
 
     /// <summary>
+    /// The background inks the old Mother Brain fight's lights recolour (#1733): from the fifth colour of the second set, the
+    /// flashback room's lit colours, to that set's end.
+    /// </summary>
+    internal static InkRange FightLights => new(SetColours + 4, 2 * SetColours);
+
+    /// <summary>
     /// The background colours each crossfaded scene shows, as runs in rising order: the narration's text and backdrop with
     /// the first four of the next set, and its portrait; the flashback rooms' lit colours and background; the laboratory's
     /// background. The cartridge fades those first four with the narration on its way out but not on its way back; they

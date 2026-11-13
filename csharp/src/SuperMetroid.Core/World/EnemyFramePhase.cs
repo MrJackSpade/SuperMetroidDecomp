@@ -89,6 +89,7 @@ internal sealed class EnemyFramePhase
                 room.Enemies.ProcessingWindow.PrepareEnemyProcessingList(_room.Camera.PixelPosition);
             EnemyFrameResult result = room.Enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.Samus, SamusColours = _player.Colours, NewlyPressedControllerInput = _controller1.NewlyPressed, Level = _room.LoadedLevelData, ControllerInput = _controller1.Current, SamusProjectiles = room.Projectiles, ShortCounter = _clock.ShortCounter, TurningFloor = _display.ActiveTurningFloor, SharedProjectiles = room.BombProjectiles, CollisionObjects = room.RoomObjects.BreakableTerrain, FrameCounter = _clock.Counter, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
             _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(result.RoomEffects, room.RoomObjects, room.FxOverlay, room.PaletteFx, room.Enemies);
+            _enemyRoomEffects.StartEnemyColourEffect(result.ColourEffect, room.PaletteFx);
             // The Baby's recovery equips the Hyper Beam and shows its beams' colours in the same enemy pass, as an item
             // pickup does (#1561); its shots show the equipped Plasma-Wave combination's pictures (#1586).
             if (!hyperBeamBefore && _player.Samus is { HyperBeamEnabled: true } hyperBeamSamus)

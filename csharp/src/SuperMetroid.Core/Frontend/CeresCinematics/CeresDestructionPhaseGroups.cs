@@ -20,7 +20,7 @@ internal static class CeresDestructionPhaseGroups
         CeresDestructionPhase.FlyingAwayFromExplosion, CeresDestructionPhase.HoldAfterExplosion, CeresDestructionPhase.FadeOutCeres,
     }).ToFrozenSet();
 
-    /// <summary>The Ceres scene and the first frame of the flight to Zebes, which still use the Ceres flight palette and run no palette effects.</summary>
+    /// <summary>The Ceres scene and the first frame of the flight to Zebes, which still use the Ceres flight palette.</summary>
     internal static readonly FrozenSet<CeresDestructionPhase> ThroughFlightToZebesStart = CeresScene.Concat(new[]
     {
         CeresDestructionPhase.FlyToZebesInitial,

@@ -5,6 +5,9 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
@@ -12,7 +15,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// Composes the opening cinematic's scene pictures once (#1467): each scene page, Samus's portrait and each eye frame, over
 /// the scene characters under the cinematic's palette, each installed whole (#1634). A tile naming a
 /// character past those the cinematic loads shows nothing, as the scene planes showed nothing there. The sheet holds a shade
-/// for every cross-fade level of each faded colour group (#1512).
+/// for every cross-fade level of each faded colour group (#1512) and for every record the old Mother Brain fight's background
+/// lights show (#1733).
 /// </summary>
 internal static class IntroScenePictureSheetComposer
 {
@@ -23,10 +27,12 @@ internal static class IntroScenePictureSheetComposer
     /// <summary>Pixels along each side of a character.</summary>
     private const int CharacterPixels = RoomTileCanvas.CharacterPixels;
 
-    /// <summary>Composes the sheet from the installed intro artwork.</summary>
-    internal static ComposedSpriteSheet Compose(ImportIntroCinematicArtwork intro)
+    /// <summary>Composes the sheet from the installed intro artwork, the fight lights' records coloured from <paramref name="paletteFx"/>.</summary>
+    /// <exception cref="InvalidDataException">A fight lights record has no installed colour, or writes past the lights' set.</exception>
+    internal static ComposedSpriteSheet Compose(ImportIntroCinematicArtwork intro, IPaletteFxColorSource paletteFx)
     {
         Ensure.NotNull(intro);
+        Ensure.NotNull(paletteFx);
         byte[] characters = intro.BackgroundCharacters.Characters.Span[..IntroArtworkExtentDefinitions.BackgroundCharacterBytes].ToArray();
         RgbColor[] colours = [.. intro.Palette.BackgroundColours];
         int cells = IntroScenePictures.PlaneCells;
@@ -49,8 +55,17 @@ internal static class IntroScenePictureSheetComposer
             frames.Add(IntroScenePictures.Eye(eyes[frame]),
                 PaintRect(canvas, frame * eye.X, (pages.Length + 1) * cells, eye.X, sources.EyeFrames.FrameTiles(frame), characters, colours));
         ComposedSpriteSheet sheet = canvas.ToSheet(colours, frames, SpriteImageColours.Background);
-        // The scene pictures show every cross-fade level of the colour groups the opening fades (#1512).
-        return sheet with { Manifest = sheet.Manifest with { Shades = SheetShade.Documents(IntroSheetShades.Scene(colours)) } };
+        // The scene pictures show every cross-fade level of the colour groups the opening fades (#1512), and the Mother Brain
+        // room each record its fight's background lights show over the colours they recolour (#1733).
+        return sheet with
+        {
+            Manifest = sheet.Manifest with
+            {
+                Shades = SheetShade.Documents([.. IntroSheetShades.Scene(colours),
+                    .. PaletteFxScreenShades.Of([IntroCinematicDefinitions.FightLights], PaletteFxColours.OldMotherBrainBackgroundLights,
+                        IntroSheetInks.FightLights, paletteFx)]),
+            },
+        };
     }
 
     /// <summary>

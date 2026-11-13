@@ -3,10 +3,14 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Initial turning-floor leg of Samus's flight toward Ceres station.</summary>
+[RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class IntroCeresFlightState
 {
     /// <summary>Holds the music queue whose drain gates the initial display.</summary>
@@ -15,8 +19,13 @@ internal sealed class IntroCeresFlightState
     internal RgbColor Backdrop { get; private set; }
     /// <summary>The front-star or rear-view actors' sprite entries over the flight sprite page (#1358).</summary>
     internal readonly ScreenSprites objects;
-    /// <summary>Installed sprite compositions, rebound without restarting the scene.</summary>
-    private CinematicSpriteSheet? spriteArtwork;
+    /// <summary>The installed Ceres flight sheet the stars and rear-view actors draw from, rebound without restarting the scene.</summary>
+    private SpriteSheet? flightSprites;
+    /// <summary>
+    /// The flight's colour effects (#1733): the scene's setup clears them, and the rear view's setup starts the station's
+    /// navigation lights.
+    /// </summary>
+    internal RoomPaletteFxSystem ColourEffects { get; } = new(new PaletteFxSessionState());
     /// <summary>Optional edited rear-view actor positions.</summary>
     private CeresFlightActorPlacements? actorLayout;
     /// <summary>Front-view star actor, whose rush also drives the diagonal background rush.</summary>
@@ -88,7 +97,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Rebinds the installed sheets: the Ceres flight sheet the stars and rear-view actors draw from, and the caption's pictures.</summary>
     public void BindSheets(InstalledSpriteSheets? sheets)
     {
-        spriteArtwork = sheets is null ? null : new CinematicSpriteSheet(sheets.Get(SpriteSheetId.CeresFlightSprites), CinematicSpriteFamily.CeresFlight);
+        flightSprites = sheets?.Get(SpriteSheetId.CeresFlightSprites);
         floorSheets = sheets;
     }
 
@@ -178,6 +187,10 @@ internal sealed class IntroCeresFlightState
             StepRearViewActors();
         else if (Phase is not (IntroCeresFlightPhase.StartGameAtCeres or IntroCeresFlightPhase.Finished))
             stars.Step();
+
+        // The cinematic's game state runs the colour effects after its sprite objects, including on the update that
+        // starts one; their records are shades the import pre-colours the flight's sheet in (#1733).
+        ColourEffects.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
     }
 
     /// <summary>
@@ -222,11 +235,28 @@ internal sealed class IntroCeresFlightState
     private void PrepareRenderSprites()
     {
         objects.BeginFrame();
+        CinematicSpriteSheet? spriteArtwork = flightSprites is null ? null
+            : new CinematicSpriteSheet(flightSprites, CinematicSpriteFamily.CeresFlight, ActorShading);
         if (Phase is IntroCeresFlightPhase.FlyingTowardCeres or IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut)
             foreach (IntroDiscoverySprite actor in RearViewActors)
                 actor.Draw(objects, installedArt: spriteArtwork);
         else stars.Draw(objects, installedArt: spriteArtwork);
         objects.FinishFrame();
+    }
+
+    /// <summary>
+    /// An actor's shading (#1733): <paramref name="drawn"/>, with the record a colour effect animating its colouring last
+    /// showed laid over it: the station's navigation lights over the station's colours.
+    /// </summary>
+    private PictureShading ActorShading(PictureShade drawn)
+    {
+        PictureShading shading = PictureShading.Shaded(drawn);
+        foreach ((CeresSpriteColouring colouring, PaletteFxColours colours) in CeresFlightSceneDefinitions.LitColours)
+        {
+            if (CeresShades.Drawn(colouring) == drawn && ColourEffects.FrameOf(colours) is { } frame)
+                shading = shading.With(PaletteFxShades.Of(colours, frame));
+        }
+        return shading;
     }
 
     /// <summary>Whether the scene shows its rear view: once the rear-view map has been queued.</summary>
@@ -254,6 +284,8 @@ internal sealed class IntroCeresFlightState
         // white and takes one step off the wash per frame until black.
         flashIntensity = WhiteWash.Steps;
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
+        // The rear view's setup starts the station's blinking navigation lights (#1733).
+        ColourEffects.Start(CeresFlightSceneDefinitions.NavigationLights, 0);
     }
 
     /// <summary>Creates one cinematic actor at <paramref name="start"/> with its authored timing and active frame behaviour.</summary>

@@ -68,7 +68,7 @@ internal sealed class MotherBrainHead
         MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.Initial);
     }
 
-    /// <summary>Ports the head main/hurt entry and its choice of whether her brain and neck are drawn.</summary>
+    /// <summary>Runs the head main/hurt entry and its choice of whether her brain and neck are drawn.</summary>
     internal void RunMotherBrainHeadMain(RoomEnemySlot head, SamusState? samus)
     {
         MotherBrainEnemyState state = _access.RequireCompleteMotherBrainState(head);

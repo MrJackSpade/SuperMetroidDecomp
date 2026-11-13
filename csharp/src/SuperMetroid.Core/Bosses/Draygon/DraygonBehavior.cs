@@ -231,7 +231,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         Parts.AdvanceDraygonPartAnimation(slot, context.Samus);
     }
 
-    /// <summary>Ports DraygonBody's main AI.</summary>
+    /// <summary>Runs DraygonBody's main AI.</summary>
     internal void RunDraygonBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         // Draygon times turrets and smoke from the frame counter, never the separate
@@ -239,13 +239,13 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         RunDraygonBodyMain(slot, frame.Samus, _frameContext.FrameCounter);
     }
 
-    /// <summary>Ports DraygonEye's main AI.</summary>
+    /// <summary>Runs DraygonEye's main AI.</summary>
     internal void RunDraygonEyeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         Parts.RunDraygonPartMain(slot, frame.Samus);
     }
 
-    /// <summary>Ports DraygonTail's main AI.</summary>
+    /// <summary>Runs DraygonTail's main AI.</summary>
     internal void RunDraygonTailMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         Parts.RunDraygonPartMain(slot, frame.Samus);

@@ -220,10 +220,10 @@ internal sealed class TorizoAttacks
             // The drool's initializer adds one more 256th of a pixel to the fall speed whenever lifting the jittered height
             // does not wrap it below zero.
             int jitteredY = TorizoRandomDefinitions.InitialDroolYJitter.Of(random) + torizo.Position.Y.Whole;
-            int liftCarry = jitteredY >= TorizoMotionDefinitions.InitialDroolLift ? 1 : 0;
+            int unwrappedLiftSpeedBonus = jitteredY >= TorizoMotionDefinitions.InitialDroolLift ? 1 : 0;
             projectile.Position = projectile.Position.WithWrappedWholeY(jitteredY - TorizoMotionDefinitions.InitialDroolLift);
             // The jitter is five bits, so the fall speed lies between 48 and 80 256ths of a pixel.
-            projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(TorizoRandomDefinitions.DroolFallJitter.Of(random) + 48 + liftCarry));
+            projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(TorizoRandomDefinitions.DroolFallJitter.Of(random) + 48 + unwrappedLiftSpeedBonus));
             // A jitter that carries the drool past the last pixel of the coordinate space moves
             // its side offset one pixel further right. Every branch stores a zero X velocity.
             int jitteredX = _room.Random.Next(TorizoRandomDefinitions.InitialDroolXJitter) + torizo.Position.X.Whole;

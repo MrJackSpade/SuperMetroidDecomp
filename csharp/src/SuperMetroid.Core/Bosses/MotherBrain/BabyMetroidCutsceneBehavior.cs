@@ -251,7 +251,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         _motherBrainEncounter.Colours.ShowBabyFade(shade);
     }
 
-    /// <summary>Ports BabyMetroidCutscene's main AI.</summary>
+    /// <summary>Runs BabyMetroidCutscene's main AI.</summary>
     internal void RunBabyMetroidCutsceneMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMotherBrainBabyMetroidMain(slot, frame.Samus, frame.Camera);

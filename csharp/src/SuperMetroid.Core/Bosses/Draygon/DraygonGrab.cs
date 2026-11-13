@@ -101,7 +101,7 @@ internal sealed class DraygonGrab
         state.SuccessfulGrabs++;
     }
 
-    /// <summary>Ports the one-frame grapple rejection.</summary>
+    /// <summary>Runs the one-frame grapple rejection.</summary>
     internal static void RepelDraygonWithGrapple(DraygonEnemyState state, SamusState? samus)
     {
         if (samus is null)
@@ -203,7 +203,7 @@ internal sealed class DraygonGrab
         MoveSamusWithDraygon(state, activeSamus);
     }
 
-    /// <summary>Ports the incidental 64-frame tail-whip pause.</summary>
+    /// <summary>Runs the incidental 64-frame tail-whip pause.</summary>
     internal void RunDraygonTailWhip(DraygonEnemyState state, SamusState? samus)
     {
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
@@ -242,7 +242,7 @@ internal sealed class DraygonGrab
     internal void WaitForDraygonFinalTailWhips(DraygonEnemyState state, SamusState? samus) =>
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
 
-    /// <summary>Ports release, collision-bit cleanup, and tail flail.</summary>
+    /// <summary>Runs release, collision-bit cleanup, and tail flail.</summary>
     internal void ReleaseSamusFromDraygon(DraygonEnemyState state, SamusState? samus)
     {
         if (samus is null)

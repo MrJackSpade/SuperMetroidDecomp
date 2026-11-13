@@ -61,7 +61,7 @@ internal sealed class NorfairRidleyDeath
         }
     }
 
-    /// <summary>Ports the breakup explosion actor's initialization AI.</summary>
+    /// <summary>Runs the breakup explosion actor's initialization AI.</summary>
     internal void RunRidleyExplosionInitializationAi(RoomEnemySlot slot) =>
         InitializeNorfairRidleyExplosion(
             slot,

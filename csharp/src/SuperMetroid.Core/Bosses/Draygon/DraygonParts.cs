@@ -71,7 +71,7 @@ internal sealed class DraygonParts
         Draygon.DisabledCannons.Add(DraygonWallCannon.UnusedBottom);
     }
 
-    /// <summary>Ports the independent initializers.</summary>
+    /// <summary>Runs the independent initializers.</summary>
     internal void InitializeDraygonPart(RoomEnemySlot part)
     {
         DraygonEnemyState state = Draygon ??
@@ -109,7 +109,7 @@ internal sealed class DraygonParts
         }
     }
 
-    /// <summary>Ports the no-op tail/arms main AI and the active eye dispatcher.</summary>
+    /// <summary>Runs the no-op tail/arms main AI and the active eye dispatcher.</summary>
     internal void RunDraygonPartMain(RoomEnemySlot part, SamusState? samus)
     {
         if (part.DefinitionId is EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms)
@@ -264,7 +264,7 @@ internal sealed class DraygonParts
     internal void RequestDraygonMusic(MusicRequest request) =>
         _audio.QueueEnemyMusic(new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
-    /// <summary>Ports the eye direction partition.</summary>
+    /// <summary>Runs the eye direction partition.</summary>
     internal void TrackSamusWithDraygonEye(RoomEnemySlot eye, SamusState? samus, HorizontalDirection facing)
     {
         // Emission precedes the angle-change early return, so a stationary

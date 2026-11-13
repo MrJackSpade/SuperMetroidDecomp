@@ -89,7 +89,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         ResetPhantoonMouthControls(Combat.Phantoon);
     }
 
-    /// <summary>Ports the shared part initializer.</summary>
+    /// <summary>Runs the shared part initializer.</summary>
     internal void InitializePhantoonPart(RoomEnemySlot part)
     {
         PhantoonEnemyState state = Combat.RequirePhantoonState(part);
@@ -286,7 +286,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Accumulated damage required to alter Phantoon's vulnerable-eye phase.</summary>
     internal const int PhantoonDamageThreshold = 300;
 
-    /// <summary>Ports Phantoon's palette-only hurt AI.</summary>
+    /// <summary>Runs Phantoon's palette-only hurt AI.</summary>
     internal void ApplyPhantoonHurt(RoomEnemySlot body, PhantoonEnemyState state)
     {
         PhantoonTentaclesState tentacles = state.TentaclesState;
@@ -392,7 +392,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal const EnemyProjectileFrameBehavior PhantoonStartingFlameOrbitFrameBehavior =
         EnemyProjectileFrameBehavior.PhantoonIntroFlameOrbit;
 
-    /// <summary>Ports PhantoonBody's main AI.</summary>
+    /// <summary>Runs PhantoonBody's main AI.</summary>
     internal void RunPhantoonBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunPhantoonMain(slot, frame.Samus, frame.Camera);

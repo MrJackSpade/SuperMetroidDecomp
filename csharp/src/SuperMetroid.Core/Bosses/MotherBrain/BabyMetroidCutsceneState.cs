@@ -564,7 +564,7 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.FinalCharge:
                 // The final target follows the brain enemy slot, 32 pixels above its
-                // centre. Index `$C` maps to divisor four and therefore accelerates much
+                // centre. Index 12 maps to divisor four and therefore accelerates much
                 // more aggressively than the staging leg.
                 GraduallyAccelerateTowardsPoint(
                     head + new Offset16<RoomPixels>(0, -32),

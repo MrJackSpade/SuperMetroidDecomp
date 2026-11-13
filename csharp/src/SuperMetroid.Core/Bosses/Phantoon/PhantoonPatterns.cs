@@ -233,7 +233,7 @@ internal sealed class PhantoonPatterns
             SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Spiral, direction);
     }
 
-    /// <summary>Ports the eye-open vulnerable window.</summary>
+    /// <summary>Runs the eye-open vulnerable window.</summary>
     internal static void RunPhantoonEyeTracking(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -265,7 +265,7 @@ internal sealed class PhantoonPatterns
         PointPhantoonEyeAtSamus(body, state, samus);
     }
 
-    /// <summary>Ports the one-frame opaque-swoop setup.</summary>
+    /// <summary>Runs the one-frame opaque-swoop setup.</summary>
     internal static void BeginPhantoonVulnerableSwoop(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -277,7 +277,7 @@ internal sealed class PhantoonPatterns
         PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.FullHitboxBody);
     }
 
-    /// <summary>Ports the 360-frame opaque swoop.</summary>
+    /// <summary>Runs the 360-frame opaque swoop.</summary>
     internal static void RunPhantoonSwoop(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -320,7 +320,7 @@ internal sealed class PhantoonPatterns
             body.Function = PhantoonAiFunction.PickNextAppearance;
     }
 
-    /// <summary>Ports the hidden left/right placement and round-two picker.</summary>
+    /// <summary>Runs the hidden left/right placement and round-two picker.</summary>
     internal void PlacePhantoonForNextFigureEight(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -358,7 +358,7 @@ internal sealed class PhantoonPatterns
             state.BodyState.Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
     }
 
-    /// <summary>Ports the visible setup for every flame-rain window.</summary>
+    /// <summary>Runs the visible setup for every flame-rain window.</summary>
     internal static void BeginPhantoonFlameRainVulnerableWindow(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -491,7 +491,7 @@ internal sealed class PhantoonPatterns
         state.EyeState.FadeComplete = false;
     }
 
-    /// <summary>Ports all eight alternating radial flame waves.</summary>
+    /// <summary>Runs all eight alternating radial flame waves.</summary>
     internal void RunPhantoonRage(RoomEnemySlot body, PhantoonEnemyState state)
     {
         if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))

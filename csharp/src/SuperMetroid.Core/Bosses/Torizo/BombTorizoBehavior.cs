@@ -201,13 +201,13 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>Ports BombTorizo's main AI.</summary>
+    /// <summary>Runs BombTorizo's main AI.</summary>
     internal void RunBombTorizoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunBombTorizoMain(slot, Access.RequireBombTorizoState(slot), frame.Samus, frame.Level);
     }
 
-    /// <summary>Ports GoldenTorizo's main AI.</summary>
+    /// <summary>Runs GoldenTorizo's main AI.</summary>
     internal void RunGoldenTorizoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunGoldenTorizoMain(

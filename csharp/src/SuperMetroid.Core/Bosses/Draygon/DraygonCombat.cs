@@ -127,7 +127,7 @@ internal sealed class DraygonCombat
             state.SwoopAcceleration = candidate;
     }
 
-    /// <summary>Ports the common post-touch/shot/power-bomb reaction.</summary>
+    /// <summary>Runs the common post-touch/shot/power-bomb reaction.</summary>
     internal void ResolveDraygonReaction(RoomEnemySlot body, SamusState? samus)
     {
         DraygonEnemyState state = RequireCompleteDraygonState(body);

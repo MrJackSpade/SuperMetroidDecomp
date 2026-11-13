@@ -24,7 +24,7 @@ internal sealed class MotherBrainAttacks
         _rainbowAndDeath = rainbowAndDeath;
     }
 
-    /// <summary>Ports the four-entry body dispatcher.</summary>
+    /// <summary>Runs the four-entry body dispatcher.</summary>
     internal static void RunMotherBrainHandBeamAttack(MotherBrainEnemyState state)
     {
         switch (state.HandBeamPhase)
@@ -305,7 +305,7 @@ internal sealed class MotherBrainAttacks
             FireMotherBrainBomb(state);
     }
 
-    /// <summary>Ports the unstored firing tail.</summary>
+    /// <summary>Runs the unstored firing tail.</summary>
     private static void FireMotherBrainBomb(MotherBrainEnemyState state)
     {
         MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.BombPhase2);

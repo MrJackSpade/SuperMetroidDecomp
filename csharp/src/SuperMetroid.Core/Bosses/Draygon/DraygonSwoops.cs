@@ -27,7 +27,7 @@ internal sealed class DraygonSwoops
         _movement = movement;
     }
 
-    /// <summary>Ports swoop-right setup and table construction.</summary>
+    /// <summary>Runs swoop-right setup and table construction.</summary>
     internal void SetupDraygonRightSwoop(
         DraygonEnemyState state,
         SamusState? samus,
@@ -104,7 +104,7 @@ internal sealed class DraygonSwoops
         DraygonMovement.MoveDraygonHorizontally(state, side.Direction == HorizontalDirection.Right);
     }
 
-    /// <summary>Ports the velocity recalculation at the bottom of the swoop.</summary>
+    /// <summary>Runs the velocity recalculation at the bottom of the swoop.</summary>
     internal void CrossDraygonRightSwoopApex(
         DraygonEnemyState state,
         SamusState? samus,
@@ -170,7 +170,7 @@ internal sealed class DraygonSwoops
         }
     }
 
-    /// <summary>Ports the mirrored left-swoop setup.</summary>
+    /// <summary>Runs the mirrored left-swoop setup.</summary>
     internal void SetupDraygonLeftSwoop(
         DraygonEnemyState state,
         SamusState? samus,
@@ -190,7 +190,7 @@ internal sealed class DraygonSwoops
         state.SwoopEntry = frameCount;
     }
 
-    /// <summary>Ports the mirrored velocity calculation.</summary>
+    /// <summary>Runs the mirrored velocity calculation.</summary>
     internal void CrossDraygonLeftSwoopApex(
         DraygonEnemyState state,
         SamusState? samus,
@@ -227,7 +227,7 @@ internal sealed class DraygonSwoops
     private static void SetDraygonSwoopVelocity(DraygonEnemyState state, int distance, int frameCount) =>
         state.SwoopVelocity = UnsignedSixteenSixteen.Covering(distance, frameCount);
 
-    /// <summary>Ports the regional four-pixel upward retreat.</summary>
+    /// <summary>Runs the regional four-pixel upward retreat.</summary>
     internal void FlyDraygonStraightUp(
         DraygonEnemyState state,
         SamusState? samus,

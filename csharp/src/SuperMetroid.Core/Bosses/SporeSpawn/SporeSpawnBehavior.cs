@@ -380,7 +380,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Ports SporeSpawn's main AI.</summary>
+    /// <summary>Runs SporeSpawn's main AI.</summary>
     internal void RunSporeSpawnMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunSporeSpawnMain(slot, RequireSporeSpawnState(slot));

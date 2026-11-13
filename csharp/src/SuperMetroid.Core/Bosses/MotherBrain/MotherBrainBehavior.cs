@@ -78,7 +78,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
 
-    /// <summary>Ports the common body main/hurt entry.</summary>
+    /// <summary>Runs the common body main/hurt entry.</summary>
     internal void RunMotherBrainBodyMain(
         RoomEnemySlot body,
         SamusState? samus,
@@ -237,13 +237,13 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         Body.AdvanceMotherBrainSlotAnimation(slot, context.Samus);
     }
 
-    /// <summary>Ports MotherBrainBody's main AI.</summary>
+    /// <summary>Runs MotherBrainBody's main AI.</summary>
     internal void RunMotherBrainBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMotherBrainBodyMain(slot, frame.Samus, frame.SharedProjectiles);
     }
 
-    /// <summary>Ports MotherBrainHead's main AI.</summary>
+    /// <summary>Runs MotherBrainHead's main AI.</summary>
     internal void RunMotherBrainHeadMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         Head.RunMotherBrainHeadMain(slot, frame.Samus);

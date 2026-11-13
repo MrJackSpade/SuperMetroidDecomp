@@ -326,7 +326,7 @@ internal sealed class RidleyTail
         segment.Clockwise = !segment.Clockwise;
     }
 
-    /// <summary>Ports the six extend/shrink records.</summary>
+    /// <summary>Runs the six extend/shrink records.</summary>
     internal static void UpdateRidleyTailDistances(RidleyEnemyState state)
     {
         for (int index = 1; index < state.TailSegments.Length; index++)

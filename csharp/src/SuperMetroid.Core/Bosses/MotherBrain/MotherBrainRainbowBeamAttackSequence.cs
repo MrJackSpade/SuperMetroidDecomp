@@ -168,7 +168,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         State.Phase = MotherBrainBodyFunction.SecondPhasePrepareForFinalBabyAttack;
 
     /// <summary>
-    /// Ports the Baby's cross-enemy write. Mother Brain installs one last
+    /// Runs the Baby's cross-enemy write. Mother Brain installs one last
     /// four-ring head program and then leaves her body function at the empty holding step.
     /// </summary>
     public void ExecuteFinalBabyMetroidAttack() =>
@@ -186,7 +186,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     internal void ResetLiveBabyMetroidAttackCounter() => Revival.BabyMetroidAttackCounter = 0;
 
     /// <summary>
-    /// Ports the Baby's final cross-enemy write. The body does
+    /// Runs the Baby's final cross-enemy write. The body does
     /// not execute the recovery inside the Baby's slot; increasing-slot enemy order makes
     /// this installed phase visible on Mother Brain's following frame.
     /// </summary>

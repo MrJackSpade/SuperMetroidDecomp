@@ -423,7 +423,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         RunNorfairRidleyFunction(slot, state, samus, controllerInput, level);
     }
 
-    /// <summary>Ports Lower Norfair Ridley's main AI.</summary>
+    /// <summary>Runs Lower Norfair Ridley's main AI.</summary>
     internal void RunRidleyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         RunNorfairRidleyMain(
             slot,

@@ -704,7 +704,7 @@ internal sealed class MotherBrainProjectiles
 
         // Off-screen turrets deliberately freeze both timers until scrolled into view. Once
         // the shared deletion flag is set they disappear silently off-screen, but visible
-        // turrets replace themselves with dust animation parameter $C.
+        // turrets replace themselves with dust animation parameter 12.
         if (!onScreen)
         {
             if (state.DeleteTurretsAndRinkas)
@@ -737,7 +737,7 @@ internal sealed class MotherBrainProjectiles
         }
     }
 
-    /// <summary>Ports the signed direction-delta and allowed-rotation test.</summary>
+    /// <summary>Runs the signed direction-delta and allowed-rotation test.</summary>
     internal static void SelectNextMotherBrainTurretDirection(EnemyProjectile turret)
     {
         MotherBrainTurretState state = turret.StateOf<MotherBrainTurretState>();
@@ -775,7 +775,7 @@ internal sealed class MotherBrainProjectiles
         turret.StateOf<MotherBrainTurretState>().FiringWait = Math.Max(sample, MotherBrainTurretDefinitions.MinimumFiringCooldown);
     }
 
-    /// <summary>Ports the asymmetric viewport bounds.</summary>
+    /// <summary>Runs the asymmetric viewport bounds.</summary>
     private static bool MotherBrainTurretIsOnScreen(
         EnemyProjectile turret,
         Position16<RoomPixels> camera)
@@ -792,7 +792,7 @@ internal sealed class MotherBrainProjectiles
             CoordinateAxis.Wrap(turret.Position.X.Whole + 4 - camera.X) < 264;
     }
 
-    /// <summary>Ports turret-bullet initialization.</summary>
+    /// <summary>Runs turret-bullet initialization.</summary>
     internal void SpawnMotherBrainTurretBullet(EnemyProjectile turret)
     {
         EnemyProjectile? bullet = _projectiles.AllocateEnemyProjectile();
@@ -813,7 +813,7 @@ internal sealed class MotherBrainProjectiles
         bullet.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretProgram.BulletPose, direction));
     }
 
-    /// <summary>Ports the bullet property flicker, 8.8 movement, and point collision.</summary>
+    /// <summary>Runs the bullet property flicker, 8.8 movement, and point collision.</summary>
     internal static void RunMotherBrainTurretBulletFrameBehavior(
         EnemyProjectile bullet,
         RoomLevelData level)

@@ -123,7 +123,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWholeY(Zebetites.YPosition(definition, state.IsSecondaryHalf));
     }
 
-    /// <summary>Ports the indirect main dispatcher.</summary>
+    /// <summary>Runs the indirect main dispatcher.</summary>
     private void RunZebetiteMain(RoomEnemySlot slot, ZebetiteEnemyState state)
     {
         if (!_earthquake.IsShaking)
@@ -305,7 +305,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Ports Zebetite's main AI.</summary>
+    /// <summary>Runs Zebetite's main AI.</summary>
     internal void RunZebetiteMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunZebetiteMain(slot, slot.RequireSpeciesState<ZebetiteEnemyState>());

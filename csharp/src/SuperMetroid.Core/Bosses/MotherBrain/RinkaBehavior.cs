@@ -261,7 +261,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports the family-specific tail run after common touch, shot, or power-bomb damage.
+    /// Runs the family-specific tail run after common touch, shot, or power-bomb damage.
     /// Common damage deliberately leaves lethal Rinkas alive long enough for this method to
     /// select their two distinct death lifecycles.
     /// </summary>
@@ -469,7 +469,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Ports Rinka's main AI.</summary>
+    /// <summary>Runs Rinka's main AI.</summary>
     internal void RunRinkaMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunRinkaMain(slot, slot.RequireSpeciesState<RinkaEnemyState>(), frame.Samus);

@@ -292,7 +292,7 @@ internal sealed class TorizoMovement
         level ?? throw new InvalidOperationException(
             "Bomb Torizo movement requires the active room collision layer.");
 
-    /// <summary>Ports BombTorizo's initialization AI.</summary>
+    /// <summary>Runs BombTorizo's initialization AI.</summary>
     internal void RunBombTorizoInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
         InitializeBombTorizo(slot, surroundings.Samus, surroundings.ControllerInput);

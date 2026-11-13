@@ -31,7 +31,7 @@ internal static class KraidHeadCommandMappingVerification
         foreach (KraidHeadSegment program in Enum.GetValues<KraidHeadSegment>())
         {
             IReadOnlyList<AnimationBeat<KraidHeadFrame, KraidHeadCue>> beats = KraidHeadAnimations.Segments.Beats(program);
-            KraidHeadNativeRecord[] records = [.. native.Records.Where(record => KraidHeadAnimations.PositionOf(record.Playback).Animation == program)];
+            KraidHeadNativeRecord[] records = [.. native.Records.Where(record => KraidHeadAnimations.PlaceOf(record.Playback).Segment == program)];
             AssertEqual(records.Length, beats.Count + 1, $"{program} has one typed beat per native record before its terminator");
             Animation<KraidHeadSegment> animation = KraidHeadAnimations.StartingWith(program);
             AssertTrue(animation.Phases.SequenceEqual([new AnimationPhase<KraidHeadSegment>(program, 0, beats.Count, 1)]) && animation.End == AnimationEnd.Holds,
@@ -40,7 +40,7 @@ internal static class KraidHeadCommandMappingVerification
             {
                 KraidHeadNativeRecord record = records[position];
                 string at = $"{program}[{position}] at $A7:{record.Pointer:X4}";
-                AssertEqual(new KraidHeadListPosition(program, position), KraidHeadAnimations.PositionOf(record.Playback), $"{at} stands at its list step");
+                AssertEqual(new KraidHeadSegmentPlace(program, position), KraidHeadAnimations.PlaceOf(record.Playback), $"{at} stands at its segment step");
                 if (record.IsPose)
                 {
                     var show = AssertIs<AnimationBeat<KraidHeadFrame, KraidHeadCue>.Frame>(beats[position], $"{at} shows a pose");

@@ -72,9 +72,8 @@ internal static class CeresRidleyColorsVerification
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.BareRuntimeArtwork);
         runtime.Artwork.MapPresentation = original;
         var guarded = NewCeresRidleyColorReadGuard(rom, forbidden);
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(fixtureAssets.EnemyTiles.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
-            TileArtwork = fixtureAssets.EnemyTiles.Enemies,
             BossArtwork = fixtureAssets.EnemyTiles.Bosses,
             
         };

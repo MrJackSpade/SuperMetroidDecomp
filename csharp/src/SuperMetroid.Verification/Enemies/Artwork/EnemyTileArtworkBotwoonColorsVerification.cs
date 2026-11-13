@@ -44,7 +44,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         BotwoonColorCatalog colors = native;
 
         var guard = NewBotwoonColorReadGuard(rom);
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = stock.Bosses };
         // Botwoon's sprites are pre-coloured in each band's colours over his row, the seventh (#1512).
         IReadOnlyList<SuperMetroid.AssetExtraction.Artwork.SheetShade> shades =
             SuperMetroid.AssetExtraction.Bosses.BossSheetShades.OwnRow(stock.Bosses, EnemyDefinitionId.Botwoon, 7 * 16);

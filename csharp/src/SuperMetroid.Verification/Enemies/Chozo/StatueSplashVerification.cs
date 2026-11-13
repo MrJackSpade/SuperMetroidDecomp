@@ -25,7 +25,7 @@ internal static class StatueSplashVerification
         int splashes = 0;
         for (ushort random = 0; random < 64; random++)
         {
-            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => random)) { TileArtwork = FixtureEnemyTileArtwork() };
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(FixtureEnemyTileArtwork()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => random));
             enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram())));
             foreach (var actor in enemies.Projectiles.EnemyProjectiles) actor.Kind = 0;
             enemies.TourianUnlockBehavior.TourianStatueWaterSurface = new(0, 216);

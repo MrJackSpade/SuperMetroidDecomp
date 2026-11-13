@@ -33,7 +33,7 @@ internal static class BossSpriteEntriesVerification
     internal static void VerifyBossSpriteEntriesStage1()
     {
         EnemyTileSourceArtwork artwork = InstalledFixtures.EnemyTiles;
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.CorpseTorizo);
         enemies.DeadTorizoBehavior.InitializeDeadTorizo(enemies.SlotTable.Slots[0]);
         var sprites = new SpriteFrameBuffer();
@@ -98,7 +98,7 @@ internal static class BossSpriteEntriesVerification
     internal static void VerifyBossSpriteEntriesStage3()
     {
         ImportEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.RidleyCeres, slot.Definition);
         slot.Position = slot.Position.WithWhole(new(200, 100));

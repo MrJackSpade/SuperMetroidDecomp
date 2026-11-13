@@ -35,8 +35,8 @@ internal static class CeresEscapeOverlayTilemapsVerification
                     $"Ceres overlay {page.Name} native byte {offset:X2}");
         }
 
-        var installed = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
-            services: new SuperMetroid.Verification.Enemies.StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The warning fixture generates no random numbers."))) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
+        var installed = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
+            services: new SuperMetroid.Verification.Enemies.StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The warning fixture generates no random numbers."))) { BossArtwork = stock.Bosses };
         installed.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
         installed.CeresRidleyBehavior.Getaway.DrawCeresJapaneseOverlay();
 
@@ -72,8 +72,8 @@ internal static class CeresEscapeOverlayTilemapsVerification
 
         AssertTrue(stockOverlay.TryResolve(title, out ReadOnlyMemory<BackgroundTile> _),
             "stock English Ceres title resolves");
-        var shownEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
-            services: new SuperMetroid.Verification.Enemies.StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The warning fixture generates no random numbers."))) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
+        var shownEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
+            services: new SuperMetroid.Verification.Enemies.StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The warning fixture generates no random numbers."))) { BossArtwork = stock.Bosses };
         shownEnemies.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
         int titleWord = TwoScreenTilemapCells.IndexOf(CeresEscapeWarningPictures.Emergency.Corner);
         AssertEqual(native[titleWord], shownEnemies.RidleyEncounter.CeresWarning.WordsIn(stock.Areas.CeresEscapeOverlayTilemaps)[titleWord],

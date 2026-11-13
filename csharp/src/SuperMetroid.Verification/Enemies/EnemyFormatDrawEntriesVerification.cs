@@ -29,7 +29,7 @@ internal static class EnemyFormatDrawEntriesVerification
     internal static void VerifyEnemyFormatDrawEntries()
     {
         ImportEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };
         EnemySpritemapCatalog spritemaps = artwork.Enemies.Spritemaps ?? throw new InvalidOperationException("The installation has no enemy spritemaps.");
         EnemyExtendedFrameCatalog extendedFrames = artwork.Enemies.ExtendedFrames ?? throw new InvalidOperationException("The installation has no extended enemy frames.");
         EnemyProjectileSpritemapCatalog projectileSpritemaps = artwork.Enemies.ProjectileSpritemaps ?? throw new InvalidOperationException("The installation has no enemy projectile spritemaps.");

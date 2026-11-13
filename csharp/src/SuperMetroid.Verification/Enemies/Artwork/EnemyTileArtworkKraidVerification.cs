@@ -96,7 +96,7 @@ internal static class EnemyTileArtworkKraidVerification
     /// <summary>The image a capture shows after the room-background characters bind, using a cartridge-free Kraid owner.</summary>
     private static SnesVram UploadKraidRoomBackground(ImportEnemyArtwork artwork)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         Action upload = enemies.KraidBehavior.Rise.ShowKraidRoomBackdrop;

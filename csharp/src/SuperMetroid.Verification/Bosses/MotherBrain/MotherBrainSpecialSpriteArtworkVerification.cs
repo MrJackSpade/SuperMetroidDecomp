@@ -92,7 +92,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     private static void VerifyMotherBrainLegLoadPages(
         ImportEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = stock.Bosses };
         var resolver = new EnemyTileTransfers(new ImportEnemyArtwork(stock.Enemies, stock.Bosses, InstalledFixtures.AreaArtwork));
         EncounterArtworkUpload[] standing = [.. new[] { EncounterLookUploads.MotherBrainLegsLook, EncounterLookUploads.MotherBrainAttackLook }
             .SelectMany(look => EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain, EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, look), resolver))];

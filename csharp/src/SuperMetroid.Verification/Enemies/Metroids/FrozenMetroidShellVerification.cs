@@ -18,7 +18,7 @@ internal static class FrozenMetroidShellVerification
     /// <summary>Reproduces the empty shell frame and compares all emitted frozen sprite parts while the animation timer remains held (#1207).</summary>
     internal static int VerifyFrozenMetroidShell()
     {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom()) { BossArtwork = InstalledFixtures.BossArtwork };
         // The shell draws as a Metroid room loads it: at the Metroid's tile base and in its palette.
         enemies.DrawUnder(SpawnedObjectFixtures.SetLoading(EnemyDefinitionId.Metroid));
         int tileBase = enemies.GraphicsSet.TileBaseOf(EnemyDefinitionId.Metroid);

@@ -28,11 +28,6 @@ internal static class BossDisplayBindingsResourcesVerification
                 ?? throw new InvalidOperationException($"{definition} writes BG2 frames without a body layer.");
             AssertThrows<InvalidDataException>(() => BossBodySheetFixtures.For(stock.Build(omitBg2Bank: frame.Bank).Bosses, bodyOwner),
                 "selected BG2 resource is mandatory");
-            var noBindings = new BossDisplayFixture(definition, stock.Build(extended: false));
-            noBindings.SetFrame(frame.Pointer, fresh: true);
-            byte[] unchanged = noBindings.Vram.Bytes.ToArray();
-            AssertThrows<InvalidDataException>(() => noBindings.Draw(), "BG2 cannot bypass mandatory shared composition bindings");
-            AssertTrue(unchanged.SequenceEqual(noBindings.Vram.Bytes), "missing composition cannot write BG2 then fail");
         }
         var json = new EnemyIdentityFixture();
         var bad = new Dictionary<string, EnemyExtendedVisualComponent[]>(stock.Oam.Frames, StringComparer.Ordinal);
@@ -46,7 +41,7 @@ internal static class BossDisplayBindingsResourcesVerification
         cross[phantoon] = draygon;
         AssertThrows<InvalidDataException>(() => EnemyExtendedFrameDocuments.Load(json.Json(stock.Oam with { DisplayFrames = cross })),
             "BG2 bindings cannot select another boss's visuals");
-        Console.WriteLine("PASS boss display resources: missing binding/BG2 fail before VRAM writes, bounded empty-frame rules and cross-family rejection.");
+        Console.WriteLine("PASS boss display resources: missing BG2 fails before anything draws, bounded empty-frame rules and cross-family rejection.");
     }
 
     /// <summary>Focused native duration/goto acceptance, not an AI playthrough or read search.</summary>

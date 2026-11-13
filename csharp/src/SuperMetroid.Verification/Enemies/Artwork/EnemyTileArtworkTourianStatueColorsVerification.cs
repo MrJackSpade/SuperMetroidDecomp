@@ -177,9 +177,8 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
 
         static RoomEnemySystem CreateEnemy(ImportEnemyArtwork artwork) =>
-            new(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
+            new(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
             {
-                TileArtwork = artwork.Enemies,
                 BossArtwork = artwork.Bosses,
             };
 

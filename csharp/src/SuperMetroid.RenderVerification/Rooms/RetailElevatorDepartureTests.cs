@@ -71,7 +71,7 @@ internal static class RetailElevatorDepartureTests
         {
             runtime.StepFrame(0); returning++; Compare("arrival");
         }
-        if (returning == 0 || runtime.Enemies.ElevatorBehavior.ElevatorStatus != ElevatorActorStatus.Inactive || samus.Control.AlphaLocked)
+        if (returning == 0 || runtime.Enemies.ElevatorBehavior.ElevatorStatus != ElevatorActorStatus.Inactive || samus.Control.InputLocked)
             throw new InvalidOperationException("Downward arrival did not restore control.");
         for (int tick = 0; tick < 8; tick++) { runtime.StepFrame(0); Compare("settled"); }
         Console.WriteLine($"{device.Kind}: downward elevator {samples} exact frames, {departure} departure, " +

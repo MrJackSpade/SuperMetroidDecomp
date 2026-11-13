@@ -783,7 +783,7 @@ false,             CrashSequenceFinished: true);
     /// <summary>Commits the crash's transitional standing pose after this frame's animation.</summary>
     public static void ApplyCrashFinishPose(SamusState samus)
     {
-        // Finishing the crash restores the normal input handler as well as beta. That
+        // Finishing the crash restores the normal input mode as well as the movement mode. That
         // replaces a drained pose's movement handler too: a Samus drained mid-crash is free.
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.Drained.RelinquishMovementHandler();
@@ -793,7 +793,7 @@ false,             CrashSequenceFinished: true);
         int previousRadius = samus.Kinematics.Radius.Y;
         samus.Pose = standingPose;
         // The transitional-pose handler restores normal movement and
-        // aligns the standing body's bottom with the old crash body. Alpha alone
+        // aligns the standing body's bottom with the old crash body. The input phase alone
         // publishes the new live radius on the following frame.
         samus.AlignBottomAfterPoseChange(previousRadius, SamusPoseMetadata.ReadPoseYRadius(standingPose));
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);

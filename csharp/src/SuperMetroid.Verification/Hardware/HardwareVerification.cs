@@ -150,20 +150,20 @@ internal static void VerifyBossBitfield()
     var state = new SharedGameState(new SharedRandom());
     for (int area = 0; area < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count; area++)
     {
-        state.SetBossBits(area, BossBits.AreaBoss | BossBits.AreaTorizo);
-        AssertTrue(state.HasAnyBossBits(area, BossBits.AreaBoss), $"area {area} boss bit");
-        AssertTrue(!state.HasAnyBossBits(area, BossBits.AreaMiniBoss), $"area {area} mini-boss remains clear");
-        AssertEqual(BossBits.AreaBoss | BossBits.AreaTorizo, state.GetBossBits(area),
+        state.RecordBossesDefeated(area, DefeatedBosses.AreaBoss | DefeatedBosses.AreaTorizo);
+        AssertTrue(state.HasDefeatedAnyOf(area, DefeatedBosses.AreaBoss), $"area {area} boss bit");
+        AssertTrue(!state.HasDefeatedAnyOf(area, DefeatedBosses.AreaMiniBoss), $"area {area} mini-boss remains clear");
+        AssertEqual(DefeatedBosses.AreaBoss | DefeatedBosses.AreaTorizo, state.BossesDefeatedIn(area),
             $"area {area} typed combined mask");
 
-        state.ClearBossBits(area, BossBits.AreaTorizo);
-        AssertEqual(BossBits.AreaBoss, state.GetBossBits(area), $"area {area} selective clear");
+        state.ForgetBossesDefeated(area, DefeatedBosses.AreaTorizo);
+        AssertEqual(DefeatedBosses.AreaBoss, state.BossesDefeatedIn(area), $"area {area} selective clear");
     }
 
-    AssertThrows<ArgumentOutOfRangeException>(() => state.SetBossBits(-1, BossBits.AreaBoss), "negative area rejected");
-    AssertThrows<ArgumentOutOfRangeException>(() => state.SetBossBits(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count, BossBits.AreaBoss), "area past the game's rejected");
+    AssertThrows<ArgumentOutOfRangeException>(() => state.RecordBossesDefeated(-1, DefeatedBosses.AreaBoss), "negative area rejected");
+    AssertThrows<ArgumentOutOfRangeException>(() => state.RecordBossesDefeated(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count, DefeatedBosses.AreaBoss), "area past the game's rejected");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => state.SetBossBits(0, ~BossBitMasks.AllKnown),
+        () => state.RecordBossesDefeated(0, ~DefeatedBossKinds.AllKnown),
         "unnamed boss bit rejected by typed API");
     AssertThrows<InvalidDataException>(
         () => BossMaskCodec.Decode(0x80, "constructed selector"),

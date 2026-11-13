@@ -189,7 +189,7 @@ internal sealed class ProjectileMotion
 
         if (slot.MissileIgnition != SamusMissileIgnition.Ignited)
         {
-            // A missile ignites on its first alpha pass: its velocity is rebuilt from its
+            // A missile ignites on its first input phase: its velocity is rebuilt from its
             // ignition speed plus Samus's inherited motion.
             IgniteMissile(samus, slot);
         }
@@ -251,7 +251,7 @@ internal sealed class ProjectileMotion
         SamusProjectileDirection direction = slot.Direction;
         if (slot.MissileIgnition != SamusMissileIgnition.Ignited)
         {
-            // A Super Missile ignites as a missile does on its first alpha pass, and then
+            // A Super Missile ignites as a missile does on its first input phase, and then
             // immediately allocates its invisible collision link.
             IgniteMissile(samus, slot);
             SpawnSuperMissileLink(samus, slot);

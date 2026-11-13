@@ -62,7 +62,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             } });
         session.display.PublishGameplay(session.GameplayRuntime);
         // The reserve-refill state invokes the external low-health check even while the
-        // locked Samus beta handler omits it, after the update's gameplay, whose sounds are
+        // locked Samus movement mode omits it, after the update's gameplay, whose sounds are
         // already queued; the queue occupancy they leave decides whether this final
         // normal-priority request joins.
         session.GameplayRuntime.Player.IntroducedSamus.HealthWarning.Update(session.GameplayRuntime.Player.IntroducedSamus.Health,
@@ -252,13 +252,13 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // The pause check only runs from Samus's normal new-state handler. The station lock
         // replaces that handler with an inert one, so its entire insertion,
         // message/data-load, and retraction sequence bypasses pause-check even though game
-        // state remains eight. The locked alpha installed with it stands for that handler
+        // state remains eight. The locked input mode installed with it stands for that handler
         // replacement; the remaining clauses are the pause check's own predicate.
         return session.GameState == SuperMetroidGameState.MainGameplay &&
                !messageBoxOwnedFrame &&
                !session.Runtime.MessageBox.IsActive &&
                !samusInputLockedAtFrameStart &&
-               !samus.Control.AlphaLocked &&
+               !samus.Control.InputLocked &&
                !session.Runtime.PowerBombExplosionActive &&
                !samus.Xray.TimeIsFrozen &&
                !session.Runtime.RoomLoader.HasPendingDoorTransition &&
@@ -284,7 +284,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // The station lock installs an inert new-state handler before this
         // frame. Retraction can restore normal input later in StepFrame, after the
         // game's Samus-handler call site has already passed pause-check.
-        bool samusInputLockedAtFrameStart = session.GameplayRuntime.Player.Samus?.Control.AlphaLocked == true;
+        bool samusInputLockedAtFrameStart = session.GameplayRuntime.Player.Samus?.Control.InputLocked == true;
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = GameplayFrameAudio.Gameplay(session.GameplayRuntime) });
         bool timeUp = session.GameplayRuntime.ConsumeTimeUpRequest();
         HandleSaveStationPersistence();

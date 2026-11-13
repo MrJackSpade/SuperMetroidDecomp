@@ -20,7 +20,7 @@ internal sealed class SamusInputSnapshot
     /// The Fire edge retained by the post-draw input filter
     /// after drawing Samus and projectiles. Missile admission and the grapple's inactive phase accept either
     /// this previous-frame edge or the current frame's edge, allowing a press that first
-    /// exits a non-firing pose to fire on the next frame. Demo alpha replaces it with
+    /// exits a non-firing pose to fire on the next frame. The demo's input phase replaces it with
     /// the preceding scripted edge before running the normal HUD dispatcher.
     /// </summary>
     public ControllerButton PreviousDrawNewInput { get; internal set; }

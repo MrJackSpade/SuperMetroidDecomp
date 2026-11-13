@@ -6,6 +6,6 @@ internal enum SamusPaletteEffects
     /// <summary>The palette effects advance.</summary>
     Advance,
 
-    /// <summary>The palette effects hold, as under a beta handler that does not dispatch them.</summary>
+    /// <summary>The palette effects hold, as under a movement mode that does not dispatch them.</summary>
     Hold,
 }

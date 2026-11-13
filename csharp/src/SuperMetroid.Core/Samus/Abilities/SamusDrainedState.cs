@@ -100,7 +100,7 @@ public sealed class SamusDrainedState
     /// <summary>
     /// Runs one call of the installed timer/hack handler. The game calls
     /// it after movement and immediately before animation, so a written timer of one is
-    /// decremented and the selected art begins advancing in that same beta pass.
+    /// decremented and the selected art begins advancing in that same movement phase.
     /// </summary>
     public bool StepGetUpHandler(SamusState samus, ControllerButton newlyPressedInput)
     {

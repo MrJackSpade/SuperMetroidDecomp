@@ -125,7 +125,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int argument = 0; argument < 4; argument++)
             SpawnSporeSpawnStalk(body, argument);
 
-        state.LoadedAsDefeated = _room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss);
+        state.LoadedAsDefeated = _room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss);
         if (state.LoadedAsDefeated)
         {
             state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.InitialDead), AnimationPlace.StartOfAnimation);
@@ -529,7 +529,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.Death), AnimationPlace.StartOfAnimation);
         body.AnimationClock.StepOnNextUpdate();
-        _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
+        _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaMiniBoss);
         state.ScrollClampHookActive = false;
         PublishSporeSpawnObject(SporeSpawnCeilingMutation.Crumble);
     }

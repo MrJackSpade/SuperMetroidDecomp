@@ -28,8 +28,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The room's enemy slots, whose powered robots all show the shared glow.</summary>
     private readonly EnemySlotTable _slotTable;
 
-    /// <summary>Whether Phantoon's area-boss bit is set, which powers the work robots.</summary>
-    internal bool IsAreaBossDefeated => _room.Services.Bosses.IsDefeated(BossBits.AreaBoss);
+    /// <summary>Whether Phantoon is defeated, which powers the work robots.</summary>
+    internal bool IsAreaBossDefeated => _room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss);
 
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -82,7 +82,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new WorkRobotEnemyState();
         slot.SetSpeciesState(state);
 
-        bool areaBossDefeated = _room.Services.Bosses.IsDefeated(BossBits.AreaBoss);
+        bool areaBossDefeated = _room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss);
         if (slot.DefinitionId != EnemyDefinitionId.Robot || !areaBossDefeated)
         {
             InitializeWorkRobotNoPower(slot, state);
@@ -317,7 +317,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (robot.DefinitionId != EnemyDefinitionId.Robot || robot.Health == 0)
             return;
-        if (!_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
+        if (!_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
             return;
         if (samus is null)
             throw new InvalidOperationException("Work Robot shot recoil requires the active Samus actor.");
@@ -371,7 +371,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Rejects = c => c.Enemy.DefinitionId == EnemyDefinitionId.Robot &&
                            c.SelectedShotAi == EnemyReaction.WorkRobotShot &&
-                           !_room.Services.Bosses.IsDefeated(BossBits.AreaBoss),
+                           !_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss),
             AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
         });
     }

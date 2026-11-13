@@ -42,9 +42,9 @@ internal static class BossMapMarkersVerification
                 var alive = pause.Render();
                 AssertEqual(0, record, "retail authored boss markers use area-boss bit zero");
                 for (int other = 0; other < 6; other++)
-                    if (other != area) system.SetBossBits(other, BossBits.AreaBoss);
+                    if (other != area) system.RecordBossesDefeated(other, DefeatedBosses.AreaBoss);
                 AssertTrue(alive.SequenceEqual(pause.Render()), "other-area defeats do not change this map");
-                system.SetBossBits(area, BossBits.AreaBoss);
+                system.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
                 var dead = pause.Render();
                 int changed = 0;
                 for (int pixel = 0; pixel < alive.Length; pixel++)

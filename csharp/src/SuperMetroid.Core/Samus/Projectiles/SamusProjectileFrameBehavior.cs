@@ -33,8 +33,8 @@ public enum SamusProjectileFrameBehavior
     SpazerComboFalling,
     /// <summary>Moves a Shinespark echo projectile.</summary>
     ShinesparkEcho,
-    /// <summary>Represents execution that reaches the spacetime palette-copy tail.</summary>
-    SpacetimePaletteCopyTail,
+    /// <summary>The Spacetime shot's frame behaviour, which overwrites saved progression from an animation that reaches far enough.</summary>
+    SpaceTimeProgressionOverwrite,
     /// <summary>Represents the chainsaw window-store path before Power Bomb execution.</summary>
     ChainsawPowerBomb,
     /// <summary>Represents the charged chainsaw combination's overrun past the authored frame behaviours.</summary>

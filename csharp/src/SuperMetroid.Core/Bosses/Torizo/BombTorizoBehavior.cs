@@ -167,10 +167,10 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         RunBombTorizoMain(torizo, state, samus, level);
     }
 
-    /// <summary>Records the area boss bit, scatters sixteen drops in the variant's arena, and requests post-fight music.</summary>
+    /// <summary>Records the area boss's defeat, scatters sixteen drops in the variant's arena, and requests post-fight music.</summary>
     private void FinishBombTorizoDeath(TorizoEnemyState state)
     {
-        _room.Services.Bosses.SetDefeated(BossBits.AreaTorizo);
+        _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaTorizo);
 
         // The two statues share one chance table but use different
         // arena rectangles: Bomb Torizo uses the 128x64 upper room region, while Golden

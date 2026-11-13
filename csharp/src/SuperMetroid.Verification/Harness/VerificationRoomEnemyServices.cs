@@ -89,22 +89,22 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     }
 
     /// <summary>Queries the selected boss bit through its case callback or loaded services.</summary>
-    public bool IsDefeated(BossBits bits) => (bits switch
+    public bool IsDefeated(DefeatedBosses bosses) => (bosses switch
     {
-        BossBits.AreaBoss => IsAreaBossDefeated,
-        BossBits.AreaMiniBoss => IsAreaMiniBossDefeated,
-        BossBits.AreaTorizo => IsAreaTorizoDefeated,
-        BossBits.None => null,
+        DefeatedBosses.AreaBoss => IsAreaBossDefeated,
+        DefeatedBosses.AreaMiniBoss => IsAreaMiniBossDefeated,
+        DefeatedBosses.AreaTorizo => IsAreaTorizoDefeated,
+        DefeatedBosses.None => null,
         _ => null,
-    }) is { } query ? query() : Loaded($"read the area {bits} flag").Bosses.IsDefeated(bits);
+    }) is { } query ? query() : Loaded($"read the area {bosses} flag").Bosses.IsDefeated(bosses);
 
     /// <summary>Uses the fixture's Torizo callback when supplied; otherwise forwards the boss flag write.</summary>
-    public void SetDefeated(BossBits bits)
+    public void SetDefeated(DefeatedBosses bosses)
     {
-        if (bits == BossBits.AreaTorizo && SetAreaTorizoDefeated is { } setTorizo)
+        if (bosses == DefeatedBosses.AreaTorizo && SetAreaTorizoDefeated is { } setTorizo)
             setTorizo();
         else
-            Loaded($"set the area {bits} flag").Bosses.SetDefeated(bits);
+            Loaded($"set the area {bosses} flag").Bosses.SetDefeated(bosses);
     }
 
     /// <summary>Reads scroll-zone state from the services installed by room loading.</summary>

@@ -179,7 +179,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case ChozoStatueFrameBehavior.WaitForWreckedShipHandTrigger:
-                if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss) && state.HandTriggered)
+                if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss) && state.HandTriggered)
                 {
                     state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueSegment.WreckedShipActivated), AnimationPlace.StartOfAnimation);
                     statue.AnimationClock.StepOnNextUpdate();

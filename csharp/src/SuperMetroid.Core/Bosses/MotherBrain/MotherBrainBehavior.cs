@@ -293,7 +293,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeUnlock:
                 if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
                     return;
-                // Restoring Samus's control reinstalls the normal handler pair.
+                // Restoring Samus's control reinstalls the normal input and movement modes.
                 samus?.Control.Unlock();
                 state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeFlash;
                 state.PhaseTimer = 8;

@@ -1,7 +1,10 @@
 namespace SuperMetroid.Core.Samus;
 
-/// <summary>The first half of Samus's per-frame work, which Samus's control setups select: whether her input is handled.</summary>
-internal enum SamusAlphaHandler
+/// <summary>
+/// How the input phase of Samus's frame, the first of its two, runs: whether her input is handled. Samus's control setups
+/// select it.
+/// </summary>
+internal enum SamusInputMode
 {
     /// <summary>
     /// Ordinary control: her radius, HUD selection, block-inside reactions, pose input, bombs and projectiles.

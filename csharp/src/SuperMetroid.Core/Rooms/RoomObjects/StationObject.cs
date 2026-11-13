@@ -173,7 +173,7 @@ internal sealed class StationObject(
                 OperationTimer = StationAccessTimingDefinitions.MovementUpdates;
                 break;
             case StationOperationPhase.FinalRetractionHold:
-                OperationPhase = Kind == StationKind.Map && samus.Control.AlphaLocked
+                OperationPhase = Kind == StationKind.Map && samus.Control.InputLocked
                     ? StationOperationPhase.AwaitingMapUnpause
                     : StationOperationPhase.Idle;
                 AccessBlock = null;

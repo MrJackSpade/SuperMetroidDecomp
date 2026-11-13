@@ -515,7 +515,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // The cinematic dispatcher runs Samus's handlers, ahead of the sprite pass, only while the display flag is set.
         if (CurrentFlashbackSamus is not null && flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
-            // Intro-demo alpha refreshes the live radius before projectiles and beta movement.
+            // The intro demo's input phase refreshes the live radius before projectiles and movement.
             // Pose commits at the end of the previous frame deliberately leave it unchanged.
             SamusPoseMetadata.RefreshCollisionRadii(CurrentFlashbackSamus);
 
@@ -935,7 +935,7 @@ level, samus, frameCounter);
         else if (CurrentFlashbackDemoInput?.Enabled == true &&
             (SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose)))
         {
-            // The demo's later run/jump records use the same alpha/beta order as the
+            // The demo's later run/jump records use the same input/movement order as the
             // discovery scene. This coordinator already animates and commits its pose.
             IntroSamusDemoMovement.StepGroundedLeft(level, samus, demoInput,
                 CurrentFlashbackDemoInput.NewlyPressed, frameCounter, Random);

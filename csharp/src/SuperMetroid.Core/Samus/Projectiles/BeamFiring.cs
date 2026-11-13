@@ -155,7 +155,7 @@ internal sealed class BeamFiring
                 // The flare draw owns both flare graphics and their audio. Its draw-time call
                 // queues the charging sound exactly once at counter sixteen. The
                 // C# renderer is intentionally side-effect free, so queue the same sound
-                // here, on the alpha pass that advances the counter to sixteen.
+                // here, on the input phase that advances the counter to sixteen.
                 if (_charge.FlareCounter == BeamChargeDefinitions.ChargeSoundStartCounter)
                 {
                     return new(null, SamusSound.ChargingBeam, Priority: SoundRequestPriority.High);
@@ -425,7 +425,7 @@ internal sealed class BeamFiring
         const ControllerButton shoot = ControllerButton.X;
 
         // The fire test accepts either the current new-press input or the previous filtered
-        // drawing input. Live gameplay retains that edge through the next alpha, allowing
+        // drawing input. Live gameplay retains that edge through the next input phase, allowing
         // a press one frame before cooldown expires to fire on the following frame.
         // Demo playback supplies the analogous scripted edge. Cooldown still
         // owns admission, so the delayed copy cannot manufacture held-button auto-fire.

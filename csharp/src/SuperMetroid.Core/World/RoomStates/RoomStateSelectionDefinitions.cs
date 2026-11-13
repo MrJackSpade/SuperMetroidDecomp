@@ -45,12 +45,12 @@ public static class RoomStateSelectionDefinitions
         [RoomDefinitions.BombTorizo] = new(CrateriaRoomStateDefinitions.BombTorizoDefault,
         [
             new(RoomStateCondition.Event(StoryEvent.ZebesTimebombSet), CrateriaRoomStateDefinitions.BombTorizoWhenZebesTimebombSet),
-            new(RoomStateCondition.BossDead(BossBits.AreaTorizo), CrateriaRoomStateDefinitions.BombTorizoWhenAreaTorizoDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaTorizo), CrateriaRoomStateDefinitions.BombTorizoWhenAreaTorizoDead),
         ]),
         [RoomDefinitions.Flyway] = new(CrateriaRoomStateDefinitions.FlywayDefault,
         [
             new(RoomStateCondition.Event(StoryEvent.ZebesTimebombSet), CrateriaRoomStateDefinitions.FlywayWhenZebesTimebombSet),
-            new(RoomStateCondition.BossDead(BossBits.AreaTorizo), CrateriaRoomStateDefinitions.FlywayWhenAreaTorizoDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaTorizo), CrateriaRoomStateDefinitions.FlywayWhenAreaTorizoDead),
         ]),
         [RoomDefinitions.FinalMissileBombway] = new(CrateriaRoomStateDefinitions.FinalMissileBombwayDefault,
         [
@@ -62,7 +62,7 @@ public static class RoomStateSelectionDefinitions
         ]),
         [RoomDefinitions.SporeSpawn] = new(BrinstarRoomStateDefinitions.SporeSpawnDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaMiniBoss), BrinstarRoomStateDefinitions.SporeSpawnWhenAreaMiniBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaMiniBoss), BrinstarRoomStateDefinitions.SporeSpawnWhenAreaMiniBossDead),
         ]),
         [RoomDefinitions.MorphBall] = new(BrinstarRoomStateDefinitions.MorphBallDefault,
         [
@@ -78,87 +78,87 @@ public static class RoomStateSelectionDefinitions
         ]),
         [RoomDefinitions.MiniKraid] = new(BrinstarRoomStateDefinitions.MiniKraidDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), BrinstarRoomStateDefinitions.MiniKraidWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), BrinstarRoomStateDefinitions.MiniKraidWhenAreaBossDead),
         ]),
         [RoomDefinitions.Kraid] = new(BrinstarRoomStateDefinitions.KraidDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), BrinstarRoomStateDefinitions.KraidWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), BrinstarRoomStateDefinitions.KraidWhenAreaBossDead),
         ]),
         [RoomDefinitions.Crocomire] = new(NorfairRoomStateDefinitions.CrocomireDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaMiniBoss), NorfairRoomStateDefinitions.CrocomireWhenAreaMiniBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaMiniBoss), NorfairRoomStateDefinitions.CrocomireWhenAreaMiniBossDead),
         ]),
         [RoomDefinitions.GoldenTorizo] = new(NorfairRoomStateDefinitions.GoldenTorizoDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaTorizo), NorfairRoomStateDefinitions.GoldenTorizoWhenAreaTorizoDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaTorizo), NorfairRoomStateDefinitions.GoldenTorizoWhenAreaTorizoDead),
         ]),
         [RoomDefinitions.Ridley] = new(NorfairRoomStateDefinitions.RidleyDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), NorfairRoomStateDefinitions.RidleyWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), NorfairRoomStateDefinitions.RidleyWhenAreaBossDead),
         ]),
         [RoomDefinitions.BowlingAlley] = new(WreckedShipRoomStateDefinitions.BowlingAlleyDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.BowlingAlleyWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), WreckedShipRoomStateDefinitions.BowlingAlleyWhenAreaBossDead),
         ]),
         [RoomDefinitions.WreckedShipEntrance] = new(WreckedShipRoomStateDefinitions.WreckedShipEntranceDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.WreckedShipEntranceWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), WreckedShipRoomStateDefinitions.WreckedShipEntranceWhenAreaBossDead),
         ]),
         [RoomDefinitions.Attic] = new(WreckedShipRoomStateDefinitions.AtticDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.AtticWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), WreckedShipRoomStateDefinitions.AtticWhenAreaBossDead),
         ]),
         [RoomDefinitions.AssemblyLine] = new(WreckedShipRoomStateDefinitions.AssemblyLineDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.AssemblyLineWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), WreckedShipRoomStateDefinitions.AssemblyLineWhenAreaBossDead),
         ]),
         [RoomDefinitions.WreckedShipMainShaft] = new(WreckedShipRoomStateDefinitions.WreckedShipMainShaftDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.WreckedShipMainShaftWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), WreckedShipRoomStateDefinitions.WreckedShipMainShaftWhenAreaBossDead),
         ]),
         [RoomDefinitions.SpikyDeath] = new(WreckedShipRoomStateDefinitions.SpikyDeathDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.SpikyDeathWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), WreckedShipRoomStateDefinitions.SpikyDeathWhenAreaBossDead),
         ]),
         [RoomDefinitions.ElectricDeath] = new(WreckedShipRoomStateDefinitions.ElectricDeathDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.ElectricDeathWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), WreckedShipRoomStateDefinitions.ElectricDeathWhenAreaBossDead),
         ]),
         [RoomDefinitions.WreckedShipETank] = new(WreckedShipRoomStateDefinitions.WreckedShipETankDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.WreckedShipETankWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), WreckedShipRoomStateDefinitions.WreckedShipETankWhenAreaBossDead),
         ]),
         [RoomDefinitions.Basement] = new(WreckedShipRoomStateDefinitions.BasementDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.BasementWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), WreckedShipRoomStateDefinitions.BasementWhenAreaBossDead),
         ]),
         [RoomDefinitions.WreckedShipMap] = new(WreckedShipRoomStateDefinitions.WreckedShipMapDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.WreckedShipMapWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), WreckedShipRoomStateDefinitions.WreckedShipMapWhenAreaBossDead),
         ]),
         [RoomDefinitions.Phantoon] = new(WreckedShipRoomStateDefinitions.PhantoonDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.PhantoonWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), WreckedShipRoomStateDefinitions.PhantoonWhenAreaBossDead),
         ]),
         [RoomDefinitions.SpongeBath] = new(WreckedShipRoomStateDefinitions.SpongeBathDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.SpongeBathWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), WreckedShipRoomStateDefinitions.SpongeBathWhenAreaBossDead),
         ]),
         [RoomDefinitions.WSWestSuper] = new(WreckedShipRoomStateDefinitions.WSWestSuperDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.WSWestSuperWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), WreckedShipRoomStateDefinitions.WSWestSuperWhenAreaBossDead),
         ]),
         [RoomDefinitions.WSEastSuper] = new(WreckedShipRoomStateDefinitions.WSEastSuperDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.WSEastSuperWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), WreckedShipRoomStateDefinitions.WSEastSuperWhenAreaBossDead),
         ]),
         [RoomDefinitions.GravitySuit] = new(WreckedShipRoomStateDefinitions.GravitySuitDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.GravitySuitWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), WreckedShipRoomStateDefinitions.GravitySuitWhenAreaBossDead),
         ]),
         [RoomDefinitions.WreckedShipSave] = new(WreckedShipRoomStateDefinitions.WreckedShipSaveDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), WreckedShipRoomStateDefinitions.WreckedShipSaveWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), WreckedShipRoomStateDefinitions.WreckedShipSaveWhenAreaBossDead),
         ]),
         [RoomDefinitions.GlassTunnel] = new(MaridiaRoomStateDefinitions.GlassTunnelDefault,
         [
@@ -166,7 +166,7 @@ public static class RoomStateSelectionDefinitions
         ]),
         [RoomDefinitions.ThePrecious] = new(MaridiaRoomStateDefinitions.ThePreciousDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), MaridiaRoomStateDefinitions.ThePreciousWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), MaridiaRoomStateDefinitions.ThePreciousWhenAreaBossDead),
         ]),
         [RoomDefinitions.Shaktool] = new(MaridiaRoomStateDefinitions.ShaktoolDefault,
         [
@@ -174,11 +174,11 @@ public static class RoomStateSelectionDefinitions
         ]),
         [RoomDefinitions.Botwoon] = new(MaridiaRoomStateDefinitions.BotwoonDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaMiniBoss), MaridiaRoomStateDefinitions.BotwoonWhenAreaMiniBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaMiniBoss), MaridiaRoomStateDefinitions.BotwoonWhenAreaMiniBossDead),
         ]),
         [RoomDefinitions.Draygon] = new(MaridiaRoomStateDefinitions.DraygonDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), MaridiaRoomStateDefinitions.DraygonWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), MaridiaRoomStateDefinitions.DraygonWhenAreaBossDead),
         ]),
         [RoomDefinitions.Metroids1] = new(TourianRoomStateDefinitions.Metroids1Default,
         [
@@ -215,27 +215,27 @@ public static class RoomStateSelectionDefinitions
         ]),
         [RoomDefinitions.CeresElev] = new(CeresRoomStateDefinitions.CeresElevDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), CeresRoomStateDefinitions.CeresElevWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), CeresRoomStateDefinitions.CeresElevWhenAreaBossDead),
         ]),
         [RoomDefinitions.FallingTile] = new(CeresRoomStateDefinitions.FallingTileDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), CeresRoomStateDefinitions.FallingTileWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), CeresRoomStateDefinitions.FallingTileWhenAreaBossDead),
         ]),
         [RoomDefinitions.MagnetStairs] = new(CeresRoomStateDefinitions.MagnetStairsDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), CeresRoomStateDefinitions.MagnetStairsWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), CeresRoomStateDefinitions.MagnetStairsWhenAreaBossDead),
         ]),
         [RoomDefinitions.DeadScientist] = new(CeresRoomStateDefinitions.DeadScientistDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), CeresRoomStateDefinitions.DeadScientistWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), CeresRoomStateDefinitions.DeadScientistWhenAreaBossDead),
         ]),
         [RoomDefinitions.Room58Escape] = new(CeresRoomStateDefinitions.Room58EscapeDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), CeresRoomStateDefinitions.Room58EscapeWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), CeresRoomStateDefinitions.Room58EscapeWhenAreaBossDead),
         ]),
         [RoomDefinitions.CeresRidley] = new(CeresRoomStateDefinitions.CeresRidleyDefault,
         [
-            new(RoomStateCondition.BossDead(BossBits.AreaBoss), CeresRoomStateDefinitions.CeresRidleyWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), CeresRoomStateDefinitions.CeresRidleyWhenAreaBossDead),
         ]),
         [RoomDefinitions.CrateriaPowerBombs] = new(CrateriaRoomStateDefinitions.CrateriaPowerBombs, []),
         [RoomDefinitions.CrateriaSave] = new(CrateriaRoomStateDefinitions.CrateriaSave, []),

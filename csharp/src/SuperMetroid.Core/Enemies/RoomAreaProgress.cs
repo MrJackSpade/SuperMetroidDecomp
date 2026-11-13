@@ -3,10 +3,10 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The persistent event bits, the Zebetite count and one area's boss bits, as a room's room objects and enemies read and write them.
+/// The persistent event bits, the Zebetite count and one area's defeated bosses, as a room's room objects and enemies read and write them.
 /// </summary>
 /// <param name="system">The session's progression owner.</param>
-/// <param name="area">The room's area, whose boss bits these are.</param>
+/// <param name="area">The room's area, whose defeated bosses these are.</param>
 internal sealed class RoomAreaProgress(SharedGameState system, AreaId area) : IGlobalEventFlags, IAreaBossFlags, IZebetiteProgress
 {
     /// <summary>The Zebetites destroyed, kept by the session's progress.</summary>
@@ -22,9 +22,9 @@ internal sealed class RoomAreaProgress(SharedGameState system, AreaId area) : IG
     /// <summary>Publishes an event bit through the system owner.</summary>
     public void Set(StoryEvent eventNumber) => system.SetEvent(eventNumber);
 
-    /// <summary>Checks whether any requested boss bit is set for this room's area.</summary>
-    public bool IsDefeated(BossBits bits) => system.HasAnyBossBits(area, bits);
+    /// <summary>Whether any of <paramref name="bosses"/> is defeated in this room's area.</summary>
+    public bool IsDefeated(DefeatedBosses bosses) => system.HasDefeatedAnyOf(area, bosses);
 
-    /// <summary>Sets boss bits in this room's area record.</summary>
-    public void SetDefeated(BossBits bits) => system.SetBossBits(area, bits);
+    /// <summary>Records <paramref name="bosses"/> as defeated in this room's area.</summary>
+    public void SetDefeated(DefeatedBosses bosses) => system.RecordBossesDefeated(area, bosses);
 }

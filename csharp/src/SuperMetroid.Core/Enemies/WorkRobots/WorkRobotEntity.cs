@@ -22,7 +22,7 @@ internal sealed class WorkRobotEntity(WorkRobotBehavior species, RoomEnemySlot s
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceWorkRobotTypedAnimation;
 
-    /// <summary>The powered robot returns before common shot AI until Phantoon's area-boss bit is set.</summary>
+    /// <summary>The powered robot returns before common shot AI until Phantoon is defeated.</summary>
     public bool AdmitsShots() =>
         Slot.DefinitionId != EnemyDefinitionId.Robot || species.IsAreaBossDefeated;
 

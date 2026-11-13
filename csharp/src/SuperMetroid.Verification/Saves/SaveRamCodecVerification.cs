@@ -207,15 +207,15 @@ internal static class SaveRamCodecVerification
         byte[] areas = new byte[ProgressionTableCodec.AreaBossByteCount];
         areas[SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(AreaId.Norfair)] = 0x85;
         ProgressionTableCodec.ReadAreaBosses(areas, system.Progress);
-        AssertEqual(BossBits.AreaBoss | BossBits.AreaTorizo, system.GetBossBits(AreaId.Norfair), "a loaded boss byte keeps its named flags");
-        system.SetBossBits(AreaId.Norfair, BossBits.AreaMiniBoss);
-        system.ClearBossBits(AreaId.Norfair, BossBits.AreaBoss);
-        AssertEqual(BossBits.AreaMiniBoss | BossBits.AreaTorizo, system.GetBossBits(AreaId.Norfair), "typed set and clear change only their flags");
-        AssertTrue(system.HasAnyBossBits(AreaId.Norfair, BossBits.AreaTorizo), "a named flag is found");
-        AssertTrue(!system.HasAnyBossBits(AreaId.Norfair, BossBits.AreaBoss), "a cleared named flag is absent");
+        AssertEqual(DefeatedBosses.AreaBoss | DefeatedBosses.AreaTorizo, system.BossesDefeatedIn(AreaId.Norfair), "a loaded boss byte keeps its named flags");
+        system.RecordBossesDefeated(AreaId.Norfair, DefeatedBosses.AreaMiniBoss);
+        system.ForgetBossesDefeated(AreaId.Norfair, DefeatedBosses.AreaBoss);
+        AssertEqual(DefeatedBosses.AreaMiniBoss | DefeatedBosses.AreaTorizo, system.BossesDefeatedIn(AreaId.Norfair), "typed set and clear change only their flags");
+        AssertTrue(system.HasDefeatedAnyOf(AreaId.Norfair, DefeatedBosses.AreaTorizo), "a named flag is found");
+        AssertTrue(!system.HasDefeatedAnyOf(AreaId.Norfair, DefeatedBosses.AreaBoss), "a cleared named flag is absent");
         ProgressionTableCodec.WriteAreaBosses(system.Progress, areas);
         AssertEqual((byte)0x06, areas[SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(AreaId.Norfair)], "the written boss byte holds only the named flags");
-        AssertEqual(BossBits.None, system.GetBossBits(AreaId.Crateria), "other areas stay clear");
+        AssertEqual(DefeatedBosses.None, system.BossesDefeatedIn(AreaId.Crateria), "other areas stay clear");
         Console.WriteLine("Progression saved fields: save-field ranges are enforced and boss state holds the named flags.");
     }
 
@@ -228,7 +228,7 @@ internal static class SaveRamCodecVerification
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = health, MaxHealth = 199, Missiles = 5, MaxMissiles = 10 };
         var system = new SharedGameState(new SharedRandom());
         system.SetEvent(StoryEvent.ZebesAwake);
-        system.SetBossBits(area, BossBits.AreaBoss);
+        system.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
         system.SetCollectedItemBit(health % 64);
         system.MarkSaveStationUsed(LoadStationNumberCodec.Decode(area, 1, "save fixture"));
         system.MarkExploredMapTile(area, new(9, 1));

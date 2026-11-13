@@ -25,7 +25,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// sends (<see cref="SentThingWords"/>). A name that says <c>Function</c> names the enemy record's AI
 /// function field (#1701, <see cref="BehaviourFieldWords"/>) under the same delegate allowance. An area's name followed
 /// by a number and another word numbers the area by the cartridge's tileset (#1720, <see cref="TilesetNumber"/>):
-/// <c>Brinstar6DarkPattern</c>. See <c>docs/core-vocabulary.md</c>.
+/// <c>Brinstar6DarkPattern</c>. A name that says <c>AlphaHandler</c>, <c>BetaHandler</c> or <c>SetupCode</c> names the
+/// original's routine (#1721, <see cref="RoutinePhrases"/>). See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
@@ -95,6 +96,18 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     internal static readonly ImmutableArray<string> SentThingWords = ["Music", "Sound", "Audio", "Request", "Message", "Event"];
 
     /// <summary>
+    /// The original's routine names (#1721), two-word names matched like <see cref="HardwarePhrases"/>: Samus's frame ran an
+    /// alpha and a beta handler the control setups installed (<c>SamusAlphaHandler</c>, <c>SamusBetaHandler</c>), and a door
+    /// ran the setup code its record pointed at, which an interpreter replayed (<c>DoorSetupCode</c>,
+    /// <c>DoorSetupCodeInterpreter</c>). Core names the phase or the setup instead: Samus's input and movement modes, a door's
+    /// setup. Each word alone stays the game's own: an alpha, a beta, a handler, a setup, a code.
+    /// </summary>
+    internal static readonly ImmutableArray<ImmutableArray<string>> RoutinePhrases =
+    [
+        ["Alpha", "Handler"], ["Beta", "Handler"], ["Setup", "Code"],
+    ];
+
+    /// <summary>
     /// The enemy record's AI function field (#1701), matched as whole camel-case words like <see cref="DispatchWords"/>: the
     /// cartridge stored an enemy's or a boss's behaviour state, a part's wait and the state a cue installs as the routine
     /// pointer its record's function field held, and a Core name that says <c>Function</c> (a <c>TorizoFunction</c> enum, a
@@ -127,10 +140,10 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         description: "Core is a C# game. Its identifiers say what things are in the game, never which chip, memory or " +
             "cartridge structure the original stored them in, never number them as the cartridge did in hexadecimal or by its " +
             "tilesets, and " +
-            "never call a behaviour the callback the original dispatched it through, the routine table it jumped through or " +
-            "the function field its record held; " +
+            "never call a behaviour the callback the original dispatched it through, the routine table it jumped through, " +
+            "the function field its record held or the handler or setup code routine it ran; " +
             "hardware behaviour the game needs lives in " +
-            "a compatibility service named for the game (#1400, #1554, #1624, #1685, #1694, #1701, #1720, docs/core-vocabulary.md).");
+            "a compatibility service named for the game (#1400, #1554, #1624, #1685, #1694, #1701, #1720, #1721, docs/core-vocabulary.md).");
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
@@ -324,6 +337,8 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         {
             return $"names the original's routine dispatch ('{routine}') where it sends nothing and declares no delegate";
         }
+        if (ContainedPhrase(identifier, RoutinePhrases) is { } routineName)
+            return $"names the original's routine ('{routineName}')";
         if (ContainedWord(identifier, BehaviourFieldWords) is { } field && !holdsDelegate())
             return $"names the enemy record's AI function field ('{field}') where it declares no delegate";
         if (HexCode(identifier) is { } code)

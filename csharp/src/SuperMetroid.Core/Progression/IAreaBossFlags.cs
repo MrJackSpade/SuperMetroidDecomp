@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Progression;
 
-/// <summary>The current area's boss, mini-boss and Torizo defeat bits.</summary>
+/// <summary>Records the current area's boss, mini-boss and Torizo as defeated.</summary>
 public interface IAreaBossFlags : IAreaBossFlagReader
 {
-    /// <summary>Sets <paramref name="bits"/> for the current area.</summary>
-    void SetDefeated(BossBits bits);
+    /// <summary>Records <paramref name="bosses"/> as defeated in the current area.</summary>
+    void SetDefeated(DefeatedBosses bosses);
 }

@@ -167,8 +167,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             CheckSet("Used stations", portProgress.UsedStations, nativeProgress.UsedStations);
             foreach (AreaId area in Enum.GetValues<AreaId>())
             {
-                if (portProgress.DefeatedBosses(area) != nativeProgress.DefeatedBosses(area))
-                    mismatches.Add($"{area} bosses: native={nativeProgress.DefeatedBosses(area)} port={portProgress.DefeatedBosses(area)}");
+                if (portProgress.BossesDefeatedIn(area) != nativeProgress.BossesDefeatedIn(area))
+                    mismatches.Add($"{area} bosses: native={nativeProgress.BossesDefeatedIn(area)} port={portProgress.BossesDefeatedIn(area)}");
                 if (portProgress.HasAreaMap(area) != nativeProgress.HasAreaMap(area))
                     mismatches.Add($"{area} map: native={nativeProgress.HasAreaMap(area)} port={portProgress.HasAreaMap(area)}");
             }
@@ -410,7 +410,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 NativeSnapshotMemory.SamusMovementHandler);
             // DoorTransitionState installs a locked pair to suppress host control, while
             // native door dispatch retains ordinary alpha/beta pointers unused.
-            bool nativeControlLock = samus.Control.AlphaLocked && game.GameState is not
+            bool nativeControlLock = samus.Control.InputLocked && game.GameState is not
                 (SuperMetroidGameState.HitDoorBlock or SuperMetroidGameState.BeginningDoorTransition or
                  SuperMetroidGameState.DoorTransition);
             Check("Samus alpha handler", nativeControlLock
@@ -754,7 +754,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                         SamusProjectileFrameBehavior.PlasmaCombo or
                         SamusProjectileFrameBehavior.SpazerComboFalling or
                         SamusProjectileFrameBehavior.ShinesparkEcho or
-                        SamusProjectileFrameBehavior.SpacetimePaletteCopyTail or
+                        SamusProjectileFrameBehavior.SpaceTimeProgressionOverwrite or
                         SamusProjectileFrameBehavior.ChainsawPowerBomb or
                         SamusProjectileFrameBehavior.ChargedChainsawOverrun or
                         SamusProjectileFrameBehavior.MurderBeamMisalignedExecution => throw new InvalidDataException($"Movie projectile callback {projectile.FrameBehavior} needs a native identity mapping"),
@@ -1001,7 +1001,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 RoomLevelData level = runtime.Room.LevelData ?? throw new InvalidDataException("Missing active room collision data.");
                 Console.Error.WriteLine($"Pose history: port={(int)SamusPoseNumbers.Number(samus.PoseHistory.PreviousPose):X4}/{samus.PoseHistory.PreviousMovement}/{samus.PoseHistory.LastDifferentMovement}, native={W(NativeSnapshotMemory.PreviousPose):X4}/{W(NativeSnapshotMemory.PreviousDirection):X4}/{W(NativeSnapshotMemory.LastDifferentPose):X4}/{W(NativeSnapshotMemory.LastDifferentDirection):X4}");
                 Console.Error.WriteLine($"Liquid diagnostic: Y={samus.Position.Y.Whole:X4}, surface={samus.LiquidPhysics.LavaAcidSurfaceY?.ToString("X4", System.Globalization.CultureInfo.InvariantCulture) ?? "none"}, pose={(int)SamusPoseNumbers.Number(samus.Pose):X2}, radius={samus.Kinematics.Radius.Y}");
-                Console.Error.WriteLine($"Shot diagnostic: locked={samus.Control.AlphaLocked}, HUD={samus.SelectedHudItem}, charge={runtime.Projectiles.Charge.FlareCounter}, cooldown={runtime.BombProjectiles.CooldownTimer.RawValue}, held={runtime.Controller1.Current:X}, new={runtime.Controller1.NewlyPressed:X}");
+                Console.Error.WriteLine($"Shot diagnostic: locked={samus.Control.InputLocked}, HUD={samus.SelectedHudItem}, charge={runtime.Projectiles.Charge.FlareCounter}, cooldown={runtime.BombProjectiles.CooldownTimer.RawValue}, held={runtime.Controller1.Current:X}, new={runtime.Controller1.NewlyPressed:X}");
                 Console.Error.WriteLine($"Room width={level.Size.X}, Samus radius={samus.Kinematics.Radius.X}/{samus.Kinematics.Radius.Y}, speed={samus.HorizontalSpeed.BaseSpeed.Whole:X4}.{samus.HorizontalSpeed.BaseSpeed.Fraction:X4}+{samus.HorizontalSpeed.ExtraRunSpeed.Whole:X4}.{samus.HorizontalSpeed.ExtraRunSpeed.Fraction:X4}");
                 for (int block = 0; block < level.Size.X * level.Size.Y; block++)
                 {

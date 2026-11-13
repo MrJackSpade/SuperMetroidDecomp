@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// </summary>
 /// <remarks>
 /// The retail game does not run grapple physics through the grappling movement type's tiny handler.
-/// The grapple beam's handler updates the pendulum before normal beta
+/// The grapple beam's handler updates the pendulum before the normal movement phase
 /// movement, and the block collision advances its angle while probing room collision. This class keeps
 /// those responsibilities separate from ordinary aerial movement. Firing, persistent and breakable
 /// grapple blocks, enemy anchors, per-pixel rope adjustment, and the six-point angular terrain sweep are
@@ -318,7 +318,7 @@ public static class SamusGrappleMovement
         }
 
         // These are the game's own grapple phases. Each handler owns the whole
-        // grapple beta pass, so dispatch it before entering ordinary pendulum integration.
+        // grapple movement phase, so dispatch it before entering ordinary pendulum integration.
         if (grapple.Phase == GrapplePhase.ConnectedLocked)
             return StepLocked(terrain.Level, samus, controllerInput, enemyCollision);
         if (grapple.Phase == GrapplePhase.WallGrab)
@@ -351,7 +351,7 @@ public static class SamusGrappleMovement
 
             SamusGrappleSwing.PropelSamusFromSwing(samus, grapple);
             // The release installs the released-from-swing movement handler immediately. The beam remains in
-            // its one-frame release-cleanup phase, but beta movement already uses the
+            // its one-frame release-cleanup phase, but movement already uses the
             // independent release handler during this same gameplay frame.
             grapple.ReleasedMovementActive = true;
             grapple.Phase = GrapplePhase.ReleaseFromSwing;
@@ -432,7 +432,7 @@ public static class SamusGrappleMovement
 
         // Both release and block disconnection install the cancel. Mark the origin because
         // firing cancellation coexists with ordinary movement, whereas a locked grappling
-        // body must own this beta pass until its pose-definition fallback is committed.
+        // body must own this movement phase until its pose-definition fallback is committed.
         grapple.CancelFromConnectedPose = !samus.DraygonGrabbed.IsActive;
         grapple.Phase = GrapplePhase.CancelPending;
         return new GrappleMovementResult(
@@ -585,7 +585,7 @@ public static class SamusGrappleMovement
             WallJumpStarted: true);
     }
 
-    /// <summary>Ends a dropped connection, clears movement speeds, and applies or defers the fall pose for the beta pass.</summary>
+    /// <summary>Ends a dropped connection, clears movement speeds, and applies or defers the fall pose for the movement phase.</summary>
     private static GrappleMovementResult CompleteDropped(
 
         RoomLevelData level,
@@ -599,17 +599,17 @@ public static class SamusGrappleMovement
         QueueGrappleSound(samus, GrappleBeamDefinitions.Sounds.Stop);
         SamusBlockCollision.EjectAfterGrapple(level, samus.Kinematics);
         // The drop clears these speeds now, but publishes its pose to the transitional
-        // slot. Normal beta movement still runs before that pose is committed.
+        // slot. Normal movement still runs before that pose is committed.
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.Kinematics.YSpeed = default;
-        bool emptyBeta = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Grappling;
+        bool emptyMovement = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Grappling;
         if (!deferPoseChange)
             SamusAerialPoseTransitions.ApplyGrappleDropTransition(samus, level, targetPose, frameCounter, roomObjects);
         ClearConnectedGrapple(grapple);
         SamusHudSelection.ReturnAutoCancelledItem(samus);
         return new GrappleMovementResult(
             GrapplePhase.Inactive,
-            OwnsMovement: !deferPoseChange || emptyBeta,
+            OwnsMovement: !deferPoseChange || emptyMovement,
             PendingDropPose: deferPoseChange ? targetPose : null);
     }
 

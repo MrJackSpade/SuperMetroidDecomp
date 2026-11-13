@@ -112,8 +112,8 @@ internal static class RoomMainCodeCatalogVerification
         var contexts = new List<RoomStateSelectionContext>
         {
             default,
-            new(null, BossBits.None, HasMorphBallAndMissiles: true, HasPowerBombs: false),
-            new(null, BossBits.None, HasMorphBallAndMissiles: false, HasPowerBombs: true),
+            new(null, DefeatedBosses.None, HasMorphBallAndMissiles: true, HasPowerBombs: false),
+            new(null, DefeatedBosses.None, HasMorphBallAndMissiles: false, HasPowerBombs: true),
         };
         for (int bit = 0; bit < 8; bit++)
         {
@@ -127,7 +127,7 @@ internal static class RoomMainCodeCatalogVerification
         {
             ProgressSet<StoryEvent> events = new PersistentProgress().Events;
             events.Add(storyEvent);
-            contexts.Add(new RoomStateSelectionContext(events, BossBits.None, false, false));
+            contexts.Add(new RoomStateSelectionContext(events, DefeatedBosses.None, false, false));
         }
         return contexts.ToArray();
     }

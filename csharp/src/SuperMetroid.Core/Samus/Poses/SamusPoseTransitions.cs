@@ -64,7 +64,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         }
         SamusAerialMovement.ConfigureEnvironmentGravity(samus);
         samus.Pose = targetPose;
-        // Alpha publishes the falling radius next frame; pose commit retains the
+        // The input phase publishes the falling radius next frame; pose commit retains the
         // radius used by this frame's grounded movement and collision probes.
         // The pose refresh dispatches the new falling movement type through the falling initializer
         // before the fall's start initializes the downward state. That initializer derives
@@ -148,7 +148,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         {
             samus.Pose = targetPose;
             // Correct the center now, but retain the movement frame's live radius
-            // until alpha, including when landing on a frozen enemy.
+            // until the input phase, including when landing on a frozen enemy.
             samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
             SamusPresentation.InitializeAnimation(samus, initialFrame: StandingPoseInitialFrame(sourcePose, targetPose));
         }
@@ -232,8 +232,8 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     private static void SettleAcceptedLanding(SamusState samus, bool leavingScrewAttack)
     {
         // Installs the same one-shot input handler a turn animation's transition installs.
-        // Its short held-Jump window is evaluated next alpha, not during landing.
-        if (!samus.Control.AlphaLocked) samus.InputSnapshot.AutoJumpInputPending = true;
+        // Its short held-Jump window is evaluated in the next input phase, not during landing.
+        if (!samus.Control.InputLocked) samus.InputSnapshot.AutoJumpInputPending = true;
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.Kinematics.YSpeed = default;
@@ -285,7 +285,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         {
             samus.Pose = targetPose;
             // Leaves the collision radius at the compact body's radius: this frame's enemy and
-            // projectile collision still use it, and alpha's radius update takes the
+            // projectile collision still use it, and the input phase's radius update takes the
             // landing body only next frame, as for an ordinary landing.
             samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
             SamusPresentation.InitializeAnimation(samus, initialFrame: 0);

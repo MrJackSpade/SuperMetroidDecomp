@@ -10,6 +10,6 @@ public static class DoorSetups
         /// True only for the door into the Ceres elevator shaft, whose setup shows the room as a turning floor,
         /// unrotated, about room point (128, 1008).
         /// </summary>
-        public bool EntersCeresElevatorShaft => door.SetupCode == DoorSetupCode.CeresElevShowsTurningFloor;
+        public bool EntersCeresElevatorShaft => door.Setup.RoomEvent == DoorRoomEvent.ShowsTurningFloor;
     }
 }

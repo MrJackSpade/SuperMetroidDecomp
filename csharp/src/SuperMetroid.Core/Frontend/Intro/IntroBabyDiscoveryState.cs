@@ -113,7 +113,7 @@ internal sealed class IntroBabyDiscoveryState
             // dispatch skips Samus's movement and animation.
             if (!samusHandlersEnded)
             {
-                // The intro-demo alpha publishes the current pose's collision radius
+                // The intro-demo input phase publishes the current pose's collision radius
                 // before input/movement, rather than requiring pose setters to publish early.
                 SamusPoseMetadata.RefreshCollisionRadii(Samus);
                 IntroSamusDemoMovement.StepGroundedLeft(

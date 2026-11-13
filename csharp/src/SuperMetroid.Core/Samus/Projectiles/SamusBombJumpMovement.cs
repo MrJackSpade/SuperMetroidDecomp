@@ -25,7 +25,7 @@ public static class SamusBombJumpMovement
 
         // The launch uses the same bottom-edge air/water/lava classification as ordinary
         // launch, indexing adjacent table entries by medium. Gravity is refreshed by
-        // frame-handler alpha, so this launch replaces only the launch speed/direction.
+        // the input phase, so this launch replaces only the launch speed/direction.
         samus.Kinematics.YSpeed =
             SamusVerticalMotion.BombJump(samus.LiquidPhysics.DetermineMovementMedium(samus));
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;

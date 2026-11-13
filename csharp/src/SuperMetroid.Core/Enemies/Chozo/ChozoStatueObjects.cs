@@ -57,7 +57,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
              SamusPoseId.SpringBallGroundRightPose or SamusPoseId.SpringBallGroundLeftPose);
         eligible &= wreckedShip
             ? (_system ?? throw new InvalidOperationException("Chozo hand has no progression owner."))
-                .HasAnyBossBits(_area, BossBits.AreaBoss)
+                .HasDefeatedAnyOf(_area, DefeatedBosses.AreaBoss)
             : samus.CollectedItems.HasAny(SamusEquipmentFlags.SpaceJump);
         // The check holds a place of its own while it runs, so the statue's objects it spawns take the places after it.
         if (_slotTable.Spawn() is not { } check)

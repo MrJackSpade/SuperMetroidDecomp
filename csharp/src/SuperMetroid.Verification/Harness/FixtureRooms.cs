@@ -19,5 +19,5 @@ internal static class FixtureRooms
         RoomObjectBlock: default,
         DestinationScreen: default,
         SamusSpeed: DoorSamusSpeed.None,
-        SetupCode: DoorSetupCode.None);
+        Setup: DoorSetupDefinitions.None);
 }

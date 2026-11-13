@@ -350,7 +350,7 @@ internal static class SamusGroundedPoseTransitions
                 $"Moonwalk turn/jump {samus.Pose} -> {targetPose} is not a retail route.");
         }
 
-        // Preserve the old muzzle direction before installing turn art. The next alpha
+        // Preserve the old muzzle direction before installing turn art. The next input phase
         // uses the handed shot to admit the turning HUD producer and forcibly release charge.
         SamusProjectileDirection? sourceShotDirection = SamusPoseMetadata.ReadAimDirection(samus);
         FoldExtraRunSpeedIntoBaseAndStartTurn(samus);
@@ -640,7 +640,7 @@ level, targetPose, frameCounter, roomObjects, out int adjustment);
 
         samus.Pose = targetPose;
         // Aerial turn completion runs the pose change without the radius update; its source body
-        // remains active until next alpha, including compact down-aim targets.
+        // remains active until the next input phase, including compact down-aim targets.
         if (refreshRadius)
             SamusPoseMetadata.RefreshCollisionRadii(samus);
         // Retains the frame/timer when the ordinary pose is

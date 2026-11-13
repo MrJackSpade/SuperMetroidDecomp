@@ -293,7 +293,7 @@ internal static class FileSelectRoomMapVerification
         AssertEqual(0x0b, explored.LowTable[6], "refill draws between boss and destination");
         AssertEqual(56, explored.LowTable[4], "refill exact scrolled X");
         AssertEqual(64, explored.LowTable[5], "refill exact scrolled Y");
-        system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss);
+        system.RecordBossesDefeated(AreaId.Brinstar, DefeatedBosses.AreaBoss);
         ScreenSprites defeated = Draw();
         AssertEqual(8, defeated.LastFinalizedSpriteCount, "defeated boss adds its overlay ahead of the dim marker, refill and five destinations");
         AssertEqual(0x62, defeated.LowTable[2], "defeated overlay precedes boss marker");

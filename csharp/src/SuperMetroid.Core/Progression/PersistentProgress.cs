@@ -16,7 +16,7 @@ public sealed class PersistentProgress
     private const int MapCellsPerArea = AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles;
 
     /// <summary>Each area's defeated bosses.</summary>
-    private readonly Dictionary<AreaId, BossBits> _defeatedBosses = AreaIds.All.ToDictionary(area => area, _ => BossBits.None);
+    private readonly Dictionary<AreaId, DefeatedBosses> _defeatedBosses = AreaIds.All.ToDictionary(area => area, _ => DefeatedBosses.None);
 
     /// <summary>Whether each area's map has been acquired.</summary>
     private readonly Dictionary<AreaId, bool> _acquiredMaps = AreaIds.All.ToDictionary(area => area, _ => false);
@@ -63,13 +63,13 @@ public sealed class PersistentProgress
     public void ClearEvent(StoryEvent storyEvent) => Events.Remove(storyEvent);
 
     /// <summary>The bosses defeated in <paramref name="area"/>.</summary>
-    public BossBits DefeatedBosses(AreaId area) => _defeatedBosses[AreaIds.Require(area)];
+    public DefeatedBosses BossesDefeatedIn(AreaId area) => _defeatedBosses[AreaIds.Require(area)];
 
     /// <summary>Replaces the bosses defeated in <paramref name="area"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="bosses"/> holds a flag the game does not name.</exception>
-    public void SetDefeatedBosses(AreaId area, BossBits bosses)
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="bosses"/> names a boss the game does not name.</exception>
+    public void SetDefeatedBosses(AreaId area, DefeatedBosses bosses)
     {
-        ProvenBossBits.Validate(bosses, $"{area}'s defeated bosses");
+        ProvenDefeatedBosses.Validate(bosses, $"{area}'s defeated bosses");
         _defeatedBosses[AreaIds.Require(area)] = bosses;
     }
 
@@ -107,7 +107,7 @@ public sealed class PersistentProgress
         Events.Overwrite(overwrite.Events);
         if (overwrite.ZebetitesDestroyed is int zebetitesDestroyed)
             ZebetitesDestroyed = zebetitesDestroyed;
-        foreach (KeyValuePair<AreaId, BossBits> bosses in overwrite.AreaBosses)
+        foreach (KeyValuePair<AreaId, DefeatedBosses> bosses in overwrite.AreaBosses)
             SetDefeatedBosses(bosses.Key, bosses.Value);
         CollectedItems.Overwrite(overwrite.CollectedItems);
         OpenedDoors.Overwrite(overwrite.OpenedDoors);

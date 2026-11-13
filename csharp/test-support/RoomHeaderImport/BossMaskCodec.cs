@@ -13,11 +13,11 @@ internal static class BossMaskCodec
     /// <param name="value">The mask byte.</param>
     /// <param name="context">The mask's owner, named in the error.</param>
     /// <exception cref="InvalidDataException">The mask sets a bit that names no boss, or is not a byte.</exception>
-    internal static BossBits Decode(int value, string context)
+    internal static DefeatedBosses Decode(int value, string context)
     {
         if (value is < 0 or > byte.MaxValue)
             throw new InvalidDataException($"{context}: boss mask {value} is not a byte.");
-        int unnamed = value & ~ProgressionTableCodec.EncodeBossMask(BossBitMasks.AllKnown);
+        int unnamed = value & ~ProgressionTableCodec.EncodeBossMask(DefeatedBossKinds.AllKnown);
         if (unnamed != 0)
             throw new InvalidDataException($"{context}: boss mask ${value:X2} sets bits ${unnamed:X2}, which name no boss.");
         return ProgressionTableCodec.StoredBosses(value);

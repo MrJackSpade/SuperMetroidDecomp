@@ -10,7 +10,7 @@ internal static class SamusGrappleHudInput
     /// <summary>Admits a selected Grapple input only for movement handlers that can fire it in the current pose transition.</summary>
     public static bool IsSelectedAndAdmitted(SamusState samus, PostureAdmissionBeyondTransitions<SamusPoseId> postureAdmission)
     {
-        if (samus.Control.AlphaLocked || SamusPoseMetadata.IsForwardFacingPose(samus.Pose) ||
+        if (samus.Control.InputLocked || SamusPoseMetadata.IsForwardFacingPose(samus.Pose) ||
             samus.SelectedHudItem != HudItem.Grapple)
             return false;
 

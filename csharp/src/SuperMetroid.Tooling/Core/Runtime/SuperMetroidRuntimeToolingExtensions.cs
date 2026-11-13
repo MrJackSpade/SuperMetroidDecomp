@@ -49,7 +49,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
         /// <summary>
         /// Loads one retail room header directly for the ROM-backed debug runner. Gameplay never
         /// calls this seam: normal play must still arrive through a bank-$83 door so placement
-        /// and setup code remain authoritative. Keeping the helper internal lets end-to-end
+        /// and door setup remain authoritative. Keeping the helper internal lets end-to-end
         /// audits exercise the complete runtime, renderer, enemy scheduler, and Samus handlers
         /// in a late room without duplicating several minutes of controller input.
         /// </summary>
@@ -68,7 +68,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 : RoomStateLists.GetStates(definition).Contains(state) ? new SelectedRoom(definition, state)
                 : throw new ArgumentException($"{state.Name} is not a state of room {definition.Name}.", nameof(state));
             // The debug seam intentionally supplies an inert synthetic door. Any room whose
-            // correctness depends on setup code must instead be audited through its real door;
+            // correctness depends on a door setup must instead be audited through its real door;
             // Ceres Ridley's ordinary mode-nine room has no incoming setup routine dependency.
             var door = new DoorDefinition(
                 Name: "debug room entry",
@@ -77,7 +77,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 RoomObjectBlock: default,
                 DestinationScreen: camera.ToRoomScreen(),
                 SamusSpeed: DoorSamusSpeed.None,
-                SetupCode: DoorSetupCode.None);
+                Setup: DoorSetupDefinitions.None);
 
             InitialViewportResult viewport = self.RoomLoader.LoadRoom(
                 door,

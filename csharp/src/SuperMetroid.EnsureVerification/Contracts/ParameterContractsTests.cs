@@ -25,7 +25,7 @@ internal static class ParameterContractsTests
             "INoobTubeProjectileSpawner noob = effects; IEyeDoorProjectileSpawner eye = effects; " +
             "IOldTourianWallExplosion wall = effects; IDraygonCannonControl cannon = effects;");
         VerifyContract("a PLM family cannot reach another family's effect", "noobTube.DisableDraygonCannon(0);", "CS1061");
-        VerifyContract("PLM boss reads are read-only", "bossReader.SetDefeated(BossBits.AreaTorizo);", "CS1061");
+        VerifyContract("PLM boss reads are read-only", "bossReader.SetDefeated(DefeatedBosses.AreaTorizo);", "CS1061");
         VerifyContract("area boss flags satisfy the PLM reader", "IAreaBossFlagReader reader = bosses;");
         VerifyContract("PLM services require Samus", "_ = new RoomObjectServices { Bosses = bossReader };", "CS9035");
         VerifyContract("PLM services accept their required capabilities",

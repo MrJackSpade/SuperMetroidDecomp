@@ -156,7 +156,7 @@ public static class PauseAudioSmokeTest
     private static SaveSlotStore SeedCrateriaSave()
     {
         var system = new SharedGameState(new SharedRandom());
-        system.SetBossBits(0, BossBits.AreaTorizo);
+        system.RecordBossesDefeated(0, DefeatedBosses.AreaTorizo);
         system.MarkSaveStationUsed(0, 0);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {

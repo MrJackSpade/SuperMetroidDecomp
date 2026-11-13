@@ -194,7 +194,7 @@ internal static class SamusPoseMetadata
     /// not live in this state object. This method deliberately covers only the state it can
     /// own exactly: equipment-selected pose, its animation, the radius-dependent lift and
     /// all motion values cleared by the setup. It does not write the collision radius;
-    /// the next alpha's radius update does. Runtime/debug callers remain responsible for
+    /// the next input phase's radius update does. Runtime/debug callers remain responsible for
     /// input lock, palette and grapple before their first displayed frame.
     /// </remarks>
     public static void ApplyForwardFacingPoseSetup(SamusState samus)
@@ -603,7 +603,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// Publishes a bomb overlap's launch direction as a request Samus's pose handling has not yet accepted. The
-    /// gameplay loop does this after frame-handler alpha; setup considers it after movement and hurt arbitration.
+    /// gameplay loop does this after the input phase; setup considers it after movement and hurt arbitration.
     /// </summary>
     public static void PublishBombJumpDirection(SamusState samus, SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection direction) =>
         // Replaces the whole request, so a blast during an accepted jump publishes a fresh, unaccepted one.

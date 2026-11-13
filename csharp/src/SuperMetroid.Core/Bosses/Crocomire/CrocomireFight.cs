@@ -64,7 +64,7 @@ internal sealed class CrocomireFight
         _access.CrocomireDeath = new CrocomireDeathState();
         _presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Crocomire));
 
-        if (_room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss))
+        if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {
             // The dead-room state keeps only Crocomire's skeleton display actor. Property
             // mask and these radii/coordinates are literal writes.
@@ -99,7 +99,7 @@ internal sealed class CrocomireFight
     /// <summary>Sets Crocomire's tongue up when the room spawns it.</summary>
     internal void InitializeCrocomireTongue(RoomEnemySlot slot)
     {
-        if (_room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss))
+        if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {
             slot.Processing = slot.Processing.Without(EnemyProcessing.Animates);
             slot.Presence = slot.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);

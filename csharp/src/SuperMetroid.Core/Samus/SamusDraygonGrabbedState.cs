@@ -27,7 +27,7 @@ public sealed class SamusDraygonGrabbedState
     /// <summary>Another behaviour replaced the empty movement handler without removing grab gamma.</summary>
     public bool MovementHandlerReplaced { get; private set; }
 
-    /// <summary>True only while the grab's empty handler still owns beta movement.</summary>
+    /// <summary>True only while the grab's empty handler still owns movement.</summary>
     public bool OwnsMovement => IsActive && !MovementHandlerReplaced;
 
     /// <summary>Preserves grab gamma while a newer movement behaviour replaces the empty handler.</summary>
@@ -125,7 +125,7 @@ public sealed class SamusDraygonGrabbedState
     /// Runs <see cref="SamusMovementType.DraygonHeld"/> movement for every pose of that movement type: the grabbed poses,
     /// whose position enemy AI has already supplied through <see cref="ApplyOwnerPosition"/>, and the Draygon-held ball the
     /// Baby's Hyper Beam freeze can install without Draygon (#1535), which therefore stays where it is. Its entire normal
-    /// beta handler clears one result.
+    /// movement mode clears one result.
     /// </summary>
     public static void StepMovement(SamusState samus)
     {

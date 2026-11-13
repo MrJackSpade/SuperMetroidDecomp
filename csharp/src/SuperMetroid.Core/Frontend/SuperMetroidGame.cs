@@ -483,7 +483,7 @@ public sealed class SuperMetroidGame
                 Position = samus.Position.Whole,
                 HeldButtons = runtime.Controller1.Current,
                 NewlyPressedButtons = runtime.Controller1.NewlyPressed,
-                InputLocked = samus.Control.AlphaLocked,
+                InputLocked = samus.Control.InputLocked,
                 DrainedPhase = samus.Drained.Phase,
                 DrainedGetUp = samus.Drained.GetUpHandler,
                 EscapeTimer = runtime.EscapeTimer.Phase,

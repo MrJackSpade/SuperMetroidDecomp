@@ -68,7 +68,7 @@ internal static class RetailSaveCaptureTests
             var packet = new DisplayPacket((ushort)frames, GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: save animation frame {frames}");
             var current = runtime.RoomObjects.StationSnapshots.Single(s => s.Kind == StationKind.Save);
-            if (completion && current.SaveStationLockedOut && current.SavePhase == SaveStationPhase.Idle && !samus.Control.AlphaLocked)
+            if (completion && current.SaveStationLockedOut && current.SavePhase == SaveStationPhase.Idle && !samus.Control.InputLocked)
             { finished = true; break; }
         }
         if (!finished || !confirmation || !electricity || !completion)

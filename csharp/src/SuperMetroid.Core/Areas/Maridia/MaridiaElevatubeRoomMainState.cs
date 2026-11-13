@@ -47,7 +47,7 @@ public sealed class MaridiaElevatubeRoomMainState
     /// <summary>Applies the door behaviour for entry from Oasis to the south.</summary>
     public void SetUpFromSouth(SamusState samus)
     {
-        EnsureActive(DoorSetupCode.ToiletStartsElevatubeRideFromSouth);
+        EnsureActive(DoorRoomEvent.StartsElevatubeRideFromSouth);
         Ensure.NotNull(samus);
         // Entry from the south leaves the tracked fraction as it was.
         TrackedPosition = new(0, MaridiaElevatubeDefinitions.SouthStartingY);
@@ -59,7 +59,7 @@ public sealed class MaridiaElevatubeRoomMainState
     /// <summary>Applies the door behaviour for entry from Plasma Spark to the north.</summary>
     public void SetUpFromNorth(SamusState samus)
     {
-        EnsureActive(DoorSetupCode.ToiletStartsElevatubeRideFromNorth);
+        EnsureActive(DoorRoomEvent.StartsElevatubeRideFromNorth);
         Ensure.NotNull(samus);
         // Entry from the north leaves the tracked fraction as it was.
         TrackedPosition = new(0, MaridiaElevatubeDefinitions.NorthStartingY);
@@ -124,11 +124,11 @@ public sealed class MaridiaElevatubeRoomMainState
     }
 
     /// <summary>Rejects a door's setup behaviour when the room has not selected the elevatube.</summary>
-    private void EnsureActive(DoorSetupCode setupCode)
+    private void EnsureActive(DoorRoomEvent roomEvent)
     {
         if (IsActive)
             return;
         throw new InvalidDataException(
-            $"Door setup {setupCode} drives the elevatube in a room whose room behaviour is not the elevatube.");
+            $"Door setup event {roomEvent} drives the elevatube in a room whose room behaviour is not the elevatube.");
     }
 }

@@ -15,7 +15,7 @@ public enum ChozoStatueFrameBehavior
     /// <summary>Waits for Lower Norfair's hand-trigger room object.</summary>
     WaitForLowerNorfairHandTrigger,
 
-    /// <summary>Waits for Phantoon's boss bit and the Wrecked Ship hand trigger.</summary>
+    /// <summary>Waits for Phantoon's defeat and the Wrecked Ship hand trigger.</summary>
     WaitForWreckedShipHandTrigger,
 
     /// <summary>The no-op installed while the Wrecked Ship statue walks.</summary>

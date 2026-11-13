@@ -137,7 +137,7 @@ internal static class RoomObjectPopulationVerification
                 RoomObjectBlock: new(1, 1),
                 DestinationScreen: new(0, 0),
                 SamusSpeed: DoorSamusSpeed.None,
-                SetupCode: DoorSetupCode.None);
+                Setup: DoorSetupDefinitions.None);
             bool spawned = roomObjects.DoorObjects.TrySpawnDoorClosingObject(
                 level, door, new SharedGameState(new SharedRandom()));
             AssertEqual(expectedHeader != 0, spawned,
@@ -214,7 +214,7 @@ internal static class RoomObjectPopulationVerification
                 RoomObjectBlock: new(blockX, blockY),
                 DestinationScreen: new(0, 0),
                 SamusSpeed: DoorSamusSpeed.None,
-                SetupCode: DoorSetupCode.None);
+                Setup: DoorSetupDefinitions.None);
             AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor, system),
                 $"resident door $84:{raw:X4} accepts transition redirect");
             RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
@@ -240,7 +240,7 @@ internal static class RoomObjectPopulationVerification
             RoomObjectBlock: new(1, 1),
             DestinationScreen: new(0, 0),
             SamusSpeed: DoorSamusSpeed.None,
-            SetupCode: DoorSetupCode.None);
+            Setup: DoorSetupDefinitions.None);
         AssertThrows<InvalidDataException>(
             () => blueObjects.DoorObjects.TrySpawnDoorClosingObject(blueLevel, blueDoor, new SharedGameState(new SharedRandom())),
             "a shot blue cap at the door is outside the resident closing domain");
@@ -323,10 +323,10 @@ internal static class RoomObjectPopulationVerification
             "energy setup installs BTS $49");
         AssertTrue(roomObjects.TryNotifyStationTouch(level, new(21, 8), 0x49),
             "generic BTS dispatcher locates energy-station parent");
-        AssertTrue(samus.Control.AlphaLocked,
+        AssertTrue(samus.Control.InputLocked,
             "station access setup runs command six before its first PLM handler pass");
         roomObjects.Step(level);
-        AssertTrue(samus.Control.AlphaLocked,
+        AssertTrue(samus.Control.InputLocked,
             "station access command locks Samus during six-plus-$60 insertion");
         AssertTrue(roomObjects.Sounds.SoundRequests.Contains(new SoundRequest(EnemySound.StationEngaged, SoundRequestPriority.Normal)),
             "station access begins with cartridge extension sound $37");
@@ -409,7 +409,7 @@ internal static class RoomObjectPopulationVerification
             RoomObjectBlock: new(doorX, doorY),
             DestinationScreen: new(0, 0),
             SamusSpeed: DoorSamusSpeed.AxisDefault,
-            SetupCode: DoorSetupCode.None);
+            Setup: DoorSetupDefinitions.None);
         AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor, system),
             "Bomb Torizo entry redirects the resident door to its secondary list");
         AssertEqual(GreyDoorPhase.Closing, roomObjects.GreyDoorSnapshots.Single().Phase,
@@ -514,7 +514,7 @@ internal static class RoomObjectPopulationVerification
             RoomObjectBlock: new(doorX, doorY),
             DestinationScreen: new(0, 0),
             SamusSpeed: DoorSamusSpeed.AxisDefault,
-            SetupCode: DoorSetupCode.None);
+            Setup: DoorSetupDefinitions.None);
         AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor, system),
             "room $9B9D redirects its resident grey door to closing list $BE59");
 
@@ -878,7 +878,7 @@ internal static class RoomObjectPopulationVerification
             RoomObjectBlock: new(gateX, gateY),
             DestinationScreen: new(0, 0),
             SamusSpeed: DoorSamusSpeed.AxisDefault,
-            SetupCode: DoorSetupCode.None);
+            Setup: DoorSetupDefinitions.None);
         AssertTrue(escape.DoorObjects.TrySpawnDoorClosingObject(escapeLevel, motherBrainExit, system),
             "direction-nine Mother Brain exit redirects the resident gate");
         AssertEqual(1, escape.SlotTable.ActiveCount,
@@ -1132,7 +1132,7 @@ internal static class RoomObjectPopulationVerification
 
         AssertTrue(roomObjects.TryNotifyStationTouch(level, new(7, 6), 0x47),
             "map access resolves parent");
-        AssertTrue(samus.Control.AlphaLocked,
+        AssertTrue(samus.Control.InputLocked,
             "map access setup locks Samus before the resident PLM advances");
         AssertTrue(roomObjects.TryNotifyStationTouch(level, new(13, 6), 0x4b),
             "missile access resolves parent");
@@ -1153,7 +1153,7 @@ internal static class RoomObjectPopulationVerification
             "two station parents publish two explicit activations");
         // $84:8CE7 runs Samus command one as soon as the missile message returns; the map
         // activation never unlocks, but both fixtures share this Samus owner.
-        AssertTrue(!samus.Control.AlphaLocked,
+        AssertTrue(!samus.Control.InputLocked,
             "missile activation releases Samus after its completion message");
 
         // The runtime freezes this PLM while the message is open. Once bank $85 returns,
@@ -1167,7 +1167,7 @@ internal static class RoomObjectPopulationVerification
             "map access retracts its linked left-side block");
         AssertEqual(RoomTerrainBlock.Of(0x0c3, BlockMirroring.Horizontal, RoomCollisionType.SpecialBlock), level.GetCollisionBlock(new(13, 6)).Terrain,
             "missile access retracts to its compiled resource word");
-        AssertTrue(!samus.Control.AlphaLocked,
+        AssertTrue(!samus.Control.InputLocked,
             "Samus stays released through the post-message retraction");
 
         AssertTrue(roomObjects.TryNotifyStationTouch(level, new(18, 6), 0x4d),
@@ -1196,7 +1196,7 @@ internal static class RoomObjectPopulationVerification
             "save animation centers Samus on the station's 16-pixel boundary");
         AssertTrue(SamusPoseMetadata.IsForwardFacingPose(samus.Pose),
             "save animation applies shared MakeSamusFaceForward setup");
-        AssertTrue(samus.Control.AlphaLocked, "save animation owns Samus input");
+        AssertTrue(samus.Control.InputLocked, "save animation owns Samus input");
         AssertEqual(level.GridBlock(new(18, 6)), saveRequest.Block,
             "save activation retains the executing PLM block for bank-$86 electricity");
         Suite(nameof(VerifySaveStationElectricity), () => VerifySaveStationElectricity(bus, level, saveRequest.Block));
@@ -1225,7 +1225,7 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(GameplayMessageIds.SaveCompleted, completion.MessageBoxIndex,
             "save animation publishes game-saved message only after its draw loop");
         roomObjects.Stations.CompleteSaveStation(completion);
-        AssertTrue(!samus.Control.AlphaLocked, "game-saved message return unlocks Samus");
+        AssertTrue(!samus.Control.InputLocked, "game-saved message return unlocks Samus");
         AssertTrue(roomObjects.StationSnapshots.Single(station => station.Kind == StationKind.Save)
             .SaveStationLockedOut,
             "save completion installs once-per-room-entry lockout");

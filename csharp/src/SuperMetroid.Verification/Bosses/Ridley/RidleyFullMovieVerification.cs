@@ -130,7 +130,7 @@ internal static class RidleyFullMovieVerification
         runtime.Enemies.RidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
         AssertEqual(RidleyPhase.NorfairDeathComplete, state.Phase, "death finish selects native C600 return");
         AssertTrue(body.Presence.HasAny(EnemyPresence.Deleted), "death finish publishes deletion");
-        AssertTrue(runtime.System.HasAnyBossBits(AreaId.Norfair, BossBits.AreaBoss) && runtime.Enemies.ActiveEnemyDropPickups > 0,
+        AssertTrue(runtime.System.HasDefeatedAnyOf(AreaId.Norfair, DefeatedBosses.AreaBoss) && runtime.Enemies.ActiveEnemyDropPickups > 0,
             "death finish publishes boss defeat and drops");
         int random = runtime.System.RandomNumber;
         runtime.Enemies.RidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
@@ -158,13 +158,13 @@ internal static class RidleyFullMovieVerification
         AssertEqual(31, state.PhaseTimer, "native setup falls through first carry countdown");
         AssertEqual((ushort)0xb6, state.Velocity.X.RawValue, "native same-update grab X acceleration");
         AssertEqual((ushort)0xfbfc, state.Velocity.Y.RawValue, "native same-update grab Y acceleration");
-        AssertTrue(samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked, "native grab installs command-zero alpha/beta pair");
+        AssertTrue(samus.Control.Mode.Movement == SamusMovementMode.ScriptLocked, "native grab installs command-zero alpha/beta pair");
         var bombs = CreateBombFixture();
         bombs.SetSharedCooldown(10);
         bombs.StepFrame(new SamusTerrain { Level = runtime.Room.LoadedLevelData }, samus, 0, 0, explosion: PowerBombExplosionStep.Skip);
         AssertEqual((ushort)10, bombs.CooldownTimer.RawValue, "native locked alpha preserves cooldown");
         NorfairRidleyDeath.ReleaseNorfairRidleyGrab(state, samus);
-        AssertTrue(!samus.Control.AlphaLocked && samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked, "native release restores ordinary control");
+        AssertTrue(!samus.Control.InputLocked && samus.Control.Mode.Movement != SamusMovementMode.ScriptLocked, "native release restores ordinary control");
         bombs.StepFrame(new SamusTerrain { Level = runtime.Room.LoadedLevelData }, samus, 0, 0, explosion: PowerBombExplosionStep.Skip);
         AssertEqual((ushort)9, bombs.CooldownTimer.RawValue, "native unlocked alpha resumes cooldown");
         // Native source8395: a descending lunge grabs standing Samus. Ground attacks
@@ -219,7 +219,7 @@ internal static class RidleyFullMovieVerification
             foreach (AreaId area in Enum.GetValues<AreaId>())
                 foreach (Position16<MapTiles> cell in runtime.System.Progress.ExploredCells(area).ToList())
                     runtime.System.Progress.SetExplored(area, cell, explored: false);
-            if (defeated) runtime.System.SetBossBits(AreaId.Norfair, BossBits.AreaBoss);
+            if (defeated) runtime.System.RecordBossesDefeated(AreaId.Norfair, DefeatedBosses.AreaBoss);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
             var room = runtime.Room.LoadedRoom;
             AssertEqual(!defeated, runtime.Hud.MinimapDisabled, "only live Ridley disables the minimap");

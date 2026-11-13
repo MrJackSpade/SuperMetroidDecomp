@@ -178,7 +178,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
         "active rainbow start runs native drained setup command");
     AssertEqual(DrainedGetUpHandler.AbleToStand, samus.Drained.GetUpHandler,
         "energy 999 selects command five able handler");
-    AssertTrue(samus.Control.AlphaLocked, "rainbow start locks Samus input handlers");
+    AssertTrue(samus.Control.InputLocked, "rainbow start locks Samus input handlers");
     AssertTrue(attack.RainbowAttack.BeamActive, "rainbow start shows the beam");
     AssertEqual(RotationAngle.FromSteps(2), attack.RainbowAttack.AngularWidth, "rainbow start width");
 
@@ -224,7 +224,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
         "drain timer underflow installs finish-firing function");
 
     int narrowingCalls = 0;
-    bool lockedBeforeNarrowing = samus.Control.AlphaLocked;
+    bool lockedBeforeNarrowing = samus.Control.InputLocked;
     while (attack.State.Phase == MotherBrainBodyPhase.SecondPhaseRainbowFinishFiring)
     {
         attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
@@ -232,7 +232,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     }
     AssertEqual(7, narrowingCalls, "$0C00 beam narrows below $0200 in seven calls");
     AssertEqual(RotationAngle.FromSteps(2), attack.RainbowAttack.AngularWidth, "beam shutdown pins angular width floor");
-    AssertTrue(lockedBeforeNarrowing && !samus.Control.AlphaLocked, "beam shutdown runs Samus command one");
+    AssertTrue(lockedBeforeNarrowing && !samus.Control.InputLocked, "beam shutdown runs Samus command one");
     AssertTrue(!attack.RainbowAttack.BeamActive, "beam shutdown hides the beam");
 
     int fallingCalls = 0;

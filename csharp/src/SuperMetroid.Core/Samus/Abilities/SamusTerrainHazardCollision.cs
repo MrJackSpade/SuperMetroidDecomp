@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <remarks>
 /// Solid spike blocks are handled synchronously by the directional movement dispatcher.
 /// Spike-air is deliberately different: the inside-block reaction samples Samus's bottom, center, and
-/// top points during frame-handler alpha, before beta movement. Keeping both entry points
+/// top points during the input phase, before movement. Keeping both entry points
 /// here prevents their similar damage values from erasing that timing distinction.
 /// </remarks>
 public static class SamusTerrainHazardCollision
@@ -29,7 +29,7 @@ public static class SamusTerrainHazardCollision
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
 
-        // The spike reaction makes Wrecked Ship's heavy spike blocks harmless until Phantoon's area-boss bit is set.
+        // The spike reaction makes Wrecked Ship's heavy spike blocks harmless until Phantoon is defeated.
         // Every other area admits that reaction unconditionally.
         samus.HeavySpikeDamageEnabled =
             area != AreaId.WreckedShip || areaBossDefeated;
@@ -64,7 +64,7 @@ public static class SamusTerrainHazardCollision
         PublishDamage(samus, damage);
     }
 
-    /// <summary>Tests one alpha-phase body sample for damaging spike-air, restoring normal-air speed selection before the invincibility and contact-damage gates.</summary>
+    /// <summary>Tests one input-phase body sample for damaging spike-air, restoring normal-air speed selection before the invincibility and contact-damage gates.</summary>
     private static void VisitInsidePoint(
         RoomLevelData level,
         SamusState samus,

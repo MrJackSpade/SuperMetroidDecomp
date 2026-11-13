@@ -29,16 +29,16 @@ internal static class SharedGameStateAccess
         internal void SetOpenedDoorBit(int number) => self.OpenDoor(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(number));
 
         /// <summary>Records bosses as defeated in the area with index <paramref name="areaIndex"/>.</summary>
-        internal void SetBossBits(int areaIndex, BossBits bits) => self.SetBossBits(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(areaIndex), bits);
+        internal void RecordBossesDefeated(int areaIndex, DefeatedBosses bosses) => self.RecordBossesDefeated(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(areaIndex), bosses);
 
         /// <summary>Forgets bosses as defeated in the area with index <paramref name="areaIndex"/>.</summary>
-        internal void ClearBossBits(int areaIndex, BossBits bits) => self.ClearBossBits(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(areaIndex), bits);
+        internal void ForgetBossesDefeated(int areaIndex, DefeatedBosses bosses) => self.ForgetBossesDefeated(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(areaIndex), bosses);
 
         /// <summary>Whether any of the bosses is defeated in the area with index <paramref name="areaIndex"/>.</summary>
-        internal bool HasAnyBossBits(int areaIndex, BossBits bits) => self.HasAnyBossBits(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(areaIndex), bits);
+        internal bool HasDefeatedAnyOf(int areaIndex, DefeatedBosses bosses) => self.HasDefeatedAnyOf(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(areaIndex), bosses);
 
         /// <summary>The bosses defeated in the area with index <paramref name="areaIndex"/>.</summary>
-        internal BossBits GetBossBits(int areaIndex) => self.GetBossBits(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(areaIndex));
+        internal DefeatedBosses BossesDefeatedIn(int areaIndex) => self.BossesDefeatedIn(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(areaIndex));
 
         /// <summary>Marks a map cell of the area with index <paramref name="areaIndex"/> explored.</summary>
         internal void MarkExploredMapTile(int areaIndex, Position16<MapTiles> cell) => self.MarkExploredMapTile(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(areaIndex), cell);

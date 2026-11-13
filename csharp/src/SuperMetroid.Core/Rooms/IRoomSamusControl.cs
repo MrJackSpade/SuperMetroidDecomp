@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>The control locks room stations put on Samus and release (#1395). Samus's control implements it.</summary>
 public interface IRoomSamusControl
 {
-    /// <summary>Whether Samus's movement handler is locked.</summary>
-    bool AlphaLocked { get; }
+    /// <summary>Whether Samus's input is locked.</summary>
+    bool InputLocked { get; }
 
     /// <summary>Returns Samus to normal control.</summary>
     void Unlock();

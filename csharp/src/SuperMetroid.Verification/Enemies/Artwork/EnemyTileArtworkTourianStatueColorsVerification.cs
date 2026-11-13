@@ -199,7 +199,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             for (int area = 1; area <= 4; area++)
-                runtime.System.SetBossBits(area, BossBits.AreaBoss);
+                runtime.System.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
             foreach (StoryEvent greyEvent in new[] { StoryEvent.PhantoonStatueGrey, StoryEvent.RidleyStatueGrey, StoryEvent.DraygonStatueGrey, StoryEvent.KraidStatueGrey })
                 runtime.System.Progress.Events.Add(greyEvent);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);

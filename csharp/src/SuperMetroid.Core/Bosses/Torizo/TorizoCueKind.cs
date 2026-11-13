@@ -15,7 +15,7 @@ internal enum TorizoCueKind
     MakeInvisible,
     /// <summary>Starts the palette fade to black.</summary>
     FadeToBlack,
-    /// <summary>Sets the boss bit, queues the elevator music and spawns the drops.</summary>
+    /// <summary>Records the boss's defeat, queues the elevator music and spawns the drops.</summary>
     FinishDeath,
     /// <summary>Advances the gradual colour fade.</summary>
     AdvanceColourFade,

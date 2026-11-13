@@ -71,7 +71,7 @@ public sealed class CeresElevatorShaftRoomMainState
     }
 
     /// <summary>
-    /// Door setup code leaving the elevator's turning-floor rendering: the destination's shaft no longer owns the room.
+    /// The door setup leaving the elevator's turning-floor rendering: the destination's shaft no longer owns the room.
     /// </summary>
     public void Deactivate() => IsActive = false;
 

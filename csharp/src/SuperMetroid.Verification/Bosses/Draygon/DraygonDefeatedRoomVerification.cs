@@ -22,7 +22,7 @@ internal static class DraygonDefeatedRoomVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.System.SetBossBits(AreaId.Maridia, BossBits.AreaBoss);
+        runtime.System.RecordBossesDefeated(AreaId.Maridia, DefeatedBosses.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon);
         AssertTrue(runtime.Enemies.DraygonBehavior.Parts.Draygon is null, "defeated retail state has no Draygon actor");
         for (int frame = 0; frame < 121; frame++) runtime.StepFrame(0);

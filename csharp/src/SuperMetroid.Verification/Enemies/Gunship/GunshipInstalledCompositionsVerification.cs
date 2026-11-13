@@ -67,7 +67,7 @@ internal static class GunshipInstalledCompositionsVerification
         // Finish the new game's native loading waits; left pending, the Zebes landing load would resume them instead.
         while (game.Session.ResumesGameLoadingWait)
             game.StepCaptured(0);
-        game.GameplayRuntimeForVerification.System.SetBossBits(AreaId.Ceres, BossBits.AreaBoss);
+        game.GameplayRuntimeForVerification.System.RecordBossesDefeated(AreaId.Ceres, DefeatedBosses.AreaBoss);
         game.GameplayRuntimeForVerification.System.LoadSavedStartupRoute(SaveLoadingGameState.CeresDestruction);
         SetState(game, SuperMetroidGameState.CeresGoesBoom);
         game.StepCaptured(0);

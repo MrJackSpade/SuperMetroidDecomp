@@ -10,7 +10,7 @@ public sealed class WorkRobotEnemyState
     internal AnimationPlayback<WorkRobotSegment> Playback { get; set; }
 
     /// <summary>
-    /// True only when the unpowered robot definition saw the area's boss bit during initialization. That definition can therefore
+    /// True only when the unpowered robot definition saw the area boss defeated during initialization. That definition can therefore
     /// own a deactivated state before Phantoon is defeated.
     /// </summary>
     public bool Powered { get; internal set; }

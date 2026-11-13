@@ -91,11 +91,11 @@ internal static class LookupRetailDoorHeadersVerification
     private static void VerifyDoorHeaderSetupRoutine(CartridgeImportAddressSpace rom)
     {
         VerifyDoorHeaderField(rom, 10, 2,
-            raw => DoorIdentityWords.SetupRoutines.Decode(checked((ushort)raw), "door setup routine"), header => header.SetupCode);
+            raw => DoorIdentityWords.SetupRoutines.Decode(checked((ushort)raw), "door setup routine"), header => header.Setup);
         foreach (ushort pointer in EnumerateRetailDoorPointers())
         {
             DoorDefinition door = DoorDefinitions.Get(pointer);
-            AssertEqual(door.SetupCode == DoorSetupCode.CeresElevShowsTurningFloor, door.EntersCeresElevatorShaft,
+            AssertEqual(door.Setup == DoorSetupDefinitions.CeresElevShowsTurningFloor, door.EntersCeresElevatorShaft,
                 "Door setup selection preserves the Ceres elevator shaft consumer predicate");
         }
     }

@@ -29,7 +29,7 @@ internal static class ChozoGrabAnimationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
-        runtime.System.SetBossBits(AreaId.WreckedShip, BossBits.AreaBoss);
+        runtime.System.RecordBossesDefeated(AreaId.WreckedShip, DefeatedBosses.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BowlingAlley);
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
@@ -59,7 +59,7 @@ internal static class ChozoGrabAnimationVerification
             expectedExplosion.Spawn(new(bombX, samus.Position.Y.Whole));
         }
         runtime.RoomObjects.ChozoStatue.NotifyChozoStatueHandCollision(level, handBlock, samus, samus.Pose, movingDown: true);
-        AssertTrue(samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked && samus.Control.AlphaLocked,
+        AssertTrue(samus.Control.Mode.Movement == SamusMovementMode.ScriptLocked && samus.Control.InputLocked,
             "hand trigger installs native stationary handlers");
         // The waking statue's named screens are the Bowling Alley's original scroll cells 7 and 8 (green), then 13 and 14
         // (blue) (#1622).
@@ -72,7 +72,7 @@ internal static class ChozoGrabAnimationVerification
         ushort startX = samus.Position.X.Whole, startY = samus.Position.Y.Whole;
         bool carried = false;
         int frames = 0;
-        while (samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked && frames < 2000)
+        while (samus.Control.Mode.Movement == SamusMovementMode.ScriptLocked && frames < 2000)
         {
             runtime.StepFrame(ControllerButton.Right);
             if (powerBomb)
@@ -90,7 +90,7 @@ internal static class ChozoGrabAnimationVerification
                 AssertEqual(expectedExplosion.GlowColor.FadeLevels.Blue, actual.GlowColor.FadeLevels.Blue, "carried blast blue");
                 AssertEqual(expectedExplosion.IsActive, actual.IsActive, $"carried Power Bomb cleanup at frame {frames}");
             }
-            if (samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked)
+            if (samus.Control.Mode.Movement == SamusMovementMode.ScriptLocked)
             {
                 AssertEqual(2, samus.AnimationFrame, "ball frame remains frozen while carried");
                 AssertEqual((ushort)3, samus.AnimationFrameTimer.RawValue, "ball animation timer remains frozen while carried");
@@ -106,7 +106,7 @@ internal static class ChozoGrabAnimationVerification
         AssertTrue(Enumerable.Range(6, 5).All(cell => scrolls.ReadState(cell) == RoomScrollState.RedBoundary)
             && scrolls.ReadState(13) == RoomScrollState.Blue && scrolls.ReadState(14) == RoomScrollState.RedBoundary,
             "the release closes the second row's first five screens, opens the third row's second blue and closes its third");
-        AssertTrue(samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked && !samus.Control.AlphaLocked && runtime.Player.GroundedSamusMovementEnabled,
+        AssertTrue(samus.Control.Mode.Movement != SamusMovementMode.ScriptLocked && !samus.Control.InputLocked && runtime.Player.GroundedSamusMovementEnabled,
             "native release restores handlers and movement");
         bool animationResumed = false;
         for (int frame = 0; frame < 12; frame++)

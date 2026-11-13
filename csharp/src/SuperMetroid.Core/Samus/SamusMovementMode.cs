@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// The second half of Samus's per-frame work, which Samus's control setups select: movement, animation and the energy checks.
-/// <see cref="TitleDemo"/> and <see cref="Fatal"/> are what a frame runs instead while the attract demo or the death
-/// sequence owns Samus. Exactly one is selected at a time.
+/// How the movement phase of Samus's frame, the second of its two, runs: movement, animation and the energy checks.
+/// Samus's control setups select it. <see cref="TitleDemo"/> and <see cref="Fatal"/> are what a frame runs instead while
+/// the attract demo or the death sequence owns Samus. Exactly one is selected at a time.
 /// </summary>
-internal enum SamusBetaHandler
+internal enum SamusMovementMode
 {
     /// <summary>
     /// Ordinary play: movement, the timer handler, animation, pose transitions, periodic damage and the low-energy check.
@@ -40,6 +40,6 @@ internal enum SamusBetaHandler
     /// </summary>
     Gunship,
 
-    /// <summary>The death sequence, which runs neither half.</summary>
+    /// <summary>The death sequence, which runs neither phase.</summary>
     Fatal,
 }

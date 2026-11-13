@@ -149,7 +149,7 @@ internal sealed class NorfairRidleyDeath
         if (!NorfairRidleyMovement.TickRidleyPhaseTimer(state))
             return;
 
-        _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);
+        _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);
 
         // The death drops scatter sixteen pickups through Ridley's authored 128x64 arena
         // rectangle. The body is deleted immediately afterward, so the drop actors must

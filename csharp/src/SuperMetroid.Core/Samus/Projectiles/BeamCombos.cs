@@ -251,21 +251,21 @@ internal sealed class BeamCombos
         }
     }
     /// <summary>
-    /// Runs the Spacetime shot's frame behaviour, which falls back into the beam palette's copy loop and, from an animation that
-    /// sends the copy far enough, copies on through saved progression (<see cref="SpaceTimeProgressionOverwrite{TCursor, TOverwrite}"/>). Before the
-    /// shot's first frame is installed, or with no animation, the copy starts low and ends long before progression, and
-    /// only the progression part of the copy is kept (owner decision on #1318).
+    /// Runs the Spacetime shot's frame behaviour, its progression overwrite: from an animation that reaches far enough, it
+    /// turns saved progression on and off (<see cref="SpaceTimeProgressionOverwrite{TCursor, TOverwrite}"/>). Before the
+    /// shot's first frame is installed, or with no animation, it leaves progression alone; only the overwrite of
+    /// progression is kept (owner decision on #1318).
     /// </summary>
     /// <param name="progression">The session's progression, which the copy overwrites; required when it reaches it.</param>
     /// <param name="slot">The Spacetime shot.</param>
-    internal void RunSpacetimePaletteCopyTail(SharedGameState? progression, SamusProjectile slot)
+    internal void RunSpaceTimeProgressionOverwrite(SharedGameState? progression, SamusProjectile slot)
     {
         Ensure.NotNull(slot);
         if (slot.Sprite is null || slot.Playback is not { } playback)
             return;
         if (_spaceTimeOverwrite.For(SamusProjectilePlayback.BeatOf(playback), slot.Place) is { } overwrite)
             (progression ?? throw new InvalidOperationException(
-                "SpaceTime's palette-copy overwrite writes progression; the frame must pass it.")).Overwrite(overwrite);
+                "The Spacetime shot's progression overwrite writes progression; the frame must pass it.")).Overwrite(overwrite);
     }
     /// <summary>Runs the Spazer combo, including paired-hit cleanup and retagging the primary particles as falling trails.</summary>
     internal SoundEffectId? StepSpazerCombo(SamusState samus,

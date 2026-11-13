@@ -195,7 +195,7 @@ public sealed class SamusCrystalFlashState
         return true;
     }
 
-    /// <summary>Executes one active handler call in the beta-movement position.</summary>
+    /// <summary>Executes one active handler call in the movement position.</summary>
     /// <param name="samus">Live actor receiving movement, ammunition/energy, animation, and handler-completion writes.</param>
     /// <param name="frameCounter">The frame counter; ammunition drains only on every eighth frame.</param>
     /// <returns>A value snapshot of the entry phase and retained bubble-effect request, even when this call changes phase.</returns>
@@ -321,7 +321,7 @@ public sealed class SamusCrystalFlashState
             samus.Position += new Offset16<RoomPixels>(0, 1);
 
         // The pose's animation ends in a transition to the facing standing pose, which occurs after movement.
-        // Therefore cleanup naturally happens on the following beta pass, once type zero is
+        // Therefore cleanup naturally happens on the following movement phase, once type zero is
         // observable here, and that frame performs no ordinary standing movement.
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.Standing)
             return;

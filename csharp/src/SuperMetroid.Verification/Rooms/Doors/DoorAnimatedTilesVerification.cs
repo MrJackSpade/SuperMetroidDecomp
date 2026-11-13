@@ -29,7 +29,7 @@ internal static class DoorAnimatedTilesVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)
-            runtime.System.SetBossBits(area, BossBits.AreaBoss);
+            runtime.System.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.StatuesHallway);
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.LockHandlers();
@@ -69,7 +69,7 @@ internal static class DoorAnimatedTilesVerification
         reference.RoomLoader.InitializeStartingCeresRoom();
         reference.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)
-            reference.System.SetBossBits(area, BossBits.AreaBoss);
+            reference.System.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
         reference.LoadCartridgeRoomThroughDoorForVerification((entry ?? throw new InvalidOperationException("Verification requires entry.")));
         for (int call = 0; call < handlerFrames; call++)
             reference.TourianStatues.StepTiles();

@@ -34,7 +34,7 @@ internal sealed class KraidLimbs
     internal void InitializeKraidArm(RoomEnemySlot arm)
     {
         KraidEnemyState state = _access.RequireKraidState(arm);
-        if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
+        if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             KraidEncounterAccess.MarkKraidPartDead(arm);
             return;
@@ -51,7 +51,7 @@ internal sealed class KraidLimbs
     internal void InitializeKraidFoot(RoomEnemySlot foot)
     {
         KraidEnemyState state = _access.RequireKraidState(foot);
-        if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
+        if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             KraidEncounterAccess.MarkKraidPartDead(foot);
             return;

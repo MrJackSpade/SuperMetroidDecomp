@@ -29,11 +29,11 @@ public sealed class TourianStatueAnimationDefinition
     /// <summary>The updates the first idle frame lasts after the statue spawns.</summary>
     public required int FirstFrameDuration { get; init; }
 
-    /// <summary>The area whose boss bits decide whether the statue releases.</summary>
+    /// <summary>The area whose defeated bosses decide whether the statue releases.</summary>
     public required AreaId BossArea { get; init; }
 
-    /// <summary>The boss bits of <see cref="BossArea"/> any one of which starts the release.</summary>
-    public required BossBits DefeatedBossBits { get; init; }
+    /// <summary>The bosses of <see cref="BossArea"/> whose defeat, any one of them, starts the release.</summary>
+    public required DefeatedBosses DefeatedBosses { get; init; }
 
     /// <summary>The statue with its three eye colours blacked out, which it shows from the start of its release (#1512).</summary>
     public required PictureShade ClearedShade { get; init; }

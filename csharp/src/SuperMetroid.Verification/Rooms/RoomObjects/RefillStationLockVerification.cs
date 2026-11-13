@@ -29,7 +29,7 @@ internal static class RefillStationLockVerification
         AssertTrue(Animation() != unlocked, "the normal beta advances Samus's animation");
 
         samus.Control.LockIntoRefillStation();
-        AssertTrue(samus.Control.Mode.Beta == SamusBetaHandler.RefillStation && samus.Control.AlphaLocked && samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked,
+        AssertTrue(samus.Control.Mode.Movement == SamusMovementMode.RefillStation && samus.Control.InputLocked && samus.Control.Mode.Movement != SamusMovementMode.ScriptLocked,
             "command six installs the station pair, not command zero's");
         var locked = Animation();
         for (int frame = 0; frame < 4; frame++)
@@ -37,7 +37,7 @@ internal static class RefillStationLockVerification
         AssertEqual(locked, Animation(), "the station beta does not animate Samus");
 
         samus.Control.Unlock();
-        AssertTrue(samus.Control.Mode.Beta != SamusBetaHandler.RefillStation, "restoring the normal handlers releases the station beta");
+        AssertTrue(samus.Control.Mode.Movement != SamusMovementMode.RefillStation, "restoring the normal handlers releases the station beta");
         Console.WriteLine("Refill-station lock: command six's RTL beta holds Samus's animation until release.");
     }
 

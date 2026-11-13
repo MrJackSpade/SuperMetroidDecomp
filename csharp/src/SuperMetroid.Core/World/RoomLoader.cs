@@ -101,7 +101,7 @@ internal sealed class RoomLoader
     private readonly PaletteFxSessionState _paletteFxSession;
     /// <summary>The session owners each room's Tourian statue sequence is built over.</summary>
     private readonly TourianStatueSequenceDependencies _tourianStatueDependencies;
-    /// <summary>Provides persistent event and boss bits used by room-state selectors.</summary>
+    /// <summary>Provides persistent events and defeated bosses used by room-state selectors.</summary>
     private readonly SharedGameState _system;
     /// <summary>Grants the assisted loadout and resets saved encounters after a save is restored.</summary>
     private readonly ActiveAssists _assists;
@@ -249,7 +249,7 @@ internal sealed class RoomLoader
         _room.LoadedScope.PaletteFx.Start(
             loadAppearance,
             _player.IntroducedSamus.EquippedItems,
-            _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
+            _system.HasDefeatedAnyOf(room.AreaIndex, DefeatedBosses.AreaMiniBoss));
         _player.IntroducedSamus.Control.LockHandlers();
         _player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(_player.IntroducedSamus);
         _player.GroundedSamusMovementEnabled = false;
@@ -722,7 +722,7 @@ internal sealed class RoomLoader
         }
 
         // The door transition promotes a departing elevator's global status from one to
-        // two after the destination room objects, door code, and setup code have been created. The
+        // two after the destination room objects, door code, and door setup have been created. The
         // room load initializes enemies in the same call, so publish that carried
         // status immediately before Enemies.Load: the destination elevator initializer
         // must see two and place itself at its arrival height instead of clearing the journey.
@@ -759,7 +759,7 @@ internal sealed class RoomLoader
         // black silhouette after every ordinary desktop door transition.
         SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, _player.Samus.EquippedItems);
 
-        // The door loader sets no Samus radius; the next unlocked alpha's radius update
+        // The door loader sets no Samus radius; the next unlocked input mode's radius update
         // does, so an elevator rider keeps the boarding pose's radius through the door.
         _player.Samus.LiquidPhysics.RoomIdentity = room.Identity;
         _player.GroundedSamusMovementEnabled = true;
@@ -882,7 +882,7 @@ internal sealed class RoomLoader
         scope.FxOverlay = roomFxOverlay;
         roomFxOverlay.PrimeViewport(destinationCamera.PixelPosition);
         scope.CeresHaze = new CeresHazeState(RoomBehaviorDefinitions.CeresHazeSetups.Contains(room.State.SetupBehavior),
-            _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
+            _system.HasDefeatedAnyOf(room.AreaIndex, DefeatedBosses.AreaBoss),
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
         scope.SandTiles = new RoomSandAnimatedTilesState(room.State.Fx, door);
         scope.SpikeTiles = new RoomSpikeAnimatedTilesState(room.State.Fx, door);
@@ -899,7 +899,7 @@ internal sealed class RoomLoader
             room.State.Fx,
             door,
             _player.Samus?.EquippedItems ?? 0,
-            _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
+            _system.HasDefeatedAnyOf(room.AreaIndex, DefeatedBosses.AreaMiniBoss));
         roomPaletteFx.BindAudioRequests(_audioRequests);
         scope.PaletteFx = roomPaletteFx;
 
@@ -954,12 +954,12 @@ internal sealed class RoomLoader
         var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, roomObjects, _display, progress);
         roomObjects.PopulationLoader.LoadRoomPopulation(roomObjectRoom, room.State.ObjectPopulation, roomObjectBindings);
 
-        // The door transition runs the door setup code only after destination room objects
+        // The door transition runs the door setup only after destination room objects
         // exist and before enemy initialization/initial viewport construction. Several of
         // those setups rewrite the room scroll array, so postponing this call until the
         // first gameplay frame would already have streamed a viewport with wrong camera
         // limits.
-        _doorTransition.RunDoorSetupCode(door, roomObjects, wreckedShipTreadmill, ceresElevatorShaft, maridiaElevatube);
+        _doorTransition.RunDoorSetup(door, roomObjects, wreckedShipTreadmill, ceresElevatorShaft, maridiaElevatube);
         if (room.State.SetupBehavior == RoomSetupBehavior.SetupShaktoolRoomObject)
             roomObjects.Shaktool.TrySpawnShaktoolRoomController(destinationCamera.Scrolls);
         if (room.State.SetupBehavior == RoomSetupBehavior.TurnWallIntoShotBlocksDuringEscape)
@@ -1082,7 +1082,7 @@ internal sealed class RoomLoader
         SamusState? samus = _player.Samus;
         var selection = new RoomStateSelectionContext(
             _system.Progress.Events.Copy(),
-            BossBits: _system.GetBossBits(areaIndex),
+            DefeatedBosses: _system.BossesDefeatedIn(areaIndex),
             HasMorphBallAndMissiles:
                 samus is not null &&
                 samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall) &&

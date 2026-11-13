@@ -108,7 +108,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
                     RoomObjectBlock: new(4, 4),
                     DestinationScreen: new(0, 0),
                     SamusSpeed: DoorSamusSpeed.None,
-                    SetupCode: DoorSetupCode.None);
+                    Setup: DoorSetupDefinitions.None);
                 AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor,
                         system),
                     $"resident grey door {header} selects its closing list");
@@ -120,7 +120,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
 
                 // The default room argument selects the boss-defeated condition. A
                 // closed door must flash only after the cartridge event bit changes.
-                system.SetBossBits(AreaId.Crateria, BossBits.AreaBoss);
+                system.RecordBossesDefeated(AreaId.Crateria, DefeatedBosses.AreaBoss);
                 roomObjects.Step(level);
                 AssertEqual(GreyDoorPhase.Flashing, roomObjects.GreyDoorSnapshots.Single().Phase,
                     $"resident grey door {header} unlocks after boss event");
@@ -186,7 +186,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
             RoomObjectBlock: new(4, 4),
             DestinationScreen: new(0, 0),
             SamusSpeed: DoorSamusSpeed.None,
-            SetupCode: DoorSetupCode.None);
+            Setup: DoorSetupDefinitions.None);
         AssertTrue(room.RoomObjects.DoorObjects.TrySpawnDoorClosingObject(room.Level, enteringDoor, room.System),
             "Bomb Torizo door selects its Bomb-gated closing list");
         for (int frame = 0; frame < 10; frame++)
@@ -198,7 +198,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
             room.RoomObjects.Step(room.Level, new RoomObjectFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = SamusEquipmentFlags.Bombs });
         AssertEqual(GreyDoorPhase.Locked, room.RoomObjects.GreyDoorSnapshots.Single().Phase,
             "collected Bombs let the special closing list rejoin its resident owner");
-        room.System.SetBossBits(AreaId.Crateria, BossBits.AreaTorizo);
+        room.System.RecordBossesDefeated(AreaId.Crateria, DefeatedBosses.AreaTorizo);
         room.RoomObjects.Step(room.Level);
         AssertEqual(GreyDoorPhase.Flashing, room.RoomObjects.GreyDoorSnapshots.Single().Phase,
             "Bomb Torizo defeat unlocks the special grey door");

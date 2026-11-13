@@ -462,31 +462,22 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
     // `$8F:BE25`, which must replace that pair with `[green, blue]` before camera tracking.
     grid.SetLogicalState(new(0, 0), RoomScrollState.Blue);
     grid.SetLogicalState(new(0, 1), RoomScrollState.RedBoundary);
-    DoorSetupCodeInterpreter.ApplyScrollWrites(
-        DoorSetupCode.ConstructionZoneOpensScreen0x0OpensScreen0x1TopAligned,
-        DoorDefinitions.Get(DoorPointers.ConstructionZoneFromFirstMissile).Name,
-        grid);
+    DoorSetupDefinitions.ConstructionZoneOpensScreen0x0OpensScreen0x1TopAligned.ChangeScreens(grid);
     AssertEqual(RoomScrollState.Green, grid.ReadState(0),
         "$8F:BE25 writes Construction Zone screen zero green");
     AssertEqual(RoomScrollState.Blue, grid.ReadState(1),
         "$8F:BE25 writes Construction Zone screen one blue");
     grid.SetCell(6, RoomScrollState.RedBoundary);
-    DoorSetupCodeInterpreter.ApplyScrollWrites(
-        DoorSetupCode.ParlorOpensScreen1x1,
-        DoorDefinitions.Get(DoorPointers.ParlorFromClimb).Name,
-        grid);
+    DoorSetupDefinitions.ParlorOpensScreen1x1.ChangeScreens(grid);
     AssertEqual(RoomScrollState.Green, grid.ReadState(6),
         "$8F:B981 writes early-route screen six green");
 
     // Door $83:AB4C leaves the Ceres Mode-7 shaft through `$8F:E513`. That routine
     // restores ordinary PPU state but performs no writes to the destination scroll array.
-    // The scroll interpreter must accept it without corrupting an otherwise valid grid;
-    // runtime-owned Mode-7 state is cleared by the paired door dispatcher.
+    // Its setup changes no screens, so an otherwise valid grid is left as it was;
+    // its room event ends the turning floor.
     grid.SetCell(7, RoomScrollState.Blue);
-    DoorSetupCodeInterpreter.ApplyScrollWrites(
-        DoorSetupCode.FallingTileEndsTurningFloor,
-        DoorDefinitions.Get(DoorPointers.FromCeresElevatorShaft).Name,
-        grid);
+    DoorSetupDefinitions.FallingTileEndsTurningFloor.ChangeScreens(grid);
     AssertEqual(RoomScrollState.Blue, grid.ReadState(7),
         "$8F:E513 preserves the destination scroll cells");
 
@@ -871,26 +862,26 @@ internal static void VerifyCartridgeRoomStateSelection()
     eventBytes.Add(StoryEvent.ZebesAwake);
     AssertEqual((ushort)0x9100,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
-            new RoomStateSelectionContext(eventBytes, BossBits.None, false, false)),
+            new RoomStateSelectionContext(eventBytes, DefeatedBosses.None, false, false)),
         "room selector event branch");
     AssertEqual((ushort)0x9120,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
-            new RoomStateSelectionContext(null, BossBits.AreaTorizo, false, false)),
+            new RoomStateSelectionContext(null, DefeatedBosses.AreaTorizo, false, false)),
         "room selector boss branch");
     AssertEqual((ushort)0x9140,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
-            new RoomStateSelectionContext(null, BossBits.None, true, false)),
+            new RoomStateSelectionContext(null, DefeatedBosses.None, true, false)),
         "room selector Morph Ball and missiles branch");
     AssertEqual((ushort)0x9160,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
-            new RoomStateSelectionContext(null, BossBits.None, false, true)),
+            new RoomStateSelectionContext(null, DefeatedBosses.None, false, true)),
         "room selector power-bomb branch");
 
     // The interpreter must return at the first successful command; later facts do not
     // override the event-selected pointer merely because they are also true.
     AssertEqual((ushort)0x9100,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
-            new RoomStateSelectionContext(eventBytes, BossBits.AreaTorizo, true, true)),
+            new RoomStateSelectionContext(eventBytes, DefeatedBosses.AreaTorizo, true, true)),
         "room selector preserves cartridge priority");
 
     // The Tourian-specific routine owns its boss-bit operand in executable code rather

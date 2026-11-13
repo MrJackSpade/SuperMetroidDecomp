@@ -1,13 +1,16 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
 /// The cartridge words that name the members of one closed identity (#1411): the import pipeline's private knowledge,
 /// decoded once. The identity's own values are arbitrary. An identity is what a thing does, so several words name one
-/// identity when the cartridge has several routines or records doing the same thing (#1624).
+/// identity when the cartridge has several routines or records doing the same thing (#1624). An identity is an enum member
+/// or a definition instance, such as a door setup (#1721), compared as itself.
 /// </summary>
 /// <typeparam name="TIdentity">The identity.</typeparam>
 internal sealed class NativeWordIdentities<TIdentity>
-    where TIdentity : struct, Enum
+    where TIdentity : notnull
 {
     /// <summary>Each word's identity.</summary>
     private readonly Dictionary<int, TIdentity> _identities;
@@ -40,12 +43,12 @@ internal sealed class NativeWordIdentities<TIdentity>
     internal IReadOnlyDictionary<TIdentity, ushort[]> WordsByIdentity { get; }
 
     /// <summary>Decodes <paramref name="word"/> or throws, naming <paramref name="meaning"/>.</summary>
-    internal TIdentity Decode(int word, string meaning) => _identities.TryGetValue(word, out TIdentity identity)
+    internal TIdentity Decode(int word, string meaning) => _identities.TryGetValue(word, out TIdentity? identity)
         ? identity
         : throw new InvalidDataException($"${word:X4} is not a {meaning} ({typeof(TIdentity).Name}).");
 
     /// <summary>Decodes <paramref name="word"/> when it names an identity.</summary>
-    internal bool TryDecode(int word, out TIdentity identity) => _identities.TryGetValue(word, out identity);
+    internal bool TryDecode(int word, [MaybeNullWhen(false)] out TIdentity identity) => _identities.TryGetValue(word, out identity);
 
     /// <summary>
     /// The one word naming <paramref name="identity"/>. An identity several words name has no one word, so this throws;

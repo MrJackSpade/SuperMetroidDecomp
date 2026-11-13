@@ -76,7 +76,7 @@ internal static class RetailElevatorReturnTests
             actorPositions.Add(actor.Position.Y.Whole);
             Compare("return");
         }
-        if (runtime.Enemies.ElevatorBehavior.ElevatorStatus != ElevatorActorStatus.Inactive || samus.Control.AlphaLocked ||
+        if (runtime.Enemies.ElevatorBehavior.ElevatorStatus != ElevatorActorStatus.Inactive || samus.Control.InputLocked ||
             cameraPositions.Count < 2 || actorPositions.Count < 2)
             throw new InvalidOperationException("Elevator fixture missed camera/actor movement or control release.");
         for (int tick = 0; tick < 8; tick++) { runtime.StepFrame(0); Compare("settled"); }

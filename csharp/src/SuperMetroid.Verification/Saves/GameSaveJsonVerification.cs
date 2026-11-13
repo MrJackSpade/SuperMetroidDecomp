@@ -49,7 +49,7 @@ internal static class GameSaveJsonVerification
         };
         var system = new SharedGameState(new SharedRandom());
         system.SetEvent(StoryEvent.ZebesAwake);
-        system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss | BossBits.AreaMiniBoss);
+        system.RecordBossesDefeated(AreaId.Brinstar, DefeatedBosses.AreaBoss | DefeatedBosses.AreaMiniBoss);
         system.SetCollectedItemBit(23);
         system.SetOpenedDoorBit(31);
         system.MarkSaveStationUsed(LoadStationDefinitions.CrocomireSave);

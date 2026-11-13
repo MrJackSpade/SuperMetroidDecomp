@@ -636,7 +636,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     internal bool RunThirdPhaseDeathBlowUpEscapeDoor(MotherBrainRainbowBeamStepRequests requests)
     {
         // The door explosion invokes the ordinary highest-free-slot allocator eight times with
-        // parameters zero through seven. Allocation success is intentionally decided
+        // door fragments zero through seven. Allocation success is intentionally decided
         // by the shared enemy-projectile system, not assumed by the boss actor.
         for (int parameter = 0; parameter < 8; parameter++)
             requests.EscapeDoorParticleSpawns.Add(new(parameter));

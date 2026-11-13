@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>What a cue of Ridley's body animations does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of Ridley's body animations does: roar, face a way, aim or spawn a fireball, or start his lift-off.</summary>
 internal enum RidleyBodyCueKind
 {
     /// <summary>Raises the roaring flag and queues the roar.</summary>

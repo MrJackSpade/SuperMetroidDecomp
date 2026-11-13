@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>What a cue of Mini-Kraid's animations does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of Mini-Kraid's animations does: choose its next step or spit, walk a step, cry, or spit a pair of projectiles left or right.</summary>
 internal enum FakeKraidCueKind
 {
     /// <summary>Continues at the step or spit animation the decision timer and facing select.</summary>

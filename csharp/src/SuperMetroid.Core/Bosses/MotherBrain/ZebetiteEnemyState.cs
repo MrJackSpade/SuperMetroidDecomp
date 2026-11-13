@@ -43,6 +43,6 @@ public sealed class ZebetiteEnemyState
     /// </summary>
     internal RoomEnemySlot? LinkedHalf { get; set; }
 
-    /// <summary>Whether this is the linked bottom half (nonzero parameter one); it skips primary palette cycling and dies without advancing the Zebetite count or respawning.</summary>
+    /// <summary>Whether this is the linked bottom half; it skips primary palette cycling and dies without advancing the Zebetite count or respawning.</summary>
     public bool IsSecondaryHalf { get; internal set; }
 }

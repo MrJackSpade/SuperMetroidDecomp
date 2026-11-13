@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>What a cue of Torizo's body animations does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of Torizo's body animations does: show or hide the body, fade its colours, start its music, record its footsteps, queue its sounds, spawn its explosions, drool, orbs, eggs and missiles, lock its animation, or resume where it was interrupted.</summary>
 internal enum TorizoCueKind
 {
     /// <summary>Clears the body's frame behaviour.</summary>

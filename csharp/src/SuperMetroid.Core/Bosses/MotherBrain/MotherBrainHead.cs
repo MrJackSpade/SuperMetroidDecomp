@@ -361,7 +361,7 @@ internal sealed class MotherBrainHead
         // spawn position, selects direction one (right), and invokes
         // the bomb's definition. The source definition remains the head record, so the shared
         // initializer obtains Mother Brain's authored contact damage and
-        // her parameter-one speed flag without any encounter-specific substitute.
+        // her laser speed flag without any encounter-specific substitute.
         EnemyProjectile? laser = _roomActors.SpawnPirateLaser(
             head,
             head.Position.Whole + new Offset16<RoomPixels>(16, 4),

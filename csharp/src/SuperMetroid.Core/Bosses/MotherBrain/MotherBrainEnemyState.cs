@@ -195,7 +195,7 @@ public sealed class MotherBrainEnemyState
     /// <summary>
     /// Attached-mouth offset selector used by the drool step. The game
     /// increments before spawning and wraps at six, so a zero-initialized encounter emits
-    /// parameter one first.
+    /// drool at mouth offset one first.
     /// </summary>
     public int DroolProjectileParameter { get; internal set; }
 

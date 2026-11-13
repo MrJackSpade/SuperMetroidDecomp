@@ -33,7 +33,7 @@ internal static class MotherBrainDeathExplosionDefinitions
     internal static Offset16<RoomPixels> Anchor(int index) => DecorativeAnchors[index];
 
     /// <summary>
-    /// The three animations the table selects by projectile parameter zero through two:
+    /// The three animations Mother Brain's death explosions choose among:
     /// the shared misc-dust small explosion, smoke and big explosion.
     /// </summary>
     internal static readonly MiscDustProjectileSegment[] Animations =

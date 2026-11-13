@@ -204,7 +204,7 @@ internal sealed class TorizoCombat
         {
             // The transitional callback returns immediately in area zero. In nonzero areas it calls a guarded path, which admits common
             // no-death shot damage only while the flash timer is zero and the body's animation is unlocked. Crucially it
-            // never enters Golden's shot callback, so missiles are not caught, Supers are not reflected, and parameter-two
+            // never enters Golden's shot callback, so missiles are not caught, Supers are not reflected, and the
             // counterattack flags are not armed through these transitional body rectangles.
             if (isBombTorizo || enemy.FlashTimer != 0 || torizoState.AnimationLocked)
             {

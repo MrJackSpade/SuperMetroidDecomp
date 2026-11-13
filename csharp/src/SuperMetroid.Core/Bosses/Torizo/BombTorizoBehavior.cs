@@ -188,7 +188,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
     }
 
-    /// <summary>Replaces Torizo's posture bits, keeping parameter 1's low thirteen bits.</summary>
+    /// <summary>Replaces Torizo's posture, keeping the rest of its state.</summary>
     private void SetPosture(RoomEnemySlot torizo, TorizoPostureFlags posture) =>
         Access.RequireBombTorizoState(torizo).Posture = posture;
 

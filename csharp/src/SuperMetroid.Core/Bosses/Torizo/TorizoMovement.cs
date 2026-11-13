@@ -112,7 +112,7 @@ internal sealed class TorizoMovement
     {
         _body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
 
-        // The two high parameter-two bits are death-sequence latches. Before they are set,
+        // Two of its latches are the death sequence's. Before they are set,
         // health thresholds interrupt the current authored list with the core/head bursts.
         if (!_body.HasBehavior(torizo, TorizoBehaviorFlags.GutBlownUp) &&
             torizo.Health < BombTorizoBehavior.BombTorizoHeadExplosionHealth)

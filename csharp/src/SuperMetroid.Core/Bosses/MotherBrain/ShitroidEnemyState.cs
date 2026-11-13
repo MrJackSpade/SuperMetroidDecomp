@@ -63,7 +63,7 @@ public sealed class ShitroidEnemyState
         : ShitroidShades.InTargetColours;
 
     /// <summary>
-    /// Whether Samus's touch, shots and power bombs reach the Shitroid's private reactions (parameter two): set while
+    /// Whether Samus's touch, shots and power bombs reach the Shitroid's private reactions: set while
     /// it hovers near Samus or follows her after a release, cleared while it is dormant or latched on.
     /// </summary>
     public bool ReactsToSamus { get; internal set; }

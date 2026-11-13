@@ -10,7 +10,7 @@ public static class DraygonProjectileSpeeds
     public const int WallTurret = 3;
 
     /// <summary>
-    /// Two, passed by the goop spawn. The goop's own animation never sets parameter zero;
+    /// Two, passed by the goop spawn. The goop's own animation never sets its speed;
     /// the spawn stores this value.
     /// </summary>
     public const int Goop = 2;

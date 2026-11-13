@@ -17,7 +17,7 @@ internal sealed class TorizoEncounterAccess
     /// <summary>Current statue state, cleared when the room reloads.</summary>
     internal TorizoEnemyState? TorizoState { get; set; }
 
-    /// <summary>Torizo's posture bits from its enemy parameter 1.</summary>
+    /// <summary>Torizo's posture.</summary>
     internal TorizoPostureFlags Posture(RoomEnemySlot torizo) => RequireBombTorizoState(torizo).Posture;
 
     /// <summary>Whether Torizo faces right.</summary>
@@ -30,7 +30,7 @@ internal sealed class TorizoEncounterAccess
             : throw new InvalidOperationException(
                 $"Enemy slot {torizo.SlotIndex} has no initialized Bomb Torizo state.");
 
-    /// <summary>Tests the parameter-one XOR enemy-X minus Samus-X sign used by attack branches.</summary>
+    /// <summary>Tests whether Torizo faces the side Samus is on, as its attack branches do.</summary>
     internal bool BombTorizoFunction12IsNonNegative(
         RoomEnemySlot torizo,
         SamusState samus)

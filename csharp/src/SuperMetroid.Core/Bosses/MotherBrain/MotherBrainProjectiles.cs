@@ -677,7 +677,7 @@ internal sealed class MotherBrainProjectiles
         EnemyProjectile ring,
         Position16<RoomPixels> position)
     {
-        // The ring's impact clears the source before allocating parameter-three room dust. If the
+        // The ring's impact clears the source before allocating the small-explosion room dust. If the
         // allocator reuses this physical slot, the outer projectile scheduler will advance
         // the newborn dust animation during the same pass.
         ring.Delete();
@@ -696,7 +696,7 @@ internal sealed class MotherBrainProjectiles
 
         // Off-screen turrets deliberately freeze both timers until scrolled into view. Once
         // the shared deletion flag is set they disappear silently off-screen, but visible
-        // turrets replace themselves with dust animation parameter 12.
+        // turrets replace themselves with the dust animation's smoke.
         if (!onScreen)
         {
             if (state.DeleteTurretsAndRinkas)

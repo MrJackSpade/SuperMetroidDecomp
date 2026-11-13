@@ -278,7 +278,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // Special Mother Brain Rinkas do not clear their enemy slot. They hide, emit the
-        // room-graphics dust/explosion with parameter three, wait for
+        // room-graphics small explosion, wait for
         // the 1, 0, -1 countdown, restore ten health, and select a spawn.
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
@@ -529,9 +529,9 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SetRinkaCamera(frame.Camera);
     }
-    /// <summary>Room-graphics dust definition parameter used by special Rinka deaths.</summary>
+    /// <summary>The room-graphics dust animation special Rinka deaths show.</summary>
     private const MiscDustAnimation RinkaDustAnimationIndex = MiscDustAnimation.SmallExplosion;
-    /// <summary>Allocates the room-graphics dust explosion with parameter three.</summary>
+    /// <summary>Allocates the room-graphics small explosion.</summary>
     internal void SpawnRinkaDustExplosion(Position16<RoomPixels> position)
         => _projectiles.SpawnRoomGraphicsDustExplosion(position, RinkaDustAnimationIndex);
 

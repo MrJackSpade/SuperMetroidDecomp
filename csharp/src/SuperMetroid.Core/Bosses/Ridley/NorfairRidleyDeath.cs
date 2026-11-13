@@ -224,7 +224,7 @@ internal sealed class NorfairRidleyDeath
         }
     }
 
-    /// <summary>Runs the breakup actor's initialization AI for one parameter 0..22.</summary>
+    /// <summary>Runs the breakup actor's initialization AI for one of its 23 pieces.</summary>
     internal void InitializeNorfairRidleyExplosion(
         RoomEnemySlot fragment,
         RoomEnemySlot body,

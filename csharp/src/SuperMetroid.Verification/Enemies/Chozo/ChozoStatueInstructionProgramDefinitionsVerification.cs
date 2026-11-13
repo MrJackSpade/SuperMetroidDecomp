@@ -15,7 +15,7 @@ internal static class ChozoStatueInstructionProgramDefinitionsVerification
 
     /// <summary>Checks the statues' typed programs, cues and shown frames against the four cartridge lists.</summary>
     internal static void VerifyChozoStatueInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         Suite(nameof(ChozoStatueAnimationsVerification.VerifyChozoStatueAnimations), () => ChozoStatueAnimationsVerification.VerifyChozoStatueAnimations(rom));
         Console.WriteLine("Chozo statue: idle and activation programs with their cues match the cartridge.");

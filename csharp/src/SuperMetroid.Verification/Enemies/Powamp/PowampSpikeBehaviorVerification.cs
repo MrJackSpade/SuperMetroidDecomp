@@ -16,7 +16,7 @@ internal static class PowampSpikeBehaviorVerification
     /// A burst spawns all eight spikes on the looping program, each matching the native loop update for update; the
     /// collision handoff starts the private delete program, which deletes the spike on the same update as the native list.
     /// </summary>
-    internal static void VerifyPowampSpikeBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyPowampSpikeBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, PowampSpikeNativeListAddresses.Extent, "Powamp-spike");
@@ -61,7 +61,7 @@ internal static class PowampSpikeBehaviorVerification
     [VerificationCommand("--powamp-spike-programs")]
     internal static int PowampSpikeProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(PowampSpikeAnimationsVerification.VerifyPowampSpikeAnimations), () => PowampSpikeAnimationsVerification.VerifyPowampSpikeAnimations(rom));
         Suite(nameof(VerifyPowampSpikeBehavior), () => VerifyPowampSpikeBehavior(rom));
         return 0;

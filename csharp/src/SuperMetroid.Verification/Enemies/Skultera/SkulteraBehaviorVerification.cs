@@ -54,7 +54,7 @@ internal static class SkulteraBehaviorVerification
     [VerificationCommand("--skultera-instruction-mechanics")]
     internal static int SkulteraBehaviorCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifySkulteraBehavior), () => VerifySkulteraBehavior());
         Suite(nameof(SkulteraAnimationsVerification.VerifySkulteraAnimations), () => SkulteraAnimationsVerification.VerifySkulteraAnimations(rom));
         return 0;

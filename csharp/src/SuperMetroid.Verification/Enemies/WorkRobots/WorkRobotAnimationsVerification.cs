@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.WorkRobots;
 internal static class WorkRobotAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyWorkRobotAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyWorkRobotAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             WorkRobotAnimations.Segments, WorkRobotAnimations.StartingAt, WorkRobotFrameToolingDefinitions.Spritemap,

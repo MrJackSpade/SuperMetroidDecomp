@@ -35,7 +35,7 @@ internal static class PolypBehaviorVerification
     [VerificationCommand("--polyp-instruction-mechanics")]
     internal static int PolypInstructionMechanicsCommand()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyPolypBehavior), () => VerifyPolypBehavior());
         Suite(nameof(PolypAnimationsVerification.VerifyPolypAnimations), () => PolypAnimationsVerification.VerifyPolypAnimations(rom));
         return 0;

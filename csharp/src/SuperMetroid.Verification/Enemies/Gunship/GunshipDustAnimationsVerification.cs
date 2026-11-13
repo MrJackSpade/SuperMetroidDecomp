@@ -20,7 +20,7 @@ namespace SuperMetroid.Verification.Enemies.Gunship;
 internal static class GunshipDustAnimationsVerification
 {
     /// <summary>Every dust program matches its native list.</summary>
-    internal static void VerifyGunshipDustAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyGunshipDustAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int updates = 0;

@@ -90,7 +90,7 @@ internal static class FirefleaFxVerification
     /// native flash word's low byte is zero, so adding a darkness word never carries into the shade (#1415: the shade
     /// is a level, not the cartridge's word).
     /// </summary>
-    private static void VerifyFirefleaFlashingAlgorithm(SuperMetroidAddressSpace rom)
+    private static void VerifyFirefleaFlashingAlgorithm(CartridgeImportAddressSpace rom)
     {
         for (ushort i = 0; i < 12; i++)
         {
@@ -107,7 +107,7 @@ internal static class FirefleaFxVerification
     /// each cartridge word below its channel bits, which for the sixth death name channels the writes set to the same
     /// level; the low byte cannot reach the shade because the flash words' low bytes are zero (#1415).
     /// </summary>
-    private static void VerifyFirefleaDarknessAlgorithm(SuperMetroidAddressSpace rom)
+    private static void VerifyFirefleaDarknessAlgorithm(CartridgeImportAddressSpace rom)
     {
         AssertEqual(7, FirefleaFxDefinitions.DarknessLevels.Length, "Fireflea darkness steps");
         for (int step = 0; step < FirefleaFxDefinitions.DarknessLevels.Length; step++)

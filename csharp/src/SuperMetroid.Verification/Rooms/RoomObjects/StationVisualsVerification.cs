@@ -20,7 +20,7 @@ using SuperMetroid.Core.World;
 internal static class StationVisualsVerification
 {
     /// <summary>Checks the stock map-station tile and its physical collision.</summary>
-    internal static void VerifyStationVisuals(SuperMetroidAddressSpace rom)
+    internal static void VerifyStationVisuals(CartridgeImportAddressSpace rom)
     {
         InstalledRoomObjectStationVisuals stock = InstalledRoomObjectStationVisuals.Stock();
         StationVisualsRenderResult Render(
@@ -51,7 +51,7 @@ internal static class StationVisualsVerification
     }
 
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
-    private static void VerifyStationVisualInstallation(SuperMetroidAddressSpace rom)
+    private static void VerifyStationVisualInstallation(CartridgeImportAddressSpace rom)
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectStationVisualDirectory);
         GameInstallation installation = copy.Installation;

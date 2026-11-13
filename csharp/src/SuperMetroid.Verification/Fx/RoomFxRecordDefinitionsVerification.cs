@@ -50,7 +50,7 @@ internal static class RoomFxRecordDefinitionsVerification
     }
 
     /// <summary>Compares Ceres FX outputs with native reads and guards compiled consumers from rereading record bytes.</summary>
-    private static void VerifyCompiledCeresRoomFxConsumers(SuperMetroidAddressSpace bus)
+    private static void VerifyCompiledCeresRoomFxConsumers(CartridgeImportAddressSpace bus)
     {
         LoadStationPlacement station = LoadStationDefinitions.CeresElevator.Placement;
         SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, station.Room.Pointer);

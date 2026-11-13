@@ -18,7 +18,7 @@ internal static class GrowingShutterDefinitionsVerification
     private const int GrowthSpeedCount = 24;
 
     /// <summary>Compares native words and all valid initializer combinations, including wrapped section origins.</summary>
-    internal static void VerifyCompiledGrowingShutters(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledGrowingShutters(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyGrowingShutterWholeSpeed), () => VerifyGrowingShutterWholeSpeed(rom));
         Suite(nameof(VerifyGrowingShutterFractionalSpeed), () => VerifyGrowingShutterFractionalSpeed(rom));
@@ -57,18 +57,18 @@ internal static class GrowingShutterDefinitionsVerification
     private static byte CompiledGrowingShuttersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks signed whole-pixel shutter velocities across high-byte selector aliases.</summary>
-    private static void VerifyGrowingShutterWholeSpeed(SuperMetroidAddressSpace rom) =>
+    private static void VerifyGrowingShutterWholeSpeed(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyGrowingShutterSpeedField), () => VerifyGrowingShutterSpeedField(rom, fractional: false));
 
     /// <summary>Checks unsigned fractional shutter velocities across high-byte selector aliases.</summary>
-    private static void VerifyGrowingShutterFractionalSpeed(SuperMetroidAddressSpace rom) =>
+    private static void VerifyGrowingShutterFractionalSpeed(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyGrowingShutterSpeedField), () => VerifyGrowingShutterSpeedField(rom, fractional: true));
 
     /// <summary>
     /// Compares one native speed word with the speed the codec decodes for each selectable growth speed, under every
     /// high byte, and confirms a placement selecting past the authored speeds fails to decode.
     /// </summary>
-    private static void VerifyGrowingShutterSpeedField(SuperMetroidAddressSpace rom, bool fractional)
+    private static void VerifyGrowingShutterSpeedField(CartridgeImportAddressSpace rom, bool fractional)
     {
         for (int index = 0; index < GrowthSpeedCount; index++)
         {

@@ -22,7 +22,7 @@ internal static class MotherBrainGlassObjectProgramVerification
     /// dispatcher through every glass-break threshold without permitting a ROM
     /// read of the compiled control bytes.
     /// </summary>
-    internal static void VerifyMotherBrainGlassObjectProgram(SuperMetroidAddressSpace rom)
+    internal static void VerifyMotherBrainGlassObjectProgram(CartridgeImportAddressSpace rom)
     {
         BossRoomObjectProgramsVerification.VerifyMotherBrainGlassPrograms(rom);
 

@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 internal static class LookupDownwardGateStockVerification
 {
     /// <summary>Compares the fourteen gate frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections (#1557).</summary>
-    internal static void VerifyDownwardGateStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyDownwardGateStockMapping(CartridgeImportAddressSpace rom,
         InstalledRoomObjectDownwardGateVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0xa517,"column-frame-0"),new LookupEscapeGateStockFrame(0xa525,"column-frame-1"),

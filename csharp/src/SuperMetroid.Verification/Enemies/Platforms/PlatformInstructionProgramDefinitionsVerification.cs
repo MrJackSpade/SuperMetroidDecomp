@@ -23,7 +23,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
 
     /// <summary>Exercises eight species, direction, and motion programs with compiled mechanics reads forbidden.</summary>
     internal static void VerifyPlatformInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
 
         Suite(nameof(VerifyTripperFrozenFrameSelection), () => VerifyTripperFrozenFrameSelection(rom));
@@ -116,7 +116,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Checks that the programs show exactly the sixteen animated maps and their native sprite counts.</summary>
-    private static void VerifyPlatformVisualPointers(SuperMetroidAddressSpace rom)
+    private static void VerifyPlatformVisualPointers(CartridgeImportAddressSpace rom)
     {
         ushort[] kamer = [0xa021, 0xa02d, 0xa039, 0xa045];
         ushort[] threeEntryTripper = [0x9f29, 0x9f3a, 0x9f4b, 0x9f5c, 0x9f6d, 0x9f7e, 0x9fa5, 0x9fe2];
@@ -132,7 +132,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             "platform programs show exactly the sixteen animated maps");
     }
     /// <summary>Checks published frame order, asset names, and consecutive native record sizes.</summary>
-    private static void VerifyPlatformExportIdentities(SuperMetroidAddressSpace rom)
+    private static void VerifyPlatformExportIdentities(CartridgeImportAddressSpace rom)
     {
         // Independent published export order and names; addresses are the native map labels.
         PlatformInstructionProgramDefinitionsExpected[] expected =
@@ -160,7 +160,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         }
     }
     /// <summary>Checks the native initial list for every full-word horizontal direction value.</summary>
-    private static void VerifyPlatformInitialProgramSelection(SuperMetroidAddressSpace rom)
+    private static void VerifyPlatformInitialProgramSelection(CartridgeImportAddressSpace rom)
     {
         // LDY immediate operands in the two native initializers.
         foreach (bool isKamer in new[] { false, true })
@@ -176,7 +176,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Checks moving and still list selection for both species and every direction value.</summary>
-    private static void VerifyPlatformAnimationProgramSelection(SuperMetroidAddressSpace rom)
+    private static void VerifyPlatformAnimationProgramSelection(CartridgeImportAddressSpace rom)
     {
         // Each native helper first loads Tripper's list, then substitutes Kamer's list.
         foreach (bool moving in new[] { false, true })
@@ -198,7 +198,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         }
     }
     /// <summary>Checks the native zero-versus-nonzero direction choice for frozen Tripper frames.</summary>
-    private static void VerifyTripperFrozenFrameSelection(SuperMetroidAddressSpace rom)
+    private static void VerifyTripperFrozenFrameSelection(CartridgeImportAddressSpace rom)
     {
         // Immediate operands of the native zero/nonzero branches, not an inferred pointer table.
         ushort left = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | 0x9f23);

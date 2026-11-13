@@ -11,7 +11,7 @@ internal static class DraygonCannonVisualsVerification
 {
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     internal static void VerifyDraygonCannonVisualInstallation(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         // A private installation copy, whose stock file is tampered below.
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectDraygonCannonVisualDirectory))

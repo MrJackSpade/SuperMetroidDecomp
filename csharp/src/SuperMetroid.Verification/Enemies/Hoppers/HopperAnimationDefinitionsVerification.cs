@@ -21,7 +21,7 @@ internal static class HopperAnimationDefinitionsVerification
     /// shows its four timed poses and then lets main AI hop again.
     /// </summary>
     internal static void VerifyHopperAnimationDefinitions(
-        SuperMetroidAddressSpace rom, ImportEnemyArtwork? artwork = null)
+        CartridgeImportAddressSpace rom, ImportEnemyArtwork? artwork = null)
     {
         int[] tables = [0xa3aac2, 0xa3aaca, 0xa3aad2, 0xa3aada];
         for (ushort variant = 0; variant < 4; variant++)
@@ -129,14 +129,14 @@ internal static class HopperAnimationDefinitionsVerification
     }
 
     /// <summary>Reads a native hopper word for independent bank-A3 definition comparisons.</summary>
-    internal static ushort ReadHopperAnimationWord(SuperMetroidAddressSpace source, int address) =>
+    internal static ushort ReadHopperAnimationWord(CartridgeImportAddressSpace source, int address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWord(address);
 
     /// <summary>Runs the hopper animation checks and the program oracle through the verification dispatcher.</summary>
     [VerificationCommand("--hopper-instruction-program-definitions")]
     internal static int HopperInstructionProgramDefinitionsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyHopperAnimationDefinitions), () => VerifyHopperAnimationDefinitions(rom));
         Suite(nameof(HopperAnimationsVerification.VerifyHopperAnimations), () => HopperAnimationsVerification.VerifyHopperAnimations(rom));
         return 0;

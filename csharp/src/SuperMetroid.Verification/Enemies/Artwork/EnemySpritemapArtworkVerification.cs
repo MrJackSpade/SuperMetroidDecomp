@@ -59,21 +59,21 @@ internal static class EnemySpritemapArtworkVerification
 {
     /// <summary>Runs the Alcoon in a real room with the installed artwork.</summary>
     private static void VerifyInstalledAlcoonInstructionFrames(
-        SuperMetroidAddressSpace rom, ImportEnemyArtwork stock)
+        CartridgeImportAddressSpace rom, ImportEnemyArtwork stock)
     {
         Suite(nameof(VerifyAlcoonInstructionProgramDefinitions), () => VerifyAlcoonInstructionProgramDefinitions(rom, stock));
     }
 
     /// <summary>Runs the Beetom programs with the installed artwork.</summary>
     private static void VerifyInstalledBeetomInstructionFrames(
-        SuperMetroidAddressSpace rom, ImportEnemyArtwork stock)
+        CartridgeImportAddressSpace rom, ImportEnemyArtwork stock)
     {
         Suite(nameof(VerifyBeetomInstructionProgramDefinitions), () => VerifyBeetomInstructionProgramDefinitions(rom, stock));
     }
 
     /// <summary>Runs the hopper family's typed animations with the installed stock artwork.</summary>
     private static void VerifyInstalledHopperInstructionFrames(
-        SuperMetroidAddressSpace rom, ImportEnemyArtwork stock)
+        CartridgeImportAddressSpace rom, ImportEnemyArtwork stock)
     {
         Suite(nameof(VerifyHopperAnimationDefinitions), () => VerifyHopperAnimationDefinitions(rom, stock));
     }
@@ -120,7 +120,7 @@ internal static class EnemySpritemapArtworkVerification
 
     /// <summary>Compares installed enemy compositions and rendering with the cartridge's OAM definitions.</summary>
     internal static void VerifyInstalledEnemySpritemaps(
-        SuperMetroidAddressSpace rom,
+        CartridgeImportAddressSpace rom,
         ImportEnemyArtwork stock)
     {
         AssertTrue(stock.Enemies.Spritemaps is not null,
@@ -631,7 +631,7 @@ internal static class EnemySpritemapArtworkVerification
 
     /// <summary>Checks Mother Brain's private draw hook against native head frames and above-screen culling.</summary>
     private static void VerifyInstalledMotherBrainDrawHook(
-        SuperMetroidAddressSpace rom, ImportEnemyArtwork stock)
+        CartridgeImportAddressSpace rom, ImportEnemyArtwork stock)
     {
         // Mother Brain's room's graphics set, which gives the tile base and colours it loads her head with.
         RoomEnemyGraphicsSetDefinition headSet = SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.MotherBrainHead);

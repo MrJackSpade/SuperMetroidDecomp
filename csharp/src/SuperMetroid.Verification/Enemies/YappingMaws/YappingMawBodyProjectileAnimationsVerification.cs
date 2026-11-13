@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Enemies.YappingMaws;
 internal static class YappingMawBodyProjectileAnimationsVerification
 {
     /// <summary>Every program matches its native list.</summary>
-    internal static void VerifyYappingMawBodyProjectileAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyYappingMawBodyProjectileAnimations(CartridgeImportAddressSpace rom)
     {
         int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         Console.WriteLine($"  Yapping Maw body link programs: {Entries.Length} programs ({steps} steps) match bank $86.");

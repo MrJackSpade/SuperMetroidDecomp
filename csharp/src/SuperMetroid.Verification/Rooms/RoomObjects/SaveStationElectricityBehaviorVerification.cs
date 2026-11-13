@@ -16,7 +16,7 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 internal static class SaveStationElectricityBehaviorVerification
 {
     /// <summary>The electricity's spawn starts its typed program, which cycles twenty times and deletes on the native update.</summary>
-    internal static void VerifySaveStationElectricityBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifySaveStationElectricityBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, SaveStationElectricityNativeListAddresses.Extent, "save-station electricity");
@@ -36,7 +36,7 @@ internal static class SaveStationElectricityBehaviorVerification
     [VerificationCommand("--save-station-electricity-programs")]
     internal static int SaveStationElectricityProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(SaveStationElectricityAnimationsVerification.VerifySaveStationElectricityAnimations), () => SaveStationElectricityAnimationsVerification.VerifySaveStationElectricityAnimations(rom));
         Suite(nameof(VerifySaveStationElectricityBehavior), () => VerifySaveStationElectricityBehavior(rom));
         return 0;

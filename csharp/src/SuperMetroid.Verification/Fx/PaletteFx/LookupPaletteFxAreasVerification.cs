@@ -9,7 +9,7 @@ namespace SuperMetroid.Verification.Fx.PaletteFx;
 internal static class LookupPaletteFxAreasVerification
 {
     /// <summary>Compares all eight native list identities and preserves indexed bounds on their lookup.</summary>
-    internal static void VerifyPaletteFxAreaListPointers(SuperMetroidAddressSpace rom)
+    internal static void VerifyPaletteFxAreaListPointers(CartridgeImportAddressSpace rom)
     {
         for (int area = 0; area < 8; area++)
             AssertEqual(ReadVerificationWord(rom, 0x83ac46 + 2 * area),
@@ -20,7 +20,7 @@ internal static class LookupPaletteFxAreasVerification
     }
 
     /// <summary>Checks the full area/bit dispatch domain and gives area validation precedence on invalid pairs.</summary>
-    internal static void VerifyPaletteFxAreaSelections(SuperMetroidAddressSpace rom)
+    internal static void VerifyPaletteFxAreaSelections(CartridgeImportAddressSpace rom)
     {
         for (int area = 0; area < 256; area++)
         for (int bit = 0; bit < 256; bit++)

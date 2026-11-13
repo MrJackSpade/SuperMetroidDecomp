@@ -46,7 +46,7 @@ internal static class BotwoonAnimationsVerification
     private const ushort BotwoonQueueSpitSoundOpcode = 0x9572;
 
     /// <summary>Every head program the cartridge can select runs exactly like its native list.</summary>
-    internal static void VerifyBotwoonHeadAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyBotwoonHeadAnimations(CartridgeImportAddressSpace rom)
     {
         int compared = 0;
         var drawn = new HashSet<ushort>();
@@ -72,7 +72,7 @@ internal static class BotwoonAnimationsVerification
     }
 
     /// <summary>The AI selects the typed program the cartridge would, and reinstalling one does not restart it.</summary>
-    internal static void VerifyBotwoonAnimationSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyBotwoonAnimationSelection(CartridgeImportAddressSpace rom)
     {
         Action<RoomEnemySlot, BotwoonEnemyState> animateHead = BotwoonBehavior.AnimateBotwoonHeadFromMovement;
         Action<RoomEnemySystem, RoomEnemySlot, BotwoonEnemyState, SamusState> aimHead = (owner, a0, a1, a2) => owner.BotwoonBehavior.AimBotwoonAtSamus(a0, a1, a2);
@@ -148,7 +148,7 @@ internal static class BotwoonAnimationsVerification
     }
 
     /// <summary>Every body, tail, hidden and spit animation runs exactly like its native bank-$86 list.</summary>
-    internal static void VerifyBotwoonProjectileAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyBotwoonProjectileAnimations(CartridgeImportAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         void Pass(EnemyProjectile projectile) => enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
@@ -235,7 +235,7 @@ internal static class BotwoonAnimationsVerification
     }
 
     /// <summary>Starts a typed head program from its first instruction and compares it with the selected cartridge list.</summary>
-    private static void CompareBotwoonHead(SuperMetroidAddressSpace rom, ushort nativeList, BotwoonHeadProgram program, string label,
+    private static void CompareBotwoonHead(CartridgeImportAddressSpace rom, ushort nativeList, BotwoonHeadProgram program, string label,
         HashSet<ushort> drawn)
     {
         (RoomEnemySystem enemies, RoomEnemySlot head, BotwoonEnemyState state) = NewBotwoonHead();
@@ -245,7 +245,7 @@ internal static class BotwoonAnimationsVerification
     }
 
     /// <summary>Runs the typed head beside a native-list reader for seventy updates and compares every observable.</summary>
-    private static void CompareBotwoonHead(SuperMetroidAddressSpace rom, ushort nativeList, RoomEnemySystem enemies,
+    private static void CompareBotwoonHead(CartridgeImportAddressSpace rom, ushort nativeList, RoomEnemySystem enemies,
         RoomEnemySlot head, BotwoonEnemyState state, string label, HashSet<ushort>? drawn = null)
     {
         var native = new NativeBotwoonHead(nativeList, head.FrameHold.RawValue, head.Radius);
@@ -268,7 +268,7 @@ internal static class BotwoonAnimationsVerification
     }
 
     /// <summary>Runs a typed projectile beside a native-list reader for forty passes and compares timer and frame.</summary>
-    private static void CompareBotwoonProjectile(SuperMetroidAddressSpace rom, ushort nativeList, EnemyProjectile projectile,
+    private static void CompareBotwoonProjectile(CartridgeImportAddressSpace rom, ushort nativeList, EnemyProjectile projectile,
         Action<EnemyProjectile> pass, string label)
     {
         ushort cursor = nativeList, timer = projectile.FrameHold.RawValue, operand = 0;
@@ -323,7 +323,7 @@ internal static class BotwoonAnimationsVerification
         internal bool SpitFrame { get; private set; }
 
         /// <summary>Runs one update; returns whether the spit sound was queued.</summary>
-        internal bool Step(SuperMetroidAddressSpace rom)
+        internal bool Step(CartridgeImportAddressSpace rom)
         {
             ushort old = Timer;
             Timer = WrappingCounter.Decrement(Timer).Value;

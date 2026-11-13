@@ -14,7 +14,7 @@ namespace SuperMetroid.Verification.Rooms.LevelData;
 internal static class SharedSlopeHeightsVerification
 {
     /// <summary>Compares all 512 native samples and mirrored collision outcomes while blocking slope ROM reads.</summary>
-    internal static void VerifyCompiledSlopeHeights(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledSlopeHeights(CartridgeImportAddressSpace rom)
     {
         byte[] native = new byte[512];
         for (int i = 0; i < native.Length; i++)

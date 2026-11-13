@@ -25,7 +25,7 @@ internal static class RuntimeCartridgeBoundaryVerification
     {
         Assembly gameplay = typeof(SuperMetroidRuntime).Assembly;
         AssertTrue(!gameplay.GetTypes().Any(type =>
-                type.Name is nameof(SuperMetroidAddressSpace) or nameof(ISnesAddressSpace) or nameof(ISnesMutableMemory)),
+                type.Name is nameof(CartridgeImportAddressSpace) or nameof(ISnesAddressSpace) or nameof(ISnesMutableMemory)),
             "the CPU address space belongs to the import pipeline, not the gameplay assembly (#1417)");
         AssertTrue(!gameplay.GetTypes().Any(type => type.Name == nameof(SnesVram)),
             "VRAM belongs to the import pipeline, not the gameplay assembly (#1422)");

@@ -20,7 +20,7 @@ internal static class AlcoonFireballBehaviorVerification
     /// All three fire commands in both facings start the typed program, which loops update for update beside the native
     /// list; the shared shot list still deletes a fireball; every pose's calculated selector is its native spritemap.
     /// </summary>
-    internal static void VerifyAlcoonFireballBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyAlcoonFireballBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, AlcoonFireballNativeListAddresses.Extent, "Alcoon-fireball");
@@ -63,7 +63,7 @@ internal static class AlcoonFireballBehaviorVerification
     [VerificationCommand("--alcoon-fireball-programs")]
     internal static int AlcoonFireballProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(AlcoonFireballAnimationsVerification.VerifyAlcoonFireballAnimations), () => AlcoonFireballAnimationsVerification.VerifyAlcoonFireballAnimations(rom));
         Suite(nameof(VerifyAlcoonFireballBehavior), () => VerifyAlcoonFireballBehavior(rom));
         return 0;

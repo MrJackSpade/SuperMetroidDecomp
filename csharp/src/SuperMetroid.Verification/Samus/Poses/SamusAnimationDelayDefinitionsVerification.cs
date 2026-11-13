@@ -106,7 +106,7 @@ internal static class SamusAnimationDelayDefinitionsVerification
     internal static int MutableAnimationAliasesCommand()
     {
         string sourceRom = Path.GetFullPath("Super Metroid.smc");
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
+        CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         Suite(nameof(VerifySamusAnimationDelayDefinitions), () => VerifySamusAnimationDelayDefinitions(bus));
         Suite(nameof(VerifyRunningCadence), () => VerifyRunningCadence(bus));
         return 0;

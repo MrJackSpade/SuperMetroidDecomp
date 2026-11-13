@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Bosses.Crocomire;
 internal static class CrocomireSkeletonFrameGeometryVerification
 {
     /// <summary>Derives 33 selected skeleton roots from native instruction operands and checks component counts, strides, ordering, and rejected gaps.</summary>
-    internal static void VerifyCrocomireSkeletonFrameGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireSkeletonFrameGeometry(CartridgeImportAddressSpace rom)
     {
         var selected = new SortedSet<ushort>(CrocomireAnimationsVerification.TypedBodySpritemaps(CrocomireBodyFrameSet.Skeleton));
         var expected = selected.Select(pointer => new NativeEnemySpritemapDefinition(0xa4, pointer,

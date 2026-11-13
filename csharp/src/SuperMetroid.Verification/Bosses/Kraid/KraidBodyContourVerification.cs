@@ -23,7 +23,7 @@ internal static class KraidBodyContourVerification
     };
 
     /// <summary>Compares the real overlap branch across signed Y positions, translated body X values, shot radii, and edge offsets.</summary>
-    internal static void VerifyKraidBodyContour(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidBodyContour(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyKraidBodyContourCases), () => VerifyKraidBodyContourCases(rom));
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());

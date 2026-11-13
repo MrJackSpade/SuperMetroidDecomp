@@ -24,7 +24,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
 
     /// <summary>Runs all attack and cooldown entries, checking sound, held-Samus offsets, and initial facing selection.</summary>
     internal static void VerifyYappingMawInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         for (int direction = 0; direction < 8; direction++)
         {

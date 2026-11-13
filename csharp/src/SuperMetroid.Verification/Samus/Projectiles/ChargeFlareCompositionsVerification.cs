@@ -20,7 +20,7 @@ using SuperMetroid.Verification.Harness;
 internal static class ChargeFlareCompositionsVerification
 {
     /// <summary>Checks extracted parts across selector, position, and OAM capacity cases, then rejects malformed assets.</summary>
-    internal static void VerifyChargeFlareCompositions(SuperMetroidAddressSpace bus)
+    internal static void VerifyChargeFlareCompositions(CartridgeImportAddressSpace bus)
     {
         byte[] json = ChargeFlareSpriteExtractor.Extract(bus);
         var stock = ChargeFlareSprites.Load(new MemoryStream(json));
@@ -71,7 +71,7 @@ internal static class ChargeFlareCompositionsVerification
     }
 
     /// <summary>Import-only oracle for the bank-$93 flare selector and part records.</summary>
-    internal static void DrawImportedFlareSpritemap(SuperMetroidAddressSpace bus, OamBuffer oam,
+    internal static void DrawImportedFlareSpritemap(CartridgeImportAddressSpace bus, OamBuffer oam,
         ushort selector, Position16<SpritePixels> origin)
     {
         int table = SnesAddressMath.AddWithinBank(0x93a1a1, selector * 2);

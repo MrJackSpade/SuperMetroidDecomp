@@ -95,7 +95,7 @@ internal static class CollectibleVisualsVerification
     }
 
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
-    private static void VerifyCollectibleVisualInstallation(SuperMetroidAddressSpace rom)
+    private static void VerifyCollectibleVisualInstallation(CartridgeImportAddressSpace rom)
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectCollectibleVisualDirectory);
         GameInstallation installation = copy.Installation;

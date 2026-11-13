@@ -44,7 +44,7 @@ internal static class TourianAccessVisualsVerification
     }
 
     /// <summary>Compares the five access-floor frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections (#1557).</summary>
-    private static void VerifyTourianAccessStockMapping(SuperMetroidAddressSpace rom,
+    private static void VerifyTourianAccessStockMapping(CartridgeImportAddressSpace rom,
         RoomObjectTourianAccessVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9297,"crumble-empty-row"), new LookupEscapeGateStockFrame(0x92a3,"crumble-frame-0"),

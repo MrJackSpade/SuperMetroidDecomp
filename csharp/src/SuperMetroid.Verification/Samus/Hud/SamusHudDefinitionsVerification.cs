@@ -32,7 +32,7 @@ internal static class SamusHudDefinitionsVerification
     private const int StandardTransitionNumber = 0xF1;
 
     /// <summary>Compares every native handler and posture branch, then checks Grapple admission and charged-shot preservation.</summary>
-    internal static void VerifySamusHudDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySamusHudDefinitions(CartridgeImportAddressSpace rom)
     {
         bool Transition(SamusPoseId pose, bool active) => SamusPoseNumbers.Number(pose) >= StandardTransitionNumber ||
             (SamusPoseNumbers.Number(pose) < NonFiringTransitionNumber &&
@@ -141,7 +141,7 @@ internal static class SamusHudDefinitionsVerification
 
     /// <summary>The HUD handler the cartridge's movement-handler table names for <paramref name="movement"/>.</summary>
     /// <exception cref="InvalidDataException">The table names a handler the identity table does not know.</exception>
-    private static SamusHudHandler HandlerOf(SuperMetroidAddressSpace rom, int movement)
+    private static SamusHudHandler HandlerOf(CartridgeImportAddressSpace rom, int movement)
     {
         ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusCartridgeTablesConstants.HudMovementHandlers + movement * 2);
         return HandlerAt.TryGetValue(word, out SamusHudHandler handler) ? handler

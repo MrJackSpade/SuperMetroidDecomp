@@ -11,7 +11,7 @@ internal static class ZoaSpeedDefinitionsVerification
 {
 
     /// <summary>Compares all byte-indexed speed windows and, unless limited to definitions, the signed subpixel movement path.</summary>
-    internal static void VerifyCompiledZoaSpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
+    internal static void VerifyCompiledZoaSpeeds(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
     {
         ushort Word(int address) => CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
         // #1412: the catalog states each stage's speed in eighths of a pixel; the cartridge's whole/fraction record for

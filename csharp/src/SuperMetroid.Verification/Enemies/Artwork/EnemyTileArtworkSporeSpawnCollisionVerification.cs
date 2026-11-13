@@ -15,7 +15,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
 {
     /// <summary>Compares all twelve visual roots, their hitbox records, and live touch/shot overlap results with an independent cartridge walker.</summary>
     internal static void VerifyCompiledSporeSpawnCollision(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         // VerifySporeSpawnAnimations confirms each typed Spore Spawn frame's spritemap equals its native operand.
         var selected = SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnAnimationsVerification.BodySpritemaps();

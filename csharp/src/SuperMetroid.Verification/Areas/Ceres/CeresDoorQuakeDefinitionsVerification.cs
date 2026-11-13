@@ -22,7 +22,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
 {
 
     /// <summary>Compares the four authored offset words, timer aliases, real OAM phases, and the native overlay records.</summary>
-    internal static void VerifyCeresDoorQuakeDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCeresDoorQuakeDefinitions(CartridgeImportAddressSpace rom)
     {
         const int sourceAddress = 0xa6a321;
 

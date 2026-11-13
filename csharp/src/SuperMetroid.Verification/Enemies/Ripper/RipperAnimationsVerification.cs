@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Enemies.Ripper;
 internal static class RipperAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyRipperAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyRipperAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             RipperAnimations.Segments, RipperAnimations.StartingAt, RipperFrameToolingDefinitions.Spritemap,

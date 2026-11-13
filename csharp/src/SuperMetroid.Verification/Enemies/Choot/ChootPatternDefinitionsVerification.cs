@@ -12,7 +12,7 @@ using SuperMetroid.Core.World;
 internal static class ChootPatternDefinitionsVerification
 {
     /// <summary>Checks five Choot path sources, initializers, complete fall loops, and invalid pattern indexes.</summary>
-    internal static void VerifyChootPatternDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyChootPatternDefinitions(CartridgeImportAddressSpace rom)
     {
         var runFall = new Action<RoomEnemySlot, ChootEnemyState>(ChootBehavior.RunChootFall);
         int[] frameCounts = [74, 74, 74, 94, 134];

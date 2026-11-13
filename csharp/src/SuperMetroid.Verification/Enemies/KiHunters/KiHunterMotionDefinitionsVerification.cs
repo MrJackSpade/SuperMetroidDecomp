@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.KiHunters;
 internal static class KiHunterMotionDefinitionsVerification
 {
     /// <summary>Compares retail constants and every 16-bit orbit position without gameplay bus reads.</summary>
-    internal static void VerifyKiHunterMotionDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyKiHunterMotionDefinitions(CartridgeImportAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(KiHunterMotionDefinitionsRomByte(rom, address), KiHunterMotionDefinitionsRomByte(rom, address + 1));
         AssertEqual(Word(0xa8f180), KiHunterMotionDefinitions.SwoopTriggerDistance, "Native KiHunter proximity");

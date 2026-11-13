@@ -20,7 +20,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
     /// original index arithmetic does; the initializer starts left-facing idle; each attack shows its poses, plays the splash and
     /// marks the attack finished; each roll opens the attack-rotation window for one pose and loops on time.
     /// </summary>
-    internal static void VerifyMaridiaLargeSnailInstructionDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyMaridiaLargeSnailInstructionDefinitions(CartridgeImportAddressSpace rom)
     {
         for (ushort animationIndex = 0; animationIndex < 8; animationIndex++)
         {
@@ -129,7 +129,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
     [VerificationCommand("--maridia-large-snail-instruction-definitions")]
     internal static int MaridiaLargeSnailInstructionDefinitionsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyMaridiaLargeSnailInstructionDefinitions), () => VerifyMaridiaLargeSnailInstructionDefinitions(rom));
         Suite(nameof(MaridiaLargeSnailAnimationsVerification.VerifyMaridiaLargeSnailAnimations), () => MaridiaLargeSnailAnimationsVerification.VerifyMaridiaLargeSnailAnimations(rom));
         return 0;

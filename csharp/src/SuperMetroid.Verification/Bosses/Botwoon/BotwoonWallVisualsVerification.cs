@@ -15,7 +15,7 @@ using SuperMetroid.Verification.Harness;
 internal static class BotwoonWallVisualsVerification
 {
     /// <summary>Compares the nine-cell clear's installed picture with the cartridge, then the import and its rejections (#1557).</summary>
-    internal static void VerifyBotwoonWallStockMapping(SuperMetroidAddressSpace rom)
+    internal static void VerifyBotwoonWallStockMapping(CartridgeImportAddressSpace rom)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x930f, "clear-wall")];
         InstalledRoomObjectBotwoonWallVisuals stock = InstalledRoomObjectBotwoonWallVisuals.Stock();
@@ -38,7 +38,7 @@ internal static class BotwoonWallVisualsVerification
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     internal static void VerifyBotwoonWallVisuals()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         // A private installation copy, whose stock file is tampered below.
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectBotwoonWallVisualDirectory))

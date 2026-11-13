@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.Crawlers;
 internal static class CrawlerAnimationDefinitionsVerification
 {
     /// <summary>Compares crawler orientation tables with cartridge words and production initial/surface instruction selection.</summary>
-    internal static void VerifyCrawlerAnimationDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrawlerAnimationDefinitions(CartridgeImportAddressSpace rom)
     {
         InitialTable[] initialTables =
         [

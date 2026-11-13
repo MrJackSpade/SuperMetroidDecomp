@@ -14,7 +14,7 @@ using SuperMetroid.Core.World;
 internal static class CeresSteamDefinitionsVerification
 {
     /// <summary>Checks all six instruction/function pairs while forbidding migrated selector reads in production.</summary>
-    internal static void VerifyCeresSteamDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCeresSteamDefinitions(CartridgeImportAddressSpace rom)
     {
         const int instructionTable = 0xa6eff5;
         const int functionTable = 0xa6f001;

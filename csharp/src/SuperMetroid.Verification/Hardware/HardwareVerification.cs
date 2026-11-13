@@ -508,10 +508,14 @@ internal static void VerifyFrameRuntime()
 }
 
 /// <summary>
-/// Checks FastROM/slow-bank LoROM mirrors, high-bank offsets, WRAM mirrors, unmapped SRAM windows,
-/// and deliberate failures for unimplemented hardware and ROM writes.
+/// Checks the import address space's FastROM/slow-bank LoROM mirrors, high-bank offsets and rejection of every
+/// address the cartridge window does not serve.
 /// </summary>
-internal static void VerifySuperMetroidAddressSpace()
+/// <remarks>
+/// The work-RAM image whose mirrors, independent banks and write protection this check once covered is gone (#1688):
+/// the import maps no work RAM. The sealed import space implements no work-RAM contract, which the compiler states.
+/// </remarks>
+internal static void VerifyCartridgeImportAddressSpace()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];
     rom[0x000000] = 0x80;
@@ -524,62 +528,23 @@ internal static void VerifySuperMetroidAddressSpace()
     AssertEqual(0x80, bus.ReadCartridgeByte(0x808000), "FastROM mirror first LoROM byte");
     AssertEqual(0x81, bus.ReadCartridgeByte(0x818000), "next FastROM bank advances $8000 bytes");
     AssertEqual(0xc0, bus.ReadCartridgeByte(0xc08000), "bank C0 maps to physical ROM $200000");
-    var cartridge = bus;
-    AssertEqual(0x80, cartridge.ReadCartridgeByte(0x808000),
-        "import-only ROM reader returns the pinned upper-window byte");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => cartridge.ReadCartridgeByte(0x7e8000),
+        () => bus.ReadCartridgeByte(0x7e8000),
         "import-only ROM reader rejects the physical WRAM bank");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => cartridge.ReadCartridgeByte(0x001234),
+        () => bus.ReadCartridgeByte(0x001234),
         "import-only ROM reader rejects lower-window RAM mirrors");
     AssertEqual(0x200000, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.ToRomOffset(0xc08000), "native RomPtr mask mapping");
 
-    bus.WriteByte(0x7e1234, 0x55);
-    AssertEqual(0x55, bus.ReadWorkRamByte(0x001234), "bank 00 low WRAM mirror");
-    AssertEqual(0x55, bus.ReadWorkRamByte(0x801234), "bank 80 low WRAM mirror");
-    bus.WriteByte(0x7f1234, 0x66);
-    AssertEqual(0x66, bus.ReadWorkRamByte(0x7f1234), "second physical WRAM bank");
-    AssertEqual(0x55, bus.ReadWorkRamByte(0x7e1234), "WRAM banks remain independent");
-    var mutable = bus;
-    AssertEqual(0x55, mutable.ReadWorkRamByte(0x7e1234),
-        "typed WRAM read returns the physical first bank");
-    AssertEqual(0x66, mutable.ReadWorkRamByte(0x7f1234),
-        "typed WRAM read returns the physical second bank");
-    AssertThrows<ArgumentOutOfRangeException>(
-        () => mutable.ReadWorkRamByte(0x808000),
-        "typed WRAM read rejects cartridge ROM");
-    AssertEqual(0x55, mutable.ReadWorkRamByte(0x001234),
-        "typed WRAM read preserves the low bank-$00 mirror");
-    AssertEqual(0x55, mutable.ReadWorkRamByte(0x801234),
-        "typed WRAM read preserves the low bank-$80 mirror");
-    AssertThrows<ArgumentOutOfRangeException>(
-        () => mutable.ReadWorkRamByte(0x002000),
-        "typed WRAM read rejects hardware registers outside the mirror");
-
-    // Saves are SaveSlotStore state: the SRAM windows are outside the runtime address map.
-    AssertThrows<InvalidOperationException>(() => bus.WriteByte(0x700123, 0x77), "SRAM window writes are unmapped");
+    // Saves are SaveSlotStore state: the SRAM windows are outside the import address map.
     AssertEqual(SnesDmaSourceKind.Unmapped, SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(0x700123)),
         "DMA cannot read an SRAM window");
-
-    var noCartridge = SuperMetroidAddressSpace.CreateWithoutCartridge();
-    noCartridge.WriteByte(0x7e1234, 0x98);
-    AssertEqual(0x98, ((ISnesMutableMemory)noCartridge).ReadWorkRamByte(0x7e1234),
-        "typed WRAM read works without a cartridge allocation");
-    AssertTrue(noCartridge is not IImportCartridgeSource,
-        "runtime memory does not implement the import-only cartridge capability");
-    AssertThrows<ArgumentException>(
-        () => noCartridge.ReadCartridgeByte(0x808000),
-        "missing cartridge cannot be masked by the import-only reader");
-
-    AssertThrows<InvalidOperationException>(() => bus.WriteByte(0x808000, 0), "ROM writes rejected");
     AssertEqual(SnesDmaSourceKind.Unmapped, SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(0x004000)),
-        "unimplemented register/expansion window is outside the runtime address map");
-    AssertThrows<ArgumentOutOfRangeException>(() => bus.ReadWorkRamByte(0x004000), "unimplemented register/expansion read rejected as WRAM");
+        "unimplemented register/expansion window is outside the import address map");
     AssertThrows<ArgumentOutOfRangeException>(() => bus.ReadCartridgeByte(0x004000), "unimplemented register/expansion read rejected as ROM");
     AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.ToRomOffset(0x800000), "lower LoROM offset rejected");
 
-    Console.WriteLine("  Bus: LoROM, WRAM mirrors, unmapped SRAM and protection agree.");
+    Console.WriteLine("  Bus: LoROM mirrors, unmapped work RAM and SRAM, and rejection agree.");
 }
 
 /// <summary>
@@ -744,11 +709,11 @@ static void SeedTwoEntryRoomEnemySpritemap(TestAddressSpace bus)
     ]);
 }
 
-    /// <summary>Runs the mutable address-space boundary check.</summary>
-    [VerificationCommand("--mutable-memory-boundary")]
-    internal static int MutableMemoryBoundaryCommand()
+    /// <summary>Runs the import address-space check.</summary>
+    [VerificationCommand("--cartridge-import-address-space")]
+    internal static int CartridgeImportAddressSpaceCommand()
     {
-     VerifySuperMetroidAddressSpace(); return 0; 
+     VerifyCartridgeImportAddressSpace(); return 0;
     }
 
     /// <summary>Runs the OAM spritemap source and packing check.</summary>

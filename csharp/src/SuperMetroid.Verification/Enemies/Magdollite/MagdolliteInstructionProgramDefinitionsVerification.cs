@@ -23,7 +23,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
 
     /// <summary>Compares compiled words to the cartridge and exercises all Magdollite program families without runtime instruction reads.</summary>
     internal static void VerifyMagdolliteInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyIdle), () => VerifyIdle(MagdolliteProgram.LeftIdle, "left"));
         Suite(nameof(VerifyIdle), () => VerifyIdle(MagdolliteProgram.RightIdle, "right"));

@@ -17,7 +17,7 @@ internal static class LookupEyeDoorStockVerification
     /// Compares the 23 published frames' pictures and the mirrored clear's with the cartridge's draw lists, rejects other
     /// draws, then checks the import and its rejections.
     /// </summary>
-    internal static void VerifyEyeDoorStockMapping(SuperMetroidAddressSpace rom, InstalledRoomObjectEyeDoorVisuals installed)
+    internal static void VerifyEyeDoorStockMapping(CartridgeImportAddressSpace rom, InstalledRoomObjectEyeDoorVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [
             new LookupEscapeGateStockFrame(0x9c03,"left-eye-frame-0"),new LookupEscapeGateStockFrame(0x9c0b,"left-eye-frame-1"),new LookupEscapeGateStockFrame(0x9c13,"left-eye-frame-2"),

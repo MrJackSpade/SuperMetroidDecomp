@@ -16,7 +16,7 @@ using SuperMetroid.Core.World;
 internal static class EscapeEtecoonDefinitionsVerification
 {
     /// <summary>Checks three native setup roles and all six masked selector values against production initialization.</summary>
-    internal static void VerifyEscapeEtecoonDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyEscapeEtecoonDefinitions(CartridgeImportAddressSpace rom)
     {
         const int xTable = 0xb3e718;
         const int yTable = 0xb3e71e;
@@ -94,7 +94,7 @@ internal static class EscapeEtecoonDefinitionsVerification
     /// they show all of the escape Etecoon's poses, and the gratitude program moves the Etecoon left before handing off
     /// to the rightward escape.
     /// </summary>
-    internal static void VerifyEscapeEtecoonProgramBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyEscapeEtecoonProgramBehavior(CartridgeImportAddressSpace rom)
     {
         CartridgeReadGuard guard = NewEscapeEtecoonDefinitionGuard(rom);
         RoomEnemySystem enemies = CreateEscapeEtecoonProgramSystem();

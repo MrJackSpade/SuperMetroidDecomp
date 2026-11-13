@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 internal static class ProjectileInstructionsVerification
 {
     /// <summary>Compares the inventoried mechanics words and timed frames for every authored projectile list entry.</summary>
-    internal static void VerifyProjectileInstructions(SuperMetroidAddressSpace rom)
+    internal static void VerifyProjectileInstructions(CartridgeImportAddressSpace rom)
     {
         ushort[] entries =
         [

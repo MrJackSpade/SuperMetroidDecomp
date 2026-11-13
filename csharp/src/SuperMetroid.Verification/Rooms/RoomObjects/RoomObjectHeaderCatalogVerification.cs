@@ -38,7 +38,7 @@ internal static class RoomObjectHeaderCatalogVerification
             .Select(ParseRoomObjectPopulationPointer)
             .Distinct()
             .ToArray();
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         var retailHeaders = new List<ushort>();
         foreach (ushort populationPointer in populationPointers)
         {
@@ -94,7 +94,7 @@ internal static class RoomObjectHeaderCatalogVerification
     }
 
     /// <summary>Reads a native population word while scanning retail PLM records.</summary>
-    private static ushort ReadRoomObjectWord(SuperMetroidAddressSpace bus, ushort pointer) =>
+    private static ushort ReadRoomObjectWord(CartridgeImportAddressSpace bus, ushort pointer) =>
         unchecked(
             LittleEndianBytes.Word(bus.ReadCartridgeByte((int)new SnesAddress(0x8f, pointer)), bus.ReadCartridgeByte((int)new SnesAddress(
                 0x8f,

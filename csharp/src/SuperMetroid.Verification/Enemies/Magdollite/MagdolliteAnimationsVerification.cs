@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Enemies.Magdollite;
 internal static class MagdolliteAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyMagdolliteAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyMagdolliteAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             MagdolliteAnimations.Segments, MagdolliteAnimations.StartingAt, MagdolliteFrameToolingDefinitions.Spritemap,

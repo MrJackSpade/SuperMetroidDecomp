@@ -50,7 +50,7 @@ internal static class WaverBehaviorVerification
     [VerificationCommand("--waver-instruction-mechanics")]
     internal static int WaverBehaviorCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyWaverBehavior), () => VerifyWaverBehavior());
         Suite(nameof(WaverAnimationsVerification.VerifyWaverAnimations), () => WaverAnimationsVerification.VerifyWaverAnimations(rom));
         return 0;

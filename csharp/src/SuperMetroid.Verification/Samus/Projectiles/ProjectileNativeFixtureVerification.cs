@@ -8,7 +8,7 @@ using SuperMetroid.Verification.Harness;
 internal static class ProjectileNativeFixtureVerification
 {
     /// <summary>Follows a retail bank-$93 explosion list through timed records and branches until its delete opcode.</summary>
-    internal static int NativeProjectileLifetime(SuperMetroidAddressSpace rom, int selector)
+    internal static int NativeProjectileLifetime(CartridgeImportAddressSpace rom, int selector)
     {
         int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(selector), ticks = 0;
         var seen = new HashSet<int>();

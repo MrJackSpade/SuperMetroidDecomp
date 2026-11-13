@@ -66,7 +66,7 @@ internal static class OldTourianEscapeShaftWallVerification
     /// cleared movement, the burst count, the scatter masks, the sound, each pose's duration and operand position, the
     /// counted repeat back to $86:B449 and the delete, after which the explosion holds.
     /// </summary>
-    private static void VerifyWallExplosionProgramAgainstRom(SuperMetroidAddressSpace rom)
+    private static void VerifyWallExplosionProgramAgainstRom(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         ushort Word(int address) => cartridge.ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address);
@@ -123,7 +123,7 @@ internal static class OldTourianEscapeShaftWallVerification
     /// The wall's native list does what <see cref="OldTourianWallObject"/> does (#1554): it installs its wait for Samus
     /// and sleeps; past the sleep it clears the wait, draws the open wall for one update and ends.
     /// </summary>
-    private static void VerifyWallListAgainstRom(SuperMetroidAddressSpace rom)
+    private static void VerifyWallListAgainstRom(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         ushort Word(int address) => cartridge.ReadCartridgeWord(0x840000 | address);

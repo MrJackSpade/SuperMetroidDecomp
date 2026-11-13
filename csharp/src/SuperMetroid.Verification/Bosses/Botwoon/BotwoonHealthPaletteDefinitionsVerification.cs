@@ -15,7 +15,7 @@ namespace SuperMetroid.Verification.Bosses.Botwoon;
 internal static class BotwoonHealthPaletteDefinitionsVerification
 {
     /// <summary>Compares all signed health decisions with native thresholds and drives the production palette update.</summary>
-    internal static void VerifyBotwoonHealthPaletteDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyBotwoonHealthPaletteDefinitions(CartridgeImportAddressSpace rom)
     {
 
         for (int phase = 0; phase < BotwoonHealthBandDefinitions.BandCount; phase++)

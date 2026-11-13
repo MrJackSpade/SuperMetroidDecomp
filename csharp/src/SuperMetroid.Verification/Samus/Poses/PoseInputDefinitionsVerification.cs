@@ -13,7 +13,7 @@ using SuperMetroid.Verification.Harness;
 internal static class PoseInputDefinitionsVerification
 {
     /// <summary>Compares first-match, self-match, and fallback results across the input-bit domain without ROM reads.</summary>
-    internal static void VerifyPoseInputDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyPoseInputDefinitions(CartridgeImportAddressSpace rom)
     {
         var forbidden = NewSlopeHeightNoReadBus();
         int comparisons = 0;

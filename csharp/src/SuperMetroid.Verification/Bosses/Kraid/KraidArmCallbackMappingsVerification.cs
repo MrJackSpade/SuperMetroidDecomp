@@ -11,17 +11,17 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class KraidArmCallbackMappingsVerification
 {
     /// <summary>Checks the touch callback selected for every native arm rectangle.</summary>
-    internal static void VerifyKraidArmTouchCallbacks(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidArmTouchCallbacks(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, false));
     /// <summary>Checks the shot callback selected for every native arm rectangle.</summary>
-    internal static void VerifyKraidArmShotCallbacks(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidArmShotCallbacks(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, true));
 
     /// <summary>
     /// Compares the 24 compiled rectangles' typed reactions with the reactions the import decodes from the corresponding
     /// ROM hitbox callback fields.
     /// </summary>
-    private static void VerifyKraidArmCallbackField(SuperMetroidAddressSpace rom, bool shot)
+    private static void VerifyKraidArmCallbackField(CartridgeImportAddressSpace rom, bool shot)
     {
         var selectedLists = new SortedSet<ushort>();
         foreach (ushort frame in NativeKraidArmPhysicalFrames(rom))

@@ -30,7 +30,7 @@ internal static class RoomDefinitionIntegrationVerification
     internal static void VerifyCompiledRoomDefinitionIntegration()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
-        SuperMetroidAddressSpace oracleBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        CartridgeImportAddressSpace oracleBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         HashSet<int> forbidden = BuildCompiledRoomDefinitionAddressSet(oracleBus);
         var guard = NewCompiledRoomDefinitionReadGuard(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden);

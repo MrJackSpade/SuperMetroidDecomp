@@ -11,14 +11,14 @@ namespace SuperMetroid.Verification.Bosses.Botwoon;
 internal static class BotwoonSpeedsVerification
 {
     /// <summary>Runs separate speed and segment-spacing checks for the three health phases.</summary>
-    internal static void VerifyCompiledBotwoonSpeeds(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledBotwoonSpeeds(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyBotwoonSpeedAlgorithm), () => VerifyBotwoonSpeedAlgorithm(rom));
         Suite(nameof(VerifyBotwoonSpacingAlgorithm), () => VerifyBotwoonSpacingAlgorithm(rom));
     }
 
     /// <summary>Checks native speeds and production health-phase transitions, including phase retention inside a hole.</summary>
-    private static void VerifyBotwoonSpeedAlgorithm(SuperMetroidAddressSpace rom)
+    private static void VerifyBotwoonSpeedAlgorithm(CartridgeImportAddressSpace rom)
     {
         for (byte phase = 0; phase < 3; phase++)
         {
@@ -48,7 +48,7 @@ internal static class BotwoonSpeedsVerification
     }
 
     /// <summary>Checks native body-history spacing for each health phase and rejects unsupported phases.</summary>
-    private static void VerifyBotwoonSpacingAlgorithm(SuperMetroidAddressSpace rom)
+    private static void VerifyBotwoonSpacingAlgorithm(CartridgeImportAddressSpace rom)
     {
         for (byte phase = 0; phase < 3; phase++)
         {

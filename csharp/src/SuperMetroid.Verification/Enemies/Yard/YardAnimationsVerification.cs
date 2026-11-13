@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Yard;
 internal static class YardAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyYardAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyYardAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             YardAnimations.Segments, YardAnimations.StartingAt, YardFrameToolingDefinitions.Spritemap,

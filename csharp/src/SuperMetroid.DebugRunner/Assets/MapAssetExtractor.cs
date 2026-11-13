@@ -17,7 +17,7 @@ internal static class MapAssetExtractor
         ArgumentException.ThrowIfNullOrWhiteSpace(romPath);
         ArgumentException.ThrowIfNullOrWhiteSpace(outputDirectory);
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         string areasDirectory = Path.Combine(outputDirectory, "areas");
         Directory.CreateDirectory(areasDirectory);
         int areas = 0;

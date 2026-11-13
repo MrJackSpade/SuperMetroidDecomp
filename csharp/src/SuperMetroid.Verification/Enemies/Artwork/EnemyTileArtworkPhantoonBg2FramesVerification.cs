@@ -30,7 +30,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
 
     /// <summary>Checks 22 BG2 selectors and native tile writes, the new-frame gate and engine hitboxes.</summary>
     internal static void VerifyInstalledPhantoonBg2Frames(
-        SuperMetroidAddressSpace rom, string extractedDirectory,
+        CartridgeImportAddressSpace rom, string extractedDirectory,
         ImportEnemyArtwork stock)
     {
         AssertTrue(stock.Bosses.PhantoonBg2Frames is not null,
@@ -122,7 +122,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
 
     /// <summary>Compares compiled frame components and three hitbox lists with retail data and the callbacks the installed artwork selects.</summary>
     private static void VerifyPhantoonCollisionDefinitions(
-        SuperMetroidAddressSpace rom, ImportEnemyArtwork stock)
+        CartridgeImportAddressSpace rom, ImportEnemyArtwork stock)
     {
         var checkedLists = new HashSet<ushort>();
         foreach (EnemyFrameName frame in PhantoonBg2FrameDefinitions.Frames)

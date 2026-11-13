@@ -46,7 +46,7 @@ internal static class OwtchBehaviorVerification
     [VerificationCommand("--owtch-instruction-mechanics")]
     internal static int OwtchBehaviorCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyOwtchBehavior), () => VerifyOwtchBehavior());
         Suite(nameof(OwtchAnimationsVerification.VerifyOwtchAnimations), () => OwtchAnimationsVerification.VerifyOwtchAnimations(rom));
         return 0;

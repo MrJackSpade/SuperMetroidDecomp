@@ -23,7 +23,7 @@ internal static class EyeDoorSweatBehaviorVerification
     /// The sweat's spawn starts its typed fall, which loops as the native list does; a real floor collision starts the
     /// splash, which stops the drop, applies the native four-pixel correction and deletes it on the native update.
     /// </summary>
-    internal static void VerifyEyeDoorSweatBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyEyeDoorSweatBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, EyeDoorSweatNativeListAddresses.Extent, "eye-door sweat");
@@ -56,7 +56,7 @@ internal static class EyeDoorSweatBehaviorVerification
     [VerificationCommand("--eye-door-sweat-programs")]
     internal static int EyeDoorSweatProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(EyeDoorSweatAnimationsVerification.VerifyEyeDoorSweatAnimations), () => EyeDoorSweatAnimationsVerification.VerifyEyeDoorSweatAnimations(rom));
         Suite(nameof(VerifyEyeDoorSweatBehavior), () => VerifyEyeDoorSweatBehavior(rom));
         return 0;

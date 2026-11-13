@@ -300,7 +300,7 @@ internal static class SpacetimeBeamVerification
             AssertTrue(predicate(), context);
         }
     }
-    /// <summary>Checks direct and queued beam uploads while the aliased WRAM palette changes between runs.</summary>
+    /// <summary>Checks SpaceTime's native tiles against its installed page and its defined palette.</summary>
     private static void VerifySpacetimeBeamGraphics()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -314,16 +314,13 @@ internal static class SpacetimeBeamVerification
         ReadOnlySpan<byte> page = pages.For(SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma).Characters;
         int first = ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount;
         for (int i = 0; i < 256; i++) AssertEqual(nativeTiles[i], page[first + i], "SpaceTime native tile bytes");
-        foreach (int seed in new[] { 5, 19 })
-        {
-            // The palette is a defined one (#1318), whatever the enemy-projectile WRAM it once aliased holds.
-            for (int i = 0; i < 32; i++) bus.WriteByte(0x7e19ff + i, (byte)(i * 7 + seed));
-            var samusColours = new SamusColours();
-            SamusProjectileSystem.LoadBeamPalette(samusColours, SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma);
-            RgbColor[] spacetime = samusColours.ShownBeams(InstalledFixtures.SamusShadeSources);
-            for (int i = 0; i < 16; i++) AssertEqual(RgbColor.Black, spacetime[i],
-                "SpaceTime colors are its defined palette");
-        }
+        // The palette is a defined one (#1318). The enemy-projectile work RAM it once aliased, which this check seeded
+        // with two patterns, is gone with the work-RAM image (#1688), so one load states the defined palette.
+        var samusColours = new SamusColours();
+        SamusProjectileSystem.LoadBeamPalette(samusColours, SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma);
+        RgbColor[] spacetime = samusColours.ShownBeams(InstalledFixtures.SamusShadeSources);
+        for (int i = 0; i < 16; i++) AssertEqual(RgbColor.Black, spacetime[i],
+            "SpaceTime colors are its defined palette");
     }
 
     /// <summary>Checks the SpaceTime graphics pointers against their native table words and returns the native tiles.</summary>
@@ -339,7 +336,7 @@ internal static class SpacetimeBeamVerification
     }
 
     /// <summary>Forbids cartridge-byte reads during the production projectile path while allowing mutable bus memory.</summary>
-    private static MutableCartridgeReadGuard NewSpacetimeMutableOnlyBus(SuperMetroidAddressSpace source)
+    private static MutableCartridgeReadGuard NewSpacetimeMutableOnlyBus(CartridgeImportAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address => SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) == SnesDmaSourceKind.Cartridge,

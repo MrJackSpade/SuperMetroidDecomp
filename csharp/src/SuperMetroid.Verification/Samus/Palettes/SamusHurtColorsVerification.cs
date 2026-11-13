@@ -27,7 +27,7 @@ internal static class SamusHurtColorsVerification
             return;
         }
 
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+        CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         InstalledSamusHurtColors catalog = SamusHurtColorFile.Read(
             new MemoryStream(SamusHurtColorExtractor.Extract(rom)));
         foreach (SamusHurtColorVariant variant in Enum.GetValues<SamusHurtColorVariant>())

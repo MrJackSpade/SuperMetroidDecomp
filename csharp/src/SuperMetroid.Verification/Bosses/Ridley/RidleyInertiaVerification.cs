@@ -12,7 +12,7 @@ using SuperMetroid.Core.World;
 internal static class RidleyInertiaVerification
 {
     /// <summary>Compares Ceres and Norfair inertia bytes to the cartridge and probes production acceleration across signed distances.</summary>
-    internal static void VerifyCompiledRidleyInertia(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledRidleyInertia(CartridgeImportAddressSpace rom)
     {
         Action<RoomEnemySlot, RidleyEnemyState, Position16<RoomPixels>, int> ceres = CeresRidleyFlight.AccelerateRidleyToward;
         Action<RoomEnemySlot, RidleyEnemyState, Position16<RoomPixels>, int, int> norfair = NorfairRidleyMovement.MoveNorfairRidleyToward;

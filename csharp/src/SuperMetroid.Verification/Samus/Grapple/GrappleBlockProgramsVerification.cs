@@ -20,7 +20,7 @@ using SuperMetroid.Core.World;
 internal static class GrappleBlockProgramsVerification
 {
     /// <summary>Checks all nineteen compiled control addresses and values across the full 16-bit bank-local domain.</summary>
-    private static void VerifyGrappleBlockControlMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyGrappleBlockControlMapping(CartridgeImportAddressSpace rom)
     {
         ushort[] addresses = [0xcd6a,0xcd6e,0xcd71,0xcd75,0xcd79,0xcd7d,0xcd81,0xcd85,0xcd89,0xcd8d,0xcd8f,0xcd91,
             0xcda9,0xcdad,0xcdb0,0xcdb4,0xcdb8,0xcdbc,0xcdc0];
@@ -35,7 +35,7 @@ internal static class GrappleBlockProgramsVerification
     }
 
     /// <summary>Checks the thirteen interleaved draw-pointer words while rejecting non-operand addresses.</summary>
-    private static void VerifyGrappleBlockDrawOperandMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyGrappleBlockDrawOperandMapping(CartridgeImportAddressSpace rom)
     {
         ushort[] addresses = [0xcd6c,0xcd73,0xcd77,0xcd7b,0xcd7f,0xcd83,0xcd87,0xcd8b,
             0xcdab,0xcdb2,0xcdb6,0xcdba,0xcdbe];
@@ -49,7 +49,7 @@ internal static class GrappleBlockProgramsVerification
     }
 
     /// <summary>Checks both packed sound operands and exact byte-address ownership.</summary>
-    private static void VerifyGrappleBlockSoundMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyGrappleBlockSoundMapping(CartridgeImportAddressSpace rom)
     {
         ushort[] addresses = [0xcd70,0xcdaf];
         AssertTrue(addresses.SequenceEqual(RoomObjectGrappleBlockProgramDefinitions.MechanicsByteAddresses()), "Grapple native sound enumeration");
@@ -65,7 +65,7 @@ internal static class GrappleBlockProgramsVerification
     private static byte GrappleBlockSoundMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Compares five one-block draw lists with native geometry, collision words, and terminal offsets.</summary>
-    private static void VerifyGrappleBlockPhysicalDrawMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyGrappleBlockPhysicalDrawMapping(CartridgeImportAddressSpace rom)
     {
         ushort[] pointers = [0xa4f9,0xa4ff,0xa505,0xa50b,0xa511];
         var exported = RoomObjectGrappleBlockVisualFiles.All.ToArray();
@@ -102,7 +102,7 @@ internal static class GrappleBlockProgramsVerification
     private static byte GrappleBlockPhysicalDrawMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Compares the five frames' installed pictures with the cartridge, rejects other draws, then checks the import and its rejections (#1557).</summary>
-    private static void VerifyGrappleBlockStockVisualMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyGrappleBlockStockVisualMapping(CartridgeImportAddressSpace rom)
     {
         ushort[] pointers = [0xa4f9,0xa4ff,0xa505,0xa50b,0xa511];
         LookupEscapeGateStockFrame[] frames = [.. pointers.Select(pointer => new LookupEscapeGateStockFrame(pointer, GrappleId(pointer)))];
@@ -117,7 +117,7 @@ internal static class GrappleBlockProgramsVerification
     /// <summary>Runs both BTS programs under read guards for 300 frames.</summary>
     internal static void VerifyGrappleBlockPrograms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyGrappleBlockStockVisualMapping), () => VerifyGrappleBlockStockVisualMapping(rom));
         Suite(nameof(VerifyGrappleBlockControlMapping), () => VerifyGrappleBlockControlMapping(rom));

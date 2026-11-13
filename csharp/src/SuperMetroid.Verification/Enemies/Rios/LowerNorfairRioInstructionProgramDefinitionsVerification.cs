@@ -23,7 +23,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
     /// Each of the seven programs, advanced one pose per update, publishes its flame visibility and finished handshake;
     /// the initializers pick idle for the parent and flames for the follower; the program oracle matches bank $A2.
     /// </summary>
-    internal static void VerifyLowerNorfairRioInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyLowerNorfairRioInstructionProgramDefinitions(CartridgeImportAddressSpace rom)
     {
         LowerNorfairRioInstructionProgramDefinitionsProgram[] programs =
         [

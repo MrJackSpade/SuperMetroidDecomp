@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Enemies.Flies;
 internal static class FlyAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyFlyAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyFlyAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             FlyAnimations.Segments, FlyAnimations.StartingAt, FlyFrameToolingDefinitions.Spritemap,

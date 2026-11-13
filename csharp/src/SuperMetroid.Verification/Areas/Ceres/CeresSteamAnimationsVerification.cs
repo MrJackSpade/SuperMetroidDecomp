@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Areas.Ceres;
 internal static class CeresSteamAnimationsVerification
 {
     /// <summary>Every segment matches its native list and every animation the lists' control flow.</summary>
-    internal static void VerifyCeresSteamAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyCeresSteamAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, CeresSteamAnimations.Segments, CeresSteamAnimations.StartingAt,
             CeresSteamFrameDefinitionsConstants.Spritemap,

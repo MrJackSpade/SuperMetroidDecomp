@@ -15,7 +15,7 @@ using SuperMetroid.Core.World;
 internal static class ShaktoolInstructionDefinitionsVerification
 {
     /// <summary>Compares orientation and collision lists with the cartridge and checks live Shaktool handoffs.</summary>
-    internal static void VerifyShaktoolInstructionDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyShaktoolInstructionDefinitions(CartridgeImportAddressSpace rom)
     {
 
         for (ushort bucket = 0; bucket <= 0x00e0; bucket += 0x0020)
@@ -84,7 +84,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
     }
 
     /// <summary>Runs every steady and collision program on the real seven-segment group; the program oracle matches bank $AA.</summary>
-    internal static void VerifyShaktoolInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyShaktoolInstructionProgramDefinitions(CartridgeImportAddressSpace rom)
     {
         RoomEnemySystem enemies = CreateCompiledShaktoolGroup();
         ShaktoolProgram[] steadyPrograms =

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Poses;
 
@@ -19,7 +18,6 @@ internal static class SamusGrappleMovementAccess
         /// of narrow published-state seam used by the translated knockback and bomb-overlap code.
         /// </remarks>
         internal static void ConnectUnobstructedSwing(
-            ISnesAddressSpace bus,
             SamusState samus,
             Position16<RoomPixels> anchor,
             byte ropeLength,
@@ -27,7 +25,6 @@ internal static class SamusGrappleMovementAccess
             short angularVelocity,
             bool faceRight)
         {
-            Ensure.NotNull(bus);
             Ensure.NotNull(samus);
             if (ropeLength is < 8 or > 63)
                 throw new ArgumentOutOfRangeException(nameof(ropeLength), "Retail connected rope length is 8..63 pixels.");

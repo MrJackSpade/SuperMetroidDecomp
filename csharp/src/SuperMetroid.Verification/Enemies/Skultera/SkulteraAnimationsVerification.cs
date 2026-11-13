@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Skultera;
 internal static class SkulteraAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifySkulteraAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifySkulteraAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             SkulteraAnimations.Segments, SkulteraAnimations.StartingAt, SkulteraFrameToolingDefinitions.Spritemap,

@@ -16,7 +16,7 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
     private const ushort NativeEnemyBreakableBlockHeader = 0xd094;
 
     /// <summary>Confirms BTS low nibble fifteen spawns a breakable PLM and clears terrain, while other authored selectors retain collision.</summary>
-    internal static void VerifyEnemyBreakableTerrainDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyEnemyBreakableTerrainDefinitions(CartridgeImportAddressSpace rom)
     {
         for (int index = 0; index < 16; index++)
         {

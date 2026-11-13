@@ -20,7 +20,7 @@ internal static class LookupGlassLayoutsVerification
     /// Checks which draws are the glass's, each frame's runs and continuations against the cartridge, and that each shape
     /// covers exactly the cells its draw list writes, inside the four-by-four square left of and below the glass block.
     /// </summary>
-    internal static void VerifyGlassLayoutGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyGlassLayoutGeometry(CartridgeImportAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
@@ -41,6 +41,6 @@ internal static class LookupGlassLayoutsVerification
     }
 
     /// <summary>Compares how every glass cell collides with the cartridge.</summary>
-    internal static void VerifyGlassLayoutCollision(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyGlassLayoutCollision(CartridgeImportAddressSpace rom) =>
         AssertLayoutsAsNative(rom, RoomObjectMotherBrainGlassVisualFiles.Family, Frames, collision: true);
 }

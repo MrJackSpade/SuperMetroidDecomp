@@ -21,7 +21,7 @@ internal static class RevealAndWallVisualsVerification
     /// </summary>
     internal static void VerifyRevealAndWallVisuals()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         InstalledRoomObjectRevealAndWallVisuals installed = InstalledRoomObjectRevealAndWallVisuals.Stock();
         LookupEscapeGateStockFrame[] frames = [.. RoomObjectRevealAndWallVisualFiles.All.Select(frame =>
             new LookupEscapeGateStockFrame(RoomObjectDrawAddressCodec.Of(frame.Draw), RoomObjectRevealAndWallVisualFiles.VisualId(frame.Draw)))];

@@ -11,7 +11,7 @@ using SuperMetroid.Core.World;
 internal static class PhantoonPatternsVerification
 {
     /// <summary>Compares native pattern words and production RNG-driven rain and shot handoffs without table reads.</summary>
-    internal static void VerifyCompiledPhantoonPatterns(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledPhantoonPatterns(CartridgeImportAddressSpace rom)
     {
         for (int i = 0; i < 8; i++)
         {

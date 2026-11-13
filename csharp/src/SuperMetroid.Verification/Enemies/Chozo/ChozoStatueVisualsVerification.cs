@@ -22,7 +22,7 @@ internal static class ChozoStatueVisualsVerification
     /// checks that a malformed installed visual file fails loudly where it is read.
     /// </summary>
     internal static void VerifyChozoStatueVisualInstallation(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         // A private installation copy, whose stock file is tampered below.
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectChozoStatueVisualDirectory))

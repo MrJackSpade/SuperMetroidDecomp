@@ -8,7 +8,7 @@ namespace SuperMetroid.Verification.Enemies.Puyo;
 internal static class PuyoHopDefinitionsVerification
 {
     /// <summary>Checks the seven hops against their native records and the six non-dropping integrations.</summary>
-    internal static void VerifyCompiledPuyoHops(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledPuyoHops(CartridgeImportAddressSpace rom)
     {
         Action<PuyoEnemyState> calculate = PuyoBehavior.CalculateInitialPuyoHopSpeed;
         var state = new PuyoEnemyState();

@@ -12,7 +12,7 @@ internal static class LookupCollectibleSelectorsVerification
     private static readonly CollectibleBlockPairs.Pair?[] TankBlockPairs = [null, .. CollectibleBlockPairs.InTurn];
 
     /// <summary>Checks the four orb animation phases and rejects invalid phase indices.</summary>
-    internal static void VerifyCollectibleOrbSelector(SuperMetroidAddressSpace rom)
+    internal static void VerifyCollectibleOrbSelector(CartridgeImportAddressSpace rom)
     {
         for (int phase = 0; phase < 4; phase++)
             AssertEqual(ReadCollectibleDrawWord(rom, (ushort)(0xdfb5 + phase * 4)),
@@ -22,7 +22,7 @@ internal static class LookupCollectibleSelectorsVerification
     }
 
     /// <summary>Checks reveal and reverse conceal frames for shot collectibles.</summary>
-    internal static void VerifyCollectibleRevealSelector(SuperMetroidAddressSpace rom)
+    internal static void VerifyCollectibleRevealSelector(CartridgeImportAddressSpace rom)
     {
         for (int phase = 0; phase < 3; phase++)
         {
@@ -36,7 +36,7 @@ internal static class LookupCollectibleSelectorsVerification
     }
 
     /// <summary>Checks four tank kinds against native frames regardless of the unused block pair.</summary>
-    internal static void VerifyCollectibleTankSelector(SuperMetroidAddressSpace rom)
+    internal static void VerifyCollectibleTankSelector(CartridgeImportAddressSpace rom)
     {
         // Native exposed tank instruction-list draw operands, independently addressed.
         ushort[] starts = [0xe0a7,0xe0cc,0xe0f1,0xe116];
@@ -54,7 +54,7 @@ internal static class LookupCollectibleSelectorsVerification
     }
 
     /// <summary>Checks byte-backed dynamic collectible kinds, both phases, the four block pairs, and invalid bounds.</summary>
-    internal static void VerifyCollectibleDynamicSelector(SuperMetroidAddressSpace rom)
+    internal static void VerifyCollectibleDynamicSelector(CartridgeImportAddressSpace rom)
     {
         // The byte-backed kind domain historically selects dynamic graphics for every value above the four tanks.
         for (int kind = 4; kind <= byte.MaxValue; kind++)

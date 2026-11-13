@@ -53,7 +53,7 @@ internal static class PhantoonDoorObjectsVerification
     /// <summary>The door's spawn calls, change programs and draws against the ROM, then both changes through the room.</summary>
     internal static void VerifyCompiledPhantoonDoorObjects()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyPhantoonDoorSpawnCalls), () => VerifyPhantoonDoorSpawnCalls(rom));
         Suite(nameof(BossRoomObjectProgramsVerification.VerifyPhantoonDoorPrograms), () => BossRoomObjectProgramsVerification.VerifyPhantoonDoorPrograms(rom));
         Suite(nameof(VerifyPhantoonDoorDraws), () => VerifyPhantoonDoorDraws(rom));
@@ -67,7 +67,7 @@ internal static class PhantoonDoorObjectsVerification
     /// Both of Phantoon's door spawns are hard-coded spawns at the door's top block of the header whose setup is the
     /// deactivating setup and whose list is the change's.
     /// </summary>
-    private static void VerifyPhantoonDoorSpawnCalls(SuperMetroidAddressSpace rom)
+    private static void VerifyPhantoonDoorSpawnCalls(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         (int Call, ushort Header, PhantoonDoorChange Change)[] spawns =
@@ -88,7 +88,7 @@ internal static class PhantoonDoorObjectsVerification
     }
 
     /// <summary>The door frames' geometry, collision and installed pictures are the ROM draw lists'.</summary>
-    private static void VerifyPhantoonDoorDraws(SuperMetroidAddressSpace rom)
+    private static void VerifyPhantoonDoorDraws(CartridgeImportAddressSpace rom)
     {
         RoomObjectFrameFamily<PhantoonDoorDraw> family = RoomObjectPhantoonDoorVisualFiles.Family;
         AssertLayoutsAsNative(rom, family, Frames, collision: true);
@@ -113,7 +113,7 @@ internal static class PhantoonDoorObjectsVerification
     /// The opening asks for the fight's door only as the eighth starting flame spawns,
     /// and the change it asks for holds the door's top block solid and draws the fight's door.
     /// </summary>
-    private static void VerifyPhantoonFightDoor(SuperMetroidAddressSpace rom)
+    private static void VerifyPhantoonFightDoor(CartridgeImportAddressSpace rom)
     {
         RoomEnemySystem enemies = CreatePhantoonSystem();
         PhantoonEnemyState state = enemies.PhantoonBehavior.Combat.Phantoon
@@ -141,7 +141,7 @@ internal static class PhantoonDoorObjectsVerification
     /// The death asks for the restored door as the Wrecked Ship's power finishes coming back, and the change holds the
     /// door's top block solid and draws the door's own frame, leaving the fight's cap beside it.
     /// </summary>
-    private static void VerifyPhantoonRestoredDoor(SuperMetroidAddressSpace rom)
+    private static void VerifyPhantoonRestoredDoor(CartridgeImportAddressSpace rom)
     {
         RoomEnemySystem enemies = CreatePhantoonSystem();
         PhantoonEnemyState state = enemies.PhantoonBehavior.Combat.Phantoon
@@ -172,7 +172,7 @@ internal static class PhantoonDoorObjectsVerification
     /// draw list at <paramref name="drawList"/>'s terrain, its place still held; on its second, its place freed. No
     /// block's behaviour changes.
     /// </summary>
-    private static void VerifyChange(SuperMetroidAddressSpace rom, RoomLevelData level, PhantoonDoorChange change,
+    private static void VerifyChange(CartridgeImportAddressSpace rom, RoomLevelData level, PhantoonDoorChange change,
         Dictionary<Offset16<RoomBlocks>, RoomTerrainBlock> before, ushort drawList, ushort priorList)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);

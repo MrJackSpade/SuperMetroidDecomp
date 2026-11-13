@@ -15,7 +15,7 @@ using SuperMetroid.Core.World;
 internal static class SbugMovementDefinitionsVerification
 {
     /// <summary>Checks compiled Sbug facing, activation, and instruction data against retail words, then runs every facing loop with migrated reads forbidden.</summary>
-    internal static void VerifySbugMovementDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySbugMovementDefinitions(CartridgeImportAddressSpace rom)
     {
         const int instructionTable = 0xa3a111;
         const int activationTable = 0xa3a121;
@@ -167,7 +167,7 @@ internal static class SbugMovementDefinitionsVerification
     [VerificationCommand("--sbug-instruction-mechanics")]
     internal static int SbugInstructionMechanicsCommand()
     {
-        SuperMetroidAddressSpace rom =
+        CartridgeImportAddressSpace rom =
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifySbugMovementDefinitions), () => VerifySbugMovementDefinitions(rom));
         Suite(nameof(VerifySbugCustomHeadingCarriesAndFolds), () => VerifySbugCustomHeadingCarriesAndFolds());

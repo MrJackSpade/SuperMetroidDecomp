@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Enemies.MorphBallEye;
 internal static class MorphBallEyeAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyMorphBallEyeAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyMorphBallEyeAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             MorphBallEyeAnimations.Segments, MorphBallEyeAnimations.StartingAt, MorphBallEyeFrameToolingDefinitions.Spritemap,

@@ -26,7 +26,7 @@ internal static class ChargeFlareDefinitionsVerification
     /// each wait boundary, and below the main flare's first picture, comparing each picture and wait with the original
     /// routine's reading of the cartridge.
     /// </summary>
-    internal static void VerifyChargeFlareDefinitions(SuperMetroidAddressSpace bus)
+    internal static void VerifyChargeFlareDefinitions(CartridgeImportAddressSpace bus)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         ChargeFlareComponent[] components = Enum.GetValues<ChargeFlareComponent>();

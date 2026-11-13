@@ -30,7 +30,7 @@ internal static class GrappleBeamDefinitionsVerification
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         foreach (int directionTable in new[]
         {
             GrappleBeamDefinitions.Firing.XVelocities,

@@ -13,7 +13,7 @@ internal static class ProjectileSoundRoutingVerification
 {
     /// <summary>Compares all four-bit beam combinations and rejects selectors outside the table.</summary>
     internal static void VerifyProjectileSoundRoutingDefinitions(
-        SuperMetroidAddressSpace retail)
+        CartridgeImportAddressSpace retail)
     {
         int observations = 0;
         foreach (bool charged in new[] { false, true })

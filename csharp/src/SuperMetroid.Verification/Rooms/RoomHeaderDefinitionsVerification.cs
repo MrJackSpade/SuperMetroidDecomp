@@ -59,26 +59,26 @@ internal static class RoomHeaderDefinitionsVerification
     }
 
     /// <summary>Checks the room index stored at header byte zero.</summary>
-    private static void VerifyRoomHeaderRoomIndex(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 0, header => header.RoomIndex);
+    private static void VerifyRoomHeaderRoomIndex(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 0, header => header.RoomIndex);
     /// <summary>Checks the area byte and its production area lookup.</summary>
-    private static void VerifyRoomHeaderAreaIndex(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 1, header => (int)header.AreaIndex);
+    private static void VerifyRoomHeaderAreaIndex(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 1, header => (int)header.AreaIndex);
     /// <summary>Checks each room's horizontal map coordinate against header byte two.</summary>
-    private static void VerifyRoomHeaderMapX(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 2, header => header.MapPosition.X);
+    private static void VerifyRoomHeaderMapX(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 2, header => header.MapPosition.X);
     /// <summary>Checks each room's vertical map coordinate against header byte three.</summary>
-    private static void VerifyRoomHeaderMapY(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 3, header => header.MapPosition.Y);
+    private static void VerifyRoomHeaderMapY(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 3, header => header.MapPosition.Y);
     /// <summary>Checks room width in screen units against header byte four.</summary>
-    private static void VerifyRoomHeaderWidthInScreens(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 4, header => header.Size.X);
+    private static void VerifyRoomHeaderWidthInScreens(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 4, header => header.Size.X);
     /// <summary>Checks room height in screen units against header byte five.</summary>
-    private static void VerifyRoomHeaderHeightInScreens(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 5, header => header.Size.Y);
+    private static void VerifyRoomHeaderHeightInScreens(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 5, header => header.Size.Y);
     /// <summary>Checks the upward scroller setting at header byte six.</summary>
-    private static void VerifyRoomHeaderUpScroller(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 6, header => header.UpScroller);
+    private static void VerifyRoomHeaderUpScroller(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 6, header => header.UpScroller);
     /// <summary>Checks the downward scroller setting at header byte seven.</summary>
-    private static void VerifyRoomHeaderDownScroller(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 7, header => header.DownScroller);
+    private static void VerifyRoomHeaderDownScroller(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 7, header => header.DownScroller);
     /// <summary>
     /// Checks the isolated door transition against bit zero of header byte eight, whatever the byte's other bits hold:
     /// rooms that set only other bits (the common-element tile reloads) keep the ordinary transition.
     /// </summary>
-    private static void VerifyRoomHeaderIsolatedDoorTransition(SuperMetroidAddressSpace rom, ushort[] rooms)
+    private static void VerifyRoomHeaderIsolatedDoorTransition(CartridgeImportAddressSpace rom, ushort[] rooms)
     {
         bool sawOtherBitsOnly = false;
         foreach (ushort pointer in rooms)
@@ -92,10 +92,10 @@ internal static class RoomHeaderDefinitionsVerification
         AssertTrue(sawOtherBitsOnly, "a room whose only header settings bits are other bits keeps the ordinary transition");
     }
     /// <summary>Checks the two-byte door-list pointer at the end of each header.</summary>
-    private static void VerifyRoomHeaderDoorListPointer(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 9, header => RoomDoorListDefinitions.ListPointerOf(header));
+    private static void VerifyRoomHeaderDoorListPointer(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 9, header => RoomDoorListDefinitions.ListPointerOf(header));
 
     /// <summary>Compares one selected header field in direct and enumerated views with its cartridge bytes.</summary>
-    private static void VerifyRoomHeaderField(SuperMetroidAddressSpace rom, ushort[] rooms,
+    private static void VerifyRoomHeaderField(CartridgeImportAddressSpace rom, ushort[] rooms,
         int offset, Func<RoomHeaderDefinition, int> field)
     {
         RoomHeaderDefinition[] enumerated = RetailRoomHeaders.All.ToArray();

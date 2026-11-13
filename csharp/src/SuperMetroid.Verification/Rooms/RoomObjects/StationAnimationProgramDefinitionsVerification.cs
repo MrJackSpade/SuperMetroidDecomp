@@ -40,12 +40,12 @@ internal static class StationAnimationProgramDefinitionsVerification
     }
 
     /// <summary>Compares station frame hold durations with the bank-$84 lists.</summary>
-    private static void VerifyStationAnimationDurations(SuperMetroidAddressSpace rom) => VerifyStationAnimationField(rom, false);
+    private static void VerifyStationAnimationDurations(CartridgeImportAddressSpace rom) => VerifyStationAnimationField(rom, false);
     /// <summary>Compares station frame draw selectors with the bank-$84 lists.</summary>
-    private static void VerifyStationAnimationDraws(SuperMetroidAddressSpace rom) => VerifyStationAnimationField(rom, true);
+    private static void VerifyStationAnimationDraws(CartridgeImportAddressSpace rom) => VerifyStationAnimationField(rom, true);
 
     /// <summary>Checks every native list word, frame bound, and enumeration address for the selected field.</summary>
-    private static void VerifyStationAnimationField(SuperMetroidAddressSpace rom, bool draw)
+    private static void VerifyStationAnimationField(CartridgeImportAddressSpace rom, bool draw)
     {
         ushort[] lists = [0xad66,0xad76,0xadc6,0xae50,0xafe8,0xaffa,0xaffe];
         var words = StationAnimationProgramDefinitions.NativeWords().ToArray();

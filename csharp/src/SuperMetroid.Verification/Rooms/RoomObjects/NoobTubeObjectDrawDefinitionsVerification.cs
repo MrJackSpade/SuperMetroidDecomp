@@ -23,7 +23,7 @@ using SuperMetroid.Core.World;
 internal static class NoobTubeObjectDrawDefinitionsVerification
 {
     /// <summary>Compares seven physical draw lists and their guarded production draws.</summary>
-    internal static void VerifyNoobTubeObjectDrawDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyNoobTubeObjectDrawDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyTubeGeometry), () => VerifyTubeGeometry(rom));
         Suite(nameof(VerifyTubeCollision), () => VerifyTubeCollision(rom));
@@ -98,7 +98,7 @@ internal static class NoobTubeObjectDrawDefinitionsVerification
     }
 
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
-    private static void VerifyNoobTubeVisualInstallation(SuperMetroidAddressSpace rom)
+    private static void VerifyNoobTubeVisualInstallation(CartridgeImportAddressSpace rom)
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectNoobTubeVisualDirectory);
         GameInstallation installation = copy.Installation;

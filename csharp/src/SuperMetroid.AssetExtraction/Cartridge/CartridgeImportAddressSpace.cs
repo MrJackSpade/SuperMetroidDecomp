@@ -3,10 +3,14 @@ using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
-/// Import-time cartridge image and mutable memory. Gameplay code cannot reference this
-/// project, so owning the image here prevents a runtime address space from reading ROM.
+/// The import pipeline's view of the cartridge: its image read through LoROM CPU addresses. Gameplay code cannot
+/// reference this project, and the game keeps no address space of its own, so the cartridge is read only here.
 /// </summary>
-public sealed class CartridgeImportAddressSpace : SuperMetroidAddressSpace,
+/// <remarks>
+/// The import stages nothing in work memory, so this space maps no work RAM: a read the cartridge window does not
+/// serve fails at its caller rather than returning bytes nothing wrote (#1688).
+/// </remarks>
+public sealed class CartridgeImportAddressSpace : ISnesAddressSpace,
     IImportCartridgeSource, IRestoredSharedContent
 {
     /// <summary>Size in bytes of the unheadered retail Super Metroid ROM image: 3 MiB.</summary>
@@ -17,7 +21,7 @@ public sealed class CartridgeImportAddressSpace : SuperMetroidAddressSpace,
     /// <summary>Digest identifying the cached cartridge image across debugger graph restores.</summary>
     private readonly byte[] _romSha256;
 
-    /// <summary>Creates mutable import memory backed by a shared immutable LoROM image.</summary>
+    /// <summary>Creates the import view of a shared immutable LoROM image.</summary>
     /// <param name="unheaderedRom">Cartridge bytes without a copier header, containing 1-128 complete 32 KiB banks.</param>
     /// <exception cref="ArgumentException">The image is empty, exceeds 4 MiB, or is not a multiple of 32 KiB.</exception>
     public CartridgeImportAddressSpace(ReadOnlySpan<byte> unheaderedRom)

@@ -46,7 +46,7 @@ internal static class RoomObjectAnimationScriptCatalogVerification
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         for (int entry = 0; entry < fields.Length; entry++)
         {
             FieldInfo field = fields[entry];

@@ -14,7 +14,7 @@ namespace SuperMetroid.Verification.Enemies.Shaktool;
 internal static class ShaktoolSegmentDefinitionsVerification
 {
     /// <summary>Exercises each segment's properties, orbit, layer, instruction, and group callback reset with ROM reads forbidden.</summary>
-    internal static void VerifyShaktoolSegmentDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyShaktoolSegmentDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyShaktoolPropertySelection), () => VerifyShaktoolPropertySelection(rom));
         Suite(nameof(VerifyShaktoolOwnerOffsetAlgorithm), () => VerifyShaktoolOwnerOffsetAlgorithm(rom));
@@ -87,29 +87,29 @@ internal static class ShaktoolSegmentDefinitionsVerification
     }
 
     /// <summary>Matches each segment's added property bits with the native lookup table.</summary>
-    private static void VerifyShaktoolPropertySelection(SuperMetroidAddressSpace rom) =>
+    private static void VerifyShaktoolPropertySelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativePropertiesAddress,
             definition => checked((ushort)EnemyPropertyWordCodec.EncodePropertyWord(new EnemyPropertyState(
                 definition.Contact, definition.Processing, EnemyPresence.None, CollidesByFrameHitboxes: false, NewInstructionFrame: false))),
             "property selection"));
 
     /// <summary>Checks the initial orbit angle selected for all seven body segments.</summary>
-    internal static void VerifyShaktoolInitialAngleAlgorithm(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyShaktoolInitialAngleAlgorithm(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInitialAngleAddress,
             definition => definition.InitialOrbitAngle.RawValue, "initial angle algorithm"));
 
     /// <summary>Checks each segment's offset back to the controlling Shaktool slot.</summary>
-    private static void VerifyShaktoolOwnerOffsetAlgorithm(SuperMetroidAddressSpace rom) =>
+    private static void VerifyShaktoolOwnerOffsetAlgorithm(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeOwnerOffsetAddress,
             definition => checked((ushort)(definition.OwnerSlotDistance * SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.RecordSize)), "owner offset"));
 
     /// <summary>Checks the first animation instruction list selected for each segment.</summary>
-    private static void VerifyShaktoolInitialInstructionSelection(SuperMetroidAddressSpace rom) =>
+    private static void VerifyShaktoolInitialInstructionSelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInstructionAddress,
             definition => NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, definition.InitialProgram), "initial instruction selection"));
 
     /// <summary>Checks that each segment's initial pre-instruction is the one its cartridge callback word stands for.</summary>
-    private static void VerifyShaktoolCallbackSelection(SuperMetroidAddressSpace rom)
+    private static void VerifyShaktoolCallbackSelection(CartridgeImportAddressSpace rom)
     {
         for (int index = 0; index < 7; index++)
         {
@@ -120,7 +120,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
     }
 
     /// <summary>Compares one seven-word native table with its compiled definition and rejects out-of-range segment indices.</summary>
-    private static void VerifyShaktoolDefinitionField(SuperMetroidAddressSpace rom,
+    private static void VerifyShaktoolDefinitionField(CartridgeImportAddressSpace rom,
         int nativeAddress, Func<ShaktoolSegmentDefinition, int> select, string label)
     {
         for (int index = 0; index < 7; index++)

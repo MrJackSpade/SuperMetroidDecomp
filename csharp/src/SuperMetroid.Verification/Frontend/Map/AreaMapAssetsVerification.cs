@@ -21,7 +21,7 @@ internal static class AreaMapAssetsVerification
         string root = scratch.Root;
         string romPath = Path.GetFullPath("Super Metroid.smc");
         AssertEqual(AreaIds.All.Count, MapAssetExtractor.Extract(romPath, root), "exported area-map count");
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         foreach (AreaId area in AreaIds.All)
         {
             int index = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area);

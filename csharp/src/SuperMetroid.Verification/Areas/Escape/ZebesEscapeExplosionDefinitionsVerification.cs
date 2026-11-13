@@ -14,7 +14,7 @@ namespace SuperMetroid.Verification.Areas.Escape;
 internal static class ZebesEscapeExplosionDefinitionsVerification
 {
     /// <summary>Compares compiled sprite and sound rows with bank-$8F and checks all random and inherited index handoffs with table reads forbidden.</summary>
-    internal static void VerifyZebesEscapeExplosionDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyZebesEscapeExplosionDefinitions(CartridgeImportAddressSpace rom)
     {
         for (int index = 0; index < 8; index++)
         {

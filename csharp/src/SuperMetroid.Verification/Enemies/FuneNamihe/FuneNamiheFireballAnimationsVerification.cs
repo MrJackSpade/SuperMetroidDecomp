@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.FuneNamihe;
 internal static class FuneNamiheFireballAnimationsVerification
 {
     /// <summary>Every program matches its native list.</summary>
-    internal static void VerifyFuneNamiheFireballAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyFuneNamiheFireballAnimations(CartridgeImportAddressSpace rom)
     {
         int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         foreach (EnemyProjectileFrameId frame in FuneNamiheFireballFrameToolingDefinitions.Frames)

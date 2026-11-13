@@ -24,7 +24,7 @@ internal static class RioInstructionProgramDefinitionsVerification
     /// both one-shot swoop programs end by telling main AI the animation has finished; the second swoop phase loops; the
     /// program oracle matches bank $A2.
     /// </summary>
-    internal static void VerifyRioInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyRioInstructionProgramDefinitions(CartridgeImportAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot rio = enemies.SlotTable.Slots[0];

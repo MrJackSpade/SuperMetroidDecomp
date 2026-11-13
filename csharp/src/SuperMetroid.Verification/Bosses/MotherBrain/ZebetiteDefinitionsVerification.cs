@@ -14,7 +14,7 @@ using SuperMetroid.Core.World;
 internal static class ZebetiteDefinitionsVerification
 {
     /// <summary>Compares table words, then exercises initialization, health handoffs, and both respawn roles.</summary>
-    internal static void VerifyZebetiteDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyZebetiteDefinitions(CartridgeImportAddressSpace rom)
     {
         int[] generationTables =
             [0xa6fc03, 0xa6fc0b, 0xa6fc13, 0xa6fc1b, 0xa6fc23, 0xa6fc2b];

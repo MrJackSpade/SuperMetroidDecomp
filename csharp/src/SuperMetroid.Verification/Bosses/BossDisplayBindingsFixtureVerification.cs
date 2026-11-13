@@ -21,8 +21,6 @@ internal static class BossDisplayBindingsFixtureVerification
     /// <summary>One compiled boss actor with RAM only, exercising the public queued draw path.</summary>
     internal sealed class BossDisplayFixture
     {
-        /// <summary>Cartridge-free address space for the boss actor.</summary>
-        internal SuperMetroidAddressSpace Memory { get; } = SuperMetroidAddressSpace.CreateWithoutCartridge();
         /// <summary>VRAM receiving boss tilemap transfers during draw checks.</summary>
         internal SnesVram Vram { get; } = new();
         /// <summary>Enemy owner whose ordinary queue and presentation path the fixture exercises.</summary>

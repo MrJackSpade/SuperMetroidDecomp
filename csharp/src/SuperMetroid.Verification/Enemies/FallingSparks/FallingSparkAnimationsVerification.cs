@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Enemies.FallingSparks;
 internal static class FallingSparkAnimationsVerification
 {
     /// <summary>Every program matches its native list.</summary>
-    internal static void VerifyFallingSparkAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyFallingSparkAnimations(CartridgeImportAddressSpace rom)
     {
         int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         Console.WriteLine($"  falling spark programs: {Entries.Length} programs ({steps} steps) match bank $86.");

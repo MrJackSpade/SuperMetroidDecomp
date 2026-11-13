@@ -22,7 +22,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
 
     /// <summary>Checks native words, seven guarded programs, callbacks, visual selectors, and allocation-free reads.</summary>
     internal static void VerifyNorfairRioInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         // Each update shows the next pose; the cues before it place the flames, and a one-shot swoop start ends by
         // telling main AI it has finished.

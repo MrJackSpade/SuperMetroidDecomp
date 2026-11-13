@@ -22,7 +22,7 @@ namespace SuperMetroid.Verification.Enemies;
 internal static class ShotCallbackDefinitionsVerification
 {
     /// <summary>Inventories callback pointers in enemy headers and hitboxes, then checks classification and combat admission.</summary>
-    internal static void VerifyShotCallbackDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyShotCallbackDefinitions(CartridgeImportAddressSpace rom)
     {
         var shotCallbacks = new HashSet<int>();
         var touchCallbacks = new HashSet<int>();
@@ -114,7 +114,7 @@ internal static class ShotCallbackDefinitionsVerification
 
     /// <summary>Checks that real touch and projectile collision paths accept literal RTL callbacks without opcode reads.</summary>
     private static void VerifyLiteralNoOpCombatAdmission(
-        SuperMetroidAddressSpace rom,
+        CartridgeImportAddressSpace rom,
         HashSet<int> touchNoOps,
         HashSet<int> shotNoOps)
     {

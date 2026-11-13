@@ -15,7 +15,7 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class KraidReportedCollisionsVerification
 {
     /// <summary>Runs each reported contact path and collects failures before leaving the verifier.</summary>
-    internal static int VerifyKraidReportedCollisions(ISnesAddressSpace bus, SuperMetroidGame game,
+    internal static int VerifyKraidReportedCollisions(SuperMetroidGame game,
         SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState state)
     {
         var failures = new List<Exception>();
@@ -112,7 +112,7 @@ internal static class KraidReportedCollisionsVerification
             shot.Position = shot.Position.WithWhole(new(200, (ushort)(body.Position.Y.Whole - 106)));
             shot.Radius = new(8, 8);
             runtime.Projectiles.SlotTable.ProjectileCounter = 1;
-            runtime.Enemies.ResolveKraidProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles);
+            runtime.Enemies.ResolveKraidProjectileHits(runtime.Projectiles, runtime.BombProjectiles);
             AssertEqual(true, shot.IsSpent,
                 "Initial closed head blocks shots before the first head animation executes");
         });

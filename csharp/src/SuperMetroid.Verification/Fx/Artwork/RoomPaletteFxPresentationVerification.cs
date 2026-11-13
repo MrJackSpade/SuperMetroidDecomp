@@ -26,7 +26,7 @@ internal static class RoomPaletteFxPresentationVerification
 {
     /// <summary>Audits extracted room palette colors and all installed program families against retail color words.</summary>
     internal static void VerifyExtractedRoomPaletteFxPresentation(
-        SuperMetroidAddressSpace bus)
+        CartridgeImportAddressSpace bus)
     {
         byte[] extracted =
             SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationExtractor.Extract(bus);

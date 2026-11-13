@@ -38,8 +38,6 @@ internal static class EnemyAnimationIsolationFixtureVerification
         /// </summary>
         internal bool FrameShowsNothing(RoomEnemySlot slot) =>
             slot.Frame is { } frame && Enemies.Presentation.Artwork.Enemy(slot.DefinitionId).Sheet.ShowsNothing(EnemySheetDefinitions.FrameName(frame));
-        /// <summary>RAM-only bus that cannot supply cartridge instructions.</summary>
-        internal SuperMetroidAddressSpace Memory { get; } = SuperMetroidAddressSpace.CreateWithoutCartridge();
         /// <summary>Enemy runtime fed by this fixture's room, RNG, and artwork.</summary>
         internal RoomEnemySystem Enemies { get; }
         /// <summary>The Boyon placed in the first enemy slot.</summary>

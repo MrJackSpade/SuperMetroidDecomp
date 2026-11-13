@@ -21,7 +21,7 @@ internal static class LookupMotherBrainRegularDrawsVerification
     /// the cells its draw list writes. Which other draws are the room's is checked with the mural rows
     /// (<see cref="LookupMotherBrainBackgroundVerification.VerifyMotherBrainBackgroundGeometry"/>).
     /// </summary>
-    internal static void VerifyMotherBrainRegularDrawMapping(SuperMetroidAddressSpace rom)
+    internal static void VerifyMotherBrainRegularDrawMapping(CartridgeImportAddressSpace rom)
     {
         foreach (LookupEscapeGateStockFrame frame in Regular)
         {

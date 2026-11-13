@@ -29,7 +29,7 @@ internal static class CinematicCrystalFlashVerification
         // called until command one restores the ordinary beta dispatcher.
         foreach (int movementCalls in new[] { 0, 5, 12 })
         {
-            (SuperMetroidAddressSpace bus, SuperMetroidRuntime runtime, SamusState samus) =
+            (CartridgeImportAddressSpace bus, SuperMetroidRuntime runtime, SamusState samus) =
                 CreateCinematicFlashRuntime(movementCalls);
             CrystalFlashPhase phaseBefore = samus.CrystalFlash.Phase;
             ushort yBefore = samus.Position.Y.Whole;
@@ -54,7 +54,7 @@ internal static class CinematicCrystalFlashVerification
         // unlock. The first restored beta pass must immediately resume the same Flash
         // pointer. A large legitimate maximum-energy value prevents the isolated sequence
         // from entering the unrelated death frontend while its 300 damage ticks run.
-        (SuperMetroidAddressSpace motherBus, SuperMetroidRuntime motherRuntime,
+        (CartridgeImportAddressSpace motherBus, SuperMetroidRuntime motherRuntime,
             SamusState motherSamus) = CreateCinematicFlashRuntime(movementCalls: 12);
         motherSamus.MaxHealth = 9999;
         motherSamus.Health = 699;
@@ -84,7 +84,7 @@ internal static class CinematicCrystalFlashVerification
         // health boundary its controller call changes Samus to drained crouching/falling
         // art; the Flash pointer nevertheless remains the beta owner and eventually gets
         // stranded in its finish handler, which is the Super Metroid *CF suit state.
-        (SuperMetroidAddressSpace superBus, SuperMetroidRuntime superRuntime,
+        (CartridgeImportAddressSpace superBus, SuperMetroidRuntime superRuntime,
             SamusState superSamus) = CreateCinematicFlashRuntime(movementCalls: 12);
         superSamus.Drained.LetFall(superSamus);
         AssertEqual(DrainedSamusPhase.WaitingForFallingCommand, superSamus.Drained.Phase,
@@ -118,7 +118,7 @@ internal static class CinematicCrystalFlashVerification
         // The adjacent failure reverses the ordering: drained crouching is installed first,
         // then Flash admission replaces it. Flash completes normally, clears its input lock,
         // and therefore frees the Super Metroid stun instead of yielding a suit.
-        (SuperMetroidAddressSpace failedBus, SuperMetroidRuntime failedRuntime,
+        (CartridgeImportAddressSpace failedBus, SuperMetroidRuntime failedRuntime,
             SamusState failedSamus) = CreateCinematicFlashRuntime(0, admitFlash: false);
         failedSamus.Drained.LetFall(failedSamus);
         bool failedTimingAdmitted = failedSamus.CrystalFlash.TryBegin(

@@ -13,7 +13,7 @@ using SuperMetroid.Verification.Harness;
 internal static class GrappleBodyPlacementVerification
 {
     /// <summary>Compares extracted and installed swing art across mirrored angles, facing and anchor wrap.</summary>
-    internal static void VerifyGrappleBodyPlacement(SuperMetroidAddressSpace rom)
+    internal static void VerifyGrappleBodyPlacement(CartridgeImportAddressSpace rom)
     {
         var position = new Action<SamusState, SamusGrappleState>(SamusGrappleSwing.PositionSamusFromPendulum);
         var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()));

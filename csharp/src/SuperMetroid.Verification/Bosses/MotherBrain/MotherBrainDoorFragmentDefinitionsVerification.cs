@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class MotherBrainDoorFragmentDefinitionsVerification
 {
     /// <summary>Compares all eight fragments with native physical words and forbids those table reads during spawn.</summary>
-    internal static void VerifyMotherBrainDoorFragmentDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyMotherBrainDoorFragmentDefinitions(CartridgeImportAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 8; parameter++)
         {

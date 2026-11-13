@@ -73,7 +73,7 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
     [VerificationCommand("--lookup-face-block-programs")]
     internal static int LookupFaceBlockProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyBlueBrinstarFaceBlockBehavior), () => VerifyBlueBrinstarFaceBlockBehavior());
         Suite(nameof(BlueBrinstarFaceBlockAnimationsVerification.VerifyBlueBrinstarFaceBlockAnimations), () => BlueBrinstarFaceBlockAnimationsVerification.VerifyBlueBrinstarFaceBlockAnimations(rom));
         Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());

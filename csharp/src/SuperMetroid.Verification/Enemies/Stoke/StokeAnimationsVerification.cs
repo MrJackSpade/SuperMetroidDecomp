@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Stoke;
 internal static class StokeAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyStokeAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyStokeAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             StokeAnimations.Segments, StokeAnimations.StartingAt, StokeFrameToolingDefinitions.Spritemap,

@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Corpses;
 internal static class DeadTourianAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyDeadTourianAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyDeadTourianAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             DeadTourianAnimations.Segments, DeadTourianAnimations.StartingAt, DeadTourianFrameToolingDefinitions.Spritemap,

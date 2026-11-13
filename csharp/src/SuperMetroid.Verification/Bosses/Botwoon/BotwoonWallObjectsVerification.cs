@@ -19,7 +19,7 @@ internal static class BotwoonWallObjectsVerification
     /// <summary>Compares program and nine-block draw words, then checks both wall paths through deletion.</summary>
     internal static void VerifyCompiledBotwoonWallObjects()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(BossRoomObjectProgramsVerification.VerifyBotwoonWallPrograms), () => BossRoomObjectProgramsVerification.VerifyBotwoonWallPrograms(rom));
 

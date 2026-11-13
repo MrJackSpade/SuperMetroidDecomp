@@ -26,7 +26,6 @@ internal static class KraidSuperMissileDamageVerification
     /// <summary>Runs two room shots through damage and deferred link cleanup, or emits the focused collision report.</summary>
     internal static int VerifyKraidSuperMissileDamage(bool collisionReport = false)
     {
-        var bus=SuperMetroidAddressSpace.CreateWithoutCartridge();
         var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);
@@ -50,7 +49,7 @@ internal static class KraidSuperMissileDamageVerification
         samus.Position = samus.Position.WithWhole(new(120, (ushort)(512-samus.Kinematics.Radius.Y)));samus.Control.Unlock();
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 384));
         game.GameState = SuperMetroidGameState.MainGameplay;
-        if (collisionReport) return VerifyKraidReportedCollisions(bus, game, runtime, body, state);
+        if (collisionReport) return VerifyKraidReportedCollisions(game, runtime, body, state);
         // Kraid's arm swipes reach this standing position from its sixth frame; contact knockback would move Samus off
         // the mouth's height before the second missile. Contact protection keeps the check on the missiles alone.
         samus.InvincibilityTimer = WrappingCountdown.Start(60);
@@ -94,7 +93,7 @@ internal static class KraidSuperMissileDamageVerification
         ushort nativeCompare=unchecked((ushort)(nextTop-0x8200));
         Console.WriteLine($"native next top={nextTop:X4} clobberedBottom=8200 CMP={nativeCompare:X4} BPL-reject={(nativeCompare&0x8000)==0}");
         if((nativeCompare&0x8000)!=0)throw new InvalidDataException("Native scratch-word rejection is not satisfied by the reproduced coordinates.");
-        Suite(nameof(VerifyKraidCollisionSlotOrder), () => VerifyKraidCollisionSlotOrder(bus, runtime, body, state));
+        Suite(nameof(VerifyKraidCollisionSlotOrder), () => VerifyKraidCollisionSlotOrder(runtime, body, state));
         return 0;
     }
 
@@ -138,7 +137,7 @@ internal static class KraidSuperMissileDamageVerification
     private static SuperMetroid.Core.Programs.AnimationPlayback<KraidHeadProgram> RoarPastOpenPose => KraidHeadAnimations.At(KraidHeadProgram.Roar, 5);
 
     /// <summary>Checks count-bounded traversal, inactive slot handling, scratch-word rejection, and adjacent bomb slots.</summary>
-    private static void VerifyKraidCollisionSlotOrder(ISnesAddressSpace bus,
+    private static void VerifyKraidCollisionSlotOrder(
         SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState state)
     {
         var projectiles = runtime.Projectiles;
@@ -164,18 +163,18 @@ internal static class KraidSuperMissileDamageVerification
 
         Prepare(0);
         Place(0);
-        runtime.Enemies.ResolveKraidProjectileHits(bus, projectiles, runtime.BombProjectiles);
+        runtime.Enemies.ResolveKraidProjectileHits(projectiles, runtime.BombProjectiles);
         AssertEqual(1000, body.Health, "Zero projectile count skips even overlapping slot zero");
 
         Prepare(1);
         Place(4);
-        runtime.Enemies.ResolveKraidProjectileHits(bus, projectiles, runtime.BombProjectiles);
+        runtime.Enemies.ResolveKraidProjectileHits(projectiles, runtime.BombProjectiles);
         AssertEqual(1000, body.Health, "Counter-derived native traversal excludes late slots");
 
         Prepare(1);
         Place(1);
         Place(0);
-        runtime.Enemies.ResolveKraidProjectileHits(bus, projectiles, runtime.BombProjectiles);
+        runtime.Enemies.ResolveKraidProjectileHits(projectiles, runtime.BombProjectiles);
         AssertEqual(700, body.Health,
             "Inclusive count slot hits without an activity sentinel; clobbered scratch rejects slot zero");
         AssertEqual(true, projectiles.Slots[1].IsSpent,
@@ -189,7 +188,7 @@ internal static class KraidSuperMissileDamageVerification
             shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true);
             shot.Damage = 60;
         }
-        runtime.Enemies.ResolveKraidProjectileHits(bus, projectiles, runtime.BombProjectiles);
+        runtime.Enemies.ResolveKraidProjectileHits(projectiles, runtime.BombProjectiles);
         // A charged beam is only fired with Charge equipped, so its identity carries the Charge bit; the bound that leaves
         // the mouth ($9010) turns the second shot's clobbered compare at this height positive (#1470).
         AssertEqual(940, body.Health,
@@ -201,7 +200,7 @@ internal static class KraidSuperMissileDamageVerification
         bomb.Damage = 30;
         bomb.Position = bomb.Position.WithWhole(new(176, 486));
         bomb.Radius = new(8, 8);
-        runtime.Enemies.ResolveKraidProjectileHits(bus, projectiles, runtime.BombProjectiles);
+        runtime.Enemies.ResolveKraidProjectileHits(projectiles, runtime.BombProjectiles);
         AssertEqual(1000, body.Health, "First bomb slot uses Kraid's zero bomb vulnerability");
         AssertEqual(true, bomb.IsSpent,
             "Count five reaches and marks the adjacent physical bomb slot");

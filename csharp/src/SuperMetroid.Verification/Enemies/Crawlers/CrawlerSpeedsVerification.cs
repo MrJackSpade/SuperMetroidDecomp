@@ -11,7 +11,7 @@ internal static class CrawlerSpeedsVerification
 {
     /// <summary>Compares all authored speeds, preserve-sentinel behavior,
     /// and Yard direction transforms across the effective ushort input domain.</summary>
-    internal static void VerifyCompiledCrawlerSpeeds(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledCrawlerSpeeds(CartridgeImportAddressSpace rom)
     {
         var reset = new Func<CrawlerSurfaceOrientation, SignedEightEight?, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>>(
             CrawlersBehavior.ResetCrawlerVelocities);

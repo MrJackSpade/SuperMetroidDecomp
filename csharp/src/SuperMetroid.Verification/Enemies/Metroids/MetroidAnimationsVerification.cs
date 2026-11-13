@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Enemies.Metroids;
 internal static class MetroidAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyMetroidAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyMetroidAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             MetroidAnimations.Segments, MetroidAnimations.StartingAt, MetroidFrameToolingDefinitions.Spritemap,

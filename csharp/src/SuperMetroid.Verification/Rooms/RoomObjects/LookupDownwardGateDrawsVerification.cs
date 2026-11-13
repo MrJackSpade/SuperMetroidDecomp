@@ -13,17 +13,17 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 internal static class LookupDownwardGateDrawsVerification
 {
     /// <summary>Checks gate run directions, widths, offsets, identifiers, and record boundaries.</summary>
-    internal static void VerifyDownwardGateDrawGeometry(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyDownwardGateDrawGeometry(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyDownwardGateDrawField), () => VerifyDownwardGateDrawField(rom, 0));
     /// <summary>Checks the collision-type bits of every gate draw word against cartridge data.</summary>
-    internal static void VerifyDownwardGateDrawCollision(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyDownwardGateDrawCollision(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyDownwardGateDrawField), () => VerifyDownwardGateDrawField(rom, 1));
     /// <summary>Checks the tile index bits of every gate draw word against cartridge data.</summary>
-    internal static void VerifyDownwardGateDrawVisuals(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyDownwardGateDrawVisuals(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyDownwardGateDrawField), () => VerifyDownwardGateDrawField(rom, 2));
 
     /// <summary>Compares a selected field across descriptors and exports while walking all native gate records.</summary>
-    private static void VerifyDownwardGateDrawField(SuperMetroidAddressSpace rom, int field)
+    private static void VerifyDownwardGateDrawField(CartridgeImportAddressSpace rom, int field)
     {
         ushort[] pointers = [0xa517,0xa525,0xa533,0xa541,0xa54f,0xa55d,
             0xa5d7,0xa5e3,0xa5eb,0xa5f7,0xa5ff,0xa60b,0xa613,0xa61f];

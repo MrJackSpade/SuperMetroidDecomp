@@ -13,7 +13,7 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
 {
     /// <summary>Compares five fields, rejects fragments outside the sixteen, and checks spawned fragment position and motion.</summary>
     internal static void VerifyBombTorizoStatueFragmentDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyStatueFragmentProgramField), () => VerifyStatueFragmentProgramField(rom));
         Suite(nameof(VerifyStatueFragmentXField), () => VerifyStatueFragmentXField(rom));

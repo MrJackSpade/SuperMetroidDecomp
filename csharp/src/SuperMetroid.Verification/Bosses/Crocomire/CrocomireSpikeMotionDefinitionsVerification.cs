@@ -13,7 +13,7 @@ internal static class CrocomireSpikeMotionDefinitionsVerification
     private const int TopPieceTableEntry = 10;
 
     /// <summary>Checks each piece's acceleration increment and rejects places outside the wall.</summary>
-    internal static void VerifyCrocomireSpikeAccelerationDelta(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireSpikeAccelerationDelta(CartridgeImportAddressSpace rom)
     {
         for (int piece = 0; piece < CrocomireSpikeMotionDefinitions.PieceCount; piece++)
         {
@@ -27,7 +27,7 @@ internal static class CrocomireSpikeMotionDefinitionsVerification
     }
 
     /// <summary>Checks each piece's acceleration cap and rejects places outside the wall.</summary>
-    internal static void VerifyCrocomireSpikeMaximumAcceleration(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireSpikeMaximumAcceleration(CartridgeImportAddressSpace rom)
     {
         for (int piece = 0; piece < CrocomireSpikeMotionDefinitions.PieceCount; piece++)
         {
@@ -41,7 +41,7 @@ internal static class CrocomireSpikeMotionDefinitionsVerification
     }
 
     /// <summary>Checks the low byte of each piece's velocity cap and rejects places outside the wall.</summary>
-    internal static void VerifyCrocomireSpikeMaximumVelocity(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireSpikeMaximumVelocity(CartridgeImportAddressSpace rom)
     {
         for (int piece = 0; piece < CrocomireSpikeMotionDefinitions.PieceCount; piece++)
             AssertEqual(rom.ReadCartridgeByte(0x86920b + 2 * (TopPieceTableEntry + piece)), CrocomireSpikeMotion.MaximumVelocity(piece),

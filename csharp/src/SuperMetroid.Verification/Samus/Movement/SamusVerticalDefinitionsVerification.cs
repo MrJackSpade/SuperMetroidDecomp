@@ -14,7 +14,7 @@ internal static class SamusVerticalDefinitionsVerification
 {
     /// <summary>Exercises production launch initialization for every source
     /// speed word, including independent whole and fractional booster additions.</summary>
-    internal static void VerifySamusVerticalDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySamusVerticalDefinitions(CartridgeImportAddressSpace rom)
     {
         var guard = NewSlopeHeightNoReadBus();
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };

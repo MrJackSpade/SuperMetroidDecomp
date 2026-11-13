@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Enemies.Boulder;
 internal static class BoulderAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyBoulderAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyBoulderAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             BoulderAnimations.Segments, BoulderAnimations.StartingAt, BoulderFrameToolingDefinitions.Spritemap,

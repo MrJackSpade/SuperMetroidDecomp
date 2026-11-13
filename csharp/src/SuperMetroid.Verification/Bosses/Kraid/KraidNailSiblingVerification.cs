@@ -11,23 +11,23 @@ using SuperMetroid.Core.World;
 internal static class KraidNailSiblingVerification
 {
     /// <summary>Compares the fractional X launch word across sibling velocity signs and RNG offsets.</summary>
-    internal static void VerifyKraidNailLaunchXFraction(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidNailLaunchXFraction(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 0, value => value.X.Fraction));
 
     /// <summary>Compares the whole X launch word across sibling velocity signs and RNG offsets.</summary>
-    internal static void VerifyKraidNailLaunchXWhole(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidNailLaunchXWhole(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 2, value => value.X.UnsignedWholePixels));
 
     /// <summary>Compares the fractional Y launch word across sibling velocity signs and RNG offsets.</summary>
-    internal static void VerifyKraidNailLaunchYFraction(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidNailLaunchYFraction(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 4, value => value.Y.Fraction));
 
     /// <summary>Compares the whole Y launch word across sibling velocity signs and RNG offsets.</summary>
-    internal static void VerifyKraidNailLaunchYWhole(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidNailLaunchYWhole(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 6, value => value.Y.UnsignedWholePixels));
 
     /// <summary>Reads the native indirect launch record selected by sibling sign and RNG bits for one field.</summary>
-    private static void VerifyKraidNailLaunchField(SuperMetroidAddressSpace rom, int fieldOffset,
+    private static void VerifyKraidNailLaunchField(CartridgeImportAddressSpace rom, int fieldOffset,
         Func<FixedVector<RoomPixels>, ushort> field)
     {
         ushort Word(int address) => LittleEndianBytes.Word(KraidNailLaunchFieldRomByte(rom, address), KraidNailLaunchFieldRomByte(rom, address + 1));
@@ -53,7 +53,7 @@ internal static class KraidNailSiblingVerification
     /// Checks both nail slots, sibling flags, RNG preservation, the actual launch or waiting phase, and that a launch
     /// after its sibling was killed reads the sibling as stopped (<see cref="KilledFingernailStops"/>).
     /// </summary>
-    internal static void VerifyKraidNailSibling(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidNailSibling(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyKraidNailLaunchXFraction), () => VerifyKraidNailLaunchXFraction(rom));
         Suite(nameof(VerifyKraidNailLaunchXWhole), () => VerifyKraidNailLaunchXWhole(rom));

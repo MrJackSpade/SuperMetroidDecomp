@@ -13,7 +13,7 @@ internal static class LookupAnimatedArtworkSourcesVerification
 {
     /// <summary>Compares compiled artwork source addresses with original bank-$87
     /// operands and verifies unknown objects cannot acquire a visual mapping.</summary>
-    internal static void VerifySimpleAnimationArtworkSources(SuperMetroidAddressSpace rom)
+    internal static void VerifySimpleAnimationArtworkSources(CartridgeImportAddressSpace rom)
     {
         int total = 0;
         foreach (var original in OriginalSimpleAnimationLoops(rom))

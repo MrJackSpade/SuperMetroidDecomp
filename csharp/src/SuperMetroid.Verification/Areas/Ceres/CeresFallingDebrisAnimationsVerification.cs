@@ -17,7 +17,7 @@ namespace SuperMetroid.Verification.Areas.Ceres;
 internal static class CeresFallingDebrisAnimationsVerification
 {
     /// <summary>Both tile programs match their native lists.</summary>
-    internal static void VerifyCeresFallingDebrisAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyCeresFallingDebrisAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int updates = 0;

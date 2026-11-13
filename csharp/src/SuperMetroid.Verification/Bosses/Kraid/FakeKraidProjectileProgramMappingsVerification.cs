@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class FakeKraidProjectileProgramMappingsVerification
 {
     /// <summary>Compares six native control words and their complete bank-$86 byte domain, rejecting adjacent visual or unrelated data.</summary>
-    internal static void VerifyFakeKraidProjectileMechanicsMapping(SuperMetroidAddressSpace rom)
+    internal static void VerifyFakeKraidProjectileMechanicsMapping(CartridgeImportAddressSpace rom)
     {
         ushort[] addresses = [0x9dda, 0x9dde, 0x9de0, 0x9de4, 0x9de6, 0x9dea];
         AssertEqual(addresses.Length, FakeKraidProjectileInstructionProgramDefinitionsTooling.MechanicsWordCount,

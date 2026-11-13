@@ -32,7 +32,7 @@ internal static class WreckedShipGhostBehaviorVerification
     [VerificationCommand("--wrecked-ship-ghost-instruction-mechanics")]
     internal static int WreckedShipGhostInstructionMechanicsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyWreckedShipGhostBehavior), () => VerifyWreckedShipGhostBehavior());
         Suite(nameof(WreckedShipGhostAnimationsVerification.VerifyWreckedShipGhostAnimations),
             () => WreckedShipGhostAnimationsVerification.VerifyWreckedShipGhostAnimations(rom));

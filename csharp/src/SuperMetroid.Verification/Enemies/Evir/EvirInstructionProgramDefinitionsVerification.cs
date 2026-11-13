@@ -27,7 +27,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
     /// body's installed facing, moves the mouth offset back eight times, plays the spit sound and returns the projectile
     /// to idle; the program oracle matches bank $A8.
     /// </summary>
-    internal static void VerifyEvirInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyEvirInstructionProgramDefinitions(CartridgeImportAddressSpace rom)
     {
         foreach (EvirProgram loop in new[] { EvirProgram.BodyFacingLeft, EvirProgram.ArmsFacingLeft, EvirProgram.BodyFacingRight, EvirProgram.ArmsFacingRight })
         {

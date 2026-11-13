@@ -9,19 +9,19 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class KraidGrowthObjectMappingsVerification
 {
     /// <summary>Compares the compiled growth PLM column coordinates with callback inline bytes.</summary>
-    internal static void VerifyKraidGrowthObjectColumns(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidGrowthObjectColumns(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyKraidGrowthObjectField), () => VerifyKraidGrowthObjectField(rom, 4, request => request.Block.X));
 
     /// <summary>Compares the compiled growth PLM row coordinates with callback inline bytes.</summary>
-    internal static void VerifyKraidGrowthObjectRows(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidGrowthObjectRows(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyKraidGrowthObjectField), () => VerifyKraidGrowthObjectField(rom, 5, request => request.Block.Y));
 
     /// <summary>Compares the compiled growth PLM headers with callback inline words.</summary>
-    internal static void VerifyKraidGrowthObjectHeaders(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidGrowthObjectHeaders(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyKraidGrowthObjectField), () => VerifyKraidGrowthObjectField(rom, 6, request => KraidNativeWords.RoomMutations.Word(request.RoomObject)));
 
     /// <summary>Reads each callback field at the requested native offset and checks indexed and enumerated PLM requests.</summary>
-    private static void VerifyKraidGrowthObjectField(SuperMetroidAddressSpace rom, int offset,
+    private static void VerifyKraidGrowthObjectField(CartridgeImportAddressSpace rom, int offset,
         Func<RoomObjectSpawnRequest<KraidRoomMutation>, ushort> field)
     {
         ushort Word(int address) => LittleEndianBytes.Word(KraidGrowthObjectFieldRomByte(rom, address), KraidGrowthObjectFieldRomByte(rom, address + 1));

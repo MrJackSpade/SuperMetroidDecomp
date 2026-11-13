@@ -38,7 +38,7 @@ internal static class TourianAccessObjectProgramsVerification
     }
 
     /// <summary>Checks the bounded crumble frame selector against the native program's draw operands.</summary>
-    private static void VerifyTourianAccessFrameSelector(SuperMetroidAddressSpace rom)
+    private static void VerifyTourianAccessFrameSelector(CartridgeImportAddressSpace rom)
     {
         ushort[] originalOperands = [0xaaea,0xaaee,0xaaf2,0xaaf6];
         for (int frame = 0; frame < originalOperands.Length; frame++)
@@ -50,7 +50,7 @@ internal static class TourianAccessObjectProgramsVerification
     }
 
     /// <summary>Checks five native draw spans, row shapes, physical words, and continuation offsets.</summary>
-    private static void VerifyTourianAccessPhysicalDrawMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyTourianAccessPhysicalDrawMapping(CartridgeImportAddressSpace rom)
     {
         RoomObjectShotBlockDrawDefinitions.DrawList[] draws =
             RoomObjectTourianAccessVisualFiles.All.ToArray();

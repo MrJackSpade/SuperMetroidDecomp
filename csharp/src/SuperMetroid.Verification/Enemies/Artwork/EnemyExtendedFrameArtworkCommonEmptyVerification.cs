@@ -18,7 +18,7 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
 {
     /// <summary>Compares the 12 native empty-frame records and blocks cartridge reads during installed draw and callback selection.</summary>
     internal static void VerifySharedEmptyExtendedFrames(
-        SuperMetroidAddressSpace rom, ImportEnemyArtwork stock)
+        CartridgeImportAddressSpace rom, ImportEnemyArtwork stock)
     {
         var blockedRom = NewCartridgeReadGuard(rom);
         foreach (byte bank in CommonEnemyEmptyFrameDefinitionsTooling.SupportedBanks)

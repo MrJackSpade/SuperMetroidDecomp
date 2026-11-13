@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Boyon;
 internal static class BoyonAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyBoyonAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyBoyonAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             BoyonAnimations.Segments, BoyonAnimations.StartingAt, BoyonFrameToolingDefinitions.Spritemap,

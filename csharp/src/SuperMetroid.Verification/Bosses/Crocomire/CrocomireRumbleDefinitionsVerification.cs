@@ -24,7 +24,7 @@ internal static class CrocomireRumbleDefinitionsVerification
     private const ushort RumbleEndMarker = 0x8080;
 
     /// <summary>Audits all source words, then compares every rumble update through wall-spike palette publication.</summary>
-    internal static void VerifyCrocomireRumbleDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireRumbleDefinitions(CartridgeImportAddressSpace rom)
     {
         const int sourceAddress = 0xa498ca;
 

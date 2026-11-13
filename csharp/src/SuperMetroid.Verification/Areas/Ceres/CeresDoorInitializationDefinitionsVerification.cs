@@ -17,7 +17,7 @@ using SuperMetroid.Core.World;
 internal static class CeresDoorInitializationDefinitionsVerification
 {
     /// <summary>Compares function and instruction words with live slot initialization under a ROM read guard.</summary>
-    internal static void VerifyCeresDoorInitializationDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCeresDoorInitializationDefinitions(CartridgeImportAddressSpace rom)
     {
         const int instructionTable = 0xa6f52c;
         const int functionTable = 0xa6f72b;

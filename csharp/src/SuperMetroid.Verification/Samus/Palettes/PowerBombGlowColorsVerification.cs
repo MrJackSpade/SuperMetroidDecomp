@@ -25,7 +25,7 @@ internal static class PowerBombGlowColorsVerification
             return;
         }
 
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+        CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         InstalledPowerBombGlowColors catalog = PowerBombGlowColorFile.Read(
             new MemoryStream(PowerBombGlowColorExtractor.Extract(rom)));
         int compared = 0;

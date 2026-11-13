@@ -29,7 +29,7 @@ internal static class CrocomireAnimationsVerification
     /// body animation follows the lists' gotos, sleeps and runs on into the list authored next. The real body runner then
     /// plays the skeleton collapse, a fight-AI redirect and the roar's resident-segment test beside the native list.
     /// </summary>
-    internal static void VerifyCrocomireBodyAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireBodyAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertEqual(Enum.GetValues<CrocomireBodyProgram>().Length, BodyEntries.Length, "every typed body segment has a native entry");
@@ -174,7 +174,7 @@ internal static class CrocomireAnimationsVerification
     }
 
     /// <summary>Each tongue program plays its native list update by update through the production interpreter.</summary>
-    internal static void VerifyCrocomireTongueAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireTongueAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertEqual(Enum.GetValues<CrocomireTongueProgram>().Length, TongueEntries.Length, "every tongue program has a native entry");
@@ -205,7 +205,7 @@ internal static class CrocomireAnimationsVerification
     /// The real mouth, bridge and spike producers start typed programs that match their native lists, and the
     /// shot program explodes, drops with Crocomire's chances and deletes on the native updates.
     /// </summary>
-    internal static void VerifyCrocomireProjectileAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireProjectileAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
 

@@ -16,7 +16,7 @@ internal static class EnemyDropChanceDefinitionsVerification
     /// Decodes every authored six-byte table, compares each chance with its cartridge byte, runs every table through
     /// production selection, and checks that words naming no table are rejected.
     /// </summary>
-    internal static void VerifyEnemyDropChanceDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyEnemyDropChanceDefinitions(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())

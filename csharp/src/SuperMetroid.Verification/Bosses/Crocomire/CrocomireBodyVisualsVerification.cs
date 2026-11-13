@@ -25,7 +25,7 @@ namespace SuperMetroid.Verification.Bosses.Crocomire;
 internal static class CrocomireBodyVisualsVerification
 {
     /// <summary>Derives the 50 selected body roots from bank-$A4 instructions and checks frame ordering, component counts, and the 42-frame BG2 domain.</summary>
-    internal static void VerifyCrocomireBodyFrameGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireBodyFrameGeometry(CartridgeImportAddressSpace rom)
     {
         var original = new SortedSet<ushort>(CrocomireAnimationsVerification.TypedBodySpritemaps(CrocomireBodyFrameSet.Body));
         AssertEqual(50, original.Count, "native body frame selection count");
@@ -51,7 +51,7 @@ internal static class CrocomireBodyVisualsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => CrocomireBodyVisualToolingDefinitions.FramePointer(50), "body frame past end");
     }
     /// <summary>Checks generated BG2 keys against retail selectors and confirms the extractor and loader preserve all 42 mixed-frame streams.</summary>
-    internal static void VerifyCrocomireBg2GeneratedCatalog(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireBg2GeneratedCatalog(CartridgeImportAddressSpace rom)
     {
         var pointers = new SortedSet<ushort>(CrocomireAnimationsVerification.TypedBodySpritemaps(CrocomireBodyFrameSet.Body)
             .Where(CrocomireBodyVisualDefinitionsConstants.HasBg2));
@@ -76,7 +76,7 @@ internal static class CrocomireBodyVisualsVerification
     }
     /// <summary>Compares installed OAM and VRAM output for every body frame with visual ROM reads denied.</summary>
     internal static void VerifyInstalledCrocomireBodyVisuals(
-        SuperMetroidAddressSpace rom,
+        CartridgeImportAddressSpace rom,
         ImportEnemyArtwork stock)
     {
         AssertTrue(stock.Enemies.ExtendedFrames is not null && stock.Bosses.CrocomireBg2Frames is not null,

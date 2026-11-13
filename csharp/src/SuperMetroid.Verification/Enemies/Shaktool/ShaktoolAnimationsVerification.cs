@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Shaktool;
 internal static class ShaktoolAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyShaktoolAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyShaktoolAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             ShaktoolAnimations.Segments, ShaktoolAnimations.StartingAt, ShaktoolFrameToolingDefinitions.Spritemap,

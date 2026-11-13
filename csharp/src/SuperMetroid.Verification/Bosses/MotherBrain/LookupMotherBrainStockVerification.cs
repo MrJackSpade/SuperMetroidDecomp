@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class LookupMotherBrainStockVerification
 {
     /// <summary>Compares the twenty-two frames' 230 written cells with the cartridge, then the import and its rejections.</summary>
-    internal static void VerifyMotherBrainStockMapping(SuperMetroidAddressSpace rom, InstalledMotherBrainFakeDeathFrames installed)
+    internal static void VerifyMotherBrainStockMapping(CartridgeImportAddressSpace rom, InstalledMotherBrainFakeDeathFrames installed)
     {
         LookupEscapeGateStockFrame[] frames = [new(0x94a3, "fill-wall"), new(0x94b1, "escape-door"),
             new(0x9505, "background-row-2"), new(0x9523, "background-row-3"), new(0x9541, "background-row-4"),

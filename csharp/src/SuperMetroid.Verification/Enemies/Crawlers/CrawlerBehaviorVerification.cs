@@ -71,7 +71,7 @@ internal static class CrawlerBehaviorVerification
     [VerificationCommand("--crawler-instruction-programs")]
     internal static int CrawlerBehaviorCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyCrawlerBehavior), () => VerifyCrawlerBehavior());
         Suite(nameof(CrawlerAnimationsVerification.VerifyCrawlerAnimations), () => CrawlerAnimationsVerification.VerifyCrawlerAnimations(rom));
         return 0;

@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Enemies.Kago;
 internal static class KagoAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyKagoAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyKagoAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             KagoAnimations.Segments, KagoAnimations.StartingAt, KagoFrameToolingDefinitions.Spritemap,

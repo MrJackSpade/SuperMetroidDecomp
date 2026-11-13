@@ -27,7 +27,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
     /// pose in the next-faster run; the launch steps the charge into the right echo; the programs show exactly the
     /// installed Dachora frames; the program oracle matches bank $A7.
     /// </summary>
-    internal static void VerifyDachoraInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDachoraInstructionProgramDefinitions(CartridgeImportAddressSpace rom)
     {
         InitializerCase[] initializerCases =
         [

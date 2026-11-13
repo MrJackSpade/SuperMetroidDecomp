@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Bosses.Phantoon;
 internal static class PhantoonFlameSpawnsVerification
 {
     /// <summary>Compares rage, rain, and spiral bytes and 507 spawn positions without table rereads.</summary>
-    internal static void VerifyCompiledPhantoonFlameSpawns(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledPhantoonFlameSpawns(CartridgeImportAddressSpace rom)
     {
         for (int i = 0; i < 16; i++)
             AssertEqual(new TrigonometryAngle(rom.ReadCartridgeByte(0x8698b4 + i)), PhantoonFlameSpawns.RageAngle(i), "All native rage start angles");

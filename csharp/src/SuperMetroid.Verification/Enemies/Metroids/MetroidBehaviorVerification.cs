@@ -48,7 +48,7 @@ internal static class MetroidBehaviorVerification
     [VerificationCommand("--metroid-instruction-mechanics")]
     internal static int MetroidBehaviorCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyMetroidBehavior), () => VerifyMetroidBehavior());
         Suite(nameof(MetroidAnimationsVerification.VerifyMetroidAnimations), () => MetroidAnimationsVerification.VerifyMetroidAnimations(rom));
         return 0;

@@ -14,7 +14,7 @@ namespace SuperMetroid.Verification.Enemies.Cacatac;
 internal static class CacatacProjectileBehaviorVerification
 {
     /// <summary>Every launch direction spawns a spike on that direction's program, which matches its native list update for update.</summary>
-    internal static void VerifyCacatacProjectileBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyCacatacProjectileBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, CacatacProjectileNativeListAddresses.Extent, "Cacatac spike");
@@ -37,7 +37,7 @@ internal static class CacatacProjectileBehaviorVerification
     [VerificationCommand("--cacatac-projectile-programs")]
     internal static int CacatacProjectileProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(CacatacProjectileAnimationsVerification.VerifyCacatacProjectileAnimations), () => CacatacProjectileAnimationsVerification.VerifyCacatacProjectileAnimations(rom));
         Suite(nameof(VerifyCacatacProjectileBehavior), () => VerifyCacatacProjectileBehavior(rom));
         return 0;

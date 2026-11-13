@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Enemies.Magdollite;
 internal static class MagdolliteLavaAnimationsVerification
 {
     /// <summary>Every program matches its native list.</summary>
-    internal static void VerifyMagdolliteLavaAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyMagdolliteLavaAnimations(CartridgeImportAddressSpace rom)
     {
         int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         Console.WriteLine($"  Magdollite lava programs: {Entries.Length} programs ({steps} steps) match bank $86.");

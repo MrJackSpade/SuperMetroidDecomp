@@ -8,4 +8,4 @@ namespace SuperMetroid.Verification.Frontend.Intro;
 /// <param name="Bus">The bus.</param>
 /// <param name="Runtime">The runtime.</param>
 /// <param name="Samus">The samus.</param>
-internal readonly record struct CreateCinematicFlashRuntimeResult(SuperMetroidAddressSpace Bus, SuperMetroidRuntime Runtime, SamusState Samus);
+internal readonly record struct CreateCinematicFlashRuntimeResult(CartridgeImportAddressSpace Bus, SuperMetroidRuntime Runtime, SamusState Samus);

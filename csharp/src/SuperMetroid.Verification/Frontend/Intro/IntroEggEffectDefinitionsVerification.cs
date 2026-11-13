@@ -67,7 +67,7 @@ internal static class IntroEggEffectDefinitionsVerification
 
     /// <summary>Compares an actor's native pre-instruction and list pointers while leaving its initialization callback unowned.</summary>
     private static void VerifyIntroEggEffectActor(
-        SuperMetroidAddressSpace retail,
+        CartridgeImportAddressSpace retail,
         ushort definitionPointer,
         CinematicActorDefinition actual,
         string name)

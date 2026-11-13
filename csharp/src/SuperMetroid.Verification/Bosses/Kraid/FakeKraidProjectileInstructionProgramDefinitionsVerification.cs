@@ -28,7 +28,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
     /// and the shared shot reaction still deletes it. No production step reads the lists from ROM.
     /// </summary>
     internal static void VerifyFakeKraidProjectileInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyFakeKraidProjectileMechanicsMapping), () => VerifyFakeKraidProjectileMechanicsMapping(rom));
         Suite(nameof(VerifyFakeKraidProjectilePresentationAddresses), () => VerifyFakeKraidProjectilePresentationAddresses());
@@ -115,7 +115,7 @@ List:FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeRight),
 
     /// <summary>Reads one bank-$86 projectile program word from the retail ROM as an exact verification oracle.</summary>
     internal static ushort ReadFakeKraidProjectileInstructionWord(
-        SuperMetroidAddressSpace source,
+        CartridgeImportAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address);
 

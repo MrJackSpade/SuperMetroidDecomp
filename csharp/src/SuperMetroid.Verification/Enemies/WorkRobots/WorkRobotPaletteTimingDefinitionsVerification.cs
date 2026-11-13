@@ -18,7 +18,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
 {
     /// <summary>Compares the six glow steps' durations and colors with their native records, then follows a full production cycle through its glow shades.</summary>
     internal static void VerifyWorkRobotPaletteTimingDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         for (int glowStep = 0; glowStep < WorkRobotGlowDefinitions.StepCount; glowStep++)
         {

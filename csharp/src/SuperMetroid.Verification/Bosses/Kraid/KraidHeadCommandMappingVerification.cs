@@ -15,7 +15,7 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class KraidHeadCommandMappingVerification
 {
     /// <summary>Checks poses, durations, cries and ends; the cursor-relative mouth reads; growth resumes; and entry cursors.</summary>
-    internal static void VerifyKraidHeadCommandMapping(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidHeadCommandMapping(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var native = new KraidHeadNativeCursors(cartridge);

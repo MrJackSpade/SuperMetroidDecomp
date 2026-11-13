@@ -23,7 +23,7 @@ internal static class CompiledScrollObjectProgramsVerification
     /// Confirms the $8F:8230 resident trigger at (8,13) turns storage cell zero green
     /// without rereading its compiled $8F:94FA program from cartridge data.
     /// </summary>
-    internal static void VerifyCompiledRoomScrollPrograms(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledRoomScrollPrograms(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyScrollProgramIdentities), () => VerifyScrollProgramIdentities(rom));
         Suite(nameof(VerifyScrollProgramIndices), () => VerifyScrollProgramIndices(rom));

@@ -14,7 +14,7 @@ namespace SuperMetroid.Verification.Enemies.Shaktool;
 internal static class ShaktoolProjectileBehaviorVerification
 {
     /// <summary>Each circle's definition starts its typed program, which matches the native list update for update, movement routine included.</summary>
-    internal static void VerifyShaktoolProjectileBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyShaktoolProjectileBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, ShaktoolProjectileNativeListAddresses.Extent, "Shaktool attack circle");
@@ -41,7 +41,7 @@ internal static class ShaktoolProjectileBehaviorVerification
     [VerificationCommand("--shaktool-projectile-programs")]
     internal static int ShaktoolProjectileProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(ShaktoolProjectileAnimationsVerification.VerifyShaktoolProjectileAnimations), () => ShaktoolProjectileAnimationsVerification.VerifyShaktoolProjectileAnimations(rom));
         Suite(nameof(VerifyShaktoolProjectileBehavior), () => VerifyShaktoolProjectileBehavior(rom));
         return 0;

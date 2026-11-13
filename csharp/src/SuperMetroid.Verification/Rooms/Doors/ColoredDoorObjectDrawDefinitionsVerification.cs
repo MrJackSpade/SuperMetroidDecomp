@@ -25,7 +25,7 @@ using SuperMetroid.Core.World;
 internal static class ColoredDoorObjectDrawDefinitionsVerification
 {
     /// <summary>Runs all twelve resident door orientations through load, physical draw, close, projectile hits, open, and opened-state reload without compiled ROM reads.</summary>
-    internal static void VerifyColoredDoorObjectDrawDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyColoredDoorObjectDrawDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyColoredDoorProgramDefinitions), () => VerifyColoredDoorProgramDefinitions(rom));
 
@@ -164,11 +164,11 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
     }
 
     /// <summary>Compares every coloured cap's typed programs with its bank-$84 lists.</summary>
-    private static void VerifyColoredDoorProgramDefinitions(SuperMetroidAddressSpace rom) =>
+    private static void VerifyColoredDoorProgramDefinitions(CartridgeImportAddressSpace rom) =>
         Suite(nameof(RoomObjectProgramsVerification.VerifyColoredDoorPrograms), () => RoomObjectProgramsVerification.VerifyColoredDoorPrograms(rom));
 
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
-    private static void VerifyColoredDoorVisualInstallation(SuperMetroidAddressSpace rom)
+    private static void VerifyColoredDoorVisualInstallation(CartridgeImportAddressSpace rom)
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectColoredDoorVisualDirectory);
         GameInstallation installation = copy.Installation;

@@ -287,32 +287,18 @@ internal sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
     }
 }
 
-/// <summary>Checks that enemy memory access uses explicit WRAM mapping instead of generic source readers.</summary>
+/// <summary>Checks that the enemy subsystem declares no generic source reader.</summary>
+/// <remarks>
+/// The fixed-bank work-RAM word this check once read through the runtime's work-RAM image is gone with the image
+/// (#1688): no enemy reads work RAM, so only the readers' absence is asserted.
+/// </remarks>
 internal static void VerifyEnemyMappedSourceRouting()
 {
     const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
     foreach (string removed in new[] { "ReadEnemySourceByte", "ReadWord", "ReadLong" })
         AssertTrue(!MetadataShape.DeclaresMethod(typeof(RoomEnemySystem), removed, flags),
             $"enemy subsystem has no generic {removed} source reader");
-    VerifyEnemyWorkRamWordMapping(SuperMetroidAddressSpace.CreateWithoutCartridge());
-    Console.WriteLine("Enemy memory boundary: generic source readers are absent; explicit WRAM wrap, mirror and region rejection pass.");
-}
-
-/// <summary>Checks fixed-bank WRAM word wrap, mirrors, and rejection of other address regions.</summary>
-private static void VerifyEnemyWorkRamWordMapping(SuperMetroidAddressSpace memory)
-{
-    memory.WriteByte(0x7effff, 0x34);
-    memory.WriteByte(0x7e0000, 0x12);
-    memory.WriteByte(0x7f0000, 0xee);
-    AssertEqual((ushort)0x1234, memory.ReadWorkRamWordFixedBank(0x7effff),
-        "enemy WRAM word wraps inside its bank, not into the next bank");
-    memory.WriteByte(0x800100, 0x78);
-    memory.WriteByte(0x800101, 0x56);
-    AssertEqual((ushort)0x5678, memory.ReadWorkRamWordFixedBank(0x800100),
-        "enemy low-window WRAM alias reads physical live RAM");
-    foreach (int address in new[] { 0xa08000, 0x702000, 0x804000 })
-        AssertThrows<ArgumentOutOfRangeException>(() => memory.ReadWorkRamWordFixedBank(address),
-            "typed enemy WRAM reader rejects ROM, SRAM and hardware windows");
+    Console.WriteLine("Enemy memory boundary: generic source readers are absent.");
 }
 
 /// <summary>

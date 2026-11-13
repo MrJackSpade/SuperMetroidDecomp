@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class KraidContourCaseMappingsVerification
 {
     /// <summary>Walks the seven native contour records using wrapped CMP/BPL subtraction.</summary>
-    internal static short NativeKraidBodyLeftEdge(SuperMetroidAddressSpace rom, short relativeY)
+    internal static short NativeKraidBodyLeftEdge(CartridgeImportAddressSpace rom, short relativeY)
     {
         for (int record = 0; record < 7; record++)
         {
@@ -26,7 +26,7 @@ internal static class KraidContourCaseMappingsVerification
     }
 
     /// <summary>Checks every relative Y mapping and strict projectile overlap at wrapped edge cases.</summary>
-    internal static void VerifyKraidBodyContourCases(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidBodyContourCases(CartridgeImportAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
@@ -53,7 +53,7 @@ internal static class KraidContourCaseMappingsVerification
     }
 
     /// <summary>Decodes native tilemap comparisons and offsets to find Kraid's head-resume pointer and timer.</summary>
-    internal static NativeKraidGrowthResumeResult NativeKraidGrowthResume(SuperMetroidAddressSpace rom, ushort tilemap)
+    internal static NativeKraidGrowthResumeResult NativeKraidGrowthResume(CartridgeImportAddressSpace rom, ushort tilemap)
     {
         // Decode the native LDY/CMP immediates rather than using compiled selector constants.
         ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c042);
@@ -71,7 +71,7 @@ internal static class KraidContourCaseMappingsVerification
     /// Checks the typed growth resumes against the native selector for every sixteen-bit word growth could read: the
     /// closed, opening and wider poses' head images select their resume, and every other word selects the default.
     /// </summary>
-    internal static void VerifyKraidGrowthResumeCases(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidGrowthResumeCases(CartridgeImportAddressSpace rom)
     {
         var native = new KraidHeadNativeCursors(CartridgeImportSource.Require(rom));
         var selected = new Dictionary<ushort, KraidHeadGrowthResume>

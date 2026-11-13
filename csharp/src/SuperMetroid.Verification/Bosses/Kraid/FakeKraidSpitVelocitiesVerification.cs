@@ -8,16 +8,16 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class FakeKraidSpitVelocitiesVerification
 {
     /// <summary>Compares the native X velocity words across both facings and projectile ordinals.</summary>
-    internal static void VerifyFakeKraidSpitHorizontalVelocity(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyFakeKraidSpitHorizontalVelocity(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyFakeKraidSpitVelocityField), () => VerifyFakeKraidSpitVelocityField(rom, 0, launch => launch.X.RawValue));
 
     /// <summary>Compares the native Y velocity words across both facings and projectile ordinals.</summary>
-    internal static void VerifyFakeKraidSpitVerticalVelocity(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyFakeKraidSpitVerticalVelocity(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyFakeKraidSpitVelocityField), () => VerifyFakeKraidSpitVelocityField(rom, 2, launch => launch.Y.RawValue));
 
     /// <summary>Checks one velocity field against bank-$A6 words and rejects unsupported projectile ordinals.</summary>
     private static void VerifyFakeKraidSpitVelocityField(
-        SuperMetroidAddressSpace rom, int fieldOffset, Func<EightEightVector<RoomPixels>, ushort> select)
+        CartridgeImportAddressSpace rom, int fieldOffset, Func<EightEightVector<RoomPixels>, ushort> select)
     {
         foreach (bool right in new[] { false, true })
         {

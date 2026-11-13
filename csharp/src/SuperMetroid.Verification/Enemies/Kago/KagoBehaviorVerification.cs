@@ -44,7 +44,7 @@ internal static class KagoBehaviorVerification
     [VerificationCommand("--kago-instruction-mechanics")]
     internal static int KagoInstructionMechanicsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyKagoBehavior), () => VerifyKagoBehavior());
         Suite(nameof(KagoAnimationsVerification.VerifyKagoAnimations), () => KagoAnimationsVerification.VerifyKagoAnimations(rom));
         return 0;

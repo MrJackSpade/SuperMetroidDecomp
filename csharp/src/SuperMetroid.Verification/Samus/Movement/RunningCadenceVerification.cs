@@ -17,7 +17,7 @@ internal static class RunningCadenceVerification
     /// Checks every authored cadence's delays and restart countdowns against the cartridge's, the unauthored cadence's
     /// residue reads, and the production stage interceptor over every counter it can hold.
     /// </summary>
-    internal static void VerifyRunningCadence(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
+    internal static void VerifyRunningCadence(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertSequenceEqual(SamusRunningCadenceCodec.OrdinaryDelays(cartridge), SamusRunningCadenceDefinitions.OrdinaryDelays, "ordinary running delays");

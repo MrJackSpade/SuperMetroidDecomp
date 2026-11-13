@@ -64,7 +64,7 @@ internal static class StokeBehaviorVerification
     [VerificationCommand("--stoke-instruction-mechanics")]
     internal static int StokeBehaviorCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyStokeBehavior), () => VerifyStokeBehavior());
         Suite(nameof(StokeAnimationsVerification.VerifyStokeAnimations), () => StokeAnimationsVerification.VerifyStokeAnimations(rom));
         return 0;

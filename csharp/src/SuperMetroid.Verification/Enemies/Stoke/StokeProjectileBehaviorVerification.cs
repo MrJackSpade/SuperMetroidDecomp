@@ -14,7 +14,7 @@ namespace SuperMetroid.Verification.Enemies.Stoke;
 internal static class StokeProjectileBehaviorVerification
 {
     /// <summary>The projectile's definition starts the typed loop, which matches the native list update for update.</summary>
-    internal static void VerifyStokeProjectileBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyStokeProjectileBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, StokeProjectileNativeListAddresses.Extent, "Stoke projectile");
@@ -34,7 +34,7 @@ internal static class StokeProjectileBehaviorVerification
     [VerificationCommand("--stoke-projectile-programs")]
     internal static int StokeProjectileProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(StokeProjectileAnimationsVerification.VerifyStokeProjectileAnimations), () => StokeProjectileAnimationsVerification.VerifyStokeProjectileAnimations(rom));
         Suite(nameof(VerifyStokeProjectileBehavior), () => VerifyStokeProjectileBehavior(rom));
         return 0;

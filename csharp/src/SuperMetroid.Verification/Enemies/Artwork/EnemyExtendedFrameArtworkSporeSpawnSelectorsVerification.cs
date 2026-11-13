@@ -18,7 +18,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
     /// operands, even through Spore Spawn's long fight and death programs.
     /// </summary>
     internal static void VerifyInstalledSporeSpawnSelectorPrograms(
-        SuperMetroidAddressSpace rom,
+        CartridgeImportAddressSpace rom,
         ImportEnemyArtwork stock)
     {
         AssertTrue(stock.Enemies.Spritemaps is not null && stock.Enemies.ExtendedFrames is not null,
@@ -70,7 +70,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
     /// frames, and relevant state; palette, sound, and particles have separate fixtures.
     /// </summary>
     internal static List<SporeSpawnProgramFrame> ReadReferenceSporeSpawnProgram(
-        SuperMetroidAddressSpace rom, ushort initial, int frames, HashSet<ushort> selectors)
+        CartridgeImportAddressSpace rom, ushort initial, int frames, HashSet<ushort> selectors)
     {
         ushort Read(int address) => ReadSporeSpawnProgramWord(rom, unchecked((ushort)address));
         ushort instruction = initial, timer = 1, loop = 0, visual = 0;

@@ -76,7 +76,7 @@ internal static class RetailKraidCaptureTests
                 && boss.DisplayedHeadFrame is { InvulnerableShape: not null }) && waiting++ < 1400)
                 runtime.StepFrame(0);
             if (waiting >= 1400) throw new InvalidOperationException("Kraid never opened its mouth.");
-            StrikeMouth(bus, runtime, body, boss);
+            StrikeMouth(runtime, body, boss);
             runtime.StepFrame(0);
         }
         int growthSamples = 0;
@@ -108,7 +108,7 @@ internal static class RetailKraidCaptureTests
         // Shorten combat only, as in the established runtime audit. The lethal hit
         // still runs collision and initializes the real death coroutine.
         body.Health = 100;
-        StrikeMouth(bus, runtime, body, boss);
+        StrikeMouth(runtime, body, boss);
         if (body.Health != 0 || BodyFunction() != KraidAiFunction.DeathInitialize)
             throw new InvalidOperationException("Kraid lethal hit did not start death.");
         int deathSamples = 0;
@@ -182,7 +182,7 @@ internal static class RetailKraidCaptureTests
     }
 
     /// <summary>Stages an audit missile at Kraid's active mouth hitbox and uses production collision.</summary>
-    private static void StrikeMouth(ISnesAddressSpace bus, SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState boss)
+    private static void StrikeMouth(SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState boss)
     {
         // Match the established audit: stage a missile at the open-mouth hitbox, then use
         // the real collision/damage dispatcher to initiate growth. Resolve the shape exactly
@@ -201,7 +201,7 @@ internal static class RetailKraidCaptureTests
         // Kraid's collision walk starts at the native projectile count; one staged shot is count one.
         shots.SlotTable.ProjectileCounter = 1;
         // The native walk counts one missile in both its mouth and body passes (#1192, #1247).
-        if (runtime.Enemies.ResolveKraidProjectileHits(bus, shots, InstalledFixtures.CreateBombSystem()) == 0)
+        if (runtime.Enemies.ResolveKraidProjectileHits(shots, InstalledFixtures.CreateBombSystem()) == 0)
             throw new InvalidOperationException("Kraid growth fixture failed to land its staged missile.");
     }
 }

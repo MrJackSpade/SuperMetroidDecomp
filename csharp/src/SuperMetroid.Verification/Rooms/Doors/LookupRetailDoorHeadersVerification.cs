@@ -17,7 +17,7 @@ namespace SuperMetroid.Verification.Rooms.Doors;
 internal static class LookupRetailDoorHeadersVerification
 {
     /// <summary>Runs the full set of focused retail door-header field comparisons.</summary>
-    internal static void VerifyRetailDoorHeaders(SuperMetroidAddressSpace rom)
+    internal static void VerifyRetailDoorHeaders(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyDoorHeaderIdentities), () => VerifyDoorHeaderIdentities());
         Suite(nameof(VerifyDoorHeaderDestinationRoomPointer), () => VerifyDoorHeaderDestinationRoomPointer(rom));
@@ -67,28 +67,28 @@ internal static class LookupRetailDoorHeadersVerification
     }
 
     /// <summary>Matches each door's two-byte destination room pointer at record offset zero.</summary>
-    private static void VerifyDoorHeaderDestinationRoomPointer(SuperMetroidAddressSpace rom) =>
+    private static void VerifyDoorHeaderDestinationRoomPointer(CartridgeImportAddressSpace rom) =>
         VerifyDoorHeaderField<int>(rom, 0, 2, raw => raw, header => RoomHeaderDefinitions.PointerOf(header.DestinationRoom));
     /// <summary>The orientation byte at offset three decodes to the compiled direction and closing behavior.</summary>
-    private static void VerifyDoorHeaderOrientation(SuperMetroidAddressSpace rom) =>
+    private static void VerifyDoorHeaderOrientation(CartridgeImportAddressSpace rom) =>
         VerifyDoorHeaderField(rom, 3, 1, raw => DoorRecordCodec.DecodeOrientation(checked((byte)raw)), header => header.Orientation);
     /// <summary>Matches the door PLM's horizontal block coordinate at offset four.</summary>
-    private static void VerifyDoorHeaderObjectX(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 4, 1, raw => raw, header => header.RoomObjectBlock.X);
+    private static void VerifyDoorHeaderObjectX(CartridgeImportAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 4, 1, raw => raw, header => header.RoomObjectBlock.X);
     /// <summary>Matches the door PLM's vertical block coordinate at offset five.</summary>
-    private static void VerifyDoorHeaderObjectY(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 5, 1, raw => raw, header => header.RoomObjectBlock.Y);
+    private static void VerifyDoorHeaderObjectY(CartridgeImportAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 5, 1, raw => raw, header => header.RoomObjectBlock.Y);
     /// <summary>Matches the destination screen's horizontal coordinate at offset six.</summary>
-    private static void VerifyDoorHeaderDestinationScreenX(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 6, 1, raw => raw, header => header.DestinationScreen.X);
+    private static void VerifyDoorHeaderDestinationScreenX(CartridgeImportAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 6, 1, raw => raw, header => header.DestinationScreen.X);
     /// <summary>Matches the destination screen's vertical coordinate at offset seven.</summary>
-    private static void VerifyDoorHeaderDestinationScreenY(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 7, 1, raw => raw, header => header.DestinationScreen.Y);
+    private static void VerifyDoorHeaderDestinationScreenY(CartridgeImportAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 7, 1, raw => raw, header => header.DestinationScreen.Y);
     /// <summary>The two-byte Samus-distance word at offset eight decodes to the compiled push speed.</summary>
-    private static void VerifyDoorHeaderSamusSpeed(SuperMetroidAddressSpace rom) =>
+    private static void VerifyDoorHeaderSamusSpeed(CartridgeImportAddressSpace rom) =>
         VerifyDoorHeaderField(rom, 8, 2, raw => DoorRecordCodec.DecodeSamusSpeed(checked((ushort)raw)), header => header.SamusSpeed);
 
     /// <summary>
     /// The setup word at offset ten names the compiled setup routine, and only the Ceres elevator shaft's routine
     /// selects the turning-floor view.
     /// </summary>
-    private static void VerifyDoorHeaderSetupRoutine(SuperMetroidAddressSpace rom)
+    private static void VerifyDoorHeaderSetupRoutine(CartridgeImportAddressSpace rom)
     {
         VerifyDoorHeaderField(rom, 10, 2,
             raw => DoorIdentityWords.SetupRoutines.Decode(checked((ushort)raw), "door setup routine"), header => header.SetupCode);
@@ -101,7 +101,7 @@ internal static class LookupRetailDoorHeadersVerification
     }
 
     /// <summary>Reads one physical field for every door, decodes it, and compares the compiled typed projection.</summary>
-    private static void VerifyDoorHeaderField<T>(SuperMetroidAddressSpace rom, int offset, int width,
+    private static void VerifyDoorHeaderField<T>(CartridgeImportAddressSpace rom, int offset, int width,
         Func<int, T> decode, Func<DoorDefinition, T> field)
     {
         foreach (ushort pointer in EnumerateRetailDoorPointers())

@@ -45,7 +45,7 @@ internal static class XrayScopeDefinitionsVerification
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         TouchRange(bus, XrayScopeDefinitions.Palette.VisorWords,
             XrayScopeDefinitions.Palette.FullCycleEndShade * sizeof(ushort),
             "X-ray visor palette words");

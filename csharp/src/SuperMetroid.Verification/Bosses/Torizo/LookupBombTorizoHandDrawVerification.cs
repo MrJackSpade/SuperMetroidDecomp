@@ -16,14 +16,14 @@ namespace SuperMetroid.Verification.Bosses.Torizo;
 internal static class LookupBombTorizoHandDrawVerification
 {
     /// <summary>Checks both hand layouts' run geometry and pointer/name domain.</summary>
-    internal static void VerifyBombTorizoHandDrawGeometry(SuperMetroidAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 0);
+    internal static void VerifyBombTorizoHandDrawGeometry(CartridgeImportAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 0);
     /// <summary>Checks the collision kind of every hand draw block against the decoded cartridge block.</summary>
-    internal static void VerifyBombTorizoHandDrawCollision(SuperMetroidAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 1);
+    internal static void VerifyBombTorizoHandDrawCollision(CartridgeImportAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 1);
     /// <summary>Checks the appearance of every hand draw block against the decoded cartridge block.</summary>
-    internal static void VerifyBombTorizoHandDrawVisuals(SuperMetroidAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 2);
+    internal static void VerifyBombTorizoHandDrawVisuals(CartridgeImportAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 2);
 
     /// <summary>Compares the selected draw field across decoded native blocks, descriptors, and exported artwork records.</summary>
-    private static void VerifyBombTorizoHandDrawField(SuperMetroidAddressSpace rom, int field)
+    private static void VerifyBombTorizoHandDrawField(CartridgeImportAddressSpace rom, int field)
     {
         ushort[] pointers = [0x9877,0x989d];
         string[] ids = ["intact","cleared"];

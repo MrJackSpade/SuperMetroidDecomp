@@ -9,19 +9,19 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class KraidDefeatedObjectMappingsVerification
 {
     /// <summary>Compares the native block-column bytes for both post-fight PLM operations.</summary>
-    internal static void VerifyKraidDefeatedObjectColumns(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidDefeatedObjectColumns(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyKraidDefeatedObjectField), () => VerifyKraidDefeatedObjectField(rom, 0, request => request.Block.X));
 
     /// <summary>Compares the native block-row bytes for both post-fight PLM operations.</summary>
-    internal static void VerifyKraidDefeatedObjectRows(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidDefeatedObjectRows(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyKraidDefeatedObjectField), () => VerifyKraidDefeatedObjectField(rom, 1, request => request.Block.Y));
 
     /// <summary>Compares the native two-byte PLM header identities for both post-fight operations.</summary>
-    internal static void VerifyKraidDefeatedObjectHeaders(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidDefeatedObjectHeaders(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyKraidDefeatedObjectField), () => VerifyKraidDefeatedObjectField(rom, 2, request => KraidNativeWords.RoomMutations.Word(request.RoomObject)));
 
     /// <summary>Checks the selected field in native request order and rejects indexes outside the two operations.</summary>
-    private static void VerifyKraidDefeatedObjectField(SuperMetroidAddressSpace rom, int offset,
+    private static void VerifyKraidDefeatedObjectField(CartridgeImportAddressSpace rom, int offset,
         Func<RoomObjectSpawnRequest<KraidRoomMutation>, ushort> field)
     {
         int[] arguments = [0xa7c16c, 0xa7c175];

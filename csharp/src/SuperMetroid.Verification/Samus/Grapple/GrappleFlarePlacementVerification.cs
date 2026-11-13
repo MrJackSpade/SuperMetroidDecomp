@@ -27,7 +27,7 @@ using SuperMetroid.Core.Gameplay;
 internal static class GrappleFlarePlacementVerification
 {
     /// <summary>Exercises authored launch poses and live artwork rebinding while comparing extracted and installed Samus state.</summary>
-    internal static void VerifyGrappleFlarePlacement(SuperMetroidAddressSpace rom)
+    internal static void VerifyGrappleFlarePlacement(CartridgeImportAddressSpace rom)
     {
         byte[] json = GrappleFlarePlacementExtractor.Extract(rom);
         var stock = ChargeFlarePlacementFile.LoadGrapple(new MemoryStream(json));

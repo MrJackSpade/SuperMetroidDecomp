@@ -14,7 +14,7 @@ using SuperMetroid.Core.World;
 internal static class RidleyPogoDefinitionsVerification
 {
     /// <summary>Compares native path and acceleration records across all seed, health, and prior-speed combinations.</summary>
-    internal static void VerifyCompiledRidleyPogo(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledRidleyPogo(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyRidleyAttackTimerRandomReads), () => VerifyRidleyAttackTimerRandomReads());
         var reference = new RidleyPogoDefinitionsReference[4, 6];

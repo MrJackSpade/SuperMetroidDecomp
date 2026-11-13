@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Cacatac;
 internal static class CacatacAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyCacatacAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyCacatacAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             CacatacAnimations.Segments, CacatacAnimations.StartingAt, CacatacFrameToolingDefinitions.Spritemap,

@@ -19,7 +19,7 @@ internal static class SkreeMetareeParticleBehaviorVerification
     /// Each burst spawns four particles of its family on that family's typed program, keeping the definition's contact
     /// damage; every particle matches its native list update for update, drawing the composition the native operand names.
     /// </summary>
-    internal static void VerifySkreeMetareeParticleBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifySkreeMetareeParticleBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, SkreeMetareeParticleNativeListAddresses.Extent, "Skree/Metaree particle");
@@ -68,7 +68,7 @@ internal static class SkreeMetareeParticleBehaviorVerification
     [VerificationCommand("--skree-metaree-particle-programs")]
     internal static int SkreeMetareeParticleProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(SkreeMetareeParticleAnimationsVerification.VerifySkreeMetareeParticleAnimations),
             () => SkreeMetareeParticleAnimationsVerification.VerifySkreeMetareeParticleAnimations(rom));
         Suite(nameof(VerifySkreeMetareeParticleBehavior), () => VerifySkreeMetareeParticleBehavior(rom));

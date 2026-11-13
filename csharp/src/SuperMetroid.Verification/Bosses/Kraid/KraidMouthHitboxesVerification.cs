@@ -15,7 +15,7 @@ using SuperMetroid.Core.World;
 internal static class KraidMouthHitboxesVerification
 {
     /// <summary>Checks head-program pointers, rectangle boundaries, all lower-half starts, and rejection of unrelated cartridge pointers.</summary>
-    internal static void VerifyKraidMouthHitboxes(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidMouthHitboxes(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyKraidMouthShapeCases), () => VerifyKraidMouthShapeCases(rom));
         ushort Word(int a) => LittleEndianBytes.Word(KraidMouthHitboxesBusByte(rom, a), KraidMouthHitboxesBusByte(rom, a + 1));
@@ -72,14 +72,14 @@ internal static class KraidMouthHitboxesVerification
     }
 
     /// <summary>
-    /// Independent CPU-bus oracle for Kraid mouth geometry: retail cartridge bytes, and for
-    /// pointers below $8000 the live low-WRAM mirror or the unmapped-window rejection that
-    /// bank $A7's lower half selects.
+    /// Independent CPU-bus oracle for Kraid mouth geometry: retail cartridge bytes, rejecting every address bank $A7's
+    /// lower half selects, since the import maps no work RAM (#1688).
     /// </summary>
-    private static byte KraidMouthHitboxesBusByte(SuperMetroidAddressSpace rom, int address) =>
+    private static byte KraidMouthHitboxesBusByte(CartridgeImportAddressSpace rom, int address) =>
         SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
         {
-            SnesDmaSourceKind.WorkRam => rom.ReadWorkRamByte(address),
+            SnesDmaSourceKind.WorkRam => throw new InvalidOperationException(
+                $"CPU read ${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4} is work RAM, which the import does not map."),
             SnesDmaSourceKind.Cartridge => rom.ReadCartridgeByte(address),
             SnesDmaSourceKind.Unmapped => throw new InvalidOperationException(
                 $"CPU read ${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4} is outside the runtime address map."),

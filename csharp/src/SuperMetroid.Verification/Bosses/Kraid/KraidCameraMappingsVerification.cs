@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class KraidCameraMappingsVerification
 {
     /// <summary>Checks the two LDA immediate pairs that initialize Kraid's screen scrolls, including invalid indexes.</summary>
-    internal static void VerifyKraidInitialScrollMapping(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidInitialScrollMapping(CartridgeImportAddressSpace rom)
     {
         // Read the two LDA immediate operands stored to Scrolls and Scrolls+2.
         int[] operandAddresses = [0xa7a9eb, 0xa7a9ec, 0xa7a9f2, 0xa7a9f3];
@@ -24,7 +24,7 @@ internal static class KraidCameraMappingsVerification
     private static byte KraidInitialScrollMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the grown-phase screen scroll bytes and preserves four-screen index bounds.</summary>
-    internal static void VerifyKraidGrownScrollMapping(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidGrownScrollMapping(CartridgeImportAddressSpace rom)
     {
         int[] operandAddresses = [0xa7c0a8, 0xa7c0a9, 0xa7c0af, 0xa7c0b0];
         AssertEqual(operandAddresses.Length, KraidCameraDefinitions.ScreenCount, "Kraid grown screen count");

@@ -28,7 +28,7 @@ using SuperMetroid.Core.World;
 internal static class EyeDoorObjectDrawDefinitionsVerification
 {
     /// <summary>Checks both eye-door orientations from compiled draw data through opening and room reload.</summary>
-    internal static void VerifyEyeDoorObjectDrawDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyEyeDoorObjectDrawDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyEyeDoorVisualIds), () => VerifyEyeDoorVisualIds());
         Suite(nameof(VerifyEyeDoorProgramDefinitions), () => VerifyEyeDoorProgramDefinitions(rom));
@@ -51,7 +51,7 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
     }
 
     /// <summary>Checks eye-door instruction control, timing, draw, callback, and hit-count words.</summary>
-    private static void VerifyEyeDoorProgramDefinitions(SuperMetroidAddressSpace rom)
+    private static void VerifyEyeDoorProgramDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(RoomObjectProgramsVerification.VerifyEyeDoorPrograms), () => RoomObjectProgramsVerification.VerifyEyeDoorPrograms(rom));
     }
@@ -100,7 +100,7 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
 
     /// <summary>Runs a retail eye-door program through Super Missile opening and reopened-room conversion.</summary>
     private static void VerifyEyeDoorRetailProgramPath(
-        SuperMetroidAddressSpace rom,
+        CartridgeImportAddressSpace rom,
         EyeDoorOrientation orientation,
         RoomObjectShotBlockDrawDefinitions.DrawList[] lists)
     {
@@ -188,7 +188,7 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
     private static byte EyeDoorRetailProgramPathRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
-    private static void VerifyEyeDoorVisualInstallation(SuperMetroidAddressSpace rom)
+    private static void VerifyEyeDoorVisualInstallation(CartridgeImportAddressSpace rom)
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectEyeDoorVisualDirectory);
         GameInstallation installation = copy.Installation;

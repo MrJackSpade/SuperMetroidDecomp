@@ -54,7 +54,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 internal static class RoomObjectPopulationVerification
 {
     /// <summary>Compares the elevator control list, draw selection and collision layouts against the retail cartridge.</summary>
-    internal static void VerifyElevatorPlatformObjectDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyElevatorPlatformObjectDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyElevatorPlatformControls), () => VerifyElevatorPlatformControls(rom));
         Suite(nameof(VerifyElevatorPlatformDrawSelection), () => VerifyElevatorPlatformDrawSelection(rom));
@@ -71,7 +71,7 @@ internal static class RoomObjectPopulationVerification
     /// The typed platform's loop plays as its native list does (#1554): each layout's updates and draw in order, then the
     /// goto back to the list's start.
     /// </summary>
-    private static void VerifyElevatorPlatformCycle(SuperMetroidAddressSpace rom)
+    private static void VerifyElevatorPlatformCycle(CartridgeImportAddressSpace rom)
     {
         const ushort loop = 0xafb6;
         var cartridge = CartridgeImportSource.Require(rom);
@@ -87,15 +87,15 @@ internal static class RoomObjectPopulationVerification
     }
 
     /// <summary>Compares every closing-door orientation's compiled header against the bank-$8F table.</summary>
-    private static void VerifyFallbackDoorHeaders(SuperMetroidAddressSpace rom) => VerifyFallbackDoorField(rom, false);
+    private static void VerifyFallbackDoorHeaders(CartridgeImportAddressSpace rom) => VerifyFallbackDoorField(rom, false);
     /// <summary>Compares the selected resident door's initial list with its bank-$84 header word.</summary>
-    private static void VerifyFallbackDoorLists(SuperMetroidAddressSpace rom) => VerifyFallbackDoorField(rom, true);
+    private static void VerifyFallbackDoorLists(CartridgeImportAddressSpace rom) => VerifyFallbackDoorField(rom, true);
 
     /// <summary>Entries in <c>Door_Closing_PLMs</c> ($8F:E68A), the orientation byte's domain.</summary>
     private const byte DoorClosingTableEntries = 12;
 
     /// <summary>Checks all orientation bytes, including out-of-table rejection, against either headers or first-list words.</summary>
-    private static void VerifyFallbackDoorField(SuperMetroidAddressSpace rom, bool list)
+    private static void VerifyFallbackDoorField(CartridgeImportAddressSpace rom, bool list)
     {
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
@@ -124,7 +124,7 @@ internal static class RoomObjectPopulationVerification
     }
 
     /// <summary>Checks compiled door-closing definitions and their admission through actual door PLM allocation.</summary>
-    internal static void VerifyDoorClosingObjectDefinitions(SuperMetroidAddressSpace rom, bool fallbackOnly = false)
+    internal static void VerifyDoorClosingObjectDefinitions(CartridgeImportAddressSpace rom, bool fallbackOnly = false)
     {
 
         Suite(nameof(VerifyFallbackDoorHeaders), () => VerifyFallbackDoorHeaders(rom));
@@ -178,7 +178,7 @@ internal static class RoomObjectPopulationVerification
     /// then runs the real room-population load and transition redirect with that source word absent from the sparse bus.
     /// A room object at the door that has no closing fails loudly.
     /// </summary>
-    internal static void VerifyResidentDoorClosingDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyResidentDoorClosingDefinitions(CartridgeImportAddressSpace rom)
     {
         ushort[] headers = [0xbaf4,0xc842,0xc848,0xc84e,0xc854,0xc85a,0xc860,0xc866,0xc86c,
             0xc872,0xc878,0xc87e,0xc884,0xc88a,0xc890,0xc896,0xc89c,0xc8ca,0xdb4c,0xdb5a];
@@ -259,7 +259,7 @@ internal static class RoomObjectPopulationVerification
 
     /// <summary>Compares the three Speed Booster escape stages with retail control data and their runtime handoffs.</summary>
     internal static void VerifySpeedBoosterEscapeStageDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         Suite(nameof(RoomObjectProgramsVerification.VerifySpeedBoosterEscapePrograms), () => RoomObjectProgramsVerification.VerifySpeedBoosterEscapePrograms(rom));
         Suite(nameof(VerifySpeedEscapeStageTargets), () => VerifySpeedEscapeStageTargets(rom));
@@ -559,7 +559,7 @@ internal static class RoomObjectPopulationVerification
 
         SeedObjectProgramWords(bus, unchecked((ushort)(RoomObjectNativeWords.Word(RoomObjectHeaderId.WreckedShipAttic) + 2)),
             RoomObjectNativeListAddresses.WreckedShipAtticList);
-        SuperMetroidAddressSpace? rom = File.Exists("Super Metroid.smc")
+        CartridgeImportAddressSpace? rom = File.Exists("Super Metroid.smc")
             ? SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")
             : null;
         if (rom is not null)
@@ -942,7 +942,7 @@ internal static class RoomObjectPopulationVerification
 
     /// <summary>Compares the Mother Brain escape gate's compiled program, drawing and collision data with retail words.</summary>
     internal static void VerifyMotherBrainEscapeGateCompiledDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyEscapeGateChanges), () => VerifyEscapeGateChanges(rom));
         Suite(nameof(VerifyEscapeGateProgramControls), () => VerifyEscapeGateProgramControls(rom));
@@ -952,7 +952,7 @@ internal static class RoomObjectPopulationVerification
     }
 
     /// <summary>The escape gate's shut and closing changes play as their native lists do (#1554).</summary>
-    private static void VerifyEscapeGateChanges(SuperMetroidAddressSpace rom)
+    private static void VerifyEscapeGateChanges(CartridgeImportAddressSpace rom)
     {
         var cartridge = CartridgeImportSource.Require(rom);
         int frames = NativeTerrainChanges.Compare(cartridge, MotherBrainEscapeGateDefinitions.Shut, DoorObjectNativeListAddresses.EscapeGateShut,
@@ -1051,7 +1051,7 @@ internal static class RoomObjectPopulationVerification
     private static void VerifyShaktoolRoomObject()
     {
         var bus = new TestAddressSpace();
-        SuperMetroidAddressSpace? rom = File.Exists("Super Metroid.smc")
+        CartridgeImportAddressSpace? rom = File.Exists("Super Metroid.smc")
             ? SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")
             : null;
         for (int index = 0; index < 3; index++)

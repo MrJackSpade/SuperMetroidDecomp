@@ -31,7 +31,7 @@ using SuperMetroid.Core.Progression;
 internal static class EnemyProjectileDefinitionsVerification
 {
     /// <summary>Walks 123 native records, then checks initialization, Samus touch, and projectile shot handoffs.</summary>
-    internal static void VerifyEnemyProjectileDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyEnemyProjectileDefinitions(CartridgeImportAddressSpace rom)
     {
         RoomEnemyProjectileKind[] kinds = Enum.GetValues<RoomEnemyProjectileKind>()
             .Where(kind => kind != RoomEnemyProjectileKind.None)
@@ -510,7 +510,7 @@ internal static class EnemyProjectileDefinitionsVerification
     /// and returns the record bytes, which the runtime must then never reread.
     /// </summary>
     private static HashSet<int> VerifyEnemyProjectileDefinitionRecords(
-        SuperMetroidAddressSpace rom, RoomEnemyProjectileKind[] kinds)
+        CartridgeImportAddressSpace rom, RoomEnemyProjectileKind[] kinds)
     {
 
         var forbidden = new HashSet<int>();

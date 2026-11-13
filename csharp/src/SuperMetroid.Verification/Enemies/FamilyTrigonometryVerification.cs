@@ -16,7 +16,7 @@ namespace SuperMetroid.Verification.Enemies;
 internal static class FamilyTrigonometryVerification
 {
     /// <summary>Compares all 256 signed sine samples and Bull's production lookup with retail words.</summary>
-    internal static void VerifySignedSixteenBitSineDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySignedSixteenBitSineDefinitions(CartridgeImportAddressSpace rom)
     {
         Func<byte, int> bullSample = angle => BullBehavior.ReadBullSignedSine(new TrigonometryAngle(angle));
         for (int angle = 0; angle < 256; angle++)
@@ -32,7 +32,7 @@ internal static class FamilyTrigonometryVerification
     private static byte SignedSixteenBitSineDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks boundary-word Maw products, Bull movement, and linked Shaktool segment placement without runtime ROM reads.</summary>
-    internal static void VerifyCompiledFamilyTrigonometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledFamilyTrigonometry(CartridgeImportAddressSpace rom)
     {
         short Read(int address) => unchecked((short)(LittleEndianBytes.Word(CompiledFamilyTrigonometryRomByte(rom, address), CompiledFamilyTrigonometryRomByte(rom, address + 1))));
         short[] native = Enumerable.Range(0, 256)

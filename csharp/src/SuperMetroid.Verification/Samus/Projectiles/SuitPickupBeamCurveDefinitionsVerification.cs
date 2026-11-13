@@ -17,7 +17,7 @@ internal static class SuitPickupBeamCurveDefinitionsVerification
     /// authored reach at the middle line, <see cref="SuitPickupBeamDefinitions.CurveWidth"/>, is the retail contour's
     /// widest offset, and that the contour narrows to its smallest offset at the beam's top line.
     /// </summary>
-    internal static void VerifySuitPickupBeamCurveDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySuitPickupBeamCurveDefinitions(CartridgeImportAddressSpace rom)
     {
         byte[] contour = new byte[ContourOffsets];
         for (int index = 0; index < contour.Length; index++)

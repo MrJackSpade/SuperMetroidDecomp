@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.Elevator;
 internal static class LookupElevatorPlatformStockVerification
 {
     /// <summary>Compares the three platform frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections (#1557).</summary>
-    internal static void VerifyElevatorPlatformStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyElevatorPlatformStockMapping(CartridgeImportAddressSpace rom,
         InstalledRoomObjectElevatorPlatformVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0xaa97,"first-frame"),new LookupEscapeGateStockFrame(0xaaaf,"second-frame"),new LookupEscapeGateStockFrame(0xaac7,"third-frame")];

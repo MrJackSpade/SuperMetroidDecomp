@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class KraidNailContourVerification
 {
     /// <summary>Runs signed edge and velocity probes, including reads into adjacent contour words.</summary>
-    internal static void VerifyKraidNailContour(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidNailContour(CartridgeImportAddressSpace rom)
     {
         ushort Word(int a) => LittleEndianBytes.Word(KraidNailContourRomByte(rom, a), KraidNailContourRomByte(rom, a + 1));
         Suite(nameof(VerifyKraidNailLeftOffsets), () => VerifyKraidNailLeftOffsets(rom));

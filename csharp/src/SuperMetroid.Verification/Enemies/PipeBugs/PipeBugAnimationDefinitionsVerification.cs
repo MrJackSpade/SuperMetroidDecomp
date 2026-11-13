@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.PipeBugs;
 internal static class PipeBugAnimationDefinitionsVerification
 {
     /// <summary>Compares eight native list pointers and verifies selection resets both instruction timers.</summary>
-    internal static void VerifyPipeBugAnimationDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyPipeBugAnimationDefinitions(CartridgeImportAddressSpace rom)
     {
         const int normalTable = 0xb3882b;
         const int strongTable = 0xb38833;

@@ -26,7 +26,7 @@ internal static class GrappleConnectionDefinitionsVerification
         SamusGrappleState grapple, Position16<RoomPixels> previous, out GrappleMovementResult result);
 
     /// <summary>Checks authored connection words and exact address ownership, then exercises normal, special-angle, cancellation, and drop dispatch.</summary>
-    internal static void VerifyGrappleConnectionDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyGrappleConnectionDefinitions(CartridgeImportAddressSpace rom)
     {
         // Combine two adjacent retail bytes into a bank-$9B reference word.
         ushort Word(int address) => LittleEndianBytes.Word(GrappleConnectionDefinitionsRomByte(rom, address), GrappleConnectionDefinitionsRomByte(rom, address + 1));
@@ -55,7 +55,7 @@ internal static class GrappleConnectionDefinitionsVerification
     private static byte GrappleConnectionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks accepted grapple connections across authored movement, aim, vertical-speed, and anchor-owner states with compiled reads forbidden.</summary>
-    private static void VerifyGrappleConnectionDispatch(SuperMetroidAddressSpace rom)
+    private static void VerifyGrappleConnectionDispatch(CartridgeImportAddressSpace rom)
     {
         // Read the native function, handler, or pose word used as a dispatch oracle.
         ushort Word(int address) => LittleEndianBytes.Word(GrappleConnectionDispatchRomByte(rom, address), GrappleConnectionDispatchRomByte(rom, address + 1));
@@ -111,7 +111,7 @@ internal static class GrappleConnectionDefinitionsVerification
     private static byte GrappleConnectionDispatchRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks eight native special-angle rows, exact 16-bit angle matches, wrapped body offsets, phase changes, and camera clamps.</summary>
-    private static void VerifyGrappleSpecialConnections(SuperMetroidAddressSpace rom)
+    private static void VerifyGrappleSpecialConnections(CartridgeImportAddressSpace rom)
     {
         // Read one native special-angle record word from two cartridge bytes.
         ushort Word(int address) => LittleEndianBytes.Word(GrappleSpecialConnectionsRomByte(rom, address), GrappleSpecialConnectionsRomByte(rom, address + 1));
@@ -174,7 +174,7 @@ internal static class GrappleConnectionDefinitionsVerification
     private static byte GrappleSpecialConnectionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks firing cancellation and directional drop pose choices against native policy bytes for reachable poses and radius boundaries.</summary>
-    private static void VerifyGrappleCancellationAndDrop(SuperMetroidAddressSpace rom)
+    private static void VerifyGrappleCancellationAndDrop(CartridgeImportAddressSpace rom)
     {
         var cancel = new Func<RoomLevelData, SamusState, ControllerButton, GrappleMovementResult?>(SamusGrappleMovement.HandleFiringPoseChange);
         var drop = (ISnesAddressSpace memory, SamusState player) => SamusPoseNumbers.Number(SamusGrappleMovement.SelectDroppedPose(player));

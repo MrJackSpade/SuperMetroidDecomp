@@ -43,7 +43,7 @@ internal static class KraidMovementChoicesVerification
     }
 
     /// <summary>Compares native records and optionally follows the production thinking transition without advancing RNG.</summary>
-    internal static void VerifyKraidMovementChoices(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
+    internal static void VerifyKraidMovementChoices(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
     {
         ushort Word(int a) => LittleEndianBytes.Word(KraidMovementChoicesRomByte(rom, a), KraidMovementChoicesRomByte(rom, a + 1));
         var positions = new ushort[6];

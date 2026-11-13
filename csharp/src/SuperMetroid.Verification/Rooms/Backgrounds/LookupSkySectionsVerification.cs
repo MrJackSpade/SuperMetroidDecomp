@@ -67,7 +67,7 @@ internal static class LookupSkySectionsVerification
     }
 
     /// <summary>Decodes the cartridge's sky table.</summary>
-    private static CartridgeSky Decode(SuperMetroidAddressSpace rom)
+    private static CartridgeSky Decode(CartridgeImportAddressSpace rom)
     {
         int count = ReadVerificationWord(rom, LoopBound) / EntryBytes;
         AssertEqual(23, count, "Native sky loop bound");
@@ -87,7 +87,7 @@ internal static class LookupSkySectionsVerification
     /// cartridge's table gives it: its sixteen-bit row's entry's scroll word, or none at the table's fallback rows. A
     /// camera above the room's top, whose rows the table reads past row 65535, shows what the port's negative rows show.
     /// </summary>
-    internal static void VerifySkySectionTopPositions(SuperMetroidAddressSpace rom)
+    internal static void VerifySkySectionTopPositions(CartridgeImportAddressSpace rom)
     {
         CartridgeSky cartridge = Decode(rom);
         AssertEqual(cartridge.EndRow, ScrollingSkyBandDefinitions.EndRow, "Sky end row");
@@ -125,7 +125,7 @@ internal static class LookupSkySectionsVerification
     /// cartridge's scroll word for its rows reaches, each frozen frame shows every band unshifted and moves nothing, and
     /// the period ends with every band back where it started and not before.
     /// </summary>
-    internal static void VerifySkyBandDriftsOverFullPeriod(SuperMetroidAddressSpace rom)
+    internal static void VerifySkyBandDriftsOverFullPeriod(CartridgeImportAddressSpace rom)
     {
         CartridgeSky cartridge = Decode(rom);
         var sky = new ScrollingSkyState(ScrollingSkyChunkTable.Land);

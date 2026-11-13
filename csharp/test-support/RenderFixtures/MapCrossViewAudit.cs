@@ -21,7 +21,7 @@ internal static class MapCrossViewAudit
     /// <summary>Checks HUD cells and pause marker positions with and without each area's downloaded map.</summary>
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         int comparisonCount = 0;
         foreach (ushort roomPointer in MapCrossViewAuditDefinitions.RepresentativeRooms)
         {

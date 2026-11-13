@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Fx;
 internal static class LookupAnimatedAreasVerification
 {
     /// <summary>Matches all eight native list pointers and rejects area indices outside that table.</summary>
-    internal static void VerifyAnimatedAreaListPointers(SuperMetroidAddressSpace rom)
+    internal static void VerifyAnimatedAreaListPointers(CartridgeImportAddressSpace rom)
     {
         for (int area = 0; area < 8; area++)
             AssertEqual(ReadVerificationWord(rom, 0x83ac56 + 2 * area),
@@ -21,7 +21,7 @@ internal static class LookupAnimatedAreasVerification
     }
 
     /// <summary>Checks each area/bit selection and preserves the distinct native and retail validation order.</summary>
-    internal static void VerifyAnimatedAreaObjectSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyAnimatedAreaObjectSelection(CartridgeImportAddressSpace rom)
     {
         // A selection is a pure function of its area and bit, and the retail image is only read, so the areas are swept
         // across the cores (#1532).

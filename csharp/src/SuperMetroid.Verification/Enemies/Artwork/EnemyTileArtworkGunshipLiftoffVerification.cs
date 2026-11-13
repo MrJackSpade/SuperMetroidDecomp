@@ -21,7 +21,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
 {
     /// <summary>Compares transfer sources, destinations, and bytes with the installed frames.</summary>
     internal static void VerifyInstalledGunshipLiftoffArtwork(
-        SuperMetroidAddressSpace bus, ImportEnemyArtwork stock)
+        CartridgeImportAddressSpace bus, ImportEnemyArtwork stock)
     {
         GunshipLiftoffArtworkCatalog installed = stock.Enemies.GunshipLiftoff ??
             throw new InvalidDataException("Installed enemy art omitted gunship takeoff frames.");

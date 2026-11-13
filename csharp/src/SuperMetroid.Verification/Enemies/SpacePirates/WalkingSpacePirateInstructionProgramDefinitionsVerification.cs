@@ -23,7 +23,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
 
     /// <summary>Checks the typed programs against the cartridge and exercises every program and both three-laser attacks.</summary>
     internal static void VerifyWalkingSpacePirateInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         Suite(nameof(WalkingSpacePirateAnimationsVerification.VerifyWalkingSpacePirateAnimations), () => WalkingSpacePirateAnimationsVerification.VerifyWalkingSpacePirateAnimations(rom));
         Suite(nameof(VerifyProgram), () => VerifyProgram(

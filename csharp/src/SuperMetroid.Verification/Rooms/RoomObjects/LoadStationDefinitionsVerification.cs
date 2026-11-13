@@ -32,7 +32,7 @@ internal static class LoadStationDefinitionsVerification
     }
 
     /// <summary>Uses consecutive native pointer-table entries to derive one area's fourteen-byte record count.</summary>
-    private static int OriginalLoadStationCount(SuperMetroidAddressSpace rom, int area)
+    private static int OriginalLoadStationCount(CartridgeImportAddressSpace rom, int area)
     {
         // Original pointer table includes the debug-list start after Ceres; that
         // word is a boundary oracle, not an accepted eighth managed area.
@@ -46,7 +46,7 @@ internal static class LoadStationDefinitionsVerification
     /// Checks which native records are named: each named station is a record of its area's list, and a record that names a
     /// room is named unless it is a debug load point or a repeat of the Ceres start; lookups outside the named set find none.
     /// </summary>
-    private static void VerifyLoadStationDomain(SuperMetroidAddressSpace rom)
+    private static void VerifyLoadStationDomain(CartridgeImportAddressSpace rom)
     {
         int total = 0, named = 0;
         for (int areaNumber = 0; areaNumber < AreaNumberCodec.Count; areaNumber++)
@@ -79,7 +79,7 @@ internal static class LoadStationDefinitionsVerification
     }
 
     /// <summary>Checks each named station's room, door, camera and Samus placement against its native record.</summary>
-    private static void VerifyLoadStationPlacements(SuperMetroidAddressSpace rom)
+    private static void VerifyLoadStationPlacements(CartridgeImportAddressSpace rom)
     {
         foreach (LoadStation station in LoadStationDefinitions.All)
         {

@@ -24,7 +24,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
 
     /// <summary>Compares native words and executes four producers through display and terminal sleep.</summary>
     internal static void VerifyMotherBrainTopTubeInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         for (int index = 0;
              index < MotherBrainTopTubeInstructionProgramDefinitionsTooling.MechanicsWordCount;

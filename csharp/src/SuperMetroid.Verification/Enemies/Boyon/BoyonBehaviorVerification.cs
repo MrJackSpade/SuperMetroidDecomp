@@ -108,7 +108,7 @@ internal static class BoyonBehaviorVerification
     [VerificationCommand("--lookup-boyon-programs")]
     internal static int LookupBoyonProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyBoyonBehavior), () => VerifyBoyonBehavior());
         Suite(nameof(VerifyBoyonCurveIndexWrapsAtTheTop), () => VerifyBoyonCurveIndexWrapsAtTheTop());
         Suite(nameof(VerifyBoyonJumpHeightComparesByWordSign), () => VerifyBoyonJumpHeightComparesByWordSign());

@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.SpacePirates;
 internal static class WalkingSpacePirateAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyWalkingSpacePirateAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyWalkingSpacePirateAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             WalkingSpacePirateAnimations.Segments, WalkingSpacePirateAnimations.StartingAt, WalkingSpacePirateFrameToolingDefinitions.Spritemap,

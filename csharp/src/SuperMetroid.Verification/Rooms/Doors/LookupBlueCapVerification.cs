@@ -13,14 +13,14 @@ namespace SuperMetroid.Verification.Rooms.Doors;
 internal static class LookupBlueCapVerification
 {
     /// <summary>Checks pointer ownership, visual alias mapping, and native run geometry.</summary>
-    internal static void VerifyBlueCapGeometry(SuperMetroidAddressSpace rom) => VerifyBlueCapField(rom, 0);
+    internal static void VerifyBlueCapGeometry(CartridgeImportAddressSpace rom) => VerifyBlueCapField(rom, 0);
     /// <summary>Checks each frame's compiled collision nibble against native draw words.</summary>
-    internal static void VerifyBlueCapCollision(SuperMetroidAddressSpace rom) => VerifyBlueCapField(rom, 1);
+    internal static void VerifyBlueCapCollision(CartridgeImportAddressSpace rom) => VerifyBlueCapField(rom, 1);
     /// <summary>Checks each frame's metatile and flip bits against native draw words.</summary>
-    internal static void VerifyBlueCapVisuals(SuperMetroidAddressSpace rom) => VerifyBlueCapField(rom, 2);
+    internal static void VerifyBlueCapVisuals(CartridgeImportAddressSpace rom) => VerifyBlueCapField(rom, 2);
 
     /// <summary>Compares a selected field across sixteen editable frames and four visual aliases.</summary>
-    private static void VerifyBlueCapField(SuperMetroidAddressSpace rom, int field)
+    private static void VerifyBlueCapField(CartridgeImportAddressSpace rom, int field)
     {
         ushort[] pointers = [0xa9b3,0xa9bf,0xa9cb,0xa9d7,0xa9ef,0xa9fb,0xaa07,0xaa13,0xaa2b,0xaa37,0xaa43,0xaa4f,0xaa67,0xaa73,0xaa7f,0xaa8b,0xa9a7,0xa9e3,0xaa1f,0xaa5b];
         string[] ids = ["left-frame-0","left-frame-1","left-frame-2","left-frame-3","right-frame-0","right-frame-1","right-frame-2","right-frame-3","up-frame-0","up-frame-1","up-frame-2","up-frame-3","down-frame-0","down-frame-1","down-frame-2","down-frame-3","left-frame-0","right-frame-0","up-frame-0","down-frame-0"];

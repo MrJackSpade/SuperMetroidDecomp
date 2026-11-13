@@ -34,7 +34,7 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
     ];
 
     /// <summary>Checks 17 OAM identities, native part counts, iteration, and bounds.</summary>
-    internal static void VerifyMotherBrainGeneratedOamCatalog(SuperMetroidAddressSpace rom)
+    internal static void VerifyMotherBrainGeneratedOamCatalog(CartridgeImportAddressSpace rom)
     {
         AssertEqual(17, MotherBrainBodyVisualDefinitions.Frames.Length, "Mother Brain OAM count");
         for (int i = 0; i < OriginalMotherBrainFrames.Length; i++)
@@ -55,7 +55,7 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
     }
 
     /// <summary>Checks 16 BG2 frames, excluding the dummy, and parity of generated extraction JSON.</summary>
-    internal static void VerifyMotherBrainGeneratedBg2Catalog(SuperMetroidAddressSpace rom)
+    internal static void VerifyMotherBrainGeneratedBg2Catalog(CartridgeImportAddressSpace rom)
     {
         SpritemapFrameDefinition[] expected = OriginalMotherBrainFrames.Where(frame => frame.Pointer != 0xa320)
             .Select(frame => new SpritemapFrameDefinition(frame.Pointer,

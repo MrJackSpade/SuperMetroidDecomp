@@ -33,7 +33,6 @@ internal static class DmaArtworkBoundaryVerification
         GameInstallation installation = RepositoryInstallation.Installation;
         var reference = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         ImportEnemyArtwork art = InstalledFixtures.EnemyArtwork;
-        var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = art.Bosses };
         var background = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(background));

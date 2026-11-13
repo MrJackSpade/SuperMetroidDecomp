@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Alcoon;
 internal static class AlcoonAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyAlcoonAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyAlcoonAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             AlcoonAnimations.Segments, AlcoonAnimations.StartingAt, AlcoonFrameToolingDefinitions.Spritemap,

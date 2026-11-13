@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Enemies.Kago;
 internal static class KagoBugProjectileBehaviorVerification
 {
     /// <summary>Each of the bug's landing, falling and jumping programs matches its native list update for update, its cues included.</summary>
-    internal static void VerifyKagoBugProjectileBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyKagoBugProjectileBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, KagoBugProjectileNativeListAddresses.Extent, "Kago bug");
@@ -36,7 +36,7 @@ internal static class KagoBugProjectileBehaviorVerification
     [VerificationCommand("--kago-bug-programs")]
     internal static int KagoBugProjectileProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(KagoBugProjectileAnimationsVerification.VerifyKagoBugProjectileAnimations), () => KagoBugProjectileAnimationsVerification.VerifyKagoBugProjectileAnimations(rom));
         Suite(nameof(VerifyKagoBugProjectileBehavior), () => VerifyKagoBugProjectileBehavior(rom));
         return 0;

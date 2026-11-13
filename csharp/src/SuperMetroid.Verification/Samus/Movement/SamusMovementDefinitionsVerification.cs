@@ -20,7 +20,7 @@ internal static class SamusMovementDefinitionsVerification
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         int poseCount = SuperMetroid.AssetExtraction.Samus.SamusBodySources.PoseCount;
 
         TouchRange(
@@ -108,7 +108,7 @@ internal static class SamusMovementDefinitionsVerification
 
     /// <summary>Checks both ends of a positive-length table range stay mapped within one SNES bank.</summary>
     internal static void TouchRange(
-        SuperMetroidAddressSpace bus,
+        CartridgeImportAddressSpace bus,
         int address,
         int byteCount,
         string description)

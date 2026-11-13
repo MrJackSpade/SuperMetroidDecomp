@@ -23,7 +23,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
     /// Every program runs for 400 forced updates on a floored room with the laser held back, exercising each walk, wall,
     /// ledge, recoil and footstep cue; the program oracle matches bank $A8.
     /// </summary>
-    internal static void VerifyWorkRobotInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyWorkRobotInstructionProgramDefinitions(CartridgeImportAddressSpace rom)
     {
         RoomEnemySystem enemies = CreateWorkRobotInstructionSystem(out RoomEnemySlot robot);
         RoomLevelData level = CreateWorkRobotInstructionRoom();

@@ -12,7 +12,7 @@ using SuperMetroid.Core.World;
 internal static class PhantoonCasualFlamesVerification
 {
     /// <summary>Compares four schedule word lists, every RNG selector, and complete mouth-animation transitions.</summary>
-    internal static void VerifyCompiledPhantoonCasualFlames(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledPhantoonCasualFlames(CartridgeImportAddressSpace rom)
     {
         for (int pattern = 0; pattern < 4; pattern++)
         {

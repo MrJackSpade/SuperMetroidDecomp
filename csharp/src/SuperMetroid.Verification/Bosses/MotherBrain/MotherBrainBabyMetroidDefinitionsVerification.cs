@@ -12,7 +12,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
 {
     /// <summary>Compares all eight population words and checks initialization and duplicate-spawn rejection without record reads.</summary>
     internal static void VerifyMotherBrainBabyMetroidDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         const int populationAddress = 0xa9be28;
 

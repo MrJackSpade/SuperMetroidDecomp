@@ -58,7 +58,7 @@ internal static class PhantoonAnimationsVerification
     /// Every part segment's beats equal its native list and every part animation the lists' control flow, and the
     /// eye-opening and mouth animations raise their events through the production runner as the native lists do.
     /// </summary>
-    internal static void VerifyPhantoonPartAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyPhantoonPartAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertTrue(PartEntriesAscend, "native Phantoon part entries ascend");
@@ -135,7 +135,7 @@ internal static class PhantoonAnimationsVerification
     /// The real flame producers start the typed programs their native lists start, and every flame program matches
     /// its bank-$86 list update by update: frames, timers, the falling loop counter, the drop request and deletion.
     /// </summary>
-    internal static void VerifyPhantoonFlameAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyPhantoonFlameAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         VerifyFlameProducers();

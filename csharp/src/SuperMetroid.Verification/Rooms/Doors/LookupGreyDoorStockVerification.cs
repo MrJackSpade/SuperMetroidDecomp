@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Rooms.Doors;
 internal static class LookupGreyDoorStockVerification
 {
     /// <summary>Compares the twenty four-cell frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections.</summary>
-    internal static void VerifyGreyDoorStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyGreyDoorStockMapping(CartridgeImportAddressSpace rom,
         InstalledRoomObjectGreyDoorVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0xa677,"clear-left"),new LookupEscapeGateStockFrame(0xa683,"clear-right"),new LookupEscapeGateStockFrame(0xa68f,"clear-up"),new LookupEscapeGateStockFrame(0xa69b,"clear-down"),

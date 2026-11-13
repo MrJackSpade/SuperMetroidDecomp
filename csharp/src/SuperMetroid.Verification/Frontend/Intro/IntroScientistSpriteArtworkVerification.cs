@@ -23,7 +23,7 @@ namespace SuperMetroid.Verification.Frontend.Intro;
 internal static class IntroScientistSpriteArtworkVerification
 {
     /// <summary>Compares six frames and the live examination actor with native OAM, and checks missing-frame rejection.</summary>
-    internal static void VerifyIntroScientistSpriteArtwork(SuperMetroidAddressSpace bus,
+    internal static void VerifyIntroScientistSpriteArtwork(CartridgeImportAddressSpace bus,
         ImportIntroCinematicArtwork stock)
     {
         const ushort x = 120;

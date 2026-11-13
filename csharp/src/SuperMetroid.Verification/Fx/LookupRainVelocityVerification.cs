@@ -8,7 +8,7 @@ namespace SuperMetroid.Verification.Fx;
 internal static class LookupRainVelocityVerification
 {
     /// <summary>Checks the wind every one of the 65,536 random numbers chooses against the word the original reads for it.</summary>
-    internal static void VerifyRainHorizontalVelocity(SuperMetroidAddressSpace rom)
+    internal static void VerifyRainHorizontalVelocity(CartridgeImportAddressSpace rom)
     {
         for (int random = 0; random <= ushort.MaxValue; random++)
         {

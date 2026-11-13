@@ -64,7 +64,7 @@ internal static class ShotBlockObjectProgramsVerification
     /// <summary>Checks compiled shot-block control, sound, and drawing data against retail ROM and executes the programs with source reads forbidden.</summary>
     internal static void VerifyShotBlockObjectPrograms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyShotBlockStockVisualMapping), () => VerifyShotBlockStockVisualMapping(rom));
         Suite(nameof(VerifyShotBlockProgramControlMapping), () => VerifyShotBlockProgramControlMapping(rom));
@@ -203,7 +203,7 @@ internal static class ShotBlockObjectProgramsVerification
     }
 
     /// <summary>Checks the four respawning shapes against native selector words and rejects out-of-range BTS sizes.</summary>
-    private static void VerifyRespawningShotSizeSelection(SuperMetroidAddressSpace rom)
+    private static void VerifyRespawningShotSizeSelection(CartridgeImportAddressSpace rom)
     {
         ushort[] fields = [0xd066,0xd06a,0xd06e,0xd072];
         for (int size = 0; size < fields.Length; size++)
@@ -216,7 +216,7 @@ internal static class ShotBlockObjectProgramsVerification
     }
 
     /// <summary>Checks the four permanent shapes after the caller's BTS offset and rejects invalid selector inputs.</summary>
-    private static void VerifyPermanentShotSizeSelection(SuperMetroidAddressSpace rom)
+    private static void VerifyPermanentShotSizeSelection(CartridgeImportAddressSpace rom)
     {
         ushort[] fields = [0xd076,0xd07a,0xd07e,0xd082];
         for (int size = 0; size < fields.Length; size++)
@@ -235,7 +235,7 @@ internal static class ShotBlockObjectProgramsVerification
          new ShotBlockNativeProgramLayoutsResult(0xcb71,7,true),new ShotBlockNativeProgramLayoutsResult(0xcb94,7,true),new ShotBlockNativeProgramLayoutsResult(0xcc0b,4,false),new ShotBlockNativeProgramLayoutsResult(0xcc20,4,false),new ShotBlockNativeProgramLayoutsResult(0xcd53,4,false)];
 
     /// <summary>Checks the full address domain of compiled timers and control words against bank $84.</summary>
-    private static void VerifyShotBlockProgramControlMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyShotBlockProgramControlMapping(CartridgeImportAddressSpace rom)
     {
         var addresses = new List<ushort>();
         foreach (var layout in ShotBlockNativeProgramLayouts())
@@ -257,7 +257,7 @@ internal static class ShotBlockObjectProgramsVerification
     }
 
     /// <summary>Checks that draw operands occur only at timed-frame offsets and retain native shape choices.</summary>
-    private static void VerifyShotBlockProgramDrawMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyShotBlockProgramDrawMapping(CartridgeImportAddressSpace rom)
     {
         var addresses = new HashSet<ushort>();
         foreach (var layout in ShotBlockNativeProgramLayouts())
@@ -273,7 +273,7 @@ internal static class ShotBlockObjectProgramsVerification
     }
 
     /// <summary>Checks the thirteen packed sound operands and rejects every unrelated bank-$84 address.</summary>
-    private static void VerifyShotBlockProgramSoundMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyShotBlockProgramSoundMapping(CartridgeImportAddressSpace rom)
     {
         ushort[] addresses = [0xcae1,0xcb04,0xcb29,0xcb4e,0xcbb9,0xcbce,0xcbe3,0xcbf8,
             0xcb73,0xcb96,0xcc0d,0xcc22,0xcd55];
@@ -288,7 +288,7 @@ internal static class ShotBlockObjectProgramsVerification
     }
 
     /// <summary>Compares stock draw runs to ROM and checks visual identity and bounds.</summary>
-    private static void VerifyShotBlockStockVisualMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyShotBlockStockVisualMapping(CartridgeImportAddressSpace rom)
     {
         ushort[] pointers = [0xa345,0xa34b,0xa351,0xa357,0xa35d,0xa365,0xa36d,0xa375,
             0xa37d,0xa385,0xa38d,0xa395,0xa39d,0xa3ad,0xa3bd,0xa3cd,0xa47b,0xa483,0xa48b];

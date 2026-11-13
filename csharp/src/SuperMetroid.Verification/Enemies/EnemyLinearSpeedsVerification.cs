@@ -14,7 +14,7 @@ using SuperMetroid.Core.World;
 internal static class EnemyLinearSpeedsVerification
 {
     /// <summary>Compares all 65 rows with both cartridge copies and optionally verifies them through Cacatac, Owtch, Stoke, and Ripper.</summary>
-    internal static void VerifyCompiledLinearEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
+    internal static void VerifyCompiledLinearEnemySpeeds(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         for (int row = 0; row < EnemyLinearSpeedDefinitions.RowCount; row++)

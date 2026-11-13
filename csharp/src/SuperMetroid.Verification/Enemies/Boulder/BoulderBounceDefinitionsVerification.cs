@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.Boulder;
 internal static class BoulderBounceDefinitionsVerification
 {
     /// <summary>Compares the three native words and verifies the zero-counter bounce enters rolling with Y position preserved.</summary>
-    internal static void VerifyCompiledBoulderBounces(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledBoulderBounces(CartridgeImportAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         Action<RoomEnemySlot, BoulderEnemyState, RoomLevelData> fall = enemies.BoulderBehavior.RunBoulderFalling;

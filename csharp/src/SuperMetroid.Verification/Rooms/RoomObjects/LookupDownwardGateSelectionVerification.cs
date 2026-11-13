@@ -12,19 +12,19 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 internal static class LookupDownwardGateSelectionVerification
 {
     /// <summary>Compares selected instruction lists and rejects every unsupported word argument.</summary>
-    internal static void VerifyDownwardGateListSelection(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyDownwardGateListSelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyDownwardGateSelectionField), () => VerifyDownwardGateSelectionField(rom, 0x84c70a, 0));
 
     /// <summary>Compares the left draw-block word for each admitted gate argument.</summary>
-    internal static void VerifyDownwardGateLeftSelection(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyDownwardGateLeftSelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyDownwardGateSelectionField), () => VerifyDownwardGateSelectionField(rom, 0x84c71a, 1));
 
     /// <summary>Compares the right draw-block word for each admitted gate argument.</summary>
-    internal static void VerifyDownwardGateRightSelection(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyDownwardGateRightSelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyDownwardGateSelectionField), () => VerifyDownwardGateSelectionField(rom, 0x84c72a, 2));
 
     /// <summary>Scans all 16-bit arguments, accepting only the eight even selectors and comparing their native field.</summary>
-    private static void VerifyDownwardGateSelectionField(SuperMetroidAddressSpace rom, int source, int field)
+    private static void VerifyDownwardGateSelectionField(CartridgeImportAddressSpace rom, int source, int field)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {

@@ -9,7 +9,7 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class KraidArmPhysicalFrameMappingsVerification
 {
     /// <summary>Walks the native component stream to collect all arm frame starts up to the lint hitbox boundary.</summary>
-    internal static ushort[] NativeKraidArmPhysicalFrames(SuperMetroidAddressSpace rom)
+    internal static ushort[] NativeKraidArmPhysicalFrames(CartridgeImportAddressSpace rom)
     {
         var pointers = new List<ushort>();
         int pointer = 0x8f59;
@@ -25,7 +25,7 @@ internal static class KraidArmPhysicalFrameMappingsVerification
     }
 
     /// <summary>Checks all 22 calculated arm frame ordinals against the independently walked native stream.</summary>
-    internal static void VerifyKraidArmPhysicalFramePointers(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidArmPhysicalFramePointers(CartridgeImportAddressSpace rom)
     {
         ushort[] expected = NativeKraidArmPhysicalFrames(rom);
         AssertEqual(22, expected.Length, "Independent native arm frame count");
@@ -37,7 +37,7 @@ internal static class KraidArmPhysicalFrameMappingsVerification
     }
 
     /// <summary>Compares the fixed anchor component in every native arm frame with compiled collision offsets.</summary>
-    private static void VerifyKraidArmStationaryPositions(SuperMetroidAddressSpace rom)
+    private static void VerifyKraidArmStationaryPositions(CartridgeImportAddressSpace rom)
     {
         int checkedPositions = 0;
         foreach (ushort frame in NativeKraidArmPhysicalFrames(rom))
@@ -55,7 +55,7 @@ internal static class KraidArmPhysicalFrameMappingsVerification
         AssertEqual(22, checkedPositions, "All stationary arm component positions checked");
     }
     /// <summary>Checks exact pointer membership and ordered component records, returning hitbox pointers for subsequent checks.</summary>
-    internal static HashSet<ushort> VerifyKraidArmPhysicalLayoutSelection(SuperMetroidAddressSpace rom)
+    internal static HashSet<ushort> VerifyKraidArmPhysicalLayoutSelection(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyKraidArmStationaryPositions), () => VerifyKraidArmStationaryPositions(rom));
         var expectedPointers = NativeKraidArmPhysicalFrames(rom).ToHashSet();

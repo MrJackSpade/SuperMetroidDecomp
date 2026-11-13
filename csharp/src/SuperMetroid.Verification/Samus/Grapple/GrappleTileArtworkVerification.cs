@@ -20,7 +20,7 @@ using SuperMetroid.Verification.Harness;
 internal static class GrappleTileArtworkVerification
 {
     /// <summary>Compares every angle's source selection and all uploaded bytes while preserving rope state and OAM.</summary>
-    internal static void VerifyGrappleTileArtwork(SuperMetroidAddressSpace bus)
+    internal static void VerifyGrappleTileArtwork(CartridgeImportAddressSpace bus)
     {
         Suite(nameof(VerifyGrappleSpriteArtwork), () => VerifyGrappleSpriteArtwork(bus));
         Suite(nameof(VerifyGrappleFlarePlacement), () => VerifyGrappleFlarePlacement(bus));

@@ -34,18 +34,18 @@ internal static class LookupSkyChunkPointersVerification
     private const int OceanEntries = 6;
 
     /// <summary>Checks the land sky table and the rows it selects.</summary>
-    internal static void VerifyLandSkyChunkPointers(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyLandSkyChunkPointers(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, ScrollingSkyChunkTable.Land));
 
     /// <summary>Checks the ocean sky table and the rows it selects.</summary>
-    internal static void VerifyOceanSkyChunkPointers(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyOceanSkyChunkPointers(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, ScrollingSkyChunkTable.Ocean));
 
     /// <summary>
     /// Checks that every chunk down the sky's span shows the page its own table's entry names, repeating the table's
     /// entries from the first, then the row every vertical position shows.
     /// </summary>
-    private static void VerifySkyChunkPointers(SuperMetroidAddressSpace rom, ScrollingSkyChunkTable table)
+    private static void VerifySkyChunkPointers(CartridgeImportAddressSpace rom, ScrollingSkyChunkTable table)
     {
         int tableAddress = table == ScrollingSkyChunkTable.Land ? LandTable : OceanTable;
         int entries = table == ScrollingSkyChunkTable.Land ? LandEntries : OceanEntries;

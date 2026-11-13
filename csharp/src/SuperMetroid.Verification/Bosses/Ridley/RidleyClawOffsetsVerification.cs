@@ -14,7 +14,7 @@ internal static class RidleyClawOffsetsVerification
 {
     /// <summary>Checks authored facing and foot offsets, carry decay and word
     /// wrapping, and claw overlap through production behavior.</summary>
-    internal static void VerifyRidleyClawOffsets(SuperMetroidAddressSpace rom)
+    internal static void VerifyRidleyClawOffsets(CartridgeImportAddressSpace rom)
     {
         short Word(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         short[] x = Enumerable.Range(0, 3).Select(i => Word(EnemyRomTablePointers.Ridley.ClawXOffsetWords + i * 2)).ToArray();

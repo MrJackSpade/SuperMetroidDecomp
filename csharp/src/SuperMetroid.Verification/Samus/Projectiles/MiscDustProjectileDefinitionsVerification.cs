@@ -14,7 +14,7 @@ using SuperMetroid.Core.World;
 internal static class MiscDustProjectileDefinitionsVerification
 {
     /// <summary>Compares thirty selectors and five placement records, including RNG advancement and invalid allocation behavior.</summary>
-    internal static void VerifyMiscDustProjectileDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyMiscDustProjectileDefinitions(CartridgeImportAddressSpace rom)
     {
         const int instructionTable = 0x86e42c;
         const int placementTable = 0x86e47e;

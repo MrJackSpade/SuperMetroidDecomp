@@ -59,7 +59,7 @@ internal static class EnemyRomTablePointersVerification
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         foreach ((int start, int byteLength) in RepresentativeEnemyRomRanges())
         {
             _ = bus.ReadCartridgeByte(start);
@@ -94,7 +94,7 @@ internal static class EnemyRomTablePointersVerification
 
     /// <summary>Compares Golden Torizo, Work Robot, and Tourian statue selectors with cartridge words and production initializers.</summary>
     private static void VerifyCompiledEnemyInstructionSelectors(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
 
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.SuperMissileInstructionPointers),

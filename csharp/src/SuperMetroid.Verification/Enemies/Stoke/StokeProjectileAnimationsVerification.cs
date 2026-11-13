@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Enemies.Stoke;
 internal static class StokeProjectileAnimationsVerification
 {
     /// <summary>Every program matches its native list.</summary>
-    internal static void VerifyStokeProjectileAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyStokeProjectileAnimations(CartridgeImportAddressSpace rom)
     {
         int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         Console.WriteLine($"  Stoke projectile programs: {Entries.Length} programs ({steps} steps) match bank $86.");

@@ -28,7 +28,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
 
     /// <summary>Checks the typed programs against the cartridge and exercises both initial facings, four walk programs and two spit programs.</summary>
     internal static void VerifyFakeKraidInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
 
         int population = EnemyRomTablePointers.Kraid.FakeKraidPopulationRecord;

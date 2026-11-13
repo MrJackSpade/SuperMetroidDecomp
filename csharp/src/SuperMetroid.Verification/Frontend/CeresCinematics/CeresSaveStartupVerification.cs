@@ -48,7 +48,6 @@ internal static class CeresSaveStartupVerification
             GameTimeSeconds = 11,
             GameTimeFrames = 44,
         };
-        var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var saves = new SaveSlotStore(RetailPresentationFixture());
         saves.SaveSlot(0, departure);
         var game = new SuperMetroidGame(saves);
@@ -96,7 +95,6 @@ internal static class CeresSaveStartupVerification
 
         // A new game must write $1F before capturing the initial checkpoint. Reuse
         // immutable installed catalogs, but enter only the one reported room.
-        var freshBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var fresh = new SuperMetroidGame(new SaveSlotStore());
         bind(fresh, true);
         fresh.BindArtwork(fresh.Artwork with
@@ -113,7 +111,6 @@ internal static class CeresSaveStartupVerification
             "#1153 initial checkpoint does not activate the escape");
 
         // Reload the captured initial checkpoint through options, not Load State.
-        var reloadBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var reloadSaves = SaveRamCodec.Decode(SaveRamCodec.Encode(fresh.Saves, RetailPresentationFixture()), RetailPresentationFixture());
         var reload = new SuperMetroidGame(reloadSaves);
         bind(reload, true);

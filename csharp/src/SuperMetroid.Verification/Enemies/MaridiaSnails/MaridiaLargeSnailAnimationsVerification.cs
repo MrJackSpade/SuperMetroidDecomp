@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Enemies.MaridiaSnails;
 internal static class MaridiaLargeSnailAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyMaridiaLargeSnailAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyMaridiaLargeSnailAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             MaridiaLargeSnailAnimations.Segments, MaridiaLargeSnailAnimations.StartingAt, MaridiaLargeSnailFrameToolingDefinitions.Spritemap,

@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Samus.Poses;
 internal static class PoseCollisionDefinitionsVerification
 {
     /// <summary>Checks every byte-valued pose's vertical radius and live horizontal-radius refresh against native data.</summary>
-    internal static void VerifyPoseCollisionDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyPoseCollisionDefinitions(CartridgeImportAddressSpace rom)
     {
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         for (int pose = 0; pose <= byte.MaxValue; pose++)

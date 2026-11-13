@@ -9,7 +9,7 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class KraidArmComponentHitboxesVerification
 {
     /// <summary>Compares 102 selectors, native component counts, enumeration order, and pose/index bounds.</summary>
-    internal static void VerifyKraidArmComponentHitboxes(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidArmComponentHitboxes(CartridgeImportAddressSpace rom)
     {
         ushort[] frames = NativeKraidArmPhysicalFrames(rom);
         int checkedComponents = 0;

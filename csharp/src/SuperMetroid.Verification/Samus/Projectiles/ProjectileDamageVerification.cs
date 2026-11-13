@@ -22,7 +22,7 @@ internal static class ProjectileDamageVerification
         [0x938641, 0x938657, 0x93866d, 0x938671, 0x938675, 0x938685, 0x938689, 0x93868d, 0x9386ab, 0x9386c1];
 
     /// <summary>Exercises beam, missile, bomb, hyper, and combo initializers with cartridge damage reads forbidden.</summary>
-    internal static void VerifyProjectileDamage(SuperMetroidAddressSpace rom)
+    internal static void VerifyProjectileDamage(CartridgeImportAddressSpace rom)
     {
         ushort Word(int address) => CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address);
         Suite(nameof(VerifyComboMechanicsDefinitions), () => VerifyComboMechanicsDefinitions(rom, Word));
@@ -110,7 +110,7 @@ internal static class ProjectileDamageVerification
 
     /// <summary>Runs cost, angle, sine-offset, and activation checks for compiled special beam data.</summary>
     private static void VerifyComboMechanicsDefinitions(
-        SuperMetroidAddressSpace rom,
+        CartridgeImportAddressSpace rom,
         Func<int, ushort> readWord)
     {
         Suite(nameof(VerifyComboPowerBombCostAlgorithm), () => VerifyComboPowerBombCostAlgorithm(readWord));
@@ -150,7 +150,7 @@ internal static class ProjectileDamageVerification
     }
 
     /// <summary>Compares all byte-valued angle and amplitude pairs with the native sine-offset calculation.</summary>
-    internal static void VerifyComboSineOffsetAlias(SuperMetroidAddressSpace rom)
+    internal static void VerifyComboSineOffsetAlias(CartridgeImportAddressSpace rom)
     {
         Offset16<RoomPixels> NativeOffset(int angle, int amplitude)
         {
@@ -176,7 +176,7 @@ internal static class ProjectileDamageVerification
     }
 
     /// <summary>Checks combo activation cost, origin angles, and first motion step while compiled table reads are forbidden.</summary>
-    private static void VerifyComboMotionAndActivation(SuperMetroidAddressSpace rom)
+    private static void VerifyComboMotionAndActivation(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyComboSineOffsetAlias), () => VerifyComboSineOffsetAlias(rom));
         var guarded = NewComboMechanicsReadGuard(rom);

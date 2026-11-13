@@ -13,7 +13,7 @@ using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 internal static class CeresRidleyEyeFadeDefinitionsVerification
 {
     /// <summary>Compares all 64 rows and the terminator while forbidding live schedule reads.</summary>
-    internal static void VerifyCeresRidleyEyeFadeDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCeresRidleyEyeFadeDefinitions(CartridgeImportAddressSpace rom)
     {
         for (ushort offset = 0;
              offset < CeresRidleyEyeFadeDefinitions.PaletteStepCount;

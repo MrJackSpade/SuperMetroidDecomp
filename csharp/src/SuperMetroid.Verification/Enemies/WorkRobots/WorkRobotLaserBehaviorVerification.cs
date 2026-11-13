@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Enemies.WorkRobots;
 internal static class WorkRobotLaserBehaviorVerification
 {
     /// <summary>All five laser definitions start the typed prefix and run it and the loop update for update beside the native list.</summary>
-    internal static void VerifyWorkRobotLaserBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyWorkRobotLaserBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, WorkRobotLaserNativeListAddresses.Extent, "Work Robot laser");
@@ -51,7 +51,7 @@ internal static class WorkRobotLaserBehaviorVerification
     [VerificationCommand("--work-robot-laser-programs")]
     internal static int WorkRobotLaserProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(WorkRobotLaserAnimationsVerification.VerifyWorkRobotLaserAnimations), () => WorkRobotLaserAnimationsVerification.VerifyWorkRobotLaserAnimations(rom));
         Suite(nameof(VerifyWorkRobotLaserBehavior), () => VerifyWorkRobotLaserBehavior(rom));
         return 0;

@@ -20,7 +20,7 @@ internal static class CrocomireTenthShotGradientVerification
     /// Decodes the gradient each shot reads from the cartridge, where the spit attack's even spawn parameter, twice the
     /// shot's place in the volley, selects the word, and compares it with the volley.
     /// </summary>
-    internal static void VerifyCrocomireTenthShotGradient(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireTenthShotGradient(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         CrocomireTenthShotGradient installed = InstalledFixtures.BossAndIntroOverreads.CrocomireTenthShotGradient;

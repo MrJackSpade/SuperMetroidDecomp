@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Enemies.KiHunters;
 internal static class KiHunterAcidSpitAnimationsVerification
 {
     /// <summary>Every program matches its native list.</summary>
-    internal static void VerifyKiHunterAcidSpitAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyKiHunterAcidSpitAnimations(CartridgeImportAddressSpace rom)
     {
         int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         Console.WriteLine($"  Ki-Hunter acid spit programs: {Entries.Length} programs ({steps} steps) match bank $86.");

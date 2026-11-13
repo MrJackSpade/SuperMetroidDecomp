@@ -11,7 +11,7 @@ using SuperMetroid.Core.World;
 internal static class KraidRockLaunchDefinitionsVerification
 {
     /// <summary>Compares all RNG words against the eight native signed 8.8 speed choices.</summary>
-    private static void VerifyKraidRockLaunchSpeedSelection(SuperMetroidAddressSpace rom)
+    private static void VerifyKraidRockLaunchSpeedSelection(CartridgeImportAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
@@ -26,7 +26,7 @@ internal static class KraidRockLaunchDefinitionsVerification
     private static byte KraidRockLaunchSpeedSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks wrapped spawn offsets, projectile fields, and RNG read count without table rereads.</summary>
-    internal static void VerifyKraidRockLaunchDefinitions(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
+    internal static void VerifyKraidRockLaunchDefinitions(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
     {
         Suite(nameof(VerifyKraidRockLaunchSpeedSelection), () => VerifyKraidRockLaunchSpeedSelection(rom));
         if (definitionsOnly)

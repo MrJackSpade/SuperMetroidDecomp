@@ -11,7 +11,7 @@ using SuperMetroid.Core.World;
 internal static class KraidCeilingRockPositionsVerification
 {
     /// <summary>Compares every ceiling rock's X with the cartridge's word for it and rejects steps outside the rocks.</summary>
-    internal static void VerifyKraidCeilingRockCoordinates(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidCeilingRockCoordinates(CartridgeImportAddressSpace rom)
     {
         ushort Word(int a) => LittleEndianBytes.Word(KraidCeilingRockCoordinatesRomByte(rom, a), KraidCeilingRockCoordinatesRomByte(rom, a + 1));
         // The cartridge's table holds one X word per rock.
@@ -27,7 +27,7 @@ internal static class KraidCeilingRockPositionsVerification
     private static byte KraidCeilingRockCoordinatesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Confirms each ceiling spawn advances to the next rock and pairs its native X coordinate with the PLM mutation while source-table reads are forbidden.</summary>
-    internal static void VerifyKraidCeilingRockPositions(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidCeilingRockPositions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyKraidCeilingRockCoordinates), () => VerifyKraidCeilingRockCoordinates(rom));
         ushort Word(int a) => LittleEndianBytes.Word(KraidCeilingRockPositionsRomByte(rom, a), KraidCeilingRockPositionsRomByte(rom, a + 1));

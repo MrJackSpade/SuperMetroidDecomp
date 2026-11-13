@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Bosses.Draygon;
 internal static class DraygonBurialEvirDefinitionsVerification
 {
     /// <summary>Compares native tables and follows real sprite-object allocation and 16.16 movement.</summary>
-    internal static void VerifyDraygonBurialEvirDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDraygonBurialEvirDefinitions(CartridgeImportAddressSpace rom)
     {
         const int subspeedTable = 0xa5a1af;
         const int positionTable = 0xa5a1c7;

@@ -44,7 +44,7 @@ internal static class SporeSpawnCeilingVisualsVerification
     }
 
     /// <summary>Compares the four ceiling frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections.</summary>
-    private static void VerifySporeSpawnCeilingStockMapping(SuperMetroidAddressSpace rom,
+    private static void VerifySporeSpawnCeilingStockMapping(CartridgeImportAddressSpace rom,
         InstalledRoomObjectSporeSpawnCeilingVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9413,"clear-ceiling"), new LookupEscapeGateStockFrame(0x9423,"crumble-frame-0"),

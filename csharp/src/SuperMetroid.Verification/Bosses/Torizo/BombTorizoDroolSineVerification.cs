@@ -13,7 +13,7 @@ using SuperMetroid.Core.World;
 internal static class BombTorizoDroolSineVerification
 {
     /// <summary>Checks both facing modes and native velocity table indexes for every drool random value.</summary>
-    internal static void VerifyBombTorizoDroolSine(SuperMetroidAddressSpace rom)
+    internal static void VerifyBombTorizoDroolSine(CartridgeImportAddressSpace rom)
     {
         Action<RoomEnemySystem, RoomEnemySlot> spawn =
             (enemies, torizo) => enemies.BombTorizoBehavior.Attacks.SpawnBombTorizoLowHealthDrool(torizo);
@@ -60,7 +60,7 @@ internal static class BombTorizoDroolSineVerification
 
     /// <summary>Spawns drool through production behavior with sine ROM reads forbidden and compares its velocity and origin to cartridge words.</summary>
     private static void VerifyBombTorizoDroolSpawn(
-        SuperMetroidAddressSpace rom,
+        CartridgeImportAddressSpace rom,
         Action<RoomEnemySystem, RoomEnemySlot> spawn,
         int random,
         ushort parameter1,
@@ -97,7 +97,7 @@ internal static class BombTorizoDroolSineVerification
 
     /// <summary>Reads the pinned retail sine or negative-cosine word used solely as this verifier's oracle.</summary>
     private static ushort ReadBombTorizoDroolWord(
-        SuperMetroidAddressSpace rom,
+        CartridgeImportAddressSpace rom,
         int table,
         int wordOffset)
     {
@@ -110,7 +110,7 @@ internal static class BombTorizoDroolSineVerification
     [VerificationCommand("--remaining-signed-sine-consumers")]
     internal static int RemainingSignedSineConsumersCommand()
     {
-        SuperMetroidAddressSpace rom =
+        CartridgeImportAddressSpace rom =
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyBombTorizoDroolSine), () => VerifyBombTorizoDroolSine(rom));
         Suite(nameof(VerifyMotherBrainNeckSine), () => VerifyMotherBrainNeckSine(rom));

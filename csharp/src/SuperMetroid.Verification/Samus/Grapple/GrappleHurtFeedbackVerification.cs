@@ -23,7 +23,6 @@ internal static class GrappleHurtFeedbackVerification
     /// <summary>Verifies contact damage starts a single hurt flash and gasp without detaching Grapple or adding knockback.</summary>
     internal static void VerifyGrappleHurtFeedback()
     {
-        var bus=SuperMetroid.AssetExtraction.Cartridge.SuperMetroidAddressSpace.CreateWithoutCartridge();
         var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
@@ -40,7 +39,7 @@ internal static class GrappleHurtFeedbackVerification
         samus.EquippedItems = SamusEquipmentFlags.GrappleBeam;
         samus.SelectedHudItem = HudItem.Grapple;
         runtime.Artwork.BindGrapplePresentation();
-        SamusGrappleMovement.ConnectUnobstructedSwing(bus, samus, new Position16<RoomPixels>(160, 64), 52,
+        SamusGrappleMovement.ConnectUnobstructedSwing(samus, new Position16<RoomPixels>(160, 64), 52,
             RotationAngle.QuarterTurn, 0, faceRight: true);
         samus.CommitPoseHistory();
         runtime.StepFrame(ControllerButton.X);

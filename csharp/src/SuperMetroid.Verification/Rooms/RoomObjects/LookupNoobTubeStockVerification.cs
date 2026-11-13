@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 internal static class LookupNoobTubeStockVerification
 {
     /// <summary>Compares the seven tube frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections (#1557).</summary>
-    internal static void VerifyNoobTubeStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyNoobTubeStockMapping(CartridgeImportAddressSpace rom,
         InstalledRoomObjectNoobTubeVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x98d1,"intact"),new LookupEscapeGateStockFrame(0x98d7,"damaged"),new LookupEscapeGateStockFrame(0x98dd,"opened"),new LookupEscapeGateStockFrame(0x98e3,"cleared"),new LookupEscapeGateStockFrame(0x9953,"broken-late"),new LookupEscapeGateStockFrame(0x9991,"opened-rows"),new LookupEscapeGateStockFrame(0x99e5,"broken-full")];

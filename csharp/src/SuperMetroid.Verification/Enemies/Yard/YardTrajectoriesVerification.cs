@@ -61,7 +61,7 @@ internal static class YardTrajectoriesVerification
     }
 
     /// <summary>Checks that a dropped Yard resumes ordinary crawling using facing and native speed, regardless of stale direction.</summary>
-    private static void VerifyYardLanding(SuperMetroidAddressSpace bus, SelectedRoom room)
+    private static void VerifyYardLanding(CartridgeImportAddressSpace bus, SelectedRoom room)
     {
         RoomLevelData floor = VerificationHelpersVerification.CreateSolidRowsRoom(new(32, 32), firstSolidRow: 16, solidRowCount: 1);
         foreach (ushort direction in Enumerable.Range(0, 8).Select(x => (ushort)x))

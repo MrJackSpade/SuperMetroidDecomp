@@ -21,7 +21,7 @@ internal static class FuneNamiheFireballBehaviorVerification
     /// Both kinds in both directions start the facing's typed program, which loops update for update beside the native
     /// list; every pose's calculated selector is its native spritemap.
     /// </summary>
-    internal static void VerifyFuneNamiheFireballBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyFuneNamiheFireballBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, FuneNamiheFireballNativeListAddresses.Extent, "Fune/Namihe fireball");
@@ -60,7 +60,7 @@ internal static class FuneNamiheFireballBehaviorVerification
     [VerificationCommand("--fune-namihe-fireball-programs")]
     internal static int FuneNamiheFireballProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(FuneNamiheFireballAnimationsVerification.VerifyFuneNamiheFireballAnimations), () => FuneNamiheFireballAnimationsVerification.VerifyFuneNamiheFireballAnimations(rom));
         Suite(nameof(VerifyFuneNamiheFireballBehavior), () => VerifyFuneNamiheFireballBehavior(rom));
         return 0;

@@ -34,14 +34,14 @@ internal static class RoomFxRetailInventoryVerification
     private const int RetailRoomFxDoorCount = 597;
 
     /// <summary>Reuses the animated tiles extracted from an import bus without keeping that bus alive.</summary>
-    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<SuperMetroidAddressSpace, RoomFxAnimatedTileAtlas>
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<CartridgeImportAddressSpace, RoomFxAnimatedTileAtlas>
         retailAnimatedTiles = new();
 
     /// <summary>
     /// The animated tiles' characters the import extracts once from the supplied retail bus (#1527): checks that render
     /// a room effect's BG3 from VRAM place the selected frame's characters from them.
     /// </summary>
-    internal static RoomFxAnimatedTileAtlas RetailAnimatedTiles(SuperMetroidAddressSpace bus) =>
+    internal static RoomFxAnimatedTileAtlas RetailAnimatedTiles(CartridgeImportAddressSpace bus) =>
         retailAnimatedTiles.GetValue(bus, source => RoomFxAnimatedTileAtlasPng.Read(new MemoryStream(
             RoomFxAnimatedTileAtlasExtractor.Extract(source))));
 
@@ -56,7 +56,7 @@ internal static class RoomFxRetailInventoryVerification
         string romPath = Path.GetFullPath("Super Metroid.smc");
         string symbolPath = Path.GetFullPath(
             Path.Combine("upstream-sm", "assets", "names.txt"));
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         RetailFxRoomState[] states = File.ReadLines(symbolPath)
             .Select(ParseRetailFxRoomState)
             .Where(state => state.HasValue)
@@ -221,7 +221,7 @@ internal static class RoomFxRetailInventoryVerification
 
     /// <summary>Compares independent ROM FX selection and liquid fields with the production owner for one room and entry door.</summary>
     private static RetailFxPathAudit AuditRetailFxEntryPath(
-        SuperMetroidAddressSpace bus,
+        CartridgeImportAddressSpace bus,
         SelectedRoom room,
         ushort doorPointer,
         EntryPathFrames frames)
@@ -364,7 +364,7 @@ internal static class RoomFxRetailInventoryVerification
     }
 
     /// <summary>Checks the native animated-tile headers used by water, lava, and other room-FX objects.</summary>
-    private static void VerifyRetailRoomFxAnimatedTileHeaders(SuperMetroidAddressSpace bus)
+    private static void VerifyRetailRoomFxAnimatedTileHeaders(CartridgeImportAddressSpace bus)
     {
         Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
             bus,
@@ -398,7 +398,7 @@ internal static class RoomFxRetailInventoryVerification
     /// tile above the liquid coordinate and must remain visible as the bubbling boundary.
     /// </summary>
     private static void VerifyRetailLavaSurface(
-        SuperMetroidAddressSpace bus,
+        CartridgeImportAddressSpace bus,
         IReadOnlyList<RetailFxRoomState> states)
     {
         SelectedRoom room = LoadRoomByIdentity(
@@ -602,7 +602,7 @@ internal static class RoomFxRetailInventoryVerification
 
     /// <summary>Compares an animated FX object's instruction pointer, transfer size, destination, and first source with ROM.</summary>
     private static void VerifyRetailRoomFxAnimatedTileHeader(
-        SuperMetroidAddressSpace bus,
+        CartridgeImportAddressSpace bus,
         ushort objectPointer,
         ushort expectedInstruction,
         int expectedSize,
@@ -625,7 +625,7 @@ internal static class RoomFxRetailInventoryVerification
     }
 
     /// <summary>Reads a native FX byte directly from the import-only cartridge source.</summary>
-    private static byte ReadRetailFxRecordByte(SuperMetroidAddressSpace bus, ushort record, int fieldOffset)
+    private static byte ReadRetailFxRecordByte(CartridgeImportAddressSpace bus, ushort record, int fieldOffset)
     {
         if ((uint)fieldOffset >= RoomFxToolingRomData.Record.ByteCount)
             throw new ArgumentOutOfRangeException(nameof(fieldOffset));
@@ -634,7 +634,7 @@ internal static class RoomFxRetailInventoryVerification
     }
 
     /// <summary>Reads a native FX word directly from the import-only cartridge source.</summary>
-    private static ushort ReadRetailFxRecordWord(SuperMetroidAddressSpace bus, ushort record, int fieldOffset)
+    private static ushort ReadRetailFxRecordWord(CartridgeImportAddressSpace bus, ushort record, int fieldOffset)
     {
         if ((uint)fieldOffset > RoomFxToolingRomData.Record.ByteCount - sizeof(ushort))
             throw new ArgumentOutOfRangeException(nameof(fieldOffset));
@@ -647,7 +647,7 @@ internal static class RoomFxRetailInventoryVerification
     /// independent expected value for every door path in the cartridge audit.
     /// </summary>
     private static ushort SelectFxRecordIndependently(
-        SuperMetroidAddressSpace bus,
+        CartridgeImportAddressSpace bus,
         ushort listPointer,
         ushort doorPointer)
     {
@@ -674,7 +674,7 @@ internal static class RoomFxRetailInventoryVerification
 
     /// <summary>Yields door identities explicitly named by a native FX record list, stopping at its terminator.</summary>
     private static IEnumerable<ushort> EnumerateSpecificFxRecordDoors(
-        SuperMetroidAddressSpace bus,
+        CartridgeImportAddressSpace bus,
         ushort listPointer)
     {
         if (listPointer == 0)
@@ -699,7 +699,7 @@ internal static class RoomFxRetailInventoryVerification
 
     /// <summary>Checks the authored timer, velocity, and target Y of a known rising-lava door path.</summary>
     private static void VerifyRetailLiquidRise(
-        SuperMetroidAddressSpace bus,
+        CartridgeImportAddressSpace bus,
         IReadOnlyList<RetailFxRoomState> states,
         IReadOnlyList<DoorDefinition> doors,
         RisingLiquidAuditDefinition definition)
@@ -771,7 +771,7 @@ internal static class RoomFxRetailInventoryVerification
     /// rumble and shake report rather than accepting liquid position as a proxy.
     /// </summary>
     private static void VerifyRetailRisingLavaFeedback(
-        SuperMetroidAddressSpace bus,
+        CartridgeImportAddressSpace bus,
         IReadOnlyList<DoorDefinition> doors)
     {
         DoorDefinition door = doors.Single(candidate =>
@@ -943,7 +943,7 @@ internal static class RoomFxRetailInventoryVerification
 
     /// <summary>Checks that moving from visible lava to a hidden-liquid room clears the old BG3 presentation.</summary>
     private static void VerifyRetailFxTransitionReset(
-        SuperMetroidAddressSpace bus,
+        CartridgeImportAddressSpace bus,
         IReadOnlyList<RetailFxRoomState> states)
     {
         SelectedRoom visibleRoom = LoadRoomByIdentity(
@@ -984,7 +984,7 @@ internal static class RoomFxRetailInventoryVerification
 
     /// <summary>Loads the named retail room with the exact state pointer found in the FX inventory.</summary>
     private static SelectedRoom LoadRoomByIdentity(
-        SuperMetroidAddressSpace bus,
+        CartridgeImportAddressSpace bus,
         IReadOnlyList<RetailFxRoomState> states,
         RoomIdentity identity)
     {

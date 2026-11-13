@@ -866,7 +866,7 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Fly animation frame identities against the cartridge instruction data.</summary>
-    internal static void VerifyFlyFrameIdentities(SuperMetroidAddressSpace rom)
+    internal static void VerifyFlyFrameIdentities(CartridgeImportAddressSpace rom)
     {
         NativeEnemySpritemapDefinition[] flyFrames = FlyVisualDefinitions.Frames();
         AssertEqual(4, flyFrames.Length, "fly calculated frame catalog count");
@@ -1064,7 +1064,7 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks title screen sprite identities against the native artwork pointers.</summary>
-    internal static void VerifyTitleSpriteIdentities(SuperMetroidAddressSpace rom)
+    internal static void VerifyTitleSpriteIdentities(CartridgeImportAddressSpace rom)
     {
         var nativeTitlePointers = new HashSet<int> { 0x8103, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8ba0c7) };
         foreach (int start in new[] { 0x8ba03d, 0x8ba055, 0x8ba079, 0x8ba09d })
@@ -1089,14 +1089,14 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks title card tile placement and dimensions against cartridge layout data.</summary>
-    internal static void VerifyTitleCardLayout(SuperMetroidAddressSpace rom)
+    internal static void VerifyTitleCardLayout(CartridgeImportAddressSpace rom)
     {
         int steps = SuperMetroid.Verification.Frontend.Title.TitleCardOracle.CompareAll(rom);
         Console.WriteLine($"Title card layout: {steps} typed title-card steps match their native lists.");
     }
 
     /// <summary>Checks room sprite dispatch identities and their native table ordering.</summary>
-    internal static void VerifyRoomSpriteDispatch(SuperMetroidAddressSpace rom)
+    internal static void VerifyRoomSpriteDispatch(CartridgeImportAddressSpace rom)
     {
         Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, SpriteGraphics, RoomSpriteObject> spriteSpawn =
             (owner, position, kind, graphics) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphics);

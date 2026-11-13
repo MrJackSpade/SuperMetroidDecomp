@@ -35,7 +35,7 @@ internal static class SamusVisorColorsVerification
             return;
         }
 
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+        CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         InstalledSamusVisorColors catalog = SamusVisorColorFile.Read(
             new MemoryStream(SamusVisorColorExtractor.Extract(rom)));
         for (int index = 0; index < SamusVisorColorFormat.ColorCount; index++)

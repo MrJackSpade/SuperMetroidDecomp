@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Enemies.Kzan;
 internal static class KzanAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyKzanAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyKzanAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             KzanAnimations.Segments, KzanAnimations.StartingAt, KzanFrameToolingDefinitions.Spritemap,

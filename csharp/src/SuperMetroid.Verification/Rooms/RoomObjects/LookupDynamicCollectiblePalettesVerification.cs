@@ -9,7 +9,7 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 internal static class LookupDynamicCollectiblePalettesVerification
 {
     /// <summary>Checks 17 kinds, three header families, eight tiles each, and invalid kind or tile indexes.</summary>
-    internal static void VerifyDynamicCollectiblePaletteSelectors(SuperMetroidAddressSpace rom)
+    internal static void VerifyDynamicCollectiblePaletteSelectors(CartridgeImportAddressSpace rom)
     {
         var exported = DynamicCollectibleGraphicsConstants.All.ToArray();
         AssertEqual(17, exported.Length, "Dynamic palette original kind count");

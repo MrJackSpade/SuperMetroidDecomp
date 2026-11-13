@@ -6,7 +6,7 @@ namespace SuperMetroid.Verification.Samus.Movement;
 internal static class SamusStandaloneSpeedsVerification
 {
     /// <summary>Compares four compiled records with native arithmetic across base-speed boundaries while rejecting unknown ROM addresses.</summary>
-    internal static void VerifySamusStandaloneSpeeds(SuperMetroidAddressSpace rom)
+    internal static void VerifySamusStandaloneSpeeds(CartridgeImportAddressSpace rom)
     {
         static SpeedTableEntry Read(Func<int, byte> readByte, int a)
         {

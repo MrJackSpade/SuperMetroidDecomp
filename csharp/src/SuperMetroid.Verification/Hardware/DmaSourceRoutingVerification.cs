@@ -4,56 +4,54 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Hardware;
 
-/// <summary>Checks typed DMA source routing across cartridge, WRAM and unmapped regions, SRAM windows included.</summary>
+/// <summary>Checks typed import palette routing across cartridge, work-RAM and unmapped regions, SRAM windows included.</summary>
 internal static class DmaSourceRoutingVerification
 {
     /// <summary>
-    /// Checks the actual PPU transfer paths, including a fixed-bank DMA wrap that changes
-    /// mapped source type between consecutive bytes. A generic bus read throws here.
+    /// Checks the import palette path, including a fixed-bank DMA wrap that changes mapped source type between
+    /// consecutive bytes. A generic bus read throws here.
     /// </summary>
+    /// <remarks>
+    /// The wrap from $80:FFFF into the bank's work-RAM mirror once read a work-RAM byte. The import maps no work RAM
+    /// (#1688), so the check now asserts that the wrapped transfer is rejected after its cartridge byte.
+    /// </remarks>
     internal static void VerifyDmaSourceRouting()
     {
         var source = new DmaReadRoutingBus();
-        source.SetCartridge(0x80fffe, 0x11);
-        source.SetCartridge(0x80ffff, 0x22);
-        source.SetWorkRam(0x800000, 0x33);
-        source.SetWorkRam(0x800001, 0x44);
+        source.SetCartridge(0x80fffd, 0x11);
+        source.SetCartridge(0x80fffe, 0x22);
+        source.SetCartridge(0x80ffff, 0x33);
 
         var cgram = new SnesCgram();
-        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(cgram, source, 0x80ffff, colorCount: 1);
-        AssertEqual(0x3322, cgram.Colors[0],
-            "CGRAM word straddles cartridge and WRAM mirror");
+        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(cgram, source, 0x80fffd, colorCount: 1);
+        AssertEqual(0x2211, cgram.Colors[0], "CGRAM word reads two cartridge bytes");
+        AssertThrows<InvalidOperationException>(
+            () => SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(cgram, source, 0x80ffff, colorCount: 1, destinationIndex: 1),
+            "CGRAM rejects a word that wraps from the cartridge into the work-RAM mirror");
         AssertThrows<InvalidOperationException>(
             () => SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(cgram, source, 0x700010, colorCount: 1, destinationIndex: 1),
             "CGRAM rejects an SRAM window source");
 
-        AssertEqual(1, source.CartridgeReads, "only import-time palette transfer reads cartridge");
-        AssertEqual(1, source.WorkRamReads, "only WRAM windows use mutable reads");
+        AssertEqual(3, source.CartridgeReads, "only import-time palette transfer reads cartridge");
         AssertThrows<InvalidOperationException>(
             () => SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(cgram, source, 0x802000, colorCount: 1),
             "CGRAM rejects unmapped hardware source");
 
-        Console.WriteLine("  Import palette sources: the importer resolves the ROM/WRAM wrap, and SRAM and hardware windows are unmapped.");
+        Console.WriteLine("  Import palette sources: the importer reads the cartridge, and work-RAM, SRAM and hardware windows are rejected.");
     }
 
-    /// <summary>Sparse region stores and read counters reveal which source API each PPU transfer uses.</summary>
-    internal sealed class DmaReadRoutingBus : ISnesMemoryBus,
+    /// <summary>A sparse cartridge store and read counter reveal which source API the palette import uses.</summary>
+    internal sealed class DmaReadRoutingBus : ISnesAddressSpace,
         IImportCartridgeSource
     {
         /// <summary>Cartridge bytes available only to import-time palette transfer.</summary>
         private readonly Dictionary<int, byte> cartridge = [];
-        /// <summary>Work RAM bytes supplied through typed mutable-memory reads.</summary>
-        private readonly Dictionary<int, byte> workRam = [];
 
         /// <summary>Counts cartridge reads made by the palette importer.</summary>
         internal int CartridgeReads { get; private set; }
-        /// <summary>Counts work RAM reads made by the transfer paths.</summary>
-        internal int WorkRamReads { get; private set; }
 
         /// <summary>Sets a cartridge source byte for an import-time DMA scenario.</summary>
         internal void SetCartridge(int address, byte value) => cartridge.Add(address, value);
-        /// <summary>Sets a work RAM source byte for a runtime DMA scenario.</summary>
-        internal void SetWorkRam(int address, byte value) => workRam.Add(address, value);
 
         /// <summary>Fails if a PPU path bypasses the typed cartridge or mutable-memory route.</summary>
         public static byte ReadByte(int address) => throw new InvalidOperationException(
@@ -66,15 +64,5 @@ internal static class DmaSourceRoutingVerification
             return cartridge[address];
         }
 
-        /// <summary>Returns a work RAM byte and records mutable-memory source access.</summary>
-        public byte ReadWorkRamByte(int address)
-        {
-            WorkRamReads++;
-            return workRam[address];
-        }
-
-        /// <summary>Rejects writes because the routing witness only supplies DMA source bytes.</summary>
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException(
-            "The PPU DMA routing fixture is read-only.");
     }
 }

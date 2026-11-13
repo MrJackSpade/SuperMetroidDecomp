@@ -15,7 +15,7 @@ namespace SuperMetroid.Verification.Enemies.Animals;
 internal static class EscapeDachoraAnimationsVerification
 {
     /// <summary>Every segment matches its native list, every animation its lists' control flow, and every branch its target.</summary>
-    internal static void VerifyEscapeDachoraAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyEscapeDachoraAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             EscapeDachoraAnimations.Segments, EscapeDachoraAnimations.StartingAt, EscapeDachoraFrameToolingDefinitions.Spritemap,

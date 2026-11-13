@@ -106,7 +106,7 @@ static void VerifyKraidLibraryHudArtwork(
     SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, stockVram,
         transfer.ListPointer, activeDoorPointer: 0);
     SnesVram installedVram = Replay(LibraryBackgroundProgramDefinitions.Get(transfer.ListPointer),
-        new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), HudArt = Compile(pixels) });
+        new LibraryBackgroundArtwork { TilemapArt = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BackgroundTilemaps, HudArt = Compile(pixels) });
     int destinationByte = (transfer.VramDestination ?? throw new InvalidOperationException("Verification requires transfer.VramDestination.")) * 2;
     for (int index = 0; index < planar.Length; index++)
         AssertEqual(stockVram.ReadByte(destinationByte + index),
@@ -282,9 +282,9 @@ private static void WriteLibraryByte(byte[] rom, ushort pointer, byte value)
     {
         string libraryArtworkRom = RepositoryRomPath;
         Suite(nameof(VerifyLibraryBackgroundLoader), () => VerifyLibraryBackgroundLoader());
-        // The parity check only reads installed artwork, so it reads the repository installation.
+        // The parity check reads the artwork the import pictures the backgrounds from, the shared fixtures' (#1638).
         Suite(nameof(VerifyLibraryBackgroundInstalledParity),
-            () => VerifyLibraryBackgroundInstalledParity(libraryArtworkRom, RepositoryInstallation.Installation));
+            () => VerifyLibraryBackgroundInstalledParity(libraryArtworkRom));
         return 0;
     }
 }

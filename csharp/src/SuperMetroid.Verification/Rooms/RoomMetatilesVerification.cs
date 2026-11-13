@@ -19,7 +19,7 @@ using SuperMetroid.Core.World.RoomStates;
 internal static class RoomMetatilesVerification
 {
     /// <summary>
-    /// Roundtrips distinct CRE and area metatiles, checks the installed compositions are the cartridge's, and checks a
+    /// Roundtrips distinct CRE and area metatiles, checks the import's compositions are the cartridge's, and checks a
     /// composition document with an invalid palette selector is rejected.
     /// </summary>
     internal static void VerifyRoomMetatileExtraction()
@@ -65,8 +65,8 @@ internal static class RoomMetatilesVerification
             RomDataReader.Decompress(bus,
                 (int)RoomTilesetSourceDefinitions.CreBlocks).Length);
         var stockCatalog = new RoomMetatileCatalog(stockCre, bySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.BlockSetAt(pair.Key), pair => pair.Value));
-        // The tiles of every block a room loads, which extraction pictures, are the cartridge's: the installed compositions
-        // a Zebes and a Ceres room's block sheets were composed from equal those freshly extracted.
+        // The tiles of every block a room loads, which extraction pictures, are the cartridge's: the import data's compositions
+        // a Zebes and a Ceres room's block sheets were composed from (#1638) equal those freshly extracted.
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             SelectedRoom header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
@@ -87,7 +87,7 @@ internal static class RoomMetatilesVerification
                 new MemoryStream(invalid, writable: false), cre.Length),
             "metatile JSON rejects an invalid palette selector");
         Console.WriteLine($"  Room metatiles: {files.Count} distinct CRE/area resources roundtrip " +
-            "byte-exactly and are the installed compositions the block sheets are composed from.");
+            "byte-exactly and are the import's compositions the block sheets are composed from.");
     }
 
     /// <summary>Runs the focused metatile extraction and room-loader comparison.</summary>

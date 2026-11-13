@@ -45,7 +45,7 @@ public static class GameInstallationLayout
     public const string EndingBackdropDirectoryName = "ending-backdrops";
     /// <summary>Component directory whose import data holds the rooms' base colours, which only the import reads (#1637); nothing of it is installed.</summary>
     public const string RoomPaletteDirectoryName = "room-palettes";
-    /// <summary>Content child directory for visual block compositions independent of collision.</summary>
+    /// <summary>Component directory whose import data holds the block compositions, which only the import reads (#1638); nothing of it is installed.</summary>
     public const string RoomMetatileDirectoryName = "room-blocks";
     /// <summary>Pre-coloured room block sheets, one per tileset (#1392).</summary>
     public const string RoomBlockSheetDirectoryName = "room-block-sheets";
@@ -63,7 +63,7 @@ public static class GameInstallationLayout
     /// some of its pixels name.
     /// </summary>
     public const string BlendMapDirectoryName = "blend-maps";
-    /// <summary>Content child directory shared by background tilemaps and sky tilemaps.</summary>
+    /// <summary>Component directory whose import data holds the background and sky tilemaps, which only the import reads (#1638); nothing of it is installed.</summary>
     public const string RoomBackgroundTilemapDirectoryName = "room-backgrounds";
     /// <summary>Content child directory for visual room-block references independent of native collision and BTS.</summary>
     public const string RoomVisualLayoutDirectoryName = "room-layouts";
@@ -138,7 +138,8 @@ public static class GameInstallationLayout
     /// <summary>Receipt filename within stock content, recording the installation format and source cartridge digest.</summary>
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; content whose receipt names another is extracted again before opening.</summary>
-    public const int FormatVersion = 297;
+    public const int FormatVersion = 299;
+
 
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";

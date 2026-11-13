@@ -66,7 +66,7 @@ internal static class RoomCharacterInstallationVerification
         var nativeGhostVram = new SnesVram();
         SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeGhostVram,
             ghostTransfer.ListPointer, activeDoorPointer: 0);
-        SnesVram installedGhostVram = ShownVram(LibraryBackgroundProgramDefinitions.Get(ghostTransfer.ListPointer), new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), CharacterArt = stock });
+        SnesVram installedGhostVram = ShownVram(LibraryBackgroundProgramDefinitions.Get(ghostTransfer.ListPointer), new LibraryBackgroundArtwork { TilemapArt = InstalledFixtures.BackgroundTilemaps, CharacterArt = stock });
         // The ghost's characters reach sprite characters only the statue ghost would draw, and it draws nothing, so the
         // installed replay writes them nowhere (#1466); the check above compares the installed characters byte for byte. The rest
         // of the upload matches the native one with that range left as the fresh video memory holds it.
@@ -81,12 +81,13 @@ internal static class RoomCharacterInstallationVerification
             "the installation holds no room palette");
         _ = RoomStaticPaletteArtworkFiles.LoadForImport(CartridgeImportContent.ImportData(GameInstallationLayout.RoomPaletteDirectoryName));
 
-        AssertTrue(File.Exists(Path.Combine(installed.RoomMetatileDirectory,
-                RoomMetatileArtworkFiles.ManifestFileName)),
-            "room-block stock manifest is installed");
         // The stock block compositions are extraction input (#1431): the block sheets are composed from them and each
-        // tileset records the appearance inputs its blocks depend on beside its sheets (#1466). Rooms load no composition.
-        RoomMetatileCatalog stockBlocks = RoomMetatileArtworkFiles.Load(installed.RoomMetatileDirectory);
+        // tileset records the appearance inputs its blocks depend on beside its sheets (#1466). Rooms load no composition,
+        // so the compositions are import data (#1638): the installation holds none, and the import reads them where it
+        // extracted them.
+        AssertTrue(!Directory.Exists(Path.Combine(installed.ContentDirectory, GameInstallationLayout.RoomMetatileDirectoryName)),
+            "the installation holds no block composition");
+        RoomMetatileCatalog stockBlocks = RoomMetatileArtworkFiles.LoadForImport(CartridgeImportContent.ImportData(GameInstallationLayout.RoomMetatileDirectoryName));
         InstalledRoomArtwork installedSheets = installed.LoadRoomBlockSheets();
         AssertTrue(File.Exists(Path.Combine(installed.RoomBlockSheetDirectory, RoomBlockAppearanceFiles.FileNameOf(native.Tileset))),
             "the Landing Site tileset's block appearance record is installed beside its block sheets");
@@ -94,15 +95,17 @@ internal static class RoomCharacterInstallationVerification
             installedSheets.Get(native.Tileset).Inputs.Count,
             "the installed appearance record covers every block a Landing Site room loads");
 
-        AssertTrue(File.Exists(Path.Combine(installed.RoomBackgroundTilemapDirectory,
-                RoomBackgroundTilemapArtworkFiles.ManifestFileName)),
-            "room-background stock manifest is installed");
-        RoomBackgroundTilemaps stockBackgrounds = installed.LoadRoomBackgroundTilemaps();
-        // A manifest entry that names no background tilemap (#1414) is rejected. The installation is shared and never
-        // changes, so the altered manifest is written over a private copy of the installed background directory.
+        // The background tilemaps and sky pages only the import reads, to picture the backgrounds and the sky, are import
+        // data (#1638): the installation holds none, and the import reads them where it extracted them.
+        AssertTrue(!Directory.Exists(Path.Combine(installed.ContentDirectory, GameInstallationLayout.RoomBackgroundTilemapDirectoryName)),
+            "the installation holds no background tilemap or sky page");
+        string backgroundImportData = CartridgeImportContent.ImportData(GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
+        RoomBackgroundTilemaps stockBackgrounds = InstalledFixtures.BackgroundTilemaps;
+        // A manifest entry that names no background tilemap (#1414) is rejected. The extraction is shared and never
+        // changes, so the altered manifest is written over a private copy of the extracted background directory.
         using var backgroundScratch = new TestScratchDirectory("room-background-manifest-rejection");
         Directory.CreateDirectory(backgroundScratch.Root);
-        foreach (string file in Directory.GetFiles(installed.RoomBackgroundTilemapDirectory))
+        foreach (string file in Directory.GetFiles(backgroundImportData))
             File.Copy(file, Path.Combine(backgroundScratch.Root, Path.GetFileName(file)));
         string backgroundManifestPath = Path.Combine(backgroundScratch.Root, RoomBackgroundTilemapArtworkFiles.ManifestFileName);
         byte[] originalBackgroundManifest = File.ReadAllBytes(backgroundManifestPath);
@@ -110,7 +113,7 @@ internal static class RoomCharacterInstallationVerification
         AssertTrue(!Enum.TryParse(substitutedTilemap, out RoomBackgroundTilemap _),
             "manifest substitution fixture names no background tilemap");
         JsonNode alteredManifest = JsonNode.Parse(originalBackgroundManifest)
-            ?? throw new InvalidDataException("Installed background manifest is empty.");
+            ?? throw new InvalidDataException("Extracted background manifest is empty.");
         JsonObject manifestEntries = alteredManifest.Required("entries").AsObject();
         string stockName = RoomBackgroundTilemapArtworkFiles.FileName(Enum.GetValues<RoomBackgroundTilemap>()[0]);
         string substitutedName = "room-background-not-a-background-tilemap.json";
@@ -121,9 +124,9 @@ internal static class RoomCharacterInstallationVerification
         File.WriteAllText(backgroundManifestPath, alteredManifest.ToJsonString());
         try
         {
-            _ = RoomBackgroundTilemapArtworkFiles.Load(backgroundScratch.Root);
+            _ = RoomBackgroundTilemapArtworkFiles.LoadForImport(backgroundScratch.Root);
             throw new InvalidOperationException(
-                "Substituted background tilemap was accepted by the installation loader.");
+                "Substituted background tilemap was accepted by the import's loader.");
         }
         catch (InvalidDataException error)
         {
@@ -143,9 +146,9 @@ internal static class RoomCharacterInstallationVerification
             ceres.State.BackgroundDataPointer, activeDoorPointer: 0);
         LibraryBackgroundReplay.Execute(stockBackgroundVram, LibraryBackgroundProgramDefinitions.Get(ceres.State.BackgroundDataPointer), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = stockBackgrounds });
         AssertTrue(nativeBackgroundVram.ImageEquals(stockBackgroundVram),
-            "installed Ceres background tilemap retains native VRAM words");
+            "extracted Ceres background tilemap retains native VRAM words");
 
-        RoomSkyTilemaps stockSky = installed.LoadRoomSkyTilemaps();
+        RoomSkyTilemaps stockSky = InstalledFixtures.SkyTilemaps;
         // The landing-cutscene door's command-E record selects the uploaded sky page.
         LibraryBackgroundInstruction landingSky = LibraryBackgroundProgramDefinitions.GetDoorTransfer(
             unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
@@ -153,12 +156,12 @@ internal static class RoomCharacterInstallationVerification
         int skyPage = landingSky.Source is LibraryBackgroundSource.SkyPage sky ? sky.Page
             : throw new InvalidOperationException($"The landing-cutscene door transfer reads {landingSky.Source}, not a sky page.");
         string skyName = RoomSkyTilemapFormat.FileName(skyPage);
-        string skyStockPath = Path.Combine(installed.RoomBackgroundTilemapDirectory, skyName);
-        AssertTrue(File.Exists(skyStockPath), "selected scrolling-sky page is installed");
+        string skyStockPath = Path.Combine(backgroundImportData, skyName);
+        AssertTrue(File.Exists(skyStockPath), "selected scrolling-sky page is extracted into the import data");
         byte[] nativeSky = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             LibraryBackgroundOperands.SkyPageAddress(skyPage), landingSky.ByteCount);
         AssertTrue(BackgroundTileWordBytes.Of(stockSky.Page(skyPage, landingSky.ByteCount / sizeof(ushort)).Span).AsSpan().SequenceEqual(nativeSky),
-            "installed scrolling-sky page retains native door-selected bytes");
+            "extracted scrolling-sky page retains native door-selected bytes");
 
         Console.WriteLine("  Room artwork installation: statue ghost, RGB5, block, BG and sky stock import verified.");
     }

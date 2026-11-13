@@ -13,11 +13,12 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks validation and content identity for installed room visual JSON.</summary>
+/// <summary>Checks validation and content identity for the installed room visual JSON and the room JSON the import reads.</summary>
 internal static class RoomAssetJsonContractsVerification
 {
     /// <summary>
-    /// Checks the five statically identified installed room-visual JSON families.
+    /// Checks the five statically identified room-visual JSON families: the installed layouts and X-ray reveals, and the
+    /// backgrounds, skies and block compositions the import reads (#1638).
     /// Only extracted files are copied; no ROM or gameplay is opened by this fixture.
     /// Defective manifests must fail with their path, while valid historical casing keeps the exact
     /// content identity.
@@ -32,15 +33,18 @@ internal static class RoomAssetJsonContractsVerification
         int rejected = 0;
         try
         {
+            // The background tilemaps, sky pages and block compositions are import data no installation holds (#1638): their
+            // contracts copy the cartridge-derived extraction's.
+            string backgrounds = CartridgeImportContent.ImportData(GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
             RoomJsonFileContract[] contracts =
             [
-                new("backgrounds", installed.RoomBackgroundTilemapDirectory, RoomBackgroundTilemapArtworkFiles.ManifestFileName,
-                    stock => BackgroundTilemapIdentity(RoomBackgroundTilemapArtworkFiles.Load(stock))),
-                new("skies", installed.RoomBackgroundTilemapDirectory, RoomSkyTilemapFormat.ManifestFileName,
-                    stock => SkyIdentity(RoomSkyTilemapArtworkFiles.Load(stock))),
+                new("backgrounds", backgrounds, RoomBackgroundTilemapArtworkFiles.ManifestFileName,
+                    stock => BackgroundTilemapIdentity(RoomBackgroundTilemapArtworkFiles.LoadForImport(stock))),
+                new("skies", backgrounds, RoomSkyTilemapFormat.ManifestFileName,
+                    stock => SkyIdentity(RoomSkyTilemapArtworkFiles.LoadForImport(stock))),
                 // Block compositions are stock extraction input (#1431): their identity is their tiles.
-                new("metatiles", installed.RoomMetatileDirectory, RoomMetatileArtworkFiles.ManifestFileName,
-                    stock => BlockCompositionIdentity(RoomMetatileArtworkFiles.Load(stock))),
+                new("metatiles", CartridgeImportContent.ImportData(GameInstallationLayout.RoomMetatileDirectoryName), RoomMetatileArtworkFiles.ManifestFileName,
+                    stock => BlockCompositionIdentity(RoomMetatileArtworkFiles.LoadForImport(stock))),
                 new("layouts", installed.RoomVisualLayoutDirectory, RoomVisualLayoutFiles.ManifestFileName,
                     stock => RoomVisualLayoutFiles.Load(stock).ContentIdentity),
                 new("X-ray", installed.XrayRevealVisualDirectory, XrayRevealVisualFiles.ManifestFileName,
@@ -90,7 +94,7 @@ internal static class RoomAssetJsonContractsVerification
     }
 
     /// <summary>
-    /// A digest of every installed block composition's tile words, the common room elements' first and then each block
+    /// A digest of every extracted block composition's tile words, the common room elements' first and then each block
     /// set's in set order, standing for the compositions' content as extraction reads it.
     /// </summary>
     private static string BlockCompositionIdentity(RoomMetatileCatalog catalog)
@@ -101,13 +105,13 @@ internal static class RoomAssetJsonContractsVerification
     }
 
     /// <summary>
-    /// The identity of the installed library background tilemaps, which only the import reads (#1466): their tiles in
+    /// The identity of the extracted library background tilemaps, which only the import reads (#1466, #1638): their tiles in
     /// background order.
     /// </summary>
     private static string BackgroundTilemapIdentity(RoomBackgroundTilemaps catalog) => Convert.ToHexString(SHA256.HashData(
         [.. catalog.Tilemaps.OrderBy(entry => entry.Key).SelectMany(entry => BackgroundTileWords.ToBytes(entry.Value.Tiles.Span))]));
 
-    /// <summary>The identity of the installed sky pages, which only the import reads (#1466): their tiles in scrolling order.</summary>
+    /// <summary>The identity of the extracted sky pages, which only the import reads (#1466, #1638): their tiles in scrolling order.</summary>
     private static string SkyIdentity(RoomSkyTilemaps skies) => Convert.ToHexString(SHA256.HashData(BackgroundTileWords.ToBytes(skies.Pages.Span)));
 
     /// <summary>Names one room asset family, its stock manifest, and its content identity loader.</summary>

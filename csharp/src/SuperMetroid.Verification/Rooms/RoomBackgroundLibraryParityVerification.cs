@@ -20,14 +20,15 @@ internal static class RoomBackgroundLibraryParityVerification
 {
     /// <summary>Runs every authored background list and door-gated transfer, comparing installed VRAM and WRAM against native execution.</summary>
     internal static void VerifyLibraryBackgroundInstalledParity(
-        string sourceRom, GameInstallation installed)
+        string sourceRom)
     {
         SuperMetroidAddressSpace inventoryBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         Suite(nameof(VerifyCompiledLibraryBackgroundPrograms), () => VerifyCompiledLibraryBackgroundPrograms(inventoryBus));
         IReadOnlyList<LibraryBackgroundNativeOperand> sources =
             LibraryBackgroundSourceInventory.Scan(inventoryBus);
-        RoomBackgroundTilemaps backgrounds = installed.LoadRoomBackgroundTilemaps();
-        RoomSkyTilemaps skies = installed.LoadRoomSkyTilemaps();
+        // The tilemaps and sky pages the import pictures the backgrounds from are import data (#1638).
+        RoomBackgroundTilemaps backgrounds = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BackgroundTilemaps;
+        RoomSkyTilemaps skies = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SkyTilemaps;
         RoomCharacterAtlases characters = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.RoomCharacters;
         HudTileAtlas hud = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportMaps.Characters.Hud;
         int cases = 0;

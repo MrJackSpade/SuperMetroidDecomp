@@ -30,23 +30,25 @@ internal sealed record RoomBlockSheetInputs(RoomCharacterAtlases Characters, Roo
     BossSourceArtwork Bosses, HudTileAtlas Hud, RoomBackgroundTilemaps BackgroundTilemaps, RoomSkyTilemaps Skies,
     EscapeTypewriterPresentation EscapeTypewriter, ImportAreaMapPresentation Maps, EnemySheetInputs Objects)
 {
-    /// <summary>Loads the stock artwork from installed content.</summary>
+    /// <summary>Loads the stock artwork from the extracted content <paramref name="content"/> and its import data.</summary>
     internal static RoomBlockSheetInputs Load(string content)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
         string map = Path.Combine(content, GameInstallationLayout.MapDirectoryName);
         string roomCharacters = Path.Combine(content, GameInstallationLayout.RoomCharacterDirectoryName);
+        // The block compositions, background tilemaps and sky pages are import data (#1638), as the characters are (#1636).
+        string backgrounds = ImportDataDirectory.Of(Path.Combine(content, GameInstallationLayout.RoomBackgroundTilemapDirectoryName));
         ImportAreaMapPresentation maps = MapPresentationFiles.LoadForImport(map, ImportDataDirectory.Of(map));
         EnemySheetInputs objects = EnemySheetInputs.Load(content);
         return new(
             RoomCharacterArtworkFiles.LoadForImport(roomCharacters, ImportDataDirectory.Of(roomCharacters)),
-            RoomMetatileArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomMetatileDirectoryName)),
+            RoomMetatileArtworkFiles.LoadForImport(ImportDataDirectory.Of(Path.Combine(content, GameInstallationLayout.RoomMetatileDirectoryName))),
             RoomStaticPaletteArtworkFiles.LoadForImport(ImportDataDirectory.Of(Path.Combine(content, GameInstallationLayout.RoomPaletteDirectoryName))),
             maps.RoomFxAnimatedTiles,
             objects.Bosses,
             maps.Characters.Hud,
-            RoomBackgroundTilemapArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomBackgroundTilemapDirectoryName)),
-            RoomSkyTilemapArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomBackgroundTilemapDirectoryName)),
+            RoomBackgroundTilemapArtworkFiles.LoadForImport(backgrounds),
+            RoomSkyTilemapArtworkFiles.LoadForImport(backgrounds),
             maps.Game.EscapeTypewriter,
             maps,
             objects);

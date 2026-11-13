@@ -125,8 +125,8 @@ internal static class RoomBlockPicturesVerification
         runtime.StepFrame(0);
         var shown = runtime.Display.Latched.Rooms?.Sky
             ?? throw new InvalidOperationException($"{room.Name}: BG2 shows no sky image.");
-        // The installed sky pages the import pictured; the runtime holds only their picture (#1466).
-        SkyTilemap sky = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.LoadRoomSkyTilemaps()
+        // The sky pages the import pictured, which are import data (#1638); the runtime holds only their picture (#1466).
+        SkyTilemap sky = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SkyTilemaps
             .Tilemap((runtime.Room.Scope?.ScrollingSky ?? throw new InvalidOperationException($"{room.Name} has no sky.")).Variant);
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         int rows = 0;

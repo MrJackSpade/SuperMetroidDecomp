@@ -81,13 +81,10 @@ Within either platform's application-data root:
 - `game/intro-cinematic/`: three stock indexed opening-scene character PNGs and their manifest.
 - `game/standard-objects/standard-object-characters.png`: indexed 4-bpp common
   gameplay sprite sheet, edited in place.
-- `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest, which the block sheets are
-  composed from. A block is changed through its picture in the block sheet.
 - `game/room-layouts/`: stock BG1/BG2 visual block-reference JSON for every room level source.
 - `game/room-level-streams/`: stock-only native level allocations (collision, BTS and
   streaming baseline) for every room level source. These files are not artwork.
 - `game/xray-reveals/`: stock visual metatile choices for X-ray block reveals.
-- `game/room-backgrounds/`: stock JSON for library-background BG tilemaps and their manifest.
 - `game/room-art-index.json`: read-only area/room ID guide to installed art files and state variants.
 - `game/installation.json`: extraction format version and ROM identity.
 - `SuperMetroid.ini`, `SuperMetroid.save.json`, `debug-states/`, and
@@ -764,31 +761,24 @@ from and fades back to. Damage thresholds, eye-fade steps, and death timing stay
 Base room colors are import data, which only the import pre-colours the room sheets from; they
 are not installed. Palette-FX scripts may animate or replace these base colors later in the room.
 
-Visual 16x16 blocks are composed at installation from `game/room-blocks/*.json`. Each
-ordered `blocks` entry names its four 8x8 children (`topLeft`, `topRight`,
-`bottomLeft`, `bottomRight`), with `tileColumn`, `tileRow`, `palette`, `priority`,
-`flipX`, and `flipY`. `room-blocks-cre.json` holds the common Zebes blocks; other
-filenames name their block set. These files are extraction input: a room draws each block as one 16x16 picture
-from its tileset's block sheet in `game/room-block-sheets`, so a block's appearance
-is changed by repainting its picture in that sheet in place.
+Visual 16x16 blocks are composed at installation from the block compositions, which are
+import data: only the import reads which characters each block places, and they are not
+installed. A room draws each block as one 16x16 picture from its tileset's block sheet in
+`game/room-block-sheets`, so a block's appearance is changed by repainting its picture in
+that sheet in place.
 
-Library-background tilemaps are installed as `game/room-backgrounds/*.json`.
-Each file contains one or two ordered 32x32 pages of 8x8 tile references with
-`tileColumn`, `tileRow`, `palette`, `priority`, `flipX`, and `flipY`. Edit a file
-in place, then restart.
+The library backgrounds' tilemaps and the seven contiguous scrolling-sky pages are import
+data as well: the import pictures the room backgrounds and the sky from them, and they are
+not installed. A background or the sky is changed through its pictures in the block sheets.
 The library-background command sequence, WRAM staging, VRAM transfer order and
 door conditions remain engine behavior, not editable data. The shared tilemap
 loaders reject unknown fields, duplicate/case-aliased
 properties, invalid dimensions and invalid cells explicitly.
 `--tilemap-json-contracts` verifies exact one/two-page and Kraid-head word
 roundtrips, historical casing and 44 malformed-document rejections.
-The installed library files cover the 58 compressed room BG tilemaps.
-Seven contiguous scrolling-sky pages are
-installed alongside them as `scrolling-sky-*.json`; edits to them change both
-door-selected and per-frame sky rows.
+The import's library tilemaps cover the 58 compressed room BG tilemaps.
 All 68 retail library-background command lists, including Landing Site's six
-door-to-sky choices, are compiled engine definitions; only the referenced
-tilemaps and character sheets are replaceable artwork.
+door-to-sky choices, are compiled engine definitions.
 The bank-$88 sky pointer arithmetic, scrolling rates and VRAM timing remain
 engine behavior. Kraid's direct HUD-character upload also uses the existing
 `game/maps/hud-tiles.png` artwork instead of

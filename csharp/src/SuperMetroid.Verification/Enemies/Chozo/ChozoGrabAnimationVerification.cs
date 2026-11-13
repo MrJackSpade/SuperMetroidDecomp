@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Verification.Enemies.Chozo;
 
 using SuperMetroid.Verification.Harness;
@@ -60,6 +61,12 @@ internal static class ChozoGrabAnimationVerification
         runtime.RoomObjects.ChozoStatue.NotifyChozoStatueHandCollision(level, block, samus, samus.Pose, movingDown: true);
         AssertTrue(samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked && samus.Control.AlphaLocked,
             "hand trigger installs native stationary handlers");
+        // The waking statue's named screens are the Bowling Alley's original scroll cells 7 and 8 (green), then 13 and 14
+        // (blue) (#1622).
+        RoomScrollGrid scrolls = runtime.Room.LoadedCamera.Scrolls;
+        AssertTrue(scrolls.ReadState(7) == RoomScrollState.Green && scrolls.ReadState(8) == RoomScrollState.Green
+            && scrolls.ReadState(13) == RoomScrollState.Blue && scrolls.ReadState(14) == RoomScrollState.Blue,
+            "the waking statue opens the second row's second and third screens green and the two below them blue");
         AssertEqual(2, samus.AnimationFrame, "grab preserves captured ball frame");
         AssertEqual((ushort)3, samus.AnimationFrameTimer.RawValue, "grab preserves captured ball timer");
         ushort startX = samus.Position.X.Whole, startY = samus.Position.Y.Whole;
@@ -95,6 +102,10 @@ internal static class ChozoGrabAnimationVerification
             AssertTrue(!runtime.BombProjectiles.PowerBombExplosion.IsActive && !runtime.BombProjectiles.PowerBombExplosion.IsArmed,
                 "Power Bomb completes and releases its armed flag during the statue ride");
         AssertTrue(carried, "statue still moves Samus while animation is locked");
+        // The release's named screens are the original scroll cells 6 through 10 (closed), 13 (blue) and 14 (closed).
+        AssertTrue(Enumerable.Range(6, 5).All(cell => scrolls.ReadState(cell) == RoomScrollState.RedBoundary)
+            && scrolls.ReadState(13) == RoomScrollState.Blue && scrolls.ReadState(14) == RoomScrollState.RedBoundary,
+            "the release closes the second row's first five screens, opens the third row's second blue and closes its third");
         AssertTrue(samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked && !samus.Control.AlphaLocked && runtime.Player.GroundedSamusMovementEnabled,
             "native release restores handlers and movement");
         bool animationResumed = false;

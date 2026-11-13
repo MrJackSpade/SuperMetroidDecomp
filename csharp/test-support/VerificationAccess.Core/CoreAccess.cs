@@ -180,8 +180,8 @@ internal static class CoreAccess
     /// <summary>Rebinds enemy fixtures and inspects Kraid collision, statue requests, and pirate slot state.</summary>
     extension(RoomEnemySystem enemies)
     {
-        /// <summary>Room PLM requests emitted by Chozo statue AI in their publication order.</summary>
-        internal IReadOnlyList<ChozoStatueObjectRequest> ChozoStatueObjectRequests =>
+        /// <summary>The room objects the Chozo statue has asked for and the room has still to spawn, in the order it asked.</summary>
+        internal IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ChozoStatueObjectRequests =>
             enemies.ChozoStatueBehavior.ChozoStatueObjectRequests;
         /// <summary>Per-slot Chozo statue states, including unused physical enemy slots.</summary>
         internal IReadOnlyList<ChozoStatueState?> ChozoStatueStates =>

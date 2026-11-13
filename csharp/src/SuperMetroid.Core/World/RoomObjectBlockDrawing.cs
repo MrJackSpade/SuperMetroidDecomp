@@ -277,12 +277,9 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                 .Image(RoomObjectDraw.FrameOf<DraygonCannonDraw>(draw, "Draygon cannon")), draygonCannon);
             return;
         }
-        if (ChozoStatueDraws.TryDescribe(draw, out var chozoStatue))
+        if (ChozoStatueDraws.TryDescribe(draw, out RoomBlockShape? chozoStatue))
         {
-            RoomObjectFrameImage statue = Installed(ChozoStatueVisuals, "Chozo statue").Image(draw);
-            for (int run = 0; run < chozoStatue.RunCount; run++)
-                for (int cell = 0; cell < chozoStatue.BlockCount(run); cell++)
-                    DrawImageCell(level, draw, origin, statue, chozoStatue.Start(run) + new Offset16<RoomBlocks>(cell, 0), chozoStatue.CollisionAt(run, cell));
+            DrawShape(level, draw, origin, Installed(ChozoStatueVisuals, "Chozo statue").Image(draw), chozoStatue);
             return;
         }
         // A block pair's frame lies under the item's own picture (#1538): it writes only its terrain, block number included.

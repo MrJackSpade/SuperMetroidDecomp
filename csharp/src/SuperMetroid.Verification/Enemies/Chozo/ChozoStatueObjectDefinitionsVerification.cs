@@ -37,92 +37,108 @@ internal static class ChozoStatueObjectDefinitionsVerification
         Suite(nameof(VerifyChozoLayoutVisuals), () => VerifyChozoLayoutVisuals(rom));
         Suite(nameof(VerifyChozoStatueVisualInstallation), () => VerifyChozoStatueVisualInstallation(rom));
         Console.WriteLine(
-            "Chozo statue objects: five headers, their native lists against their typed objects, the Lower Norfair hand's trigger, native draws and visual-only terrain overrides pass.");
+            "Chozo statue objects: six room objects over five native lists against their typed objects, the Lower Norfair hand's trigger, native draws and visual-only terrain overrides pass.");
     }
 
     /// <summary>
-    /// Checks the five statue objects across the whole room-object domain, plays each one's native list against its
-    /// typed object (#1554), and checks what each spawn leaves at its place.
+    /// Checks that the six statue room objects are the original game's five statue objects, the plug's crumble spawned two
+    /// ways, plays each one's native list against its typed object (#1554), and checks what each spawn leaves at its
+    /// place: the plug's two spawns leave their own blocks (#1622).
     /// </summary>
     private static void VerifyChozoTerrainHeaders(SuperMetroidAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        IReadOnlyList<RoomObjectHeaderId> definitions = ChozoStatueObjectDefinitions.Headers;
-        AssertEqual(5, definitions.Count, "Chozo statue object count");
+        ChozoStatueRoomObject[] statueObjects = Enum.GetValues<ChozoStatueRoomObject>();
+        AssertEqual(6, statueObjects.Length, "Chozo statue room object count");
 
         ushort[] headers = [0xd6d6,0xd6ee,0xd6f8,0xd6fc,0xd113];
-        // RoomObjectHeaderId's values are arbitrary (#1414): the domain is every member, each translated to its cartridge word.
-        AssertTrue(headers.SequenceEqual(definitions.Select(identity => RoomObjectNativeWords.Word(identity))), "Chozo original header enumeration");
-        foreach (RoomObjectHeaderId candidate in Enum.GetValues<RoomObjectHeaderId>())
-        {
-            if (!headers.Contains(RoomObjectNativeWords.Word(candidate)))
-                AssertThrows<InvalidDataException>(() => ChozoStatueObjectHeaders.Require(candidate), "Chozo full unsupported header domain");
-            else
-                AssertEqual(candidate, ChozoStatueObjectHeaders.Require(candidate), "Chozo dispatch header identity");
-        }
+        AssertTrue(headers.SequenceEqual(statueObjects.Select(statueObject => RoomObjectNativeWords.Word(NativeIdentities[statueObject])).Distinct()),
+            "the statue room objects are the original game's five statue objects, in order");
 
         // The four terrain changes play as their native lists do; the slope accesses change the slope as they end.
-        var changes = new Dictionary<RoomObjectHeaderId, TerrainChange>
+        var changes = new Dictionary<ChozoStatueRoomObject, TerrainChange>
         {
-            [RoomObjectHeaderId.WreckedShipChozoHand] = ChozoStatueObjectDefinitions.WreckedShipHand,
-            [RoomObjectHeaderId.ClearSlopeAccessForWreckedShipChozo] = ChozoStatueObjectDefinitions.ClearSlopeAccess,
-            [RoomObjectHeaderId.BlockSlopeAccessForWreckedShipChozo] = ChozoStatueObjectDefinitions.BlockSlopeAccess,
-            [RoomObjectHeaderId.CrumbleLowerNorfairChozoRoomPlug] = ChozoStatueObjectDefinitions.CrumblePlug,
+            [ChozoStatueRoomObject.WreckedShipHand] = ChozoStatueObjectDefinitions.WreckedShipHand,
+            [ChozoStatueRoomObject.SlopeAccessOpening] = ChozoStatueObjectDefinitions.ClearSlopeAccess,
+            [ChozoStatueRoomObject.SlopeAccessClosing] = ChozoStatueObjectDefinitions.BlockSlopeAccess,
+            [ChozoStatueRoomObject.PlugCrumbleAtHand] = ChozoStatueObjectDefinitions.CrumblePlug,
+            [ChozoStatueRoomObject.PlugCrumbleUnderFootstep] = ChozoStatueObjectDefinitions.CrumblePlug,
         };
-        foreach ((RoomObjectHeaderId header, TerrainChange change) in changes)
+        foreach ((ChozoStatueRoomObject statueObject, TerrainChange change) in changes)
         {
-            NativeTerrainChanges.Compare(cartridge, change, NativeList(cartridge, header), ChozoTerrainStepAt, header.ToString(),
+            NativeTerrainChanges.Compare(cartridge, change, NativeList(cartridge, statueObject), ChozoTerrainStepAt, statueObject.ToString(),
                 out bool began, out IReadOnlyList<NativeTerrainChanges.NativeStep> atEnd);
-            AssertTrue(!began, $"{header} opens nothing as it starts");
-            string expected = header == RoomObjectHeaderId.ClearSlopeAccessForWreckedShipChozo ? SpikesBecomeSlopes
-                : header == RoomObjectHeaderId.BlockSlopeAccessForWreckedShipChozo ? SlopesBecomeSpikes
+            AssertTrue(!began, $"{statueObject} opens nothing as it starts");
+            string expected = statueObject == ChozoStatueRoomObject.SlopeAccessOpening ? SpikesBecomeSlopes
+                : statueObject == ChozoStatueRoomObject.SlopeAccessClosing ? SlopesBecomeSpikes
                 : "";
-            AssertEqual(expected, string.Join(", ", atEnd.Select(step => step.Effect)), $"{header} acts as it ends exactly as its typed object does");
+            AssertEqual(expected, string.Join(", ", atEnd.Select(step => step.Effect)), $"{statueObject} acts as it ends exactly as its typed object does");
         }
         VerifyLowerNorfairHandList(cartridge);
 
-        foreach (RoomObjectHeaderId header in definitions)
+        foreach (ChozoStatueRoomObject statueObject in statueObjects)
         {
             const int width = 32;
             const int height = 16;
             var level = CreateEmptyRoom(new(width, height));
             var roomObjects = RoomObjectFixtures.Unbound();
-            var request = new ChozoStatueObjectRequest(
-                header,
-                Block: new Position16<RoomBlocks>(3, 4),
-                IsHardcoded: false);
+            var block = new Position16<RoomBlocks>(3, 4);
+            RoomTerrainBlock before = level.GetCollisionBlock(block).Terrain;
 
             AssertTrue(
-                roomObjects.ChozoStatue.TrySpawnChozoStatueObject(level, request),
-                $"Chozo PLM {header} allocates");
+                roomObjects.ChozoStatue.TrySpawnChozoStatueObject(level, new RoomObjectSpawnRequest<ChozoStatueRoomObject>(block, statueObject)),
+                $"Chozo statue's {statueObject} spawns");
             RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
-            AssertEqual(0, slot.ProcessingPosition, "Chozo PLM takes the first free slot in processing order");
-            AssertEqual(header, slot.HeaderPointer, "Chozo PLM header identity");
-            AssertEqual(new Position16<RoomBlocks>(3, 4), slot.Block, "Chozo PLM requested block coordinate");
-            AssertTrue(header == RoomObjectHeaderId.LowerNorfairChozoHand
+            AssertEqual(0, slot.ProcessingPosition, "the statue's room object takes the first free place in the update order");
+            AssertEqual(block, slot.Block, "the statue's room object sits at its requested block");
+            AssertTrue(statueObject == ChozoStatueRoomObject.LowerNorfairHand
                     ? slot.Behaviour is LowerNorfairChozoHandObject { Phase: LowerNorfairChozoHandPhase.Starting }
-                    : slot.Behaviour is TerrainChangeObject { Change: var started } && started == changes[header]
-                        && (slot.Behaviour is ChozoSlopeAccessObject) == (header is RoomObjectHeaderId.ClearSlopeAccessForWreckedShipChozo or RoomObjectHeaderId.BlockSlopeAccessForWreckedShipChozo),
-                $"Chozo PLM {header} starts as its typed object");
+                    : slot.Behaviour is TerrainChangeObject { Change: var started } && started == changes[statueObject]
+                        && (slot.Behaviour is ChozoSlopeAccessObject) == (statueObject is ChozoStatueRoomObject.SlopeAccessOpening or ChozoStatueRoomObject.SlopeAccessClosing),
+                $"Chozo statue's {statueObject} starts as its typed object");
 
-            if (header == RoomObjectHeaderId.WreckedShipChozoHand)
+            RoomCollisionBlock left = level.GetCollisionBlock(block);
+            switch (statueObject)
             {
-                RoomCollisionBlock block = level.GetCollisionBlock(new(3, 4));
-                AssertEqual(
-                    RoomCollisionType.SpecialBlock,
-                    block.CollisionType,
-                    "Wrecked Ship hand installs special-block collision");
-                AssertEqual(
-                    ChozoStatueRoomDefinitions.WreckedShipHandBehavior,
-                    block.Behavior,
-                    "Wrecked Ship hand installs its special-solid behaviour");
+                case ChozoStatueRoomObject.WreckedShipHand:
+                    AssertEqual(RoomCollisionType.SpecialBlock, left.CollisionType, "Wrecked Ship hand installs special-block collision");
+                    AssertEqual(ChozoStatueRoomDefinitions.WreckedShipHandBehavior, left.Behavior, "Wrecked Ship hand installs its special-solid behaviour");
+                    break;
+                case ChozoStatueRoomObject.PlugCrumbleAtHand:
+                    AssertEqual(ChozoStatueRoomDefinitions.HandCrumbleSetupBlock, left.Terrain, "the hand's plug crumble leaves the block the room's load last drew");
+                    break;
+                case ChozoStatueRoomObject.PlugCrumbleUnderFootstep:
+                    AssertEqual(ChozoStatueRoomDefinitions.FootstepCrumbleSetupBlock, left.Terrain, "the footstep's plug crumble leaves block zero");
+                    break;
+                case ChozoStatueRoomObject.LowerNorfairHand:
+                case ChozoStatueRoomObject.SlopeAccessOpening:
+                case ChozoStatueRoomObject.SlopeAccessClosing:
+                    AssertEqual(before, left.Terrain, $"{statueObject}'s spawn leaves its block as it was");
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(ChozoStatueRoomObject)} {statueObject}.");
             }
         }
 
-        AssertThrows<InvalidDataException>(
-            () => ChozoStatueObjectHeaders.Require(RoomObjectHeaderId.CollisionWreckedShipChozoHandCheck),
-            "Chozo collision-trigger header cannot enter terrain-spawn domain");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => RoomObjectFixtures.Unbound().ChozoStatue.TrySpawnChozoStatueObject(CreateEmptyRoom(new(32, 16)),
+                new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new(3, 4), (ChozoStatueRoomObject)(-1))),
+            "a spawn naming no statue room object fails");
     }
+
+    /// <summary>
+    /// The original game's identity of each statue room object, through which verification reads its native list; both
+    /// plug crumbles are the one original object, spawned two ways.
+    /// </summary>
+    private static readonly Dictionary<ChozoStatueRoomObject, RoomObjectHeaderId> NativeIdentities = new()
+    {
+        [ChozoStatueRoomObject.LowerNorfairHand] = RoomObjectHeaderId.LowerNorfairChozoHand,
+        [ChozoStatueRoomObject.WreckedShipHand] = RoomObjectHeaderId.WreckedShipChozoHand,
+        [ChozoStatueRoomObject.SlopeAccessOpening] = RoomObjectHeaderId.ClearSlopeAccessForWreckedShipChozo,
+        [ChozoStatueRoomObject.SlopeAccessClosing] = RoomObjectHeaderId.BlockSlopeAccessForWreckedShipChozo,
+        [ChozoStatueRoomObject.PlugCrumbleAtHand] = RoomObjectHeaderId.CrumbleLowerNorfairChozoRoomPlug,
+        [ChozoStatueRoomObject.PlugCrumbleUnderFootstep] = RoomObjectHeaderId.CrumbleLowerNorfairChozoRoomPlug,
+    };
 
     /// <summary>
     /// The Lower Norfair hand waits for the Power Bomb block at its trigger block to break open (#1580). A Power Bomb
@@ -141,7 +157,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
             new RoomObjectServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true } },
             RoomObjectFixtures.Unbound());
         AssertTrue(roomObjects.ChozoStatue.TrySpawnChozoStatueObject(level,
-                new ChozoStatueObjectRequest(RoomObjectHeaderId.LowerNorfairChozoHand, Block: ChozoStatueRoomDefinitions.LowerNorfairHandBlock, IsHardcoded: true)),
+                new RoomObjectSpawnRequest<ChozoStatueRoomObject>(ChozoStatueRoomDefinitions.LowerNorfairHandBlock, ChozoStatueRoomObject.LowerNorfairHand)),
             "Lower Norfair hand allocates");
 
         // The hand starts on its first update and waits from its second while the trigger block stands intact.
@@ -195,9 +211,9 @@ internal static class ChozoStatueObjectDefinitionsVerification
     /// <summary>The comparison's name for the block-slope access's ending.</summary>
     private const string SlopesBecomeSpikes = "slopes become spikes";
 
-    /// <summary>The list a statue object's header starts.</summary>
-    private static ushort NativeList(IImportCartridgeSource cartridge, RoomObjectHeaderId header) =>
-        cartridge.ReadCartridgeWord(0x840000 | unchecked((ushort)(RoomObjectNativeWords.Word(header) + 2)));
+    /// <summary>The native list a statue room object starts.</summary>
+    private static ushort NativeList(IImportCartridgeSource cartridge, ChozoStatueRoomObject statueObject) =>
+        cartridge.ReadCartridgeWord(0x840000 | unchecked((ushort)(RoomObjectNativeWords.Word(NativeIdentities[statueObject]) + 2)));
 
     /// <summary>The slope accesses' two slope changes.</summary>
     private static bool ChozoTerrainStepAt(IImportCartridgeSource cartridge, ushort cursor, out NativeTerrainChanges.NativeStep step)
@@ -218,7 +234,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
     private static void VerifyLowerNorfairHandList(IImportCartridgeSource cartridge)
     {
         ushort Word(int address) => cartridge.ReadCartridgeWord(0x840000 | address);
-        ushort entry = NativeList(cartridge, RoomObjectHeaderId.LowerNorfairChozoHand);
+        ushort entry = NativeList(cartridge, ChozoStatueRoomObject.LowerNorfairHand);
         AssertEqual(RoomObjectInstruction.GotoIfEventSet, InstructionAt<RoomObjectInstruction>(cartridge, entry), "Lower Norfair hand checks an event first");
         AssertEqual(StoryEvent.LowerNorfairChozoLoweredAcid.Number(), Word(entry + 2), "Lower Norfair hand checks the lowered-acid event");
         ushort lowered = Word(entry + 4);

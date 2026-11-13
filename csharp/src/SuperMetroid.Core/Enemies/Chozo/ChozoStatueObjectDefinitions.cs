@@ -2,19 +2,9 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Chozo;
 
-/// <summary>The room objects the two Chozo statues spawn, and the authored timing of their terrain changes.</summary>
+/// <summary>The authored draws and timing of the terrain changes the two Chozo statues' room objects make.</summary>
 internal static class ChozoStatueObjectDefinitions
 {
-    /// <summary>The five room objects a Chozo statue spawns, in their authored order; no other object is a statue's.</summary>
-    internal static IReadOnlyList<RoomObjectHeaderId> Headers { get; } =
-    [
-        RoomObjectHeaderId.LowerNorfairChozoHand,
-        RoomObjectHeaderId.WreckedShipChozoHand,
-        RoomObjectHeaderId.ClearSlopeAccessForWreckedShipChozo,
-        RoomObjectHeaderId.BlockSlopeAccessForWreckedShipChozo,
-        RoomObjectHeaderId.CrumbleLowerNorfairChozoRoomPlug,
-    ];
-
     /// <summary>What the Lower Norfair hand draws once the acid is lowered.</summary>
     internal static RoomObjectDraw LoweredHand => ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.LowerNorfairChozoHand];
 

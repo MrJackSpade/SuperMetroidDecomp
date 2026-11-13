@@ -119,6 +119,10 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
             Loaded("write a room scroll state").RoomScroll.Write(index, state);
     }
 
+    /// <summary>Writes a screen's scroll state through the services installed by room loading.</summary>
+    public void Write(Position16<RoomScreens> screen, RoomScrollState state) =>
+        Loaded("write a screen's scroll state").RoomScroll.Write(screen, state);
+
     /// <summary>Forwards enabling Samus's controls to loaded room services.</summary>
     public void EnableControls() => Loaded("enable Samus's controls").SamusControls.EnableControls();
 

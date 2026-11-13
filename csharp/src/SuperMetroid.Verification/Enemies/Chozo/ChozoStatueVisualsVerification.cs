@@ -37,16 +37,16 @@ internal static class ChozoStatueVisualsVerification
             // production dispatcher must reach the installed art without falling back to ROM data.
             const int width = 32;
             var guarded = NewChozoProgramAndDrawReadGuard(rom);
-            foreach ((RoomObjectHeaderId header, RoomTerrainBlock physical) in new[]
+            foreach ((ChozoStatueRoomObject header, RoomTerrainBlock physical) in new[]
             {
-                new VerifyChozoStatueVisualInstallationCase(RoomObjectHeaderId.ClearSlopeAccessForWreckedShipChozo, RoomTerrainBlock.Of(0x12b, BlockMirroring.None, RoomCollisionType.Air)),
-                new VerifyChozoStatueVisualInstallationCase(RoomObjectHeaderId.BlockSlopeAccessForWreckedShipChozo, RoomTerrainBlock.Of(0x12b, BlockMirroring.None, RoomCollisionType.SpikeBlock)),
+                new VerifyChozoStatueVisualInstallationCase(ChozoStatueRoomObject.SlopeAccessOpening, RoomTerrainBlock.Of(0x12b, BlockMirroring.None, RoomCollisionType.Air)),
+                new VerifyChozoStatueVisualInstallationCase(ChozoStatueRoomObject.SlopeAccessClosing, RoomTerrainBlock.Of(0x12b, BlockMirroring.None, RoomCollisionType.SpikeBlock)),
             })
             {
                 var level = CreateEmptyRoom(new(width, 16));
                 var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectChozoStatueVisuals = installed });
                 AssertTrue(roomObjects.ChozoStatue.TrySpawnChozoStatueObject(level,
-                    new ChozoStatueObjectRequest(header, new Position16<RoomBlocks>(3, 4), IsHardcoded: false)),
+                    new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), header)),
                     $"Chozo actor {header} spawns in a bounded test room");
                 roomObjects.Step(level);
                 int origin = 4 * width + 3;
@@ -60,8 +60,7 @@ internal static class ChozoStatueVisualsVerification
             var crumbleLevel = CreateEmptyRoom(new(width, 16));
             var crumbleObjects = RoomObjectFixtures.Unbound();
             AssertTrue(crumbleObjects.ChozoStatue.TrySpawnChozoStatueObject(crumbleLevel,
-                new ChozoStatueObjectRequest(RoomObjectHeaderId.CrumbleLowerNorfairChozoRoomPlug,
-                    new Position16<RoomBlocks>(3, 4), IsHardcoded: false)),
+                new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), ChozoStatueRoomObject.PlugCrumbleUnderFootstep)),
                 "Chozo crumble plug spawns in a bounded test room");
             var seenCrumbleBlocks = new HashSet<RoomTerrainBlock>();
             for (int frame = 0; frame < 15; frame++)
@@ -78,9 +77,8 @@ internal static class ChozoStatueVisualsVerification
             var wreckedHandLevel = CreateEmptyRoom(new(width, 16));
             var wreckedHandObjects = RoomObjectFixtures.Unbound();
             AssertTrue(wreckedHandObjects.ChozoStatue.TrySpawnChozoStatueObject(wreckedHandLevel,
-                new ChozoStatueObjectRequest(RoomObjectHeaderId.WreckedShipChozoHand,
-                    new Position16<RoomBlocks>(3, 4), IsHardcoded: false)),
-                "Wrecked Ship hand spawns from its compiled header");
+                new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), ChozoStatueRoomObject.WreckedShipHand)),
+                "Wrecked Ship hand spawns");
             wreckedHandObjects.Step(wreckedHandLevel);
             AssertTrue(wreckedHandObjects.PopulationSlots.Count == 0,
                 "Wrecked Ship hand executes the shared compiled delete list");

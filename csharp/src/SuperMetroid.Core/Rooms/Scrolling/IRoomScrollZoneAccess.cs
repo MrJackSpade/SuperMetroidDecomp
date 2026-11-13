@@ -8,4 +8,8 @@ public interface IRoomScrollZoneAccess
 
     /// <summary>Stores <paramref name="state"/> for scroll zone <paramref name="index"/>.</summary>
     void Write(int index, RoomScrollState state);
+
+    /// <summary>Stores <paramref name="state"/> for the room's <paramref name="screen"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The screen lies outside the room.</exception>
+    void Write(Position16<RoomScreens> screen, RoomScrollState state);
 }

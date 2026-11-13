@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -103,22 +102,32 @@ internal sealed record SamusOverreadDocument(
         Restart,
     }
 
-    /// <summary>What the copy turns on or off in progress, and the loading state it leaves when it reaches it (#1475).</summary>
-    /// <param name="Events">The story events, by number, the copy decides.</param>
+    /// <summary>
+    /// What the copy turns on or off in progress, and the startup route it leaves when it reaches it (#1475), each by the
+    /// identities the game knows it by (#1709).
+    /// </summary>
+    /// <param name="Events">The story events, by name, the copy decides.</param>
+    /// <param name="ZebetitesDestroyed">The Zebetite count the copy leaves, 0 through 4, or null when it stops before deciding it.</param>
     /// <param name="AreaBosses">The defeated bosses the copy leaves, by area name, each as the names of its boss flags.</param>
-    /// <param name="CollectedItems">The item locations, by room-data number, the copy decides.</param>
-    /// <param name="OpenedDoors">The doors, by room-data number, the copy decides.</param>
-    /// <param name="UsedStations">The used stations, by station number, the copy decides, by area name.</param>
+    /// <param name="CollectedItems">The item locations, by name, the copy decides.</param>
+    /// <param name="OpenedDoors">The doors, by name, the copy decides.</param>
+    /// <param name="UsedStations">The used save stations and elevators, by name, the copy decides.</param>
     /// <param name="AreaMaps">Whether the copy leaves each area's map acquired, by area name.</param>
-    /// <param name="SavedLoadingGameState">The saved loading state written, or null when the copy stops before it.</param>
+    /// <param name="SavedStartupRoute">The name of the saved startup route the copy leaves, or null when it stops before it.</param>
     internal sealed record Overwrite(
-        FlagOverwrite Events,
+        DecidedMembers Events,
+        int? ZebetitesDestroyed,
         IReadOnlyDictionary<string, IReadOnlyList<string>> AreaBosses,
-        FlagOverwrite CollectedItems,
-        FlagOverwrite OpenedDoors,
-        IReadOnlyDictionary<string, FlagOverwrite> UsedStations,
+        DecidedMembers CollectedItems,
+        DecidedMembers OpenedDoors,
+        DecidedMembers UsedStations,
         IReadOnlyDictionary<string, bool> AreaMaps,
-        int? SavedLoadingGameState);
+        string? SavedStartupRoute);
+
+    /// <summary>What an overwrite decides for one kind of progress: the members whose state it decides, and those it leaves on.</summary>
+    /// <param name="Decided">The names of the members whose state the overwrite decides; every other member keeps its state.</param>
+    /// <param name="Set">The names of the decided members the overwrite leaves on; the other decided members it turns off.</param>
+    internal sealed record DecidedMembers(IReadOnlyList<string> Decided, IReadOnlyList<string> Set);
 
     /// <summary>An animation position: a program and its step.</summary>
     /// <param name="Program">The program's name.</param>

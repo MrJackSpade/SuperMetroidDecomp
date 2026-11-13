@@ -17,9 +17,11 @@ internal static class SamusOverreadFormat
     /// holds no Chozo orbs, which nothing in the game reads (#1553); revision fifteen holds no trail start past a placement
     /// list, which leaves no trail (#1625); revision sixteen holds no waits below the charge flare's animations, which no
     /// runtime reaches (#1624); revision seventeen keys the steps a program's places read on a cue's value as cue-value steps
-    /// (#1624).
+    /// (#1624); revision eighteen names the story events, item locations, doors and used stations SpaceTime's overwrite
+    /// decides, the Zebetite count it leaves and the startup route it saves, in place of the save image's flag numbering
+    /// and the saved loading-state word (#1709).
     /// </summary>
-    internal const int Version = 17;
+    internal const int Version = 18;
     /// <summary>JSON filename holding the decoded over-read results.</summary>
     internal const string FileName = "samus-overreads.json";
     /// <summary>Shared camel-case, case-insensitive JSON options that reject unknown fields; the file is written compactly.</summary>

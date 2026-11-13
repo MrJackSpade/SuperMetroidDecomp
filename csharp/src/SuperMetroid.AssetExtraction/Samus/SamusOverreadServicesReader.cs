@@ -2,7 +2,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Spatial;
 using System.Globalization;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -18,6 +17,22 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>Validates an installed overread document and builds the Samus overread services from it (#1474).</summary>
 internal static class SamusOverreadServicesReader
 {
+    /// <summary>Every story event by its name.</summary>
+    private static readonly IReadOnlyDictionary<string, StoryEvent> StoryEventsByName =
+        Enum.GetValues<StoryEvent>().ToDictionary(storyEvent => storyEvent.ToString(), StringComparer.Ordinal);
+
+    /// <summary>Every item location by its name.</summary>
+    private static readonly IReadOnlyDictionary<string, ItemLocation> ItemLocationsByName =
+        ItemLocationDefinitions.All.ToDictionary(location => location.Name, StringComparer.Ordinal);
+
+    /// <summary>Every locked door by its name.</summary>
+    private static readonly IReadOnlyDictionary<string, LockedDoor> LockedDoorsByName =
+        LockedDoorDefinitions.All.ToDictionary(door => door.Name, StringComparer.Ordinal);
+
+    /// <summary>Every station the used-station record keeps, by its name.</summary>
+    private static readonly IReadOnlyDictionary<string, LoadStation> UsedStationsByName =
+        LoadStationDefinitions.Usable.ToDictionary(station => station.Name, StringComparer.Ordinal);
+
     /// <summary>Builds every service, requiring an entry for every situation each one covers.</summary>
     /// <param name="document">The installed overread document.</param>
     /// <param name="straddledTerrain">The installed straddled terrain (#1612).</param>
@@ -161,22 +176,52 @@ internal static class SamusOverreadServicesReader
         return new(result);
     }
 
-    /// <summary>One decoded overwrite in the progression's own terms.</summary>
+    /// <summary>One overwrite, its progress and startup route named by the identities the game knows them by.</summary>
+    /// <exception cref="InvalidDataException">
+    /// The overwrite names something the game does not have, names a member twice, leaves on a member it does not decide,
+    /// or leaves a Zebetite count the game cannot hold.
+    /// </exception>
     private static ProgressionOverwrite? Overwrite(SamusOverreadDocument.Overwrite? overwrite) => overwrite is null
         ? null
         : new ProgressionOverwrite(
-            ProgressionTableCodec.StoryEventsOf(Require(overwrite.Events, nameof(overwrite.Events))),
-            ProgressionTableCodec.ZebetitesDestroyedOf(Require(overwrite.Events, nameof(overwrite.Events))),
+            Decided(Require(overwrite.Events, nameof(overwrite.Events)), StoryEventsByName, "SpaceTime story event"),
+            overwrite.ZebetitesDestroyed is null or (>= 0 and <= PersistentProgress.ZebetiteCount)
+                ? overwrite.ZebetitesDestroyed
+                : throw new InvalidDataException(
+                    $"Samus overread file's SpaceTime overwrite leaves {overwrite.ZebetitesDestroyed} Zebetites destroyed, not 0 through {PersistentProgress.ZebetiteCount}."),
             Require(overwrite.AreaBosses, nameof(overwrite.AreaBosses)).ToDictionary(
                 area => Parse<AreaId>(area.Key, "SpaceTime boss area"),
                 area => area.Value.Aggregate(BossBits.None, (bosses, name) => bosses | Parse<BossBits>(name, "SpaceTime boss"))),
-            ProgressionTableCodec.CollectedItemsOf(Require(overwrite.CollectedItems, nameof(overwrite.CollectedItems))),
-            ProgressionTableCodec.OpenedDoorsOf(Require(overwrite.OpenedDoors, nameof(overwrite.OpenedDoors))),
-            ProgressionTableCodec.UsedStationsOf(Require(overwrite.UsedStations, nameof(overwrite.UsedStations)).ToDictionary(
-                area => Parse<AreaId>(area.Key, "SpaceTime station area"), area => area.Value)),
+            Decided(Require(overwrite.CollectedItems, nameof(overwrite.CollectedItems)), ItemLocationsByName, "SpaceTime item location"),
+            Decided(Require(overwrite.OpenedDoors, nameof(overwrite.OpenedDoors)), LockedDoorsByName, "SpaceTime door"),
+            Decided(Require(overwrite.UsedStations, nameof(overwrite.UsedStations)), UsedStationsByName, "SpaceTime used station"),
             Require(overwrite.AreaMaps, nameof(overwrite.AreaMaps)).ToDictionary(
                 area => Parse<AreaId>(area.Key, "SpaceTime map area"), area => area.Value),
-            overwrite.SavedLoadingGameState is int word ? SaveLoadingGameStateCodec.Route(word) : null);
+            overwrite.SavedStartupRoute is null ? null : Parse<SaveLoadingGameState>(overwrite.SavedStartupRoute, "SpaceTime startup route"));
+
+    /// <summary>What an overwrite decides for one kind of progress, its members found by name.</summary>
+    /// <exception cref="InvalidDataException">A name names nothing of the kind, is listed twice, or is left on without being decided.</exception>
+    private static DecidedFlags<T> Decided<T>(SamusOverreadDocument.DecidedMembers members, IReadOnlyDictionary<string, T> byName, string what)
+        where T : notnull
+    {
+        HashSet<T> Members(IReadOnlyList<string>? names, string list)
+        {
+            var found = new HashSet<T>();
+            foreach (string? name in Require(names, $"{what} {list} list"))
+            {
+                if (name is null || !byName.TryGetValue(name, out T? member))
+                    throw new InvalidDataException($"Samus overread file names no {what} '{name}'.");
+                if (!found.Add(member))
+                    throw new InvalidDataException($"Samus overread file lists {what} '{name}' twice among those its overwrite {list}.");
+            }
+            return found;
+        }
+        HashSet<T> decided = Members(members.Decided, "decides");
+        HashSet<T> set = Members(members.Set, "leaves on");
+        if (!set.IsSubsetOf(decided))
+            throw new InvalidDataException($"Samus overread file's overwrite leaves on a {what} it does not decide.");
+        return new DecidedFlags<T>(decided, set);
+    }
 
     /// <summary>Every animation position the Chainsaw fuse lands somewhere.</summary>
     private static ChainsawFuseAnimationShift<SamusProjectileSegmentBeat> ChainsawFuseShift(

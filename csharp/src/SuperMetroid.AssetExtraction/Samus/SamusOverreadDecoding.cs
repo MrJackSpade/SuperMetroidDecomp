@@ -172,18 +172,30 @@ internal static class SamusOverreadDecoding
                 (byte[])[.. slice[ProgressionSliceLayout.LoadingGameStateOffset..].Select(value =>
                     value ?? throw new InvalidDataException("A copied loading-state byte is missing."))]);
         }
+        FlagOverwrite events = ProgressionTableCodec.PrefixOverwrite(Leading(ProgressionSliceLayout.EventsOffset, ProgressionSliceLayout.BossBitsOffset));
         return new SamusOverreadDocument.Overwrite(
-            ProgressionTableCodec.PrefixOverwrite(Leading(ProgressionSliceLayout.EventsOffset, ProgressionSliceLayout.BossBitsOffset)),
+            Named(ProgressionTableCodec.StoryEventsOf(events), Enum.GetValues<StoryEvent>(), storyEvent => storyEvent.ToString()),
+            ProgressionTableCodec.ZebetitesDestroyedOf(events),
             ProgressionTableCodec.AreaBossesPrefix(Leading(ProgressionSliceLayout.BossBitsOffset, ProgressionSliceLayout.RoomChozoBitsOffset))
                 .ToDictionary(area => area.Key.ToString(), area => (IReadOnlyList<string>)[.. BossFlagNames(area.Value)]),
-            ProgressionTableCodec.PrefixOverwrite(Leading(ProgressionSliceLayout.CollectedItemBitsOffset, ProgressionSliceLayout.OpenedDoorBitsOffset)),
-            ProgressionTableCodec.PrefixOverwrite(Leading(ProgressionSliceLayout.OpenedDoorBitsOffset, ProgressionSliceLayout.PaddingOffset)),
-            ProgressionTableCodec.UsedStationsPrefix(Leading(ProgressionSliceLayout.UsedSaveStationsOffset, ProgressionSliceLayout.MapStationsOffset))
-                .ToDictionary(area => area.Key.ToString(), area => area.Value),
+            Named(ProgressionTableCodec.CollectedItemsOf(ProgressionTableCodec.PrefixOverwrite(
+                Leading(ProgressionSliceLayout.CollectedItemBitsOffset, ProgressionSliceLayout.OpenedDoorBitsOffset))), ItemLocationDefinitions.All, location => location.Name),
+            Named(ProgressionTableCodec.OpenedDoorsOf(ProgressionTableCodec.PrefixOverwrite(
+                Leading(ProgressionSliceLayout.OpenedDoorBitsOffset, ProgressionSliceLayout.PaddingOffset))), LockedDoorDefinitions.All, door => door.Name),
+            Named(ProgressionTableCodec.UsedStationsOf(ProgressionTableCodec.UsedStationsPrefix(
+                Leading(ProgressionSliceLayout.UsedSaveStationsOffset, ProgressionSliceLayout.MapStationsOffset))), LoadStationDefinitions.Usable, station => station.Name),
             ProgressionTableCodec.AreaMapsPrefix(Leading(ProgressionSliceLayout.MapStationsOffset, ProgressionSliceLayout.LoadingGameStateOffset))
                 .ToDictionary(area => area.Key.ToString(), area => area.Value),
-            loadingState);
+            loadingState is int word ? SaveLoadingGameStateCodec.Route(word).ToString() : null);
     }
+
+    /// <summary>
+    /// The names of the members <paramref name="decided"/> decides and of those it leaves on, in the order
+    /// <paramref name="kind"/> lists them.
+    /// </summary>
+    private static SamusOverreadDocument.DecidedMembers Named<T>(DecidedFlags<T> decided, IReadOnlyList<T> kind, Func<T, string> name)
+        where T : notnull =>
+        new([.. kind.Where(decided.Decided.Contains).Select(name)], [.. kind.Where(decided.Set.Contains).Select(name)]);
 
     /// <summary>The names of the boss flags <paramref name="bosses"/> holds.</summary>
     private static IEnumerable<string> BossFlagNames(BossBits bosses) =>

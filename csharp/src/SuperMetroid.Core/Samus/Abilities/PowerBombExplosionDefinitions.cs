@@ -34,16 +34,16 @@ public static class PowerBombExplosionDefinitions
     public static readonly PowerBombRadius PreExplosionWhiteLimit = PowerBombRadius.FromWholePixels(146);
     /// <summary>Radius at which yellow explosion switches to white shapes.</summary>
     public static readonly PowerBombRadius ExplosionYellowLimit = PowerBombRadius.FromWholePixels(134);
-    /// <summary>Crystal Flash's shorter explosion radius limit.</summary>
-    public const int CrystalFlashRadiusLimit = 8192;
+    /// <summary>Crystal Flash's shorter explosion radius limit: thirty-two pixels.</summary>
+    public static readonly PowerBombRadius CrystalFlashRadiusLimit = PowerBombRadius.FromWholePixels(32);
     /// <summary>
     /// Maximum component of the first Crystal Flash color:
     /// levels (14,14,10). This is a lifetime operand, not replacement artwork.
     /// </summary>
     internal const int CrystalFlashInitialFadeSteps = 14;
     /// <summary>
-    /// The explosion divides the consumed unsigned 8.8 radius by 2048 to
-    /// select a color. Crystal Flash reaches only the first four yellow colour steps.
+    /// The explosion selects a colour for each band of this many whole pixels of its consumed radius. Crystal Flash
+    /// reaches only the first four yellow colour steps.
     /// </summary>
-    internal const int CrystalFlashColorRadiusShift = 11;
+    internal const int CrystalFlashColorBandPixels = 8;
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 using static SuperMetroid.Core.Samus.Abilities.PowerBombExplosionDefinitions;
 
 namespace SuperMetroid.Core.Samus.Abilities;
@@ -11,11 +12,11 @@ public static class PowerBombExplosionAfterglow
     /// this operand independent of editable RGB preserves the fade count,
     /// signed-timer cadence and cleanup frame without storing presentation colors.
     /// </summary>
-    public static int CrystalFlashAfterglowSteps(int consumedRadius)
+    public static int CrystalFlashAfterglowSteps(PowerBombRadius consumedRadius)
     {
-        if ((uint)consumedRadius >= CrystalFlashRadiusLimit)
+        if (!(consumedRadius < CrystalFlashRadiusLimit))
             throw new ArgumentOutOfRangeException(nameof(consumedRadius),
                 "Crystal Flash consumes a radius below its compiled expansion limit.");
-        return CrystalFlashInitialFadeSteps + (consumedRadius >> CrystalFlashColorRadiusShift);
+        return CrystalFlashInitialFadeSteps + consumedRadius.WholePixels / CrystalFlashColorBandPixels;
     }
 }

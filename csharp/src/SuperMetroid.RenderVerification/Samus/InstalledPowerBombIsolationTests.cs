@@ -111,10 +111,10 @@ internal static class InstalledPowerBombIsolationTests
     {
         // The pinned $88:8D85 rows are (14,14,10), (15,15,9), (16,16,8),
         // (17,17,7). Check every reachable radius, not just the final row.
-        for (ushort radius = 0; radius < PowerBombExplosionDefinitions.CrystalFlashRadiusLimit; radius++)
+        for (int radius = 0; PowerBombRadius.FromRaw(radius) < PowerBombExplosionDefinitions.CrystalFlashRadiusLimit; radius++)
         {
             FadeLevelColour native = stock.Resolve(PowerBombGlowSequence.Explosion, radius >> 11).FadeLevels;
-            Require(PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps(radius) ==
+            Require(PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps(PowerBombRadius.FromRaw(radius)) ==
                 Math.Max(native.Red, Math.Max(native.Green, native.Blue)), $"Native fade operand differs at radius {radius}.");
         }
         try

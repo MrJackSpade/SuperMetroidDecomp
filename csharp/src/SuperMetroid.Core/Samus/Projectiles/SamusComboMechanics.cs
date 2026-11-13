@@ -51,14 +51,14 @@ internal static class SamusComboMechanics
     internal static Offset16<RoomPixels> GetSineOffset(TrigonometryAngle angle, int amplitude)
     {
         Ensure.BetweenInclusive(0, OrbitRadiusCycle - 1, amplitude);
-        int Component(int phase)
+        int Component(TrigonometryAngle phase)
         {
-            int sample = Trigonometry.SignedSine(new TrigonometryAngle(phase));
+            int sample = Trigonometry.SignedSine(phase);
             int magnitude = EightEight.Multiply(Math.Abs(sample), amplitude);
             return sample < 0 ? -magnitude : magnitude;
         }
 
-        return new(Component(angle.RawValue), Component(angle.TurnedBySteps(-TrigonometryAngle.QuarterTurn.RawValue).RawValue));
+        return new(Component(angle), Component(angle - TrigonometryAngle.QuarterTurn));
     }
 
     /// <summary>The orbit radii a combo particle holds, in pixels; a radius grown past the last restarts from zero.</summary>

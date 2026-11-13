@@ -71,14 +71,10 @@ public static class MapPresentationFiles
         FileSelectPresentationFormat.ArtworkFileName, PauseBackdropDefinitions.FileName, PauseWireframeDefinitions.FileName,
         PauseEquipmentBaseDefinitions.FileName, PauseEquipmentLabelArtworkDefinitions.FileName, PauseReserveUiDefinitions.FileName,
         RoomFxLayer3TilemapFormat.FileName, GameplayMessageTitleDefinitions.FileName, GameplayMessagePanelDefinitions.FileName,
-        GameplayMessageNoticeDefinitions.FileName, GameplayHudDocumentDefinitions.ArtworkFileName,
+        GameplayMessageNoticeDefinitions.FileName, GameplayHudDocumentDefinitions.ArtworkFileName, MapSpriteFormat.JsonFile,
+        TitleGraphicsFormat.FloorMapFile,
     ];
 
-    /// <summary>
-    /// The installed documents only the import reads with the pages, which the game's read leaves unread: the map sprites'
-    /// compositions and the title floor's map, read together with their pages.
-    /// </summary>
-    private static readonly string[] ImportCompositionFiles = [MapSpriteFormat.JsonFile, TitleGraphicsFormat.FloorMapFile];
     /// <summary>The installed colour documents only the import reads, which the game's read leaves unread.</summary>
     private static readonly string[] ImportColourFiles =
     [
@@ -98,7 +94,7 @@ public static class MapPresentationFiles
     {
         using var installed = InstalledMapReader.Open(directory, importData: null);
         GameRead game = ReadGame(installed);
-        installed.RequireAllManifestFilesRead([.. ImportColourFiles, .. ImportCompositionFiles, .. PageFiles, .. ImportDocumentFiles]);
+        installed.RequireAllManifestFilesRead([.. ImportColourFiles, .. PageFiles, .. ImportDocumentFiles]);
         return new InstalledAreaMapPresentation(new AreaMapPresentation(game.Parts), game.Sources);
     }
 
@@ -178,7 +174,7 @@ public static class MapPresentationFiles
         T Page<T>(string file, string description, Func<Stream, T> compile) where T : class =>
             Pages<T>([file], description, streams => compile(streams[0]));
 
-        // A page is read from the import data and a composition read with it from the documents (#1636).
+        // A page is read from the import data (#1636), and so is the composition read with it (#1638).
         T Pages<T>(string[] files, string description, Func<Stream[], T> compile) where T : class =>
             Compile(files.Select(installed.Read).ToArray(), files, installed, description, compile);
     }

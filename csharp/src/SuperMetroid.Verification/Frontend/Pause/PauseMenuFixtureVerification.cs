@@ -59,7 +59,11 @@ internal static class PauseMenuFixtureVerification
         var singlePart = new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
             TileColumn = 0, TileRow = 0, Size = 8, Priority = 0, Palette = null,
             FlipX = false, FlipY = false };
-        var sprites = Document<MapSpriteDocument>(MapSpriteFormat.JsonFile);
+        // The map sprites' compositions are import data (#1638): the cartridge-derived extraction's.
+        var sprites = JsonSerializer.Deserialize<MapSpriteDocument>(File.ReadAllBytes(Path.Combine(
+            SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(
+                SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName), MapSpriteFormat.JsonFile)),
+            ArtworkJson.Options) ?? throw new InvalidDataException(MapSpriteFormat.JsonFile);
         foreach (string name in new[] { "Indicator.Frame0", "Indicator.Frame1", "Indicator.Frame2" })
             sprites.Frames[name] = [singlePart];
         using var spriteJson = Json(sprites);

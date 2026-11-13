@@ -48,7 +48,7 @@ internal static class YardTrajectoriesVerification
                 ushort x = actor.Position.X.Whole, y = actor.Position.Y.Whole;
                 var function = (state ?? throw new InvalidOperationException("Verification requires state.")).MovementFunction;
                 ushort cameraX = unchecked((ushort)Math.Max(0, x - 128)), cameraY = unchecked((ushort)Math.Max(0, y - 112));
-                enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(cameraX, cameraY), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
+                enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(cameraX, cameraY), TimeIsFrozen = false, Samus = samus });
                 int distance = Math.Max(Math.Abs(unchecked((short)(actor.Position.X.Whole - x))), Math.Abs(unchecked((short)(actor.Position.Y.Whole - y))));
                 if (distance > largest)
                 {
@@ -80,7 +80,7 @@ internal static class YardTrajectoriesVerification
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 999, MaxHealth = 999,
                 Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)) };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(128, 128), TimeIsFrozen = false, Samus = samus, Level = floor });
+            enemies.StepStandaloneFrame(enemies.StandaloneFrame(floor) with { Camera = new(128, 128), TimeIsFrozen = false, Samus = samus });
             AssertEqual(YardBehavior.NormalCrawling, state.Behavior, "dropped Yard lands without becoming aggressive");
             // $A3:D1B3 calls E67A: speed from E5F0 and sign from properties,
             // not the still-stale eight-way direction used before falling.

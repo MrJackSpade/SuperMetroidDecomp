@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Projectiles;
+
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>Verification seeding of <see cref="EnemyFrameContext"/> through its production operations.</summary>
@@ -14,12 +17,11 @@ internal static class EnemyFrameContextAccess
                 self.AdvanceRandomEnemyCounter();
         }
 
-        /// <summary>Begins a frame with <paramref name="frameCounter"/>, keeping the freeze flag and projectiles.</summary>
-        internal void SeedFrameCounter(int frameCounter) =>
-            self.BeginFrame(self.TimeIsFrozen, self.SamusProjectiles, self.SamusColours, frameCounter);
-
-        /// <summary>Begins a frame with <paramref name="projectiles"/>, keeping the freeze flag and frame counter.</summary>
-        internal void SeedSamusProjectiles(SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem? projectiles) =>
-            self.BeginFrame(self.TimeIsFrozen, projectiles, self.SamusColours, self.FrameCounter);
+        /// <summary>
+        /// Begins a frame, as the enemy pass does, with <paramref name="frameCounter"/>, Samus's
+        /// <paramref name="projectiles"/> and her <paramref name="colours"/>, keeping the freeze flag.
+        /// </summary>
+        internal void SeedFrame(int frameCounter, SamusProjectileSystem projectiles, SamusColours colours) =>
+            self.BeginFrame(self.TimeIsFrozen, projectiles, colours, frameCounter);
     }
 }

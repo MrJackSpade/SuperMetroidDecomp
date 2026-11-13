@@ -37,13 +37,13 @@ internal static class EtecoonFanfareVerification
         enemies.ElevatorBehavior.ElevatorDoorTransitionActive = true;
         for (int frame = 0; frame < 3; frame++)
         {
-            enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus, Level = level });
+            enemies.StepStandaloneFrame(enemies.StandaloneFrame(level) with { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus });
             AssertEqual(0, enemies.Audio.SoundRequests.Count, "transition does not consume the Etecoon fanfare");
             foreach (var state in enemies.EtecoonStates.Where(state => state is not null))
                 AssertEqual((ushort)0xffff, (state ?? throw new InvalidOperationException("Verification requires state.")).FunctionTimer.RawValue, "transition preserves dormant Etecoon timer");
         }
         enemies.ElevatorBehavior.ElevatorDoorTransitionActive = false;
-        enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus, Level = level });
+        enemies.StepStandaloneFrame(enemies.StandaloneFrame(level) with { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus });
         AssertEqual(1, enemies.Audio.SoundRequests.Count, "trio publishes one fanfare after fade");
         var request = enemies.Audio.SoundRequests[0];
         AssertEqual(EnemySound.EtecoonTheme, request.SoundEffect,
@@ -57,7 +57,7 @@ internal static class EtecoonFanfareVerification
         renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         queue.QueueSound(request.SoundEffect, request.Priority);
         AssertTrue(queue.HasQueuedSounds, "post-fade fanfare reaches CPU queue");
-        enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus, Level = level });
+        enemies.StepStandaloneFrame(enemies.StandaloneFrame(level) with { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus });
         AssertEqual(0, enemies.Audio.SoundRequests.Count, "next frame does not repeat fanfare");
         var channels = renderer.PlayerForVerification.soundChannels;
         var notes = new HashSet<int>();

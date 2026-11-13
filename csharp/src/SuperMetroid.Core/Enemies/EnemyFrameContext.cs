@@ -30,9 +30,8 @@ internal sealed class EnemyFrameContext
     }
 
     /// <summary>
-    /// The frame clock's count for the current enemy pass (or the random counter when the pass has none). It is
-    /// independent of the enemies' own cycle of 256 updates; standalone audits seed both
-    /// from the same enemy clock. Readers take it modulo a power of two.
+    /// The frame clock's count for the current enemy pass. It is independent of the enemies' own cycle of 256 updates.
+    /// Readers take it modulo a power of two.
     /// </summary>
     internal int FrameCounter { get; private set; }
     /// <summary>Live projectile system supplied by the enemy pass to both ordinary and custom enemy-touch callbacks.</summary>
@@ -63,7 +62,7 @@ internal sealed class EnemyFrameContext
     /// <summary>
     /// Enemy frame start: the freeze flag, the live projectiles, and the frame clock's count.
     /// </summary>
-    internal void BeginFrame(bool timeIsFrozen, SamusProjectileSystem? samusProjectiles, SamusColours? samusColours, int frameCounter)
+    internal void BeginFrame(bool timeIsFrozen, SamusProjectileSystem samusProjectiles, SamusColours samusColours, int frameCounter)
     {
         TimeIsFrozen = timeIsFrozen;
         SamusProjectiles = samusProjectiles;

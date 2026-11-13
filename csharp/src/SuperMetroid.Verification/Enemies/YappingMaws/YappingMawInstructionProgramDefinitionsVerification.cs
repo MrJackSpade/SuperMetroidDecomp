@@ -150,7 +150,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         }
 
         static ClockedEnemyAiFrame Frame(SamusState samus) => new(
-            new RoomEnemyFrame { FrameCounter = 0, Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
+            RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
             new FrameCounters(0));
     }
 

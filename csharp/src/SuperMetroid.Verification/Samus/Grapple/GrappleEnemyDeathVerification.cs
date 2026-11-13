@@ -43,11 +43,11 @@ internal static class GrappleEnemyDeathVerification
         enemy.Position = enemy.Position.WithWhole(new(100, 100));
         enemy.Radius = new(8, 8);
         enemy.Health = 500;
-        fixture.System.StepFrame(new RoomEnemyFrame { FrameCounter = fixture.System.StandaloneFrameCounter, Camera = new(0, 0), TimeIsFrozen = true, Samus = samus, Level = fixture.Level });
+        fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus });
         var contact = fixture.System.GrappleBehavior.ResolveGrappleEndpoint(new(100, 100));
         AssertEqual(GrappleEnemyReaction.Kill, contact.Reaction, "header selects grapple kill independently of enemy health");
         samus.Grapple.Phase = GrapplePhase.Firing;
-        fixture.System.StepFrame(new RoomEnemyFrame { FrameCounter = fixture.System.StandaloneFrameCounter, Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level });
+        fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         var explosion = fixture.System.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
         AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind, "grapple kill creates the ordinary death actor");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "grapple death increments kill count once");
@@ -122,10 +122,10 @@ internal static class GrappleEnemyDeathVerification
             enemy.Position = enemy.Position.WithWhole(new(100, 100));
             enemy.Radius = new(8, 8);
             enemy.Health = 500;
-            fixture.System.StepFrame(new RoomEnemyFrame { FrameCounter = fixture.System.StandaloneFrameCounter, Camera = new(0, 0), TimeIsFrozen = true, Samus = samus, Level = fixture.Level });
+            fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus });
             fixture.System.GrappleBehavior.ResolveGrappleEndpoint(new(100, 100));
             samus.Grapple.Phase = GrapplePhase.Firing;
-            fixture.System.StepFrame(new RoomEnemyFrame { FrameCounter = fixture.System.StandaloneFrameCounter, Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level });
+            fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
             AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "enemy death queues drop while ordinary pose remains active");
             var movementRoom = CreateRoom(new(32, 32), new RoomTerrainBlock[32 * 32], new RoomBlockBehavior[32 * 32]);
             var result = SamusGrappleMovement.Step(new SamusTerrain { Level = movementRoom }, samus, 0, 0);

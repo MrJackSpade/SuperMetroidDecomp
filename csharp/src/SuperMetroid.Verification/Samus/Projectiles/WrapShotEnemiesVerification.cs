@@ -38,7 +38,7 @@ internal static class WrapShotEnemiesVerification
             // Run the first real animation entry before freezing; a never-drawn
             // zero spritemap is intentionally ineligible for native shot hits.
             for (int warmup = 0; warmup < 32 && enemy.SpritemapPointer is 0 or 0x804d; warmup++)
-                runtime.Enemies.StepFrame(new RoomEnemyFrame { FrameCounter = runtime.Enemies.StandaloneFrameCounter, Camera = new((ushort)Math.Max(0, enemy.Position.X.Whole - 128), (ushort)Math.Max(0, enemy.Position.Y.Whole - 128)), TimeIsFrozen = false, Level = runtime.Room.LevelData });
+                runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new((ushort)Math.Max(0, enemy.Position.X.Whole - 128), (ushort)Math.Max(0, enemy.Position.Y.Whole - 128)), TimeIsFrozen = false });
             AssertTrue(enemy.SpritemapPointer is not (0 or 0x804d), "Real enemy animation has published a collision-eligible spritemap");
             int target = left ? 0x123f : 0x0280;
             enemy.Position = enemy.Position.WithWhole(new((ushort)((target % 64) * 16 + 8), (ushort)((target / 64) * 16 + 8)));
@@ -46,7 +46,7 @@ internal static class WrapShotEnemiesVerification
             enemy.InvincibilityTimer = 0;
             // Populate the real interactive list while freezing AI movement. The
             // remote enemy must be eligible, not silently excluded as offscreen.
-            runtime.Enemies.StepFrame(new RoomEnemyFrame { FrameCounter = runtime.Enemies.StandaloneFrameCounter, Camera = new(0, 0), TimeIsFrozen = true, Level = runtime.Room.LevelData });
+            runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 0), TimeIsFrozen = true });
             AssertTrue(runtime.Enemies.InteractiveEnemies.Contains(enemy), "Remote control enemy is collision-eligible");
 
             var words = new RoomTerrainBlock[64 * 128];

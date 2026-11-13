@@ -42,7 +42,7 @@ internal static class CopiedCharacterIndexesVerification
                 throw new InvalidOperationException($"No retail room state places {owner}.");
             runtime.LoadCartridgeRoomForDebug(room, state: state);
             // Some copy on their first main-AI frame, which runs before the room's enemies first draw.
-            runtime.Enemies.StepFrame(new RoomEnemyFrame { FrameCounter = runtime.Enemies.StandaloneFrameCounter, Camera = default, TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
+            runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = default, TimeIsFrozen = false, Samus = runtime.Player.Samus });
             RoomEnemySlot[] placed = [.. runtime.Enemies.SlotTable.Slots.Where(slot => slot.DefinitionId == child)];
             AssertTrue(placed.Length > 0, $"{room.Name} places {child}");
             foreach (RoomEnemySlot slot in placed)

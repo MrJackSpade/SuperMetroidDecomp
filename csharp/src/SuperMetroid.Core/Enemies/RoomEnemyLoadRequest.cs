@@ -42,7 +42,4 @@ public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
 
     /// <inheritdoc />
     public bool DeferLoaderTimeCameraReads { get; init; }
-
-    /// <inheritdoc />
-    public ArtworkFrameSelections ArtworkFrames { get; init; } = new();
 }

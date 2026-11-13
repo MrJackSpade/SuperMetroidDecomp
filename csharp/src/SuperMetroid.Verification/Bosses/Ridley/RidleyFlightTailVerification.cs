@@ -99,11 +99,11 @@ internal static class RidleyFlightTailVerification
         projectiles.SlotTable.ProjectileCounter = 1;
         projectiles.Slots[0].Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
         projectiles.Slots[0].Position = projectiles.Slots[0].Position.WithWhole(new(96, 128));
-        enemies.FrameContext.SeedSamusProjectiles(projectiles);
+        enemies.FrameContext.SeedFrame(enemies.FrameContext.FrameCounter, projectiles, new SuperMetroid.Core.Samus.Palettes.SamusColours());
         aim(state, samus, 0);
         RidleyTailAngle? missileTarget = state.ClockwiseWhipTarget;
         AssertTrue(missileTarget != samusTarget, "nearby missile changes tail target");
-        enemies.FrameContext.SeedSamusProjectiles(null);
+        enemies.FrameContext.SeedFrame(enemies.FrameContext.FrameCounter, new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)), new SuperMetroid.Core.Samus.Palettes.SamusColours());
         aim(state, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(96, 104)) }, 0);
         AssertEqual(missileTarget, state.ClockwiseWhipTarget, "missile uses its exact position without Samus's 24-pixel offset");
         ushort seed = 0xf0;

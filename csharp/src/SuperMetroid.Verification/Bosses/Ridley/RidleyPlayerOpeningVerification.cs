@@ -74,7 +74,7 @@ internal static class RidleyPlayerOpeningVerification
             samus.Position = samus.Position.WithWhole(new(W(expected, 0xaf6), W(expected, 0xafa)));
             samus.Pose = SamusPoseNumbering.FromNumber(W(expected, 0xa1c)); SamusPoseMetadata.RefreshCollisionRadii(samus);
             random = W(expected, 0x5e5);
-            enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(W(expected, 0x911), W(expected, 0x915)), TimeIsFrozen = false, Samus = samus, Level = runtime.Room.LevelData, ControllerInput = ControllerWordCodec.FromJoypadWord(W(expected, 0x8b), "native Ridley opening held input"), SamusProjectiles = runtime.Projectiles, SharedProjectiles = runtime.BombProjectiles });
+            enemies.StepStandaloneFrame(enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(W(expected, 0x911), W(expected, 0x915)), TimeIsFrozen = false, Samus = samus, ControllerInput = ControllerWordCodec.FromJoypadWord(W(expected, 0x8b), "native Ridley opening held input"), SamusProjectiles = runtime.Projectiles, SharedProjectiles = runtime.BombProjectiles });
             // The AI function is an identity; the native table's routine word for it lines up with the recorded word.
             string actual = $"{RidleyNativeWords.AiFunctions.Word((state ?? throw new InvalidOperationException("Verification requires state.")).Function):X4},{body.Position.X.Whole:X4},{body.Position.X.Fraction:X4},{body.Position.Y.Whole:X4},{body.Position.Y.Fraction:X4},{state.Velocity.X.RawValue:X4},{state.Velocity.Y.RawValue:X4}";
             string native = string.Join(",", ComparedRidleyStateAddresses.Select(a => W(expected,a).ToString("X4")));

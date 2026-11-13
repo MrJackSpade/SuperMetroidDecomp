@@ -876,7 +876,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         GunshipBehavior.BeginRoomLoad(request.GunshipScenario, request.Samus);
         FrameContext.BeginRoomLoad(request.DeferLoaderTimeCameraReads);
         DeathsAndDrops.BindSamus(request.Samus);
-        Presentation.BindBackgrounds(request.Appearance, request.ArtworkFrames);
+        Presentation.BindBackgrounds(request.Appearance);
         FrameResults.Begin();
         BossFrameResults.Begin();
         BeginEnemySoundRequestFrame();
@@ -896,30 +896,24 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     }
 
     /// <summary>
-    /// Runs one enemy pass: executes selected AI and animation scripts, publishes
-    /// live collision bodies and frame requests, and builds queues for the later draw phase.
+    /// Runs one enemy pass over the processing list the frame already built: executes selected AI and animation scripts,
+    /// publishes live collision bodies and frame requests, and builds queues for the later draw phase.
     /// </summary>
     /// <param name="frame">What one enemy pass reads from the rest of the frame: the camera, Samus and her projectiles, controller input, clocks and the room systems enemies touch (#633).</param>
-    public EnemyFrameResult StepFrame(RoomEnemyFrame frame)
+    internal EnemyFrameResult StepFrame(RoomEnemyFrame frame)
     {
         using var terrainScope = new EnemyTerrain.EnemyTerrainScope(Terrain, frame.CollisionObjects);
         Room.EnsureLoaded();
         DeathsAndDrops.BindSamus(frame.Samus);
         ScrollCap.BeginFrame(frame.SamusPreviousPositionCheckpoint);
-        // Standalone audits do not own the runtime's frame clock. In that case the enemy-frame
-        // counter begins at zero and advances at the same end-of-frame point, which gives
-        // Mama Turtle's even-frame shell jitter the same initial phase as retail room load.
         FrameContext.BeginFrame(frame.TimeIsFrozen, frame.SamusProjectiles, frame.SamusColours, frame.FrameCounter);
-        Audio.PowerBomb = frame.SharedProjectiles?.PowerBombExplosion;
-        var aiFrame = new ClockedEnemyAiFrame(frame, new FrameCounters(
-            frame.ShortCounter ?? FrameContext.RandomEnemyCounter % FrameClock.ShortCounterPeriod));
+        Audio.PowerBomb = frame.SharedProjectiles.PowerBombExplosion;
+        var aiFrame = new ClockedEnemyAiFrame(frame, new FrameCounters(frame.ShortCounter));
         FrameResults.Begin();
         BossFrameResults.Begin();
         BeginEnemySoundRequestFrame();
         foreach (IEnemySpecies species in _species)
             species.BeginEnemyFrame(frame);
-        if (!frame.ProcessingListPrepared)
-            ProcessingWindow.PrepareEnemyProcessingList(frame.Camera);
         Drawing.Clear();
 
         foreach (RoomEnemySlot slot in ProcessingWindow.ActiveEnemies)
@@ -934,20 +928,18 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             // The enemy pass checks contact against the pre-movement actor, not the position
             // just moved into by AI. A rising support temporarily overlaps its rider until
             // Samus's movement consumes the carry; a late touch pass would retrigger that support.
-            if (!frame.TimeIsFrozen && !invincibleAtEntry && frame.ResolveSamusContactBeforeAi && frame.Samus is not null)
+            if (!frame.TimeIsFrozen && !invincibleAtEntry && frame.Samus is not null)
             {
                 // Extended collision runs projectiles before bombs/touch and
                 // before selecting hurt/main AI. In particular, a retained Plasma
                 // hit must publish Phantoon's hurt clock before this frame ticks it.
                 if (slot.Entity is IEnemyContactHooks hooks)
                     hooks.ResolveBeforeOrdinaryHits(frame);
-                if (frame.SamusProjectiles is not null && frame.SharedProjectiles is not null)
-                    Collision.ResolveOrdinaryProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles,
-                        frame.Samus, slot);
+                Collision.ResolveOrdinaryProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles,
+                    frame.Samus, slot);
                 // Alpha already updated the bomb slots. The enemy pass checks
                 // them before this actor's touch and AI, so escape starts now.
-                if (frame.SharedProjectiles is not null && frame.SamusProjectiles is not null)
-                    Collision.ResolveOrdinaryBombHits(frame.SharedProjectiles, frame.SamusProjectiles, frame.Samus, slot);
+                Collision.ResolveOrdinaryBombHits(frame.SharedProjectiles, frame.SamusProjectiles, frame.Samus, slot);
                 if (slot.DefinitionId == EnemyDefinitionId.None)
                     continue;
                 Collision.ResolveOrdinarySamusContact(frame.Samus, frame.ControllerInput, frame.Level, slot);

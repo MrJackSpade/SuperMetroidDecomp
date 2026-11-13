@@ -192,7 +192,7 @@ internal sealed class MotherBrainBody
                     new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + spawnHandDust.Offset.X), CoordinateAxis.Wrap(state.Body.Position.Y.Whole + spawnHandDust.Offset.Y)),
                     spawnHandDust.Dust);
                 return;
-            case MotherBrainBodyCue.Command { Kind: MotherBrainBodyCueKind.FireHandBeam }:
+            case MotherBrainBodyCue.Signal { Kind: MotherBrainBodyCueKind.FireHandBeam }:
             {
                 SamusState target = samus ?? throw new InvalidOperationException(
                     "Mother Brain hand-beam aiming requires the active Samus actor.");
@@ -200,7 +200,7 @@ internal sealed class MotherBrainBody
                 SpawnMotherBrainHandBeamCharging(state, target);
                 return;
             }
-            case MotherBrainBodyCue.Command { Kind: MotherBrainBodyCueKind.AdvanceHandBeamPhase }:
+            case MotherBrainBodyCue.Signal { Kind: MotherBrainBodyCueKind.AdvanceHandBeamPhase }:
                 state.HandBeamPhase = MotherBrainHandBeamPhases.Next(state.HandBeamPhase);
                 return;
             default:

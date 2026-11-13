@@ -34,18 +34,18 @@ internal static class SporeSpawnNativeListAddresses
     /// <summary>Each bank-$A5 Spore Spawn instruction the body lists use: the cue it must become and its operand words.</summary>
     internal static readonly Dictionary<ushort, SporeSpawnNativeListAddressesBodyInstruction> BodyInstructions = new()
     {
-        [0xe75f] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Command(SporeSpawnCueKind.IncreaseMaxXRadius)), 0),
-        [0xe771] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Command(SporeSpawnCueKind.ClearDamagedFlag)), 0),
+        [0xe75f] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Signal(SporeSpawnCueKind.IncreaseMaxXRadius)), 0),
+        [0xe771] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Signal(SporeSpawnCueKind.ClearDamagedFlag)), 0),
         [0xe82d] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.SetMaxXRadiusAndAngleDelta>(""), 2),
         [0xe872] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.SetSporeGeneration>(""), 1),
-        [0xe87c] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Command(SporeSpawnCueKind.Harden)), 0),
+        [0xe87c] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Signal(SporeSpawnCueKind.Harden)), 0),
         [0xe895] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.QueueSound>(""), 1),
-        [0xe8b1] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Command(SporeSpawnCueKind.RequestDeathDrops)), 0),
+        [0xe8b1] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Signal(SporeSpawnCueKind.RequestDeathDrops)), 0),
         [0xe8ba] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.SetFunction>(""), 1),
         [0xe8ca] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.LoadDeathPalette>(""), 1),
         [0xe91c] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.LoadDeathTargetPalette>(""), 1),
-        [0xe96e] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Command(SporeSpawnCueKind.SpawnHardeningDust)), 0),
-        [0xe9b1] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Command(SporeSpawnCueKind.SpawnDyingExplosion)), 0),
+        [0xe96e] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Signal(SporeSpawnCueKind.SpawnHardeningDust)), 0),
+        [0xe9b1] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Signal(SporeSpawnCueKind.SpawnDyingExplosion)), 0),
     };
 
     /// <summary>Each typed projectile program's native entry point in bank $86.</summary>

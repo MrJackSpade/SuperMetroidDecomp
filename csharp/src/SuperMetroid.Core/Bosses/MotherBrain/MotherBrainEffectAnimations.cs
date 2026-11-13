@@ -32,15 +32,15 @@ internal static class MotherBrainEffectAnimations
         ],
         [P.OnionRingHit] =
         [
-            Cue(new MotherBrainEffectCue.Command(K.DrawFromSharedSheet)),
-            Cue(new MotherBrainEffectCue.Command(K.ClearFrameBehavior)),
+            Cue(new MotherBrainEffectCue.Signal(K.DrawFromSharedSheet)),
+            Cue(new MotherBrainEffectCue.Signal(K.ClearFrameBehavior)),
             Show(EnemyProjectileFrameId.MotherBrainBlueRingImpactOnionRingHitFirst, 5),
             Show(EnemyProjectileFrameId.MotherBrainBlueRingImpactOnionRingHitSecond, 5),
             Show(EnemyProjectileFrameId.MotherBrainBlueRingImpactOnionRingHitThird, 5),
             Show(EnemyProjectileFrameId.MotherBrainBlueRingImpactOnionRingHitFourth, 5),
             Show(EnemyProjectileFrameId.MotherBrainBlueRingImpactOnionRingHitFifth, 5),
             Show(EnemyProjectileFrameId.MotherBrainBlueRingImpactOnionRingHitSixth, 5),
-            Cue(new MotherBrainEffectCue.Command(K.Delete)),
+            Cue(new MotherBrainEffectCue.Signal(K.Delete)),
         ],
         [P.Bomb] =
         [
@@ -62,7 +62,7 @@ internal static class MotherBrainEffectAnimations
             Show(EnemyProjectileFrameId.MotherBrainRainbowBeamChargingFourth, 5),
             Show(EnemyProjectileFrameId.MotherBrainRainbowBeamChargingFifth, 5),
             Show(EnemyProjectileFrameId.MotherBrainRainbowBeamChargingSixth, 5),
-            Cue(new MotherBrainEffectCue.Command(K.Delete)),
+            Cue(new MotherBrainEffectCue.Signal(K.Delete)),
         ],
         [P.Drool] =
         [
@@ -72,17 +72,17 @@ internal static class MotherBrainEffectAnimations
             Show(EnemyProjectileFrameId.MotherBrainDroolAttachedDroolFourth, 10),
             Show(EnemyProjectileFrameId.MotherBrainDroolAttachedDroolFifth, 10),
             Cue(new MotherBrainEffectCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.MotherBrainDroolFall)),
-            Cue(new MotherBrainEffectCue.Command(K.DropDrool)),
+            Cue(new MotherBrainEffectCue.Signal(K.DropDrool)),
             Show(EnemyProjectileFrameId.MotherBrainDroolReleased, 10),
         ],
         [P.DroolHitFloor] =
         [
-            Cue(new MotherBrainEffectCue.Command(K.ClearFrameBehavior)),
+            Cue(new MotherBrainEffectCue.Signal(K.ClearFrameBehavior)),
             Show(EnemyProjectileFrameId.MotherBrainDroolHitFloorFirst, 10),
             Show(EnemyProjectileFrameId.MotherBrainDroolHitFloorSecond, 10),
             Show(EnemyProjectileFrameId.MotherBrainDroolHitFloorThird, 10),
             Show(EnemyProjectileFrameId.MotherBrainDroolHitFloorFourth, 10),
-            Cue(new MotherBrainEffectCue.Command(K.Delete)),
+            Cue(new MotherBrainEffectCue.Signal(K.Delete)),
         ],
         [P.EscapeDoorParticle] =
         [
@@ -97,7 +97,7 @@ internal static class MotherBrainEffectAnimations
         ],
         [P.PurpleBreathBig] =
         [
-            Cue(new MotherBrainEffectCue.Command(K.ClearFrameBehavior)),
+            Cue(new MotherBrainEffectCue.Signal(K.ClearFrameBehavior)),
             Show(EnemyProjectileFrameId.MotherBrainPurpleBreathBigFirst, 8),
             Show(EnemyProjectileFrameId.MotherBrainPurpleBreathBigSecond, 8),
             Show(EnemyProjectileFrameId.MotherBrainPurpleBreathBigThird, 9),
@@ -106,11 +106,11 @@ internal static class MotherBrainEffectAnimations
             Show(EnemyProjectileFrameId.MotherBrainPurpleBreathBigSixth, 10),
             Show(EnemyProjectileFrameId.MotherBrainPurpleBreathBigSeventh, 11),
             Show(EnemyProjectileFrameId.MotherBrainPurpleBreathBigEighth, 11),
-            Cue(new MotherBrainEffectCue.Command(K.Delete)),
+            Cue(new MotherBrainEffectCue.Signal(K.Delete)),
         ],
         [P.PurpleBreathSmall] =
         [
-            Cue(new MotherBrainEffectCue.Command(K.ClearFrameBehavior)),
+            Cue(new MotherBrainEffectCue.Signal(K.ClearFrameBehavior)),
             Show(EnemyProjectileFrameId.MotherBrainPurpleBreathSmallFirst, 8),
             Show(EnemyProjectileFrameId.MotherBrainPurpleBreathSmallSecond, 8),
             Show(EnemyProjectileFrameId.MotherBrainPurpleBreathSmallThird, 10),
@@ -119,8 +119,8 @@ internal static class MotherBrainEffectAnimations
             Show(EnemyProjectileFrameId.MotherBrainPurpleBreathSmallSixth, 11),
             Show(EnemyProjectileFrameId.MotherBrainPurpleBreathSmallSeventh, 12),
             Show(EnemyProjectileFrameId.MotherBrainPurpleBreathSmallEighth, 12),
-            Cue(new MotherBrainEffectCue.Command(K.EndSmallPurpleBreath)),
-            Cue(new MotherBrainEffectCue.Command(K.Delete)),
+            Cue(new MotherBrainEffectCue.Signal(K.EndSmallPurpleBreath)),
+            Cue(new MotherBrainEffectCue.Signal(K.Delete)),
         ],
         [P.EscapeSubtitle] =
         [

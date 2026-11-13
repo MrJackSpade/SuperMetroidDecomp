@@ -34,13 +34,13 @@ internal static class XrayRevealVisualInstallationVerification
             // Every copy's blocks come from the cartridge's reveal operands, as the import extracted them (#1596).
             XrayRevealDefinition? native = XrayRevealVerification.ReadNativeXrayRevealDefinition(nativeBus, type, unchecked((byte)bts));
             if (native is not { } definition ||
-                !InstalledXrayReveals.IsDrawable(definition.Command)) continue;
+                !InstalledXrayReveals.IsDrawable(definition.Shape)) continue;
             AssertEqual((XrayRevealDefinition?)definition, stock.Apply(type, RoomBlockBehaviorCodec.Decode(bts)),
                 $"stock installed X-ray visual {type}/BTS ${bts:X2}");
             drawable++;
         }
         AssertEqual(305, drawable, "complete pinned drawable X-ray rule count");
-        AssertEqual((XrayRevealDefinition?)new XrayRevealDefinition(XrayRevealCommand.CopySquare, 0x99, 0x9a, 0xb9, 0xba),
+        AssertEqual((XrayRevealDefinition?)new XrayRevealDefinition(XrayRevealShape.CopySquare, 0x99, 0x9a, 0xb9, 0xba),
             stock.Apply(RoomCollisionType.ShootableBlock, RoomBlockBehaviorCodec.Decode(3)),
             "stock square shot-block reveal installs all four row-major blocks");
         InstalledXrayOverlays overlays = stock.Overlays;

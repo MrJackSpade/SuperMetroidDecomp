@@ -153,19 +153,19 @@ internal sealed class TourianUnlockBehavior
             EnemyProjectile projectile = context.Projectile;
             switch (cue)
             {
-                case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.Delete }:
+                case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.Delete }:
                     projectile.Delete();
                     break;
-                case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.PlayReleaseSound }:
+                case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.PlayReleaseSound }:
                     _audio.QueueEnemySound(EnemySound.TourianStatueParticle, priority: SoundRequestPriority.Normal);
                     break;
-                case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.Earthquake }:
+                case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.Earthquake }:
                     _earthquake.Sustain(TourianStatueSequenceDefinitions.ReleaseEarthquake);
                     break;
-                case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.SpawnParticle }:
+                case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.SpawnParticle }:
                     SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueParticle);
                     break;
-                case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.SpawnTail }:
+                case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.SpawnTail }:
                     SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueTail);
                     break;
                 case TourianStatueProjectileCue.MoveDown moveDown:

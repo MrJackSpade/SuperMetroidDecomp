@@ -22,11 +22,11 @@ internal static class EyeDoorSweatAnimations
         ],
         [P.HitFloor] =
         [
-            Cue(new EnemyProjectileCommonCue.Command(CK.ClearFrameBehavior)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.ClearFrameBehavior)),
             Show(EnemyProjectileFrameId.EyeDoorSweatHitFloorFirst, 6),
             Show(EnemyProjectileFrameId.EyeDoorSweatHitFloorSecond, 6),
             Show(EnemyProjectileFrameId.EyeDoorSweatHitFloorThird, 6),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
     });
 

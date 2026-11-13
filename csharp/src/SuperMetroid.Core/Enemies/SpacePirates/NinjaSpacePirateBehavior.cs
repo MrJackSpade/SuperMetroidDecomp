@@ -588,7 +588,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             case NinjaSpacePirateCue.ThrowClaw throwClaw:
                 SpawnNinjaPirateClaw(slot, throwClaw.Throw == HorizontalDirection.Right, throwClaw.Offset);
                 return null;
-            case NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.StartActive }:
+            case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartActive }:
                 if (samus is null)
                 {
                     throw new InvalidOperationException(
@@ -602,13 +602,13 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 // Re-entering that animation runs its function cue and restores decision AI
                 // after the idle animation explicitly installed the no-op function.
                 return state.ActiveAnimation;
-            case NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.ResetSpeed }:
+            case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.ResetSpeed }:
                 state.Speed = default;
                 return null;
-            case NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.StartLeftDivekick }:
+            case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartLeftDivekick }:
                 InitializeNinjaPirateDive(state);
                 return null;
-            case NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.StartRightDivekick }:
+            case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartRightDivekick }:
                 InitializeNinjaPirateDive(state);
                 return null;
             default:

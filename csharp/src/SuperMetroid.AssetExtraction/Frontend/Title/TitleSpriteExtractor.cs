@@ -54,7 +54,7 @@ internal static class TitleSpriteExtractor
             {
                 int durationOrCommand = RomDataReader.ReadWordFixedBank(cartridge, entry);
                 bool nativeCommand = (durationOrCommand & TitleSourceDefinitions.CommandBit) != 0;
-                if (step.Command is not null)
+                if (step.Cue is not null)
                 {
                     if (!nativeCommand)
                         throw new InvalidDataException($"Title card {sequence.Phase} continues where its typed steps run a command.");

@@ -27,7 +27,7 @@ internal abstract record NinjaSpacePirateCue
     /// <param name="Offset">The cue's signed pixel offset, horizontal and vertical.</param>
     internal sealed record ThrowClaw(HorizontalDirection Throw, Offset16<RoomPixels> Offset) : NinjaSpacePirateCue;
 
-    /// <summary>A cue that carries no operand.</summary>
+    /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Command(NinjaSpacePirateCueKind Kind) : NinjaSpacePirateCue;
+    internal sealed record Signal(NinjaSpacePirateCueKind Kind) : NinjaSpacePirateCue;
 }

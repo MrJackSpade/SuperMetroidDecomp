@@ -21,16 +21,16 @@ internal static class ProjectileFrameBindingsVerification
         byte[] stockJson = ProjectileFrameBindingExtractor.Extract(rom);
         var stock = ProjectileFrameBindingFile.Load(new MemoryStream(stockJson, writable: false));
         AssertEqual(ProjectileFrameBindingFormat.FrameCount,
-            SamusProjectileRecordDefinitions.TimedRecordAddresses.Count,
+            SamusProjectileFrameDefinitions.TimedRecordAddresses.Count,
             "physical timed records and visual frame bindings have identical coverage");
-        foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
+        foreach (ushort pointer in SamusProjectileFrameDefinitions.TimedRecordAddresses)
         {
             int address = SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(pointer + 2));
             ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
             AssertEqual(native, stock.Resolve(pointer),
                 $"timed projectile $93:{pointer:X4} keeps its native sprite reference");
         }
-        foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
+        foreach (ushort pointer in SamusProjectileFrameDefinitions.TimedRecordAddresses)
         {
             int record = SamusSourceDefinitions.ProjectileDataBank.Value | pointer;
             ushort Word(int offset) => LittleEndianBytes.Word(CpuBusRegionRead.Read(rom, record + offset), CpuBusRegionRead.Read(rom, record + offset + 1));
@@ -83,7 +83,7 @@ internal static class ProjectileFrameBindingsVerification
 
         var document = RequiredJson.Deserialize<ProjectileFrameBindingDocument>(stockJson,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        ushort firstTimedRecord = SamusProjectileRecordDefinitions.TimedRecordAddresses[0];
+        ushort firstTimedRecord = SamusProjectileFrameDefinitions.TimedRecordAddresses[0];
         string frameName = ProjectileFrameBindingFormat.FrameNameAt(firstTimedRecord);
         AssertEqual(stock.Resolve(firstTimedRecord),
             RepositoryInstallation.Installation.LoadProjectiles().FrameBindings.Resolve(firstTimedRecord),

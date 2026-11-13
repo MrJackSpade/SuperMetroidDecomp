@@ -56,7 +56,7 @@ internal static class NinjaSpacePirateAnimations
             Show(EnemyFrameId.NinjaPirateClawAttackLeftSeventh, 2),
             Show(EnemyFrameId.NinjaPirateClawAttackLeftEighth, 2),
             Show(EnemyFrameId.NinjaPirateClawAttackLeftNinth, 2),
-            Cue(new NinjaSpacePirateCue.Command(K.ResetSpeed)),
+            Cue(new NinjaSpacePirateCue.Signal(K.ResetSpeed)),
             Cue(new NinjaSpacePirateCue.SetFunction(Function: NinjaSpacePirateFunction.NoOperation)),
             Show(EnemyFrameId.NinjaPirateClawAttackLeftFirst, 8),
             Cue(new NinjaSpacePirateCue.SetFunction(Function: NinjaSpacePirateFunction.SpinJumpLeftRising)),
@@ -84,7 +84,7 @@ internal static class NinjaSpacePirateAnimations
             Show(EnemyFrameId.NinjaPirateActiveFacingLeftLoopThird, 10),
             Show(EnemyFrameId.NinjaPirateActiveFacingLeftLoopSecond, 10),
             Cue(new NinjaSpacePirateCue.SetFunction(Function: NinjaSpacePirateFunction.NoOperation)),
-            Cue(new NinjaSpacePirateCue.Command(K.StartActive)),
+            Cue(new NinjaSpacePirateCue.Signal(K.StartActive)),
         ],
         [P.FlinchFacingLeft] =
         [
@@ -95,7 +95,7 @@ internal static class NinjaSpacePirateAnimations
         [
             Cue(new NinjaSpacePirateCue.SetFunction(Function: NinjaSpacePirateFunction.NoOperation)),
             Show(EnemyFrameId.NinjaPirateDivekickLeftJump, 8),
-            Cue(new NinjaSpacePirateCue.Command(K.StartLeftDivekick)),
+            Cue(new NinjaSpacePirateCue.Signal(K.StartLeftDivekick)),
             Cue(new NinjaSpacePirateCue.SetFunction(Function: NinjaSpacePirateFunction.DivekickLeftJump)),
         ],
         [P.DivekickLeftJumpLoop] =
@@ -205,7 +205,7 @@ internal static class NinjaSpacePirateAnimations
             Show(EnemyFrameId.NinjaPirateClawAttackRightSecond, 2),
             Show(EnemyFrameId.NinjaPirateClawAttackRightSeventh, 2),
             Show(EnemyFrameId.NinjaPirateClawAttackRightEighth, 2),
-            Cue(new NinjaSpacePirateCue.Command(K.ResetSpeed)),
+            Cue(new NinjaSpacePirateCue.Signal(K.ResetSpeed)),
             Cue(new NinjaSpacePirateCue.SetFunction(Function: NinjaSpacePirateFunction.NoOperation)),
             Show(EnemyFrameId.NinjaPirateClawAttackRightFirst, 8),
             Cue(new NinjaSpacePirateCue.SetFunction(Function: NinjaSpacePirateFunction.SpinJumpRightRising)),
@@ -233,7 +233,7 @@ internal static class NinjaSpacePirateAnimations
             Show(EnemyFrameId.NinjaPirateLandFacingLeftLoopThird, 10),
             Show(EnemyFrameId.NinjaPirateLandFacingLeftLoopSecond, 10),
             Cue(new NinjaSpacePirateCue.SetFunction(Function: NinjaSpacePirateFunction.NoOperation)),
-            Cue(new NinjaSpacePirateCue.Command(K.StartActive)),
+            Cue(new NinjaSpacePirateCue.Signal(K.StartActive)),
         ],
         [P.FlinchFacingRight] =
         [
@@ -244,7 +244,7 @@ internal static class NinjaSpacePirateAnimations
         [
             Cue(new NinjaSpacePirateCue.SetFunction(Function: NinjaSpacePirateFunction.NoOperation)),
             Show(EnemyFrameId.NinjaPirateDivekickRightJump, 8),
-            Cue(new NinjaSpacePirateCue.Command(K.StartRightDivekick)),
+            Cue(new NinjaSpacePirateCue.Signal(K.StartRightDivekick)),
             Cue(new NinjaSpacePirateCue.SetFunction(Function: NinjaSpacePirateFunction.DivekickRightJump)),
         ],
         [P.DivekickRightJumpLoop] =

@@ -166,7 +166,7 @@ internal static class TorizoAnimationsVerification
                     int? sleep = cue switch
                     {
                         TorizoCue.LowHealthExplosions => LowHealthExplosionSleep,
-                        TorizoCue.Command { Kind: TorizoCueKind.SpawnDeathExplosion } => DeathExplosionSleep,
+                        TorizoCue.Signal { Kind: TorizoCueKind.SpawnDeathExplosion } => DeathExplosionSleep,
                         _ => null,
                     };
                     if (sleep is { } updates)
@@ -177,7 +177,7 @@ internal static class TorizoAnimationsVerification
                     // A return always redirects and saves no return point: where the native list ends, the animation
                     // holds there, and where the next list starts, the unreached end runs on into it. A call saves the
                     // place after it, so its list always runs on.
-                    if (cue is TorizoCue.Command { Kind: TorizoCueKind.Return or TorizoCueKind.ResumeInterrupted } && ProgramAt(cursor) is null)
+                    if (cue is TorizoCue.Signal { Kind: TorizoCueKind.Return or TorizoCueKind.ResumeInterrupted } && ProgramAt(cursor) is null)
                     {
                         controls.Add(new(NativeEnemyControlKind.Sleep, addresses.Count, null, null, cursor));
                         break;
@@ -244,8 +244,8 @@ internal static class TorizoAnimationsVerification
                 {
                     var instruction = BodyInstructions[word];
                     // A return ends its list without a sleep.
-                    if (instruction.Cue.Matches(new TorizoCue.Command(TorizoCueKind.Return)) ||
-                        instruction.Cue.Matches(new TorizoCue.Command(TorizoCueKind.ResumeInterrupted)))
+                    if (instruction.Cue.Matches(new TorizoCue.Signal(TorizoCueKind.Return)) ||
+                        instruction.Cue.Matches(new TorizoCue.Signal(TorizoCueKind.ResumeInterrupted)))
                         return null;
                     cursor = unchecked((ushort)(cursor + 2 + 2 * instruction.Operands.Length));
                     continue;

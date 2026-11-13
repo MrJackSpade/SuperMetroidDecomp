@@ -123,7 +123,7 @@ public static class SamusHurtFlashPalette
     {
         if (samus.Grapple.Phase == GrapplePhase.Inactive)
         {
-            if (SamusSpinSoundCommand.Select(samus) is { } sound)
+            if (SamusSpinSound.Select(samus) is { } sound)
             {
                 samus.LiquidPhysics.QueueMovementSound(sound, priority: SoundRequestPriority.High);
                 return sound == SamusSound.ScrewAttack

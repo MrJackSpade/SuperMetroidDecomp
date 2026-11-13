@@ -536,11 +536,11 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         switch (cue)
         {
-            case SporeSpawnCue.Command { Kind: SporeSpawnCueKind.IncreaseMaxXRadius }:
+            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.IncreaseMaxXRadius }:
                 if (state.MaximumXRadius < SporeSpawnWidenedRadiusLimit)
                     state.MaximumXRadius += SporeSpawnRadiusWidening;
                 return;
-            case SporeSpawnCue.Command { Kind: SporeSpawnCueKind.ClearDamagedFlag }:
+            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.ClearDamagedFlag }:
                 state.Damaged = false;
                 return;
             case SporeSpawnCue.SetMaxXRadiusAndAngleDelta setMaxXRadiusAndAngleDelta:
@@ -550,7 +550,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             case SporeSpawnCue.SetSporeGeneration setSporeGeneration:
                 state.SporeGenerationSuppressed = setSporeGeneration.SporeGenerationSuppressed;
                 return;
-            case SporeSpawnCue.Command { Kind: SporeSpawnCueKind.Harden }:
+            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.Harden }:
                 body.Position = body.Position.WithWhole(new(SporeSpawnDeathCenterX, SporeSpawnDeathCenterY));
                 body.Contact = body.Contact.Replace(EnemyContact.IgnoresSamus, EnemyContact.SolidToSamus);
                 body.Processing = body.Processing.With(EnemyProcessing.Animates);
@@ -558,7 +558,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             case SporeSpawnCue.QueueSound queueSound:
                 RequestSporeSpawnSound(queueSound.Sound ?? throw new InvalidDataException("A Spore Spawn sound cue carries no sound."));
                 return;
-            case SporeSpawnCue.Command { Kind: SporeSpawnCueKind.RequestDeathDrops }:
+            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.RequestDeathDrops }:
                 RequestSporeSpawnDeathDrops();
                 return;
             case SporeSpawnCue.SetFunction setFunction:
@@ -570,10 +570,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             case SporeSpawnCue.LoadDeathTargetPalette loadDeathTargetPalette:
                 LoadSporeSpawnDeathPalette(loadDeathTargetPalette.DeathPaletteStep);
                 return;
-            case SporeSpawnCue.Command { Kind: SporeSpawnCueKind.SpawnHardeningDust }:
+            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.SpawnHardeningDust }:
                 SpawnSporeSpawnHardeningDust(state);
                 return;
-            case SporeSpawnCue.Command { Kind: SporeSpawnCueKind.SpawnDyingExplosion }:
+            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.SpawnDyingExplosion }:
                 SpawnSporeSpawnDyingExplosion(state);
                 return;
             default:

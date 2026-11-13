@@ -20,7 +20,7 @@ internal abstract record WallSpacePirateCue
     /// <param name="Function">The cue's Function operand.</param>
     internal sealed record SetFunction(WallSpacePirateFunction Function) : WallSpacePirateCue;
 
-    /// <summary>A cue that carries no operand.</summary>
+    /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Command(WallSpacePirateCueKind Kind) : WallSpacePirateCue;
+    internal sealed record Signal(WallSpacePirateCueKind Kind) : WallSpacePirateCue;
 }

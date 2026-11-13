@@ -47,7 +47,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     {
         switch (cue)
         {
-            case CeresSteamCue.Command { Kind: CeresSteamCueKind.Vanish }:
+            case CeresSteamCue.Signal { Kind: CeresSteamCueKind.Vanish }:
                 slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
                 slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
                 return null;
@@ -63,7 +63,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                 slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
                 return countDown.Alternate;
             }
-            case CeresSteamCue.Command { Kind: CeresSteamCueKind.Appear }:
+            case CeresSteamCue.Signal { Kind: CeresSteamCueKind.Appear }:
                 slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
                 slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
                 return null;

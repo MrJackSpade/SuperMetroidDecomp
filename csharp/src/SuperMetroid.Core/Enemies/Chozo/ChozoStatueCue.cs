@@ -20,7 +20,7 @@ internal abstract record ChozoStatueCue
     /// <param name="FrameBehavior">The cue's FrameBehavior operand.</param>
     internal sealed record SetFrameBehavior(ChozoStatueFrameBehavior FrameBehavior) : ChozoStatueCue;
 
-    /// <summary>A cue that carries no operand.</summary>
+    /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Command(ChozoStatueCueKind Kind) : ChozoStatueCue;
+    internal sealed record Signal(ChozoStatueCueKind Kind) : ChozoStatueCue;
 }

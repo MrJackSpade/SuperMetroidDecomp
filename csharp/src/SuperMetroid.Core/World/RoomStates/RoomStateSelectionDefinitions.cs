@@ -210,7 +210,7 @@ public static class RoomStateSelectionDefinitions
         ]),
         [RoomDefinitions.MotherBrain] = new(TourianRoomStateDefinitions.MotherBrainDefault,
         [
-            new(RoomStateCondition.BossDead(RoomStateSelectorOperands.MainAreaBoss), TourianRoomStateDefinitions.MotherBrainWhenMainAreaBossDead),
+            new(RoomStateCondition.BossDead(RoomStateSelectorConditions.MainAreaBoss), TourianRoomStateDefinitions.MotherBrainWhenMainAreaBossDead),
             new(RoomStateCondition.Event(StoryEvent.MotherBrainGlassDestroyed), TourianRoomStateDefinitions.MotherBrainWhenMotherBrainGlassDestroyed),
         ]),
         [RoomDefinitions.CeresElev] = new(CeresRoomStateDefinitions.CeresElevDefault,

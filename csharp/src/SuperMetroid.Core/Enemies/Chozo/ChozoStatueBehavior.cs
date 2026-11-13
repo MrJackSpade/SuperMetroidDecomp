@@ -209,30 +209,30 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.FrameBehavior = setFrameBehavior.FrameBehavior;
                 return null;
 
-            case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.ClearFrameBehavior }:
+            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.ClearFrameBehavior }:
                 state.FrameBehavior = ChozoStatueFrameBehavior.Cleared;
                 return null;
 
-            case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.StartLoweringAcid }:
+            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.StartLoweringAcid }:
                 // The cue writes the liquid motion values consumed by the liquid handler once, when
                 // it runs; the liquid owns them from then on.
                 _roomFx.FxOverlay?.SetLiquidMotion(
                     timer: ChozoStatueFxData.LoweringDelay, yVelocity: ChozoStatueFxData.LoweringVelocity);
                 return null;
 
-            case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.SetLoweredAcidPosition }:
+            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.SetLoweredAcidPosition }:
                 _roomFx.FxOverlay?.SetLiquidMotion(baseYPosition: ChozoStatueRoomDefinitions.LoweredAcidY);
                 return null;
 
-            case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.UnlockSamus }:
+            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.UnlockSamus }:
                 EnableChozoStatueSamusControls();
                 return null;
 
-            case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.PlayGrabSound }:
+            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.PlayGrabSound }:
                 _audio.QueueEnemySound(ChozoGrabsSamusSound, priority: SoundRequestPriority.Normal);
                 return null;
 
-            case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.PlayFootstepSound }:
+            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.PlayFootstepSound }:
                 _audio.QueueEnemySound(ChozoFootstepsSound, priority: SoundRequestPriority.Normal);
                 return null;
 
@@ -251,7 +251,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                     move.Step);
                 return null;
 
-            case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.ReleaseSamus }:
+            case ChozoStatueCue.Signal { Kind: ChozoStatueCueKind.ReleaseSamus }:
                 FinishWreckedShipChozoSequence();
                 return null;
 

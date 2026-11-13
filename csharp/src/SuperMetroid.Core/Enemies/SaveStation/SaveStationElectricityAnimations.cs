@@ -29,7 +29,7 @@ internal static class SaveStationElectricityAnimations
             Show(EnemyProjectileFrameId.SaveStationElectricityStartSixth, 1),
             Show(EnemyProjectileFrameId.SaveStationElectricityStartSeventh, 1),
             Show(EnemyProjectileFrameId.SaveStationElectricityStartEighth, 1),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
     });
 

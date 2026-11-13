@@ -34,6 +34,6 @@ internal static class WalkingSpacePirateNativeListAddresses
         [0xfc68] = NativeCueShape<WalkingSpacePirateCue>.Of<WalkingSpacePirateCue.FireLaserLeft>("V"),
         [0xfc90] = NativeCueShape<WalkingSpacePirateCue>.Of<WalkingSpacePirateCue.FireLaserRight>("V"),
         [0xfcb8] = NativeCueShape<WalkingSpacePirateCue>.Of<WalkingSpacePirateCue.SetFunction>("E"),
-        [0xfcc8] = NativeCueShape<WalkingSpacePirateCue>.Exactly(new WalkingSpacePirateCue.Command(WalkingSpacePirateCueKind.ChooseMovement)),
+        [0xfcc8] = NativeCueShape<WalkingSpacePirateCue>.Exactly(new WalkingSpacePirateCue.Signal(WalkingSpacePirateCueKind.ChooseMovement)),
     };
 }

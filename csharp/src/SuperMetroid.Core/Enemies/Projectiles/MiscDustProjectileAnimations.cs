@@ -21,7 +21,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustBeamChargeSecond, 3),
             Show(EnemyProjectileFrameId.MiscDustBeamChargeThird, 3),
             Show(EnemyProjectileFrameId.MiscDustBeamChargeFourth, 3),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.ElbowChargeParticle] =
         [
@@ -31,7 +31,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustElbowChargeParticleFourth, 3),
             Show(EnemyProjectileFrameId.MiscDustElbowChargeParticleFifth, 3),
             Show(EnemyProjectileFrameId.MiscDustElbowChargeParticleSixth, 3),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.ElbowChargeEnergy] =
         [
@@ -42,7 +42,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustElbowChargeEnergyFifth, 2),
             Show(EnemyProjectileFrameId.MiscDustElbowChargeEnergySixth, 2),
             Show(EnemyProjectileFrameId.MiscDustElbowChargeEnergySeventh, 12),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.SmallExplosion] =
         [
@@ -52,7 +52,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustSmallExplosionFourth, 5),
             Show(EnemyProjectileFrameId.MiscDustSmallExplosionFifth, 5),
             Show(EnemyProjectileFrameId.MiscDustSmallExplosionSixth, 6),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.RainbowBeamExplosion] =
         [
@@ -61,7 +61,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustRainbowBeamExplosionThird, 4),
             Show(EnemyProjectileFrameId.MiscDustRainbowBeamExplosionFourth, 4),
             Show(EnemyProjectileFrameId.MiscDustRainbowBeamExplosionFifth, 4),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.BeamTrail] =
         [
@@ -70,7 +70,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustBeamTrailThird, 8),
             Show(EnemyProjectileFrameId.MiscDustBeamTrailFourth, 8),
             Show(EnemyProjectileFrameId.MiscDustBeamTrailFifth, 24),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.DudShot] =
         [
@@ -80,20 +80,20 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustDudShotFourth, 4),
             Show(EnemyProjectileFrameId.MiscDustDudShotFifth, 4),
             Show(EnemyProjectileFrameId.MiscDustDudShotSixth, 4),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.PowerBomb] =
         [
             Show(EnemyProjectileFrameId.MiscDustPowerBombFirst, 5),
             Show(EnemyProjectileFrameId.MiscDustPowerBombSecond, 5),
             Show(EnemyProjectileFrameId.MiscDustPowerBombThird, 5),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.ElevatorPad] =
         [
             Show(EnemyProjectileFrameId.MiscDustElevatorPadFirst, 1),
             Show(EnemyProjectileFrameId.MiscDustElevatorPadSecond, 1),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.SmallDustCloud] =
         [
@@ -102,7 +102,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustSmallDustCloudThird, 5),
             Show(EnemyProjectileFrameId.MiscDustSmallDustCloudFourth, 5),
             Show(EnemyProjectileFrameId.MiscDustSmallDustCloudFifth, 5),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.CorpseDustCloud] =
         [
@@ -110,7 +110,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustCorpseDustCloudSecond, 3),
             Show(EnemyProjectileFrameId.MiscDustCorpseDustCloudThird, 3),
             Show(EnemyProjectileFrameId.MiscDustCorpseDustCloudFourth, 3),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.EyeDoorSweatDrop] =
         [
@@ -118,7 +118,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustEyeDoorSweatDropSecond, 5),
             Show(EnemyProjectileFrameId.MiscDustEyeDoorSweatDropThird, 5),
             Show(EnemyProjectileFrameId.MiscDustEyeDoorSweatDropFourth, 5),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.Smoke] =
         [
@@ -126,7 +126,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustSmokeSecond, 8),
             Show(EnemyProjectileFrameId.MiscDustSmokeThird, 8),
             Show(EnemyProjectileFrameId.MiscDustSmokeFourth, 8),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.LoopingElevatorPad] =
         [
@@ -141,7 +141,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustBigExplosionFourth, 5),
             Show(EnemyProjectileFrameId.MiscDustBigExplosionFifth, 5),
             Show(EnemyProjectileFrameId.MiscDustBigExplosionSixth, 5),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.SmallEnergyDrop] =
         [
@@ -149,7 +149,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustSmallEnergyDropSecond, 8),
             Show(EnemyProjectileFrameId.MiscDustSmallEnergyDropThird, 8),
             Show(EnemyProjectileFrameId.MiscDustSmallEnergyDropFourth, 8),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.BigEnergyDrop] =
         [
@@ -157,7 +157,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustBigEnergyDropSecond, 8),
             Show(EnemyProjectileFrameId.MiscDustBigEnergyDropThird, 8),
             Show(EnemyProjectileFrameId.MiscDustBigEnergyDropFourth, 8),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.Bomb] =
         [
@@ -165,14 +165,14 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustBombSecond, 5),
             Show(EnemyProjectileFrameId.MiscDustBombThird, 5),
             Show(EnemyProjectileFrameId.MiscDustBombFourth, 5),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.WeirdEnergyDrop] =
         [
             Show(EnemyProjectileFrameId.MiscDustWeirdEnergyDropFirst, 16),
             Show(EnemyProjectileFrameId.MiscDustWeirdEnergyDropSecond, 16),
             Show(EnemyProjectileFrameId.MiscDustWeirdEnergyDropThird, 16),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.RockParticles] =
         [
@@ -192,7 +192,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustRockParticlesFourteenth, 2),
             Show(EnemyProjectileFrameId.MiscDustRockParticlesFifteenth, 2),
             Show(EnemyProjectileFrameId.MiscDustRockParticlesSixteenth, 2),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.ShortBigDustCloud] =
         [
@@ -200,7 +200,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustShortBigDustCloudSecond, 2),
             Show(EnemyProjectileFrameId.MiscDustShortBigDustCloudThird, 2),
             Show(EnemyProjectileFrameId.MiscDustShortBigDustCloudFourth, 2),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.ShortBeamCloud] =
         [
@@ -210,7 +210,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustShortBeamCloudFourth, 3),
             Show(EnemyProjectileFrameId.MiscDustShortBeamCloudFifth, 3),
             Show(EnemyProjectileFrameId.MiscDustShortBeamCloudSixth, 5),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.MediumBeamCloud] =
         [
@@ -221,7 +221,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustMediumBeamCloudFifth, 3),
             Show(EnemyProjectileFrameId.MiscDustMediumBeamCloudSixth, 3),
             Show(EnemyProjectileFrameId.MiscDustMediumBeamCloudSeventh, 3),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.BigDustCloud] =
         [
@@ -233,7 +233,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustBigDustCloudSixth, 5),
             Show(EnemyProjectileFrameId.MiscDustBigDustCloudSeventh, 5),
             Show(EnemyProjectileFrameId.MiscDustBigDustCloudEighth, 5),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.LongBeam] =
         [
@@ -268,14 +268,14 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustLongBeamTwentyNinth, 1),
             Show(EnemyProjectileFrameId.MiscDustLongBeamThirtieth, 1),
             Show(EnemyProjectileFrameId.MiscDustLongBeamThirtyFirst, 1),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.FlickeringLongBeam] =
         [
             Show(EnemyProjectileFrameId.MiscDustFlickeringLongBeamFirst, 1),
             Show(EnemyProjectileFrameId.MiscDustFlickeringLongBeamSecond, 1),
             Show(EnemyProjectileFrameId.MiscDustFlickeringLongBeamThird, 1),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.DraygonBreathBubbles] =
         [
@@ -288,7 +288,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustDraygonBreathBubblesSeventh, 8),
             Show(EnemyProjectileFrameId.MiscDustDraygonBreathBubblesEighth, 8),
             Show(EnemyProjectileFrameId.MiscDustDraygonBreathBubblesNinth, 8),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.SaveStationElectricity] =
         [
@@ -300,7 +300,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustSaveStationElectricitySixth, 1),
             Show(EnemyProjectileFrameId.MiscDustSaveStationElectricitySeventh, 1),
             Show(EnemyProjectileFrameId.MiscDustSaveStationElectricityEighth, 1),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.ExpandingGate] =
         [
@@ -312,7 +312,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustExpandingGateSixth, 16),
             Show(EnemyProjectileFrameId.MiscDustExpandingGateSeventh, 16),
             Show(EnemyProjectileFrameId.MiscDustExpandingGateEighth, 16),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
         [P.ContractingGate] =
         [
@@ -324,7 +324,7 @@ internal static class MiscDustProjectileAnimations
             Show(EnemyProjectileFrameId.MiscDustContractingGateSixth, 4),
             Show(EnemyProjectileFrameId.MiscDustContractingGateSeventh, 4),
             Show(EnemyProjectileFrameId.MiscDustContractingGateEighth, 4),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
     });
 

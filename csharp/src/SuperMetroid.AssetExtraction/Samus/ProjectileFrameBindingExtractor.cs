@@ -21,7 +21,7 @@ public static class ProjectileFrameBindingExtractor
         Dictionary<ushort, ProjectileSpriteId> byLocation = ProjectileSpriteLocations.Projectiles()
             .ToDictionary(pair => pair.Value, pair => pair.Key);
         var frames = new Dictionary<string, string>();
-        foreach (SamusProjectileFrame record in SamusProjectileRecordOrder.Frames)
+        foreach (SamusProjectileFrame record in SamusProjectileFrameOrder.Frames)
             frames.Add(ProjectileFrameBindingFormat.FrameName(record), byLocation.TryGetValue(recordSprites[record], out ProjectileSpriteId sprite)
                 ? sprite.Name
                 : throw new InvalidDataException($"Timed projectile record {record} selects ${recordSprites[record]:X4}, which is no projectile composition."));

@@ -18,7 +18,7 @@ internal static class ProjectileSpriteLocations
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         SamusProjectileListLayout lists = SamusProjectileListEntries.Read(cartridge);
-        return SamusProjectileRecordOrder.Frames.ToDictionary(record => record, record => RomDataReader.ReadWordFixedBank(cartridge,
+        return SamusProjectileFrameOrder.Frames.ToDictionary(record => record, record => RomDataReader.ReadWordFixedBank(cartridge,
             SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(lists.RecordPosition(record) + 2))));
     }
 

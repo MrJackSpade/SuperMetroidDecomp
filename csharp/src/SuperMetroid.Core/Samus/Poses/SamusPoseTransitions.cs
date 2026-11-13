@@ -111,7 +111,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             samus.Kinematics.Position -= new Offset16<RoomPixels>(0, samus.Kinematics.Radius.Y - oldRadius);
         }
 
-        ApplyAerialLandingCollisionCommand(samus, leavingScrewAttack);
+        SettleAcceptedLanding(samus, leavingScrewAttack);
         SamusPresentation.InitializeAnimation(samus, initialFrame: StandingPoseInitialFrame(sourcePose, targetPose));
     }
 
@@ -121,7 +121,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// </summary>
     /// <returns>
     /// True when the selected landing pose fit. False means the game's collision retained the
-    /// source pose or selected its stable-crouch fallback; the game then skips the landing command.
+    /// source pose or selected its stable-crouch fallback; the game then does not settle Samus on the landing.
     /// </returns>
     public static bool TryApplyAerialLanding(SamusState samus, 
 
@@ -161,12 +161,12 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         }
 
         // The changed-pose collision compares the requested pose with the post-collision pose. A rejected
-        // expansion or crouch substitution is reported as blocked and skips command five; this
+        // expansion or crouch substitution is reported as blocked and does not settle the landing; this
         // is not an accepted landing and must retain the vertical motion.
         if (collision == LargerPoseCollisionOutcome.Allowed)
-            ApplyAerialLandingCollisionCommand(samus, leavingScrewAttack);
+            SettleAcceptedLanding(samus, leavingScrewAttack);
         else if (leavingScrewAttack)
-            // Palette restoration belongs to the pose change, before the blocked-collision gate on the command.
+            // Palette restoration belongs to the pose change, before the blocked-collision gate on settling.
             samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
         return collision == LargerPoseCollisionOutcome.Allowed;
     }
@@ -225,8 +225,11 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         };
     }
 
-    /// <summary>Applies collision command five.</summary>
-    private static void ApplyAerialLandingCollisionCommand(SamusState samus, bool leavingScrewAttack)
+    /// <summary>
+    /// Settles Samus on a landing the changed-pose collision accepted: arms the autojump input, stops her horizontal and
+    /// vertical motion, and requests the normal suit palette when she lands out of Screw Attack.
+    /// </summary>
+    private static void SettleAcceptedLanding(SamusState samus, bool leavingScrewAttack)
     {
         // Installs the same one-shot input handler used by F8.
         // Its short held-Jump window is evaluated next alpha, not during landing.
@@ -246,7 +249,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// <summary>
     /// Applies the landing table's directions four/five when radius-ten straight-down Samus lands.
     /// Both entries select the ordinary normal landing; the 10 -> 21 expansion still runs the full
-    /// block pose-change collision resolver; command five clears motion only if accepted.
+    /// block pose-change collision resolver; settling the landing clears motion only if accepted.
     /// </summary>
     public static bool TryApplyCompactAerialLanding(SamusState samus, 
 
@@ -292,10 +295,10 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
         }
 
-        // Like ordinary landings, the changed-pose collision's result gates command five.
+        // Like ordinary landings, the changed-pose collision's result gates settling the landing.
         // A collision-selected crouch is not allowed to clear velocity or arm autojump.
         if (collision == LargerPoseCollisionOutcome.Allowed)
-            ApplyAerialLandingCollisionCommand(samus, leavingScrewAttack: false);
+            SettleAcceptedLanding(samus, leavingScrewAttack: false);
         return collision == LargerPoseCollisionOutcome.Allowed;
     }
 

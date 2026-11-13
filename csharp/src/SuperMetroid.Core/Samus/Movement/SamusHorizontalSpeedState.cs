@@ -588,12 +588,14 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Executes running / normal jumping / airborne ball fallback's alpha-selected command one or two.
-    /// Command one rechecks speed after movement before folding extra momentum.
+    /// Executes running / normal jumping / airborne ball fallback's alpha-selected deceleration or stop.
+    /// Deceleration rechecks speed after movement before folding extra momentum.
     /// </summary>
-    public void ApplyDeceleratingInputFallback(bool selectedMomentumCommand, SamusFacingDirection facingDirection)
+    /// <param name="selectedDeceleration">Whether alpha selected deceleration rather than a stop.</param>
+    /// <param name="facingDirection">The direction Samus faces, whose running momentum is cancelled.</param>
+    public void ApplyDeceleratingInputFallback(bool selectedDeceleration, SamusFacingDirection facingDirection)
     {
-        if (selectedMomentumCommand && HasBaseSpeed)
+        if (selectedDeceleration && HasBaseSpeed)
         {
             BaseSpeed += ExtraRunSpeed;
             ExtraRunSpeed = default;

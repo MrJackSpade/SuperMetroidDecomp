@@ -34,7 +34,7 @@ internal static class FallingSparkAnimations
             Show(EnemyProjectileFrameId.FallingSparkHitFloorNinth, 1),
             Show(EnemyProjectileFrameId.FallingSparkHitFloorTenth, 1),
             Show(EnemyProjectileFrameId.FallingSparkHitFloorEleventh, 1),
-            Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
+            Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
     });
 

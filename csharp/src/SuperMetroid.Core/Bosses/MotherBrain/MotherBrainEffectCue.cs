@@ -18,7 +18,7 @@ internal abstract record MotherBrainEffectCue
     /// <param name="Radius">The collision half-extents <see cref="SetRadius"/> installs.</param>
     internal sealed record SetRadius(Extent16<RoomPixels> Radius) : MotherBrainEffectCue;
 
-    /// <summary>A cue that carries no operand.</summary>
+    /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Command(MotherBrainEffectCueKind Kind) : MotherBrainEffectCue;
+    internal sealed record Signal(MotherBrainEffectCueKind Kind) : MotherBrainEffectCue;
 }

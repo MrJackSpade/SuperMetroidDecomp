@@ -87,7 +87,7 @@ internal static class CinematicCrystalFlashVerification
         (CartridgeImportAddressSpace superBus, SuperMetroidRuntime superRuntime,
             SamusState superSamus) = CreateCinematicFlashRuntime(movementCalls: 12);
         superSamus.Drained.LetFall(superSamus);
-        AssertEqual(DrainedSamusPhase.WaitingForFallingCommand, superSamus.Drained.Phase,
+        AssertEqual(DrainedSamusPhase.WaitingForFallingCue, superSamus.Drained.Phase,
             "Super Metroid terminal drain installs crouching/falling controller state");
         superRuntime.StepFrame(0);
         AssertTrue(superRuntime.Player.LastCrystalFlashMovement is not null,

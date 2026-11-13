@@ -30,7 +30,7 @@ public static class ProjectileFrameBindingFile
             throw new InvalidDataException($"Projectile frame bindings require version {ProjectileFrameBindingFormat.Version} and all {ProjectileFrameBindingFormat.FrameCount} timed records.");
         Dictionary<string, ProjectileSpriteId> named = ProjectileSpriteDefinitions.All.ToDictionary(sprite => sprite.Name, StringComparer.Ordinal);
         var compiled = new Dictionary<SamusProjectileFrame, ProjectileSpriteId>();
-        foreach (SamusProjectileFrame record in SamusProjectileRecordOrder.Frames)
+        foreach (SamusProjectileFrame record in SamusProjectileFrameOrder.Frames)
         {
             string key = ProjectileFrameBindingFormat.FrameName(record);
             if (!document.Frames.TryGetValue(key, out string? spriteName) || spriteName is null ||

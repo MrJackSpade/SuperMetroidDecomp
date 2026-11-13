@@ -1,5 +1,5 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>Owned reveal command and its row-major metatile arguments; extensions have no arguments.</summary>
-public readonly record struct XrayRevealDefinition(XrayRevealCommand Command, int TopLeft,
+/// <summary>Owned reveal shape and its row-major blocks; extensions have no blocks.</summary>
+public readonly record struct XrayRevealDefinition(XrayRevealShape Shape, int TopLeft,
     int TopRight, int BottomLeft, int BottomRight);

@@ -40,7 +40,7 @@ internal static class SamusAnimationDelays
         SamusPoseAnimation animation = AnimationOf(read);
         int readFrame = frame;
         int shift = 0;
-        SamusPoseAnimationStep? step = animation.TryStepAt(readFrame) ?? continuation.OperandStep(read, readFrame);
+        SamusPoseAnimationStep? step = animation.TryStepAt(readFrame) ?? continuation.CueValueStep(read, readFrame);
         while (step is null)
         {
             if (continuation.ReadPast(read, readFrame) is not { } past)
@@ -49,7 +49,7 @@ internal static class SamusAnimationDelays
             animation = AnimationOf(read);
             readFrame = past.Frame;
             shift += past.Shift;
-            step = animation.TryStepAt(readFrame) ?? continuation.OperandStep(read, readFrame);
+            step = animation.TryStepAt(readFrame) ?? continuation.CueValueStep(read, readFrame);
         }
         return shift == 0 ? step : step switch
         {

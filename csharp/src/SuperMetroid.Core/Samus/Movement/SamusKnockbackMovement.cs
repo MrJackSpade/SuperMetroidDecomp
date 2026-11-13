@@ -329,7 +329,7 @@ level, targetPose, frameCounter, roomObjects))
     }
 
     /// <summary>
-    /// Consumes the zero-timer branch of the knockback check and transitional command one
+    /// Consumes the zero-timer branch of the knockback check and finishes the expired hit
     /// after movement/animation, including boosts which already restored normal movement.
     /// Returns whether this higher-priority transition superseded ordinary pose input.
     /// </summary>
@@ -345,8 +345,8 @@ level, targetPose, frameCounter, roomObjects))
 
     /// <summary>
     /// Samples the zero-timer arm of the hit interruption.
-    /// The result must be retained until Samus's pose handling applies transitions: an animation
-    /// command can clear the knockback direction after this decision without cancelling it.
+    /// The result must be retained until Samus's pose handling applies transitions: an animation's
+    /// pose-transition cue can clear the knockback direction after this decision without cancelling it.
     /// </summary>
     public static bool IsExpiredHitInterruptionPending(SamusState samus)
     {
@@ -355,26 +355,25 @@ level, targetPose, frameCounter, roomObjects))
     }
 
     /// <summary>
-    /// Applies transition command one for a previously sampled
-    /// hurt-expiry request, including when a higher-priority animation command has
-    /// since replaced the current movement handler.
+    /// Finishes a previously sampled hurt expiry, including when a higher-priority
+    /// pose-transition cue has since replaced the current movement handler.
     /// </summary>
     public static void FinishExpiredHitInterruption(SamusState samus)
     {
         Ensure.NotNull(samus);
 
-        // Command one always aligns Samus's feet to the new radius, even when command eight first installed
-        // an animation-owned pose. That overlap is observable: a turn from radius 19 to
+        // Finishing the hit always aligns Samus's feet to the new radius, even when a pose-transition cue
+        // first installed an animation-owned pose. That overlap is observable: a turn from radius 19 to
         // radius 10 moves Samus down nine pixels while preserving her feet. Reading the
-        // history record instead of assuming a hurt pose also covers the no-animation
+        // previous pose instead of assuming a hurt pose also covers the no-animation
         // path, where both radii ordinarily match and the alignment is a no-op.
         int previousRadius = SamusPoseMetadata.ReadPoseYRadius(
             unchecked(samus.PoseHistory.PreviousPose));
         int targetRadius = SamusPoseMetadata.ReadPoseYRadius(samus.Pose);
         samus.AlignBottomAfterPoseChange(previousRadius, targetRadius);
 
-        // Samus's pose update jumps straight to command one without installing its own
-        // proposed falling pose. Any higher-priority command-three pose is already live.
+        // Samus's pose update finishes the hit straight away without installing its own
+        // proposed falling pose. Any pose a higher-priority pose-transition cue installed is already live.
         EndWithoutPoseChange(samus);
     }
 

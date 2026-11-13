@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 /// <param name="Context">The music data set naming the clip set, or null for only the shared sounds.</param>
 /// <param name="Sound">The sound effect.</param>
-/// <param name="MissingSources">Each instrument whose sample the clip set lacks.</param>
 public sealed record UnrenderableSoundEffect(
     MusicDataSet? Context,
-    SoundEffectId Sound,
-    IReadOnlyList<string> MissingSources);
+    SoundEffectId Sound);

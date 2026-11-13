@@ -59,7 +59,7 @@ public sealed record GameInstallation(string Root)
             throw new InvalidDataException(
                 "Extracted game content is incomplete or invalid.");
     }
-    /// <summary>Installed audio files and manifests, which the player edits in place.</summary>
+    /// <summary>The installed audio clips and their index, which the player edits in place.</summary>
     public string AudioDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.AudioDirectoryName);
     /// <summary>Loads the installed pre-rendered audio clips (#1305) the game plays.</summary>
     /// <exception cref="InvalidDataException">The installed clips are invalid.</exception>

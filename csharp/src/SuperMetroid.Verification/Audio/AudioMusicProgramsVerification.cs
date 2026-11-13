@@ -14,7 +14,7 @@ internal static class AudioMusicProgramsVerification
     /// <summary>Matches compiled stock banks to APU RAM, then checks malformed sizes and references fail.</summary>
     internal static void VerifyMusicPrograms()
     {
-        string sourceDirectory = RepositoryInstallation.Installation.AudioDirectory;
+        string sourceDirectory = RepositoryInstallation.Installation.AudioImportDirectory();
         ExtractedAudioAssetCatalog stock = InstalledFixtures.Audio;
         int trackCount = 0;
         int phraseCount = 0;

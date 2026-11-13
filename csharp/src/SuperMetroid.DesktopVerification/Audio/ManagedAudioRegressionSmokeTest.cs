@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Audio.Synthesis;
 namespace SuperMetroid.DesktopVerification.Audio;
 
 /// <summary>
-/// Permanent, ROM-free regression corpus captured only after every byte matched the pinned
+/// Permanent regression corpus captured only after every byte matched the pinned
 /// native translation. It covers every music-bank upload, three SFX libraries,
 /// overlap/cancellation, bank changes, stop, pause/resume, and shared-cue restoration.
 /// The music scenarios request shared track one, not bank-specific track five; their
@@ -34,12 +34,15 @@ public static class ManagedAudioRegressionSmokeTest
     /// <summary>Number of source-number mappings expected across all installed uploads.</summary>
     private const int ExpectedSourceAliasCount = 935;
 
-    /// <summary>Loads installed audio assets, checks catalog dimensions, and compares the fixed music/SFX/lifecycle corpus against its pinned PCM and acknowledgement digests without a ROM or audio device.</summary>
+    /// <summary>
+    /// Loads the extracted audio catalog, the import data the installed clips are rendered from (#1693), checks its
+    /// dimensions, and compares the fixed music/SFX/lifecycle corpus against its pinned PCM and acknowledgement digests
+    /// without an audio device.
+    /// </summary>
     /// <remarks>Music scenarios select shared track one, so passing this corpus does not establish bank-specific room-music correctness.</remarks>
     public static ManagedAudioRegressionSmokeTestResult Run()
     {
-        ExtractedAudioAssetCatalog catalog = ExtractedAudioAssetCatalog.Load(
-            ExtractedAudioAssetLocator.FindAudioDirectory());
+        ExtractedAudioAssetCatalog catalog = DesktopAccess.LoadAudioAssets();
         if (catalog.CanonicalSampleCount != ExpectedCanonicalSampleCount ||
             catalog.SourceMappingCount != ExpectedSourceAliasCount)
         {

@@ -13,9 +13,9 @@ namespace SuperMetroid.DebugRunner.Tools;
 /// <summary>
 /// The #1305 audio clip inventory: every music track's loop structure, shipped-loop seam and
 /// tempo-phase period, the static sound-program scan for inherited state, and every sound effect's
-/// clips in every bank context, measured over an installed extracted catalog with the same
-/// analysis and renderers the installer's clip export uses. It writes
-/// <c>audio-clip-inventory.json</c> and <c>audio-clip-inventory.md</c>.
+/// clips in every bank context, measured over the audio's import data, the extracted catalog (as
+/// <c>assets audio-rom</c> writes it beside the clips, #1693), with the same analysis and renderers the
+/// installer's clip export uses. It writes <c>audio-clip-inventory.json</c> and <c>audio-clip-inventory.md</c>.
 /// </summary>
 internal static class AudioClipInventory
 {
@@ -25,10 +25,10 @@ internal static class AudioClipInventory
     /// <summary>Bytes per native stereo frame in a 16-bit stereo clip.</summary>
     private const int BytesPerStereoFrame = 4;
 
-    /// <summary>Runs the inventory over <paramref name="audioDirectory"/> into <paramref name="outputDirectory"/>.</summary>
-    internal static int Run(string audioDirectory, string outputDirectory)
+    /// <summary>Runs the inventory over the audio import data in <paramref name="importDataDirectory"/> into <paramref name="outputDirectory"/>.</summary>
+    internal static int Run(string importDataDirectory, string outputDirectory)
     {
-        ExtractedAudioAssetCatalog catalog = ExtractedAudioAssetCatalog.Load(Path.GetFullPath(audioDirectory));
+        ExtractedAudioAssetCatalog catalog = ExtractedAudioAssetCatalog.Load(Path.GetFullPath(importDataDirectory));
         Directory.CreateDirectory(outputDirectory);
         var timings = new List<PhaseTiming>();
 

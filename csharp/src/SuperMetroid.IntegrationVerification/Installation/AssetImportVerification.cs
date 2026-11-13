@@ -63,7 +63,7 @@ try
     try
     {
         GameInstallation? romFreeContent = GameAssetInstaller.TryOpenExtractedContent(root);
-        Check(romFreeContent is not null && romFreeContent.LoadAudio().CanonicalSampleCount == 112,
+        Check(romFreeContent is not null && romFreeContent.LoadAudioClips().Manifest.Music.Count > 0,
             "installed presentation assets remain usable without the private ROM copy");
         Check(GameAssetInstaller.OpenOrRepair(root) is not null,
             "normal host startup accepts complete extracted content without a ROM copy");
@@ -84,25 +84,15 @@ try
     {
         File.Move(heldRom, installed.RomPath);
     }
-    var catalog = ExtractedAudioAssetCatalog.Load(installed.AudioDirectory);
-    Check(catalog.CanonicalSampleCount == 112 && catalog.SourceMappingCount == 935, "all canonical samples and source aliases extracted");
-    Console.WriteLine($"PASS installed runtime resources: {catalog.CanonicalSampleCount} WAV samples, {catalog.SourceMappingCount} aliases.");
+    InstalledClipAudioLibrary installedClips = installed.LoadAudioClips();
+    Console.WriteLine($"PASS installed runtime resources: {installedClips.Manifest.Music.Count} songs and {installedClips.Manifest.SoundEffects.Count} sound effects.");
 
-    // The repository's standalone extraction is the independent reference audio set.
-    {
-        string reference = Path.GetFullPath("standalone-assets/audio");
-        string[] expected = Directory.GetFiles(reference, "*", SearchOption.AllDirectories);
-        foreach (string file in expected)
-        {
-            string relative = Path.GetRelativePath(reference, file);
-            Check(File.ReadAllBytes(file).SequenceEqual(File.ReadAllBytes(Path.Combine(installed.AudioDirectory, relative))),
-                $"reference parity: {relative}", quiet: true);
-        }
-        Check(expected.Length == Directory.GetFiles(installed.AudioDirectory, "*", SearchOption.AllDirectories).Length,
-            "ROM-only extraction matches every reference file, with no missing or extra files");
-    }
-
-    var renderer = AudioSessionAccess.CreateSynthesizing(catalog);
+    // The game plays the installed clips (#1693): the title music sounds through the clip backend, which reads nothing
+    // else. The reference comparison with a hand extraction is gone: that extraction was this importer's own output.
+    var events = new AudioEventSource(new SuperMetroid.Core.Compatibility.SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId>(
+        SoundEffectLibraries.InQueueOrder, SoundEffectLibrary.Samus));
+    var renderer = new ClipAudioBackend(installedClips.Clips);
+    short[] pcm = new short[AudioSession.PcmSamplesPerFrame];
     long audible = 0;
     for (int frame = 0; frame < 120; frame++)
     {
@@ -110,7 +100,8 @@ try
             ? [new AudioRequest.ChangeMusicDataSet(null),
                new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Music[0].DataSet),
                AudioRequest.ForTrack(MusicTrackNumbers.Decode(AudioRomDataMusicTracks.Title))] : [];
-        foreach (short sample in renderer.RenderFrame(commands)) if (sample != 0) audible++;
+        renderer.Render(new AudioFrameEvents(events.Advance(commands)), pcm);
+        foreach (short sample in pcm) if (sample != 0) audible++;
     }
     Check(audible > 0, "newly extracted resources produce audible title music through the production renderer");
 
@@ -126,7 +117,7 @@ try
     string save = Path.Combine(root, "SuperMetroid.save.json");
     GameSaveFileStore.WriteAtomic(new SuperMetroid.Core.Saves.SaveSlotStore(installed.LoadMaps()), save);
     byte[] saveBefore = File.ReadAllBytes(save);
-    string waveform = Directory.GetFiles(Path.Combine(installed.AudioDirectory, "samples"), "*.wav")[0];
+    string waveform = Path.Combine(installed.AudioDirectory, installedClips.Manifest.Music[0].Clip.Path);
     byte[] waveBefore = File.ReadAllBytes(waveform);
     File.WriteAllBytes(waveform, "broken wave"u8.ToArray());
     // The receipt alone decides whether content is current (#1532): content extracted for another format is rebuilt, and

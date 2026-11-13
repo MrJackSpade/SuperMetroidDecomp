@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Audio;
 using static SuperMetroid.Verification.Audio.ManagedAudioVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 namespace SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;
@@ -44,10 +44,6 @@ internal static class AudioBankTransitionVerification
         }, "an audible unmapped source must still fail loudly");
     }
 
-    /// <summary>The installed audio catalog, loaded once for every bank's suite.</summary>
-    private static readonly Lazy<ExtractedAudioAssetCatalog> InstalledAudio = new(() => SharedFixtureTiming.Load("Fixture: installed audio catalog",
-        () => ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory)));
-
     /// <summary>Each installed music bank's transition to the captivity track, a suite of its own.</summary>
     internal static FullRunSuitesVerification.RegisteredSuite[] AudioBankTransitionSuites() =>
     [
@@ -58,7 +54,7 @@ internal static class AudioBankTransitionVerification
     /// <summary>Checks that <paramref name="bank"/>'s first song can hand over to the captivity track with audible output.</summary>
     private static void VerifyAudioBankTransition(AudioUploadAssetDefinition bank)
     {
-        var renderer = AudioSessionAccess.CreateSynthesizing(InstalledAudio.Value);
+        var renderer = AudioSessionAccess.CreateSynthesizing(InstalledFixtures.Audio);
         renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(null)]);
         renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(bank.DataSet)]);
         renderer.RenderFrame([AudioRequest.ForTrack(MusicTrack.FirstSetSong)]);

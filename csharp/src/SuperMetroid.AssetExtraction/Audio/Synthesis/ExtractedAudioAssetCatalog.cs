@@ -6,12 +6,12 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>
 /// Immutable collection of extracted SPC upload streams keyed by <see cref="AudioBank"/>.
-/// The on-disk manifest still names each upload by its cartridge address; loading maps it to
-/// the bank identity once, so runtime audio reads no music or sample bytes from the ROM.
+/// The audio's import data (#1693): the manifest names each upload by its cartridge address; loading maps it to the
+/// bank identity once. Only the clip export and its checks read it; the installation holds the clips rendered from it.
 /// </summary>
 public sealed class ExtractedAudioAssetCatalog
 {
-    /// <summary>JSON manifest filename beneath the selected audio root, identifying upload streams, canonical WAV samples, and authored bank/SFX definitions.</summary>
+    /// <summary>JSON manifest filename beneath the audio's import-data root, identifying upload streams, canonical WAV samples, and authored bank/SFX definitions.</summary>
     public const string ManifestFileName = "audio-manifest.json";
     /// <summary>Opaque SPC upload bytes indexed by their original cartridge command address.</summary>
     private readonly IReadOnlyDictionary<AudioBank, byte[]> streams;
@@ -50,14 +50,14 @@ public sealed class ExtractedAudioAssetCatalog
     public string ContentIdentity { get; }
 
     /// <summary>Loads and validates every stream named by an extracted manifest.</summary>
-    /// <param name="audioDirectory">Audio root containing the manifest and all of its relative upload/WAV files; referenced paths must remain beneath this root.</param>
+    /// <param name="importDataDirectory">The audio's import-data root containing the manifest and all of its relative upload/WAV files; referenced paths must remain beneath this root.</param>
     /// <returns>An address-keyed catalog whose upload and PCM bytes are loaded into memory and whose authored definitions have passed compatibility validation.</returns>
     /// <exception cref="InvalidDataException">The schema, hashes, required bank identities, sample aliases, or authored definitions are invalid.</exception>
     /// <exception cref="FileNotFoundException">The manifest or a referenced audio file is missing.</exception>
-    public static ExtractedAudioAssetCatalog Load(string audioDirectory)
+    public static ExtractedAudioAssetCatalog Load(string importDataDirectory)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(audioDirectory);
-        string root = Path.GetFullPath(audioDirectory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(importDataDirectory);
+        string root = Path.GetFullPath(importDataDirectory);
         string manifestPath = Path.Combine(root, ManifestFileName);
         if (!File.Exists(manifestPath))
         {
@@ -77,7 +77,6 @@ public sealed class ExtractedAudioAssetCatalog
         foreach (AudioUploadManifestEntry entry in manifest.Uploads)
         {
             string path = ResolveContainedPath(root, entry.StreamFile);
-            // An installed stream is used as installed (#1532): a player may edit it in place.
             byte[] bytes = File.ReadAllBytes(path);
             AudioBank uploadBank = AudioAssetCatalogDefinitions.ResolveSnesAddress(entry.SnesAddress).AudioSet;
             if (!loaded.TryAdd(uploadBank, bytes))
@@ -316,7 +315,7 @@ public sealed class ExtractedAudioAssetCatalog
         foreach (AudioCanonicalSampleMetadata definition in definitions)
         {
             string path = ResolveContainedPath(root, definition.WavFile);
-            // An installed sample is used as installed (#1532); it fails only when it does not decode or has the wrong shape.
+            // A sample fails only when it does not decode or has the wrong shape.
             byte[] bytes = File.ReadAllBytes(path);
             (int sampleRate, short[] pcm) = PcmWaveFile.ReadMonoPcm16(bytes, path);
             if (sampleRate != definition.SampleRate || pcm.Length != definition.SampleCount)
@@ -493,7 +492,7 @@ public sealed class ExtractedAudioAssetCatalog
             Array.AsReadOnly(manifest.SoundLibraries.ToArray()));
     }
 
-    /// <summary>Resolves an audio manifest resource beneath the installation root and rejects escapes or missing files.</summary>
+    /// <summary>Resolves an audio manifest resource beneath the import-data root and rejects escapes or missing files.</summary>
     private static string ResolveContainedPath(string root, string relativePath)
     {
         if (Path.IsPathRooted(relativePath))

@@ -375,9 +375,9 @@ music ring, three bank-$82 SFX handshakes, and acknowledgement timing. The game 
 the SPC port model every update whether or not audio is enabled or a device exists; Windows
 `waveOut` owns only buffered delivery of the resulting 48 kHz stereo PCM.
 
-Runtime upload commands resolve against the SHA-verified catalog in
-the installed `game/audio/` directory. Developer tools may still use
-`../standalone-assets/audio`. Exact `.spcu` streams remain
+The clip export renders from the extracted catalog, which is the import's data (#1693): the
+installer writes it to the audio's import-data directory and deletes it before publishing, so the
+installed `game/audio/` directory holds the clips and their index alone. Exact `.spcu` streams remain
 the source of sequence and SFX command data; the manifest's per-bank `instruments` arrays now
 own the editable source/noise selector, ADSR bytes, gain byte, and pitch-base word installed
 after each upload. BRR decoding occurs only during asset extraction. Runtime voices read

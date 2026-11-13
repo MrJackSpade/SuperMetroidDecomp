@@ -14,7 +14,7 @@ internal static class AudioSoundProgramsVerification
     /// <summary>Compares stock program bytes and routes with APU memory, then checks malformed programs fail.</summary>
     internal static void VerifySoundEffectPrograms()
     {
-        string sourceDirectory = RepositoryInstallation.Installation.AudioDirectory;
+        string sourceDirectory = RepositoryInstallation.Installation.AudioImportDirectory();
         ExtractedAudioAssetCatalog stock = InstalledFixtures.Audio;
         var rawPlayer = new ManagedSpcPlayer();
         rawPlayer.Uploads.Upload(stock.GetUpload(AudioBank.SpcEngine).Span);

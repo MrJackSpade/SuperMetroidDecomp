@@ -1,5 +1,7 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Audio;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -154,7 +156,26 @@ internal static class ImportOnlyLayoutsVerification
                 $"a published installation does not hold the retired manifest {component}/{file}");
             retired++;
         }
-        Console.WriteLine($"  Import-only layouts: {count} layouts are import data and none is installed; {retired} retired manifests are written nowhere.");
+        VerifyAudioImportData(content);
+        Console.WriteLine($"  Import-only layouts: {count} layouts are import data and none is installed; {retired} retired manifests are written nowhere; " +
+            "the audio's catalog is import data and its installed folder holds the clips and their index alone.");
+    }
+
+    /// <summary>
+    /// The catalog the audio clips are rendered from, its manifest, upload streams and instrument samples, is the audio
+    /// extraction's whole output, which the installer writes to the audio's import data (#1693); the published audio
+    /// folder holds the clip index and the clips alone, the files the game reads.
+    /// </summary>
+    private static void VerifyAudioImportData(string content)
+    {
+        string[] extracted = [.. Directory.EnumerateFileSystemEntries(RepositoryInstallation.Installation.AudioImportDirectory())
+            .Select(entry => Path.GetFileName(entry)).Order(StringComparer.Ordinal)];
+        AssertTrue(extracted.SequenceEqual([ExtractedAudioAssetCatalog.ManifestFileName, "samples", "streams"]),
+            $"the audio extraction writes its manifest, samples and streams alone, not {string.Join(", ", extracted)}");
+        string[] installed = [.. Directory.EnumerateFileSystemEntries(Path.Combine(content, GameInstallationLayout.AudioDirectoryName))
+            .Select(entry => Path.GetFileName(entry)).Order(StringComparer.Ordinal)];
+        AssertTrue(installed.SequenceEqual([InstalledAudioClips.ManifestFileName, AudioClipExporter.ClipDirectory]),
+            $"a published installation's audio holds the clip index and the clips alone, not {string.Join(", ", installed)}");
     }
 
     /// <summary>Runs the import-only layout check over the shared repository installation.</summary>

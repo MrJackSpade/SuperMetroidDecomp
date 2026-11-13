@@ -7,6 +7,7 @@ using SuperMetroid.Desktop.Audio;
 using SuperMetroid.Desktop.Diagnostics;
 using SuperMetroid.Desktop.Window;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Verification views of private desktop audio and error-reporting state.</summary>
 internal static class DesktopAccess
@@ -66,17 +67,19 @@ internal static class DesktopAccess
         }
     }
 
-    /// <summary>The extracted audio found from the working or executable directory.</summary>
-    internal static ExtractedAudioAssetCatalog LoadAudioAssets(string? audioDirectory = null) =>
-        ExtractedAudioAssetCatalog.Load(audioDirectory ?? ExtractedAudioAssetLocator.FindAudioDirectory());
+    /// <summary>
+    /// The extracted audio catalog the repository installation's clips are rendered from: the audio's import data, which
+    /// no installation holds (#1693), extracted from the installation's cartridge copy once per process.
+    /// </summary>
+    internal static ExtractedAudioAssetCatalog LoadAudioAssets() => InstalledFixtures.Audio;
 
-    /// <summary>The installed pre-rendered clips beside that audio (#1305), which a game binds.</summary>
-    internal static ClipAudioLibrary LoadAudioClips(string? audioDirectory = null) =>
-        InstalledAudioClips.Load(audioDirectory ?? ExtractedAudioAssetLocator.FindAudioDirectory()).Clips;
+    /// <summary>The installed pre-rendered clips (#1305) found from the working or executable directory, which a game binds.</summary>
+    internal static ClipAudioLibrary LoadAudioClips() =>
+        InstalledAudioClips.Load(AudioClipDirectoryLocator.FindAudioDirectory()).Clips;
 
-    /// <summary>A standalone synthesizing session over that audio, for fixtures that drive the cartridge audio types directly.</summary>
-    internal static SynthesizingAudioSession CreateAudioSession(string? audioDirectory = null) =>
-        AudioSessionAccess.CreateSynthesizing(LoadAudioAssets(audioDirectory));
+    /// <summary>A standalone synthesizing session over the extracted audio catalog, for fixtures that drive the cartridge audio types directly.</summary>
+    internal static SynthesizingAudioSession CreateAudioSession() =>
+        AudioSessionAccess.CreateSynthesizing(LoadAudioAssets());
 
     /// <summary>
     /// A game control over the installation placed beside a ROM path (see <see cref="InstallationDirectoryName"/>),

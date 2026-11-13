@@ -18,6 +18,6 @@ internal readonly record struct TorizoInstructionInputs
     /// <summary>Controller input.</summary>
     public required ControllerButton ControllerInput { get; init; }
 
-    /// <summary>The frame counter. The attack choosers keep only bit 3 of their sum, so only its low four bits affect a choice.</summary>
+    /// <summary>The frame counter, whose sum with Samus's halved X sets an attack choice's phase (<see cref="TorizoChoices.InFirstAttackPhase"/>).</summary>
     public required int FrameCounter { get; init; }
 }

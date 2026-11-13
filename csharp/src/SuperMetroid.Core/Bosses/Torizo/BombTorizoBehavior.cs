@@ -424,7 +424,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     throw new InvalidOperationException("Bomb Torizo attack selection requires Samus state.");
                 state.ReturnPlayback = continuation;
                 bool chooseFirst = inputs.Samus.Missiles < 5 ||
-                    ((inputs.FrameCounter + (inputs.Samus.Position.X.Whole & 1) + (inputs.Samus.Position.X.Whole >> 1)) & 8) != 0;
+                    TorizoChoices.InFirstAttackPhase(inputs.FrameCounter, inputs.Samus.Position.X.Whole);
                 return TorizoAnimations.ContinueWith(chooseFirst ? choice.Target : choice.Alternate);
             }
 
@@ -566,8 +566,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 SamusState activeSamus = RequireGoldenTorizoSamus(inputs.Samus);
                 state.ReturnPlayback = continuation;
                 bool chooseFirst = activeSamus.Missiles < 32 ||
-                    ((inputs.FrameCounter + (activeSamus.Position.X.Whole & 1) +
-                        (activeSamus.Position.X.Whole >> 1)) & 8) != 0;
+                    TorizoChoices.InFirstAttackPhase(inputs.FrameCounter, activeSamus.Position.X.Whole);
                 return TorizoAnimations.ContinueWith(chooseFirst ? choice.Target : choice.Alternate);
             }
 

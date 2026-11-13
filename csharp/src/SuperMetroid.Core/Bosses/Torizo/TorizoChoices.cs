@@ -27,6 +27,17 @@ internal sealed class TorizoChoices
         _access = access;
     }
 
+    /// <summary>
+    /// Whether a Torizo attack choice falls in its first attack's phase (#1619): the frame counter plus Samus's X halved,
+    /// rounding up, read through <see cref="TorizoCadenceDefinitions.FirstAttackPhase"/>.
+    /// </summary>
+    /// <param name="frameCounter">The frame counter on the update the choice is made.</param>
+    /// <param name="samusX">Samus's X, in whole pixels.</param>
+    internal static bool InFirstAttackPhase(int frameCounter, int samusX) =>
+        // Halving by an arithmetic shift rounds toward lower values, so adding one first rounds every X up, a negative one
+        // included, exactly as the original added the bit its halving dropped.
+        TorizoCadenceDefinitions.FirstAttackPhase.IsSetIn(frameCounter + ((samusX + 1) >> 1));
+
     /// <summary>Branches to the grounded-ball response only when Samus is four to 39 pixels away behind the statue.</summary>
     internal AnimationContinuation<TorizoBodyProgram>? SelectGoldenTorizoMorphBallBranch(
         RoomEnemySlot torizo,

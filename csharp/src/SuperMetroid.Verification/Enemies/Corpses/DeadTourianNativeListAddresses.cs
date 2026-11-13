@@ -14,20 +14,20 @@ internal static class DeadTourianNativeListAddresses
     internal const byte Bank = 0xa9;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<DeadTourianProgram>[] Entries =
+    internal static readonly NativeProgramEntry<DeadTourianSegment>[] Entries =
     [
-        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.SidehopperHopping, 0xecac),
-        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.SidehopperIdle, 0xece3),
-        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.SidehopperCorpse, 0xece9),
-        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.SidehopperInitiallyDead, 0xecef),
-        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.ZoomerCorpse0, 0xecf5),
-        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.ZoomerCorpse1, 0xecfb),
-        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.ZoomerCorpse2, 0xed01),
-        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.RipperCorpse0, 0xed07),
-        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.RipperCorpse1, 0xed0d),
-        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.SkreeCorpse0, 0xed13),
-        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.SkreeCorpse1, 0xed19),
-        new NativeProgramEntry<DeadTourianProgram>(DeadTourianProgram.SkreeCorpse2, 0xed1f),
+        new NativeProgramEntry<DeadTourianSegment>(DeadTourianSegment.SidehopperHopping, 0xecac),
+        new NativeProgramEntry<DeadTourianSegment>(DeadTourianSegment.SidehopperIdle, 0xece3),
+        new NativeProgramEntry<DeadTourianSegment>(DeadTourianSegment.SidehopperCorpse, 0xece9),
+        new NativeProgramEntry<DeadTourianSegment>(DeadTourianSegment.SidehopperInitiallyDead, 0xecef),
+        new NativeProgramEntry<DeadTourianSegment>(DeadTourianSegment.ZoomerCorpse0, 0xecf5),
+        new NativeProgramEntry<DeadTourianSegment>(DeadTourianSegment.ZoomerCorpse1, 0xecfb),
+        new NativeProgramEntry<DeadTourianSegment>(DeadTourianSegment.ZoomerCorpse2, 0xed01),
+        new NativeProgramEntry<DeadTourianSegment>(DeadTourianSegment.RipperCorpse0, 0xed07),
+        new NativeProgramEntry<DeadTourianSegment>(DeadTourianSegment.RipperCorpse1, 0xed0d),
+        new NativeProgramEntry<DeadTourianSegment>(DeadTourianSegment.SkreeCorpse0, 0xed13),
+        new NativeProgramEntry<DeadTourianSegment>(DeadTourianSegment.SkreeCorpse1, 0xed19),
+        new NativeProgramEntry<DeadTourianSegment>(DeadTourianSegment.SkreeCorpse2, 0xed1f),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

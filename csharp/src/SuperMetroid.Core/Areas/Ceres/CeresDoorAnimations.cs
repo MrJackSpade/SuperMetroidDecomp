@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Areas.Ceres.CeresDoorCueKind;
-using P = SuperMetroid.Core.Areas.Ceres.CeresDoorProgram;
+using P = SuperMetroid.Core.Areas.Ceres.CeresDoorSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Areas.Ceres;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresDoorAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<CeresDoorProgram, EnemyFrameId, CeresDoorCue> Segments { get; } = new(
-        new Dictionary<CeresDoorProgram, AnimationBeat<EnemyFrameId, CeresDoorCue>[]>
+    internal static AnimationSegments<CeresDoorSegment, EnemyFrameId, CeresDoorCue> Segments { get; } = new(
+        new Dictionary<CeresDoorSegment, AnimationBeat<EnemyFrameId, CeresDoorCue>[]>
     {
         [P.RidleyRoomFacingRight] =
         [
@@ -149,7 +149,7 @@ internal static class CeresDoorAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<CeresDoorProgram, Animation<CeresDoorProgram>> StartingAt { get; } = new Dictionary<CeresDoorProgram, Animation<CeresDoorProgram>>
+    internal static IReadOnlyDictionary<CeresDoorSegment, Animation<CeresDoorSegment>> StartingAt { get; } = new Dictionary<CeresDoorSegment, Animation<CeresDoorSegment>>
     {
         [P.RidleyRoomFacingRight] = new([new(P.RidleyRoomFacingRight, 0, 12, 1), new(P.RidleyRoomFacingRightWait, 0, 3, 1), new(P.ClosedFacingRight, 0, 2, 1), new(P.ClosedFacingRightWait, 0, 9, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(4)),
         [P.RidleyRoomFacingRightWait] = new([new(P.RidleyRoomFacingRightWait, 0, 3, 1), new(P.ClosedFacingRight, 0, 2, 1), new(P.ClosedFacingRightWait, 0, 9, 1), new(P.OpenFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(3)),
@@ -174,7 +174,7 @@ internal static class CeresDoorAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<CeresDoorProgram> StartingWith(CeresDoorProgram segment) => StartingAt[segment];
+    internal static Animation<CeresDoorSegment> StartingWith(CeresDoorSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, CeresDoorCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, CeresDoorCue>.Frame(frame, duration);

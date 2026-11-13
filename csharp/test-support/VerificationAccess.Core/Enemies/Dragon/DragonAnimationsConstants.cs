@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 internal static class DragonAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params DragonProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params DragonSegment[] programs) =>
         programs.SelectMany(program => DragonAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, DragonCue>.Frame>()
             .Select(frame => DragonFrameToolingDefinitions.Spritemap(frame.Shown));

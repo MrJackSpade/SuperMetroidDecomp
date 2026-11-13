@@ -167,20 +167,20 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         bool areaMiniBossDefeated)
     {
         RoomPaletteFxDefinition definition = RoomPaletteFxSelection.Get(effect);
-        PaletteFxProgram program;
+        PaletteFxSegment program;
         switch (definition.Start)
         {
             case ColourEffectStart.Plain:
-                program = definition.InitialProgram;
+                program = definition.InitialAnimation;
                 break;
-            case ColourEffectStart.ChoosesHeatProgramForSuit:
+            case ColourEffectStart.ChoosesHeatAnimationForSuit:
                 // The heat shimmer chooses its whole program from the same live suit Samus wears; Gravity before Varia.
-                program = PaletteFxHeatPrograms.Start(PaletteFxHeatPrograms.SuitFor(equippedItems));
+                program = PaletteFxHeatAnimations.Start(PaletteFxHeatAnimations.SuitFor(equippedItems));
                 break;
             case ColourEffectStart.SkippedOnceAreaMiniBossIsDead:
                 if (areaMiniBossDefeated)
                     return false;
-                program = definition.InitialProgram;
+                program = definition.InitialAnimation;
                 break;
             default:
                 throw new InvalidOperationException($"Colour effect {effect} has undefined start {definition.Start}.");
@@ -247,8 +247,8 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
             return;
 
         _session.ShimmerHeatPhase = _session.PublishedHeatPhase;
-        PaletteFxHeatSuit suit = PaletteFxHeatPrograms.SuitFor(equippedItems);
-        effect.Restart(PaletteFxHeatPrograms.Shimmer(suit), PaletteFxHeatPrograms.Phase(suit, _session.PublishedHeatPhase));
+        PaletteFxHeatSuit suit = PaletteFxHeatAnimations.SuitFor(equippedItems);
+        effect.Restart(PaletteFxHeatAnimations.Shimmer(suit), PaletteFxHeatAnimations.Phase(suit, _session.PublishedHeatPhase));
     }
 
     /// <summary>Carries out a step of <paramref name="effect"/>'s program that reaches beyond it: a heat phase or a sound.</summary>
@@ -265,7 +265,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
                 AudioRequests.QueueSound(
                     queueSound.Sound ?? throw new InvalidDataException(
                         $"Colour effect {effect.Effect} queued a sound step without a sound."),
-                    PaletteFxSoundPriorities.InstructionSound);
+                    PaletteFxSoundPriorities.CueSound);
                 return;
             default:
                 throw new InvalidOperationException($"Colour effect {effect.Effect} handed on step {cue}, which it keeps itself.");

@@ -14,9 +14,9 @@ internal sealed class CinematicTypedTexts
 
     /// <summary>The texts <paramref name="programs"/> type, each pose its program shows a step of it.</summary>
     /// <exception cref="InvalidDataException">Two texts show one pose.</exception>
-    internal CinematicTypedTexts(IEnumerable<CinematicSpriteProgram> programs)
+    internal CinematicTypedTexts(IEnumerable<CinematicSpriteSegment> programs)
     {
-        foreach (CinematicSpriteProgram program in Ensure.NotNull(programs))
+        foreach (CinematicSpriteSegment program in Ensure.NotNull(programs))
         {
             var typed = new List<CinematicSpritePose>();
             foreach (AnimationBeat<CinematicSpritePose, CinematicSpriteCue> beat in CinematicSpriteAnimations.Segments.Beats(program))

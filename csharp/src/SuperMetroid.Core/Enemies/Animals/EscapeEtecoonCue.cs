@@ -10,7 +10,7 @@ internal abstract record EscapeEtecoonCue
 
     /// <summary>Continues at the target once the rising acid is above Y 206.</summary>
     /// <param name="Target">The program a branch continues at.</param>
-    internal sealed record GoToIfAcidHigh(EscapeEtecoonProgram Target) : EscapeEtecoonCue;
+    internal sealed record GoToIfAcidHigh(EscapeEtecoonSegment Target) : EscapeEtecoonCue;
 
     /// <summary>Moves the Etecoon horizontally.</summary>
     /// <param name="Offset">The cue's signed pixel offset.</param>

@@ -78,19 +78,19 @@ public sealed class CeresElevatorArrivalState
                     samus.Position.Y.Whole - CeresElevatorArrivalDefinitions.LandingThresholdY)) >= 0)
                 {
                     samus.Position = samus.Position.WithWholeY(CeresElevatorArrivalDefinitions.LandingSamusY);
-                    pad.Start(CeresElevatorArrivalProgram.Delete);
+                    pad.Start(CeresElevatorArrivalSegment.Delete);
                 }
             }
-            ProcessAnimationScript(pad);
+            AdvanceAnimation(pad);
         }
 
         if (platform.Active)
         {
             if (samus.Position.Y.Whole == CeresElevatorArrivalDefinitions.LandingSamusY)
             {
-                platform.Start(CeresElevatorArrivalProgram.Delete);
+                platform.Start(CeresElevatorArrivalSegment.Delete);
             }
-            ProcessAnimationScript(platform);
+            AdvanceAnimation(platform);
         }
 
         return IsComplete;
@@ -120,32 +120,32 @@ public sealed class CeresElevatorArrivalState
         Position16<RoomPixels> position)
     {
         return new CeresElevatorProjectile(
-            definition.Program,
+            definition.Animation,
             position,
             CeresElevatorArrivalDefinitions.StartingGraphics);
     }
 
     /// <summary>Plays a projectile's typed animation (#641, #1600) when its frame expires: a new pose, or the delete.</summary>
-    private static void ProcessAnimationScript(CeresElevatorProjectile projectile)
+    private static void AdvanceAnimation(CeresElevatorProjectile projectile)
     {
         if (--projectile.FrameHold != 0)
             return;
 
-        Animation<CeresElevatorArrivalProgram> animation = projectile.Playback.Animation;
+        Animation<CeresElevatorArrivalSegment> animation = projectile.Playback.Animation;
         AnimationPlace place = projectile.Playback.Place;
         // The arrival animations play no counted phase; their repeat counter is never loaded.
         WrappingCountdown repeats = WrappingCountdown.Start(0);
-        AnimationShown<CeresElevatorArrivalProgram, CeresElevatorArrivalPose> shown = CeresElevatorArrivalAnimations.Segments.PlayToNextFrame(
+        AnimationShown<CeresElevatorArrivalSegment, CeresElevatorArrivalPose> shown = CeresElevatorArrivalAnimations.Segments.PlayToNextFrame(
             animation, ref place, ref repeats,
             cue => throw new InvalidOperationException($"The Ceres elevator arrival animations raise no event; got {cue}."));
-        projectile.Playback = new AnimationPlayback<CeresElevatorArrivalProgram>(animation, place);
+        projectile.Playback = new AnimationPlayback<CeresElevatorArrivalSegment>(animation, place);
         switch (shown)
         {
-            case AnimationShown<CeresElevatorArrivalProgram, CeresElevatorArrivalPose>.Frame frame:
+            case AnimationShown<CeresElevatorArrivalSegment, CeresElevatorArrivalPose>.Frame frame:
                 projectile.FrameHold = frame.Duration;
                 projectile.Pose = frame.Shown;
                 return;
-            case AnimationShown<CeresElevatorArrivalProgram, CeresElevatorArrivalPose>.Ended:
+            case AnimationShown<CeresElevatorArrivalSegment, CeresElevatorArrivalPose>.Ended:
                 projectile.Active = false;
                 return;
             default:
@@ -174,11 +174,11 @@ public sealed class CeresElevatorArrivalState
     {
         /// <summary>Initializes a projectile's program, position, and graphics.</summary>
         public CeresElevatorProjectile(
-            CeresElevatorArrivalProgram program,
+            CeresElevatorArrivalSegment program,
             Position16<RoomPixels> position,
             SpriteGraphics graphics)
         {
-            Playback = new AnimationPlayback<CeresElevatorArrivalProgram>(CeresElevatorArrivalAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+            Playback = new AnimationPlayback<CeresElevatorArrivalSegment>(CeresElevatorArrivalAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             Position = position;
             Graphics = graphics;
         }
@@ -192,13 +192,13 @@ public sealed class CeresElevatorArrivalState
         /// <summary>Pad-only startup delay before it begins moving Samus toward the platform.</summary>
         public int WaitTimer { get; set; }
         /// <summary>The projectile's animation and where it stands in it, played on when its frame expires.</summary>
-        internal AnimationPlayback<CeresElevatorArrivalProgram> Playback { get; set; }
+        internal AnimationPlayback<CeresElevatorArrivalSegment> Playback { get; set; }
 
         /// <summary>Starts the animation of <paramref name="program"/> on the next update.</summary>
-        internal void Start(CeresElevatorArrivalProgram program)
+        internal void Start(CeresElevatorArrivalSegment program)
         {
             FrameHold = 1;
-            Playback = new AnimationPlayback<CeresElevatorArrivalProgram>(CeresElevatorArrivalAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+            Playback = new AnimationPlayback<CeresElevatorArrivalSegment>(CeresElevatorArrivalAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         }
         /// <summary>Frames until this projectile's next animation pass.</summary>
         public int FrameHold { get; set; } = 1;

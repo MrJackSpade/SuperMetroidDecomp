@@ -35,7 +35,7 @@ internal static class GoldenTorizoAttackChoiceVerification
             ?? throw new InvalidOperationException("No Torizo program starts at the landing list."));
         torizo.AnimationClock.StepOnNextUpdate();
         runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = 0, ControllerInput = 0, SamusProjectiles = runtime.Projectiles, ShortCounter = 0x2d, FrameCounter = 0xefd8 });
-        TorizoBodyProgram runningSegment = TorizoAnimations.SegmentOf(state.BodyPlayback);
+        TorizoBodySegment runningSegment = TorizoAnimations.SegmentOf(state.BodyPlayback);
         ushort running = TorizoNativeListAddresses.Entry(runningSegment);
         AssertTrue(running is >= sonicBoomsFacingLeft and < 0xcc57,
             $"NMI_FrameCounter selects the sonic-boom list, not chozo orbs (${chozoOrbsFacingLeft:X4}); " +

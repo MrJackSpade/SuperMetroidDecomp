@@ -114,7 +114,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 // A record still marked deleted after initialization (the n00b tube crack's palette-only record) is
                 // removed by the scheduler before any AI or instruction frame.
                 bool processesInstructions =
-                    slot.Processing.HasAny(EnemyProcessing.AnimationScript) &&
+                    slot.Processing.HasAny(EnemyProcessing.Animates) &&
                     !slot.Presence.HasAny(EnemyPresence.Deleted);
                 if (!processesInstructions)
                     continue;

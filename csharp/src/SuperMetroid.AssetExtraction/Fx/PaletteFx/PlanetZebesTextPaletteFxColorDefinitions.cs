@@ -25,12 +25,12 @@ public static class PlanetZebesTextPaletteFxColorDefinitions
             new()
             {
                 Owner = PlanetZebesTextPaletteFxProgramOwner.FadeIn,
-                ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.FadeInPlanetZebesText, ColorsPerFrame),
+                ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.FadeInPlanetZebesText, ColorsPerFrame),
             },
             new()
             {
                 Owner = PlanetZebesTextPaletteFxProgramOwner.FadeOut,
-                ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.FadeOutPlanetZebesText, ColorsPerFrame),
+                ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.FadeOutPlanetZebesText, ColorsPerFrame),
             },
         ];
 

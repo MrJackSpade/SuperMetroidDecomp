@@ -9,12 +9,12 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal static class ProjectileTrailSourceDefinitions
 {
     /// <summary>The bank-$90 address of each program's first step.</summary>
-    internal static readonly FrozenDictionary<ProjectileTrailProgram, ushort> Starts = new Dictionary<ProjectileTrailProgram, ushort>
+    internal static readonly FrozenDictionary<ProjectileTrailSegment, ushort> Starts = new Dictionary<ProjectileTrailSegment, ushort>
     {
-        [ProjectileTrailProgram.Empty] = 0xb4c9,
-        [ProjectileTrailProgram.LeftIce] = 0xb4cb,
-        [ProjectileTrailProgram.RightIce] = 0xb52d,
-        [ProjectileTrailProgram.Wave] = 0xb58f,
-        [ProjectileTrailProgram.Missile] = 0xb5a1,
+        [ProjectileTrailSegment.Empty] = 0xb4c9,
+        [ProjectileTrailSegment.LeftIce] = 0xb4cb,
+        [ProjectileTrailSegment.RightIce] = 0xb52d,
+        [ProjectileTrailSegment.Wave] = 0xb58f,
+        [ProjectileTrailSegment.Missile] = 0xb5a1,
     }.ToFrozenDictionary();
 }

@@ -16,7 +16,7 @@ internal static class MochtroidVisualsVerification
     internal static void VerifyInstalledMochtroidVisuals(
         CartridgeImportAddressSpace rom, EnemyTileSourceArtwork stock)
     {
-        ushort[] poses = [.. MochtroidAnimationsConstants.Spritemaps(MochtroidProgram.FreeFlight, MochtroidProgram.Attached).Distinct()];
+        ushort[] poses = [.. MochtroidAnimationsConstants.Spritemaps(MochtroidSegment.FreeFlight, MochtroidSegment.Attached).Distinct()];
         AssertEqual(MochtroidVisualDefinitions.FrameCount, poses.Length, "the two loops show six distinct editable OAM frames");
         AssertTrue(poses.ToHashSet().SetEquals(MochtroidVisualDefinitions.Frames().Select(frame => frame.Pointer)),
             "the exported Mochtroid frames are exactly the poses its loops show");

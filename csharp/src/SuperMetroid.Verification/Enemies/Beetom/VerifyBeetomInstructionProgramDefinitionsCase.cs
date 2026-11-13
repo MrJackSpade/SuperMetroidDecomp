@@ -6,4 +6,4 @@ namespace SuperMetroid.Verification.Enemies.Beetom;
 /// <param name="Left">The left.</param>
 /// <param name="Drain">The drain.</param>
 /// <param name="Loop">The loop.</param>
-internal readonly record struct VerifyBeetomInstructionProgramDefinitionsCase(bool Left, BeetomProgram Drain, BeetomProgram Loop);
+internal readonly record struct VerifyBeetomInstructionProgramDefinitionsCase(bool Left, BeetomSegment Drain, BeetomSegment Loop);

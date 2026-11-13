@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using CK = SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileCommonCueKind;
-using P = SuperMetroid.Core.Enemies.KiHunters.KiHunterAcidSpitProgram;
+using P = SuperMetroid.Core.Enemies.KiHunters.KiHunterAcidSpitSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.KiHunters;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 internal static class KiHunterAcidSpitAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<KiHunterAcidSpitProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<KiHunterAcidSpitProgram, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<KiHunterAcidSpitSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<KiHunterAcidSpitSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.Left] =
         [
@@ -50,7 +50,7 @@ internal static class KiHunterAcidSpitAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<KiHunterAcidSpitProgram, Animation<KiHunterAcidSpitProgram>> StartingAt { get; } = new Dictionary<KiHunterAcidSpitProgram, Animation<KiHunterAcidSpitProgram>>
+    internal static IReadOnlyDictionary<KiHunterAcidSpitSegment, Animation<KiHunterAcidSpitSegment>> StartingAt { get; } = new Dictionary<KiHunterAcidSpitSegment, Animation<KiHunterAcidSpitSegment>>
     {
         [P.Left] = new([new(P.Left, 0, 8, 1)], AnimationEnd.Holds),
         [P.HitFloor] = new([new(P.HitFloor, 0, 7, 1)], AnimationEnd.Holds),
@@ -58,7 +58,7 @@ internal static class KiHunterAcidSpitAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<KiHunterAcidSpitProgram> StartingWith(KiHunterAcidSpitProgram segment) => StartingAt[segment];
+    internal static Animation<KiHunterAcidSpitSegment> StartingWith(KiHunterAcidSpitSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);

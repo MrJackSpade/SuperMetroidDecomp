@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Choot;
 public sealed class ChootEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<ChootProgram> Playback { get; set; }
+    internal AnimationPlayback<ChootSegment> Playback { get; set; }
 
     /// <summary>The behaviour selected by Choot's main AI dispatcher.</summary>
     public ChootEnemyFunction? Function { get; internal set; }

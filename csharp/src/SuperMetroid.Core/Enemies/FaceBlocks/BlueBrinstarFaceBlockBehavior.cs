@@ -66,7 +66,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
 
         // The neutral animation is a one-frame neutral map followed by the common sleep. All
         // authored directional lists use the same neutral map as their first frame.
-        state.Playback = EnemyProgramAnimation.Start(slot, BlueBrinstarFaceBlockAnimations.StartingWith(BlueBrinstarFaceBlockProgram.Initial));
+        state.Playback = EnemyAnimationPlayback.Start(slot, BlueBrinstarFaceBlockAnimations.StartingWith(BlueBrinstarFaceBlockSegment.Initial));
 
         // The initializer always restarts the glow's countdown, even before Samus has the Morph Ball, and starts the glow
         // only once she has collected it. Main AI makes the same test every update, so a block in the room where she
@@ -114,9 +114,9 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         if (samusToTheLeft == state.FacesRight)
             return;
 
-        state.Playback = EnemyProgramAnimation.Start(slot, BlueBrinstarFaceBlockAnimations.StartingWith(samusToTheLeft
-            ? BlueBrinstarFaceBlockProgram.SamusLeft
-            : BlueBrinstarFaceBlockProgram.SamusRight));
+        state.Playback = EnemyAnimationPlayback.Start(slot, BlueBrinstarFaceBlockAnimations.StartingWith(samusToTheLeft
+            ? BlueBrinstarFaceBlockSegment.SamusLeft
+            : BlueBrinstarFaceBlockSegment.SamusRight));
         state.Activated = true;
 
         // Waking restarts the room's glow countdown at sixteen updates but keeps the glow's frame.
@@ -167,13 +167,13 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             $"Enemy slot {slot.SlotIndex} has no initialized Blue Brinstar face-block state.");
 
     /// <summary>Advances the blue Brinstar face block's typed animation.</summary>
-    internal static void AdvanceBlueBrinstarFaceBlockTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal static void AdvanceBlueBrinstarFaceBlockTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
         if (!slot.AnimationClock.Expire())
             return;
         var state = RequireBlueBrinstarFaceBlockState(slot);
-        AnimationPlayback<BlueBrinstarFaceBlockProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, BlueBrinstarFaceBlockAnimations.Segments, ref playback,
+        AnimationPlayback<BlueBrinstarFaceBlockSegment> playback = state.Playback;
+        EnemyAnimationPlayback.Play(slot, BlueBrinstarFaceBlockAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A cue-free blue Brinstar face block animation raised {cue}."));
         state.Playback = playback;
     }

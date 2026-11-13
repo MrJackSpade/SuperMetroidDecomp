@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Kago.KagoBugProjectileCueKind;
-using P = SuperMetroid.Core.Enemies.Kago.KagoBugProjectileProgram;
+using P = SuperMetroid.Core.Enemies.Kago.KagoBugProjectileSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Kago;
@@ -19,8 +19,8 @@ internal static class KagoBugProjectileAnimations
     private const int LongestPose = 32767;
 
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<KagoBugProjectileProgram, EnemyProjectileFrameId, KagoBugProjectileCue> Segments { get; } = new(
-        new Dictionary<KagoBugProjectileProgram, AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>[]>
+    internal static AnimationSegments<KagoBugProjectileSegment, EnemyProjectileFrameId, KagoBugProjectileCue> Segments { get; } = new(
+        new Dictionary<KagoBugProjectileSegment, AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>[]>
     {
         [P.SharedDelete] =
         [
@@ -59,7 +59,7 @@ internal static class KagoBugProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<KagoBugProjectileProgram, Animation<KagoBugProjectileProgram>> StartingAt { get; } = new Dictionary<KagoBugProjectileProgram, Animation<KagoBugProjectileProgram>>
+    internal static IReadOnlyDictionary<KagoBugProjectileSegment, Animation<KagoBugProjectileSegment>> StartingAt { get; } = new Dictionary<KagoBugProjectileSegment, Animation<KagoBugProjectileSegment>>
     {
         [P.SharedDelete] = new([new(P.SharedDelete, 0, 1, 1)], AnimationEnd.Holds),
         [P.Landed] = new([new(P.Landed, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
@@ -70,7 +70,7 @@ internal static class KagoBugProjectileAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<KagoBugProjectileProgram> StartingWith(KagoBugProjectileProgram segment) => StartingAt[segment];
+    internal static Animation<KagoBugProjectileSegment> StartingWith(KagoBugProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>.Frame(frame, duration);

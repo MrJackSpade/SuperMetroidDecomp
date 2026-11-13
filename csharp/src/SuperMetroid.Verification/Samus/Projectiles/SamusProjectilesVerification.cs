@@ -811,10 +811,10 @@ internal static void VerifySamusPowerBeamProjectiles()
     // as its own; the command moves its named side, and the executing stream continues
     // through the following timed record.
     foreach (bool executeOnLeft in new[] { false, true })
-    foreach ((ProjectileTrailInstruction command, ushort list) in new[]
+    foreach ((ProjectileTrailCue command, ushort list) in new[]
              {
-                 new VerifySamusPowerBeamProjectilesCase(ProjectileTrailInstruction.MoveLeftDown, ProjectileTrailDefinitions.LeftIce),
-                 new VerifySamusPowerBeamProjectilesCase(ProjectileTrailInstruction.MoveRightDown, ProjectileTrailDefinitions.RightIce),
+                 new VerifySamusPowerBeamProjectilesCase(ProjectileTrailCue.MoveLeftDown, ProjectileTrailDefinitions.LeftIce),
+                 new VerifySamusPowerBeamProjectilesCase(ProjectileTrailCue.MoveRightDown, ProjectileTrailDefinitions.RightIce),
              })
     {
         var commandProjectiles = CreateSyntheticProjectiles();
@@ -823,7 +823,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         pair.Right.Position = pair.Right.Position.WithY(120);
         var executingSide = executeOnLeft ? pair.Left : pair.Right;
         ushort commandAddress = unchecked((ushort)(list + 6 * 4));
-        AssertEqual(ProjectileTrailNative.InstructionAddress(command), ProjectileTrailProgramDefinitions.Read(SamusSourceDefinitions.MovementBank.Value | commandAddress),
+        AssertEqual(ProjectileTrailNative.InstructionAddress(command), ProjectileTrailAnimationDefinitions.Read(SamusSourceDefinitions.MovementBank.Value | commandAddress),
             "the compiled ice list holds its fall command after six poses");
         executingSide.FrameHold = 1;
         executingSide.InstructionPointer = commandAddress;
@@ -832,9 +832,9 @@ internal static void VerifySamusPowerBeamProjectiles()
             commandProjectiles.AdvanceTrails(false);
             commandProjectiles.DrawTrails(frame, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork());
         });
-        AssertEqual(command == ProjectileTrailInstruction.MoveLeftDown ? 101 : 100,
+        AssertEqual(command == ProjectileTrailCue.MoveLeftDown ? 101 : 100,
             pair.Left.Position.Y, "trail command targets named left side regardless of executing stream");
-        AssertEqual(command == ProjectileTrailInstruction.MoveRightDown ? 121 : 120,
+        AssertEqual(command == ProjectileTrailCue.MoveRightDown ? 121 : 120,
             pair.Right.Position.Y, "trail command targets named right side regardless of executing stream");
         AssertEqual(unchecked((ushort)(commandAddress + 6)), executingSide.InstructionPointer,
             "cross-side command continues the executing stream through its timed record");

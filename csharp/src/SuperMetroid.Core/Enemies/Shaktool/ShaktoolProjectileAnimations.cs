@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Programs;
-using P = SuperMetroid.Core.Enemies.Shaktool.ShaktoolProjectileProgram;
+using P = SuperMetroid.Core.Enemies.Shaktool.ShaktoolProjectileSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Shaktool;
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 internal static class ShaktoolProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<ShaktoolProjectileProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<ShaktoolProjectileProgram, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<ShaktoolProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<ShaktoolProjectileSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.Front] =
         [
@@ -45,7 +45,7 @@ internal static class ShaktoolProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<ShaktoolProjectileProgram, Animation<ShaktoolProjectileProgram>> StartingAt { get; } = new Dictionary<ShaktoolProjectileProgram, Animation<ShaktoolProjectileProgram>>
+    internal static IReadOnlyDictionary<ShaktoolProjectileSegment, Animation<ShaktoolProjectileSegment>> StartingAt { get; } = new Dictionary<ShaktoolProjectileSegment, Animation<ShaktoolProjectileSegment>>
     {
         [P.Front] = new([new(P.Front, 0, 2, 1), new(P.FrontLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
         [P.FrontLoop] = new([new(P.FrontLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
@@ -56,7 +56,7 @@ internal static class ShaktoolProjectileAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<ShaktoolProjectileProgram> StartingWith(ShaktoolProjectileProgram segment) => StartingAt[segment];
+    internal static Animation<ShaktoolProjectileSegment> StartingWith(ShaktoolProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);

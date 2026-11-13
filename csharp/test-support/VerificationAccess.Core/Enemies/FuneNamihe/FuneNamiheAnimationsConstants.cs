@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 internal static class FuneNamiheAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params FuneNamiheProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params FuneNamiheSegment[] programs) =>
         programs.SelectMany(program => FuneNamiheAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, FuneNamiheCue>.Frame>()
             .Select(frame => FuneNamiheFrameToolingDefinitions.Spritemap(frame.Shown));

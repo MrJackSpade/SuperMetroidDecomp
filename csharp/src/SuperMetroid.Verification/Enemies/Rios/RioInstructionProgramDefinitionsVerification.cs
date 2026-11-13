@@ -34,16 +34,16 @@ internal static class RioInstructionProgramDefinitionsVerification
         rio.AnimationClock.StepOnNextUpdate();
         RioBehavior.InitializeRio(rio);
         RioEnemyState state = enemies.RioStates[0] ?? throw new InvalidOperationException("The Rio has no state.");
-        AssertEqual(new AnimationPlayback<RioProgram>(RioAnimations.StartingWith(RioProgram.Idle), AnimationPlace.StartOfAnimation), state.Playback, "real Rio initializer starts idling");
-        AssertEqual(null, state.InstalledProgram, "real Rio initializer leaves nothing installed");
+        AssertEqual(new AnimationPlayback<RioSegment>(RioAnimations.StartingWith(RioSegment.Idle), AnimationPlace.StartOfAnimation), state.Playback, "real Rio initializer starts idling");
+        AssertEqual(null, state.InstalledAnimation, "real Rio initializer leaves nothing installed");
 
         // Idle shows its two poses, then runs into the ten-pose post-swoop idle, which returns to idle.
-        IEnumerable<ushort> idlePass = RioAnimationsConstants.Spritemaps(RioProgram.Idle, RioProgram.PostSwoopIdle);
-        AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. idlePass, RioAnimationsConstants.Spritemaps(RioProgram.Idle).First()], Enumerable.Repeat(4, 13)),
+        IEnumerable<ushort> idlePass = RioAnimationsConstants.Spritemaps(RioSegment.Idle, RioSegment.PostSwoopIdle);
+        AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. idlePass, RioAnimationsConstants.Spritemaps(RioSegment.Idle).First()], Enumerable.Repeat(4, 13)),
             EnemyInstructionRunner.ShownFrames(rio, 12 * 4 + 1),
             "idle runs into the post-swoop idle and returns");
 
-        foreach (RioProgram swoop in new[] { RioProgram.SwoopingPart1, RioProgram.SwoopCooldown })
+        foreach (RioSegment swoop in new[] { RioSegment.SwoopingPart1, RioSegment.SwoopCooldown })
         {
             state.AnimationFinished = false;
             state.Playback = new(RioAnimations.StartingWith(swoop), AnimationPlace.StartOfAnimation);
@@ -57,10 +57,10 @@ internal static class RioInstructionProgramDefinitionsVerification
             AssertTrue(state.AnimationFinished, $"Rio {swoop} tells main AI it has finished");
         }
 
-        state.Playback = new(RioAnimations.StartingWith(RioProgram.SwoopingPart2), AnimationPlace.StartOfAnimation);
+        state.Playback = new(RioAnimations.StartingWith(RioSegment.SwoopingPart2), AnimationPlace.StartOfAnimation);
         rio.AnimationClock.StepOnNextUpdate();
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(RioAnimations.Segments, RioProgram.SwoopingPart2, RioFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(rio, EnemyInstructionRunner.LoopUpdates(RioAnimations.Segments, RioProgram.SwoopingPart2)),
+        AssertEqual(EnemyInstructionRunner.ExpectedLoop(RioAnimations.Segments, RioSegment.SwoopingPart2, RioFrameToolingDefinitions.Spritemap),
+            EnemyInstructionRunner.ShownFrames(rio, EnemyInstructionRunner.LoopUpdates(RioAnimations.Segments, RioSegment.SwoopingPart2)),
             "second swoop phase loops");
 
         Suite(nameof(RioAnimationsVerification.VerifyRioAnimations), () => RioAnimationsVerification.VerifyRioAnimations(rom));

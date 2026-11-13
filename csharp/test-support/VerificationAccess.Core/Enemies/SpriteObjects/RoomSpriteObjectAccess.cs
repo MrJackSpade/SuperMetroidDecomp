@@ -21,7 +21,7 @@ internal static class RoomSpriteObjectAccess
     };
 
     /// <summary>The bank-$B4 address of beat <paramref name="beat"/> of <paramref name="segment"/>.</summary>
-    internal static ushort RecordAddress(RoomSpriteObjectProgram segment, int beat) =>
+    internal static ushort RecordAddress(RoomSpriteObjectSegment segment, int beat) =>
         checked((ushort)(RoomSpriteObjectProgramAddresses.Entries[segment] +
             RoomSpriteObjectAnimations.Segments.Beats(segment).Take(beat).Sum(BeatBytes)));
 
@@ -73,7 +73,7 @@ internal static class RoomSpriteObjectAccess
     extension(RoomSpriteObjectDefinitions)
     {
         /// <summary>The bank-$B4 list address <paramref name="kind"/> starts.</summary>
-        internal static ushort InstructionPointer(RoomSpriteObjectKind kind) => RoomSpriteObjectProgramAddresses.Entries[RoomSpriteObjectDefinitions.Programs[kind]];
+        internal static ushort InstructionPointer(RoomSpriteObjectKind kind) => RoomSpriteObjectProgramAddresses.Entries[RoomSpriteObjectDefinitions.Animations[kind]];
     }
 
     /// <summary>Frames by spritemap.</summary>

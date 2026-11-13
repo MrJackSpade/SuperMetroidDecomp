@@ -27,10 +27,10 @@ internal static class MetroidBehaviorVerification
         slot.SetSpawnWords(EnemyDefinitionId.Metroid, words => words);
         enemies.MetroidBehavior.InitializeMetroid(slot);
         MetroidEnemyState state = enemies.MetroidStates[0] ?? throw new InvalidOperationException("The Metroid has no state.");
-        AssertEqual(new AnimationPlayback<MetroidProgram>(MetroidAnimations.StartingWith(MetroidProgram.ChasingSamus), AnimationPlace.StartOfAnimation),
+        AssertEqual(new AnimationPlayback<MetroidSegment>(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), AnimationPlace.StartOfAnimation),
             state.Playback, "the Metroid starts chasing");
 
-        foreach ((MetroidProgram loop, int cries) in new[] { new VerifyMetroidBehaviorCase(MetroidProgram.ChasingSamus, 1), new VerifyMetroidBehaviorCase(MetroidProgram.DrainingSamus, 0) })
+        foreach ((MetroidSegment loop, int cries) in new[] { new VerifyMetroidBehaviorCase(MetroidSegment.ChasingSamus, 1), new VerifyMetroidBehaviorCase(MetroidSegment.DrainingSamus, 0) })
         {
             int randomCalls = 0;
             enemies.VerificationServices().NextRandom = () => { randomCalls++; return 0; };

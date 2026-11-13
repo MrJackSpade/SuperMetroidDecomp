@@ -76,7 +76,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         IReadOnlyList<SheetShade> room = SporeSpawnSheetShades.Room(stock.Bosses);
         AssertEqual(PictureShading.Shaded(SporeSpawnShades.Spores), body.Shading, "live Spore Spawn starts in his spores' colours");
         AssertShade(sprites, SporeSpawnShades.Spores, colors.ResolveSpore, "live spore colours");
-        AssertEqual(new AnimationPlayback<SporeSpawnBodyProgram>(SporeSpawnAnimations.StartingWith(SporeSpawnBodyProgram.InitialAlive), AnimationPlace.StartOfAnimation),
+        AssertEqual(new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.InitialAlive), AnimationPlace.StartOfAnimation),
             state.BodyPlayback, "Spore Spawn starts its living animation");
 
         for (int frame = 0; frame < SporeSpawnColorDefinitions.HealthFrameCount; frame++)

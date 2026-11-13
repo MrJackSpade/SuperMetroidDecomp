@@ -26,7 +26,7 @@ internal sealed class RipperEntity(RipperBehavior species, RoomEnemySlot slot, E
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => RipperBehavior.AdvanceRipperTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => RipperBehavior.AdvanceRipperTypedAnimation;
 
     /// <summary>The grapple Ripper's and second Ripper's shared shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>

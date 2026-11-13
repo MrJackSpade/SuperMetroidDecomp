@@ -56,31 +56,31 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 [EnemyDefinitionId.PirateGoldWall] = EnemyPaletteSheetFile.Read(new MemoryStream(
                     EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = colors }))),
             } });
-        NinjaSpacePirateProgram[] programs =
+        NinjaSpacePirateSegment[] programs =
         [
-            NinjaSpacePirateProgram.ClawAttackLeft,
-            NinjaSpacePirateProgram.SpinJumpLeft,
-            NinjaSpacePirateProgram.ActiveFacingLeft,
-            NinjaSpacePirateProgram.FlinchFacingLeft,
-            NinjaSpacePirateProgram.DivekickLeftJump,
-            NinjaSpacePirateProgram.DivekickLeftDive,
-            NinjaSpacePirateProgram.WalkToLeftPost,
-            NinjaSpacePirateProgram.InitialFacingLeft,
-            NinjaSpacePirateProgram.LandFacingLeft,
-            NinjaSpacePirateProgram.KickFacingLeft,
-            NinjaSpacePirateProgram.ClawAttackRight,
-            NinjaSpacePirateProgram.SpinJumpRight,
-            NinjaSpacePirateProgram.ActiveFacingRight,
-            NinjaSpacePirateProgram.FlinchFacingRight,
-            NinjaSpacePirateProgram.DivekickRightJump,
-            NinjaSpacePirateProgram.DivekickRightDive,
-            NinjaSpacePirateProgram.WalkToRightPost,
-            NinjaSpacePirateProgram.InitialFacingRight,
-            NinjaSpacePirateProgram.LandFacingRight,
-            NinjaSpacePirateProgram.KickFacingRight,
+            NinjaSpacePirateSegment.ClawAttackLeft,
+            NinjaSpacePirateSegment.SpinJumpLeft,
+            NinjaSpacePirateSegment.ActiveFacingLeft,
+            NinjaSpacePirateSegment.FlinchFacingLeft,
+            NinjaSpacePirateSegment.DivekickLeftJump,
+            NinjaSpacePirateSegment.DivekickLeftDive,
+            NinjaSpacePirateSegment.WalkToLeftPost,
+            NinjaSpacePirateSegment.InitialFacingLeft,
+            NinjaSpacePirateSegment.LandFacingLeft,
+            NinjaSpacePirateSegment.KickFacingLeft,
+            NinjaSpacePirateSegment.ClawAttackRight,
+            NinjaSpacePirateSegment.SpinJumpRight,
+            NinjaSpacePirateSegment.ActiveFacingRight,
+            NinjaSpacePirateSegment.FlinchFacingRight,
+            NinjaSpacePirateSegment.DivekickRightJump,
+            NinjaSpacePirateSegment.DivekickRightDive,
+            NinjaSpacePirateSegment.WalkToRightPost,
+            NinjaSpacePirateSegment.InitialFacingRight,
+            NinjaSpacePirateSegment.LandFacingRight,
+            NinjaSpacePirateSegment.KickFacingRight,
         ];
 
-        foreach (NinjaSpacePirateProgram program in programs)
+        foreach (NinjaSpacePirateSegment program in programs)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState samus) = CreateSystem();
             (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Playback =
@@ -90,16 +90,16 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         }
 
         Suite(nameof(VerifyClawAttack), () => VerifyClawAttack(
-            NinjaSpacePirateProgram.ClawAttackLeft,
+            NinjaSpacePirateSegment.ClawAttackLeft,
             expectedFirstXOffset: -32));
         Suite(nameof(VerifyClawAttack), () => VerifyClawAttack(
-            NinjaSpacePirateProgram.ClawAttackRight,
+            NinjaSpacePirateSegment.ClawAttackRight,
             expectedFirstXOffset: 32));
         Suite(nameof(VerifyDive), () => VerifyDive(
-            NinjaSpacePirateProgram.DivekickLeftDive,
+            NinjaSpacePirateSegment.DivekickLeftDive,
             NinjaSpacePirateFunction.DivekickLeftDive));
         Suite(nameof(VerifyDive), () => VerifyDive(
-            NinjaSpacePirateProgram.DivekickRightDive,
+            NinjaSpacePirateSegment.DivekickRightDive,
             NinjaSpacePirateFunction.DivekickRightDive));
         Suite(nameof(VerifyDiveLanding), () => VerifyDiveLanding(movingRight: false));
         Suite(nameof(VerifyDiveLanding), () => VerifyDiveLanding(movingRight: true));
@@ -191,7 +191,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         }
 
         // Checks that a left or right claw attack spawns its first projectile at the correct horizontal offset.
-        void VerifyClawAttack(NinjaSpacePirateProgram program, int expectedFirstXOffset)
+        void VerifyClawAttack(NinjaSpacePirateSegment program, int expectedFirstXOffset)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState samus) = CreateSystem();
             (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Playback =
@@ -209,7 +209,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         }
 
         // Checks the dive's function switch, shared gold palette, and attack sound.
-        void VerifyDive(NinjaSpacePirateProgram program, NinjaSpacePirateFunction function)
+        void VerifyDive(NinjaSpacePirateSegment program, NinjaSpacePirateFunction function)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState samus) = CreateSystem();
             (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Playback =

@@ -41,7 +41,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.AnimationClock.Restart();
         var state = new PolypEnemyState
         {
-            Playback = new(PolypAnimations.StartingWith(PolypProgram.Stationary), AnimationPlace.StartOfAnimation),
+            Playback = new(PolypAnimations.StartingWith(PolypSegment.Stationary), AnimationPlace.StartOfAnimation),
             Function = PolypEnemyFunction.WaitingForSamus,
             CooldownTimer = 0,
         };
@@ -125,8 +125,8 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Polyp's typed animation.</summary>
-    internal static void AdvancePolypTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, PolypAnimations.Segments,
+    internal static void AdvancePolypTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, PolypAnimations.Segments,
             static (PolypEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"The Polyp's cue-free animation raised {cue}."));
 
@@ -161,7 +161,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile,
             RoomEnemyProjectileKind.PolypRock,
             SpriteGraphics.SpawnedBy(source));
-        projectile.InstallAnimation(new PolypRockAnimation(PolypRockProgram.Initial));
+        projectile.InstallAnimation(new PolypRockAnimation(PolypRockSegment.Initial));
         projectile.FrameBehavior = PolypRockFrameBehavior;
         projectile.State = new PolypRockState(initialYSpeed);
         projectile.Velocity = new(xVelocity, SignedEightEight.Zero);

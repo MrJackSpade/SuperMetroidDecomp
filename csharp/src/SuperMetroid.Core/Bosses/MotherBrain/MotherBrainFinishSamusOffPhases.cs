@@ -77,11 +77,11 @@ internal sealed class MotherBrainFinishSamusOffPhases
         if (CalculateFinishOffHealthThreshold(samus, 160) >= samus.Health ||
             !frame.RandomNumberSeed.Takes(MotherBrainRandomDefinitions.FinishOffBombs))
         {
-            _state.SetHeadProgram(MotherBrainHeadProgram.TwoOnionRingsPhase2);
+            _state.SetHeadAnimation(MotherBrainHeadSegment.TwoOnionRingsPhase2);
         }
         else
         {
-            _state.SetHeadProgram(MotherBrainHeadProgram.BombPhase2);
+            _state.SetHeadAnimation(MotherBrainHeadSegment.BombPhase2);
         }
         return false;
     }
@@ -116,7 +116,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         // on the same AI call. The sign test accepts zero and expires only after underflow.
         if (--_state.FunctionTimer < 0)
         {
-            _state.SetHeadProgram(MotherBrainHeadProgram.StretchingPhase2);
+            _state.SetHeadAnimation(MotherBrainHeadSegment.StretchingPhase2);
             _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOffChargeFinalBeam;
             _state.FunctionTimer = 256;
         }
@@ -131,7 +131,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     {
         if (--_state.FunctionTimer < 0)
         {
-            _state.SetHeadProgram(MotherBrainHeadProgram.ChargingRainbowBeam);
+            _state.SetHeadAnimation(MotherBrainHeadSegment.ChargingRainbowBeam);
             _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOffReadyBaby;
             return true;
         }
@@ -165,7 +165,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     {
         if (--_state.FunctionTimer < 0)
         {
-            _state.SetHeadProgram(MotherBrainHeadProgram.FiringRainbowBeam);
+            _state.SetHeadAnimation(MotherBrainHeadSegment.FiringRainbowBeam);
             _state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
             _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
             _state.NeckAngleDelta = 1280;

@@ -118,15 +118,15 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteEnemyState state,
         SamusState? samus)
     {
-        state.InstalledProgram = null;
+        state.InstalledAnimation = null;
         state.HeadWaitsForBodyLanding = false;
         state.Origin = slot.Position.Whole;
 
         bool samusIsLeft = samus is not null && (samus.Position.Whole - slot.Position.Whole).X < 0;
-        state.DesiredProgram = samusIsLeft
-            ? MagdolliteProgram.LeftIdle
-            : MagdolliteProgram.RightIdle;
-        InstallMagdolliteAnimationScript(slot, state);
+        state.DesiredAnimation = samusIsLeft
+            ? MagdolliteSegment.LeftIdle
+            : MagdolliteSegment.RightIdle;
+        StartMagdolliteAnimation(slot, state);
         state.Function = MagdolliteEnemyFunction.HeadWaiting;
     }
 
@@ -136,11 +136,11 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteEnemyState state)
     {
         state.Origin = slot.Position.Whole;
-        state.InstalledProgram = null;
+        state.InstalledAnimation = null;
         state.BodyReachedApex = false;
         state.BodyWakeRequested = true;
-        state.DesiredProgram = MagdolliteRise.Phase(0).BodyProgram;
-        InstallMagdolliteAnimationScript(slot, state);
+        state.DesiredAnimation = MagdolliteRise.Phase(0).BodyAnimation;
+        StartMagdolliteAnimation(slot, state);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 32);
         state.Function = MagdolliteEnemyFunction.BodyDormant;
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
@@ -152,10 +152,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteEnemyState state)
     {
         state.Origin = slot.Position.Whole;
-        state.InstalledProgram = null;
+        state.InstalledAnimation = null;
         state.AttackTimer = WrappingCountdown.Start(0);
-        state.DesiredProgram = MagdolliteProgram.PillarCap;
-        InstallMagdolliteAnimationScript(slot, state);
+        state.DesiredAnimation = MagdolliteSegment.PillarCap;
+        StartMagdolliteAnimation(slot, state);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 32);
         state.Function = MagdolliteEnemyFunction.OverlayWaitingForAttack;
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
@@ -221,10 +221,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         bool samusIsRight = !CoordinateAxis.Precedes(samus.Position.X.Whole, head.Position.X.Whole);
-        state.DesiredProgram = samusIsRight
-            ? MagdolliteProgram.RightIdle
-            : MagdolliteProgram.LeftIdle;
-        InstallMagdolliteAnimationScript(head, state);
+        state.DesiredAnimation = samusIsRight
+            ? MagdolliteSegment.RightIdle
+            : MagdolliteSegment.LeftIdle;
+        StartMagdolliteAnimation(head, state);
 
         (_, _, RoomEnemySlot overlay) = RequireMagdolliteComposite(head);
         MagdolliteEnemyState overlayState = overlay.RequireSpeciesState<MagdolliteEnemyState>();
@@ -236,10 +236,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyMath.IsWithinStrictModularDistance(head.Position.X.Whole, samus.Position.X.Whole, range))
             return;
 
-        state.DesiredProgram = samusIsRight
-            ? MagdolliteProgram.RightSubmerge
-            : MagdolliteProgram.LeftSubmerge;
-        InstallMagdolliteAnimationScript(head, state);
+        state.DesiredAnimation = samusIsRight
+            ? MagdolliteSegment.RightSubmerge
+            : MagdolliteSegment.LeftSubmerge;
+        StartMagdolliteAnimation(head, state);
         state.Function = MagdolliteEnemyFunction.HeadWaitingForAttackAnimation;
     }
 
@@ -268,10 +268,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         bool samusIsRight = samus is not null &&
             !CoordinateAxis.Precedes(samus.Position.X.Whole, head.Position.X.Whole);
-        state.DesiredProgram = samusIsRight
-            ? MagdolliteProgram.RightEmerge
-            : MagdolliteProgram.LeftEmerge;
-        InstallMagdolliteAnimationScript(head, state);
+        state.DesiredAnimation = samusIsRight
+            ? MagdolliteSegment.RightEmerge
+            : MagdolliteSegment.LeftEmerge;
+        StartMagdolliteAnimation(head, state);
         state.Function = MagdolliteEnemyFunction.HeadWaitingForReturnAnimation;
     }
 
@@ -286,10 +286,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         bool samusIsRight = samus is not null &&
             !CoordinateAxis.Precedes(samus.Position.X.Whole, head.Position.X.Whole);
-        state.DesiredProgram = samusIsRight
-            ? MagdolliteProgram.RightIdle
-            : MagdolliteProgram.LeftIdle;
-        InstallMagdolliteAnimationScript(head, state);
+        state.DesiredAnimation = samusIsRight
+            ? MagdolliteSegment.RightIdle
+            : MagdolliteSegment.LeftIdle;
+        StartMagdolliteAnimation(head, state);
         state.Function = MagdolliteEnemyFunction.HeadWaiting;
     }
 
@@ -345,9 +345,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.BodyPhase++;
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 8);
-        state.DesiredProgram = MagdolliteRise
-            .Phase(state.BodyPhase).BodyProgram;
-        InstallMagdolliteAnimationScript(body, state);
+        state.DesiredAnimation = MagdolliteRise
+            .Phase(state.BodyPhase).BodyAnimation;
+        StartMagdolliteAnimation(body, state);
     }
 
     /// <summary>Retraces the body's growth phases and releases the head's landing latch at its origin.</summary>
@@ -375,9 +375,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.BodyPhase--;
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 8);
-        state.DesiredProgram = MagdolliteRise
-            .Phase(state.BodyPhase).BodyProgram;
-        InstallMagdolliteAnimationScript(body, state);
+        state.DesiredAnimation = MagdolliteRise
+            .Phase(state.BodyPhase).BodyAnimation;
+        StartMagdolliteAnimation(body, state);
     }
 
     /// <summary>Begins following the rising body when the head enters its attack animation.</summary>
@@ -402,8 +402,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             (_, RoomEnemySlot body, _) = RequireMagdolliteComposite(overlay);
             MagdolliteEnemyState bodyState = body.RequireSpeciesState<MagdolliteEnemyState>();
-            state.DesiredProgram = MagdolliteProgram.PillarCap;
-            InstallMagdolliteAnimationScript(overlay, state);
+            state.DesiredAnimation = MagdolliteSegment.PillarCap;
+            StartMagdolliteAnimation(overlay, state);
             bodyState.Function = MagdolliteEnemyFunction.BodyFalling;
             state.Function = MagdolliteEnemyFunction.OverlayTrackingFallingBody;
             bodyState.BodyReachedApex = false;
@@ -425,11 +425,11 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             bool samusIsRight = samus is not null &&
                 !CoordinateAxis.Precedes(samus.Position.X.Whole, overlay.Position.X.Whole);
-            state.DesiredProgram = samusIsRight
-                ? MagdolliteProgram.RightThrow
-                : MagdolliteProgram.LeftThrow;
+            state.DesiredAnimation = samusIsRight
+                ? MagdolliteSegment.RightThrow
+                : MagdolliteSegment.LeftThrow;
             state.ThrowsRight = samusIsRight;
-            InstallMagdolliteAnimationScript(overlay, state);
+            StartMagdolliteAnimation(overlay, state);
             state.Function = MagdolliteEnemyFunction.OverlayWaitingForThrowAnimation;
             state.ThrowOrigin = overlay.Position.Whole;
         }
@@ -491,14 +491,14 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Restarts the animation only when the desired program differs from the installed one.</summary>
-    private static void InstallMagdolliteAnimationScript(
+    private static void StartMagdolliteAnimation(
         RoomEnemySlot slot,
         MagdolliteEnemyState state)
     {
-        if (state.DesiredProgram == state.InstalledProgram)
+        if (state.DesiredAnimation == state.InstalledAnimation)
             return;
-        state.Playback = new(MagdolliteAnimations.StartingWith(state.DesiredProgram), AnimationPlace.StartOfAnimation);
-        state.InstalledProgram = state.DesiredProgram;
+        state.Playback = new(MagdolliteAnimations.StartingWith(state.DesiredAnimation), AnimationPlace.StartOfAnimation);
+        state.InstalledAnimation = state.DesiredAnimation;
         slot.AnimationClock.Restart();
     }
 
@@ -562,7 +562,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of a Magdollite part's animations: the sixteen private callbacks the ten
     /// retail lists reference. Every cue runs on to the next step, so none redirects.
     /// </summary>
-    private MagdolliteProgram? ApplyMagdolliteCue(
+    private MagdolliteSegment? ApplyMagdolliteCue(
         RoomEnemySlot slot,
         MagdolliteCue cue,
         Position16<RoomPixels> camera)
@@ -712,7 +712,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         }, EnemyProjectileFrameBehavior.MagdolliteLavaFlight);
 
         table.AddCue<MagdolliteLavaCue>((context, cue) => ApplyMagdolliteLavaCue(context.Projectile, cue));
-        table.AddShotAnimation(RoomEnemyProjectileKind.LavaThrownByMagdollite, () => new MagdolliteLavaAnimation(MagdolliteLavaProgram.Shot));
+        table.AddShotAnimation(RoomEnemyProjectileKind.LavaThrownByMagdollite, () => new MagdolliteLavaAnimation(MagdolliteLavaSegment.Shot));
     }
 
     /// <summary>Carries out one cue of the thrown lava's programs.</summary>
@@ -744,11 +744,11 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Magdollite's typed animation.</summary>
-    internal void AdvanceMagdolliteTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, MagdolliteAnimations.Segments,
+    internal void AdvanceMagdolliteTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(slot, MagdolliteAnimations.Segments,
             static (MagdolliteEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyMagdolliteCue(slot, cue, context.Camera) is { } target
-                ? new AnimationContinuation<MagdolliteProgram>(MagdolliteAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<MagdolliteSegment>(MagdolliteAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
 
     /// <summary>Propagates common power-bomb death and freezing effects to following composite records.</summary>
@@ -805,7 +805,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             SignedEightEight.Zero);
         projectile.FrameBehavior =
             EnemyProjectileFrameBehavior.MagdolliteLavaFlight;
-        projectile.InstallAnimation(new MagdolliteLavaAnimation(throwsRight ? MagdolliteLavaProgram.Right : MagdolliteLavaProgram.Left));
+        projectile.InstallAnimation(new MagdolliteLavaAnimation(throwsRight ? MagdolliteLavaSegment.Right : MagdolliteLavaSegment.Left));
     }
 
     /// <summary>Runs the lava's per-frame behaviour: the lava flies sideways at its speed until it leaves the view.</summary>

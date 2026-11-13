@@ -96,7 +96,7 @@ internal static class NativeSnapshotImport
         // started are replaced by the recorded ones.
         var importedEffects = runtime.RoomPaletteFx.effects;
         importedEffects.Clear();
-        Dictionary<PaletteFxProgram, PaletteFxNativeList>? paletteFxLists = null;
+        Dictionary<PaletteFxSegment, PaletteFxNativeList>? paletteFxLists = null;
         for (int visit = 0; visit < NativeSnapshotMemory.PaletteFxObjectCount; visit++)
         {
             int slot = NativeSnapshotMemory.PaletteFxObjectCount - 1 - visit;
@@ -421,20 +421,20 @@ internal static class NativeSnapshotImport
     /// The animations an imported <paramref name="effect"/> can be playing, its own first: the one its start plays (each
     /// suit's heat shimmer for an effect that chooses one), then those its conditions restart it at.
     /// </summary>
-    private static IEnumerable<PaletteFxProgram> ImportedAnimationCandidates(PaletteFxObject effect)
+    private static IEnumerable<PaletteFxSegment> ImportedAnimationCandidates(PaletteFxObject effect)
     {
         RoomPaletteFxDefinition definition = RoomPaletteFxSelection.Get(effect);
-        PaletteFxProgram[] starts = definition.Start == ColourEffectStart.ChoosesHeatProgramForSuit
-            ? [.. Enum.GetValues<PaletteFxHeatSuit>().Select(PaletteFxHeatPrograms.Start)]
-            : [definition.InitialProgram];
-        var seen = new HashSet<PaletteFxProgram>();
-        var pending = new Queue<PaletteFxProgram>(starts);
-        while (pending.TryDequeue(out PaletteFxProgram start))
+        PaletteFxSegment[] starts = definition.Start == ColourEffectStart.ChoosesHeatAnimationForSuit
+            ? [.. Enum.GetValues<PaletteFxHeatSuit>().Select(PaletteFxHeatAnimations.Start)]
+            : [definition.InitialAnimation];
+        var seen = new HashSet<PaletteFxSegment>();
+        var pending = new Queue<PaletteFxSegment>(starts);
+        while (pending.TryDequeue(out PaletteFxSegment start))
         {
             if (!seen.Add(start))
                 continue;
             yield return start;
-            foreach (AnimationPhase<PaletteFxProgram> phase in PaletteFxAnimations.StartingWith(start).Phases)
+            foreach (AnimationPhase<PaletteFxSegment> phase in PaletteFxAnimations.StartingWith(start).Phases)
             {
                 foreach (AnimationBeat<int, PaletteFxCue> beat in PaletteFxSegments.All.Beats(phase.Segment).Skip(phase.FirstBeat).Take(phase.BeatCount))
                 {
@@ -453,12 +453,12 @@ internal static class NativeSnapshotImport
     /// whose list runs on into it. A place with no frame before it, in its segment or any running on into it, has shown no
     /// frame yet: null.
     /// </summary>
-    private static PaletteFxFrame? LastShownFrame(SuperMetroid.Core.Programs.Animation<PaletteFxProgram> animation, SuperMetroid.Core.Programs.AnimationPlace place)
+    private static PaletteFxFrame? LastShownFrame(SuperMetroid.Core.Programs.Animation<PaletteFxSegment> animation, SuperMetroid.Core.Programs.AnimationPlace place)
     {
-        AnimationPhase<PaletteFxProgram> phase = animation.Phases[place.Phase];
-        PaletteFxProgram segment = phase.Segment;
+        AnimationPhase<PaletteFxSegment> phase = animation.Phases[place.Phase];
+        PaletteFxSegment segment = phase.Segment;
         int end = phase.FirstBeat + place.Beat;
-        PaletteFxProgram[] authored = Enum.GetValues<PaletteFxProgram>();
+        PaletteFxSegment[] authored = Enum.GetValues<PaletteFxSegment>();
         while (true)
         {
             IReadOnlyList<AnimationBeat<int, PaletteFxCue>> beats = PaletteFxSegments.All.Beats(segment);

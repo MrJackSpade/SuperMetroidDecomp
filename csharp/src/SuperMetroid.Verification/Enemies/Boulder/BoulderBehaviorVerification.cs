@@ -25,11 +25,11 @@ internal static class BoulderBehaviorVerification
             Landing: BoulderLanding.Standard));
         slot.Position = slot.Position.WithWhole(new(256, 512));
         BoulderBehavior.InitializeBoulder(slot);
-        AssertEqual(new AnimationPlayback<BoulderProgram>(BoulderAnimations.StartingWith(BoulderProgram.Left), AnimationPlace.StartOfAnimation), (enemies.SlotTable.Slots[0].EntityState<BoulderEntity, BoulderEnemyState>() ?? throw new InvalidOperationException("The Boulder has no state.")).Playback,
+        AssertEqual(new AnimationPlayback<BoulderSegment>(BoulderAnimations.StartingWith(BoulderSegment.Left), AnimationPlace.StartOfAnimation), (enemies.SlotTable.Slots[0].EntityState<BoulderEntity, BoulderEnemyState>() ?? throw new InvalidOperationException("The Boulder has no state.")).Playback,
             "Boulder initializer animation");
         slot.AnimationClock.StepOnNextUpdate();
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoulderAnimations.Segments, BoulderProgram.Left, BoulderFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(BoulderAnimations.Segments, BoulderProgram.Left)),
+        AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoulderAnimations.Segments, BoulderSegment.Left, BoulderFrameToolingDefinitions.Spritemap),
+            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(BoulderAnimations.Segments, BoulderSegment.Left)),
             "Boulder runs its loop and returns through its goto");
         Console.WriteLine("  Boulder behavior: the initializer starts and runs its loop.");
     }

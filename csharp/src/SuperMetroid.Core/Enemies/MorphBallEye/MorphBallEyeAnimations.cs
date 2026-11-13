@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeProgram;
+using P = SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeSegment;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 internal static class MorphBallEyeAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MorphBallEyeProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<MorphBallEyeProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
+    internal static AnimationSegments<MorphBallEyeSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<MorphBallEyeSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.Active] =
         [
@@ -86,7 +86,7 @@ internal static class MorphBallEyeAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<MorphBallEyeProgram, Animation<MorphBallEyeProgram>> StartingAt { get; } = new Dictionary<MorphBallEyeProgram, Animation<MorphBallEyeProgram>>
+    internal static IReadOnlyDictionary<MorphBallEyeSegment, Animation<MorphBallEyeSegment>> StartingAt { get; } = new Dictionary<MorphBallEyeSegment, Animation<MorphBallEyeSegment>>
     {
         [P.Active] = new([new(P.Active, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
         [P.FacingRightDeactivating] = new([new(P.FacingRightDeactivating, 0, 3, 1), new(P.FacingRightClosed, 0, 1, 1)], AnimationEnd.Holds),
@@ -102,7 +102,7 @@ internal static class MorphBallEyeAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<MorphBallEyeProgram> StartingWith(MorphBallEyeProgram segment) => StartingAt[segment];
+    internal static Animation<MorphBallEyeSegment> StartingWith(MorphBallEyeSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

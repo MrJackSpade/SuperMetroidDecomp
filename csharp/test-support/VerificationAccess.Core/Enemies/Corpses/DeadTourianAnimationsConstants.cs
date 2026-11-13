@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 internal static class DeadTourianAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params DeadTourianProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params DeadTourianSegment[] programs) =>
         programs.SelectMany(program => DeadTourianAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, DeadTourianCue>.Frame>()
             .Select(frame => DeadTourianFrameToolingDefinitions.Spritemap(frame.Shown));

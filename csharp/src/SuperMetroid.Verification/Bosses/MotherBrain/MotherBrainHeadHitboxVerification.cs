@@ -29,11 +29,11 @@ internal static class MotherBrainHeadHitboxVerification
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemySlot head = state.Head;
-        AssertEqual(new AnimationPlayback<MotherBrainHeadProgram>(MotherBrainAnimations.HeadStartingWith(MotherBrainHeadProgram.Initial), AnimationPlace.StartOf(0)),
+        AssertEqual(new AnimationPlayback<MotherBrainHeadSegment>(MotherBrainAnimations.HeadStartingWith(MotherBrainHeadSegment.Initial), AnimationPlace.StartOf(0)),
             state.BrainPlayback,
             "the brain program starts at InstList_MotherBrainHead_Initial");
 
-        EnemyInstructionInterpreter.RunsAnimationScript(head, null, null, Position16<RoomPixels>.Zero, 0);
+        EnemyAnimationPlayer.AdvanceAnimation(head, null, null, Position16<RoomPixels>.Zero, 0);
         AssertEqual((ushort)0xa320, head.SpritemapPointer, "the head enemy carries the dummy list's hitbox frame");
 
         // The movie's frame: second form, head at ($7C,$58) when the beam at ($9E,$81) reaches

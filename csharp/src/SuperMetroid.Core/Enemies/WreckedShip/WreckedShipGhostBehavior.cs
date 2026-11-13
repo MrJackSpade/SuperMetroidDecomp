@@ -48,14 +48,14 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
         // The initializer sets the animation-script, intangibility and invisibility properties. In this host those mean
         // animation processing, exclusion from Samus interaction, and invisibility.
-        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
+        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         slot.AnimationClock.Restart();
 
         var state = new WreckedShipGhostEnemyState
         {
-            Playback = new(WreckedShipGhostAnimations.StartingWith(WreckedShipGhostProgram.Floating), AnimationPlace.StartOfAnimation),
+            Playback = new(WreckedShipGhostAnimations.StartingWith(WreckedShipGhostSegment.Floating), AnimationPlace.StartOfAnimation),
             Function = WreckedShipGhostAiFunction.InitialInvisibleDelay,
             PhaseTimer = WreckedShipGhostInitialDelay,
         };
@@ -349,8 +349,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Advances the Wrecked Ship ghost's typed animation.</summary>
-    internal static void AdvanceWreckedShipGhostTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, WreckedShipGhostAnimations.Segments,
+    internal static void AdvanceWreckedShipGhostTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, WreckedShipGhostAnimations.Segments,
             static (WreckedShipGhostEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"The Wrecked Ship ghost's cue-free animation raised {cue}."));
 

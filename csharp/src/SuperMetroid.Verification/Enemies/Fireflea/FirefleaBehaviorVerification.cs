@@ -22,11 +22,11 @@ internal static class FirefleaBehaviorVerification
         slot.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);
         slot.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
         FirefleaBehavior.InitializeFireflea(slot);
-        AssertEqual(new AnimationPlayback<FirefleaProgram>(FirefleaAnimations.StartingWith(FirefleaProgram.Loop), AnimationPlace.StartOfAnimation), (enemies.SlotTable.Slots[0].EntityState<FirefleaEntity, FirefleaEnemyState>() ?? throw new InvalidOperationException("The Fireflea has no state.")).Playback,
+        AssertEqual(new AnimationPlayback<FirefleaSegment>(FirefleaAnimations.StartingWith(FirefleaSegment.Loop), AnimationPlace.StartOfAnimation), (enemies.SlotTable.Slots[0].EntityState<FirefleaEntity, FirefleaEnemyState>() ?? throw new InvalidOperationException("The Fireflea has no state.")).Playback,
             "Fireflea initializer animation");
         slot.AnimationClock.StepOnNextUpdate();
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(FirefleaAnimations.Segments, FirefleaProgram.Loop, FirefleaFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(FirefleaAnimations.Segments, FirefleaProgram.Loop)),
+        AssertEqual(EnemyInstructionRunner.ExpectedLoop(FirefleaAnimations.Segments, FirefleaSegment.Loop, FirefleaFrameToolingDefinitions.Spritemap),
+            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(FirefleaAnimations.Segments, FirefleaSegment.Loop)),
             "Fireflea runs its loop and returns through its goto");
         Console.WriteLine("  Fireflea behavior: the initializer starts and runs its loop.");
     }

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheCueKind;
-using P = SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheProgram;
+using P = SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 internal static class FuneNamiheAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<FuneNamiheProgram, EnemyFrameId, FuneNamiheCue> Segments { get; } = new(
-        new Dictionary<FuneNamiheProgram, AnimationBeat<EnemyFrameId, FuneNamiheCue>[]>
+    internal static AnimationSegments<FuneNamiheSegment, EnemyFrameId, FuneNamiheCue> Segments { get; } = new(
+        new Dictionary<FuneNamiheSegment, AnimationBeat<EnemyFrameId, FuneNamiheCue>[]>
     {
         [P.FuneIdleLeft] =
         [
@@ -92,7 +92,7 @@ internal static class FuneNamiheAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<FuneNamiheProgram, Animation<FuneNamiheProgram>> StartingAt { get; } = new Dictionary<FuneNamiheProgram, Animation<FuneNamiheProgram>>
+    internal static IReadOnlyDictionary<FuneNamiheSegment, Animation<FuneNamiheSegment>> StartingAt { get; } = new Dictionary<FuneNamiheSegment, Animation<FuneNamiheSegment>>
     {
         [P.FuneIdleLeft] = new([new(P.FuneIdleLeft, 0, 1, 1)], AnimationEnd.Holds),
         [P.FuneActiveLeft] = new([new(P.FuneActiveLeft, 0, 11, 1), new(P.FuneIdleLeft, 0, 1, 1)], AnimationEnd.Holds),
@@ -105,7 +105,7 @@ internal static class FuneNamiheAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<FuneNamiheProgram> StartingWith(FuneNamiheProgram segment) => StartingAt[segment];
+    internal static Animation<FuneNamiheSegment> StartingWith(FuneNamiheSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, FuneNamiheCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, FuneNamiheCue>.Frame(frame, duration);

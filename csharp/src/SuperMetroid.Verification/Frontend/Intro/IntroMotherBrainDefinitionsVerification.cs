@@ -29,7 +29,7 @@ internal static class IntroMotherBrainDefinitionsVerification
         {
             (ushort pointer, IntroMotherBrainActorDefinition actual) = actors[index];
             int address = IntroMotherBrainDefinitions.NativeBank | pointer;
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Program),
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Animation),
                 $"intro Mother Brain actor {index} instruction list");
         }
 
@@ -73,7 +73,7 @@ internal static class IntroMotherBrainDefinitionsVerification
         for (int frame = 0; frame < 80; frame++)
         {
             motherBrain.Step();
-            int record = CinematicSpriteNativeListAddresses.Entry(CinematicSpriteProgram.IntroMotherBrain) +
+            int record = CinematicSpriteNativeListAddresses.Entry(CinematicSpriteSegment.IntroMotherBrain) +
                 ((frame / 16) % 4) * 4;
             ushort expected = CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank | (record + 2)));
             AssertEqual(expected, CinematicSpritePoseSpritemaps.Of(motherBrain.Pose),
@@ -97,7 +97,7 @@ internal static class IntroMotherBrainDefinitionsVerification
             motherBrain.RunFrameBehavior((ushort)(129 + frame),
                 introCrossfadeTimer: 1);
             motherBrain.Step();
-            int record = CinematicSpriteNativeListAddresses.Entry(CinematicSpriteProgram.IntroMotherBrainPageTwo) +
+            int record = CinematicSpriteNativeListAddresses.Entry(CinematicSpriteSegment.IntroMotherBrainPageTwo) +
                 (((frame + 1) / 16) % 4) * 4;
             ushort expected = CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank | (record + 2)));
             AssertEqual(expected, CinematicSpritePoseSpritemaps.Of(motherBrain.Pose),
@@ -115,16 +115,16 @@ internal static class IntroMotherBrainDefinitionsVerification
         for (int frame = 0; frame < 192; frame++)
         {
             explosions.Step(introCrossfadeTimer: 1);
-            int smallPhase = frame % LoopFrames(CinematicSpriteProgram.IntroMotherBrainExplosionSmall);
-            int bigPhase = frame % LoopFrames(CinematicSpriteProgram.IntroMotherBrainExplosionBig);
+            int smallPhase = frame % LoopFrames(CinematicSpriteSegment.IntroMotherBrainExplosionSmall);
+            int bigPhase = frame % LoopFrames(CinematicSpriteSegment.IntroMotherBrainExplosionBig);
             ushort expectedSmall = smallPhase < 18
                 ? CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank |
-                    (CinematicSpriteNativeListAddresses.Entry(CinematicSpriteProgram.IntroMotherBrainExplosionSmall) +
+                    (CinematicSpriteNativeListAddresses.Entry(CinematicSpriteSegment.IntroMotherBrainExplosionSmall) +
                         (smallPhase / 3) * 4 + 2)))
                 : (ushort)0;
             ushort expectedBig = bigPhase < 36
                 ? CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank |
-                    (CinematicSpriteNativeListAddresses.Entry(CinematicSpriteProgram.IntroMotherBrainExplosionBig) +
+                    (CinematicSpriteNativeListAddresses.Entry(CinematicSpriteSegment.IntroMotherBrainExplosionBig) +
                         (bigPhase / 6) * 4 + 2)))
                 : (ushort)0;
             AssertEqual(expectedSmall, CinematicSpritePoseSpritemaps.Of(explosionActors[0].Pose),
@@ -192,6 +192,6 @@ internal static class IntroMotherBrainDefinitionsVerification
     }
 
     /// <summary>The updates one pass of looping <paramref name="program"/> lasts: the sum of its frames' durations.</summary>
-    private static int LoopFrames(CinematicSpriteProgram program) =>
+    private static int LoopFrames(CinematicSpriteSegment program) =>
         CinematicSpriteAnimations.Segments.Beats(program).OfType<AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame>().Sum(frame => frame.Duration);
 }

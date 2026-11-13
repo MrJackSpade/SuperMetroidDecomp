@@ -55,7 +55,7 @@ internal static class RidleyFullMovieVerification
             state.BodyPlayback = pointers.BodyPlaybackAt(NativeSnapshotMemory.RidleyRightFlyingSleep);
             body.AnimationClock.HoldFor(9); body.AnimationClock.Repeats = WrappingCountdown.Start(11);
             runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyPogo(body, state, samus, VerticalDirection.Down);
-            AssertEqual(sample.Fourth ? RidleyNativeInstructionPointers.BodyEntry(RidleyBodyProgram.Fireballing) : NativeSnapshotMemory.RidleyRightFlyingSleep,
+            AssertEqual(sample.Fourth ? RidleyNativeInstructionPointers.BodyEntry(RidleyBodySegment.Fireballing) : NativeSnapshotMemory.RidleyRightFlyingSleep,
                 pointers.Body(state), "native spin-response fireball threshold/roar/facing gate");
             AssertEqual(sample.Fourth ? (ushort)1 : (ushort)9, body.AnimationClock.Hold.RawValue, "native fireball restarts instruction timer only when admitted");
             AssertEqual(sample.Fourth ? (ushort)0 : (ushort)11, body.AnimationClock.Repeats.RawValue, "native fireball clears loop counter only when admitted");
@@ -75,7 +75,7 @@ internal static class RidleyFullMovieVerification
         var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
         body.Position = body.Position.WithWhole(new(139, 282));
         body.SpritemapPointer = 0xe9e9; body.Contact = EnemyContact.BlocksPlasmaBeam;
-        body.Processing = EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript;
+        body.Processing = EnemyProcessing.OffScreen | EnemyProcessing.Animates;
         body.Presence = EnemyPresence.None;
         (state ?? throw new InvalidOperationException("Verification requires state.")).FightMode = RidleyFightMode.Fighting; state.MovementAnimationEnabled = true; state.FacingDirection = RidleyFacing.Left;
         state.Function = RidleyAiFunction.NorfairCarryRelease; state.FunctionTimer = 10;
@@ -462,7 +462,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(RoomEnemyProjectileKind.MiscDustExplosion, dust.Kind, "native tail impact allocates highest free slot");
         AssertEqual((ushort)4, dust.Position.X.Whole, "native tail impact dust X");
         AssertEqual((ushort)130, dust.Position.Y.Whole, "native tail impact dust Y includes twelve-pixel offset");
-        AssertTrue(dust.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustProjectileProgram.SmallDustCloud }, "native impact selects variant nine");
+        AssertTrue(dust.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustProjectileSegment.SmallDustCloud }, "native impact selects variant nine");
         AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == EnemySound.Quake && request.Priority.Requests == 6), "native impact queues the quake sound");
         Console.WriteLine("Ridley tail impact: native dust slot, position, instruction variant and sound pass.");
     }
@@ -604,10 +604,10 @@ internal static class RidleyFullMovieVerification
                 .WithAnimationClock(hold: 7, repeats: 9);
             var state = new RidleyEnemyState { FacingDirection = sample.Facing };
             state.BodyPlayback = pointers.BodyPlaybackAt(NativeSnapshotMemory.RidleyRightFlyingSleep);
-            NorfairRidleyCombat.SelectNorfairRidleyFacingInstruction(slot, state);
+            NorfairRidleyCombat.SelectNorfairRidleyFacingAnimation(slot, state);
             ushort expected = !sample.Turn ? NativeSnapshotMemory.RidleyRightFlyingSleep
-                : sample.Facing == RidleyFacing.Left ? RidleyNativeInstructionPointers.BodyEntry(RidleyBodyProgram.TurnFromLeftToRight)
-                : RidleyNativeInstructionPointers.BodyEntry(RidleyBodyProgram.TurnFromRightToLeft);
+                : sample.Facing == RidleyFacing.Left ? RidleyNativeInstructionPointers.BodyEntry(RidleyBodySegment.TurnFromLeftToRight)
+                : RidleyNativeInstructionPointers.BodyEntry(RidleyBodySegment.TurnFromRightToLeft);
             AssertEqual(expected, pointers.Body(state), $"native center-facing instruction at {sample.X:X4}, facing {sample.Facing}");
             AssertEqual(sample.Turn ? (ushort)2 : (ushort)7, slot.AnimationClock.Hold.RawValue, "turn timer changes only when native condition is met");
             AssertEqual(sample.Turn ? (ushort)0 : (ushort)9, slot.AnimationClock.Repeats.RawValue, "loop counter is preserved when no turn is needed");

@@ -13,9 +13,9 @@ internal static class DeadTorizoNativeListAddresses
     internal const byte Bank = 0xa9;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<DeadTorizoProgram>[] Entries =
+    internal static readonly NativeProgramEntry<DeadTorizoSegment>[] Entries =
     [
-        new NativeProgramEntry<DeadTorizoProgram>(DeadTorizoProgram.Stationary, 0xd6dc),
+        new NativeProgramEntry<DeadTorizoSegment>(DeadTorizoSegment.Stationary, 0xd6dc),
     ];
 
 }

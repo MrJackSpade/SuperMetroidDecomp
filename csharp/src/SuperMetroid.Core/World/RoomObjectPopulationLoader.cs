@@ -162,7 +162,7 @@ internal sealed class RoomObjectPopulationLoader
             RoomObjectHeaderId.DownwardsScrollExtension or
             RoomObjectHeaderId.UpwardsScrollExtension)
         {
-            ScrollObjects.SetupScrollSlot(level, slot, header, placement.ScrollProgram, placement.CompiledScrollProgram);
+            ScrollObjects.SetupScrollSlot(level, slot, header, placement.ScrollChange, placement.CompiledScrollChange);
             return true;
         }
 

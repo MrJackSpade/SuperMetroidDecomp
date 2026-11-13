@@ -27,7 +27,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Hibashi's eruption: its sound, an eruption frame's hitbox, or finishing.</summary>
-    private HibashiProgram? ApplyHibashiCue(RoomEnemySlot slot, HibashiCue cue)
+    private HibashiSegment? ApplyHibashiCue(RoomEnemySlot slot, HibashiCue cue)
     {
         switch (cue.Kind)
         {
@@ -59,12 +59,12 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Every part starts with the one-frame hitbox map. Only part zero replaces it with
         // the eruption animation and initializes the state-machine values below.
-        state.Playback = EnemyProgramAnimation.Start(slot, HibashiAnimations.StartingWith(HibashiProgram.Hitbox));
+        state.Playback = EnemyAnimationPlayback.Start(slot, HibashiAnimations.StartingWith(HibashiSegment.Hitbox));
         if (state.IsCollisionPart)
             return;
 
         _hitboxes.Place(slot, _slotTable.ListedAfter(slot, 1));
-        state.Playback = new(HibashiAnimations.StartingWith(HibashiProgram.Graphics), AnimationPlace.StartOfAnimation);
+        state.Playback = new(HibashiAnimations.StartingWith(HibashiSegment.Graphics), AnimationPlace.StartOfAnimation);
         state.Function = HibashiEnemyFunction.Inactive;
         state.SpawnHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
 
@@ -106,7 +106,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
         state.Function = HibashiEnemyFunction.Active;
         state.ActivityFinished = false;
-        state.Playback = EnemyProgramAnimation.Start(graphics, HibashiAnimations.StartingWith(HibashiProgram.Graphics));
+        state.Playback = EnemyAnimationPlayback.Start(graphics, HibashiAnimations.StartingWith(HibashiSegment.Graphics));
 
         // The invisibility property controls rendering only. The intangibility property controls admission to
         // Samus/projectile/grapple collision. The bottom remains visually invisible for the
@@ -176,10 +176,10 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Hibashi's typed animation.</summary>
-    internal void AdvanceHibashiTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, HibashiAnimations.Segments,
+    internal void AdvanceHibashiTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, HibashiAnimations.Segments,
             static (HibashiEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyHibashiCue(slot, cue) is { } target
-                ? new AnimationContinuation<HibashiProgram>(HibashiAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<HibashiSegment>(HibashiAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
 }

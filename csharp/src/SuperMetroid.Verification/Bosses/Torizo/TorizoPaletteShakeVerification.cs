@@ -31,8 +31,8 @@ internal static class TorizoPaletteShakeVerification
         enemies.BombTorizoBehavior.Access.TorizoState = state;
         void Execute(TorizoCueKind kind) =>
             AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(
-                    actor, state, new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounter = 0 },
-                    new TorizoCue.Command(kind), TorizoAnimations.Start(TorizoBodyProgram.BombTorizoInitial0Resumed)) is null,
+                    actor, state, new TorizoCueInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounter = 0 },
+                    new TorizoCue.Command(kind), TorizoAnimations.Start(TorizoBodySegment.BombTorizoInitial0Resumed)) is null,
                 "Torizo palette cue runs on");
         enemies.Earthquake.Start(NativeEarthquakeTypes.Shake(4), 32);
         // The native awakening loop invokes B271 every four frames. It must not extend a pending landing quake.
@@ -166,7 +166,7 @@ internal static class TorizoPaletteShakeVerification
     private static void VerifyBellyGlow(IReadOnlyList<SheetShade> shades)
     {
         SheetShade[] records = [.. shades.Where(shade =>
-            shade.Shade == PaletteFxShades.Of(PaletteFxColours.TorizoBelly, new PaletteFxFrame(PaletteFxProgram.BombTorizoBelly1, shade.Shade.Step)))];
+            shade.Shade == PaletteFxShades.Of(PaletteFxColours.TorizoBelly, new PaletteFxFrame(PaletteFxSegment.BombTorizoBelly1, shade.Shade.Step)))];
         AssertTrue(records.Length > 0, "The import pre-colours the belly glow's records");
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         // The program's six records are ten bytes apart, each a duration and three colours.
@@ -178,7 +178,7 @@ internal static class TorizoPaletteShakeVerification
             AssertTrue(record.Inks.SequenceEqual([25, 26, 27]), "The glow recolours the tenth through twelfth colours of the first body row");
         AssertTrue(cartridge.SetEquals(imported), "The glow's records show bank $8D's colours");
 
-        PaletteFxFrame shown = new(PaletteFxProgram.BombTorizoBelly1, records[0].Shade.Step);
+        PaletteFxFrame shown = new(PaletteFxSegment.BombTorizoBelly1, records[0].Shade.Step);
         var colours = new TorizoColours();
         colours.Show(new TorizoLook(TorizoLookKind.Normal));
         colours.ShowBellyGlow(shown);

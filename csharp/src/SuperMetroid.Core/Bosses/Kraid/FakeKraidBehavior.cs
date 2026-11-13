@@ -46,14 +46,14 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of Mini-Kraid's animations. The action choice continues at the step or spit animation it
     /// selects, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private FakeKraidProgram? ApplyFakeKraidCue(RoomEnemySlot slot, FakeKraidCue cue, SamusState? samus, RoomLevelData? level, Position16<RoomPixels> camera)
+    private FakeKraidSegment? ApplyFakeKraidCue(RoomEnemySlot slot, FakeKraidCue cue, SamusState? samus, RoomLevelData? level, Position16<RoomPixels> camera)
     {
         switch (cue.Kind)
         {
             case FakeKraidCueKind.Move:
                 // Walk cue: advance one four-pixel step unless its random reversal
                 // clock expires, then refresh the live facing marker from Samus.
-                ProcessFakeKraidWalkInstruction(slot, slot.RequireSpeciesState<FakeKraidEnemyState>(), samus, level);
+                ProcessFakeKraidWalkAnimation(slot, slot.RequireSpeciesState<FakeKraidEnemyState>(), samus, level);
                 return null;
             case FakeKraidCueKind.ChooseAction:
                 return SelectFakeKraidAction(slot.RequireSpeciesState<FakeKraidEnemyState>());
@@ -115,16 +115,16 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SpikeTimers[FakeKraidSpikeRow.Bottom] = seedDelay + 48;
         state.NextSpikeRow = FakeKraidSpikeRow.Top;
 
-        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
+        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.AnimationClock.Restart();
         state.WalkDelta = -4;
         state.FacingDelta = -4;
-        state.Playback = new AnimationPlayback<FakeKraidProgram>(FakeKraidAnimations.StartingWith(FakeKraidProgram.StepForwardsFacingLeft), AnimationPlace.StartOfAnimation);
+        state.Playback = new AnimationPlayback<FakeKraidSegment>(FakeKraidAnimations.StartingWith(FakeKraidSegment.StepForwardsFacingLeft), AnimationPlace.StartOfAnimation);
         if (CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0)
         {
             state.WalkDelta = 4;
             state.FacingDelta = 4;
-            state.Playback = new AnimationPlayback<FakeKraidProgram>(FakeKraidAnimations.StartingWith(FakeKraidProgram.StepForwardsFacingRight), AnimationPlace.StartOfAnimation);
+            state.Playback = new AnimationPlayback<FakeKraidSegment>(FakeKraidAnimations.StartingWith(FakeKraidSegment.StepForwardsFacingRight), AnimationPlace.StartOfAnimation);
         }
     }
 
@@ -155,7 +155,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Mini-Kraid's walk step.</summary>
-    private void ProcessFakeKraidWalkInstruction(
+    private void ProcessFakeKraidWalkAnimation(
         RoomEnemySlot slot,
         FakeKraidEnemyState state,
         SamusState? samus,
@@ -195,7 +195,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Mini-Kraid's action choice and returns the animation it continues at.</summary>
-    private FakeKraidProgram SelectFakeKraidAction(
+    private FakeKraidSegment SelectFakeKraidAction(
         FakeKraidEnemyState state)
     {
         if (state.SpitDecisionTimer != 0)
@@ -203,20 +203,20 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             if (state.FacingDelta < 0)
             {
                 return state.WalkDelta >= 0
-                    ? FakeKraidProgram.StepBackwardsFacingLeft
-                    : FakeKraidProgram.StepForwardsFacingLeft;
+                    ? FakeKraidSegment.StepBackwardsFacingLeft
+                    : FakeKraidSegment.StepForwardsFacingLeft;
             }
 
             return state.WalkDelta < 0
-                ? FakeKraidProgram.StepBackwardsFacingRight
-                : FakeKraidProgram.StepForwardsFacingRight;
+                ? FakeKraidSegment.StepBackwardsFacingRight
+                : FakeKraidSegment.StepForwardsFacingRight;
         }
 
         state.SpitDecisionTimer = KraidRandomDefinitions.FakeKraidSpitDecisionSpread.Of(ReadFakeKraidRandomNumber()) +
             KraidRandomDefinitions.FakeKraidSpitDecisionBase;
         return state.FacingDelta < 0
-            ? FakeKraidProgram.FireSpitFacingLeft
-            : FakeKraidProgram.FireSpitFacingRight;
+            ? FakeKraidSegment.FireSpitFacingLeft
+            : FakeKraidSegment.FireSpitFacingRight;
     }
 
     /// <summary>Runs Mini-Kraid's left and right spit steps.</summary>
@@ -401,11 +401,11 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Mini-Kraid's typed animation.</summary>
-    internal void AdvanceFakeKraidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, FakeKraidAnimations.Segments,
+    internal void AdvanceFakeKraidTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(slot, FakeKraidAnimations.Segments,
             static (FakeKraidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (_, cue) => ApplyFakeKraidCue(slot, cue, context.Samus, context.Level, context.Camera) is { } action
-                ? new AnimationContinuation<FakeKraidProgram>(FakeKraidAnimations.StartingWith(action), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<FakeKraidSegment>(FakeKraidAnimations.StartingWith(action), AnimationPlace.StartOfAnimation)
                 : null);
 
     /// <summary>Spawns Mini-Kraid's own explosion and four drops after a lethal power bomb.</summary>

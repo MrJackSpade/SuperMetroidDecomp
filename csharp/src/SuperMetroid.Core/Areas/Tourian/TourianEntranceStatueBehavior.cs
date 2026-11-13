@@ -136,14 +136,14 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>Installs one of three animations and lets only the first statue record spawn the fixed decorative actors.</summary>
     internal void InitializeTourianEntranceStatue(RoomEnemySlot statue)
     {
-        TourianEntranceStatueProgram part = statue.Spawn.Population.SpawnSettingsOf<TourianEntranceStatueSpawnSettings>().Statue;
+        TourianEntranceStatueSegment part = statue.Spawn.Population.SpawnSettingsOf<TourianEntranceStatueSpawnSettings>().Statue;
         statue.AnimationClock.Restart();
-        statue.SetSpeciesState(new TourianEntranceStatueState(new AnimationPlayback<TourianEntranceStatueProgram>(TourianEntranceStatueAnimations.StartingWith(part), AnimationPlace.StartOfAnimation)));
+        statue.SetSpeciesState(new TourianEntranceStatueState(new AnimationPlayback<TourianEntranceStatueSegment>(TourianEntranceStatueAnimations.StartingWith(part), AnimationPlace.StartOfAnimation)));
 
         // Only the first of the three enemy records creates the fixed screen actors. The
         // allocator searches from the last slot down, so this exact call order gives the
         // decoration, Ridley, and Phantoon their authored draw ordering.
-        if (part == TourianEntranceStatueProgram.BaseDecoration)
+        if (part == TourianEntranceStatueSegment.BaseDecoration)
         {
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatueBaseDecoration,
@@ -204,13 +204,13 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>Advances TourianEntranceStatue's typed animation.</summary>
-    internal static void AdvanceTourianEntranceStatueTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal static void AdvanceTourianEntranceStatueTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
         if (!slot.AnimationClock.Expire())
             return;
         TourianEntranceStatueState state = slot.RequireSpeciesState<TourianEntranceStatueState>();
-        AnimationPlayback<TourianEntranceStatueProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, TourianEntranceStatueAnimations.Segments, ref playback, TourianEntranceStatueFrameDefinitions.ShownFrames.Of,
+        AnimationPlayback<TourianEntranceStatueSegment> playback = state.Playback;
+        EnemyAnimationPlayback.Play(slot, TourianEntranceStatueAnimations.Segments, ref playback, TourianEntranceStatueFrameDefinitions.ShownFrames.Of,
             static cue => throw new InvalidOperationException($"A Tourian entrance statue animation raised {cue}, though its lists raise no events."));
         state.Playback = playback;
     }

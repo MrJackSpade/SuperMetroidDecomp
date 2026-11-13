@@ -258,7 +258,7 @@ public sealed class SamusBombProjectileSystem
                 continue;
             }
 
-            projectileDeleted |= RunProjectileInstructionHandler(slot);
+            projectileDeleted |= AdvanceProjectileAnimation(slot);
         }
 
         // Main gameplay runs the bomb overlap check after frame-handler alpha (which placed/updated the
@@ -577,7 +577,7 @@ public sealed class SamusBombProjectileSystem
 
         slot.Damage = SamusProjectileDamage.Read(header);
 
-        slot.Playback = SamusProjectilePrograms.Start(SamusProjectileHeaders.SoleProgram(header));
+        slot.Playback = SamusProjectilePlayback.Start(SamusProjectileHeaders.SoleAnimation(header));
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
@@ -649,7 +649,7 @@ public sealed class SamusBombProjectileSystem
             {
                 // The explosion reads the animation embedded in the bomb-explosion data
                 // record and resets the animation timer to one.
-                slot.Playback = SamusProjectilePrograms.Start(SamusProjectileProgram.BombExplosion);
+                slot.Playback = SamusProjectilePlayback.Start(SamusProjectileSegment.BombExplosion);
                 slot.FrameHold = WrappingCountdown.Start(1);
                 explosionStarted = true;
             }
@@ -1053,7 +1053,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>Ticks the bomb animation, including timed frames, delete and jump steps.</summary>
-    internal bool RunProjectileInstructionHandler(
+    internal bool AdvanceProjectileAnimation(
         SamusBombProjectileSlot slot)
     {
         // The animation timer is a decrement wrapping at 65536. A legitimate initialized timer is always at
@@ -1062,9 +1062,9 @@ public sealed class SamusBombProjectileSystem
         if (!slot.FrameHold.IsZero)
             return false;
 
-        AnimationPlayback<SamusProjectileProgram> playback = slot.Playback
+        AnimationPlayback<SamusProjectileSegment> playback = slot.Playback
             ?? throw new InvalidOperationException("An inactive bomb has no list to run.");
-        if (SamusProjectilePrograms.RunToNextRecord(ref playback, out int duration) is not { } frame)
+        if (SamusProjectilePlayback.RunToNextRecord(ref playback, out int duration) is not { } frame)
         {
             ClearProjectile(slot);
             return true;

@@ -29,7 +29,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
     /// </summary>
     internal static void VerifyEvirInstructionProgramDefinitions(CartridgeImportAddressSpace rom)
     {
-        foreach (EvirProgram loop in new[] { EvirProgram.BodyFacingLeft, EvirProgram.ArmsFacingLeft, EvirProgram.BodyFacingRight, EvirProgram.ArmsFacingRight })
+        foreach (EvirSegment loop in new[] { EvirSegment.BodyFacingLeft, EvirSegment.ArmsFacingLeft, EvirSegment.BodyFacingRight, EvirSegment.ArmsFacingRight })
         {
             var enemies = NewEvirInstructionSystem();
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -42,11 +42,11 @@ internal static class EvirInstructionProgramDefinitionsVerification
         {
             var enemies = NewEvirInstructionSystem();
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            EvirEnemyState state = PrepareEvirInstructionSlot(slot, EnemyDefinitionId.EvirProjectile, EvirProgram.ProjectileNormal);
+            EvirEnemyState state = PrepareEvirInstructionSlot(slot, EnemyDefinitionId.EvirProjectile, EvirSegment.ProjectileNormal);
             _ = EnemyInstructionRunner.ShownFrames(slot, 4);
-            AssertEqual(EvirAnimationsConstants.Spritemaps(EvirProgram.ProjectileNormal).Single(), slot.SpritemapPointer,
+            AssertEqual(EvirAnimationsConstants.Spritemaps(EvirSegment.ProjectileNormal).Single(), slot.SpritemapPointer,
                 "normal Evir projectile shows its flight pose");
-            AnimationPlayback<EvirProgram>? held = state.Playback;
+            AnimationPlayback<EvirSegment>? held = state.Playback;
             _ = EnemyInstructionRunner.ShownFrames(slot, 4);
             AssertEqual(held, state.Playback, "normal Evir projectile holds its flight pose");
         }
@@ -58,18 +58,18 @@ internal static class EvirInstructionProgramDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[2];
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
             body.Bind(EnemyDefinitionId.Evir, body.Definition);
-            body.SetSpeciesState(new EvirEnemyState { InstalledProgram = EvirProgram.BodyFacingLeft });
+            body.SetSpeciesState(new EvirEnemyState { InstalledAnimation = EvirSegment.BodyFacingLeft });
             // The spit finds its body as production places it, two places after the body.
             slot.Bind(EnemyDefinitionId.EvirProjectile, slot.Definition);
             enemies.EvirBehavior.InitializeEvirProjectile(slot);
-            EvirEnemyState state = PrepareEvirInstructionSlot(slot, EnemyDefinitionId.EvirProjectile, EvirProgram.ProjectileRegenerating);
+            EvirEnemyState state = PrepareEvirInstructionSlot(slot, EnemyDefinitionId.EvirProjectile, EvirSegment.ProjectileRegenerating);
             // #1269: the projectile's own facing word disagrees with its body on purpose; $A8:879B/$87B6 follow the
             // body's installed list, so the offset starts at +8.
             state.Facing = EvirFacing.Right;
             state.InFlight = true;
             state.Regenerating = true;
             state.Function = EvirAiFunction.ProjectileRegenerating;
-            enemies.SlotTable.Slots[0].SetSpeciesState(new EvirEnemyState { InstalledProgram = EvirProgram.BodyFacingLeft });
+            enemies.SlotTable.Slots[0].SetSpeciesState(new EvirEnemyState { InstalledAnimation = EvirSegment.BodyFacingLeft });
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
             for (int call = 0; call < 10; call++)
             {
@@ -79,7 +79,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
                     AssertEqual(new Offset16<RoomPixels>(8, 0), state.RegenerationOffset,
                         "a left-facing body sets the +8 offset whatever the projectile's facing word");
             }
-            AssertEqual(EvirAnimationsConstants.Spritemaps(EvirProgram.ProjectileNormal).Single(), slot.SpritemapPointer,
+            AssertEqual(EvirAnimationsConstants.Spritemaps(EvirSegment.ProjectileNormal).Single(), slot.SpritemapPointer,
                 "regenerating Evir projectile ends on its flight pose");
             AssertEqual(Offset16<RoomPixels>.Zero, state.RegenerationOffset, "regeneration loop advances the projectile mouth offset eight times");
             AssertTrue(!state.Regenerating, "regeneration finish cue clears regeneration ownership");
@@ -106,15 +106,15 @@ internal static class EvirInstructionProgramDefinitionsVerification
     internal static EvirEnemyState PrepareEvirInstructionSlot(
         RoomEnemySlot slot,
         EnemyDefinitionId definition,
-        EvirProgram program)
+        EvirSegment program)
     {
         slot.Bind(definition, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.AnimationClock.StepOnNextUpdate();
         var state = new EvirEnemyState
         {
-            RequestedProgram = program,
-            InstalledProgram = program,
+            RequestedAnimation = program,
+            InstalledAnimation = program,
             Playback = new(EvirAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
         };
         slot.SetSpeciesState(state);

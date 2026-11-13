@@ -17,7 +17,7 @@ internal sealed class BullEntity(BullBehavior species, RoomEnemySlot slot, Enemy
     public EnemyMainAiHandler? FindMain() => RunMain;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => BullBehavior.AdvanceBullAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => BullBehavior.AdvanceBullAnimation;
 
     /// <summary>
     /// Bull's recoil reaction, ahead of the shared ones; only reactions for other species precede it in the shared list,

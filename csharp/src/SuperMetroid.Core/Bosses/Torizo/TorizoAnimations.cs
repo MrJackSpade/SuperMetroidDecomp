@@ -1,5 +1,5 @@
 ﻿using SuperMetroid.Core.Programs;
-using P = SuperMetroid.Core.Bosses.Torizo.TorizoBodyProgram;
+using P = SuperMetroid.Core.Bosses.Torizo.TorizoBodySegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
@@ -13,13 +13,13 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class TorizoAnimations
 {
     /// <summary>Every body segment's beats.</summary>
-    internal static AnimationSegments<TorizoBodyProgram, EnemyFrameId, TorizoCue> Segments { get; } = new(
-        new Dictionary<TorizoBodyProgram, AnimationBeat<EnemyFrameId, TorizoCue>[]>(
-            [.. TorizoEncounterPrograms.Segments, .. TorizoFacingLeftPrograms.Segments, .. TorizoFacingRightPrograms.Segments,
-             .. GoldenTorizoPrograms.Segments]));
+    internal static AnimationSegments<TorizoBodySegment, EnemyFrameId, TorizoCue> Segments { get; } = new(
+        new Dictionary<TorizoBodySegment, AnimationBeat<EnemyFrameId, TorizoCue>[]>(
+            [.. TorizoEncounterAnimations.Segments, .. TorizoFacingLeftAnimations.Segments, .. TorizoFacingRightAnimations.Segments,
+             .. GoldenTorizoAnimations.Segments]));
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<TorizoBodyProgram, Animation<TorizoBodyProgram>> StartingAt { get; } = new Dictionary<TorizoBodyProgram, Animation<TorizoBodyProgram>>
+    internal static IReadOnlyDictionary<TorizoBodySegment, Animation<TorizoBodySegment>> StartingAt { get; } = new Dictionary<TorizoBodySegment, Animation<TorizoBodySegment>>
     {
         [P.SpecialCallableBlowUpBombTorizosGut] = new([new(P.SpecialCallableBlowUpBombTorizosGut, 0, 12, 1)], AnimationEnd.Holds),
         [P.CallableBlowUpBombTorizosFace] = new([new(P.CallableBlowUpBombTorizosFace, 0, 18, 1)], AnimationEnd.Holds),
@@ -118,23 +118,23 @@ internal static class TorizoAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<TorizoBodyProgram> StartingWith(TorizoBodyProgram segment) => StartingAt[segment];
+    internal static Animation<TorizoBodySegment> StartingWith(TorizoBodySegment segment) => StartingAt[segment];
 
     /// <summary>A playback of the animation that starts at <paramref name="segment"/>, before its first play.</summary>
-    internal static AnimationPlayback<TorizoBodyProgram> Start(TorizoBodyProgram segment) => new(StartingWith(segment), AnimationPlace.StartOfAnimation);
+    internal static AnimationPlayback<TorizoBodySegment> Start(TorizoBodySegment segment) => new(StartingWith(segment), AnimationPlace.StartOfAnimation);
 
     /// <summary>A cue's continuation into the animation that starts at <paramref name="segment"/>, as a goto continues there.</summary>
-    internal static AnimationContinuation<TorizoBodyProgram> ContinueWith(TorizoBodyProgram segment) => new(StartingWith(segment), AnimationPlace.StartOfAnimation);
+    internal static AnimationContinuation<TorizoBodySegment> ContinueWith(TorizoBodySegment segment) => new(StartingWith(segment), AnimationPlace.StartOfAnimation);
 
     /// <summary>A cue's continuation where <paramref name="playback"/> stood, as a return to a saved place continues there.</summary>
-    internal static AnimationContinuation<TorizoBodyProgram> ContinueAt(AnimationPlayback<TorizoBodyProgram> playback) =>
+    internal static AnimationContinuation<TorizoBodySegment> ContinueAt(AnimationPlayback<TorizoBodySegment> playback) =>
         new(Ensure.NotNull(playback.Animation), playback.Place);
 
     /// <summary>
     /// The segment <paramref name="playback"/> stands in: before its first play, the segment its animation starts at;
     /// otherwise the segment its playing phase plays, the one its next play shows a frame of, or rests in.
     /// </summary>
-    internal static TorizoBodyProgram SegmentOf(AnimationPlayback<TorizoBodyProgram> playback) =>
+    internal static TorizoBodySegment SegmentOf(AnimationPlayback<TorizoBodySegment> playback) =>
         playback.Place == AnimationPlace.StartOfAnimation
             ? StartingAt.Single(pair => ReferenceEquals(pair.Value, playback.Animation)).Key
             : playback.Animation.Phases[playback.Place.Phase].Segment;
@@ -143,7 +143,7 @@ internal static class TorizoAnimations
     /// The program a sleeping list resumes into when the AI steps its program past the sleep, as Bomb Torizo's wake
     /// and Golden Torizo's trigger do.
     /// </summary>
-    internal static TorizoBodyProgram AfterSleep(TorizoBodyProgram program) => program switch
+    internal static TorizoBodySegment AfterSleep(TorizoBodySegment program) => program switch
     {
         P.BombTorizoInitial0
             or P.FacingLeftFacelessWalkingLeftLegMovingTrailing

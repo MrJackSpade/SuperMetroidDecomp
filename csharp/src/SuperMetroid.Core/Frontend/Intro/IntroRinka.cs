@@ -15,7 +15,7 @@ internal sealed class IntroRinka
         Sprite = new IntroDiscoverySprite(
             definition.Position,
             colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
-            program: IntroRinkaDefinitions.RinkaActor.Program);
+            program: IntroRinkaDefinitions.RinkaActor.Animation);
         Sprite.InstallFrameBehavior(IntroRinkaDefinitions.RinkaActor.FrameBehavior);
     }
 

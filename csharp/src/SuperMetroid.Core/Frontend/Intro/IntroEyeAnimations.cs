@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using E = SuperMetroid.Core.Frontend.Intro.IntroEyeFrame;
-using P = SuperMetroid.Core.Frontend.Intro.IntroEyeProgram;
+using P = SuperMetroid.Core.Frontend.Intro.IntroEyeSegment;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class IntroEyeAnimations
 {
     /// <summary>Every portrait-eye program.</summary>
-    internal static AnimationSegments<IntroEyeProgram, IntroEyeFrame, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<IntroEyeProgram, AnimationBeat<IntroEyeFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<IntroEyeSegment, IntroEyeFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<IntroEyeSegment, AnimationBeat<IntroEyeFrame, NoAnimationCue>[]>
     {
         [P.Blinking] =
         [
@@ -38,7 +38,7 @@ internal static class IntroEyeAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<IntroEyeProgram, Animation<IntroEyeProgram>> StartingAt { get; } = new Dictionary<IntroEyeProgram, Animation<IntroEyeProgram>>
+    internal static IReadOnlyDictionary<IntroEyeSegment, Animation<IntroEyeSegment>> StartingAt { get; } = new Dictionary<IntroEyeSegment, Animation<IntroEyeSegment>>
     {
         [P.Blinking] = new([new(P.Blinking, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
         [P.FinalPageClosing] = new([new(P.FinalPageClosing, 0, 2, 1), new(P.FinalPageDeadpan, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
@@ -46,7 +46,7 @@ internal static class IntroEyeAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<IntroEyeProgram> StartingWith(IntroEyeProgram segment) => StartingAt[segment];
+    internal static Animation<IntroEyeSegment> StartingWith(IntroEyeSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<IntroEyeFrame, NoAnimationCue> Show(IntroEyeFrame frame, int duration) =>

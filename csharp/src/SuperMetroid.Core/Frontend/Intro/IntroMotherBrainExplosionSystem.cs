@@ -64,11 +64,11 @@ internal sealed class IntroMotherBrainExplosionSystem
         /// <summary>Starts one explosion at its authored offset and independent launch delay.</summary>
         private ExplosionActor(
             Position16<ScreenPixels> position,
-            CinematicSpriteProgram program,
+            CinematicSpriteSegment program,
             int startDelay)
         {
             sprite = new IntroDiscoverySprite(position, IntroShades.Drawn(IntroSpriteColouring.Explosions), program);
-            sprite.DelayFirstInstruction(startDelay);
+            sprite.DelayFirstStep(startDelay);
         }
 
         /// <summary>Fixed cinematic screen origin selected by the small or big placement table.</summary>
@@ -87,7 +87,7 @@ internal sealed class IntroMotherBrainExplosionSystem
                 IntroMotherBrainExplosionPlacements.BigExplosion(parameter);
             return new ExplosionActor(
                 IntroMotherBrainDefinitions.MotherBrainOrigin + placement.Offset,
-                IntroMotherBrainDefinitions.BigExplosionActor.Program,
+                IntroMotherBrainDefinitions.BigExplosionActor.Animation,
                 placement.StartDelayFrames);
         }
 
@@ -98,7 +98,7 @@ internal sealed class IntroMotherBrainExplosionSystem
                 IntroMotherBrainExplosionPlacements.SmallExplosion(parameter);
             return new ExplosionActor(
                 IntroMotherBrainDefinitions.MotherBrainOrigin + placement.Offset,
-                IntroMotherBrainDefinitions.SmallExplosionActor.Program,
+                IntroMotherBrainDefinitions.SmallExplosionActor.Animation,
                 placement.StartDelayFrames);
         }
 
@@ -112,7 +112,7 @@ internal sealed class IntroMotherBrainExplosionSystem
             // reaches zero. Starting the delete before the generic decrement makes deletion
             // occur in this same handler call.
             if (introCrossfadeTimer == 0)
-                sprite.Start(CinematicSpriteProgram.Delete);
+                sprite.Start(CinematicSpriteSegment.Delete);
             sprite.Step();
         }
     }

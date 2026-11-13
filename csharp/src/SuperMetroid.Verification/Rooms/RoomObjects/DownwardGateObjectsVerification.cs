@@ -151,7 +151,7 @@ internal static class DownwardGateObjectsVerification
             "closed gate actor begins four tiles beneath a row-two PLM origin");
         enemies.StepEnemyProjectiles(level, samus: null);
         enemies.StepEnemyProjectiles(level, samus: null);
-        AssertTrue(actor.Animation is DownwardGateProjectileAnimation { PlayingSegment: DownwardGateProjectileProgram.Closed },
+        AssertTrue(actor.Animation is DownwardGateProjectileAnimation { PlayingSegment: DownwardGateProjectileSegment.Closed },
             "closed gate actor holds its closed program's sleep before a shot can wake it");
 
         // The closed resident list first draws its collision state and then sleeps under

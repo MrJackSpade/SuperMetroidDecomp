@@ -31,13 +31,13 @@ public sealed class TorizoEnemyState
     internal TorizoColours Colours { get; } = new();
 
     /// <summary>The body animation playing and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<TorizoBodyProgram> BodyPlayback { get; set; }
+    internal AnimationPlayback<TorizoBodySegment> BodyPlayback { get; set; }
 
     /// <summary>Where the body's play returns or lands: a call's return point, or a landing's animation.</summary>
-    internal AnimationPlayback<TorizoBodyProgram> ReturnPlayback { get; set; }
+    internal AnimationPlayback<TorizoBodySegment> ReturnPlayback { get; set; }
 
     /// <summary>Where the gut explosion interrupted the body's play, resumed afterwards.</summary>
-    internal AnimationPlayback<TorizoBodyProgram> InterruptedPlayback { get; set; }
+    internal AnimationPlayback<TorizoBodySegment> InterruptedPlayback { get; set; }
 
     /// <summary>Delayed in-air transition counter.</summary>
     public int AirTransitionTimer { get; internal set; }

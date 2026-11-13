@@ -68,7 +68,7 @@ internal sealed class EndingStage
     internal EndingSprite SpawnSprite(
         Position16<ScreenPixels> position,
         EndingSpriteColouring colouring,
-        CinematicSpriteProgram program,
+        CinematicSpriteSegment program,
         EndingSpriteRole role)
     {
         if (!Enum.IsDefined(role))
@@ -97,7 +97,7 @@ internal sealed class EndingStage
         SpawnSprite(
             definition.Position,
             definition.Colouring,
-            definition.Program,
+            definition.Animation,
             role);
 
     /// <summary>

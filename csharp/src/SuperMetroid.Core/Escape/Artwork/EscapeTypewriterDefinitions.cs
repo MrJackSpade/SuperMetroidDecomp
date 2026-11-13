@@ -43,21 +43,21 @@ public static class EscapeTypewriterDefinitions
     private const int ZebesLineCount = 2;
 
     /// <summary>Each warning program's line count: Ceres uses three warning lines while Zebes uses two.</summary>
-    internal static readonly IReadOnlyDictionary<EscapeTypewriterProgramId, int> LineCounts =
-        new Dictionary<EscapeTypewriterProgramId, int>
+    internal static readonly IReadOnlyDictionary<EscapeTypewriterMessageId, int> LineCounts =
+        new Dictionary<EscapeTypewriterMessageId, int>
         {
-            [EscapeTypewriterProgramId.Ceres] = CeresLineCount,
-            [EscapeTypewriterProgramId.Zebes] = ZebesLineCount,
+            [EscapeTypewriterMessageId.Ceres] = CeresLineCount,
+            [EscapeTypewriterMessageId.Zebes] = ZebesLineCount,
         };
 
     /// <summary>The reviewed wording of each warning line, by program and line.</summary>
     internal static readonly IReadOnlyDictionary<EscapeTypewriterLineKey, string> LineTexts =
         new Dictionary<EscapeTypewriterLineKey, string>
         {
-            [new(EscapeTypewriterProgramId.Ceres, 0)] = CeresSequenceWarning,
-            [new(EscapeTypewriterProgramId.Ceres, 1)] = CeresEvacuationWarning,
-            [new(EscapeTypewriterProgramId.Ceres, 2)] = CeresColonyWarning,
-            [new(EscapeTypewriterProgramId.Zebes, 0)] = ZebesBombWarning,
-            [new(EscapeTypewriterProgramId.Zebes, 1)] = ZebesEscapeWarning,
+            [new(EscapeTypewriterMessageId.Ceres, 0)] = CeresSequenceWarning,
+            [new(EscapeTypewriterMessageId.Ceres, 1)] = CeresEvacuationWarning,
+            [new(EscapeTypewriterMessageId.Ceres, 2)] = CeresColonyWarning,
+            [new(EscapeTypewriterMessageId.Zebes, 0)] = ZebesBombWarning,
+            [new(EscapeTypewriterMessageId.Zebes, 1)] = ZebesEscapeWarning,
         };
 }

@@ -48,7 +48,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new KzanEnemyState();
         slot.SetSpeciesState(state);
 
-        state.Playback = EnemyProgramAnimation.Start(slot, KzanAnimations.StartingWith(KzanProgram.Idle));
+        state.Playback = EnemyAnimationPlayback.Start(slot, KzanAnimations.StartingWith(KzanSegment.Idle));
         state.Function = KzanEnemyFunction.WaitingToFall;
 
         // The spawn settings name the speed the fall starts at. Retail placements include four pixels per update,
@@ -231,8 +231,8 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Kzan's typed animation.</summary>
-    internal static void AdvanceKzanTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, KzanAnimations.Segments,
+    internal static void AdvanceKzanTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, KzanAnimations.Segments,
             static (KzanEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Kzan animation raised {cue}."));
 

@@ -28,7 +28,7 @@ internal static class CeresSteamDefinitionsVerification
             CeresSteamInitialization definition =
                 CeresSteamInitializations.Initialization(variant);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + index * 2)),
-                NativeEnemyAnimationOracle.EntryOf(CeresSteamNativeListAddresses.Entries, definition.Program),
+                NativeEnemyAnimationOracle.EntryOf(CeresSteamNativeListAddresses.Entries, definition.Animation),
                 $"Ceres steam {variant} instruction list");
             AssertEqual(CeresNativeWords.SteamFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(functionTable + index * 2), "native Ceres steam function"),
                 definition.Function,
@@ -41,7 +41,7 @@ internal static class CeresSteamDefinitionsVerification
             slot.Bind(EnemyDefinitionId.Steam, slot.Definition);
             enemies.CeresSteamBehavior.InitializeCeresSteam(slot);
 
-            AssertEqual(new AnimationPlayback<CeresSteamProgram>(CeresSteamAnimations.StartingWith(definition.Program), AnimationPlace.StartOfAnimation), slot.RequireSpeciesState<CeresSteamEnemyState>().Playback,
+            AssertEqual(new AnimationPlayback<CeresSteamSegment>(CeresSteamAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation), slot.RequireSpeciesState<CeresSteamEnemyState>().Playback,
                 $"production Ceres steam {variant} program");
             CeresSteamEnemyState steamState = slot.SpeciesState<CeresSteamEnemyState>()
                 ?? throw new InvalidOperationException("The initialized vent has no state.");

@@ -36,6 +36,6 @@ internal static class MotherBrainDeathExplosionDefinitions
     /// The three programs the table selects by projectile parameter zero through two:
     /// the shared misc-dust small explosion, smoke and big explosion.
     /// </summary>
-    internal static readonly MiscDustProjectileProgram[] Programs =
-        [MiscDustProjectileProgram.SmallExplosion, MiscDustProjectileProgram.Smoke, MiscDustProjectileProgram.BigExplosion];
+    internal static readonly MiscDustProjectileSegment[] Animations =
+        [MiscDustProjectileSegment.SmallExplosion, MiscDustProjectileSegment.Smoke, MiscDustProjectileSegment.BigExplosion];
 }

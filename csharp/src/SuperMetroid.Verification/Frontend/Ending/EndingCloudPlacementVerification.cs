@@ -38,7 +38,7 @@ internal static class EndingCloudPlacementVerification
             EndingActorDefinitions.EscapeBCloudBottomB];
         var actors = definitions.Select((definition, index) => new EndingSprite(
             new IntroDiscoverySprite(new(128, unchecked((ushort)nativeY[index])), EndingShades.Drawn(definition.Colouring),
-                definition.Program), roles[index])).ToArray();
+                definition.Animation), roles[index])).ToArray();
         var cloudSprites = CinematicSheetFixtures.Drawer(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects.CloudSprites);
         // The live clouds draw from their installed sheet, so no cloud character reaches the shown VRAM (#1463, #1467). The
         // native objects are drawn over the characters $8B:D4D1 decompresses from the cartridge to the OBJ name base (#1497).

@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Programs;
-using P = SuperMetroid.Core.Enemies.Cacatac.CacatacProjectileProgram;
+using P = SuperMetroid.Core.Enemies.Cacatac.CacatacProjectileSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Cacatac;
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 internal static class CacatacProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<CacatacProjectileProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<CacatacProjectileProgram, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<CacatacProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<CacatacProjectileSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.LeftFacingUp] =
         [
@@ -57,7 +57,7 @@ internal static class CacatacProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<CacatacProjectileProgram, Animation<CacatacProjectileProgram>> StartingAt { get; } = new Dictionary<CacatacProjectileProgram, Animation<CacatacProjectileProgram>>
+    internal static IReadOnlyDictionary<CacatacProjectileSegment, Animation<CacatacProjectileSegment>> StartingAt { get; } = new Dictionary<CacatacProjectileSegment, Animation<CacatacProjectileSegment>>
     {
         [P.LeftFacingUp] = new([new(P.LeftFacingUp, 0, 1, 1)], AnimationEnd.Holds),
         [P.UpLeft] = new([new(P.UpLeft, 0, 1, 1)], AnimationEnd.Holds),
@@ -72,7 +72,7 @@ internal static class CacatacProjectileAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<CacatacProjectileProgram> StartingWith(CacatacProjectileProgram segment) => StartingAt[segment];
+    internal static Animation<CacatacProjectileSegment> StartingWith(CacatacProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);

@@ -43,7 +43,7 @@ internal sealed class KraidLimbs
         _access.AttachKraidPart(arm, state);
         arm.Shading = _parts.Body.Shading;
         state.ArmState.Function = KraidAiFunction.NoOperation;
-        _access.StartKraidPartProgram(arm, KraidPartProgram.ArmRisingOrSinking);
+        _access.StartKraidPartAnimation(arm, KraidPartSegment.ArmRisingOrSinking);
         state.ArmState.NextFunction = KraidAiFunction.NoOperation;
     }
 
@@ -59,7 +59,7 @@ internal sealed class KraidLimbs
         KraidParts.Require(foot, _parts.Foot, "foot");
         _access.AttachKraidPart(foot, state);
         foot.Shading = _parts.Body.Shading;
-        _access.StartKraidPartProgram(foot, KraidPartProgram.FootInitial);
+        _access.StartKraidPartAnimation(foot, KraidPartSegment.FootInitial);
         state.FootState.Function = KraidAiFunction.NoOperation;
         state.FootState.NextFunction = 0;
     }
@@ -68,7 +68,7 @@ internal sealed class KraidLimbs
     /// The segment a part's animation rests in. Resting after the last beat of a list that runs on into the next, it
     /// already rests in the next, as the part's script position then lies inside it.
     /// </summary>
-    private KraidPartProgram KraidPartResidentProgram(RoomEnemySlot part) =>
+    private KraidPartSegment KraidPartResidentAnimation(RoomEnemySlot part) =>
         AnimationResidence.ResidentSegment(KraidAnimations.Segments, KraidAnimations.StartingAt, KraidAnimations.RunsOnInto,
             _access.Part(part).Playback);
 
@@ -81,17 +81,17 @@ internal sealed class KraidLimbs
         if (!part.AnimationClock.Expire())
             return;
         KraidPartState partState = _access.Part(part);
-        AnimationPlayback<KraidPartProgram> playback = partState.Playback;
-        EnemyProgramAnimation.Play(part, KraidAnimations.Segments, ref playback, KraidPartFrameDefinitions.ShownFrames.Of,
+        AnimationPlayback<KraidPartSegment> playback = partState.Playback;
+        EnemyAnimationPlayback.Play(part, KraidAnimations.Segments, ref playback, KraidPartFrameDefinitions.ShownFrames.Of,
             cue => ApplyKraidPartCue(cue) is { } started
-                ? new AnimationContinuation<KraidPartProgram>(KraidAnimations.StartingWith(started), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<KraidPartSegment>(KraidAnimations.StartingWith(started), AnimationPlace.StartOfAnimation)
                 : null);
         partState.Playback = playback;
     }
 
     /// <summary>Carries out one cue of a Kraid part program.</summary>
     /// <returns>The slow arm program when the speed cue switches the arm; otherwise null.</returns>
-    private KraidPartProgram? ApplyKraidPartCue(KraidPartCue cue)
+    private KraidPartSegment? ApplyKraidPartCue(KraidPartCue cue)
     {
         RoomEnemySlot body = _parts.Body;
         switch (cue)
@@ -113,7 +113,7 @@ internal sealed class KraidLimbs
                 body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole + 3);
                 return null;
             case KraidPartCue.SlowArmBelowHalfHealth:
-                return SelectKraidArmSpeedProgram();
+                return SelectKraidArmSpeedAnimation();
             default:
                 throw new InvalidOperationException($"Undefined {nameof(KraidPartCue)} {cue}.");
         }
@@ -136,7 +136,7 @@ internal sealed class KraidLimbs
         if (body.Health >= state.HealthEighthThreshold(6))
             return false;
 
-        state.BodyState.Function = KraidAiFunction.ProcessHeadInstructionAndTimer;
+        state.BodyState.Function = KraidAiFunction.AdvanceHeadAnimationAndTimer;
         state.BodyState.FunctionTimer = 180;
         state.BodyState.NextFunction = KraidAiFunction.GrowReleaseCamera;
 
@@ -146,10 +146,10 @@ internal sealed class KraidLimbs
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 340);
 
         RoomEnemySlot foot = _parts.Foot;
-        _access.StartKraidPartProgram(foot, KraidPartProgram.FootInitial);
+        _access.StartKraidPartAnimation(foot, KraidPartSegment.FootInitial);
         state.FootState.Function = KraidAiFunction.NoOperation;
         RoomEnemySlot arm = _parts.Arm;
-        _access.StartKraidPartProgram(arm, KraidPartProgram.ArmNormal);
+        _access.StartKraidPartAnimation(arm, KraidPartSegment.ArmNormal);
         foreach (RoomEnemySlot lint in _parts.Lints)
             lint.Presence = lint.Presence.With(EnemyPresence.Hidden);
         arm.Contact = arm.Contact.With(EnemyContact.IgnoresSamus);
@@ -160,13 +160,13 @@ internal sealed class KraidLimbs
     /// Below half health the arm switches to its slow swing, unless its stored program is
     /// already the slow one or a later program.
     /// </summary>
-    private KraidPartProgram? SelectKraidArmSpeedProgram()
+    private KraidPartSegment? SelectKraidArmSpeedAnimation()
     {
         RoomEnemySlot body = _parts.Body;
         RoomEnemySlot arm = _parts.Arm;
         int halfHealth = _access.RequireKraidState(body).HealthEighthThreshold(3);
-        return body.Health < halfHealth && KraidFunctionGroups.BeforeArmSlow.Contains(KraidPartResidentProgram(arm))
-            ? KraidPartProgram.ArmSlow
+        return body.Health < halfHealth && KraidFunctionGroups.BeforeArmSlow.Contains(KraidPartResidentAnimation(arm))
+            ? KraidPartSegment.ArmSlow
             : null;
     }
 
@@ -260,7 +260,7 @@ internal sealed class KraidLimbs
             case KraidAiFunction.LintFire:
             case KraidAiFunction.FingernailWaitForLint:
             case KraidAiFunction.AlignPartToKraid:
-            case KraidAiFunction.ProcessHeadInstructionAndTimer:
+            case KraidAiFunction.AdvanceHeadAnimationAndTimer:
             case KraidAiFunction.MainAttackWithMouthOpen:
             case KraidAiFunction.FingernailInitialize:
             case KraidAiFunction.FingernailFire:
@@ -298,10 +298,10 @@ internal sealed class KraidLimbs
         if (TryBeginKraidGrowth(body, _access.RequireKraidState(body)))
             return;
         RoomEnemySlot arm = _parts.Arm;
-        if (KraidFunctionGroups.BeforeArmNormalPause.Contains(KraidPartResidentProgram(arm)))
+        if (KraidFunctionGroups.BeforeArmNormalPause.Contains(KraidPartResidentAnimation(arm)))
             return;
-        _access.StartKraidPartProgram(arm, KraidPartProgram.ArmDyingOrPreparingToLunge);
-        _access.StartKraidPartProgram(foot, KraidPartProgram.FootLungeForward);
+        _access.StartKraidPartAnimation(arm, KraidPartSegment.ArmDyingOrPreparingToLunge);
+        _access.StartKraidPartAnimation(foot, KraidPartSegment.FootLungeForward);
         _access.Part(foot).Function = KraidAiFunction.FootFirstPhaseLunge;
         _access.Part(foot).FunctionTimer = 0;
     }
@@ -316,18 +316,18 @@ internal sealed class KraidLimbs
             return;
         if (CoordinateAxis.Difference(body.Position.X.Whole, 92) < 0)
             body.Position = body.Position.WithWholeX(92);
-        if (KraidPartResidentProgram(foot) != KraidPartProgram.FootLungeForwardFinished)
+        if (KraidPartResidentAnimation(foot) != KraidPartSegment.FootLungeForwardFinished)
             return;
         if (body.Position.X.Whole == 92)
         {
             part.NextFunction = KraidAiFunction.FootFirstPhaseRetreat;
             _access.Part(foot).Function = KraidAiFunction.DecrementFunctionTimerAndStartWalk;
             _access.Part(foot).FunctionTimer = 1;
-            _access.SetKraidPartProgram(foot, KraidPartProgram.FootNeutral);
+            _access.SetKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
         }
         else
         {
-            _access.SetKraidPartProgram(foot, KraidPartProgram.FootLungeForward);
+            _access.SetKraidPartAnimation(foot, KraidPartSegment.FootLungeForward);
         }
         foot.AnimationClock.StepOnNextUpdate();
     }
@@ -341,7 +341,7 @@ internal sealed class KraidLimbs
         if (--footState.FunctionTimer == 0)
         {
             _access.Part(foot).Function = part.NextFunction;
-            _access.StartKraidPartProgram(foot, KraidPartProgram.FootWalkingBackward);
+            _access.StartKraidPartAnimation(foot, KraidPartSegment.FootWalkingBackward);
         }
     }
 
@@ -355,20 +355,20 @@ internal sealed class KraidLimbs
             return;
         if (CoordinateAxis.Difference(body.Position.X.Whole, 176) >= 0)
             body.Position = body.Position.WithWholeX(176);
-        if (KraidFunctionGroups.BeforeFootWalkingBackwardLoop.Contains(KraidPartResidentProgram(foot)))
+        if (KraidFunctionGroups.BeforeFootWalkingBackwardLoop.Contains(KraidPartResidentAnimation(foot)))
             return;
         if (body.Position.X.Whole == 176)
         {
             RoomEnemySlot arm = _parts.Arm;
-            _access.StartKraidPartProgram(arm, KraidPartProgram.ArmNormal);
-            _access.StartKraidPartProgram(foot, KraidPartProgram.FootNeutral);
+            _access.StartKraidPartAnimation(arm, KraidPartSegment.ArmNormal);
+            _access.StartKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
             _access.Part(foot).Function = KraidAiFunction.FootFirstPhaseThinking;
             _access.Part(foot).FunctionTimer = 300;
             part.NextFunction = KraidAiFunction.FootPrepareFirstPhaseLunge;
         }
         else
         {
-            _access.StartKraidPartProgram(foot, KraidPartProgram.FootWalkingBackward);
+            _access.StartKraidPartAnimation(foot, KraidPartSegment.FootWalkingBackward);
         }
     }
 
@@ -385,12 +385,12 @@ internal sealed class KraidLimbs
                 return;
             body.Position = body.Position.WithWholeX(target.X);
         }
-        if (KraidFunctionGroups.BeforeFootWalkingBackwardLoop.Contains(KraidPartResidentProgram(foot)))
+        if (KraidFunctionGroups.BeforeFootWalkingBackwardLoop.Contains(KraidPartResidentAnimation(foot)))
             return;
         _access.Part(foot).Function = KraidAiFunction.HandleFunctionTimer;
         _access.Part(foot).FunctionTimer = 180;
         part.NextFunction = KraidAiFunction.FootSecondPhaseInitialize;
-        _access.StartKraidPartProgram(foot, KraidPartProgram.FootNeutral);
+        _access.StartKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
     }
 
     /// <summary>Chooses the grown foot's next walking target and direction after its think timer ends.</summary>
@@ -420,7 +420,7 @@ internal sealed class KraidLimbs
         _access.RequireKraidState(foot).WalkTarget = new Position16<RoomPixels>(targetX, 0);
         part.ThinkTimer = thinkTimer;
         _access.Part(foot).Function = rightward ? KraidAiFunction.FootSecondPhaseWalkingRight : KraidAiFunction.FootSecondPhaseWalkingLeft;
-        _access.StartKraidPartProgram(foot, rightward ? KraidPartProgram.FootWalkingBackward : KraidPartProgram.FootWalkingForward);
+        _access.StartKraidPartAnimation(foot, rightward ? KraidPartSegment.FootWalkingBackward : KraidPartSegment.FootWalkingForward);
     }
 
     /// <summary>Moves the body and foot toward the selected rightward target.</summary>
@@ -433,10 +433,10 @@ internal sealed class KraidLimbs
                 return;
             body.Position = body.Position.WithWholeX(target.X);
         }
-        if (!KraidFunctionGroups.BeforeFootWalkingBackwardLoop.Contains(KraidPartResidentProgram(foot)))
+        if (!KraidFunctionGroups.BeforeFootWalkingBackwardLoop.Contains(KraidPartResidentAnimation(foot)))
         {
             _access.Part(foot).Function = KraidAiFunction.FootSecondPhaseThinking;
-            _access.StartKraidPartProgram(foot, KraidPartProgram.FootNeutral);
+            _access.StartKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
         }
     }
 
@@ -446,17 +446,17 @@ internal sealed class KraidLimbs
         Position16<RoomPixels> target = _access.RequireKraidState(body).WalkTarget;
         if ((target - body.Position.Whole).X < 0)
         {
-            if (KraidPartResidentProgram(foot) == KraidPartProgram.FootWalkingForwardFinished)
+            if (KraidPartResidentAnimation(foot) == KraidPartSegment.FootWalkingForwardFinished)
             {
-                _access.StartKraidPartProgram(foot, KraidPartProgram.FootWalkingForward);
+                _access.StartKraidPartAnimation(foot, KraidPartSegment.FootWalkingForward);
             }
             return;
         }
         body.Position = body.Position.WithWholeX(target.X);
-        if (KraidPartResidentProgram(foot) == KraidPartProgram.FootWalkingForwardFinished)
+        if (KraidPartResidentAnimation(foot) == KraidPartSegment.FootWalkingForwardFinished)
         {
             _access.Part(foot).Function = KraidAiFunction.FootSecondPhaseThinking;
-            _access.StartKraidPartProgram(foot, KraidPartProgram.FootNeutral);
+            _access.StartKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
         }
     }
 }

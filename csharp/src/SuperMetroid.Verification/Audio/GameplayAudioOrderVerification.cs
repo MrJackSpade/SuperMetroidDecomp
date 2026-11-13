@@ -165,7 +165,7 @@ internal static class GameplayAudioOrderVerification
         body.Position = body.Position.WithWhole(new(128, 128));
         state.Function = KiHunterEnemyFunction.NoOp;
         // The spit cue, four poses into the right spit animation, which queues the acid spit (library two).
-        state.Playback = new(KiHunterAnimations.StartingWith(KiHunterProgram.SpitRight), new AnimationPlace(0, 4));
+        state.Playback = new(KiHunterAnimations.StartingWith(KiHunterSegment.SpitRight), new AnimationPlace(0, 4));
         body.AnimationClock.StepOnNextUpdate();
         return body;
     }

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Animals.EscapeDachoraCueKind;
-using P = SuperMetroid.Core.Enemies.Animals.EscapeDachoraProgram;
+using P = SuperMetroid.Core.Enemies.Animals.EscapeDachoraSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Animals;
@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal static class EscapeDachoraAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<EscapeDachoraProgram, EnemyFrameId, EscapeDachoraCue> Segments { get; } = new(
-        new Dictionary<EscapeDachoraProgram, AnimationBeat<EnemyFrameId, EscapeDachoraCue>[]>
+    internal static AnimationSegments<EscapeDachoraSegment, EnemyFrameId, EscapeDachoraCue> Segments { get; } = new(
+        new Dictionary<EscapeDachoraSegment, AnimationBeat<EnemyFrameId, EscapeDachoraCue>[]>
     {
         [P.RunningAroundLowTide] =
         [
@@ -160,7 +160,7 @@ internal static class EscapeDachoraAnimations
         [new(P.RunningForEscapeAccelerating, 0, 24, 1), new(P.RunningForEscapeMaximumSpeed, 0, 12, 1)], AnimationEnd.LoopsFrom(1));
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<EscapeDachoraProgram, Animation<EscapeDachoraProgram>> StartingAt { get; } = new Dictionary<EscapeDachoraProgram, Animation<EscapeDachoraProgram>>
+    internal static IReadOnlyDictionary<EscapeDachoraSegment, Animation<EscapeDachoraSegment>> StartingAt { get; } = new Dictionary<EscapeDachoraSegment, Animation<EscapeDachoraSegment>>
     {
         [P.RunningAroundLowTide] = RunningAroundLowTide,
         [P.RunningAroundHighTide] = RunningAroundHighTide,
@@ -173,8 +173,8 @@ internal static class EscapeDachoraAnimations
     /// Where each branch target continues the play. A branch on high acid continues the high-tide laps at the end of a
     /// lap in the same direction, so the lap count already on the timer counts on; a branch for the escape starts the run.
     /// </summary>
-    internal static IReadOnlyDictionary<EscapeDachoraProgram, AnimationContinuation<EscapeDachoraProgram>> BranchTargets { get; } =
-        new Dictionary<EscapeDachoraProgram, AnimationContinuation<EscapeDachoraProgram>>
+    internal static IReadOnlyDictionary<EscapeDachoraSegment, AnimationContinuation<EscapeDachoraSegment>> BranchTargets { get; } =
+        new Dictionary<EscapeDachoraSegment, AnimationContinuation<EscapeDachoraSegment>>
         {
             [P.RunningAroundHighTideLeftLoop] = new(RunningAroundHighTide, new AnimationPlace(0, 13)),
             [P.RunningAroundHighTideRightLoop] = new(RunningAroundHighTide, new AnimationPlace(1, 13)),
@@ -183,7 +183,7 @@ internal static class EscapeDachoraAnimations
         };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<EscapeDachoraProgram> StartingWith(EscapeDachoraProgram segment) => StartingAt[segment];
+    internal static Animation<EscapeDachoraSegment> StartingWith(EscapeDachoraSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, EscapeDachoraCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, EscapeDachoraCue>.Frame(frame, duration);

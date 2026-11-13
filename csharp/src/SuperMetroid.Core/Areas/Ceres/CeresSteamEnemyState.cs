@@ -12,5 +12,5 @@ internal sealed class CeresSteamEnemyState
     public WrappingCountdown ActivationDelay { get; internal set; }
 
     /// <summary>The vent's animation and where it stands in it (#1600), set when the vent initializes.</summary>
-    internal AnimationPlayback<CeresSteamProgram> Playback { get; set; }
+    internal AnimationPlayback<CeresSteamSegment> Playback { get; set; }
 }

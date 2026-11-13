@@ -99,7 +99,7 @@ internal sealed class EndingRewardGesture
         var actor = new IntroDiscoverySprite(
             initialization.Position,
             EndingShades.Drawn(initialization.Colouring),
-            record.Program);
+            record.Animation);
         actor.InstallFrameBehavior(record.FrameBehavior);
         actors.Add(actor);
     }

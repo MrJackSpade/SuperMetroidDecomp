@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </summary>
 /// <param name="Grounded">The pose taken while not moving vertically.</param>
 /// <param name="Airborne">The pose taken while moving vertically.</param>
-internal sealed record SamusAnimationVerticalSpeedTransition(SamusPoseId Grounded, SamusPoseId Airborne) : SamusAnimationInstruction;
+internal sealed record SamusAnimationVerticalSpeedTransition(SamusPoseId Grounded, SamusPoseId Airborne) : SamusAnimationCue;

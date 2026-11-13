@@ -28,7 +28,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
     {
         for (int direction = 0; direction < 8; direction++)
         {
-            YappingMawProgram entry = YappingMawBites.AttackForDirection(YappingMawAnimationDefinitions.Aims.At(direction));
+            YappingMawSegment entry = YappingMawBites.AttackForDirection(YappingMawAnimationDefinitions.Aims.At(direction));
             (RoomEnemySystem enemies, RoomEnemySlot slot, _) =
                 NewYappingMawInstructionSystem(entry);
             object?[] arguments =
@@ -42,14 +42,14 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
 
         Cooldown[] cooldowns =
         [
-            new Cooldown(YappingMawProgram.CooldownUpRight, YappingMawProgram.CooldownUpLoop, 6, 8, -8, "up-right"),
-            new Cooldown(YappingMawProgram.CooldownUp, YappingMawProgram.CooldownUpLoop, 5, 0, -16, "up"),
-            new Cooldown(YappingMawProgram.CooldownUpLeft, YappingMawProgram.CooldownUpLeftLoop, 6, -8, -8, "up-left"),
-            new Cooldown(YappingMawProgram.CooldownDownRight, YappingMawProgram.CooldownDownLoop, 6, 8, 8, "down-right"),
-            new Cooldown(YappingMawProgram.CooldownDown, YappingMawProgram.CooldownDownLoop, 5, 0, 16, "down"),
-            new Cooldown(YappingMawProgram.CooldownDownLeft, YappingMawProgram.CooldownDownLeftLoop, 6, -8, 8, "down-left"),
+            new Cooldown(YappingMawSegment.CooldownUpRight, YappingMawSegment.CooldownUpLoop, 6, 8, -8, "up-right"),
+            new Cooldown(YappingMawSegment.CooldownUp, YappingMawSegment.CooldownUpLoop, 5, 0, -16, "up"),
+            new Cooldown(YappingMawSegment.CooldownUpLeft, YappingMawSegment.CooldownUpLeftLoop, 6, -8, -8, "up-left"),
+            new Cooldown(YappingMawSegment.CooldownDownRight, YappingMawSegment.CooldownDownLoop, 6, 8, 8, "down-right"),
+            new Cooldown(YappingMawSegment.CooldownDown, YappingMawSegment.CooldownDownLoop, 5, 0, 16, "down"),
+            new Cooldown(YappingMawSegment.CooldownDownLeft, YappingMawSegment.CooldownDownLeftLoop, 6, -8, 8, "down-left"),
         ];
-        foreach ((YappingMawProgram entry, YappingMawProgram loop, int calls, short x, short y, string name) in cooldowns)
+        foreach ((YappingMawSegment entry, YappingMawSegment loop, int calls, short x, short y, string name) in cooldowns)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, YappingMawEnemyState state) =
                 NewYappingMawInstructionSystem(entry);
@@ -82,10 +82,10 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
     private static void VerifyYappingMawInitializerSelections(
 )
     {
-        foreach ((ushort parameter2, YappingMawProgram expected, string name) in new[]
+        foreach ((ushort parameter2, YappingMawSegment expected, string name) in new[]
         {
-            new VerifyYappingMawInitializerSelectionsCase(0, YappingMawProgram.AttackingDown, "alternate/down"),
-            new VerifyYappingMawInitializerSelectionsCase(1, YappingMawProgram.AttackingUp, "ordinary/up"),
+            new VerifyYappingMawInitializerSelectionsCase(0, YappingMawSegment.AttackingDown, "alternate/down"),
+            new VerifyYappingMawInitializerSelectionsCase(1, YappingMawSegment.AttackingUp, "ordinary/up"),
         })
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -99,7 +99,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             YappingMawEnemyState state = enemies.YappingMawStates[0] ??
                 throw new InvalidOperationException(
                     $"Yapping Maw {name} initializer did not publish typed state.");
-            AssertEqual(new AnimationPlayback<YappingMawProgram>(YappingMawAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation), state.Playback,
+            AssertEqual(new AnimationPlayback<YappingMawSegment>(YappingMawAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Yapping Maw {name} initializer program");
             AssertEqual(4, state.BodyProjectiles.Count(projectile => projectile is not null),
                 $"Yapping Maw {name} initializer body links");
@@ -175,7 +175,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
 
     /// <summary>Creates a Yapping Maw slot running a selected program with typed state.</summary>
     private static NewInitializedYappingMawResult NewYappingMawInstructionSystem(
-            YappingMawProgram entry)
+            YappingMawSegment entry)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];

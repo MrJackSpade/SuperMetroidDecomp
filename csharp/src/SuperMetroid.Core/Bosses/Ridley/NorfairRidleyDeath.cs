@@ -211,7 +211,7 @@ internal sealed class NorfairRidleyDeath
                 EnemyDefinitionId.RidleyExplosion,
                 Position: Position16<RoomPixels>.Zero,
                 Contact: EnemyContact.IgnoresSamus,
-                Processing: EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen,
+                Processing: EnemyProcessing.Animates | EnemyProcessing.OffScreen,
                 Presence: EnemyPresence.None,
                 CollidesByFrameHitboxes: false,
                 SpawnSettings: new RidleyExplosionSpawnSettings(part));

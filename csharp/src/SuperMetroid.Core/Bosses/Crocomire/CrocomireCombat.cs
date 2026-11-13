@@ -262,17 +262,17 @@ internal sealed class CrocomireCombat
         body.AiStates |= EnemyAiStates.Hurt;
         state.FightFunction = CrocomireFightFunction.PowerBombCharge;
 
-        CrocomireEncounterAccess.StartCrocomireBodyProgram(state, SelectCrocomirePowerBombProgram(state));
+        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, SelectCrocomirePowerBombAnimation(state));
     }
 
     /// <summary>
     /// Selects the fully-open, part-open or closed reaction from the mouth of the frame shown, as the power-bomb reaction does
     /// by scanning the frame's spritemap. Before any frame is shown the body has no spritemap and reacts closed.
     /// </summary>
-    private static CrocomireBodyProgram SelectCrocomirePowerBombProgram(CrocomireEnemyState state) =>
+    private static CrocomireBodySegment SelectCrocomirePowerBombAnimation(CrocomireEnemyState state) =>
         state.BodyFrame is { } frame
             ? CrocomirePowerBombReactions.ForFrame(frame)
-            : CrocomireBodyProgram.PowerBombReactionMouthNotOpen;
+            : CrocomireBodySegment.PowerBombReactionMouthNotOpen;
 
     /// <summary>Ports the one-frame vector setup.</summary>
     internal void StartCrocomireProjectileFlight(

@@ -14,28 +14,28 @@ internal static class KraidRockAnimations
     /// lists show it for the longest frame a list gives and then rest on it); the spat rock's burst takes the burst's frame
     /// behaviour, shows five four-update frames, then deletes itself.
     /// </summary>
-    internal static AnimationSegments<KraidRockProgram, KraidRockFrame, KraidRockCue> Segments { get; } = new(
-        new Dictionary<KraidRockProgram, Beat[]>
+    internal static AnimationSegments<KraidRockSegment, KraidRockFrame, KraidRockCue> Segments { get; } = new(
+        new Dictionary<KraidRockSegment, Beat[]>
         {
-            [KraidRockProgram.SharedPose] = [new Beat.HeldFrame(new(KraidRockProgram.SharedPose, 0))],
-            [KraidRockProgram.RisingRightPose] = [new Beat.HeldFrame(new(KraidRockProgram.RisingRightPose, 0))],
-            [KraidRockProgram.SpitRockShot] =
+            [KraidRockSegment.SharedPose] = [new Beat.HeldFrame(new(KraidRockSegment.SharedPose, 0))],
+            [KraidRockSegment.RisingRightPose] = [new Beat.HeldFrame(new(KraidRockSegment.RisingRightPose, 0))],
+            [KraidRockSegment.SpitRockShot] =
             [
                 new Beat.Event(KraidRockCue.DrawFromSharedSheetFromNextPass),
                 .. Enumerable.Range(0, ShotPhaseCount)
-                    .Select(phase => new Beat.Frame(new(KraidRockProgram.SpitRockShot, phase), 4)),
+                    .Select(phase => new Beat.Frame(new(KraidRockSegment.SpitRockShot, phase), 4)),
                 new Beat.Event(KraidRockCue.Delete),
             ],
         });
 
     /// <summary>The animation that starts at each segment: each plays its segment once and holds its last frame.</summary>
-    internal static IReadOnlyDictionary<KraidRockProgram, Animation<KraidRockProgram>> StartingAt { get; } = new Dictionary<KraidRockProgram, Animation<KraidRockProgram>>
+    internal static IReadOnlyDictionary<KraidRockSegment, Animation<KraidRockSegment>> StartingAt { get; } = new Dictionary<KraidRockSegment, Animation<KraidRockSegment>>
     {
-        [KraidRockProgram.SharedPose] = new([new(KraidRockProgram.SharedPose, 0, 1, 1)], AnimationEnd.Holds),
-        [KraidRockProgram.RisingRightPose] = new([new(KraidRockProgram.RisingRightPose, 0, 1, 1)], AnimationEnd.Holds),
-        [KraidRockProgram.SpitRockShot] = new([new(KraidRockProgram.SpitRockShot, 0, ShotPhaseCount + 2, 1)], AnimationEnd.Holds),
+        [KraidRockSegment.SharedPose] = new([new(KraidRockSegment.SharedPose, 0, 1, 1)], AnimationEnd.Holds),
+        [KraidRockSegment.RisingRightPose] = new([new(KraidRockSegment.RisingRightPose, 0, 1, 1)], AnimationEnd.Holds),
+        [KraidRockSegment.SpitRockShot] = new([new(KraidRockSegment.SpitRockShot, 0, ShotPhaseCount + 2, 1)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<KraidRockProgram> StartingWith(KraidRockProgram segment) => StartingAt[segment];
+    internal static Animation<KraidRockSegment> StartingWith(KraidRockSegment segment) => StartingAt[segment];
 }

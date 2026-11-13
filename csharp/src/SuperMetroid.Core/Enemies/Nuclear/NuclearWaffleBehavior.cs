@@ -37,7 +37,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new NuclearWaffleEnemyState();
         slot.SetSpeciesState(state);
 
-        state.Playback = EnemyProgramAnimation.Start(slot, NuclearWaffleAnimations.StartingWith(NuclearWaffleProgram.BodyLoop));
+        state.Playback = EnemyAnimationPlayback.Start(slot, NuclearWaffleAnimations.StartingWith(NuclearWaffleSegment.BodyLoop));
 
         NuclearWaffleSpawnSettings settings = slot.SpawnSettings<NuclearWaffleSpawnSettings>();
         state.OrbitRadius = settings.OrbitRadius;
@@ -321,14 +321,14 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SweepAngle += state.AngularSpeed;
 
     /// <summary>Advances the Nuclear Waffle's typed animation.</summary>
-    internal static void AdvanceNuclearWaffleTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal static void AdvanceNuclearWaffleTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
         if (!slot.AnimationClock.Expire())
             return;
         NuclearWaffleEnemyState state = slot.SpeciesState<NuclearWaffleEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Nuclear Waffle state.");
-        AnimationPlayback<NuclearWaffleProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, NuclearWaffleAnimations.Segments, ref playback,
+        AnimationPlayback<NuclearWaffleSegment> playback = state.Playback;
+        EnemyAnimationPlayback.Play(slot, NuclearWaffleAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"Nuclear Waffle's cue-free animation raised {cue}."));
         state.Playback = playback;
     }

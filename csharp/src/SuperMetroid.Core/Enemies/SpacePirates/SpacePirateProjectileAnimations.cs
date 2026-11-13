@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Projectiles;
-using P = SuperMetroid.Core.Enemies.SpacePirates.SpacePirateProjectileProgram;
+using P = SuperMetroid.Core.Enemies.SpacePirates.SpacePirateProjectileSegment;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal static class SpacePirateProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<SpacePirateProjectileProgram, EnemyProjectileFrameId, SpacePirateProjectileCue> Segments { get; } = new(
-        new Dictionary<SpacePirateProjectileProgram, AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>[]>
+    internal static AnimationSegments<SpacePirateProjectileSegment, EnemyProjectileFrameId, SpacePirateProjectileCue> Segments { get; } = new(
+        new Dictionary<SpacePirateProjectileSegment, AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>[]>
     {
         [P.LaserLeft] =
         [
@@ -84,7 +84,7 @@ internal static class SpacePirateProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<SpacePirateProjectileProgram, Animation<SpacePirateProjectileProgram>> StartingAt { get; } = new Dictionary<SpacePirateProjectileProgram, Animation<SpacePirateProjectileProgram>>
+    internal static IReadOnlyDictionary<SpacePirateProjectileSegment, Animation<SpacePirateProjectileSegment>> StartingAt { get; } = new Dictionary<SpacePirateProjectileSegment, Animation<SpacePirateProjectileSegment>>
     {
         [P.LaserLeft] = new([new(P.LaserLeft, 0, 12, 1), new(P.LaserLeftLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
         [P.LaserLeftLoop] = new([new(P.LaserLeftLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
@@ -97,7 +97,7 @@ internal static class SpacePirateProjectileAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<SpacePirateProjectileProgram> StartingWith(SpacePirateProjectileProgram segment) => StartingAt[segment];
+    internal static Animation<SpacePirateProjectileSegment> StartingWith(SpacePirateProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue> Show(EnemyProjectileFrameId frame, int duration) =>

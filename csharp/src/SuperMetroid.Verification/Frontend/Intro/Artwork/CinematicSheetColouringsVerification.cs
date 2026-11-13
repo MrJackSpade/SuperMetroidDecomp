@@ -139,11 +139,11 @@ internal static class CinematicSheetColouringsVerification
     /// <summary>The Ceres flight's actors: the front stars and every rear-view actor, each in its definition's colouring.</summary>
     private static IEnumerable<CeresDrawnProgram> FlightActors()
     {
-        yield return new(CeresFlightActorDefinitions.FrontStars.Program, CeresFlightActorDefinitions.FrontStars.Colouring);
+        yield return new(CeresFlightActorDefinitions.FrontStars.Animation, CeresFlightActorDefinitions.FrontStars.Colouring);
         for (int index = 0; index < CeresFlightActorDefinitions.RearViewActorCount; index++)
         {
             CeresFlightActorDefinition actor = CeresFlightActors.RearViewActor(index);
-            yield return new(actor.Program, actor.Colouring);
+            yield return new(actor.Animation, actor.Colouring);
         }
     }
 
@@ -156,12 +156,12 @@ internal static class CinematicSheetColouringsVerification
         for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
         {
             CeresDestructionActorDefinition actor = CeresDestructionActors.InitialActor(index);
-            yield return new(actor.Program, actor.Colouring);
+            yield return new(actor.Animation, actor.Colouring);
         }
-        yield return new(CeresExplosionDefinitions.InitialActor.Program, CeresSpriteColouring.Explosions);
-        yield return new(CeresExplosionDefinitions.RepeatingActor.Program, CeresSpriteColouring.Explosions);
-        yield return new(CeresExplosionDefinitions.FinalWaveActor.Program, CeresSpriteColouring.Explosions);
-        yield return new(CeresExplosionDefinitions.StationBlastActor.Program, CeresSpriteColouring.Explosions);
+        yield return new(CeresExplosionDefinitions.InitialActor.Animation, CeresSpriteColouring.Explosions);
+        yield return new(CeresExplosionDefinitions.RepeatingActor.Animation, CeresSpriteColouring.Explosions);
+        yield return new(CeresExplosionDefinitions.FinalWaveActor.Animation, CeresSpriteColouring.Explosions);
+        yield return new(CeresExplosionDefinitions.StationBlastActor.Animation, CeresSpriteColouring.Explosions);
     }
 
     /// <summary>The Zebes reveal's six actors, each in its definition's colouring.</summary>
@@ -170,7 +170,7 @@ internal static class CinematicSheetColouringsVerification
         for (int index = 0; index < CeresDestructionActorDefinitions.ZebesActorCount; index++)
         {
             CeresDestructionActorDefinition actor = CeresDestructionActors.ZebesActor(index);
-            yield return new(actor.Program, actor.Colouring);
+            yield return new(actor.Animation, actor.Colouring);
         }
     }
 

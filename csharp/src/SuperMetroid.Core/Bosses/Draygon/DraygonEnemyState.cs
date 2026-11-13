@@ -29,20 +29,20 @@ public sealed class DraygonEnemyState
     /// <summary>His body, which owns encounter movement, health, and the body-function dispatcher, and runs first.</summary>
     public RoomEnemySlot Body { get; }
     /// <summary>Each part's playing animation and where it stands, keyed by the part's record.</summary>
-    private readonly Dictionary<RoomEnemySlot, AnimationPlayback<DraygonProgram>> _playbacks = new(ReferenceEqualityComparer.Instance);
+    private readonly Dictionary<RoomEnemySlot, AnimationPlayback<DraygonSegment>> _playbacks = new(ReferenceEqualityComparer.Instance);
 
     /// <summary><paramref name="part"/>'s playing animation and where it stands.</summary>
-    internal AnimationPlayback<DraygonProgram> Playback(RoomEnemySlot part) =>
-        _playbacks.TryGetValue(part, out AnimationPlayback<DraygonProgram> playback)
+    internal AnimationPlayback<DraygonSegment> Playback(RoomEnemySlot part) =>
+        _playbacks.TryGetValue(part, out AnimationPlayback<DraygonSegment> playback)
             ? playback
             : throw new InvalidOperationException("A Draygon part has no animation.");
 
     /// <summary>Sets <paramref name="part"/>'s playing animation and where it stands.</summary>
-    internal void SetPlayback(RoomEnemySlot part, AnimationPlayback<DraygonProgram> playback) => _playbacks[Ensure.NotNull(part)] = playback;
+    internal void SetPlayback(RoomEnemySlot part, AnimationPlayback<DraygonSegment> playback) => _playbacks[Ensure.NotNull(part)] = playback;
 
     /// <summary>Starts the animation beginning at <paramref name="segment"/> on <paramref name="part"/>, before its first play.</summary>
-    internal void StartAnimation(RoomEnemySlot part, DraygonProgram segment) =>
-        SetPlayback(part, new AnimationPlayback<DraygonProgram>(DraygonAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation));
+    internal void StartAnimation(RoomEnemySlot part, DraygonSegment segment) =>
+        SetPlayback(part, new AnimationPlayback<DraygonSegment>(DraygonAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation));
 
     /// <summary>His eye, attached by its initializer; tracks Samus using coordinates copied from the body.</summary>
     public RoomEnemySlot Eye { get => field ?? throw new InvalidOperationException("Draygon's eye part is not attached; part initialization attaches it."); internal set; }

@@ -14,9 +14,9 @@ internal sealed class ScrollTriggerObject : RoomObjectBehaviour
     /// <param name="writes">A constructed room's writes, in order; null when the trigger applies <paramref name="program"/>.</param>
     /// <param name="program">The room's authored program; null when the trigger applies <paramref name="writes"/>.</param>
     /// <exception cref="InvalidOperationException">Neither is given.</exception>
-    internal ScrollTriggerObject(IReadOnlyList<RoomScrollWrite>? writes, RoomScrollProgram? program)
+    internal ScrollTriggerObject(IReadOnlyList<RoomScrollWrite>? writes, RoomScrollChange? program)
     {
-        Program = program;
+        Change = program;
         Writes = program.HasValue ? null : writes?.ToArray() ?? throw new InvalidOperationException(
             "A scroll trigger has neither an authored program nor constructed writes.");
     }
@@ -25,9 +25,9 @@ internal sealed class ScrollTriggerObject : RoomObjectBehaviour
     internal bool Triggered { get; private set; }
 
     /// <summary>The authored program the trigger applies, independent of later room-argument edits; null for constructed writes.</summary>
-    internal RoomScrollProgram? Program { get; }
+    internal RoomScrollChange? Change { get; }
 
-    /// <summary>A constructed room's validated writes, in order; null when the trigger applies <see cref="Program"/>.</summary>
+    /// <summary>A constructed room's validated writes, in order; null when the trigger applies <see cref="Change"/>.</summary>
     internal IReadOnlyList<RoomScrollWrite>? Writes { get; }
 
     /// <summary>Samus touches the trigger: its writes run on the next room-object update.</summary>
@@ -41,8 +41,8 @@ internal sealed class ScrollTriggerObject : RoomObjectBehaviour
             return;
         RoomScrollGrid scrolls = context.Frame.Scrolls ?? throw new InvalidOperationException(
             "A touched scroll trigger requires the active scroll grid.");
-        if (Program is { } program)
-            RoomObjectScrollPrograms.Apply(program, scrolls.SetCell);
+        if (Change is { } program)
+            RoomObjectScrollChanges.Apply(program, scrolls.SetCell);
         else
             foreach (RoomScrollWrite write in Writes ?? throw new InvalidOperationException("A scroll trigger lost its writes."))
                 scrolls.SetCell(write.Index, write.State);

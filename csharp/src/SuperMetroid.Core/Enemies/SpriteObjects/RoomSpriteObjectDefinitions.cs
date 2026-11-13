@@ -4,29 +4,29 @@ namespace SuperMetroid.Core.Enemies.SpriteObjects;
 internal static class RoomSpriteObjectDefinitions
 {
     /// <summary>The program each kind an owner spawns starts.</summary>
-    internal static IReadOnlyDictionary<RoomSpriteObjectKind, RoomSpriteObjectProgram> Programs { get; } =
-        new Dictionary<RoomSpriteObjectKind, RoomSpriteObjectProgram>
+    internal static IReadOnlyDictionary<RoomSpriteObjectKind, RoomSpriteObjectSegment> Animations { get; } =
+        new Dictionary<RoomSpriteObjectKind, RoomSpriteObjectSegment>
     {
-        [RoomSpriteObjectKind.SporeSpawnDyingExplosion] = RoomSpriteObjectProgram.SmallExplosion,
-        [RoomSpriteObjectKind.EnemyProjectileDud] = RoomSpriteObjectProgram.DudShot,
-        [RoomSpriteObjectKind.BotwoonSmallExplosion] = RoomSpriteObjectProgram.SmallDudShot,
-        [RoomSpriteObjectKind.NinjaPirateLandingDust] = RoomSpriteObjectProgram.SpacePirateLandingDustCloud,
-        [RoomSpriteObjectKind.Smoke] = RoomSpriteObjectProgram.Smoke,
-        [RoomSpriteObjectKind.ShortBigDustCloud] = RoomSpriteObjectProgram.ShortBigDustCloud,
-        [RoomSpriteObjectKind.DustCloud] = RoomSpriteObjectProgram.BigDustCloud,
-        [RoomSpriteObjectKind.DraygonBreathBubble] = RoomSpriteObjectProgram.ShortDraygonBreathBubbles,
-        [RoomSpriteObjectKind.BotwoonLargeExplosion] = RoomSpriteObjectProgram.BigExplosion,
-        [RoomSpriteObjectKind.NuclearWaffleBody] = RoomSpriteObjectProgram.PuromiBody,
-        [RoomSpriteObjectKind.NuclearWaffleTurnClockwise] = RoomSpriteObjectProgram.PuromiRightExplosion,
-        [RoomSpriteObjectKind.NuclearWaffleTurnCounterClockwise] = RoomSpriteObjectProgram.PuromiLeftExplosion,
-        [RoomSpriteObjectKind.NuclearWaffleTurnOverlay] = RoomSpriteObjectProgram.PuromiSplash,
-        [RoomSpriteObjectKind.FallingSparkTrail] = RoomSpriteObjectProgram.FallingSparkTrail,
-        [RoomSpriteObjectKind.MetroidOuterBodyA] = RoomSpriteObjectProgram.MetroidElectricity,
-        [RoomSpriteObjectKind.MetroidOuterBodyB] = RoomSpriteObjectProgram.MetroidShell,
-        [RoomSpriteObjectKind.YappingMawRootVariantZero] = RoomSpriteObjectProgram.YappingMawBaseFacingDown,
-        [RoomSpriteObjectKind.YappingMawRootVariantOne] = RoomSpriteObjectProgram.YappingMawBaseFacingUp,
-        [RoomSpriteObjectKind.DraygonIntroEvir] = RoomSpriteObjectProgram.EvirFacingLeft,
-        [RoomSpriteObjectKind.DraygonDeathEvirFacingRight] = RoomSpriteObjectProgram.EvirFacingRight,
-        [RoomSpriteObjectKind.DraygonSpiralFoam] = RoomSpriteObjectProgram.DraygonFoamingAtTheMouth,
+        [RoomSpriteObjectKind.SporeSpawnDyingExplosion] = RoomSpriteObjectSegment.SmallExplosion,
+        [RoomSpriteObjectKind.EnemyProjectileDud] = RoomSpriteObjectSegment.DudShot,
+        [RoomSpriteObjectKind.BotwoonSmallExplosion] = RoomSpriteObjectSegment.SmallDudShot,
+        [RoomSpriteObjectKind.NinjaPirateLandingDust] = RoomSpriteObjectSegment.SpacePirateLandingDustCloud,
+        [RoomSpriteObjectKind.Smoke] = RoomSpriteObjectSegment.Smoke,
+        [RoomSpriteObjectKind.ShortBigDustCloud] = RoomSpriteObjectSegment.ShortBigDustCloud,
+        [RoomSpriteObjectKind.DustCloud] = RoomSpriteObjectSegment.BigDustCloud,
+        [RoomSpriteObjectKind.DraygonBreathBubble] = RoomSpriteObjectSegment.ShortDraygonBreathBubbles,
+        [RoomSpriteObjectKind.BotwoonLargeExplosion] = RoomSpriteObjectSegment.BigExplosion,
+        [RoomSpriteObjectKind.NuclearWaffleBody] = RoomSpriteObjectSegment.PuromiBody,
+        [RoomSpriteObjectKind.NuclearWaffleTurnClockwise] = RoomSpriteObjectSegment.PuromiRightExplosion,
+        [RoomSpriteObjectKind.NuclearWaffleTurnCounterClockwise] = RoomSpriteObjectSegment.PuromiLeftExplosion,
+        [RoomSpriteObjectKind.NuclearWaffleTurnOverlay] = RoomSpriteObjectSegment.PuromiSplash,
+        [RoomSpriteObjectKind.FallingSparkTrail] = RoomSpriteObjectSegment.FallingSparkTrail,
+        [RoomSpriteObjectKind.MetroidOuterBodyA] = RoomSpriteObjectSegment.MetroidElectricity,
+        [RoomSpriteObjectKind.MetroidOuterBodyB] = RoomSpriteObjectSegment.MetroidShell,
+        [RoomSpriteObjectKind.YappingMawRootVariantZero] = RoomSpriteObjectSegment.YappingMawBaseFacingDown,
+        [RoomSpriteObjectKind.YappingMawRootVariantOne] = RoomSpriteObjectSegment.YappingMawBaseFacingUp,
+        [RoomSpriteObjectKind.DraygonIntroEvir] = RoomSpriteObjectSegment.EvirFacingLeft,
+        [RoomSpriteObjectKind.DraygonDeathEvirFacingRight] = RoomSpriteObjectSegment.EvirFacingRight,
+        [RoomSpriteObjectKind.DraygonSpiralFoam] = RoomSpriteObjectSegment.DraygonFoamingAtTheMouth,
     };
 }

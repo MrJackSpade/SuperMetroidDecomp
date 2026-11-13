@@ -15,5 +15,5 @@ internal sealed class EscapeDachoraEntity(EscapeAnimalsBehavior species, RoomEne
     public EnemyMainAiHandler? FindMain() => EnemyNoOpAi.Main;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceEscapeAnimalTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceEscapeAnimalTypedAnimation;
 }

@@ -14,17 +14,17 @@ internal static class LowerNorfairRioNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<LowerNorfairRioProgram>[] Entries =
+    internal static readonly NativeProgramEntry<LowerNorfairRioSegment>[] Entries =
     [
-        new NativeProgramEntry<LowerNorfairRioProgram>(LowerNorfairRioProgram.Idle, 0xc61a),
-        new NativeProgramEntry<LowerNorfairRioProgram>(LowerNorfairRioProgram.IdleLoop, 0xc61c),
-        new NativeProgramEntry<LowerNorfairRioProgram>(LowerNorfairRioProgram.PrepareToSwoop, 0xc630),
-        new NativeProgramEntry<LowerNorfairRioProgram>(LowerNorfairRioProgram.Descending, 0xc65a),
-        new NativeProgramEntry<LowerNorfairRioProgram>(LowerNorfairRioProgram.AscendingPart1, 0xc662),
-        new NativeProgramEntry<LowerNorfairRioProgram>(LowerNorfairRioProgram.AscendingPart2, 0xc674),
-        new NativeProgramEntry<LowerNorfairRioProgram>(LowerNorfairRioProgram.AscendingPart2Loop, 0xc676),
-        new NativeProgramEntry<LowerNorfairRioProgram>(LowerNorfairRioProgram.Cooldown, 0xc686),
-        new NativeProgramEntry<LowerNorfairRioProgram>(LowerNorfairRioProgram.Flames, 0xc6b0),
+        new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.Idle, 0xc61a),
+        new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.IdleLoop, 0xc61c),
+        new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.PrepareToSwoop, 0xc630),
+        new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.Descending, 0xc65a),
+        new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.AscendingPart1, 0xc662),
+        new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.AscendingPart2, 0xc674),
+        new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.AscendingPart2Loop, 0xc676),
+        new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.Cooldown, 0xc686),
+        new NativeProgramEntry<LowerNorfairRioSegment>(LowerNorfairRioSegment.Flames, 0xc6b0),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

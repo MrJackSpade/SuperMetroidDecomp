@@ -22,27 +22,27 @@ internal static class MorphBallEyeBehaviorVerification
     /// </summary>
     internal static void VerifyMorphBallEyeBehavior()
     {
-        foreach ((ushort parameter1, MorphBallEyeProgram closed) in new[]
+        foreach ((ushort parameter1, MorphBallEyeSegment closed) in new[]
                  {
-                     new VerifyMorphBallEyeBehaviorCase(0, MorphBallEyeProgram.FacingRightClosed),
-                     new VerifyMorphBallEyeBehaviorCase(1, MorphBallEyeProgram.FacingLeftClosed),
+                     new VerifyMorphBallEyeBehaviorCase(0, MorphBallEyeSegment.FacingRightClosed),
+                     new VerifyMorphBallEyeBehaviorCase(1, MorphBallEyeSegment.FacingLeftClosed),
                  })
         {
             (_, _, MorphBallEyeEnemyState body) = Create(parameter1, parameter2: 0);
-            AssertEqual(new AnimationPlayback<MorphBallEyeProgram>(MorphBallEyeAnimations.StartingWith(closed), AnimationPlace.StartOfAnimation), body.Playback, $"eye body parameter {parameter1} starts closed");
+            AssertEqual(new AnimationPlayback<MorphBallEyeSegment>(MorphBallEyeAnimations.StartingWith(closed), AnimationPlace.StartOfAnimation), body.Playback, $"eye body parameter {parameter1} starts closed");
         }
-        MorphBallEyeProgram[] mounts = [MorphBallEyeProgram.MountFacingLeft, MorphBallEyeProgram.MountFacingRight, MorphBallEyeProgram.MountFacingUp, MorphBallEyeProgram.MountFacingDown];
+        MorphBallEyeSegment[] mounts = [MorphBallEyeSegment.MountFacingLeft, MorphBallEyeSegment.MountFacingRight, MorphBallEyeSegment.MountFacingUp, MorphBallEyeSegment.MountFacingDown];
         for (ushort direction = 0; direction < mounts.Length; direction++)
         {
             (_, _, MorphBallEyeEnemyState mount) = Create(parameter1: 0, parameter2: (ushort)(MorphBallEyeNativeValues.MountParameter | direction));
-            AssertEqual(new AnimationPlayback<MorphBallEyeProgram>(MorphBallEyeAnimations.StartingWith(mounts[direction]), AnimationPlace.StartOfAnimation), mount.Playback, $"eye mount direction {direction}");
+            AssertEqual(new AnimationPlayback<MorphBallEyeSegment>(MorphBallEyeAnimations.StartingWith(mounts[direction]), AnimationPlace.StartOfAnimation), mount.Playback, $"eye mount direction {direction}");
         }
 
-        foreach (MorphBallEyeProgram closing in new[] { MorphBallEyeProgram.FacingRightDeactivating, MorphBallEyeProgram.FacingLeftDeactivating })
+        foreach (MorphBallEyeSegment closing in new[] { MorphBallEyeSegment.FacingRightDeactivating, MorphBallEyeSegment.FacingLeftDeactivating })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, MorphBallEyeEnemyState state) = Create(parameter1: 0, parameter2: 0);
             state.Playback = new(MorphBallEyeAnimations.StartingWith(closing), AnimationPlace.StartOfAnimation);
-            MorphBallEyeProgram closed = closing == MorphBallEyeProgram.FacingRightDeactivating ? MorphBallEyeProgram.FacingRightClosed : MorphBallEyeProgram.FacingLeftClosed;
+            MorphBallEyeSegment closed = closing == MorphBallEyeSegment.FacingRightDeactivating ? MorphBallEyeSegment.FacingRightClosed : MorphBallEyeSegment.FacingLeftClosed;
             ushort shut = MorphBallEyeAnimationsConstants.Spritemaps(closed).Single();
             int[] holds = [8, 48, 5, 48];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. MorphBallEyeAnimationsConstants.Spritemaps(closing), shut], holds),
@@ -50,16 +50,16 @@ internal static class MorphBallEyeBehaviorVerification
         }
 
         (RoomEnemySystem tracker, RoomEnemySlot eye, MorphBallEyeEnemyState tracking) = Create(parameter1: 0, parameter2: 0);
-        tracking.Playback = new(MorphBallEyeAnimations.StartingWith(MorphBallEyeProgram.Active), AnimationPlace.StartOfAnimation);
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(MorphBallEyeAnimations.Segments, MorphBallEyeProgram.Active, MorphBallEyeFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(eye, EnemyInstructionRunner.LoopUpdates(MorphBallEyeAnimations.Segments, MorphBallEyeProgram.Active)),
+        tracking.Playback = new(MorphBallEyeAnimations.StartingWith(MorphBallEyeSegment.Active), AnimationPlace.StartOfAnimation);
+        AssertEqual(EnemyInstructionRunner.ExpectedLoop(MorphBallEyeAnimations.Segments, MorphBallEyeSegment.Active, MorphBallEyeFrameToolingDefinitions.Spritemap),
+            EnemyInstructionRunner.ShownFrames(eye, EnemyInstructionRunner.LoopUpdates(MorphBallEyeAnimations.Segments, MorphBallEyeSegment.Active)),
             "eye tracking loop");
-        ushort[] active = [.. MorphBallEyeAnimationsConstants.Spritemaps(MorphBallEyeProgram.Active)];
+        ushort[] active = [.. MorphBallEyeAnimationsConstants.Spritemaps(MorphBallEyeSegment.Active)];
         for (int pose = 0; pose < active.Length; pose++)
         {
-            tracking.Playback = new(MorphBallEyeAnimations.StartingWith(MorphBallEyeProgram.Active),
-                AnimationSegments<MorphBallEyeProgram, EnemyFrameId, NoAnimationCue>.PlaceOf(
-                    MorphBallEyeAnimations.StartingWith(MorphBallEyeProgram.Active), MorphBallEyeProgram.Active, pose));
+            tracking.Playback = new(MorphBallEyeAnimations.StartingWith(MorphBallEyeSegment.Active),
+                AnimationSegments<MorphBallEyeSegment, EnemyFrameId, NoAnimationCue>.PlaceOf(
+                    MorphBallEyeAnimations.StartingWith(MorphBallEyeSegment.Active), MorphBallEyeSegment.Active, pose));
             eye.AnimationClock.StepOnNextUpdate();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([active[pose]], [1]), EnemyInstructionRunner.ShownFrames(eye, 1),
                 $"eye tracking pose {pose}");

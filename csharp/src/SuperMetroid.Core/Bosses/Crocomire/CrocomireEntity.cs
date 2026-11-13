@@ -34,7 +34,7 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => CrocomirePartDefinitions.Parts[Slot.DefinitionId] switch
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => CrocomirePartDefinitions.Parts[Slot.DefinitionId] switch
     {
         CrocomirePart.Crocomire => species.AdvanceCrocomireTypedAnimation,
         CrocomirePart.Tongue => (enemy, _) => species.Fight.AdvanceCrocomireTongueAnimation(enemy),

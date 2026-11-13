@@ -15,7 +15,7 @@ public sealed class YappingMawEnemyState
     internal YappingMawEnemyState(RoomEnemySlot owner) => Owner = owner;
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<YappingMawProgram> Playback { get; set; }
+    internal AnimationPlayback<YappingMawSegment> Playback { get; set; }
 
     /// <summary>Physical enemy slot representing the moving mouth, distinct from the four body-projectile slots and the stationary root sprite object.</summary>
     public RoomEnemySlot Owner { get; }

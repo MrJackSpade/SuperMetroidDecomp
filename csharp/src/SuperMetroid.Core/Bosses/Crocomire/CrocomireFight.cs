@@ -70,7 +70,7 @@ internal sealed class CrocomireFight
             // mask and these radii/coordinates are literal writes.
             slot.Contact = slot.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
             state.DeathPhase = CrocomireDeathPhase.DefeatedRoomAdvance;
-            CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.Dead);
+            CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.Dead);
             slot.Position = slot.Position.WithWhole(new(576, 144));
             slot.Radius = new(40, 28);
             _room.Services.RoomScroll.Write(0, RoomScrollState.Blue);
@@ -88,7 +88,7 @@ internal sealed class CrocomireFight
         state.FightFunction = CrocomireFightFunction.Sleeping;
         // On the living branch only.
         _zebetiteBehavior.CameraDistance = CameraDistanceMode.BossTracking;
-        CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.Initial);
+        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.Initial);
         slot.CollidesByFrameHitboxes = true;
         _room.Services.RoomScroll.Write(0, RoomScrollState.RedBoundary);
         _room.Services.RoomScroll.Write(1, RoomScrollState.RedBoundary);
@@ -102,7 +102,7 @@ internal sealed class CrocomireFight
     {
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss))
         {
-            slot.Processing = slot.Processing.Without(EnemyProcessing.AnimationScript);
+            slot.Processing = slot.Processing.Without(EnemyProcessing.Animates);
             slot.Presence = slot.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
             return;
         }
@@ -110,7 +110,7 @@ internal sealed class CrocomireFight
         CrocomireEnemyState state = _access.Crocomire ??
             throw new InvalidOperationException("Crocomire's tongue initialized before its body.");
         state.Tongue = slot;
-        CrocomireBodyLayer.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Fight, 1);
+        CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Fight, 1);
         slot.CollidesByFrameHitboxes = true;
         var tongueState = new CrocomireTongueState { BodyXOffset = CrocomireBehavior.CrocomireTongueBodyXOffset };
         slot.SetSpeciesState(tongueState);
@@ -150,14 +150,14 @@ internal sealed class CrocomireFight
         AnimationPlace place = state.TonguePlayback.Place;
         // The tongue's animations count no repeats, so nothing reads or writes this counter.
         WrappingCountdown repeats = WrappingCountdown.Start(0);
-        AnimationShown<CrocomireTongueProgram, CrocomireTongueFrame> outcome = CrocomireAnimations.TongueSegments.PlayToNextFrame(
+        AnimationShown<CrocomireTongueSegment, CrocomireTongueFrame> outcome = CrocomireAnimations.TongueSegments.PlayToNextFrame(
             state.TonguePlayback.Animation, ref place, ref repeats,
             cue => throw new InvalidOperationException($"A Crocomire tongue animation raised event {cue}."));
         state.TonguePlayback = state.TonguePlayback with { Place = place };
         // A hold is the script's sleep: the timer wraps from zero and the last frame stays.
-        if (outcome is AnimationShown<CrocomireTongueProgram, CrocomireTongueFrame>.Held)
+        if (outcome is AnimationShown<CrocomireTongueSegment, CrocomireTongueFrame>.Held)
             return;
-        if (outcome is not AnimationShown<CrocomireTongueProgram, CrocomireTongueFrame>.Frame shown)
+        if (outcome is not AnimationShown<CrocomireTongueSegment, CrocomireTongueFrame>.Frame shown)
             throw new InvalidOperationException($"Crocomire's tongue animation ended an update with {outcome}.");
         tongue.Frame = CrocomireTongueFrameDefinitions.ShownFrames.Of(shown.Shown);
         tongue.AnimationClock.Show(shown.Duration);
@@ -174,32 +174,32 @@ internal sealed class CrocomireFight
         if (!body.AnimationClock.Expire())
             return;
 
-        Animation<CrocomireBodyProgram> animation = state.BodyPlayback.Animation;
+        Animation<CrocomireBodySegment> animation = state.BodyPlayback.Animation;
         AnimationPlace place = state.BodyPlayback.Place;
         WrappingCountdown counter = body.AnimationClock.Repeats;
         // Each cue's reaction reads where the play stands just past the cue, which the play has written to these
         // locals by then: the fight AI compares the segment the body then rests in.
-        AnimationShown<CrocomireBodyProgram, CrocomireBodyFrame> outcome = CrocomireBodyAnimations.Segments.PlayToNextFrame(
+        AnimationShown<CrocomireBodySegment, CrocomireBodyFrame> outcome = CrocomireBodyAnimations.Segments.PlayToNextFrame(
             ref animation, ref place, ref counter,
             cue => ApplyCrocomireBodyCue(state, samus, level, cameraX, cue,
-                    CrocomireEnemyState.ResidentSegment(new AnimationPlayback<CrocomireBodyProgram>(animation, place))) is { } started
-                ? new AnimationContinuation<CrocomireBodyProgram>(CrocomireBodyAnimations.StartingWith(started), AnimationPlace.StartOfAnimation)
+                    CrocomireEnemyState.ResidentSegment(new AnimationPlayback<CrocomireBodySegment>(animation, place))) is { } started
+                ? new AnimationContinuation<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(started), AnimationPlace.StartOfAnimation)
                 : null);
-        state.BodyPlayback = new AnimationPlayback<CrocomireBodyProgram>(animation, place);
+        state.BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(animation, place);
         body.AnimationClock.Repeats = counter;
         // A hold is the script's sleep: the timer wraps from zero and the last frame stays. A held frame (#1627) shows its
         // frame for good, its timer left to wrap from zero as a hold's is. The body animations have no pauses or ends.
         switch (outcome)
         {
-            case AnimationShown<CrocomireBodyProgram, CrocomireBodyFrame>.Frame shown:
+            case AnimationShown<CrocomireBodySegment, CrocomireBodyFrame>.Frame shown:
                 ShowCrocomireBodyFrame(state, body, shown.Shown);
                 body.AnimationClock.Show(shown.Duration);
                 return;
-            case AnimationShown<CrocomireBodyProgram, CrocomireBodyFrame>.HeldFrame held:
+            case AnimationShown<CrocomireBodySegment, CrocomireBodyFrame>.HeldFrame held:
                 ShowCrocomireBodyFrame(state, body, held.Shown);
                 body.AnimationClock.ShowForGood();
                 return;
-            case AnimationShown<CrocomireBodyProgram, CrocomireBodyFrame>.Held:
+            case AnimationShown<CrocomireBodySegment, CrocomireBodyFrame>.Held:
                 return;
             default:
                 throw new InvalidOperationException($"Crocomire's body animation ended an update with {outcome}.");
@@ -224,26 +224,26 @@ internal sealed class CrocomireFight
     /// <param name="cue">The cue to perform.</param>
     /// <param name="continuation">The segment the body's animation rests in just past the cue, which the fight AI compares.</param>
     /// <returns>The segment whose animation starts, or null to continue after the cue.</returns>
-    private CrocomireBodyProgram? ApplyCrocomireBodyCue(
+    private CrocomireBodySegment? ApplyCrocomireBodyCue(
         CrocomireEnemyState state,
         SamusState? samus,
         RoomLevelData? level,
         int cameraX,
         CrocomireBodyCue cue,
-        CrocomireBodyProgram continuation)
+        CrocomireBodySegment continuation)
     {
         RoomEnemySlot body = state.Body;
         switch (cue.Kind)
         {
             case CrocomireBodyCueKind.FightAi:
-                return RunCrocomireFightInstruction(state, samus, continuation);
+                return RunCrocomireFightCue(state, samus, continuation);
 
             case CrocomireBodyCueKind.MaybeStartProjectileAttack:
                 if (RollsProjectileAttack(_access.ReadCrocomireRandom()))
                 {
                     state.FightFunction = CrocomireFightFunction.ProjectileAttack;
                     state.ShotsSpat = 0;
-                    return CrocomireBodyProgram.ProjectileAttack;
+                    return CrocomireBodySegment.ProjectileAttack;
                 }
                 return null;
 
@@ -277,7 +277,7 @@ internal sealed class CrocomireFight
                 if (MoveCrocomire(body, level, -4))
                 {
                     state.FightFunction = CrocomireFightFunction.BackingOffSpikeWall;
-                    return CrocomireBodyProgram.BackOffFromSpikeWall;
+                    return CrocomireBodySegment.BackOffFromSpikeWall;
                 }
                 int random = _access.ReadCrocomireRandom();
                 int baseOffset = BossRandomRolls.InHalfFrom(random, threshold: 2048) ? -32 : 32;
@@ -321,20 +321,20 @@ internal sealed class CrocomireFight
         CoordinateAxis.Difference(body.Position.X.Whole - body.Radius.X - 260, cameraX) < 0;
 
     /// <summary>Runs Crocomire's fight AI, including the shipped but normally unused states.</summary>
-    private CrocomireBodyProgram? RunCrocomireFightInstruction(
+    private CrocomireBodySegment? RunCrocomireFightCue(
         CrocomireEnemyState state,
         SamusState? samus,
-        CrocomireBodyProgram continuation)
+        CrocomireBodySegment continuation)
     {
         switch (state.FightFunction)
         {
             case CrocomireFightFunction.ResetAnimation:
                 state.Body.AnimationClock.StepOnNextUpdate();
-                return CrocomireBodyProgram.Initial;
+                return CrocomireBodySegment.Initial;
 
             case CrocomireFightFunction.StepForward:
                 state.FightFunction = CrocomireFightFunction.Sleeping;
-                return CrocomireBodyProgram.StepForward;
+                return CrocomireBodySegment.StepForward;
 
             case CrocomireFightFunction.Sleeping:
                 if (samus is not null && CoordinateAxis.Distance(
@@ -342,7 +342,7 @@ internal sealed class CrocomireFight
                 {
                     state.FightFlags |= CrocomireFightFlags.Engaged;
                     state.FightFunction = CrocomireFightFunction.WaitingForFirstDamage;
-                    return CrocomireBodyProgram.WaitForFirstSecondDamage;
+                    return CrocomireBodySegment.WaitForFirstSecondDamage;
                 }
                 return null;
 
@@ -353,17 +353,17 @@ internal sealed class CrocomireFight
                     if (state.StepCounter != 0)
                     {
                         state.FightFunction = CrocomireFightFunction.SteppingBack;
-                        return CrocomireBodyProgram.StepBack;
+                        return CrocomireBodySegment.StepBack;
                     }
                 }
                 if (CoordinateAxis.Difference(
                         state.Body.Position.X.Whole, CrocomireBehavior.CrocomireSpikeWallThreshold) < 0)
                 {
                     state.FightFunction = CrocomireFightFunction.NearSpikeWallCharge;
-                    return CrocomireBodyProgram.NearSpikeWallCharge;
+                    return CrocomireBodySegment.NearSpikeWallCharge;
                 }
-                return !CrocomireBodyProgramGroups.BeforeSteppingBack.Contains(continuation)
-                    ? CrocomireBodyProgram.StepForward
+                return !CrocomireBodyAnimationGroups.BeforeSteppingBack.Contains(continuation)
+                    ? CrocomireBodySegment.StepForward
                     : null;
 
             case CrocomireFightFunction.ProjectileAttack:
@@ -371,7 +371,7 @@ internal sealed class CrocomireFight
                 {
                     state.FightFlags &= ~CrocomireFightFlags.DamageReactionPending;
                     state.FightFunction = CrocomireFightFunction.SteppingBack;
-                    return CrocomireBodyProgram.StepBack;
+                    return CrocomireBodySegment.StepBack;
                 }
                 if (state.ShotsSpat < CrocomireProjectileDefinitions.VolleyShotCount)
                 {
@@ -381,14 +381,14 @@ internal sealed class CrocomireFight
                     return null;
                 }
                 state.FightFunction = CrocomireFightFunction.SteppingForward;
-                return CrocomireBodyProgram.StepForwardAfterDelay;
+                return CrocomireBodySegment.StepForwardAfterDelay;
 
             case CrocomireFightFunction.NearSpikeWallCharge:
                 if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) != CrocomireFightFlags.None)
                 {
                     state.FightFlags &= ~CrocomireFightFlags.DamageReactionPending;
                     state.FightFunction = CrocomireFightFunction.SteppingBack;
-                    return CrocomireBodyProgram.StepBack;
+                    return CrocomireBodySegment.StepBack;
                 }
                 return null;
 
@@ -396,22 +396,22 @@ internal sealed class CrocomireFight
                 if (state.StepCounter != 0)
                     state.StepCounter--;
                 if (state.StepCounter != 0)
-                    return CrocomireBodyProgram.SteppingBack;
+                    return CrocomireBodySegment.SteppingBack;
                 state.FightFunction = CrocomireFightFunction.SteppingForward;
-                return CrocomireBodyProgram.StepForward;
+                return CrocomireBodySegment.StepForward;
 
             case CrocomireFightFunction.BackingOffSpikeWall:
                 if (CoordinateAxis.Difference(
                         state.Body.Position.X.Whole, CrocomireBehavior.CrocomireSpikeWallThreshold) >= 0)
                 {
                     state.FightFunction = CrocomireFightFunction.SteppingForward;
-                    return CrocomireBodyProgram.StepForward;
+                    return CrocomireBodySegment.StepForward;
                 }
                 return null;
 
             case CrocomireFightFunction.RoarAndStepForwardUnused:
                 state.FightFunction = CrocomireFightFunction.SteppingForward;
-                return CrocomireBodyProgram.Roar;
+                return CrocomireBodySegment.Roar;
 
             case CrocomireFightFunction.WaitingForFirstDamage:
                 return RunCrocomireWaitingForDamage(
@@ -435,7 +435,7 @@ internal sealed class CrocomireFight
                 {
                     state.StepCounter = 0;
                     state.FightFunction = CrocomireFightFunction.SteppingForward;
-                    return CrocomireBodyProgram.StepForward;
+                    return CrocomireBodySegment.StepForward;
                 }
                 state.StepCounter = remaining;
                 return null;
@@ -454,14 +454,14 @@ internal sealed class CrocomireFight
                     return null;
                 }
                 state.FightFunction = CrocomireFightFunction.NearSpikeWallCharge;
-                return CrocomireBodyProgram.RoarCloseMouth;
+                return CrocomireBodySegment.RoarCloseMouth;
 
             case CrocomireFightFunction.ResetAnimationUnused:
                 state.Body.AnimationClock.StepOnNextUpdate();
                 state.FightFlags |= CrocomireFightFlags.UnusedAttackSequenceStarted;
                 state.StepCounter = 32;
                 state.FightFunction = CrocomireFightFunction.ChooseAttackUnused;
-                return CrocomireBodyProgram.Initial;
+                return CrocomireBodySegment.Initial;
 
             case CrocomireFightFunction.ChooseAttackUnused:
                 if ((state.FightFlags & CrocomireFightFlags.UnusedPreferClawAttack) != CrocomireFightFlags.None)
@@ -469,10 +469,10 @@ internal sealed class CrocomireFight
                     state.Body.AnimationClock.StepOnNextUpdate();
                     state.StepCounter = 16;
                     state.FightFunction = CrocomireFightFunction.MoveUntilSamusUnused;
-                    return CrocomireBodyProgram.Initial;
+                    return CrocomireBodySegment.Initial;
                 }
                 state.FightFunction = CrocomireFightFunction.StepForwardUnused;
-                return CrocomireBodyProgram.UnusedChargeForwardOneStep;
+                return CrocomireBodySegment.UnusedChargeForwardOneStep;
 
             case CrocomireFightFunction.StepForwardUnused:
                 state.Body.AnimationClock.StepOnNextUpdate();
@@ -480,44 +480,44 @@ internal sealed class CrocomireFight
                 {
                     state.FightFlags |= CrocomireFightFlags.UnusedForwardStepsDone;
                     state.FightFunction = CrocomireFightFunction.MoveClawsUnused;
-                    return CrocomireBodyProgram.StepForward;
+                    return CrocomireBodySegment.StepForward;
                 }
-                return CrocomireBodyProgram.Initial;
+                return CrocomireBodySegment.Initial;
 
             case CrocomireFightFunction.MoveUntilSamusUnused:
                 if (CoordinateAxis.Difference(state.Body.Position.X.Whole, 672) < 0)
                 {
                     state.FightFunction = CrocomireFightFunction.MoveClawsUnused;
                     state.StepCounter = 3;
-                    return CrocomireBodyProgram.StepForward;
+                    return CrocomireBodySegment.StepForward;
                 }
                 if ((state.FightFlags & CrocomireFightFlags.ClawTouchedSamus) == CrocomireFightFlags.None)
                 {
                     state.FightFunction = CrocomireFightFunction.StepForwardVariantUnused;
                     state.FightFlags &= ~CrocomireFightFlags.UnusedClawsMoving;
-                    return CrocomireBodyProgram.MovingClaws;
+                    return CrocomireBodySegment.MovingClaws;
                 }
                 state.StepCounter = 5;
                 state.SavedFightFunction = state.FightFunction;
                 state.FightFunction = CrocomireFightFunction.UnwrittenTableEntry;
-                return CrocomireBodyProgram.MovingClaws;
+                return CrocomireBodySegment.MovingClaws;
 
             case CrocomireFightFunction.MoveClawsUnused:
                 if (state.StepCounter == 0 || --state.StepCounter == 0)
                 {
                     state.FightFunction = CrocomireFightFunction.MovingClawsUnused;
                     state.FightFlags &= ~CrocomireFightFlags.UnusedClawsMoving;
-                    return CrocomireBodyProgram.StepForward;
+                    return CrocomireBodySegment.StepForward;
                 }
                 state.FightFunction = CrocomireFightFunction.MoveClawsUnused;
                 state.FightFlags |= CrocomireFightFlags.UnusedClawsMoving;
-                return CrocomireBodyProgram.MovingClaws;
+                return CrocomireBodySegment.MovingClaws;
 
             case CrocomireFightFunction.StepForwardVariantUnused:
                 if ((state.FightFlags & CrocomireFightFlags.UnusedForwardStepsDone) == CrocomireFightFlags.None)
                     state.FightFlags &= ~(CrocomireFightFlags.UnusedPreferClawAttack | CrocomireFightFlags.UnusedAttackSequenceStarted);
                 state.FightFunction = CrocomireFightFunction.MovingClawsUnused;
-                return CrocomireBodyProgram.StepForward;
+                return CrocomireBodySegment.StepForward;
 
             case CrocomireFightFunction.MovingClawsUnused:
                 if (state.StepCounter == 0)
@@ -525,13 +525,13 @@ internal sealed class CrocomireFight
                     state.FightFlags &= ~CrocomireFightFlags.ClawTouchedSamus;
                     state.Body.AnimationClock.StepOnNextUpdate();
                     state.FightFunction = state.SavedFightFunction;
-                    return CrocomireBodyProgram.MovingClaws;
+                    return CrocomireBodySegment.MovingClaws;
                 }
                 if ((state.FightFlags & CrocomireFightFlags.ClawTouchedSamus) != CrocomireFightFlags.None)
                 {
                     state.StepCounter--;
                     _access.RequestCrocomireSound(CrocomireSoundDefinitions.ClawStrike);
-                    return CrocomireBodyProgram.MovingClaws;
+                    return CrocomireBodySegment.MovingClaws;
                 }
                 state.FightFlags &= ~CrocomireFightFlags.ClawTouchedSamus;
                 state.FightFunction = CrocomireFightFunction.SteppingBack;
@@ -545,19 +545,19 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>Holds the damage-reaction instruction until its timer permits the next step.</summary>
-    private static CrocomireBodyProgram? RunCrocomireWaitingForDamage(
+    private static CrocomireBodySegment? RunCrocomireWaitingForDamage(
         CrocomireEnemyState state,
-        CrocomireBodyProgram continuation,
+        CrocomireBodySegment continuation,
         CrocomireFightFunction damagedDestination)
     {
         if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) != CrocomireFightFlags.None)
         {
             state.FightFlags &= ~CrocomireFightFlags.DamageReactionPending;
             state.FightFunction = damagedDestination;
-            return CrocomireBodyProgram.StepBack;
+            return CrocomireBodySegment.StepBack;
         }
-        return !CrocomireBodyProgramGroups.BeforeRoarCloseMouthLoop.Contains(continuation)
-            ? CrocomireBodyProgram.Roar
+        return !CrocomireBodyAnimationGroups.BeforeRoarCloseMouthLoop.Contains(continuation)
+            ? CrocomireBodySegment.Roar
             : null;
     }
 

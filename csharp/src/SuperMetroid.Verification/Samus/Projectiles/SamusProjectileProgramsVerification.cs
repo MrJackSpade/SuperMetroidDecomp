@@ -26,23 +26,23 @@ internal static class SamusProjectileProgramsVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         ushort Word(int address) => cartridge.ReadCartridgeWord(SamusSourceDefinitions.ProjectileDataBank.Value | (ushort)address);
 
-        Dictionary<ushort, SamusProjectileProgram> byEntry = Enum.GetValues<SamusProjectileProgram>()
+        Dictionary<ushort, SamusProjectileSegment> byEntry = Enum.GetValues<SamusProjectileSegment>()
             .ToDictionary(SamusProjectileProgramAddresses.Entry, program => program);
         var records = new SortedSet<ushort>();
-        var lists = new Dictionary<SamusProjectileProgram, NativeEnemyList<SamusProjectileProgram>>();
+        var lists = new Dictionary<SamusProjectileSegment, NativeEnemyList<SamusProjectileSegment>>();
         int steps = 0;
-        foreach ((ushort entry, SamusProjectileProgram program) in byEntry)
+        foreach ((ushort entry, SamusProjectileSegment program) in byEntry)
         {
             AssertEqual(Word(entry - sizeof(ushort)), SamusProjectileProgramAddresses.Prefix(program), $"projectile {program}: word before its list");
             IReadOnlyList<AnimationBeat<SamusProjectileFrame, NoAnimationCue>> beats = SamusProjectileAnimations.Segments.Beats(program);
             var addresses = new List<ushort>();
-            NativeEnemyControl<SamusProjectileProgram> end;
+            NativeEnemyControl<SamusProjectileSegment> end;
             ushort cursor = entry;
             for (int index = 0; ; index++, steps++)
             {
                 string at = $"projectile {program} place {index} at $93:{cursor:X4}";
                 AssertEqual(cursor, SamusProjectileProgramAddresses.Address(new SamusProjectileSegmentBeat(program, index)), $"{at}: native address");
-                if (cursor != entry && byEntry.TryGetValue(cursor, out SamusProjectileProgram next))
+                if (cursor != entry && byEntry.TryGetValue(cursor, out SamusProjectileSegment next))
                 {
                     AssertEqual(beats.Count, index, $"{at}: the run on into the next list ends the segment");
                     end = new(NativeEnemyControlKind.RunOnIntoNext, index, next, null, cursor);
@@ -74,7 +74,7 @@ internal static class SamusProjectileProgramsVerification
                 };
                 break;
             }
-            lists.Add(program, new NativeEnemyList<SamusProjectileProgram>([.. addresses], [end]));
+            lists.Add(program, new NativeEnemyList<SamusProjectileSegment>([.. addresses], [end]));
         }
         // Each animation plays the segments its lists' gotos, runs on and deletes play.
         NativeEnemyAnimationOracle.CompareAnimations(lists, SamusProjectileAnimations.StartingAt);
@@ -89,15 +89,15 @@ internal static class SamusProjectileProgramsVerification
             if (kept < HeaderListFields)
             {
                 AssertThrows<ArgumentOutOfRangeException>(() => SamusProjectileHeaders.ProgramAtField(kind, kept), $"{kind} keeps only the list field its shots read");
-                AssertThrows<ArgumentOutOfRangeException>(() => SamusProjectileHeaders.Program(kind, SamusProjectileDirection.UpFacingRight), $"{kind} is read by no direction");
+                AssertThrows<ArgumentOutOfRangeException>(() => SamusProjectileHeaders.Animation(kind, SamusProjectileDirection.UpFacingRight), $"{kind} is read by no direction");
             }
             else
-                AssertThrows<ArgumentOutOfRangeException>(() => SamusProjectileHeaders.SoleProgram(kind), $"{kind} is read by direction");
+                AssertThrows<ArgumentOutOfRangeException>(() => SamusProjectileHeaders.SoleAnimation(kind), $"{kind} is read by direction");
             for (int field = 0; field < kept; field++, fields++)
             {
                 ushort native = Word(header + sizeof(ushort) * (1 + field));
                 string at = $"projectile header $93:{header:X4} field {field}";
-                if (!byEntry.TryGetValue(native, out SamusProjectileProgram program))
+                if (!byEntry.TryGetValue(native, out SamusProjectileSegment program))
                     throw new InvalidDataException($"{at}: native word ${native:X4} is not a list, but every header field the port keeps names one.");
                 AssertEqual(program, SamusProjectileHeaders.ProgramAtField(header, field), $"{at}: list");
             }
@@ -108,11 +108,11 @@ internal static class SamusProjectileProgramsVerification
             ushort native = Word(powerBomb + sizeof(ushort) * (1 + direction.ToAimIndex()));
             string at = $"the Murder Beam fired {direction}";
             if (native == 0)
-                AssertEqual(null, SamusProjectileSelection.BeamShotProgram(SamusProjectileSelectionDefinitions.MurderBeam, charged: true, direction), $"{at}: no list");
-            else if (byEntry.TryGetValue(native, out SamusProjectileProgram program))
-                AssertEqual(program, SamusProjectileSelection.BeamShotProgram(SamusProjectileSelectionDefinitions.MurderBeam, charged: true, direction), $"{at}: list");
+                AssertEqual(null, SamusProjectileSelection.BeamShotAnimation(SamusProjectileSelectionDefinitions.MurderBeam, charged: true, direction), $"{at}: no list");
+            else if (byEntry.TryGetValue(native, out SamusProjectileSegment program))
+                AssertEqual(program, SamusProjectileSelection.BeamShotAnimation(SamusProjectileSelectionDefinitions.MurderBeam, charged: true, direction), $"{at}: list");
             else
-                AssertThrows<InvalidDataException>(() => SamusProjectileSelection.BeamShotProgram(SamusProjectileSelectionDefinitions.MurderBeam, charged: true, direction), $"{at}: a word that is not a list fails");
+                AssertThrows<InvalidDataException>(() => SamusProjectileSelection.BeamShotAnimation(SamusProjectileSelectionDefinitions.MurderBeam, charged: true, direction), $"{at}: a word that is not a list fails");
             fields++;
         }
         Console.WriteLine($"  Samus projectile programs: {byEntry.Count} programs ({steps} steps, {records.Count} records) and {fields} header fields match bank $93.");

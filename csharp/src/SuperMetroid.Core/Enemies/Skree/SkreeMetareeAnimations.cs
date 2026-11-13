@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Skree.SkreeMetareeCueKind;
-using P = SuperMetroid.Core.Enemies.Skree.SkreeMetareeProgram;
+using P = SuperMetroid.Core.Enemies.Skree.SkreeMetareeSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Skree;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Skree;
 internal static class SkreeMetareeAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<SkreeMetareeProgram, EnemyFrameId, SkreeMetareeCue> Segments { get; } = new(
-        new Dictionary<SkreeMetareeProgram, AnimationBeat<EnemyFrameId, SkreeMetareeCue>[]>
+    internal static AnimationSegments<SkreeMetareeSegment, EnemyFrameId, SkreeMetareeCue> Segments { get; } = new(
+        new Dictionary<SkreeMetareeSegment, AnimationBeat<EnemyFrameId, SkreeMetareeCue>[]>
     {
         [P.MetareeIdling] =
         [
@@ -76,7 +76,7 @@ internal static class SkreeMetareeAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<SkreeMetareeProgram, Animation<SkreeMetareeProgram>> StartingAt { get; } = new Dictionary<SkreeMetareeProgram, Animation<SkreeMetareeProgram>>
+    internal static IReadOnlyDictionary<SkreeMetareeSegment, Animation<SkreeMetareeSegment>> StartingAt { get; } = new Dictionary<SkreeMetareeSegment, Animation<SkreeMetareeSegment>>
     {
         [P.MetareeIdling] = new([new(P.MetareeIdling, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.MetareePreparingAttack] = new([new(P.MetareePreparingAttack, 0, 3, 1)], AnimationEnd.Holds),
@@ -91,7 +91,7 @@ internal static class SkreeMetareeAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<SkreeMetareeProgram> StartingWith(SkreeMetareeProgram segment) => StartingAt[segment];
+    internal static Animation<SkreeMetareeSegment> StartingWith(SkreeMetareeSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, SkreeMetareeCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, SkreeMetareeCue>.Frame(frame, duration);

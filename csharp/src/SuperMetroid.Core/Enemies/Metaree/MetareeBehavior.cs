@@ -51,8 +51,8 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             BurrowTimer = 0,
             Function = MetareeEnemyFunction.Idling,
-            RequestedAnimationScriptIndex = SkreeMetareeAnimationPhase.Idling,
-            InstalledAnimationScriptIndex = SkreeMetareeAnimationPhase.Idling,
+            RequestedAnimation = SkreeMetareeAnimationPhase.Idling,
+            InstalledAnimation = SkreeMetareeAnimationPhase.Idling,
             AttackReady = false,
             YVelocity = 0,
         };
@@ -60,7 +60,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The initializer starts the idle animation directly rather than going through the change detector,
         // because both requested and installed indexes intentionally start at zero.
-        state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeProgram.MetareeIdling), AnimationPlace.StartOfAnimation);
+        state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.MetareeIdling), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Dispatches idle, attack preparation, airborne dive, and burrow phases with required Samus and room data.</summary>
@@ -121,8 +121,8 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         // instead of sanitizing the old bug into modern signed physics.
         int verticalDifference = CoordinateAxis.Wrap(samus.Position.Y.Whole - slot.Position.Y.Whole);
         state.YVelocity = verticalDifference / MetareeDiveDivisorNtsc + MetareeMinimumYVelocity;
-        state.RequestedAnimationScriptIndex = SkreeMetareeAnimationPhase.PreparingAttack;
-        InstallRequestedMetareeInstruction(slot, state);
+        state.RequestedAnimation = SkreeMetareeAnimationPhase.PreparingAttack;
+        StartRequestedMetareeAnimation(slot, state);
         state.Function = MetareeEnemyFunction.PreparingAttack;
     }
 
@@ -133,8 +133,8 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.AttackReady = false;
-        state.RequestedAnimationScriptIndex = SkreeMetareeAnimationPhase.Diving;
-        InstallRequestedMetareeInstruction(slot, state);
+        state.RequestedAnimation = SkreeMetareeAnimationPhase.Diving;
+        StartRequestedMetareeAnimation(slot, state);
         state.Function = MetareeEnemyFunction.LaunchedAttack;
 
         // The dive sound is requested as the attack launches.
@@ -189,16 +189,16 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Changes the program only when the requested animation phase differs from the installed one.</summary>
-    internal static void InstallRequestedMetareeInstruction(
+    internal static void StartRequestedMetareeAnimation(
         RoomEnemySlot slot,
         MetareeEnemyState state)
     {
-        SkreeMetareeAnimationPhase requested = state.RequestedAnimationScriptIndex;
-        if (requested == state.InstalledAnimationScriptIndex)
+        SkreeMetareeAnimationPhase requested = state.RequestedAnimation;
+        if (requested == state.InstalledAnimation)
             return;
 
-        state.InstalledAnimationScriptIndex = requested;
-        state.Playback = EnemyProgramAnimation.Start(slot, SkreeMetareeAnimations.StartingWith(SkreeMetareePrograms.MetareeProgram(requested)));
+        state.InstalledAnimation = requested;
+        state.Playback = EnemyAnimationPlayback.Start(slot, SkreeMetareeAnimations.StartingWith(SkreeMetareeAnimationChoices.MetareeAnimation(requested)));
     }
 
     /// <summary>Runs Metaree's main AI.</summary>
@@ -208,8 +208,8 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Metaree's typed animation.</summary>
-    internal static void AdvanceMetareeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, SkreeMetareeAnimations.Segments,
+    internal static void AdvanceMetareeTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, SkreeMetareeAnimations.Segments,
             static (MetareeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Enemies.Rios;
 public sealed class LowerNorfairRioEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<LowerNorfairRioProgram> Playback { get; set; }
+    internal AnimationPlayback<LowerNorfairRioSegment> Playback { get; set; }
 
     /// <summary>The last animation installed for this actor; distinct from the advancing cursor and prevents timer resets when the same animation is requested again.</summary>
-    internal LowerNorfairRioProgram InstalledProgram { get; set; }
+    internal LowerNorfairRioSegment InstalledAnimation { get; set; }
 
     /// <summary>Set by a private animation cue.</summary>
     public bool AnimationSignal { get; internal set; }

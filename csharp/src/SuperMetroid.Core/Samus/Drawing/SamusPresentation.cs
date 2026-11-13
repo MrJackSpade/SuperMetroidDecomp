@@ -190,7 +190,7 @@ internal sealed class SamusPresentation
         SamusPoseId? prospectiveInputPose = null, bool demoPoseInput = false,
         Func<SoundQueueAdmission>? queueEchoSound = null)
     {
-        SamusAnimationProgramStep step = samus.AnimationStep;
+        SamusPoseAnimationStep step = samus.AnimationStep;
         if (step is SamusAnimationDelay delay)
         {
             // While running with momentum the run's cadence, not the pose's own delays, times each frame. Releasing
@@ -332,7 +332,7 @@ internal sealed class SamusPresentation
     private static void EnsureAnimationInitialized(SamusState samus)
     {
         if (samus.AnimatedPose is not { } animated ||
-            !ReferenceEquals(SamusAnimationDelays.ProgramForPose(animated), SamusAnimationDelays.ProgramForPose(samus.Pose)))
+            !ReferenceEquals(SamusAnimationDelays.AnimationForPose(animated), SamusAnimationDelays.AnimationForPose(samus.Pose)))
         {
             throw new InvalidOperationException(
                 "Samus animation was not initialized for the current pose. Call InitializeAnimation after changing Pose.");

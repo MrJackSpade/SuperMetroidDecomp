@@ -27,15 +27,15 @@ internal static class PipeBugDefinitions
     /// The normal and strong rising and shooting programs for each Brinstar animation. Every value names its actual
     /// behavior and species.
     /// </summary>
-    internal static readonly Dictionary<PipeBugProgramKey, PipeBugProgram> BrinstarPrograms = new()
+    internal static readonly Dictionary<PipeBugAnimationKey, PipeBugSegment> BrinstarAnimations = new()
     {
-        [new(false, PipeBugAnimationSelector.RisingFacingLeft)] = PipeBugProgram.ZebRisingLeft,
-        [new(false, PipeBugAnimationSelector.ShootingFacingLeft)] = PipeBugProgram.ZebShootingLeft,
-        [new(false, PipeBugAnimationSelector.RisingFacingRight)] = PipeBugProgram.ZebRisingRight,
-        [new(false, PipeBugAnimationSelector.ShootingFacingRight)] = PipeBugProgram.ZebShootingRight,
-        [new(true, PipeBugAnimationSelector.RisingFacingLeft)] = PipeBugProgram.ZebboRisingLeft,
-        [new(true, PipeBugAnimationSelector.ShootingFacingLeft)] = PipeBugProgram.ZebboShootingLeft,
-        [new(true, PipeBugAnimationSelector.RisingFacingRight)] = PipeBugProgram.ZebboRisingRight,
-        [new(true, PipeBugAnimationSelector.ShootingFacingRight)] = PipeBugProgram.ZebboShootingRight,
+        [new(false, PipeBugAnimationSelector.RisingFacingLeft)] = PipeBugSegment.ZebRisingLeft,
+        [new(false, PipeBugAnimationSelector.ShootingFacingLeft)] = PipeBugSegment.ZebShootingLeft,
+        [new(false, PipeBugAnimationSelector.RisingFacingRight)] = PipeBugSegment.ZebRisingRight,
+        [new(false, PipeBugAnimationSelector.ShootingFacingRight)] = PipeBugSegment.ZebShootingRight,
+        [new(true, PipeBugAnimationSelector.RisingFacingLeft)] = PipeBugSegment.ZebboRisingLeft,
+        [new(true, PipeBugAnimationSelector.ShootingFacingLeft)] = PipeBugSegment.ZebboShootingLeft,
+        [new(true, PipeBugAnimationSelector.RisingFacingRight)] = PipeBugSegment.ZebboRisingRight,
+        [new(true, PipeBugAnimationSelector.ShootingFacingRight)] = PipeBugSegment.ZebboShootingRight,
     };
 }

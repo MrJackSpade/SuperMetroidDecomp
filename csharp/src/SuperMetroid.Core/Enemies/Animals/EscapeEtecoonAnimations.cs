@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Animals.EscapeEtecoonCueKind;
-using P = SuperMetroid.Core.Enemies.Animals.EscapeEtecoonProgram;
+using P = SuperMetroid.Core.Enemies.Animals.EscapeEtecoonSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Animals;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal static class EscapeEtecoonAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<EscapeEtecoonProgram, EnemyFrameId, EscapeEtecoonCue> Segments { get; } = new(
-        new Dictionary<EscapeEtecoonProgram, AnimationBeat<EnemyFrameId, EscapeEtecoonCue>[]>
+    internal static AnimationSegments<EscapeEtecoonSegment, EnemyFrameId, EscapeEtecoonCue> Segments { get; } = new(
+        new Dictionary<EscapeEtecoonSegment, AnimationBeat<EnemyFrameId, EscapeEtecoonCue>[]>
     {
         [P.RunningLeftLowTide] =
         [
@@ -89,7 +89,7 @@ internal static class EscapeEtecoonAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<EscapeEtecoonProgram, Animation<EscapeEtecoonProgram>> StartingAt { get; } = new Dictionary<EscapeEtecoonProgram, Animation<EscapeEtecoonProgram>>
+    internal static IReadOnlyDictionary<EscapeEtecoonSegment, Animation<EscapeEtecoonSegment>> StartingAt { get; } = new Dictionary<EscapeEtecoonSegment, Animation<EscapeEtecoonSegment>>
     {
         [P.RunningLeftLowTide] = new([new(P.RunningLeftLowTide, 0, 1, 1), new(P.RunningLeftLowTideLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.RunningLeftLowTideLoop] = new([new(P.RunningLeftLowTideLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
@@ -104,7 +104,7 @@ internal static class EscapeEtecoonAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<EscapeEtecoonProgram> StartingWith(EscapeEtecoonProgram segment) => StartingAt[segment];
+    internal static Animation<EscapeEtecoonSegment> StartingWith(EscapeEtecoonSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, EscapeEtecoonCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, EscapeEtecoonCue>.Frame(frame, duration);

@@ -20,7 +20,7 @@ public sealed class SporeSpawnEnemyState
     /// <summary>Current main-AI function: the phase of the fight it runs each update.</summary>
     public SporeSpawnFunction Function { get; internal set; }
     /// <summary>The body's animation and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<SporeSpawnBodyProgram> BodyPlayback { get; set; }
+    internal AnimationPlayback<SporeSpawnBodySegment> BodyPlayback { get; set; }
     /// <summary>
     /// Fixed stalk interpolation anchor in room pixels: the spawn body's X and a Y 72 pixels
     /// above it.

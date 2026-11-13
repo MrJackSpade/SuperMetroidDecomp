@@ -29,7 +29,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         }
 
         CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        (RoomEnemySystem ordinarySystem, RoomEnemySlot ordinary) = RunRinkaProgram(RinkaProgram.Ordinary, special: false);
+        (RoomEnemySystem ordinarySystem, RoomEnemySlot ordinary) = RunRinkaProgram(RinkaSegment.Ordinary, special: false);
         AssertEqual(RinkaEnemyFunction.AimDelay, (ordinarySystem.RinkaStates[0] ?? throw new InvalidOperationException("Verification requires ordinarySystem.RinkaStates[0].")).Function,
             "ordinary Rinka fire callback selects aim-delay AI");
         AssertTrue(!ordinary.Presence.HasAny(EnemyPresence.Hidden),
@@ -37,7 +37,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         AssertTrue(!ordinary.Processing.HasAny(EnemyProcessing.OffScreen),
             "ordinary Rinka program does not enable off-screen processing");
 
-        (RoomEnemySystem specialSystem, RoomEnemySlot special) = RunRinkaProgram(RinkaProgram.Special, special: true);
+        (RoomEnemySystem specialSystem, RoomEnemySlot special) = RunRinkaProgram(RinkaSegment.Special, special: true);
         AssertEqual(RinkaEnemyFunction.AimDelay, (specialSystem.RinkaStates[0] ?? throw new InvalidOperationException("Verification requires specialSystem.RinkaStates[0].")).Function,
             "special Rinka fire callback selects aim-delay AI");
         AssertTrue(!special.Presence.HasAny(EnemyPresence.Hidden),
@@ -51,7 +51,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
 
     /// <summary>Runs one native-length Rinka loop and observes visibility, off-screen behavior, and aim-delay selection.</summary>
     private static RunRinkaProgramResult RunRinkaProgram(
-        RinkaProgram program,
+        RinkaSegment program,
         bool special)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);

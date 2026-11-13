@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Enemies.Boulder.BoulderProgram;
+using P = SuperMetroid.Core.Enemies.Boulder.BoulderSegment;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 internal static class BoulderAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<BoulderProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<BoulderProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
+    internal static AnimationSegments<BoulderSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<BoulderSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.Left] =
         [
@@ -39,14 +39,14 @@ internal static class BoulderAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<BoulderProgram, Animation<BoulderProgram>> StartingAt { get; } = new Dictionary<BoulderProgram, Animation<BoulderProgram>>
+    internal static IReadOnlyDictionary<BoulderSegment, Animation<BoulderSegment>> StartingAt { get; } = new Dictionary<BoulderSegment, Animation<BoulderSegment>>
     {
         [P.Left] = new([new(P.Left, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
         [P.Right] = new([new(P.Right, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<BoulderProgram> StartingWith(BoulderProgram segment) => StartingAt[segment];
+    internal static Animation<BoulderSegment> StartingWith(BoulderSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

@@ -35,7 +35,7 @@ internal sealed class EndingLogo
             actors[i] = new IntroDiscoverySprite(
                 EndingLogoActors.Origin(i),
                 EndingShades.Drawn(EndingLogoDefinitions.Colouring),
-                definition.Program);
+                definition.Animation);
             actors[i].InstallFrameBehavior(definition.FrameBehavior);
         }
         Ensure.NotNull(stage).Colours.Flash(EndingFlash.LogoBackground, null);

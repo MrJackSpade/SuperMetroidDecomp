@@ -10,5 +10,5 @@ internal static class KraidLintVisualDefinitions
     internal const int FrameCount = 2;
 
     /// <summary>The spritemaps Kraid's typed lint programs show, in first-shown order.</summary>
-    internal static ushort[] Spritemaps() => [.. KraidAnimationsTooling.Spritemaps(KraidPartProgram.LintInitial, KraidPartProgram.LintPostGrowth)];
+    internal static ushort[] Spritemaps() => [.. KraidAnimationsTooling.Spritemaps(KraidPartSegment.LintInitial, KraidPartSegment.LintPostGrowth)];
 }

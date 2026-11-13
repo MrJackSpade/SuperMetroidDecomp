@@ -14,18 +14,18 @@ internal static class SkreeMetareeNativeListAddresses
     internal const byte Bank = 0xa3;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<SkreeMetareeProgram>[] Entries =
+    internal static readonly NativeProgramEntry<SkreeMetareeSegment>[] Entries =
     [
-        new NativeProgramEntry<SkreeMetareeProgram>(SkreeMetareeProgram.MetareeIdling, 0x8910),
-        new NativeProgramEntry<SkreeMetareeProgram>(SkreeMetareeProgram.MetareePreparingAttack, 0x8924),
-        new NativeProgramEntry<SkreeMetareeProgram>(SkreeMetareeProgram.MetareeDiving, 0x8930),
-        new NativeProgramEntry<SkreeMetareeProgram>(SkreeMetareeProgram.MetareeDivingLoop, 0x8932),
-        new NativeProgramEntry<SkreeMetareeProgram>(SkreeMetareeProgram.MetareeStopAnimating, 0x8946),
-        new NativeProgramEntry<SkreeMetareeProgram>(SkreeMetareeProgram.SkreeIdling, 0xc65e),
-        new NativeProgramEntry<SkreeMetareeProgram>(SkreeMetareeProgram.SkreePreparingAttack, 0xc672),
-        new NativeProgramEntry<SkreeMetareeProgram>(SkreeMetareeProgram.SkreeDiving, 0xc67e),
-        new NativeProgramEntry<SkreeMetareeProgram>(SkreeMetareeProgram.SkreeDivingLoop, 0xc680),
-        new NativeProgramEntry<SkreeMetareeProgram>(SkreeMetareeProgram.SkreeStopAnimating, 0xc694),
+        new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.MetareeIdling, 0x8910),
+        new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.MetareePreparingAttack, 0x8924),
+        new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.MetareeDiving, 0x8930),
+        new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.MetareeDivingLoop, 0x8932),
+        new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.MetareeStopAnimating, 0x8946),
+        new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.SkreeIdling, 0xc65e),
+        new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.SkreePreparingAttack, 0xc672),
+        new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.SkreeDiving, 0xc67e),
+        new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.SkreeDivingLoop, 0xc680),
+        new NativeProgramEntry<SkreeMetareeSegment>(SkreeMetareeSegment.SkreeStopAnimating, 0xc694),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

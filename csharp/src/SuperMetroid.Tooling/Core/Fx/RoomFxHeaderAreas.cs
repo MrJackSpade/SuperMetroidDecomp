@@ -25,10 +25,10 @@ internal static class RoomFxHeaderAreas
     private static Dictionary<RoomFxHeader, AreaId> Index()
     {
         var areas = new Dictionary<RoomFxHeader, AreaId>(ReferenceEqualityComparer.Instance);
-        foreach (KeyValuePair<RoomHeaderDefinition, RoomStateProgram> entry in RoomStateSelectionDefinitions.Programs)
+        foreach (KeyValuePair<RoomHeaderDefinition, RoomStateChoice> entry in RoomStateSelectionDefinitions.Choices)
         {
             RoomHeaderDefinition room = entry.Key;
-            RoomStateProgram program = entry.Value;
+            RoomStateChoice program = entry.Value;
             foreach (RoomStateSettings state in program.Branches.Select(branch => branch.State).Prepend(program.Default))
             {
                 if (state.Fx is not { } fx)

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemyDeathExplosionDefinitions
 {
     /// <summary>The blank-frame wait a drop runs after it is collected or expires.</summary>
-    internal const EnemyDeathProjectileProgram NoDropTail = EnemyDeathProjectileProgram.RespawnTail;
+    internal const EnemyDeathProjectileSegment NoDropTail = EnemyDeathProjectileSegment.RespawnTail;
 
     /// <summary>
     /// The random field that places a death explosion's sprite 0-63 pixels right of the 32 it is centred back by: the

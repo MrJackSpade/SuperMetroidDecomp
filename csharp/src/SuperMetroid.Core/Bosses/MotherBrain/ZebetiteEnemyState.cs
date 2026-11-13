@@ -34,7 +34,7 @@ public sealed class ZebetiteEnemyState
     public ZebetiteGenerationFlags GenerationFlags { get; internal set; }
 
     /// <summary>This half's health animation and where it stands (#641, #1600).</summary>
-    internal AnimationPlayback<ZebetiteProgram> Playback { get; set; } = ZebetiteAnimations.Starting(default);
+    internal AnimationPlayback<ZebetiteSegment> Playback { get; set; } = ZebetiteAnimations.Starting(default);
 
     /// <summary>
     /// The other half of a linked pair, to which a shot's health and flash are copied; null for a single barrier, which

@@ -82,7 +82,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         bodyState.StartingFlameIndex = 0;
         bodyState.StartingFlamesActive = false;
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
-        StartPhantoonPart(body, PhantoonPartProgram.InvulnerableBody);
+        StartPhantoonPart(body, PhantoonPartSegment.InvulnerableBody);
         bodyState.StartPart();
         body.SetSpeciesState(bodyState);
         bodyState.Function = PhantoonAiFunction.SpawnStartingFlames;
@@ -97,20 +97,20 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (part.DefinitionId == EnemyDefinitionId.PhantoonEye)
         {
             state.Eye = part;
-            StartPhantoonPart(part, PhantoonPartProgram.EyeClosed);
+            StartPhantoonPart(part, PhantoonPartSegment.EyeClosed);
             state.EyeState.StartPart();
             part.SetSpeciesState(state.EyeState);
         }
         else if (part.DefinitionId == EnemyDefinitionId.PhantoonTentacles)
         {
             state.Tentacles = part;
-            StartPhantoonPart(part, PhantoonPartProgram.Tentacles);
+            StartPhantoonPart(part, PhantoonPartSegment.Tentacles);
             part.SetSpeciesState(state.TentaclesState);
         }
         else if (part.DefinitionId == EnemyDefinitionId.PhantoonMouth)
         {
             state.Mouth = part;
-            StartPhantoonPart(part, PhantoonPartProgram.MouthInitial);
+            StartPhantoonPart(part, PhantoonPartSegment.MouthInitial);
             state.MouthState.StartPart();
             part.SetSpeciesState(state.MouthState);
         }
@@ -122,7 +122,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Copies body presentation state into a physical part and starts its chosen program.</summary>
-    private void StartPhantoonPart(RoomEnemySlot part, PhantoonPartProgram program)
+    private void StartPhantoonPart(RoomEnemySlot part, PhantoonPartSegment program)
     {
         PhantoonEnemyState state = Combat.Phantoon ??
             throw new InvalidOperationException("Phantoon body must initialize before its parts.");
@@ -323,10 +323,10 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!part.AnimationClock.Expire())
             return;
         PhantoonEnemyState state = Combat.RequirePhantoonState(part);
-        AnimationPlayback<PhantoonPartProgram> playback = state.PartPlayback(part);
+        AnimationPlayback<PhantoonPartSegment> playback = state.PartPlayback(part);
         // Writing the playback back after the events lets the animation's own hold overwrite an event's install on
         // this part, as the Sleep does. Phantoon's part animations count no plays.
-        EnemyProgramAnimation.Play(part, PhantoonAnimations.Segments, ref playback, PhantoonPartFrameSpritemaps.ShownFrames.Of,
+        EnemyAnimationPlayback.Play(part, PhantoonAnimations.Segments, ref playback, PhantoonPartFrameSpritemaps.ShownFrames.Of,
             cue =>
             {
                 ApplyPhantoonPartCue(part, cue);
@@ -377,11 +377,11 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.TentaclesState.SwoopRequested = false;
         RoomEnemySlot body = state.Body;
-        PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.EyeHitboxBody);
+        PhantoonPresentation.StartPhantoonAnimation(state, body, PhantoonPartSegment.EyeHitboxBody);
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         state.BodyState.FunctionTimer = PhantoonTimerDefinitions.VulnerableWindow[_room.Random.Next(PhantoonRandomDefinitions.VulnerableWindowChoice)];
         state.BodyState.Function = PhantoonAiFunction.EyeTracksSamus;
-        PhantoonPresentation.InstallPhantoonProgram(state, state.Eye, PhantoonPartProgram.EyeballCentered);
+        PhantoonPresentation.StartPhantoonAnimation(state, state.Eye, PhantoonPartSegment.EyeballCentered);
     }
 
     /// <summary>Initial flame callback that holds position before orbit activation.</summary>

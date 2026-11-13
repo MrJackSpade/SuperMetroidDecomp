@@ -21,11 +21,11 @@ internal static class ElevatorBehaviorVerification
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.SetSpawnWords(EnemyDefinitionId.Elevator, words => words);
         enemies.ElevatorBehavior.InitializeElevator(slot, null);
-        AssertEqual(new AnimationPlayback<ElevatorProgram>(ElevatorAnimations.StartingWith(ElevatorProgram.Loop), AnimationPlace.StartOfAnimation), (enemies.SlotTable.Slots[0].EntityState<ElevatorEntity, ElevatorEnemyState>() ?? throw new InvalidOperationException("The elevator has no state.")).Playback,
+        AssertEqual(new AnimationPlayback<ElevatorSegment>(ElevatorAnimations.StartingWith(ElevatorSegment.Loop), AnimationPlace.StartOfAnimation), (enemies.SlotTable.Slots[0].EntityState<ElevatorEntity, ElevatorEnemyState>() ?? throw new InvalidOperationException("The elevator has no state.")).Playback,
             "elevator initializer animation");
         slot.AnimationClock.StepOnNextUpdate();
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(ElevatorAnimations.Segments, ElevatorProgram.Loop, ElevatorFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(ElevatorAnimations.Segments, ElevatorProgram.Loop)),
+        AssertEqual(EnemyInstructionRunner.ExpectedLoop(ElevatorAnimations.Segments, ElevatorSegment.Loop, ElevatorFrameToolingDefinitions.Spritemap),
+            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(ElevatorAnimations.Segments, ElevatorSegment.Loop)),
             "elevator runs its loop and returns through its goto");
         Console.WriteLine("  elevator behavior: the initializer starts and runs its loop.");
     }

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Cacatac.CacatacCueKind;
-using P = SuperMetroid.Core.Enemies.Cacatac.CacatacProgram;
+using P = SuperMetroid.Core.Enemies.Cacatac.CacatacSegment;
 using D = SuperMetroid.Core.Enemies.Cacatac.CacatacSpikeDirection;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 internal static class CacatacAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<CacatacProgram, EnemyFrameId, CacatacCue> Segments { get; } = new(
-        new Dictionary<CacatacProgram, AnimationBeat<EnemyFrameId, CacatacCue>[]>
+    internal static AnimationSegments<CacatacSegment, EnemyFrameId, CacatacCue> Segments { get; } = new(
+        new Dictionary<CacatacSegment, AnimationBeat<EnemyFrameId, CacatacCue>[]>
     {
         [P.UpsideUpIdle] =
         [
@@ -72,7 +72,7 @@ internal static class CacatacAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<CacatacProgram, Animation<CacatacProgram>> StartingAt { get; } = new Dictionary<CacatacProgram, Animation<CacatacProgram>>
+    internal static IReadOnlyDictionary<CacatacSegment, Animation<CacatacSegment>> StartingAt { get; } = new Dictionary<CacatacSegment, Animation<CacatacSegment>>
     {
         [P.UpsideUpIdle] = new([new(P.UpsideUpIdle, 0, 9, 1)], AnimationEnd.LoopsFrom(0)),
         [P.UpsideUpAttack] = new([new(P.UpsideUpAttack, 0, 10, 1), new(P.UpsideUpIdle, 0, 9, 1)], AnimationEnd.LoopsFrom(1)),
@@ -82,7 +82,7 @@ internal static class CacatacAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<CacatacProgram> StartingWith(CacatacProgram segment) => StartingAt[segment];
+    internal static Animation<CacatacSegment> StartingWith(CacatacSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, CacatacCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, CacatacCue>.Frame(frame, duration);

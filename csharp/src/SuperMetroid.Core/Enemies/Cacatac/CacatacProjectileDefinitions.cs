@@ -22,18 +22,18 @@ internal static class CacatacProjectileDefinitions
     /// <summary>
     /// Each spike direction and facing's named animation program.
     /// </summary>
-    internal static readonly Dictionary<CacatacSpikeDirection, CacatacProjectileProgram> Programs = new()
+    internal static readonly Dictionary<CacatacSpikeDirection, CacatacProjectileSegment> Animations = new()
     {
-        [CacatacSpikeDirection.LeftFacingUp] = CacatacProjectileProgram.LeftFacingUp,
-        [CacatacSpikeDirection.Up] = CacatacProjectileProgram.Up,
-        [CacatacSpikeDirection.RightFacingUp] = CacatacProjectileProgram.RightFacingUp,
-        [CacatacSpikeDirection.LeftFacingDown] = CacatacProjectileProgram.LeftFacingDown,
-        [CacatacSpikeDirection.Down] = CacatacProjectileProgram.Down,
-        [CacatacSpikeDirection.RightFacingDown] = CacatacProjectileProgram.RightFacingDown,
-        [CacatacSpikeDirection.UpLeft] = CacatacProjectileProgram.UpLeft,
-        [CacatacSpikeDirection.UpRight] = CacatacProjectileProgram.UpRight,
-        [CacatacSpikeDirection.DownLeft] = CacatacProjectileProgram.DownLeft,
-        [CacatacSpikeDirection.DownRight] = CacatacProjectileProgram.DownRight,
+        [CacatacSpikeDirection.LeftFacingUp] = CacatacProjectileSegment.LeftFacingUp,
+        [CacatacSpikeDirection.Up] = CacatacProjectileSegment.Up,
+        [CacatacSpikeDirection.RightFacingUp] = CacatacProjectileSegment.RightFacingUp,
+        [CacatacSpikeDirection.LeftFacingDown] = CacatacProjectileSegment.LeftFacingDown,
+        [CacatacSpikeDirection.Down] = CacatacProjectileSegment.Down,
+        [CacatacSpikeDirection.RightFacingDown] = CacatacProjectileSegment.RightFacingDown,
+        [CacatacSpikeDirection.UpLeft] = CacatacProjectileSegment.UpLeft,
+        [CacatacSpikeDirection.UpRight] = CacatacProjectileSegment.UpRight,
+        [CacatacSpikeDirection.DownLeft] = CacatacProjectileSegment.DownLeft,
+        [CacatacSpikeDirection.DownRight] = CacatacProjectileSegment.DownRight,
     };
 
     /// <summary>

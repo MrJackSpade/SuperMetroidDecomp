@@ -22,22 +22,22 @@ internal static class PuyoInstructionProgramDefinitionsVerification
     internal static void VerifyPuyoInstructionProgramDefinitions(ImportEnemyArtwork? artwork = null)
     {
         (RoomEnemySystem enemies, RoomEnemySlot slot, PuyoEnemyState state) = Create(artwork);
-        AssertEqual(new AnimationPlayback<PuyoProgram>(PuyoAnimations.StartingWith(PuyoProgram.GroundedFast), AnimationPlace.StartOfAnimation), state.Playback, "Puyo starts on its fast grounded loop");
-        foreach (PuyoProgram loop in new[] { PuyoProgram.GroundedFast, PuyoProgram.GroundedMedium, PuyoProgram.GroundedSlow })
+        AssertEqual(new AnimationPlayback<PuyoSegment>(PuyoAnimations.StartingWith(PuyoSegment.GroundedFast), AnimationPlace.StartOfAnimation), state.Playback, "Puyo starts on its fast grounded loop");
+        foreach (PuyoSegment loop in new[] { PuyoSegment.GroundedFast, PuyoSegment.GroundedMedium, PuyoSegment.GroundedSlow })
         {
             Start(slot, state, loop);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(PuyoAnimations.Segments, loop, PuyoFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(PuyoAnimations.Segments, loop)), $"Puyo {loop} loop");
         }
-        foreach (PuyoProgram pose in new[] { PuyoProgram.RightFrame0LeftFrame4, PuyoProgram.RightFrame1LeftFrame3, PuyoProgram.Frame2,
-                     PuyoProgram.RightFrame3LeftFrame1, PuyoProgram.RightFrame4LeftFrame0 })
+        foreach (PuyoSegment pose in new[] { PuyoSegment.RightFrame0LeftFrame4, PuyoSegment.RightFrame1LeftFrame3, PuyoSegment.Frame2,
+                     PuyoSegment.RightFrame3LeftFrame1, PuyoSegment.RightFrame4LeftFrame0 })
         {
             Start(slot, state, pose);
             ushort frame = PuyoAnimationsConstants.Spritemaps(pose).Single();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]), EnemyInstructionRunner.ShownFrames(slot, 3), $"Puyo {pose} pose");
         }
         if (artwork is not null)
-            foreach (ushort pose in PuyoAnimationsConstants.Spritemaps(Enum.GetValues<PuyoProgram>()).Distinct())
+            foreach (ushort pose in PuyoAnimationsConstants.Spritemaps(Enum.GetValues<PuyoSegment>()).Distinct())
                 AssertTrue((artwork.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires installed spritemaps.")).TryGet(PuyoFrameToolingDefinitions.Bank, pose, out _),
                     $"Puyo pose ${pose:X4} has installed artwork");
         Console.WriteLine("  Puyo: the fast-loop start, three grounded loops and five airborne poses pass.");
@@ -56,7 +56,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Starts <paramref name="program"/> with its first step due on the next update.</summary>
-    private static void Start(RoomEnemySlot slot, PuyoEnemyState state, PuyoProgram program)
+    private static void Start(RoomEnemySlot slot, PuyoEnemyState state, PuyoSegment program)
     {
         state.Playback = new(PuyoAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.Restart();

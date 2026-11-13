@@ -68,16 +68,16 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         if (!slot.AnimationClock.Expire())
             return;
         CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();
-        AnimationPlayback<CeresDoorProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, CeresDoorAnimations.Segments, ref playback,
+        AnimationPlayback<CeresDoorSegment> playback = state.Playback;
+        EnemyAnimationPlayback.Play(slot, CeresDoorAnimations.Segments, ref playback,
             cue => ApplyCeresDoorCue(slot, samus, cue) is { } target
-                ? new AnimationContinuation<CeresDoorProgram>(CeresDoorAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<CeresDoorSegment>(CeresDoorAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;
     }
 
     /// <summary>Carries out one cue of a door's program, returning the program a branch continues at, or null to run on.</summary>
-    private CeresDoorProgram? ApplyCeresDoorCue(RoomEnemySlot slot, SamusState? samus, CeresDoorCue cue)
+    private CeresDoorSegment? ApplyCeresDoorCue(RoomEnemySlot slot, SamusState? samus, CeresDoorCue cue)
     {
         switch (cue.Kind)
         {
@@ -154,7 +154,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         var state = new CeresDoorEnemyState
         {
             Function = initialization.MainFunction,
-            Playback = new AnimationPlayback<CeresDoorProgram>(CeresDoorAnimations.StartingWith(initialization.Program), AnimationPlace.StartOfAnimation),
+            Playback = new AnimationPlayback<CeresDoorSegment>(CeresDoorAnimations.StartingWith(initialization.Animation), AnimationPlace.StartOfAnimation),
         };
         slot.SetSpeciesState(state);
 
@@ -299,7 +299,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     }
 
     /// <summary>Advances CeresDoor's typed animation.</summary>
-    internal void AdvanceCeresDoorTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    internal void AdvanceCeresDoorTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context)
     {
         AdvanceCeresDoorAnimation(slot, context.Samus);
     }

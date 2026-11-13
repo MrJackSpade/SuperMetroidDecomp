@@ -41,10 +41,10 @@ internal static class DragonFireballBehaviorVerification
             projectile => projectile.Kind == RoomEnemyProjectileKind.DragonFireball && projectile.Velocity.X.InTwoHundredFiftySixthsOfPixel < 0);
         EnemyProjectile right = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.DragonFireball && projectile.Velocity.X.InTwoHundredFiftySixthsOfPixel >= 0);
-        foreach ((EnemyProjectile fireball, DragonFireballProgram rising, DragonFireballProgram falling) in new[]
+        foreach ((EnemyProjectile fireball, DragonFireballSegment rising, DragonFireballSegment falling) in new[]
                  {
-                     new VerifyDragonFireballBehaviorCase(left, DragonFireballProgram.RisingLeft, DragonFireballProgram.FallingLeft),
-                     new VerifyDragonFireballBehaviorCase(right, DragonFireballProgram.RisingRight, DragonFireballProgram.FallingRight),
+                     new VerifyDragonFireballBehaviorCase(left, DragonFireballSegment.RisingLeft, DragonFireballSegment.FallingLeft),
+                     new VerifyDragonFireballBehaviorCase(right, DragonFireballSegment.RisingRight, DragonFireballSegment.FallingRight),
                  })
         {
             AssertEqual(rising, ProgramOf(fireball), $"the fireball starts {rising}");
@@ -59,18 +59,18 @@ internal static class DragonFireballBehaviorVerification
         }
 
         left.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
-        enemies.Projectiles.ProcessEnemyProjectileInstructions(left, null, Position16<RoomPixels>.Zero);
+        enemies.Projectiles.AdvanceEnemyProjectileAnimations(left, null, Position16<RoomPixels>.Zero);
         AssertTrue(!left.IsActive, "the shared shot list still deletes the fireball");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the fireball's native list bytes");
         Console.WriteLine("  Dragon fireball behavior: both rising and falling programs and the zero-crossing switch match the native lists.");
     }
 
     /// <summary>The native entry of <paramref name="program"/>.</summary>
-    private static ushort Entry(DragonFireballProgram program) =>
+    private static ushort Entry(DragonFireballSegment program) =>
         NativeEnemyProjectileProgramOracle.EntryOf(DragonFireballNativeListAddresses.Entries, program);
 
     /// <summary>The typed program <paramref name="projectile"/> runs.</summary>
-    private static DragonFireballProgram ProgramOf(EnemyProjectile projectile) =>
+    private static DragonFireballSegment ProgramOf(EnemyProjectile projectile) =>
         projectile.Animation is DragonFireballAnimation animation ? animation.PlayingSegment
             : throw new InvalidOperationException("The fireball runs no typed program.");
 

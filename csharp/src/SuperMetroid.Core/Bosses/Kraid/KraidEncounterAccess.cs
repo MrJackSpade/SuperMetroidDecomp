@@ -38,19 +38,19 @@ internal sealed class KraidEncounterAccess
     internal static void MarkKraidPartDead(RoomEnemySlot slot)
     {
         slot.Contact = slot.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
-        slot.Processing = slot.Processing.Without(EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen);
+        slot.Processing = slot.Processing.Without(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
         slot.Presence = slot.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
     }
 
     /// <summary>Installs <paramref name="program"/> as the part's program, from its start; the caller sets the timer.</summary>
-    internal void SetKraidPartProgram(RoomEnemySlot part, KraidPartProgram program) =>
+    internal void SetKraidPartAnimation(RoomEnemySlot part, KraidPartSegment program) =>
         _parts.StateOf(RequireKraidState(part), part).Playback =
-            new AnimationPlayback<KraidPartProgram>(KraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+            new AnimationPlayback<KraidPartSegment>(KraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
 
     /// <summary>Sets a part's program and runs its first instruction on the next frame.</summary>
-    internal void StartKraidPartProgram(RoomEnemySlot part, KraidPartProgram program)
+    internal void StartKraidPartAnimation(RoomEnemySlot part, KraidPartSegment program)
     {
-        SetKraidPartProgram(part, program);
+        SetKraidPartAnimation(part, program);
         part.AnimationClock.StepOnNextUpdate();
     }
 

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 internal static class SkulteraAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params SkulteraProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params SkulteraSegment[] programs) =>
         programs.SelectMany(program => SkulteraAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, SkulteraCue>.Frame>()
             .Select(frame => SkulteraFrameToolingDefinitions.Spritemap(frame.Shown));

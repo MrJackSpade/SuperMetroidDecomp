@@ -78,10 +78,10 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         // A right-moving Stoke takes the right-facing branch. The room-loader tail later
         // restores the transient empty frame, and the first animation tick supplies art.
         slot.Frame = EnemyFrameId.Empty;
-        SetStokeProgram(slot, state, StokeProgram.MovingLeft);
+        SetStokeAnimation(slot, state, StokeSegment.MovingLeft);
         if (settings.Direction == StokeDirection.Right)
         {
-            SetStokeProgram(slot, state, StokeProgram.MovingRight);
+            SetStokeAnimation(slot, state, StokeSegment.MovingRight);
         }
     }
 
@@ -105,7 +105,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
                     state,
                     level,
                     left ? state.LeftVelocity : state.RightVelocity,
-                    left ? StokeProgram.AttackingLeft : StokeProgram.AttackingRight);
+                    left ? StokeSegment.AttackingLeft : StokeSegment.AttackingRight);
                 return;
 
             default:
@@ -120,7 +120,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         StokeEnemyState state,
         RoomLevelData level,
         SignedSixteenSixteen horizontalDisplacement,
-        StokeProgram attackingProgram)
+        StokeSegment attackingProgram)
     {
         MoveStokeAndTurnAtTerrain(slot, state, level, horizontalDisplacement);
 
@@ -131,7 +131,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         // The attack animation owns Stoke until its trailing branch reaches the resume-moving cue and that
         // wrapper's command installs the corresponding moving function again.
         state.Function = StokeAiFunction.IdleDuringAttack;
-        SetStokeProgram(slot, state, attackingProgram);
+        SetStokeAnimation(slot, state, attackingProgram);
     }
 
     /// <summary>Moves Stoke and turns it at terrain.</summary>
@@ -164,15 +164,15 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         // The turn always selects the left wrapper first, then replaces it with right
         // only when the old direction was not one. It does not update direction/function;
         // the wrapper command executes later in this same enemy animation phase.
-        SetStokeProgram(slot, state, StokeProgram.MovingLeft);
+        SetStokeAnimation(slot, state, StokeSegment.MovingLeft);
         if (state.Direction != StokeDirection.Right)
-            SetStokeProgram(slot, state, StokeProgram.MovingRight);
+            SetStokeAnimation(slot, state, StokeSegment.MovingRight);
     }
 
     /// <summary>Switches the active animation so its first step runs on the next animation tick.</summary>
-    private static void SetStokeProgram(RoomEnemySlot slot, StokeEnemyState state, StokeProgram program)
+    private static void SetStokeAnimation(RoomEnemySlot slot, StokeEnemyState state, StokeSegment program)
     {
-        state.Playback = EnemyProgramAnimation.Start(slot, StokeAnimations.StartingWith(program));
+        state.Playback = EnemyAnimationPlayback.Start(slot, StokeAnimations.StartingWith(program));
     }
 
     /// <summary>Animation cues for left and right: resume movement in <paramref name="direction"/>.</summary>
@@ -199,8 +199,8 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Stoke's typed animation.</summary>
-    internal void AdvanceStokeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, StokeAnimations.Segments,
+    internal void AdvanceStokeTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, StokeAnimations.Segments,
             static (StokeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

@@ -45,7 +45,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Beetom's animations: off-screen processing, or the drain's no-op stub.</summary>
-    private static BeetomProgram? ApplyBeetomCue(RoomEnemySlot slot, BeetomCue cue)
+    private static BeetomSegment? ApplyBeetomCue(RoomEnemySlot slot, BeetomCue cue)
     {
         switch (cue.Kind)
         {
@@ -97,12 +97,12 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The source label's branch name is reversed. A negative Samus-minus-enemy delta
         // selects the left-facing list; nonnegative selects the right-facing list.
-        SetBeetomAnimationScript(
+        SetBeetomAnimation(
             slot,
             state,
             CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
-                ? BeetomProgram.CrawlingLeft
-                : BeetomProgram.CrawlingRight);
+                ? BeetomSegment.CrawlingLeft
+                : BeetomSegment.CrawlingRight);
         state.Function = BeetomEnemyFunction.DecideAction;
     }
 
@@ -242,12 +242,12 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void StartBeetomCrawling(RoomEnemySlot slot, BeetomEnemyState state, HorizontalDirection direction)
     {
         state.Function = direction == HorizontalDirection.Left ? BeetomEnemyFunction.CrawlingLeft : BeetomEnemyFunction.CrawlingRight;
-        SetBeetomAnimationScript(
+        SetBeetomAnimation(
             slot,
             state,
             direction == HorizontalDirection.Left
-                ? BeetomProgram.CrawlingLeft
-                : BeetomProgram.CrawlingRight);
+                ? BeetomSegment.CrawlingLeft
+                : BeetomSegment.CrawlingRight);
     }
 
     /// <summary>Arms a short or long arc from its precomputed initial speed index.</summary>
@@ -268,12 +268,12 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new ArgumentOutOfRangeException(nameof(length), length, "Unknown Beetom hop."),
         };
         state.Falling = false;
-        SetBeetomAnimationScript(
+        SetBeetomAnimation(
             slot,
             state,
             direction == HorizontalDirection.Left
-                ? BeetomProgram.HopLeft
-                : BeetomProgram.HopRight);
+                ? BeetomSegment.HopLeft
+                : BeetomSegment.HopRight);
     }
 
     /// <summary>Aims the lunge toward Samus using the signed horizontal difference.</summary>
@@ -284,35 +284,35 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FacingRight = !left;
         state.Function = state.FacingRight ? BeetomEnemyFunction.LungeRight : BeetomEnemyFunction.LungeLeft;
         state.Falling = false;
-        SetBeetomAnimationScript(
+        SetBeetomAnimation(
             slot,
             state,
             left
-                ? BeetomProgram.HopLeft
-                : BeetomProgram.HopRight);
+                ? BeetomSegment.HopLeft
+                : BeetomSegment.HopRight);
     }
 
     /// <summary>Starts the attached blood-drain program for the current facing.</summary>
     internal static void StartBeetomDrain(RoomEnemySlot slot, BeetomEnemyState state, HorizontalDirection side)
     {
-        SetBeetomAnimationScript(
+        SetBeetomAnimation(
             slot,
             state,
             side == HorizontalDirection.Left
-                ? BeetomProgram.DrainingLeft
-                : BeetomProgram.DrainingRight);
+                ? BeetomSegment.DrainingLeft
+                : BeetomSegment.DrainingRight);
         state.Function = side == HorizontalDirection.Left ? BeetomEnemyFunction.DrainingLeft : BeetomEnemyFunction.DrainingRight;
     }
 
     /// <summary>Switches back to crawl artwork before dropping toward the floor.</summary>
     private static void StartBeetomDrop(RoomEnemySlot slot, BeetomEnemyState state)
     {
-        SetBeetomAnimationScript(
+        SetBeetomAnimation(
             slot,
             state,
             state.FacingRight
-                ? BeetomProgram.CrawlingRight
-                : BeetomProgram.CrawlingLeft);
+                ? BeetomSegment.CrawlingRight
+                : BeetomSegment.CrawlingLeft);
         state.Falling = false;
         state.Function = BeetomEnemyFunction.Dropping;
     }
@@ -541,12 +541,12 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Installs a Beetom animation and primes its instruction timer.</summary>
-    private static void SetBeetomAnimationScript(
+    private static void SetBeetomAnimation(
         RoomEnemySlot slot,
         BeetomEnemyState state,
-        BeetomProgram program)
+        BeetomSegment program)
     {
-        state.Playback = EnemyProgramAnimation.Start(slot, BeetomAnimations.StartingWith(program));
+        state.Playback = EnemyAnimationPlayback.Start(slot, BeetomAnimations.StartingWith(program));
     }
 
     /// <summary>Requires a live Samus actor for attachment and targeting phases.</summary>
@@ -588,11 +588,11 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Beetom's typed animation.</summary>
-    internal static void AdvanceBeetomTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, BeetomAnimations.Segments,
+    internal static void AdvanceBeetomTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, BeetomAnimations.Segments,
             static (BeetomEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyBeetomCue(slot, cue) is { } target
-                ? new AnimationContinuation<BeetomProgram>(BeetomAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<BeetomSegment>(BeetomAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
 
     /// <summary>Clears attachment after every accepted common shot, including zero damage.</summary>

@@ -80,7 +80,7 @@ internal static class CeresFlightActorMetadataVerification
                 () => CeresFlightActors.RearViewActor(index), "rear metadata invalid index");
         AssertEqual((ushort)1, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe51), "rear vortex native initializer parameter");
         AssertEqual((ushort)1, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe5a), "rear stars native initializer parameter");
-        AssertEqual(front.Program, CeresFlightActors.RearViewActor(4).Program, "front/rear program alias");
+        AssertEqual(front.Animation, CeresFlightActors.RearViewActor(4).Animation, "front/rear program alias");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((ActorBank | (frontDefinition + 2))),
             front.ActiveFrameBehavior.NativeAddress, "front stars preserve the definition callback");
         AssertEqual(SignedSixteenSixteen.Zero, front.HorizontalDelta, "front stars have callback-driven acceleration instead of fixed X velocity");
@@ -92,7 +92,7 @@ internal static class CeresFlightActorMetadataVerification
             string name)
         {
             int address = ActorBank | definitionPointer;
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actor.Program),
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actor.Animation),
                 $"{name} instruction list");
         }
 

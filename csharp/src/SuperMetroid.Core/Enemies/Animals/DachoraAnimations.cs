@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Enemies.Animals.DachoraProgram;
+using P = SuperMetroid.Core.Enemies.Animals.DachoraSegment;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal static class DachoraAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<DachoraProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<DachoraProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
+    internal static AnimationSegments<DachoraSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<DachoraSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.RunningLeft] =
         [
@@ -143,7 +143,7 @@ internal static class DachoraAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<DachoraProgram, Animation<DachoraProgram>> StartingAt { get; } = new Dictionary<DachoraProgram, Animation<DachoraProgram>>
+    internal static IReadOnlyDictionary<DachoraSegment, Animation<DachoraSegment>> StartingAt { get; } = new Dictionary<DachoraSegment, Animation<DachoraSegment>>
     {
         [P.RunningLeft] = new([new(P.RunningLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
         [P.RunningLeftFast] = new([new(P.RunningLeftFast, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
@@ -163,10 +163,10 @@ internal static class DachoraAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<DachoraProgram> StartingWith(DachoraProgram segment) => StartingAt[segment];
+    internal static Animation<DachoraSegment> StartingWith(DachoraSegment segment) => StartingAt[segment];
 
     /// <summary>The program a sleeping list resumes into when its owner steps the list past the sleep.</summary>
-    internal static DachoraProgram AfterSleep(DachoraProgram program) => program switch
+    internal static DachoraSegment AfterSleep(DachoraSegment program) => program switch
     {
         P.ChargeRight => P.EchoRight,
         P.RunningLeft or

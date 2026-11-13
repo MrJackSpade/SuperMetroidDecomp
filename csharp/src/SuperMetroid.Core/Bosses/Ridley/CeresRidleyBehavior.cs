@@ -102,7 +102,7 @@ internal sealed class CeresRidleyBehavior
             case RidleyAiFunction.WaitBeforeRoar:
                 if (--state.FunctionTimer < 0)
                 {
-                    CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.OpeningRoar);
+                    CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.OpeningRoar);
                     state.FunctionTimer = 252;
                     state.Function = RidleyAiFunction.WaitBeforeLiftoff;
                 }
@@ -112,7 +112,7 @@ internal sealed class CeresRidleyBehavior
                 if (--state.FunctionTimer < 0)
                 {
                     state.FadeStep = 0;
-                    CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.TransitionToFlying);
+                    CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.TransitionToFlying);
                     // Ridley's roar before flying primes the wing
                     // timer, enables every tail segment, and selects neutral tail AI in
                     // the same transition that installs the flying animation script.
@@ -157,7 +157,7 @@ internal sealed class CeresRidleyBehavior
                 break;
 
             case RidleyAiFunction.CeresLungeSetup:
-                CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.CeresLunge);
+                CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.CeresLunge);
                 state.Function = RidleyAiFunction.CeresLungeMain;
                 state.FunctionTimer = 64;
                 CeresRidleyFlight.TickCeresRidleyLunge(slot, state, samus);
@@ -239,7 +239,7 @@ internal sealed class CeresRidleyBehavior
             case RidleyAiFunction.CeresWaitBeforeRetrievingBaby:
                 if (--state.FunctionTimer < 0)
                 {
-                    CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.RetrieveBabyMetroid);
+                    CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.RetrieveBabyMetroid);
                     state.Function = RidleyAiFunction.CeresRetrieveBaby;
                     CeresRidleyFlight.TickCeresRidleyRetrieveBaby(slot, state);
                 }

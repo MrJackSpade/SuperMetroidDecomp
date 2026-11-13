@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 internal static class BoulderAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params BoulderProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params BoulderSegment[] programs) =>
         programs.SelectMany(program => BoulderAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>()
             .Select(frame => BoulderFrameToolingDefinitions.Spritemap(frame.Shown));

@@ -36,7 +36,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out Dragon's animation cue: the attack body marks its animation complete for main AI.</summary>
-    private static DragonProgram? ApplyDragonCue(RoomEnemySlot slot, DragonCue cue)
+    private static DragonSegment? ApplyDragonCue(RoomEnemySlot slot, DragonCue cue)
     {
         switch (cue.Kind)
         {
@@ -70,7 +70,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             // Its intangibility property keeps the cosmetic record out of touch/shot collision passes.
             state.RequestedAnimation = DragonAnimationSelector.WingsFacingLeft;
             state.InstalledAnimation = DragonAnimationSelector.WingsFacingLeft;
-            state.Playback = new(DragonAnimations.StartingWith(DragonPhases.Program(
+            state.Playback = new(DragonAnimations.StartingWith(DragonPhases.Animation(
                 DragonAnimationSelector.WingsFacingLeft)), AnimationPlace.StartOfAnimation);
             slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
             state.Function = DragonEnemyFunction.WingNoOp;
@@ -79,7 +79,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.RequestedAnimation = DragonAnimationSelector.IdleFacingLeft;
         state.InstalledAnimation = DragonAnimationSelector.IdleFacingLeft;
-        state.Playback = new(DragonAnimations.StartingWith(DragonPhases.Program(
+        state.Playback = new(DragonAnimations.StartingWith(DragonPhases.Animation(
             DragonAnimationSelector.IdleFacingLeft)), AnimationPlace.StartOfAnimation);
         state.Function = DragonEnemyFunction.WaitToRise;
     }
@@ -144,8 +144,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         wingState.RequestedAnimation = DragonPhases.WithFacing(
             wingState.RequestedAnimation,
             facingLeft);
-        InstallDragonAnimationScript(body, bodyState);
-        InstallDragonAnimationScript(wing, wingState);
+        StartDragonAnimation(body, bodyState);
+        StartDragonAnimation(wing, wingState);
     }
 
     /// <summary>Rises out of the lava.</summary>
@@ -170,7 +170,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Attacks, spitting fireballs.</summary>
     internal void RunDragonAttacking(RoomEnemySlot body, DragonEnemyState bodyState)
     {
-        InstallDragonAnimationScript(body, bodyState);
+        StartDragonAnimation(body, bodyState);
         if (!bodyState.AnimationFinished)
             return;
 
@@ -202,7 +202,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         bodyState.FunctionTimer = DragonRiseOrSinkFrames;
         bodyState.Function = DragonEnemyFunction.Sinking;
-        InstallDragonAnimationScript(body, bodyState);
+        StartDragonAnimation(body, bodyState);
     }
 
     /// <summary>Sinks back into the lava.</summary>
@@ -256,7 +256,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Installs a newly requested animation list once and resets its frame and loop timers.</summary>
-    internal static void InstallDragonAnimationScript(
+    internal static void StartDragonAnimation(
         RoomEnemySlot slot,
         DragonEnemyState state)
     {
@@ -264,7 +264,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         state.InstalledAnimation = state.RequestedAnimation;
         state.ReinstallRequested = false;
-        state.Playback = EnemyProgramAnimation.Start(slot, DragonAnimations.StartingWith(DragonPhases.Program(
+        state.Playback = EnemyAnimationPlayback.Start(slot, DragonAnimations.StartingWith(DragonPhases.Animation(
             state.RequestedAnimation)));
     }
 
@@ -323,11 +323,11 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Dragon's typed animation.</summary>
-    internal static void AdvanceDragonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, DragonAnimations.Segments,
+    internal static void AdvanceDragonTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, DragonAnimations.Segments,
             static (DragonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyDragonCue(slot, cue) is { } target
-                ? new AnimationContinuation<DragonProgram>(DragonAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<DragonSegment>(DragonAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
 
     /// <summary>Synchronizes wing and body state after a Dragon power-bomb reaction.</summary>
@@ -386,13 +386,13 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             projectile.Position = projectile.Position.WithWrappedWholeX(body.Position.X.Whole - 12);
             projectile.Velocity = projectile.Velocity.WithX(-DragonFireballHorizontalSpeed);
-            projectile.InstallAnimation(new DragonFireballAnimation(DragonFireballProgram.RisingLeft));
+            projectile.InstallAnimation(new DragonFireballAnimation(DragonFireballSegment.RisingLeft));
         }
         else
         {
             projectile.Position = projectile.Position.WithWrappedWholeX(body.Position.X.Whole + 12);
             projectile.Velocity = projectile.Velocity.WithX(DragonFireballHorizontalSpeed);
-            projectile.InstallAnimation(new DragonFireballAnimation(DragonFireballProgram.RisingRight));
+            projectile.InstallAnimation(new DragonFireballAnimation(DragonFireballSegment.RisingRight));
         }
         projectile.Position = projectile.Position.WithFractionX(0);
     }
@@ -413,8 +413,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             // The exact zero crossing switches from the rising pair of two-frame loops to
             // the falling pair and forces an animation tick on this same projectile pass.
             projectile.StartAnimation(new DragonFireballAnimation(projectile.Velocity.X.IsNegative
-                ? DragonFireballProgram.FallingLeft
-                : DragonFireballProgram.FallingRight));
+                ? DragonFireballSegment.FallingLeft
+                : DragonFireballSegment.FallingRight));
             return;
         }
 

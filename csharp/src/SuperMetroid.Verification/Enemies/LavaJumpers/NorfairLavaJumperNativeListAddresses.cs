@@ -14,12 +14,12 @@ internal static class NorfairLavaJumperNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<NorfairLavaJumperProgram>[] Entries =
+    internal static readonly NativeProgramEntry<NorfairLavaJumperSegment>[] Entries =
     [
-        new NativeProgramEntry<NorfairLavaJumperProgram>(NorfairLavaJumperProgram.Hidden, 0xbe3c),
-        new NativeProgramEntry<NorfairLavaJumperProgram>(NorfairLavaJumperProgram.Jump, 0xbe42),
-        new NativeProgramEntry<NorfairLavaJumperProgram>(NorfairLavaJumperProgram.Follower, 0xbe62),
-        new NativeProgramEntry<NorfairLavaJumperProgram>(NorfairLavaJumperProgram.FollowerLoop, 0xbe6e),
+        new NativeProgramEntry<NorfairLavaJumperSegment>(NorfairLavaJumperSegment.Hidden, 0xbe3c),
+        new NativeProgramEntry<NorfairLavaJumperSegment>(NorfairLavaJumperSegment.Jump, 0xbe42),
+        new NativeProgramEntry<NorfairLavaJumperSegment>(NorfairLavaJumperSegment.Follower, 0xbe62),
+        new NativeProgramEntry<NorfairLavaJumperSegment>(NorfairLavaJumperSegment.FollowerLoop, 0xbe6e),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

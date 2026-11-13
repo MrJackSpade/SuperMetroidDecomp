@@ -41,7 +41,7 @@ internal static class RidleyShotHealthStageVerification
         ridley.Position = ridley.Position.WithWhole(new(0x00a4, 0x0148));
         ridley.SpritemapPointer = 0xe983;
         ridley.Contact = EnemyContact.BlocksPlasmaBeam;
-        ridley.Processing = EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript;
+        ridley.Processing = EnemyProcessing.OffScreen | EnemyProcessing.Animates;
         ridley.Presence = EnemyPresence.None;
         ridley.InvincibilityTimer = 0;
         ridley.AnimationClock.HoldFor(0x7fff);

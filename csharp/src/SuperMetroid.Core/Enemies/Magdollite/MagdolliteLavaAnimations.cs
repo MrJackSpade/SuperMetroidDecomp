@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Magdollite.MagdolliteLavaCueKind;
-using P = SuperMetroid.Core.Enemies.Magdollite.MagdolliteLavaProgram;
+using P = SuperMetroid.Core.Enemies.Magdollite.MagdolliteLavaSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Magdollite;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 internal static class MagdolliteLavaAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MagdolliteLavaProgram, EnemyProjectileFrameId, MagdolliteLavaCue> Segments { get; } = new(
-        new Dictionary<MagdolliteLavaProgram, AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>[]>
+    internal static AnimationSegments<MagdolliteLavaSegment, EnemyProjectileFrameId, MagdolliteLavaCue> Segments { get; } = new(
+        new Dictionary<MagdolliteLavaSegment, AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>[]>
     {
         [P.SharedDelete] =
         [
@@ -34,7 +34,7 @@ internal static class MagdolliteLavaAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<MagdolliteLavaProgram, Animation<MagdolliteLavaProgram>> StartingAt { get; } = new Dictionary<MagdolliteLavaProgram, Animation<MagdolliteLavaProgram>>
+    internal static IReadOnlyDictionary<MagdolliteLavaSegment, Animation<MagdolliteLavaSegment>> StartingAt { get; } = new Dictionary<MagdolliteLavaSegment, Animation<MagdolliteLavaSegment>>
     {
         [P.SharedDelete] = new([new(P.SharedDelete, 0, 1, 1)], AnimationEnd.Holds),
         [P.Left] = new([new(P.Left, 0, 1, 1)], AnimationEnd.Holds),
@@ -43,7 +43,7 @@ internal static class MagdolliteLavaAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<MagdolliteLavaProgram> StartingWith(MagdolliteLavaProgram segment) => StartingAt[segment];
+    internal static Animation<MagdolliteLavaSegment> StartingWith(MagdolliteLavaSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, MagdolliteLavaCue>.Frame(frame, duration);

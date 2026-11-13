@@ -24,11 +24,11 @@ internal sealed class IntroDiscoverySprite
     public IntroDiscoverySprite(
         Position16<ScreenPixels> position,
         PictureShade colouring,
-        CinematicSpriteProgram program)
+        CinematicSpriteSegment program)
     {
         Position = new(new(position.X, 0), new(position.Y, 0));
         Colouring = colouring;
-        Playback = new AnimationPlayback<CinematicSpriteProgram>(CinematicSpriteAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        Playback = new AnimationPlayback<CinematicSpriteSegment>(CinematicSpriteAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Cleared when the animation's end retires the actor.</summary>
@@ -54,13 +54,13 @@ internal sealed class IntroDiscoverySprite
     internal CinematicSpritePose? Pose { get; private set; }
 
     /// <summary>The actor's animation and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<CinematicSpriteProgram> Playback { get; private set; }
+    internal AnimationPlayback<CinematicSpriteSegment> Playback { get; private set; }
 
     /// <summary>
     /// The segment the actor's animation rests in: resting after the last frame of a list that runs on into the next, it
     /// already stands in the next (<see cref="CinematicSpriteAnimations.RunsOnInto"/>).
     /// </summary>
-    internal CinematicSpriteProgram CurrentProgram => AnimationResidence.ResidentSegment(
+    internal CinematicSpriteSegment CurrentAnimation => AnimationResidence.ResidentSegment(
         CinematicSpriteAnimations.Segments, CinematicSpriteAnimations.StartingAt, CinematicSpriteAnimations.RunsOnInto, Playback);
 
     /// <summary>
@@ -76,9 +76,9 @@ internal sealed class IntroDiscoverySprite
     internal CinematicSpriteFrameBehavior? ListFrameBehavior { get; private set; }
 
     /// <summary>Starts the animation of <paramref name="program"/> on the next handler call, discarding the old frame countdown.</summary>
-    public void Start(CinematicSpriteProgram program)
+    public void Start(CinematicSpriteSegment program)
     {
-        Playback = new AnimationPlayback<CinematicSpriteProgram>(CinematicSpriteAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        Playback = new AnimationPlayback<CinematicSpriteSegment>(CinematicSpriteAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         frameHold = WrappingCountdown.Start(1);
     }
 
@@ -91,7 +91,7 @@ internal sealed class IntroDiscoverySprite
     /// This is deliberately not <see cref="LoopCountdown"/>, which only the animation's counted phases use; conflating the
     /// two makes a delayed actor show its first frame immediately while merely changing an unrelated loop count.
     /// </remarks>
-    public void DelayFirstInstruction(int frames)
+    public void DelayFirstStep(int frames)
     {
         if (frames == 0)
             throw new ArgumentOutOfRangeException(nameof(frames), "A frame hold must be nonzero.");
@@ -127,22 +127,22 @@ internal sealed class IntroDiscoverySprite
         if (!hold.IsZero)
             return;
 
-        Animation<CinematicSpriteProgram> animation = Playback.Animation;
+        Animation<CinematicSpriteSegment> animation = Playback.Animation;
         AnimationPlace place = Playback.Place;
         WrappingCountdown repeats = LoopCountdown;
-        AnimationShown<CinematicSpriteProgram, CinematicSpritePose> shown = CinematicSpriteAnimations.Segments.PlayToNextFrame(
+        AnimationShown<CinematicSpriteSegment, CinematicSpritePose> shown = CinematicSpriteAnimations.Segments.PlayToNextFrame(
             animation, ref place, ref repeats, cue => ApplyCue(cue, ownerCue));
-        Playback = new AnimationPlayback<CinematicSpriteProgram>(animation, place);
+        Playback = new AnimationPlayback<CinematicSpriteSegment>(animation, place);
         LoopCountdown = repeats;
         switch (shown)
         {
-            case AnimationShown<CinematicSpriteProgram, CinematicSpritePose>.Frame frame:
+            case AnimationShown<CinematicSpriteSegment, CinematicSpritePose>.Frame frame:
                 frameHold = WrappingCountdown.Start(frame.Duration);
                 Pose = frame.Shown;
                 return;
-            case AnimationShown<CinematicSpriteProgram, CinematicSpritePose>.Held:
+            case AnimationShown<CinematicSpriteSegment, CinematicSpritePose>.Held:
                 return;
-            case AnimationShown<CinematicSpriteProgram, CinematicSpritePose>.Ended:
+            case AnimationShown<CinematicSpriteSegment, CinematicSpritePose>.Ended:
                 Delete();
                 return;
             default:
@@ -160,7 +160,7 @@ internal sealed class IntroDiscoverySprite
             return;
         }
         (ownerCue ?? throw new InvalidOperationException(
-            $"Cinematic sprite animation in {CurrentProgram} raised {cue.Kind} with no owner to carry it out."))(cue.Kind);
+            $"Cinematic sprite animation in {CurrentAnimation} raised {cue.Kind} with no owner to carry it out."))(cue.Kind);
     }
 
     /// <summary>

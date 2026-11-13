@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Programs;
-using P = SuperMetroid.Core.Enemies.Polyp.PolypRockProgram;
+using P = SuperMetroid.Core.Enemies.Polyp.PolypRockSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Polyp;
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 internal static class PolypRockAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<PolypRockProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<PolypRockProgram, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<PolypRockSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<PolypRockSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.Initial] =
         [
@@ -21,13 +21,13 @@ internal static class PolypRockAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<PolypRockProgram, Animation<PolypRockProgram>> StartingAt { get; } = new Dictionary<PolypRockProgram, Animation<PolypRockProgram>>
+    internal static IReadOnlyDictionary<PolypRockSegment, Animation<PolypRockSegment>> StartingAt { get; } = new Dictionary<PolypRockSegment, Animation<PolypRockSegment>>
     {
         [P.Initial] = new([new(P.Initial, 0, 1, 1)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<PolypRockProgram> StartingWith(PolypRockProgram segment) => StartingAt[segment];
+    internal static Animation<PolypRockSegment> StartingWith(PolypRockSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);

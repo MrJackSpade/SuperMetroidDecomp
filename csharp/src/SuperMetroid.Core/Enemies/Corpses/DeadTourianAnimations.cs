@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Corpses.DeadTourianCueKind;
-using P = SuperMetroid.Core.Enemies.Corpses.DeadTourianProgram;
+using P = SuperMetroid.Core.Enemies.Corpses.DeadTourianSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Corpses;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 internal static class DeadTourianAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<DeadTourianProgram, EnemyFrameId, DeadTourianCue> Segments { get; } = new(
-        new Dictionary<DeadTourianProgram, AnimationBeat<EnemyFrameId, DeadTourianCue>[]>
+    internal static AnimationSegments<DeadTourianSegment, EnemyFrameId, DeadTourianCue> Segments { get; } = new(
+        new Dictionary<DeadTourianSegment, AnimationBeat<EnemyFrameId, DeadTourianCue>[]>
     {
         [P.SidehopperHopping] =
         [
@@ -74,7 +74,7 @@ internal static class DeadTourianAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<DeadTourianProgram, Animation<DeadTourianProgram>> StartingAt { get; } = new Dictionary<DeadTourianProgram, Animation<DeadTourianProgram>>
+    internal static IReadOnlyDictionary<DeadTourianSegment, Animation<DeadTourianSegment>> StartingAt { get; } = new Dictionary<DeadTourianSegment, Animation<DeadTourianSegment>>
     {
         [P.SidehopperHopping] = new([new(P.SidehopperHopping, 0, 9, 1)], AnimationEnd.Holds),
         [P.SidehopperIdle] = new([new(P.SidehopperIdle, 0, 1, 1)], AnimationEnd.Holds),
@@ -91,7 +91,7 @@ internal static class DeadTourianAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<DeadTourianProgram> StartingWith(DeadTourianProgram segment) => StartingAt[segment];
+    internal static Animation<DeadTourianSegment> StartingWith(DeadTourianSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, DeadTourianCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, DeadTourianCue>.Frame(frame, duration);

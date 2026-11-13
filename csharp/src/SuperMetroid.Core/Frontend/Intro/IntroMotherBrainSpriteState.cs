@@ -18,7 +18,7 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>The cinematic sprite object running the Mother Brain's typed program (#641).</summary>
     private readonly IntroDiscoverySprite actor =
         new(IntroMotherBrainDefinitions.MotherBrainOrigin, Colouring,
-            IntroMotherBrainDefinitions.MotherBrain.Program);
+            IntroMotherBrainDefinitions.MotherBrain.Animation);
     /// <summary>Remaining palette alternations after a missile hit.</summary>
     private int hurtFlashTimer;
     /// <summary>
@@ -27,7 +27,7 @@ internal sealed class IntroMotherBrainSpriteState
     /// </summary>
     private int explodingTimer;
     /// <summary>Whether explosion timing has entered the page-two program.</summary>
-    private bool pageTwoInstructionStarted;
+    private bool pageTwoAnimationStarted;
     /// <summary>Whether the page-two program's frame behaviour has replaced hit flashing.</summary>
     private bool CrossfadingToPageTwo =>
         actor.ListFrameBehavior == CinematicSpriteFrameBehavior.IntroMotherBrainCrossFading;
@@ -85,7 +85,7 @@ internal sealed class IntroMotherBrainSpriteState
         }
 
         ApplyHurtFlash();
-        if (!ExplosionStarted || pageTwoInstructionStarted)
+        if (!ExplosionStarted || pageTwoAnimationStarted)
             return;
 
         ApplyScreenShake(cinematicFrameCounter);
@@ -95,8 +95,8 @@ internal sealed class IntroMotherBrainSpriteState
         {
             // The exploding behaviour starts the page-two program. The generic handler below runs its page request and
             // frame behaviour install during this same cinematic-object call.
-            actor.Start(CinematicSpriteProgram.IntroMotherBrainStartPage2);
-            pageTwoInstructionStarted = true;
+            actor.Start(CinematicSpriteSegment.IntroMotherBrainStartPage2);
+            pageTwoAnimationStarted = true;
         }
     }
 

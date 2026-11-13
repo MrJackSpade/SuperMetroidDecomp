@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Enemies.Fireflea.FirefleaProgram;
+using P = SuperMetroid.Core.Enemies.Fireflea.FirefleaSegment;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 internal static class FirefleaAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<FirefleaProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<FirefleaProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
+    internal static AnimationSegments<FirefleaSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<FirefleaSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.Loop] =
         [
@@ -72,13 +72,13 @@ internal static class FirefleaAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<FirefleaProgram, Animation<FirefleaProgram>> StartingAt { get; } = new Dictionary<FirefleaProgram, Animation<FirefleaProgram>>
+    internal static IReadOnlyDictionary<FirefleaSegment, Animation<FirefleaSegment>> StartingAt { get; } = new Dictionary<FirefleaSegment, Animation<FirefleaSegment>>
     {
         [P.Loop] = new([new(P.Loop, 0, 52, 1)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<FirefleaProgram> StartingWith(FirefleaProgram segment) => StartingAt[segment];
+    internal static Animation<FirefleaSegment> StartingWith(FirefleaSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

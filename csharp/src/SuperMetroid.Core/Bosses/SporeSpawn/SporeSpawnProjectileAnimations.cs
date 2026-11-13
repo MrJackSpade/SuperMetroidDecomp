@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using C = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnProjectileCue;
-using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnProjectileProgram;
+using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnProjectileSegment;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
@@ -17,8 +17,8 @@ internal static class SporeSpawnProjectileAnimations
     internal const int SporePoseCount = 3;
 
     /// <summary>Every projectile program.</summary>
-    internal static AnimationSegments<SporeSpawnProjectileProgram, SporeSpawnProjectileFrame, SporeSpawnProjectileCue> Segments { get; } = new(
-        new Dictionary<SporeSpawnProjectileProgram, AnimationBeat<SporeSpawnProjectileFrame, SporeSpawnProjectileCue>[]>
+    internal static AnimationSegments<SporeSpawnProjectileSegment, SporeSpawnProjectileFrame, SporeSpawnProjectileCue> Segments { get; } = new(
+        new Dictionary<SporeSpawnProjectileSegment, AnimationBeat<SporeSpawnProjectileFrame, SporeSpawnProjectileCue>[]>
     {
         [P.SpawnerClosed] =
         [
@@ -58,7 +58,7 @@ internal static class SporeSpawnProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<SporeSpawnProjectileProgram, Animation<SporeSpawnProjectileProgram>> StartingAt { get; } = new Dictionary<SporeSpawnProjectileProgram, Animation<SporeSpawnProjectileProgram>>
+    internal static IReadOnlyDictionary<SporeSpawnProjectileSegment, Animation<SporeSpawnProjectileSegment>> StartingAt { get; } = new Dictionary<SporeSpawnProjectileSegment, Animation<SporeSpawnProjectileSegment>>
     {
         [P.SpawnerClosed] = new([new(P.SpawnerClosed, 0, 1, 1)], AnimationEnd.Holds),
         [P.SpawnerRelease] = new([new(P.SpawnerRelease, 0, 6, 1)], AnimationEnd.Holds),
@@ -68,11 +68,11 @@ internal static class SporeSpawnProjectileAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<SporeSpawnProjectileProgram> StartingWith(SporeSpawnProjectileProgram segment) => StartingAt[segment];
+    internal static Animation<SporeSpawnProjectileSegment> StartingWith(SporeSpawnProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>Shows pose <paramref name="phase"/> of <paramref name="program"/>'s run for <paramref name="duration"/> passes.</summary>
     private static AnimationBeat<SporeSpawnProjectileFrame, SporeSpawnProjectileCue> Show(
-        SporeSpawnProjectileProgram program, int phase, int duration) =>
+        SporeSpawnProjectileSegment program, int phase, int duration) =>
         new AnimationBeat<SporeSpawnProjectileFrame, SporeSpawnProjectileCue>.Frame(new(program, phase), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>

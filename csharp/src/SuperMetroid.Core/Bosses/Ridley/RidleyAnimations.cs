@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Programs;
 using F = SuperMetroid.Core.Bosses.Ridley.RidleyCollisionDefinitions.BodyFrame;
 using K = SuperMetroid.Core.Bosses.Ridley.RidleyBodyCueKind;
-using P = SuperMetroid.Core.Bosses.Ridley.RidleyBodyProgram;
+using P = SuperMetroid.Core.Bosses.Ridley.RidleyBodySegment;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -31,8 +31,8 @@ internal static class RidleyAnimations
     private const int FeetExtended = 2;
 
     /// <summary>Every body segment's beats; each list sleeps after its last, but the fireballing lists, which run on into their ends.</summary>
-    internal static AnimationSegments<RidleyBodyProgram, F, RidleyBodyCue> Segments { get; } = new(
-        new Dictionary<RidleyBodyProgram, AnimationBeat<F, RidleyBodyCue>[]>
+    internal static AnimationSegments<RidleyBodySegment, F, RidleyBodyCue> Segments { get; } = new(
+        new Dictionary<RidleyBodySegment, AnimationBeat<F, RidleyBodyCue>[]>
     {
         [P.Initial] = [UnlessFacingLeft(P.InitialFacingRight), Show(F.Left, StandingDuration)],
         [P.InitialFacingRight] = [Show(F.Right, StandingDuration)],
@@ -66,7 +66,7 @@ internal static class RidleyAnimations
     /// The animation that starts at each segment: its list played once, then a sleep on its last frame; a fireballing list
     /// runs on into its end, authored next, which sleeps.
     /// </summary>
-    internal static IReadOnlyDictionary<RidleyBodyProgram, Animation<RidleyBodyProgram>> StartingAt { get; } = new Dictionary<RidleyBodyProgram, Animation<RidleyBodyProgram>>
+    internal static IReadOnlyDictionary<RidleyBodySegment, Animation<RidleyBodySegment>> StartingAt { get; } = new Dictionary<RidleyBodySegment, Animation<RidleyBodySegment>>
     {
         [P.Initial] = Sleeps(P.Initial),
         [P.InitialFacingRight] = Sleeps(P.InitialFacingRight),
@@ -89,13 +89,13 @@ internal static class RidleyAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<RidleyBodyProgram> StartingWith(RidleyBodyProgram segment) => StartingAt[segment];
+    internal static Animation<RidleyBodySegment> StartingWith(RidleyBodySegment segment) => StartingAt[segment];
 
     /// <summary>A phase playing every beat of <paramref name="segment"/> once.</summary>
-    private static AnimationPhase<RidleyBodyProgram> Whole(RidleyBodyProgram segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+    private static AnimationPhase<RidleyBodySegment> Whole(RidleyBodySegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>The animation that plays <paramref name="segment"/> once and sleeps on its last frame.</summary>
-    private static Animation<RidleyBodyProgram> Sleeps(RidleyBodyProgram segment) => new([Whole(segment)], AnimationEnd.Holds);
+    private static Animation<RidleyBodySegment> Sleeps(RidleyBodySegment segment) => new([Whole(segment)], AnimationEnd.Holds);
 
     /// <summary>The poses of one facing.</summary>
     private readonly record struct Side(F Standing, F MouthHalfOpen, F MouthOpen, F LegsHalfExtended, F LegsExtended)
@@ -163,7 +163,7 @@ internal static class RidleyAnimations
     /// Two fireball bursts of one facing, either cut short to <paramref name="end"/> in Ceres when Samus is low on
     /// energy; the left-facing list aims once more before its second roar, and the list runs on into its end.
     /// </summary>
-    private static AnimationBeat<F, RidleyBodyCue>[] Fireballing(Side side, RidleyBodyProgram end,
+    private static AnimationBeat<F, RidleyBodyCue>[] Fireballing(Side side, RidleyBodySegment end,
         AnimationBeat<F, RidleyBodyCue>[] beforeSecondBurst)
     {
         var steps = new List<AnimationBeat<F, RidleyBodyCue>>
@@ -209,11 +209,11 @@ internal static class RidleyAnimations
     ];
 
     /// <summary>Redirects to <paramref name="target"/> unless Ridley faces left.</summary>
-    private static AnimationBeat<F, RidleyBodyCue> UnlessFacingLeft(RidleyBodyProgram target) =>
+    private static AnimationBeat<F, RidleyBodyCue> UnlessFacingLeft(RidleyBodySegment target) =>
         Cue(new RidleyBodyCue.GoToUnlessFacingLeft(Target: target));
 
     /// <summary>Redirects to <paramref name="target"/> in Ceres when Samus is low on energy.</summary>
-    private static AnimationBeat<F, RidleyBodyCue> IfCeresAndSamusLowEnergy(RidleyBodyProgram target) =>
+    private static AnimationBeat<F, RidleyBodyCue> IfCeresAndSamusLowEnergy(RidleyBodySegment target) =>
         Cue(new RidleyBodyCue.GoToIfCeresAndSamusLowEnergy(Target: target));
 
     /// <summary>Selects the claw-height pose <paramref name="index"/>.</summary>

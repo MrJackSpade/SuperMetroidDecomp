@@ -14,16 +14,16 @@ internal static class MaridiaLargeSnailNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<MaridiaLargeSnailProgram>[] Entries =
+    internal static readonly NativeProgramEntry<MaridiaLargeSnailSegment>[] Entries =
     [
-        new NativeProgramEntry<MaridiaLargeSnailProgram>(MaridiaLargeSnailProgram.FacingLeftIdle, 0xca4b),
-        new NativeProgramEntry<MaridiaLargeSnailProgram>(MaridiaLargeSnailProgram.FacingLeftAttacking, 0xca51),
-        new NativeProgramEntry<MaridiaLargeSnailProgram>(MaridiaLargeSnailProgram.FacingLeftRollingForwards, 0xca8b),
-        new NativeProgramEntry<MaridiaLargeSnailProgram>(MaridiaLargeSnailProgram.FacingLeftRollingBackwards, 0xcab3),
-        new NativeProgramEntry<MaridiaLargeSnailProgram>(MaridiaLargeSnailProgram.FacingRightIdle, 0xcadb),
-        new NativeProgramEntry<MaridiaLargeSnailProgram>(MaridiaLargeSnailProgram.FacingRightAttacking, 0xcae1),
-        new NativeProgramEntry<MaridiaLargeSnailProgram>(MaridiaLargeSnailProgram.FacingRightRollingForwards, 0xcb1b),
-        new NativeProgramEntry<MaridiaLargeSnailProgram>(MaridiaLargeSnailProgram.FacingRightRollingBackwards, 0xcb43),
+        new NativeProgramEntry<MaridiaLargeSnailSegment>(MaridiaLargeSnailSegment.FacingLeftIdle, 0xca4b),
+        new NativeProgramEntry<MaridiaLargeSnailSegment>(MaridiaLargeSnailSegment.FacingLeftAttacking, 0xca51),
+        new NativeProgramEntry<MaridiaLargeSnailSegment>(MaridiaLargeSnailSegment.FacingLeftRollingForwards, 0xca8b),
+        new NativeProgramEntry<MaridiaLargeSnailSegment>(MaridiaLargeSnailSegment.FacingLeftRollingBackwards, 0xcab3),
+        new NativeProgramEntry<MaridiaLargeSnailSegment>(MaridiaLargeSnailSegment.FacingRightIdle, 0xcadb),
+        new NativeProgramEntry<MaridiaLargeSnailSegment>(MaridiaLargeSnailSegment.FacingRightAttacking, 0xcae1),
+        new NativeProgramEntry<MaridiaLargeSnailSegment>(MaridiaLargeSnailSegment.FacingRightRollingForwards, 0xcb1b),
+        new NativeProgramEntry<MaridiaLargeSnailSegment>(MaridiaLargeSnailSegment.FacingRightRollingBackwards, 0xcb43),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

@@ -54,7 +54,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             MaximumPosition = new(CoordinateAxis.Wrap(slot.Position.X.Whole + settings.TravelDistance), 0),
         };
         slot.SetSpeciesState(state);
-        SetOwtchProgram(slot, state, InitialProgram(settings.InitialBehavior));
+        SetOwtchAnimation(slot, state, InitialAnimation(settings.InitialBehavior));
 
         // State two is the game's special initially-buried form. It moves only the
         // whole coordinate and records the same sixteen-pixel depth used by normal sinking.
@@ -114,7 +114,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             case OwtchBehaviorState.TurningAtLeftBound:
                 // Owtch does not move this update; it restarts the right-facing animation, whose first cue sets it
                 // walking right.
-                SetOwtchProgram(slot, state, OwtchProgram.MovingRight);
+                SetOwtchAnimation(slot, state, OwtchSegment.MovingRight);
                 return;
 
             default:
@@ -129,10 +129,10 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     /// facing right.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="initial"/> is the turn at the left bound, which no placement starts in.</exception>
-    private static OwtchProgram InitialProgram(OwtchBehaviorState initial) => initial switch
+    private static OwtchSegment InitialAnimation(OwtchBehaviorState initial) => initial switch
     {
-        OwtchBehaviorState.MovingLeft or OwtchBehaviorState.Underground or OwtchBehaviorState.Rising => OwtchProgram.MovingLeft,
-        OwtchBehaviorState.MovingRight or OwtchBehaviorState.Sinking => OwtchProgram.MovingRight,
+        OwtchBehaviorState.MovingLeft or OwtchBehaviorState.Underground or OwtchBehaviorState.Rising => OwtchSegment.MovingLeft,
+        OwtchBehaviorState.MovingRight or OwtchBehaviorState.Sinking => OwtchSegment.MovingRight,
         OwtchBehaviorState.TurningAtLeftBound => throw new InvalidDataException("No Owtch placement starts turning at its left bound."),
         _ => throw new ArgumentOutOfRangeException(nameof(initial), initial, "Undefined Owtch behaviour."),
     };
@@ -179,9 +179,9 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Behavior is OwtchBehaviorState.MovingLeft or OwtchBehaviorState.TurningAtLeftBound;
 
     /// <summary>Restarts the selected facing animation at its first step.</summary>
-    private static void SetOwtchProgram(RoomEnemySlot slot, OwtchEnemyState state, OwtchProgram program)
+    private static void SetOwtchAnimation(RoomEnemySlot slot, OwtchEnemyState state, OwtchSegment program)
     {
-        state.Playback = EnemyProgramAnimation.Start(slot, OwtchAnimations.StartingWith(program));
+        state.Playback = EnemyAnimationPlayback.Start(slot, OwtchAnimations.StartingWith(program));
     }
 
     /// <summary>Allows common bomb damage only while Owtch occupies vulnerable movement state zero.</summary>
@@ -202,8 +202,8 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Owtch's typed animation.</summary>
-    internal static void AdvanceOwtchTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, OwtchAnimations.Segments,
+    internal static void AdvanceOwtchTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, OwtchAnimations.Segments,
             static (OwtchEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

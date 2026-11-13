@@ -32,7 +32,7 @@ internal sealed class IntroEggParticle
         sprite = new IntroDiscoverySprite(
             IntroEggMotion.FragmentInitialPosition(index),
             colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
-            program: definition.Program);
+            program: definition.Animation);
         sprite.InstallFrameBehavior(definition.FrameBehavior);
     }
 
@@ -59,7 +59,7 @@ internal sealed class IntroEggParticle
         {
             // The game primes the shared one-step delete animation, which the generic handler
             // consumes later in this same object call.
-            sprite.Start(CinematicSpriteProgram.Delete);
+            sprite.Start(CinematicSpriteSegment.Delete);
         }
         else
         {

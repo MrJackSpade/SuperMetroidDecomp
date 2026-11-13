@@ -10,6 +10,6 @@ internal static class SamusProjectileRecordOrder
 {
     /// <summary>Every timed record, program by program in program order.</summary>
     internal static IReadOnlyList<SamusProjectileFrame> Frames { get; } =
-        [.. Enum.GetValues<SamusProjectileProgram>().SelectMany(program =>
-            Enumerable.Range(0, SamusProjectileRecordDefinitions.ByProgram[program].Length).Select(show => new SamusProjectileFrame(program, show)))];
+        [.. Enum.GetValues<SamusProjectileSegment>().SelectMany(program =>
+            Enumerable.Range(0, SamusProjectileRecordDefinitions.ByAnimation[program].Length).Select(show => new SamusProjectileFrame(program, show)))];
 }

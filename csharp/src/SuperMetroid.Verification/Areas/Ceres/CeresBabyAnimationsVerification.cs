@@ -18,19 +18,19 @@ internal static class CeresBabyAnimationsVerification
     internal static void VerifyCeresBabyAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        AssertEqual(Enum.GetValues<CeresBabyProgram>().Length, Entries.Length, "every Ceres Baby segment has a native entry");
-        Dictionary<CeresBabyProgram, NativeEnemyList<CeresBabyProgram>> lists =
+        AssertEqual(Enum.GetValues<CeresBabySegment>().Length, Entries.Length, "every Ceres Baby segment has a native entry");
+        Dictionary<CeresBabySegment, NativeEnemyList<CeresBabySegment>> lists =
             Entries.ToDictionary(item => item.Program, item => Read(cartridge, item.Program, item.Entry));
         NativeEnemyAnimationOracle.CompareAnimations(lists, CeresBabyAnimations.StartingAt);
         Console.WriteLine($"  Ceres Baby animations: {Entries.Length} segments ({lists.Values.Sum(list => list.BeatAddresses.Length)} beats) match bank $A6.");
     }
 
     /// <summary>Reads one segment's native list, comparing each of its beats with the segment's.</summary>
-    private static NativeEnemyList<CeresBabyProgram> Read(IImportCartridgeSource cartridge, CeresBabyProgram segment, ushort entry)
+    private static NativeEnemyList<CeresBabySegment> Read(IImportCartridgeSource cartridge, CeresBabySegment segment, ushort entry)
     {
         IReadOnlyList<AnimationBeat<CeresBabyPose, CeresBabyCue>> beats = CeresBabyAnimations.Segments.Beats(segment);
         var addresses = new List<ushort>();
-        var controls = new List<NativeEnemyControl<CeresBabyProgram>>();
+        var controls = new List<NativeEnemyControl<CeresBabySegment>>();
         ushort cursor = entry;
         while (true)
         {
@@ -79,7 +79,7 @@ internal static class CeresBabyAnimationsVerification
             cursor = unchecked((ushort)(cursor + 4));
         }
         AssertEqual(beats.Count, addresses.Count, $"Ceres Baby {segment} ends where its native list does");
-        return new NativeEnemyList<CeresBabyProgram>([.. addresses], [.. controls]);
+        return new NativeEnemyList<CeresBabySegment>([.. addresses], [.. controls]);
 
         AnimationBeat<CeresBabyPose, CeresBabyCue> Beat(int beat, string at) => beat < beats.Count
             ? beats[beat]

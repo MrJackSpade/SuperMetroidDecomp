@@ -367,20 +367,20 @@ internal static class EnemyDropsVerification
         AssertEqual(KilledEnemy.Of(enemy, respawns: true), explosion.KilledEnemy,
             "respawning slot zero is retained as the killed enemy, marked to respawn");
         AssertEqual(
-            EnemyDeathExplosions.Program(EnemyDeathExplosion.Small),
+            EnemyDeathExplosions.Animation(EnemyDeathExplosion.Small),
             ProgramOf(explosion),
             "a Fireflea health above four starts the small explosion");
         AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard, explosion.Graphics,
             "enemy-death initializer replaces the dying actor's room graphics with the cleared word's common colours");
 
-        EnemyDeathProjectileProgram converted = fixture.System.DeathsAndDrops.ConvertEnemyDeathExplosionToPickup(explosion);
+        EnemyDeathProjectileSegment converted = fixture.System.DeathsAndDrops.ConvertEnemyDeathExplosionToPickup(explosion);
         AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind,
             "EEAF converts death actor in place without rewriting its definition identity");
         AssertEqual(EnemyPickupKind.SmallEnergy, explosion.StateOf<EnemyPickupState>().Kind,
             "converted death actor becomes a small-energy pickup");
         AssertEqual(EnemyProjectileFrameBehavior.PickupLifetime, explosion.FrameBehavior,
             "converted death actor enters shared pickup pre-instruction");
-        AssertEqual(EnemyDeathProjectileProgram.SmallEnergy, converted,
+        AssertEqual(EnemyDeathProjectileSegment.SmallEnergy, converted,
             "converted death actor continues at the small-energy drop program");
     }
 

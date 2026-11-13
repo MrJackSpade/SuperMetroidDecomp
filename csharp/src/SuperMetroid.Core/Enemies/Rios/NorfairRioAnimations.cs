@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Rios.NorfairRioCueKind;
-using P = SuperMetroid.Core.Enemies.Rios.NorfairRioProgram;
+using P = SuperMetroid.Core.Enemies.Rios.NorfairRioSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Rios;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Rios;
 internal static class NorfairRioAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<NorfairRioProgram, EnemyFrameId, NorfairRioCue> Segments { get; } = new(
-        new Dictionary<NorfairRioProgram, AnimationBeat<EnemyFrameId, NorfairRioCue>[]>
+    internal static AnimationSegments<NorfairRioSegment, EnemyFrameId, NorfairRioCue> Segments { get; } = new(
+        new Dictionary<NorfairRioSegment, AnimationBeat<EnemyFrameId, NorfairRioCue>[]>
     {
         [P.Idle] =
         [
@@ -92,7 +92,7 @@ internal static class NorfairRioAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<NorfairRioProgram, Animation<NorfairRioProgram>> StartingAt { get; } = new Dictionary<NorfairRioProgram, Animation<NorfairRioProgram>>
+    internal static IReadOnlyDictionary<NorfairRioSegment, Animation<NorfairRioSegment>> StartingAt { get; } = new Dictionary<NorfairRioSegment, Animation<NorfairRioSegment>>
     {
         [P.Idle] = new([new(P.Idle, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
         [P.StartDescending] = new([new(P.StartDescending, 0, 13, 1)], AnimationEnd.Holds),
@@ -104,7 +104,7 @@ internal static class NorfairRioAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<NorfairRioProgram> StartingWith(NorfairRioProgram segment) => StartingAt[segment];
+    internal static Animation<NorfairRioSegment> StartingWith(NorfairRioSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NorfairRioCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NorfairRioCue>.Frame(frame, duration);

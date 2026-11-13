@@ -13,7 +13,7 @@ public static class ProjectileTrailSelection
     /// trail behind it is rejected, as is one behind a bomb or an explosion.
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">The projectile leaves no trail.</exception>
-    internal static ProjectileTrailPrograms Select(SamusProjectileType trailing) => trailing.Family switch
+    internal static ProjectileTrailAnimations Select(SamusProjectileType trailing) => trailing.Family switch
     {
         SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile => ProjectileTrailDefinitions.MissileTrail,
         SamusProjectileFamily.Beam => trailing.Echo switch
@@ -29,17 +29,17 @@ public static class ProjectileTrailSelection
     };
 
     /// <summary>The left trail of a beam shot: Wave's own trail, otherwise Ice draws its sparkle, and so does a charged Power shot.</summary>
-    private static ProjectileTrailProgram Left(SamusBeamCombination beams, bool charged) => beams switch
+    private static ProjectileTrailSegment Left(SamusBeamCombination beams, bool charged) => beams switch
     {
-        SamusBeamCombination.Wave => ProjectileTrailProgram.Wave,
-        SamusBeamCombination.Power => charged ? ProjectileTrailProgram.LeftIce : ProjectileTrailProgram.Empty,
+        SamusBeamCombination.Wave => ProjectileTrailSegment.Wave,
+        SamusBeamCombination.Power => charged ? ProjectileTrailSegment.LeftIce : ProjectileTrailSegment.Empty,
         SamusBeamCombination.Ice or SamusBeamCombination.IceWave or SamusBeamCombination.SpazerIce or
             SamusBeamCombination.SpazerIceWave or SamusBeamCombination.PlasmaIce or
-            SamusBeamCombination.PlasmaIceWave => ProjectileTrailProgram.LeftIce,
+            SamusBeamCombination.PlasmaIceWave => ProjectileTrailSegment.LeftIce,
         SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or SamusBeamCombination.Plasma or
             SamusBeamCombination.PlasmaWave or SamusBeamCombination.SpazerPlasma or
             SamusBeamCombination.SpazerPlasmaWave or SamusBeamCombination.SpazerPlasmaIce or
-            SamusBeamCombination.SpazerPlasmaIceWave => ProjectileTrailProgram.Empty,
+            SamusBeamCombination.SpazerPlasmaIceWave => ProjectileTrailSegment.Empty,
         _ => throw new ArgumentOutOfRangeException(nameof(beams), beams, "Undefined beam combination."),
     };
 
@@ -47,17 +47,17 @@ public static class ProjectileTrailSelection
     /// The right trail of a beam shot: a charged Wave or Ice-Wave shot's, and Ice's sparkle where Spazer or Plasma
     /// joins it, unless both do.
     /// </summary>
-    private static ProjectileTrailProgram Right(SamusBeamCombination beams, bool charged) => beams switch
+    private static ProjectileTrailSegment Right(SamusBeamCombination beams, bool charged) => beams switch
     {
-        SamusBeamCombination.Wave => charged ? ProjectileTrailProgram.Wave : ProjectileTrailProgram.Empty,
-        SamusBeamCombination.IceWave => charged ? ProjectileTrailProgram.RightIce : ProjectileTrailProgram.Empty,
+        SamusBeamCombination.Wave => charged ? ProjectileTrailSegment.Wave : ProjectileTrailSegment.Empty,
+        SamusBeamCombination.IceWave => charged ? ProjectileTrailSegment.RightIce : ProjectileTrailSegment.Empty,
         SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or
-            SamusBeamCombination.PlasmaIceWave => ProjectileTrailProgram.RightIce,
+            SamusBeamCombination.PlasmaIceWave => ProjectileTrailSegment.RightIce,
         SamusBeamCombination.Power or SamusBeamCombination.Ice or SamusBeamCombination.Spazer or
             SamusBeamCombination.SpazerWave or SamusBeamCombination.Plasma or
             SamusBeamCombination.PlasmaWave or SamusBeamCombination.PlasmaIce or
             SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or
-            SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave => ProjectileTrailProgram.Empty,
+            SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave => ProjectileTrailSegment.Empty,
         _ => throw new ArgumentOutOfRangeException(nameof(beams), beams, "Undefined beam combination."),
     };
 }

@@ -116,7 +116,7 @@ internal sealed class FallingSparksBehavior
     /// </summary>
     internal static void BeginFallingSparkFloorImpact(EnemyProjectile projectile)
     {
-        projectile.StartAnimation(new FallingSparkAnimation(FallingSparkProgram.HitFloor));
+        projectile.StartAnimation(new FallingSparkAnimation(FallingSparkSegment.HitFloor));
 
         // The impact quadruples the sideways drift, wrapping as the 32-bit doubling does: the unauthored launch the
         // last random selection reads is any displacement, so its quadruple can pass the type's range.

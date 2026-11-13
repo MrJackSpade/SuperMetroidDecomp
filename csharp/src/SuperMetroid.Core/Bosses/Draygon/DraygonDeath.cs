@@ -57,7 +57,7 @@ internal sealed class DraygonDeath
         state.Function = DraygonAiFunction.DyingSink;
         _parts.RequestDraygonMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
         state.BurialWait = DraygonBehavior.DraygonDeathWaitFramesUs;
-        _parts.StartDraygonProgram(body, DraygonProgram.Sleep);
+        _parts.StartDraygonAnimation(body, DraygonSegment.Sleep);
 
         // The tail and arms take the body's properties, deleted.
         EnemyPresence deletedPartPresence = body.Presence.With(EnemyPresence.Deleted);
@@ -68,11 +68,11 @@ internal sealed class DraygonDeath
         state.Arms.Processing = body.Processing;
         state.Arms.Presence = deletedPartPresence;
         RoomEnemySlot eye = state.Eye;
-        _parts.StartDraygonProgram(
+        _parts.StartDraygonAnimation(
             eye,
             state.FacingRight
-                ? DraygonProgram.EyeFacingRightDead
-                : DraygonProgram.EyeFacingLeftDead);
+                ? DraygonSegment.EyeFacingRightDead
+                : DraygonSegment.EyeFacingLeftDead);
         eye.RequireSpeciesState<DraygonEyeState>().Function = DraygonEyeFunction.Inert;
     }
 
@@ -103,7 +103,7 @@ internal sealed class DraygonDeath
         if (CoordinateAxis.Difference(body.Position.Y.Whole, DraygonBehavior.DraygonBurialFinishedY) < 0)
             return;
 
-        _parts.StartDraygonProgram(body, DraygonProgram.Delete);
+        _parts.StartDraygonAnimation(body, DraygonSegment.Delete);
 
         // The death drops use Draygon's body definition for sixteen independent drops over the
         // lower half of the arena. The drops spawn before the body is deleted.

@@ -50,7 +50,7 @@ internal static class ChargeFlareDefinitionsVerification
                 AssertEqual(new ChargeFlarePhase(picture), beat.Shown, $"{component} picture {picture} is its program's place");
                 AssertEqual(waits[picture] + 1, beat.Duration, $"{component} picture {picture} shows for its wait and one update");
             }
-            Animation<ChargeFlareComponent> animation = ChargeFlareAnimationDefinitions.Programs[component];
+            Animation<ChargeFlareComponent> animation = ChargeFlareAnimationDefinitions.Animations[component];
             var loop = (AnimationEnd.Loop)animation.End;
             AssertEqual(continuesAt, animation.Phases[loop.Phase].FirstBeat, $"{component} continues past its last picture where the original program does");
             AssertEqual(beats.Count, animation.Phases[loop.Phase].FirstBeat + animation.Phases[loop.Phase].BeatCount,

@@ -14,12 +14,12 @@ internal static class SparkNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<SparkProgram>[] Entries =
+    internal static readonly NativeProgramEntry<SparkSegment>[] Entries =
     [
-        new NativeProgramEntry<SparkProgram>(SparkProgram.FlickerOn, 0xe5a7),
-        new NativeProgramEntry<SparkProgram>(SparkProgram.Active, 0xe5d1),
-        new NativeProgramEntry<SparkProgram>(SparkProgram.FlickerOut, 0xe5e5),
-        new NativeProgramEntry<SparkProgram>(SparkProgram.Emitter, 0xe609),
+        new NativeProgramEntry<SparkSegment>(SparkSegment.FlickerOn, 0xe5a7),
+        new NativeProgramEntry<SparkSegment>(SparkSegment.Active, 0xe5d1),
+        new NativeProgramEntry<SparkSegment>(SparkSegment.FlickerOut, 0xe5e5),
+        new NativeProgramEntry<SparkSegment>(SparkSegment.Emitter, 0xe609),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

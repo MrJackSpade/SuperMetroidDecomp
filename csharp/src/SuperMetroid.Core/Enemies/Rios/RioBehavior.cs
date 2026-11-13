@@ -43,14 +43,14 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new RioEnemyState
         {
             AnimationFinished = false,
-            InstalledProgram = null,
+            InstalledAnimation = null,
             Function = RioEnemyFunction.WaitingForSamus,
         };
         slot.SetSpeciesState(state);
 
         // The Rio's setup writes the list directly rather than calling the animation installer. The installed animation must
         // therefore remain none until the first behavioral transition installs a new list.
-        state.Playback = EnemyProgramAnimation.Start(slot, RioAnimations.StartingWith(RioProgram.Idle));
+        state.Playback = EnemyAnimationPlayback.Start(slot, RioAnimations.StartingWith(RioSegment.Idle));
     }
 
     /// <summary>Runs the Rio's main AI and its five functions.</summary>
@@ -82,10 +82,10 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     RioLaunchDefinitions.RioYVelocity);
                 if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0)
                     state.Velocity = state.Velocity.ReversedX();
-                InstallRioAnimationScript(
+                StartRioAnimation(
                     slot,
                     state,
-                    RioProgram.SwoopingPart1);
+                    RioSegment.SwoopingPart1);
                 state.Function = RioEnemyFunction.Diving;
 
                 // The game's on-screen check returns zero for an on-screen origin. The
@@ -98,10 +98,10 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!state.AnimationFinished)
                     return;
                 state.AnimationFinished = false;
-                InstallRioAnimationScript(
+                StartRioAnimation(
                     slot,
                     state,
-                    RioProgram.PostSwoopIdle);
+                    RioSegment.PostSwoopIdle);
                 state.Function = RioEnemyFunction.WaitingForSamus;
                 return;
 
@@ -135,10 +135,10 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 else if (state.AnimationFinished)
                 {
                     state.AnimationFinished = false;
-                    InstallRioAnimationScript(
+                    StartRioAnimation(
                         slot,
                         state,
-                        RioProgram.SwoopingPart2);
+                        RioSegment.SwoopingPart2);
                 }
                 return;
 
@@ -156,10 +156,10 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                         slot,
                         state.Velocity.Y.ToSixteenSixteenDelta()))
                 {
-                    InstallRioAnimationScript(
+                    StartRioAnimation(
                         slot,
                         state,
-                        RioProgram.SwoopCooldown);
+                        RioSegment.SwoopCooldown);
                     state.Function = RioEnemyFunction.WaitingForLandingAnimation;
                 }
                 else
@@ -219,13 +219,13 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Installs an animation only when it actually changes.</summary>
-    private static void InstallRioAnimationScript(
+    private static void StartRioAnimation(
         RoomEnemySlot slot,
         RioEnemyState state,
-        RioProgram program) =>
-        EnemyProgramAnimation.InstallOnce(slot, state.InstalledProgram, program, installed =>
+        RioSegment program) =>
+        EnemyAnimationPlayback.StartOnce(slot, state.InstalledAnimation, program, installed =>
         {
-            state.InstalledProgram = installed;
+            state.InstalledAnimation = installed;
             state.Playback = new(RioAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
         });
 
@@ -262,8 +262,8 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Rio's typed animation.</summary>
-    internal static void AdvanceRioTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, RioAnimations.Segments,
+    internal static void AdvanceRioTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, RioAnimations.Segments,
             static (RioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

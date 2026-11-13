@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleCueKind;
-using P = SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleProgram;
+using P = SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 internal static class MamaTurtleAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MamaTurtleProgram, EnemyFrameId, MamaTurtleCue> Segments { get; } = new(
-        new Dictionary<MamaTurtleProgram, AnimationBeat<EnemyFrameId, MamaTurtleCue>[]>
+    internal static AnimationSegments<MamaTurtleSegment, EnemyFrameId, MamaTurtleCue> Segments { get; } = new(
+        new Dictionary<MamaTurtleSegment, AnimationBeat<EnemyFrameId, MamaTurtleCue>[]>
     {
         [P.BabyCrawlingLeft] =
         [
@@ -161,7 +161,7 @@ internal static class MamaTurtleAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<MamaTurtleProgram, Animation<MamaTurtleProgram>> StartingAt { get; } = new Dictionary<MamaTurtleProgram, Animation<MamaTurtleProgram>>
+    internal static IReadOnlyDictionary<MamaTurtleSegment, Animation<MamaTurtleSegment>> StartingAt { get; } = new Dictionary<MamaTurtleSegment, Animation<MamaTurtleSegment>>
     {
         [P.BabyCrawlingLeft] = new([new(P.BabyCrawlingLeft, 0, 25, 1)], AnimationEnd.Holds),
         [P.BabySpinning] = new([new(P.BabySpinning, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
@@ -179,7 +179,7 @@ internal static class MamaTurtleAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<MamaTurtleProgram> StartingWith(MamaTurtleProgram segment) => StartingAt[segment];
+    internal static Animation<MamaTurtleSegment> StartingWith(MamaTurtleSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, MamaTurtleCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, MamaTurtleCue>.Frame(frame, duration);

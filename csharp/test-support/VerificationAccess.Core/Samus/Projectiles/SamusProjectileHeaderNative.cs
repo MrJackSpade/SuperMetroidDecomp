@@ -119,7 +119,7 @@ internal static class SamusProjectileHeaderNative
     extension(SamusProjectileHeaders)
     {
         /// <summary>The program the header at bank-$93 <paramref name="header"/>'s list field <paramref name="field"/> selects.</summary>
-        internal static SamusProjectileProgram ProgramAtField(ushort header, int field) =>
+        internal static SamusProjectileSegment ProgramAtField(ushort header, int field) =>
             SamusProjectileHeaders.ProgramAtField(At(0x930000 | header)
                 ?? throw new InvalidDataException($"$93:{header:X4} is not a Samus projectile header."), field);
 
@@ -129,10 +129,10 @@ internal static class SamusProjectileHeaderNative
         /// the first.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">The header keeps no such field.</exception>
-        internal static SamusProjectileProgram ProgramAtField(SamusProjectileHeader header, int field) =>
-            SamusProjectileHeaderDefinitions.DirectionalPrograms.ContainsKey(header)
-                ? SamusProjectileHeaders.Program(header, SamusProjectileDirectionCodec.FromAimIndex(field))
-                : field == 0 ? SamusProjectileHeaders.SoleProgram(header)
+        internal static SamusProjectileSegment ProgramAtField(SamusProjectileHeader header, int field) =>
+            SamusProjectileHeaderDefinitions.DirectionalAnimations.ContainsKey(header)
+                ? SamusProjectileHeaders.Animation(header, SamusProjectileDirectionCodec.FromAimIndex(field))
+                : field == 0 ? SamusProjectileHeaders.SoleAnimation(header)
                 : throw new ArgumentOutOfRangeException(nameof(field), field, $"{header} keeps only its first list field.");
     }
 }

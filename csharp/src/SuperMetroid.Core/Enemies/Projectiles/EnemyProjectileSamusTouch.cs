@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 internal enum EnemyProjectileSamusTouch
 {
     /// <summary>The projectile keeps running its current program.</summary>
-    KeepsProgram,
+    KeepsAnimation,
     /// <summary>The projectile starts its touch reaction: its own typed reaction, or the shared delete reaction.</summary>
     StartsTouchReaction,
 }

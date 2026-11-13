@@ -11,7 +11,7 @@ public static class RoomStateSelection
     /// <summary>Selects a state with first-match precedence.</summary>
     public static RoomStateSettings Select(RoomHeaderDefinition room, RoomStateSelectionContext selection)
     {
-        RoomStateProgram program = Program(Ensure.NotNull(room));
+        RoomStateChoice program = ChoiceFor(Ensure.NotNull(room));
         foreach (RoomStateBranch branch in program.Branches)
         {
             if (branch.Condition.IsMet(selection))
@@ -21,7 +21,7 @@ public static class RoomStateSelection
     }
 
     /// <summary>The program of <paramref name="room"/>, which must be a compiled retail room.</summary>
-    internal static RoomStateProgram Program(RoomHeaderDefinition room) =>
-        RoomStateSelectionDefinitions.Programs.TryGetValue(room, out RoomStateProgram? program) ? program
+    internal static RoomStateChoice ChoiceFor(RoomHeaderDefinition room) =>
+        RoomStateSelectionDefinitions.Choices.TryGetValue(room, out RoomStateChoice? program) ? program
             : throw new ArgumentOutOfRangeException(nameof(room), room.Name, "Room is not one of the 262 compiled retail rooms.");
 }

@@ -39,9 +39,9 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
             GRipperStartDirection.Right => true,
             _ => throw new InvalidOperationException($"GRipper start direction {settings.Direction} is not a direction."),
         });
-        SetRipperProgram(
+        SetRipperAnimation(
             slot,
-            state.XVelocity.WholePixels < 0 ? RipperProgram.GRipperMovingLeft : RipperProgram.GRipperMovingRight);
+            state.XVelocity.WholePixels < 0 ? RipperSegment.GRipperMovingLeft : RipperSegment.GRipperMovingRight);
 
         // Unlike the wall-collision helper, patrol-bound reversal does not clamp the actor
         // back to either endpoint. The one-frame fractional overshoot is and becomes
@@ -74,8 +74,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             ReverseRipperVariant(
                 slot,
-                positiveProgram: RipperProgram.GRipperMovingRight,
-                negativeProgram: RipperProgram.GRipperMovingLeft);
+                positiveProgram: RipperSegment.GRipperMovingRight,
+                negativeProgram: RipperSegment.GRipperMovingLeft);
         }
     }
 
@@ -91,7 +91,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         // with the moving-left list.
         bool movingPositive = slot.SpawnSettings<RipperSpawnSettings>().Direction == HorizontalDirection.Right;
         LoadRipperVelocity(state, movingPositive);
-        SetRipperProgram(slot, movingPositive ? RipperProgram.Ripper2MovingLeft : RipperProgram.Ripper2MovingRight);
+        SetRipperAnimation(slot, movingPositive ? RipperSegment.Ripper2MovingLeft : RipperSegment.Ripper2MovingRight);
     }
 
     /// <summary>Runs the Ripper II's main AI.</summary>
@@ -104,8 +104,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 
         ReverseRipperVariant(
             slot,
-            positiveProgram: RipperProgram.Ripper2MovingLeft,
-            negativeProgram: RipperProgram.Ripper2MovingRight);
+            positiveProgram: RipperSegment.Ripper2MovingLeft,
+            negativeProgram: RipperSegment.Ripper2MovingRight);
     }
 
     /// <summary>Initializes the Ripper.</summary>
@@ -116,7 +116,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         bool movingRight = slot.SpawnSettings<RipperSpawnSettings>().Direction == HorizontalDirection.Right;
         RipperEnemyState state = CreateRipperState(slot);
         state.Playback = new(RipperAnimations.StartingWith(
-            movingRight ? RipperProgram.RipperMovingRight : RipperProgram.RipperMovingLeft), AnimationPlace.StartOfAnimation);
+            movingRight ? RipperSegment.RipperMovingRight : RipperSegment.RipperMovingLeft), AnimationPlace.StartOfAnimation);
 
         // The state retains the speed row because the reversal reuses it.
         state.Speeds = EnemyLinearSpeedRow.Moving(slot.SpawnSettings<RipperSpawnSettings>().Speed);
@@ -139,7 +139,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         bool wasMovingLeft = state.XVelocity.WholePixels < 0;
         bool nowMovingRight = wasMovingLeft;
         LoadRipperVelocity(state, nowMovingRight);
-        SetRipperProgram(slot, nowMovingRight ? RipperProgram.RipperMovingRight : RipperProgram.RipperMovingLeft);
+        SetRipperAnimation(slot, nowMovingRight ? RipperSegment.RipperMovingRight : RipperSegment.RipperMovingLeft);
     }
 
     /// <summary>Loads a Ripper-family enemy's velocity from its linear-speed row.</summary>
@@ -183,30 +183,30 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Flips a GRipper or Ripper II speed pair and restarts the corresponding loop.</summary>
     internal static void ReverseRipperVariant(
         RoomEnemySlot slot,
-        RipperProgram positiveProgram,
-        RipperProgram negativeProgram)
+        RipperSegment positiveProgram,
+        RipperSegment negativeProgram)
     {
         RipperEnemyState state = slot.RequireSpeciesState<RipperEnemyState>();
         bool wasMovingNegative = state.XVelocity.WholePixels < 0;
         LoadRipperVelocity(state, movingRight: wasMovingNegative);
-        SetRipperProgram(slot, wasMovingNegative ? positiveProgram : negativeProgram);
+        SetRipperAnimation(slot, wasMovingNegative ? positiveProgram : negativeProgram);
     }
 
     /// <summary>Installs a flying loop from its first step on the next enemy frame.</summary>
-    private static void SetRipperProgram(RoomEnemySlot slot, RipperProgram program)
+    private static void SetRipperAnimation(RoomEnemySlot slot, RipperSegment program)
     {
         slot.RequireSpeciesState<RipperEnemyState>().Playback = new(RipperAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.Restart();
     }
 
     /// <summary>Advances Ripper's typed animation.</summary>
-    internal static void AdvanceRipperTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal static void AdvanceRipperTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
         if (!slot.AnimationClock.Expire())
             return;
         RipperEnemyState state = slot.RequireSpeciesState<RipperEnemyState>();
-        AnimationPlayback<RipperProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, RipperAnimations.Segments, ref playback,
+        AnimationPlayback<RipperSegment> playback = state.Playback;
+        EnemyAnimationPlayback.Play(slot, RipperAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"Ripper's cue-free animation raised {cue}."));
         state.Playback = playback;
     }

@@ -34,7 +34,7 @@ internal static class MotherBrainBodyHitboxesVerification
         // properties $3800 (tangible); the head well clear.
         state.Form = MotherBrainForm.ThirdPhase;
         body.Contact = EnemyContact.BlocksPlasmaBeam;
-        body.Processing = EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript;
+        body.Processing = EnemyProcessing.OffScreen | EnemyProcessing.Animates;
         body.Presence = EnemyPresence.None;
         body.Position = body.Position.WithWhole(new(0x003e, 0x0090));
         body.SpritemapPointer = 0xa174;

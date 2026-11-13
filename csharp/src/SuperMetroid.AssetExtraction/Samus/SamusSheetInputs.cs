@@ -28,7 +28,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, SpriteArtwork StandardObjects,
     GameplayBasePalette Palettes, ImportIntroCinematicArtwork Intro, SamusBodyCharacterArtwork SamusBody,
     SamusDeathTileAtlas DeathTiles, SamusArmCannonCoverCharacters ArmCannonCover, SamusShadeSources ShadeSources,
-    LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> AnimationContinuation)
+    LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> AnimationContinuation)
 {
     /// <summary>Loads the stock artwork and colour tables from installed content.</summary>
     internal static SamusSheetInputs Load(string content)

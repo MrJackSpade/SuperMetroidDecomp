@@ -125,13 +125,13 @@ internal static class GunshipLandingVerification
                     "landing requests the gunship landing sound");
                 // EnemyMain starts the pad-opening program, then this same slot's ordinary
                 // instruction phase shows its first timed frame before StepFrame returns.
-                AssertPadShowsFirstFrame(pad, GunshipProgram.EntrancePadOpening,
+                AssertPadShowsFirstFrame(pad, GunshipSegment.EntrancePadOpening,
                     "bounce completion advances the pad-opening program once");
             }
             observedPadClose |= enemies.LastEnemyFrame.Gunship == GunshipFrameEvent.LandingPadClosed;
             if (enemies.LastEnemyFrame.Gunship == GunshipFrameEvent.LandingPadClosed)
             {
-                AssertPadShowsFirstFrame(pad, GunshipProgram.EntrancePadClosing,
+                AssertPadShowsFirstFrame(pad, GunshipSegment.EntrancePadClosing,
                     "Samus lift advances the pad-closing program once");
             }
         }
@@ -287,7 +287,7 @@ internal static class GunshipLandingVerification
     }
 
     /// <summary>Asserts that <paramref name="pad"/> shows <paramref name="program"/>'s first pose for its first duration.</summary>
-    private static void AssertPadShowsFirstFrame(RoomEnemySlot pad, GunshipProgram program, string message)
+    private static void AssertPadShowsFirstFrame(RoomEnemySlot pad, GunshipSegment program, string message)
     {
         var first = AssertIs<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>(GunshipAnimations.Segments.Beats(program)[0], message + " (first beat)");
         AssertEqual(GunshipFrameDefinitionsConstants.Spritemap(first.Shown), pad.SpritemapPointer, message + " (pose)");

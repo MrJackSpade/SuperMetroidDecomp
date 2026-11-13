@@ -22,25 +22,25 @@ internal static class CrocomireAnimations
     ];
 
     /// <summary>The tongue's segments: the fight loop's frames, the hidden tongue's bare sleep, and the melting loop's frames.</summary>
-    internal static AnimationSegments<CrocomireTongueProgram, CrocomireTongueFrame, NoAnimationCue> TongueSegments { get; } = new(
-        new Dictionary<CrocomireTongueProgram, AnimationBeat<CrocomireTongueFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<CrocomireTongueSegment, CrocomireTongueFrame, NoAnimationCue> TongueSegments { get; } = new(
+        new Dictionary<CrocomireTongueSegment, AnimationBeat<CrocomireTongueFrame, NoAnimationCue>[]>
         {
-            [CrocomireTongueProgram.Fight] = [.. FightTongueFrames.Select(frame => TongueFrame(frame, 5))],
-            [CrocomireTongueProgram.Sleep] = [],
-            [CrocomireTongueProgram.Melting] = [.. MeltingTongueFrames.Select(frame => TongueFrame(frame, 5))],
+            [CrocomireTongueSegment.Fight] = [.. FightTongueFrames.Select(frame => TongueFrame(frame, 5))],
+            [CrocomireTongueSegment.Sleep] = [],
+            [CrocomireTongueSegment.Melting] = [.. MeltingTongueFrames.Select(frame => TongueFrame(frame, 5))],
         });
 
     /// <summary>The tongue's animations: the fight and melting frames loop, and the hidden tongue rests.</summary>
-    internal static IReadOnlyDictionary<CrocomireTongueProgram, Animation<CrocomireTongueProgram>> TongueStartingAt { get; } =
-        new Dictionary<CrocomireTongueProgram, Animation<CrocomireTongueProgram>>
+    internal static IReadOnlyDictionary<CrocomireTongueSegment, Animation<CrocomireTongueSegment>> TongueStartingAt { get; } =
+        new Dictionary<CrocomireTongueSegment, Animation<CrocomireTongueSegment>>
         {
-            [CrocomireTongueProgram.Fight] = new([new(CrocomireTongueProgram.Fight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-            [CrocomireTongueProgram.Sleep] = new([], AnimationEnd.Holds),
-            [CrocomireTongueProgram.Melting] = new([new(CrocomireTongueProgram.Melting, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+            [CrocomireTongueSegment.Fight] = new([new(CrocomireTongueSegment.Fight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+            [CrocomireTongueSegment.Sleep] = new([], AnimationEnd.Holds),
+            [CrocomireTongueSegment.Melting] = new([new(CrocomireTongueSegment.Melting, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
         };
 
     /// <summary>The tongue animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<CrocomireTongueProgram> TongueStartingWith(CrocomireTongueProgram segment) => TongueStartingAt[segment];
+    internal static Animation<CrocomireTongueSegment> TongueStartingWith(CrocomireTongueSegment segment) => TongueStartingAt[segment];
 
     /// <summary>
     /// The projectile segments, one per projectile kind: the fight projectile's six three-update frames; the bridge

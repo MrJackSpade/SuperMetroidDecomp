@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.KiHunters.KiHunterCueKind;
-using P = SuperMetroid.Core.Enemies.KiHunters.KiHunterProgram;
+using P = SuperMetroid.Core.Enemies.KiHunters.KiHunterSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.KiHunters;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 internal static class KiHunterAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<KiHunterProgram, EnemyFrameId, KiHunterCue> Segments { get; } = new(
-        new Dictionary<KiHunterProgram, AnimationBeat<EnemyFrameId, KiHunterCue>[]>
+    internal static AnimationSegments<KiHunterSegment, EnemyFrameId, KiHunterCue> Segments { get; } = new(
+        new Dictionary<KiHunterSegment, AnimationBeat<EnemyFrameId, KiHunterCue>[]>
     {
         [P.FlyingLeft] =
         [
@@ -126,7 +126,7 @@ internal static class KiHunterAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<KiHunterProgram, Animation<KiHunterProgram>> StartingAt { get; } = new Dictionary<KiHunterProgram, Animation<KiHunterProgram>>
+    internal static IReadOnlyDictionary<KiHunterSegment, Animation<KiHunterSegment>> StartingAt { get; } = new Dictionary<KiHunterSegment, Animation<KiHunterSegment>>
     {
         [P.FlyingLeft] = new([new(P.FlyingLeft, 0, 4, 1), new(P.SwoopLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SwoopLeft] = new([new(P.SwoopLeft, 0, 6, 1), new(P.FlyingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
@@ -144,7 +144,7 @@ internal static class KiHunterAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<KiHunterProgram> StartingWith(KiHunterProgram segment) => StartingAt[segment];
+    internal static Animation<KiHunterSegment> StartingWith(KiHunterSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, KiHunterCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, KiHunterCue>.Frame(frame, duration);

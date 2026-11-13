@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Waver.WaverCueKind;
-using P = SuperMetroid.Core.Enemies.Waver.WaverProgram;
+using P = SuperMetroid.Core.Enemies.Waver.WaverSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Waver;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Waver;
 internal static class WaverAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<WaverProgram, EnemyFrameId, WaverCue> Segments { get; } = new(
-        new Dictionary<WaverProgram, AnimationBeat<EnemyFrameId, WaverCue>[]>
+    internal static AnimationSegments<WaverSegment, EnemyFrameId, WaverCue> Segments { get; } = new(
+        new Dictionary<WaverSegment, AnimationBeat<EnemyFrameId, WaverCue>[]>
     {
         [P.SteadyFacingLeft] =
         [
@@ -42,7 +42,7 @@ internal static class WaverAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<WaverProgram, Animation<WaverProgram>> StartingAt { get; } = new Dictionary<WaverProgram, Animation<WaverProgram>>
+    internal static IReadOnlyDictionary<WaverSegment, Animation<WaverSegment>> StartingAt { get; } = new Dictionary<WaverSegment, Animation<WaverSegment>>
     {
         [P.SteadyFacingLeft] = new([new(P.SteadyFacingLeft, 0, 1, 1)], AnimationEnd.Holds),
         [P.SteadyFacingRight] = new([new(P.SteadyFacingRight, 0, 1, 1)], AnimationEnd.Holds),
@@ -51,7 +51,7 @@ internal static class WaverAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<WaverProgram> StartingWith(WaverProgram segment) => StartingAt[segment];
+    internal static Animation<WaverSegment> StartingWith(WaverSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, WaverCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, WaverCue>.Frame(frame, duration);

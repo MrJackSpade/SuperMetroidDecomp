@@ -32,7 +32,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
                 CeresNativeWords.DoorFunctions.Word(definition.MainFunction),
                 $"Ceres door function selector {variant}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + variant * 2)),
-                NativeEnemyAnimationOracle.EntryOf(CeresDoorNativeListAddresses.Entries, definition.Program),
+                NativeEnemyAnimationOracle.EntryOf(CeresDoorNativeListAddresses.Entries, definition.Animation),
                 $"Ceres door instruction selector {variant}");
 
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = InstalledFixtures.BossArtwork };
@@ -45,7 +45,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
 
             AssertEqual<CeresDoorFunction?>(definition.MainFunction, slot.SpeciesState<CeresDoorEnemyState>()?.Function,
                 $"production Ceres door function selector {variant}");
-            AssertEqual(new AnimationPlayback<CeresDoorProgram>(CeresDoorAnimations.StartingWith(definition.Program), AnimationPlace.StartOfAnimation), slot.RequireSpeciesState<CeresDoorEnemyState>().Playback,
+            AssertEqual(new AnimationPlayback<CeresDoorSegment>(CeresDoorAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation), slot.RequireSpeciesState<CeresDoorEnemyState>().Playback,
                 $"production Ceres door program selector {variant}");
             AssertEqual((ushort)1, slot.AnimationClock.Hold.RawValue,
                 $"production Ceres door instruction timer {variant}");

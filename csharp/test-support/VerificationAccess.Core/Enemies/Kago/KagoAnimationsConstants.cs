@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Kago;
 internal static class KagoAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params KagoProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params KagoSegment[] programs) =>
         programs.SelectMany(program => KagoAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>()
             .Select(frame => KagoFrameToolingDefinitions.Spritemap(frame.Shown));

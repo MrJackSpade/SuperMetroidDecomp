@@ -45,7 +45,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Single corpse state owned by enemy slot zero in the loaded room.</summary>
     internal DeadTorizoEnemyState? DeadTorizo { get; private set; }
     /// <summary>Slot zero's typed corpse pose (#641, #1600), started before the corpse state exists.</summary>
-    private AnimationPlayback<DeadTorizoProgram> playback;
+    private AnimationPlayback<DeadTorizoSegment> playback;
 
     /// <summary>Initializes the dead Torizo.</summary>
     internal void InitializeDeadTorizo(RoomEnemySlot slot)
@@ -57,8 +57,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
-        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
-        playback = EnemyProgramAnimation.Start(slot, DeadTorizoAnimations.StartingWith(Corpses.DeadTorizoProgram.Stationary));
+        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
+        playback = EnemyAnimationPlayback.Start(slot, DeadTorizoAnimations.StartingWith(Corpses.DeadTorizoSegment.Stationary));
 
         DeadTorizo = new DeadTorizoEnemyState(slot, new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount))
         {
@@ -274,11 +274,11 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances DeadTorizo's typed animation.</summary>
-    internal void AdvanceDeadTorizoTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal void AdvanceDeadTorizoTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
         if (!slot.AnimationClock.Expire())
             return;
-        EnemyProgramAnimation.Play(slot, DeadTorizoAnimations.Segments, ref playback,
+        EnemyAnimationPlayback.Play(slot, DeadTorizoAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A cue-free dead Torizo animation raised {cue}."));
     }
 

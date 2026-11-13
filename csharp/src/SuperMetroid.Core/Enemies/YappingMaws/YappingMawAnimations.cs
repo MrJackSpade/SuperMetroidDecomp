@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.YappingMaws.YappingMawCueKind;
-using P = SuperMetroid.Core.Enemies.YappingMaws.YappingMawProgram;
+using P = SuperMetroid.Core.Enemies.YappingMaws.YappingMawSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.YappingMaws;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 internal static class YappingMawAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<YappingMawProgram, EnemyFrameId, YappingMawCue> Segments { get; } = new(
-        new Dictionary<YappingMawProgram, AnimationBeat<EnemyFrameId, YappingMawCue>[]>
+    internal static AnimationSegments<YappingMawSegment, EnemyFrameId, YappingMawCue> Segments { get; } = new(
+        new Dictionary<YappingMawSegment, AnimationBeat<EnemyFrameId, YappingMawCue>[]>
     {
         [P.AttackingUp] =
         [
@@ -144,7 +144,7 @@ internal static class YappingMawAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<YappingMawProgram, Animation<YappingMawProgram>> StartingAt { get; } = new Dictionary<YappingMawProgram, Animation<YappingMawProgram>>
+    internal static IReadOnlyDictionary<YappingMawSegment, Animation<YappingMawSegment>> StartingAt { get; } = new Dictionary<YappingMawSegment, Animation<YappingMawSegment>>
     {
         [P.AttackingUp] = new([new(P.AttackingUp, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
         [P.AttackingUpRight] = new([new(P.AttackingUpRight, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
@@ -167,7 +167,7 @@ internal static class YappingMawAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<YappingMawProgram> StartingWith(YappingMawProgram segment) => StartingAt[segment];
+    internal static Animation<YappingMawSegment> StartingWith(YappingMawSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, YappingMawCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, YappingMawCue>.Frame(frame, duration);

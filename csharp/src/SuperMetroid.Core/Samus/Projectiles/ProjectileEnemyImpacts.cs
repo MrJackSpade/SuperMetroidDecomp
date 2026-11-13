@@ -90,16 +90,16 @@ internal sealed class ProjectileEnemyImpacts
         }
 
         SamusProjectileHeader header;
-        SamusProjectileProgram? program;
+        SamusProjectileSegment? program;
         if (family == SamusProjectileFamily.Beam)
         {
             header = SamusProjectileSelection.BeamShot(slot.Type.BeamCombination, slot.Type.IsChargedBeam);
-            program = SamusProjectileSelection.BeamShotProgram(slot.Type.BeamCombination, slot.Type.IsChargedBeam, slot.Direction);
+            program = SamusProjectileSelection.BeamShotAnimation(slot.Type.BeamCombination, slot.Type.IsChargedBeam, slot.Direction);
         }
         else if (family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
         {
             header = SamusProjectileSelection.NonBeam(family);
-            program = SamusProjectileHeaders.Program(header, slot.Direction);
+            program = SamusProjectileHeaders.Animation(header, slot.Direction);
         }
         else
         {
@@ -111,8 +111,8 @@ internal sealed class ProjectileEnemyImpacts
         }
 
         slot.Damage = SamusProjectileDamage.Read(header);
-        slot.Playback = SamusProjectilePrograms.Start(program);
-        slot.Radius = SamusProjectilePrograms.InitialRadius(program);
+        slot.Playback = SamusProjectilePlayback.Start(program);
+        slot.Radius = SamusProjectilePlayback.InitialRadius(program);
         slot.FrameHold = WrappingCountdown.Start(1);
 
         if (family == SamusProjectileFamily.Missile)

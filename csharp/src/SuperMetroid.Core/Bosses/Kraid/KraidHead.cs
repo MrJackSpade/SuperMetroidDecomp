@@ -96,7 +96,7 @@ internal sealed class KraidHead
     /// <summary>Advances the open-mouth attack and its head instruction timing.</summary>
     internal void RunKraidMouthOpenAttack(RoomEnemySlot body, KraidEnemyState state)
     {
-        if (ProcessKraidHeadInstruction(state) == KraidHeadProgramResult.ProgramEnded)
+        if (AdvanceKraidHeadAnimation(state) == KraidHeadAnimationResult.AnimationEnded)
         {
             SetupKraidFirstPhaseThinking(body, state);
             state.BodyState.HeadTimer = 90;
@@ -134,40 +134,40 @@ internal sealed class KraidHead
     /// Counts the displayed head frame down and runs the head program on when it expires. A cleared timer holds the
     /// head, as does a timer still counting; a timer reaching zero gives the program's result.
     /// </summary>
-    internal KraidHeadProgramResult ProcessKraidHeadInstruction(KraidEnemyState state)
+    internal KraidHeadAnimationResult AdvanceKraidHeadAnimation(KraidEnemyState state)
     {
         KraidBodyState part = state.BodyState;
         if (part.HeadTimer == 0)
-            return KraidHeadProgramResult.PoseHeld;
-        return --part.HeadTimer == 0 ? ExecuteKraidHeadInstruction(state) : KraidHeadProgramResult.PoseHeld;
+            return KraidHeadAnimationResult.PoseHeld;
+        return --part.HeadTimer == 0 ? RunKraidHeadAnimationStep(state) : KraidHeadAnimationResult.PoseHeld;
     }
 
     /// <summary>
     /// Plays Kraid's head animation to its next pose: cries on the way are announced, and a pose installs its duration as
     /// the head timer and shows its image; at its list's end the animation holds there.
     /// </summary>
-    internal KraidHeadProgramResult ExecuteKraidHeadInstruction(KraidEnemyState state)
+    internal KraidHeadAnimationResult RunKraidHeadAnimationStep(KraidEnemyState state)
     {
-        AnimationPlayback<KraidHeadProgram> playback = state.HeadPlayback ?? throw new InvalidDataException(
+        AnimationPlayback<KraidHeadSegment> playback = state.HeadPlayback ?? throw new InvalidDataException(
             "Kraid's head animation has not been started.");
         AnimationPlace place = playback.Place;
         // The head's animations count no repeats, so nothing reads or writes this counter.
         WrappingCountdown repeats = WrappingCountdown.Start(0);
-        AnimationShown<KraidHeadProgram, KraidHeadFrame> outcome = KraidHeadAnimations.Segments.PlayToNextFrame(
+        AnimationShown<KraidHeadSegment, KraidHeadFrame> outcome = KraidHeadAnimations.Segments.PlayToNextFrame(
             playback.Animation, ref place, ref repeats, cue => PublishKraidHeadCue(cue, state));
         state.HeadPlayback = playback with { Place = place };
         switch (outcome)
         {
-            case AnimationShown<KraidHeadProgram, KraidHeadFrame>.Held:
-                return KraidHeadProgramResult.ProgramEnded;
+            case AnimationShown<KraidHeadSegment, KraidHeadFrame>.Held:
+                return KraidHeadAnimationResult.AnimationEnded;
 
-            case AnimationShown<KraidHeadProgram, KraidHeadFrame>.Frame shown:
+            case AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame shown:
                 state.BodyState.HeadTimer = shown.Duration;
                 // His body layer shows the pose over his body from here (#1515).
                 state.DisplayedHeadFrame = shown.Shown;
-                return KraidHeadProgramResult.PoseShown;
+                return KraidHeadAnimationResult.PoseShown;
 
-            case AnimationShown<KraidHeadProgram, KraidHeadFrame>.Paused or AnimationShown<KraidHeadProgram, KraidHeadFrame>.Ended:
+            case AnimationShown<KraidHeadSegment, KraidHeadFrame>.Paused or AnimationShown<KraidHeadSegment, KraidHeadFrame>.Ended:
                 throw new InvalidOperationException($"Kraid's head animations never reach {outcome}.");
 
             default:
@@ -197,7 +197,7 @@ internal sealed class KraidHead
     /// <summary>Updates the mouth-open reaction after a damaging shot.</summary>
     internal void RunKraidMouthOpenReaction(KraidEnemyState state)
     {
-        if (ProcessKraidHeadInstruction(state) != KraidHeadProgramResult.ProgramEnded)
+        if (AdvanceKraidHeadAnimation(state) != KraidHeadAnimationResult.AnimationEnded)
             return;
         state.BodyState.Function = KraidAiFunction.MainloopThinking;
         state.BodyState.HeadTimer = 90;
@@ -227,7 +227,7 @@ internal sealed class KraidHead
     /// <summary>Steps the eye highlight while the body reacts to a hit.</summary>
     internal void GlowKraidEye(KraidEnemyState state)
     {
-        _ = ProcessKraidHeadInstruction(state);
+        _ = AdvanceKraidHeadAnimation(state);
         // The glow's peak, read back from the eyes' colours, ends the glow (#1512).
         if (state.Colours.GlowEyes())
             state.BodyState.Function = KraidAiFunction.UnglowEye;
@@ -257,7 +257,7 @@ internal sealed class KraidHead
             rock,
             RoomEnemyProjectileKind.KraidSpitRock,
             graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
-        rock.StartAnimation(new KraidRockAnimation(KraidRockProgram.SharedPose));
+        rock.StartAnimation(new KraidRockAnimation(KraidRockSegment.SharedPose));
         int random = _access.ReadKraidRandomNumber();
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + 16), CoordinateAxis.Wrap(body.Position.Y.Whole - 96)));
         rock.Velocity = rock.Velocity.WithX(KraidRockLaunchDefinitions.FromRandom(random));

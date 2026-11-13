@@ -33,15 +33,15 @@ internal static class PowampSpikeBehaviorVerification
         AssertEqual<int?>(spikes.Min(spike => spike.Place), lastSpikePlace, "the burst reports the place of the last spike it fired");
         foreach (EnemyProjectile spike in spikes)
         {
-            AssertEqual(PowampSpikeProgram.Initial, ProgramOf(spike), $"spike {spike.StateOf<PowampSpikeState>().Direction} starts its looping program");
-            (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spike, Entry(PowampSpikeProgram.Initial), 40,
+            AssertEqual(PowampSpikeSegment.Initial, ProgramOf(spike), $"spike {spike.StateOf<PowampSpikeState>().Direction} starts its looping program");
+            (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spike, Entry(PowampSpikeSegment.Initial), 40,
                 $"Powamp spike {spike.StateOf<PowampSpikeState>().Direction}");
             AssertTrue(!deleted, "a spike's loop runs until collision deletes it");
         }
 
         PowampBehavior.BeginPowampSpikeDeletion(spikes[0]);
-        AssertEqual(PowampSpikeProgram.Delete, ProgramOf(spikes[0]), "the collision handoff starts the private delete program");
-        (bool removed, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spikes[0], Entry(PowampSpikeProgram.Delete), 4, "Powamp spike deletion");
+        AssertEqual(PowampSpikeSegment.Delete, ProgramOf(spikes[0]), "the collision handoff starts the private delete program");
+        (bool removed, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spikes[0], Entry(PowampSpikeSegment.Delete), 4, "Powamp spike deletion");
         AssertTrue(removed, "the private delete program deletes the spike");
         AssertEqual(1, updates, "the spike is deleted on its next instruction pass");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the spike's native list bytes");
@@ -49,11 +49,11 @@ internal static class PowampSpikeBehaviorVerification
     }
 
     /// <summary>The native entry of <paramref name="program"/>.</summary>
-    private static ushort Entry(PowampSpikeProgram program) =>
+    private static ushort Entry(PowampSpikeSegment program) =>
         NativeEnemyProjectileProgramOracle.EntryOf(PowampSpikeNativeListAddresses.Entries, program);
 
     /// <summary>The typed program <paramref name="projectile"/> runs.</summary>
-    private static PowampSpikeProgram ProgramOf(EnemyProjectile projectile) =>
+    private static PowampSpikeSegment ProgramOf(EnemyProjectile projectile) =>
         projectile.Animation is PowampSpikeAnimation animation ? animation.PlayingSegment
             : throw new InvalidOperationException("The spike runs no typed program.");
 

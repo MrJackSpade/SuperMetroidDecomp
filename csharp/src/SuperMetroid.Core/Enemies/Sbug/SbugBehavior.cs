@@ -43,8 +43,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // Enemy extension arrays are cleared with the room before initialization: no loop
             // is requested or installed until the first direction is selected.
-            RequestedProgram = null,
-            InstalledProgram = null,
+            RequestedAnimation = null,
+            InstalledAnimation = null,
             Function = SbugEnemyFunction.WaitForSamus,
         };
         slot.SetSpeciesState(state);
@@ -384,12 +384,12 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SbugEnemyState state,
         SbugFacing facing)
     {
-        state.RequestedProgram = SbugMovement.FacingProgram(facing);
-        if (state.RequestedProgram == state.InstalledProgram)
+        state.RequestedAnimation = SbugMovement.FacingAnimation(facing);
+        if (state.RequestedAnimation == state.InstalledAnimation)
             return;
 
-        state.InstalledProgram = state.RequestedProgram;
-        state.Playback = EnemyProgramAnimation.Start(slot, SbugAnimations.StartingWith(state.RequestedProgram.Value));
+        state.InstalledAnimation = state.RequestedAnimation;
+        state.Playback = EnemyAnimationPlayback.Start(slot, SbugAnimations.StartingWith(state.RequestedAnimation.Value));
     }
 
     /// <summary>Resets the shared enemy random seed when random wandering is activated.</summary>
@@ -399,8 +399,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Sbug's typed animation.</summary>
-    internal static void AdvanceSbugTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, SbugAnimations.Segments,
+    internal static void AdvanceSbugTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, SbugAnimations.Segments,
             static (SbugEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"Sbug's cue-free animation raised {cue}."));
 

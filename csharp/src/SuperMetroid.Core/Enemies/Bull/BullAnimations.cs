@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Enemies.Bull.BullProgram;
+using P = SuperMetroid.Core.Enemies.Bull.BullSegment;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Bull;
 internal static class BullAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<BullProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<BullProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
+    internal static AnimationSegments<BullSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<BullSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.Normal] =
         [
@@ -34,14 +34,14 @@ internal static class BullAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<BullProgram, Animation<BullProgram>> StartingAt { get; } = new Dictionary<BullProgram, Animation<BullProgram>>
+    internal static IReadOnlyDictionary<BullSegment, Animation<BullSegment>> StartingAt { get; } = new Dictionary<BullSegment, Animation<BullSegment>>
     {
         [P.Normal] = new([new(P.Normal, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.Shot] = new([new(P.ShotLoop, 0, 4, 5), new(P.Normal, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<BullProgram> StartingWith(BullProgram segment) => StartingAt[segment];
+    internal static Animation<BullSegment> StartingWith(BullSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

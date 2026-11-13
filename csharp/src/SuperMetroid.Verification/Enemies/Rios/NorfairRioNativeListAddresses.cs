@@ -14,15 +14,15 @@ internal static class NorfairRioNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<NorfairRioProgram>[] Entries =
+    internal static readonly NativeProgramEntry<NorfairRioSegment>[] Entries =
     [
-        new NativeProgramEntry<NorfairRioProgram>(NorfairRioProgram.Idle, 0xc0f1),
-        new NativeProgramEntry<NorfairRioProgram>(NorfairRioProgram.StartDescending, 0xc107),
-        new NativeProgramEntry<NorfairRioProgram>(NorfairRioProgram.Descending, 0xc12f),
-        new NativeProgramEntry<NorfairRioProgram>(NorfairRioProgram.StartAscending, 0xc145),
-        new NativeProgramEntry<NorfairRioProgram>(NorfairRioProgram.Ascending, 0xc179),
-        new NativeProgramEntry<NorfairRioProgram>(NorfairRioProgram.FlamesAscending, 0xc18f),
-        new NativeProgramEntry<NorfairRioProgram>(NorfairRioProgram.FlamesDescending, 0xc1a3),
+        new NativeProgramEntry<NorfairRioSegment>(NorfairRioSegment.Idle, 0xc0f1),
+        new NativeProgramEntry<NorfairRioSegment>(NorfairRioSegment.StartDescending, 0xc107),
+        new NativeProgramEntry<NorfairRioSegment>(NorfairRioSegment.Descending, 0xc12f),
+        new NativeProgramEntry<NorfairRioSegment>(NorfairRioSegment.StartAscending, 0xc145),
+        new NativeProgramEntry<NorfairRioSegment>(NorfairRioSegment.Ascending, 0xc179),
+        new NativeProgramEntry<NorfairRioSegment>(NorfairRioSegment.FlamesAscending, 0xc18f),
+        new NativeProgramEntry<NorfairRioSegment>(NorfairRioSegment.FlamesDescending, 0xc1a3),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

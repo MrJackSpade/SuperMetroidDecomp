@@ -11,7 +11,7 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// <param name="InnerShape">A pose's inner (invulnerable) mouth-shape address, $FFFF for none; zero otherwise.</param>
 /// <param name="Sound">A cry's library-two sound number; zero otherwise.</param>
 internal readonly record struct KraidHeadNativeRecord(
-    ushort Pointer, AnimationPlayback<KraidHeadProgram> Playback, ushort Opcode, ushort Tilemap, ushort OuterShape,
+    ushort Pointer, AnimationPlayback<KraidHeadSegment> Playback, ushort Opcode, ushort Tilemap, ushort OuterShape,
     ushort InnerShape, ushort Sound)
 {
     /// <summary>Whether the record is a timed pose.</summary>

@@ -62,7 +62,7 @@ internal static class PhantoonPatternsVerification
         for (ushort direction = 0; direction < 9; direction++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7d40d + direction * 2)),
-                PhantoonNativeListAddresses.PartEntry(PhantoonEyeGaze.EyeProgram(direction)),
+                PhantoonNativeListAddresses.PartEntry(PhantoonEyeGaze.EyeAnimation(direction)),
                 $"native Phantoon eye direction {direction}");
         }
         var eyeEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -77,12 +77,12 @@ internal static class PhantoonPatternsVerification
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(eyeBody.Position.X.Whole + x)), unchecked((ushort)(eyeBody.Position.Y.Whole + y)))),
             });
-            AssertEqual(PhantoonEyeGaze.EyeProgram(direction),
+            AssertEqual(PhantoonEyeGaze.EyeAnimation(direction),
                 eyeState.PlayingProgram(trackingEye),
                 $"production Phantoon eye direction {direction}");
         }
         AssertThrows<InvalidDataException>(
-            () => PhantoonEyeGaze.EyeProgram(9),
+            () => PhantoonEyeGaze.EyeAnimation(9),
             "Phantoon eye direction beyond authored table");
         var shotEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var shotBody = shotEnemies.SlotTable.Slots[0];

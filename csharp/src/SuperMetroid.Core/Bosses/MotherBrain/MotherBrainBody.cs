@@ -68,7 +68,7 @@ internal sealed class MotherBrainBody
             return;
         MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
         AnimationPlayback<MotherBrainTubePiece> playback = tubeState.Playback;
-        EnemyProgramAnimation.Play(tube, MotherBrainTubeAnimations.Segments, ref playback, MotherBrainVisualDefinitions.TubeFrames.Of,
+        EnemyAnimationPlayback.Play(tube, MotherBrainTubeAnimations.Segments, ref playback, MotherBrainVisualDefinitions.TubeFrames.Of,
             cue => throw new InvalidOperationException($"Falling-tube animations raise no event {cue}."));
         tubeState.Playback = playback;
     }
@@ -149,8 +149,8 @@ internal sealed class MotherBrainBody
         bool body = ReferenceEquals(slot, state.Body);
         if (!slot.AnimationClock.Expire())
             return;
-        AnimationPlayback<MotherBrainBodyProgram> playback = body ? state.BodyPlayback : state.HeadSlotPlayback;
-        EnemyProgramAnimation.Play(slot, MotherBrainAnimations.BodySegments, ref playback, MotherBrainBodyVisualDefinitions.ShownFrames.Of,
+        AnimationPlayback<MotherBrainBodySegment> playback = body ? state.BodyPlayback : state.HeadSlotPlayback;
+        EnemyAnimationPlayback.Play(slot, MotherBrainAnimations.BodySegments, ref playback, MotherBrainBodyVisualDefinitions.ShownFrames.Of,
             cue =>
             {
                 ApplyMotherBrainBodyCue(state, samus, cue);
@@ -433,7 +433,7 @@ internal sealed class MotherBrainBody
         MotherBrainTurretDirection direction = definition.InitialDirection;
         turret.Position = turret.Position.WithWhole(definition.Position);
         turret.State = new MotherBrainTurretState(parameter, MotherBrainTurretDefinitions.Ring.PositionOf(direction));
-        turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretProgram.TurretPose, direction));
+        turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretSegment.TurretPose, direction));
 
         // The initializer draws the RNG twice, once for each of the turret's waits, and clamps each wait's remainder modulo
         // 256 upward.

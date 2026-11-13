@@ -51,7 +51,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Mama Turtle's animations; rising to hover continues at its spin.</summary>
-    private MamaTurtleProgram? ApplyMamaTurtleCue(RoomEnemySlot slot, MamaTurtleCue cue)
+    private MamaTurtleSegment? ApplyMamaTurtleCue(RoomEnemySlot slot, MamaTurtleCue cue)
     {
         switch (cue.Kind)
         {
@@ -60,10 +60,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
             case MamaTurtleCueKind.RiseToHoverRightwards:
                 StartMamaTurtleRisingToHover(slot.RequireSpeciesState<MamaTurtleEnemyState>(), direction: HorizontalDirection.Right);
-                return MamaTurtleProgram.MamaSpinning;
+                return MamaTurtleSegment.MamaSpinning;
             case MamaTurtleCueKind.RiseToHoverLeftwards:
                 StartMamaTurtleRisingToHover(slot.RequireSpeciesState<MamaTurtleEnemyState>(), direction: HorizontalDirection.Left);
-                return MamaTurtleProgram.MamaSpinning;
+                return MamaTurtleSegment.MamaSpinning;
             case MamaTurtleCueKind.PlaySpinningSound:
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.MamaTurtleSpinSound, priority: SoundRequestPriority.Normal);
                 return null;
@@ -81,12 +81,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of a baby turtle's animations. The crawl loop, leaving the shell while ridden and the end of
     /// leaving it continue at the animation their callbacks return; every other cue runs on.
     /// </summary>
-    private MamaTurtleProgram? ApplyBabyTurtleCue(RoomEnemySlot slot, MamaTurtleCue cue, SamusState? samus, RoomLevelData? level)
+    private MamaTurtleSegment? ApplyBabyTurtleCue(RoomEnemySlot slot, MamaTurtleCue cue, SamusState? samus, RoomLevelData? level)
     {
         switch (cue.Kind)
         {
             case MamaTurtleCueKind.Crawl:
-                ProcessBabyTurtleCrawlInstruction(slot, slot.RequireSpeciesState<BabyTurtleEnemyState>(), samus, level);
+                ProcessBabyTurtleCrawlAnimation(slot, slot.RequireSpeciesState<BabyTurtleEnemyState>(), samus, level);
                 return null;
             case MamaTurtleCueKind.LoopOrTurnAround:
                 return SelectBabyTurtleCrawlLoop(slot, slot.RequireSpeciesState<BabyTurtleEnemyState>());
@@ -149,11 +149,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The population already supplies the animation-script property, but the initializer explicitly sets it again.
         // Spell that write out because animation processing is essential to leaving shell.
-        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
+        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Frame = EnemyFrameId.Empty;
         slot.AnimationClock.Restart();
         slot.Radius = slot.Radius.WithY(0);
-        state.Playback = new(MamaTurtleAnimations.StartingWith(MamaTurtleProgram.MamaAsleep), AnimationPlace.StartOfAnimation);
+        state.Playback = new(MamaTurtleAnimations.StartingWith(MamaTurtleSegment.MamaAsleep), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Initializes the Baby Turtle.</summary>
@@ -168,9 +168,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state);
 
-        state.Playback = EnemyProgramAnimation.Start(slot, MamaTurtleAnimations.StartingWith(slot.SpawnSettings<TurtleSpawnSettings>().Speed < 0
-            ? MamaTurtleProgram.BabyCrawlingLeft
-            : MamaTurtleProgram.BabyCrawlingRight));
+        state.Playback = EnemyAnimationPlayback.Start(slot, MamaTurtleAnimations.StartingWith(slot.SpawnSettings<TurtleSpawnSettings>().Speed < 0
+            ? MamaTurtleSegment.BabyCrawlingLeft
+            : MamaTurtleSegment.BabyCrawlingRight));
     }
 
     /// <summary>Runs the Mama Turtle's main behaviour and its indirect functions.</summary>
@@ -307,10 +307,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, mama, SignedSixteenSixteen.FromWholePixels(1)))
             return;
 
-        InstallTurtleInstruction(
+        StartTurtleAnimation(
             mama,
             state,
-            MamaTurtleProgram.MamaLeaveShellLeft);
+            MamaTurtleSegment.MamaLeaveShellLeft);
 
         // The game's store at this point does not reach the enemy, so nothing is stored here; no enemy field is
         // invented for it.
@@ -323,12 +323,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         MamaTurtleEnemyState state,
         SamusState samus)
     {
-        InstallTurtleInstruction(
+        StartTurtleAnimation(
             mama,
             state,
             CoordinateAxis.Difference(mama.Position.X.Whole, samus.Position.X.Whole) >= 0
-                ? MamaTurtleProgram.MamaEnterShellLeft
-                : MamaTurtleProgram.MamaEnterShellRight);
+                ? MamaTurtleSegment.MamaEnterShellLeft
+                : MamaTurtleSegment.MamaEnterShellRight);
         state.Function = MamaTurtleAiFunction.Idle;
     }
 
@@ -480,12 +480,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!_terrain.MoveEnemyVertically(level, mama, state.Velocity.Y.WithoutFraction()))
             return;
 
-        InstallTurtleInstruction(
+        StartTurtleAnimation(
             mama,
             state,
             state.Velocity.X.WholePixels < 0
-                ? MamaTurtleProgram.MamaLeaveShellLeft
-                : MamaTurtleProgram.MamaLeaveShellRight);
+                ? MamaTurtleSegment.MamaLeaveShellLeft
+                : MamaTurtleSegment.MamaLeaveShellRight);
         state.Function = MamaTurtleAiFunction.Idle;
     }
 
@@ -509,12 +509,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     state.Function = BabyTurtleAiFunction.HidingCarryingSamus;
                     state.NotCarryingSamusReactionTimer = 4;
-                    InstallTurtleInstruction(
+                    StartTurtleAnimation(
                         baby,
                         state,
                         state.Velocity.X < 0
-                            ? MamaTurtleProgram.BabyHidingLeft
-                            : MamaTurtleProgram.BabyHidingRight);
+                            ? MamaTurtleSegment.BabyHidingLeft
+                            : MamaTurtleSegment.BabyHidingRight);
                 }
                 return;
 
@@ -535,17 +535,17 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
                 {
                     state.Function = BabyTurtleAiFunction.SpinningUnstoppable;
-                    InstallTurtleInstruction(
+                    StartTurtleAnimation(
                         baby,
                         state,
-                        MamaTurtleProgram.BabySpinning);
+                        MamaTurtleSegment.BabySpinning);
                     bool facingRight = SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Right;
                     state.Velocity = new Offset16<RoomPixels>(facingRight ? 3 : -3, 1);
                     return;
                 }
                 if (--state.FunctionTimer == 0)
                 {
-                    InstallBabyTurtleCrawlingInstruction(baby, state);
+                    StartBabyTurtleCrawlingAnimation(baby, state);
                     state.Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus;
                 }
                 return;
@@ -558,7 +558,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             case BabyTurtleAiFunction.SpinningStoppable:
                 if (PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
                 {
-                    InstallBabyTurtleCrawlingInstruction(baby, state);
+                    StartBabyTurtleCrawlingAnimation(baby, state);
                     state.Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus;
                     return;
                 }
@@ -593,7 +593,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Animation cue: crawl across the sleeping parent contour.</summary>
-    private void ProcessBabyTurtleCrawlInstruction(
+    private void ProcessBabyTurtleCrawlAnimation(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state,
         SamusState? samus,
@@ -635,7 +635,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Animation cue: turn around at 48 pixels from spawn.</summary>
-    private static MamaTurtleProgram SelectBabyTurtleCrawlLoop(
+    private static MamaTurtleSegment SelectBabyTurtleCrawlLoop(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state)
     {
@@ -646,8 +646,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Velocity = state.Velocity.WithX(signedDifference < 0 ? -1 : 1);
         }
         return state.Velocity.X < 0
-            ? MamaTurtleProgram.BabyCrawlingLeft
-            : MamaTurtleProgram.BabyCrawlingRight;
+            ? MamaTurtleSegment.BabyCrawlingLeft
+            : MamaTurtleSegment.BabyCrawlingRight;
     }
 
     /// <summary>Animation cue: begin Mama's shell-entry behavior.</summary>
@@ -667,7 +667,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Animation cue: branch out of hiding only while ridden; otherwise the hiding animation runs on.</summary>
-    private static MamaTurtleProgram? SelectBabyTurtleLeaveShell(
+    private static MamaTurtleSegment? SelectBabyTurtleLeaveShell(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state,
         SamusState? samus)
@@ -677,12 +677,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
             return null;
         return state.Velocity.X < 0
-            ? MamaTurtleProgram.BabyLeaveShellLeft
-            : MamaTurtleProgram.BabyLeaveShellRight;
+            ? MamaTurtleSegment.BabyLeaveShellLeft
+            : MamaTurtleSegment.BabyLeaveShellRight;
     }
 
     /// <summary>Animation cue: restore crawling after leaving the shell.</summary>
-    private static MamaTurtleProgram FinishBabyTurtleLeavingShell(
+    private static MamaTurtleSegment FinishBabyTurtleLeavingShell(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state,
         SamusState? samus)
@@ -693,8 +693,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             ? BabyTurtleAiFunction.CrawlingCarryingSamus
             : BabyTurtleAiFunction.CrawlingNotCarryingSamus;
         return state.Velocity.X < 0
-            ? MamaTurtleProgram.BabyCrawlingLeft
-            : MamaTurtleProgram.BabyCrawlingRight;
+            ? MamaTurtleSegment.BabyCrawlingLeft
+            : MamaTurtleSegment.BabyCrawlingRight;
     }
 
     /// <summary>Runs Mama's custom ordinary-touch callback.</summary>
@@ -723,18 +723,18 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.Velocity.X < 0)
         {
-            InstallTurtleInstruction(
+            StartTurtleAnimation(
                 baby,
                 state,
-                MamaTurtleProgram.BabyCrawlingRight);
+                MamaTurtleSegment.BabyCrawlingRight);
             state.Velocity = state.Velocity.WithX(1);
         }
         else
         {
-            InstallTurtleInstruction(
+            StartTurtleAnimation(
                 baby,
                 state,
-                MamaTurtleProgram.BabyCrawlingLeft);
+                MamaTurtleSegment.BabyCrawlingLeft);
             state.Velocity = state.Velocity.WithX(-1);
         }
 
@@ -812,25 +812,25 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         _mama ?? throw new InvalidOperationException("A Baby Turtle reached its parent in a room where no Mama Turtle was placed.");
 
     /// <summary>Selects the left or right crawl list from the child's signed X velocity.</summary>
-    private static void InstallBabyTurtleCrawlingInstruction(
+    private static void StartBabyTurtleCrawlingAnimation(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state) =>
-        InstallTurtleInstruction(
+        StartTurtleAnimation(
             baby,
             state,
             state.Velocity.X < 0
-                ? MamaTurtleProgram.BabyCrawlingLeft
-                : MamaTurtleProgram.BabyCrawlingRight);
+                ? MamaTurtleSegment.BabyCrawlingLeft
+                : MamaTurtleSegment.BabyCrawlingRight);
 
     /// <summary>Starts a Mama Turtle animation with its frame timer set to one.</summary>
-    private static void InstallTurtleInstruction(RoomEnemySlot slot, MamaTurtleEnemyState state, MamaTurtleProgram program)
+    private static void StartTurtleAnimation(RoomEnemySlot slot, MamaTurtleEnemyState state, MamaTurtleSegment program)
     {
         state.Playback = new(MamaTurtleAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Starts a baby turtle animation with its frame timer set to one.</summary>
-    private static void InstallTurtleInstruction(RoomEnemySlot slot, BabyTurtleEnemyState state, MamaTurtleProgram program)
+    private static void StartTurtleAnimation(RoomEnemySlot slot, BabyTurtleEnemyState state, MamaTurtleSegment program)
     {
         state.Playback = new(MamaTurtleAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
@@ -871,29 +871,29 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances MamaTurtle's typed animation.</summary>
-    internal void AdvanceMamaTurtleTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal void AdvanceMamaTurtleTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
         if (!slot.AnimationClock.Expire())
             return;
         MamaTurtleEnemyState state = slot.RequireSpeciesState<MamaTurtleEnemyState>();
-        AnimationPlayback<MamaTurtleProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, MamaTurtleAnimations.Segments, ref playback,
+        AnimationPlayback<MamaTurtleSegment> playback = state.Playback;
+        EnemyAnimationPlayback.Play(slot, MamaTurtleAnimations.Segments, ref playback,
             cue => ApplyMamaTurtleCue(slot, cue) is { } target
-                ? new AnimationContinuation<MamaTurtleProgram>(MamaTurtleAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<MamaTurtleSegment>(MamaTurtleAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;
     }
 
     /// <summary>Advances BabyTurtle's typed animation.</summary>
-    internal void AdvanceBabyTurtleTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    internal void AdvanceBabyTurtleTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context)
     {
         if (!slot.AnimationClock.Expire())
             return;
         BabyTurtleEnemyState state = slot.RequireSpeciesState<BabyTurtleEnemyState>();
-        AnimationPlayback<MamaTurtleProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, MamaTurtleAnimations.Segments, ref playback,
+        AnimationPlayback<MamaTurtleSegment> playback = state.Playback;
+        EnemyAnimationPlayback.Play(slot, MamaTurtleAnimations.Segments, ref playback,
             cue => ApplyBabyTurtleCue(slot, cue, context.Samus, context.Level) is { } target
-                ? new AnimationContinuation<MamaTurtleProgram>(MamaTurtleAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<MamaTurtleSegment>(MamaTurtleAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;
     }

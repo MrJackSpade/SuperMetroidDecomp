@@ -60,7 +60,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         SetSparkFunctionTimer(state, additionalTime: 0);
 
         slot.AnimationClock.StepOnNextUpdate();
-        state.Playback = new(SparkAnimations.StartingWith(definition.Program), AnimationPlace.StartOfAnimation);
+        state.Playback = new(SparkAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.ClearRepeats();
         // Spark keeps its population properties: the initializer's extra property change before Phantoon's
         // defeat is exempt under the emulation scope limits (owner decision on #1318).
@@ -79,7 +79,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
 
                 state.Function = SparkEnemyFunction.IntermittentActive;
-                InstallSparkProgram(slot, state, SparkProgram.FlickerOn);
+                StartSparkAnimation(slot, state, SparkSegment.FlickerOn);
                 SetSparkFunctionTimer(state, additionalTime: 0);
                 return;
 
@@ -88,7 +88,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
 
                 state.Function = SparkEnemyFunction.IntermittentInactive;
-                InstallSparkProgram(slot, state, SparkProgram.FlickerOut);
+                StartSparkAnimation(slot, state, SparkSegment.FlickerOut);
                 SetSparkFunctionTimer(state, additionalTime: 8);
                 return;
 
@@ -127,7 +127,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Selects an animation and makes its first step due on the next pass.</summary>
-    private static void InstallSparkProgram(RoomEnemySlot slot, SparkEnemyState state, SparkProgram program)
+    private static void StartSparkAnimation(RoomEnemySlot slot, SparkEnemyState state, SparkSegment program)
     {
         state.Playback = new(SparkAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
@@ -140,14 +140,14 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Spark's typed animation.</summary>
-    internal static void AdvanceSparkTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal static void AdvanceSparkTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
         if (!slot.AnimationClock.Expire())
             return;
         SparkEnemyState state = slot.RequireSpeciesState<SparkEnemyState>();
-        AnimationPlayback<SparkProgram> playback = state.Playback ?? throw new InvalidOperationException(
+        AnimationPlayback<SparkSegment> playback = state.Playback ?? throw new InvalidOperationException(
             "Spark animation runs before the Spark is initialized.");
-        EnemyProgramAnimation.Play(slot, SparkAnimations.Segments, ref playback,
+        EnemyAnimationPlayback.Play(slot, SparkAnimations.Segments, ref playback,
             cue =>
             {
                 ApplySparkCue(slot, cue);

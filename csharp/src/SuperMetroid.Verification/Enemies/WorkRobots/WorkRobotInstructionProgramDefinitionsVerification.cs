@@ -29,7 +29,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
         RoomLevelData level = CreateWorkRobotInstructionRoom();
         WorkRobotEnemyState state = enemies.WorkRobotStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WorkRobotStates[0].");
 
-        foreach (WorkRobotProgram program in Enum.GetValues<WorkRobotProgram>())
+        foreach (WorkRobotSegment program in Enum.GetValues<WorkRobotSegment>())
         {
             state.Playback = new(WorkRobotAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             for (int call = 0; call < 400; call++)
@@ -37,7 +37,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
                 robot.AnimationClock.StepOnNextUpdate();
                 robot.Position = robot.Position.WithWhole(new(512, unchecked((ushort)(320 - robot.Radius.Y))));
                 state.LaserCooldown = WrappingCountdown.Start(ushort.MaxValue);
-                EnemyInstructionInterpreter.RunsAnimationScript(robot, null, level, new Position16<RoomPixels>(384, 192), 0);
+                EnemyAnimationPlayer.AdvanceAnimation(robot, null, level, new Position16<RoomPixels>(384, 192), 0);
             }
         }
 
@@ -56,7 +56,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
         robot.Bind(EnemyDefinitionId.Robot, robot.Definition);
         robot.Bind(robot.DefinitionId, default(RoomEnemyDefinition));
         robot.Radius = new(8, 16);
-        var state = new WorkRobotEnemyState() { Powered = true, Playback = new(WorkRobotAnimations.StartingWith(WorkRobotProgram.Initial), AnimationPlace.StartOfAnimation) };
+        var state = new WorkRobotEnemyState() { Powered = true, Playback = new(WorkRobotAnimations.StartingWith(WorkRobotSegment.Initial), AnimationPlace.StartOfAnimation) };
         robot.SetSpeciesState(state);
         return enemies;
     }

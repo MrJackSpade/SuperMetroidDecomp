@@ -14,17 +14,17 @@ internal static class PipeBugBehaviorVerification
 {
     /// <summary>
     /// The Zeb, Zebbo, Gamet and Geega initializers start their native first loops, and every loop installed through
-    /// <see cref="PipeBugsBehavior.InstallPipeBugProgram"/> runs one pass and returns to its first pose on time.
+    /// <see cref="PipeBugsBehavior.StartPipeBugAnimation"/> runs one pass and returns to its first pose on time.
     /// </summary>
     internal static void VerifyPipeBugBehavior()
     {
-        AssertEqual(PipeBugAnimations.StartingWith(PipeBugProgram.ZebRisingLeft), Initialized(EnemyDefinitionId.Zeb, 0).Playback.Animation, "Zeb starts rising left");
-        AssertEqual(PipeBugAnimations.StartingWith(PipeBugProgram.ZebboRisingLeft), Initialized(EnemyDefinitionId.Zebbo, 1).Playback.Animation, "Zebbo starts rising left");
-        AssertEqual(PipeBugAnimations.StartingWith(PipeBugProgram.GametRisingLeft), Initialized(EnemyDefinitionId.Gamet, 0).Playback.Animation, "Gamet starts rising left");
-        AssertEqual(PipeBugAnimations.StartingWith(PipeBugProgram.GeegaFlyingLeft), Initialized(EnemyDefinitionId.Geega, 1).Playback.Animation, "Geega with parameter one starts flying left");
-        AssertEqual(PipeBugAnimations.StartingWith(PipeBugProgram.GeegaFlyingRight), Initialized(EnemyDefinitionId.Geega, 0).Playback.Animation, "Geega with parameter zero starts flying right");
+        AssertEqual(PipeBugAnimations.StartingWith(PipeBugSegment.ZebRisingLeft), Initialized(EnemyDefinitionId.Zeb, 0).Playback.Animation, "Zeb starts rising left");
+        AssertEqual(PipeBugAnimations.StartingWith(PipeBugSegment.ZebboRisingLeft), Initialized(EnemyDefinitionId.Zebbo, 1).Playback.Animation, "Zebbo starts rising left");
+        AssertEqual(PipeBugAnimations.StartingWith(PipeBugSegment.GametRisingLeft), Initialized(EnemyDefinitionId.Gamet, 0).Playback.Animation, "Gamet starts rising left");
+        AssertEqual(PipeBugAnimations.StartingWith(PipeBugSegment.GeegaFlyingLeft), Initialized(EnemyDefinitionId.Geega, 1).Playback.Animation, "Geega with parameter one starts flying left");
+        AssertEqual(PipeBugAnimations.StartingWith(PipeBugSegment.GeegaFlyingRight), Initialized(EnemyDefinitionId.Geega, 0).Playback.Animation, "Geega with parameter zero starts flying right");
 
-        foreach (PipeBugProgram program in Enum.GetValues<PipeBugProgram>())
+        foreach (PipeBugSegment program in Enum.GetValues<PipeBugSegment>())
         {
             (EnemyDefinitionId definition, ushort parameter) = program.ToString() switch
             {
@@ -36,7 +36,7 @@ internal static class PipeBugBehaviorVerification
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             PipeBugEnemyState state = Initialize(enemies, slot, definition, parameter);
-            PipeBugsBehavior.InstallPipeBugProgram(slot, state, program);
+            PipeBugsBehavior.StartPipeBugAnimation(slot, state, program);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(PipeBugAnimations.Segments, program, PipeBugFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(PipeBugAnimations.Segments, program)),
                 $"Pipe Bug {program} loop");

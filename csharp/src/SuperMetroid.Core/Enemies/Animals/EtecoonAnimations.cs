@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Enemies.Animals.EtecoonProgram;
+using P = SuperMetroid.Core.Enemies.Animals.EtecoonSegment;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal static class EtecoonAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<EtecoonProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<EtecoonProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
+    internal static AnimationSegments<EtecoonSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<EtecoonSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.LookRightAtSamusAndRunLeft] =
         [
@@ -122,7 +122,7 @@ internal static class EtecoonAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<EtecoonProgram, Animation<EtecoonProgram>> StartingAt { get; } = new Dictionary<EtecoonProgram, Animation<EtecoonProgram>>
+    internal static IReadOnlyDictionary<EtecoonSegment, Animation<EtecoonSegment>> StartingAt { get; } = new Dictionary<EtecoonSegment, Animation<EtecoonSegment>>
     {
         [P.LookRightAtSamusAndRunLeft] = new([new(P.LookRightAtSamusAndRunLeft, 0, 1, 1)], AnimationEnd.Holds),
         [P.BeginRunningLeft] = new([new(P.BeginRunningLeft, 0, 1, 1), new(P.RunningLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
@@ -146,10 +146,10 @@ internal static class EtecoonAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<EtecoonProgram> StartingWith(EtecoonProgram segment) => StartingAt[segment];
+    internal static Animation<EtecoonSegment> StartingWith(EtecoonSegment segment) => StartingAt[segment];
 
     /// <summary>The program a sleeping list resumes into when its owner steps the list past the sleep.</summary>
-    internal static EtecoonProgram AfterSleep(EtecoonProgram program) => program switch
+    internal static EtecoonSegment AfterSleep(EtecoonSegment program) => program switch
     {
         P.LookRightAtSamusAndRunLeft
             or P.HoppingFacingLeft

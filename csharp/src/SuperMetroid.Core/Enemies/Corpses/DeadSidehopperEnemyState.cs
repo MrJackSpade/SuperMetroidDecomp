@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 public sealed class DeadSidehopperEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<DeadTourianProgram> Playback { get; set; }
+    internal AnimationPlayback<DeadTourianSegment> Playback { get; set; }
 
     /// <summary>Captures one corpse's silhouette and its own rot schedule, and starts its own rows.</summary>
     internal DeadSidehopperEnemyState(RoomEnemySlot slot, int graphicsVariant, CorpseRotSchedule rot)

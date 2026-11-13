@@ -133,7 +133,7 @@ internal static class LookupStream4Verification
             ticks++;
         }
         AssertEqual(rom.ReadCartridgeWord(0x8beb71), ticks, "Native stars handoff matches complete foreground exposure");
-        AssertEqual(rom.ReadCartridgeWord(0x8beb71), CinematicSpriteAnimations.Segments.Beats(CinematicSpriteProgram.ZebesExplosionRightStars)[0] switch
+        AssertEqual(rom.ReadCartridgeWord(0x8beb71), CinematicSpriteAnimations.Segments.Beats(CinematicSpriteSegment.ZebesExplosionRightStars)[0] switch
         {
             AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame frame => frame.Duration,
             AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Pause pause => pause.Duration,
@@ -1508,13 +1508,13 @@ internal static class LookupStream4Verification
 
         for (ushort phase = 0; phase < 4; phase++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3894e + 2 * phase)), NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareePrograms.MetareeProgram((SkreeMetareeAnimationPhase)phase)), "stream4 native Metaree phase program");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3c69c + 2 * phase)), NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareePrograms.SkreeProgram((SkreeMetareeAnimationPhase)phase)), "stream4 native Skree phase program");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3894e + 2 * phase)), NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareeAnimationChoices.MetareeAnimation((SkreeMetareeAnimationPhase)phase)), "stream4 native Metaree phase program");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3c69c + 2 * phase)), NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareeAnimationChoices.SkreeAnimation((SkreeMetareeAnimationPhase)phase)), "stream4 native Skree phase program");
         }
         foreach (ushort invalid in new ushort[] { 4, ushort.MaxValue })
         {
-            AssertThrows<InvalidDataException>(() => SkreeMetareePrograms.MetareeProgram((SkreeMetareeAnimationPhase)invalid), "stream4 invalid Metaree phase");
-            AssertThrows<InvalidDataException>(() => SkreeMetareePrograms.SkreeProgram((SkreeMetareeAnimationPhase)invalid), "stream4 invalid Skree phase");
+            AssertThrows<InvalidDataException>(() => SkreeMetareeAnimationChoices.MetareeAnimation((SkreeMetareeAnimationPhase)invalid), "stream4 invalid Metaree phase");
+            AssertThrows<InvalidDataException>(() => SkreeMetareeAnimationChoices.SkreeAnimation((SkreeMetareeAnimationPhase)invalid), "stream4 invalid Skree phase");
         }
     }
 
@@ -1529,13 +1529,13 @@ internal static class LookupStream4Verification
         for (int frame = 0; frame < 160; frame++)
         {
             electricity.FrameHold = WrappingCountdown.Start(1);
-            electricitySystem.Projectiles.ProcessEnemyProjectileInstructions(electricity, null, Position16<RoomPixels>.Zero);
+            electricitySystem.Projectiles.AdvanceEnemyProjectileAnimations(electricity, null, Position16<RoomPixels>.Zero);
             AssertTrue(electricity.IsActive, "stream4 electricity active throughout twenty cycles");
             AssertEqual((ushort)1, electricity.FrameHold.RawValue, "stream4 electricity one-frame timing");
             AssertEqual((ushort)(0xe689 + 4 * (frame % 8)), electricity.PresentationOperandAddress, "stream4 electricity installed presentation operand identity");
         }
         electricity.FrameHold = WrappingCountdown.Start(1);
-        electricitySystem.Projectiles.ProcessEnemyProjectileInstructions(electricity, null, Position16<RoomPixels>.Zero);
+        electricitySystem.Projectiles.AdvanceEnemyProjectileAnimations(electricity, null, Position16<RoomPixels>.Zero);
         AssertTrue(!electricity.IsActive, "stream4 electricity deletes after twenty complete cycles");
         AssertEqual(0, electricityGuard.ForbiddenReadAttempts, "stream4 electricity no mechanics ROM reads");
     }
@@ -1636,7 +1636,7 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa587e6 + 4 * index)), target.Origin.Y, "Draygon original cannon Y");
         }
         for (ushort index = 0; index < 8; index++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2cb77 + index * 2)), NativeEnemyAnimationOracle.EntryOf(MaridiaLargeSnailNativeListAddresses.Entries, MaridiaLargeSnailPrograms.Program(MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(index, "Oum animation index"))), "Oum native action/facing dispatch");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2cb77 + index * 2)), NativeEnemyAnimationOracle.EntryOf(MaridiaLargeSnailNativeListAddresses.Entries, MaridiaLargeSnailAnimationChoices.Animation(MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(index, "Oum animation index"))), "Oum native action/facing dispatch");
         for (int slot = 0; slot < 3; slot++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x81812b + slot * 2)), SaveRamLayout.SlotOffset(slot), "native SRAM slot origins");
         foreach (DraygonFiringCannon invalid in new[] { (DraygonFiringCannon)4, (DraygonFiringCannon)byte.MaxValue })
@@ -2284,15 +2284,15 @@ internal static class LookupStream4Verification
         {
             IReadOnlyList<SheetShade> babySprites = RidleySheetShades.CeresSprites(stock);
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-            Func<RidleyEnemyState, ushort> advance = baby => EnemyFrameCartridgeLookupTooling.Word(enemies.CeresRidleyBehavior.BabyScene.AdvanceCeresBabyDrawInstruction(baby));
+            Func<RidleyEnemyState, ushort> advance = baby => EnemyFrameCartridgeLookupTooling.Word(enemies.CeresRidleyBehavior.BabyScene.AdvanceCeresBabyDrawAnimation(baby));
             for (int phase = 0; phase < 12; phase++)
             {
                 int cursor = 0xbf5d + phase * 8;
                 int row = (CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 2)) - 0xe1f1) / 30;
                 // The expressive loop's palette command for this phase is beat 1 + 2 * phase, its pose the next beat.
-                var state = new RidleyEnemyState { BabyPlayback = new AnimationPlayback<CeresBabyProgram>(CeresBabyAnimations.StartingWith(CeresBabyProgram.ExpressiveLoop), new AnimationPlace(0, 1 + 2 * phase)), BabyFrameHold = 1, BabyVerticalVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1) };
+                var state = new RidleyEnemyState { BabyPlayback = new AnimationPlayback<CeresBabySegment>(CeresBabyAnimations.StartingWith(CeresBabySegment.ExpressiveLoop), new AnimationPlace(0, 1 + 2 * phase)), BabyFrameHold = 1, BabyVerticalVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1) };
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 6)), advance(state), "Actual palette instruction selects matching native pose");
-                AssertEqual(new AnimationPlayback<CeresBabyProgram>(CeresBabyAnimations.StartingWith(CeresBabyProgram.ExpressiveLoop), new AnimationPlace(0, 3 + 2 * phase)), state.BabyPlayback, "Palette instruction runs on to its pose");
+                AssertEqual(new AnimationPlayback<CeresBabySegment>(CeresBabyAnimations.StartingWith(CeresBabySegment.ExpressiveLoop), new AnimationPlace(0, 3 + 2 * phase)), state.BabyPlayback, "Palette instruction runs on to its pose");
                 AssertEqual(1, state.BabyFrameHold, "The new pose starts its elapsed count at one");
                 ushort[] shown = RidleyLaidColours.Of(state, babySprites, [], 0);
                 for (int color = 0; color < 15; color++)

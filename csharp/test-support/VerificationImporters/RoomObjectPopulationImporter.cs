@@ -38,12 +38,12 @@ internal static class RoomObjectPopulationImporter
                     $"at block ({blockX},{blockY}) with argument ${argument:X4}.");
             var metadata = new RoomObjectHeaderDefinition(header);
             RoomScrollWrite[]? scroll = header == RoomObjectHeaderId.ScrollTrigger ? Scroll(argument) : null;
-            RoomScrollProgram? retailScroll = scroll is null ? null : RetailScrollProgram(argument, scroll);
+            RoomScrollChange? retailScroll = scroll is null ? null : RetailScrollProgram(argument, scroll);
             records.Add(new RoomObjectPlacement(metadata,
                 new(blockX, blockY), RoomObjectRoomArgumentWords.Decode(header, argument, area), retailScroll is null ? scroll : null,
                 DraygonCannonObjects.IsDraygonCannonHeader(header) ? DraygonWallCannonAddresses.Decode(argument) : null)
             {
-                CompiledScrollProgram = retailScroll,
+                CompiledScrollChange = retailScroll,
             });
             cursor = unchecked((ushort)(cursor + RoomObjectPopulationFormatConstants.RecordByteCount));
         }
@@ -57,11 +57,11 @@ internal static class RoomObjectPopulationImporter
         // A trigger whose argument is where a retail scroll program is stored, and which finds that program's writes there,
         // runs that retail program, as the compiled populations bind it; writes stored anywhere else are a constructed
         // program the trigger carries itself.
-        static RoomScrollProgram? RetailScrollProgram(ushort argument, RoomScrollWrite[] writes)
+        static RoomScrollChange? RetailScrollProgram(ushort argument, RoomScrollWrite[] writes)
         {
-            foreach ((RoomScrollProgram program, ushort address) in RoomScrollProgramNative.Addresses)
+            foreach ((RoomScrollChange program, ushort address) in RoomScrollProgramNative.Addresses)
             {
-                if (address == argument && RoomObjectScrollProgramDefinitions.Programs[program].SequenceEqual(writes))
+                if (address == argument && RoomObjectScrollChangeDefinitions.Changes[program].SequenceEqual(writes))
                     return program;
             }
             return null;

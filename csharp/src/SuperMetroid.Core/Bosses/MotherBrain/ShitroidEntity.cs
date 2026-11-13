@@ -16,7 +16,7 @@ internal sealed class ShitroidEntity(ShitroidBehavior species, RoomEnemySlot slo
     public EnemyMainAiHandler? FindMain() => species.RunShitroidMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => (enemy, _) => species.AdvanceShitroidAnimation(enemy);
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => (enemy, _) => species.AdvanceShitroidAnimation(enemy);
 
     /// <summary>The Baby Metroid's own shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>

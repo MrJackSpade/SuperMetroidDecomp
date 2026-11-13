@@ -552,7 +552,7 @@ public sealed class SamusProjectileSystem
             // Killing a projectile replaces rather than clears a live beam. Consequently the
             // explosion's first record is selected in this same handler pass.
             if (slot.Playback is not null)
-                projectileDeleted |= Animation.RunProjectileInstructionHandler(slot);
+                projectileDeleted |= Animation.AdvanceProjectileAnimation(slot);
         }
     }
 

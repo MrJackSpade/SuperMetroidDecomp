@@ -260,7 +260,7 @@ internal sealed class EnemyProjectileEngine
             // to the replacement, whose program starts in this pass. One that freed its place without ending finishes
             // its update with its program (a power-bombed Draygon goop that reaches Samus sticks to her through its
             // touch program, PowerBombedDraygonShotFinishesItsUpdate). One that ended plays no program, so nothing runs.
-            ProcessEnemyProjectileInstructions(_places[place], samus, camera);
+            AdvanceEnemyProjectileAnimations(_places[place], samus, camera);
         }
     }
 
@@ -707,7 +707,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>Advances a projectile's typed program one projectile pass.</summary>
-    internal void ProcessEnemyProjectileInstructions(
+    internal void AdvanceEnemyProjectileAnimations(
         EnemyProjectile projectile,
         SamusState? samus,
         Position16<RoomPixels> camera)
@@ -805,7 +805,7 @@ internal sealed class EnemyProjectileEngine
         Position16<RoomPixels> position,
         MiscDustAnimation animation)
     {
-        MiscDustProjectileProgram program = MiscDustProjectiles.Program(animation);
+        MiscDustProjectileSegment program = MiscDustProjectiles.Animation(animation);
         EnemyProjectile? projectile = AllocateEnemyProjectile();
         if (projectile is null)
             return;
@@ -898,7 +898,7 @@ internal sealed class EnemyProjectileEngine
             graphics: default);
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(samus.Position.X.Whole + definition.XOffset), CoordinateAxis.Wrap(samus.Position.Y.Whole + GunshipDustDefinitions.YOffset)));
         projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);
-        projectile.StartAnimation(new GunshipDustAnimation(definition.Program));
+        projectile.StartAnimation(new GunshipDustAnimation(definition.Animation));
     }
 
     /// <summary>

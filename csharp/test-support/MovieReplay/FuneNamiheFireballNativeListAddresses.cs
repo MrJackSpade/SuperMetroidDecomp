@@ -11,10 +11,10 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 internal static class FuneNamiheFireballNativeListAddresses
 {
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<FuneNamiheFireballProgram>[] Entries =
+    internal static readonly NativeProgramEntry<FuneNamiheFireballSegment>[] Entries =
     [
-        new NativeProgramEntry<FuneNamiheFireballProgram>(FuneNamiheFireballProgram.Left, 0xde96),
-        new NativeProgramEntry<FuneNamiheFireballProgram>(FuneNamiheFireballProgram.Right, 0xdea6),
+        new NativeProgramEntry<FuneNamiheFireballSegment>(FuneNamiheFireballSegment.Left, 0xde96),
+        new NativeProgramEntry<FuneNamiheFireballSegment>(FuneNamiheFireballSegment.Right, 0xdea6),
     ];
 
     /// <summary>The bank-$86 bytes the lists occupy, $86:DE96-DEB5, which production must never read.</summary>

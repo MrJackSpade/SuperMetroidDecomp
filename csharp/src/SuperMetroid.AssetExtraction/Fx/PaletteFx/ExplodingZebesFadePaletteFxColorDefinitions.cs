@@ -24,5 +24,5 @@ public static class ExplodingZebesFadePaletteFxColorDefinitions
     public const int ColorsPerFrame = 8;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(PaletteFxProgram.FadeOutZoomedOutExplodingZebes, ColorsPerFrame);
+    public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(PaletteFxSegment.FadeOutZoomedOutExplodingZebes, ColorsPerFrame);
 }

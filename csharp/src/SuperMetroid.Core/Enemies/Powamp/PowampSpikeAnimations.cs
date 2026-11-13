@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using CK = SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileCommonCueKind;
-using P = SuperMetroid.Core.Enemies.Powamp.PowampSpikeProgram;
+using P = SuperMetroid.Core.Enemies.Powamp.PowampSpikeSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Powamp;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 internal static class PowampSpikeAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<PowampSpikeProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<PowampSpikeProgram, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<PowampSpikeSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<PowampSpikeSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.Initial] =
         [
@@ -28,14 +28,14 @@ internal static class PowampSpikeAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<PowampSpikeProgram, Animation<PowampSpikeProgram>> StartingAt { get; } = new Dictionary<PowampSpikeProgram, Animation<PowampSpikeProgram>>
+    internal static IReadOnlyDictionary<PowampSpikeSegment, Animation<PowampSpikeSegment>> StartingAt { get; } = new Dictionary<PowampSpikeSegment, Animation<PowampSpikeSegment>>
     {
         [P.Initial] = new([new(P.Initial, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
         [P.Delete] = new([new(P.Delete, 0, 1, 1)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<PowampSpikeProgram> StartingWith(PowampSpikeProgram segment) => StartingAt[segment];
+    internal static Animation<PowampSpikeSegment> StartingWith(PowampSpikeSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);

@@ -880,7 +880,7 @@ internal static class LookupStream2Verification
     {
         Suite(nameof(PipeBugBehaviorVerification.VerifyPipeBugBehavior), () => PipeBugBehaviorVerification.VerifyPipeBugBehavior());
         Suite(nameof(PipeBugAnimationsVerification.VerifyPipeBugAnimations), () => PipeBugAnimationsVerification.VerifyPipeBugAnimations(rom));
-        ushort[] poses = PipeBugAnimationsConstants.Spritemaps(Enum.GetValues<PipeBugProgram>()).Distinct().ToArray();
+        ushort[] poses = PipeBugAnimationsConstants.Spritemaps(Enum.GetValues<PipeBugSegment>()).Distinct().ToArray();
         foreach (ushort pose in poses)
             AssertEqual((ushort)1, ReadVerificationWord(rom, (int)new SnesAddress(PipeBugFrameToolingDefinitions.Bank, pose)), "Native seven-byte single-part composition");
         Console.WriteLine($"Pipe Bug visual geometry: {poses.Length} native single-part poses and the typed loops pass.");
@@ -918,7 +918,7 @@ internal static class LookupStream2Verification
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.PipeBugEnemyFunctions.Word(state.NorfairPostRiseFunction),
                     "Actual formation writes native role function");
                 AssertEqual(PipeBugEnemyFunction.NorfairRise, state.Function, "Actual formation begins rising");
-                AssertEqual(new AnimationPlayback<PipeBugProgram>(PipeBugAnimations.StartingWith(samusX < 128 ? PipeBugProgram.GametRisingLeft : PipeBugProgram.GametRisingRight), AnimationPlace.StartOfAnimation),
+                AssertEqual(new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(samusX < 128 ? PipeBugSegment.GametRisingLeft : PipeBugSegment.GametRisingRight), AnimationPlace.StartOfAnimation),
                     state.Playback, "Actual formation selects facing");
                 AssertEqual((ushort)(member == 0 ? 1 : member + 4), enemies.SlotTable.Slots[member].AnimationClock.Hold.RawValue,
                     "Only leader instruction timer resets");
@@ -1000,19 +1000,19 @@ internal static class LookupStream2Verification
         int programWords = 0;
         for (int address = 0x90b4c8; address <= 0x90b5b3; address++)
         {
-            if (ProjectileTrailProgramDefinitions.TryRead(address, out _))
+            if (ProjectileTrailAnimationDefinitions.TryRead(address, out _))
             {
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailProgramDefinitions.Read(address), "Compiled trail program preserves every authored mechanics word");
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailAnimationDefinitions.Read(address), "Compiled trail program preserves every authored mechanics word");
                 programWords++;
             }
             else
             {
                 int rejectedAddress = address;
-                AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(rejectedAddress), "Trail program rejects presentation gaps, odd addresses and unrelated high-bank words");
+                AssertThrows<InvalidDataException>(() => ProjectileTrailAnimationDefinitions.Read(rejectedAddress), "Trail program rejects presentation gaps, odd addresses and unrelated high-bank words");
             }
         }
         AssertEqual(67, programWords, "All 42 durations, 20 movement commands and five terminators are compiled");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(0x91b4c9), "Trail program rejects a wrong-bank alias");
+        AssertThrows<InvalidDataException>(() => ProjectileTrailAnimationDefinitions.Read(0x91b4c9), "Trail program rejects a wrong-bank alias");
         Console.WriteLine("Stream 2 trail programs: 67 native mechanics words,42 visual record addresses, all four actual paired trail lifetimes/freeze states and mutable alias pass.");
         // A side that has read no tile word yet draws nothing, as the port's sparkle that has shown no pose (#1625).
         void StepNative(SamusProjectileTrail pair, SamusProjectileTrailSide side, OamBuffer oam, bool frozen)
@@ -1033,8 +1033,8 @@ internal static class LookupStream2Verification
                         break;
                     }
                     cursor += 2;
-                    if (word == ProjectileTrailNative.InstructionAddress(ProjectileTrailInstruction.MoveLeftDown)) pair.Left.Position += new Offset16<RoomPixels>(0, 1);
-                    else if (word == ProjectileTrailNative.InstructionAddress(ProjectileTrailInstruction.MoveRightDown)) pair.Right.Position += new Offset16<RoomPixels>(0, 1);
+                    if (word == ProjectileTrailNative.InstructionAddress(ProjectileTrailCue.MoveLeftDown)) pair.Left.Position += new Offset16<RoomPixels>(0, 1);
+                    else if (word == ProjectileTrailNative.InstructionAddress(ProjectileTrailCue.MoveRightDown)) pair.Right.Position += new Offset16<RoomPixels>(0, 1);
                     else throw new InvalidDataException($"Unexpected native trail command {word:X4}.");
                 }
             }
@@ -1474,7 +1474,7 @@ internal static class LookupStream2Verification
             ushort pointer = (ushort)(0x86db + direction * 12);
             var shot = new SamusProjectile(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1) };
             var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)) { Animation = { FrameBindings = stock } };
-            _ = system.Animation.RunProjectileInstructionHandler(shot);
+            _ = system.Animation.AdvanceProjectileAnimation(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
         }
         int checkedWaveIce = 0;
@@ -1498,7 +1498,7 @@ internal static class LookupStream2Verification
                 checkedCappedSweep++;
             var shot = new SamusProjectile(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1) };
             var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)) { Animation = { FrameBindings = stock } };
-            _ = system.Animation.RunProjectileInstructionHandler(shot);
+            _ = system.Animation.AdvanceProjectileAnimation(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
             checkedWaveIce++;
         }
@@ -1511,7 +1511,7 @@ internal static class LookupStream2Verification
             if (pointer is < 0x9f87 or >= 0xa007) continue;
             var bomb = new SamusBombProjectileSlot(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
             var bombs = new SamusBombProjectileSystem { FrameBindings = stock };
-            _ = bombs.RunProjectileInstructionHandler(bomb);
+            _ = bombs.AdvanceProjectileAnimation(bomb);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), bomb.SpritemapPointer, "Actual bomb handler uses sequential normal/fast pose");
             checkedBombs++;
         }

@@ -14,18 +14,18 @@ internal static class BeetomNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<BeetomProgram>[] Entries =
+    internal static readonly NativeProgramEntry<BeetomSegment>[] Entries =
     [
-        new NativeProgramEntry<BeetomProgram>(BeetomProgram.CrawlingLeft, 0xb696),
-        new NativeProgramEntry<BeetomProgram>(BeetomProgram.CrawlingLeftLoop, 0xb698),
-        new NativeProgramEntry<BeetomProgram>(BeetomProgram.HopLeft, 0xb6ac),
-        new NativeProgramEntry<BeetomProgram>(BeetomProgram.DrainingLeft, 0xb6cc),
-        new NativeProgramEntry<BeetomProgram>(BeetomProgram.DrainingLeftLoop, 0xb6de),
-        new NativeProgramEntry<BeetomProgram>(BeetomProgram.CrawlingRight, 0xb6f2),
-        new NativeProgramEntry<BeetomProgram>(BeetomProgram.CrawlingRightLoop, 0xb6f4),
-        new NativeProgramEntry<BeetomProgram>(BeetomProgram.HopRight, 0xb708),
-        new NativeProgramEntry<BeetomProgram>(BeetomProgram.DrainingRight, 0xb728),
-        new NativeProgramEntry<BeetomProgram>(BeetomProgram.DrainingRightLoop, 0xb73a),
+        new NativeProgramEntry<BeetomSegment>(BeetomSegment.CrawlingLeft, 0xb696),
+        new NativeProgramEntry<BeetomSegment>(BeetomSegment.CrawlingLeftLoop, 0xb698),
+        new NativeProgramEntry<BeetomSegment>(BeetomSegment.HopLeft, 0xb6ac),
+        new NativeProgramEntry<BeetomSegment>(BeetomSegment.DrainingLeft, 0xb6cc),
+        new NativeProgramEntry<BeetomSegment>(BeetomSegment.DrainingLeftLoop, 0xb6de),
+        new NativeProgramEntry<BeetomSegment>(BeetomSegment.CrawlingRight, 0xb6f2),
+        new NativeProgramEntry<BeetomSegment>(BeetomSegment.CrawlingRightLoop, 0xb6f4),
+        new NativeProgramEntry<BeetomSegment>(BeetomSegment.HopRight, 0xb708),
+        new NativeProgramEntry<BeetomSegment>(BeetomSegment.DrainingRight, 0xb728),
+        new NativeProgramEntry<BeetomSegment>(BeetomSegment.DrainingRightLoop, 0xb73a),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

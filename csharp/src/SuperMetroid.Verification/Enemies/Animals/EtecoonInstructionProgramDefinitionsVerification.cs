@@ -27,12 +27,12 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
     /// </summary>
     internal static void VerifyEtecoonInstructionProgramDefinitions(CartridgeImportAddressSpace rom)
     {
-        foreach (EtecoonProgram program in Enum.GetValues<EtecoonProgram>())
+        foreach (EtecoonSegment program in Enum.GetValues<EtecoonSegment>())
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, EtecoonEnemyState state) = NewEtecoon();
-            AssertEqual(new AnimationPlayback<EtecoonProgram>(EtecoonAnimations.StartingWith(EtecoonProgram.Initial), AnimationPlace.StartOfAnimation), state.Playback, "real Etecoon initializer");
+            AssertEqual(new AnimationPlayback<EtecoonSegment>(EtecoonAnimations.StartingWith(EtecoonSegment.Initial), AnimationPlace.StartOfAnimation), state.Playback, "real Etecoon initializer");
             // The self-looping animations: one phase of their own segment, played again and again.
-            if (!EtecoonAnimations.StartingAt.TryGetValue(program, out Animation<EtecoonProgram>? animation) ||
+            if (!EtecoonAnimations.StartingAt.TryGetValue(program, out Animation<EtecoonSegment>? animation) ||
                 animation is not { Phases: [{ Plays: 1 } only], End: AnimationEnd.Loop { Phase: 0 } } || only.Segment != program)
                 continue;
             state.Playback = new(EtecoonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
@@ -45,23 +45,23 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
         {
             // Four six-pose flex cycles, then two held poses: 4 x 6 x 8 + 2 x 32 updates reach the final sleep.
             (RoomEnemySystem enemies, RoomEnemySlot slot, EtecoonEnemyState state) = NewEtecoon();
-            state.Playback = new(EtecoonAnimations.StartingWith(EtecoonProgram.Flexing), AnimationPlace.StartOfAnimation);
+            state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.Flexing), AnimationPlace.StartOfAnimation);
             slot.AnimationClock.StepOnNextUpdate();
             _ = EnemyInstructionRunner.ShownFrames(slot, 4 * 6 * 8 + 2 * 32);
-            AnimationPlayback<EtecoonProgram> held = state.Playback;
+            AnimationPlayback<EtecoonSegment> held = state.Playback;
             _ = EnemyInstructionRunner.ShownFrames(slot, 8);
             // The flex's last pose plays out, then the animation holds in its last phase for good.
-            AssertEqual(new AnimationPlayback<EtecoonProgram>(held.Animation,
+            AssertEqual(new AnimationPlayback<EtecoonSegment>(held.Animation,
                     AnimationPlace.HoldingIn(held.Animation.Phases.Count - 1, held.Animation.Phases[^1].BeatCount)),
                 state.Playback, "Etecoon flex ends asleep");
             _ = EnemyInstructionRunner.ShownFrames(slot, 8);
             AssertEqual(AnimationPlace.HoldingIn(held.Animation.Phases.Count - 1, held.Animation.Phases[^1].BeatCount), state.Playback.Place,
                 "Etecoon flex stays asleep");
-            AssertEqual(EtecoonAnimationsTooling.Spritemaps(EtecoonProgram.FlexingLoop).Last(), slot.SpritemapPointer, "Etecoon flex ends on its last pose");
+            AssertEqual(EtecoonAnimationsTooling.Spritemaps(EtecoonSegment.FlexingLoop).Last(), slot.SpritemapPointer, "Etecoon flex ends on its last pose");
             AssertEqual((ushort)0, slot.AnimationClock.Repeats.RawValue, "Etecoon flex loop count expires");
         }
 
-        AssertTrue(EtecoonAnimationsTooling.Spritemaps(Enum.GetValues<EtecoonProgram>()).Where(pointer => pointer != 0x804d).ToHashSet().SetEquals(
+        AssertTrue(EtecoonAnimationsTooling.Spritemaps(Enum.GetValues<EtecoonSegment>()).Where(pointer => pointer != 0x804d).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("etecoon_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Etecoon's programs show exactly its installed frames");
         Suite(nameof(EtecoonAnimationsVerification.VerifyEtecoonAnimations), () => EtecoonAnimationsVerification.VerifyEtecoonAnimations(rom));

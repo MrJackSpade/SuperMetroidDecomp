@@ -27,7 +27,7 @@ internal static class FxDefinitionMigrationVerification
             "rightward treadmill header decodes");
         AssertEqual(0xb4b6, SpecialAirReactionNativeWords.InsideSetups[SpecialAirInsideReaction.FastSandfall], "fast sandfall setup word");
         AssertEqual(0xe440, FxNativeWords.PaletteFxSetups.Word(NativePaletteFxSetup.Norfair), "Norfair palette setup word");
-        AssertEqual(ColourEffectStart.ChoosesHeatProgramForSuit, FxNativeWords.StartOf(NativePaletteFxSetup.Norfair), "Norfair palette setup start");
+        AssertEqual(ColourEffectStart.ChoosesHeatAnimationForSuit, FxNativeWords.StartOf(NativePaletteFxSetup.Norfair), "Norfair palette setup start");
         AssertEqual(0xe379, FxNativeWords.PaletteFxPreInstructions.Word(NativePaletteFxPreInstruction.Heat), "heat pre-instruction word");
         AssertEqual(ColourEffectCondition.BurnsSamusInHeat.Instance, FxNativeWords.ConditionOf(NativePaletteFxPreInstruction.Heat), "heat pre-instruction condition");
 

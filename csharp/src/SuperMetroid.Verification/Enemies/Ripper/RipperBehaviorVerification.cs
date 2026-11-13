@@ -35,18 +35,18 @@ internal static class RipperBehaviorVerification
         }
 
         HashSet<ushort> observedFrames = [];
-        Suite(nameof(VerifyGRipper), () => VerifyGRipper(RipperProgram.GRipperMovingRight, "GRipper right"));
+        Suite(nameof(VerifyGRipper), () => VerifyGRipper(RipperSegment.GRipperMovingRight, "GRipper right"));
         Suite(nameof(VerifyGRipperReversal), () => VerifyGRipperReversal());
-        Suite(nameof(VerifyRipper2), () => VerifyRipper2(0, RipperProgram.Ripper2MovingRight, "Ripper II native-right label"));
-        Suite(nameof(VerifyRipper2), () => VerifyRipper2(1, RipperProgram.Ripper2MovingLeft, "Ripper II native-left label"));
-        Suite(nameof(VerifyRipper), () => VerifyRipper(1, RipperProgram.RipperMovingRight, "Ripper right"));
-        Suite(nameof(VerifyRipper), () => VerifyRipper(0, RipperProgram.RipperMovingLeft, "Ripper left"));
+        Suite(nameof(VerifyRipper2), () => VerifyRipper2(0, RipperSegment.Ripper2MovingRight, "Ripper II native-right label"));
+        Suite(nameof(VerifyRipper2), () => VerifyRipper2(1, RipperSegment.Ripper2MovingLeft, "Ripper II native-left label"));
+        Suite(nameof(VerifyRipper), () => VerifyRipper(1, RipperSegment.RipperMovingRight, "Ripper right"));
+        Suite(nameof(VerifyRipper), () => VerifyRipper(0, RipperSegment.RipperMovingLeft, "Ripper left"));
 
         AssertEqual(RipperFrameDefinitionsConstants.PoseCount, observedFrames.Count,
             "all Ripper-family walking frames execute across six loops");
         Console.WriteLine("  Ripper behavior: three initializers and the reversal select and run their loops.");
 
-        void VerifyGRipper(RipperProgram expectedProgram, string context)
+        void VerifyGRipper(RipperSegment expectedProgram, string context)
         {
             RoomEnemySystem enemies = NewSystem();
             RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.GRipper);
@@ -65,11 +65,11 @@ internal static class RipperBehaviorVerification
             slot.SetSpawnParameter1(EnemyDefinitionId.GRipper, 0);
             slot.SetSpawnParameter2(EnemyDefinitionId.GRipper, ushort.MaxValue);
             RipperBehavior.InitializeGRipper(slot);
-            RipperBehavior.ReverseRipperVariant(slot, RipperProgram.GRipperMovingRight, RipperProgram.GRipperMovingLeft);
-            VerifyInstalledLoop(enemies, slot, RipperProgram.GRipperMovingLeft, "GRipper left reversal");
+            RipperBehavior.ReverseRipperVariant(slot, RipperSegment.GRipperMovingRight, RipperSegment.GRipperMovingLeft);
+            VerifyInstalledLoop(enemies, slot, RipperSegment.GRipperMovingLeft, "GRipper left reversal");
         }
 
-        void VerifyRipper2(ushort initialDirection, RipperProgram expectedProgram, string context)
+        void VerifyRipper2(ushort initialDirection, RipperSegment expectedProgram, string context)
         {
             RoomEnemySystem enemies = NewSystem();
             RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.Ripper2);
@@ -79,7 +79,7 @@ internal static class RipperBehaviorVerification
             VerifyInstalledLoop(enemies, slot, expectedProgram, context);
         }
 
-        void VerifyRipper(ushort initialDirection, RipperProgram expectedProgram, string context)
+        void VerifyRipper(ushort initialDirection, RipperSegment expectedProgram, string context)
         {
             RoomEnemySystem enemies = NewSystem();
             RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.Ripper);
@@ -95,7 +95,7 @@ internal static class RipperBehaviorVerification
             return enemies;
         }
 
-        void VerifyInstalledLoop(RoomEnemySystem enemies, RoomEnemySlot slot, RipperProgram expectedProgram, string context)
+        void VerifyInstalledLoop(RoomEnemySystem enemies, RoomEnemySlot slot, RipperSegment expectedProgram, string context)
         {
             // The loop shows four frames held 8, 7, 8 and 7 updates, then its goto shows the first frame again.
             ushort[] loop = RipperAnimationsConstants.Spritemaps(expectedProgram).ToArray();

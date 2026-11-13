@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Rooms.RoomObjects.NoobTubeProjectileCueKind;
-using P = SuperMetroid.Core.Rooms.RoomObjects.NoobTubeProjectileProgram;
+using P = SuperMetroid.Core.Rooms.RoomObjects.NoobTubeProjectileSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 internal static class NoobTubeProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue> Segments { get; } = new(
-        new Dictionary<NoobTubeProjectileProgram, AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>[]>
+    internal static AnimationSegments<NoobTubeProjectileSegment, NoobTubeProjectileFrame, NoobTubeProjectileCue> Segments { get; } = new(
+        new Dictionary<NoobTubeProjectileSegment, AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>[]>
     {
         [P.Crack] =
         [
@@ -247,7 +247,7 @@ internal static class NoobTubeProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<NoobTubeProjectileProgram, Animation<NoobTubeProjectileProgram>> StartingAt { get; } = new Dictionary<NoobTubeProjectileProgram, Animation<NoobTubeProjectileProgram>>
+    internal static IReadOnlyDictionary<NoobTubeProjectileSegment, Animation<NoobTubeProjectileSegment>> StartingAt { get; } = new Dictionary<NoobTubeProjectileSegment, Animation<NoobTubeProjectileSegment>>
     {
         [P.Crack] = new([new(P.Crack, 0, 37, 1), new(P.CrackLoop, 0, 2, 6), new(P.CrackLoop, 2, 1, 1)], AnimationEnd.Holds),
         [P.Shard0] = new([new(P.Shard0Loop, 0, 2, 32), new(P.Shard0Loop, 2, 2, 1), new(P.Shard0Loop2, 0, 2, 272), new(P.Shard0Loop2, 2, 1, 1)], AnimationEnd.Holds),
@@ -264,7 +264,7 @@ internal static class NoobTubeProjectileAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<NoobTubeProjectileProgram> StartingWith(NoobTubeProjectileProgram segment) => StartingAt[segment];
+    internal static Animation<NoobTubeProjectileSegment> StartingWith(NoobTubeProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue> Show(int pose, int duration) => new AnimationBeat<NoobTubeProjectileFrame, NoobTubeProjectileCue>.Frame(new(pose), duration);

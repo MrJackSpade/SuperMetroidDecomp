@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using F = SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectFrame;
-using P = SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectProgram;
+using P = SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectSegment;
 
 namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.SpriteObjects;
 internal static class RoomSpriteObjectAnimations
 {
     /// <summary>Every room sprite-object program.</summary>
-    internal static AnimationSegments<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<RoomSpriteObjectProgram, AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<RoomSpriteObjectSegment, RoomSpriteObjectFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<RoomSpriteObjectSegment, AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue>[]>
     {
         [P.DraygonFoamingAtTheMouth] =
         [
@@ -316,7 +316,7 @@ internal static class RoomSpriteObjectAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<RoomSpriteObjectProgram, Animation<RoomSpriteObjectProgram>> StartingAt { get; } = new Dictionary<RoomSpriteObjectProgram, Animation<RoomSpriteObjectProgram>>
+    internal static IReadOnlyDictionary<RoomSpriteObjectSegment, Animation<RoomSpriteObjectSegment>> StartingAt { get; } = new Dictionary<RoomSpriteObjectSegment, Animation<RoomSpriteObjectSegment>>
     {
         [P.DraygonFoamingAtTheMouth] = new([new(P.DraygonFoamingAtTheMouth, 0, 8, 1)], AnimationEnd.Stops),
         [P.SmallExplosion] = new([new(P.SmallExplosion, 0, 6, 1)], AnimationEnd.Stops),
@@ -344,7 +344,7 @@ internal static class RoomSpriteObjectAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<RoomSpriteObjectProgram> StartingWith(RoomSpriteObjectProgram segment) => StartingAt[segment];
+    internal static Animation<RoomSpriteObjectSegment> StartingWith(RoomSpriteObjectSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue> Show(RoomSpriteObjectFrame frame, int duration) => new AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue>.Frame(frame, duration);

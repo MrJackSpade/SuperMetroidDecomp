@@ -109,7 +109,7 @@ internal static class DoorSetupCodeInterpreter
             case DoorSetupCode.DoorASM_Scroll_0_1_Green_duplicate:
             case DoorSetupCode.DoorASM_Scroll_18_Blue_19_Red:
             default:
-                if (DoorScrollPrograms.TryApply(setupCode, scrolls))
+                if (DoorScrollChanges.TryApply(setupCode, scrolls))
                     return;
                 throw new InvalidOperationException(
                     $"Undefined {nameof(DoorSetupCode)} {setupCode} in door {doorName}.");

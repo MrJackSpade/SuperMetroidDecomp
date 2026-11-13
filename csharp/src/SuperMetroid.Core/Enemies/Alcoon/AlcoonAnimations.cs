@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Alcoon.AlcoonCueKind;
-using P = SuperMetroid.Core.Enemies.Alcoon.AlcoonProgram;
+using P = SuperMetroid.Core.Enemies.Alcoon.AlcoonSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Alcoon;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 internal static class AlcoonAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<AlcoonProgram, EnemyFrameId, AlcoonCue> Segments { get; } = new(
-        new Dictionary<AlcoonProgram, AnimationBeat<EnemyFrameId, AlcoonCue>[]>
+    internal static AnimationSegments<AlcoonSegment, EnemyFrameId, AlcoonCue> Segments { get; } = new(
+        new Dictionary<AlcoonSegment, AnimationBeat<EnemyFrameId, AlcoonCue>[]>
     {
         [P.WalkingLeft] =
         [
@@ -108,7 +108,7 @@ internal static class AlcoonAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<AlcoonProgram, Animation<AlcoonProgram>> StartingAt { get; } = new Dictionary<AlcoonProgram, Animation<AlcoonProgram>>
+    internal static IReadOnlyDictionary<AlcoonSegment, Animation<AlcoonSegment>> StartingAt { get; } = new Dictionary<AlcoonSegment, Animation<AlcoonSegment>>
     {
         [P.WalkingLeft] = new([new(P.WalkingLeft, 0, 1, 1), new(P.WalkingLeftLoop, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
         [P.WalkingLeftLoop] = new([new(P.WalkingLeftLoop, 0, 7, 1), new(P.WalkingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
@@ -123,7 +123,7 @@ internal static class AlcoonAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<AlcoonProgram> StartingWith(AlcoonProgram segment) => StartingAt[segment];
+    internal static Animation<AlcoonSegment> StartingWith(AlcoonSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, AlcoonCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, AlcoonCue>.Frame(frame, duration);

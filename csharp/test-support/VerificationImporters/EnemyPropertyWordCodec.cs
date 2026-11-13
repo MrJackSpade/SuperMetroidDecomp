@@ -30,7 +30,7 @@ internal static class EnemyPropertyWordCodec
     private static readonly Dictionary<EnemyProcessing, int> ProcessingBits = new()
     {
         [EnemyProcessing.OffScreen] = 1 << 11,
-        [EnemyProcessing.AnimationScript] = 1 << 13,
+        [EnemyProcessing.Animates] = 1 << 13,
     };
 
     /// <summary>Each presence flag's bit in the property word.</summary>

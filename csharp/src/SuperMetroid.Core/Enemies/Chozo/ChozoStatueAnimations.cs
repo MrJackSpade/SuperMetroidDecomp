@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Chozo.ChozoStatueCueKind;
-using P = SuperMetroid.Core.Enemies.Chozo.ChozoStatueProgram;
+using P = SuperMetroid.Core.Enemies.Chozo.ChozoStatueSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Chozo;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 internal static class ChozoStatueAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<ChozoStatueProgram, EnemyFrameId, ChozoStatueCue> Segments { get; } = new(
-        new Dictionary<ChozoStatueProgram, AnimationBeat<EnemyFrameId, ChozoStatueCue>[]>
+    internal static AnimationSegments<ChozoStatueSegment, EnemyFrameId, ChozoStatueCue> Segments { get; } = new(
+        new Dictionary<ChozoStatueSegment, AnimationBeat<EnemyFrameId, ChozoStatueCue>[]>
     {
         [P.LowerNorfairInitial] =
         [
@@ -146,7 +146,7 @@ internal static class ChozoStatueAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<ChozoStatueProgram, Animation<ChozoStatueProgram>> StartingAt { get; } = new Dictionary<ChozoStatueProgram, Animation<ChozoStatueProgram>>
+    internal static IReadOnlyDictionary<ChozoStatueSegment, Animation<ChozoStatueSegment>> StartingAt { get; } = new Dictionary<ChozoStatueSegment, Animation<ChozoStatueSegment>>
     {
         [P.LowerNorfairInitial] = new([new(P.LowerNorfairInitial, 0, 2, 1)], AnimationEnd.Holds),
         [P.LowerNorfairActivated] = new([new(P.LowerNorfairActivated, 0, 16, 1), new(P.LowerNorfairActivatedLoop, 0, 6, 5), new(P.LowerNorfairActivatedLoop, 6, 11, 1)], AnimationEnd.Holds),
@@ -155,7 +155,7 @@ internal static class ChozoStatueAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<ChozoStatueProgram> StartingWith(ChozoStatueProgram segment) => StartingAt[segment];
+    internal static Animation<ChozoStatueSegment> StartingWith(ChozoStatueSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, ChozoStatueCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, ChozoStatueCue>.Frame(frame, duration);

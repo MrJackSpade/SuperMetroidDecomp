@@ -377,12 +377,12 @@ internal static void VerifyTypedNativeWords()
             enemyContact.HasAny(EnemyContact.SolidToSamus) && enemyPresence.HasAny(EnemyPresence.Hidden),
         "enemy visibility, collision, plasma, and platform flags round trip");
     enemyPresence = enemyPresence.With(EnemyPresence.Deleted);
-    enemyProcessing = enemyProcessing.With(EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript);
+    enemyProcessing = enemyProcessing.With(EnemyProcessing.OffScreen | EnemyProcessing.Animates);
     AssertTrue(enemyPresence.HasAny(EnemyPresence.Deleted) && enemyProcessing.HasAny(EnemyProcessing.OffScreen) &&
-            enemyProcessing.HasAny(EnemyProcessing.AnimationScript),
+            enemyProcessing.HasAny(EnemyProcessing.Animates),
         "enemy deletion and processing flags round trip");
     enemyPresence = enemyPresence.Without(EnemyPresence.Hidden | EnemyPresence.Deleted);
-    enemyProcessing = enemyProcessing.Without(EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript);
+    enemyProcessing = enemyProcessing.Without(EnemyProcessing.OffScreen | EnemyProcessing.Animates);
     AssertEqual(EnemyContact.IgnoresSamus | EnemyContact.BlocksPlasmaBeam | EnemyContact.SolidToSamus,
         enemyContact, "enemy flag operations clear only the named flags");
     AssertEqual(EnemyPresence.None, enemyPresence, "enemy presence operations clear the named flags");

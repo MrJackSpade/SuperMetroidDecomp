@@ -5,8 +5,8 @@ internal static class DragonPhases
 {
     /// <summary>The program of an animation.</summary>
     /// <exception cref="InvalidDataException"><paramref name="selector"/> is outside the six.</exception>
-    internal static DragonProgram Program(DragonAnimationSelector selector) =>
-        DragonAnimationDefinitions.Programs.TryGetValue(selector, out DragonProgram program)
+    internal static DragonSegment Animation(DragonAnimationSelector selector) =>
+        DragonAnimationDefinitions.Animations.TryGetValue(selector, out DragonSegment program)
             ? program
             : throw NotLive(selector);
 

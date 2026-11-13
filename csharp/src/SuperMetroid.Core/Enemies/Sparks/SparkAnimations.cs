@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Sparks.SparkCueKind;
-using P = SuperMetroid.Core.Enemies.Sparks.SparkProgram;
+using P = SuperMetroid.Core.Enemies.Sparks.SparkSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Sparks;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 internal static class SparkAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<SparkProgram, EnemyFrameId, SparkCue> Segments { get; } = new(
-        new Dictionary<SparkProgram, AnimationBeat<EnemyFrameId, SparkCue>[]>
+    internal static AnimationSegments<SparkSegment, EnemyFrameId, SparkCue> Segments { get; } = new(
+        new Dictionary<SparkSegment, AnimationBeat<EnemyFrameId, SparkCue>[]>
     {
         [P.FlickerOn] =
         [
@@ -58,7 +58,7 @@ internal static class SparkAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<SparkProgram, Animation<SparkProgram>> StartingAt { get; } = new Dictionary<SparkProgram, Animation<SparkProgram>>
+    internal static IReadOnlyDictionary<SparkSegment, Animation<SparkSegment>> StartingAt { get; } = new Dictionary<SparkSegment, Animation<SparkSegment>>
     {
         [P.FlickerOn] = new([new(P.FlickerOn, 0, 11, 1), new(P.Active, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.Active] = new([new(P.Active, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
@@ -67,7 +67,7 @@ internal static class SparkAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<SparkProgram> StartingWith(SparkProgram segment) => StartingAt[segment];
+    internal static Animation<SparkSegment> StartingWith(SparkSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, SparkCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, SparkCue>.Frame(frame, duration);

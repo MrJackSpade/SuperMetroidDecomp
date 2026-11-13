@@ -39,12 +39,12 @@ public static class NorfairEnvironmentalPaletteFxColorDefinitions
         PaletteFxObject.NorfairDarkForegroundHeatGlow,
     ];
     /// <summary>The program each object runs, by owner: the heat-phase program, then the green, purple and dark foreground glows.</summary>
-    internal static readonly PaletteFxProgram[] Programs =
+    internal static readonly PaletteFxSegment[] Programs =
     [
-        PaletteFxProgram.NorfairForegroundAndHeatPhaseCycle,
-        PaletteFxProgram.NorfairGreenForegroundHeatGlowCycle,
-        PaletteFxProgram.NorfairPurpleForegroundHeatGlowCycle,
-        PaletteFxProgram.NorfairDarkForegroundHeatGlowCycle,
+        PaletteFxSegment.NorfairForegroundAndHeatPhaseCycle,
+        PaletteFxSegment.NorfairGreenForegroundHeatGlowCycle,
+        PaletteFxSegment.NorfairPurpleForegroundHeatGlowCycle,
+        PaletteFxSegment.NorfairDarkForegroundHeatGlowCycle,
     ];
 
     /// <summary>The four real environmental programs in definition order.</summary>

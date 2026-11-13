@@ -57,9 +57,9 @@ internal static class ProjectileFrameBindingsVerification
             var bombs = new SamusBombProjectileSystem { FrameBindings = stock };
             AssertTrue(nativeShot.FrameHold.RawValue is > 0 and < 0x8000,
                 "native inventory contains timed records");
-            AssertEqual(false, shots.Animation.RunProjectileInstructionHandler(installedShot),
+            AssertEqual(false, shots.Animation.AdvanceProjectileAnimation(installedShot),
                 "installed projectile timed record survives");
-            AssertEqual(false, bombs.RunProjectileInstructionHandler(installedBomb),
+            AssertEqual(false, bombs.AdvanceProjectileAnimation(installedBomb),
                 "installed bomb timed record survives");
             AssertEqual(nativeShot.SpritemapPointer, installedShot.SpritemapPointer,
                 "installed projectile frame selects the native sprite");

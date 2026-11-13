@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Programs;
-using P = SuperMetroid.Core.Samus.Projectiles.SamusProjectileProgram;
+using P = SuperMetroid.Core.Samus.Projectiles.SamusProjectileSegment;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal static class SamusProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<SamusProjectileProgram, AnimationBeat<SamusProjectileFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<SamusProjectileSegment, SamusProjectileFrame, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<SamusProjectileSegment, AnimationBeat<SamusProjectileFrame, NoAnimationCue>[]>
     {
         [P.PowerUpFacingRight] =
         [
@@ -1241,7 +1241,7 @@ internal static class SamusProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<SamusProjectileProgram, Animation<SamusProjectileProgram>> StartingAt { get; } = new Dictionary<SamusProjectileProgram, Animation<SamusProjectileProgram>>
+    internal static IReadOnlyDictionary<SamusProjectileSegment, Animation<SamusProjectileSegment>> StartingAt { get; } = new Dictionary<SamusProjectileSegment, Animation<SamusProjectileSegment>>
     {
         [P.PowerUpFacingRight] = new([new(P.PowerUpFacingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
         [P.PowerUpRight] = new([new(P.PowerUpRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
@@ -1389,8 +1389,8 @@ internal static class SamusProjectileAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<SamusProjectileProgram> StartingWith(SamusProjectileProgram segment) => StartingAt[segment];
+    internal static Animation<SamusProjectileSegment> StartingWith(SamusProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="program"/>'s timed record <paramref name="show"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<SamusProjectileFrame, NoAnimationCue> Show(SamusProjectileProgram program, int show, int duration) => new AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame(new(program, show), duration);
+    private static AnimationBeat<SamusProjectileFrame, NoAnimationCue> Show(SamusProjectileSegment program, int show, int duration) => new AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame(new(program, show), duration);
 }

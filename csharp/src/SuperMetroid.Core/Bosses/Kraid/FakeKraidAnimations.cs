@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Bosses.Kraid.FakeKraidCueKind;
-using P = SuperMetroid.Core.Bosses.Kraid.FakeKraidProgram;
+using P = SuperMetroid.Core.Bosses.Kraid.FakeKraidSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class FakeKraidAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<FakeKraidProgram, EnemyFrameId, FakeKraidCue> Segments { get; } = new(
-        new Dictionary<FakeKraidProgram, AnimationBeat<EnemyFrameId, FakeKraidCue>[]>
+    internal static AnimationSegments<FakeKraidSegment, EnemyFrameId, FakeKraidCue> Segments { get; } = new(
+        new Dictionary<FakeKraidSegment, AnimationBeat<EnemyFrameId, FakeKraidCue>[]>
     {
         [P.ChooseActionFacingLeft] =
         [
@@ -84,7 +84,7 @@ internal static class FakeKraidAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<FakeKraidProgram, Animation<FakeKraidProgram>> StartingAt { get; } = new Dictionary<FakeKraidProgram, Animation<FakeKraidProgram>>
+    internal static IReadOnlyDictionary<FakeKraidSegment, Animation<FakeKraidSegment>> StartingAt { get; } = new Dictionary<FakeKraidSegment, Animation<FakeKraidSegment>>
     {
         [P.ChooseActionFacingLeft] = new([new(P.ChooseActionFacingLeft, 0, 1, 1), new(P.StepForwardsFacingLeft, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
         [P.StepForwardsFacingLeft] = new([new(P.StepForwardsFacingLeft, 0, 5, 1), new(P.ChooseActionFacingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
@@ -99,7 +99,7 @@ internal static class FakeKraidAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<FakeKraidProgram> StartingWith(FakeKraidProgram segment) => StartingAt[segment];
+    internal static Animation<FakeKraidSegment> StartingWith(FakeKraidSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, FakeKraidCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, FakeKraidCue>.Frame(frame, duration);

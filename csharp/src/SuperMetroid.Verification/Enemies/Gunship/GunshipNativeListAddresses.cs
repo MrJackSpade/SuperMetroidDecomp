@@ -13,14 +13,14 @@ internal static class GunshipNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<GunshipProgram>[] Entries =
+    internal static readonly NativeProgramEntry<GunshipSegment>[] Entries =
     [
-        new NativeProgramEntry<GunshipProgram>(GunshipProgram.EntrancePadOpening, 0xa5be),
-        new NativeProgramEntry<GunshipProgram>(GunshipProgram.EntrancePadOpen, 0xa5e6),
-        new NativeProgramEntry<GunshipProgram>(GunshipProgram.EntrancePadClosing, 0xa5ee),
-        new NativeProgramEntry<GunshipProgram>(GunshipProgram.BottomEntrancePad, 0xa60e),
-        new NativeProgramEntry<GunshipProgram>(GunshipProgram.TopHull, 0xa616),
-        new NativeProgramEntry<GunshipProgram>(GunshipProgram.BottomHull, 0xa61c),
+        new NativeProgramEntry<GunshipSegment>(GunshipSegment.EntrancePadOpening, 0xa5be),
+        new NativeProgramEntry<GunshipSegment>(GunshipSegment.EntrancePadOpen, 0xa5e6),
+        new NativeProgramEntry<GunshipSegment>(GunshipSegment.EntrancePadClosing, 0xa5ee),
+        new NativeProgramEntry<GunshipSegment>(GunshipSegment.BottomEntrancePad, 0xa60e),
+        new NativeProgramEntry<GunshipSegment>(GunshipSegment.TopHull, 0xa616),
+        new NativeProgramEntry<GunshipSegment>(GunshipSegment.BottomHull, 0xa61c),
     ];
 
 }

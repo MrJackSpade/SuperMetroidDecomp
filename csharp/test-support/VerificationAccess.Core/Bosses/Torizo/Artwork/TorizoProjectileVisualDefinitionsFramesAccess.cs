@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Bosses.Torizo.TorizoProjectileProgram;
+using P = SuperMetroid.Core.Bosses.Torizo.TorizoProjectileSegment;
 
 namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
 

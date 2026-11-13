@@ -9,8 +9,8 @@ internal static class CeresFallingDebrisNativeListAddresses
     /// <summary>Each program's projectile kind and native list: <c>InstList_EnemyProjectile_CeresFallingTile_Light/Dark</c>.</summary>
     internal static readonly CeresFallingDebrisNativeListAddressesEntry[] Entries =
     [
-        new CeresFallingDebrisNativeListAddressesEntry(CeresFallingDebrisProgram.Light, RoomEnemyProjectileKind.CeresFallingDebrisLight, 0x9750),
-        new CeresFallingDebrisNativeListAddressesEntry(CeresFallingDebrisProgram.Dark, RoomEnemyProjectileKind.CeresFallingDebrisDark, 0x9756),
+        new CeresFallingDebrisNativeListAddressesEntry(CeresFallingDebrisSegment.Light, RoomEnemyProjectileKind.CeresFallingDebrisLight, 0x9750),
+        new CeresFallingDebrisNativeListAddressesEntry(CeresFallingDebrisSegment.Dark, RoomEnemyProjectileKind.CeresFallingDebrisDark, 0x9756),
     ];
 
     /// <summary>The tile lists' span, $86:9750..975C, which production must never read.</summary>

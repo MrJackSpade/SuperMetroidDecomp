@@ -80,7 +80,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         GunshipSavePromptPending = false;
         GunshipSaveRequested = save;
         Part(top).Function = GunshipFunction.WaitForExitPadToOpen;
-        StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);
+        StartGunshipAnimation(pad, GunshipSegment.EntrancePadOpening);
         Part(top).FunctionTimer = 144;
     }
 
@@ -88,13 +88,13 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// Each hull and pad place's typed animation playback (#1600). Initialization sets a place's playback before its animation
     /// plays, so a place's entry always belongs to its current piece.
     /// </summary>
-    private readonly Dictionary<RoomEnemySlot, AnimationPlayback<GunshipProgram>> _shipPrograms = [];
+    private readonly Dictionary<RoomEnemySlot, AnimationPlayback<GunshipSegment>> _shipAnimations = [];
 
     /// <summary>Starts <paramref name="program"/> on <paramref name="slot"/> from the next update.</summary>
-    private void StartGunshipProgram(RoomEnemySlot slot, GunshipProgram program)
+    private void StartGunshipAnimation(RoomEnemySlot slot, GunshipSegment program)
     {
         slot.AnimationClock.StepOnNextUpdate();
-        _shipPrograms[slot] = new AnimationPlayback<GunshipProgram>(GunshipAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        _shipAnimations[slot] = new AnimationPlayback<GunshipSegment>(GunshipAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Runs a hull or pad piece's typed program where the shared enemy animation would.</summary>
@@ -102,10 +102,10 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     {
         if (!slot.AnimationClock.Expire())
             return;
-        AnimationPlayback<GunshipProgram> playback = _shipPrograms[slot];
-        EnemyProgramAnimation.Play(slot, GunshipAnimations.Segments, ref playback,
+        AnimationPlayback<GunshipSegment> playback = _shipAnimations[slot];
+        EnemyAnimationPlayback.Play(slot, GunshipAnimations.Segments, ref playback,
             cue => throw new InvalidOperationException($"The gunship's programs publish no cue; got {cue}."));
-        _shipPrograms[slot] = playback;
+        _shipAnimations[slot] = playback;
     }
 
     /// <summary>Initializes the top hull and selects ordinary idle or post-Ceres descent.</summary>
@@ -114,9 +114,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         _ship = new GunshipPieces(slot, _slotTable.ListedAfter(slot, 1), _slotTable.ListedAfter(slot, 2));
         var part = new GunshipPartState();
         slot.SetSpeciesState(part);
-        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
+        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
-        _shipPrograms[slot] = EnemyProgramAnimation.Start(slot, GunshipAnimations.StartingWith(GunshipProgram.TopHull));
+        _shipAnimations[slot] = EnemyAnimationPlayback.Start(slot, GunshipAnimations.StartingWith(GunshipSegment.TopHull));
         if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
         {
             SamusState samus = _samusAtEnemyInitialization
@@ -142,11 +142,11 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     {
         var part = new GunshipPartState();
         slot.SetSpeciesState(part);
-        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
+        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
-        _shipPrograms[slot] = EnemyProgramAnimation.Start(slot, GunshipAnimations.StartingWith(slot.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad
-            ? GunshipProgram.BottomEntrancePad
-            : GunshipProgram.BottomHull));
+        _shipAnimations[slot] = EnemyAnimationPlayback.Start(slot, GunshipAnimations.StartingWith(slot.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad
+            ? GunshipSegment.BottomEntrancePad
+            : GunshipSegment.BottomHull));
 
         if (slot.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad)
         {
@@ -330,7 +330,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         Part(top).BobPhase = 0;
         samus.Position = samus.Position.WithWrappedWholeX(top.Position.X.Whole + 1);
         samus.WritePreviousXPosition(samus.Position.X.Whole);
-        StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);
+        StartGunshipAnimation(pad, GunshipSegment.EntrancePadOpening);
         Part(top).FunctionTimer = 144;
         _frameResults.Gunship = GunshipFrameEvent.LandingPadOpened;
         _audio.QueueEnemySound(RoomSound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
@@ -348,7 +348,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
         RoomEnemySlot pad = Pieces(top).EntrancePad;
         Part(top).Function = GunshipFunction.FinishLanding;
-        StartGunshipProgram(pad, GunshipProgram.EntrancePadClosing);
+        StartGunshipAnimation(pad, GunshipSegment.EntrancePadClosing);
         Part(top).FunctionTimer = 144;
         _frameResults.Gunship = GunshipFrameEvent.LandingPadClosed;
     }
@@ -424,7 +424,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
             samus.Control.EnterGunship();
             pad.Position = pad.Position.WithWrappedWholeY(top.Position.Y.Whole - 1);
-            StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);
+            StartGunshipAnimation(pad, GunshipSegment.EntrancePadOpening);
             Part(top).FunctionTimer = 144;
             _frameResults.Gunship = GunshipFrameEvent.EntryStarted;
             _audio.QueueEnemySound(RoomSound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
@@ -448,7 +448,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
         RoomEnemySlot pad = Pieces(top).EntrancePad;
         Part(top).Function = GunshipFunction.WaitForEntranceToClose;
-        StartGunshipProgram(pad, GunshipProgram.EntrancePadClosing);
+        StartGunshipAnimation(pad, GunshipSegment.EntrancePadClosing);
         Part(top).FunctionTimer = 144;
         _frameResults.Gunship = GunshipFrameEvent.EntryPadClosing;
     }
@@ -499,7 +499,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
         RoomEnemySlot pad = Pieces(top).EntrancePad;
         Part(top).Function = GunshipFunction.FinishSamusExit;
-        StartGunshipProgram(pad, GunshipProgram.EntrancePadClosing);
+        StartGunshipAnimation(pad, GunshipSegment.EntrancePadClosing);
         Part(top).FunctionTimer = 144;
         _frameResults.Gunship = GunshipFrameEvent.ExitPadClosing;
         _audio.QueueEnemySound(RoomSound.GunshipPadClosing, priority: SoundRequestPriority.Normal);

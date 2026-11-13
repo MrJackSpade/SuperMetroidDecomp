@@ -6,4 +6,4 @@ namespace SuperMetroid.Verification.Enemies.KiHunters;
 /// <summary>The spit and program of one verify ki hunter acid spit behavior case.</summary>
 /// <param name="Spit">The spit.</param>
 /// <param name="Program">The program.</param>
-internal readonly record struct VerifyKiHunterAcidSpitBehaviorCase(EnemyProjectile Spit, KiHunterAcidSpitProgram Program);
+internal readonly record struct VerifyKiHunterAcidSpitBehaviorCase(EnemyProjectile Spit, KiHunterAcidSpitSegment Program);

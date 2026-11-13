@@ -14,7 +14,7 @@ internal sealed class MochtroidEntity(MochtroidBehavior species, RoomEnemySlot s
     public EnemyMainAiHandler? FindMain() => species.RunMochtroidMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => MochtroidBehavior.AdvanceMochtroidTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => MochtroidBehavior.AdvanceMochtroidTypedAnimation;
 
     /// <summary>The Mochtroid's own shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>

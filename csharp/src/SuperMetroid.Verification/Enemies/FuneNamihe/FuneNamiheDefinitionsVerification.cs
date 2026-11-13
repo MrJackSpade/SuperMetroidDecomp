@@ -33,12 +33,12 @@ internal static class FuneNamiheDefinitionsVerification
                 ? FuneNamiheSelectorOracle.NamiheIdleLeftCursor
                 : FuneNamiheSelectorOracle.FuneIdleLeftCursor) +
                 (right ? FuneNamiheSelectorOracle.FacingRightCursorDelta : 0));
-            AssertEqual(new AnimationPlayback<FuneNamiheProgram>(FuneNamiheAnimations.StartingWith(FuneNamiheSelectorOracle.ProgramAt(idleCursor)), AnimationPlace.StartOfAnimation), state.Playback,
+            AssertEqual(new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(FuneNamiheSelectorOracle.ProgramAt(idleCursor)), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Fune/Namihe production idle list {variant}");
 
             runMain(slot, (state), namihe ? new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, slot.Position.Y.Whole)) } : null);
             ushort activeCursor = (ushort)(idleCursor - FuneNamiheSelectorOracle.ActiveCursorDelta);
-            AssertEqual(new AnimationPlayback<FuneNamiheProgram>(FuneNamiheAnimations.StartingWith(FuneNamiheSelectorOracle.ProgramAt(activeCursor)), AnimationPlace.StartOfAnimation), state.Playback,
+            AssertEqual(new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(FuneNamiheSelectorOracle.ProgramAt(activeCursor)), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Fune/Namihe production active list {variant}");
         }
 
@@ -58,7 +58,7 @@ internal static class FuneNamiheDefinitionsVerification
             ushort native = LittleEndianBytes.Word(FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | cursor), FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | (cursor + 1)));
             (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(cursor);
             var state = new FuneNamiheEnemyState { Variant = namihe ? FuneNamiheVariant.Namihe : FuneNamiheVariant.Fune, ShowsActiveAnimation = active, FacingRight = right };
-            AssertEqual(native, NativeEnemyAnimationOracle.EntryOf(FuneNamiheNativeListAddresses.Entries, FuneNamiheBehavior.SelectFuneNamiheProgram(state)),
+            AssertEqual(native, NativeEnemyAnimationOracle.EntryOf(FuneNamiheNativeListAddresses.Entries, FuneNamiheBehavior.SelectFuneNamiheAnimation(state)),
                 "Fune/Namihe production species/activity/facing selection matches native pointer");
         }
         var valid = cursors.ToHashSet();

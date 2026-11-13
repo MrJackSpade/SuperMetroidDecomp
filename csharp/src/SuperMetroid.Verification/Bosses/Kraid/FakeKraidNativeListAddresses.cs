@@ -14,18 +14,18 @@ internal static class FakeKraidNativeListAddresses
     internal const byte Bank = 0xa6;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<FakeKraidProgram>[] Entries =
+    internal static readonly NativeProgramEntry<FakeKraidSegment>[] Entries =
     [
-        new NativeProgramEntry<FakeKraidProgram>(FakeKraidProgram.ChooseActionFacingLeft, 0x99ac),
-        new NativeProgramEntry<FakeKraidProgram>(FakeKraidProgram.StepForwardsFacingLeft, 0x99ae),
-        new NativeProgramEntry<FakeKraidProgram>(FakeKraidProgram.ChooseAlternateActionFacingLeft, 0x99c4),
-        new NativeProgramEntry<FakeKraidProgram>(FakeKraidProgram.StepBackwardsFacingLeft, 0x99c6),
-        new NativeProgramEntry<FakeKraidProgram>(FakeKraidProgram.FireSpitFacingLeft, 0x99dc),
-        new NativeProgramEntry<FakeKraidProgram>(FakeKraidProgram.ChooseActionFacingRight, 0x99fa),
-        new NativeProgramEntry<FakeKraidProgram>(FakeKraidProgram.StepForwardsFacingRight, 0x99fc),
-        new NativeProgramEntry<FakeKraidProgram>(FakeKraidProgram.ChooseAlternateActionFacingRight, 0x9a12),
-        new NativeProgramEntry<FakeKraidProgram>(FakeKraidProgram.StepBackwardsFacingRight, 0x9a14),
-        new NativeProgramEntry<FakeKraidProgram>(FakeKraidProgram.FireSpitFacingRight, 0x9a2a),
+        new NativeProgramEntry<FakeKraidSegment>(FakeKraidSegment.ChooseActionFacingLeft, 0x99ac),
+        new NativeProgramEntry<FakeKraidSegment>(FakeKraidSegment.StepForwardsFacingLeft, 0x99ae),
+        new NativeProgramEntry<FakeKraidSegment>(FakeKraidSegment.ChooseAlternateActionFacingLeft, 0x99c4),
+        new NativeProgramEntry<FakeKraidSegment>(FakeKraidSegment.StepBackwardsFacingLeft, 0x99c6),
+        new NativeProgramEntry<FakeKraidSegment>(FakeKraidSegment.FireSpitFacingLeft, 0x99dc),
+        new NativeProgramEntry<FakeKraidSegment>(FakeKraidSegment.ChooseActionFacingRight, 0x99fa),
+        new NativeProgramEntry<FakeKraidSegment>(FakeKraidSegment.StepForwardsFacingRight, 0x99fc),
+        new NativeProgramEntry<FakeKraidSegment>(FakeKraidSegment.ChooseAlternateActionFacingRight, 0x9a12),
+        new NativeProgramEntry<FakeKraidSegment>(FakeKraidSegment.StepBackwardsFacingRight, 0x9a14),
+        new NativeProgramEntry<FakeKraidSegment>(FakeKraidSegment.FireSpitFacingRight, 0x9a2a),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

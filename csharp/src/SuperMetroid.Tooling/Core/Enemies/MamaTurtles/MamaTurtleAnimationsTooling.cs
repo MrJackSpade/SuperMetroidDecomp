@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 internal static class MamaTurtleAnimationsTooling
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params MamaTurtleProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params MamaTurtleSegment[] programs) =>
         programs.SelectMany(program => MamaTurtleAnimations.Segments.Beats(program))
             .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>()
             .Select(frame => MamaTurtleFrameToolingDefinitions.Spritemap(frame));

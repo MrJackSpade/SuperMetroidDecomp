@@ -106,7 +106,7 @@ internal static class Layer3PlaneVerification
     /// <summary>After N steps the typewriter has typed exactly the glyphs it reports, each at its program's next destination.</summary>
     internal static void VerifyTypewriterGlyphs()
     {
-        var program = new EscapeTypewriterProgram(EscapeTypewriterProgramId.Ceres,
+        var program = new EscapeTypewriterMessage(EscapeTypewriterMessageId.Ceres,
             [new EscapeTypewriterLine(new Position16<PlanePixels>(40, 64), "AB C!")]);
         var text = new EscapeTypewriterState(program);
         var typed = new List<EscapeTypewriterGlyph>();
@@ -128,7 +128,7 @@ internal static class Layer3PlaneVerification
         for (int index = 0; index < typed.Count; index++)
         {
             AssertEqual(corners[index], typed[index].Corner, $"glyph {index} lands at its program's pixel");
-            AssertEqual(EscapeTypewriterGlyph.PictureOf(EscapeTypewriterProgramId.Ceres, characters[index]), typed[index].Picture,
+            AssertEqual(EscapeTypewriterGlyph.PictureOf(EscapeTypewriterMessageId.Ceres, characters[index]), typed[index].Picture,
                 $"glyph {index} names its character's picture");
         }
         Console.WriteLine($"  BG3 plane: the typewriter typed {typed.Count} glyphs over {steps} steps at their destinations.");

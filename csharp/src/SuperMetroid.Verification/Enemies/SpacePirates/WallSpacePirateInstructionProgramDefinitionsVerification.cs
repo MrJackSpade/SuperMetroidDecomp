@@ -31,27 +31,27 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
         Suite(nameof(VerifyAttack), () => VerifyAttack(movingRight: false));
         Suite(nameof(VerifyAttack), () => VerifyAttack(movingRight: true));
         Suite(nameof(VerifyClimb), () => VerifyClimb(
-            WallSpacePirateProgram.LandedOnLeftWall,
+            WallSpacePirateSegment.LandedOnLeftWall,
             expectedFunction: WallSpacePirateFunction.ClimbingLeftWall,
             frames: 12));
         Suite(nameof(VerifyClimb), () => VerifyClimb(
-            WallSpacePirateProgram.MovingUpLeftWall,
+            WallSpacePirateSegment.MovingUpLeftWall,
             expectedFunction: WallSpacePirateFunction.ClimbingLeftWall,
             frames: 260));
         Suite(nameof(VerifyClimb), () => VerifyClimb(
-            WallSpacePirateProgram.MovingDownLeftWall,
+            WallSpacePirateSegment.MovingDownLeftWall,
             expectedFunction: WallSpacePirateFunction.ClimbingLeftWall,
             frames: 260));
         Suite(nameof(VerifyClimb), () => VerifyClimb(
-            WallSpacePirateProgram.LandedOnRightWall,
+            WallSpacePirateSegment.LandedOnRightWall,
             expectedFunction: WallSpacePirateFunction.ClimbingRightWall,
             frames: 12));
         Suite(nameof(VerifyClimb), () => VerifyClimb(
-            WallSpacePirateProgram.MovingDownRightWall,
+            WallSpacePirateSegment.MovingDownRightWall,
             expectedFunction: WallSpacePirateFunction.ClimbingRightWall,
             frames: 260));
         Suite(nameof(VerifyClimb), () => VerifyClimb(
-            WallSpacePirateProgram.MovingUpRightWall,
+            WallSpacePirateSegment.MovingUpRightWall,
             expectedFunction: WallSpacePirateFunction.ClimbingRightWall,
             frames: 260));
         Suite(nameof(VerifyCollisionReversal), () => VerifyCollisionReversal(onRightWall: false));
@@ -63,12 +63,12 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
 
         void VerifyAttack(bool movingRight)
         {
-            WallSpacePirateProgram program = movingRight
-                ? WallSpacePirateProgram.FireAndJumpRight
-                : WallSpacePirateProgram.FireAndJumpLeft;
+            WallSpacePirateSegment program = movingRight
+                ? WallSpacePirateSegment.FireAndJumpRight
+                : WallSpacePirateSegment.FireAndJumpLeft;
             // The attack has played every beat of its one phase and holds on its last pose.
-            Animation<WallSpacePirateProgram> attack = WallSpacePirateAnimations.StartingWith(program);
-            var expected = new AnimationPlayback<WallSpacePirateProgram>(attack, AnimationPlace.HoldingIn(0, attack.Phases[0].BeatCount));
+            Animation<WallSpacePirateSegment> attack = WallSpacePirateAnimations.StartingWith(program);
+            var expected = new AnimationPlayback<WallSpacePirateSegment>(attack, AnimationPlace.HoldingIn(0, attack.Phases[0].BeatCount));
             WallSpacePirateFunction expectedFunction = movingRight
                 ? WallSpacePirateFunction.WallJumpingRight
                 : WallSpacePirateFunction.WallJumpingLeft;
@@ -88,7 +88,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
         }
 
         void VerifyClimb(
-            WallSpacePirateProgram program,
+            WallSpacePirateSegment program,
             WallSpacePirateFunction expectedFunction,
             int frames)
         {
@@ -112,8 +112,8 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot,
                 WallSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             state.Playback = new(WallSpacePirateAnimations.StartingWith(onRightWall
-                ? WallSpacePirateProgram.MovingDownRightWall
-                : WallSpacePirateProgram.MovingDownLeftWall), AnimationPlace.StartOfAnimation);
+                ? WallSpacePirateSegment.MovingDownRightWall
+                : WallSpacePirateSegment.MovingDownLeftWall), AnimationPlace.StartOfAnimation);
             slot.AnimationClock.StepOnNextUpdate();
             RunFrames(
                 enemies,
@@ -124,11 +124,11 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             AssertEqual(WallSpacePirateClimbDirection.Up, state.ClimbDirection,
                 $"wall Pirate {(onRightWall ? "right" : "left")} collision reverses direction");
             // The contact continues at the upward climb, whose counted loop has shown its first pose.
-            WallSpacePirateProgram climb = onRightWall ? WallSpacePirateProgram.MovingUpRightWall : WallSpacePirateProgram.MovingUpLeftWall;
-            WallSpacePirateProgram loop = onRightWall ? WallSpacePirateProgram.MovingUpRightWallLoop : WallSpacePirateProgram.MovingUpLeftWallLoop;
+            WallSpacePirateSegment climb = onRightWall ? WallSpacePirateSegment.MovingUpRightWall : WallSpacePirateSegment.MovingUpLeftWall;
+            WallSpacePirateSegment loop = onRightWall ? WallSpacePirateSegment.MovingUpRightWallLoop : WallSpacePirateSegment.MovingUpLeftWallLoop;
             AssertEqual(
-                new AnimationPlayback<WallSpacePirateProgram>(WallSpacePirateAnimations.StartingWith(climb),
-                    AnimationSegments<WallSpacePirateProgram, EnemyFrameId, WallSpacePirateCue>.PlaceOf(WallSpacePirateAnimations.StartingWith(climb), loop, 1)),
+                new AnimationPlayback<WallSpacePirateSegment>(WallSpacePirateAnimations.StartingWith(climb),
+                    AnimationSegments<WallSpacePirateSegment, EnemyFrameId, WallSpacePirateCue>.PlaceOf(WallSpacePirateAnimations.StartingWith(climb), loop, 1)),
                 state.Playback,
                 $"wall Pirate {(onRightWall ? "right" : "left")} collision installs upward list");
         }
@@ -142,14 +142,14 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
                 WallSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             AssertEqual(4, state.JumpAngleDelta, "the fixture Pirate makes fast jumps");
             RotationAngle start = jumpingRight ? RotationAngle.QuarterTurn : RotationAngle.ThreeQuarterTurn;
-            WallSpacePirateProgram landing = jumpingRight
-                ? WallSpacePirateProgram.LandedOnRightWall
-                : WallSpacePirateProgram.LandedOnLeftWall;
+            WallSpacePirateSegment landing = jumpingRight
+                ? WallSpacePirateSegment.LandedOnRightWall
+                : WallSpacePirateSegment.LandedOnLeftWall;
             state.Function = jumpingRight ? WallSpacePirateFunction.WallJumpingRight : WallSpacePirateFunction.WallJumpingLeft;
             state.WallJumpArcAngle = start;
             state.WallJumpArcCenter = slot.Position.Whole;
             state.Playback = new(WallSpacePirateAnimations.StartingWith(
-                jumpingRight ? WallSpacePirateProgram.FireAndJumpRight : WallSpacePirateProgram.FireAndJumpLeft), AnimationPlace.StartOfAnimation);
+                jumpingRight ? WallSpacePirateSegment.FireAndJumpRight : WallSpacePirateSegment.FireAndJumpLeft), AnimationPlace.StartOfAnimation);
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
                 new FrameCounters(0));
@@ -159,7 +159,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
                 RotationAngle expected = start.TurnedBySteps(jumpingRight ? -4 * update : 4 * update);
                 AssertEqual(expected, state.WallJumpArcAngle,
                     $"wall Pirate {(jumpingRight ? "right" : "left")} jump angle after update {update} wraps around the turn");
-                AssertEqual(update == 32, state.Playback == new AnimationPlayback<WallSpacePirateProgram>(WallSpacePirateAnimations.StartingWith(landing), AnimationPlace.StartOfAnimation),
+                AssertEqual(update == 32, state.Playback == new AnimationPlayback<WallSpacePirateSegment>(WallSpacePirateAnimations.StartingWith(landing), AnimationPlace.StartOfAnimation),
                     $"wall Pirate {(jumpingRight ? "right" : "left")} jump lands only at its endpoint, update {update}");
             }
             AssertEqual(jumpingRight ? RotationAngle.ThreeQuarterTurn : RotationAngle.QuarterTurn, state.WallJumpArcAngle,

@@ -193,16 +193,16 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="ArmsIdle">The arms program restored as the ascent passes the same point.</param>
     /// <param name="Apex">The function that recalculates velocity at the bottom of the swoop.</param>
     /// <param name="Ascending">The function that climbs back up after the apex.</param>
-    internal sealed record DraygonSwoopSide(HorizontalDirection Direction, DraygonProgram ArmsNearApex, DraygonProgram ArmsIdle,
+    internal sealed record DraygonSwoopSide(HorizontalDirection Direction, DraygonSegment ArmsNearApex, DraygonSegment ArmsIdle,
         DraygonAiFunction Apex, DraygonAiFunction Ascending);
 
     /// <summary>The swoop from the left edge to the right.</summary>
-    internal static readonly DraygonSwoopSide RightSwoop = new(HorizontalDirection.Right, DraygonProgram.ArmsFacingRightNearSwoopApex,
-        DraygonProgram.ArmsFacingRightIdle, DraygonAiFunction.SwoopRightApex, DraygonAiFunction.SwoopRightAscending);
+    internal static readonly DraygonSwoopSide RightSwoop = new(HorizontalDirection.Right, DraygonSegment.ArmsFacingRightNearSwoopApex,
+        DraygonSegment.ArmsFacingRightIdle, DraygonAiFunction.SwoopRightApex, DraygonAiFunction.SwoopRightAscending);
 
     /// <summary>The mirrored swoop from the right edge to the left.</summary>
-    internal static readonly DraygonSwoopSide LeftSwoop = new(HorizontalDirection.Left, DraygonProgram.ArmsFacingLeftNearSwoopApex,
-        DraygonProgram.ArmsFacingLeftIdle, DraygonAiFunction.SwoopLeftApex, DraygonAiFunction.SwoopLeftAscending);
+    internal static readonly DraygonSwoopSide LeftSwoop = new(HorizontalDirection.Left, DraygonSegment.ArmsFacingLeftNearSwoopApex,
+        DraygonSegment.ArmsFacingLeftIdle, DraygonAiFunction.SwoopLeftApex, DraygonAiFunction.SwoopLeftAscending);
 
     /// <summary>
     /// The X Draygon parks at off the left edge (-80, wrapped into the coordinate range); a goop pass leftwards ends once
@@ -226,7 +226,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal const int DraygonSwoopApexArmsEntry = 26;
 
     /// <summary>Advances Draygon's typed animation.</summary>
-    internal void AdvanceDraygonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    internal void AdvanceDraygonTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context)
     {
         Parts.AdvanceDraygonPartAnimation(slot, context.Samus);
     }

@@ -4,33 +4,33 @@ namespace SuperMetroid.Core.Escape.Artwork;
 public sealed class EscapeTypewriterPresentation
 {
     /// <summary>Loaded Ceres warning lines and where each starts.</summary>
-    private readonly EscapeTypewriterProgram ceres;
+    private readonly EscapeTypewriterMessage ceres;
     /// <summary>Loaded Zebes time-bomb warning lines and where each starts.</summary>
-    private readonly EscapeTypewriterProgram zebes;
+    private readonly EscapeTypewriterMessage zebes;
 
     /// <summary>Retains the two programs the import pipeline validated.</summary>
-    internal EscapeTypewriterPresentation(Dictionary<EscapeTypewriterProgramId, EscapeTypewriterProgram> programs)
+    internal EscapeTypewriterPresentation(Dictionary<EscapeTypewriterMessageId, EscapeTypewriterMessage> programs)
     {
-        ceres = programs[EscapeTypewriterProgramId.Ceres];
-        zebes = programs[EscapeTypewriterProgramId.Zebes];
+        ceres = programs[EscapeTypewriterMessageId.Ceres];
+        zebes = programs[EscapeTypewriterMessageId.Zebes];
     }
 
     /// <summary>Returns the installed warning text and placement for one escape scenario.</summary>
     /// <param name="id">Ceres or Zebes program identity; None does not denote an installed program.</param>
     /// <returns>The retained program with its read-only ordered line sequence and source identity.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is None or another undefined program value.</exception>
-    public EscapeTypewriterProgram Get(EscapeTypewriterProgramId id) => id switch
+    public EscapeTypewriterMessage Get(EscapeTypewriterMessageId id) => id switch
     {
-        EscapeTypewriterProgramId.Ceres => ceres,
-        EscapeTypewriterProgramId.Zebes => zebes,
-        EscapeTypewriterProgramId.None => throw new ArgumentOutOfRangeException(nameof(id), id,
+        EscapeTypewriterMessageId.Ceres => ceres,
+        EscapeTypewriterMessageId.Zebes => zebes,
+        EscapeTypewriterMessageId.None => throw new ArgumentOutOfRangeException(nameof(id), id,
             "Escape typewriter program is not present in the installed catalog."),
         _ => throw new ArgumentOutOfRangeException(nameof(id), id,
             "Escape typewriter program is not present in the installed catalog."),
     };
 
     /// <summary>Reads stock lines from compiled definitions and stores only authored changes by line index.</summary>
-    internal sealed class LineSequence(EscapeTypewriterProgramId id, int count,
+    internal sealed class LineSequence(EscapeTypewriterMessageId id, int count,
         Dictionary<int, EscapeTypewriterLine> differences) : IReadOnlyList<EscapeTypewriterLine>
     {
         /// <summary>Edited or added lines that differ from the selected warning program.</summary>

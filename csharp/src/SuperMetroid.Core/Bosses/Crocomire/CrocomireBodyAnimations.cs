@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyCueKind;
-using P = SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyProgram;
+using P = SuperMetroid.Core.Bosses.Crocomire.CrocomireBodySegment;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal static class CrocomireBodyAnimations
 {
     /// <summary>Every body, melting and skeleton segment's beats.</summary>
-    internal static AnimationSegments<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue> Segments { get; } = new(
-        new Dictionary<CrocomireBodyProgram, AnimationBeat<CrocomireBodyFrame, CrocomireBodyCue>[]>
+    internal static AnimationSegments<CrocomireBodySegment, CrocomireBodyFrame, CrocomireBodyCue> Segments { get; } = new(
+        new Dictionary<CrocomireBodySegment, AnimationBeat<CrocomireBodyFrame, CrocomireBodyCue>[]>
     {
         [P.Initial] =
         [
@@ -521,7 +521,7 @@ internal static class CrocomireBodyAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<CrocomireBodyProgram, Animation<CrocomireBodyProgram>> StartingAt { get; } = new Dictionary<CrocomireBodyProgram, Animation<CrocomireBodyProgram>>
+    internal static IReadOnlyDictionary<CrocomireBodySegment, Animation<CrocomireBodySegment>> StartingAt { get; } = new Dictionary<CrocomireBodySegment, Animation<CrocomireBodySegment>>
     {
         [P.Initial] = new([new(P.Initial, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
         [P.UnusedChargeForwardOneStep] = new([new(P.UnusedChargeForwardOneStep, 0, 26, 1), new(P.ProjectileAttack, 0, 29, 1), new(P.ProjectileAttackLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(2)),
@@ -560,13 +560,13 @@ internal static class CrocomireBodyAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<CrocomireBodyProgram> StartingWith(CrocomireBodyProgram segment) => StartingAt[segment];
+    internal static Animation<CrocomireBodySegment> StartingWith(CrocomireBodySegment segment) => StartingAt[segment];
 
     /// <summary>
     /// The segment each list that runs on into the list authored next, directly after its last beat, continues into: a body
     /// resting after that beat already stands in the next, which the fight AI and the skeleton's rest test read.
     /// </summary>
-    internal static IReadOnlyDictionary<CrocomireBodyProgram, CrocomireBodyProgram> RunsOnInto { get; } = new Dictionary<CrocomireBodyProgram, CrocomireBodyProgram>
+    internal static IReadOnlyDictionary<CrocomireBodySegment, CrocomireBodySegment> RunsOnInto { get; } = new Dictionary<CrocomireBodySegment, CrocomireBodySegment>
     {
         [P.UnusedChargeForwardOneStep] = P.ProjectileAttack,
         [P.ProjectileAttack] = P.ProjectileAttackLoop,

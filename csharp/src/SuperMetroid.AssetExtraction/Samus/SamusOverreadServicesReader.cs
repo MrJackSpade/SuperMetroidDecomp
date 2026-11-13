@@ -58,7 +58,7 @@ internal static class SamusOverreadServicesReader
 
     /// <summary>What an animation frame past a pose's program reads, which only the import reads to compose Samus's body sheet (#1513).</summary>
     /// <exception cref="InvalidDataException">The document has an unsupported version or an incomplete continuation.</exception>
-    internal static LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> ReadAnimationContinuation(SamusOverreadDocument document)
+    internal static LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> ReadAnimationContinuation(SamusOverreadDocument document)
     {
         Ensure.NotNull(document);
         if (document.Version != SamusOverreadFormat.Version)
@@ -70,7 +70,7 @@ internal static class SamusOverreadServicesReader
     /// Every pose with an animation program, its program's successor and the steps its program's operand places read
     /// (#1535).
     /// </summary>
-    private static LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> AnimationContinuation(SamusOverreadDocument document)
+    private static LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> AnimationContinuation(SamusOverreadDocument document)
     {
         IReadOnlyDictionary<string, SamusOverreadDocument.Continuation?> continuations =
             Require(document.AnimationContinuations, nameof(document.AnimationContinuations));
@@ -81,26 +81,26 @@ internal static class SamusOverreadServicesReader
             throw new InvalidDataException($"Samus overread file holds operand steps for {operandSteps.Count} poses, not {poses.Length}.");
         if (continuations.Count != poses.Length)
             throw new InvalidDataException($"Samus overread file holds {continuations.Count} animation continuations, not {poses.Length}.");
-        var successors = new Dictionary<SamusPoseId, LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep>.Successor?>();
-        var operands = new Dictionary<SamusPoseId, IReadOnlyDictionary<int, SamusAnimationProgramStep>>();
+        var successors = new Dictionary<SamusPoseId, LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep>.Successor?>();
+        var operands = new Dictionary<SamusPoseId, IReadOnlyDictionary<int, SamusPoseAnimationStep>>();
         foreach (SamusPoseId pose in poses)
         {
             if (!continuations.TryGetValue(pose.ToString(), out SamusOverreadDocument.Continuation? continuation))
                 throw new InvalidDataException($"Samus overread file has no animation continuation for {pose}.");
             successors.Add(pose, continuation is null
                 ? null
-                : new LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep>.Successor(Parse<SamusPoseId>(continuation.Pose, "animation successor"), continuation.Shift));
+                : new LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep>.Successor(Parse<SamusPoseId>(continuation.Pose, "animation successor"), continuation.Shift));
             if (!operandSteps.TryGetValue(pose.ToString(), out IReadOnlyDictionary<string, SamusOverreadDocument.OperandStep>? steps))
                 throw new InvalidDataException($"Samus overread file has no operand steps for {pose}.");
             operands.Add(pose, Require(steps, $"operand steps for {pose}").ToDictionary(
                 pair => ParseCount(pair.Key, $"{pose} operand frame"), pair => OperandStep(Require(pair.Value, $"{pose} operand step"))));
         }
-        return new LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep>(successors, operands);
+        return new LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep>(successors, operands);
     }
 
     /// <summary>The step an operand's place reads, from its decoded kind and operands.</summary>
     /// <exception cref="InvalidDataException">The step lacks an operand its kind needs, or carries one it does not.</exception>
-    private static SamusAnimationProgramStep OperandStep(SamusOverreadDocument.OperandStep step)
+    private static SamusPoseAnimationStep OperandStep(SamusOverreadDocument.OperandStep step)
     {
         SamusOverreadDocument.OperandStepKind kind = Parse<SamusOverreadDocument.OperandStepKind>(step.Kind, "operand step kind");
         SamusPoseId Pose(int index, int count) =>
@@ -141,7 +141,7 @@ internal static class SamusOverreadServicesReader
         var result = new Dictionary<SamusProjectileSegmentBeat, IReadOnlyList<ProgressionOverwrite?>>();
         foreach ((string programName, IReadOnlyDictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>> positions) in overwrites)
         {
-            SamusProjectileProgram program = Parse<SamusProjectileProgram>(programName, "SpaceTime program");
+            SamusProjectileSegment program = Parse<SamusProjectileSegment>(programName, "SpaceTime program");
             // A segment's places: before each beat, and at its end.
             int steps = SamusProjectileAnimations.Segments.Beats(program).Count + 1;
             if (positions.Count != steps)
@@ -185,11 +185,11 @@ internal static class SamusOverreadServicesReader
         var result = new Dictionary<SamusProjectileSegmentBeat, SamusProjectileSegmentBeat>();
         foreach ((string programName, IReadOnlyDictionary<string, SamusOverreadDocument.Cursor> positions) in landings)
         {
-            SamusProjectileProgram program = Parse<SamusProjectileProgram>(programName, "Chainsaw program");
+            SamusProjectileSegment program = Parse<SamusProjectileSegment>(programName, "Chainsaw program");
             foreach ((string positionName, SamusOverreadDocument.Cursor landing) in positions)
                 result.Add(new(program, ParseCount(positionName, $"{program} step")), Cursor(landing));
         }
-        if (landings.Count != Enum.GetValues<SamusProjectileProgram>().Length)
+        if (landings.Count != Enum.GetValues<SamusProjectileSegment>().Length)
             throw new InvalidDataException($"Samus overread file holds Chainsaw landings for {landings.Count} programs.");
         return new(result);
     }
@@ -198,7 +198,7 @@ internal static class SamusOverreadServicesReader
     private static SamusProjectileSegmentBeat Cursor(SamusOverreadDocument.Cursor cursor)
     {
         Ensure.NotNull(cursor);
-        SamusProjectileProgram program = Parse<SamusProjectileProgram>(cursor.Program, "animation position program");
+        SamusProjectileSegment program = Parse<SamusProjectileSegment>(cursor.Program, "animation position program");
         return (uint)cursor.Position <= (uint)SamusProjectileAnimations.Segments.Beats(program).Count
             ? new(program, cursor.Position)
             : throw new InvalidDataException($"Samus overread file names step {cursor.Position} of {program}, which it does not have.");

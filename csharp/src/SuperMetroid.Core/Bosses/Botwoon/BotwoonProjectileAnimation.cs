@@ -5,23 +5,23 @@ using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>A Botwoon body segment's or spit's typed animation.</summary>
-internal sealed class BotwoonProjectileAnimation : EnemyProjectileTypedAnimation<BotwoonSegmentProgram, BotwoonProjectileFrame, NoAnimationCue>
+internal sealed class BotwoonProjectileAnimation : EnemyProjectileTypedAnimation<BotwoonBodyAnimationSegment, BotwoonProjectileFrame, NoAnimationCue>
 {
     /// <summary>Starts the animation of <paramref name="program"/>.</summary>
-    private BotwoonProjectileAnimation(BotwoonSegmentProgram program)
+    private BotwoonProjectileAnimation(BotwoonBodyAnimationSegment program)
         : base(BotwoonAnimations.ProjectileStartingWith(program))
     {
     }
 
     /// <summary>The segment program shown, or null for a spit.</summary>
-    internal BotwoonSegmentProgram? Segment => PlayingSegment == BotwoonSegmentProgram.Spit ? null : PlayingSegment;
+    internal BotwoonBodyAnimationSegment? Segment => PlayingSegment == BotwoonBodyAnimationSegment.Spit ? null : PlayingSegment;
 
     /// <summary>A spit's cycling animation.</summary>
-    internal static BotwoonProjectileAnimation Spit() => new(BotwoonSegmentProgram.Spit);
+    internal static BotwoonProjectileAnimation Spit() => new(BotwoonBodyAnimationSegment.Spit);
 
     /// <summary>A body segment showing <paramref name="program"/>.</summary>
-    internal static BotwoonProjectileAnimation ForSegment(BotwoonSegmentProgram program) =>
-        program == BotwoonSegmentProgram.Spit
+    internal static BotwoonProjectileAnimation ForSegment(BotwoonBodyAnimationSegment program) =>
+        program == BotwoonBodyAnimationSegment.Spit
             ? throw new ArgumentOutOfRangeException(nameof(program), program, "A body segment does not run the spit program.")
             : new(program);
 
@@ -30,11 +30,11 @@ internal sealed class BotwoonProjectileAnimation : EnemyProjectileTypedAnimation
     /// running, as the original game only reinstalls a list that differs from the one it installed.
     /// </summary>
     /// <returns>Whether the program changed.</returns>
-    internal bool Install(BotwoonSegmentProgram program)
+    internal bool Install(BotwoonBodyAnimationSegment program)
     {
         if (Segment is not { } segment)
             throw new InvalidOperationException("A Botwoon spit animation has no segment program to replace.");
-        if (program == BotwoonSegmentProgram.Spit)
+        if (program == BotwoonBodyAnimationSegment.Spit)
             throw new ArgumentOutOfRangeException(nameof(program), program, "A body segment does not run the spit program.");
         if (segment == program)
             return false;
@@ -43,11 +43,11 @@ internal sealed class BotwoonProjectileAnimation : EnemyProjectileTypedAnimation
     }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<BotwoonSegmentProgram, BotwoonProjectileFrame, NoAnimationCue> Segments =>
+    private protected override AnimationSegments<BotwoonBodyAnimationSegment, BotwoonProjectileFrame, NoAnimationCue> Segments =>
         BotwoonAnimations.ProjectileSegments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<BotwoonSegmentProgram, Animation<BotwoonSegmentProgram>> StartingAt =>
+    private protected override IReadOnlyDictionary<BotwoonBodyAnimationSegment, Animation<BotwoonBodyAnimationSegment>> StartingAt =>
         BotwoonAnimations.ProjectileStartingAt;
 
     /// <inheritdoc/>

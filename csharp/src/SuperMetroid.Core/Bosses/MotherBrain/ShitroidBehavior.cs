@@ -86,12 +86,12 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // collision, but the scheduler also consumes that same bit for animation, so
         // the translated property enum retains the directly observed scheduler meaning.
         slot.Contact = slot.Contact.With(EnemyContact.BlocksPlasmaBeam);
-        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
+        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.AnimationClock.Restart();
 
         var state = new ShitroidEnemyState(slot)
         {
-            Playback = ShitroidAnimations.Starting(ShitroidProgram.Normal),
+            Playback = ShitroidAnimations.Starting(ShitroidSegment.Normal),
             Function = ShitroidAiFunction.WaitForCamera,
             Velocity = default,
             PaletteDelay = 10,
@@ -267,7 +267,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     RequestShitroidSound(ShitroidSoundDefinitions.FlyAwayCry);
                     state.Function = ShitroidAiFunction.FlyLeft;
                     state.StateTimer = 88;
-                    SetShitroidProgram(slot, ShitroidProgram.LatchedOn);
+                    SetShitroidAnimation(slot, ShitroidSegment.LatchedOn);
                     goto case ShitroidAiFunction.FlyLeft;
                 }
                 return;
@@ -304,7 +304,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     state.Function = ShitroidAiFunction.HoldSamusBeforeRelease;
                     state.StateTimer = 256;
-                    SetShitroidProgram(slot, ShitroidProgram.Remorse);
+                    SetShitroidAnimation(slot, ShitroidSegment.Remorse);
                 }
                 return;
             }
@@ -321,7 +321,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.Velocity = default;
                     // The leave step clears instruction processing and invisibility as Shitroid
                     // reaches the off-screen destination, leaving a dormant non-drawn actor.
-                    slot.Processing = slot.Processing.Without(EnemyProcessing.AnimationScript);
+                    slot.Processing = slot.Processing.Without(EnemyProcessing.Animates);
                     slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
                     state.Function = ShitroidAiFunction.Dormant;
                 }
@@ -399,7 +399,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Velocity = default;
         slot.Position = slot.Position.WithWhole(latch);
-        SetShitroidProgram(slot, ShitroidProgram.LatchedOn);
+        SetShitroidAnimation(slot, ShitroidSegment.LatchedOn);
         state.Function = ShitroidAiFunction.DrainSidehopper;
         state.PaletteDelay = 1;
         state.ReactsToSamus = false;
@@ -416,7 +416,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (--state.StateTimer == 0)
         {
             state.Function = ShitroidAiFunction.ActivateSidehopperCorpse;
-            SetShitroidProgram(slot, ShitroidProgram.FinishDraining);
+            SetShitroidAnimation(slot, ShitroidSegment.FinishDraining);
             state.PaletteDelay = 10;
         }
     }
@@ -469,7 +469,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             sharedProjectiles?.SetSharedBombCounter(0);
             state.Function = ShitroidAiFunction.BeginPostDrainPause;
             state.Velocity = default;
-            SetShitroidProgram(slot, ShitroidProgram.FinishDraining);
+            SetShitroidAnimation(slot, ShitroidSegment.FinishDraining);
             state.PaletteDelay = 10;
             samus.MetroidAttachmentPalette = SamusMetroidAttachmentPalette.Inactive;
             samus.Drained.LetFall(samus);
@@ -659,7 +659,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 LatchAcceleration,
                 samus.Position.Whole + new Offset16<RoomPixels>(0, -32)))
             {
-                SetShitroidProgram(slot, ShitroidProgram.LatchedOn);
+                SetShitroidAnimation(slot, ShitroidSegment.LatchedOn);
                 state.PaletteDelay = 1;
                 state.ReactsToSamus = false;
                 state.Velocity = default;
@@ -745,7 +745,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts <paramref name="program"/> with both instruction timers reset.</summary>
-    private void SetShitroidProgram(RoomEnemySlot slot, ShitroidProgram program)
+    private void SetShitroidAnimation(RoomEnemySlot slot, ShitroidSegment program)
     {
         RequireShitroidState(slot).Playback = ShitroidAnimations.Starting(program);
         slot.AnimationClock.Restart();
@@ -809,21 +809,21 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         ShitroidEnemyState state = RequireShitroidState(slot);
         if (!slot.AnimationClock.Expire())
             return;
-        AnimationPlayback<ShitroidProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, ShitroidAnimations.Segments, ref playback, BabyMetroidVisualDefinitions.ShownFrames.Of, ApplyShitroidCue);
+        AnimationPlayback<ShitroidSegment> playback = state.Playback;
+        EnemyAnimationPlayback.Play(slot, ShitroidAnimations.Segments, ref playback, BabyMetroidVisualDefinitions.ShownFrames.Of, ApplyShitroidCue);
         state.Playback = playback;
     }
 
     /// <summary>Carries out one event of a Shitroid animation.</summary>
     /// <returns>The remorse animation from its start when the cry does not sound; otherwise null.</returns>
-    private AnimationContinuation<ShitroidProgram>? ApplyShitroidCue(ShitroidCue cue)
+    private AnimationContinuation<ShitroidSegment>? ApplyShitroidCue(ShitroidCue cue)
     {
         switch (cue)
         {
             case ShitroidCue.MaybeRemorseCry:
                 // The cue samples the existing random word; it does not generate a new one.
                 if (BossRandomRolls.InLowerHalf(_room.Random.Read()))
-                    return new(ShitroidAnimations.StartingAt[ShitroidProgram.Remorse], AnimationPlace.StartOfAnimation);
+                    return new(ShitroidAnimations.StartingAt[ShitroidSegment.Remorse], AnimationPlace.StartOfAnimation);
                 RequestShitroidSound(ShitroidSoundDefinitions.RemorseCry);
                 return null;
             default:

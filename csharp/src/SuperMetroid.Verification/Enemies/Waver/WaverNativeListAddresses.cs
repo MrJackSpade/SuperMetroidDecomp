@@ -14,12 +14,12 @@ internal static class WaverNativeListAddresses
     internal const byte Bank = 0xa3;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<WaverProgram>[] Entries =
+    internal static readonly NativeProgramEntry<WaverSegment>[] Entries =
     [
-        new NativeProgramEntry<WaverProgram>(WaverProgram.SteadyFacingLeft, 0x86a7),
-        new NativeProgramEntry<WaverProgram>(WaverProgram.SteadyFacingRight, 0x86ad),
-        new NativeProgramEntry<WaverProgram>(WaverProgram.SpinningFacingLeft, 0x86b3),
-        new NativeProgramEntry<WaverProgram>(WaverProgram.SpinningFacingRight, 0x86c7),
+        new NativeProgramEntry<WaverSegment>(WaverSegment.SteadyFacingLeft, 0x86a7),
+        new NativeProgramEntry<WaverSegment>(WaverSegment.SteadyFacingRight, 0x86ad),
+        new NativeProgramEntry<WaverSegment>(WaverSegment.SpinningFacingLeft, 0x86b3),
+        new NativeProgramEntry<WaverSegment>(WaverSegment.SpinningFacingRight, 0x86c7),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

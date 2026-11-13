@@ -32,7 +32,7 @@ internal static class BullMovementDefinitionsVerification
             AssertEqual(16, state.ActivationTimer, "Bull native activation delay");
             AssertEqual(1, slot.AnimationClock.Hold.RawValue, "Bull instruction timer");
             AssertEqual(0, slot.AnimationClock.Repeats.RawValue, "Bull loop timer");
-            AssertEqual(new AnimationPlayback<BullProgram>(BullAnimations.StartingWith(BullProgram.Normal), AnimationPlace.StartOfAnimation), state.Playback, "Bull initial animation");
+            AssertEqual(new AnimationPlayback<BullSegment>(BullAnimations.StartingWith(BullSegment.Normal), AnimationPlace.StartOfAnimation), state.Playback, "Bull initial animation");
         }
         AssertThrows<InvalidDataException>(() => slot.SetSpawnParameter2(EnemyDefinitionId.Bull, 8), "Bull import rejects the speed selector past its table");
         AssertThrows<InvalidDataException>(() => slot.SetSpawnParameter1(EnemyDefinitionId.Bull, 13), "Bull import rejects the interval selector past its table");

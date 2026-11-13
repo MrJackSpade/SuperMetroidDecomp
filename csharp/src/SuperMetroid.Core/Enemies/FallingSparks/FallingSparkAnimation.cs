@@ -4,12 +4,12 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.FallingSparks;
 
 /// <summary>Falling spark's typed animation.</summary>
-internal sealed class FallingSparkAnimation(FallingSparkProgram program)
-    : EnemyProjectileFrameAnimation<FallingSparkProgram, EnemyProjectileCommonCue>(FallingSparkAnimations.StartingWith(program))
+internal sealed class FallingSparkAnimation(FallingSparkSegment program)
+    : EnemyProjectileFrameAnimation<FallingSparkSegment, EnemyProjectileCommonCue>(FallingSparkAnimations.StartingWith(program))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<FallingSparkProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => FallingSparkAnimations.Segments;
+    private protected override AnimationSegments<FallingSparkSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => FallingSparkAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<FallingSparkProgram, Animation<FallingSparkProgram>> StartingAt => FallingSparkAnimations.StartingAt;
+    private protected override IReadOnlyDictionary<FallingSparkSegment, Animation<FallingSparkSegment>> StartingAt => FallingSparkAnimations.StartingAt;
 }

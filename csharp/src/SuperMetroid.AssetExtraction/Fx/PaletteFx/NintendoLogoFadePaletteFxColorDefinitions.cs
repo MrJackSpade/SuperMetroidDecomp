@@ -23,5 +23,5 @@ public static class NintendoLogoFadePaletteFxColorDefinitions
     public const int ColorsPerFrame = 2;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(PaletteFxProgram.CommonFadeInLogo, ColorsPerFrame);
+    public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(PaletteFxSegment.CommonFadeInLogo, ColorsPerFrame);
 }

@@ -117,7 +117,7 @@ internal sealed class RoomMainRoutines
         room.Enemies.Projectiles.SpawnCeresFallingDebris(
             CeresFallingDebrisX(CeresFallingDebrisDefinitions.Column.Of(random)),
             dark,
-            new CeresFallingDebrisAnimation(dark ? CeresFallingDebrisProgram.Dark : CeresFallingDebrisProgram.Light),
+            new CeresFallingDebrisAnimation(dark ? CeresFallingDebrisSegment.Dark : CeresFallingDebrisSegment.Light),
             CeresFallingDebrisVisualDefinitions.Graphics);
     }
 

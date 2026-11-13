@@ -17,12 +17,12 @@ internal static class SamusProjectileSelection
     /// <summary>
     /// The animation a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, runs fired in
     /// <paramref name="direction"/>, or null for none: its definition's list for the direction, except the Murder Beam's,
-    /// which reads past the Power Bomb definition it takes its damage from (<see cref="MurderBeamDirectionPrograms{TDirection, TProgram}"/>).
+    /// which reads past the Power Bomb definition it takes its damage from (<see cref="MurderBeamDirectionAnimations{TDirection, TAnimation}"/>).
     /// </summary>
-    internal static SamusProjectileProgram? BeamShotProgram(SamusBeamCombination beams, bool charged, SamusProjectileDirection direction) =>
+    internal static SamusProjectileSegment? BeamShotAnimation(SamusBeamCombination beams, bool charged, SamusProjectileDirection direction) =>
         IsMurderBeam(beams, charged)
-            ? MurderBeamPrograms.Program(direction)
-            : SamusProjectileHeaders.Program(BeamShot(beams, charged), direction);
+            ? MurderBeamAnimations.Animation(direction)
+            : SamusProjectileHeaders.Animation(BeamShot(beams, charged), direction);
 
     /// <summary>Whether a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, is the Murder Beam's.</summary>
     internal static bool IsMurderBeam(SamusBeamCombination beams, bool charged) => charged && beams == MurderBeam;

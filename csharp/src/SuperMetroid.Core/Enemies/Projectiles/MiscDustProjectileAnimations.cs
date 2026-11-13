@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using CK = SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileCommonCueKind;
-using P = SuperMetroid.Core.Samus.Projectiles.MiscDustProjectileProgram;
+using P = SuperMetroid.Core.Samus.Projectiles.MiscDustProjectileSegment;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 internal static class MiscDustProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MiscDustProjectileProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<MiscDustProjectileProgram, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<MiscDustProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<MiscDustProjectileSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.BeamCharge] =
         [
@@ -329,7 +329,7 @@ internal static class MiscDustProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<MiscDustProjectileProgram, Animation<MiscDustProjectileProgram>> StartingAt { get; } = new Dictionary<MiscDustProjectileProgram, Animation<MiscDustProjectileProgram>>
+    internal static IReadOnlyDictionary<MiscDustProjectileSegment, Animation<MiscDustProjectileSegment>> StartingAt { get; } = new Dictionary<MiscDustProjectileSegment, Animation<MiscDustProjectileSegment>>
     {
         [P.BeamCharge] = new([new(P.BeamCharge, 0, 5, 1)], AnimationEnd.Holds),
         [P.ElbowChargeParticle] = new([new(P.ElbowChargeParticle, 0, 7, 1)], AnimationEnd.Holds),
@@ -364,7 +364,7 @@ internal static class MiscDustProjectileAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<MiscDustProjectileProgram> StartingWith(MiscDustProjectileProgram segment) => StartingAt[segment];
+    internal static Animation<MiscDustProjectileSegment> StartingWith(MiscDustProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);

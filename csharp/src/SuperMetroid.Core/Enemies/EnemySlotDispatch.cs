@@ -90,7 +90,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         InitializeSlotFromDefinition(slot, population, _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionId));
         RunInitializationAi(slot, EnemySpawnSurroundings.None);
         // Spawning writes the empty frame after initialization, before the first animation tick.
-        slot.Frame = slot.Processing.HasAny(EnemyProcessing.AnimationScript)
+        slot.Frame = slot.Processing.HasAny(EnemyProcessing.Animates)
             ? EnemyFrameId.Empty
             : null;
         _slotTable.CoverSpawn(slot);

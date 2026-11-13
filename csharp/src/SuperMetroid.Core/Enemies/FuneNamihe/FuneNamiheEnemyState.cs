@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 public sealed class FuneNamiheEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<FuneNamiheProgram> Playback { get; set; }
+    internal AnimationPlayback<FuneNamiheSegment> Playback { get; set; }
 
     /// <summary>Whether the spitting animation is selected rather than the idle one; waking selects it and the spit's finishing cue deselects it.</summary>
     public bool ShowsActiveAnimation { get; internal set; }

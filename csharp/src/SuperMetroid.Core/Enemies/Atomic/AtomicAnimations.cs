@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Enemies.Atomic.AtomicProgram;
+using P = SuperMetroid.Core.Enemies.Atomic.AtomicSegment;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Atomic;
 internal static class AtomicAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<AtomicProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<AtomicProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
+    internal static AnimationSegments<AtomicSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<AtomicSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.UpRight] =
         [
@@ -53,7 +53,7 @@ internal static class AtomicAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<AtomicProgram, Animation<AtomicProgram>> StartingAt { get; } = new Dictionary<AtomicProgram, Animation<AtomicProgram>>
+    internal static IReadOnlyDictionary<AtomicSegment, Animation<AtomicSegment>> StartingAt { get; } = new Dictionary<AtomicSegment, Animation<AtomicSegment>>
     {
         [P.UpRight] = new([new(P.UpRight, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
         [P.UpLeft] = new([new(P.UpLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
@@ -62,7 +62,7 @@ internal static class AtomicAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<AtomicProgram> StartingWith(AtomicProgram segment) => StartingAt[segment];
+    internal static Animation<AtomicSegment> StartingWith(AtomicSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

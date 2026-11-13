@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 public sealed class FakeKraidEnemyState
 {
     /// <summary>Mini-Kraid's animation and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<FakeKraidProgram> Playback { get; set; }
+    internal AnimationPlayback<FakeKraidSegment> Playback { get; set; }
 
     /// <summary>Signed whole-pixel walk delta.</summary>
     public int WalkDelta { get; internal set; }

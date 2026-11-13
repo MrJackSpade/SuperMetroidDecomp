@@ -509,7 +509,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     }
     RipperEnemyState ripperState = ripper.SpeciesState<RipperEnemyState>()
         ?? throw new InvalidOperationException("The initialized Ripper has no state.");
-    AssertEqual(new AnimationPlayback<RipperProgram>(RipperAnimations.StartingWith(RipperProgram.RipperMovingRight), AnimationPlace.StartOfAnimation),
+    AssertEqual(new AnimationPlayback<RipperSegment>(RipperAnimations.StartingWith(RipperSegment.RipperMovingRight), AnimationPlace.StartOfAnimation),
         ripperState.Playback, "Ripper init right animation");
     AssertEqual(1, ripperState.XVelocity.UnsignedWholePixels, "Ripper init signed whole X velocity");
     AssertEqual(0, ripperState.XVelocity.Fraction, "Ripper init X subvelocity");
@@ -857,12 +857,12 @@ internal static void VerifyCeresRidleyRoomEntry()
     ushort[] Shown() => SuperMetroid.Verification.Bosses.Ridley.RidleyLaidColours.Of(state, ridleySprites, ridleyRoom, 0);
     AssertEqual(0x00ba, ridley.Position.X.Whole, "Ceres Ridley init X");
     AssertEqual(0x00a9, ridley.Position.Y.Whole, "Ceres Ridley init Y overrides population Y");
-    AssertEqual(new AnimationPlayback<RidleyBodyProgram>(RidleyAnimations.StartingWith(RidleyBodyProgram.Initial), AnimationPlace.StartOfAnimation), state.BodyPlayback, "Ceres Ridley starts its initial animation");
+    AssertEqual(new AnimationPlayback<RidleyBodySegment>(RidleyAnimations.StartingWith(RidleyBodySegment.Initial), AnimationPlace.StartOfAnimation), state.BodyPlayback, "Ceres Ridley starts its initial animation");
     AssertEqual(state.Colours.SpriteShading(flashing: false), state.CommonDrawShading, "Ceres Ridley's own colours");
     AssertEqual(7, ridley.PaletteRowIn(enemies), "Ceres Ridley dedicated OBJ palette row");
     // Native $3C00: ignores Samus, blocks the Plasma Beam, and processes off screen with its animation script.
     AssertEqual(EnemyContact.IgnoresSamus | EnemyContact.BlocksPlasmaBeam, ridley.Contact, "Ceres Ridley native initialized contact");
-    AssertEqual(EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, ridley.Processing, "Ceres Ridley native initialized processing");
+    AssertEqual(EnemyProcessing.OffScreen | EnemyProcessing.Animates, ridley.Processing, "Ceres Ridley native initialized processing");
     AssertEqual(EnemyPresence.None, ridley.Presence, "Ceres Ridley native initialized presence");
     AssertEqual(0x804f, ridley.SpritemapPointer, "Ceres Ridley post-init empty extended map");
     AssertEqual((ushort)RidleyAiFunction.WaitForDoorTransition, (ushort)state.Function,

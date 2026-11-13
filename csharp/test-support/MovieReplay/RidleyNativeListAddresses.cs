@@ -14,24 +14,24 @@ internal static class RidleyNativeListAddresses
     /// <summary>Each typed body program's native entry point in bank $A6, in authored order.</summary>
     internal static readonly BodyEntry[] BodyEntries =
     [
-        new BodyEntry(RidleyBodyProgram.Initial, 0xe538),
-        new BodyEntry(RidleyBodyProgram.InitialFacingRight, 0xe542),
-        new BodyEntry(RidleyBodyProgram.CeresLunge, 0xe548),
-        new BodyEntry(RidleyBodyProgram.CeresLungeFacingRight, 0xe576),
-        new BodyEntry(RidleyBodyProgram.RetrieveBabyMetroid, 0xe658),
-        new BodyEntry(RidleyBodyProgram.RetrieveBabyMetroidFacingRight, 0xe676),
-        new BodyEntry(RidleyBodyProgram.OpeningRoar, 0xe690),
-        new BodyEntry(RidleyBodyProgram.OpeningRoarFacingRight, 0xe6ae),
-        new BodyEntry(RidleyBodyProgram.DeathRoar, 0xe6c8),
-        new BodyEntry(RidleyBodyProgram.DeathRoarFacingRight, 0xe6de),
-        new BodyEntry(RidleyBodyProgram.TurnFromLeftToRight, 0xe6f0),
-        new BodyEntry(RidleyBodyProgram.TurnFromRightToLeft, 0xe706),
-        new BodyEntry(RidleyBodyProgram.Fireballing, 0xe73a),
-        new BodyEntry(RidleyBodyProgram.FireballingEnd, 0xe7ac),
-        new BodyEntry(RidleyBodyProgram.FireballingFacingRight, 0xe7b4),
-        new BodyEntry(RidleyBodyProgram.FireballingEndFacingRight, 0xe820),
-        new BodyEntry(RidleyBodyProgram.TransitionToFlying, 0xe91d),
-        new BodyEntry(RidleyBodyProgram.TransitionToFlyingFacingRight, 0xe945),
+        new BodyEntry(RidleyBodySegment.Initial, 0xe538),
+        new BodyEntry(RidleyBodySegment.InitialFacingRight, 0xe542),
+        new BodyEntry(RidleyBodySegment.CeresLunge, 0xe548),
+        new BodyEntry(RidleyBodySegment.CeresLungeFacingRight, 0xe576),
+        new BodyEntry(RidleyBodySegment.RetrieveBabyMetroid, 0xe658),
+        new BodyEntry(RidleyBodySegment.RetrieveBabyMetroidFacingRight, 0xe676),
+        new BodyEntry(RidleyBodySegment.OpeningRoar, 0xe690),
+        new BodyEntry(RidleyBodySegment.OpeningRoarFacingRight, 0xe6ae),
+        new BodyEntry(RidleyBodySegment.DeathRoar, 0xe6c8),
+        new BodyEntry(RidleyBodySegment.DeathRoarFacingRight, 0xe6de),
+        new BodyEntry(RidleyBodySegment.TurnFromLeftToRight, 0xe6f0),
+        new BodyEntry(RidleyBodySegment.TurnFromRightToLeft, 0xe706),
+        new BodyEntry(RidleyBodySegment.Fireballing, 0xe73a),
+        new BodyEntry(RidleyBodySegment.FireballingEnd, 0xe7ac),
+        new BodyEntry(RidleyBodySegment.FireballingFacingRight, 0xe7b4),
+        new BodyEntry(RidleyBodySegment.FireballingEndFacingRight, 0xe820),
+        new BodyEntry(RidleyBodySegment.TransitionToFlying, 0xe91d),
+        new BodyEntry(RidleyBodySegment.TransitionToFlyingFacingRight, 0xe945),
     ];
 
     /// <summary>Each bank-$A6 Ridley instruction the body lists use: the cue it must become and its operand words.</summary>
@@ -93,12 +93,12 @@ internal static class RidleyNativeListAddresses
     /// <summary>Each typed fireball program's native entry point in bank $86.</summary>
     internal static readonly FireballEntry[] FireballEntries =
     [
-        new FireballEntry(RidleyFireballProgram.Fireball, 0x9552),
-        new FireballEntry(RidleyFireballProgram.FireballLoop, 0x9560),
-        new FireballEntry(RidleyFireballProgram.AfterburnFinal, 0x9574),
-        new FireballEntry(RidleyFireballProgram.HorizontalCenter, 0x95a0),
-        new FireballEntry(RidleyFireballProgram.VerticalCenter, 0x95d3),
-        new FireballEntry(RidleyFireballProgram.DirectionalAfterburn, 0x9606),
+        new FireballEntry(RidleyFireballSegment.Fireball, 0x9552),
+        new FireballEntry(RidleyFireballSegment.FireballLoop, 0x9560),
+        new FireballEntry(RidleyFireballSegment.AfterburnFinal, 0x9574),
+        new FireballEntry(RidleyFireballSegment.HorizontalCenter, 0x95a0),
+        new FireballEntry(RidleyFireballSegment.VerticalCenter, 0x95d3),
+        new FireballEntry(RidleyFireballSegment.DirectionalAfterburn, 0x9606),
     ];
 
     /// <summary>The bank-$86 callbacks the fireball lists use and the cue each must become.</summary>
@@ -110,10 +110,10 @@ internal static class RidleyNativeListAddresses
     };
 
     /// <summary>The body program whose native list starts at <paramref name="address"/>, if one does.</summary>
-    internal static RidleyBodyProgram? BodyProgramAt(ushort address) =>
-        BodyEntries.Where(item => item.Entry == address).Select(item => (RidleyBodyProgram?)item.Program).SingleOrDefault();
+    internal static RidleyBodySegment? BodyProgramAt(ushort address) =>
+        BodyEntries.Where(item => item.Entry == address).Select(item => (RidleyBodySegment?)item.Program).SingleOrDefault();
 
     /// <summary>The fireball program whose native list starts at <paramref name="address"/>, if one does.</summary>
-    internal static RidleyFireballProgram? FireballProgramAt(ushort address) =>
-        FireballEntries.Where(item => item.Entry == address).Select(item => (RidleyFireballProgram?)item.Program).SingleOrDefault();
+    internal static RidleyFireballSegment? FireballProgramAt(ushort address) =>
+        FireballEntries.Where(item => item.Entry == address).Select(item => (RidleyFireballSegment?)item.Program).SingleOrDefault();
 }

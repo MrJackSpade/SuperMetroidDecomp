@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Programs;
-using P = SuperMetroid.Core.Bosses.Draygon.DraygonProgram;
+using P = SuperMetroid.Core.Bosses.Draygon.DraygonSegment;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
@@ -8,21 +8,21 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal static class DraygonAnimations
 {
     /// <summary>Every body, eye, tail and arms segment's beats.</summary>
-    internal static AnimationSegments<DraygonProgram, DraygonFrame, DraygonCue> Segments { get; } = new(
-        new Dictionary<DraygonProgram, AnimationBeat<DraygonFrame, DraygonCue>[]>
+    internal static AnimationSegments<DraygonSegment, DraygonFrame, DraygonCue> Segments { get; } = new(
+        new Dictionary<DraygonSegment, AnimationBeat<DraygonFrame, DraygonCue>[]>
     {
         [P.Sleep] =
         [
         ],
         [P.BodyFacingLeftReset] =
         [
-            Cue(new DraygonCue.StartPartPrograms(P.BodyFacingLeftIdle, P.EyeFacingLeftIdle, P.TailFacingLeftIdle, P.ArmsFacingLeftIdle)),
+            Cue(new DraygonCue.StartPartAnimations(P.BodyFacingLeftIdle, P.EyeFacingLeftIdle, P.TailFacingLeftIdle, P.ArmsFacingLeftIdle)),
             Cue(new DraygonCue.SetEyeFunction(DraygonEyeFunction.FacingLeft)),
             Show(22, 1),
         ],
         [P.BodyFacingRightReset] =
         [
-            Cue(new DraygonCue.StartPartPrograms(P.BodyFacingRightIdle, P.EyeFacingRightIdle, P.TailFacingRightIdle, P.ArmsFacingRightIdle)),
+            Cue(new DraygonCue.StartPartAnimations(P.BodyFacingRightIdle, P.EyeFacingRightIdle, P.TailFacingRightIdle, P.ArmsFacingRightIdle)),
             Cue(new DraygonCue.SetEyeFunction(DraygonEyeFunction.FacingRight)),
             Show(63, 1),
         ],
@@ -490,7 +490,7 @@ internal static class DraygonAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<DraygonProgram, Animation<DraygonProgram>> StartingAt { get; } = new Dictionary<DraygonProgram, Animation<DraygonProgram>>
+    internal static IReadOnlyDictionary<DraygonSegment, Animation<DraygonSegment>> StartingAt { get; } = new Dictionary<DraygonSegment, Animation<DraygonSegment>>
     {
         [P.Sleep] = new([], AnimationEnd.Holds),
         [P.BodyFacingLeftReset] = new([new(P.BodyFacingLeftReset, 0, 3, 1)], AnimationEnd.Holds),
@@ -538,7 +538,7 @@ internal static class DraygonAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<DraygonProgram> StartingWith(DraygonProgram segment) => StartingAt[segment];
+    internal static Animation<DraygonSegment> StartingWith(DraygonSegment segment) => StartingAt[segment];
 
     /// <summary>Shows the catalog frame <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<DraygonFrame, DraygonCue> Show(int frame, int duration) =>

@@ -19,10 +19,10 @@ internal static class SkulteraBehaviorVerification
     /// </summary>
     internal static void VerifySkulteraBehavior()
     {
-        foreach ((bool startsLeft, SkulteraProgram swim, SkulteraProgram loop, SkulteraProgram turn) in new[]
+        foreach ((bool startsLeft, SkulteraSegment swim, SkulteraSegment loop, SkulteraSegment turn) in new[]
                  {
-                     new VerifySkulteraBehaviorCase(true, SkulteraProgram.SwimmingLeft, SkulteraProgram.SwimmingLeftLoop, SkulteraProgram.TurningRight),
-                     new VerifySkulteraBehaviorCase(false, SkulteraProgram.SwimmingRight, SkulteraProgram.SwimmingRightLoop, SkulteraProgram.TurningLeft),
+                     new VerifySkulteraBehaviorCase(true, SkulteraSegment.SwimmingLeft, SkulteraSegment.SwimmingLeftLoop, SkulteraSegment.TurningRight),
+                     new VerifySkulteraBehaviorCase(false, SkulteraSegment.SwimmingRight, SkulteraSegment.SwimmingRightLoop, SkulteraSegment.TurningLeft),
                  })
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -34,12 +34,12 @@ internal static class SkulteraBehaviorVerification
             slot.AnimationClock.StepOnNextUpdate();
             SkulteraBehavior.InitializeSkultera(slot);
             SkulteraEnemyState state = enemies.SkulteraStates[0] ?? throw new InvalidOperationException("Skultera has no state.");
-            AssertEqual(new AnimationPlayback<SkulteraProgram>(SkulteraAnimations.StartingWith(swim), AnimationPlace.StartOfAnimation), state.Playback, $"Skultera starts {swim}");
+            AssertEqual(new AnimationPlayback<SkulteraSegment>(SkulteraAnimations.StartingWith(swim), AnimationPlace.StartOfAnimation), state.Playback, $"Skultera starts {swim}");
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(SkulteraAnimations.Segments, loop, SkulteraFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(SkulteraAnimations.Segments, loop)), $"Skultera {swim} loop");
 
             SkulteraBehavior.BeginSkulteraTurn(slot, state, startsLeft);
-            AssertEqual(new AnimationPlayback<SkulteraProgram>(SkulteraAnimations.StartingWith(turn), AnimationPlace.StartOfAnimation), state.Playback, $"Skultera {swim} begins {turn}");
+            AssertEqual(new AnimationPlayback<SkulteraSegment>(SkulteraAnimations.StartingWith(turn), AnimationPlace.StartOfAnimation), state.Playback, $"Skultera {swim} begins {turn}");
             int[] holds = [13, 10, 8, 6, 6, 8, 10, 13];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(SkulteraAnimationsConstants.Spritemaps(turn), holds),
                 EnemyInstructionRunner.ShownFrames(slot, holds.Sum()), $"Skultera {turn} poses");

@@ -22,7 +22,7 @@ internal sealed class MotherBrainLateFightState
     public Position16<RoomPixels> BrainPosition { get; set; }
 
     /// <summary>Current brain program installed through the brain-program request, or null before the first request.</summary>
-    public MotherBrainHeadProgram? HeadProgram { get; private set; }
+    public MotherBrainHeadSegment? HeadAnimation { get; private set; }
 
     /// <summary>Neck angular speed in 8.8 angle units; every producer writes a positive speed of at most 2304.</summary>
     public int NeckAngleDelta { get; internal set; }
@@ -93,12 +93,12 @@ internal sealed class MotherBrainLateFightState
     public bool BabyMetroidSpawned { get; internal set; }
 
     /// <summary>Restarts the separate brain program and publishes a new head-list request serial.</summary>
-    internal void SetHeadProgram(MotherBrainHeadProgram program)
+    internal void SetHeadAnimation(MotherBrainHeadSegment program)
     {
         // The brain-program request restarts the separate brain program and its timer. Unlike ordinary
         // enemy programs it has no loop-counter write here.
-        HeadProgram = program;
-        HeadAnimationScriptRequestSerial++;
+        HeadAnimation = program;
+        HeadAnimationRequestSerial++;
     }
 
     /// <summary>Sets the NTSC neck angle and opposed raise/lower indices for retreat after the attack.</summary>
@@ -114,13 +114,13 @@ internal sealed class MotherBrainLateFightState
     /// <summary>Selects the forward body list for the animation delay and applies the forward target rules.</summary>
     internal MotherBrainWalkResult RequestWalkForward(int targetX, int animationDelay)
     {
-        MotherBrainBodyProgram program = animationDelay switch
+        MotherBrainBodySegment program = animationDelay switch
         {
-            2 => MotherBrainBodyProgram.WalkForwardReallyFast,
-            4 => MotherBrainBodyProgram.WalkForwardFast,
-            6 => MotherBrainBodyProgram.WalkForwardMedium,
-            8 => MotherBrainBodyProgram.WalkForwardSlow,
-            10 => MotherBrainBodyProgram.WalkForwardReallySlow,
+            2 => MotherBrainBodySegment.WalkForwardReallyFast,
+            4 => MotherBrainBodySegment.WalkForwardFast,
+            6 => MotherBrainBodySegment.WalkForwardMedium,
+            8 => MotherBrainBodySegment.WalkForwardSlow,
+            10 => MotherBrainBodySegment.WalkForwardReallySlow,
             _ => throw new InvalidOperationException(
                 $"Unsupported painful forward animation delay {animationDelay}."),
         };
@@ -130,13 +130,13 @@ internal sealed class MotherBrainLateFightState
     /// <summary>Selects the backward body list for the animation delay and applies the backward target rules.</summary>
     internal MotherBrainWalkResult RequestWalkBackward(int targetX, int animationDelay)
     {
-        MotherBrainBodyProgram program = animationDelay switch
+        MotherBrainBodySegment program = animationDelay switch
         {
-            2 => MotherBrainBodyProgram.WalkBackwardReallyFast,
-            4 => MotherBrainBodyProgram.WalkBackwardFast,
-            6 => MotherBrainBodyProgram.WalkBackwardMedium,
-            8 => MotherBrainBodyProgram.WalkBackwardSlow,
-            10 => MotherBrainBodyProgram.WalkBackwardReallySlow,
+            2 => MotherBrainBodySegment.WalkBackwardReallyFast,
+            4 => MotherBrainBodySegment.WalkBackwardFast,
+            6 => MotherBrainBodySegment.WalkBackwardMedium,
+            8 => MotherBrainBodySegment.WalkBackwardSlow,
+            10 => MotherBrainBodySegment.WalkBackwardReallySlow,
             _ => throw new InvalidOperationException(
                 $"Unsupported painful backward animation delay {animationDelay}."),
         };
@@ -145,7 +145,7 @@ internal sealed class MotherBrainLateFightState
 
     /// <summary>Requests the slow backward body animation until its target is reached.</summary>
     internal MotherBrainWalkResult RequestWalkBackwardReallySlow(int targetX) =>
-        MakeBodyWalkBackwards(targetX, MotherBrainBodyProgram.WalkBackwardReallySlow);
+        MakeBodyWalkBackwards(targetX, MotherBrainBodySegment.WalkBackwardReallySlow);
 
     /// <summary>
     /// Makes the body walk forwards. A signed overshoot of the target reports it reached first; at
@@ -153,7 +153,7 @@ internal sealed class MotherBrainLateFightState
     /// ahead of the 128 arena limit that also reports the target reached. Only a standing body
     /// inside both limits installs the walk.
     /// </summary>
-    internal MotherBrainWalkResult MakeBodyWalkForwards(int targetX, MotherBrainBodyProgram program)
+    internal MotherBrainWalkResult MakeBodyWalkForwards(int targetX, MotherBrainBodySegment program)
     {
         if (CoordinateAxis.Difference(targetX, Body.Position.X) < 0)
             return MotherBrainWalkResult.Reached;
@@ -161,7 +161,7 @@ internal sealed class MotherBrainLateFightState
             return MotherBrainWalkResult.Waiting;
         if (AtLeastBySignedDifference(Body.Position.X, 128))
             return MotherBrainWalkResult.Reached;
-        Body.SetProgram(program);
+        Body.SetAnimation(program);
         return MotherBrainWalkResult.WalkInstalled;
     }
 
@@ -171,7 +171,7 @@ internal sealed class MotherBrainLateFightState
     /// mid-pose then reports it waiting, ahead of the 48 arena limit that also reports
     /// the target reached. Only a standing body inside both limits installs the walk.
     /// </summary>
-    internal MotherBrainWalkResult MakeBodyWalkBackwards(int targetX, MotherBrainBodyProgram program)
+    internal MotherBrainWalkResult MakeBodyWalkBackwards(int targetX, MotherBrainBodySegment program)
     {
         if (CoordinateAxis.Difference(targetX, Body.Position.X) >= 0)
             return MotherBrainWalkResult.Reached;
@@ -179,7 +179,7 @@ internal sealed class MotherBrainLateFightState
             return MotherBrainWalkResult.Waiting;
         if (CoordinateAxis.Difference(Body.Position.X, 48) < 0)
             return MotherBrainWalkResult.Reached;
-        Body.SetProgram(program);
+        Body.SetAnimation(program);
         return MotherBrainWalkResult.WalkInstalled;
     }
 
@@ -193,7 +193,7 @@ internal sealed class MotherBrainLateFightState
 
         if (Body.Pose == MotherBrainBodyPose.Standing)
         {
-            Body.SetProgram(MotherBrainBodyProgram.LeanDown);
+            Body.SetAnimation(MotherBrainBodySegment.LeanDown);
             return true;
         }
 
@@ -213,17 +213,17 @@ internal sealed class MotherBrainLateFightState
         if (Body.Pose == MotherBrainBodyPose.Standing)
             return true;
 
-        MotherBrainBodyProgram? program = Body.Pose switch
+        MotherBrainBodySegment? program = Body.Pose switch
         {
-            MotherBrainBodyPose.Crouched => MotherBrainBodyProgram.StandAfterCrouchFast,
-            MotherBrainBodyPose.LeaningDown => MotherBrainBodyProgram.StandAfterLeaning,
+            MotherBrainBodyPose.Crouched => MotherBrainBodySegment.StandAfterCrouchFast,
+            MotherBrainBodyPose.LeaningDown => MotherBrainBodySegment.StandAfterLeaning,
             MotherBrainBodyPose.Standing or MotherBrainBodyPose.Walking or
                 MotherBrainBodyPose.CrouchingTransition or MotherBrainBodyPose.DeathBeam => null,
             _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainBodyPose)} {Body.Pose}."),
         };
         if (program is { } standUp)
         {
-            Body.SetProgram(standUp);
+            Body.SetAnimation(standUp);
             animationRequested = true;
         }
 
@@ -235,5 +235,5 @@ internal sealed class MotherBrainLateFightState
         CoordinateAxis.Difference(value, threshold) >= 0;
 
     /// <summary>How many head programs the phases have requested; a change marks a new request.</summary>
-    internal uint HeadAnimationScriptRequestSerial { get; private set; }
+    internal uint HeadAnimationRequestSerial { get; private set; }
 }

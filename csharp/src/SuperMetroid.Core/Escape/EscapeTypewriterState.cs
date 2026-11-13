@@ -6,20 +6,20 @@ namespace SuperMetroid.Core.Escape;
 public sealed class EscapeTypewriterState
 {
     /// <summary>The installed warning text the typewriter types.</summary>
-    private EscapeTypewriterProgram? installedProgram;
+    private EscapeTypewriterMessage? installedMessage;
 
-    /// <summary>Creates an unbound warning-text state for <paramref name="programId"/>; attach host text with <see cref="BindProgram"/> before typing it.</summary>
+    /// <summary>Creates an unbound warning-text state for <paramref name="programId"/>; attach host text with <see cref="BindMessage"/> before typing it.</summary>
     /// <param name="programId">The warning program the state will show.</param>
-    public EscapeTypewriterState(EscapeTypewriterProgramId programId) => ProgramId = programId;
+    public EscapeTypewriterState(EscapeTypewriterMessageId programId) => MessageId = programId;
 
     /// <summary>Creates a warning-text state with its host program bound and its saved identity initialized from that program.</summary>
     /// <param name="program">Installed Ceres or Zebes warning lines and their source identity.</param>
     /// <exception cref="ArgumentNullException"><paramref name="program"/> is null.</exception>
-    public EscapeTypewriterState(EscapeTypewriterProgram program)
+    public EscapeTypewriterState(EscapeTypewriterMessage program)
     {
         Ensure.NotNull(program);
-        ProgramId = program.Id;
-        BindProgram(program);
+        MessageId = program.Id;
+        BindMessage(program);
     }
 
     /// <summary>
@@ -38,27 +38,27 @@ public sealed class EscapeTypewriterState
     /// <summary>One-call sound request raised after every second non-space glyph, cleared at the start of every <see cref="Step"/>; the caller selects the Ceres or Zebes click sound.</summary>
     public bool ClickRequested { get; private set; }
     /// <summary>Saved Ceres or Zebes program identity used to validate content rebinding; the program the state was created for.</summary>
-    public EscapeTypewriterProgramId ProgramId { get; private set; }
+    public EscapeTypewriterMessageId MessageId { get; private set; }
     /// <summary>Zero-based installed line cursor; advances past exhausted lines on an eligible call and reaches the line count when typing completes.</summary>
-    public int ProgramLineIndex { get; private set; }
+    public int MessageLineIndex { get; private set; }
     /// <summary>Zero-based next-character cursor within the current line, including spaces; resets to zero when the typewriter advances to another line.</summary>
-    public int ProgramCharacterIndex { get; private set; }
+    public int MessageCharacterIndex { get; private set; }
     /// <summary>Whether the first eligible installed-program call has initialized the character delay; retained across host-content unbinding and restoration.</summary>
-    public bool ProgramStarted { get; private set; }
+    public bool MessageStarted { get; private set; }
 
     /// <summary>Reattaches the installed typewriter text when a saved game state is restored.</summary>
-    public void BindProgram(EscapeTypewriterProgram program)
+    public void BindMessage(EscapeTypewriterMessage program)
     {
         Ensure.NotNull(program);
-        if (ProgramId != EscapeTypewriterProgramId.None && ProgramId != program.Id)
+        if (MessageId != EscapeTypewriterMessageId.None && MessageId != program.Id)
             throw new InvalidDataException(
-                $"Cannot bind escape typewriter program {program.Id} to saved {ProgramId} state.");
-        ProgramId = program.Id;
-        installedProgram = program;
+                $"Cannot bind escape typewriter program {program.Id} to saved {MessageId} state.");
+        MessageId = program.Id;
+        installedMessage = program;
     }
 
     /// <summary>Removes host content while retaining the saved program identity and cursor.</summary>
-    public void UnbindProgram() => installedProgram = null;
+    public void UnbindMessage() => installedMessage = null;
 
     /// <summary>Advances the warning by one gameplay call, typing at most one glyph or consuming one space when the delay has expired.</summary>
     /// <param name="glyph">Receives the glyph typed this call, for the owner to write over its background; null otherwise.</param>
@@ -71,35 +71,35 @@ public sealed class EscapeTypewriterState
         glyph = null;
         if (Completed) return true;
         if (DelayTimer != 0) { DelayTimer--; return false; }
-        EscapeTypewriterProgram program = installedProgram ??
+        EscapeTypewriterMessage program = installedMessage ??
             throw new InvalidOperationException(
-                $"Escape typewriter program {ProgramId} was restored without host content rebind.");
+                $"Escape typewriter program {MessageId} was restored without host content rebind.");
         return StepInstalled(program, out glyph);
     }
 
     /// <summary>Advances line and character cursors after the delay expires, consuming at most one character.</summary>
-    private bool StepInstalled(EscapeTypewriterProgram program, out EscapeTypewriterGlyph? glyph)
+    private bool StepInstalled(EscapeTypewriterMessage program, out EscapeTypewriterGlyph? glyph)
     {
         glyph = null;
         DelayTimer = Delay;
-        if (!ProgramStarted)
+        if (!MessageStarted)
         {
             Delay = EscapeTypewriterDefinitions.CharacterDelayFrames;
-            ProgramStarted = true;
+            MessageStarted = true;
         }
 
-        while (ProgramLineIndex < program.Lines.Count)
+        while (MessageLineIndex < program.Lines.Count)
         {
-            EscapeTypewriterLine line = program.Lines[ProgramLineIndex];
-            if (ProgramCharacterIndex >= line.Text.Length)
+            EscapeTypewriterLine line = program.Lines[MessageLineIndex];
+            if (MessageCharacterIndex >= line.Text.Length)
             {
-                ProgramLineIndex++;
-                ProgramCharacterIndex = 0;
+                MessageLineIndex++;
+                MessageCharacterIndex = 0;
                 continue;
             }
-            if (ProgramCharacterIndex == 0)
+            if (MessageCharacterIndex == 0)
                 Corner = line.Start;
-            glyph = TypeCharacter(line.Text[ProgramCharacterIndex++]);
+            glyph = TypeCharacter(line.Text[MessageCharacterIndex++]);
             return false;
         }
         return Completed = true;
@@ -111,7 +111,7 @@ public sealed class EscapeTypewriterState
         EscapeTypewriterGlyph? glyph = null;
         if (EscapeTypewriterGlyph.Types(character))
         {
-            glyph = new(Corner, EscapeTypewriterGlyph.PictureOf(ProgramId, character));
+            glyph = new(Corner, EscapeTypewriterGlyph.PictureOf(MessageId, character));
             GlyphsWritten++;
             ClickRequested = EscapeTypewriterDefinitions.ClickEverySecondGlyph.IsDue(GlyphsWritten);
         }

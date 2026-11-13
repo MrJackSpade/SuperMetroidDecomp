@@ -38,11 +38,11 @@ internal sealed class TorizoChoices
         TorizoCadenceDefinitions.FirstAttackPhase.IsSetIn(frameCounter + ((samusX + 1) >> 1));
 
     /// <summary>Branches to the grounded-ball response only when Samus is four to 39 pixels away behind the statue.</summary>
-    internal AnimationContinuation<TorizoBodyProgram>? SelectGoldenTorizoMorphBallBranch(
+    internal AnimationContinuation<TorizoBodySegment>? SelectGoldenTorizoMorphBallBranch(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         SamusState? samus,
-        TorizoBodyProgram target)
+        TorizoBodySegment target)
     {
         if (samus is null)
             return null;
@@ -63,12 +63,12 @@ internal sealed class TorizoChoices
     }
 
     /// <summary>Uses the room RNG to select a forward-facing attack at medium horizontal range.</summary>
-    internal AnimationContinuation<TorizoBodyProgram>? SelectGoldenTorizoMediumRangeBranch(
+    internal AnimationContinuation<TorizoBodySegment>? SelectGoldenTorizoMediumRangeBranch(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         SamusState? samus,
-        AnimationPlayback<TorizoBodyProgram> continuation,
-        TorizoBodyProgram target)
+        AnimationPlayback<TorizoBodySegment> continuation,
+        TorizoBodySegment target)
     {
         if (samus is null)
             return null;
@@ -84,12 +84,12 @@ internal sealed class TorizoChoices
     }
 
     /// <summary>Launches the forward leap when distant Samus movement or sustained space jumping breaks the wait.</summary>
-    internal AnimationContinuation<TorizoBodyProgram>? SelectGoldenTorizoSpaceJumpCounter(
+    internal AnimationContinuation<TorizoBodySegment>? SelectGoldenTorizoSpaceJumpCounter(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         SamusState? samus,
         ControllerButton controllerInput,
-        TorizoBodyProgram target)
+        TorizoBodySegment target)
     {
         if (samus is null)
             return null;
@@ -110,11 +110,11 @@ internal sealed class TorizoChoices
     }
 
     /// <summary>Starts a backward jump after enough decisions or when Samus closes inside 32 pixels.</summary>
-    internal AnimationContinuation<TorizoBodyProgram>? SelectGoldenTorizoRepeatedJump(
+    internal AnimationContinuation<TorizoBodySegment>? SelectGoldenTorizoRepeatedJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         SamusState? samus,
-        TorizoBodyProgram target)
+        TorizoBodySegment target)
     {
         if (samus is null)
             return null;
@@ -131,7 +131,7 @@ internal sealed class TorizoChoices
     }
 
     /// <summary>Moves by the Golden walk table, branches on wall collision, and arms a sixteen-frame air transition near Samus.</summary>
-    internal AnimationContinuation<TorizoBodyProgram>? ProcessGoldenTorizoWalkInstruction(
+    internal AnimationContinuation<TorizoBodySegment>? ProcessGoldenTorizoWalkAnimation(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         SamusState? samus,
@@ -145,8 +145,8 @@ internal sealed class TorizoChoices
         {
             state.AirTransitionTimer = 0;
             return TorizoAnimations.ContinueWith(_access.FacesRight(torizo)
-                ? TorizoBodyProgram.GoldenTurningLeft
-                : TorizoBodyProgram.GoldenTurningRight);
+                ? TorizoBodySegment.GoldenTurningLeft
+                : TorizoBodySegment.GoldenTurningRight);
         }
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, torizo);
@@ -181,7 +181,7 @@ internal sealed class TorizoChoices
     }
 
     /// <summary>Uses the walk table's velocity and wall branches, arming a 72-frame air transition when Samus crosses the facing test.</summary>
-    internal AnimationContinuation<TorizoBodyProgram>? ProcessBombTorizoWalkInstruction(RoomEnemySlot torizo, TorizoEnemyState state, SamusState? samus, RoomLevelData level, TorizoWalkStep step)
+    internal AnimationContinuation<TorizoBodySegment>? ProcessBombTorizoWalkAnimation(RoomEnemySlot torizo, TorizoEnemyState state, SamusState? samus, RoomLevelData level, TorizoWalkStep step)
     {
         int stepPixels = BombTorizoMovement.WalkVelocity(step.Step);
         state.Velocity = state.Velocity.WithX(TorizoWalkLeftVelocity.Of(stepPixels));
@@ -204,12 +204,12 @@ internal sealed class TorizoChoices
     }
 
     /// <summary>Saves the next cue and branches when Samus is within 56 pixels behind the statue.</summary>
-    internal AnimationContinuation<TorizoBodyProgram>? SelectBombTorizoCloseBehindBranch(
+    internal AnimationContinuation<TorizoBodySegment>? SelectBombTorizoCloseBehindBranch(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         SamusState? samus,
-        AnimationPlayback<TorizoBodyProgram> continuation,
-        TorizoBodyProgram target)
+        AnimationPlayback<TorizoBodySegment> continuation,
+        TorizoBodySegment target)
     {
         if (samus is null || CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole) >= 56)
             return null;
@@ -220,11 +220,11 @@ internal sealed class TorizoChoices
     }
 
     /// <summary>Launches the reverse jump when Samus is within 32 pixels in the selected facing half-plane.</summary>
-    internal AnimationContinuation<TorizoBodyProgram>? SelectBombTorizoCloseFrontJump(
+    internal AnimationContinuation<TorizoBodySegment>? SelectBombTorizoCloseFrontJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         SamusState? samus,
-        TorizoBodyProgram target)
+        TorizoBodySegment target)
     {
         if (samus is null || CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole) >= 32 ||
             !_access.BombTorizoFunction12IsNonNegative(torizo, samus))

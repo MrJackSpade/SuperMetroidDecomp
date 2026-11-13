@@ -24,15 +24,15 @@ internal sealed class ProjectileAnimation
         _slotTable = slotTable;
     }
     /// <summary>Plays timed frames, jumps and deletion; publishes frame radius and animation metadata when the countdown expires.</summary>
-    internal bool RunProjectileInstructionHandler(
+    internal bool AdvanceProjectileAnimation(
         SamusProjectile slot)
     {
         slot.FrameHold = slot.FrameHold.Decrement().Remaining;
         if (!slot.FrameHold.IsZero)
             return false;
-        AnimationPlayback<SamusProjectileProgram> playback = slot.Playback
+        AnimationPlayback<SamusProjectileSegment> playback = slot.Playback
             ?? throw new InvalidOperationException("An inactive projectile has no list to run.");
-        if (SamusProjectilePrograms.RunToNextRecord(ref playback, out int duration) is not { } frame)
+        if (SamusProjectilePlayback.RunToNextRecord(ref playback, out int duration) is not { } frame)
         {
             ClearProjectile(slot);
             return true;

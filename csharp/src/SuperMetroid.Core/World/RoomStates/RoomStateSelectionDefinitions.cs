@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 public static class RoomStateSelectionDefinitions
 {
     /// <summary>Each retail room's state-selection program, in authored room order.</summary>
-    internal static readonly Dictionary<RoomHeaderDefinition, RoomStateProgram> Programs = new()
+    internal static readonly Dictionary<RoomHeaderDefinition, RoomStateChoice> Choices = new()
     {
         [RoomHeaderDefinitions.LandingSite] = new(CrateriaRoomStateDefinitions.LandingSiteDefault,
         [

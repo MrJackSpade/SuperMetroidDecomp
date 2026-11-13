@@ -6,4 +6,4 @@ namespace SuperMetroid.Verification.Enemies.YappingMaws;
 /// <param name="Parameter2">The parameter2.</param>
 /// <param name="Expected">The expected.</param>
 /// <param name="Name">The name.</param>
-internal readonly record struct VerifyYappingMawInitializerSelectionsCase(ushort Parameter2, YappingMawProgram Expected, string Name);
+internal readonly record struct VerifyYappingMawInitializerSelectionsCase(ushort Parameter2, YappingMawSegment Expected, string Name);

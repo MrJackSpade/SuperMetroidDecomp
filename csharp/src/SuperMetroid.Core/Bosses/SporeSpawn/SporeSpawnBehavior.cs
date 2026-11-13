@@ -137,14 +137,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         state.LoadedAsDefeated = _room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss);
         if (state.LoadedAsDefeated)
         {
-            state.BodyPlayback = new AnimationPlayback<SporeSpawnBodyProgram>(SporeSpawnAnimations.StartingWith(SporeSpawnBodyProgram.InitialDead), AnimationPlace.StartOfAnimation);
+            state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.InitialDead), AnimationPlace.StartOfAnimation);
             body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
             UpdateSporeSpawnStalks(state);
             PublishSporeSpawnObject(SporeSpawnCeilingMutation.Clear);
             return;
         }
 
-        state.BodyPlayback = new AnimationPlayback<SporeSpawnBodyProgram>(SporeSpawnAnimations.StartingWith(SporeSpawnBodyProgram.InitialAlive), AnimationPlace.StartOfAnimation);
+        state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.InitialAlive), AnimationPlace.StartOfAnimation);
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 128);
 
         // A full sweep is a global activity override, not an enemy property.
@@ -195,7 +195,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
         if (CoordinateAxis.Difference(body.Position.Y.Whole, SporeSpawnDeathCenterY) >= 0)
         {
-            state.BodyPlayback = new AnimationPlayback<SporeSpawnBodyProgram>(SporeSpawnAnimations.StartingWith(SporeSpawnBodyProgram.FightStarted), AnimationPlace.StartOfAnimation);
+            state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.FightStarted), AnimationPlace.StartOfAnimation);
             body.AnimationClock.StepOnNextUpdate();
         }
 
@@ -349,11 +349,11 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         }, EnemyProjectileFrameBehavior.SporeSpawnerCadence);
 
         table.AddShotAnimation(RoomEnemyProjectileKind.SporeSpawnSpore,
-            () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SporeShot));
+            () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SporeShot));
         table.AddShotAnimation(RoomEnemyProjectileKind.SporeSpawnSpawner,
-            () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SpawnerClosed));
+            () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed));
         table.AddShotAnimation(RoomEnemyProjectileKind.SporeSpawnStalk,
-            () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.Stalk));
+            () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
         table.AddCue<SporeSpawnProjectileCue>((context, cue) =>
         {
             EnemyProjectile projectile = context.Projectile;
@@ -392,9 +392,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!body.AnimationClock.Expire())
             return;
         SporeSpawnEnemyState state = RequireSporeSpawnState(body);
-        AnimationPlayback<SporeSpawnBodyProgram> playback = state.BodyPlayback;
+        AnimationPlayback<SporeSpawnBodySegment> playback = state.BodyPlayback;
         // The open-pulse and death-burst repeats count the body's frame timer, as the timer commands do.
-        EnemyProgramAnimation.Play(body, SporeSpawnAnimations.Segments, ref playback, SporeSpawnFrameDefinitions.ShownFrames.Of,
+        EnemyAnimationPlayback.Play(body, SporeSpawnAnimations.Segments, ref playback, SporeSpawnFrameDefinitions.ShownFrames.Of,
             cue =>
             {
                 ApplySporeSpawnCue(body, state, cue);
@@ -488,7 +488,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 state.AngleDelta = -state.AngleDelta;
                 state.Damaged = true;
-                state.BodyPlayback = new AnimationPlayback<SporeSpawnBodyProgram>(SporeSpawnAnimations.StartingWith(SporeSpawnBodyProgram.CloseAndMove), AnimationPlace.StartOfAnimation);
+                state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.CloseAndMove), AnimationPlace.StartOfAnimation);
                 body.AnimationClock.StepOnNextUpdate();
 
                 int healthFrame = body.Health >= 770
@@ -533,7 +533,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int projectileSlot = 0; projectileSlot <= 13; projectileSlot++)
             _projectiles.EnemyProjectiles[projectileSlot].Delete();
 
-        state.BodyPlayback = new AnimationPlayback<SporeSpawnBodyProgram>(SporeSpawnAnimations.StartingWith(SporeSpawnBodyProgram.Death), AnimationPlace.StartOfAnimation);
+        state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.Death), AnimationPlace.StartOfAnimation);
         body.AnimationClock.StepOnNextUpdate();
         _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
         state.ScrollClampHookActive = false;
@@ -562,7 +562,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             case SporeSpawnCue.Command { Kind: SporeSpawnCueKind.Harden }:
                 body.Position = body.Position.WithWhole(new(SporeSpawnDeathCenterX, SporeSpawnDeathCenterY));
                 body.Contact = body.Contact.Replace(EnemyContact.IgnoresSamus, EnemyContact.SolidToSamus);
-                body.Processing = body.Processing.With(EnemyProcessing.AnimationScript);
+                body.Processing = body.Processing.With(EnemyProcessing.Animates);
                 return;
             case SporeSpawnCue.QueueSound queueSound:
                 RequestSporeSpawnSound(queueSound.Sound ?? throw new InvalidDataException("A Spore Spawn sound cue carries no sound."));
@@ -662,7 +662,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             stalk,
             RoomEnemyProjectileKind.SporeSpawnStalk,
             SpriteGraphics.SpawnedBy(body));
-        stalk.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.Stalk));
+        stalk.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
         stalk.Position = stalk.Position.WithWholeX(body.Position.X.Whole);
         stalk.Position = stalk.Position.WithWrappedWholeY(
             body.Position.Y.Whole +
@@ -682,7 +682,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             spawner,
             RoomEnemyProjectileKind.SporeSpawnSpawner,
             SpriteGraphics.SpawnedBy(body));
-        spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SpawnerClosed));
+        spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed));
         spawner.Position = spawner.Position.WithWholeX(SporeSpawnProjectiles.SpawnerX(spawnArgument));
         spawner.Position = spawner.Position.WithWholeY(520);
         spawner.State = new SporeSpawnEmitterState();
@@ -699,7 +699,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             spore,
             RoomEnemyProjectileKind.SporeSpawnSpore,
             SporeSpawnGraphicsIndex);
-        spore.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.Spore));
+        spore.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Spore));
         spore.Position = spore.Position.WithWhole(position);
 
         // A spore from the right half of a screen drifts mirrored, so emitters at X 32/160 move one way and 96/224
@@ -736,7 +736,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         SporeSpawnEmitterState emitter = spawner.StateOf<SporeSpawnEmitterState>();
         if (emitter.ReleaseWait.IsZero)
         {
-            spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SpawnerRelease));
+            spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerRelease));
             emitter.ReleaseWait = WrappingCountdown.Start(_room.Random.Next(SporeSpawnRandomDefinitions.SporeReleaseWait));
         }
         emitter.ReleaseWait = emitter.ReleaseWait.Decrement().Remaining;

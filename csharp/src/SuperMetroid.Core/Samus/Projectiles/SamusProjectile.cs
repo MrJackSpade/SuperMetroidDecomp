@@ -75,7 +75,7 @@ public sealed class SamusProjectile
     /// <summary>Collision half-extents in pixels.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
     /// <summary>The projectile's animation and where it stands in it (#1600); null while it has none to animate.</summary>
-    internal AnimationPlayback<SamusProjectileProgram>? Playback { get; set; }
+    internal AnimationPlayback<SamusProjectileSegment>? Playback { get; set; }
     /// <summary>Updates remaining before the current projectile cue advances.</summary>
     public WrappingCountdown FrameHold { get; internal set; }
     /// <summary>The composition the projectile shows, selected by the timed-frame animation or installed frame binding; none before its first frame.</summary>

@@ -7,29 +7,29 @@ internal static class CrawlerAnimationDefinitions
     internal static readonly Dictionary<CrawlerAnimationFamily, CrawlerAnimationDefinition> Families = new()
     {
         [CrawlerAnimationFamily.Shared] = new(
-            CrawlerProgram.SharedUpsideRight,
-            CrawlerProgram.SharedUpsideLeft,
-            CrawlerProgram.SharedUpsideDown,
-            CrawlerProgram.SharedUpsideUp),
+            CrawlerSegment.SharedUpsideRight,
+            CrawlerSegment.SharedUpsideLeft,
+            CrawlerSegment.SharedUpsideDown,
+            CrawlerSegment.SharedUpsideUp),
         [CrawlerAnimationFamily.Viola] = new(
-            CrawlerProgram.ViolaUpsideRight,
-            CrawlerProgram.ViolaUpsideLeft,
-            CrawlerProgram.ViolaUpsideDown,
-            CrawlerProgram.ViolaUpsideUp),
+            CrawlerSegment.ViolaUpsideRight,
+            CrawlerSegment.ViolaUpsideLeft,
+            CrawlerSegment.ViolaUpsideDown,
+            CrawlerSegment.ViolaUpsideUp),
         [CrawlerAnimationFamily.Sciser] = new(
-            CrawlerProgram.SciserUpsideRight,
-            CrawlerProgram.SciserUpsideLeft,
-            CrawlerProgram.SciserUpsideDown,
-            CrawlerProgram.SciserUpsideUp),
+            CrawlerSegment.SciserUpsideRight,
+            CrawlerSegment.SciserUpsideLeft,
+            CrawlerSegment.SciserUpsideDown,
+            CrawlerSegment.SciserUpsideUp),
         [CrawlerAnimationFamily.Zero] = new(
-            CrawlerProgram.ZeroUpsideRight,
-            CrawlerProgram.ZeroUpsideLeft,
-            CrawlerProgram.ZeroUpsideDown,
-            CrawlerProgram.ZeroUpsideUp),
+            CrawlerSegment.ZeroUpsideRight,
+            CrawlerSegment.ZeroUpsideLeft,
+            CrawlerSegment.ZeroUpsideDown,
+            CrawlerSegment.ZeroUpsideUp),
         [CrawlerAnimationFamily.HZoomer] = new(
-            CrawlerProgram.HZoomerUpsideRight,
-            CrawlerProgram.HZoomerUpsideLeft,
-            CrawlerProgram.HZoomerUpsideDown,
-            CrawlerProgram.HZoomerUpsideUp),
+            CrawlerSegment.HZoomerUpsideRight,
+            CrawlerSegment.HZoomerUpsideLeft,
+            CrawlerSegment.HZoomerUpsideDown,
+            CrawlerSegment.HZoomerUpsideUp),
     };
 }

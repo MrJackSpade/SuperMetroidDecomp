@@ -10,10 +10,10 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 internal static class FallingSparkNativeListAddresses
 {
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<FallingSparkProgram>[] Entries =
+    internal static readonly NativeProgramEntry<FallingSparkSegment>[] Entries =
     [
-        new NativeProgramEntry<FallingSparkProgram>(FallingSparkProgram.Falling, 0xf353),
-        new NativeProgramEntry<FallingSparkProgram>(FallingSparkProgram.HitFloor, 0xf363),
+        new NativeProgramEntry<FallingSparkSegment>(FallingSparkSegment.Falling, 0xf353),
+        new NativeProgramEntry<FallingSparkSegment>(FallingSparkSegment.HitFloor, 0xf363),
     ];
 
     /// <summary>The bank-$86 bytes the lists occupy, $86:F353-F390, which production must never read.</summary>

@@ -34,7 +34,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
             Function = FlyEnemyFunction.ClockwiseCircle,
         };
         slot.SetSpeciesState(state);
-        state.Playback = new(FlyAnimations.StartingWith(FlyProgram.Flight), AnimationPlace.StartOfAnimation);
+        state.Playback = new(FlyAnimations.StartingWith(FlySegment.Flight), AnimationPlace.StartOfAnimation);
         slot.Frame = EnemyFrameId.Empty;
         slot.AnimationClock.StepOnNextUpdate();
     }
@@ -162,13 +162,13 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Flies's typed animation.</summary>
-    internal static void AdvanceFliesTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal static void AdvanceFliesTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
         if (!slot.AnimationClock.Expire())
             return;
         FlyEnemyState state = slot.RequireSpeciesState<FlyEnemyState>();
-        AnimationPlayback<FlyProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, FlyAnimations.Segments, ref playback,
+        AnimationPlayback<FlySegment> playback = state.Playback;
+        EnemyAnimationPlayback.Play(slot, FlyAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A cue-free fly animation raised {cue}."));
         state.Playback = playback;
     }

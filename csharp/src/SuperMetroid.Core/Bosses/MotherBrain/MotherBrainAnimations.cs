@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
-using B = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBodyProgram;
-using H = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadProgram;
+using B = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBodySegment;
+using H = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadSegment;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;

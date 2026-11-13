@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Crawlers.CrawlerCueKind;
-using P = SuperMetroid.Core.Enemies.Crawlers.CrawlerProgram;
+using P = SuperMetroid.Core.Enemies.Crawlers.CrawlerSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Crawlers;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 internal static class CrawlerAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<CrawlerProgram, EnemyFrameId, CrawlerCue> Segments { get; } = new(
-        new Dictionary<CrawlerProgram, AnimationBeat<EnemyFrameId, CrawlerCue>[]>
+    internal static AnimationSegments<CrawlerSegment, EnemyFrameId, CrawlerCue> Segments { get; } = new(
+        new Dictionary<CrawlerSegment, AnimationBeat<EnemyFrameId, CrawlerCue>[]>
     {
         [P.SciserUpsideRight] =
         [
@@ -243,7 +243,7 @@ internal static class CrawlerAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<CrawlerProgram, Animation<CrawlerProgram>> StartingAt { get; } = new Dictionary<CrawlerProgram, Animation<CrawlerProgram>>
+    internal static IReadOnlyDictionary<CrawlerSegment, Animation<CrawlerSegment>> StartingAt { get; } = new Dictionary<CrawlerSegment, Animation<CrawlerSegment>>
     {
         [P.SciserUpsideRight] = new([new(P.SciserUpsideRight, 0, 1, 1), new(P.SciserUpsideRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.SciserUpsideRightLoop] = new([new(P.SciserUpsideRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
@@ -285,7 +285,7 @@ internal static class CrawlerAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<CrawlerProgram> StartingWith(CrawlerProgram segment) => StartingAt[segment];
+    internal static Animation<CrawlerSegment> StartingWith(CrawlerSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, CrawlerCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, CrawlerCue>.Frame(frame, duration);

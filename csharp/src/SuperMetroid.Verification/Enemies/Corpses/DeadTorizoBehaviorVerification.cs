@@ -22,7 +22,7 @@ internal static class DeadTorizoBehaviorVerification
         corpse.Bind(EnemyDefinitionId.CorpseTorizo, corpse.Definition);
         corpse.Bind(corpse.DefinitionId, default(RoomEnemyDefinition));
         enemies.DeadTorizoBehavior.InitializeDeadTorizo(corpse);
-        ushort frame = DeadTorizoAnimationsConstants.Spritemaps(DeadTorizoProgram.Stationary).Single();
+        ushort frame = DeadTorizoAnimationsConstants.Spritemaps(DeadTorizoSegment.Stationary).Single();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]),
             EnemyInstructionRunner.ShownFrames(corpse, 3), "Dead Torizo stationary pose");
         Console.WriteLine("  Dead Torizo behavior: the initializer starts the stationary pose and it holds.");

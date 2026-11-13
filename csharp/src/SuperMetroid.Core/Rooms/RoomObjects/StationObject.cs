@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// each update: an access Samus triggered starts the arm (or asks to save), the arm extends, holds, activates the
 /// station, holds and retracts by its authored timing (<see cref="StationAccessTimingDefinitions"/>), the accepted save
 /// alternates its two images for its authored loops (<see cref="SaveStationAnimationDefinitions"/>), and the station's
-/// own animation shows its images (<see cref="StationAnimationProgramDefinitions.Frames"/>), the save station's only
+/// own animation shows its images (<see cref="StationAnimationDefinitions.Frames"/>), the save station's only
 /// once.
 /// </summary>
 /// <param name="kind">Which station it is.</param>
@@ -116,7 +116,7 @@ internal sealed class StationObject(
         if (--AnimationTimer != 0)
             return;
 
-        StationAnimationProgramDefinitions.Frame frame = StationAnimationPrograms.Resolve(AnimationList, AnimationFrame);
+        StationAnimationDefinitions.Frame frame = StationAnimations.Resolve(AnimationList, AnimationFrame);
         if (frame.Duration is <= 0 or > short.MaxValue)
         {
             throw new InvalidDataException(
@@ -223,7 +223,7 @@ internal sealed class StationObject(
         StationAnimationList list = AnimationFrame == 0
             ? StationAnimationList.SaveFirstFrame
             : StationAnimationList.SaveSecondFrame;
-        StationAnimationProgramDefinitions.Frame frame = StationAnimationPrograms.Resolve(list, 0);
+        StationAnimationDefinitions.Frame frame = StationAnimations.Resolve(list, 0);
         Ensure.NotNull(drawing).Draw(level, block, frame.Draw);
         AnimationTimer = frame.Duration;
         AnimationFrame ^= 1;

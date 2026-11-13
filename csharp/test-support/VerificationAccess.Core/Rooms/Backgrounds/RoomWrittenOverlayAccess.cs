@@ -58,7 +58,7 @@ internal static class RoomWrittenOverlayAccess
                 throw new InvalidOperationException($"No installed Ceres warning page gives the words of {picture}.");
             return tiles.ToArray();
         }
-        foreach (EscapeTypewriterProgramId program in new[] { EscapeTypewriterProgramId.Ceres, EscapeTypewriterProgramId.Zebes })
+        foreach (EscapeTypewriterMessageId program in new[] { EscapeTypewriterMessageId.Ceres, EscapeTypewriterMessageId.Zebes })
         {
             BackgroundTile tileBase = EscapeTypewriterGlyphTiles.TileBaseOf(program);
             for (int character = 0; character <= byte.MaxValue; character++)

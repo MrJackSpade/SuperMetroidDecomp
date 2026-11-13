@@ -312,7 +312,7 @@ internal static class RoomBlockPicturesVerification
         WrittenPictureSheet sheet = (runtime.Room.Scope?.BackgroundWrittenPictures ?? throw new InvalidOperationException($"{room.Name} has no written pictures.")).Sheet;
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         var typewriter = new EscapeTypewriterState((runtime.BossArtwork.EscapeTypewriterPresentation
-            ?? throw new InvalidOperationException("No escape typewriter.")).Get(EscapeTypewriterProgramId.Zebes));
+            ?? throw new InvalidOperationException("No escape typewriter.")).Get(EscapeTypewriterMessageId.Zebes));
         // The typewriter types each glyph's picture by name (#1466); the overlay is checked against the tiles it typed.
         RoomWrittenOverlay overlay = RoomWrittenOverlay.Empty;
         var typedWords = new int[TwoScreenTilemapCells.Count];
@@ -322,7 +322,7 @@ internal static class RoomBlockPicturesVerification
             if (glyph is { } typed)
             {
                 overlay = overlay.With(new WrittenPicture(typed.Picture, typed.Corner));
-                typedWords[TwoScreenTilemapCells.IndexOf(typed.Corner)] = EscapeTypewriterGlyphTilesConstants.Of(EscapeTypewriterProgramId.Zebes, typed).PackedWord;
+                typedWords[TwoScreenTilemapCells.IndexOf(typed.Corner)] = EscapeTypewriterGlyphTilesConstants.Of(EscapeTypewriterMessageId.Zebes, typed).PackedWord;
             }
         }
         BgTilePicture?[] pictures = TwoScreenTilemapCells.Lay(new WrittenPictureResolver(sheet).Resolve(overlay, AppearanceOf(runtime, RoomScopeOf(runtime).ArtworkFrames)));

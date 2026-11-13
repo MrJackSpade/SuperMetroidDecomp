@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailCueKind;
-using P = SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailProgram;
+using P = SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 internal static class MaridiaLargeSnailAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MaridiaLargeSnailProgram, EnemyFrameId, MaridiaLargeSnailCue> Segments { get; } = new(
-        new Dictionary<MaridiaLargeSnailProgram, AnimationBeat<EnemyFrameId, MaridiaLargeSnailCue>[]>
+    internal static AnimationSegments<MaridiaLargeSnailSegment, EnemyFrameId, MaridiaLargeSnailCue> Segments { get; } = new(
+        new Dictionary<MaridiaLargeSnailSegment, AnimationBeat<EnemyFrameId, MaridiaLargeSnailCue>[]>
     {
         [P.FacingLeftIdle] =
         [
@@ -114,7 +114,7 @@ internal static class MaridiaLargeSnailAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<MaridiaLargeSnailProgram, Animation<MaridiaLargeSnailProgram>> StartingAt { get; } = new Dictionary<MaridiaLargeSnailProgram, Animation<MaridiaLargeSnailProgram>>
+    internal static IReadOnlyDictionary<MaridiaLargeSnailSegment, Animation<MaridiaLargeSnailSegment>> StartingAt { get; } = new Dictionary<MaridiaLargeSnailSegment, Animation<MaridiaLargeSnailSegment>>
     {
         [P.FacingLeftIdle] = new([new(P.FacingLeftIdle, 0, 1, 1)], AnimationEnd.Holds),
         [P.FacingLeftAttacking] = new([new(P.FacingLeftAttacking, 0, 15, 1)], AnimationEnd.Holds),
@@ -127,7 +127,7 @@ internal static class MaridiaLargeSnailAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<MaridiaLargeSnailProgram> StartingWith(MaridiaLargeSnailProgram segment) => StartingAt[segment];
+    internal static Animation<MaridiaLargeSnailSegment> StartingWith(MaridiaLargeSnailSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, MaridiaLargeSnailCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, MaridiaLargeSnailCue>.Frame(frame, duration);

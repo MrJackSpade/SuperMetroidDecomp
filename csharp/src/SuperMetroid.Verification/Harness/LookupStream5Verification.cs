@@ -99,7 +99,7 @@ internal static class LookupStream5Verification
             native[phase] = Enumerable.Range(0, 256).Select(i => ReadVerificationWord(oracle, SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingSources.Tilemap(source) + i * 2)).ToArray();
             AssertTrue(BackgroundTileWordBytes.Words((art ?? throw new InvalidOperationException("Verification requires art.")).Tilemap(source)).SequenceEqual(native[phase]), "Installed melt words");
             VerifyInstalledCrocomireMeltingTilemap(oracle, catalog, source, phase == 0
-                ? CrocomireBodyProgram.MeltingOneTopRow : CrocomireBodyProgram.MeltingTwoTopRow);
+                ? CrocomireBodySegment.MeltingOneTopRow : CrocomireBodySegment.MeltingTwoTopRow);
         }
         var first = art.first;
         var second = art.second;
@@ -161,7 +161,7 @@ internal static class LookupStream5Verification
                     int index = 3 - ordinal % 4;
                     ushort x = unchecked((ushort)(origin.X + (short)ReadVerificationWord(rom, 0xa6f840 + index * 4)));
                     ushort y = unchecked((ushort)(origin.Y + (short)ReadVerificationWord(rom, 0xa6f842 + index * 4)));
-                    MiscDustProjectileProgram program = MiscDustProjectiles.Program(ordinal % 2 == 0 ? MiscDustAnimation.Smoke : MiscDustAnimation.SmallExplosion);
+                    MiscDustProjectileSegment program = MiscDustProjectiles.Animation(ordinal % 2 == 0 ? MiscDustAnimation.Smoke : MiscDustAnimation.SmallExplosion);
                     // Native pool allocation descends; identify each emission through its unique current ordinal below.
                     var particle = particles[emitted - ordinal - 1];
                     AssertEqual(x, particle.Position.X.Whole, "Actual produced native X including 16-bit wrap");
@@ -273,7 +273,7 @@ internal static class LookupStream5Verification
                 }
             }
             AssertEqual(PhantoonAiFunction.NoOperation, state.BodyState.Function, "Selected duration stops moving phase");
-            AssertEqual(PhantoonPartProgram.EyeOpen, state.PlayingProgram(eye), "Expiration starts exact eye-opening program");
+            AssertEqual(PhantoonPartSegment.EyeOpen, state.PlayingProgram(eye), "Expiration starts exact eye-opening program");
             AssertEqual((ushort)1, eye.AnimationClock.Hold.RawValue, "Eye-opening program executes on next instruction step");
             AssertEqual(false, state.BodyState.FlameRainRequested, "Opening clears flame-rain trigger");
             AssertEqual(1, state.MouthState.CasualFlameHold, "Casual hold still advances on every movement call");
@@ -391,8 +391,8 @@ internal static class LookupStream5Verification
             else
             {
                 AssertEqual(PhantoonAiFunction.NoOperation, state.BodyState.Function, "Unhit expiration hands off to eye close");
-                AssertEqual(PhantoonPartProgram.InvulnerableBody, state.PlayingProgram(body), "Native invulnerable body handoff");
-                AssertEqual(PhantoonPartProgram.EyeCloseAndPickNewPattern, state.PlayingProgram(eye), "Native close/reselect eye handoff");
+                AssertEqual(PhantoonPartSegment.InvulnerableBody, state.PlayingProgram(body), "Native invulnerable body handoff");
+                AssertEqual(PhantoonPartSegment.EyeCloseAndPickNewPattern, state.PlayingProgram(eye), "Native close/reselect eye handoff");
                 AssertTrue(body.Contact.HasAny(EnemyContact.IgnoresSamus), "Expiration removes open-eye collision");
                 AssertEqual(true, state.BodyState.FlameRainRequested, "Unhit expiration requests next rain branch");
             }
@@ -1059,7 +1059,7 @@ internal static class LookupStream5Verification
                 ReadVerificationWord(rom, 0xa890da + direction * 2));
             var mountSettings = (MorphBallEyeSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Eye, PopulationWords.Parameters(0, 0x8000 | direction));
             var mount = MorphBallEyeGeometry.Mount(mountSettings.MountSide);
-            AssertEqual(expected, new LookupStream5Expected2(mount.Offset.X, mount.Offset.Y, NativeEnemyAnimationOracle.EntryOf(MorphBallEyeNativeListAddresses.Entries, mount.Program)),
+            AssertEqual(expected, new LookupStream5Expected2(mount.Offset.X, mount.Offset.Y, NativeEnemyAnimationOracle.EntryOf(MorphBallEyeNativeListAddresses.Entries, mount.Animation)),
                 "Native directional mount tuple");
             foreach (ushort origin in new ushort[] { 0, 65535 })
             {
@@ -1072,7 +1072,7 @@ internal static class LookupStream5Verification
                 AssertEqual(unchecked((ushort)(origin + expected.First)), slot.Position.X.Whole, "Actual mount X with native wrap");
                 AssertEqual(unchecked((ushort)(origin + expected.Second)), slot.Position.Y.Whole, "Actual mount Y with native wrap");
                 MorphBallEyeEnemyState eye = enemies.SlotTable.Slots[0].SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("The mount has no state.");
-                AssertEqual(new AnimationPlayback<MorphBallEyeProgram>(MorphBallEyeAnimations.StartingWith(mount.Program), AnimationPlace.StartOfAnimation),
+                AssertEqual(new AnimationPlayback<MorphBallEyeSegment>(MorphBallEyeAnimations.StartingWith(mount.Animation), AnimationPlace.StartOfAnimation),
                     eye.Playback,
                     "Actual directional mount program");
                 AssertEqual(MorphBallEyeAiFunction.MountNoOp, eye.Function, "Mount remains decorative");
@@ -1271,7 +1271,7 @@ internal static class LookupStream5Verification
         for (ushort direction = 0; direction < 9; direction++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7d40d + direction * 2)),
-                PhantoonNativeListAddresses.PartEntry(PhantoonEyeGaze.EyeProgram(direction)),
+                PhantoonNativeListAddresses.PartEntry(PhantoonEyeGaze.EyeAnimation(direction)),
                 $"native Phantoon eye direction {direction}");
         }
         var eyeEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -1286,12 +1286,12 @@ internal static class LookupStream5Verification
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(eyeBody.Position.X.Whole + x)), unchecked((ushort)(eyeBody.Position.Y.Whole + y)))),
             });
-            AssertEqual(PhantoonEyeGaze.EyeProgram(direction),
+            AssertEqual(PhantoonEyeGaze.EyeAnimation(direction),
                 eyeState.PlayingProgram(trackingEye),
                 $"production Phantoon eye direction {direction}");
         }
         AssertThrows<InvalidDataException>(
-            () => PhantoonEyeGaze.EyeProgram(9),
+            () => PhantoonEyeGaze.EyeAnimation(9),
             "Phantoon eye direction beyond authored table");
         AssertThrows<ArgumentOutOfRangeException>(() => _ = PhantoonFlameRain.FirstRainColumns[-1], "rain pattern lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => _ = PhantoonFlameRain.FirstRainColumns[8], "rain pattern upper bound");
@@ -1470,7 +1470,7 @@ internal static class LookupStream5Verification
         for (ushort variant = 0; variant < 7; variant++)
         {
             var actual = CeresDoorInitializations.For(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoor(variant));
-            AssertEqual(ReadVerificationWord(rom, 0xa6f52c + 2 * variant), NativeEnemyAnimationOracle.EntryOf(CeresDoorNativeListAddresses.Entries, actual.Program), "Ceres door original instruction dispatch");
+            AssertEqual(ReadVerificationWord(rom, 0xa6f52c + 2 * variant), NativeEnemyAnimationOracle.EntryOf(CeresDoorNativeListAddresses.Entries, actual.Animation), "Ceres door original instruction dispatch");
             AssertEqual(ReadVerificationWord(rom, 0xa6f72b + 2 * variant), CeresNativeWords.DoorFunctions.Word(actual.MainFunction), "Ceres door original function dispatch");
         }
         // The vents' ways in the order of the cartridge's tables, which a vent's first spawn parameter indexes.
@@ -1478,14 +1478,14 @@ internal static class LookupStream5Verification
         for (int variant = 0; variant < steamVariants.Length; variant++)
         {
             var actual = CeresSteamInitializations.Initialization(steamVariants[variant]);
-            AssertEqual(ReadVerificationWord(rom, 0xa6eff5 + 2 * variant), NativeEnemyAnimationOracle.EntryOf(CeresSteamNativeListAddresses.Entries, actual.Program), "Ceres steam original instruction dispatch");
+            AssertEqual(ReadVerificationWord(rom, 0xa6eff5 + 2 * variant), NativeEnemyAnimationOracle.EntryOf(CeresSteamNativeListAddresses.Entries, actual.Animation), "Ceres steam original instruction dispatch");
             AssertEqual(ReadVerificationWord(rom, 0xa6f001 + 2 * variant), CeresNativeWords.SteamFunctions.Word(actual.Function), "Ceres steam original function dispatch");
         }
         for (int index = 0; index < 9; index++)
         {
             var actual = MagdolliteRise.Phase(index);
             AssertEqual(ReadVerificationWord(rom, 0xa8af55 + 2 * index), actual.DistanceThreshold, "Magdollite original rise threshold");
-            AssertEqual(ReadVerificationWord(rom, 0xa8af67 + 2 * index), NativeEnemyAnimationOracle.EntryOf(MagdolliteNativeListAddresses.Entries, actual.BodyProgram), "Magdollite original body program");
+            AssertEqual(ReadVerificationWord(rom, 0xa8af67 + 2 * index), NativeEnemyAnimationOracle.EntryOf(MagdolliteNativeListAddresses.Entries, actual.BodyAnimation), "Magdollite original body program");
             AssertEqual(ReadVerificationWord(rom, 0xa8af79 + 2 * index), actual.OverlayYOffset, "Magdollite original overlay offset");
         }
         AssertThrows<InvalidDataException>(() => CeresDoorInitializations.For(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoor(7)), "Ceres door upper bound");

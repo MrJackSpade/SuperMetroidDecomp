@@ -20,7 +20,7 @@ internal static class ZoaAnimationDefinitionsVerification
         {
             ZoaAnimationSelector selector = ZoaNativeWords.AnimationSelectorOf(index);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((ZoaAnimationDefinitions.ReferenceAddress + index * 2)),
-                NativeEnemyAnimationOracle.EntryOf(ZoaNativeListAddresses.Entries, ZoaPrograms.Program(selector)),
+                NativeEnemyAnimationOracle.EntryOf(ZoaNativeListAddresses.Entries, ZoaAnimationChoices.Animation(selector)),
                 $"Zoa animation selector {selector}");
         }
 
@@ -54,7 +54,7 @@ internal static class ZoaAnimationDefinitionsVerification
                     ? ZoaAnimationSelector.RisingFacingLeft
                     : ZoaAnimationSelector.ShootingFacingLeft,
             };
-            ZoaBehavior.SetZoaProgram(slot, state);
+            ZoaBehavior.SetZoaAnimation(slot, state);
             AssertZoaAnimationHandoff(slot, state, selector, $"Zoa {selector}");
         }
     }
@@ -111,7 +111,7 @@ internal static class ZoaAnimationDefinitionsVerification
             $"{context} requested selector");
         AssertEqual(expected, state.InstalledAnimation,
             $"{context} installed selector");
-        AssertEqual(new AnimationPlayback<ZoaProgram>(ZoaAnimations.StartingWith(ZoaPrograms.Program(expected)), AnimationPlace.StartOfAnimation),
+        AssertEqual(new AnimationPlayback<ZoaSegment>(ZoaAnimations.StartingWith(ZoaAnimationChoices.Animation(expected)), AnimationPlace.StartOfAnimation),
             state.Playback,
             $"{context} animation");
         AssertEqual(1, slot.AnimationClock.Hold.RawValue, $"{context} instruction timer");

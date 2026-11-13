@@ -40,16 +40,16 @@ public static class PhantoonPatternDefinitions
     /// The eye program of each relative-octant selector 0..8. The unused code 5 retains the
     /// downward selection; all other values name a direction.
     /// </summary>
-    internal static readonly PhantoonPartProgram[] EyePrograms =
+    internal static readonly PhantoonPartSegment[] EyeAnimations =
     [
-        PhantoonPartProgram.EyeLookingUp,
-        PhantoonPartProgram.EyeLookingUpRight,
-        PhantoonPartProgram.EyeLookingRight,
-        PhantoonPartProgram.EyeLookingDownRight,
-        PhantoonPartProgram.EyeLookingDown,
-        PhantoonPartProgram.EyeLookingDown,
-        PhantoonPartProgram.EyeLookingDownLeft,
-        PhantoonPartProgram.EyeLookingLeft,
-        PhantoonPartProgram.EyeLookingUpLeft,
+        PhantoonPartSegment.EyeLookingUp,
+        PhantoonPartSegment.EyeLookingUpRight,
+        PhantoonPartSegment.EyeLookingRight,
+        PhantoonPartSegment.EyeLookingDownRight,
+        PhantoonPartSegment.EyeLookingDown,
+        PhantoonPartSegment.EyeLookingDown,
+        PhantoonPartSegment.EyeLookingDownLeft,
+        PhantoonPartSegment.EyeLookingLeft,
+        PhantoonPartSegment.EyeLookingUpLeft,
     ];
 }

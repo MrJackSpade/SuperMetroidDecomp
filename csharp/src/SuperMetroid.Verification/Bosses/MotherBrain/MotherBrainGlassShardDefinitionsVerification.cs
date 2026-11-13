@@ -44,7 +44,7 @@ internal static class MotherBrainGlassShardDefinitionsVerification
                 EnemyProjectile shard =
                     enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
                 AssertTrue(shard.Animation is MotherBrainGlassAnimation started &&
-                    started.Program == MotherBrainGlassAnimations.ShardProgram(animationIndex),
+                    started.Program == MotherBrainGlassAnimations.ShardAnimation(animationIndex),
                     $"production Mother Brain glass-shard program {parameter}/{animationIndex}");
                 AssertEqual(unchecked((ushort)(0x0200 + unchecked((short)ReadMotherBrainGlassShardWord(rom, 0x86ce61 + parameter)))), shard.Position.X.Whole,
                     $"production Mother Brain glass-shard X {parameter}/{animationIndex}");
@@ -58,7 +58,7 @@ internal static class MotherBrainGlassShardDefinitionsVerification
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainGlassAnimations.ShardProgram(16),
+            () => MotherBrainGlassAnimations.ShardAnimation(16),
             "Mother Brain glass-shard animation past table");
         AssertThrows<ArgumentOutOfRangeException>(
             () => MotherBrainGlassShards.Placement((MotherBrainGlassShard)99),
@@ -74,11 +74,11 @@ internal static class MotherBrainGlassShardDefinitionsVerification
         {
             ushort index = (ushort)raw;
             if (raw >= 16)
-                AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainGlassAnimations.ShardProgram(index),
+                AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainGlassAnimations.ShardAnimation(index),
                     "Glass shard selector full rejected domain");
             else
                 AssertEqual(ReadMotherBrainGlassShardWord(rom, 0x86ce41 + 2 * raw),
-                    MotherBrainNativeListAddresses.GlassEntries[MotherBrainGlassAnimations.ShardProgram(index)], "Glass shard original angular selector");
+                    MotherBrainNativeListAddresses.GlassEntries[MotherBrainGlassAnimations.ShardAnimation(index)], "Glass shard original angular selector");
         }
     }
 

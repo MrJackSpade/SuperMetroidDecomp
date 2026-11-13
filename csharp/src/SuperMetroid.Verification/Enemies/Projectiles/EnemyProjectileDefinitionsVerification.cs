@@ -99,13 +99,13 @@ internal static class EnemyProjectileDefinitionsVerification
             if (kind == RoomEnemyProjectileKind.DraygonGoop)
             {
                 // Draygon's goop touch program is typed (#641); VerifyDraygonProjectileAnimations matches it to the native list.
-                AssertTrue(projectile.Animation is DraygonProjectileAnimation { PlayingSegment: DraygonProjectileProgram.GoopTouch },
+                AssertTrue(projectile.Animation is DraygonProjectileAnimation { PlayingSegment: DraygonProjectileSegment.GoopTouch },
                     $"{kind} production touch starts the typed touch program");
             }
             else if (kind == RoomEnemyProjectileKind.MotherBrainOnionRing)
             {
                 // The onion ring's impact program is typed (#1292); VerifyMotherBrainEffectAnimations matches it.
-                AssertTrue(projectile.Animation is MotherBrainEffectAnimation { PlayingSegment: MotherBrainEffectProgram.OnionRingHit },
+                AssertTrue(projectile.Animation is MotherBrainEffectAnimation { PlayingSegment: MotherBrainEffectSegment.OnionRingHit },
                     $"{kind} production touch starts the typed touch program");
             }
             else if (kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet)
@@ -141,7 +141,7 @@ internal static class EnemyProjectileDefinitionsVerification
             AssertEqual(1, hits, $"{kind} production shot admitted");
             if (kind == RoomEnemyProjectileKind.DraygonGoop)
             {
-                AssertTrue(projectile.Animation is DraygonProjectileAnimation { PlayingSegment: DraygonProjectileProgram.GoopShot },
+                AssertTrue(projectile.Animation is DraygonProjectileAnimation { PlayingSegment: DraygonProjectileSegment.GoopShot },
                     $"{kind} production shot starts the typed shot program");
             }
             else if (kind == RoomEnemyProjectileKind.CrocomireProjectile)
@@ -154,7 +154,7 @@ internal static class EnemyProjectileDefinitionsVerification
             else if (kind == RoomEnemyProjectileKind.KraidSpitRock)
             {
                 // Kraid's rock burst is typed (#641); VerifyKraidRockAnimations matches it to the native list.
-                AssertTrue(projectile.Animation is KraidRockAnimation { Program: KraidRockProgram.SpitRockShot },
+                AssertTrue(projectile.Animation is KraidRockAnimation { Program: KraidRockSegment.SpitRockShot },
                     $"{kind} production shot starts the typed shot program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
@@ -168,11 +168,11 @@ internal static class EnemyProjectileDefinitionsVerification
             else if (kind is RoomEnemyProjectileKind.PhantoonDestroyableFlame or RoomEnemyProjectileKind.PhantoonStartingFlame)
             {
                 // Phantoon's flames are typed (#1286); VerifyPhantoonFlameAnimations matches them to the native lists.
-                PhantoonFlameProgram expected = kind == RoomEnemyProjectileKind.PhantoonDestroyableFlame
-                    ? PhantoonFlameProgram.DestroyableShot
-                    : PhantoonFlameProgram.DestroyableIdle;
+                PhantoonFlameSegment expected = kind == RoomEnemyProjectileKind.PhantoonDestroyableFlame
+                    ? PhantoonFlameSegment.DestroyableShot
+                    : PhantoonFlameSegment.DestroyableIdle;
                 AssertTrue(projectile.Animation is PhantoonFlameAnimation started
-                        && started.Playback == new AnimationPlayback<PhantoonFlameProgram>(PhantoonFlameAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
+                        && started.Playback == new AnimationPlayback<PhantoonFlameSegment>(PhantoonFlameAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
                     $"{kind} production shot starts the typed {expected} program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
@@ -180,10 +180,10 @@ internal static class EnemyProjectileDefinitionsVerification
                 RoomEnemyProjectileKind.SporeSpawnSpawner)
             {
                 // Spore Spawn's projectiles are typed (#1288); VerifySporeSpawnAnimations matches them to the native lists.
-                SporeSpawnProjectileProgram expected = kind switch
+                SporeSpawnProjectileSegment expected = kind switch
                 {
-                    RoomEnemyProjectileKind.SporeSpawnStalk => SporeSpawnProjectileProgram.Stalk,
-                    RoomEnemyProjectileKind.SporeSpawnSpore => SporeSpawnProjectileProgram.SporeShot,
+                    RoomEnemyProjectileKind.SporeSpawnStalk => SporeSpawnProjectileSegment.Stalk,
+                    RoomEnemyProjectileKind.SporeSpawnSpore => SporeSpawnProjectileSegment.SporeShot,
                     RoomEnemyProjectileKind.None or
                         RoomEnemyProjectileKind.PrePhantoonRoom or
                         RoomEnemyProjectileKind.YappingMawBody or
@@ -305,21 +305,21 @@ internal static class EnemyProjectileDefinitionsVerification
                         RoomEnemyProjectileKind.DownwardGateClosed or
                         RoomEnemyProjectileKind.NoobTubeCrack or
                         RoomEnemyProjectileKind.NoobTubeShard or
-                        RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => SporeSpawnProjectileProgram.SpawnerClosed,
-                    _ => SporeSpawnProjectileProgram.SpawnerClosed,
+                        RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => SporeSpawnProjectileSegment.SpawnerClosed,
+                    _ => SporeSpawnProjectileSegment.SpawnerClosed,
                 };
                 AssertTrue(projectile.Animation is SporeSpawnProjectileAnimation started
-                        && started.Playback == new AnimationPlayback<SporeSpawnProjectileProgram>(SporeSpawnProjectileAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
+                        && started.Playback == new AnimationPlayback<SporeSpawnProjectileSegment>(SporeSpawnProjectileAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
                     $"{kind} production shot starts the typed {expected} program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind is RoomEnemyProjectileKind.BombTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoEgg or RoomEnemyProjectileKind.GoldenTorizoSuperMissile)
             {
                 // Torizo's shot programs are typed (#1289); VerifyTorizoProjectileAnimations matches them to the native lists.
-                TorizoProjectileProgram expected = kind switch
+                TorizoProjectileSegment expected = kind switch
                 {
-                    RoomEnemyProjectileKind.GoldenTorizoEgg => TorizoProjectileProgram.ChozoOrbWallImpact,
-                    RoomEnemyProjectileKind.GoldenTorizoSuperMissile => TorizoProjectileProgram.SuperMissileImpact,
+                    RoomEnemyProjectileKind.GoldenTorizoEgg => TorizoProjectileSegment.ChozoOrbWallImpact,
+                    RoomEnemyProjectileKind.GoldenTorizoSuperMissile => TorizoProjectileSegment.SuperMissileImpact,
                     RoomEnemyProjectileKind.None or
                         RoomEnemyProjectileKind.PrePhantoonRoom or
                         RoomEnemyProjectileKind.YappingMawBody or
@@ -441,46 +441,46 @@ internal static class EnemyProjectileDefinitionsVerification
                         RoomEnemyProjectileKind.DownwardGateClosed or
                         RoomEnemyProjectileKind.NoobTubeCrack or
                         RoomEnemyProjectileKind.NoobTubeShard or
-                        RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => TorizoProjectileProgram.ChozoOrbShot,
-                    _ => TorizoProjectileProgram.ChozoOrbShot,
+                        RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => TorizoProjectileSegment.ChozoOrbShot,
+                    _ => TorizoProjectileSegment.ChozoOrbShot,
                 };
                 AssertTrue(projectile.Animation is TorizoProjectileAnimation started
-                        && started.Playback == new AnimationPlayback<TorizoProjectileProgram>(TorizoProjectileAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
+                        && started.Playback == new AnimationPlayback<TorizoProjectileSegment>(TorizoProjectileAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
                     $"{kind} production shot starts the typed {expected} program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind == RoomEnemyProjectileKind.PowampSpike)
             {
                 // The spike's shot list is its private delete list, typed with its programs (#1291).
-                AssertTrue(projectile.Animation is PowampSpikeAnimation { PlayingSegment: PowampSpikeProgram.Delete },
+                AssertTrue(projectile.Animation is PowampSpikeAnimation { PlayingSegment: PowampSpikeSegment.Delete },
                     $"{kind} production shot starts the typed delete program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind == RoomEnemyProjectileKind.KagoBug)
             {
                 // The bug's shot list spawns its drop; it is typed with its programs (#1292).
-                AssertTrue(projectile.Animation is KagoBugProjectileAnimation { PlayingSegment: KagoBugProjectileProgram.Shot },
+                AssertTrue(projectile.Animation is KagoBugProjectileAnimation { PlayingSegment: KagoBugProjectileSegment.Shot },
                     $"{kind} production shot starts the typed shot program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind == RoomEnemyProjectileKind.DraygonWallTurret)
             {
                 // A shot wall turret runs the shared misc-dust small explosion (#1292).
-                AssertTrue(projectile.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustProjectileProgram.SmallExplosion },
+                AssertTrue(projectile.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustProjectileSegment.SmallExplosion },
                     $"{kind} production shot starts the typed small explosion");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind == RoomEnemyProjectileKind.EyeDoorProjectile)
             {
                 // The eye-door shot's shot list is typed with its programs (#1292).
-                AssertTrue(projectile.Animation is EyeDoorProjectileAnimation { PlayingSegment: EyeDoorProjectileProgram.Shot },
+                AssertTrue(projectile.Animation is EyeDoorProjectileAnimation { PlayingSegment: EyeDoorProjectileSegment.Shot },
                     $"{kind} production shot starts the typed shot program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind == RoomEnemyProjectileKind.LavaThrownByMagdollite)
             {
                 // The lava's shot list drops its pickup; it is typed with its programs (#1291).
-                AssertTrue(projectile.Animation is MagdolliteLavaAnimation { PlayingSegment: MagdolliteLavaProgram.Shot },
+                AssertTrue(projectile.Animation is MagdolliteLavaAnimation { PlayingSegment: MagdolliteLavaSegment.Shot },
                     $"{kind} production shot starts the typed shot program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }

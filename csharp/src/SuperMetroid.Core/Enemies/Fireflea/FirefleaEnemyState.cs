@@ -16,7 +16,7 @@ public sealed class FirefleaEnemyState
     internal FirefleaEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<FirefleaProgram> Playback { get; set; }
+    internal AnimationPlayback<FirefleaSegment> Playback { get; set; }
 
     /// <summary>
     /// The turn the circle makes each update: its spawn speed toward its spawn sign read as a turn

@@ -30,7 +30,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Fune's and Namihe's animations: the spit sound, a fireball, or finishing the spit.</summary>
-    private FuneNamiheProgram? ApplyFuneNamiheCue(RoomEnemySlot slot, FuneNamiheEnemyState state, FuneNamiheCue cue)
+    private FuneNamiheSegment? ApplyFuneNamiheCue(RoomEnemySlot slot, FuneNamiheEnemyState state, FuneNamiheCue cue)
     {
         switch (cue.Kind)
         {
@@ -81,7 +81,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Function = FuneNamiheEnemyFunction.NamiheWaitForSamus;
 
         slot.SetSpeciesState(state);
-        InstallFuneNamiheAnimationScript(slot, state);
+        StartFuneNamiheAnimation(slot, state);
     }
 
     /// <summary>Starts Fune's activity after a wrapping cooldown or Namihe's after strict modular Y proximity; active lists own the return to idle.</summary>
@@ -101,7 +101,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
 
                 state.ShowsActiveAnimation = true;
-                InstallFuneNamiheAnimationScript(slot, state);
+                StartFuneNamiheAnimation(slot, state);
                 state.Function = FuneNamiheEnemyFunction.FuneActivityNoOp;
                 state.CooldownTimer = 0;
                 return;
@@ -124,7 +124,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
 
                 state.ShowsActiveAnimation = true;
-                InstallFuneNamiheAnimationScript(slot, state);
+                StartFuneNamiheAnimation(slot, state);
                 state.Function = FuneNamiheEnemyFunction.NamiheActivityNoOp;
                 return;
 
@@ -144,22 +144,22 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Installs the animation the species, activity and facing select. Both
     /// program timers are reset together.
     /// </summary>
-    private static void InstallFuneNamiheAnimationScript(
+    private static void StartFuneNamiheAnimation(
         RoomEnemySlot slot,
         FuneNamiheEnemyState state)
     {
-        state.Playback = EnemyProgramAnimation.Start(slot, FuneNamiheAnimations.StartingWith(SelectFuneNamiheProgram(state)));
+        state.Playback = EnemyAnimationPlayback.Start(slot, FuneNamiheAnimations.StartingWith(SelectFuneNamiheAnimation(state)));
     }
 
     /// <summary>The animation for <paramref name="state"/>'s species, activity and facing.</summary>
-    internal static FuneNamiheProgram SelectFuneNamiheProgram(FuneNamiheEnemyState state) =>
+    internal static FuneNamiheSegment SelectFuneNamiheAnimation(FuneNamiheEnemyState state) =>
         state.IsNamihe
             ? state.ShowsActiveAnimation
-                ? state.FacingRight ? FuneNamiheProgram.NamiheActiveRight : FuneNamiheProgram.NamiheActiveLeft
-                : state.FacingRight ? FuneNamiheProgram.NamiheIdleRight : FuneNamiheProgram.NamiheIdleLeft
+                ? state.FacingRight ? FuneNamiheSegment.NamiheActiveRight : FuneNamiheSegment.NamiheActiveLeft
+                : state.FacingRight ? FuneNamiheSegment.NamiheIdleRight : FuneNamiheSegment.NamiheIdleLeft
             : state.ShowsActiveAnimation
-                ? state.FacingRight ? FuneNamiheProgram.FuneActiveRight : FuneNamiheProgram.FuneActiveLeft
-                : state.FacingRight ? FuneNamiheProgram.FuneIdleRight : FuneNamiheProgram.FuneIdleLeft;
+                ? state.FacingRight ? FuneNamiheSegment.FuneActiveRight : FuneNamiheSegment.FuneActiveLeft
+                : state.FacingRight ? FuneNamiheSegment.FuneIdleRight : FuneNamiheSegment.FuneIdleLeft;
 
     /// <summary>Publishes the shared enemy-library spit cue for the outer enemy audio queue.</summary>
     private void QueueFuneNamiheSpitSound() =>
@@ -191,11 +191,11 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances FuneNamihe's typed animation.</summary>
-    internal void AdvanceFuneNamiheTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, FuneNamiheAnimations.Segments,
+    internal void AdvanceFuneNamiheTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, FuneNamiheAnimations.Segments,
             static (FuneNamiheEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyFuneNamiheCue(slot, state, cue) is { } target
-                ? new AnimationContinuation<FuneNamiheProgram>(FuneNamiheAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
 
     /// <summary>Shared projectile movement callback installed for both Fune and Namihe fireballs.</summary>
@@ -219,7 +219,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile,
             kind,
             SpriteGraphics.SpawnedBy(source));
-        projectile.InstallAnimation(new FuneNamiheFireballAnimation(direction == HorizontalDirection.Right ? FuneNamiheFireballProgram.Right : FuneNamiheFireballProgram.Left));
+        projectile.InstallAnimation(new FuneNamiheFireballAnimation(direction == HorizontalDirection.Right ? FuneNamiheFireballSegment.Right : FuneNamiheFireballSegment.Left));
         projectile.FrameBehavior = NamiFuneFireballFrameBehavior;
 
         projectile.Position = source.Position;

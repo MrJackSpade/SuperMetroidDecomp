@@ -33,12 +33,12 @@ internal static class RoomObjectPopulationInputBoundaryVerification
             new(3, 3), null, writes);
         var extension = new RoomObjectPlacement(RoomObjectHeaders.Get(RoomObjectHeaderId.RightwardsScrollExtension),
             new(4, 3), null);
-        var second = trigger with { Block = new(5, trigger.Block.Y), ScrollProgram = Array.Empty<RoomScrollWrite>() };
+        var second = trigger with { Block = new(5, trigger.Block.Y), ScrollChange = Array.Empty<RoomScrollWrite>() };
         RoomObjectPlacement[] records = [trigger, extension, second];
         var population = new RoomObjectPopulation($"$8F:{0xfffa:X4}", records);
         writes[0] = new(49, RoomScrollState.RedBoundary);
         records[0] = second;
-        AssertEqual(new RoomScrollWrite(1, RoomScrollState.Green), population.Placements.Span[0].ScrollProgram![0],
+        AssertEqual(new RoomScrollWrite(1, RoomScrollState.Green), population.Placements.Span[0].ScrollChange![0],
             "decoded population owns its scroll writes independently of caller mutation");
         AssertEqual(3, population.Placements.Span[0].Block.X,
             "decoded population owns its record ordering independently of caller mutation");
@@ -60,15 +60,15 @@ internal static class RoomObjectPopulationInputBoundaryVerification
         AssertTrue(!roomObjects.ScrollObjectTriggered(roomObjects.Scrolls.Snapshots[0].Block), "decoded trigger returns to sleep after its last write");
 
         AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
-            [trigger with { ScrollProgram = [new(RoomScrollGrid.KeptCellCount, RoomScrollState.Blue)] }]),
+            [trigger with { ScrollChange = [new(RoomScrollGrid.KeptCellCount, RoomScrollState.Blue)] }]),
             "a decoded write past the scroll grid is rejected before allocation");
         AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
-            [trigger with { ScrollProgram = [new(0, (RoomScrollState)3)] }]), "invalid decoded scroll states are rejected");
+            [trigger with { ScrollChange = [new(0, (RoomScrollState)3)] }]), "invalid decoded scroll states are rejected");
         AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
             Enumerable.Repeat(second, RoomObjectPopulation.MaximumPlacementCount + 1)),
             "a population cannot hold more placements than a room's population holds");
         AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
-            [extension with { ScrollProgram = Array.Empty<RoomScrollWrite>() }]), "an extension cannot own a resident scroll program");
+            [extension with { ScrollChange = Array.Empty<RoomScrollWrite>() }]), "an extension cannot own a resident scroll program");
 
         int count = 0;
         foreach (ushort pointer in RoomObjectPopulationDefinitions.Pointers)

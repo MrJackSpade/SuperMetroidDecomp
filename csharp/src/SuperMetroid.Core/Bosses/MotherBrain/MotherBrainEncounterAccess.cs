@@ -26,7 +26,7 @@ internal sealed class MotherBrainEncounterAccess
         _frameResults.MotherBrainObjects.Add(new RoomObjectSpawnRequest<MotherBrainRoomMutation>(block, mutation));
 
     /// <summary>Restarts the brain on <paramref name="program"/>.</summary>
-    internal static void SetMotherBrainBrainProgram(MotherBrainEnemyState state, MotherBrainHeadProgram program)
+    internal static void SetMotherBrainBrainAnimation(MotherBrainEnemyState state, MotherBrainHeadSegment program)
     {
         // The brain's place rests on its next beat: the program's first, entered at once.
         state.BrainPlayback = new(MotherBrainAnimations.HeadStartingWith(program), AnimationPlace.StartOf(0));
@@ -60,8 +60,8 @@ internal sealed class MotherBrainEncounterAccess
     }
 
     /// <summary>Restarts the body enemy on <paramref name="program"/> with its initial timer.</summary>
-    internal static void SetMotherBrainBodyProgram(MotherBrainEnemyState state, MotherBrainBodyProgram program)
+    internal static void SetMotherBrainBodyAnimation(MotherBrainEnemyState state, MotherBrainBodySegment program)
     {
-        state.BodyPlayback = EnemyProgramAnimation.Start(state.Body, MotherBrainAnimations.BodyStartingWith(program));
+        state.BodyPlayback = EnemyAnimationPlayback.Start(state.Body, MotherBrainAnimations.BodyStartingWith(program));
     }
 }

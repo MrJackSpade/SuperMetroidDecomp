@@ -9,9 +9,9 @@ internal static class MotherBrainTurretVisualDefinitionsFramesAccess
         /// <summary>Every frame in installed-artwork order: turret poses, bullet poses, then the smoke.</summary>
         internal static IReadOnlyList<MotherBrainTurretFrame> ProjectileFrames =>
         [
-            .. Enum.GetValues<MotherBrainTurretDirection>().Select(direction => new MotherBrainTurretFrame(MotherBrainTurretProgram.TurretPose, (int)direction)),
-            .. Enum.GetValues<MotherBrainTurretDirection>().Select(direction => new MotherBrainTurretFrame(MotherBrainTurretProgram.BulletPose, (int)direction)),
-            .. Enumerable.Range(0, MotherBrainTurretAnimations.ImpactPhaseCount).Select(phase => new MotherBrainTurretFrame(MotherBrainTurretProgram.BulletImpact, phase)),
+            .. Enum.GetValues<MotherBrainTurretDirection>().Select(direction => new MotherBrainTurretFrame(MotherBrainTurretSegment.TurretPose, (int)direction)),
+            .. Enum.GetValues<MotherBrainTurretDirection>().Select(direction => new MotherBrainTurretFrame(MotherBrainTurretSegment.BulletPose, (int)direction)),
+            .. Enumerable.Range(0, MotherBrainTurretAnimations.ImpactPhaseCount).Select(phase => new MotherBrainTurretFrame(MotherBrainTurretSegment.BulletImpact, phase)),
         ];
 
         /// <summary>Distinct frames: eight turret poses, eight bullet poses and five smoke frames.</summary>

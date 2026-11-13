@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using F = SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameFrameKind;
-using P = SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameProgram;
+using P = SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameSegment;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
@@ -29,8 +29,8 @@ internal static class PhantoonFlameAnimations
     /// Every flame segment. The three falling starts show nothing of their own: each only loads the loop counter for the
     /// falling phase it runs on into.
     /// </summary>
-    internal static AnimationSegments<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue> Segments { get; } = new(
-        new Dictionary<PhantoonFlameProgram, AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue>[]>
+    internal static AnimationSegments<PhantoonFlameSegment, PhantoonFlameFrame, PhantoonFlameCue> Segments { get; } = new(
+        new Dictionary<PhantoonFlameSegment, AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue>[]>
     {
         [P.DestroyableIdle] = Poses(F.DestroyableIdle, LoopPoseCount),
         [P.CasualHitGround] = [Show(new(F.CasualHitGround, 0), 1)],
@@ -63,7 +63,7 @@ internal static class PhantoonFlameAnimations
     /// flame runs on into dying, and a falling flame plays each falling phase's poses four times, the three phases in turn
     /// for good. The falling phases' own runs are counted bodies and start no animation.
     /// </summary>
-    internal static IReadOnlyDictionary<PhantoonFlameProgram, Animation<PhantoonFlameProgram>> StartingAt { get; } = new Dictionary<PhantoonFlameProgram, Animation<PhantoonFlameProgram>>
+    internal static IReadOnlyDictionary<PhantoonFlameSegment, Animation<PhantoonFlameSegment>> StartingAt { get; } = new Dictionary<PhantoonFlameSegment, Animation<PhantoonFlameSegment>>
     {
         [P.DestroyableIdle] = new([Whole(P.DestroyableIdle)], AnimationEnd.LoopsFrom(0)),
         [P.CasualHitGround] = new([Whole(P.CasualHitGround)], AnimationEnd.Holds),
@@ -80,13 +80,13 @@ internal static class PhantoonFlameAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<PhantoonFlameProgram> StartingWith(PhantoonFlameProgram segment) => StartingAt[segment];
+    internal static Animation<PhantoonFlameSegment> StartingWith(PhantoonFlameSegment segment) => StartingAt[segment];
 
     /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<PhantoonFlameProgram> Whole(PhantoonFlameProgram segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+    private static AnimationPhase<PhantoonFlameSegment> Whole(PhantoonFlameSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>A falling phase's two poses, played four times on the flame's loop counter.</summary>
-    private static AnimationPhase<PhantoonFlameProgram> Falling(PhantoonFlameProgram loop) => new(loop, 0, FallingPoseCount, FallingRepeatCount);
+    private static AnimationPhase<PhantoonFlameSegment> Falling(PhantoonFlameSegment loop) => new(loop, 0, FallingPoseCount, FallingRepeatCount);
 
     /// <summary>The <paramref name="count"/> poses of <paramref name="kind"/>, each lasting the flame dwell.</summary>
     private static AnimationBeat<PhantoonFlameFrame, PhantoonFlameCue>[] Poses(F kind, int count) =>

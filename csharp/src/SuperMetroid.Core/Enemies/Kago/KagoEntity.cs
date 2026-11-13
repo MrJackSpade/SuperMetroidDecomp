@@ -13,7 +13,7 @@ internal sealed class KagoEntity(RoomEnemySlot slot, EnemyCommonParticipation co
     public EnemyMainAiHandler? FindMain() => KagoBehavior.RunKagoMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => KagoBehavior.AdvanceKagoTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => KagoBehavior.AdvanceKagoTypedAnimation;
 
     /// <summary>The Kago's own shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>

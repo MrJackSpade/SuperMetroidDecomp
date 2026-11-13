@@ -42,7 +42,7 @@ public static class TitleScreenAmbientPaletteFxColorDefinitions
             Colours = PaletteFxColours.BabyMetroidTubeLight,
             FrameCount = 2 * TubeDimmingSteps,
             ColorsPerFrame = TubeColourCount,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.TitleScreenBabyMetroidTubeLight1, TubeColourCount),
+            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.TitleScreenBabyMetroidTubeLight1, TubeColourCount),
         };
     /// <summary>The two-frame flickering displays.</summary>
     public static TitleScreenAmbientPaletteFxColorDefinition Displays { get; } =
@@ -52,6 +52,6 @@ public static class TitleScreenAmbientPaletteFxColorDefinitions
             Colours = PaletteFxColours.TitleScreenDisplays,
             FrameCount = DisplayStates,
             ColorsPerFrame = DisplayColourCount,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.TitleScreenFlickeringDisplays1, DisplayColourCount),
+            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.TitleScreenFlickeringDisplays1, DisplayColourCount),
         };
 }

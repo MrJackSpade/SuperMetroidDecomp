@@ -16,7 +16,7 @@ internal sealed class BotwoonEntity(BotwoonBehavior species, RoomEnemySlot slot,
     public EnemyMainAiHandler? FindMain() => species.RunBotwoonMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceBotwoonTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceBotwoonTypedAnimation;
 
     /// <summary>Botwoon's own shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>

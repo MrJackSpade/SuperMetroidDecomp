@@ -16,7 +16,7 @@ internal static class WaverAnimationDefinitionsVerification
     {
         for (int index = 0; index < 4; index++)
         {
-            WaverProgram selector = WaverNativeWords.Animations.Decode(index, "Waver animation index");
+            WaverSegment selector = WaverNativeWords.Animations.Decode(index, "Waver animation index");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa386db + index * 2)),
                 NativeEnemyAnimationOracle.EntryOf(WaverNativeListAddresses.Entries, selector),
                 $"Waver animation selector {selector}");
@@ -24,19 +24,19 @@ internal static class WaverAnimationDefinitionsVerification
 
         for (int index = 0; index < 4; index++)
         {
-            WaverProgram selector = WaverNativeWords.Animations.Decode(index, "Waver animation index");
+            WaverSegment selector = WaverNativeWords.Animations.Decode(index, "Waver animation index");
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222, repeats: 0x3333);
             var state = new WaverEnemyState
             {
-                InstalledAnimation = selector == WaverProgram.SteadyFacingLeft
-                    ? WaverProgram.SteadyFacingRight
-                    : WaverProgram.SteadyFacingLeft,
+                InstalledAnimation = selector == WaverSegment.SteadyFacingLeft
+                    ? WaverSegment.SteadyFacingRight
+                    : WaverSegment.SteadyFacingLeft,
                 RequestedAnimation = selector,
             };
-            WaverBehavior.SetWaverProgram(slot, state);
+            WaverBehavior.SetWaverAnimation(slot, state);
             AssertEqual(selector, state.InstalledAnimation,
                 $"production Waver current selector {selector}");
-            AssertEqual(new AnimationPlayback<WaverProgram>(WaverAnimations.StartingWith(selector), AnimationPlace.StartOfAnimation),
+            AssertEqual(new AnimationPlayback<WaverSegment>(WaverAnimations.StartingWith(selector), AnimationPlace.StartOfAnimation),
                 state.Playback,
                 $"production Waver animation {selector}");
             AssertEqual(1, slot.AnimationClock.Hold.RawValue,
@@ -52,13 +52,13 @@ internal static class WaverAnimationDefinitionsVerification
             slot.Bind(EnemyDefinitionId.Waver, slot.Definition);
             slot.SetSpawnParameter1(EnemyDefinitionId.Waver, parameter);
             WaverBehavior.InitializeWaver(slot);
-            WaverProgram expected = WaverNativeWords.Animations.Decode(parameter, "Waver spawn facing");
+            WaverSegment expected = WaverNativeWords.Animations.Decode(parameter, "Waver spawn facing");
             WaverEnemyState waver = enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].");
             AssertEqual(expected, waver.RequestedAnimation,
                 $"production Waver initial requested selector {parameter}");
             AssertEqual(expected, waver.InstalledAnimation,
                 $"production Waver initial current selector {parameter}");
-            AssertEqual(new AnimationPlayback<WaverProgram>(WaverAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
+            AssertEqual(new AnimationPlayback<WaverSegment>(WaverAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
                 waver.Playback,
                 $"production Waver initial animation {parameter}");
         }
@@ -77,13 +77,13 @@ internal static class WaverAnimationDefinitionsVerification
     {
         for (int index = 0; index < 4; index++)
         {
-            WaverProgram animation = WaverNativeWords.Animations.Decode(index, "Waver animation index");
+            WaverSegment animation = WaverNativeWords.Animations.Decode(index, "Waver animation index");
             AssertEqual(WaverNativeWords.Animations.Decode((index ^ 1) & 1, "Waver animation index"),
-                WaverPrograms.TurnedAround(animation), $"Waver {animation} turned around by a wall");
+                WaverAnimationChoices.TurnedAround(animation), $"Waver {animation} turned around by a wall");
             AssertEqual(WaverNativeWords.Animations.Decode(index | 2, "Waver animation index"),
-                WaverPrograms.Spinning(animation), $"Waver {animation} spinning");
+                WaverAnimationChoices.Spinning(animation), $"Waver {animation} spinning");
             AssertEqual(WaverNativeWords.Animations.Decode(index & 1, "Waver animation index"),
-                WaverPrograms.SteadyWithSameFacing(animation), $"Waver {animation} after a spin");
+                WaverAnimationChoices.SteadyWithSameFacing(animation), $"Waver {animation} after a spin");
         }
     }
 }

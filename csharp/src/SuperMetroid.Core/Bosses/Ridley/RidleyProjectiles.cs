@@ -102,7 +102,7 @@ internal sealed class RidleyProjectiles
             projectile,
             RoomEnemyProjectileKind.CeresRidleyFireball,
             FireballGraphicsIndex);
-        projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballProgram.Fireball));
+        projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.Fireball));
         ApplyRidleyProjectileAreaDamage(projectile);
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(ridley.Position.X.Whole +
             (state.FacingDirection == RidleyFacing.Left ? -25 : 25)), CoordinateAxis.Wrap(ridley.Position.Y.Whole - 43)));
@@ -131,7 +131,7 @@ internal sealed class RidleyProjectiles
             RoomEnemyProjectileKind.MiscDustExplosion,
             graphics: default);
         dust.Position = dust.Position.WithWhole(position);
-        dust.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectiles.Program(animation)));
+        dust.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectiles.Animation(animation)));
     }
 
     /// <summary>Creates the stationary impact center that later emits a perpendicular afterburn pair.</summary>
@@ -175,7 +175,7 @@ internal sealed class RidleyProjectiles
         if (afterburn is null)
             return;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(afterburn, kind, FireballGraphicsIndex);
-        afterburn.StartAnimation(new RidleyFireballAnimation(RidleyFireballProgram.DirectionalAfterburn));
+        afterburn.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.DirectionalAfterburn));
         ApplyRidleyProjectileAreaDamage(afterburn);
         afterburn.Position = afterburn.Position.WithWhole(source.Position.Whole);
         afterburn.Velocity = velocity;
@@ -202,7 +202,7 @@ internal sealed class RidleyProjectiles
     /// <summary>Switches a collided branch to its final five-frame program without clearing its velocity or damage fields.</summary>
     internal static void BeginAfterburnFinalAnimation(EnemyProjectile projectile)
     {
-        projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballProgram.AfterburnFinal));
+        projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.AfterburnFinal));
         // The afterburns replace the list; its clear-frame-behaviour step stops motion.
         // Velocity and contact properties remain unchanged. The final list
         // clears movement, draws five frames, then deletes; it never disables damage.

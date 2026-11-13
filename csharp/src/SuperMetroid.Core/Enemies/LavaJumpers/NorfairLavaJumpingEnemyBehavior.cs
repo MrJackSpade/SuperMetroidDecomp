@@ -43,7 +43,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         var state = new NorfairLavaJumpingEnemyState
         {
             AnimationFinished = false,
-            InstalledProgram = null,
+            InstalledAnimation = null,
             IsFollower = slot.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower,
         };
         slot.SetSpeciesState(state);
@@ -56,7 +56,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
             _parents.Place(slot, _slotTable.ListedBefore(slot, 1));
             ValidateNorfairLavaJumpingEnemyParent(slot);
             _parentStates.Place(slot, GetPrecedingNorfairLavaJumpingEnemySlot(slot).RequireSpeciesState<NorfairLavaJumpingEnemyState>());
-            state.Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperProgram.Follower), AnimationPlace.StartOfAnimation);
+            state.Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation);
             state.Function = NorfairLavaJumpingEnemyFunction.FollowParent;
             return;
         }
@@ -64,7 +64,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         // The jumping parent returns to exactly these population coordinates after every
         // arc. Subpositions are deliberately not saved or cleared by the retail jump.
         state.SpawnPosition = slot.Position.Whole;
-        state.Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperProgram.Hidden), AnimationPlace.StartOfAnimation);
+        state.Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Hidden), AnimationPlace.StartOfAnimation);
         state.Function = NorfairLavaJumpingEnemyFunction.BeginJump;
     }
 
@@ -100,7 +100,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
                 // slower: starting jump velocities are near -2048, so the switch comes before the arc apex.
                 if (state.YVelocity.IsNegative && state.YVelocity >= NorfairLavaJumpingEnemyAnimationSwitchVelocity)
                 {
-                    InstallNorfairLavaJumpingEnemyProgram(slot, state, NorfairLavaJumperProgram.Jump);
+                    StartNorfairLavaJumpingEnemyAnimation(slot, state, NorfairLavaJumperSegment.Jump);
                     state.Function = NorfairLavaJumpingEnemyFunction.MoveUntilAnimationSignal;
                 }
                 return;
@@ -124,7 +124,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
                 if (RoomGridConversions.BlockRowWithinScreen(slot.Position.Y.Whole) == 15)
                 {
                     slot.Position = slot.Position.WithWhole(state.SpawnPosition);
-                    InstallNorfairLavaJumpingEnemyProgram(slot, state, NorfairLavaJumperProgram.Hidden);
+                    StartNorfairLavaJumpingEnemyAnimation(slot, state, NorfairLavaJumperSegment.Hidden);
                     state.Function = NorfairLavaJumpingEnemyFunction.BeginJump;
                     slot.Processing = slot.Processing.Without(EnemyProcessing.OffScreen);
                 }
@@ -204,13 +204,13 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     }
 
     /// <summary>Runs function six without restarting an unchanged animation.</summary>
-    private static void InstallNorfairLavaJumpingEnemyProgram(
+    private static void StartNorfairLavaJumpingEnemyAnimation(
         RoomEnemySlot slot,
         NorfairLavaJumpingEnemyState state,
-        NorfairLavaJumperProgram program) =>
-        EnemyProgramAnimation.InstallOnce(slot, state.InstalledProgram, program, installed =>
+        NorfairLavaJumperSegment program) =>
+        EnemyAnimationPlayback.StartOnce(slot, state.InstalledAnimation, program, installed =>
         {
-            state.InstalledProgram = installed;
+            state.InstalledAnimation = installed;
             state.Playback = new(NorfairLavaJumperAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
         });
 
@@ -223,8 +223,8 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     }
 
     /// <summary>Advances the Norfair lava-jumping enemy's typed animation.</summary>
-    internal static void AdvanceNorfairLavaJumpingEnemyTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, NorfairLavaJumperAnimations.Segments,
+    internal static void AdvanceNorfairLavaJumpingEnemyTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, NorfairLavaJumperAnimations.Segments,
             static (NorfairLavaJumpingEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

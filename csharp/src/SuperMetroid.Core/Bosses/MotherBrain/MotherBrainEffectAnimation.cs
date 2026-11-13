@@ -5,12 +5,12 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain effect's typed animation.</summary>
-internal sealed class MotherBrainEffectAnimation(MotherBrainEffectProgram program)
-    : EnemyProjectileFrameAnimation<MotherBrainEffectProgram, MotherBrainEffectCue>(MotherBrainEffectAnimations.StartingWith(program))
+internal sealed class MotherBrainEffectAnimation(MotherBrainEffectSegment program)
+    : EnemyProjectileFrameAnimation<MotherBrainEffectSegment, MotherBrainEffectCue>(MotherBrainEffectAnimations.StartingWith(program))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<MotherBrainEffectProgram, EnemyProjectileFrameId, MotherBrainEffectCue> Segments => MotherBrainEffectAnimations.Segments;
+    private protected override AnimationSegments<MotherBrainEffectSegment, EnemyProjectileFrameId, MotherBrainEffectCue> Segments => MotherBrainEffectAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<MotherBrainEffectProgram, Animation<MotherBrainEffectProgram>> StartingAt => MotherBrainEffectAnimations.StartingAt;
+    private protected override IReadOnlyDictionary<MotherBrainEffectSegment, Animation<MotherBrainEffectSegment>> StartingAt => MotherBrainEffectAnimations.StartingAt;
 }

@@ -36,14 +36,14 @@ internal static class MiscDustProjectileBehaviorVerification
             enemies.Projectiles.SpawnRoomGraphicsDustExplosion(new Position16<RoomPixels>(128, 96), animation);
             EnemyProjectile dust = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MiscDustExplosion);
-            MiscDustProjectileProgram program = MiscDustProjectiles.Program(animation);
+            MiscDustProjectileSegment program = MiscDustProjectiles.Animation(animation);
             AssertTrue(dust.Animation is MiscDustProjectileAnimation started && started.PlayingSegment == program,
                 $"misc-dust animation {animation} starts {program}");
 
             if (animation == MiscDustAnimation.UnusedLoopingElevatorPad)
             {
                 RunForcedTicks(rom, enemies, dust, samus, 4);
-                AssertTrue(dust.IsActive && dust.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustProjectileProgram.LoopingElevatorPad },
+                AssertTrue(dust.IsActive && dust.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustProjectileSegment.LoopingElevatorPad },
                     "room-system looping misc-dust animation keeps looping its program");
                 continue;
             }
@@ -70,7 +70,7 @@ internal static class MiscDustProjectileBehaviorVerification
                 new SharedGameState(new SharedRandom()));
             EnemyProjectile smoke = smokeEnemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
-            MiscDustProjectileProgram expected = MiscDustProjectiles.Program(animation);
+            MiscDustProjectileSegment expected = MiscDustProjectiles.Animation(animation);
             AssertTrue(smoke.Animation is MiscDustProjectileAnimation started && started.PlayingSegment == expected,
                 $"Eye Door {puff} starts {expected}");
             int smokeCalls = 0;
@@ -117,7 +117,7 @@ internal static class MiscDustProjectileBehaviorVerification
     internal static void Process(ISnesAddressSpace rom, RoomEnemySystem enemies, EnemyProjectile projectile, SamusState samus)
     {
         bool selectsFrame = projectile.FrameHold.RawValue == 1;
-        enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, samus, Position16<RoomPixels>.Zero);
+        enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, samus, Position16<RoomPixels>.Zero);
         if (!projectile.IsActive || !selectsFrame || projectile.FrameHold.IsZero || projectile.PresentationOperandAddress == 0)
             return;
         ushort operand = projectile.PresentationOperandAddress;

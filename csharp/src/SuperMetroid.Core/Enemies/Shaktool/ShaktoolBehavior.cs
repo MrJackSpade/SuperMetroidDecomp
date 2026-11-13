@@ -87,7 +87,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         state.OrbitAngle = definition.InitialOrbitAngle;
 
         // The segment's definition names the animation it starts.
-        state.Playback = new(ShaktoolAnimations.StartingWith(definition.InitialProgram), AnimationPlace.StartOfAnimation);
+        state.Playback = new(ShaktoolAnimations.StartingWith(definition.InitialAnimation), AnimationPlace.StartOfAnimation);
 
         // The leading saw is the chain's fixed anchor. Every later segment centers on the preceding segment's
         // position, subpixels included. Express that link structurally instead of treating queue scratch as an
@@ -186,7 +186,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             (RotationAngle.StepsPerTurn / ShaktoolOrbitDefinitions.OrientationBuckets);
         state.OrientationBucket = directionBucket;
         state.Playback = new(ShaktoolAnimations.StartingWith(
-            ShaktoolPrograms.ForOrientationBucket(directionBucket)), AnimationPlace.StartOfAnimation);
+            ShaktoolAnimationChoices.ForOrientationBucket(directionBucket)), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
     }
 
@@ -295,7 +295,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             CalculateShaktoolAngularVelocity(segmentState);
             segmentState.FrameBehavior = ShaktoolFrameBehavior.Idle;
             segmentState.Playback = new(ShaktoolAnimations.StartingWith(
-                ShaktoolPrograms.CollisionForSegment(index)), AnimationPlace.StartOfAnimation);
+                ShaktoolAnimationChoices.CollisionForSegment(index)), AnimationPlace.StartOfAnimation);
             segment.AnimationClock.StepOnNextUpdate();
         }
     }
@@ -521,13 +521,13 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Shaktool's typed animation.</summary>
-    internal void AdvanceShaktoolTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal void AdvanceShaktoolTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
         if (!slot.AnimationClock.Expire())
             return;
         var state = RequireShaktoolState(slot);
-        AnimationPlayback<ShaktoolProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, ShaktoolAnimations.Segments, ref playback,
+        AnimationPlayback<ShaktoolSegment> playback = state.Playback;
+        EnemyAnimationPlayback.Play(slot, ShaktoolAnimations.Segments, ref playback,
             cue =>
             {
                 ApplyShaktoolCue(slot, state, cue);

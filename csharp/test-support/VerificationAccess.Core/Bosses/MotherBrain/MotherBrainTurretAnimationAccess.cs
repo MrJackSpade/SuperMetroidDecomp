@@ -7,6 +7,6 @@ internal static class MotherBrainTurretAnimationAccess
     extension(MotherBrainTurretAnimation self)
     {
         /// <summary>The program of the segment played.</summary>
-        internal MotherBrainTurretProgram Program => self.PlayingSegment.Program;
+        internal MotherBrainTurretSegment Program => self.PlayingSegment.Animation;
     }
 }

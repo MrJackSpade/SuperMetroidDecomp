@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Enemies.Gunship.GunshipProgram;
+using P = SuperMetroid.Core.Enemies.Gunship.GunshipSegment;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 internal static class GunshipAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<GunshipProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<GunshipProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
+    internal static AnimationSegments<GunshipSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<GunshipSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.EntrancePadOpening] =
         [
@@ -57,7 +57,7 @@ internal static class GunshipAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<GunshipProgram, Animation<GunshipProgram>> StartingAt { get; } = new Dictionary<GunshipProgram, Animation<GunshipProgram>>
+    internal static IReadOnlyDictionary<GunshipSegment, Animation<GunshipSegment>> StartingAt { get; } = new Dictionary<GunshipSegment, Animation<GunshipSegment>>
     {
         [P.EntrancePadOpening] = new([new(P.EntrancePadOpening, 0, 10, 1), new(P.EntrancePadOpen, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
         [P.EntrancePadOpen] = new([new(P.EntrancePadOpen, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
@@ -68,7 +68,7 @@ internal static class GunshipAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<GunshipProgram> StartingWith(GunshipProgram segment) => StartingAt[segment];
+    internal static Animation<GunshipSegment> StartingWith(GunshipSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

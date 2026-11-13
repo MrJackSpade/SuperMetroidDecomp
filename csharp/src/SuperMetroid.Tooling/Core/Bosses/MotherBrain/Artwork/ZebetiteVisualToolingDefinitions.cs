@@ -25,7 +25,7 @@ internal static class ZebetiteVisualToolingDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(index), index, "Zebetites have ten health poses."),
     };
     /// <summary>The spritemaps the typed health programs show, in program order.</summary>
-    internal static ushort[] Spritemaps() => [.. Enum.GetValues<ZebetiteProgram>()
+    internal static ushort[] Spritemaps() => [.. Enum.GetValues<ZebetiteSegment>()
         .SelectMany(program => ZebetiteAnimations.Segments.Beats(program))
         .OfType<AnimationBeat<ZebetiteFrame, NoAnimationCue>.Frame>()
         .Select(beat => ZebetiteVisualToolingDefinitions.Spritemap(beat.Shown.Index))];

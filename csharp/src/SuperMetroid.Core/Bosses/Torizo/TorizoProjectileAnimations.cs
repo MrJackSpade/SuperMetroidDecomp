@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Bosses.Torizo.TorizoProjectileCueKind;
-using P = SuperMetroid.Core.Bosses.Torizo.TorizoProjectileProgram;
+using P = SuperMetroid.Core.Bosses.Torizo.TorizoProjectileSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class TorizoProjectileAnimations
 {
     /// <summary>Every projectile program.</summary>
-    internal static AnimationSegments<TorizoProjectileProgram, TorizoProjectileFrame, TorizoProjectileCue> Segments { get; } = new(
-        new Dictionary<TorizoProjectileProgram, AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue>[]>
+    internal static AnimationSegments<TorizoProjectileSegment, TorizoProjectileFrame, TorizoProjectileCue> Segments { get; } = new(
+        new Dictionary<TorizoProjectileSegment, AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue>[]>
     {
         [P.ExplosionLowHealthInitial] =
         [
@@ -502,7 +502,7 @@ internal static class TorizoProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<TorizoProjectileProgram, Animation<TorizoProjectileProgram>> StartingAt { get; } = new Dictionary<TorizoProjectileProgram, Animation<TorizoProjectileProgram>>
+    internal static IReadOnlyDictionary<TorizoProjectileSegment, Animation<TorizoProjectileSegment>> StartingAt { get; } = new Dictionary<TorizoProjectileSegment, Animation<TorizoProjectileSegment>>
     {
         [P.ExplosionLowHealthInitial] = new([new(P.ExplosionLowHealthInitial, 0, 2, 1), new(P.ExplosionLowHealthInitialLoop, 0, 8, 3), new(P.ExplosionLowHealthInitialLoop, 8, 1, 1)], AnimationEnd.Holds),
         [P.ExplosionDeathInitial] = new([new(P.ExplosionDeathInitial, 0, 3, 1), new(P.ExplosionDeathInitialLoop, 0, 9, 2), new(P.ExplosionDeathInitialLoop, 9, 1, 1)], AnimationEnd.Holds),
@@ -565,15 +565,15 @@ internal static class TorizoProjectileAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<TorizoProjectileProgram> StartingWith(TorizoProjectileProgram segment) => StartingAt[segment];
+    internal static Animation<TorizoProjectileSegment> StartingWith(TorizoProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>The program of statue fragment <paramref name="index"/>, of the sixteen the breaking statue hand emits.</summary>
-    internal static TorizoProjectileProgram StatueFragment(int index) => (uint)index < (uint)StatueFragments.Length
+    internal static TorizoProjectileSegment StatueFragment(int index) => (uint)index < (uint)StatueFragments.Length
         ? StatueFragments[index]
         : throw new ArgumentOutOfRangeException(nameof(index), index, "Bomb Torizo's statue hand emits sixteen fragments.");
 
     /// <summary>The sixteen statue fragments' programs, indexed by fragment.</summary>
-    private static readonly TorizoProjectileProgram[] StatueFragments =
+    private static readonly TorizoProjectileSegment[] StatueFragments =
     [
         P.StatueFragment0, P.StatueFragment1, P.StatueFragment2, P.StatueFragment3,
         P.StatueFragment4, P.StatueFragment5, P.StatueFragment6, P.StatueFragment7,
@@ -582,7 +582,7 @@ internal static class TorizoProjectileAnimations
     ];
 
     /// <summary>The program a sleeping egg resumes into when its hatch timer steps the list past the sleep.</summary>
-    internal static TorizoProjectileProgram AfterSleep(TorizoProjectileProgram program) => program switch
+    internal static TorizoProjectileSegment AfterSleep(TorizoProjectileSegment program) => program switch
     {
         P.EggBouncingLeft
             or P.EggBouncingRight => EnumOrder.Next(program),
@@ -651,7 +651,7 @@ internal static class TorizoProjectileAnimations
 
     /// <summary>Shows pose <paramref name="phase"/> of <paramref name="program"/> for <paramref name="duration"/> passes.</summary>
     private static AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue> Show(
-        TorizoProjectileProgram program, int phase, int duration) =>
+        TorizoProjectileSegment program, int phase, int duration) =>
         new AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue>.Frame(new(program, phase), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>

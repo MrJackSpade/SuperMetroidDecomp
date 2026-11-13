@@ -29,7 +29,7 @@ internal static class ReflectedEchoPicturesVerification
             foreach (SamusProjectileDirection direction in Enum.GetValues<SamusProjectileDirection>())
             {
                 // The program reflection restarts the echo in, as the enemy impact selects it.
-                if (SamusProjectileSelection.BeamShotProgram(reflected.BeamCombination, reflected.IsChargedBeam, direction) is not { } program)
+                if (SamusProjectileSelection.BeamShotAnimation(reflected.BeamCombination, reflected.IsChargedBeam, direction) is not { } program)
                     continue;
                 foreach (SamusProjectileFrame frame in ShownFrames(program))
                 {
@@ -55,7 +55,7 @@ internal static class ReflectedEchoPicturesVerification
     }
 
     /// <summary>Every frame the animation starting at <paramref name="start"/> shows, in every segment it plays.</summary>
-    private static HashSet<SamusProjectileFrame> ShownFrames(SamusProjectileProgram start) =>
+    private static HashSet<SamusProjectileFrame> ShownFrames(SamusProjectileSegment start) =>
         [.. SamusProjectileAnimations.StartingWith(start).Phases
             .SelectMany(phase => SamusProjectileAnimations.Segments.Beats(phase.Segment).Skip(phase.FirstBeat).Take(phase.BeatCount))
             .OfType<AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame>()

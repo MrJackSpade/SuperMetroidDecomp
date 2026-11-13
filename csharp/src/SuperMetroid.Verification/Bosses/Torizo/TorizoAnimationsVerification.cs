@@ -31,11 +31,11 @@ internal static class TorizoAnimationsVerification
     internal static void VerifyTorizoAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        AssertEqual(Enum.GetValues<TorizoBodyProgram>().Length, BodyEntries.Length, "every typed Torizo body segment has a native entry");
+        AssertEqual(Enum.GetValues<TorizoBodySegment>().Length, BodyEntries.Length, "every typed Torizo body segment has a native entry");
         for (int index = 0; index < BodyEntries.Length; index++)
-            AssertEqual((TorizoBodyProgram)index, BodyEntries[index].Program, "the Torizo body segments are declared in authored order");
+            AssertEqual((TorizoBodySegment)index, BodyEntries[index].Program, "the Torizo body segments are declared in authored order");
         AssertTrue(BodyEntries.Zip(BodyEntries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends), "native Torizo body entries ascend");
-        Dictionary<TorizoBodyProgram, NativeEnemyList<TorizoBodyProgram>> lists = BodyEntries.ToDictionary(entry => entry.Program,
+        Dictionary<TorizoBodySegment, NativeEnemyList<TorizoBodySegment>> lists = BodyEntries.ToDictionary(entry => entry.Program,
             entry => ReadBodyList(cartridge, entry.Program, entry.Entry));
         NativeEnemyAnimationOracle.CompareAnimations(lists, TorizoAnimations.StartingAt);
         int beats = lists.Values.Sum(list => list.BeatAddresses.Length);
@@ -52,11 +52,11 @@ internal static class TorizoAnimationsVerification
     /// Torizo instruction (with the fixed sleep two callbacks schedule, a wait beat at the instruction after the callback),
     /// and each control instruction with its address and the beat it follows.
     /// </summary>
-    private static NativeEnemyList<TorizoBodyProgram> ReadBodyList(IImportCartridgeSource cartridge, TorizoBodyProgram program, ushort entry)
+    private static NativeEnemyList<TorizoBodySegment> ReadBodyList(IImportCartridgeSource cartridge, TorizoBodySegment program, ushort entry)
     {
         IReadOnlyList<AnimationBeat<EnemyFrameId, TorizoCue>> beats = TorizoAnimations.Segments.Beats(program);
         var addresses = new List<ushort>();
-        var controls = new List<NativeEnemyControl<TorizoBodyProgram>>();
+        var controls = new List<NativeEnemyControl<TorizoBodySegment>>();
         ushort cursor = entry;
         AnimationBeat<EnemyFrameId, TorizoCue> Next(string what)
         {
@@ -112,7 +112,7 @@ internal static class TorizoAnimationsVerification
                     continue;
                 case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
                 {
-                    TorizoBodyProgram repeated = SegmentAt(operand, at);
+                    TorizoBodySegment repeated = SegmentAt(operand, at);
                     AssertEqual(program, repeated, $"{at}: a counted repeat replays its own list");
                     controls.Add(new(NativeEnemyControlKind.Repeat, addresses.Count, repeated, null, cursor));
                     cursor = unchecked((ushort)(cursor + 4));
@@ -190,21 +190,21 @@ internal static class TorizoAnimationsVerification
             break;
         }
         AssertEqual(beats.Count, addresses.Count, $"Torizo {program} holds each of its beats in its native list");
-        return new NativeEnemyList<TorizoBodyProgram>([.. addresses], [.. controls]);
+        return new NativeEnemyList<TorizoBodySegment>([.. addresses], [.. controls]);
     }
 
     /// <summary>The body segment whose native list starts at <paramref name="address"/>, failing when none does.</summary>
-    private static TorizoBodyProgram SegmentAt(ushort address, string at) =>
+    private static TorizoBodySegment SegmentAt(ushort address, string at) =>
         ProgramAt(address) ?? throw new InvalidDataException($"{at}: ${address:X4} is no body segment's native entry.");
 
     /// <summary>
     /// The AI resumes a sleeping list by stepping its pointer past the sleep; <see cref="TorizoAnimations.AfterSleep"/>
     /// must name the segment that starts there.
     /// </summary>
-    private static void VerifyResumedSleeps(IImportCartridgeSource cartridge, Dictionary<TorizoBodyProgram, NativeEnemyList<TorizoBodyProgram>> lists)
+    private static void VerifyResumedSleeps(IImportCartridgeSource cartridge, Dictionary<TorizoBodySegment, NativeEnemyList<TorizoBodySegment>> lists)
     {
         int resumed = 0;
-        foreach ((TorizoBodyProgram program, ushort entry) in BodyEntries)
+        foreach ((TorizoBodySegment program, ushort entry) in BodyEntries)
         {
             if (lists[program].Controls.LastOrDefault() is not { Kind: NativeEnemyControlKind.Sleep })
                 continue;

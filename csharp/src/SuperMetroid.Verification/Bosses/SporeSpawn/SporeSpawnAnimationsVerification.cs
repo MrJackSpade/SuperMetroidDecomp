@@ -32,9 +32,9 @@ internal static class SporeSpawnAnimationsVerification
     internal static void VerifySporeSpawnAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        AssertEqual(Enum.GetValues<SporeSpawnBodyProgram>().Length, BodyEntries.Length, "every typed Spore Spawn body program has a native entry");
+        AssertEqual(Enum.GetValues<SporeSpawnBodySegment>().Length, BodyEntries.Length, "every typed Spore Spawn body program has a native entry");
         for (int index = 0; index < BodyEntries.Length; index++)
-            AssertEqual((SporeSpawnBodyProgram)index, BodyEntries[index].Program, "the Spore Spawn body programs are declared in authored order");
+            AssertEqual((SporeSpawnBodySegment)index, BodyEntries[index].Program, "the Spore Spawn body programs are declared in authored order");
         AssertTrue(BodyEntries.Zip(BodyEntries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends), "native Spore Spawn body entries ascend");
         var body = BodyLists(cartridge);
         int updates = VerifyProjectilePrograms(rom);
@@ -45,16 +45,16 @@ internal static class SporeSpawnAnimationsVerification
     }
 
     /// <summary>Each body segment's native entry, in authored order.</summary>
-    private static NativeProgramEntry<SporeSpawnBodyProgram>[] BodyListEntries =>
-        [.. BodyEntries.Select(item => new NativeProgramEntry<SporeSpawnBodyProgram>(item.Program, item.Entry))];
+    private static NativeProgramEntry<SporeSpawnBodySegment>[] BodyListEntries =>
+        [.. BodyEntries.Select(item => new NativeProgramEntry<SporeSpawnBodySegment>(item.Program, item.Entry))];
 
     /// <summary>
     /// Compares every body segment with its native list and every body animation with the lists' control flow, and
     /// returns each list's beat and control addresses, which translate a typed playback to the native pointer.
     /// </summary>
-    internal static Dictionary<SporeSpawnBodyProgram, NativeEnemyList<SporeSpawnBodyProgram>> BodyLists(IImportCartridgeSource cartridge)
+    internal static Dictionary<SporeSpawnBodySegment, NativeEnemyList<SporeSpawnBodySegment>> BodyLists(IImportCartridgeSource cartridge)
     {
-        Dictionary<SporeSpawnBodyProgram, NativeEnemyList<SporeSpawnBodyProgram>> lists = NativeEnemyAnimationOracle.Lists(cartridge, BodyBankNumber,
+        Dictionary<SporeSpawnBodySegment, NativeEnemyList<SporeSpawnBodySegment>> lists = NativeEnemyAnimationOracle.Lists(cartridge, BodyBankNumber,
             BodyListEntries, SporeSpawnAnimations.Segments, SporeSpawnFrameDefinitionsConstants.Spritemap,
             new NativeEnemyCueRules<SporeSpawnCue>(
                 word => BodyInstructions.TryGetValue(word, out var instruction) ? instruction.Operands : null,
@@ -109,7 +109,7 @@ internal static class SporeSpawnAnimationsVerification
         BodyEntries.Sum(item => SporeSpawnAnimations.Segments.Beats(item.Program).Count(beat => beat is AnimationBeat<SporeSpawnFrame, SporeSpawnCue>.Frame));
 
     /// <summary>The native instruction pointer of Spore Spawn's body, translated from its typed playback.</summary>
-    internal static ushort NativeBodyInstruction(Dictionary<SporeSpawnBodyProgram, NativeEnemyList<SporeSpawnBodyProgram>> lists, SporeSpawnEnemyState state) =>
+    internal static ushort NativeBodyInstruction(Dictionary<SporeSpawnBodySegment, NativeEnemyList<SporeSpawnBodySegment>> lists, SporeSpawnEnemyState state) =>
         NativeEnemyAnimationOracle.PointerOf(lists, BodyListEntries, SporeSpawnAnimations.StartingAt, state.BodyPlayback);
 
     /// <summary>
@@ -120,20 +120,20 @@ internal static class SporeSpawnAnimationsVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int updates = 0;
-        foreach ((SporeSpawnProjectileProgram program, ushort entry) in ProjectileEntries)
+        foreach ((SporeSpawnProjectileSegment program, ushort entry) in ProjectileEntries)
         {
             RoomEnemySystem enemies = NewProjectileSystem();
             enemies.SporeSpawnBehavior.SpawnSporeSpawnSpore(new(128, 256));
             EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.SporeSpawnSpore);
             AssertTrue(projectile.Animation is SporeSpawnProjectileAnimation started &&
-                started.Playback == new AnimationPlayback<SporeSpawnProjectileProgram>(SporeSpawnProjectileAnimations.StartingWith(SporeSpawnProjectileProgram.Spore), AnimationPlace.StartOfAnimation),
+                started.Playback == new AnimationPlayback<SporeSpawnProjectileSegment>(SporeSpawnProjectileAnimations.StartingWith(SporeSpawnProjectileSegment.Spore), AnimationPlace.StartOfAnimation),
                 "the real spore producer starts the falling-spore program");
             projectile.StartAnimation(new SporeSpawnProjectileAnimation(program));
             var native = new NativeEnemyProjectileListReader(entry, projectile.FrameHold.RawValue);
             int drops = 0;
             for (int update = 0; update < 48 && !native.Deleted; update++, updates++)
             {
-                enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero);
+                enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero);
                 native.Step(cartridge);
                 drops += native.Callbacks.Count(callback => callback == NativeEnemyProjectileInstruction.Spores_SpawnEnemyDrops);
                 string at = $"Spore Spawn projectile {program} update {update}";
@@ -144,7 +144,7 @@ internal static class SporeSpawnAnimationsVerification
                 AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
             }
             AssertEqual(drops, enemies.SporeSpawnDropRequests.Count, $"Spore Spawn projectile {program}: drop requests");
-            AssertEqual(program == SporeSpawnProjectileProgram.SporeShot, native.Deleted, $"Spore Spawn projectile {program}: only the shot deletes");
+            AssertEqual(program == SporeSpawnProjectileSegment.SporeShot, native.Deleted, $"Spore Spawn projectile {program}: only the shot deletes");
         }
         return updates;
     }
@@ -164,7 +164,7 @@ internal static class SporeSpawnAnimationsVerification
 
     /// <summary>Runs <paramref name="program"/> on an initialized Spore Spawn fixture for a fixed number of enemy frames.</summary>
     internal static RunSporeSpawnProgramResult RunSporeSpawnProgram(
-        SporeSpawnBodyProgram program,
+        SporeSpawnBodySegment program,
         int frames,
         ImportEnemyArtwork? artwork = null,
         Action<RoomEnemySystem, RoomEnemySlot>? afterFrame = null)
@@ -185,7 +185,7 @@ internal static class SporeSpawnAnimationsVerification
             MovementCenter = body.Position.Whole,
             MaximumXRadius = 48,
             AngleDelta = 1,
-            BodyPlayback = new AnimationPlayback<SporeSpawnBodyProgram>(SporeSpawnAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
+            BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
         };
         enemies.VerificationServices().NextRandom = () => 4660;
         enemies.DeathsAndDrops.BindSamus(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 99, MaxHealth = 99 });
@@ -193,7 +193,7 @@ internal static class SporeSpawnAnimationsVerification
 
         for (int frame = 0; frame < frames; frame++)
         {
-            EnemyInstructionInterpreter.RunsAnimationScript(body, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+            EnemyAnimationPlayer.AdvanceAnimation(body, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
             afterFrame?.Invoke(enemies, body);
         }
         return new RunSporeSpawnProgramResult(enemies, body);

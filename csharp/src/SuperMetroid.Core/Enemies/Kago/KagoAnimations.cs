@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Enemies.Kago.KagoProgram;
+using P = SuperMetroid.Core.Enemies.Kago.KagoSegment;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Kago;
 internal static class KagoAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<KagoProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<KagoProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
+    internal static AnimationSegments<KagoSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<KagoSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.Slow] =
         [
@@ -31,14 +31,14 @@ internal static class KagoAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<KagoProgram, Animation<KagoProgram>> StartingAt { get; } = new Dictionary<KagoProgram, Animation<KagoProgram>>
+    internal static IReadOnlyDictionary<KagoSegment, Animation<KagoSegment>> StartingAt { get; } = new Dictionary<KagoSegment, Animation<KagoSegment>>
     {
         [P.Slow] = new([new(P.Slow, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.Fast] = new([new(P.Fast, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<KagoProgram> StartingWith(KagoProgram segment) => StartingAt[segment];
+    internal static Animation<KagoSegment> StartingWith(KagoSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

@@ -12,81 +12,81 @@ internal static class EndingActorDefinitions
 {
     /// <summary>Yellow-cloud right actor: origin (320,192) pixels.</summary>
     internal static readonly EndingSpriteDefinition EscapeACloudRightTop =
-        EndingSpriteDefinition.At(new(320, 192), EndingSpriteColouring.Clouds, CinematicSpriteProgram.EndingCloud4);
+        EndingSpriteDefinition.At(new(320, 192), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud4);
     /// <summary>Yellow-cloud left actor: origin (-64,64) pixels.</summary>
     internal static readonly EndingSpriteDefinition EscapeACloudLeftTop =
-        EndingSpriteDefinition.At(new(-64, 64), EndingSpriteColouring.Clouds, CinematicSpriteProgram.EndingCloud5);
+        EndingSpriteDefinition.At(new(-64, 64), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud5);
     /// <summary>Yellow-cloud right actor's second placement: origin (320,448) pixels.</summary>
     internal static readonly EndingSpriteDefinition EscapeACloudRightBottom =
-        EndingSpriteDefinition.At(new(320, 448), EndingSpriteColouring.Clouds, CinematicSpriteProgram.EndingCloud4);
+        EndingSpriteDefinition.At(new(320, 448), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud4);
     /// <summary>Yellow-cloud left actor's second placement: origin (-64,-192) pixels.</summary>
     internal static readonly EndingSpriteDefinition EscapeACloudLeftBottom =
-        EndingSpriteDefinition.At(new(-64, -192), EndingSpriteColouring.Clouds, CinematicSpriteProgram.EndingCloud5);
+        EndingSpriteDefinition.At(new(-64, -192), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud5);
     /// <summary>First upper cloud, parameter zero, origin (128,-96).</summary>
     internal static readonly EndingSpriteDefinition EscapeBCloudTopA =
-        EndingSpriteDefinition.At(new(128, -96), EndingSpriteColouring.Clouds, CinematicSpriteProgram.EndingCloud0);
+        EndingSpriteDefinition.At(new(128, -96), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud0);
     /// <summary>Second upper cloud, parameter zero, origin (128,-32).</summary>
     internal static readonly EndingSpriteDefinition EscapeBCloudTopB =
-        EndingSpriteDefinition.At(new(128, -32), EndingSpriteColouring.Clouds, CinematicSpriteProgram.EndingCloud1);
+        EndingSpriteDefinition.At(new(128, -32), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud1);
     /// <summary>First lower cloud, parameter zero, origin (128,288).</summary>
     internal static readonly EndingSpriteDefinition EscapeBCloudBottomA =
-        EndingSpriteDefinition.At(new(128, 288), EndingSpriteColouring.Clouds, CinematicSpriteProgram.EndingCloud2);
+        EndingSpriteDefinition.At(new(128, 288), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud2);
     /// <summary>Second lower cloud, parameter zero, origin (128,352).</summary>
     internal static readonly EndingSpriteDefinition EscapeBCloudBottomB =
-        EndingSpriteDefinition.At(new(128, 352), EndingSpriteColouring.Clouds, CinematicSpriteProgram.EndingCloud3);
+        EndingSpriteDefinition.At(new(128, 352), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud3);
     /// <summary>Planet actor at (128,128) pixels.</summary>
     internal static readonly EndingSpriteDefinition ExplodingZebes =
-        EndingSpriteDefinition.At(new(128, 128), EndingSpriteColouring.ExplodingPlanet, CinematicSpriteProgram.ZebesExplosionPlanet);
+        EndingSpriteDefinition.At(new(128, 128), EndingSpriteColouring.ExplodingPlanet, CinematicSpriteSegment.ZebesExplosionPlanet);
     /// <summary>Explosion lava overlay at (128,128) pixels.</summary>
     internal static readonly EndingSpriteDefinition ExplosionLava =
-        EndingSpriteDefinition.At(new(128, 128), EndingSpriteColouring.ExplosionLava, CinematicSpriteProgram.ZebesExplosionLava);
+        EndingSpriteDefinition.At(new(128, 128), EndingSpriteColouring.ExplosionLava, CinematicSpriteSegment.ZebesExplosionLava);
     /// <summary>Purple-glow actor: origin (128,128) pixels.</summary>
     internal static readonly EndingSpriteDefinition ExplosionGlow =
-        EndingSpriteDefinition.At(new(128, 128), EndingSpriteColouring.ExplodingPlanet, CinematicSpriteProgram.ZebesExplosionGlow);
+        EndingSpriteDefinition.At(new(128, 128), EndingSpriteColouring.ExplodingPlanet, CinematicSpriteSegment.ZebesExplosionGlow);
     /// <summary>Explosion-stars actor: origin (128,128) pixels.</summary>
     internal static readonly EndingSpriteDefinition ExplosionStars =
-        EndingSpriteDefinition.At(new(128, 128), EndingSpriteColouring.ExplodingPlanet, CinematicSpriteProgram.ZebesExplosionStars);
+        EndingSpriteDefinition.At(new(128, 128), EndingSpriteColouring.ExplodingPlanet, CinematicSpriteSegment.ZebesExplosionStars);
     /// <summary>Explosion silhouette: origin (128,128) pixels.</summary>
     internal static readonly EndingSpriteDefinition ExplosionSilhouette =
-        EndingSpriteDefinition.At(new(128, 128), EndingSpriteColouring.ExplosionLava, CinematicSpriteProgram.ZebesExplosionSilhouette);
+        EndingSpriteDefinition.At(new(128, 128), EndingSpriteColouring.ExplosionLava, CinematicSpriteSegment.ZebesExplosionSilhouette);
     /// <summary>Right-hand explosion-stars actor: origin (128,128) pixels.</summary>
     internal static readonly EndingSpriteDefinition ExplosionStarsRight =
-        EndingSpriteDefinition.At(new(128, 128), EndingSpriteColouring.ExplodingPlanet, CinematicSpriteProgram.ZebesExplosionRightStars);
+        EndingSpriteDefinition.At(new(128, 128), EndingSpriteColouring.ExplodingPlanet, CinematicSpriteSegment.ZebesExplosionRightStars);
     /// <summary>Left-hand explosion-stars actor: origin (-128,128) pixels.</summary>
     internal static readonly EndingSpriteDefinition ExplosionStarsLeft =
-        EndingSpriteDefinition.At(new(-128, 128), EndingSpriteColouring.ExplodingPlanet, CinematicSpriteProgram.ZebesExplosionLeftStars);
+        EndingSpriteDefinition.At(new(-128, 128), EndingSpriteColouring.ExplodingPlanet, CinematicSpriteSegment.ZebesExplosionLeftStars);
     /// <summary>Zebes afterglow: origin (128,128) pixels.</summary>
     internal static readonly EndingSpriteDefinition ExplosionAfterglow =
-        EndingSpriteDefinition.At(new(128, 128), EndingSpriteColouring.ExplosionAfterglow, CinematicSpriteProgram.ZebesExplosionAfterglow);
+        EndingSpriteDefinition.At(new(128, 128), EndingSpriteColouring.ExplosionAfterglow, CinematicSpriteSegment.ZebesExplosionAfterglow);
     /// <summary>THE OPERATION WAS actor: origin (128,96) pixels.</summary>
     internal static readonly EndingSpriteDefinition OperationWasText =
-        EndingSpriteDefinition.At(new(128, 96), EndingSpriteColouring.CompletionText, CinematicSpriteProgram.OperationWasText);
+        EndingSpriteDefinition.At(new(128, 96), EndingSpriteColouring.CompletionText, CinematicSpriteSegment.OperationWasText);
     /// <summary>COMPLETED SUCCESSFULLY actor: origin (128,96) pixels.</summary>
     internal static readonly EndingSpriteDefinition CompletedSuccessfullyText =
-        EndingSpriteDefinition.At(new(128, 96), EndingSpriteColouring.CompletionText, CinematicSpriteProgram.CompletedSuccessfullyText);
+        EndingSpriteDefinition.At(new(128, 96), EndingSpriteColouring.CompletionText, CinematicSpriteSegment.CompletedSuccessfullyText);
     /// <summary>The clear-time label actor at (128,160) pixels.</summary>
     internal static readonly EndingSpriteDefinition ClearTimeText =
-        EndingSpriteDefinition.At(new(128, 160), EndingSpriteColouring.ClearTimeLabel, CinematicSpriteProgram.ClearTimeText);
+        EndingSpriteDefinition.At(new(128, 160), EndingSpriteColouring.ClearTimeLabel, CinematicSpriteSegment.ClearTimeText);
     /// <summary>Clear-time colon actor at (172,160) pixels, in the clear-time digits' colours.</summary>
     internal static readonly EndingSpriteDefinition ClearTimeColon =
-        EndingSpriteDefinition.At(new(172, 160), EndingSpriteColouring.ClearTimeDigits, CinematicSpriteProgram.ClearTimeColon);
+        EndingSpriteDefinition.At(new(172, 160), EndingSpriteColouring.ClearTimeDigits, CinematicSpriteSegment.ClearTimeColon);
     /// <summary>Shared clear-time digit origin Y=160 screen pixels, aligned with the label and colon.</summary>
     public const int ClearTimeDigitY = 160;
     /// <summary>Suitless idle-body actor: origin (120,136) pixels.</summary>
     internal static readonly EndingSpriteDefinition SuitlessRewardBody =
-        EndingSpriteDefinition.At(new(120, 136), EndingSpriteColouring.SuitlessSamus, CinematicSpriteProgram.SuitlessIdle);
+        EndingSpriteDefinition.At(new(120, 136), EndingSpriteColouring.SuitlessSamus, CinematicSpriteSegment.SuitlessIdle);
     /// <summary>Suitless idle-legs actor at the shared origin (120,136) pixels.</summary>
     internal static readonly EndingSpriteDefinition SuitlessRewardLegs =
-        EndingSpriteDefinition.At(new(120, 136), EndingSpriteColouring.SuitlessSamus, CinematicSpriteProgram.SuitlessLegsIdle);
+        EndingSpriteDefinition.At(new(120, 136), EndingSpriteColouring.SuitlessSamus, CinematicSpriteSegment.SuitlessLegsIdle);
     /// <summary>Suited idle-body actor: origin (120,152) pixels.</summary>
     internal static readonly EndingSpriteDefinition ArmoredRewardBody =
-        EndingSpriteDefinition.At(new(120, 152), EndingSpriteColouring.SuitedSamus, CinematicSpriteProgram.SuitedIdle);
+        EndingSpriteDefinition.At(new(120, 152), EndingSpriteColouring.SuitedSamus, CinematicSpriteSegment.SuitedIdle);
     /// <summary>Helmetless suited-head actor: origin (121,107) pixels.</summary>
     internal static readonly EndingSpriteDefinition HelmetlessRewardHead =
-        EndingSpriteDefinition.At(new(121, 107), EndingSpriteColouring.SuitlessSamus, CinematicSpriteProgram.HeadIdle);
+        EndingSpriteDefinition.At(new(121, 107), EndingSpriteColouring.SuitlessSamus, CinematicSpriteSegment.HeadIdle);
     /// <summary>Helmeted suited-head actor: origin (124,108) pixels.</summary>
     internal static readonly EndingSpriteDefinition ArmoredRewardHead =
-        EndingSpriteDefinition.At(new(124, 108), EndingSpriteColouring.SuitedSamus, CinematicSpriteProgram.HelmetIdle);
+        EndingSpriteDefinition.At(new(124, 108), EndingSpriteColouring.SuitedSamus, CinematicSpriteSegment.HelmetIdle);
     /// <summary>The colouring the clear time's digits draw in, as the colon does.</summary>
     internal const EndingSpriteColouring ClearTimeDigitColouring = EndingSpriteColouring.ClearTimeDigits;
 

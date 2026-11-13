@@ -51,24 +51,24 @@ public sealed class PhantoonEnemyState
     /// The body's animation playback (#641, #1600). Every part's playback is the invulnerable body's until the part's
     /// initialization installs its own.
     /// </summary>
-    private AnimationPlayback<PhantoonPartProgram> _bodyPlayback = Starting(PhantoonPartProgram.InvulnerableBody);
+    private AnimationPlayback<PhantoonPartSegment> _bodyPlayback = Starting(PhantoonPartSegment.InvulnerableBody);
 
     /// <summary>The eye's animation playback.</summary>
-    private AnimationPlayback<PhantoonPartProgram> _eyePlayback = Starting(PhantoonPartProgram.InvulnerableBody);
+    private AnimationPlayback<PhantoonPartSegment> _eyePlayback = Starting(PhantoonPartSegment.InvulnerableBody);
 
     /// <summary>The tentacles' animation playback.</summary>
-    private AnimationPlayback<PhantoonPartProgram> _tentaclesPlayback = Starting(PhantoonPartProgram.InvulnerableBody);
+    private AnimationPlayback<PhantoonPartSegment> _tentaclesPlayback = Starting(PhantoonPartSegment.InvulnerableBody);
 
     /// <summary>The mouth's animation playback.</summary>
-    private AnimationPlayback<PhantoonPartProgram> _mouthPlayback = Starting(PhantoonPartProgram.InvulnerableBody);
+    private AnimationPlayback<PhantoonPartSegment> _mouthPlayback = Starting(PhantoonPartSegment.InvulnerableBody);
 
     /// <summary>The animation starting at <paramref name="program"/>, before its first play.</summary>
-    internal static AnimationPlayback<PhantoonPartProgram> Starting(PhantoonPartProgram program) =>
+    internal static AnimationPlayback<PhantoonPartSegment> Starting(PhantoonPartSegment program) =>
         new(PhantoonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
 
     /// <summary>The animation playback of <paramref name="part"/>, which is Phantoon's body or one of his attached parts.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="part"/> is not one of Phantoon's parts.</exception>
-    internal ref AnimationPlayback<PhantoonPartProgram> PartPlayback(RoomEnemySlot part)
+    internal ref AnimationPlayback<PhantoonPartSegment> PartPlayback(RoomEnemySlot part)
     {
         Ensure.NotNull(part);
         if (ReferenceEquals(part, Body))

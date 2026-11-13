@@ -41,13 +41,13 @@ internal static class AlcoonFireballBehaviorVerification
         AssertEqual(6, fireballs.Length, "all three fire commands spawn in both facings");
         foreach (EnemyProjectile fireball in fireballs)
         {
-            AssertTrue(fireball.Animation is AlcoonFireballAnimation { PlayingSegment: AlcoonFireballProgram.Initial }, "a fireball starts its typed program");
+            AssertTrue(fireball.Animation is AlcoonFireballAnimation { PlayingSegment: AlcoonFireballSegment.Initial }, "a fireball starts its typed program");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, fireball,
-                NativeEnemyProjectileProgramOracle.EntryOf(AlcoonFireballNativeListAddresses.Entries, AlcoonFireballProgram.Initial), 30, "Alcoon fireball");
+                NativeEnemyProjectileProgramOracle.EntryOf(AlcoonFireballNativeListAddresses.Entries, AlcoonFireballSegment.Initial), 30, "Alcoon fireball");
             AssertTrue(!deleted, "a fireball loops until it is shot or leaves");
         }
         fireballs[0].StartAnimation(EnemyProjectileDeleteAnimation.Instance);
-        enemies.Projectiles.ProcessEnemyProjectileInstructions(fireballs[0], null, Position16<RoomPixels>.Zero);
+        enemies.Projectiles.AdvanceEnemyProjectileAnimations(fireballs[0], null, Position16<RoomPixels>.Zero);
         AssertTrue(!fireballs[0].IsActive, "the shared shot list still deletes a fireball");
         foreach (EnemyProjectileFrameId frame in AlcoonFireballFrameToolingDefinitions.Frames)
         {

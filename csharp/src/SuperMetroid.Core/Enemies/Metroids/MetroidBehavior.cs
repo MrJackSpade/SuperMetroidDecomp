@@ -96,7 +96,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             IceDamageToFreeze = slot.SpawnSettings<MetroidSpawnSettings>().IceDamageToFreeze,
         };
         slot.SetSpeciesState(state);
-        state.Playback = new(MetroidAnimations.StartingWith(MetroidProgram.ChasingSamus), AnimationPlace.StartOfAnimation);
+        state.Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Runs a Metroid's per-frame behaviour and its four-entry movement dispatch.</summary>
@@ -211,7 +211,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Function = MetroidAiFunction.Homing;
-        SetMetroidProgram(slot, state, MetroidProgram.ChasingSamus);
+        SetMetroidAnimation(slot, state, MetroidSegment.ChasingSamus);
     }
 
     /// <summary>Runs the family-specific tail of a frozen Metroid's update.</summary>
@@ -224,8 +224,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.FlashTimer = 2;
         }
 
-        FreezeMetroidOuterBody(state.OuterBodyA, MetroidOuterBodyDefinitions.OuterBodyAFrozenProgram);
-        FreezeMetroidOuterBody(state.OuterBodyB, MetroidOuterBodyDefinitions.OuterBodyBFrozenProgram);
+        FreezeMetroidOuterBody(state.OuterBodyA, MetroidOuterBodyDefinitions.OuterBodyAFrozenAnimation);
+        FreezeMetroidOuterBody(state.OuterBodyB, MetroidOuterBodyDefinitions.OuterBodyBFrozenAnimation);
     }
 
     /// <summary>
@@ -263,7 +263,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     state,
                     SignedSixteenSixteen.FromSixteenthsOfPixel(4 * CoordinateAxis.Difference(slot.Position.Y.Whole, targetY)));
                 state.Function = MetroidAiFunction.Homing;
-                SetMetroidProgram(slot, state, MetroidProgram.ChasingSamus);
+                SetMetroidAnimation(slot, state, MetroidSegment.ChasingSamus);
             }
             return;
         }
@@ -287,7 +287,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Function = MetroidAiFunction.AttachedToSamus;
         samus.MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext;
-        SetMetroidProgram(slot, state, MetroidProgram.DrainingSamus);
+        SetMetroidAnimation(slot, state, MetroidSegment.DrainingSamus);
     }
 
     /// <summary>Subtracts one health at suit-dependent fractional intervals without ordinary hurt flash or knockback.</summary>
@@ -334,7 +334,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             state,
             SignedSixteenSixteen.FromSixteenthsOfPixel(2 * CoordinateAxis.Difference(slot.Position.Y.Whole, recoilOrigin.Y)));
         state.Function = MetroidAiFunction.Homing;
-        SetMetroidProgram(slot, state, MetroidProgram.ChasingSamus);
+        SetMetroidAnimation(slot, state, MetroidSegment.ChasingSamus);
 
         if (collisionProjectileType.BeamCombination.HasIce)
         {
@@ -360,7 +360,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.EscapeTimer = MetroidEscapeDuration;
         state.Function = MetroidAiFunction.PowerBombEscape;
-        SetMetroidProgram(slot, state, MetroidProgram.ChasingSamus);
+        SetMetroidAnimation(slot, state, MetroidSegment.ChasingSamus);
         if (samus is not null)
             samus.MetroidAttachmentPalette = SamusMetroidAttachmentPalette.Inactive;
     }
@@ -419,7 +419,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Switches an outer-body sprite to frozen art without resetting its retained frame timer.</summary>
     private static void FreezeMetroidOuterBody(
         RoomSpriteObject outerBody,
-        RoomSpriteObjectProgram frozenProgram)
+        RoomSpriteObjectSegment frozenProgram)
     {
         outerBody.Graphics = MetroidOuterBodyDefinitions.FrozenGraphics;
         outerBody.UpdatesDisabled = true;
@@ -429,7 +429,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Restarts a Metroid animation at timer one after its function changes.</summary>
-    private static void SetMetroidProgram(RoomEnemySlot slot, MetroidEnemyState state, MetroidProgram program)
+    private static void SetMetroidAnimation(RoomEnemySlot slot, MetroidEnemyState state, MetroidSegment program)
     {
         state.Playback = new(MetroidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
@@ -459,8 +459,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Metroid's typed animation.</summary>
-    internal void AdvanceMetroidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, MetroidAnimations.Segments,
+    internal void AdvanceMetroidTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, MetroidAnimations.Segments,
             static (MetroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

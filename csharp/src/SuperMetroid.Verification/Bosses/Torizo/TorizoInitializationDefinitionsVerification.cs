@@ -22,7 +22,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeAnimationScripts + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakePropertyMasks + variant * 2),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeXRadii + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeYRadii + variant * 2)];
             var compiled = variant == 0 ? TorizoInitializationDefinitions.Bomb : TorizoInitializationDefinitions.Golden;
-            ushort[] actual = [compiled.Position.X, compiled.Position.Y, TorizoNativeListAddresses.Entry(compiled.Program), checked((ushort)EnemyPropertyWordCodec.EncodePropertyWord(new EnemyPropertyState(EnemyContact.None, compiled.Processing, EnemyPresence.None, CollidesByFrameHitboxes: false, NewInstructionFrame: false))), compiled.Radius.X, compiled.Radius.Y];
+            ushort[] actual = [compiled.Position.X, compiled.Position.Y, TorizoNativeListAddresses.Entry(compiled.Animation), checked((ushort)EnemyPropertyWordCodec.EncodePropertyWord(new EnemyPropertyState(EnemyContact.None, compiled.Processing, EnemyPresence.None, CollidesByFrameHitboxes: false, NewInstructionFrame: false))), compiled.Radius.X, compiled.Radius.Y];
             AssertTrue(native.SequenceEqual(actual), "Every Torizo initialization record word matches ROM");
 
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));

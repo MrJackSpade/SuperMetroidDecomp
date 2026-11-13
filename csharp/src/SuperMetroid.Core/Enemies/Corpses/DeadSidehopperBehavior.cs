@@ -46,7 +46,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Carries out the dead Sidehopper's animation cue.</summary>
-    private static DeadTourianProgram? ApplyDeadSidehopperCue(RoomEnemySlot slot, DeadTourianCue cue)
+    private static DeadTourianSegment? ApplyDeadSidehopperCue(RoomEnemySlot slot, DeadTourianCue cue)
     {
         switch (cue.Kind)
         {
@@ -102,7 +102,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(
             slot,
             graphicsVariant: 0);
-        SetDeadSidehopperProgram(slot, state, DeadTourianProgram.SidehopperIdle);
+        SetDeadSidehopperAnimation(slot, state, DeadTourianSegment.SidehopperIdle);
         state.Function = DeadSidehopperAiFunction.AliveWaitForCamera;
         // The victim shows the colours the Shitroid's entry gives it, the target the room's colours fade to (#1512).
         state.DrainStage = 0;
@@ -116,7 +116,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(
             slot,
             graphicsVariant: 2);
-        SetDeadSidehopperProgram(slot, state, DeadTourianProgram.SidehopperInitiallyDead);
+        SetDeadSidehopperAnimation(slot, state, DeadTourianSegment.SidehopperInitiallyDead);
         state.DrainStage = null;
         slot.Shading = state.Shading;
         state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
@@ -167,7 +167,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 if (MoveDeadSidehopper(slot, state, level))
                 {
                     state.JumpPhase = (state.JumpPhase + 1) % DeadSidehopperLaunchDefinitions.PhaseCount;
-                    SetDeadSidehopperProgram(slot, state, DeadTourianProgram.SidehopperHopping);
+                    SetDeadSidehopperAnimation(slot, state, DeadTourianSegment.SidehopperHopping);
                     state.Function = DeadSidehopperAiFunction.NoOperation;
                 }
                 return;
@@ -191,7 +191,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 }
 
                 state.Function = DeadSidehopperAiFunction.ActivatedMovement;
-                SetDeadSidehopperProgram(slot, state, DeadTourianProgram.SidehopperIdle);
+                SetDeadSidehopperAnimation(slot, state, DeadTourianSegment.SidehopperIdle);
                 state.Velocity = DeadSidehopperLaunchDefinitions.Velocity(state.JumpPhase);
                 return;
 
@@ -311,7 +311,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         if (!state.IsDrained)
             return;
 
-        SetDeadSidehopperProgram(slot, state, DeadTourianProgram.SidehopperCorpse);
+        SetDeadSidehopperAnimation(slot, state, DeadTourianSegment.SidehopperCorpse);
         state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
         slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
         slot.Radius = slot.Radius.WithY(12);
@@ -420,14 +420,14 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
 
     /// <summary>Starts a new dead Sidehopper animation, resetting both instruction clocks before its first step runs.</summary>
-    internal static void SetDeadSidehopperProgram(RoomEnemySlot slot, DeadSidehopperEnemyState state, DeadTourianProgram program) =>
-        state.Playback = StartDeadTourianProgram(slot, program);
+    internal static void SetDeadSidehopperAnimation(RoomEnemySlot slot, DeadSidehopperEnemyState state, DeadTourianSegment program) =>
+        state.Playback = StartDeadTourianAnimation(slot, program);
 
     /// <summary>Resets <paramref name="slot"/>'s instruction clocks and returns the playback of <paramref name="program"/>'s animation from its start.</summary>
-    internal static AnimationPlayback<DeadTourianProgram> StartDeadTourianProgram(RoomEnemySlot slot, DeadTourianProgram program)
+    internal static AnimationPlayback<DeadTourianSegment> StartDeadTourianAnimation(RoomEnemySlot slot, DeadTourianSegment program)
     {
         slot.AnimationClock.Restart();
-        return new AnimationPlayback<DeadTourianProgram>(DeadTourianAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        return new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Rejects missing or mismatched private state before dispatching the slot's corpse AI.</summary>
@@ -456,15 +456,15 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Advances the dead Sidehopper's typed animation.</summary>
-    internal static void AdvanceDeadSidehopperTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal static void AdvanceDeadSidehopperTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
         if (!slot.AnimationClock.Expire())
             return;
         DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
-        AnimationPlayback<DeadTourianProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, DeadTourianAnimations.Segments, ref playback,
+        AnimationPlayback<DeadTourianSegment> playback = state.Playback;
+        EnemyAnimationPlayback.Play(slot, DeadTourianAnimations.Segments, ref playback,
             cue => ApplyDeadSidehopperCue(slot, cue) is { } target
-                ? new AnimationContinuation<DeadTourianProgram>(DeadTourianAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<DeadTourianSegment>(DeadTourianAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;
     }

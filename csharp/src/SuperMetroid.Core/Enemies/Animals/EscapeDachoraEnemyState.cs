@@ -9,5 +9,5 @@ namespace SuperMetroid.Core.Enemies.Animals;
 public sealed class EscapeDachoraEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<EscapeDachoraProgram> Playback { get; set; }
+    internal AnimationPlayback<EscapeDachoraSegment> Playback { get; set; }
 }

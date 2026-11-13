@@ -37,7 +37,7 @@ internal static class PaletteFxRecords
     private static PaletteFxFrame[] Number()
     {
         var frames = new List<PaletteFxFrame>();
-        foreach (PaletteFxProgram program in Enum.GetValues<PaletteFxProgram>())
+        foreach (PaletteFxSegment program in Enum.GetValues<PaletteFxSegment>())
         {
             int next = 0;
             foreach (AnimationBeat<int, PaletteFxCue> beat in PaletteFxSegments.All.Beats(program))

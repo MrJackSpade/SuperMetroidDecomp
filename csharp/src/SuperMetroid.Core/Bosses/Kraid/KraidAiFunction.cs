@@ -52,7 +52,7 @@ public enum KraidAiFunction
     /// <summary>The first-phase foot's thinking entry before its independently timed lunge.</summary>
     FootFirstPhaseThinking,
     /// <summary>Processes Kraid's private head instruction stream and its timer.</summary>
-    ProcessHeadInstructionAndTimer,
+    AdvanceHeadAnimationAndTimer,
     /// <summary>Counts the second-phase foot's think delay and selects a walking target.</summary>
     FootSecondPhaseThinking,
     /// <summary>The backward-walk entry moving the body toward its rightward target.</summary>

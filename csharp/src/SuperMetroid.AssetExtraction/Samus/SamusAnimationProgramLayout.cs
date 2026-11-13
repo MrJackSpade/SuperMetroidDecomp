@@ -13,7 +13,7 @@ internal static class SamusAnimationProgramLayout
     /// <param name="Program">The program.</param>
     /// <param name="NamedBy">Its lowest-numbered pose, which names it.</param>
     /// <param name="Start">Where it starts in the programs' bank.</param>
-    internal readonly record struct LaidOutProgram(SamusAnimationProgram Program, SamusPoseId NamedBy, int Start);
+    internal readonly record struct LaidOutProgram(SamusPoseAnimation Program, SamusPoseId NamedBy, int Start);
 
     /// <summary>Every pose with a record, in the game's numbering.</summary>
     internal static SamusPoseId[] PosesWithRecords() =>
@@ -23,11 +23,11 @@ internal static class SamusAnimationProgramLayout
     /// <exception cref="InvalidDataException">Two poses of one program start apart, or two programs start together.</exception>
     internal static LaidOutProgram[] Read(IImportCartridgeSource cartridge)
     {
-        var starts = new Dictionary<SamusAnimationProgram, int>();
-        var namedBy = new Dictionary<SamusAnimationProgram, SamusPoseId>();
+        var starts = new Dictionary<SamusPoseAnimation, int>();
+        var namedBy = new Dictionary<SamusPoseAnimation, SamusPoseId>();
         foreach (SamusPoseId pose in PosesWithRecords())
         {
-            SamusAnimationProgram program = SamusAnimationDelays.ProgramForPose(pose);
+            SamusPoseAnimation program = SamusAnimationDelays.AnimationForPose(pose);
             int start = cartridge.ReadCartridgeWord(
                 SamusOverreadSourceDefinitions.SamusAnimationProgramTable + SamusPoseNumbers.Number(pose) * sizeof(ushort));
             if (starts.TryGetValue(program, out int known))

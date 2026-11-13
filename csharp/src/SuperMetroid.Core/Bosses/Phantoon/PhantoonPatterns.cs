@@ -70,7 +70,7 @@ internal sealed class PhantoonPatterns
             return;
 
         state.BodyState.Function = PhantoonAiFunction.NoOperation;
-        PhantoonPresentation.InstallPhantoonProgram(state, state.Eye, PhantoonPartProgram.EyeOpen);
+        PhantoonPresentation.StartPhantoonAnimation(state, state.Eye, PhantoonPartSegment.EyeOpen);
         state.BodyState.FlameRainRequested = false;
         SpawnPhantoonSpiralFlames(body);
     }
@@ -214,7 +214,7 @@ internal sealed class PhantoonPatterns
             PhantoonCasualFlameSchedule schedule = PhantoonCasualFlames.Pattern(state.MouthState.CasualFlamePattern);
             state.MouthState.CasualFlameCount = exhausted ? null : remaining;
             state.MouthState.CasualFlameHold = exhausted ? schedule.Cooldown : schedule.IntervalBefore(remaining);
-            PhantoonPresentation.InstallPhantoonProgram(state, mouth, PhantoonPartProgram.MouthSpawnFlame);
+            PhantoonPresentation.StartPhantoonAnimation(state, mouth, PhantoonPartSegment.MouthSpawnFlame);
             return;
         }
 
@@ -247,8 +247,8 @@ internal sealed class PhantoonPatterns
             if (!state.TentaclesState.SwoopRequested)
             {
                 state.BodyState.Function = PhantoonAiFunction.NoOperation;
-                PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.InvulnerableBody);
-                PhantoonPresentation.InstallPhantoonProgram(state, state.Eye, PhantoonPartProgram.EyeCloseAndPickNewPattern);
+                PhantoonPresentation.StartPhantoonAnimation(state, body, PhantoonPartSegment.InvulnerableBody);
+                PhantoonPresentation.StartPhantoonAnimation(state, state.Eye, PhantoonPartSegment.EyeCloseAndPickNewPattern);
                 body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
 
                 // This flag makes the next pattern choice take the initial flame-rain
@@ -274,7 +274,7 @@ internal sealed class PhantoonPatterns
         PointPhantoonEyeAtSamus(body, state, samus);
         state.Translucent = false;
         BeginPhantoonSwoop(state);
-        PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.FullHitboxBody);
+        PhantoonPresentation.StartPhantoonAnimation(state, body, PhantoonPartSegment.FullHitboxBody);
     }
 
     /// <summary>Runs the 360-frame opaque swoop.</summary>
@@ -290,9 +290,9 @@ internal sealed class PhantoonPatterns
 
         state.BodyState.Function = PhantoonAiFunction.FadeOutWhileSwooping;
         state.Translucent = true;
-        PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.InvulnerableBody);
+        PhantoonPresentation.StartPhantoonAnimation(state, body, PhantoonPartSegment.InvulnerableBody);
         RoomEnemySlot eye = state.Eye;
-        PhantoonPresentation.InstallPhantoonProgram(state, eye, PhantoonPartProgram.EyeClose);
+        PhantoonPresentation.StartPhantoonAnimation(state, eye, PhantoonPartSegment.EyeClose);
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         state.EyeState.FadeComplete = false;
         state.TentaclesState.RoundDamage = 0;
@@ -365,8 +365,8 @@ internal sealed class PhantoonPatterns
     {
         state.EyeState.FadeComplete = false;
         state.Translucent = false;
-        PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.FullHitboxBody);
-        PhantoonPresentation.InstallPhantoonProgram(state, state.Eye, PhantoonPartProgram.EyeballCentered);
+        PhantoonPresentation.StartPhantoonAnimation(state, body, PhantoonPartSegment.FullHitboxBody);
+        PhantoonPresentation.StartPhantoonAnimation(state, state.Eye, PhantoonPartSegment.EyeballCentered);
         state.BodyState.Function = PhantoonAiFunction.FadeInDuringFlameRain;
     }
 
@@ -403,8 +403,8 @@ internal sealed class PhantoonPatterns
 
         state.BodyState.Function = PhantoonAiFunction.FadeOutDuringFlameRain;
         state.EyeState.FadeComplete = false;
-        PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.InvulnerableBody);
-        PhantoonPresentation.InstallPhantoonProgram(state, state.Eye, PhantoonPartProgram.EyeClose);
+        PhantoonPresentation.StartPhantoonAnimation(state, body, PhantoonPartSegment.InvulnerableBody);
+        PhantoonPresentation.StartPhantoonAnimation(state, state.Eye, PhantoonPartSegment.EyeClose);
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         state.Translucent = true;
     }
@@ -518,7 +518,7 @@ internal sealed class PhantoonPatterns
             return;
         }
 
-        PhantoonPresentation.InstallPhantoonProgram(state, state.Eye, PhantoonPartProgram.EyeClose);
+        PhantoonPresentation.StartPhantoonAnimation(state, state.Eye, PhantoonPartSegment.EyeClose);
         state.EyeState.RageWaveCount = 0;
         state.BodyState.Function = PhantoonAiFunction.FadeOutAfterRage;
     }
@@ -626,10 +626,10 @@ internal sealed class PhantoonPatterns
         else
             direction = toSamus.Y < 0 ? 1 : 3;
 
-        PhantoonPresentation.InstallPhantoonProgram(
+        PhantoonPresentation.StartPhantoonAnimation(
             state,
             state.Eye,
-            PhantoonEyeGaze.EyeProgram(direction));
+            PhantoonEyeGaze.EyeAnimation(direction));
     }
 
     /// <summary>Blends the body palette toward hidden colors over the selected interval.</summary>
@@ -718,7 +718,7 @@ internal sealed class PhantoonPatterns
             case PhantoonFlameSpawnType.Casual:
                 flame.Velocity = flame.Velocity.WithX(SignedEightEight.Zero);
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 32)));
-                flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualFalling0));
+                flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualFalling0));
                 flame.FrameBehavior =
                     EnemyProjectileFrameBehavior.PhantoonCasualFlameFall;
 
@@ -786,7 +786,7 @@ internal sealed class PhantoonPatterns
             flame,
             RoomEnemyProjectileKind.PhantoonDestroyableFlame,
             SpriteGraphics.SpawnedBy(body));
-        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.DestroyableIdle));
+        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.DestroyableIdle));
         flame.Position = flame.Position.WithFractionX(0).WithFractionY(0);
         flame.Velocity = flame.Velocity.WithY(SignedEightEight.Zero);
         return flame;

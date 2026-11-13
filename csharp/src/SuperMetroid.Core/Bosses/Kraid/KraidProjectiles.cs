@@ -50,7 +50,7 @@ internal sealed class KraidProjectiles
         _access.AttachKraidPart(lint, state);
         lint.Shading = _parts.Body.Shading;
         lint.AnimationClock.HoldFor(KraidBehavior.KraidStillPartTimer);
-        _access.SetKraidPartProgram(lint, KraidPartProgram.LintInitial);
+        _access.SetKraidPartAnimation(lint, KraidPartSegment.LintInitial);
         lint.Frame = EnemyFrameId.KraidLintInitial;
         _parts.LintStateOf(state, lint).Function = KraidAiFunction.LintInactive;
         _parts.LintStateOf(state, lint).LintXOffset = expected == KraidLintPart.Top ? 0 : -16;
@@ -75,7 +75,7 @@ internal sealed class KraidProjectiles
         nailPart.AlternateSpawn = false;
         nail.Presence = nail.Presence.With(EnemyPresence.Hidden);
         nail.AnimationClock.HoldFor(KraidBehavior.KraidStillPartTimer);
-        _access.SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
+        _access.SetKraidPartAnimation(nail, KraidPartSegment.NailLoop);
         nail.Frame = EnemyFrameId.KraidNailLoopFirst;
         _parts.NailStateOf(state, nail).NextFunction = KraidAiFunction.FingernailInitialize;
         _parts.NailStateOf(state, nail).Function = KraidAiFunction.HandleFunctionTimer;
@@ -130,7 +130,7 @@ internal sealed class KraidProjectiles
     internal static void AddKraidRockAnimations(EnemyProjectileHandlerTable table)
     {
         table.AddShotAnimation(RoomEnemyProjectileKind.KraidSpitRock,
-            () => new KraidRockAnimation(KraidRockProgram.SpitRockShot));
+            () => new KraidRockAnimation(KraidRockSegment.SpitRockShot));
         table.AddCue<KraidRockCue>((context, cue) =>
         {
             EnemyProjectile projectile = context.Projectile;
@@ -228,7 +228,7 @@ internal sealed class KraidProjectiles
             case KraidAiFunction.AlignPartToKraid:
             case KraidAiFunction.DecrementFunctionTimerAndStartWalk:
             case KraidAiFunction.FootFirstPhaseThinking:
-            case KraidAiFunction.ProcessHeadInstructionAndTimer:
+            case KraidAiFunction.AdvanceHeadAnimationAndTimer:
             case KraidAiFunction.FootSecondPhaseThinking:
             case KraidAiFunction.FootSecondPhaseWalkingRight:
             case KraidAiFunction.FootSecondPhaseWalkToStart:
@@ -282,7 +282,7 @@ internal sealed class KraidProjectiles
         nail.Contact = nail.Contact.Without(EnemyContact.IgnoresSamus);
         nail.Presence = nail.Presence.Without(EnemyPresence.Hidden);
         nail.AnimationClock.StepOnNextUpdate();
-        _access.SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
+        _access.SetKraidPartAnimation(nail, KraidPartSegment.NailLoop);
         part.Function = KraidAiFunction.FingernailFire;
 
         if (!KraidRandomDefinitions.NailWaitsForLint.IsSetIn(random) ||
@@ -377,7 +377,7 @@ internal sealed class KraidProjectiles
             case KraidAiFunction.HandleFunctionTimer:
             case KraidAiFunction.DecrementFunctionTimerAndStartWalk:
             case KraidAiFunction.FootFirstPhaseThinking:
-            case KraidAiFunction.ProcessHeadInstructionAndTimer:
+            case KraidAiFunction.AdvanceHeadAnimationAndTimer:
             case KraidAiFunction.FootSecondPhaseThinking:
             case KraidAiFunction.FootSecondPhaseWalkingRight:
             case KraidAiFunction.FootSecondPhaseWalkToStart:

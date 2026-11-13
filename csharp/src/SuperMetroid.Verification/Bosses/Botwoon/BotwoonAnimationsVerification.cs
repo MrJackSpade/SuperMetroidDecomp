@@ -53,14 +53,14 @@ internal static class BotwoonAnimationsVerification
         for (int angle = 0; angle < 256; angle++)
         {
             ushort moving = CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonMovingListTable + 2 * (angle >> 5)));
-            CompareBotwoonHead(rom, moving, BotwoonHeadProgram.MovingToward(new Bearing((byte)angle)), $"moving angle ${angle:X2}", drawn);
+            CompareBotwoonHead(rom, moving, BotwoonHeadAnimationSegment.MovingToward(new Bearing((byte)angle)), $"moving angle ${angle:X2}", drawn);
             ushort spitting = CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonSpitListTable + 2 * (unchecked((byte)(angle + 16)) >> 5)));
-            CompareBotwoonHead(rom, spitting, BotwoonHeadProgram.SpittingToward(new Bearing((byte)angle)), $"spitting angle ${angle:X2}", drawn);
+            CompareBotwoonHead(rom, spitting, BotwoonHeadAnimationSegment.SpittingToward(new Bearing((byte)angle)), $"spitting angle ${angle:X2}", drawn);
             compared += 2;
         }
         for (int octant = 0; octant < 8; octant++)
         {
-            CompareBotwoonHead(rom, CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonHiddenListTable + 2 * octant)), BotwoonHeadProgram.Hidden,
+            CompareBotwoonHead(rom, CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonHiddenListTable + 2 * octant)), BotwoonHeadAnimationSegment.Hidden,
                 $"hidden duplicate {octant}", drawn);
             compared++;
         }
@@ -86,8 +86,8 @@ internal static class BotwoonAnimationsVerification
             movingState.HeadHistory[3] = new Position16<RoomPixels>(1000, 1000);
             movingState.InsideHole = false;
             animateHead(movingHead, movingState);
-            AssertEqual(new BotwoonHeadProgram(BotwoonHeadProgramKind.Moving, BotwoonAnimations.FacingOfOctant(octant)),
-                movingState.HeadProgram, $"moving head toward octant {octant}");
+            AssertEqual(new BotwoonHeadAnimationSegment(BotwoonHeadAnimationSegmentKind.Moving, BotwoonAnimations.FacingOfOctant(octant)),
+                movingState.HeadAnimation, $"moving head toward octant {octant}");
             CompareBotwoonHead(rom, CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonMovingListTable + 2 * octant)), movingEnemies, movingHead,
                 movingState, $"AI-selected moving octant {octant}");
 
@@ -99,8 +99,8 @@ internal static class BotwoonAnimationsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(1000 + dx)), unchecked((ushort)(1000 + dy)))),
             };
             aimHead(spitEnemies, spitHead, spitState, samus);
-            AssertEqual(new BotwoonHeadProgram(BotwoonHeadProgramKind.Spitting, BotwoonAnimations.FacingOfOctant(octant)),
-                spitState.HeadProgram, $"spitting head toward octant {octant}");
+            AssertEqual(new BotwoonHeadAnimationSegment(BotwoonHeadAnimationSegmentKind.Spitting, BotwoonAnimations.FacingOfOctant(octant)),
+                spitState.HeadAnimation, $"spitting head toward octant {octant}");
             // Outside a hidden spit the aim fires a three-shot volley at once. The spit angle is a quarter turn minus
             // the aim and the volley spreads a sixteenth of a turn either side of it, all wrapping around the turn.
             (RoomEnemySystem volleyEnemies, RoomEnemySlot volleyHead, BotwoonEnemyState volleyState) = NewBotwoonHead();
@@ -132,7 +132,7 @@ internal static class BotwoonAnimationsVerification
         state.InsideHole = true;
         state.HeadHistory[3] = new Position16<RoomPixels>(1000, 1000);
         animateHead(head, state);
-        AssertEqual(BotwoonHeadProgram.Hidden, state.HeadProgram, "Botwoon's head hides inside the wall");
+        AssertEqual(BotwoonHeadAnimationSegment.Hidden, state.HeadAnimation, "Botwoon's head hides inside the wall");
         AssertEqual((ushort)1, head.AnimationClock.Hold.RawValue, "a changed Botwoon head program restarts on the next update");
 
         for (ushort selector = 0; selector < 64; selector += 2)
@@ -151,7 +151,7 @@ internal static class BotwoonAnimationsVerification
     internal static void VerifyBotwoonProjectileAnimations(CartridgeImportAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        void Pass(EnemyProjectile projectile) => enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
+        void Pass(EnemyProjectile projectile) => enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, null, Position16<RoomPixels>.Zero);
 
         for (ushort selector = 0; selector < 64; selector += 2)
         {
@@ -196,7 +196,7 @@ internal static class BotwoonAnimationsVerification
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         spawnBody(head, state, 1);
         EnemyProjectile body = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonBody);
-        AssertEqual(BotwoonSegmentProgram.Hidden, ((BotwoonProjectileAnimation)(body.Animation ?? throw new InvalidOperationException("Verification requires body.Animation."))).Segment,
+        AssertEqual(BotwoonBodyAnimationSegment.Hidden, ((BotwoonProjectileAnimation)(body.Animation ?? throw new InvalidOperationException("Verification requires body.Animation."))).Segment,
             "the real body producer starts a non-tail segment hidden");
         // A falling segment starts at the quadratic table's first row and moves on three quarters of a row each update
         // it has not landed; the whole rows of its place before the update choose the speed it falls by.
@@ -216,7 +216,7 @@ internal static class BotwoonAnimationsVerification
         // The landed phase is the segment's own state (#1413); this no longer asserts the cartridge's RTS word in the
         // X-velocity slot.
         AssertEqual(BotwoonBodyFunction.Landed, state.SegmentFunctions[1], "a landed body enters its inert landed phase");
-        AssertTrue(body.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustProjectileProgram.BigExplosion },
+        AssertTrue(body.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustProjectileSegment.BigExplosion },
             "a landed body runs the shared misc-dust big explosion");
         Pass(body);
 
@@ -235,7 +235,7 @@ internal static class BotwoonAnimationsVerification
     }
 
     /// <summary>Starts a typed head program from its first instruction and compares it with the selected cartridge list.</summary>
-    private static void CompareBotwoonHead(CartridgeImportAddressSpace rom, ushort nativeList, BotwoonHeadProgram program, string label,
+    private static void CompareBotwoonHead(CartridgeImportAddressSpace rom, ushort nativeList, BotwoonHeadAnimationSegment program, string label,
         HashSet<ushort> drawn)
     {
         (RoomEnemySystem enemies, RoomEnemySlot head, BotwoonEnemyState state) = NewBotwoonHead();
@@ -252,7 +252,7 @@ internal static class BotwoonAnimationsVerification
         for (int update = 0; update < 70; update++)
         {
             enemies.Audio.BeginFrame();
-            EnemyInstructionInterpreter.RunsAnimationScript(head, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+            EnemyAnimationPlayer.AdvanceAnimation(head, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
             bool nativeSound = native.Step(rom);
             string at = $"Botwoon {label} update {update}";
             AssertEqual(native.Timer, head.AnimationClock.Hold.RawValue, $"{at}: timer");

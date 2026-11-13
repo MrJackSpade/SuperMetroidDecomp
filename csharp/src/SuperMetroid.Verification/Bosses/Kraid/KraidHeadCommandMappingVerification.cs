@@ -28,13 +28,13 @@ internal static class KraidHeadCommandMappingVerification
             .Select(record => record.Tilemap).Distinct().Order()];
         AssertEqual(KraidHeadFrame.FullyOpenMouthStage + 1, stageTilemaps.Count, "one native tilemap per mouth stage");
 
-        foreach (KraidHeadProgram program in Enum.GetValues<KraidHeadProgram>())
+        foreach (KraidHeadSegment program in Enum.GetValues<KraidHeadSegment>())
         {
             IReadOnlyList<AnimationBeat<KraidHeadFrame, KraidHeadCue>> beats = KraidHeadAnimations.Segments.Beats(program);
-            KraidHeadNativeRecord[] records = [.. native.Records.Where(record => KraidHeadAnimations.PositionOf(record.Playback).Program == program)];
+            KraidHeadNativeRecord[] records = [.. native.Records.Where(record => KraidHeadAnimations.PositionOf(record.Playback).Animation == program)];
             AssertEqual(records.Length, beats.Count + 1, $"{program} has one typed beat per native record before its terminator");
-            Animation<KraidHeadProgram> animation = KraidHeadAnimations.StartingWith(program);
-            AssertTrue(animation.Phases.SequenceEqual([new AnimationPhase<KraidHeadProgram>(program, 0, beats.Count, 1)]) && animation.End == AnimationEnd.Holds,
+            Animation<KraidHeadSegment> animation = KraidHeadAnimations.StartingWith(program);
+            AssertTrue(animation.Phases.SequenceEqual([new AnimationPhase<KraidHeadSegment>(program, 0, beats.Count, 1)]) && animation.End == AnimationEnd.Holds,
                 $"{program}'s animation plays its list once and holds at its terminator");
             for (int position = 0; position < records.Length; position++)
             {

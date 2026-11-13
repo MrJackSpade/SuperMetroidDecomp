@@ -12,26 +12,26 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 internal static class DownwardGateProjectileNativeListAddresses
 {
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<DownwardGateProjectileProgram>[] Entries =
+    internal static readonly NativeProgramEntry<DownwardGateProjectileSegment>[] Entries =
     [
-        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.Moving, 0xe53c),
-        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.MovingStep2, 0xe54a),
-        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.MovingStep3, 0xe550),
-        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.MovingStep4, 0xe556),
-        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.MovingStep5, 0xe55c),
-        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.Closed, 0xe55e),
-        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.ClosedStep2, 0xe568),
-        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.ClosedStep3, 0xe572),
-        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.ClosedStep4, 0xe578),
-        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.ClosedStep5, 0xe57e),
-        new NativeProgramEntry<DownwardGateProjectileProgram>(DownwardGateProjectileProgram.ClosedStep6, 0xe584),
+        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.Moving, 0xe53c),
+        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.MovingStep2, 0xe54a),
+        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.MovingStep3, 0xe550),
+        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.MovingStep4, 0xe556),
+        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.MovingStep5, 0xe55c),
+        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.Closed, 0xe55e),
+        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.ClosedStep2, 0xe568),
+        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.ClosedStep3, 0xe572),
+        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.ClosedStep4, 0xe578),
+        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.ClosedStep5, 0xe57e),
+        new NativeProgramEntry<DownwardGateProjectileSegment>(DownwardGateProjectileSegment.ClosedStep6, 0xe584),
     ];
 
     /// <summary>The bank-$86 bytes from the first list to the end of the last, $86:E53C-E585, which production must never read.</summary>
     internal static readonly MotherBrainEffectNativeListAddressesExtent Extent = new MotherBrainEffectNativeListAddressesExtent(0xe53c, 0xe586);
 
     /// <summary>The native entry of <paramref name="program"/>.</summary>
-    internal static ushort Entry(DownwardGateProjectileProgram program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
+    internal static ushort Entry(DownwardGateProjectileSegment program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
 
     /// <summary>The family's typed programs beside their native lists.</summary>
     internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, DownwardGateProjectileAnimations.Segments, DownwardGateProjectileAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), DownwardGateProjectileCueRules.Rules);

@@ -53,17 +53,17 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new WaverEnemyState
         {
             XVelocity = signedSpeed,
-            InstalledAnimation = WaverProgram.SteadyFacingLeft,
+            InstalledAnimation = WaverSegment.SteadyFacingLeft,
             Angle = RotationAngle.Zero,
             SpinFinished = false,
-            RequestedAnimation = WaverPrograms.Steady(facing),
+            RequestedAnimation = WaverAnimationChoices.Steady(facing),
         };
         slot.SetSpeciesState(state);
 
         // The initializer first installs the left steady animation and then asks for the spawn's facing. Only
         // right-facing spawns therefore change it; left-facing spawns ask for the installed one and keep it.
-        state.Playback = new(WaverAnimations.StartingWith(WaverProgram.SteadyFacingLeft), AnimationPlace.StartOfAnimation);
-        SetWaverProgram(slot, state);
+        state.Playback = new(WaverAnimations.StartingWith(WaverSegment.SteadyFacingLeft), AnimationPlace.StartOfAnimation);
+        SetWaverAnimation(slot, state);
     }
 
     /// <summary>Runs the Waver's main AI.</summary>
@@ -86,8 +86,8 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             // negation; expressing that value directly preserves the game's ±1.5 px/frame.
             state.XVelocity = -horizontalDisplacement;
             // A wall turns Waver around and ends any spin.
-            state.RequestedAnimation = WaverPrograms.TurnedAround(state.RequestedAnimation);
-            SetWaverProgram(slot, state);
+            state.RequestedAnimation = WaverAnimationChoices.TurnedAround(state.RequestedAnimation);
+            SetWaverAnimation(slot, state);
         }
         else
         {
@@ -108,8 +108,8 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         // the four-map spin without changing its facing.
         if (state.Angle.ToTrigonometryAngle().HalfWaveIndex == 56)
         {
-            state.RequestedAnimation = WaverPrograms.Spinning(state.RequestedAnimation);
-            SetWaverProgram(slot, state);
+            state.RequestedAnimation = WaverAnimationChoices.Spinning(state.RequestedAnimation);
+            SetWaverAnimation(slot, state);
         }
 
         // The spin animation sets this flag after 32 animation frames. Main AI owns
@@ -117,20 +117,20 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.SpinFinished)
         {
             state.SpinFinished = false;
-            state.RequestedAnimation = WaverPrograms.SteadyWithSameFacing(state.RequestedAnimation);
-            SetWaverProgram(slot, state);
+            state.RequestedAnimation = WaverAnimationChoices.SteadyWithSameFacing(state.RequestedAnimation);
+            SetWaverAnimation(slot, state);
         }
     }
 
     /// <summary>Starts a changed facing or spin animation and restarts its frame and loop timers.</summary>
-    internal static void SetWaverProgram(RoomEnemySlot slot, WaverEnemyState state)
+    internal static void SetWaverAnimation(RoomEnemySlot slot, WaverEnemyState state)
     {
-        WaverProgram requested = state.RequestedAnimation;
+        WaverSegment requested = state.RequestedAnimation;
         if (requested == state.InstalledAnimation)
             return;
 
         state.InstalledAnimation = requested;
-        state.Playback = EnemyProgramAnimation.Start(slot, WaverAnimations.StartingWith(requested));
+        state.Playback = EnemyAnimationPlayback.Start(slot, WaverAnimations.StartingWith(requested));
     }
 
     /// <summary>Runs Waver's main AI.</summary>
@@ -140,8 +140,8 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Waver's typed animation.</summary>
-    internal static void AdvanceWaverTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, WaverAnimations.Segments,
+    internal static void AdvanceWaverTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, WaverAnimations.Segments,
             static (WaverEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

@@ -18,8 +18,8 @@ public sealed class RoomSpriteObject
         Kind = kind;
         Position = FixedPosition<RoomPixels>.FromWhole(position);
         Graphics = graphics;
-        Playback = new(RoomSpriteObjectAnimations.StartingWith(RoomSpriteObjectDefinitions.Programs[kind]), AnimationPlace.StartOfAnimation);
-        AdvanceProgram();
+        Playback = new(RoomSpriteObjectAnimations.StartingWith(RoomSpriteObjectDefinitions.Animations[kind]), AnimationPlace.StartOfAnimation);
+        AdvanceAnimation();
     }
 
     /// <summary>What the object is, as its spawner chose it.</summary>
@@ -39,7 +39,7 @@ public sealed class RoomSpriteObject
     public SpriteGraphics Graphics { get; internal set; }
 
     /// <summary>The animation the object plays and where it stands in it (#1600), or null once it has ended.</summary>
-    internal AnimationPlayback<RoomSpriteObjectProgram>? Playback { get; private set; }
+    internal AnimationPlayback<RoomSpriteObjectSegment>? Playback { get; private set; }
 
     /// <summary>Updates left showing <see cref="Frame"/> before the program moves on; not counted while the object <see cref="Holds"/>.</summary>
     public int Timer { get; private set; }
@@ -62,35 +62,35 @@ public sealed class RoomSpriteObject
         if (!IsActive || UpdatesDisabled || Holds)
             return;
         if (--Timer == 0)
-            AdvanceProgram();
+            AdvanceAnimation();
     }
 
     /// <summary>
     /// Plays the animation to its next frame: a frame installs itself and its duration, the hold keeps the frame for good,
     /// and the animation's end ends the object. The animations count no repeats and raise no events.
     /// </summary>
-    private void AdvanceProgram()
+    private void AdvanceAnimation()
     {
-        AnimationPlayback<RoomSpriteObjectProgram> playback = Playback ?? throw new InvalidOperationException(
+        AnimationPlayback<RoomSpriteObjectSegment> playback = Playback ?? throw new InvalidOperationException(
             $"Sprite object {Kind} has no animation to play.");
-        Animation<RoomSpriteObjectProgram> animation = playback.Animation;
+        Animation<RoomSpriteObjectSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
         WrappingCountdown repeats = default;
-        AnimationShown<RoomSpriteObjectProgram, RoomSpriteObjectFrame> shown = RoomSpriteObjectAnimations.Segments.PlayToNextFrame(
+        AnimationShown<RoomSpriteObjectSegment, RoomSpriteObjectFrame> shown = RoomSpriteObjectAnimations.Segments.PlayToNextFrame(
             ref animation, ref place, ref repeats,
             raised => throw new InvalidOperationException($"Sprite object {Kind}'s event-free animation raised {raised}."));
         switch (shown)
         {
-            case AnimationShown<RoomSpriteObjectProgram, RoomSpriteObjectFrame>.Frame frame:
+            case AnimationShown<RoomSpriteObjectSegment, RoomSpriteObjectFrame>.Frame frame:
                 Playback = new(animation, place);
                 Frame = frame.Shown;
                 Timer = frame.Duration;
                 return;
-            case AnimationShown<RoomSpriteObjectProgram, RoomSpriteObjectFrame>.Held:
+            case AnimationShown<RoomSpriteObjectSegment, RoomSpriteObjectFrame>.Held:
                 Playback = new(animation, place);
                 Holds = true;
                 return;
-            case AnimationShown<RoomSpriteObjectProgram, RoomSpriteObjectFrame>.Ended:
+            case AnimationShown<RoomSpriteObjectSegment, RoomSpriteObjectFrame>.Ended:
                 End();
                 return;
             default:
@@ -104,7 +104,7 @@ public sealed class RoomSpriteObject
     /// the timer, so the next expiry continues at the animation's second beat.
     /// </summary>
     /// <param name="program">The segment whose animation the object plays from now on.</param>
-    internal void ShowFirstFrameKeepingTimer(RoomSpriteObjectProgram program)
+    internal void ShowFirstFrameKeepingTimer(RoomSpriteObjectSegment program)
     {
         if (!IsActive)
             throw new InvalidOperationException($"Sprite object {Kind} has ended and shows no frame.");

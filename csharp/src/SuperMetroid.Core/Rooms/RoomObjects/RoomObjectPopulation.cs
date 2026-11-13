@@ -40,7 +40,7 @@ public sealed class RoomObjectPopulation
     internal static RoomObjectPopulation FromRecords(string name, RoomObjectPlacementDefinition[] records) =>
         new(name, Ensure.NotNull(records).Select(record => new RoomObjectPlacement(
             RoomObjectHeaders.Get(record.Header), record.Block, record.Argument, Cannon: record.Cannon)
-            { CompiledScrollProgram = record.ScrollProgram }));
+            { CompiledScrollChange = record.ScrollChange }));
 
     /// <summary>Copies one placement's scroll program and rejects a malformed one.</summary>
     private static RoomObjectPlacement CopyPlacement(RoomObjectPlacement placement)
@@ -48,8 +48,8 @@ public sealed class RoomObjectPopulation
         Ensure.NotNull(placement);
         if (placement.Header.Header == RoomObjectHeaderId.None)
             throw new InvalidDataException("A decoded room-object placement cannot be an empty placement.");
-        RoomScrollWrite[]? program = placement.ScrollProgram?.ToArray();
-        RoomScrollProgram? compiledProgram = program is null ? placement.CompiledScrollProgram : null;
+        RoomScrollWrite[]? program = placement.ScrollChange?.ToArray();
+        RoomScrollChange? compiledProgram = program is null ? placement.CompiledScrollChange : null;
         if (compiledProgram is not null)
         {
             if (placement.Header.Header != RoomObjectHeaderId.ScrollTrigger)
@@ -67,6 +67,6 @@ public sealed class RoomObjectPopulation
         }
         else if (program is not null)
             throw new InvalidDataException("Only a resident scroll room object may own scroll writes.");
-        return placement with { ScrollProgram = program, CompiledScrollProgram = compiledProgram };
+        return placement with { ScrollChange = program, CompiledScrollChange = compiledProgram };
     }
 }

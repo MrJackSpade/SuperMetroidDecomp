@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Bull;
 internal static class BullAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params BullProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params BullSegment[] programs) =>
         programs.SelectMany(program => BullAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>()
             .Select(frame => BullFrameToolingDefinitions.Spritemap(frame.Shown));

@@ -23,7 +23,7 @@ internal static class SamusAnimationDelayDefinitionsVerification
         {
             if (!SamusPoseNumbering.NamesPose(number)) continue;
             SamusPoseId pose = SamusPoseNumbering.FromNumber(number);
-            SamusAnimationProgram actual = SamusAnimationDelays.ProgramForPose(pose);
+            SamusPoseAnimation actual = SamusAnimationDelays.AnimationForPose(pose);
             int nextFrame = 0;
             foreach (SamusAnimationSequence run in SamusAnimationProgramCodec.Decode(cartridge, pose))
             {
@@ -34,9 +34,9 @@ internal static class SamusAnimationDelayDefinitionsVerification
                     AssertTrue(actual.TryStepAt(gap) is null, $"pose {pose} frame {gap} is no step");
                 }
                 for (int index = 0; index < run.Delays.Count; index++, nextFrame++)
-                    AssertEqual<SamusAnimationProgramStep?>(new SamusAnimationDelay(run.Delays[index]), actual.TryStepAt(nextFrame),
+                    AssertEqual<SamusPoseAnimationStep?>(new SamusAnimationDelay(run.Delays[index]), actual.TryStepAt(nextFrame),
                         $"pose {pose} frame {nextFrame} delay");
-                AssertEqual<SamusAnimationProgramStep?>(run.End, actual.TryStepAt(nextFrame), $"pose {pose} frame {nextFrame} instruction");
+                AssertEqual<SamusPoseAnimationStep?>(run.End, actual.TryStepAt(nextFrame), $"pose {pose} frame {nextFrame} instruction");
                 nextFrame++;
             }
             int past = nextFrame;
@@ -45,7 +45,7 @@ internal static class SamusAnimationDelayDefinitionsVerification
 
         // The three numbers past the pose records name no program: no gameplay path gives Samus one of them.
         foreach (SamusPoseId adjacent in new[] { SamusPoseId.FirstUnauthoredPose, SamusPoseId.SecondUnauthoredPose, SamusPoseId.LastUnauthoredPose })
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusAnimationDelays.ProgramForPose(adjacent),
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusAnimationDelays.AnimationForPose(adjacent),
                 $"pose {adjacent} has no animation program");
 
         VerifyAnimationContinuation(cartridge);
@@ -90,13 +90,13 @@ internal static class SamusAnimationDelayDefinitionsVerification
             AssertEqual(0, read.Frame, $"pose {pose} reads the next program's first frame");
             AssertEqual(shift, read.Shift, $"pose {pose}'s next program starts {shift} frames later");
             SamusPoseId laidOutNext = SamusPoseNumbering.FromNumber(Array.IndexOf(starts, next));
-            AssertTrue(ReferenceEquals(SamusAnimationDelays.ProgramForPose(laidOutNext), SamusAnimationDelays.ProgramForPose(read.Program)),
+            AssertTrue(ReferenceEquals(SamusAnimationDelays.AnimationForPose(laidOutNext), SamusAnimationDelays.AnimationForPose(read.Animation)),
                 $"pose {pose} reads the program laid out after its own");
         }
         var drained = continuation.ReadPast(SamusPoseId.DrainedStandingRightPose, 11)
             ?? throw new InvalidOperationException("The right-facing drained standing pose reads no program past its own.");
-        AssertTrue(ReferenceEquals(SamusAnimationDelays.ProgramForPose(SamusPoseId.DrainedStandingLeftPose),
-            SamusAnimationDelays.ProgramForPose(drained.Program)), "drained standing right reads into drained standing left");
+        AssertTrue(ReferenceEquals(SamusAnimationDelays.AnimationForPose(SamusPoseId.DrainedStandingLeftPose),
+            SamusAnimationDelays.AnimationForPose(drained.Animation)), "drained standing right reads into drained standing left");
         AssertEqual(3, drained.Frame, "Mother Brain glitch movie update 1947 plays the left program's frame 3");
         AssertEqual(8, drained.Shift, "the left drained standing program starts eight frames later");
     }

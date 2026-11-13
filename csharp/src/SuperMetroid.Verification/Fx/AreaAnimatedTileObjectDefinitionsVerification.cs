@@ -53,8 +53,8 @@ internal static class AreaAnimatedTileObjectDefinitionsVerification
         var fx = new RoomFxSelection($"$83:{fxRecord:X4} in {area}", [],
             RoomFxRecordCodec.Decode(area, native, $"room-FX record $83:{fxRecord:X4}"));
         var guarded = NewAreaAnimatedTileSelectionForbiddenBus(rom);
-        var sand = new RoomSandAnimatedTilesState(fx, door: null);
-        var treadmills = new RoomTreadmillAnimatedTilesState(fx, door: null);
+        var sand = new RoomSandBlockAnimationsState(fx, door: null);
+        var treadmills = new RoomTreadmillBlockAnimationsState(fx, door: null);
 
         AssertEqual(expectedSand, sand.Count, $"{area} compiled sand selection");
         AssertEqual(expectedTreadmills, treadmills.Count,

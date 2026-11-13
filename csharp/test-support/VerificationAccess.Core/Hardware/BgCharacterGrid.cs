@@ -8,9 +8,9 @@ public static class BgCharacterGrid
 {
     /// <summary>The character (tile) column or row containing a non-negative pixel coordinate.</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int CharacterOf(int pixel) => pixel / ScreenGeometry.BackgroundTileSizePixels;
+    public static int CharacterOf(int pixel) => pixel / ScreenGeometry.BackgroundCellSizePixels;
 
     /// <summary>The pixel's position within its character, zero through seven.</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int PixelWithinCharacter(int pixel) => pixel % ScreenGeometry.BackgroundTileSizePixels;
+    public static int PixelWithinCharacter(int pixel) => pixel % ScreenGeometry.BackgroundCellSizePixels;
 }

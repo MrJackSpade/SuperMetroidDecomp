@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Artwork;
 /// <summary>
 /// The installed sheets of the menu's world-map pages (#1392, #1467).
 /// </summary>
-public static class ScreenTileSheetDefinitions
+public static class ScreenPictureSheetDefinitions
 {
     /// <summary>The file-select world map's foreground picture in each Zebes area's world-map colours, shown while that area is selected.</summary>
     public static IReadOnlyDictionary<AreaId, SpriteSheetId> AreaMapForegrounds { get; } = new Dictionary<AreaId, SpriteSheetId>

@@ -63,7 +63,7 @@ internal sealed class DoorTransitionRunner
     /// behaviour, not room-name patches: every door that names a setup receives the same
     /// screen changes and room event.
     /// </remarks>
-    internal void RunDoorSetup(DoorDefinition door, RoomObjectSystem roomObjects, WreckedShipTreadmillAnimatedTilesState wreckedShipTreadmill, CeresElevatorShaftRoomMainState ceresElevatorShaft, MaridiaElevatubeRoomMainState maridiaElevatube)
+    internal void RunDoorSetup(DoorDefinition door, RoomObjectSystem roomObjects, WreckedShipTreadmillBlockAnimationsState wreckedShipTreadmill, CeresElevatorShaftRoomMainState ceresElevatorShaft, MaridiaElevatubeRoomMainState maridiaElevatube)
     {
         if (_room.Camera is null)
             throw new InvalidOperationException("Door setup requires the destination scroll grid.");
@@ -126,7 +126,7 @@ internal sealed class DoorTransitionRunner
     }
 
     /// <summary>Starts the treadmills' block animations and attempts the matching entrance room-object spawn.</summary>
-    private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction, RoomObjectSystem roomObjects, WreckedShipTreadmillAnimatedTilesState wreckedShipTreadmill)
+    private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction, RoomObjectSystem roomObjects, WreckedShipTreadmillBlockAnimationsState wreckedShipTreadmill)
     {
         if (_room.LevelData is null || _room.ActiveRoom is null)
         {

@@ -101,8 +101,8 @@ internal static class RoomFxRecordCatalogSource
         if (records.TryGetValue(pointer, out RoomFxRecordDefinition? existing))
         {
             // The effect lists are arrays, so the record's own equality compares them by reference; compare them in order here.
-            if (!(existing with { PaletteEffects = record.PaletteEffects, AnimatedTiles = record.AnimatedTiles }).Equals(record)
-                || !existing.PaletteEffects.SequenceEqual(record.PaletteEffects) || !existing.AnimatedTiles.SequenceEqual(record.AnimatedTiles))
+            if (!(existing with { PaletteEffects = record.PaletteEffects, BlockAnimations = record.BlockAnimations }).Equals(record)
+                || !existing.PaletteEffects.SequenceEqual(record.PaletteEffects) || !existing.BlockAnimations.SequenceEqual(record.BlockAnimations))
                 throw new InvalidDataException($"Shared room-FX record $83:{pointer:X4} reads differently from another header.");
         }
         else
@@ -181,7 +181,7 @@ internal static class RoomFxRecordCatalogSource
         $"{record.Timer.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {Member(record.Type)}, " +
         $"{Member(record.VisorAnimation)}, {EffectBlend(record.EffectBlend)}, " +
         $"{Liquid(record.Liquid)}, {Effects(record.PaletteEffects)}, " +
-        $"{Effects(record.AnimatedTiles)}, {Member(record.PaletteBlend)})";
+        $"{Effects(record.BlockAnimations)}, {Member(record.PaletteBlend)})";
 
     /// <summary>
     /// Renders the named headers for the generated Core catalog, each as its door records and its default record (#1546),

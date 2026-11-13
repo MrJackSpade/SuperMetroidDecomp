@@ -66,15 +66,15 @@ internal sealed class RoomMainRoutines
     /// transition's scroll and every fade step call it. The X-Ray Scope's setup
     /// disables the block animations, freezing every animation until the scope ends.
     /// </summary>
-    internal void RunAnimatedTilesObjectHandler(RoomScope room)
+    internal void RunBlockAnimations(RoomScope room)
     {
-        if (_player.Samus?.Xray.AreAnimatedTilesSuspended == true)
+        if (_player.Samus?.Xray.AreBlockAnimationsSuspended == true)
             return;
-        room.SandTiles.Step(room.ArtworkFrames);
-        room.SpikeTiles.Step(room.ArtworkFrames);
+        room.SandBlockAnimations.Step(room.ArtworkFrames);
+        room.SpikeBlockAnimations.Step(room.ArtworkFrames);
         if (_room.ActiveRoom is not null)
-            room.TreadmillTiles.Step(_system.HasDefeatedAnyOf(_room.ActiveRoom.AreaIndex, DefeatedBosses.AreaBoss), room.ArtworkFrames);
-        room.TourianStatues.StepTiles();
+            room.TreadmillBlockAnimations.Step(_system.HasDefeatedAnyOf(_room.ActiveRoom.AreaIndex, DefeatedBosses.AreaBoss), room.ArtworkFrames);
+        room.TourianStatues.StepBlockAnimations();
 
         // The Wrecked Ship treadmill door code creates an ordinary block animation. Its
         // handler shows one treadmill frame a pass only after Phantoon is defeated.

@@ -27,14 +27,14 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
     {
         Ensure.NotNull(cells);
         Ensure.NotNull(rules);
-        Ensure.LengthEqual<MapCell>(cells, AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles);
+        Ensure.LengthEqual<MapCell>(cells, AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles);
         this.cells = cells;
         Area = rules.Area;
         discoverable = new bool[cells.Length];
         station = new bool[cells.Length];
         revealsAbove = new bool[cells.Length];
-        for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
-        for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
+        for (int y = 0; y < AreaMapSize.HeightInMapTiles; y++)
+        for (int x = 0; x < AreaMapSize.WidthInMapTiles; x++)
         {
             var cell = new Position16<MapTiles>(x, y);
             int i = Index(cell);
@@ -57,7 +57,7 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
     /// <exception cref="ArgumentOutOfRangeException">The cell lies outside the area map.</exception>
     private static int Index(Position16<MapTiles> cell)
     {
-        if (cell.X >= AreaMapSize.WidthInTiles || cell.Y >= AreaMapSize.HeightInTiles)
+        if (cell.X >= AreaMapSize.WidthInMapTiles || cell.Y >= AreaMapSize.HeightInMapTiles)
             throw new ArgumentOutOfRangeException(nameof(cell), "The cell lies outside the area map.");
         return AreaMapSize.Extent.RowMajorIndex(cell);
     }

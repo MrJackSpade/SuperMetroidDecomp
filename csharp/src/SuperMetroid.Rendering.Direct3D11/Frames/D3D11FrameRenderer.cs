@@ -412,7 +412,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     internal static uint DepthWord(ActorDepth depth) => depth switch
     {
         ActorDepth.BehindRoom => 0,
-        ActorDepth.BehindFrontTiles => 1,
+        ActorDepth.BehindFrontParts => 1,
         ActorDepth.InFront => 2,
         _ => throw new InvalidOperationException($"Undefined actor depth {depth}."),
     };
@@ -469,17 +469,17 @@ public sealed class D3D11FrameRenderer : IDisposable
         {
             switch (shown)
             {
-                case GameplayLayer.ActorsBehindRoom or GameplayLayer.ActorsBehindFrontTiles or GameplayLayer.ActorsInFront:
+                case GameplayLayer.ActorsBehindRoom or GameplayLayer.ActorsBehindFrontParts or GameplayLayer.ActorsInFront:
                     DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { DrawnDepth = Inserting(ActorsAt(shown)), FirstScanline = (uint)floorStart });
                     break;
-                case GameplayLayer.BackgroundBackTiles or GameplayLayer.BackgroundFrontTiles:
+                case GameplayLayer.BackgroundBackPart or GameplayLayer.BackgroundFrontPart:
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                     {
                         RoomSource = D3D11RoomSource.Background, Scroll = floor.Scroll.AsPlaneScroll(),
-                        DrawnDepth = PicturePart(shown == GameplayLayer.BackgroundFrontTiles), FirstScanline = (uint)floorStart,
+                        DrawnDepth = PicturePart(shown == GameplayLayer.BackgroundFrontPart), FirstScanline = (uint)floorStart,
                     });
                     break;
-                case GameplayLayer.ForegroundBackTiles or GameplayLayer.ForegroundFrontTiles:
+                case GameplayLayer.ForegroundBackPart or GameplayLayer.ForegroundFrontPart:
                     break;
                 default:
                     throw new InvalidOperationException($"Undefined gameplay layer {shown}.");
@@ -492,10 +492,10 @@ public sealed class D3D11FrameRenderer : IDisposable
     private static ActorDepth ActorsAt(GameplayLayer layer) => layer switch
     {
         GameplayLayer.ActorsBehindRoom => ActorDepth.BehindRoom,
-        GameplayLayer.ActorsBehindFrontTiles => ActorDepth.BehindFrontTiles,
+        GameplayLayer.ActorsBehindFrontParts => ActorDepth.BehindFrontParts,
         GameplayLayer.ActorsInFront => ActorDepth.InFront,
-        GameplayLayer.BackgroundBackTiles or GameplayLayer.ForegroundBackTiles or GameplayLayer.BackgroundFrontTiles
-            or GameplayLayer.ForegroundFrontTiles => throw new InvalidOperationException($"Gameplay layer {layer} shows no actors."),
+        GameplayLayer.BackgroundBackPart or GameplayLayer.ForegroundBackPart or GameplayLayer.BackgroundFrontPart
+            or GameplayLayer.ForegroundFrontPart => throw new InvalidOperationException($"Gameplay layer {layer} shows no actors."),
         _ => throw new InvalidOperationException($"Undefined gameplay layer {layer}."),
     };
 
@@ -516,21 +516,21 @@ public sealed class D3D11FrameRenderer : IDisposable
             {
                 switch (shown)
                 {
-                    case GameplayLayer.ActorsBehindRoom or GameplayLayer.ActorsBehindFrontTiles or GameplayLayer.ActorsInFront:
+                    case GameplayLayer.ActorsBehindRoom or GameplayLayer.ActorsBehindFrontParts or GameplayLayer.ActorsInFront:
                         if ((shownLayers & ScreenLayers.Sprites) != 0)
                             DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { DrawnDepth = Inserting(ActorsAt(shown)), FirstScanline = (uint)first, EndScanline = (uint)end });
                         break;
-                    case GameplayLayer.BackgroundBackTiles or GameplayLayer.BackgroundFrontTiles:
+                    case GameplayLayer.BackgroundBackPart or GameplayLayer.BackgroundFrontPart:
                         if ((shownLayers & ScreenLayers.Background) != 0)
-                            DispatchRoomBackground(layer, shown == GameplayLayer.BackgroundFrontTiles, first, end);
+                            DispatchRoomBackground(layer, shown == GameplayLayer.BackgroundFrontPart, first, end);
                         break;
-                    case GameplayLayer.ForegroundBackTiles or GameplayLayer.ForegroundFrontTiles:
+                    case GameplayLayer.ForegroundBackPart or GameplayLayer.ForegroundFrontPart:
                         if ((shownLayers & ScreenLayers.Foreground) != 0)
                             DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                             {
                                 RoomSource = D3D11RoomSource.Foreground,
                                 Scroll = r.ForegroundScroll.AsPlaneScroll(),
-                                DrawnDepth = PicturePart(shown == GameplayLayer.ForegroundFrontTiles), FirstScanline = (uint)first, EndScanline = (uint)end,
+                                DrawnDepth = PicturePart(shown == GameplayLayer.ForegroundFrontPart), FirstScanline = (uint)first, EndScanline = (uint)end,
                             });
                         break;
                     default:
@@ -918,7 +918,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>The actor depths from the front back: the order the paint's draws are packed in (#1514).</summary>
-    private static readonly ActorDepth[] FrontToBack = [ActorDepth.InFront, ActorDepth.BehindFrontTiles, ActorDepth.BehindRoom];
+    private static readonly ActorDepth[] FrontToBack = [ActorDepth.InFront, ActorDepth.BehindFrontParts, ActorDepth.BehindRoom];
 
     /// <summary>The frame's draws in the order they are packed, reused from frame to frame.</summary>
     private readonly List<SpriteDraw> packedDraws = [];

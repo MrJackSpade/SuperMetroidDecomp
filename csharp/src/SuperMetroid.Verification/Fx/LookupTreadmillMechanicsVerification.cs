@@ -56,7 +56,7 @@ internal static class LookupTreadmillMechanicsVerification
             AssertEqual(header, FxNativeWords.AnimatedTileObjects.Word(WreckedShipTreadmills.ForDirection(direction).AnimatedObject), "Named direction selects header");
             AssertEqual(direction, TreadmillDefinition(header).Direction, "Header selects named direction");
         }
-        foreach (AnimatedTileObject header in Enum.GetValues<AnimatedTileObject>())
+        foreach (BlockAnimation header in Enum.GetValues<BlockAnimation>())
         {
             ushort value = FxNativeWords.AnimatedTileObjects.Word(header);
             bool found = WreckedShipTreadmills.TryResolve(header, out var definition);
@@ -66,7 +66,7 @@ internal static class LookupTreadmillMechanicsVerification
         }
         foreach (ushort undefined in UndefinedAnimatedTileObjects)
             AssertThrows<InvalidOperationException>(
-                () => WreckedShipTreadmills.TryResolve((AnimatedTileObject)undefined, out _),
+                () => WreckedShipTreadmills.TryResolve((BlockAnimation)undefined, out _),
                 "Undefined treadmill header is rejected at the typed boundary");
         foreach (int value in new[] { int.MinValue, -1, 2, 3, 255, 65535, int.MaxValue })
             AssertThrows<InvalidDataException>(() => WreckedShipTreadmills.ForDirection(

@@ -11,21 +11,21 @@ namespace SuperMetroid.Core.Fx;
 /// the first still image look plausible while discarding the game's cadence and preventing replacement graphics from
 /// following the same frames.
 /// </remarks>
-internal sealed class RoomFxAnimatedTilesState
+internal sealed class RoomFxBlockAnimationsState
 {
     /// <summary>
     /// The frame shown when the timer next expires, an index into the loaded loop's
-    /// <see cref="RoomFxAnimatedTileLoop.Frames"/>: the cursor only ever moves to the next frame, and from the last frame
+    /// <see cref="RoomFxBlockAnimationLoop.Frames"/>: the cursor only ever moves to the next frame, and from the last frame
     /// back to the first in the same pass.
     /// </summary>
     private int nextFrame;
     /// <summary>Remaining passes before the current frame gives way to the next.</summary>
     private int frameHold;
     /// <summary>The loaded loop, or null while no animation is loaded.</summary>
-    private RoomFxAnimatedTileLoop? loop;
+    private RoomFxBlockAnimationLoop? loop;
 
     /// <summary>The loaded loop; only an active animation has one.</summary>
-    private RoomFxAnimatedTileLoop Loop =>
+    private RoomFxBlockAnimationLoop Loop =>
         loop ?? throw new InvalidOperationException("Room-FX animation requires a loaded loop.");
 
     /// <summary>Whether an animation is loaded.</summary>
@@ -39,13 +39,13 @@ internal sealed class RoomFxAnimatedTilesState
 
     /// <summary>The animation a room effect of <paramref name="type"/> animates the effect overlay with, or none.</summary>
     /// <exception cref="InvalidOperationException">The type is undefined.</exception>
-    public static AnimatedTileObject ObjectOf(RoomFxType type) =>
+    public static BlockAnimation ObjectOf(RoomFxType type) =>
         type switch
         {
-            RoomFxType.Lava => AnimatedTileObject.Lava,
-            RoomFxType.Acid => AnimatedTileObject.Acid,
-            RoomFxType.Rain => AnimatedTileObject.Rain,
-            RoomFxType.Spores => AnimatedTileObject.Spores,
+            RoomFxType.Lava => BlockAnimation.Lava,
+            RoomFxType.Acid => BlockAnimation.Acid,
+            RoomFxType.Rain => BlockAnimation.Rain,
+            RoomFxType.Spores => BlockAnimation.Spores,
             RoomFxType.None or RoomFxType.Water or RoomFxType.Fog or RoomFxType.ScrollingSky or
                 RoomFxType.UnusedScrollingSky or RoomFxType.Fireflea or RoomFxType.TourianEntranceStatue or
                 RoomFxType.CeresRidley or RoomFxType.CeresElevator or RoomFxType.CeresHaze => 0,
@@ -55,15 +55,15 @@ internal sealed class RoomFxAnimatedTilesState
     /// <summary>Loads the looping animation <paramref name="definition"/>, independent of effect type.</summary>
     /// <exception cref="InvalidOperationException">This owner has already loaded an animation.</exception>
     /// <exception cref="InvalidDataException"><paramref name="definition"/> is not a looping animation.</exception>
-    public void LoadDefinition(AnimatedTileObject definition)
+    public void LoadDefinition(BlockAnimation definition)
     {
         // Each room builds its own animations, so an owner loads one animation, from its fresh state.
         if (loop is not null)
             throw new InvalidOperationException($"Room-FX animation already loaded {loop.AnimatedObject}.");
-        if (definition == AnimatedTileObject.None)
+        if (definition == BlockAnimation.None)
             return;
 
-        if (!RoomFxAnimatedTiles.TryResolve(definition, out loop))
+        if (!RoomFxBlockAnimations.TryResolve(definition, out loop))
             throw new InvalidDataException($"Room-FX animation {definition} is not a looping animation.");
         nextFrame = 0;
         frameHold = 1;

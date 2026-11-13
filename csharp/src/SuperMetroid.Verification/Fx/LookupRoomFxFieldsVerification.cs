@@ -156,7 +156,7 @@ internal static class LookupRoomFxFieldsVerification
         record => RoomFxRecordEncoding.PaletteEffectsByte(record.PaletteEffects, record.HeaderArea));
     /// <summary>Checks the animated tiles, encoded through the header's area's list, against the bits at offset fourteen.</summary>
     private static void VerifyRoomFxAnimatedTileBitset(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 14, 1,
-        record => RoomFxRecordEncoding.AnimatedTilesByte(record.AnimatedTiles, record.HeaderArea));
+        record => RoomFxRecordEncoding.AnimatedTilesByte(record.BlockAnimations, record.HeaderArea));
     /// <summary>Checks the palette blend selector at offset fifteen.</summary>
     private static void VerifyRoomFxPaletteBlend(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 15, 1, record => RoomFxRecordEncoding.PaletteBlendByte(record.PaletteBlend));
     /// <summary>

@@ -27,11 +27,11 @@ public readonly record struct BgTilemapGeometry
 
     /// <summary>Wraps a scrolled horizontal pixel into the map; scrolling past either edge repeats the map.</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int WrapX(int pixelX) => pixelX & (SizeInCharacters.X * ScreenGeometry.BackgroundTileSizePixels - 1);
+    public int WrapX(int pixelX) => pixelX & (SizeInCharacters.X * ScreenGeometry.BackgroundCellSizePixels - 1);
 
     /// <summary>Wraps a scrolled vertical pixel into the map.</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int WrapY(int pixelY) => pixelY & (SizeInCharacters.Y * ScreenGeometry.BackgroundTileSizePixels - 1);
+    public int WrapY(int pixelY) => pixelY & (SizeInCharacters.Y * ScreenGeometry.BackgroundCellSizePixels - 1);
 
     /// <summary>
     /// The VRAM word holding the entry for a character position: the screen containing it, then the

@@ -305,8 +305,8 @@ static void SeedSyntheticCrateriaAreaMap(TestAddressSpace bus)
     WriteTestWord(bus, 0x829717, 0x9000);
     for (int index = 0; index < 0x100; index++)
         WriteTestByte(bus, 0x829000 + index, 0xff);
-    for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
-    for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
+    for (int y = 0; y < AreaMapSize.HeightInMapTiles; y++)
+    for (int x = 0; x < AreaMapSize.WidthInMapTiles; x++)
     {
         var tile = new Position16<MapTiles>(checked((ushort)x), checked((ushort)y));
         WriteTestWord(bus, 0xb58000 + AreaMapPages.GetTilemapWordIndex(tile) * 2, SyntheticMapWord(tile));

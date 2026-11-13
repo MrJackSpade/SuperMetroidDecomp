@@ -119,7 +119,7 @@ internal sealed class DoorTransitionState
             DoorTransitionPhase.LoadDestinationRoom => CeresHazeRoomFade.None,
             DoorTransitionPhase.WaitForDoorOpeningScroll => CeresHazeRoomFade.None,
             DoorTransitionPhase.AlignSamusWithDoorway => CeresHazeRoomFade.None,
-            DoorTransitionPhase.StepDestinationAnimatedTiles => CeresHazeRoomFade.None,
+            DoorTransitionPhase.StepDestinationBlockAnimations => CeresHazeRoomFade.None,
             DoorTransitionPhase.WaitForMusicQueue => CeresHazeRoomFade.None,
             DoorTransitionPhase.FinishDoorOpeningScroll => CeresHazeRoomFade.None,
             DoorTransitionPhase.DrawFirstDestinationFrame => CeresHazeRoomFade.None,
@@ -196,7 +196,7 @@ internal sealed class DoorTransitionState
             case DoorTransitionPhase.PlaceSamusInDestination:
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
-                runtime.RoomLoader.PlaceSamusForDoorTileLoading();
+                runtime.RoomLoader.PlaceSamusForDestinationLoading();
                 Phase = DoorTransitionPhase.LoadDestinationRoom;
                 break;
 
@@ -256,15 +256,15 @@ internal sealed class DoorTransitionState
                 // same update's work, so it aligns X without another random draw.
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.RoomLoader.AlignSamusAfterDoorLoading();
-                Phase = DoorTransitionPhase.StepDestinationAnimatedTiles;
+                Phase = DoorTransitionPhase.StepDestinationBlockAnimations;
                 break;
 
-            case DoorTransitionPhase.StepDestinationAnimatedTiles:
+            case DoorTransitionPhase.StepDestinationBlockAnimations:
                 // LoadRoom already initialized the destination's block animations; the
                 // transition gives them one explicit step before polling the music queue.
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
-                runtime.RoomMains.RunAnimatedTilesObjectHandler(runtime.Room.LoadedScope);
+                runtime.RoomMains.RunBlockAnimations(runtime.Room.LoadedScope);
                 Phase = DoorTransitionPhase.WaitForMusicQueue;
                 break;
 
@@ -304,7 +304,7 @@ internal sealed class DoorTransitionState
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
                 // Every fade step runs the block animations, then the enemy and draw owners,
                 // without Samus's movement and animation or the camera's scrolling.
-                runtime.RoomMains.RunAnimatedTilesObjectHandler(runtime.Room.LoadedScope);
+                runtime.RoomMains.RunBlockAnimations(runtime.Room.LoadedScope);
                 runtime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Run, runtime.Room.LoadedScope);
                 Phase = DoorTransitionPhase.FadeInDestinationPalette;
                 // The destination fades in toward the colours its owners show, which enemy scripts running

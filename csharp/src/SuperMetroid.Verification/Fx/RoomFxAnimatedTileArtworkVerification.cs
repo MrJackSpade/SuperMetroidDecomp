@@ -23,10 +23,10 @@ internal static class RoomFxAnimatedTileArtworkVerification
         RoomFxAnimatedTileAtlas atlas = RoomFxAnimatedTileAtlasPng.Read(new MemoryStream(png));
         var guarded = NewRoomFxArtworkForbiddenBus(rom);
         int frameCount = 0;
-        foreach (RoomFxAnimatedTileLoop definition in
+        foreach (RoomFxBlockAnimationLoop definition in
                  RoomFxAnimatedTileLoops.All)
         {
-            var state = new RoomFxAnimatedTilesState();
+            var state = new RoomFxBlockAnimationsState();
             state.LoadDefinition(definition.AnimatedObject);
             for (int frameIndex = 0; frameIndex < definition.Frames.Count; frameIndex++)
             {
@@ -44,7 +44,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
                     state.Step(new ArtworkFrameSelections());
                 var frames = new ArtworkFrameSelections();
                 state.Step(frames);
-                AssertTrue(frames.TryShown(AnimatedTileFrames.Of(definition.AnimatedObject), out ArtworkFrame shown) &&
+                AssertTrue(frames.TryShown(BlockAnimationFrames.Of(definition.AnimatedObject), out ArtworkFrame shown) &&
                         shown == definition.Frames[frameIndex].Frame,
                     $"room-FX frame $87:{cursor:X4} is the frame its animation shows from this update");
                 AssertEqual(source, AnimatedTileImageSources.OfShown(frames, definition.AnimatedObject),
@@ -56,12 +56,12 @@ internal static class RoomFxAnimatedTileArtworkVerification
         foreach (WreckedShipTreadmillDirection direction in
                  Enum.GetValues<WreckedShipTreadmillDirection>())
         {
-            var treadmill = new WreckedShipTreadmillAnimatedTilesState();
+            var treadmill = new WreckedShipTreadmillBlockAnimationsState();
             var waitFrames = new ArtworkFrameSelections();
             treadmill.Start(direction);
             treadmill.Step(areaBossDefeated: false, waitFrames);
-            AnimatedTileObject treadmillObject = WreckedShipTreadmills.ForDirection(direction).AnimatedObject;
-            AssertTrue(!waitFrames.TryShown(AnimatedTileFrames.Of(treadmillObject), out _),
+            BlockAnimation treadmillObject = WreckedShipTreadmills.ForDirection(direction).AnimatedObject;
+            AssertTrue(!waitFrames.TryShown(BlockAnimationFrames.Of(treadmillObject), out _),
                 $"{direction} waits for Phantoon's area-boss bit before presenting art");
             for (int frame = 0; frame < RoomFxAnimatedTileAtlasFormat.TreadmillFrameCount;
                  frame++)
@@ -78,8 +78,8 @@ internal static class RoomFxAnimatedTileArtworkVerification
                 // Each pass selects into fresh selections, so the selection read back is the one this pass made.
                 var treadmillFrames = new ArtworkFrameSelections();
                 treadmill.Step(areaBossDefeated: true, treadmillFrames);
-                AssertTrue(treadmillFrames.TryShown(AnimatedTileFrames.Of(treadmillObject), out ArtworkFrame shown) &&
-                        shown == AnimatedTileFrames.Frame(treadmillObject, frame),
+                AssertTrue(treadmillFrames.TryShown(BlockAnimationFrames.Of(treadmillObject), out ArtworkFrame shown) &&
+                        shown == BlockAnimationFrames.Frame(treadmillObject, frame),
                     $"{direction} frame {frame} is the frame the treadmill shows from this update");
                 AssertEqual(source, AnimatedTileImageSources.OfShown(treadmillFrames, treadmillObject),
                     $"{direction} frame {frame} selects the compiled artwork identity");
@@ -87,7 +87,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts, "installed animations never read bank-$87 ROM data");
         AssertThrows<InvalidDataException>(() => atlas.TryResolve(
-            AnimatedTileImageSources.Of(new AnimatedTileImage(AnimatedTileObject.Lava, 0)), 1, out _),
+            AnimatedTileImageSources.Of(new AnimatedTileImage(BlockAnimation.Lava, 0)), 1, out _),
             "artwork cannot change the native transfer byte count");
         AssertThrows<InvalidDataException>(() => RoomFxAnimatedTileAtlasPng.Read(
             new MemoryStream([1, 2, 3])), "corrupt room-FX PNG fails loudly");

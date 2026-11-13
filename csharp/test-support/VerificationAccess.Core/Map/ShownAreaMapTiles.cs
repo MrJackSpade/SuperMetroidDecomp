@@ -16,12 +16,12 @@ internal static class ShownAreaMapTiles
     internal static BackgroundTile[] Of(ShownAreaMap map)
     {
         Ensure.NotNull(map);
-        var tiles = new BackgroundTile[AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles];
-        for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
-        for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
+        var tiles = new BackgroundTile[AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles];
+        for (int y = 0; y < AreaMapSize.HeightInMapTiles; y++)
+        for (int x = 0; x < AreaMapSize.WidthInMapTiles; x++)
         {
             var cell = new Position16<MapTiles>(unchecked((ushort)x), unchecked((ushort)y));
-            ShownMapCell shown = map.Cells[y * AreaMapSize.WidthInTiles + x];
+            ShownMapCell shown = map.Cells[y * AreaMapSize.WidthInMapTiles + x];
             tiles[AreaMapPages.GetTilemapWordIndex(cell)] = MapCellCharacters.Tile(shown);
         }
         return tiles;

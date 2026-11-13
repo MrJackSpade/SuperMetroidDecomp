@@ -45,9 +45,10 @@ public static class RoomBlockSheetFiles
     /// its appearance inputs (#1466); revision 2 no longer pictures the cell the effect area is cleared to (#1514); revision
     /// 3 names an encounter's look input by the encounter and the look (#1538); revision 4 installs the effect overlay's
     /// sheets as <c>OverlayPictures.</c> (#1601); revision 5 installs each liquid's surface strip and body and each
-    /// atmosphere's repeating picture in place of the effects' tilemap pages (#1706).
+    /// atmosphere's repeating picture in place of the effects' tilemap pages (#1706); revision 6 names a block animation's
+    /// frames by its block animation, not by the hardware's tiles (#1726).
     /// </summary>
-    private const int WrittenManifestVersion = 5;
+    private const int WrittenManifestVersion = 6;
 
     /// <summary>The manifest naming each tileset whose turning floor is installed: each whose rooms show one (#1649).</summary>
     public const string FloorManifestFileName = "room-floors.json";

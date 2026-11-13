@@ -127,7 +127,7 @@ internal sealed class CrocomireSkeleton
     }
 
     /// <summary>Bares the skeleton behind the wall while its wait runs, then replaces the wall blocks as the bones break through.</summary>
-    internal void RunCrocomireSkeletonTileLoadAndWallBreak(CrocomireEnemyState state)
+    internal void RunCrocomireSkeletonRevealAndWallBreak(CrocomireEnemyState state)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         if (state.DeathPhaseDelay != 0)

@@ -12,7 +12,7 @@ public enum ActorDepth
     BehindRoom,
 
     /// <summary>In front of the room's back tiles and behind its front tiles: where Samus and most actors are drawn.</summary>
-    BehindFrontTiles,
+    BehindFrontParts,
 
     /// <summary>In front of every tile of the room's background and foreground.</summary>
     InFront,

@@ -41,7 +41,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
         Suite(nameof(VerifyRoomFxAtlasSegmentRoles), () => VerifyRoomFxAtlasSegmentRoles());
         int mechanicsWordCount = 0;
         int frameCount = 0;
-        foreach (RoomFxAnimatedTileLoop definition in
+        foreach (RoomFxBlockAnimationLoop definition in
                  RoomFxAnimatedTileLoops.All)
         {
             mechanicsWordCount += 3;
@@ -61,7 +61,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
 
             int presentationReadCount = 0;
             var guarded = NewRoomFxAnimatedTileMechanicsForbiddenBus(bus, definition, () => presentationReadCount++);
-            var state = new RoomFxAnimatedTilesState();
+            var state = new RoomFxBlockAnimationsState();
             state.LoadDefinition(definition.AnimatedObject);
 
             int steps = definition.Frames.Sum(frame => frame.Duration) + 1;
@@ -71,7 +71,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
                 // Each pass selects into fresh selections, so a selection read back is the one this pass made.
                 var frames = new ArtworkFrameSelections();
                 state.Step(frames);
-                if (frames.TryShown(AnimatedTileFrames.Of(definition.AnimatedObject), out _))
+                if (frames.TryShown(BlockAnimationFrames.Of(definition.AnimatedObject), out _))
                     observedFrames++;
             }
 
@@ -94,7 +94,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
 
     /// <summary>Rejects compiled mechanics reads and counts unexpected artwork operand reads in bank $87.</summary>
     private static CartridgeReadGuard NewRoomFxAnimatedTileMechanicsForbiddenBus(
-        ISnesAddressSpace inner, RoomFxAnimatedTileLoop definition, Action presentationRead)
+        ISnesAddressSpace inner, RoomFxBlockAnimationLoop definition, Action presentationRead)
     {
         bool InAnimatedTileBank(int address) =>
             SnesAddress.FromBusAddress(address).Bank == SnesLittleEndianConstants.BankByte(RoomFxNativeSources.AnimatedTilesBank);
@@ -123,7 +123,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
     /// </summary>
     private static void VerifySimpleAnimationLoopWrapsToFirstFrame()
     {
-        foreach (RoomFxAnimatedTileLoop definition in RoomFxAnimatedTileLoops.All)
+        foreach (RoomFxBlockAnimationLoop definition in RoomFxAnimatedTileLoops.All)
         {
             var expected = new List<RoomFxAnimatedTileMechanicsDefinitionsExpected>();
             int update = 0;
@@ -135,7 +135,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
                 update += definition.Frames[frame].Duration;
             }
 
-            var state = new RoomFxAnimatedTilesState();
+            var state = new RoomFxBlockAnimationsState();
             state.LoadDefinition(definition.AnimatedObject);
             var observed = new List<RoomFxAnimatedTileMechanicsDefinitionsExpected>();
             for (int step = 0; step <= expected[^1].Update; step++)

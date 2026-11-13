@@ -11,14 +11,14 @@ namespace SuperMetroid.AssetExtraction.Fx;
 internal static class RoomFxAnimatedTilePictureSizeDefinitions
 {
     /// <summary>The bytes of each picture of each looping animation.</summary>
-    internal static readonly FrozenDictionary<AnimatedTileObject, int> PictureByteCounts = new Dictionary<AnimatedTileObject, int>
+    internal static readonly FrozenDictionary<BlockAnimation, int> PictureByteCounts = new Dictionary<BlockAnimation, int>
     {
-        [AnimatedTileObject.HorizontalSpikes] = 128,
-        [AnimatedTileObject.MaridiaSandCeiling] = 64,
-        [AnimatedTileObject.MaridiaSandFalling] = 32,
-        [AnimatedTileObject.Lava] = 64,
-        [AnimatedTileObject.Acid] = 64,
-        [AnimatedTileObject.Rain] = 80,
-        [AnimatedTileObject.Spores] = 48,
+        [BlockAnimation.HorizontalSpikes] = 128,
+        [BlockAnimation.MaridiaSandCeiling] = 64,
+        [BlockAnimation.MaridiaSandFalling] = 32,
+        [BlockAnimation.Lava] = 64,
+        [BlockAnimation.Acid] = 64,
+        [BlockAnimation.Rain] = 80,
+        [BlockAnimation.Spores] = 48,
     }.ToFrozenDictionary();
 }

@@ -25,7 +25,7 @@ public static class IntroNarrationPictures
     internal const int FinalLineRow = IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows;
 
     /// <summary>The side of one narration glyph in pixels.</summary>
-    private const int GlyphPixels = ScreenGeometry.BackgroundTileSizePixels;
+    private const int GlyphPixels = ScreenGeometry.BackgroundCellSizePixels;
 
     /// <summary>
     /// Pixels the narration pages show above the screen's top: the pages' first row of glyphs lies one row up from the

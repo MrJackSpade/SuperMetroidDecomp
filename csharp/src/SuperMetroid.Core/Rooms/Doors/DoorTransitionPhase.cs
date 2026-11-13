@@ -26,7 +26,7 @@ public enum DoorTransitionPhase
     /// <summary>Wait one update after the destination's room objects run, then align Samus with the doorway.</summary>
     AlignSamusWithDoorway,
     /// <summary>Run the destination's block animations once after loading.</summary>
-    StepDestinationAnimatedTiles,
+    StepDestinationBlockAnimations,
     /// <summary>Wait for the global music queue to drain before selecting room music.</summary>
     WaitForMusicQueue,
     /// <summary>Finish the opening scroll and return the screen to the destination room's display.</summary>

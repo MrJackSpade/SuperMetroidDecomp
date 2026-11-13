@@ -77,10 +77,10 @@ internal static class TourianStatueNativeWords
     /// import's statue-to-object mapping; any other defined object resolves to false and null.
     /// </summary>
     /// <exception cref="InvalidOperationException"><paramref name="animatedObject"/> is undefined.</exception>
-    internal static bool TryResolveStatue(AnimatedTileObject animatedObject, [NotNullWhen(true)] out TourianStatueAnimationDefinition? definition)
+    internal static bool TryResolveStatue(BlockAnimation animatedObject, [NotNullWhen(true)] out TourianStatueAnimationDefinition? definition)
     {
         if (!Enum.IsDefined(animatedObject))
-            throw new InvalidOperationException($"Undefined AnimatedTileObject {animatedObject}.");
+            throw new InvalidOperationException($"Undefined {nameof(BlockAnimation)} {animatedObject}.");
         definition = TourianStatueAnimatedTilePrograms.All.SingleOrDefault(
             statue => TourianStatueAnimatedTilePrograms.ObjectOf(statue.Statue) == animatedObject);
         return definition is not null;

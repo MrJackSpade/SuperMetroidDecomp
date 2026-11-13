@@ -884,7 +884,7 @@ internal static class LookupStream4Verification
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
         static ushort Word(GameplayHudCell cell)=>SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,
-            (cell.FlipX?TileFlip.Horizontal:0)|(cell.FlipY?TileFlip.Vertical:0)).Raw;
+            (cell.FlipX?PictureFlip.Horizontal:0)|(cell.FlipY?PictureFlip.Vertical:0)).Raw;
         var stock=GameplayHudPresentationFile.Read(new MemoryStream(json));
         {
             // The stock icons draw the cartridge's icon words at its icon offsets.
@@ -951,7 +951,7 @@ internal static class LookupStream4Verification
             ushort[] tiles=new ushort[96];selected.ApplyTemplate(tiles);
             for(int index=0;index<96;index++)
             {
-                var cell=document.Template[index];ushort expected=SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,(cell.FlipX?TileFlip.Horizontal:0)|(cell.FlipY?TileFlip.Vertical:0)).Raw;
+                var cell=document.Template[index];ushort expected=SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,(cell.FlipX?PictureFlip.Horizontal:0)|(cell.FlipY?PictureFlip.Vertical:0)).Raw;
                 AssertEqual(expected,tiles[index],"Stock template cell");
             }
             {
@@ -980,7 +980,7 @@ internal static class LookupStream4Verification
             AssertEqual(32,row.Length,"Top row covers every HUD column");
             for(int column=0;column<32;column++)
             {
-                var cell=document.TopRow[column];ushort expected=SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,(cell.FlipX?TileFlip.Horizontal:0)|(cell.FlipY?TileFlip.Vertical:0)).Raw;
+                var cell=document.TopRow[column];ushort expected=SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,(cell.FlipX?PictureFlip.Horizontal:0)|(cell.FlipY?PictureFlip.Vertical:0)).Raw;
                 AssertEqual(expected, row[column], "Every supplied top-row cell survives into the shown row");
             }
         }
@@ -1000,7 +1000,7 @@ internal static class LookupStream4Verification
         Suite(nameof(VerifyLookupStream4HudAutoCells), () => VerifyLookupStream4HudAutoCells(rom));
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
         static ushort Word(GameplayHudCell cell)=>SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,
-            (cell.FlipX?TileFlip.Horizontal:0)|(cell.FlipY?TileFlip.Vertical:0)).Raw;
+            (cell.FlipX?PictureFlip.Horizontal:0)|(cell.FlipY?PictureFlip.Vertical:0)).Raw;
         {
             var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);
             using var output=new MemoryStream();GameplayHudPresentationFile.Write(output,document);byte[] bytes=output.ToArray();

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 /// Names the equipment screen's item labels (#1467): which label each category and item has, and which are the ordinary
 /// beam labels Hyper replaces; the import pictures each label whole.
 /// </summary>
-public static class PauseEquipmentLabelTiles
+public static class PauseEquipmentLabels
 {
     /// <summary>Equipment label identities alias the corresponding selector controls. The game
     /// selects Charge/Ice/Wave/Spazer/Plasma, suit/misc and boot labels in

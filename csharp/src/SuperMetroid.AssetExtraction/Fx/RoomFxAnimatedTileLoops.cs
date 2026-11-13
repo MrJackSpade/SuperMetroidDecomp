@@ -17,27 +17,27 @@ public static class RoomFxAnimatedTileLoops
 
     /// <summary>The loop of an object the atlas holds.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="animatedObject"/> is not one of the simple loops.</exception>
-    internal static RoomFxAnimatedTileLoop Require(AnimatedTileObject animatedObject) =>
-        RoomFxAnimatedTiles.TryResolve(animatedObject, out RoomFxAnimatedTileLoop? loop) ? loop
+    internal static RoomFxBlockAnimationLoop Require(BlockAnimation animatedObject) =>
+        RoomFxBlockAnimations.TryResolve(animatedObject, out RoomFxBlockAnimationLoop? loop) ? loop
             : throw new InvalidOperationException($"{animatedObject} has no definition in this catalog.");
 
     /// <summary>Enumerates the seven supported objects.</summary>
-    public static IEnumerable<RoomFxAnimatedTileLoop> All
+    public static IEnumerable<RoomFxBlockAnimationLoop> All
     {
         get
         {
-            yield return Require(AnimatedTileObject.HorizontalSpikes);
-            yield return Require(AnimatedTileObject.MaridiaSandCeiling);
-            yield return Require(AnimatedTileObject.MaridiaSandFalling);
-            yield return Require(AnimatedTileObject.Lava);
-            yield return Require(AnimatedTileObject.Acid);
-            yield return Require(AnimatedTileObject.Rain);
-            yield return Require(AnimatedTileObject.Spores);
+            yield return Require(BlockAnimation.HorizontalSpikes);
+            yield return Require(BlockAnimation.MaridiaSandCeiling);
+            yield return Require(BlockAnimation.MaridiaSandFalling);
+            yield return Require(BlockAnimation.Lava);
+            yield return Require(BlockAnimation.Acid);
+            yield return Require(BlockAnimation.Rain);
+            yield return Require(BlockAnimation.Spores);
         }
     }
 
     /// <summary>The distinct pictures one loop's frames show, as the installed atlas stores them (#1527).</summary>
-    extension(RoomFxAnimatedTileLoop loop)
+    extension(RoomFxBlockAnimationLoop loop)
     {
         /// <summary>The distinct pictures the object's frames show, each held once in the installed atlas.</summary>
         /// <exception cref="InvalidDataException">
@@ -94,7 +94,7 @@ public static class RoomFxAnimatedTileLoops
         {
             if ((uint)frameIndex >= WreckedShipTreadmillMechanicsDefinitions.FrameCount)
                 throw new ArgumentOutOfRangeException(nameof(frameIndex));
-            return new(AnimatedTileObject.WreckedShipTreadmillRightwards,
+            return new(BlockAnimation.WreckedShipTreadmillRightwards,
                 treadmill.Direction == WreckedShipTreadmillDirection.Rightwards
                     ? frameIndex : WreckedShipTreadmillMechanicsDefinitions.FrameCount - 1 - frameIndex);
         }

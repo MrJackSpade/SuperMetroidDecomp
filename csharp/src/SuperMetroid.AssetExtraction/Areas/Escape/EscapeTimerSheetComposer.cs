@@ -53,8 +53,8 @@ internal static class EscapeTimerSheetComposer
             parts[index] = new SpriteFramePart(
                 new Offset16<ScreenPixels>(checked((short)x.SignedOffset), unchecked((sbyte)bus.ReadCartridgeByte(source + 2))),
                 size, attributes.TileNumber - EscapeTimerTileAtlasFormat.FirstCharacter,
-                (attributes.FlipHorizontally ? TileFlip.Horizontal : TileFlip.None) |
-                (attributes.FlipVertically ? TileFlip.Vertical : TileFlip.None),
+                (attributes.FlipHorizontally ? PictureFlip.Horizontal : PictureFlip.None) |
+                (attributes.FlipVertically ? PictureFlip.Vertical : PictureFlip.None),
                 null, attributes.Priority);
         }
         return [.. parts];

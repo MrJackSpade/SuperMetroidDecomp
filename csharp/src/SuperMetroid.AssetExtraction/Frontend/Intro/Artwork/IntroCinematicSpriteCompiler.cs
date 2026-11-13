@@ -30,9 +30,9 @@ internal static class IntroCinematicSpriteCompiler
                 part.TileRow > TileRows - part.Size / 8)
                 throw new InvalidDataException(
                     $"Opening sprite {name} part {index} has invalid visual fields.");
-            TileFlip flips =
-                (part.FlipX ? TileFlip.Horizontal : 0) |
-                (part.FlipY ? TileFlip.Vertical : 0);
+            PictureFlip flips =
+                (part.FlipX ? PictureFlip.Horizontal : 0) |
+                (part.FlipY ? PictureFlip.Vertical : 0);
             compiled[index] = new CompiledSpritePart(
                 SpritePart.Create(Offset16<ScreenPixels>.Of(part.OffsetX, part.OffsetY), part.Size == 16,
                     part.TileRow * TileColumns + part.TileColumn,

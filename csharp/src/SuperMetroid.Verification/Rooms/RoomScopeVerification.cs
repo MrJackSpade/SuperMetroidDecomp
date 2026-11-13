@@ -87,8 +87,8 @@ internal static class RoomScopeVerification
         VerificationAssertions.AssertEqual(30, destination.Projectiles.Charge.FlareCounter, "the flare counter survives the load");
         VerificationAssertions.AssertTrue(!ReferenceEquals(source.FxOverlay, destination.FxOverlay) &&
             !ReferenceEquals(source.PaletteFx, destination.PaletteFx) && !ReferenceEquals(source.CeresHaze, destination.CeresHaze) &&
-            !ReferenceEquals(source.SandTiles, destination.SandTiles) && !ReferenceEquals(source.SpikeTiles, destination.SpikeTiles) &&
-            !ReferenceEquals(source.TreadmillTiles, destination.TreadmillTiles) &&
+            !ReferenceEquals(source.SandBlockAnimations, destination.SandBlockAnimations) && !ReferenceEquals(source.SpikeBlockAnimations, destination.SpikeBlockAnimations) &&
+            !ReferenceEquals(source.TreadmillBlockAnimations, destination.TreadmillBlockAnimations) &&
             !ReferenceEquals(source.WreckedShipTreadmill, destination.WreckedShipTreadmill) &&
             !ReferenceEquals(source.TourianStatues, destination.TourianStatues),
             "the destination builds its own FX, animated tiles, haze and statue sequence");

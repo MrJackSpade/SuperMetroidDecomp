@@ -35,12 +35,12 @@ public static class XrayRevealOverlays
             if (item.Location is not { } location || system.HasCollectedItem(location)) continue;
             RevealedBlock revealed = CollectibleObjects.ShowsOwnPicture(item.Kind)
                 ? new RevealedBlock(CollectibleCellPictures.DefinitionOf(new CollectiblePicture(item.Kind, 0)), RevealedBlockArrangement.AsDefined)
-                : Arranged(overlays.TankMetatile(item.Kind));
+                : Arranged(overlays.TankBlock(item.Kind));
             Write(blocks, revealed, item.Block, foregroundPosition);
         }
         if (roomOverlay is null) return;
-        foreach (XrayRoomOverlayVisual tile in overlays.RoomTiles(roomOverlay))
-            Write(blocks, Arranged(tile.Appearance), tile.Block, foregroundPosition);
+        foreach (XrayRoomOverlayVisual visual in overlays.RoomBlocks(roomOverlay))
+            Write(blocks, Arranged(visual.Appearance), visual.Block, foregroundPosition);
     }
 
     /// <summary>
@@ -58,7 +58,7 @@ public static class XrayRevealOverlays
     private static void Write(Span<RevealedBlock?> blocks, RevealedBlock revealed, Position16<RoomBlocks> block,
         Position16<RoomPixels> foregroundPosition)
     {
-        // The overlay's metatile within the visible window, relative to the camera's block.
+        // The overlay's block within the visible window, relative to the camera's block.
         Offset16<RoomBlocks> visible = block - foregroundPosition.ToRoomBlock();
         int x = visible.X, y = visible.Y;
         // Only an overlay inside the revealed area shows.

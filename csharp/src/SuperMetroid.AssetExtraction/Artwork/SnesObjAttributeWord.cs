@@ -32,13 +32,13 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     /// <summary>Gets only the palette field in its packed bit positions, suitable for native palette composition.</summary>
     public ushort PaletteBits => unchecked((ushort)(Raw & PaletteFieldMask));
     /// <summary>Gets both reflection flags without including tile, palette, or priority bits.</summary>
-    public TileFlip FlipFlags =>
-        ((Raw & HorizontalFlipBit) != 0 ? TileFlip.Horizontal : TileFlip.None) |
-        ((Raw & VerticalFlipBit) != 0 ? TileFlip.Vertical : TileFlip.None);
+    public PictureFlip FlipFlags =>
+        ((Raw & HorizontalFlipBit) != 0 ? PictureFlip.Horizontal : PictureFlip.None) |
+        ((Raw & VerticalFlipBit) != 0 ? PictureFlip.Vertical : PictureFlip.None);
     /// <summary>Gets whether the object's pixels are drawn in reverse horizontal order.</summary>
-    public bool FlipHorizontally => (FlipFlags & TileFlip.Horizontal) != 0;
+    public bool FlipHorizontally => (FlipFlags & PictureFlip.Horizontal) != 0;
     /// <summary>Gets whether the object's rows are drawn in reverse vertical order.</summary>
-    public bool FlipVertically => (FlipFlags & TileFlip.Vertical) != 0;
+    public bool FlipVertically => (FlipFlags & PictureFlip.Vertical) != 0;
 
     /// <summary>Bits 9 through 11 are the only bits accepted by palette-fragment operations.</summary>
     internal const ushort PaletteFieldMask = ThreeBitMask << PaletteShift;
@@ -48,7 +48,7 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
         int tileNumber,
         int paletteIndex,
         int priority,
-        TileFlip flips = TileFlip.None)
+        PictureFlip flips = PictureFlip.None)
     {
         if ((uint)tileNumber > TileNumberMask)
             throw new ArgumentOutOfRangeException(nameof(tileNumber));
@@ -77,14 +77,14 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
         new(unchecked((ushort)(Raw | attributes.Raw)));
 
     /// <summary>The attribute bits that store <paramref name="flips"/>.</summary>
-    private static int FlipBits(TileFlip flips) =>
-        ((flips & TileFlip.Horizontal) != 0 ? HorizontalFlipBit : 0) |
-        ((flips & TileFlip.Vertical) != 0 ? VerticalFlipBit : 0);
+    private static int FlipBits(PictureFlip flips) =>
+        ((flips & PictureFlip.Horizontal) != 0 ? HorizontalFlipBit : 0) |
+        ((flips & PictureFlip.Vertical) != 0 ? VerticalFlipBit : 0);
 
     /// <summary>Rejects unsupported reflection bits before composing an OBJ attribute word.</summary>
-    private static void ValidateFlips(TileFlip flips)
+    private static void ValidateFlips(PictureFlip flips)
     {
-        if ((flips & ~(TileFlip.Horizontal | TileFlip.Vertical)) != 0)
+        if ((flips & ~(PictureFlip.Horizontal | PictureFlip.Vertical)) != 0)
             throw new ArgumentOutOfRangeException(nameof(flips));
     }
 

@@ -19,11 +19,11 @@ public sealed record GameplaySceneLayer : DisplayLayer
     public static ImmutableArray<GameplayLayer> Order { get; } =
     [
         GameplayLayer.ActorsBehindRoom,
-        GameplayLayer.BackgroundBackTiles,
-        GameplayLayer.ForegroundBackTiles,
-        GameplayLayer.ActorsBehindFrontTiles,
-        GameplayLayer.BackgroundFrontTiles,
-        GameplayLayer.ForegroundFrontTiles,
+        GameplayLayer.BackgroundBackPart,
+        GameplayLayer.ForegroundBackPart,
+        GameplayLayer.ActorsBehindFrontParts,
+        GameplayLayer.BackgroundFrontPart,
+        GameplayLayer.ForegroundFrontPart,
         GameplayLayer.ActorsInFront,
     ];
 

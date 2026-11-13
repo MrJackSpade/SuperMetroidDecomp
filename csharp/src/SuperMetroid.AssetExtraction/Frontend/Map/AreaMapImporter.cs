@@ -29,13 +29,13 @@ public static class AreaMapImporter
             CartridgeImportSource.Require(bus), tilemapAddress, MapSourceDefinitions.AreaMaps.TilemapBytes);
         byte[] revealBytes = RomDataReader.ReadFixedBank(
             CartridgeImportSource.Require(bus), revealAddress, MapSourceDefinitions.AreaMaps.StationRevealMaskBytes);
-        var tilemap = new MapTileWord[AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles];
-        for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
+        var tilemap = new MapTileWord[AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles];
+        for (int y = 0; y < AreaMapSize.HeightInMapTiles; y++)
         {
-            for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
+            for (int x = 0; x < AreaMapSize.WidthInMapTiles; x++)
             {
                 int nativeWordIndex = AreaMapPages.GetTilemapWordIndex(new(checked((ushort)x), checked((ushort)y)));
-                tilemap[y * AreaMapSize.WidthInTiles + x] = new MapTileWord(
+                tilemap[y * AreaMapSize.WidthInMapTiles + x] = new MapTileWord(
                     BinaryPrimitives.ReadUInt16LittleEndian(
                         tilemapBytes.AsSpan(nativeWordIndex * sizeof(ushort), sizeof(ushort))));
             }

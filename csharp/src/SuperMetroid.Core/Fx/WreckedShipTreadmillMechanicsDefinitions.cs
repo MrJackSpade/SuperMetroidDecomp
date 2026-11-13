@@ -20,16 +20,16 @@ public static class WreckedShipTreadmillMechanicsDefinitions
         new Dictionary<WreckedShipTreadmillDirection, WreckedShipTreadmillLoop>
         {
             [WreckedShipTreadmillDirection.Rightwards] =
-                new(WreckedShipTreadmillDirection.Rightwards, AnimatedTileObject.WreckedShipTreadmillRightwards),
+                new(WreckedShipTreadmillDirection.Rightwards, BlockAnimation.WreckedShipTreadmillRightwards),
             [WreckedShipTreadmillDirection.Leftwards] =
-                new(WreckedShipTreadmillDirection.Leftwards, AnimatedTileObject.WreckedShipTreadmillLeftwards),
+                new(WreckedShipTreadmillDirection.Leftwards, BlockAnimation.WreckedShipTreadmillLeftwards),
         };
 
     /// <summary>The direction each treadmill object runs.</summary>
-    internal static readonly IReadOnlyDictionary<AnimatedTileObject, WreckedShipTreadmillDirection> ObjectDirections =
-        new Dictionary<AnimatedTileObject, WreckedShipTreadmillDirection>
+    internal static readonly IReadOnlyDictionary<BlockAnimation, WreckedShipTreadmillDirection> ObjectDirections =
+        new Dictionary<BlockAnimation, WreckedShipTreadmillDirection>
         {
-            [AnimatedTileObject.WreckedShipTreadmillRightwards] = WreckedShipTreadmillDirection.Rightwards,
-            [AnimatedTileObject.WreckedShipTreadmillLeftwards] = WreckedShipTreadmillDirection.Leftwards,
+            [BlockAnimation.WreckedShipTreadmillRightwards] = WreckedShipTreadmillDirection.Rightwards,
+            [BlockAnimation.WreckedShipTreadmillLeftwards] = WreckedShipTreadmillDirection.Leftwards,
         };
 }

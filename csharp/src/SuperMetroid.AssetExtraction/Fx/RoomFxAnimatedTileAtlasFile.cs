@@ -29,8 +29,8 @@ public static class RoomFxAnimatedTileAtlasFile
     private static IEnumerable<RoomFxAtlasSegment> EnumerateSegments()
     {
         int total = 0;
-        foreach (RoomFxAnimatedTileLoop definition in RoomFxAnimatedTileLoops.All)
-            if (definition.AnimatedObject is not (AnimatedTileObject.Spores or AnimatedTileObject.HorizontalSpikes))
+        foreach (RoomFxBlockAnimationLoop definition in RoomFxAnimatedTileLoops.All)
+            if (definition.AnimatedObject is not (BlockAnimation.Spores or BlockAnimation.HorizontalSpikes))
                 foreach (var segment in Frames(definition))
                 {
                     total += segment.ByteCount;
@@ -46,12 +46,12 @@ public static class RoomFxAnimatedTileAtlasFile
         var statues = new RoomFxAtlasSegment.TourianStatueStrip();
         total += statues.ByteCount;
         yield return statues;
-        foreach (var segment in Frames(RoomFxAnimatedTileLoops.Require(AnimatedTileObject.Spores)))
+        foreach (var segment in Frames(RoomFxAnimatedTileLoops.Require(BlockAnimation.Spores)))
         {
             total += segment.ByteCount;
             yield return segment;
         }
-        foreach (var segment in Frames(RoomFxAnimatedTileLoops.Require(AnimatedTileObject.HorizontalSpikes)))
+        foreach (var segment in Frames(RoomFxAnimatedTileLoops.Require(BlockAnimation.HorizontalSpikes)))
         {
             total += segment.ByteCount;
             yield return segment;
@@ -60,7 +60,7 @@ public static class RoomFxAnimatedTileAtlasFile
             throw new InvalidOperationException("Compiled room-FX atlas segments do not match the PNG geometry.");
 
         // Each distinct picture once: the last spike step reuses a picture already present in the strip.
-        static IEnumerable<RoomFxAtlasSegment> Frames(RoomFxAnimatedTileLoop definition) =>
+        static IEnumerable<RoomFxAtlasSegment> Frames(RoomFxBlockAnimationLoop definition) =>
             definition.Images.Select(image => new RoomFxAtlasSegment.Image(image, definition.PictureByteCount));
     }
 }

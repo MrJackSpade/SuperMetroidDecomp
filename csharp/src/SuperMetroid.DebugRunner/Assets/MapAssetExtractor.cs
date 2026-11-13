@@ -28,10 +28,10 @@ internal static class MapAssetExtractor
             File.WriteAllBytes(stem + ".tilemap.bin", map.RawTilemapBytes);
             File.WriteAllBytes(stem + ".station-reveal-mask.bin", map.StationRevealMaskBytes);
 
-            var coverage = new byte[AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles];
-            for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
+            var coverage = new byte[AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles];
+            for (int y = 0; y < AreaMapSize.HeightInMapTiles; y++)
             {
-                for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
+                for (int x = 0; x < AreaMapSize.WidthInMapTiles; x++)
                 {
                     bool discoverable = map.IsDiscoverable(new(checked((ushort)x), checked((ushort)y)));
                     bool stationVisible = map.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y)));
@@ -41,13 +41,13 @@ internal static class MapAssetExtractor
                             $"{area} map-station mask includes blank tile ({x},{y}).");
                     }
                     if (discoverable)
-                        coverage[y * AreaMapSize.WidthInTiles + x] = stationVisible ? (byte)1 : (byte)2;
+                        coverage[y * AreaMapSize.WidthInMapTiles + x] = stationVisible ? (byte)1 : (byte)2;
                 }
             }
 
             PngWriterTooling.WriteIndexedAsRgba(
                 stem + ".coverage.png",
-                new Extent16<ImagePixels>(AreaMapSize.WidthInTiles, AreaMapSize.HeightInTiles),
+                new Extent16<ImagePixels>(AreaMapSize.WidthInMapTiles, AreaMapSize.HeightInMapTiles),
                 coverage,
                 [
                     new RgbaPixel(8, 8, 16, 255),

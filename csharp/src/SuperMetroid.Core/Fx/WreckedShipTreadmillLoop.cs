@@ -7,7 +7,7 @@ public sealed class WreckedShipTreadmillLoop
     /// <summary>Builds one direction's boss-gated definition.</summary>
     internal WreckedShipTreadmillLoop(
         WreckedShipTreadmillDirection direction,
-        AnimatedTileObject animatedObject)
+        BlockAnimation animatedObject)
     {
         Direction = direction;
         AnimatedObject = animatedObject;
@@ -17,5 +17,5 @@ public sealed class WreckedShipTreadmillLoop
     public WreckedShipTreadmillDirection Direction { get; }
 
     /// <summary>The block animation running this direction's loop.</summary>
-    public AnimatedTileObject AnimatedObject { get; }
+    public BlockAnimation AnimatedObject { get; }
 }

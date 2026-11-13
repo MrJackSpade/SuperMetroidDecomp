@@ -25,7 +25,7 @@ internal static class XrayOverlaysVerification
         var bus = new TestAddressSpace();
         var overlays = InstalledXrayOverlays.FromOverlaysForVerification(
             Enumerable.Range(5, InstalledXrayOverlays.TankCount).Select(value => RoomBlockAppearance.Of(value)),
-            new XrayRoomOverlayTiles[]
+            new XrayRoomOverlayBlocks[]
             {
                 new(SpecialRoom, new XrayRoomOverlayVisual[]
                 {

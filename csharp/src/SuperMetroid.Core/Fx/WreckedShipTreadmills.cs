@@ -14,10 +14,10 @@ public static class WreckedShipTreadmills
             ? loop : throw new InvalidDataException($"Unknown Wrecked Ship treadmill direction {direction}.");
 
     /// <summary>Resolves either named definition; every other block animation returns false/null.</summary>
-    public static bool TryResolve(AnimatedTileObject animatedObject, [NotNullWhen(true)] out WreckedShipTreadmillLoop? definition)
+    public static bool TryResolve(BlockAnimation animatedObject, [NotNullWhen(true)] out WreckedShipTreadmillLoop? definition)
     {
         if (!Enum.IsDefined(animatedObject))
-            throw new InvalidOperationException($"Undefined AnimatedTileObject {animatedObject}.");
+            throw new InvalidOperationException($"Undefined {nameof(BlockAnimation)} {animatedObject}.");
         definition = WreckedShipTreadmillMechanicsDefinitions.ObjectDirections.TryGetValue(animatedObject,
             out WreckedShipTreadmillDirection direction) ? ForDirection(direction) : null;
         return definition is not null;

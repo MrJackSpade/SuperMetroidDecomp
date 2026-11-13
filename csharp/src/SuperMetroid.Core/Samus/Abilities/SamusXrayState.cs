@@ -54,8 +54,8 @@ public sealed class SamusXrayState
         (SuspendedSubsystems & XraySuspendedSubsystems.RoomObjects) != XraySuspendedSubsystems.None;
 
     /// <summary>Whether X-ray's independent block-animation disable remains set, preventing block animations from advancing even after shared time resumes.</summary>
-    public bool AreAnimatedTilesSuspended =>
-        (SuspendedSubsystems & XraySuspendedSubsystems.AnimatedTiles) != XraySuspendedSubsystems.None;
+    public bool AreBlockAnimationsSuspended =>
+        (SuspendedSubsystems & XraySuspendedSubsystems.BlockAnimations) != XraySuspendedSubsystems.None;
 
     /// <summary>Whether X-ray's independent palette-FX disable remains set; this suspends the room's colour effects, not the separate colouring of Samus's visor.</summary>
     public bool ArePaletteFxSuspended =>

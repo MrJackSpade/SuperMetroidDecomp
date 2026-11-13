@@ -13,14 +13,14 @@ internal static class RoomFxAnimatedTilePictureCountDefinitions
     /// The distinct pictures of each simple loop. A loop with fewer pictures than frames plays them forward and back:
     /// the horizontal spikes' four frames show pictures 0, 1, 2 and 1.
     /// </summary>
-    internal static readonly FrozenDictionary<AnimatedTileObject, int> PictureCounts = new Dictionary<AnimatedTileObject, int>
+    internal static readonly FrozenDictionary<BlockAnimation, int> PictureCounts = new Dictionary<BlockAnimation, int>
     {
-        [AnimatedTileObject.HorizontalSpikes] = 3,
-        [AnimatedTileObject.MaridiaSandCeiling] = 4,
-        [AnimatedTileObject.MaridiaSandFalling] = 4,
-        [AnimatedTileObject.Lava] = 5,
-        [AnimatedTileObject.Acid] = 5,
-        [AnimatedTileObject.Rain] = 5,
-        [AnimatedTileObject.Spores] = 3,
+        [BlockAnimation.HorizontalSpikes] = 3,
+        [BlockAnimation.MaridiaSandCeiling] = 4,
+        [BlockAnimation.MaridiaSandFalling] = 4,
+        [BlockAnimation.Lava] = 5,
+        [BlockAnimation.Acid] = 5,
+        [BlockAnimation.Rain] = 5,
+        [BlockAnimation.Spores] = 3,
     }.ToFrozenDictionary();
 }

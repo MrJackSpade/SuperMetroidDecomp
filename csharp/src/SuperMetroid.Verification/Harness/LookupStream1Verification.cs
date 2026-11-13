@@ -702,7 +702,7 @@ internal static class LookupStream1Verification
         static SpritePart Marker(ushort pointer) =>
             SpritePart.Create(Offset16<ScreenPixels>.Of(unchecked((sbyte)pointer), unchecked((sbyte)(pointer >> 8))), (pointer & 1) != 0, pointer & 511,
                 (pointer >> 9) & 7, (pointer >> 12) & 3,
-                ((pointer & 0x4000) != 0 ? TileFlip.Horizontal : TileFlip.None) | ((pointer & 0x8000) != 0 ? TileFlip.Vertical : TileFlip.None));
+                ((pointer & 0x4000) != 0 ? PictureFlip.Horizontal : PictureFlip.None) | ((pointer & 0x8000) != 0 ? PictureFlip.Vertical : PictureFlip.None));
         SamusSpritemapDefinition[] definitions = [.. SamusSpritemapNative.Compositions(pointers)
             .Select(pointer => new SamusSpritemapDefinition([Marker(pointer)]))];
         SamusSpritemapSources Create(ushort[] upper, ushort[] lower) => new(SamusSpritemapNative.Bases(upper), SamusSpritemapNative.Bases(lower), entries, definitions);
@@ -1442,7 +1442,7 @@ internal static class LookupStream1Verification
     /// <summary>A cover appearance's single small piece at the origin, from its document fields.</summary>
     private static SpritePart CannonCoverAppearance(int tileRow, int tileColumn, int palette, int priority, bool flipHorizontally, bool flipVertically) =>
         SpritePart.Single(tileRow * SpriteArtwork.CharactersPerRow + tileColumn, palette, priority,
-            (flipHorizontally ? TileFlip.Horizontal : TileFlip.None) | (flipVertically ? TileFlip.Vertical : TileFlip.None));
+            (flipHorizontally ? PictureFlip.Horizontal : PictureFlip.None) | (flipVertically ? PictureFlip.Vertical : PictureFlip.None));
     /// <summary>Checks arm-cannon drawing commands and extracted placement through native OAM results.</summary>
     internal static void VerifyLookupStream1CannonDrawingControls(ISnesAddressSpace rom)
     {

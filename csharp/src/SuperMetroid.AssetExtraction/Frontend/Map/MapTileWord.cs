@@ -64,9 +64,9 @@ public readonly record struct MapTileWord(ushort Raw)
     public bool HasPriority => (Raw & PriorityMask) != 0;
 
     /// <summary>The cell's horizontal and vertical mirroring.</summary>
-    public TileFlip Mirroring =>
-        ((Raw & HorizontalFlipMask) != 0 ? TileFlip.Horizontal : TileFlip.None) |
-        ((Raw & VerticalFlipMask) != 0 ? TileFlip.Vertical : TileFlip.None);
+    public PictureFlip Mirroring =>
+        ((Raw & HorizontalFlipMask) != 0 ? PictureFlip.Horizontal : PictureFlip.None) |
+        ((Raw & VerticalFlipMask) != 0 ? PictureFlip.Vertical : PictureFlip.None);
 
     /// <summary>
     /// Applies bank <c>$82:943D</c>'s explored-cell operation, clearing only palette bit

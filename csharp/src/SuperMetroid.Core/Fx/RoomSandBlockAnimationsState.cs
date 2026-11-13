@@ -10,22 +10,22 @@ namespace SuperMetroid.Core.Fx;
 /// Other block animation families retain their existing independent owners.
 /// </summary>
 [RoomLifetime]
-public sealed class RoomSandAnimatedTilesState
+public sealed class RoomSandBlockAnimationsState
 {
     /// <summary>Only sand-family objects the current room's FX record starts.</summary>
-    internal readonly List<RoomFxAnimatedTilesState> objects = [];
+    internal readonly List<RoomFxBlockAnimationsState> objects = [];
 
     /// <summary>Spawns one room's objects from the door-selected FX record in the record's order.</summary>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
-    public RoomSandAnimatedTilesState(RoomFxSelection? fx, DoorDefinition? door)
+    public RoomSandBlockAnimationsState(RoomFxSelection? fx, DoorDefinition? door)
     {
         if (fx?.Select(door) is not { } record) return;
-        foreach (AnimatedTileObject definition in record.AnimatedTiles)
+        foreach (BlockAnimation definition in record.BlockAnimations)
         {
-            if (definition is not (AnimatedTileObject.MaridiaSandCeiling or AnimatedTileObject.MaridiaSandFalling))
+            if (definition is not (BlockAnimation.MaridiaSandCeiling or BlockAnimation.MaridiaSandFalling))
                 continue;
-            var animation = new RoomFxAnimatedTilesState();
+            var animation = new RoomFxBlockAnimationsState();
             animation.LoadDefinition(definition);
             objects.Add(animation);
         }

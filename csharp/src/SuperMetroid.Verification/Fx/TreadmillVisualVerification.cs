@@ -37,10 +37,10 @@ internal static class TreadmillVisualVerification
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Get(pointer));
             var room = runtime.Room.LoadedRoom;
             ushort record = RoomFxDefinitions.SelectedRecordPointer(room.State.Fx, null);
-            AnimatedTileObject[] tiles = record == 0 ? [] : [.. RoomFxDefinitions.RecordAt(record).AnimatedTiles];
+            BlockAnimation[] tiles = record == 0 ? [] : [.. RoomFxDefinitions.RecordAt(record).BlockAnimations];
             Console.WriteLine($"Room {room.Identity} header={pointer:X4} FX={room.State.FxPointer:X4} animated tiles={string.Join(", ", tiles)} door treadmill={runtime.WreckedShipTreadmill.IsActive}");
-            bool rightwards = tiles.Contains(AnimatedTileObject.WreckedShipTreadmillRightwards);
-            if (!rightwards && !tiles.Contains(AnimatedTileObject.WreckedShipTreadmillLeftwards)) continue;
+            bool rightwards = tiles.Contains(BlockAnimation.WreckedShipTreadmillRightwards);
+            if (!rightwards && !tiles.Contains(BlockAnimation.WreckedShipTreadmillLeftwards)) continue;
             var images = new HashSet<string>();
             int[] sources = rightwards
                 ? [AnimatedTileImageSources.Treadmill(0), AnimatedTileImageSources.Treadmill(1),
@@ -49,8 +49,8 @@ internal static class TreadmillVisualVerification
                     AnimatedTileImageSources.Treadmill(1), AnimatedTileImageSources.Treadmill(0)];
             // The floor's frames are selected (#1406): the frame boundary shows the frame the previous update selected, which the
             // render places over the room's characters where the cartridge copies it.
-            ArtworkAnimation treadmill = AnimatedTileFrames.Of(rightwards
-                ? AnimatedTileObject.WreckedShipTreadmillRightwards : AnimatedTileObject.WreckedShipTreadmillLeftwards);
+            ArtworkAnimation treadmill = BlockAnimationFrames.Of(rightwards
+                ? BlockAnimation.WreckedShipTreadmillRightwards : BlockAnimation.WreckedShipTreadmillLeftwards);
             // The animated tiles' characters are import data no installation holds: the cartridge-derived extraction's (#1636).
             RoomFxAnimatedTileAtlas animatedTiles = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportMaps.RoomFxAnimatedTiles;
             for (int frame = 0; frame < 12; frame++)
@@ -60,11 +60,11 @@ internal static class TreadmillVisualVerification
                 byte[] shown = BgArtworkFixtures.Composed(runtime.Vram, runtime.BgArtwork, runtime.BackgroundArtwork());
                 if (latched is { } latchedFrame)
                     AnimatedTileFrameArtwork.Bytes(BgArtworkIdentity.Frame(latchedFrame), animatedTiles).Span.CopyTo(
-                        shown.AsSpan(AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards) * 2));
+                        shown.AsSpan(AnimatedTileVramDestinations.WordOf(BlockAnimation.WreckedShipTreadmillRightwards) * 2));
                 // The floor's characters as the frame shows them: the actual artwork, not merely a changing DMA
                 // pointer or unrelated enemy animation.
                 byte[] floor = shown.AsSpan(
-                    AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards) * 2,
+                    AnimatedTileVramDestinations.WordOf(BlockAnimation.WreckedShipTreadmillRightwards) * 2,
                     RoomFxAnimatedTileLoops.TreadmillFrameByteCount).ToArray();
                 images.Add(Convert.ToHexString(floor));
                 if (frame > 0)
@@ -83,7 +83,7 @@ internal static class TreadmillVisualVerification
     private static byte[] NativeFloorCharacters(ISnesAddressSpace bus, int source)
     {
         var expected = new SnesVram();
-        ushort destination = AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards);
+        ushort destination = AnimatedTileVramDestinations.WordOf(BlockAnimation.WreckedShipTreadmillRightwards);
         ImportedVramOracle.ExecuteHardware(expected, bus, source, RoomFxAnimatedTileLoops.TreadmillFrameByteCount, destination);
         return expected.Bytes.Slice(destination * 2, RoomFxAnimatedTileLoops.TreadmillFrameByteCount).ToArray();
     }

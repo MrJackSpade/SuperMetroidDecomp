@@ -19,7 +19,7 @@ internal sealed record CharacterSpriteDraw
     /// <exception cref="ArgumentOutOfRangeException">The palette or priority is out of range.</exception>
     /// <exception cref="ArgumentException">The frame reads a character beyond the artwork.</exception>
     public CharacterSpriteDraw(SpriteSource source, SpriteFrame frame, SpriteArtwork artwork, Position16<ScreenPixels> origin,
-        TileFlip flip, int palette, int priority)
+        PictureFlip flip, int palette, int priority)
     {
         Ensure.NotNull(frame);
         Ensure.NotNull(artwork);
@@ -50,7 +50,7 @@ internal sealed record CharacterSpriteDraw
     /// <summary>The artwork the frame's characters index.</summary>
     public SpriteArtwork Artwork { get; }
     /// <summary>Mirrors the whole frame about its origin.</summary>
-    public TileFlip Flip { get; }
+    public PictureFlip Flip { get; }
     /// <summary>OBJ palette row 0..7 for parts that do not choose their own; validated by the constructor.</summary>
     public int Palette { get; }
 
@@ -63,15 +63,15 @@ internal sealed record CharacterSpriteDraw
     public SpriteScreenPart Place(int index)
     {
         SpriteFramePart part = Frame.Parts[index];
-        bool flipX = (Flip & TileFlip.Horizontal) != 0;
-        bool flipY = (Flip & TileFlip.Vertical) != 0;
+        bool flipX = (Flip & PictureFlip.Horizontal) != 0;
+        bool flipY = (Flip & PictureFlip.Vertical) != 0;
         // Mirroring the frame mirrors each part's rectangle about the origin and reverses its pixels.
         int x = unchecked((short)Origin.X) + (flipX ? -part.Offset.X - part.Size.X : part.Offset.X);
         int y = unchecked((short)Origin.Y) + (flipY ? -part.Offset.Y - part.Size.Y : part.Offset.Y);
         // Screen coordinates are wrapping words: a placement published far off the view wraps like any other.
         return new(new Offset16<ScreenPixels>(unchecked((short)x), unchecked((short)y)), part.Size, part.Character,
-            flipX != ((part.Flip & TileFlip.Horizontal) != 0),
-            flipY != ((part.Flip & TileFlip.Vertical) != 0),
+            flipX != ((part.Flip & PictureFlip.Horizontal) != 0),
+            flipY != ((part.Flip & PictureFlip.Vertical) != 0),
             part.Palette ?? Palette, part.Priority ?? Priority);
     }
 }

@@ -41,21 +41,21 @@ public sealed class PauseEquipmentLabelPresentation
         ValidateTilemap(tilemap);
         if (hyperBeam)
         {
-            for (int item = 0; item < PauseEquipmentLabelTiles.ItemCount(PauseEquipmentCategory.Beams); item++)
+            for (int item = 0; item < PauseEquipmentLabels.ItemCount(PauseEquipmentCategory.Beams); item++)
             {
-                CompiledLabel destination = labels[PauseEquipmentLabelTiles.Label(PauseEquipmentCategory.Beams, item)];
+                CompiledLabel destination = labels[PauseEquipmentLabels.Label(PauseEquipmentCategory.Beams, item)];
                 WriteBlank(tilemap.Slice(destination.PageCell, PauseEquipmentLabelArtworkDefinitions.BeamWords));
             }
             CompiledLabel hyper = labels[PauseEquipmentLabelId.Hyper];
             hyper.CopyTo(tilemap.Slice(hyper.PageCell, PauseEquipmentLabelArtworkDefinitions.BeamWords));
         }
         foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
-        for (int item = 0; item < PauseEquipmentLabelTiles.ItemCount(category); item++)
+        for (int item = 0; item < PauseEquipmentLabels.ItemCount(category); item++)
         {
             if (category == PauseEquipmentCategory.Beams && hyperBeam) continue;
 
             SuperMetroid.Core.Frontend.Pause.PauseEquipmentBit mask = SuperMetroid.Core.Frontend.Pause.PauseEquipmentRules.Mask(category, item);
-            CompiledLabel label = labels[PauseEquipmentLabelTiles.Label(category, item)];
+            CompiledLabel label = labels[PauseEquipmentLabels.Label(category, item)];
             Span<BackgroundTile> destination = tilemap.Slice(label.PageCell, label.CellCount);
             if (!mask.IsSetIn(collectedBeams, collectedItems))
                 WriteBlank(destination);
@@ -100,7 +100,7 @@ public sealed class PauseEquipmentLabelPresentation
             string key = PauseEquipmentLabelKeys.Name(id);
             PauseEquipmentLabel label = document.Labels[key] ??
                 throw new InvalidDataException($"Pause equipment label {key} is null.");
-            int words = PauseEquipmentLabelTiles.IsOrdinaryBeam(id)
+            int words = PauseEquipmentLabels.IsOrdinaryBeam(id)
                 ? PauseEquipmentLabelArtworkDefinitions.BeamWords : PauseEquipmentLabelArtworkDefinitions.EquipmentWords;
             if (label.Cells is null || label.Cells.Length != words ||
                 (uint)label.Column >= PauseEquipmentLabelArtworkDefinitions.TilemapColumns ||

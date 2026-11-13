@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 internal static class RoomFxAnimatedTilePictures
 {
     /// <summary>The pictures each Tourian statue shows, each one window of the shared strip.</summary>
-    internal static IReadOnlyList<TourianStatueTilePicture> TourianStatuePictures { get; } = Enum.GetValues<TourianStatueTilePicture>();
+    internal static IReadOnlyList<TourianStatueBlockPicture> TourianStatuePictures { get; } = Enum.GetValues<TourianStatueBlockPicture>();
 
     /// <summary>The windows of <paramref name="statue"/> in the shared strip.</summary>
     /// <exception cref="InvalidDataException"><paramref name="statue"/> is not one statue.</exception>
@@ -21,16 +21,16 @@ internal static class RoomFxAnimatedTilePictures
 
     /// <summary>The strip character <paramref name="picture"/> of <paramref name="statue"/> starts at.</summary>
     /// <exception cref="InvalidDataException"><paramref name="statue"/> is not a statue, or the picture is undefined.</exception>
-    internal static int TourianStatueFirstTile(TourianGreyStatues statue, TourianStatueTilePicture picture)
+    internal static int TourianStatueFirstTile(TourianGreyStatues statue, TourianStatueBlockPicture picture)
     {
         TourianStatueTileWindow window = TourianStatueWindow(statue);
         return picture switch
         {
-            TourianStatueTilePicture.OscillationFirst => window.First,
-            TourianStatueTilePicture.OscillationSecond => window.First + window.Tiles,
-            TourianStatueTilePicture.OscillationThird => window.First + 2 * window.Tiles,
-            TourianStatueTilePicture.Released => window.Released,
-            _ => throw new InvalidDataException($"Undefined {nameof(TourianStatueTilePicture)} {picture}."),
+            TourianStatueBlockPicture.OscillationFirst => window.First,
+            TourianStatueBlockPicture.OscillationSecond => window.First + window.Tiles,
+            TourianStatueBlockPicture.OscillationThird => window.First + 2 * window.Tiles,
+            TourianStatueBlockPicture.Released => window.Released,
+            _ => throw new InvalidDataException($"Undefined {nameof(TourianStatueBlockPicture)} {picture}."),
         };
     }
 
@@ -65,7 +65,7 @@ internal static class RoomFxAnimatedTilePictures
 
         /// <summary>Returns the characters of <paramref name="picture"/> of <paramref name="statue"/>, a window of the shared statue strip.</summary>
         /// <exception cref="InvalidDataException"><paramref name="statue"/> is not one statue.</exception>
-        internal ReadOnlyMemory<byte> TourianStatuePicture(TourianGreyStatues statue, TourianStatueTilePicture picture)
+        internal ReadOnlyMemory<byte> TourianStatuePicture(TourianGreyStatues statue, TourianStatueBlockPicture picture)
         {
             int offset = (RoomFxAnimatedTileAtlasFormat.PreStatueTileCount + TourianStatueFirstTile(statue, picture)) *
                 TourianStatueTileStripDefinitions.CharacterByteCount;

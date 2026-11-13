@@ -24,9 +24,10 @@ public static class RoomBlockAppearanceFiles
     /// look, not by a step of its artwork sequence (#1538); revision 5 names a Tourian statue's pictures by the statue's
     /// animation, not by the animated-tile object that copied them (#1584); revision 6 records no inputs, as null, for a
     /// block no room of the tileset shows, which has no picture (#1636); revision 7 records no blocks at all over the
-    /// tileset's artwork, as null, for a tileset no room of which shows its blocks over it, Ceres Ridley's arena's (#1648).
+    /// tileset's artwork, as null, for a tileset no room of which shows its blocks over it, Ceres Ridley's arena's (#1648);
+    /// revision 8 names a block animation's frames by its block animation, not by the hardware's tiles (#1726).
     /// </summary>
-    private const int Version = 7;
+    private const int Version = 8;
 
     /// <summary>The installed file name of <paramref name="tileset"/>'s record.</summary>
     public static string FileNameOf(TilesetDefinition tileset) => $"{RoomBlockSheet.NameOf(tileset)}.block-appearances.json";

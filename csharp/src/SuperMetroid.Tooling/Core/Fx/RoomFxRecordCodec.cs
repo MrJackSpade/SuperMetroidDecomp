@@ -219,10 +219,10 @@ internal static class RoomFxRecordCodec
 
     /// <summary>
     /// The animated-tile objects a record's animated-tile byte starts in a room of <paramref name="area"/>, in ascending
-    /// bit order, leaving out <see cref="AnimatedTileObject.Empty"/>, the object an unused bit selects.
+    /// bit order, leaving out <see cref="BlockAnimation.Empty"/>, the object an unused bit selects.
     /// </summary>
-    internal static ImmutableArray<AnimatedTileObject> AnimatedTiles(AreaId area, byte value) =>
-        [.. SetBits(value).Select(bit => AreaAnimatedTileObjects.Read(area, bit)).Where(tiles => tiles != AnimatedTileObject.Empty)];
+    internal static ImmutableArray<BlockAnimation> AnimatedTiles(AreaId area, byte value) =>
+        [.. SetBits(value).Select(bit => AreaAnimatedTileObjects.Read(area, bit)).Where(tiles => tiles != BlockAnimation.Empty)];
 
     /// <summary>The bits <paramref name="value"/> sets, lowest first.</summary>
     private static IEnumerable<int> SetBits(byte value) =>

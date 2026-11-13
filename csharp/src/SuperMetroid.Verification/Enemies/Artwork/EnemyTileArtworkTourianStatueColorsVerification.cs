@@ -121,7 +121,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         var installedRoom = CreateGreyRoom(
             NewTourianStatueColorGuard(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden), stock);
-        installedRoom.TourianStatues.StepTiles();
+        installedRoom.TourianStatues.StepBlockAnimations();
         // After the step, the room's pictures under the room's shading and the statue scene's pictures under the scene's
         // shading show, at each of the four retail programs' grey destinations, the native grey instruction's colours
         // (#1512): the room-tile statues grey over the room's pictures, the sprite statues over the scene's.

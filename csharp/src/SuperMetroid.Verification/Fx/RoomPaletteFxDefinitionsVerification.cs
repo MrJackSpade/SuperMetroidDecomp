@@ -102,7 +102,7 @@ internal static class RoomPaletteFxDefinitionsVerification
                 continue;
             var definition = new RoomFxRecordDefinition(BaseYPosition: 0, TargetYPosition: 0, YVelocity: default, Timer: 0,
                 Type: RoomFxType.None, VisorAnimation: RoomVisorAnimation.Steady, EffectBlend: null, Liquid: null,
-                PaletteEffects: [effect], AnimatedTiles: [], PaletteBlend: RoomFxPaletteBlend.None);
+                PaletteEffects: [effect], BlockAnimations: [], PaletteBlend: RoomFxPaletteBlend.None);
             var systemSession = new PaletteFxSessionState();
             var system = RoomPaletteFxSystem.ForDefinition(systemSession, definition,
                 equippedItems: 0, areaMiniBossDefeated: false);

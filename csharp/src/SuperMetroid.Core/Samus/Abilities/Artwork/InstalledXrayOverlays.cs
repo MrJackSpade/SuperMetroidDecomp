@@ -13,7 +13,7 @@ public sealed class InstalledXrayOverlays
     /// visual choices and reveals.json may replace them, so no universal formula can replace this bounded installed
     /// array. Every other uncollected item is revealed as its kind's own picture (#1538).
     /// </remarks>
-    internal readonly RoomBlockAppearance[] tankMetatiles;
+    internal readonly RoomBlockAppearance[] tankBlocks;
     /// <summary>Installed room-specific X-ray block lists keyed by overlay.</summary>
     /// <remarks>
     /// Issue #1039: among 323 pinned NTSC J/U v1.0 room states, only
@@ -29,33 +29,33 @@ public sealed class InstalledXrayOverlays
     /// </remarks>
     internal readonly Dictionary<XrayRoomOverlayDefinition, XrayRoomOverlayVisual[]> rooms;
 
-    /// <summary>Copies tank metatiles and ordered special-room records, requiring all compiled overlay sources without changing item collection or room object state.</summary>
-    /// <param name="tankMetatiles">Exactly four appearances, one for each tank kind in tank order: Energy, Missile, Super Missile, Power Bomb.</param>
+    /// <summary>Copies tank blocks and ordered special-room records, requiring all compiled overlay sources without changing item collection or room object state.</summary>
+    /// <param name="tankBlocks">Exactly four appearances, one for each tank kind in tank order: Energy, Missile, Super Missile, Power Bomb.</param>
     /// <param name="rooms">Nonempty ordered block lists keyed by overlay; each list is copied.</param>
     /// <exception cref="ArgumentNullException">An input sequence or overlay is null.</exception>
     /// <exception cref="InvalidDataException">Tank values/count, room lists, duplicate overlays, or required-overlay coverage are invalid.</exception>
-    public InstalledXrayOverlays(IEnumerable<RoomBlockAppearance> tankMetatiles,
-        IEnumerable<XrayRoomOverlayTiles> rooms)
-        : this(tankMetatiles, rooms, requiredOverlays: XrayRoomOverlayDefinitions.All)
+    public InstalledXrayOverlays(IEnumerable<RoomBlockAppearance> tankBlocks,
+        IEnumerable<XrayRoomOverlayBlocks> rooms)
+        : this(tankBlocks, rooms, requiredOverlays: XrayRoomOverlayDefinitions.All)
     {
     }
 
     /// <summary>Copies validated tank and room overlays and requires each of <paramref name="requiredOverlays"/>.</summary>
-    internal InstalledXrayOverlays(IEnumerable<RoomBlockAppearance> tankMetatiles,
-        IEnumerable<XrayRoomOverlayTiles> rooms,
+    internal InstalledXrayOverlays(IEnumerable<RoomBlockAppearance> tankBlocks,
+        IEnumerable<XrayRoomOverlayBlocks> rooms,
         IEnumerable<XrayRoomOverlayDefinition> requiredOverlays)
     {
-        Ensure.NotNull(tankMetatiles);
+        Ensure.NotNull(tankBlocks);
         Ensure.NotNull(rooms);
-        this.tankMetatiles = tankMetatiles.ToArray();
-        if (this.tankMetatiles.Length != TankCount)
+        this.tankBlocks = tankBlocks.ToArray();
+        if (this.tankBlocks.Length != TankCount)
             throw new InvalidDataException($"X-ray tank visuals require {TankCount} appearances.");
         this.rooms = new Dictionary<XrayRoomOverlayDefinition, XrayRoomOverlayVisual[]>();
-        foreach ((XrayRoomOverlayDefinition overlay, IReadOnlyList<XrayRoomOverlayVisual> tiles) in rooms)
+        foreach ((XrayRoomOverlayDefinition overlay, IReadOnlyList<XrayRoomOverlayVisual> visuals) in rooms)
         {
             Ensure.NotNull(overlay);
-            if (tiles is null || tiles.Count == 0 ||
-                !this.rooms.TryAdd(overlay, tiles.ToArray()))
+            if (visuals is null || visuals.Count == 0 ||
+                !this.rooms.TryAdd(overlay, visuals.ToArray()))
                 throw new InvalidDataException($"Invalid X-ray room overlay {overlay.Name}.");
         }
         foreach (XrayRoomOverlayDefinition overlay in Ensure.NotNull(requiredOverlays))
@@ -66,19 +66,19 @@ public sealed class InstalledXrayOverlays
     /// <summary>The tank kinds, whose installed reveals this holds.</summary>
     public static int TankCount => RoomObjectCollectibleDrawDefinitions.TankKinds.Length;
 
-    /// <summary>Selects the installed reveal metatile of tank kind <paramref name="tank"/>, independently of whether it has been collected.</summary>
+    /// <summary>Selects the installed reveal block of tank kind <paramref name="tank"/>, independently of whether it has been collected.</summary>
     /// <returns>The selected appearance.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The kind is not a tank.</exception>
-    public RoomBlockAppearance TankMetatile(InWorldCollectibleKind tank) =>
+    public RoomBlockAppearance TankBlock(InWorldCollectibleKind tank) =>
         Array.IndexOf(RoomObjectCollectibleDrawDefinitions.TankKinds, tank) is var index and >= 0
-            ? tankMetatiles[index]
+            ? tankBlocks[index]
             : throw new ArgumentOutOfRangeException(nameof(tank), tank, "The X-ray reveals only a tank by an installed block.");
 
     /// <summary>Returns a room overlay's installed records in draw order.</summary>
     /// <param name="overlay">The active room state's overlay; a state without one is handled by the caller.</param>
     /// <returns>The shared copied record list; coordinates are room-block positions with the appearance shown there.</returns>
     /// <exception cref="InvalidDataException">No installed list exists for the overlay.</exception>
-    public IReadOnlyList<XrayRoomOverlayVisual> RoomTiles(XrayRoomOverlayDefinition overlay) =>
-        rooms.TryGetValue(Ensure.NotNull(overlay), out XrayRoomOverlayVisual[]? tiles) ? tiles :
+    public IReadOnlyList<XrayRoomOverlayVisual> RoomBlocks(XrayRoomOverlayDefinition overlay) =>
+        rooms.TryGetValue(Ensure.NotNull(overlay), out XrayRoomOverlayVisual[]? visuals) ? visuals :
         throw new InvalidDataException($"Missing installed X-ray room overlay {overlay.Name}.");
 }

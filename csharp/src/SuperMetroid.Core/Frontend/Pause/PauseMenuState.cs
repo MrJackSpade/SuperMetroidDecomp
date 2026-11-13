@@ -32,7 +32,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     public void BindSpriteSheets(InstalledSpriteSheets? sheets)
     {
         spriteSheets = sheets ?? throw new InvalidOperationException("Pause menu requires the installed sprite sheets.");
-        screen.BindScreenTiles(sheets);
+        screen.BindScreenPictures(sheets);
     }
 
     /// <summary>The installed sprite sheets the map's sprites draw from; artwork, never saved.</summary>

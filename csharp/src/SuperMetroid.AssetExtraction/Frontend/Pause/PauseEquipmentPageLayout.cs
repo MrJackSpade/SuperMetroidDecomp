@@ -29,7 +29,7 @@ internal static class PauseEquipmentPageLayout
         // LoadEquipmentScreen writes each whole label from the inventory its state describes.
         SamusBeamFlags collectedBeams = SamusBeamFlags.None, equippedBeams = SamusBeamFlags.None;
         SamusEquipmentFlags collectedItems = SamusEquipmentFlags.None, equippedItems = SamusEquipmentFlags.None;
-        foreach (PauseEquipmentLabelKey key in PauseEquipmentLabelTiles.Labels())
+        foreach (PauseEquipmentLabelKey key in PauseEquipmentLabels.Labels())
         {
             PauseEquipmentBit bit = PauseEquipmentRules.Mask(key.Category, key.Item);
             PauseEquipmentLabelState state = page.Label(key.Label).State;
@@ -66,7 +66,7 @@ internal static class PauseEquipmentPageLayout
     /// no reserve display and the arrow as the template colours it.
     /// </summary>
     internal static ShownEquipmentPage Reference { get; } = new(
-        [.. PauseEquipmentLabelTiles.Labels().Select(key => new ShownEquipmentLabel(key.Label, PauseEquipmentLabelState.Blank))],
+        [.. PauseEquipmentLabels.Labels().Select(key => new ShownEquipmentLabel(key.Label, PauseEquipmentLabelState.Blank))],
         HyperBeam: false, PauseWireframeKind.PowerSuit, Reserve: null, ShownReserveArrow.NoReserves);
 
     /// <summary>
@@ -89,10 +89,10 @@ internal static class PauseEquipmentPageLayout
         HashSet<int> afterReserve = [.. parts.Arrow];
         HashSet<int> afterWireframe = [.. afterReserve, .. parts.Reserve];
         HashSet<int> afterLabels = [.. afterWireframe, .. parts.Wireframe];
-        HashSet<int> afterHyper = [.. afterLabels, .. PauseEquipmentLabelTiles.Labels().SelectMany(key => maps.Pause.EquipmentLabels.PageCells(key.Label))];
+        HashSet<int> afterHyper = [.. afterLabels, .. PauseEquipmentLabels.Labels().SelectMany(key => maps.Pause.EquipmentLabels.PageCells(key.Label))];
         yield return ScreenPictureSubject.Page(PauseEquipmentPictures.BaseFrame, maps.Pause.EquipmentBase.CreateTilemap(), Columns, parts.Dynamic);
         PauseEquipmentLabelState[] states = Enum.GetValues<PauseEquipmentLabelState>();
-        foreach (PauseEquipmentLabelKey key in PauseEquipmentLabelTiles.Labels())
+        foreach (PauseEquipmentLabelKey key in PauseEquipmentLabels.Labels())
         {
             int[] cells = [.. maps.Pause.EquipmentLabels.PageCells(key.Label)];
             foreach (PauseEquipmentLabelState state in states)
@@ -149,7 +149,7 @@ internal static class PauseEquipmentPageLayout
     internal static IEnumerable<string> SubjectNames()
     {
         yield return PauseEquipmentPictures.BaseFrame;
-        foreach (PauseEquipmentLabelKey key in PauseEquipmentLabelTiles.Labels())
+        foreach (PauseEquipmentLabelKey key in PauseEquipmentLabels.Labels())
         foreach (PauseEquipmentLabelState state in Enum.GetValues<PauseEquipmentLabelState>())
             yield return PauseEquipmentPictures.LabelFrame(key.Label, state);
         yield return PauseEquipmentPictures.HyperBeamsFrame;
@@ -190,7 +190,7 @@ internal static class PauseEquipmentPageLayout
             PauseReserveUiPresentation ui = maps.Pause.ReserveUi;
             int[] wireframe = [.. Enumerable.Range(0, PauseWireframeDefinitions.Rows).SelectMany(row => Enumerable.Range(
                 PauseWireframeDefinitions.FirstPageTile + row * PauseWireframeDefinitions.PageColumns, PauseWireframeDefinitions.Columns))];
-            int[] beams = [.. PauseEquipmentLabelTiles.Labels().Where(key => PauseEquipmentLabelTiles.IsOrdinaryBeam(key.Label)).SelectMany(key => labels.PageCells(key.Label))];
+            int[] beams = [.. PauseEquipmentLabels.Labels().Where(key => PauseEquipmentLabels.IsOrdinaryBeam(key.Label)).SelectMany(key => labels.PageCells(key.Label))];
             int[] hyper = [.. labels.PageCells(PauseEquipmentLabelId.Hyper)];
             if (hyper.Except(beams).Any())
                 throw new InvalidDataException("Hyper's label must lie within the beam labels it replaces.");
@@ -198,7 +198,7 @@ internal static class PauseEquipmentPageLayout
             int[] tank = [.. ui.LabelCells(PauseReserveLabel.ReserveTank)];
             int[] digits = [.. Enumerable.Range(0, PauseReserveUiDefinitions.SupplyDigitPlaces).Select(ui.DigitCell)];
             int[] arrow = [.. ui.ArrowPageCells()];
-            int[][] parts = [.. PauseEquipmentLabelTiles.Labels().Select(key => labels.PageCells(key.Label).ToArray()), wireframe, mode, tank, digits, arrow];
+            int[][] parts = [.. PauseEquipmentLabels.Labels().Select(key => labels.PageCells(key.Label).ToArray()), wireframe, mode, tank, digits, arrow];
             var owned = new HashSet<int>();
             foreach (int cell in parts.SelectMany(part => part))
             {

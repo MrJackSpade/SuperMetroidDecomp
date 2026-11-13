@@ -88,13 +88,13 @@ internal static class RoomFxRecordDefinitionsVerification
         AssertEqual(nativePalette.ActiveCount, compiledPalette.ActiveCount,
             "Ceres compiled palette-FX object count");
 
-        var nativeSand = new RoomSandAnimatedTilesState(room.State.Fx, station.Door);
-        var compiledSand = new RoomSandAnimatedTilesState(room.State.Fx, station.Door);
+        var nativeSand = new RoomSandBlockAnimationsState(room.State.Fx, station.Door);
+        var compiledSand = new RoomSandBlockAnimationsState(room.State.Fx, station.Door);
         AssertEqual(nativeSand.Count, compiledSand.Count,
             "Ceres compiled sand animation count");
 
-        var nativeTreadmills = new RoomTreadmillAnimatedTilesState(room.State.Fx, station.Door);
-        var compiledTreadmills = new RoomTreadmillAnimatedTilesState(room.State.Fx, station.Door);
+        var nativeTreadmills = new RoomTreadmillBlockAnimationsState(room.State.Fx, station.Door);
+        var compiledTreadmills = new RoomTreadmillBlockAnimationsState(room.State.Fx, station.Door);
         AssertEqual(nativeTreadmills.Count, compiledTreadmills.Count,
             "Ceres compiled treadmill animation count");
     }

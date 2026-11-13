@@ -24,19 +24,19 @@ internal static class RoomFxAnimatedTileSources
     {
         (SnesAddress first, int byteCount) = image.Object switch
         {
-            AnimatedTileObject.HorizontalSpikes => Simple(RoomFxAnimatedTileSourceDefinitions.HorizontalSpikes),
-            AnimatedTileObject.MaridiaSandCeiling => Simple(RoomFxAnimatedTileSourceDefinitions.MaridiaSandCeiling),
-            AnimatedTileObject.MaridiaSandFalling => Simple(RoomFxAnimatedTileSourceDefinitions.MaridiaSandFalling),
-            AnimatedTileObject.Lava => Simple(RoomFxAnimatedTileSourceDefinitions.Lava),
-            AnimatedTileObject.Acid => Simple(RoomFxAnimatedTileSourceDefinitions.Acid),
-            AnimatedTileObject.Rain => Simple(RoomFxAnimatedTileSourceDefinitions.Rain),
-            AnimatedTileObject.Spores => Simple(RoomFxAnimatedTileSourceDefinitions.Spores),
-            AnimatedTileObject.WreckedShipTreadmillRightwards => new PictureRun(
+            BlockAnimation.HorizontalSpikes => Simple(RoomFxAnimatedTileSourceDefinitions.HorizontalSpikes),
+            BlockAnimation.MaridiaSandCeiling => Simple(RoomFxAnimatedTileSourceDefinitions.MaridiaSandCeiling),
+            BlockAnimation.MaridiaSandFalling => Simple(RoomFxAnimatedTileSourceDefinitions.MaridiaSandFalling),
+            BlockAnimation.Lava => Simple(RoomFxAnimatedTileSourceDefinitions.Lava),
+            BlockAnimation.Acid => Simple(RoomFxAnimatedTileSourceDefinitions.Acid),
+            BlockAnimation.Rain => Simple(RoomFxAnimatedTileSourceDefinitions.Rain),
+            BlockAnimation.Spores => Simple(RoomFxAnimatedTileSourceDefinitions.Spores),
+            BlockAnimation.WreckedShipTreadmillRightwards => new PictureRun(
                 RoomFxAnimatedTileSourceDefinitions.WreckedShipTreadmill, RoomFxAnimatedTileLoops.TreadmillFrameByteCount),
-            AnimatedTileObject.WreckedShipTreadmillLeftwards or AnimatedTileObject.None or AnimatedTileObject.TourianStatuePhantoon or AnimatedTileObject.TourianStatueRidley
-                or AnimatedTileObject.TourianStatueKraid or AnimatedTileObject.TourianStatueDraygon or AnimatedTileObject.Empty
-                or AnimatedTileObject.VerticalSpikes or AnimatedTileObject.CrateriaLake or AnimatedTileObject.UnusedCrateriaLava
-                or AnimatedTileObject.BrinstarPlant or AnimatedTileObject.WreckedShipScreen
+            BlockAnimation.WreckedShipTreadmillLeftwards or BlockAnimation.None or BlockAnimation.TourianStatuePhantoon or BlockAnimation.TourianStatueRidley
+                or BlockAnimation.TourianStatueKraid or BlockAnimation.TourianStatueDraygon or BlockAnimation.Empty
+                or BlockAnimation.VerticalSpikes or BlockAnimation.CrateriaLake or BlockAnimation.UnusedCrateriaLava
+                or BlockAnimation.BrinstarPlant or BlockAnimation.WreckedShipScreen
                 => throw new InvalidDataException($"{image.Object} has no pictures in the room-FX atlas."),
             _ => throw new InvalidDataException($"Undefined room-FX object {image.Object}."),
         };

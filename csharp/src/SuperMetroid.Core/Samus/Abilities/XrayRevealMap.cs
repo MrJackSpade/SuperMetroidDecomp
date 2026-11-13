@@ -46,9 +46,9 @@ public static class XrayRevealMap
                 Lookup(before) is { } predecessor)
             {
                 if (predecessor.Shape == XrayRevealShape.CopySquare)
-                    CopyMetatile(0, row + 1, predecessor.BottomRight);
+                    CopyBlock(0, row + 1, predecessor.BottomRight);
                 if (predecessor.Shape is XrayRevealShape.CopyWide or XrayRevealShape.CopySquare)
-                    CopyMetatile(0, row, predecessor.TopRight);
+                    CopyBlock(0, row, predecessor.TopRight);
             }
             for (int col = 0; col < XrayRevealArea.Columns; col++)
             {
@@ -58,18 +58,18 @@ public static class XrayRevealMap
                 if (reveal.Shape is XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension)
                 {
                     if (XrayRevealExtensions.Resolve(level, block, visuals) is { } replacement)
-                        CopyMetatile(col, row, replacement);
+                        CopyBlock(col, row, replacement);
                     continue;
                 }
                 if (reveal.Shape == XrayRevealShape.CopyBrinstar && area != AreaId.Brinstar)
                     continue;
-                CopyMetatile(col, row, reveal.TopLeft);
+                CopyBlock(col, row, reveal.TopLeft);
                 if (reveal.Shape is XrayRevealShape.CopyWide or XrayRevealShape.CopySquare)
-                    CopyMetatile(col + 1, row, reveal.TopRight);
+                    CopyBlock(col + 1, row, reveal.TopRight);
                 if (reveal.Shape is XrayRevealShape.CopyTall or XrayRevealShape.CopySquare)
-                    CopyMetatile(col, row + 1, reveal.BottomLeft);
+                    CopyBlock(col, row + 1, reveal.BottomLeft);
                 if (reveal.Shape == XrayRevealShape.CopySquare)
-                    CopyMetatile(col + 1, row + 1, reveal.BottomRight);
+                    CopyBlock(col + 1, row + 1, reveal.BottomRight);
             }
         }
         return result;
@@ -90,8 +90,8 @@ public static class XrayRevealMap
             return new RevealedBlock(cell.Definition, Mirrored(cell.Flips));
         }
         // A reveal block is placed as it is defined; its number is validated as a room block.
-        void CopyMetatile(int col, int row, int metatile) =>
-            Place(col, row, new RevealedBlock(RoomBlockAppearance.Of(metatile).Block, RevealedBlockArrangement.AsDefined));
+        void CopyBlock(int col, int row, int blockNumber) =>
+            Place(col, row, new RevealedBlock(RoomBlockAppearance.Of(blockNumber).Block, RevealedBlockArrangement.AsDefined));
         // Only blocks inside the revealed area are shown.
         void Place(int col, int row, RevealedBlock? block)
         {

@@ -73,7 +73,7 @@ public sealed class InstalledProjectileSprites
                 // Do not impose the menu atlas's contiguous-rectangle restriction here.
                 compiled[i] = new(SpritePart.Create(Offset16<ScreenPixels>.Of(p.OffsetX, p.OffsetY), p.Size == 16,
                     p.TileRow * ProjectileSpriteDefinitions.TileColumns + p.TileColumn,
-                    p.Palette.Value, p.Priority, (p.FlipX ? TileFlip.Horizontal : 0) | (p.FlipY ? TileFlip.Vertical : 0)), false);
+                    p.Palette.Value, p.Priority, (p.FlipX ? PictureFlip.Horizontal : 0) | (p.FlipY ? PictureFlip.Vertical : 0)), false);
             }
             frames.Add(id, new SpriteComposition(compiled));
         }

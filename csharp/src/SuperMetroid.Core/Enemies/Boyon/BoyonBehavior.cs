@@ -25,7 +25,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case BoyonCueKind.Return:
-                // The return cue has no effect; keeping it documents the idle-list seam.
+                // The return cue has no effect; keeping it documents the idle-animation seam.
                 break;
             case BoyonCueKind.StartBounce:
                 StartBoyonBounce(state);
@@ -52,7 +52,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         BoyonSpawnSettings settings = slot.SpawnSettings<BoyonSpawnSettings>();
 
         // Initialization writes the ordinary empty frame before selecting the
-        // idle list. RoomEnemySystem's load tail intentionally restores the same transient
+        // idle animation. RoomEnemySystem's load tail intentionally restores the same transient
         // empty frame; the first processed animation frame installs real art.
         slot.Frame = EnemyFrameId.Empty;
 
@@ -95,7 +95,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samusIsClose)
         {
             // Proximity continuously permits another bounce. The separate Bouncing latch
-            // prevents resetting the animation list every frame during the current arc.
+            // prevents restarting the animation every frame during the current arc.
             state.BounceDisabled = false;
             state.IdleDisabled = false;
             if (!state.Bouncing)

@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.OldTourianWall;
 
-/// <summary>The old Tourian escape-shaft fake-wall explosion's typed animation, in place of its list.</summary>
+/// <summary>The old Tourian escape-shaft fake-wall explosion's typed animation.</summary>
 internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionSegment segment)
     : EnemyProjectileTypedAnimation<OldTourianWallExplosionSegment, int, OldTourianWallExplosionCue>(AllAnimations[segment])
 {
@@ -32,7 +32,7 @@ internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionSe
 
     /// <summary>
     /// The explosion's animation: the setup, the burst counted <see cref="OldTourianEscapeShaftWallExplosionAnimationDefinitions.BurstCount"/> times on the projectile's
-    /// timer (loaded even for one play, as the list loads its count before the burst), then the delete, holding after it.
+    /// timer (loaded even for one play, as the game's animation loads its count before the burst), then the delete, holding after it.
     /// </summary>
     internal static IReadOnlyDictionary<OldTourianWallExplosionSegment, Animation<OldTourianWallExplosionSegment>> AllAnimations { get; } =
         new Dictionary<OldTourianWallExplosionSegment, Animation<OldTourianWallExplosionSegment>>

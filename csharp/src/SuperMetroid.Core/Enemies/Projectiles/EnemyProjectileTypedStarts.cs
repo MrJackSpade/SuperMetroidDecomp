@@ -25,8 +25,8 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The typed animation each converted projectile kind starts in place of its definition's initial list (#641).
-/// A kind absent here still starts its list.
+/// The typed animation each projectile kind with a start of its own begins with (#641).
+/// A kind absent here has its spawner start the animation its producer chooses.
 /// </summary>
 internal static class EnemyProjectileTypedStarts
 {

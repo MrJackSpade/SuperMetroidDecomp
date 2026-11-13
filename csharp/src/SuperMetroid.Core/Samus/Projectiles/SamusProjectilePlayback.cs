@@ -3,14 +3,14 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Plays the Samus projectiles' typed animations (#1301, #1600) as the projectile animation runs their lists: each
+/// Plays the Samus projectiles' typed animations (#1301, #1600) as the game's projectile animation plays them: each
 /// timed record installs its duration, frame and radii.
 /// </summary>
 internal static class SamusProjectilePlayback
 {
     /// <summary>
     /// Plays <paramref name="playback"/> on to the next timed record and returns it with its duration, leaving the
-    /// playback past it; returns null when the animation ends, as the list deletes the projectile.
+    /// playback past it; returns null when the animation ends, as the game's animation deletes the projectile.
     /// </summary>
     internal static SamusProjectileFrame? RunToNextRecord(ref AnimationPlayback<SamusProjectileSegment> playback, out int duration)
     {
@@ -33,7 +33,7 @@ internal static class SamusProjectilePlayback
         }
     }
 
-    /// <summary>A playback of the animation starting at <paramref name="segment"/>; no animation is a projectile with no list.</summary>
+    /// <summary>A playback of the animation starting at <paramref name="segment"/>; no animation is a projectile with no animation.</summary>
     internal static AnimationPlayback<SamusProjectileSegment>? Start(SamusProjectileSegment? segment) =>
         segment is { } selected ? new AnimationPlayback<SamusProjectileSegment>(SamusProjectileAnimations.StartingWith(selected), AnimationPlace.StartOfAnimation) : null;
 
@@ -63,8 +63,8 @@ internal static class SamusProjectilePlayback
     }
 
     /// <summary>
-    /// The hitbox a freshly selected list declares through its first record, as the initializers' reads of the list's
-    /// radii see it; a projectile with no list (the safe left-facing Murder Beam) reads zero.
+    /// The hitbox a freshly selected animation declares through its first step, as the initializers' reads of the animation's
+    /// radii see it; a projectile with no animation (the safe left-facing Murder Beam) reads zero.
     /// </summary>
     internal static Extent16<RoomPixels> InitialRadius(SamusProjectileSegment? segment)
     {
@@ -79,7 +79,7 @@ internal static class SamusProjectilePlayback
 
     /// <summary>
     /// The animation frame of the record a projectile whose animation stands at <paramref name="playback"/> shows: the
-    /// record its animation last installed, or null before its list has installed one.
+    /// record its animation last installed, or null before its animation has installed one.
     /// </summary>
     internal static int? ShownAnimationFrame(AnimationPlayback<SamusProjectileSegment> playback)
     {

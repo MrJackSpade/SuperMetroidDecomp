@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// an eighth of the timer's <see cref="Period"/>, and the timer checks the requests when it reaches a full period,
 /// keeping the remainder; so the requests are checked on every eighth step, and the update on which a request is acted
 /// on depends on the phase the timer carries from update to update. A clock step that spans several step periods adds
-/// all their eighths at once, formed within one period, as the game's sound program formed its increment.
+/// all their eighths at once, formed within one period, as the game's music player forms its increment.
 /// </summary>
 /// <remarks>
 /// Advanced on every step of the <see cref="SoundAcceptanceClock{TLibrary, TSound}"/>, which runs once per update after the

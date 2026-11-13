@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// An item or tank lying in the room (#1554), which replaces the collectibles' family state and step. It holds its kind,
+/// An item or tank lying in the room (#1554). It holds its kind,
 /// its presentation (exposed, in a Chozo orb or in a shot block), its phase and countdown as domain values, and advances
 /// them on each update by its authored timing (<see cref="CollectibleTimingDefinitions"/>): an exposed item alternates
 /// its two images until Samus touches it; a Chozo orb cycles its shell until a shot breaks it; a shot block reveals its

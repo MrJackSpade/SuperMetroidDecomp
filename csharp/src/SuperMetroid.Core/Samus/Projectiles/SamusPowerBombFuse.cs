@@ -5,14 +5,14 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public static class SamusPowerBombFuse
 {
     /// <summary>
-    /// Computes the timer/list writes and requests the caller's existing explosion
+    /// Computes the timer/animation writes and requests the caller's existing explosion
     /// or deletion operation. The step that runs the fuse out starts the explosion; the caller's
     /// boundary reactions wait for the update after it, because other callbacks can reach this step.
     /// </summary>
     public static PowerBombFuseStep Step(WrappingCountdown timer, bool explosionArmed)
     {
         // A stopped fuse is left alone. Otherwise the fuse counts down: reaching zero
-        // runs the fuse out and starts the explosion, and the fast-list switch tests the decremented count.
+        // runs the fuse out and starts the explosion, and the fast-animation switch tests the decremented count.
         if (timer.IsZero)
             return new(timer, FastAnimation: false, SpawnExplosion: false, DeleteProjectile: !explosionArmed);
         CountdownStep fuse = timer.Decrement();

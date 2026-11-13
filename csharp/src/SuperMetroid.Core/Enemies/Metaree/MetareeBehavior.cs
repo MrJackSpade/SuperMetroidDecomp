@@ -44,7 +44,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Burrow countdown value that spawns the particle burst.</summary>
     private const int MetareeParticleFrameNtsc = 8;
 
-    /// <summary>Starts the idle list directly and initializes the slot's dive, burrow, and animation-change state.</summary>
+    /// <summary>Starts the idle animation directly and initializes the slot's dive, burrow, and animation-change state.</summary>
     internal static void InitializeMetaree(RoomEnemySlot slot)
     {
         var state = new MetareeEnemyState
@@ -126,7 +126,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = MetareeEnemyFunction.PreparingAttack;
     }
 
-    /// <summary>Consumes the preparation list's ready flag, installs the dive list, and publishes the dive sound.</summary>
+    /// <summary>Consumes the preparation animation's ready flag, starts the dive animation, and publishes the dive sound.</summary>
     internal void RunMetareePreparation(RoomEnemySlot slot, MetareeEnemyState state)
     {
         if (!state.AttackReady)

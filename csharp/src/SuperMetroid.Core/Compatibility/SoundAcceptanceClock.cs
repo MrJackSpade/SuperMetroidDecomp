@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// When each sound library accepts the game's sound requests, and which request it reports back as acknowledged. The
-/// original sound program checked every library's request on its own clock, every 512 of its 32,040-per-second
+/// music player checks every library's request on its own clock, every 512 of its 32,040-per-second
 /// samples, so a check falls a little earlier in each successive update. A check serves the libraries in a fixed order;
 /// for each it acts on the request it took at the previous check, reports that request back as acknowledged, and takes
 /// the game's current request; a request replaced before a check is never seen. The game's sound handlers compare the
@@ -77,7 +77,7 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
     public void Request(TLibrary library, TSound? request) => requested[PositionOf(library)] = request;
 
     /// <summary>
-    /// Loading new music stops the sound program: the music-load reporter reports the load in progress instead of an
+    /// Loading new music stops the music player: the music-load reporter reports the load in progress instead of an
     /// acknowledgement and every pending request is dropped. Requests already taken, and the clock's phase, are kept.
     /// </summary>
     public void PauseForMusicLoad()

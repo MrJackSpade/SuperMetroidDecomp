@@ -85,9 +85,9 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         Choices = new TorizoChoices(_room, dependencies.Terrain, Access);
         Combat = new TorizoCombat(dependencies.Collision, Body, Access);
     }
-    /// <summary>Health below which the head-break list interrupts active Bomb Torizo AI.</summary>
+    /// <summary>Health below which the head-break animation interrupts active Bomb Torizo AI.</summary>
     internal const int BombTorizoHeadExplosionHealth = 350;
-    /// <summary>Health below which the later core-break list interrupts active AI.</summary>
+    /// <summary>Health below which the later core-break animation interrupts active AI.</summary>
     internal const int BombTorizoCoreExplosionHealth = 100;
 
     /// <summary>Names the colouring the statue's fade runs toward (#1512).</summary>
@@ -128,7 +128,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case TorizoFunction.GoldenWaitForSamus:
-                // The wake-up step advances the list operand only after Samus has entered the
+                // The wake-up step advances the animation only after Samus has entered the
                 // lower-right trigger rectangle. This is the authored statue wake-up gate.
                 if (samus is not null && samus.Position.Y.Whole > 320 && samus.Position.X.Whole > 368)
                 {

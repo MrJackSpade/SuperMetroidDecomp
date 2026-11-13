@@ -53,7 +53,7 @@ internal sealed class MotherBrainLateFightState
 
     /// <summary>
     /// Count of body-AI writes to <see cref="SmallPurpleBreathGenerationEnabled"/>. The live
-    /// flag has a second writer, a brain-list step, so the live state
+    /// flag has a second writer, a brain-animation cue, so the live state
     /// publishes this flag only when the body actually wrote it.
     /// </summary>
     public uint SmallPurpleBreathGenerationWriteCount { get; internal set; }
@@ -92,7 +92,7 @@ internal sealed class MotherBrainLateFightState
     /// <summary>True once the final beam's Baby spawn has requested the cutscene Baby enemy population entry.</summary>
     public bool BabyMetroidSpawned { get; internal set; }
 
-    /// <summary>Restarts the separate brain animation and publishes a new head-list request serial.</summary>
+    /// <summary>Restarts the separate brain animation and publishes a new head-animation request serial.</summary>
     internal void SetHeadAnimation(MotherBrainHeadSegment segment)
     {
         // The brain-animation request restarts the separate brain animation and its timer. Unlike ordinary
@@ -111,7 +111,7 @@ internal sealed class MotherBrainLateFightState
         UpperNeckMovement = MotherBrainNeckMovement.Lower;
     }
 
-    /// <summary>Selects the forward body list for the animation delay and applies the forward target rules.</summary>
+    /// <summary>Selects the forward body animation for the animation delay and applies the forward target rules.</summary>
     internal MotherBrainWalkResult RequestWalkForward(int targetX, int animationDelay)
     {
         MotherBrainBodySegment segment = animationDelay switch
@@ -127,7 +127,7 @@ internal sealed class MotherBrainLateFightState
         return MakeBodyWalkForwards(targetX, segment);
     }
 
-    /// <summary>Selects the backward body list for the animation delay and applies the backward target rules.</summary>
+    /// <summary>Selects the backward body animation for the animation delay and applies the backward target rules.</summary>
     internal MotherBrainWalkResult RequestWalkBackward(int targetX, int animationDelay)
     {
         MotherBrainBodySegment segment = animationDelay switch
@@ -183,7 +183,7 @@ internal sealed class MotherBrainLateFightState
         return MotherBrainWalkResult.WalkInstalled;
     }
 
-    /// <summary>Takes the posture chance (<see cref="MotherBrainRandomDefinitions.PostureChanges"/>) to toggle a standing or leaning body list.</summary>
+    /// <summary>Takes the posture chance (<see cref="MotherBrainRandomDefinitions.PostureChanges"/>) to toggle a standing or leaning body animation.</summary>
     internal bool MaybeRequestStandUpOrLeanDown(MotherBrainRandomSample randomNumberSeed)
     {
         // The lean helper ignores every pose except standing (zero) and leaning (six). A request still executes as body

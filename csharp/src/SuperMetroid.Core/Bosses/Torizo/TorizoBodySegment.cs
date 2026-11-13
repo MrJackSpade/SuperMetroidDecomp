@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
 /// Bomb and Golden Torizo's typed body animations (#641): one segment per animation and per place a jump, call,
-/// link or resumed sleep enters, in authored order. Generated from the verified lists; see
+/// link or resumed sleep enters, in authored order. Generated from the verified animations; see
 /// <see cref="TorizoAnimations"/>.
 /// </summary>
 internal enum TorizoBodySegment
@@ -19,7 +19,7 @@ internal enum TorizoBodySegment
     DeathSequence2,
     /// <summary>Torizo animation: Bomb Torizo, initial, part 0.</summary>
     BombTorizoInitial0,
-    /// <summary>The code after the preceding list's sleep, which the AI resumes.</summary>
+    /// <summary>The continuation after the preceding segment's sleep, which the AI resumes.</summary>
     BombTorizoInitial0Resumed,
     /// <summary>Torizo animation: Bomb Torizo, initial, part 1.</summary>
     BombTorizoInitial1,
@@ -89,7 +89,7 @@ internal enum TorizoBodySegment
     FacingLeftFacelessWalkingLeftLegMoving,
     /// <summary>An unnamed animation entry.</summary>
     FacingLeftFacelessWalkingLeftLegMovingTrailing,
-    /// <summary>The code after the preceding list's sleep, which the AI resumes.</summary>
+    /// <summary>The continuation after the preceding segment's sleep, which the AI resumes.</summary>
     FacingLeftFacelessWalkingLeftLegMovingTrailingResumed,
     /// <summary>Torizo animation: facing right, turning right.</summary>
     FacingRightTurningRight,
@@ -155,7 +155,7 @@ internal enum TorizoBodySegment
     FacingRightFacelessWalkingRightLegMoving,
     /// <summary>Golden Torizo animation: initial, part 0.</summary>
     GoldenInitial0,
-    /// <summary>The code after the preceding list's sleep, which the AI resumes.</summary>
+    /// <summary>The continuation after the preceding segment's sleep, which the AI resumes.</summary>
     GoldenInitial0Resumed,
     /// <summary>Golden Torizo animation: initial, part 1.</summary>
     GoldenInitial1,

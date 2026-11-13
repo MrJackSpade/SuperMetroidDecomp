@@ -132,7 +132,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
     }
 
-    /// <summary>Changes the Skree phase list only when requested and installed phases differ.</summary>
+    /// <summary>Changes the Skree phase animation only when requested and installed phases differ.</summary>
     internal static void StartRequestedSkreeAnimation(
         RoomEnemySlot slot,
         SkreeEnemyState state)

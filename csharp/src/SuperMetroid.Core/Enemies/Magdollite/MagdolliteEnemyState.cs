@@ -56,7 +56,7 @@ public sealed class MagdolliteEnemyState
     /// <summary>
     /// Only the overlay's instance is polled by the head; decrementing it in every part
     /// remains observable and matches main AI exactly. The wrapping countdown counts enemy updates, is reset to 256 by the
-    /// throw list, and expires when the head sees it negative after decrementing through zero.
+    /// throw animation, and expires when the head sees it negative after decrementing through zero.
     /// </summary>
     public WrappingCountdown AttackTimer { get; internal set; }
 

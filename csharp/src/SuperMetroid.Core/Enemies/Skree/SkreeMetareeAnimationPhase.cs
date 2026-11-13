@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Skree;
 
 /// <summary>
 /// Mutually exclusive animation phases shared by Skree and Metaree. The AI advances
-/// through the first three values; the fourth selector is an unused authored list.
+/// through the first three values; the fourth selector is an unused authored animation.
 /// </summary>
 public enum SkreeMetareeAnimationPhase
 {

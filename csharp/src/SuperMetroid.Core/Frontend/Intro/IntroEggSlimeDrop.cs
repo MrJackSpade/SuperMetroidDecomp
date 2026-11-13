@@ -39,7 +39,7 @@ internal sealed class IntroEggSlimeDrop
     /// <summary>The frames fallen count runs past 255 back to zero.</summary>
     private const int FramesFallenWrap = 256;
 
-    /// <summary>Applies index-specific horizontal motion and parity-specific gravity until Y 168, then runs the puddle list in place.</summary>
+    /// <summary>Applies index-specific horizontal motion and parity-specific gravity until Y 168, then plays the puddle animation in place.</summary>
     public void Step()
     {
         if (!sprite.IsActive)

@@ -20,10 +20,10 @@ internal sealed class EnemyProjectileHandlerTable
         }
     }
 
-    /// <summary>Typed animations a shot projectile of each kind starts in place of its shot list.</summary>
+    /// <summary>Typed animations a shot projectile of each kind starts.</summary>
     private readonly Dictionary<RoomEnemyProjectileKind, Func<EnemyProjectileAnimation>> _shotAnimations = [];
 
-    /// <summary>Typed animations a projectile of each kind starts on touching Samus, in place of its touch list.</summary>
+    /// <summary>Typed animations a projectile of each kind starts on touching Samus.</summary>
     private readonly Dictionary<RoomEnemyProjectileKind, Func<EnemyProjectileAnimation>> _touchAnimations = [];
 
     /// <summary>Registers the typed animation a projectile of <paramref name="kind"/> starts when it touches Samus.</summary>

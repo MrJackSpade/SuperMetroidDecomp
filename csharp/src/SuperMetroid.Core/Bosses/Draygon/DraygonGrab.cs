@@ -223,7 +223,7 @@ internal sealed class DraygonGrab
         }
     }
 
-    /// <summary>Installs the four-repeat finishing whip list.</summary>
+    /// <summary>Starts the four-repeat finishing whip animation.</summary>
     internal void BeginDraygonFinalTailWhips(DraygonEnemyState state, SamusState? samus)
     {
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
@@ -236,7 +236,7 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>
-    /// Waits for the final tail whips. The tail's list owns the duration and eventually
+    /// Waits for the final tail whips. The tail's animation owns the duration and eventually
     /// executes its release step, which changes the body function to release Samus.
     /// </summary>
     internal void WaitForDraygonFinalTailWhips(DraygonEnemyState state, SamusState? samus) =>

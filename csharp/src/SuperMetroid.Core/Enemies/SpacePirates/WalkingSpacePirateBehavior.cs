@@ -147,7 +147,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         }
 
         // The slow-laser option enables the retail flinch detector after normal AI.
-        // The detector is intentionally allowed to replace a list selected just above.
+        // The detector is intentionally allowed to replace an animation selected just above.
         if (((slot.SpawnSettings<WalkingSpacePirateSpawnSettings>().Options &
                 WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch) != WalkingSpacePirateOptions.None) &&
             samus is not null)

@@ -13,7 +13,7 @@ internal sealed class TourianEntranceStatueEntity(TourianEntranceStatueBehavior 
     public EnemyInitializationAiHandler? FindInitialization() => species.InitializeTourianEntranceStatue;
 
     /// <inheritdoc/>
-    /// <remarks>The statues have no main behaviour; they animate through their authored lists.</remarks>
+    /// <remarks>The statues have no main behaviour; they play their authored animations.</remarks>
     public EnemyMainAiHandler? FindMain() => EnemyNoOpAi.Main;
 
     /// <inheritdoc/>

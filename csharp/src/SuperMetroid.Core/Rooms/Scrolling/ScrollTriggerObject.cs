@@ -5,8 +5,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>
 /// A room's scroll trigger (#1554): a block of special air that, once Samus touches it, applies its ordered scroll-cell
-/// writes on the next room-object update and then rests again, ready for the next touch. It replaces the trigger's
-/// family state and sleeping sequence.
+/// writes on the next room-object update and then rests again, ready for the next touch.
 /// </summary>
 internal sealed class ScrollTriggerObject : RoomObjectBehaviour
 {

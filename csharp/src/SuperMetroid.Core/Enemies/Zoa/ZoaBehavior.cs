@@ -12,7 +12,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ZoaEntity(slot, common);
 
-    /// <summary>Advances Zoa's typed animation (#641) where the shared enemy animation would run its list.</summary>
+    /// <summary>Advances Zoa's typed animation (#641) in place of the shared enemy animation.</summary>
     internal static void AdvanceZoaAnimation(RoomEnemySlot slot)
     {
         if (!slot.AnimationClock.Expire())
@@ -112,7 +112,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = ZoaEnemyFunction.Rising;
     }
 
-    /// <summary>Reveals Zoa and rises until it reaches Samus's height, then starts its shooting list and clears loop scratch.</summary>
+    /// <summary>Reveals Zoa and rises until it reaches Samus's height, then starts its shooting animation and clears loop scratch.</summary>
     internal static void RunZoaRising(
         RoomEnemySlot slot,
         ZoaEnemyState state,

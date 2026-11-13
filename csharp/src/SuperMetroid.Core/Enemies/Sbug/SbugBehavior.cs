@@ -371,7 +371,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static SignedSixteenSixteen CalculateSignedSbugComponent(TrigonometryAngle angle, int speed, int phase) =>
         EnemyMath.ReadEightBitSineFixedProduct(angle.TurnedBySteps(phase), speed);
 
-    /// <summary>Restarts the selected animation only when its facing list differs from the installed one.</summary>
+    /// <summary>Restarts the selected animation only when its facing animation differs from the installed one.</summary>
     private static void SetSbugFacing(
         RoomEnemySlot slot,
         SbugEnemyState state,

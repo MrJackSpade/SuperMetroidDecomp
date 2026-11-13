@@ -350,7 +350,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
         // The table contains three identical entries per side. The random retry is retained
         // because advancing the RNG until its low two bits are nonzero is observable
-        // even though all three accepted values select the same list.
+        // even though all three accepted values select the same animation.
         int choice;
         do
             choice = _room.Random.Next(SpacePirateDecisions.DivekickChoice);
@@ -413,7 +413,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     private static void InitializeNinjaPirateDive(NinjaSpacePirateEnemyState state) =>
         state.Speed = NinjaPirateInitialDiveSpeed;
 
-    /// <summary>Rises until signed speed turns negative, then switches to the descent list.</summary>
+    /// <summary>Rises until signed speed turns negative, then switches to the descent animation.</summary>
     private static void StepNinjaPirateDiveJump(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -601,8 +601,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                     ? NinjaSpacePirateSegment.ActiveFacingRight
                     : NinjaSpacePirateSegment.ActiveFacingLeft;
                 slot.AnimationClock.StepOnNextUpdate();
-                // The cue returns the selected list, not its next step.
-                // Re-entering that list runs its function cue and restores decision AI
+                // The cue returns the selected animation, not its next step.
+                // Re-entering that animation runs its function cue and restores decision AI
                 // after the idle animation explicitly installed the no-op function.
                 return state.ActiveAnimation;
             case NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.ResetSpeed }:

@@ -40,7 +40,7 @@ public enum MotherBrainBodyFunction
     FakeDeathAscentSetupPhase2Brain,
     /// <summary>Waits for signed underflow, then seeds the 32-count rising-preparation delay and falls into it.</summary>
     FakeDeathAscentPauseForSuspense,
-    /// <summary>Starts the floor-clipping effect, installs the hidden head list, and starts readying her standing body with a 256-count later pause.</summary>
+    /// <summary>Starts the floor-clipping effect, starts the hidden head animation, and starts readying her standing body with a 256-count later pause.</summary>
     FakeDeathAscentPrepareForRising,
     /// <summary>Readies her standing body one update per call and decrements the suspense timer on the same call that finishes it.</summary>
     FakeDeathAscentReadyStandingBody,
@@ -54,7 +54,7 @@ public enum MotherBrainBodyFunction
     FakeDeathAscentWaitUntilUncrouched,
     /// <summary>Restores brain sprite colors on the four-count timer cadence, then enables phase-two palette handling and drool.</summary>
     FakeDeathAscentTransitionFromGray,
-    /// <summary>Expires the 23-count menacing shake and installs the stretching head list with a 256-count hold.</summary>
+    /// <summary>Expires the 23-count menacing shake and starts the stretching head animation with a 256-count hold.</summary>
     SecondPhaseStretchingShakeHead,
     /// <summary>Expires the long stretch hold, changes both neck targets, and begins the 64-count final wait.</summary>
     SecondPhaseStretchingBringHeadUp,
@@ -68,7 +68,7 @@ public enum MotherBrainBodyFunction
     SecondPhaseBombDecideWalking,
     /// <summary>Waits for the stored backward target before choosing crouch or immediate bomb firing.</summary>
     SecondPhaseBombWalkingBackwards,
-    /// <summary>Requests the slow crouch and waits for its pose before installing the bomb-firing head list.</summary>
+    /// <summary>Requests the slow crouch and waits for its pose before starting the bomb-firing head animation.</summary>
     SecondPhaseBombCrouch,
     /// <summary>Holds the 44-count post-fire pause, then attempts stand-up with the same-call fallthrough.</summary>
     SecondPhaseBombFired,
@@ -116,7 +116,7 @@ public enum MotherBrainBodyFunction
     SecondPhaseFinishSamusOff,
     /// <summary>Waits for standing, then immediately enters the 16-count admiration pause.</summary>
     SecondPhaseFinishSamusOffStandUp,
-    /// <summary>Expires the admiration pause, installs the stretching head list, and starts a 256-count final-charge delay.</summary>
+    /// <summary>Expires the admiration pause, starts the stretching head animation, and starts a 256-count final-charge delay.</summary>
     SecondPhaseFinishSamusOffAdmire,
     /// <summary>On timer underflow installs the charging head animation and immediately begins readying the Baby Metroid's arrival.</summary>
     SecondPhaseFinishSamusOffChargeFinalBeam,
@@ -158,7 +158,7 @@ public enum MotherBrainBodyFunction
     SecondPhaseRevivePrepareNeckForBabyDeath,
     /// <summary>Waits for standing, requests really-slow forward walking, and immediately enters the baby-attack chooser.</summary>
     SecondPhaseReviveFinishPreparingForBabyDeath,
-    /// <summary>Sampled RNG may adjust posture or fire the targeted onion-ring head list, using Samus's list when no baby index exists.</summary>
+    /// <summary>Sampled RNG may adjust posture or fire the targeted onion-ring head animation, aimed at Samus when no baby index exists.</summary>
     SecondPhaseMurderBabyAttack,
     /// <summary>Waits for the 64-count timer's signed underflow before returning to baby-attack selection.</summary>
     SecondPhaseMurderBabyAttackCooldown,

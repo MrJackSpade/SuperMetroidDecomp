@@ -22,7 +22,7 @@ public enum KiHunterEnemyFunction
     GroundJump,
     /// <summary>Counts down the post-landing or post-spit wait, then spits within 96 horizontal pixels or prepares another hop.</summary>
     GroundWait,
-    /// <summary>Installs the acid-spit list facing Samus and suspends movement while the animation owns the attack.</summary>
+    /// <summary>Starts the acid-spit animation facing Samus and suspends movement while the animation owns the attack.</summary>
     SelectAcidSpit,
     /// <summary>Copies X and Y from the physically preceding body slot.</summary>
     FollowBody,

@@ -54,7 +54,7 @@ internal sealed class RoomObjectFramePhase
     /// <remarks>
     /// The ordinary frame dispatcher intentionally suppresses room objects while the shared
     /// door/elevator freeze flag is set. This call is the game's one exception: it
-    /// advances freshly loaded room setup lists once before the destination fades in.
+    /// advances the freshly loaded room objects' sequences once before the destination fades in.
     /// </remarks>
     internal void RunDoorTransitionObjectHandler(RoomObjectSystem roomObjects, SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {

@@ -41,7 +41,7 @@ internal sealed class StationObjects
     internal void BeginFrame() => _stationActivationEvents.Clear();
 
     /// <summary>
-    /// The map station's side of gameplay resume. Map access-list deletion does
+    /// The map station's side of gameplay resume. Ending the map access sequence does
     /// not restore the normal Samus handlers; leaving the automatically opened map does,
     /// through the map-unpause release command (<see cref="SuperMetroid.Core.Samus.SamusControl.ReleaseRefillStationOnUnpause"/>).
     /// </summary>
@@ -373,12 +373,12 @@ internal sealed class StationObjects
                 station.AccessBlock = accessBlock;
                 station.AccessBehavior = access;
 
-                // The arm-cannon line-up check runs command six in setup,
-                // before the common room-object handler advances the resident access list. This
+                // The arm-cannon line-up check runs in setup,
+                // before the common room-object handler advances the resident access sequence. This
                 // distinction is observable in G-Mode: the disabled handler cannot start
                 // or finish the animation, but Samus is already movement-locked and the
                 // station therefore softlocks. The save trigger only advances its
-                // resident list and does not execute command six at this setup seam.
+                // resident sequence and does not run the line-up check at this setup seam.
                 if (station.Kind != StationKind.Save)
                 {
                     IRoomSamus samus = _samus?.Current

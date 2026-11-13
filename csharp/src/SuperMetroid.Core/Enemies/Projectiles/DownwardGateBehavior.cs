@@ -102,7 +102,7 @@ internal sealed class DownwardGateBehavior
         int travelled = gate.TravelSinceBlock + speedMagnitude;
         if (travelled >= DownwardGateDefinitions.OneBlockDistance)
         {
-            // Steps the list past its sleep, which wakes the next visual frame
+            // Steps the animation past its sleep, which wakes the next visual frame
             // on this same projectile-handler pass.
             ResumeDownwardGate(projectile);
             travelled = 0;

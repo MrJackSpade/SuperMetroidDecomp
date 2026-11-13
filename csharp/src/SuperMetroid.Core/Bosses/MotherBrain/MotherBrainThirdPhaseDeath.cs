@@ -369,7 +369,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool RunThirdPhaseDeathRealizeDecapitation()
     {
-        // The body installs the decapitated list and a separate brain-slot draw
+        // The body starts the decapitated animation and a separate brain-slot draw
         // setup, clears its 8.8 falling velocity, then falls through immediately.
         _state.SetHeadAnimation(MotherBrainHeadSegment.Decapitated);
         BrainDrawSetupRequested = true;

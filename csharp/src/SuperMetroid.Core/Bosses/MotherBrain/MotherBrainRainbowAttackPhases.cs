@@ -79,7 +79,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowMoveSamusTowardWall;
     }
 
-    /// <summary>Resets the phase-two head list and starts the 256-count neck extension before beam charging.</summary>
+    /// <summary>Resets the phase-two head animation and starts the 256-count neck extension before beam charging.</summary>
     internal void BeginExtendingNeckForAttack()
     {
         // The rainbow setup resets the neutral phase-two head animation and selects the

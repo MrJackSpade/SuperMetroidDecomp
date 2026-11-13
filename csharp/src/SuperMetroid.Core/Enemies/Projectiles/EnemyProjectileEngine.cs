@@ -148,7 +148,7 @@ internal sealed class EnemyProjectileEngine
     /// <summary>
     /// Tests enemy projectiles against Samus's projectiles and handles each hit.
     /// Flag-one Nuclear Waffle links create duds and remain alive; flag-zero
-    /// projectiles such as Kago's bugs switch to their shot list.
+    /// projectiles such as Kago's bugs switch to their shot animation.
     /// </summary>
     public int ResolveEnemyProjectileSamusProjectileHits(
         SamusProjectileSystem projectiles,
@@ -196,7 +196,7 @@ internal sealed class EnemyProjectileEngine
                 }
                 else
                 {
-                    // Every shot list without a typed reaction of its own is the shared delete list.
+                    // Every shot animation without a typed reaction of its own is the shared delete animation.
                     enemyProjectile.StartAnimation(Handlers.TryGetShotAnimation(enemyProjectile.Kind, out Func<EnemyProjectileAnimation>? shotAnimation)
                         ? shotAnimation()
                         : EnemyProjectileDeleteAnimation.Instance);
@@ -646,7 +646,7 @@ internal sealed class EnemyProjectileEngine
     internal static bool NonAirBlockAt(RoomLevelData level, Position16<RoomPixels> pixel) =>
         level.GetCollisionBlock(new(CoordinateAxis.Wrap(pixel.X >> 4), CoordinateAxis.Wrap(pixel.Y >> 4))).CollisionType != RoomCollisionType.Air;
 
-    /// <summary>Checks radius overlap and publishes touch-list or damage behavior for a projectile that reaches Samus.</summary>
+    /// <summary>Checks radius overlap and publishes touch-animation or damage behavior for a projectile that reaches Samus.</summary>
     internal KnockbackHorizontalDirection? ResolveEnemyProjectileSamusCollision(
         EnemyProjectile projectile,
         SamusState samus)
@@ -677,10 +677,10 @@ internal sealed class EnemyProjectileEngine
 
         // Contact installs the definition's touch animation before consulting the persists-on-contact
         // property. Mother Brain's turret bullet depends on that ordering: it survives contact
-        // but immediately changes to its smoke list. Keeping this in the common path also
+        // but immediately changes to its smoke animation. Keeping this in the common path also
         // prevents later persistent projectile families from needing bespoke hit effects.
         bool hasTouchList = EnemyProjectileKinds.Get(projectile.Kind).SamusTouch == EnemyProjectileSamusTouch.StartsTouchReaction;
-        // Every touch list without a typed reaction of its own is the shared delete list.
+        // Every touch animation without a typed reaction of its own is the shared delete animation.
         if (Handlers.TryGetTouchAnimation(projectile.Kind, out Func<EnemyProjectileAnimation>? touchAnimation))
             projectile.StartAnimation(touchAnimation());
         else if (hasTouchList)
@@ -804,7 +804,7 @@ internal sealed class EnemyProjectileEngine
             graphics: default);
         projectile.Position = projectile.Position.WithWhole(position);
 
-        // The dust-cloud-or-explosion initializer ignores the definition's placeholder list and
+        // The dust-cloud-or-explosion initializer ignores the definition's placeholder animation and
         // indexes this literal thirty-entry table with the spawner's choice: the Rinka's
         // is the small explosion, and the Boulder's its impact cloud.
         projectile.StartAnimation(new MiscDustProjectileAnimation(segment));
@@ -1001,7 +1001,7 @@ internal sealed class EnemyProjectileEngine
     internal bool TakeOneInFourBranch() =>
         _room.Random.Next(EnemyProjectileRandomBranchDefinitions.OneInFourBranch) == EnemyProjectileRandomBranchDefinitions.OneInFourBranchTaken;
 
-    /// <summary>Sets every behavior bit in <paramref name="flags"/>, as a list's property OR does.</summary>
+    /// <summary>Sets every behavior bit in <paramref name="flags"/>, as an animation's property-setting cue does.</summary>
     internal static void SetPropertyFlags(EnemyProjectile projectile, EnemyProjectilePropertyFlags flags)
     {
         Ensure.NotNull(projectile);
@@ -1013,7 +1013,7 @@ internal sealed class EnemyProjectileEngine
             projectile.BlocksSamusProjectiles = true;
     }
 
-    /// <summary>Clears every behavior bit in <paramref name="flags"/>, as a list's property AND clears the bits its mask leaves out.</summary>
+    /// <summary>Clears every behavior bit in <paramref name="flags"/>, as an animation's property-clearing cue clears the bits its mask leaves out.</summary>
     internal static void ClearPropertyFlags(EnemyProjectile projectile, EnemyProjectilePropertyFlags flags)
     {
         Ensure.NotNull(projectile);

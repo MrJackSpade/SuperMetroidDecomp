@@ -65,7 +65,7 @@ internal sealed class KraidLimbs
     }
 
     /// <summary>
-    /// The segment a part's animation rests in. Resting after the last beat of a list that runs on into the next, it
+    /// The segment a part's animation rests in. Resting after the last beat of a segment that runs on into the next, it
     /// already rests in the next, as the part's animation position then lies inside it.
     /// </summary>
     private KraidPartSegment KraidPartResidentAnimation(RoomEnemySlot part) =>

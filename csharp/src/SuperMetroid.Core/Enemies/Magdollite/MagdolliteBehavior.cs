@@ -112,7 +112,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         ShowGlow();
     }
 
-    /// <summary>Starts the head in its Samus-facing idle list, retaining the initializer's reversed marker convention until the first tick.</summary>
+    /// <summary>Starts the head in its Samus-facing idle animation, retaining the initializer's reversed marker convention until the first tick.</summary>
     private static void InitializeMagdolliteHead(
         RoomEnemySlot slot,
         MagdolliteEnemyState state,
@@ -146,7 +146,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
     }
 
-    /// <summary>Hides the projectile-throwing overlay below its origin and starts its pillar-cap list.</summary>
+    /// <summary>Hides the projectile-throwing overlay below its origin and starts its pillar-cap animation.</summary>
     private static void InitializeMagdolliteOverlay(
         RoomEnemySlot slot,
         MagdolliteEnemyState state)
@@ -257,7 +257,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = MagdolliteEnemyFunction.HeadWaitingForBodyLanding;
     }
 
-    /// <summary>Starts the Samus-facing emerge list once the falling body releases the head's landing latch.</summary>
+    /// <summary>Starts the Samus-facing emerge animation once the falling body releases the head's landing latch.</summary>
     private static void RunMagdolliteHeadWaitingForBodyLanding(
         RoomEnemySlot head,
         MagdolliteEnemyState state,
@@ -275,7 +275,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = MagdolliteEnemyFunction.HeadWaitingForReturnAnimation;
     }
 
-    /// <summary>Restores the appropriate idle list after the emerge animation finishes.</summary>
+    /// <summary>Restores the appropriate idle animation after the emerge animation finishes.</summary>
     private static void RunMagdolliteHeadWaitingForReturnAnimation(
         RoomEnemySlot head,
         MagdolliteEnemyState state,
@@ -560,7 +560,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Carries out one cue of a Magdollite part's animations: the sixteen private callbacks the ten
-    /// retail lists reference. Every cue runs on to the next step, so none redirects.
+    /// authored animations reference. Every cue runs on to the next step, so none redirects.
     /// </summary>
     private MagdolliteSegment? ApplyMagdolliteCue(
         RoomEnemySlot slot,

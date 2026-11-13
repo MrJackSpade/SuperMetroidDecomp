@@ -29,9 +29,9 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     public EnemyMainAiHandler? FindMain() => PhantoonPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         PhantoonPart.Body => species.RunPhantoonBodyMainAi,
-        // The eye's main is an empty step; the body positions it and its own list animates it.
+        // The eye's main is an empty step; the body positions it and it plays its own animation.
         PhantoonPart.Eye => EnemyNoOpAi.Main,
-        // The drawing parts' main is an empty step; these drawing parts animate through their own lists.
+        // The drawing parts' main is an empty step; these drawing parts play their own animations.
         PhantoonPart.Tentacles or PhantoonPart.Mouth => EnemyNoOpAi.Main,
         _ => throw new InvalidOperationException($"Phantoon entity bound to {Slot.DefinitionId}."),
     };

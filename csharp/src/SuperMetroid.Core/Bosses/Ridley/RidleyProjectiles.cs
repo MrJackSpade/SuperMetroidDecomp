@@ -203,8 +203,8 @@ internal sealed class RidleyProjectiles
     internal static void BeginAfterburnFinalAnimation(EnemyProjectile projectile)
     {
         projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.AfterburnFinal));
-        // The afterburns replace the list; its clear-frame-behaviour step stops motion.
-        // Velocity and contact properties remain unchanged. The final list
+        // The afterburns replace the animation; its clear-frame-behaviour cue stops motion.
+        // Velocity and contact properties remain unchanged. The final animation
         // clears movement, draws five frames, then deletes; it never disables damage.
     }
 

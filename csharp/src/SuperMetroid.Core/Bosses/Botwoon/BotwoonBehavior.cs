@@ -998,7 +998,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         segment.Position = segment.Position.WithWholeY(200);
         state.SegmentFunctions[segmentIndex] = BotwoonBodyFunction.Landed;
-        // The landed segment hands its animation to the shared big-explosion list.
+        // The landed segment plays the shared big-explosion animation.
         segment.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileSegment.BigExplosion));
         segment.Graphics = SpriteGraphics.SharedIn(EnemyShades.InProjectileLook);
         segment.CanDamageSamus = false;

@@ -48,8 +48,8 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state);
 
-        // The Rio's setup writes the list directly rather than calling the animation installer. The installed animation must
-        // therefore remain none until the first behavioral transition installs a new list.
+        // The Rio's setup writes the animation directly rather than calling the animation starter. The installed animation must
+        // therefore remain none until the first behavioral transition starts a new animation.
         state.Playback = EnemyAnimationPlayback.Start(slot, RioAnimations.StartingWith(RioSegment.Idle));
     }
 

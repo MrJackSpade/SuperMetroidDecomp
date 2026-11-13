@@ -14,7 +14,7 @@ internal static class OldTourianEscapeShaftWallExplosionAnimationDefinitions
     /// <summary>The wall-middle Y the explosions are placed at.</summary>
     internal const int YPosition = 2184;
 
-    /// <summary>The loop count the list loads into the general timer; the burst plays once.</summary>
+    /// <summary>The loop count the animation loads into the general timer; the burst plays once.</summary>
     internal const int BurstCount = 1;
 
     /// <summary>

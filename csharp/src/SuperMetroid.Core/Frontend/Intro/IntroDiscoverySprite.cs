@@ -57,7 +57,7 @@ internal sealed class IntroDiscoverySprite
     internal AnimationPlayback<CinematicSpriteSegment> Playback { get; private set; }
 
     /// <summary>
-    /// The segment the actor's animation rests in: resting after the last frame of a list that runs on into the next, it
+    /// The segment the actor's animation rests in: resting after the last frame of a segment that runs on into the next, it
     /// already stands in the next (<see cref="CinematicSpriteAnimations.RunsOnInto"/>).
     /// </summary>
     internal CinematicSpriteSegment CurrentAnimation => AnimationResidence.ResidentSegment(
@@ -85,7 +85,7 @@ internal sealed class IntroDiscoverySprite
     /// <summary>
     /// Seeds the private frame hold used by the next generic sprite-handler
     /// call. Cinematic object setups write this hold directly when several actors
-    /// share one list but must begin on staggered frames.
+    /// share one animation but must begin on staggered frames.
     /// </summary>
     /// <remarks>
     /// This is deliberately not <see cref="LoopCountdown"/>, which only the animation's counted phases use; conflating the

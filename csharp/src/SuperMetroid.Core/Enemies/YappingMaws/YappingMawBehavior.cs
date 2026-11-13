@@ -305,8 +305,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = YappingMawAiFunction.RetractedDelay;
         state.GrabCooldown = WrappingCountdown.Start(YappingMawGrabCooldownFrames);
 
-        // The six retracted lists are not one per aim. The right and left sectors have
-        // dedicated art, while every other sector shares its attack direction's list.
+        // The six retracted animations are not one per aim. The right and left sectors have
+        // dedicated art, while every other sector shares its attack direction's animation.
         VerticalDirection reach = slot.SpawnSettings<YappingMawSpawnSettings>().Attack;
         if (reach == VerticalDirection.Up)
         {

@@ -8,10 +8,10 @@ public enum SparkEnemyFunction
     /// <summary>Returns immediately, leaving the continuously active animation in control.</summary>
     AlwaysActive = 1,
 
-    /// <summary>Counts down the intangible interval before installing the flicker-on list.</summary>
+    /// <summary>Counts down the intangible interval before starting the flicker-on animation.</summary>
     IntermittentInactive,
 
-    /// <summary>Counts down the tangible interval before installing the flicker-out list and eight-update extension.</summary>
+    /// <summary>Counts down the tangible interval before starting the flicker-out animation and eight-update extension.</summary>
     IntermittentActive,
 
     /// <summary>Periodically spawns a falling Spark projectile and reloads the countdown.</summary>

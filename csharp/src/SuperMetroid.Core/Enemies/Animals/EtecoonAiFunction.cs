@@ -21,7 +21,7 @@ public enum EtecoonAiFunction
     RunRightToWall,
     /// <summary>Resolves horizontal motion before vertical motion, enters the eight-update wall-jump pause on wall contact, and routes the actor after landing.</summary>
     Airborne,
-    /// <summary>Waits for the wall-pause timer, installs the opposite-facing wall-jump list, and launches with signed Y velocity -3 and X velocity -2 or +2.</summary>
+    /// <summary>Waits for the wall-pause timer, starts the opposite-facing wall-jump animation, and launches with signed Y velocity -3 and X velocity -2 or +2.</summary>
     WallPause,
     /// <summary>After the eleven-update landing wait, selects the left run-up, right run-up, or immediate top-room hop from its spawn route.</summary>
     RouteAfterLanding,
@@ -31,9 +31,9 @@ public enum EtecoonAiFunction
     MoveRightToTeachingStart,
     /// <summary>Runs right to room X 600 and begins the successful tunnel jump at signed Y velocity -4 pixels per update.</summary>
     RunRightToLongJump,
-    /// <summary>Applies horizontal and vertical motion until room X reaches 680, then switches to the tunnel-running list.</summary>
+    /// <summary>Applies horizontal and vertical motion until room X reaches 680, then switches to the tunnel-running animation.</summary>
     LongJump,
-    /// <summary>Runs right to room X 840, then selects the ledge-fall jump list with signed Y velocity -1 pixel per update.</summary>
+    /// <summary>Runs right to room X 840, then selects the ledge-fall jump animation with signed Y velocity -1 pixel per update.</summary>
     RunRightAfterLongJump,
     /// <summary>Moves right and vertically from the tunnel ledge until terrain collision starts the next eleven-update top-room hop wait.</summary>
     LongJumpLanding,

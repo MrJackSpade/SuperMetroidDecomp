@@ -5,7 +5,7 @@ public enum BotwoonHeadFunction
 {
     /// <summary>Derives orientation from delayed head positions and selects hidden/tangible drawing according to hole state.</summary>
     AnimateFromMovement = 1,
-    /// <summary>Aims at Samus, installs the spit list, and immediately selects the five-shot animation wait or three-shot volley.</summary>
+    /// <summary>Aims at Samus, starts the spit animation, and immediately selects the five-shot animation wait or three-shot volley.</summary>
     AimAtSamus,
     /// <summary>Waits for the head animation's spit-frame flag, then emits five projectiles spaced sixteen angle units apart.</summary>
     WaitForSpitFrame,

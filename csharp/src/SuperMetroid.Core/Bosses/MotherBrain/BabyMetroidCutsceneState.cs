@@ -312,7 +312,7 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.SetMotherBrainToStumbleBack:
                 // The drain step passes animation-delay index two and target Body.X-1. With a
-                // standing body this always installs the really-fast backward list.
+                // standing body this always starts the really-fast backward animation.
                 bodyStumbleRequested = motherBrain.RequestBabyStumbleBackward();
                 Phase = BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody;
                 goto case BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody;
@@ -573,7 +573,7 @@ public sealed class BabyMetroidCutsceneState
                     cameraPosition);
                 if (Health == 0)
                 {
-                    // The fatal-blow step changes graphics/list state, freezes the body AI,
+                    // The fatal-blow step changes graphics/animation state, freezes the body AI,
                     // clears velocity, remembers the shake origin, and falls through into
                     // the first of 17 fatal-blow shake calls.
                     SetAnimation(MotherBrainBabySegment.TakingFatalBlow);

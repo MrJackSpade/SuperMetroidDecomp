@@ -204,7 +204,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         MoveMaridiaLargeSnailHorizontally(slot, state, level);
     }
 
-    /// <summary>Resumes the rolling list after the attack animation marks itself complete.</summary>
+    /// <summary>Resumes the rolling animation after the attack animation marks itself complete.</summary>
     private static void RunMaridiaLargeSnailAttack(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state)

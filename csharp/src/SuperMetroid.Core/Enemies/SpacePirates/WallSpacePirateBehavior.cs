@@ -38,7 +38,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         _deathsAndDrops = deathsAndDrops;
     }
 
-    /// <summary>Vertical distance below which a climbing Pirate starts its fire-and-jump list.</summary>
+    /// <summary>Vertical distance below which a climbing Pirate starts its fire-and-jump animation.</summary>
     private const int WallPirateSamusDetectionBand = 32;
     /// <summary>Pixels above the actor origin where the shared Pirate laser is emitted.</summary>
     private const int WallPirateLaserMuzzleYOffset = 16;
@@ -138,7 +138,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>
-    /// Moves along the jump arc (the angle falls jumping right and rises jumping left) and installs the landing list for
+    /// Moves along the jump arc (the angle falls jumping right and rises jumping left) and starts the landing animation for
     /// the wall reached at that side's target angle.
     /// </summary>
     private static void StepWallSpacePirateJump(
@@ -192,7 +192,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             : CoordinateAxis.Wrap(RoomGridConversions.BlockStart(x) + 16));
     }
 
-    /// <summary>Starts a selected wall-Pirate list on its first animation frame.</summary>
+    /// <summary>Starts a selected wall-Pirate animation on its first frame.</summary>
     private static void StartWallSpacePirateAnimation(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,

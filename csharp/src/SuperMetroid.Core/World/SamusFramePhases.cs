@@ -1300,8 +1300,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // Normal gameplay advances animation during frame-handler beta, before the
         // pose-transition handler, draw handler, and next frame's tile selection.
         // Animation sees the same held input as movement. Ordinary Dash uses B
-        // both to accumulate the running delay and to intercept the running delay-list
-        // command; passing a reconstructed input later would skew art.
+        // both to accumulate the running delay and to intercept the running animation's
+        // cue; passing a reconstructed input later would skew art.
         if (frame.Mode.Beta == SamusBetaHandler.Fatal)
         {
             _player.LastDeathSequenceStep = samus.DeathSequence.Step(

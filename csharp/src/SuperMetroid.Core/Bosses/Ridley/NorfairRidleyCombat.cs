@@ -560,7 +560,7 @@ internal sealed class NorfairRidleyCombat
             BeginNorfairRidleyDeathRoar(body, state);
     }
 
-    /// <summary>Selects the death-roar list and arms its 32-frame move.</summary>
+    /// <summary>Selects the death-roar animation and arms its 32-frame move.</summary>
     internal static void BeginNorfairRidleyDeathRoar(
         RoomEnemySlot body,
         RidleyEnemyState state)

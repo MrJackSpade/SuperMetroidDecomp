@@ -391,7 +391,7 @@ internal sealed class CrocomireCombat
             switch (cue)
             {
                 case CrocomireProjectileCue.SpawnDrops:
-                    _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(projectile.Position.Whole, EnemyDefinitionId.Crocomire);
+                    _deathsAndDrops.SpawnEnemyDropFromDefinition(projectile.Position.Whole, EnemyDefinitionId.Crocomire);
                     return;
                 case CrocomireProjectileCue.Delete:
                     projectile.Delete();

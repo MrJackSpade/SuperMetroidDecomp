@@ -286,10 +286,10 @@ internal sealed class BeamFiring
         // composition in one projectile slot, so no child projectiles are created here.
         SamusBeamCombination beamType = slot.Type.BeamCombination;
 
-        // The projectile setup selects the combination's projectile definition, stores damage, chooses the
+        // The projectile setup selects the combination's projectile kind, stores damage, chooses the
         // direction-specific list, samples its initial radii, and arms a one-frame timer.
-        SamusProjectileHeader header = SamusProjectileSelection.BeamShot(beamType, charged);
-        slot.Damage = SamusProjectileDamage.Read(header);
+        SamusProjectileKind kind = SamusProjectileSelection.BeamShot(beamType, charged);
+        slot.Damage = SamusProjectileDamage.Read(kind);
         SamusProjectileProgram? program = SamusProjectileSelection.BeamShotProgram(beamType, charged, aim);
         slot.Playback = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
@@ -385,9 +385,9 @@ internal sealed class BeamFiring
         slot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true);
         slot.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
         const SamusBeamCombination hyperBeamType = SamusBeamCombination.Plasma;
-        SamusProjectileHeader header = SamusProjectileSelection.BeamShot(hyperBeamType, charged: true);
-        slot.Damage = SamusProjectileDamage.Read(header);
-        SamusProjectileProgram program = SamusProjectileHeaders.Program(header, slot.Direction);
+        SamusProjectileKind kind = SamusProjectileSelection.BeamShot(hyperBeamType, charged: true);
+        slot.Damage = SamusProjectileDamage.Read(kind);
+        SamusProjectileProgram program = SamusProjectileKinds.Program(kind, slot.Direction);
         slot.Playback = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -474,10 +474,10 @@ internal sealed class BeamFiring
         // keeping both calls makes the one-frame ignition transition directly inspectable.
         InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, baseSpeed: SignedEightEight.Zero);
 
-        // The selected HUD item chose the missile family above; the family selects the projectile definition.
-        SamusProjectileHeader header = SamusProjectileSelection.NonBeam(slot.Type.Family);
-        slot.Damage = SamusProjectileDamage.Read(header);
-        SamusProjectileProgram program = SamusProjectileHeaders.Program(header, slot.Direction);
+        // The selected HUD item chose the missile family above; the family selects the projectile kind.
+        SamusProjectileKind kind = SamusProjectileSelection.NonBeam(slot.Type.Family);
+        slot.Damage = SamusProjectileDamage.Read(kind);
+        SamusProjectileProgram program = SamusProjectileKinds.Program(kind, slot.Direction);
         slot.Playback = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.FrameHold = WrappingCountdown.Start(1);

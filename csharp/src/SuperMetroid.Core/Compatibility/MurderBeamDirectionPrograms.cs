@@ -13,12 +13,12 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// A rule with no state, held by the projectile selection catalog. Consulted when the Murder Beam's shot is fired and when
 /// an enemy reflects it. Evidence: the
-/// fire routines index the selected header by the shot's direction, one word per direction, and the projectile program
-/// check compares each such word after the Power Bomb header with the original's.
+/// fire routines index the selected kind's program list by the shot's direction, one entry per direction, and the
+/// projectile program check compares each such entry past the Power Bomb's list with the original's.
 /// </remarks>
 /// <typeparam name="TDirection">A shot direction.</typeparam>
 /// <typeparam name="TProgram">An animation program.</typeparam>
-[CompatibilityService("the Murder Beam's shot runs the animation each direction reads from the Power Bomb header and the headers after it")]
+[CompatibilityService("the Murder Beam's shot runs the animation each direction reads from the Power Bomb's program list and the lists stored after it")]
 public sealed class MurderBeamDirectionPrograms<TDirection, TProgram>
     where TDirection : notnull
     where TProgram : struct

@@ -440,7 +440,7 @@ internal sealed class EnemyCollision
             bool usesIgnoreShotAi = ShotAi(enemy) == EnemyReaction.Ignore;
             bool usesPrivateShotAi = HasPrivateNormalBombShotAi(enemy, ShotAi(enemy));
             bool usesFrameHitboxes = enemy.CollidesByFrameHitboxes;
-            bool headerWithholdsFrameHitboxShots = usesFrameHitboxes &&
+            bool definitionWithholdsFrameHitboxShots = usesFrameHitboxes &&
                 enemy.Definition.ShotHitboxScan == EnemyHitboxScan.Withheld;
             bool admittedByOccupant = enemy.Entity is IEnemyNormalBombAdmission admission &&
                 admission.AdmitsNormalBombs(usesFrameHitboxes);
@@ -449,7 +449,7 @@ internal sealed class EnemyCollision
                 enemy.Frame is null ||
                 enemy.InvincibilityTimer != 0 ||
                 enemy.Presence.HasAny(EnemyPresence.Deleted) ||
-                headerWithholdsFrameHitboxShots ||
+                definitionWithholdsFrameHitboxShots ||
                 usesFrameHitboxes &&
                     enemy.Contact.HasAny(EnemyContact.IgnoresSamus))
             {

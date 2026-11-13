@@ -7,49 +7,49 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal static class SamusProjectileHeaderNative
 {
     /// <summary>The bank-$93 address of <paramref name="header"/>.</summary>
-    internal static ushort Address(SamusProjectileHeader header) => header switch
+    internal static ushort Address(SamusProjectileKind header) => header switch
     {
-        SamusProjectileHeader.UnchargedPower => 0x8431,
-        SamusProjectileHeader.UnchargedSpazer => 0x8447,
-        SamusProjectileHeader.UnchargedSpazerIce => 0x845d,
-        SamusProjectileHeader.UnchargedSpazerIceWave => 0x8473,
-        SamusProjectileHeader.UnchargedPlasmaIceWave => 0x8489,
-        SamusProjectileHeader.UnchargedIce => 0x849f,
-        SamusProjectileHeader.UnchargedWave => 0x84b5,
-        SamusProjectileHeader.UnchargedPlasma => 0x84cb,
-        SamusProjectileHeader.UnchargedIceWave => 0x84e1,
-        SamusProjectileHeader.UnchargedSpazerWave => 0x84f7,
-        SamusProjectileHeader.UnchargedPlasmaWave => 0x850d,
-        SamusProjectileHeader.UnchargedPlasmaIce => 0x8523,
-        SamusProjectileHeader.ChargedPower => 0x8539,
-        SamusProjectileHeader.ChargedSpazer => 0x854f,
-        SamusProjectileHeader.ChargedSpazerIce => 0x8565,
-        SamusProjectileHeader.ChargedSpazerIceWave => 0x857b,
-        SamusProjectileHeader.ChargedPlasmaIceWave => 0x8591,
-        SamusProjectileHeader.ChargedIce => 0x85a7,
-        SamusProjectileHeader.ChargedPlasma => 0x85bd,
-        SamusProjectileHeader.ChargedWave => 0x85d3,
-        SamusProjectileHeader.ChargedIceWave => 0x85e9,
-        SamusProjectileHeader.ChargedSpazerWave => 0x85ff,
-        SamusProjectileHeader.ChargedPlasmaIce => 0x8615,
-        SamusProjectileHeader.ChargedPlasmaWave => 0x862b,
-        SamusProjectileHeader.Missile => 0x8641,
-        SamusProjectileHeader.SuperMissile => 0x8657,
-        SamusProjectileHeader.SuperMissileLink => 0x866d,
-        SamusProjectileHeader.PowerBomb => 0x8671,
-        SamusProjectileHeader.Bomb => 0x8675,
-        SamusProjectileHeader.PlasmaSBA => 0x8685,
-        SamusProjectileHeader.WaveSBA => 0x8689,
-        SamusProjectileHeader.SpazerSBA => 0x868d,
-        SamusProjectileHeader.SpazerSBATrail => 0x86ab,
-        SamusProjectileHeader.ShinesparkEcho => 0x86c1,
+        SamusProjectileKind.UnchargedPower => 0x8431,
+        SamusProjectileKind.UnchargedSpazer => 0x8447,
+        SamusProjectileKind.UnchargedSpazerIce => 0x845d,
+        SamusProjectileKind.UnchargedSpazerIceWave => 0x8473,
+        SamusProjectileKind.UnchargedPlasmaIceWave => 0x8489,
+        SamusProjectileKind.UnchargedIce => 0x849f,
+        SamusProjectileKind.UnchargedWave => 0x84b5,
+        SamusProjectileKind.UnchargedPlasma => 0x84cb,
+        SamusProjectileKind.UnchargedIceWave => 0x84e1,
+        SamusProjectileKind.UnchargedSpazerWave => 0x84f7,
+        SamusProjectileKind.UnchargedPlasmaWave => 0x850d,
+        SamusProjectileKind.UnchargedPlasmaIce => 0x8523,
+        SamusProjectileKind.ChargedPower => 0x8539,
+        SamusProjectileKind.ChargedSpazer => 0x854f,
+        SamusProjectileKind.ChargedSpazerIce => 0x8565,
+        SamusProjectileKind.ChargedSpazerIceWave => 0x857b,
+        SamusProjectileKind.ChargedPlasmaIceWave => 0x8591,
+        SamusProjectileKind.ChargedIce => 0x85a7,
+        SamusProjectileKind.ChargedPlasma => 0x85bd,
+        SamusProjectileKind.ChargedWave => 0x85d3,
+        SamusProjectileKind.ChargedIceWave => 0x85e9,
+        SamusProjectileKind.ChargedSpazerWave => 0x85ff,
+        SamusProjectileKind.ChargedPlasmaIce => 0x8615,
+        SamusProjectileKind.ChargedPlasmaWave => 0x862b,
+        SamusProjectileKind.Missile => 0x8641,
+        SamusProjectileKind.SuperMissile => 0x8657,
+        SamusProjectileKind.SuperMissileLink => 0x866d,
+        SamusProjectileKind.PowerBomb => 0x8671,
+        SamusProjectileKind.Bomb => 0x8675,
+        SamusProjectileKind.PlasmaSBA => 0x8685,
+        SamusProjectileKind.WaveSBA => 0x8689,
+        SamusProjectileKind.SpazerSBA => 0x868d,
+        SamusProjectileKind.SpazerSBATrail => 0x86ab,
+        SamusProjectileKind.ShinesparkEcho => 0x86c1,
         _ => throw new ArgumentOutOfRangeException(nameof(header), header, "Undefined projectile header."),
     };
 
     /// <summary>The header stored at bank-$93 <paramref name="address"/>, or null when none starts there.</summary>
-    internal static SamusProjectileHeader? At(int address) =>
-        Enum.GetValues<SamusProjectileHeader>().Where(header => (0x930000 | Address(header)) == address)
-            .Select(header => (SamusProjectileHeader?)header).SingleOrDefault();
+    internal static SamusProjectileKind? At(int address) =>
+        Enum.GetValues<SamusProjectileKind>().Where(header => (0x930000 | Address(header)) == address)
+            .Select(header => (SamusProjectileKind?)header).SingleOrDefault();
 
     /// <summary>$93:83C1: the uncharged beam selectors, by four-bit combination.</summary>
     private const int UnchargedBeamSelectors = 0x9383c1;
@@ -87,7 +87,7 @@ internal static class SamusProjectileHeaderNative
         foreach (SamusBeamEcho echo in Enum.GetValues<SamusBeamEcho>())
             yield return new(EchoSelectors + sizeof(ushort) * (SamusProjectileType.EchoOf(echo).BeamCombination.TableIndex - EchoSelectorLeadingCombinations),
                 SamusProjectileSelection.Echo(echo));
-        yield return new(SuperMissileLinkSelector, SamusProjectileHeader.SuperMissileLink);
+        yield return new(SuperMissileLinkSelector, SamusProjectileKind.SuperMissileLink);
     }
 
     /// <summary>The row of <paramref name="family"/>'s selector in the missile and bomb selector table.</summary>
@@ -116,11 +116,11 @@ internal static class SamusProjectileHeaderNative
     }
 
     /// <summary>Header programs by bank-$93 address.</summary>
-    extension(SamusProjectileHeaders)
+    extension(SamusProjectileKinds)
     {
         /// <summary>The program the header at bank-$93 <paramref name="header"/>'s list field <paramref name="field"/> selects.</summary>
         internal static SamusProjectileProgram ProgramAtField(ushort header, int field) =>
-            SamusProjectileHeaders.ProgramAtField(At(0x930000 | header)
+            SamusProjectileKinds.ProgramAtField(At(0x930000 | header)
                 ?? throw new InvalidDataException($"$93:{header:X4} is not a Samus projectile header."), field);
 
         /// <summary>
@@ -129,10 +129,10 @@ internal static class SamusProjectileHeaderNative
         /// the first.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">The header keeps no such field.</exception>
-        internal static SamusProjectileProgram ProgramAtField(SamusProjectileHeader header, int field) =>
-            SamusProjectileHeaderDefinitions.DirectionalPrograms.ContainsKey(header)
-                ? SamusProjectileHeaders.Program(header, SamusProjectileDirectionCodec.FromAimIndex(field))
-                : field == 0 ? SamusProjectileHeaders.SoleProgram(header)
+        internal static SamusProjectileProgram ProgramAtField(SamusProjectileKind header, int field) =>
+            SamusProjectileKindDefinitions.DirectionalPrograms.ContainsKey(header)
+                ? SamusProjectileKinds.Program(header, SamusProjectileDirectionCodec.FromAimIndex(field))
+                : field == 0 ? SamusProjectileKinds.SoleProgram(header)
                 : throw new ArgumentOutOfRangeException(nameof(field), field, $"{header} keeps only its first list field.");
     }
 }

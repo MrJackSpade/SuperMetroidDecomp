@@ -173,5 +173,5 @@ public static class RoomEnemyDefinitionCatalog
     /// the compiled count and each identity's single compilation are checked when it is built.
     /// </summary>
     internal static readonly FrozenDictionary<EnemyDefinitionId, RoomEnemyDefinition> ById =
-        RoomEnemyHeaders.Index(Definitions, Count);
+        RoomEnemyDefinitionLookup.Index(Definitions, Count);
 }

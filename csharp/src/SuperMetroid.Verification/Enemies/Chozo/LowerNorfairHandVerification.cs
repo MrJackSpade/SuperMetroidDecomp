@@ -30,7 +30,7 @@ internal static class LowerNorfairHandVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AcidStatue);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AcidStatue);
         runtime.StepFrame(0);
         var level = runtime.Room.LoadedLevelData;
         var hand = level.GetCollisionBlock(new(4, 8));
@@ -104,7 +104,7 @@ internal static class LowerNorfairHandVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(0x2d2, (runtime.Display.DisplayedRoomFxOverlay ?? throw new InvalidOperationException("Verification requires runtime.Display.DisplayedRoomFxOverlay.")).NamedSurface,
             "final drained height reaches display without a room transition");
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AcidStatue);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AcidStatue);
         runtime.StepFrame(0);
         AssertEqual((ushort)0x2d2, runtime.RoomFxOverlay.NamedBaseY.Whole, "re-entry restores drained acid");
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);

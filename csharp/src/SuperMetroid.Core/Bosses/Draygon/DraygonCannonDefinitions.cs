@@ -28,11 +28,11 @@ internal static class DraygonCannonDefinitions
     /// The cannon each of the room's cannon room objects sets up: the live right-facing cannon, the right-facing cannon
     /// that starts destroyed, and the live left-facing cannon. No other room object is a cannon.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<RoomObjectHeaderId, DraygonCannonSetup> Setups =
-        new Dictionary<RoomObjectHeaderId, DraygonCannonSetup>
+    internal static readonly IReadOnlyDictionary<RoomObjectKind, DraygonCannonSetup> Setups =
+        new Dictionary<RoomObjectKind, DraygonCannonSetup>
         {
-            [RoomObjectHeaderId.DraygonCannonFacingRight] = new(DraygonCannonOrientation.Right, DraygonCannonStart.Whole),
-            [RoomObjectHeaderId.DraygonCannonFacingRightDestroyed] = new(DraygonCannonOrientation.Right, DraygonCannonStart.Destroyed),
-            [RoomObjectHeaderId.DraygonCannonFacingLeft] = new(DraygonCannonOrientation.Left, DraygonCannonStart.Whole),
+            [RoomObjectKind.DraygonCannonFacingRight] = new(DraygonCannonOrientation.Right, DraygonCannonStart.Whole),
+            [RoomObjectKind.DraygonCannonFacingRightDestroyed] = new(DraygonCannonOrientation.Right, DraygonCannonStart.Destroyed),
+            [RoomObjectKind.DraygonCannonFacingLeft] = new(DraygonCannonOrientation.Left, DraygonCannonStart.Whole),
         };
 }

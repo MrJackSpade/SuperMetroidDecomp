@@ -99,7 +99,7 @@ internal static class SpeedBoosterObjectProgramsVerification
                     definition.Change, "speed native selected list plays its typed crumble");
             }
             else
-                AssertEqual(header,RoomObjectNativeWords.Word(definition.Header),"speed native selected header");
+                AssertEqual(header,RoomObjectNativeWords.Word(definition.Kind),"speed native selected header");
         }
     }
 

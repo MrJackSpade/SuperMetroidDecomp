@@ -88,12 +88,12 @@ internal static class DoorObjectNativeListAddresses
         PartLists[new EyeDoorPart(component, orientation)];
 
     /// <summary>The native closing list a coloured or grey cap's header names, or null for a header that is not one.</summary>
-    internal static ushort? TypedClosingEntry(RoomObjectHeaderId header)
+    internal static ushort? TypedClosingEntry(RoomObjectKind header)
     {
         if (DoorObjects.TryIdentifyColoredDoor(header, out ColoredDoorColor color, out ColoredDoorOrientation coloredOrientation))
             return Colored(color, coloredOrientation).Closing;
         if (GreyDoorObjects.TryIdentifyGreyDoor(header, out ColoredDoorOrientation greyOrientation))
-            return Grey(new GreyDoorVariant(greyOrientation, header == RoomObjectHeaderId.BombTorizoGreyDoor)).Closing;
+            return Grey(new GreyDoorVariant(greyOrientation, header == RoomObjectKind.BombTorizoGreyDoor)).Closing;
         return null;
     }
 }

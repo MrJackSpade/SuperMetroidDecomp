@@ -21,7 +21,7 @@ internal static class EvirInitTimerVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.EastSandHall);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.EastSandHall);
 
         int checkedBodies = 0;
         foreach (RoomEnemySlot slot in runtime.Enemies.SlotTable.Slots)

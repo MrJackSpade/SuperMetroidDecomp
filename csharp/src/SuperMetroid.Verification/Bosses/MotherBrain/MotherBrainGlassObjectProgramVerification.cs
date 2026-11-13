@@ -33,8 +33,8 @@ internal static class MotherBrainGlassObjectProgramVerification
         source.WriteBytes(0x848000, bank84);
         source.WriteBytes(0x8f9000,
         [
-            unchecked((byte)RoomObjectNativeWords.Word(RoomObjectHeaderId.MotherBrainGlass)),
-            LittleEndianBytes.HighByte(RoomObjectNativeWords.Word(RoomObjectHeaderId.MotherBrainGlass)),
+            unchecked((byte)RoomObjectNativeWords.Word(RoomObjectKind.MotherBrainGlass)),
+            LittleEndianBytes.HighByte(RoomObjectNativeWords.Word(RoomObjectKind.MotherBrainGlass)),
             9, 5, 0, 0x80, 0, 0,
         ]);
         var guarded = NewMotherBrainGlassProgramReadGuard(source);

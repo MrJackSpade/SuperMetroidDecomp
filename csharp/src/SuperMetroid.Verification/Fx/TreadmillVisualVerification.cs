@@ -34,7 +34,7 @@ internal static class TreadmillVisualVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.System.SetBossBits(AreaId.WreckedShip, BossBits.AreaBoss);
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(pointer));
+            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Get(pointer));
             var room = runtime.Room.LoadedRoom;
             ushort record = RoomFxDefinitions.SelectedRecordPointer(room.State.Fx, null);
             AnimatedTileObject[] tiles = record == 0 ? [] : [.. RoomFxDefinitions.RecordAt(record).AnimatedTiles];

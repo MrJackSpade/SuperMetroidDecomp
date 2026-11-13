@@ -31,7 +31,7 @@ internal static class CeilingWrapRoomVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.FrogSpeedway);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.FrogSpeedway);
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose;
@@ -62,7 +62,7 @@ internal static class CeilingWrapRoomVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.FrogSpeedway);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.FrogSpeedway);
         var level = runtime.Room.LoadedLevelData;
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(1237, 139)),
             PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose, EquippedBeams = SamusBeamFlags.Wave | SamusBeamFlags.Spazer };

@@ -25,7 +25,7 @@ internal static class TourianStatueDescentRoundingVerification
         foreach (StoryEvent grey in new[] { StoryEvent.PhantoonStatueGrey, StoryEvent.RidleyStatueGrey,
                      StoryEvent.DraygonStatueGrey, StoryEvent.KraidStatueGrey })
             runtime.System.SetEvent(grey);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Statues);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
         runtime.Player.IntroducedSamus.Control.LockHandlers();
 
         StepUntil(() => runtime.TourianStatues.VerticalOffset != 0, _ => runtime.StepFrame(0),

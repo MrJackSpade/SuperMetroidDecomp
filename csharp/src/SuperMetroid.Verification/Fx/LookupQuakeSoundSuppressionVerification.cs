@@ -24,8 +24,8 @@ internal static class LookupQuakeSoundSuppressionVerification
             nativeRooms.Add(ReadVerificationWord(rom, instruction + 1));
         }
         AssertEqual(6, nativeRooms.Count, "Six distinct native suppressed rooms");
-        foreach (RoomHeaderDefinition room in RetailRoomHeaders.All)
-            AssertEqual(nativeRooms.Contains(RoomHeaderDefinitions.PointerOf(room)),
+        foreach (RoomDefinition room in RetailRooms.All)
+            AssertEqual(nativeRooms.Contains(RoomDefinitions.PointerOf(room)),
                 RoomEarthquakeDefinitions.SoundSuppressedRooms.Contains(room),
                 "Quake suppression complete room domain");
 
@@ -33,7 +33,7 @@ internal static class LookupQuakeSoundSuppressionVerification
         var state = new RoomFxOverlayState(stateSession);
         var bus = new TestAddressSpace();
         var vram = new SnesVram();
-        foreach (RoomHeaderDefinition? room in nativeRooms.Select(pointer => RoomHeaderDefinitions.Get(pointer)).Append(null))
+        foreach (RoomDefinition? room in nativeRooms.Select(pointer => RoomDefinitions.Get(pointer)).Append(null))
         {
             state = RoomFxOverlayState.ForRoom(stateSession, fx: null, door: null, randomNumber: 0,
                 room: room);

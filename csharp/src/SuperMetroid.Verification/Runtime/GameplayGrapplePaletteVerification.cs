@@ -30,7 +30,7 @@ internal static class GameplayGrapplePaletteVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
         foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
         var words = new RoomTerrainBlock[32 * 16];
         for (int i = 12 * 32; i < 13 * 32; i++) words[i] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);

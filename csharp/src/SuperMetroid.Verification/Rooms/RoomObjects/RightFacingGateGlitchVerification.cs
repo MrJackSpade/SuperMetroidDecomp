@@ -62,13 +62,13 @@ internal static class RightFacingGateGlitchVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.PinkBrinstarHoppers);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.PinkBrinstarHoppers);
 
         RoomLevelData original = runtime.Room.LoadedLevelData;
         var residentGate = runtime.RoomObjects.PopulationSlots.Single(
-            slot => slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
+            slot => slot.Kind == RoomObjectKind.DownwardGate);
         var shotBlock = runtime.RoomObjects.PopulationSlots.Single(
-            slot => slot.HeaderPointer == RoomObjectHeaderId.DownwardGateShotBlock);
+            slot => slot.Kind == RoomObjectKind.DownwardGateShotBlock);
         AssertEqual(32, original.Size.X, "Pink Brinstar Hopper room width");
         AssertEqual(32, original.Size.Y, "Pink Brinstar Hopper room height");
         AssertEqual(new Position16<RoomBlocks>(17, 4), residentGate.Block, "Authored Pink Brinstar gate block");
@@ -131,7 +131,7 @@ internal static class RightFacingGateGlitchVerification
                     ControllerButton input = frame == 0 ? ControllerButton.X : 0;
                     bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
                     shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)cameraX, (ushort)cameraY), bombs);
-                    var gate = roomObjects.SinglePopulationSlot(RoomObjectHeaderId.DownwardGate);
+                    var gate = roomObjects.SinglePopulationSlot(RoomObjectKind.DownwardGate);
                     if (gate.Behaviour is DownwardGateObject { Triggered: true })
                     {
                         SamusProjectile shot = shots.Slots[0];
@@ -197,13 +197,13 @@ internal static class RightFacingGateGlitchVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.EastTunnel);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.EastTunnel);
 
         RoomLevelData level = runtime.Room.LoadedLevelData;
         var gate = runtime.RoomObjects.PopulationSlots.Single(
-            slot => slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
+            slot => slot.Kind == RoomObjectKind.DownwardGate);
         var shotBlock = runtime.RoomObjects.PopulationSlots.Single(
-            slot => slot.HeaderPointer == RoomObjectHeaderId.DownwardGateShotBlock);
+            slot => slot.Kind == RoomObjectKind.DownwardGateShotBlock);
         AssertEqual(64, level.Size.X, "East Tunnel room width");
         AssertEqual(32, level.Size.Y, "East Tunnel room height");
         AssertEqual(new Position16<RoomBlocks>(22, 5), gate.Block, "Authored East Tunnel gate block");
@@ -250,7 +250,7 @@ internal static class RightFacingGateGlitchVerification
                 input |= ControllerButton.X;
             runtime.StepFrame(input);
             gate = runtime.RoomObjects.PopulationSlots.Single(
-                slot => slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
+                slot => slot.Kind == RoomObjectKind.DownwardGate);
             if (gate.Behaviour is not DownwardGateObject { Triggered: true })
                 continue;
 

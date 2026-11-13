@@ -48,18 +48,18 @@ internal static class RoomBlockWriters
             .. PerFrame(catalogs.GreyDoor.Images, GreyDoorFrameWrittenIn),
             new(FrameBlocks(catalogs.EyeDoor.Images), Placing(EyeDoorPartDefinitions.Parts.Keys)),
             new(FrameBlocks(catalogs.DownwardGate.Images), state => state.HoldsDownwardGateTriggers ||
-                state.Headers.Contains(RoomObjectHeaderId.DownwardGate) || state.Headers.Contains(RoomObjectHeaderId.DownwardGateShotBlock)),
+                state.Headers.Contains(RoomObjectKind.DownwardGate) || state.Headers.Contains(RoomObjectKind.DownwardGateShotBlock)),
             .. PerFrame(catalogs.Collectible.Images, CollectibleFrameWrittenIn),
             new(BlockPairBlocks(), state => state.PlacesCollectible(static (kind, _) => CollectibleObjects.ShowsOwnPicture(kind))),
             .. PerFrame(catalogs.Station.Images, StationFrameWrittenIn),
-            new(FrameBlocks(catalogs.ElevatorPlatform.Images), Placing([RoomObjectHeaderId.ElevatorPlatform])),
-            new(FrameBlocks(catalogs.BombTorizoHand.Images), Placing([RoomObjectHeaderId.BombTorizoHand])),
+            new(FrameBlocks(catalogs.ElevatorPlatform.Images), Placing([RoomObjectKind.ElevatorPlatform])),
+            new(FrameBlocks(catalogs.BombTorizoHand.Images), Placing([RoomObjectKind.BombTorizoHand])),
             new(FrameBlocks(catalogs.DraygonCannon.Images), Placing(DraygonCannonDefinitions.Setups.Keys)),
-            new(FrameBlocks(catalogs.MotherBrainGlass.Images), Placing([RoomObjectHeaderId.MotherBrainGlass])),
+            new(FrameBlocks(catalogs.MotherBrainGlass.Images), Placing([RoomObjectKind.MotherBrainGlass])),
             new(FrameBlocks(catalogs.EscapeGate.Images), state =>
-                state.Headers.Contains(RoomObjectHeaderId.MotherBrainEscapeRoomGate) ||
+                state.Headers.Contains(RoomObjectKind.MotherBrainEscapeRoomGate) ||
                 state.Entrances.Any(door => door.Orientation.Closing == DoorClosingBehavior.EscapeGateCloses)),
-            new(FrameBlocks(catalogs.NoobTube.Images), Placing([RoomObjectHeaderId.NoobTube])),
+            new(FrameBlocks(catalogs.NoobTube.Images), Placing([RoomObjectKind.NoobTube])),
             // The enemies the population places, which change their own rooms.
             new(FrameBlocks(catalogs.Kraid.Images), Holding([EnemyDefinitionId.Kraid])),
             new(FrameBlocks(catalogs.Crocomire.Images), Holding([EnemyDefinitionId.Crocomire])),
@@ -151,10 +151,10 @@ internal static class RoomBlockWriters
         if (!GreyDoorCaps.TryDescribe(draw, out GreyDoorCaps.Draw cap))
             throw new InvalidDataException($"Grey door frame {draw} is not a grey door cap's frame.");
         ColoredDoorOrientation facing = cap.Orientation;
-        Func<InventoriedRoomState, bool> grey = Placing(DoorObjectHeaderDefinitions.GreyDoors.Where(door => door.Value == facing).Select(door => door.Key));
+        Func<InventoriedRoomState, bool> grey = Placing(DoorObjectKindDefinitions.GreyDoors.Where(door => door.Value == facing).Select(door => door.Key));
         if (!cap.IsCleared)
             return grey;
-        Func<InventoriedRoomState, bool> coloured = Placing(DoorObjectHeaderDefinitions.ColoredDoors
+        Func<InventoriedRoomState, bool> coloured = Placing(DoorObjectKindDefinitions.ColoredDoors
             .Where(door => door.Value.Orientation == facing).Select(door => door.Key));
         return state => grey(state) || coloured(state) || state.HoldsBlueDoorCap(facing) ||
             state.Entrances.Any(door => DoorClosingObjects.GetDefinition(door.Orientation)?.BlueCapFacing == facing);
@@ -169,12 +169,12 @@ internal static class RoomBlockWriters
         return Placing(station switch
         {
             StationDraw.MapFrame0 or StationDraw.MapFrame1 or StationDraw.MapFrame2 or StationDraw.MapRightRetracted or
-                StationDraw.MapRightExtended or StationDraw.MapLeftRetracted or StationDraw.MapLeftExtended => [RoomObjectHeaderId.MapStation],
-            StationDraw.EnergyFrame0 or StationDraw.EnergyFrame1 or StationDraw.EnergyFrame2 => [RoomObjectHeaderId.EnergyStation],
-            StationDraw.MissileFrame0 or StationDraw.MissileFrame1 or StationDraw.MissileFrame2 => [RoomObjectHeaderId.MissileStation],
-            StationDraw.SaveIdle or StationDraw.SaveActive or StationDraw.SaveAlternate => [RoomObjectHeaderId.SaveStation],
+                StationDraw.MapRightExtended or StationDraw.MapLeftRetracted or StationDraw.MapLeftExtended => [RoomObjectKind.MapStation],
+            StationDraw.EnergyFrame0 or StationDraw.EnergyFrame1 or StationDraw.EnergyFrame2 => [RoomObjectKind.EnergyStation],
+            StationDraw.MissileFrame0 or StationDraw.MissileFrame1 or StationDraw.MissileFrame2 => [RoomObjectKind.MissileStation],
+            StationDraw.SaveIdle or StationDraw.SaveActive or StationDraw.SaveAlternate => [RoomObjectKind.SaveStation],
             StationDraw.ResourceRightRetracted or StationDraw.ResourceLeftRetracted or StationDraw.ResourceRightExtended or
-                StationDraw.ResourceLeftExtended => [RoomObjectHeaderId.EnergyStation, RoomObjectHeaderId.MissileStation],
+                StationDraw.ResourceLeftExtended => [RoomObjectKind.EnergyStation, RoomObjectKind.MissileStation],
             _ => throw new InvalidDataException($"Station frame {draw} is of no station."),
         });
     }
@@ -185,7 +185,7 @@ internal static class RoomBlockWriters
     {
         if (!ColoredDoorCaps.TryDescribe(draw, out ColoredDoorCaps.Draw cap))
             throw new InvalidDataException($"Coloured door frame {draw} is not a coloured door cap's frame.");
-        return Placing(DoorObjectHeaderDefinitions.ColoredDoors.Where(door => door.Value.Color == cap.Color).Select(door => door.Key));
+        return Placing(DoorObjectKindDefinitions.ColoredDoors.Where(door => door.Value.Color == cap.Color).Select(door => door.Key));
     }
 
     /// <summary>
@@ -283,9 +283,9 @@ internal static class RoomBlockWriters
     private static HashSet<int> BlocksOf(RoomObjectFrameImage image) => [.. image.Cells.Values.Select(shown => shown.Block)];
 
     /// <summary>Written in a room state whose population places one of <paramref name="headers"/>.</summary>
-    private static Func<InventoriedRoomState, bool> Placing(IEnumerable<RoomObjectHeaderId> headers)
+    private static Func<InventoriedRoomState, bool> Placing(IEnumerable<RoomObjectKind> headers)
     {
-        HashSet<RoomObjectHeaderId> placed = [.. headers];
+        HashSet<RoomObjectKind> placed = [.. headers];
         return state => state.Headers.Overlaps(placed);
     }
 

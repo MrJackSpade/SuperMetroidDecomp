@@ -50,7 +50,7 @@ internal static class RetailEndingHandoffTests
         foreach (var game in new[] { legacy, captured })
         {
             var runtime = game.GameplayRuntimeForVerification;
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
+            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
             var top = runtime.Enemies.SlotTable.Slots.First(slot =>
                 slot.DefinitionId == EnemyDefinitionId.ShipTop);
             // Stage the existing accelerating integrator near its native completion

@@ -1310,7 +1310,7 @@ internal static class LookupStream1Verification
             AssertThrows<InvalidDataException>(() =>
             {
                 if (SuperMetroid.Core.Rooms.RoomObjects.RoomObjectRoomArgumentWords.Decode(
-                    SuperMetroid.Core.Rooms.RoomObjects.RoomObjectHeaderId.MetroidRoomClearance, invalid)
+                    SuperMetroid.Core.Rooms.RoomObjects.RoomObjectKind.MetroidRoomClearance, invalid)
                     is SuperMetroid.Core.Rooms.RoomObjects.MetroidRoomArgument metroids)
                     _ = SuperMetroid.Core.Rooms.RoomObjects.MetroidsClearedEvents.ResolveEvent(metroids.Entry);
             }, "quota event argument domain");

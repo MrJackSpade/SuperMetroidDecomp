@@ -80,7 +80,7 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
             level.SetBehavior(origin, RoomBlockBehavior.None);
             var closingDoor = new DoorDefinition(
                 Name: "fixture door",
-                DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
+                DestinationRoom: FixtureRooms.UnloadedDestination,
                 Orientation: new(orientation switch
                 {
                     ColoredDoorOrientation.Left => DoorDirection.Left,

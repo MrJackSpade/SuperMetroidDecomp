@@ -125,7 +125,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)
             runtime.System.SetBossBits(area, BossBits.AreaBoss);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Statues);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
         AssertTrue(runtime.TourianStatues.Enabled,
             "retail Tourian statue room enables the production sequence");
         forbidArtworkReads = true;

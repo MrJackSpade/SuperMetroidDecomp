@@ -23,12 +23,12 @@ internal static class DraygonDefeatedRoomVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetBossBits(AreaId.Maridia, BossBits.AreaBoss);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon);
         AssertTrue(runtime.Enemies.DraygonBehavior.Parts.Draygon is null, "defeated retail state has no Draygon actor");
         for (int frame = 0; frame < 121; frame++) runtime.StepFrame(0);
         AssertTrue(runtime.Enemies.DraygonBehavior.Parts.Draygon is null, "cannon processing must not recreate defeated boss");
         Console.WriteLine("Defeated Draygon room: pre-destroyed cannon and 121 gameplay frames pass without boss actor.");
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.SpaceJump);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.SpaceJump);
         runtime.Room.LoadedLevelData.ResolveDoorCollision(RoomBlockBehavior.None, runtime.Player.IntroducedSamus.Pose.ForRoomCollision());
         var transition = new DoorTransitionState();
         var audio = AudioQueues.Standalone();

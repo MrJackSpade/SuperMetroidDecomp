@@ -37,7 +37,7 @@ internal static class KiHunterSpitAudioVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CrateriaKihunter);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CrateriaKihunter);
         var samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(64, 128));

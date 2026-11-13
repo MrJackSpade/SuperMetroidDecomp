@@ -72,7 +72,7 @@ internal static class BossBodySheetComposer
     {
         EnemyDefinitionId enemy = Enemies[owner];
         BossRoomCharacters? characters = null;
-        foreach (RoomHeaderDefinition room in RetailRoomHeaders.All)
+        foreach (RoomDefinition room in RetailRooms.All)
         {
             RoomStateSettings? state = RoomStateLists.GetStates(room)
                 .FirstOrDefault(candidate => candidate.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == enemy));

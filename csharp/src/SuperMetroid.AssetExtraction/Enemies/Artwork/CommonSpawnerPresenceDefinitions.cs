@@ -26,16 +26,16 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 internal static class CommonSpawnerPresenceDefinitions
 {
     /// <summary>The eye doors, whose eyes fire, sweat and smoke.</summary>
-    private static readonly RoomObjectHeaderId[] EyeDoors =
+    private static readonly RoomObjectKind[] EyeDoors =
     [
-        RoomObjectHeaderId.EyeDoorEyeFacingRight, RoomObjectHeaderId.EyeDoorFacingRight, RoomObjectHeaderId.EyeDoorBottomFacingRight,
-        RoomObjectHeaderId.EyeDoorEyeFacingLeft, RoomObjectHeaderId.EyeDoorFacingLeft, RoomObjectHeaderId.EyeDoorBottomFacingLeft,
+        RoomObjectKind.EyeDoorEyeFacingRight, RoomObjectKind.EyeDoorFacingRight, RoomObjectKind.EyeDoorBottomFacingRight,
+        RoomObjectKind.EyeDoorEyeFacingLeft, RoomObjectKind.EyeDoorFacingLeft, RoomObjectKind.EyeDoorBottomFacingLeft,
     ];
 
     /// <summary>The gates whose sliding bars are enemy projectiles.</summary>
-    private static readonly RoomObjectHeaderId[] Gates =
+    private static readonly RoomObjectKind[] Gates =
     [
-        RoomObjectHeaderId.DownwardGate, RoomObjectHeaderId.DownwardGateShotBlock,
+        RoomObjectKind.DownwardGate, RoomObjectKind.DownwardGateShotBlock,
     ];
 
     /// <summary>The corpses whose rot and crumble raise dust.</summary>
@@ -106,14 +106,14 @@ internal static class CommonSpawnerPresenceDefinitions
         [nameof(EnemyCollision)] = EveryEnemy,
         [nameof(EyeDoorBehavior)] = new() { RoomObjects = EyeDoors },
         [nameof(FallingSparksBehavior)] = new() { Enemies = [EnemyDefinitionId.Spark] },
-        [nameof(NoobTubeBehavior)] = new() { RoomObjects = [RoomObjectHeaderId.NoobTube], Shades = [CommonSpawnerShades.TubeCracks] },
+        [nameof(NoobTubeBehavior)] = new() { RoomObjects = [RoomObjectKind.NoobTube], Shades = [CommonSpawnerShades.TubeCracks] },
         [nameof(OldTourianEscapeShaftWallBehavior)] = new()
         {
-            RoomObjects = [RoomObjectHeaderId.OldTourianEscapeShaftFakeWall], Setups = [RoomSetupCallback.AutoDestroyWallDuringEscape],
+            RoomObjects = [RoomObjectKind.OldTourianEscapeShaftFakeWall], Setups = [RoomSetupCallback.AutoDestroyWallDuringEscape],
         },
         [nameof(DownwardGateBehavior)] = new() { RoomObjects = Gates },
         [Engine(nameof(EnemyProjectileEngine.SpawnSaveStationElectricity))] =
-            new() { RoomObjects = [RoomObjectHeaderId.SaveStation] },
+            new() { RoomObjects = [RoomObjectKind.SaveStation] },
         [Engine(nameof(EnemyProjectileEngine.CreateEnemyProjectileDudShot))] = EveryEnemy,
         [Engine(nameof(EnemyProjectileEngine.SpawnRandomEnemyDeathSprite))] = EveryEnemy,
         [Engine(nameof(EnemyProjectileEngine.SpawnRoomGraphicsDustExplosion))] = new()

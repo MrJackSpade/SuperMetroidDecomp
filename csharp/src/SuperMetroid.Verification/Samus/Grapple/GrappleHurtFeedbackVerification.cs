@@ -30,7 +30,7 @@ internal static class GrappleHurtFeedbackVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
         foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
         var level = CreateRoom(new(32, 16), new RoomTerrainBlock[512], new RoomBlockBehavior[512]);
         runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });

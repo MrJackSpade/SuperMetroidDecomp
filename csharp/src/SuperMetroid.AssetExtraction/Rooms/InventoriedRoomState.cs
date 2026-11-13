@@ -39,7 +39,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="Entrances">The doors that lead into the state's room.</param>
 /// <param name="XrayOverlay">The X-ray reveal's overlay of the state, or null where it has none.</param>
 internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Area, IReadOnlySet<int> Placed,
-    IReadOnlySet<RoomTerrainReaction> Terrain, IReadOnlySet<RoomTerrainReaction> StraddledShots, IReadOnlySet<RoomObjectHeaderId> Headers,
+    IReadOnlySet<RoomTerrainReaction> Terrain, IReadOnlySet<RoomTerrainReaction> StraddledShots, IReadOnlySet<RoomObjectKind> Headers,
     IReadOnlySet<EnemyDefinitionId> Enemies, RoomSetupCallback SetupCallback, RoomMainCallback MainCallback,
     IReadOnlySet<DoorDefinition> Entrances, XrayRoomOverlayDefinition? XrayOverlay)
 {
@@ -171,7 +171,7 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     internal bool PlacesCollectible(Func<InWorldCollectibleKind, CollectiblePresentation, bool> placed)
     {
         Ensure.NotNull(placed);
-        foreach (RoomObjectHeaderId header in Headers)
+        foreach (RoomObjectKind header in Headers)
         {
             if (CollectibleObjects.TryIdentifyPermanentCollectible(header, out InWorldCollectibleKind kind, out CollectiblePresentation presentation) &&
                 placed(kind, presentation))
@@ -201,7 +201,7 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     /// background scrolls over its level data, as the room streams it; otherwise the background shows a library background
     /// or nothing of the level.
     /// </summary>
-    internal static InventoriedRoomState Of(RoomHeaderDefinition room, RoomStateSettings state, RoomLevelArtwork level,
+    internal static InventoriedRoomState Of(RoomDefinition room, RoomStateSettings state, RoomLevelArtwork level,
         InstalledRoomLevel terrain, IReadOnlySet<RoomTerrainReaction> straddledShots, IEnumerable<DoorDefinition> entrances)
     {
         Ensure.NotNull(room);
@@ -221,9 +221,9 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         var reactions = new HashSet<RoomTerrainReaction>();
         for (int index = 0; index < terrain.Foreground.Length; index++)
             reactions.Add(new(terrain.Foreground[index].Collision, terrain.Behaviors[index].Reaction));
-        var headers = new HashSet<RoomObjectHeaderId>();
+        var headers = new HashSet<RoomObjectKind>();
         foreach (RoomObjectPlacement placement in state.ObjectPopulation.Placements.Span)
-            headers.Add(placement.Header.Header);
+            headers.Add(placement.Kind);
         var enemies = new HashSet<EnemyDefinitionId>();
         foreach (RoomEnemyPopulationRecord record in state.EnemyPopulation.Records.Span)
             enemies.Add(record.DefinitionId);

@@ -57,7 +57,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
         /// <param name="camera">The camera the room loads under.</param>
         /// <param name="state">One of the room's states to load in place of the one the session's progress selects.</param>
         internal InitialViewportResult LoadCartridgeRoomForDebug(
-            RoomHeaderDefinition definition,
+            RoomDefinition definition,
             Position16<RoomPixels> camera = default,
             RoomStateSettings? state = null)
         {

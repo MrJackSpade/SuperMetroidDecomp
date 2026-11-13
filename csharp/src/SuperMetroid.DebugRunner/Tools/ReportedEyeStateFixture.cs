@@ -23,7 +23,7 @@ internal static class ReportedEyeStateFixture
         var runtime = data.Game.Session.GameplayRuntime;
         // Room identity is fixture data; normal room loading owns its population,
         // graphics, HDMA initialization, and camera-dependent render snapshots.
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BlueBrinstarETank, new Position16<RoomPixels>(384, 512));
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BlueBrinstarETank, new Position16<RoomPixels>(384, 512));
         var body = runtime.Room.LoadedScope.Enemies.SlotTable.Slots[1];
         var samus = runtime.Player.IntroducedSamus;
         samus.CollectedItems = SamusEquipmentFlags.MorphBall;

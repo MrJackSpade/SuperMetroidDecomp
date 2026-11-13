@@ -69,16 +69,16 @@ internal static class RoomBlockPicturesVerification
     /// </summary>
     internal static void VerifyRoomBlockPictures()
     {
-        Check(RoomHeaderDefinitions.LandingSite, expectUploads: false);
-        Check(RoomHeaderDefinitions.Wasteland, expectUploads: true);
-        Check(RoomHeaderDefinitions.MorphBall, expectUploads: false);
-        Check(RoomHeaderDefinitions.EastSandHall, expectUploads: true);
+        Check(RoomDefinitions.LandingSite, expectUploads: false);
+        Check(RoomDefinitions.Wasteland, expectUploads: true);
+        Check(RoomDefinitions.MorphBall, expectUploads: false);
+        Check(RoomDefinitions.EastSandHall, expectUploads: true);
         // The Ceres Ridley arena's blocks read the OBJ character table's enemy tiles: the page its load composes is the
         // pictures' baseline, and only the getaway's looks, which show later in the encounter, change them (#1466).
-        Check(RoomHeaderDefinitions.CeresRidley, expectUploads: false);
+        Check(RoomDefinitions.CeresRidley, expectUploads: false);
         // The treadmills run once Phantoon, the Wrecked Ship's boss, is defeated.
-        Check(RoomHeaderDefinitions.WreckedShipMainShaft, expectUploads: true,
-            RoomStateLists.GetStates(RoomHeaderDefinitions.WreckedShipMainShaft)
+        Check(RoomDefinitions.WreckedShipMainShaft, expectUploads: true,
+            RoomStateLists.GetStates(RoomDefinitions.WreckedShipMainShaft)
                 .Single(state => state.Fx?.Records.Any(record => !record.AnimatedTiles.IsEmpty) == true),
             runtime => runtime.System.SetBossBits((int)AreaId.WreckedShip, BossBits.AreaBoss));
     }
@@ -89,13 +89,13 @@ internal static class RoomBlockPicturesVerification
     /// pages paints what BG2's tilemap tiles paint over the live characters, frame after frame. Crateria Power Bombs runs
     /// the sky's main loop without its band HDMA, so BG2 shows its rock background's image, not the sky (#1403).
     ///  Each room is its own suite, as each loads and steps its own room.</summary>
-    internal static void VerifyParlorBackgroundImage() => CheckBackground(RoomHeaderDefinitions.Parlor, expectRebound: false);
+    internal static void VerifyParlorBackgroundImage() => CheckBackground(RoomDefinitions.Parlor, expectRebound: false);
 
     /// <summary>Checks the Crateria Power Bombs room's background image as <see cref="VerifyParlorBackgroundImage"/> checks the Parlor's.</summary>
-    internal static void VerifyCrateriaPowerBombsBackgroundImage() => CheckBackground(RoomHeaderDefinitions.CrateriaPowerBombs, expectRebound: false);
+    internal static void VerifyCrateriaPowerBombsBackgroundImage() => CheckBackground(RoomDefinitions.CrateriaPowerBombs, expectRebound: false);
 
     /// <summary>Checks the Statues room's background image, which rebinds, as <see cref="VerifyParlorBackgroundImage"/> checks the Parlor's.</summary>
-    internal static void VerifyStatuesBackgroundImage() => CheckBackground(RoomHeaderDefinitions.Statues, expectRebound: true);
+    internal static void VerifyStatuesBackgroundImage() => CheckBackground(RoomDefinitions.Statues, expectRebound: true);
 
     /// <summary>
     /// Phantoon's room, whose library background copies the boss's own layer (#1649), binds no background picture as it
@@ -103,7 +103,7 @@ internal static class RoomBlockPicturesVerification
     /// </summary>
     internal static void VerifyPhantoonRoomDrawsNoBackgroundImage()
     {
-        SuperMetroidRuntime runtime = LoadRoom(RoomHeaderDefinitions.Phantoon);
+        SuperMetroidRuntime runtime = LoadRoom(RoomDefinitions.Phantoon);
         runtime.StepFrame(0);
         AssertEqual<RoomLibraryBackgroundPicture>(new RoomLibraryBackgroundPicture.ShownOtherwise(LibraryBackgroundView.BossBody),
             RoomScopeOf(runtime).BackgroundImage, "Phantoon's room binds no background picture");
@@ -113,13 +113,13 @@ internal static class RoomBlockPicturesVerification
     }
 
     /// <summary>Checks the Landing Site's sky image (<see cref="CheckSky"/>).</summary>
-    internal static void VerifyLandingSiteSkyImage() => CheckSky(RoomHeaderDefinitions.LandingSite);
+    internal static void VerifyLandingSiteSkyImage() => CheckSky(RoomDefinitions.LandingSite);
 
     /// <summary>
     /// Loads sky room <paramref name="room"/> and checks BG2 draws the sky's rows from their image: every pixel of every row
     /// the sky shows paints what the row's tiles paint over the live characters.
     /// </summary>
-    private static void CheckSky(RoomHeaderDefinition room)
+    private static void CheckSky(RoomDefinition room)
     {
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
@@ -274,10 +274,10 @@ internal static class RoomBlockPicturesVerification
     }
 
     /// <summary>A retail runtime with <paramref name="room"/> loaded and Samus held still.</summary>
-    private static SuperMetroidRuntime LoadRoom(RoomHeaderDefinition room) => LoadRoom(room, HudSnapshot.CeresDebug);
+    private static SuperMetroidRuntime LoadRoom(RoomDefinition room) => LoadRoom(room, HudSnapshot.CeresDebug);
 
     /// <summary>A retail runtime with <paramref name="room"/> loaded, the HUD showing <paramref name="hud"/> and Samus held still.</summary>
-    private static SuperMetroidRuntime LoadRoom(RoomHeaderDefinition room, HudSnapshot hud)
+    private static SuperMetroidRuntime LoadRoom(RoomDefinition room, HudSnapshot hud)
     {
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(hud);
@@ -296,16 +296,16 @@ internal static class RoomBlockPicturesVerification
     /// </summary>
     internal static void VerifyTileWordPictures()
     {
-        CheckBody(RoomHeaderDefinitions.Kraid, BossBodyOwner.Kraid);
-        CheckBody(RoomHeaderDefinitions.Phantoon, BossBodyOwner.Phantoon);
-        CheckBody(RoomHeaderDefinitions.Draygon, BossBodyOwner.Draygon);
-        CheckBody(RoomHeaderDefinitions.Crocomire, BossBodyOwner.Crocomire);
-        CheckBody(RoomHeaderDefinitions.MotherBrain, BossBodyOwner.MotherBrain);
-        CheckTypedWarning(RoomHeaderDefinitions.MotherBrain);
+        CheckBody(RoomDefinitions.Kraid, BossBodyOwner.Kraid);
+        CheckBody(RoomDefinitions.Phantoon, BossBodyOwner.Phantoon);
+        CheckBody(RoomDefinitions.Draygon, BossBodyOwner.Draygon);
+        CheckBody(RoomDefinitions.Crocomire, BossBodyOwner.Crocomire);
+        CheckBody(RoomDefinitions.MotherBrain, BossBodyOwner.MotherBrain);
+        CheckTypedWarning(RoomDefinitions.MotherBrain);
     }
 
     /// <summary>Loads <paramref name="room"/>, types the whole Zebes escape warning over BG2 and checks each glyph's picture.</summary>
-    private static void CheckTypedWarning(RoomHeaderDefinition room)
+    private static void CheckTypedWarning(RoomDefinition room)
     {
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
@@ -352,7 +352,7 @@ internal static class RoomBlockPicturesVerification
     /// Loads boss room <paramref name="room"/> and checks every whole frame picture of <paramref name="owner"/>'s body sheet
     /// paints, at each cell its frame writes, the tile word written there over the room's characters as it loads (#1515).
     /// </summary>
-    private static void CheckBody(RoomHeaderDefinition room, BossBodyOwner owner)
+    private static void CheckBody(RoomDefinition room, BossBodyOwner owner)
     {
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
@@ -415,13 +415,13 @@ internal static class RoomBlockPicturesVerification
     {
         var stocked = new HudSnapshot(1234, 1499, 123, 230, 45, 50, 6, 50,
             Enum.GetValues<SamusEquipmentFlags>().Aggregate((all, item) => all | item), HudItem.Missile, 300, ReserveTankMode.Auto);
-        var rooms = new List<RoomHeaderDefinition> { RoomHeaderDefinitions.Kraid };
+        var rooms = new List<RoomDefinition> { RoomDefinitions.Kraid };
         foreach (RoomFxType effect in new[] { RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water, RoomFxType.Rain, RoomFxType.Fog, RoomFxType.Spores })
         {
-            rooms.Add(RetailRoomHeaders.All.First(room => RoomStateLists.GetStates(room)[0].Fx?.Records
+            rooms.Add(RetailRooms.All.First(room => RoomStateLists.GetStates(room)[0].Fx?.Records
                 .Any(record => record.Type == effect) == true));
         }
-        foreach (RoomHeaderDefinition room in rooms)
+        foreach (RoomDefinition room in rooms)
         {
             SuperMetroidRuntime runtime = LoadRoom(room, stocked);
             runtime.StepFrame(0);
@@ -485,7 +485,7 @@ internal static class RoomBlockPicturesVerification
     /// </summary>
     internal static void VerifyMode7TilePictures()
     {
-        RoomHeaderDefinition room = RoomHeaderDefinitions.CeresElev;
+        RoomDefinition room = RoomDefinitions.CeresElev;
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
         AffineFloor shown = runtime.Display.Latched.Rooms?.Floor ?? throw new InvalidOperationException($"{room.Name} shows no floor.");
@@ -520,7 +520,7 @@ internal static class RoomBlockPicturesVerification
         Console.WriteLine($"Floor pictures: {floor.Name} paints all {checkedPixels} of {room.Name}'s floor pixels as its characters name them.");
     }
     /// <summary>Loads <paramref name="room"/> and checks its background image over <see cref="Frames"/> frames.</summary>
-    private static void CheckBackground(RoomHeaderDefinition room, bool expectRebound)
+    private static void CheckBackground(RoomDefinition room, bool expectRebound)
     {
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
@@ -610,7 +610,7 @@ internal static class RoomBlockPicturesVerification
     /// Loads <paramref name="room"/>, in <paramref name="state"/> when given and after <paramref name="progress"/> sets the
     /// session's progress, and checks its displayed blocks over <see cref="Frames"/> frames.
     /// </summary>
-    private static void Check(RoomHeaderDefinition room, bool expectUploads, RoomStateSettings? state = null,
+    private static void Check(RoomDefinition room, bool expectUploads, RoomStateSettings? state = null,
         Action<SuperMetroidRuntime>? progress = null)
     {
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);

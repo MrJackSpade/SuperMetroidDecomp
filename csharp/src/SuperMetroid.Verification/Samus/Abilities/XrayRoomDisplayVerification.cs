@@ -21,9 +21,9 @@ internal static class XrayRoomDisplayVerification
     {
         // Keep the literal native comparisons independent of the production catalog.
         // Check every room and every boss word, not only named examples.
-        foreach (RoomHeaderDefinition room in RetailRoomHeaders.All)
+        foreach (RoomDefinition room in RetailRooms.All)
         {
-            bool excluded = RoomHeaderDefinitions.PointerOf(room) is 0xA66A or 0xCEFB;
+            bool excluded = RoomDefinitions.PointerOf(room) is 0xA66A or 0xCEFB;
             AssertEqual(excluded ? XrayRoomBlendMode.PreserveBackgrounds : XrayRoomBlendMode.RevealBlocks,
                 XrayRoomDisplayRules.Select(room, 0, null), "native room reveal admission");
         }
@@ -33,9 +33,9 @@ internal static class XrayRoomDisplayVerification
             int word = boss is { } named ? AreaBossWords.Bosses.Word(named) : 0;
             bool excluded = word is 3 or 6 or 7 or 8 or 10;
             AssertEqual(excluded ? XrayRoomBlendMode.PreserveBackgrounds : XrayRoomBlendMode.RevealBlocks,
-                XrayRoomDisplayRules.Select(RoomHeaderDefinitions.LandingSite, 0, boss), "native boss reveal admission");
+                XrayRoomDisplayRules.Select(RoomDefinitions.LandingSite, 0, boss), "native boss reveal admission");
             AssertEqual(XrayRoomBlendMode.Fireflea,
-                XrayRoomDisplayRules.Select(RoomHeaderDefinitions.GlassTunnel, RoomFxType.Fireflea, boss), "Fireflea mode takes precedence over exclusions");
+                XrayRoomDisplayRules.Select(RoomDefinitions.GlassTunnel, RoomFxType.Fireflea, boss), "Fireflea mode takes precedence over exclusions");
         }
         AssertEqual(3171, XrayRoomDisplayRules.ActiveBackdrop, "native stage-eight backdrop");
         const BlendedLayers revealLayers = BlendedLayers.Foreground | BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop;

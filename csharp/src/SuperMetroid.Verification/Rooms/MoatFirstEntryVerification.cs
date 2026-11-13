@@ -37,7 +37,7 @@ internal static class MoatFirstEntryVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(source));
+            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Get(source));
             var level = runtime.Room.LoadedLevelData;
             int doorX = -1, doorY = -1;
             RoomBlockBehavior behavior = RoomBlockBehavior.None;
@@ -47,12 +47,12 @@ internal static class MoatFirstEntryVerification
                 var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
                 if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
                 var door = level.ResolveDoorCollision(block.Behavior, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false);
-                if (door.Door?.DestinationRoom != RoomHeaderDefinitions.Moat) continue;
+                if (door.Door?.DestinationRoom != RoomDefinitions.Moat) continue;
                 doorX = x; doorY = y; behavior = block.Behavior;
                 break;
             }
             AssertTrue(doorX >= 0, "retail neighbor has a reciprocal Moat door");
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(source),
+            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Get(source),
                 camera: new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
             var samus = runtime.Player.IntroducedSamus;
             samus.Control.Unlock();
@@ -100,7 +100,7 @@ internal static class MoatFirstEntryVerification
                 transitionFrames++;
             }
             AssertTrue(!transition.IsActive, "staged first-entry door transition completes");
-            AssertEqual(RoomHeaderDefinitions.Moat, runtime.Room.LoadedRoom.Definition, "first entry reached reported room");
+            AssertEqual(RoomDefinitions.Moat, runtime.Room.LoadedRoom.Definition, "first entry reached reported room");
             for (int frame = 0; frame < 4; frame++)
             {
                 runtime.StepFrame(0);

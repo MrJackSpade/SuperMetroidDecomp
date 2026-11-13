@@ -20,7 +20,7 @@ internal static class BotwoonPositionHistoryVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Botwoon);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Botwoon);
 
         RoomEnemySlot head = runtime.Enemies.SlotTable.Slots.Single(slot =>
             slot.DefinitionId == EnemyDefinitionId.Botwoon);

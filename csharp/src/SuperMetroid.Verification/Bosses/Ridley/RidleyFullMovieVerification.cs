@@ -43,7 +43,7 @@ internal static class RidleyFullMovieVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
         var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
         foreach (var sample in new[] { new VerifyRidleySpinFireballCase(0x7f, false, RidleyFacing.Right, false), new VerifyRidleySpinFireballCase(0x80, false, RidleyFacing.Right, true),
@@ -70,7 +70,7 @@ internal static class RidleyFullMovieVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 158));
         var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
         body.Position = body.Position.WithWhole(new(139, 282));
@@ -100,7 +100,7 @@ internal static class RidleyFullMovieVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley;
         (state ?? throw new InvalidOperationException("Verification requires state.")).Function = RidleyAiFunction.NorfairSwoopSetup; state.FunctionTimer = 112;
         body.Position = body.Position.WithWhole(new(212, 200)); state.FacingDirection = RidleyFacing.Right;
@@ -123,7 +123,7 @@ internal static class RidleyFullMovieVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley;
         runtime.Enemies.DeathsAndDrops.BindSamus(runtime.Player.Samus);
         (state ?? throw new InvalidOperationException("Verification requires state.")).Function = RidleyAiFunction.NorfairDeathFinish; state.FunctionTimer = 0;
@@ -144,7 +144,7 @@ internal static class RidleyFullMovieVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
         body.Position = body.Position.WithWhole(new(211, 346));
         (state ?? throw new InvalidOperationException("Verification requires state.")).Velocity = state.Velocity.WithX(new SignedEightEight(0xc0)); state.Velocity = state.Velocity.WithY(new SignedEightEight(0x400));
@@ -219,7 +219,7 @@ internal static class RidleyFullMovieVerification
                 foreach (Position16<MapTiles> cell in runtime.System.Progress.ExploredCells(area).ToList())
                     runtime.System.Progress.SetExplored(area, cell, explored: false);
             if (defeated) runtime.System.SetBossBits(AreaId.Norfair, BossBits.AreaBoss);
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
+            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
             var room = runtime.Room.LoadedRoom;
             AssertEqual(!defeated, runtime.Hud.MinimapDisabled, "only live Ridley disables the minimap");
             for (int row = 0; row < 2; row++)
@@ -282,7 +282,7 @@ internal static class RidleyFullMovieVerification
         var runtime = CreateRetailRuntimeFixture(random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
         game.AdoptRuntime(runtime);
         // The recorded pause enters an already-running room HDMA callback.
@@ -313,7 +313,7 @@ internal static class RidleyFullMovieVerification
             var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
+            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
             var samus = runtime.Player.IntroducedSamus;
             samus.Control.Unlock();
             samus.Pose = pose; samus.Position = samus.Position.WithWhole(new(512, 400));
@@ -399,7 +399,7 @@ internal static class RidleyFullMovieVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         var projectile = runtime.Enemies.Projectiles.EnemyProjectiles[16];
         projectile.Position = new(new(0x49, 0x8c00), new(0x54, 0xd900));
         projectile.Velocity = new(new SignedEightEight(0xfb64), new SignedEightEight(0xfe1b));
@@ -425,7 +425,7 @@ internal static class RidleyFullMovieVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         int slotIndex = 17;
         foreach (var sample in new[] { new VerifyRidleyFireballDamageCase(AreaId.Ceres, 3), new VerifyRidleyFireballDamageCase(AreaId.Norfair, 60), new VerifyRidleyFireballDamageCase(AreaId.Tourian, 80) })
         {
@@ -452,7 +452,7 @@ internal static class RidleyFullMovieVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         var state = runtime.Enemies.RidleyEncounter.Ridley;
         var body = runtime.Enemies.SlotTable.Slots[0];
         (state ?? throw new InvalidOperationException("Verification requires state.")).Function = RidleyAiFunction.NorfairFireballAttack;
@@ -495,7 +495,7 @@ internal static class RidleyFullMovieVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         runtime.InitializeDebugGroundedSamus(79, 425, 16);
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
@@ -658,7 +658,7 @@ internal static class RidleyFullMovieVerification
         var runtime = CreateRetailRuntimeFixture(random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
@@ -716,7 +716,7 @@ internal static class RidleyFullMovieVerification
         var runtime = CreateRetailRuntimeFixture(random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LNFarming);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LNFarming);
         var level = runtime.Room.LoadedLevelData;
         bool found = false;
         for (int y = 0; y < level.Size.Y && !found; y++)
@@ -725,7 +725,7 @@ internal static class RidleyFullMovieVerification
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
             var door = level.ResolveDoorCollision(block.Behavior, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false);
-            if (door.Door?.DestinationRoom != RoomHeaderDefinitions.Ridley) continue;
+            if (door.Door?.DestinationRoom != RoomDefinitions.Ridley) continue;
             level.ResolveDoorCollision(block.Behavior, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), true);
             found = true;
         }

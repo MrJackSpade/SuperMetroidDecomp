@@ -22,7 +22,7 @@ public static class FileSelectMapLoadAnchors
     {
         _ = MapSaveMarkers.Id(station);
         LoadStationPlacement placement = station.Placement;
-        RoomHeaderDefinition room = placement.Room;
+        RoomDefinition room = placement.Room;
         Position16<RoomPixels> samus = placement.SamusPosition;
         return new((room.MapPosition.X + RoomGridConversions.PixelToScreen(samus.X)) * 8,
             (room.MapPosition.Y + RoomGridConversions.PixelToScreen(samus.Y) + 1) * 8);

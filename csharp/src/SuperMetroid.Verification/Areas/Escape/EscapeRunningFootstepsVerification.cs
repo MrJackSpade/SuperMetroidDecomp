@@ -50,7 +50,7 @@ internal static class EscapeRunningFootstepsVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
+            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
             runtime.Player.Samus = samus;
             // Area flags are outside this fixture. Preserve the actual timer requests.
             runtime.EnemyRoomEffects.ApplyPendingMotherBrainObjects(EnemyRoomEffectRequestsConstants.None with

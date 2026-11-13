@@ -27,7 +27,7 @@ internal static class RuntimeOverlayTests
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         long sequence = 0;
         Check("Ceres mixed-mode initial publication");
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         Check("ordinary room without overlays");
 

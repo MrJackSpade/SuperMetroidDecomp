@@ -6,8 +6,8 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// Every retail room, which the import walks to picture, upload and lay out each room's states (#1502). The game only
 /// enters the room a door names.
 /// </summary>
-internal static class RetailRoomHeaders
+internal static class RetailRooms
 {
-    /// <summary>Every retail room, in its authored header order.</summary>
-    internal static IReadOnlyList<RoomHeaderDefinition> All => RoomHeaderDefinitions.Retail;
+    /// <summary>Every retail room, in authored order.</summary>
+    internal static IReadOnlyList<RoomDefinition> All => RoomDefinitions.Retail;
 }

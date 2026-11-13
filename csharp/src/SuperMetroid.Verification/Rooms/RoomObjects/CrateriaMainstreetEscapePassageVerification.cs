@@ -24,7 +24,7 @@ internal static class CrateriaMainstreetEscapePassageVerification
             runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
             if (crittersEscaped)
                 runtime.System.SetEvent(StoryEvent.CrittersEscaped);
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor);
+            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
             runtime.StepFrame(0);
             runtime.StepFrame(0);
             return runtime.Room.LoadedLevelData;

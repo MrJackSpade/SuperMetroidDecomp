@@ -31,7 +31,7 @@ internal sealed class EyeDoorObjects
     }
 
     /// <summary>Recognizes the eye, middle, and bottom definitions for either door orientation.</summary>
-    internal static bool IsEyeDoorHeader(RoomObjectHeaderId header) => EyeDoorPartDefinitions.Parts.ContainsKey(header);
+    internal static bool IsEyeDoorKind(RoomObjectKind kind) => EyeDoorPartDefinitions.Parts.ContainsKey(kind);
 
     /// <summary>
     /// Places the eye-door part the room's population placed as <paramref name="placed"/>, which takes its first look on
@@ -41,7 +41,7 @@ internal sealed class EyeDoorObjects
     internal void SetupEyeDoorSlot(
         RoomLevelData level,
         RoomObjectSlot slot,
-        RoomObjectHeaderId placed)
+        RoomObjectKind placed)
     {
         Ensure.NotNull(slot);
         (EyeDoorComponent component, EyeDoorOrientation orientation) = EyeDoorPartDefinitions.Parts.TryGetValue(placed, out EyeDoorPart part)

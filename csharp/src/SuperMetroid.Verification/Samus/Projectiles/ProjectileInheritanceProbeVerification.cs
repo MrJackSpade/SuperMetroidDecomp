@@ -173,7 +173,7 @@ internal static class ProjectileInheritanceProbeVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         var level = runtime.Room.LoadedLevelData;
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 48; x++)

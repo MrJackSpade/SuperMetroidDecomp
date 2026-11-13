@@ -30,7 +30,7 @@ internal static class MetroidDeathDropsVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Metroids1);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Metroids1);
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.LockHandlers();
         RoomEnemySlot metroid = runtime.Enemies.SlotTable.Slots.First(slot =>

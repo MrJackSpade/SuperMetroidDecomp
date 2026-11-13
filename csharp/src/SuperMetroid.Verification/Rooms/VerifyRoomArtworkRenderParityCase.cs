@@ -6,4 +6,4 @@ namespace SuperMetroid.Verification.Rooms;
 /// <param name="Name">The name.</param>
 /// <param name="ExpectedRoom">The expected room.</param>
 /// <param name="UseRealLandingDoor">The use real landing door.</param>
-internal readonly record struct VerifyRoomArtworkRenderParityCase(string Name, RoomHeaderDefinition ExpectedRoom, bool UseRealLandingDoor);
+internal readonly record struct VerifyRoomArtworkRenderParityCase(string Name, RoomDefinition ExpectedRoom, bool UseRealLandingDoor);

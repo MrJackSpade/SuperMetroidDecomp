@@ -33,7 +33,7 @@ internal static class CrocomirePresentation1193Verification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Crocomire);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Crocomire);
         var boss = runtime.Enemies.CrocomireBehavior.Access.Crocomire;
         var death = runtime.Enemies.CrocomireBehavior.Access.CrocomireDeath;
         var samus = runtime.Player.IntroducedSamus;
@@ -104,7 +104,7 @@ internal static class CrocomirePresentation1193Verification
         {
             VerifyCrocomireSpikeGraphRestoration(runtime);
             // A room load builds the room's spikes afresh, with their first frame pending.
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Crocomire);
+            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Crocomire);
             PlaceSamusInArena();
             samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.AnimatedTiles;
             game.Step(0);

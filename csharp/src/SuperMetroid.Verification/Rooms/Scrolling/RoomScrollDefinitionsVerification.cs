@@ -39,7 +39,7 @@ internal static class RoomScrollDefinitionsVerification
         foreach (RoomStateSelectionContext context in BuildRoomStateAuditContexts())
         {
             SelectedRoom header = SelectedRoom.LoadUsingCompiledSelection(
-                RoomHeaderDefinitions.Get(roomPointer), context);
+                RoomDefinitions.Get(roomPointer), context);
             if (!auditedStates.Add(header.State.Pointer))
                 continue;
 

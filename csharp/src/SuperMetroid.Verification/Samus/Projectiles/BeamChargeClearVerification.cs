@@ -43,7 +43,7 @@ internal static class BeamChargeClearVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         var level = runtime.Room.LoadedLevelData;
         // A flat clearing isolates the charge from slopes, the gunship and scenery.
         for (int y = 24; y < 36; y++)

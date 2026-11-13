@@ -21,7 +21,7 @@ internal static class MotherBrainTubeHdmaDeletionVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         var fx = runtime.RoomFxOverlay;
         AssertEqual(RoomFxType.Acid, fx.Type, "Mother Brain's room has acid");
 

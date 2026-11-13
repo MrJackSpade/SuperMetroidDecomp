@@ -3,11 +3,11 @@ using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>Where a room's effect overlay FX comes from: its FX header and entry door, RNG, room, and an optional supplied definition (#633).</summary>
+/// <summary>Where a room's effect overlay FX comes from: its effect selection and entry door, RNG, room, and an optional supplied definition (#633).</summary>
 internal sealed record RoomFxLoadSource
 {
-    /// <summary>The room's FX header, or null for a load without one.</summary>
-    public required RoomFxHeader? Fx { get; init; }
+    /// <summary>The room's effect selection, or null for a load without one.</summary>
+    public required RoomFxSelection? Fx { get; init; }
 
     /// <summary>The door the room is entered through, or null for a load that matches only default records.</summary>
     public required DoorDefinition? Door { get; init; }
@@ -20,7 +20,7 @@ internal sealed record RoomFxLoadSource
     public required int RandomNumber { get; init => field = Ensure.BetweenInclusive(0, SharedRandomState.LargestValue, value); }
 
     /// <summary>The room being entered, or null for a load outside a room.</summary>
-    public required RoomHeaderDefinition? Room { get; init; }
+    public required RoomDefinition? Room { get; init; }
 
     /// <summary>Supplied definition.</summary>
     public required RoomFxRecordDefinition? SuppliedDefinition { get; init; }

@@ -119,7 +119,7 @@ internal static class RoomBackgroundsVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         // The room-state data selects layer-2 scroll $00/$C0 for the main shaft (streams) and $01/$01 for Kraid (fixed).
-        foreach ((RoomHeaderDefinition room, bool streams) in new[] { new VerifyPublishedRoomBackgroundsCase(RoomHeaderDefinitions.GreenBrinstarMainShaft, true), new VerifyPublishedRoomBackgroundsCase(RoomHeaderDefinitions.Kraid, false) })
+        foreach ((RoomDefinition room, bool streams) in new[] { new VerifyPublishedRoomBackgroundsCase(RoomDefinitions.GreenBrinstarMainShaft, true), new VerifyPublishedRoomBackgroundsCase(RoomDefinitions.Kraid, false) })
         {
             runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0x30));
             runtime.FrameBoundary.BeginAcceptedFrame(0);

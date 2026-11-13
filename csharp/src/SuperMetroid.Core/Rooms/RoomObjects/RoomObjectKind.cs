@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// What a room object is: the thing a room population places, a door, item or block reaction leaves, or a scripted
+/// The kind of a room object, what it is: the thing a room population places, a door, item or block reaction leaves, or a scripted
 /// scene spawns. The values are arbitrary and nothing reads them (#1414): a family recognises its objects by member, and
 /// verification maps the game's identities through its own table. <see cref="None"/> marks a place in
 /// the room's update order that holds no identified object.
@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// escape or an enemy's break of a block spawns carry one (#1622): its spawner places it by what it does, and its typed
 /// room object is how the room finds it.
 /// </remarks>
-public enum RoomObjectHeaderId
+public enum RoomObjectKind
 {
     /// <summary>No identified object: a free place, or a block reaction's short-lived object.</summary>
     None = 0,

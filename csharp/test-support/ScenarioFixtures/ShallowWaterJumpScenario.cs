@@ -34,7 +34,7 @@ internal sealed class ShallowWaterJumpScenario
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BelowSpazer, camera: new Position16<RoomPixels>(0, 256));
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BelowSpazer, camera: new Position16<RoomPixels>(0, 256));
         var samus = Samus;
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;

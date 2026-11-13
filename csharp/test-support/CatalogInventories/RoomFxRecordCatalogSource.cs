@@ -37,7 +37,7 @@ internal static class RoomFxRecordCatalogSource
 
     /// <summary>
     /// Walks every compiled header's records, plus the Mother Brain records her FX entries index after its default, each
-    /// decoded in the area of the rooms that load its header (<see cref="RoomFxHeaderAreas"/>).
+    /// decoded in the area of the rooms that load its header (<see cref="RoomFxSelectionAreas"/>).
     /// </summary>
     /// <exception cref="InvalidDataException">A record shared by headers reads differently in one of them, as one shared
     /// by headers of areas whose lists select different effects does.</exception>
@@ -48,7 +48,7 @@ internal static class RoomFxRecordCatalogSource
         var lists = new SortedDictionary<ushort, ushort[]>();
         foreach (ushort header in RoomFxSources.Pointers)
         {
-            AreaId area = RoomFxHeaderAreas.Of(RoomFxSources.Fx(header));
+            AreaId area = RoomFxSelectionAreas.Of(RoomFxSources.Fx(header));
             var list = new List<ushort>();
             ushort pointer = header;
             for (int guard = 0; ; guard++)
@@ -208,7 +208,7 @@ internal static class RoomFxRecordCatalogSource
         source.AppendLine("namespace SuperMetroid.Core.Fx;");
         source.AppendLine();
         source.AppendLine("/// <summary>");
-        source.AppendLine("/// The retail room FX headers, each holding its door records in the game's order and its default record, and the records");
+        source.AppendLine("/// The retail room states' effect selections, each holding its door records in the game's order and its default record, and the records");
         source.AppendLine("/// Mother Brain's fight applies by itself; regenerate with --generate-room-fx-records.");
         source.AppendLine("/// </summary>");
         source.AppendLine("public static class RoomFxDefinitions");
@@ -227,10 +227,10 @@ internal static class RoomFxRecordCatalogSource
                 throw new InvalidDataException($"Room FX header {name} lists a record after its default that Mother Brain's fight does not apply.");
             source.AppendLine($"    /// <summary>The {name} room FX.</summary>");
             if (doorRecords.Length == 0)
-                source.AppendLine($"    public static RoomFxHeader {name} {{ get; }} = new(nameof({name}), [],");
+                source.AppendLine($"    public static RoomFxSelection {name} {{ get; }} = new(nameof({name}), [],");
             else
             {
-                source.AppendLine($"    public static RoomFxHeader {name} {{ get; }} = new(nameof({name}),");
+                source.AppendLine($"    public static RoomFxSelection {name} {{ get; }} = new(nameof({name}),");
                 source.AppendLine("    [");
                 foreach (ushort pointer in doorRecords)
                     source.AppendLine($"        new({RenderDoor(capture.Doors[pointer])}, {RenderRecord(capture.Records[pointer])}),");

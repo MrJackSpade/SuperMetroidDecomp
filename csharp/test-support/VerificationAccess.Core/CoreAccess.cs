@@ -218,10 +218,10 @@ internal static class CoreAccess
     {
 
         /// <summary>The one active slot running <paramref name="headerPointer"/>; throws unless exactly one does.</summary>
-        internal RoomObjectSlotSnapshot SinglePopulationSlot(RoomObjectHeaderId headerPointer)
+        internal RoomObjectSlotSnapshot SinglePopulationSlot(RoomObjectKind headerPointer)
         {
             RoomObjectSlotSnapshot[] matches = roomObjects.PopulationSlots
-                .Where(slot => slot.HeaderPointer == headerPointer).ToArray();
+                .Where(slot => slot.Kind == headerPointer).ToArray();
             return matches.Length switch
             {
                 1 => matches[0],

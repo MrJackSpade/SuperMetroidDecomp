@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="Idle">What the plant shows for its last update.</param>
 [IndependentFlag("whether the eater hangs from the ceiling, a fact of the plant's definition")]
 internal sealed record SamusEaterObjectDefinition(
-    RoomObjectHeaderId Identity,
+    RoomObjectKind Identity,
     bool Ceiling,
     int Chews,
     IReadOnlyList<SamusEaterChewFrame> Chew,

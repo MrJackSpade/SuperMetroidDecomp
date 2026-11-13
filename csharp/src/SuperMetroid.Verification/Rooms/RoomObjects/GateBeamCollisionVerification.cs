@@ -32,7 +32,7 @@ internal static class GateBeamCollisionVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.KronicBoost);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.KronicBoost);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(140, 360)),
             PoseId = SamusPoseId.NormalJumpAimDiagonalUpLeftPose };
         var level = runtime.Room.LoadedLevelData;
@@ -48,7 +48,7 @@ internal static class GateBeamCollisionVerification
         AssertEqual((ushort)113, shot.Position.X.Whole, "Native impact X, before any continuing flight");
         AssertEqual((ushort)329, shot.Position.Y.Whole, "Native impact Y");
         AssertEqual(0xa00f, shot.InstructionPointer, "Same-frame native impact instruction advancement");
-        AssertTrue(roomObjects.PopulationSlots.Where(s => s.HeaderPointer == RoomObjectHeaderId.DownwardGate)
+        AssertTrue(roomObjects.PopulationSlots.Where(s => s.Kind == RoomObjectKind.DownwardGate)
             .All(s => s.Behaviour is DownwardGateObject { Triggered: false }), "Beam cannot wake the wrong-side switch through the gate body");
         Console.WriteLine("PASS Kronic Boost native initial gate-beam impact and no switch activation.");
     }

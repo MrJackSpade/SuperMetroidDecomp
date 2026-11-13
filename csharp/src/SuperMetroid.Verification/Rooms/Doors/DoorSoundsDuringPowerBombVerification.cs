@@ -31,7 +31,7 @@ internal static class DoorSoundsDuringPowerBombVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         runtime.Player.IntroducedSamus.Control.LockHandlers();
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
         game.AdoptRuntime(runtime);

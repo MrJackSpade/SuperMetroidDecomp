@@ -32,7 +32,7 @@ internal static class LookupDownwardGateSelectionVerification
             if (raw is not (0 or 2 or 4 or 6 or 8 or 10 or 12 or 14))
             {
                 AssertThrows<InvalidDataException>(() => GateObjects.DownwardGateShotBlock(
-                    RoomObjectRoomArgumentWords.Decode(RoomObjectHeaderId.DownwardGateShotBlock, argument) is GateTriggerArgument { Trigger: var trigger }
+                    RoomObjectRoomArgumentWords.Decode(RoomObjectKind.DownwardGateShotBlock, argument) is GateTriggerArgument { Trigger: var trigger }
                         ? trigger : throw new InvalidDataException($"Argument ${argument:X4} names no trigger.")),
                     "Downward gate rejects all unsupported arguments");
                 continue;

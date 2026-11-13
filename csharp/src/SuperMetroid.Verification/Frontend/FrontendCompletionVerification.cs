@@ -209,7 +209,7 @@ internal static void VerifyDoorOpeningTrajectories()
             $"door direction {direction} alignment axis");
         var door = new DoorDefinition(
             Name: "fixture door",
-            DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
+            DestinationRoom: FixtureRooms.UnloadedDestination,
             Orientation: DoorRecordCodec.DecodeOrientation(checked((byte)direction)),
             RoomObjectBlock: new(0, 0),
             DestinationScreen: new(3, 2),

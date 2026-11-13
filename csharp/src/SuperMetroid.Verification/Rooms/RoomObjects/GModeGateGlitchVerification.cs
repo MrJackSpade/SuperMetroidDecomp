@@ -76,16 +76,16 @@ internal static class GModeGateGlitchVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.KronicBoost);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.KronicBoost);
 
         RoomLevelData level = runtime.Room.LoadedLevelData;
         RoomObjectSystem roomObjects = runtime.RoomObjects;
         RoomObjectSlotSnapshot gate = roomObjects.PopulationSlots.Single(slot =>
-            slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
+            slot.Kind == RoomObjectKind.DownwardGate);
         for (int warm = 0; warm < 2; warm++)
             roomObjects.Step(level);
         gate = roomObjects.PopulationSlots.Single(slot =>
-            slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
+            slot.Kind == RoomObjectKind.DownwardGate);
         AssertTrue(gate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.ShowingClosed or DownwardGatePhase.RestingClosed },
             "the gate is closed before the shot");
         while (roomObjects.SlotTable.ActiveCount < 40)
@@ -136,7 +136,7 @@ internal static class GModeGateGlitchVerification
             }
 
             RoomObjectSlotSnapshot currentGate = roomObjects.PopulationSlots.Single(slot =>
-                slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
+                slot.Kind == RoomObjectKind.DownwardGate);
             if (currentGate.Behaviour is not DownwardGateObject { Phase: DownwardGatePhase.ShowingClosed or DownwardGatePhase.RestingClosed } && openedFrame < 0)
                 openedFrame = frame;
         }
@@ -164,7 +164,7 @@ internal static class GModeGateGlitchVerification
         AssertEqual(SamusSpecialPaletteType.None, samus.Xray.SpecialPaletteKind,
             "indirect G-Mode transition removes the stranded X-Ray palette handler");
 
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.KronicBoost);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.KronicBoost);
         AssertTrue(runtime.Enemies.Projectiles.EnemyProjectiles.All(projectile =>
                 !projectile.IsActive || projectile.Kind is not (
                     RoomEnemyProjectileKind.DownwardGateClosed or

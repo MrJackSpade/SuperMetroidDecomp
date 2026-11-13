@@ -327,7 +327,7 @@ internal static class RoomObjectProgramsVerification
         }
 
         var addresses = new Dictionary<GateState, ushort>();
-        int closed = Word(RoomObjectNativeWords.Word(RoomObjectHeaderId.DownwardGate) + 2);
+        int closed = Word(RoomObjectNativeWords.Word(RoomObjectKind.DownwardGate) + 2);
         addresses[new GateState(DownwardGatePhase.Starting, 0)] = checked((ushort)closed);
         int reopen = Resting(closed, DownwardGateMovementDefinitions.ClosedImage, DownwardGatePhase.ShowingClosed, DownwardGatePhase.RestingClosed, addresses);
         AssertEqual(RoomObjectInstruction.WakeDownwardGateProjectile, At(reopen), "reopening wakes the gate projectile");

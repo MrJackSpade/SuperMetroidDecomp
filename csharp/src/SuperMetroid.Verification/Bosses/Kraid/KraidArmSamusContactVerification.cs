@@ -27,7 +27,7 @@ internal static class KraidArmSamusContactVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Kraid);
         RoomEnemySlot arm = runtime.Enemies.SlotTable.Slots[1];
         AssertEqual(EnemyDefinitionId.KraidArm, arm.DefinitionId, "slot one is Kraid's arm");
 

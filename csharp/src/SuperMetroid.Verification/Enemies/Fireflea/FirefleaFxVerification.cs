@@ -155,7 +155,7 @@ internal static class FirefleaFxVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.GreenBrinstarFirefleas); // Green Brinstar Firefleas, retail room/FX population.
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.GreenBrinstarFirefleas); // Green Brinstar Firefleas, retail room/FX population.
         AssertEqual(RoomFxType.Fireflea, runtime.RoomFxOverlay.Type, "retail fixture selects Fireflea FX");
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();

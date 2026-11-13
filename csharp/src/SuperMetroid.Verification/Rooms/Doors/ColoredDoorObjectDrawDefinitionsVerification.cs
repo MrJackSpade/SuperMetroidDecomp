@@ -48,22 +48,22 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
         var bank84 = new byte[0x8000];
         for (int offset = 0; offset < bank84.Length; offset++)
             bank84[offset] = rom.ReadCartridgeByte(0x848000 + offset);
-        RoomObjectHeaderId[] headers =
+        RoomObjectKind[] headers =
         [
-            RoomObjectHeaderId.YellowDoorFacingLeft,
-            RoomObjectHeaderId.YellowDoorFacingRight,
-            RoomObjectHeaderId.YellowDoorFacingUp,
-            RoomObjectHeaderId.YellowDoorFacingDown,
-            RoomObjectHeaderId.GreenDoorFacingLeft,
-            RoomObjectHeaderId.GreenDoorFacingRight,
-            RoomObjectHeaderId.GreenDoorFacingUp,
-            RoomObjectHeaderId.GreenDoorFacingDown,
-            RoomObjectHeaderId.RedDoorFacingLeft,
-            RoomObjectHeaderId.RedDoorFacingRight,
-            RoomObjectHeaderId.RedDoorFacingUp,
-            RoomObjectHeaderId.RedDoorFacingDown,
+            RoomObjectKind.YellowDoorFacingLeft,
+            RoomObjectKind.YellowDoorFacingRight,
+            RoomObjectKind.YellowDoorFacingUp,
+            RoomObjectKind.YellowDoorFacingDown,
+            RoomObjectKind.GreenDoorFacingLeft,
+            RoomObjectKind.GreenDoorFacingRight,
+            RoomObjectKind.GreenDoorFacingUp,
+            RoomObjectKind.GreenDoorFacingDown,
+            RoomObjectKind.RedDoorFacingLeft,
+            RoomObjectKind.RedDoorFacingRight,
+            RoomObjectKind.RedDoorFacingUp,
+            RoomObjectKind.RedDoorFacingDown,
         ];
-        foreach (RoomObjectHeaderId header in headers)
+        foreach (RoomObjectKind header in headers)
         {
             var bus = new TestAddressSpace();
             bus.WriteBytes(0x848000, bank84);
@@ -102,7 +102,7 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
 
             var enteringDoor = new DoorDefinition(
                 Name: "fixture door",
-                DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
+                DestinationRoom: FixtureRooms.UnloadedDestination,
                 Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
                 RoomObjectBlock: new(4, 4),
                 DestinationScreen: new(0, 0),
@@ -125,7 +125,7 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
                 ColoredDoorColor.Red => SamusProjectileFamily.Missile,
                 _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorColor)} {doorColor}."),
             });
-            int hits = header >= RoomObjectHeaderId.RedDoorFacingLeft ? 5 : 1;
+            int hits = header >= RoomObjectKind.RedDoorFacingLeft ? 5 : 1;
             for (int hit = 0; hit < hits; hit++)
             {
                 AssertTrue(roomObjects.TryNotifyColoredDoorHit(level.BlockAt(origin), accepted),

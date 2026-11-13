@@ -74,9 +74,9 @@ internal static class DownwardGateObjectsVerification
     /// </summary>
     private static void VerifyDownwardGateHeaderDefinitions()
     {
-        foreach ((RoomObjectHeaderId header, int source) in new[] { new VerifyDownwardGateHeaderDefinitionsCase(RoomObjectHeaderId.DownwardGate, 0x84c82c), new VerifyDownwardGateHeaderDefinitionsCase(RoomObjectHeaderId.DownwardGateShotBlock, 0x84c838) })
+        foreach ((RoomObjectKind header, int source) in new[] { new VerifyDownwardGateHeaderDefinitionsCase(RoomObjectKind.DownwardGate, 0x84c82c), new VerifyDownwardGateHeaderDefinitionsCase(RoomObjectKind.DownwardGateShotBlock, 0x84c838) })
         {
-            AssertEqual(header, RoomObjectHeaders.Get(header).Header, "Gate compiled-population header");
+            AssertEqual(header, RoomObjectKinds.RequirePlaced(header), "Gate compiled-population header");
             AssertEqual(unchecked((ushort)(source - 2)), RoomObjectNativeWords.Word(header), "Gate header word precedes its first-list word");
         }
     }
@@ -110,7 +110,7 @@ internal static class DownwardGateObjectsVerification
         AssertEqual(2, roomObjects.SlotTable.ActiveCount, "gate and shot-block records retain separate PLM slots");
         RoomObjectSlotSnapshot[] slots = roomObjects.PopulationSlots.ToArray();
         AssertEqual(0, slots[0].ProcessingPosition, "gate is processed first");
-        AssertEqual(RoomObjectHeaderId.DownwardGate, slots[0].HeaderPointer,
+        AssertEqual(RoomObjectKind.DownwardGate, slots[0].Kind,
             "first resident slot is the closed downward gate");
         AssertEqual(1, slots[1].ProcessingPosition, "shot block is processed next");
         AssertTrue(slots[1].Behaviour is TerrainChangeObject { Change: var triggerChange }
@@ -196,7 +196,7 @@ internal static class DownwardGateObjectsVerification
             level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).Terrain,
             "compiled final open draw clears the second column collision word");
         RoomObjectSlotSnapshot openedGate = roomObjects.PopulationSlots.Single(slot =>
-            slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
+            slot.Kind == RoomObjectKind.DownwardGate);
         AssertTrue(openedGate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.RestingOpen, WakeArmed: true },
             "open gate rests, waiting only for a trigger");
 
@@ -240,7 +240,7 @@ internal static class DownwardGateObjectsVerification
         AssertTrue(roomObjects.Gates.TrySpawnDownwardGateTrigger(level, level.BlockAt(triggerBlockIndex), bts, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(projectile)),
             $"{trigger} is claimed by the gate dispatcher");
         RoomObjectSlotSnapshot gate = roomObjects.PopulationSlots.Single(slot =>
-            slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
+            slot.Kind == RoomObjectKind.DownwardGate);
         AssertEqual(accepted, gate.Behaviour is DownwardGateObject { Triggered: true },
             $"{trigger} projectile ${projectile:X4} acceptance matches cartridge");
         StepDownwardGateObject(roomObjects, level);
@@ -252,7 +252,7 @@ internal static class DownwardGateObjectsVerification
             level.GetCollisionBlockByIndex(triggerBlockIndex).Terrain,
             $"{trigger} compiled shot-trigger draw installs its physical block word");
         AssertTrue(roomObjects.PopulationSlots.All(slot =>
-                slot.HeaderPointer != RoomObjectHeaderId.DownwardGateShotBlock),
+                slot.Kind != RoomObjectKind.DownwardGateShotBlock),
             $"{trigger} trigger list draws once and deletes without ROM control bytes");
     }
 
@@ -273,10 +273,10 @@ internal static class DownwardGateObjectsVerification
         // the guard below prohibits them only while the production runtime sets up slots.
         var population = new RoomObjectPopulation($"$8F:{populationPointer:X4}",
         [
-            new RoomObjectPlacement(RoomObjectHeaders.Get(RoomObjectHeaderId.DownwardGate),
+            new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.DownwardGate),
                 new(gateX, gateY), null),
-            new RoomObjectPlacement(RoomObjectHeaders.Get(RoomObjectHeaderId.DownwardGateShotBlock),
-                new(gateX, gateY), RoomObjectRoomArgumentWords.Decode(RoomObjectHeaderId.DownwardGateShotBlock, argument)),
+            new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.DownwardGateShotBlock),
+                new(gateX, gateY), RoomObjectRoomArgumentWords.Decode(RoomObjectKind.DownwardGateShotBlock, argument)),
         ]);
         SeedDownwardGateProjectileRom(bus);
 

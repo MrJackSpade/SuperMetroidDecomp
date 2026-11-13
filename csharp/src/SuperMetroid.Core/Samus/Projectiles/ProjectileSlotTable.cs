@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <remarks>
 /// Place order: Samus has <see cref="SamusProjectileSystem.SlotCount"/> shot places. A shot takes the lowest place no
 /// projectile holds; the projectile update and drawing run in update order, from the highest place down, and enemy
-/// collision from the lowest up. Gameplay names some places: a special attack's particles take the first four, each
-/// playing the part its place gives it (<see cref="SpecialAttackParticleDefinitions"/>); the crash echoes take the last two; an unlinked Super Missile names
+/// collision from the lowest up. Gameplay names some places: a special attack's particles replace the shots in the first
+/// four (<see cref="SpecialAttackReplacesFirstShots"/>), each playing its part (<see cref="SpecialAttackParticleDefinitions"/>); the crash echoes take the last two; an unlinked Super Missile names
 /// the first (<see cref="UnlinkedSuperMissileLink"/>); and some enemies react to the first place's projectile or to the
 /// highest one.
 /// </remarks>

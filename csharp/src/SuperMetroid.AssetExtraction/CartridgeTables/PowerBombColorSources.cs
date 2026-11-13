@@ -6,10 +6,10 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 internal static class PowerBombColorSources
 {
     /// <summary>The bank-$88 address <paramref name="sequence"/>'s colours start at.</summary>
-    internal static int Start(PowerBombFixedColorSequence sequence) => sequence switch
+    internal static int Start(PowerBombGlowSequence sequence) => sequence switch
     {
-        PowerBombFixedColorSequence.PreExplosion => SamusSourceDefinitions.PowerBombPreExplosionColors.Value,
-        PowerBombFixedColorSequence.Explosion => SamusSourceDefinitions.PowerBombExplosionColors.Value,
+        PowerBombGlowSequence.PreExplosion => SamusSourceDefinitions.PowerBombPreExplosionColors.Value,
+        PowerBombGlowSequence.Explosion => SamusSourceDefinitions.PowerBombExplosionColors.Value,
         _ => throw new ArgumentOutOfRangeException(nameof(sequence)),
     };
 }

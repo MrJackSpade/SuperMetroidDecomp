@@ -14,24 +14,24 @@ namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks fixed RGB5 colors through Power Bomb and Crystal Flash lifecycles against retail data.</summary>
-internal static class PowerBombFixedColorsVerification
+internal static class PowerBombGlowColorsVerification
 {
-    /// <summary>Compares every fixed-color RGB5 triplet and guarded Power Bomb/Crystal Flash lifecycle with cartridge data.</summary>
-    internal static void VerifyPowerBombFixedColors()
+    /// <summary>Compares every glow colour RGB5 triplet and guarded Power Bomb/Crystal Flash lifecycle with cartridge data.</summary>
+    internal static void VerifyPowerBombGlowColors()
     {
         if (!File.Exists("Super Metroid.smc"))
         {
-            Console.WriteLine("  Power Bomb fixed colors: cartridge comparison skipped (private ROM absent).");
+            Console.WriteLine("  Power Bomb glow colours: cartridge comparison skipped (private ROM absent).");
             return;
         }
 
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        InstalledPowerBombFixedColors catalog = PowerBombFixedColorFile.Read(
-            new MemoryStream(PowerBombFixedColorExtractor.Extract(rom)));
+        InstalledPowerBombGlowColors catalog = PowerBombGlowColorFile.Read(
+            new MemoryStream(PowerBombGlowColorExtractor.Extract(rom)));
         int compared = 0;
-        foreach (PowerBombFixedColorSequence sequence in Enum.GetValues<PowerBombFixedColorSequence>())
+        foreach (PowerBombGlowSequence sequence in Enum.GetValues<PowerBombGlowSequence>())
         {
-            for (int index = 0; index < PowerBombFixedColorFormat.Count(sequence); index++)
+            for (int index = 0; index < PowerBombGlowColorFormat.Count(sequence); index++)
             {
                 int address = PowerBombColorSources.Start(sequence) +
                     index * SamusSourceDefinitions.PowerBombBytesPerColor;
@@ -39,11 +39,11 @@ internal static class PowerBombFixedColorsVerification
                 byte red = (byte)color.FadeLevels.Red;
                 byte green = (byte)color.FadeLevels.Green;
                 byte blue = (byte)color.FadeLevels.Blue;
-                AssertEqual((byte)(rom.ReadCartridgeByte(address) & PowerBombFixedColorExtractor.ComponentMask),
+                AssertEqual((byte)(rom.ReadCartridgeByte(address) & PowerBombGlowColorExtractor.ComponentMask),
                     red, $"{sequence} native red {index}");
-                AssertEqual((byte)(rom.ReadCartridgeByte(address + 1) & PowerBombFixedColorExtractor.ComponentMask),
+                AssertEqual((byte)(rom.ReadCartridgeByte(address + 1) & PowerBombGlowColorExtractor.ComponentMask),
                     green, $"{sequence} native green {index}");
-                AssertEqual((byte)(rom.ReadCartridgeByte(address + 2) & PowerBombFixedColorExtractor.ComponentMask),
+                AssertEqual((byte)(rom.ReadCartridgeByte(address + 2) & PowerBombGlowColorExtractor.ComponentMask),
                     blue, $"{sequence} native blue {index}");
                 compared++;
             }
@@ -52,17 +52,17 @@ internal static class PowerBombFixedColorsVerification
         Suite(nameof(VerifyPowerBombColorAnimation), () => VerifyPowerBombColorAnimation(rom, catalog, crystalFlash: false));
         Suite(nameof(VerifyPowerBombColorAnimation), () => VerifyPowerBombColorAnimation(rom, catalog, crystalFlash: true));
         Suite(nameof(VerifyCeresExplosionTimeline), () => VerifyCeresExplosionTimeline(catalog));
-        AssertThrows<InvalidDataException>(() => PowerBombFixedColorFile.Read(
+        AssertThrows<InvalidDataException>(() => PowerBombGlowColorFile.Read(
             new MemoryStream([1, 2, 3])), "corrupt Power Bomb colors fail loudly");
-        AssertThrows<InvalidDataException>(() => PowerBombFixedColorFile.Read(
+        AssertThrows<InvalidDataException>(() => PowerBombGlowColorFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))),
             "duplicate Power Bomb color field fails loudly");
-        Console.WriteLine($"  Power Bomb fixed colors: {compared} native RGB5 triplets and guarded Power Bomb/Crystal Flash lifecycles pass.");
+        Console.WriteLine($"  Power Bomb glow colours: {compared} native RGB5 triplets and guarded Power Bomb/Crystal Flash lifecycles pass.");
     }
 
-    /// <summary>Compares native and guarded explosion phases, radii, completion, and fixed colors frame by frame.</summary>
+    /// <summary>Compares native and guarded explosion phases, radii, completion, and glow colours frame by frame.</summary>
     private static void VerifyPowerBombColorAnimation(ISnesAddressSpace rom,
-        InstalledPowerBombFixedColors catalog, bool crystalFlash)
+        InstalledPowerBombGlowColors catalog, bool crystalFlash)
     {
         // The source-color words above are checked against the import-only ROM reader.
         // The runtime no longer has a cartridge color fallback, so both timing owners
@@ -95,9 +95,9 @@ internal static class PowerBombFixedColorsVerification
             AssertEqual(native.RenderedPhase, installed.RenderedPhase, $"{label} rendered phase");
             AssertEqual(native.PreExplosionRadius, installed.PreExplosionRadius, $"{label} pre-radius");
             AssertEqual(native.ExplosionRadius, installed.ExplosionRadius, $"{label} radius");
-            AssertEqual(native.FixedColor.FadeLevels.Red, installed.FixedColor.FadeLevels.Red, $"{label} fixed red");
-            AssertEqual(native.FixedColor.FadeLevels.Green, installed.FixedColor.FadeLevels.Green, $"{label} fixed green");
-            AssertEqual(native.FixedColor.FadeLevels.Blue, installed.FixedColor.FadeLevels.Blue, $"{label} fixed blue");
+            AssertEqual(native.GlowColor.FadeLevels.Red, installed.GlowColor.FadeLevels.Red, $"{label} fixed red");
+            AssertEqual(native.GlowColor.FadeLevels.Green, installed.GlowColor.FadeLevels.Green, $"{label} fixed green");
+            AssertEqual(native.GlowColor.FadeLevels.Blue, installed.GlowColor.FadeLevels.Blue, $"{label} fixed blue");
             frames++;
             AssertTrue(frames < 1000, $"{label} completes in bounded time");
         } while (native.IsActive);
@@ -106,13 +106,13 @@ internal static class PowerBombFixedColorsVerification
     }
 
     /// <summary>Checks that the Power Bomb colour codec rejects out-of-range colours.</summary>
-    internal static void VerifyPowerBombFixedColorsRejectMalformedDocuments(string stock)
+    internal static void VerifyPowerBombGlowColorsRejectMalformedDocuments(string stock)
     {
-        PowerBombFixedColorDocument document = JsonSerializer.Deserialize<PowerBombFixedColorDocument>(
-            File.ReadAllBytes(Path.Combine(stock, PowerBombFixedColorFile.FileName)),
+        PowerBombGlowColorDocument document = JsonSerializer.Deserialize<PowerBombGlowColorDocument>(
+            File.ReadAllBytes(Path.Combine(stock, PowerBombGlowColorFile.FileName)),
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Power Bomb color document is null.");
-        AssertThrows<InvalidDataException>(() => PowerBombFixedColorFile.Read(new MemoryStream(PowerBombFixedColorFile.Write(document with
+        AssertThrows<InvalidDataException>(() => PowerBombGlowColorFile.Read(new MemoryStream(PowerBombGlowColorFile.Write(document with
         {
             PreExplosion = [document.PreExplosion[0] with { Red = 32 }, .. document.PreExplosion.Skip(1)],
         }))), "out-of-range Power Bomb color fails loudly");
@@ -121,17 +121,17 @@ internal static class PowerBombFixedColorsVerification
     /// <summary>Forbids all authored fixed-color source ranges during installed explosion updates.</summary>
     internal static CartridgeReadGuard NewForbiddenPowerBombColorBus(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
-            .Forbid(address => Enum.GetValues<PowerBombFixedColorSequence>().Any(sequence =>
+            .Forbid(address => Enum.GetValues<PowerBombGlowSequence>().Any(sequence =>
                     address >= PowerBombColorSources.Start(sequence) &&
                     address < PowerBombColorSources.Start(sequence) +
-                        PowerBombFixedColorFormat.Count(sequence) * SamusSourceDefinitions.PowerBombBytesPerColor),
+                        PowerBombGlowColorFormat.Count(sequence) * SamusSourceDefinitions.PowerBombBytesPerColor),
                 address => $"Installed explosion read color ROM ${address:X6}.");
 
-    /// <summary>Runs the Power Bomb fixed-color verification suite.</summary>
-    [VerificationCommand("--power-bomb-fixed-colors")]
-    internal static int PowerBombFixedColorsCommand()
+    /// <summary>Runs the Power Bomb glow colour verification suite.</summary>
+    [VerificationCommand("--power-bomb-glow-colors")]
+    internal static int PowerBombGlowColorsCommand()
     {
-        Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
+        Suite(nameof(VerifyPowerBombGlowColors), () => VerifyPowerBombGlowColors());
         return 0;
     }
 }

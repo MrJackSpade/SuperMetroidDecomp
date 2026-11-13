@@ -22,9 +22,9 @@ namespace SuperMetroid.Core.Runtime;
 /// <param name="RainbowBeam">Rainbow-beam window description; its fixed color comes from the frame-boundary latch.</param>
 /// <param name="CeresHaze">The Ceres haze's per-line fixed-colour gradient, when the room spawned one.</param>
 /// <param name="CeresHazeTints">The installed tints of the haze gradient, or null while no map presentation is bound; a haze that shows requires them.</param>
-/// <param name="PowerBomb">Power-bomb window table inputs; its fixed color comes from the frame-boundary latch.</param>
+/// <param name="PowerBomb">Power-bomb glow window inputs; its glow colour comes from the frame-boundary latch.</param>
 /// <param name="MessageBox">The message box overlay, which runs its own display loop.</param>
-/// <param name="SuitPickupBeam">Suit pickup light-beam window description; its fixed color comes from the frame-boundary latch.</param>
+/// <param name="SuitPickupBeam">Suit pickup light-beam window description; its colour comes from the frame-boundary latch.</param>
 /// <param name="Xray">X-ray per-line effect object phases and window cone inputs.</param>
 /// <param name="TourianStatuesEnabled">Whether the Tourian statue the background's vertical scroll per-line effect object is running.</param>
 [IndependentFlag("independent display facts of the frame end")]

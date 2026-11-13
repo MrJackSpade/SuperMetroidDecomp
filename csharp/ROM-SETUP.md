@@ -442,8 +442,8 @@ activation, scanline bands, and fade timing remain compiled. Each channel must b
 The title, map and menu palette documents are read only by the import, which
 pre-colours the screens' sheets from them.
 
-`game/maps/power-bomb-fixed-colors.json` contains the 16 pre-explosion and
-32 explosion RGB5 rows used by Power Bombs, Crystal Flash and the Ceres
+`game/maps/power-bomb-glow-colors.json` contains the 16 pre-explosion and
+32 explosion RGB5 glow colours used by Power Bombs, Crystal Flash and the Ceres
 explosion. Edit it in place to recolor them. Radius math, window
 geometry and cleanup timing remain compiled. Crystal Flash's stock fade
 lifetime is separate from the installed colors: black does not end it early,

@@ -37,7 +37,7 @@ internal sealed class RuntimeArtwork
         Ensure.NotNull(bombs);
         projectiles.Animation.FrameBindings = ProjectileFrameBindings;
         bombs.FrameBindings = ProjectileFrameBindings;
-        bombs.PowerBombExplosion.PresentationColors = MapPresentation?.PowerBombFixedColors;
+        bombs.PowerBombExplosion.PresentationColors = MapPresentation?.PowerBombGlowColors;
     }
 
     /// <summary>Captures the runtime owners that consume host-installed visual assets.</summary>

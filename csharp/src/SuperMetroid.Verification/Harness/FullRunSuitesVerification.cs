@@ -267,7 +267,7 @@ using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectsAndPostureVe
 using static SuperMetroid.Verification.Enemies.Powamp.PowampDeathSequenceVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombBoundaryVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombDeathRadiusVerification;
-using static SuperMetroid.Verification.Samus.Palettes.PowerBombFixedColorsVerification;
+using static SuperMetroid.Verification.Samus.Palettes.PowerBombGlowColorsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombFuseVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombRuntimeIntegrationVerification;
 using static SuperMetroid.Verification.Hardware.PpuMemoryModelVerification;
@@ -963,7 +963,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyDamageBoostJumpInitializer), () => VerifyDamageBoostJumpInitializer()),
         new(nameof(VerifyBabyMetroidDeathExplosionSound), () => VerifyBabyMetroidDeathExplosionSound()),
         new(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData()),
-        new(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors()),
+        new(nameof(VerifyPowerBombGlowColors), () => VerifyPowerBombGlowColors()),
         new(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors()),
         new(nameof(VerifySamusHurtColors), () => VerifySamusHurtColors()),
         new(nameof(VerifySamusHyperBeamColors), () => VerifySamusHyperBeamColors()),

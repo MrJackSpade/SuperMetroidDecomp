@@ -173,15 +173,15 @@ internal static class GameplayDisplayFrameTestsVerification
         explosion.Spawn(new(128, 120));
         for (int i = 0; i < 4; i++) explosion.StepFrame();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        int latchedRed = explosion.FixedColor.FadeLevels.Red;
+        int latchedRed = explosion.GlowColor.FadeLevels.Red;
         int steps = 0;
-        while (explosion.FixedColor.FadeLevels.Red == latchedRed && steps++ < 64) explosion.StepFrame();
-        AssertTrue(explosion.FixedColor.FadeLevels.Red != latchedRed, "fixture reaches a power-bomb COLDATA change");
+        while (explosion.GlowColor.FadeLevels.Red == latchedRed && steps++ < 64) explosion.StepFrame();
+        AssertTrue(explosion.GlowColor.FadeLevels.Red != latchedRed, "fixture reaches a power-bomb COLDATA change");
         GameplayDisplayFrame pending = runtime.PublishDisplayFrame();
         AssertEqual(explosion.RenderedPhase, pending.FrameEnd.PowerBomb.RenderedPhase, "power-bomb window table is read live");
-        AssertEqual(latchedRed, GameplayDisplayCapture.PowerBomb(pending).FixedColor.FadeLevels.Red, "power-bomb COLDATA waits for the NMI");
+        AssertEqual(latchedRed, GameplayDisplayCapture.PowerBomb(pending).GlowColor.FadeLevels.Red, "power-bomb COLDATA waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(explosion.FixedColor.FadeLevels.Red, GameplayDisplayCapture.PowerBomb(runtime.PublishDisplayFrame()).FixedColor.FadeLevels.Red,
+        AssertEqual(explosion.GlowColor.FadeLevels.Red, GameplayDisplayCapture.PowerBomb(runtime.PublishDisplayFrame()).GlowColor.FadeLevels.Red,
             "the accepted NMI publishes power-bomb COLDATA");
         explosion.Reset();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -195,7 +195,7 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertEqual(suitBefore.FadeLevels.Red, (GameplayDisplayCapture.SuitPickup(runtime.PublishDisplayFrame())
             ?? throw new InvalidOperationException("Active suit pickup has no flash.")).Color.FadeLevels.Red, "suit COLDATA waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(runtime.SuitPickup.FixedColor.FadeLevels.Red, (GameplayDisplayCapture.SuitPickup(runtime.PublishDisplayFrame())
+        AssertEqual(runtime.SuitPickup.BeamColor.FadeLevels.Red, (GameplayDisplayCapture.SuitPickup(runtime.PublishDisplayFrame())
             ?? throw new InvalidOperationException("Active suit pickup has no flash.")).Color.FadeLevels.Red, "the accepted NMI publishes suit COLDATA");
     }
 

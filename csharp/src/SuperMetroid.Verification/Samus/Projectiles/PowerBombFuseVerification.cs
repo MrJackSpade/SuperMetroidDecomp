@@ -104,7 +104,7 @@ internal static class PowerBombFuseVerification
     /// <summary>Checks that cleanup and a later allocation preserve the native radius-speed word.</summary>
     private static void VerifyPowerBombRetainedRadiusSpeed()
     {
-        var explosion = new SamusPowerBombExplosionState { PresentationColors = RetailPresentationFixture().PowerBombFixedColors };
+        var explosion = new SamusPowerBombExplosionState { PresentationColors = RetailPresentationFixture().PowerBombGlowColors };
         explosion.Arm();
         explosion.Spawn(new(128, 128));
         PowerBombRadius retainedSpeed = PowerBombRadius.Zero;
@@ -125,7 +125,7 @@ internal static class PowerBombFuseVerification
         AssertEqual(retainedSpeed, explosion.RadiusSpeed, "next allocation preserves radius speed until setup");
     }
 
-    /// <summary>Runs focused fuse and fixed-color fixture checks.</summary>
+    /// <summary>Runs focused fuse and glow colour fixture checks.</summary>
     [VerificationCommand("--power-bomb-fixtures")]
     internal static int PowerBombFixturesCommand()
     {

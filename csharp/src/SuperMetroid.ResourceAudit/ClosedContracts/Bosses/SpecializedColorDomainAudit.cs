@@ -20,12 +20,12 @@ internal static class SpecializedColorDomainAudit
         string? Outside(string parameter, int count, string selected) => Constant(parameter) is int index && (uint)index >= count
             ? $"Constant {parameter}={index} is outside the selected {selected} color domain (0..{count - 1})." : null;
         string type = operation.TargetMethod.ContainingType.ToDisplayString();
-        if (type == typeof(InstalledPowerBombFixedColors).FullName && Constant("sequence") is int sequence)
+        if (type == typeof(InstalledPowerBombGlowColors).FullName && Constant("sequence") is int sequence)
         {
-            var kind = (PowerBombFixedColorSequence)sequence;
+            var kind = (PowerBombGlowSequence)sequence;
             // Invalid enum members are reported by the independent domain check;
             // never let Count itself throw while auditing an invalid consumer.
-            return Enum.IsDefined(kind) ? Outside("index", PowerBombFixedColorFormat.Count(kind), kind.ToString()) : null;
+            return Enum.IsDefined(kind) ? Outside("index", PowerBombGlowColorFormat.Count(kind), kind.ToString()) : null;
         }
         if (type == typeof(EnemyAuxiliaryColorCatalog).FullName && Constant("palette") is int palette)
         {

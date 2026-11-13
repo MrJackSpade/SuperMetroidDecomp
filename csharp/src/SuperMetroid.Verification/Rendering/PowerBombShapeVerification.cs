@@ -92,7 +92,7 @@ internal static class PowerBombShapeVerification
             explosion.Spawn(new(unchecked((ushort)centerX), unchecked((ushort)centerY)));
             explosion.RenderedPhase = PowerBombExplosionPhase.ExplosionYellow;
             explosion.RenderedExplosionRadius = PowerBombRadius.FromRaw(EightEight.FromWhole(radius));
-            explosion.FixedColor = explosion.FixedColor.FadeLevels.WithRed(31).ToColour();
+            explosion.GlowColor = explosion.GlowColor.FadeLevels.WithRed(31).ToColour();
             ColourAddWindowLayer layer = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0))
                 ?? throw new InvalidOperationException("An active Power Bomb captures its window.");
             RgbaPixel[] drawn = DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []),

@@ -320,12 +320,12 @@ internal sealed class AcceptedFrameBoundary
     private GameplayLatchedTints CaptureTints()
     {
         // Before the first room exists there is no explosion; its colour is black.
-        RgbColor powerBomb = _room.BombProjectiles?.PowerBombExplosion.FixedColor ?? RgbColor.Black;
+        RgbColor powerBomb = _room.BombProjectiles?.PowerBombExplosion.GlowColor ?? RgbColor.Black;
         return new(
             // Before the first room there is no room effect, so no Fireflea darkness.
             _room.FxOverlay?.FirefleaTint,
             powerBomb,
-            _suitPickup.FixedColor,
+            _suitPickup.BeamColor,
             Displays?.MotherBrain?.RainbowBeam.Color);
     }
 

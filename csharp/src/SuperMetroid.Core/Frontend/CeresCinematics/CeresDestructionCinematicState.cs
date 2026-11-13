@@ -33,7 +33,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         Ensure.NotNull(previous);
         Ensure.NotNull(artwork);
         if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
-            BindFixedColors(artwork.MapPresentation?.PowerBombFixedColors);
+            BindGlowColors(artwork.MapPresentation?.PowerBombGlowColors);
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
             BindArtwork(artwork.IntroCinematicArt);
         BindSpriteSheets(artwork.SpriteSheets);
@@ -133,7 +133,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     internal bool WithSamus { get; }
 
     /// <param name="audio">The shared music and sound queue.</param>
-    /// <param name="fixedColors">Installed power-bomb fixed colors for the station explosion.</param>
+    /// <param name="glowColors">Installed Power Bomb glow colours for the station explosion.</param>
     /// <param name="artwork">Installed cinematic artwork; the scene cannot start without it.</param>
     /// <param name="outcome">
     /// The Ceres-destruction state with Samus aboard: the escape timer expired before Samus left, so the
@@ -142,7 +142,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <param name="spriteSheets">Required installed sprite sheets the scene's actors draw from.</param>
     public CeresDestructionCinematicState(
         AudioQueues? audio = null,
-        InstalledPowerBombFixedColors? fixedColors = null,
+        InstalledPowerBombGlowColors? glowColors = null,
         IntroCinematicArtwork? artwork = null,
         CeresDestructionOutcome outcome = CeresDestructionOutcome.SamusEscaped,
         InstalledSpriteSheets? spriteSheets = null)
@@ -152,7 +152,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         this.audio = audio;
         Artwork = artwork ?? throw new InvalidOperationException(
             "Ceres destruction requires installed cinematic artwork.");
-        stationExplosion.PresentationColors = fixedColors;
+        stationExplosion.PresentationColors = glowColors;
         objects = new ScreenSprites();
     }
 
@@ -164,7 +164,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         initialFrameWaits is > 0 and <= CeresDestructionSceneDefinitions.InitialFrameWaits;
 
     /// <summary>Binds the installed station-blast colors when the game is bound to its installed content.</summary>
-    internal void BindFixedColors(InstalledPowerBombFixedColors? colors) =>
+    internal void BindGlowColors(InstalledPowerBombGlowColors? colors) =>
         stationExplosion.PresentationColors = colors;
 
     /// <summary>

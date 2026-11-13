@@ -250,7 +250,7 @@ public static class GameplayEffectCapture
             : ScreenWindow.Of(WindowOval.Ellipse(explosion.Position.RelativeToCamera(cameraPosition),
                 new Extent16<ScreenPixels>(radius, verticalRadius)),
                 firstLine);
-        return new(window, explosion.FixedColor);
+        return new(window, explosion.GlowColor);
     }
 
     /// <summary>The horizontal radius, in whole pixels, of the blast's oval this frame; zero shows nothing.</summary>

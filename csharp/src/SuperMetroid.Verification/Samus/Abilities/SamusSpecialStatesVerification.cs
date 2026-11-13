@@ -204,8 +204,8 @@ internal static void VerifySamusCrystalFlash()
 
     var crystalWindow = new SamusPowerBombExplosionState
     {
-        PresentationColors = PowerBombFixedColorFile.Read(new MemoryStream(
-            SuperMetroid.AssetExtraction.Samus.PowerBombFixedColorExtractor.Extract(bus))),
+        PresentationColors = PowerBombGlowColorFile.Read(new MemoryStream(
+            SuperMetroid.AssetExtraction.Samus.PowerBombGlowColorExtractor.Extract(bus))),
     };
     crystalWindow.Arm();
     crystalWindow.BeginCrystalFlash(samus.Position.Whole);
@@ -229,7 +229,7 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash transition radius preserves 8.8 acceleration sum");
     AssertEqual(0x1d80, crystalWindow.RenderedExplosionRadius.RawValue,
         "Crystal Flash transition renders pre-update radius");
-    AssertEqual(4, crystalWindow.FixedColor.FadeLevels.Red,
+    AssertEqual(4, crystalWindow.GlowColor.FadeLevels.Red,
         "Crystal Flash transition selects shared fixed-color entry three");
 
     // The stock RGB reaches black after four calls, but the native lifetime remains
@@ -238,11 +238,11 @@ internal static void VerifySamusCrystalFlash()
     for (int hdmaCall = 1; hdmaCall <= stockFadeSteps; hdmaCall++)
     {
         AssertTrue(!crystalWindow.StepFrame(), $"Crystal Flash afterglow call {hdmaCall}");
-        AssertEqual(Math.Max(0, 4 - hdmaCall), crystalWindow.FixedColor.FadeLevels.Red,
+        AssertEqual(Math.Max(0, 4 - hdmaCall), crystalWindow.GlowColor.FadeLevels.Red,
             "Crystal Flash red fades without shortening native lifetime");
-        AssertEqual(Math.Max(0, 3 - hdmaCall), crystalWindow.FixedColor.FadeLevels.Green,
+        AssertEqual(Math.Max(0, 3 - hdmaCall), crystalWindow.GlowColor.FadeLevels.Green,
             "Crystal Flash green fade");
-        AssertEqual(Math.Max(0, 2 - hdmaCall), crystalWindow.FixedColor.FadeLevels.Blue,
+        AssertEqual(Math.Max(0, 2 - hdmaCall), crystalWindow.GlowColor.FadeLevels.Blue,
             "Crystal Flash blue fade");
     }
     AssertTrue(crystalWindow.StepFrame(),

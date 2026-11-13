@@ -13,7 +13,7 @@ public enum PowerBombExplosionPhase
     ExplosionYellow,
     /// <summary>The white explosion: consumes seventeen pre-scaled expanding shapes, retaining the final window for the fade.</summary>
     ExplosionWhite,
-    /// <summary>The afterglow: fades fixed-color components through the 32-step countdown before cleanup and a possible Crystal Flash handoff.</summary>
+    /// <summary>The afterglow: fades the glow colour's components through the 32-step countdown before cleanup and a possible Crystal Flash handoff.</summary>
     Afterglow,
     /// <summary>The Crystal Flash explosion: reuses the yellow expansion curve only up to 8.8 radius 8192, without arming another Power Bomb.</summary>
     CrystalFlashExplosion,

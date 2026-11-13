@@ -314,11 +314,11 @@ public static class MapPresentationExtractor
             file.Write(roomFxPaletteBlendBytes);
         hashes.Add(RoomFxPaletteBlendDefinitions.FileName,
             Convert.ToHexString(SHA256.HashData(roomFxPaletteBlendBytes)));
-        byte[] powerBombFixedColorBytes = PowerBombFixedColorExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, PowerBombFixedColorFile.FileName), FileMode.CreateNew, FileAccess.Write))
-            file.Write(powerBombFixedColorBytes);
-        hashes.Add(PowerBombFixedColorFile.FileName,
-            Convert.ToHexString(SHA256.HashData(powerBombFixedColorBytes)));
+        byte[] powerBombGlowColorBytes = PowerBombGlowColorExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, PowerBombGlowColorFile.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(powerBombGlowColorBytes);
+        hashes.Add(PowerBombGlowColorFile.FileName,
+            Convert.ToHexString(SHA256.HashData(powerBombGlowColorBytes)));
         byte[] samusVisorColorBytes = SamusVisorColorExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, SamusVisorColorFile.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(samusVisorColorBytes);

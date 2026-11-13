@@ -82,7 +82,7 @@ internal static void VerifyCeresDestructionCinematic()
     // The fixture composes its sheets as the import does, from the import's read, which alone reads the colours (#1544).
     var artwork = IntroCinematicArtworkFiles.LoadForImport(introDirectory, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName));
     var presentation = RetailPresentationFixture();
-    var state = new CeresDestructionCinematicState(fixedColors: presentation.PowerBombFixedColors, artwork: artwork.BoundCatalog,
+    var state = new CeresDestructionCinematicState(glowColors: presentation.PowerBombGlowColors, artwork: artwork.BoundCatalog,
         spriteSheets: CinematicSheetFixtures.WithIntro(artwork));
     // $8B:C11B's first dispatch waits for nine NMIs; the ninth resume sets the scene up.
     for (int wait = 0; wait < CeresDestructionSceneDefinitions.InitialFrameWaits; wait++)

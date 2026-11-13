@@ -757,7 +757,7 @@ internal static class CollectiblesVerification
             transformationFrames++;
             if (pickup.Flash is { } flash)
             {
-                AssertEqual(new SamusSuitPickupFlash(pickup.Beam, pickup.FixedColor), flash, "active suit publishes its beam and fixed color by value");
+                AssertEqual(new SamusSuitPickupFlash(pickup.Beam, pickup.BeamColor), flash, "active suit publishes its beam and fixed color by value");
                 beams.Add(pickup.Beam);
                 flashes.Add(flash);
             }

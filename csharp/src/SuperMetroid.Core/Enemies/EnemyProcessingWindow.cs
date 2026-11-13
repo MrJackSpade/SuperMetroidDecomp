@@ -65,7 +65,7 @@ internal sealed class EnemyProcessingWindow
         _interactiveEnemies.Clear();
         foreach (RoomEnemySlot slot in _slotTable.Slots)
         {
-            if (slot.DefinitionId is 0 or EnemyDefinitionId.Respawn)
+            if (slot.DefinitionId is EnemyDefinitionId.None or EnemyDefinitionId.Respawn)
                 continue;
             if (slot.Presence.HasAny(EnemyPresence.Deleted))
             {

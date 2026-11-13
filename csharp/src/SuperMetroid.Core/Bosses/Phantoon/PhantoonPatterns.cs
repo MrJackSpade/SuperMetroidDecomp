@@ -206,13 +206,13 @@ internal sealed class PhantoonPatterns
         if (--state.MouthState.CasualFlameHold > 0)
             return;
 
-        if (state.MouthState.CasualFlameCount >= 0)
+        if (state.MouthState.CasualFlameCount is { } count)
         {
-            int remaining = state.MouthState.CasualFlameCount - 1;
-            // Zero and negative remaining counts both end the burst and start its cooldown.
+            int remaining = count - 1;
+            // A burst with no flame left after this one ends and starts its cooldown; one at zero spits a last flame too.
             bool exhausted = remaining <= 0;
             PhantoonCasualFlameSchedule schedule = PhantoonCasualFlames.Pattern(state.MouthState.CasualFlamePattern);
-            state.MouthState.CasualFlameCount = exhausted ? PhantoonCasualFlameDefinitions.NoActiveSchedule : remaining;
+            state.MouthState.CasualFlameCount = exhausted ? null : remaining;
             state.MouthState.CasualFlameHold = exhausted ? schedule.Cooldown : schedule.IntervalBefore(remaining);
             PhantoonPresentation.InstallPhantoonProgram(state, mouth, PhantoonPartProgram.MouthSpawnFlame);
             return;

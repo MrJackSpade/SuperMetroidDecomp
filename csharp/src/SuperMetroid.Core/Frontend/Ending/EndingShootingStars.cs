@@ -44,8 +44,8 @@ internal sealed class EndingShootingStars
             }
 
             Position16<ScreenPixels> whole = star.Position.Whole;
-            if (whole.X is < EndingShootingStarDefinitions.SpriteOffset or > byte.MaxValue ||
-                whole.Y is < EndingShootingStarDefinitions.SpriteOffset or > byte.MaxValue)
+            if (whole.X is < EndingShootingStarDefinitions.SpriteOffset or > EndingShootingStarDefinitions.FieldFarEdge ||
+                whole.Y is < EndingShootingStarDefinitions.SpriteOffset or > EndingShootingStarDefinitions.FieldFarEdge)
             {
                 Reset(ref star);
                 continue;

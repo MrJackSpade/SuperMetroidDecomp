@@ -115,20 +115,15 @@ public sealed class FileSelectMapAnimations
         /// <summary>Records this tick's scroll-boundary admission and returns it.</summary>
         internal bool Admit(bool visible) => Visible = visible;
 
-        /// <summary>Consumes one menu tick of <paramref name="visual"/>'s cycle, wrapping at its end marker.</summary>
+        /// <summary>Consumes one menu tick of <paramref name="visual"/>'s cycle; past its last phase the cycle starts again from its first.</summary>
         internal void Step(MapArrowVisual visual)
         {
             if (--Timer > 0)
                 return;
             Frame++;
-            int delay = Frame == visual.PhaseCount ? byte.MaxValue : visual.Duration(Frame);
-            if (delay == byte.MaxValue)
-            {
+            if (Frame == visual.PhaseCount)
                 Frame = 0;
-                delay = visual.Duration(0);
-                if (delay == byte.MaxValue) throw new InvalidDataException("Map arrow animation has no frames.");
-            }
-            Timer = delay;
+            Timer = visual.Duration(Frame);
         }
     }
 }

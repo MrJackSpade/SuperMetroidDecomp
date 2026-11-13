@@ -20,8 +20,8 @@ internal sealed class AttractDemoSchedule
     /// <summary>The still-frame hold left after the scene's scripted input.</summary>
     internal int HoldFramesRemaining { get; private set; }
 
-    /// <summary>The blank enemy-transfer waits left before the scene becomes visible; negative before its runtime exists.</summary>
-    private int loadFramesRemaining = -1;
+    /// <summary>The blank enemy-transfer waits left before the scene becomes visible; none before its runtime exists (#1627).</summary>
+    private int? loadFramesRemaining;
 
     /// <summary>Whether live controller input cancelled the scene.</summary>
     internal bool Cancelled { get; private set; }
@@ -30,7 +30,7 @@ internal sealed class AttractDemoSchedule
     internal bool HasNextScene { get; private set; }
 
     /// <summary>Whether the next scene's runtime has yet to be created.</summary>
-    internal bool AwaitsScene => loadFramesRemaining < 0;
+    internal bool AwaitsScene => loadFramesRemaining is null;
 
     /// <summary>Whether the scene's scripted input has ended and its final image is holding.</summary>
     internal bool Holding => HoldFramesRemaining != 0;
@@ -40,14 +40,14 @@ internal sealed class AttractDemoSchedule
     {
         Set = 0;
         Scene = 0;
-        loadFramesRemaining = -1;
+        loadFramesRemaining = null;
     }
 
     /// <summary>The title requests a demo: its set starts again from its first scene.</summary>
     internal void RequestFromTitle()
     {
         Scene = 0;
-        loadFramesRemaining = -1;
+        loadFramesRemaining = null;
     }
 
     /// <summary>The scene the next demo plays, or null at the end of the set.</summary>
@@ -65,7 +65,13 @@ internal sealed class AttractDemoSchedule
     }
 
     /// <summary>Counts one enemy-transfer wait; returns whether it was the last.</summary>
-    internal bool CountLoadFrame() => --loadFramesRemaining == 0;
+    /// <exception cref="InvalidOperationException">No scene has begun loading.</exception>
+    internal bool CountLoadFrame()
+    {
+        int remaining = (loadFramesRemaining ?? throw new InvalidOperationException("No attract demo scene is loading.")) - 1;
+        loadFramesRemaining = remaining;
+        return remaining == 0;
+    }
 
     /// <summary>Counts one held frame; returns whether the hold ended.</summary>
     internal bool CountHoldFrame() => --HoldFramesRemaining == 0;
@@ -97,5 +103,5 @@ internal sealed class AttractDemoSchedule
     }
 
     /// <summary>The next scene of the set loads afresh.</summary>
-    internal void LoadNextScene() => loadFramesRemaining = -1;
+    internal void LoadNextScene() => loadFramesRemaining = null;
 }

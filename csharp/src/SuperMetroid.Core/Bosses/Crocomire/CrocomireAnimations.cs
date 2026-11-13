@@ -9,8 +9,6 @@ internal static class CrocomireAnimations
     internal const int MouthPhaseCount = 6;
     /// <summary>Frames in the shot projectile's explosion.</summary>
     internal const int ShotPhaseCount = 5;
-    /// <summary>The bridge and spike frames last the maximum, so their loops never advance in play.</summary>
-    private const int StillFrameDuration = 32767;
 
     /// <summary>The fight tongue's frames, five updates each.</summary>
     private static readonly CrocomireTongueFrame[] FightTongueFrames =
@@ -46,7 +44,8 @@ internal static class CrocomireAnimations
 
     /// <summary>
     /// The projectile segments, one per projectile kind: the fight projectile's six three-update frames; the bridge
-    /// fragment's and spike-wall piece's one still frame; the shot fight projectile's five four-update explosion frames,
+    /// fragment's and spike-wall piece's one still frame, held for good (#1627: the original's lists show it for the
+    /// longest frame a list gives, after which it still shows that frame); the shot fight projectile's five four-update explosion frames,
     /// then a drop with Crocomire's chances and deletion.
     /// </summary>
     internal static AnimationSegments<CrocomireProjectileFrameKind, CrocomireProjectileFrame, CrocomireProjectileCue> ProjectileSegments { get; } = new(
@@ -55,9 +54,9 @@ internal static class CrocomireAnimations
             [CrocomireProjectileFrameKind.Mouth] =
                 [.. Enumerable.Range(0, MouthPhaseCount).Select(phase => ProjectileFrame(new(CrocomireProjectileFrameKind.Mouth, phase), 3))],
             [CrocomireProjectileFrameKind.BridgeFragment] =
-                [ProjectileFrame(new(CrocomireProjectileFrameKind.BridgeFragment, 0), StillFrameDuration)],
+                [new AnimationBeat<CrocomireProjectileFrame, CrocomireProjectileCue>.HeldFrame(new(CrocomireProjectileFrameKind.BridgeFragment, 0))],
             [CrocomireProjectileFrameKind.SpikeWallPiece] =
-                [ProjectileFrame(new(CrocomireProjectileFrameKind.SpikeWallPiece, 0), StillFrameDuration)],
+                [new AnimationBeat<CrocomireProjectileFrame, CrocomireProjectileCue>.HeldFrame(new(CrocomireProjectileFrameKind.SpikeWallPiece, 0))],
             [CrocomireProjectileFrameKind.Shot] =
             [
                 .. Enumerable.Range(0, ShotPhaseCount).Select(phase => ProjectileFrame(new(CrocomireProjectileFrameKind.Shot, phase), 4)),
@@ -67,8 +66,8 @@ internal static class CrocomireAnimations
         });
 
     /// <summary>
-    /// The projectile animations: the mouth projectile, bridge fragment and spike-wall piece loop their frames, and the
-    /// shot holds after its deletion.
+    /// The projectile animations: the mouth projectile loops its frames, the bridge fragment and spike-wall piece rest on
+    /// their held frame, and the shot holds after its deletion.
     /// </summary>
     internal static IReadOnlyDictionary<CrocomireProjectileFrameKind, Animation<CrocomireProjectileFrameKind>> ProjectileStartingAt { get; } =
         new Dictionary<CrocomireProjectileFrameKind, Animation<CrocomireProjectileFrameKind>>

@@ -270,7 +270,10 @@ internal static class CrocomireAnimationsVerification
                 $"{at}: drops");
             if (native.Deleted)
                 break;
-            AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
+            // The bridge fragment and spike-wall piece hold their still frame for good (#1627), whose timer rests apart
+            // from the native list's longest frame.
+            if (!SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.RestsOnHeldFrame(native.Timer, projectile.FrameHold))
+                AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
             AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
         }
         AssertEqual(shot, native.Deleted, $"Crocomire {label}: only the shot program deletes its projectile");

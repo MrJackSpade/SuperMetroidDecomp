@@ -17,13 +17,13 @@ public sealed class PhantoonMouthState
     public int CasualFlameHold { get; internal set; }
 
     /// <summary>
-    /// The mouth's remaining casual flames: <see cref="PhantoonCasualFlameDefinitions.NoActiveSchedule"/> when no schedule
-    /// is active. Schedules hold small counts and an exhausted one is set to minus one.
+    /// The mouth's remaining casual flames in the burst it is spitting, zero or more; none when no burst is under way, so
+    /// the next expiry picks a new burst (#1627). A burst that reaches its last flame ends and has none.
     /// </summary>
-    public int CasualFlameCount
+    public int? CasualFlameCount
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(PhantoonCasualFlameDefinitions.NoActiveSchedule, int.MaxValue, value);
+        internal set => field = value is { } count ? Ensure.AtLeastZero(count) : null;
     }
 
     /// <summary>The mouth's wave amplitude.</summary>

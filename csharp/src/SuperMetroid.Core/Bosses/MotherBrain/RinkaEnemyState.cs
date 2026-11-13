@@ -18,10 +18,10 @@ public sealed class RinkaEnemyState
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
-    /// Reservation token of the spawn location a special Mother Brain Rinka holds: one of the even tokens 2 through 22
-    /// from the spawn-point table, or zero when it holds none.
+    /// The spawn point a special Mother Brain Rinka holds, which no other Rinka can take until it is released; null
+    /// when it holds none.
     /// </summary>
-    public int SpawnResourceToken { get; internal set; }
+    public RinkaSpawnPoint? HeldSpawnPoint { get; internal set; }
 
     /// <summary>Updates left before flight or before a special respawn, counted down past zero.</summary>
     public int DelayTimer { get; internal set; }

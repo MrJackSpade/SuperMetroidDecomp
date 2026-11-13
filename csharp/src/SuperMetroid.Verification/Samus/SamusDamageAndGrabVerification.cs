@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Verification.Bosses.MotherBrain;
+using SuperMetroid.Verification.Samus.Movement;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -365,7 +366,7 @@ static MotherBrainRinkaDoorSpawnExpected ObserveSolidEnemyProbeTarget(
                 Radius = new(samus.Radius.X, samus.Radius.Y),
             };
             var enemy = new SolidEnemyCollisionBody(
-                Slot: 1, Position: new(unchecked((ushort)enemyX), unchecked((ushort)enemyY)),
+                Enemy: new SolidEnemyFixture(1), Position: new(unchecked((ushort)enemyX), unchecked((ushort)enemyY)),
                 Radius: new(1, 1), Solid: true);
             if (!SamusSolidEnemyCollision.Probe(
                     probeState, [enemy], direction, distance, distanceSubposition).Collided)
@@ -474,7 +475,7 @@ internal static void VerifySamusSolidEnemyCollision()
         Position = new(new(0x00c5, 0), new(0x0085, 0x9800)), Radius = new(5, 0x13),
     };
     var frozenRinka = new SolidEnemyCollisionBody(
-        Slot: 3, Position: new(0x00c8, 0x00a3), Radius: new(8, 8),
+        Enemy: new SolidEnemyFixture(3), Position: new(0x00c8, 0x00a3), Radius: new(8, 8),
         Solid: true);
     SolidEnemyCollisionResult landing = SamusSolidEnemyCollision.Probe(
         falling, [frozenRinka], SamusCollisionDirection.Down, distance: 2, distanceSubposition: 0x6800);
@@ -483,7 +484,7 @@ internal static void VerifySamusSolidEnemyCollision()
 
     samus.Position = samus.Position.WithFractionX(0).WithFractionY(0x7777);
     var decorative = new SolidEnemyCollisionBody(
-        Slot: 1, Position: new(110, 100), Radius: new(5, 5),
+        Enemy: new SolidEnemyFixture(1), Position: new(110, 100), Radius: new(5, 5),
         Solid: false);
     SolidEnemyCollisionResult ignored = SamusSolidEnemyCollision.Probe(
         samus, [decorative], SamusCollisionDirection.Right, distance: 2, distanceSubposition: 0);
@@ -493,7 +494,7 @@ internal static void VerifySamusSolidEnemyCollision()
     // the future box overlaps and the routine clips the requested distance to exactly one.
     SolidEnemyCollisionBody frozen = decorative with
     {
-        Slot = 2,
+        Enemy = new SolidEnemyFixture(2),
         Position = decorative.Position.WithX(111),
         Solid = true,
     };
@@ -501,7 +502,7 @@ internal static void VerifySamusSolidEnemyCollision()
         samus, [frozen], SamusCollisionDirection.Right, distance: 2, distanceSubposition: 0);
     AssertTrue(frozenHit.Collided, "frozen enemy is solid to Samus");
     AssertEqual(1, frozenHit.Distance, "right collision publishes current edge gap");
-    AssertEqual(2, frozenHit.EnemySlot, "collision publishes the enemy's slot");
+    AssertEqual(2, frozenHit.Enemy?.ContactRecordPlace, "collision publishes the enemy's slot");
     AssertTrue(!frozenHit.WasTouching, "positive gap is not reported as touching");
     AssertEqual(0x7777, samus.Position.Y.Fraction, "positive-gap collision preserves Samus subposition");
 
@@ -509,7 +510,7 @@ internal static void VerifySamusSolidEnemyCollision()
     // whose STZ $0AFC bug clears Y subposition even though this is a horizontal probe.
     SolidEnemyCollisionBody solidTouch = decorative with
     {
-        Slot = 3,
+        Enemy = new SolidEnemyFixture(3),
         Solid = true,
     };
     SolidEnemyCollisionResult touching = SamusSolidEnemyCollision.Probe(
@@ -540,18 +541,18 @@ internal static void VerifySamusSolidEnemyCollision()
 
     // Native list order wins. The first entry is farther away than the second but is still
     // returned as soon as both its broad and directional tests pass.
-    SolidEnemyCollisionBody fartherFirst = solidTouch with { Slot = 4, Position = solidTouch.Position.WithX(120) };
-    SolidEnemyCollisionBody nearerSecond = solidTouch with { Slot = 5, Position = solidTouch.Position.WithX(112) };
+    SolidEnemyCollisionBody fartherFirst = solidTouch with { Enemy = new SolidEnemyFixture(4), Position = solidTouch.Position.WithX(120) };
+    SolidEnemyCollisionBody nearerSecond = solidTouch with { Enemy = new SolidEnemyFixture(5), Position = solidTouch.Position.WithX(112) };
     SolidEnemyCollisionResult ordered = SamusSolidEnemyCollision.Probe(
         samus, [fartherFirst, nearerSecond], SamusCollisionDirection.Right,
         distance: 20, distanceSubposition: 0);
-    AssertEqual(4, ordered.EnemySlot, "first interactive collision wins over nearest geometry");
+    AssertEqual(4, ordered.Enemy?.ContactRecordPlace, "first interactive collision wins over nearest geometry");
     AssertEqual(10, ordered.Distance, "first list entry publishes its own gap");
 
     // Exercise both vertical directional formulas rather than relying only on target tests.
     SolidEnemyCollisionBody above = solidTouch with
     {
-        Slot = 6,
+        Enemy = new SolidEnemyFixture(6),
         Position = new(100, 84),
         Radius = new(5, 5),
     };
@@ -560,7 +561,7 @@ internal static void VerifySamusSolidEnemyCollision()
     AssertTrue(ceiling.Collided, "upward solid-enemy collision detected");
     AssertEqual(1, ceiling.Distance, "upward collision publishes top-to-bottom gap");
 
-    SolidEnemyCollisionBody below = above with { Slot = 7, Position = above.Position.WithY(116) };
+    SolidEnemyCollisionBody below = above with { Enemy = new SolidEnemyFixture(7), Position = above.Position.WithY(116) };
     SolidEnemyCollisionResult floor = SamusSolidEnemyCollision.Probe(
         samus, [below], SamusCollisionDirection.Down, distance: 2, distanceSubposition: 0);
     AssertTrue(floor.Collided, "downward solid-enemy collision detected");
@@ -584,7 +585,7 @@ internal static void VerifySamusSolidEnemyCollision()
         "enemy collision, not an invented terrain block, stops the ordinary mover");
     AssertEqual(
         2,
-        integratedHorizontal.EnemyCollision?.EnemySlot,
+        integratedHorizontal.EnemyCollision?.Enemy?.ContactRecordPlace,
         "ordinary mover retains colliding enemy identity");
 
     integrated.Position = integrated.Position.WithWholeY(100);
@@ -592,7 +593,7 @@ internal static void VerifySamusSolidEnemyCollision()
     BlockMoveResult integratedVertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = airRoom }, integrated, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
     AssertTrue(integratedVertical.Collided, "ordinary vertical mover reports enemy collision");
     AssertEqual(101, integrated.Position.Y.Whole, "ordinary vertical mover clips to enemy gap");
-    AssertEqual(7, integratedVertical.EnemyCollision?.EnemySlot,
+    AssertEqual(7, integratedVertical.EnemyCollision?.Enemy?.ContactRecordPlace,
         "vertical mover retains colliding enemy identity");
 
     // Wall-jump probing copies Samus so it cannot commit movement. The one exception is the

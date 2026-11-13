@@ -557,7 +557,7 @@ public static class SamusGrappleMovement
         if (wall.Collided && jumpNew)
         {
             // Accepted off a solid or frozen enemy, the wall jump asks this update's enemy pass to shake it.
-            if (wall.EnemyCollision is { EnemySlot: int launchedFrom })
+            if (wall.EnemyCollision is { Enemy: { } launchedFrom })
                 samus.Kinematics.RequestWallJumpLaunchShake(launchedFrom);
             grapple.Phase = GrapplePhase.WallJumping;
             return new GrappleMovementResult(

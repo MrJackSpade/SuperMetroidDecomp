@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -9,7 +10,7 @@ namespace SuperMetroid.Core.Enemies;
 /// timers, and the species state installed for it. A place is found by the slot object or its ordinal
 /// (<see cref="SlotIndex"/>); <see cref="EnemySlotOrder"/> sets how places are allocated and processed.
 /// </summary>
-public sealed class RoomEnemySlot
+public sealed class RoomEnemySlot : ISolidEnemy
 {
     /// <summary>Creates the place at <paramref name="slotIndex"/> in <see cref="EnemySlotOrder"/>, before any occupant is installed.</summary>
     internal RoomEnemySlot(int slotIndex, EnemySpeciesRegistry registry)
@@ -137,8 +138,11 @@ public sealed class RoomEnemySlot
     /// <summary>Draws left that shake the enemy one pixel sideways, counted down as it draws.</summary>
     public int ShakeTimer { get; internal set; }
 
-    /// <summary>Shakes the enemy as Samus's wall jump has launched off it: its next draws shake it one pixel sideways.</summary>
-    internal void ShakeFromWallJumpLaunch() => ShakeTimer = EnemyDrawPhaseDefinitions.WallJumpLaunchShakeDraws;
+    /// <inheritdoc/>
+    void ISolidEnemy.ShakeFromWallJumpLaunch() => ShakeTimer = EnemyDrawPhaseDefinitions.WallJumpLaunchShakeDraws;
+
+    /// <inheritdoc/>
+    int ISolidEnemy.ContactRecordPlace => SlotIndex;
     /// <summary>
     /// The enemy's own update count, 0 through 65535, wrapping; its behaviour and drawing read it, independently of the
     /// game's frame counter.

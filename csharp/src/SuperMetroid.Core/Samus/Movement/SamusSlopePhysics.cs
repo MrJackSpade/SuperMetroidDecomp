@@ -39,18 +39,18 @@ public static class SamusSlopePhysics
         return displacement.ScaledByTwoFiftySixths(multiplier);
     }
 
-    /// <summary>Typed behaviour overload used by live room collision.</summary>
+    /// <summary>
+    /// The slope's height under the pixel column <paramref name="xPosition"/>: its profile read at the column's offset
+    /// within its block, or, for a horizontally flipped slope, at the offset measured from the block's far edge.
+    /// </summary>
     public static int ReadAlignmentHeight(
         RoomBlockBehavior behavior,
         int xPosition)
     {
-
-        // the behaviour's horizontal-flip bit mirrors the profile horizontally. XORing the complete coordinate by
-        // 15 is equivalent to flipping its low nibble while retaining arithmetic wrapping at 65536.
-        int sampledX = behavior.Slope.FlipsHorizontally
-            ? CoordinateAxis.Wrap(xPosition ^ 15)
-            : xPosition;
-        return SlopeHeights.Read(behavior.Slope.Shape, sampledX & 15);
+        int column = behavior.Slope.FlipsHorizontally
+            ? RoomGridConversions.OffsetFromBlockEnd(xPosition)
+            : RoomGridConversions.OffsetWithinBlock(xPosition);
+        return SlopeHeights.Read(behavior.Slope.Shape, column);
     }
 
     /// <summary>
@@ -87,8 +87,8 @@ public static class SamusSlopePhysics
             if (!bottom.Behavior.Slope.FlipsVertically)
             {
                 int height = ReadAlignmentHeight(bottom.Behavior, xPosition);
-                int bottomNibble = bottomPosition & 15;
-                int correction = CoordinateAxis.Difference(height - bottomNibble, 1);
+                int bottomDepth = RoomGridConversions.OffsetWithinBlock(bottomPosition);
+                int correction = CoordinateAxis.Difference(height - bottomDepth, 1);
                 if (correction < 0)
                 {
                     yPosition = CoordinateAxis.Wrap(yPosition + correction);
@@ -107,8 +107,8 @@ public static class SamusSlopePhysics
             if (top.Behavior.Slope.FlipsVertically)
             {
                 int height = ReadAlignmentHeight(top.Behavior, xPosition);
-                int invertedTopNibble = (topPosition & 15) ^ 15;
-                int correction = CoordinateAxis.Difference(height - invertedTopNibble, 1);
+                int topDepth = RoomGridConversions.OffsetFromBlockEnd(topPosition);
+                int correction = CoordinateAxis.Difference(height - topDepth, 1);
                 if (correction <= 0)
                 {
                     yPosition = CoordinateAxis.Wrap(yPosition - correction);

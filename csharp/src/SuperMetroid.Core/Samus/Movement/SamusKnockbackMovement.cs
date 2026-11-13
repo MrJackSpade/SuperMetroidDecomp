@@ -7,7 +7,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Literal air/water/lava translation of humanoid and morphed knockback plus the
+/// Samus's humanoid and morphed knockback in air, water and lava, plus the
 /// humanoid-only damage-boost escape route.
 /// </summary>
 /// <remarks>

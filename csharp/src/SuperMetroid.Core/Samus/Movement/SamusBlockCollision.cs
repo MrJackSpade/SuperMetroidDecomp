@@ -107,7 +107,7 @@ public static class SamusBlockCollision
             {
                 // On enemy collision the wrapper skips block detection and
                 // invokes the corresponding no-collision position adder with the clipped whole distance. An accepted
-                // gap is 0 through 32767 pixels: the probe skips any whose sign bit is set.
+                // gap is 0 through 32767 pixels: the probe skips any gap that reads as negative.
                 SignedSixteenSixteen clippedMagnitude = SignedSixteenSixteen.FromWholePixels(probe.Distance);
                 acceptedDisplacement = entersLeft
                     ? -clippedMagnitude
@@ -203,7 +203,7 @@ public static class SamusBlockCollision
                     case RoomCollisionType.SpikeAir:
                     case RoomCollisionType.ShootableAir:
                     case RoomCollisionType.UnusedAir:
-                        // Horizontal table entries 2/4/6 are literal clear-carry stubs.
+                        // Spike, shootable and unused air let Samus pass with no reaction.
                         break;
                     case RoomCollisionType.BombableAir:
                         ActivateCollisionBombableAir(terrain, block, owner, move.CanBreakBombBlocks);
@@ -253,7 +253,7 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.SpecialBlock:
-                        // Both special-solid dispatchers spawn the room object with clear carry.
+                        // Both special-block reactions spawn the room object and let Samus pass unless its setup stops her.
                         // A full pool returns without running setup, so even a block whose
                         // setup would normally reject contact falls through as air.
                         if (terrain.RoomObjects?.Quicksand.IsAllocationFull == true)
@@ -418,7 +418,7 @@ public static class SamusBlockCollision
                 // Solid-enemy success bypasses the block dispatcher and moves only to the
                 // current enemy boundary. This is also how the game's vertical-collision flags
                 // distinguish an enemy stop from an unobstructed terrain move. An accepted gap is 0 through 32767
-                // pixels: the probe skips any whose sign bit is set.
+                // pixels: the probe skips any gap that reads as negative.
                 SignedSixteenSixteen clippedMagnitude = SignedSixteenSixteen.FromWholePixels(probe.Distance);
                 acceptedDisplacement = acceptedDisplacement.IsNegative
                     ? -clippedMagnitude
@@ -446,7 +446,7 @@ public static class SamusBlockCollision
                 move.Displacement.IsNegative ? VerticalDirection.Up : VerticalDirection.Down,
                 acceptedDisplacement);
         // Publishes sand contact after either signed movement direction.
-        // Pose probes instead consume only the block handler's carry result.
+        // Pose probes instead consume only the block reaction's collision result.
         if (move.PublishQuicksandGrounding && sandContact)
             collided = true;
         return new BlockMoveResult(
@@ -545,7 +545,7 @@ public static class SamusBlockCollision
 
                 case RoomCollisionType.DoorBlock:
                     // Is the vertical twin of the handler above. Preserve
-                    // its carry result here; the room-level owner publishes the same
+                    // its collision result here; the room-level owner publishes the same
                     // door entry for the frontend dispatcher to consume.
                     DoorListEntry verticalDoor = terrain.Level.ResolveDoorCollision(
                         block.Behavior,
@@ -577,12 +577,12 @@ public static class SamusBlockCollision
                             $"Scroll trigger block {block.Index} has no active scroll room-object owner; " +
                             $"live=[{string.Join(',', terrain.RoomObjects?.Scrolls.Snapshots.Select(scroll => scroll.Block) ?? [])}].");
                     }
-                    // Scroll wake-up itself remains carry-clear; sand has a separate
-                    // carry/contact contract handled above.
+                    // Scroll wake-up itself lets Samus pass; sand has a separate
+                    // collision and contact contract handled above.
                     break;
                 case RoomCollisionType.ShootableAir:
                 case RoomCollisionType.UnusedAir:
-                    // These air entries return clear carry without room-object setup.
+                    // These air blocks let Samus pass without room-object setup.
                     break;
                 case RoomCollisionType.BombableAir:
                     ActivateCollisionBombableAir(terrain, block, owner, move.CanBreakBombBlocks);
@@ -612,7 +612,7 @@ public static class SamusBlockCollision
                     break;
 
                 case RoomCollisionType.SpecialBlock:
-                    // Spawning a room object preserves clear carry when all forty slots
+                    // Spawning a room object lets Samus pass when all forty slots
                     // are occupied. No setup runs, so the unchanged special block is
                     // treated as air for this collision probe.
                     if (terrain.RoomObjects?.Quicksand.IsAllocationFull == true)
@@ -685,11 +685,11 @@ public static class SamusBlockCollision
 
                 case RoomCollisionType.BombableBlock:
                     // Vertical dispatch shares the exact room-object
-                    // setup/carry contract documented in the horizontal branch above.
+                    // setup and collision contract documented in the horizontal branch above.
                     if (terrain.RoomObjects?.Quicksand.IsAllocationFull == true)
                     {
-                        // The full room-object pool prevents rejection setup from setting
-                        // carry. Block collision therefore keeps its pre-call clear carry and
+                        // The full room-object pool prevents rejection setup from stopping
+                        // Samus. Block collision therefore lets her pass and
                         // treats an untouched bomb block as air.
                         break;
                     }
@@ -763,13 +763,13 @@ public static class SamusBlockCollision
             $"A scan without the room's objects broke bomb block {blockIndex}, whose reaction only the room's objects can run.");
 
     /// <summary>
-    /// Runs the shared bomb-block setup for non-solid cells without consuming carry.
+    /// Runs the shared bomb-block setup for non-solid cells without consuming its collision result.
     /// </summary>
     private static void ActivateCollisionBombableAir(SamusTerrain terrain, RoomCollisionBlock block,
         SamusState? owner, bool explicitAdmission)
     {
         // The game's horizontal/vertical air dispatch invokes the same setup as solid
-        // bomb blocks, but ignores its carry. Rejection or exhausted actor slots
+        // bomb blocks, but ignores its collision result. Rejection or exhausted actor slots
         // must never turn this non-solid cell into a movement obstruction.
         if (block.Behavior.Reaction.IsAreaSpecific || !CanBreakCollisionBombBlock(owner, explicitAdmission))
             return;
@@ -809,8 +809,8 @@ public static class SamusBlockCollision
                 return new SlopeClip(displacement, false);
 
             int height = SamusSlopePhysics.ReadAlignmentHeight(block.Behavior, state.Position.X.Whole);
-            int bottomNibble = CoordinateAxis.Wrap(state.Radius.Y + targetCenter - 1) & 15;
-            int correction = CoordinateAxis.Difference(height - bottomNibble, 1);
+            int bottomDepth = RoomGridConversions.OffsetWithinBlock(state.Radius.Y + targetCenter - 1);
+            int correction = CoordinateAxis.Difference(height - bottomDepth, 1);
             if (correction > 0)
                 return new SlopeClip(displacement, false);
 
@@ -822,8 +822,8 @@ public static class SamusBlockCollision
                 return new SlopeClip(displacement, false);
 
             int height = SamusSlopePhysics.ReadAlignmentHeight(block.Behavior, state.Position.X.Whole);
-            int invertedTopNibble = ((targetCenter - state.Radius.Y) & 15) ^ 15;
-            int correction = CoordinateAxis.Difference(height - invertedTopNibble, 1);
+            int topDepth = RoomGridConversions.OffsetFromBlockEnd(targetCenter - state.Radius.Y);
+            int correction = CoordinateAxis.Difference(height - topDepth, 1);
             if (correction > 0)
                 return new SlopeClip(displacement, false);
 
@@ -1143,6 +1143,9 @@ public static class SamusBlockCollision
             state.Position = state.Position.WithWrappedWholeY(state.Position.Y.Whole - GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down));
     }
 
+    /// <summary>Pixels along a half block's side, the depth unit of a square slope's half.</summary>
+    private const int HalfBlockPixels = 8;
+
     /// <summary>
     /// Measures block overlap in the selected vertical direction after grapple releases
     /// Samus, allowing the caller to eject her before the new pose radius is installed.
@@ -1173,7 +1176,7 @@ public static class SamusBlockCollision
                 else
                 {
                     int difference = SamusSlopePhysics.ReadAlignmentHeight(block.Behavior, state.Position.X.Whole) - (boundary & 15) - 1;
-                    depth = direction == VerticalDirection.Down ? (difference <= 0 ? ~difference : -1) : (difference >= 0 ? difference : -1);
+                    depth = direction == VerticalDirection.Down ? (difference <= 0 ? -1 - difference : -1) : (difference >= 0 ? difference : -1);
                 }
             }
             else
@@ -1188,7 +1191,8 @@ public static class SamusBlockCollision
                     collides = selected || SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
                 else
                     collides = SquareSlopes.IsSolid(shape, quadrant.OtherColumn);
-                depth = collides ? (direction == VerticalDirection.Down ? boundary & 7 : (boundary & 7) ^ 7) : -1;
+                int halfBlockOffset = boundary % HalfBlockPixels;
+                depth = collides ? (direction == VerticalDirection.Down ? halfBlockOffset : HalfBlockPixels - 1 - halfBlockOffset) : -1;
             }
             maximum = Math.Max(maximum, depth + 1);
         }

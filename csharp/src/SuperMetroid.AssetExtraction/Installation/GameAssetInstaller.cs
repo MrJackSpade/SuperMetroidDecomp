@@ -295,7 +295,7 @@ public static class GameAssetInstaller
         new(GameInstallationLayout.EnemyOverreadDirectoryName,
             Step("Extracting enemy overreads...", (bus, d) => EnemyOverreadFiles.Extract(bus, d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.BossAndIntroOverreadDirectoryName,
-            Step("Extracting boss and intro overread reads...", (bus, d) => BossAndIntroOverreadFiles.Extract(bus, d, SupportedCartridge.Sha256))),
+            Step("Extracting boss and intro overread reads...", (bus, d) => BossAndIntroOverreadFiles.Extract(bus, d))),
         new(GameInstallationLayout.StraddledTerrainDirectoryName, InstallerComponentKind.Standalone,
             Step("Decoding straddled terrain...", (_, d) => StraddledTerrainFiles.Extract(d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.StandardObjectDirectoryName,

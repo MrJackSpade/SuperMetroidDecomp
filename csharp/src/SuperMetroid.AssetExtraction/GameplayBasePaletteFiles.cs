@@ -7,9 +7,14 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Assets;
+using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.AssetExtraction;
 
-/// <summary>Extracts the starting gameplay CGRAM image and shared room-sprite palette.</summary>
+/// <summary>
+/// Extracts the starting gameplay colours and the common room-sprite colours as import data (#1637): only the import reads
+/// them, to pre-colour the sheets that show them, so the document goes to the component's import-data directory
+/// (<see cref="ImportDataDirectory.Of"/>), which the installer deletes before it publishes. The installation holds none of it.
+/// </summary>
 public static class GameplayBasePaletteFiles
 {
     /// <summary>
@@ -18,56 +23,41 @@ public static class GameplayBasePaletteFiles
     /// </summary>
     private const int FirstSpriteColour = CgramPalettes.ColorCount / 2;
 
-    /// <summary>Writes the initial 256-color CGRAM image and 16 common-sprite colors as RGB5 JSON with a hashed manifest.</summary>
-    /// <param name="bus">Cartridge source for the initial palette at $9A:8000 and common-sprite palette at $9A:FC00.</param>
-    /// <param name="directory">Destination directory, created if absent; existing palette JSON and manifest are replaced.</param>
-    /// <param name="sourceCartridgeSha256">Identity written into the manifest; installation loading requires the supported cartridge identity.</param>
-    public static void Extract(ISnesAddressSpace bus, string directory,
-        string sourceCartridgeSha256)
+    /// <summary>Writes the starting 256 colours and the 16 common-sprite colours into the component's import data.</summary>
+    /// <param name="bus">Cartridge source for the starting and common-sprite colours.</param>
+    /// <param name="directory">The component's directory; the document goes to its import-data directory, created if absent.</param>
+    public static void Extract(ISnesAddressSpace bus, string directory)
     {
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        Directory.CreateDirectory(directory);
+        string importData = ImportDataDirectory.Of(directory);
+        Directory.CreateDirectory(importData);
         var document = new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
             ReadColors(bus, GameplayBasePaletteSourceDefinitions.InitialPalette, CgramPalettes.ColorCount),
             ReadColors(bus, GameplayBasePaletteSourceDefinitions.CommonSpritePalette,
                 GameplayBasePaletteFormat.SpriteColorCount));
-        byte[] bytes = Write(document);
-        File.WriteAllBytes(Path.Combine(directory, GameplayBasePaletteFormat.ArtworkFileName), bytes);
-        File.WriteAllBytes(Path.Combine(directory, GameplayBasePaletteFormat.ManifestFileName),
-            JsonSerializer.SerializeToUtf8Bytes(new ArtworkManifest(
-                GameplayBasePaletteFormat.Version, sourceCartridgeSha256),
-                GameplayBasePaletteFormat.JsonOptions));
+        File.WriteAllBytes(Path.Combine(importData, GameplayBasePaletteFormat.ArtworkFileName), Write(document));
     }
 
-    /// <summary>Checks the installed provenance, then compiles the installed palette document, as the player may have edited it in place, without cartridge access.</summary>
-    /// <param name="directory">Installed directory containing the base-palette JSON and its provenance manifest.</param>
-    /// <returns>An owned color catalog for the initial CGRAM image and common sprites, also supplying enemy-projectile colors from the initial image.</returns>
-    /// <exception cref="InvalidDataException">The provenance, schema, or palette counts and RGB5 values are invalid.</exception>
-    public static GameplayBasePalette Load(string directory)
+    /// <summary>Compiles the import's base-palette document, which only the import reads (#1637).</summary>
+    /// <param name="importData">The component's import-data directory, holding the base-palette document.</param>
+    /// <returns>An owned colour catalog for the starting colours and the common sprites.</returns>
+    /// <exception cref="InvalidDataException">The document, its version, or its palette counts and channels are invalid.</exception>
+    public static GameplayBasePalette LoadForImport(string importData)
     {
-        ArtworkManifest manifest;
+        ArgumentException.ThrowIfNullOrWhiteSpace(importData);
+        string path = Path.Combine(importData, GameplayBasePaletteFormat.ArtworkFileName);
         try
         {
-            manifest = JsonSerializer.Deserialize<ArtworkManifest>(File.ReadAllBytes(Path.Combine(
-                directory, GameplayBasePaletteFormat.ManifestFileName)),
-                GameplayBasePaletteFormat.JsonOptions) ??
-                throw new InvalidDataException("Gameplay base palette manifest is empty.");
+            return Read(new MemoryStream(File.ReadAllBytes(path), writable: false));
         }
-        catch (JsonException error)
+        catch (InvalidDataException error)
         {
-            throw new InvalidDataException("Invalid gameplay base palette manifest.", error);
+            throw new InvalidDataException($"Invalid gameplay base palette {path}: {error.Message}", error);
         }
-        if (manifest.Version != GameplayBasePaletteFormat.Version ||
-            !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
-                StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("Gameplay base palette manifest does not match the pinned cartridge.");
-        byte[] installed = File.ReadAllBytes(Path.Combine(directory,
-            GameplayBasePaletteFormat.ArtworkFileName));
-        return Read(new MemoryStream(installed, writable: false));
     }
 
-    /// <summary>Reads and validates the full initial and common-sprite RGB5 palettes of an installed document.</summary>
+    /// <summary>Reads and validates the full initial and common-sprite RGB5 palettes of a base-palette document.</summary>
     /// <param name="json">The caller-owned stream holding the gameplay base-palette document.</param>
     /// <returns>The selected colours, detached from the document.</returns>
     /// <exception cref="InvalidDataException">The JSON, version, palette lengths or RGB5 channels are invalid.</exception>
@@ -90,7 +80,7 @@ public static class GameplayBasePaletteFiles
         return bytes;
     }
 
-    /// <summary>Checks palette length and channel bounds before converting authoring colors to packed CGRAM values.</summary>
+    /// <summary>Checks palette length and channel bounds before converting the document's colours to RGB.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, int expected, string name)
     {
         if (source is null || source.Length != expected)
@@ -107,7 +97,6 @@ public static class GameplayBasePaletteFiles
         return result;
     }
 
-    /// <summary>Unpacks consecutive cartridge palette words into RGB5 channels for the exported base palettes.</summary>
     /// <summary>
     /// The eight sprite palette rows as a room load leaves them: the initial image's upper half, with the common sprite
     /// colours in the first row. The enemy-projectile row a room load copies is the initial image's own.
@@ -140,7 +129,4 @@ public static class GameplayBasePaletteFiles
         }
         return colors;
     }
-
-    /// <summary>Records the schema, cartridge identity, and stock palette digest checked on load.</summary>
-    private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256);
 }

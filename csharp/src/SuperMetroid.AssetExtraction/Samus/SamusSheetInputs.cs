@@ -41,7 +41,7 @@ internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, Spr
         string map = Path.Combine(content, GameInstallationLayout.MapDirectoryName);
         string projectileDirectory = Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName);
         ImportProjectileArtwork projectiles = ProjectilePresentationFiles.LoadForImport(projectileDirectory, ImportDataDirectory.Of(projectileDirectory));
-        GameplayBasePalette palettes = GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName));
+        GameplayBasePalette palettes = GameplayBasePaletteFiles.LoadForImport(ImportDataDirectory.Of(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName)));
         string introDirectory = Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName);
         ImportIntroCinematicArtwork intro = IntroCinematicArtworkFiles.LoadForImport(introDirectory, ImportDataDirectory.Of(introDirectory));
         // Her colour tables are the ones the map presentation was read with, edits included.

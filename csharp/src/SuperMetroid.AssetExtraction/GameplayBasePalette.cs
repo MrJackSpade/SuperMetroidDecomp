@@ -4,9 +4,9 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>
-/// The installed gameplay base palette (#1464, #1502, #1512): the starting colours and the common sprite colours a room
-/// load restores. Only the import pipeline reads it, to pre-colour the sheets that show these colours; the runtime never
-/// holds it (#1544).
+/// The gameplay base palette (#1464, #1502, #1512): the starting colours and the common sprite colours a room load
+/// restores. Only the import pipeline reads it, from its import data (#1637), to pre-colour the sheets that show these
+/// colours; the runtime never holds it (#1544) and the installation never holds it.
 /// </summary>
 public sealed class GameplayBasePalette
 {

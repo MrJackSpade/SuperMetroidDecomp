@@ -11,7 +11,7 @@ public static class GameInstallationLayout
     public const string AudioDirectoryName = "audio";
     /// <summary>Content child directory for area-map artwork and stock exploration masks.</summary>
     public const string MapDirectoryName = "maps";
-    /// <summary>Content child directory for initial CGRAM and room-entry sprite colors.</summary>
+    /// <summary>Component directory whose import data holds the starting gameplay colours and room-entry sprite colours, which only the import reads (#1637); nothing of it is installed.</summary>
     public const string GameplayBasePaletteDirectoryName = "gameplay-palettes";
     /// <summary>Content child directory for the indexed common gameplay OBJ sheet.</summary>
     public const string StandardObjectDirectoryName = "standard-objects";
@@ -136,7 +136,7 @@ public static class GameInstallationLayout
     /// <summary>Receipt filename within stock content, recording the installation format and source cartridge digest.</summary>
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; content whose receipt names another is extracted again before opening.</summary>
-    public const int FormatVersion = 282;
+    public const int FormatVersion = 287;
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";
     /// <summary>Prefix for a stock tree being prepared before publication.</summary>

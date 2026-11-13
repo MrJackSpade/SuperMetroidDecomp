@@ -21,7 +21,7 @@ internal sealed class ShuttersEntity(ShuttersBehavior species, RoomEnemySlot slo
     {
         ShuttersPart.ShutterGrowing => species.RunShutterGrowingMainAi,
         ShuttersPart.ShutterShootable or ShuttersPart.ShutterDestroyable or ShuttersPart.Kamer => species.RunShutterShootableMainAi,
-        ShuttersPart.ShutterHorizShootable => ShuttersBehavior.RunShutterHorizShootableMainAi,
+        ShuttersPart.ShutterHorizShootable => species.RunShutterHorizShootableMainAi,
         _ => throw new InvalidOperationException($"Shutters entity bound to {Slot.DefinitionId}."),
     };
 

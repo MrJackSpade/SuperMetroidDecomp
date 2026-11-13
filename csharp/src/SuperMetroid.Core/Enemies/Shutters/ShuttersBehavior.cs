@@ -5,6 +5,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Enemies.Shutters;
 
@@ -14,8 +15,15 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Builds the species owner on the room's enemy audio queue.</summary>
-    internal ShuttersBehavior(EnemyAudioQueue audio) => _audio = audio;
+    /// <summary>The room's enemy places, among which the idle contact test finds the enemies Samus met.</summary>
+    private readonly EnemySlotTable _places;
+
+    /// <summary>Builds the species owner on the room's enemy audio queue and enemy places.</summary>
+    internal ShuttersBehavior(EnemyAudioQueue audio, EnemySlotTable places)
+    {
+        _audio = audio;
+        _places = Ensure.NotNull(places);
+    }
 
     /// <summary>
     /// Lays record <paramref name="record"/> of the escape's red shutter flash over every destroyable shutter among
@@ -317,7 +325,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the horizontal shutter's main AI.</summary>
-    private static void RunHorizontalShutterMain(
+    private void RunHorizontalShutterMain(
         RoomEnemySlot slot,
         HorizontalShutterEnemyState state,
         SamusState? samus,
@@ -553,10 +561,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// The shared idle-shutter contact test: Samus's solid-enemy contacts this update name this shutter, as
-    /// <see cref="SolidContactSlotCombination"/> combines them, and her contact-damage index is nonzero.
+    /// <see cref="SolidContactSlotCombination"/> combines the room's places of the enemies she met, and her
+    /// contact-damage index is nonzero.
     /// </summary>
-    private static bool SamusContactsIdleShutter(RoomEnemySlot slot, SamusState samus) =>
-        SolidContactSlotCombination.Combine(samus.Kinematics.SolidEnemyCollisions, EnemySlotOrder.Capacity) == slot.SlotIndex &&
+    private bool SamusContactsIdleShutter(RoomEnemySlot slot, SamusState samus) =>
+        ReferenceEquals(SolidContactSlotCombination.NamedPlace<ISolidEnemy>(samus.Kinematics.SolidEnemyContacts, _places.Slots), slot) &&
         samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None;
 
     /// <summary>Tests the strict, wrapped absolute-X proximity threshold.</summary>
@@ -668,7 +677,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs ShutterHorizShootable's main AI.</summary>
-    internal static void RunShutterHorizShootableMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal void RunShutterHorizShootableMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunHorizontalShutterMain(
             slot,

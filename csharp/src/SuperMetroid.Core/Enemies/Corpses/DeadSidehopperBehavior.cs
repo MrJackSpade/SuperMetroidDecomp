@@ -194,7 +194,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 return;
 
             case DeadSidehopperAiFunction.WaitForSamusCollision:
-                if (samus?.Kinematics.DidCollideWithSolidEnemy(slot.SlotIndex) == true)
+                if (samus?.Kinematics.DidCollideWithSolidEnemy(slot) == true)
                     state.Function = DeadSidehopperAiFunction.PreRotDelay;
                 return;
 

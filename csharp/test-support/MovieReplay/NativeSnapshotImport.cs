@@ -169,9 +169,12 @@ internal static class NativeSnapshotImport
         new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance).Load(memory.AsSpan(NativeSnapshotMemory.ProjectileInheritancePrefix,
             NativeSnapshotMemory.SamusSlopeAdjusted - NativeSnapshotMemory.ProjectileInheritancePrefix));
         samus.Kinematics.PositionAdjustedBySlope = W(NativeSnapshotMemory.SamusSlopeAdjusted) != 0;
+        // Each direction's recorded word names the enemy in that place of the loaded room, or none (#1702).
         for (int direction = 0; direction < 4; direction++)
             samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirectionNativeWords.Directions.Decode(direction, "solid-enemy collision direction"),
-                SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.SlotOrNoneOf(W(NativeSnapshotMemory.SamusSolidEnemyIndices + direction * 2)));
+                SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.SlotOrNoneOf(W(NativeSnapshotMemory.SamusSolidEnemyIndices + direction * 2)) is { } contactPlace
+                    ? runtime.Enemies.SlotTable.Slots[contactPlace]
+                    : null);
         samus.HorizontalSpeed.ActiveSpeedTableBaseAddress = W(NativeSnapshotMemory.HorizontalSpeedTable);
         samus.HorizontalSpeed.DecelerationMultiplier = memory[NativeSnapshotMemory.HorizontalDecelerationMultiplier];
         samus.HorizontalSpeed.EchoSoundFlag = W(NativeSnapshotMemory.SpeedEchoSoundLatch);

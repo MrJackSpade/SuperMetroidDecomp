@@ -16,10 +16,11 @@ namespace SuperMetroid.Core.Samus.Movement;
 public sealed class SamusKinematicsState
 {
     /// <summary>
-    /// The slot ordinal of the solid enemy Samus met in each of the four directions, or null where she met none, kept
-    /// until the end of the enemy pass clears them; dead-monster AI observes this delayed result.
+    /// The solid enemy Samus met in each of the four directions, or null where she met none, kept until the end of the
+    /// enemy pass clears them; the corpses' and idle shutters' contact tests observe this delayed result. They name
+    /// enemies of the room they were made in, which forgets them when it unloads (#1702).
     /// </summary>
-    private readonly int?[] _solidEnemyCollisions = [null, null, null, null];
+    private readonly ISolidEnemy?[] _solidEnemyContacts = [null, null, null, null];
 
     /// <summary>
     /// The solid enemy Samus's latest wall jump launched from, waiting for the next enemy pass to shake it; null when no
@@ -88,10 +89,10 @@ public sealed class SamusKinematicsState
         Array.Empty<SolidEnemyCollisionBody>();
 
     /// <summary>
-    /// The slot ordinal of the solid enemy Samus met moving left, right, up and down, in that order, or null where she
-    /// met none since the enemy pass last cleared them.
+    /// The solid enemy Samus met moving left, right, up and down, in that order, or null where she met none since the
+    /// enemy pass last cleared them.
     /// </summary>
-    public IReadOnlyList<int?> SolidEnemyCollisions => _solidEnemyCollisions;
+    public IReadOnlyList<ISolidEnemy?> SolidEnemyContacts => _solidEnemyContacts;
 
     /// <summary>
     /// Room-pixel 16.16 position.
@@ -154,10 +155,10 @@ public sealed class SamusKinematicsState
     public Position16<RoomPixels> BottomPixel =>
         new(Position.X.Whole, CoordinateAxis.Wrap(BottomBoundary - 1));
 
-    /// <summary>Publishes the result of one directional solid-enemy probe: the slot ordinal of the enemy met, or null.</summary>
+    /// <summary>Publishes the result of one directional solid-enemy probe: the enemy met, or null.</summary>
     internal void RecordSolidEnemyCollision(
         SamusCollisionDirection direction,
-        int? solidEnemySlot)
+        ISolidEnemy? solidEnemy)
     {
         int entry = direction switch
         {
@@ -169,15 +170,16 @@ public sealed class SamusKinematicsState
                 "A non-directional probe publishes no solid-enemy collision."),
             _ => throw new ArgumentOutOfRangeException(nameof(direction)),
         };
-        _solidEnemyCollisions[entry] = solidEnemySlot;
+        _solidEnemyContacts[entry] = solidEnemy;
     }
 
-    /// <summary>Whether Samus met the enemy in slot <paramref name="solidEnemySlot"/> in any direction, as dead-monster wait AI tests.</summary>
-    internal bool DidCollideWithSolidEnemy(int solidEnemySlot)
+    /// <summary>Whether Samus met <paramref name="enemy"/> in any direction, as the corpses' wait for her contact tests.</summary>
+    internal bool DidCollideWithSolidEnemy(ISolidEnemy enemy)
     {
-        foreach (int? slot in _solidEnemyCollisions)
+        Ensure.NotNull(enemy);
+        foreach (ISolidEnemy? contact in _solidEnemyContacts)
         {
-            if (slot == solidEnemySlot)
+            if (ReferenceEquals(contact, enemy))
                 return true;
         }
         return false;
@@ -185,7 +187,18 @@ public sealed class SamusKinematicsState
 
     /// <summary>Forgets every direction's contact, as the end of the enemy pass does.</summary>
     internal void ClearSolidEnemyCollisions() =>
-        Array.Fill(_solidEnemyCollisions, null);
+        Array.Fill(_solidEnemyContacts, null);
+
+    /// <summary>
+    /// Forgets the enemies of a room that unloads (#1697, #1702): a waiting launch shake and every direction's contact
+    /// name enemies that leave with it. A door's source room runs its enemy pass, which clears the contacts, before the
+    /// destination loads; a game, demo or Ceres-to-Zebes load starts in a room none of whose enemies reads them.
+    /// </summary>
+    internal void ForgetUnloadedRoomEnemies()
+    {
+        WithdrawWallJumpLaunchShake();
+        ClearSolidEnemyCollisions();
+    }
 
     /// <summary>Asks the next enemy pass to shake <paramref name="launchedFrom"/>, which a wall jump has just launched from.</summary>
     internal void RequestWallJumpLaunchShake(ISolidEnemy launchedFrom) => _wallJumpLaunchEnemy = Ensure.NotNull(launchedFrom);

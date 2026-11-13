@@ -663,7 +663,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         SparkBehavior = new SparkBehavior(FallingSparksBehavior);
         SkulteraBehavior = new SkulteraBehavior(Terrain);
         SkreeBehavior = new SkreeBehavior(Audio, Projectiles, DeathsAndDrops);
-        ShuttersBehavior = new ShuttersBehavior(Audio);
+        ShuttersBehavior = new ShuttersBehavior(Audio, SlotTable);
         DeadSidehopperBehavior = new DeadSidehopperBehavior(new DeadSidehopperBehaviorDependencies { Room = Room, Terrain = Terrain, SlotTable = SlotTable, FrameContext = FrameContext, Projectiles = Projectiles, Collision = Collision, RowDust = CorpseRowDust });
         ShitroidBehavior = new ShitroidBehavior(Room, SlotTable, ZebetiteBehavior, BossFrameResults, Audio);
         ShaktoolBehavior = new ShaktoolBehavior(Terrain, Projectiles, SlotTable, Collision, compatibility.KilledShaktoolSegment);

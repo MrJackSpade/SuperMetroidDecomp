@@ -58,7 +58,7 @@ internal static class CeresMode7MapVerification
         AssertTrue(first.DrawnOver.IsEmpty, "nothing is drawn over the floor a room starts with");
 
         CeresFloorAnimationFrame platform = CeresFloorAnimationFrame.ElevatorLight;
-        runtime.Enemies.Room.Services.DrawFloor(platform);
+        runtime.Enemies.Room.Services.ShowFloorFrame(platform);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AffineFloor second = Published(runtime);
         AssertTrue(second.DrawnOver.Length == 1 && second.DrawnOver[0].Equals(

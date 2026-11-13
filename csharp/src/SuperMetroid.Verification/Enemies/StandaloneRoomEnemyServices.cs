@@ -54,12 +54,12 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     /// <summary>Installs the RNG seed write.</summary>
     public Action<int> SeedRandom { init => random.Write = Ensure.NotNull(value); }
 
-    /// <summary>Installs the turning floor the Ceres door and Ridley's getaway draw over.</summary>
+    /// <summary>Installs the turning floor whose parts the Ceres door and Ridley's getaway animate.</summary>
     public RoomFloor Floor { init => floor = Ensure.NotNull(value); }
 
     /// <inheritdoc />
-    public void DrawFloor(CeresFloorAnimationFrame frame) =>
-        (floor ?? throw Unavailable.Missing("draw over the room's turning floor")).Draw(frame);
+    public void ShowFloorFrame(CeresFloorAnimationFrame frame) =>
+        (floor ?? throw Unavailable.Missing("animate the room's turning floor")).Show(frame);
 
     /// <summary>Routes generated values through a required fixture callback and current-word access through optional callbacks.</summary>
     private sealed class RandomNumbers(Func<int> generate) : IEnemyRandomNumbers

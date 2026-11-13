@@ -134,9 +134,9 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
             Loaded("advance Mother Brain's glass-room argument").MotherBrain.IncrementGlassRoomArgument();
     }
 
-    /// <summary>Draws a picture over the loaded room's turning floor.</summary>
-    public void DrawFloor(CeresFloorAnimationFrame frame) =>
-        Loaded("draw over the room's turning floor").DrawFloor(frame);
+    /// <summary>Shows a frame on the part of the loaded room's turning floor it animates.</summary>
+    public void ShowFloorFrame(CeresFloorAnimationFrame frame) =>
+        Loaded("animate the room's turning floor").ShowFloorFrame(frame);
 
     /// <summary>Queries the loaded room's active PLM headers.</summary>
     public bool HasActiveHeader(RoomObjectHeaderId header) =>

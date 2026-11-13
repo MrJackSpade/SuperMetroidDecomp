@@ -4,35 +4,37 @@ using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// The turning floor a Ceres room shows (#1349, #1467): its tileset's installed floor, and the pictures gameplay has drawn
-/// over parts of it since the room loaded, by floor animation frame. A picture drawn where another lies replaces it, so each part of the
-/// floor shows the state last drawn there. Room state; each frame publishes it as an <see cref="AffineFloor"/>.
+/// The turning floor a Ceres room shows (#1349, #1467, #1626): its tileset's installed floor and the frame each of its
+/// animated parts shows now, the elevator platform, the Baby's capsule and Ridley's wings. A part no animation has shown
+/// a frame of yet shows as the installed floor pictures it. Room state; each frame the display composes the floor from
+/// it as an <see cref="AffineFloor"/>.
 /// </summary>
 public sealed class RoomFloor
 {
-    /// <summary>The floor animation frames drawn over the floor, in drawing order, each over a part no other covers.</summary>
-    internal readonly List<CeresFloorAnimationFrame> drawn = [];
+    /// <summary>The frame each animated part shows now; a part absent from it shows as the installed floor pictures it.</summary>
+    internal readonly Dictionary<CeresFloorPart, CeresFloorAnimationFrame> shown = [];
 
-    /// <summary>The floor as drawn, until the next drawing.</summary>
+    /// <summary>The floor as composed, until a part shows another frame.</summary>
     private AffineFloor? published;
 
-    /// <summary>Starts from the tileset's floor with nothing drawn over it.</summary>
-    /// <param name="sheet">The tileset's installed floor and the pictures drawn over it.</param>
+    /// <summary>Starts from the tileset's floor with every part as the floor pictures it.</summary>
+    /// <param name="sheet">The tileset's installed floor and the pictures of its parts' frames.</param>
     public RoomFloor(RoomFloorSheet sheet) => Sheet = Ensure.NotNull(sheet);
 
-    /// <summary>The tileset's installed floor and the pictures drawn over it.</summary>
+    /// <summary>The tileset's installed floor and the pictures of its parts' frames.</summary>
     public RoomFloorSheet Sheet { get; }
 
-    /// <summary>Draws <paramref name="frame"/>'s picture over the part of the floor it covers, replacing what was drawn there.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="frame"/> is not a floor animation frame.</exception>
-    public void Draw(CeresFloorAnimationFrame frame)
+    /// <summary>Shows <paramref name="frame"/> on the part of the floor it animates.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is not a floor animation frame.</exception>
+    public void Show(CeresFloorAnimationFrame frame)
     {
-        SpriteSheetFrame drawing = Sheet.Picture(frame);
-        drawn.RemoveAll(other => Sheet.Picture(other).Origin == drawing.Origin);
-        drawn.Add(frame);
+        CeresFloorPart part = CeresFloorParts.Of(frame);
+        if (shown.TryGetValue(part, out CeresFloorAnimationFrame current) && current == frame) return;
+        shown[part] = frame;
         published = null;
     }
 
-    /// <summary>The floor the next frame shows; shared until the next drawing.</summary>
-    public AffineFloor Publish() => published ??= new AffineFloor(Sheet.Floor.Image, [.. drawn.Select(Sheet.Picture)]);
+    /// <summary>The floor the next frame shows, its parts' frames over the installed floor; shared until a part changes.</summary>
+    public AffineFloor Publish() => published ??= new AffineFloor(Sheet.Floor.Image,
+        [.. Enum.GetValues<CeresFloorPart>().Where(shown.ContainsKey).Select(part => Sheet.Picture(shown[part]))]);
 }

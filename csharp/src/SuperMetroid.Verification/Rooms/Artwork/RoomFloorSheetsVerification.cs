@@ -121,7 +121,7 @@ internal static class RoomFloorSheetsVerification
         bool refused = false;
         try
         {
-            hall.Enemies.Room.Services.DrawFloor(CeresFloorAnimationFrame.ElevatorLight);
+            hall.Enemies.Room.Services.ShowFloorFrame(CeresFloorAnimationFrame.ElevatorLight);
         }
         catch (InvalidOperationException)
         {

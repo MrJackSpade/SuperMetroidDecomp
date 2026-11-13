@@ -124,9 +124,6 @@ public sealed class HudState
             throw new ArgumentException("Map presentation belongs to a different area.", nameof(frame.PresentationMap));
         if (frame.RoomSize.X == 0 || frame.RoomSize.Y == 0)
             throw new ArgumentOutOfRangeException(nameof(frame.RoomSize));
-        // The room definition holds its map coordinates below 256.
-        if (frame.RoomMap.X > byte.MaxValue || frame.RoomMap.Y > byte.MaxValue)
-            throw new ArgumentOutOfRangeException(nameof(frame.RoomMap));
 
         // The minimap update returns rather than indexing unrelated map memory if Samus is outside
         // the active room. The 16-pixel comparison consumes the same positions as collision.

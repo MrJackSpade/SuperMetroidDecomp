@@ -14,6 +14,15 @@ internal static class EscapeTimerFloorVerification
         AssertEqual(5999, HostOptionsIni.Parse("[Game]\nEndingTimeOverrideMinutes=5999").Game.EndingTimeOverrideMinutes, "maximum ending time");
         AssertTrue(HostOptionsIni.Parse("[Game]\nEndingTimeOverrideMinutes=None").Game.EndingTimeOverrideMinutes is null, "ending override can be disabled");
         AssertThrows<InvalidDataException>(() => HostOptionsIni.Parse("[Game]\nEndingTimeOverrideMinutes=6000"), "invalid ending time rejected");
+        // The assist and the options hold the play times the clock reaches, through its saturated 99:59 (#1627).
+        const int longest = SuperMetroid.Core.Progression.GameTimeState.LongestPlayMinutes;
+        AssertEqual(5999, longest, "the clock's longest play time is 99:59");
+        AssertEqual(longest, new SuperMetroid.Core.Gameplay.GameplayAssists { EndingClearTimeMinutes = longest }.EndingClearTimeMinutes,
+            "the assist keeps the longest play time");
+        AssertThrows<ArgumentOutOfRangeException>(() => new SuperMetroid.Core.Gameplay.GameplayAssists { EndingClearTimeMinutes = longest + 1 },
+            "the assist rejects a play time the clock never reaches");
+        AssertThrows<ArgumentOutOfRangeException>(() => new SuperMetroidGameOptions { EndingTimeOverrideMinutes = longest + 1 },
+            "the options reject a play time the clock never reaches");
         AssertTrue(!HostOptionsIni.Parse("").Game.PreventEscapeTimeout, "escape floor defaults off");
         AssertTrue(HostOptionsIni.Parse("[Game]\nPreventEscapeTimeout=true").Game.PreventEscapeTimeout, "escape floor INI enabled");
         AssertThrows<InvalidDataException>(() => HostOptionsIni.Parse("[Game]\nPreventEscapeTimeout=maybe"), "escape floor rejects invalid boolean");

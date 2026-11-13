@@ -28,6 +28,7 @@ using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleWallReversa
 using static SuperMetroid.Verification.Enemies.Kzan.KzanRiseStepVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.MultiviolaLeftOrUpSpeedVerification;
 using static SuperMetroid.Verification.Enemies.Yard.YardAirborneReversalVerification;
+using static SuperMetroid.Verification.Enemies.Yard.YardAirborneSlowingVerification;
 using static SuperMetroid.Verification.Enemies.Sbug.SbugReversalVerification;
 using static SuperMetroid.Verification.Enemies.Puyo.PuyoCeilingTurnVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFatalBlowShakeVerification;
@@ -1026,6 +1027,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyKzanRiseStep), () => VerifyKzanRiseStep()),
         new(nameof(VerifyMultiviolaLeftOrUpSpeed), () => VerifyMultiviolaLeftOrUpSpeed()),
         new(nameof(VerifyYardAirborneReversal), () => VerifyYardAirborneReversal()),
+        new(nameof(VerifyYardAirborneSlowing), () => VerifyYardAirborneSlowing()),
         new(nameof(VerifySbugReversal), () => VerifySbugReversal()),
         new(nameof(VerifyPuyoCeilingTurn), () => VerifyPuyoCeilingTurn()),
         new(nameof(VerifyJumpNoXMovement), () => VerifyJumpNoXMovement()),

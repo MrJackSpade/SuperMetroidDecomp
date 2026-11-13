@@ -415,15 +415,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             }
             else
             {
-                // Horizontal velocity decays by a sixteenth of a pixel toward zero. Stores the fraction
-                // unconditionally but declines to replace the whole part when the addition makes
-                // it exactly zero; preserve that observable arithmetic quirk.
-                SignedSixteenSixteen velocity = state.AirborneVelocity.X;
-                SignedSixteenSixteen decelerated = velocity + SignedSixteenSixteen.FromSixteenthsOfPixel(
-                    velocity.WholePixels < 0 ? 1 : -1);
-                state.AirborneVelocity = state.AirborneVelocity.WithX(decelerated.WholePixels != 0
-                    ? decelerated
-                    : velocity.WithFraction(decelerated.Fraction));
+                state.AirborneVelocity = state.AirborneVelocity.WithX(YardAirborneSlowing.Slowed(state.AirborneVelocity.X));
             }
         }
 

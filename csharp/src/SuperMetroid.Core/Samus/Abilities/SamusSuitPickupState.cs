@@ -43,7 +43,7 @@ public sealed class SamusSuitPickupState
     /// </summary>
     private int _frameBehaviorInstallCallsRemaining;
 
-    /// <summary>The suit whose stage-three function is installed.</summary>
+    /// <summary>The suit whose stage-three frame behaviour is installed.</summary>
     public SamusSuitPickupKind Kind { get; private set; }
 
     /// <summary>The light-beam stage the next frame-behaviour call runs; it returns to the first stage when the transformation finishes.</summary>

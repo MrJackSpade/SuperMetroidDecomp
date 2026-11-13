@@ -18,7 +18,7 @@ internal static class GrappleConnections
 
     /// <summary>
     /// The mirror of <paramref name="stop"/> on the other side: its angle reflected as <see cref="ReflectionTurn"/>
-    /// less its own, its X offset negated and its pose facing the other way; its Y offset and function are shared.
+    /// less its own, its X offset negated and its pose facing the other way; its Y offset and connection kind are shared.
     /// </summary>
     internal static SpecialConnection Reflection(SpecialConnection stop) =>
         new(ReflectionTurn - stop.Angle, SamusPoseMirror.Of(stop.Pose), stop.SamusOffset.MirroredX(), stop.Kind);

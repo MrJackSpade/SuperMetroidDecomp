@@ -143,8 +143,8 @@ public static class SamusHurtFlashPalette
             return SamusHurtFlashRecoveryAction.None;
         }
 
-        // The grapple-function comparison accepts firing, swinging, locked,
-        // wall-grab, and wall-grab-release functions. Cancel and all later teardown/drop
+        // The grapple-phase comparison accepts firing, swinging, locked,
+        // wall-grab, and wall-grab-release phases. Cancel and all later teardown/drop
         // handlers intentionally leave grapple audio silent.
         bool grappleSoundActive = samus.Grapple.Phase is
             GrapplePhase.Firing or

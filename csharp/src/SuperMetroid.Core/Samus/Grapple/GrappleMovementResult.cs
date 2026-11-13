@@ -2,7 +2,7 @@ using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Grapple;
 
-/// <summary>One observable grapple-function result.</summary>
+/// <summary>One observable grapple update result.</summary>
 /// <param name="Phase">The phase selected after the grapple update.</param>
 /// <param name="Fired">Whether the update created a newly firing beam.</param>
 /// <param name="OwnsMovement">Whether grapple continues to own Samus movement.</param>

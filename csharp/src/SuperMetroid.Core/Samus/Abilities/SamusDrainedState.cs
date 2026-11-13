@@ -125,7 +125,7 @@ public sealed class SamusDrainedState
             samus.AnimationFrame >= SamusDrainedAnimationDefinitions.UnableToStandFirstFrame &&
             samus.AnimationFrame <= SamusDrainedAnimationDefinitions.UnableToStandLastFrame)
         {
-            // Unlike the able branch, the failed-stand branch retains its own function. A later
+            // Unlike the able branch, the failed-stand branch retains its own get-up handler. A later
             // visit to frames 8..11 can therefore react to another fresh Up edge.
             SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: SamusDrainedAnimationDefinitions.UnableToStandFrame, timer: 1);
             return true;

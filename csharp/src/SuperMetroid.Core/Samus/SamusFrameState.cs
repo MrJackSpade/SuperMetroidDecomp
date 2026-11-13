@@ -106,7 +106,7 @@ internal sealed class SamusFrameState
     public KnockbackMovementResult? LastKnockbackMovement { get; internal set; }
 
 
-    /// <summary>Most recent connected-grapple function result.</summary>
+    /// <summary>Most recent connected-grapple update result.</summary>
     public GrappleMovementResult? LastGrappleMovement { get; internal set; }
 
     /// <summary>Most recent stored-shine windup or active shinespark handler result.</summary>

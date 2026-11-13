@@ -166,7 +166,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Validated retail-area projection used by area-only consumers.</summary>
     public AreaId AreaIndex => RoomIdentity.Area;
 
-    /// <summary>Nonzero cinematic-function state suppresses ordinary footstep audio.</summary>
+    /// <summary>An active cinematic suppresses ordinary footstep audio.</summary>
     public bool CinematicActive { get; set; }
 
     /// <summary>
@@ -266,7 +266,7 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>
     /// Reproduces the liquid-flag update, which runs after the
-    /// current grapple function and therefore affects the following grapple frame.
+    /// current grapple phase and therefore affects the following grapple frame.
     /// </summary>
     /// <remarks>
     /// This test is intentionally not the ordinary movement-medium selector. The game's grapple

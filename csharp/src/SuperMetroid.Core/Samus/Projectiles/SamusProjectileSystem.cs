@@ -239,7 +239,7 @@ public sealed class SamusProjectileSystem
             }
 
             // The charge palette resets the sequence whenever charge is below threshold or grapple
-            // owns its function. This guarantees the next eligible call starts at
+            // beam is in use. This guarantees the next eligible call starts at
             // the first charge colour step rather than resuming a partially completed cycle.
             Charge.ChargePaletteStep = 0;
             samus.VisorPalette.Update(

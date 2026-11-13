@@ -15,7 +15,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// reveal and its extension chains on every update the scope is held, and every enemy's horizontal and vertical terrain
 /// move during the enemy pass, with the extension links its blocks lead it through. A scan starts at a block named by its
 /// column and row; the column is added to the start of the row as it is, so a column past the room's width runs into the
-/// rows below.
+/// rows below. The blocks a scan reaches are found in the room's reading order (<see cref="RoomReadingOrder"/>), within
+/// the room's columns, and a row past the room's height is a block beyond its grid.
 /// </para>
 /// <para>
 /// Evidence: each of the original routines multiplies the row by the room's width with eight-bit operands, keeping only
@@ -46,40 +47,44 @@ public static class BlockScanCycle
 
     /// <summary>
     /// The block a scan reaches <paramref name="step"/> blocks along the room's rows after <paramref name="start"/>: the
-    /// vertical Wave scan's and an enemy's vertical move's walk across the columns of the row they reach.
+    /// vertical Wave scan's and an enemy's vertical move's walk across the columns of the row they reach, which continues
+    /// on the following rows past a row's end (<see cref="RoomReadingOrder"/>).
     /// </summary>
     /// <param name="start">The column and row of the scan's first block; the row is taken within the cycle of 256.</param>
-    /// <param name="roomWidth">The room's width in blocks.</param>
+    /// <param name="roomWidth">The room's width in blocks, one or more.</param>
     /// <param name="step">The blocks stepped since the first.</param>
-    public static int BlockAlongRows(Position16<RoomBlocks> start, int roomWidth, int step) =>
-        Counted(First(start, roomWidth) + Ensure.AtLeastZero(step));
+    /// <returns>The block reached, in the room's columns; a row past the room's height is a block beyond its grid.</returns>
+    public static Position16<RoomBlocks> BlockAlongRows(Position16<RoomBlocks> start, int roomWidth, int step) =>
+        Reached(RoomReadingOrder.PlaceStepped(CycleStart(start), Offset16<RoomBlocks>.Of(Ensure.AtLeastZero(step), 0), roomWidth), roomWidth);
 
     /// <summary>
     /// The block a scan reaches <paramref name="step"/> rows below <paramref name="start"/>: an enemy's horizontal move's
     /// walk down the rows of the column it reaches. Only the starting row is taken within the cycle of 256; each step adds
-    /// the room's width to the block the scan has reached.
+    /// a row to the block the scan has reached.
     /// </summary>
     /// <param name="start">The column and row of the scan's first block; the row is taken within the cycle of 256.</param>
-    /// <param name="roomWidth">The room's width in blocks.</param>
+    /// <param name="roomWidth">The room's width in blocks, one or more.</param>
     /// <param name="step">The rows stepped since the first.</param>
-    public static int BlockDownRows(Position16<RoomBlocks> start, int roomWidth, int step) =>
-        Counted(First(start, roomWidth) + Ensure.AtLeastZero(step) * Ensure.AtLeastZero(roomWidth));
+    /// <returns>The block reached, in the room's columns; a row past the room's height is a block beyond its grid.</returns>
+    public static Position16<RoomBlocks> BlockDownRows(Position16<RoomBlocks> start, int roomWidth, int step) =>
+        Reached(RoomReadingOrder.PlaceStepped(CycleStart(start), Offset16<RoomBlocks>.Of(0, Ensure.AtLeastZero(step)), roomWidth), roomWidth);
 
     /// <summary>
     /// The block an extension link leads a scan to from <paramref name="block"/>, a block the scan reached: the link's
-    /// offset is counted along the room's rows within the same cycle of 32768.
+    /// columns and rows are stepped in the room's reading order (<see cref="RoomReadingOrder"/>), and the block reached is
+    /// counted within the same cycle of 32768.
     /// </summary>
-    /// <param name="block">The block the scan reached, counted along the room's rows.</param>
-    /// <param name="offset">
-    /// The link's offset in blocks along the rows (a vertical link's rows times the room's width); it may lead back, but
-    /// never before the room's first block.
-    /// </param>
-    public static int LinkedBlock(int block, int offset) => Counted(Ensure.AtLeastZero(block) + offset);
+    /// <param name="block">The block the scan reached.</param>
+    /// <param name="link">The link's columns (a horizontal link) or rows (a vertical link); it may lead back, but never before the room's first block.</param>
+    /// <param name="roomWidth">The room's width in blocks, one or more.</param>
+    /// <returns>The block reached, in the room's columns; a row past the room's height is a block beyond its grid.</returns>
+    public static Position16<RoomBlocks> LinkedBlock(Position16<RoomBlocks> block, Offset16<RoomBlocks> link, int roomWidth) =>
+        Reached(RoomReadingOrder.PlaceStepped(block, link, roomWidth), roomWidth);
 
-    /// <summary>The index of a scan's first block: its row's start within the cycle of 256, plus its column as it is.</summary>
-    private static int First(Position16<RoomBlocks> start, int roomWidth) =>
-        RowStart(start.Y, Ensure.AtLeastZero(roomWidth)) + start.X;
+    /// <summary>A scan's first block: its row taken within the cycle of 256, and its column as it is.</summary>
+    private static Position16<RoomBlocks> CycleStart(Position16<RoomBlocks> start) => start.WithY(Within(start.Y));
 
-    /// <summary>A block counted along the room's rows, zero or more, within the cycle of 32768.</summary>
-    private static int Counted(int blocks) => Ensure.AtLeastZero(blocks) % BlocksAlongRows;
+    /// <summary>The block that <paramref name="blocks"/> blocks, zero or more, follow along the room's rows within the cycle of 32768.</summary>
+    private static Position16<RoomBlocks> Reached(int blocks, int roomWidth) =>
+        RoomReadingOrder.BlockAt(Ensure.AtLeastZero(blocks) % BlocksAlongRows, roomWidth);
 }

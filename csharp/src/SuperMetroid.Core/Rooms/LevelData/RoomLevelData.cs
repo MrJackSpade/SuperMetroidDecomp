@@ -194,17 +194,13 @@ public sealed class RoomLevelData
     /// </summary>
     /// <remarks>
     /// The reading-order reach is kept because the game observes it where it happens: an object at a row's edge whose
-    /// neighbour step crosses it writes and finds the neighbouring row's block. This is the one place that reach is
-    /// computed; a purely vertical step never crosses a row's end and is the position plus its offset.
+    /// neighbour step crosses it writes and finds the neighbouring row's block. <see cref="RoomReadingOrder"/> computes
+    /// that reach; a purely vertical step never crosses a row's end and is the position plus its offset.
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">The step reaches before the room's first block.</exception>
-    internal Position16<RoomBlocks> ObjectBlockStep(Position16<RoomBlocks> block, Offset16<RoomBlocks> step)
-    {
-        int reached = checked(Size.RowMajorIndex(block) + step.Y * Size.X + step.X);
-        if (reached < 0)
-            throw new ArgumentOutOfRangeException(nameof(step), $"A step of {step} from room-object block {block} reaches before the room's first block.");
-        return Size.CellAtRowMajorIndex(reached);
-    }
+    internal Position16<RoomBlocks> ObjectBlockStep(Position16<RoomBlocks> block, Offset16<RoomBlocks> step) =>
+        RoomReadingOrder.Step(block, step, Size.X) ??
+        throw new ArgumentOutOfRangeException(nameof(step), $"A step of {step} from room-object block {block} reaches before the room's first block.");
 
     /// <summary>
     /// The position of the block a collision read found at its row-major <paramref name="blockIndex"/>, so a room object at
@@ -243,19 +239,22 @@ public sealed class RoomLevelData
     internal void SetBehavior(Position16<RoomBlocks> block, RoomBlockBehavior behavior) =>
         SetBehavior(GetBlockIndex(block), behavior);
 
-    /// <summary>A block past the room's grid, as a room object or enemy terrain read finds it.</summary>
-    /// <param name="blockIndex">A row-major index past the grid.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The index is inside the grid.</exception>
-    /// <exception cref="NotSupportedException">The index is past the terrain beyond the room.</exception>
-    internal RoomCollisionBlock GetBlockBeyondRoom(int blockIndex)
+    /// <summary>A block past the room's grid, as an enemy terrain read finds it.</summary>
+    /// <param name="block">A block in the room's columns whose row lies past the room's height.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The block is inside the grid, or its column lies past the room's width.</exception>
+    /// <exception cref="NotSupportedException">The block is past the terrain beyond the room.</exception>
+    internal RoomCollisionBlock GetBlockBeyondRoom(Position16<RoomBlocks> block)
     {
-        if (IsLogicalBlockIndex(blockIndex))
-            throw new ArgumentOutOfRangeException(nameof(blockIndex), "The index is inside the room's grid.");
+        if (block.X >= Size.X)
+            throw new ArgumentOutOfRangeException(nameof(block), $"Block {block} lies outside the {Size.X}-block room width.");
+        if (Size.Contains(block))
+            throw new ArgumentOutOfRangeException(nameof(block), "The block is inside the room's grid.");
+        int blockIndex = Size.RowMajorIndex(block);
         int beyond = blockIndex - Terrain.Length;
-        if (beyond < 0 || beyond >= BeyondRoom.Count)
+        if (beyond >= BeyondRoom.Count)
         {
             throw new NotSupportedException(
-                $"Block {blockIndex} lies past the room's grid and the {BeyondRoom.Count} blocks beyond it.");
+                $"Block {block} lies past the room's grid and the {BeyondRoom.Count} blocks beyond it.");
         }
         return new RoomCollisionBlock(blockIndex, BeyondRoom.TerrainAt(beyond), BeyondRoom.BehaviorAt(beyond));
     }

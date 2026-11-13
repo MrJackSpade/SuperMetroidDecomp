@@ -253,6 +253,7 @@ using static SuperMetroid.Verification.Rooms.RoomObjects.NoobTubeObjectVerificat
 using static SuperMetroid.Verification.Rooms.Backgrounds.OceanSkyVerification;
 using static SuperMetroid.Verification.Rooms.Backgrounds.ScrollingSkyLayerVerification;
 using static SuperMetroid.Verification.Fx.Layer3PlaneVerification;
+using static SuperMetroid.Verification.Fx.FxOverlayPlacementIdentityVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresMode7MapVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidBodyPublicationVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonBodyPublicationVerification;
@@ -1148,6 +1149,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyPublishedSkyBands), () => VerifyPublishedSkyBands()),
         new(nameof(VerifyPublishedHudRows), () => VerifyPublishedHudRows()),
         new(nameof(VerifyWaterEffectPlane), () => VerifyWaterEffectPlane()),
+        new(nameof(VerifyPublishedOverlayShowsThePageRows), () => VerifyPublishedOverlayShowsThePageRows()),
+        new(nameof(VerifyBackendDrawsLiquidOverlay), () => VerifyBackendDrawsLiquidOverlay()),
         new(nameof(VerifyTypewriterGlyphs), () => VerifyTypewriterGlyphs()),
         new(nameof(VerifyPublishedCeresMode7Map), () => VerifyPublishedCeresMode7Map()),
         new(nameof(VerifyKraidBodyPublication), () => VerifyKraidBodyPublication()),

@@ -261,7 +261,7 @@ public sealed class PlayableGameControl : UserControl
             audioDevice = CreateAudioDevice();
         projectilePresentation = installation.LoadProjectiles();
         InstalledEnemyArtwork enemyArtwork = installation.LoadEnemyTiles();
-        SamusBodySources samusBody = installation.LoadSamusBody();
+        InstalledSamusBody samusBody = installation.LoadSamusBody();
         GameArtwork artwork = installation.LoadGameArtwork(
             mapPresentation ?? throw new InvalidOperationException("Installed map identity is unavailable."),
             projectilePresentation, enemyArtwork, samusBody);

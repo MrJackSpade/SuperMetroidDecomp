@@ -96,17 +96,20 @@ public sealed record GameInstallation(string Root)
     public InstalledEnemySheets LoadEnemySheets() => EnemySheetFiles.Load(EnemySheetDirectory);
     /// <summary>Loads the installed artwork only the import reads, which the installed content's identity covers (#1616).</summary>
     /// <param name="samusBody">The Samus body the host loaded once and bound the game's body catalog from.</param>
-    public InstalledArtworkSources LoadArtworkSources(SamusBodySources samusBody) => new()
+    public InstalledArtworkSources LoadArtworkSources(InstalledSamusBody samusBody) => new()
     {
         SamusBody = Ensure.NotNull(samusBody),
         Intro = LoadIntroCinematicArt(),
     };
     /// <summary>Installed projectile artwork and presentation selectors, which the player edits in place.</summary>
     public string ProjectileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.ProjectileDirectoryName);
-    /// <summary>Installed Samus body PNGs and visual selectors, which the player edits in place.</summary>
+    /// <summary>Installed Samus body documents the game binds, which the player edits in place.</summary>
     public string SamusBodyDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusBodyDirectoryName);
-    /// <summary>Loads the validated installed Samus body: the tables, compositions and linked artwork it is composed from.</summary>
-    public SamusBodySources LoadSamusBody() => SamusBodyArtworkFiles.Load(SamusBodyDirectory);
+    /// <summary>
+    /// Loads what the game binds of the validated installed Samus body: each pose's art origin, the pictured body frames and
+    /// where each places the body, her death steps and the arm cannon's layout (#1638).
+    /// </summary>
+    public InstalledSamusBody LoadSamusBody() => SamusBodyArtworkFiles.Load(SamusBodyDirectory);
     /// <summary>Installed opening-cinematic artwork, which the player edits in place.</summary>
     public string IntroCinematicDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.IntroCinematicDirectoryName);
     /// <summary>Loads the installed opening-cinematic artwork, which only the import reads.</summary>
@@ -312,7 +315,7 @@ public sealed record GameInstallation(string Root)
     /// binds what the game reads.
     /// </summary>
     public GameArtwork LoadGameArtwork(AreaMapPresentation maps, InstalledProjectilePresentation projectiles, InstalledEnemyArtwork enemies,
-        SamusBodySources samusBody)
+        InstalledSamusBody samusBody)
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(projectiles);

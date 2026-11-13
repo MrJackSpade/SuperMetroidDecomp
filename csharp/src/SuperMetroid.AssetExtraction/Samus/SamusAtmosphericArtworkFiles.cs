@@ -7,15 +7,22 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Extracts the two authored direct small-OBJ atmospheric lists as editable JSON.</summary>
+/// <summary>
+/// Extracts the two authored direct small-OBJ atmospheric lists as JSON into the Samus body component's import data
+/// (#1638): their entries are packed sprite attributes only the atmosphere sheet is composed from, so the installation
+/// holds the sheet's pictures and none of the lists.
+/// </summary>
 public static class SamusAtmosphericArtworkFiles
 {
-    /// <summary>Installed JSON filename for the four-frame footstep list and shared four-frame lava/dust direct-OBJ list.</summary>
+    /// <summary>Import-data JSON filename for the four-frame footstep list and shared four-frame lava/dust direct-OBJ list.</summary>
     public const string ArtworkFileName = "samus-atmosphere.json";
-    /// <summary>Stock manifest filename recording version-one format, cartridge provenance, and the atmospheric JSON's SHA-256.</summary>
+    /// <summary>Import-data manifest filename recording the format and cartridge provenance of the atmospheric JSON.</summary>
     public const string ManifestFileName = "samus-atmosphere-manifest.json";
-    /// <summary>Schema revision shared by the extracted artwork and its provenance manifest; version 2 stores sprite parts.</summary>
-    private const int FormatVersion = 2;
+    /// <summary>
+    /// Schema revision shared by the extracted artwork and its provenance manifest; version 2 stores sprite parts, and
+    /// version 3 is import data the installation never holds (#1638).
+    /// </summary>
+    private const int FormatVersion = 3;
     /// <summary>Strict camel-case JSON contract for both the stock and replacement lists.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -28,7 +35,7 @@ public static class SamusAtmosphericArtworkFiles
 
     /// <summary>Checks the native atmospheric pointer bindings and exports the two authored four-word direct small-OBJ attribute lists.</summary>
     /// <param name="bus">Cartridge source for type-one footsteps at $90:8C0F and the shared type-4/6/7 lava/dust list at $90:8C17.</param>
-    /// <param name="directory">Artwork directory, created if absent; existing artwork JSON and companion manifest are overwritten.</param>
+    /// <param name="directory">The Samus body component's import-data directory, created if absent; existing artwork JSON and companion manifest are overwritten.</param>
     /// <param name="sourceCartridgeSha256">Caller-supplied provenance recorded verbatim.</param>
     /// <remarks>Type two must keep its intentional zero pointer and mutable-memory path; it is not exported. Packed words retain tile, palette, priority, and flips. Separate writes are not rolled back if a later write fails.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
@@ -58,12 +65,12 @@ public static class SamusAtmosphericArtworkFiles
                 sourceCartridgeSha256), JsonOptions));
     }
 
-    /// <summary>Validates the manifest's provenance and loads the installed atmospheric attributes, as the player may have edited them.</summary>
-    /// <param name="directory">Artwork directory containing the required version-one JSON and pinned-cartridge manifest.</param>
+    /// <summary>Validates the manifest's provenance and loads the atmospheric attributes the import composes the atmosphere sheet from (#1638).</summary>
+    /// <param name="directory">The Samus body component's import-data directory, containing the JSON and its pinned-cartridge manifest.</param>
     /// <returns>A ROM-independent catalog that captures both lists without retaining deserialized caller arrays.</returns>
     /// <remarks>The JSON needs both four-word lists; packed attribute values themselves are unrestricted, and type-two/animation mechanics are unchanged.</remarks>
     /// <exception cref="InvalidDataException">Provenance, strict JSON, version, or list dimensions are invalid; admission errors include the source filename.</exception>
-    /// <exception cref="IOException">A required installed file cannot be read.</exception>
+    /// <exception cref="IOException">A required file cannot be read.</exception>
     public static SamusAtmosphericSourceArtwork Load(string directory)
     {
         SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(directory, ManifestFileName));
@@ -115,7 +122,7 @@ public static class SamusAtmosphericArtworkFiles
                 $"Atmospheric type {type} points to ${actual:X4}, expected ${expected:X4}.");
     }
 
-    /// <summary>Editable single small pieces for footsteps and the shared lava/dust effect.</summary>
+    /// <summary>The extracted single small pieces for footsteps and the shared lava/dust effect.</summary>
     private sealed record ArtworkDocument(int Version, SpriteVisualPart[] TypeOne, SpriteVisualPart[] SharedTypeFour);
     /// <summary>The extracted artwork's source revision.</summary>
     private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256);

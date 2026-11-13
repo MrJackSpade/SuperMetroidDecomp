@@ -173,8 +173,8 @@ internal static class SamusOverreadServicesReader
                 area => area.Value.Aggregate(BossBits.None, (bosses, name) => bosses | Parse<BossBits>(name, "SpaceTime boss"))),
             ProgressionTableCodec.CollectedItemsOf(Require(overwrite.CollectedItems, nameof(overwrite.CollectedItems))),
             ProgressionTableCodec.OpenedDoorsOf(Require(overwrite.OpenedDoors, nameof(overwrite.OpenedDoors))),
-            Require(overwrite.UsedStations, nameof(overwrite.UsedStations)).ToDictionary(
-                area => Parse<AreaId>(area.Key, "SpaceTime station area"), area => area.Value),
+            ProgressionTableCodec.UsedStationsOf(Require(overwrite.UsedStations, nameof(overwrite.UsedStations)).ToDictionary(
+                area => Parse<AreaId>(area.Key, "SpaceTime station area"), area => area.Value)),
             Require(overwrite.AreaMaps, nameof(overwrite.AreaMaps)).ToDictionary(
                 area => Parse<AreaId>(area.Key, "SpaceTime map area"), area => area.Value),
             overwrite.SavedLoadingGameState is int word ? SaveLoadingGameStateCodec.Route(word) : null);

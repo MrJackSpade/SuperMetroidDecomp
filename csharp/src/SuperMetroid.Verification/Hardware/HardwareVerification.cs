@@ -151,7 +151,7 @@ internal static void VerifyEventBitfield()
 internal static void VerifyBossBitfield()
 {
     var state = new SharedGameState(new SharedRandom());
-    for (int area = 0; area < AreaIds.RetailCount; area++)
+    for (int area = 0; area < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count; area++)
     {
         state.SetBossBits(area, BossBits.AreaBoss | BossBits.AreaTorizo);
         AssertTrue(state.HasAnyBossBits(area, BossBits.AreaBoss), $"area {area} boss bit");
@@ -164,7 +164,7 @@ internal static void VerifyBossBitfield()
     }
 
     AssertThrows<ArgumentOutOfRangeException>(() => state.SetBossBits(-1, BossBits.AreaBoss), "negative area rejected");
-    AssertThrows<ArgumentOutOfRangeException>(() => state.SetBossBits(AreaIds.RetailCount, BossBits.AreaBoss), "area past the game's rejected");
+    AssertThrows<ArgumentOutOfRangeException>(() => state.SetBossBits(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count, BossBits.AreaBoss), "area past the game's rejected");
     AssertThrows<ArgumentOutOfRangeException>(
         () => state.SetBossBits(0, ~BossBitMasks.AllKnown),
         "unnamed boss bit rejected by typed API");

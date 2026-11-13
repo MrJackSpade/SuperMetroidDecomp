@@ -1,5 +1,6 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Progression;
@@ -283,29 +284,49 @@ public static class ProgressionTableCodec
         return checked((byte)value);
     }
 
-    /// <summary>Each area's used stations as the used-station table stores them.</summary>
+    /// <summary>
+    /// Records exactly the stations the used-station <paramref name="table"/> stores as used: each area's word holds a bit
+    /// per number its station list can give a station, and the bits of numbers that name no station Samus uses are never
+    /// read, by the game or by the file-select map.
+    /// </summary>
     /// <exception cref="ArgumentException">The table is not sixteen bytes.</exception>
     public static void ReadUsedStations(ReadOnlySpan<byte> table, PersistentProgress progress)
     {
         Ensure.NotNull(progress);
         Ensure.LengthEqual(table, UsedStationByteCount);
-        foreach (KeyValuePair<AreaId, FlagOverwrite> area in UsedStationsPrefix(table))
-            progress.UsedStations(area.Key).Overwrite(area.Value);
+        foreach (LoadStation station in LoadStationDefinitions.Usable)
+            progress.UsedStations.Set(station, IsBitSet(table, StationBit(station)));
     }
 
-    /// <summary>Stores each area's used stations in <paramref name="table"/>.</summary>
+    /// <summary>Stores <paramref name="progress"/>'s used stations in <paramref name="table"/>.</summary>
     /// <exception cref="ArgumentException">The table is not sixteen bytes.</exception>
     public static void WriteUsedStations(PersistentProgress progress, Span<byte> table)
     {
         Ensure.NotNull(progress);
         Ensure.LengthEqual(table, UsedStationByteCount);
         table.Clear();
-        for (int index = 0; index < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count; index++)
-        {
-            foreach (int station in progress.UsedStations(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(index)).Members)
-                table[index * sizeof(ushort) + station / BitsPerByte] |= (byte)(1 << (station % BitsPerByte));
-        }
+        foreach (LoadStation station in progress.UsedStations.Members)
+            SetBit(table, StationBit(station));
     }
+
+    /// <summary>
+    /// The stations <paramref name="areas"/>, an overwrite of the used-station table by area, decides: those whose numbers
+    /// their area's overwrite reaches.
+    /// </summary>
+    public static DecidedFlags<LoadStation> UsedStationsOf(IReadOnlyDictionary<AreaId, FlagOverwrite> areas)
+    {
+        Ensure.NotNull(areas);
+        LoadStation[] decided = [.. LoadStationDefinitions.Usable.Where(station =>
+            areas.TryGetValue(station.Area, out FlagOverwrite? area) && LoadStationNumberCodec.Number(station) < area.Decided)];
+        return new DecidedFlags<LoadStation>(decided.ToHashSet(),
+            decided.Where(station => areas[station.Area].Set.Contains(LoadStationNumberCodec.Number(station))).ToHashSet());
+    }
+
+    /// <summary>
+    /// The bit of the used-station table that records <paramref name="station"/>: its number's bit in its area's word.
+    /// </summary>
+    private static int StationBit(LoadStation station) =>
+        AreaNumberCodec.Encode(station.Area) * sizeof(ushort) * BitsPerByte + LoadStationNumberCodec.Number(station);
 
     /// <summary>
     /// The used stations of each area <paramref name="copied"/>, the used-station table's leading bytes, covers: an

@@ -12,7 +12,7 @@ internal static class MotherBrainShotReaction
         MotherBrainProjectileType projectileType,
         MotherBrainWalkCredit walkCredit)
     {
-        // The shot reaction knows only the eight projectile types it reacts to. Validate the
+        // The shot reaction knows only the projectile types it reacts to. Validate the
         // host enum so a caller cannot smuggle a larger value past it.
         if (!Enum.IsDefined(projectileType))
             throw new ArgumentOutOfRangeException(nameof(projectileType));
@@ -24,8 +24,7 @@ internal static class MotherBrainShotReaction
         {
             MotherBrainProjectileType.Beam => 2,
             MotherBrainProjectileType.Missile or MotherBrainProjectileType.SuperMissile => 1,
-            MotherBrainProjectileType.PowerBomb or MotherBrainProjectileType.ClassFour or
-                MotherBrainProjectileType.Bomb or MotherBrainProjectileType.ClassSix or
+            MotherBrainProjectileType.PowerBomb or MotherBrainProjectileType.Bomb or
                 MotherBrainProjectileType.BeamExplosion => 0,
             _ => throw new ArgumentOutOfRangeException(nameof(projectileType), projectileType, "Undefined projectile class."),
         };

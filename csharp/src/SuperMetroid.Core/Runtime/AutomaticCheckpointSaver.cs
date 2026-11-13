@@ -62,7 +62,7 @@ internal static class AutomaticCheckpointSaver
         // station zero and saving the game. The marker controls ship/save-point display
         // after reload and therefore belongs inside the atomic checkpoint operation.
         runtime.System.LoadSavedStartupRoute(SaveLoadingGameState.MainGame);
-        runtime.System.MarkSaveStationUsed(area: LoadStationDefinitions.Gunship.Area, stationBitIndex: LoadStationDefinitions.Gunship.Number);
+        runtime.System.MarkSaveStationUsed(LoadStationDefinitions.Gunship);
         // Saving first stores the live explored map as Crateria's.
         runtime.System.StoredExploredMaps.StoreLiveMap(AreaId.Crateria);
         saves.SaveSlot(

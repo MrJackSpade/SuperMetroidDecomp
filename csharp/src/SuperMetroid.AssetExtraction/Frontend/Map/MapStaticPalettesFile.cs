@@ -17,12 +17,11 @@ public static class MapStaticPalettesFile
     {
         MapStaticPalettesDocument document = JsonAssetDocument.Read<MapStaticPalettesDocument>(
             json, ArtworkJson.Options, "map palettes");
-        if (document.Version != MapStaticPalettesFormat.Version || document.World is null || document.World.Count != AreaIds.RetailCount - 1)
+        if (document.Version != MapStaticPalettesFormat.Version || document.World is null || document.World.Count != AreaIds.Zebes.Count)
             throw new InvalidDataException("Map palettes require version 1 and the six Zebes world-map selections.");
         var world = new Dictionary<AreaId, RgbColor[]>();
-        foreach (AreaId area in Enum.GetValues<AreaId>())
+        foreach (AreaId area in AreaIds.Zebes)
         {
-            if (area == AreaId.Ceres) continue;
             if (!document.World.TryGetValue(area.ToString(), out var colors))
                 throw new InvalidDataException($"Map palettes are missing world selection {area}.");
             world.Add(area, Compile(colors, area.ToString()));

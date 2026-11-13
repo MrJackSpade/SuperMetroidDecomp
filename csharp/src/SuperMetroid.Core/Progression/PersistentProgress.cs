@@ -2,16 +2,13 @@ namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// The progress a save keeps (#1475): the story events that have happened, how many Zebetites have been destroyed, each
-/// area's defeated bosses, the item locations collected, the doors opened for good, each area's
-/// used save stations and elevators, the area maps acquired and each area's explored map cells. Each set is keyed by its
+/// area's defeated bosses, the item locations collected, the doors opened for good, the
+/// save stations and elevators used, the area maps acquired and each area's explored map cells. Each set is keyed by its
 /// own identity, and the Zebetite count is a count (#1527). Lifetime: the
 /// session's <see cref="SharedGameState"/> owns the live progress; every save slot and save snapshot owns a detached copy.
 /// </summary>
 public sealed class PersistentProgress
 {
-    /// <summary>The save stations and elevators each area numbers, 0 through 15.</summary>
-    public const int StationsPerArea = 16;
-
     /// <summary>The Zebetites barring the way to Mother Brain, destroyed one after another.</summary>
     public const int ZebetiteCount = 4;
 
@@ -20,9 +17,6 @@ public sealed class PersistentProgress
 
     /// <summary>Each area's defeated bosses.</summary>
     private readonly Dictionary<AreaId, BossBits> _defeatedBosses = AreaIds.All.ToDictionary(area => area, _ => BossBits.None);
-
-    /// <summary>Each area's used save stations and elevators.</summary>
-    private readonly Dictionary<AreaId, NumberedFlagSet> _usedStations = Areas(StationsPerArea);
 
     /// <summary>Whether each area's map has been acquired.</summary>
     private readonly Dictionary<AreaId, bool> _acquiredMaps = AreaIds.All.ToDictionary(area => area, _ => false);
@@ -53,6 +47,9 @@ public sealed class PersistentProgress
     /// <summary>The doors opened for good.</summary>
     public ProgressSet<LockedDoor> OpenedDoors { get; } = new(LockedDoorDefinitions.All);
 
+    /// <summary>The save stations and elevators Samus has used, which label the saved-game map's areas.</summary>
+    public ProgressSet<LoadStation> UsedStations { get; } = new(LoadStationDefinitions.Usable);
+
     /// <summary>Whether <paramref name="storyEvent"/> has happened.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="storyEvent"/> is not a defined story event.</exception>
     public bool HasEvent(StoryEvent storyEvent) => Events.Contains(storyEvent);
@@ -75,9 +72,6 @@ public sealed class PersistentProgress
         ProvenBossBits.Validate(bosses, $"{area}'s defeated bosses");
         _defeatedBosses[AreaIds.Require(area)] = bosses;
     }
-
-    /// <summary>The save stations and elevators used in <paramref name="area"/>, by station number.</summary>
-    public NumberedFlagSet UsedStations(AreaId area) => _usedStations[AreaIds.Require(area)];
 
     /// <summary>Whether <paramref name="area"/>'s map has been acquired.</summary>
     public bool HasAreaMap(AreaId area) => _acquiredMaps[AreaIds.Require(area)];
@@ -107,7 +101,6 @@ public sealed class PersistentProgress
     /// Applies the Spacetime Beam's progression overwrite: every story event, boss, item, door, station and map it decides,
     /// and the Zebetite count when it decides it, takes the state it gives, and everything else keeps its state.
     /// </summary>
-    /// <exception cref="ArgumentException">The overwrite decides more stations than an area numbers.</exception>
     public void Overwrite(ProgressionOverwrite overwrite)
     {
         Ensure.NotNull(overwrite);
@@ -118,8 +111,7 @@ public sealed class PersistentProgress
             SetDefeatedBosses(bosses.Key, bosses.Value);
         CollectedItems.Overwrite(overwrite.CollectedItems);
         OpenedDoors.Overwrite(overwrite.OpenedDoors);
-        foreach (KeyValuePair<AreaId, FlagOverwrite> stations in overwrite.UsedStations)
-            UsedStations(stations.Key).Overwrite(stations.Value);
+        UsedStations.Overwrite(overwrite.UsedStations);
         foreach (KeyValuePair<AreaId, bool> map in overwrite.AreaMaps)
             SetAreaMap(map.Key, map.Value);
     }
@@ -132,10 +124,10 @@ public sealed class PersistentProgress
         ZebetitesDestroyed = source.ZebetitesDestroyed;
         CollectedItems.CopyFrom(source.CollectedItems);
         OpenedDoors.CopyFrom(source.OpenedDoors);
+        UsedStations.CopyFrom(source.UsedStations);
         foreach (AreaId area in AreaIds.All)
         {
             _defeatedBosses[area] = source._defeatedBosses[area];
-            _usedStations[area].CopyFrom(source._usedStations[area]);
             _explored[area].CopyFrom(source._explored[area]);
             _acquiredMaps[area] = source._acquiredMaps[area];
         }

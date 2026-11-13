@@ -48,10 +48,9 @@ internal static class PauseMenuFixtureVerification
         var palettes = new MapStaticPalettes(pauseColors.Colors.ToArray(), stockPalettes.FileSelect.ToArray(),
             Enum.GetValues<AreaId>().Where(area => area != AreaId.Ceres)
                 .ToDictionary(area => area, area => stockPalettes.World(area).ToArray()));
-        var areas = Enum.GetValues<AreaId>().Select(game.Get).ToArray();
-        areas[AreaIds.ToIndex(AreaId.Crateria)] = AreaMapImporter.Load(bus, AreaId.Crateria);
+        var areas = AreaIds.All.ToDictionary(area => area, area => area == AreaId.Crateria ? AreaMapImporter.Load(bus, area) : game.Get(area));
         var backdrops = PauseBackdropPresentation.FromTilemaps(
-            Enum.GetValues<AreaId>().Select(_ => BackgroundTileWordBytes.Tiles(Read(0xb6e000, 0x0800))).ToArray(),
+            AreaIds.All.ToDictionary(area => area, _ => BackgroundTileWordBytes.Tiles(Read(0xb6e000, 0x0800))),
             BackgroundTileWordBytes.Tiles(Read((int)PauseMenuSourceDefinitions.PauseButtonTilemap, PauseBackdropDefinitions.ButtonCells * 2)));
         var hud = new byte[HudTileAtlasFormat.ByteCount];
         Read(MapSourceDefinitions.Artwork.HudCharacters, HudTileAtlasFormat.CharacterByteCount).CopyTo(hud, 0);

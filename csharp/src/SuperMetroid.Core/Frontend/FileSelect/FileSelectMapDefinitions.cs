@@ -1,14 +1,11 @@
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>
-/// The saved-game area and room maps' definitions (#1416): how many areas the world map selects, the entry and return
-/// windows' geometry and timing, the room view's frame offset and the markers' draw palettes.
+/// The saved-game area and room maps' definitions (#1416): the entry and return windows' geometry and timing, the room
+/// view's frame offset and the markers' draw palettes.
 /// </summary>
 public static class FileSelectMapDefinitions
 {
-    /// <summary>The six Zebes areas the world map selects; Ceres has no world-map entry.</summary>
-    public const int AreaCount = 6;
-
     /// <summary>The room view's frame drawn this many pixels lower, aligning it with the visible map viewport.</summary>
     public const int RoomFrameVerticalScroll = 24;
 

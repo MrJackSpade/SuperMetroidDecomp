@@ -36,10 +36,10 @@ internal static class MapScreensVerification
                 "stock world resources reproduce native VRAM");
             foreach (bool backdropMath in new[] { false, true })
                 AssertTrue(ScenePixels.Same(native.BackgroundsScene(backdropMath), installed.BackgroundsScene(backdropMath)), "all six world layers preserve native additive pixels");
-            installed.SelectArea((index + 1) % MapScreenDefinitions.ZebesAreas);
-            installed.SelectArea(index);
+            installed.SelectArea(AreaIds.Zebes[(index + 1) % AreaIds.Zebes.Count]);
+            installed.SelectArea(AreaIds.Zebes[index]);
             AssertTrue(ScenePixels.Same(native.BackgroundsScene(), installed.BackgroundsScene()), "reselection reloads authored world background without ROM reads");
-            var area = (AreaId)index;
+            AreaId area = AreaIds.Zebes[index];
             var nativeRoom = new FileSelectRoomMapGraphics(system, area,
                 mapPresentation: original, sheets: MenuSheetFixtures.For(original));
             var installedRoom = new FileSelectRoomMapGraphics(system, area, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
@@ -54,7 +54,7 @@ internal static class MapScreensVerification
         Console.WriteLine("Map screen resources: six native world/room VRAM and pixel comparisons and the guarded full menu pass.");
 
         static FileSelectAreaMapGraphics World(ISnesAddressSpace addressSpace, AreaMapPresentation catalog, int area) =>
-            new(area, catalog.Backdrops, MenuSheetFixtures.ForFileSelectMap(InstalledFixtures.ImportOf(catalog)));
+            new(AreaIds.Zebes[area], catalog.Backdrops, MenuSheetFixtures.ForFileSelectMap(InstalledFixtures.ImportOf(catalog)));
     }
 
     /// <summary>Forbids runtime cartridge reads across all migrated world pages, room frames, labels, and map character sheets.</summary>

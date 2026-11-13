@@ -148,7 +148,7 @@ internal static class SaveRamCodecVerification
         AssertEqual(SaveLoadingGameState.CeresDestruction, slot.StartupRoute, "the startup route round-trips through its SRAM word");
         AssertEqual(SaveLoadingGameState.MainGame, SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(SaveFieldValue.MaximumValue),
             "a dispatcher word the cartridge does not name resumes the main game");
-        AssertTrue(ReferenceEquals(SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.GreenBrinstarSave, slot.Checkpoint), "the checkpoint decodes to the station it was saved at");
+        AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.GreenBrinstarSave, slot.Checkpoint), "the checkpoint decodes to the station it was saved at");
         AssertEqual(1, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.AreaOffset), "the checkpoint's area word holds Brinstar's number");
         AssertEqual(1, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.SaveStationOffset), "the checkpoint's station word holds its number in Brinstar's list");
         AssertEqual(SaveFieldValue.MaximumValue, slot.GameTimeHours, "the clock's hours decode their largest value");
@@ -215,12 +215,12 @@ internal static class SaveRamCodecVerification
         system.SetEvent(StoryEvent.ZebesAwake);
         system.SetBossBits(area, BossBits.AreaBoss);
         system.SetCollectedItemBit(health % 64);
-        system.MarkSaveStationUsed(area, 1);
+        system.MarkSaveStationUsed(LoadStationNumberCodec.Decode(area, 1, "save fixture"));
         system.MarkExploredMapTile(area, new(9, 1));
         var time = new GameTimeState();
         time.Load(frames: 12, seconds: 34, minutes: 5, hours: 1);
         return SuperMetroidSaveSnapshot.Capture(samus, system,
-            new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStations.Get(area, 1, "save fixture"), GameTime = time });
+            new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Saves.LoadStationNumberCodec.Decode(area, 1, "save fixture"), GameTime = time });
     }
 
     /// <summary>The native payload a decoded slot re-encodes to, for field-by-field comparison.</summary>

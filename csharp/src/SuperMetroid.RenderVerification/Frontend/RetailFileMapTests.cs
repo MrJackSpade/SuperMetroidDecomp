@@ -28,14 +28,14 @@ internal static class RetailFileMapTests
         }
         for (int area = 0; area < 6; area++)
         {
-            var graphics = InstalledFixtures.CreateFileSelectAreaMap(area);
+            var graphics = InstalledFixtures.CreateFileSelectAreaMap(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area));
             foreach (bool backdrop in new[] { false, true })
             foreach (ushort used in new ushort[] { 0, 1, ushort.MaxValue })
             {
                 ushort[] masks = Enumerable.Repeat(used, 6).ToArray();
                 Compare(graphics.Render(masks, backdrop), graphics.CaptureRenderSnapshot(FileSelectMapGraphicsPixelsAccess.UsedStations(masks), backdrop ? AreaMapBackgroundGlow.WholeScreen : AreaMapBackgroundGlow.ForegroundOnly), $"area={area}, labels/backdrop");
             }
-            var room = new FileSelectRoomMapGraphics(new SharedGameState(new SharedRandom()), (AreaId)area, mapPresentation: InstalledFixtures.Maps, sheets: MenuSheetFixtures.For(InstalledFixtures.Maps));
+            var room = new FileSelectRoomMapGraphics(new SharedGameState(new SharedRandom()), SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), mapPresentation: InstalledFixtures.Maps, sheets: MenuSheetFixtures.For(InstalledFixtures.Maps));
             Compare(room.RenderFrameOnly(), room.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly), "frame-only");
             foreach (ushort scroll in new ushort[] { 0, 255, 511, ushort.MaxValue })
                 Compare(room.RenderBackgrounds(new(scroll, scroll)), room.CaptureRenderSnapshot(new(scroll, scroll)), $"room={area}, scroll={scroll}");
@@ -43,8 +43,8 @@ internal static class RetailFileMapTests
         foreach (bool cancel in new[] { false, true })
         {
             var saves = new SuperMetroid.Core.Saves.SaveSlotStore(SaveMapPresentationFixture.Create());
-            var save = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.GlassTunnelSave, Health = 99, MaxHealth = 99 };
-            save.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true); save.Progress.UsedStations(SuperMetroid.Core.Progression.AreaId.Maridia).Add(0);
+            var save = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.GlassTunnelSave, Health = 99, MaxHealth = 99 };
+            save.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true); save.Progress.UsedStations.Add(SuperMetroid.Core.Progression.LoadStationDefinitions.GlassTunnelSave);
             saves.SaveSlot(0, save);
             var legacy = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, InstalledFixtures.Maps, MenuSheetFixtures.For(InstalledFixtures.Maps));
             var captured = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, InstalledFixtures.Maps, MenuSheetFixtures.For(InstalledFixtures.Maps));

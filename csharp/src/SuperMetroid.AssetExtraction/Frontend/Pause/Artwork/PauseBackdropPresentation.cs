@@ -11,12 +11,12 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// </summary>
 public sealed class PauseBackdropPresentation
 {
-    /// <summary>Every retail area's installed backdrop, by area index.</summary>
-    private readonly BackgroundTile[][] areas;
+    /// <summary>Every area's installed backdrop.</summary>
+    private readonly IReadOnlyDictionary<AreaId, BackgroundTile[]> areas;
     /// <summary>The installed button page.</summary>
     private readonly BackgroundTile[] buttons;
     /// <summary>Retains the complete installed backdrops and button page.</summary>
-    private PauseBackdropPresentation(BackgroundTile[][] areas, BackgroundTile[] buttons)
+    private PauseBackdropPresentation(IReadOnlyDictionary<AreaId, BackgroundTile[]> areas, BackgroundTile[] buttons)
     { this.areas = areas; this.buttons = buttons; }
 
     /// <summary>Materializes the selected 32-by-16 button/foreground image without caching or modifying the presentation.</summary>
@@ -29,7 +29,7 @@ public sealed class PauseBackdropPresentation
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is not a retail area.</exception>
     public void LoadTo(Span<BackgroundTile> destination, AreaId area)
     {
-        var selected = areas[AreaIds.ToIndex(area)];
+        var selected = areas[AreaIds.Require(area)];
         Ensure.BetweenInclusive(PauseBackdropDefinitions.Cells, int.MaxValue, destination.Length);
         selected.AsSpan().CopyTo(destination);
     }
@@ -45,14 +45,14 @@ public sealed class PauseBackdropPresentation
         try { document = JsonAssetDocument.Read<PauseBackdropDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("Pause backdrop document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause backdrop JSON.", error); }
-        if (document.Version != PauseBackdropDefinitions.Version || document.Areas is null || document.Areas.Count != AreaIds.RetailCount)
+        if (document.Version != PauseBackdropDefinitions.Version || document.Areas is null || document.Areas.Count != AreaIds.All.Count)
             throw new InvalidDataException("Pause backdrops require version 1 and all seven named areas.");
-        var areas = new BackgroundTile[AreaIds.RetailCount][];
-        foreach (AreaId area in Enum.GetValues<AreaId>())
+        var areas = new Dictionary<AreaId, BackgroundTile[]>();
+        foreach (AreaId area in AreaIds.All)
         {
             if (!document.Areas.TryGetValue(area.ToString(), out var cells) || cells is null || cells.Length != PauseBackdropDefinitions.Cells)
                 throw new InvalidDataException($"Pause backdrop {area} requires 1024 cells in 32-column row order.");
-            areas[AreaIds.ToIndex(area)] = PauseTileGrid.Compile(cells, area.ToString());
+            areas.Add(area, PauseTileGrid.Compile(cells, area.ToString()));
         }
         if (document.Buttons is null || document.Buttons.Length != PauseBackdropDefinitions.ButtonCells)
             throw new InvalidDataException("Pause buttons require 512 cells in 32-column row order.");
@@ -60,24 +60,24 @@ public sealed class PauseBackdropPresentation
     }
 
     /// <summary>
-    /// Builds the presentation from compiled tilemaps (one 1024-cell page per retail area in area order, plus the 512-cell
-    /// button page), keeping every tile.
+    /// Builds the presentation from compiled tilemaps (one 1024-cell page per area, plus the 512-cell button page), keeping
+    /// every tile.
     /// </summary>
-    internal static PauseBackdropPresentation FromTilemaps(BackgroundTile[][] areaTilemaps, BackgroundTile[] buttonTilemap)
+    internal static PauseBackdropPresentation FromTilemaps(IReadOnlyDictionary<AreaId, BackgroundTile[]> areaTilemaps, BackgroundTile[] buttonTilemap)
     {
         Ensure.NotNull(areaTilemaps);
         Ensure.NotNull(buttonTilemap);
-        if (areaTilemaps.Length != AreaIds.RetailCount)
-            throw new InvalidDataException("Pause backdrops require one tilemap per retail area.");
+        if (areaTilemaps.Count != AreaIds.All.Count)
+            throw new InvalidDataException("Pause backdrops require one tilemap per area.");
         if (buttonTilemap.Length != PauseBackdropDefinitions.ButtonCells)
             throw new InvalidDataException("Pause buttons require 512 cells.");
-        var areas = new BackgroundTile[AreaIds.RetailCount][];
-        foreach (AreaId area in Enum.GetValues<AreaId>())
+        var areas = new Dictionary<AreaId, BackgroundTile[]>();
+        foreach (AreaId area in AreaIds.All)
         {
-            BackgroundTile[] tilemap = areaTilemaps[AreaIds.ToIndex(area)] ?? throw new InvalidDataException($"Pause backdrop {area} is missing.");
+            BackgroundTile[] tilemap = areaTilemaps.GetValueOrDefault(area) ?? throw new InvalidDataException($"Pause backdrop {area} is missing.");
             if (tilemap.Length != PauseBackdropDefinitions.Cells)
                 throw new InvalidDataException($"Pause backdrop {area} requires 1024 cells.");
-            areas[AreaIds.ToIndex(area)] = (BackgroundTile[])tilemap.Clone();
+            areas.Add(area, (BackgroundTile[])tilemap.Clone());
         }
         return new(areas, (BackgroundTile[])buttonTilemap.Clone());
     }

@@ -33,7 +33,7 @@ internal static class NativeSnapshotMotherBrainImport
             "The native snapshot holds Mother Brain, but the room load did not create her.");
         state.Form = DecodeForm(W(MotherBrainMemory.Form));
         ImportMotherBrainBodyImage(runtime, state, W);
-        state.Pose = (MotherBrainBodyPose)W(MotherBrainMemory.Pose);
+        state.Pose = DecodePose(W(MotherBrainMemory.Pose));
         state.HitboxesEnabled = MotherBrainHitboxPartsCodec.FromNativeWord(W(MotherBrainMemory.HitboxesEnabled));
         state.Function = MotherBrainNativeWords.MotherBrainBodyFunctions.Decode(W(MotherBrainMemory.BodyFunction), "recorded MotherBrainBodyFunction");
         state.BrainFunction = MotherBrainNativeListAddresses.NativeBrainFunctions[W(MotherBrainMemory.BrainFunction)];
@@ -240,12 +240,36 @@ internal static class NativeSnapshotMotherBrainImport
     }
 
     /// <summary>Decodes the snapshot's form word, rejecting a stage the encounter does not have.</summary>
-    internal static MotherBrainForm DecodeForm(ushort word) =>
-        ClosedEnumWordDecoding.Decode<MotherBrainForm>(word, "Mother Brain form");
+    internal static MotherBrainForm DecodeForm(ushort word) => word switch
+    {
+        0 => MotherBrainForm.Glass,
+        1 => MotherBrainForm.FakeDeath,
+        2 => MotherBrainForm.SecondPhase,
+        3 => MotherBrainForm.DrainedByBabyMetroid,
+        4 => MotherBrainForm.ThirdPhase,
+        _ => throw new InvalidDataException($"${word:X4} is not a Mother Brain form."),
+    };
+
+    /// <summary>Decodes the snapshot's body-pose word, rejecting a value no body animation cue writes.</summary>
+    internal static MotherBrainBodyPose DecodePose(ushort word) => word switch
+    {
+        0 => MotherBrainBodyPose.Standing,
+        1 => MotherBrainBodyPose.Walking,
+        2 => MotherBrainBodyPose.CrouchingTransition,
+        3 => MotherBrainBodyPose.Crouched,
+        4 => MotherBrainBodyPose.DeathBeam,
+        6 => MotherBrainBodyPose.LeaningDown,
+        _ => throw new InvalidDataException($"${word:X4} is not a Mother Brain body pose."),
+    };
 
     /// <summary>Decodes the snapshot's corpse-handshake word, rejecting a value outside living, corpse and revived.</summary>
-    internal static MotherBrainPhase2CorpseState DecodePhase2CorpseState(ushort word) =>
-        ClosedEnumWordDecoding.Decode<MotherBrainPhase2CorpseState>(word, "Mother Brain phase-two corpse state");
+    internal static MotherBrainPhase2CorpseState DecodePhase2CorpseState(ushort word) => word switch
+    {
+        0 => MotherBrainPhase2CorpseState.Living,
+        1 => MotherBrainPhase2CorpseState.Corpse,
+        2 => MotherBrainPhase2CorpseState.Revived,
+        _ => throw new InvalidDataException($"${word:X4} is not a Mother Brain phase-two corpse state."),
+    };
 
     /// <summary>
     /// Decodes the snapshot's two-bytes-per-entry rainbow palette list offset into the next rainbow frame. The offset

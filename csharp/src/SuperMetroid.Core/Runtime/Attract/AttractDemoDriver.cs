@@ -88,12 +88,9 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     {
         var progress = new PersistentProgress();
         progress.CollectedItems.AddAll();
+        progress.UsedStations.AddAll();
         foreach (AreaId area in AreaIds.All)
-        {
             progress.SetAreaMap(area, acquired: true);
-            for (int station = 0; station < PersistentProgress.StationsPerArea; station++)
-                progress.UsedStations(area).Add(station);
-        }
         return progress;
     }
 

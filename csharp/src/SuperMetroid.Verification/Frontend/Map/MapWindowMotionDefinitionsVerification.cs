@@ -23,17 +23,14 @@ internal static class MapWindowMotionDefinitionsVerification
         for (int area = 0; area < 6; area++)
         {
             int expected = ReadVerificationWord(rom, 0x81aa1c + area * 4 + field);
-            var stock = FileSelectMapWindowMotions.StockOrigin(area);
+            var stock = FileSelectMapWindowMotions.StockOrigin(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area));
             AssertEqual(expected, vertical ? stock.Y : stock.X, $"native area {area} origin field {field}");
-            Position16<SpritePixels> installed = labels.Get(area);
+            Position16<SpritePixels> installed = labels.Get(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area));
             AssertEqual(expected, vertical ? installed.Y : installed.X, $"imported area {area} origin field {field}");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 6, 7, int.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapWindowMotions.StockOrigin(invalid),
-                "unsupported stock origin area");
-            AssertThrows<ArgumentOutOfRangeException>(() => labels.Get(invalid), "unsupported installed label area");
-        }
+        AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapWindowMotions.StockOrigin(SuperMetroid.Core.Progression.AreaId.Ceres),
+            "Ceres has no stock origin");
+        AssertThrows<ArgumentOutOfRangeException>(() => labels.Get(SuperMetroid.Core.Progression.AreaId.Ceres), "Ceres has no installed label");
     }
 
     /// <summary>Compares native signed 16.16 velocities for the left window edge.</summary>
@@ -57,7 +54,7 @@ internal static class MapWindowMotionDefinitionsVerification
         {
             int address = 0x81aa34 + area * 16 + edge * 4;
             uint expected = SixteenSixteenWords.Compose(ReadVerificationWord(rom, address + 2), ReadVerificationWord(rom, address));
-            AssertEqual(unchecked((int)expected), select(FileSelectMapWindowMotions.Get(area)).RawValue,
+            AssertEqual(unchecked((int)expected), select(FileSelectMapWindowMotions.Get(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area))).RawValue,
                 $"map window area {area} edge {edge} signed16.16 velocity");
         }
         Suite(nameof(VerifyMapWindowMotionBounds), () => VerifyMapWindowMotionBounds());
@@ -71,17 +68,14 @@ internal static class MapWindowMotionDefinitionsVerification
     {
         for (int area = 0; area < 6; area++)
             AssertEqual(ReadVerificationWord(rom, 0x81aa94 + area * 2) + 1,
-                FileSelectMapWindowMotions.Get(area).MovingUpdates, $"map window area {area} moving updates");
+                FileSelectMapWindowMotions.Get(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area)).MovingUpdates, $"map window area {area} moving updates");
         Suite(nameof(VerifyMapWindowMotionBounds), () => VerifyMapWindowMotionBounds());
     }
 
-    /// <summary>Requires the motion catalog to reject area indices outside the six retail areas.</summary>
-    private static void VerifyMapWindowMotionBounds()
-    {
-        foreach (int area in new[] { int.MinValue, -1, 6, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapWindowMotions.Get(area),
-                $"unsupported map window area {area}");
-    }
+    /// <summary>Requires the motion catalog to reject Ceres, which has no world-map window.</summary>
+    private static void VerifyMapWindowMotionBounds() =>
+        AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapWindowMotions.Get(SuperMetroid.Core.Progression.AreaId.Ceres),
+            "Ceres has no map window");
 
     /// <summary>
     /// Independent cartridge-data control, deliberately outside the production catalog: the cartridge's countdown moves the

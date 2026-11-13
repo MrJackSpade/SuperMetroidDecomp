@@ -25,11 +25,13 @@ internal static class MapSaveMarkerCoordinatesVerification
                 int x = ReadVerificationWord(rom, address);
                 AssertTrue(x != ushort.MaxValue, "native marker view has sixteen slots");
                 if (x == ushort.MaxValue - 1) continue;
-                points.Add($"{(AreaId)area}.Save.{station}", new(checked((ushort)x), ReadVerificationWord(rom, address + 2)));
+                LoadStation marked = SuperMetroid.Core.Saves.LoadStationNumberCodec.Find(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), station)
+                    ?? throw new InvalidDataException($"Native marker slot {area}/{station} numbers no load station.");
+                points.Add(marked.Name, new(checked((ushort)x), ReadVerificationWord(rom, address + 2)));
             }
         }
         AssertEqual(34, points.Count, "complete original marker coordinate corpus");
-        var original = new MapSaveMarkerDocument { Version = 1, Markers = points };
+        var original = new MapSaveMarkerDocument { Version = MapSaveMarkerFormat.Version, Markers = points };
         byte[] extracted = MapSaveMarkerExtractor.Extract(rom);
         using var serialized = new MemoryStream();
         MapSaveMarkerFile.Write(serialized, original);
@@ -59,23 +61,20 @@ internal static class MapSaveMarkerCoordinatesVerification
             AssertThrows<InvalidDataException>(() => RoundTrip(original with { Markers = invalidPoints }),
                 "coordinate schema bounds remain enforced");
         }
-        AssertThrows<InvalidDataException>(() => stock.Get(AreaId.Crateria, 2), "unused marker remains rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Get(AreaId.Ceres, 0), "unsupported marker area");
-        foreach (int invalid in new[] { int.MinValue, -1, 16, 256, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Get(AreaId.Crateria, invalid), "unsupported marker index");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Get(LoadStationDefinitions.ZebesArrival), "a station with no marker is rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Get(LoadStationDefinitions.CeresElevator), "Ceres has no marker");
 
         void Check(MapSaveMarkerDocument expected, MapSaveMarkerPositions actual)
         {
-            for (int area = 0; area < 6; area++)
-            for (int station = 0; station < 16; station++)
+            foreach (LoadStation station in LoadStationDefinitions.All)
             {
-                string id = $"{(AreaId)area}.Save.{station}";
+                string id = station.Name;
                 if (!expected.Markers.TryGetValue(id, out var point)) continue;
-                Position16<MapPixels> result = actual.Get((AreaId)area, station);
+                Position16<MapPixels> result = actual.Get(station);
                 AssertEqual(vertical ? point.Y : point.X, vertical ? result.Y : result.X,
                     $"original marker coordinate {id} vertical={vertical}");
                 AssertEqual(point, result, "stock marker keeps its complete point");
-                var marker = new FileSelectStationMarker((AreaId)area, station, actual);
+                var marker = new FileSelectStationMarker(station, actual);
                 AssertEqual(point, marker.MapPosition, "actual marker binds supplied position without ROM access");
             }
         }

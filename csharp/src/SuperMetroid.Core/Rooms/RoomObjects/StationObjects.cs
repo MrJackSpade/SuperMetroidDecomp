@@ -96,7 +96,7 @@ internal sealed class StationObjects
         if (station.SavePhase != SaveStationPhase.AwaitingConfirmation)
         {
             throw new InvalidOperationException(
-                $"Save station {activation.AreaIndex}:{activation.StationIndex} returned " +
+                $"Save station {activation.SaveStation} returned " +
                 $"confirmation while in {station.SavePhase}.");
         }
 
@@ -127,7 +127,7 @@ internal sealed class StationObjects
         if (station.SavePhase != SaveStationPhase.AwaitingCompletionMessageClose)
         {
             throw new InvalidOperationException(
-                $"Save station {activation.AreaIndex}:{activation.StationIndex} completed " +
+                $"Save station {activation.SaveStation} completed " +
                 $"save-completed message while in {station.SavePhase}.");
         }
 
@@ -142,7 +142,7 @@ internal sealed class StationObjects
     private StationObject FindSaveStation(StationActivationEvent activation)
     {
         StationObject[] matches = _slotTable.FromLastPlace
-            .Where(slot => slot.Active && slot.Argument is StationArgument station && station.Station == activation.SaveStationNumber)
+            .Where(slot => slot.Active && slot.Argument is SaveStationArgument saved && saved.Station == activation.Station)
             .Select(slot => slot.Behaviour as StationObject)
             .OfType<StationObject>()
             .Where(station => station.Kind == StationKind.Save && station.AreaIndex == activation.AreaIndex)
@@ -151,9 +151,9 @@ internal sealed class StationObjects
         {
             1 => matches[0],
             0 => throw new InvalidOperationException(
-                $"Save station {activation.AreaIndex}:{activation.StationIndex} is no longer resident."),
+                $"Save station {activation.SaveStation} is no longer resident."),
             _ => throw new InvalidDataException(
-                $"Multiple resident save stations share {activation.AreaIndex}:{activation.StationIndex}."),
+                $"Multiple resident save stations save at {activation.SaveStation}."),
         };
     }
 

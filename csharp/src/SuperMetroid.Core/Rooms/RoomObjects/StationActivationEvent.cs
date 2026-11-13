@@ -10,21 +10,18 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="Kind">The station family whose activation produced this event.</param>
 /// <param name="MessageBoxIndex">The gameplay message identity: map/refill completion, save confirmation, or save completion.</param>
 /// <param name="AreaIndex">The room's area, used for map acquisition and save-station identity.</param>
-/// <param name="StationIndex">The number the station was placed with, 0 through 65535, used with the area to identify a resident save
-/// station; null for a station placed without one (a map station).</param>
+/// <param name="SaveStation">The load station a save station saves at, which identifies the resident save station; null for
+/// a map or refill station.</param>
 /// <param name="Block">The parent station's room block, rather than a side-access trigger's.</param>
 public readonly record struct StationActivationEvent(
     StationKind Kind,
     GameplayMessageId MessageBoxIndex,
     AreaId AreaIndex,
-    int? StationIndex,
+    LoadStation? SaveStation,
     Position16<RoomBlocks> Block)
 {
-    /// <summary>The number the station was placed with, 0 through 65535, or null when it carries none.</summary>
-    public int? StationIndex { get; init; } = StationIndex is { } index ? Ensure.BetweenInclusive(0, ushort.MaxValue, index) : null;
-
-    /// <summary>The save station's number, which identifies the resident station a save returns to.</summary>
-    /// <exception cref="InvalidOperationException">The station was placed without a number.</exception>
-    public int SaveStationNumber => StationIndex ??
-        throw new InvalidOperationException($"{Kind} station at block {Block} was placed without its number.");
+    /// <summary>The load station the save station saves at, which identifies the resident station a save returns to.</summary>
+    /// <exception cref="InvalidOperationException">The station is not a save station.</exception>
+    public LoadStation Station => SaveStation ??
+        throw new InvalidOperationException($"{Kind} station at block {Block} saves at no load station.");
 }

@@ -14,17 +14,16 @@ public static class FileSelectMapLoadAnchors
     /// map projection. Take the whole room screens of Samus's placement at the station, add the room's map
     /// coordinate and multiply by eight; Y has one additional map row. A map square and a room's screens are small
     /// counts, so the result is an ordinary map pixel and nothing wraps. The thirty-four supported station identities retain the
-    /// existing marker-validity guard before narrowing the station index.
+    /// existing marker-validity guard.
     /// Only fixed compiled room metadata is needed, never room-state selection,
     /// original data access, editable marker art, or a generated coordinate cache.
     /// </remarks>
-    public static Position16<MapPixels> Get(AreaId area, int stationIndex)
+    public static Position16<MapPixels> Get(LoadStation station)
     {
-        _ = MapSaveMarkers.Id(area, stationIndex);
-        LoadStation station = LoadStations.Find(area, stationIndex) ??
-            throw new InvalidOperationException($"{area} station {stationIndex} has no room.");
-        RoomHeaderDefinition room = station.Room;
-        Position16<RoomPixels> samus = station.SamusPosition;
+        _ = MapSaveMarkers.Id(station);
+        LoadStationPlacement placement = station.Placement;
+        RoomHeaderDefinition room = placement.Room;
+        Position16<RoomPixels> samus = placement.SamusPosition;
         return new((room.MapPosition.X + RoomGridConversions.PixelToScreen(samus.X)) * 8,
             (room.MapPosition.Y + RoomGridConversions.PixelToScreen(samus.Y) + 1) * 8);
     }

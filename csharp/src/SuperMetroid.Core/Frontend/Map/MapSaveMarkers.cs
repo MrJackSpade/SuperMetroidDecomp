@@ -1,78 +1,48 @@
-using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Progression;
-using static SuperMetroid.Core.Frontend.Map.MapSaveMarkerDefinitions;
 
 namespace SuperMetroid.Core.Frontend.Map;
 
 /// <summary>
-/// Decides which save stations of a Zebes area have map markers (<see cref="MapSaveMarkerDefinitions"/>), names them, and
-/// reports whether any marked station has been used.
+/// Decides which stations of a Zebes area have saved-game map markers, names them, and reports whether any marked station
+/// has been used. Every station Samus uses in a Zebes area has a marker; Ceres has none.
 /// </summary>
 public static class MapSaveMarkers
 {
-    /// <summary>Enumerates usable save/elevator identities in slot order.</summary>
-    /// <remarks>
-    /// Independently reviewed for #1165: each of the six original sixteen-slot marker
-    /// views has a usable coordinate exactly when the corresponding compiled
-    /// load-station record names a room. Unused slots have off-map coordinates
-    /// and a zero-room placement. Enumerate that existing semantic definition rather
-    /// than store a second list of station identities. Validate the area immediately,
-    /// before returning the lazy sequence, preserving the previous span API's rejection.
-    /// </remarks>
-    /// <param name="area">One of the six Zebes area identities; Ceres has no save-map marker list.</param>
-    /// <returns>A lazy ascending sequence of station slots whose compiled load placement names a room.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The area is outside the six supported identities; rejection occurs before enumeration.</exception>
-    public static IEnumerable<int> Indices(AreaId area)
+    /// <summary>The stations of <paramref name="area"/> that have markers, in the order the load stations are declared.</summary>
+    /// <param name="area">One of the six Zebes areas; Ceres has no save-map marker list.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The area is not one of the six Zebes areas; rejection occurs before enumeration.</exception>
+    public static IEnumerable<LoadStation> Stations(AreaId area)
     {
         ValidateArea(area);
-        return Enumerate();
-
-        IEnumerable<int> Enumerate()
-        {
-            for (int index = 0; index < SlotsPerArea; index++)
-                if (LoadStations.Find(area, index) is not null)
-                    yield return index;
-        }
+        return LoadStationDefinitions.Usable.Where(station => station.Area == area);
     }
 
-    /// <summary>Whether a bounded station identity has an active placement and map marker.</summary>
-    /// <param name="area">One of the six Zebes area identities.</param>
-    /// <param name="index">Zero-based station slot, 0..15, not the ordinal within the usable-slot sequence.</param>
-    /// <returns>True for a slot with a compiled load room, independently of the player's used-station bits.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The area or station slot is outside its supported range.</exception>
-    public static bool IsUsable(AreaId area, int index)
-    {
-        ValidateArea(area);
-        if ((uint)index >= SlotsPerArea) throw new ArgumentOutOfRangeException(nameof(index));
-        return LoadStations.Find(area, index) is not null;
-    }
+    /// <summary>Whether <paramref name="station"/> has a map marker.</summary>
+    public static bool IsMarked(LoadStation station) =>
+        AreaIds.IsZebes(Ensure.NotNull(station).Area) && LoadStationDefinitions.Usable.Contains(station);
 
-    /// <summary>Rejects Ceres and undefined areas because only the six Zebes areas own marker tables.</summary>
+    /// <summary>Rejects Ceres and undefined areas because only the six Zebes areas own marker lists.</summary>
     private static void ValidateArea(AreaId area)
     {
         if (!AreaIds.IsZebes(area))
-            throw new ArgumentOutOfRangeException(nameof(area), "Only Zebes areas have save-map markers.");
+            throw new ArgumentOutOfRangeException(nameof(area), area, "Only Zebes areas have save-map markers.");
     }
-    /// <summary>Formats the stable editable marker key for a usable save/elevator station, without selecting its drawing coordinates or load target.</summary>
-    /// <param name="area">One of the six Zebes area identities.</param>
-    /// <param name="index">Zero-based station slot, 0..15.</param>
-    /// <returns>The key formatted as the area name followed by <c>.Save.</c> and the station slot.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The area or station slot is outside its supported range.</exception>
-    /// <exception cref="InvalidDataException">The bounded station slot has no usable placement.</exception>
-    public static string Id(AreaId area, int index)
-    {
-        if (!IsUsable(area, index)) throw new InvalidDataException($"Area {area} has no map coordinate for station {index}.");
-        return $"{area}.Save.{index}";
-    }
-    /// <summary>Whether the area-select map labels the area: at least one used, non-unused save-coordinate slot.</summary>
-    /// <param name="area">One of the six Zebes area identities.</param>
-    /// <param name="usedStations">The area's used save stations and elevators, by station slot.</param>
-    /// <returns>True when a used station has a usable marker; used unused slots do not reveal an area label.</returns>
-    public static bool HasUsedMarker(AreaId area, NumberedFlagSet usedStations)
+
+    /// <summary>The stable editable marker key of a marked station, without selecting its drawing coordinates or load target.</summary>
+    /// <param name="station">A station with a map marker.</param>
+    /// <returns>The station's name.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The station has no map marker.</exception>
+    public static string Id(LoadStation station) => IsMarked(station)
+        ? station.Name
+        : throw new ArgumentOutOfRangeException(nameof(station), station, "The station has no save-map marker.");
+
+    /// <summary>Whether the area-select map labels the area: at least one of its marked stations has been used.</summary>
+    /// <param name="area">One of the six Zebes areas.</param>
+    /// <param name="usedStations">The save stations and elevators Samus has used.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The area is not one of the six Zebes areas.</exception>
+    public static bool HasUsedMarker(AreaId area, ProgressSet<LoadStation> usedStations)
     {
         Ensure.NotNull(usedStations);
-        foreach (int index in Indices(area))
-            if (usedStations.Contains(index)) return true;
-        return false;
+        return Stations(area).Any(usedStations.Contains);
     }
 }

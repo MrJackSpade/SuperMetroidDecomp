@@ -17,7 +17,7 @@ public static class AreaMapImporter
     public static ImportedAreaMap Load(ISnesAddressSpace bus, AreaId area)
     {
         Ensure.NotNull(bus);
-        int areaIndex = AreaIds.ToIndex(area);
+        int areaIndex = AreaNumberCodec.Encode(area);
         int tilemapAddress = RomDataReader.ReadLongFixedBank(
             CartridgeImportSource.Require(bus),
             MapSourceDefinitions.AreaMaps.TilemapPointers + areaIndex * MapSourceDefinitions.AreaMaps.TilemapPointerBytes);

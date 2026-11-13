@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
@@ -21,7 +22,7 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 internal sealed record AreaMapPresentationParts
 {
     /// <summary>Areas.</summary>
-    public required IAreaMapView[] Areas { get; init; }
+    public required IReadOnlyDictionary<AreaId, IAreaMapView> Areas { get; init; }
 
     /// <summary>Uppercase SHA-256 identity of length-framed map rules, station masks, and installed presentation resources in fixed order; an edit in place changes the identity.</summary>
     public required string ContentIdentity { get; init; }

@@ -30,14 +30,14 @@ internal static class BossResetOnLoadVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var snapshot = new SuperMetroidSaveSnapshot
         {
-            Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.CrateriaSave, Health = 77, MaxHealth = 199,
+            Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CrateriaSave, Health = 77, MaxHealth = 199,
             Missiles = 12, MaxMissiles = 25,
             CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             EquippedItems = SamusEquipmentFlags.MorphBall,
         };
         // Every boss of every area, every event and door, and every third pickup.
-        for (int area = 0; area < AreaIds.RetailCount; area++)
-            snapshot.Progress.SetDefeatedBosses(AreaIds.At(area), BossBitMasks.AllKnown);
+        foreach (AreaId area in AreaIds.All)
+            snapshot.Progress.SetDefeatedBosses(area, BossBitMasks.AllKnown);
         snapshot.Progress.Events.AddAll();
         snapshot.Progress.OpenedDoors.AddAll();
         for (int place = 0; place < ItemLocationDefinitions.All.Count; place++)
@@ -56,9 +56,9 @@ internal static class BossResetOnLoadVerification
             var runtime = CreateRetailRuntimeFixture(
                 encounterResetOnLoad: new SuperMetroidGameOptions { ResetBossesOnLoad = enabled }.ToAssists().EncounterResetOnLoad);
             runtime.RoomLoader.InitializeSavedGame(slot);
-            for (int area = 0; area < AreaIds.RetailCount; area++)
+            foreach (AreaId area in AreaIds.All)
             {
-                bool resetArea = enabled && AreaIds.At(area) != AreaId.Tourian;
+                bool resetArea = enabled && area != AreaId.Tourian;
                 AssertEqual(resetArea ? BossBits.None : BossBitMasks.AllKnown, runtime.System.GetBossBits(area),
                     $"boss/miniboss/Torizo load policy area {area}, enabled={enabled}");
             }

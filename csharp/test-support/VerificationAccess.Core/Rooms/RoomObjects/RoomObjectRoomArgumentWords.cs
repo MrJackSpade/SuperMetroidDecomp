@@ -50,8 +50,14 @@ internal static class RoomObjectRoomArgumentWords
         (word & NeverPersists) == 0 ? DoorOpeningPersistence.Persistent : DoorOpeningPersistence.Transient;
 
     /// <summary>Decodes a cartridge placement's word into the argument the import gives the placement.</summary>
+    /// <param name="header">The placement's header.</param>
+    /// <param name="word">The placement's room-argument word.</param>
+    /// <param name="area">
+    /// The area of the room the population is placed in, whose station list a save station's word numbers its station in;
+    /// null when the population is decoded outside a room, which then holds no save station.
+    /// </param>
     /// <exception cref="InvalidDataException">The word does not decode for the header.</exception>
-    internal static RoomObjectRoomArgument? Decode(RoomObjectHeaderId header, int word)
+    internal static RoomObjectRoomArgument? Decode(RoomObjectHeaderId header, int word, SuperMetroid.Core.Progression.AreaId? area = null)
     {
         string name = header.ToString();
         if (header == RoomObjectHeaderId.ScrollTrigger || FixedWords.ContainsKey(header) || FillerHeaders.Contains(header))
@@ -68,8 +74,14 @@ internal static class RoomObjectRoomArgumentWords
         {
             return new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(word & ~NeverPersists), Persistence(word));
         }
-        if (header is RoomObjectHeaderId.EnergyStation or RoomObjectHeaderId.MissileStation or RoomObjectHeaderId.SaveStation)
+        if (header is RoomObjectHeaderId.EnergyStation or RoomObjectHeaderId.MissileStation)
             return new StationArgument(word);
+        if (header == RoomObjectHeaderId.SaveStation)
+        {
+            return new SaveStationArgument(SuperMetroid.Core.Saves.LoadStationNumberCodec.Decode(
+                area ?? throw new InvalidDataException($"A save station's argument ${word:X4} names its station only in a room's area."),
+                word, "A save station's room argument"));
+        }
         if (header == RoomObjectHeaderId.MetroidRoomClearance)
         {
             return (word & 1) == 0
@@ -101,6 +113,7 @@ internal static class RoomObjectRoomArgumentWords
                 (grey.ConditionIndex << GreyConditionShift) | SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(grey.Door.Door))),
             SpentDoorArgument => SpentMark,
             StationArgument station => checked((ushort)station.Station),
+            SaveStationArgument saved => checked((ushort)SuperMetroid.Core.Saves.LoadStationNumberCodec.Number(saved.Station)),
             MetroidRoomArgument metroids => checked((ushort)(metroids.Entry * 2)),
             GateTriggerArgument gate => checked((ushort)(gate.Trigger * 2)),
             null when header == RoomObjectHeaderId.ScrollTrigger && scroll is { } program => RoomScrollProgramNative.Addresses[program],

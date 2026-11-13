@@ -27,9 +27,8 @@ internal static class PausePictureSheet
         foreach (ScreenPictureSubject cell in MapPictureSheets.CellSubjects(maps))
             yield return cell;
         int[] buttonCells = [.. ButtonRowCells()];
-        for (int index = 0; index < AreaIds.RetailCount; index++)
+        foreach (AreaId area in AreaIds.All)
         {
-            AreaId area = AreaIds.At(index);
             var backdrop = new BackgroundTile[PauseBackdropDefinitions.Cells];
             maps.Pause.Backdrops.LoadTo(backdrop, area);
             yield return ScreenPictureSubject.Page(PauseFramePictures.BackdropFrame(area), backdrop, Columns, buttonCells);

@@ -19,19 +19,20 @@ internal static class WorldMapLabelsVerification
         Suite(nameof(VerifyMapWindowOriginX), () => VerifyMapWindowOriginX(bus, original.Labels));
         Suite(nameof(VerifyMapWindowOriginY), () => VerifyMapWindowOriginY(bus, original.Labels));
         var guard = NewWorldLabelReadGuard(bus);
-        ushort[] used = Enumerable.Repeat(ushort.MaxValue, FileSelectMapDefinitions.AreaCount).ToArray();
-        var native = new FileSelectAreaMapGraphics(0, original.Backdrops, MenuSheetFixtures.For(original));
-        var installed = new FileSelectAreaMapGraphics(0, original.Backdrops, MenuSheetFixtures.For(original));
+        ushort[] used = Enumerable.Repeat(ushort.MaxValue, SuperMetroid.Core.Progression.AreaIds.Zebes.Count).ToArray();
+        var native = new FileSelectAreaMapGraphics(SuperMetroid.Core.Progression.AreaId.Crateria, original.Backdrops, MenuSheetFixtures.For(original));
+        var installed = new FileSelectAreaMapGraphics(SuperMetroid.Core.Progression.AreaId.Crateria, original.Backdrops, MenuSheetFixtures.For(original));
         native.BindLabels(original.Labels);
         installed.BindLabels(original.Labels);
-        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
+        foreach (SuperMetroid.Core.Progression.AreaId areaId in SuperMetroid.Core.Progression.AreaIds.Zebes)
         {
-            native.SelectArea(area); installed.SelectArea(area);
+            int area = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(areaId);
+            native.SelectArea(areaId); installed.SelectArea(areaId);
             // The two scenes' pixels are compared through their descriptions, drawn only when those differ (#1532).
             AssertTrue(ScenePixels.Same(native.Scene(used), installed.Scene(used)), "stock label pixels with position ROM blocked");
-            var nativeWindow = new FileSelectMapWindow(area,
+            var nativeWindow = new FileSelectMapWindow(areaId,
                 ReadCartridgeMapWindowMotion(bus, area), original.Labels);
-            var installedWindow = new FileSelectMapWindow(area, original.Labels);
+            var installedWindow = new FileSelectMapWindow(areaId, original.Labels);
             while (!nativeWindow.IsComplete)
             {
                 AssertEqual(new VerifyWorldMapLabelsCase(nativeWindow.Left, nativeWindow.Top, nativeWindow.Right, nativeWindow.Bottom),
@@ -46,14 +47,16 @@ internal static class WorldMapLabelsVerification
     /// <summary>Blocks migrated label positions and window motion tables while allowing unrelated cartridge reads.</summary>
     private static MutableCartridgeReadGuard NewWorldLabelReadGuard(ISnesAddressSpace source)
     {
+        // The native label and window tables hold one record per Zebes area.
+        const int ZebesAreaRecords = 6;
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address =>
                 address is (>= MapSourceDefinitions.FileSelectMap.LabelPositions
-                        and < MapSourceDefinitions.FileSelectMap.LabelPositions + FileSelectMapDefinitions.AreaCount * 4)
+                        and < MapSourceDefinitions.FileSelectMap.LabelPositions + ZebesAreaRecords * 4)
                     or (>= FileSelectMapNativeSources.WindowVelocities
-                        and < FileSelectMapNativeSources.WindowVelocities + FileSelectMapDefinitions.AreaCount * FileSelectMapNativeSources.VelocityRecordBytes)
+                        and < FileSelectMapNativeSources.WindowVelocities + ZebesAreaRecords * FileSelectMapNativeSources.VelocityRecordBytes)
                     or (>= FileSelectMapNativeSources.WindowTimers
-                        and < FileSelectMapNativeSources.WindowTimers + FileSelectMapDefinitions.AreaCount * 2),
+                        and < FileSelectMapNativeSources.WindowTimers + ZebesAreaRecords * 2),
             _ => "Installed world labels/windows read cartridge coordinate or motion tables.");
         return guard;
     }

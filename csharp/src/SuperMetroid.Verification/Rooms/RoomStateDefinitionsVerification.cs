@@ -21,7 +21,7 @@ internal static class RoomStateDefinitionsVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "Room-state oracle revision");
         Suite(nameof(VerifyRoomStateSettings), () => VerifyRoomStateSettings(bus));
 
-        RoomHeaderDefinition ceres = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.CeresElevator.Room;
+        RoomHeaderDefinition ceres = SuperMetroid.Core.Progression.LoadStationDefinitions.CeresElevator.Placement.Room;
         ushort ceresStatePointer = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, ceres.Pointer).State.Pointer;
         SelectedRoom compiledRoom = SelectedRoom.LoadUsingCompiledSelection(ceres);
         AssertEqual(RoomStateDefinitions.Get(ceresStatePointer), compiledRoom.State,

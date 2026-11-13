@@ -41,10 +41,9 @@ internal static class FileSelectRoomMapVerification
         Suite(nameof(VerifyFileSelectMapAnimations), () => VerifyFileSelectMapAnimations());
         Suite(nameof(VerifyMapCancelPresentation), () => VerifyMapCancelPresentation());
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        for (int areaIndex = 0; areaIndex < FileSelectMapDefinitions.AreaCount; areaIndex++)
+        foreach (AreaId area in AreaIds.Zebes)
         foreach (bool downloaded in new[] { false, true })
         {
-            AreaId area = (AreaId)areaIndex;
             var system = new SharedGameState(new SharedRandom());
             ImportedAreaMap map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area);
             byte[] original = map.RawTilemapBytes.ToArray();
@@ -72,12 +71,12 @@ internal static class FileSelectRoomMapVerification
                     : downloaded && map.IsRevealedByMapStation(at) ? ShownMapCell.Unexplored(stockCell)
                     : ShownMapCell.Unexplored(MapCell.Empty);
                 AssertEqual(expected, graphics.AreaMap.Cells[y * 64 + x],
-                    $"room-select area {areaIndex} downloaded={downloaded} cell {x},{y}");
+                    $"room-select area {area} downloaded={downloaded} cell {x},{y}");
                 AssertEqual(expected, pause.Cells[y * 64 + x], "shared builder shows the pause map's hidden cells empty");
                 AssertEqual(explored, system.IsMapTileExplored(area, new(checked((ushort)x), checked((ushort)y))), "map projection does not mark exploration");
             }
             AssertTrue(original.SequenceEqual(map.RawTilemapBytes), "map projection preserves cartridge map");
-            ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.AreaLabelPointers + areaIndex * 2);
+            ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.AreaLabelPointers + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2);
             for (int word = 0; word < 1024; word++)
             {
                 ushort expected = word < 800
@@ -102,7 +101,7 @@ internal static class FileSelectRoomMapVerification
             retailIcons.DrawAfterMarker(retailOam, new(0, 0));
             retailOam.FinalizeFrame();
             AssertTrue(retailOam.LastFinalizedSpriteCount < OamBuffer.SpriteCount,
-                $"area {areaIndex} retail map-icon lists fit OAM");
+                $"area {area} retail map-icon lists fit OAM");
 
         }
     }
@@ -111,9 +110,9 @@ internal static class FileSelectRoomMapVerification
     internal static void VerifyMapCancelPresentation()
     {
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-        var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.GlassTunnelSave, Health = 99, MaxHealth = 99 };
+        var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.GlassTunnelSave, Health = 99, MaxHealth = 99 };
         snapshot.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true);
-        snapshot.Progress.UsedStations(SuperMetroid.Core.Progression.AreaId.Maridia).Add(0);
+        snapshot.Progress.UsedStations.Add(SuperMetroid.Core.Progression.LoadStationDefinitions.GlassTunnelSave);
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0);
         var cancel = new FileSelectMapMenuState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new SharedRandom(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
@@ -135,7 +134,7 @@ internal static class FileSelectRoomMapVerification
         AssertTrue(slot.Progression.HasAreaMap(AreaId.Maridia), "the saved slot holds the Maridia map");
         RgbaPixel[] roomFrame = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture())).RenderFrameOnly();
         var maps = RetailPresentationFixture();
-        var areaGraphics = new FileSelectAreaMapGraphics(4, maps.Backdrops, MenuSheetFixtures.For(maps));
+        var areaGraphics = new FileSelectAreaMapGraphics(AreaId.Maridia, maps.Backdrops, MenuSheetFixtures.For(maps));
         areaGraphics.BindLabels(maps.Labels);
         RgbaPixel[] area = areaGraphics.Render(new ushort[] { 0, 0, 0, 0, 1, 0 });
         for (int tick = 1; tick <= 4; tick++)
@@ -151,7 +150,7 @@ internal static class FileSelectRoomMapVerification
                 setup[y * 256 + x], "return setup temporarily exposes native centered entry window");
         cancel.Step(0);
         AssertTrue(cancel.Render().SequenceEqual(FileSelectMapWindowCompositor.Composite(area, roomFrame,
-                FileSelectMapWindow.CreateReturn(4, maps.Labels))),
+                FileSelectMapWindow.CreateReturn(AreaId.Maridia, maps.Labels))),
             "return contraction uses normal area backdrop addition, unlike forward transition");
     }
 
@@ -305,24 +304,24 @@ internal static class FileSelectRoomMapVerification
     /// <summary>Checks that a Zebes save visits the map before gameplay while a Ceres checkpoint resumes its elevator arrival.</summary>
     internal static void VerifySavedGameMapFrontend()
     {
-        Suite(nameof(VerifySavedGameMapFrontend), () => VerifySavedGameMapFrontend(4));
-        Suite(nameof(VerifySavedGameMapFrontend), () => VerifySavedGameMapFrontend(6));
+        Suite(nameof(VerifySavedGameMapFrontend), () => VerifySavedGameMapFrontend(AreaId.Maridia));
+        Suite(nameof(VerifySavedGameMapFrontend), () => VerifySavedGameMapFrontend(AreaId.Ceres));
     }
 
     /// <summary>Drives a saved slot through frontend map confirmation or the Ceres direct-load path.</summary>
-    private static void VerifySavedGameMapFrontend(ushort savedArea)
+    private static void VerifySavedGameMapFrontend(AreaId savedArea)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-        var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStations.Get((AreaId)savedArea, 0, "room map fixture"), Health = 99, MaxHealth = 99,
-            StartupRoute = savedArea == 6 ? SaveLoadingGameState.CeresElevatorArrival : SaveLoadingGameState.MainGame };
-        snapshot.Progress.UsedStations(AreaIds.At(savedArea)).Add(0);
-        if (savedArea < 6)
+        var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Saves.LoadStationNumberCodec.Decode(savedArea, 0, "room map fixture"), Health = 99, MaxHealth = 99,
+            StartupRoute = savedArea == AreaId.Ceres ? SaveLoadingGameState.CeresElevatorArrival : SaveLoadingGameState.MainGame };
+        snapshot.Progress.UsedStations.Add(snapshot.Checkpoint);
+        if (savedArea != AreaId.Ceres)
         {
-            var station = SuperMetroid.TestSupport.VerificationImporters.LoadStationEntryImporter.Load(bus, (AreaId)savedArea, 0);
+            var station = SuperMetroid.TestSupport.VerificationImporters.LoadStationEntryImporter.Load(bus, savedArea, 0);
             var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, (station.Room ?? throw new InvalidDataException("Station 0 has no room.")).Pointer);
             var cell = room.MapPosition + new Offset16<MapTiles>(checked(LittleEndianBytes.HighByte(station.SamusPosition.X)), checked((short)((LittleEndianBytes.HighByte(station.SamusPosition.Y)) + 1)));
-            snapshot.Progress.SetExplored(AreaIds.At(savedArea), cell, explored: true);
+            snapshot.Progress.SetExplored(savedArea, cell, explored: true);
         }
         saves.SaveSlot(0, snapshot);
         saves.SelectSlot(0);
@@ -343,7 +342,7 @@ internal static class FileSelectRoomMapVerification
         // Options indexes zero and one, fifteen fade-in levels, then the interactive index.
         for (int i = 0; i < 18; i++) frame = game.Step(0);
         frame = game.Step(ControllerButton.A);
-        if (savedArea == 6)
+        if (savedArea == AreaId.Ceres)
         {
             Until(() => game.RuntimeForVerification is not null, 200);
             AssertEqual(AreaId.Ceres, game.GameplayRuntimeForVerification.Room.LoadedRoom.AreaIndex,
@@ -396,7 +395,7 @@ internal static class FileSelectRoomMapVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (ControllerButton confirm in new ControllerButton[] { ControllerButton.Start, ControllerButton.A })
         {
-            var navigation = new FileSelectMapNavigation(4, confirm);
+            var navigation = new FileSelectMapNavigation(AreaId.Maridia, confirm);
             navigation.BindLabels(RetailPresentationFixture().Labels);
             navigation.Step(confirm);
             AssertEqual(FileSelectMapNavigationPhase.Area, navigation.Phase,
@@ -420,7 +419,7 @@ internal static class FileSelectRoomMapVerification
             navigation.Step(ControllerButton.B);
             AssertEqual(FileSelectMapNavigationPhase.LoadRequested, navigation.Phase, "load request remains pending until frontend handles it");
         }
-        var cancel = new FileSelectMapNavigation(4);
+        var cancel = new FileSelectMapNavigation(AreaId.Maridia);
         cancel.BindLabels(RetailPresentationFixture().Labels);
         cancel.Step((ControllerButton.B | ControllerButton.Start | ControllerButton.Right | ControllerButton.A));
         AssertEqual(FileSelectMapNavigationPhase.Area, cancel.Phase,
@@ -428,7 +427,7 @@ internal static class FileSelectRoomMapVerification
         cancel.Step(0);
         cancel.Step((ControllerButton.B | ControllerButton.Start | ControllerButton.A));
         AssertEqual(FileSelectMapNavigationPhase.OptionsRequested, cancel.Phase, "B takes precedence over confirm on area map");
-        var back = new FileSelectMapNavigation(4);
+        var back = new FileSelectMapNavigation(AreaId.Maridia);
         back.BindLabels(RetailPresentationFixture().Labels);
         back.Step(ControllerButton.Start);
         for (int frame = 0; frame < 54; frame++) back.Step(0);
@@ -491,7 +490,7 @@ internal static class FileSelectRoomMapVerification
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
         var positions = RequiredJson.Deserialize<MapSaveMarkerDocument>(
             SuperMetroid.AssetExtraction.Frontend.Map.MapSaveMarkerExtractor.Extract(bus), options);
-        positions.Markers[MapSaveMarkers.Id(AreaId.Crateria, 0)] = new(100, 80);
+        positions.Markers[MapSaveMarkers.Id(LoadStationDefinitions.Gunship)] = new(100, 80);
         using var positionJson = new MemoryStream();
         MapSaveMarkerFile.Write(positionJson, positions);
         positionJson.Position = 0;
@@ -508,7 +507,7 @@ internal static class FileSelectRoomMapVerification
         }
         var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)),
             new MemoryStream(artwork[MapSpriteFormat.PngFile]));
-        var marker = new FileSelectStationMarker(AreaId.Crateria, 0, layout);
+        var marker = new FileSelectStationMarker(LoadStationDefinitions.Gunship, layout);
         int[] expectedFrames = [0x60, 0x61, 0x60, 0x5f, 0x60, 0x61, 0x60, 0x5f];
         int[] durations = [4, 8, 4, 8, 4, 8, 4, 8];
         for (int phase = 0; phase < durations.Length; phase++)
@@ -532,11 +531,10 @@ internal static class FileSelectRoomMapVerification
             oam.FinalizeFrame();
             AssertTrue(first.SequenceEqual(oam.LowTable.ToArray()), "repainting station marker does not advance animation");
         }
-        int unused = Enumerable.Range(0, 16).First(index => !MapSaveMarkers.IsUsable(AreaId.Crateria, index));
-        AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(AreaId.Crateria, unused, layout),
-            "unused station map entry rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(AreaId.Crateria, 16, layout),
-            "station lookup cannot cross the sixteen-slot domain");
+        AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(LoadStationDefinitions.ZebesArrival, layout),
+            "a station with no map marker is rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(LoadStationDefinitions.CeresElevator, layout),
+            "Ceres has no map markers");
     }
 
     /// <summary>Runs the file-select map icon visibility and OAM fixture.</summary>

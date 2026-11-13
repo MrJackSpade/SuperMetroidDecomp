@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
@@ -27,18 +28,18 @@ public sealed class FileSelectMapWindow
     private int movesLeft;
 
     /// <summary>Starts the area-to-room reveal at the installed label of <paramref name="area"/>, with the area's compiled motion; editable labels move the rectangle's start, not its motion.</summary>
-    /// <param name="area">Game-area identity 0..5 for the six Zebes areas, not the file-select display-order ordinal.</param>
+    /// <param name="area">One of the six Zebes areas.</param>
     /// <param name="labels">Required installed world-map label anchors; a missing catalog is rejected even though the parameter defaults to null.</param>
     /// <exception cref="ArgumentOutOfRangeException">The area has no supported transition.</exception>
     /// <exception cref="InvalidOperationException">World-map labels are not installed.</exception>
-    public FileSelectMapWindow(int area, WorldMapLabelPositions? labels = null)
+    public FileSelectMapWindow(AreaId area, WorldMapLabelPositions? labels = null)
         : this(area, FileSelectMapWindowMotions.Get(area), labels) { }
 
     /// <summary>Explicit motion injection for bounded arithmetic/render fixtures; production uses the compiled catalog.</summary>
-    internal FileSelectMapWindow(int area, FileSelectMapWindowMotion motion, WorldMapLabelPositions? labels = null)
+    internal FileSelectMapWindow(AreaId area, FileSelectMapWindowMotion motion, WorldMapLabelPositions? labels = null)
     {
-        if ((uint)area >= FileSelectMapDefinitions.AreaCount)
-            throw new ArgumentOutOfRangeException(nameof(area));
+        if (!AreaIds.IsZebes(area))
+            throw new ArgumentOutOfRangeException(nameof(area), area, "Only the six Zebes areas have world-map transitions.");
         WorldMapLabelPositions installedLabels = labels ?? throw new InvalidOperationException(
             "Map-window positions require installed world-map labels.");
         Position16<SpritePixels> label = installedLabels.Get(area);
@@ -74,7 +75,7 @@ public sealed class FileSelectMapWindow
     /// each of the screen's edges and its edges move back inward by the area's speeds, for
     /// <see cref="FileSelectMapDefinitions.ReturnWindowTimerReduction"/> fewer updates than the opening.
     /// </summary>
-    public static FileSelectMapWindow CreateReturn(int area, WorldMapLabelPositions? labels = null)
+    public static FileSelectMapWindow CreateReturn(AreaId area, WorldMapLabelPositions? labels = null)
     {
         var window = new FileSelectMapWindow(area, labels) { IsReturning = true };
         window.movesLeft = Ensure.BetweenInclusive(1, int.MaxValue, window.movesLeft - FileSelectMapDefinitions.ReturnWindowTimerReduction);

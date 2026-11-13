@@ -18,14 +18,13 @@ public sealed class MapSaveMarkerPositions
         this.anchors = new Dictionary<string, Position16<MapPixels>>(Ensure.NotNull(anchors), StringComparer.Ordinal);
 
     /// <summary>Gets the selected station's installed drawing anchor in area-map pixels before scroll subtraction.</summary>
-    /// <param name="area">One of the six Zebes areas; Ceres has no save-map marker layout.</param>
-    /// <param name="index">Station slot, 0..15, whose compiled load-station record names a room; not an ordinal among usable markers.</param>
+    /// <param name="station">A station with a map marker.</param>
     /// <returns>The drawing position, without altering the station's load target or initial map scrolling.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The area or station slot is outside its supported range.</exception>
-    /// <exception cref="InvalidDataException">The station slot has no installed marker.</exception>
-    public Position16<MapPixels> Get(AreaId area, int index)
+    /// <exception cref="ArgumentOutOfRangeException">The station has no map marker.</exception>
+    /// <exception cref="InvalidDataException">The station's marker is not installed.</exception>
+    public Position16<MapPixels> Get(LoadStation station)
     {
-        string id = MapSaveMarkers.Id(area, index);
+        string id = MapSaveMarkers.Id(station);
         return anchors.TryGetValue(id, out Position16<MapPixels> anchor) ? anchor
             : throw new InvalidDataException($"Save marker {id} is not installed.");
     }

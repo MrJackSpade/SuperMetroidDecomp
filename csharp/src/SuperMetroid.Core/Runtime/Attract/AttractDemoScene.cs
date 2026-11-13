@@ -21,5 +21,5 @@ public sealed record AttractDemoScene(
     int Health, SuperMetroid.Core.Progression.SamusBeamFlags CollectedBeams, SuperMetroid.Core.Progression.SamusBeamFlags EquippedBeams, AttractDemoInputDefinition Input)
 {
     /// <summary>Wrapping placement: camera + half-screen horizontally + the signed offset on each axis.</summary>
-    public Position16<RoomPixels> SamusPosition => CameraPosition + LoadStation.SamusOffsetOrigin + SamusOffset;
+    public Position16<RoomPixels> SamusPosition => CameraPosition + LoadStationPlacement.SamusOffsetOrigin + SamusOffset;
 }

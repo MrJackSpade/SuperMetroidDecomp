@@ -31,7 +31,7 @@ internal static class PhantoonPathVerification
         {
             bodyWords.PathCursor = (ushort)index;
             bodyWords.FigureEightSpeed = SignedSixteenSixteen.FromParts(reverse ? -speed : speed, 0x8000);
-            bodyWords.SpeedPhase = 1;
+            bodyWords.FigureEightStage = PhantoonFigureEightStage.Surging;
             body.Position = new(new(origin, 0x1234), new(origin, 0x5678));
             eyeWords.FigureEightReversed = reverse;
             // Fast-stage +/-0.0625 leaves the whole word unchanged, except the

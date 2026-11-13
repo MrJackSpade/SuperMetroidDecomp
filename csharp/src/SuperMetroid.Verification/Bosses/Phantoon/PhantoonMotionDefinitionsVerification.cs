@@ -27,7 +27,8 @@ internal static class PhantoonMotionDefinitionsVerification
         }
         Action<PhantoonBodyState> forward = PhantoonPatterns.AdjustPhantoonForwardFigureEightSpeed;
         Action<PhantoonBodyState> reverse = PhantoonPatterns.AdjustPhantoonReverseFigureEightSpeed;
-        ushort[] phases = [0, 1, 2, 3, 0xffff];
+        // The phase words the cartridge writes: the slow start, the surge and settling (PhantoonFigureEightStageWords).
+        ushort[] phases = [0, 1, 2];
         ushort[] fractions = [0, 1, 0x5ff, 0x600, 0xefff, 0xf000, 0xf9ff, 0xfa00, 0xffff];
         PhantoonMotionCase[] cases = [.. new[] { false, true }.SelectMany(backwards => phases.SelectMany(phase =>
             fractions.Select(fraction => new PhantoonMotionCase(backwards, phase, fraction))))];
@@ -41,15 +42,30 @@ internal static class PhantoonMotionDefinitionsVerification
             for (int whole = -16; whole <= 16; whole++)
             {
                 words.FigureEightSpeed = SignedSixteenSixteen.FromParts(whole, fraction);
-                words.SpeedPhase = phase;
+                words.FigureEightStage = SuperMetroid.TestSupport.MovieReplay.PhantoonFigureEightStageWords.Decode(phase);
                 (ushort low, ushort high, ushort next) = Expected(fraction, unchecked((ushort)whole), phase, backwards);
                 (backwards ? reverse : forward)(words);
                 AssertEqual(low, words.FigureEightSpeed.Fraction, "Phantoon real fractional speed after adjustment");
                 AssertEqual(high, words.FigureEightSpeed.UnsignedWholePixels, "Phantoon real signed whole speed after adjustment");
-                AssertEqual(next, words.SpeedPhase, "Phantoon real acceleration phase transition");
+                AssertEqual(SuperMetroid.TestSupport.MovieReplay.PhantoonFigureEightStageWords.Decode(next), words.FigureEightStage, "Phantoon real acceleration phase transition");
             }
         });
-        Console.WriteLine("Phantoon motion: 14 native words and 2,970 real speed/phase adjustments match without a bus.");
+        Console.WriteLine("Phantoon motion: 14 native words and 1,782 real speed/stage adjustments match without a bus.");
+        foreach (bool backwards in new[] { false, true })
+        {
+            // A pass from rest runs the stages in their order and returns to its start, as the cartridge's phase word does.
+            var body = new PhantoonBodyState { FigureEightSpeed = SignedSixteenSixteen.FromParts(backwards ? 0 : 1, 0) };
+            var stages = new List<PhantoonFigureEightStage> { body.FigureEightStage };
+            while (stages.Count < 4)
+            {
+                (backwards ? reverse : forward)(body);
+                if (body.FigureEightStage != stages[^1])
+                    stages.Add(body.FigureEightStage);
+            }
+            AssertTrue(stages.SequenceEqual([PhantoonFigureEightStage.EasingIn, PhantoonFigureEightStage.Surging,
+                PhantoonFigureEightStage.Settling, PhantoonFigureEightStage.EasingIn]),
+                $"a figure-eight's {(backwards ? "returning" : "forward")} pass eases in, surges, settles and eases in again");
+        }
 
         // Use the ROM records, wide arithmetic and explicit word extraction independently
         // of the production add/sub helpers. Signed comparisons intentionally wrap at 16 bits.

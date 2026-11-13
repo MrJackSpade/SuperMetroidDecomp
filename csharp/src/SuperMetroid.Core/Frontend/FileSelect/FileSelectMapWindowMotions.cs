@@ -21,7 +21,7 @@ internal static class FileSelectMapWindowMotions
     /// move the initial window but did not change compiled motion in the prior contract.
     /// No generated velocity table or runtime read of the original data is used.
     /// </remarks>
-    public static FileSelectMapWindowMotion Get(int area)
+    public static FileSelectMapWindowMotion Get(AreaId area)
     {
         Position16<ScreenPixels> origin = StockOrigin(area);
         int x = origin.X, y = origin.Y;
@@ -46,7 +46,7 @@ internal static class FileSelectMapWindowMotions
     /// These stock inputs determine compiled motion; independently editable installed
     /// label anchors determine the actual starting rectangle.
     /// </remarks>
-    internal static Position16<ScreenPixels> StockOrigin(int area) => ZebesArea(area) switch
+    internal static Position16<ScreenPixels> StockOrigin(AreaId area) => area switch
     {
         AreaId.Crateria => new Position16<ScreenPixels>(91, 50),
         AreaId.Brinstar => new Position16<ScreenPixels>(42, 127),
@@ -54,10 +54,7 @@ internal static class FileSelectMapWindowMotions
         AreaId.WreckedShip => new Position16<ScreenPixels>(206, 80),
         AreaId.Maridia => new Position16<ScreenPixels>(206, 159),
         AreaId.Tourian => new Position16<ScreenPixels>(135, 139),
-        AreaId.Ceres => throw new ArgumentOutOfRangeException(nameof(area), "Only the six Zebes areas have world-map transitions."),
-        _ => throw new ArgumentOutOfRangeException(nameof(area), "Only the six Zebes areas have world-map transitions.")
+        AreaId.Ceres => throw new ArgumentOutOfRangeException(nameof(area), area, "Only the six Zebes areas have world-map transitions."),
+        _ => throw new ArgumentOutOfRangeException(nameof(area), area, "Only the six Zebes areas have world-map transitions.")
     };
-
-    /// <summary>The Zebes area at index <paramref name="area"/>, or Ceres for any index that names no Zebes area.</summary>
-    private static AreaId ZebesArea(int area) => (uint)area < AreaIds.Zebes.Count ? AreaIds.Zebes[area] : AreaId.Ceres;
 }

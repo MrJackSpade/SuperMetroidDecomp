@@ -1,26 +1,23 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>
-/// Mutually exclusive population variants accepted by the Ceres steam initializer.
-/// The numeric values are the exact parameter-one indexes used by the steam initializer.
-/// </summary>
+/// <summary>The ways a Ceres steam vent a room places can blow; the room's population names each vent's way.</summary>
 public enum CeresSteamVariant
 {
-    /// <summary>Parameter one value zero, selecting the upward steam instruction program.</summary>
-    Up = 0,
+    /// <summary>Blows upward.</summary>
+    Up,
 
-    /// <summary>Parameter one value one, selecting the leftward steam instruction program.</summary>
-    Left = 1,
+    /// <summary>Blows leftward.</summary>
+    Left,
 
-    /// <summary>Parameter one value two, selecting the downward steam instruction program.</summary>
-    Down = 2,
+    /// <summary>Blows downward.</summary>
+    Down,
 
-    /// <summary>Parameter one value three, selecting the rightward steam instruction program.</summary>
-    Right = 3,
+    /// <summary>Blows rightward.</summary>
+    Right,
 
-    /// <summary>Parameter one value four, reusing leftward animation with the rotating-elevator graphical offset.</summary>
-    RotatingElevatorLeft = 4,
+    /// <summary>Blows leftward, its picture offset for the rotating elevator room.</summary>
+    RotatingElevatorLeft,
 
-    /// <summary>Parameter one value five, reusing rightward animation with the rotating-elevator graphical offset.</summary>
-    RotatingElevatorRight = 5,
+    /// <summary>Blows rightward, its picture offset for the rotating elevator room.</summary>
+    RotatingElevatorRight,
 }

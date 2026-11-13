@@ -46,9 +46,8 @@ public sealed class FileSelectRoomMapGraphics
         mapSheet = installed.Get(SpriteSheetId.MapSprites);
         roomPictures = installed.Get(SpriteSheetId.RoomMapPictures);
         icons.BindSprites(mapSheet);
-        int index = AreaIds.ToIndex(area);
-        if (index >= FileSelectMapDefinitions.AreaCount)
-            throw new ArgumentOutOfRangeException(nameof(area));
+        if (!AreaIds.IsZebes(area))
+            throw new ArgumentOutOfRangeException(nameof(area), area, "Ceres has no room map on the saved-game map.");
         screen = new MenuScreen(mapPresentation.Backdrops.FileSelect, installed);
         AreaMap = AreaMapProjection.Project(mapPresentation.Get(area), system, revealMode);
     }

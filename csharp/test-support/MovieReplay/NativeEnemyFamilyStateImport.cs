@@ -114,7 +114,7 @@ internal static class NativeEnemyFamilyStateImport
             phantoonBody.ExplosionPass = words.A;
             phantoonBody.StartingFlamesActive = words.B != 0;
             phantoonBody.FigureEightSpeed = SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B);
-            phantoonBody.SpeedPhase = words.D;
+            phantoonBody.FigureEightStage = PhantoonFigureEightStageWords.Decode(words.D);
             phantoonBody.FunctionTimer = CoordinateAxis.AsSigned(words.E);
             if (words.F != 0)
                 phantoonBody.Function = PhantoonNativeWords.AiFunctions.Decode(words.F, "recorded PhantoonAiFunction");

@@ -167,16 +167,19 @@ internal static class MotherBrainEncodingDomainsVerification
     /// <summary>The snapshot import accepts every defined word and rejects words outside each domain.</summary>
     private static void VerifySnapshotDecodesRejectUndefinedWords()
     {
-        foreach (MotherBrainForm form in Enum.GetValues<MotherBrainForm>())
-            AssertEqual(form, NativeSnapshotMotherBrainImport.DecodeForm((ushort)form), $"form {form} decodes");
+        MotherBrainForm[] forms = [MotherBrainForm.Glass, MotherBrainForm.FakeDeath, MotherBrainForm.SecondPhase,
+            MotherBrainForm.DrainedByBabyMetroid, MotherBrainForm.ThirdPhase];
+        AssertTrue(forms.Order().SequenceEqual(Enum.GetValues<MotherBrainForm>().Order()), "every form has a snapshot word");
+        for (ushort word = 0; word < forms.Length; word++)
+            AssertEqual(forms[word], NativeSnapshotMotherBrainImport.DecodeForm(word), $"form word {word} decodes");
         AssertThrows<InvalidDataException>(() => NativeSnapshotMotherBrainImport.DecodeForm(5),
             "a form word past the final phase is rejected");
 
-        foreach (MotherBrainPhase2CorpseState corpse in Enum.GetValues<MotherBrainPhase2CorpseState>())
-        {
-            AssertEqual(corpse, NativeSnapshotMotherBrainImport.DecodePhase2CorpseState((ushort)corpse),
-                $"corpse state {corpse} decodes");
-        }
+        MotherBrainPhase2CorpseState[] corpses = [MotherBrainPhase2CorpseState.Living, MotherBrainPhase2CorpseState.Corpse,
+            MotherBrainPhase2CorpseState.Revived];
+        AssertTrue(corpses.Order().SequenceEqual(Enum.GetValues<MotherBrainPhase2CorpseState>().Order()), "every corpse state has a snapshot word");
+        for (ushort word = 0; word < corpses.Length; word++)
+            AssertEqual(corpses[word], NativeSnapshotMotherBrainImport.DecodePhase2CorpseState(word), $"corpse word {word} decodes");
         AssertThrows<InvalidDataException>(() => NativeSnapshotMotherBrainImport.DecodePhase2CorpseState(3),
             "a corpse-handshake word past revived is rejected");
 

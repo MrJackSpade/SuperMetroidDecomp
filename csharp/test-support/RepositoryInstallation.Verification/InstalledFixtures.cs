@@ -409,7 +409,7 @@ internal static class InstalledFixtures
     }
 
     /// <summary>Creates a file-select area map from installed presentation resources.</summary>
-    internal static FileSelectAreaMapGraphics CreateFileSelectAreaMap(int selectedArea) =>
+    internal static FileSelectAreaMapGraphics CreateFileSelectAreaMap(SuperMetroid.Core.Progression.AreaId selectedArea) =>
         FileSelectAreaMapGraphics.FromPresentation(selectedArea, Maps, SpriteSheets);
 
     /// <summary>Creates the title sequence with installed gradient, palette, and graphics defaults.</summary>

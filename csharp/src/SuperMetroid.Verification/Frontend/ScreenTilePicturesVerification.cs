@@ -46,13 +46,12 @@ internal static class ScreenTilePicturesVerification
         InstalledSpriteSheets sheets = InstalledFixtures.SpriteSheets;
         var explored = new SharedGameState(new SharedRandom());
         explored.Progress.ExploreEveryCell();
-        ushort[] used = Enumerable.Repeat(ushort.MaxValue, FileSelectMapDefinitions.AreaCount).ToArray();
-        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
+        ushort[] used = Enumerable.Repeat(ushort.MaxValue, AreaIds.Zebes.Count).ToArray();
+        foreach (AreaId shownArea in AreaIds.Zebes)
         {
-            var shownArea = (AreaId)area;
             SpriteSheetFrame foreground = sheets.Get(ScreenTileSheetDefinitions.AreaMapForegrounds[shownArea]).Frame(AreaMapPictures.WorldForegroundFrame);
             SpriteSheetFrame background = sheets.Get(ScreenTileSheetDefinitions.AreaMapBackgrounds[shownArea]).Frame(AreaMapPictures.WorldBackgroundFrame);
-            FileSelectAreaMapGraphics world = InstalledFixtures.CreateFileSelectAreaMap(area);
+            FileSelectAreaMapGraphics world = InstalledFixtures.CreateFileSelectAreaMap(shownArea);
             foreach (AreaMapBackgroundGlow math in new[] { AreaMapBackgroundGlow.WholeScreen, AreaMapBackgroundGlow.ForegroundOnly })
             {
                 LayeredScene scene = world.CaptureRenderSnapshot(FileSelectMapGraphicsPixelsAccess.UsedStations(used), math);

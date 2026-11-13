@@ -236,7 +236,7 @@ internal static class RoomSpriteObjectVisualDefinitionsConstants
         RoomSpriteObjectFrame.MetroidElectricity0 => 0xd6f1,
         RoomSpriteObjectFrame.MetroidElectricity1 => 0xd702,
         RoomSpriteObjectFrame.MetroidElectricity2 => 0xd713,
-        RoomSpriteObjectFrame.SpriteObjectDrawInstEmpty => 0xbda6,
+        RoomSpriteObjectFrame.Nothing => 0xbda6,
         RoomSpriteObjectFrame.MetroidElectricity3 => 0xd724,
         RoomSpriteObjectFrame.MetroidElectricity4 => 0xd73a,
         RoomSpriteObjectFrame.MetroidElectricity5 => 0xd750,

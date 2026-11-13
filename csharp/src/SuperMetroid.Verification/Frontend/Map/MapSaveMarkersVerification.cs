@@ -18,91 +18,68 @@ internal static class MapSaveMarkersVerification
     internal static void VerifySaveMarkerEligibility(ISnesAddressSpace bus)
     {
         var expectedIds = new List<string>();
-        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
+        foreach (AreaId area in AreaIds.Zebes)
         {
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), (int)FrontendSourceDefinitions.SavePointMapPointers + area * 2);
+            int areaNumber = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area);
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), (int)FrontendSourceDefinitions.SavePointMapPointers + areaNumber * 2);
             int nativeMask = 0;
-            var expectedIndices = new List<int>();
-            for (int index = 0; index < MapSaveMarkerDefinitions.SlotsPerArea; index++)
+            var expectedStations = new List<LoadStation>();
+            // Each native marker list holds a slot for each number the area's station list can give a station.
+            for (int index = 0; index < 16; index++)
             {
                 ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectBank | (pointer + index * 4));
                 AssertTrue(x != ushort.MaxValue, "all sixteen native save/elevator slots precede the terminator");
                 bool usable = x != ushort.MaxValue - 1;
-                AssertEqual(usable, MapSaveMarkers.IsUsable((AreaId)area, index),
-                    "compiled active placement agrees with original marker presence");
-                if (usable)
+                LoadStation? station = SuperMetroid.Core.Saves.LoadStationNumberCodec.Find(area, index);
+                AssertEqual(usable, station is not null && MapSaveMarkers.IsMarked(station),
+                    "a station has a marker exactly where the original marker list has one");
+                if (usable && station is not null)
                 {
                     nativeMask |= 1 << index;
-                    expectedIndices.Add(index);
-                    string id = $"{(AreaId)area}.Save.{index}";
-                    expectedIds.Add(id);
-                    AssertEqual(id, MapSaveMarkers.Id((AreaId)area, index), "stable marker identity");
+                    expectedStations.Add(station);
+                    expectedIds.Add(station.Name);
+                    AssertEqual(station.Name, MapSaveMarkers.Id(station), "a marker is keyed by its station's name");
                 }
-                else
-                    AssertThrows<InvalidDataException>(() => MapSaveMarkers.Id((AreaId)area, index),
-                        "native unused marker remains rejected");
             }
-            AssertTrue(expectedIndices.SequenceEqual(MapSaveMarkers.Indices((AreaId)area)),
-                "lazy enumeration preserves native ascending station order");
+            AssertTrue(expectedStations.SequenceEqual(MapSaveMarkers.Stations(area)),
+                "an area's marked stations are its original marker slots, in their order");
             // One station set holds each mask in turn, as a save's used stations would, rather than a whole new save's
             // progress per mask (#1532).
-            var usedStations = new NumberedFlagSet(PersistentProgress.StationsPerArea);
+            ProgressSet<LoadStation> usedStations = new PersistentProgress().UsedStations;
+            LoadStation[] areaStations = [.. LoadStationDefinitions.Usable.Where(station => station.Area == area)];
             for (int mask = 0; mask <= ushort.MaxValue; mask++)
             {
-                for (int station = 0; station < PersistentProgress.StationsPerArea; station++)
-                    usedStations.Set(station, (mask & (1 << station)) != 0);
-                AssertEqual((mask & nativeMask) != 0, MapSaveMarkers.HasUsedMarker((AreaId)area, usedStations),
+                foreach (LoadStation station in areaStations)
+                    usedStations.Set(station, (mask & (1 << SuperMetroid.Core.Saves.LoadStationNumberCodec.Number(station))) != 0);
+                AssertEqual((mask & nativeMask) != 0, MapSaveMarkers.HasUsedMarker(area, usedStations),
                     "every set of used stations retains native area-label eligibility");
-            }
-            foreach (int invalid in new[] { int.MinValue, -1, 16, 256, int.MaxValue })
-            {
-                AssertThrows<ArgumentOutOfRangeException>(() => MapSaveMarkers.IsUsable((AreaId)area, invalid),
-                    "station bounds precede byte narrowing");
-                AssertThrows<ArgumentOutOfRangeException>(() => MapSaveMarkers.Id((AreaId)area, invalid),
-                    "ID station bounds remain rejected");
             }
         }
         AssertEqual(34, expectedIds.Count, "all original marker identities");
         AssertTrue(expectedIds.SequenceEqual(MapSaveMarkerFile.Ids()), "full marker identity enumeration order");
-        foreach (AreaId invalid in new[] { AreaId.Ceres, (AreaId)7, (AreaId)255 })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => { _ = MapSaveMarkers.Indices(invalid); },
-                "invalid area rejects without enumerating the lazy sequence");
-            AssertThrows<ArgumentOutOfRangeException>(() => MapSaveMarkers.HasUsedMarker(invalid, new NumberedFlagSet(PersistentProgress.StationsPerArea)),
-                "invalid area rejects even an empty used mask");
-            try
-            {
-                MapSaveMarkers.Id(invalid, -1);
-                throw new InvalidOperationException("Invalid marker area/index accepted.");
-            }
-            catch (ArgumentOutOfRangeException error)
-            {
-                AssertEqual("area", error.ParamName, "area validation retains precedence over index validation");
-            }
-        }
+        AssertThrows<ArgumentOutOfRangeException>(() => { _ = MapSaveMarkers.Stations(AreaId.Ceres); },
+            "Ceres rejects without enumerating the lazy sequence");
+        AssertThrows<ArgumentOutOfRangeException>(() => MapSaveMarkers.HasUsedMarker(AreaId.Ceres, new PersistentProgress().UsedStations),
+            "Ceres rejects even an empty used set");
+        foreach (LoadStation unmarked in new[] { LoadStationDefinitions.ZebesArrival, LoadStationDefinitions.CeresElevator })
+            AssertThrows<ArgumentOutOfRangeException>(() => MapSaveMarkers.Id(unmarked), $"{unmarked} has no marker");
     }
 
     /// <summary>
-    /// Checks which save markers the cartridge lets an area show (<see cref="VerifySaveMarkerEligibility"/>), that a marker
-    /// index no area shows, Ceres's, or one past the slots is rejected, and the whole file-select menu over the installed map.
+    /// Checks which save markers the cartridge lets an area show (<see cref="VerifySaveMarkerEligibility"/>), that a station
+    /// with no marker is rejected, and the whole file-select menu over the installed map.
     /// </summary>
     internal static void VerifyMapSaveMarkers(ISnesAddressSpace bus, AreaMapPresentation original)
     {
         Suite(nameof(VerifySaveMarkerEligibility), () => VerifySaveMarkerEligibility(bus));
-        int unused = 0;
-        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
-        for (int index = 0; index < MapSaveMarkerDefinitions.SlotsPerArea; index++)
+        int unmarked = 0;
+        foreach (LoadStation station in LoadStationDefinitions.All.Where(station => !MapSaveMarkers.IsMarked(station)))
         {
-            var typedArea = (AreaId)area;
-            if (MapSaveMarkers.Indices(typedArea).Contains(index))
-                continue;
-            AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(typedArea, index, original.SaveMarkers), "an unused marker index is rejected");
-            unused++;
+            AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(station, original.SaveMarkers), $"{station} has no marker");
+            unmarked++;
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(AreaId.Ceres, 0, original.SaveMarkers), "Ceres marker rejected");
-        foreach (int invalid in new[] { -1, MapSaveMarkerDefinitions.SlotsPerArea })
-            AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(AreaId.Crateria, invalid, original.SaveMarkers), "out-of-range marker rejected");
+        AssertEqual(2, unmarked, "the arrival on Zebes and the Ceres start have no marker");
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original));
-        Console.WriteLine($"Save markers: eligibility, {unused} unused indices and out-of-range markers rejected, and the file-select menu pass.");
+        Console.WriteLine($"Save markers: eligibility, {unmarked} unmarked stations rejected, and the file-select menu pass.");
     }
 }

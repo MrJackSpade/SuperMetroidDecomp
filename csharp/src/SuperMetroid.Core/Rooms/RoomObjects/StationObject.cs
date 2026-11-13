@@ -209,7 +209,7 @@ internal sealed class StationObject(
                 StationKind.Save,
                 GameplayMessageIds.SaveCompleted,
                 AreaIndex,
-                StationNumber(place),
+                SavedStation(place),
                 place.Block));
             return true;
         }
@@ -269,13 +269,13 @@ internal sealed class StationObject(
             Kind,
             message,
             AreaIndex,
-            (place.Argument as StationArgument)?.Station,
+            (place.Argument as SaveStationArgument)?.Station,
             place.Block));
     }
 
-    /// <summary>The number the station was placed with, which its activation events carry.</summary>
-    private static int StationNumber(RoomObjectSlot place) => (place.Argument as StationArgument
-        ?? throw new InvalidDataException($"Station at block {place.Block} was placed without its number.")).Station;
+    /// <summary>The load station a save station saves at, which its activation events carry.</summary>
+    private static LoadStation SavedStation(RoomObjectSlot place) => (place.Argument as SaveStationArgument
+        ?? throw new InvalidDataException($"Save station at block {place.Block} was placed without its load station.")).Station;
 
     /// <summary>Draws the access arm at the access Samus used, in the short or extended pose.</summary>
     private void DrawAccess(RoomObjectStepContext context, StationAccessPose pose)

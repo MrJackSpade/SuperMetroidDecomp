@@ -77,7 +77,7 @@ internal static class MapSpritesVerification
             var guard = NewMapSpriteGuard(bus);
             var system = new SharedGameState(new SharedRandom()); system.SetAreaMapAcquired(AreaId.WreckedShip);
             system.Progress.ExploreEveryCell();
-            var marker = new FileSelectStationMarker(AreaId.WreckedShip, 0,
+            var marker = new FileSelectStationMarker(LoadStationDefinitions.WreckedShipSave,
                 original.SaveMarkers);
             var room = new FileSelectRoomMapGraphics(system, AreaId.WreckedShip, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
             var nativeRoom = new FileSelectRoomMapGraphics(system,

@@ -641,7 +641,7 @@ internal static class RoomObjectPopulationVerification
             Action stopEarthquake)
         {
             var roomObjects = RoomObjectFixtures.Unbound();
-            AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Norfair), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent }, RoomFx = new RoomObjectFx(fx, () => samus), Earthquake = new FixtureRoomEarthquake { WriteStop = stopEarthquake } }),
+            AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Norfair), RoomObjectPopulationImporter.Read(bus, population, AreaId.Norfair), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent }, RoomFx = new RoomObjectFx(fx, () => samus), Earthquake = new FixtureRoomEarthquake { WriteStop = stopEarthquake } }),
                 "Speed Booster escape record is accepted by sequential loader");
             return roomObjects;
         }
@@ -1127,7 +1127,7 @@ internal static class RoomObjectPopulationVerification
         var system = new SharedGameState(new SharedRandom());
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 99, MaxHealth = 99, Missiles = 0, MaxMissiles = 10 };
         var roomObjects = RoomObjectFixtures.Unbound();
-        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Norfair), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Norfair), RoomObjectPopulationImporter.Read(bus, population, AreaId.Norfair), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
 
         AssertEqual(3, roomObjects.StationSnapshots.Count, "map, missile, and save parents share one pool");
         AssertEqual(0x47, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(7, 6)).Behavior),
@@ -1186,8 +1186,8 @@ internal static class RoomObjectPopulationVerification
         roomObjects.Step(level);
         AssertEqual(StationKind.Save, roomObjects.Stations.StationActivationEvents.Single().Kind,
             "save trigger publishes typed confirmation request");
-        AssertEqual(3, roomObjects.Stations.StationActivationEvents.Single().SaveStationNumber,
-            "save request preserves native room argument/station index");
+        AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.CrocomireSave, roomObjects.Stations.StationActivationEvents.Single().Station),
+            "save request carries the load station its room argument names");
 
         StationActivationEvent saveRequest = roomObjects.Stations.StationActivationEvents.Single();
         samus.Position = samus.Position.WithWholeX(0x0127);

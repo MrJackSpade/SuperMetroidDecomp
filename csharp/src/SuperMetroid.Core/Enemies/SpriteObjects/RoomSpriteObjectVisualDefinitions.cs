@@ -238,7 +238,7 @@ internal static class RoomSpriteObjectVisualDefinitions
         { RoomSpriteObjectFrame.MetroidElectricity0, EnemyFrameId.SpriteObjectMetroidElectricity0 },
         { RoomSpriteObjectFrame.MetroidElectricity1, EnemyFrameId.SpriteObjectMetroidElectricity1 },
         { RoomSpriteObjectFrame.MetroidElectricity2, EnemyFrameId.SpriteObjectMetroidElectricity2 },
-        { RoomSpriteObjectFrame.SpriteObjectDrawInstEmpty, EnemyFrameId.SpriteObjectEmpty },
+        { RoomSpriteObjectFrame.Nothing, EnemyFrameId.SpriteObjectEmpty },
         { RoomSpriteObjectFrame.MetroidElectricity3, EnemyFrameId.SpriteObjectMetroidElectricity3 },
         { RoomSpriteObjectFrame.MetroidElectricity4, EnemyFrameId.SpriteObjectMetroidElectricity4 },
         { RoomSpriteObjectFrame.MetroidElectricity5, EnemyFrameId.SpriteObjectMetroidElectricity5 },

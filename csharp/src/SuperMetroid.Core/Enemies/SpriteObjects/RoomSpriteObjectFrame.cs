@@ -464,8 +464,8 @@ internal enum RoomSpriteObjectFrame
     MetroidElectricity1,
     /// <summary>Metroid electricity, frame 2.</summary>
     MetroidElectricity2,
-    /// <summary>Draw inst sprite object: empty.</summary>
-    SpriteObjectDrawInstEmpty,
+    /// <summary>No picture: the sprite object shows nothing for the frame.</summary>
+    Nothing,
     /// <summary>Metroid electricity, frame 3.</summary>
     MetroidElectricity3,
     /// <summary>Metroid electricity, frame 4.</summary>

@@ -674,25 +674,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {
-                foreach (var trail in runtime.Projectiles.TrailSlots)
-                {
-                    Check($"Trail {trail.SlotIndex} Left timer", trail.Left.FrameHold, NativeSnapshotMemory.TrailLeftFrameHold + trail.SlotTableOffset);
-                    if (trail.Left.FrameHold != 0)
-                    {
-                        Check($"Trail {trail.SlotIndex} Left InstructionPointer", trail.Left.InstructionPointer, NativeSnapshotMemory.TrailLeftInstructionPointer + trail.SlotTableOffset);
-                        Check($"Trail {trail.SlotIndex} Left TileNumberAttributes", ProjectileTrailNative.NativeWord(trail.Left.ShownPose), NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.SlotTableOffset);
-                        Check($"Trail {trail.SlotIndex} Left XPosition", trail.Left.Position.X, NativeSnapshotMemory.TrailLeftXPosition + trail.SlotTableOffset);
-                        Check($"Trail {trail.SlotIndex} Left YPosition", trail.Left.Position.Y, NativeSnapshotMemory.TrailLeftYPosition + trail.SlotTableOffset);
-                    }
-                    Check($"Trail {trail.SlotIndex} Right timer", trail.Right.FrameHold, NativeSnapshotMemory.TrailRightFrameHold + trail.SlotTableOffset);
-                    if (trail.Right.FrameHold != 0)
-                    {
-                        Check($"Trail {trail.SlotIndex} Right InstructionPointer", trail.Right.InstructionPointer, NativeSnapshotMemory.TrailRightInstructionPointer + trail.SlotTableOffset);
-                        Check($"Trail {trail.SlotIndex} Right TileNumberAttributes", ProjectileTrailNative.NativeWord(trail.Right.ShownPose), NativeSnapshotMemory.TrailRightTileNumberAttributes + trail.SlotTableOffset);
-                        Check($"Trail {trail.SlotIndex} Right XPosition", trail.Right.Position.X, NativeSnapshotMemory.TrailRightXPosition + trail.SlotTableOffset);
-                        Check($"Trail {trail.SlotIndex} Right YPosition", trail.Right.Position.Y, NativeSnapshotMemory.TrailRightYPosition + trail.SlotTableOffset);
-                    }
-                }
+                // Trails are presentation particles nothing in gameplay reads, unbounded and without places (#1625), so
+                // the gameplay comparison holds none of them.
                 Check("Projectile cooldown", runtime.BombProjectiles.CooldownTimer.RawValue, NativeSnapshotMemory.ProjectileCooldown);
                 Check("Beam charge", runtime.Projectiles.Charge.FlareCounter, NativeSnapshotMemory.BeamCharge);
                 Check("ProjectileCounter", runtime.Projectiles.SlotTable.ProjectileCounter, NativeSnapshotMemory.ProjectileCount);

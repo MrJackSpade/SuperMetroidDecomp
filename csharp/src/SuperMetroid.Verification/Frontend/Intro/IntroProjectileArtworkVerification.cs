@@ -41,7 +41,7 @@ internal static class IntroProjectileArtworkVerification
         }
         projectiles.Reset();
         ProjectileTrailFrame frame = ProjectileTrailVisualDefinitions.Frames[0];
-        var side = projectiles.TrailSlots[0].Left;
+        var side = projectiles.AddTrail().Left;
         side.InstructionPointer = (ushort)(ProjectileTrailNative.Address(frame) + 4); side.FrameHold = 100;
         side.Position = side.Position.WithX(100).WithY(100); side.ShownPose = frame;
         AssertEqual(sheet.Frame(ProjectileSheetFrames.TrailFrame(frame)), Shown(intro, SpriteSourceKind.SamusProjectileTrail).Image,

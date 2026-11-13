@@ -10,9 +10,6 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// </summary>
 public static class ProjectileSheetDefinitions
 {
-    /// <summary>The frame a trail side shows before its first pose: the sheet's first image, unflipped and in its default colours.</summary>
-    public const string UnshownTrailFrame = "Trail.Unshown";
-
     /// <summary>
     /// The sheet the projectiles of each beam combination are pictured from (#1586). Spazer with Plasma, and Spazer with
     /// Plasma, Ice and Wave (the Golden Torizo code's Murder Beam), have no pictures of their own: their uncharged shot

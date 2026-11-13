@@ -36,8 +36,6 @@ internal static class SamusOverreadDecoding
             SamusOverreadFormat.Version,
             AnimationContinuations(cartridge),
             SamusAnimationOperandDecoding.OperandSteps(cartridge),
-            Enum.GetValues<SamusProjectileProgram>().ToDictionary(program => program.ToString(), program => (int)lists.Prefix(program)),
-            TrailPlacementsPastRecords(cartridge, lists),
             SpaceTimeOverwrites(cartridge, lists),
             ChainsawFuseLandings(lists),
             ChargeFlareDelaysBelowPrograms(cartridge),
@@ -67,48 +65,6 @@ internal static class SamusOverreadDecoding
         return SamusAnimationProgramLayout.PosesWithRecords()
             .ToDictionary(pose => pose.ToString(), pose => successors[SamusAnimationDelays.ProgramForPose(pose)]);
     }
-
-    /// <summary>
-    /// What a trail finds past each placement list's records at every frame it can read there. The original game indexes
-    /// the list four bytes per frame within its bank and takes the record's four bytes from there; a record below the
-    /// cartridge half of the bank, or running into the next bank, lies in scratch memory and draws no trail (#1318).
-    /// </summary>
-    private static Dictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Placement?>> TrailPlacementsPastRecords(
-        IImportCartridgeSource cartridge, SamusProjectileListLayout lists)
-    {
-        var result = new Dictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Placement?>>();
-        foreach (ProjectileTrailPlacementList list in Enum.GetValues<ProjectileTrailPlacementList>())
-        {
-            SnesAddress start = ProjectileTrailPlacementSources.Start(cartridge, list);
-            var frames = new Dictionary<string, SamusOverreadDocument.Placement?>();
-            foreach (int frame in TrailFramesPastRecords(list, lists))
-            {
-                SnesAddress record = start.AddWithinBank(frame * ProjectileTrailPlacementSources.RecordByteCount);
-                SnesAddress last = record.AddWithinBank(ProjectileTrailPlacementSources.RecordByteCount - 1);
-                if (!record.IsUpperLoRomWindow || last.Offset < record.Offset)
-                {
-                    frames.Add(frame.ToString(System.Globalization.CultureInfo.InvariantCulture), null);
-                    continue;
-                }
-                byte[] bytes = RomDataReader.ReadFixedBank(cartridge, record, ProjectileTrailPlacementSources.RecordByteCount);
-                frames.Add(frame.ToString(System.Globalization.CultureInfo.InvariantCulture), new SamusOverreadDocument.Placement(
-                    new(unchecked((sbyte)bytes[0]), unchecked((sbyte)bytes[1])), new(unchecked((sbyte)bytes[2]), unchecked((sbyte)bytes[3]))));
-            }
-            result.Add(list.ToString(), frames);
-        }
-        return result;
-    }
-
-    /// <summary>
-    /// The frames a trail can read <paramref name="list"/> at past its placements, ascending: every Samus projectile
-    /// record's animation frame and every word before a projectile list, which a trail spawned at a list's start reads.
-    /// </summary>
-    private static int[] TrailFramesPastRecords(ProjectileTrailPlacementList list, SamusProjectileListLayout lists) =>
-        [.. SamusProjectileRecordOrder.Frames.Select(record => SamusProjectileRecordDefinitions.Get(record).AnimationFrame)
-            .Concat(Enum.GetValues<SamusProjectileProgram>().Select(program => (int)lists.Prefix(program)))
-            .Distinct()
-            .Where(frame => frame >= ProjectileTrailPlacementDefinitions.Records[list].Length)
-            .Order()];
 
     /// <summary>
     /// What SpaceTime's palette copy overwrites in progression for every animation position a SpaceTime shot can hold and

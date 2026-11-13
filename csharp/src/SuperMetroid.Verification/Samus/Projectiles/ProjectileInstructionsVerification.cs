@@ -4,6 +4,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
@@ -100,17 +101,21 @@ internal static class ProjectileInstructionsVerification
             else if (value < 0x8000) words.Add(a + 6);
         }
         AssertEqual(1792, words.Count, "All authored duration/trail/control words inventoried");
-        var trailFrame = new Func<SamusProjectile, int>(slot => ProjectileTrails.GetTrailAnimationFrame(slot, InstalledFixtures.SamusOverreads.Projectiles.TrailStarts));
         var trailSlot = new SamusProjectile(0);
-        // A trail reads the word just before the shot's next list position: the last record's animation frame, or the
-        // word preceding a freshly installed list.
+        // A trail reads the animation frame of the record the shot last installed, the word just before the shot's next
+        // list position; a shot whose list has installed none yet shows no frame, and leaves no trail (#1625).
         foreach (ushort entry in entries)
         {
-            trailSlot.Playback = SamusProjectileProgramAddresses.PlaybackAt(entry);
+            AnimationPlayback<SamusProjectileProgram> playback = SamusProjectileProgramAddresses.PlaybackAt(entry)
+                ?? throw new InvalidOperationException($"Projectile list position ${entry:X4} names no playback.");
+            trailSlot.Playback = playback;
+            int? expected = SamusProjectilePrograms.BeatOf(playback).Beat == 0
+                ? null
+                : CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x930000 | (entry - 2));
             foreach (ushort timer in new ushort[] { 0, 1, 2, ushort.MaxValue })
             {
                 trailSlot.FrameHold = WrappingCountdown.FromRaw(timer);
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x930000 | (entry - 2)), trailFrame(trailSlot), "Trail owner consumes the previous list word regardless of timer or cached frame");
+                AssertEqual(expected, ProjectileTrails.GetTrailAnimationFrame(trailSlot), "Trail owner reads the last installed record's frame regardless of timer");
                 AssertEqual(timer, trailSlot.FrameHold.RawValue, "Trail frame lookup leaves timer unchanged");
             }
         }
@@ -150,7 +155,7 @@ internal static class ProjectileInstructionsVerification
                     AssertTrue(bomb.Type.IsNone, "Delete clears bomb occupancy");
                     break;
                 }
-                AssertEqual(new VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y, trail), new VerifyLookupStream1ProjectileProgramsCase(slot.FrameHold.RawValue, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, ProjectileTrails.GetTrailAnimationFrame(slot, InstalledFixtures.SamusOverreads.Projectiles.TrailStarts)), "Exact projectile frame matches ROM interpreter");
+                AssertEqual(new VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y, trail), new VerifyLookupStream1ProjectileProgramsCase(slot.FrameHold.RawValue, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, ProjectileTrails.GetTrailAnimationFrame(slot) ?? throw new InvalidOperationException("A played projectile shows a record.")), "Exact projectile frame matches ROM interpreter");
                 AssertEqual(new LookupStream1VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y), new LookupStream1VerifyLookupStream1ProjectileProgramsCase(bomb.FrameHold.RawValue, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y), "Exact bomb frame matches ROM interpreter");
             }
         }

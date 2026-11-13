@@ -6,14 +6,12 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// The compatibility services Samus's projectiles consult where their glitch paths read past the data the original game
-/// meant them to read (#1474, #1500): what the projectile system hands its trails, combos, firing, impacts, Chainsaw
-/// fuse and crash echoes as it builds them. Lifetime: the installation's, shared by every projectile
-/// system.
+/// meant them to read (#1474, #1500): what the projectile system hands its combos, firing, impacts, Chainsaw fuse and
+/// crash echoes as it builds them. Lifetime: the installation's, shared by every projectile system.
 /// </summary>
 public sealed class SamusProjectileOverreads
 {
     /// <summary>Keeps every decoded service the projectiles consult.</summary>
-    /// <param name="trailStarts">Where a projectile trail starts when its read passes its placement list.</param>
     /// <param name="spaceTimeOverwrite">What Spacetime's palette copy overwrites in saved progression.</param>
     /// <param name="chainsawFuseShift">Where the Chainsaw beam's animation lands when its fuse speeds up.</param>
     /// <param name="chargeFlareDelays">The delays a charge-flare frame reads below the flare's programs.</param>
@@ -21,7 +19,6 @@ public sealed class SamusProjectileOverreads
     /// <param name="unauthoredBeamFiring">The speeds a Spazer and Plasma beam launches at and the cooldowns it waits.</param>
     /// <param name="drainedCrashDepartures">The angles a Shinespark crash finishing in a drained pose releases its echoes at.</param>
     internal SamusProjectileOverreads(
-        TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> trailStarts,
         SpaceTimeProgressionOverwrite<SamusProjectileSegmentBeat, ProgressionOverwrite> spaceTimeOverwrite,
         ChainsawFuseAnimationShift<SamusProjectileSegmentBeat> chainsawFuseShift,
         ChargeFlareDelaysBelowPrograms chargeFlareDelays,
@@ -29,7 +26,6 @@ public sealed class SamusProjectileOverreads
         UnauthoredBeamFiring<SamusBeamCombination> unauthoredBeamFiring,
         DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> drainedCrashDepartures)
     {
-        TrailStarts = Ensure.NotNull(trailStarts);
         SpaceTimeOverwrite = Ensure.NotNull(spaceTimeOverwrite);
         ChainsawFuseShift = Ensure.NotNull(chainsawFuseShift);
         ChargeFlareDelays = Ensure.NotNull(chargeFlareDelays);
@@ -37,9 +33,6 @@ public sealed class SamusProjectileOverreads
         UnauthoredBeamFiring = Ensure.NotNull(unauthoredBeamFiring);
         DrainedCrashDepartures = Ensure.NotNull(drainedCrashDepartures);
     }
-
-    /// <summary>Where a projectile trail starts when its read passes its placement list.</summary>
-    internal TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> TrailStarts { get; }
 
     /// <summary>What Spacetime's palette copy overwrites in saved progression.</summary>
     internal SpaceTimeProgressionOverwrite<SamusProjectileSegmentBeat, ProgressionOverwrite> SpaceTimeOverwrite { get; }

@@ -33,12 +33,13 @@ internal static class ProjectileTrailArtworkVerification
                 if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
                 else { cursor += 2; }
             }
-            var nativeSystem = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)); var authoredSystem = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
-            // The cartridge's retained tile words, which the native interpreter keeps beside the port's sides.
+            var authoredSystem = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
+            // The native interpreter's own trail, run beside the port's, and the cartridge's retained tile words it keeps.
+            var nativeTrail = new SamusProjectileTrail(SuperMetroid.Core.Progression.SamusBeamCombination.Power);
+            SamusProjectileTrail authoredTrail = authoredSystem.AddTrail();
             var nativeWords = new Dictionary<SamusProjectileTrailSide, ushort>();
-            foreach (var system in new[] { nativeSystem, authoredSystem })
+            foreach (var pair in new[] { nativeTrail, authoredTrail })
             {
-                var pair = system.TrailSlots[0];
                 foreach (var side in new[] { pair.Left, pair.Right })
                 { side.InstructionPointer = start; side.FrameHold = 1; side.Position = side.Position.WithX(100).WithY(100); }
             }
@@ -46,14 +47,14 @@ internal static class ProjectileTrailArtworkVerification
             {
                 var nativeOam = new OamBuffer();
                 bool frozenFrame = frame % 5 == 0;
-                DrawNativeTrailFrame(bus, nativeSystem.TrailSlots[0], nativeWords, nativeOam, frozenFrame);
+                DrawNativeTrailFrame(bus, nativeTrail, nativeWords, nativeOam, frozenFrame);
                 OamBuffer authoredOam = SpriteFrameBuffer.DrawnOam(sprites =>
                 {
                     authoredSystem.AdvanceTrails(frozenFrame);
                     authoredSystem.DrawTrails(sprites, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork());
                 });
                 AssertTrue(nativeOam.LowTable.SequenceEqual(authoredOam.LowTable), "Trail catalog preserves live command/termination/freeze frame output");
-                foreach (var sides in new[] { new VerifyProjectileTrailArtworkCase(nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), new VerifyProjectileTrailArtworkCase(nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
+                foreach (var sides in new[] { new VerifyProjectileTrailArtworkCase(nativeTrail.Left, authoredTrail.Left), new VerifyProjectileTrailArtworkCase(nativeTrail.Right, authoredTrail.Right) })
                 {
                     AssertEqual(sides.First.InstructionPointer, sides.Second.InstructionPointer, "Trail artwork cannot change instruction cursor");
                     AssertEqual(sides.First.FrameHold, sides.Second.FrameHold, "Trail artwork cannot change live timing");
@@ -85,7 +86,7 @@ internal static class ProjectileTrailArtworkVerification
             ushort frame = ProjectileTrailNative.Address(pose);
             ushort attributes = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.MovementBank.Value | (frame + 2));
             var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
-            var side = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
+            var side = system.AddTrail().Left;
             side.InstructionPointer = (ushort)(frame + 4); side.FrameHold = 3;
             side.Position = side.Position.WithX(coordinate).WithY(coordinate); side.ShownPose = pose;
             // The OAM capacity stop is a dropped presentation quirk (#1308), and so is the off-screen cull (#1541):
@@ -113,14 +114,16 @@ internal static class ProjectileTrailArtworkVerification
         var document = RequiredJson.Parse(json);
         ProjectileTrailFrame first = ProjectileTrailVisualDefinitions.Frames[0];
         var animation = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
-        var trail = animation.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
+        var trail = animation.AddTrail().Left;
         trail.InstructionPointer = ProjectileTrailNative.Address(first); trail.FrameHold = 1; trail.Position = trail.Position.WithX(100).WithY(100);
         OamBuffer frozen = SpriteFrameBuffer.DrawnOam(sprites =>
         {
             animation.AdvanceTrails(true);
             animation.DrawTrails(sprites, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork());
         });
-        AssertEqual(0, frozen.GetEntry(0).TileNumber, "New frozen trail retains native uninitialized tile rather than starting artwork early");
+        // A sparkle that has shown no pose draws nothing, rather than a picture its program never names (#1625).
+        AssertEqual(0, frozen.LastFinalizedSpriteCount, "New frozen trail draws nothing before its first pose");
+        AssertEqual(1, trail.FrameHold, "New frozen trail keeps its start timer");
         document.Required("frames").Required(ProjectileTrailNative.Name(first))["duration"] = 0;
         AssertThrows<InvalidDataException>(() => Load(document), "Trail art cannot change duration");
         document = JsonNode.Parse(json);
@@ -134,9 +137,12 @@ internal static class ProjectileTrailArtworkVerification
         InstalledProjectileTrails Load(JsonNode document) => InstalledProjectileTrails.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
     }
 
-    /// <summary>Interprets the native trail words and sibling-targeted movement as an independent OAM and timer reference.</summary>
+    /// <summary>
+    /// Interprets the native trail words and sibling-targeted movement as an independent OAM and timer reference. A side
+    /// that has read no tile word yet draws nothing, as the port's sparkle that has shown no pose (#1625).
+    /// </summary>
     private static void DrawNativeTrailFrame(ISnesAddressSpace rom,
-        SamusProjectileTrailSlot pair, Dictionary<SamusProjectileTrailSide, ushort> words, OamBuffer oam, bool frozen)
+        SamusProjectileTrail pair, Dictionary<SamusProjectileTrailSide, ushort> words, OamBuffer oam, bool frozen)
     {
         foreach (SamusProjectileTrailSide side in new[] { pair.Left, pair.Right })
         {
@@ -169,9 +175,8 @@ internal static class ProjectileTrailArtworkVerification
                 }
                 if (side.FrameHold == 0) continue;
             }
-            if (side.Position.X < 256 && side.Position.Y < 256)
-                oam.AddProjectileTrailSprite(new Position16<SpritePixels>((byte)side.Position.X, (byte)side.Position.Y),
-                    words.GetValueOrDefault(side));
+            if (side.Position.X < 256 && side.Position.Y < 256 && words.TryGetValue(side, out ushort word))
+                oam.AddProjectileTrailSprite(new Position16<SpritePixels>((byte)side.Position.X, (byte)side.Position.Y), word);
         }
     }
     /// <summary>Runs the cartridge-backed trail art and mechanics comparison from its command-line switch.</summary>

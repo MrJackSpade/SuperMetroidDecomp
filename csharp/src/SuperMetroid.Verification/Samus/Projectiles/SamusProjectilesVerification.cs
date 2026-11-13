@@ -756,11 +756,10 @@ internal static void VerifySamusPowerBeamProjectiles()
     chargeBombs.StepFrame(new SamusTerrain { Level = air }, chargeSamus, 0, 0);
     chargeProjectiles.StepFrame(new SamusTerrain { Level = air }, chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), chargeBombs);
 
-    AssertEqual(1, chargeProjectiles.ActiveTrailCount,
-        "charged power allocates one of eighteen trail slots every fourth alpha pass");
-    SamusProjectileTrailSlot chargedTrail =
-        chargeProjectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
-    AssertTrue(chargedTrail.IsActive, "trail allocation scans downward from native index $22");
+    AssertEqual(1, chargeProjectiles.LiveTrails.Count,
+        "charged power leaves one trail every fourth alpha pass");
+    SamusProjectileTrail chargedTrail = chargeProjectiles.LiveTrails[0];
+    AssertEqual(1, chargedTrail.Left.FrameHold, "a new trail's left sparkle starts its program on the next update");
     AssertEqual(unchecked((ushort)(trailSourceX - 4)), chargedTrail.Left.Position.X,
         "trail samples projectile X before movement and subtracts four");
     AssertEqual(unchecked((ushort)(trailSourceY - 4)), chargedTrail.Left.Position.Y,
@@ -777,10 +776,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     OamEntry firstTrailObj = trailOam.GetEntry(0);
     AssertEqual(0x038, firstTrailObj.TileNumber, "charged trail reads first `$2C38` tile");
     ProjectileDrawArtwork trailArtwork = InstalledFixtures.ProjectileArtwork();
-    int chargedTrailSlot = SamusProjectileSystem.TrailSlotCount - 1;
     AssertProjectileEntry(
         DrawnEntries(frame => chargeProjectiles.DrawTrails(frame, Position16<RoomPixels>.Zero, trailArtwork)),
-        new SpriteSource(SpriteSourceKind.SamusProjectileTrail, chargedTrailSlot * 2),
+        new SpriteSource(SpriteSourceKind.SamusProjectileTrail, 0),
         ProjectileSheetFrames.TrailFrame(chargedTrail.Left.ShownPose ?? throw new InvalidOperationException("The charged trail shows a pose.")),
         SamusBeamCombinations.Of(chargeSamus.EquippedBeams), new Position16<ScreenPixels>(chargedTrail.Left.DisplayedPosition.X, chargedTrail.Left.DisplayedPosition.Y), "Charged trail");
     AssertEqual(6, firstTrailObj.Palette, "charged trail retains packed OBJ palette six");
@@ -829,7 +827,7 @@ internal static void VerifySamusPowerBeamProjectiles()
              })
     {
         var commandProjectiles = CreateSyntheticProjectiles();
-        var pair = commandProjectiles.TrailSlots[0];
+        var pair = commandProjectiles.AddTrail();
         pair.Left.Position = pair.Left.Position.WithY(100);
         pair.Right.Position = pair.Right.Position.WithY(120);
         var executingSide = executeOnLeft ? pair.Left : pair.Right;
@@ -1074,10 +1072,9 @@ internal static void VerifySamusPowerBeamProjectiles()
         missileBombs.StepFrame(new SamusTerrain { Level = wall }, missileSamus, 0, 0);
         missileProjectiles.StepFrame(new SamusTerrain { Level = wall }, missileSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), missileBombs);
     }
-    AssertEqual(1, missileProjectiles.ActiveTrailCount,
-        "missile allocates one persistent trail every fourth alpha pass");
-    SamusProjectileTrailSlot missileTrail =
-        missileProjectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
+    AssertEqual(1, missileProjectiles.LiveTrails.Count,
+        "missile leaves one trail every fourth alpha pass");
+    SamusProjectileTrail missileTrail = missileProjectiles.LiveTrails[0];
     missileOam = SpriteFrameBuffer.DrawnOam(frame =>
     {
         missileProjectiles.AdvanceTrails(false);
@@ -1550,8 +1547,8 @@ internal static void VerifySamusPowerBeamProjectiles()
         superBombs.StepFrame(new SamusTerrain { Level = wall }, superSamus, 0, 0);
         superProjectiles.StepFrame(new SamusTerrain { Level = wall }, superSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), superBombs);
     }
-    AssertEqual(1, superProjectiles.ActiveTrailCount,
-        "super's initial four-count allocates first exhaust trail");
+    AssertEqual(1, superProjectiles.LiveTrails.Count,
+        "super's initial four-count leaves its first exhaust trail");
     AssertEqual(2, super.TrailTimer.RawValue,
         "super exhaust reloads two instead of missile four");
 

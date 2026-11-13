@@ -460,7 +460,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The GreenBrinstarMissileRefill room-object population.</summary>
     public static RoomObjectPopulation GreenBrinstarMissileRefill { get; } = RoomObjectPopulation.FromRecords(nameof(GreenBrinstarMissileRefill),
     [
-        new(RoomObjectHeaderId.MissileStation, new(4, 10), new StationArgument(20)),
+        new(RoomObjectHeaderId.MissileStation, new(4, 10), null),
     ]);
 
     /// <summary>The Dachora room-object population.</summary>
@@ -638,7 +638,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The DachoraEnergyRefill room-object population.</summary>
     public static RoomObjectPopulation DachoraEnergyRefill { get; } = RoomObjectPopulation.FromRecords(nameof(DachoraEnergyRefill),
     [
-        new(RoomObjectHeaderId.EnergyStation, new(4, 10), new StationArgument(32)),
+        new(RoomObjectHeaderId.EnergyStation, new(4, 10), null),
     ]);
 
     /// <summary>The SporeSpawnFarming room-object population.</summary>
@@ -871,14 +871,14 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The RedTowerRefill room-object population.</summary>
     public static RoomObjectPopulation RedTowerRefill { get; } = RoomObjectPopulation.FromRecords(nameof(RedTowerRefill),
     [
-        new(RoomObjectHeaderId.EnergyStation, new(4, 10), new StationArgument(45)),
+        new(RoomObjectHeaderId.EnergyStation, new(4, 10), null),
     ]);
 
     /// <summary>The KraidRefill room-object population.</summary>
     public static RoomObjectPopulation KraidRefill { get; } = RoomObjectPopulation.FromRecords(nameof(KraidRefill),
     [
-        new(RoomObjectHeaderId.MissileStation, new(9, 10), new StationArgument(46)),
-        new(RoomObjectHeaderId.EnergyStation, new(7, 10), new StationArgument(47)),
+        new(RoomObjectHeaderId.MissileStation, new(9, 10), null),
+        new(RoomObjectHeaderId.EnergyStation, new(7, 10), null),
     ]);
 
     /// <summary>The Statues room-object population.</summary>
@@ -1248,7 +1248,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The UpperNorfairRefill room-object population.</summary>
     public static RoomObjectPopulation UpperNorfairRefill { get; } = RoomObjectPopulation.FromRecords(nameof(UpperNorfairRefill),
     [
-        new(RoomObjectHeaderId.EnergyStation, new(7, 10), new StationArgument(69)),
+        new(RoomObjectHeaderId.EnergyStation, new(7, 10), null),
     ]);
 
     /// <summary>The PurpleFarming room-object population.</summary>
@@ -1354,7 +1354,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The GTEnergyRefill room-object population.</summary>
     public static RoomObjectPopulation GTEnergyRefill { get; } = RoomObjectPopulation.FromRecords(nameof(GTEnergyRefill),
     [
-        new(RoomObjectHeaderId.EnergyStation, new(8, 10), new StationArgument(72)),
+        new(RoomObjectHeaderId.EnergyStation, new(8, 10), null),
     ]);
 
     /// <summary>The Ridley room-object population.</summary>
@@ -2148,7 +2148,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The MaridiaMissileRefill room-object population.</summary>
     public static RoomObjectPopulation MaridiaMissileRefill { get; } = RoomObjectPopulation.FromRecords(nameof(MaridiaMissileRefill),
     [
-        new(RoomObjectHeaderId.MissileStation, new(8, 10), new StationArgument(153)),
+        new(RoomObjectHeaderId.MissileStation, new(8, 10), null),
     ]);
 
     /// <summary>The PlasmaBeachQuicksand room-object population.</summary>
@@ -2193,7 +2193,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The MaridiaEnergyRefill room-object population.</summary>
     public static RoomObjectPopulation MaridiaEnergyRefill { get; } = RoomObjectPopulation.FromRecords(nameof(MaridiaEnergyRefill),
     [
-        new(RoomObjectHeaderId.EnergyStation, new(8, 10), new StationArgument(155)),
+        new(RoomObjectHeaderId.EnergyStation, new(8, 10), null),
     ]);
 
     /// <summary>The WestCactusAlley room-object population.</summary>
@@ -2278,8 +2278,8 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The TourianRecharge room-object population.</summary>
     public static RoomObjectPopulation TourianRecharge { get; } = RoomObjectPopulation.FromRecords(nameof(TourianRecharge),
     [
-        new(RoomObjectHeaderId.MissileStation, new(8, 10), new StationArgument(156)),
-        new(RoomObjectHeaderId.EnergyStation, new(6, 10), new StationArgument(157)),
+        new(RoomObjectHeaderId.MissileStation, new(8, 10), null),
+        new(RoomObjectHeaderId.EnergyStation, new(6, 10), null),
     ]);
 
     /// <summary>The MotherBrain room-object population.</summary>

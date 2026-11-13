@@ -1,5 +1,7 @@
 using SuperMetroid.Diagnostics.Saves;
 using System.Buffers.Binary;
+using System.Text.Json.Nodes;
+using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Saves.SaveSchemaTranslationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
@@ -273,6 +275,65 @@ internal static class GameSaveJsonVerification
         Console.WriteLine("  JSON save numbers: full-range slot fields round-trip exactly; out-of-range numbers and a checkpoint naming no load station are rejected at parse.");
     }
 
+    /// <summary>
+    /// #1623: a used-station number that names no station Samus uses, which the SpaceTime beam's overwrite of the record
+    /// set while saves kept every number's bit, is dropped by the JSON decoder as the save-RAM table decoder drops its bit,
+    /// so such a save loads with the same used stations from either; and every usable station round-trips, alone, through
+    /// the JSON save and the save-RAM table.
+    /// </summary>
+    internal static void VerifyUsedStationNumbersWithoutStation()
+    {
+        AreaMapPresentation maps = RetailPresentationFixture();
+        string SavedJson(LoadStation used)
+        {
+            var store = new SaveSlotStore(maps);
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 99, MaxHealth = 99 };
+            var system = new SharedGameState(new SharedRandom());
+            system.MarkSaveStationUsed(used);
+            store.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system,
+                new SaveSnapshotContext { Checkpoint = LoadStationDefinitions.DraygonSave }));
+            return GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(store));
+        }
+        PersistentProgress Loaded(string json) =>
+            (GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(json), maps).ReadSlot(0)
+                ?? throw new InvalidOperationException("The JSON save lost slot 0.")).Progression;
+
+        byte[] table = new byte[SuperMetroid.AssetExtraction.Progression.ProgressionTableCodec.UsedStationByteCount];
+        foreach (LoadStation station in LoadStationDefinitions.Usable)
+        {
+            AssertTrue(Loaded(SavedJson(station)).UsedStations.Members.SequenceEqual([station]),
+                $"the JSON save keeps {station} used, and nothing else");
+            var written = new PersistentProgress();
+            written.UsedStations.Add(station);
+            SuperMetroid.AssetExtraction.Progression.ProgressionTableCodec.WriteUsedStations(written, table);
+            var read = new PersistentProgress();
+            SuperMetroid.AssetExtraction.Progression.ProgressionTableCodec.ReadUsedStations(table, read);
+            AssertTrue(read.UsedStations.Members.SequenceEqual([station]), $"the save-RAM table keeps {station} used, and nothing else");
+        }
+
+        // Norfair's list numbers stations 0 through 5 and 8 through 10: 6 and 15 name none.
+        JsonNode overwritten = JsonNode.Parse(SavedJson(LoadStationDefinitions.CrocomireSave))
+            ?? throw new InvalidOperationException("The JSON save is empty.");
+        JsonObject norfair = overwritten.Required("slots").Required(0).Required("progression").Required("usedStations").AsArray()
+            .Select(entry => entry?.AsObject() ?? throw new InvalidOperationException("A used-station entry is null."))
+            .Single(entry => entry.Required("area").GetValue<string>() == "norfair");
+        AssertTrue(norfair.Required("stations").AsArray().Select(number => number?.GetValue<int>()).SequenceEqual([3]),
+            "the fixture save lists the Crocomire save station by its number");
+        norfair["stations"] = new JsonArray(3, 6, 15);
+        PersistentProgress fromJson = Loaded(overwritten.ToJsonString());
+
+        Array.Clear(table);
+        table[SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(AreaId.Norfair) * sizeof(ushort)] = 1 << 3 | 1 << 6;
+        table[SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(AreaId.Norfair) * sizeof(ushort) + 1] = 1 << 7;
+        var fromTable = new PersistentProgress();
+        SuperMetroid.AssetExtraction.Progression.ProgressionTableCodec.ReadUsedStations(table, fromTable);
+        AssertTrue(fromJson.UsedStations.Members.SequenceEqual([LoadStationDefinitions.CrocomireSave]),
+            "a JSON save listing numbers that name no station loads with only the station it names");
+        AssertTrue(fromTable.UsedStations.Members.SequenceEqual(fromJson.UsedStations.Members),
+            "the save-RAM table's bits for those numbers decode to the same used stations");
+        Console.WriteLine($"  Used stations: all {LoadStationDefinitions.Usable.Count} usable stations round-trip alone; numbers naming no station are dropped by both decoders.");
+    }
+
     /// <summary>Confirms malformed save JSON is rejected with a diagnostic naming the invalid field or value.</summary>
     internal static void AssertInvalidJsonSave(string json, string expectedMessagePart)
     {
@@ -297,6 +358,7 @@ internal static class GameSaveJsonVerification
         Suite(nameof(VerifySaveSchemaTranslation), () => VerifySaveSchemaTranslation());
         Suite(nameof(VerifySelectedSaveSlotDecode), () => VerifySelectedSaveSlotDecode());
         Suite(nameof(VerifyWidenedSlotFieldsJsonRoundTrip), () => VerifyWidenedSlotFieldsJsonRoundTrip());
+        Suite(nameof(VerifyUsedStationNumbersWithoutStation), () => VerifyUsedStationNumbersWithoutStation());
         return 0;
     }
 

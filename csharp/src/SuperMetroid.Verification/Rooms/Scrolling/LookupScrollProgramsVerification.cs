@@ -30,7 +30,7 @@ internal static class LookupScrollProgramsVerification
             AssertEqual(retail, compiled.Placements.Span[0].CompiledScrollProgram,"Retail scroll binds identity");
             AssertEqual(null, compiled.Placements.Span[0].ScrollProgram,"Retail scroll carries no regenerated write list");
             var rebound = new RoomObjectPopulation($"$8F:{0x8230:X4}",
-                [compiled.Placements.Span[0] with { Argument = new StationArgument(ushort.MaxValue) }]);
+                [compiled.Placements.Span[0] with { Argument = new GateTriggerArgument(ushort.MaxValue) }]);
             AssertEqual(retail, rebound.Placements.Span[0].CompiledScrollProgram,"Copied placement preserves its bound program independently of argument");
             var customized = new RoomObjectPopulation($"$8F:{0x8230:X4}",
                 [compiled.Placements.Span[0] with { ScrollProgram = [new(1, RoomScrollState.Green)] }]);

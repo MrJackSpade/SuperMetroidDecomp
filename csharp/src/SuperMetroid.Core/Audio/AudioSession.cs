@@ -31,7 +31,7 @@ public sealed class AudioSession
     /// </param>
     internal AudioSession(SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId> soundClock) => eventSource = new AudioEventSource(soundClock);
 
-    /// <summary>Synthesis-free command-to-event conversion that also produces the acknowledgements gameplay reads.</summary>
+    /// <summary>Synthesis-free request-to-event conversion that also produces the acknowledgements gameplay reads.</summary>
     private readonly AudioEventSource eventSource;
     /// <summary>Whether any update has advanced the session, so PCM exists to copy.</summary>
     private bool hasAdvanced;

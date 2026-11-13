@@ -610,7 +610,7 @@ internal sealed class SuperMetroidRuntime
     private void RunPaletteFx()
     {
         // Main gameplay runs the palette-FX handler before Samus's update and
-        // before enemies are processed. Controller function three is invoked by the
+        // before enemies are processed. The Hyper Beam is equipped by the
         // Baby during that later enemy phase, so a newly spawned Hyper Beam palette object naturally
         // begins on the following frame. Debug scripts that grant Hyper Beam before their
         // first StepFrame get the same handler-first behavior immediately.

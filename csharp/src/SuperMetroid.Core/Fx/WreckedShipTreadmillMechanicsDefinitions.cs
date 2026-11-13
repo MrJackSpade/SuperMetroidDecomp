@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 /// <remarks>
 /// The four frame sources are presentation identities resolved to installed art.
-/// This catalog owns the object definition, boss-wait command, durations, and loop control.
+/// This catalog owns the object definition, the wait for the boss, durations, and loop control.
 /// </remarks>
 public static class WreckedShipTreadmillMechanicsDefinitions
 {

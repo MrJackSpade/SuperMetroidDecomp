@@ -81,15 +81,17 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(0x0040, AtmosphereDriftDefinitions.SporesVerticalVelocity, "spore rise");
         AssertEqual(0x0050, AtmosphereDriftDefinitions.FogHorizontalVelocity, "fog drift");
 
-        // RoomFxRomData's sky bands.
-        AssertEqual(23, ScrollingSkyBandDefinitions.SectionCount, "sky bands");
-        AssertEqual(0x0500, ScrollingSkyBandDefinitions.WorldEndPosition, "sky world end");
-        AssertEqual(0x02e0, ScrollingSkyBands.GetSection(11).TopPosition, "band 11 top");
-        AssertEqual(0xc000, ScrollingSkyBands.GetSection(11).Velocity.RawValue, "band 11 drift");
-        AssertEqual(8, ScrollingSkyBands.GetSection(11).DataSlot, "band 11 slot");
-        AssertEqual(0x7000, ScrollingSkyBands.GetSection(17).Velocity.RawValue, "band 17 drift");
-        AssertEqual(0x8000, ScrollingSkyBands.GetSection(19).Velocity.RawValue, "band 19 drift");
-        AssertEqual(0x04b8, ScrollingSkyBands.GetSection(22).TopPosition, "last band top");
+        // The sky's bands (#1687): the cartridge's 23 entries, the bottom three still ones as one band.
+        AssertEqual(21, ScrollingSkyBandDefinitions.Bands.Length, "sky bands");
+        AssertEqual(0x0500, ScrollingSkyBandDefinitions.EndRow, "sky end row");
+        AssertEqual(0x02e0, ScrollingSkyBandDefinitions.Bands[11].TopRow, "band 11 top");
+        AssertTrue(ScrollingSkyBandDefinitions.Bands[11].Drift == ScrollingSkyBandDefinitions.Bands[8].Drift,
+            "bands 8 and 11 share one drift");
+        AssertEqual(0x14000, ScrollingSkyBandDefinitions.Bands[11].Drift.Speed.RawValue, "band 11 drift: both entries' speeds");
+        AssertEqual(0x7000, ScrollingSkyBandDefinitions.Bands[17].Drift.Speed.RawValue, "band 17 drift");
+        AssertEqual(0x8000, ScrollingSkyBandDefinitions.Bands[19].Drift.Speed.RawValue, "band 19 drift");
+        AssertEqual(0x0490, ScrollingSkyBandDefinitions.Bands[^1].TopRow, "the still bottom band's top");
+        AssertEqual(0, ScrollingSkyBandDefinitions.Bands[^1].Drift.Speed.RawValue, "the bottom band stands still");
 
         // RoomFxRomData's earthquake rules.
         AssertTrue(!NativeEarthquakeTypes.Shake(0x0011).ShakesEnemies && NativeEarthquakeTypes.Shake(0x0012).ShakesEnemies,

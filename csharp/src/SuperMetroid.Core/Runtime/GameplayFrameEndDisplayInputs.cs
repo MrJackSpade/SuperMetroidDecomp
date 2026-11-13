@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Runtime;
 /// Arrays are owned copies; simulation cannot change them after publication.
 /// </summary>
 /// <param name="DoorTransitionShownLayers">The layers a door transition shows below the HUD, or null outside a door transition.</param>
-/// <param name="ScrollingSky">The scrolling sky's rows and parallax bands, when the room spawned the sky's band per-line effect object.</param>
+/// <param name="ScrollingSky">The scrolling sky's drifting bands, when the room's sky bands drift.</param>
 /// <param name="CrocomireMelt">How Crocomire's melt sags his body layer (#1468), while it runs.</param>
 /// <param name="MotherBrainAscentShowing">Whether Mother Brain's rising-body display owns the gameplay layers.</param>
 /// <param name="RainbowBeam">The shown rainbow beam's cone, or null while it is hidden; its colour comes from the frame-boundary latch.</param>

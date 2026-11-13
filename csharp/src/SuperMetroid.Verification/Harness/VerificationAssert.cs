@@ -2638,11 +2638,9 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Sky sections oracle revision");
         Suite(nameof(VerifySkySectionTopPositions), () => VerifySkySectionTopPositions(rom));
-        Suite(nameof(VerifySkySectionSubspeeds), () => VerifySkySectionSubspeeds(rom));
-        Suite(nameof(VerifySkySectionSpeeds), () => VerifySkySectionSpeeds(rom));
-        Suite(nameof(VerifySkySectionDataSlots), () => VerifySkySectionDataSlots(rom));
+        Suite(nameof(VerifySkyBandDriftsOverFullPeriod), () => VerifySkyBandDriftsOverFullPeriod(rom));
         Suite(nameof(VerifyScrollingSkyState), () => VerifyScrollingSkyState());
-        Console.WriteLine("Sky sections: four native fields, bounds, complete world-Y projection and existing integration pass.");
+        Console.WriteLine("Sky bands: the native rows, every camera's shown lines, a full period of drifts and existing integration pass.");
         return 0;
     }
 

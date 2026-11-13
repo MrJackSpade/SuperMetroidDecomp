@@ -13,7 +13,10 @@ namespace SuperMetroid.ResourceAudit.Resources;
 /// New program catalogs are discovered from their declaration contract, not from
 /// a hand-maintained list of enemy kinds or paths reached during gameplay.
 /// </summary>
-internal sealed class ProgramOperandAudit(ResourceIndex exports, AuditReport report)
+/// <param name="exports">The installed and compiled resources an operand must resolve to.</param>
+/// <param name="report">The report each operand requirement and gap is recorded in.</param>
+/// <param name="adapters">The compilation's program-catalog adapters, paired with their shipped programs by attribute.</param>
+internal sealed class ProgramOperandAudit(ResourceIndex exports, AuditReport report, ToolingAdapterPairings adapters)
 {
     /// <summary>Shipped program owners already audited across source parts and tooling adapters.</summary>
     private readonly HashSet<string> inspected = new(StringComparer.Ordinal);
@@ -26,14 +29,25 @@ internal sealed class ProgramOperandAudit(ResourceIndex exports, AuditReport rep
         if (!declaration.Members.OfType<PropertyDeclarationSyntax>()
             .Any(property => property.Identifier.ValueText == "PresentationWordCount")) return;
         if (semantic.GetDeclaredSymbol(declaration) is not INamedTypeSymbol symbol) return;
-        // The contract may live in the owner's development adapter; the shipped owner is audited.
-        if (symbol.Name.EndsWith("Tooling", StringComparison.Ordinal) &&
-            semantic.Compilation.GetTypeByMetadataName(symbol.ToDisplayString()[..^"Tooling".Length]) is { } shipped)
+        string adapterSource = declaration.SyntaxTree.FilePath + ":" +
+            (declaration.GetLocation().GetLineSpan().StartLinePosition.Line + 1);
+        // The operand contract lives in a development adapter, which names the shipped program it describes through its
+        // [ToolingFor] pairing (#1732); that pairing, not a type-name convention, makes it a sprite instruction selector.
+        if (!adapters.IsAdapter(symbol))
         {
-            symbol = shipped;
-            declaration = (ClassDeclarationSyntax)shipped.DeclaringSyntaxReferences[0].GetSyntax();
-            semantic = semantic.Compilation.GetSemanticModel(declaration.SyntaxTree);
+            report.Gap(ResourceDomains.CompiledSelector, symbol.ToDisplayString(), adapterSource,
+                "Presentation operands are declared outside a program-catalog adapter; requires a domain-specific adapter.");
+            return;
         }
+        if (adapters.OwnerOf(symbol) is not { } shipped)
+        {
+            report.Gap(ResourceDomains.CompiledSelector, symbol.ToDisplayString(), adapterSource,
+                "Program-catalog adapter has no [ToolingFor] pairing with the shipped program it describes.");
+            return;
+        }
+        symbol = shipped;
+        declaration = (ClassDeclarationSyntax)shipped.DeclaringSyntaxReferences[0].GetSyntax();
+        semantic = semantic.Compilation.GetSemanticModel(declaration.SyntaxTree);
         string owner = symbol.ToDisplayString();
         if (!inspected.Add(owner)) return;
         string source = declaration.SyntaxTree.FilePath + ":" +
@@ -44,8 +58,7 @@ internal sealed class ProgramOperandAudit(ResourceIndex exports, AuditReport rep
             MotherBrainRoomFlashAudit.Inspect(source, exports, report);
             return;
         }
-        if (!symbol.Name.EndsWith("InstructionProgramDefinitions", StringComparison.Ordinal) ||
-            symbol.Name.Contains("Palette", StringComparison.Ordinal))
+        if (symbol.Name.Contains("Palette", StringComparison.Ordinal))
         {
             report.Gap(ResourceDomains.CompiledSelector, owner, source,
                 "Presentation operand kind is not an enemy/sprite instruction selector; requires a domain-specific adapter.");
@@ -67,8 +80,7 @@ internal sealed class ProgramOperandAudit(ResourceIndex exports, AuditReport rep
         // by calling gameplay code or infer a bank from a coincidentally matching ID.
         var guardBanks = new HashSet<int>();
         // The owner's ownership guard may live in its development adapter.
-        IEnumerable<ClassDeclarationSyntax> adapterParts = semantic.Compilation.GetTypeByMetadataName(owner + "Tooling")
-            ?.DeclaringSyntaxReferences.Select(reference => (ClassDeclarationSyntax)reference.GetSyntax()) ?? [];
+        IEnumerable<ClassDeclarationSyntax> adapterParts = adapters.AdapterDeclarations(symbol);
         foreach (var part in symbol.DeclaringSyntaxReferences.Select(reference => (ClassDeclarationSyntax)reference.GetSyntax())
                      .Concat(adapterParts))
         {

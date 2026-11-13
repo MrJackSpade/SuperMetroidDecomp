@@ -8,6 +8,7 @@ using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 using SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 using SuperMetroid.ResourceAudit.ClosedContracts.Frontend;
+using SuperMetroid.ResourceAudit.ClosedContracts.Rooms;
 using SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.AssetExtraction.World.Artwork;
@@ -127,8 +128,9 @@ internal sealed class ClosedPresentationAudit
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is
                             IMethodSymbol { Name: "FromPlacement" } factory &&
                                 factory.ContainingType.ToDisplayString() == typeof(SamusArmCannonSourceArtwork).FullName));
-            // The installed room artwork and a spawned-object sheet accept whatever content they are given: their proofs are
-            // the checks of the reviewed loaders that build them (#1536), so a construction anywhere else revokes the proof.
+            // The installed room artwork, a spawned-object sheet and a room object's frame pictures accept whatever content they
+            // are given: their proofs are the checks of the reviewed loaders that build them (#1536, #1732), so a construction
+            // anywhere else revokes the proof.
             if (valid && LoaderBuiltProviders.Contains(contract.Type) && ConstructedOutsideSources(compilation, contract) is { } constructor)
             {
                 valid = false;
@@ -144,11 +146,15 @@ internal sealed class ClosedPresentationAudit
         }
     }
 
-    /// <summary>The providers whose complete key domain only their reviewed loader's checks establish (#1536).</summary>
+    /// <summary>
+    /// The providers whose complete key domain only their reviewed loader's checks establish: the room artwork and a
+    /// spawned-object sheet (#1536), and every room object's frame pictures (#1732).
+    /// </summary>
     private static readonly HashSet<string> LoaderBuiltProviders =
     [
         ContractTypeNames.MetadataName(typeof(SuperMetroid.Core.Rooms.Artwork.InstalledRoomArtwork)),
         ContractTypeNames.MetadataName(typeof(SpawnedObjectSheet)),
+        .. RoomObjectFrameClosedContractDefinitions.All.Select(contract => contract.Type),
     ];
 
     /// <summary>

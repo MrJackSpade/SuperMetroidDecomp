@@ -13,8 +13,9 @@ internal static class CompiledEnemyVisualSelectorsVerification
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        // Families that run typed programs (#641) no longer resolve frame operands, so their selectors are gone.
-        AssertEqual(4011, CompiledEnemyVisualSelectorsTooling.Count,
+        // Families that run typed programs (#641) no longer resolve frame operands, so their selectors are gone, and so
+        // are the 225 bank-$B4 selectors of the sprite-object lists no spawned object reaches, whose frames #1623 deleted.
+        AssertEqual(3786, CompiledEnemyVisualSelectorsTooling.Count,
             "generated fixed visual-selector count");
         foreach (int index in new[] { int.MinValue, -1, CompiledEnemyVisualSelectorsTooling.Count, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => CompiledEnemyVisualSelectorsTooling.At(index),

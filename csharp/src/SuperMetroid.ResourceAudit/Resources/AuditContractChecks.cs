@@ -75,6 +75,7 @@ internal static class AuditContractChecks
         new(nameof(RoomLayoutPresentationContractChecks), RoomLayoutPresentationContractChecks.Run),
         new(nameof(RoomPicturePresentationContractChecks), RoomPicturePresentationContractChecks.Run),
         new(nameof(SpawnedObjectSheetContractChecks), SpawnedObjectSheetContractChecks.Run),
+        new(nameof(RoomObjectFramePresentationContractChecks), RoomObjectFramePresentationContractChecks.Run),
         new(nameof(MotherBrainSheetsPresentationContractChecks), MotherBrainSheetsPresentationContractChecks.Run),
         new(nameof(XrayRoomOverlayPresentationContractChecks), XrayRoomOverlayPresentationContractChecks.Run),
         new(nameof(NativeDisplaySelectorContractChecks), NativeDisplaySelectorContractChecks.Run),

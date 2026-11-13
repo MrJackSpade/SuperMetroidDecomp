@@ -27,14 +27,19 @@ internal static class EnemyVisualProgramAudit
         ResourceIndex exports = DefinitionAudit.CollectEnemyVisuals(root, report);
         CSharpCompilation compilation = ConsumerAudit.CreateCompilation(root);
         EnemyVisualProgramRoutingContracts.Inspect(compilation, report);
+        var adapters = new ToolingAdapterPairings(compilation);
+        // An adapter the audit cannot pair with its shipped program is a failure, never an owner guessed from its name.
+        foreach (INamedTypeSymbol unpaired in adapters.Unpaired)
+            report.Gap(ResourceDomains.CompiledSelector, unpaired.ToDisplayString(), unpaired.DeclaringSyntaxReferences[0].SyntaxTree.FilePath,
+                "Program-catalog adapter has no [ToolingFor] pairing with the shipped program it describes.");
         var declarations = compilation.SyntaxTrees.SelectMany(tree => tree.GetRoot().DescendantNodes()
             .OfType<ClassDeclarationSyntax>()).ToArray();
-        HashSet<string> owners = DiscoverOwners(compilation);
+        HashSet<string> owners = DiscoverOwners(compilation, adapters);
         var rows = new List<ProgramRow>();
         foreach (string owner in owners.Order(StringComparer.Ordinal))
         {
             ClassDeclarationSyntax[] parts = declarations.Where(type => type.Identifier.ValueText == owner).ToArray();
-            ClassDeclarationSyntax[] adapterParts = declarations.Where(type => type.Identifier.ValueText == owner + "Tooling").ToArray();
+            ClassDeclarationSyntax[] adapterParts = [.. adapters.AdapterDeclarations(owner)];
             // Owners live in their domain namespaces (#626); the declaration names its own.
             string? ownerNamespace = parts.Select(part => part.FirstAncestorOrSelf<BaseNamespaceDeclarationSyntax>()?.Name.ToString()).FirstOrDefault(name => name is not null);
             Type? type = ownerNamespace is null ? null : ConsumerAudit.ProgramOwnerType(ownerNamespace + "." + owner);
@@ -91,12 +96,18 @@ internal static class EnemyVisualProgramAudit
         words.Where(word => word.Value < 0x8000 && !words.ContainsKey(unchecked((ushort)(word.Key + 2))))
             .Select(word => unchecked((ushort)(word.Key + 2)));
 
-    /// <summary>Finds program definition types and interpreter dependencies, including renamed owners.</summary>
-    internal static HashSet<string> DiscoverOwners(CSharpCompilation compilation)
+    /// <summary>
+    /// Finds program definition types, the shipped program each program-catalog adapter names through its [ToolingFor]
+    /// pairing (#1732), and interpreter dependencies, including renamed owners.
+    /// </summary>
+    internal static HashSet<string> DiscoverOwners(CSharpCompilation compilation, ToolingAdapterPairings adapters)
     {
         var owners = new HashSet<string>(compilation.SyntaxTrees.SelectMany(tree => tree.GetRoot().DescendantNodes()
             .OfType<ClassDeclarationSyntax>()).Select(type => type.Identifier.ValueText)
             .Where(name => name.EndsWith("InstructionProgramDefinitions", StringComparison.Ordinal)), StringComparer.Ordinal);
+        // Every adapter's shipped program is an owner whatever its name, so a renamed program is never dropped.
+        foreach (INamedTypeSymbol owner in adapters.Owners)
+            owners.Add(owner.Name);
         // Seed independently from interpreter dependencies, including renamed types.
         foreach (var method in compilation.SyntaxTrees.SelectMany(tree => tree.GetRoot().DescendantNodes()
             .OfType<MethodDeclarationSyntax>()).Where(method => method.Identifier.ValueText is

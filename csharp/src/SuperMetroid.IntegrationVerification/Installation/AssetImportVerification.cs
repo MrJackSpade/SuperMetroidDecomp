@@ -67,22 +67,15 @@ try
             "installed presentation assets remain usable without the private ROM copy");
         Check(GameAssetInstaller.OpenOrRepair(root) is not null,
             "normal host startup accepts complete extracted content without a ROM copy");
-        SuperMetroidAddressSpace romFreeMemory = (romFreeContent ??
-            throw new InvalidOperationException("Complete ROM-free installation was not reopened."))
-            .OpenRuntimeAddressSpace();
-        Check(!MetadataShape.DeclaresProperty(romFreeMemory.GetType(), "Rom") &&
-            romFreeMemory.WorkRam.Length == SuperMetroidAddressSpace.WorkRamByteCount,
-            "installed runtime starts with mutable memory but no cartridge allocation");
+        (romFreeContent ?? throw new InvalidOperationException("Complete ROM-free installation was not reopened."))
+            .RequireExtractedContent();
         using (var romFreeSession = new SuperMetroid.Diagnostics.Sessions.InstalledGameSession(root))
         {
-            Check(!MetadataShape.DeclaresProperty(romFreeSession.Bus.GetType(), "Rom"),
-                "an installed session boots from extracted assets with no ROM copy");
             for (int frame = 0; frame < 90; frame++)
                 romFreeSession.Game.StepCaptured(0);
             string saved = romFreeSession.SaveSlot(0);
-            Check(saved.Contains("slot 0", StringComparison.OrdinalIgnoreCase) &&
-                !MetadataShape.DeclaresProperty(romFreeSession.Bus.GetType(), "Rom"),
-                "an installed session's state save retains cartridge-free memory");
+            Check(saved.Contains("slot 0", StringComparison.OrdinalIgnoreCase),
+                "an installed session boots from extracted assets with no ROM copy and saves a debugger state");
         }
         Check(GameAssetInstaller.EnsureInstalled(root) is null,
             "repair requires a ROM even though validated extracted content can boot");
@@ -149,7 +142,7 @@ try
     {
         Check(GameAssetInstaller.OpenOrRepair(root) is null,
             "startup rejects outdated extracted content when no ROM can extract it again");
-        Reject<InvalidDataException>(() => installed.OpenRuntimeAddressSpace());
+        Reject<InvalidDataException>(installed.RequireExtractedContent);
     }
     finally
     {
@@ -191,10 +184,9 @@ try
 
     using (var session = new SuperMetroid.Diagnostics.Sessions.InstalledGameSession(root))
     {
+        // Booting and stepping is the check: the session opens only extracted content and throws if it is incomplete.
         for (int frame = 0; frame < 90; frame++)
             session.Game.StepCaptured(0);
-        Check(!MetadataShape.DeclaresProperty(session.Bus.GetType(), "Rom"),
-            "an installed session boots from extracted content without retaining cartridge bytes");
     }
     Console.WriteLine("PASS ROM import, header normalization, exact audio parity, non-seekable input, cancellation, repair, recovery, and installed-session startup.");
     return 0;

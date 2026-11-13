@@ -14,7 +14,8 @@ internal enum DebuggerStateVersion
     /// name (#1507); the header's frame number a whole update count rather than a wrapping 16-bit counter (#1607); the objects
     /// the game's static members hold, catalog identities among them, named by their path from the member instead of
     /// copied (#1623); every hash-keyed collection held as its comparers and entries, which a restore adds to a new
-    /// collection, instead of its capturing process's bucket layout (#1681).
+    /// collection, instead of its capturing process's bucket layout (#1681); the game itself as the graph's root, with no
+    /// work-RAM image beside it (#1688).
     /// </summary>
-    Current = 14,
+    Current = 15,
 }

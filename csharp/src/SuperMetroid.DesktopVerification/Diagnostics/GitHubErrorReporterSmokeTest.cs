@@ -101,7 +101,6 @@ public static class GitHubErrorReporterSmokeTest
     /// <summary>Captures before and failed-frame Samus state and checks replay, build, and input details in the report.</summary>
     private static string VerifyFrameFailureSnapshot()
     {
-        var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var colors = GameplayBasePaletteFiles.Read(new MemoryStream(GameplayBasePaletteFiles.Write(
             new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
                 Enumerable.Range(0, SnesCgram.ColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray(),

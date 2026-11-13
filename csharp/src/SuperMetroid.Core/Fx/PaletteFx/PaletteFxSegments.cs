@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Programs;
-using P = SuperMetroid.Core.Fx.PaletteFx.PaletteFxProgram;
+using P = SuperMetroid.Core.Fx.PaletteFx.PaletteFxSegment;
 
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 internal static class PaletteFxSegments
 {
     /// <summary>Every segment.</summary>
-    internal static AnimationSegments<PaletteFxProgram, int, PaletteFxCue> All { get; } = new(
-        new Dictionary<PaletteFxProgram, AnimationBeat<int, PaletteFxCue>[]>
+    internal static AnimationSegments<PaletteFxSegment, int, PaletteFxCue> All { get; } = new(
+        new Dictionary<PaletteFxSegment, AnimationBeat<int, PaletteFxCue>[]>
     {
         [P.FadeInSuperMetroidTitleLogo] =
         [

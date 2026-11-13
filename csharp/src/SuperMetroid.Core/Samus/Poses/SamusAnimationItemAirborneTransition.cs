@@ -16,4 +16,4 @@ internal sealed record SamusAnimationItemAirborneTransition(
     SamusPoseId UnequippedGrounded,
     SamusPoseId UnequippedAirborne,
     SamusPoseId EquippedGrounded,
-    SamusPoseId EquippedAirborne) : SamusAnimationInstruction;
+    SamusPoseId EquippedAirborne) : SamusAnimationCue;

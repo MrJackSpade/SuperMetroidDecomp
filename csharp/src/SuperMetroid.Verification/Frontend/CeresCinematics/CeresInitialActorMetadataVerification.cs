@@ -60,7 +60,7 @@ internal static class CeresInitialActorMetadataVerification
             if (preservesDefinitionCallback)
                 AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), actor.ActiveFrameBehavior.NativeAddress,
                     $"{name} initializer preserves definition pre-instruction");
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actor.Program),
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actor.Animation),
                 $"{name} instruction list");
         }
 

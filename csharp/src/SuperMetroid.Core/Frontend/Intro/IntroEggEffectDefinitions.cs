@@ -11,10 +11,10 @@ internal static class IntroEggEffectDefinitions
     public const int SlimeDropCount = 4;
 
     /// <summary>The six particles' programs, indexed by particle.</summary>
-    internal static readonly CinematicSpriteProgram[] ParticlePrograms =
+    internal static readonly CinematicSpriteSegment[] ParticleAnimations =
     [
-        CinematicSpriteProgram.MetroidEggParticle1, CinematicSpriteProgram.MetroidEggParticle2, CinematicSpriteProgram.MetroidEggParticle3,
-        CinematicSpriteProgram.MetroidEggParticle4, CinematicSpriteProgram.MetroidEggParticle5, CinematicSpriteProgram.MetroidEggParticle6,
+        CinematicSpriteSegment.MetroidEggParticle1, CinematicSpriteSegment.MetroidEggParticle2, CinematicSpriteSegment.MetroidEggParticle3,
+        CinematicSpriteSegment.MetroidEggParticle4, CinematicSpriteSegment.MetroidEggParticle5, CinematicSpriteSegment.MetroidEggParticle6,
     ];
 
     /// <summary>The shared egg-slime initialization, motion, and animation definition.</summary>
@@ -29,5 +29,5 @@ internal static class IntroEggEffectDefinitions
     /// identities and do not infer a sixth frame from adjacent data.
     /// </remarks>
     public static CinematicActorDefinition SlimeDrop =>
-        new(CinematicSpriteFrameBehavior.MetroidEggSlimeDrops, CinematicSpriteProgram.MetroidEggParticle7);
+        new(CinematicSpriteFrameBehavior.MetroidEggSlimeDrops, CinematicSpriteSegment.MetroidEggParticle7);
 }

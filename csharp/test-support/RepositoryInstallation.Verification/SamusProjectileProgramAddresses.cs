@@ -18,22 +18,22 @@ internal static class SamusProjectileProgramAddresses
     internal static SamusProjectileListLayout Layout => layout.Value;
 
     /// <summary>Each place's instruction pointer, by segment: one per beat, then the segment's end.</summary>
-    internal static IReadOnlyDictionary<SamusProjectileProgram, ushort[]> BeatAddresses => Layout.BeatPositions;
+    internal static IReadOnlyDictionary<SamusProjectileSegment, ushort[]> BeatAddresses => Layout.BeatPositions;
 
     /// <summary>The list entry of <paramref name="program"/>.</summary>
-    internal static ushort Entry(SamusProjectileProgram program) => Layout.BeatPositions[program][0];
+    internal static ushort Entry(SamusProjectileSegment program) => Layout.BeatPositions[program][0];
 
     /// <inheritdoc cref="SamusProjectileListLayout.Prefix"/>
-    internal static ushort Prefix(SamusProjectileProgram program) => Layout.Prefix(program);
+    internal static ushort Prefix(SamusProjectileSegment program) => Layout.Prefix(program);
 
     /// <inheritdoc cref="SamusProjectileListLayout.Position(SamusProjectileSegmentBeat)"/>
     internal static ushort Address(SamusProjectileSegmentBeat place) => Layout.Position(place);
 
     /// <summary>The bank position of <paramref name="playback"/>, or zero for no playback.</summary>
-    internal static ushort Address(AnimationPlayback<SamusProjectileProgram>? playback) => Layout.Position(playback);
+    internal static ushort Address(AnimationPlayback<SamusProjectileSegment>? playback) => Layout.Position(playback);
 
     /// <summary>The playback the bank position <paramref name="address"/> names, or none for zero.</summary>
-    internal static AnimationPlayback<SamusProjectileProgram>? PlaybackAt(ushort address) => Layout.PlaybackAt(address);
+    internal static AnimationPlayback<SamusProjectileSegment>? PlaybackAt(ushort address) => Layout.PlaybackAt(address);
 
     /// <inheritdoc cref="SamusProjectileListLayout.RecordPosition"/>
     internal static ushort RecordAddress(SamusProjectileFrame record) => Layout.RecordPosition(record);

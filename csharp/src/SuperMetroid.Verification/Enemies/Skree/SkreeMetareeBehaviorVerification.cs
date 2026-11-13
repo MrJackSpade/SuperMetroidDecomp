@@ -24,16 +24,16 @@ internal static class SkreeMetareeBehaviorVerification
         foreach (bool metaree in new[] { false, true })
         {
             string species = metaree ? "Metaree" : "Skree";
-            Func<SkreeMetareeAnimationPhase, SkreeMetareeProgram> program = metaree ? SkreeMetareePrograms.MetareeProgram : SkreeMetareePrograms.SkreeProgram;
-            SkreeMetareeProgram idle = program(SkreeMetareeAnimationPhase.Idling);
-            (RoomEnemySystem enemies, RoomEnemySlot slot, Func<AnimationPlayback<SkreeMetareeProgram>> current, Action<SkreeMetareeProgram> start, Func<bool> attackReady) = Create(metaree);
+            Func<SkreeMetareeAnimationPhase, SkreeMetareeSegment> program = metaree ? SkreeMetareeAnimationChoices.MetareeAnimation : SkreeMetareeAnimationChoices.SkreeAnimation;
+            SkreeMetareeSegment idle = program(SkreeMetareeAnimationPhase.Idling);
+            (RoomEnemySystem enemies, RoomEnemySlot slot, Func<AnimationPlayback<SkreeMetareeSegment>> current, Action<SkreeMetareeSegment> start, Func<bool> attackReady) = Create(metaree);
             AssertTrue(ReferenceEquals(SkreeMetareeAnimations.StartingWith(idle), current().Animation) &&
                 current().Place == AnimationPlace.StartOfAnimation, $"{species} starts idling");
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(SkreeMetareeAnimations.Segments, idle, SkreeMetareeFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(SkreeMetareeAnimations.Segments, idle)), $"{species} idle loop");
 
             (enemies, slot, current, start, attackReady) = Create(metaree);
-            SkreeMetareeProgram windUp = program(SkreeMetareeAnimationPhase.PreparingAttack);
+            SkreeMetareeSegment windUp = program(SkreeMetareeAnimationPhase.PreparingAttack);
             start(windUp);
             int[] holds = [16, 8];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(SkreeMetareeAnimationsConstants.Spritemaps(windUp), holds),
@@ -43,9 +43,9 @@ internal static class SkreeMetareeBehaviorVerification
             AssertTrue(attackReady(), $"{species} wind-up flags the attack ready");
 
             (enemies, slot, current, start, _) = Create(metaree);
-            SkreeMetareeProgram dive = program(SkreeMetareeAnimationPhase.Diving);
+            SkreeMetareeSegment dive = program(SkreeMetareeAnimationPhase.Diving);
             // The dive's cue phase runs on into the loop it then repeats.
-            SkreeMetareeProgram diveLoop = SkreeMetareeAnimations.StartingWith(dive).Phases[^1].Segment;
+            SkreeMetareeSegment diveLoop = SkreeMetareeAnimations.StartingWith(dive).Phases[^1].Segment;
             start(dive);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(SkreeMetareeAnimations.Segments, diveLoop, SkreeMetareeFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(SkreeMetareeAnimations.Segments, diveLoop)), $"{species} dive loop");
@@ -66,7 +66,7 @@ internal static class SkreeMetareeBehaviorVerification
         slot.Bind(metaree ? EnemyDefinitionId.Metaree : EnemyDefinitionId.Skree, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         // The room spawn primes the instruction timer before the species initializer runs.
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         if (metaree)
         {
             MetareeBehavior.InitializeMetaree(slot);
@@ -82,8 +82,7 @@ internal static class SkreeMetareeBehaviorVerification
     private static void Restart(RoomEnemySlot slot, Action start)
     {
         start();
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
     }
 
     /// <summary>Runs the Skree/Metaree behavior check and the program oracle against the local retail cartridge.</summary>

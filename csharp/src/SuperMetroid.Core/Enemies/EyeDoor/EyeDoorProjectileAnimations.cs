@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Rooms.Doors.EyeDoorProjectileCueKind;
-using P = SuperMetroid.Core.Rooms.Doors.EyeDoorProjectileProgram;
+using P = SuperMetroid.Core.Rooms.Doors.EyeDoorProjectileSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.Doors;
 
@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Enemies.EyeDoor;
 internal static class EyeDoorProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<EyeDoorProjectileProgram, EnemyProjectileFrameId, EyeDoorProjectileCue> Segments { get; } = new(
-        new Dictionary<EyeDoorProjectileProgram, AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>[]>
+    internal static AnimationSegments<EyeDoorProjectileSegment, EnemyProjectileFrameId, EyeDoorProjectileCue> Segments { get; } = new(
+        new Dictionary<EyeDoorProjectileSegment, AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>[]>
     {
         [P.Initial] =
         [
@@ -47,7 +47,7 @@ internal static class EyeDoorProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<EyeDoorProjectileProgram, Animation<EyeDoorProjectileProgram>> StartingAt { get; } = new Dictionary<EyeDoorProjectileProgram, Animation<EyeDoorProjectileProgram>>
+    internal static IReadOnlyDictionary<EyeDoorProjectileSegment, Animation<EyeDoorProjectileSegment>> StartingAt { get; } = new Dictionary<EyeDoorProjectileSegment, Animation<EyeDoorProjectileSegment>>
     {
         [P.Initial] = new([new(P.Initial, 0, 5, 1), new(P.FlyingLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
         [P.FlyingLoop] = new([new(P.FlyingLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
@@ -56,7 +56,7 @@ internal static class EyeDoorProjectileAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<EyeDoorProjectileProgram> StartingWith(EyeDoorProjectileProgram segment) => StartingAt[segment];
+    internal static Animation<EyeDoorProjectileSegment> StartingWith(EyeDoorProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.Frame(frame, duration);

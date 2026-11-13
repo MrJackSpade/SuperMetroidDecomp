@@ -53,15 +53,15 @@ internal sealed class DraygonGoop
         state.GoopYOscillationAngle = RotationAngle.Zero;
         // Retail's leftward setup briefly requests the right-facing apex arm list before
         // the body's reset cue replaces all four programs. Preserve the literal write.
-        _parts.StartDraygonProgram(state.Arms, DraygonProgram.ArmsFacingRightNearSwoopApex);
+        _parts.StartDraygonAnimation(state.Arms, DraygonSegment.ArmsFacingRightNearSwoopApex);
         state.Function = direction == HorizontalDirection.Right
             ? DraygonAiFunction.GoopRight
             : DraygonAiFunction.GoopLeft;
-        _parts.StartDraygonProgram(
+        _parts.StartDraygonAnimation(
             body,
             direction == HorizontalDirection.Right
-                ? DraygonProgram.BodyFacingRightReset
-                : DraygonProgram.BodyFacingLeftReset);
+                ? DraygonSegment.BodyFacingRightReset
+                : DraygonSegment.BodyFacingLeftReset);
         state.FacingRight = direction == HorizontalDirection.Right;
     }
 
@@ -111,11 +111,11 @@ internal sealed class DraygonGoop
                 FinishDraygonGoopFiring(state, direction == HorizontalDirection.Right);
                 return;
             }
-            _parts.StartDraygonProgram(
+            _parts.StartDraygonAnimation(
                 state.Body,
                 direction == HorizontalDirection.Right
-                    ? DraygonProgram.BodyFacingRightFireGoop
-                    : DraygonProgram.BodyFacingLeftFireGoop);
+                    ? DraygonSegment.BodyFacingRightFireGoop
+                    : DraygonSegment.BodyFacingLeftFireGoop);
         }
 
         MoveDraygonAlongGoopPath(state, direction == HorizontalDirection.Right);
@@ -130,11 +130,11 @@ internal sealed class DraygonGoop
     /// <summary>Places Draygon offscreen and selects the next swoop after a goop pass exits.</summary>
     private void FinishDraygonGoopFiring(DraygonEnemyState state, bool movingRight)
     {
-        _parts.StartDraygonProgram(
+        _parts.StartDraygonAnimation(
             state.Arms,
             movingRight
-                ? DraygonProgram.ArmsFacingRightIdle
-                : DraygonProgram.ArmsFacingLeftIdle);
+                ? DraygonSegment.ArmsFacingRightIdle
+                : DraygonSegment.ArmsFacingLeftIdle);
         state.Function = movingRight
             ? DraygonAiFunction.GoopRightRecovery
             : DraygonAiFunction.GoopLeftRecovery;
@@ -208,11 +208,11 @@ internal sealed class DraygonGoop
 
         // A shot wall turret runs the shared misc-dust small explosion, the list its definition names.
         table.AddShotAnimation(RoomEnemyProjectileKind.DraygonWallTurret,
-            () => new MiscDustProjectileAnimation(MiscDustProjectileProgram.SmallExplosion));
+            () => new MiscDustProjectileAnimation(MiscDustProjectileSegment.SmallExplosion));
         table.AddTouchAnimation(RoomEnemyProjectileKind.DraygonGoop,
-            () => new DraygonProjectileAnimation(DraygonProjectileProgram.GoopTouch));
+            () => new DraygonProjectileAnimation(DraygonProjectileSegment.GoopTouch));
         table.AddShotAnimation(RoomEnemyProjectileKind.DraygonGoop,
-            () => new DraygonProjectileAnimation(DraygonProjectileProgram.GoopShot));
+            () => new DraygonProjectileAnimation(DraygonProjectileSegment.GoopShot));
         table.AddCue<DraygonProjectileCue>((context, cue) =>
         {
             EnemyProjectile projectile = context.Projectile;
@@ -269,7 +269,7 @@ internal sealed class DraygonGoop
         int yDistance = CoordinateAxis.Distance(samus.Position.Y.Whole, goop.Position.Y.Whole);
         if (xDistance < 16 && yDistance < 20)
         {
-            goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.GoopTouch));
+            goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.GoopTouch));
             return;
         }
         DeleteDraygonProjectileOutsideRoom(goop);

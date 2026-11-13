@@ -27,21 +27,21 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
     {
         LowerNorfairRioInstructionProgramDefinitionsProgram[] programs =
         [
-            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioProgram.Idle, 5, false, false, "idle"),
-            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioProgram.PrepareToSwoop, 10, false, true, "prepare to swoop"),
-            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioProgram.Descending, 2, false, false, "descending"),
-            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioProgram.AscendingPart1, 4, false, true, "ascending part one"),
-            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioProgram.AscendingPart2, 4, true, false, "ascending part two"),
-            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioProgram.Cooldown, 10, true, true, "cooldown"),
-            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioProgram.Flames, 4, false, false, "flames"),
+            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioSegment.Idle, 5, false, false, "idle"),
+            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioSegment.PrepareToSwoop, 10, false, true, "prepare to swoop"),
+            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioSegment.Descending, 2, false, false, "descending"),
+            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioSegment.AscendingPart1, 4, false, true, "ascending part one"),
+            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioSegment.AscendingPart2, 4, true, false, "ascending part two"),
+            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioSegment.Cooldown, 10, true, true, "cooldown"),
+            new LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioSegment.Flames, 4, false, false, "flames"),
         ];
-        foreach ((LowerNorfairRioProgram entry, int calls, bool visible, bool signal, string name) in programs)
+        foreach ((LowerNorfairRioSegment entry, int calls, bool visible, bool signal, string name) in programs)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, LowerNorfairRioEnemyState state) = NewLowerNorfairRioInstructionSystem(entry);
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
             for (int call = 0; call < calls; call++)
             {
-                slot.FrameHold = WrappingCountdown.Start(1);
+                slot.AnimationClock.StepOnNextUpdate();
                 EnemyInstructionRunner.Process(arguments);
             }
             AssertEqual(visible, state.FollowerVisible, $"Lower Norfair Rio {name} publishes follower visibility");
@@ -65,7 +65,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition));
         parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(parent);
-        AssertEqual(new AnimationPlayback<LowerNorfairRioProgram>(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioProgram.Idle), AnimationPlace.StartOfAnimation), enemies.SlotTable.Slots[0].EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()?.Playback,
+        AssertEqual(new AnimationPlayback<LowerNorfairRioSegment>(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioSegment.Idle), AnimationPlace.StartOfAnimation), enemies.SlotTable.Slots[0].EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()?.Playback,
             "Lower Norfair Rio parent initializer selects idle");
 
         RoomEnemySlot follower = enemies.SlotTable.Slots[1];
@@ -73,19 +73,19 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
         follower.SetSpawnParameter1(EnemyDefinitionId.Holtz, 0x8000);
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(follower);
-        AssertEqual(new AnimationPlayback<LowerNorfairRioProgram>(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioProgram.Flames), AnimationPlace.StartOfAnimation), enemies.SlotTable.Slots[1].EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()?.Playback,
+        AssertEqual(new AnimationPlayback<LowerNorfairRioSegment>(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioSegment.Flames), AnimationPlace.StartOfAnimation), enemies.SlotTable.Slots[1].EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()?.Playback,
             "Lower Norfair Rio follower initializer selects flames");
     }
 
     /// <summary>Creates a Lower Norfair Rio running <paramref name="entry"/> in the first enemy slot.</summary>
     internal static NewLowerNorfairRioInstructionSystemResult NewLowerNorfairRioInstructionSystem(
-        LowerNorfairRioProgram entry)
+        LowerNorfairRioSegment entry)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Holtz, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         var state = new LowerNorfairRioEnemyState { Playback = new(LowerNorfairRioAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
         slot.SetSpeciesState(state);
         return new NewLowerNorfairRioInstructionSystemResult(enemies, slot, state);

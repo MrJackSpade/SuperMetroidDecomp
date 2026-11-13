@@ -82,7 +82,7 @@ public sealed class DemoInputState
     public void SwitchTo(DemoInputRecordingId recording, int frameHold = 1)
     {
         Position = DemoPlaybackPosition.Start(recording);
-        FrameHold = WrappingCountdown.FromRaw(frameHold);
+        FrameHold = WrappingCountdown.Start(frameHold);
     }
 
     /// <summary>
@@ -138,7 +138,7 @@ public sealed class DemoInputState
         }
 
         DemoInputRecord input = recording.Records[position.NextRecord];
-        FrameHold = WrappingCountdown.FromRaw(input.Duration);
+        FrameHold = WrappingCountdown.Start(input.Duration);
         Held = input.Held;
         NewlyPressed = input.NewlyPressed;
         Position = position with { NextRecord = position.NextRecord + 1 };

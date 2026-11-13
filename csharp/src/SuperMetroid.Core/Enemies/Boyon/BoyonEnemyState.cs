@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 public sealed class BoyonEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<BoyonProgram> Playback { get; set; }
+    internal AnimationPlayback<BoyonSegment> Playback { get; set; }
 
     /// <summary>
     /// The multiplier its bounce curve is scaled by, from its spawn settings. The multiply takes it whole, so a

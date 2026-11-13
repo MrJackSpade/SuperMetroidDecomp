@@ -10,7 +10,7 @@ internal sealed record WorkRobotMoveStep
     public required EightEightVector<RoomPixels> FacingLaserVelocity { get; init; }
 
     /// <summary>The animation a wall turns the walk into.</summary>
-    public required WorkRobotProgram WallProgram { get; init; }
+    public required WorkRobotSegment WallAnimation { get; init; }
 
     /// <summary>Check ledge.</summary>
     public required bool CheckLedge { get; init; }
@@ -19,7 +19,7 @@ internal sealed record WorkRobotMoveStep
     public required int LedgeProbeDirection { get; init; }
 
     /// <summary>The animation a ledge turns the walk into, when the step watches for ledges.</summary>
-    public required WorkRobotProgram? FallProgram { get; init; }
+    public required WorkRobotSegment? FallAnimation { get; init; }
 
     /// <summary>The laser velocity a ledge turns the robot to, when the step watches for ledges; only its X is meaningful.</summary>
     public required EightEightVector<RoomPixels> FallLaserVelocity { get; init; }

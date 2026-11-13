@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalProgram;
+using P = SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalSegment;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Projectiles;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresElevatorArrivalAnimations
 {
     /// <summary>Every arrival segment's beats.</summary>
-    internal static AnimationSegments<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<CeresElevatorArrivalProgram, AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>[]>
+    internal static AnimationSegments<CeresElevatorArrivalSegment, CeresElevatorArrivalPose, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<CeresElevatorArrivalSegment, AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>[]>
     {
         [P.Pad] =
         [
@@ -27,7 +27,7 @@ internal static class CeresElevatorArrivalAnimations
     });
 
     /// <summary>The animation that starts at each segment: the pad and platform loop, and the delete ends at once.</summary>
-    internal static IReadOnlyDictionary<CeresElevatorArrivalProgram, Animation<CeresElevatorArrivalProgram>> StartingAt { get; } = new Dictionary<CeresElevatorArrivalProgram, Animation<CeresElevatorArrivalProgram>>
+    internal static IReadOnlyDictionary<CeresElevatorArrivalSegment, Animation<CeresElevatorArrivalSegment>> StartingAt { get; } = new Dictionary<CeresElevatorArrivalSegment, Animation<CeresElevatorArrivalSegment>>
     {
         [P.Pad] = new([new(P.Pad, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
         [P.Platform] = new([new(P.Platform, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
@@ -35,7 +35,7 @@ internal static class CeresElevatorArrivalAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<CeresElevatorArrivalProgram> StartingWith(CeresElevatorArrivalProgram segment) => StartingAt[segment];
+    internal static Animation<CeresElevatorArrivalSegment> StartingWith(CeresElevatorArrivalSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue> Show(CeresElevatorArrivalPose pose, int duration) =>

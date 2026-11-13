@@ -31,12 +31,12 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
             slot.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
             enemies.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             // The statues' animations stop at once and so compare equal; the one started is told apart by identity.
-            AnimationPlayback<TourianEntranceStatueProgram> started = slot.RequireSpeciesState<TourianEntranceStatueState>().Playback;
+            AnimationPlayback<TourianEntranceStatueSegment> started = slot.RequireSpeciesState<TourianEntranceStatueState>().Playback;
             AssertTrue(ReferenceEquals(TourianEntranceStatueAnimations.StartingWith(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatue(parameter)), started.Animation)
                 && started.Place == AnimationPlace.StartOfAnimation,
                 $"Tourian entrance-statue initializer parameter {parameter}");
 
-            EnemyInstructionInterpreter.RunsAnimationScript(slot, null, null, Position16<RoomPixels>.Zero, 0);
+            EnemyAnimationPlayer.AdvanceAnimation(slot, null, null, Position16<RoomPixels>.Zero, 0);
             AssertTrue(slot.Presence.HasAny(EnemyPresence.Deleted),
                 $"Tourian entrance-statue parameter {parameter} executes native delete");
         }

@@ -98,10 +98,9 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // One more processing property is still unnamed: its wider meaning is not proven. Keep it as
         // loaded while naming only the verified animation-script property.
-        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
+        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
         slot.Shading = PulseShading;
         state.Function = state.IsSecondaryHalf
             ? ZebetiteAiFunction.WaitForDoorTransition
@@ -118,7 +117,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         ZebetiteGenerationDefinition definition = Zebetites.Generation(generation);
         state.GenerationFlags = definition.GenerationFlags;
         slot.Radius = slot.Radius.WithY(definition.YRadius);
-        state.Playback = ZebetiteAnimations.Starting(definition.Program);
+        state.Playback = ZebetiteAnimations.Starting(definition.Animation);
         slot.Position = slot.Position.WithWholeX(definition.XPosition);
         slot.Position = slot.Position.WithWholeY(Zebetites.YPosition(definition, state.IsSecondaryHalf));
     }
@@ -215,11 +214,10 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         ZebetiteEnemyState state)
     {
-        state.Playback = ZebetiteAnimations.Starting(ZebetiteAnimations.HealthProgram(
+        state.Playback = ZebetiteAnimations.Starting(ZebetiteAnimations.HealthAnimation(
             linkedPair: (state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != ZebetiteGenerationFlags.None,
             slot.Health));
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
     }
 
     /// <summary>Finds a free physical slot and initializes a primary or linked half from its population record.</summary>
@@ -270,7 +268,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile.Position = projectile.Position.WithWhole(slot.Position.Whole);
             projectile.DropDefinitionId = slot.DefinitionId;
             projectile.KilledEnemy = KilledEnemy.Of(slot, respawns: false);
-            projectile.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathProjectileProgram.SmallExplosion));
+            projectile.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathProjectileSegment.SmallExplosion));
         }
 
         slot.Clear();
@@ -285,11 +283,11 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AdvanceZebetiteAnimation(RoomEnemySlot slot)
     {
         ZebetiteEnemyState state = slot.RequireSpeciesState<ZebetiteEnemyState>();
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         // A held pose is the script's sleep: the timer wraps from zero and the pose stays.
-        AnimationPlayback<ZebetiteProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, ZebetiteAnimations.Segments, ref playback, ZebetiteVisualDefinitions.ShownFrames.Of,
+        AnimationPlayback<ZebetiteSegment> playback = state.Playback;
+        EnemyAnimationPlayback.Play(slot, ZebetiteAnimations.Segments, ref playback, ZebetiteVisualDefinitions.ShownFrames.Of,
             cue => throw new InvalidOperationException($"Zebetite animations raise no event {cue}."));
         state.Playback = playback;
     }

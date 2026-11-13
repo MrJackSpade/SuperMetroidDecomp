@@ -7,4 +7,4 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <param name="Definition">The definition.</param>
 /// <param name="Program">The program.</param>
 /// <param name="Name">The name.</param>
-internal readonly record struct EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase(EnemyDefinitionId Definition, RipperProgram Program, string Name);
+internal readonly record struct EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase(EnemyDefinitionId Definition, RipperSegment Program, string Name);

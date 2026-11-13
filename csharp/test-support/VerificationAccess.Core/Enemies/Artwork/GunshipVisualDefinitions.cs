@@ -29,7 +29,7 @@ internal static class GunshipVisualDefinitions
         var seen = new HashSet<ushort>();
         int padIndex = 0;
         // The typed programs (#641) in declaration order show the pad poses first, then the two hulls.
-        foreach (ushort pointer in GunshipAnimationsConstants.Spritemaps(Enum.GetValues<GunshipProgram>()))
+        foreach (ushort pointer in GunshipAnimationsConstants.Spritemaps(Enum.GetValues<GunshipSegment>()))
         {
             // The closing program reuses the opening frames in reverse. Export
             // each native identity once, keeping the actual timing in the program.

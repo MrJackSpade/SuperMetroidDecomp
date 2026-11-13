@@ -57,7 +57,7 @@ internal sealed class CrocomireBridgeCollapse
 
         CrocomireBridgeCollapseStarted = true;
         state.DeathPhase = CrocomireDeathPhase.CrumbleBridgeAndSink;
-        CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.BridgeCollapsed);
+        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.BridgeCollapsed);
         body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
         state.StartVerticalMotion(CrocomireBehavior.SinkStartingAcceleration);
         body.Radius = body.Radius.WithY(16);
@@ -71,7 +71,7 @@ internal sealed class CrocomireBridgeCollapse
 
         if (state.Tongue is { } tongue)
         {
-            CrocomireBodyLayer.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Sleep, WrappingCountdown.Start(TongueSleepDelay));
+            CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Sleep, TongueSleepDelay);
             tongue.Presence = tongue.Presence.With(EnemyPresence.Hidden);
         }
     }
@@ -232,7 +232,7 @@ internal sealed class CrocomireBridgeCollapse
         }
 
         HideCrocomireSunkenBody();
-        body.NewInstructionFrame = false;
+        body.AnimationClock.ShowsNewFrame = false;
 
         // The acceleration's fraction carries into its whole part before the whole part is clamped, and the
         // speed's into its whole part before that is clamped: each clamp keeps the fraction it carried from.
@@ -279,23 +279,23 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>Selects the body melting program for the rows still above the acid.</summary>
-    internal static void SelectCrocomireRisingInstruction(CrocomireEnemyState state)
+    internal static void SelectCrocomireRisingAnimation(CrocomireEnemyState state)
     {
         int y = state.Body.Position.Y.Whole;
-        CrocomireBodyProgram program = y < 248
-            ? CrocomireBodyProgram.MeltingTwoTopFourRows
+        CrocomireBodySegment segment = y < 248
+            ? CrocomireBodySegment.MeltingTwoTopFourRows
             : y < 264
-                ? CrocomireBodyProgram.MeltingTwoTopThreeRows
+                ? CrocomireBodySegment.MeltingTwoTopThreeRows
                 : y < 280
-                    ? CrocomireBodyProgram.MeltingTwoTopTwoRows
-                    : CrocomireBodyProgram.MeltingTwoTopRow;
-        CrocomireEncounterAccess.StartCrocomireBodyProgram(state, program);
+                    ? CrocomireBodySegment.MeltingTwoTopTwoRows
+                    : CrocomireBodySegment.MeltingTwoTopRow;
+        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, segment);
     }
 
     /// <summary>Completes the acid sink and hands control to the skeleton river sequence.</summary>
     internal void RunCrocomireFinalSink(CrocomireEnemyState state, SamusState? samus)
     {
-        SelectCrocomireRisingInstruction(state);
+        SelectCrocomireRisingAnimation(state);
         _bodyLayer.SpawnCrocomireAcidSmoke(state, samus);
         RunCrocomireSink(state);
         if (state.DeathPhase != CrocomireDeathPhase.WaitForSamusAtWall)
@@ -303,7 +303,7 @@ internal sealed class CrocomireBridgeCollapse
 
         _access.RequestCrocomireMusic(MusicRequest.SelectTrack(MusicTrack.SecondSetSong), MusicQueueDelay.Shortest);
         state.DeathPhase = CrocomireDeathPhase.RiverSkeletonDetour;
-        CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFlowingDownRiver);
+        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.SkeletonFlowingDownRiver);
         _room.Services.RoomScroll.Write(4, RoomScrollState.Blue);
         _room.Services.RoomScroll.Write(5, RoomScrollState.Blue);
         if (state.Tongue is { } tongue)

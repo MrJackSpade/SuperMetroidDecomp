@@ -78,9 +78,9 @@ internal static class FxNativeWords
         NativePaletteFxPreInstruction.DeleteWhenEnemyZeroDies => ColourEffectCondition.EndsWhenTorizoDies.Instance,
         NativePaletteFxPreInstruction.Heat => ColourEffectCondition.BurnsSamusInHeat.Instance,
         NativePaletteFxPreInstruction.SwitchAboveY380 => new ColourEffectCondition.RestartsWhileSamusIsHigh(
-            CrateriaLightningDefinitions.SamusHighOnSurfaceHeight, PaletteFxProgram.CrateriaLightningCycle),
+            CrateriaLightningDefinitions.SamusHighOnSurfaceHeight, PaletteFxSegment.CrateriaLightningCycle),
         NativePaletteFxPreInstruction.SwitchAboveY380Second => new ColourEffectCondition.RestartsWhileSamusIsHigh(
-            CrateriaLightningDefinitions.SamusHighOnSurfaceHeight, PaletteFxProgram.UnusedDarkLightningCycle),
+            CrateriaLightningDefinitions.SamusHighOnSurfaceHeight, PaletteFxSegment.UnusedDarkLightningCycle),
         NativePaletteFxPreInstruction.DeleteWhenAreaMiniBossDies => ColourEffectCondition.EndsWhenAreaMiniBossDies.Instance,
         _ => throw new ArgumentOutOfRangeException(nameof(preInstruction), preInstruction, "Undefined palette-FX pre-instruction."),
     };
@@ -120,7 +120,7 @@ internal static class FxNativeWords
     internal static ColourEffectStart StartOf(NativePaletteFxSetup setup) => setup switch
     {
         NativePaletteFxSetup.Null or NativePaletteFxSetup.Intro => ColourEffectStart.Plain,
-        NativePaletteFxSetup.Norfair => ColourEffectStart.ChoosesHeatProgramForSuit,
+        NativePaletteFxSetup.Norfair => ColourEffectStart.ChoosesHeatAnimationForSuit,
         NativePaletteFxSetup.Brinstar => ColourEffectStart.SkippedOnceAreaMiniBossIsDead,
         _ => throw new ArgumentOutOfRangeException(nameof(setup), setup, "Undefined palette-FX setup."),
     };

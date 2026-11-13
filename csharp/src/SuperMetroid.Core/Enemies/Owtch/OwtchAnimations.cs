@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Owtch.OwtchCueKind;
-using P = SuperMetroid.Core.Enemies.Owtch.OwtchProgram;
+using P = SuperMetroid.Core.Enemies.Owtch.OwtchSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Owtch;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 internal static class OwtchAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<OwtchProgram, EnemyFrameId, OwtchCue> Segments { get; } = new(
-        new Dictionary<OwtchProgram, AnimationBeat<EnemyFrameId, OwtchCue>[]>
+    internal static AnimationSegments<OwtchSegment, EnemyFrameId, OwtchCue> Segments { get; } = new(
+        new Dictionary<OwtchSegment, AnimationBeat<EnemyFrameId, OwtchCue>[]>
     {
         [P.MovingLeft] =
         [
@@ -38,7 +38,7 @@ internal static class OwtchAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<OwtchProgram, Animation<OwtchProgram>> StartingAt { get; } = new Dictionary<OwtchProgram, Animation<OwtchProgram>>
+    internal static IReadOnlyDictionary<OwtchSegment, Animation<OwtchSegment>> StartingAt { get; } = new Dictionary<OwtchSegment, Animation<OwtchSegment>>
     {
         [P.MovingLeft] = new([new(P.MovingLeft, 0, 1, 1), new(P.MovingLeftLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
         [P.MovingLeftLoop] = new([new(P.MovingLeftLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
@@ -47,7 +47,7 @@ internal static class OwtchAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<OwtchProgram> StartingWith(OwtchProgram segment) => StartingAt[segment];
+    internal static Animation<OwtchSegment> StartingWith(OwtchSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, OwtchCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, OwtchCue>.Frame(frame, duration);

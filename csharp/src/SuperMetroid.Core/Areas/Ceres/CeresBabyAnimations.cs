@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Programs;
-using P = SuperMetroid.Core.Areas.Ceres.CeresBabyProgram;
+using P = SuperMetroid.Core.Areas.Ceres.CeresBabySegment;
 using F = SuperMetroid.Core.Areas.Ceres.CeresBabyPose;
 
 namespace SuperMetroid.Core.Areas.Ceres;

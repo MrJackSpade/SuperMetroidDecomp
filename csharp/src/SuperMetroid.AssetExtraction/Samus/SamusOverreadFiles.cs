@@ -58,7 +58,7 @@ public static class SamusOverreadFiles
     /// </summary>
     /// <param name="directory">The installed overread directory.</param>
     /// <exception cref="InvalidDataException">The manifest, its hash, or a continuation is invalid.</exception>
-    internal static LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> LoadAnimationContinuation(string directory) =>
+    internal static LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> LoadAnimationContinuation(string directory) =>
         SamusOverreadServicesReader.ReadAnimationContinuation(LoadDocument(directory));
 
     /// <summary>Reads the overread document of a verified installation after checking its manifest and hash.</summary>

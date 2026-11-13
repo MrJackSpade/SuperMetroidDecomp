@@ -17,7 +17,7 @@ internal static class KagoBugProjectileBehaviorVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, KagoBugProjectileNativeListAddresses.Extent, "Kago bug");
-        foreach (KagoBugProjectileProgram program in new[] { KagoBugProjectileProgram.Landed, KagoBugProjectileProgram.Falling, KagoBugProjectileProgram.JumpStart })
+        foreach (KagoBugProjectileSegment program in new[] { KagoBugProjectileSegment.Landed, KagoBugProjectileSegment.Falling, KagoBugProjectileSegment.JumpStart })
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().ReadRandom = () => 1;

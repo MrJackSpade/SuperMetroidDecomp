@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 /// <remarks>
 /// Mother Brain's body movement is not performed by her AI function. The AI installs one of
-/// the body programs (<see cref="MotherBrainBodyProgram"/>); the enemy animation stage later advances
+/// the body programs (<see cref="MotherBrainBodySegment"/>); the enemy animation stage later advances
 /// that program and its cues mutate body position, pose, the background's alignment, footsteps,
 /// and the displayed frame. Keeping that second processing stage explicit is
 /// essential: replacing a requested walk with a direct X adjustment would skip roughly ninety
@@ -28,11 +28,11 @@ public sealed class MotherBrainBodyAnimationState
     public MotherBrainForm Form { get; set; }
 
     /// <summary>The body program most recently requested, or null before the first request.</summary>
-    public MotherBrainBodyProgram? Program { get; private set; }
+    public MotherBrainBodySegment? Animation { get; private set; }
 
     /// <summary>
     /// Requests a body program; the physical body slot starts it on the next enemy
     /// animation-script stage.
     /// </summary>
-    public void SetProgram(MotherBrainBodyProgram program) => Program = program;
+    public void SetAnimation(MotherBrainBodySegment segment) => Animation = segment;
 }

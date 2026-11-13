@@ -48,8 +48,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of the Yard's animations. Repeating the previous pose continues <paramref name="playing"/> at the
     /// pose shown just before the cue, as the cue steps the animation back one pose; every other cue plays on.
     /// </summary>
-    private AnimationContinuation<YardProgram>? ApplyYardCue(
-        RoomEnemySlot slot, YardEnemyState state, YardCue cue, Animation<YardProgram> playing)
+    private AnimationContinuation<YardSegment>? ApplyYardCue(
+        RoomEnemySlot slot, YardEnemyState state, YardCue cue, Animation<YardSegment> playing)
     {
         switch (cue)
         {
@@ -57,8 +57,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 // Yard animation owns movement dispatch: the operand is a movement behaviour, not a branch.
                 state.MovementFunction = setMovementFunction.MovementFunction;
                 return null;
-            case YardCue.SetHidingProgram setHidingProgram:
-                state.HidingProgram = setHidingProgram.OptionalTarget;
+            case YardCue.SetHidingAnimation setHidingAnimation:
+                state.HidingAnimation = setHidingAnimation.OptionalTarget;
                 return null;
             case YardCue.SetDirection setDirection:
                 state.Direction = setDirection.Direction;
@@ -70,7 +70,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             case YardCue.Command { Kind: YardCueKind.RepeatPreviousPoseUnlessContinuing }:
                 if (state.Behavior != YardBehavior.Hiding && !YardDecisions.RepeatPreviousPose.IsSetIn(_room.Random.Generate()))
                     return null;
-                return new AnimationContinuation<YardProgram>(playing, PoseBeforeRepeatCue(playing));
+                return new AnimationContinuation<YardSegment>(playing, PoseBeforeRepeatCue(playing));
             default:
                 throw new InvalidOperationException($"Undefined {nameof(YardCueKind)} {cue}.");
         }
@@ -81,12 +81,12 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// one phase with that cue, and the pose sits immediately before it in every authored segment.
     /// </summary>
     /// <exception cref="InvalidDataException">The animation has no single repeat cue, or the cue does not follow a pose.</exception>
-    private static AnimationPlace PoseBeforeRepeatCue(Animation<YardProgram> playing)
+    private static AnimationPlace PoseBeforeRepeatCue(Animation<YardSegment> playing)
     {
         AnimationPlace? found = null;
         for (int phase = 0; phase < playing.Phases.Count; phase++)
         {
-            AnimationPhase<YardProgram> run = playing.Phases[phase];
+            AnimationPhase<YardSegment> run = playing.Phases[phase];
             IReadOnlyList<AnimationBeat<EnemyFrameId, YardCue>> beats = YardAnimations.Segments.Beats(run.Segment);
             for (int beat = 0; beat < run.BeatCount; beat++)
             {
@@ -110,7 +110,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var state = new YardEnemyState
         {
-            MovementFunction = YardMovementFunction.InstructionPending,
+            MovementFunction = YardMovementFunction.AwaitingAnimationCue,
             // The population entry selects the initial lists and velocity signs, but
             // does not set the live direction. Only the direction cue does. A
             // first-frame hide can bypass it and keeps the first direction.
@@ -122,12 +122,12 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
         slot.Frame = EnemyFrameId.Empty;
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
 
         YardDirectionDefinition definition = YardDirections.ForDirection(direction);
-        state.Playback = new(YardAnimations.StartingWith(definition.CrawlingProgram), AnimationPlace.StartOfAnimation);
+        state.Playback = new(YardAnimations.StartingWith(definition.CrawlingAnimation), AnimationPlace.StartOfAnimation);
         state.BlockSide = definition.BlockSide;
-        state.HidingProgram = definition.HidingProgram;
+        state.HidingAnimation = definition.HidingAnimation;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
         SetYardCrawlingVelocities(state, direction);
     }
@@ -161,7 +161,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         switch (state.MovementFunction)
         {
-            case YardMovementFunction.InstructionPending:
+            case YardMovementFunction.AwaitingAnimationCue:
                 return;
             case YardMovementFunction.Hiding:
                 RunYardHidingMovement(slot, state, level);
@@ -206,12 +206,11 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (state.Behavior == YardBehavior.Hiding)
                 return;
-            if (state.HidingProgram is { } hiding)
+            if (state.HidingAnimation is { } hiding)
             {
                 state.Playback = new(YardAnimations.StartingWith(hiding), AnimationPlace.StartOfAnimation);
                 slot.Frame = EnemyFrameId.Empty;
-                slot.FrameHold = WrappingCountdown.Start(1);
-                slot.Timer = WrappingCountdown.Start(0);
+                slot.AnimationClock.Restart();
                 state.Behavior = YardBehavior.Hiding;
                 return;
             }
@@ -234,7 +233,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         else if (state.Behavior == YardBehavior.AggressiveCrawling)
         {
             solid = !samus.HorizontalSpeed.HasRunningMomentum &&
-                state.MovementFunction == YardMovementFunction.InstructionPending;
+                state.MovementFunction == YardMovementFunction.AwaitingAnimationCue;
         }
         else if (samus.HorizontalSpeed.HasRunningMomentum)
         {
@@ -313,10 +312,10 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.CrawlingVelocity = state.CrawlingVelocity.WithY(NegateEightEight(state.CrawlingVelocity.Y));
             else
                 state.CrawlingVelocity = state.CrawlingVelocity.WithX(NegateEightEight(state.CrawlingVelocity.X));
-            SetYardInstructionAndDisableTurn(
+            SetYardAnimationAndDisableTurn(
                 slot,
                 state,
-                turn.OutsideTurnProgram);
+                turn.OutsideTurnAnimation);
             return;
         }
 
@@ -329,10 +328,10 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             if (_terrain.MoveEnemyVertically(level, slot, tangent))
             {
                 state.CrawlingVelocity = state.CrawlingVelocity.WithX(NegateEightEight(state.CrawlingVelocity.X));
-                SetYardInstructionAndDisableTurn(
+                SetYardAnimationAndDisableTurn(
                     slot,
                     state,
-                    turn.InsideTurnProgram);
+                    turn.InsideTurnAnimation);
             }
             return;
         }
@@ -344,10 +343,10 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalTangent))
         {
             state.CrawlingVelocity = state.CrawlingVelocity.WithY(NegateEightEight(state.CrawlingVelocity.Y));
-            SetYardInstructionAndDisableTurn(
+            SetYardAnimationAndDisableTurn(
                 slot,
                 state,
-                turn.InsideTurnProgram);
+                turn.InsideTurnAnimation);
             return;
         }
 
@@ -377,13 +376,13 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts a turn animation immediately and resets the temporary turn suppression counter.</summary>
-    private static void SetYardInstructionAndDisableTurn(
+    private static void SetYardAnimationAndDisableTurn(
         RoomEnemySlot slot,
         YardEnemyState state,
-        YardProgram program)
+        YardSegment segment)
     {
-        state.Playback = new(YardAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        state.Playback = new(YardAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
+        slot.AnimationClock.StepOnNextUpdate();
         state.TurnTransitionDisabled = true;
         state.TurnTransitionDisableCounter = 0;
     }
@@ -481,11 +480,9 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         var landing = new EightEightVector<RoomPixels>(state.CrawlSpeed, state.CrawlSpeed);
         state.CrawlingVelocity = state.BlockSide == CrawlerSurfaceOrientation.UpsideRight ? landing.ReversedX() : landing;
         slot.Frame = EnemyFrameId.Empty;
-        state.MovementFunction = YardMovementFunction.InstructionPending;
-        state.Playback = new(YardAnimations.StartingWith(state.HidingProgram ??
-            throw new InvalidDataException("A landing Yard has no hiding animation to resume.")), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.MovementFunction = YardMovementFunction.AwaitingAnimationCue;
+        state.Playback = EnemyAnimationPlayback.Start(slot, YardAnimations.StartingWith(state.HidingAnimation ??
+            throw new InvalidDataException("A landing Yard has no hiding animation to resume.")));
     }
 
     /// <summary>Selects visible and hiding programs from Yard's airborne facing direction.</summary>
@@ -493,12 +490,11 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         YardEnemyState state)
     {
-        YardAirborneInstructionDefinition definition =
+        YardAirborneAnimationDefinition definition =
             YardDirections.ForAirborneFacing(state.AirborneFacingDirection);
-        state.Playback = new(YardAnimations.StartingWith(definition.VisibleProgram), AnimationPlace.StartOfAnimation);
-        state.HidingProgram = definition.HidingProgram;
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = new(YardAnimations.StartingWith(definition.VisibleAnimation), AnimationPlace.StartOfAnimation);
+        state.HidingAnimation = definition.HidingAnimation;
+        slot.AnimationClock.Restart();
     }
 
     /// <summary>Turns Yard after landing only when its airborne facing points away from Samus.</summary>
@@ -517,16 +513,16 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static bool TurnYardAround(YardEnemyState state)
     {
         if (state.Behavior == YardBehavior.Hiding ||
-            state.MovementFunction == YardMovementFunction.InstructionPending)
+            state.MovementFunction == YardMovementFunction.AwaitingAnimationCue)
         {
             return false;
         }
 
         state.Direction = YardDirections.ForDirection(state.Direction).OppositeDirection;
         YardDirectionDefinition definition = YardDirections.ForDirection(state.Direction);
-        state.Playback = new(YardAnimations.StartingWith(definition.CrawlingProgram), AnimationPlace.StartOfAnimation);
+        state.Playback = new(YardAnimations.StartingWith(definition.CrawlingAnimation), AnimationPlace.StartOfAnimation);
         state.BlockSide = definition.BlockSide;
-        state.HidingProgram = definition.HidingProgram;
+        state.HidingAnimation = definition.HidingAnimation;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
         SetYardCrawlingVelocities(state, state.Direction);
         state.MovementFunction = definition.MovementFunction;
@@ -581,7 +577,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         ControllerButton controllerInput)
     {
         bool aggressiveCrawlRejectsKick = state.Behavior == YardBehavior.AggressiveCrawling &&
-            state.MovementFunction != YardMovementFunction.InstructionPending &&
+            state.MovementFunction != YardMovementFunction.AwaitingAnimationCue &&
             SamusIsDirectingTowardYard(state, controllerInput);
         bool kickRequested = !aggressiveCrawlRejectsKick &&
             (state.MovementFunction == YardMovementFunction.Airborne ||
@@ -597,7 +593,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         // A hidden shell awaiting its animation, a falling shell, and an already kicked shell
         // deliberately do nothing on overlap. Every other route enters normal enemy touch,
         // restores the population's idle speed, optionally turns, then resumes behavior zero.
-        if (state.MovementFunction == YardMovementFunction.InstructionPending ||
+        if (state.MovementFunction == YardMovementFunction.AwaitingAnimationCue ||
             state.Behavior is YardBehavior.Dropped or YardBehavior.Kicked)
         {
             return;
@@ -644,15 +640,15 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Yard's typed animation.</summary>
-    internal void AdvanceYardTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal void AdvanceYardTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         var state = slot.RequireSpeciesState<YardEnemyState>();
-        AnimationPlayback<YardProgram> playback = state.Playback;
+        AnimationPlayback<YardSegment> playback = state.Playback;
         // Only the repeat cue continues elsewhere, and it continues in the animation already playing.
-        Animation<YardProgram> playing = playback.Animation;
-        EnemyProgramAnimation.Play(slot, YardAnimations.Segments, ref playback,
+        Animation<YardSegment> playing = playback.Animation;
+        EnemyAnimationPlayback.Play(slot, YardAnimations.Segments, ref playback,
             cue => ApplyYardCue(slot, state, cue, playing));
         state.Playback = playback;
     }

@@ -14,7 +14,7 @@ internal sealed class WalkingSpacePirateEntity(WalkingSpacePirateBehavior specie
     public EnemyMainAiHandler? FindMain() => species.RunWalkingSpacePirateMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceWalkingSpacePirateTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceWalkingSpacePirateTypedAnimation;
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => SpacePirateHitboxes.Find(Slot, probe, out reaction);

@@ -320,7 +320,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(WallSpacePirateAnimations), "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/WallSpacePirateAnimations.cs");
         RequireSegmentFrames(NinjaSpacePirateAnimations.Segments, NinjaSpacePirateFrameToolingDefinitions.Spritemap, NinjaSpacePirateFrameToolingDefinitions.Bank,
             nameof(NinjaSpacePirateAnimations), "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/NinjaSpacePirateAnimations.cs");
-        int headPoses = Enum.GetValues<KraidHeadProgram>().Sum(program =>
+        int headPoses = Enum.GetValues<KraidHeadSegment>().Sum(program =>
             KraidHeadAnimations.Segments.Beats(program).Count(beat => beat is AnimationBeat<KraidHeadFrame, KraidHeadCue>.Frame));
         for (int pose = 0; pose < headPoses; pose++)
             report.Consumers.Add(new(nameof(KraidHeadAnimations),

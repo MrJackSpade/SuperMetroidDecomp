@@ -10,26 +10,26 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainProjectileStarts
 {
     /// <summary>Each kind's initial program.</summary>
-    private static readonly Dictionary<RoomEnemyProjectileKind, Func<EnemyProjectileAnimation>> InitialPrograms = new()
+    private static readonly Dictionary<RoomEnemyProjectileKind, Func<EnemyProjectileAnimation>> InitialAnimations = new()
     {
-        [RoomEnemyProjectileKind.MotherBrainTopRightTube] = () => new MotherBrainTopTubeAnimation(MotherBrainTopTubeProgram.TopRight),
-        [RoomEnemyProjectileKind.MotherBrainTopLeftTube] = () => new MotherBrainTopTubeAnimation(MotherBrainTopTubeProgram.TopLeft),
-        [RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube] = () => new MotherBrainTopTubeAnimation(MotherBrainTopTubeProgram.TopMiddleLeft),
-        [RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube] = () => new MotherBrainTopTubeAnimation(MotherBrainTopTubeProgram.TopMiddleRight),
-        [RoomEnemyProjectileKind.MotherBrainOnionRing] = () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.OnionRing),
-        [RoomEnemyProjectileKind.MotherBrainBomb] = () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.Bomb),
-        [RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging] = () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.RainbowBeamCharging),
-        [RoomEnemyProjectileKind.MotherBrainPurpleBreathBig] = () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.PurpleBreathBig),
-        [RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall] = () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.PurpleBreathSmall),
-        [RoomEnemyProjectileKind.MotherBrainDrool] = () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.Drool),
-        [RoomEnemyProjectileKind.MotherBrainDyingDrool] = () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.Drool),
-        [RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment] = () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.EscapeDoorParticle),
-        [RoomEnemyProjectileKind.MotherBrainEscapeSubtitle] = () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.EscapeSubtitle),
+        [RoomEnemyProjectileKind.MotherBrainTopRightTube] = () => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopRight),
+        [RoomEnemyProjectileKind.MotherBrainTopLeftTube] = () => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopLeft),
+        [RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube] = () => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopMiddleLeft),
+        [RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube] = () => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopMiddleRight),
+        [RoomEnemyProjectileKind.MotherBrainOnionRing] = () => new MotherBrainEffectAnimation(MotherBrainEffectSegment.OnionRing),
+        [RoomEnemyProjectileKind.MotherBrainBomb] = () => new MotherBrainEffectAnimation(MotherBrainEffectSegment.Bomb),
+        [RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging] = () => new MotherBrainEffectAnimation(MotherBrainEffectSegment.RainbowBeamCharging),
+        [RoomEnemyProjectileKind.MotherBrainPurpleBreathBig] = () => new MotherBrainEffectAnimation(MotherBrainEffectSegment.PurpleBreathBig),
+        [RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall] = () => new MotherBrainEffectAnimation(MotherBrainEffectSegment.PurpleBreathSmall),
+        [RoomEnemyProjectileKind.MotherBrainDrool] = () => new MotherBrainEffectAnimation(MotherBrainEffectSegment.Drool),
+        [RoomEnemyProjectileKind.MotherBrainDyingDrool] = () => new MotherBrainEffectAnimation(MotherBrainEffectSegment.Drool),
+        [RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment] = () => new MotherBrainEffectAnimation(MotherBrainEffectSegment.EscapeDoorParticle),
+        [RoomEnemyProjectileKind.MotherBrainEscapeSubtitle] = () => new MotherBrainEffectAnimation(MotherBrainEffectSegment.EscapeSubtitle),
     };
 
     /// <summary>The typed program a <paramref name="kind"/> projectile starts, or null when its spawner starts none.</summary>
     internal static EnemyProjectileAnimation? ForKind(RoomEnemyProjectileKind kind) =>
-        InitialPrograms.TryGetValue(kind, out Func<EnemyProjectileAnimation>? start) ? start() : null;
+        InitialAnimations.TryGetValue(kind, out Func<EnemyProjectileAnimation>? start) ? start() : null;
 
     /// <summary>Initializes <paramref name="projectile"/> from its definition and starts the typed program its kind names.</summary>
     internal static void Initialize(EnemyProjectile projectile, RoomEnemyProjectileKind kind, SpriteGraphics graphics)

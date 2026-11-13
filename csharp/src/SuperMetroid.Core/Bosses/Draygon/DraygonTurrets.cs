@@ -58,7 +58,7 @@ internal sealed class DraygonTurrets
             turret,
             RoomEnemyProjectileKind.DraygonWallTurret,
             graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
-        turret.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.WallTurretBloom));
+        turret.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.WallTurretBloom));
         turret.Position = FixedPosition<RoomPixels>.FromWhole(target.Origin);
 
         // The aim negates the common zero-up angle, then adds a quarter turn (64), keeping the angle within

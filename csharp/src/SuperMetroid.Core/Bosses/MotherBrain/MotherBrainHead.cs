@@ -61,11 +61,11 @@ internal sealed class MotherBrainHead
         // The brain initializer gives the head enemy the dummy program for life (the encounter state's
         // head-slot cursor starts there): its dummy frame is the head's collision hitbox.
         // The visible brain runs a separate program.
-        head.FrameHold = WrappingCountdown.Start(1);
+        head.AnimationClock.StepOnNextUpdate();
         head.Contact = head.Contact.With(EnemyContact.BlocksPlasmaBeam);
         head.Presence = head.Presence.With(EnemyPresence.Hidden);
         state.Head = head;
-        MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.Initial);
+        MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.Initial);
     }
 
     /// <summary>Runs the head main/hurt entry and its choice of whether her brain and neck are drawn.</summary>
@@ -233,7 +233,7 @@ internal sealed class MotherBrainHead
                 $"Mother Brain's frozen brain rests on {beat} at {playback.Place} of its animation, not a frame.");
         }
 
-        Animation<MotherBrainHeadProgram> animation = playback.Animation;
+        Animation<MotherBrainHeadSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
         if (beat is AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>.Frame show)
         {
@@ -247,11 +247,11 @@ internal sealed class MotherBrainHead
 
         // No brain animation counts its plays, so nothing reads or writes this counter.
         WrappingCountdown uncounted = default;
-        AnimationShown<MotherBrainHeadProgram, MotherBrainHeadFrame> advance = MotherBrainAnimations.HeadSegments.PlayToNextFrame(
-            ref animation, ref place, ref uncounted, cue => ApplyMotherBrainHeadCue(state, samus, cue) is { } program
-                ? new AnimationContinuation<MotherBrainHeadProgram>(MotherBrainAnimations.HeadStartingWith(program), AnimationPlace.StartOfAnimation)
+        AnimationShown<MotherBrainHeadSegment, MotherBrainHeadFrame> advance = MotherBrainAnimations.HeadSegments.PlayToNextFrame(
+            ref animation, ref place, ref uncounted, cue => ApplyMotherBrainHeadCue(state, samus, cue) is { } segment
+                ? new AnimationContinuation<MotherBrainHeadSegment>(MotherBrainAnimations.HeadStartingWith(segment), AnimationPlace.StartOfAnimation)
                 : null);
-        if (advance is not AnimationShown<MotherBrainHeadProgram, MotherBrainHeadFrame>.Frame shown)
+        if (advance is not AnimationShown<MotherBrainHeadSegment, MotherBrainHeadFrame>.Frame shown)
             throw new InvalidOperationException($"Mother Brain's brain animations have no {advance} beat.");
         // The place rests on the frame it shows, so it steps back onto it.
         state.BrainPlayback = new(animation, place with { Beat = place.Beat - 1 });
@@ -260,9 +260,9 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>The beat <paramref name="playback"/>'s place rests on: its playing phase's next beat.</summary>
-    private static AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue> RestingBeat(AnimationPlayback<MotherBrainHeadProgram> playback)
+    private static AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue> RestingBeat(AnimationPlayback<MotherBrainHeadSegment> playback)
     {
-        AnimationPhase<MotherBrainHeadProgram> phase = playback.Animation.Phases[playback.Place.Phase];
+        AnimationPhase<MotherBrainHeadSegment> phase = playback.Animation.Phases[playback.Place.Phase];
         return MotherBrainAnimations.HeadSegments.Beats(phase.Segment)[phase.FirstBeat + playback.Place.Beat];
     }
 
@@ -272,7 +272,7 @@ internal sealed class MotherBrainHead
     /// The brain program advances in her brain's draw, after the enemy update has collected the frame's legacy
     /// sound slots, so its sounds go straight to the enemy audio queue at their limits (#1391).
     /// </remarks>
-    private MotherBrainHeadProgram? ApplyMotherBrainHeadCue(MotherBrainEnemyState state, SamusState? samus, MotherBrainHeadCue cue)
+    private MotherBrainHeadSegment? ApplyMotherBrainHeadCue(MotherBrainEnemyState state, SamusState? samus, MotherBrainHeadCue cue)
     {
         switch (cue)
         {
@@ -337,15 +337,15 @@ internal sealed class MotherBrainHead
                 return null;
             // The neutral hold holds the phase-two neutral pose again on fifteen samples in sixteen.
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase2 }:
-                return MotherBrainRandomDefinitions.NeutralPhase2Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadProgram.NeutralPhase2Hold : null;
+                return MotherBrainRandomDefinitions.NeutralPhase2Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.NeutralPhase2Hold : null;
             // Retail branches unconditionally here, where the adjacent commentary might suggest a
             // conditional one: the hold's chance alone decides whether the phase-three pose holds again.
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase3 }:
-                return MotherBrainRandomDefinitions.NeutralPhase3Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadProgram.NeutralPhase3Hold : null;
+                return MotherBrainRandomDefinitions.NeutralPhase3Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.NeutralPhase3Hold : null;
             // The drool hold returns its destination: only the burst's chance bursts into more drool; every other sample
             // keeps the one-frame loop.
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeDroolAgain }:
-                return MotherBrainRandomDefinitions.DroolBursts.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadProgram.DyingDroolBurst : null;
+                return MotherBrainRandomDefinitions.DroolBursts.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.DyingDroolBurst : null;
             default:
                 throw new InvalidOperationException($"Undefined Mother Brain head cue {cue}.");
         }

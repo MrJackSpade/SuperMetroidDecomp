@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 internal static class RipperAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params RipperProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params RipperSegment[] programs) =>
         programs.SelectMany(program => RipperAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>()
             .Select(frame => RipperFrameToolingDefinitions.Spritemap(frame.Shown));

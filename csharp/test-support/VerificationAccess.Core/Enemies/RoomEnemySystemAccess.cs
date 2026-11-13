@@ -376,7 +376,7 @@ internal static class RoomEnemySystemAccess
         {
             // A check that names no frame steps the system's own standalone clock, one frame a pass.
             int frame = frameCounterByte ?? self.NextStandaloneProjectileFrame();
-            self.StepEnemyProjectileInstructions(level, samus, camera, frame, samusBombs, frameCounter: frame);
+            self.AdvanceEnemyProjectileAnimations(level, samus, camera, frame, samusBombs, frameCounter: frame);
             self.Projectiles.ResolveEnemyProjectileSamusHits(samus);
         }
 

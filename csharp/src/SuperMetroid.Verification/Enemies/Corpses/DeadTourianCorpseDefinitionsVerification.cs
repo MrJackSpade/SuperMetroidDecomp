@@ -48,7 +48,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
                     DeadTourianCorpses.For(family.Species, variantIndex);
                 AssertEqual(
                     CartridgeImportSource.Require(rom).ReadCartridgeWord((family.InstructionTable + variantIndex * 2)),
-                    NativeEnemyAnimationOracle.EntryOf(DeadTourianNativeListAddresses.Entries, definition.InitialProgram),
+                    NativeEnemyAnimationOracle.EntryOf(DeadTourianNativeListAddresses.Entries, definition.InitialAnimation),
                     $"dead {family.Species} variant {variantIndex} instruction selector");
                 VerifyDeadTourianCorpseConfiguration(
                     rom, family.Species, variantIndex, definition);
@@ -134,7 +134,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
             $"dead {species} variant {variantIndex} species");
         AssertEqual(variantIndex, state.VariantIndex,
             $"dead {species} variant {variantIndex} index");
-        AssertEqual(new AnimationPlayback<DeadTourianProgram>(DeadTourianAnimations.StartingWith(expected.InitialProgram), AnimationPlace.StartOfAnimation),
+        AssertEqual(new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(expected.InitialAnimation), AnimationPlace.StartOfAnimation),
             state.Playback,
             $"dead {species} variant {variantIndex} started animation");
         CorpseRotScheduleChecks.AssertFreshSchedule(expected.RowCount, state.Rot, $"dead {species} variant {variantIndex}");

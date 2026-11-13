@@ -211,7 +211,7 @@ internal sealed class NorfairRidleyDeath
                 EnemyDefinitionId.RidleyExplosion,
                 Position: Position16<RoomPixels>.Zero,
                 Contact: EnemyContact.IgnoresSamus,
-                Processing: EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen,
+                Processing: EnemyProcessing.Animates | EnemyProcessing.OffScreen,
                 Presence: EnemyPresence.None,
                 CollidesByFrameHitboxes: false,
                 SpawnSettings: new RidleyExplosionSpawnSettings(part));
@@ -232,8 +232,7 @@ internal sealed class NorfairRidleyDeath
     {
         RidleyExplosionPart part = fragment.Spawn.Population.SpawnSettingsOf<RidleyExplosionSpawnSettings>().Part;
 
-        fragment.FrameHold = WrappingCountdown.Start(1);
-        fragment.Timer = WrappingCountdown.Start(0);
+        fragment.AnimationClock.Restart();
         fragment.Shading = state.Colours.SpriteShading(flashing: false);
         int random = _room.Random.Generate();
         int horizontalMagnitude =

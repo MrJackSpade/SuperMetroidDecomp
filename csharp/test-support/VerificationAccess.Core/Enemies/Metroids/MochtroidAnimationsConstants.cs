@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 internal static class MochtroidAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params MochtroidProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params MochtroidSegment[] programs) =>
         programs.SelectMany(program => MochtroidAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>()
             .Select(frame => MochtroidFrameToolingDefinitions.Spritemap(frame.Shown));

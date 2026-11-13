@@ -15,8 +15,8 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 internal static class EnemySpawnSelectorDefinitions
 {
     /// <summary>An Atomic's spinning animation, by its first parameter.</summary>
-    public static readonly AtomicProgram[] AtomicSpins =
-        [AtomicProgram.UpRight, AtomicProgram.UpLeft, AtomicProgram.DownLeft, AtomicProgram.DownRight];
+    public static readonly AtomicSegment[] AtomicSpins =
+        [AtomicSegment.UpRight, AtomicSegment.UpLeft, AtomicSegment.DownLeft, AtomicSegment.DownRight];
 
     /// <summary>An Etecoon's route after its first landing, by its second parameter's low byte.</summary>
     public static readonly EtecoonRoute[] EtecoonRoutes =

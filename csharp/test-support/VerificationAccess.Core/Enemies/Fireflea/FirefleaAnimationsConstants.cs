@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 internal static class FirefleaAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params FirefleaProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params FirefleaSegment[] programs) =>
         programs.SelectMany(program => FirefleaAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>()
             .Select(frame => FirefleaFrameToolingDefinitions.Spritemap(frame.Shown));

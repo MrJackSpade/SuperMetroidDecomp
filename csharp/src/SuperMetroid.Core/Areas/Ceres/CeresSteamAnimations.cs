@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Areas.Ceres.CeresSteamCueKind;
-using P = SuperMetroid.Core.Areas.Ceres.CeresSteamProgram;
+using P = SuperMetroid.Core.Areas.Ceres.CeresSteamSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Areas.Ceres;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresSteamAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<CeresSteamProgram, EnemyFrameId, CeresSteamCue> Segments { get; } = new(
-        new Dictionary<CeresSteamProgram, AnimationBeat<EnemyFrameId, CeresSteamCue>[]>
+    internal static AnimationSegments<CeresSteamSegment, EnemyFrameId, CeresSteamCue> Segments { get; } = new(
+        new Dictionary<CeresSteamSegment, AnimationBeat<EnemyFrameId, CeresSteamCue>[]>
     {
         [P.Up] =
         [
@@ -106,7 +106,7 @@ internal static class CeresSteamAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<CeresSteamProgram, Animation<CeresSteamProgram>> StartingAt { get; } = new Dictionary<CeresSteamProgram, Animation<CeresSteamProgram>>
+    internal static IReadOnlyDictionary<CeresSteamSegment, Animation<CeresSteamSegment>> StartingAt { get; } = new Dictionary<CeresSteamSegment, Animation<CeresSteamSegment>>
     {
         [P.Up] = new([new(P.Up, 0, 3, 1), new(P.UpLoop, 0, 3, 1), new(P.UpLoop2, 0, 7, 1)], AnimationEnd.LoopsFrom(1)),
         [P.UpLoop] = new([new(P.UpLoop, 0, 3, 1), new(P.UpLoop2, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
@@ -123,7 +123,7 @@ internal static class CeresSteamAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<CeresSteamProgram> StartingWith(CeresSteamProgram segment) => StartingAt[segment];
+    internal static Animation<CeresSteamSegment> StartingWith(CeresSteamSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, CeresSteamCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, CeresSteamCue>.Frame(frame, duration);

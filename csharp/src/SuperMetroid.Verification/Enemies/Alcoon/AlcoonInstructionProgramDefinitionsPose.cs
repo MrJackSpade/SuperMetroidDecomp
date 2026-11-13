@@ -6,4 +6,4 @@ namespace SuperMetroid.Verification.Enemies.Alcoon;
 /// <param name="Program">The program.</param>
 /// <param name="Step">The step.</param>
 /// <param name="Shows">The shows.</param>
-internal readonly record struct AlcoonInstructionProgramDefinitionsPose(AlcoonProgram Program, int Step, bool Shows);
+internal readonly record struct AlcoonInstructionProgramDefinitionsPose(AlcoonSegment Program, int Step, bool Shows);

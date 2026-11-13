@@ -15,6 +15,6 @@ internal static class MultiviolaVisualDefinitions
 
     /// <summary>Builds the export list from the flight loop's first pass out, preserving loop order.</summary>
     internal static NativeEnemySpritemapDefinition[] Frames() =>
-        [.. MultiviolaAnimationsConstants.Spritemaps(MultiviolaProgram.Flying).Take(FrameCount)
+        [.. MultiviolaAnimationsConstants.Spritemaps(MultiviolaSegment.Flying).Take(FrameCount)
             .Select((frame, index) => new NativeEnemySpritemapDefinition(Bank, frame, $"multiviola_spin_{index}"))];
 }

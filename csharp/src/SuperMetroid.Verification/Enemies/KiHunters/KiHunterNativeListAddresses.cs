@@ -14,21 +14,21 @@ internal static class KiHunterNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<KiHunterProgram>[] Entries =
+    internal static readonly NativeProgramEntry<KiHunterSegment>[] Entries =
     [
-        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.FlyingLeft, 0xe9fa),
-        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.SwoopLeft, 0xea08),
-        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.FlyingRight, 0xea24),
-        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.SwoopRight, 0xea32),
-        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.WingsLeft, 0xea4e),
-        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.WingsRight, 0xea5e),
-        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.DetachedWings, 0xea7e),
-        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.JumpLeft, 0xea8a),
-        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.JumpRight, 0xeaa6),
-        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.LandLeft, 0xeac2),
-        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.LandRight, 0xeada),
-        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.SpitLeft, 0xeaf2),
-        new NativeProgramEntry<KiHunterProgram>(KiHunterProgram.SpitRight, 0xeb10),
+        new NativeProgramEntry<KiHunterSegment>(KiHunterSegment.FlyingLeft, 0xe9fa),
+        new NativeProgramEntry<KiHunterSegment>(KiHunterSegment.SwoopLeft, 0xea08),
+        new NativeProgramEntry<KiHunterSegment>(KiHunterSegment.FlyingRight, 0xea24),
+        new NativeProgramEntry<KiHunterSegment>(KiHunterSegment.SwoopRight, 0xea32),
+        new NativeProgramEntry<KiHunterSegment>(KiHunterSegment.WingsLeft, 0xea4e),
+        new NativeProgramEntry<KiHunterSegment>(KiHunterSegment.WingsRight, 0xea5e),
+        new NativeProgramEntry<KiHunterSegment>(KiHunterSegment.DetachedWings, 0xea7e),
+        new NativeProgramEntry<KiHunterSegment>(KiHunterSegment.JumpLeft, 0xea8a),
+        new NativeProgramEntry<KiHunterSegment>(KiHunterSegment.JumpRight, 0xeaa6),
+        new NativeProgramEntry<KiHunterSegment>(KiHunterSegment.LandLeft, 0xeac2),
+        new NativeProgramEntry<KiHunterSegment>(KiHunterSegment.LandRight, 0xeada),
+        new NativeProgramEntry<KiHunterSegment>(KiHunterSegment.SpitLeft, 0xeaf2),
+        new NativeProgramEntry<KiHunterSegment>(KiHunterSegment.SpitRight, 0xeb10),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

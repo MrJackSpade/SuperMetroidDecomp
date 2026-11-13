@@ -149,16 +149,16 @@ internal sealed class DraygonCombat
     {
         RoomEnemySlot body = state.Body;
         samus?.Grapple.Phase = GrapplePhase.Dropped;
-        _parts.StartDraygonProgram(
+        _parts.StartDraygonAnimation(
             body,
             state.FacingRight
-                ? DraygonProgram.ArmsFacingRightDying
-                : DraygonProgram.ArmsFacingLeftDying);
-        _parts.StartDraygonProgram(
+                ? DraygonSegment.ArmsFacingRightDying
+                : DraygonSegment.ArmsFacingLeftDying);
+        _parts.StartDraygonAnimation(
             state.Eye,
             state.FacingRight
-                ? DraygonProgram.EyeFacingRightDying
-                : DraygonProgram.EyeFacingLeftDying);
+                ? DraygonSegment.EyeFacingRightDying
+                : DraygonSegment.EyeFacingLeftDying);
         (DraygonParts.RequirePart(state.Eye)).RequireSpeciesState<DraygonEyeState>().Function = DraygonEyeFunction.Inert;
         state.Function = DraygonAiFunction.Dying;
 

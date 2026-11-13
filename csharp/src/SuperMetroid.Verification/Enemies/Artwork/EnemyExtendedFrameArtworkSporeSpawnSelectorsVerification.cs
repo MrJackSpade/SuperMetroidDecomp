@@ -26,17 +26,17 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
 
         EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram[] programs =
         [
-            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodyProgram.InitialDead, 4),
-            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodyProgram.InitialAlive, 260),
-            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodyProgram.FightStarted, 2200),
-            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodyProgram.CloseAndMove, 1600),
-            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodyProgram.Death, 500),
+            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodySegment.InitialDead, 4),
+            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodySegment.InitialAlive, 260),
+            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodySegment.FightStarted, 2200),
+            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodySegment.CloseAndMove, 1600),
+            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodySegment.Death, 500),
         ];
         int framesCompared = 0;
         var allNativeSelectors = new HashSet<ushort>();
         // Spore Spawn's body runs typed programs (#1288); its cursor is compared as the native pointer it stands for.
         var steps = BodyLists(CartridgeImportSource.Require(rom));
-        foreach ((SporeSpawnBodyProgram program, int frames) in programs)
+        foreach ((SporeSpawnBodySegment program, int frames) in programs)
         {
             ushort pointer = SporeSpawnNativeListAddresses.BodyEntry(program);
 
@@ -138,13 +138,13 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
     }
     /// <summary>Captures the live state compared with one native Spore Spawn instruction tick.</summary>
     private static SporeSpawnProgramFrame CaptureSporeSpawnProgramFrame(
-        RoomEnemySystem system, RoomEnemySlot slot, Dictionary<SporeSpawnBodyProgram, NativeEnemyList<SporeSpawnBodyProgram>> steps)
+        RoomEnemySystem system, RoomEnemySlot slot, Dictionary<SporeSpawnBodySegment, NativeEnemyList<SporeSpawnBodySegment>> steps)
     {
         SporeSpawnEnemyState state = (system.SporeSpawn ?? throw new InvalidOperationException("Verification requires system.SporeSpawn."));
         var properties = new SuperMetroid.AssetExtraction.Enemies.EnemyPropertyState(
-            slot.Contact, slot.Processing, slot.Presence, slot.CollidesByFrameHitboxes, slot.NewInstructionFrame);
+            slot.Contact, slot.Processing, slot.Presence, slot.CollidesByFrameHitboxes, slot.AnimationClock.ShowsNewFrame);
         return new SporeSpawnProgramFrame(
-            NativeBodyInstruction(steps, state), slot.FrameHold.RawValue,
+            NativeBodyInstruction(steps, state), slot.AnimationClock.Hold.RawValue,
             slot.SpritemapPointer, slot.Position.Whole,
             checked((ushort)slot.Health), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodePropertyWord(properties)), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodeExtraPropertyWord(properties)),
             state.Function, state.Angle.ToTrigonometryAngle().RawValue, checked((ushort)state.MaximumXRadius),

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Skree;
 internal static class SkreeMetareeAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params SkreeMetareeProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params SkreeMetareeSegment[] programs) =>
         programs.SelectMany(program => SkreeMetareeAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, SkreeMetareeCue>.Frame>()
             .Select(frame => SkreeMetareeFrameToolingDefinitions.Spritemap(frame.Shown));

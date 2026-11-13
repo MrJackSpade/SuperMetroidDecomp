@@ -65,19 +65,19 @@ internal static class DeadTourianCorpseArtworkVerification
         EnemyTileSourceArtwork stock)
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        DeadTourianProgram[] corpsePrograms =
+        DeadTourianSegment[] corpsePrograms =
         [
-            DeadTourianProgram.ZoomerCorpse0, DeadTourianProgram.ZoomerCorpse1, DeadTourianProgram.ZoomerCorpse2,
-            DeadTourianProgram.RipperCorpse0, DeadTourianProgram.RipperCorpse1,
-            DeadTourianProgram.SkreeCorpse0, DeadTourianProgram.SkreeCorpse1, DeadTourianProgram.SkreeCorpse2,
+            DeadTourianSegment.ZoomerCorpse0, DeadTourianSegment.ZoomerCorpse1, DeadTourianSegment.ZoomerCorpse2,
+            DeadTourianSegment.RipperCorpse0, DeadTourianSegment.RipperCorpse1,
+            DeadTourianSegment.SkreeCorpse0, DeadTourianSegment.SkreeCorpse1, DeadTourianSegment.SkreeCorpse2,
         ];
         AssertEqual(DeadTourianCorpseVisualDefinitions.CorpseFrameCount, corpsePrograms.Length,
             "every dead Tourian corpse program has an editable composition");
-        foreach (DeadTourianProgram program in corpsePrograms)
+        foreach (DeadTourianSegment program in corpsePrograms)
             VerifyInstalledPose(DeadTourianAnimationsConstants.Spritemaps(program).Single(), $"dead Tourian corpse {program}");
         ushort[] sidehopperPointers = DeadTourianAnimationsConstants.Spritemaps(
-            DeadTourianProgram.SidehopperHopping, DeadTourianProgram.SidehopperIdle,
-            DeadTourianProgram.SidehopperCorpse, DeadTourianProgram.SidehopperInitiallyDead).Distinct().ToArray();
+            DeadTourianSegment.SidehopperHopping, DeadTourianSegment.SidehopperIdle,
+            DeadTourianSegment.SidehopperCorpse, DeadTourianSegment.SidehopperInitiallyDead).Distinct().ToArray();
         foreach (ushort pointer in sidehopperPointers)
             VerifyInstalledPose(pointer, $"dead Sidehopper ${pointer:X4}");
         AssertEqual(DeadTourianCorpseVisualDefinitions.SidehopperFrameCount, sidehopperPointers.Length,

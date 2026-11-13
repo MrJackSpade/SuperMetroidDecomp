@@ -14,7 +14,7 @@ internal sealed class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, R
     public EnemyMainAiHandler? FindMain() => species.RunNinjaSpacePirateMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceNinjaSpacePirateTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceNinjaSpacePirateTypedAnimation;
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => SpacePirateHitboxes.Find(Slot, probe, out reaction);

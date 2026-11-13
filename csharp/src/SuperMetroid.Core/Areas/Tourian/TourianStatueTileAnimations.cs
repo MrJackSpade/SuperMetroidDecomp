@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Areas.Tourian.TourianStatueTileCueKind;
-using P = SuperMetroid.Core.Areas.Tourian.TourianStatueTileProgram;
+using P = SuperMetroid.Core.Areas.Tourian.TourianStatueTileSegment;
 using F = SuperMetroid.Core.Fx.Artwork.TourianStatueTilePicture;
 
 namespace SuperMetroid.Core.Areas.Tourian;

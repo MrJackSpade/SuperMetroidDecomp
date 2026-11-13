@@ -7,4 +7,4 @@ namespace SuperMetroid.Verification.Enemies.Dragon;
 /// <param name="Fireball">The fireball.</param>
 /// <param name="Rising">The rising.</param>
 /// <param name="Falling">The falling.</param>
-internal readonly record struct VerifyDragonFireballBehaviorCase(EnemyProjectile Fireball, DragonFireballProgram Rising, DragonFireballProgram Falling);
+internal readonly record struct VerifyDragonFireballBehaviorCase(EnemyProjectile Fireball, DragonFireballSegment Rising, DragonFireballSegment Falling);

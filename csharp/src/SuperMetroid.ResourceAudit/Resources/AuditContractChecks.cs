@@ -235,7 +235,7 @@ internal static class AuditContractChecks
         var exports = new ResourceIndex();
         var missing = new AuditReport();
         MotherBrainRoomFlashAudit.Inspect("fixture.cs", exports, missing);
-        Require(missing.MissingCount == MotherBrainRoomPaletteProgramDefinitions.FlashFrameCount &&
+        Require(missing.MissingCount == MotherBrainRoomPaletteAnimationDefinitions.FlashFrameCount &&
             missing.UnresolvedCount == 0, "absent flash rows must be concrete omissions, not an ignored program kind" + " (" + missing.Describe() + ")");
         MotherBrainRoomFlashAudit.Install(exports);
         var present = new AuditReport();
@@ -243,7 +243,7 @@ internal static class AuditContractChecks
         Require(present.Findings.Count == 0 && present.ReferenceCount == missing.ReferenceCount,
             "the actual importer/loader must install every declared timed color row");
         ushort neighboringOperand = checked((ushort)(SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor
-            .FlashPaletteOperandAddress(MotherBrainRoomPaletteProgramDefinitions.FlashFrameCount - 1) + 1));
+            .FlashPaletteOperandAddress(MotherBrainRoomPaletteAnimationDefinitions.FlashFrameCount - 1) + 1));
         var changed = new AuditReport();
         MotherBrainRoomFlashAudit.RequireOperands([neighboringOperand], "fixture.cs", exports, changed);
         Require(changed.MissingCount == 1, "a changed/unaligned color identity must remain a concrete omission" + " (" + changed.Describe() + ")");

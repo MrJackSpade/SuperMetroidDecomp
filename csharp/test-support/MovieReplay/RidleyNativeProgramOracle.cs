@@ -18,32 +18,32 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 internal static class RidleyNativeProgramOracle
 {
     /// <summary>Each body segment's native entry, in authored order.</summary>
-    internal static NativeProgramEntry<RidleyBodyProgram>[] BodyListEntries =>
-        [.. BodyEntries.Select(item => new NativeProgramEntry<RidleyBodyProgram>(item.Program, item.Entry))];
+    internal static NativeProgramEntry<RidleyBodySegment>[] BodyListEntries =>
+        [.. BodyEntries.Select(item => new NativeProgramEntry<RidleyBodySegment>(item.Program, item.Entry))];
 
     /// <summary>Each fireball segment's native entry, in authored order.</summary>
-    internal static NativeProgramEntry<RidleyFireballProgram>[] FireballListEntries =>
-        [.. FireballEntries.Select(item => new NativeProgramEntry<RidleyFireballProgram>(item.Program, item.Entry))];
+    internal static NativeProgramEntry<RidleyFireballSegment>[] FireballListEntries =>
+        [.. FireballEntries.Select(item => new NativeProgramEntry<RidleyFireballSegment>(item.Program, item.Entry))];
 
     /// <summary>
     /// Compares every body segment with its native list and every body animation with the lists' control flow, and
     /// returns each list's beat and control addresses.
     /// </summary>
-    internal static Dictionary<RidleyBodyProgram, NativeEnemyList<RidleyBodyProgram>> BodyLists(IImportCartridgeSource cartridge)
+    internal static Dictionary<RidleyBodySegment, NativeEnemyList<RidleyBodySegment>> BodyLists(IImportCartridgeSource cartridge)
     {
         NativeEnemyAnimationOracle.RequireAuthoredOrder(BodyListEntries);
-        Dictionary<RidleyBodyProgram, NativeEnemyList<RidleyBodyProgram>> lists =
+        Dictionary<RidleyBodySegment, NativeEnemyList<RidleyBodySegment>> lists =
             BodyEntries.ToDictionary(item => item.Program, item => ReadBodyList(cartridge, item.Program, item.Entry));
         NativeEnemyAnimationOracle.CompareAnimations(lists, RidleyAnimations.StartingAt);
         return lists;
     }
 
     /// <summary>Reads one body segment's native list, comparing each of its beats with the segment's.</summary>
-    private static NativeEnemyList<RidleyBodyProgram> ReadBodyList(IImportCartridgeSource cartridge, RidleyBodyProgram segment, ushort entry)
+    private static NativeEnemyList<RidleyBodySegment> ReadBodyList(IImportCartridgeSource cartridge, RidleyBodySegment segment, ushort entry)
     {
         IReadOnlyList<AnimationBeat<RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue>> beats = RidleyAnimations.Segments.Beats(segment);
         var addresses = new List<ushort>();
-        var controls = new List<NativeEnemyControl<RidleyBodyProgram>>();
+        var controls = new List<NativeEnemyControl<RidleyBodySegment>>();
         ushort cursor = entry;
         while (true)
         {
@@ -111,10 +111,10 @@ internal static class RidleyNativeProgramOracle
             }
         }
 
-        NativeEnemyList<RidleyBodyProgram> Finish()
+        NativeEnemyList<RidleyBodySegment> Finish()
         {
             VerificationAssertions.AssertEqual(beats.Count, addresses.Count, $"Ridley {segment}: its native list holds each of its beats");
-            return new NativeEnemyList<RidleyBodyProgram>([.. addresses], [.. controls]);
+            return new NativeEnemyList<RidleyBodySegment>([.. addresses], [.. controls]);
         }
 
         AnimationBeat<RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue> Beat(int beat, string at) => beat < beats.Count
@@ -163,10 +163,10 @@ internal static class RidleyNativeProgramOracle
     /// Compares every fireball segment with its native bank-$86 list and every fireball animation with the lists' control
     /// flow, and returns each list's beat and control addresses.
     /// </summary>
-    internal static Dictionary<RidleyFireballProgram, NativeEnemyList<RidleyFireballProgram>> FireballLists(IImportCartridgeSource cartridge)
+    internal static Dictionary<RidleyFireballSegment, NativeEnemyList<RidleyFireballSegment>> FireballLists(IImportCartridgeSource cartridge)
     {
         NativeEnemyAnimationOracle.RequireAuthoredOrder(FireballListEntries);
-        Dictionary<RidleyFireballProgram, NativeEnemyList<RidleyFireballProgram>> lists =
+        Dictionary<RidleyFireballSegment, NativeEnemyList<RidleyFireballSegment>> lists =
             FireballEntries.ToDictionary(item => item.Program, item => ReadFireballList(cartridge, item.Program, item.Entry));
         NativeEnemyAnimationOracle.CompareAnimations(lists, RidleyFireballAnimations.StartingAt);
         return lists;
@@ -176,11 +176,11 @@ internal static class RidleyNativeProgramOracle
     /// Reads one fireball segment's native list, comparing each of its beats with the segment's; the deletion ends the
     /// list, and the pointer rests on it while the animation holds.
     /// </summary>
-    private static NativeEnemyList<RidleyFireballProgram> ReadFireballList(IImportCartridgeSource cartridge, RidleyFireballProgram segment, ushort entry)
+    private static NativeEnemyList<RidleyFireballSegment> ReadFireballList(IImportCartridgeSource cartridge, RidleyFireballSegment segment, ushort entry)
     {
         IReadOnlyList<AnimationBeat<RidleyFireballFrame, RidleyFireballCue>> beats = RidleyFireballAnimations.Segments.Beats(segment);
         var addresses = new List<ushort>();
-        var controls = new List<NativeEnemyControl<RidleyFireballProgram>>();
+        var controls = new List<NativeEnemyControl<RidleyFireballSegment>>();
         ushort cursor = entry;
         while (true)
         {
@@ -317,10 +317,10 @@ internal static class RidleyNativeProgramOracle
             }
         }
 
-        NativeEnemyList<RidleyFireballProgram> Finish()
+        NativeEnemyList<RidleyFireballSegment> Finish()
         {
             VerificationAssertions.AssertEqual(beats.Count, addresses.Count, $"Ridley fireball {segment}: its native list holds each of its beats");
-            return new NativeEnemyList<RidleyFireballProgram>([.. addresses], [.. controls]);
+            return new NativeEnemyList<RidleyFireballSegment>([.. addresses], [.. controls]);
         }
 
         AnimationBeat<RidleyFireballFrame, RidleyFireballCue> Beat(int beat, string at) => beat < beats.Count

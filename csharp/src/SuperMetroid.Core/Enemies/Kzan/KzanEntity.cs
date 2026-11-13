@@ -24,7 +24,7 @@ internal sealed class KzanEntity(KzanBehavior species, RoomEnemySlot slot, Enemy
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => KzanPartDefinitions.Parts[Slot.DefinitionId] switch
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => KzanPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         KzanPart.Top => KzanBehavior.AdvanceKzanTypedAnimation,
         KzanPart.Bottom => null,

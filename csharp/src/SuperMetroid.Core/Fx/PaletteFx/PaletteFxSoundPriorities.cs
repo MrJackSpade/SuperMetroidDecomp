@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class PaletteFxSoundPriorities
 {
     /// <summary>The priority of every sound a palette-effect program's sound cue requests.</summary>
-    public static readonly SoundRequestPriority InstructionSound = SoundRequestPriority.Normal;
+    public static readonly SoundRequestPriority CueSound = SoundRequestPriority.Normal;
 }

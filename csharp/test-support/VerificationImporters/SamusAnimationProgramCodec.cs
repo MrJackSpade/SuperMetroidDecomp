@@ -79,7 +79,7 @@ internal static class SamusAnimationProgramCodec
                 position++;
             }
             int frame = position - start;
-            SamusAnimationInstruction instruction = Instruction(cartridge, value, position, frame);
+            SamusAnimationCue instruction = Instruction(cartridge, value, position, frame);
             position += 1 + OperandBytes(value);
             // Six transitions write their pose as a word; the interpreter never reads its zero high byte.
             if (instruction is SamusAnimationTransition && position == end - 1 && Byte(cartridge, position) == 0)
@@ -108,7 +108,7 @@ internal static class SamusAnimationProgramCodec
     };
 
     /// <summary>Decodes the instruction byte <paramref name="value"/> at frame <paramref name="frame"/>, with its operands.</summary>
-    private static SamusAnimationInstruction Instruction(IImportCartridgeSource cartridge, int value, int position, int frame)
+    private static SamusAnimationCue Instruction(IImportCartridgeSource cartridge, int value, int position, int frame)
     {
         SamusPoseId PoseAt(int operand) => SamusPoseNumbering.FromNumber(Byte(cartridge, position + operand));
         SamusEquipmentFlags Items() => ItemsOf(cartridge.ReadCartridgeWord(Bank | (position + 1)));

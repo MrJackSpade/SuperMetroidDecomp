@@ -137,7 +137,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
             _state.NeckAngleDelta = 64;
             _state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
             _state.UpperNeckMovement = MotherBrainNeckMovement.Raise;
-            _state.SetHeadProgram(MotherBrainHeadProgram.DyingDrool);
+            _state.SetHeadAnimation(MotherBrainHeadSegment.DyingDrool);
             _state.Phase = MotherBrainBodyFunction.SecondPhaseDrainedByBabyMoveToBackOfRoom;
             return true;
         }
@@ -178,7 +178,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
             _state.DroolGenerationEnabled = false;
             if (_state.Body.Pose != MotherBrainBodyPose.Standing)
                 return false;
-            _state.Body.SetProgram(MotherBrainBodyProgram.CrouchFast);
+            _state.Body.SetAnimation(MotherBrainBodySegment.CrouchFast);
             requests.BodyPostureRequested = true;
             _state.Phase = MotherBrainBodyFunction.SecondPhaseDrainedByBabyPrepareTransitionToGrey;
             _state.FunctionTimer = 64;

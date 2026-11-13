@@ -18,10 +18,10 @@ public sealed class InstalledProjectileFrameBindings
     {
         Ensure.NotNull(sprites);
         int records = 0;
-        foreach ((SamusProjectileProgram program, SamusProjectileRecord[] shown) in SamusProjectileRecordDefinitions.ByProgram)
+        foreach ((SamusProjectileSegment segment, SamusProjectileRecord[] shown) in SamusProjectileRecordDefinitions.ByAnimation)
             for (int show = 0; show < shown.Length; show++, records++)
-                if (!sprites.ContainsKey(new SamusProjectileFrame(program, show)))
-                    throw new ArgumentException($"Timed projectile record {program} {show} has no installed composition.", nameof(sprites));
+                if (!sprites.ContainsKey(new SamusProjectileFrame(segment, show)))
+                    throw new ArgumentException($"Timed projectile record {segment} {show} has no installed composition.", nameof(sprites));
         if (sprites.Count != records)
             throw new ArgumentException($"{sprites.Count - records} installed compositions bind no timed projectile record.", nameof(sprites));
         this.sprites = sprites;

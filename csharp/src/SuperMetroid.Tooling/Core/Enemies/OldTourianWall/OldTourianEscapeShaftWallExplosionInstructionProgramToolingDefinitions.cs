@@ -1,7 +1,7 @@
 
 namespace SuperMetroid.Core.Enemies.OldTourianWall;
 
-/// <summary>Development-tool members of <see cref="OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions"/>; never linked by player hosts.</summary>
+/// <summary>Development-tool members of <see cref="OldTourianEscapeShaftWallExplosionAnimationDefinitions"/>; never linked by player hosts.</summary>
 internal static class OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions
 {
     /// <summary>$86:B449, <c>InstList_EnemyProj_OldTourianEscapeShaftFakeWallExplosion_1</c>, the counted loop.</summary>

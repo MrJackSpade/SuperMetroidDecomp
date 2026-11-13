@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Metroids.MetroidCueKind;
-using P = SuperMetroid.Core.Enemies.Metroids.MetroidProgram;
+using P = SuperMetroid.Core.Enemies.Metroids.MetroidSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Metroids;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 internal static class MetroidAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MetroidProgram, EnemyFrameId, MetroidCue> Segments { get; } = new(
-        new Dictionary<MetroidProgram, AnimationBeat<EnemyFrameId, MetroidCue>[]>
+    internal static AnimationSegments<MetroidSegment, EnemyFrameId, MetroidCue> Segments { get; } = new(
+        new Dictionary<MetroidSegment, AnimationBeat<EnemyFrameId, MetroidCue>[]>
     {
         [P.ChasingSamus] =
         [
@@ -51,14 +51,14 @@ internal static class MetroidAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<MetroidProgram, Animation<MetroidProgram>> StartingAt { get; } = new Dictionary<MetroidProgram, Animation<MetroidProgram>>
+    internal static IReadOnlyDictionary<MetroidSegment, Animation<MetroidSegment>> StartingAt { get; } = new Dictionary<MetroidSegment, Animation<MetroidSegment>>
     {
         [P.ChasingSamus] = new([new(P.ChasingSamus, 0, 21, 1)], AnimationEnd.LoopsFrom(0)),
         [P.DrainingSamus] = new([new(P.DrainingSamus, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<MetroidProgram> StartingWith(MetroidProgram segment) => StartingAt[segment];
+    internal static Animation<MetroidSegment> StartingWith(MetroidSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, MetroidCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, MetroidCue>.Frame(frame, duration);

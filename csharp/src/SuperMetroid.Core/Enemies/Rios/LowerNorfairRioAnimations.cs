@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Rios.LowerNorfairRioCueKind;
-using P = SuperMetroid.Core.Enemies.Rios.LowerNorfairRioProgram;
+using P = SuperMetroid.Core.Enemies.Rios.LowerNorfairRioSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Rios;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Rios;
 internal static class LowerNorfairRioAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<LowerNorfairRioProgram, EnemyFrameId, LowerNorfairRioCue> Segments { get; } = new(
-        new Dictionary<LowerNorfairRioProgram, AnimationBeat<EnemyFrameId, LowerNorfairRioCue>[]>
+    internal static AnimationSegments<LowerNorfairRioSegment, EnemyFrameId, LowerNorfairRioCue> Segments { get; } = new(
+        new Dictionary<LowerNorfairRioSegment, AnimationBeat<EnemyFrameId, LowerNorfairRioCue>[]>
     {
         [P.Idle] =
         [
@@ -86,7 +86,7 @@ internal static class LowerNorfairRioAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<LowerNorfairRioProgram, Animation<LowerNorfairRioProgram>> StartingAt { get; } = new Dictionary<LowerNorfairRioProgram, Animation<LowerNorfairRioProgram>>
+    internal static IReadOnlyDictionary<LowerNorfairRioSegment, Animation<LowerNorfairRioSegment>> StartingAt { get; } = new Dictionary<LowerNorfairRioSegment, Animation<LowerNorfairRioSegment>>
     {
         [P.Idle] = new([new(P.Idle, 0, 1, 1), new(P.IdleLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.IdleLoop] = new([new(P.IdleLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
@@ -100,7 +100,7 @@ internal static class LowerNorfairRioAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<LowerNorfairRioProgram> StartingWith(LowerNorfairRioProgram segment) => StartingAt[segment];
+    internal static Animation<LowerNorfairRioSegment> StartingWith(LowerNorfairRioSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, LowerNorfairRioCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, LowerNorfairRioCue>.Frame(frame, duration);

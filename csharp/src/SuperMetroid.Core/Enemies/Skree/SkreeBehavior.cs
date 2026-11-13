@@ -38,13 +38,13 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new SkreeEnemyState
         {
-            RequestedInstructionIndex = SkreeMetareeAnimationPhase.Idling,
-            InstalledInstructionIndex = SkreeMetareeAnimationPhase.Idling,
+            RequestedAnimation = SkreeMetareeAnimationPhase.Idling,
+            InstalledAnimation = SkreeMetareeAnimationPhase.Idling,
             AttackReady = false,
             Function = SkreeEnemyFunction.Idling,
         };
         slot.SetSpeciesState(state);
-        state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeProgram.SkreeIdling), AnimationPlace.StartOfAnimation);
+        state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.SkreeIdling), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Winds up near Samus, dives when the wind-up cue is ready, then burrows after floor contact.</summary>
@@ -58,9 +58,9 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             case SkreeEnemyFunction.Idling:
                 if (CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole) < 48)
                 {
-                    state.RequestedInstructionIndex =
+                    state.RequestedAnimation =
                         SkreeMetareeAnimationPhase.PreparingAttack;
-                    InstallRequestedSkreeInstruction(slot, state);
+                    StartRequestedSkreeAnimation(slot, state);
                     state.Function = SkreeEnemyFunction.PreparingAttack;
                 }
                 return;
@@ -69,8 +69,8 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!state.AttackReady)
                     return;
                 state.AttackReady = false;
-                state.RequestedInstructionIndex = SkreeMetareeAnimationPhase.Diving;
-                InstallRequestedSkreeInstruction(slot, state);
+                state.RequestedAnimation = SkreeMetareeAnimationPhase.Diving;
+                StartRequestedSkreeAnimation(slot, state);
                 state.Function = SkreeEnemyFunction.Diving;
                 // The dive queues its dive sound on the exact frame the wind-up
                 // cue releases the dive. Publishing it as a frame event retains
@@ -106,8 +106,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BurrowTimer = 21;
         if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(level, slot, SignedSixteenSixteen.FromWholePixels(6)))
         {
-            slot.FrameHold = WrappingCountdown.Start(1);
-            slot.Timer = WrappingCountdown.Start(0);
+            slot.AnimationClock.Restart();
             state.Function = SkreeEnemyFunction.Burrowing;
             // The floor collision has its own distinct impact/burrow request.
             _audio.QueueEnemySound(EnemySound.SkreeBurrow, priority: SoundRequestPriority.Normal);
@@ -134,18 +133,16 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Changes the Skree phase list only when requested and installed phases differ.</summary>
-    internal static void InstallRequestedSkreeInstruction(
+    internal static void StartRequestedSkreeAnimation(
         RoomEnemySlot slot,
         SkreeEnemyState state)
     {
-        if (state.RequestedInstructionIndex == state.InstalledInstructionIndex)
+        if (state.RequestedAnimation == state.InstalledAnimation)
             return;
 
-        state.InstalledInstructionIndex = state.RequestedInstructionIndex;
-        state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareePrograms.SkreeProgram(
-            state.RequestedInstructionIndex)), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.InstalledAnimation = state.RequestedAnimation;
+        state.Playback = EnemyAnimationPlayback.Start(slot, SkreeMetareeAnimations.StartingWith(SkreeMetareeAnimationChoices.SkreeAnimation(
+            state.RequestedAnimation)));
     }
 
     /// <summary>Runs Skree's main AI.</summary>
@@ -155,8 +152,8 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Skree's typed animation.</summary>
-    internal static void AdvanceSkreeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, SkreeMetareeAnimations.Segments,
+    internal static void AdvanceSkreeTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, SkreeMetareeAnimations.Segments,
             static (SkreeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

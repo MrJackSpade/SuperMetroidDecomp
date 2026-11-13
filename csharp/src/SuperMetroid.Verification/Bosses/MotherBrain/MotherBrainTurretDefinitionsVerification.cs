@@ -65,7 +65,7 @@ internal static class MotherBrainTurretDefinitionsVerification
                 $"production Mother Brain turret initial ring position {parameter}");
             AssertEqual(1, turretState.RotationStep,
                 $"production Mother Brain turret starts turning forward {parameter}");
-            AssertTrue(turret.Animation is MotherBrainTurretAnimation { Program: MotherBrainTurretProgram.TurretPose },
+            AssertTrue(turret.Animation is MotherBrainTurretAnimation { Program: MotherBrainTurretSegment.TurretPose },
                 $"production Mother Brain turret {parameter} starts its typed pose");
             AssertEqual(MotherBrainTurretDefinitions.MinimumRotationDelay, turretState.RotationWait,
                 $"production Mother Brain turret rotation timer {parameter}");
@@ -137,7 +137,7 @@ internal static class MotherBrainTurretDefinitionsVerification
             AssertEqual(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, bullet.Kind,
                 $"production Mother Brain turret bullet kind {direction}");
             AssertTrue(bullet.Animation is MotherBrainTurretAnimation bulletAnimation &&
-                    bulletAnimation.PlayingSegment == new MotherBrainTurretPose(MotherBrainTurretProgram.BulletPose, typedDirection),
+                    bulletAnimation.PlayingSegment == new MotherBrainTurretPose(MotherBrainTurretSegment.BulletPose, typedDirection),
                 $"production Mother Brain turret bullet direction {direction}");
             AssertEqual(new Position16<RoomPixels>(0x0400, 0x0200) + definition.BulletOffset, bullet.Position.Whole,
                 $"production Mother Brain turret bullet position {direction}");

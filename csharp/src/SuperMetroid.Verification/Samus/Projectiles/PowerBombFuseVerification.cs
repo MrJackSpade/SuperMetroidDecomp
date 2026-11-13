@@ -41,10 +41,10 @@ internal static class PowerBombFuseVerification
         }
         AssertEqual(1, spawns, "one expiration across complete fuse");
         // The fast lists lie $1C bytes on: each slow Power Bomb position lands on its fast counterpart.
-        foreach (var (slow, fast) in new[] { new VerifyPowerBombFuseCase(SamusProjectileProgram.PowerBomb, SamusProjectileProgram.FastPowerBomb) })
+        foreach (var (slow, fast) in new[] { new VerifyPowerBombFuseCase(SamusProjectileSegment.PowerBomb, SamusProjectileSegment.FastPowerBomb) })
             for (int position = 0; position <= SamusProjectileAnimations.Segments.Beats(slow).Count; position++)
-                AssertEqual(SamusProjectilePrograms.PlaybackAt(new SamusProjectileSegmentBeat(fast, position)),
-                    SamusPowerBombFuse.FastAnimation(SamusProjectilePrograms.PlaybackAt(new SamusProjectileSegmentBeat(slow, position))),
+                AssertEqual(SamusProjectilePlayback.PlaybackAt(new SamusProjectileSegmentBeat(fast, position)),
+                    SamusPowerBombFuse.FastAnimation(SamusProjectilePlayback.PlaybackAt(new SamusProjectileSegmentBeat(slow, position))),
                     $"{slow} position {position} switches to the same fast position");
         // Each counterpart is the position the native fuse reaches by adding its offset to the live list pointer.
         foreach (var counterpart in SamusPowerBombFuseData.FastCounterparts)
@@ -53,7 +53,7 @@ internal static class PowerBombFuseVerification
         // The Chainsaw beam runs the same fuse over its own list: for every animation position the installed service's
         // landing is the list position the native pointer arithmetic reaches, and a position that reaches none has none.
         int landings = 0;
-        foreach ((SamusProjectileProgram program, ushort[] places) in SamusProjectileProgramAddresses.BeatAddresses)
+        foreach ((SamusProjectileSegment program, ushort[] places) in SamusProjectileProgramAddresses.BeatAddresses)
         {
             for (int position = 0; position < places.Length; position++)
             {

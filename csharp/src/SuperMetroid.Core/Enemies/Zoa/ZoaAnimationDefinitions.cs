@@ -4,11 +4,11 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 internal static class ZoaAnimationDefinitions
 {
     /// <summary>The program of each rising and shooting animation, facing left and right.</summary>
-    internal static readonly Dictionary<ZoaAnimationSelector, ZoaProgram> Programs = new()
+    internal static readonly Dictionary<ZoaAnimationSelector, ZoaSegment> Animations = new()
     {
-        [ZoaAnimationSelector.ShootingFacingLeft] = ZoaProgram.FacingLeftShooting,
-        [ZoaAnimationSelector.RisingFacingLeft] = ZoaProgram.FacingLeftRising,
-        [ZoaAnimationSelector.ShootingFacingRight] = ZoaProgram.FacingRightShooting,
-        [ZoaAnimationSelector.RisingFacingRight] = ZoaProgram.FacingRightRising,
+        [ZoaAnimationSelector.ShootingFacingLeft] = ZoaSegment.FacingLeftShooting,
+        [ZoaAnimationSelector.RisingFacingLeft] = ZoaSegment.FacingLeftRising,
+        [ZoaAnimationSelector.ShootingFacingRight] = ZoaSegment.FacingRightShooting,
+        [ZoaAnimationSelector.RisingFacingRight] = ZoaSegment.FacingRightRising,
     };
 }

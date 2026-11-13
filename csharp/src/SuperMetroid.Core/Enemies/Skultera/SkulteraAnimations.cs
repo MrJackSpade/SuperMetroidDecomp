@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Skultera.SkulteraCueKind;
-using P = SuperMetroid.Core.Enemies.Skultera.SkulteraProgram;
+using P = SuperMetroid.Core.Enemies.Skultera.SkulteraSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Skultera;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 internal static class SkulteraAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<SkulteraProgram, EnemyFrameId, SkulteraCue> Segments { get; } = new(
-        new Dictionary<SkulteraProgram, AnimationBeat<EnemyFrameId, SkulteraCue>[]>
+    internal static AnimationSegments<SkulteraSegment, EnemyFrameId, SkulteraCue> Segments { get; } = new(
+        new Dictionary<SkulteraSegment, AnimationBeat<EnemyFrameId, SkulteraCue>[]>
     {
         [P.SwimmingLeft] = [],
         [P.SwimmingLeftLoop] =
@@ -56,7 +56,7 @@ internal static class SkulteraAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<SkulteraProgram, Animation<SkulteraProgram>> StartingAt { get; } = new Dictionary<SkulteraProgram, Animation<SkulteraProgram>>
+    internal static IReadOnlyDictionary<SkulteraSegment, Animation<SkulteraSegment>> StartingAt { get; } = new Dictionary<SkulteraSegment, Animation<SkulteraSegment>>
     {
         [P.SwimmingLeft] = new([new(P.SwimmingLeftLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SwimmingLeftLoop] = new([new(P.SwimmingLeftLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
@@ -67,7 +67,7 @@ internal static class SkulteraAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<SkulteraProgram> StartingWith(SkulteraProgram segment) => StartingAt[segment];
+    internal static Animation<SkulteraSegment> StartingWith(SkulteraSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, SkulteraCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, SkulteraCue>.Frame(frame, duration);

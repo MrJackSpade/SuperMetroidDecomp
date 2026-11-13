@@ -71,12 +71,12 @@ internal sealed class PhantoonPresentation
     internal static int HealthBand(RoomEnemySlot body) => Math.Min(7, Math.Max(0, (body.Health - 1) / 312));
 
     /// <summary>Restarts a part's program from its start with a one-tick timer.</summary>
-    internal static void InstallPhantoonProgram(
+    internal static void StartPhantoonAnimation(
         PhantoonEnemyState state,
         RoomEnemySlot slot,
-        PhantoonPartProgram program)
+        PhantoonPartSegment segment)
     {
-        slot.FrameHold = WrappingCountdown.Start(1);
-        state.PartPlayback(slot) = PhantoonEnemyState.Starting(program);
+        slot.AnimationClock.StepOnNextUpdate();
+        state.PartPlayback(slot) = PhantoonEnemyState.Starting(segment);
     }
 }

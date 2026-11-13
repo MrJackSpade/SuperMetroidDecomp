@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Areas.Ceres.CeresFallingDebrisProgram;
+using P = SuperMetroid.Core.Areas.Ceres.CeresFallingDebrisSegment;
 
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
@@ -9,6 +9,6 @@ internal static class CeresFallingDebrisVisualDefinitionsFramesAccess
     extension(CeresFallingDebrisVisualDefinitions)
     {
         /// <summary>The frames in installed order.</summary>
-        internal static IReadOnlyList<CeresFallingDebrisProgram> Frames => [P.Light, P.Dark];
+        internal static IReadOnlyList<CeresFallingDebrisSegment> Frames => [P.Light, P.Dark];
     }
 }

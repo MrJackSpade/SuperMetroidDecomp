@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Frontend.Intro.CinematicSpriteCueKind;
-using P = SuperMetroid.Core.Frontend.Intro.CinematicSpriteProgram;
+using P = SuperMetroid.Core.Frontend.Intro.CinematicSpriteSegment;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class CinematicSpriteAnimations
 {
     /// <summary>Every cinematic sprite program.</summary>
-    internal static AnimationSegments<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue> Segments { get; } = new(
-        new Dictionary<CinematicSpriteProgram, AnimationBeat<CinematicSpritePose, CinematicSpriteCue>[]>
+    internal static AnimationSegments<CinematicSpriteSegment, CinematicSpritePose, CinematicSpriteCue> Segments { get; } = new(
+        new Dictionary<CinematicSpriteSegment, AnimationBeat<CinematicSpritePose, CinematicSpriteCue>[]>
     {
         [P.IntroMotherBrain] =
         [
@@ -703,7 +703,7 @@ internal static class CinematicSpriteAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<CinematicSpriteProgram, Animation<CinematicSpriteProgram>> StartingAt { get; } = new Dictionary<CinematicSpriteProgram, Animation<CinematicSpriteProgram>>
+    internal static IReadOnlyDictionary<CinematicSpriteSegment, Animation<CinematicSpriteSegment>> StartingAt { get; } = new Dictionary<CinematicSpriteSegment, Animation<CinematicSpriteSegment>>
     {
         [P.IntroMotherBrain] = new([new(P.IntroMotherBrain, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.IntroMotherBrainStartPage2] = new([new(P.IntroMotherBrainStartPage2, 0, 2, 1), new(P.IntroMotherBrainPageTwo, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
@@ -816,14 +816,14 @@ internal static class CinematicSpriteAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<CinematicSpriteProgram> StartingWith(CinematicSpriteProgram segment) => StartingAt[segment];
+    internal static Animation<CinematicSpriteSegment> StartingWith(CinematicSpriteSegment segment) => StartingAt[segment];
 
     /// <summary>
     /// The segment each list that runs on into the list authored next, directly after its last beat, continues into: a
     /// sprite resting after that beat already stands in the next.
     /// </summary>
-    internal static IReadOnlyDictionary<CinematicSpriteProgram, CinematicSpriteProgram> RunsOnInto { get; } =
-        new Dictionary<CinematicSpriteProgram, CinematicSpriteProgram>
+    internal static IReadOnlyDictionary<CinematicSpriteSegment, CinematicSpriteSegment> RunsOnInto { get; } =
+        new Dictionary<CinematicSpriteSegment, CinematicSpriteSegment>
     {
         [P.IntroMotherBrainStartPage2] = P.IntroMotherBrainPageTwo,
         [P.MetroidEggShaking] = P.MetroidEggHatchedFrame2,

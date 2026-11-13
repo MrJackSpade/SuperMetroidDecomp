@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <param name="FirstFrame">The number of the run's first frame in the pose's artwork.</param>
 /// <param name="Delays">Each frame's delay, in ticks, in frame order.</param>
 /// <param name="End">The cue the frame after the delays runs.</param>
-internal sealed record SamusAnimationSequence(int FirstFrame, IReadOnlyList<int> Delays, SamusAnimationInstruction End);
+internal sealed record SamusAnimationSequence(int FirstFrame, IReadOnlyList<int> Delays, SamusAnimationCue End);

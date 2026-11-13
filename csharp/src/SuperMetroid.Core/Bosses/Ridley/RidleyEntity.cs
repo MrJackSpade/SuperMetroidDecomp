@@ -37,7 +37,7 @@ internal sealed class RidleyEntity(
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => RidleyPartDefinitions.Parts[Slot.DefinitionId] switch
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => RidleyPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         RidleyPart.Ridley or RidleyPart.Ceres => ridley.Animation.AdvanceRidleyBodyTypedAnimation,
         RidleyPart.Explosion => (enemy, _) => RidleyBodyAnimation.AdvanceRidleyBreakupAnimation(enemy),

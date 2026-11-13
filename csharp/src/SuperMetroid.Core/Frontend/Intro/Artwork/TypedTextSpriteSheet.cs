@@ -15,7 +15,7 @@ internal sealed class TypedTextSpriteSheet(SpriteSheet sheet, CinematicSpriteFam
     CinematicTypedTexts texts) : IIntroCinematicSpritePresentation
 {
     /// <summary>The sheet's frame for glyph <paramref name="glyph"/> of the text <paramref name="text"/> types in <paramref name="family"/>.</summary>
-    internal static string GlyphFrameName(CinematicSpriteFamily family, CinematicSpriteProgram text, int glyph) => $"{family}.{text}.Glyph{glyph}";
+    internal static string GlyphFrameName(CinematicSpriteFamily family, CinematicSpriteSegment text, int glyph) => $"{family}.{text}.Glyph{glyph}";
 
     /// <inheritdoc/>
     public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin, PictureShade drawn)

@@ -46,33 +46,33 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
         Suite(nameof(VerifyInitializer), () => VerifyInitializer(movingRight: true));
 
         ExerciseWalk(
-            FakeKraidProgram.StepForwardsFacingLeft,
+            FakeKraidSegment.StepForwardsFacingLeft,
             movingRight: false,
             walkDelta: -4);
         ExerciseWalk(
-            FakeKraidProgram.StepBackwardsFacingLeft,
+            FakeKraidSegment.StepBackwardsFacingLeft,
             movingRight: false,
             walkDelta: 4);
         ExerciseWalk(
-            FakeKraidProgram.StepForwardsFacingRight,
+            FakeKraidSegment.StepForwardsFacingRight,
             movingRight: true,
             walkDelta: 4);
         ExerciseWalk(
-            FakeKraidProgram.StepBackwardsFacingRight,
+            FakeKraidSegment.StepBackwardsFacingRight,
             movingRight: true,
             walkDelta: -4);
         ExerciseSpit(
-            FakeKraidProgram.FireSpitFacingLeft,
+            FakeKraidSegment.FireSpitFacingLeft,
             movingRight: false);
         ExerciseSpit(
-            FakeKraidProgram.FireSpitFacingRight,
+            FakeKraidSegment.FireSpitFacingRight,
             movingRight: true);
         ExerciseWalkTimerExpiry(
-            FakeKraidProgram.StepForwardsFacingLeft,
+            FakeKraidSegment.StepForwardsFacingLeft,
             movingRight: false,
             walkDelta: -4);
         ExerciseWalkTimerExpiry(
-            FakeKraidProgram.StepBackwardsFacingRight,
+            FakeKraidSegment.StepBackwardsFacingRight,
             movingRight: true,
             walkDelta: -4);
 
@@ -86,22 +86,22 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out _,
                 out FakeKraidEnemyState state);
             AssertEqual(
-                new AnimationPlayback<FakeKraidProgram>(FakeKraidAnimations.StartingWith(movingRight
-                    ? FakeKraidProgram.StepForwardsFacingRight
-                    : FakeKraidProgram.StepForwardsFacingLeft), AnimationPlace.StartOfAnimation),
+                new AnimationPlayback<FakeKraidSegment>(FakeKraidAnimations.StartingWith(movingRight
+                    ? FakeKraidSegment.StepForwardsFacingRight
+                    : FakeKraidSegment.StepForwardsFacingLeft), AnimationPlace.StartOfAnimation),
                 state.Playback,
                 $"Fake Kraid initializer selects {(movingRight ? "right" : "left")} program");
         }
 
-        void ExerciseWalk(FakeKraidProgram program, bool movingRight, short walkDelta)
+        void ExerciseWalk(FakeKraidSegment program, bool movingRight, short walkDelta)
         {
             RoomEnemySystem enemies = CreateSystem(
                 movingRight,
                 out RoomEnemySlot slot,
                 out SamusState samus,
                 out FakeKraidEnemyState state);
-            state.Playback = new AnimationPlayback<FakeKraidProgram>(FakeKraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.FrameHold = WrappingCountdown.Start(1);
+            state.Playback = new AnimationPlayback<FakeKraidSegment>(FakeKraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+            slot.AnimationClock.StepOnNextUpdate();
             state.WalkDelta = walkDelta;
             state.FacingDelta = movingRight ? (short)4 : (short)-4;
             state.WalkStepTimer = 0x0100;
@@ -115,15 +115,15 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 $"Fake Kraid {program} executes its action callback");
         }
 
-        void ExerciseSpit(FakeKraidProgram program, bool movingRight)
+        void ExerciseSpit(FakeKraidSegment program, bool movingRight)
         {
             RoomEnemySystem enemies = CreateSystem(
                 movingRight,
                 out RoomEnemySlot slot,
                 out SamusState samus,
                 out FakeKraidEnemyState state);
-            state.Playback = new AnimationPlayback<FakeKraidProgram>(FakeKraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.FrameHold = WrappingCountdown.Start(1);
+            state.Playback = new AnimationPlayback<FakeKraidSegment>(FakeKraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+            slot.AnimationClock.StepOnNextUpdate();
             state.WalkStepTimer = 0x0100;
             state.SpitDecisionTimer = 0x0100;
 
@@ -135,7 +135,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 $"Fake Kraid {program} publishes its cry");
         }
 
-        void ExerciseWalkTimerExpiry(FakeKraidProgram program, bool movingRight, short walkDelta)
+        void ExerciseWalkTimerExpiry(FakeKraidSegment program, bool movingRight, short walkDelta)
         {
             // A timer at one reaches zero on the walk callback: the actor reverses without stepping and reloads
             // seven through ten (seven for the fixture's zero random word).
@@ -144,8 +144,8 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out RoomEnemySlot slot,
                 out SamusState samus,
                 out FakeKraidEnemyState state);
-            state.Playback = new AnimationPlayback<FakeKraidProgram>(FakeKraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.FrameHold = WrappingCountdown.Start(1);
+            state.Playback = new AnimationPlayback<FakeKraidSegment>(FakeKraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+            slot.AnimationClock.StepOnNextUpdate();
             state.WalkDelta = walkDelta;
             state.FacingDelta = movingRight ? (short)4 : (short)-4;
             state.WalkStepTimer = 1;

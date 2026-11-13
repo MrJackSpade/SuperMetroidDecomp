@@ -24,7 +24,7 @@ internal static class WorkRobotInitialSelectionVerification
         for (ushort parameter = 0; parameter < 3; parameter++)
         {
             int address = EnemyRomTablePointers.WorkRobot.InitialAnimationScriptWords + 2 * parameter;
-            WorkRobotProgram expected = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.WorkRobotPose(parameter);
+            WorkRobotSegment expected = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.WorkRobotPose(parameter);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
                 NativeEnemyAnimationOracle.EntryOf(WorkRobotNativeListAddresses.Entries, expected),
                 $"Work Robot original selection {parameter}");
@@ -33,14 +33,14 @@ internal static class WorkRobotInitialSelectionVerification
             slot.SetSpawnParameter1(EnemyDefinitionId.Robot, parameter);
             var state = new WorkRobotEnemyState();
             system.WorkRobotBehavior.InitializeWorkRobotNoPower(slot, state);
-            AssertEqual(new AnimationPlayback<WorkRobotProgram>(WorkRobotAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation), state.Playback,
+            AssertEqual(new AnimationPlayback<WorkRobotSegment>(WorkRobotAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Work Robot production selection {parameter} without cartridge access");
         }
         AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.WorkRobotPose(3),
             "Work Robot selector three overruns the table into code");
         foreach (int refused in new[] { 4, 0x7fff, 0x8000, 0xffff })
         {
-            AssertEqual(WorkRobotProgram.NoPowerNeutral, SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.WorkRobotPose(refused),
+            AssertEqual(WorkRobotSegment.NoPowerNeutral, SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.WorkRobotPose(refused),
                 $"Work Robot selector {refused} outside the range check holds the neutral pose");
         }
         Console.WriteLine("Work Robot switch: three original programs, the overrun selector's loud failure, production initialization and bounds pass.");

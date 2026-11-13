@@ -8,16 +8,16 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// place (<see cref="PrePhantoonRoomHeldProjectilePlace"/>), then deletion (#641, #1600).
 /// </summary>
 internal sealed class PrePhantoonRoomAnimation()
-    : EnemyProjectileTypedAnimation<PrePhantoonRoomProgram, PrePhantoonRoomFrame, PrePhantoonRoomCue>(BlankThenDelete)
+    : EnemyProjectileTypedAnimation<PrePhantoonRoomSegment, PrePhantoonRoomFrame, PrePhantoonRoomCue>(BlankThenDelete)
 {
     /// <summary>How long the blank frame lasts.</summary>
     private const int HoldDuration = PrePhantoonRoomHeldProjectilePlace.HeldUpdates;
 
     /// <summary>The blank frame and its deletion.</summary>
-    private static readonly AnimationSegments<PrePhantoonRoomProgram, PrePhantoonRoomFrame, PrePhantoonRoomCue> RoomSegments = new(
-        new Dictionary<PrePhantoonRoomProgram, AnimationBeat<PrePhantoonRoomFrame, PrePhantoonRoomCue>[]>
+    private static readonly AnimationSegments<PrePhantoonRoomSegment, PrePhantoonRoomFrame, PrePhantoonRoomCue> RoomSegments = new(
+        new Dictionary<PrePhantoonRoomSegment, AnimationBeat<PrePhantoonRoomFrame, PrePhantoonRoomCue>[]>
         {
-            [PrePhantoonRoomProgram.BlankThenDelete] =
+            [PrePhantoonRoomSegment.BlankThenDelete] =
             [
                 new AnimationBeat<PrePhantoonRoomFrame, PrePhantoonRoomCue>.Frame(default, HoldDuration),
                 new AnimationBeat<PrePhantoonRoomFrame, PrePhantoonRoomCue>.Event(PrePhantoonRoomCue.Delete),
@@ -25,20 +25,20 @@ internal sealed class PrePhantoonRoomAnimation()
         });
 
     /// <summary>The blank frame and deletion, played once; the deleted projectile then rests.</summary>
-    private static readonly Animation<PrePhantoonRoomProgram> BlankThenDelete =
-        new([new(PrePhantoonRoomProgram.BlankThenDelete, 0, 2, 1)], AnimationEnd.Holds);
+    private static readonly Animation<PrePhantoonRoomSegment> BlankThenDelete =
+        new([new(PrePhantoonRoomSegment.BlankThenDelete, 0, 2, 1)], AnimationEnd.Holds);
 
     /// <summary>The one animation, by the segment it starts at.</summary>
-    private static readonly Dictionary<PrePhantoonRoomProgram, Animation<PrePhantoonRoomProgram>> RoomStartingAt = new()
+    private static readonly Dictionary<PrePhantoonRoomSegment, Animation<PrePhantoonRoomSegment>> RoomStartingAt = new()
     {
-        [PrePhantoonRoomProgram.BlankThenDelete] = BlankThenDelete,
+        [PrePhantoonRoomSegment.BlankThenDelete] = BlankThenDelete,
     };
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<PrePhantoonRoomProgram, PrePhantoonRoomFrame, PrePhantoonRoomCue> Segments => RoomSegments;
+    private protected override AnimationSegments<PrePhantoonRoomSegment, PrePhantoonRoomFrame, PrePhantoonRoomCue> Segments => RoomSegments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<PrePhantoonRoomProgram, Animation<PrePhantoonRoomProgram>> StartingAt => RoomStartingAt;
+    private protected override IReadOnlyDictionary<PrePhantoonRoomSegment, Animation<PrePhantoonRoomSegment>> StartingAt => RoomStartingAt;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(PrePhantoonRoomFrame frame) =>

@@ -55,11 +55,11 @@ internal static class EndingColourOwners
         ShownPaletteFxFrame[] shownFrames = PaletteFxShownFrames.ShownBy(Enum.GetValues<PaletteFxObject>());
         foreach (KeyValuePair<PaletteFxColours, EndingEffectOwners> group in EndingColourOwnerDefinitions.PaletteFx)
         {
-            PaletteFxProgram[] animations = [.. shownFrames.Where(shown => shown.Colours == group.Key)
+            PaletteFxSegment[] animations = [.. shownFrames.Where(shown => shown.Colours == group.Key)
                 .Select(shown => shown.Frame.Animation).Distinct()];
             if (animations.Length == 0)
                 throw new InvalidDataException($"The ending lists what {group.Key} is authored for, which no colour effect shows.");
-            foreach (PaletteFxProgram animation in animations)
+            foreach (PaletteFxSegment animation in animations)
                 Add(PaletteFxShades.Of(group.Key, new PaletteFxFrame(animation, 0)), group.Value);
         }
         return listed.ToFrozenDictionary(StringComparer.Ordinal);

@@ -32,7 +32,7 @@ public static class CinematicGlowPaletteFxColorDefinitions
             Object = PaletteFxObject.OldMotherBrainFightBackgroundLights,
             ColorsPerFrame = 3,
             FrameDuration = 6,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.OldMotherBrainFightBGLights1, 3),
+            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.OldMotherBrainFightBGLights1, 3),
         },
         new()
         {
@@ -40,7 +40,7 @@ public static class CinematicGlowPaletteFxColorDefinitions
             Object = PaletteFxObject.GunshipGlow,
             ColorsPerFrame = 1,
             FrameDuration = 5,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.GunshipGlow1, 1),
+            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.GunshipGlow1, 1),
         },
     ];
 }

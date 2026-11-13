@@ -5,16 +5,16 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>A glass shard's or sparkle's typed animation.</summary>
-/// <param name="program">The program to play.</param>
-internal sealed class MotherBrainGlassAnimation(MotherBrainGlassProgram program)
-    : EnemyProjectileTypedAnimation<MotherBrainGlassProgram, MotherBrainGlassFrame, MotherBrainGlassCue>(MotherBrainGlassAnimations.StartingAt[program])
+/// <param name="segment">The program to play.</param>
+internal sealed class MotherBrainGlassAnimation(MotherBrainGlassSegment segment)
+    : EnemyProjectileTypedAnimation<MotherBrainGlassSegment, MotherBrainGlassFrame, MotherBrainGlassCue>(MotherBrainGlassAnimations.StartingAt[segment])
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<MotherBrainGlassProgram, MotherBrainGlassFrame, MotherBrainGlassCue> Segments =>
+    private protected override AnimationSegments<MotherBrainGlassSegment, MotherBrainGlassFrame, MotherBrainGlassCue> Segments =>
         MotherBrainGlassAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<MotherBrainGlassProgram, Animation<MotherBrainGlassProgram>> StartingAt =>
+    private protected override IReadOnlyDictionary<MotherBrainGlassSegment, Animation<MotherBrainGlassSegment>> StartingAt =>
         MotherBrainGlassAnimations.StartingAt;
 
     /// <inheritdoc/>

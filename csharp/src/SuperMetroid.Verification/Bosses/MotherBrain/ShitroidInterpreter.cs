@@ -6,5 +6,5 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal readonly record struct ShitroidInterpreter
 {
     /// <summary>The enemy system's instruction interpreter.</summary>
-    public required EnemyInstructionInterpreter Instructions { get; init; }
+    public required EnemyAnimationPlayer Instructions { get; init; }
 }

@@ -21,19 +21,19 @@ internal static class BoyonBehaviorVerification
     internal static void VerifyBoyonBehavior()
     {
         (RoomEnemySystem idleSystem, RoomEnemySlot idle, BoyonEnemyState idleState) = Create();
-        AssertEqual(new AnimationPlayback<BoyonProgram>(BoyonAnimations.StartingWith(BoyonProgram.Idle), AnimationPlace.StartOfAnimation), idleState.Playback, "Boyon initializer starts idling");
+        AssertEqual(new AnimationPlayback<BoyonSegment>(BoyonAnimations.StartingWith(BoyonSegment.Idle), AnimationPlace.StartOfAnimation), idleState.Playback, "Boyon initializer starts idling");
         idle.Processing = idle.Processing.With(EnemyProcessing.OffScreen);
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoyonAnimations.Segments, BoyonProgram.IdleLoop, BoyonFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(idle, EnemyInstructionRunner.LoopUpdates(BoyonAnimations.Segments, BoyonProgram.IdleLoop)), "Boyon idle loop");
+        AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoyonAnimations.Segments, BoyonSegment.IdleLoop, BoyonFrameToolingDefinitions.Spritemap),
+            EnemyInstructionRunner.ShownFrames(idle, EnemyInstructionRunner.LoopUpdates(BoyonAnimations.Segments, BoyonSegment.IdleLoop)), "Boyon idle loop");
         AssertTrue(!idle.Processing.HasAny(EnemyProcessing.OffScreen), "Boyon idle stops off-screen processing");
 
         (RoomEnemySystem bounceSystem, RoomEnemySlot bounce, BoyonEnemyState bounceState) = Create();
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(bounce.Position.Whole) };
         BoyonBehavior.RunBoyonMain(bounce, bounceState, samus);
         BoyonBehavior.RunBoyonMain(bounce, bounceState, samus);
-        AssertEqual(new AnimationPlayback<BoyonProgram>(BoyonAnimations.StartingWith(BoyonProgram.Bouncing), AnimationPlace.StartOfAnimation), bounceState.Playback, "Samus nearby starts the bounce");
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoyonAnimations.Segments, BoyonProgram.BouncingLoop, BoyonFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(bounce, EnemyInstructionRunner.LoopUpdates(BoyonAnimations.Segments, BoyonProgram.BouncingLoop)), "Boyon bounce loop");
+        AssertEqual(new AnimationPlayback<BoyonSegment>(BoyonAnimations.StartingWith(BoyonSegment.Bouncing), AnimationPlace.StartOfAnimation), bounceState.Playback, "Samus nearby starts the bounce");
+        AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoyonAnimations.Segments, BoyonSegment.BouncingLoop, BoyonFrameToolingDefinitions.Spritemap),
+            EnemyInstructionRunner.ShownFrames(bounce, EnemyInstructionRunner.LoopUpdates(BoyonAnimations.Segments, BoyonSegment.BouncingLoop)), "Boyon bounce loop");
         AssertTrue(bounce.Processing.HasAny(EnemyProcessing.OffScreen), "Boyon bounce processes off screen");
         AssertEqual((SoundEffectId?)BoyonNativeValues.BounceSound,
             bounceSystem.Audio.LatestSound, "Boyon bounce plays its library-two bounce sound");

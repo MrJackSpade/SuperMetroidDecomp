@@ -8,4 +8,4 @@ namespace SuperMetroid.Verification.Enemies.Rios;
 /// <param name="Offset">The offset.</param>
 /// <param name="Signal">The signal.</param>
 /// <param name="Name">The name.</param>
-internal readonly record struct NorfairRioInstructionProgramDefinitionsProgram(NorfairRioProgram Entry, int Calls, short Offset, bool Signal, string Name);
+internal readonly record struct NorfairRioInstructionProgramDefinitionsProgram(NorfairRioSegment Entry, int Calls, short Offset, bool Signal, string Name);

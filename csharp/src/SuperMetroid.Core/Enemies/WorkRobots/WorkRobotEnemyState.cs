@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 public sealed class WorkRobotEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<WorkRobotProgram> Playback { get; set; }
+    internal AnimationPlayback<WorkRobotSegment> Playback { get; set; }
 
     /// <summary>
     /// True only when the unpowered robot definition saw the area's boss bit during initialization. That definition can therefore

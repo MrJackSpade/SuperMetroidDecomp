@@ -35,18 +35,18 @@ internal static class EyeDoorSweatBehaviorVerification
         var request = new EyeDoorProjectileRequest(EyeDoorProjectileDefinition.Sweat, Facing: EyeDoorOrientation.Right, RoomObjectBlock: new(7, 4), Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0));
         enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(request, new SharedGameState(new SharedRandom()));
         EnemyProjectile sweat = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorSweat);
-        AssertTrue(sweat.Animation is EyeDoorSweatAnimation { PlayingSegment: EyeDoorSweatProgram.Falling }, "the sweat starts its fall");
+        AssertTrue(sweat.Animation is EyeDoorSweatAnimation { PlayingSegment: EyeDoorSweatSegment.Falling }, "the sweat starts its fall");
         (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, sweat,
-            EyeDoorSweatNativeListAddresses.Entry(EyeDoorSweatProgram.Falling), 20, "eye-door sweat fall");
+            EyeDoorSweatNativeListAddresses.Entry(EyeDoorSweatSegment.Falling), 20, "eye-door sweat fall");
         AssertTrue(!deleted, "the fall loops");
 
         EyeDoorBehavior.RunEyeDoorSweatFrameBehavior(sweat, level);
-        AssertTrue(sweat.Animation is EyeDoorSweatAnimation { PlayingSegment: EyeDoorSweatProgram.HitFloor }, "the floor collision starts the splash");
+        AssertTrue(sweat.Animation is EyeDoorSweatAnimation { PlayingSegment: EyeDoorSweatSegment.HitFloor }, "the floor collision starts the splash");
         AssertEqual(EnemyProjectileFrameBehavior.Stationary, sweat.FrameBehavior,
             "the splash stops the drop with the native inert pre-instruction");
         AssertEqual((ushort)76, sweat.Position.Y.Whole, "the splash applies the native four-pixel floor correction");
         (deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, sweat,
-            EyeDoorSweatNativeListAddresses.Entry(EyeDoorSweatProgram.HitFloor), 30, "eye-door sweat splash");
+            EyeDoorSweatNativeListAddresses.Entry(EyeDoorSweatSegment.HitFloor), 30, "eye-door sweat splash");
         AssertTrue(deleted, "the splash deletes the drop");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the sweat's native list bytes");
         Console.WriteLine("  Eye-door sweat behavior: the falling loop and the floor splash match their native lists.");

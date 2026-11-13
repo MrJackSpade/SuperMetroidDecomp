@@ -523,7 +523,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         var actor = new IntroDiscoverySprite(
             start,
             CeresShades.Drawn(definition.Colouring),
-            definition.Program)
+            definition.Animation)
         {
             HorizontalLoopWidth = definition.WrapX ? CeresDestructionSceneDefinitions.WorldWidth : null,
         };
@@ -625,7 +625,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             new(CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole),
                 CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole)),
             CeresShades.Drawn(CeresSpriteColouring.Explosions),
-            CeresExplosionDefinitions.StationBlastActor.Program);
+            CeresExplosionDefinitions.StationBlastActor.Animation);
         cinematicExplosion.InstallFrameBehavior(
             CeresExplosionDefinitions.StationBlastActor.FrameBehavior);
         actors.Add(cinematicExplosion);
@@ -644,13 +644,13 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.Y -
                     CoordinateAxis.AsSigned(Background.Y.Whole) + placement.Offset.Y)),
             CeresShades.Drawn(CeresSpriteColouring.Explosions),
-            definition.Program);
+            definition.Animation);
         actor.InstallFrameBehavior(definition.FrameBehavior);
 
         // The initializer writes its stagger directly to the frame hold. The loop countdown is a different count, used
         // by the program's counted loops; using it here would make all five blasts appear immediately despite distinct
         // delays.
-        actor.DelayFirstInstruction(placement.DelayFrames);
+        actor.DelayFirstStep(placement.DelayFrames);
         actors.Add(actor);
     }
 
@@ -710,14 +710,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 }
             }
 
-            actor.Step(HandleZebesInstruction);
+            actor.Step(HandleZebesCue);
             if (!actor.IsActive)
                 actors.RemoveAt(index);
         }
     }
 
     /// <summary>Lets the title actor start the camera flight at its authored cue boundary.</summary>
-    private void HandleZebesInstruction(CinematicSpriteCueKind cue)
+    private void HandleZebesCue(CinematicSpriteCueKind cue)
     {
         switch (cue)
         {

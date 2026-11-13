@@ -209,7 +209,7 @@ internal static class RidleyExplosionDefinitionsVerification
 
                 initialize(fragment, body, state);
 
-                AssertEqual((ushort)1, fragment.FrameHold.RawValue,
+                AssertEqual((ushort)1, fragment.AnimationClock.Hold.RawValue,
                     "Ridley breakup production instruction timer");
                 AssertEqual(state.Colours.SpriteShading(flashing: false), fragment.Shading,
                     "Ridley breakup production colours: the shades Ridley laid over his own sprites");

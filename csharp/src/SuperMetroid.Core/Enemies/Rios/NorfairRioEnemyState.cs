@@ -5,10 +5,10 @@ namespace SuperMetroid.Core.Enemies.Rios;
 public sealed class NorfairRioEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<NorfairRioProgram> Playback { get; set; }
+    internal AnimationPlayback<NorfairRioSegment> Playback { get; set; }
 
     /// <summary>The last animation installed by function seven.</summary>
-    internal NorfairRioProgram InstalledProgram { get; set; }
+    internal NorfairRioSegment InstalledAnimation { get; set; }
 
     /// <summary>Animation handshake set by the swoop-start-finished cue.</summary>
     public bool AnimationSignal { get; internal set; }

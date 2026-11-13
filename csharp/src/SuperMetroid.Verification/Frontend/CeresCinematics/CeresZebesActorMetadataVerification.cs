@@ -22,7 +22,7 @@ internal static class CeresZebesActorMetadataVerification
             ushort pointer = CartridgeImportSource.Require(retail).ReadCartridgeWord(spawnOperand);
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(((0x8b0000 | pointer) + 2)), actor.ActiveFrameBehavior.NativeAddress,
                 "native reveal callback, which the initializer leaves unchanged");
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(((0x8b0000 | pointer) + 4)), CinematicSpriteNativeListAddresses.Entry(actor.Program), "native reveal program");
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(((0x8b0000 | pointer) + 4)), CinematicSpriteNativeListAddresses.Entry(actor.Animation), "native reveal program");
             AssertEqual(SignedSixteenSixteen.Zero, actor.HorizontalDelta, "reveal actor has no horizontal motion");
             AssertEqual(false, actor.WrapX, "reveal actor has no horizontal wrap");
             AssertEqual(index == 4, actor.CompletesScene, "only native star5 callback at C8F2 loads game");

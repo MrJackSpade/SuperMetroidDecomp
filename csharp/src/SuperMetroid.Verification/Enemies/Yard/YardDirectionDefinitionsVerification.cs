@@ -27,11 +27,11 @@ internal static class YardDirectionDefinitionsVerification
             YardDirectionDefinition definition =
                 YardDirections.ForDirection(SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction));
             int record = directionAddress + direction * 8;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.CrawlingProgram),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.CrawlingAnimation),
                 $"Yard direction {direction} crawling list");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations.PositionOf(definition.BlockSide),
                 $"Yard direction {direction} block side");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.HidingProgram),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.HidingAnimation),
                 $"Yard direction {direction} hiding list");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), definition.AirborneFacingDirection == YardAirborneFacing.Right ? (ushort)1 : (ushort)0,
                 $"Yard direction {direction} airborne facing");
@@ -47,13 +47,13 @@ internal static class YardDirectionDefinitionsVerification
         foreach (YardAirborneFacing facing in Enum.GetValues<YardAirborneFacing>())
         {
             int row = facing == YardAirborneFacing.Right ? 1 : 0;
-            YardAirborneInstructionDefinition definition =
+            YardAirborneAnimationDefinition definition =
                 YardDirections.ForAirborneFacing(facing);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + row * 4)),
-                NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.VisibleProgram),
+                NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.VisibleAnimation),
                 $"Yard airborne ${source:X6} facing {facing} visible list");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + row * 4 + 2)),
-                NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.HidingProgram),
+                NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.HidingAnimation),
                 $"Yard airborne ${source:X6} facing {facing} hiding list");
         }
 
@@ -82,7 +82,7 @@ internal static class YardDirectionDefinitionsVerification
             AssertYardDirectionState(state, initial,
                 $"Yard initializer direction {direction}",
                 assertMovementFunction: false);
-            AssertEqual(YardMovementFunction.InstructionPending, state.MovementFunction,
+            AssertEqual(YardMovementFunction.AwaitingAnimationCue, state.MovementFunction,
                 $"Yard initializer direction {direction} pending function");
 
             // The population selector does not initialize the live direction word;
@@ -110,7 +110,7 @@ internal static class YardDirectionDefinitionsVerification
             YardEnemyBehavior.InitializeYard(slot);
             YardEnemyState state = (enemies.YardStates[0] ?? throw new InvalidOperationException("Verification requires enemies.YardStates[0]."));
             YardAirborneFacing facing = state.AirborneFacingDirection;
-            YardAirborneInstructionDefinition expected =
+            YardAirborneAnimationDefinition expected =
                 YardDirections.ForAirborneFacing(facing);
 
             YardEnemyBehavior.DropYard(slot, state);
@@ -146,11 +146,11 @@ internal static class YardDirectionDefinitionsVerification
         string name,
         bool assertMovementFunction)
     {
-        AssertEqual(new AnimationPlayback<YardProgram>(YardAnimations.StartingWith(expected.CrawlingProgram), AnimationPlace.StartOfAnimation), state.Playback,
+        AssertEqual(new AnimationPlayback<YardSegment>(YardAnimations.StartingWith(expected.CrawlingAnimation), AnimationPlace.StartOfAnimation), state.Playback,
             $"{name} crawling list");
         AssertEqual(expected.BlockSide, state.BlockSide,
             $"{name} block side");
-        AssertEqual((YardProgram?)expected.HidingProgram, state.HidingProgram,
+        AssertEqual((YardSegment?)expected.HidingAnimation, state.HidingAnimation,
             $"{name} hiding list");
         AssertEqual(expected.AirborneFacingDirection, state.AirborneFacingDirection,
             $"{name} airborne facing");
@@ -164,12 +164,12 @@ internal static class YardDirectionDefinitionsVerification
     /// <summary>Checks the visible and hiding lists selected when a Yard becomes airborne.</summary>
     private static void AssertYardAirborneLists(
         YardEnemyState state,
-        YardAirborneInstructionDefinition expected,
+        YardAirborneAnimationDefinition expected,
         string name)
     {
-        AssertEqual(new AnimationPlayback<YardProgram>(YardAnimations.StartingWith(expected.VisibleProgram), AnimationPlace.StartOfAnimation), state.Playback,
+        AssertEqual(new AnimationPlayback<YardSegment>(YardAnimations.StartingWith(expected.VisibleAnimation), AnimationPlace.StartOfAnimation), state.Playback,
             $"{name} visible list");
-        AssertEqual((YardProgram?)expected.HidingProgram, state.HidingProgram,
+        AssertEqual((YardSegment?)expected.HidingAnimation, state.HidingAnimation,
             $"{name} hiding list");
     }
 

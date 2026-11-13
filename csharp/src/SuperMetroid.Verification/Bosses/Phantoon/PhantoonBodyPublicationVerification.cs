@@ -38,8 +38,8 @@ internal static class PhantoonBodyPublicationVerification
 
         // The body frame draws on his body layer from his installed body sheet (#1466).
         EnemyFrameId frame = PhantoonBg2FrameDefinitions.Frames[1].Frame;
-        body.NewInstructionFrame = true;
-        runtime.Enemies.Instructions.DrawBossBodyFrame(body, frame);
+        body.AnimationClock.ShowsNewFrame = true;
+        runtime.Enemies.AnimationPlayer.DrawBossBodyFrame(body, frame);
         // The retail runtime draws Phantoon's body from the installation's body sheet, composed from these frames.
         BossSourceArtwork bosses = InstalledFixtures.BossArtwork;
         var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];

@@ -64,11 +64,11 @@ internal sealed class MotherBrainBody
     /// </summary>
     internal static void AdvanceMotherBrainTubeAnimation(RoomEnemySlot tube)
     {
-        if (!EnemyProgramAnimation.Expire(tube))
+        if (!tube.AnimationClock.Expire())
             return;
         MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
         AnimationPlayback<MotherBrainTubePiece> playback = tubeState.Playback;
-        EnemyProgramAnimation.Play(tube, MotherBrainTubeAnimations.Segments, ref playback, MotherBrainVisualDefinitions.TubeFrames.Of,
+        EnemyAnimationPlayback.Play(tube, MotherBrainTubeAnimations.Segments, ref playback, MotherBrainVisualDefinitions.TubeFrames.Of,
             cue => throw new InvalidOperationException($"Falling-tube animations raise no event {cue}."));
         tubeState.Playback = playback;
     }
@@ -76,7 +76,7 @@ internal sealed class MotherBrainBody
     /// <summary>Sets Mother Brain's body up when the room spawns it.</summary>
     internal void InitializeMotherBrainBody(RoomEnemySlot body)
     {
-        body.FrameHold = WrappingCountdown.Start(1);
+        body.AnimationClock.StepOnNextUpdate();
         body.Contact = body.Contact.With(EnemyContact.BlocksPlasmaBeam | EnemyContact.IgnoresSamus);
         body.Presence = body.Presence.With(EnemyPresence.Hidden);
         body.Shading = EnemyShades.HurtFlashLook;
@@ -147,10 +147,10 @@ internal sealed class MotherBrainBody
     {
         MotherBrainEnemyState state = _access.RequireCompleteMotherBrainState(slot);
         bool body = ReferenceEquals(slot, state.Body);
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
-        AnimationPlayback<MotherBrainBodyProgram> playback = body ? state.BodyPlayback : state.HeadSlotPlayback;
-        EnemyProgramAnimation.Play(slot, MotherBrainAnimations.BodySegments, ref playback, MotherBrainBodyVisualDefinitions.ShownFrames.Of,
+        AnimationPlayback<MotherBrainBodySegment> playback = body ? state.BodyPlayback : state.HeadSlotPlayback;
+        EnemyAnimationPlayback.Play(slot, MotherBrainAnimations.BodySegments, ref playback, MotherBrainBodyVisualDefinitions.ShownFrames.Of,
             cue =>
             {
                 ApplyMotherBrainBodyCue(state, samus, cue);
@@ -421,7 +421,7 @@ internal sealed class MotherBrainBody
         MotherBrainTurretDirection direction = definition.InitialDirection;
         turret.Position = turret.Position.WithWhole(definition.Position);
         turret.State = new MotherBrainTurretState(parameter, MotherBrainTurretDefinitions.Ring.PositionOf(direction));
-        turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretProgram.TurretPose, direction));
+        turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretSegment.TurretPose, direction));
 
         // The initializer draws the RNG twice, once for each of the turret's waits, and clamps each wait's remainder modulo
         // 256 upward.

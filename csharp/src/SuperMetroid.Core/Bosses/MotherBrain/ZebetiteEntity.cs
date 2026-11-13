@@ -16,7 +16,7 @@ internal sealed class ZebetiteEntity(ZebetiteBehavior species, RoomEnemySlot slo
     public EnemyMainAiHandler? FindMain() => species.RunZebetiteMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => (enemy, _) => ZebetiteBehavior.AdvanceZebetiteAnimation(enemy);
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => (enemy, _) => ZebetiteBehavior.AdvanceZebetiteAnimation(enemy);
 
     /// <summary>The Zebetite's own shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>

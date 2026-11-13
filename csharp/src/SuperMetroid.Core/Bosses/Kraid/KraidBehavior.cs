@@ -256,8 +256,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 KraidEncounterAccess.TickKraidFunctionTimer(state.BodyState);
                 return;
 
-            case KraidAiFunction.ProcessHeadInstructionAndTimer:
-                _ = Head.ProcessKraidHeadInstruction(state);
+            case KraidAiFunction.AdvanceHeadAnimationAndTimer:
+                _ = Head.AdvanceKraidHeadAnimation(state);
                 KraidEncounterAccess.TickKraidFunctionTimer(state.BodyState);
                 return;
 

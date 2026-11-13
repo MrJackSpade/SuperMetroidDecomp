@@ -77,7 +77,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         // SpawnEnemy installs the canonical empty map after init when the Baby's hide-drawing property is set.
         // The actor's list is still live and produces its first visible map on its first
         // scheduled turn; the active-index array was frozen before this allocation.
-        babySlot.Frame = babySlot.Processing.HasAny(EnemyProcessing.AnimationScript)
+        babySlot.Frame = babySlot.Processing.HasAny(EnemyProcessing.Animates)
             ? EnemyFrameId.Empty
             : null;
         _slotTable.CoverSpawn(babySlot);
@@ -98,12 +98,11 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         baby.Initialize(slot.Position, slot.Contact, slot.Processing, slot.Presence);
         state.BabyMetroidSlot = slot;
         state.BabyMetroid = baby;
-        state.BabyAppliedProgram = baby.Program;
-        state.BabyPlayback = MotherBrainBabyAnimations.Starting(baby.Program);
+        state.BabyAppliedAnimation = baby.Animation;
+        state.BabyPlayback = MotherBrainBabyAnimations.Starting(baby.Animation);
 
         CopyBabyMetroidActorToPhysicalSlot(slot, baby, _motherBrainEncounter.Colours);
-        slot.FrameHold = WrappingCountdown.Start(baby.FrameHold);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.RestartAfter(baby.FrameHold);
 
         // The writer receives colour index 241 and count 15. Color zero is deliberately
         // skipped in the source, preserving the room's transparent backdrop entry.
@@ -166,17 +165,17 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         // begins on the next increasing-slot enemy pass exactly like the cross-actor write.
         if (step.BodyStumbleRequested)
         {
-            MotherBrainBodyProgram bodyProgram = sequence.RequestedBodyProgram ?? throw new InvalidDataException(
+            MotherBrainBodySegment bodySegment = sequence.RequestedBodyAnimation ?? throw new InvalidDataException(
                 "Baby requested Mother Brain body movement without a body program.");
-            MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, bodyProgram);
+            MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, bodySegment);
         }
 
         // Cross-enemy writes happen during the later Baby slot and become visible in the
         // body record immediately, though body AI cannot execute them until the next frame.
         state.Function = sequence.State.Phase ?? throw new InvalidDataException("The live Mother Brain rainbow sequence has no body function yet.");
 
-        if (baby.Program != state.BabyAppliedProgram)
-            SetBabyMetroidCutsceneProgram(state, slot, baby.Program);
+        if (baby.Animation != state.BabyAppliedAnimation)
+            SetBabyMetroidCutsceneAnimation(state, slot, baby.Animation);
         CopyBabyMetroidActorToPhysicalSlot(slot, baby, _motherBrainEncounter.Colours);
         ApplyBabyMetroidFrameEffects(step);
     }
@@ -266,20 +265,19 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidDataException(
             "The cutscene Baby's animation ran without Mother Brain's encounter state.");
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
-        AnimationPlayback<MotherBrainBabyProgram> playback = state.BabyPlayback;
-        EnemyProgramAnimation.Play(slot, MotherBrainBabyAnimations.Segments, ref playback, BabyMetroidVisualDefinitions.ShownFrames.Of,
+        AnimationPlayback<MotherBrainBabySegment> playback = state.BabyPlayback;
+        EnemyAnimationPlayback.Play(slot, MotherBrainBabyAnimations.Segments, ref playback, BabyMetroidVisualDefinitions.ShownFrames.Of,
             cue => throw new InvalidOperationException($"The cutscene Baby's animations raise no event {cue}."));
         state.BabyPlayback = playback;
     }
 
-    /// <summary>Restarts the Baby's slot on <paramref name="program"/>, as the set-list helper does.</summary>
-    private static void SetBabyMetroidCutsceneProgram(MotherBrainEnemyState state, RoomEnemySlot slot, MotherBrainBabyProgram program)
+    /// <summary>Restarts the Baby's slot on <paramref name="segment"/>, as the set-list helper does.</summary>
+    private static void SetBabyMetroidCutsceneAnimation(MotherBrainEnemyState state, RoomEnemySlot slot, MotherBrainBabySegment segment)
     {
-        state.BabyPlayback = MotherBrainBabyAnimations.Starting(program);
-        state.BabyAppliedProgram = program;
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.BabyPlayback = MotherBrainBabyAnimations.Starting(segment);
+        state.BabyAppliedAnimation = segment;
+        slot.AnimationClock.Restart();
     }
 }

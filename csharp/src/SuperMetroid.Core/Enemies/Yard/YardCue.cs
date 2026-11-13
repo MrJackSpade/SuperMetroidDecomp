@@ -18,7 +18,7 @@ internal abstract record YardCue
 
     /// <summary>Names the animation the Yard hides with, or none.</summary>
     /// <param name="OptionalTarget">The program the cue names, or none where the operand is the empty-behaviour sentinel.</param>
-    internal sealed record SetHidingProgram(YardProgram? OptionalTarget) : YardCue;
+    internal sealed record SetHidingAnimation(YardSegment? OptionalTarget) : YardCue;
 
     /// <summary>Selects the movement function main AI runs.</summary>
     /// <param name="MovementFunction">The cue's MovementFunction operand.</param>

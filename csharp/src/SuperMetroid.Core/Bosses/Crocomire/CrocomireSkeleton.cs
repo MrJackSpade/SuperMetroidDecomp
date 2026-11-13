@@ -145,7 +145,7 @@ internal sealed class CrocomireSkeleton
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(30, 3), CrocomireArenaMutation.CreateInvisibleWall);
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(112, 11), CrocomireArenaMutation.ClearBridge);
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.Crumble);
-        CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFallsApart);
+        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.SkeletonFallsApart);
         // The skeleton draws in the common colours with its arm's laid over them (#1512).
         state.Colours.ShowSkeletonArm();
         body.Shading = state.Colours.OverSprites(EnemyShades.HurtFlashLook);
@@ -173,7 +173,7 @@ internal sealed class CrocomireSkeleton
         if (--death.RumbleCooldown != 0)
             return;
         state.SkeletonVelocity = state.SkeletonVelocity.WithoutFraction();
-        CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFalling);
+        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.SkeletonFalling);
         state.DeathPhase = state.DeathPhase.Next();
     }
 
@@ -191,20 +191,20 @@ internal sealed class CrocomireSkeleton
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
         if (state.Tongue is { } tongue)
             tongue.Shading = state.Body.Shading;
-        CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFallsApart);
+        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.SkeletonFallsApart);
         state.DeathPhase = state.DeathPhase.Next();
     }
 
     /// <summary>Finishes the skeleton collapse and scatters sixteen independently chosen enemy drops.</summary>
     internal void RunCrocomireSkeletonCollapse(CrocomireEnemyState state)
     {
-        if (!CrocomireBodyProgramGroups.SkeletonAtRest.Contains(state.BodyResidentProgram))
+        if (!CrocomireBodyAnimationGroups.SkeletonAtRest.Contains(state.BodyResidentAnimation))
         {
             state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, accelerationTwoFiftySixths: 16, maximumWhole: 6);
             return;
         }
 
-        CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.Dead);
+        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.Dead);
         state.Body.Position += new Offset16<RoomPixels>(64, 21);
         state.Body.Radius = new(40, 28);
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(48, 3), CrocomireArenaMutation.ClearInvisibleWall);

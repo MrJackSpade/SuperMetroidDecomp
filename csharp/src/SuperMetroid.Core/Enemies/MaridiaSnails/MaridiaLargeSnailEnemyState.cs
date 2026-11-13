@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 public sealed class MaridiaLargeSnailEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<MaridiaLargeSnailProgram> Playback { get; set; }
+    internal AnimationPlayback<MaridiaLargeSnailSegment> Playback { get; set; }
 
     /// <summary>
     /// The animation the snail's behaviour asks for: idle facing Samus, a forward roll from idle, an attack facing Samus,

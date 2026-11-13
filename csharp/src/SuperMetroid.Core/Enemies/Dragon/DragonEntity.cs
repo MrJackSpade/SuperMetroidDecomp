@@ -14,7 +14,7 @@ internal sealed class DragonEntity(DragonBehavior species, RoomEnemySlot slot, E
     public EnemyMainAiHandler? FindMain() => species.RunDragonMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => DragonBehavior.AdvanceDragonTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => DragonBehavior.AdvanceDragonTypedAnimation;
 
     /// <summary>The Dragon's own shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>

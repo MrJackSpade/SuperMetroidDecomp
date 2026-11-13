@@ -13,14 +13,14 @@ internal static class ShutterNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<ShutterProgram>[] Entries =
+    internal static readonly NativeProgramEntry<ShutterSegment>[] Entries =
     [
-        new NativeProgramEntry<ShutterProgram>(ShutterProgram.GrowingTenPixels, 0xe998),
-        new NativeProgramEntry<ShutterProgram>(ShutterProgram.GrowingTwentyPixels, 0xe99e),
-        new NativeProgramEntry<ShutterProgram>(ShutterProgram.GrowingThirtyPixels, 0xe9a4),
-        new NativeProgramEntry<ShutterProgram>(ShutterProgram.FortyPixels, 0xe9aa),
-        new NativeProgramEntry<ShutterProgram>(ShutterProgram.Horizontal, 0xe9d4),
-        new NativeProgramEntry<ShutterProgram>(ShutterProgram.KamerPlatform, 0xede7),
+        new NativeProgramEntry<ShutterSegment>(ShutterSegment.GrowingTenPixels, 0xe998),
+        new NativeProgramEntry<ShutterSegment>(ShutterSegment.GrowingTwentyPixels, 0xe99e),
+        new NativeProgramEntry<ShutterSegment>(ShutterSegment.GrowingThirtyPixels, 0xe9a4),
+        new NativeProgramEntry<ShutterSegment>(ShutterSegment.FortyPixels, 0xe9aa),
+        new NativeProgramEntry<ShutterSegment>(ShutterSegment.Horizontal, 0xe9d4),
+        new NativeProgramEntry<ShutterSegment>(ShutterSegment.KamerPlatform, 0xede7),
     ];
 
 }

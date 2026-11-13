@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Bosses.Kraid.KraidPartCue;
-using P = SuperMetroid.Core.Bosses.Kraid.KraidPartProgram;
+using P = SuperMetroid.Core.Bosses.Kraid.KraidPartSegment;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidAnimations
 {
     /// <summary>Every foot, arm, lint and fingernail segment's beats.</summary>
-    internal static AnimationSegments<KraidPartProgram, KraidPartFrame, KraidPartCue> Segments { get; } = new(
-        new Dictionary<KraidPartProgram, AnimationBeat<KraidPartFrame, KraidPartCue>[]>
+    internal static AnimationSegments<KraidPartSegment, KraidPartFrame, KraidPartCue> Segments { get; } = new(
+        new Dictionary<KraidPartSegment, AnimationBeat<KraidPartFrame, KraidPartCue>[]>
     {
         [P.FootInitial] =
         [
@@ -306,7 +306,7 @@ internal static class KraidAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<KraidPartProgram, Animation<KraidPartProgram>> StartingAt { get; } = new Dictionary<KraidPartProgram, Animation<KraidPartProgram>>
+    internal static IReadOnlyDictionary<KraidPartSegment, Animation<KraidPartSegment>> StartingAt { get; } = new Dictionary<KraidPartSegment, Animation<KraidPartSegment>>
     {
         [P.FootInitial] = new([new(P.FootInitial, 0, 1, 1)], AnimationEnd.Holds),
         [P.FootNeutral] = new([new(P.FootNeutral, 0, 1, 1)], AnimationEnd.Holds),
@@ -327,13 +327,13 @@ internal static class KraidAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<KraidPartProgram> StartingWith(KraidPartProgram segment) => StartingAt[segment];
+    internal static Animation<KraidPartSegment> StartingWith(KraidPartSegment segment) => StartingAt[segment];
 
     /// <summary>
     /// The segment each segment that runs on past its last beat continues into, directly after that beat: a
     /// part resting after that beat already stands in the next, which Kraid's arm and foot behaviours compare.
     /// </summary>
-    internal static IReadOnlyDictionary<KraidPartProgram, KraidPartProgram> RunsOnInto { get; } = new Dictionary<KraidPartProgram, KraidPartProgram>
+    internal static IReadOnlyDictionary<KraidPartSegment, KraidPartSegment> RunsOnInto { get; } = new Dictionary<KraidPartSegment, KraidPartSegment>
     {
         [P.FootWalkingForward] = P.FootWalkingForwardFinished,
         [P.FootLungeForward] = P.FootLungeForwardFinished,

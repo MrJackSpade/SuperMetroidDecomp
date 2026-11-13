@@ -129,7 +129,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             case RidleyAiFunction.WaitBeforeRoar:
                 if (--state.FunctionTimer < 0)
                 {
-                    CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.OpeningRoar);
+                    CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.OpeningRoar);
                     state.FunctionTimer = 0;
                     state.Function = RidleyAiFunction.WaitBeforeLiftoff;
                 }
@@ -220,7 +220,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                         RidleyAiFunction.NorfairSwoopRecover,
                         32))
                 {
-                    NorfairRidleyCombat.SelectNorfairRidleyFacingInstruction(slot, state);
+                    NorfairRidleyCombat.SelectNorfairRidleyFacingAnimation(slot, state);
                 }
                 return;
 

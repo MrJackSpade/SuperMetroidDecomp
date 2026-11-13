@@ -23,10 +23,10 @@ internal static class CacatacBehaviorVerification
         foreach (bool upsideUp in new[] { true, false })
         {
             string orientation = upsideUp ? "upright" : "inverted";
-            CacatacProgram idle = upsideUp ? CacatacProgram.UpsideUpIdle : CacatacProgram.UpsideDownIdle;
-            CacatacProgram loop = upsideUp ? CacatacProgram.UpsideUpIdle : CacatacProgram.UpsideDownIdleLoop;
+            CacatacSegment idle = upsideUp ? CacatacSegment.UpsideUpIdle : CacatacSegment.UpsideDownIdle;
+            CacatacSegment loop = upsideUp ? CacatacSegment.UpsideUpIdle : CacatacSegment.UpsideDownIdleLoop;
             (RoomEnemySystem enemies, RoomEnemySlot slot, CacatacEnemyState state) = Create(upsideUp);
-            AssertEqual(new AnimationPlayback<CacatacProgram>(CacatacAnimations.StartingWith(idle), AnimationPlace.StartOfAnimation), state.Playback, $"Cacatac {orientation} starts idling");
+            AssertEqual(new AnimationPlayback<CacatacSegment>(CacatacAnimations.StartingWith(idle), AnimationPlace.StartOfAnimation), state.Playback, $"Cacatac {orientation} starts idling");
             state.Function = CacatacEnemyFunction.Stopped;
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(CacatacAnimations.Segments, loop, CacatacFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(CacatacAnimations.Segments, loop)), $"Cacatac {orientation} idle loop");
@@ -34,7 +34,7 @@ internal static class CacatacBehaviorVerification
 
             (enemies, slot, state) = Create(upsideUp);
             state.Function = CacatacEnemyFunction.Stopped;
-            CacatacBehavior.SetCacatacProgram(slot, state, upsideUp ? CacatacProgram.UpsideUpAttack : CacatacProgram.UpsideDownAttack);
+            CacatacBehavior.SetCacatacAnimation(slot, state, upsideUp ? CacatacSegment.UpsideUpAttack : CacatacSegment.UpsideDownAttack);
             EnemyInstructionRunner.ShownFrames(slot, 53);
             AssertEqual(loop, state.Playback.Animation.Phases[state.Playback.Place.Phase].Segment, $"Cacatac {orientation} attack returns to idle");
             AssertEqual(CacatacEnemyFunction.MovingLeft, state.Function, $"Cacatac {orientation} attack resumes patrol");

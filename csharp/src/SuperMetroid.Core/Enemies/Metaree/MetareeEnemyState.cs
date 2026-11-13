@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Metaree;
 public sealed class MetareeEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<SkreeMetareeProgram> Playback { get; set; }
+    internal AnimationPlayback<SkreeMetareeSegment> Playback { get; set; }
 
     /// <summary>Reloaded to 21 during flight, then counted down while underground.</summary>
     public int BurrowTimer { get; internal set; }
@@ -16,10 +16,10 @@ public sealed class MetareeEnemyState
     public MetareeEnemyFunction? Function { get; internal set; }
 
     /// <summary>Animation phase requested by AI.</summary>
-    public SkreeMetareeAnimationPhase RequestedAnimationScriptIndex { get; internal set; }
+    public SkreeMetareeAnimationPhase RequestedAnimation { get; internal set; }
 
     /// <summary>Animation phase currently installed.</summary>
-    public SkreeMetareeAnimationPhase InstalledAnimationScriptIndex { get; internal set; }
+    public SkreeMetareeAnimationPhase InstalledAnimation { get; internal set; }
 
     /// <summary>Set by the launch crouch's finishing cue.</summary>
     public bool AttackReady { get; internal set; }

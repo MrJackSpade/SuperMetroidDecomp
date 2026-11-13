@@ -14,7 +14,7 @@ internal sealed class ShaktoolEntity(ShaktoolBehavior species, RoomEnemySlot slo
     public EnemyMainAiHandler? FindMain() => species.RunShaktoolMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceShaktoolTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceShaktoolTypedAnimation;
 
     /// <summary>The Shaktool's own shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>

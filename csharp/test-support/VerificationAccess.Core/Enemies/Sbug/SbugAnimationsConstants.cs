@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 internal static class SbugAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params SbugProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params SbugSegment[] programs) =>
         programs.SelectMany(program => SbugAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>()
             .Select(frame => SbugFrameToolingDefinitions.Spritemap(frame.Shown));

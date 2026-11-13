@@ -53,10 +53,10 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             "n00b-tube cracks", (_, _) => ChozoStatueBehavior.InitializeN00bTubeCracks(), null));
         Suite(nameof(VerifyLive), () => VerifyLive(0, PictureShading.Shaded(ChozoAndTubeShades.WreckedShipStatue),
             "Wrecked Ship Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue),
-            ChozoStatueProgram.WreckedShipInitial));
+            ChozoStatueSegment.WreckedShipInitial));
         Suite(nameof(VerifyLive), () => VerifyLive(2, PictureShading.Shaded(ChozoAndTubeShades.LowerNorfairStatue),
             "Lower Norfair Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue),
-            ChozoStatueProgram.LowerNorfairInitial));
+            ChozoStatueSegment.LowerNorfairInitial));
 
         visual.TubeCracks[5] = visual.TubeCracks[5] with { Blue = 32 };
         AssertThrows<InvalidDataException>(() => ChozoAndTubeColorFile.Read(new MemoryStream(ChozoAndTubeColorFile.Write(visual))),
@@ -72,7 +72,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         }
 
         void VerifyLive(ushort variant, PictureShading expectedShading, string name,
-            Action<RoomEnemySystem, RoomEnemySlot> initialize, ChozoStatueProgram? expectedProgram)
+            Action<RoomEnemySystem, RoomEnemySlot> initialize, ChozoStatueSegment? expectedProgram)
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = stock.Bosses };
             RoomEnemySlot statue = enemies.SlotTable.Slots[0];
@@ -82,7 +82,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             AssertEqual(expectedShading, statue.Shading, $"live {name} shows its installed shade");
             if (expectedProgram is not null)
             {
-                AssertEqual(new AnimationPlayback<ChozoStatueProgram>(ChozoStatueAnimations.StartingWith(expectedProgram.Value), AnimationPlace.StartOfAnimation),
+                AssertEqual(new AnimationPlayback<ChozoStatueSegment>(ChozoStatueAnimations.StartingWith(expectedProgram.Value), AnimationPlace.StartOfAnimation),
                     (statue.SpeciesState<ChozoStatueState>()
                         ?? throw new InvalidOperationException($"{name} has no statue state.")).Playback,
                     $"{name} keeps native animation selection");

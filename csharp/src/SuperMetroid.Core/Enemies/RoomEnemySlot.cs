@@ -65,6 +65,7 @@ public sealed class RoomEnemySlot
         DefinitionId = definitionId;
         Definition = definition;
         OccupantStates = new();
+        AnimationClock = new();
         Entity = definitionId == EnemyDefinitionId.None ? null : _registry.Create(this);
     }
 
@@ -101,19 +102,20 @@ public sealed class RoomEnemySlot
     /// The enemies' draw pass also reaches such an occupant wherever it is, not only when its radius puts it on screen.
     /// </summary>
     public bool CollidesByFrameHitboxes { get; internal set; }
-    /// <summary>Set when the occupant's animation program installs a new timed frame.</summary>
-    public bool NewInstructionFrame { get; internal set; }
     /// <summary>Which of the ordinary, hurt, frozen and grappled behaviours the enemy's update dispatches to.</summary>
     public EnemyAiStates AiStates { get; internal set; }
     /// <summary>Remaining health, initially the definition's and reduced by weapon damage.</summary>
     public int Health { get; internal set; }
     /// <summary>The frame the enemy shows, an installed frame or the empty frame; null before any.</summary>
     public EnemyFrameId? Frame { get; internal set; }
-    /// <summary>A loop or delay count the occupant's behaviour and animation keep; not an elapsed-frame counter.</summary>
-    public WrappingCountdown Timer { get; internal set; }
 
-    /// <summary>Updates left before the enemy's animation takes its next step; a new occupant starts at one.</summary>
-    public WrappingCountdown FrameHold { get; internal set; }
+    /// <summary>
+    /// The occupant's animation clock (#1624): the hold of the frame its animation shows, the count its counted phases
+    /// keep and whether this update showed a new frame. A newly bound occupant gets a stopped clock, which its
+    /// initialization starts; a killed occupant's place keeps a stopped one, and a deleted occupant's place keeps its clock
+    /// with the rest of what it left.
+    /// </summary>
+    public EnemyAnimationClock AnimationClock { get; private set; } = new();
     /// <summary>
     /// The shades and colour effects the enemy shows its pictures in (#1512) while no hit or freeze flash overrides
     /// them: its sheet's standard colours, the colours of the variant its room places it in, unless its behaviour shows a look of
@@ -169,12 +171,9 @@ public sealed class RoomEnemySlot
         Processing = EnemyProcessing.None;
         Presence = EnemyPresence.None;
         CollidesByFrameHitboxes = false;
-        NewInstructionFrame = false;
         Health = 0;
         AiStates = EnemyAiStates.None;
-        FrameHold = WrappingCountdown.Start(0);
-
-        Timer = WrappingCountdown.Start(0);
+        AnimationClock = new();
         Frame = null;
         FrozenTimer = 0;
         FlashTimer = 0;

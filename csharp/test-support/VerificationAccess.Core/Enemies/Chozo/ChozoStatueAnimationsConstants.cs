@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 internal static class ChozoStatueAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params ChozoStatueProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params ChozoStatueSegment[] programs) =>
         programs.SelectMany(program => ChozoStatueAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, ChozoStatueCue>.Frame>()
             .Select(frame => ChozoStatueFrameToolingDefinitions.Spritemap(frame.Shown));

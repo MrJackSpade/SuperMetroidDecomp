@@ -14,7 +14,7 @@ internal sealed class MaridiaLargeSnailEntity(MaridiaLargeSnailBehavior species,
     public EnemyMainAiHandler? FindMain() => species.RunMaridiaLargeSnailMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceMaridiaLargeSnailTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceMaridiaLargeSnailTypedAnimation;
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => MaridiaLargeSnailBehavior.FindHitboxReaction(Slot, probe, out reaction);

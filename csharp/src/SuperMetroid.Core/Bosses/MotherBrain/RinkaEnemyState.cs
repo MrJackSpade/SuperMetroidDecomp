@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed class RinkaEnemyState
 {
     /// <summary>The typed animation (#641, #1600) and where it stands.</summary>
-    internal AnimationPlayback<RinkaProgram> Playback { get; set; } = new(RinkaAnimations.StartingWith(default), AnimationPlace.StartOfAnimation);
+    internal AnimationPlayback<RinkaSegment> Playback { get; set; } = new(RinkaAnimations.StartingWith(default), AnimationPlace.StartOfAnimation);
 
     /// <summary>
     /// Behaviour dispatched by main AI, changed by initialization, the fire step, aim completion, or the special death

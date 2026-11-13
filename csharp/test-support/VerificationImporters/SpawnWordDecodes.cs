@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 internal static class SpawnWordDecodes
 {
     /// <summary>The Tourian entrance statue part a first parameter word names.</summary>
-    public static TourianEntranceStatueProgram TourianStatue(int parameter1) =>
+    public static TourianEntranceStatueSegment TourianStatue(int parameter1) =>
         Settings<TourianEntranceStatueSpawnSettings>(EnemyDefinitionId.TourianStatue, parameter1).Statue;
 
     /// <summary>The Ceres door or wall a first parameter word names.</summary>
@@ -41,7 +41,7 @@ internal static class SpawnWordDecodes
 
     /// <summary>The unpowered pose a first parameter word gives a Work Robot.</summary>
     /// <exception cref="InvalidDataException">The word selects the pose past the three authored ones.</exception>
-    public static WorkRobotProgram WorkRobotPose(int parameter1) =>
+    public static WorkRobotSegment WorkRobotPose(int parameter1) =>
         Settings<WorkRobotSpawnSettings>(EnemyDefinitionId.RobotNoPower, parameter1).Pose;
 
     /// <summary>The settings a first parameter word gives <paramref name="species"/>.</summary>

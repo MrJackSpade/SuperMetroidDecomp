@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Samus.Projectiles.SamusProjectileProgram;
+using P = SuperMetroid.Core.Samus.Projectiles.SamusProjectileSegment;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal static class SamusProjectileRecordDefinitions
 {
     /// <summary>Every program's timed records, in the order it shows them.</summary>
-    internal static readonly IReadOnlyDictionary<SamusProjectileProgram, SamusProjectileRecord[]> ByProgram =
-        new Dictionary<SamusProjectileProgram, SamusProjectileRecord[]>
+    internal static readonly IReadOnlyDictionary<SamusProjectileSegment, SamusProjectileRecord[]> ByAnimation =
+        new Dictionary<SamusProjectileSegment, SamusProjectileRecord[]>
     {
         [P.PowerUpFacingRight] =
         [
@@ -1241,5 +1241,5 @@ internal static class SamusProjectileRecordDefinitions
     };
 
     /// <summary>The record <paramref name="frame"/> shows.</summary>
-    internal static SamusProjectileRecord Get(SamusProjectileFrame frame) => ByProgram[frame.Program][frame.Show];
+    internal static SamusProjectileRecord Get(SamusProjectileFrame frame) => ByAnimation[frame.Animation][frame.Show];
 }

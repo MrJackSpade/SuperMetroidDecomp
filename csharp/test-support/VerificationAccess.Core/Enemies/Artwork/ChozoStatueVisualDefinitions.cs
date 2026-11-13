@@ -19,7 +19,7 @@ internal static class ChozoStatueVisualDefinitions
     {
         var seen = new HashSet<ushort>();
         var frames = new List<NativeEnemySpritemapDefinition>(FrameCount);
-        foreach (ushort pointer in ChozoStatueAnimationsConstants.Spritemaps(Enum.GetValues<ChozoStatueProgram>()))
+        foreach (ushort pointer in ChozoStatueAnimationsConstants.Spritemaps(Enum.GetValues<ChozoStatueSegment>()))
         {
             if (seen.Add(pointer))
                 frames.Add(new NativeEnemySpritemapDefinition(Bank, pointer,

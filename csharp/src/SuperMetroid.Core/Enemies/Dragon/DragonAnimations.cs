@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Dragon.DragonCueKind;
-using P = SuperMetroid.Core.Enemies.Dragon.DragonProgram;
+using P = SuperMetroid.Core.Enemies.Dragon.DragonSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Dragon;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 internal static class DragonAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<DragonProgram, EnemyFrameId, DragonCue> Segments { get; } = new(
-        new Dictionary<DragonProgram, AnimationBeat<EnemyFrameId, DragonCue>[]>
+    internal static AnimationSegments<DragonSegment, EnemyFrameId, DragonCue> Segments { get; } = new(
+        new Dictionary<DragonSegment, AnimationBeat<EnemyFrameId, DragonCue>[]>
     {
         [P.IdleFacingLeft] =
         [
@@ -54,7 +54,7 @@ internal static class DragonAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<DragonProgram, Animation<DragonProgram>> StartingAt { get; } = new Dictionary<DragonProgram, Animation<DragonProgram>>
+    internal static IReadOnlyDictionary<DragonSegment, Animation<DragonSegment>> StartingAt { get; } = new Dictionary<DragonSegment, Animation<DragonSegment>>
     {
         [P.IdleFacingLeft] = new([new(P.IdleFacingLeft, 0, 1, 1)], AnimationEnd.Holds),
         [P.WingsFacingLeft] = new([new(P.WingsFacingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
@@ -65,7 +65,7 @@ internal static class DragonAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<DragonProgram> StartingWith(DragonProgram segment) => StartingAt[segment];
+    internal static Animation<DragonSegment> StartingWith(DragonSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, DragonCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, DragonCue>.Frame(frame, duration);

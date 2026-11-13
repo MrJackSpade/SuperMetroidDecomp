@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Hoppers.HopperCueKind;
-using P = SuperMetroid.Core.Enemies.Hoppers.HopperProgram;
+using P = SuperMetroid.Core.Enemies.Hoppers.HopperSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Hoppers;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 internal static class HopperAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<HopperProgram, EnemyFrameId, HopperCue> Segments { get; } = new(
-        new Dictionary<HopperProgram, AnimationBeat<EnemyFrameId, HopperCue>[]>
+    internal static AnimationSegments<HopperSegment, EnemyFrameId, HopperCue> Segments { get; } = new(
+        new Dictionary<HopperSegment, AnimationBeat<EnemyFrameId, HopperCue>[]>
     {
         [P.SidehopperFloorJumping] =
         [
@@ -138,7 +138,7 @@ internal static class HopperAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<HopperProgram, Animation<HopperProgram>> StartingAt { get; } = new Dictionary<HopperProgram, Animation<HopperProgram>>
+    internal static IReadOnlyDictionary<HopperSegment, Animation<HopperSegment>> StartingAt { get; } = new Dictionary<HopperSegment, Animation<HopperSegment>>
     {
         [P.SidehopperFloorJumping] = new([new(P.SidehopperFloorJumping, 0, 3, 1)], AnimationEnd.Holds),
         [P.SidehopperFloorLanded] = new([new(P.SidehopperFloorLanded, 0, 7, 1)], AnimationEnd.Holds),
@@ -159,7 +159,7 @@ internal static class HopperAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<HopperProgram> StartingWith(HopperProgram segment) => StartingAt[segment];
+    internal static Animation<HopperSegment> StartingWith(HopperSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, HopperCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, HopperCue>.Frame(frame, duration);

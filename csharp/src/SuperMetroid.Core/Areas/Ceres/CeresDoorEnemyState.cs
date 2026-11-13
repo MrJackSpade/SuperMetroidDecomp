@@ -9,7 +9,7 @@ internal sealed class CeresDoorEnemyState
     public CeresDoorFunction? Function { get; internal set; }
 
     /// <summary>The door's animation and where it stands in it (#1600), set when the door initializes.</summary>
-    internal AnimationPlayback<CeresDoorProgram> Playback { get; set; }
+    internal AnimationPlayback<CeresDoorSegment> Playback { get; set; }
 
     /// <summary>
     /// Whether the door's program has handed its drawing to Ridley's scene and not yet taken it back.

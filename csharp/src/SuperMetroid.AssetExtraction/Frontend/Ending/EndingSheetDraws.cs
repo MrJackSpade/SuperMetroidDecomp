@@ -22,7 +22,7 @@ internal sealed class EndingSheetDraws
     internal void AddStars() => Stars = true;
 
     /// <summary>Records every pose <paramref name="program"/> shows, through every program it goes or falls into, as drawn in <paramref name="colouring"/>.</summary>
-    internal void AddProgram(CinematicSpriteFamily family, CinematicSpriteProgram program, EndingSpriteColouring colouring)
+    internal void AddProgram(CinematicSpriteFamily family, CinematicSpriteSegment program, EndingSpriteColouring colouring)
     {
         foreach (CinematicSpritePose pose in CinematicSpriteAnimations.Segments.FramesOf(CinematicSpriteAnimations.StartingWith(program)))
             AddPose(family, pose, colouring);

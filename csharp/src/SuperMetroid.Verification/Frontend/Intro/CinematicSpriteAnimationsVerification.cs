@@ -53,21 +53,21 @@ internal static class CinematicSpriteAnimationsVerification
     internal static void VerifyCinematicSpriteAnimations(ISnesAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        AssertEqual(Enum.GetValues<CinematicSpriteProgram>().Length, Entries.Length, "every cinematic sprite segment has a native entry");
+        AssertEqual(Enum.GetValues<CinematicSpriteSegment>().Length, Entries.Length, "every cinematic sprite segment has a native entry");
         for (int index = 0; index < Entries.Length; index++)
-            AssertEqual(Enum.GetValues<CinematicSpriteProgram>()[index], Entries[index].Program, "the cinematic sprite segments are declared in authored order");
+            AssertEqual(Enum.GetValues<CinematicSpriteSegment>()[index], Entries[index].Program, "the cinematic sprite segments are declared in authored order");
         AssertTrue(Entries.Zip(Entries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends), "native cinematic sprite entries ascend");
 
-        Dictionary<CinematicSpriteProgram, NativeEnemyList<CinematicSpriteProgram>> lists =
+        Dictionary<CinematicSpriteSegment, NativeEnemyList<CinematicSpriteSegment>> lists =
             Entries.ToDictionary(item => item.Program, item => ReadList(cartridge, item.Program, item.Entry));
         NativeEnemyAnimationOracle.CompareAnimations(lists, CinematicSpriteAnimations.StartingAt);
-        HashSet<CinematicSpriteProgram> runOn = NativeEnemyAnimationOracle.RunsOnIntoNextAfterLastBeat(lists);
+        HashSet<CinematicSpriteSegment> runOn = NativeEnemyAnimationOracle.RunsOnIntoNextAfterLastBeat(lists);
         AssertTrue(runOn.SetEquals(CinematicSpriteAnimations.RunsOnInto.Keys),
             "the lists that run on into the next authored list, directly after their last beat, are the typed run-ons");
-        foreach (CinematicSpriteProgram segment in runOn)
+        foreach (CinematicSpriteSegment segment in runOn)
         {
             AssertEqual(lists[segment].Controls.Single(control => control.Kind == NativeEnemyControlKind.RunOnIntoNext).Target,
-                (CinematicSpriteProgram?)CinematicSpriteAnimations.RunsOnInto[segment], $"{segment} runs on into the list authored next");
+                (CinematicSpriteSegment?)CinematicSpriteAnimations.RunsOnInto[segment], $"{segment} runs on into the list authored next");
         }
         int beats = lists.Values.Sum(list => list.BeatAddresses.Length), updates = 0;
         foreach (CinematicSpriteNativeListAddressesEntry item in Entries.Where(item => CinematicSpriteAnimations.StartingAt.ContainsKey(item.Program)))
@@ -76,7 +76,7 @@ internal static class CinematicSpriteAnimationsVerification
     }
 
     /// <summary>The program whose native list starts at <paramref name="address"/>, if one does.</summary>
-    private static CinematicSpriteProgram? ProgramAt(ushort address) =>
+    private static CinematicSpriteSegment? ProgramAt(ushort address) =>
         Entries.Any(item => item.Entry == address) ? Entries.Single(item => item.Entry == address).Program : null;
 
     /// <summary>Reads one native list word.</summary>
@@ -87,11 +87,11 @@ internal static class CinematicSpriteAnimationsVerification
     /// Reads one segment's native list, comparing its beats with the segment's: each beat's native address, and each
     /// control instruction with its address and the beat it follows.
     /// </summary>
-    private static NativeEnemyList<CinematicSpriteProgram> ReadList(IImportCartridgeSource cartridge, CinematicSpriteProgram program, ushort entry)
+    private static NativeEnemyList<CinematicSpriteSegment> ReadList(IImportCartridgeSource cartridge, CinematicSpriteSegment program, ushort entry)
     {
         IReadOnlyList<AnimationBeat<CinematicSpritePose, CinematicSpriteCue>> beats = CinematicSpriteAnimations.Segments.Beats(program);
         var addresses = new List<ushort>();
-        var controls = new List<NativeEnemyControl<CinematicSpriteProgram>>();
+        var controls = new List<NativeEnemyControl<CinematicSpriteSegment>>();
         ushort cursor = entry;
         AnimationBeat<CinematicSpritePose, CinematicSpriteCue> Next(string what)
         {
@@ -147,7 +147,7 @@ internal static class CinematicSpriteAnimationsVerification
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case SharedWord.RepeatWhileCounting:
-                    CinematicSpriteProgram repeated = SegmentAt(operand, at);
+                    CinematicSpriteSegment repeated = SegmentAt(operand, at);
                     AssertEqual(program, repeated, $"{at}: a counted repeat replays its own list");
                     controls.Add(new(NativeEnemyControlKind.Repeat, addresses.Count, repeated, null, cursor));
                     cursor = unchecked((ushort)(cursor + 4));
@@ -158,18 +158,18 @@ internal static class CinematicSpriteAnimationsVerification
             break;
         }
         AssertEqual(beats.Count, addresses.Count, $"{program}: its native list holds each of its beats");
-        return new NativeEnemyList<CinematicSpriteProgram>([.. addresses], [.. controls]);
+        return new NativeEnemyList<CinematicSpriteSegment>([.. addresses], [.. controls]);
     }
 
     /// <summary>The segment whose native list starts at <paramref name="address"/>, failing when none does.</summary>
-    private static CinematicSpriteProgram SegmentAt(ushort address, string at) =>
+    private static CinematicSpriteSegment SegmentAt(ushort address, string at) =>
         ProgramAt(address) ?? throw new InvalidDataException($"{at}: ${address:X4} is no segment's native entry.");
 
     /// <summary>
     /// Plays the animation of <paramref name="program"/> through the real actor beside an independent reader of its native list, comparing
     /// liveness, the shown spritemap, the pre-instruction, the loop timer and each update's owner cues; returns the updates.
     /// </summary>
-    private static int ComparePlayback(IImportCartridgeSource cartridge, CinematicSpriteProgram program, ushort entry)
+    private static int ComparePlayback(IImportCartridgeSource cartridge, CinematicSpriteSegment program, ushort entry)
     {
         var actor = new IntroDiscoverySprite(default, IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), program);
         var native = new NativeReader(cartridge, entry);

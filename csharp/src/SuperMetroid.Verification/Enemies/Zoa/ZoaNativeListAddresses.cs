@@ -14,12 +14,12 @@ internal static class ZoaNativeListAddresses
     internal const byte Bank = 0xa3;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<ZoaProgram>[] Entries =
+    internal static readonly NativeProgramEntry<ZoaSegment>[] Entries =
     [
-        new NativeProgramEntry<ZoaProgram>(ZoaProgram.FacingLeftShooting, 0xb3c1),
-        new NativeProgramEntry<ZoaProgram>(ZoaProgram.FacingLeftRising, 0xb3d7),
-        new NativeProgramEntry<ZoaProgram>(ZoaProgram.FacingRightShooting, 0xb3e7),
-        new NativeProgramEntry<ZoaProgram>(ZoaProgram.FacingRightRising, 0xb3fd),
+        new NativeProgramEntry<ZoaSegment>(ZoaSegment.FacingLeftShooting, 0xb3c1),
+        new NativeProgramEntry<ZoaSegment>(ZoaSegment.FacingLeftRising, 0xb3d7),
+        new NativeProgramEntry<ZoaSegment>(ZoaSegment.FacingRightShooting, 0xb3e7),
+        new NativeProgramEntry<ZoaSegment>(ZoaSegment.FacingRightRising, 0xb3fd),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

@@ -26,19 +26,19 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
     internal static void VerifyKiHunterInstructionProgramDefinitions(
         CartridgeImportAddressSpace rom)
     {
-        Suite(nameof(VerifyFlying), () => VerifyFlying(KiHunterProgram.FlyingLeft, movingRight: false));
-        Suite(nameof(VerifyFlying), () => VerifyFlying(KiHunterProgram.FlyingRight, movingRight: true));
-        Suite(nameof(VerifySwoop), () => VerifySwoop(KiHunterProgram.SwoopLeft, movingRight: false));
-        Suite(nameof(VerifySwoop), () => VerifySwoop(KiHunterProgram.SwoopRight, movingRight: true));
-        Suite(nameof(VerifyWingLoop), () => VerifyWingLoop(KiHunterProgram.WingsLeft, "left"));
-        Suite(nameof(VerifyWingLoop), () => VerifyWingLoop(KiHunterProgram.WingsRight, "right"));
+        Suite(nameof(VerifyFlying), () => VerifyFlying(KiHunterSegment.FlyingLeft, movingRight: false));
+        Suite(nameof(VerifyFlying), () => VerifyFlying(KiHunterSegment.FlyingRight, movingRight: true));
+        Suite(nameof(VerifySwoop), () => VerifySwoop(KiHunterSegment.SwoopLeft, movingRight: false));
+        Suite(nameof(VerifySwoop), () => VerifySwoop(KiHunterSegment.SwoopRight, movingRight: true));
+        Suite(nameof(VerifyWingLoop), () => VerifyWingLoop(KiHunterSegment.WingsLeft, "left"));
+        Suite(nameof(VerifyWingLoop), () => VerifyWingLoop(KiHunterSegment.WingsRight, "right"));
         Suite(nameof(VerifyDetachedWings), () => VerifyDetachedWings());
-        Suite(nameof(VerifyJump), () => VerifyJump(KiHunterProgram.JumpLeft, "left"));
-        Suite(nameof(VerifyJump), () => VerifyJump(KiHunterProgram.JumpRight, "right"));
-        Suite(nameof(VerifyLanding), () => VerifyLanding(KiHunterProgram.LandLeft, "left"));
-        Suite(nameof(VerifyLanding), () => VerifyLanding(KiHunterProgram.LandRight, "right"));
-        Suite(nameof(VerifySpit), () => VerifySpit(KiHunterProgram.SpitLeft, movingRight: false));
-        Suite(nameof(VerifySpit), () => VerifySpit(KiHunterProgram.SpitRight, movingRight: true));
+        Suite(nameof(VerifyJump), () => VerifyJump(KiHunterSegment.JumpLeft, "left"));
+        Suite(nameof(VerifyJump), () => VerifyJump(KiHunterSegment.JumpRight, "right"));
+        Suite(nameof(VerifyLanding), () => VerifyLanding(KiHunterSegment.LandLeft, "left"));
+        Suite(nameof(VerifyLanding), () => VerifyLanding(KiHunterSegment.LandRight, "right"));
+        Suite(nameof(VerifySpit), () => VerifySpit(KiHunterSegment.SpitLeft, movingRight: false));
+        Suite(nameof(VerifySpit), () => VerifySpit(KiHunterSegment.SpitRight, movingRight: true));
         Suite(nameof(VerifySwoopAngularMotion), () => VerifySwoopAngularMotion(swoopLeft: false));
         Suite(nameof(VerifySwoopAngularMotion), () => VerifySwoopAngularMotion(swoopLeft: true));
 
@@ -46,7 +46,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
 
         Console.WriteLine("KiHunter: flight, swoop, wing, detached-wing, jump, landing and spit programs with their cues pass.");
 
-        void VerifyFlying(KiHunterProgram program, bool movingRight)
+        void VerifyFlying(KiHunterSegment program, bool movingRight)
         {
             (RoomEnemySystem enemies, RoomEnemySlot body, _, KiHunterEnemyState state, _) =
                 CreatePair();
@@ -57,21 +57,21 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 $"KiHunter {(movingRight ? "right" : "left")} flight remains in steady list");
         }
 
-        void VerifySwoop(KiHunterProgram program, bool movingRight)
+        void VerifySwoop(KiHunterSegment program, bool movingRight)
         {
             (RoomEnemySystem enemies, RoomEnemySlot body, _, KiHunterEnemyState state, _) =
                 CreatePair();
             state.Velocity = state.Velocity.WithWholeX(movingRight ? (short)1 : (short)-1);
             Install(body, state, program);
             RunFrames(enemies, body, 55);
-            KiHunterProgram idle = movingRight
-                ? KiHunterProgram.FlyingRight
-                : KiHunterProgram.FlyingLeft;
+            KiHunterSegment idle = movingRight
+                ? KiHunterSegment.FlyingRight
+                : KiHunterSegment.FlyingLeft;
             AssertEqual(idle, Playing(state),
                 $"KiHunter {(movingRight ? "right" : "left")} swoop returns to flight");
         }
 
-        void VerifyWingLoop(KiHunterProgram program, string direction)
+        void VerifyWingLoop(KiHunterSegment program, string direction)
         {
             (RoomEnemySystem enemies, _, RoomEnemySlot wings, _, KiHunterEnemyState wingState) = CreatePair();
             Install(wings, wingState, program);
@@ -83,12 +83,12 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         void VerifyDetachedWings()
         {
             (RoomEnemySystem enemies, _, RoomEnemySlot wings, _, KiHunterEnemyState wingState) = CreatePair();
-            Install(wings, wingState, KiHunterProgram.DetachedWings);
+            Install(wings, wingState, KiHunterSegment.DetachedWings);
             RunFrames(enemies, wings, 3);
-            AssertAsleep(wingState, KiHunterProgram.DetachedWings, "KiHunter detached wings reach terminal sleep");
+            AssertAsleep(wingState, KiHunterSegment.DetachedWings, "KiHunter detached wings reach terminal sleep");
         }
 
-        void VerifyJump(KiHunterProgram program, string direction)
+        void VerifyJump(KiHunterSegment program, string direction)
         {
             (RoomEnemySystem enemies, RoomEnemySlot body, _, KiHunterEnemyState state, _) =
                 CreatePair();
@@ -99,7 +99,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             AssertAsleep(state, program, $"KiHunter {direction} jump reaches terminal sleep");
         }
 
-        void VerifyLanding(KiHunterProgram program, string direction)
+        void VerifyLanding(KiHunterSegment program, string direction)
         {
             (RoomEnemySystem enemies, RoomEnemySlot body, _, KiHunterEnemyState state, _) =
                 CreatePair();
@@ -110,7 +110,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             AssertAsleep(state, program, $"KiHunter {direction} landing reaches terminal sleep");
         }
 
-        void VerifySpit(KiHunterProgram program, bool movingRight)
+        void VerifySpit(KiHunterSegment program, bool movingRight)
         {
             (RoomEnemySystem enemies, RoomEnemySlot body, _, KiHunterEnemyState state, _) =
                 CreatePair();
@@ -219,24 +219,23 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 (enemies.KiHunterStates[0] ?? throw new InvalidOperationException("Verification requires the initialized KiHunter state.")), (enemies.KiHunterStates[1] ?? throw new InvalidOperationException("Verification requires the initialized KiHunter state.")));
         }
 
-        static void Install(RoomEnemySlot slot, KiHunterEnemyState state, KiHunterProgram program)
+        static void Install(RoomEnemySlot slot, KiHunterEnemyState state, KiHunterSegment program)
         {
             state.Playback = new(KiHunterAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.FrameHold = WrappingCountdown.Start(1);
-            slot.Timer = WrappingCountdown.Start(0);
+            slot.AnimationClock.Restart();
         }
 
         // The playback rests past the last beat of an animation that holds there.
-        static void AssertAsleep(KiHunterEnemyState state, KiHunterProgram program, string message)
+        static void AssertAsleep(KiHunterEnemyState state, KiHunterSegment program, string message)
         {
-            AnimationPlayback<KiHunterProgram> playback = state.Playback;
+            AnimationPlayback<KiHunterSegment> playback = state.Playback;
             AssertEqual(program, Playing(state), message);
             AssertTrue(playback.Animation.End is AnimationEnd.Hold &&
                 playback.Place == AnimationPlace.HoldingIn(playback.Animation.Phases.Count - 1, playback.Animation.Phases[^1].BeatCount), message);
         }
 
         // The segment the playback's current phase plays.
-        static KiHunterProgram Playing(KiHunterEnemyState state) =>
+        static KiHunterSegment Playing(KiHunterEnemyState state) =>
             state.Playback.Animation.Phases[state.Playback.Place.Phase].Segment;
 
         static void RunFrames(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)

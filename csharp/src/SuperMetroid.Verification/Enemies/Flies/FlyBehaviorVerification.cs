@@ -17,7 +17,7 @@ internal static class FlyBehaviorVerification
     /// </summary>
     internal static void VerifyFlyBehavior()
     {
-        ushort[] loop = FlyAnimationsConstants.Spritemaps(FlyProgram.Flight).ToArray();
+        ushort[] loop = FlyAnimationsConstants.Spritemaps(FlySegment.Flight).ToArray();
         string expected = EnemyInstructionRunner.ExpectedFrames([.. loop, loop[0]], [2, 2, 2, 2, 2]);
         foreach (EnemyDefinitionId definition in new[] { EnemyDefinitionId.Mellow, EnemyDefinitionId.Mella, EnemyDefinitionId.Menu })
         {
@@ -26,7 +26,7 @@ internal static class FlyBehaviorVerification
             slot.Bind(definition, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             FliesBehavior.InitializeFly(slot);
-            AssertEqual(new AnimationPlayback<FlyProgram>(FlyAnimations.StartingWith(FlyProgram.Flight), AnimationPlace.StartOfAnimation),
+            AssertEqual(new AnimationPlayback<FlySegment>(FlyAnimations.StartingWith(FlySegment.Flight), AnimationPlace.StartOfAnimation),
                 (enemies.SlotTable.Slots[0].EntityState<FliesEntity, FlyEnemyState>() ?? throw new InvalidOperationException("The fly has no state.")).Playback,
                 $"fly {definition} initializer animation");
             AssertEqual(expected, EnemyInstructionRunner.ShownFrames(slot, 9),

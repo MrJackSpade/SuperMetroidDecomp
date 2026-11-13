@@ -14,7 +14,7 @@ internal static class SamusProjectileTrailSideNative
     /// <summary>The cursor whose step is stored at bank-$90 address <paramref name="address"/>.</summary>
     internal static ProjectileTrailCursor CursorAt(ushort address)
     {
-        foreach ((ProjectileTrailProgram program, ProjectileTrailStep[] steps) in ProjectileTrailProgramDefinitions.Programs)
+        foreach ((ProjectileTrailSegment program, ProjectileTrailStep[] steps) in ProjectileTrailAnimationDefinitions.Animations)
             for (int step = 0; step < steps.Length; step++)
                 if (ProjectileTrailSources.Address(new ProjectileTrailCursor(program, step)) == address)
                     return new ProjectileTrailCursor(program, step);

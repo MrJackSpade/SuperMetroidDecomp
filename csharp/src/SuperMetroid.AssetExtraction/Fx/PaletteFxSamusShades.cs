@@ -24,7 +24,7 @@ internal static class PaletteFxSamusShades
     }.ToImmutableDictionary();
 
     /// <summary>Every suit's heat shimmer start, which runs on into the suit's whole heat pulse (#1512, #1598).</summary>
-    private static readonly PaletteFxProgram[] HeatPrograms = [.. Enum.GetValues<PaletteFxHeatSuit>().Select(PaletteFxHeatPrograms.Start)];
+    private static readonly PaletteFxSegment[] HeatPrograms = [.. Enum.GetValues<PaletteFxHeatSuit>().Select(PaletteFxHeatAnimations.Start)];
 
     /// <summary>The objects whose programs recolour her suit: the heat glow and her three suits' loading.</summary>
     private static readonly ImmutableArray<PaletteFxObject> SuitObjects =
@@ -38,7 +38,7 @@ internal static class PaletteFxSamusShades
     {
         Ensure.NotNull(colours);
         ShownPaletteFxFrame[] shown = PaletteFxRecordShades.Shown(
-            [.. HeatPrograms, .. SuitObjects.Select(suitObject => RoomPaletteFxSelection.Get(suitObject).InitialProgram)]);
+            [.. HeatPrograms, .. SuitObjects.Select(suitObject => RoomPaletteFxSelection.Get(suitObject).InitialAnimation)]);
         return [.. shown.Where(entry => FirstSuitColours.ContainsKey(entry.Colours))
             .Select(entry => PaletteFxRecordShades.Shade(entry.Colours, entry.Frame,
                 new InkRange(SamusSheetInks.Suit + FirstSuitColours[entry.Colours], SamusSheetInks.Suit + SamusSheetInks.GroupColours), colours))];

@@ -94,8 +94,8 @@ internal static class TorizoProjectileAnimationsVerification
     };
 
     /// <summary>The projectile segments' native entries, in authored order.</summary>
-    private static NativeProgramEntry<TorizoProjectileProgram>[] SegmentEntries =>
-        [.. ProjectileEntries.Select(entry => new NativeProgramEntry<TorizoProjectileProgram>(entry.Program, entry.Entry))];
+    private static NativeProgramEntry<TorizoProjectileSegment>[] SegmentEntries =>
+        [.. ProjectileEntries.Select(entry => new NativeProgramEntry<TorizoProjectileSegment>(entry.Program, entry.Entry))];
 
     /// <summary>
     /// How the projectile oracle reads Torizo's commands: each becomes the cue its <see cref="Words"/> entry names, with
@@ -125,7 +125,7 @@ internal static class TorizoProjectileAnimationsVerification
         foreach (TorizoProjectileFamily family in Enum.GetValues<TorizoProjectileFamily>())
         {
             IReadOnlyList<TorizoProjectileFrame> installed = TorizoProjectileVisualDefinitions.Frames(family);
-            var shown = Enum.GetValues<TorizoProjectileProgram>()
+            var shown = Enum.GetValues<TorizoProjectileSegment>()
                 .Where(program => TorizoProjectileAnimationsConstants.Family(program) == family)
                 .SelectMany(program => TorizoProjectileAnimations.Segments.Beats(program))
                 .OfType<AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue>.Frame>()
@@ -140,10 +140,10 @@ internal static class TorizoProjectileAnimationsVerification
         {
             ushort random = (ushort)(index << 2);
             AssertEqual(cartridge.ReadCartridgeWord(word),
-                ProjectileEntry(TorizoAttacks.SelectLowHealthDroolProgram(random)), $"low-health drool delay table entry {index}");
+                ProjectileEntry(TorizoAttacks.SelectLowHealthDroolAnimation(random)), $"low-health drool delay table entry {index}");
         }
 
-        foreach (TorizoProjectileProgram sleeping in new[] { TorizoProjectileProgram.EggBouncingLeft, TorizoProjectileProgram.EggBouncingRight })
+        foreach (TorizoProjectileSegment sleeping in new[] { TorizoProjectileSegment.EggBouncingLeft, TorizoProjectileSegment.EggBouncingRight })
         {
             AssertEqual(AnimationEnd.Holds, TorizoProjectileAnimations.StartingWith(sleeping).End, $"{sleeping} sleeps");
             ushort sleep = unchecked((ushort)(ProjectileEntry(sleeping) + 4));

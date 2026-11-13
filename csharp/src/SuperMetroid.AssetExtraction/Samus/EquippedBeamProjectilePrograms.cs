@@ -40,16 +40,16 @@ internal static class EquippedBeamProjectilePrograms
     private static readonly SamusProjectileFamily[] BombFamilies = [SamusProjectileFamily.PowerBomb, SamusProjectileFamily.Bomb];
 
     /// <summary>The lists projectiles turn into: the beam, missile, Super Missile and bomb explosions.</summary>
-    private static readonly SamusProjectileProgram[] Explosions =
+    private static readonly SamusProjectileSegment[] Explosions =
     [
-        SamusProjectileProgram.BeamExplosion, SamusProjectileProgram.MissileExplosion,
-        SamusProjectileProgram.SuperMissileExplosion, SamusProjectileProgram.BombExplosion,
+        SamusProjectileSegment.BeamExplosion, SamusProjectileSegment.MissileExplosion,
+        SamusProjectileSegment.SuperMissileExplosion, SamusProjectileSegment.BombExplosion,
     ];
 
     /// <summary>Every program a projectile fired or placed with <paramref name="beams"/> equipped can run.</summary>
-    internal static IReadOnlySet<SamusProjectileProgram> Of(SamusBeamCombination beams)
+    internal static IReadOnlySet<SamusProjectileSegment> Of(SamusBeamCombination beams)
     {
-        var starts = new List<SamusProjectileProgram>();
+        var starts = new List<SamusProjectileSegment>();
         foreach (bool charged in (bool[])[false, true])
             starts.AddRange(BeamShotPrograms(beams, charged));
         if (beams == HyperBeamEquipped)
@@ -85,22 +85,22 @@ internal static class EquippedBeamProjectilePrograms
     /// <summary>
     /// Every animation a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, starts in any direction:
     /// its kind's programs, except the Murder Beam's, which reads past the Power Bomb kind it takes its damage from
-    /// (<see cref="MurderBeamDirectionPrograms{TDirection, TProgram}"/>).
+    /// (<see cref="MurderBeamDirectionAnimations{TDirection, TAnimation}"/>).
     /// </summary>
-    internal static IEnumerable<SamusProjectileProgram> BeamShotPrograms(SamusBeamCombination beams, bool charged) =>
+    internal static IEnumerable<SamusProjectileSegment> BeamShotPrograms(SamusBeamCombination beams, bool charged) =>
         SamusProjectileSelection.IsMurderBeam(beams, charged)
-            ? SamusProjectileSelectionDefinitions.MurderBeamDirectionAnimations.Values.OfType<SamusProjectileProgram>()
-            : SamusProjectileKinds.Programs(SamusProjectileSelection.BeamShot(beams, charged));
+            ? SamusProjectileSelectionDefinitions.MurderBeamDirectionAnimations.Values.OfType<SamusProjectileSegment>()
+            : SamusProjectileKinds.Animations(SamusProjectileSelection.BeamShot(beams, charged));
 
     /// <summary>Adds every program a shot of <paramref name="kind"/> can start.</summary>
-    private static void AddEveryDirection(List<SamusProjectileProgram> starts, SamusProjectileKind kind) =>
-        starts.AddRange(SamusProjectileKinds.Programs(kind));
+    private static void AddEveryDirection(List<SamusProjectileSegment> starts, SamusProjectileKind kind) =>
+        starts.AddRange(SamusProjectileKinds.Animations(kind));
 
     /// <summary>Adds the one program a shot, bomb or particle of <paramref name="kind"/> starts whatever its direction.</summary>
-    private static void AddSole(List<SamusProjectileProgram> starts, SamusProjectileKind kind) =>
-        starts.Add(SamusProjectileKinds.SoleProgram(kind));
+    private static void AddSole(List<SamusProjectileSegment> starts, SamusProjectileKind kind) =>
+        starts.Add(SamusProjectileKinds.SoleAnimation(kind));
 
     /// <summary><paramref name="starts"/> and every segment their animations play.</summary>
-    private static HashSet<SamusProjectileProgram> Continued(IEnumerable<SamusProjectileProgram> starts) =>
+    private static HashSet<SamusProjectileSegment> Continued(IEnumerable<SamusProjectileSegment> starts) =>
         [.. starts.SelectMany(start => SamusProjectileAnimations.StartingWith(start).Phases).Select(phase => phase.Segment)];
 }

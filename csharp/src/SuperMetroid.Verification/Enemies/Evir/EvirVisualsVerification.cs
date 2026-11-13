@@ -24,7 +24,7 @@ internal static class EvirVisualsVerification
     internal static void VerifyInstalledEvirVisuals(
         CartridgeImportAddressSpace rom, ImportEnemyArtwork stock)
     {
-        var shownFrames = EvirAnimationsConstants.Spritemaps(Enum.GetValues<EvirProgram>()).ToHashSet();
+        var shownFrames = EvirAnimationsConstants.Spritemaps(Enum.GetValues<EvirSegment>()).ToHashSet();
         foreach (ushort pointer in shownFrames)
         {
             AssertTrue((stock.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(
@@ -43,7 +43,7 @@ internal static class EvirVisualsVerification
             "the Evir programs show 24 distinct editable OAM frames");
         AssertTrue(EvirVisualDefinitions.Frames().Select(frame => frame.Pointer).ToHashSet().SetEquals(shownFrames),
             "every exported Evir frame is shown by a program");
-        foreach (EvirProgram loop in new[] { EvirProgram.BodyFacingLeft, EvirProgram.ArmsFacingLeft, EvirProgram.BodyFacingRight, EvirProgram.ArmsFacingRight })
+        foreach (EvirSegment loop in new[] { EvirSegment.BodyFacingLeft, EvirSegment.ArmsFacingLeft, EvirSegment.BodyFacingRight, EvirSegment.ArmsFacingRight })
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(),
                 definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = stock.Bosses };

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.WorkRobots.WorkRobotCueKind;
-using P = SuperMetroid.Core.Enemies.WorkRobots.WorkRobotProgram;
+using P = SuperMetroid.Core.Enemies.WorkRobots.WorkRobotSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.WorkRobots;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 internal static class WorkRobotAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<WorkRobotProgram, EnemyFrameId, WorkRobotCue> Segments { get; } = new(
-        new Dictionary<WorkRobotProgram, AnimationBeat<EnemyFrameId, WorkRobotCue>[]>
+    internal static AnimationSegments<WorkRobotSegment, EnemyFrameId, WorkRobotCue> Segments { get; } = new(
+        new Dictionary<WorkRobotSegment, AnimationBeat<EnemyFrameId, WorkRobotCue>[]>
     {
         [P.NoPowerNeutral] =
         [
@@ -434,7 +434,7 @@ internal static class WorkRobotAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<WorkRobotProgram, Animation<WorkRobotProgram>> StartingAt { get; } = new Dictionary<WorkRobotProgram, Animation<WorkRobotProgram>>
+    internal static IReadOnlyDictionary<WorkRobotSegment, Animation<WorkRobotSegment>> StartingAt { get; } = new Dictionary<WorkRobotSegment, Animation<WorkRobotSegment>>
     {
         [P.NoPowerNeutral] = new([new(P.NoPowerNeutral, 0, 1, 1)], AnimationEnd.Holds),
         [P.NoPowerLeaningLeft] = new([new(P.NoPowerLeaningLeft, 0, 1, 1)], AnimationEnd.Holds),
@@ -463,7 +463,7 @@ internal static class WorkRobotAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<WorkRobotProgram> StartingWith(WorkRobotProgram segment) => StartingAt[segment];
+    internal static Animation<WorkRobotSegment> StartingWith(WorkRobotSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, WorkRobotCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, WorkRobotCue>.Frame(frame, duration);

@@ -23,5 +23,5 @@ public static class TourianGlowPaletteFxColorDefinitions
     public const int ColorsPerFrame = 8;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(PaletteFxProgram.CommonTourianGlowCycle, ColorsPerFrame);
+    public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(PaletteFxSegment.CommonTourianGlowCycle, ColorsPerFrame);
 }

@@ -71,7 +71,7 @@ internal static class EnemySpawnSettingsCodec
     {
         [EnemyDefinitionId.CeresDoor] = words => new CeresDoorSpawnSettings(Variant: Bits(words.Parameter1, 0, 16) switch { 0 => CeresDoorVariant.NormalFacingRight, 1 => CeresDoorVariant.NormalFacingLeft, 2 => CeresDoorVariant.RotatingElevatorPreExplosionOverlay, 3 => CeresDoorVariant.RidleyRoomFacingRight, 4 => CeresDoorVariant.RotatingElevatorInvisibleWall, 5 => CeresDoorVariant.RidleyEscapeFloorLeftWall, 6 => CeresDoorVariant.RidleyEscapeFloorRightWall, var other => throw Unmapped("Variant", other) }),
         [EnemyDefinitionId.Steam] = words => new CeresSteamSpawnSettings(Variant: Bits(words.Parameter1, 0, 16) switch { 0 => CeresSteamVariant.Up, 1 => CeresSteamVariant.Left, 2 => CeresSteamVariant.Down, 3 => CeresSteamVariant.Right, 4 => CeresSteamVariant.RotatingElevatorLeft, 5 => CeresSteamVariant.RotatingElevatorRight, var other => throw Unmapped("Variant", other) }),
-        [EnemyDefinitionId.TourianStatue] = words => new TourianEntranceStatueSpawnSettings(Statue: Bits(words.Parameter1, 0, 16) switch { 0 => TourianEntranceStatueProgram.BaseDecoration, 2 => TourianEntranceStatueProgram.Ridley, 4 => TourianEntranceStatueProgram.Phantoon, var other => throw Unmapped("Statue", other) }),
+        [EnemyDefinitionId.TourianStatue] = words => new TourianEntranceStatueSpawnSettings(Statue: Bits(words.Parameter1, 0, 16) switch { 0 => TourianEntranceStatueSegment.BaseDecoration, 2 => TourianEntranceStatueSegment.Ridley, 4 => TourianEntranceStatueSegment.Phantoon, var other => throw Unmapped("Statue", other) }),
         [EnemyDefinitionId.MotherBrainTubes] = words => new MotherBrainTubeSpawnSettings(Piece: Bits(words.Parameter1, 1, 15) switch { 0 => MotherBrainTubePiece.BottomLeft, 1 => MotherBrainTubePiece.BottomRight, 2 => MotherBrainTubePiece.BottomMiddleLeft, 3 => MotherBrainTubePiece.BottomMiddleRight, 4 => MotherBrainTubePiece.Main, var other => throw Unmapped("Piece", other) }, FallDelay: Bits(words.Parameter2, 0, 16)),
         [EnemyDefinitionId.Rinka] = words => new RinkaSpawnSettings(Placement: (words.Parameter1 & 65535) != 0 ? RinkaPlacement.FreeSpawnPoint : RinkaPlacement.OwnPlacement),
         [EnemyDefinitionId.Zebetite] = words => new ZebetiteSpawnSettings(Half: Bits(words.Parameter1, 0, 16) switch { 0 => ZebetiteHalf.Primary, _ => ZebetiteHalf.Linked }),
@@ -186,7 +186,7 @@ internal static class EnemySpawnSettingsCodec
     {
         CeresDoorSpawnSettings s => Checked(EnemyDefinitionId.CeresDoor, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Variant switch { CeresDoorVariant.NormalFacingRight => 0, CeresDoorVariant.NormalFacingLeft => 1, CeresDoorVariant.RotatingElevatorPreExplosionOverlay => 2, CeresDoorVariant.RidleyRoomFacingRight => 3, CeresDoorVariant.RotatingElevatorInvisibleWall => 4, CeresDoorVariant.RidleyEscapeFloorLeftWall => 5, CeresDoorVariant.RidleyEscapeFloorRightWall => 6, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: 0)),
         CeresSteamSpawnSettings s => Checked(EnemyDefinitionId.Steam, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Variant switch { CeresSteamVariant.Up => 0, CeresSteamVariant.Left => 1, CeresSteamVariant.Down => 2, CeresSteamVariant.Right => 3, CeresSteamVariant.RotatingElevatorLeft => 4, CeresSteamVariant.RotatingElevatorRight => 5, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: 0)),
-        TourianEntranceStatueSpawnSettings s => Checked(EnemyDefinitionId.TourianStatue, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Statue switch { TourianEntranceStatueProgram.BaseDecoration => 0, TourianEntranceStatueProgram.Ridley => 2, TourianEntranceStatueProgram.Phantoon => 4, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: 0)),
+        TourianEntranceStatueSpawnSettings s => Checked(EnemyDefinitionId.TourianStatue, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Statue switch { TourianEntranceStatueSegment.BaseDecoration => 0, TourianEntranceStatueSegment.Ridley => 2, TourianEntranceStatueSegment.Phantoon => 4, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: 0)),
         MotherBrainTubeSpawnSettings s => Checked(EnemyDefinitionId.MotherBrainTubes, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Piece switch { MotherBrainTubePiece.BottomLeft => 0, MotherBrainTubePiece.BottomRight => 1, MotherBrainTubePiece.BottomMiddleLeft => 2, MotherBrainTubePiece.BottomMiddleRight => 3, MotherBrainTubePiece.Main => 4, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 1), Parameter2: Place(s.FallDelay, 0, 16))),
         RinkaSpawnSettings s => Checked(EnemyDefinitionId.Rinka, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: (s.Placement == RinkaPlacement.FreeSpawnPoint ? 1 : 0), Parameter2: 0)),
         ZebetiteSpawnSettings s => Checked(EnemyDefinitionId.Zebetite, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Half switch { ZebetiteHalf.Primary => 0, ZebetiteHalf.Linked => 2, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0), Parameter2: 0)),
@@ -357,8 +357,8 @@ internal static class EnemySpawnSettingsCodec
         : throw Unmapped("Start", selector);
 
     /// <summary>The three unpowered poses a Work Robot's first parameter selects, in its order.</summary>
-    private static readonly WorkRobotProgram[] WorkRobotPoses =
-        [WorkRobotProgram.NoPowerNeutral, WorkRobotProgram.NoPowerLeaningLeft, WorkRobotProgram.NoPowerLeaningRight];
+    private static readonly WorkRobotSegment[] WorkRobotPoses =
+        [WorkRobotSegment.NoPowerNeutral, WorkRobotSegment.NoPowerLeaningLeft, WorkRobotSegment.NoPowerLeaningRight];
 
     /// <summary>
     /// The unpowered pose a Work Robot's first parameter selects. The initializer's range check sends a negative or
@@ -366,7 +366,7 @@ internal static class EnemySpawnSettingsCodec
     /// which no retail placement uses, so it fails.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="selector"/> is the fourth pose.</exception>
-    private static WorkRobotProgram WorkRobotPose(int selector) => Signed(selector) switch
+    private static WorkRobotSegment WorkRobotPose(int selector) => Signed(selector) switch
     {
         < 0 or > 3 => WorkRobotPoses[0],
         3 => throw new InvalidDataException("Work Robot pose 3 reads past the three authored poses into the robot's code."),

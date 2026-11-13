@@ -14,14 +14,14 @@ internal static class DragonNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<DragonProgram>[] Entries =
+    internal static readonly NativeProgramEntry<DragonSegment>[] Entries =
     [
-        new NativeProgramEntry<DragonProgram>(DragonProgram.IdleFacingLeft, 0xe59b),
-        new NativeProgramEntry<DragonProgram>(DragonProgram.WingsFacingLeft, 0xe5a1),
-        new NativeProgramEntry<DragonProgram>(DragonProgram.IdleFacingRight, 0xe5ad),
-        new NativeProgramEntry<DragonProgram>(DragonProgram.WingsFacingRight, 0xe5b3),
-        new NativeProgramEntry<DragonProgram>(DragonProgram.AttackingFacingLeft, 0xe5bf),
-        new NativeProgramEntry<DragonProgram>(DragonProgram.AttackingFacingRight, 0xe5d7),
+        new NativeProgramEntry<DragonSegment>(DragonSegment.IdleFacingLeft, 0xe59b),
+        new NativeProgramEntry<DragonSegment>(DragonSegment.WingsFacingLeft, 0xe5a1),
+        new NativeProgramEntry<DragonSegment>(DragonSegment.IdleFacingRight, 0xe5ad),
+        new NativeProgramEntry<DragonSegment>(DragonSegment.WingsFacingRight, 0xe5b3),
+        new NativeProgramEntry<DragonSegment>(DragonSegment.AttackingFacingLeft, 0xe5bf),
+        new NativeProgramEntry<DragonSegment>(DragonSegment.AttackingFacingRight, 0xe5d7),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

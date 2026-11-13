@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 public sealed class HorizontalShutterEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<ShutterProgram> Playback { get; set; }
+    internal AnimationPlayback<ShutterSegment> Playback { get; set; }
 
     /// <summary>
     /// The dispatcher behaviour of the retail-unused horizontal shutter, retained across wait, movement, and

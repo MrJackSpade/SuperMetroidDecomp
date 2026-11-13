@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// The callbacks of Kraid's sinking/death steps; each member names the routine it ports.
+/// The callbacks of Kraid's sinking/death steps; each member names the behaviour it runs.
 /// </summary>
 public enum KraidSinkCallback
 {

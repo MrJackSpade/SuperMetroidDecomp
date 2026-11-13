@@ -630,8 +630,8 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Draws the live ordinary-projectile subset after Samus, every live shot on every update: the original's
-    /// alternate-update flicker of uncharged beams by shot place is a presentation quirk the port does not keep (#1683).
+    /// Draws the live ordinary-projectile subset after Samus, every live shot on every update: the game's
+    /// alternate-update flicker of uncharged beams by shot place is a presentation quirk this simulation does not keep (#1683).
     /// </summary>
     public void DrawLiveProjectiles(
         SpriteFrameBuffer sprites,

@@ -459,7 +459,7 @@ internal sealed class MotherBrainProjectiles
         shard.Velocity = shard.Velocity.WithY(shard.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32));
 
         // The condition itself consumes one random value every live shard frame; a successful
-        // sparkle consumes two more below. Bits 5 and 10 of the sample both clear: one sample in four.
+        // sparkle consumes two more below. Both of the sample's sparkle checks clear: one sample in four.
         int sparkleSample = _room.Random.Generate();
         if (!MotherBrainGlassShardDefinitions.SparkleCheckLowBit.IsSetIn(sparkleSample) &&
             !MotherBrainGlassShardDefinitions.SparkleCheckHighBit.IsSetIn(sparkleSample))

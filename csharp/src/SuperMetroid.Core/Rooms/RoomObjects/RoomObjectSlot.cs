@@ -47,7 +47,7 @@ internal sealed class RoomObjectSlot
     /// </summary>
     public Position16<RoomBlocks> Block { get; set; }
     /// <summary>
-    /// The terrain the slot restores at its block, or null when its object saved none. Grapple setup saves the original
+    /// The terrain the slot restores at its block, or null when its object saved none. Grapple setup saves the earlier
     /// block; collision-bomb setup saves the dimension parent instead. Only an object whose setup saved a block restores
     /// one (<see cref="RoomObjectStepContext.DrawRestoredBlock"/>).
     /// </summary>

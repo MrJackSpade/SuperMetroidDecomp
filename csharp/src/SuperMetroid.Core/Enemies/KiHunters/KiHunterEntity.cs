@@ -22,7 +22,7 @@ internal sealed class KiHunterEntity(KiHunterBehavior species, RoomEnemySlot slo
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceKiHunterTypedAnimation;
 
     /// <summary>The Ki-Hunter body's own shot reaction, which normal bombs dispatch like the common one; the wings own none.</summary>
-    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         KiHunterBehavior.IsKiHunterBodyDefinition(Slot.DefinitionId) && reaction == EnemyReaction.KiHunterShot;
 }

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// What an actor that takes over a slot inherits from the slot's previous occupant of its kind (#1476). In the original
+/// What an actor that takes over a slot inherits from the slot's previous occupant of its kind (#1476). In the
 /// game the values an actor's setup does not write stay as the slot's previous occupant left them, so a new occupant
 /// starts those values where the last one stopped: a fresh Beetom touched before it first moves attaches facing the way
 /// the previous Beetom in its slot last faced.

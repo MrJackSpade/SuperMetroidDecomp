@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// Where Kraid's body pushes back a fingernail that flies higher than his four contour ledges reach (#1500). A nail is
 /// pushed back by the ledge level with it: the contour walk tests each ledge's bound against the nail's height above
 /// Kraid's body and takes the first ledge whose bound lies above the nail. A nail 128 or more pixels above the body passes
-/// all four ledges, and the original game goes on to read the record that follows them, so such a nail is pushed back
+/// all four ledges, and the game goes on to read the record that follows them, so such a nail is pushed back
 /// at that record's offset, which lies far beyond Kraid's right side, as long as it lies below that record's bound. The
 /// import pipeline decodes the record's offset and bound once from the player's game data.
 /// </summary>

@@ -48,6 +48,6 @@ public enum CrocomireFightFunction
     StepForwardVariantUnused,
     /// <summary>Unused: consumes claw-contact cycles or restores the saved fight function.</summary>
     MovingClawsUnused,
-    /// <summary>A function the original game never wrote: the unused move-until-Samus branch selects it, and the original game would run whatever follows its functions as one. The port rejects it.</summary>
+    /// <summary>A function the game never wrote: the unused move-until-Samus branch selects it, and the game would run whatever follows its functions as one. It is rejected.</summary>
     UnwrittenTableEntry,
 }

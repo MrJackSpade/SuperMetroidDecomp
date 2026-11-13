@@ -13,7 +13,7 @@ internal static class CeresRidleyEyeFade
     /// #625 / #651 exact NTSC J/U v1.0 algorithm: offset 0..15 selects shade
     /// 15-offset, offset 16..63 selects shade zero, and offset 64 is the
     /// completion marker. All 65 entries match the pinned release.
-    /// The original reads overlapping pairs at each offset
+    /// The game reads overlapping pairs at each offset
     /// and keeps the low one. Offset 65 would read past the schedule
     /// into the eye's colours and is outside this schedule.
     /// The eye-fade verification checks every shade and the terminal

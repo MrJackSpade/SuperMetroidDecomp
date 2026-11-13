@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// The working value a room's main routine leaves behind for the next room's (#1470). Each room main keeps its own state;
+/// The working value a room's main behaviour leaves behind for the next room's (#1470). Each room main keeps its own state;
 /// a main that does not set its value up itself starts from what the previous room's main left, read in its own terms.
 /// The Ceres hall's falling debris first waits as long as the elevator shaft's last turn step reads as a countdown, an
 /// escape room whose setup does not clear its diagonal quake carries on the previous room's, and the Maridia elevatube

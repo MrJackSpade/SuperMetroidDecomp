@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// How far loading the next room has progressed when each of its enemies initializes, measured in door-scroll updates.
-/// The original program initialized a room's enemies while the door kept scrolling, so which scroll update a write made
+/// The game initialized a room's enemies while the door kept scrolling, so which scroll update a write made
 /// during loading lands in (an arriving elevator placing Samus, for example) depended on how long loading took. The game
 /// loads a room in one step (<see cref="InstantRoomLoad"/>); a replay supplies the progress its recording shows.
 /// </summary>

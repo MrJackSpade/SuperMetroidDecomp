@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// The angles a Shinespark crash sends its two echoes out at when Samus is drained while it runs (#1500). The crash's
 /// end picks the pair of angles by the pose Samus holds then, from a table that names one pair for each of the six crash
 /// poses. Mother Brain's drain can replace the crash pose with a drained crouch while the crash keeps running, and the
-/// crash then indexes the table by that pose, past its six pairs, reading the bytes of the code that follows it as
+/// crash then indexes the table by that pose, past its six pairs, reading the game's code that follows it as
 /// angles. The import pipeline decodes each drained pose's pair once.
 /// </summary>
 /// <remarks>

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
 /// The composition every timed projectile record draws, as installed (#1596). Durations, trail values, radii, damage and
-/// instruction control flow are gameplay, held apart from this picture binding.
+/// program control flow are gameplay, held apart from this picture binding.
 /// </summary>
 public sealed class InstalledProjectileFrameBindings
 {

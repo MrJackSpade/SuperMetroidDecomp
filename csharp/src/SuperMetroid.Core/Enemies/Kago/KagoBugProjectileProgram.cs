@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>
-/// The Kago bugs' landing, falling, jumping and shot programs (#641), one per animation a spawn, branch or family routine enters, in authored order.
+/// The Kago bugs' landing, falling, jumping and shot programs (#641), one per animation a spawn, branch or family step enters, in authored order.
 /// Their steps are <see cref="KagoBugProjectileAnimations"/>.
 /// </summary>
 internal enum KagoBugProjectileProgram

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>
-/// Ki-Hunter's body or wing state. A body and a detached wing put different meanings in the same common-record word,
+/// Ki-Hunter's body or wing state. A body and a detached wing put different meanings in the same value in the game,
 /// and each meaning has its own value; detachment sets each detached value before reading it.
 /// </summary>
 public sealed class KiHunterEnemyState
@@ -10,7 +10,7 @@ public sealed class KiHunterEnemyState
     /// <summary>Captures the slot's body or wing role before deletion can clear its definition identity.</summary>
     internal KiHunterEnemyState(RoomEnemySlot slot)
     {
-        // The definition word is mutable storage and is cleared during deletion.
+        // The slot's definition is mutable and is cleared during deletion.
         // Role is established by the initializer and must survive that later write because
         // body/wing callbacks continue to reach the neighbouring slot's record.
         IsWing = KiHunterBehavior.IsKiHunterWingDefinition(slot.DefinitionId);
@@ -19,7 +19,7 @@ public sealed class KiHunterEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<KiHunterProgram> Playback { get; set; }
 
-    /// <summary>Role fixed by the initializer, retained even if deletion clears the definition word; body and wing callbacks still use adjacent physical slots.</summary>
+    /// <summary>Role fixed by the initializer, retained even if deletion clears the slot's definition; body and wing callbacks still use adjacent physical slots.</summary>
     public bool IsWing { get; }
 
     /// <summary>Main-AI dispatcher.</summary>
@@ -54,7 +54,7 @@ public sealed class KiHunterEnemyState
 
     /// <summary>
     /// A detached wing's quadratic speed sum, accumulated at detachment until it reaches the detached-speed threshold.
-    /// Detachment never resets it: it continues from zero or the earlier sum. Its sum wraps as the game's word does,
+    /// Detachment never resets it: it continues from zero or the earlier sum. Its sum wraps as the game's counter does,
     /// through <see cref="AccumulateDetachedSpeed"/>.
     /// </summary>
     public int DetachedSpeedAccumulator
@@ -123,9 +123,9 @@ public sealed class KiHunterEnemyState
     public Position16<RoomPixels> OrbitCenter { get; internal set; }
     /// <summary>The wings' original room position saved at detachment and restored when the collision-bearing arc deletes the wing.</summary>
     public Position16<RoomPixels> SavedWingPosition { get; internal set; }
-    /// <summary>The body's wingless latch, set by spawn parameter-one bit 15 or by health reaching the following wing record's parameter-one threshold.</summary>
+    /// <summary>The body's wingless latch, set by a negative spawn parameter one or by health reaching the following wing's parameter-one threshold.</summary>
     public bool HasLostWings { get; internal set; }
 
-    /// <summary>Adds one quadratic-table word to <see cref="DetachedSpeedAccumulator"/>, wrapping as the game's word does.</summary>
+    /// <summary>Adds one quadratic-table speed to <see cref="DetachedSpeedAccumulator"/>, wrapping as the game's counter does.</summary>
     internal void AccumulateDetachedSpeed(int step) => DetachedSpeedAccumulator = WrappingCounter.AddCount(DetachedSpeedAccumulator, step);
 }

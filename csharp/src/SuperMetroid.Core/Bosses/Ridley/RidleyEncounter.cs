@@ -29,7 +29,7 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
 
     /// <summary>
     /// Ridley's state beyond the common enemy record while either encounter owns his body,
-    /// kept in named fields rather than in dozens of generic enemy variables.
+    /// kept in named fields rather than in dozens of generic enemy values.
     /// </summary>
     public RidleyEnemyState? Ridley { get; internal set; }
 

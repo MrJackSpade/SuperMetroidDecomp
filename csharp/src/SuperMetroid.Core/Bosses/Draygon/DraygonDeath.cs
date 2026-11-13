@@ -40,7 +40,7 @@ internal sealed class DraygonDeath
         }
 
         // Retail quarters both coordinates before calculating this angle. That is not an
-        // algebraic simplification: logical shifts discard low coordinate bits and thereby
+        // algebraic simplification: quartering discards each coordinate's remainder and thereby
         // select slightly different table vectors near the destination.
         TrigonometryAngle movementAngle = EnemyMath.CalculateBearing(new(
             CoordinateAxis.Difference(64, (body.Position.X.Whole >> 2)),

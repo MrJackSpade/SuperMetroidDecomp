@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>Camera configuration owned by the living Kraid encounter.</summary>
 internal static class KraidCameraDefinitions
 {
-    /// <summary>Four row-major screens written by the two word stores.</summary>
+    /// <summary>Four row-major screens, written two at a time.</summary>
     public const int ScreenCount = 4;
 
     /// <summary>Scrolls[0..3] written: only the lower-left screen is open.</summary>

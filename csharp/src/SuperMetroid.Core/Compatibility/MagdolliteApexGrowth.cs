@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <summary>
 /// Whether a Magdollite arm that rises to its full height grows one final segment there, by the enemy slot the arm
 /// occupies (#1269, #1500). Below its full height an arm grows a segment each time its rise passes the next phase's
-/// distance; at its full height the original test compares the rise with a word chosen by the arm's slot instead of by
+/// distance; at its full height the game's test compares the rise with a value chosen by the arm's slot instead of by
 /// its phase, so whether the last segment appears depends on where the room placed the arm. The import pipeline decodes
 /// each slot's answer once.
 /// </summary>

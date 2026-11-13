@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>
-/// The secondary routine a detached wing runs.
+/// The secondary behaviour a detached wing runs.
 /// Its values are arbitrary.
 /// </summary>
 public enum KiHunterWingFunction

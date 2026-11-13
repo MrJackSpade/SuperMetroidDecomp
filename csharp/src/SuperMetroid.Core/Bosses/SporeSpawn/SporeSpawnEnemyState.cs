@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>
 /// Spore Spawn's state beyond its common enemy record: the boss's swing angle, stalk anchor and
-/// death velocity, each named rather than kept in generic enemy variables, with their wrapping arithmetic.
+/// death velocity, each named rather than kept in generic enemy values, with their wrapping arithmetic.
 /// </summary>
 public sealed class SporeSpawnEnemyState
 {
@@ -27,7 +27,7 @@ public sealed class SporeSpawnEnemyState
     /// </summary>
     public Position16<RoomPixels> StalkAnchor { get; internal set; }
     /// <summary>
-    /// Original body position in room pixels, the sway centre, retained before the live spawn
+    /// Spawn body position in room pixels, the sway centre, retained before the live spawn
     /// is raised 128 pixels; its <c>XOrigin</c>/<c>YOrigin</c>.
     /// </summary>
     public Position16<RoomPixels> MovementCenter { get; internal set; }

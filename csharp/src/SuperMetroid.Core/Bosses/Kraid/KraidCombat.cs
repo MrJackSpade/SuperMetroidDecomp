@@ -62,7 +62,7 @@ internal sealed class KraidCombat
     /// <summary>Binds shot reactions for Kraid's mouth, body, arm, and nail surfaces.</summary>
     internal void AddKraidShotReactions(EnemySharedReactions table)
     {
-        // Kraid's arm and foot are admitted by their ignoring header shot reaction, which still lets their hitboxes
+        // Kraid's arm and foot are admitted by their species definitions' ignoring shot reaction, which still lets their hitboxes
         // decide; their authored hitboxes select the arm's private reaction.
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.Ignore)
@@ -96,8 +96,8 @@ internal sealed class KraidCombat
             {
                 // The arm's push forces the bottom lint's firing function, so it fires immediately after
                 // the arm launches Samus up and right.
-                // Writes only the whole displacement words, so preserve both
-                // fractional words exactly as they were before contact.
+                // Writes only the whole pixels of the displacement, so preserve both
+                // fractions exactly as they were before contact.
                 _ = _access.RequireKraidState(context.Slot);
                 context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWhole(new(4, -8));
                 _access.Part(_parts.BottomLint).Function = KraidAiFunction.LintFire;

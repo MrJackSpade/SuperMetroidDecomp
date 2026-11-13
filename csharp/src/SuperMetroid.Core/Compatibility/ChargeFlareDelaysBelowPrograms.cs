@@ -2,9 +2,9 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// The waits a main-flare picture holds when the flare's place wraps below its first picture (#1411, #1474, #1624). The
-/// original game reads each component's waits at its program's start plus a sixteen-bit place, so a place the Hyper
-/// Beam's backward count wrapped below the main flare's first picture reads the bytes stored just before the programs:
-/// the table naming the three programs, whose bytes become waits. The import pipeline decodes those bytes once, by how
+/// game reads each component's waits at its program's start plus a place that wraps at 65536, so a place the Hyper
+/// Beam's backward count wrapped below the main flare's first picture reads the data stored just before the programs:
+/// the table naming the three programs, whose entries become waits. The import pipeline decodes those waits once, by how
 /// far below the first picture each lies.
 /// </summary>
 /// <remarks>

@@ -6,7 +6,7 @@ internal static class KraidSinkSchedule
     /// <summary>
     /// Kraid's sinking schedule: twenty-eight rows spaced eight pixels
     /// apart, terminated by an end marker. Six rows crumble platforms; the remaining rows
-    /// invoke the distinct empty callback. Tilemap offsets are presentation data.
+    /// invoke the distinct empty callback. Where each row draws is presentation data.
     /// </summary>
     public static KraidSinkCallback? CallbackAt(int y)
     {

@@ -5,7 +5,7 @@ internal static class KraidRandomDefinitions
 {
     /// <summary>
     /// Fake Kraid's random starting delay, 0 through 3 updates added to <see cref="FakeKraidStartDelayBase"/>: the
-    /// sample's bits 0-1.
+    /// sample modulo 4.
     /// </summary>
     internal static readonly RandomSampleField FakeKraidStartDelay = new(0, 2);
 
@@ -14,7 +14,7 @@ internal static class KraidRandomDefinitions
 
     /// <summary>
     /// The random part of a Fake Kraid spike row's reload, 0 through 63 updates added to
-    /// <see cref="FakeKraidSpikeReloadBase"/>: the sample's bits 0-5.
+    /// <see cref="FakeKraidSpikeReloadBase"/>: the sample modulo 64.
     /// </summary>
     internal static readonly RandomSampleField FakeKraidSpikeReloadSpread = new(0, 6);
 
@@ -23,7 +23,7 @@ internal static class KraidRandomDefinitions
 
     /// <summary>
     /// The random part of how many walk steps Fake Kraid takes before it turns round, 0 through 3 added to
-    /// <see cref="FakeKraidWalkStepBase"/>: the sample's bits 0-1.
+    /// <see cref="FakeKraidWalkStepBase"/>: the sample modulo 4.
     /// </summary>
     internal static readonly RandomSampleField FakeKraidWalkStepSpread = new(0, 2);
 
@@ -32,7 +32,7 @@ internal static class KraidRandomDefinitions
 
     /// <summary>
     /// The random part of how many walk steps Fake Kraid takes between spits, 0 through 3 added to
-    /// <see cref="FakeKraidSpitDecisionBase"/>: the sample's bits 0-1.
+    /// <see cref="FakeKraidSpitDecisionBase"/>: the sample modulo 4.
     /// </summary>
     internal static readonly RandomSampleField FakeKraidSpitDecisionSpread = new(0, 2);
 
@@ -41,7 +41,7 @@ internal static class KraidRandomDefinitions
 
     /// <summary>
     /// The random part of a falling ceiling rock's speed in Kraid's room, 0 through 63 256ths of a pixel an update added
-    /// to <see cref="CeilingRockFallSpeedBase"/>: the sample's bits 0-5.
+    /// to <see cref="CeilingRockFallSpeedBase"/>: the sample modulo 64.
     /// </summary>
     internal static readonly RandomSampleField CeilingRockFallSpeedSpread = new(0, 6);
 
@@ -49,12 +49,12 @@ internal static class KraidRandomDefinitions
     internal const int CeilingRockFallSpeedBase = 64;
 
     /// <summary>
-    /// Kraid's thinking delay in steps of 64 updates, 0 through 7 with a zero taken as two: the sample's bits 0-2.
+    /// Kraid's thinking delay in steps of 64 updates, 0 through 7 with a zero taken as two: the sample modulo 8.
     /// </summary>
     internal static readonly RandomSampleField ThinkingDelaySteps = new(0, 3);
 
     /// <summary>
-    /// Kraid's second-phase movement choice, 0 through 7 with every choice past four taken as four: the sample's bits 2-4.
+    /// Kraid's second-phase movement choice, 0 through 7 with every choice past four taken as four: the sample divided by 4, modulo 8.
     /// </summary>
     internal static readonly RandomSampleField MovementChoice = new(2, 3);
 
@@ -67,7 +67,7 @@ internal static class KraidRandomDefinitions
     /// <summary>Whether a rising rock flies to the right: the sample's bit four.</summary>
     internal static readonly RandomSampleField RisingRockRight = new(4, 1);
 
-    /// <summary>A rising rock's offset from Kraid's body X, 0 through 63 pixels: the sample's bits 0-5.</summary>
+    /// <summary>A rising rock's offset from Kraid's body X, 0 through 63 pixels: the sample modulo 64.</summary>
     internal static readonly RandomSampleField RisingRockOffset = new(0, 6);
 
     /// <summary>
@@ -83,8 +83,8 @@ internal static class KraidRandomDefinitions
     internal const int RisingRockLeftExtraPixels = 1;
 
     /// <summary>
-    /// A rising rock's horizontal speed in steps of <see cref="RisingRockXSpeedStep"/>, 0 through 63: the sample's
-    /// bits 4-9, which the original keeps in place.
+    /// A rising rock's horizontal speed in steps of <see cref="RisingRockXSpeedStep"/>, 0 through 63: the sample
+    /// divided by 16, modulo 64, which the game reads without shifting it down.
     /// </summary>
     internal static readonly RandomSampleField RisingRockXSpeedSteps = new(4, 6);
 

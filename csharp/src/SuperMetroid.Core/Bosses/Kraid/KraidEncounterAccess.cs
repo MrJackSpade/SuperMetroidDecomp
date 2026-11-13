@@ -47,7 +47,7 @@ internal sealed class KraidEncounterAccess
         _parts.StateOf(RequireKraidState(part), part).Playback =
             new AnimationPlayback<KraidPartProgram>(KraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
 
-    /// <summary>Sets a part's program and runs its first instruction on the next frame.</summary>
+    /// <summary>Sets a part's program and runs its first step on the next frame.</summary>
     internal void StartKraidPartProgram(RoomEnemySlot part, KraidPartProgram program)
     {
         SetKraidPartProgram(part, program);

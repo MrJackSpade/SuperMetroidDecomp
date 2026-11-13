@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// A choice a random sample makes among weighted outcomes (#1619): the values one field of the sample can read, split in
-/// order from the lowest into runs, each run choosing its outcome. The original made these choices by comparing its random
-/// word, or a field of it, with ascending thresholds; a catalog names the choice, the field it reads and each outcome's
+/// order from the lowest into runs, each run choosing its outcome. The game made these choices by comparing its random
+/// number, or a field of it, with ascending thresholds; a catalog names the choice, the field it reads and each outcome's
 /// share of the field's values instead of the thresholds, and this type is the one place that maps a sample to one.
 /// </summary>
 /// <remarks>
@@ -50,7 +50,7 @@ public sealed class WeightedRandomChoice<TOutcome>
 
     /// <summary>
     /// The outcome <paramref name="sample"/> chooses once its field's roll has advanced <paramref name="advancedBy"/> places
-    /// (#1619), as <see cref="RandomSampleField.OfAdvancedBy"/> advances it: a choice the original made by adding a counter
+    /// (#1619), as <see cref="RandomSampleField.OfAdvancedBy"/> advances it: a choice the game made by adding a counter
     /// to the field it drew before comparing the sum with its thresholds.
     /// </summary>
     /// <param name="sample">A random sample, 0 through 65535.</param>

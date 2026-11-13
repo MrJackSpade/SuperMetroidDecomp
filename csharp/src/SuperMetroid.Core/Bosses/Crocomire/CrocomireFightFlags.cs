@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's fight latches. The original game sets, clears and tests each one on its own, so they compose, and the
+/// Crocomire's fight latches. The game sets, clears and tests each one on its own, so they compose, and the
 /// values here are arbitrary bits (#1413). The unused attack branches give some latches meanings that the retail fight
 /// never reaches.
 /// </summary>
@@ -18,7 +18,7 @@ public enum CrocomireFightFlags
     UnusedClawsMoving = 4,
     /// <summary>A mouth hit is waiting for the fight AI to start a backward step.</summary>
     DamageReactionPending = 8,
-    /// <summary>Kept by the unused near-spike-wall charge's reset mask, but no shipped routine sets or tests it.</summary>
+    /// <summary>Kept by the unused near-spike-wall charge's reset mask, but no retail behaviour sets or tests it.</summary>
     UnusedKeptByChargeReset = 16,
     /// <summary>Set when the unused forward steps run out.</summary>
     UnusedForwardStepsDone = 32,

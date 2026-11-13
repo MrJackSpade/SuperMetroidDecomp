@@ -139,7 +139,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Escape Etecoon walking requires room collision data.");
 
         // The stored speed is signed 8.8; the slope-ignoring horizontal mover receives signed
-        // 16.16, hence the exact shift by 256. The event test is inside the collision
+        // 16.16, hence the exact scaling by 256. The event test is inside the collision
         // branch in the retail game and must not turn an animal around in open space.
         SignedSixteenSixteen horizontalDisplacement = state.Velocity.X.ToSixteenSixteenDelta();
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))

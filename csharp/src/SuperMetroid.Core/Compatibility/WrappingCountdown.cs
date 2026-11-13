@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// A frame countdown that keeps counting past zero instead of stopping there, as every timer of the original game does.
+/// A frame countdown that keeps counting past zero instead of stopping there, as every timer of the game does.
 /// <para>
 /// <b>Behaviour reproduced.</b> A countdown holds 0 through 65535 frames. Stepping it with <see cref="Decrement"/> takes
 /// one frame away and wraps a countdown already at zero to 65535, so a timer that is stepped once more than its owner
@@ -30,7 +30,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// <para>
 /// <b>Frame point.</b> The countdown has none of its own: its owner advances it once per call of the owner's update (an
-/// enemy's AI, a projectile's pre-instruction, a frontend phase's update) and tests the step there.
+/// enemy's AI, a projectile's frame behaviour, a frontend phase's update) and tests the step there.
 /// </para>
 /// <para>
 /// <b>Evidence:</b> the original game's timers are sixteen-bit words its routines decrement and test by sign or by zero,

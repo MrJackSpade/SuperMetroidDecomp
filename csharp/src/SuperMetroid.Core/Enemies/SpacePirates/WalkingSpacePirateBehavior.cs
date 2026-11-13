@@ -525,7 +525,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         }
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Ignore)
         {
-            // The Ninja body callback deliberately returns for a just-fired Super Missile whose link variable is still zero.
+            // The Ninja body callback deliberately returns for a just-fired Super Missile that has no link yet.
             // The frame-hitbox collision walk nevertheless exits after invoking that callback.
             return true;
         }

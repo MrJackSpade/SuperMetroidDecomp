@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <summary>
 /// The gradient Crocomire's tenth spit shot is fired along (#1500). A volley fires up to nine shots, each aimed by the
 /// gradient its place in the volley selects, and the gradients are authored for the first nine places; the volley
-/// counts its shots from the second place, so its last shot selects the tenth place and the original game reads its
+/// counts its shots from the second place, so its last shot selects the tenth place and the game reads its
 /// gradient from the data that follows the nine. The import pipeline decodes that gradient once from the player's game
 /// data; it aims the volley's last shot steeply, unlike any authored gradient.
 /// </summary>

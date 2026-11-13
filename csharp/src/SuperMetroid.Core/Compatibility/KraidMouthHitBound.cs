@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// second shot in the same update also hits the mouth: a missile's bound lets through a later shot whose top lies at
 /// row 257 or lower in the room, while a Super Missile's bound lets through only a top at row 513 or lower, beneath the
 /// 512 rows of Kraid's two-screen room, so no second shot follows a Super Missile in; a clean rectangle would let it in
-/// and double close-range damage. How the original game stored the projectile is not otherwise observable.
+/// and double close-range damage. How the game stored the projectile is not otherwise observable.
 /// </summary>
 /// <remarks>
 /// Consulted by Kraid's inner-mouth pass after each accepted hit, before the next projectile is tested. Evidence: the
@@ -83,7 +83,7 @@ public static class KraidMouthHitBound
         _ => throw new ArgumentOutOfRangeException(nameof(hit), hit, "Undefined mouth hit."),
     };
 
-    /// <summary>Each family's place in the identity the original left as the bound; places four and six hold no family.</summary>
+    /// <summary>Each family's place in the identity the game left as the bound; places four and six hold no family.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="family"/> is undefined.</exception>
     private static int Place(Family family) => family switch
     {

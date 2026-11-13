@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
 /// The pre-coloured sheet of Samus's atmospheric effects (#1392): the footstep splash and the shared lava-spray and dust
-/// sprite in each animation frame, and each frame of the diving splash and bubbles, which Samus's spritemap table draws.
+/// sprite in each animation frame, and each frame of the diving splash and bubbles, which Samus's effect drawing shows.
 /// </summary>
 public static class SamusAtmosphereSheetDefinitions
 {

@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// A door transition's destination-setup wait (#1631): once the transition's camera has aligned with the doorway, it
-/// spends two updates before moving Samus and the camera to where the door's scroll starts. The original game spent them
-/// correcting an upward door's top row of the source room and setting up the destination room, work the port's room load
+/// spends two updates before moving Samus and the camera to where the door's scroll starts. The game spent them
+/// correcting an upward door's top row of the source room and setting up the destination room, work this room load
 /// does at once, but the count is gameplay-observable: each of the two is a whole update of the transition, with its blank
 /// frame, its effects and its own random draw, so every later update of the transition, and everything after it, sees the
 /// random sequence and the frame counters two updates further on.

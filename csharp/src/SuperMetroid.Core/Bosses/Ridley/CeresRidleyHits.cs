@@ -92,10 +92,10 @@ internal sealed class CeresRidleyHits
             : 13;
         state.HitCounter++;
 
-        // The original game draws the hurt palette from the enemy frame that just completed.
+        // The game draws the hurt palette from the enemy frame that just completed.
         // Collision runs afterward, so publish that same pre-increment frame immediately
-        // for standalone renderers inspecting the colours before the next enemy dispatcher call. Only the count's low
-        // bits are read, so the count before zero reads as all ones.
+        // for standalone renderers inspecting the colours before the next enemy dispatcher call. Only the count's cadence
+        // phase is read, and it wraps, so the count before zero reads as the last phase.
         UpdateRidleyHurtFlashPalettes(
             slot,
             state,
@@ -121,7 +121,7 @@ internal sealed class CeresRidleyHits
 
     /// <summary>
     /// Updates the health palette. Ceres uses shot count in place of health, including the
-    /// original missing branch after the 90-shot comparison: 50-69 selects health band zero,
+    /// game's missing branch after the 90-shot comparison: 50-69 selects health band zero,
     /// and every value from 70 onward selects health band two.
     /// </summary>
     internal static void UpdateCeresRidleyHealthBand(RidleyEnemyState state)
@@ -154,7 +154,7 @@ internal sealed class CeresRidleyHits
         _room.EnsureLoaded();
         // Samus contact gates ordinary contact only on the contact-damage mode and
         // Samus's invincibility timer. It does not inspect the knockback-active
-        // word. The extra host guard previously made a stale/ongoing aerial knockback
+        // state. An extra guard previously made a stale/ongoing aerial knockback
         // suppress every later Ridley overlap even after invincibility had expired.
         RoomEnemySlot slot = _ridleyEncounter.Parts.Body;
         if (_ridleyEncounter.Ridley is null ||
@@ -199,9 +199,9 @@ internal sealed class CeresRidleyHits
     }
 
     /// <summary>
-    /// Shared port of the rectangle walk used by Samus contact and
+    /// The shared rectangle walk used by Samus contact and
     /// projectile contact. Every component offset and every rectangle comes from the
-    /// frame Ridley shows; the tiny 8x8 radius in Ridley's enemy header is not his
+    /// frame Ridley shows; the tiny 8x8 radius in Ridley's species definition is not his
     /// body and must never be substituted for this data.
     /// </summary>
     internal static bool FrameHitboxesOverlapRectangle(

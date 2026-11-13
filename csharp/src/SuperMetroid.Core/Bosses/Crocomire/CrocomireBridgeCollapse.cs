@@ -137,7 +137,7 @@ internal sealed class CrocomireBridgeCollapse
     /// order; the dust setup follows, not an eleventh clear.
     /// The seven dust positions follow the
     /// exact bounded rule X=1536+16*i for i=0..6; Y=176 at i=0 or 2
-    /// and 192 otherwise. The original game writes these out one by one,
+    /// and 192 otherwise. The game places these one by one,
     /// not as a table. All seven pairs and their
     /// order match the authored ones; there is no eighth dust spawn.
     /// </summary>
@@ -249,7 +249,7 @@ internal sealed class CrocomireBridgeCollapse
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + travelled.WholePixels);
     }
 
-    /// <summary>Byte-for-byte fixed-point rise.</summary>
+    /// <summary>Runs Crocomire's fixed-point rise exactly as the game does.</summary>
     internal void RunCrocomireRise(CrocomireEnemyState state)
     {
         _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);

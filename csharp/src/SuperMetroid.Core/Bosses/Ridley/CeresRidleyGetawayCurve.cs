@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>Ceres Ridley's getaway: the zoom and drift at each step of the authored curves.</summary>
 public static class CeresRidleyGetawayCurve
 {
-    /// <summary>Preserves the serialized byte index, including its terminal entry.</summary>
+    /// <summary>The getaway frame at the given step, including the curves' terminal entry.</summary>
     public static CeresRidleyGetawayFrame FromIndex(int frame) =>
         (uint)frame < (uint)CeresRidleyGetawayDefinitions.Frames.Length
             ? CeresRidleyGetawayDefinitions.Frames[frame]

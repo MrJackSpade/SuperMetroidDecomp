@@ -12,7 +12,7 @@ public static class CeresRidleyPaletteDefinitions
     /// <summary>The health band Ceres Ridley shows from his fiftieth to his sixty-ninth accepted hit while fighting.</summary>
     public const int HealthMidBand = 0;
     /// <summary>
-    /// The health band Ceres Ridley shows from his seventieth accepted hit on: the original game omits the branch after its
+    /// The health band Ceres Ridley shows from his seventieth accepted hit on: the game omits the branch after its
     /// ninety-hit comparison, so the middle band is never shown in Ceres.
     /// </summary>
     public const int HealthLateBand = 2;

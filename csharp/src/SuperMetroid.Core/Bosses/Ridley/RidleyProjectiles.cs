@@ -83,7 +83,7 @@ internal sealed class RidleyProjectiles
         // code, not table data; treating that code as samples produces enormous bogus
         // velocities. Callers add a quarter turn themselves when they want cosine. Its multiply
         // takes the absolute table value,
-        // shifts by eight, then reapplies the sign. Speed 1280 therefore remains a
+        // divides by 256, then reapplies the sign. Speed 1280 therefore remains a
         // signed 8.8 velocity whose magnitude never exceeds 1280.
         state.FireballVelocity = new EightEightVector<RoomPixels>(
             EnemyMath.MultiplySineSample(FireballSpeed, angle),

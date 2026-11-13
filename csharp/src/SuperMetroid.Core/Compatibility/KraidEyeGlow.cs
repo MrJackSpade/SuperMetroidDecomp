@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// band's eyes at once.
 /// </para>
 /// <para>
-/// Consulted on every update of Kraid's eye glow and of its fade, the two AI functions his head's cues run after
+/// Consulted on every update of Kraid's eye glow and of its fade, the two head behaviours his head's cues run after
 /// a body hit, and set by his health colour updates during his enemy update. Evidence: the original glow and fade
 /// routines step the eye colours' channels one level an update, test them for the peak and for the band's colours, and
 /// wrap a channel decremented from none; the Kraid replays confirm the roar's timing.

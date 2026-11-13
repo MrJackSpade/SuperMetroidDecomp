@@ -138,7 +138,6 @@ internal static class InstalledFixtures
     private static readonly Lazy<SuperMetroid.AssetExtraction.Frontend.Ending.EndingFloorCharacters> endingFloors =
         Shared<SuperMetroid.AssetExtraction.Frontend.Ending.EndingFloorCharacters>("ending floors", () =>
             SuperMetroid.AssetExtraction.Frontend.Ending.EndingMode7ArtworkFiles.LoadForImport(
-                CartridgeImportContent.Component(GameInstallationLayout.EndingMode7DirectoryName),
                 CartridgeImportContent.ImportData(GameInstallationLayout.EndingMode7DirectoryName)));
 
     /// <summary>The ending Mode 7 floors the cartridge's floor loads are compared with.</summary>

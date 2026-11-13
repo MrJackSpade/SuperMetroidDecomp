@@ -70,6 +70,12 @@ internal static class ImportOnlyLayoutsVerification
         yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingCompletionTextSpriteFormat.FileName);
         yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingRewardSpriteFormat.FileName);
         yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingLogoSpriteFormat.FileName);
+        // The ending's Mode 7 cell maps and their manifest only compose the floors' sheets (#1693).
+        string endingMode7 = GameInstallationLayout.EndingMode7DirectoryName;
+        foreach (SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFloorSceneId floor in Enum.GetValues<SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFloorSceneId>())
+            yield return (endingMode7, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFloorArtworkFormat.MapFileName(floor));
+        yield return (endingMode7, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingRewardIconArtworkFormat.MapFileName);
+        yield return (endingMode7, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFloorArtworkFormat.ManifestFileName);
         string projectiles = GameInstallationLayout.ProjectileDirectoryName;
         yield return (projectiles, ProjectileSpriteDefinitions.FileName);
         yield return (projectiles, ChargeFlareSpriteExtractor.FileName);

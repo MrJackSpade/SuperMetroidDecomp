@@ -37,7 +37,7 @@ public static class GameInstallationLayout
     public const string SamusBodyDirectoryName = "samus-body";
     /// <summary>Content child directory for opening-cinematic artwork.</summary>
     public const string IntroCinematicDirectoryName = "intro-cinematic";
-    /// <summary>Content child directory for ending Mode 7 scene artwork.</summary>
+    /// <summary>Component directory whose import data holds the ending's Mode 7 cell maps and character pages, which only the import reads (#1636, #1693); nothing of it is installed.</summary>
     public const string EndingMode7DirectoryName = "ending-mode7";
     /// <summary>Content child directory for ending OBJ artwork.</summary>
     public const string EndingObjectDirectoryName = "ending-objects";
@@ -138,7 +138,7 @@ public static class GameInstallationLayout
     /// <summary>Receipt filename within stock content, recording the installation format and source cartridge digest.</summary>
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; content whose receipt names another is extracted again before opening.</summary>
-    public const int FormatVersion = 326;
+    public const int FormatVersion = 328;
 
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";

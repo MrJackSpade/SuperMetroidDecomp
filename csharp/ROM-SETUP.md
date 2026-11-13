@@ -286,19 +286,10 @@ handoff remain compiled. Missing, reordered, or malformed entries fail loudly.
 The ending's ship flyaway also reuses the Ceres Mode-7 character PNG and the front
 view of the Ceres flight map, with its original sixteen-frame upload cadence.
 
-The ending's two escape views and planet-explosion backdrop are installed separately
-under `game/ending-mode7/`. Each scene has an indexed 128x128 character PNG and a
-128x64 ordered tile-index map JSON (`ending-escape-a-*`, `ending-escape-b-*`, and
-`ending-planet-explosion-*`). Edit a file in place to change just that stream. The map describes the native low-byte lane, which is
-repeated across the two Mode-7 map halves; the PNG supplies the high-byte character
-lane. These edits do not change ship/cloud sprites, palettes, explosion timing,
-camera transforms or scene handoffs. A restored debugger state rebinds the current
-files, retaining any flyaway chunks the cartridge has already uploaded.
-The reward-jump icon has its own `post-credits-icon-map.json` (128x128 tile
-references) and `post-credits-icon-characters.png` (128x128 indexed pixels)
-under `game/ending-mode7/`. The runtime interleaves these files for the original
-sixteen queued uploads; editing either file in place changes that half without changing the jump
-or shooting sequence.
+The ending's two escape views, planet-explosion backdrop and reward-jump icon are
+not installed as cell maps or character pages: the import composes their floor
+pictures from the cartridge, and the installation holds only those pictures in the
+picture store. Edit the floor pictures to change what the scenes show.
 
 Ending/credits character streams are installed under `game/ending-objects/`:
 `ending-cloud-characters.png` and `ending-explosion-objects.png`, plus

@@ -29,6 +29,8 @@ internal sealed class NorfairRidleyCombat
     private readonly RidleyProjectiles _ridleyProjectiles;
     /// <summary>Raises the arena liquid during Ridley's reveal.</summary>
     private readonly EnemyRoomFx _roomFx;
+    /// <summary>The enemy pass's view of the frame, whose power bomb explosion Ridley dodges.</summary>
+    private readonly EnemyFrameContext _frameContext;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -41,6 +43,7 @@ internal sealed class NorfairRidleyCombat
         _ridleyTail = dependencies.RidleyTail;
         _ridleyProjectiles = dependencies.RidleyProjectiles;
         _roomFx = dependencies.RoomFx;
+        _frameContext = dependencies.FrameContext;
     }
 
     /// <summary>
@@ -576,7 +579,7 @@ internal sealed class NorfairRidleyCombat
             BeginNorfairRidleyDeathRoar(slot, state);
             return;
         }
-        if (_audio.PowerBomb is { IsArmed: true })
+        if (_frameContext.PowerBombExplosion is { IsArmed: true })
         {
             state.Function = RidleyAiFunction.NorfairReturnToArena;
             TickNorfairRidleyPowerBombDodge(slot, state);
@@ -589,7 +592,7 @@ internal sealed class NorfairRidleyCombat
     /// <summary>Runs the power-bomb branch of missed-lunge recovery.</summary>
     internal void TickNorfairRidleyPowerBombDodge(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        if (_audio.PowerBomb is not { IsArmed: true } bomb)
+        if (_frameContext.PowerBombExplosion is not { IsArmed: true } bomb)
         {
             state.FightMode = RidleyFightMode.Fighting;
             state.Function = state.GrabState == RidleyGrabState.Released

@@ -29,15 +29,20 @@ internal static class DraygonTurretCadenceVerification
         var boss = runtime.Enemies.DraygonBehavior.Parts.Draygon;
         AssertEqual(DraygonAiFunction.IntroInitialDelay, (boss ?? throw new InvalidOperationException("Verification requires boss.")).Function, "fight intro waits before the dance");
 
+        RoomEnemyFrame? stepped = null;
         int StepWith(byte counter8, ushort counter16)
         {
             int before = boss.TurretCadenceChecks;
-            runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = runtime.Player.Samus, ShortCounter = counter8, FrameCounter = counter16 });
+            stepped = runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = runtime.Player.Samus, ShortCounter = counter8, FrameCounter = counter16 };
+            runtime.Enemies.StepStandaloneFrame(stepped);
             return boss.TurretCadenceChecks - before;
         }
 
         AssertEqual(1, StepWith(counter8: 0x01, counter16: 0x3000),
             "a $05B6 multiple of $40 runs the turret check whatever $05B5 holds");
+        // #1620: the enemy pass hands the enemies the power bomb explosion of its frame's bombs, which Draygon's shots read.
+        AssertTrue(stepped is not null && ReferenceEquals(stepped.SharedProjectiles.PowerBombExplosion, runtime.Enemies.FrameContext.PowerBombExplosion),
+            "the enemy pass's frame context holds its frame's power bomb explosion");
         AssertEqual(0, StepWith(counter8: 0x40, counter16: 0x3001),
             "$05B5 alone never runs the turret check");
 
@@ -70,7 +75,7 @@ internal static class DraygonTurretCadenceVerification
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
         explosion.Spawn(bombed.Position.Whole);
         explosion.ExplosionRadius = PowerBombRadius.FromRaw(0x2000);
-        runtime.Enemies.Audio.PowerBomb = explosion;
+        runtime.Enemies.FrameContext.SeedPowerBombExplosion(explosion);
         runtime.Player.IntroducedSamus.XSpeedDivisor = 3;
         ushort bombedX = bombed.Position.X.Whole;
         runtime.Enemies.StepEnemyProjectileInstructions(runtime.Room.LoadedLevelData, runtime.Player.Samus,

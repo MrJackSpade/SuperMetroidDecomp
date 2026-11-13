@@ -22,9 +22,6 @@ internal sealed record RidleyBehaviorDependencies
     public required EnemyAudioQueue Audio { get; init; }
 
 
-    /// <summary>What the boss draws with: the room\'s presentation surfaces and the installed boss artwork.</summary>
-    public required BossPresentation Presentation { get; init; }
-
     /// <summary>Deaths and drops.</summary>
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
 
@@ -45,5 +42,8 @@ internal sealed record RidleyBehaviorDependencies
 
     /// <summary>Room fx.</summary>
     public required EnemyRoomFx RoomFx { get; init; }
+
+    /// <summary>The enemy pass's view of the frame, whose power bomb explosion Norfair Ridley dodges.</summary>
+    public required EnemyFrameContext FrameContext { get; init; }
 
 }

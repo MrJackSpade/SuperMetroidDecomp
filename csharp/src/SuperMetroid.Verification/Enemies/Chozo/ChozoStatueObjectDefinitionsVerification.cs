@@ -130,14 +130,14 @@ internal static class ChozoStatueObjectDefinitionsVerification
     /// The original game's identity of each statue room object, through which verification reads its native list; both
     /// plug crumbles are the one original object, spawned two ways.
     /// </summary>
-    private static readonly Dictionary<ChozoStatueRoomObject, RoomObjectHeaderId> NativeIdentities = new()
+    private static readonly Dictionary<ChozoStatueRoomObject, RoomObjectKind> NativeIdentities = new()
     {
-        [ChozoStatueRoomObject.LowerNorfairHand] = RoomObjectHeaderId.LowerNorfairChozoHand,
-        [ChozoStatueRoomObject.WreckedShipHand] = RoomObjectHeaderId.WreckedShipChozoHand,
-        [ChozoStatueRoomObject.SlopeAccessOpening] = RoomObjectHeaderId.ClearSlopeAccessForWreckedShipChozo,
-        [ChozoStatueRoomObject.SlopeAccessClosing] = RoomObjectHeaderId.BlockSlopeAccessForWreckedShipChozo,
-        [ChozoStatueRoomObject.PlugCrumbleAtHand] = RoomObjectHeaderId.CrumbleLowerNorfairChozoRoomPlug,
-        [ChozoStatueRoomObject.PlugCrumbleUnderFootstep] = RoomObjectHeaderId.CrumbleLowerNorfairChozoRoomPlug,
+        [ChozoStatueRoomObject.LowerNorfairHand] = RoomObjectKind.LowerNorfairChozoHand,
+        [ChozoStatueRoomObject.WreckedShipHand] = RoomObjectKind.WreckedShipChozoHand,
+        [ChozoStatueRoomObject.SlopeAccessOpening] = RoomObjectKind.ClearSlopeAccessForWreckedShipChozo,
+        [ChozoStatueRoomObject.SlopeAccessClosing] = RoomObjectKind.BlockSlopeAccessForWreckedShipChozo,
+        [ChozoStatueRoomObject.PlugCrumbleAtHand] = RoomObjectKind.CrumbleLowerNorfairChozoRoomPlug,
+        [ChozoStatueRoomObject.PlugCrumbleUnderFootstep] = RoomObjectKind.CrumbleLowerNorfairChozoRoomPlug,
     };
 
     /// <summary>

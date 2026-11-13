@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 internal sealed record CommonSpawnerPresence
 {
     /// <summary>The PLMs whose placement runs the spawner.</summary>
-    public IReadOnlyList<RoomObjectHeaderId> RoomObjects { get; init; } = [];
+    public IReadOnlyList<RoomObjectKind> RoomObjects { get; init; } = [];
 
     /// <summary>The room mains that run the spawner.</summary>
     public IReadOnlyList<RoomMainCallback> Mains { get; init; } = [];
@@ -39,6 +39,6 @@ internal sealed record CommonSpawnerPresence
         if ((AnyEnemy && drawn.Count > 0) || Enemies.Any(drawn.Contains))
             return true;
         return states.Any(state => Mains.Contains(state.MainCallback) || Setups.Contains(state.SetupCallback)
-            || state.ObjectPopulation.Placements.Span.Any(placement => RoomObjects.Contains(placement.Header.Header)));
+            || state.ObjectPopulation.Placements.Span.Any(placement => RoomObjects.Contains(placement.Kind)));
     }
 }

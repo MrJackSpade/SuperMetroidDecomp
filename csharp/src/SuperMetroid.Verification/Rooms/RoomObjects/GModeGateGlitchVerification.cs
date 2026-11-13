@@ -81,11 +81,11 @@ internal static class GModeGateGlitchVerification
         RoomLevelData level = runtime.Room.LoadedLevelData;
         RoomObjectSystem roomObjects = runtime.RoomObjects;
         RoomObjectSlotSnapshot gate = roomObjects.PopulationSlots.Single(slot =>
-            slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
+            slot.Kind == RoomObjectKind.DownwardGate);
         for (int warm = 0; warm < 2; warm++)
             roomObjects.Step(level);
         gate = roomObjects.PopulationSlots.Single(slot =>
-            slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
+            slot.Kind == RoomObjectKind.DownwardGate);
         AssertTrue(gate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.ShowingClosed or DownwardGatePhase.RestingClosed },
             "the gate is closed before the shot");
         while (roomObjects.SlotTable.ActiveCount < 40)
@@ -136,7 +136,7 @@ internal static class GModeGateGlitchVerification
             }
 
             RoomObjectSlotSnapshot currentGate = roomObjects.PopulationSlots.Single(slot =>
-                slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
+                slot.Kind == RoomObjectKind.DownwardGate);
             if (currentGate.Behaviour is not DownwardGateObject { Phase: DownwardGatePhase.ShowingClosed or DownwardGatePhase.RestingClosed } && openedFrame < 0)
                 openedFrame = frame;
         }

@@ -128,7 +128,7 @@ internal static class OldTourianEscapeShaftWallVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         ushort Word(int address) => cartridge.ReadCartridgeWord(0x840000 | address);
         RoomObjectInstruction InstructionWord(int address) => (RoomObjectInstruction)Word(address);
-        ushort entry = Word(RoomObjectNativeWords.Word(RoomObjectHeaderId.OldTourianEscapeShaftFakeWall) + 2);
+        ushort entry = Word(RoomObjectNativeWords.Word(RoomObjectKind.OldTourianEscapeShaftFakeWall) + 2);
         AssertEqual(RoomObjectInstruction.InstallFrameBehavior, InstructionWord(entry), "the wall first installs its wait");
         AssertEqual(OldTourianEscapeShaftWallObjectDefinitionsConstants.WaitForSamusFrameBehavior, Word(entry + 2), "the wall waits for Samus");
         AssertEqual(RoomObjectInstruction.Sleep, InstructionWord(entry + 4), "the wall sleeps while it waits");

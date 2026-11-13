@@ -20,12 +20,12 @@ internal sealed class DraygonCannonObjects
         _enemies = enemies;
     }
 
-    /// <summary>Whether <paramref name="header"/> is one of the room's wall cannons: the live right, destroyed right or live left cannon.</summary>
-    internal static bool IsDraygonCannonHeader(RoomObjectHeaderId header) => DraygonCannonDefinitions.Setups.ContainsKey(header);
+    /// <summary>Whether <paramref name="kind"/> is one of the room's wall cannons: the live right, destroyed right or live left cannon.</summary>
+    internal static bool IsDraygonCannonKind(RoomObjectKind kind) => DraygonCannonDefinitions.Setups.ContainsKey(kind);
 
-    /// <summary>The cannon a room's cannon object sets up: which way it faces and whether it starts destroyed, or null when <paramref name="header"/> is no cannon.</summary>
-    internal static DraygonCannonSetup? SetupOf(RoomObjectHeaderId header) =>
-        DraygonCannonDefinitions.Setups.TryGetValue(header, out DraygonCannonSetup setup) ? setup : null;
+    /// <summary>The cannon a room's cannon object sets up: which way it faces and whether it starts destroyed, or null when <paramref name="kind"/> is no cannon.</summary>
+    internal static DraygonCannonSetup? SetupOf(RoomObjectKind kind) =>
+        DraygonCannonDefinitions.Setups.TryGetValue(kind, out DraygonCannonSetup setup) ? setup : null;
 
     /// <summary>Sets up the cannon that controls <paramref name="cannon"/>, installing shootable terrain unless it starts destroyed.</summary>
     internal static void SetupDraygonCannonSlot(RoomLevelData level, RoomObjectSlot slot, DraygonCannonSetup setup, DraygonWallCannon cannon)

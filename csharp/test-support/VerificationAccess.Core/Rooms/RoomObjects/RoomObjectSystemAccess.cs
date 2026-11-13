@@ -22,24 +22,24 @@ internal static class RoomObjectSystemAccess
         /// This is a read-only inventory seam for private-ROM audits; production still performs
         /// dispatch and contextual failure from <see cref="RoomObjectPopulationLoader.LoadRoomPopulation"/> itself.
         /// </summary>
-        internal static bool IsSupportedRoomPopulationHeader(RoomObjectHeaderId header)
+        internal static bool IsSupportedRoomPopulationHeader(RoomObjectKind header)
         {
-            if (header is RoomObjectHeaderId.ScrollTrigger or
-                RoomObjectHeaderId.RightwardsScrollExtension or
-                RoomObjectHeaderId.LeftwardsScrollExtension or
-                RoomObjectHeaderId.DownwardsScrollExtension or
-                RoomObjectHeaderId.UpwardsScrollExtension or
-                RoomObjectHeaderId.MotherBrainGlass or RoomObjectHeaderId.BombTorizoHand or
-                RoomObjectHeaderId.MapStation or RoomObjectHeaderId.EnergyStation or
-                RoomObjectHeaderId.MissileStation or RoomObjectHeaderId.ElevatorPlatform or
-                RoomObjectHeaderId.SaveStation or
-                RoomObjectHeaderId.SpeedBoosterEscape or
-                RoomObjectHeaderId.WreckedShipAttic or
-                RoomObjectHeaderId.NoobTube or
-                RoomObjectHeaderId.MetroidRoomClearance or
-                RoomObjectHeaderId.MotherBrainEscapeRoomGate or
-                RoomObjectHeaderId.DownwardGate or RoomObjectHeaderId.DownwardGateShotBlock ||
-                EyeDoorObjects.IsEyeDoorHeader(header) || DraygonCannonObjects.IsDraygonCannonHeader(header))
+            if (header is RoomObjectKind.ScrollTrigger or
+                RoomObjectKind.RightwardsScrollExtension or
+                RoomObjectKind.LeftwardsScrollExtension or
+                RoomObjectKind.DownwardsScrollExtension or
+                RoomObjectKind.UpwardsScrollExtension or
+                RoomObjectKind.MotherBrainGlass or RoomObjectKind.BombTorizoHand or
+                RoomObjectKind.MapStation or RoomObjectKind.EnergyStation or
+                RoomObjectKind.MissileStation or RoomObjectKind.ElevatorPlatform or
+                RoomObjectKind.SaveStation or
+                RoomObjectKind.SpeedBoosterEscape or
+                RoomObjectKind.WreckedShipAttic or
+                RoomObjectKind.NoobTube or
+                RoomObjectKind.MetroidRoomClearance or
+                RoomObjectKind.MotherBrainEscapeRoomGate or
+                RoomObjectKind.DownwardGate or RoomObjectKind.DownwardGateShotBlock ||
+                EyeDoorObjects.IsEyeDoorKind(header) || DraygonCannonObjects.IsDraygonCannonKind(header))
             {
                 return true;
             }
@@ -50,13 +50,13 @@ internal static class RoomObjectSystemAccess
         }
 
         /// <summary>Recognizes the twelve directional yellow, green, and red door headers.</summary>
-        internal static bool IsColoredDoorHeader(RoomObjectHeaderId header) => header is
-            RoomObjectHeaderId.YellowDoorFacingLeft or RoomObjectHeaderId.YellowDoorFacingRight or
-            RoomObjectHeaderId.YellowDoorFacingUp or RoomObjectHeaderId.YellowDoorFacingDown or
-            RoomObjectHeaderId.GreenDoorFacingLeft or RoomObjectHeaderId.GreenDoorFacingRight or
-            RoomObjectHeaderId.GreenDoorFacingUp or RoomObjectHeaderId.GreenDoorFacingDown or
-            RoomObjectHeaderId.RedDoorFacingLeft or RoomObjectHeaderId.RedDoorFacingRight or
-            RoomObjectHeaderId.RedDoorFacingUp or RoomObjectHeaderId.RedDoorFacingDown;
+        internal static bool IsColoredDoorHeader(RoomObjectKind header) => header is
+            RoomObjectKind.YellowDoorFacingLeft or RoomObjectKind.YellowDoorFacingRight or
+            RoomObjectKind.YellowDoorFacingUp or RoomObjectKind.YellowDoorFacingDown or
+            RoomObjectKind.GreenDoorFacingLeft or RoomObjectKind.GreenDoorFacingRight or
+            RoomObjectKind.GreenDoorFacingUp or RoomObjectKind.GreenDoorFacingDown or
+            RoomObjectKind.RedDoorFacingLeft or RoomObjectKind.RedDoorFacingRight or
+            RoomObjectKind.RedDoorFacingUp or RoomObjectKind.RedDoorFacingDown;
     }
 
     /// <summary>Inspects live door, collectible, and glass PLMs and drives scoped PLM verification operations.</summary>
@@ -68,7 +68,7 @@ internal static class RoomObjectSystemAccess
             .. ActiveSlots(self).Select(slot => new ColoredDoorSlot(slot, Door: slot.Behaviour as ColoredDoorObject))
                 .Where(entry => entry.Door is not null)
                 .Select(entry => new ColoredDoorObjectSnapshot(
-                    entry.Slot.Header,
+                    entry.Slot.Kind,
                     entry.Slot.Block,
                     entry.Slot.NativeRoomArgument,
                     (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Color,
@@ -82,7 +82,7 @@ internal static class RoomObjectSystemAccess
             .. ActiveSlots(self).Select(slot => new GreyDoorSlot(slot, Door: slot.Behaviour as GreyDoorObject))
                 .Where(entry => entry.Door is not null)
                 .Select(entry => new GreyDoorObjectSnapshot(
-                    entry.Slot.Header,
+                    entry.Slot.Kind,
                     entry.Slot.Block,
                     entry.Slot.NativeRoomArgument,
                     (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Orientation,
@@ -96,7 +96,7 @@ internal static class RoomObjectSystemAccess
             .. ActiveSlots(self).Select(slot => new EyeDoorSlot(slot, Door: slot.Behaviour as EyeDoorEyeObject, Part: slot.Behaviour as EyeDoorPartObject))
                 .Where(entry => entry.Door is not null || entry.Part is not null)
                 .Select(entry => new EyeDoorObjectSnapshot(
-                    entry.Slot.Header,
+                    entry.Slot.Kind,
                     entry.Slot.Block,
                     entry.Slot.NativeRoomArgument,
                     entry.Door is not null ? EyeDoorComponent.Eye
@@ -181,7 +181,7 @@ internal static class RoomObjectSystemAccess
 
         /// <summary>Every live elevator-platform PLM, in processing order.</summary>
         internal IReadOnlyList<RoomObjectSlotSnapshot> ElevatorPlatforms => self.PopulationSlots
-            .Where(snapshot => snapshot.HeaderPointer == RoomObjectHeaderId.ElevatorPlatform)
+            .Where(snapshot => snapshot.Kind == RoomObjectKind.ElevatorPlatform)
             .ToArray();
 
         /// <summary>Views of the occupied slots, in the table's processing order.</summary>
@@ -192,7 +192,7 @@ internal static class RoomObjectSystemAccess
                 .Where(entry => entry.Slot.Active)
                 .Select(entry => new RoomObjectSlotSnapshot(
                     ProcessingPosition: entry.Index,
-                    HeaderPointer: entry.Slot.Header,
+                    Kind: entry.Slot.Kind,
                     Block: entry.Slot.Block,
                     RoomArgument: entry.Slot.NativeRoomArgument,
                     ProjectileHit: entry.Slot.ProjectileHit,

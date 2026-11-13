@@ -78,27 +78,27 @@ internal static class SpeedBoosterBlockObjectDefinitions
 
     /// <summary>Brinstar's respawning Speed Booster block with the slower crumble.</summary>
     public static readonly SpeedBoosterBlockObjectDefinition BrinstarSlowRespawning = new(
-        RoomObjectHeaderId.SpeedBlockBrinstarSlowRespawning,
+        RoomObjectKind.SpeedBlockBrinstarSlowRespawning,
         SlowRespawningCrumble);
 
     /// <summary>Brinstar's permanent Speed Booster block with the slower crumble.</summary>
     public static readonly SpeedBoosterBlockObjectDefinition BrinstarSlowPermanent = new(
-        RoomObjectHeaderId.SpeedBlockBrinstarSlowPermanent,
+        RoomObjectKind.SpeedBlockBrinstarSlowPermanent,
         SlowPermanentCrumble);
 
     /// <summary>The area-independent standard respawning block.</summary>
     public static readonly SpeedBoosterBlockObjectDefinition Respawning = new(
-        RoomObjectHeaderId.SpeedBlockRespawning,
+        RoomObjectKind.SpeedBlockRespawning,
         RespawningCrumble);
 
     /// <summary>Brinstar's Dachora-room standard respawning block.</summary>
     public static readonly SpeedBoosterBlockObjectDefinition DachoraRespawning = new(
-        RoomObjectHeaderId.SpeedBlockDachoraRespawning,
+        RoomObjectKind.SpeedBlockDachoraRespawning,
         RespawningCrumble);
 
     /// <summary>The permanent block, by the area-independent behaviour or Brinstar's own.</summary>
     public static readonly SpeedBoosterBlockObjectDefinition Permanent = new(
-        RoomObjectHeaderId.SpeedBlockPermanent,
+        RoomObjectKind.SpeedBlockPermanent,
         PermanentCrumble);
 
     /// <summary>The Speed Booster blocks the common special-block reactions select, in every area.</summary>

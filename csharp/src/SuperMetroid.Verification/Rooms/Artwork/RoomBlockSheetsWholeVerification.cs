@@ -87,7 +87,7 @@ internal static class RoomBlockSheetsWholeVerification
             {
                 foreach (RoomObjectPlacement placement in state.ObjectPopulation.Placements.Span)
                 {
-                    if (!CollectibleObjects.TryIdentifyPermanentCollectible(placement.Header.Header, out InWorldCollectibleKind kind, out _)
+                    if (!CollectibleObjects.TryIdentifyPermanentCollectible(placement.Kind, out InWorldCollectibleKind kind, out _)
                         || !CollectibleObjects.ShowsOwnPicture(kind))
                         continue;
                     TilesetDefinition tileset = RoomTilesets.Get(state.GraphicsSet);

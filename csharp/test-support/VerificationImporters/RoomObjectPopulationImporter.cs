@@ -31,17 +31,16 @@ internal static class RoomObjectPopulationImporter
             ushort argument = Word(0x8f, unchecked((ushort)(cursor + 4)));
             byte blockX = Byte(0x8f, unchecked((ushort)(cursor + 2)));
             byte blockY = Byte(0x8f, unchecked((ushort)(cursor + 3)));
-            // RoomObjectHeaderId's values are arbitrary (#1414): a word no member names cannot enter the population.
-            if (!RoomObjectNativeWords.Headers.TryDecode(headerWord, out RoomObjectHeaderId header))
+            // RoomObjectKind's values are arbitrary (#1414): a word no member names cannot enter the population.
+            if (!RoomObjectNativeWords.Headers.TryDecode(headerWord, out RoomObjectKind header))
                 throw new InvalidDataException(
                     $"PLM population $8F:{pointer:X4} record {index} names unlabelled header $84:{headerWord:X4} " +
                     $"at block ({blockX},{blockY}) with argument ${argument:X4}.");
-            var metadata = new RoomObjectHeaderDefinition(header);
-            RoomScrollWrite[]? scroll = header == RoomObjectHeaderId.ScrollTrigger ? Scroll(argument) : null;
+            RoomScrollWrite[]? scroll = header == RoomObjectKind.ScrollTrigger ? Scroll(argument) : null;
             RoomScrollProgram? retailScroll = scroll is null ? null : RetailScrollProgram(argument, scroll);
-            records.Add(new RoomObjectPlacement(metadata,
+            records.Add(new RoomObjectPlacement(header,
                 new(blockX, blockY), RoomObjectRoomArgumentWords.Decode(header, argument, area), retailScroll is null ? scroll : null,
-                DraygonCannonObjects.IsDraygonCannonHeader(header) ? DraygonWallCannonAddresses.Decode(argument) : null)
+                DraygonCannonObjects.IsDraygonCannonKind(header) ? DraygonWallCannonAddresses.Decode(argument) : null)
             {
                 CompiledScrollProgram = retailScroll,
             });

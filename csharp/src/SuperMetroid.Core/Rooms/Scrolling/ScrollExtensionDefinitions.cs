@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 internal static class ScrollExtensionDefinitions
 {
     /// <summary>Each scroll extension's collision and the signed block step toward its trigger.</summary>
-    internal static readonly IReadOnlyDictionary<RoomObjectHeaderId, ScrollExtension> Extensions = new Dictionary<RoomObjectHeaderId, ScrollExtension>
+    internal static readonly IReadOnlyDictionary<RoomObjectKind, ScrollExtension> Extensions = new Dictionary<RoomObjectKind, ScrollExtension>
     {
-        [RoomObjectHeaderId.RightwardsScrollExtension] = new(RoomCollisionType.HorizontalExtension, -1),
-        [RoomObjectHeaderId.LeftwardsScrollExtension] = new(RoomCollisionType.HorizontalExtension, 1),
-        [RoomObjectHeaderId.DownwardsScrollExtension] = new(RoomCollisionType.VerticalExtension, -1),
-        [RoomObjectHeaderId.UpwardsScrollExtension] = new(RoomCollisionType.VerticalExtension, 1),
+        [RoomObjectKind.RightwardsScrollExtension] = new(RoomCollisionType.HorizontalExtension, -1),
+        [RoomObjectKind.LeftwardsScrollExtension] = new(RoomCollisionType.HorizontalExtension, 1),
+        [RoomObjectKind.DownwardsScrollExtension] = new(RoomCollisionType.VerticalExtension, -1),
+        [RoomObjectKind.UpwardsScrollExtension] = new(RoomCollisionType.VerticalExtension, 1),
     };
 }

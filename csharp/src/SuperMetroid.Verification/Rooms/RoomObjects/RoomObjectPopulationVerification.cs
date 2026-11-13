@@ -117,7 +117,7 @@ internal static class RoomObjectPopulationVerification
                     "Fallback original initial list or no-actor zero");
             else
             {
-                AssertEqual(header, RoomObjectNativeWords.Word(actual?.Header ?? RoomObjectHeaderId.None), "Fallback original direction header");
+                AssertEqual(header, RoomObjectNativeWords.Word(actual?.Kind ?? RoomObjectKind.None), "Fallback original direction header");
                 AssertEqual(header, DoorClosingObjects.GetHeader(direction), "Fallback public original header");
             }
         }
@@ -154,7 +154,7 @@ internal static class RoomObjectPopulationVerification
             if (expectedHeader == 0)
                 continue;
             RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
-            AssertEqual(expectedHeader, RoomObjectNativeWords.Word(slot.HeaderPointer),
+            AssertEqual(expectedHeader, RoomObjectNativeWords.Word(slot.Kind),
                 $"door-closing direction {direction} installs compiled header");
             AssertEqual(expectedList, TypedDoorObjectOracle.StartListOf(slot.Behaviour),
                 $"door-closing direction {direction} starts the closing of its compiled initial list");
@@ -186,11 +186,11 @@ internal static class RoomObjectPopulationVerification
         int definitionIndex = 0;
         foreach (ushort raw in headers)
         {
-            RoomObjectHeaderId header = RoomObjectNativeWords.Header(raw);
+            RoomObjectKind header = RoomObjectNativeWords.Header(raw);
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(raw + 4))));
-            bool eyeDoorBody = header is RoomObjectHeaderId.EyeDoorFacingRight or RoomObjectHeaderId.EyeDoorFacingLeft;
+            bool eyeDoorBody = header is RoomObjectKind.EyeDoorFacingRight or RoomObjectKind.EyeDoorFacingLeft;
             ushort typedClosing = DoorObjectNativeListAddresses.TypedClosingEntry(header)
-                ?? (header == RoomObjectHeaderId.MotherBrainEscapeRoomGate ? DoorObjectNativeListAddresses.EscapeGateClosing
+                ?? (header == RoomObjectKind.MotherBrainEscapeRoomGate ? DoorObjectNativeListAddresses.EscapeGateClosing
                     : eyeDoorBody ? RoomObjectNativeListAddresses.DeleteList
                     : throw new InvalidOperationException($"Resident door $84:{raw:X4} has no typed closing."));
             AssertEqual(expected, typedClosing, $"resident door $84:{raw:X4} closing begins at its header's list");
@@ -206,7 +206,7 @@ internal static class RoomObjectPopulationVerification
             [
                 // Two directional caps are not placed in any retail room population,
                 // so they are absent from the 70-header population catalog.
-                new RoomObjectPlacement(new RoomObjectHeaderDefinition(header),
+                new RoomObjectPlacement(header,
                     new(blockX, blockY), RoomObjectRoomArgumentWords.Decode(header, 0x8000)), // Negative argument always closes.
             ]);
 
@@ -316,11 +316,11 @@ internal static class RoomObjectPopulationVerification
         RoomObjectSlotSnapshot[] slots = roomObjects.PopulationSlots.ToArray();
         AssertEqual(3, slots.Length, "extension setup deletes its preallocated actor");
         AssertEqual(0, slots[0].ProcessingPosition, "first record is processed first");
-        AssertEqual(0xb703, RoomObjectNativeWords.Word(slots[0].HeaderPointer), "first resident preserves record identity");
+        AssertEqual(0xb703, RoomObjectNativeWords.Word(slots[0].Kind), "first resident preserves record identity");
         AssertEqual(1, slots[1].ProcessingPosition, "post-delete record reuses the next slot in processing order");
-        AssertEqual(0xb70b, RoomObjectNativeWords.Word(slots[1].HeaderPointer), "elevator follows ROM order, not family order");
+        AssertEqual(0xb70b, RoomObjectNativeWords.Word(slots[1].Kind), "elevator follows ROM order, not family order");
         AssertEqual(2, slots[2].ProcessingPosition, "later station is processed after them");
-        AssertEqual(0xb6df, RoomObjectNativeWords.Word(slots[2].HeaderPointer), "station header remains observable");
+        AssertEqual(0xb6df, RoomObjectNativeWords.Word(slots[2].Kind), "station header remains observable");
         AssertEqual(1, roomObjects.ElevatorPlatforms.Count, "elevator platform family is resident");
         AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.Air), level.GetCollisionBlock(new(12, 8)).Terrain,
             "elevator setup clears collision bits through shared setup dispatcher");
@@ -385,10 +385,10 @@ internal static class RoomObjectPopulationVerification
         const ushort initialList = 0xba7f;
         const ushort closingList = 0xba4c;
 
-        SeedObjectProgramWords(bus, RoomObjectNativeWords.Word(RoomObjectHeaderId.BombTorizoGreyDoor), 0xc794);
-        SeedObjectProgramWords(bus, unchecked((ushort)(RoomObjectNativeWords.Word(RoomObjectHeaderId.BombTorizoGreyDoor) + 2)),
+        SeedObjectProgramWords(bus, RoomObjectNativeWords.Word(RoomObjectKind.BombTorizoGreyDoor), 0xc794);
+        SeedObjectProgramWords(bus, unchecked((ushort)(RoomObjectNativeWords.Word(RoomObjectKind.BombTorizoGreyDoor) + 2)),
             initialList);
-        SeedObjectProgramWords(bus, unchecked((ushort)(RoomObjectNativeWords.Word(RoomObjectHeaderId.BombTorizoGreyDoor) + 4)),
+        SeedObjectProgramWords(bus, unchecked((ushort)(RoomObjectNativeWords.Word(RoomObjectKind.BombTorizoGreyDoor) + 4)),
             closingList);
 
         // The PLM program and its draw pointers are compiled cartridge data. Do
@@ -465,10 +465,10 @@ internal static class RoomObjectPopulationVerification
         const ushort closingDraw = 0xa600;
         const ushort lockedDraw = 0xa610;
 
-        SeedObjectProgramWords(bus, RoomObjectNativeWords.Word(RoomObjectHeaderId.GreyDoorFacingLeft), 0xc794);
-        SeedObjectProgramWords(bus, unchecked((ushort)(RoomObjectNativeWords.Word(RoomObjectHeaderId.GreyDoorFacingLeft) + 2)),
+        SeedObjectProgramWords(bus, RoomObjectNativeWords.Word(RoomObjectKind.GreyDoorFacingLeft), 0xc794);
+        SeedObjectProgramWords(bus, unchecked((ushort)(RoomObjectNativeWords.Word(RoomObjectKind.GreyDoorFacingLeft) + 2)),
             initialList);
-        SeedObjectProgramWords(bus, unchecked((ushort)(RoomObjectNativeWords.Word(RoomObjectHeaderId.GreyDoorFacingLeft) + 4)),
+        SeedObjectProgramWords(bus, unchecked((ushort)(RoomObjectNativeWords.Word(RoomObjectKind.GreyDoorFacingLeft) + 4)),
             closingList);
         SeedObjectProgramWords(bus, unchecked(initialList + 2), closedBlueList);
         SeedObjectProgramWords(bus, unchecked(initialList + 6), activationList);
@@ -502,8 +502,8 @@ internal static class RoomObjectPopulationVerification
 
         SeedRoomObjectPopulation(bus, population,
         [
-            unchecked((byte)RoomObjectNativeWords.Word(RoomObjectHeaderId.GreyDoorFacingLeft)),
-            LittleEndianBytes.HighByte(RoomObjectNativeWords.Word(RoomObjectHeaderId.GreyDoorFacingLeft)),
+            unchecked((byte)RoomObjectNativeWords.Word(RoomObjectKind.GreyDoorFacingLeft)),
+            LittleEndianBytes.HighByte(RoomObjectNativeWords.Word(RoomObjectKind.GreyDoorFacingLeft)),
             doorX,
             doorY,
             unchecked((byte)roomArgument),
@@ -557,7 +557,7 @@ internal static class RoomObjectPopulationVerification
         const int blockX = 3;
         const int blockY = 4;
 
-        SeedObjectProgramWords(bus, unchecked((ushort)(RoomObjectNativeWords.Word(RoomObjectHeaderId.WreckedShipAttic) + 2)),
+        SeedObjectProgramWords(bus, unchecked((ushort)(RoomObjectNativeWords.Word(RoomObjectKind.WreckedShipAttic) + 2)),
             RoomObjectNativeListAddresses.WreckedShipAtticList);
         CartridgeImportAddressSpace? rom = File.Exists("Super Metroid.smc")
             ? SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")
@@ -771,9 +771,9 @@ internal static class RoomObjectPopulationVerification
 
         var decoded = new RoomObjectPopulation($"$8F:{population:X4}",
         [
-            new RoomObjectPlacement(RoomObjectHeaders.Get(RoomObjectHeaderId.GreenDoorFacingRight),
+            new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.GreenDoorFacingRight),
                 new(offRoomX, offRoomY), new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x27), DoorOpeningPersistence.Persistent)),
-            new RoomObjectPlacement(RoomObjectHeaders.Get(RoomObjectHeaderId.GreenDoorFacingLeft),
+            new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.GreenDoorFacingLeft),
                 new(inRoomX, inRoomY), new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0x28), DoorOpeningPersistence.Persistent)),
         ]);
 
@@ -801,7 +801,7 @@ internal static class RoomObjectPopulationVerification
 
         var malformed = new RoomObjectPopulation($"$8F:{malformedPopulation:X4}",
         [
-            new RoomObjectPlacement(RoomObjectHeaders.Get(RoomObjectHeaderId.ScrollTrigger),
+            new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.ScrollTrigger),
                 new(offRoomX, offRoomY), null, Array.Empty<RoomScrollWrite>()),
         ]);
         AssertThrows<ArgumentOutOfRangeException>(
@@ -924,8 +924,8 @@ internal static class RoomObjectPopulationVerification
         var fallback = RoomObjectFixtures.Unbound();
         AssertTrue(fallback.DoorObjects.TrySpawnDoorClosingObject(fallbackLevel, motherBrainExit, system),
             "special door without a resident cap spawns C8D0 fallback");
-        AssertEqual(RoomObjectHeaderId.MotherBrainEscapeRoomGateClosing,
-            fallback.PopulationSlots.Single().HeaderPointer,
+        AssertEqual(RoomObjectKind.MotherBrainEscapeRoomGateClosing,
+            fallback.PopulationSlots.Single().Kind,
             "fallback actor uses the cartridge's dedicated C8D0 header");
         AssertEqual(deactivatedGateWord, fallbackLevel.GetCollisionBlockByIndex(gateBlock).Terrain,
             "fallback C8D0 executes the shared deactivate setup");
@@ -1310,7 +1310,7 @@ internal static class RoomObjectPopulationVerification
     }
 
     /// <summary>
-    /// Checks that an unlabelled resident header word reports its room pointer, record, block and argument. RoomObjectHeaderId's
+    /// Checks that an unlabelled resident header word reports its room pointer, record, block and argument. RoomObjectKind's
     /// values are arbitrary (#1414), so such a word is rejected by the import instead of reaching the loader; the check
     /// now asserts the import's message.
     /// </summary>

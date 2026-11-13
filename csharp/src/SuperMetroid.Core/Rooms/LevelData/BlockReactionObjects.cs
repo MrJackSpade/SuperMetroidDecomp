@@ -110,14 +110,14 @@ internal sealed class BlockReactionObjects
         ContactCrumbleBlock crumble)
     {
         Ensure.NotNull(level);
-        RoomObjectHeaderId header = RoomObjectHeaders.ContactCrumbleOf(crumble);
+        RoomObjectKind kind = RoomObjectKinds.ContactCrumbleOf(crumble);
         BlockReactionChange change = BlockReactionChanges.ContactCrumble(crumble);
 
         if (_slotTable.Spawn() is not { } slot)
             return false;
 
         RoomCollisionBlock block = level.GetCollisionBlock(position);
-        slot.Header = header;
+        slot.Kind = kind;
         slot.Block = position;
         // The struck block keeps only its collision; the parent shows unmirrored, whatever the block's mirroring (#1581).
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.CrumbleBlockParent));
@@ -170,7 +170,7 @@ internal sealed class BlockReactionObjects
             return false;
 
         RoomCollisionBlock block = level.GetCollisionBlock(position);
-        slot.Header = definition.Header;
+        slot.Kind = definition.Kind;
         slot.Block = position;
         // The struck block keeps only its collision; the parent shows unmirrored, whatever the block's mirroring (#1581).
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.SpeedBoosterBlockParent));

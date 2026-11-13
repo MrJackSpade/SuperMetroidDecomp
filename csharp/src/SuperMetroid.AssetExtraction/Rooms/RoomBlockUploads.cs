@@ -170,7 +170,7 @@ internal static class RoomBlockUploads
         var placed = new HashSet<InWorldCollectibleKind>();
         foreach (RoomObjectPlacement placement in state.ObjectPopulation.Placements.Span)
         {
-            if (CollectibleObjects.TryIdentifyPermanentCollectible(placement.Header.Header, out InWorldCollectibleKind kind, out _)
+            if (CollectibleObjects.TryIdentifyPermanentCollectible(placement.Kind, out InWorldCollectibleKind kind, out _)
                 && CollectibleObjects.ShowsOwnPicture(kind))
                 placed.Add(kind);
         }

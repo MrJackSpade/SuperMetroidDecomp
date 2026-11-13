@@ -14,8 +14,8 @@ internal static class RoomObjectHeaderCatalogVerification
     /// </summary>
     internal static void VerifyRoomObjectHeaderCatalog()
     {
-        ushort[] cataloguedHeaders = Enum.GetValues<RoomObjectHeaderId>()
-            .Where(header => header != RoomObjectHeaderId.None)
+        ushort[] cataloguedHeaders = Enum.GetValues<RoomObjectKind>()
+            .Where(header => header != RoomObjectKind.None)
             .Select(RoomObjectNativeWords.Word)
             .ToArray();
         AssertEqual(cataloguedHeaders.Length, cataloguedHeaders.Distinct().Count(),
@@ -60,7 +60,7 @@ internal static class RoomObjectHeaderCatalogVerification
         }
 
         ushort[] supportedHeaders = retailHeaders
-            .Where(header => RoomObjectNativeWords.TryHeader(header, out RoomObjectHeaderId id) && RoomObjectSystem.IsSupportedRoomPopulationHeader(id))
+            .Where(header => RoomObjectNativeWords.TryHeader(header, out RoomObjectKind id) && RoomObjectSystem.IsSupportedRoomPopulationHeader(id))
             .Distinct()
             .ToArray();
         foreach (ushort header in supportedHeaders)

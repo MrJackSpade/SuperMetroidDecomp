@@ -152,10 +152,10 @@ internal sealed class StationObjects
         SharedGameState system,
         AreaId area,
         RoomObjectSlot slot,
-        RoomObjectHeaderId placed)
+        RoomObjectKind placed)
     {
         Ensure.NotNull(slot);
-        if (placed == RoomObjectHeaderId.ElevatorPlatform)
+        if (placed == RoomObjectKind.ElevatorPlatform)
         {
             // The deactivating setup leaves a solid block solid and any other block air, keeping its appearance; the
             // platform then plays its loop.

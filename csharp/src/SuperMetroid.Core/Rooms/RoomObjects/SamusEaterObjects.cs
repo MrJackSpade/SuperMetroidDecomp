@@ -31,7 +31,7 @@ internal sealed class SamusEaterObjects
         if (_slotTable.Spawn() is not { } slot)
             return;
 
-        slot.Header = definition.Identity;
+        slot.Kind = definition.Identity;
         slot.Block = block.At;
         slot.Become(new SamusEaterObject(this, definition,
             new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + (definition.Ceiling ? 1 : -1)))));

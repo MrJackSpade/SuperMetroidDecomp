@@ -599,11 +599,11 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 {
                     int offset = slotIndex * 2;
                     bool active = roomObjectSlots.TryGetValue(slotIndex, out var slot);
-                    Check($"PLM {slotIndex} header", active ? RoomObjectNativeWords.Word(slot.HeaderPointer) : (ushort)0, NativeSnapshotMemory.RoomObjectHeaders + offset);
+                    Check($"PLM {slotIndex} header", active ? RoomObjectNativeWords.Word(slot.Kind) : (ushort)0, NativeSnapshotMemory.RoomObjectHeaders + offset);
                     if (!active || W(NativeSnapshotMemory.RoomObjectHeaders + offset) == 0) continue;
-                    var greyDoor = runtime.RoomObjects.GreyDoorSnapshots.FirstOrDefault(door => door.Header == slot.HeaderPointer && door.Block == slot.Block);
-                    VerificationAssertions.AssertTrue(greyDoor.Header != RoomObjectHeaderId.None,
-                        $"Movie PLM {slot.HeaderPointer} needs a family-variable coverage mapping");
+                    var greyDoor = runtime.RoomObjects.GreyDoorSnapshots.FirstOrDefault(door => door.Kind == slot.Kind && door.Block == slot.Block);
+                    VerificationAssertions.AssertTrue(greyDoor.Kind != RoomObjectKind.None,
+                        $"Movie PLM {slot.Kind} needs a family-variable coverage mapping");
                     GreyDoorObject typedDoor = greyDoor.Door;
                     Check($"PLM {slotIndex} grey-door condition", (ushort)((int)greyDoor.Condition * 2), NativeSnapshotMemory.RoomObjectFamilyVariable + offset);
                     // Grey doors require one hit. Opening owns the incremented counter;

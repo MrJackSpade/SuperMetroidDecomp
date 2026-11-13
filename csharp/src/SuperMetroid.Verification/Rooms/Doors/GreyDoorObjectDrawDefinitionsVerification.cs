@@ -49,15 +49,15 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
         var bank84 = new byte[0x8000];
         for (int offset = 0; offset < bank84.Length; offset++)
             bank84[offset] = GreyDoorObjectDrawDefinitionsRomByte(rom, 0x848000 + offset);
-        RoomObjectHeaderId[] headers =
+        RoomObjectKind[] headers =
         [
-            RoomObjectHeaderId.BombTorizoGreyDoor,
-            RoomObjectHeaderId.GreyDoorFacingLeft,
-            RoomObjectHeaderId.GreyDoorFacingRight,
-            RoomObjectHeaderId.GreyDoorFacingUp,
-            RoomObjectHeaderId.GreyDoorFacingDown,
+            RoomObjectKind.BombTorizoGreyDoor,
+            RoomObjectKind.GreyDoorFacingLeft,
+            RoomObjectKind.GreyDoorFacingRight,
+            RoomObjectKind.GreyDoorFacingUp,
+            RoomObjectKind.GreyDoorFacingDown,
         ];
-        foreach (RoomObjectHeaderId header in headers)
+        foreach (RoomObjectKind header in headers)
         {
             TestAddressSpace bus = CreateBank84Cartridge(bank84);
             const ushort population = 0x9000;
@@ -65,8 +65,8 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
             [
                 unchecked((byte)RoomObjectNativeWords.Word(header)), LittleEndianBytes.HighByte(RoomObjectNativeWords.Word(header)),
                 4, 4,
-                header == RoomObjectHeaderId.BombTorizoGreyDoor ? (byte)0x1b : (byte)0,
-                header == RoomObjectHeaderId.BombTorizoGreyDoor ? (byte)0x08 : (byte)0,
+                header == RoomObjectKind.BombTorizoGreyDoor ? (byte)0x1b : (byte)0,
+                header == RoomObjectKind.BombTorizoGreyDoor ? (byte)0x08 : (byte)0,
                 0, 0,
             ]);
             const int width = 16;
@@ -95,7 +95,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
 
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"resident grey-door {header} avoids draw payload ROM reads");
-            if (header == RoomObjectHeaderId.BombTorizoGreyDoor)
+            if (header == RoomObjectKind.BombTorizoGreyDoor)
             {
                 VerifyBombTorizoGreyDoorLifecycle(guarded, new TorizoGreyDoorRoom { Level = level, RoomObjects = roomObjects, System = system }, population, origin);
             }

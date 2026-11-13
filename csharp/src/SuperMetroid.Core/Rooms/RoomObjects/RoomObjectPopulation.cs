@@ -36,26 +36,26 @@ public sealed class RoomObjectPopulation
 
     /// <summary>Builds a retail population from its compiled records, binding scroll triggers to their compiled program identities.</summary>
     /// <param name="name">The population's name.</param>
-    /// <param name="records">Each record's room-object identity, block coordinates and room argument, in authored order.</param>
+    /// <param name="records">Each record's room-object kind, block coordinates and room argument, in authored order.</param>
     internal static RoomObjectPopulation FromRecords(string name, RoomObjectPlacementDefinition[] records) =>
         new(name, Ensure.NotNull(records).Select(record => new RoomObjectPlacement(
-            RoomObjectHeaders.Get(record.Header), record.Block, record.Argument, Cannon: record.Cannon)
+            RoomObjectKinds.RequirePlaced(record.Kind), record.Block, record.Argument, Cannon: record.Cannon)
             { CompiledScrollProgram = record.ScrollProgram }));
 
     /// <summary>Copies one placement's scroll program and rejects a malformed one.</summary>
     private static RoomObjectPlacement CopyPlacement(RoomObjectPlacement placement)
     {
         Ensure.NotNull(placement);
-        if (placement.Header.Header == RoomObjectHeaderId.None)
+        if (placement.Kind == RoomObjectKind.None)
             throw new InvalidDataException("A decoded room-object placement cannot be an empty placement.");
         RoomScrollWrite[]? program = placement.ScrollProgram?.ToArray();
         RoomScrollProgram? compiledProgram = program is null ? placement.CompiledScrollProgram : null;
         if (compiledProgram is not null)
         {
-            if (placement.Header.Header != RoomObjectHeaderId.ScrollTrigger)
+            if (placement.Kind != RoomObjectKind.ScrollTrigger)
                 throw new InvalidDataException("Only a scroll trigger may run a retail scroll program.");
         }
-        else if (placement.Header.Header == RoomObjectHeaderId.ScrollTrigger)
+        else if (placement.Kind == RoomObjectKind.ScrollTrigger)
         {
             if (program is null || program.Length >= RoomScrollGrid.KeptCellCount)
                 throw new InvalidDataException("A decoded scroll room object needs a bounded write program.");

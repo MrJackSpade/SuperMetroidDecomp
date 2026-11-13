@@ -48,7 +48,7 @@ internal static class GateBeamCollisionVerification
         AssertEqual((ushort)113, shot.Position.X.Whole, "Native impact X, before any continuing flight");
         AssertEqual((ushort)329, shot.Position.Y.Whole, "Native impact Y");
         AssertEqual(0xa00f, shot.InstructionPointer, "Same-frame native impact instruction advancement");
-        AssertTrue(roomObjects.PopulationSlots.Where(s => s.HeaderPointer == RoomObjectHeaderId.DownwardGate)
+        AssertTrue(roomObjects.PopulationSlots.Where(s => s.Kind == RoomObjectKind.DownwardGate)
             .All(s => s.Behaviour is DownwardGateObject { Triggered: false }), "Beam cannot wake the wrong-side switch through the gate body");
         Console.WriteLine("PASS Kronic Boost native initial gate-beam impact and no switch activation.");
     }

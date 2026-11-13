@@ -29,9 +29,9 @@ internal static class RoomObjectPopulationInputBoundaryVerification
     internal static void VerifyObjectPopulationInputBoundary()
     {
         RoomScrollWrite[] writes = [new(1, RoomScrollState.Green)];
-        var trigger = new RoomObjectPlacement(RoomObjectHeaders.Get(RoomObjectHeaderId.ScrollTrigger),
+        var trigger = new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.ScrollTrigger),
             new(3, 3), null, writes);
-        var extension = new RoomObjectPlacement(RoomObjectHeaders.Get(RoomObjectHeaderId.RightwardsScrollExtension),
+        var extension = new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.RightwardsScrollExtension),
             new(4, 3), null);
         var second = trigger with { Block = new(5, trigger.Block.Y), ScrollProgram = Array.Empty<RoomScrollWrite>() };
         RoomObjectPlacement[] records = [trigger, extension, second];

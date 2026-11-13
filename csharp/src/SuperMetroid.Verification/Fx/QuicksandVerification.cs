@@ -167,13 +167,13 @@ internal static class QuicksandVerification
     {
         // Original non-clone sand PLM headers, independent of the replacement's named cases.
         ushort[] headers = [0xb713, 0xb71f, 0xb723, 0xb727, 0xb72b, 0xb737, 0xb73b, 0xb73f];
-        var sand = new List<(RoomObjectHeaderId Identity, ushort Header, ushort Setup)>();
-        foreach ((SpecialAirInsideReaction reaction, RoomObjectHeaderId identity) in QuicksandDefinitions.InsideObjects)
+        var sand = new List<(RoomObjectKind Identity, ushort Header, ushort Setup)>();
+        foreach ((SpecialAirInsideReaction reaction, RoomObjectKind identity) in QuicksandDefinitions.InsideObjects)
             sand.Add((identity, SpecialAirReactionNativeWords.InsideHeaders[reaction], SpecialAirReactionNativeWords.InsideSetups[reaction]));
-        foreach ((SpecialAirCollisionReaction reaction, RoomObjectHeaderId identity) in QuicksandDefinitions.CollisionObjects)
+        foreach ((SpecialAirCollisionReaction reaction, RoomObjectKind identity) in QuicksandDefinitions.CollisionObjects)
             sand.Add((identity, SpecialAirReactionNativeWords.CollisionHeaders[reaction], SpecialAirReactionNativeWords.CollisionSetups[reaction]));
         AssertTrue(sand.Select(entry => entry.Header).Order().SequenceEqual(headers), "the eight sand reactions are the cartridge's sand headers");
-        foreach ((RoomObjectHeaderId identity, ushort header, ushort setup) in sand)
+        foreach ((RoomObjectKind identity, ushort header, ushort setup) in sand)
         {
             AssertEqual(header, RoomObjectNativeWords.Word(identity), $"sand reaction object identity names header {(int)header:X4}");
             ushort native = ReadRomWord(rom, 0x840000 | (header + (instruction ? 2 : 0)));

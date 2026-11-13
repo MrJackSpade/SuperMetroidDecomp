@@ -423,6 +423,9 @@ using static SuperMetroid.Verification.Runtime.Attract.AttractDemoLoadWaitsVerif
 using static SuperMetroid.Verification.Enemies.EnemyMathBoundsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonTrailRingVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingWavySamusWaveVerification;
+using static SuperMetroid.Verification.Samus.Projectiles.SamusBombCountVerification;
+using static SuperMetroid.Verification.Samus.Artwork.SamusArtOriginRangeVerification;
+using static SuperMetroid.Verification.Samus.SamusSuitDamageVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationOracles;
 using System.Collections.Frozen;
@@ -1116,5 +1119,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyEnemyMathBounds), () => VerifyEnemyMathBounds()),
         new(nameof(VerifyBotwoonTrailRing), () => VerifyBotwoonTrailRing()),
         new(nameof(VerifyEndingWavySamusWave), () => VerifyEndingWavySamusWave()),
+        new(nameof(VerifySamusBombCount), () => VerifySamusBombCount()),
+        new(nameof(VerifySamusArtOriginRange), () => VerifySamusArtOriginRange()),
+        new(nameof(VerifySamusSuitDamage), () => VerifySamusSuitDamage()),
     ];
 }

@@ -511,6 +511,11 @@ internal static void VerifySamusStoredShineAndShinespark()
             StepSpark();
         AssertEqual(16, samus.Shinespark.CrashRadius, "four expanding calls reach radius sixteen");
         AssertEqual(ShinesparkCrashOrbitStage.Orbiting, samus.Shinespark.CrashOrbitStage, "radius sixteen starts the orbit");
+        // The copies stand the whole crash radius from Samus along their angles (#1627).
+        AssertEqual(samus.Position.Whole + SamusShinesparkState.ProjectileSinLookup(samus.Shinespark.FirstCrashEchoAngle, 16),
+            samus.Shinespark.FirstOrbitingCopy, "the first copy stands sixteen pixels out along its angle");
+        AssertEqual(samus.Position.Whole + SamusShinesparkState.ProjectileSinLookup(samus.Shinespark.SecondCrashEchoAngle, 16),
+            samus.Shinespark.SecondOrbitingCopy, "the second copy stands sixteen pixels out along its angle");
 
         StepSpark();
         AssertEqual(0, compatibility.CrashOrbitTravel.Travel, "the first orbiting call wraps the travel past 65535 to zero");

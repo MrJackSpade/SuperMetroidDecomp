@@ -119,7 +119,7 @@ public static class SamusInsideBlockReactions
             // The common special-air reactions include the conveyors; only they react here.
             if (!ConveyorBlockDefinitions.Conveyors.TryGetValue(reaction, out ConveyorBlock conveyor)) return;
             bool rightward = conveyor.Direction == HorizontalDirection.Right;
-            samus.HorizontalSpeed.SelectNormalAirSpeedTable();
+            samus.HorizontalSpeed.SelectAirSpeeds();
             if (conveyor.Condition == ConveyorCarryCondition.OnFootWithPower &&
                 ((area == AreaId.WreckedShip && !areaBossDefeated) || body.YSpeed.Whole != 0))
                 return;

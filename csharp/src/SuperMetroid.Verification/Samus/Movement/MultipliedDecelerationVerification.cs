@@ -43,13 +43,13 @@ internal static class MultipliedDecelerationVerification
 
         // At its site: a turning base speed of two pixels with the running deceleration of half a pixel at a multiplier
         // of 64 loses an eighth of a pixel.
-        var speed = new SamusHorizontalSpeedState
+        var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir)
         {
             BaseSpeed = new UnsignedSixteenSixteen(2, 0),
             AccelerationMode = SamusAccelerationMode.Turning,
             DecelerationMultiplier = 64,
         };
-        speed.CalculateBaseSpeed(new SpeedTableEntry(SignedSixteenSixteen.FromParts(0, 0x3000), SignedSixteenSixteen.FromParts(2, 0xc000), SignedSixteenSixteen.FromParts(0, 0x8000)));
+        speed.CalculateBaseSpeed(new SamusHorizontalSpeeds(SignedSixteenSixteen.FromParts(0, 0x3000), SignedSixteenSixteen.FromParts(2, 0xc000), SignedSixteenSixteen.FromParts(0, 0x8000)));
         AssertEqual(new UnsignedSixteenSixteen(1, 0xe000), speed.BaseSpeed, "the multiplied deceleration slows a turning speed");
 
         Console.WriteLine($"Multiplied deceleration: dropped remainders and the fraction's 256ths hold; {compared} decelerations agree with the replaced products.");

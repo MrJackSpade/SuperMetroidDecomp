@@ -79,7 +79,7 @@ internal static class SamusFullBodyCycleColorsVerification
                 items.HasAny(SamusEquipmentFlags.VariaSuit) ? 1 : 0;
             for (int phase = 0; phase < 4; phase++)
             {
-                var speed = new SamusHorizontalSpeedState
+                var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir)
                 {
                     SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0),
                     SpecialPaletteTimer = 1,
@@ -93,7 +93,7 @@ internal static class SamusFullBodyCycleColorsVerification
 
             for (int phase = 0; phase < 6; phase++)
             {
-                var screw = new SamusHorizontalSpeedState { CyclePaletteStep = phase };
+                var screw = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { CyclePaletteStep = phase };
                 var cgram = new SamusColours();
                 AssertTrue(screw.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack) }),
                     "Screw Attack reaches installed color source");

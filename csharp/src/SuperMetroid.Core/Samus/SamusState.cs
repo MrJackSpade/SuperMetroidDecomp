@@ -122,7 +122,7 @@ public sealed class SamusState
     /// Exact fixed-point horizontal speeds used by ordinary grounded
     /// right-running movement.
     /// </summary>
-    public SamusHorizontalSpeedState HorizontalSpeed { get; } = new();
+    public SamusHorizontalSpeedState HorizontalSpeed { get; }
 
     /// <summary>
     /// Live room-FX surface values and remembered liquid medium. Physics, animation, and
@@ -529,6 +529,7 @@ public sealed class SamusState
         AnimationContinuation = Ensure.NotNull(animationContinuation);
         UnauthoredBoostCadence = Ensure.NotNull(unauthoredBoostCadence);
         Ensure.NotNull(compatibility);
+        HorizontalSpeed = new SamusHorizontalSpeedState(compatibility.WaterSpeedsInAir);
         ProjectileInheritance = compatibility.LaunchInheritance;
         SparkCarryover = compatibility.SparkCarryover;
         EscapeAndDrainCount = compatibility.EscapeAndDrainCount;

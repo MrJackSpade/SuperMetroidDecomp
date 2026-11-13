@@ -105,7 +105,7 @@ public sealed class SamusCeresRidleyEjectionState
         // type (knockback for the knockback poses) and the persistent base/extra-run speeds. Direction comes
         // from the ejection's own direction instead of pose facing, so Ridley always throws toward a wall.
         SamusHorizontalSpeedState horizontalSpeed = samus.HorizontalSpeed;
-        horizontalSpeed.SelectEnvironmentSpeedTable(
+        horizontalSpeed.SelectSpeedsFor(
             samus.LiquidPhysics.DetermineMovementMedium(samus));
         UnsignedSixteenSixteen baseSpeed = horizontalSpeed.CalculateBaseSpeed(
             SamusPoseMetadata.ReadMovementType(samus));

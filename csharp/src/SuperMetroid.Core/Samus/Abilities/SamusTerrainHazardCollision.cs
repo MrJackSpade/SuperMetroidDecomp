@@ -82,7 +82,7 @@ public static class SamusTerrainHazardCollision
         // The spike-air reaction is disabled during shinespark/Screw-Attack/contact-damage bodies and
         // while the common invincibility timer is nonzero. It also restores the normal-air
         // horizontal table before returning, independently of whether damage was admitted.
-        samus.HorizontalSpeed.SelectNormalAirSpeedTable();
+        samus.HorizontalSpeed.SelectAirSpeeds();
         if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None || !samus.InvincibilityTimer.IsZero)
             return;
 

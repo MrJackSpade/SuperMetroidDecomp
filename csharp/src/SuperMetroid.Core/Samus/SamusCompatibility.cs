@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Movement;
+
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
@@ -26,6 +28,9 @@ internal sealed class SamusCompatibility
     /// <summary>The waits her breath bubbles and lava spray keep for the effects that shared their places.</summary>
     public required BreathBubbleAndLavaSprayWaits EffectWaits { get; init; }
 
+    /// <summary>The water speeds Draygon's hold and special movement move her by in air, where they have none of their own.</summary>
+    public required WaterSpeedsInAir<SamusMovementType, SamusHorizontalSpeeds> WaterSpeedsInAir { get; init; }
+
     /// <summary>A fresh set for a new Samus.</summary>
     public static SamusCompatibility ForNewSamus() => new()
     {
@@ -35,5 +40,6 @@ internal sealed class SamusCompatibility
         EscapeAndDrainCount = new SharedEscapeAndDrainCount(),
         HurtFlash = new SharedHurtFlashCount(),
         EffectWaits = new BreathBubbleAndLavaSprayWaits(),
+        WaterSpeedsInAir = new WaterSpeedsInAir<SamusMovementType, SamusHorizontalSpeeds>(SamusHorizontalSpeedDefinitions.WaterSpeedsInAir),
     };
 }

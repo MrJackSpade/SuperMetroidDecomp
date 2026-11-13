@@ -113,11 +113,11 @@ internal static void VerifySamusHorizontalSpeed()
         0x00, 0x00, 0x00, 0x80,
     ]);
 
-    var speed = new SamusHorizontalSpeedState();
-    speed.SelectNormalAirSpeedTable();
+    var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir);
+    speed.SelectAirSpeeds();
     AssertEqual(0x909f61, speed.ResolveEntryAddress(movementType: SamusMovementType.Running), "running speed entry pointer chain");
 
-    SpeedTableEntry entry = speed.ReadEntry(movementType: SamusMovementType.Running);
+    SamusHorizontalSpeeds entry = speed.Speeds(movementType: SamusMovementType.Running);
     AssertEqual(SignedSixteenSixteen.FromParts(0, 0x3000), entry.Acceleration,
         "running accelerates by three sixteenths of a pixel per frame");
     AssertEqual(SignedSixteenSixteen.FromParts(2, 0xc000), entry.MaximumSpeed,
@@ -186,7 +186,7 @@ internal static void VerifySamusHorizontalSpeed()
     // Native stages zero through three last one command loop; stage four lasts two.
     // Their compiled cadence still publishes the native echo/contact-damage events.
 
-    var booster = new SamusHorizontalSpeedState();
+    var booster = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir);
     booster.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
         controllerInput: ControllerButton.B,
@@ -240,7 +240,7 @@ internal static void VerifySamusHorizontalSpeed()
     foreach (bool liquid in new[] { false, true })
     foreach (bool activeStage in new[] { false, true })
     {
-        var retainedBoost = new SamusHorizontalSpeedState
+        var retainedBoost = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir)
         {
             HasRunningMomentum = true,
             ExtraRunSpeed = new UnsignedSixteenSixteen(7, 0),
@@ -286,7 +286,7 @@ internal static void VerifySamusHorizontalSpeed()
     AssertTrue(SamusPaletteDefinitions.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
         4, 0, out ushort gravityBoostFirst), "compiled first Gravity boost phase exists");
     SyntheticSamusCartridge.WriteSamusPaletteColors(bus, gravityBoostFirst, 0x6a5a);
-    var submergedBoost = new SamusHorizontalSpeedState { SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1) };
+    var submergedBoost = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1) };
     var submergedBoostColours = new SamusColours();
     // A sentinel shade shows whether the handler changed the suit's (#1512).
     submergedBoostColours.ShowSuit(SamusShades.ChargedShotGlow);
@@ -310,7 +310,7 @@ internal static void VerifySamusHorizontalSpeed()
     AssertTrue(SamusPaletteDefinitions.FullBodyCycles.TryScrewAttackPalettePointer(
         4, 0, out ushort gravityScrewFirst), "compiled first Gravity Screw phase exists");
     SyntheticSamusCartridge.WriteSamusPaletteColors(bus, gravityScrewFirst, 0x5b4b);
-    var submergedScrew = new SamusHorizontalSpeedState();
+    var submergedScrew = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir);
     var submergedScrewColours = new SamusColours();
     submergedScrewColours.ShowSuit(SamusShades.ChargedShotGlow);
     AssertTrue(!submergedScrew.UpdateSpeedBoosterPalette(submergedScrewColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 26, EquippedItems = SamusEquipmentFlags.ScrewAttack, BottomBoundarySubmerged = true }),
@@ -392,7 +392,7 @@ internal static void VerifySamusHorizontalSpeed()
 
     // Mirror the same signed-word comparison for a left-facing cancellation, with both echoes
     // captured by an ordinary full boost.
-    var leftDeparture = new SamusHorizontalSpeedState { SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage };
+    var leftDeparture = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus().WaterSpeedsInAir) { SpeedBoostCounter = SamusSpeedBoostCounter.AtFullStage };
     AssertTrue(leftDeparture.CaptureSpeedEchoPosition(0, new(150, 90)), "left departure captures its first echo");
     AssertTrue(leftDeparture.CaptureSpeedEchoPosition(4, new(154, 94)), "left departure captures its second echo");
     leftDeparture.CancelRunningMomentum(SamusFacingDirection.Left);

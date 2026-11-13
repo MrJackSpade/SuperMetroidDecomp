@@ -306,10 +306,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.GrabCooldown = WrappingCountdown.Start(YappingMawGrabCooldownFrames);
 
         // The six retracted lists are not one per aim. The right and left sectors have
-        // dedicated art, while every other sector shares its attack direction's list. Preserve parameter-zero's early-return quirk: on its shared-list branches it
-        // skips the final held-Samus placement on this one transition frame.
-        bool skipHeldPlacement = false;
-        if (slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Up)
+        // dedicated art, while every other sector shares its attack direction's list.
+        VerticalDirection reach = slot.SpawnSettings<YappingMawSpawnSettings>().Attack;
+        if (reach == VerticalDirection.Up)
         {
             state.Playback = new(YappingMawAnimations.StartingWith(state.Aim switch
             {
@@ -330,11 +329,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                     YappingMawAim.DownLeft or YappingMawAim.UpLeft => YappingMawSegment.CooldownDown,
                 _ => throw new InvalidOperationException($"Yapping Maw aim {state.Aim} is not an aim."),
             }), AnimationPlace.StartOfAnimation);
-            skipHeldPlacement = state.Aim is not (YappingMawAim.Right or YappingMawAim.Left);
         }
         slot.AnimationClock.Restart();
 
-        if (!skipHeldPlacement && state.HasGrabbedSamus)
+        if (state.HasGrabbedSamus &&
+            YappingMawRetractionHold.CarriesHeldSamus(reach, bitStraightAcross: state.Aim is YappingMawAim.Right or YappingMawAim.Left))
             PositionSamusInYappingMaw(slot, state, samus);
     }
 

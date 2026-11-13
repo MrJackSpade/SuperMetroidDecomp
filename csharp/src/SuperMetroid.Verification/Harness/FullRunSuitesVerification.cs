@@ -24,6 +24,7 @@ using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyFireballTargetVe
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoInitialDroolVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.DrainingShitroidFallShiftVerification;
 using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawBendChainVerification;
+using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawRetractionHoldVerification;
 using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleWallReversalVerification;
 using static SuperMetroid.Verification.Enemies.Kzan.KzanRiseStepVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.MultiviolaLeftOrUpSpeedVerification;
@@ -1023,6 +1024,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyBombTorizoInitialDrool), () => VerifyBombTorizoInitialDrool()),
         new(nameof(VerifyDrainingShitroidFallShift), () => VerifyDrainingShitroidFallShift()),
         new(nameof(VerifyYappingMawBendChain), () => VerifyYappingMawBendChain()),
+        new(nameof(VerifyYappingMawRetractionHold), () => VerifyYappingMawRetractionHold()),
         new(nameof(VerifyMamaTurtleWallReversal), () => VerifyMamaTurtleWallReversal()),
         new(nameof(VerifyKzanRiseStep), () => VerifyKzanRiseStep()),
         new(nameof(VerifyMultiviolaLeftOrUpSpeed), () => VerifyMultiviolaLeftOrUpSpeed()),

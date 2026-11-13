@@ -11,7 +11,7 @@ public sealed class SamusGrappleState
     public SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements? FlarePlacement { get; set; }
     /// <summary>Current displayed orientation mapping, never a collision/body offset source.</summary>
     public SuperMetroid.Core.Samus.Artwork.InstalledGrappleSwingFrames? SwingFrames { get; set; }
-    /// <summary>Gets or sets the current grapple function phase.</summary>
+    /// <summary>Gets or sets the current grapple phase.</summary>
     public GrapplePhase Phase { get; set; }
     /// <summary>Gets or sets the grapple anchor (beam endpoint) in room pixels.</summary>
     public Position16<RoomPixels> Anchor { get; set; }
@@ -126,7 +126,7 @@ public sealed class SamusGrappleState
 
     /// <summary>
     /// Whether the released-from-swing movement handler is running. The grapple
-    /// beam function becomes inactive one frame after release, but this independent Samus
+    /// beam becomes inactive one frame after release, but this independent Samus
     /// movement handler continues until apex underflow or vertical collision restores the
     /// normal handler. Keeping it separate from <see cref="Phase"/> prevents premature
     /// fallback to ordinary movement-type-two physics.

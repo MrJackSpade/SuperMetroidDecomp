@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <remarks>
 /// Consulted on every update of the fireball attack, after the jitter is drawn from the random value and before Ridley
-/// accelerates toward the point. Evidence: the shooting function (<c>$A6:A7F9</c>) adds the jitter, a negative jitter as
+/// accelerates toward the point. Evidence: the fireball attack's shooting step (<c>$A6:A7F9</c>) adds the jitter, a negative jitter as
 /// its sixteen-bit complement, to the base X and then to the base Y without clearing the carry between them, and enters
 /// with the carry clear (the enemy main loop's index addition before the call, or the hover's height comparison it falls
 /// through from); so the Y addition takes one more pixel exactly when the X addition passes the end of the word, which a

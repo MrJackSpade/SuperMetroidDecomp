@@ -77,7 +77,7 @@ internal sealed class IntroMotherBrainSpriteState
         if (CrossfadingToPageTwo)
         {
             ApplyScreenShake(cinematicFrameCounter);
-            // The cross-fade behaviour observes the timer after the cinematic function has decremented it.
+            // The cross-fade behaviour observes the timer after the cinematic phase has decremented it.
             // At zero it redirects this actor to delete and clears Samus's intro display.
             if (introCrossfadeTimer == 0)
                 IsVisible = false;

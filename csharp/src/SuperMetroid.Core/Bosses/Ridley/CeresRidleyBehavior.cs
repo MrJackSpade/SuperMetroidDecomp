@@ -269,7 +269,7 @@ internal sealed class CeresRidleyBehavior
                 break;
 
             case RidleyPhase.CeresInactive:
-                // The inactive function is empty; room main owns the getaway.
+                // The inactive phase is empty; room main owns the getaway.
                 return;
 
             case RidleyPhase.CeresActivateSelfDestruct:

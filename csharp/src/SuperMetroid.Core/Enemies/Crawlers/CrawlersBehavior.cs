@@ -31,7 +31,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         _earthquake = earthquake;
     }
 
-    /// <summary>Carries out a crawler animation's cue: each surface's first step installs the movement function main AI runs.</summary>
+    /// <summary>Carries out a crawler animation's cue: each surface's first step sets the movement action main AI runs.</summary>
     private static CrawlerSegment? ApplyCrawlerCue(CrawlerEnemyState state, CrawlerCue cue)
     {
         switch (cue.Kind)
@@ -326,7 +326,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerEnemyState state,
         RoomLevelData level)
     {
-        // Sets the next function but still executes this attached movement
+        // Sets the next action but still executes this attached movement
         // call. Falling displacement begins on the following AI frame.
         TriggerCrawlerEarthquakeFall(state);
         SignedSixteenSixteen wallProbe = Shift8AddMagnitude(state.Velocity.X, 1);
@@ -421,7 +421,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = CrawlerAction.CrawlingVertically;
     }
 
-    /// <summary>Remembers the attached surface function before entering gravity-controlled falling.</summary>
+    /// <summary>Remembers the attached surface action before entering gravity-controlled falling.</summary>
     private static void BeginCrawlerFall(CrawlerEnemyState state)
     {
         state.NonFallingAction = state.Action;

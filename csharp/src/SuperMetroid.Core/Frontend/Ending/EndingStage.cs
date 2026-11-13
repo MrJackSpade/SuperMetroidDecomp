@@ -27,7 +27,7 @@ internal sealed class EndingStage
     /// <summary>What the ending's colours show (#1512).</summary>
     internal EndingColours Colours => screen.Colours;
 
-    /// <summary>Countdown read by the currently installed cinematic function.</summary>
+    /// <summary>Countdown read by the current cinematic phase.</summary>
     internal int PhaseTimer { get; set; }
 
     /// <summary>Shared fade progression through scene and palette handoffs.</summary>
@@ -49,7 +49,7 @@ internal sealed class EndingStage
     /// <summary>Turning-floor angle, in 256ths of a turn, shared by the escape and planet scenes.</summary>
     internal RotationAngle FloorAngle { get; set; }
 
-    /// <summary>Current cinematic-function replacement, including terminal display states.</summary>
+    /// <summary>Current cinematic phase, including terminal display states.</summary>
     public EndingCreditsPhase Phase { get; internal set; }
 
     /// <summary>Selects suitless, helmetless or armored presentation from the clear-time hour thresholds.</summary>
@@ -156,7 +156,7 @@ internal sealed class EndingStage
                     sprite.Delete();
                 break;
             case EndingSpriteRole.ExplosionAfterglow:
-                // The finale deletes the afterglow at the same null-function handoff.
+                // The finale deletes the afterglow at the same handoff out of the last phase.
                 if (Phase == EndingCreditsPhase.OperationSuccessfulText)
                     sprite.Delete();
                 break;

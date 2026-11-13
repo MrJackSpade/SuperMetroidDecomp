@@ -39,9 +39,9 @@ public sealed class VerticalShutterEnemyState
     public int ProximityDistance { get; internal set; }
     /// <summary>The AI updates a timer-triggered shutter waits before it moves.</summary>
     public int WaitTime { get; internal set; }
-    /// <summary>Upward endpoint's rest length in AI updates, a multiple of sixteen; 4080 selects the inert function instead of counting down.</summary>
+    /// <summary>Upward endpoint's rest length in AI updates, a multiple of sixteen; 4080 selects the inert action instead of counting down.</summary>
     public int MovedUpRestTime { get; internal set; }
-    /// <summary>Downward endpoint's rest length in AI updates, a multiple of sixteen; 4080 selects the inert function instead of counting down.</summary>
+    /// <summary>Downward endpoint's rest length in AI updates, a multiple of sixteen; 4080 selects the inert action instead of counting down.</summary>
     public int MovedDownRestTime { get; internal set; }
     /// <summary>Whether the pre-movement riding test found Samus supported by this shutter; enables whole-pixel extra-Y carry for the current movement.</summary>
     public bool MovingSamus { get; internal set; }

@@ -179,7 +179,7 @@ internal sealed class CeresRidleyFlight
             return;
 
         state.FireballBasePosition = slot.Position.Whole;
-        // The fireball function installs the complete retail mouth/fireball animation.
+        // The fireball phase starts the complete retail mouth/fireball animation.
         // Its fireball cues calculate and spawn actors; leaving this
         // assignment out produces correct boss motion with a conspicuously silent attack.
         StartRidleyAnimation(state, slot, RidleyBodySegment.Fireballing);
@@ -300,7 +300,7 @@ internal sealed class CeresRidleyFlight
         RoomEnemySlot slot,
         RidleyEnemyState state)
     {
-        // Shared Ridley function steers toward (192,128). Ceres uses this only for
+        // The shared Ridley phase steers toward (192,128). Ceres uses this only for
         // the 100-shot "fake retreat"; the low-energy branch bypasses the Baby retrieval.
         AccelerateRidleyToward(slot, state, new(192, 128), 15);
         if (CoordinateAxis.Difference(slot.Position.X.Whole, 192) >= 0)
@@ -313,7 +313,7 @@ internal sealed class CeresRidleyFlight
         RidleyEnemyState state)
     {
         // Ridley rises past Y=32 while the Baby still follows his original hand
-        // anchor. Crossing that line starts the Baby's independent falling function and a
+        // anchor. Crossing that line starts the Baby's independent fall and a
         // 21-underflow wait before Ridley changes to the retrieval pose.
         state.MovementMinimum = state.MovementMinimum.WithY(CoordinateAxis.Wrap(-192));
         AccelerateRidleyToward(slot, state, Position16<RoomPixels>.Wrapped(192, -128), 15);

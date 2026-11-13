@@ -4,20 +4,20 @@ namespace SuperMetroid.Core.Enemies.Skree;
 internal static class SkreeMetareeAnimationChoices
 {
     /// <summary>The Metaree animation of <paramref name="phase"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="phase"/> is outside the four-entry table.</exception>
+    /// <exception cref="InvalidDataException"><paramref name="phase"/> is not one of the four animation phases.</exception>
     internal static SkreeMetareeSegment MetareeAnimation(SkreeMetareeAnimationPhase phase) =>
         SkreeMetareeAnimationDefinitions.MetareeAnimations.TryGetValue(phase, out SkreeMetareeSegment segment)
             ? segment
             : throw InvalidPhase(phase, "Metaree");
 
     /// <summary>The Skree animation of <paramref name="phase"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="phase"/> is outside the four-entry table.</exception>
+    /// <exception cref="InvalidDataException"><paramref name="phase"/> is not one of the four animation phases.</exception>
     internal static SkreeMetareeSegment SkreeAnimation(SkreeMetareeAnimationPhase phase) =>
         SkreeMetareeAnimationDefinitions.SkreeAnimations.TryGetValue(phase, out SkreeMetareeSegment segment)
             ? segment
             : throw InvalidPhase(phase, "Skree");
 
-    /// <summary>Reports an out-of-table animation selector with its enemy name.</summary>
+    /// <summary>Reports an animation phase with no animation, with its enemy name.</summary>
     private static InvalidDataException InvalidPhase(SkreeMetareeAnimationPhase phase, string enemyName) =>
         new($"{enemyName} animation phase {phase} exceeds its four-entry table.");
 }

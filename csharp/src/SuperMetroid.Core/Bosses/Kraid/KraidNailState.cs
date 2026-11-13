@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// One of Kraid's fingernails' own state beside the function every part runs: its velocity and which spawn its last
+/// One of Kraid's fingernails' own state beside the phase every part runs: its velocity and which spawn its last
 /// launch took, which its sibling reads.
 /// </summary>
 public sealed class KraidNailState : KraidPartState

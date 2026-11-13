@@ -12,7 +12,7 @@ internal sealed class PhantoonOpening
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Queues encounter sounds in enemy update order.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Phantoon's fades, health colors, wave amplitude, animations and function timer, shared by every phase of the fight.</summary>
+    /// <summary>Phantoon's fades, health colors, wave amplitude, animations and phase timer, shared by every phase of the fight.</summary>
     private readonly PhantoonPresentation _presentation;
     /// <summary>The bosses' results of the pass, where the opening asks for the fight's door.</summary>
     private readonly BossFrameResultBuilder _frameResults;

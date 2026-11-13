@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// Dead Torizo's corpse state: its function and velocity, rot schedule, its own rows as the rot has left them, contact delay
+/// Dead Torizo's corpse state: its phase and velocity, rot schedule, its own rows as the rot has left them, contact delay
 /// and the rot calls its sand heap forms by.
 /// </summary>
 public sealed class DeadTorizoEnemyState

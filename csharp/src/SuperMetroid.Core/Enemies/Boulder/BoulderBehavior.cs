@@ -259,7 +259,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen horizontalDisplacement = ReadBoulderHorizontalDisplacement(state);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
         {
-            // Setting the hidden and deleted properties both hides and deletes the boulder. The inert function is
+            // Setting the hidden and deleted properties both hides and deletes the boulder. The inert action is
             // still written before the next update's processing pass clears it.
             slot.Presence = slot.Presence.With(EnemyPresence.Hidden | EnemyPresence.Deleted);
             state.Action = BoulderAction.Inert;

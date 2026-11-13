@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function their branches test.</summary>
+/// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the phase their branches test.</summary>
 [RoomLifetime]
 internal sealed class TorizoEncounterAccess
 {

@@ -41,9 +41,9 @@ public sealed class HorizontalShutterEnemyState
     public int ProximityDistance { get; internal set; }
     /// <summary>The AI updates a timer-triggered shutter waits before it moves.</summary>
     public int WaitTime { get; internal set; }
-    /// <summary>Left endpoint's rest length in AI updates, a multiple of sixteen; 4080 installs the inert function.</summary>
+    /// <summary>Left endpoint's rest length in AI updates, a multiple of sixteen; 4080 sets the inert action.</summary>
     public int MovedLeftRestTime { get; internal set; }
-    /// <summary>Right endpoint's rest length in AI updates, a multiple of sixteen; 4080 installs the inert function.</summary>
+    /// <summary>Right endpoint's rest length in AI updates, a multiple of sixteen; 4080 sets the inert action.</summary>
     public int MovedRightRestTime { get; internal set; }
     /// <summary>Initially clear mode-3 activation latch; the first eligible reaction sets it permanently for this enemy lifetime.</summary>
     public bool ShotActivated { get; internal set; }

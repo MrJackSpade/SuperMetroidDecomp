@@ -186,7 +186,7 @@ internal sealed class MotherBrainCombat
         if (state.RainbowBeamSequence is { } sequence)
         {
             // The attached sequence shares the walk counter with the encounter. The recoil
-            // clears the body function timer on recoil underflow and stores the counter
+            // clears the body phase timer on recoil underflow and stores the counter
             // immediately, before common projectile damage runs.
             sequence.ApplyPhase2Or3ShotReaction(reactionProjectile);
             state.PhaseTimer = sequence.State.PhaseTimer;

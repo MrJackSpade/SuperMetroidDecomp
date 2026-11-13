@@ -3,7 +3,7 @@
 /// <summary>Mother Brain drained by the Baby Metroid: taken aback, firing back, running out, retreating and turning gray.</summary>
 internal sealed class MotherBrainDrainedByBabyPhases
 {
-    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
+    /// <summary>The state every late-fight phase reads and writes: the body phase and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -22,13 +22,13 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// <summary>Pause timer used after each completed forward/backward body animation.</summary>
     public int PainfulWalkingPauseTimer { get; private set; }
 
-    /// <summary>True while the nested painful-walk function is on its forward half.</summary>
+    /// <summary>True while the nested painful walk is on its forward half.</summary>
     public bool PainfulWalkingForward { get; internal set; }
 
     /// <summary>Alternates painful forward and backward walk requests, advancing the stage only after its pause expires.</summary>
     internal bool StepPainfulWalking()
     {
-        // The game stores four separate functions (request forward, wait forward,
+        // The game keeps four separate phases (request forward, wait forward,
         // request backward, wait backward). Two booleans express the same state without
         // hiding when a body animation is actually installed.
         if (PainfulWalkingPauseTimer != 0)
@@ -53,7 +53,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby taken aback body function. True when it installs the next body function and the game runs
+    /// Runs the second phase drained by baby taken aback body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyTakenAback()
@@ -71,7 +71,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby regain balance body function. True when it installs the next body function and the game runs
+    /// Runs the second phase drained by baby regain balance body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyRegainBalance(MotherBrainRainbowBeamStepRequests requests)
@@ -94,7 +94,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby firing rainbow beam body function. True when it installs the next body function and the game runs
+    /// Runs the second phase drained by baby firing rainbow beam body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyFiringRainbowBeam(MotherBrainRainbowBeamStepRequests requests)
@@ -107,7 +107,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         requests.ColoursRequested = true;
         requests.BodyWalkRequested = StepPainfulWalking();
 
-        // The outer function updates delay and neck delta after *every* nested call.
+        // The outer phase updates delay and neck delta after *every* nested call.
         // Stage six is therefore observed on the exact call which ends its prior
         // pause, before the stage-six forward walk has even begun.
         if (PainfulWalkingStage < MotherBrainPainfulWalkingDefinitions.StageCount)
@@ -126,7 +126,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby rainbow beam run out body function. True when it installs the next body function and the game runs
+    /// Runs the second phase drained by baby rainbow beam run out body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyRainbowBeamRunOut(MotherBrainRainbowBeamStepRequests requests)
@@ -145,7 +145,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby move to back of room body function. True when it installs the next body function and the game runs
+    /// Runs the second phase drained by baby move to back of room body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyMoveToBackOfRoom(MotherBrainRainbowBeamStepRequests requests)
@@ -165,7 +165,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby go into low power mode body function. True when it installs the next body function and the game runs
+    /// Runs the second phase drained by baby go into low power mode body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyGoIntoLowPowerMode(MotherBrainRainbowBeamStepRequests requests)
@@ -187,7 +187,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby prepare transition to grey body function. True when it installs the next body function and the game runs
+    /// Runs the second phase drained by baby prepare transition to grey body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyPrepareTransitionToGrey()
@@ -203,7 +203,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby transition to grey body function. True when it installs the next body function and the game runs
+    /// Runs the second phase drained by baby transition to grey body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyTransitionToGrey(MotherBrainRainbowBeamStepRequests requests)

@@ -47,7 +47,7 @@ internal sealed class EndingLogo
     public void Step(EndingColours colours)
     {
         if (Completed) throw new InvalidOperationException("Completed logo must hand off to percentage text.");
-        // The cinematic function runs before sprite cues, so the first palette
+        // The cinematic phase runs before sprite cues, so the first palette
         // pair is copied on the call after the request, not during the call that requests it.
         if (CrossfadeStarted)
         {

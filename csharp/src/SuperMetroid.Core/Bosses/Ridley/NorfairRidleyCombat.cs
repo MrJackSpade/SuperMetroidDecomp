@@ -414,7 +414,7 @@ internal sealed class NorfairRidleyCombat
         if (slot.Health == 0)
         {
             StartNorfairRidleyDeathSequence(slot, state);
-            // The grab tail-jumps to the move-to-death-spot function on the same successful zero-health grab.
+            // The grab tail-jumps to the move-to-death-spot phase on the same successful zero-health grab.
             TickNorfairRidleyMoveToDeathSpot(slot, state);
             return;
         }
@@ -513,7 +513,7 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>
-    /// Lunges when a power bomb is active and Ridley is not holding Samus, run before the function on
+    /// Lunges when a power bomb is active and Ridley is not holding Samus, run before the phase on
     /// every main and even hurt frame. It reads the power-bomb state, which is set as soon as a power bomb is
     /// laid, so Ridley lunges in the same frame Samus lays one.
     /// </summary>
@@ -526,7 +526,7 @@ internal sealed class NorfairRidleyCombat
         if (!sharedProjectiles.PowerBombExplosion.IsArmed || state.GrabState != RidleyGrabState.Released)
             return;
 
-        // The power-bomb lunge function resets both tail controls before the lunge.
+        // The power-bomb lunge resets both tail controls before the lunge.
         state.TailAction = RidleyTailAction.Neutral;
         state.TailAngleDelta = 1;
         state.Phase = RidleyPhase.NorfairGrabApproach;

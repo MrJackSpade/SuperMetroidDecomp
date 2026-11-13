@@ -173,7 +173,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             : MamaTurtleSegment.BabyCrawlingRight));
     }
 
-    /// <summary>Runs the Mama Turtle's main behaviour and its indirect functions.</summary>
+    /// <summary>Runs the Mama Turtle's main behaviour and its actions.</summary>
     private void RunMamaTurtleMain(
         RoomEnemySlot slot,
         MamaTurtleEnemyState state,
@@ -489,7 +489,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = MamaTurtleAction.Idle;
     }
 
-    /// <summary>Runs the Baby Turtle's main behaviour and its six live functions.</summary>
+    /// <summary>Runs the Baby Turtle's main behaviour and its six live actions.</summary>
     private void RunBabyTurtleMain(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state,

@@ -175,7 +175,7 @@ internal sealed class CrocomireCombat
     /// <summary>
     /// The frames a mouth shot that starts a damage reaction adds to the hold of Crocomire's current animation frame,
     /// whatever his fight is doing: the game keeps one value for the projectile attack and one for every other fight
-    /// function, and both are this.
+    /// phase, and both are this.
     /// </summary>
     internal const int MouthShotReactionHoldFrames = 8;
 

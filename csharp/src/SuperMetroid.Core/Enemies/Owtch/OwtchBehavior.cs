@@ -167,7 +167,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Behavior = OwtchBehaviorState.Sinking;
     }
 
-    /// <summary>Animation cues for left and right: select the moving function index.</summary>
+    /// <summary>Animation cues for left and right: set the moving behaviour.</summary>
     private static void SetOwtchMoving(OwtchEnemyState state, OwtchBehaviorState moving) =>
         state.Behavior = moving;
 

@@ -170,7 +170,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             : CeresDoorShades.InNormalColours;
     }
 
-    /// <summary>Dispatches the door's main-AI function.</summary>
+    /// <summary>Runs the door's main-AI action.</summary>
     internal void RunCeresDoorMain(RoomEnemySlot slot)
     {
         CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();
@@ -193,7 +193,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                 RunCeresDoorPaletteAnimation(slot);
                 if (_ridleyEncounter.CeresStatus is CeresEscapeStatus.SelfDestructStarted or CeresEscapeStatus.ElevatorDoorDestroyed)
                 {
-                    // Entering the destruction state installs the destruction function and initializes all three
+                    // Entering the destruction state enters the destruction action and initializes all three
                     // actor-owned counters, but deliberately does not run the destruction step until
                     // the following enemy frame.
                     state.Action = CeresDoorAction.RotatingElevatorRumble;
@@ -247,7 +247,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         if (state.RumbleCallsLeft < 0)
         {
             // The 49th call takes zero to -1. The door hides, returns
-            // it to the perpetual elevator-animation function, and publishes its destruction so the
+            // it to the perpetual elevator-animation action, and publishes its destruction so the
             // room's turning-floor controller begins the rotation after Ridley's escape.
             slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
             state.Action = CeresDoorAction.ElevatorAnimation;

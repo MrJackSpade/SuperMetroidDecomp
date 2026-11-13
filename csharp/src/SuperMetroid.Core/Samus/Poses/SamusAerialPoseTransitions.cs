@@ -340,7 +340,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// The eventual seven-pixel horizontal push remains the ordinary wall-jump animation-cue
     /// path already implemented by <see cref="SamusPresentation.AnimateNoFx"/>. This method performs only the
     /// immediate cleanup, the X-speed kill, and environment-selected
-    /// vertical launch that occur when the wall-jump function runs.
+    /// vertical launch that occur when the wall-jump phase runs.
     /// </remarks>
     public static void ApplyGrappleWallJump(SamusState samus)
     {

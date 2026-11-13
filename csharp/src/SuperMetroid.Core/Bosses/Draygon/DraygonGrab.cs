@@ -80,8 +80,8 @@ internal sealed class DraygonGrab
                 ? DraygonSegment.ArmsFacingRightGrab
                 : DraygonSegment.ArmsFacingLeftGrab);
 
-        // Samus's grapple query returns nonzero whenever the grapple-beam function is anything
-        // other than its inactive entry. In that case Draygon drops the beam and retreats;
+        // Samus's grapple query returns nonzero whenever the grapple beam is in any phase
+        // other than inactive. In that case Draygon drops the beam and retreats;
         // it must not enter a grabbed pose and then undo it with a bespoke correction.
         if (samus.Grapple.Phase != GrapplePhase.Inactive)
         {
@@ -236,7 +236,7 @@ internal sealed class DraygonGrab
 
     /// <summary>
     /// Waits for the final tail whips. The tail's animation owns the duration and eventually
-    /// executes its release step, which changes the body function to release Samus.
+    /// executes its release step, which changes the body phase to release Samus.
     /// </summary>
     internal void WaitForDraygonFinalTailWhips(DraygonEnemyState state, SamusState? samus) =>
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
@@ -247,7 +247,7 @@ internal sealed class DraygonGrab
         if (samus is null)
             throw new InvalidOperationException("Draygon release requires the active Samus actor.");
 
-        // Grapple rejection reaches this function without ever installing a grabbed pose.
+        // Grapple rejection reaches this phase without ever installing a grabbed pose.
         // The normal route does own one, so invoke the release only in that case.
         if (samus.DraygonGrabbed.IsActive)
         {

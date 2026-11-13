@@ -71,7 +71,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     private static void ShowFade(RoomEnemySlot slot, WreckedShipGhostEnemyState state) =>
         slot.Shading = PictureShading.Shaded(WreckedShipGhostFadeShade.Of(state.Fade));
 
-    /// <summary>Runs the Wrecked Ship ghost's function dispatch.</summary>
+    /// <summary>Runs the Wrecked Ship ghost's actions.</summary>
     private static void RunWreckedShipGhostMain(
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state,

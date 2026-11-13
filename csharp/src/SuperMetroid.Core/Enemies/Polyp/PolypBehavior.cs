@@ -53,7 +53,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         setRandomNumber(PolypRandomSeed);
     }
 
-    /// <summary>Runs the Polyp's main AI and its three indirect functions.</summary>
+    /// <summary>Runs the Polyp's main AI and its three actions.</summary>
     private void RunPolypMain(
         RoomEnemySlot slot,
         PolypEnemyState state,
@@ -71,7 +71,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (IsWithinPolypAxis(samus.Position.X.Whole, slot.Position.X.Whole) &&
                     IsWithinPolypAxis(samus.Position.Y.Whole, slot.Position.Y.Whole))
                 {
-                    // The game only installs the shoot function here. The rock is emitted
+                    // The game only sets the shoot action here. The rock is emitted
                     // on the next enemy frame, a one-frame tell preserved deliberately.
                     state.Action = PolypAction.ShootingRock;
                 }

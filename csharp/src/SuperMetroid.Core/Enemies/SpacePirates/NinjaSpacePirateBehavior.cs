@@ -599,8 +599,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                     : NinjaSpacePirateSegment.ActiveFacingLeft;
                 slot.AnimationClock.StepOnNextUpdate();
                 // The cue returns the selected animation, not its next step.
-                // Re-entering that animation runs its function cue and restores decision AI
-                // after the idle animation explicitly installed the no-op function.
+                // Re-entering that animation runs its action cue and restores decision AI
+                // after the idle animation explicitly set the no-op action.
                 return state.ActiveAnimation;
             case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.ResetSpeed }:
                 state.Speed = default;

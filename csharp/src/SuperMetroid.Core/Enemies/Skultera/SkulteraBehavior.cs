@@ -97,7 +97,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs the mirrored swimming functions.</summary>
+    /// <summary>Runs the mirrored swimming actions.</summary>
     private void SwimSkultera(
         RoomEnemySlot slot,
         SkulteraEnemyState state,
@@ -151,7 +151,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             : SkulteraSegment.TurningLeft));
     }
 
-    /// <summary>Runs the mirrored turn completion functions.</summary>
+    /// <summary>Runs the mirrored turn completions.</summary>
     private static void FinishSkulteraTurn(
         RoomEnemySlot slot,
         SkulteraEnemyState state,

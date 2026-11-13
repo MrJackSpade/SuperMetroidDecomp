@@ -191,7 +191,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         controller.Latch(controllerInput);
         bool restartColourEffectsAfterStep = false;
 
-        // The title admits B, Start, or A during every pre-title cinematic function. The
+        // The title admits B, Start, or A during every pre-title cinematic phase. The
         // game performs a fast fade-out, reconstructs the final title objects, then a
         // fast fade-in. Do not jump straight to the file-select menu: those intermediate frames and
         // their brightness levels are observable in recorded traces.
@@ -504,7 +504,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         ActiveObjectColouring = definition.Colouring;
         panPosition = new(panPosition.X.WithFraction(0), panPosition.Y.WithFraction(0));
 
-        // Initial setup and each of the first three completed pan functions hide the floor,
+        // Initial setup and each of the first three completed pan phases hide the floor,
         // showing objects alone, before the next text actor becomes visible. Keeping the
         // visibility explicit also matters when Start skips during a pan: the fade-out keeps
         // whichever visibility was live rather than inferring it from the phase name.

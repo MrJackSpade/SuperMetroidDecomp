@@ -175,13 +175,13 @@ internal sealed class IntroCinematicObjectSystem
         IntroFinishRequested = false;
         ResetCaret();
 
-        // The eye's frame behaviour observes the page-six cinematic function and permanently changes the eye
+        // The eye's frame behaviour observes the page-six cinematic phase and permanently changes the eye
         // object to its closed/half-open/deadpan animation.
         EyePlayback = new AnimationPlayback<IntroEyeSegment>(IntroEyeAnimations.StartingWith(IntroEyeSegment.FinalPageClosing), AnimationPlace.StartOfAnimation);
         EyeFrameHold = 1;
     }
 
-    /// <summary>Runs the same post-state-function object order as the cinematic game state.</summary>
+    /// <summary>Runs the same post-phase object order as the cinematic game state.</summary>
     /// <param name="newlyPressed">This frame's controller rising edges, read by the Japanese subtitles.</param>
     public void Step(ControllerButton newlyPressed)
     {

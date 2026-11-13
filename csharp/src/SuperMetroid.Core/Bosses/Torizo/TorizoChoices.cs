@@ -16,7 +16,7 @@ internal sealed class TorizoChoices
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves body movement against room blocks and slopes.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function their branches test.</summary>
+    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the phase their branches test.</summary>
     private readonly TorizoEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>

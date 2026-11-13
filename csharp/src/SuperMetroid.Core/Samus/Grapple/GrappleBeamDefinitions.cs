@@ -12,7 +12,7 @@ public static class GrappleBeamDefinitions
     /// <summary>Palette values shared by grapple initialization and cleanup tails.</summary>
     public static class Palettes
     {
-        /// <summary>Firing selects the Ice beam's colours before entering the firing function.</summary>
+        /// <summary>Firing selects the Ice beam's colours before entering the firing phase.</summary>
         public const SamusBeamCombination FiringSelection = SamusBeamCombination.Ice;
     }
 

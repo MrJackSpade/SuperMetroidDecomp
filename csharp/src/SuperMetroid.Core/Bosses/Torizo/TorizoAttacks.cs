@@ -18,7 +18,7 @@ internal sealed class TorizoAttacks
     private readonly EnemyAudioQueue _audio;
     /// <summary>Spawns the orb drops and the death scatter after the authored sequences.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function their branches test.</summary>
+    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the phase their branches test.</summary>
     private readonly TorizoEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>

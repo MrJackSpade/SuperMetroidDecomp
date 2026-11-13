@@ -30,7 +30,7 @@ internal sealed record KraidDeathDependencies
     /// <summary>Coordinates Zebetite behavior registered alongside Kraid's room actors.</summary>
     public required ZebetiteBehavior ZebetiteBehavior { get; init; }
 
-    /// <summary>Kraid's state and part lookups, part animations, function timer, random numbers and the sound he last requested.</summary>
+    /// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and the sound he last requested.</summary>
     public required KraidEncounterAccess Access { get; init; }
 
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>

@@ -23,7 +23,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Kraid's arrival: his room setup, the rise through the floor and his growth into the second phase.</summary>
     internal KraidRise Rise { get; }
 
-    /// <summary>Kraid's state and part lookups, part animations, function timer, random numbers and the sound he last requested.</summary>
+    /// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and the sound he last requested.</summary>
     internal KraidEncounterAccess Access { get; }
 
     /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
@@ -70,7 +70,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// The longest wait a part's timer is loaded with, kept exact (#1627). The lint and fingernail frame timers wait behind
     /// it so their animations never advance before their behaviour starts them, and a dying Kraid's lints wait behind it as
-    /// their function timer, changing function when it runs out, which gameplay sees.
+    /// their phase timer, changing phase when it runs out, which gameplay sees.
     /// </summary>
     internal const int KraidStillPartTimer = 32767;
 

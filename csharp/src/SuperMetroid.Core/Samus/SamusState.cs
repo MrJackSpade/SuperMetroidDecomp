@@ -172,7 +172,7 @@ public sealed class SamusState
     public SamusDeathSequenceState DeathSequence { get; } = new();
 
     /// <summary>
-    /// Mother Brain/Baby Metroid drain poses, controller calls, and installed falling
+    /// Mother Brain/Baby Metroid drain poses, the drain's operations, and installed falling
     /// movement handler. Enemy AI remains the separate caller of these drain operations.
     /// </summary>
     public SamusDrainedState Drained { get; } = new();

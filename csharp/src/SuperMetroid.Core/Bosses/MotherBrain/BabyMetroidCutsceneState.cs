@@ -197,7 +197,7 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>
-    /// Executes one complete main-AI call: function first, then the unconditional enemy
+    /// Executes one complete main-AI call: the phase first, then the unconditional enemy
     /// velocity mover. Flash/palette presentation is intentionally kept
     /// as inspectable state because it does not alter this entrance's coordinates.
     /// Every Baby step reads the physical head enemy <c>Enemy[1]</c>'s coordinates, which
@@ -419,7 +419,7 @@ public sealed class BabyMetroidCutsceneState
 
                 // The route's 4x4 rectangle test occurs before the common velocity mover.
                 // Reaching an ordinary leg's target moves on to the next leg; reaching the
-                // final leg's target installs the latch-onto-Samus function instead.
+                // final leg's target starts the latch-onto-Samus phase instead.
                 if (CollidesWithRectangle(target, TargetRadius))
                 {
                     if (record.EndsWithLatchOntoSamus)
@@ -445,7 +445,7 @@ public sealed class BabyMetroidCutsceneState
             {
                 // The healing step pins the actor to the four-entry shake table before healing. The
                 // subsequent common mover is harmless because the touch handler zeroed
-                // both velocities when it installed this function.
+                // both velocities when it started this phase.
                 int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
                 Position = Position.WithWhole(samus.Position.Whole + ShakingOffsets[shakingIndex] + SamusLatchOffset);
 
@@ -468,7 +468,7 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.IdleUntilNoHealth:
                 // The Baby's damaged step consumes Mother Brain's one-shot cry flag before inspecting
                 // the hit-flash timer. Sound queuing is returned by the ring system; this
-                // actor owns only the resulting shake and health-to-function transition.
+                // actor owns only the resulting shake and health-to-phase transition.
                 if (OnionRingHitFlashTimer != 0)
                 {
                     int shakingIndex = MotherBrainCadenceDefinitions.BabyHitShakeStep.Of(OnionRingHitFlashTimer);
@@ -480,7 +480,7 @@ public sealed class BabyMetroidCutsceneState
                 {
                     // The zero reached by the ordinary volleys is a state trigger, not the
                     // health carried into the final charge. Code deliberately gives
-                    // the Baby 320 health, changes to the low-health palette function,
+                    // the Baby 320 health, changes to the low-health palette phase,
                     // disables health-band palettes, and lets the next step run next frame.
                     Health = 320;
                     Phase = BabyMetroidCutscenePhase.ReleaseSamus;
@@ -516,7 +516,7 @@ public sealed class BabyMetroidCutsceneState
             }
 
             case BabyMetroidCutscenePhase.FlyOffScreen:
-                // Despite the function's historical name, this leg targets the fixed point
+                // Despite the phase's historical name, this leg targets the fixed point
                 // `(272,64)` just beyond the right edge of the 256-pixel camera.
                 GraduallyAccelerateTowardsPoint(
                     new Position16<RoomPixels>(272, 64),

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>How Norfair Ridley accelerates and moves toward a target, and the function timer its steps count down.</summary>
+/// <summary>How Norfair Ridley accelerates and moves toward a target, and the phase timer its steps count down.</summary>
 internal static class NorfairRidleyMovement
 {
     /// <summary>Counts the phase timer down and reports whether it ran past zero.</summary>

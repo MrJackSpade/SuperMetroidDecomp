@@ -162,7 +162,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void TurnStokeAround(RoomEnemySlot slot, StokeEnemyState state)
     {
         // The turn always selects the left wrapper first, then replaces it with right
-        // only when the old direction was not one. It does not update direction/function;
+        // only when the old direction was not one. It does not update direction or action;
         // the wrapper's cue runs later in this same enemy animation phase.
         SetStokeAnimation(slot, state, StokeSegment.MovingLeft);
         if (state.Direction != StokeDirection.Right)

@@ -145,7 +145,7 @@ internal sealed class DraygonCombat
     /// <remarks>
     /// Draygon's shared reaction has no "already dying" test in its dead branch. Every
     /// touch, shot or power-bomb reaction on a zero-health body runs it again: the dying
-    /// arm and eye animations restart, the drift function is reinstalled and Samus is released.
+    /// arm and eye animations restart, the drift phase is restarted and Samus is released.
     /// </remarks>
     private void BeginDraygonDeath(DraygonEnemyState state, SamusState? samus)
     {

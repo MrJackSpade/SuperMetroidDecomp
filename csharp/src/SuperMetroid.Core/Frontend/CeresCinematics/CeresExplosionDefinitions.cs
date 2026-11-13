@@ -36,7 +36,7 @@ internal static class CeresExplosionDefinitions
     public const int SpawnerFinalFrame =
         InitialWaitFrames + RepeatingStartWaitFrames + RepeatingLifetimeFrames + 1;
 
-    /// <summary>The cinematic function's countdown seed when the initial fade completes.</summary>
+    /// <summary>The cinematic phase's countdown seed when the initial fade completes.</summary>
     internal const int RepeatingCountdownSeed = 1;
     /// <summary>First delayed small-explosion actor.</summary>
     /// <remarks>Its animation displays six duration-3 small-explosion frames, then deletes. It runs as a typed cinematic sprite animation.</remarks>

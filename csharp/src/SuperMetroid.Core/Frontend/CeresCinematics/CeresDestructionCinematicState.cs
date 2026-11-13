@@ -259,7 +259,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 else
                 {
                     // The final blast snaps the zoom to the explosion's, creates the final blast, and
-                    // installs the flying-away function on this exact handler call.
+                    // enters the flying-away phase on this exact handler call.
                     Zoom = CeresDestructionSceneDefinitions.Motion.CeresExplosionZoom;
                     SpawnFinalCeresExplosion();
                     Phase = CeresDestructionPhase.FlyingAwayFromExplosion;
@@ -381,7 +381,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         }
     }
 
-    /// <summary>The cinematic state's work after the cinematic function returns.</summary>
+    /// <summary>The cinematic state's work after the cinematic phase returns.</summary>
     private void StepWrapperTail()
     {
         if (CeresDestructionPhaseGroups.CeresScene.Contains(Phase))
@@ -404,7 +404,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         }
 
         // The cinematic's game state increments the shared cinematic frame counter after calling the
-        // current function but before object handling. The mosaic test therefore observes
+        // current phase but before object handling. The mosaic test therefore observes
         // this pre-increment value on its following dispatcher call.
         cinematicFrameCounter++;
     }

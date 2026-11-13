@@ -19,7 +19,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
     {
         session.Demo.Reset();
         // The soft reset ultimately enters the opening cinematic and initializes
-        // the cinematic function to the opening.
+        // the cinematic phase to the opening.
         session.audio.Reset();
         // A soft reset discards every gameplay
         // owner. The reseeded random generator and the frame clock already live in the session.

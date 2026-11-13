@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>Mother Brain's third phase: recovering, setting up and fighting Samus after the baby cutscene.</summary>
 internal sealed class MotherBrainThirdPhaseFight
 {
-    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
+    /// <summary>The state every late-fight phase reads and writes: the body phase and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -13,8 +13,8 @@ internal sealed class MotherBrainThirdPhaseFight
     }
 
     /// <summary>
-    /// The phase-three walking function.
-    /// This is deliberately separate from the visible body animation: the function
+    /// Mother Brain's phase-three walking.
+    /// This is deliberately separate from the visible body animation: the walking
     /// decides what Mother Brain wants to do only while the animation-owned pose is standing.
     /// </summary>
     public MotherBrainPhase3WalkingPhase Phase3WalkingPhase { get; private set; } =
@@ -28,7 +28,7 @@ internal sealed class MotherBrainThirdPhaseFight
 
     /// <summary>
     /// Mother Brain's walk credit as the sequence uses it. Ordinary projectiles subtract
-    /// 256; Hyper Beam subtracts 266; the walking function adds
+    /// 256; Hyper Beam subtracts 266; the walking phase adds
     /// 32 whenever it gets a standing AI call.
     /// </summary>
     public MotherBrainWalkCredit Phase3WalkCounter
@@ -40,11 +40,11 @@ internal sealed class MotherBrainThirdPhaseFight
     /// <summary>Current phase-three walking target X in room pixels, within a pixel of the body's walking range.</summary>
     public int Phase3TargetXPosition { get; private set; }
 
-    /// <summary>The phase-three neck function.</summary>
+    /// <summary>Mother Brain's phase-three neck movement.</summary>
     public MotherBrainPhase3NeckPhase Phase3NeckPhase { get; internal set; } =
         MotherBrainPhase3NeckPhase.Inactive;
 
-    /// <summary>Countdown shared by the two phase-three recoil functions; it stops at zero.</summary>
+    /// <summary>Countdown shared by the two phase-three recoil phases; it stops at zero.</summary>
     [IntegerQuantity("frames left in the recoil; the death sequence waits for the tenth")]
     public int Phase3NeckRecoilTimer { get; private set; }
 
@@ -57,7 +57,7 @@ internal sealed class MotherBrainThirdPhaseFight
     /// <summary>Schedules phase-three inching and two retreat speeds only while the body is standing.</summary>
     private bool StepPhase3WalkingHandler(MotherBrainRandomSample randomNumberSeed)
     {
-        // The phase-three scheduler refuses to call the walking function while the body animation advertises any
+        // The phase-three scheduler refuses to run the walking phase while the body animation advertises any
         // nonzero pose. This makes each request edge-triggered: the requested walk runs to
         // its standing cue before the scheduler is allowed to inspect its target again.
         if (_state.Body.Pose != MotherBrainBodyPose.Standing)
@@ -72,7 +72,7 @@ internal sealed class MotherBrainThirdPhaseFight
                 if (Phase3WalkCounter.IsEmpty)
                 {
                     // Zero credit does not merely pause. The retreat chooses a point fourteen
-                    // pixels left, installs the quick-retreat function, and falls into it.
+                    // pixels left, starts the quick-retreat phase, and falls into it.
                     Phase3TargetXPosition = _state.Body.Position.X - 14;
                     Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.RetreatQuickly;
                     goto case MotherBrainPhase3WalkingPhase.RetreatQuickly;
@@ -120,7 +120,7 @@ internal sealed class MotherBrainThirdPhaseFight
                     return slowRetreat.Requested;
 
                 // The inch-forward setup writes all three values: forty walk-credit, the inch-forward
-                // function, and a one-pixel-ahead target used by later calls.
+                // phase, and a one-pixel-ahead target used by later calls.
                 SetPhase3WalkingToTryToInchForward(64);
                 return false;
 
@@ -214,7 +214,7 @@ internal sealed class MotherBrainThirdPhaseFight
     }
 
     /// <summary>
-    /// Runs the third phase recover make some distance body function. True when it installs the next body function and the game runs
+    /// Runs the third phase recover make some distance body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseRecoverMakeSomeDistance(MotherBrainRainbowBeamStepRequests requests)
@@ -232,7 +232,7 @@ internal sealed class MotherBrainThirdPhaseFight
     }
 
     /// <summary>
-    /// Runs the third phase recover setup for fighting body function. True when it installs the next body function and the game runs
+    /// Runs the third phase recover setup for fighting body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseRecoverSetupForFighting()
@@ -245,21 +245,21 @@ internal sealed class MotherBrainThirdPhaseFight
             Phase3NeckPhase = MotherBrainPhase3NeckPhase.Normal;
             Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.TryToInchForward;
 
-            // The setup has no return after installing the three functions;
-            // execution falls directly into the main fighting function on this same enemy AI call.
+            // The setup has no return after setting the three phases;
+            // execution falls directly into the main fighting phase on this same enemy AI call.
             return true;
         }
         return false;
     }
 
     /// <summary>
-    /// Runs the third phase fighting main body function. True when it installs the next body function and the game runs
+    /// Runs the third phase fighting main body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseFightingMain(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        // The main fighting function tests death before either sub-handler. It installs the
-        // death explosion/fade sequence without executing that function's property
+        // The main fighting phase tests death before either sub-handler. It installs the
+        // death explosion/fade sequence without executing that phase's property
         // writes until the following body turn; no phase-two behavior leaks through.
         if (_state.BrainHealth == 0)
         {
@@ -292,7 +292,7 @@ internal sealed class MotherBrainThirdPhaseFight
     }
 
     /// <summary>
-    /// Runs the third phase fighting attack cooldown body function. True when it installs the next body function and the game runs
+    /// Runs the third phase fighting attack cooldown body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseFightingAttackCooldown()

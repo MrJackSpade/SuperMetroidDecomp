@@ -249,7 +249,7 @@ internal sealed class SamusPoseTransitionPhase
 
         // Grapple connection publishes a pending connection pose.
         // The animation and hurt transitions above can suppress it without
-        // undoing the already-installed beam function. This is the
+        // undoing the already-entered beam phase. This is the
         // ordering used by bounded Grapple momentum-retention setups.
         if (!animationTransitionApplied &&
             _player.LastGrappleMovement is { PendingConnection: { } pendingConnection })

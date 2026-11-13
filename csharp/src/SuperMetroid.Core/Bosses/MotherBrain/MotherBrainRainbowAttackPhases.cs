@@ -9,7 +9,7 @@ internal sealed class MotherBrainRainbowAttackPhases
 {
     /// <summary>Owns the forced Samus movement during beam capture and the later drain sequence.</summary>
     private readonly MotherBrainRainbowBeamSamusMovement _movement ;
-    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
+    /// <summary>The state every late-fight phase reads and writes: the body phase and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -210,7 +210,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     }
 
     /// <summary>
-    /// Runs the second phase rainbow extend neck body function. True when it installs the next body function and the game runs
+    /// Runs the second phase rainbow extend neck body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseRainbowExtendNeck()
@@ -222,7 +222,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     }
 
     /// <summary>
-    /// Runs the second phase rainbow start charging body function. True when it installs the next body function and the game runs
+    /// Runs the second phase rainbow start charging body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseRainbowStartCharging()
@@ -237,7 +237,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     }
 
     /// <summary>
-    /// Runs the second phase rainbow retract neck body function. True when it installs the next body function and the game runs
+    /// Runs the second phase rainbow retract neck body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseRainbowRetractNeck(MotherBrainRainbowBeamStepRequests requests)
@@ -255,7 +255,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     }
 
     /// <summary>
-    /// Runs the second phase rainbow wait for charge body function. True when it installs the next body function and the game runs
+    /// Runs the second phase rainbow wait for charge body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseRainbowWaitForCharge(MotherBrainRainbowBeamStepRequests requests)
@@ -270,7 +270,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     }
 
     /// <summary>
-    /// Runs the second phase rainbow extend neck down body function. True when it installs the next body function and the game runs
+    /// Runs the second phase rainbow extend neck down body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseRainbowExtendNeckDown(MotherBrainRainbowBeamStepRequests requests)
@@ -286,7 +286,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     }
 
     /// <summary>
-    /// Runs the second phase rainbow start firing body function. True when it installs the next body function and the game runs
+    /// Runs the second phase rainbow start firing body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseRainbowStartFiring(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -308,7 +308,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     }
 
     /// <summary>
-    /// Runs the second phase rainbow move samus toward wall body function. True when it installs the next body function and the game runs
+    /// Runs the second phase rainbow move samus toward wall body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseRainbowMoveSamusTowardWall(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -328,7 +328,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     }
 
     /// <summary>
-    /// Runs the second phase rainbow one frame delay body function. True when it installs the next body function and the game runs
+    /// Runs the second phase rainbow one frame delay body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseRainbowOneFrameDelay(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -350,13 +350,13 @@ internal sealed class MotherBrainRainbowAttackPhases
     }
 
     /// <summary>
-    /// Runs the second phase rainbow start draining samus body function. True when it installs the next body function and the game runs
+    /// Runs the second phase rainbow start draining samus body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseRainbowStartDrainingSamus(MotherBrainRainbowBeamStepRequests requests)
     {
         // The drain start installs draining, seeds both its timer and the earthquake with 299, and falls
-        // through into the draining function in the same enemy-processing call.
+        // through into the draining phase in the same enemy-processing call.
         _state.Phase = MotherBrainBodyPhase.SecondPhaseRainbowDrainingSamus;
         _state.PhaseTimer = 299;
         requests.StartEarthquake(MotherBrainDeathDefinitions.RainbowBeamEarthquake, 299);
@@ -364,7 +364,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     }
 
     /// <summary>
-    /// Runs the second phase rainbow draining samus body function. True when it installs the next body function and the game runs
+    /// Runs the second phase rainbow draining samus body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseRainbowDrainingSamus(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -384,7 +384,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     }
 
     /// <summary>
-    /// Runs the second phase rainbow finish firing body function. True when it installs the next body function and the game runs
+    /// Runs the second phase rainbow finish firing body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseRainbowFinishFiring(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -414,20 +414,20 @@ internal sealed class MotherBrainRainbowAttackPhases
     }
 
     /// <summary>
-    /// Runs the second phase rainbow let samus fall body function. True when it installs the next body function and the game runs
+    /// Runs the second phase rainbow let samus fall body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseRainbowLetSamusFall(SamusState samus)
     {
         // Controller zero changes the pose/radius, then the fall step installs the wait
-        // function and falls straight through to its first custom movement call.
+        // phase and falls straight through to its first custom movement call.
         samus.Drained.LetFall(samus);
         _state.Phase = MotherBrainBodyPhase.SecondPhaseRainbowWaitForSamusToLand;
         return true;
     }
 
     /// <summary>
-    /// Runs the second phase rainbow wait for samus to land body function. True when it installs the next body function and the game runs
+    /// Runs the second phase rainbow wait for samus to land body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseRainbowWaitForSamusToLand(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
@@ -439,20 +439,20 @@ internal sealed class MotherBrainRainbowAttackPhases
     }
 
     /// <summary>
-    /// Runs the second phase rainbow lower head body function. True when it installs the next body function and the game runs
+    /// Runs the second phase rainbow lower head body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseRainbowLowerHead()
     {
         // Neck positions are presentation/actor-animation state. This phase's movement-
-        // relevant effect is the exact function/timer handoff to the lower-head step.
+        // relevant effect is the exact phase/timer handoff to the lower-head step.
         _state.Phase = MotherBrainBodyPhase.SecondPhaseRainbowDecideNextAction;
         _state.PhaseTimer = 128;
         return false;
     }
 
     /// <summary>
-    /// Runs the second phase rainbow decide next action body function. True when it installs the next body function and the game runs
+    /// Runs the second phase rainbow decide next action body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseRainbowDecideNextAction(SamusState samus, MotherBrainRainbowBeamStepRequests requests)
@@ -466,7 +466,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             else
             {
                 // The lower-head step performs this call before installing the later
-                // finish-off function. It starts one complete really-slow forward
+                // finish-off phase. It starts one complete really-slow forward
                 // body animation when Mother Brain is standing and left of 128.
                 requests.BodyWalkRequested = RequestWalkForwardReallySlow(
                     CoordinateAxis.Wrap(_state.Body.Position.X + 16)).Requested;

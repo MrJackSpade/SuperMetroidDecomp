@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// Consulted once per destroying hit, by the shutter's shot and bomb reactions after the common damage. Evidence: the
 /// destroyable shutter's shot reaction calls the common shot damage, which on a kill clears the shutter's enemy record
-/// (its function and position among it), and then runs the shutter reaction on that record without testing whether the
+/// (its action and position among it), and then runs the shutter reaction on that record without testing whether the
 /// shutter died.
 /// </remarks>
 [CompatibilityService("the hit that destroys a destroyable shutter still sets it off, as a shutter at rest at the room's top-left corner")]

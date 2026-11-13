@@ -32,7 +32,7 @@ public sealed class MotherBrainEnemyState
     public MotherBrainBrainAction BrainAction { get; internal set; }
 
     /// <summary>
-    /// The body function's timer. Every fake-death pause counts it down and moves on once it runs past zero;
+    /// The body phase's timer. Every fake-death pause counts it down and moves on once it runs past zero;
     /// zero therefore expires immediately at -1.
     /// </summary>
     public int PhaseTimer { get; internal set; }
@@ -208,7 +208,7 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>
     /// The step of the current attack. Head animation runs independently while this advances from selection, through
-    /// 64 cooldown frames, and back to the ordinary thinking function.
+    /// 64 cooldown frames, and back to the ordinary thinking phase.
     /// </summary>
     public MotherBrainAttackPhase AttackPhase { get; internal set; }
 
@@ -260,7 +260,7 @@ public sealed class MotherBrainEnemyState
     /// The already verified rainbow/finish-off/Baby/phase-three state machine, attached to
     /// the real body/head pair only after phase-two health reaches zero. Physical actor
     /// coordinates and animations remain owned by this room system; this object owns the long
-    ///  function chain and forced-Samus calculations.
+    ///  phase chain and forced-Samus calculations.
     /// </summary>
     public MotherBrainRainbowBeamAttackSequence? RainbowBeamSequence
     {
@@ -296,7 +296,7 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>
     /// Shared cry counter incremented by onion-ring collision and consumed by the
-    /// Baby's later healing/idle functions. It is deliberately a count, not a boolean:
+    /// Baby's later healing/idle phases. It is deliberately a count, not a boolean:
     /// <c>INC</c> permits more than one ring to land before the next Baby turn.
     /// </summary>
     internal int PendingBabyCryCount { get; set; }

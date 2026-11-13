@@ -84,7 +84,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>
-    /// Runs the Oum's main behaviour and functions. Ordering is exact: proximity and
+    /// Runs the Oum's main behaviour and actions. Ordering is exact: proximity and
     /// previous positions, behavior, Samus carrying, then the input-derived stop flag.
     /// </summary>
     private void RunMaridiaLargeSnailMain(

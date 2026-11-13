@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Grapple;
 
-/// <summary>Explicit function phase for the grapple route.</summary>
+/// <summary>The grapple beam's phase.</summary>
 public enum GrapplePhase
 {
     /// <summary>The grapple beam is inactive.</summary>

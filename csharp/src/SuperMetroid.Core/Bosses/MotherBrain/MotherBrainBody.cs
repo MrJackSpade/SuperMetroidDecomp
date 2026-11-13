@@ -101,9 +101,9 @@ internal sealed class MotherBrainBody
     internal void RunMotherBrainFirstPhase(MotherBrainEnemyState state, SamusState? samus)
     {
         // Before the glass room object finishes the nineteen missile increments and its 48-frame tail,
-        // event two is clear and the first-phase function performs no phase mutation. Head-vs-Samus and
+        // event two is clear and the first phase performs no phase change. Head-vs-Samus and
         // projectile interactions are separate collision passes and remain outside this
-        // body-function dispatcher.
+        // body phase.
         bool glassDestroyed = _room.Services.Events.Has(StoryEvent.MotherBrainGlassDestroyed);
         if (glassDestroyed)
         {
@@ -111,7 +111,7 @@ internal sealed class MotherBrainBody
             if (samus is not null && samus.Position.X.Whole < 236 && state.Head.Health == 0)
             {
                 // This is the exact first-phase exit. The following
-                // function remains represented by its own phase so the next frame
+                // step remains a phase of its own so the next frame
                 // enters the real timed descent rather than jumping to standing form.
                 state.DeleteTurretsAndRinkas = true;
                 // Mother Brain and the Rinkas share this request. Publish it before later
@@ -131,7 +131,7 @@ internal sealed class MotherBrainBody
             }
         }
 
-        // The first-phase function always falls through to the encounter's custom rectangle walker,
+        // The first phase always falls through to the encounter's custom rectangle walker,
         // including the frame that arms fake death. This collision is not represented by
         // either enemy definition's ordinary radius and must stay in the body dispatcher.
         if (samus is not null)

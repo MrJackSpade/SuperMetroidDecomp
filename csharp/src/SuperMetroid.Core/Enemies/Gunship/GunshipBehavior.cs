@@ -186,8 +186,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             Part(bottom).EngineSoundTimer = 70;
         }
 
-        // The landed ship continuously performs its four-phase bob before dispatching the function itself, in every
-        // function from waiting for the landing entrance through loading the liftoff dust.
+        // The landed ship continuously performs its four-phase bob before running the phase itself, in every
+        // phase from waiting for the landing entrance through loading the liftoff dust.
         GunshipPhase phase = Part(top).Phase;
         if (BobsWhileLanded(phase))
             StepGunshipBob(top);
@@ -363,9 +363,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Whether the landed ship bobs before running <paramref name="phase"/>: every function from waiting for the
-    /// landing entrance through loading the liftoff dust. The game tests its function against the range of
-    /// those functions (a range which also contains Idle); firing up the engines is the first function past it.
+    /// Whether the landed ship bobs before running <paramref name="phase"/>: every phase from waiting for the
+    /// landing entrance through loading the liftoff dust. The game tests its phase against the range of
+    /// those phases (a range which also contains Idle); firing up the engines is the first phase past it.
     /// </summary>
     private static bool BobsWhileLanded(GunshipPhase phase) => phase is
         GunshipPhase.WaitForLandingEntranceToOpen or GunshipPhase.EjectSamus or GunshipPhase.FinishLanding or
@@ -521,7 +521,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs the 128-frame engine-rumble function.</summary>
+    /// <summary>Runs the 128-frame engine-rumble phase.</summary>
     private void FireUpGunshipEngines(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -566,7 +566,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs the accelerating takeoff function.</summary>
+    /// <summary>Runs the accelerating takeoff phase.</summary>
     private void AccelerateEscapingGunship(RoomEnemySlot top, SamusState? samus)
     {
         MoveEscapingGunship(top, samus);

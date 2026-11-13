@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>
-/// Two-entry horizontal dispatcher used by Tripper and Kamer (the suspensor
-/// platform). These values are indexes into the dispatcher's two functions, not the functions themselves.
+/// The horizontal movement of Tripper and Kamer (the suspensor
+/// platform): left or right.
 /// </summary>
 public enum PlatformHorizontalMovement
 {
-    /// <summary>Dispatcher index zero selects negative/left horizontal motion; a wall collision switches to index one and installs right-facing artwork.</summary>
+    /// <summary>Moves left (negative X); a wall collision switches to right and installs right-facing artwork.</summary>
     Left = 0,
-    /// <summary>Dispatcher index one selects positive/right horizontal motion; a wall collision switches to index zero and installs left-facing artwork.</summary>
+    /// <summary>Moves right (positive X); a wall collision switches to left and installs left-facing artwork.</summary>
     Right = 1,
 }

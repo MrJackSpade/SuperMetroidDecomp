@@ -72,7 +72,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state);
 
-        // The initializer selects its first function from the way it grows and what it waits for.
+        // The initializer selects its first action from the way it grows and what it waits for.
         bool growsUp = settings.Growth switch
         {
             GrowingShutterGrowth.Down => false,
@@ -815,9 +815,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState? samus,
         Position16<RoomPixels> camera)
     {
-        // The initial function calls through its parameter table during this very AI
-        // call; it does not spend a frame installing the selected wait function.
-        // Keep Initial live until activation writes the moving function, as does.
+        // The initial action calls through its parameter table during this very AI
+        // call; it does not spend a frame setting the selected wait action.
+        // Keep Initial live until activation writes the moving action, as the game does.
         switch (state.Action == VerticalShutterAction.Initial
             ? SelectInitialVerticalShutterAction(state) : state.Action)
         {

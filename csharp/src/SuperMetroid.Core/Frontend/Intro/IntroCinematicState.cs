@@ -189,7 +189,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>The flashback room's collision, which exists while the flashback runs.</summary>
     internal RoomLevelData FlashbackLevel => CurrentFlashbackLevel ??
         throw new InvalidOperationException("The Mother Brain flashback room is not loaded.");
-    /// <summary>Cinematic-function countdown for the active palette transition.</summary>
+    /// <summary>Cinematic-phase countdown for the active palette transition.</summary>
     private WrappingCountdown crossfadeCounter;
     /// <summary>Alternate transition countdown retained between scientist and text phases.</summary>
     private WrappingCountdown introCrossfadeCounter;
@@ -244,7 +244,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // beam's pictures.
 
         // The loads above are invisible: the intro stays black until its fade.
-        // The setup dispatch itself runs as the next dispatch's cinematic function.
+        // The setup dispatch itself runs as the next dispatch's cinematic phase.
         Phase = IntroCinematicPhase.Initial;
     }
 
@@ -259,7 +259,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     public void Step(ControllerButton controllerInput)
     {
         flashbackProjectiles.ImpactAudio.BeginImpactAudioFrame(context: ImpactAudioContext.Cinematic);
-        // Cinematic functions consume the newly pressed buttons, not the raw held ones. Latching at
+        // Cinematic phases consume the newly pressed buttons, not the raw held ones. Latching at
         // this state boundary preserves a one-frame edge and prevents a held A/Start from
         // skipping both the options menu and the first narration page.
         controller.Latch(controllerInput);
@@ -520,7 +520,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             SamusPoseMetadata.RefreshCollisionRadii(CurrentFlashbackSamus);
 
             // Samus's current-state handler runs the demo input object,
-            // after the cinematic function, so a demo loaded by the scene setup plays its first
+            // after the cinematic phase, so a demo loaded by the scene setup plays its first
             // entry in the same dispatch, ahead of the Samus pose input that consumes it.
             if (CurrentFlashbackDemoInput is not null)
                 StepMotherBrainDemo();
@@ -528,7 +528,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             StepMotherBrainFlashbackSamus();
         }
 
-        // The cinematic game state handles cinematic sprites after the active cinematic function and
+        // The cinematic game state handles cinematic sprites after the active cinematic phase and
         // after Samus/projectiles. Mother Brain can therefore consume a missile at its new
         // position during this same frame, exactly as the game does.
         if (CurrentFlashbackMotherBrain is not null)
@@ -566,7 +566,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             FlashbackMotherBrainExplosions?.Step(crossfadeCounter.RemainingFrames);
         }
 
-        // The cinematic sprite handler runs after the cinematic function, so the
+        // The cinematic sprite handler runs after the cinematic phase, so the
         // actors a scene setup spawns take their first step in that same dispatch.
         CurrentBabyDiscovery?.Step(frameCounter, crossfadeCounter.RemainingFrames);
         CurrentScientistCutscene?.Step(crossfadeCounter.RemainingFrames, introCrossfadeCounter.RemainingFrames);
@@ -592,7 +592,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             Missiles = 900,
             MaxMissiles = 900,
         };
-        // Shared Samus handlers read the active cinematic function to select
+        // Shared Samus handlers read the active cinematic phase to select
         // intro palette restoration and suppress gameplay-only sound/landing effects.
         CurrentFlashbackSamus.LiquidPhysics.CinematicActive = true;
         CurrentFlashbackSamus.Presentation.BindArtwork(samusBodyArtwork);
@@ -725,7 +725,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Starts the third narration page while SR388 actors continue updating beneath its text fade.</summary>
     private void SetupPageThreeCrossfade()
     {
-        // The egg's page-three step selects page three. On the next cinematic-function call page three
+        // The egg's page-three step selects page three. On the next cinematic-phase call page three
         // spawns its narration object and enters the same gameplay-to-text palette
         // step used after Mother Brain. The SR388 actors continue running beneath it.
         Objects.StartEnglishPageThree();
@@ -759,7 +759,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Laboratory);
 
         // The intro alternates two adjacent counters. Page-three setup left
-        // the cinematic function's counter at 127; this setup writes the separate intro counter.
+        // the cinematic phase's counter at 127; this setup writes the separate intro counter.
         crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Phase = IntroCinematicPhase.BabyMetroidDeliveryCrossfade;
@@ -769,11 +769,11 @@ public sealed class IntroCinematicState : IFrontendScreen
     internal void StepBabyMetroidDeliveryCrossfade()
     {
         // The scientist crossfade fades the portrait/text ranges away while bringing in laboratory background and sprite
-        // palettes. Only the cinematic function's counter is decremented on this direction.
+        // palettes. Only the cinematic phase's counter is decremented on this direction.
         StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidDelivery);
     }
 
-    /// <summary>Advances the text-to-laboratory palette spans using the cinematic-function countdown.</summary>
+    /// <summary>Advances the text-to-laboratory palette spans using the cinematic-phase countdown.</summary>
     private void StepTextToScientistCrossfade(IntroCinematicPhase completedPhase)
     {
         if (crossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Crossfade.StepFrames))
@@ -793,7 +793,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void SetupPageFourCrossfade()
     {
         // The baby's page-four step selects page four. Page four starts its text stream and seeds the
-        // cinematic-function counter, while the reverse step deliberately consumes the
+        // cinematic-phase counter, while the reverse step deliberately consumes the
         // still-127 intro crossfade counter set by the delivery scene.
         Objects.StartEnglishPageFour();
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Laboratory, IntroCrossfadeScene.Narration);
@@ -859,7 +859,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         // Page five's setup seeds the intro crossfade counter, which turns the page and deletes the Japanese text's
         // next-page arrow. English falls straight through into page six; Japanese text selects page six as the next
-        // dispatch's cinematic function.
+        // dispatch's cinematic phase.
         introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Objects.AcceptPageTurn();
         if (subtitles.Enabled)

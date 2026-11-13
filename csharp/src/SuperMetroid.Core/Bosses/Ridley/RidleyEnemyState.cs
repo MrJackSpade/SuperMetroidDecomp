@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <remarks>
 /// The Lower Norfair combat values carry the meanings their consumers establish.
 /// Ceres's private Baby actor and rotating getaway share Ridley's encounter values, and the Ceres self-destruct
-/// presentation's function timer deliberately keeps the phase values 0, 2, 4, 6, 8, 10 and 12.
+/// presentation's phase timer deliberately keeps the phase values 0, 2, 4, 6, 8, 10 and 12.
 /// </remarks>
 public sealed class RidleyEnemyState
 {
@@ -108,7 +108,7 @@ public sealed class RidleyEnemyState
     public Position16<RoomPixels> FireballBasePosition { get; internal set; }
     /// <summary>Gets the signed 8.8 velocity computed from the clamped fireball aim angle.</summary>
     public EightEightVector<RoomPixels> FireballVelocity { get; internal set; }
-    /// <summary>Independent swoop phase countdown used by the swoop functions.</summary>
+    /// <summary>Independent swoop phase countdown used by the swoop phases.</summary>
     public int SwoopPhaseTimer { get; internal set; }
     /// <summary>Gets the swoop's heading, which wraps around the full turn; its table index selects the sine sample.</summary>
     public RotationAngle SwoopAngleAccumulator { get; internal set; }

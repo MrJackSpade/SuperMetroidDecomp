@@ -26,7 +26,7 @@ public sealed class DraygonEnemyState
         Arms.Shading = sprites;
     }
 
-    /// <summary>His body, which owns encounter movement, health, and the body-function dispatcher, and runs first.</summary>
+    /// <summary>His body, which owns encounter movement, health, and the body's phases, and runs first.</summary>
     public RoomEnemySlot Body { get; }
     /// <summary>Each part's playing animation and where it stands, keyed by the part's record.</summary>
     private readonly Dictionary<RoomEnemySlot, AnimationPlayback<DraygonSegment>> _playbacks = new(ReferenceEqualityComparer.Instance);

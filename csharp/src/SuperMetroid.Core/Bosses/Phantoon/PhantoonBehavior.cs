@@ -32,7 +32,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Phantoon's flames as projectiles, its hitboxes and body touch, and what Samus's weapons do to it.</summary>
     internal PhantoonCombat Combat { get; }
 
-    /// <summary>Phantoon's fades, health colors, wave amplitude, animations and function timer, shared by every phase of the fight.</summary>
+    /// <summary>Phantoon's fades, health colors, wave amplitude, animations and phase timer, shared by every phase of the fight.</summary>
     internal PhantoonPresentation Presentation { get; }
 
     /// <summary>Phantoon's attack rounds: figure eights, eye tracking, swoops, flame rain and rage.</summary>

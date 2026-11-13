@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>Initial main-function and animation selection for one Ceres-door actor.</summary>
+/// <summary>The main action and animation one Ceres-door actor starts with.</summary>
 internal readonly record struct CeresDoorInitializationDefinition(
     CeresDoorAction MainAction,
     CeresDoorSegment Animation);

@@ -41,7 +41,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Bomb and Golden Torizo's setup and movement: walking, jumps, falls and air transitions under gravity.</summary>
     internal TorizoMovement Movement { get; }
 
-    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function their branches test.</summary>
+    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the phase their branches test.</summary>
     internal TorizoEncounterAccess Access { get; }
 
     /// <summary>Bomb and Golden Torizo's projectiles: drool, swipes, sonic booms, Chozo orbs, eggs, super missiles, eye beams and explosions.</summary>
@@ -94,7 +94,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetTorizoPaletteTarget(TorizoEnemyState state, TorizoLookKind look) =>
         state.Colours.FadeToward(new TorizoLook(look));
 
-    /// <summary>Runs Bomb Torizo's per-frame behaviour and its main-function dispatcher.</summary>
+    /// <summary>Runs Bomb Torizo's per-frame behaviour and its main phases.</summary>
     private void RunBombTorizoMain(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -159,7 +159,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData? level)
     {
         // Golden Torizo's main behaviour counts consecutive space-jump poses for its anti-stall leap
-        // decision, then calls the same main-function dispatcher as Bomb Torizo.
+        // decision, then runs the same main phases as Bomb Torizo.
         if (samus?.Pose is SamusPoseId.SpaceJumpRightPose or SamusPoseId.SpaceJumpLeftPose)
             state.CountSamusSpaceJumpFrame();
         else

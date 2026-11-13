@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Mother Brain's repeatable phase-two rainbow-beam, finish-off, and Baby-drain/corpse
-/// function chains.
+/// phase chains.
 /// </summary>
 /// <remarks>
 /// The earlier general attack-selection logic and the spawned Baby Metroid's independent AI
@@ -27,7 +27,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
     /// <summary>Owns the forced Samus movement during beam capture and the later drain sequence.</summary>
     private readonly MotherBrainRainbowBeamSamusMovement _movement = new();
-    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
+    /// <summary>The state every late-fight phase reads and writes: the body phase and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
     internal MotherBrainLateFightState State { get; }
 
     /// <summary>Mother Brain's rainbow-beam attack: charging, firing, pinning and draining Samus, letting her fall and deciding what comes next.</summary>
@@ -126,9 +126,9 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     internal MotherBrainBodySegment? RequestedBodyAnimation => State.Body.Animation;
 
     /// <summary>
-    /// Carries out the cross-enemy function write. The Baby actor
+    /// Carries out the cross-enemy phase write. The Baby actor
     /// installs the taken-aback step after it has reached the brain; Mother Brain executes that new
-    /// function on her next enemy-AI turn rather than inside the Baby's current turn.
+    /// phase on her next enemy-AI turn rather than inside the Baby's current turn.
     /// </summary>
     public void InterruptFinalBeamForBabyDrain()
     {
@@ -139,14 +139,14 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// <summary>
     /// Runs the Baby's cross-enemy write. It does not
     /// wait for Mother Brain's stand-up animation before repeatedly requesting the backward
-    /// walk; the later Baby route decides when to replace this function with the final attack.
+    /// walk; the later Baby route decides when to replace this phase with the final attack.
     /// </summary>
     public void PrepareForFinalBabyMetroidAttack() =>
         State.Phase = MotherBrainBodyPhase.SecondPhasePrepareForFinalBabyAttack;
 
     /// <summary>
     /// Runs the Baby's cross-enemy write. Mother Brain installs one last
-    /// four-ring head animation and then leaves her body function at the empty holding step.
+    /// four-ring head animation and then leaves her body phase at the empty holding step.
     /// </summary>
     public void ExecuteFinalBabyMetroidAttack() =>
         State.Phase = MotherBrainBodyPhase.SecondPhaseExecuteFinalBabyAttack;
@@ -192,7 +192,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         ThirdPhaseFight.Phase3WalkCounter = reaction.WalkCredit;
         if (reaction.HyperBeamRecoil)
         {
-            // The neck function itself runs on Mother Brain's next ordinary phase-three
+            // The neck phase itself runs on Mother Brain's next ordinary phase-three
             // main call.
             ThirdPhaseFight.Phase3NeckPhase = MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil;
             State.PhaseTimer = 0;
@@ -209,7 +209,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return State.MakeBodyWalkBackwards(targetX, MotherBrainBodySegment.WalkBackwardReallyFast).Requested;
     }
 
-    /// <summary>Executes one call through the current Mother Brain body function.</summary>
+    /// <summary>Executes one call through the current Mother Brain body phase.</summary>
     public MotherBrainRainbowBeamAttackStepResult Step(SamusState samus, RainbowBeamAttackFrame frame)
     {
         Ensure.NotNull(samus);
@@ -432,7 +432,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 case MotherBrainBodyPhase.ThirdPhaseDeathKeepEarthquakeGoing:
                     handsOver = MotherBrainThirdPhaseDeath.RunThirdPhaseDeathKeepEarthquakeGoing(frame, requests);
                     break;
-                // The sequence owns only the rainbow-beam and later body functions; the others belong to the room adapter.
+                // The sequence owns only the rainbow-beam and later body phases; the others belong to the room adapter.
                 case MotherBrainBodyPhase.FirstPhase:
                 case MotherBrainBodyPhase.FakeDeathDescentInitialPause:
                 case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeLock:

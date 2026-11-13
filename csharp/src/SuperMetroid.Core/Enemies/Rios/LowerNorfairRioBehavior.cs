@@ -234,7 +234,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         follower.Position = follower.Position.WithWhole(new(parent.Position.X.Whole, CoordinateAxis.Wrap(parent.Position.Y.Whole + 12)));
     }
 
-    /// <summary>Sets upward return velocity, animation, function, and its enemy-library sound event.</summary>
+    /// <summary>Sets upward return velocity, animation, action, and its enemy-library sound event.</summary>
     private void BeginLowerNorfairRioReturn(
         RoomEnemySlot slot,
         LowerNorfairRioEnemyState state)

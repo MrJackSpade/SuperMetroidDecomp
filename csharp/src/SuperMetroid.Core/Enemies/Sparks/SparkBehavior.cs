@@ -22,7 +22,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new SparkEntity(this, slot, common);
 
-    /// <summary>Owner of the falling-spark projectile emitted by one spark function.</summary>
+    /// <summary>Owner of the falling-spark projectile emitted by one spark action.</summary>
     private readonly FallingSparksBehavior _fallingSparksBehavior;
 
     /// <summary>Binds the spark species to its falling-spark producer.</summary>

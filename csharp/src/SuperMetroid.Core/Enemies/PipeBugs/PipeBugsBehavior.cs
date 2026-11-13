@@ -108,7 +108,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ArcCompleted = false;
     }
 
-    /// <summary>Dispatches the three main behaviours and every function they select.</summary>
+    /// <summary>Dispatches the three main behaviours and every action they select.</summary>
     private void RunPipeBugMain(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -307,7 +307,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Only the first record has a trigger width. It is the formation controller and may
         // arm itself only while all four following physical records are still at the
-        // dormant function.
+        // dormant action.
         if (slot.SpawnSettings<NorfairPipeBugSpawnSettings>().TriggerWidth == 0)
             return;
         RoomEnemySlot[] formation = RequireNorfairPipeBugFormation(slot);
@@ -359,7 +359,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Raises one Norfair bug until it passes Samus's Y and selects its authored post-rise function.</summary>
+    /// <summary>Raises one Norfair bug until it passes Samus's Y and selects its authored post-rise action.</summary>
     private static void RunNorfairPipeBugRise(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -587,7 +587,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState state,
         Position16<RoomPixels> camera)
     {
-        // Every Geega flight function resets through the bare center's on-screen test.
+        // Every Geega flight action resets through the bare center's on-screen test.
         if (EnemyProcessingWindow.EnemyCenterIsOnScreen(slot, camera))
             return false;
         slot.Position = FixedPosition<RoomPixels>.FromWhole(state.SpawnPosition);

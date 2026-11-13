@@ -17,7 +17,7 @@ internal sealed class PhantoonPatterns
     private readonly EnemyAudioQueue _audio;
     /// <summary>Supplies Samus state for eye tracking and attack selection.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>Phantoon's fades, health colors, wave amplitude, animations and function timer, shared by every phase of the fight.</summary>
+    /// <summary>Phantoon's fades, health colors, wave amplitude, animations and phase timer, shared by every phase of the fight.</summary>
     private readonly PhantoonPresentation _phantoonPresentation;
 
 
@@ -340,8 +340,8 @@ internal sealed class PhantoonPatterns
         state.BodyState.FigureEightSpeed = SignedSixteenSixteen.FromParts(1, 0);
         state.BodyState.FlameRainRequested = false;
 
-        // The call deliberately installs a pattern function which is immediately
-        // overwritten with the fade-in function. Its timer, direction, and movement-side
+        // The call deliberately starts a pattern phase which is immediately
+        // overwritten with the fade-in phase. Its timer, direction, and movement-side
         // effects remain live, so run the shared pattern choice in full.
         PickPhantoonSecondRoundPattern(state);
         state.BodyState.Phase = PhantoonPhase.FadeInBeforeFigureEight;

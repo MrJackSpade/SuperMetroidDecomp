@@ -49,7 +49,7 @@ public static class SamusGrappleBeamDrawing
         // While firing, the grapple draw handler recomputes the hand origins immediately before the flare. Grapple
         // physics ran before ordinary Samus movement, so the renderer must reconstruct both
         // hand origins from the final body position or a running shot visibly lags one frame.
-        // Connected functions already publish their exact rope/flare pair during movement.
+        // Connected phases already publish their exact rope/flare pair during movement.
         if (grapple.Phase == GrapplePhase.Firing)
             RefreshFiringDrawOrigins(samus, grapple);
 

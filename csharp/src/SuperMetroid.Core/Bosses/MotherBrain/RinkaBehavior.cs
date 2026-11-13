@@ -168,7 +168,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs a Rinka's per-frame behaviour through all four of its functions.</summary>
+    /// <summary>Runs a Rinka's per-frame behaviour through all four of its actions.</summary>
     private void RunRinkaMain(
         RoomEnemySlot slot,
         RinkaEnemyState state,

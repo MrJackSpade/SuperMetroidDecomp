@@ -10,7 +10,7 @@ internal sealed class TorizoBody
 {
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function their branches test.</summary>
+    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the phase their branches test.</summary>
     private readonly TorizoEncounterAccess _access;
     /// <summary>Bomb and Golden Torizo's projectiles: drool, swipes, sonic booms, Chozo orbs, eggs, super missiles, eye beams and explosions.</summary>
     private readonly TorizoAttacks _attacks;

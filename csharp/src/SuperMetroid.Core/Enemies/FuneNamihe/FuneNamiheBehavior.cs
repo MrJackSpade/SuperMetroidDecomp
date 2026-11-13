@@ -165,7 +165,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     private void QueueFuneNamiheSpitSound() =>
         _audio.QueueEnemySound(FuneNamiheDefinitions.SpitSoundEffect, priority: SoundRequestPriority.Normal);
 
-    /// <summary>Moves the animation choice back to idle and restores the species-specific waiting function after the active animation.</summary>
+    /// <summary>Moves the animation choice back to idle and restores the species-specific waiting action after the active animation.</summary>
     private static void FinishFuneNamiheActivity(FuneNamiheEnemyState state)
     {
         state.ShowsActiveAnimation = false;

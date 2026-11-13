@@ -69,7 +69,7 @@ internal static class GrappleConnectionDefinitions
     /// <summary>
     /// The grapple's four authored collision stops. Each has a left/right reflection on the other side, and a swing
     /// compares the eight exact angles: the angle reflects as <see cref="ReflectionTurn"/> less the stop's own, X negates
-    /// and the pose swaps facing; Y and the next function are shared.
+    /// and the pose swaps facing; Y and the connection kind are shared.
     /// </summary>
     internal static readonly SpecialConnection[] AuthoredStops =
     [
@@ -83,6 +83,6 @@ internal static class GrappleConnectionDefinitions
     /// <param name="Angle">The rope angle that triggers the stop.</param>
     /// <param name="Pose">Samus's pose at the stop.</param>
     /// <param name="SamusOffset">Samus's room-pixel position relative to the grapple anchor.</param>
-    /// <param name="Kind">The connection function installed at the stop.</param>
+    /// <param name="Kind">The connection kind set at the stop.</param>
     internal readonly record struct SpecialConnection(RotationAngle Angle, SamusPoseId Pose, Offset16<RoomPixels> SamusOffset, GrappleConnectionKind Kind);
 }

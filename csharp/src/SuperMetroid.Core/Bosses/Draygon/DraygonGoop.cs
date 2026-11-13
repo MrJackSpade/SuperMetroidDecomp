@@ -35,7 +35,7 @@ internal sealed class DraygonGoop
         _movement = movement;
     }
 
-    /// <summary>Runs the two mirrored goop setup functions.</summary>
+    /// <summary>Runs the two mirrored goop setups.</summary>
     internal void SetupDraygonGoopPass(
         DraygonEnemyState state,
         HorizontalDirection direction,
@@ -95,7 +95,7 @@ internal sealed class DraygonGoop
         SamusState? samus,
         int frameCounter)
     {
-        // The right-facing function calls the turret handler; the left-facing copy does not.
+        // The right-facing shot calls the turret handler; the left-facing one does not.
         if (direction == HorizontalDirection.Right)
             _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         if (samus?.XSpeedDivisor != 0)

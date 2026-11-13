@@ -177,7 +177,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // These are four physical enemy records, but Draygon's main behaviour makes the body coordinate
-        // authoritative after its function returns. Copying here preserves that ordering for
+        // authoritative after its phase runs. Copying here preserves that ordering for
         // the eye AI and each part's later animation step in the same enemy frame.
         state.Arms.Position = state.Arms.Position.WithWholeX(body.Position.X.Whole);
         state.Tail.Position = state.Tail.Position.WithWholeX(body.Position.X.Whole);
@@ -187,12 +187,12 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Eye.Position = state.Eye.Position.WithWholeY(body.Position.Y.Whole);
     }
 
-    /// <summary>One side of Draygon's swoop: the direction it travels and the arm animations and functions that side uses.</summary>
+    /// <summary>One side of Draygon's swoop: the direction it travels and the arm animations and phases that side uses.</summary>
     /// <param name="Direction">The way the swoop travels; rightward adds its velocity to X.</param>
     /// <param name="ArmsNearApex">The arms animation started as the path nears its lowest point.</param>
     /// <param name="ArmsIdle">The arms animation restored as the ascent passes the same point.</param>
-    /// <param name="Apex">The function that recalculates velocity at the bottom of the swoop.</param>
-    /// <param name="Ascending">The function that climbs back up after the apex.</param>
+    /// <param name="Apex">The phase that recalculates velocity at the bottom of the swoop.</param>
+    /// <param name="Ascending">The phase that climbs back up after the apex.</param>
     internal sealed record DraygonSwoopSide(HorizontalDirection Direction, DraygonSegment ArmsNearApex, DraygonSegment ArmsIdle,
         DraygonPhase Apex, DraygonPhase Ascending);
 

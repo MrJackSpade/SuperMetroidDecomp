@@ -178,7 +178,7 @@ internal sealed class PhantoonCombat
                 continue;
             }
 
-            // The extended-hitbox walker applies this before calling the selected component function. A
+            // The extended-hitbox walker applies this before running the selected part's reaction. A
             // no-op shell hit therefore still marks the beam and shakes for a Super Missile.
             if (family == SamusProjectileFamily.SuperMissile)
             {

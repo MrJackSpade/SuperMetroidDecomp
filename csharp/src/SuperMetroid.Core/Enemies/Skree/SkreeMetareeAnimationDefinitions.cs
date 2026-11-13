@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Skree;
 
-/// <summary>Fixed animation selectors for Skree and Metaree.</summary>
+/// <summary>The Skree and Metaree animations of each animation phase.</summary>
 internal static class SkreeMetareeAnimationDefinitions
 {
     /// <summary>The Metaree segment for each named animation phase.</summary>

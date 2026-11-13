@@ -80,7 +80,7 @@ internal static class TourianStatueProjectileNativeListAddresses
     /// </summary>
     internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, TourianStatueProjectileAnimations.Segments,
         TourianStatueProjectileAnimations.StartingAt,
-        frame => EnemyProjectileProgramFrameSources.Operand(TourianStatueProjectileFrameDefinitions.ShownProjectileFrames[frame]), Rules,
+        frame => EnemyProjectileProgramFrameSources.Operand(frame), Rules,
         startsWithClearedCounter: new HashSet<TourianStatueProjectileProgram> { TourianStatueProjectileProgram.Particle });
 
 }

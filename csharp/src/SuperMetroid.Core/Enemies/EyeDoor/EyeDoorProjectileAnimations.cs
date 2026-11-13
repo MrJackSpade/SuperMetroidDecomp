@@ -8,40 +8,40 @@ namespace SuperMetroid.Core.Enemies.EyeDoor;
 
 /// <summary>
 /// The eye door projectile's flight, impact and shot programs (#641). Each
-/// frame shows a <see cref="EyeDoorProjectileFrame"/> pose and each command becomes a <see cref="EyeDoorProjectileCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each command becomes a <see cref="EyeDoorProjectileCue"/> with its typed operands.
 /// </summary>
 internal static class EyeDoorProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<EyeDoorProjectileProgram, EyeDoorProjectileFrame, EyeDoorProjectileCue> Segments { get; } = new(
-        new Dictionary<EyeDoorProjectileProgram, AnimationBeat<EyeDoorProjectileFrame, EyeDoorProjectileCue>[]>
+    internal static AnimationSegments<EyeDoorProjectileProgram, EnemyProjectileFrameId, EyeDoorProjectileCue> Segments { get; } = new(
+        new Dictionary<EyeDoorProjectileProgram, AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>[]>
     {
         [P.Initial] =
         [
-            Show(0, 4),
-            Show(1, 3),
-            Show(2, 2),
+            Show(EnemyProjectileFrameId.EyeDoorInitialFirst, 4),
+            Show(EnemyProjectileFrameId.EyeDoorInitialSecond, 3),
+            Show(EnemyProjectileFrameId.EyeDoorInitialThird, 2),
             Cue(new(K.AimAtSamus)),
             Cue(new(K.SetFrameBehavior, FrameBehavior: EnemyProjectileFrameBehavior.EyeDoorShotFlight)),
         ],
         [P.FlyingLoop] =
         [
-            Show(3, 16),
+            Show(EnemyProjectileFrameId.EyeDoorFlyingLoop, 16),
         ],
         [P.Impact] =
         [
             Cue(new(K.ClearFrameBehavior)),
-            Show(4, 2),
-            Show(5, 3),
-            Show(6, 4),
+            Show(EnemyProjectileFrameId.EyeDoorImpactFirst, 2),
+            Show(EnemyProjectileFrameId.EyeDoorImpactSecond, 3),
+            Show(EnemyProjectileFrameId.EyeDoorImpactThird, 4),
             Cue(new(K.Delete)),
         ],
         [P.Shot] =
         [
-            Show(7, 4),
-            Show(8, 4),
-            Show(9, 4),
-            Show(10, 4),
+            Show(EnemyProjectileFrameId.EyeDoorShotFirst, 4),
+            Show(EnemyProjectileFrameId.EyeDoorShotSecond, 4),
+            Show(EnemyProjectileFrameId.EyeDoorShotThird, 4),
+            Show(EnemyProjectileFrameId.EyeDoorShotFourth, 4),
             Cue(new(K.Delete)),
         ],
     });
@@ -58,9 +58,9 @@ internal static class EyeDoorProjectileAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<EyeDoorProjectileProgram> StartingWith(EyeDoorProjectileProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EyeDoorProjectileFrame, EyeDoorProjectileCue> Show(int pose, int duration) => new AnimationBeat<EyeDoorProjectileFrame, EyeDoorProjectileCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EyeDoorProjectileFrame, EyeDoorProjectileCue> Cue(EyeDoorProjectileCue cue) => new AnimationBeat<EyeDoorProjectileFrame, EyeDoorProjectileCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue> Cue(EyeDoorProjectileCue cue) => new AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.Event(cue);
 }

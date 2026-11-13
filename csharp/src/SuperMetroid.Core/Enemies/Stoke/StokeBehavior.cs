@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Stoke.Artwork;
-using SuperMetroid.Core.Enemies.Cacatac;
+﻿using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -203,7 +202,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Stoke's typed animation.</summary>
     internal void AdvanceStokeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, StokeAnimations.Segments, StokeFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, StokeAnimations.Segments,
             static (StokeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

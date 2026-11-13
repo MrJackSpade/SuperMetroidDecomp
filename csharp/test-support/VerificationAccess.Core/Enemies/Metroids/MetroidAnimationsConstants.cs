@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Metroids.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Metroids;
 
@@ -9,6 +10,6 @@ internal static class MetroidAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params MetroidProgram[] programs) =>
         programs.SelectMany(program => MetroidAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<MetroidFrame, MetroidCue>.Frame>()
+            .OfType<AnimationBeat<EnemyFrameId, MetroidCue>.Frame>()
             .Select(frame => MetroidFrameToolingDefinitions.Spritemap(frame.Shown));
 }

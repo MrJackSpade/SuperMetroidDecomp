@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Rios.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -266,7 +265,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Rio's typed animation.</summary>
     internal static void AdvanceRioTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, RioAnimations.Segments, RioFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, RioAnimations.Segments,
             static (RioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

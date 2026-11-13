@@ -1,21 +1,22 @@
 using P = SuperMetroid.Core.Enemies.Kzan.KzanProgram;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Kzan;
 
 /// <summary>
 /// Kzan's idle pose as a typed program (#641). Each
-/// frame shows a <see cref="KzanFrame"/> pose and its lists use no owner callbacks.
+/// frame shows a <see cref="EnemyFrameId"/> and its lists use no owner callbacks.
 /// </summary>
 internal static class KzanAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<KzanProgram, KzanFrame, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<KzanProgram, AnimationBeat<KzanFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<KzanProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<KzanProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.Idle] =
         [
-            Show(0, 1),
+            Show(EnemyFrameId.Kzan00, 1),
         ],
     });
 
@@ -28,6 +29,6 @@ internal static class KzanAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<KzanProgram> StartingWith(KzanProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<KzanFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<KzanFrame, NoAnimationCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 }

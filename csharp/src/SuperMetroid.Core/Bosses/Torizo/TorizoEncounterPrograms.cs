@@ -2,6 +2,7 @@ using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Bosses.Torizo.TorizoCueKind;
 using P = SuperMetroid.Core.Bosses.Torizo.TorizoBodyProgram;
 using static SuperMetroid.Core.Bosses.Torizo.TorizoProgramSteps;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
@@ -9,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class TorizoEncounterPrograms
 {
     /// <summary>Each segment and its beats.</summary>
-    internal static Dictionary<TorizoBodyProgram, AnimationBeat<TorizoFrame, TorizoCue>[]> Segments { get; } = new()
+    internal static Dictionary<TorizoBodyProgram, AnimationBeat<EnemyFrameId, TorizoCue>[]> Segments { get; } = new()
     {
         [P.SpecialCallableBlowUpBombTorizosGut] =
         [
@@ -89,54 +90,54 @@ internal static class TorizoEncounterPrograms
         [
             Cue(new TorizoCue.Command(K.SteppedLeftWithRightFoot)),
             Cue(new TorizoCue.Command(K.LockAnimation)),
-            Show(0, 1),
+            Show(EnemyFrameId.BombTorizoDormant, 1),
             Cue(new TorizoCue.SetFunction(Function: TorizoFunction.WaitForHandTrigger)),
         ],
         [P.BombTorizoInitial0Resumed] =
         [
             Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Falling)),
-            Show(44, 48),
+            Show(EnemyFrameId.GoldenTorizoAwake2, 48),
             ShowArtwork(13),
-            Show(44, 32),
+            Show(EnemyFrameId.GoldenTorizoAwake2, 32),
             ShowArtwork(14),
-            Show(44, 16),
+            Show(EnemyFrameId.GoldenTorizoAwake2, 16),
             ShowArtwork(15),
-            Show(44, 8),
+            Show(EnemyFrameId.GoldenTorizoAwake2, 8),
             ShowArtwork(16),
-            Show(44, 32),
+            Show(EnemyFrameId.GoldenTorizoAwake2, 32),
         ],
         [P.BombTorizoInitial1] =
         [
-            Show(44, 4),
+            Show(EnemyFrameId.GoldenTorizoAwake2, 4),
             ShowArtwork(17),
-            Show(44, 4),
+            Show(EnemyFrameId.GoldenTorizoAwake2, 4),
             ShowArtwork(18),
-            Show(44, 4),
+            Show(EnemyFrameId.GoldenTorizoAwake2, 4),
             ShowArtwork(19),
-            Show(44, 4),
+            Show(EnemyFrameId.GoldenTorizoAwake2, 4),
             ShowArtwork(20),
-            Show(44, 48),
+            Show(EnemyFrameId.GoldenTorizoAwake2, 48),
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Step: 0)),
-            Show(45, 16),
+            Show(EnemyFrameId.GoldenTorizoAwake1, 16),
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Step: 1)),
-            Show(46, 8),
+            Show(EnemyFrameId.GoldenTorizoAwake0, 8),
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Step: 2)),
-            Show(47, 8),
+            Show(EnemyFrameId.GoldenTorizoInitial, 8),
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Step: 3)),
-            Show(48, 8),
+            Show(EnemyFrameId.GoldenTorizoAwake3, 8),
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Step: 4)),
-            Show(49, 8),
+            Show(EnemyFrameId.GoldenTorizoAwake4, 8),
             Cue(new TorizoCue.Posture(TorizoPostureKind.StandUp, Step: 5)),
             Cue(new TorizoCue.Command(K.FadeToNormalColors)),
         ],
         [P.BombTorizoInitial2] =
         [
-            Show(50, 4),
+            Show(EnemyFrameId.GoldenTorizoAwake5, 4),
             Cue(new TorizoCue.Command(K.AdvanceColourFade)),
             Cue(new TorizoCue.Command(K.NoOperation)),
             Cue(new TorizoCue.Command(K.UnlockAnimation)),
             Cue(new TorizoCue.Command(K.StartBombTorizoFight)),
-            Show(50, 16),
+            Show(EnemyFrameId.GoldenTorizoAwake5, 16),
         ],
         [P.Stunned0] =
         [

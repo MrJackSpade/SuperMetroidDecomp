@@ -1,18 +1,19 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Alcoon.AlcoonCueKind;
 using P = SuperMetroid.Core.Enemies.Alcoon.AlcoonProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
 /// <summary>
 /// The Alcoon's walking, fireball and airborne animations as typed programs (#641). Each
-/// frame shows a <see cref="AlcoonFrame"/> pose and each callback becomes a <see cref="AlcoonCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="AlcoonCue"/> with its typed operands.
 /// </summary>
 internal static class AlcoonAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<AlcoonProgram, AlcoonFrame, AlcoonCue> Segments { get; } = new(
-        new Dictionary<AlcoonProgram, AnimationBeat<AlcoonFrame, AlcoonCue>[]>
+    internal static AnimationSegments<AlcoonProgram, EnemyFrameId, AlcoonCue> Segments { get; } = new(
+        new Dictionary<AlcoonProgram, AnimationBeat<EnemyFrameId, AlcoonCue>[]>
     {
         [P.WalkingLeft] =
         [
@@ -20,44 +21,44 @@ internal static class AlcoonAnimations
         ],
         [P.WalkingLeftLoop] =
         [
-            Show(0, 10),
+            Show(EnemyFrameId.AlcoonLeftWalk0, 10),
             Cue(new(K.Move)),
-            Show(1, 10),
+            Show(EnemyFrameId.AlcoonLeftWalk1, 10),
             Cue(new(K.Move)),
-            Show(2, 10),
+            Show(EnemyFrameId.AlcoonLeftWalk2, 10),
             Cue(new(K.Step)),
-            Show(3, 10),
+            Show(EnemyFrameId.AlcoonLeftWalk3, 10),
         ],
         [P.FireLeft] =
         [
-            Show(4, 20),
-            Show(5, 9),
-            Show(6, 16),
-            Show(5, 3),
+            Show(EnemyFrameId.AlcoonLeftFire0, 20),
+            Show(EnemyFrameId.AlcoonLeftFire1, 9),
+            Show(EnemyFrameId.AlcoonLeftFire2, 16),
+            Show(EnemyFrameId.AlcoonLeftFire1, 3),
             Cue(new(K.FireHorizontally)),
-            Show(7, 10),
-            Show(4, 10),
-            Show(5, 9),
-            Show(6, 16),
-            Show(5, 3),
+            Show(EnemyFrameId.AlcoonLeftFire3, 10),
+            Show(EnemyFrameId.AlcoonLeftFire0, 10),
+            Show(EnemyFrameId.AlcoonLeftFire1, 9),
+            Show(EnemyFrameId.AlcoonLeftFire2, 16),
+            Show(EnemyFrameId.AlcoonLeftFire1, 3),
             Cue(new(K.FireUpward)),
-            Show(7, 10),
-            Show(4, 10),
-            Show(5, 9),
-            Show(6, 16),
-            Show(5, 3),
+            Show(EnemyFrameId.AlcoonLeftFire3, 10),
+            Show(EnemyFrameId.AlcoonLeftFire0, 10),
+            Show(EnemyFrameId.AlcoonLeftFire1, 9),
+            Show(EnemyFrameId.AlcoonLeftFire2, 16),
+            Show(EnemyFrameId.AlcoonLeftFire1, 3),
             Cue(new(K.FireDownward)),
-            Show(7, 40),
+            Show(EnemyFrameId.AlcoonLeftFire3, 40),
             Cue(new(K.StartWalking)),
-            Show(7, 1),
+            Show(EnemyFrameId.AlcoonLeftFire3, 1),
         ],
         [P.AirborneLeftLookingUp] =
         [
-            Hold(8),
+            Hold(EnemyFrameId.AlcoonLeftAirUp),
         ],
         [P.AirborneLeftLookingForward] =
         [
-            Hold(3),
+            Hold(EnemyFrameId.AlcoonLeftWalk3),
         ],
         [P.WalkingRight] =
         [
@@ -65,44 +66,44 @@ internal static class AlcoonAnimations
         ],
         [P.WalkingRightLoop] =
         [
-            Show(9, 10),
+            Show(EnemyFrameId.AlcoonRightWalk0, 10),
             Cue(new(K.Move)),
-            Show(10, 10),
+            Show(EnemyFrameId.AlcoonRightWalk1, 10),
             Cue(new(K.Move)),
-            Show(11, 10),
+            Show(EnemyFrameId.AlcoonRightWalk2, 10),
             Cue(new(K.Step)),
-            Show(12, 10),
+            Show(EnemyFrameId.AlcoonRightWalk3, 10),
         ],
         [P.FireRight] =
         [
-            Show(13, 20),
-            Show(14, 9),
-            Show(15, 16),
-            Show(14, 3),
+            Show(EnemyFrameId.AlcoonRightFire0, 20),
+            Show(EnemyFrameId.AlcoonRightFire1, 9),
+            Show(EnemyFrameId.AlcoonRightFire2, 16),
+            Show(EnemyFrameId.AlcoonRightFire1, 3),
             Cue(new(K.FireHorizontally)),
-            Show(16, 10),
-            Show(13, 10),
-            Show(14, 9),
-            Show(15, 16),
-            Show(14, 3),
+            Show(EnemyFrameId.AlcoonRightFire3, 10),
+            Show(EnemyFrameId.AlcoonRightFire0, 10),
+            Show(EnemyFrameId.AlcoonRightFire1, 9),
+            Show(EnemyFrameId.AlcoonRightFire2, 16),
+            Show(EnemyFrameId.AlcoonRightFire1, 3),
             Cue(new(K.FireUpward)),
-            Show(16, 10),
-            Show(13, 10),
-            Show(14, 9),
-            Show(15, 16),
-            Show(14, 3),
+            Show(EnemyFrameId.AlcoonRightFire3, 10),
+            Show(EnemyFrameId.AlcoonRightFire0, 10),
+            Show(EnemyFrameId.AlcoonRightFire1, 9),
+            Show(EnemyFrameId.AlcoonRightFire2, 16),
+            Show(EnemyFrameId.AlcoonRightFire1, 3),
             Cue(new(K.FireDownward)),
-            Show(16, 40),
+            Show(EnemyFrameId.AlcoonRightFire3, 40),
             Cue(new(K.StartWalking)),
-            Show(16, 1),
+            Show(EnemyFrameId.AlcoonRightFire3, 1),
         ],
         [P.AirborneRightLookingUp] =
         [
-            Hold(17),
+            Hold(EnemyFrameId.AlcoonRightAirUp),
         ],
         [P.AirborneRightLookingForward] =
         [
-            Hold(12),
+            Hold(EnemyFrameId.AlcoonRightWalk3),
         ],
     });
 
@@ -124,12 +125,12 @@ internal static class AlcoonAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<AlcoonProgram> StartingWith(AlcoonProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<AlcoonFrame, AlcoonCue> Show(int pose, int duration) => new AnimationBeat<AlcoonFrame, AlcoonCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, AlcoonCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, AlcoonCue>.Frame(frame, duration);
 
-    /// <summary>Shows pose <paramref name="pose"/> for good: the animation rests on it until its owner plays another (#1607).</summary>
-    private static AnimationBeat<AlcoonFrame, AlcoonCue> Hold(int pose) => new AnimationBeat<AlcoonFrame, AlcoonCue>.HeldFrame(new(pose));
+    /// <summary>Shows <paramref name="frame"/> for good: the animation rests on it until its owner plays another (#1607).</summary>
+    private static AnimationBeat<EnemyFrameId, AlcoonCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, AlcoonCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<AlcoonFrame, AlcoonCue> Cue(AlcoonCue cue) => new AnimationBeat<AlcoonFrame, AlcoonCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, AlcoonCue> Cue(AlcoonCue cue) => new AnimationBeat<EnemyFrameId, AlcoonCue>.Event(cue);
 }

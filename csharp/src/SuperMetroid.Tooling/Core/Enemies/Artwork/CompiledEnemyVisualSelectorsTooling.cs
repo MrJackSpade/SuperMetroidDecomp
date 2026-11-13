@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
@@ -10,7 +11,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class CompiledEnemyVisualSelectorsTooling
 {
     /// <summary>Presentation operands calculated by the individual projectile and enemy instruction catalogs.</summary>
-    internal static int CalculatedCount => AlcoonFireballFrameToolingDefinitions.PoseCount + FuneNamiheFireballFrameToolingDefinitions.PoseCount;
+    internal static int CalculatedCount => AlcoonFireballFrameToolingDefinitions.Frames.Length + FuneNamiheFireballFrameToolingDefinitions.Frames.Length;
     /// <summary>Total visual selector entries across literal and calculated sources.</summary>
     internal static int Count => CompiledEnemyVisualSelectors.Entries.Length + CalculatedCount;
     /// <summary>Returns one selector from the bank/address-ordered merge of literal and calculated entries.</summary>
@@ -41,16 +42,16 @@ internal static class CompiledEnemyVisualSelectorsTooling
     /// <summary>Calculates an indexed presentation operand and its installed visual frame across native banks.</summary>
     internal static CompiledEnemyVisualSelector CalculatedAt(int index)
     {
-        if (index < AlcoonFireballFrameToolingDefinitions.PoseCount)
+        if (index < AlcoonFireballFrameToolingDefinitions.Frames.Length)
         {
-            AlcoonFireballFrame fireball = new(index);
-            return new(0x860000 | EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameDefinitions.ShownProjectileFrames[fireball]), AlcoonFireballFrameToolingDefinitions.Spritemap(fireball));
+            EnemyProjectileFrameId fireball = AlcoonFireballFrameToolingDefinitions.Frames[index];
+            return new(0x860000 | EnemyProjectileProgramFrameSources.Operand(fireball), AlcoonFireballFrameToolingDefinitions.Spritemap(fireball));
         }
-        index -= AlcoonFireballFrameToolingDefinitions.PoseCount;
-        if (index < FuneNamiheFireballFrameToolingDefinitions.PoseCount)
+        index -= AlcoonFireballFrameToolingDefinitions.Frames.Length;
+        if (index < FuneNamiheFireballFrameToolingDefinitions.Frames.Length)
         {
-            FuneNamiheFireballFrame fune = new(index);
-            return new(0x860000 | EnemyProjectileProgramFrameSources.Operand(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[fune]), FuneNamiheFireballFrameToolingDefinitions.Spritemap(fune));
+            EnemyProjectileFrameId fune = FuneNamiheFireballFrameToolingDefinitions.Frames[index];
+            return new(0x860000 | EnemyProjectileProgramFrameSources.Operand(fune), FuneNamiheFireballFrameToolingDefinitions.Spritemap(fune));
         }
         throw new ArgumentOutOfRangeException(nameof(index));
     }

@@ -1,92 +1,93 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Rios.NorfairRioCueKind;
 using P = SuperMetroid.Core.Enemies.Rios.NorfairRioProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
 /// The Norfair Rio's idle and swoop animations and its flames' animations as typed programs (#641). Each
-/// frame shows a <see cref="NorfairRioFrame"/> pose and each callback becomes a <see cref="NorfairRioCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="NorfairRioCue"/> with its typed operands.
 /// </summary>
 internal static class NorfairRioAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<NorfairRioProgram, NorfairRioFrame, NorfairRioCue> Segments { get; } = new(
-        new Dictionary<NorfairRioProgram, AnimationBeat<NorfairRioFrame, NorfairRioCue>[]>
+    internal static AnimationSegments<NorfairRioProgram, EnemyFrameId, NorfairRioCue> Segments { get; } = new(
+        new Dictionary<NorfairRioProgram, AnimationBeat<EnemyFrameId, NorfairRioCue>[]>
     {
         [P.Idle] =
         [
             Cue(new(K.FlamesAt8)),
-            Show(1, 13),
-            Show(0, 18),
-            Show(1, 13),
-            Show(2, 18),
+            Show(EnemyFrameId.NorfairRioPose1, 13),
+            Show(EnemyFrameId.NorfairRioPose0, 18),
+            Show(EnemyFrameId.NorfairRioPose1, 13),
+            Show(EnemyFrameId.NorfairRioPose2, 18),
         ],
         [P.StartDescending] =
         [
             Cue(new(K.FlamesAt8)),
-            Show(0, 1),
+            Show(EnemyFrameId.NorfairRioPose0, 1),
             Cue(new(K.FlamesAt4)),
-            Show(9, 1),
+            Show(EnemyFrameId.NorfairRioPose9, 1),
             Cue(new(K.FlamesAt0)),
-            Show(10, 1),
+            Show(EnemyFrameId.NorfairRioPose10, 1),
             Cue(new(K.FlamesAtMinus4)),
-            Show(11, 1),
+            Show(EnemyFrameId.NorfairRioPose11, 1),
             Cue(new(K.FlamesAtMinus12)),
-            Show(12, 1),
+            Show(EnemyFrameId.NorfairRioPose12, 1),
             Cue(new(K.FlamesAtMinus16)),
-            Show(13, 1),
+            Show(EnemyFrameId.NorfairRioPose13, 1),
             Cue(new(K.SwoopStartFinished)),
         ],
         [P.Descending] =
         [
             Cue(new(K.FlamesAtMinus12)),
-            Show(6, 6),
-            Show(7, 5),
-            Show(8, 8),
-            Show(7, 6),
+            Show(EnemyFrameId.NorfairRioPose6, 6),
+            Show(EnemyFrameId.NorfairRioPose7, 5),
+            Show(EnemyFrameId.NorfairRioPose8, 8),
+            Show(EnemyFrameId.NorfairRioPose7, 6),
         ],
         [P.StartAscending] =
         [
             Cue(new(K.FlamesAtMinus16)),
-            Show(13, 1),
+            Show(EnemyFrameId.NorfairRioPose13, 1),
             Cue(new(K.FlamesAtMinus12)),
-            Show(12, 1),
+            Show(EnemyFrameId.NorfairRioPose12, 1),
             Cue(new(K.FlamesAtMinus4)),
-            Show(11, 1),
+            Show(EnemyFrameId.NorfairRioPose11, 1),
             Cue(new(K.FlamesAt0)),
-            Show(10, 1),
+            Show(EnemyFrameId.NorfairRioPose10, 1),
             Cue(new(K.FlamesAt4)),
-            Show(9, 1),
+            Show(EnemyFrameId.NorfairRioPose9, 1),
             Cue(new(K.FlamesAt8)),
-            Show(0, 1),
+            Show(EnemyFrameId.NorfairRioPose0, 1),
             Cue(new(K.FlamesAt8)),
-            Show(1, 1),
+            Show(EnemyFrameId.NorfairRioPose1, 1),
             Cue(new(K.FlamesAt12)),
-            Show(2, 1),
+            Show(EnemyFrameId.NorfairRioPose2, 1),
             Cue(new(K.SwoopStartFinished)),
         ],
         [P.Ascending] =
         [
             Cue(new(K.FlamesAt12)),
-            Show(14, 6),
-            Show(15, 5),
-            Show(16, 8),
-            Show(15, 6),
+            Show(EnemyFrameId.NorfairRioPose14, 6),
+            Show(EnemyFrameId.NorfairRioPose15, 5),
+            Show(EnemyFrameId.NorfairRioPose16, 8),
+            Show(EnemyFrameId.NorfairRioPose15, 6),
         ],
         [P.FlamesAscending] =
         [
-            Show(3, 6),
-            Show(4, 5),
-            Show(5, 8),
-            Show(4, 6),
+            Show(EnemyFrameId.NorfairRioPose3, 6),
+            Show(EnemyFrameId.NorfairRioPose4, 5),
+            Show(EnemyFrameId.NorfairRioPose5, 8),
+            Show(EnemyFrameId.NorfairRioPose4, 6),
         ],
         [P.FlamesDescending] =
         [
-            Show(17, 6),
-            Show(18, 5),
-            Show(19, 8),
-            Show(18, 6),
+            Show(EnemyFrameId.NorfairRioPose17, 6),
+            Show(EnemyFrameId.NorfairRioPose18, 5),
+            Show(EnemyFrameId.NorfairRioPose19, 8),
+            Show(EnemyFrameId.NorfairRioPose18, 6),
         ],
     });
 
@@ -105,9 +106,9 @@ internal static class NorfairRioAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<NorfairRioProgram> StartingWith(NorfairRioProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<NorfairRioFrame, NorfairRioCue> Show(int pose, int duration) => new AnimationBeat<NorfairRioFrame, NorfairRioCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, NorfairRioCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NorfairRioCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<NorfairRioFrame, NorfairRioCue> Cue(NorfairRioCue cue) => new AnimationBeat<NorfairRioFrame, NorfairRioCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, NorfairRioCue> Cue(NorfairRioCue cue) => new AnimationBeat<EnemyFrameId, NorfairRioCue>.Event(cue);
 }

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Rios.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -333,7 +332,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances the Norfair Rio's typed animation.</summary>
     internal static void AdvanceNorfairRioTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, NorfairRioAnimations.Segments, NorfairRioFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, NorfairRioAnimations.Segments,
             static (NorfairRioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

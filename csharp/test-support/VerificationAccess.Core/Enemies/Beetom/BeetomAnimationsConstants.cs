@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Beetom.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Beetom;
 
@@ -9,6 +10,6 @@ internal static class BeetomAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params BeetomProgram[] programs) =>
         programs.SelectMany(program => BeetomAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<BeetomFrame, BeetomCue>.Frame>()
+            .OfType<AnimationBeat<EnemyFrameId, BeetomCue>.Frame>()
             .Select(frame => BeetomFrameToolingDefinitions.Spritemap(frame.Shown));
 }

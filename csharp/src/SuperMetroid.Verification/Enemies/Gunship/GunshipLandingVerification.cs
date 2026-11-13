@@ -19,6 +19,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Post-Ceres gunship descent, landing, entry-sound, and escape-takeoff fixtures.</summary>
 internal static class GunshipLandingVerification
@@ -288,7 +289,7 @@ internal static class GunshipLandingVerification
     /// <summary>Asserts that <paramref name="pad"/> shows <paramref name="program"/>'s first pose for its first duration.</summary>
     private static void AssertPadShowsFirstFrame(RoomEnemySlot pad, GunshipProgram program, string message)
     {
-        var first = AssertIs<AnimationBeat<GunshipFrame, NoAnimationCue>.Frame>(GunshipAnimations.Segments.Beats(program)[0], message + " (first beat)");
+        var first = AssertIs<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>(GunshipAnimations.Segments.Beats(program)[0], message + " (first beat)");
         AssertEqual(GunshipFrameDefinitionsConstants.Spritemap(first.Shown), pad.SpritemapPointer, message + " (pose)");
         AssertEqual(WrappingCountdown.FromRaw((ushort)first.Duration), pad.FrameHold, message + " (duration)");
     }

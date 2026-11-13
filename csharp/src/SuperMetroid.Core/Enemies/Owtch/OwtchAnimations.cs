@@ -1,18 +1,19 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Owtch.OwtchCueKind;
 using P = SuperMetroid.Core.Enemies.Owtch.OwtchProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>
 /// Owtch's left and right shell-cycling animations as typed programs (#641). Each
-/// frame shows a <see cref="OwtchFrame"/> pose and each callback becomes a <see cref="OwtchCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="OwtchCue"/> with its typed operands.
 /// </summary>
 internal static class OwtchAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<OwtchProgram, OwtchFrame, OwtchCue> Segments { get; } = new(
-        new Dictionary<OwtchProgram, AnimationBeat<OwtchFrame, OwtchCue>[]>
+    internal static AnimationSegments<OwtchProgram, EnemyFrameId, OwtchCue> Segments { get; } = new(
+        new Dictionary<OwtchProgram, AnimationBeat<EnemyFrameId, OwtchCue>[]>
     {
         [P.MovingLeft] =
         [
@@ -20,9 +21,9 @@ internal static class OwtchAnimations
         ],
         [P.MovingLeftLoop] =
         [
-            Show(0, 8),
-            Show(1, 8),
-            Show(2, 8),
+            Show(EnemyFrameId.OwtchLeft0, 8),
+            Show(EnemyFrameId.OwtchLeft1, 8),
+            Show(EnemyFrameId.OwtchLeft2, 8),
         ],
         [P.MovingRight] =
         [
@@ -30,9 +31,9 @@ internal static class OwtchAnimations
         ],
         [P.MovingRightLoop] =
         [
-            Show(2, 8),
-            Show(1, 8),
-            Show(0, 8),
+            Show(EnemyFrameId.OwtchLeft2, 8),
+            Show(EnemyFrameId.OwtchLeft1, 8),
+            Show(EnemyFrameId.OwtchLeft0, 8),
         ],
     });
 
@@ -48,9 +49,9 @@ internal static class OwtchAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<OwtchProgram> StartingWith(OwtchProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<OwtchFrame, OwtchCue> Show(int pose, int duration) => new AnimationBeat<OwtchFrame, OwtchCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, OwtchCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, OwtchCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<OwtchFrame, OwtchCue> Cue(OwtchCue cue) => new AnimationBeat<OwtchFrame, OwtchCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, OwtchCue> Cue(OwtchCue cue) => new AnimationBeat<EnemyFrameId, OwtchCue>.Event(cue);
 }

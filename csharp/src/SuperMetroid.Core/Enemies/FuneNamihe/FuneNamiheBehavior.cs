@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -195,7 +194,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances FuneNamihe's typed animation.</summary>
     internal void AdvanceFuneNamiheTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, FuneNamiheAnimations.Segments, FuneNamiheFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, FuneNamiheAnimations.Segments,
             static (FuneNamiheEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyFuneNamiheCue(slot, state, cue) is { } target
                 ? new AnimationContinuation<FuneNamiheProgram>(FuneNamiheAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

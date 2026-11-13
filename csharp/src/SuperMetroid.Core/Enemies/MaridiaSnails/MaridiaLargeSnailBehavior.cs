@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.MaridiaSnails.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -531,7 +530,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
     /// <summary>Advances the Maridia large snail's typed animation.</summary>
     internal void AdvanceMaridiaLargeSnailTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, MaridiaLargeSnailAnimations.Segments, MaridiaLargeSnailFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, MaridiaLargeSnailAnimations.Segments,
             static (MaridiaLargeSnailEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

@@ -4,6 +4,7 @@ using static SuperMetroid.TestSupport.MovieReplay.PolypRockNativeListAddresses;
 using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.Polyp;
 
@@ -14,13 +15,12 @@ internal static class PolypRockAnimationsVerification
     internal static void VerifyPolypRockAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
-        for (int pose = 0; pose < PolypRockFrameToolingDefinitions.PoseCount; pose++)
+        foreach (EnemyProjectileFrameId frame in PolypRockFrameToolingDefinitions.Frames)
         {
-            PolypRockFrame frame = new(pose);
-            ushort key = EnemyProjectileProgramFrameSources.Operand(PolypRockFrameDefinitions.ShownProjectileFrames[frame]);
+            ushort key = EnemyProjectileProgramFrameSources.Operand(frame);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | key), PolypRockFrameToolingDefinitions.Spritemap(frame),
-                $"Polyp lava rock pose {pose} spritemap");
-            AssertTrue(PolypRockFrameToolingDefinitions.TryFrame(key, out PolypRockFrame found) && found == frame, $"Polyp lava rock pose {pose} is found by its key");
+                $"Polyp lava rock frame {frame} spritemap");
+            AssertTrue(PolypRockFrameToolingDefinitions.TryFrame(key, out EnemyProjectileFrameId found) && found == frame, $"Polyp lava rock frame {frame} is found by its key");
         }
         Console.WriteLine($"  Polyp lava rock programs: {Entries.Length} programs ({steps} steps) match bank $86.");
     }

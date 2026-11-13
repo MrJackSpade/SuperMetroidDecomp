@@ -17,8 +17,8 @@ internal static class EnemyProjectileCompositionDefinitions
     /// </summary>
     internal static readonly FrozenDictionary<EnemyProjectileFrameId, ushort> Spritemaps = new Dictionary<EnemyProjectileFrameId, ushort>
     {
-        [EnemyProjectileFrameId.CeresElevatorPad0] = 0xb1ba,
-        [EnemyProjectileFrameId.CeresElevatorPad1] = 0xb1d0,
+        [EnemyProjectileFrameId.CeresElevatorPadFirst] = 0xb1ba,
+        [EnemyProjectileFrameId.CeresElevatorPadSecond] = 0xb1d0,
         [EnemyProjectileFrameId.CeresElevatorPlatform] = 0x846d,
         [EnemyProjectileFrameId.SkreeDebris] = 0x8023,
         [EnemyProjectileFrameId.MetareeDebris] = 0x8435,

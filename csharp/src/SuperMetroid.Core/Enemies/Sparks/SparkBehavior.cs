@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Sparks.Artwork;
 using SuperMetroid.Core.Enemies.FallingSparks;
 
 namespace SuperMetroid.Core.Enemies.Sparks;
@@ -148,7 +147,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         SparkEnemyState state = slot.RequireSpeciesState<SparkEnemyState>();
         AnimationPlayback<SparkProgram> playback = state.Playback ?? throw new InvalidOperationException(
             "Spark animation runs before the Spark is initialized.");
-        EnemyProgramAnimation.Play(slot, SparkAnimations.Segments, ref playback, SparkFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, SparkAnimations.Segments, ref playback,
             cue =>
             {
                 ApplySparkCue(slot, cue);

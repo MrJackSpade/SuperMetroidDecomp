@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core.Enemies.Alcoon.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
@@ -8,6 +9,6 @@ internal static class AlcoonAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params AlcoonProgram[] programs) =>
         programs.SelectMany(program => AlcoonAnimations.Segments.Beats(program))
-            .Select(beat => beat.ShownFrame).OfType<AlcoonFrame>()
+            .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>()
             .Select(frame => AlcoonFrameToolingDefinitions.Spritemap(frame));
 }

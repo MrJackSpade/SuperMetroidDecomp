@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.MaridiaSnails.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
@@ -9,6 +10,6 @@ internal static class MaridiaLargeSnailAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params MaridiaLargeSnailProgram[] programs) =>
         programs.SelectMany(program => MaridiaLargeSnailAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<MaridiaLargeSnailFrame, MaridiaLargeSnailCue>.Frame>()
+            .OfType<AnimationBeat<EnemyFrameId, MaridiaLargeSnailCue>.Frame>()
             .Select(frame => MaridiaLargeSnailFrameToolingDefinitions.Spritemap(frame.Shown));
 }

@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Flies.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -169,7 +168,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         FlyEnemyState state = slot.RequireSpeciesState<FlyEnemyState>();
         AnimationPlayback<FlyProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, FlyAnimations.Segments, ref playback, FlyFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, FlyAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A cue-free fly animation raised {cue}."));
         state.Playback = playback;
     }

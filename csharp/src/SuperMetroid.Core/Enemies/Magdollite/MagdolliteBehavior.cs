@@ -746,7 +746,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Magdollite's typed animation.</summary>
     internal void AdvanceMagdolliteTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, MagdolliteAnimations.Segments, MagdolliteFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, MagdolliteAnimations.Segments,
             static (MagdolliteEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyMagdolliteCue(slot, cue, context.Camera) is { } target
                 ? new AnimationContinuation<MagdolliteProgram>(MagdolliteAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.SaveStation;
-using SuperMetroid.Core.Enemies.SaveStation.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
@@ -25,5 +24,5 @@ internal static class SaveStationElectricityNativeListAddresses
     internal static ushort Entry(SaveStationElectricityProgram program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
 
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, SaveStationElectricityAnimations.Segments, SaveStationElectricityAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(SaveStationElectricityFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, SaveStationElectricityAnimations.Segments, SaveStationElectricityAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), NativeEnemyProjectileCommonCues.Rules);
 }

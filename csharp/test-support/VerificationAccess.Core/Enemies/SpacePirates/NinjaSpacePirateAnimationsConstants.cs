@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
@@ -9,6 +10,6 @@ internal static class NinjaSpacePirateAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params NinjaSpacePirateProgram[] programs) =>
         programs.SelectMany(program => NinjaSpacePirateAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<NinjaSpacePirateFrame, NinjaSpacePirateCue>.Frame>()
+            .OfType<AnimationBeat<EnemyFrameId, NinjaSpacePirateCue>.Frame>()
             .Select(frame => NinjaSpacePirateFrameToolingDefinitions.Spritemap(frame.Shown));
 }

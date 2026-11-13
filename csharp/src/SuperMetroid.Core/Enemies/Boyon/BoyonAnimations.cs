@@ -1,18 +1,19 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Boyon.BoyonCueKind;
 using P = SuperMetroid.Core.Enemies.Boyon.BoyonProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Boyon;
 
 /// <summary>
 /// Boyon's idle and bouncing loops as typed programs (#641). Each
-/// frame shows a <see cref="BoyonFrame"/> pose and each callback becomes a <see cref="BoyonCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="BoyonCue"/> with its typed operands.
 /// </summary>
 internal static class BoyonAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<BoyonProgram, BoyonFrame, BoyonCue> Segments { get; } = new(
-        new Dictionary<BoyonProgram, AnimationBeat<BoyonFrame, BoyonCue>[]>
+    internal static AnimationSegments<BoyonProgram, EnemyFrameId, BoyonCue> Segments { get; } = new(
+        new Dictionary<BoyonProgram, AnimationBeat<EnemyFrameId, BoyonCue>[]>
     {
         [P.Idle] =
         [
@@ -21,10 +22,10 @@ internal static class BoyonAnimations
         ],
         [P.IdleLoop] =
         [
-            Show(0, 10),
-            Show(1, 10),
-            Show(2, 10),
-            Show(1, 10),
+            Show(EnemyFrameId.BoyonIdle0, 10),
+            Show(EnemyFrameId.BoyonIdle1, 10),
+            Show(EnemyFrameId.BoyonIdle2, 10),
+            Show(EnemyFrameId.BoyonIdle1, 10),
         ],
         [P.Bouncing] =
         [
@@ -33,12 +34,12 @@ internal static class BoyonAnimations
         ],
         [P.BouncingLoop] =
         [
-            Show(3, 5),
-            Show(4, 5),
-            Show(5, 5),
-            Show(6, 5),
-            Show(5, 5),
-            Show(4, 5),
+            Show(EnemyFrameId.BoyonBounce0, 5),
+            Show(EnemyFrameId.BoyonBounce1, 5),
+            Show(EnemyFrameId.BoyonBounce2, 5),
+            Show(EnemyFrameId.BoyonBounce3, 5),
+            Show(EnemyFrameId.BoyonBounce2, 5),
+            Show(EnemyFrameId.BoyonBounce1, 5),
         ],
     });
 
@@ -54,9 +55,9 @@ internal static class BoyonAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<BoyonProgram> StartingWith(BoyonProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<BoyonFrame, BoyonCue> Show(int pose, int duration) => new AnimationBeat<BoyonFrame, BoyonCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, BoyonCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, BoyonCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<BoyonFrame, BoyonCue> Cue(BoyonCue cue) => new AnimationBeat<BoyonFrame, BoyonCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, BoyonCue> Cue(BoyonCue cue) => new AnimationBeat<EnemyFrameId, BoyonCue>.Event(cue);
 }

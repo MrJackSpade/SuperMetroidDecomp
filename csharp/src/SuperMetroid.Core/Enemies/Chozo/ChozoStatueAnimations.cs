@@ -1,145 +1,146 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Chozo.ChozoStatueCueKind;
 using P = SuperMetroid.Core.Enemies.Chozo.ChozoStatueProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>
 /// The Lower Norfair and Wrecked Ship Chozo statues' idle and activation animations as typed programs (#641). Each
-/// frame shows a <see cref="ChozoStatueFrame"/> pose and each callback becomes a <see cref="ChozoStatueCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="ChozoStatueCue"/> with its typed operands.
 /// </summary>
 internal static class ChozoStatueAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<ChozoStatueProgram, ChozoStatueFrame, ChozoStatueCue> Segments { get; } = new(
-        new Dictionary<ChozoStatueProgram, AnimationBeat<ChozoStatueFrame, ChozoStatueCue>[]>
+    internal static AnimationSegments<ChozoStatueProgram, EnemyFrameId, ChozoStatueCue> Segments { get; } = new(
+        new Dictionary<ChozoStatueProgram, AnimationBeat<EnemyFrameId, ChozoStatueCue>[]>
     {
         [P.LowerNorfairInitial] =
         [
             Cue(new ChozoStatueCue.SetFrameBehavior(FrameBehavior: ChozoStatueFrameBehavior.WaitForLowerNorfairHandTrigger)),
-            Show(17, 1),
+            Show(EnemyFrameId.ChozoStatuePose17, 1),
         ],
         [P.LowerNorfairActivated] =
         [
             Cue(new ChozoStatueCue.Command(K.ClearFrameBehavior)),
             Cue(new ChozoStatueCue.Move(CarryRecord: 16)),
-            Show(17, 32),
+            Show(EnemyFrameId.ChozoStatuePose17, 32),
             Cue(new ChozoStatueCue.Move(CarryRecord: 17)),
-            Show(18, 8),
+            Show(EnemyFrameId.ChozoStatuePose18, 8),
             Cue(new ChozoStatueCue.Move(CarryRecord: 18)),
-            Show(19, 48),
+            Show(EnemyFrameId.ChozoStatuePose19, 48),
             Cue(new ChozoStatueCue.Command(K.PlayGrabSound)),
             Cue(new ChozoStatueCue.Move(CarryRecord: 19)),
-            Show(20, 64),
-            Show(21, 6),
-            Show(22, 8),
-            Show(23, 10),
-            Show(24, 12),
-            Show(25, 96),
+            Show(EnemyFrameId.ChozoStatuePose20, 64),
+            Show(EnemyFrameId.ChozoStatuePose21, 6),
+            Show(EnemyFrameId.ChozoStatuePose22, 8),
+            Show(EnemyFrameId.ChozoStatuePose23, 10),
+            Show(EnemyFrameId.ChozoStatuePose24, 12),
+            Show(EnemyFrameId.ChozoStatuePose25, 96),
             Cue(new ChozoStatueCue.Command(K.StartLoweringAcid)),
         ],
         [P.LowerNorfairActivatedLoop] =
         [
-            Show(22, 11),
-            Show(23, 8),
-            Show(24, 6),
-            Show(25, 8),
-            Show(24, 6),
-            Show(23, 8),
+            Show(EnemyFrameId.ChozoStatuePose22, 11),
+            Show(EnemyFrameId.ChozoStatuePose23, 8),
+            Show(EnemyFrameId.ChozoStatuePose24, 6),
+            Show(EnemyFrameId.ChozoStatuePose25, 8),
+            Show(EnemyFrameId.ChozoStatuePose24, 6),
+            Show(EnemyFrameId.ChozoStatuePose23, 8),
             Cue(new ChozoStatueCue.Command(K.ClearFrameBehavior)),
             Cue(new ChozoStatueCue.Move(CarryRecord: 19)),
-            Show(20, 128),
+            Show(EnemyFrameId.ChozoStatuePose20, 128),
             Cue(new ChozoStatueCue.Move(CarryRecord: 18)),
-            Show(19, 80),
+            Show(EnemyFrameId.ChozoStatuePose19, 80),
             Cue(new ChozoStatueCue.Move(CarryRecord: 17)),
-            Show(18, 8),
+            Show(EnemyFrameId.ChozoStatuePose18, 8),
             Cue(new ChozoStatueCue.Move(CarryRecord: 16)),
-            Show(17, 32),
+            Show(EnemyFrameId.ChozoStatuePose17, 32),
             Cue(new ChozoStatueCue.Command(K.UnlockSamus)),
             Cue(new ChozoStatueCue.Command(K.SetLoweredAcidPosition)),
         ],
         [P.WreckedShipInitial] =
         [
             Cue(new ChozoStatueCue.SetFrameBehavior(FrameBehavior: ChozoStatueFrameBehavior.WaitForWreckedShipHandTrigger)),
-            Show(0, 1),
+            Show(EnemyFrameId.ChozoStatuePose0, 1),
         ],
         [P.WreckedShipActivated] =
         [
             Cue(new ChozoStatueCue.Command(K.ClearFrameBehavior)),
             Cue(new ChozoStatueCue.Move(CarryRecord: 0)),
-            Show(0, 32),
+            Show(EnemyFrameId.ChozoStatuePose0, 32),
             Cue(new ChozoStatueCue.Move(CarryRecord: 1)),
-            Show(1, 8),
+            Show(EnemyFrameId.ChozoStatuePose1, 8),
             Cue(new ChozoStatueCue.Move(CarryRecord: 2)),
-            Show(2, 80),
+            Show(EnemyFrameId.ChozoStatuePose2, 80),
             Cue(new ChozoStatueCue.Command(K.PlayGrabSound)),
             Cue(new ChozoStatueCue.Move(CarryRecord: 3)),
-            Show(3, 128),
-            Show(12, 6),
-            Show(13, 8),
-            Show(14, 10),
-            Show(15, 12),
-            Show(16, 128),
+            Show(EnemyFrameId.ChozoStatuePose3, 128),
+            Show(EnemyFrameId.ChozoStatuePose12, 6),
+            Show(EnemyFrameId.ChozoStatuePose13, 8),
+            Show(EnemyFrameId.ChozoStatuePose14, 10),
+            Show(EnemyFrameId.ChozoStatuePose15, 12),
+            Show(EnemyFrameId.ChozoStatuePose16, 128),
         ],
         [P.WreckedShipActivatedLoop] =
         [
-            Show(13, 11),
-            Show(14, 8),
-            Show(15, 6),
-            Show(16, 8),
-            Show(15, 6),
-            Show(14, 8),
+            Show(EnemyFrameId.ChozoStatuePose13, 11),
+            Show(EnemyFrameId.ChozoStatuePose14, 8),
+            Show(EnemyFrameId.ChozoStatuePose15, 6),
+            Show(EnemyFrameId.ChozoStatuePose16, 8),
+            Show(EnemyFrameId.ChozoStatuePose15, 6),
+            Show(EnemyFrameId.ChozoStatuePose14, 8),
             Cue(new ChozoStatueCue.SetFrameBehavior(FrameBehavior: ChozoStatueFrameBehavior.Walking)),
         ],
         [P.WreckedShipActivatedLoop2] =
         [
             Cue(new ChozoStatueCue.Move(CarryRecord: 11)),
             Cue(new ChozoStatueCue.Footstep(Offset: new(-8, 0))),
-            Show(11, 8),
+            Show(EnemyFrameId.ChozoStatuePose11, 8),
             Cue(new ChozoStatueCue.Command(K.PlayFootstepSound)),
             Cue(new ChozoStatueCue.Move(CarryRecord: 4)),
             Cue(new ChozoStatueCue.Footstep(Offset: new(-20, 0))),
-            Show(4, 11),
+            Show(EnemyFrameId.ChozoStatuePose4, 11),
             Cue(new ChozoStatueCue.Move(CarryRecord: 5)),
             Cue(new ChozoStatueCue.Footstep(Offset: new(-16, 0))),
-            Show(5, 8),
+            Show(EnemyFrameId.ChozoStatuePose5, 8),
             Cue(new ChozoStatueCue.Move(CarryRecord: 6)),
             Cue(new ChozoStatueCue.Footstep(Offset: new(0, 0))),
-            Show(6, 6),
+            Show(EnemyFrameId.ChozoStatuePose6, 6),
             Cue(new ChozoStatueCue.Move(CarryRecord: 7)),
             Cue(new ChozoStatueCue.Footstep(Offset: new(-8, 0))),
-            Show(7, 8),
+            Show(EnemyFrameId.ChozoStatuePose7, 8),
             Cue(new ChozoStatueCue.Command(K.PlayFootstepSound)),
             Cue(new ChozoStatueCue.Move(CarryRecord: 8)),
             Cue(new ChozoStatueCue.Footstep(Offset: new(-20, 0))),
-            Show(8, 11),
+            Show(EnemyFrameId.ChozoStatuePose8, 11),
             Cue(new ChozoStatueCue.Move(CarryRecord: 9)),
             Cue(new ChozoStatueCue.Footstep(Offset: new(-16, 0))),
-            Show(9, 8),
+            Show(EnemyFrameId.ChozoStatuePose9, 8),
             Cue(new ChozoStatueCue.Move(CarryRecord: 10)),
             Cue(new ChozoStatueCue.Footstep(Offset: new(0, 0))),
-            Show(10, 6),
+            Show(EnemyFrameId.ChozoStatuePose10, 6),
             Cue(new ChozoStatueCue.Move(CarryRecord: 11)),
             Cue(new ChozoStatueCue.Footstep(Offset: new(-8, 0))),
-            Show(11, 8),
+            Show(EnemyFrameId.ChozoStatuePose11, 8),
             Cue(new ChozoStatueCue.Move(CarryRecord: 4)),
             Cue(new ChozoStatueCue.Footstep(Offset: new(-20, 0))),
-            Show(4, 11),
+            Show(EnemyFrameId.ChozoStatuePose4, 11),
             Cue(new ChozoStatueCue.Move(CarryRecord: 5)),
             Cue(new ChozoStatueCue.Footstep(Offset: new(-16, 0))),
-            Show(5, 8),
+            Show(EnemyFrameId.ChozoStatuePose5, 8),
             Cue(new ChozoStatueCue.Move(CarryRecord: 6)),
             Cue(new ChozoStatueCue.Footstep(Offset: new(0, 0))),
-            Show(6, 6),
+            Show(EnemyFrameId.ChozoStatuePose6, 6),
             Cue(new ChozoStatueCue.Command(K.ClearFrameBehavior)),
             Cue(new ChozoStatueCue.Move(CarryRecord: 3)),
-            Show(3, 128),
+            Show(EnemyFrameId.ChozoStatuePose3, 128),
             Cue(new ChozoStatueCue.Move(CarryRecord: 2)),
-            Show(2, 80),
+            Show(EnemyFrameId.ChozoStatuePose2, 80),
             Cue(new ChozoStatueCue.Move(CarryRecord: 1)),
-            Show(1, 8),
+            Show(EnemyFrameId.ChozoStatuePose1, 8),
             Cue(new ChozoStatueCue.Move(CarryRecord: 0)),
-            Show(0, 32),
+            Show(EnemyFrameId.ChozoStatuePose0, 32),
             Cue(new ChozoStatueCue.Command(K.ReleaseSamus)),
         ],
     });
@@ -156,9 +157,9 @@ internal static class ChozoStatueAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<ChozoStatueProgram> StartingWith(ChozoStatueProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<ChozoStatueFrame, ChozoStatueCue> Show(int pose, int duration) => new AnimationBeat<ChozoStatueFrame, ChozoStatueCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, ChozoStatueCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, ChozoStatueCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<ChozoStatueFrame, ChozoStatueCue> Cue(ChozoStatueCue cue) => new AnimationBeat<ChozoStatueFrame, ChozoStatueCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, ChozoStatueCue> Cue(ChozoStatueCue cue) => new AnimationBeat<EnemyFrameId, ChozoStatueCue>.Event(cue);
 }

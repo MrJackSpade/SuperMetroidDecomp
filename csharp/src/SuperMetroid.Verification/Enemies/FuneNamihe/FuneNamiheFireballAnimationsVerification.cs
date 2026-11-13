@@ -4,6 +4,7 @@ using static SuperMetroid.TestSupport.MovieReplay.FuneNamiheFireballNativeListAd
 using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.FuneNamihe;
 
@@ -14,13 +15,12 @@ internal static class FuneNamiheFireballAnimationsVerification
     internal static void VerifyFuneNamiheFireballAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
-        for (int pose = 0; pose < FuneNamiheFireballFrameToolingDefinitions.PoseCount; pose++)
+        foreach (EnemyProjectileFrameId frame in FuneNamiheFireballFrameToolingDefinitions.Frames)
         {
-            FuneNamiheFireballFrame frame = new(pose);
-            ushort key = EnemyProjectileProgramFrameSources.Operand(FuneNamiheFireballFrameDefinitions.ShownProjectileFrames[frame]);
+            ushort key = EnemyProjectileProgramFrameSources.Operand(frame);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | key), FuneNamiheFireballFrameToolingDefinitions.Spritemap(frame),
-                $"Fune/Namihe fireball pose {pose} spritemap");
-            AssertTrue(FuneNamiheFireballFrameToolingDefinitions.TryFrame(key, out FuneNamiheFireballFrame found) && found == frame, $"Fune/Namihe fireball pose {pose} is found by its key");
+                $"Fune/Namihe fireball frame {frame} spritemap");
+            AssertTrue(FuneNamiheFireballFrameToolingDefinitions.TryFrame(key, out EnemyProjectileFrameId found) && found == frame, $"Fune/Namihe fireball frame {frame} is found by its key");
         }
         Console.WriteLine($"  Fune/Namihe fireball programs: {Entries.Length} programs ({steps} steps) match bank $86.");
     }

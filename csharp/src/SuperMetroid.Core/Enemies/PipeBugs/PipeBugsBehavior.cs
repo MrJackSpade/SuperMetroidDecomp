@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.PipeBugs.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
@@ -675,7 +674,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances PipeBugs's typed animation.</summary>
     internal static void AdvancePipeBugsTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, PipeBugAnimations.Segments, PipeBugFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, PipeBugAnimations.Segments,
             static (PipeBugEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A Pipe Bug animation raised {cue}, though its lists raise no events."));
 

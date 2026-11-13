@@ -49,12 +49,11 @@ internal static class AlcoonFireballBehaviorVerification
         fireballs[0].StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         enemies.Projectiles.ProcessEnemyProjectileInstructions(fireballs[0], null, Position16<RoomPixels>.Zero);
         AssertTrue(!fireballs[0].IsActive, "the shared shot list still deletes a fireball");
-        for (int pose = 0; pose < AlcoonFireballFrameToolingDefinitions.PoseCount; pose++)
+        foreach (EnemyProjectileFrameId frame in AlcoonFireballFrameToolingDefinitions.Frames)
         {
-            AlcoonFireballFrame frame = new(pose);
-            ushort key = EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameDefinitions.ShownProjectileFrames[frame]);
-            AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, key, out ushort selected), $"pose {pose} has a calculated selector");
-            AssertEqual(AlcoonFireballFrameToolingDefinitions.Spritemap(frame), selected, $"pose {pose}'s calculated selector is its native spritemap");
+            ushort key = EnemyProjectileProgramFrameSources.Operand(frame);
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, key, out ushort selected), $"frame {frame} has a calculated selector");
+            AssertEqual(AlcoonFireballFrameToolingDefinitions.Spritemap(frame), selected, $"frame {frame}'s calculated selector is its native spritemap");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the fireball's native list bytes");
         Console.WriteLine("  Alcoon fireball behavior: six fireballs loop as their native list does and every calculated selector matches.");

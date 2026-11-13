@@ -1,21 +1,22 @@
 using P = SuperMetroid.Core.Enemies.Polyp.PolypProgram;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Polyp;
 
 /// <summary>
 /// Polyp's stationary pose as a typed program (#641). Each
-/// frame shows a <see cref="PolypFrame"/> pose and its lists use no owner callbacks.
+/// frame shows a <see cref="EnemyFrameId"/> and its lists use no owner callbacks.
 /// </summary>
 internal static class PolypAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<PolypProgram, PolypFrame, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<PolypProgram, AnimationBeat<PolypFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<PolypProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<PolypProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.Stationary] =
         [
-            Show(0, 1),
+            Show(EnemyFrameId.Polyp00, 1),
         ],
     });
 
@@ -28,6 +29,6 @@ internal static class PolypAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<PolypProgram> StartingWith(PolypProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<PolypFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<PolypFrame, NoAnimationCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 }

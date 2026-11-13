@@ -1,12 +1,13 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Kago.KagoBugProjectileCueKind;
 using P = SuperMetroid.Core.Enemies.Kago.KagoBugProjectileProgram;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>
 /// The Kago bugs' landing, falling, jumping and shot programs (#641). Each
-/// frame shows a <see cref="KagoBugProjectileFrame"/> pose and each command becomes a <see cref="KagoBugProjectileCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each command becomes a <see cref="KagoBugProjectileCue"/> with its typed operands.
 /// </summary>
 internal static class KagoBugProjectileAnimations
 {
@@ -18,8 +19,8 @@ internal static class KagoBugProjectileAnimations
     private const int LongestPose = 32767;
 
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<KagoBugProjectileProgram, KagoBugProjectileFrame, KagoBugProjectileCue> Segments { get; } = new(
-        new Dictionary<KagoBugProjectileProgram, AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue>[]>
+    internal static AnimationSegments<KagoBugProjectileProgram, EnemyProjectileFrameId, KagoBugProjectileCue> Segments { get; } = new(
+        new Dictionary<KagoBugProjectileProgram, AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>[]>
     {
         [P.SharedDelete] =
         [
@@ -27,32 +28,32 @@ internal static class KagoBugProjectileAnimations
         ],
         [P.Landed] =
         [
-            Show(0, 5),
+            Show(EnemyProjectileFrameId.KagoBugLandedFirst, 5),
             Cue(new(K.StartIdle)),
-            Show(1, LongestPose),
+            Show(EnemyProjectileFrameId.KagoBugLandedSecond, LongestPose),
         ],
         [P.Falling] =
         [
-            Hold(2),
+            Hold(EnemyProjectileFrameId.KagoBugFalling),
         ],
         [P.JumpStart] =
         [
-            Show(3, 16),
-            Show(4, 5),
+            Show(EnemyProjectileFrameId.KagoBugJumpStartFirst, 16),
+            Show(EnemyProjectileFrameId.KagoBugJumpStartSecond, 5),
             Cue(new(K.StartJump)),
         ],
         [P.JumpLoop] =
         [
-            Hold(5),
+            Hold(EnemyProjectileFrameId.KagoBugJumpLoop),
         ],
         [P.Shot] =
         [
             Cue(new(K.DrawFromSharedSheet)),
-            Show(6, 4),
-            Show(7, 4),
-            Show(8, 4),
-            Show(9, 4),
-            Show(10, 4),
+            Show(EnemyProjectileFrameId.KagoBugShotFirst, 4),
+            Show(EnemyProjectileFrameId.KagoBugShotSecond, 4),
+            Show(EnemyProjectileFrameId.KagoBugShotThird, 4),
+            Show(EnemyProjectileFrameId.KagoBugShotFourth, 4),
+            Show(EnemyProjectileFrameId.KagoBugShotFifth, 4),
             Cue(new(K.SpawnDrop)),
         ],
     });
@@ -71,12 +72,12 @@ internal static class KagoBugProjectileAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<KagoBugProjectileProgram> StartingWith(KagoBugProjectileProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue> Show(int pose, int duration) => new AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>.Frame(frame, duration);
 
-    /// <summary>Shows pose <paramref name="pose"/> for good: the animation rests on it until its owner plays another (#1607).</summary>
-    private static AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue> Hold(int pose) => new AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue>.HeldFrame(new(pose));
+    /// <summary>Shows <paramref name="frame"/> for good: the animation rests on it until its owner plays another (#1607).</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue> Cue(KagoBugProjectileCue cue) => new AnimationBeat<KagoBugProjectileFrame, KagoBugProjectileCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue> Cue(KagoBugProjectileCue cue) => new AnimationBeat<EnemyProjectileFrameId, KagoBugProjectileCue>.Event(cue);
 }

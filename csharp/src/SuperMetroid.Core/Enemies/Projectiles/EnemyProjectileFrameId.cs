@@ -1,8 +1,9 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The frames an enemy projectile shows: the compositions its programs select, then every installed program
-/// frame, named by its installed composition, in schema order.
+/// The frames an enemy projectile shows: the compositions its programs select, then every installed program frame. Each
+/// is named for what it shows: its owner, the animation (or the part, facing or stage) that first shows it, and its place
+/// there; its values are arbitrary and its installed name is its name in snake case.
 /// </summary>
 public enum EnemyProjectileFrameId
 {
@@ -12,2244 +13,2244 @@ public enum EnemyProjectileFrameId
     SkreeDebris,
     /// <summary><c>metaree_debris</c>, a composition.</summary>
     MetareeDebris,
-    /// <summary><c>draygon_frame_00</c>, an installed program frame.</summary>
-    DraygonFrame00,
-    /// <summary><c>draygon_frame_01</c>, an installed program frame.</summary>
-    DraygonFrame01,
-    /// <summary><c>draygon_frame_02</c>, an installed program frame.</summary>
-    DraygonFrame02,
-    /// <summary><c>draygon_frame_03</c>, an installed program frame.</summary>
-    DraygonFrame03,
-    /// <summary><c>draygon_frame_04</c>, an installed program frame.</summary>
-    DraygonFrame04,
-    /// <summary><c>draygon_frame_05</c>, an installed program frame.</summary>
-    DraygonFrame05,
-    /// <summary><c>draygon_frame_06</c>, an installed program frame.</summary>
-    DraygonFrame06,
-    /// <summary><c>draygon_frame_07</c>, an installed program frame.</summary>
-    DraygonFrame07,
-    /// <summary><c>draygon_frame_08</c>, an installed program frame.</summary>
-    DraygonFrame08,
-    /// <summary><c>draygon_frame_09</c>, an installed program frame.</summary>
-    DraygonFrame09,
-    /// <summary><c>draygon_frame_10</c>, an installed program frame.</summary>
-    DraygonFrame10,
-    /// <summary><c>draygon_frame_11</c>, an installed program frame.</summary>
-    DraygonFrame11,
-    /// <summary><c>draygon_frame_12</c>, an installed program frame.</summary>
-    DraygonFrame12,
-    /// <summary><c>draygon_frame_13</c>, an installed program frame.</summary>
-    DraygonFrame13,
-    /// <summary><c>draygon_frame_14</c>, an installed program frame.</summary>
-    DraygonFrame14,
-    /// <summary><c>draygon_frame_15</c>, an installed program frame.</summary>
-    DraygonFrame15,
-    /// <summary><c>draygon_frame_16</c>, an installed program frame.</summary>
-    DraygonFrame16,
-    /// <summary><c>draygon_frame_17</c>, an installed program frame.</summary>
-    DraygonFrame17,
-    /// <summary><c>draygon_frame_18</c>, an installed program frame.</summary>
-    DraygonFrame18,
-    /// <summary><c>draygon_frame_19</c>, an installed program frame.</summary>
-    DraygonFrame19,
-    /// <summary><c>draygon_frame_20</c>, an installed program frame.</summary>
-    DraygonFrame20,
-    /// <summary><c>draygon_frame_21</c>, an installed program frame.</summary>
-    DraygonFrame21,
-    /// <summary><c>draygon_frame_22</c>, an installed program frame.</summary>
-    DraygonFrame22,
-    /// <summary><c>draygon_frame_23</c>, an installed program frame.</summary>
-    DraygonFrame23,
-    /// <summary><c>draygon_frame_24</c>, an installed program frame.</summary>
-    DraygonFrame24,
-    /// <summary><c>draygon_frame_25</c>, an installed program frame.</summary>
-    DraygonFrame25,
-    /// <summary><c>draygon_frame_26</c>, an installed program frame.</summary>
-    DraygonFrame26,
-    /// <summary><c>crocomire_frame_00</c>, an installed program frame.</summary>
-    CrocomireFrame00,
-    /// <summary><c>crocomire_frame_01</c>, an installed program frame.</summary>
-    CrocomireFrame01,
-    /// <summary><c>crocomire_frame_02</c>, an installed program frame.</summary>
-    CrocomireFrame02,
-    /// <summary><c>crocomire_frame_03</c>, an installed program frame.</summary>
-    CrocomireFrame03,
-    /// <summary><c>crocomire_frame_04</c>, an installed program frame.</summary>
-    CrocomireFrame04,
-    /// <summary><c>crocomire_frame_05</c>, an installed program frame.</summary>
-    CrocomireFrame05,
-    /// <summary><c>crocomire_frame_06</c>, an installed program frame.</summary>
-    CrocomireFrame06,
-    /// <summary><c>crocomire_frame_07</c>, an installed program frame.</summary>
-    CrocomireFrame07,
-    /// <summary><c>crocomire_frame_08</c>, an installed program frame.</summary>
-    CrocomireFrame08,
-    /// <summary><c>crocomire_frame_09</c>, an installed program frame.</summary>
-    CrocomireFrame09,
-    /// <summary><c>crocomire_frame_10</c>, an installed program frame.</summary>
-    CrocomireFrame10,
-    /// <summary><c>crocomire_frame_11</c>, an installed program frame.</summary>
-    CrocomireFrame11,
-    /// <summary><c>crocomire_frame_12</c>, an installed program frame.</summary>
-    CrocomireFrame12,
-    /// <summary><c>ceres_ridley_frame_00</c>, an installed program frame.</summary>
-    CeresRidleyFrame00,
-    /// <summary><c>ceres_ridley_frame_01</c>, an installed program frame.</summary>
-    CeresRidleyFrame01,
-    /// <summary><c>ceres_ridley_frame_02</c>, an installed program frame.</summary>
-    CeresRidleyFrame02,
-    /// <summary><c>ceres_ridley_frame_03</c>, an installed program frame.</summary>
-    CeresRidleyFrame03,
-    /// <summary><c>ceres_ridley_frame_04</c>, an installed program frame.</summary>
-    CeresRidleyFrame04,
-    /// <summary><c>ceres_ridley_frame_05</c>, an installed program frame.</summary>
-    CeresRidleyFrame05,
-    /// <summary><c>ceres_ridley_frame_06</c>, an installed program frame.</summary>
-    CeresRidleyFrame06,
-    /// <summary><c>ceres_ridley_frame_07</c>, an installed program frame.</summary>
-    CeresRidleyFrame07,
-    /// <summary><c>ceres_ridley_frame_08</c>, an installed program frame.</summary>
-    CeresRidleyFrame08,
-    /// <summary><c>ceres_ridley_frame_09</c>, an installed program frame.</summary>
-    CeresRidleyFrame09,
-    /// <summary><c>ceres_ridley_frame_10</c>, an installed program frame.</summary>
-    CeresRidleyFrame10,
-    /// <summary><c>ceres_ridley_frame_11</c>, an installed program frame.</summary>
-    CeresRidleyFrame11,
-    /// <summary><c>ceres_ridley_frame_12</c>, an installed program frame.</summary>
-    CeresRidleyFrame12,
-    /// <summary><c>ceres_ridley_frame_13</c>, an installed program frame.</summary>
-    CeresRidleyFrame13,
-    /// <summary><c>ceres_ridley_frame_14</c>, an installed program frame.</summary>
-    CeresRidleyFrame14,
-    /// <summary><c>ceres_ridley_frame_15</c>, an installed program frame.</summary>
-    CeresRidleyFrame15,
-    /// <summary><c>ceres_ridley_frame_16</c>, an installed program frame.</summary>
-    CeresRidleyFrame16,
-    /// <summary><c>ceres_ridley_frame_17</c>, an installed program frame.</summary>
-    CeresRidleyFrame17,
-    /// <summary><c>ceres_ridley_frame_18</c>, an installed program frame.</summary>
-    CeresRidleyFrame18,
-    /// <summary><c>ceres_ridley_frame_19</c>, an installed program frame.</summary>
-    CeresRidleyFrame19,
-    /// <summary><c>ceres_ridley_frame_20</c>, an installed program frame.</summary>
-    CeresRidleyFrame20,
-    /// <summary><c>ceres_ridley_frame_21</c>, an installed program frame.</summary>
-    CeresRidleyFrame21,
-    /// <summary><c>ceres_ridley_frame_22</c>, an installed program frame.</summary>
-    CeresRidleyFrame22,
-    /// <summary><c>ceres_ridley_frame_23</c>, an installed program frame.</summary>
-    CeresRidleyFrame23,
-    /// <summary><c>ceres_ridley_frame_24</c>, an installed program frame.</summary>
-    CeresRidleyFrame24,
-    /// <summary><c>ceres_ridley_frame_25</c>, an installed program frame.</summary>
-    CeresRidleyFrame25,
-    /// <summary><c>ceres_falling_debris_frame_00</c>, an installed program frame.</summary>
-    CeresFallingDebrisFrame00,
-    /// <summary><c>ceres_falling_debris_frame_01</c>, an installed program frame.</summary>
-    CeresFallingDebrisFrame01,
-    /// <summary><c>phantoon_frame_00</c>, an installed program frame.</summary>
-    PhantoonFrame00,
-    /// <summary><c>phantoon_frame_01</c>, an installed program frame.</summary>
-    PhantoonFrame01,
-    /// <summary><c>phantoon_frame_02</c>, an installed program frame.</summary>
-    PhantoonFrame02,
-    /// <summary><c>phantoon_frame_03</c>, an installed program frame.</summary>
-    PhantoonFrame03,
-    /// <summary><c>phantoon_frame_04</c>, an installed program frame.</summary>
-    PhantoonFrame04,
-    /// <summary><c>phantoon_frame_05</c>, an installed program frame.</summary>
-    PhantoonFrame05,
-    /// <summary><c>phantoon_frame_06</c>, an installed program frame.</summary>
-    PhantoonFrame06,
-    /// <summary><c>phantoon_frame_07</c>, an installed program frame.</summary>
-    PhantoonFrame07,
-    /// <summary><c>phantoon_frame_08</c>, an installed program frame.</summary>
-    PhantoonFrame08,
-    /// <summary><c>phantoon_frame_09</c>, an installed program frame.</summary>
-    PhantoonFrame09,
-    /// <summary><c>phantoon_frame_10</c>, an installed program frame.</summary>
-    PhantoonFrame10,
-    /// <summary><c>phantoon_frame_11</c>, an installed program frame.</summary>
-    PhantoonFrame11,
-    /// <summary><c>phantoon_frame_12</c>, an installed program frame.</summary>
-    PhantoonFrame12,
-    /// <summary><c>phantoon_frame_13</c>, an installed program frame.</summary>
-    PhantoonFrame13,
-    /// <summary><c>phantoon_frame_14</c>, an installed program frame.</summary>
-    PhantoonFrame14,
-    /// <summary><c>phantoon_frame_15</c>, an installed program frame.</summary>
-    PhantoonFrame15,
-    /// <summary><c>phantoon_frame_16</c>, an installed program frame.</summary>
-    PhantoonFrame16,
-    /// <summary><c>phantoon_frame_17</c>, an installed program frame.</summary>
-    PhantoonFrame17,
-    /// <summary><c>phantoon_frame_18</c>, an installed program frame.</summary>
-    PhantoonFrame18,
-    /// <summary><c>phantoon_frame_19</c>, an installed program frame.</summary>
-    PhantoonFrame19,
-    /// <summary><c>phantoon_frame_20</c>, an installed program frame.</summary>
-    PhantoonFrame20,
-    /// <summary><c>phantoon_frame_21</c>, an installed program frame.</summary>
-    PhantoonFrame21,
-    /// <summary><c>phantoon_frame_22</c>, an installed program frame.</summary>
-    PhantoonFrame22,
-    /// <summary><c>phantoon_frame_23</c>, an installed program frame.</summary>
-    PhantoonFrame23,
-    /// <summary><c>phantoon_frame_24</c>, an installed program frame.</summary>
-    PhantoonFrame24,
-    /// <summary><c>phantoon_frame_25</c>, an installed program frame.</summary>
-    PhantoonFrame25,
-    /// <summary><c>phantoon_frame_26</c>, an installed program frame.</summary>
-    PhantoonFrame26,
-    /// <summary><c>phantoon_frame_27</c>, an installed program frame.</summary>
-    PhantoonFrame27,
-    /// <summary><c>phantoon_frame_28</c>, an installed program frame.</summary>
-    PhantoonFrame28,
-    /// <summary><c>phantoon_frame_29</c>, an installed program frame.</summary>
-    PhantoonFrame29,
-    /// <summary><c>phantoon_frame_30</c>, an installed program frame.</summary>
-    PhantoonFrame30,
-    /// <summary><c>kraid_rock_frame_00</c>, an installed program frame.</summary>
-    KraidRockFrame00,
-    /// <summary><c>kraid_rock_frame_01</c>, an installed program frame.</summary>
-    KraidRockFrame01,
-    /// <summary><c>kraid_rock_frame_02</c>, an installed program frame.</summary>
-    KraidRockFrame02,
-    /// <summary><c>kraid_rock_frame_03</c>, an installed program frame.</summary>
-    KraidRockFrame03,
-    /// <summary><c>kraid_rock_frame_04</c>, an installed program frame.</summary>
-    KraidRockFrame04,
-    /// <summary><c>kraid_rock_frame_05</c>, an installed program frame.</summary>
-    KraidRockFrame05,
-    /// <summary><c>kraid_rock_frame_06</c>, an installed program frame.</summary>
-    KraidRockFrame06,
-    /// <summary><c>fake_kraid_frame_00</c>, an installed program frame.</summary>
-    FakeKraidFrame00,
-    /// <summary><c>fake_kraid_frame_01</c>, an installed program frame.</summary>
-    FakeKraidFrame01,
-    /// <summary><c>fake_kraid_frame_02</c>, an installed program frame.</summary>
-    FakeKraidFrame02,
-    /// <summary><c>alcoon_fireball_frame_00</c>, an installed program frame.</summary>
-    AlcoonFireballFrame00,
-    /// <summary><c>alcoon_fireball_frame_01</c>, an installed program frame.</summary>
-    AlcoonFireballFrame01,
-    /// <summary><c>alcoon_fireball_frame_02</c>, an installed program frame.</summary>
-    AlcoonFireballFrame02,
-    /// <summary><c>alcoon_fireball_frame_03</c>, an installed program frame.</summary>
-    AlcoonFireballFrame03,
-    /// <summary><c>space_pirate_frame_00</c>, an installed program frame.</summary>
-    SpacePirateFrame00,
-    /// <summary><c>space_pirate_frame_01</c>, an installed program frame.</summary>
-    SpacePirateFrame01,
-    /// <summary><c>space_pirate_frame_02</c>, an installed program frame.</summary>
-    SpacePirateFrame02,
-    /// <summary><c>space_pirate_frame_03</c>, an installed program frame.</summary>
-    SpacePirateFrame03,
-    /// <summary><c>space_pirate_frame_04</c>, an installed program frame.</summary>
-    SpacePirateFrame04,
-    /// <summary><c>space_pirate_frame_05</c>, an installed program frame.</summary>
-    SpacePirateFrame05,
-    /// <summary><c>space_pirate_frame_06</c>, an installed program frame.</summary>
-    SpacePirateFrame06,
-    /// <summary><c>space_pirate_frame_07</c>, an installed program frame.</summary>
-    SpacePirateFrame07,
-    /// <summary><c>space_pirate_frame_08</c>, an installed program frame.</summary>
-    SpacePirateFrame08,
-    /// <summary><c>space_pirate_frame_09</c>, an installed program frame.</summary>
-    SpacePirateFrame09,
-    /// <summary><c>space_pirate_frame_10</c>, an installed program frame.</summary>
-    SpacePirateFrame10,
-    /// <summary><c>space_pirate_frame_11</c>, an installed program frame.</summary>
-    SpacePirateFrame11,
-    /// <summary><c>space_pirate_frame_12</c>, an installed program frame.</summary>
-    SpacePirateFrame12,
-    /// <summary><c>space_pirate_frame_13</c>, an installed program frame.</summary>
-    SpacePirateFrame13,
-    /// <summary><c>space_pirate_frame_14</c>, an installed program frame.</summary>
-    SpacePirateFrame14,
-    /// <summary><c>space_pirate_frame_15</c>, an installed program frame.</summary>
-    SpacePirateFrame15,
-    /// <summary><c>space_pirate_frame_16</c>, an installed program frame.</summary>
-    SpacePirateFrame16,
-    /// <summary><c>space_pirate_frame_17</c>, an installed program frame.</summary>
-    SpacePirateFrame17,
-    /// <summary><c>space_pirate_frame_18</c>, an installed program frame.</summary>
-    SpacePirateFrame18,
-    /// <summary><c>space_pirate_frame_19</c>, an installed program frame.</summary>
-    SpacePirateFrame19,
-    /// <summary><c>space_pirate_frame_20</c>, an installed program frame.</summary>
-    SpacePirateFrame20,
-    /// <summary><c>space_pirate_frame_21</c>, an installed program frame.</summary>
-    SpacePirateFrame21,
-    /// <summary><c>space_pirate_frame_22</c>, an installed program frame.</summary>
-    SpacePirateFrame22,
-    /// <summary><c>space_pirate_frame_23</c>, an installed program frame.</summary>
-    SpacePirateFrame23,
-    /// <summary><c>space_pirate_frame_24</c>, an installed program frame.</summary>
-    SpacePirateFrame24,
-    /// <summary><c>space_pirate_frame_25</c>, an installed program frame.</summary>
-    SpacePirateFrame25,
-    /// <summary><c>space_pirate_frame_26</c>, an installed program frame.</summary>
-    SpacePirateFrame26,
-    /// <summary><c>space_pirate_frame_27</c>, an installed program frame.</summary>
-    SpacePirateFrame27,
-    /// <summary><c>space_pirate_frame_28</c>, an installed program frame.</summary>
-    SpacePirateFrame28,
-    /// <summary><c>space_pirate_frame_29</c>, an installed program frame.</summary>
-    SpacePirateFrame29,
-    /// <summary><c>space_pirate_frame_30</c>, an installed program frame.</summary>
-    SpacePirateFrame30,
-    /// <summary><c>space_pirate_frame_31</c>, an installed program frame.</summary>
-    SpacePirateFrame31,
-    /// <summary><c>space_pirate_frame_32</c>, an installed program frame.</summary>
-    SpacePirateFrame32,
-    /// <summary><c>space_pirate_frame_33</c>, an installed program frame.</summary>
-    SpacePirateFrame33,
-    /// <summary><c>space_pirate_frame_34</c>, an installed program frame.</summary>
-    SpacePirateFrame34,
-    /// <summary><c>space_pirate_frame_35</c>, an installed program frame.</summary>
-    SpacePirateFrame35,
-    /// <summary><c>space_pirate_frame_36</c>, an installed program frame.</summary>
-    SpacePirateFrame36,
-    /// <summary><c>space_pirate_frame_37</c>, an installed program frame.</summary>
-    SpacePirateFrame37,
-    /// <summary><c>space_pirate_frame_38</c>, an installed program frame.</summary>
-    SpacePirateFrame38,
-    /// <summary><c>space_pirate_frame_39</c>, an installed program frame.</summary>
-    SpacePirateFrame39,
-    /// <summary><c>space_pirate_frame_40</c>, an installed program frame.</summary>
-    SpacePirateFrame40,
-    /// <summary><c>space_pirate_frame_41</c>, an installed program frame.</summary>
-    SpacePirateFrame41,
-    /// <summary><c>gunship_dust_frame_00</c>, an installed program frame.</summary>
-    GunshipDustFrame00,
-    /// <summary><c>gunship_dust_frame_01</c>, an installed program frame.</summary>
-    GunshipDustFrame01,
-    /// <summary><c>gunship_dust_frame_02</c>, an installed program frame.</summary>
-    GunshipDustFrame02,
-    /// <summary><c>gunship_dust_frame_03</c>, an installed program frame.</summary>
-    GunshipDustFrame03,
-    /// <summary><c>gunship_dust_frame_04</c>, an installed program frame.</summary>
-    GunshipDustFrame04,
-    /// <summary><c>gunship_dust_frame_05</c>, an installed program frame.</summary>
-    GunshipDustFrame05,
-    /// <summary><c>gunship_dust_frame_06</c>, an installed program frame.</summary>
-    GunshipDustFrame06,
-    /// <summary><c>gunship_dust_frame_07</c>, an installed program frame.</summary>
-    GunshipDustFrame07,
-    /// <summary><c>gunship_dust_frame_08</c>, an installed program frame.</summary>
-    GunshipDustFrame08,
-    /// <summary><c>gunship_dust_frame_09</c>, an installed program frame.</summary>
-    GunshipDustFrame09,
-    /// <summary><c>gunship_dust_frame_10</c>, an installed program frame.</summary>
-    GunshipDustFrame10,
-    /// <summary><c>gunship_dust_frame_11</c>, an installed program frame.</summary>
-    GunshipDustFrame11,
-    /// <summary><c>gunship_dust_frame_12</c>, an installed program frame.</summary>
-    GunshipDustFrame12,
-    /// <summary><c>gunship_dust_frame_13</c>, an installed program frame.</summary>
-    GunshipDustFrame13,
-    /// <summary><c>gunship_dust_frame_14</c>, an installed program frame.</summary>
-    GunshipDustFrame14,
-    /// <summary><c>gunship_dust_frame_15</c>, an installed program frame.</summary>
-    GunshipDustFrame15,
-    /// <summary><c>gunship_dust_frame_16</c>, an installed program frame.</summary>
-    GunshipDustFrame16,
-    /// <summary><c>gunship_dust_frame_17</c>, an installed program frame.</summary>
-    GunshipDustFrame17,
-    /// <summary><c>gunship_dust_frame_18</c>, an installed program frame.</summary>
-    GunshipDustFrame18,
-    /// <summary><c>gunship_dust_frame_19</c>, an installed program frame.</summary>
-    GunshipDustFrame19,
-    /// <summary><c>gunship_dust_frame_20</c>, an installed program frame.</summary>
-    GunshipDustFrame20,
-    /// <summary><c>gunship_dust_frame_21</c>, an installed program frame.</summary>
-    GunshipDustFrame21,
-    /// <summary><c>gunship_dust_frame_22</c>, an installed program frame.</summary>
-    GunshipDustFrame22,
-    /// <summary><c>gunship_dust_frame_23</c>, an installed program frame.</summary>
-    GunshipDustFrame23,
-    /// <summary><c>gunship_dust_frame_24</c>, an installed program frame.</summary>
-    GunshipDustFrame24,
-    /// <summary><c>gunship_dust_frame_25</c>, an installed program frame.</summary>
-    GunshipDustFrame25,
-    /// <summary><c>gunship_dust_frame_26</c>, an installed program frame.</summary>
-    GunshipDustFrame26,
-    /// <summary><c>gunship_dust_frame_27</c>, an installed program frame.</summary>
-    GunshipDustFrame27,
-    /// <summary><c>gunship_dust_frame_28</c>, an installed program frame.</summary>
-    GunshipDustFrame28,
-    /// <summary><c>gunship_dust_frame_29</c>, an installed program frame.</summary>
-    GunshipDustFrame29,
-    /// <summary><c>gunship_dust_frame_30</c>, an installed program frame.</summary>
-    GunshipDustFrame30,
-    /// <summary><c>gunship_dust_frame_31</c>, an installed program frame.</summary>
-    GunshipDustFrame31,
-    /// <summary><c>gunship_dust_frame_32</c>, an installed program frame.</summary>
-    GunshipDustFrame32,
-    /// <summary><c>gunship_dust_frame_33</c>, an installed program frame.</summary>
-    GunshipDustFrame33,
-    /// <summary><c>gunship_dust_frame_34</c>, an installed program frame.</summary>
-    GunshipDustFrame34,
-    /// <summary><c>gunship_dust_frame_35</c>, an installed program frame.</summary>
-    GunshipDustFrame35,
-    /// <summary><c>gunship_dust_frame_36</c>, an installed program frame.</summary>
-    GunshipDustFrame36,
-    /// <summary><c>gunship_dust_frame_37</c>, an installed program frame.</summary>
-    GunshipDustFrame37,
-    /// <summary><c>gunship_dust_frame_38</c>, an installed program frame.</summary>
-    GunshipDustFrame38,
-    /// <summary><c>gunship_dust_frame_39</c>, an installed program frame.</summary>
-    GunshipDustFrame39,
-    /// <summary><c>gunship_dust_frame_40</c>, an installed program frame.</summary>
-    GunshipDustFrame40,
-    /// <summary><c>gunship_dust_frame_41</c>, an installed program frame.</summary>
-    GunshipDustFrame41,
-    /// <summary><c>gunship_dust_frame_42</c>, an installed program frame.</summary>
-    GunshipDustFrame42,
-    /// <summary><c>gunship_dust_frame_43</c>, an installed program frame.</summary>
-    GunshipDustFrame43,
-    /// <summary><c>gunship_dust_frame_44</c>, an installed program frame.</summary>
-    GunshipDustFrame44,
-    /// <summary><c>gunship_dust_frame_45</c>, an installed program frame.</summary>
-    GunshipDustFrame45,
-    /// <summary><c>torizo_explosion_frame_00</c>, an installed program frame.</summary>
-    TorizoExplosionFrame00,
-    /// <summary><c>torizo_explosion_frame_01</c>, an installed program frame.</summary>
-    TorizoExplosionFrame01,
-    /// <summary><c>torizo_explosion_frame_02</c>, an installed program frame.</summary>
-    TorizoExplosionFrame02,
-    /// <summary><c>torizo_explosion_frame_03</c>, an installed program frame.</summary>
-    TorizoExplosionFrame03,
-    /// <summary><c>torizo_explosion_frame_04</c>, an installed program frame.</summary>
-    TorizoExplosionFrame04,
-    /// <summary><c>torizo_explosion_frame_05</c>, an installed program frame.</summary>
-    TorizoExplosionFrame05,
-    /// <summary><c>torizo_explosion_frame_06</c>, an installed program frame.</summary>
-    TorizoExplosionFrame06,
-    /// <summary><c>torizo_explosion_frame_07</c>, an installed program frame.</summary>
-    TorizoExplosionFrame07,
-    /// <summary><c>torizo_explosion_frame_08</c>, an installed program frame.</summary>
-    TorizoExplosionFrame08,
-    /// <summary><c>torizo_explosion_frame_09</c>, an installed program frame.</summary>
-    TorizoExplosionFrame09,
-    /// <summary><c>torizo_explosion_frame_10</c>, an installed program frame.</summary>
-    TorizoExplosionFrame10,
-    /// <summary><c>torizo_explosion_frame_11</c>, an installed program frame.</summary>
-    TorizoExplosionFrame11,
-    /// <summary><c>torizo_explosion_frame_12</c>, an installed program frame.</summary>
-    TorizoExplosionFrame12,
-    /// <summary><c>torizo_explosion_frame_13</c>, an installed program frame.</summary>
-    TorizoExplosionFrame13,
-    /// <summary><c>torizo_explosion_frame_14</c>, an installed program frame.</summary>
-    TorizoExplosionFrame14,
-    /// <summary><c>torizo_drool_frame_00</c>, an installed program frame.</summary>
-    TorizoDroolFrame00,
-    /// <summary><c>torizo_drool_frame_01</c>, an installed program frame.</summary>
-    TorizoDroolFrame01,
-    /// <summary><c>torizo_drool_frame_02</c>, an installed program frame.</summary>
-    TorizoDroolFrame02,
-    /// <summary><c>torizo_drool_frame_03</c>, an installed program frame.</summary>
-    TorizoDroolFrame03,
-    /// <summary><c>torizo_drool_frame_04</c>, an installed program frame.</summary>
-    TorizoDroolFrame04,
-    /// <summary><c>torizo_drool_frame_05</c>, an installed program frame.</summary>
-    TorizoDroolFrame05,
-    /// <summary><c>torizo_drool_frame_06</c>, an installed program frame.</summary>
-    TorizoDroolFrame06,
-    /// <summary><c>torizo_explosive_swipe_frame_00</c>, an installed program frame.</summary>
-    TorizoExplosiveSwipeFrame00,
-    /// <summary><c>torizo_explosive_swipe_frame_01</c>, an installed program frame.</summary>
-    TorizoExplosiveSwipeFrame01,
-    /// <summary><c>torizo_explosive_swipe_frame_02</c>, an installed program frame.</summary>
-    TorizoExplosiveSwipeFrame02,
-    /// <summary><c>torizo_explosive_swipe_frame_03</c>, an installed program frame.</summary>
-    TorizoExplosiveSwipeFrame03,
-    /// <summary><c>torizo_explosive_swipe_frame_04</c>, an installed program frame.</summary>
-    TorizoExplosiveSwipeFrame04,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_00</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame00,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_01</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame01,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_02</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame02,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_03</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame03,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_04</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame04,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_05</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame05,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_06</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame06,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_07</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame07,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_08</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame08,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_09</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame09,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_10</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame10,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_11</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame11,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_12</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame12,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_13</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame13,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_14</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame14,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_15</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame15,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_16</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame16,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_17</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame17,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_18</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame18,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_19</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame19,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_20</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame20,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_21</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame21,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_22</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame22,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_23</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame23,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_24</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame24,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_25</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame25,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_26</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame26,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_27</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame27,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_28</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame28,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_29</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame29,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_30</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame30,
-    /// <summary><c>bomb_torizo_statue_fragment_frame_31</c>, an installed program frame.</summary>
-    BombTorizoStatueFragmentFrame31,
-    /// <summary><c>torizo_chozo_orb_frame_00</c>, an installed program frame.</summary>
-    TorizoChozoOrbFrame00,
-    /// <summary><c>torizo_chozo_orb_frame_01</c>, an installed program frame.</summary>
-    TorizoChozoOrbFrame01,
-    /// <summary><c>torizo_chozo_orb_frame_02</c>, an installed program frame.</summary>
-    TorizoChozoOrbFrame02,
-    /// <summary><c>torizo_chozo_orb_frame_03</c>, an installed program frame.</summary>
-    TorizoChozoOrbFrame03,
-    /// <summary><c>torizo_chozo_orb_frame_04</c>, an installed program frame.</summary>
-    TorizoChozoOrbFrame04,
-    /// <summary><c>torizo_chozo_orb_frame_05</c>, an installed program frame.</summary>
-    TorizoChozoOrbFrame05,
-    /// <summary><c>torizo_chozo_orb_frame_06</c>, an installed program frame.</summary>
-    TorizoChozoOrbFrame06,
-    /// <summary><c>torizo_chozo_orb_frame_07</c>, an installed program frame.</summary>
-    TorizoChozoOrbFrame07,
-    /// <summary><c>torizo_chozo_orb_frame_08</c>, an installed program frame.</summary>
-    TorizoChozoOrbFrame08,
-    /// <summary><c>torizo_chozo_orb_frame_09</c>, an installed program frame.</summary>
-    TorizoChozoOrbFrame09,
-    /// <summary><c>torizo_chozo_orb_frame_10</c>, an installed program frame.</summary>
-    TorizoChozoOrbFrame10,
-    /// <summary><c>torizo_chozo_orb_frame_11</c>, an installed program frame.</summary>
-    TorizoChozoOrbFrame11,
-    /// <summary><c>torizo_chozo_orb_frame_12</c>, an installed program frame.</summary>
-    TorizoChozoOrbFrame12,
-    /// <summary><c>torizo_chozo_orb_frame_13</c>, an installed program frame.</summary>
-    TorizoChozoOrbFrame13,
-    /// <summary><c>torizo_chozo_orb_frame_14</c>, an installed program frame.</summary>
-    TorizoChozoOrbFrame14,
-    /// <summary><c>torizo_chozo_orb_frame_15</c>, an installed program frame.</summary>
-    TorizoChozoOrbFrame15,
-    /// <summary><c>torizo_chozo_orb_frame_16</c>, an installed program frame.</summary>
-    TorizoChozoOrbFrame16,
-    /// <summary><c>torizo_chozo_orb_frame_17</c>, an installed program frame.</summary>
-    TorizoChozoOrbFrame17,
-    /// <summary><c>torizo_sonic_boom_frame_00</c>, an installed program frame.</summary>
-    TorizoSonicBoomFrame00,
-    /// <summary><c>torizo_sonic_boom_frame_01</c>, an installed program frame.</summary>
-    TorizoSonicBoomFrame01,
-    /// <summary><c>torizo_sonic_boom_frame_02</c>, an installed program frame.</summary>
-    TorizoSonicBoomFrame02,
-    /// <summary><c>torizo_sonic_boom_frame_03</c>, an installed program frame.</summary>
-    TorizoSonicBoomFrame03,
-    /// <summary><c>torizo_sonic_boom_frame_04</c>, an installed program frame.</summary>
-    TorizoSonicBoomFrame04,
-    /// <summary><c>torizo_sonic_boom_frame_05</c>, an installed program frame.</summary>
-    TorizoSonicBoomFrame05,
-    /// <summary><c>torizo_sonic_boom_frame_06</c>, an installed program frame.</summary>
-    TorizoSonicBoomFrame06,
-    /// <summary><c>torizo_sonic_boom_frame_07</c>, an installed program frame.</summary>
-    TorizoSonicBoomFrame07,
-    /// <summary><c>torizo_sonic_boom_frame_08</c>, an installed program frame.</summary>
-    TorizoSonicBoomFrame08,
-    /// <summary><c>torizo_sonic_boom_frame_09</c>, an installed program frame.</summary>
-    TorizoSonicBoomFrame09,
-    /// <summary><c>torizo_sonic_boom_frame_10</c>, an installed program frame.</summary>
-    TorizoSonicBoomFrame10,
-    /// <summary><c>chozo_tourian_dust_frame_00</c>, an installed program frame.</summary>
-    ChozoTourianDustFrame00,
-    /// <summary><c>chozo_tourian_dust_frame_01</c>, an installed program frame.</summary>
-    ChozoTourianDustFrame01,
-    /// <summary><c>chozo_tourian_dust_frame_02</c>, an installed program frame.</summary>
-    ChozoTourianDustFrame02,
-    /// <summary><c>chozo_tourian_dust_frame_03</c>, an installed program frame.</summary>
-    ChozoTourianDustFrame03,
-    /// <summary><c>chozo_tourian_dust_frame_04</c>, an installed program frame.</summary>
-    ChozoTourianDustFrame04,
-    /// <summary><c>chozo_tourian_dust_frame_05</c>, an installed program frame.</summary>
-    ChozoTourianDustFrame05,
-    /// <summary><c>chozo_tourian_dust_frame_06</c>, an installed program frame.</summary>
-    ChozoTourianDustFrame06,
-    /// <summary><c>chozo_tourian_dust_frame_07</c>, an installed program frame.</summary>
-    ChozoTourianDustFrame07,
-    /// <summary><c>chozo_tourian_dust_frame_08</c>, an installed program frame.</summary>
-    ChozoTourianDustFrame08,
-    /// <summary><c>chozo_tourian_dust_frame_09</c>, an installed program frame.</summary>
-    ChozoTourianDustFrame09,
-    /// <summary><c>chozo_tourian_dust_frame_10</c>, an installed program frame.</summary>
-    ChozoTourianDustFrame10,
-    /// <summary><c>chozo_tourian_dust_frame_11</c>, an installed program frame.</summary>
-    ChozoTourianDustFrame11,
-    /// <summary><c>chozo_tourian_dust_frame_12</c>, an installed program frame.</summary>
-    ChozoTourianDustFrame12,
-    /// <summary><c>chozo_tourian_dust_frame_13</c>, an installed program frame.</summary>
-    ChozoTourianDustFrame13,
-    /// <summary><c>torizo_landing_dust_frame_00</c>, an installed program frame.</summary>
-    TorizoLandingDustFrame00,
-    /// <summary><c>torizo_landing_dust_frame_01</c>, an installed program frame.</summary>
-    TorizoLandingDustFrame01,
-    /// <summary><c>torizo_landing_dust_frame_02</c>, an installed program frame.</summary>
-    TorizoLandingDustFrame02,
-    /// <summary><c>torizo_landing_dust_frame_03</c>, an installed program frame.</summary>
-    TorizoLandingDustFrame03,
-    /// <summary><c>torizo_landing_dust_frame_04</c>, an installed program frame.</summary>
-    TorizoLandingDustFrame04,
-    /// <summary><c>torizo_landing_dust_frame_05</c>, an installed program frame.</summary>
-    TorizoLandingDustFrame05,
-    /// <summary><c>torizo_landing_dust_frame_06</c>, an installed program frame.</summary>
-    TorizoLandingDustFrame06,
-    /// <summary><c>torizo_landing_dust_frame_07</c>, an installed program frame.</summary>
-    TorizoLandingDustFrame07,
-    /// <summary><c>golden_torizo_egg_frame_00</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame00,
-    /// <summary><c>golden_torizo_egg_frame_01</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame01,
-    /// <summary><c>golden_torizo_egg_frame_02</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame02,
-    /// <summary><c>golden_torizo_egg_frame_03</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame03,
-    /// <summary><c>golden_torizo_egg_frame_04</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame04,
-    /// <summary><c>golden_torizo_egg_frame_05</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame05,
-    /// <summary><c>golden_torizo_egg_frame_06</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame06,
-    /// <summary><c>golden_torizo_egg_frame_07</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame07,
-    /// <summary><c>golden_torizo_egg_frame_08</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame08,
-    /// <summary><c>golden_torizo_egg_frame_09</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame09,
-    /// <summary><c>golden_torizo_egg_frame_10</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame10,
-    /// <summary><c>golden_torizo_egg_frame_11</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame11,
-    /// <summary><c>golden_torizo_egg_frame_12</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame12,
-    /// <summary><c>golden_torizo_egg_frame_13</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame13,
-    /// <summary><c>golden_torizo_egg_frame_14</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame14,
-    /// <summary><c>golden_torizo_egg_frame_15</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame15,
-    /// <summary><c>golden_torizo_egg_frame_16</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame16,
-    /// <summary><c>golden_torizo_egg_frame_17</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame17,
-    /// <summary><c>golden_torizo_egg_frame_18</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame18,
-    /// <summary><c>golden_torizo_egg_frame_19</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame19,
-    /// <summary><c>golden_torizo_egg_frame_20</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame20,
-    /// <summary><c>golden_torizo_egg_frame_21</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame21,
-    /// <summary><c>golden_torizo_egg_frame_22</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame22,
-    /// <summary><c>golden_torizo_egg_frame_23</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame23,
-    /// <summary><c>golden_torizo_egg_frame_24</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame24,
-    /// <summary><c>golden_torizo_egg_frame_25</c>, an installed program frame.</summary>
-    GoldenTorizoEggFrame25,
-    /// <summary><c>golden_torizo_super_missile_frame_00</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame00,
-    /// <summary><c>golden_torizo_super_missile_frame_01</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame01,
-    /// <summary><c>golden_torizo_super_missile_frame_02</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame02,
-    /// <summary><c>golden_torizo_super_missile_frame_03</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame03,
-    /// <summary><c>golden_torizo_super_missile_frame_04</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame04,
-    /// <summary><c>golden_torizo_super_missile_frame_05</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame05,
-    /// <summary><c>golden_torizo_super_missile_frame_06</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame06,
-    /// <summary><c>golden_torizo_super_missile_frame_07</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame07,
-    /// <summary><c>golden_torizo_super_missile_frame_08</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame08,
-    /// <summary><c>golden_torizo_super_missile_frame_09</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame09,
-    /// <summary><c>golden_torizo_super_missile_frame_10</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame10,
-    /// <summary><c>golden_torizo_super_missile_frame_11</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame11,
-    /// <summary><c>golden_torizo_super_missile_frame_12</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame12,
-    /// <summary><c>golden_torizo_super_missile_frame_13</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame13,
-    /// <summary><c>golden_torizo_super_missile_frame_14</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame14,
-    /// <summary><c>golden_torizo_super_missile_frame_15</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame15,
-    /// <summary><c>golden_torizo_super_missile_frame_16</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame16,
-    /// <summary><c>golden_torizo_super_missile_frame_17</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame17,
-    /// <summary><c>golden_torizo_super_missile_frame_18</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame18,
-    /// <summary><c>golden_torizo_super_missile_frame_19</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame19,
-    /// <summary><c>golden_torizo_super_missile_frame_20</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame20,
-    /// <summary><c>golden_torizo_super_missile_frame_21</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame21,
-    /// <summary><c>golden_torizo_super_missile_frame_22</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame22,
-    /// <summary><c>golden_torizo_super_missile_frame_23</c>, an installed program frame.</summary>
-    GoldenTorizoSuperMissileFrame23,
-    /// <summary><c>golden_torizo_eye_beam_frame_00</c>, an installed program frame.</summary>
-    GoldenTorizoEyeBeamFrame00,
-    /// <summary><c>golden_torizo_eye_beam_frame_01</c>, an installed program frame.</summary>
-    GoldenTorizoEyeBeamFrame01,
-    /// <summary><c>golden_torizo_eye_beam_frame_02</c>, an installed program frame.</summary>
-    GoldenTorizoEyeBeamFrame02,
-    /// <summary><c>golden_torizo_eye_beam_frame_03</c>, an installed program frame.</summary>
-    GoldenTorizoEyeBeamFrame03,
-    /// <summary><c>golden_torizo_eye_beam_frame_04</c>, an installed program frame.</summary>
-    GoldenTorizoEyeBeamFrame04,
-    /// <summary><c>golden_torizo_eye_beam_frame_05</c>, an installed program frame.</summary>
-    GoldenTorizoEyeBeamFrame05,
-    /// <summary><c>golden_torizo_eye_beam_frame_06</c>, an installed program frame.</summary>
-    GoldenTorizoEyeBeamFrame06,
-    /// <summary><c>golden_torizo_eye_beam_frame_07</c>, an installed program frame.</summary>
-    GoldenTorizoEyeBeamFrame07,
-    /// <summary><c>golden_torizo_eye_beam_frame_08</c>, an installed program frame.</summary>
-    GoldenTorizoEyeBeamFrame08,
-    /// <summary><c>golden_torizo_eye_beam_frame_09</c>, an installed program frame.</summary>
-    GoldenTorizoEyeBeamFrame09,
-    /// <summary><c>golden_torizo_eye_beam_frame_10</c>, an installed program frame.</summary>
-    GoldenTorizoEyeBeamFrame10,
-    /// <summary><c>golden_torizo_eye_beam_frame_11</c>, an installed program frame.</summary>
-    GoldenTorizoEyeBeamFrame11,
-    /// <summary><c>golden_torizo_eye_beam_frame_12</c>, an installed program frame.</summary>
-    GoldenTorizoEyeBeamFrame12,
-    /// <summary><c>golden_torizo_eye_beam_frame_13</c>, an installed program frame.</summary>
-    GoldenTorizoEyeBeamFrame13,
-    /// <summary><c>golden_torizo_eye_beam_frame_14</c>, an installed program frame.</summary>
-    GoldenTorizoEyeBeamFrame14,
-    /// <summary><c>golden_torizo_eye_beam_frame_15</c>, an installed program frame.</summary>
-    GoldenTorizoEyeBeamFrame15,
-    /// <summary><c>golden_torizo_eye_beam_frame_16</c>, an installed program frame.</summary>
-    GoldenTorizoEyeBeamFrame16,
-    /// <summary><c>old_tourian_escape_wall_explosion_frame_00</c>, an installed program frame.</summary>
-    OldTourianEscapeWallExplosionFrame00,
-    /// <summary><c>old_tourian_escape_wall_explosion_frame_01</c>, an installed program frame.</summary>
-    OldTourianEscapeWallExplosionFrame01,
-    /// <summary><c>old_tourian_escape_wall_explosion_frame_02</c>, an installed program frame.</summary>
-    OldTourianEscapeWallExplosionFrame02,
-    /// <summary><c>old_tourian_escape_wall_explosion_frame_03</c>, an installed program frame.</summary>
-    OldTourianEscapeWallExplosionFrame03,
-    /// <summary><c>old_tourian_escape_wall_explosion_frame_04</c>, an installed program frame.</summary>
-    OldTourianEscapeWallExplosionFrame04,
-    /// <summary><c>old_tourian_escape_wall_explosion_frame_05</c>, an installed program frame.</summary>
-    OldTourianEscapeWallExplosionFrame05,
-    /// <summary><c>dragon_fireball_frame_00</c>, an installed program frame.</summary>
-    DragonFireballFrame00,
-    /// <summary><c>dragon_fireball_frame_01</c>, an installed program frame.</summary>
-    DragonFireballFrame01,
-    /// <summary><c>dragon_fireball_frame_02</c>, an installed program frame.</summary>
-    DragonFireballFrame02,
-    /// <summary><c>dragon_fireball_frame_03</c>, an installed program frame.</summary>
-    DragonFireballFrame03,
-    /// <summary><c>dragon_fireball_frame_04</c>, an installed program frame.</summary>
-    DragonFireballFrame04,
-    /// <summary><c>dragon_fireball_frame_05</c>, an installed program frame.</summary>
-    DragonFireballFrame05,
-    /// <summary><c>dragon_fireball_frame_06</c>, an installed program frame.</summary>
-    DragonFireballFrame06,
-    /// <summary><c>dragon_fireball_frame_07</c>, an installed program frame.</summary>
-    DragonFireballFrame07,
-    /// <summary><c>eye_door_frame_00</c>, an installed program frame.</summary>
-    EyeDoorFrame00,
-    /// <summary><c>eye_door_frame_01</c>, an installed program frame.</summary>
-    EyeDoorFrame01,
-    /// <summary><c>eye_door_frame_02</c>, an installed program frame.</summary>
-    EyeDoorFrame02,
-    /// <summary><c>eye_door_frame_03</c>, an installed program frame.</summary>
-    EyeDoorFrame03,
-    /// <summary><c>eye_door_frame_04</c>, an installed program frame.</summary>
-    EyeDoorFrame04,
-    /// <summary><c>eye_door_frame_05</c>, an installed program frame.</summary>
-    EyeDoorFrame05,
-    /// <summary><c>eye_door_frame_06</c>, an installed program frame.</summary>
-    EyeDoorFrame06,
-    /// <summary><c>eye_door_frame_07</c>, an installed program frame.</summary>
-    EyeDoorFrame07,
-    /// <summary><c>eye_door_frame_08</c>, an installed program frame.</summary>
-    EyeDoorFrame08,
-    /// <summary><c>eye_door_frame_09</c>, an installed program frame.</summary>
-    EyeDoorFrame09,
-    /// <summary><c>eye_door_frame_10</c>, an installed program frame.</summary>
-    EyeDoorFrame10,
-    /// <summary><c>eye_door_sweat_frame_00</c>, an installed program frame.</summary>
-    EyeDoorSweatFrame00,
-    /// <summary><c>eye_door_sweat_frame_01</c>, an installed program frame.</summary>
-    EyeDoorSweatFrame01,
-    /// <summary><c>eye_door_sweat_frame_02</c>, an installed program frame.</summary>
-    EyeDoorSweatFrame02,
-    /// <summary><c>eye_door_sweat_frame_03</c>, an installed program frame.</summary>
-    EyeDoorSweatFrame03,
-    /// <summary><c>tourian_statue_frame_00</c>, an installed program frame.</summary>
-    TourianStatueFrame00,
-    /// <summary><c>tourian_statue_frame_01</c>, an installed program frame.</summary>
-    TourianStatueFrame01,
-    /// <summary><c>tourian_statue_frame_02</c>, an installed program frame.</summary>
-    TourianStatueFrame02,
-    /// <summary><c>tourian_statue_frame_03</c>, an installed program frame.</summary>
-    TourianStatueFrame03,
-    /// <summary><c>tourian_statue_frame_04</c>, an installed program frame.</summary>
-    TourianStatueFrame04,
-    /// <summary><c>tourian_statue_frame_05</c>, an installed program frame.</summary>
-    TourianStatueFrame05,
-    /// <summary><c>tourian_statue_frame_06</c>, an installed program frame.</summary>
-    TourianStatueFrame06,
-    /// <summary><c>tourian_statue_frame_07</c>, an installed program frame.</summary>
-    TourianStatueFrame07,
-    /// <summary><c>tourian_statue_frame_08</c>, an installed program frame.</summary>
-    TourianStatueFrame08,
-    /// <summary><c>tourian_statue_frame_09</c>, an installed program frame.</summary>
-    TourianStatueFrame09,
-    /// <summary><c>tourian_statue_frame_10</c>, an installed program frame.</summary>
-    TourianStatueFrame10,
-    /// <summary><c>tourian_statue_frame_11</c>, an installed program frame.</summary>
-    TourianStatueFrame11,
-    /// <summary><c>tourian_statue_frame_12</c>, an installed program frame.</summary>
-    TourianStatueFrame12,
-    /// <summary><c>tourian_statue_frame_13</c>, an installed program frame.</summary>
-    TourianStatueFrame13,
-    /// <summary><c>tourian_statue_frame_14</c>, an installed program frame.</summary>
-    TourianStatueFrame14,
-    /// <summary><c>tourian_statue_frame_15</c>, an installed program frame.</summary>
-    TourianStatueFrame15,
-    /// <summary><c>tourian_statue_frame_16</c>, an installed program frame.</summary>
-    TourianStatueFrame16,
-    /// <summary><c>tourian_statue_frame_17</c>, an installed program frame.</summary>
-    TourianStatueFrame17,
-    /// <summary><c>tourian_statue_frame_18</c>, an installed program frame.</summary>
-    TourianStatueFrame18,
-    /// <summary><c>tourian_statue_frame_19</c>, an installed program frame.</summary>
-    TourianStatueFrame19,
-    /// <summary><c>tourian_statue_frame_20</c>, an installed program frame.</summary>
-    TourianStatueFrame20,
-    /// <summary><c>tourian_statue_frame_21</c>, an installed program frame.</summary>
-    TourianStatueFrame21,
-    /// <summary><c>tourian_statue_frame_22</c>, an installed program frame.</summary>
-    TourianStatueFrame22,
-    /// <summary><c>tourian_statue_frame_23</c>, an installed program frame.</summary>
-    TourianStatueFrame23,
-    /// <summary><c>tourian_statue_frame_24</c>, an installed program frame.</summary>
-    TourianStatueFrame24,
-    /// <summary><c>tourian_statue_frame_25</c>, an installed program frame.</summary>
-    TourianStatueFrame25,
-    /// <summary><c>tourian_statue_frame_26</c>, an installed program frame.</summary>
-    TourianStatueFrame26,
-    /// <summary><c>tourian_statue_frame_27</c>, an installed program frame.</summary>
-    TourianStatueFrame27,
-    /// <summary><c>nuclear_waffle_frame_00</c>, an installed program frame.</summary>
-    NuclearWaffleFrame00,
-    /// <summary><c>nuclear_waffle_frame_01</c>, an installed program frame.</summary>
-    NuclearWaffleFrame01,
-    /// <summary><c>nuclear_waffle_frame_02</c>, an installed program frame.</summary>
-    NuclearWaffleFrame02,
-    /// <summary><c>nuclear_waffle_frame_03</c>, an installed program frame.</summary>
-    NuclearWaffleFrame03,
-    /// <summary><c>nuclear_waffle_frame_04</c>, an installed program frame.</summary>
-    NuclearWaffleFrame04,
-    /// <summary><c>nuclear_waffle_frame_05</c>, an installed program frame.</summary>
-    NuclearWaffleFrame05,
-    /// <summary><c>nuclear_waffle_frame_06</c>, an installed program frame.</summary>
-    NuclearWaffleFrame06,
-    /// <summary><c>nuclear_waffle_frame_07</c>, an installed program frame.</summary>
-    NuclearWaffleFrame07,
-    /// <summary><c>nuclear_waffle_frame_08</c>, an installed program frame.</summary>
-    NuclearWaffleFrame08,
-    /// <summary><c>nuclear_waffle_frame_09</c>, an installed program frame.</summary>
-    NuclearWaffleFrame09,
-    /// <summary><c>nuclear_waffle_frame_10</c>, an installed program frame.</summary>
-    NuclearWaffleFrame10,
-    /// <summary><c>nuclear_waffle_frame_11</c>, an installed program frame.</summary>
-    NuclearWaffleFrame11,
-    /// <summary><c>polyp_rock_00</c>, an installed program frame.</summary>
-    PolypRock00,
-    /// <summary><c>shaktool_frame_00</c>, an installed program frame.</summary>
-    ShaktoolFrame00,
-    /// <summary><c>shaktool_frame_01</c>, an installed program frame.</summary>
-    ShaktoolFrame01,
-    /// <summary><c>shaktool_frame_02</c>, an installed program frame.</summary>
-    ShaktoolFrame02,
-    /// <summary><c>shaktool_frame_03</c>, an installed program frame.</summary>
-    ShaktoolFrame03,
-    /// <summary><c>shaktool_frame_04</c>, an installed program frame.</summary>
-    ShaktoolFrame04,
-    /// <summary><c>shaktool_frame_05</c>, an installed program frame.</summary>
-    ShaktoolFrame05,
-    /// <summary><c>shaktool_frame_06</c>, an installed program frame.</summary>
-    ShaktoolFrame06,
-    /// <summary><c>shaktool_frame_07</c>, an installed program frame.</summary>
-    ShaktoolFrame07,
-    /// <summary><c>mother_brain_turret_frame_00</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame00,
-    /// <summary><c>mother_brain_turret_frame_01</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame01,
-    /// <summary><c>mother_brain_turret_frame_02</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame02,
-    /// <summary><c>mother_brain_turret_frame_03</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame03,
-    /// <summary><c>mother_brain_turret_frame_04</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame04,
-    /// <summary><c>mother_brain_turret_frame_05</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame05,
-    /// <summary><c>mother_brain_turret_frame_06</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame06,
-    /// <summary><c>mother_brain_turret_frame_07</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame07,
-    /// <summary><c>mother_brain_turret_frame_08</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame08,
-    /// <summary><c>mother_brain_turret_frame_09</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame09,
-    /// <summary><c>mother_brain_turret_frame_10</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame10,
-    /// <summary><c>mother_brain_turret_frame_11</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame11,
-    /// <summary><c>mother_brain_turret_frame_12</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame12,
-    /// <summary><c>mother_brain_turret_frame_13</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame13,
-    /// <summary><c>mother_brain_turret_frame_14</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame14,
-    /// <summary><c>mother_brain_turret_frame_15</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame15,
-    /// <summary><c>mother_brain_turret_frame_16</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame16,
-    /// <summary><c>mother_brain_turret_frame_17</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame17,
-    /// <summary><c>mother_brain_turret_frame_18</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame18,
-    /// <summary><c>mother_brain_turret_frame_19</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame19,
-    /// <summary><c>mother_brain_turret_frame_20</c>, an installed program frame.</summary>
-    MotherBrainTurretFrame20,
-    /// <summary><c>mother_brain_blue_ring_00</c>, an installed program frame.</summary>
-    MotherBrainBlueRing00,
-    /// <summary><c>mother_brain_blue_ring_01</c>, an installed program frame.</summary>
-    MotherBrainBlueRing01,
-    /// <summary><c>mother_brain_blue_ring_02</c>, an installed program frame.</summary>
-    MotherBrainBlueRing02,
-    /// <summary><c>mother_brain_blue_ring_03</c>, an installed program frame.</summary>
-    MotherBrainBlueRing03,
-    /// <summary><c>mother_brain_blue_ring_04</c>, an installed program frame.</summary>
-    MotherBrainBlueRing04,
-    /// <summary><c>mother_brain_blue_ring_05</c>, an installed program frame.</summary>
-    MotherBrainBlueRing05,
-    /// <summary><c>mother_brain_blue_ring_impact_00</c>, an installed program frame.</summary>
-    MotherBrainBlueRingImpact00,
-    /// <summary><c>mother_brain_blue_ring_impact_01</c>, an installed program frame.</summary>
-    MotherBrainBlueRingImpact01,
-    /// <summary><c>mother_brain_blue_ring_impact_02</c>, an installed program frame.</summary>
-    MotherBrainBlueRingImpact02,
-    /// <summary><c>mother_brain_blue_ring_impact_03</c>, an installed program frame.</summary>
-    MotherBrainBlueRingImpact03,
-    /// <summary><c>mother_brain_blue_ring_impact_04</c>, an installed program frame.</summary>
-    MotherBrainBlueRingImpact04,
-    /// <summary><c>mother_brain_blue_ring_impact_05</c>, an installed program frame.</summary>
-    MotherBrainBlueRingImpact05,
-    /// <summary><c>mother_brain_bomb_frame_00</c>, an installed program frame.</summary>
-    MotherBrainBombFrame00,
-    /// <summary><c>mother_brain_bomb_frame_01</c>, an installed program frame.</summary>
-    MotherBrainBombFrame01,
-    /// <summary><c>mother_brain_bomb_frame_02</c>, an installed program frame.</summary>
-    MotherBrainBombFrame02,
-    /// <summary><c>mother_brain_bomb_frame_03</c>, an installed program frame.</summary>
-    MotherBrainBombFrame03,
-    /// <summary><c>mother_brain_bomb_frame_04</c>, an installed program frame.</summary>
-    MotherBrainBombFrame04,
-    /// <summary><c>mother_brain_bomb_frame_05</c>, an installed program frame.</summary>
-    MotherBrainBombFrame05,
-    /// <summary><c>mother_brain_bomb_frame_06</c>, an installed program frame.</summary>
-    MotherBrainBombFrame06,
-    /// <summary><c>mother_brain_bomb_frame_07</c>, an installed program frame.</summary>
-    MotherBrainBombFrame07,
-    /// <summary><c>mother_brain_bomb_frame_08</c>, an installed program frame.</summary>
-    MotherBrainBombFrame08,
-    /// <summary><c>mother_brain_hand_beam_frame_00</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame00,
-    /// <summary><c>mother_brain_hand_beam_frame_01</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame01,
-    /// <summary><c>mother_brain_hand_beam_frame_02</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame02,
-    /// <summary><c>mother_brain_hand_beam_frame_03</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame03,
-    /// <summary><c>mother_brain_hand_beam_frame_04</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame04,
-    /// <summary><c>mother_brain_hand_beam_frame_05</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame05,
-    /// <summary><c>mother_brain_hand_beam_frame_06</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame06,
-    /// <summary><c>mother_brain_hand_beam_frame_07</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame07,
-    /// <summary><c>mother_brain_hand_beam_frame_08</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame08,
-    /// <summary><c>mother_brain_hand_beam_frame_09</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame09,
-    /// <summary><c>mother_brain_hand_beam_frame_10</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame10,
-    /// <summary><c>mother_brain_hand_beam_frame_11</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame11,
-    /// <summary><c>mother_brain_hand_beam_frame_12</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame12,
-    /// <summary><c>mother_brain_hand_beam_frame_13</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame13,
-    /// <summary><c>mother_brain_hand_beam_frame_14</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame14,
-    /// <summary><c>mother_brain_hand_beam_frame_15</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame15,
-    /// <summary><c>mother_brain_hand_beam_frame_16</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame16,
-    /// <summary><c>mother_brain_hand_beam_frame_17</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame17,
-    /// <summary><c>mother_brain_hand_beam_frame_18</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame18,
-    /// <summary><c>mother_brain_hand_beam_frame_19</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame19,
-    /// <summary><c>mother_brain_hand_beam_frame_20</c>, an installed program frame.</summary>
-    MotherBrainHandBeamFrame20,
-    /// <summary><c>mother_brain_rainbow_beam_charging_frame_00</c>, an installed program frame.</summary>
-    MotherBrainRainbowBeamChargingFrame00,
-    /// <summary><c>mother_brain_rainbow_beam_charging_frame_01</c>, an installed program frame.</summary>
-    MotherBrainRainbowBeamChargingFrame01,
-    /// <summary><c>mother_brain_rainbow_beam_charging_frame_02</c>, an installed program frame.</summary>
-    MotherBrainRainbowBeamChargingFrame02,
-    /// <summary><c>mother_brain_rainbow_beam_charging_frame_03</c>, an installed program frame.</summary>
-    MotherBrainRainbowBeamChargingFrame03,
-    /// <summary><c>mother_brain_rainbow_beam_charging_frame_04</c>, an installed program frame.</summary>
-    MotherBrainRainbowBeamChargingFrame04,
-    /// <summary><c>mother_brain_rainbow_beam_charging_frame_05</c>, an installed program frame.</summary>
-    MotherBrainRainbowBeamChargingFrame05,
-    /// <summary><c>mother_brain_drool_attached_00</c>, an installed program frame.</summary>
-    MotherBrainDroolAttached00,
-    /// <summary><c>mother_brain_drool_attached_01</c>, an installed program frame.</summary>
-    MotherBrainDroolAttached01,
-    /// <summary><c>mother_brain_drool_attached_02</c>, an installed program frame.</summary>
-    MotherBrainDroolAttached02,
-    /// <summary><c>mother_brain_drool_attached_03</c>, an installed program frame.</summary>
-    MotherBrainDroolAttached03,
-    /// <summary><c>mother_brain_drool_attached_04</c>, an installed program frame.</summary>
-    MotherBrainDroolAttached04,
+    /// <summary><c>draygon_goop_first</c>, an installed program frame.</summary>
+    DraygonGoopFirst,
+    /// <summary><c>draygon_goop_second</c>, an installed program frame.</summary>
+    DraygonGoopSecond,
+    /// <summary><c>draygon_goop_third</c>, an installed program frame.</summary>
+    DraygonGoopThird,
+    /// <summary><c>draygon_goop_fourth</c>, an installed program frame.</summary>
+    DraygonGoopFourth,
+    /// <summary><c>draygon_goop_fifth</c>, an installed program frame.</summary>
+    DraygonGoopFifth,
+    /// <summary><c>draygon_goop_sixth</c>, an installed program frame.</summary>
+    DraygonGoopSixth,
+    /// <summary><c>draygon_goop_shot_first</c>, an installed program frame.</summary>
+    DraygonGoopShotFirst,
+    /// <summary><c>draygon_goop_shot_second</c>, an installed program frame.</summary>
+    DraygonGoopShotSecond,
+    /// <summary><c>draygon_wall_turret_bloom_first</c>, an installed program frame.</summary>
+    DraygonWallTurretBloomFirst,
+    /// <summary><c>draygon_wall_turret_bloom_second</c>, an installed program frame.</summary>
+    DraygonWallTurretBloomSecond,
+    /// <summary><c>draygon_wall_turret_bloom_third</c>, an installed program frame.</summary>
+    DraygonWallTurretBloomThird,
+    /// <summary><c>draygon_wall_turret_bloom_fourth</c>, an installed program frame.</summary>
+    DraygonWallTurretBloomFourth,
+    /// <summary><c>draygon_wall_turret_bloom_fifth</c>, an installed program frame.</summary>
+    DraygonWallTurretBloomFifth,
+    /// <summary><c>draygon_wall_turret_bloom_sixth</c>, an installed program frame.</summary>
+    DraygonWallTurretBloomSixth,
+    /// <summary><c>draygon_wall_turret_bloom_seventh</c>, an installed program frame.</summary>
+    DraygonWallTurretBloomSeventh,
+    /// <summary><c>draygon_wall_turret_bloom_eighth</c>, an installed program frame.</summary>
+    DraygonWallTurretBloomEighth,
+    /// <summary><c>draygon_wall_turret_bloom_ninth</c>, an installed program frame.</summary>
+    DraygonWallTurretBloomNinth,
+    /// <summary><c>draygon_wall_turret_bloom_tenth</c>, an installed program frame.</summary>
+    DraygonWallTurretBloomTenth,
+    /// <summary><c>draygon_wall_turret_bloom_eleventh</c>, an installed program frame.</summary>
+    DraygonWallTurretBloomEleventh,
+    /// <summary><c>draygon_wall_turret_bloom_twelfth</c>, an installed program frame.</summary>
+    DraygonWallTurretBloomTwelfth,
+    /// <summary><c>draygon_wall_turret_bloom_thirteenth</c>, an installed program frame.</summary>
+    DraygonWallTurretBloomThirteenth,
+    /// <summary><c>draygon_wall_turret_bloom_fourteenth</c>, an installed program frame.</summary>
+    DraygonWallTurretBloomFourteenth,
+    /// <summary><c>draygon_wall_turret_bloom_fifteenth</c>, an installed program frame.</summary>
+    DraygonWallTurretBloomFifteenth,
+    /// <summary><c>draygon_wall_turret_bloom_sixteenth</c>, an installed program frame.</summary>
+    DraygonWallTurretBloomSixteenth,
+    /// <summary><c>draygon_wall_turret_flight_first</c>, an installed program frame.</summary>
+    DraygonWallTurretFlightFirst,
+    /// <summary><c>draygon_wall_turret_flight_second</c>, an installed program frame.</summary>
+    DraygonWallTurretFlightSecond,
+    /// <summary><c>draygon_wall_turret_flight_third</c>, an installed program frame.</summary>
+    DraygonWallTurretFlightThird,
+    /// <summary><c>crocomire_mouth_first</c>, an installed program frame.</summary>
+    CrocomireMouthFirst,
+    /// <summary><c>crocomire_mouth_second</c>, an installed program frame.</summary>
+    CrocomireMouthSecond,
+    /// <summary><c>crocomire_mouth_third</c>, an installed program frame.</summary>
+    CrocomireMouthThird,
+    /// <summary><c>crocomire_mouth_fourth</c>, an installed program frame.</summary>
+    CrocomireMouthFourth,
+    /// <summary><c>crocomire_mouth_fifth</c>, an installed program frame.</summary>
+    CrocomireMouthFifth,
+    /// <summary><c>crocomire_mouth_sixth</c>, an installed program frame.</summary>
+    CrocomireMouthSixth,
+    /// <summary><c>crocomire_bridge_fragment_first</c>, an installed program frame.</summary>
+    CrocomireBridgeFragmentFirst,
+    /// <summary><c>crocomire_bridge_fragment_third</c>, an installed program frame.</summary>
+    CrocomireBridgeFragmentThird,
+    /// <summary><c>crocomire_spike_wall_piece_sixth</c>, an installed program frame.</summary>
+    CrocomireSpikeWallPieceSixth,
+    /// <summary><c>crocomire_shot_second</c>, an installed program frame.</summary>
+    CrocomireShotSecond,
+    /// <summary><c>crocomire_shot_third</c>, an installed program frame.</summary>
+    CrocomireShotThird,
+    /// <summary><c>crocomire_shot_fourth</c>, an installed program frame.</summary>
+    CrocomireShotFourth,
+    /// <summary><c>crocomire_shot_fifth</c>, an installed program frame.</summary>
+    CrocomireShotFifth,
+    /// <summary><c>ceres_ridley_launch_first</c>, an installed program frame.</summary>
+    CeresRidleyLaunchFirst,
+    /// <summary><c>ceres_ridley_launch_second</c>, an installed program frame.</summary>
+    CeresRidleyLaunchSecond,
+    /// <summary><c>ceres_ridley_flight_first</c>, an installed program frame.</summary>
+    CeresRidleyFlightFirst,
+    /// <summary><c>ceres_ridley_flight_second</c>, an installed program frame.</summary>
+    CeresRidleyFlightSecond,
+    /// <summary><c>ceres_ridley_flight_third</c>, an installed program frame.</summary>
+    CeresRidleyFlightThird,
+    /// <summary><c>ceres_ridley_flight_fourth</c>, an installed program frame.</summary>
+    CeresRidleyFlightFourth,
+    /// <summary><c>ceres_ridley_afterburn_final_first</c>, an installed program frame.</summary>
+    CeresRidleyAfterburnFinalFirst,
+    /// <summary><c>ceres_ridley_afterburn_final_second</c>, an installed program frame.</summary>
+    CeresRidleyAfterburnFinalSecond,
+    /// <summary><c>ceres_ridley_afterburn_final_third</c>, an installed program frame.</summary>
+    CeresRidleyAfterburnFinalThird,
+    /// <summary><c>ceres_ridley_afterburn_final_fourth</c>, an installed program frame.</summary>
+    CeresRidleyAfterburnFinalFourth,
+    /// <summary><c>ceres_ridley_afterburn_final_fifth</c>, an installed program frame.</summary>
+    CeresRidleyAfterburnFinalFifth,
+    /// <summary><c>ceres_ridley_horizontal_center_first</c>, an installed program frame.</summary>
+    CeresRidleyHorizontalCenterFirst,
+    /// <summary><c>ceres_ridley_horizontal_center_second</c>, an installed program frame.</summary>
+    CeresRidleyHorizontalCenterSecond,
+    /// <summary><c>ceres_ridley_horizontal_center_third</c>, an installed program frame.</summary>
+    CeresRidleyHorizontalCenterThird,
+    /// <summary><c>ceres_ridley_horizontal_center_fourth</c>, an installed program frame.</summary>
+    CeresRidleyHorizontalCenterFourth,
+    /// <summary><c>ceres_ridley_horizontal_center_fifth</c>, an installed program frame.</summary>
+    CeresRidleyHorizontalCenterFifth,
+    /// <summary><c>ceres_ridley_vertical_center_first</c>, an installed program frame.</summary>
+    CeresRidleyVerticalCenterFirst,
+    /// <summary><c>ceres_ridley_vertical_center_second</c>, an installed program frame.</summary>
+    CeresRidleyVerticalCenterSecond,
+    /// <summary><c>ceres_ridley_vertical_center_third</c>, an installed program frame.</summary>
+    CeresRidleyVerticalCenterThird,
+    /// <summary><c>ceres_ridley_vertical_center_fourth</c>, an installed program frame.</summary>
+    CeresRidleyVerticalCenterFourth,
+    /// <summary><c>ceres_ridley_vertical_center_fifth</c>, an installed program frame.</summary>
+    CeresRidleyVerticalCenterFifth,
+    /// <summary><c>ceres_ridley_directional_first</c>, an installed program frame.</summary>
+    CeresRidleyDirectionalFirst,
+    /// <summary><c>ceres_ridley_directional_second</c>, an installed program frame.</summary>
+    CeresRidleyDirectionalSecond,
+    /// <summary><c>ceres_ridley_directional_third</c>, an installed program frame.</summary>
+    CeresRidleyDirectionalThird,
+    /// <summary><c>ceres_ridley_directional_fourth</c>, an installed program frame.</summary>
+    CeresRidleyDirectionalFourth,
+    /// <summary><c>ceres_ridley_directional_fifth</c>, an installed program frame.</summary>
+    CeresRidleyDirectionalFifth,
+    /// <summary><c>ceres_falling_debris_light</c>, an installed program frame.</summary>
+    CeresFallingDebrisLight,
+    /// <summary><c>ceres_falling_debris_dark</c>, an installed program frame.</summary>
+    CeresFallingDebrisDark,
+    /// <summary><c>phantoon_destroyable_idle_first</c>, an installed program frame.</summary>
+    PhantoonDestroyableIdleFirst,
+    /// <summary><c>phantoon_destroyable_idle_second</c>, an installed program frame.</summary>
+    PhantoonDestroyableIdleSecond,
+    /// <summary><c>phantoon_destroyable_idle_third</c>, an installed program frame.</summary>
+    PhantoonDestroyableIdleThird,
+    /// <summary><c>phantoon_destroyable_idle_fifth</c>, an installed program frame.</summary>
+    PhantoonDestroyableIdleFifth,
+    /// <summary><c>phantoon_casual_bouncing_first</c>, an installed program frame.</summary>
+    PhantoonCasualBouncingFirst,
+    /// <summary><c>phantoon_casual_bouncing_second</c>, an installed program frame.</summary>
+    PhantoonCasualBouncingSecond,
+    /// <summary><c>phantoon_casual_bouncing_third</c>, an installed program frame.</summary>
+    PhantoonCasualBouncingThird,
+    /// <summary><c>phantoon_casual_bouncing_fifth</c>, an installed program frame.</summary>
+    PhantoonCasualBouncingFifth,
+    /// <summary><c>phantoon_casual_bouncing_sixth</c>, an installed program frame.</summary>
+    PhantoonCasualBouncingSixth,
+    /// <summary><c>phantoon_casual_resting_third</c>, an installed program frame.</summary>
+    PhantoonCasualRestingThird,
+    /// <summary><c>phantoon_casual_resting_fourth</c>, an installed program frame.</summary>
+    PhantoonCasualRestingFourth,
+    /// <summary><c>phantoon_casual_resting_fifth</c>, an installed program frame.</summary>
+    PhantoonCasualRestingFifth,
+    /// <summary><c>phantoon_casual_resting_sixth</c>, an installed program frame.</summary>
+    PhantoonCasualRestingSixth,
+    /// <summary><c>phantoon_dying_first</c>, an installed program frame.</summary>
+    PhantoonDyingFirst,
+    /// <summary><c>phantoon_dying_second</c>, an installed program frame.</summary>
+    PhantoonDyingSecond,
+    /// <summary><c>phantoon_dying_third</c>, an installed program frame.</summary>
+    PhantoonDyingThird,
+    /// <summary><c>phantoon_dying_fourth</c>, an installed program frame.</summary>
+    PhantoonDyingFourth,
+    /// <summary><c>phantoon_rain_impact_first</c>, an installed program frame.</summary>
+    PhantoonRainImpactFirst,
+    /// <summary><c>phantoon_rain_impact_fourth</c>, an installed program frame.</summary>
+    PhantoonRainImpactFourth,
+    /// <summary><c>phantoon_rain_impact_fifth</c>, an installed program frame.</summary>
+    PhantoonRainImpactFifth,
+    /// <summary><c>phantoon_casual_falling_third</c>, an installed program frame.</summary>
+    PhantoonCasualFallingThird,
+    /// <summary><c>phantoon_casual_falling_fourth</c>, an installed program frame.</summary>
+    PhantoonCasualFallingFourth,
+    /// <summary><c>phantoon_casual_falling_fifth</c>, an installed program frame.</summary>
+    PhantoonCasualFallingFifth,
+    /// <summary><c>phantoon_casual_falling_sixth</c>, an installed program frame.</summary>
+    PhantoonCasualFallingSixth,
+    /// <summary><c>phantoon_starting_flame_first</c>, an installed program frame.</summary>
+    PhantoonStartingFlameFirst,
+    /// <summary><c>phantoon_starting_flame_second</c>, an installed program frame.</summary>
+    PhantoonStartingFlameSecond,
+    /// <summary><c>phantoon_starting_flame_third</c>, an installed program frame.</summary>
+    PhantoonStartingFlameThird,
+    /// <summary><c>phantoon_destroyable_shot_first</c>, an installed program frame.</summary>
+    PhantoonDestroyableShotFirst,
+    /// <summary><c>phantoon_destroyable_shot_second</c>, an installed program frame.</summary>
+    PhantoonDestroyableShotSecond,
+    /// <summary><c>phantoon_destroyable_shot_third</c>, an installed program frame.</summary>
+    PhantoonDestroyableShotThird,
+    /// <summary><c>phantoon_destroyable_shot_fourth</c>, an installed program frame.</summary>
+    PhantoonDestroyableShotFourth,
+    /// <summary><c>kraid_rock_shared_pose_first</c>, an installed program frame.</summary>
+    KraidRockSharedPoseFirst,
+    /// <summary><c>kraid_rock_rising_right_pose</c>, an installed program frame.</summary>
+    KraidRockRisingRightPose,
+    /// <summary><c>kraid_rock_shared_pose_fifth</c>, an installed program frame.</summary>
+    KraidRockSharedPoseFifth,
+    /// <summary><c>kraid_rock_spit_rock_shot_second</c>, an installed program frame.</summary>
+    KraidRockSpitRockShotSecond,
+    /// <summary><c>kraid_rock_spit_rock_shot_third</c>, an installed program frame.</summary>
+    KraidRockSpitRockShotThird,
+    /// <summary><c>kraid_rock_spit_rock_shot_fourth</c>, an installed program frame.</summary>
+    KraidRockSpitRockShotFourth,
+    /// <summary><c>kraid_rock_spit_rock_shot_fifth</c>, an installed program frame.</summary>
+    KraidRockSpitRockShotFifth,
+    /// <summary><c>fake_kraid_spit</c>, an installed program frame.</summary>
+    FakeKraidSpit,
+    /// <summary><c>fake_kraid_spike_left</c>, an installed program frame.</summary>
+    FakeKraidSpikeLeft,
+    /// <summary><c>fake_kraid_spike_right</c>, an installed program frame.</summary>
+    FakeKraidSpikeRight,
+    /// <summary><c>alcoon_fireball_initial_first</c>, an installed program frame.</summary>
+    AlcoonFireballInitialFirst,
+    /// <summary><c>alcoon_fireball_initial_second</c>, an installed program frame.</summary>
+    AlcoonFireballInitialSecond,
+    /// <summary><c>alcoon_fireball_initial_third</c>, an installed program frame.</summary>
+    AlcoonFireballInitialThird,
+    /// <summary><c>alcoon_fireball_initial_fourth</c>, an installed program frame.</summary>
+    AlcoonFireballInitialFourth,
+    /// <summary><c>space_pirate_laser_left_first</c>, an installed program frame.</summary>
+    SpacePirateLaserLeftFirst,
+    /// <summary><c>space_pirate_laser_left_second</c>, an installed program frame.</summary>
+    SpacePirateLaserLeftSecond,
+    /// <summary><c>space_pirate_laser_left_third</c>, an installed program frame.</summary>
+    SpacePirateLaserLeftThird,
+    /// <summary><c>space_pirate_laser_left_fourth</c>, an installed program frame.</summary>
+    SpacePirateLaserLeftFourth,
+    /// <summary><c>space_pirate_laser_left_fifth</c>, an installed program frame.</summary>
+    SpacePirateLaserLeftFifth,
+    /// <summary><c>space_pirate_laser_left_sixth</c>, an installed program frame.</summary>
+    SpacePirateLaserLeftSixth,
+    /// <summary><c>space_pirate_laser_left_seventh</c>, an installed program frame.</summary>
+    SpacePirateLaserLeftSeventh,
+    /// <summary><c>space_pirate_laser_left_eighth</c>, an installed program frame.</summary>
+    SpacePirateLaserLeftEighth,
+    /// <summary><c>space_pirate_laser_left_ninth</c>, an installed program frame.</summary>
+    SpacePirateLaserLeftNinth,
+    /// <summary><c>space_pirate_laser_left_tenth</c>, an installed program frame.</summary>
+    SpacePirateLaserLeftTenth,
+    /// <summary><c>space_pirate_laser_left_eleventh</c>, an installed program frame.</summary>
+    SpacePirateLaserLeftEleventh,
+    /// <summary><c>space_pirate_laser_left_loop_first</c>, an installed program frame.</summary>
+    SpacePirateLaserLeftLoopFirst,
+    /// <summary><c>space_pirate_laser_left_loop_second</c>, an installed program frame.</summary>
+    SpacePirateLaserLeftLoopSecond,
+    /// <summary><c>space_pirate_laser_right_first</c>, an installed program frame.</summary>
+    SpacePirateLaserRightFirst,
+    /// <summary><c>space_pirate_laser_right_second</c>, an installed program frame.</summary>
+    SpacePirateLaserRightSecond,
+    /// <summary><c>space_pirate_laser_right_third</c>, an installed program frame.</summary>
+    SpacePirateLaserRightThird,
+    /// <summary><c>space_pirate_laser_right_fourth</c>, an installed program frame.</summary>
+    SpacePirateLaserRightFourth,
+    /// <summary><c>space_pirate_laser_right_fifth</c>, an installed program frame.</summary>
+    SpacePirateLaserRightFifth,
+    /// <summary><c>space_pirate_laser_right_sixth</c>, an installed program frame.</summary>
+    SpacePirateLaserRightSixth,
+    /// <summary><c>space_pirate_laser_right_seventh</c>, an installed program frame.</summary>
+    SpacePirateLaserRightSeventh,
+    /// <summary><c>space_pirate_laser_right_eighth</c>, an installed program frame.</summary>
+    SpacePirateLaserRightEighth,
+    /// <summary><c>space_pirate_laser_right_ninth</c>, an installed program frame.</summary>
+    SpacePirateLaserRightNinth,
+    /// <summary><c>space_pirate_laser_right_tenth</c>, an installed program frame.</summary>
+    SpacePirateLaserRightTenth,
+    /// <summary><c>space_pirate_laser_right_eleventh</c>, an installed program frame.</summary>
+    SpacePirateLaserRightEleventh,
+    /// <summary><c>space_pirate_laser_right_loop_first</c>, an installed program frame.</summary>
+    SpacePirateLaserRightLoopFirst,
+    /// <summary><c>space_pirate_laser_right_loop_second</c>, an installed program frame.</summary>
+    SpacePirateLaserRightLoopSecond,
+    /// <summary><c>space_pirate_claw_left_loop_first</c>, an installed program frame.</summary>
+    SpacePirateClawLeftLoopFirst,
+    /// <summary><c>space_pirate_claw_left_loop_second</c>, an installed program frame.</summary>
+    SpacePirateClawLeftLoopSecond,
+    /// <summary><c>space_pirate_claw_left_loop_third</c>, an installed program frame.</summary>
+    SpacePirateClawLeftLoopThird,
+    /// <summary><c>space_pirate_claw_left_loop_fourth</c>, an installed program frame.</summary>
+    SpacePirateClawLeftLoopFourth,
+    /// <summary><c>space_pirate_claw_left_loop_fifth</c>, an installed program frame.</summary>
+    SpacePirateClawLeftLoopFifth,
+    /// <summary><c>space_pirate_claw_left_loop_sixth</c>, an installed program frame.</summary>
+    SpacePirateClawLeftLoopSixth,
+    /// <summary><c>space_pirate_claw_left_loop_seventh</c>, an installed program frame.</summary>
+    SpacePirateClawLeftLoopSeventh,
+    /// <summary><c>space_pirate_claw_left_loop_eighth</c>, an installed program frame.</summary>
+    SpacePirateClawLeftLoopEighth,
+    /// <summary><c>space_pirate_claw_right_loop_first</c>, an installed program frame.</summary>
+    SpacePirateClawRightLoopFirst,
+    /// <summary><c>space_pirate_claw_right_loop_second</c>, an installed program frame.</summary>
+    SpacePirateClawRightLoopSecond,
+    /// <summary><c>space_pirate_claw_right_loop_third</c>, an installed program frame.</summary>
+    SpacePirateClawRightLoopThird,
+    /// <summary><c>space_pirate_claw_right_loop_fourth</c>, an installed program frame.</summary>
+    SpacePirateClawRightLoopFourth,
+    /// <summary><c>space_pirate_claw_right_loop_fifth</c>, an installed program frame.</summary>
+    SpacePirateClawRightLoopFifth,
+    /// <summary><c>space_pirate_claw_right_loop_sixth</c>, an installed program frame.</summary>
+    SpacePirateClawRightLoopSixth,
+    /// <summary><c>space_pirate_claw_right_loop_seventh</c>, an installed program frame.</summary>
+    SpacePirateClawRightLoopSeventh,
+    /// <summary><c>space_pirate_claw_right_loop_eighth</c>, an installed program frame.</summary>
+    SpacePirateClawRightLoopEighth,
+    /// <summary><c>gunship_dust_right_inner_loop_first</c>, an installed program frame.</summary>
+    GunshipDustRightInnerLoopFirst,
+    /// <summary><c>gunship_dust_right_inner_loop_second</c>, an installed program frame.</summary>
+    GunshipDustRightInnerLoopSecond,
+    /// <summary><c>gunship_dust_right_inner_loop_third</c>, an installed program frame.</summary>
+    GunshipDustRightInnerLoopThird,
+    /// <summary><c>gunship_dust_right_inner_loop_fourth</c>, an installed program frame.</summary>
+    GunshipDustRightInnerLoopFourth,
+    /// <summary><c>gunship_dust_right_inner_loop_fifth</c>, an installed program frame.</summary>
+    GunshipDustRightInnerLoopFifth,
+    /// <summary><c>gunship_dust_right_inner_loop_sixth</c>, an installed program frame.</summary>
+    GunshipDustRightInnerLoopSixth,
+    /// <summary><c>gunship_dust_right_inner_loop_seventh</c>, an installed program frame.</summary>
+    GunshipDustRightInnerLoopSeventh,
+    /// <summary><c>gunship_dust_right_inner_loop_eighth</c>, an installed program frame.</summary>
+    GunshipDustRightInnerLoopEighth,
+    /// <summary><c>gunship_dust_right_middle_loop_first</c>, an installed program frame.</summary>
+    GunshipDustRightMiddleLoopFirst,
+    /// <summary><c>gunship_dust_right_middle_loop_second</c>, an installed program frame.</summary>
+    GunshipDustRightMiddleLoopSecond,
+    /// <summary><c>gunship_dust_right_middle_loop_third</c>, an installed program frame.</summary>
+    GunshipDustRightMiddleLoopThird,
+    /// <summary><c>gunship_dust_right_middle_loop_fourth</c>, an installed program frame.</summary>
+    GunshipDustRightMiddleLoopFourth,
+    /// <summary><c>gunship_dust_right_middle_loop_fifth</c>, an installed program frame.</summary>
+    GunshipDustRightMiddleLoopFifth,
+    /// <summary><c>gunship_dust_right_middle_loop_sixth</c>, an installed program frame.</summary>
+    GunshipDustRightMiddleLoopSixth,
+    /// <summary><c>gunship_dust_right_middle_loop_seventh</c>, an installed program frame.</summary>
+    GunshipDustRightMiddleLoopSeventh,
+    /// <summary><c>gunship_dust_right_middle_loop_eighth</c>, an installed program frame.</summary>
+    GunshipDustRightMiddleLoopEighth,
+    /// <summary><c>gunship_dust_right_outer_loop_first</c>, an installed program frame.</summary>
+    GunshipDustRightOuterLoopFirst,
+    /// <summary><c>gunship_dust_right_outer_loop_second</c>, an installed program frame.</summary>
+    GunshipDustRightOuterLoopSecond,
+    /// <summary><c>gunship_dust_right_outer_loop_third</c>, an installed program frame.</summary>
+    GunshipDustRightOuterLoopThird,
+    /// <summary><c>gunship_dust_right_outer_loop_fourth</c>, an installed program frame.</summary>
+    GunshipDustRightOuterLoopFourth,
+    /// <summary><c>gunship_dust_right_outer_loop_fifth</c>, an installed program frame.</summary>
+    GunshipDustRightOuterLoopFifth,
+    /// <summary><c>gunship_dust_right_outer_loop_sixth</c>, an installed program frame.</summary>
+    GunshipDustRightOuterLoopSixth,
+    /// <summary><c>gunship_dust_right_outer_loop_seventh</c>, an installed program frame.</summary>
+    GunshipDustRightOuterLoopSeventh,
+    /// <summary><c>gunship_dust_left_inner_loop_first</c>, an installed program frame.</summary>
+    GunshipDustLeftInnerLoopFirst,
+    /// <summary><c>gunship_dust_left_inner_loop_second</c>, an installed program frame.</summary>
+    GunshipDustLeftInnerLoopSecond,
+    /// <summary><c>gunship_dust_left_inner_loop_third</c>, an installed program frame.</summary>
+    GunshipDustLeftInnerLoopThird,
+    /// <summary><c>gunship_dust_left_inner_loop_fourth</c>, an installed program frame.</summary>
+    GunshipDustLeftInnerLoopFourth,
+    /// <summary><c>gunship_dust_left_inner_loop_fifth</c>, an installed program frame.</summary>
+    GunshipDustLeftInnerLoopFifth,
+    /// <summary><c>gunship_dust_left_inner_loop_sixth</c>, an installed program frame.</summary>
+    GunshipDustLeftInnerLoopSixth,
+    /// <summary><c>gunship_dust_left_inner_loop_seventh</c>, an installed program frame.</summary>
+    GunshipDustLeftInnerLoopSeventh,
+    /// <summary><c>gunship_dust_left_inner_loop_eighth</c>, an installed program frame.</summary>
+    GunshipDustLeftInnerLoopEighth,
+    /// <summary><c>gunship_dust_left_middle_loop_first</c>, an installed program frame.</summary>
+    GunshipDustLeftMiddleLoopFirst,
+    /// <summary><c>gunship_dust_left_middle_loop_second</c>, an installed program frame.</summary>
+    GunshipDustLeftMiddleLoopSecond,
+    /// <summary><c>gunship_dust_left_middle_loop_third</c>, an installed program frame.</summary>
+    GunshipDustLeftMiddleLoopThird,
+    /// <summary><c>gunship_dust_left_middle_loop_fourth</c>, an installed program frame.</summary>
+    GunshipDustLeftMiddleLoopFourth,
+    /// <summary><c>gunship_dust_left_middle_loop_fifth</c>, an installed program frame.</summary>
+    GunshipDustLeftMiddleLoopFifth,
+    /// <summary><c>gunship_dust_left_middle_loop_sixth</c>, an installed program frame.</summary>
+    GunshipDustLeftMiddleLoopSixth,
+    /// <summary><c>gunship_dust_left_middle_loop_seventh</c>, an installed program frame.</summary>
+    GunshipDustLeftMiddleLoopSeventh,
+    /// <summary><c>gunship_dust_left_middle_loop_eighth</c>, an installed program frame.</summary>
+    GunshipDustLeftMiddleLoopEighth,
+    /// <summary><c>gunship_dust_left_outer_loop_first</c>, an installed program frame.</summary>
+    GunshipDustLeftOuterLoopFirst,
+    /// <summary><c>gunship_dust_left_outer_loop_second</c>, an installed program frame.</summary>
+    GunshipDustLeftOuterLoopSecond,
+    /// <summary><c>gunship_dust_left_outer_loop_third</c>, an installed program frame.</summary>
+    GunshipDustLeftOuterLoopThird,
+    /// <summary><c>gunship_dust_left_outer_loop_fourth</c>, an installed program frame.</summary>
+    GunshipDustLeftOuterLoopFourth,
+    /// <summary><c>gunship_dust_left_outer_loop_fifth</c>, an installed program frame.</summary>
+    GunshipDustLeftOuterLoopFifth,
+    /// <summary><c>gunship_dust_left_outer_loop_sixth</c>, an installed program frame.</summary>
+    GunshipDustLeftOuterLoopSixth,
+    /// <summary><c>gunship_dust_left_outer_loop_seventh</c>, an installed program frame.</summary>
+    GunshipDustLeftOuterLoopSeventh,
+    /// <summary><c>torizo_explosion_low_health_initial_loop_first</c>, an installed program frame.</summary>
+    TorizoExplosionLowHealthInitialLoopFirst,
+    /// <summary><c>torizo_explosion_low_health_initial_loop_second</c>, an installed program frame.</summary>
+    TorizoExplosionLowHealthInitialLoopSecond,
+    /// <summary><c>torizo_explosion_low_health_initial_loop_third</c>, an installed program frame.</summary>
+    TorizoExplosionLowHealthInitialLoopThird,
+    /// <summary><c>torizo_explosion_low_health_initial_loop_fourth</c>, an installed program frame.</summary>
+    TorizoExplosionLowHealthInitialLoopFourth,
+    /// <summary><c>torizo_explosion_low_health_initial_loop_fifth</c>, an installed program frame.</summary>
+    TorizoExplosionLowHealthInitialLoopFifth,
+    /// <summary><c>torizo_explosion_death_initial_loop_first</c>, an installed program frame.</summary>
+    TorizoExplosionDeathInitialLoopFirst,
+    /// <summary><c>torizo_explosion_death_initial_loop_second</c>, an installed program frame.</summary>
+    TorizoExplosionDeathInitialLoopSecond,
+    /// <summary><c>torizo_explosion_death_initial_loop_third</c>, an installed program frame.</summary>
+    TorizoExplosionDeathInitialLoopThird,
+    /// <summary><c>torizo_explosion_death_initial_loop_fourth</c>, an installed program frame.</summary>
+    TorizoExplosionDeathInitialLoopFourth,
+    /// <summary><c>torizo_explosion_death_initial_loop_fifth</c>, an installed program frame.</summary>
+    TorizoExplosionDeathInitialLoopFifth,
+    /// <summary><c>torizo_explosion_death_initial_loop_sixth</c>, an installed program frame.</summary>
+    TorizoExplosionDeathInitialLoopSixth,
+    /// <summary><c>torizo_explosion_death_smoke_setup_loop_first</c>, an installed program frame.</summary>
+    TorizoExplosionDeathSmokeSetupLoopFirst,
+    /// <summary><c>torizo_explosion_death_smoke_setup_loop_second</c>, an installed program frame.</summary>
+    TorizoExplosionDeathSmokeSetupLoopSecond,
+    /// <summary><c>torizo_explosion_death_smoke_setup_loop_third</c>, an installed program frame.</summary>
+    TorizoExplosionDeathSmokeSetupLoopThird,
+    /// <summary><c>torizo_explosion_death_smoke_setup_loop_fourth</c>, an installed program frame.</summary>
+    TorizoExplosionDeathSmokeSetupLoopFourth,
+    /// <summary><c>torizo_drool_four_frame_delay</c>, an installed program frame.</summary>
+    TorizoDroolFourFrameDelay,
+    /// <summary><c>torizo_drool_two_frame_delay</c>, an installed program frame.</summary>
+    TorizoDroolTwoFrameDelay,
+    /// <summary><c>torizo_drool_no_delay</c>, an installed program frame.</summary>
+    TorizoDroolNoDelay,
+    /// <summary><c>torizo_drool_falling_loop</c>, an installed program frame.</summary>
+    TorizoDroolFallingLoop,
+    /// <summary><c>torizo_drool_floor_impact_first</c>, an installed program frame.</summary>
+    TorizoDroolFloorImpactFirst,
+    /// <summary><c>torizo_drool_floor_impact_second</c>, an installed program frame.</summary>
+    TorizoDroolFloorImpactSecond,
+    /// <summary><c>torizo_drool_floor_impact_third</c>, an installed program frame.</summary>
+    TorizoDroolFloorImpactThird,
+    /// <summary><c>torizo_explosive_swipe_initial_first</c>, an installed program frame.</summary>
+    TorizoExplosiveSwipeInitialFirst,
+    /// <summary><c>torizo_explosive_swipe_initial_second</c>, an installed program frame.</summary>
+    TorizoExplosiveSwipeInitialSecond,
+    /// <summary><c>torizo_explosive_swipe_initial_third</c>, an installed program frame.</summary>
+    TorizoExplosiveSwipeInitialThird,
+    /// <summary><c>torizo_explosive_swipe_initial_fourth</c>, an installed program frame.</summary>
+    TorizoExplosiveSwipeInitialFourth,
+    /// <summary><c>torizo_explosive_swipe_initial_fifth</c>, an installed program frame.</summary>
+    TorizoExplosiveSwipeInitialFifth,
+    /// <summary><c>bomb_torizo_first_statue_fragment_first</c>, an installed program frame.</summary>
+    BombTorizoFirstStatueFragmentFirst,
+    /// <summary><c>bomb_torizo_first_statue_fragment_second</c>, an installed program frame.</summary>
+    BombTorizoFirstStatueFragmentSecond,
+    /// <summary><c>bomb_torizo_second_statue_fragment_first</c>, an installed program frame.</summary>
+    BombTorizoSecondStatueFragmentFirst,
+    /// <summary><c>bomb_torizo_second_statue_fragment_second</c>, an installed program frame.</summary>
+    BombTorizoSecondStatueFragmentSecond,
+    /// <summary><c>bomb_torizo_third_statue_fragment_first</c>, an installed program frame.</summary>
+    BombTorizoThirdStatueFragmentFirst,
+    /// <summary><c>bomb_torizo_third_statue_fragment_second</c>, an installed program frame.</summary>
+    BombTorizoThirdStatueFragmentSecond,
+    /// <summary><c>bomb_torizo_fourth_statue_fragment_first</c>, an installed program frame.</summary>
+    BombTorizoFourthStatueFragmentFirst,
+    /// <summary><c>bomb_torizo_fourth_statue_fragment_second</c>, an installed program frame.</summary>
+    BombTorizoFourthStatueFragmentSecond,
+    /// <summary><c>bomb_torizo_fifth_statue_fragment_first</c>, an installed program frame.</summary>
+    BombTorizoFifthStatueFragmentFirst,
+    /// <summary><c>bomb_torizo_fifth_statue_fragment_second</c>, an installed program frame.</summary>
+    BombTorizoFifthStatueFragmentSecond,
+    /// <summary><c>bomb_torizo_sixth_statue_fragment_first</c>, an installed program frame.</summary>
+    BombTorizoSixthStatueFragmentFirst,
+    /// <summary><c>bomb_torizo_sixth_statue_fragment_second</c>, an installed program frame.</summary>
+    BombTorizoSixthStatueFragmentSecond,
+    /// <summary><c>bomb_torizo_seventh_statue_fragment_first</c>, an installed program frame.</summary>
+    BombTorizoSeventhStatueFragmentFirst,
+    /// <summary><c>bomb_torizo_seventh_statue_fragment_second</c>, an installed program frame.</summary>
+    BombTorizoSeventhStatueFragmentSecond,
+    /// <summary><c>bomb_torizo_eighth_statue_fragment_first</c>, an installed program frame.</summary>
+    BombTorizoEighthStatueFragmentFirst,
+    /// <summary><c>bomb_torizo_eighth_statue_fragment_second</c>, an installed program frame.</summary>
+    BombTorizoEighthStatueFragmentSecond,
+    /// <summary><c>bomb_torizo_ninth_statue_fragment_first</c>, an installed program frame.</summary>
+    BombTorizoNinthStatueFragmentFirst,
+    /// <summary><c>bomb_torizo_ninth_statue_fragment_second</c>, an installed program frame.</summary>
+    BombTorizoNinthStatueFragmentSecond,
+    /// <summary><c>bomb_torizo_tenth_statue_fragment_first</c>, an installed program frame.</summary>
+    BombTorizoTenthStatueFragmentFirst,
+    /// <summary><c>bomb_torizo_tenth_statue_fragment_second</c>, an installed program frame.</summary>
+    BombTorizoTenthStatueFragmentSecond,
+    /// <summary><c>bomb_torizo_eleventh_statue_fragment_first</c>, an installed program frame.</summary>
+    BombTorizoEleventhStatueFragmentFirst,
+    /// <summary><c>bomb_torizo_eleventh_statue_fragment_second</c>, an installed program frame.</summary>
+    BombTorizoEleventhStatueFragmentSecond,
+    /// <summary><c>bomb_torizo_twelfth_statue_fragment_first</c>, an installed program frame.</summary>
+    BombTorizoTwelfthStatueFragmentFirst,
+    /// <summary><c>bomb_torizo_twelfth_statue_fragment_second</c>, an installed program frame.</summary>
+    BombTorizoTwelfthStatueFragmentSecond,
+    /// <summary><c>bomb_torizo_thirteenth_statue_fragment_first</c>, an installed program frame.</summary>
+    BombTorizoThirteenthStatueFragmentFirst,
+    /// <summary><c>bomb_torizo_thirteenth_statue_fragment_second</c>, an installed program frame.</summary>
+    BombTorizoThirteenthStatueFragmentSecond,
+    /// <summary><c>bomb_torizo_fourteenth_statue_fragment_first</c>, an installed program frame.</summary>
+    BombTorizoFourteenthStatueFragmentFirst,
+    /// <summary><c>bomb_torizo_fourteenth_statue_fragment_second</c>, an installed program frame.</summary>
+    BombTorizoFourteenthStatueFragmentSecond,
+    /// <summary><c>bomb_torizo_fifteenth_statue_fragment_first</c>, an installed program frame.</summary>
+    BombTorizoFifteenthStatueFragmentFirst,
+    /// <summary><c>bomb_torizo_fifteenth_statue_fragment_second</c>, an installed program frame.</summary>
+    BombTorizoFifteenthStatueFragmentSecond,
+    /// <summary><c>bomb_torizo_sixteenth_statue_fragment_first</c>, an installed program frame.</summary>
+    BombTorizoSixteenthStatueFragmentFirst,
+    /// <summary><c>bomb_torizo_sixteenth_statue_fragment_second</c>, an installed program frame.</summary>
+    BombTorizoSixteenthStatueFragmentSecond,
+    /// <summary><c>torizo_chozo_orb_moving_left</c>, an installed program frame.</summary>
+    TorizoChozoOrbMovingLeft,
+    /// <summary><c>torizo_chozo_orb_moving_right</c>, an installed program frame.</summary>
+    TorizoChozoOrbMovingRight,
+    /// <summary><c>torizo_chozo_orb_wall_impact_first</c>, an installed program frame.</summary>
+    TorizoChozoOrbWallImpactFirst,
+    /// <summary><c>torizo_chozo_orb_wall_impact_second</c>, an installed program frame.</summary>
+    TorizoChozoOrbWallImpactSecond,
+    /// <summary><c>torizo_chozo_orb_wall_impact_third</c>, an installed program frame.</summary>
+    TorizoChozoOrbWallImpactThird,
+    /// <summary><c>torizo_chozo_orb_wall_impact_fourth</c>, an installed program frame.</summary>
+    TorizoChozoOrbWallImpactFourth,
+    /// <summary><c>torizo_chozo_orb_wall_impact_fifth</c>, an installed program frame.</summary>
+    TorizoChozoOrbWallImpactFifth,
+    /// <summary><c>torizo_chozo_orb_floor_impact_first</c>, an installed program frame.</summary>
+    TorizoChozoOrbFloorImpactFirst,
+    /// <summary><c>torizo_chozo_orb_floor_impact_second</c>, an installed program frame.</summary>
+    TorizoChozoOrbFloorImpactSecond,
+    /// <summary><c>torizo_chozo_orb_floor_impact_third</c>, an installed program frame.</summary>
+    TorizoChozoOrbFloorImpactThird,
+    /// <summary><c>torizo_chozo_orb_floor_impact_fourth</c>, an installed program frame.</summary>
+    TorizoChozoOrbFloorImpactFourth,
+    /// <summary><c>torizo_chozo_orb_floor_impact_fifth</c>, an installed program frame.</summary>
+    TorizoChozoOrbFloorImpactFifth,
+    /// <summary><c>torizo_chozo_orb_floor_impact_sixth</c>, an installed program frame.</summary>
+    TorizoChozoOrbFloorImpactSixth,
+    /// <summary><c>torizo_chozo_orb_shot_first</c>, an installed program frame.</summary>
+    TorizoChozoOrbShotFirst,
+    /// <summary><c>torizo_chozo_orb_shot_second</c>, an installed program frame.</summary>
+    TorizoChozoOrbShotSecond,
+    /// <summary><c>torizo_chozo_orb_shot_third</c>, an installed program frame.</summary>
+    TorizoChozoOrbShotThird,
+    /// <summary><c>torizo_chozo_orb_shot_fourth</c>, an installed program frame.</summary>
+    TorizoChozoOrbShotFourth,
+    /// <summary><c>torizo_chozo_orb_shot_fifth</c>, an installed program frame.</summary>
+    TorizoChozoOrbShotFifth,
+    /// <summary><c>torizo_sonic_boom_fired_left_first</c>, an installed program frame.</summary>
+    TorizoSonicBoomFiredLeftFirst,
+    /// <summary><c>torizo_sonic_boom_fired_left_second</c>, an installed program frame.</summary>
+    TorizoSonicBoomFiredLeftSecond,
+    /// <summary><c>torizo_sonic_boom_moving_left</c>, an installed program frame.</summary>
+    TorizoSonicBoomMovingLeft,
+    /// <summary><c>torizo_sonic_boom_fired_right_first</c>, an installed program frame.</summary>
+    TorizoSonicBoomFiredRightFirst,
+    /// <summary><c>torizo_sonic_boom_fired_right_second</c>, an installed program frame.</summary>
+    TorizoSonicBoomFiredRightSecond,
+    /// <summary><c>torizo_sonic_boom_moving_right</c>, an installed program frame.</summary>
+    TorizoSonicBoomMovingRight,
+    /// <summary><c>torizo_sonic_boom_wall_impact_loop_first</c>, an installed program frame.</summary>
+    TorizoSonicBoomWallImpactLoopFirst,
+    /// <summary><c>torizo_sonic_boom_wall_impact_loop_second</c>, an installed program frame.</summary>
+    TorizoSonicBoomWallImpactLoopSecond,
+    /// <summary><c>torizo_sonic_boom_wall_impact_loop_third</c>, an installed program frame.</summary>
+    TorizoSonicBoomWallImpactLoopThird,
+    /// <summary><c>torizo_sonic_boom_wall_impact_loop_fourth</c>, an installed program frame.</summary>
+    TorizoSonicBoomWallImpactLoopFourth,
+    /// <summary><c>torizo_sonic_boom_wall_impact_loop_fifth</c>, an installed program frame.</summary>
+    TorizoSonicBoomWallImpactLoopFifth,
+    /// <summary><c>chozo_tourian_dust_footsteps_first</c>, an installed program frame.</summary>
+    ChozoTourianDustFootstepsFirst,
+    /// <summary><c>chozo_tourian_dust_footsteps_second</c>, an installed program frame.</summary>
+    ChozoTourianDustFootstepsSecond,
+    /// <summary><c>chozo_tourian_dust_footsteps_third</c>, an installed program frame.</summary>
+    ChozoTourianDustFootstepsThird,
+    /// <summary><c>chozo_tourian_dust_footsteps_fourth</c>, an installed program frame.</summary>
+    ChozoTourianDustFootstepsFourth,
+    /// <summary><c>chozo_tourian_dust_spike_clearing_explosions_first</c>, an installed program frame.</summary>
+    ChozoTourianDustSpikeClearingExplosionsFirst,
+    /// <summary><c>chozo_tourian_dust_spike_clearing_explosions_second</c>, an installed program frame.</summary>
+    ChozoTourianDustSpikeClearingExplosionsSecond,
+    /// <summary><c>chozo_tourian_dust_spike_clearing_explosions_third</c>, an installed program frame.</summary>
+    ChozoTourianDustSpikeClearingExplosionsThird,
+    /// <summary><c>chozo_tourian_dust_spike_clearing_explosions_fourth</c>, an installed program frame.</summary>
+    ChozoTourianDustSpikeClearingExplosionsFourth,
+    /// <summary><c>chozo_tourian_dust_spike_clearing_explosions_fifth</c>, an installed program frame.</summary>
+    ChozoTourianDustSpikeClearingExplosionsFifth,
+    /// <summary><c>chozo_tourian_dust_spike_clearing_explosions_sixth</c>, an installed program frame.</summary>
+    ChozoTourianDustSpikeClearingExplosionsSixth,
+    /// <summary><c>chozo_tourian_dust_tourian_descent_dust_first</c>, an installed program frame.</summary>
+    ChozoTourianDustTourianDescentDustFirst,
+    /// <summary><c>chozo_tourian_dust_tourian_descent_dust_second</c>, an installed program frame.</summary>
+    ChozoTourianDustTourianDescentDustSecond,
+    /// <summary><c>chozo_tourian_dust_tourian_descent_dust_third</c>, an installed program frame.</summary>
+    ChozoTourianDustTourianDescentDustThird,
+    /// <summary><c>chozo_tourian_dust_tourian_descent_dust_fourth</c>, an installed program frame.</summary>
+    ChozoTourianDustTourianDescentDustFourth,
+    /// <summary><c>torizo_landing_dust_right_foot_first</c>, an installed program frame.</summary>
+    TorizoLandingDustRightFootFirst,
+    /// <summary><c>torizo_landing_dust_right_foot_second</c>, an installed program frame.</summary>
+    TorizoLandingDustRightFootSecond,
+    /// <summary><c>torizo_landing_dust_right_foot_third</c>, an installed program frame.</summary>
+    TorizoLandingDustRightFootThird,
+    /// <summary><c>torizo_landing_dust_right_foot_fourth</c>, an installed program frame.</summary>
+    TorizoLandingDustRightFootFourth,
+    /// <summary><c>torizo_landing_dust_left_foot_first</c>, an installed program frame.</summary>
+    TorizoLandingDustLeftFootFirst,
+    /// <summary><c>torizo_landing_dust_left_foot_second</c>, an installed program frame.</summary>
+    TorizoLandingDustLeftFootSecond,
+    /// <summary><c>torizo_landing_dust_left_foot_third</c>, an installed program frame.</summary>
+    TorizoLandingDustLeftFootThird,
+    /// <summary><c>torizo_landing_dust_left_foot_fourth</c>, an installed program frame.</summary>
+    TorizoLandingDustLeftFootFourth,
+    /// <summary><c>golden_torizo_egg_bouncing_left</c>, an installed program frame.</summary>
+    GoldenTorizoEggBouncingLeft,
+    /// <summary><c>golden_torizo_egg_bouncing_left_hatching_first</c>, an installed program frame.</summary>
+    GoldenTorizoEggBouncingLeftHatchingFirst,
+    /// <summary><c>golden_torizo_egg_bouncing_left_hatching_second</c>, an installed program frame.</summary>
+    GoldenTorizoEggBouncingLeftHatchingSecond,
+    /// <summary><c>golden_torizo_egg_bouncing_left_hatching_third</c>, an installed program frame.</summary>
+    GoldenTorizoEggBouncingLeftHatchingThird,
+    /// <summary><c>golden_torizo_egg_bouncing_right</c>, an installed program frame.</summary>
+    GoldenTorizoEggBouncingRight,
+    /// <summary><c>golden_torizo_egg_bouncing_right_hatching_first</c>, an installed program frame.</summary>
+    GoldenTorizoEggBouncingRightHatchingFirst,
+    /// <summary><c>golden_torizo_egg_bouncing_right_hatching_second</c>, an installed program frame.</summary>
+    GoldenTorizoEggBouncingRightHatchingSecond,
+    /// <summary><c>golden_torizo_egg_bouncing_right_hatching_third</c>, an installed program frame.</summary>
+    GoldenTorizoEggBouncingRightHatchingThird,
+    /// <summary><c>golden_torizo_egg_hatched_left_loop_first</c>, an installed program frame.</summary>
+    GoldenTorizoEggHatchedLeftLoopFirst,
+    /// <summary><c>golden_torizo_egg_hatched_left_loop_second</c>, an installed program frame.</summary>
+    GoldenTorizoEggHatchedLeftLoopSecond,
+    /// <summary><c>golden_torizo_egg_hatched_left_loop_third</c>, an installed program frame.</summary>
+    GoldenTorizoEggHatchedLeftLoopThird,
+    /// <summary><c>golden_torizo_egg_hatched_left_loop_fourth</c>, an installed program frame.</summary>
+    GoldenTorizoEggHatchedLeftLoopFourth,
+    /// <summary><c>golden_torizo_egg_hatched_right_loop_first</c>, an installed program frame.</summary>
+    GoldenTorizoEggHatchedRightLoopFirst,
+    /// <summary><c>golden_torizo_egg_hatched_right_loop_second</c>, an installed program frame.</summary>
+    GoldenTorizoEggHatchedRightLoopSecond,
+    /// <summary><c>golden_torizo_egg_hatched_right_loop_third</c>, an installed program frame.</summary>
+    GoldenTorizoEggHatchedRightLoopThird,
+    /// <summary><c>golden_torizo_egg_hatched_right_loop_fourth</c>, an installed program frame.</summary>
+    GoldenTorizoEggHatchedRightLoopFourth,
+    /// <summary><c>golden_torizo_egg_break_left_first</c>, an installed program frame.</summary>
+    GoldenTorizoEggBreakLeftFirst,
+    /// <summary><c>golden_torizo_egg_break_left_second</c>, an installed program frame.</summary>
+    GoldenTorizoEggBreakLeftSecond,
+    /// <summary><c>golden_torizo_egg_break_left_third</c>, an installed program frame.</summary>
+    GoldenTorizoEggBreakLeftThird,
+    /// <summary><c>golden_torizo_egg_break_left_fourth</c>, an installed program frame.</summary>
+    GoldenTorizoEggBreakLeftFourth,
+    /// <summary><c>golden_torizo_egg_break_left_fifth</c>, an installed program frame.</summary>
+    GoldenTorizoEggBreakLeftFifth,
+    /// <summary><c>golden_torizo_egg_break_right_first</c>, an installed program frame.</summary>
+    GoldenTorizoEggBreakRightFirst,
+    /// <summary><c>golden_torizo_egg_break_right_second</c>, an installed program frame.</summary>
+    GoldenTorizoEggBreakRightSecond,
+    /// <summary><c>golden_torizo_egg_break_right_third</c>, an installed program frame.</summary>
+    GoldenTorizoEggBreakRightThird,
+    /// <summary><c>golden_torizo_egg_break_right_fourth</c>, an installed program frame.</summary>
+    GoldenTorizoEggBreakRightFourth,
+    /// <summary><c>golden_torizo_egg_break_right_fifth</c>, an installed program frame.</summary>
+    GoldenTorizoEggBreakRightFifth,
+    /// <summary><c>golden_torizo_super_missile_right_initial</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileRightInitial,
+    /// <summary><c>golden_torizo_super_missile_right_loop_first</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileRightLoopFirst,
+    /// <summary><c>golden_torizo_super_missile_right_loop_second</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileRightLoopSecond,
+    /// <summary><c>golden_torizo_super_missile_right_loop_third</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileRightLoopThird,
+    /// <summary><c>golden_torizo_super_missile_right_loop_fourth</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileRightLoopFourth,
+    /// <summary><c>golden_torizo_super_missile_right_loop_fifth</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileRightLoopFifth,
+    /// <summary><c>golden_torizo_super_missile_right_loop_sixth</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileRightLoopSixth,
+    /// <summary><c>golden_torizo_super_missile_right_loop_seventh</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileRightLoopSeventh,
+    /// <summary><c>golden_torizo_super_missile_right_loop_eighth</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileRightLoopEighth,
+    /// <summary><c>golden_torizo_super_missile_left_initial</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileLeftInitial,
+    /// <summary><c>golden_torizo_super_missile_left_loop_first</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileLeftLoopFirst,
+    /// <summary><c>golden_torizo_super_missile_left_loop_second</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileLeftLoopSecond,
+    /// <summary><c>golden_torizo_super_missile_left_loop_third</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileLeftLoopThird,
+    /// <summary><c>golden_torizo_super_missile_left_loop_fourth</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileLeftLoopFourth,
+    /// <summary><c>golden_torizo_super_missile_left_loop_fifth</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileLeftLoopFifth,
+    /// <summary><c>golden_torizo_super_missile_left_loop_sixth</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileLeftLoopSixth,
+    /// <summary><c>golden_torizo_super_missile_left_loop_seventh</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileLeftLoopSeventh,
+    /// <summary><c>golden_torizo_super_missile_left_loop_eighth</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileLeftLoopEighth,
+    /// <summary><c>golden_torizo_super_missile_impact_first</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileImpactFirst,
+    /// <summary><c>golden_torizo_super_missile_impact_second</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileImpactSecond,
+    /// <summary><c>golden_torizo_super_missile_impact_third</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileImpactThird,
+    /// <summary><c>golden_torizo_super_missile_impact_fourth</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileImpactFourth,
+    /// <summary><c>golden_torizo_super_missile_impact_fifth</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileImpactFifth,
+    /// <summary><c>golden_torizo_super_missile_impact_sixth</c>, an installed program frame.</summary>
+    GoldenTorizoSuperMissileImpactSixth,
+    /// <summary><c>golden_torizo_eye_beam_wall_impact_first</c>, an installed program frame.</summary>
+    GoldenTorizoEyeBeamWallImpactFirst,
+    /// <summary><c>golden_torizo_eye_beam_wall_impact_second</c>, an installed program frame.</summary>
+    GoldenTorizoEyeBeamWallImpactSecond,
+    /// <summary><c>golden_torizo_eye_beam_wall_impact_third</c>, an installed program frame.</summary>
+    GoldenTorizoEyeBeamWallImpactThird,
+    /// <summary><c>golden_torizo_eye_beam_wall_impact_fourth</c>, an installed program frame.</summary>
+    GoldenTorizoEyeBeamWallImpactFourth,
+    /// <summary><c>golden_torizo_eye_beam_wall_impact_fifth</c>, an installed program frame.</summary>
+    GoldenTorizoEyeBeamWallImpactFifth,
+    /// <summary><c>golden_torizo_eye_beam_floor_impact_loop_first</c>, an installed program frame.</summary>
+    GoldenTorizoEyeBeamFloorImpactLoopFirst,
+    /// <summary><c>golden_torizo_eye_beam_floor_impact_loop_second</c>, an installed program frame.</summary>
+    GoldenTorizoEyeBeamFloorImpactLoopSecond,
+    /// <summary><c>golden_torizo_eye_beam_floor_impact_loop_third</c>, an installed program frame.</summary>
+    GoldenTorizoEyeBeamFloorImpactLoopThird,
+    /// <summary><c>golden_torizo_eye_beam_floor_impact_loop_fourth</c>, an installed program frame.</summary>
+    GoldenTorizoEyeBeamFloorImpactLoopFourth,
+    /// <summary><c>golden_torizo_eye_beam_floor_impact_loop_fifth</c>, an installed program frame.</summary>
+    GoldenTorizoEyeBeamFloorImpactLoopFifth,
+    /// <summary><c>golden_torizo_eye_beam_floor_impact_loop_sixth</c>, an installed program frame.</summary>
+    GoldenTorizoEyeBeamFloorImpactLoopSixth,
+    /// <summary><c>golden_torizo_eye_beam_floor_impact_loop_seventh</c>, an installed program frame.</summary>
+    GoldenTorizoEyeBeamFloorImpactLoopSeventh,
+    /// <summary><c>golden_torizo_eye_beam_normal_first</c>, an installed program frame.</summary>
+    GoldenTorizoEyeBeamNormalFirst,
+    /// <summary><c>golden_torizo_eye_beam_normal_second</c>, an installed program frame.</summary>
+    GoldenTorizoEyeBeamNormalSecond,
+    /// <summary><c>golden_torizo_eye_beam_normal_third</c>, an installed program frame.</summary>
+    GoldenTorizoEyeBeamNormalThird,
+    /// <summary><c>golden_torizo_eye_beam_normal_fourth</c>, an installed program frame.</summary>
+    GoldenTorizoEyeBeamNormalFourth,
+    /// <summary><c>golden_torizo_eye_beam_normal_fifth</c>, an installed program frame.</summary>
+    GoldenTorizoEyeBeamNormalFifth,
+    /// <summary><c>old_tourian_escape_wall_explosion_first</c>, an installed program frame.</summary>
+    OldTourianEscapeWallExplosionFirst,
+    /// <summary><c>old_tourian_escape_wall_explosion_second</c>, an installed program frame.</summary>
+    OldTourianEscapeWallExplosionSecond,
+    /// <summary><c>old_tourian_escape_wall_explosion_third</c>, an installed program frame.</summary>
+    OldTourianEscapeWallExplosionThird,
+    /// <summary><c>old_tourian_escape_wall_explosion_fourth</c>, an installed program frame.</summary>
+    OldTourianEscapeWallExplosionFourth,
+    /// <summary><c>old_tourian_escape_wall_explosion_fifth</c>, an installed program frame.</summary>
+    OldTourianEscapeWallExplosionFifth,
+    /// <summary><c>old_tourian_escape_wall_explosion_sixth</c>, an installed program frame.</summary>
+    OldTourianEscapeWallExplosionSixth,
+    /// <summary><c>dragon_fireball_rising_left_first</c>, an installed program frame.</summary>
+    DragonFireballRisingLeftFirst,
+    /// <summary><c>dragon_fireball_rising_left_second</c>, an installed program frame.</summary>
+    DragonFireballRisingLeftSecond,
+    /// <summary><c>dragon_fireball_rising_right_first</c>, an installed program frame.</summary>
+    DragonFireballRisingRightFirst,
+    /// <summary><c>dragon_fireball_rising_right_second</c>, an installed program frame.</summary>
+    DragonFireballRisingRightSecond,
+    /// <summary><c>dragon_fireball_falling_left_first</c>, an installed program frame.</summary>
+    DragonFireballFallingLeftFirst,
+    /// <summary><c>dragon_fireball_falling_left_second</c>, an installed program frame.</summary>
+    DragonFireballFallingLeftSecond,
+    /// <summary><c>dragon_fireball_falling_right_first</c>, an installed program frame.</summary>
+    DragonFireballFallingRightFirst,
+    /// <summary><c>dragon_fireball_falling_right_second</c>, an installed program frame.</summary>
+    DragonFireballFallingRightSecond,
+    /// <summary><c>eye_door_initial_first</c>, an installed program frame.</summary>
+    EyeDoorInitialFirst,
+    /// <summary><c>eye_door_initial_second</c>, an installed program frame.</summary>
+    EyeDoorInitialSecond,
+    /// <summary><c>eye_door_initial_third</c>, an installed program frame.</summary>
+    EyeDoorInitialThird,
+    /// <summary><c>eye_door_flying_loop</c>, an installed program frame.</summary>
+    EyeDoorFlyingLoop,
+    /// <summary><c>eye_door_impact_first</c>, an installed program frame.</summary>
+    EyeDoorImpactFirst,
+    /// <summary><c>eye_door_impact_second</c>, an installed program frame.</summary>
+    EyeDoorImpactSecond,
+    /// <summary><c>eye_door_impact_third</c>, an installed program frame.</summary>
+    EyeDoorImpactThird,
+    /// <summary><c>eye_door_shot_first</c>, an installed program frame.</summary>
+    EyeDoorShotFirst,
+    /// <summary><c>eye_door_shot_second</c>, an installed program frame.</summary>
+    EyeDoorShotSecond,
+    /// <summary><c>eye_door_shot_third</c>, an installed program frame.</summary>
+    EyeDoorShotThird,
+    /// <summary><c>eye_door_shot_fourth</c>, an installed program frame.</summary>
+    EyeDoorShotFourth,
+    /// <summary><c>eye_door_sweat_falling</c>, an installed program frame.</summary>
+    EyeDoorSweatFalling,
+    /// <summary><c>eye_door_sweat_hit_floor_first</c>, an installed program frame.</summary>
+    EyeDoorSweatHitFloorFirst,
+    /// <summary><c>eye_door_sweat_hit_floor_second</c>, an installed program frame.</summary>
+    EyeDoorSweatHitFloorSecond,
+    /// <summary><c>eye_door_sweat_hit_floor_third</c>, an installed program frame.</summary>
+    EyeDoorSweatHitFloorThird,
+    /// <summary><c>tourian_statue_splash_first</c>, an installed program frame.</summary>
+    TourianStatueSplashFirst,
+    /// <summary><c>tourian_statue_splash_second</c>, an installed program frame.</summary>
+    TourianStatueSplashSecond,
+    /// <summary><c>tourian_statue_splash_third</c>, an installed program frame.</summary>
+    TourianStatueSplashThird,
+    /// <summary><c>tourian_statue_splash_fourth</c>, an installed program frame.</summary>
+    TourianStatueSplashFourth,
+    /// <summary><c>tourian_statue_eye_glow_first</c>, an installed program frame.</summary>
+    TourianStatueEyeGlowFirst,
+    /// <summary><c>tourian_statue_eye_glow_second</c>, an installed program frame.</summary>
+    TourianStatueEyeGlowSecond,
+    /// <summary><c>tourian_statue_eye_glow_third</c>, an installed program frame.</summary>
+    TourianStatueEyeGlowThird,
+    /// <summary><c>tourian_statue_eye_glow_fourth</c>, an installed program frame.</summary>
+    TourianStatueEyeGlowFourth,
+    /// <summary><c>tourian_statue_eye_glow_fifth</c>, an installed program frame.</summary>
+    TourianStatueEyeGlowFifth,
+    /// <summary><c>tourian_statue_eye_glow_sixth</c>, an installed program frame.</summary>
+    TourianStatueEyeGlowSixth,
+    /// <summary><c>tourian_statue_eye_glow_seventh</c>, an installed program frame.</summary>
+    TourianStatueEyeGlowSeventh,
+    /// <summary><c>tourian_statue_eye_glow_eighth</c>, an installed program frame.</summary>
+    TourianStatueEyeGlowEighth,
+    /// <summary><c>tourian_statue_eye_glow_ninth</c>, an installed program frame.</summary>
+    TourianStatueEyeGlowNinth,
+    /// <summary><c>tourian_statue_eye_glow_tenth</c>, an installed program frame.</summary>
+    TourianStatueEyeGlowTenth,
+    /// <summary><c>tourian_statue_particle_first</c>, an installed program frame.</summary>
+    TourianStatueParticleFirst,
+    /// <summary><c>tourian_statue_particle_second</c>, an installed program frame.</summary>
+    TourianStatueParticleSecond,
+    /// <summary><c>tourian_statue_particle_third</c>, an installed program frame.</summary>
+    TourianStatueParticleThird,
+    /// <summary><c>tourian_statue_particle_fourth</c>, an installed program frame.</summary>
+    TourianStatueParticleFourth,
+    /// <summary><c>tourian_statue_tail_first</c>, an installed program frame.</summary>
+    TourianStatueTailFirst,
+    /// <summary><c>tourian_statue_tail_second</c>, an installed program frame.</summary>
+    TourianStatueTailSecond,
+    /// <summary><c>tourian_statue_tail_third</c>, an installed program frame.</summary>
+    TourianStatueTailThird,
+    /// <summary><c>tourian_statue_tail_fourth</c>, an installed program frame.</summary>
+    TourianStatueTailFourth,
+    /// <summary><c>tourian_statue_soul_first</c>, an installed program frame.</summary>
+    TourianStatueSoulFirst,
+    /// <summary><c>tourian_statue_soul_second</c>, an installed program frame.</summary>
+    TourianStatueSoulSecond,
+    /// <summary><c>tourian_statue_base_decoration</c>, an installed program frame.</summary>
+    TourianStatueBaseDecoration,
+    /// <summary><c>tourian_statue_base_decoration_loop</c>, an installed program frame.</summary>
+    TourianStatueBaseDecorationLoop,
+    /// <summary><c>tourian_statue_ridley</c>, an installed program frame.</summary>
+    TourianStatueRidley,
+    /// <summary><c>tourian_statue_phantoon</c>, an installed program frame.</summary>
+    TourianStatuePhantoon,
+    /// <summary><c>nuclear_waffle_initial_first</c>, an installed program frame.</summary>
+    NuclearWaffleInitialFirst,
+    /// <summary><c>nuclear_waffle_initial_second</c>, an installed program frame.</summary>
+    NuclearWaffleInitialSecond,
+    /// <summary><c>nuclear_waffle_initial_third</c>, an installed program frame.</summary>
+    NuclearWaffleInitialThird,
+    /// <summary><c>nuclear_waffle_initial_fourth</c>, an installed program frame.</summary>
+    NuclearWaffleInitialFourth,
+    /// <summary><c>nuclear_waffle_initial_fifth</c>, an installed program frame.</summary>
+    NuclearWaffleInitialFifth,
+    /// <summary><c>nuclear_waffle_initial_sixth</c>, an installed program frame.</summary>
+    NuclearWaffleInitialSixth,
+    /// <summary><c>nuclear_waffle_initial_seventh</c>, an installed program frame.</summary>
+    NuclearWaffleInitialSeventh,
+    /// <summary><c>nuclear_waffle_initial_eighth</c>, an installed program frame.</summary>
+    NuclearWaffleInitialEighth,
+    /// <summary><c>nuclear_waffle_initial_ninth</c>, an installed program frame.</summary>
+    NuclearWaffleInitialNinth,
+    /// <summary><c>nuclear_waffle_initial_tenth</c>, an installed program frame.</summary>
+    NuclearWaffleInitialTenth,
+    /// <summary><c>nuclear_waffle_initial_eleventh</c>, an installed program frame.</summary>
+    NuclearWaffleInitialEleventh,
+    /// <summary><c>nuclear_waffle_initial_twelfth</c>, an installed program frame.</summary>
+    NuclearWaffleInitialTwelfth,
+    /// <summary><c>polyp_rock_initial</c>, an installed program frame.</summary>
+    PolypRockInitial,
+    /// <summary><c>shaktool_front_first</c>, an installed program frame.</summary>
+    ShaktoolFrontFirst,
+    /// <summary><c>shaktool_front_second</c>, an installed program frame.</summary>
+    ShaktoolFrontSecond,
+    /// <summary><c>shaktool_front_loop</c>, an installed program frame.</summary>
+    ShaktoolFrontLoop,
+    /// <summary><c>shaktool_middle_first</c>, an installed program frame.</summary>
+    ShaktoolMiddleFirst,
+    /// <summary><c>shaktool_middle_second</c>, an installed program frame.</summary>
+    ShaktoolMiddleSecond,
+    /// <summary><c>shaktool_middle_loop</c>, an installed program frame.</summary>
+    ShaktoolMiddleLoop,
+    /// <summary><c>shaktool_back</c>, an installed program frame.</summary>
+    ShaktoolBack,
+    /// <summary><c>shaktool_back_loop</c>, an installed program frame.</summary>
+    ShaktoolBackLoop,
+    /// <summary><c>mother_brain_turret_pose_first</c>, an installed program frame.</summary>
+    MotherBrainTurretPoseFirst,
+    /// <summary><c>mother_brain_turret_pose_second</c>, an installed program frame.</summary>
+    MotherBrainTurretPoseSecond,
+    /// <summary><c>mother_brain_turret_pose_third</c>, an installed program frame.</summary>
+    MotherBrainTurretPoseThird,
+    /// <summary><c>mother_brain_turret_pose_fourth</c>, an installed program frame.</summary>
+    MotherBrainTurretPoseFourth,
+    /// <summary><c>mother_brain_turret_pose_fifth</c>, an installed program frame.</summary>
+    MotherBrainTurretPoseFifth,
+    /// <summary><c>mother_brain_turret_pose_sixth</c>, an installed program frame.</summary>
+    MotherBrainTurretPoseSixth,
+    /// <summary><c>mother_brain_turret_pose_seventh</c>, an installed program frame.</summary>
+    MotherBrainTurretPoseSeventh,
+    /// <summary><c>mother_brain_turret_pose_eighth</c>, an installed program frame.</summary>
+    MotherBrainTurretPoseEighth,
+    /// <summary><c>mother_brain_turret_bullet_pose_first</c>, an installed program frame.</summary>
+    MotherBrainTurretBulletPoseFirst,
+    /// <summary><c>mother_brain_turret_bullet_pose_second</c>, an installed program frame.</summary>
+    MotherBrainTurretBulletPoseSecond,
+    /// <summary><c>mother_brain_turret_bullet_pose_third</c>, an installed program frame.</summary>
+    MotherBrainTurretBulletPoseThird,
+    /// <summary><c>mother_brain_turret_bullet_pose_fourth</c>, an installed program frame.</summary>
+    MotherBrainTurretBulletPoseFourth,
+    /// <summary><c>mother_brain_turret_bullet_pose_fifth</c>, an installed program frame.</summary>
+    MotherBrainTurretBulletPoseFifth,
+    /// <summary><c>mother_brain_turret_bullet_pose_sixth</c>, an installed program frame.</summary>
+    MotherBrainTurretBulletPoseSixth,
+    /// <summary><c>mother_brain_turret_bullet_pose_seventh</c>, an installed program frame.</summary>
+    MotherBrainTurretBulletPoseSeventh,
+    /// <summary><c>mother_brain_turret_bullet_pose_eighth</c>, an installed program frame.</summary>
+    MotherBrainTurretBulletPoseEighth,
+    /// <summary><c>mother_brain_turret_bullet_impact_first</c>, an installed program frame.</summary>
+    MotherBrainTurretBulletImpactFirst,
+    /// <summary><c>mother_brain_turret_bullet_impact_second</c>, an installed program frame.</summary>
+    MotherBrainTurretBulletImpactSecond,
+    /// <summary><c>mother_brain_turret_bullet_impact_third</c>, an installed program frame.</summary>
+    MotherBrainTurretBulletImpactThird,
+    /// <summary><c>mother_brain_turret_bullet_impact_fourth</c>, an installed program frame.</summary>
+    MotherBrainTurretBulletImpactFourth,
+    /// <summary><c>mother_brain_turret_bullet_impact_fifth</c>, an installed program frame.</summary>
+    MotherBrainTurretBulletImpactFifth,
+    /// <summary><c>mother_brain_blue_ring_onion_ring_first</c>, an installed program frame.</summary>
+    MotherBrainBlueRingOnionRingFirst,
+    /// <summary><c>mother_brain_blue_ring_onion_ring_second</c>, an installed program frame.</summary>
+    MotherBrainBlueRingOnionRingSecond,
+    /// <summary><c>mother_brain_blue_ring_onion_ring_third</c>, an installed program frame.</summary>
+    MotherBrainBlueRingOnionRingThird,
+    /// <summary><c>mother_brain_blue_ring_onion_ring_fourth</c>, an installed program frame.</summary>
+    MotherBrainBlueRingOnionRingFourth,
+    /// <summary><c>mother_brain_blue_ring_onion_ring_fifth</c>, an installed program frame.</summary>
+    MotherBrainBlueRingOnionRingFifth,
+    /// <summary><c>mother_brain_blue_ring_onion_ring_sixth</c>, an installed program frame.</summary>
+    MotherBrainBlueRingOnionRingSixth,
+    /// <summary><c>mother_brain_blue_ring_impact_onion_ring_hit_first</c>, an installed program frame.</summary>
+    MotherBrainBlueRingImpactOnionRingHitFirst,
+    /// <summary><c>mother_brain_blue_ring_impact_onion_ring_hit_second</c>, an installed program frame.</summary>
+    MotherBrainBlueRingImpactOnionRingHitSecond,
+    /// <summary><c>mother_brain_blue_ring_impact_onion_ring_hit_third</c>, an installed program frame.</summary>
+    MotherBrainBlueRingImpactOnionRingHitThird,
+    /// <summary><c>mother_brain_blue_ring_impact_onion_ring_hit_fourth</c>, an installed program frame.</summary>
+    MotherBrainBlueRingImpactOnionRingHitFourth,
+    /// <summary><c>mother_brain_blue_ring_impact_onion_ring_hit_fifth</c>, an installed program frame.</summary>
+    MotherBrainBlueRingImpactOnionRingHitFifth,
+    /// <summary><c>mother_brain_blue_ring_impact_onion_ring_hit_sixth</c>, an installed program frame.</summary>
+    MotherBrainBlueRingImpactOnionRingHitSixth,
+    /// <summary><c>mother_brain_bomb_first</c>, an installed program frame.</summary>
+    MotherBrainBombFirst,
+    /// <summary><c>mother_brain_bomb_second</c>, an installed program frame.</summary>
+    MotherBrainBombSecond,
+    /// <summary><c>mother_brain_bomb_third</c>, an installed program frame.</summary>
+    MotherBrainBombThird,
+    /// <summary><c>mother_brain_bomb_fourth</c>, an installed program frame.</summary>
+    MotherBrainBombFourth,
+    /// <summary><c>mother_brain_bomb_fifth</c>, an installed program frame.</summary>
+    MotherBrainBombFifth,
+    /// <summary><c>mother_brain_bomb_sixth</c>, an installed program frame.</summary>
+    MotherBrainBombSixth,
+    /// <summary><c>mother_brain_bomb_seventh</c>, an installed program frame.</summary>
+    MotherBrainBombSeventh,
+    /// <summary><c>mother_brain_bomb_eighth</c>, an installed program frame.</summary>
+    MotherBrainBombEighth,
+    /// <summary><c>mother_brain_bomb_ninth</c>, an installed program frame.</summary>
+    MotherBrainBombNinth,
+    /// <summary><c>mother_brain_hand_beam_first_stage_first_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamFirstStageFirstPhase,
+    /// <summary><c>mother_brain_hand_beam_first_stage_second_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamFirstStageSecondPhase,
+    /// <summary><c>mother_brain_hand_beam_first_stage_third_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamFirstStageThirdPhase,
+    /// <summary><c>mother_brain_hand_beam_first_stage_fourth_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamFirstStageFourthPhase,
+    /// <summary><c>mother_brain_hand_beam_first_stage_fifth_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamFirstStageFifthPhase,
+    /// <summary><c>mother_brain_hand_beam_first_stage_sixth_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamFirstStageSixthPhase,
+    /// <summary><c>mother_brain_hand_beam_first_stage_seventh_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamFirstStageSeventhPhase,
+    /// <summary><c>mother_brain_hand_beam_second_stage_first_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamSecondStageFirstPhase,
+    /// <summary><c>mother_brain_hand_beam_second_stage_second_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamSecondStageSecondPhase,
+    /// <summary><c>mother_brain_hand_beam_second_stage_third_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamSecondStageThirdPhase,
+    /// <summary><c>mother_brain_hand_beam_second_stage_fourth_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamSecondStageFourthPhase,
+    /// <summary><c>mother_brain_hand_beam_second_stage_fifth_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamSecondStageFifthPhase,
+    /// <summary><c>mother_brain_hand_beam_second_stage_sixth_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamSecondStageSixthPhase,
+    /// <summary><c>mother_brain_hand_beam_second_stage_seventh_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamSecondStageSeventhPhase,
+    /// <summary><c>mother_brain_hand_beam_third_stage_first_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamThirdStageFirstPhase,
+    /// <summary><c>mother_brain_hand_beam_third_stage_second_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamThirdStageSecondPhase,
+    /// <summary><c>mother_brain_hand_beam_third_stage_third_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamThirdStageThirdPhase,
+    /// <summary><c>mother_brain_hand_beam_third_stage_fourth_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamThirdStageFourthPhase,
+    /// <summary><c>mother_brain_hand_beam_third_stage_fifth_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamThirdStageFifthPhase,
+    /// <summary><c>mother_brain_hand_beam_third_stage_sixth_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamThirdStageSixthPhase,
+    /// <summary><c>mother_brain_hand_beam_third_stage_seventh_phase</c>, an installed program frame.</summary>
+    MotherBrainHandBeamThirdStageSeventhPhase,
+    /// <summary><c>mother_brain_rainbow_beam_charging_first</c>, an installed program frame.</summary>
+    MotherBrainRainbowBeamChargingFirst,
+    /// <summary><c>mother_brain_rainbow_beam_charging_second</c>, an installed program frame.</summary>
+    MotherBrainRainbowBeamChargingSecond,
+    /// <summary><c>mother_brain_rainbow_beam_charging_third</c>, an installed program frame.</summary>
+    MotherBrainRainbowBeamChargingThird,
+    /// <summary><c>mother_brain_rainbow_beam_charging_fourth</c>, an installed program frame.</summary>
+    MotherBrainRainbowBeamChargingFourth,
+    /// <summary><c>mother_brain_rainbow_beam_charging_fifth</c>, an installed program frame.</summary>
+    MotherBrainRainbowBeamChargingFifth,
+    /// <summary><c>mother_brain_rainbow_beam_charging_sixth</c>, an installed program frame.</summary>
+    MotherBrainRainbowBeamChargingSixth,
+    /// <summary><c>mother_brain_drool_attached_drool_first</c>, an installed program frame.</summary>
+    MotherBrainDroolAttachedDroolFirst,
+    /// <summary><c>mother_brain_drool_attached_drool_second</c>, an installed program frame.</summary>
+    MotherBrainDroolAttachedDroolSecond,
+    /// <summary><c>mother_brain_drool_attached_drool_third</c>, an installed program frame.</summary>
+    MotherBrainDroolAttachedDroolThird,
+    /// <summary><c>mother_brain_drool_attached_drool_fourth</c>, an installed program frame.</summary>
+    MotherBrainDroolAttachedDroolFourth,
+    /// <summary><c>mother_brain_drool_attached_drool_fifth</c>, an installed program frame.</summary>
+    MotherBrainDroolAttachedDroolFifth,
     /// <summary><c>mother_brain_drool_released</c>, an installed program frame.</summary>
     MotherBrainDroolReleased,
-    /// <summary><c>mother_brain_drool_hit_floor_frame_00</c>, an installed program frame.</summary>
-    MotherBrainDroolHitFloorFrame00,
-    /// <summary><c>mother_brain_drool_hit_floor_frame_01</c>, an installed program frame.</summary>
-    MotherBrainDroolHitFloorFrame01,
-    /// <summary><c>mother_brain_drool_hit_floor_frame_02</c>, an installed program frame.</summary>
-    MotherBrainDroolHitFloorFrame02,
-    /// <summary><c>mother_brain_drool_hit_floor_frame_03</c>, an installed program frame.</summary>
-    MotherBrainDroolHitFloorFrame03,
-    /// <summary><c>mother_brain_escape_door_particle_frame_00</c>, an installed program frame.</summary>
-    MotherBrainEscapeDoorParticleFrame00,
-    /// <summary><c>mother_brain_escape_door_particle_frame_01</c>, an installed program frame.</summary>
-    MotherBrainEscapeDoorParticleFrame01,
-    /// <summary><c>mother_brain_escape_door_particle_frame_02</c>, an installed program frame.</summary>
-    MotherBrainEscapeDoorParticleFrame02,
-    /// <summary><c>mother_brain_escape_door_particle_frame_03</c>, an installed program frame.</summary>
-    MotherBrainEscapeDoorParticleFrame03,
-    /// <summary><c>mother_brain_escape_door_particle_frame_04</c>, an installed program frame.</summary>
-    MotherBrainEscapeDoorParticleFrame04,
-    /// <summary><c>mother_brain_escape_door_particle_frame_05</c>, an installed program frame.</summary>
-    MotherBrainEscapeDoorParticleFrame05,
-    /// <summary><c>mother_brain_escape_door_particle_frame_06</c>, an installed program frame.</summary>
-    MotherBrainEscapeDoorParticleFrame06,
-    /// <summary><c>mother_brain_escape_door_particle_frame_07</c>, an installed program frame.</summary>
-    MotherBrainEscapeDoorParticleFrame07,
-    /// <summary><c>mother_brain_purple_breath_big_frame_00</c>, an installed program frame.</summary>
-    MotherBrainPurpleBreathBigFrame00,
-    /// <summary><c>mother_brain_purple_breath_big_frame_01</c>, an installed program frame.</summary>
-    MotherBrainPurpleBreathBigFrame01,
-    /// <summary><c>mother_brain_purple_breath_big_frame_02</c>, an installed program frame.</summary>
-    MotherBrainPurpleBreathBigFrame02,
-    /// <summary><c>mother_brain_purple_breath_big_frame_03</c>, an installed program frame.</summary>
-    MotherBrainPurpleBreathBigFrame03,
-    /// <summary><c>mother_brain_purple_breath_big_frame_04</c>, an installed program frame.</summary>
-    MotherBrainPurpleBreathBigFrame04,
-    /// <summary><c>mother_brain_purple_breath_big_frame_05</c>, an installed program frame.</summary>
-    MotherBrainPurpleBreathBigFrame05,
-    /// <summary><c>mother_brain_purple_breath_big_frame_06</c>, an installed program frame.</summary>
-    MotherBrainPurpleBreathBigFrame06,
-    /// <summary><c>mother_brain_purple_breath_big_frame_07</c>, an installed program frame.</summary>
-    MotherBrainPurpleBreathBigFrame07,
-    /// <summary><c>mother_brain_purple_breath_small_frame_00</c>, an installed program frame.</summary>
-    MotherBrainPurpleBreathSmallFrame00,
-    /// <summary><c>mother_brain_purple_breath_small_frame_01</c>, an installed program frame.</summary>
-    MotherBrainPurpleBreathSmallFrame01,
-    /// <summary><c>mother_brain_purple_breath_small_frame_02</c>, an installed program frame.</summary>
-    MotherBrainPurpleBreathSmallFrame02,
-    /// <summary><c>mother_brain_purple_breath_small_frame_03</c>, an installed program frame.</summary>
-    MotherBrainPurpleBreathSmallFrame03,
-    /// <summary><c>mother_brain_purple_breath_small_frame_04</c>, an installed program frame.</summary>
-    MotherBrainPurpleBreathSmallFrame04,
-    /// <summary><c>mother_brain_purple_breath_small_frame_05</c>, an installed program frame.</summary>
-    MotherBrainPurpleBreathSmallFrame05,
-    /// <summary><c>mother_brain_purple_breath_small_frame_06</c>, an installed program frame.</summary>
-    MotherBrainPurpleBreathSmallFrame06,
-    /// <summary><c>mother_brain_purple_breath_small_frame_07</c>, an installed program frame.</summary>
-    MotherBrainPurpleBreathSmallFrame07,
-    /// <summary><c>mother_brain_escape_subtitle_frame_00</c>, an installed program frame.</summary>
-    MotherBrainEscapeSubtitleFrame00,
-    /// <summary><c>mother_brain_top_tube_frame_00</c>, an installed program frame.</summary>
-    MotherBrainTopTubeFrame00,
-    /// <summary><c>mother_brain_top_tube_frame_01</c>, an installed program frame.</summary>
-    MotherBrainTopTubeFrame01,
-    /// <summary><c>mother_brain_top_tube_frame_02</c>, an installed program frame.</summary>
-    MotherBrainTopTubeFrame02,
-    /// <summary><c>mother_brain_top_tube_frame_03</c>, an installed program frame.</summary>
-    MotherBrainTopTubeFrame03,
-    /// <summary><c>mother_brain_glass_frame_00</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame00,
-    /// <summary><c>mother_brain_glass_frame_01</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame01,
-    /// <summary><c>mother_brain_glass_frame_02</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame02,
-    /// <summary><c>mother_brain_glass_frame_03</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame03,
-    /// <summary><c>mother_brain_glass_frame_04</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame04,
-    /// <summary><c>mother_brain_glass_frame_05</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame05,
-    /// <summary><c>mother_brain_glass_frame_06</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame06,
-    /// <summary><c>mother_brain_glass_frame_07</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame07,
-    /// <summary><c>mother_brain_glass_frame_08</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame08,
-    /// <summary><c>mother_brain_glass_frame_09</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame09,
-    /// <summary><c>mother_brain_glass_frame_10</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame10,
-    /// <summary><c>mother_brain_glass_frame_11</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame11,
-    /// <summary><c>mother_brain_glass_frame_12</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame12,
-    /// <summary><c>mother_brain_glass_frame_13</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame13,
-    /// <summary><c>mother_brain_glass_frame_14</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame14,
-    /// <summary><c>mother_brain_glass_frame_15</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame15,
-    /// <summary><c>mother_brain_glass_frame_16</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame16,
-    /// <summary><c>mother_brain_glass_frame_17</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame17,
-    /// <summary><c>mother_brain_glass_frame_18</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame18,
-    /// <summary><c>mother_brain_glass_frame_19</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame19,
-    /// <summary><c>mother_brain_glass_frame_20</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame20,
-    /// <summary><c>mother_brain_glass_frame_21</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame21,
-    /// <summary><c>mother_brain_glass_frame_22</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame22,
-    /// <summary><c>mother_brain_glass_frame_23</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame23,
-    /// <summary><c>mother_brain_glass_frame_24</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame24,
-    /// <summary><c>mother_brain_glass_frame_25</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame25,
-    /// <summary><c>mother_brain_glass_frame_26</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame26,
-    /// <summary><c>mother_brain_glass_frame_27</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame27,
-    /// <summary><c>mother_brain_glass_frame_28</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame28,
-    /// <summary><c>mother_brain_glass_frame_29</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame29,
-    /// <summary><c>mother_brain_glass_frame_30</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame30,
-    /// <summary><c>mother_brain_glass_frame_31</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame31,
-    /// <summary><c>mother_brain_glass_frame_32</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame32,
-    /// <summary><c>mother_brain_glass_frame_33</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame33,
-    /// <summary><c>mother_brain_glass_frame_34</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame34,
-    /// <summary><c>mother_brain_glass_frame_35</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame35,
-    /// <summary><c>mother_brain_glass_frame_36</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame36,
-    /// <summary><c>mother_brain_glass_frame_37</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame37,
-    /// <summary><c>mother_brain_glass_frame_38</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame38,
-    /// <summary><c>mother_brain_glass_frame_39</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame39,
-    /// <summary><c>mother_brain_glass_frame_40</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame40,
-    /// <summary><c>mother_brain_glass_frame_41</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame41,
-    /// <summary><c>mother_brain_glass_frame_42</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame42,
-    /// <summary><c>mother_brain_glass_frame_43</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame43,
-    /// <summary><c>mother_brain_glass_frame_44</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame44,
-    /// <summary><c>mother_brain_glass_frame_45</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame45,
-    /// <summary><c>mother_brain_glass_frame_46</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame46,
-    /// <summary><c>mother_brain_glass_frame_47</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame47,
-    /// <summary><c>mother_brain_glass_frame_48</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame48,
-    /// <summary><c>mother_brain_glass_frame_49</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame49,
-    /// <summary><c>mother_brain_glass_frame_50</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame50,
-    /// <summary><c>mother_brain_glass_frame_51</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame51,
-    /// <summary><c>mother_brain_glass_frame_52</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame52,
-    /// <summary><c>mother_brain_glass_frame_53</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame53,
-    /// <summary><c>mother_brain_glass_frame_54</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame54,
-    /// <summary><c>mother_brain_glass_frame_55</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame55,
-    /// <summary><c>mother_brain_glass_frame_56</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame56,
-    /// <summary><c>mother_brain_glass_frame_57</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame57,
-    /// <summary><c>mother_brain_glass_frame_58</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame58,
-    /// <summary><c>mother_brain_glass_frame_59</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame59,
-    /// <summary><c>mother_brain_glass_frame_60</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame60,
-    /// <summary><c>mother_brain_glass_frame_61</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame61,
-    /// <summary><c>mother_brain_glass_frame_62</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame62,
-    /// <summary><c>mother_brain_glass_frame_63</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame63,
-    /// <summary><c>mother_brain_glass_frame_64</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame64,
-    /// <summary><c>mother_brain_glass_frame_65</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame65,
-    /// <summary><c>mother_brain_glass_frame_66</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame66,
-    /// <summary><c>mother_brain_glass_frame_67</c>, an installed program frame.</summary>
-    MotherBrainGlassFrame67,
-    /// <summary><c>ki_hunter_acid_spit_frame_00</c>, an installed program frame.</summary>
-    KiHunterAcidSpitFrame00,
-    /// <summary><c>ki_hunter_acid_spit_frame_01</c>, an installed program frame.</summary>
-    KiHunterAcidSpitFrame01,
-    /// <summary><c>ki_hunter_acid_spit_frame_02</c>, an installed program frame.</summary>
-    KiHunterAcidSpitFrame02,
-    /// <summary><c>ki_hunter_acid_spit_frame_03</c>, an installed program frame.</summary>
-    KiHunterAcidSpitFrame03,
-    /// <summary><c>ki_hunter_acid_spit_frame_04</c>, an installed program frame.</summary>
-    KiHunterAcidSpitFrame04,
-    /// <summary><c>ki_hunter_acid_spit_frame_05</c>, an installed program frame.</summary>
-    KiHunterAcidSpitFrame05,
-    /// <summary><c>ki_hunter_acid_spit_frame_06</c>, an installed program frame.</summary>
-    KiHunterAcidSpitFrame06,
-    /// <summary><c>ki_hunter_acid_spit_frame_07</c>, an installed program frame.</summary>
-    KiHunterAcidSpitFrame07,
-    /// <summary><c>ki_hunter_acid_spit_frame_08</c>, an installed program frame.</summary>
-    KiHunterAcidSpitFrame08,
-    /// <summary><c>ki_hunter_acid_spit_frame_09</c>, an installed program frame.</summary>
-    KiHunterAcidSpitFrame09,
-    /// <summary><c>ki_hunter_acid_spit_frame_10</c>, an installed program frame.</summary>
-    KiHunterAcidSpitFrame10,
-    /// <summary><c>ki_hunter_acid_spit_frame_11</c>, an installed program frame.</summary>
-    KiHunterAcidSpitFrame11,
-    /// <summary><c>ki_hunter_acid_spit_frame_12</c>, an installed program frame.</summary>
-    KiHunterAcidSpitFrame12,
-    /// <summary><c>ki_hunter_acid_spit_frame_13</c>, an installed program frame.</summary>
-    KiHunterAcidSpitFrame13,
-    /// <summary><c>ki_hunter_acid_spit_frame_14</c>, an installed program frame.</summary>
-    KiHunterAcidSpitFrame14,
-    /// <summary><c>ki_hunter_acid_spit_frame_15</c>, an installed program frame.</summary>
-    KiHunterAcidSpitFrame15,
-    /// <summary><c>ki_hunter_acid_spit_frame_16</c>, an installed program frame.</summary>
-    KiHunterAcidSpitFrame16,
-    /// <summary><c>ki_hunter_acid_spit_frame_17</c>, an installed program frame.</summary>
-    KiHunterAcidSpitFrame17,
-    /// <summary><c>ki_hunter_acid_spit_frame_18</c>, an installed program frame.</summary>
-    KiHunterAcidSpitFrame18,
-    /// <summary><c>kago_bug_frame_00</c>, an installed program frame.</summary>
-    KagoBugFrame00,
-    /// <summary><c>kago_bug_frame_01</c>, an installed program frame.</summary>
-    KagoBugFrame01,
-    /// <summary><c>kago_bug_frame_02</c>, an installed program frame.</summary>
-    KagoBugFrame02,
-    /// <summary><c>kago_bug_frame_03</c>, an installed program frame.</summary>
-    KagoBugFrame03,
-    /// <summary><c>kago_bug_frame_04</c>, an installed program frame.</summary>
-    KagoBugFrame04,
-    /// <summary><c>kago_bug_frame_05</c>, an installed program frame.</summary>
-    KagoBugFrame05,
-    /// <summary><c>kago_bug_frame_06</c>, an installed program frame.</summary>
-    KagoBugFrame06,
-    /// <summary><c>kago_bug_frame_07</c>, an installed program frame.</summary>
-    KagoBugFrame07,
-    /// <summary><c>kago_bug_frame_08</c>, an installed program frame.</summary>
-    KagoBugFrame08,
-    /// <summary><c>kago_bug_frame_09</c>, an installed program frame.</summary>
-    KagoBugFrame09,
-    /// <summary><c>kago_bug_frame_10</c>, an installed program frame.</summary>
-    KagoBugFrame10,
-    /// <summary><c>powamp_spike_frame_00</c>, an installed program frame.</summary>
-    PowampSpikeFrame00,
-    /// <summary><c>powamp_spike_frame_01</c>, an installed program frame.</summary>
-    PowampSpikeFrame01,
-    /// <summary><c>powamp_spike_frame_02</c>, an installed program frame.</summary>
-    PowampSpikeFrame02,
-    /// <summary><c>work_robot_laser_frame_00</c>, an installed program frame.</summary>
-    WorkRobotLaserFrame00,
-    /// <summary><c>work_robot_laser_frame_01</c>, an installed program frame.</summary>
-    WorkRobotLaserFrame01,
-    /// <summary><c>work_robot_laser_frame_02</c>, an installed program frame.</summary>
-    WorkRobotLaserFrame02,
-    /// <summary><c>work_robot_laser_frame_03</c>, an installed program frame.</summary>
-    WorkRobotLaserFrame03,
-    /// <summary><c>work_robot_laser_frame_04</c>, an installed program frame.</summary>
-    WorkRobotLaserFrame04,
-    /// <summary><c>work_robot_laser_frame_05</c>, an installed program frame.</summary>
-    WorkRobotLaserFrame05,
-    /// <summary><c>work_robot_laser_frame_06</c>, an installed program frame.</summary>
-    WorkRobotLaserFrame06,
-    /// <summary><c>noob_tube_frame_00</c>, an installed program frame.</summary>
-    NoobTubeFrame00,
-    /// <summary><c>noob_tube_frame_01</c>, an installed program frame.</summary>
-    NoobTubeFrame01,
-    /// <summary><c>noob_tube_frame_02</c>, an installed program frame.</summary>
-    NoobTubeFrame02,
-    /// <summary><c>noob_tube_frame_03</c>, an installed program frame.</summary>
-    NoobTubeFrame03,
-    /// <summary><c>noob_tube_frame_04</c>, an installed program frame.</summary>
-    NoobTubeFrame04,
-    /// <summary><c>noob_tube_frame_05</c>, an installed program frame.</summary>
-    NoobTubeFrame05,
-    /// <summary><c>noob_tube_frame_06</c>, an installed program frame.</summary>
-    NoobTubeFrame06,
-    /// <summary><c>noob_tube_frame_07</c>, an installed program frame.</summary>
-    NoobTubeFrame07,
-    /// <summary><c>noob_tube_frame_08</c>, an installed program frame.</summary>
-    NoobTubeFrame08,
-    /// <summary><c>noob_tube_frame_09</c>, an installed program frame.</summary>
-    NoobTubeFrame09,
-    /// <summary><c>noob_tube_frame_10</c>, an installed program frame.</summary>
-    NoobTubeFrame10,
-    /// <summary><c>noob_tube_frame_11</c>, an installed program frame.</summary>
-    NoobTubeFrame11,
-    /// <summary><c>noob_tube_frame_12</c>, an installed program frame.</summary>
-    NoobTubeFrame12,
-    /// <summary><c>noob_tube_frame_13</c>, an installed program frame.</summary>
-    NoobTubeFrame13,
-    /// <summary><c>noob_tube_frame_14</c>, an installed program frame.</summary>
-    NoobTubeFrame14,
-    /// <summary><c>noob_tube_frame_15</c>, an installed program frame.</summary>
-    NoobTubeFrame15,
-    /// <summary><c>noob_tube_frame_16</c>, an installed program frame.</summary>
-    NoobTubeFrame16,
-    /// <summary><c>noob_tube_frame_17</c>, an installed program frame.</summary>
-    NoobTubeFrame17,
-    /// <summary><c>noob_tube_frame_18</c>, an installed program frame.</summary>
-    NoobTubeFrame18,
-    /// <summary><c>noob_tube_frame_19</c>, an installed program frame.</summary>
-    NoobTubeFrame19,
-    /// <summary><c>noob_tube_frame_20</c>, an installed program frame.</summary>
-    NoobTubeFrame20,
-    /// <summary><c>noob_tube_frame_21</c>, an installed program frame.</summary>
-    NoobTubeFrame21,
-    /// <summary><c>noob_tube_frame_22</c>, an installed program frame.</summary>
-    NoobTubeFrame22,
-    /// <summary><c>noob_tube_frame_23</c>, an installed program frame.</summary>
-    NoobTubeFrame23,
-    /// <summary><c>noob_tube_frame_24</c>, an installed program frame.</summary>
-    NoobTubeFrame24,
-    /// <summary><c>noob_tube_frame_25</c>, an installed program frame.</summary>
-    NoobTubeFrame25,
-    /// <summary><c>noob_tube_frame_26</c>, an installed program frame.</summary>
-    NoobTubeFrame26,
-    /// <summary><c>noob_tube_frame_27</c>, an installed program frame.</summary>
-    NoobTubeFrame27,
-    /// <summary><c>noob_tube_frame_28</c>, an installed program frame.</summary>
-    NoobTubeFrame28,
-    /// <summary><c>noob_tube_frame_29</c>, an installed program frame.</summary>
-    NoobTubeFrame29,
-    /// <summary><c>noob_tube_frame_30</c>, an installed program frame.</summary>
-    NoobTubeFrame30,
-    /// <summary><c>noob_tube_frame_31</c>, an installed program frame.</summary>
-    NoobTubeFrame31,
-    /// <summary><c>noob_tube_frame_32</c>, an installed program frame.</summary>
-    NoobTubeFrame32,
-    /// <summary><c>noob_tube_frame_33</c>, an installed program frame.</summary>
-    NoobTubeFrame33,
-    /// <summary><c>noob_tube_frame_34</c>, an installed program frame.</summary>
-    NoobTubeFrame34,
-    /// <summary><c>noob_tube_frame_35</c>, an installed program frame.</summary>
-    NoobTubeFrame35,
-    /// <summary><c>noob_tube_frame_36</c>, an installed program frame.</summary>
-    NoobTubeFrame36,
-    /// <summary><c>noob_tube_frame_37</c>, an installed program frame.</summary>
-    NoobTubeFrame37,
-    /// <summary><c>noob_tube_frame_38</c>, an installed program frame.</summary>
-    NoobTubeFrame38,
-    /// <summary><c>noob_tube_frame_39</c>, an installed program frame.</summary>
-    NoobTubeFrame39,
-    /// <summary><c>noob_tube_frame_40</c>, an installed program frame.</summary>
-    NoobTubeFrame40,
-    /// <summary><c>noob_tube_frame_41</c>, an installed program frame.</summary>
-    NoobTubeFrame41,
-    /// <summary><c>noob_tube_frame_42</c>, an installed program frame.</summary>
-    NoobTubeFrame42,
-    /// <summary><c>noob_tube_frame_43</c>, an installed program frame.</summary>
-    NoobTubeFrame43,
-    /// <summary><c>noob_tube_frame_44</c>, an installed program frame.</summary>
-    NoobTubeFrame44,
-    /// <summary><c>noob_tube_frame_45</c>, an installed program frame.</summary>
-    NoobTubeFrame45,
-    /// <summary><c>noob_tube_frame_46</c>, an installed program frame.</summary>
-    NoobTubeFrame46,
-    /// <summary><c>noob_tube_frame_47</c>, an installed program frame.</summary>
-    NoobTubeFrame47,
-    /// <summary><c>noob_tube_frame_48</c>, an installed program frame.</summary>
-    NoobTubeFrame48,
-    /// <summary><c>noob_tube_frame_49</c>, an installed program frame.</summary>
-    NoobTubeFrame49,
-    /// <summary><c>noob_tube_frame_50</c>, an installed program frame.</summary>
-    NoobTubeFrame50,
-    /// <summary><c>noob_tube_frame_51</c>, an installed program frame.</summary>
-    NoobTubeFrame51,
-    /// <summary><c>noob_tube_frame_52</c>, an installed program frame.</summary>
-    NoobTubeFrame52,
-    /// <summary><c>noob_tube_frame_53</c>, an installed program frame.</summary>
-    NoobTubeFrame53,
-    /// <summary><c>noob_tube_frame_54</c>, an installed program frame.</summary>
-    NoobTubeFrame54,
-    /// <summary><c>noob_tube_frame_55</c>, an installed program frame.</summary>
-    NoobTubeFrame55,
-    /// <summary><c>noob_tube_frame_56</c>, an installed program frame.</summary>
-    NoobTubeFrame56,
-    /// <summary><c>noob_tube_frame_57</c>, an installed program frame.</summary>
-    NoobTubeFrame57,
-    /// <summary><c>noob_tube_frame_58</c>, an installed program frame.</summary>
-    NoobTubeFrame58,
-    /// <summary><c>noob_tube_frame_59</c>, an installed program frame.</summary>
-    NoobTubeFrame59,
-    /// <summary><c>noob_tube_frame_60</c>, an installed program frame.</summary>
-    NoobTubeFrame60,
-    /// <summary><c>noob_tube_frame_61</c>, an installed program frame.</summary>
-    NoobTubeFrame61,
-    /// <summary><c>noob_tube_frame_62</c>, an installed program frame.</summary>
-    NoobTubeFrame62,
-    /// <summary><c>noob_tube_frame_63</c>, an installed program frame.</summary>
-    NoobTubeFrame63,
-    /// <summary><c>noob_tube_frame_64</c>, an installed program frame.</summary>
-    NoobTubeFrame64,
-    /// <summary><c>noob_tube_frame_65</c>, an installed program frame.</summary>
-    NoobTubeFrame65,
-    /// <summary><c>noob_tube_frame_66</c>, an installed program frame.</summary>
-    NoobTubeFrame66,
-    /// <summary><c>noob_tube_frame_67</c>, an installed program frame.</summary>
-    NoobTubeFrame67,
-    /// <summary><c>noob_tube_frame_68</c>, an installed program frame.</summary>
-    NoobTubeFrame68,
-    /// <summary><c>noob_tube_frame_69</c>, an installed program frame.</summary>
-    NoobTubeFrame69,
-    /// <summary><c>noob_tube_frame_70</c>, an installed program frame.</summary>
-    NoobTubeFrame70,
-    /// <summary><c>noob_tube_frame_71</c>, an installed program frame.</summary>
-    NoobTubeFrame71,
-    /// <summary><c>noob_tube_frame_72</c>, an installed program frame.</summary>
-    NoobTubeFrame72,
-    /// <summary><c>noob_tube_frame_73</c>, an installed program frame.</summary>
-    NoobTubeFrame73,
-    /// <summary><c>noob_tube_frame_74</c>, an installed program frame.</summary>
-    NoobTubeFrame74,
-    /// <summary><c>noob_tube_frame_75</c>, an installed program frame.</summary>
-    NoobTubeFrame75,
-    /// <summary><c>noob_tube_frame_76</c>, an installed program frame.</summary>
-    NoobTubeFrame76,
-    /// <summary><c>noob_tube_frame_77</c>, an installed program frame.</summary>
-    NoobTubeFrame77,
-    /// <summary><c>noob_tube_frame_78</c>, an installed program frame.</summary>
-    NoobTubeFrame78,
-    /// <summary><c>noob_tube_frame_79</c>, an installed program frame.</summary>
-    NoobTubeFrame79,
-    /// <summary><c>noob_tube_frame_80</c>, an installed program frame.</summary>
-    NoobTubeFrame80,
-    /// <summary><c>noob_tube_frame_81</c>, an installed program frame.</summary>
-    NoobTubeFrame81,
-    /// <summary><c>noob_tube_frame_82</c>, an installed program frame.</summary>
-    NoobTubeFrame82,
-    /// <summary><c>noob_tube_frame_83</c>, an installed program frame.</summary>
-    NoobTubeFrame83,
-    /// <summary><c>noob_tube_frame_84</c>, an installed program frame.</summary>
-    NoobTubeFrame84,
-    /// <summary><c>noob_tube_frame_85</c>, an installed program frame.</summary>
-    NoobTubeFrame85,
-    /// <summary><c>noob_tube_frame_86</c>, an installed program frame.</summary>
-    NoobTubeFrame86,
-    /// <summary><c>noob_tube_frame_87</c>, an installed program frame.</summary>
-    NoobTubeFrame87,
-    /// <summary><c>noob_tube_frame_88</c>, an installed program frame.</summary>
-    NoobTubeFrame88,
-    /// <summary><c>noob_tube_frame_89</c>, an installed program frame.</summary>
-    NoobTubeFrame89,
-    /// <summary><c>cacatac_spike_frame_00</c>, an installed program frame.</summary>
-    CacatacSpikeFrame00,
-    /// <summary><c>cacatac_spike_frame_01</c>, an installed program frame.</summary>
-    CacatacSpikeFrame01,
-    /// <summary><c>cacatac_spike_frame_02</c>, an installed program frame.</summary>
-    CacatacSpikeFrame02,
-    /// <summary><c>cacatac_spike_frame_03</c>, an installed program frame.</summary>
-    CacatacSpikeFrame03,
-    /// <summary><c>cacatac_spike_frame_04</c>, an installed program frame.</summary>
-    CacatacSpikeFrame04,
-    /// <summary><c>cacatac_spike_frame_05</c>, an installed program frame.</summary>
-    CacatacSpikeFrame05,
-    /// <summary><c>cacatac_spike_frame_06</c>, an installed program frame.</summary>
-    CacatacSpikeFrame06,
-    /// <summary><c>cacatac_spike_frame_07</c>, an installed program frame.</summary>
-    CacatacSpikeFrame07,
-    /// <summary><c>cacatac_spike_frame_08</c>, an installed program frame.</summary>
-    CacatacSpikeFrame08,
-    /// <summary><c>cacatac_spike_frame_09</c>, an installed program frame.</summary>
-    CacatacSpikeFrame09,
-    /// <summary><c>stoke_frame_00</c>, an installed program frame.</summary>
-    StokeFrame00,
-    /// <summary><c>stoke_frame_01</c>, an installed program frame.</summary>
-    StokeFrame01,
-    /// <summary><c>spore_spawn_frame_00</c>, an installed program frame.</summary>
-    SporeSpawnFrame00,
-    /// <summary><c>spore_spawn_frame_01</c>, an installed program frame.</summary>
-    SporeSpawnFrame01,
-    /// <summary><c>spore_spawn_frame_02</c>, an installed program frame.</summary>
-    SporeSpawnFrame02,
-    /// <summary><c>spore_spawn_frame_03</c>, an installed program frame.</summary>
-    SporeSpawnFrame03,
-    /// <summary><c>spore_spawn_frame_04</c>, an installed program frame.</summary>
-    SporeSpawnFrame04,
-    /// <summary><c>spore_spawn_frame_05</c>, an installed program frame.</summary>
-    SporeSpawnFrame05,
-    /// <summary><c>spore_spawn_frame_06</c>, an installed program frame.</summary>
-    SporeSpawnFrame06,
-    /// <summary><c>spore_spawn_frame_07</c>, an installed program frame.</summary>
-    SporeSpawnFrame07,
-    /// <summary><c>spore_spawn_frame_08</c>, an installed program frame.</summary>
-    SporeSpawnFrame08,
-    /// <summary><c>spore_spawn_frame_09</c>, an installed program frame.</summary>
-    SporeSpawnFrame09,
-    /// <summary><c>spore_spawn_frame_10</c>, an installed program frame.</summary>
-    SporeSpawnFrame10,
-    /// <summary><c>spore_spawn_frame_11</c>, an installed program frame.</summary>
-    SporeSpawnFrame11,
-    /// <summary><c>spore_spawn_frame_12</c>, an installed program frame.</summary>
-    SporeSpawnFrame12,
-    /// <summary><c>spore_spawn_frame_13</c>, an installed program frame.</summary>
-    SporeSpawnFrame13,
-    /// <summary><c>spore_spawn_frame_14</c>, an installed program frame.</summary>
-    SporeSpawnFrame14,
-    /// <summary><c>spore_spawn_frame_15</c>, an installed program frame.</summary>
-    SporeSpawnFrame15,
-    /// <summary><c>spore_spawn_frame_16</c>, an installed program frame.</summary>
-    SporeSpawnFrame16,
-    /// <summary><c>fune_namihe_fireball_frame_00</c>, an installed program frame.</summary>
-    FuneNamiheFireballFrame00,
-    /// <summary><c>fune_namihe_fireball_frame_01</c>, an installed program frame.</summary>
-    FuneNamiheFireballFrame01,
-    /// <summary><c>fune_namihe_fireball_frame_02</c>, an installed program frame.</summary>
-    FuneNamiheFireballFrame02,
-    /// <summary><c>fune_namihe_fireball_frame_03</c>, an installed program frame.</summary>
-    FuneNamiheFireballFrame03,
-    /// <summary><c>fune_namihe_fireball_frame_04</c>, an installed program frame.</summary>
-    FuneNamiheFireballFrame04,
-    /// <summary><c>fune_namihe_fireball_frame_05</c>, an installed program frame.</summary>
-    FuneNamiheFireballFrame05,
-    /// <summary><c>magdollite_lava_frame_00</c>, an installed program frame.</summary>
-    MagdolliteLavaFrame00,
-    /// <summary><c>magdollite_lava_frame_01</c>, an installed program frame.</summary>
-    MagdolliteLavaFrame01,
-    /// <summary><c>misc_dust_beam_charge_frame_00</c>, an installed program frame.</summary>
-    MiscDustBeamChargeFrame00,
-    /// <summary><c>misc_dust_beam_charge_frame_01</c>, an installed program frame.</summary>
-    MiscDustBeamChargeFrame01,
-    /// <summary><c>misc_dust_beam_charge_frame_02</c>, an installed program frame.</summary>
-    MiscDustBeamChargeFrame02,
-    /// <summary><c>misc_dust_beam_charge_frame_03</c>, an installed program frame.</summary>
-    MiscDustBeamChargeFrame03,
-    /// <summary><c>misc_dust_elbow_charge_particle_frame_00</c>, an installed program frame.</summary>
-    MiscDustElbowChargeParticleFrame00,
-    /// <summary><c>misc_dust_elbow_charge_particle_frame_01</c>, an installed program frame.</summary>
-    MiscDustElbowChargeParticleFrame01,
-    /// <summary><c>misc_dust_elbow_charge_particle_frame_02</c>, an installed program frame.</summary>
-    MiscDustElbowChargeParticleFrame02,
-    /// <summary><c>misc_dust_elbow_charge_particle_frame_03</c>, an installed program frame.</summary>
-    MiscDustElbowChargeParticleFrame03,
-    /// <summary><c>misc_dust_elbow_charge_particle_frame_04</c>, an installed program frame.</summary>
-    MiscDustElbowChargeParticleFrame04,
-    /// <summary><c>misc_dust_elbow_charge_particle_frame_05</c>, an installed program frame.</summary>
-    MiscDustElbowChargeParticleFrame05,
-    /// <summary><c>misc_dust_elbow_charge_energy_frame_00</c>, an installed program frame.</summary>
-    MiscDustElbowChargeEnergyFrame00,
-    /// <summary><c>misc_dust_elbow_charge_energy_frame_01</c>, an installed program frame.</summary>
-    MiscDustElbowChargeEnergyFrame01,
-    /// <summary><c>misc_dust_elbow_charge_energy_frame_02</c>, an installed program frame.</summary>
-    MiscDustElbowChargeEnergyFrame02,
-    /// <summary><c>misc_dust_elbow_charge_energy_frame_03</c>, an installed program frame.</summary>
-    MiscDustElbowChargeEnergyFrame03,
-    /// <summary><c>misc_dust_elbow_charge_energy_frame_04</c>, an installed program frame.</summary>
-    MiscDustElbowChargeEnergyFrame04,
-    /// <summary><c>misc_dust_elbow_charge_energy_frame_05</c>, an installed program frame.</summary>
-    MiscDustElbowChargeEnergyFrame05,
-    /// <summary><c>misc_dust_elbow_charge_energy_frame_06</c>, an installed program frame.</summary>
-    MiscDustElbowChargeEnergyFrame06,
-    /// <summary><c>misc_dust_small_explosion_frame_00</c>, an installed program frame.</summary>
-    MiscDustSmallExplosionFrame00,
-    /// <summary><c>misc_dust_small_explosion_frame_01</c>, an installed program frame.</summary>
-    MiscDustSmallExplosionFrame01,
-    /// <summary><c>misc_dust_small_explosion_frame_02</c>, an installed program frame.</summary>
-    MiscDustSmallExplosionFrame02,
-    /// <summary><c>misc_dust_small_explosion_frame_03</c>, an installed program frame.</summary>
-    MiscDustSmallExplosionFrame03,
-    /// <summary><c>misc_dust_small_explosion_frame_04</c>, an installed program frame.</summary>
-    MiscDustSmallExplosionFrame04,
-    /// <summary><c>misc_dust_small_explosion_frame_05</c>, an installed program frame.</summary>
-    MiscDustSmallExplosionFrame05,
-    /// <summary><c>misc_dust_rainbow_beam_explosion_frame_00</c>, an installed program frame.</summary>
-    MiscDustRainbowBeamExplosionFrame00,
-    /// <summary><c>misc_dust_rainbow_beam_explosion_frame_01</c>, an installed program frame.</summary>
-    MiscDustRainbowBeamExplosionFrame01,
-    /// <summary><c>misc_dust_rainbow_beam_explosion_frame_02</c>, an installed program frame.</summary>
-    MiscDustRainbowBeamExplosionFrame02,
-    /// <summary><c>misc_dust_rainbow_beam_explosion_frame_03</c>, an installed program frame.</summary>
-    MiscDustRainbowBeamExplosionFrame03,
-    /// <summary><c>misc_dust_rainbow_beam_explosion_frame_04</c>, an installed program frame.</summary>
-    MiscDustRainbowBeamExplosionFrame04,
-    /// <summary><c>misc_dust_beam_trail_frame_00</c>, an installed program frame.</summary>
-    MiscDustBeamTrailFrame00,
-    /// <summary><c>misc_dust_beam_trail_frame_01</c>, an installed program frame.</summary>
-    MiscDustBeamTrailFrame01,
-    /// <summary><c>misc_dust_beam_trail_frame_02</c>, an installed program frame.</summary>
-    MiscDustBeamTrailFrame02,
-    /// <summary><c>misc_dust_beam_trail_frame_03</c>, an installed program frame.</summary>
-    MiscDustBeamTrailFrame03,
-    /// <summary><c>misc_dust_beam_trail_frame_04</c>, an installed program frame.</summary>
-    MiscDustBeamTrailFrame04,
-    /// <summary><c>misc_dust_dud_shot_frame_00</c>, an installed program frame.</summary>
-    MiscDustDudShotFrame00,
-    /// <summary><c>misc_dust_dud_shot_frame_01</c>, an installed program frame.</summary>
-    MiscDustDudShotFrame01,
-    /// <summary><c>misc_dust_dud_shot_frame_02</c>, an installed program frame.</summary>
-    MiscDustDudShotFrame02,
-    /// <summary><c>misc_dust_dud_shot_frame_03</c>, an installed program frame.</summary>
-    MiscDustDudShotFrame03,
-    /// <summary><c>misc_dust_dud_shot_frame_04</c>, an installed program frame.</summary>
-    MiscDustDudShotFrame04,
-    /// <summary><c>misc_dust_dud_shot_frame_05</c>, an installed program frame.</summary>
-    MiscDustDudShotFrame05,
-    /// <summary><c>misc_dust_power_bomb_frame_00</c>, an installed program frame.</summary>
-    MiscDustPowerBombFrame00,
-    /// <summary><c>misc_dust_power_bomb_frame_01</c>, an installed program frame.</summary>
-    MiscDustPowerBombFrame01,
-    /// <summary><c>misc_dust_power_bomb_frame_02</c>, an installed program frame.</summary>
-    MiscDustPowerBombFrame02,
-    /// <summary><c>misc_dust_elevator_pad_frame_00</c>, an installed program frame.</summary>
-    MiscDustElevatorPadFrame00,
-    /// <summary><c>misc_dust_elevator_pad_frame_01</c>, an installed program frame.</summary>
-    MiscDustElevatorPadFrame01,
-    /// <summary><c>misc_dust_small_dust_cloud_frame_00</c>, an installed program frame.</summary>
-    MiscDustSmallDustCloudFrame00,
-    /// <summary><c>misc_dust_small_dust_cloud_frame_01</c>, an installed program frame.</summary>
-    MiscDustSmallDustCloudFrame01,
-    /// <summary><c>misc_dust_small_dust_cloud_frame_02</c>, an installed program frame.</summary>
-    MiscDustSmallDustCloudFrame02,
-    /// <summary><c>misc_dust_small_dust_cloud_frame_03</c>, an installed program frame.</summary>
-    MiscDustSmallDustCloudFrame03,
-    /// <summary><c>misc_dust_small_dust_cloud_frame_04</c>, an installed program frame.</summary>
-    MiscDustSmallDustCloudFrame04,
-    /// <summary><c>misc_dust_corpse_dust_cloud_frame_00</c>, an installed program frame.</summary>
-    MiscDustCorpseDustCloudFrame00,
-    /// <summary><c>misc_dust_corpse_dust_cloud_frame_01</c>, an installed program frame.</summary>
-    MiscDustCorpseDustCloudFrame01,
-    /// <summary><c>misc_dust_corpse_dust_cloud_frame_02</c>, an installed program frame.</summary>
-    MiscDustCorpseDustCloudFrame02,
-    /// <summary><c>misc_dust_corpse_dust_cloud_frame_03</c>, an installed program frame.</summary>
-    MiscDustCorpseDustCloudFrame03,
-    /// <summary><c>misc_dust_eye_door_sweat_drop_frame_00</c>, an installed program frame.</summary>
-    MiscDustEyeDoorSweatDropFrame00,
-    /// <summary><c>misc_dust_eye_door_sweat_drop_frame_01</c>, an installed program frame.</summary>
-    MiscDustEyeDoorSweatDropFrame01,
-    /// <summary><c>misc_dust_eye_door_sweat_drop_frame_02</c>, an installed program frame.</summary>
-    MiscDustEyeDoorSweatDropFrame02,
-    /// <summary><c>misc_dust_eye_door_sweat_drop_frame_03</c>, an installed program frame.</summary>
-    MiscDustEyeDoorSweatDropFrame03,
-    /// <summary><c>misc_dust_smoke_frame_00</c>, an installed program frame.</summary>
-    MiscDustSmokeFrame00,
-    /// <summary><c>misc_dust_smoke_frame_01</c>, an installed program frame.</summary>
-    MiscDustSmokeFrame01,
-    /// <summary><c>misc_dust_smoke_frame_02</c>, an installed program frame.</summary>
-    MiscDustSmokeFrame02,
-    /// <summary><c>misc_dust_smoke_frame_03</c>, an installed program frame.</summary>
-    MiscDustSmokeFrame03,
-    /// <summary><c>misc_dust_looping_elevator_pad_frame_00</c>, an installed program frame.</summary>
-    MiscDustLoopingElevatorPadFrame00,
-    /// <summary><c>misc_dust_looping_elevator_pad_frame_01</c>, an installed program frame.</summary>
-    MiscDustLoopingElevatorPadFrame01,
-    /// <summary><c>misc_dust_big_explosion_frame_00</c>, an installed program frame.</summary>
-    MiscDustBigExplosionFrame00,
-    /// <summary><c>misc_dust_big_explosion_frame_01</c>, an installed program frame.</summary>
-    MiscDustBigExplosionFrame01,
-    /// <summary><c>misc_dust_big_explosion_frame_02</c>, an installed program frame.</summary>
-    MiscDustBigExplosionFrame02,
-    /// <summary><c>misc_dust_big_explosion_frame_03</c>, an installed program frame.</summary>
-    MiscDustBigExplosionFrame03,
-    /// <summary><c>misc_dust_big_explosion_frame_04</c>, an installed program frame.</summary>
-    MiscDustBigExplosionFrame04,
-    /// <summary><c>misc_dust_big_explosion_frame_05</c>, an installed program frame.</summary>
-    MiscDustBigExplosionFrame05,
-    /// <summary><c>misc_dust_small_energy_drop_frame_00</c>, an installed program frame.</summary>
-    MiscDustSmallEnergyDropFrame00,
-    /// <summary><c>misc_dust_small_energy_drop_frame_01</c>, an installed program frame.</summary>
-    MiscDustSmallEnergyDropFrame01,
-    /// <summary><c>misc_dust_small_energy_drop_frame_02</c>, an installed program frame.</summary>
-    MiscDustSmallEnergyDropFrame02,
-    /// <summary><c>misc_dust_small_energy_drop_frame_03</c>, an installed program frame.</summary>
-    MiscDustSmallEnergyDropFrame03,
-    /// <summary><c>misc_dust_big_energy_drop_frame_00</c>, an installed program frame.</summary>
-    MiscDustBigEnergyDropFrame00,
-    /// <summary><c>misc_dust_big_energy_drop_frame_01</c>, an installed program frame.</summary>
-    MiscDustBigEnergyDropFrame01,
-    /// <summary><c>misc_dust_big_energy_drop_frame_02</c>, an installed program frame.</summary>
-    MiscDustBigEnergyDropFrame02,
-    /// <summary><c>misc_dust_big_energy_drop_frame_03</c>, an installed program frame.</summary>
-    MiscDustBigEnergyDropFrame03,
-    /// <summary><c>misc_dust_bomb_frame_00</c>, an installed program frame.</summary>
-    MiscDustBombFrame00,
-    /// <summary><c>misc_dust_bomb_frame_01</c>, an installed program frame.</summary>
-    MiscDustBombFrame01,
-    /// <summary><c>misc_dust_bomb_frame_02</c>, an installed program frame.</summary>
-    MiscDustBombFrame02,
-    /// <summary><c>misc_dust_bomb_frame_03</c>, an installed program frame.</summary>
-    MiscDustBombFrame03,
-    /// <summary><c>misc_dust_weird_energy_drop_frame_00</c>, an installed program frame.</summary>
-    MiscDustWeirdEnergyDropFrame00,
-    /// <summary><c>misc_dust_weird_energy_drop_frame_01</c>, an installed program frame.</summary>
-    MiscDustWeirdEnergyDropFrame01,
-    /// <summary><c>misc_dust_weird_energy_drop_frame_02</c>, an installed program frame.</summary>
-    MiscDustWeirdEnergyDropFrame02,
-    /// <summary><c>misc_dust_rock_particles_frame_00</c>, an installed program frame.</summary>
-    MiscDustRockParticlesFrame00,
-    /// <summary><c>misc_dust_rock_particles_frame_01</c>, an installed program frame.</summary>
-    MiscDustRockParticlesFrame01,
-    /// <summary><c>misc_dust_rock_particles_frame_02</c>, an installed program frame.</summary>
-    MiscDustRockParticlesFrame02,
-    /// <summary><c>misc_dust_rock_particles_frame_03</c>, an installed program frame.</summary>
-    MiscDustRockParticlesFrame03,
-    /// <summary><c>misc_dust_rock_particles_frame_04</c>, an installed program frame.</summary>
-    MiscDustRockParticlesFrame04,
-    /// <summary><c>misc_dust_rock_particles_frame_05</c>, an installed program frame.</summary>
-    MiscDustRockParticlesFrame05,
-    /// <summary><c>misc_dust_rock_particles_frame_06</c>, an installed program frame.</summary>
-    MiscDustRockParticlesFrame06,
-    /// <summary><c>misc_dust_rock_particles_frame_07</c>, an installed program frame.</summary>
-    MiscDustRockParticlesFrame07,
-    /// <summary><c>misc_dust_rock_particles_frame_08</c>, an installed program frame.</summary>
-    MiscDustRockParticlesFrame08,
-    /// <summary><c>misc_dust_rock_particles_frame_09</c>, an installed program frame.</summary>
-    MiscDustRockParticlesFrame09,
-    /// <summary><c>misc_dust_rock_particles_frame_10</c>, an installed program frame.</summary>
-    MiscDustRockParticlesFrame10,
-    /// <summary><c>misc_dust_rock_particles_frame_11</c>, an installed program frame.</summary>
-    MiscDustRockParticlesFrame11,
-    /// <summary><c>misc_dust_rock_particles_frame_12</c>, an installed program frame.</summary>
-    MiscDustRockParticlesFrame12,
-    /// <summary><c>misc_dust_rock_particles_frame_13</c>, an installed program frame.</summary>
-    MiscDustRockParticlesFrame13,
-    /// <summary><c>misc_dust_rock_particles_frame_14</c>, an installed program frame.</summary>
-    MiscDustRockParticlesFrame14,
-    /// <summary><c>misc_dust_rock_particles_frame_15</c>, an installed program frame.</summary>
-    MiscDustRockParticlesFrame15,
-    /// <summary><c>misc_dust_short_big_dust_cloud_frame_00</c>, an installed program frame.</summary>
-    MiscDustShortBigDustCloudFrame00,
-    /// <summary><c>misc_dust_short_big_dust_cloud_frame_01</c>, an installed program frame.</summary>
-    MiscDustShortBigDustCloudFrame01,
-    /// <summary><c>misc_dust_short_big_dust_cloud_frame_02</c>, an installed program frame.</summary>
-    MiscDustShortBigDustCloudFrame02,
-    /// <summary><c>misc_dust_short_big_dust_cloud_frame_03</c>, an installed program frame.</summary>
-    MiscDustShortBigDustCloudFrame03,
-    /// <summary><c>misc_dust_short_beam_cloud_frame_00</c>, an installed program frame.</summary>
-    MiscDustShortBeamCloudFrame00,
-    /// <summary><c>misc_dust_short_beam_cloud_frame_01</c>, an installed program frame.</summary>
-    MiscDustShortBeamCloudFrame01,
-    /// <summary><c>misc_dust_short_beam_cloud_frame_02</c>, an installed program frame.</summary>
-    MiscDustShortBeamCloudFrame02,
-    /// <summary><c>misc_dust_short_beam_cloud_frame_03</c>, an installed program frame.</summary>
-    MiscDustShortBeamCloudFrame03,
-    /// <summary><c>misc_dust_short_beam_cloud_frame_04</c>, an installed program frame.</summary>
-    MiscDustShortBeamCloudFrame04,
-    /// <summary><c>misc_dust_short_beam_cloud_frame_05</c>, an installed program frame.</summary>
-    MiscDustShortBeamCloudFrame05,
-    /// <summary><c>misc_dust_medium_beam_cloud_frame_00</c>, an installed program frame.</summary>
-    MiscDustMediumBeamCloudFrame00,
-    /// <summary><c>misc_dust_medium_beam_cloud_frame_01</c>, an installed program frame.</summary>
-    MiscDustMediumBeamCloudFrame01,
-    /// <summary><c>misc_dust_medium_beam_cloud_frame_02</c>, an installed program frame.</summary>
-    MiscDustMediumBeamCloudFrame02,
-    /// <summary><c>misc_dust_medium_beam_cloud_frame_03</c>, an installed program frame.</summary>
-    MiscDustMediumBeamCloudFrame03,
-    /// <summary><c>misc_dust_medium_beam_cloud_frame_04</c>, an installed program frame.</summary>
-    MiscDustMediumBeamCloudFrame04,
-    /// <summary><c>misc_dust_medium_beam_cloud_frame_05</c>, an installed program frame.</summary>
-    MiscDustMediumBeamCloudFrame05,
-    /// <summary><c>misc_dust_medium_beam_cloud_frame_06</c>, an installed program frame.</summary>
-    MiscDustMediumBeamCloudFrame06,
-    /// <summary><c>misc_dust_big_dust_cloud_frame_00</c>, an installed program frame.</summary>
-    MiscDustBigDustCloudFrame00,
-    /// <summary><c>misc_dust_big_dust_cloud_frame_01</c>, an installed program frame.</summary>
-    MiscDustBigDustCloudFrame01,
-    /// <summary><c>misc_dust_big_dust_cloud_frame_02</c>, an installed program frame.</summary>
-    MiscDustBigDustCloudFrame02,
-    /// <summary><c>misc_dust_big_dust_cloud_frame_03</c>, an installed program frame.</summary>
-    MiscDustBigDustCloudFrame03,
-    /// <summary><c>misc_dust_big_dust_cloud_frame_04</c>, an installed program frame.</summary>
-    MiscDustBigDustCloudFrame04,
-    /// <summary><c>misc_dust_big_dust_cloud_frame_05</c>, an installed program frame.</summary>
-    MiscDustBigDustCloudFrame05,
-    /// <summary><c>misc_dust_big_dust_cloud_frame_06</c>, an installed program frame.</summary>
-    MiscDustBigDustCloudFrame06,
-    /// <summary><c>misc_dust_big_dust_cloud_frame_07</c>, an installed program frame.</summary>
-    MiscDustBigDustCloudFrame07,
-    /// <summary><c>misc_dust_long_beam_frame_00</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame00,
-    /// <summary><c>misc_dust_long_beam_frame_01</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame01,
-    /// <summary><c>misc_dust_long_beam_frame_02</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame02,
-    /// <summary><c>misc_dust_long_beam_frame_03</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame03,
-    /// <summary><c>misc_dust_long_beam_frame_04</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame04,
-    /// <summary><c>misc_dust_long_beam_frame_05</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame05,
-    /// <summary><c>misc_dust_long_beam_frame_06</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame06,
-    /// <summary><c>misc_dust_long_beam_frame_07</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame07,
-    /// <summary><c>misc_dust_long_beam_frame_08</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame08,
-    /// <summary><c>misc_dust_long_beam_frame_09</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame09,
-    /// <summary><c>misc_dust_long_beam_frame_10</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame10,
-    /// <summary><c>misc_dust_long_beam_frame_11</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame11,
-    /// <summary><c>misc_dust_long_beam_frame_12</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame12,
-    /// <summary><c>misc_dust_long_beam_frame_13</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame13,
-    /// <summary><c>misc_dust_long_beam_frame_14</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame14,
-    /// <summary><c>misc_dust_long_beam_frame_15</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame15,
-    /// <summary><c>misc_dust_long_beam_frame_16</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame16,
-    /// <summary><c>misc_dust_long_beam_frame_17</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame17,
-    /// <summary><c>misc_dust_long_beam_frame_18</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame18,
-    /// <summary><c>misc_dust_long_beam_frame_19</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame19,
-    /// <summary><c>misc_dust_long_beam_frame_20</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame20,
-    /// <summary><c>misc_dust_long_beam_frame_21</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame21,
-    /// <summary><c>misc_dust_long_beam_frame_22</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame22,
-    /// <summary><c>misc_dust_long_beam_frame_23</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame23,
-    /// <summary><c>misc_dust_long_beam_frame_24</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame24,
-    /// <summary><c>misc_dust_long_beam_frame_25</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame25,
-    /// <summary><c>misc_dust_long_beam_frame_26</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame26,
-    /// <summary><c>misc_dust_long_beam_frame_27</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame27,
-    /// <summary><c>misc_dust_long_beam_frame_28</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame28,
-    /// <summary><c>misc_dust_long_beam_frame_29</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame29,
-    /// <summary><c>misc_dust_long_beam_frame_30</c>, an installed program frame.</summary>
-    MiscDustLongBeamFrame30,
-    /// <summary><c>misc_dust_flickering_long_beam_frame_00</c>, an installed program frame.</summary>
-    MiscDustFlickeringLongBeamFrame00,
-    /// <summary><c>misc_dust_flickering_long_beam_frame_01</c>, an installed program frame.</summary>
-    MiscDustFlickeringLongBeamFrame01,
-    /// <summary><c>misc_dust_flickering_long_beam_frame_02</c>, an installed program frame.</summary>
-    MiscDustFlickeringLongBeamFrame02,
-    /// <summary><c>misc_dust_draygon_breath_bubbles_frame_00</c>, an installed program frame.</summary>
-    MiscDustDraygonBreathBubblesFrame00,
-    /// <summary><c>misc_dust_draygon_breath_bubbles_frame_01</c>, an installed program frame.</summary>
-    MiscDustDraygonBreathBubblesFrame01,
-    /// <summary><c>misc_dust_draygon_breath_bubbles_frame_02</c>, an installed program frame.</summary>
-    MiscDustDraygonBreathBubblesFrame02,
-    /// <summary><c>misc_dust_draygon_breath_bubbles_frame_03</c>, an installed program frame.</summary>
-    MiscDustDraygonBreathBubblesFrame03,
-    /// <summary><c>misc_dust_draygon_breath_bubbles_frame_04</c>, an installed program frame.</summary>
-    MiscDustDraygonBreathBubblesFrame04,
-    /// <summary><c>misc_dust_draygon_breath_bubbles_frame_05</c>, an installed program frame.</summary>
-    MiscDustDraygonBreathBubblesFrame05,
-    /// <summary><c>misc_dust_draygon_breath_bubbles_frame_06</c>, an installed program frame.</summary>
-    MiscDustDraygonBreathBubblesFrame06,
-    /// <summary><c>misc_dust_draygon_breath_bubbles_frame_07</c>, an installed program frame.</summary>
-    MiscDustDraygonBreathBubblesFrame07,
-    /// <summary><c>misc_dust_draygon_breath_bubbles_frame_08</c>, an installed program frame.</summary>
-    MiscDustDraygonBreathBubblesFrame08,
-    /// <summary><c>misc_dust_save_station_electricity_frame_00</c>, an installed program frame.</summary>
-    MiscDustSaveStationElectricityFrame00,
-    /// <summary><c>misc_dust_save_station_electricity_frame_01</c>, an installed program frame.</summary>
-    MiscDustSaveStationElectricityFrame01,
-    /// <summary><c>misc_dust_save_station_electricity_frame_02</c>, an installed program frame.</summary>
-    MiscDustSaveStationElectricityFrame02,
-    /// <summary><c>misc_dust_save_station_electricity_frame_03</c>, an installed program frame.</summary>
-    MiscDustSaveStationElectricityFrame03,
-    /// <summary><c>misc_dust_save_station_electricity_frame_04</c>, an installed program frame.</summary>
-    MiscDustSaveStationElectricityFrame04,
-    /// <summary><c>misc_dust_save_station_electricity_frame_05</c>, an installed program frame.</summary>
-    MiscDustSaveStationElectricityFrame05,
-    /// <summary><c>misc_dust_save_station_electricity_frame_06</c>, an installed program frame.</summary>
-    MiscDustSaveStationElectricityFrame06,
-    /// <summary><c>misc_dust_save_station_electricity_frame_07</c>, an installed program frame.</summary>
-    MiscDustSaveStationElectricityFrame07,
-    /// <summary><c>misc_dust_expanding_gate_frame_00</c>, an installed program frame.</summary>
-    MiscDustExpandingGateFrame00,
-    /// <summary><c>misc_dust_expanding_gate_frame_01</c>, an installed program frame.</summary>
-    MiscDustExpandingGateFrame01,
-    /// <summary><c>misc_dust_expanding_gate_frame_02</c>, an installed program frame.</summary>
-    MiscDustExpandingGateFrame02,
-    /// <summary><c>misc_dust_expanding_gate_frame_03</c>, an installed program frame.</summary>
-    MiscDustExpandingGateFrame03,
-    /// <summary><c>misc_dust_expanding_gate_frame_04</c>, an installed program frame.</summary>
-    MiscDustExpandingGateFrame04,
-    /// <summary><c>misc_dust_expanding_gate_frame_05</c>, an installed program frame.</summary>
-    MiscDustExpandingGateFrame05,
-    /// <summary><c>misc_dust_expanding_gate_frame_06</c>, an installed program frame.</summary>
-    MiscDustExpandingGateFrame06,
-    /// <summary><c>misc_dust_expanding_gate_frame_07</c>, an installed program frame.</summary>
-    MiscDustExpandingGateFrame07,
-    /// <summary><c>misc_dust_contracting_gate_frame_00</c>, an installed program frame.</summary>
-    MiscDustContractingGateFrame00,
-    /// <summary><c>misc_dust_contracting_gate_frame_01</c>, an installed program frame.</summary>
-    MiscDustContractingGateFrame01,
-    /// <summary><c>misc_dust_contracting_gate_frame_02</c>, an installed program frame.</summary>
-    MiscDustContractingGateFrame02,
-    /// <summary><c>misc_dust_contracting_gate_frame_03</c>, an installed program frame.</summary>
-    MiscDustContractingGateFrame03,
-    /// <summary><c>misc_dust_contracting_gate_frame_04</c>, an installed program frame.</summary>
-    MiscDustContractingGateFrame04,
-    /// <summary><c>misc_dust_contracting_gate_frame_05</c>, an installed program frame.</summary>
-    MiscDustContractingGateFrame05,
-    /// <summary><c>misc_dust_contracting_gate_frame_06</c>, an installed program frame.</summary>
-    MiscDustContractingGateFrame06,
-    /// <summary><c>misc_dust_contracting_gate_frame_07</c>, an installed program frame.</summary>
-    MiscDustContractingGateFrame07,
-    /// <summary><c>downward_gate_frame_00</c>, an installed program frame.</summary>
-    DownwardGateFrame00,
-    /// <summary><c>downward_gate_frame_01</c>, an installed program frame.</summary>
-    DownwardGateFrame01,
-    /// <summary><c>downward_gate_frame_02</c>, an installed program frame.</summary>
-    DownwardGateFrame02,
-    /// <summary><c>downward_gate_frame_03</c>, an installed program frame.</summary>
-    DownwardGateFrame03,
-    /// <summary><c>downward_gate_frame_04</c>, an installed program frame.</summary>
-    DownwardGateFrame04,
-    /// <summary><c>downward_gate_frame_05</c>, an installed program frame.</summary>
-    DownwardGateFrame05,
-    /// <summary><c>downward_gate_frame_06</c>, an installed program frame.</summary>
-    DownwardGateFrame06,
-    /// <summary><c>downward_gate_frame_07</c>, an installed program frame.</summary>
-    DownwardGateFrame07,
-    /// <summary><c>downward_gate_frame_08</c>, an installed program frame.</summary>
-    DownwardGateFrame08,
-    /// <summary><c>save_station_electricity_frame_00</c>, an installed program frame.</summary>
-    SaveStationElectricityFrame00,
-    /// <summary><c>save_station_electricity_frame_01</c>, an installed program frame.</summary>
-    SaveStationElectricityFrame01,
-    /// <summary><c>save_station_electricity_frame_02</c>, an installed program frame.</summary>
-    SaveStationElectricityFrame02,
-    /// <summary><c>save_station_electricity_frame_03</c>, an installed program frame.</summary>
-    SaveStationElectricityFrame03,
-    /// <summary><c>save_station_electricity_frame_04</c>, an installed program frame.</summary>
-    SaveStationElectricityFrame04,
-    /// <summary><c>save_station_electricity_frame_05</c>, an installed program frame.</summary>
-    SaveStationElectricityFrame05,
-    /// <summary><c>save_station_electricity_frame_06</c>, an installed program frame.</summary>
-    SaveStationElectricityFrame06,
-    /// <summary><c>save_station_electricity_frame_07</c>, an installed program frame.</summary>
-    SaveStationElectricityFrame07,
-    /// <summary><c>botwoon_frame_00</c>, an installed program frame.</summary>
-    BotwoonFrame00,
-    /// <summary><c>botwoon_frame_01</c>, an installed program frame.</summary>
-    BotwoonFrame01,
-    /// <summary><c>botwoon_frame_02</c>, an installed program frame.</summary>
-    BotwoonFrame02,
-    /// <summary><c>botwoon_frame_03</c>, an installed program frame.</summary>
-    BotwoonFrame03,
-    /// <summary><c>botwoon_frame_04</c>, an installed program frame.</summary>
-    BotwoonFrame04,
-    /// <summary><c>botwoon_frame_05</c>, an installed program frame.</summary>
-    BotwoonFrame05,
-    /// <summary><c>botwoon_frame_06</c>, an installed program frame.</summary>
-    BotwoonFrame06,
-    /// <summary><c>botwoon_frame_07</c>, an installed program frame.</summary>
-    BotwoonFrame07,
-    /// <summary><c>botwoon_frame_08</c>, an installed program frame.</summary>
-    BotwoonFrame08,
-    /// <summary><c>botwoon_frame_09</c>, an installed program frame.</summary>
-    BotwoonFrame09,
-    /// <summary><c>botwoon_frame_10</c>, an installed program frame.</summary>
-    BotwoonFrame10,
-    /// <summary><c>botwoon_frame_11</c>, an installed program frame.</summary>
-    BotwoonFrame11,
-    /// <summary><c>botwoon_frame_12</c>, an installed program frame.</summary>
-    BotwoonFrame12,
-    /// <summary><c>botwoon_frame_13</c>, an installed program frame.</summary>
-    BotwoonFrame13,
-    /// <summary><c>botwoon_frame_14</c>, an installed program frame.</summary>
-    BotwoonFrame14,
-    /// <summary><c>botwoon_frame_15</c>, an installed program frame.</summary>
-    BotwoonFrame15,
-    /// <summary><c>botwoon_frame_16</c>, an installed program frame.</summary>
-    BotwoonFrame16,
-    /// <summary><c>botwoon_frame_17</c>, an installed program frame.</summary>
-    BotwoonFrame17,
-    /// <summary><c>botwoon_frame_18</c>, an installed program frame.</summary>
-    BotwoonFrame18,
-    /// <summary><c>botwoon_frame_19</c>, an installed program frame.</summary>
-    BotwoonFrame19,
-    /// <summary><c>botwoon_frame_20</c>, an installed program frame.</summary>
-    BotwoonFrame20,
-    /// <summary><c>botwoon_frame_21</c>, an installed program frame.</summary>
-    BotwoonFrame21,
-    /// <summary><c>botwoon_frame_22</c>, an installed program frame.</summary>
-    BotwoonFrame22,
-    /// <summary><c>botwoon_frame_23</c>, an installed program frame.</summary>
-    BotwoonFrame23,
-    /// <summary><c>botwoon_frame_24</c>, an installed program frame.</summary>
-    BotwoonFrame24,
-    /// <summary><c>botwoon_frame_25</c>, an installed program frame.</summary>
-    BotwoonFrame25,
-    /// <summary><c>botwoon_frame_26</c>, an installed program frame.</summary>
-    BotwoonFrame26,
-    /// <summary><c>botwoon_frame_27</c>, an installed program frame.</summary>
-    BotwoonFrame27,
-    /// <summary><c>botwoon_frame_28</c>, an installed program frame.</summary>
-    BotwoonFrame28,
-    /// <summary><c>botwoon_frame_29</c>, an installed program frame.</summary>
-    BotwoonFrame29,
-    /// <summary><c>botwoon_frame_30</c>, an installed program frame.</summary>
-    BotwoonFrame30,
-    /// <summary><c>botwoon_frame_31</c>, an installed program frame.</summary>
-    BotwoonFrame31,
-    /// <summary><c>botwoon_frame_32</c>, an installed program frame.</summary>
-    BotwoonFrame32,
-    /// <summary><c>botwoon_frame_33</c>, an installed program frame.</summary>
-    BotwoonFrame33,
-    /// <summary><c>botwoon_frame_34</c>, an installed program frame.</summary>
-    BotwoonFrame34,
-    /// <summary><c>botwoon_frame_35</c>, an installed program frame.</summary>
-    BotwoonFrame35,
-    /// <summary><c>botwoon_frame_36</c>, an installed program frame.</summary>
-    BotwoonFrame36,
-    /// <summary><c>botwoon_frame_37</c>, an installed program frame.</summary>
-    BotwoonFrame37,
-    /// <summary><c>botwoon_frame_38</c>, an installed program frame.</summary>
-    BotwoonFrame38,
-    /// <summary><c>botwoon_frame_39</c>, an installed program frame.</summary>
-    BotwoonFrame39,
-    /// <summary><c>botwoon_frame_40</c>, an installed program frame.</summary>
-    BotwoonFrame40,
-    /// <summary><c>botwoon_frame_41</c>, an installed program frame.</summary>
-    BotwoonFrame41,
-    /// <summary><c>botwoon_frame_42</c>, an installed program frame.</summary>
-    BotwoonFrame42,
-    /// <summary><c>botwoon_frame_43</c>, an installed program frame.</summary>
-    BotwoonFrame43,
-    /// <summary><c>botwoon_frame_44</c>, an installed program frame.</summary>
-    BotwoonFrame44,
-    /// <summary><c>botwoon_frame_45</c>, an installed program frame.</summary>
-    BotwoonFrame45,
-    /// <summary><c>yapping_maw_frame_00</c>, an installed program frame.</summary>
-    YappingMawFrame00,
-    /// <summary><c>yapping_maw_frame_01</c>, an installed program frame.</summary>
-    YappingMawFrame01,
-    /// <summary><c>enemy_death_frame_00</c>, an installed program frame.</summary>
-    EnemyDeathFrame00,
-    /// <summary><c>enemy_death_frame_01</c>, an installed program frame.</summary>
-    EnemyDeathFrame01,
-    /// <summary><c>enemy_death_frame_02</c>, an installed program frame.</summary>
-    EnemyDeathFrame02,
-    /// <summary><c>enemy_death_frame_03</c>, an installed program frame.</summary>
-    EnemyDeathFrame03,
-    /// <summary><c>enemy_death_frame_04</c>, an installed program frame.</summary>
-    EnemyDeathFrame04,
-    /// <summary><c>enemy_death_frame_05</c>, an installed program frame.</summary>
-    EnemyDeathFrame05,
-    /// <summary><c>enemy_death_frame_06</c>, an installed program frame.</summary>
-    EnemyDeathFrame06,
-    /// <summary><c>enemy_death_frame_07</c>, an installed program frame.</summary>
-    EnemyDeathFrame07,
-    /// <summary><c>enemy_death_frame_08</c>, an installed program frame.</summary>
-    EnemyDeathFrame08,
-    /// <summary><c>enemy_death_frame_09</c>, an installed program frame.</summary>
-    EnemyDeathFrame09,
-    /// <summary><c>enemy_death_frame_10</c>, an installed program frame.</summary>
-    EnemyDeathFrame10,
-    /// <summary><c>enemy_death_frame_11</c>, an installed program frame.</summary>
-    EnemyDeathFrame11,
-    /// <summary><c>enemy_death_frame_12</c>, an installed program frame.</summary>
-    EnemyDeathFrame12,
-    /// <summary><c>enemy_death_frame_13</c>, an installed program frame.</summary>
-    EnemyDeathFrame13,
-    /// <summary><c>enemy_death_frame_14</c>, an installed program frame.</summary>
-    EnemyDeathFrame14,
-    /// <summary><c>enemy_pickup_frame_00</c>, an installed program frame.</summary>
-    EnemyPickupFrame00,
-    /// <summary><c>enemy_pickup_frame_01</c>, an installed program frame.</summary>
-    EnemyPickupFrame01,
-    /// <summary><c>enemy_pickup_frame_02</c>, an installed program frame.</summary>
-    EnemyPickupFrame02,
-    /// <summary><c>enemy_pickup_frame_03</c>, an installed program frame.</summary>
-    EnemyPickupFrame03,
-    /// <summary><c>enemy_pickup_frame_04</c>, an installed program frame.</summary>
-    EnemyPickupFrame04,
-    /// <summary><c>enemy_pickup_frame_05</c>, an installed program frame.</summary>
-    EnemyPickupFrame05,
-    /// <summary><c>enemy_pickup_frame_06</c>, an installed program frame.</summary>
-    EnemyPickupFrame06,
-    /// <summary><c>enemy_pickup_frame_07</c>, an installed program frame.</summary>
-    EnemyPickupFrame07,
-    /// <summary><c>enemy_pickup_frame_08</c>, an installed program frame.</summary>
-    EnemyPickupFrame08,
-    /// <summary><c>enemy_pickup_frame_09</c>, an installed program frame.</summary>
-    EnemyPickupFrame09,
-    /// <summary><c>enemy_pickup_frame_10</c>, an installed program frame.</summary>
-    EnemyPickupFrame10,
-    /// <summary><c>enemy_pickup_frame_11</c>, an installed program frame.</summary>
-    EnemyPickupFrame11,
-    /// <summary><c>enemy_pickup_frame_12</c>, an installed program frame.</summary>
-    EnemyPickupFrame12,
-    /// <summary><c>enemy_pickup_frame_13</c>, an installed program frame.</summary>
-    EnemyPickupFrame13,
-    /// <summary><c>enemy_pickup_frame_14</c>, an installed program frame.</summary>
-    EnemyPickupFrame14,
-    /// <summary><c>enemy_pickup_frame_15</c>, an installed program frame.</summary>
-    EnemyPickupFrame15,
-    /// <summary><c>enemy_death_frame_15</c>, an installed program frame.</summary>
-    EnemyDeathFrame15,
-    /// <summary><c>enemy_death_frame_16</c>, an installed program frame.</summary>
-    EnemyDeathFrame16,
-    /// <summary><c>enemy_death_frame_17</c>, an installed program frame.</summary>
-    EnemyDeathFrame17,
-    /// <summary><c>enemy_death_frame_18</c>, an installed program frame.</summary>
-    EnemyDeathFrame18,
-    /// <summary><c>enemy_death_frame_19</c>, an installed program frame.</summary>
-    EnemyDeathFrame19,
-    /// <summary><c>enemy_death_frame_20</c>, an installed program frame.</summary>
-    EnemyDeathFrame20,
-    /// <summary><c>enemy_death_frame_21</c>, an installed program frame.</summary>
-    EnemyDeathFrame21,
-    /// <summary><c>enemy_death_frame_22</c>, an installed program frame.</summary>
-    EnemyDeathFrame22,
-    /// <summary><c>enemy_death_frame_23</c>, an installed program frame.</summary>
-    EnemyDeathFrame23,
-    /// <summary><c>enemy_death_frame_24</c>, an installed program frame.</summary>
-    EnemyDeathFrame24,
-    /// <summary><c>enemy_death_frame_25</c>, an installed program frame.</summary>
-    EnemyDeathFrame25,
-    /// <summary><c>enemy_death_frame_26</c>, an installed program frame.</summary>
-    EnemyDeathFrame26,
-    /// <summary><c>enemy_death_frame_27</c>, an installed program frame.</summary>
-    EnemyDeathFrame27,
-    /// <summary><c>enemy_death_frame_28</c>, an installed program frame.</summary>
-    EnemyDeathFrame28,
-    /// <summary><c>enemy_death_frame_29</c>, an installed program frame.</summary>
-    EnemyDeathFrame29,
-    /// <summary><c>enemy_death_frame_30</c>, an installed program frame.</summary>
-    EnemyDeathFrame30,
-    /// <summary><c>falling_spark_frame_00</c>, an installed program frame.</summary>
-    FallingSparkFrame00,
-    /// <summary><c>falling_spark_frame_01</c>, an installed program frame.</summary>
-    FallingSparkFrame01,
-    /// <summary><c>falling_spark_frame_02</c>, an installed program frame.</summary>
-    FallingSparkFrame02,
-    /// <summary><c>falling_spark_frame_03</c>, an installed program frame.</summary>
-    FallingSparkFrame03,
-    /// <summary><c>falling_spark_frame_04</c>, an installed program frame.</summary>
-    FallingSparkFrame04,
-    /// <summary><c>falling_spark_frame_05</c>, an installed program frame.</summary>
-    FallingSparkFrame05,
-    /// <summary><c>falling_spark_frame_06</c>, an installed program frame.</summary>
-    FallingSparkFrame06,
-    /// <summary><c>falling_spark_frame_07</c>, an installed program frame.</summary>
-    FallingSparkFrame07,
-    /// <summary><c>falling_spark_frame_08</c>, an installed program frame.</summary>
-    FallingSparkFrame08,
-    /// <summary><c>falling_spark_frame_09</c>, an installed program frame.</summary>
-    FallingSparkFrame09,
-    /// <summary><c>falling_spark_frame_10</c>, an installed program frame.</summary>
-    FallingSparkFrame10,
-    /// <summary><c>falling_spark_frame_11</c>, an installed program frame.</summary>
-    FallingSparkFrame11,
-    /// <summary><c>falling_spark_frame_12</c>, an installed program frame.</summary>
-    FallingSparkFrame12,
-    /// <summary><c>falling_spark_frame_13</c>, an installed program frame.</summary>
-    FallingSparkFrame13,
-    /// <summary><c>ceres_elevator_pad_0</c>, a composition.</summary>
-    CeresElevatorPad0,
-    /// <summary><c>ceres_elevator_pad_1</c>, a composition.</summary>
-    CeresElevatorPad1,
+    /// <summary><c>mother_brain_drool_hit_floor_first</c>, an installed program frame.</summary>
+    MotherBrainDroolHitFloorFirst,
+    /// <summary><c>mother_brain_drool_hit_floor_second</c>, an installed program frame.</summary>
+    MotherBrainDroolHitFloorSecond,
+    /// <summary><c>mother_brain_drool_hit_floor_third</c>, an installed program frame.</summary>
+    MotherBrainDroolHitFloorThird,
+    /// <summary><c>mother_brain_drool_hit_floor_fourth</c>, an installed program frame.</summary>
+    MotherBrainDroolHitFloorFourth,
+    /// <summary><c>mother_brain_escape_door_particle_first</c>, an installed program frame.</summary>
+    MotherBrainEscapeDoorParticleFirst,
+    /// <summary><c>mother_brain_escape_door_particle_second</c>, an installed program frame.</summary>
+    MotherBrainEscapeDoorParticleSecond,
+    /// <summary><c>mother_brain_escape_door_particle_third</c>, an installed program frame.</summary>
+    MotherBrainEscapeDoorParticleThird,
+    /// <summary><c>mother_brain_escape_door_particle_fourth</c>, an installed program frame.</summary>
+    MotherBrainEscapeDoorParticleFourth,
+    /// <summary><c>mother_brain_escape_door_particle_fifth</c>, an installed program frame.</summary>
+    MotherBrainEscapeDoorParticleFifth,
+    /// <summary><c>mother_brain_escape_door_particle_sixth</c>, an installed program frame.</summary>
+    MotherBrainEscapeDoorParticleSixth,
+    /// <summary><c>mother_brain_escape_door_particle_seventh</c>, an installed program frame.</summary>
+    MotherBrainEscapeDoorParticleSeventh,
+    /// <summary><c>mother_brain_escape_door_particle_eighth</c>, an installed program frame.</summary>
+    MotherBrainEscapeDoorParticleEighth,
+    /// <summary><c>mother_brain_purple_breath_big_first</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathBigFirst,
+    /// <summary><c>mother_brain_purple_breath_big_second</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathBigSecond,
+    /// <summary><c>mother_brain_purple_breath_big_third</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathBigThird,
+    /// <summary><c>mother_brain_purple_breath_big_fourth</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathBigFourth,
+    /// <summary><c>mother_brain_purple_breath_big_fifth</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathBigFifth,
+    /// <summary><c>mother_brain_purple_breath_big_sixth</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathBigSixth,
+    /// <summary><c>mother_brain_purple_breath_big_seventh</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathBigSeventh,
+    /// <summary><c>mother_brain_purple_breath_big_eighth</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathBigEighth,
+    /// <summary><c>mother_brain_purple_breath_small_first</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathSmallFirst,
+    /// <summary><c>mother_brain_purple_breath_small_second</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathSmallSecond,
+    /// <summary><c>mother_brain_purple_breath_small_third</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathSmallThird,
+    /// <summary><c>mother_brain_purple_breath_small_fourth</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathSmallFourth,
+    /// <summary><c>mother_brain_purple_breath_small_fifth</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathSmallFifth,
+    /// <summary><c>mother_brain_purple_breath_small_sixth</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathSmallSixth,
+    /// <summary><c>mother_brain_purple_breath_small_seventh</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathSmallSeventh,
+    /// <summary><c>mother_brain_purple_breath_small_eighth</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathSmallEighth,
+    /// <summary><c>mother_brain_escape_subtitle</c>, an installed program frame.</summary>
+    MotherBrainEscapeSubtitle,
+    /// <summary><c>mother_brain_top_tube_top_right</c>, an installed program frame.</summary>
+    MotherBrainTopTubeTopRight,
+    /// <summary><c>mother_brain_top_tube_top_left</c>, an installed program frame.</summary>
+    MotherBrainTopTubeTopLeft,
+    /// <summary><c>mother_brain_top_tube_top_middle_left</c>, an installed program frame.</summary>
+    MotherBrainTopTubeTopMiddleLeft,
+    /// <summary><c>mother_brain_top_tube_top_middle_right</c>, an installed program frame.</summary>
+    MotherBrainTopTubeTopMiddleRight,
+    /// <summary><c>mother_brain_glass_first_shard_group_first</c>, an installed program frame.</summary>
+    MotherBrainGlassFirstShardGroupFirst,
+    /// <summary><c>mother_brain_glass_first_shard_group_second</c>, an installed program frame.</summary>
+    MotherBrainGlassFirstShardGroupSecond,
+    /// <summary><c>mother_brain_glass_first_shard_group_third</c>, an installed program frame.</summary>
+    MotherBrainGlassFirstShardGroupThird,
+    /// <summary><c>mother_brain_glass_first_shard_group_fourth</c>, an installed program frame.</summary>
+    MotherBrainGlassFirstShardGroupFourth,
+    /// <summary><c>mother_brain_glass_first_shard_group_fifth</c>, an installed program frame.</summary>
+    MotherBrainGlassFirstShardGroupFifth,
+    /// <summary><c>mother_brain_glass_first_shard_group_sixth</c>, an installed program frame.</summary>
+    MotherBrainGlassFirstShardGroupSixth,
+    /// <summary><c>mother_brain_glass_first_shard_group_seventh</c>, an installed program frame.</summary>
+    MotherBrainGlassFirstShardGroupSeventh,
+    /// <summary><c>mother_brain_glass_first_shard_group_eighth</c>, an installed program frame.</summary>
+    MotherBrainGlassFirstShardGroupEighth,
+    /// <summary><c>mother_brain_glass_second_shard_group_first</c>, an installed program frame.</summary>
+    MotherBrainGlassSecondShardGroupFirst,
+    /// <summary><c>mother_brain_glass_second_shard_group_second</c>, an installed program frame.</summary>
+    MotherBrainGlassSecondShardGroupSecond,
+    /// <summary><c>mother_brain_glass_second_shard_group_third</c>, an installed program frame.</summary>
+    MotherBrainGlassSecondShardGroupThird,
+    /// <summary><c>mother_brain_glass_second_shard_group_fourth</c>, an installed program frame.</summary>
+    MotherBrainGlassSecondShardGroupFourth,
+    /// <summary><c>mother_brain_glass_second_shard_group_fifth</c>, an installed program frame.</summary>
+    MotherBrainGlassSecondShardGroupFifth,
+    /// <summary><c>mother_brain_glass_second_shard_group_sixth</c>, an installed program frame.</summary>
+    MotherBrainGlassSecondShardGroupSixth,
+    /// <summary><c>mother_brain_glass_second_shard_group_seventh</c>, an installed program frame.</summary>
+    MotherBrainGlassSecondShardGroupSeventh,
+    /// <summary><c>mother_brain_glass_second_shard_group_eighth</c>, an installed program frame.</summary>
+    MotherBrainGlassSecondShardGroupEighth,
+    /// <summary><c>mother_brain_glass_third_shard_group_first</c>, an installed program frame.</summary>
+    MotherBrainGlassThirdShardGroupFirst,
+    /// <summary><c>mother_brain_glass_third_shard_group_second</c>, an installed program frame.</summary>
+    MotherBrainGlassThirdShardGroupSecond,
+    /// <summary><c>mother_brain_glass_third_shard_group_third</c>, an installed program frame.</summary>
+    MotherBrainGlassThirdShardGroupThird,
+    /// <summary><c>mother_brain_glass_third_shard_group_fourth</c>, an installed program frame.</summary>
+    MotherBrainGlassThirdShardGroupFourth,
+    /// <summary><c>mother_brain_glass_third_shard_group_fifth</c>, an installed program frame.</summary>
+    MotherBrainGlassThirdShardGroupFifth,
+    /// <summary><c>mother_brain_glass_third_shard_group_sixth</c>, an installed program frame.</summary>
+    MotherBrainGlassThirdShardGroupSixth,
+    /// <summary><c>mother_brain_glass_third_shard_group_seventh</c>, an installed program frame.</summary>
+    MotherBrainGlassThirdShardGroupSeventh,
+    /// <summary><c>mother_brain_glass_third_shard_group_eighth</c>, an installed program frame.</summary>
+    MotherBrainGlassThirdShardGroupEighth,
+    /// <summary><c>mother_brain_glass_fourth_shard_group_first</c>, an installed program frame.</summary>
+    MotherBrainGlassFourthShardGroupFirst,
+    /// <summary><c>mother_brain_glass_fourth_shard_group_second</c>, an installed program frame.</summary>
+    MotherBrainGlassFourthShardGroupSecond,
+    /// <summary><c>mother_brain_glass_fourth_shard_group_third</c>, an installed program frame.</summary>
+    MotherBrainGlassFourthShardGroupThird,
+    /// <summary><c>mother_brain_glass_fourth_shard_group_fourth</c>, an installed program frame.</summary>
+    MotherBrainGlassFourthShardGroupFourth,
+    /// <summary><c>mother_brain_glass_fourth_shard_group_fifth</c>, an installed program frame.</summary>
+    MotherBrainGlassFourthShardGroupFifth,
+    /// <summary><c>mother_brain_glass_fourth_shard_group_sixth</c>, an installed program frame.</summary>
+    MotherBrainGlassFourthShardGroupSixth,
+    /// <summary><c>mother_brain_glass_fourth_shard_group_seventh</c>, an installed program frame.</summary>
+    MotherBrainGlassFourthShardGroupSeventh,
+    /// <summary><c>mother_brain_glass_fourth_shard_group_eighth</c>, an installed program frame.</summary>
+    MotherBrainGlassFourthShardGroupEighth,
+    /// <summary><c>mother_brain_glass_fifth_shard_group_first</c>, an installed program frame.</summary>
+    MotherBrainGlassFifthShardGroupFirst,
+    /// <summary><c>mother_brain_glass_fifth_shard_group_second</c>, an installed program frame.</summary>
+    MotherBrainGlassFifthShardGroupSecond,
+    /// <summary><c>mother_brain_glass_fifth_shard_group_third</c>, an installed program frame.</summary>
+    MotherBrainGlassFifthShardGroupThird,
+    /// <summary><c>mother_brain_glass_fifth_shard_group_fourth</c>, an installed program frame.</summary>
+    MotherBrainGlassFifthShardGroupFourth,
+    /// <summary><c>mother_brain_glass_fifth_shard_group_fifth</c>, an installed program frame.</summary>
+    MotherBrainGlassFifthShardGroupFifth,
+    /// <summary><c>mother_brain_glass_fifth_shard_group_sixth</c>, an installed program frame.</summary>
+    MotherBrainGlassFifthShardGroupSixth,
+    /// <summary><c>mother_brain_glass_fifth_shard_group_seventh</c>, an installed program frame.</summary>
+    MotherBrainGlassFifthShardGroupSeventh,
+    /// <summary><c>mother_brain_glass_fifth_shard_group_eighth</c>, an installed program frame.</summary>
+    MotherBrainGlassFifthShardGroupEighth,
+    /// <summary><c>mother_brain_glass_sixth_shard_group_first</c>, an installed program frame.</summary>
+    MotherBrainGlassSixthShardGroupFirst,
+    /// <summary><c>mother_brain_glass_sixth_shard_group_second</c>, an installed program frame.</summary>
+    MotherBrainGlassSixthShardGroupSecond,
+    /// <summary><c>mother_brain_glass_sixth_shard_group_third</c>, an installed program frame.</summary>
+    MotherBrainGlassSixthShardGroupThird,
+    /// <summary><c>mother_brain_glass_sixth_shard_group_fourth</c>, an installed program frame.</summary>
+    MotherBrainGlassSixthShardGroupFourth,
+    /// <summary><c>mother_brain_glass_sixth_shard_group_fifth</c>, an installed program frame.</summary>
+    MotherBrainGlassSixthShardGroupFifth,
+    /// <summary><c>mother_brain_glass_sixth_shard_group_sixth</c>, an installed program frame.</summary>
+    MotherBrainGlassSixthShardGroupSixth,
+    /// <summary><c>mother_brain_glass_sixth_shard_group_seventh</c>, an installed program frame.</summary>
+    MotherBrainGlassSixthShardGroupSeventh,
+    /// <summary><c>mother_brain_glass_sixth_shard_group_eighth</c>, an installed program frame.</summary>
+    MotherBrainGlassSixthShardGroupEighth,
+    /// <summary><c>mother_brain_glass_seventh_shard_group_first</c>, an installed program frame.</summary>
+    MotherBrainGlassSeventhShardGroupFirst,
+    /// <summary><c>mother_brain_glass_seventh_shard_group_second</c>, an installed program frame.</summary>
+    MotherBrainGlassSeventhShardGroupSecond,
+    /// <summary><c>mother_brain_glass_seventh_shard_group_third</c>, an installed program frame.</summary>
+    MotherBrainGlassSeventhShardGroupThird,
+    /// <summary><c>mother_brain_glass_seventh_shard_group_fourth</c>, an installed program frame.</summary>
+    MotherBrainGlassSeventhShardGroupFourth,
+    /// <summary><c>mother_brain_glass_seventh_shard_group_fifth</c>, an installed program frame.</summary>
+    MotherBrainGlassSeventhShardGroupFifth,
+    /// <summary><c>mother_brain_glass_seventh_shard_group_sixth</c>, an installed program frame.</summary>
+    MotherBrainGlassSeventhShardGroupSixth,
+    /// <summary><c>mother_brain_glass_seventh_shard_group_seventh</c>, an installed program frame.</summary>
+    MotherBrainGlassSeventhShardGroupSeventh,
+    /// <summary><c>mother_brain_glass_seventh_shard_group_eighth</c>, an installed program frame.</summary>
+    MotherBrainGlassSeventhShardGroupEighth,
+    /// <summary><c>mother_brain_glass_eighth_shard_group_first</c>, an installed program frame.</summary>
+    MotherBrainGlassEighthShardGroupFirst,
+    /// <summary><c>mother_brain_glass_eighth_shard_group_second</c>, an installed program frame.</summary>
+    MotherBrainGlassEighthShardGroupSecond,
+    /// <summary><c>mother_brain_glass_eighth_shard_group_third</c>, an installed program frame.</summary>
+    MotherBrainGlassEighthShardGroupThird,
+    /// <summary><c>mother_brain_glass_eighth_shard_group_fourth</c>, an installed program frame.</summary>
+    MotherBrainGlassEighthShardGroupFourth,
+    /// <summary><c>mother_brain_glass_eighth_shard_group_fifth</c>, an installed program frame.</summary>
+    MotherBrainGlassEighthShardGroupFifth,
+    /// <summary><c>mother_brain_glass_eighth_shard_group_sixth</c>, an installed program frame.</summary>
+    MotherBrainGlassEighthShardGroupSixth,
+    /// <summary><c>mother_brain_glass_eighth_shard_group_seventh</c>, an installed program frame.</summary>
+    MotherBrainGlassEighthShardGroupSeventh,
+    /// <summary><c>mother_brain_glass_eighth_shard_group_eighth</c>, an installed program frame.</summary>
+    MotherBrainGlassEighthShardGroupEighth,
+    /// <summary><c>mother_brain_glass_sparkle_first</c>, an installed program frame.</summary>
+    MotherBrainGlassSparkleFirst,
+    /// <summary><c>mother_brain_glass_sparkle_second</c>, an installed program frame.</summary>
+    MotherBrainGlassSparkleSecond,
+    /// <summary><c>mother_brain_glass_sparkle_third</c>, an installed program frame.</summary>
+    MotherBrainGlassSparkleThird,
+    /// <summary><c>mother_brain_glass_sparkle_fourth</c>, an installed program frame.</summary>
+    MotherBrainGlassSparkleFourth,
+    /// <summary><c>ki_hunter_acid_spit_left_first</c>, an installed program frame.</summary>
+    KiHunterAcidSpitLeftFirst,
+    /// <summary><c>ki_hunter_acid_spit_left_second</c>, an installed program frame.</summary>
+    KiHunterAcidSpitLeftSecond,
+    /// <summary><c>ki_hunter_acid_spit_left_third</c>, an installed program frame.</summary>
+    KiHunterAcidSpitLeftThird,
+    /// <summary><c>ki_hunter_acid_spit_left_fourth</c>, an installed program frame.</summary>
+    KiHunterAcidSpitLeftFourth,
+    /// <summary><c>ki_hunter_acid_spit_left_fifth</c>, an installed program frame.</summary>
+    KiHunterAcidSpitLeftFifth,
+    /// <summary><c>ki_hunter_acid_spit_left_sixth</c>, an installed program frame.</summary>
+    KiHunterAcidSpitLeftSixth,
+    /// <summary><c>ki_hunter_acid_spit_left_seventh</c>, an installed program frame.</summary>
+    KiHunterAcidSpitLeftSeventh,
+    /// <summary><c>ki_hunter_acid_spit_hit_floor_first</c>, an installed program frame.</summary>
+    KiHunterAcidSpitHitFloorFirst,
+    /// <summary><c>ki_hunter_acid_spit_hit_floor_second</c>, an installed program frame.</summary>
+    KiHunterAcidSpitHitFloorSecond,
+    /// <summary><c>ki_hunter_acid_spit_hit_floor_third</c>, an installed program frame.</summary>
+    KiHunterAcidSpitHitFloorThird,
+    /// <summary><c>ki_hunter_acid_spit_hit_floor_fourth</c>, an installed program frame.</summary>
+    KiHunterAcidSpitHitFloorFourth,
+    /// <summary><c>ki_hunter_acid_spit_hit_floor_fifth</c>, an installed program frame.</summary>
+    KiHunterAcidSpitHitFloorFifth,
+    /// <summary><c>ki_hunter_acid_spit_right_first</c>, an installed program frame.</summary>
+    KiHunterAcidSpitRightFirst,
+    /// <summary><c>ki_hunter_acid_spit_right_second</c>, an installed program frame.</summary>
+    KiHunterAcidSpitRightSecond,
+    /// <summary><c>ki_hunter_acid_spit_right_third</c>, an installed program frame.</summary>
+    KiHunterAcidSpitRightThird,
+    /// <summary><c>ki_hunter_acid_spit_right_fourth</c>, an installed program frame.</summary>
+    KiHunterAcidSpitRightFourth,
+    /// <summary><c>ki_hunter_acid_spit_right_fifth</c>, an installed program frame.</summary>
+    KiHunterAcidSpitRightFifth,
+    /// <summary><c>ki_hunter_acid_spit_right_sixth</c>, an installed program frame.</summary>
+    KiHunterAcidSpitRightSixth,
+    /// <summary><c>ki_hunter_acid_spit_right_seventh</c>, an installed program frame.</summary>
+    KiHunterAcidSpitRightSeventh,
+    /// <summary><c>kago_bug_landed_first</c>, an installed program frame.</summary>
+    KagoBugLandedFirst,
+    /// <summary><c>kago_bug_landed_second</c>, an installed program frame.</summary>
+    KagoBugLandedSecond,
+    /// <summary><c>kago_bug_falling</c>, an installed program frame.</summary>
+    KagoBugFalling,
+    /// <summary><c>kago_bug_jump_start_first</c>, an installed program frame.</summary>
+    KagoBugJumpStartFirst,
+    /// <summary><c>kago_bug_jump_start_second</c>, an installed program frame.</summary>
+    KagoBugJumpStartSecond,
+    /// <summary><c>kago_bug_jump_loop</c>, an installed program frame.</summary>
+    KagoBugJumpLoop,
+    /// <summary><c>kago_bug_shot_first</c>, an installed program frame.</summary>
+    KagoBugShotFirst,
+    /// <summary><c>kago_bug_shot_second</c>, an installed program frame.</summary>
+    KagoBugShotSecond,
+    /// <summary><c>kago_bug_shot_third</c>, an installed program frame.</summary>
+    KagoBugShotThird,
+    /// <summary><c>kago_bug_shot_fourth</c>, an installed program frame.</summary>
+    KagoBugShotFourth,
+    /// <summary><c>kago_bug_shot_fifth</c>, an installed program frame.</summary>
+    KagoBugShotFifth,
+    /// <summary><c>powamp_spike_initial_first</c>, an installed program frame.</summary>
+    PowampSpikeInitialFirst,
+    /// <summary><c>powamp_spike_initial_second</c>, an installed program frame.</summary>
+    PowampSpikeInitialSecond,
+    /// <summary><c>powamp_spike_initial_third</c>, an installed program frame.</summary>
+    PowampSpikeInitialThird,
+    /// <summary><c>work_robot_laser_initial_first</c>, an installed program frame.</summary>
+    WorkRobotLaserInitialFirst,
+    /// <summary><c>work_robot_laser_initial_second</c>, an installed program frame.</summary>
+    WorkRobotLaserInitialSecond,
+    /// <summary><c>work_robot_laser_initial_third</c>, an installed program frame.</summary>
+    WorkRobotLaserInitialThird,
+    /// <summary><c>work_robot_laser_loop_first</c>, an installed program frame.</summary>
+    WorkRobotLaserLoopFirst,
+    /// <summary><c>work_robot_laser_loop_second</c>, an installed program frame.</summary>
+    WorkRobotLaserLoopSecond,
+    /// <summary><c>work_robot_laser_loop_third</c>, an installed program frame.</summary>
+    WorkRobotLaserLoopThird,
+    /// <summary><c>work_robot_laser_loop_fourth</c>, an installed program frame.</summary>
+    WorkRobotLaserLoopFourth,
+    /// <summary><c>noob_tube_first</c>, an installed program frame.</summary>
+    NoobTubeFirst,
+    /// <summary><c>noob_tube_second</c>, an installed program frame.</summary>
+    NoobTubeSecond,
+    /// <summary><c>noob_tube_third</c>, an installed program frame.</summary>
+    NoobTubeThird,
+    /// <summary><c>noob_tube_fourth</c>, an installed program frame.</summary>
+    NoobTubeFourth,
+    /// <summary><c>noob_tube_fifth</c>, an installed program frame.</summary>
+    NoobTubeFifth,
+    /// <summary><c>noob_tube_sixth</c>, an installed program frame.</summary>
+    NoobTubeSixth,
+    /// <summary><c>noob_tube_seventh</c>, an installed program frame.</summary>
+    NoobTubeSeventh,
+    /// <summary><c>noob_tube_eighth</c>, an installed program frame.</summary>
+    NoobTubeEighth,
+    /// <summary><c>noob_tube_ninth</c>, an installed program frame.</summary>
+    NoobTubeNinth,
+    /// <summary><c>noob_tube_tenth</c>, an installed program frame.</summary>
+    NoobTubeTenth,
+    /// <summary><c>noob_tube_eleventh</c>, an installed program frame.</summary>
+    NoobTubeEleventh,
+    /// <summary><c>noob_tube_twelfth</c>, an installed program frame.</summary>
+    NoobTubeTwelfth,
+    /// <summary><c>noob_tube_thirteenth</c>, an installed program frame.</summary>
+    NoobTubeThirteenth,
+    /// <summary><c>noob_tube_fourteenth</c>, an installed program frame.</summary>
+    NoobTubeFourteenth,
+    /// <summary><c>noob_tube_fifteenth</c>, an installed program frame.</summary>
+    NoobTubeFifteenth,
+    /// <summary><c>noob_tube_sixteenth</c>, an installed program frame.</summary>
+    NoobTubeSixteenth,
+    /// <summary><c>noob_tube_seventeenth</c>, an installed program frame.</summary>
+    NoobTubeSeventeenth,
+    /// <summary><c>noob_tube_eighteenth</c>, an installed program frame.</summary>
+    NoobTubeEighteenth,
+    /// <summary><c>noob_tube_nineteenth</c>, an installed program frame.</summary>
+    NoobTubeNineteenth,
+    /// <summary><c>noob_tube_twentieth</c>, an installed program frame.</summary>
+    NoobTubeTwentieth,
+    /// <summary><c>noob_tube_twenty_first</c>, an installed program frame.</summary>
+    NoobTubeTwentyFirst,
+    /// <summary><c>noob_tube_twenty_second</c>, an installed program frame.</summary>
+    NoobTubeTwentySecond,
+    /// <summary><c>noob_tube_twenty_third</c>, an installed program frame.</summary>
+    NoobTubeTwentyThird,
+    /// <summary><c>noob_tube_twenty_fourth</c>, an installed program frame.</summary>
+    NoobTubeTwentyFourth,
+    /// <summary><c>noob_tube_twenty_fifth</c>, an installed program frame.</summary>
+    NoobTubeTwentyFifth,
+    /// <summary><c>noob_tube_twenty_sixth</c>, an installed program frame.</summary>
+    NoobTubeTwentySixth,
+    /// <summary><c>noob_tube_twenty_seventh</c>, an installed program frame.</summary>
+    NoobTubeTwentySeventh,
+    /// <summary><c>noob_tube_twenty_eighth</c>, an installed program frame.</summary>
+    NoobTubeTwentyEighth,
+    /// <summary><c>noob_tube_twenty_ninth</c>, an installed program frame.</summary>
+    NoobTubeTwentyNinth,
+    /// <summary><c>noob_tube_thirtieth</c>, an installed program frame.</summary>
+    NoobTubeThirtieth,
+    /// <summary><c>noob_tube_thirty_first</c>, an installed program frame.</summary>
+    NoobTubeThirtyFirst,
+    /// <summary><c>noob_tube_thirty_second</c>, an installed program frame.</summary>
+    NoobTubeThirtySecond,
+    /// <summary><c>noob_tube_thirty_third</c>, an installed program frame.</summary>
+    NoobTubeThirtyThird,
+    /// <summary><c>noob_tube_thirty_fourth</c>, an installed program frame.</summary>
+    NoobTubeThirtyFourth,
+    /// <summary><c>noob_tube_thirty_fifth</c>, an installed program frame.</summary>
+    NoobTubeThirtyFifth,
+    /// <summary><c>noob_tube_thirty_sixth</c>, an installed program frame.</summary>
+    NoobTubeThirtySixth,
+    /// <summary><c>noob_tube_thirty_seventh</c>, an installed program frame.</summary>
+    NoobTubeThirtySeventh,
+    /// <summary><c>noob_tube_thirty_eighth</c>, an installed program frame.</summary>
+    NoobTubeThirtyEighth,
+    /// <summary><c>noob_tube_thirty_ninth</c>, an installed program frame.</summary>
+    NoobTubeThirtyNinth,
+    /// <summary><c>noob_tube_fortieth</c>, an installed program frame.</summary>
+    NoobTubeFortieth,
+    /// <summary><c>noob_tube_forty_first</c>, an installed program frame.</summary>
+    NoobTubeFortyFirst,
+    /// <summary><c>noob_tube_forty_second</c>, an installed program frame.</summary>
+    NoobTubeFortySecond,
+    /// <summary><c>noob_tube_forty_third</c>, an installed program frame.</summary>
+    NoobTubeFortyThird,
+    /// <summary><c>noob_tube_forty_fourth</c>, an installed program frame.</summary>
+    NoobTubeFortyFourth,
+    /// <summary><c>noob_tube_forty_fifth</c>, an installed program frame.</summary>
+    NoobTubeFortyFifth,
+    /// <summary><c>noob_tube_forty_sixth</c>, an installed program frame.</summary>
+    NoobTubeFortySixth,
+    /// <summary><c>noob_tube_forty_seventh</c>, an installed program frame.</summary>
+    NoobTubeFortySeventh,
+    /// <summary><c>noob_tube_forty_eighth</c>, an installed program frame.</summary>
+    NoobTubeFortyEighth,
+    /// <summary><c>noob_tube_forty_ninth</c>, an installed program frame.</summary>
+    NoobTubeFortyNinth,
+    /// <summary><c>noob_tube_fiftieth</c>, an installed program frame.</summary>
+    NoobTubeFiftieth,
+    /// <summary><c>noob_tube_fifty_first</c>, an installed program frame.</summary>
+    NoobTubeFiftyFirst,
+    /// <summary><c>noob_tube_fifty_second</c>, an installed program frame.</summary>
+    NoobTubeFiftySecond,
+    /// <summary><c>noob_tube_fifty_third</c>, an installed program frame.</summary>
+    NoobTubeFiftyThird,
+    /// <summary><c>noob_tube_fifty_fourth</c>, an installed program frame.</summary>
+    NoobTubeFiftyFourth,
+    /// <summary><c>noob_tube_fifty_fifth</c>, an installed program frame.</summary>
+    NoobTubeFiftyFifth,
+    /// <summary><c>noob_tube_fifty_sixth</c>, an installed program frame.</summary>
+    NoobTubeFiftySixth,
+    /// <summary><c>noob_tube_fifty_seventh</c>, an installed program frame.</summary>
+    NoobTubeFiftySeventh,
+    /// <summary><c>noob_tube_fifty_eighth</c>, an installed program frame.</summary>
+    NoobTubeFiftyEighth,
+    /// <summary><c>noob_tube_fifty_ninth</c>, an installed program frame.</summary>
+    NoobTubeFiftyNinth,
+    /// <summary><c>noob_tube_sixtieth</c>, an installed program frame.</summary>
+    NoobTubeSixtieth,
+    /// <summary><c>noob_tube_sixty_first</c>, an installed program frame.</summary>
+    NoobTubeSixtyFirst,
+    /// <summary><c>noob_tube_sixty_second</c>, an installed program frame.</summary>
+    NoobTubeSixtySecond,
+    /// <summary><c>noob_tube_sixty_third</c>, an installed program frame.</summary>
+    NoobTubeSixtyThird,
+    /// <summary><c>noob_tube_sixty_fourth</c>, an installed program frame.</summary>
+    NoobTubeSixtyFourth,
+    /// <summary><c>noob_tube_sixty_fifth</c>, an installed program frame.</summary>
+    NoobTubeSixtyFifth,
+    /// <summary><c>noob_tube_sixty_sixth</c>, an installed program frame.</summary>
+    NoobTubeSixtySixth,
+    /// <summary><c>noob_tube_sixty_seventh</c>, an installed program frame.</summary>
+    NoobTubeSixtySeventh,
+    /// <summary><c>noob_tube_sixty_eighth</c>, an installed program frame.</summary>
+    NoobTubeSixtyEighth,
+    /// <summary><c>noob_tube_sixty_ninth</c>, an installed program frame.</summary>
+    NoobTubeSixtyNinth,
+    /// <summary><c>noob_tube_seventieth</c>, an installed program frame.</summary>
+    NoobTubeSeventieth,
+    /// <summary><c>noob_tube_seventy_first</c>, an installed program frame.</summary>
+    NoobTubeSeventyFirst,
+    /// <summary><c>noob_tube_seventy_second</c>, an installed program frame.</summary>
+    NoobTubeSeventySecond,
+    /// <summary><c>noob_tube_seventy_third</c>, an installed program frame.</summary>
+    NoobTubeSeventyThird,
+    /// <summary><c>noob_tube_seventy_fourth</c>, an installed program frame.</summary>
+    NoobTubeSeventyFourth,
+    /// <summary><c>noob_tube_seventy_fifth</c>, an installed program frame.</summary>
+    NoobTubeSeventyFifth,
+    /// <summary><c>noob_tube_seventy_sixth</c>, an installed program frame.</summary>
+    NoobTubeSeventySixth,
+    /// <summary><c>noob_tube_seventy_seventh</c>, an installed program frame.</summary>
+    NoobTubeSeventySeventh,
+    /// <summary><c>noob_tube_seventy_eighth</c>, an installed program frame.</summary>
+    NoobTubeSeventyEighth,
+    /// <summary><c>noob_tube_seventy_ninth</c>, an installed program frame.</summary>
+    NoobTubeSeventyNinth,
+    /// <summary><c>noob_tube_eightieth</c>, an installed program frame.</summary>
+    NoobTubeEightieth,
+    /// <summary><c>noob_tube_eighty_first</c>, an installed program frame.</summary>
+    NoobTubeEightyFirst,
+    /// <summary><c>noob_tube_eighty_second</c>, an installed program frame.</summary>
+    NoobTubeEightySecond,
+    /// <summary><c>noob_tube_eighty_third</c>, an installed program frame.</summary>
+    NoobTubeEightyThird,
+    /// <summary><c>noob_tube_eighty_fourth</c>, an installed program frame.</summary>
+    NoobTubeEightyFourth,
+    /// <summary><c>noob_tube_eighty_fifth</c>, an installed program frame.</summary>
+    NoobTubeEightyFifth,
+    /// <summary><c>noob_tube_eighty_sixth</c>, an installed program frame.</summary>
+    NoobTubeEightySixth,
+    /// <summary><c>noob_tube_eighty_seventh</c>, an installed program frame.</summary>
+    NoobTubeEightySeventh,
+    /// <summary><c>noob_tube_eighty_eighth</c>, an installed program frame.</summary>
+    NoobTubeEightyEighth,
+    /// <summary><c>noob_tube_eighty_ninth</c>, an installed program frame.</summary>
+    NoobTubeEightyNinth,
+    /// <summary><c>noob_tube_ninetieth</c>, an installed program frame.</summary>
+    NoobTubeNinetieth,
+    /// <summary><c>cacatac_spike_left_facing_up</c>, an installed program frame.</summary>
+    CacatacSpikeLeftFacingUp,
+    /// <summary><c>cacatac_spike_up_left</c>, an installed program frame.</summary>
+    CacatacSpikeUpLeft,
+    /// <summary><c>cacatac_spike_up</c>, an installed program frame.</summary>
+    CacatacSpikeUp,
+    /// <summary><c>cacatac_spike_up_right</c>, an installed program frame.</summary>
+    CacatacSpikeUpRight,
+    /// <summary><c>cacatac_spike_right_facing_up</c>, an installed program frame.</summary>
+    CacatacSpikeRightFacingUp,
+    /// <summary><c>cacatac_spike_left_facing_down</c>, an installed program frame.</summary>
+    CacatacSpikeLeftFacingDown,
+    /// <summary><c>cacatac_spike_down_left</c>, an installed program frame.</summary>
+    CacatacSpikeDownLeft,
+    /// <summary><c>cacatac_spike_down</c>, an installed program frame.</summary>
+    CacatacSpikeDown,
+    /// <summary><c>cacatac_spike_down_right</c>, an installed program frame.</summary>
+    CacatacSpikeDownRight,
+    /// <summary><c>cacatac_spike_right_facing_down</c>, an installed program frame.</summary>
+    CacatacSpikeRightFacingDown,
+    /// <summary><c>stoke_initial_first</c>, an installed program frame.</summary>
+    StokeInitialFirst,
+    /// <summary><c>stoke_initial_second</c>, an installed program frame.</summary>
+    StokeInitialSecond,
+    /// <summary><c>spore_spawn_spawner_closed</c>, an installed program frame.</summary>
+    SporeSpawnSpawnerClosed,
+    /// <summary><c>spore_spawn_spawner_release_first</c>, an installed program frame.</summary>
+    SporeSpawnSpawnerReleaseFirst,
+    /// <summary><c>spore_spawn_spawner_release_second</c>, an installed program frame.</summary>
+    SporeSpawnSpawnerReleaseSecond,
+    /// <summary><c>spore_spawn_spawner_release_third</c>, an installed program frame.</summary>
+    SporeSpawnSpawnerReleaseThird,
+    /// <summary><c>spore_spawn_spawner_release_fourth</c>, an installed program frame.</summary>
+    SporeSpawnSpawnerReleaseFourth,
+    /// <summary><c>spore_spawn_spawner_release_fifth</c>, an installed program frame.</summary>
+    SporeSpawnSpawnerReleaseFifth,
+    /// <summary><c>spore_spawn_spore_first</c>, an installed program frame.</summary>
+    SporeSpawnSporeFirst,
+    /// <summary><c>spore_spawn_spore_second</c>, an installed program frame.</summary>
+    SporeSpawnSporeSecond,
+    /// <summary><c>spore_spawn_spore_third</c>, an installed program frame.</summary>
+    SporeSpawnSporeThird,
+    /// <summary><c>spore_spawn_stalk</c>, an installed program frame.</summary>
+    SporeSpawnStalk,
+    /// <summary><c>spore_spawn_spore_shot_first</c>, an installed program frame.</summary>
+    SporeSpawnSporeShotFirst,
+    /// <summary><c>spore_spawn_spore_shot_second</c>, an installed program frame.</summary>
+    SporeSpawnSporeShotSecond,
+    /// <summary><c>spore_spawn_spore_shot_third</c>, an installed program frame.</summary>
+    SporeSpawnSporeShotThird,
+    /// <summary><c>spore_spawn_spore_shot_fourth</c>, an installed program frame.</summary>
+    SporeSpawnSporeShotFourth,
+    /// <summary><c>spore_spawn_spore_shot_fifth</c>, an installed program frame.</summary>
+    SporeSpawnSporeShotFifth,
+    /// <summary><c>spore_spawn_spore_shot_sixth</c>, an installed program frame.</summary>
+    SporeSpawnSporeShotSixth,
+    /// <summary><c>spore_spawn_spore_shot_seventh</c>, an installed program frame.</summary>
+    SporeSpawnSporeShotSeventh,
+    /// <summary><c>fune_namihe_fireball_left_first</c>, an installed program frame.</summary>
+    FuneNamiheFireballLeftFirst,
+    /// <summary><c>fune_namihe_fireball_left_second</c>, an installed program frame.</summary>
+    FuneNamiheFireballLeftSecond,
+    /// <summary><c>fune_namihe_fireball_left_third</c>, an installed program frame.</summary>
+    FuneNamiheFireballLeftThird,
+    /// <summary><c>fune_namihe_fireball_right_first</c>, an installed program frame.</summary>
+    FuneNamiheFireballRightFirst,
+    /// <summary><c>fune_namihe_fireball_right_second</c>, an installed program frame.</summary>
+    FuneNamiheFireballRightSecond,
+    /// <summary><c>fune_namihe_fireball_right_third</c>, an installed program frame.</summary>
+    FuneNamiheFireballRightThird,
+    /// <summary><c>magdollite_lava_left</c>, an installed program frame.</summary>
+    MagdolliteLavaLeft,
+    /// <summary><c>magdollite_lava_right</c>, an installed program frame.</summary>
+    MagdolliteLavaRight,
+    /// <summary><c>misc_dust_beam_charge_first</c>, an installed program frame.</summary>
+    MiscDustBeamChargeFirst,
+    /// <summary><c>misc_dust_beam_charge_second</c>, an installed program frame.</summary>
+    MiscDustBeamChargeSecond,
+    /// <summary><c>misc_dust_beam_charge_third</c>, an installed program frame.</summary>
+    MiscDustBeamChargeThird,
+    /// <summary><c>misc_dust_beam_charge_fourth</c>, an installed program frame.</summary>
+    MiscDustBeamChargeFourth,
+    /// <summary><c>misc_dust_elbow_charge_particle_first</c>, an installed program frame.</summary>
+    MiscDustElbowChargeParticleFirst,
+    /// <summary><c>misc_dust_elbow_charge_particle_second</c>, an installed program frame.</summary>
+    MiscDustElbowChargeParticleSecond,
+    /// <summary><c>misc_dust_elbow_charge_particle_third</c>, an installed program frame.</summary>
+    MiscDustElbowChargeParticleThird,
+    /// <summary><c>misc_dust_elbow_charge_particle_fourth</c>, an installed program frame.</summary>
+    MiscDustElbowChargeParticleFourth,
+    /// <summary><c>misc_dust_elbow_charge_particle_fifth</c>, an installed program frame.</summary>
+    MiscDustElbowChargeParticleFifth,
+    /// <summary><c>misc_dust_elbow_charge_particle_sixth</c>, an installed program frame.</summary>
+    MiscDustElbowChargeParticleSixth,
+    /// <summary><c>misc_dust_elbow_charge_energy_first</c>, an installed program frame.</summary>
+    MiscDustElbowChargeEnergyFirst,
+    /// <summary><c>misc_dust_elbow_charge_energy_second</c>, an installed program frame.</summary>
+    MiscDustElbowChargeEnergySecond,
+    /// <summary><c>misc_dust_elbow_charge_energy_third</c>, an installed program frame.</summary>
+    MiscDustElbowChargeEnergyThird,
+    /// <summary><c>misc_dust_elbow_charge_energy_fourth</c>, an installed program frame.</summary>
+    MiscDustElbowChargeEnergyFourth,
+    /// <summary><c>misc_dust_elbow_charge_energy_fifth</c>, an installed program frame.</summary>
+    MiscDustElbowChargeEnergyFifth,
+    /// <summary><c>misc_dust_elbow_charge_energy_sixth</c>, an installed program frame.</summary>
+    MiscDustElbowChargeEnergySixth,
+    /// <summary><c>misc_dust_elbow_charge_energy_seventh</c>, an installed program frame.</summary>
+    MiscDustElbowChargeEnergySeventh,
+    /// <summary><c>misc_dust_small_explosion_first</c>, an installed program frame.</summary>
+    MiscDustSmallExplosionFirst,
+    /// <summary><c>misc_dust_small_explosion_second</c>, an installed program frame.</summary>
+    MiscDustSmallExplosionSecond,
+    /// <summary><c>misc_dust_small_explosion_third</c>, an installed program frame.</summary>
+    MiscDustSmallExplosionThird,
+    /// <summary><c>misc_dust_small_explosion_fourth</c>, an installed program frame.</summary>
+    MiscDustSmallExplosionFourth,
+    /// <summary><c>misc_dust_small_explosion_fifth</c>, an installed program frame.</summary>
+    MiscDustSmallExplosionFifth,
+    /// <summary><c>misc_dust_small_explosion_sixth</c>, an installed program frame.</summary>
+    MiscDustSmallExplosionSixth,
+    /// <summary><c>misc_dust_rainbow_beam_explosion_first</c>, an installed program frame.</summary>
+    MiscDustRainbowBeamExplosionFirst,
+    /// <summary><c>misc_dust_rainbow_beam_explosion_second</c>, an installed program frame.</summary>
+    MiscDustRainbowBeamExplosionSecond,
+    /// <summary><c>misc_dust_rainbow_beam_explosion_third</c>, an installed program frame.</summary>
+    MiscDustRainbowBeamExplosionThird,
+    /// <summary><c>misc_dust_rainbow_beam_explosion_fourth</c>, an installed program frame.</summary>
+    MiscDustRainbowBeamExplosionFourth,
+    /// <summary><c>misc_dust_rainbow_beam_explosion_fifth</c>, an installed program frame.</summary>
+    MiscDustRainbowBeamExplosionFifth,
+    /// <summary><c>misc_dust_beam_trail_first</c>, an installed program frame.</summary>
+    MiscDustBeamTrailFirst,
+    /// <summary><c>misc_dust_beam_trail_second</c>, an installed program frame.</summary>
+    MiscDustBeamTrailSecond,
+    /// <summary><c>misc_dust_beam_trail_third</c>, an installed program frame.</summary>
+    MiscDustBeamTrailThird,
+    /// <summary><c>misc_dust_beam_trail_fourth</c>, an installed program frame.</summary>
+    MiscDustBeamTrailFourth,
+    /// <summary><c>misc_dust_beam_trail_fifth</c>, an installed program frame.</summary>
+    MiscDustBeamTrailFifth,
+    /// <summary><c>misc_dust_dud_shot_first</c>, an installed program frame.</summary>
+    MiscDustDudShotFirst,
+    /// <summary><c>misc_dust_dud_shot_second</c>, an installed program frame.</summary>
+    MiscDustDudShotSecond,
+    /// <summary><c>misc_dust_dud_shot_third</c>, an installed program frame.</summary>
+    MiscDustDudShotThird,
+    /// <summary><c>misc_dust_dud_shot_fourth</c>, an installed program frame.</summary>
+    MiscDustDudShotFourth,
+    /// <summary><c>misc_dust_dud_shot_fifth</c>, an installed program frame.</summary>
+    MiscDustDudShotFifth,
+    /// <summary><c>misc_dust_dud_shot_sixth</c>, an installed program frame.</summary>
+    MiscDustDudShotSixth,
+    /// <summary><c>misc_dust_power_bomb_first</c>, an installed program frame.</summary>
+    MiscDustPowerBombFirst,
+    /// <summary><c>misc_dust_power_bomb_second</c>, an installed program frame.</summary>
+    MiscDustPowerBombSecond,
+    /// <summary><c>misc_dust_power_bomb_third</c>, an installed program frame.</summary>
+    MiscDustPowerBombThird,
+    /// <summary><c>misc_dust_elevator_pad_first</c>, an installed program frame.</summary>
+    MiscDustElevatorPadFirst,
+    /// <summary><c>misc_dust_elevator_pad_second</c>, an installed program frame.</summary>
+    MiscDustElevatorPadSecond,
+    /// <summary><c>misc_dust_small_dust_cloud_first</c>, an installed program frame.</summary>
+    MiscDustSmallDustCloudFirst,
+    /// <summary><c>misc_dust_small_dust_cloud_second</c>, an installed program frame.</summary>
+    MiscDustSmallDustCloudSecond,
+    /// <summary><c>misc_dust_small_dust_cloud_third</c>, an installed program frame.</summary>
+    MiscDustSmallDustCloudThird,
+    /// <summary><c>misc_dust_small_dust_cloud_fourth</c>, an installed program frame.</summary>
+    MiscDustSmallDustCloudFourth,
+    /// <summary><c>misc_dust_small_dust_cloud_fifth</c>, an installed program frame.</summary>
+    MiscDustSmallDustCloudFifth,
+    /// <summary><c>misc_dust_corpse_dust_cloud_first</c>, an installed program frame.</summary>
+    MiscDustCorpseDustCloudFirst,
+    /// <summary><c>misc_dust_corpse_dust_cloud_second</c>, an installed program frame.</summary>
+    MiscDustCorpseDustCloudSecond,
+    /// <summary><c>misc_dust_corpse_dust_cloud_third</c>, an installed program frame.</summary>
+    MiscDustCorpseDustCloudThird,
+    /// <summary><c>misc_dust_corpse_dust_cloud_fourth</c>, an installed program frame.</summary>
+    MiscDustCorpseDustCloudFourth,
+    /// <summary><c>misc_dust_eye_door_sweat_drop_first</c>, an installed program frame.</summary>
+    MiscDustEyeDoorSweatDropFirst,
+    /// <summary><c>misc_dust_eye_door_sweat_drop_second</c>, an installed program frame.</summary>
+    MiscDustEyeDoorSweatDropSecond,
+    /// <summary><c>misc_dust_eye_door_sweat_drop_third</c>, an installed program frame.</summary>
+    MiscDustEyeDoorSweatDropThird,
+    /// <summary><c>misc_dust_eye_door_sweat_drop_fourth</c>, an installed program frame.</summary>
+    MiscDustEyeDoorSweatDropFourth,
+    /// <summary><c>misc_dust_smoke_first</c>, an installed program frame.</summary>
+    MiscDustSmokeFirst,
+    /// <summary><c>misc_dust_smoke_second</c>, an installed program frame.</summary>
+    MiscDustSmokeSecond,
+    /// <summary><c>misc_dust_smoke_third</c>, an installed program frame.</summary>
+    MiscDustSmokeThird,
+    /// <summary><c>misc_dust_smoke_fourth</c>, an installed program frame.</summary>
+    MiscDustSmokeFourth,
+    /// <summary><c>misc_dust_looping_elevator_pad_first</c>, an installed program frame.</summary>
+    MiscDustLoopingElevatorPadFirst,
+    /// <summary><c>misc_dust_looping_elevator_pad_second</c>, an installed program frame.</summary>
+    MiscDustLoopingElevatorPadSecond,
+    /// <summary><c>misc_dust_big_explosion_first</c>, an installed program frame.</summary>
+    MiscDustBigExplosionFirst,
+    /// <summary><c>misc_dust_big_explosion_second</c>, an installed program frame.</summary>
+    MiscDustBigExplosionSecond,
+    /// <summary><c>misc_dust_big_explosion_third</c>, an installed program frame.</summary>
+    MiscDustBigExplosionThird,
+    /// <summary><c>misc_dust_big_explosion_fourth</c>, an installed program frame.</summary>
+    MiscDustBigExplosionFourth,
+    /// <summary><c>misc_dust_big_explosion_fifth</c>, an installed program frame.</summary>
+    MiscDustBigExplosionFifth,
+    /// <summary><c>misc_dust_big_explosion_sixth</c>, an installed program frame.</summary>
+    MiscDustBigExplosionSixth,
+    /// <summary><c>misc_dust_small_energy_drop_first</c>, an installed program frame.</summary>
+    MiscDustSmallEnergyDropFirst,
+    /// <summary><c>misc_dust_small_energy_drop_second</c>, an installed program frame.</summary>
+    MiscDustSmallEnergyDropSecond,
+    /// <summary><c>misc_dust_small_energy_drop_third</c>, an installed program frame.</summary>
+    MiscDustSmallEnergyDropThird,
+    /// <summary><c>misc_dust_small_energy_drop_fourth</c>, an installed program frame.</summary>
+    MiscDustSmallEnergyDropFourth,
+    /// <summary><c>misc_dust_big_energy_drop_first</c>, an installed program frame.</summary>
+    MiscDustBigEnergyDropFirst,
+    /// <summary><c>misc_dust_big_energy_drop_second</c>, an installed program frame.</summary>
+    MiscDustBigEnergyDropSecond,
+    /// <summary><c>misc_dust_big_energy_drop_third</c>, an installed program frame.</summary>
+    MiscDustBigEnergyDropThird,
+    /// <summary><c>misc_dust_big_energy_drop_fourth</c>, an installed program frame.</summary>
+    MiscDustBigEnergyDropFourth,
+    /// <summary><c>misc_dust_bomb_first</c>, an installed program frame.</summary>
+    MiscDustBombFirst,
+    /// <summary><c>misc_dust_bomb_second</c>, an installed program frame.</summary>
+    MiscDustBombSecond,
+    /// <summary><c>misc_dust_bomb_third</c>, an installed program frame.</summary>
+    MiscDustBombThird,
+    /// <summary><c>misc_dust_bomb_fourth</c>, an installed program frame.</summary>
+    MiscDustBombFourth,
+    /// <summary><c>misc_dust_weird_energy_drop_first</c>, an installed program frame.</summary>
+    MiscDustWeirdEnergyDropFirst,
+    /// <summary><c>misc_dust_weird_energy_drop_second</c>, an installed program frame.</summary>
+    MiscDustWeirdEnergyDropSecond,
+    /// <summary><c>misc_dust_weird_energy_drop_third</c>, an installed program frame.</summary>
+    MiscDustWeirdEnergyDropThird,
+    /// <summary><c>misc_dust_rock_particles_first</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFirst,
+    /// <summary><c>misc_dust_rock_particles_second</c>, an installed program frame.</summary>
+    MiscDustRockParticlesSecond,
+    /// <summary><c>misc_dust_rock_particles_third</c>, an installed program frame.</summary>
+    MiscDustRockParticlesThird,
+    /// <summary><c>misc_dust_rock_particles_fourth</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFourth,
+    /// <summary><c>misc_dust_rock_particles_fifth</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFifth,
+    /// <summary><c>misc_dust_rock_particles_sixth</c>, an installed program frame.</summary>
+    MiscDustRockParticlesSixth,
+    /// <summary><c>misc_dust_rock_particles_seventh</c>, an installed program frame.</summary>
+    MiscDustRockParticlesSeventh,
+    /// <summary><c>misc_dust_rock_particles_eighth</c>, an installed program frame.</summary>
+    MiscDustRockParticlesEighth,
+    /// <summary><c>misc_dust_rock_particles_ninth</c>, an installed program frame.</summary>
+    MiscDustRockParticlesNinth,
+    /// <summary><c>misc_dust_rock_particles_tenth</c>, an installed program frame.</summary>
+    MiscDustRockParticlesTenth,
+    /// <summary><c>misc_dust_rock_particles_eleventh</c>, an installed program frame.</summary>
+    MiscDustRockParticlesEleventh,
+    /// <summary><c>misc_dust_rock_particles_twelfth</c>, an installed program frame.</summary>
+    MiscDustRockParticlesTwelfth,
+    /// <summary><c>misc_dust_rock_particles_thirteenth</c>, an installed program frame.</summary>
+    MiscDustRockParticlesThirteenth,
+    /// <summary><c>misc_dust_rock_particles_fourteenth</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFourteenth,
+    /// <summary><c>misc_dust_rock_particles_fifteenth</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFifteenth,
+    /// <summary><c>misc_dust_rock_particles_sixteenth</c>, an installed program frame.</summary>
+    MiscDustRockParticlesSixteenth,
+    /// <summary><c>misc_dust_short_big_dust_cloud_first</c>, an installed program frame.</summary>
+    MiscDustShortBigDustCloudFirst,
+    /// <summary><c>misc_dust_short_big_dust_cloud_second</c>, an installed program frame.</summary>
+    MiscDustShortBigDustCloudSecond,
+    /// <summary><c>misc_dust_short_big_dust_cloud_third</c>, an installed program frame.</summary>
+    MiscDustShortBigDustCloudThird,
+    /// <summary><c>misc_dust_short_big_dust_cloud_fourth</c>, an installed program frame.</summary>
+    MiscDustShortBigDustCloudFourth,
+    /// <summary><c>misc_dust_short_beam_cloud_first</c>, an installed program frame.</summary>
+    MiscDustShortBeamCloudFirst,
+    /// <summary><c>misc_dust_short_beam_cloud_second</c>, an installed program frame.</summary>
+    MiscDustShortBeamCloudSecond,
+    /// <summary><c>misc_dust_short_beam_cloud_third</c>, an installed program frame.</summary>
+    MiscDustShortBeamCloudThird,
+    /// <summary><c>misc_dust_short_beam_cloud_fourth</c>, an installed program frame.</summary>
+    MiscDustShortBeamCloudFourth,
+    /// <summary><c>misc_dust_short_beam_cloud_fifth</c>, an installed program frame.</summary>
+    MiscDustShortBeamCloudFifth,
+    /// <summary><c>misc_dust_short_beam_cloud_sixth</c>, an installed program frame.</summary>
+    MiscDustShortBeamCloudSixth,
+    /// <summary><c>misc_dust_medium_beam_cloud_first</c>, an installed program frame.</summary>
+    MiscDustMediumBeamCloudFirst,
+    /// <summary><c>misc_dust_medium_beam_cloud_second</c>, an installed program frame.</summary>
+    MiscDustMediumBeamCloudSecond,
+    /// <summary><c>misc_dust_medium_beam_cloud_third</c>, an installed program frame.</summary>
+    MiscDustMediumBeamCloudThird,
+    /// <summary><c>misc_dust_medium_beam_cloud_fourth</c>, an installed program frame.</summary>
+    MiscDustMediumBeamCloudFourth,
+    /// <summary><c>misc_dust_medium_beam_cloud_fifth</c>, an installed program frame.</summary>
+    MiscDustMediumBeamCloudFifth,
+    /// <summary><c>misc_dust_medium_beam_cloud_sixth</c>, an installed program frame.</summary>
+    MiscDustMediumBeamCloudSixth,
+    /// <summary><c>misc_dust_medium_beam_cloud_seventh</c>, an installed program frame.</summary>
+    MiscDustMediumBeamCloudSeventh,
+    /// <summary><c>misc_dust_big_dust_cloud_first</c>, an installed program frame.</summary>
+    MiscDustBigDustCloudFirst,
+    /// <summary><c>misc_dust_big_dust_cloud_second</c>, an installed program frame.</summary>
+    MiscDustBigDustCloudSecond,
+    /// <summary><c>misc_dust_big_dust_cloud_third</c>, an installed program frame.</summary>
+    MiscDustBigDustCloudThird,
+    /// <summary><c>misc_dust_big_dust_cloud_fourth</c>, an installed program frame.</summary>
+    MiscDustBigDustCloudFourth,
+    /// <summary><c>misc_dust_big_dust_cloud_fifth</c>, an installed program frame.</summary>
+    MiscDustBigDustCloudFifth,
+    /// <summary><c>misc_dust_big_dust_cloud_sixth</c>, an installed program frame.</summary>
+    MiscDustBigDustCloudSixth,
+    /// <summary><c>misc_dust_big_dust_cloud_seventh</c>, an installed program frame.</summary>
+    MiscDustBigDustCloudSeventh,
+    /// <summary><c>misc_dust_big_dust_cloud_eighth</c>, an installed program frame.</summary>
+    MiscDustBigDustCloudEighth,
+    /// <summary><c>misc_dust_long_beam_first</c>, an installed program frame.</summary>
+    MiscDustLongBeamFirst,
+    /// <summary><c>misc_dust_long_beam_second</c>, an installed program frame.</summary>
+    MiscDustLongBeamSecond,
+    /// <summary><c>misc_dust_long_beam_third</c>, an installed program frame.</summary>
+    MiscDustLongBeamThird,
+    /// <summary><c>misc_dust_long_beam_fourth</c>, an installed program frame.</summary>
+    MiscDustLongBeamFourth,
+    /// <summary><c>misc_dust_long_beam_fifth</c>, an installed program frame.</summary>
+    MiscDustLongBeamFifth,
+    /// <summary><c>misc_dust_long_beam_sixth</c>, an installed program frame.</summary>
+    MiscDustLongBeamSixth,
+    /// <summary><c>misc_dust_long_beam_seventh</c>, an installed program frame.</summary>
+    MiscDustLongBeamSeventh,
+    /// <summary><c>misc_dust_long_beam_eighth</c>, an installed program frame.</summary>
+    MiscDustLongBeamEighth,
+    /// <summary><c>misc_dust_long_beam_ninth</c>, an installed program frame.</summary>
+    MiscDustLongBeamNinth,
+    /// <summary><c>misc_dust_long_beam_tenth</c>, an installed program frame.</summary>
+    MiscDustLongBeamTenth,
+    /// <summary><c>misc_dust_long_beam_eleventh</c>, an installed program frame.</summary>
+    MiscDustLongBeamEleventh,
+    /// <summary><c>misc_dust_long_beam_twelfth</c>, an installed program frame.</summary>
+    MiscDustLongBeamTwelfth,
+    /// <summary><c>misc_dust_long_beam_thirteenth</c>, an installed program frame.</summary>
+    MiscDustLongBeamThirteenth,
+    /// <summary><c>misc_dust_long_beam_fourteenth</c>, an installed program frame.</summary>
+    MiscDustLongBeamFourteenth,
+    /// <summary><c>misc_dust_long_beam_fifteenth</c>, an installed program frame.</summary>
+    MiscDustLongBeamFifteenth,
+    /// <summary><c>misc_dust_long_beam_sixteenth</c>, an installed program frame.</summary>
+    MiscDustLongBeamSixteenth,
+    /// <summary><c>misc_dust_long_beam_seventeenth</c>, an installed program frame.</summary>
+    MiscDustLongBeamSeventeenth,
+    /// <summary><c>misc_dust_long_beam_eighteenth</c>, an installed program frame.</summary>
+    MiscDustLongBeamEighteenth,
+    /// <summary><c>misc_dust_long_beam_nineteenth</c>, an installed program frame.</summary>
+    MiscDustLongBeamNineteenth,
+    /// <summary><c>misc_dust_long_beam_twentieth</c>, an installed program frame.</summary>
+    MiscDustLongBeamTwentieth,
+    /// <summary><c>misc_dust_long_beam_twenty_first</c>, an installed program frame.</summary>
+    MiscDustLongBeamTwentyFirst,
+    /// <summary><c>misc_dust_long_beam_twenty_second</c>, an installed program frame.</summary>
+    MiscDustLongBeamTwentySecond,
+    /// <summary><c>misc_dust_long_beam_twenty_third</c>, an installed program frame.</summary>
+    MiscDustLongBeamTwentyThird,
+    /// <summary><c>misc_dust_long_beam_twenty_fourth</c>, an installed program frame.</summary>
+    MiscDustLongBeamTwentyFourth,
+    /// <summary><c>misc_dust_long_beam_twenty_fifth</c>, an installed program frame.</summary>
+    MiscDustLongBeamTwentyFifth,
+    /// <summary><c>misc_dust_long_beam_twenty_sixth</c>, an installed program frame.</summary>
+    MiscDustLongBeamTwentySixth,
+    /// <summary><c>misc_dust_long_beam_twenty_seventh</c>, an installed program frame.</summary>
+    MiscDustLongBeamTwentySeventh,
+    /// <summary><c>misc_dust_long_beam_twenty_eighth</c>, an installed program frame.</summary>
+    MiscDustLongBeamTwentyEighth,
+    /// <summary><c>misc_dust_long_beam_twenty_ninth</c>, an installed program frame.</summary>
+    MiscDustLongBeamTwentyNinth,
+    /// <summary><c>misc_dust_long_beam_thirtieth</c>, an installed program frame.</summary>
+    MiscDustLongBeamThirtieth,
+    /// <summary><c>misc_dust_long_beam_thirty_first</c>, an installed program frame.</summary>
+    MiscDustLongBeamThirtyFirst,
+    /// <summary><c>misc_dust_flickering_long_beam_first</c>, an installed program frame.</summary>
+    MiscDustFlickeringLongBeamFirst,
+    /// <summary><c>misc_dust_flickering_long_beam_second</c>, an installed program frame.</summary>
+    MiscDustFlickeringLongBeamSecond,
+    /// <summary><c>misc_dust_flickering_long_beam_third</c>, an installed program frame.</summary>
+    MiscDustFlickeringLongBeamThird,
+    /// <summary><c>misc_dust_draygon_breath_bubbles_first</c>, an installed program frame.</summary>
+    MiscDustDraygonBreathBubblesFirst,
+    /// <summary><c>misc_dust_draygon_breath_bubbles_second</c>, an installed program frame.</summary>
+    MiscDustDraygonBreathBubblesSecond,
+    /// <summary><c>misc_dust_draygon_breath_bubbles_third</c>, an installed program frame.</summary>
+    MiscDustDraygonBreathBubblesThird,
+    /// <summary><c>misc_dust_draygon_breath_bubbles_fourth</c>, an installed program frame.</summary>
+    MiscDustDraygonBreathBubblesFourth,
+    /// <summary><c>misc_dust_draygon_breath_bubbles_fifth</c>, an installed program frame.</summary>
+    MiscDustDraygonBreathBubblesFifth,
+    /// <summary><c>misc_dust_draygon_breath_bubbles_sixth</c>, an installed program frame.</summary>
+    MiscDustDraygonBreathBubblesSixth,
+    /// <summary><c>misc_dust_draygon_breath_bubbles_seventh</c>, an installed program frame.</summary>
+    MiscDustDraygonBreathBubblesSeventh,
+    /// <summary><c>misc_dust_draygon_breath_bubbles_eighth</c>, an installed program frame.</summary>
+    MiscDustDraygonBreathBubblesEighth,
+    /// <summary><c>misc_dust_draygon_breath_bubbles_ninth</c>, an installed program frame.</summary>
+    MiscDustDraygonBreathBubblesNinth,
+    /// <summary><c>misc_dust_save_station_electricity_first</c>, an installed program frame.</summary>
+    MiscDustSaveStationElectricityFirst,
+    /// <summary><c>misc_dust_save_station_electricity_second</c>, an installed program frame.</summary>
+    MiscDustSaveStationElectricitySecond,
+    /// <summary><c>misc_dust_save_station_electricity_third</c>, an installed program frame.</summary>
+    MiscDustSaveStationElectricityThird,
+    /// <summary><c>misc_dust_save_station_electricity_fourth</c>, an installed program frame.</summary>
+    MiscDustSaveStationElectricityFourth,
+    /// <summary><c>misc_dust_save_station_electricity_fifth</c>, an installed program frame.</summary>
+    MiscDustSaveStationElectricityFifth,
+    /// <summary><c>misc_dust_save_station_electricity_sixth</c>, an installed program frame.</summary>
+    MiscDustSaveStationElectricitySixth,
+    /// <summary><c>misc_dust_save_station_electricity_seventh</c>, an installed program frame.</summary>
+    MiscDustSaveStationElectricitySeventh,
+    /// <summary><c>misc_dust_save_station_electricity_eighth</c>, an installed program frame.</summary>
+    MiscDustSaveStationElectricityEighth,
+    /// <summary><c>misc_dust_expanding_gate_first</c>, an installed program frame.</summary>
+    MiscDustExpandingGateFirst,
+    /// <summary><c>misc_dust_expanding_gate_second</c>, an installed program frame.</summary>
+    MiscDustExpandingGateSecond,
+    /// <summary><c>misc_dust_expanding_gate_third</c>, an installed program frame.</summary>
+    MiscDustExpandingGateThird,
+    /// <summary><c>misc_dust_expanding_gate_fourth</c>, an installed program frame.</summary>
+    MiscDustExpandingGateFourth,
+    /// <summary><c>misc_dust_expanding_gate_fifth</c>, an installed program frame.</summary>
+    MiscDustExpandingGateFifth,
+    /// <summary><c>misc_dust_expanding_gate_sixth</c>, an installed program frame.</summary>
+    MiscDustExpandingGateSixth,
+    /// <summary><c>misc_dust_expanding_gate_seventh</c>, an installed program frame.</summary>
+    MiscDustExpandingGateSeventh,
+    /// <summary><c>misc_dust_expanding_gate_eighth</c>, an installed program frame.</summary>
+    MiscDustExpandingGateEighth,
+    /// <summary><c>misc_dust_contracting_gate_first</c>, an installed program frame.</summary>
+    MiscDustContractingGateFirst,
+    /// <summary><c>misc_dust_contracting_gate_second</c>, an installed program frame.</summary>
+    MiscDustContractingGateSecond,
+    /// <summary><c>misc_dust_contracting_gate_third</c>, an installed program frame.</summary>
+    MiscDustContractingGateThird,
+    /// <summary><c>misc_dust_contracting_gate_fourth</c>, an installed program frame.</summary>
+    MiscDustContractingGateFourth,
+    /// <summary><c>misc_dust_contracting_gate_fifth</c>, an installed program frame.</summary>
+    MiscDustContractingGateFifth,
+    /// <summary><c>misc_dust_contracting_gate_sixth</c>, an installed program frame.</summary>
+    MiscDustContractingGateSixth,
+    /// <summary><c>misc_dust_contracting_gate_seventh</c>, an installed program frame.</summary>
+    MiscDustContractingGateSeventh,
+    /// <summary><c>misc_dust_contracting_gate_eighth</c>, an installed program frame.</summary>
+    MiscDustContractingGateEighth,
+    /// <summary><c>downward_gate_moving</c>, an installed program frame.</summary>
+    DownwardGateMoving,
+    /// <summary><c>downward_gate_third_moving_step</c>, an installed program frame.</summary>
+    DownwardGateThirdMovingStep,
+    /// <summary><c>downward_gate_fourth_moving_step</c>, an installed program frame.</summary>
+    DownwardGateFourthMovingStep,
+    /// <summary><c>downward_gate_fifth_moving_step</c>, an installed program frame.</summary>
+    DownwardGateFifthMovingStep,
+    /// <summary><c>downward_gate_closed</c>, an installed program frame.</summary>
+    DownwardGateClosed,
+    /// <summary><c>downward_gate_third_closed_step</c>, an installed program frame.</summary>
+    DownwardGateThirdClosedStep,
+    /// <summary><c>downward_gate_fourth_closed_step</c>, an installed program frame.</summary>
+    DownwardGateFourthClosedStep,
+    /// <summary><c>downward_gate_fifth_closed_step</c>, an installed program frame.</summary>
+    DownwardGateFifthClosedStep,
+    /// <summary><c>downward_gate_sixth_closed_step</c>, an installed program frame.</summary>
+    DownwardGateSixthClosedStep,
+    /// <summary><c>save_station_electricity_start_first</c>, an installed program frame.</summary>
+    SaveStationElectricityStartFirst,
+    /// <summary><c>save_station_electricity_start_second</c>, an installed program frame.</summary>
+    SaveStationElectricityStartSecond,
+    /// <summary><c>save_station_electricity_start_third</c>, an installed program frame.</summary>
+    SaveStationElectricityStartThird,
+    /// <summary><c>save_station_electricity_start_fourth</c>, an installed program frame.</summary>
+    SaveStationElectricityStartFourth,
+    /// <summary><c>save_station_electricity_start_fifth</c>, an installed program frame.</summary>
+    SaveStationElectricityStartFifth,
+    /// <summary><c>save_station_electricity_start_sixth</c>, an installed program frame.</summary>
+    SaveStationElectricityStartSixth,
+    /// <summary><c>save_station_electricity_start_seventh</c>, an installed program frame.</summary>
+    SaveStationElectricityStartSeventh,
+    /// <summary><c>save_station_electricity_start_eighth</c>, an installed program frame.</summary>
+    SaveStationElectricityStartEighth,
+    /// <summary><c>botwoon_body_up_left_first</c>, an installed program frame.</summary>
+    BotwoonBodyUpLeftFirst,
+    /// <summary><c>botwoon_body_up_left_second</c>, an installed program frame.</summary>
+    BotwoonBodyUpLeftSecond,
+    /// <summary><c>botwoon_body_up_left_third</c>, an installed program frame.</summary>
+    BotwoonBodyUpLeftThird,
+    /// <summary><c>botwoon_body_up_left_fourth</c>, an installed program frame.</summary>
+    BotwoonBodyUpLeftFourth,
+    /// <summary><c>botwoon_body_left_first</c>, an installed program frame.</summary>
+    BotwoonBodyLeftFirst,
+    /// <summary><c>botwoon_body_left_second</c>, an installed program frame.</summary>
+    BotwoonBodyLeftSecond,
+    /// <summary><c>botwoon_body_left_third</c>, an installed program frame.</summary>
+    BotwoonBodyLeftThird,
+    /// <summary><c>botwoon_body_left_fourth</c>, an installed program frame.</summary>
+    BotwoonBodyLeftFourth,
+    /// <summary><c>botwoon_body_down_left_first</c>, an installed program frame.</summary>
+    BotwoonBodyDownLeftFirst,
+    /// <summary><c>botwoon_body_down_left_second</c>, an installed program frame.</summary>
+    BotwoonBodyDownLeftSecond,
+    /// <summary><c>botwoon_body_down_left_third</c>, an installed program frame.</summary>
+    BotwoonBodyDownLeftThird,
+    /// <summary><c>botwoon_body_down_left_fourth</c>, an installed program frame.</summary>
+    BotwoonBodyDownLeftFourth,
+    /// <summary><c>botwoon_body_down_first</c>, an installed program frame.</summary>
+    BotwoonBodyDownFirst,
+    /// <summary><c>botwoon_body_down_second</c>, an installed program frame.</summary>
+    BotwoonBodyDownSecond,
+    /// <summary><c>botwoon_body_down_third</c>, an installed program frame.</summary>
+    BotwoonBodyDownThird,
+    /// <summary><c>botwoon_body_down_fourth</c>, an installed program frame.</summary>
+    BotwoonBodyDownFourth,
+    /// <summary><c>botwoon_body_down_right_first</c>, an installed program frame.</summary>
+    BotwoonBodyDownRightFirst,
+    /// <summary><c>botwoon_body_down_right_second</c>, an installed program frame.</summary>
+    BotwoonBodyDownRightSecond,
+    /// <summary><c>botwoon_body_down_right_third</c>, an installed program frame.</summary>
+    BotwoonBodyDownRightThird,
+    /// <summary><c>botwoon_body_down_right_fourth</c>, an installed program frame.</summary>
+    BotwoonBodyDownRightFourth,
+    /// <summary><c>botwoon_body_right_first</c>, an installed program frame.</summary>
+    BotwoonBodyRightFirst,
+    /// <summary><c>botwoon_body_right_second</c>, an installed program frame.</summary>
+    BotwoonBodyRightSecond,
+    /// <summary><c>botwoon_body_right_third</c>, an installed program frame.</summary>
+    BotwoonBodyRightThird,
+    /// <summary><c>botwoon_body_right_fourth</c>, an installed program frame.</summary>
+    BotwoonBodyRightFourth,
+    /// <summary><c>botwoon_body_up_right_first</c>, an installed program frame.</summary>
+    BotwoonBodyUpRightFirst,
+    /// <summary><c>botwoon_body_up_right_second</c>, an installed program frame.</summary>
+    BotwoonBodyUpRightSecond,
+    /// <summary><c>botwoon_body_up_right_third</c>, an installed program frame.</summary>
+    BotwoonBodyUpRightThird,
+    /// <summary><c>botwoon_body_up_right_fourth</c>, an installed program frame.</summary>
+    BotwoonBodyUpRightFourth,
+    /// <summary><c>botwoon_body_up_first</c>, an installed program frame.</summary>
+    BotwoonBodyUpFirst,
+    /// <summary><c>botwoon_body_up_second</c>, an installed program frame.</summary>
+    BotwoonBodyUpSecond,
+    /// <summary><c>botwoon_body_up_third</c>, an installed program frame.</summary>
+    BotwoonBodyUpThird,
+    /// <summary><c>botwoon_body_up_fourth</c>, an installed program frame.</summary>
+    BotwoonBodyUpFourth,
+    /// <summary><c>botwoon_tail_up</c>, an installed program frame.</summary>
+    BotwoonTailUp,
+    /// <summary><c>botwoon_tail_up_left</c>, an installed program frame.</summary>
+    BotwoonTailUpLeft,
+    /// <summary><c>botwoon_tail_left</c>, an installed program frame.</summary>
+    BotwoonTailLeft,
+    /// <summary><c>botwoon_tail_down_left</c>, an installed program frame.</summary>
+    BotwoonTailDownLeft,
+    /// <summary><c>botwoon_tail_down</c>, an installed program frame.</summary>
+    BotwoonTailDown,
+    /// <summary><c>botwoon_tail_down_right</c>, an installed program frame.</summary>
+    BotwoonTailDownRight,
+    /// <summary><c>botwoon_tail_right</c>, an installed program frame.</summary>
+    BotwoonTailRight,
+    /// <summary><c>botwoon_tail_up_right</c>, an installed program frame.</summary>
+    BotwoonTailUpRight,
+    /// <summary><c>botwoon_hidden_up</c>, an installed program frame.</summary>
+    BotwoonHiddenUp,
+    /// <summary><c>botwoon_spit_up_first</c>, an installed program frame.</summary>
+    BotwoonSpitUpFirst,
+    /// <summary><c>botwoon_spit_up_second</c>, an installed program frame.</summary>
+    BotwoonSpitUpSecond,
+    /// <summary><c>botwoon_spit_up_third</c>, an installed program frame.</summary>
+    BotwoonSpitUpThird,
+    /// <summary><c>botwoon_spit_up_fourth</c>, an installed program frame.</summary>
+    BotwoonSpitUpFourth,
+    /// <summary><c>botwoon_spit_up_fifth</c>, an installed program frame.</summary>
+    BotwoonSpitUpFifth,
+    /// <summary><c>yapping_maw_facing_down</c>, an installed program frame.</summary>
+    YappingMawFacingDown,
+    /// <summary><c>yapping_maw_facing_up</c>, an installed program frame.</summary>
+    YappingMawFacingUp,
+    /// <summary><c>enemy_death_respawn_tail</c>, an installed program frame.</summary>
+    EnemyDeathRespawnTail,
+    /// <summary><c>enemy_death_big_explosion</c>, an installed program frame.</summary>
+    EnemyDeathBigExplosion,
+    /// <summary><c>enemy_death_mini_kraid_explosion</c>, an installed program frame.</summary>
+    EnemyDeathMiniKraidExplosion,
+    /// <summary><c>enemy_death_normal_explosion_first</c>, an installed program frame.</summary>
+    EnemyDeathNormalExplosionFirst,
+    /// <summary><c>enemy_death_normal_explosion_second</c>, an installed program frame.</summary>
+    EnemyDeathNormalExplosionSecond,
+    /// <summary><c>enemy_death_normal_explosion_third</c>, an installed program frame.</summary>
+    EnemyDeathNormalExplosionThird,
+    /// <summary><c>enemy_death_normal_explosion_fourth</c>, an installed program frame.</summary>
+    EnemyDeathNormalExplosionFourth,
+    /// <summary><c>enemy_death_normal_explosion_fifth</c>, an installed program frame.</summary>
+    EnemyDeathNormalExplosionFifth,
+    /// <summary><c>enemy_death_normal_explosion_sixth</c>, an installed program frame.</summary>
+    EnemyDeathNormalExplosionSixth,
+    /// <summary><c>enemy_death_small_explosion_first</c>, an installed program frame.</summary>
+    EnemyDeathSmallExplosionFirst,
+    /// <summary><c>enemy_death_small_explosion_second</c>, an installed program frame.</summary>
+    EnemyDeathSmallExplosionSecond,
+    /// <summary><c>enemy_death_small_explosion_third</c>, an installed program frame.</summary>
+    EnemyDeathSmallExplosionThird,
+    /// <summary><c>enemy_death_small_explosion_fourth</c>, an installed program frame.</summary>
+    EnemyDeathSmallExplosionFourth,
+    /// <summary><c>enemy_death_small_explosion_fifth</c>, an installed program frame.</summary>
+    EnemyDeathSmallExplosionFifth,
+    /// <summary><c>enemy_death_small_explosion_sixth</c>, an installed program frame.</summary>
+    EnemyDeathSmallExplosionSixth,
+    /// <summary><c>enemy_pickup_small_energy_first</c>, an installed program frame.</summary>
+    EnemyPickupSmallEnergyFirst,
+    /// <summary><c>enemy_pickup_small_energy_second</c>, an installed program frame.</summary>
+    EnemyPickupSmallEnergySecond,
+    /// <summary><c>enemy_pickup_small_energy_third</c>, an installed program frame.</summary>
+    EnemyPickupSmallEnergyThird,
+    /// <summary><c>enemy_pickup_small_energy_fourth</c>, an installed program frame.</summary>
+    EnemyPickupSmallEnergyFourth,
+    /// <summary><c>enemy_pickup_big_energy_first</c>, an installed program frame.</summary>
+    EnemyPickupBigEnergyFirst,
+    /// <summary><c>enemy_pickup_big_energy_second</c>, an installed program frame.</summary>
+    EnemyPickupBigEnergySecond,
+    /// <summary><c>enemy_pickup_big_energy_third</c>, an installed program frame.</summary>
+    EnemyPickupBigEnergyThird,
+    /// <summary><c>enemy_pickup_big_energy_fourth</c>, an installed program frame.</summary>
+    EnemyPickupBigEnergyFourth,
+    /// <summary><c>enemy_pickup_missiles_first</c>, an installed program frame.</summary>
+    EnemyPickupMissilesFirst,
+    /// <summary><c>enemy_pickup_missiles_second</c>, an installed program frame.</summary>
+    EnemyPickupMissilesSecond,
+    /// <summary><c>enemy_pickup_super_missiles_first</c>, an installed program frame.</summary>
+    EnemyPickupSuperMissilesFirst,
+    /// <summary><c>enemy_pickup_super_missiles_second</c>, an installed program frame.</summary>
+    EnemyPickupSuperMissilesSecond,
+    /// <summary><c>enemy_pickup_power_bombs_first</c>, an installed program frame.</summary>
+    EnemyPickupPowerBombsFirst,
+    /// <summary><c>enemy_pickup_power_bombs_second</c>, an installed program frame.</summary>
+    EnemyPickupPowerBombsSecond,
+    /// <summary><c>enemy_pickup_power_bombs_third</c>, an installed program frame.</summary>
+    EnemyPickupPowerBombsThird,
+    /// <summary><c>enemy_pickup_power_bombs_fourth</c>, an installed program frame.</summary>
+    EnemyPickupPowerBombsFourth,
+    /// <summary><c>enemy_death_killed_by_samus_contact_first</c>, an installed program frame.</summary>
+    EnemyDeathKilledBySamusContactFirst,
+    /// <summary><c>enemy_death_killed_by_samus_contact_second</c>, an installed program frame.</summary>
+    EnemyDeathKilledBySamusContactSecond,
+    /// <summary><c>enemy_death_killed_by_samus_contact_third</c>, an installed program frame.</summary>
+    EnemyDeathKilledBySamusContactThird,
+    /// <summary><c>enemy_death_killed_by_samus_contact_fourth</c>, an installed program frame.</summary>
+    EnemyDeathKilledBySamusContactFourth,
+    /// <summary><c>enemy_death_killed_by_samus_contact_fifth</c>, an installed program frame.</summary>
+    EnemyDeathKilledBySamusContactFifth,
+    /// <summary><c>enemy_death_killed_by_samus_contact_sixth</c>, an installed program frame.</summary>
+    EnemyDeathKilledBySamusContactSixth,
+    /// <summary><c>enemy_death_killed_by_samus_contact_seventh</c>, an installed program frame.</summary>
+    EnemyDeathKilledBySamusContactSeventh,
+    /// <summary><c>enemy_death_killed_by_samus_contact_eighth</c>, an installed program frame.</summary>
+    EnemyDeathKilledBySamusContactEighth,
+    /// <summary><c>enemy_death_killed_by_samus_contact_ninth</c>, an installed program frame.</summary>
+    EnemyDeathKilledBySamusContactNinth,
+    /// <summary><c>enemy_death_killed_by_samus_contact_tenth</c>, an installed program frame.</summary>
+    EnemyDeathKilledBySamusContactTenth,
+    /// <summary><c>enemy_death_killed_by_samus_contact_eleventh</c>, an installed program frame.</summary>
+    EnemyDeathKilledBySamusContactEleventh,
+    /// <summary><c>enemy_death_killed_by_samus_contact_twelfth</c>, an installed program frame.</summary>
+    EnemyDeathKilledBySamusContactTwelfth,
+    /// <summary><c>enemy_death_killed_by_samus_contact_thirteenth</c>, an installed program frame.</summary>
+    EnemyDeathKilledBySamusContactThirteenth,
+    /// <summary><c>enemy_death_killed_by_samus_contact_fourteenth</c>, an installed program frame.</summary>
+    EnemyDeathKilledBySamusContactFourteenth,
+    /// <summary><c>enemy_death_killed_by_samus_contact_fifteenth</c>, an installed program frame.</summary>
+    EnemyDeathKilledBySamusContactFifteenth,
+    /// <summary><c>enemy_death_killed_by_samus_contact_sixteenth</c>, an installed program frame.</summary>
+    EnemyDeathKilledBySamusContactSixteenth,
+    /// <summary><c>falling_spark_falling_first</c>, an installed program frame.</summary>
+    FallingSparkFallingFirst,
+    /// <summary><c>falling_spark_falling_second</c>, an installed program frame.</summary>
+    FallingSparkFallingSecond,
+    /// <summary><c>falling_spark_falling_third</c>, an installed program frame.</summary>
+    FallingSparkFallingThird,
+    /// <summary><c>falling_spark_hit_floor_first</c>, an installed program frame.</summary>
+    FallingSparkHitFloorFirst,
+    /// <summary><c>falling_spark_hit_floor_second</c>, an installed program frame.</summary>
+    FallingSparkHitFloorSecond,
+    /// <summary><c>falling_spark_hit_floor_third</c>, an installed program frame.</summary>
+    FallingSparkHitFloorThird,
+    /// <summary><c>falling_spark_hit_floor_fourth</c>, an installed program frame.</summary>
+    FallingSparkHitFloorFourth,
+    /// <summary><c>falling_spark_hit_floor_fifth</c>, an installed program frame.</summary>
+    FallingSparkHitFloorFifth,
+    /// <summary><c>falling_spark_hit_floor_sixth</c>, an installed program frame.</summary>
+    FallingSparkHitFloorSixth,
+    /// <summary><c>falling_spark_hit_floor_seventh</c>, an installed program frame.</summary>
+    FallingSparkHitFloorSeventh,
+    /// <summary><c>falling_spark_hit_floor_eighth</c>, an installed program frame.</summary>
+    FallingSparkHitFloorEighth,
+    /// <summary><c>falling_spark_hit_floor_ninth</c>, an installed program frame.</summary>
+    FallingSparkHitFloorNinth,
+    /// <summary><c>falling_spark_hit_floor_tenth</c>, an installed program frame.</summary>
+    FallingSparkHitFloorTenth,
+    /// <summary><c>falling_spark_hit_floor_eleventh</c>, an installed program frame.</summary>
+    FallingSparkHitFloorEleventh,
+    /// <summary><c>ceres_elevator_pad_first</c>, a composition.</summary>
+    CeresElevatorPadFirst,
+    /// <summary><c>ceres_elevator_pad_second</c>, a composition.</summary>
+    CeresElevatorPadSecond,
     /// <summary><c>ceres_elevator_platform</c>, a composition.</summary>
     CeresElevatorPlatform,
 }

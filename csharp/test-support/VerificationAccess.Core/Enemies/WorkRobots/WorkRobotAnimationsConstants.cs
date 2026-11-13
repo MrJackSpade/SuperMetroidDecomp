@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
@@ -8,6 +9,6 @@ internal static class WorkRobotAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params WorkRobotProgram[] programs) =>
         programs.SelectMany(program => WorkRobotAnimations.Segments.Beats(program))
-            .Select(beat => beat.ShownFrame).OfType<WorkRobotFrame>()
+            .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>()
             .Select(frame => WorkRobotFrameToolingDefinitions.Spritemap(frame));
 }

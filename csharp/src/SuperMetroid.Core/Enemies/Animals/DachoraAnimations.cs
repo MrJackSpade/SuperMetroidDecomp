@@ -1,143 +1,144 @@
 using P = SuperMetroid.Core.Enemies.Animals.DachoraProgram;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
 /// The Dachora's run, idle, blink, shinespark charge, echo and fall animations as typed programs (#641). Each
-/// frame shows a <see cref="DachoraFrame"/> pose and its lists use no owner callbacks.
+/// frame shows a <see cref="EnemyFrameId"/> and its lists use no owner callbacks.
 /// </summary>
 internal static class DachoraAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<DachoraProgram, DachoraFrame, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<DachoraProgram, AnimationBeat<DachoraFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<DachoraProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<DachoraProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.RunningLeft] =
         [
-            Show(0, 5),
-            Show(1, 5),
-            Show(2, 5),
-            Show(3, 5),
-            Show(4, 5),
-            Show(5, 5),
+            Show(EnemyFrameId.Dachora00, 5),
+            Show(EnemyFrameId.Dachora01, 5),
+            Show(EnemyFrameId.Dachora02, 5),
+            Show(EnemyFrameId.Dachora03, 5),
+            Show(EnemyFrameId.Dachora04, 5),
+            Show(EnemyFrameId.Dachora05, 5),
         ],
         [P.RunningLeftFast] =
         [
-            Show(0, 3),
-            Show(1, 3),
-            Show(2, 3),
-            Show(3, 3),
-            Show(4, 3),
-            Show(5, 3),
+            Show(EnemyFrameId.Dachora00, 3),
+            Show(EnemyFrameId.Dachora01, 3),
+            Show(EnemyFrameId.Dachora02, 3),
+            Show(EnemyFrameId.Dachora03, 3),
+            Show(EnemyFrameId.Dachora04, 3),
+            Show(EnemyFrameId.Dachora05, 3),
         ],
         [P.RunningLeftVeryFast] =
         [
-            Show(0, 1),
-            Show(1, 1),
-            Show(2, 1),
-            Show(3, 1),
-            Show(4, 1),
-            Show(5, 1),
+            Show(EnemyFrameId.Dachora00, 1),
+            Show(EnemyFrameId.Dachora01, 1),
+            Show(EnemyFrameId.Dachora02, 1),
+            Show(EnemyFrameId.Dachora03, 1),
+            Show(EnemyFrameId.Dachora04, 1),
+            Show(EnemyFrameId.Dachora05, 1),
         ],
         [P.IdleLeft] =
         [
-            Show(7, 48),
-            Show(10, 10),
-            Show(11, 7),
-            Show(12, 7),
-            Show(13, 7),
-            Show(12, 7),
-            Show(11, 7),
-            Show(12, 7),
-            Show(13, 7),
-            Show(12, 7),
-            Show(10, 10),
+            Show(EnemyFrameId.Dachora06, 48),
+            Show(EnemyFrameId.Dachora07, 10),
+            Show(EnemyFrameId.Dachora08, 7),
+            Show(EnemyFrameId.Dachora09, 7),
+            Show(EnemyFrameId.Dachora10, 7),
+            Show(EnemyFrameId.Dachora09, 7),
+            Show(EnemyFrameId.Dachora08, 7),
+            Show(EnemyFrameId.Dachora09, 7),
+            Show(EnemyFrameId.Dachora10, 7),
+            Show(EnemyFrameId.Dachora09, 7),
+            Show(EnemyFrameId.Dachora07, 10),
         ],
         [P.BlinkLeft] =
         [
-            Show(7, 11),
-            Show(8, 8),
-            Show(9, 8),
-            Show(7, 4),
-            Show(8, 4),
-            Show(9, 4),
-            Show(7, 10),
-            Show(8, 5),
-            Show(9, 11),
+            Show(EnemyFrameId.Dachora06, 11),
+            Show(EnemyFrameId.Dachora11, 8),
+            Show(EnemyFrameId.Dachora12, 8),
+            Show(EnemyFrameId.Dachora06, 4),
+            Show(EnemyFrameId.Dachora11, 4),
+            Show(EnemyFrameId.Dachora12, 4),
+            Show(EnemyFrameId.Dachora06, 10),
+            Show(EnemyFrameId.Dachora11, 5),
+            Show(EnemyFrameId.Dachora12, 11),
         ],
         [P.EchoLeft] =
         [
-            Show(6, 10),
+            Show(EnemyFrameId.Dachora13, 10),
         ],
         [P.FallingLeft] =
         [
-            Show(4, 5),
+            Show(EnemyFrameId.Dachora04, 5),
         ],
         [P.RunningRight] =
         [
-            Show(14, 5),
-            Show(15, 5),
-            Show(16, 5),
-            Show(17, 5),
-            Show(18, 5),
-            Show(19, 5),
+            Show(EnemyFrameId.Dachora14, 5),
+            Show(EnemyFrameId.Dachora15, 5),
+            Show(EnemyFrameId.Dachora16, 5),
+            Show(EnemyFrameId.Dachora17, 5),
+            Show(EnemyFrameId.Dachora18, 5),
+            Show(EnemyFrameId.Dachora19, 5),
         ],
         [P.RunningRightFast] =
         [
-            Show(14, 3),
-            Show(15, 3),
-            Show(16, 3),
-            Show(17, 3),
-            Show(18, 3),
-            Show(19, 3),
+            Show(EnemyFrameId.Dachora14, 3),
+            Show(EnemyFrameId.Dachora15, 3),
+            Show(EnemyFrameId.Dachora16, 3),
+            Show(EnemyFrameId.Dachora17, 3),
+            Show(EnemyFrameId.Dachora18, 3),
+            Show(EnemyFrameId.Dachora19, 3),
         ],
         [P.RunningRightVeryFast] =
         [
-            Show(14, 1),
-            Show(15, 1),
-            Show(16, 1),
-            Show(17, 1),
-            Show(18, 1),
-            Show(19, 1),
+            Show(EnemyFrameId.Dachora14, 1),
+            Show(EnemyFrameId.Dachora15, 1),
+            Show(EnemyFrameId.Dachora16, 1),
+            Show(EnemyFrameId.Dachora17, 1),
+            Show(EnemyFrameId.Dachora18, 1),
+            Show(EnemyFrameId.Dachora19, 1),
         ],
         [P.IdleRight] =
         [
-            Show(22, 48),
-            Show(25, 10),
-            Show(26, 7),
-            Show(27, 7),
-            Show(28, 7),
-            Show(27, 7),
-            Show(26, 7),
-            Show(27, 7),
-            Show(28, 7),
-            Show(27, 7),
-            Show(25, 10),
+            Show(EnemyFrameId.Dachora20, 48),
+            Show(EnemyFrameId.Dachora21, 10),
+            Show(EnemyFrameId.Dachora22, 7),
+            Show(EnemyFrameId.Dachora23, 7),
+            Show(EnemyFrameId.Dachora24, 7),
+            Show(EnemyFrameId.Dachora23, 7),
+            Show(EnemyFrameId.Dachora22, 7),
+            Show(EnemyFrameId.Dachora23, 7),
+            Show(EnemyFrameId.Dachora24, 7),
+            Show(EnemyFrameId.Dachora23, 7),
+            Show(EnemyFrameId.Dachora21, 10),
         ],
         [P.BlinkRight] =
         [
-            Show(22, 11),
-            Show(23, 8),
-            Show(24, 8),
-            Show(22, 4),
-            Show(23, 4),
-            Show(24, 4),
-            Show(22, 10),
-            Show(23, 5),
-            Show(24, 11),
+            Show(EnemyFrameId.Dachora20, 11),
+            Show(EnemyFrameId.Dachora25, 8),
+            Show(EnemyFrameId.Dachora26, 8),
+            Show(EnemyFrameId.Dachora20, 4),
+            Show(EnemyFrameId.Dachora25, 4),
+            Show(EnemyFrameId.Dachora26, 4),
+            Show(EnemyFrameId.Dachora20, 10),
+            Show(EnemyFrameId.Dachora25, 5),
+            Show(EnemyFrameId.Dachora26, 11),
         ],
         [P.ChargeRight] =
         [
-            Show(20, 1),
+            Show(EnemyFrameId.Dachora27, 1),
         ],
         [P.EchoRight] =
         [
-            Show(21, 10),
+            Show(EnemyFrameId.Dachora28, 10),
         ],
         [P.FallingRight] =
         [
-            Show(18, 5),
+            Show(EnemyFrameId.Dachora18, 5),
         ],
     });
 
@@ -185,6 +186,6 @@ internal static class DachoraAnimations
         _ => throw new ArgumentOutOfRangeException(nameof(program), program, "The program does not sleep before authored code."),
     };
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<DachoraFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<DachoraFrame, NoAnimationCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 }

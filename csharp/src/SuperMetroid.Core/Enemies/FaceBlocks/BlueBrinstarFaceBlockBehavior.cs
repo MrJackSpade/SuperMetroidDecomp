@@ -177,7 +177,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             return;
         var state = RequireBlueBrinstarFaceBlockState(slot);
         AnimationPlayback<BlueBrinstarFaceBlockProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, BlueBrinstarFaceBlockAnimations.Segments, ref playback, BlueBrinstarFaceBlockFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, BlueBrinstarFaceBlockAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A cue-free blue Brinstar face block animation raised {cue}."));
         state.Playback = playback;
     }

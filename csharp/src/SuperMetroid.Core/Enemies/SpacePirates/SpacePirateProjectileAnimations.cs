@@ -8,48 +8,48 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal static class SpacePirateProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<SpacePirateProjectileProgram, SpacePirateProjectileFrame, SpacePirateProjectileCue> Segments { get; } = new(
-        new Dictionary<SpacePirateProjectileProgram, AnimationBeat<SpacePirateProjectileFrame, SpacePirateProjectileCue>[]>
+    internal static AnimationSegments<SpacePirateProjectileProgram, EnemyProjectileFrameId, SpacePirateProjectileCue> Segments { get; } = new(
+        new Dictionary<SpacePirateProjectileProgram, AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>[]>
     {
         [P.LaserLeft] =
         [
-            Show(0, 2),
-            Show(1, 2),
-            Show(2, 2),
+            Show(EnemyProjectileFrameId.SpacePirateLaserLeftFirst, 2),
+            Show(EnemyProjectileFrameId.SpacePirateLaserLeftSecond, 2),
+            Show(EnemyProjectileFrameId.SpacePirateLaserLeftThird, 2),
             Cue(SpacePirateProjectileCueKind.StartMovingNow, EnemyProjectileFrameBehavior.LaserFlightLeft),
-            Show(3, 1),
-            Show(4, 1),
-            Show(5, 1),
-            Show(6, 1),
-            Show(7, 1),
-            Show(8, 1),
-            Show(9, 1),
-            Show(10, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserLeftFourth, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserLeftFifth, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserLeftSixth, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserLeftSeventh, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserLeftEighth, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserLeftNinth, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserLeftTenth, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserLeftEleventh, 1),
         ],
         [P.LaserLeftLoop] =
         [
-            Show(11, 1),
-            Show(12, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserLeftLoopFirst, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserLeftLoopSecond, 1),
         ],
         [P.LaserRight] =
         [
-            Show(13, 2),
-            Show(14, 2),
-            Show(15, 2),
+            Show(EnemyProjectileFrameId.SpacePirateLaserRightFirst, 2),
+            Show(EnemyProjectileFrameId.SpacePirateLaserRightSecond, 2),
+            Show(EnemyProjectileFrameId.SpacePirateLaserRightThird, 2),
             Cue(SpacePirateProjectileCueKind.StartMovingNow, EnemyProjectileFrameBehavior.LaserFlightRight),
-            Show(16, 1),
-            Show(17, 1),
-            Show(18, 1),
-            Show(19, 1),
-            Show(20, 1),
-            Show(21, 1),
-            Show(22, 1),
-            Show(23, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserRightFourth, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserRightFifth, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserRightSixth, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserRightSeventh, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserRightEighth, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserRightNinth, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserRightTenth, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserRightEleventh, 1),
         ],
         [P.LaserRightLoop] =
         [
-            Show(24, 1),
-            Show(25, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserRightLoopFirst, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserRightLoopSecond, 1),
         ],
         [P.ClawLeft] =
         [
@@ -57,14 +57,14 @@ internal static class SpacePirateProjectileAnimations
         ],
         [P.ClawLeftLoop] =
         [
-            Show(26, 1),
-            Show(27, 1),
-            Show(28, 1),
-            Show(29, 1),
-            Show(30, 1),
-            Show(31, 1),
-            Show(32, 1),
-            Show(33, 1),
+            Show(EnemyProjectileFrameId.SpacePirateClawLeftLoopFirst, 1),
+            Show(EnemyProjectileFrameId.SpacePirateClawLeftLoopSecond, 1),
+            Show(EnemyProjectileFrameId.SpacePirateClawLeftLoopThird, 1),
+            Show(EnemyProjectileFrameId.SpacePirateClawLeftLoopFourth, 1),
+            Show(EnemyProjectileFrameId.SpacePirateClawLeftLoopFifth, 1),
+            Show(EnemyProjectileFrameId.SpacePirateClawLeftLoopSixth, 1),
+            Show(EnemyProjectileFrameId.SpacePirateClawLeftLoopSeventh, 1),
+            Show(EnemyProjectileFrameId.SpacePirateClawLeftLoopEighth, 1),
         ],
         [P.ClawRight] =
         [
@@ -72,14 +72,14 @@ internal static class SpacePirateProjectileAnimations
         ],
         [P.ClawRightLoop] =
         [
-            Show(34, 1),
-            Show(35, 1),
-            Show(36, 1),
-            Show(37, 1),
-            Show(38, 1),
-            Show(39, 1),
-            Show(40, 1),
-            Show(41, 1),
+            Show(EnemyProjectileFrameId.SpacePirateClawRightLoopFirst, 1),
+            Show(EnemyProjectileFrameId.SpacePirateClawRightLoopSecond, 1),
+            Show(EnemyProjectileFrameId.SpacePirateClawRightLoopThird, 1),
+            Show(EnemyProjectileFrameId.SpacePirateClawRightLoopFourth, 1),
+            Show(EnemyProjectileFrameId.SpacePirateClawRightLoopFifth, 1),
+            Show(EnemyProjectileFrameId.SpacePirateClawRightLoopSixth, 1),
+            Show(EnemyProjectileFrameId.SpacePirateClawRightLoopSeventh, 1),
+            Show(EnemyProjectileFrameId.SpacePirateClawRightLoopEighth, 1),
         ],
     });
 
@@ -99,12 +99,12 @@ internal static class SpacePirateProjectileAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<SpacePirateProjectileProgram> StartingWith(SpacePirateProjectileProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<SpacePirateProjectileFrame, SpacePirateProjectileCue> Show(int pose, int duration) =>
-        new AnimationBeat<SpacePirateProjectileFrame, SpacePirateProjectileCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue> Show(EnemyProjectileFrameId frame, int duration) =>
+        new AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>.Frame(frame, duration);
 
     /// <summary>Publishes a cue of <paramref name="kind"/> installing <paramref name="movement"/>.</summary>
-    private static AnimationBeat<SpacePirateProjectileFrame, SpacePirateProjectileCue> Cue(
+    private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue> Cue(
         SpacePirateProjectileCueKind kind, EnemyProjectileFrameBehavior movement) =>
-        new AnimationBeat<SpacePirateProjectileFrame, SpacePirateProjectileCue>.Event(new(kind, movement));
+        new AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>.Event(new(kind, movement));
 }

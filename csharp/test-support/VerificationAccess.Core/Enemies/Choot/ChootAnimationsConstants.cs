@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Choot.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Choot;
 
@@ -9,6 +10,6 @@ internal static class ChootAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params ChootProgram[] programs) =>
         programs.SelectMany(program => ChootAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<ChootFrame, ChootCue>.Frame>()
+            .OfType<AnimationBeat<EnemyFrameId, ChootCue>.Frame>()
             .Select(frame => ChootFrameToolingDefinitions.Spritemap(frame.Shown));
 }

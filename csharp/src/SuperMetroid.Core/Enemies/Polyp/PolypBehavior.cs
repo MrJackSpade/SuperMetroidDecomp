@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -128,7 +127,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Polyp's typed animation.</summary>
     internal static void AdvancePolypTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, PolypAnimations.Segments, PolypFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, PolypAnimations.Segments,
             static (PolypEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"The Polyp's cue-free animation raised {cue}."));
 

@@ -1,18 +1,19 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Platforms.PlatformCueKind;
 using P = SuperMetroid.Core.Enemies.Platforms.PlatformProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>
 /// The Tripper's and Kamer's vertically moving and still platform loops as typed programs (#641). Each
-/// frame shows a <see cref="PlatformFrame"/> pose and each callback becomes a <see cref="PlatformCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="PlatformCue"/> with its typed operands.
 /// </summary>
 internal static class PlatformAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<PlatformProgram, PlatformFrame, PlatformCue> Segments { get; } = new(
-        new Dictionary<PlatformProgram, AnimationBeat<PlatformFrame, PlatformCue>[]>
+    internal static AnimationSegments<PlatformProgram, EnemyFrameId, PlatformCue> Segments { get; } = new(
+        new Dictionary<PlatformProgram, AnimationBeat<EnemyFrameId, PlatformCue>[]>
     {
         [P.KamerMovingLeft] =
         [
@@ -20,10 +21,10 @@ internal static class PlatformAnimations
         ],
         [P.KamerMovingLeftLoop] =
         [
-            Show(12, 10),
-            Show(13, 10),
-            Show(14, 10),
-            Show(15, 10),
+            Show(EnemyFrameId.TripperKamerPlatform0, 10),
+            Show(EnemyFrameId.TripperKamerPlatform1, 10),
+            Show(EnemyFrameId.TripperKamerPlatform2, 10),
+            Show(EnemyFrameId.TripperKamerPlatform3, 10),
         ],
         [P.KamerMovingRight] =
         [
@@ -31,10 +32,10 @@ internal static class PlatformAnimations
         ],
         [P.KamerMovingRightLoop] =
         [
-            Show(12, 10),
-            Show(13, 10),
-            Show(14, 10),
-            Show(15, 10),
+            Show(EnemyFrameId.TripperKamerPlatform0, 10),
+            Show(EnemyFrameId.TripperKamerPlatform1, 10),
+            Show(EnemyFrameId.TripperKamerPlatform2, 10),
+            Show(EnemyFrameId.TripperKamerPlatform3, 10),
         ],
         [P.KamerStillLeft] =
         [
@@ -42,10 +43,10 @@ internal static class PlatformAnimations
         ],
         [P.KamerStillLeftLoop] =
         [
-            Show(12, 10),
-            Show(13, 10),
-            Show(14, 10),
-            Show(15, 10),
+            Show(EnemyFrameId.TripperKamerPlatform0, 10),
+            Show(EnemyFrameId.TripperKamerPlatform1, 10),
+            Show(EnemyFrameId.TripperKamerPlatform2, 10),
+            Show(EnemyFrameId.TripperKamerPlatform3, 10),
         ],
         [P.KamerStillRight] =
         [
@@ -53,10 +54,10 @@ internal static class PlatformAnimations
         ],
         [P.KamerStillRightLoop] =
         [
-            Show(12, 10),
-            Show(13, 10),
-            Show(14, 10),
-            Show(15, 10),
+            Show(EnemyFrameId.TripperKamerPlatform0, 10),
+            Show(EnemyFrameId.TripperKamerPlatform1, 10),
+            Show(EnemyFrameId.TripperKamerPlatform2, 10),
+            Show(EnemyFrameId.TripperKamerPlatform3, 10),
         ],
         [P.TripperMovingLeft] =
         [
@@ -64,10 +65,10 @@ internal static class PlatformAnimations
         ],
         [P.TripperMovingLeftLoop] =
         [
-            Show(0, 7),
-            Show(1, 8),
-            Show(0, 7),
-            Show(2, 8),
+            Show(EnemyFrameId.TripperMovingLeft0, 7),
+            Show(EnemyFrameId.TripperMovingLeft1, 8),
+            Show(EnemyFrameId.TripperMovingLeft0, 7),
+            Show(EnemyFrameId.TripperMovingLeft2, 8),
         ],
         [P.TripperMovingRight] =
         [
@@ -75,10 +76,10 @@ internal static class PlatformAnimations
         ],
         [P.TripperMovingRightLoop] =
         [
-            Show(3, 7),
-            Show(4, 8),
-            Show(3, 7),
-            Show(5, 8),
+            Show(EnemyFrameId.TripperMovingRight0, 7),
+            Show(EnemyFrameId.TripperMovingRight1, 8),
+            Show(EnemyFrameId.TripperMovingRight0, 7),
+            Show(EnemyFrameId.TripperMovingRight2, 8),
         ],
         [P.TripperStillMovingLeft] =
         [
@@ -86,10 +87,10 @@ internal static class PlatformAnimations
         ],
         [P.TripperStillMovingLeftLoop] =
         [
-            Show(6, 7),
-            Show(7, 8),
-            Show(6, 7),
-            Show(8, 8),
+            Show(EnemyFrameId.TripperStillMovingLeft0, 7),
+            Show(EnemyFrameId.TripperStillMovingLeft1, 8),
+            Show(EnemyFrameId.TripperStillMovingLeft0, 7),
+            Show(EnemyFrameId.TripperStillMovingLeft2, 8),
         ],
         [P.TripperStillMovingRight] =
         [
@@ -97,10 +98,10 @@ internal static class PlatformAnimations
         ],
         [P.TripperStillMovingRightLoop] =
         [
-            Show(9, 7),
-            Show(10, 8),
-            Show(9, 7),
-            Show(11, 8),
+            Show(EnemyFrameId.TripperStillMovingRight0, 7),
+            Show(EnemyFrameId.TripperStillMovingRight1, 8),
+            Show(EnemyFrameId.TripperStillMovingRight0, 7),
+            Show(EnemyFrameId.TripperStillMovingRight2, 8),
         ],
     });
 
@@ -128,9 +129,9 @@ internal static class PlatformAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<PlatformProgram> StartingWith(PlatformProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<PlatformFrame, PlatformCue> Show(int pose, int duration) => new AnimationBeat<PlatformFrame, PlatformCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, PlatformCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, PlatformCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<PlatformFrame, PlatformCue> Cue(PlatformCue cue) => new AnimationBeat<PlatformFrame, PlatformCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, PlatformCue> Cue(PlatformCue cue) => new AnimationBeat<EnemyFrameId, PlatformCue>.Event(cue);
 }

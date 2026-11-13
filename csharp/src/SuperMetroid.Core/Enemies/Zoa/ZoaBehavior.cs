@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Zoa.Artwork;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Zoa;
@@ -20,7 +19,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         ZoaEnemyState state = slot.RequireSpeciesState<ZoaEnemyState>();
         AnimationPlayback<ZoaProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, ZoaAnimations.Segments, ref playback, ZoaFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, ZoaAnimations.Segments, ref playback,
             cue =>
             {
                 ApplyZoaCue(state, cue);

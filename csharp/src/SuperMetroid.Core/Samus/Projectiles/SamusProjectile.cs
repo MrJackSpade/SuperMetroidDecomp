@@ -114,8 +114,11 @@ public sealed class SamusProjectile
     /// <summary>The phase of a Plasma special-attack ring.</summary>
     public PlasmaRingPhase PlasmaPhase { get; internal set; }
 
-    /// <summary>The signed angle step, in table units, a Spazer special-attack particle turns by each update.</summary>
-    public int SpazerAngleStep { get; internal set; }
+    /// <summary>
+    /// The turn a Spazer special-attack particle makes round its circle each update: its steps on when it turns
+    /// clockwise, a full circle less them when it turns counterclockwise.
+    /// </summary>
+    public TrigonometryAngle SpazerTurnPerUpdate { get; internal set; }
 
     /// <summary>The phase of a Spazer special-attack particle, set when the attack starts.</summary>
     public SpazerComboPhase SpazerPhase { get; internal set; }
@@ -177,7 +180,7 @@ public sealed class SamusProjectile
         ComboOrbitRadius = 0;
         ComboLifetime = 0;
         PlasmaPhase = PlasmaRingPhase.Expanding;
-        SpazerAngleStep = 0;
+        SpazerTurnPerUpdate = TrigonometryAngle.Zero;
         SpazerPhase = SpazerComboPhase.Circling;
         AttackParticle = null;
         SpazerPartner = null;

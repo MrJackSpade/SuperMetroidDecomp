@@ -97,7 +97,7 @@ internal sealed class BeamCombos
                 if (kind is SamusComboKind.Spazer or SamusComboKind.Plasma) slot.ComboOrbitRadius = 40;
                 if (kind == SamusComboKind.Spazer) slot.SpazerPhase = SpazerComboPhase.Circling;
                 if (kind is SamusComboKind.Wave or SamusComboKind.Ice) slot.ComboLifetime = 600;
-                if (kind == SamusComboKind.Spazer) slot.SpazerAngleStep = SpazerTurnSteps(part.SpazerTurn, 4);
+                if (kind == SamusComboKind.Spazer) slot.SpazerTurnPerUpdate = SpazerTurn(part.SpazerTurn, BeamComboDefinitions.SpazerCirclingTurn);
                 if (kind == SamusComboKind.Plasma) slot.PlasmaPhase = PlasmaRingPhase.Expanding;
                 if (kind == SamusComboKind.Wave)
                 {
@@ -312,7 +312,7 @@ internal sealed class BeamCombos
                     if (slot.ComboAngle == TrigonometryAngle.HalfTurn)
                     {
                         slot.ComboOrbitRadius = 160;
-                        slot.SpazerAngleStep = SpazerTurnSteps(PartOf(slot).SpazerTurn, 2);
+                        slot.SpazerTurnPerUpdate = SpazerTurn(PartOf(slot).SpazerTurn, BeamComboDefinitions.SpazerFlyingTurn);
                         slot.Direction = SamusProjectileDirection.UpFacingRight;
                         slot.IsSpent = false;
                         slot.SpazerPhase = SpazerComboPhase.FlyingUpTowardsPoint;
@@ -328,7 +328,7 @@ internal sealed class BeamCombos
                         slot.ComboOrbitRadius -= 5;
                         if (slot.ComboOrbitRadius == 0)
                         {
-                            slot.SpazerAngleStep = -SpazerTurnSteps(PartOf(slot).SpazerTurn, 2);
+                            slot.SpazerTurnPerUpdate = TrigonometryAngle.Zero - SpazerTurn(PartOf(slot).SpazerTurn, BeamComboDefinitions.SpazerFlyingTurn);
                             slot.ComboAngle += TrigonometryAngle.HalfTurn;
                             slot.SpazerPhase = SpazerComboPhase.FlyingUpAwayFromPoint;
                             shared.SetSharedCooldown(2);
@@ -355,20 +355,23 @@ internal sealed class BeamCombos
         return null;
     }
 
-    /// <summary>Advances the Spazer particle's angular phase, in 256ths of a turn, by its signed step.</summary>
+    /// <summary>Turns the Spazer particle on round its circle by its turn per update.</summary>
     private static void AdvanceSpazerAngle(SamusProjectile slot) =>
-        slot.ComboAngle = slot.ComboAngle.TurnedBySteps(slot.SpazerAngleStep);
+        slot.ComboAngle += slot.SpazerTurnPerUpdate;
 
     /// <summary>The part <paramref name="particle"/> plays in its special attack.</summary>
     private static SpecialAttackParticle PartOf(SamusProjectile particle) =>
         particle.AttackParticle ?? throw new InvalidOperationException(
             $"The projectile in place {particle.Place} runs a special attack's update but plays no part in one.");
 
-    /// <summary>The signed angle step that turns a Spazer particle <paramref name="steps"/> steps <paramref name="turn"/>.</summary>
-    private static int SpazerTurnSteps(RotationDirection turn, int steps) => turn switch
+    /// <summary>
+    /// The turn per update that carries a Spazer particle <paramref name="by"/> round its circle <paramref name="turn"/>:
+    /// the turn itself clockwise, a full circle less it counterclockwise.
+    /// </summary>
+    private static TrigonometryAngle SpazerTurn(RotationDirection turn, TrigonometryAngle by) => turn switch
     {
-        RotationDirection.Clockwise => steps,
-        RotationDirection.Counterclockwise => -steps,
+        RotationDirection.Clockwise => by,
+        RotationDirection.Counterclockwise => TrigonometryAngle.Zero - by,
         _ => throw new ArgumentOutOfRangeException(nameof(turn), turn, $"Undefined {nameof(RotationDirection)}."),
     };
 

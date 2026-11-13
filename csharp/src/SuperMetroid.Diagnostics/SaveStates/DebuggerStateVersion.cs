@@ -15,7 +15,9 @@ internal enum DebuggerStateVersion
     /// the game's static members hold, catalog identities among them, named by their path from the member instead of
     /// copied (#1623); every hash-keyed collection held as its comparers and entries, which a restore adds to a new
     /// collection, instead of its capturing process's bucket layout (#1681); the game itself as the graph's root, with no
-    /// work-memory image beside it (#1688).
+    /// work-memory image beside it (#1688); every array of values with no identity (enums, structs of values, nullable
+    /// values) written as one packed run of a schema, member tables and back-to-back values instead of a framed object per
+    /// element (#1696).
     /// </summary>
-    Current = 15,
+    Current = 16,
 }

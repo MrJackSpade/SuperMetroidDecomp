@@ -1,7 +1,6 @@
 using SuperMetroid.Core;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace SuperMetroid.Diagnostics.SaveStates;
 
@@ -10,7 +9,8 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 /// It preserves private fields, reference identity, cycles, arrays, and internal delegates;
 /// this is intentionally not a general interchange format. Build changes are permitted,
 /// but fields and delegate identities must still resolve against the current layout. A collection keyed by hash is held
-/// as its entries and rebuilt from them, never by its buckets (<see cref="HashKeyedCollection"/>, #1681).
+/// as its entries and rebuilt from them, never by its buckets (<see cref="HashKeyedCollection"/>, #1681). An array of
+/// values with no identity is written as one packed run of its elements' values (<see cref="PackedElementLayout"/>, #1696).
 /// </summary>
 internal static class DebuggerObjectGraphSerializer
 {
@@ -82,6 +82,11 @@ internal static class DebuggerObjectGraphSerializer
         /// to a new collection instead of restoring the captured bucket layout (#1681).
         /// </summary>
         HashEntries,
+        /// <summary>
+        /// The elements of an array of values with no identity, after array shape metadata, as one packed run: their schema
+        /// once, their enums' member tables, then their values back to back (<see cref="PackedElementLayout"/>, #1696).
+        /// </summary>
+        PackedArray,
     }
 
     /// <summary>Serializes one graph with reference IDs and strict type/member identities.</summary>
@@ -172,7 +177,7 @@ internal static class DebuggerObjectGraphSerializer
                     return;
                 case LayoutKind.Primitive:
                     writer.Write((byte)PayloadKind.Primitive);
-                    WritePrimitiveValue(layout.Type, value);
+                    DebuggerPrimitives.Write(writer, layout.Type, value);
                     return;
                 case LayoutKind.String:
                     writer.Write((byte)PayloadKind.String);
@@ -242,36 +247,10 @@ internal static class DebuggerObjectGraphSerializer
                 Write(entry);
         }
 
-        /// <summary>Writes each supported primitive with a fixed binary width or representation.</summary>
-        private void WritePrimitiveValue(Type type, object value)
-        {
-            switch (Type.GetTypeCode(type))
-            {
-                case TypeCode.Boolean: writer.Write((bool)value); return;
-                case TypeCode.Byte: writer.Write((byte)value); return;
-                case TypeCode.SByte: writer.Write((sbyte)value); return;
-                case TypeCode.Int16: writer.Write((short)value); return;
-                case TypeCode.UInt16: writer.Write((ushort)value); return;
-                case TypeCode.Int32: writer.Write((int)value); return;
-                case TypeCode.UInt32: writer.Write((uint)value); return;
-                case TypeCode.Int64: writer.Write((long)value); return;
-                case TypeCode.UInt64: writer.Write((ulong)value); return;
-                case TypeCode.Char: writer.Write((char)value); return;
-                case TypeCode.Single: writer.Write((float)value); return;
-                case TypeCode.Double: writer.Write((double)value); return;
-                case TypeCode.Decimal: writer.Write((decimal)value); return;
-                case TypeCode.DateTime: writer.Write(((DateTime)value).ToBinary()); return;
-                case TypeCode.Empty or TypeCode.Object or TypeCode.DBNull or TypeCode.String:
-                    break;
-                default:
-                    throw new NotSupportedException($"Debugger state primitive {type.FullName} has an unknown type code.");
-            }
-            if (type == typeof(TimeSpan)) writer.Write(((TimeSpan)value).Ticks);
-            else if (type == typeof(Guid)) writer.Write(((Guid)value).ToByteArray());
-            else throw new NotSupportedException($"Debugger state primitive {type.FullName} is unsupported.");
-        }
-
-        /// <summary>Writes raw primitive storage or recursively encodes each array element.</summary>
+        /// <summary>
+        /// Writes raw primitive storage, a packed run of values with no identity (#1696), or each element framed: an array
+        /// whose element type can hold a reference or identity is written element by element.
+        /// </summary>
         private void WriteArray(Array array, Type type)
         {
             Type elementType = type.GetElementType()
@@ -285,6 +264,11 @@ internal static class DebuggerObjectGraphSerializer
                 writer.Write(bytes);
                 return;
             }
+            if (PackedElementLayout.For(elementType) is { } packed)
+            {
+                WritePackedArray(array, type, packed);
+                return;
+            }
 
             writer.Write((byte)PayloadKind.Array);
             WriteArrayShape(array);
@@ -295,19 +279,6 @@ internal static class DebuggerObjectGraphSerializer
                 return;
             }
             TypeLayout element = Layout(elementType);
-            if (element.Kind == LayoutKind.Enum && EnumNames.For(elementType) is { } names)
-            {
-                // Each enum element is written as Write writes a boxed member: its value prefix, then its name, read from
-                // the element's own storage instead of boxing it and formatting its name again (#1532).
-                byte[] prefix = element.EnumPrefix;
-                ref byte storage = ref MemoryMarshal.GetArrayDataReference(array);
-                for (int index = 0; index < array.Length; index++)
-                {
-                    writer.Write(prefix);
-                    writer.Write(names.Of(names.Bits(ref storage, index)));
-                }
-                return;
-            }
             if (type.IsSZArray && element.ElementWriter(array.Length) is { } elements)
             {
                 // Each struct element is written as Write writes the boxed element, without boxing it (#1532).
@@ -316,6 +287,50 @@ internal static class DebuggerObjectGraphSerializer
                 return;
             }
             for (int index = 0; index < array.Length; index++) Write(array.GetValue(index));
+        }
+
+        /// <summary>
+        /// The values of the run being packed, gathered before they are written so the run's enum member tables, which its
+        /// values index, can precede them; reused for every run of the capture.
+        /// </summary>
+        private MemoryStream? packedValues;
+
+        /// <summary>The writer of <see cref="packedValues"/>.</summary>
+        private BinaryWriter? packedWriter;
+
+        /// <summary>
+        /// Writes an array of values with no identity as one packed run (#1696): its shape, its element schema, each of its
+        /// enums' member tables, then its values' byte count and the values back to back.
+        /// </summary>
+        private void WritePackedArray(Array array, Type type, PackedElementLayout packed)
+        {
+            writer.Write((byte)PayloadKind.PackedArray);
+            WriteArrayShape(array);
+            writer.Write(packed.Schema);
+            MemoryStream values = packedValues ??= new MemoryStream();
+            BinaryWriter output = packedWriter ??= new BinaryWriter(values, System.Text.Encoding.UTF8, leaveOpen: true);
+            values.SetLength(0);
+            PackedElementLayout.EnumTables tables = packed.NewTables();
+            if (type.IsSZArray && packed.VectorWriter(array.Length) is { } elements)
+            {
+                for (int index = 0; index < array.Length; index++)
+                    elements(output, tables, array, index);
+            }
+            else if (IsVector(array))
+            {
+                for (int index = 0; index < array.Length; index++)
+                    packed.WriteElement(output, tables, array.GetValue(index));
+            }
+            else
+            {
+                foreach (int[] indices in EnumerateArrayIndices(array))
+                    packed.WriteElement(output, tables, array.GetValue(indices));
+            }
+            output.Flush();
+            packed.WriteTables(writer, tables);
+            int length = checked((int)values.Length);
+            writer.Write(length);
+            writer.Write(values.GetBuffer(), 0, length);
         }
 
         /// <summary>Records rank, lengths, and lower bounds for exact array reconstruction.</summary>
@@ -499,106 +514,6 @@ internal static class DebuggerObjectGraphSerializer
     }
 
     /// <summary>
-    /// The encoded names of one enum's members by their stored bits, each formatted and encoded once (#1532): the name
-    /// <see cref="Enum.ToString()"/> gives the member, as <see cref="BinaryWriter.Write(string)"/> writes it.
-    /// </summary>
-    private sealed class EnumNames
-    {
-        /// <summary>Each enum's names, or null for an enum whose underlying type is not an integer.</summary>
-        private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, EnumNames?> enums = new();
-
-        /// <summary>The enum.</summary>
-        private readonly Type type;
-
-        /// <summary>How many bytes the underlying integer stores.</summary>
-        private readonly IntegerWidth width;
-
-        /// <summary>Whether the underlying integer is signed.</summary>
-        private readonly bool signed;
-
-        /// <summary>Each member's encoded name, by its bits zero-extended from the underlying integer's width.</summary>
-        private readonly System.Collections.Concurrent.ConcurrentDictionary<ulong, byte[]> names = new();
-
-        /// <summary>The names of <paramref name="enumType"/>, whose underlying integer is <paramref name="width"/> wide.</summary>
-        private EnumNames(Type enumType, IntegerWidth width, bool signed)
-        {
-            type = enumType;
-            this.width = width;
-            this.signed = signed;
-        }
-
-        /// <summary>The names of <paramref name="enumType"/>, or null when its underlying type is not an integer.</summary>
-        internal static EnumNames? For(Type enumType) => enums.GetOrAdd(enumType, static candidate =>
-            Type.GetTypeCode(candidate) switch
-            {
-                TypeCode.SByte => new EnumNames(candidate, IntegerWidth.One, signed: true),
-                TypeCode.Byte => new EnumNames(candidate, IntegerWidth.One, signed: false),
-                TypeCode.Int16 => new EnumNames(candidate, IntegerWidth.Two, signed: true),
-                TypeCode.UInt16 => new EnumNames(candidate, IntegerWidth.Two, signed: false),
-                TypeCode.Int32 => new EnumNames(candidate, IntegerWidth.Four, signed: true),
-                TypeCode.UInt32 => new EnumNames(candidate, IntegerWidth.Four, signed: false),
-                TypeCode.Int64 => new EnumNames(candidate, IntegerWidth.Eight, signed: true),
-                TypeCode.UInt64 => new EnumNames(candidate, IntegerWidth.Eight, signed: false),
-                TypeCode.Empty or TypeCode.Object or TypeCode.DBNull or TypeCode.Boolean or TypeCode.Char or
-                    TypeCode.Single or TypeCode.Double or TypeCode.Decimal or TypeCode.DateTime or TypeCode.String => null,
-                _ => throw new NotSupportedException($"Enum {candidate.FullName} has an unknown underlying type code."),
-            });
-
-        /// <summary>The unsigned integer type as wide as the enum's underlying type, which its bits are read as.</summary>
-        internal Type BitsType => width switch
-        {
-            IntegerWidth.One => typeof(byte),
-            IntegerWidth.Two => typeof(ushort),
-            IntegerWidth.Four => typeof(uint),
-            IntegerWidth.Eight => typeof(ulong),
-            _ => throw new InvalidOperationException($"Enum {type.FullName} has no storage width."),
-        };
-
-        /// <summary>The bits of element <paramref name="index"/> of an array of the enum whose storage starts at <paramref name="storage"/>.</summary>
-        internal ulong Bits(ref byte storage, int index) => width switch
-        {
-            IntegerWidth.One => Unsafe.Add(ref storage, index),
-            IntegerWidth.Two => Unsafe.ReadUnaligned<ushort>(ref Unsafe.Add(ref storage, index * sizeof(ushort))),
-            IntegerWidth.Four => Unsafe.ReadUnaligned<uint>(ref Unsafe.Add(ref storage, index * sizeof(uint))),
-            IntegerWidth.Eight => Unsafe.ReadUnaligned<ulong>(ref Unsafe.Add(ref storage, index * sizeof(ulong))),
-            _ => throw new InvalidOperationException($"Enum {type.FullName} has no storage width."),
-        };
-
-        /// <summary>The encoded name of the member whose bits are <paramref name="bits"/>.</summary>
-        internal byte[] Of(ulong bits) => names.TryGetValue(bits, out byte[]? known) ? known : names.GetOrAdd(bits, Name);
-
-        /// <summary>The encoded name <see cref="Enum.ToString()"/> gives the member whose bits are <paramref name="bits"/>.</summary>
-        private byte[] Name(ulong bits)
-        {
-            object member = !signed ? Enum.ToObject(type, bits) : width switch
-            {
-                IntegerWidth.One => Enum.ToObject(type, (long)unchecked((sbyte)(byte)bits)),
-                IntegerWidth.Two => Enum.ToObject(type, (long)unchecked((short)(ushort)bits)),
-                IntegerWidth.Four => Enum.ToObject(type, (long)unchecked((int)(uint)bits)),
-                IntegerWidth.Eight => Enum.ToObject(type, unchecked((long)bits)),
-                _ => throw new InvalidOperationException($"Enum {type.FullName} has no storage width."),
-            };
-            return Encoded(member.ToString() ?? throw new InvalidOperationException($"Enum {type.FullName} has no name."));
-        }
-    }
-
-    /// <summary>How many bytes an enum's underlying integer stores.</summary>
-    private enum IntegerWidth
-    {
-        /// <summary>One byte: <see cref="byte"/> or <see cref="sbyte"/>.</summary>
-        One,
-
-        /// <summary>Two bytes: <see cref="ushort"/> or <see cref="short"/>.</summary>
-        Two,
-
-        /// <summary>Four bytes: <see cref="uint"/> or <see cref="int"/>.</summary>
-        Four,
-
-        /// <summary>Eight bytes: <see cref="ulong"/> or <see cref="long"/>.</summary>
-        Eight,
-    }
-
-    /// <summary>
     /// Compiled writers of a type's fields (#1532), writing exactly the bytes the reflective loop writes: each field's header,
     /// then its value as <see cref="GraphWriter.Write"/> writes it. A primitive or enum field, whose value is always of the
     /// field's own type, is written from the field without boxing it; every other field goes through
@@ -671,7 +586,7 @@ internal static class DebuggerObjectGraphSerializer
         {
             MethodInfo writeValue = typeof(GraphWriter).GetMethod(nameof(GraphWriter.Write), [typeof(object)])
                 ?? throw new InvalidOperationException("The graph writer's value write is missing.");
-            MethodInfo encodedName = typeof(EnumNames).GetMethod(nameof(EnumNames.Of), BindingFlags.Instance | BindingFlags.NonPublic)
+            MethodInfo encodedName = typeof(DebuggerEnumNames).GetMethod(nameof(DebuggerEnumNames.Of), BindingFlags.Instance | BindingFlags.NonPublic)
                 ?? throw new InvalidOperationException("The enum names' encoded name is missing.");
             for (int field = 0; field < layout.Fields.Length; field++)
             {
@@ -684,7 +599,7 @@ internal static class DebuggerObjectGraphSerializer
                     body.Add(System.Linq.Expressions.Expression.Call(output, WriterOverload(fieldType), read));
                     continue;
                 }
-                if (fieldType.IsEnum && EnumNames.For(fieldType) is { } names)
+                if (fieldType.IsEnum && DebuggerEnumNames.For(fieldType) is { } names)
                 {
                     body.Add(WriteBytes(output, [.. layout.Headers[field], .. Layout(fieldType).EnumPrefix]));
                     System.Linq.Expressions.Expression bits = System.Linq.Expressions.Expression.Convert(
@@ -832,6 +747,7 @@ internal static class DebuggerObjectGraphSerializer
                 PayloadKind.InlineArray => ReadInlineArray(type),
                 PayloadKind.EnumName => ReadEnumName(type),
                 PayloadKind.HashEntries => ReadHashEntries(type, referenceId),
+                PayloadKind.PackedArray => ReadPackedArray(type, referenceId),
                 _ => throw new InvalidDataException(
                     $"Unknown debugger-state payload kind {(byte)kind} for {type.FullName}."),
             };
@@ -842,17 +758,7 @@ internal static class DebuggerObjectGraphSerializer
         {
             if (!type.IsEnum)
                 throw new InvalidDataException($"Debugger state stores an enum name for non-enum {type.FullName}.");
-            string name = reader.ReadString();
-            // A name that decoded to a defined member decodes to it in every context, so it is parsed and validated once.
-            if (decodedEnumNames.TryGetValue((type, name), out object? known))
-                return known;
-            if (!Enum.TryParse(type, name, ignoreCase: false, out object? parsed))
-                throw new InvalidDataException($"Debugger state {type.FullName} value '{name}' names no member of this build.");
-            object underlying = Convert.ChangeType(parsed, Enum.GetUnderlyingType(type), System.Globalization.CultureInfo.InvariantCulture);
-            object decoded = DebuggerEnumValues.Decode(type, underlying, structElementDepth > 0);
-            if (structElementDepth == 0)
-                decodedEnumNames.TryAdd((type, name), decoded);
-            return decoded;
+            return DebuggerEnumValues.DecodeName(type, reader.ReadString(), structElementDepth > 0);
         }
 
         /// <summary>
@@ -874,25 +780,7 @@ internal static class DebuggerObjectGraphSerializer
         /// <summary>Decodes a fixed scalar and validates enum values in the current context.</summary>
         private object ReadPrimitive(Type serializedType)
         {
-            Type type = serializedType.IsEnum ? Enum.GetUnderlyingType(serializedType) : serializedType;
-            object value;
-            if (type == typeof(bool)) value = reader.ReadBoolean();
-            else if (type == typeof(byte)) value = reader.ReadByte();
-            else if (type == typeof(sbyte)) value = reader.ReadSByte();
-            else if (type == typeof(short)) value = reader.ReadInt16();
-            else if (type == typeof(ushort)) value = reader.ReadUInt16();
-            else if (type == typeof(int)) value = reader.ReadInt32();
-            else if (type == typeof(uint)) value = reader.ReadUInt32();
-            else if (type == typeof(long)) value = reader.ReadInt64();
-            else if (type == typeof(ulong)) value = reader.ReadUInt64();
-            else if (type == typeof(char)) value = reader.ReadChar();
-            else if (type == typeof(float)) value = reader.ReadSingle();
-            else if (type == typeof(double)) value = reader.ReadDouble();
-            else if (type == typeof(decimal)) value = reader.ReadDecimal();
-            else if (type == typeof(DateTime)) value = DateTime.FromBinary(reader.ReadInt64());
-            else if (type == typeof(TimeSpan)) value = TimeSpan.FromTicks(reader.ReadInt64());
-            else if (type == typeof(Guid)) value = new Guid(reader.ReadBytes(16));
-            else throw new NotSupportedException($"Debugger state primitive {type.FullName} is unsupported.");
+            object value = DebuggerPrimitives.Read(reader, serializedType.IsEnum ? Enum.GetUnderlyingType(serializedType) : serializedType);
             return serializedType.IsEnum ? DebuggerEnumValues.Decode(serializedType, value, structElementDepth > 0) : value;
         }
 
@@ -920,6 +808,39 @@ internal static class DebuggerObjectGraphSerializer
                 if (read == 0)
                     throw new EndOfStreamException("Debugger state ended inside a primitive array.");
                 bytes = bytes[read..];
+            }
+            return array;
+        }
+
+        /// <summary>
+        /// Restores an array of values with no identity from its packed run (#1696): checks the run's element schema against
+        /// this build's layout, reads its enums' member tables, then fills each element from the run's values, which must
+        /// be read exactly. Enum members inside struct elements may be zero storage slots, as for framed struct elements.
+        /// </summary>
+        private Array ReadPackedArray(Type type, int referenceId)
+        {
+            Type elementType = type.GetElementType()
+                ?? throw new InvalidDataException($"Serialized array {type.FullName} has no element type.");
+            Array array = CreateArray(elementType);
+            Register(referenceId, array);
+            PackedElementLayout packed = PackedElementLayout.For(elementType) ?? throw new InvalidDataException(
+                $"{UnsupportedVersion}: the state packs the elements of {type.FullName}; this build writes each of them framed.");
+            packed.CheckSchema(new PackedElementLayout.SchemaSource(reader, ReadName, ResolveName));
+            object[][] tables = packed.ReadTables(reader, zeroStorageSlot: !elementType.IsEnum || structElementDepth > 0);
+            int byteCount = ReadNonnegativeLength("packed element byte");
+            byte[] bytes = reader.ReadBytes(byteCount);
+            if (bytes.Length != byteCount)
+                throw new EndOfStreamException($"Debugger state ended inside the packed elements of {type.FullName}.");
+            using var values = new BinaryReader(new MemoryStream(bytes, writable: false), System.Text.Encoding.UTF8);
+            if (IsVector(array))
+                for (int index = 0; index < array.Length; index++) array.SetValue(packed.ReadElement(values, tables), index);
+            else
+                foreach (int[] indices in EnumerateArrayIndices(array))
+                    array.SetValue(packed.ReadElement(values, tables), indices);
+            if (values.BaseStream.Position != byteCount)
+            {
+                throw new InvalidDataException(
+                    $"The packed elements of the saved {type.FullName} hold {byteCount} bytes; its {array.Length} elements read {values.BaseStream.Position}.");
             }
             return array;
         }
@@ -1193,13 +1114,6 @@ internal static class DebuggerObjectGraphSerializer
         for (Type? current = type; current is not null; current = current.BaseType)
             yield return current;
     }
-
-    /// <summary>
-    /// Each enum name a restore decoded to a defined member, by its enum, with the boxed member: an enum's boxed member is
-    /// immutable, and a field or element it is stored into copies it. Rejected names, and zero storage slots decoded only
-    /// within struct array storage, are not kept, so they are validated again each time.
-    /// </summary>
-    private static readonly System.Collections.Concurrent.ConcurrentDictionary<(Type Enum, string Name), object> decodedEnumNames = new();
 
     /// <summary>Caches only successfully resolved allowed types; rejected names remain errors.</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Type> allowedTypes = new(StringComparer.Ordinal);

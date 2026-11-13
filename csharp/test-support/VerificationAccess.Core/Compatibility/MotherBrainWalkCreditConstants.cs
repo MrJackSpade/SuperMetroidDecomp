@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Bosses.MotherBrain;
+﻿namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>Cartridge values and helpers of <see cref="MotherBrainWalkCredit"/> that only verification reads.</summary>
 internal static class MotherBrainWalkCreditConstants

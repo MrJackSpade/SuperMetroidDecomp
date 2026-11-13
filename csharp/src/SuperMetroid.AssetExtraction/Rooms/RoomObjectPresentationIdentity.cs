@@ -23,6 +23,7 @@ public static class RoomObjectPresentationIdentity
             [GameInstallationLayout.RoomObjectEscapeGateVisualDirectoryName] = catalogs.EscapeGate.ContentIdentity,
             [GameInstallationLayout.RoomObjectBombTorizoHandVisualDirectoryName] = catalogs.BombTorizoHand.ContentIdentity,
             [GameInstallationLayout.RoomObjectDraygonCannonVisualDirectoryName] = catalogs.DraygonCannon.ContentIdentity,
+            [GameInstallationLayout.RoomObjectPhantoonDoorVisualDirectoryName] = catalogs.PhantoonDoor.ContentIdentity,
             [GameInstallationLayout.RoomObjectChozoStatueVisualDirectoryName] = catalogs.ChozoStatue.ContentIdentity,
             [GameInstallationLayout.RoomObjectLinkedRestoreVisualDirectoryName] = catalogs.LinkedRestore.ContentIdentity,
             [GameInstallationLayout.RoomObjectTourianAccessVisualDirectoryName] = catalogs.TourianAccess.ContentIdentity,

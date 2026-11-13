@@ -61,6 +61,7 @@ internal static class LookupRoomStateSettingsVerification
         Suite(nameof(VerifyRoomStateEnemyTilesetPointer), () => VerifyRoomStateEnemyTilesetPointer(rom));
         Suite(nameof(VerifyRoomStateLayer2ScrollX), () => VerifyRoomStateLayer2ScrollX(rom));
         Suite(nameof(VerifyRoomStateLayer2ScrollY), () => VerifyRoomStateLayer2ScrollY(rom));
+        Suite(nameof(VerifyRoomStateBackgroundSource), () => VerifyRoomStateBackgroundSource(rom));
         Suite(nameof(VerifyRoomStateScrollPointer), () => VerifyRoomStateScrollPointer(rom));
         Suite(nameof(VerifyRoomStateXrayPointer), () => VerifyRoomStateXrayPointer(rom));
         Suite(nameof(VerifyRoomStateMainCodePointer), () => VerifyRoomStateMainCodePointer(rom));
@@ -139,6 +140,11 @@ internal static class LookupRoomStateSettingsVerification
     private static void VerifyRoomStateLayer2ScrollX(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.BackgroundScrollModes.Horizontal, "Layer2ScrollX");
     /// <summary>Checks vertical layer-two scroll configuration in every room state.</summary>
     private static void VerifyRoomStateLayer2ScrollY(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.BackgroundScrollModes.Vertical, "Layer2ScrollY");
+    /// <summary>
+    /// Checks what each room state's background shows (#1630): its level background exactly where the import decodes a
+    /// streaming scroll byte, which the streaming flag the room state no longer holds selected.
+    /// </summary>
+    private static void VerifyRoomStateBackgroundSource(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.BackgroundScrollModes.Source, "BackgroundSource");
     /// <summary>Checks the room-scroll data pointer in each native state.</summary>
     private static void VerifyRoomStateScrollPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.ScrollPointer, "ScrollPointer");
     /// <summary>Checks X-ray overlay pointers and the complete nonzero overlay-source view.</summary>

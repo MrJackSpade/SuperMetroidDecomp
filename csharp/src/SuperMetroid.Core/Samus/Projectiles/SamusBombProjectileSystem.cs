@@ -912,7 +912,7 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        // The bomb dispatch sends these types to immediate clear/set-carry routines. They
+        // The bomb dispatch sends these types to routines that only report pass or stop. They
         // spawn no room object and do not alter the room's terrain or behaviours, so recording the visit is
         // the complete observable effect for this runtime.
         if (block.CollisionType is

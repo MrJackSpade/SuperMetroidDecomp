@@ -19,6 +19,7 @@ internal static class GunshipMotionDefinitionsVerification
         Suite(nameof(VerifyGunshipBrakeAlgorithm), () => VerifyGunshipBrakeAlgorithm(rom));
         Suite(nameof(VerifyGunshipHoverTimerAlgorithm), () => VerifyGunshipHoverTimerAlgorithm(rom));
         Suite(nameof(VerifyGunshipHoverDeltaSelection), () => VerifyGunshipHoverDeltaSelection(rom));
+        Suite(nameof(VerifyGunshipEscapeAcceleration), VerifyGunshipEscapeAcceleration);
 
         for (ushort frame = 0; frame < 17; frame++)
         {
@@ -152,6 +153,30 @@ internal static class GunshipMotionDefinitionsVerification
     /// <summary>Uses the compiled falling-tube placement; this fixture constructs none.</summary>
     public RoomEnemyPopulationRecord ReadFallingTubePopulation(SuperMetroid.Core.Enemies.MotherBrainTubePiece piece) =>
         CompiledRoomEnemyDefinitions.Instance.ReadFallingTubePopulation(piece);
+    }
+
+    /// <summary>
+    /// The escaping ship's speed, stepped by the production acceleration for 64 updates from its two-pixel start, equals the
+    /// cartridge's word arithmetic every update: 64 256ths added, and the word set back to 2304 once its whole byte reaches
+    /// ten, so the speed saws between nine and ten pixels an update.
+    /// </summary>
+    private static void VerifyGunshipEscapeAcceleration()
+    {
+        var part = new GunshipPartState { EscapeVelocity = GunshipMotionDefinitions.EscapeStartVelocity };
+        int nativeWord = 512;
+        bool capped = false;
+        for (int update = 0; update < 64; update++)
+        {
+            part.AccelerateEscape();
+            nativeWord += 64;
+            if (nativeWord >> 8 >= 10)
+            {
+                nativeWord = 2304;
+                capped = true;
+            }
+            AssertEqual(nativeWord, part.EscapeVelocity.InTwoHundredFiftySixthsOfPixel, $"escape speed after update {update}");
+        }
+        AssertTrue(capped, "the escape speed reaches its cap within the checked updates");
     }
 
     /// <summary>Runs gunship motion and post-Ceres landing checks against the retail ROM.</summary>

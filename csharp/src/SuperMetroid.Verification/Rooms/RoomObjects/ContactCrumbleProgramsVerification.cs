@@ -223,7 +223,7 @@ internal static class ContactCrumbleProgramsVerification
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
             var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectShotBlockVisuals = visuals, RoomObjectSetupBlocks = InstalledRoomObjectSetupBlocks.Stock() });
             AssertTrue(roomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, level.BlockAt(blockIndex),
-                    RoomBlockBehaviorCodec.Decode(0)),
+                    CrumbleOf(0)),
                 "visual test installs the real contact-crumble PLM");
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 4; frame++)
@@ -251,7 +251,7 @@ internal static class ContactCrumbleProgramsVerification
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
             var roomObjects = RoomObjectFixtures.Unbound();
             AssertTrue(roomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, level.BlockAt(blockIndex),
-                    RoomBlockBehaviorCodec.Decode(1)),
+                    CrumbleOf(1)),
                 "restored-art test installs linked contact-crumble PLM");
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 100; frame++)
@@ -300,10 +300,16 @@ internal static class ContactCrumbleProgramsVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, behaviors, new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
         var roomObjects = RoomObjectFixtures.Unbound();
         AssertTrue(roomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, level.BlockAt(blockIndex),
-                RoomBlockBehaviorCodec.Decode(bts)),
+                CrumbleOf(bts)),
             $"contact-crumble BTS {bts} installs its native program");
         return new ContactCrumbleFixture(level, roomObjects);
     }
+
+    /// <summary>The crumble block a special block with <paramref name="bts"/> selects; the fixtures only place crumble blocks.</summary>
+    private static ContactCrumbleBlock CrumbleOf(int bts) =>
+        RoomBlockBehaviorCodec.Decode(bts).TryGetContactCrumble(out ContactCrumbleBlock crumble)
+            ? crumble
+            : throw new InvalidOperationException($"Verification failed: special-block BTS {bts} selects no crumble block.");
 
     /// <summary>Runs the contact-crumble program and restore-draw verification command.</summary>
     [VerificationCommand("--contact-crumble-programs")]

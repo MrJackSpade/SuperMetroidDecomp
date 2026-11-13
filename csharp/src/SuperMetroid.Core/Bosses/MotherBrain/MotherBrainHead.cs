@@ -338,8 +338,8 @@ internal sealed class MotherBrainHead
             // The neutral hold holds the phase-two neutral pose again on fifteen samples in sixteen.
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase2 }:
                 return MotherBrainRandomDefinitions.NeutralPhase2Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadProgram.NeutralPhase2Hold : null;
-            // Retail contains an unconditional branch where the adjacent commentary might suggest a
-            // carry branch: the hold's chance alone decides whether the phase-three pose holds again.
+            // Retail branches unconditionally here, where the adjacent commentary might suggest a
+            // conditional one: the hold's chance alone decides whether the phase-three pose holds again.
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase3 }:
                 return MotherBrainRandomDefinitions.NeutralPhase3Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadProgram.NeutralPhase3Hold : null;
             // The drool hold returns its destination: only the burst's chance bursts into more drool; every other sample
@@ -391,6 +391,9 @@ internal sealed class MotherBrainHead
             : angle >= OnionRingHighestAim && angle < OnionRingClampSplit ? OnionRingHighestAim
             : OnionRingLowestAim;
     }
+
+    /// <summary>The speed an onion ring flies at along its aim: four pixels and 80 256ths an update.</summary>
+    private static readonly SignedEightEight OnionRingSpeed = SignedEightEight.FromParts(4, 80);
 
     /// <summary>The lowest aim an onion ring launches at: a sixteenth of a turn.</summary>
     private static readonly TrigonometryAngle OnionRingLowestAim = new(16);
@@ -446,9 +449,9 @@ internal sealed class MotherBrainHead
             RoomEnemyProjectileKind.MotherBrainOnionRing,
             graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         ring.State = new MotherBrainOnionRingState(MotherBrainOnionRingAttachDelay);
-        ring.Velocity = ring.Velocity.WithX(EnemyMath.MultiplySineSample(1104, angle));
+        ring.Velocity = ring.Velocity.WithX(EnemyMath.MultiplySineSample(OnionRingSpeed, angle));
         ring.Velocity = ring.Velocity.WithY(EnemyMath.MultiplySineSample(
-            1104,
+            OnionRingSpeed,
             angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 
         // The ring's initializer falls through into its attachment step, making the mouth position observable before

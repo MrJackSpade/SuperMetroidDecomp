@@ -4,6 +4,7 @@ using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies.Animals;
@@ -275,6 +276,12 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         {
             DrawShape(level, draw, origin, Installed(_visuals.RoomObjectDraygonCannonVisuals, "Draygon cannon").Images
                 .Image(RoomObjectDraw.FrameOf<DraygonCannonDraw>(draw, "Draygon cannon")), draygonCannon);
+            return;
+        }
+        if (PhantoonDoorDraws.TryDescribe(draw, out RoomBlockShape? phantoonDoor))
+        {
+            DrawShape(level, draw, origin, Installed(_visuals.RoomObjectPhantoonDoorVisuals, "Phantoon door").Images
+                .Image(RoomObjectDraw.FrameOf<PhantoonDoorDraw>(draw, "Phantoon door")), phantoonDoor);
             return;
         }
         if (ChozoStatueDraws.TryDescribe(draw, out RoomBlockShape? chozoStatue))

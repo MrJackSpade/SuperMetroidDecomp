@@ -22,4 +22,10 @@ public sealed record EndingBackdropDocument
 
     /// <summary>The post-credits scenes' backdrop.</summary>
     public required PaletteRgb5 PostCredits { get; init; }
+
+    /// <summary>
+    /// The backdrop the space behind the exploding planet shows at each frame of its colour effect, first frame first
+    /// (#1583, #1637).
+    /// </summary>
+    public required PaletteRgb5[] SpaceBehindExplodingPlanet { get; init; }
 }

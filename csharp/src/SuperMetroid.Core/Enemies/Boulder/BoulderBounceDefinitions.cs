@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 public static class BoulderBounceDefinitions
 {
     /// <summary>
-    /// The 8.8 bounce speed clock each impact restarts from, indexed by the remaining bounce count: the last impact
-    /// installs the leading zero before the counter passes below zero into rolling.
+    /// The bounce clock's place each impact restarts it from, indexed by the remaining bounce count: the last impact
+    /// installs the table's start before the counter passes below zero into rolling, the others records 16 and 24.
     /// </summary>
     /// <remarks>
     /// #625 / #647 retained table: all three speeds are
@@ -15,5 +15,6 @@ public static class BoulderBounceDefinitions
     /// The compiled boulder bounce check exercises each real floor collision, the
     /// zero-to-minus-one handoff, and both invalid counter boundaries.
     /// </remarks>
-    internal static readonly int[] SpeedIndices = [0, 4096, 6144];
+    internal static readonly EnemyQuadraticSpeedIndex[] SpeedIndices =
+        [EnemyQuadraticSpeedIndex.Start, EnemyQuadraticSpeedIndex.FromRows(16), EnemyQuadraticSpeedIndex.FromRows(24)];
 }

@@ -93,17 +93,19 @@ public sealed class TourianStatueSequence
     internal readonly List<TileObject> objects = [];
     /// <summary>Minus two waits for all grey events; nonnegative values count down the authored pre-descent hold.</summary>
     private int delay = -2;
-    /// <summary>Accumulated positive 16.16 travel, exposed as a negative background vertical offset.</summary>
-    internal int Descent { get; set; }
+    /// <summary>
+    /// How far the statues have lowered, zero through the authored distance and the few quarter-steps that first reach it,
+    /// exposed as a negative background vertical offset.
+    /// </summary>
+    internal SignedSixteenSixteen Descent { get; set; }
     /// <summary>Whether the last loaded room uses <c>RunStatueUnlockingAnimations</c>; remains true after the descent finishes; the next room builds its own sequence.</summary>
     public bool Enabled { get; private set; }
     /// <summary>
-    /// The whole part of the statues' 16.16 descent, which descends by a quarter pixel per
-    /// frame. As a signed 16.16 value its whole pixels round toward negative infinity, so
-    /// the first quarter-pixel step already reads -1. The descent stops at its authored distance, so the offset stays
-    /// between minus that distance and zero.
+    /// The whole pixels of the statues' descent upward, which descends by a quarter pixel per frame. The upward distance's
+    /// whole pixels round toward negative infinity, so the first quarter-pixel step already reads -1. The descent stops at
+    /// its authored distance, so the offset stays between minus that distance and zero.
     /// </summary>
-    public int VerticalOffset => CoordinateAxis.AsSigned(SixteenSixteen.WholeOf(-Descent));
+    public int VerticalOffset => (-Descent).WholePixels;
     /// <summary>Background offset latched at the same frame boundary as the displayed sprite frame.</summary>
     public int DisplayedVerticalOffset { get; private set; }
     /// <summary>Captures the current background position for presentation with the corresponding sprite frame.</summary>
@@ -118,7 +120,7 @@ public sealed class TourianStatueSequence
     {
         objects.Clear();
         delay = -2;
-        Descent = 0;
+        Descent = SignedSixteenSixteen.Zero;
         DisplayedVerticalOffset = 0;
         Begin(roomObjects);
     }
@@ -135,7 +137,7 @@ public sealed class TourianStatueSequence
         SpawnAnimatedObjects();
         if (_assists.Current.TourianStatuesOpen || _system.HasEvent(StoryEvent.TourianUnlocked))
         {
-            Descent = SixteenSixteen.FromWhole(TourianStatueSequenceDefinitions.DescentDistance);
+            Descent = SignedSixteenSixteen.FromWholePixels(TourianStatueSequenceDefinitions.DescentDistance);
             _enemies.TourianStatue.VerticalOffset = VerticalOffset;
             roomObjects.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, TourianAccessFloor.Clear);
             EnableScrolling();

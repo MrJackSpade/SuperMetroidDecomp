@@ -48,13 +48,17 @@ internal static class MapSpriteSheetComposer
             shades.Add(Drawn(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, colouring), fileSelect, set, pictures.SetsOf(colouring)));
             shades.Add(Drawn(MapSpriteShades.Drawn(MapSpriteScreen.Pause, colouring), pause, set, pictures.SetsOf(colouring)));
         }
-        // The highlight cycle shows each frame's colours over the highlighted sprites, in place of their drawn shade.
+        // The highlight cycle shows each frame's highlight colour over the highlighted sprites' highlight, in place of their
+        // drawn shade; their outline keeps its drawn colour (#1637).
         int highlighted = MapSpriteColouringSets.SpriteSet(MapSpriteColouring.Highlighted);
         MapPaletteCycle highlight = maps.HighlightColours;
         for (int frame = 0; frame < highlight.FrameCount; frame++)
         {
+            RgbColor[] colours = fileSelect.AsSpan(highlighted * GroupColours, GroupColours).ToArray();
+            foreach (int ink in MapPaletteCycleFormat.HighlightInks)
+                colours[ink] = highlight.Highlight(frame);
             shades.Add(SheetShade.DrawnOver(MapSpriteShades.Highlight(frame), highlighted, pictures.SetsOf(MapSpriteColouring.Highlighted),
-                highlight.Colours(frame)) with { TakesColourMath = false });
+                colours) with { TakesColourMath = false });
         }
         return new SpriteSheetSources([.. frames.Select(frame => frame.Frame)], fileSelect, ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection),
             PartsKeepOwnRows: true)

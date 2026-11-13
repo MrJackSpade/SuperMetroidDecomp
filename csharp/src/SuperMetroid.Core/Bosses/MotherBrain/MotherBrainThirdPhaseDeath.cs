@@ -220,7 +220,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     {
         // The move-to-back step makes both enemy slots non-interactive and disables the shared
         // hitboxes on every call, then reuses the ordinary medium-speed backward
-        // walk producer. Carry means X 40 has been reached/overshot; the new 128
+        // walk producer. Its target reached means X 40 has been reached/overshot; the new 128
         // timer falls through so the first smoky explosion and decrement happen now.
         BodyContact = BodyContact.With(EnemyContact.IgnoresSamus);
         BrainContact = BrainContact.With(EnemyContact.IgnoresSamus);
@@ -257,7 +257,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     {
         // The stumble emits smoke before asking for a really-fast forward walk to 96.
         // Equality still starts a complete body program; only signed overshoot or the
-        // independent 128 arena clamp reports carry and advances the death script.
+        // independent 128 arena clamp reports the target reached and advances the death script.
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Smoky, frame.NextRandomNumber, requests.DeathExplosions);
         MotherBrainWalkResult dyingAdvance = _state.RequestWalkForward(96, animationDelay: 2);

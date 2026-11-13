@@ -51,7 +51,6 @@ public sealed class AreaMapPresentation : IGameplayPresentationContent
         EndingText = parts.EndingText;
         TitleBackdrop = parts.TitleBackdrop;
         TitleGradient = parts.TitleGradient;
-        EndingSpaceBackdrops = parts.EndingSpaceBackdrops;
         MotherBrainRainbowPalette = parts.MotherBrainRainbowPalette;
         CeresHaze = parts.CeresHaze;
         PowerBombGlowColors = parts.PowerBombGlowColors;
@@ -101,8 +100,6 @@ public sealed class AreaMapPresentation : IGameplayPresentationContent
     public RgbColor TitleBackdrop { get; }
     /// <summary>Title-screen gradient presentation, separate from its static palette and character artwork.</summary>
     public TitleGradientPresentation TitleGradient { get; }
-    /// <summary>The backdrop each record of the space behind the exploding planet shows (#1512, #1583); the import pre-colours every other palette-effect colour into its sheets.</summary>
-    public EndingSpaceBackdrops EndingSpaceBackdrops { get; }
     /// <summary>Mother Brain's rainbow beam backdrop colours.</summary>
     public MotherBrainRainbowPalettePresentation MotherBrainRainbowPalette { get; }
     /// <summary>The Ceres haze's installed tints.</summary>

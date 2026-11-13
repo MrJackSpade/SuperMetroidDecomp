@@ -98,6 +98,13 @@ public readonly record struct RoomBlockBehavior
     public bool TryGetBlueDoorOrientation(out ColoredDoorOrientation orientation) =>
         BlockReactionDefinitions.BlueDoorCaps.TryGetMeaning(Reaction, out orientation);
 
+    /// <summary>
+    /// The crumble block a special block's reaction selects, if it selects one. The same reactions mean unrelated things to
+    /// other collision kinds, so the caller first establishes that the block is special.
+    /// </summary>
+    public bool TryGetContactCrumble(out ContactCrumbleBlock crumble) =>
+        BlockReactionDefinitions.ContactCrumbles.TryGetMeaning(Reaction, out crumble);
+
     /// <summary>The map, recharge or save-station access a special block's reaction selects, if it selects one.</summary>
     public bool TryGetStationAccess(out StationAccessBehavior access) =>
         BlockReactionDefinitions.StationAccesses.TryGetMeaning(Reaction, out access);

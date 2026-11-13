@@ -161,12 +161,12 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         }
 
         // The changed-pose collision compares the requested pose with the post-collision pose. A rejected
-        // expansion or crouch substitution returns carry and skips command five; this
+        // expansion or crouch substitution is reported as blocked and skips command five; this
         // is not an accepted landing and must retain the vertical motion.
         if (collision == LargerPoseCollisionOutcome.Allowed)
             ApplyAerialLandingCollisionCommand(samus, leavingScrewAttack);
         else if (leavingScrewAttack)
-            // Palette restoration belongs to the pose change, before the command carry gate.
+            // Palette restoration belongs to the pose change, before the blocked-collision gate on the command.
             samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
         return collision == LargerPoseCollisionOutcome.Allowed;
     }

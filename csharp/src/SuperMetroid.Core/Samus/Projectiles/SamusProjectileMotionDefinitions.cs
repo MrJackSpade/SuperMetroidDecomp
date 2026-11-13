@@ -9,16 +9,16 @@ internal static class SamusProjectileMotionDefinitions
     /// The horizontal and vertical speed every retail beam combination launches at, in 256ths of a pixel per update:
     /// four pixels.
     /// </summary>
-    internal static readonly SignedEightEight CardinalSpeed = SignedEightEight.FromSignedRaw(1024);
+    internal static readonly SignedEightEight CardinalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1024);
     /// <summary>The diagonal speed every retail beam combination launches at, in 256ths of a pixel per update.</summary>
-    internal static readonly SignedEightEight DiagonalSpeed = SignedEightEight.FromSignedRaw(683);
+    internal static readonly SignedEightEight DiagonalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(683);
     /// <summary>The 8.8 base speed a fired missile ignites at: one pixel per update.</summary>
-    internal static readonly SignedEightEight MissileIgnitionSpeed = SignedEightEight.FromSignedRaw(256);
+    internal static readonly SignedEightEight MissileIgnitionSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256);
     /// <summary>
     /// The 8.8 base speed a reflected missile re-ignites at: one pixel per update plus the 240/256 head start the
     /// reflection leaves.
     /// </summary>
-    internal static readonly SignedEightEight ReflectedMissileIgnitionSpeed = SignedEightEight.FromSignedRaw(496);
+    internal static readonly SignedEightEight ReflectedMissileIgnitionSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(496);
 
     /// <summary>
     /// What each of the ten firing directions adds to a projectile's 8.8 velocity on every update, in 256ths of a pixel

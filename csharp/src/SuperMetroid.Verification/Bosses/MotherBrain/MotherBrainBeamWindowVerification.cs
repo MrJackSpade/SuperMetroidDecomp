@@ -25,14 +25,14 @@ internal static class MotherBrainBeamWindowVerification
     {
         AssertOwnsNoScanlineTable(typeof(MotherBrainRainbowBeamEffect));
         var paletteDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(
-            RepositoryInstallation.Installation.MapDirectory, MotherBrainRainbowPaletteFile.FileName)));
+            RepositoryInstallation.Installation.MapDirectory, MotherBrainBeamColourFile.FileName)));
         var cycle = new JsonArray();
         for (int frame = 0; frame < MotherBrainRainbowPaletteGeometry.BeamCycleColorCount; frame++)
             cycle.Add(new JsonObject { ["red"] = frame % 2 == 0 ? 31 : 0,
                 ["green"] = frame % 2 == 0 ? 0 : 31, ["blue"] = 0 });
-        paletteDocument["beamCycle"] = cycle;
-        MotherBrainRainbowPalettePresentation installedColours = MotherBrainRainbowPaletteFile.Read(new MemoryStream(
-            System.Text.Encoding.UTF8.GetBytes(paletteDocument.ToJsonString()))).Beam;
+        paletteDocument["cycle"] = cycle;
+        MotherBrainRainbowPalettePresentation installedColours = MotherBrainBeamColourFile.Read(new MemoryStream(
+            System.Text.Encoding.UTF8.GetBytes(paletteDocument.ToJsonString())));
         var beam = new MotherBrainRainbowBeamEffect { PresentationColors = installedColours };
         AssertTrue(beam.RenderSnapshot is null, "the beam shows nothing before it first aims");
         void Step() => beam.Step(true, new(100, 95), RotationAngle.QuarterTurn, Width(64));

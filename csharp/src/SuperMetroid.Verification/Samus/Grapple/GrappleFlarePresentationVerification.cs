@@ -108,7 +108,7 @@ internal static class GrappleFlarePresentationVerification
             }
             int expectedFrame = native.Grapple.FlareAnimationFrame;
             ushort expectedTimer = native.Grapple.FlareAnimationTimer.RawValue;
-            if (SamusGrappleBeamDrawing.UsesBeamSpecificDrawingPath(native.Grapple.Phase) && native.Grapple.FlareStage != GrappleFlareStage.None)
+            if (SamusGrappleBeamDrawing.DrawingFor(native.Grapple.Phase) == SamusGrappleDrawing.Beam && native.Grapple.FlareStage != GrappleFlareStage.None)
             {
                 if (native.Grapple.FlareStage == GrappleFlareStage.JustFired) { expectedFrame = 16; expectedTimer = 3; }
                 CountdownStep expectedStep = WrappingCounter.Decrement(expectedTimer);

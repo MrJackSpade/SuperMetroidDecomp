@@ -73,7 +73,7 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Signed 8.8 velocity.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Speed magnitude in 8.8 pixels per update used by the curved entrance, 0 through 3584.</summary>
+    /// <summary>Speed magnitude in 256ths of a pixel an update used by the curved entrance, 0 through 3584.</summary>
     public int Speed { get; private set; }
 
     /// <summary>Heading of the curved entrance; only its table index is passed to shared component math.</summary>
@@ -876,15 +876,15 @@ public sealed class BabyMetroidCutsceneState
 
         TrigonometryAngle angle = Angle.ToTrigonometryAngle();
         Velocity = new(
-            CalculateVelocityComponent(Speed, angle),
-            CalculateVelocityComponent(Speed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
+            CalculateVelocityComponent(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Speed), angle),
+            CalculateVelocityComponent(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Speed), angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
     }
 
     /// <summary>Multiplies speed by a signed sine-table entry with the game's bit-8-to-23 result.</summary>
-    /// <param name="speed">The speed in 256ths of a pixel an update, never negative.</param>
+    /// <param name="speed">The speed, read unsigned.</param>
     /// <param name="angle">The sine-table angle.</param>
     internal static SignedEightEight CalculateVelocityComponent(
-        int speed,
+        SignedEightEight speed,
         TrigonometryAngle angle)
     {
         // The sine multiply takes unsigned speed by the absolute signed-table value,
@@ -972,7 +972,7 @@ public sealed class BabyMetroidCutsceneState
     private bool AccelerateTowardsPoint(Position16<RoomPixels> target, SignedEightEight acceleration)
     {
         // The prediction counts axes whose next whole-pixel prediction reaches/crosses target,
-        // then shifts the count twice. Carry is set only for count two.
+        // and reports arrival only when both axes count.
         bool reachedX = AccelerateTowardsXPosition(target.X, acceleration);
         bool reachedY = AccelerateTowardsYPosition(target.Y, acceleration);
         return reachedX && reachedY;

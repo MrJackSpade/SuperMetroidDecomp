@@ -399,7 +399,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     {
         if (!frame.MovementEnabled)
             return;
-        // A carry-set Samus command issued by enemy AI cleared alpha's prospective
+        // A Samus command issued by enemy AI that cancels pending transitions cleared alpha's prospective
         // poses and commands, so nothing pending is committed this frame.
         if (samus.ConsumePendingPoseTransitionCancellation())
         {

@@ -46,9 +46,9 @@ internal static class TorizoStateQuantitiesVerification
         Apply(TorizoCueKind.UnlockAnimation);
         AssertTrue(!state.AnimationLocked, "the unlock cue unlocks the animation");
 
-        var jump = new EightEightVector<RoomPixels>(-768, -16) + new EightEightVector<RoomPixels>(0, 40);
-        AssertEqual(-768, jump.X.SignedRawValue, "the jump acceleration leaves the horizontal velocity unchanged");
-        AssertEqual(24, jump.Y.SignedRawValue, "the jump acceleration adds to the vertical velocity across zero");
+        var jump = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-768, -16) + EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 40);
+        AssertEqual(-768, jump.X.InTwoHundredFiftySixthsOfPixel, "the jump acceleration leaves the horizontal velocity unchanged");
+        AssertEqual(24, jump.Y.InTwoHundredFiftySixthsOfPixel, "the jump acceleration adds to the vertical velocity across zero");
 
         state.Posture = TorizoPostureFlags.TurningAround;
         Apply(TorizoCueKind.SteppedRightWithLeftFoot);

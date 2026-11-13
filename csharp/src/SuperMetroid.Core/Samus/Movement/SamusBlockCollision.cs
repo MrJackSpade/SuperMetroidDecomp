@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus.Abilities;
 
 namespace SuperMetroid.Core.Samus.Movement;
@@ -213,7 +214,7 @@ public static class SamusBlockCollision
                         // Sand's submerging callback clears vertical speed/gravity even
                         // when reached through the horizontal dispatcher.
                         collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionContactDamageIndex(owner)), terrain, block, Axis.Horizontal,
-                            ref acceptedDisplacement, out _, move.BlockReactionDirection);
+                            ref acceptedDisplacement, out _, move.BlockReactionDirection) == SpecialAirCollisionOutcome.Blocks;
                         if (collided) collisionBlock = block;
                         if (block.Behavior.Reaction == BlockReactionDefinitions.ScrollTrigger &&
                             (terrain.RoomObjects is null || !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(terrain.Level.BlockAt(block.Index))))
@@ -566,7 +567,7 @@ public static class SamusBlockCollision
                     if (block.CollisionType == RoomCollisionType.SpecialAir)
                     {
                         collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionContactDamageIndex(owner)), terrain, block, Axis.Vertical,
-                            ref acceptedDisplacement, out bool touchedSand, move.BlockReactionDirection);
+                            ref acceptedDisplacement, out bool touchedSand, move.BlockReactionDirection) == SpecialAirCollisionOutcome.Blocks;
                         sandContact |= touchedSand;
                     }
                     if (block.CollisionType == RoomCollisionType.SpecialAir &&
@@ -637,8 +638,7 @@ public static class SamusBlockCollision
                     {
                         break;
                     }
-                    if (!block.Behavior.Reaction.IsAreaSpecific &&
-                        block.Behavior.Reaction.IsCommonEntryBelow(8) &&
+                    if (block.Behavior.TryGetContactCrumble(out ContactCrumbleBlock crumble) &&
                         acceptedDisplacement.IsPositive &&
                         // The contact crumble checks the direction nibble, not the sign of
                         // the tested clearance. Pose probes use F and delete the room object.
@@ -657,7 +657,7 @@ public static class SamusBlockCollision
                         if (!terrain.RoomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(
                                 terrain.Level,
                                 terrain.Level.BlockAt(block.Index),
-                                block.Behavior))
+                                crumble))
                             break;
                     }
                     // Pose expansion carries direction $F, not a downward

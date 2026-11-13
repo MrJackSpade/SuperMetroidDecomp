@@ -114,15 +114,15 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
 
     /// <summary>
     /// Mother Brain's rainbow, drain, revival, fake-death and restoration colours, which the import pre-colours her sheets
-    /// and body layer from (#1512). The game keeps only the beam backdrop's colours taken from them
-    /// (<see cref="AreaMapPresentation.MotherBrainRainbowPalette"/>).
+    /// and body layer from (#1512). The game works with her beam backdrop's colours alone, installed by purpose
+    /// (<see cref="AreaMapPresentation.MotherBrainRainbowPalette"/>, #1637).
     /// </summary>
     public InstalledMotherBrainRainbowPalette MotherBrainRainbowColours { get; }
 
     /// <summary>
     /// The palette-effect colours, which the import pre-colours the sheets each palette-effect record shows from (#1512,
-    /// #1583). The game keeps only the backdrops of the space behind the exploding planet taken from them
-    /// (<see cref="AreaMapPresentation.EndingSpaceBackdrops"/>).
+    /// #1583). The game shows only the backdrops of the space behind the exploding planet, installed with the ending's
+    /// backdrops (#1637).
     /// </summary>
     public RoomPaletteFxPresentation RoomPaletteFx { get; }
 

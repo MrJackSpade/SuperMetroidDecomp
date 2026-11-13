@@ -5,6 +5,7 @@ using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 
@@ -58,6 +59,9 @@ internal sealed class RoomObjectVisuals
 
     /// <summary>The installed pictures of Draygon's cannon frames; collision stays with the draws.</summary>
     public InstalledDraygonCannonFrames? RoomObjectDraygonCannonVisuals { get; set; }
+
+    /// <summary>The installed pictures of Phantoon's door frames; collision stays with the draws.</summary>
+    public InstalledPhantoonDoorFrames? RoomObjectPhantoonDoorVisuals { get; set; }
 
     /// <summary>Chozo statue room-object art; collision stays with the draws.</summary>
     public InstalledRoomObjectChozoStatueVisuals? RoomObjectChozoStatueVisuals { get; set; }

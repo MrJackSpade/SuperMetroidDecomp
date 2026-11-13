@@ -237,7 +237,6 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             session.ActiveEndingCredits.InstalledArtwork.BindEndingText(session.Artwork.MapPresentation?.EndingText);
             session.ActiveEndingCredits.InstalledArtwork.BindBackdrops(session.Artwork.EndingBackdrops);
             session.ActiveEndingCredits.InstalledArtwork.BindSpriteSheets(session.Artwork.SpriteSheets);
-            session.ActiveEndingCredits.InstalledArtwork.BindSpaceBackdrops(session.Artwork.MapPresentation?.EndingSpaceBackdrops);
             session.GameState = SuperMetroidGameState.EndingAndCredits;
             session.display.PublishBlack();
         }

@@ -367,9 +367,12 @@ internal static class InstalledArtworkContentIdentity
     /// <summary>The installed content identity of a <see cref="EndingBackdrops"/>.</summary>
     extension(EndingBackdrops backdrops)
     {
-        /// <summary>Identity of each scene's backdrop, in scene order (#1544).</summary>
+        /// <summary>Identity of each scene's backdrop, in scene order (#1544), then of the space's backdrops, in frame order (#1637).</summary>
         public string ContentIdentity => SelectedPresentationHash.Create(nameof(EndingBackdrops), content =>
-            content.AppendColors("backdrops", [backdrops.Escape, backdrops.Explosion, backdrops.Credits, backdrops.PostCredits]));
+        {
+            content.AppendColors("backdrops", [backdrops.Escape, backdrops.Explosion, backdrops.Credits, backdrops.PostCredits]);
+            content.AppendColors("space", SuperMetroid.AssetExtraction.Frontend.Ending.EndingSpaceBackdropColours.InFrameOrder(backdrops.Space));
+        });
     }
 
     /// <summary>

@@ -26,14 +26,24 @@ public static class Trigonometry
         return angle.IsInSecondHalf ? -magnitude : magnitude;
     }
 
-    /// <summary>The sine or cosine product: multiply unsigned speed by
-    /// the signed 8.8 sample, keep product bits 8..23, then restore the sign.
-    /// Callers add a quarter-turn themselves when selecting cosine.</summary>
-    public static SignedEightEight MultiplySignedSine(int speed, TrigonometryAngle angle)
+    /// <summary>
+    /// The sine or cosine product: <paramref name="speed"/>, read unsigned as the game's multiply reads it, scaled by
+    /// <paramref name="angle"/>'s signed 8.8 sine (<see cref="ScaledBySine"/>), the result wrapping as a velocity does.
+    /// Callers add a quarter-turn themselves when selecting cosine.
+    /// </summary>
+    public static SignedEightEight MultiplySignedSine(SignedEightEight speed, TrigonometryAngle angle) =>
+        SignedEightEight.Wrapped(ScaledBySine(speed.UnsignedTwoHundredFiftySixthsOfPixel, angle));
+
+    /// <summary>
+    /// <paramref name="magnitude"/>, 0 through 65535 in any unit, times <paramref name="angle"/>'s signed 8.8 sine: the
+    /// product of the magnitude and the sine's size with its 256ths dropped, then the sine's sign restored, so the result
+    /// rounds toward zero in the magnitude's own unit.
+    /// </summary>
+    public static int ScaledBySine(int magnitude, TrigonometryAngle angle)
     {
         int sample = SignedSine(angle);
-        int magnitude = EightEight.WholeOf(Ensure.BetweenInclusive(0, ushort.MaxValue, speed) * Math.Abs(sample));
-        return SignedEightEight.Wrapped(sample < 0 ? -magnitude : magnitude);
+        int product = EightEight.WholeOf(Ensure.BetweenInclusive(0, ushort.MaxValue, magnitude) * Math.Abs(sample));
+        return sample < 0 ? -product : product;
     }
 
     /// <summary>The game's sign-extended 8.8 sine table and
@@ -50,21 +60,6 @@ public static class Trigonometry
         int halfWaveIndex = angle.HalfWaveIndex;
         int magnitude = halfWaveIndex == 64 ? 256 : EightBitHalfWave(halfWaveIndex);
         return angle.IsInSecondHalf ? -magnitude : magnitude;
-    }
-
-    /// <summary>The game's sign-extended negative-cosine table
-    /// followed by the full signed sine wave. The 320-word range admits byte angle
-    /// plus a 64-word offset; do not truncate the supplied index before validation.</summary>
-    /// <remarks>
-    /// Physical view of the same signed 8.8 cycle as <see cref="SignedSine"/>:
-    /// word index 0..319 maps to byte angle <c>(index - 64) &amp; 255</c>.
-    /// Independently reviewed for #1165 against all 320 original words, prefix bounds
-    /// and byte-phase aliases. Keep this existing view; do not duplicate its storage.
-    /// </remarks>
-    public static int SignedNegativeCosineSample(int index)
-    {
-        if ((uint)index >= 320) throw new ArgumentOutOfRangeException(nameof(index));
-        return SignedSine(TrigonometryAngle.Wrapped(index - 64));
     }
 
     /// <summary>The game's byte sine table and cosine continuation:

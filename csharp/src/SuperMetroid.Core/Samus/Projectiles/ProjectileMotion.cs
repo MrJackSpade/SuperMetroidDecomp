@@ -132,7 +132,7 @@ internal sealed class ProjectileMotion
         RunWaveBeamShared(level, slot, cameraPosition, roomObjects);
     }
 
-    /// <summary>Advances Wave or Hyper positions and notifies shootable blocks while ignoring terrain collision carry.</summary>
+    /// <summary>Advances Wave or Hyper positions and notifies shootable blocks while ignoring whether terrain stops the shot.</summary>
     private void RunWaveBeamShared(
         RoomLevelData level,
         SamusProjectile slot,
@@ -487,7 +487,8 @@ internal sealed class ProjectileMotion
             level, slot, roomObjects: roomObjects);
     }
 
-    /// <summary>Resolves the missile center's extension chain, room-object reaction, and collision carry by block type.</summary>
+    /// <summary>Resolves the missile center's extension chain, room-object reaction, and whether the block stops the missile, by block type.</summary>
+    /// <returns>True when the block stops the missile.</returns>
     private static bool MissilePointReaction(
         RoomLevelData level,
         SamusProjectile slot,
@@ -517,8 +518,8 @@ internal sealed class ProjectileMotion
         }
         if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
         {
-            // The shootable reactions run the spawn before returning the collision
-            // nibble's normal carry: type four remains pass-through; type C is solid.
+            // The shootable reactions run the spawn before the block's collision kind decides
+            // the result: shootable air lets the missile pass; a shootable block stops it.
             ProjectileTerrainCollision.TrySpawnShootableReaction(level, slot, block, roomObjects);
             return block.CollisionType == RoomCollisionType.ShootableBlock;
         }
@@ -529,7 +530,7 @@ internal sealed class ProjectileMotion
             // A missile or Super Missile still spawns the room object, but the bomb-block setup
             // immediately clears the new slot because its family is neither a bomb
             // nor a power bomb; no terrain write, timer, sound, or persistent room object survives that call.
-            // The reaction's carry is independent of setup: bombable air passes through,
+            // Whether the block stops the missile is independent of setup: bombable air passes through,
             // while bombable solid destroys the missile.
             return block.CollisionType == RoomCollisionType.BombableBlock;
         }
@@ -541,7 +542,7 @@ internal sealed class ProjectileMotion
             RoomCollisionType.SpecialAir or
             RoomCollisionType.UnusedAir => false,
 
-            // These categories return carry immediately and therefore kill the missile.
+            // These categories stop the missile immediately and therefore kill it.
             RoomCollisionType.SolidBlock or
             RoomCollisionType.DoorBlock or
             RoomCollisionType.SpikeBlock or
@@ -553,9 +554,9 @@ internal sealed class ProjectileMotion
             RoomCollisionType.Slope =>
                 MissileSlopePointReaction(block, slot),
 
-            // CollisionType is the high nibble of a room word, so the cases above are
-            // exhaustive after extension redispatch. Preserve an explicit corruption guard
-            // in case that representation ever changes without silently inventing carry.
+            // The cases above cover every collision kind left after extension redispatch.
+            // Keep an explicit guard so a kind reaching here fails rather than silently
+            // inventing a collision result.
             RoomCollisionType.ShootableAir or
                 RoomCollisionType.HorizontalExtension or
                 RoomCollisionType.BombableAir or

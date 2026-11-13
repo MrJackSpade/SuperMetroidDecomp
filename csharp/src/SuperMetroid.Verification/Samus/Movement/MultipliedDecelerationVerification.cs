@@ -35,7 +35,7 @@ internal static class MultipliedDecelerationVerification
         foreach (int whole in Wholes)
         foreach (int fraction in Fractions)
         {
-            SignedSixteenSixteen deceleration = SignedSixteenSixteen.FromRaw(unchecked((int)((uint)whole << 16 | (uint)fraction)));
+            SignedSixteenSixteen deceleration = SixteenSixteenWords.ToDisplacement(unchecked((int)((uint)whole << 16 | (uint)fraction)));
             AssertEqual(Replaced(deceleration, multiplier), MultipliedDeceleration.Of(deceleration, multiplier),
                 $"deceleration {whole:X4}.{fraction:X4} at multiplier {multiplier}");
             compared++;

@@ -31,7 +31,6 @@ internal sealed class EndingCreditsState : IFrontendScreen
         if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
         {
             InstalledArtwork.BindEndingText(artwork.MapPresentation?.EndingText);
-            InstalledArtwork.BindSpaceBackdrops(artwork.MapPresentation?.EndingSpaceBackdrops);
         }
         if (!ReferenceEquals(previous.EndingBackdrops, artwork.EndingBackdrops))
             InstalledArtwork.BindBackdrops(artwork.EndingBackdrops);

@@ -17,11 +17,11 @@ internal sealed class SamusEaterObjects
         _samus = samus;
         _slotTable = slotTable;
     }
-    /// <summary>Runs the feet/head alignment gate and allocates the ordinary plant room object.</summary>
+    /// <summary>Runs the feet/head alignment gate and allocates <paramref name="definition"/>'s plant room object.</summary>
     internal void TrySpawnSamusEater(RoomLevelData level,
-        RoomCollisionBlock block, RoomObjectHeaderId header, IRoomSamus samus)
+        RoomCollisionBlock block, SamusEaterObjectDefinition definition, IRoomSamus samus)
     {
-        SamusEaterObjectDefinition definition = Plant(header);
+        Ensure.NotNull(definition);
         // Rejected setups clear their just-allocated slot without changing
         // the trigger. Alignment is tested against Samus, not the sampled block row.
         int edge = definition.Ceiling ? samus.Position.Y.Whole - samus.Radius.Y
@@ -31,18 +31,12 @@ internal sealed class SamusEaterObjects
         if (_slotTable.Spawn() is not { } slot)
             return;
 
-        slot.Header = header;
+        slot.Header = definition.Identity;
         slot.Block = level.BlockAt(block.Index);
         slot.Become(new SamusEaterObject(this, definition,
             new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + (definition.Ceiling ? 1 : -1)))));
         level.SetTerrain(block.Index, block.Terrain.Deactivated());
     }
-
-    /// <summary>The plant one supported header places, without interpreting adjacent data.</summary>
-    internal static SamusEaterObjectDefinition Plant(RoomObjectHeaderId header) =>
-        SamusEaterObjectDefinitions.ByHeader.TryGetValue(header, out SamusEaterObjectDefinition? plant)
-            ? plant
-            : throw new InvalidDataException($"Unsupported Samus Eater room object {header}.");
 
     /// <summary>Requires the live Samus instance associated with the plant's room.</summary>
     internal IRoomSamus RequirePlantSamus() => _samus?.Current

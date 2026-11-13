@@ -55,17 +55,6 @@ public sealed class SamusArmCannonState
     public SamusArmCannonDrawOrder DrawOrder { get; internal set; }
 
     /// <summary>
-    /// The draw order a pose's drawing mode selects. The drawing handler reads only the mode's low nibble: zero hides
-    /// the cover, two draws it after the body and every other value draws it before the body.
-    /// </summary>
-    internal static SamusArmCannonDrawOrder DrawOrderOf(int drawingMode) => (drawingMode & 15) switch
-    {
-        0 => SamusArmCannonDrawOrder.Hidden,
-        2 => SamusArmCannonDrawOrder.AfterBody,
-        _ => SamusArmCannonDrawOrder.BeforeBody,
-    };
-
-    /// <summary>
     /// Runs the HUD selection stability update and the arm cannon's open-state update. Calling once
     /// per gameplay frame reproduces the selection stability update followed later by the cover update.
     /// </summary>

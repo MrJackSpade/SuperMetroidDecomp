@@ -10,9 +10,6 @@ public readonly record struct SignedSixteenSixteen
     /// <summary>Gets the signed native word containing sixteen whole and sixteen fractional bits.</summary>
     public int RawValue { get; }
 
-    /// <summary>Preserves an existing signed 32-bit native fixed-point value.</summary>
-    public static SignedSixteenSixteen FromRaw(int rawValue) => new(rawValue);
-
     /// <summary>
     /// Combines the signed whole pixels, -32768 through 32767, and the unsigned fractional word, 0 through 65535.
     /// </summary>

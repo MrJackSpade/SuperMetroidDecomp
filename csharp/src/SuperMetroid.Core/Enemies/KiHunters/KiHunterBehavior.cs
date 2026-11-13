@@ -85,10 +85,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int KiHunterGroundAttackDistance = 96;
 
 
-    /// <summary>The detached wing's speed-index step: 384 per update while it slows, and per step while its reset is found.</summary>
-    private const int DetachedSpeedStep = 384;
-    /// <summary>The speed index a slowing detached wing lands on when the next step would go below zero.</summary>
-    private const int SlowestDetachedSpeedIndex = 256;
+    /// <summary>The detached wing's speed-index step: a record and a half per update while it slows, and per step while its reset is found.</summary>
+    private static readonly EnemyQuadraticSpeedIndex DetachedSpeedStep = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(384);
+    /// <summary>The speed index a slowing detached wing lands on when the next step would go below zero: record one.</summary>
+    private static readonly EnemyQuadraticSpeedIndex SlowestDetachedSpeedIndex = EnemyQuadraticSpeedIndex.FromRows(1);
 
     /// <summary>Recognizes the green, yellow and red body definition records.</summary>
     internal static bool IsKiHunterBodyDefinition(EnemyDefinitionId definition) =>
@@ -624,13 +624,12 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static void CalculateKiHunterDetachedSpeedReset(KiHunterEnemyState state)
     {
-        state.DetachedSpeedReset = 0;
-        state.DetachedSpeedIndex = 0;
+        state.DetachedSpeedReset = EnemyQuadraticSpeedIndex.Start;
+        state.DetachedSpeedIndex = EnemyQuadraticSpeedIndex.Start;
         do
         {
             state.DetachedSpeedReset += DetachedSpeedStep;
-            int index = EightEight.WholeOf(state.DetachedSpeedReset);
-            state.AccumulateDetachedSpeed(EnemyQuadraticSpeeds.Row(index).CoarseToward(EnemySpeedSign.Positive));
+            state.AccumulateDetachedSpeed(state.DetachedSpeedReset.Row.CoarseToward(EnemySpeedSign.Positive));
         }
         while (WrappingCounter.IsBehind(state.DetachedSpeedAccumulator, KiHunterMotionDefinitions.DetachedSpeedThreshold));
     }
@@ -662,17 +661,17 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// pixels read as whole steps of the turn and its 256ths of a pixel as 256ths of a step. A speed toward decreasing
     /// coordinates is the speed's value continued around the turn, so it turns the orbit back.
     /// </summary>
-    internal static RotationAngle ReadKiHunterQuadraticAngleDelta(int speedIndex, EnemySpeedSign sign)
+    internal static RotationAngle ReadKiHunterQuadraticAngleDelta(EnemyQuadraticSpeedIndex speedIndex, EnemySpeedSign sign)
     {
         // The orbit steps by the coarse speed; stepping by the full speed changes the orbit.
-        return RotationAngle.FromRaw(EnemyQuadraticSpeeds.Row(EightEight.WholeOf(speedIndex)).CoarseToward(sign));
+        return RotationAngle.FromRaw(speedIndex.Row.CoarseToward(sign));
     }
 
     /// <summary>Slows a detached wing by one speed step, landing on the slowest index when the step would go below zero.</summary>
     private static void DecrementKiHunterDetachedSpeedIndex(KiHunterEnemyState state)
     {
-        int next = state.DetachedSpeedIndex - DetachedSpeedStep;
-        state.DetachedSpeedIndex = next < 0 ? SlowestDetachedSpeedIndex : next;
+        EnemyQuadraticSpeedIndex next = state.DetachedSpeedIndex - DetachedSpeedStep;
+        state.DetachedSpeedIndex = next.IsNegative ? SlowestDetachedSpeedIndex : next;
     }
 
     /// <summary>

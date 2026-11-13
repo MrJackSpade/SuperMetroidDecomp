@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -102,6 +103,13 @@ internal static class RoomObjectDrawSourceDefinitions
         [DraygonCannonDraw.LeftDamagedB] = new(Bank, 0xa179),
         [DraygonCannonDraw.LeftDamagedC] = new(Bank, 0xa18d),
         [DraygonCannonDraw.LeftDamagedD] = new(Bank, 0xa1a1),
+    };
+
+    /// <summary>The address of each <see cref="PhantoonDoorDraw"/>.</summary>
+    internal static IReadOnlyDictionary<PhantoonDoorDraw, SnesAddress> PhantoonDoor { get; } = new Dictionary<PhantoonDoorDraw, SnesAddress>
+    {
+        [PhantoonDoorDraw.FightDoor] = new(Bank, 0x93ef),
+        [PhantoonDoorDraw.RestoredDoor] = new(Bank, 0x9407),
     };
 
     /// <summary>The address of each <see cref="ElevatorPlatformDraw"/>.</summary>

@@ -153,8 +153,8 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
                     : EscapeEtecoonProgram.RunningRightLowTide), AnimationPlace.StartOfAnimation);
         }
 
-        // The vertical mover is called even after horizontal collision, and its carry result is
-        // ignored. This one-pixel probe lets the common collision helper settle the actor on
+        // The vertical mover is called even after horizontal collision, and whether it hit terrain
+        // is ignored. This one-pixel probe lets the common collision helper settle the actor on
         // the room's actual floor without introducing a bespoke ground model.
         _ = _terrain.MoveEnemyVertically(level, slot, EscapeEtecoonGravity);
     }

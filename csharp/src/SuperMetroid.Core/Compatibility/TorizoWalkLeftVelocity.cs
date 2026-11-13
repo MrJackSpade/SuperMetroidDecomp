@@ -14,5 +14,5 @@ public static class TorizoWalkLeftVelocity
 {
     /// <summary>The sideways velocity a step of <paramref name="stepPixels"/> leaves: its pixels as 256ths of a pixel an update.</summary>
     /// <param name="stepPixels">The step's signed whole pixels.</param>
-    public static SignedEightEight Of(int stepPixels) => SignedEightEight.FromSignedRaw(stepPixels);
+    public static SignedEightEight Of(int stepPixels) => SignedEightEight.FromTwoHundredFiftySixthsOfPixel(stepPixels);
 }

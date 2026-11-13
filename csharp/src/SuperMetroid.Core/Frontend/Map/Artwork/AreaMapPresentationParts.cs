@@ -85,9 +85,6 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Title-screen gradient presentation, separate from its static palette and character artwork.</summary>
     public required TitleGradientPresentation TitleGradient { get; init; }
 
-    /// <summary>The backdrop each record of the space behind the exploding planet shows (#1512, #1583).</summary>
-    public required EndingSpaceBackdrops EndingSpaceBackdrops { get; init; }
-
     /// <summary>Mother Brain's rainbow beam backdrop colours.</summary>
     public required MotherBrainRainbowPalettePresentation MotherBrainRainbowPalette { get; init; }
 

@@ -39,7 +39,7 @@ internal static class SlopeSpeedDefinitionsVerification
         // The production rule takes a typed behaviour, displacement and speed; the cases are stated as raw words.
         static int Scale(int behavior, int displacement, uint verticalSpeed) =>
             SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(RoomBlockBehaviorCodec.Decode(behavior),
-                SignedSixteenSixteen.FromRaw(displacement), UnsignedSixteenSixteen.FromRaw(verticalSpeed)).RawValue;
+                SixteenSixteenWords.ToDisplacement(displacement), UnsignedSixteenSixteen.FromRaw(verticalSpeed)).RawValue;
 
         int cases = 0;
         uint[] highBytes = [0, 0xff000000];

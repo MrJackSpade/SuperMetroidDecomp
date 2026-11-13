@@ -15,7 +15,7 @@ internal static class CrawlerFallingGravityVerification
         for (int update = 1; update <= 8; update++)
         {
             state.ApplyFallingGravity();
-            AssertEqual(SignedSixteenSixteen.FromRaw(update * SixteenSixteen.FromWhole(1) / 2), state.FallingYVelocity,
+            AssertEqual(SixteenSixteenWords.ToDisplacement(update * SixteenSixteen.FromWhole(1) / 2), state.FallingYVelocity,
                 $"gravity update {update} adds half a pixel");
         }
         state.ApplyFallingGravity();

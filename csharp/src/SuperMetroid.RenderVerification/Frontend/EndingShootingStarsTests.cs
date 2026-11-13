@@ -75,7 +75,6 @@ internal static class EndingShootingStarsTests
         var scene = new EndingCreditsState(AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0 });
         scene.InstalledArtwork.BindFixtureObjectArtwork(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects);
         scene.InstalledArtwork.BindBackdrops(installed.LoadEndingBackdrops());
-        scene.InstalledArtwork.BindSpaceBackdrops(maps.EndingSpaceBackdrops);
         scene.InstalledArtwork.BindEndingText(maps.EndingText);
         scene.InstalledArtwork.LoadCreditsAndPostCreditsAssets();
         scene.CreditsRoll.SetupPostCreditsBlank();

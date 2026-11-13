@@ -96,10 +96,10 @@ public sealed class CrocomireEnemyState
     }
 
     /// <summary>
-    /// While the body sinks or rises: the vertical acceleration in 1/256 pixel per frame per frame. The sink clamps its
-    /// whole part at forty-eight and the rise at thirty-one, and both start from none.
+    /// While the body sinks or rises: the vertical acceleration per frame. The sink clamps its whole part at forty-eight
+    /// pixels and the rise at thirty-one, and both start from none, so it never reaches the type's wrap.
     /// </summary>
-    public int VerticalAcceleration { get; internal set; }
+    public SignedEightEight VerticalAcceleration { get; internal set; }
 
     /// <summary>
     /// During combat: the shot and power-bomb reaction timer, cleared at wake-up and set to ten by every reaction. No
@@ -108,10 +108,10 @@ public sealed class CrocomireEnemyState
     public int ReactionTimer { get; internal set; }
 
     /// <summary>
-    /// While the body sinks or rises: the vertical speed in 1/256 pixel per frame. The sink clamps its whole part at
-    /// three and the rise stops it at zero, so it stays below four pixels per frame.
+    /// While the body sinks or rises: the vertical speed per frame, down while sinking and up while rising. The sink clamps
+    /// its whole part at three pixels and the rise stops it at zero, so it stays below four pixels per frame.
     /// </summary>
-    public int VerticalSpeed { get; internal set; }
+    public SignedEightEight VerticalSpeed { get; internal set; }
 
     /// <summary>
     /// During the projectile attack: how many of the volley's shots Crocomire has spat, cleared when the attack starts and
@@ -142,13 +142,13 @@ public sealed class CrocomireEnemyState
     internal SignedSixteenSixteen SkeletonVelocity { get; set; }
 
     /// <summary>
-    /// Starts a sink from rest: clears the vertical speed and subpixel, then sets the starting
-    /// <paramref name="acceleration"/> in 1/256 pixel per frame per frame.
+    /// Starts a sink from rest: clears the vertical speed and subpixel, then sets the starting acceleration of
+    /// <paramref name="acceleration"/> 256ths of a pixel per frame per frame.
     /// </summary>
     internal void StartVerticalMotion(int acceleration)
     {
-        VerticalSpeed = 0;
+        VerticalSpeed = SignedEightEight.Zero;
         VerticalSubpixel = 0;
-        VerticalAcceleration = acceleration;
+        VerticalAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration);
     }
 }

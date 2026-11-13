@@ -181,6 +181,30 @@ rule, compares every file (less `bin/`, `obj/` and the two added files) with `ex
 exist, and builds the fixed copy with `tools/build.ps1`. A failed fixture keeps its copy and prints where; the script
 exits nonzero when any fixture fails.
 
+`tools/cleanup/prune-fixtures/<name>/` confirms the dead-code prune the same way: `input/` is a small repository whose
+`csharp/Fixture.slnx` lists projects named like the shipped, host and verification projects (the reachability audit
+knows them by name), with test-support shared through `.projitems`, and `expected/` is every file of it after the prune.
+
+```powershell
+pwsh -File tools/cleanup/check-prune-fixtures.ps1                         # every prune fixture
+pwsh -File tools/cleanup/check-prune-fixtures.ps1 -Name holder-collision  # only the named ones
+```
+
+It builds `SuperMetroid.ReachabilityAudit` once in Release, then for each fixture copies `input/` into a new temporary
+directory with a `csharp/Directory.Build.props` that imports `csharp/Directory.Build.props` and names the repository's
+`csharp/test-support` (`$(RepositoryTestSupport)`, for the host's console error policy), restores it, runs the prune on
+it with the arguments `run.ps1` uses and `csharp/test-support/VerificationAccess.Core` as the destination, compares
+every file with `expected/` as above, and builds the pruned copy. `holder-collision` holds the shapes of the
+2026-11-13 failure at a7f8ec16e6: a moved instance member whose `<Owner>Access` class another test-support folder
+already declares (it is merged into), a moved static member whose `<Owner>Constants` name an instance class holds (the
+first free name, `<Owner>Constants2`, is used), and `inheritdoc` and `see` crefs to both, which follow them.
+
+The prune puts an owner's moved members in the class its style names, in the owner's namespace, unless a project
+compiling the destination already knows that name. It then merges into that class when it is one static class (abstract,
+for an adapter of moved interfaces) that exactly the destination's projects compile, so the moved code sees what it would
+see in the destination and reaches no other project, and otherwise passes the name over for the next free one. A merge
+into a class that already declares a moved member fails the run.
+
 ## Seeing status
 
 ```powershell

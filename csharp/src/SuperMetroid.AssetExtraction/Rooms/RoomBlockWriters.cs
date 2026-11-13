@@ -67,6 +67,7 @@ internal static class RoomBlockWriters
             new(FrameBlocks(catalogs.ChozoStatue.Images), Holding([EnemyDefinitionId.Chozo])),
             new(FrameBlocks(catalogs.SporeSpawnCeiling.Images), Holding([EnemyDefinitionId.SporeSpawn])),
             new(FrameBlocks(catalogs.BotwoonWall.Images), Holding([EnemyDefinitionId.Botwoon])),
+            new(FrameBlocks(catalogs.PhantoonDoor.Images), Holding([EnemyDefinitionId.PhantoonBody])),
             // What the state's setup and main routines spawn.
             new(FrameBlocks(catalogs.TourianAccess.Images),
                 state => state.SetupCallback == RoomSetupCallback.RunStatueUnlockingAnimations),

@@ -327,6 +327,8 @@ internal static class MapPresentationVerification
             SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork.CeresRidleyColorFormat.FileName,
             SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork.CeresRidleyFloorColorFormat.FileName,
             SuperMetroid.AssetExtraction.Samus.SamusHyperBeamColorFormat.FileName,
+            MotherBrainRainbowPaletteFile.FileName,
+            SuperMetroid.AssetExtraction.Fx.Artwork.RoomPaletteFxPresentationFormat.FileName,
         ];
         string importData = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName);
         foreach (string name in importColours)
@@ -367,7 +369,7 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyCeresRidleyMode7Colors), () => VerifyCeresRidleyMode7Colors(importData, original, bus));
         Suite(nameof(VerifySamusHyperBeamColorsRejectMalformedDocuments), () => VerifySamusHyperBeamColorsRejectMalformedDocuments(importData));
         Suite(nameof(VerifyMotherBrainHealthPalette), () => VerifyMotherBrainHealthPalette(bus, importData, original));
-        Suite(nameof(VerifyMotherBrainRainbowPalette), () => VerifyMotherBrainRainbowPalette(bus, stock, original));
+        Suite(nameof(VerifyMotherBrainRainbowPalette), () => VerifyMotherBrainRainbowPalette(bus, importData, stock, original));
         Suite(nameof(VerifyMotherBrainRoomColors), () => VerifyMotherBrainRoomColors(bus, importData, original));
     }
 
@@ -421,13 +423,17 @@ internal static class MapPresentationVerification
     private static SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace RetailBus() =>
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
 
-    /// <summary>Checks the installed Mother Brain rainbow, beam, drain, and fake-death palettes against native CGRAM output, and malformed documents.</summary>
+    /// <summary>
+    /// Checks Mother Brain's rainbow, drain and fake-death colours, which are import data, and her installed beam colours
+    /// against native CGRAM output, and malformed documents of both.
+    /// </summary>
     private static void VerifyMotherBrainRainbowPalette(
         ISnesAddressSpace bus,
+        string importColours,
         string stock,
         AreaMapPresentation original)
     {
-        string source = Path.Combine(stock, MotherBrainRainbowPaletteFile.FileName);
+        string source = Path.Combine(importColours, MotherBrainRainbowPaletteFile.FileName);
         MotherBrainRainbowPaletteDocument document =
             JsonSerializer.Deserialize<MotherBrainRainbowPaletteDocument>(
                 File.ReadAllBytes(source), ArtworkJson.Options)
@@ -543,11 +549,18 @@ internal static class MapPresentationVerification
             {
                 Normal = document.Normal with { Body = document.Normal.Body.Take(14).ToArray() },
             }, ArtworkJson.Options))), "reject truncated Mother Brain normal palette");
-        AssertThrows<InvalidDataException>(() => MotherBrainRainbowPaletteFile.Read(
-            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
-            {
-                BeamCycle = document.BeamCycle.Take(37).ToArray(),
-            }, ArtworkJson.Options))), "reject truncated Mother Brain beam color cycle");
+        MotherBrainBeamColourDocument beam = JsonSerializer.Deserialize<MotherBrainBeamColourDocument>(
+                File.ReadAllBytes(Path.Combine(stock, MotherBrainBeamColourFile.FileName)), ArtworkJson.Options)
+            ?? throw new InvalidDataException("Installed Mother Brain beam colours are null.");
+        AssertThrows<InvalidDataException>(() => MotherBrainBeamColourFile.Read(
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { Cycle = [] }, ArtworkJson.Options))),
+            "reject a Mother Brain beam without a cycle colour");
+        AssertThrows<InvalidDataException>(() => MotherBrainBeamColourFile.Read(
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { First = beam.First with { Blue = 32 } }, ArtworkJson.Options))),
+            "reject a Mother Brain beam colour channel outside 0..31");
+        AssertThrows<InvalidDataException>(() => MotherBrainBeamColourFile.Read(
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { Version = MotherBrainBeamColourFile.Version + 1 }, ArtworkJson.Options))),
+            "reject another Mother Brain beam colour version");
         AssertThrows<InvalidDataException>(() => MotherBrainRainbowPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {

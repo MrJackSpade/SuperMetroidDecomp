@@ -104,6 +104,8 @@ internal static class EndingContentIdentityVerification
         foreach (string edit in BackdropScenes)
             edits.Add(new EndingContentIdentityEdit("backdrop-" + edit, GameInstallationLayout.EndingBackdropDirectoryName));
         edits.Add(new EndingContentIdentityEdit("backdrop-order", GameInstallationLayout.EndingBackdropDirectoryName));
+        edits.Add(new EndingContentIdentityEdit("backdrop-space", GameInstallationLayout.EndingBackdropDirectoryName));
+        edits.Add(new EndingContentIdentityEdit("backdrop-space-order", GameInstallationLayout.EndingBackdropDirectoryName));
 
         foreach ((string edit, string component) in edits)
         {
@@ -224,7 +226,13 @@ internal static class EndingContentIdentityVerification
         RgbColor[] backdrops = [.. BackdropScenes.Select((scene, index) => new FadeLevelColour(index + 1, edit == "backdrop-" + scene ? 1 : 0, 0).ToColour())];
         if (edit == "backdrop-order")
             backdrops = [backdrops[1], backdrops[0], .. backdrops[2..]];
-        return EndingPresentationIdentity.Create(objects, new EndingBackdrops(backdrops[0], backdrops[1], backdrops[2], backdrops[3]));
+        // The space's backdrops are distinct greys by frame, so swapping two frames changes what each frame shows.
+        RgbColor[] space = [.. Enumerable.Range(0, EndingSpaceBackdropColours.FrameCount)
+            .Select(frame => new FadeLevelColour(frame, frame, edit == "backdrop-space" && frame == 0 ? 1 : frame).ToColour())];
+        if (edit == "backdrop-space-order")
+            space = [space[1], space[0], .. space[2..]];
+        return EndingPresentationIdentity.Create(objects, new EndingBackdrops(backdrops[0], backdrops[1], backdrops[2], backdrops[3],
+            EndingSpaceBackdropColours.FromFrameOrder(space)));
     }
 
     /// <summary>The scenes whose backdrops the identity fixture edits, in the backdrops' order.</summary>

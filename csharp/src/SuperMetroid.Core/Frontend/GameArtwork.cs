@@ -21,6 +21,7 @@ using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 
@@ -102,6 +103,9 @@ public sealed record GameArtwork : IGameplayArtwork
 
     /// <summary>Room-object draygon cannon visuals.</summary>
     public InstalledDraygonCannonFrames? RoomObjectDraygonCannonVisuals { get; init; }
+
+    /// <summary>Room-object Phantoon door visuals.</summary>
+    public InstalledPhantoonDoorFrames? RoomObjectPhantoonDoorVisuals { get; init; }
 
     /// <summary>Room-object chozo statue visuals.</summary>
     public InstalledRoomObjectChozoStatueVisuals? RoomObjectChozoStatueVisuals { get; init; }

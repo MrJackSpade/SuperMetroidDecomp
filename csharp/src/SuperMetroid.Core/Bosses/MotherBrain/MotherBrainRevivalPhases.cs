@@ -91,7 +91,7 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseReviveWakeUp(MotherBrainRainbowBeamStepRequests requests)
     {
-        // The standing helper returns carry only when pose zero was already visible at entry.
+        // The standing helper reports her standing only when the standing pose was already visible at entry.
         // A corpse pose therefore installs the stand-up list and waits for the ordinary body
         // instruction stage to publish standing before setting the neck/timer words.
         bool stoodUp = _state.MakeBodyStandUp(out bool postureRequested);

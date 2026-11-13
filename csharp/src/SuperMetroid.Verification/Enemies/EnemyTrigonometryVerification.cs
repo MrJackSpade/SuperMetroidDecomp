@@ -736,24 +736,14 @@ internal static class EnemyTrigonometryVerification
             int address = EnemyMathReferenceData.SignedNegativeCosine + index * 2;
             return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
+        // The cartridge's 320 words are the negative cosine, the sine a quarter turn back, for the first quarter turn
+        // of angles, then the sine for every angle: each word is the sine a quarter turn behind its place.
         for (int index = 0; index < 320; index++)
         {
-            short expected = Reference(index);
-            AssertEqual(expected, Trigonometry.SignedNegativeCosineSample(index), "all 320 native prefix/full-wave words");
-            if (index >= 64)
-            {
-                byte angle = (byte)(index - 64);
-                AssertEqual(expected, Trigonometry.SignedSine(new TrigonometryAngle(angle)), "all signed sine quadrants match cartridge");
-            }
+            AssertEqual(Reference(index), Trigonometry.SignedSine(TrigonometryAngle.Wrapped(index) - TrigonometryAngle.QuarterTurn),
+                "all 320 native negative-cosine and sine words");
         }
-        foreach (int invalid in new[] { -1, 320, int.MinValue, int.MaxValue })
-        {
-            bool rejected = false;
-            try { _ = Trigonometry.SignedNegativeCosineSample(invalid); }
-            catch (ArgumentOutOfRangeException) { rejected = true; }
-            AssertTrue(rejected, "signed table does not silently wrap invalid prefix indexes");
-        }
-        Console.WriteLine("Compiled signed sine: all 320 native words match, including +/-256 peaks and prefix bounds.");
+        Console.WriteLine("Compiled signed sine: all 320 native words match, including +/-256 peaks.");
         if (definitionsOnly) return;
         var tideSession = new RoomFxSession();
         var tide = new RoomFxOverlayState(tideSession);
@@ -765,7 +755,7 @@ internal static class EnemyTrigonometryVerification
             for (int phase = 0; phase <= ushort.MaxValue; phase++)
             {
                 tide.TidePhase = RotationAngle.FromRaw(phase);
-                tide.TideOffset = SignedSixteenSixteen.FromRaw(12345);
+                tide.TideOffset = SignedSixteenSixteen.FromParts(0, 12345);
                 step();
                 short sample = Reference(RotationAngle.FromRaw(unchecked((ushort)phase)).ToTrigonometryAngle().RawValue);
                 bool small = (option & RoomLiquidOptions.SmallTide) != 0;

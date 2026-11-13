@@ -27,6 +27,7 @@ using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -212,6 +213,11 @@ public sealed record GameInstallation(string Root)
     /// <summary>Loads the installed pictures of Draygon's cannon frames as the player left them.</summary>
     public InstalledDraygonCannonFrames LoadRoomObjectDraygonCannonVisuals() =>
         RoomObjectDraygonCannonVisualFiles.Load(RoomObjectDraygonCannonVisualDirectory);
+    /// <summary>Stock definitions for Phantoon's fight and restored door appearances under the replaceable content tree.</summary>
+    public string RoomObjectPhantoonDoorVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectPhantoonDoorVisualDirectoryName);
+    /// <summary>Loads the installed pictures of Phantoon's door frames as the player left them.</summary>
+    public InstalledPhantoonDoorFrames LoadRoomObjectPhantoonDoorVisuals() =>
+        RoomObjectPhantoonDoorVisualFiles.Load(RoomObjectPhantoonDoorVisualDirectory);
     /// <summary>Stock definitions for Chozo hand and slope-access appearances under the replaceable content tree.</summary>
     public string RoomObjectChozoStatueVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectChozoStatueVisualDirectoryName);
     /// <summary>Editable Chozo hand and slope-access art; physical blocks remain compiled.</summary>
@@ -337,6 +343,7 @@ public sealed record GameInstallation(string Root)
             RoomObjectEscapeGateVisuals = LoadRoomObjectEscapeGateVisuals(),
             RoomObjectBombTorizoHandVisuals = LoadRoomObjectBombTorizoHandVisuals(),
             RoomObjectDraygonCannonVisuals = LoadRoomObjectDraygonCannonVisuals(),
+            RoomObjectPhantoonDoorVisuals = LoadRoomObjectPhantoonDoorVisuals(),
             RoomObjectChozoStatueVisuals = LoadRoomObjectChozoStatueVisuals(),
             RoomObjectLinkedRestoreVisuals = LoadRoomObjectLinkedRestoreVisuals(),
             RoomObjectTourianAccessVisuals = LoadRoomObjectTourianAccessVisuals(),

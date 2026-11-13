@@ -75,7 +75,7 @@ internal static class AreaDefinitionMigrationVerification
 
         // TourianStatueRomData and TourianStatuePaletteRomData.
         AssertEqual(300, TourianStatueSequenceDefinitions.DescentDelay, "descent delay");
-        AssertEqual(0x4000, TourianStatueSequenceDefinitions.DescentStep, "descent step");
+        AssertEqual(SignedSixteenSixteen.FromWholePixels(1), TourianStatueSequenceDefinitions.DescentStep * 4, "the descent steps a quarter pixel");
         AssertEqual(240, TourianStatueSequenceDefinitions.DescentDistance, "descent distance");
         AssertEqual(13, NativeEarthquakeTypes.TypeOf(TourianStatueSequenceDefinitions.DescentEarthquake), "descent earthquake");
         AssertEqual(1, NativeEarthquakeTypes.TypeOf(TourianStatueSequenceDefinitions.ReleaseEarthquake), "release earthquake");

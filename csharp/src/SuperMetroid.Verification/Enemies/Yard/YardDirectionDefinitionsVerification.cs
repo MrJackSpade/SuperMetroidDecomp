@@ -124,7 +124,7 @@ internal static class YardDirectionDefinitionsVerification
                 Pose = facing == 0
                     ? SamusPoseId.FacingLeftNormalPose
                     : SamusPoseId.FacingRightNormalPose,
-                HorizontalDistanceMovedPlusOne = SignedSixteenSixteen.FromRaw(0x00018000),
+                HorizontalDistanceMovedPlusOne = SignedSixteenSixteen.FromParts(1, 32768),
             };
             YardEnemyBehavior.KickYardIntoAir(slot, state, samus);
             AssertYardAirborneLists(state, expected,

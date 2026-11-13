@@ -157,7 +157,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
     firingSamus.Kinematics.YSpeed = firingSamus.Kinematics.YSpeed.WithWhole(1); // selects moving-vertically connection table $C3EE
     SamusGrappleMovement.BeginFiring(firingSamus);
     AssertEqual(GrapplePhase.Firing, firingSamus.Grapple.Phase, "grapple firing phase");
-    AssertEqual(0x0bf4, firingSamus.Grapple.ExtensionVelocity.X.SignedRawValue,
+    AssertEqual(0x0bf4, firingSamus.Grapple.ExtensionVelocity.X.InTwoHundredFiftySixthsOfPixel,
         "grapple X extension velocity comes from ROM");
     AssertEqual(34, firingSamus.Grapple.Anchor.X, "grapple initial endpoint X");
     AssertEqual(50, firingSamus.Grapple.Anchor.Y, "grapple initial endpoint Y");
@@ -641,16 +641,14 @@ firingLevel, cancelledSamus, controllerInput: 0);
     // function-pointer test selects beam-specific graphics only through `$9B:C832`. The
     // later one-frame functions must therefore suppress both ordinary charge flare and rope
     // while still falling through to the normal atmosphere/body/cannon/echo subroutine.
-    AssertTrue(SamusGrappleBeamDrawing.UsesGrappleDrawingHandler(GrapplePhase.Firing),
-        "grapple firing owns replacement draw handler");
-    AssertTrue(SamusGrappleBeamDrawing.UsesBeamSpecificDrawingPath(GrapplePhase.WallGrabRelease),
-        "grapple wall-release remains inside beam-specific pointer range");
-    AssertTrue(SamusGrappleBeamDrawing.UsesGrappleDrawingHandler(GrapplePhase.CancelPending),
-        "grapple cancel keeps replacement draw handler for pending frame");
-    AssertTrue(!SamusGrappleBeamDrawing.UsesBeamSpecificDrawingPath(GrapplePhase.CancelPending),
-        "grapple cancel takes ordinary body-and-echo fallback");
-    AssertTrue(!SamusGrappleBeamDrawing.UsesGrappleDrawingHandler(GrapplePhase.Inactive),
-        "inactive grapple restores default draw handler");
+    AssertEqual(SamusGrappleDrawing.Beam, SamusGrappleBeamDrawing.DrawingFor(GrapplePhase.Firing),
+        "grapple firing draws the grapple's flare and beam");
+    AssertEqual(SamusGrappleDrawing.Beam, SamusGrappleBeamDrawing.DrawingFor(GrapplePhase.WallGrabRelease),
+        "grapple wall-release still draws the beam");
+    AssertEqual(SamusGrappleDrawing.Teardown, SamusGrappleBeamDrawing.DrawingFor(GrapplePhase.CancelPending),
+        "grapple cancel draws Samus and her echoes alone, with no charge flare or rope, on its pending frame");
+    AssertEqual(SamusGrappleDrawing.Ordinary, SamusGrappleBeamDrawing.DrawingFor(GrapplePhase.Inactive),
+        "inactive grapple restores the ordinary drawing");
 
     // Give bank-$93 table index 16 one deliberately recognizable one-piece spritemap.
     // The first flare call must force frame 16/timer three, decrement the timer to two,

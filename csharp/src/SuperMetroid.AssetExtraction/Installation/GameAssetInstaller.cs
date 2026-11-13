@@ -355,6 +355,8 @@ public static class GameAssetInstaller
             Step("Extracting Bomb Torizo hand visuals...", (bus, d) => RoomObjectBombTorizoHandVisualFiles.Extract(bus, d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.RoomObjectDraygonCannonVisualDirectoryName,
             Step("Extracting Draygon cannon visuals...", (bus, d) => RoomObjectDraygonCannonVisualFiles.Extract(bus, d, SupportedCartridge.Sha256))),
+        new(GameInstallationLayout.RoomObjectPhantoonDoorVisualDirectoryName,
+            Step("Extracting Phantoon door visuals...", (bus, d) => RoomObjectPhantoonDoorVisualFiles.Extract(bus, d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.RoomObjectChozoStatueVisualDirectoryName,
             Step("Extracting Chozo statue terrain visuals...", (bus, d) => RoomObjectChozoStatueVisualFiles.Extract(bus, d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.RoomObjectLinkedRestoreVisualDirectoryName,

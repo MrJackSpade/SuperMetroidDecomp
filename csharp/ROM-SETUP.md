@@ -354,13 +354,15 @@ The ending's colours are pre-coloured into its installed sprite sheets; edit a s
 in place to change them. Each ending scene's backdrop, the solid colour it shows
 behind every layer, is installed as native-precision RGB5 JSON in
 `game/ending-backdrops/ending-backdrops.json`: the escape, explosion (which the
-flyaway keeps), credits and post-credits scenes'. Edit it in place to change a
-backdrop without changing the scenes' fade cadence or palette-FX programs. A
-malformed file fails loudly where it is read.
+flyaway keeps), credits and post-credits scenes', and `spaceBehindExplodingPlanet`,
+the backdrop the space behind the exploding planet shows at each frame of its
+colour effect. Edit it in place to change a backdrop without changing the scenes'
+fade cadence or palette-FX programs. A malformed file fails loudly where it is read.
 
-The ending's animated explosion, cloud, gunship and post-credits glare colors
-use the shared `game/maps/room-palette-effects.json` resource. Edit it in place to change those
-RGB5 frames. The ending still owns the cartridge
+The ending's animated explosion, cloud, gunship and post-credits glare colors, like
+every room and cinematic palette effect's, are pre-coloured into the sheets each
+effect frame shows. The import reads them from its import data's
+`room-palette-effects.json`, which is not installed. The ending still owns the cartridge
 object allocation, cycle timing, color destinations and scene transitions.
 
 Developer dependency boundary: `RoomPaletteFxSystem.Step` requires a non-null
@@ -375,13 +377,14 @@ bypasses fail before the interpreter mutates its slots or CGRAM.
 Run the focused compiler contract with
 `dotnet run --project csharp/src/SuperMetroid.EnsureVerification -- --palette-fx-contract`.
 
-Mother Brain's rainbow and drained-phase colors are installed as
-`game/maps/mother-brain-rainbow-palette.json`. Edit it in place to change the body, brain, and
-leg palettes. `beamInitial` is the
-first rainbow-beam HDMA color; `beamCycle` contains its 38 subsequent RGB5 colors.
-`fakeDeathToGrey` contains eight three-color frames for the fake-death descent;
-the ascent reuses the first three brain colors of each `fromGrey` frame.
-The signed loop terminator, beam window geometry, and attack timing remain engine
+Mother Brain's rainbow and drained-phase colors are pre-coloured into her sheets; the
+import reads them from its import data's `mother-brain-rainbow-palette.json`, which is
+not installed. `fakeDeathToGrey` there contains eight three-color frames for the
+fake-death descent; the ascent reuses the first three brain colors of each `fromGrey` frame.
+Her rainbow beam's backdrop colours, which the game works with, are installed as
+`game/maps/mother-brain-beam-colours.json`: `first` is the colour the backdrop shows as the
+beam starts, and `cycle` the colours it cycles through while the beam fires. Edit it in
+place to change them. The beam window geometry and attack timing remain engine
 logic. A debugger-state load rebinds the current color resource.
 
 Mother Brain's separate fake-death room colors are extracted, as import data, into

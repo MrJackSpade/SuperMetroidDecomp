@@ -65,11 +65,11 @@ internal static class EnemyQuadraticSpeedsVerification
         // table. Out-of-table instruction-byte reads are not a fabricated math API.
         AssertTrue(initialIndexCases > 100000, "wide signed-height hop corpus is exercised");
 
-        var wings = new Func<int, EnemySpeedSign, RotationAngle>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
+        var wings = new Func<EnemyQuadraticSpeedIndex, EnemySpeedSign, RotationAngle>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
         for (int index = 0; index < EnemyQuadraticSpeedDefinitions.RowCount; index++)
         for (int low = 0; low < 256; low++)
         foreach (EnemySpeedSign sign in signs)
-            AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, index, sign), wings((ushort)(index * 256 + low), sign).RawValue,
+            AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, index, sign), wings(EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(index * 256 + low), sign).RawValue,
                 "KiHunter high-byte index and coarse angle delta");
 
         var addMaw = new Action<YappingMawEnemyState>(YappingMawBehavior.AddYappingMawQuadraticSpeed);
@@ -80,7 +80,7 @@ internal static class EnemyQuadraticSpeedsVerification
         foreach (EnemySpeedSign sign in signs)
         {
             int speed = EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticTable, row).Toward(sign).RawValue;
-            maw.Extension = SignedSixteenSixteen.FromRaw(unchecked((int)start));
+            maw.Extension = SixteenSixteenWords.ToDisplacement(unchecked((int)start));
             maw.QuadraticSpeedRow = row;
             maw.QuadraticSpeedSign = sign;
             mawAdditions++;

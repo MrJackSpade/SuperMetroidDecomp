@@ -97,6 +97,8 @@ public static class GameInstallationLayout
     public const string RoomObjectBombTorizoHandVisualDirectoryName = "room-plm-bomb-torizo-hand";
     /// <summary>Content child directory for reachable Draygon cannon artwork.</summary>
     public const string RoomObjectDraygonCannonVisualDirectoryName = "room-plm-draygon-cannons";
+    /// <summary>Content child directory for Phantoon's fight and restored door artwork.</summary>
+    public const string RoomObjectPhantoonDoorVisualDirectoryName = "room-plm-phantoon-door";
     /// <summary>Content child directory for Chozo hand and slope-access artwork.</summary>
     public const string RoomObjectChozoStatueVisualDirectoryName = "room-plm-chozo-statues";
     /// <summary>Content child directory for linked-block restoration appearances.</summary>
@@ -136,7 +138,7 @@ public static class GameInstallationLayout
     /// <summary>Receipt filename within stock content, recording the installation format and source cartridge digest.</summary>
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; content whose receipt names another is extracted again before opening.</summary>
-    public const int FormatVersion = 288;
+    public const int FormatVersion = 295;
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";
     /// <summary>Prefix for a stock tree being prepared before publication.</summary>

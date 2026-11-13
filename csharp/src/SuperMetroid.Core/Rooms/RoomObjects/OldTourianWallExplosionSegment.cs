@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>A program of the old Tourian escape-shaft fake-wall explosion.</summary>
+/// <summary>An animation of the old Tourian escape-shaft fake-wall explosion.</summary>
 internal enum OldTourianWallExplosionSegment
 {
     /// <summary>Stops the explosion's movement and loads the burst count.</summary>

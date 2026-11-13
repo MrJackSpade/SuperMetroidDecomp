@@ -2,7 +2,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>How a retail scroll program writes its scroll states.</summary>
+/// <summary>How a retail scroll change writes its scroll states.</summary>
 internal static class RoomObjectScrollChanges
 {
     /// <summary>Applies <paramref name="change"/>'s ordered scroll writes.</summary>

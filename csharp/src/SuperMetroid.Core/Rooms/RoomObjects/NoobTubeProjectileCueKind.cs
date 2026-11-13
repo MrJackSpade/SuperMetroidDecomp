@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>What a cue of the n00b tube's crack, shards and bubbles programs does: one per command its lists use.</summary>
+/// <summary>What a cue of the n00b tube's crack, shards and bubbles animations does: one per command its lists use.</summary>
 internal enum NoobTubeProjectileCueKind
 {
     /// <summary>Gives a bubble a random falling angle.</summary>

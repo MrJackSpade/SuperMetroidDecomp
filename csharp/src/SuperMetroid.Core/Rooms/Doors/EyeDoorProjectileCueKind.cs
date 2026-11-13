@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>What a cue of the eye door's projectile programs does: one per command its lists use.</summary>
+/// <summary>What a cue of the eye door's projectile animations does: one per command its lists use.</summary>
 internal enum EyeDoorProjectileCueKind
 {
     /// <summary>Aims the projectile's flight at Samus.</summary>

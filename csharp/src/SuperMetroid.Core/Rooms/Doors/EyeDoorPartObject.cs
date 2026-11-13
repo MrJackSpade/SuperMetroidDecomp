@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// An eye door's body or bottom (#1554), which replaces their programs and door wake. On its first update the part looks
+/// An eye door's body or bottom (#1554), which replaces their sequences and door wake. On its first update the part looks
 /// at its door: one opened for good leaves the room. Otherwise it looks for Samus every eight updates, standing still
 /// (<see cref="EyeDoorSequenceDefinitions.Still"/>); once she is near (<see cref="EyeDoorSequenceDefinitions.PulseReach"/>)
 /// it waits for its door to open and pulses while she stays near. Once it waits, the update its door has been opened for

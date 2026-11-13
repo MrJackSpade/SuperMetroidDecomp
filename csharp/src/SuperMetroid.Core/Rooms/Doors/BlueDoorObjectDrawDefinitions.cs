@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// How the four cells of each blue-door cap frame collide. What each frame shows is its installed picture (#1557); the
-/// room-object programs still own sound, frame timing, and deletion.
+/// room-object sequences still own sound, frame timing, and deletion.
 /// </summary>
 internal static class BlueDoorObjectDrawDefinitions
 {

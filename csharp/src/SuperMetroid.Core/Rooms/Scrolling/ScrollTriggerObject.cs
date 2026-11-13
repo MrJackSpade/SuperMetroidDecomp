@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// <summary>
 /// A room's scroll trigger (#1554): a block of special air that, once Samus touches it, applies its ordered scroll-cell
 /// writes on the next room-object update and then rests again, ready for the next touch. It replaces the trigger's
-/// family state and sleeping program.
+/// family state and sleeping sequence.
 /// </summary>
 internal sealed class ScrollTriggerObject : RoomObjectBehaviour
 {
-    /// <summary>Creates a trigger that applies a room's authored program or a constructed room's validated writes.</summary>
+    /// <summary>Creates a trigger that applies a room's authored scroll change or a constructed room's validated writes.</summary>
     /// <param name="writes">A constructed room's writes, in order; null when the trigger applies <paramref name="change"/>.</param>
-    /// <param name="change">The room's authored program; null when the trigger applies <paramref name="writes"/>.</param>
+    /// <param name="change">The room's authored scroll change; null when the trigger applies <paramref name="writes"/>.</param>
     /// <exception cref="InvalidOperationException">Neither is given.</exception>
     internal ScrollTriggerObject(IReadOnlyList<RoomScrollWrite>? writes, RoomScrollChange? change)
     {
@@ -24,7 +24,7 @@ internal sealed class ScrollTriggerObject : RoomObjectBehaviour
     /// <summary>Whether Samus has touched the trigger since its writes last ran; repeated touches before then change nothing.</summary>
     internal bool Triggered { get; private set; }
 
-    /// <summary>The authored program the trigger applies, independent of later room-argument edits; null for constructed writes.</summary>
+    /// <summary>The authored scroll change the trigger applies, independent of later room-argument edits; null for constructed writes.</summary>
     internal RoomScrollChange? Change { get; }
 
     /// <summary>A constructed room's validated writes, in order; null when the trigger applies <see cref="Change"/>.</summary>

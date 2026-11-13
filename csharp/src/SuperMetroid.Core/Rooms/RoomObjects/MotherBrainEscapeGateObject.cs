@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The gate in Mother Brain's escape room (#1554), which replaces the gate's programs: placed shut
+/// The gate in Mother Brain's escape room (#1554), which replaces the gate's sequences: placed shut
 /// (<see cref="MotherBrainEscapeGateDefinitions.Shut"/>), or closing behind Samus
 /// (<see cref="MotherBrainEscapeGateDefinitions.Closing"/>). A shut gate at the door Samus arrives through closes behind her
 /// instead, from its next update.

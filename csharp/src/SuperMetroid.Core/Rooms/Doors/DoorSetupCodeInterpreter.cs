@@ -2,10 +2,10 @@ using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>Scroll-cell portion of door setup programs.</summary>
+/// <summary>Scroll-cell portion of door setup code.</summary>
 internal static class DoorSetupCodeInterpreter
 {
-    /// <summary>Applies only the scroll-cell effects of a door setup program; non-scroll setup remains with the runtime.</summary>
+    /// <summary>Applies only the scroll-cell effects of a door's setup code; non-scroll setup remains with the runtime.</summary>
     public static void ApplyScrollWrites(
         DoorSetupCode setupCode,
         string doorName,

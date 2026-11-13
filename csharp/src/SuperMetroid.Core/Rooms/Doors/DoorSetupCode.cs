@@ -264,7 +264,7 @@ public enum DoorSetupCode
     DoorASM_ToCeresElevatorShaft = 82,
 
     /// <summary>
-    /// The Ceres elevator shaft's exit program; returns the screen from the turning
+    /// The Ceres elevator shaft's exit setup code; returns the screen from the turning
     /// floor to the ordinary room display.
     /// </summary>
     DoorASM_FromCeresElevatorShaft = 83,

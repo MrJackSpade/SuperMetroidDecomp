@@ -62,7 +62,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Y speed for an ordinary Etecoon hop.</summary>
     /// <remarks>These are the eight authored speeds. Keeping them named beside their consumers
-    /// avoids replacing authored fixed-point values with host-side tuning.</remarks>
+    /// avoids replacing authored fixed-point values with retuned ones.</remarks>
     private static readonly SignedSixteenSixteen EtecoonJumpYVelocity = SignedSixteenSixteen.FromParts(-3, 0);
     /// <summary>Y speed for the stronger long jump.</summary>
     private static readonly SignedSixteenSixteen EtecoonLongJumpYVelocity = SignedSixteenSixteen.FromParts(-4, 0);
@@ -90,7 +90,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InstallSpawnSettings(slot.SpawnSettings<EtecoonSpawnSettings>());
         slot.SetSpeciesState(state);
 
-        // The initializer sets the animating property. The host scheduler also uses the
+        // The initializer sets the animating property. The enemy animation pass also uses the
         // same bit to admit the authored animation, so retain the authored
         // bit instead of inferring animation activity from the population record.
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);

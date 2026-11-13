@@ -574,7 +574,7 @@ internal sealed class EnemyCollision
 
         // A zero multiplier still consumes the collision and leaves the hit direction on
         // the bomb. Emits a dud sprite/sound here; those presentation queues are not
-        // yet shared by the host bomb system, so enemy state correctly remains untouched.
+        // yet shared by Samus's bomb system, so enemy state correctly remains untouched.
         if (damage == 0)
             return;
 

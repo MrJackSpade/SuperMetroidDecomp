@@ -231,7 +231,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>After a lethal bomb, spawns debris while the body's graphics state is intact, then clears both indexes on the retained host record.</summary>
+    /// <summary>After a lethal bomb, spawns debris while the body's graphics state is intact, then clears both indexes on the dead enemy, which keeps its place.</summary>
     internal void AddMetareeBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Metaree &&

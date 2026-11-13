@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 
 /// <summary>
 /// Selects one of Boyon's two authored movement functions. The values are
-/// table indexes, not invented host states: zero dispatches falling and one dispatches
+/// table indexes, not invented states: zero dispatches falling and one dispatches
 /// rising.
 /// </summary>
 public enum BoyonBounceMovement

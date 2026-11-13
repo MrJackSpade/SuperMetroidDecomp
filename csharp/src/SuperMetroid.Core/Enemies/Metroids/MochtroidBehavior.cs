@@ -221,7 +221,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // Common touch would publish 96/5 here, but the Mochtroid's touch clears both values before
             // Samus's movement phase can consume them. Apply only the suit-divided health
-            // change; starting the host knockback state and trying to undo its pose would
+            // change; starting Samus's knockback and trying to undo its pose would
             // introduce side effects the game never reaches.
             SamusSuitDamage.Hurt(samus, slot.Definition.Damage);
         }

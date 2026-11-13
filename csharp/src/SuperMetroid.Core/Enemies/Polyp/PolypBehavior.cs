@@ -107,7 +107,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Recreates the signed Y-minus-X difference followed by the signed threshold comparison used by
     /// both proximity helpers. Equality at 64 pixels is outside; the modular -32768
-    /// difference also remains outside without passing through host <c>Math.Abs</c> overflow.
+    /// difference also remains outside without passing through <c>Math.Abs</c> overflow.
     /// </summary>
     private static bool IsWithinPolypAxis(int samusCoordinate, int enemyCoordinate)
     {

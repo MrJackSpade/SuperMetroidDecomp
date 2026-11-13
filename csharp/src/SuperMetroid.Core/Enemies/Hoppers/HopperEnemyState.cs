@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>
 /// The state of a hopper, with its seven extra values. These names intentionally retain “speed table index”
-/// where the game does: replacing them with host gravity fields would hide the buggy quadratic table that defines the
+/// where the game does: replacing them with gravity fields would hide the buggy quadratic table that defines the
 /// retail jump arc.
 /// </summary>
 public sealed class HopperEnemyState
@@ -42,7 +42,7 @@ public sealed class HopperEnemyState
     public EnemyQuadraticSpeedIndex BigHopInitialYSpeedTableIndex { get; internal set; }
     /// <summary>True selects motion back toward the attachment surface, downward for floor Hoppers or upward for ceiling Hoppers; collision or the apex ends the outward phase.</summary>
     public bool Falling { get; internal set; }
-    /// <summary>Latch set by the idle animation's ready cue and consumed by WaitToHop; authored animation cadence, not a host jump timer, controls the next hop.</summary>
+    /// <summary>Latch set by the idle animation's ready cue and consumed by WaitToHop; authored animation cadence, not a separate jump timer, controls the next hop.</summary>
     public bool ReadyToHop { get; internal set; }
 
     /// <summary>The kind of hopper its definition is, which selects its animations.</summary>

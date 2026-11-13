@@ -46,7 +46,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
                 "Wrecked Ship ghost must be the room's first-listed enemy for its reads of Samus's position.");
         }
 
-        // The initializer sets the animating, intangibility and invisibility properties. In this host those mean
+        // The initializer sets the animating, intangibility and invisibility properties. Here those mean
         // animation processing, exclusion from Samus interaction, and invisibility.
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);

@@ -1066,9 +1066,10 @@ public static class SamusGrappleMovement
             grapple.Phase = GrapplePhase.ConnectedLocked;
         }
 
-        // The connection pose commands 9 and 10 share one tail. Speed-booster bookkeeping
-        // is not modeled yet, but every modeled speed cleared there is reset here.
-        // AccelerationMode is deliberately retained: the common tail does not write it.
+        // The swinging and locked connections share one tail: it cancels the speed boost, the echoes leaving the way
+        // the connection pose faces, then clears the base, extra-run and vertical speeds. AccelerationMode is
+        // deliberately retained: the common tail does not write it.
+        samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.HorizontalSpeed.ExtraRunSpeed = default;
         samus.Kinematics.YSpeed = default;

@@ -179,6 +179,7 @@ using static SuperMetroid.Verification.Samus.Grapple.GrappleEnemyDeathVerificati
 using static SuperMetroid.Verification.Samus.Grapple.GrappleGatesVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrapplePoseRefireVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleSoundsVerification;
+using static SuperMetroid.Verification.Samus.Grapple.GrappleConnectionSpeedBoostVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleSpinVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.GreenHillGateGlitchVerification;
 using static SuperMetroid.Verification.Samus.Movement.GroundedBombSpreadVerification;
@@ -782,6 +783,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyGrappleSpinInput), () => VerifyGrappleSpinInput()),
         new(nameof(VerifyGrappleGreenGateVisibility), () => VerifyGrappleGreenGateVisibility()),
         new(nameof(VerifyGrappleEnemyDeath), () => VerifyGrappleEnemyDeath()),
+        new(nameof(VerifyGrappleConnectionCancelsSpeedBoost), () => VerifyGrappleConnectionCancelsSpeedBoost()),
         new(nameof(VerifyShutterRiding), () => VerifyShutterRiding()),
         new(nameof(VerifyXrayInput), () => VerifyXrayInput()),
         new(nameof(VerifyXrayGameState), () => VerifyXrayGameState()),

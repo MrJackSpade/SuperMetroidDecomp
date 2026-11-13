@@ -724,6 +724,15 @@ public static class SamusAerialMovement
         if (!samus.PoseHistory.AllowsWallJumpProbe)
             return false;
 
+        int firstEligibleFrame = SamusPoseMetadata.IsScrewAttackPose(samus.Pose)
+            ? 27
+            : 11;
+        // Once the spin reaches the frames a launch can start on, the check withdraws an earlier launch's enemy shake
+        // before it reads the held direction; earlier frames leave it waiting.
+        bool launchFrameReached = samus.AnimationFrame >= firstEligibleFrame;
+        if (launchFrameReached)
+            samus.Kinematics.WithdrawWallJumpLaunchShake();
+
         bool heldLeft = (controllerInput & ControllerButton.Left) != ControllerButton.None;
         bool heldRight = (controllerInput & ControllerButton.Right) != ControllerButton.None;
         if (!heldLeft && !heldRight)
@@ -745,10 +754,7 @@ public static class SamusAerialMovement
         // The accepted whole travel is signed, so its magnitude is at most 32768 and the
         // distance holds the exact unsigned value.
         int distance = Math.Abs(probe.AcceptedDisplacement.WholePixels);
-        int firstEligibleFrame = SamusPoseMetadata.IsScrewAttackPose(samus.Pose)
-            ? 27
-            : 11;
-        if (samus.AnimationFrame < firstEligibleFrame)
+        if (!launchFrameReached)
         {
             SamusAerialPoseTransitions.ApplyWallContactAnimationRewind(samus);
             return false;
@@ -764,6 +770,10 @@ public static class SamusAerialMovement
             // state, so retain the publication even though the host result below also tells
             // the runtime to install the wall-jump pose explicitly.
             samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.WallJump;
+            // A launch off a solid or frozen enemy asks the next enemy pass to shake that enemy; a launch off
+            // terrain asks nothing.
+            if (probe.EnemyCollision is { EnemySlot: int launchedFrom })
+                samus.Kinematics.RequestWallJumpLaunchShake(launchedFrom);
         }
         return triggered;
     }

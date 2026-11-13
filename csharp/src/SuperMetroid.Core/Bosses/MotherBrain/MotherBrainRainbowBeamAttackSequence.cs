@@ -238,10 +238,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     handsOver = RainbowAttack.RunSecondPhaseRainbowWaitForCharge(requests);
                     break;
                 case MotherBrainBodyFunction.SecondPhaseRainbowExtendNeckDown:
-                    handsOver = RainbowAttack.RunSecondPhaseRainbowExtendNeckDown();
+                    handsOver = RainbowAttack.RunSecondPhaseRainbowExtendNeckDown(requests);
                     break;
                 case MotherBrainBodyFunction.SecondPhaseRainbowStartFiring:
-                    handsOver = RainbowAttack.RunSecondPhaseRainbowStartFiring(samus, frame);
+                    handsOver = RainbowAttack.RunSecondPhaseRainbowStartFiring(samus, frame, requests);
                     break;
                 case MotherBrainBodyFunction.SecondPhaseRainbowMoveSamusTowardWall:
                     handsOver = RainbowAttack.RunSecondPhaseRainbowMoveSamusTowardWall(samus, frame, requests);

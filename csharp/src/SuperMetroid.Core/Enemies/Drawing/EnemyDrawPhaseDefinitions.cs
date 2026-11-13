@@ -1,11 +1,15 @@
 namespace SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>
-/// The counter phases that time every enemy's hurt flash, frozen blink and draw shake (#1606). The common enemy draw
-/// reads them, and so do the bosses and species that draw their own flash or blink the same way.
+/// The counter phases that time every enemy's hurt flash, frozen blink and draw shake (#1606), and how long a wall jump
+/// shakes the enemy it launched from. The common enemy draw reads them, and so do the bosses and species that draw their
+/// own flash or blink the same way.
 /// </summary>
 internal static class EnemyDrawPhaseDefinitions
 {
+    /// <summary>How many of its draws a solid or frozen enemy shakes after Samus wall-jumps off it.</summary>
+    internal const int WallJumpLaunchShakeDraws = 64;
+
     /// <summary>
     /// The phase of the enemy-pass counter on which a hurt enemy shows the hurt flash: set for two passes of every four,
     /// while its own colours show for the other two.

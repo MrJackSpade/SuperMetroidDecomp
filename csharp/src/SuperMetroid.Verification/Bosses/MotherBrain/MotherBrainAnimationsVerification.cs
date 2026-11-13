@@ -284,6 +284,7 @@ internal static class MotherBrainAnimationsVerification
         Suite(nameof(VerifySamusDrainedController), () => VerifySamusDrainedController());
         Suite(nameof(VerifyMotherBrainRainbowBeamSamusMovement), () => VerifyMotherBrainRainbowBeamSamusMovement());
         Suite(nameof(VerifyMotherBrainRainbowBeamAttackSequence), () => VerifyMotherBrainRainbowBeamAttackSequence());
+        Suite(nameof(MotherBrainRainbowSamusCooldownVerification.VerifyMotherBrainRainbowSamusCooldown), () => MotherBrainRainbowSamusCooldownVerification.VerifyMotherBrainRainbowSamusCooldown());
         Suite(nameof(MotherBrainEffectBehaviorVerification.VerifyMotherBrainEffectBehavior), () => MotherBrainEffectBehaviorVerification.VerifyMotherBrainEffectBehavior(LoadRepositoryRom()));
         Suite(nameof(VerifyBabyMetroidCutsceneEntrance), () => VerifyBabyMetroidCutsceneEntrance());
         return 0;

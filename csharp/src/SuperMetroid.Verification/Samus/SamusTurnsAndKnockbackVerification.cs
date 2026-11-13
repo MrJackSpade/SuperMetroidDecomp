@@ -348,6 +348,16 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
     AssertTrue(enemyTrigger.WallJumpTriggered, "solid enemy can trigger ordinary wall jump");
     AssertEqual(SamusVerticalCollisionResult.WallJump, enemyEligible.SolidVerticalCollisionResult,
         "enemy wall jump publishes native solid-vertical result five");
+    // #1697: the next enemy pass shakes the enemy the jump launched from; a launch off terrain shakes none.
+    WallJumpLaunchShakeChecks.AssertEnemyPassShakes(enemyEligible, 9, "a wall jump off a solid enemy");
+    WallJumpLaunchShakeChecks.AssertEnemyPassShakes(eligible, null, "a wall jump off terrain");
+    // A later check that reaches the launch frames without launching withdraws a waiting shake.
+    var withdrawn = CreateSpinSamus(animationFrame: 0x0b);
+    withdrawn.Kinematics.InteractiveEnemies = enemyEligible.Kinematics.InteractiveEnemies;
+    withdrawn.Kinematics.RequestWallJumpLaunchShake(9);
+    AssertTrue(!SamusAerialMovement.StepSpinJump(level, withdrawn, (ControllerButton.Left | ControllerButton.A), 0, 0).WallJumpTriggered,
+        "held Jump against the enemy without a fresh edge does not launch");
+    WallJumpLaunchShakeChecks.AssertEnemyPassShakes(withdrawn, null, "a check that does not launch");
 
     // Bank $91:F2D3 clears only base speed; bank $90:9949 installs Y launch speed and
     // likewise leaves the Dash pair/flag alone. Seed a visible fractional value here so

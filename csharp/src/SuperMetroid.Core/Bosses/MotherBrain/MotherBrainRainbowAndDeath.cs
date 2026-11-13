@@ -323,24 +323,10 @@ internal sealed class MotherBrainRainbowAndDeath
             current.PhaseAfter == MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall)
             _motherBrainEncounter.RequestRainbowBeamSound(MotherBrainSoundDefinitions.StopRainbowDrain);
 
-        if (sharedProjectiles is not null)
-        {
-            if (current.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowWaitForCharge &&
-                current.PhaseAfter == MotherBrainBodyFunction.SecondPhaseRainbowStartFiring)
-            {
-                sharedProjectiles.SetSharedCooldown(8);
-            }
-            else if (current.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowStartFiring &&
-                current.PhaseAfter == MotherBrainBodyFunction.SecondPhaseRainbowMoveSamusTowardWall)
-            {
-                sharedProjectiles.SetSharedCooldown(0);
-            }
-            else if (current.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring &&
-                current.PhaseAfter == MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall)
-            {
-                sharedProjectiles.SetSharedCooldown(8);
-            }
-        }
+        // The attack gives Samus's shared projectile cooldown as its neck lowers, as the beam starts and as it ends;
+        // her next update's firing reads it.
+        if (sharedProjectiles is not null && current.SamusProjectileCooldown is int samusCooldown)
+            sharedProjectiles.SetSharedCooldown(samusCooldown);
 
         if (current.BabySpawnRequested)
             _roomActors.SpawnBabyMetroid(state);

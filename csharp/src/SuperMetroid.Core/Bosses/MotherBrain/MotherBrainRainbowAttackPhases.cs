@@ -273,8 +273,10 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// Runs the second phase rainbow extend neck down body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
-    internal bool RunSecondPhaseRainbowExtendNeckDown()
+    internal bool RunSecondPhaseRainbowExtendNeckDown(MotherBrainRainbowBeamStepRequests requests)
     {
+        // Lowering the neck holds Samus's shots off before anything else; she is still free to fire.
+        requests.SamusProjectileCooldown = MotherBrainBeamDefinitions.NeckLoweredSamusCooldown;
         _state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
         _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
         _state.NeckAngleDelta = 1280; // NTSC value of the regional pair 1280/1792.
@@ -287,7 +289,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// Runs the second phase rainbow start firing body function. True when it installs the next body function and the game runs
     /// on into it within the same call.
     /// </summary>
-    internal bool RunSecondPhaseRainbowStartFiring(SamusState samus, RainbowBeamAttackFrame frame)
+    internal bool RunSecondPhaseRainbowStartFiring(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
         // The widen-and-aim step widens/aims even while an active power bomb freezes the timer.
         IncreaseWidthAndAim(samus);
@@ -297,6 +299,8 @@ internal sealed class MotherBrainRainbowAttackPhases
             {
                 // The step rereads the power-bomb flag here. The
                 // parameter is one stable sample of the flag for this AI call.
+                // The beam clears Samus's cooldown before it captures her.
+                requests.SamusProjectileCooldown = MotherBrainBeamDefinitions.BeamStartedSamusCooldown;
                 StartActiveBeam(samus);
             }
         }
@@ -402,6 +406,8 @@ internal sealed class MotherBrainRainbowAttackPhases
             requests.StopEarthquake();
             _state.RainbowBeamSoundPlaying = false;
             samus.Control.Unlock(); // Samus command one.
+            // Released, Samus waits out the beam's cooldown before her next shot.
+            requests.SamusProjectileCooldown = MotherBrainBeamDefinitions.BeamEndedSamusCooldown;
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall;
         }
         return false;

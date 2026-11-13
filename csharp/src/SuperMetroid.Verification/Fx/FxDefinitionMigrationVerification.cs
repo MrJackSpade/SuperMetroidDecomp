@@ -112,7 +112,8 @@ internal static class FxDefinitionMigrationVerification
         RoomFxRecordDefinition climb = RoomFxDefinitions.ClimbWhenZebesTimebombSet.Records[0];
         AssertEqual(RoomFxType.Acid, climb.Type, "Climb FX type");
         AssertEqual(RoomEffectBlendDefinitions.OverlayBrightens, climb.EffectBlend, "Climb effect blend");
-        AssertEqual(RoomLiquidOptions.SurfaceDrift, climb.LiquidOptions, "Climb liquid options");
+        // Acid does not read the drift bit Climb's record sets, so its liquid has neither tide nor haze (#1695).
+        AssertEqual(new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.None), climb.Liquid, "Climb liquid");
         AssertEqual("OldTourianRedFlashing, OldTourianBackgroundRailingsFlashYellow, OldTourianBackgroundPanelsFlashYellow",
             string.Join(", ", climb.PaletteEffects), "Climb palette effects");
         AssertEqual(AreaId.Crateria, RoomFxSelectionAreas.Of(RoomFxDefinitions.ClimbWhenZebesTimebombSet), "Climb FX area");

@@ -92,7 +92,7 @@ internal static class RoomPaletteFxDefinitionsVerification
         {
             PaletteFxObject effect = AreaPaletteFxObjects.GetAreaDefinition(area, bit);
             var definition = new RoomFxRecordDefinition(BaseYPosition: 0, TargetYPosition: 0, YVelocity: default, Timer: 0,
-                Type: RoomFxType.None, VisorAnimation: RoomVisorAnimation.Steady, EffectBlend: null, LiquidOptions: RoomLiquidOptions.None,
+                Type: RoomFxType.None, VisorAnimation: RoomVisorAnimation.Steady, EffectBlend: null, Liquid: null,
                 PaletteEffects: [effect], AnimatedTiles: [], PaletteBlend: RoomFxPaletteBlend.None);
             var systemSession = new PaletteFxSessionState();
             var system = RoomPaletteFxSystem.ForDefinition(systemSession, definition,

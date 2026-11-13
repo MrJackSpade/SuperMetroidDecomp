@@ -47,9 +47,12 @@ internal sealed class ShallowWaterJumpScenario
         runtime.StepFrame(0, new RuntimeFrameRequest());
     }
 
-    /// <summary>Native WRAM seed words for the takeoff state, in the capture tool's order.</summary>
+    /// <summary>
+    /// Native WRAM seed words for the takeoff state, in the capture tool's order; the liquid options word is the room water's,
+    /// which Samus's liquid physics copies.
+    /// </summary>
     internal string TakeoffSeed() =>
-        $"{Samus.Position.X.Whole:X4} {Samus.Kinematics.Position.X.Fraction:X4} {Samus.Position.Y.Whole:X4} {Samus.Kinematics.Position.Y.Fraction:X4} {(int)SamusPoseNumbers.Number(Samus.Pose):X4} {Samus.AnimationFrame:X4} {Samus.AnimationFrameTimer.RemainingFrames:X4} {Samus.AnimationFrameBuffer:X4} {Samus.LiquidPhysics.WaterSurfaceY ?? ushort.MaxValue:X4} {RoomFxRecordCodec.LiquidOptionsByte(Samus.LiquidPhysics.LiquidOptions):X4} {(int)Samus.LiquidPhysics.LiquidPhysicsType:X4}\n";
+        $"{Samus.Position.X.Whole:X4} {Samus.Kinematics.Position.X.Fraction:X4} {Samus.Position.Y.Whole:X4} {Samus.Kinematics.Position.Y.Fraction:X4} {(int)SamusPoseNumbers.Number(Samus.Pose):X4} {Samus.AnimationFrame:X4} {Samus.AnimationFrameTimer.RemainingFrames:X4} {Samus.AnimationFrameBuffer:X4} {Samus.LiquidPhysics.WaterSurfaceY ?? ushort.MaxValue:X4} {RoomFxRecordCodec.LiquidOptionsByte(Runtime.Room.LoadedScope.FxOverlay.Liquid):X4} {(int)Samus.LiquidPhysics.LiquidPhysicsType:X4}\n";
 
     /// <summary>Holds jump for <see cref="JumpFrameCount"/> frames; returns the header and one row per frame, and the apex.</summary>
     internal JumpTrace Jump()

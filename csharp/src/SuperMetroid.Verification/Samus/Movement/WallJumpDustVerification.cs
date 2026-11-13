@@ -30,7 +30,7 @@ internal static class WallJumpDustVerification
             var liquid = samus.LiquidPhysics;
             liquid.WaterSurfaceY = medium is 1 or 3 ? 100 : medium == 4 ? 114 : null;
             liquid.LavaAcidSurfaceY = medium == 2 ? 100 : null;
-            liquid.LiquidOptions = medium == 3 ? RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave : RoomLiquidOptions.None;
+            liquid.IgnoresWaterSurface = medium == 3;
             var earlier = new SamusParticle(SamusParticleKind.SurfaceSplash, 1, SamusParticleStart.Shown(9), new(55, 66), Offset16<RoomPixels>.Zero);
             samus.Presentation.Particles.Add(earlier);
             if (grapple) SamusAerialPoseTransitions.ApplyGrappleWallJump(samus);

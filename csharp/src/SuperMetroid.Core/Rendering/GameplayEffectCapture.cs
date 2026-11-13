@@ -36,7 +36,7 @@ public static class GameplayEffectCapture
         RoomFxOverlayRenderSnapshot fx,
         Position16<BackgroundPixels> backgroundScroll)
     {
-        if (fx.Type != RoomFxType.Water || (fx.LiquidOptions & RoomLiquidOptions.BackgroundWave) == RoomLiquidOptions.None ||
+        if (fx.Type != RoomFxType.Water || fx.Liquid is not RoomWater { BackgroundWave: true } ||
             fx.WaterSurfaceScreenY is not int surfaceLine)
             return null;
         int belowSurface = surfaceLine + 1;
@@ -46,19 +46,14 @@ public static class GameplayEffectCapture
     }
 
     /// <summary>
-    /// Describes the optional lava/acid the background's horizontal scroll heat haze (#1468), or null without it. Vertical
-    /// distortion takes priority when both option bits are set, as the game checks it first.
+    /// Describes lava's or acid's horizontal heat haze over the background's horizontal scroll (#1468), or null for a liquid
+    /// without it.
     /// </summary>
     public static SampledScrollWave? BuildLavaAcidBackgroundHorizontalScrolls(
         RoomFxOverlayRenderSnapshot fx,
         Position16<BackgroundPixels> backgroundScroll)
     {
-        bool isLavaAcid = fx.Type is RoomFxType.Lava or RoomFxType.Acid;
-        bool usesVertical =
-            (fx.LiquidOptions & RoomLiquidOptions.BackgroundWave) != RoomLiquidOptions.None;
-        bool usesHorizontal =
-            (fx.LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) != RoomLiquidOptions.None;
-        if (!isLavaAcid || usesVertical || !usesHorizontal)
+        if (fx.Liquid is not RoomLavaOrAcid { Haze: HeatHazeDirection.Horizontal })
             return null;
 
         return HeatHaze(backgroundScroll.X, backgroundScroll.Y, fx.LavaAcidBackgroundWavePhase, LiquidEffects.HeatHorizontalWaveform);
@@ -74,11 +69,8 @@ public static class GameplayEffectCapture
         RoomFxOverlayRenderSnapshot fx,
         int backgroundVerticalScroll)
     {
-        if (fx.Type is not (RoomFxType.Lava or RoomFxType.Acid) ||
-            (fx.LiquidOptions & RoomLiquidOptions.BackgroundWave) == RoomLiquidOptions.None)
-        {
+        if (fx.Liquid is not RoomLavaOrAcid { Haze: HeatHazeDirection.Vertical })
             return null;
-        }
 
         // The vertical haze repeats the water wave's samples. Its lines move about the row the screen's top shows, while
         // its phase stays counted from the camera's row.

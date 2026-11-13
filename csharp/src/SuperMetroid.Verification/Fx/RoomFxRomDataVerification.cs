@@ -255,11 +255,11 @@ internal static class RoomFxRomDataVerification
             AssertEqual(100, snapshot.WaterSurfaceScreenY,
                 $"{type} surface retains room-relative scanline");
             // The seeded records select a drifting, BG2-waving water surface and lava/acid's vertical heat wave.
-            RoomLiquidOptions expectedOptions = type == RoomFxType.Water
-                ? RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave
-                : RoomLiquidOptions.BackgroundWave;
-            AssertEqual(expectedOptions, snapshot.LiquidOptions,
-                $"{type} render snapshot retains its wave options");
+            RoomLiquid expectedLiquid = type == RoomFxType.Water
+                ? new RoomWater(LiquidTide.None, SurfaceDrift: true, BackgroundWave: true, IgnoresSurfaceUntilEnabled: false)
+                : new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical);
+            AssertEqual(expectedLiquid, snapshot.Liquid,
+                $"{type} render snapshot retains its liquid's waves");
             AssertEqual((ushort)0x009b, snapshot.Scroll.Y,
                 $"{type} anchors BG3 row zero immediately below surface Y 100");
 

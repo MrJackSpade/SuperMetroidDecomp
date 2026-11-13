@@ -164,8 +164,11 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public int? Surface { get; internal set; }
 
-    /// <summary>The liquid options the FX record selected, as room objects have since changed them.</summary>
-    public RoomLiquidOptions LiquidOptions { get; internal set; }
+    /// <summary>
+    /// The liquid the FX record fills the room with, as room objects have since changed it, or null for an effect with no
+    /// liquid (#1695).
+    /// </summary>
+    public RoomLiquid? Liquid { get; internal set; }
 
     /// <summary>Points the effect's sounds at <paramref name="requests"/>, the update's audio requests of the runtime running it.</summary>
     internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
@@ -215,7 +218,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         LoadSurfaceAndTarget(definition);
         YVelocity = definition.YVelocity;
         Timer = WrappingCountdown.FromRaw(definition.Timer);
-        LiquidOptions = definition.LiquidOptions;
+        Liquid = definition.Liquid;
         Surface = BaseLine;
 
         Type = definition.Type;
@@ -244,9 +247,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             // Lava and acid start with timer B at one, so the first per-line effect object pass rotates A
             // from zero to 30 and then reloads either four or six. Expressing the already-
             // resolved waveform phase as zero produces the same first visible table.
-            lavaAcidBackgroundWaveTimer = UsesLavaAcidVerticalWave
-                ? LavaAcidWaveDefinitions.VerticalWavePhaseDuration
-                : LavaAcidWaveDefinitions.HorizontalWavePhaseDuration;
+            lavaAcidBackgroundWaveTimer = HazePhaseDuration;
             lavaAcidBackgroundWavePhase = 0;
         }
         else if (Type == RoomFxType.Rain)
@@ -423,7 +424,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             Blend,
             Scroll,
             Surface,
-            LiquidOptions,
+            Liquid,
             waterOverlayWavePhase,
             waterBackgroundWavePhase,
             waterSurfaceScreenY)
@@ -469,7 +470,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         LoadSurfaceAndTarget(definition);
         YVelocity = definition.YVelocity;
         Timer = WrappingCountdown.FromRaw(definition.Timer);
-        LiquidOptions = definition.LiquidOptions;
+        Liquid = definition.Liquid;
         Blend = definition.EffectBlend;
         VisorAnimation = definition.VisorAnimation;
         PaletteBlend = definition.PaletteBlend;
@@ -489,12 +490,15 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Clears the water-physics-disabled option as the enable-water-physics room object does. It clears only that
-    /// option, so this change lives on the room-FX owner that republishes the options to Samus; changing only Samus's
-    /// projected copy would be undone by the next FX frame (see <see cref="SetLiquidMotion"/>).
+    /// Lets the room's water surface affect Samus, as the enable-water-physics room object does. It changes only that
+    /// fact of the water, so this change lives on the room-FX owner that republishes the water to Samus; changing only
+    /// Samus's projected copy would be undone by the next FX frame (see <see cref="SetLiquidMotion"/>).
     /// </summary>
+    /// <exception cref="InvalidOperationException">The room's effect has no water.</exception>
     internal void EnableWaterPhysics() =>
-        LiquidOptions &= ~RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave;
+        Liquid = Liquid is RoomWater water
+            ? water.WithSurfaceEnabled()
+            : throw new InvalidOperationException($"A {Type} room has no water whose surface a room object can enable.");
 
     /// <summary>
     /// Runs the observable static-water path of the water effect and both circular wave
@@ -519,12 +523,12 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
                 (waterOverlayWavePhase + 1) % WaterWaveDefinitions.WaveDisplacementCount;
         }
 
-        if ((LiquidOptions & RoomLiquidOptions.SurfaceDrift) != RoomLiquidOptions.None)
+        if (Liquid is RoomWater { SurfaceDrift: true })
             waterDrift += WaterDriftVelocity;
 
         // The Tourian entrance statue's FX spawns only the effect overlay water object. Its second per-line effect object moves
         // the statue vertically instead of installing the ordinary background X wave.
-        if (Type != RoomFxType.Water || (LiquidOptions & RoomLiquidOptions.BackgroundWave) == RoomLiquidOptions.None)
+        if (Type != RoomFxType.Water || Liquid is not RoomWater { BackgroundWave: true })
             return;
         if (--waterBackgroundWaveTimer == 0)
         {
@@ -545,7 +549,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>
     /// Runs the visible outputs of the lava/acid effect and its heat haze. The liquid
     /// surface and the effect overlay follow the room camera, while one of two sixteen-row background
-    /// waveforms rotates at the cadence selected by the record's liquid options.
+    /// waveforms rotates at the cadence of the liquid's heat haze.
     /// </summary>
     private void StepLavaAcid(
         Position16<RoomPixels> camera,
@@ -561,7 +565,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         // beginning their first texture row immediately below the liquid boundary.
         Scroll = camera.AsOverlayScroll().WithY(ComputeLiquidVerticalScroll(Surface, camera.Y));
 
-        if (!UsesLavaAcidVerticalWave && !UsesLavaAcidHorizontalWave)
+        if (Liquid is not RoomLavaOrAcid { Haze: HeatHazeDirection.Horizontal or HeatHazeDirection.Vertical })
             return;
         if (--lavaAcidBackgroundWaveTimer != 0)
             return;
@@ -569,10 +573,16 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         lavaAcidBackgroundWavePhase =
             (lavaAcidBackgroundWavePhase - 1 + LavaAcidWaveDefinitions.WaveDisplacementCount) %
             LavaAcidWaveDefinitions.WaveDisplacementCount;
-        lavaAcidBackgroundWaveTimer = UsesLavaAcidVerticalWave
-            ? LavaAcidWaveDefinitions.VerticalWavePhaseDuration
-            : LavaAcidWaveDefinitions.HorizontalWavePhaseDuration;
+        lavaAcidBackgroundWaveTimer = HazePhaseDuration;
     }
+
+    /// <summary>
+    /// How long each phase of lava's or acid's heat haze lasts: the vertical haze's for a vertical haze, else the
+    /// horizontal one's, which also starts the clock of a liquid with no haze.
+    /// </summary>
+    private int HazePhaseDuration => Liquid is RoomLavaOrAcid { Haze: HeatHazeDirection.Vertical }
+        ? LavaAcidWaveDefinitions.VerticalWavePhaseDuration
+        : LavaAcidWaveDefinitions.HorizontalWavePhaseDuration;
 
     /// <summary>
     /// Runs the parallel callback trios for lava/acid
@@ -707,22 +717,23 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         int scale;
         RotationAngle positiveDelta;
         RotationAngle negativeDelta;
-        if ((LiquidOptions & RoomLiquidOptions.SmallTide) != RoomLiquidOptions.None)
+        switch (Liquid?.Tide ?? LiquidTide.None)
         {
-            scale = LiquidTideDefinitions.SmallTideScale;
-            positiveDelta = LiquidTideDefinitions.SmallTidePositivePhaseDelta;
-            negativeDelta = LiquidTideDefinitions.SmallTideNegativePhaseDelta;
-        }
-        else if ((LiquidOptions & RoomLiquidOptions.LargeTide) != RoomLiquidOptions.None)
-        {
-            scale = LiquidTideDefinitions.LargeTideScale;
-            positiveDelta = LiquidTideDefinitions.LargeTidePositivePhaseDelta;
-            negativeDelta = LiquidTideDefinitions.LargeTideNegativePhaseDelta;
-        }
-        else
-        {
-            TideOffset = SignedSixteenSixteen.Zero;
-            return;
+            case LiquidTide.Small:
+                scale = LiquidTideDefinitions.SmallTideScale;
+                positiveDelta = LiquidTideDefinitions.SmallTidePositivePhaseDelta;
+                negativeDelta = LiquidTideDefinitions.SmallTideNegativePhaseDelta;
+                break;
+            case LiquidTide.Large:
+                scale = LiquidTideDefinitions.LargeTideScale;
+                positiveDelta = LiquidTideDefinitions.LargeTidePositivePhaseDelta;
+                negativeDelta = LiquidTideDefinitions.LargeTideNegativePhaseDelta;
+                break;
+            case LiquidTide.None:
+                TideOffset = SignedSixteenSixteen.Zero;
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined liquid tide {Liquid?.Tide}.");
         }
 
         // The tide follows the negative cosine of its phase, not the sine: the sine a quarter turn behind it.
@@ -747,14 +758,6 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             ? null
             : throw new InvalidOperationException("A room liquid with no surface has a tide.");
     }
-
-    /// <summary>Whether the FX options select vertical background displacement for lava or acid.</summary>
-    private bool UsesLavaAcidVerticalWave =>
-        (LiquidOptions & RoomLiquidOptions.BackgroundWave) != RoomLiquidOptions.None;
-
-    /// <summary>Whether the FX options select horizontal background displacement for lava or acid.</summary>
-    private bool UsesLavaAcidHorizontalWave =>
-        (LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) != RoomLiquidOptions.None;
 
     /// <summary>The overlay's lines in its surface band, above the liquid's body.</summary>
     private const int SurfaceBandLines = 256;
@@ -801,7 +804,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         TidePhase = RotationAngle.Zero;
         TideOffset = SignedSixteenSixteen.Zero;
         Surface = null;
-        LiquidOptions = RoomLiquidOptions.None;
+        Liquid = null;
         waterDrift = Offset16<OverlaySubpixels>.Zero;
         waterBackgroundWaveTimer = 0;
         waterOverlayWaveTimer = 0;
@@ -829,7 +832,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private static readonly Offset16<OverlaySubpixels> RainFallVelocity =
         new(0, unchecked(-AtmosphereDriftDefinitions.RainVerticalVelocity));
 
-    /// <summary>Water's surface drift each frame its <see cref="RoomLiquidOptions.SurfaceDrift"/> option is set.</summary>
+    /// <summary>Water's surface drift each frame while its water's <see cref="RoomWater.SurfaceDrift"/> is set.</summary>
     private static readonly Offset16<OverlaySubpixels> WaterDriftVelocity =
         new(WaterWaveDefinitions.HorizontalSubscrollVelocity, 0);
 

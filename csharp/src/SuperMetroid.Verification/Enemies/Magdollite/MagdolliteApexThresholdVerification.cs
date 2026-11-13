@@ -66,7 +66,7 @@ internal static class MagdolliteApexThresholdVerification
             head.UpwardVelocity = SignedSixteenSixteen.Zero - SixteenSixteenWords.ToDisplacement(onePixel + onePixel / 2);
             RoomEnemySlot body = enemies.SlotTable.Slots[1];
             MagdolliteEnemyState state = enemies.MagdolliteStates[1] ?? throw new InvalidOperationException("Magdollite arm has no state.");
-            state.Function = MagdolliteEnemyFunction.BodyRising;
+            state.Action = MagdolliteAction.BodyRising;
             state.BodyPhase = 1;
             state.RiseDisplacement = Offset16<RoomPixels>.Zero;
             body.Position = FixedPosition<RoomPixels>.FromWhole(new(472, 672));
@@ -98,14 +98,14 @@ internal static class MagdolliteApexThresholdVerification
             (head ?? throw new InvalidOperationException("Verification requires head.")).UpwardVelocity = SignedSixteenSixteen.Zero;
             RoomEnemySlot body = enemies.SlotTable.Slots[headSlot + 1];
             MagdolliteEnemyState state = (enemies.MagdolliteStates[headSlot + 1] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[headSlot + 1]."));
-            (state ?? throw new InvalidOperationException("Verification requires state.")).Function = MagdolliteEnemyFunction.BodyRising;
+            (state ?? throw new InvalidOperationException("Verification requires state.")).Action = MagdolliteAction.BodyRising;
             state.BodyPhase = 7;
             body.Position = body.Position.WithWholeY(0x02a0);
             state.RiseDisplacement = new(0, -MagdollitePhaseDefinitions.MaximumRise);
 
             rise(body, state, null);
             string context = $"Magdollite body in slot {body.SlotIndex}";
-            AssertEqual(MagdolliteEnemyFunction.NoOpAtApex, state.Function, $"{context} reaches its apex");
+            AssertEqual(MagdolliteAction.NoOpAtApex, state.Action, $"{context} reaches its apex");
             AssertEqual(grows ? 8 : 7, state.BodyPhase, $"{context} apex phase");
             AssertEqual((ushort)(grows ? 0x02a8 : 0x02a0), body.Position.Y.Whole, $"{context} apex Y");
         }

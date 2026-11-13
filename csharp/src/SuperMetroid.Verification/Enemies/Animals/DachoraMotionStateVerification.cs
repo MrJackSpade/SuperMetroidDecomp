@@ -49,7 +49,7 @@ internal static class DachoraMotionStateVerification
                  })
         {
             (RoomEnemySystem fallEnemies, RoomEnemySlot fallSlot, DachoraEnemyState fall) = NewDachora(parameter: 1);
-            fall.Function = DachoraAiFunction.Falling;
+            fall.Action = DachoraAction.Falling;
             fall.Speed = SignedSixteenSixteen.FromParts(whole, fraction);
             fallSlot.Position = fallSlot.Position.WithWhole(new(64, 32));
 
@@ -76,7 +76,7 @@ internal static class DachoraMotionStateVerification
         foreach ((int lifetime, ushort expected, bool invisible) in new VerifyDachoraEchoLifetimeCase[] { new VerifyDachoraEchoLifetimeCase(8, 7, false), new VerifyDachoraEchoLifetimeCase(1, 0, false), new VerifyDachoraEchoLifetimeCase(0, 0, true) })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, DachoraEnemyState state) = NewDachora(parameter: ushort.MaxValue);
-            AssertEqual(DachoraAiFunction.Echo, state.Function, "a negative parameter makes an echo");
+            AssertEqual(DachoraAction.Echo, state.Action, "a negative parameter makes an echo");
             state.EchoLifetime = lifetime;
 
             enemies.DachoraBehavior.RunDachoraMainAi(slot, frame);

@@ -12,7 +12,7 @@ public sealed class ChootEnemyState
     internal AnimationPlayback<ChootSegment> Playback { get; set; }
 
     /// <summary>The behaviour selected by Choot's main AI dispatcher.</summary>
-    public ChootEnemyFunction? Function { get; internal set; }
+    public ChootAction? Action { get; internal set; }
 
     /// <summary>
     /// The ascent's whole-row place along the quadratic speed table, moving back two rows per jumping update; the update

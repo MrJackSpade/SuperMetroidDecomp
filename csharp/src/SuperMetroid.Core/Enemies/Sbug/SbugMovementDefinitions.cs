@@ -46,15 +46,15 @@ internal static class SbugMovementDefinitions
         [CompassDirection.DownRight] = CompassDirection.UpRight,
     };
 
-    /// <summary>The function each of the seven population-selected activation behaviors starts.</summary>
-    internal static readonly Dictionary<SbugActivationBehavior, SbugEnemyFunction> ActivationFunctions = new()
+    /// <summary>The action each of the seven population-selected activation behaviors starts.</summary>
+    internal static readonly Dictionary<SbugActivationBehavior, SbugAction> ActivationActions = new()
     {
-        [SbugActivationBehavior.MoveForward] = SbugEnemyFunction.ActivateMoveForward,
-        [SbugActivationBehavior.ZigZag] = SbugEnemyFunction.ActivateZigZag,
-        [SbugActivationBehavior.MoveTowardSamus] = SbugEnemyFunction.ActivateMoveTowardSamus,
-        [SbugActivationBehavior.RandomUntilCollision] = SbugEnemyFunction.ActivateRandomUntilCollision,
-        [SbugActivationBehavior.RandomAndReverseWhenFar] = SbugEnemyFunction.ActivateRandomAndReverseWhenFar,
-        [SbugActivationBehavior.MoveForwardThenWait] = SbugEnemyFunction.ActivateMoveForwardThenWait,
-        [SbugActivationBehavior.MoveAwayFromSamus] = SbugEnemyFunction.ActivateMoveAwayFromSamus,
+        [SbugActivationBehavior.MoveForward] = SbugAction.ActivateMoveForward,
+        [SbugActivationBehavior.ZigZag] = SbugAction.ActivateZigZag,
+        [SbugActivationBehavior.MoveTowardSamus] = SbugAction.ActivateMoveTowardSamus,
+        [SbugActivationBehavior.RandomUntilCollision] = SbugAction.ActivateRandomUntilCollision,
+        [SbugActivationBehavior.RandomAndReverseWhenFar] = SbugAction.ActivateRandomAndReverseWhenFar,
+        [SbugActivationBehavior.MoveForwardThenWait] = SbugAction.ActivateMoveForwardThenWait,
+        [SbugActivationBehavior.MoveAwayFromSamus] = SbugAction.ActivateMoveAwayFromSamus,
     };
 }

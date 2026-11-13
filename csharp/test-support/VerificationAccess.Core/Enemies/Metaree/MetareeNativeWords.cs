@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Enemies.Metaree;
 /// </summary>
 internal static class MetareeNativeWords
 {
-    /// <summary>The routine word naming each <see cref="MetareeEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<MetareeEnemyFunction> MetareeEnemyFunctions = new(new Dictionary<MetareeEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="MetareeAction"/>.</summary>
+    internal static readonly NativeWordIdentities<MetareeAction> MetareeActions = new(new Dictionary<MetareeAction, ushort>
     {
-        [MetareeEnemyFunction.Idling] = 0x8987,
-        [MetareeEnemyFunction.PreparingAttack] = 0x89d4,
-        [MetareeEnemyFunction.LaunchedAttack] = 0x89f3,
-        [MetareeEnemyFunction.Burrowing] = 0x8a5c,
+        [MetareeAction.Idling] = 0x8987,
+        [MetareeAction.PreparingAttack] = 0x89d4,
+        [MetareeAction.LaunchedAttack] = 0x89f3,
+        [MetareeAction.Burrowing] = 0x8a5c,
     });
 }

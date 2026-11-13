@@ -27,7 +27,7 @@ internal static class ChootOwnedStateVerification
         AssertTrue(initial > 0 && initial % 2 == 0, "the ascent starts at a positive even record index");
         AssertEqual(EnemyQuadraticSpeedIndex.FromRows(initial), state.YSpeedTableIndex, "the ascent starts at the calculated index");
         int jumpingUpdates = 0;
-        while (state.Function != ChootEnemyFunction.Falling)
+        while (state.Action != ChootAction.Falling)
         {
             ChootBehavior.RunChootJump(slot, state);
             jumpingUpdates++;

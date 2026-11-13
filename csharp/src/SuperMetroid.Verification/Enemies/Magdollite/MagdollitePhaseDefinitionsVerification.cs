@@ -65,7 +65,7 @@ internal static class MagdollitePhaseDefinitionsVerification
             AssertEqual(unchecked((ushort)(0x0300 - phase.OverlayYOffset)), overlay.Position.Y.Whole,
                 $"Magdollite production overlay Y {phaseIndex}");
 
-            bodyState.Function = MagdolliteEnemyFunction.BodyRising;
+            bodyState.Action = MagdolliteAction.BodyRising;
             bodyState.BodyReachedApex = false;
             bodyState.BodyPhase = phaseIndex;
             bodyState.RiseDisplacement = new(0, phaseIndex < 8
@@ -97,7 +97,7 @@ internal static class MagdollitePhaseDefinitionsVerification
 
         for (int priorPhase = 1; priorPhase < 8; priorPhase++)
         {
-            bodyState.Function = MagdolliteEnemyFunction.BodyFalling;
+            bodyState.Action = MagdolliteAction.BodyFalling;
             bodyState.BodyPhase = priorPhase + 1;
             bodyState.RiseDisplacement = new(0, -1);
             body.Position = body.Position.WithWholeY(0x0300);

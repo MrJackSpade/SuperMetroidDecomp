@@ -41,8 +41,8 @@ internal static class DeadTourianBehaviorVerification
         int[] holds = [2, 4, 5, 48, 5, 4, 5, 4];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames(hop, holds),
             EnemyInstructionRunner.ShownFrames(corpse, holds.Sum() + 1), "dead Sidehopper hop");
-        AssertEqual(DeadSidehopperAiFunction.BeginPostLandingDelay,
-            (enemies.DeadSidehoppers[0] ?? throw new InvalidOperationException("Verification requires enemies.DeadSidehoppers[0].")).Function,
+        AssertEqual(DeadSidehopperAction.BeginPostLandingDelay,
+            (enemies.DeadSidehoppers[0] ?? throw new InvalidOperationException("Verification requires enemies.DeadSidehoppers[0].")).Action,
             "the landing cue returns ownership to main AI");
         Console.WriteLine("  Dead Sidehopper behavior: the poses hold and the hop's landing cue reaches main AI.");
     }

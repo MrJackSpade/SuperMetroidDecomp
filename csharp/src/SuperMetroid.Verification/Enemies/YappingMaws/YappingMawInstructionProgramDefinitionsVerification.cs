@@ -126,14 +126,14 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             samus.Position = samus.Position.WithWhole(new(128 + 300, 128));
             enemies.YappingMawBehavior.RunYappingMawMainAi(slot, Frame(samus));
             string context = $"Yapping Maw activation distance {activationDistance}";
-            AssertEqual(attacks ? YappingMawAiFunction.BeginExtension : YappingMawAiFunction.WaitingForSamus, state.Function, $"{context} attack decision");
+            AssertEqual(attacks ? YappingMawAction.BeginExtension : YappingMawAction.WaitingForSamus, state.Action, $"{context} attack decision");
             AssertEqual(attacks ? YappingMawAttackGeometry.MaximumTargetDistance : 300, state.DistanceToSamus, $"{context} target distance");
             if (!attacks)
                 continue;
 
             AssertEqual(default(Bearing), state.AimAngle, $"{context} aims straight along X");
             enemies.YappingMawBehavior.RunYappingMawMainAi(slot, Frame(samus));
-            AssertEqual(YappingMawAiFunction.ExtendingOrRetracting, state.Function, $"{context} begins extending");
+            AssertEqual(YappingMawAction.ExtendingOrRetracting, state.Action, $"{context} begins extending");
             AssertEqual(32, state.SegmentRadius, $"{context} radius is half the capped distance");
             AssertEqual(RotationAngle.QuarterTurn, state.CurlAngle, $"{context} curl is a quarter turn minus the aim");
         }

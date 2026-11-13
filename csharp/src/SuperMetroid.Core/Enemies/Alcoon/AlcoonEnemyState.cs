@@ -8,7 +8,7 @@ public sealed class AlcoonEnemyState
     internal AnimationPlayback<AlcoonSegment> Playback { get; set; }
 
     /// <summary>The current behaviour.</summary>
-    public AlcoonEnemyFunction? Function { get; internal set; }
+    public AlcoonAction? Action { get; internal set; }
 
     /// <summary>
     /// Motion per step. Y is the signed 16.16 vertical velocity: emergence starts at -12 and retreat at -4, and

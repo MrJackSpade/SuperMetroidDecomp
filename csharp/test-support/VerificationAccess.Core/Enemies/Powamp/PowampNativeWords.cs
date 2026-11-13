@@ -8,20 +8,20 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// </summary>
 internal static class PowampNativeWords
 {
-    /// <summary>The routine word naming each <see cref="PowampEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<PowampEnemyFunction> PowampEnemyFunctions = new(new Dictionary<PowampEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="PowampAction"/>.</summary>
+    internal static readonly NativeWordIdentities<PowampAction> PowampActions = new(new Dictionary<PowampAction, ushort>
     {
-        [PowampEnemyFunction.DeflatedResting] = 0xc283,
-        [PowampEnemyFunction.Inflating] = 0xc2a6,
-        [PowampEnemyFunction.InflatedRiseToTargetHeight] = 0xc2cf,
-        [PowampEnemyFunction.InflatedFinishWiggle] = 0xc36b,
-        [PowampEnemyFunction.GrappledRiseToTargetHeight] = 0xc3e1,
-        [PowampEnemyFunction.GrappledFinishWiggle] = 0xc469,
-        [PowampEnemyFunction.GrappledResting] = 0xc4dc,
-        [PowampEnemyFunction.Deflating] = 0xc500,
-        [PowampEnemyFunction.DeflatedSinking] = 0xc51d,
-        [PowampEnemyFunction.BalloonNoOp] = 0xc568,
-        [PowampEnemyFunction.FatalDamage] = 0xc569,
-        [PowampEnemyFunction.DeathSequence] = 0xc59f,
+        [PowampAction.DeflatedResting] = 0xc283,
+        [PowampAction.Inflating] = 0xc2a6,
+        [PowampAction.InflatedRiseToTargetHeight] = 0xc2cf,
+        [PowampAction.InflatedFinishWiggle] = 0xc36b,
+        [PowampAction.GrappledRiseToTargetHeight] = 0xc3e1,
+        [PowampAction.GrappledFinishWiggle] = 0xc469,
+        [PowampAction.GrappledResting] = 0xc4dc,
+        [PowampAction.Deflating] = 0xc500,
+        [PowampAction.DeflatedSinking] = 0xc51d,
+        [PowampAction.BalloonNoOp] = 0xc568,
+        [PowampAction.FatalDamage] = 0xc569,
+        [PowampAction.DeathSequence] = 0xc59f,
     });
 }

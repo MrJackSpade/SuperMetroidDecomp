@@ -9,12 +9,12 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 /// </summary>
 internal static class ZoaNativeWords
 {
-    /// <summary>The routine word naming each <see cref="ZoaEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<ZoaEnemyFunction> ZoaEnemyFunctions = new(new Dictionary<ZoaEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="ZoaAction"/>.</summary>
+    internal static readonly NativeWordIdentities<ZoaAction> ZoaActions = new(new Dictionary<ZoaAction, ushort>
     {
-        [ZoaEnemyFunction.WaitForSamus] = 0xb482,
-        [ZoaEnemyFunction.Rising] = 0xb4a8,
-        [ZoaEnemyFunction.Shooting] = 0xb4d6,
+        [ZoaAction.WaitForSamus] = 0xb482,
+        [ZoaAction.Rising] = 0xb4a8,
+        [ZoaAction.Shooting] = 0xb4d6,
     });
 
     /// <summary>

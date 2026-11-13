@@ -60,12 +60,12 @@ internal static class PipeBugBehaviorVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             PipeBugEnemyState state = Initialize(enemies, slot, EnemyDefinitionId.Gamet, 0);
-            state.Function = PipeBugEnemyFunction.NorfairWaitForStagger;
+            state.Action = PipeBugAction.NorfairWaitForStagger;
             state.StaggerTarget = 72;
             state.FormationCounter = before;
             enemies.PipeBugsBehavior.RunPipeBugsMainAi(slot, Frame(new(200, 128)));
             AssertEqual(after, state.FormationCounter, $"Norfair Pipe Bug count after {before}");
-            AssertEqual(departs ? PipeBugEnemyFunction.NorfairFlyRight : PipeBugEnemyFunction.NorfairWaitForStagger, state.Function,
+            AssertEqual(departs ? PipeBugAction.NorfairFlyRight : PipeBugAction.NorfairWaitForStagger, state.Action,
                 $"Norfair Pipe Bug departs only on reaching its target (count {before})");
         }
 
@@ -74,13 +74,13 @@ internal static class PipeBugBehaviorVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             PipeBugEnemyState state = Initialize(enemies, slot, EnemyDefinitionId.Zeb, 0);
-            state.Function = PipeBugEnemyFunction.BrinstarWaitForSamus;
+            state.Action = PipeBugAction.BrinstarWaitForSamus;
             enemies.PipeBugsBehavior.RunPipeBugsMainAi(slot, Frame(new(28, 78)));
             AssertTrue(state.BrinstarFliesLeft, "Brinstar Pipe Bug flies left of Samus on her left");
-            AssertEqual(PipeBugEnemyFunction.BrinstarWaitForSamus, state.Function, "Brinstar Pipe Bug waits while Samus is 100 pixels away");
+            AssertEqual(PipeBugAction.BrinstarWaitForSamus, state.Action, "Brinstar Pipe Bug waits while Samus is 100 pixels away");
             enemies.PipeBugsBehavior.RunPipeBugsMainAi(slot, Frame(new(148, 78)));
             AssertTrue(!state.BrinstarFliesLeft, "Brinstar Pipe Bug flies right toward Samus on her right");
-            AssertEqual(PipeBugEnemyFunction.BrinstarEmerge, state.Function, "Brinstar Pipe Bug emerges for Samus 20 pixels away");
+            AssertEqual(PipeBugAction.BrinstarEmerge, state.Action, "Brinstar Pipe Bug emerges for Samus 20 pixels away");
             AssertEqual(PipeBugAnimationSelector.RisingFacingRight, state.RequestedAnimation, "Brinstar Pipe Bug emerges facing right");
         }
 
@@ -92,7 +92,7 @@ internal static class PipeBugBehaviorVerification
             slot.SetSpawnParameter2(EnemyDefinitionId.Geega, 24);
             PipeBugEnemyState state = Initialize(enemies, slot, EnemyDefinitionId.Geega, 0);
             AssertEqual(SixteenSixteenWords.ToDisplacement(onePixel + onePixel / 2), state.PositiveVelocity, "yellow Pipe Bug speed record 24 is 1.5 pixels");
-            state.Function = PipeBugEnemyFunction.YellowArcRight;
+            state.Action = PipeBugAction.YellowArcRight;
             state.ArcRising = true;
             state.ArcCounter = EnemyQuadraticSpeedIndex.FromRows(1);
             PipeBugBehaviorExpected[] expected = [new PipeBugBehaviorExpected(0, true), new PipeBugBehaviorExpected(0, false), new PipeBugBehaviorExpected(1, false)];

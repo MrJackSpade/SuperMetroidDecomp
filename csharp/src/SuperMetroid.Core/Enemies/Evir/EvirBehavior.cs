@@ -104,7 +104,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.MovingDown = false;
         state.InstalledAnimation = null;
-        state.Function = EvirAiFunction.HandleBodyOrArms;
+        state.Action = EvirAction.HandleBodyOrArms;
     }
 
     /// <summary>
@@ -154,7 +154,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             InstalledAnimation = null,
             Regenerating = false,
             InFlight = false,
-            Function = EvirAiFunction.ProjectileIdle,
+            Action = EvirAction.ProjectileIdle,
             RegenerationOffset = Offset16<RoomPixels>.Zero,
         };
         _partners.Place(slot, new EvirPartners(
@@ -179,10 +179,10 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Tracks Samus while the spit is present and alternates the body's timed vertical travel.</summary>
     private void RunEvirMain(RoomEnemySlot slot, EvirEnemyState state, SamusState? samus)
     {
-        if (state.Function != EvirAiFunction.HandleBodyOrArms)
+        if (state.Action != EvirAction.HandleBodyOrArms)
         {
             throw new InvalidDataException(
-                $"Evir body/arms function {state.Function} is not translated.");
+                $"Evir body/arms function {state.Action} is not translated.");
         }
 
         if (slot.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms)
@@ -243,21 +243,21 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case EvirAiFunction.ProjectileIdle:
+            case EvirAction.ProjectileIdle:
                 ResetEvirProjectilePosition(slot, state);
                 break;
-            case EvirAiFunction.ProjectileMoving:
+            case EvirAction.ProjectileMoving:
                 RunMovingEvirProjectile(slot, state, camera);
                 break;
-            case EvirAiFunction.ProjectileRegenerating:
+            case EvirAction.ProjectileRegenerating:
                 RunRegeneratingEvirProjectile(slot, state);
                 break;
-            case EvirAiFunction.HandleBodyOrArms:
+            case EvirAction.HandleBodyOrArms:
             default:
                 throw new InvalidDataException(
-                    $"Evir projectile function {state.Function} is not translated.");
+                    $"Evir projectile function {state.Action} is not translated.");
         }
     }
 
@@ -339,7 +339,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             state,
             EvirSegment.ProjectileNormal);
         state.InFlight = true;
-        state.Function = EvirAiFunction.ProjectileMoving;
+        state.Action = EvirAction.ProjectileMoving;
     }
 
     /// <summary>Checks the far-offscreen regeneration boundary before advancing the spit.</summary>
@@ -372,7 +372,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.InFlight = false;
         state.Regenerating = true;
-        state.Function = EvirAiFunction.ProjectileRegenerating;
+        state.Action = EvirAction.ProjectileRegenerating;
         RequestEvirAnimation(
             projectile,
             state,
@@ -393,7 +393,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
                 state,
                 EvirSegment.ProjectileNormal);
             state.InFlight = false;
-            state.Function = EvirAiFunction.ProjectileIdle;
+            state.Action = EvirAction.ProjectileIdle;
             return;
         }
 
@@ -454,7 +454,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Regenerating = false;
         state.InFlight = false;
-        state.Function = EvirAiFunction.ProjectileIdle;
+        state.Action = EvirAction.ProjectileIdle;
     }
 
     /// <summary>Records the desired animation and starts it only when it differs from the active one.</summary>
@@ -526,7 +526,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         firstRelative.AiStates = firstRelative.AiStates | EnemyAiStates.Frozen;
         // The game compares the following-but-one record's function with the moving spit's. In the retail
         // Evir rooms that record is an Evir or an empty slot, never another species.
-        if (secondRelative.SpeciesState<EvirEnemyState>()?.Function != EvirAiFunction.ProjectileMoving)
+        if (secondRelative.SpeciesState<EvirEnemyState>()?.Action != EvirAction.ProjectileMoving)
         {
             secondRelative.FrozenTimer = actor.FrozenTimer;
             secondRelative.AiStates = secondRelative.AiStates | EnemyAiStates.Frozen;

@@ -10,8 +10,8 @@ public sealed class SkreeEnemyState
     /// <summary>Reloaded to 21 while diving and counted down while burrowing.</summary>
     public int BurrowTimer { get; internal set; }
 
-    /// <summary>The current phase function.</summary>
-    public SkreeEnemyFunction? Function { get; internal set; }
+    /// <summary>The current action.</summary>
+    public SkreeAction? Action { get; internal set; }
 
     /// <summary>The animation phase requested by the current AI transition.</summary>
     public SkreeMetareeAnimationPhase RequestedAnimation { get; internal set; }

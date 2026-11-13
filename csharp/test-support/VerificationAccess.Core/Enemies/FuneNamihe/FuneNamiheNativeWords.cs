@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// </summary>
 internal static class FuneNamiheNativeWords
 {
-    /// <summary>The routine word naming each <see cref="FuneNamiheEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<FuneNamiheEnemyFunction> FuneNamiheEnemyFunctions = new(new Dictionary<FuneNamiheEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="FuneNamiheAction"/>.</summary>
+    internal static readonly NativeWordIdentities<FuneNamiheAction> FuneNamiheActions = new(new Dictionary<FuneNamiheAction, ushort>
     {
-        [FuneNamiheEnemyFunction.FuneWaitForCooldown] = 0x9737,
-        [FuneNamiheEnemyFunction.NamiheWaitForSamus] = 0x975c,
-        [FuneNamiheEnemyFunction.FuneActivityNoOp] = 0x978e,
-        [FuneNamiheEnemyFunction.NamiheActivityNoOp] = 0x978f,
+        [FuneNamiheAction.FuneWaitForCooldown] = 0x9737,
+        [FuneNamiheAction.NamiheWaitForSamus] = 0x975c,
+        [FuneNamiheAction.FuneActivityNoOp] = 0x978e,
+        [FuneNamiheAction.NamiheActivityNoOp] = 0x978f,
     });
 }

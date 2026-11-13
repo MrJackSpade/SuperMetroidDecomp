@@ -26,7 +26,7 @@ public sealed class ZoaEnemyState
     /// The current AI behaviour, initialized to wait and transitioned through rise, horizontal launch, and offscreen
     /// return to wait.
     /// </summary>
-    public ZoaEnemyFunction? Function { get; internal set; }
+    public ZoaAction? Action { get; internal set; }
 
     /// <summary>The launch's speed stage, zero (at rest) through three, advanced by the shooting animation's cues (<see cref="ZoaSpeedDefinitions.StageSpeedEighths"/>).</summary>
     public int ShotSpeedStage { get; internal set; }

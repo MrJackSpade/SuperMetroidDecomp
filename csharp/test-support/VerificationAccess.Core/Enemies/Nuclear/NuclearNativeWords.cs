@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 /// </summary>
 internal static class NuclearNativeWords
 {
-    /// <summary>The routine word naming each <see cref="NuclearWaffleEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<NuclearWaffleEnemyFunction> NuclearWaffleEnemyFunctions = new(new Dictionary<NuclearWaffleEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="NuclearWaffleAction"/>.</summary>
+    internal static readonly NativeWordIdentities<NuclearWaffleAction> NuclearWaffleActions = new(new Dictionary<NuclearWaffleAction, ushort>
     {
-        [NuclearWaffleEnemyFunction.Waiting] = 0x9615,
-        [NuclearWaffleEnemyFunction.Sweeping] = 0x9682,
+        [NuclearWaffleAction.Waiting] = 0x9615,
+        [NuclearWaffleAction.Sweeping] = 0x9682,
     });
 }

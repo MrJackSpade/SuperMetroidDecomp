@@ -26,7 +26,7 @@ public sealed class LowerNorfairRioEnemyState
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>The current behaviour, shared by parent and flame follower dispatch.</summary>
-    public LowerNorfairRioEnemyFunction? Function { get; internal set; }
+    public LowerNorfairRioAction? Action { get; internal set; }
 
     /// <summary>Whether this is the lower flame follower instead of the parent; a follower must immediately follow a parent of the same enemy definition.</summary>
     public bool IsFollower { get; internal set; }

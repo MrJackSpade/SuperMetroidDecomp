@@ -54,7 +54,7 @@ internal static class BullBehaviorVerification
         slot.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
         enemies.BullBehavior.InitializeBull(slot);
         BullEnemyState state = slot.RequireSpeciesState<BullEnemyState>();
-        state.Function = BullEnemyFunction.Decelerating;
+        state.Action = BullAction.Decelerating;
         state.Speed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(10);
         state.Acceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(48);
         state.AccelerationDelta = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
@@ -63,10 +63,10 @@ internal static class BullBehaviorVerification
         BullBehavior.RunBullMain(slot, state, samus: null);
         AssertEqual(24, state.Acceleration.InTwoHundredFiftySixthsOfPixel, "the expiring interval shrinks the acceleration by its delta");
         AssertEqual(-14, state.Speed.InTwoHundredFiftySixthsOfPixel, "the overshooting deceleration leaves the speed below zero");
-        AssertEqual(BullEnemyFunction.Decelerating, state.Function, "the overshoot is read on the following update");
+        AssertEqual(BullAction.Decelerating, state.Action, "the overshoot is read on the following update");
 
         BullBehavior.RunBullMain(slot, state, samus: null);
-        AssertEqual(BullEnemyFunction.MovementDelay, state.Function, "a speed below zero stops the flight");
+        AssertEqual(BullAction.MovementDelay, state.Action, "a speed below zero stops the flight");
         AssertTrue(state.Speed.IsZero, "stopping clears the speed");
         AssertTrue(state.Acceleration.IsZero, "stopping clears the acceleration");
         AssertTrue(state.AccelerationDelta.IsZero, "stopping clears the acceleration delta");

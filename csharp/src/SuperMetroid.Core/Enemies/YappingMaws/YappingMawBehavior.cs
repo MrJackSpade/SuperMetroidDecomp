@@ -91,7 +91,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new YappingMawEnemyState(slot)
         {
-            Function = YappingMawAiFunction.WaitingForSamus,
+            Action = YappingMawAction.WaitingForSamus,
             Origin = slot.Position.Whole,
             ActivationDistance = slot.SpawnSettings<YappingMawSpawnSettings>().ActivationDistance,
             RetractedDelayTimer = YappingMawRetractedDelayFrames,
@@ -150,23 +150,23 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 "Yapping Maw main AI requires the active Samus actor for targeting.");
         }
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case YappingMawAiFunction.WaitingForSamus:
+            case YappingMawAction.WaitingForSamus:
                 WaitForSamusWithYappingMaw(state, samus);
                 break;
-            case YappingMawAiFunction.BeginExtension:
+            case YappingMawAction.BeginExtension:
                 BeginYappingMawExtension(slot, state);
                 break;
-            case YappingMawAiFunction.ExtendingOrRetracting:
+            case YappingMawAction.ExtendingOrRetracting:
                 AdvanceYappingMawExtension(slot, state, samus);
                 break;
-            case YappingMawAiFunction.RetractedDelay:
+            case YappingMawAction.RetractedDelay:
                 WaitAfterYappingMawRetraction(state, samus);
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Yapping Maw function {state.Function} is not translated.");
+                    $"Yapping Maw function {state.Action} is not translated.");
         }
 
         // The mouth actor owns the final point. The four projectiles own root, quarter, half,
@@ -206,7 +206,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             state.DistanceToSamus = YappingMawAttackGeometry.MaximumTargetDistance;
 
         state.AimAngle = bearing;
-        state.Function = YappingMawAiFunction.BeginExtension;
+        state.Action = YappingMawAction.BeginExtension;
     }
 
     /// <summary>Runs the one-frame setup function.</summary>
@@ -228,7 +228,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(slot, YappingMawAnimations.StartingWith(YappingMawBites.AttackForDirection(aim)));
 
         state.HeldSamusOffset = YappingMawAttackGeometry.HeldSamusOffset(aim);
-        state.Function = YappingMawAiFunction.ExtendingOrRetracting;
+        state.Action = YappingMawAction.ExtendingOrRetracting;
     }
 
     /// <summary>
@@ -302,7 +302,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.Function = YappingMawAiFunction.RetractedDelay;
+        state.Action = YappingMawAction.RetractedDelay;
         state.GrabCooldown = WrappingCountdown.Start(YappingMawGrabCooldownFrames);
 
         // The six retracted animations are not one per aim. The right and left sectors have
@@ -360,7 +360,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HasGrabbedSamus = false;
         state.GrabCooldown = WrappingCountdown.Start(YappingMawGrabCooldownFrames);
         state.RetractedDelayTimer = YappingMawRetractedDelayFrames;
-        state.Function = YappingMawAiFunction.WaitingForSamus;
+        state.Action = YappingMawAction.WaitingForSamus;
     }
 
     /// <summary>Runs the observable portions of Samus command three plus holding Samus in the mouth.</summary>

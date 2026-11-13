@@ -1072,7 +1072,7 @@ internal static class LookupStream5Verification
                 AssertEqual(new AnimationPlayback<MorphBallEyeSegment>(MorphBallEyeAnimations.StartingWith(mount.Animation), AnimationPlace.StartOfAnimation),
                     eye.Playback,
                     "Actual directional mount program");
-                AssertEqual(MorphBallEyeAiFunction.MountNoOp, eye.Function, "Mount remains decorative");
+                AssertEqual(MorphBallEyeAction.MountNoOp, eye.Action, "Mount remains decorative");
             }
         }
         var owner = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());

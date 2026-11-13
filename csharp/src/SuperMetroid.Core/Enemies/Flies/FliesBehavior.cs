@@ -31,7 +31,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new FlyEnemyState
         {
             Angle = RotationAngle.Zero,
-            Function = FlyEnemyFunction.ClockwiseCircle,
+            Action = FlyAction.ClockwiseCircle,
         };
         slot.SetSpeciesState(state);
         state.Playback = new(FlyAnimations.StartingWith(FlySegment.Flight), AnimationPlace.StartOfAnimation);
@@ -49,28 +49,28 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         // returned number. The side effect matters when several random enemies share a room.
         _room.Random.Generate();
         FlyEnemyState state = slot.RequireSpeciesState<FlyEnemyState>();
-        switch (state.Function)
+        switch (state.Action)
         {
-            case FlyEnemyFunction.ClockwiseCircle:
+            case FlyAction.ClockwiseCircle:
                 RunFlyCircle(slot, state, samus, rotation: RotationDirection.Clockwise);
                 return;
-            case FlyEnemyFunction.AntiClockwiseCircle:
+            case FlyAction.AntiClockwiseCircle:
                 RunFlyCircle(slot, state, samus, rotation: RotationDirection.Counterclockwise);
                 return;
-            case FlyEnemyFunction.AttackSamus:
+            case FlyAction.AttackSamus:
                 RunFlyAttack(slot, state);
                 return;
-            case FlyEnemyFunction.Retreat:
+            case FlyAction.Retreat:
                 MoveFlyAccordingToVelocities(slot, state);
                 if (--state.RetreatTimer < 0)
                 {
                     state.RetreatTimer = 24;
-                    state.Function = FlyEnemyFunction.ClockwiseCircle;
+                    state.Action = FlyAction.ClockwiseCircle;
                 }
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Fly function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Fly function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -96,9 +96,9 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AdvanceCircle(rotation == RotationDirection.Clockwise);
         if (state.Angle == RotationAngle.Zero)
         {
-            state.Function = rotation == RotationDirection.Clockwise
-                ? FlyEnemyFunction.AntiClockwiseCircle
-                : FlyEnemyFunction.ClockwiseCircle;
+            state.Action = rotation == RotationDirection.Clockwise
+                ? FlyAction.AntiClockwiseCircle
+                : FlyAction.ClockwiseCircle;
         }
     }
 
@@ -112,7 +112,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
             new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToMirroredTableAngle();
         state.Velocity = DiveVelocity(angle);
         state.TargetHeight = new Position16<RoomPixels>(0, samus.Position.Y.Whole);
-        state.Function = FlyEnemyFunction.AttackSamus;
+        state.Action = FlyAction.AttackSamus;
     }
 
     /// <summary>Continues the dive until it crosses Samus's captured height, then reverses vertical speed into retreat.</summary>
@@ -128,7 +128,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Velocity = state.Velocity.ReversedY();
-        state.Function = FlyEnemyFunction.Retreat;
+        state.Action = FlyAction.Retreat;
     }
 
     /// <summary>

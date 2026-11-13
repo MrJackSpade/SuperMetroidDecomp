@@ -44,7 +44,7 @@ internal static class MetroidBombPlacementVerification
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         enemies.Collision.ResolveOrdinarySamusContact(samus, 0);
         var state = enemies.MetroidStates[0];
-        AssertEqual(MetroidAiFunction.AttachedToSamus, (state ?? throw new InvalidOperationException("Verification requires state.")).Function, "real touch attaches Metroid to morphed Samus");
+        AssertEqual(MetroidMovement.AttachedToSamus, (state ?? throw new InvalidOperationException("Verification requires state.")).Movement, "real touch attaches Metroid to morphed Samus");
         var bombs = CreateBombFixture();
         var shots = CreateProjectileFixture();
         int firstExplosion = -1, detached = -1;
@@ -55,7 +55,7 @@ internal static class MetroidBombPlacementVerification
             if (firstExplosion < 0 && bombs.Slots.Any(b => !b.Type.IsNone && b.BombTimer.IsZero)) firstExplosion = frame;
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
             enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus);
-            if (state.Function == MetroidAiFunction.PowerBombEscape && detached < 0) detached = frame;
+            if (state.Movement == MetroidMovement.PowerBombEscape && detached < 0) detached = frame;
             if (detached >= 0) break;
         }
         AssertTrue(firstExplosion >= 0, "placed normal bomb reaches its natural explosion");
@@ -75,8 +75,8 @@ internal static class MetroidBombPlacementVerification
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
             AssertEqual(expectedX, target.Position.X.Whole, "native post-bomb escape X");
             AssertEqual(expectedY, target.Position.Y.Whole, "native post-bomb escape Y");
-            AssertEqual(frame == 3 ? MetroidAiFunction.Homing : MetroidAiFunction.PowerBombEscape,
-                state.Function, "native escape phase ends after four updates");
+            AssertEqual(frame == 3 ? MetroidMovement.Homing : MetroidMovement.PowerBombEscape,
+                state.Movement, "native escape phase ends after four updates");
         }
     }
 
@@ -125,12 +125,12 @@ internal static class MetroidBombPlacementVerification
         // trace is enforced by DebugRunner; these boundaries run in the core suite.
         MetroidBombPlacementExpected[] expected =
         [
-            new MetroidBombPlacementExpected(149, 145, MetroidAiFunction.AttachedToSamus, 0, 952),
-            new MetroidBombPlacementExpected(151, 145, MetroidAiFunction.PowerBombEscape, 3, 952),
-            new MetroidBombPlacementExpected(151, 147, MetroidAiFunction.PowerBombEscape, 2, 952),
-            new MetroidBombPlacementExpected(149, 147, MetroidAiFunction.PowerBombEscape, 1, 952),
-            new MetroidBombPlacementExpected(149, 145, MetroidAiFunction.Homing, 0, 952),
-            new MetroidBombPlacementExpected(149, 145, MetroidAiFunction.AttachedToSamus, 0, 951),
+            new MetroidBombPlacementExpected(149, 145, MetroidMovement.AttachedToSamus, 0, 952),
+            new MetroidBombPlacementExpected(151, 145, MetroidMovement.PowerBombEscape, 3, 952),
+            new MetroidBombPlacementExpected(151, 147, MetroidMovement.PowerBombEscape, 2, 952),
+            new MetroidBombPlacementExpected(149, 147, MetroidMovement.PowerBombEscape, 1, 952),
+            new MetroidBombPlacementExpected(149, 145, MetroidMovement.Homing, 0, 952),
+            new MetroidBombPlacementExpected(149, 145, MetroidMovement.AttachedToSamus, 0, 951),
         ];
         for (int frame = 0; frame <= 66; frame++)
         {
@@ -139,7 +139,7 @@ internal static class MetroidBombPlacementVerification
             runtime.StepFrame(input);
             if (frame < 61) continue;
             AssertEqual(expected[frame - 61],
-                new MetroidBombPlacementExpected(target.Position.X.Whole, target.Position.Y.Whole, (state ?? throw new InvalidOperationException("Verification requires state.")).Function, checked((ushort)state.EscapeTimer), checked((ushort)samus.Health)),
+                new MetroidBombPlacementExpected(target.Position.X.Whole, target.Position.Y.Whole, (state ?? throw new InvalidOperationException("Verification requires state.")).Movement, checked((ushort)state.EscapeTimer), checked((ushort)samus.Health)),
                 $"native bomb/EnemyMain detach trajectory at frame {frame}");
             AssertEqual(0x00950000u, samus.Kinematics.Position.X.RawValue, "Samus remains at native release X");
             AssertEqual(0x0099ffffu, samus.Kinematics.Position.Y.RawValue, "Samus stays on the floor during detach");

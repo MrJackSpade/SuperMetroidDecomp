@@ -71,7 +71,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BounceSpeedAccumulator = EnemyQuadraticSpeedIndex.Start;
         state.TravelSpeedAccumulator = EnemyQuadraticSpeedIndex.Start;
         state.BounceCounter = 2;
-        state.Function = BoulderAiFunction.WaitingForSamus;
+        state.Action = BoulderAction.WaitingForSamus;
         state.InitialPosition = slot.Position.Whole;
         state.PreviousY = slot.Position.Y;
 
@@ -122,28 +122,28 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("Boulder AI requires active room collision data.");
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case BoulderAiFunction.WaitingForSamus:
+            case BoulderAction.WaitingForSamus:
                 RunBoulderWaiting(slot, state, samus);
                 break;
-            case BoulderAiFunction.InitialFall:
+            case BoulderAction.InitialFall:
                 RunBoulderInitialFall(slot, state);
                 break;
-            case BoulderAiFunction.Rebound:
+            case BoulderAction.Rebound:
                 RunBoulderRebound(slot, state);
                 break;
-            case BoulderAiFunction.Falling:
+            case BoulderAction.Falling:
                 RunBoulderFalling(slot, state, level);
                 break;
-            case BoulderAiFunction.Rolling:
+            case BoulderAction.Rolling:
                 RunBoulderRolling(slot, state, level);
                 break;
-            case BoulderAiFunction.Inert:
+            case BoulderAction.Inert:
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Boulder function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Boulder function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -161,9 +161,9 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!enteredHorizontalWindow)
             return;
 
-        state.Function = state.StartsRollingWithoutBounce
-            ? BoulderAiFunction.Rolling
-            : BoulderAiFunction.InitialFall;
+        state.Action = state.StartsRollingWithoutBounce
+            ? BoulderAction.Rolling
+            : BoulderAction.InitialFall;
     }
 
     /// <summary>Accelerates down toward the recorded spawn height, then clamps and starts the first rebound.</summary>
@@ -180,7 +180,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         slot.Position = slot.Position.WithWholeY(state.InitialPosition.Y);
-        state.Function = BoulderAiFunction.Rebound;
+        state.Action = BoulderAction.Rebound;
         state.BounceSpeedAccumulator = FirstReboundBounceSpeed;
     }
 
@@ -195,7 +195,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         if (slowed.IsNegative)
         {
             state.BounceSpeedAccumulator = EnemyQuadraticSpeedIndex.Start;
-            state.Function = BoulderAiFunction.Falling;
+            state.Action = BoulderAction.Falling;
             return;
         }
         state.BounceSpeedAccumulator = slowed;
@@ -224,7 +224,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             }
 
-            state.Function = BoulderAiFunction.Rebound;
+            state.Action = BoulderAction.Rebound;
 
             // The third impact still installs the leading zero sample before the counter
             // goes below zero. Preserve that write even though this impact enters rolling.
@@ -232,7 +232,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             if (--state.BounceCounter < 0)
             {
                 state.PreviousY = slot.Position.Y;
-                state.Function = BoulderAiFunction.Rolling;
+                state.Action = BoulderAction.Rolling;
             }
             return;
         }
@@ -262,7 +262,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             // Setting the hidden and deleted properties both hides and deletes the boulder. The inert function is
             // still written before the next update's processing pass clears it.
             slot.Presence = slot.Presence.With(EnemyPresence.Hidden | EnemyPresence.Deleted);
-            state.Function = BoulderAiFunction.Inert;
+            state.Action = BoulderAction.Inert;
             _audio.QueueEnemySound(BoulderImpactSound, priority: SoundRequestPriority.Normal);
             _projectiles.SpawnRoomGraphicsDustExplosion(
                 slot.Position.Whole,

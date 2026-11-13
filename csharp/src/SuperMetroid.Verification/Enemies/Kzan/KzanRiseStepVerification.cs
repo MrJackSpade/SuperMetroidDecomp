@@ -36,13 +36,13 @@ internal static class KzanRiseStepVerification
         foreach (int whole in new[] { 0, 1, 16, 300, 32000, 65521, 65535 })
         for (int fraction = 0; fraction < WordRange; fraction++)
         {
-            state.Function = KzanEnemyFunction.Rising;
+            state.Action = KzanAction.Rising;
             slot.Position = slot.Position.WithY(new FixedCoordinate(whole, fraction));
             enemies.KzanBehavior.RunKzanTopMainAi(slot, frame);
             int lowered = fraction - 0x8000;
             int borrow = lowered < 0 ? 1 : 0;
             var expected = new FixedCoordinate((whole - borrow) & ushort.MaxValue, lowered & ushort.MaxValue);
-            if (state.Function != KzanEnemyFunction.Rising || slot.Position.Y != expected)
+            if (state.Action != KzanAction.Rising || slot.Position.Y != expected)
                 throw new InvalidOperationException($"A Kzan rising from {whole}+{fraction:X4} reached {slot.Position.Y}, not {expected}.");
         }
         Console.WriteLine("  Kzan rise step: every fraction rises half a pixel with the original's borrow.");

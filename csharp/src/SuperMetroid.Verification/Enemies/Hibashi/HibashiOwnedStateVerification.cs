@@ -31,8 +31,8 @@ internal static class HibashiOwnedStateVerification
         AssertTrue(!graphicsState.IsCollisionPart && hitboxState.IsCollisionPart, "parameter two selects the collision part");
         AssertEqual(ushort.MaxValue, graphicsState.InactiveTimerReset, "the reset keeps parameter one's full word");
         AssertEqual((ushort)0x0120, graphicsState.SpawnHeight.Y, "the graphics part keeps its spawn height");
-        AssertEqual(HibashiEnemyFunction.Inactive, graphicsState.Function, "the graphics part starts inactive");
-        AssertEqual(null, hitboxState.Function, "the collision part runs no state machine");
+        AssertEqual(HibashiAction.Inactive, graphicsState.Action, "the graphics part starts inactive");
+        AssertEqual(null, hitboxState.Action, "the collision part runs no state machine");
         Console.WriteLine("Hibashi owned state: both parts' parameters and the spawn height match.");
     }
 

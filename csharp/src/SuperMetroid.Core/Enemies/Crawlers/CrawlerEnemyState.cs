@@ -18,7 +18,7 @@ public sealed class CrawlerEnemyState
     /// <summary>
     /// The current crawling or falling behaviour; animation commands install the surface-specific one.
     /// </summary>
-    public CrawlerEnemyFunction? Function { get; internal set; }
+    public CrawlerAction? Action { get; internal set; }
 
     /// <summary>
     /// Whether the crawler was placed without a crawl speed, so it keeps its velocity until its first landing and takes
@@ -48,7 +48,7 @@ public sealed class CrawlerEnemyState
             FallingYVelocity += SignedSixteenSixteen.FromParts(0, 32768);
     }
     /// <summary>Attached AI target saved when an earthquake or repeated outside turns start a fall; restored on terrain landing for either shared crawlers or orange Zoomer.</summary>
-    public CrawlerEnemyFunction? NonFallingFunction { get; internal set; }
+    public CrawlerAction? NonFallingAction { get; internal set; }
     /// <summary>
     /// Count of successive updates whose attachment probe misses the surface, 0 through 4 in play: contact and landing
     /// reset it, and the fourth miss selects falling rather than another outside-corner turn. The

@@ -65,8 +65,8 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
             AssertEqual(FuneNamiheDefinitions.SpitSoundEffect, enemies.Audio.LatestSound,
                 $"Fune/Namihe {program.Entry} sound cue");
             AssertEqual(
-                program.Namihe ? FuneNamiheEnemyFunction.NamiheWaitForSamus : FuneNamiheEnemyFunction.FuneWaitForCooldown,
-                (enemies.FuneNamiheStates[slot.SlotIndex] ?? throw new InvalidOperationException("Verification requires enemies.FuneNamiheStates[slot.SlotIndex].")).Function,
+                program.Namihe ? FuneNamiheAction.NamiheWaitForSamus : FuneNamiheAction.FuneWaitForCooldown,
+                (enemies.FuneNamiheStates[slot.SlotIndex] ?? throw new InvalidOperationException("Verification requires enemies.FuneNamiheStates[slot.SlotIndex].")).Action,
                 $"Fune/Namihe {program.Entry} returns main-AI ownership");
         }
         AssertThrows<InvalidDataException>(() => FuneNamiheSelectorOracle.ProgramAt(0x96e3), "Fune/Namihe selector beyond the table fails loudly");
@@ -93,9 +93,9 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         {
             ShowsActiveAnimation = program.Active,
             FacingRight = program.Right,
-            Function = program.Active
-                ? program.Namihe ? FuneNamiheEnemyFunction.NamiheActivityNoOp : FuneNamiheEnemyFunction.FuneActivityNoOp
-                : program.Namihe ? FuneNamiheEnemyFunction.NamiheWaitForSamus : FuneNamiheEnemyFunction.FuneWaitForCooldown,
+            Action = program.Active
+                ? program.Namihe ? FuneNamiheAction.NamiheActivityNoOp : FuneNamiheAction.FuneActivityNoOp
+                : program.Namihe ? FuneNamiheAction.NamiheWaitForSamus : FuneNamiheAction.FuneWaitForCooldown,
             Variant = program.Namihe ? FuneNamiheVariant.Namihe : FuneNamiheVariant.Fune,
             Playback = new(FuneNamiheAnimations.StartingWith(program.Entry), AnimationPlace.StartOfAnimation),
         };

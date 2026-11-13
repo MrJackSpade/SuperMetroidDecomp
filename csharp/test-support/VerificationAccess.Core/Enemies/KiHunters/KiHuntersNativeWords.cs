@@ -8,20 +8,20 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// </summary>
 internal static class KiHuntersNativeWords
 {
-    /// <summary>The routine word naming each <see cref="KiHunterEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<KiHunterEnemyFunction> KiHunterEnemyFunctions = new(new Dictionary<KiHunterEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="KiHunterAction"/>.</summary>
+    internal static readonly NativeWordIdentities<KiHunterAction> KiHunterActions = new(new Dictionary<KiHunterAction, ushort>
     {
-        [KiHunterEnemyFunction.FlyingPatrol] = 0xf268,
-        [KiHunterEnemyFunction.Swooping] = 0xf3b8,
-        [KiHunterEnemyFunction.RecoveringFromSwoop] = 0xf4ed,
-        [KiHunterEnemyFunction.FallingAfterWingLoss] = 0xf55a,
-        [KiHunterEnemyFunction.StartGroundJump] = 0xf58b,
-        [KiHunterEnemyFunction.NoOp] = 0xf5e3,
-        [KiHunterEnemyFunction.GroundJump] = 0xf5f0,
-        [KiHunterEnemyFunction.GroundWait] = 0xf68b,
-        [KiHunterEnemyFunction.SelectAcidSpit] = 0xf6b3,
-        [KiHunterEnemyFunction.FollowBody] = 0xf6f3,
-        [KiHunterEnemyFunction.DetachedWing] = 0xf7cf,
+        [KiHunterAction.FlyingPatrol] = 0xf268,
+        [KiHunterAction.Swooping] = 0xf3b8,
+        [KiHunterAction.RecoveringFromSwoop] = 0xf4ed,
+        [KiHunterAction.FallingAfterWingLoss] = 0xf55a,
+        [KiHunterAction.StartGroundJump] = 0xf58b,
+        [KiHunterAction.NoOp] = 0xf5e3,
+        [KiHunterAction.GroundJump] = 0xf5f0,
+        [KiHunterAction.GroundWait] = 0xf68b,
+        [KiHunterAction.SelectAcidSpit] = 0xf6b3,
+        [KiHunterAction.FollowBody] = 0xf6f3,
+        [KiHunterAction.DetachedWing] = 0xf7cf,
     });
 
     /// <summary>The routine word naming each <see cref="KiHunterWingFunction"/>.</summary>

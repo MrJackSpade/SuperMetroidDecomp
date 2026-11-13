@@ -89,7 +89,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new MetroidEnemyState(outerBodyA, outerBodyB)
         {
             DrainAccumulator = 0,
-            Function = MetroidAiFunction.Homing,
+            Movement = MetroidMovement.Homing,
             IceDamageToFreeze = slot.SpawnSettings<MetroidSpawnSettings>().IceDamageToFreeze,
         };
         slot.SetSpeciesState(state);
@@ -106,23 +106,23 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
         int targetY = CoordinateAxis.Wrap(samus.Position.Y.Whole - 8);
-        switch (state.Function)
+        switch (state.Movement)
         {
-            case MetroidAiFunction.Homing:
+            case MetroidMovement.Homing:
                 RunMetroidHoming(slot, state, samus, targetY, level);
                 break;
-            case MetroidAiFunction.ClosingOnSamus:
+            case MetroidMovement.ClosingOnSamus:
                 RunMetroidClosing(slot, state, samus, targetY, level);
                 break;
-            case MetroidAiFunction.AttachedToSamus:
+            case MetroidMovement.AttachedToSamus:
                 RunMetroidAttached(slot, state, samus, targetY);
                 break;
-            case MetroidAiFunction.PowerBombEscape:
+            case MetroidMovement.PowerBombEscape:
                 RunMetroidPowerBombEscape(slot, state);
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Metroid movement {state.Function} is not one of its four movements.");
+                    $"Metroid movement {state.Movement} is not one of its four movements.");
         }
 
         // The ordinary body supplies the central map. Both outer objects are
@@ -207,7 +207,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (--state.EscapeTimer != 0)
             return;
 
-        state.Function = MetroidAiFunction.Homing;
+        state.Movement = MetroidMovement.Homing;
         SetMetroidAnimation(slot, state, MetroidSegment.ChasingSamus);
     }
 
@@ -250,7 +250,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         int targetY = CoordinateAxis.Wrap(samus.Position.Y.Whole - 8);
         if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
         {
-            if (state.Function != MetroidAiFunction.AttachedToSamus)
+            if (state.Movement != MetroidMovement.AttachedToSamus)
             {
                 // The stores produce delta/4 in signed 16.16 form.
                 StoreMetroidXVelocity(
@@ -259,30 +259,30 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 StoreMetroidYVelocity(
                     state,
                     SignedSixteenSixteen.FromSixteenthsOfPixel(4 * CoordinateAxis.Difference(slot.Position.Y.Whole, targetY)));
-                state.Function = MetroidAiFunction.Homing;
+                state.Movement = MetroidMovement.Homing;
                 SetMetroidAnimation(slot, state, MetroidSegment.ChasingSamus);
             }
             return;
         }
 
-        if (state.Function != MetroidAiFunction.PowerBombEscape)
+        if (state.Movement != MetroidMovement.PowerBombEscape)
         {
             if (MetroidCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter) && samus.Health >= 30)
                 _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
             DrainSamusWithMetroid(state, samus);
         }
 
-        if (state.Function is MetroidAiFunction.AttachedToSamus or MetroidAiFunction.PowerBombEscape)
+        if (state.Movement is MetroidMovement.AttachedToSamus or MetroidMovement.PowerBombEscape)
             return;
 
-        state.Function = MetroidAiFunction.ClosingOnSamus;
+        state.Movement = MetroidMovement.ClosingOnSamus;
         if (CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole) >= 8 ||
             CoordinateAxis.Distance(slot.Position.Y.Whole, targetY) >= 8)
         {
             return;
         }
 
-        state.Function = MetroidAiFunction.AttachedToSamus;
+        state.Movement = MetroidMovement.AttachedToSamus;
         samus.MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext;
         SetMetroidAnimation(slot, state, MetroidSegment.DrainingSamus);
     }
@@ -313,7 +313,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
         SamusProjectileFamily family = collisionProjectileType.Family;
-        if (state.Function == MetroidAiFunction.AttachedToSamus)
+        if (state.Movement == MetroidMovement.AttachedToSamus)
         {
             // The bomb collision pass presents the exploding power bomb as its explosion;
             // its earlier expansion record is not what the Metroid's shot reaction tests.
@@ -330,7 +330,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         StoreMetroidYVelocity(
             state,
             SignedSixteenSixteen.FromSixteenthsOfPixel(2 * CoordinateAxis.Difference(slot.Position.Y.Whole, recoilOrigin.Y)));
-        state.Function = MetroidAiFunction.Homing;
+        state.Movement = MetroidMovement.Homing;
         SetMetroidAnimation(slot, state, MetroidSegment.ChasingSamus);
 
         if (collisionProjectileType.BeamCombination.HasIce)
@@ -356,7 +356,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState? samus)
     {
         state.EscapeTimer = MetroidEscapeDuration;
-        state.Function = MetroidAiFunction.PowerBombEscape;
+        state.Movement = MetroidMovement.PowerBombEscape;
         SetMetroidAnimation(slot, state, MetroidSegment.ChasingSamus);
         if (samus is not null)
             samus.MetroidAttachmentPalette = SamusMetroidAttachmentPalette.Inactive;

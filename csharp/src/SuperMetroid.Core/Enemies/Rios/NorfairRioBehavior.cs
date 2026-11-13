@@ -62,13 +62,13 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             _parentStates.Place(slot, GetPrecedingNorfairRioSlot(slot).RequireSpeciesState<NorfairRioEnemyState>());
             state.InstalledAnimation = NorfairRioSegment.FlamesAscending;
             state.Playback = new(NorfairRioAnimations.StartingWith(NorfairRioSegment.FlamesAscending), AnimationPlace.StartOfAnimation);
-            state.Function = NorfairRioEnemyFunction.FollowParent;
+            state.Action = NorfairRioAction.FollowParent;
             return;
         }
 
         state.InstalledAnimation = NorfairRioSegment.Idle;
         state.Playback = new(NorfairRioAnimations.StartingWith(NorfairRioSegment.Idle), AnimationPlace.StartOfAnimation);
-        state.Function = NorfairRioEnemyFunction.WaitForAttackOpportunity;
+        state.Action = NorfairRioAction.WaitForAttackOpportunity;
     }
 
     /// <summary>
@@ -83,13 +83,13 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int random = _room.Random.Generate();
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case NorfairRioEnemyFunction.FollowParent:
+            case NorfairRioAction.FollowParent:
                 FollowNorfairRioParent(slot, state);
                 return;
 
-            case NorfairRioEnemyFunction.WaitForAttackOpportunity:
+            case NorfairRioAction.WaitForAttackOpportunity:
                 // The retail gate tests two parts of the newly generated random
                 // number, then the strict modular X distance. Failure also consumes a pending
                 // animation signal and restores the idle animation without starting an attack.
@@ -121,10 +121,10 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     slot,
                     state,
                     NorfairRioSegment.StartDescending);
-                state.Function = NorfairRioEnemyFunction.WaitForTakeoffAnimation;
+                state.Action = NorfairRioAction.WaitForTakeoffAnimation;
                 return;
 
-            case NorfairRioEnemyFunction.WaitForTakeoffAnimation:
+            case NorfairRioAction.WaitForTakeoffAnimation:
                 if (!state.AnimationSignal)
                     return;
                 state.AnimationSignal = false;
@@ -132,11 +132,11 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     slot,
                     state,
                     NorfairRioSegment.Descending);
-                state.Function = NorfairRioEnemyFunction.Dive;
+                state.Action = NorfairRioAction.Dive;
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.NorfairRioDiveSound, priority: SoundRequestPriority.Normal);
                 return;
 
-            case NorfairRioEnemyFunction.Dive:
+            case NorfairRioAction.Dive:
                 RequireNorfairRioLevel(level);
                 MoveNorfairRioHorizontally(level, slot, state);
                 if (_terrain.MoveEnemyVertically(
@@ -153,7 +153,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     BeginNorfairRioReturn(slot, state);
                 return;
 
-            case NorfairRioEnemyFunction.ReturnToPerch:
+            case NorfairRioAction.ReturnToPerch:
                 RequireNorfairRioLevel(level);
                 MoveNorfairRioHorizontally(level, slot, state);
                 if (_terrain.MoveEnemyVertically(
@@ -161,7 +161,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                         slot,
                         state.Velocity.Y.ToSixteenSixteenDelta()))
                 {
-                    state.Function = NorfairRioEnemyFunction.FinishLanding;
+                    state.Action = NorfairRioAction.FinishLanding;
                     return;
                 }
 
@@ -176,16 +176,16 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 return;
 
-            case NorfairRioEnemyFunction.FinishLanding:
+            case NorfairRioAction.FinishLanding:
                 // Function six is intentionally a one-frame state: it changes only
                 // the dispatched function. The looping idle animation remains installed, which also keeps
                 // the follower half visible while the actor waits for another random attack.
-                state.Function = NorfairRioEnemyFunction.WaitForAttackOpportunity;
+                state.Action = NorfairRioAction.WaitForAttackOpportunity;
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Norfair Rio function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Norfair Rio function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -266,7 +266,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             slot,
             state,
             NorfairRioSegment.StartAscending);
-        state.Function = NorfairRioEnemyFunction.ReturnToPerch;
+        state.Action = NorfairRioAction.ReturnToPerch;
     }
 
     /// <summary>Moves across room terrain and reverses horizontal speed on contact.</summary>

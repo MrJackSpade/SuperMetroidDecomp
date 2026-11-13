@@ -49,7 +49,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
         state.Playback = EnemyAnimationPlayback.Start(slot, KzanAnimations.StartingWith(KzanSegment.Idle));
-        state.Function = KzanEnemyFunction.WaitingToFall;
+        state.Action = KzanAction.WaitingToFall;
 
         // The spawn settings name the speed the fall starts at. Retail placements include four pixels per update,
         // the fastest the fall reaches.
@@ -100,27 +100,27 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         KzanEnemyState state,
         SamusState? samus)
     {
-        switch (state.Function)
+        switch (state.Action)
         {
-            case KzanEnemyFunction.WaitingToFall:
+            case KzanAction.WaitingToFall:
                 RunKzanWaitingToFall(slot, state);
                 return;
 
-            case KzanEnemyFunction.Falling:
+            case KzanAction.Falling:
                 RunKzanFalling(slot, state, samus);
                 return;
 
-            case KzanEnemyFunction.WaitingToRise:
+            case KzanAction.WaitingToRise:
                 RunKzanWaitingToRise(state);
                 return;
 
-            case KzanEnemyFunction.Rising:
+            case KzanAction.Rising:
                 RunKzanRising(slot, state, samus);
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Kzan function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Kzan function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -133,7 +133,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.FallWaitTimer = WrappingCountdown.Start(state.FallWaitTimerResetValue);
         state.FallingSpeed = slot.SpawnSettings<KzanSpawnSettings>().FallSpeed;
-        state.Function = KzanEnemyFunction.Falling;
+        state.Action = KzanAction.Falling;
     }
 
     /// <summary>Applies the downward speed, clamps to the target using signed wrapped comparison, carries Samus, and accelerates the fall.</summary>
@@ -150,7 +150,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         if ((slot.Position.Whole - state.FallingTarget).Y >= 0)
         {
             state.RiseWaitTimer = KzanNtscRiseWaitFrames;
-            state.Function = KzanEnemyFunction.WaitingToRise;
+            state.Action = KzanAction.WaitingToRise;
             slot.Position = slot.Position.WithWholeY(state.FallingTarget.Y);
             _audio.QueueEnemySound(KzanLandingSound, priority: SoundRequestPriority.Normal);
         }
@@ -167,7 +167,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunKzanWaitingToRise(KzanEnemyState state)
     {
         if (--state.RiseWaitTimer == 0)
-            state.Function = KzanEnemyFunction.Rising;
+            state.Action = KzanAction.Rising;
     }
 
     /// <summary>Subtracts one-half pixel per update, stops at the spawn height, and carries Samus by the whole-pixel step.</summary>
@@ -182,7 +182,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(KzanRisingStep));
         if ((slot.Position.Whole - state.RisingTarget).Y < 0)
         {
-            state.Function = KzanEnemyFunction.WaitingToFall;
+            state.Action = KzanAction.WaitingToFall;
             slot.Position = slot.Position.WithWholeY(state.RisingTarget.Y);
         }
 

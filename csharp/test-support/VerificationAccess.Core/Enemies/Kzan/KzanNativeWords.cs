@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 /// </summary>
 internal static class KzanNativeWords
 {
-    /// <summary>The routine word naming each <see cref="KzanEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<KzanEnemyFunction> KzanEnemyFunctions = new(new Dictionary<KzanEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="KzanAction"/>.</summary>
+    internal static readonly NativeWordIdentities<KzanAction> KzanActions = new(new Dictionary<KzanAction, ushort>
     {
-        [KzanEnemyFunction.WaitingToFall] = 0x8bb4,
-        [KzanEnemyFunction.Falling] = 0x8bdc,
-        [KzanEnemyFunction.WaitingToRise] = 0x8c4a,
-        [KzanEnemyFunction.Rising] = 0x8c5d,
+        [KzanAction.WaitingToFall] = 0x8bb4,
+        [KzanAction.Falling] = 0x8bdc,
+        [KzanAction.WaitingToRise] = 0x8c4a,
+        [KzanAction.Rising] = 0x8c5d,
     });
 }

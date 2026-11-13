@@ -163,7 +163,7 @@ internal static class GameplayAudioOrderVerification
         KiHunterEnemyState state = runtime.Enemies.KiHunterStates[body.SlotIndex]
             ?? throw new InvalidOperationException("The Ki Hunter has no state.");
         body.Position = body.Position.WithWhole(new(128, 128));
-        state.Function = KiHunterEnemyFunction.NoOp;
+        state.Action = KiHunterAction.NoOp;
         // The spit cue, four poses into the right spit animation, which queues the acid spit (library two).
         state.Playback = new(KiHunterAnimations.StartingWith(KiHunterSegment.SpitRight), new AnimationPlace(0, 4));
         body.AnimationClock.StepOnNextUpdate();

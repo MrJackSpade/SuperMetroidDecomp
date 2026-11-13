@@ -25,7 +25,7 @@ public sealed class EtecoonEnemyState
     internal const int TeachingHopsPerLesson = 4;
 
     /// <summary>The main-AI behaviour.</summary>
-    public EtecoonAiFunction? Function { get; internal set; }
+    public EtecoonAction? Action { get; internal set; }
 
     /// <summary>The authored route it takes after its first landing.</summary>
     public EtecoonRoute Route { get; internal set; }

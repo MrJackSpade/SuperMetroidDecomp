@@ -31,10 +31,10 @@ internal static class PuyoNativeWords
         [PuyoHopType.DroppedBig] = 48,
     });
 
-    /// <summary>The routine word naming each <see cref="PuyoEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<PuyoEnemyFunction> PuyoEnemyFunctions = new(new Dictionary<PuyoEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="PuyoAction"/>.</summary>
+    internal static readonly NativeWordIdentities<PuyoAction> PuyoActions = new(new Dictionary<PuyoAction, ushort>
     {
-        [PuyoEnemyFunction.Grounded] = 0x9b65,
-        [PuyoEnemyFunction.Airborne] = 0x9b81,
+        [PuyoAction.Grounded] = 0x9b65,
+        [PuyoAction.Airborne] = 0x9b81,
     });
 }

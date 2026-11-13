@@ -69,7 +69,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             SamusIsLeft = false,
             PreviousPosition = Position16<RoomPixels>.Zero,
             StopMovementNextFrame = false,
-            Function = MaridiaLargeSnailEnemyFunction.Idle,
+            Action = MaridiaLargeSnailAction.Idle,
             YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start,
             AttackCooldown = MaridiaLargeSnailInitialAttackCooldown,
             MovingLeft = false,
@@ -102,20 +102,20 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         UpdateMaridiaLargeSnailSamusProximity(slot, state, samus);
         state.PreviousPosition = slot.Position.Whole;
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case MaridiaLargeSnailEnemyFunction.Idle:
+            case MaridiaLargeSnailAction.Idle:
                 RunMaridiaLargeSnailIdle(slot, state, samus, level);
                 break;
-            case MaridiaLargeSnailEnemyFunction.Rolling:
+            case MaridiaLargeSnailAction.Rolling:
                 RunMaridiaLargeSnailRolling(slot, state, samus, level);
                 break;
-            case MaridiaLargeSnailEnemyFunction.Attacking:
+            case MaridiaLargeSnailAction.Attacking:
                 RunMaridiaLargeSnailAttack(slot, state);
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Maridia Large Snail function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Maridia Large Snail function {state.Action?.ToString() ?? "none"} is not translated.");
         }
 
         CarrySamusWithMaridiaLargeSnail(slot, state, samus);
@@ -151,7 +151,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
         state.RequestedAnimation = MaridiaLargeSnailAnimationChoices.RollingFrom(state.RequestedAnimation);
         StartMaridiaLargeSnailAnimation(slot, state);
-        state.Function = MaridiaLargeSnailEnemyFunction.Rolling;
+        state.Action = MaridiaLargeSnailAction.Rolling;
     }
 
     /// <summary>Handles ledges, cooldown and attack selection before horizontal terrain movement.</summary>
@@ -196,7 +196,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 state.AttackCooldown = MaridiaLargeSnailInitialAttackCooldown;
                 state.RequestedAnimation = MaridiaLargeSnailAnimationChoices.Attacking(state.MovingLeft);
                 StartMaridiaLargeSnailAnimation(slot, state);
-                state.Function = MaridiaLargeSnailEnemyFunction.Attacking;
+                state.Action = MaridiaLargeSnailAction.Attacking;
                 return;
             }
         }
@@ -215,7 +215,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         state.AttackAnimationFinished = false;
         state.RequestedAnimation = MaridiaLargeSnailAnimationChoices.RollingAfter(state.RequestedAnimation);
         StartMaridiaLargeSnailAnimation(slot, state);
-        state.Function = MaridiaLargeSnailEnemyFunction.Rolling;
+        state.Action = MaridiaLargeSnailAction.Rolling;
     }
 
     /// <summary>Alternates quadratic-speed fall and rise phases, reducing the index after each impact.</summary>

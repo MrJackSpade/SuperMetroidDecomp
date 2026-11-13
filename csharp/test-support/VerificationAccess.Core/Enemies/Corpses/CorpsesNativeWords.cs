@@ -8,18 +8,18 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// </summary>
 internal static class CorpsesNativeWords
 {
-    /// <summary>The routine word naming each <see cref="DeadSidehopperAiFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<DeadSidehopperAiFunction> DeadSidehopperAiFunctions = new(new Dictionary<DeadSidehopperAiFunction, ushort>
+    /// <summary>The routine word naming each <see cref="DeadSidehopperAction"/>.</summary>
+    internal static readonly NativeWordIdentities<DeadSidehopperAction> DeadSidehopperActions = new(new Dictionary<DeadSidehopperAction, ushort>
     {
-        [DeadSidehopperAiFunction.AliveWaitForCamera] = 0xd8e2,
-        [DeadSidehopperAiFunction.ActivatedMovement] = 0xd8f1,
-        [DeadSidehopperAiFunction.NoOperation] = 0xd90f,
-        [DeadSidehopperAiFunction.BeginPostLandingDelay] = 0xd910,
-        [DeadSidehopperAiFunction.PostLandingDelay] = 0xd91d,
-        [DeadSidehopperAiFunction.Draining] = 0xda08,
-        [DeadSidehopperAiFunction.WaitForSamusCollision] = 0xda64,
-        [DeadSidehopperAiFunction.PreRotDelay] = 0xda8f,
-        [DeadSidehopperAiFunction.Rotting] = 0xdaba,
+        [DeadSidehopperAction.AliveWaitForCamera] = 0xd8e2,
+        [DeadSidehopperAction.ActivatedMovement] = 0xd8f1,
+        [DeadSidehopperAction.NoOperation] = 0xd90f,
+        [DeadSidehopperAction.BeginPostLandingDelay] = 0xd910,
+        [DeadSidehopperAction.PostLandingDelay] = 0xd91d,
+        [DeadSidehopperAction.Draining] = 0xda08,
+        [DeadSidehopperAction.WaitForSamusCollision] = 0xda64,
+        [DeadSidehopperAction.PreRotDelay] = 0xda8f,
+        [DeadSidehopperAction.Rotting] = 0xdaba,
     });
 
     /// <summary>The routine word naming each <see cref="DeadTorizoFunction"/>.</summary>

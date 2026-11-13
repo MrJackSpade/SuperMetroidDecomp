@@ -179,13 +179,13 @@ internal static class LookupStream2Verification
         for (int call = 1; call <= 31; call++)
         {
             brightening(slot, state);
-            AssertTrue(state.Function != WreckedShipGhostAiFunction.FadingToGhostColours, $"White flash call {call} still brightens");
+            AssertTrue(state.Action != WreckedShipGhostAction.FadingToGhostColours, $"White flash call {call} still brightens");
             AssertEqual(PictureShading.Shaded(new PictureShade(WreckedShipGhostShades.BrighteningEffect, call)), slot.Shading,
                 $"White flash call {call} shows its brightening step's shade");
         }
         AssertTrue(state.Fade.Shown.ToArray().All(colour => colour == RgbColor.White), "White flash reaches white in every colour");
         brightening(slot, state);
-        AssertEqual(WreckedShipGhostAiFunction.FadingToGhostColours, state.Function, "White flash installs native target palette phase");
+        AssertEqual(WreckedShipGhostAction.FadingToGhostColours, state.Action, "White flash installs native target palette phase");
         AssertTrue(state.Fade.Target.SequenceEqual(ToColors(native)), "Actual target buffer includes unused sprite slots");
         for (int tick = 1; tick <= 32; tick++)
         {
@@ -893,7 +893,7 @@ internal static class LookupStream2Verification
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), PipeBugFormation.NorfairStaggerTarget(member),
                 "Native rank-derived formation release counter");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.PipeBugEnemyFunctions.Word(PipeBugFormation.NorfairPostRiseFunction(member)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.PipeBugActions.Word(PipeBugFormation.NorfairPostRiseAction(member)),
                 "Native role-specific formation function");
         }
         foreach (ushort samusX in new ushort[] { 120, 136 })
@@ -915,9 +915,9 @@ internal static class LookupStream2Verification
                 var state = enemies.PipeBugStates[member];
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), (state ?? throw new InvalidOperationException("Verification requires state.")).StaggerTarget,
                     "Actual formation writes native release counter");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.PipeBugEnemyFunctions.Word(state.NorfairPostRiseFunction),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.PipeBugActions.Word(state.NorfairPostRiseAction),
                     "Actual formation writes native role function");
-                AssertEqual(PipeBugEnemyFunction.NorfairRise, state.Function, "Actual formation begins rising");
+                AssertEqual(PipeBugAction.NorfairRise, state.Action, "Actual formation begins rising");
                 AssertEqual(new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(samusX < 128 ? PipeBugSegment.GametRisingLeft : PipeBugSegment.GametRisingRight), AnimationPlace.StartOfAnimation),
                     state.Playback, "Actual formation selects facing");
                 AssertEqual((ushort)(member == 0 ? 1 : member + 4), enemies.SlotTable.Slots[member].AnimationClock.Hold.RawValue,
@@ -927,7 +927,7 @@ internal static class LookupStream2Verification
             }
         }
         AssertThrows<ArgumentOutOfRangeException>(() => PipeBugFormation.NorfairStaggerTarget(-1), "Formation lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => PipeBugFormation.NorfairPostRiseFunction(5), "Formation upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => PipeBugFormation.NorfairPostRiseAction(5), "Formation upper bound");
         Console.WriteLine("Norfair Pipe Bug formation:ten native immediates, both actual facing formations and leader-only timer resets pass.");
     }
 
@@ -1291,7 +1291,7 @@ internal static class LookupStream2Verification
             spawn(slot, state, new(32, 65520));
             AssertEqual(unchecked((ushort)(32 + originalX)), slot.Position.X.Whole, "Ghost actual wrapped spawn X");
             AssertEqual(unchecked((ushort)(65520 + originalY)), slot.Position.Y.Whole, "Ghost actual wrapped spawn Y");
-            AssertEqual(WreckedShipGhostAiFunction.BrighteningAndFlickering, state.Function, "Ghost appearance phase");
+            AssertEqual(WreckedShipGhostAction.BrighteningAndFlickering, state.Action, "Ghost appearance phase");
             AssertEqual(64, state.StablePositionTimer, "Ghost appearance position timer");
             AssertEqual(16, state.StableDirectionTimer, "Ghost appearance direction timer");
         }

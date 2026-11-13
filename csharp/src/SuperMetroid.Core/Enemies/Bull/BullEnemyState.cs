@@ -27,7 +27,7 @@ public sealed class BullEnemyState
     internal AnimationPlayback<BullSegment> Playback { get; set; }
 
     /// <summary>The current delay, target, acceleration, or deceleration step.</summary>
-    public BullEnemyFunction? Function { get; internal set; }
+    public BullAction? Action { get; internal set; }
 
     /// <summary>
     /// The speed change applied at each interval expiry. It grows or shrinks by <see cref="AccelerationDelta"/> through

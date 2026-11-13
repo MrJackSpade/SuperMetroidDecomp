@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 /// </summary>
 internal static class SparksNativeWords
 {
-    /// <summary>The routine word naming each <see cref="SparkEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<SparkEnemyFunction> SparkEnemyFunctions = new(new Dictionary<SparkEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="SparkAction"/>.</summary>
+    internal static readonly NativeWordIdentities<SparkAction> SparkActions = new(new Dictionary<SparkAction, ushort>
     {
-        [SparkEnemyFunction.AlwaysActive] = 0xe694,
-        [SparkEnemyFunction.IntermittentInactive] = 0xe695,
-        [SparkEnemyFunction.IntermittentActive] = 0xe6b7,
-        [SparkEnemyFunction.EmitFallingSparks] = 0xe6dc,
+        [SparkAction.AlwaysActive] = 0xe694,
+        [SparkAction.IntermittentInactive] = 0xe695,
+        [SparkAction.IntermittentActive] = 0xe6b7,
+        [SparkAction.EmitFallingSparks] = 0xe6dc,
     });
 }

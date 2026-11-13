@@ -44,7 +44,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AnimationFinished = false,
             InstalledAnimation = null,
-            Function = RioEnemyFunction.WaitingForSamus,
+            Action = RioAction.WaitingForSamus,
         };
         slot.SetSpeciesState(state);
 
@@ -66,9 +66,9 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         // later random enemy in the room, so it is part of Rio's observable behavior.
         _room.Random.Generate();
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case RioEnemyFunction.WaitingForSamus:
+            case RioAction.WaitingForSamus:
                 if (samus is null || !EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.X.Whole,
                         slot.Position.X.Whole,
@@ -86,7 +86,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     slot,
                     state,
                     RioSegment.SwoopingPart1);
-                state.Function = RioEnemyFunction.Diving;
+                state.Action = RioAction.Diving;
 
                 // The game's on-screen check returns zero for an on-screen origin. The
                 // branch consequently queues the cry only for the visible attack start.
@@ -94,7 +94,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     _audio.QueueEnemySound(EnemySoundEffectDefinitions.RioDiveSound, priority: SoundRequestPriority.Normal);
                 return;
 
-            case RioEnemyFunction.WaitingForLandingAnimation:
+            case RioAction.WaitingForLandingAnimation:
                 if (!state.AnimationFinished)
                     return;
                 state.AnimationFinished = false;
@@ -102,10 +102,10 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     slot,
                     state,
                     RioSegment.PostSwoopIdle);
-                state.Function = RioEnemyFunction.WaitingForSamus;
+                state.Action = RioAction.WaitingForSamus;
                 return;
 
-            case RioEnemyFunction.Diving:
+            case RioAction.Diving:
                 RequireRioLevel(level);
                 if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                         level,
@@ -130,7 +130,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     state.SavedHorizontalVelocity = state.Velocity.X;
                     state.Velocity = new EightEightVector<RoomPixels>(SignedEightEight.Zero, SignedEightEight.Zero);
-                    state.Function = RioEnemyFunction.HoveringTowardSamus;
+                    state.Action = RioAction.HoveringTowardSamus;
                 }
                 else if (state.AnimationFinished)
                 {
@@ -142,7 +142,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 return;
 
-            case RioEnemyFunction.BouncingBackToPerch:
+            case RioAction.BouncingBackToPerch:
                 RequireRioLevel(level);
                 if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                         level,
@@ -160,7 +160,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                         slot,
                         state,
                         RioSegment.SwoopCooldown);
-                    state.Function = RioEnemyFunction.WaitingForLandingAnimation;
+                    state.Action = RioAction.WaitingForLandingAnimation;
                 }
                 else
                 {
@@ -168,7 +168,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 return;
 
-            case RioEnemyFunction.HoveringTowardSamus:
+            case RioAction.HoveringTowardSamus:
                 if (samus is null)
                     throw new InvalidOperationException("Rio homing requires the active Samus actor.");
                 RequireRioLevel(level);
@@ -180,7 +180,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.Velocity = new EightEightVector<RoomPixels>(
                         state.SavedHorizontalVelocity,
                         -SignedEightEight.FromParts(0, 1));
-                    state.Function = RioEnemyFunction.BouncingBackToPerch;
+                    state.Action = RioAction.BouncingBackToPerch;
                     return;
                 }
 
@@ -201,7 +201,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Rio function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Rio function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -233,7 +233,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ReverseRioVerticalVelocityAndBounce(RioEnemyState state)
     {
         state.Velocity = state.Velocity.ReversedY();
-        state.Function = RioEnemyFunction.BouncingBackToPerch;
+        state.Action = RioAction.BouncingBackToPerch;
     }
 
     /// <summary>

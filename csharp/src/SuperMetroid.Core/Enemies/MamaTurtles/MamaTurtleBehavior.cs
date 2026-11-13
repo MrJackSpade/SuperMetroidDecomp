@@ -95,7 +95,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             case MamaTurtleCueKind.LeftShell:
                 return FinishBabyTurtleLeavingShell(slot, slot.RequireSpeciesState<BabyTurtleEnemyState>(), samus);
             case MamaTurtleCueKind.SetSpinningStoppable:
-                slot.RequireSpeciesState<BabyTurtleEnemyState>().Function = BabyTurtleAiFunction.SpinningStoppable;
+                slot.RequireSpeciesState<BabyTurtleEnemyState>().Action = BabyTurtleAction.SpinningStoppable;
                 return null;
             case MamaTurtleCueKind.PlaySpinningSound:
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.MamaTurtleSpinSound, priority: SoundRequestPriority.Normal);
@@ -142,7 +142,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var state = new MamaTurtleEnemyState
         {
-            Function = MamaTurtleAiFunction.Initial,
+            Action = MamaTurtleAction.Initial,
             AsleepFlag = 1,
         };
         slot.SetSpeciesState(state);
@@ -163,7 +163,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             SpawnTopCenter = new Position16<RoomPixels>(
                 slot.Position.X.Whole, CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y)),
-            Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus,
+            Action = BabyTurtleAction.CrawlingNotCarryingSamus,
             Velocity = new Offset16<RoomPixels>(slot.SpawnSettings<TurtleSpawnSettings>().Speed, 0),
         };
         slot.SetSpeciesState(state);
@@ -184,45 +184,45 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Mama Turtle AI requires the active Samus actor.");
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case MamaTurtleAiFunction.Initial:
+            case MamaTurtleAction.Initial:
                 LinkMamaTurtleChildren(slot, state);
                 return;
-            case MamaTurtleAiFunction.Idle:
+            case MamaTurtleAction.Idle:
                 return;
-            case MamaTurtleAiFunction.Asleep:
+            case MamaTurtleAction.Asleep:
                 RunMamaTurtleAsleep(slot, state, samus);
                 return;
-            case MamaTurtleAiFunction.LeavingShell:
+            case MamaTurtleAction.LeavingShell:
                 RequireTurtleLevel(level);
                 RunMamaTurtleLeavingShell(
                     slot, state, samus, level, frameCycle);
                 return;
-            case MamaTurtleAiFunction.EnteringShell:
+            case MamaTurtleAction.EnteringShell:
                 RunMamaTurtleEnteringShell(slot, state, samus);
                 return;
-            case MamaTurtleAiFunction.RisingToHover:
+            case MamaTurtleAction.RisingToHover:
                 RequireTurtleLevel(level);
                 RunMamaTurtleRisingToHover(slot, state, samus, level);
                 return;
-            case MamaTurtleAiFunction.Hovering:
+            case MamaTurtleAction.Hovering:
                 RequireTurtleLevel(level);
                 RunMamaTurtleHovering(slot, state, samus, level);
                 return;
-            case MamaTurtleAiFunction.RisingToPeak:
+            case MamaTurtleAction.RisingToPeak:
                 RunMamaTurtleRisingToPeak(slot, state, samus);
                 return;
-            case MamaTurtleAiFunction.HoveringAtPeak:
+            case MamaTurtleAction.HoveringAtPeak:
                 RunMamaTurtleHoveringAtPeak(slot, state, samus);
                 return;
-            case MamaTurtleAiFunction.Falling:
+            case MamaTurtleAction.Falling:
                 RequireTurtleLevel(level);
                 RunMamaTurtleFalling(slot, state, samus, level);
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mama Turtle main-AI function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Mama Turtle main-AI function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -242,7 +242,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             _ = child.RequireSpeciesState<BabyTurtleEnemyState>();
         }
 
-        state.Function = MamaTurtleAiFunction.Asleep;
+        state.Action = MamaTurtleAction.Asleep;
     }
 
     /// <summary>Runs the sleeping shell's height and carry step.</summary>
@@ -253,7 +253,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.AsleepFlag == 0)
         {
-            state.Function = MamaTurtleAiFunction.LeavingShell;
+            state.Action = MamaTurtleAction.LeavingShell;
             mama.Contact = mama.Contact.Without(EnemyContact.IgnoresSamus);
             return;
         }
@@ -314,7 +314,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The game's store at this point does not reach the enemy, so nothing is stored here; no enemy field is
         // invented for it.
-        state.Function = MamaTurtleAiFunction.Idle;
+        state.Action = MamaTurtleAction.Idle;
     }
 
     /// <summary>Runs the facing-dependent return-to-shell selector.</summary>
@@ -329,7 +329,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             CoordinateAxis.Difference(mama.Position.X.Whole, samus.Position.X.Whole) >= 0
                 ? MamaTurtleSegment.MamaEnterShellLeft
                 : MamaTurtleSegment.MamaEnterShellRight);
-        state.Function = MamaTurtleAiFunction.Idle;
+        state.Action = MamaTurtleAction.Idle;
     }
 
     /// <summary>Runs the 16-frame upward transition.</summary>
@@ -356,7 +356,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             ? SignedSixteenSixteen.FromSixteenthsOfPixel(1)
             : SignedSixteenSixteen.FromSixteenthsOfPixel(-1);
         state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.Zero);
-        state.Function = MamaTurtleAiFunction.Hovering;
+        state.Action = MamaTurtleAction.Hovering;
     }
 
     /// <summary>Runs accelerating horizontal hover and its original wall bug.</summary>
@@ -388,7 +388,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!PlatformsBehavior.IsSamusRidingPlatform(mama, samus))
             return;
 
-        state.Function = MamaTurtleAiFunction.RisingToPeak;
+        state.Action = MamaTurtleAction.RisingToPeak;
         SignedSixteenSixteen result = samus.Kinematics.ExtraDisplacement.X - state.Velocity.X;
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(result.WholePixels < -16 ? result.WithWholePixels(-16) : result);
     }
@@ -431,7 +431,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(mama.Position.Y.Whole, MamaTurtlePeakYPosition) < 0)
         {
             state.FunctionTimer = MamaTurtlePeakPauseFrames;
-            state.Function = MamaTurtleAiFunction.HoveringAtPeak;
+            state.Action = MamaTurtleAction.HoveringAtPeak;
             state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.Zero);
             return;
         }
@@ -443,7 +443,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.Function = MamaTurtleAiFunction.Falling;
+        state.Action = MamaTurtleAction.Falling;
         state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.Zero);
     }
 
@@ -455,7 +455,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         ResolveMamaTurtleExpandedContact(mama, samus);
         if (--state.FunctionTimer == 0)
-            state.Function = MamaTurtleAiFunction.Falling;
+            state.Action = MamaTurtleAction.Falling;
     }
 
     /// <summary>Runs gravity, collision, and landing-animation selection.</summary>
@@ -486,7 +486,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Velocity.X.WholePixels < 0
                 ? MamaTurtleSegment.MamaLeaveShellLeft
                 : MamaTurtleSegment.MamaLeaveShellRight);
-        state.Function = MamaTurtleAiFunction.Idle;
+        state.Action = MamaTurtleAction.Idle;
     }
 
     /// <summary>Runs the Baby Turtle's main behaviour and its six live functions.</summary>
@@ -502,12 +502,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         // The prologue requires the child's parent to be a Mama Turtle. The game also clears and republishes a
         // carried-height value on the parent here, which nothing reads.
         _ = RequireMamaTurtleParent();
-        switch (state.Function)
+        switch (state.Action)
         {
-            case BabyTurtleAiFunction.CrawlingNotCarryingSamus:
+            case BabyTurtleAction.CrawlingNotCarryingSamus:
                 if (PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
                 {
-                    state.Function = BabyTurtleAiFunction.HidingCarryingSamus;
+                    state.Action = BabyTurtleAction.HidingCarryingSamus;
                     state.NotCarryingSamusReactionTimer = 4;
                     StartTurtleAnimation(
                         baby,
@@ -518,7 +518,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 return;
 
-            case BabyTurtleAiFunction.HidingCarryingSamus:
+            case BabyTurtleAction.HidingCarryingSamus:
                 if (PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
                 {
                     state.NotCarryingSamusReactionTimer = 4;
@@ -526,15 +526,15 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 if (--state.NotCarryingSamusReactionTimer == 0)
                 {
-                    state.Function = BabyTurtleAiFunction.HidingNotCarryingSamus;
+                    state.Action = BabyTurtleAction.HidingNotCarryingSamus;
                     state.FunctionTimer = 60;
                 }
                 return;
 
-            case BabyTurtleAiFunction.HidingNotCarryingSamus:
+            case BabyTurtleAction.HidingNotCarryingSamus:
                 if (PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
                 {
-                    state.Function = BabyTurtleAiFunction.SpinningUnstoppable;
+                    state.Action = BabyTurtleAction.SpinningUnstoppable;
                     StartTurtleAnimation(
                         baby,
                         state,
@@ -546,34 +546,34 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (--state.FunctionTimer == 0)
                 {
                     StartBabyTurtleCrawlingAnimation(baby, state);
-                    state.Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus;
+                    state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
                 }
                 return;
 
-            case BabyTurtleAiFunction.SpinningUnstoppable:
+            case BabyTurtleAction.SpinningUnstoppable:
                 RequireTurtleLevel(level);
                 MoveSpinningBabyTurtle(baby, state, level);
                 return;
 
-            case BabyTurtleAiFunction.SpinningStoppable:
+            case BabyTurtleAction.SpinningStoppable:
                 if (PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
                 {
                     StartBabyTurtleCrawlingAnimation(baby, state);
-                    state.Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus;
+                    state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
                     return;
                 }
                 RequireTurtleLevel(level);
                 MoveSpinningBabyTurtle(baby, state, level);
                 return;
 
-            case BabyTurtleAiFunction.CrawlingCarryingSamus:
+            case BabyTurtleAction.CrawlingCarryingSamus:
                 if (!PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
-                    state.Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus;
+                    state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Baby Turtle main-AI function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Baby Turtle main-AI function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -618,7 +618,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         RoomEnemySlot parentSlot = RoomMama();
         MamaTurtleEnemyState parent = parentSlot.RequireSpeciesState<MamaTurtleEnemyState>();
-        if (parent.Function != MamaTurtleAiFunction.Asleep)
+        if (parent.Action != MamaTurtleAction.Asleep)
             return;
 
         int signedDifference = CoordinateAxis.Difference(parentSlot.Position.X.Whole, baby.Position.X.Whole);
@@ -652,7 +652,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Animation cue: begin Mama's shell-entry behavior.</summary>
     private static void StartMamaTurtleEnteringShell(MamaTurtleEnemyState state) =>
-        state.Function = MamaTurtleAiFunction.EnteringShell;
+        state.Action = MamaTurtleAction.EnteringShell;
 
     /// <summary>Animation cues: begin rising with selected X direction.</summary>
     private static void StartMamaTurtleRisingToHover(
@@ -661,7 +661,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The authored cue names describe the visual facing, while the stored velocity is the
         // opposite sign: the facing-left cue writes -1 and the facing-right cue writes +1.
-        state.Function = MamaTurtleAiFunction.RisingToHover;
+        state.Action = MamaTurtleAction.RisingToHover;
         state.Velocity = state.Velocity.WithWholeX(direction == HorizontalDirection.Right ? -1 : 1);
         state.FunctionTimer = 16;
     }
@@ -689,9 +689,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (samus is null)
             throw new InvalidOperationException("Baby Turtle shell bytecode requires Samus.");
-        state.Function = PlatformsBehavior.IsSamusRidingPlatform(baby, samus)
-            ? BabyTurtleAiFunction.CrawlingCarryingSamus
-            : BabyTurtleAiFunction.CrawlingNotCarryingSamus;
+        state.Action = PlatformsBehavior.IsSamusRidingPlatform(baby, samus)
+            ? BabyTurtleAction.CrawlingCarryingSamus
+            : BabyTurtleAction.CrawlingNotCarryingSamus;
         return state.Velocity.X < 0
             ? MamaTurtleSegment.BabyCrawlingLeft
             : MamaTurtleSegment.BabyCrawlingRight;
@@ -706,7 +706,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (mama.Contact.HasAny(EnemyContact.SolidToSamus))
             return;
         _collision.ResolveNormalEnemyTouch(mama, samus);
-        state.Function = MamaTurtleAiFunction.Falling;
+        state.Action = MamaTurtleAction.Falling;
         state.Velocity = state.Velocity.WithWholeY(2);
     }
 
@@ -717,7 +717,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData? level)
     {
-        if (state.Function == BabyTurtleAiFunction.CrawlingCarryingSamus)
+        if (state.Action == BabyTurtleAction.CrawlingCarryingSamus)
             return;
         RequireTurtleLevel(level);
 
@@ -741,7 +741,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         baby.Position = baby.Position.WithWholeX(CoordinateAxis.Difference(baby.Position.X.Whole, samus.Position.X.Whole) >= 0
             ? CoordinateAxis.Wrap(samus.Position.X.Whole + samus.Kinematics.Radius.X + baby.Radius.X)
             : CoordinateAxis.Wrap(samus.Position.X.Whole - samus.Kinematics.Radius.X - baby.Radius.X));
-        state.Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus;
+        state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level, baby, SignedSixteenSixteen.FromWholePixels(state.Velocity.X));
         WakeMamaTurtle();

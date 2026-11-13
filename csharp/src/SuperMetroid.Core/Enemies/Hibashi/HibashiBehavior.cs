@@ -65,7 +65,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
         _hitboxes.Place(slot, _slotTable.ListedAfter(slot, 1));
         state.Playback = new(HibashiAnimations.StartingWith(HibashiSegment.Graphics), AnimationPlace.StartOfAnimation);
-        state.Function = HibashiEnemyFunction.Inactive;
+        state.Action = HibashiAction.Inactive;
         state.SpawnHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
 
         // The visible graphics record must never participate through its definition's radius.
@@ -79,19 +79,19 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.IsCollisionPart)
             return;
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case HibashiEnemyFunction.Inactive:
+            case HibashiAction.Inactive:
                 RunHibashiInactive(slot, state);
                 return;
 
-            case HibashiEnemyFunction.Active:
+            case HibashiAction.Active:
                 RunHibashiActive(slot, state);
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Hibashi function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Hibashi function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -104,7 +104,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
-        state.Function = HibashiEnemyFunction.Active;
+        state.Action = HibashiAction.Active;
         state.ActivityFinished = false;
         state.Playback = EnemyAnimationPlayback.Start(graphics, HibashiAnimations.StartingWith(HibashiSegment.Graphics));
 
@@ -123,7 +123,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.InactiveTimer = state.InactiveTimerReset;
         graphics.Presence = graphics.Presence.With(EnemyPresence.Hidden);
-        state.Function = HibashiEnemyFunction.Inactive;
+        state.Action = HibashiAction.Inactive;
     }
 
     /// <summary>Animation cue: plays the eruption sound.</summary>

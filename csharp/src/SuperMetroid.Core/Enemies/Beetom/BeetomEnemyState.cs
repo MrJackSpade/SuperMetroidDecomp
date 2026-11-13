@@ -29,7 +29,7 @@ public sealed class BeetomEnemyState
     /// </summary>
     public EnemyQuadraticSpeedIndex YSpeedTableIndex { get; internal set; }
     /// <summary>The per-update behaviour, including separate decision and setup updates.</summary>
-    public BeetomEnemyFunction? Function { get; internal set; }
+    public BeetomAction? Action { get; internal set; }
     /// <summary>Idle/crawl countdown in gameplay updates; it expires when a step takes it below zero, not on reaching zero.</summary>
     public int FunctionTimer { get; internal set; }
     /// <summary>Remaining controller changes needed to escape attachment, restarted at 64 by the initial touch.</summary>

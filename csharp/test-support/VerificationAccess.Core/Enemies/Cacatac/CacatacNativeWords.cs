@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// </summary>
 internal static class CacatacNativeWords
 {
-    /// <summary>The routine word naming each <see cref="CacatacEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<CacatacEnemyFunction> CacatacEnemyFunctions = new(new Dictionary<CacatacEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="CacatacAction"/>.</summary>
+    internal static readonly NativeWordIdentities<CacatacAction> CacatacActions = new(new Dictionary<CacatacAction, ushort>
     {
-        [CacatacEnemyFunction.MovingLeft] = 0x9fba,
-        [CacatacEnemyFunction.MovingRight] = 0x9fec,
-        [CacatacEnemyFunction.Stopped] = 0xa01b,
+        [CacatacAction.MovingLeft] = 0x9fba,
+        [CacatacAction.MovingRight] = 0x9fec,
+        [CacatacAction.Stopped] = 0xa01b,
     });
 
     /// <summary>

@@ -35,7 +35,7 @@ internal static class WreckedShipGhostBobbingVerification
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(64, y));
             var state = new WreckedShipGhostEnemyState
             {
-                Function = WreckedShipGhostAiFunction.BobbingWhileVisible,
+                Action = WreckedShipGhostAction.BobbingWhileVisible,
                 PhaseTimer = 120,
                 BobbingOrigin = new(0, originY),
                 VerticalVelocity = SignedSixteenSixteen.FromParts(whole, 0),

@@ -23,15 +23,15 @@ internal static class FuneNamiheCooldownVerification
     {
         FuneNamiheEnemyState waiting = Wait(CooldownTime - 2);
         AssertEqual(CooldownTime - 1, waiting.CooldownTimer, "a count short of the cooldown time advances by one");
-        AssertEqual(FuneNamiheEnemyFunction.FuneWaitForCooldown, waiting.Function, "a count short of the cooldown time keeps waiting");
+        AssertEqual(FuneNamiheAction.FuneWaitForCooldown, waiting.Action, "a count short of the cooldown time keeps waiting");
 
         FuneNamiheEnemyState wrapped = Wait(ushort.MaxValue);
         AssertEqual(0, wrapped.CooldownTimer, "the count wraps from the top of the word to zero");
-        AssertEqual(FuneNamiheEnemyFunction.FuneWaitForCooldown, wrapped.Function, "a count wrapped to zero keeps waiting");
+        AssertEqual(FuneNamiheAction.FuneWaitForCooldown, wrapped.Action, "a count wrapped to zero keeps waiting");
 
         FuneNamiheEnemyState crossed = Wait(short.MaxValue);
         AssertEqual(0, crossed.CooldownTimer, "ending the wait resets the count");
-        AssertEqual(FuneNamiheEnemyFunction.FuneActivityNoOp, crossed.Function, "a count crossing the signed boundary ends the wait");
+        AssertEqual(FuneNamiheAction.FuneActivityNoOp, crossed.Action, "a count crossing the signed boundary ends the wait");
         AssertTrue(crossed.ShowsActiveAnimation && !crossed.FacingRight, "ending the wait selects the active animation for the same facing");
         AssertEqual(new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(FuneNamiheSegment.FuneActiveLeft), AnimationPlace.StartOfAnimation), crossed.Playback,
             "ending the wait installs the active program for the same facing");
@@ -48,7 +48,7 @@ internal static class FuneNamiheCooldownVerification
         {
             ShowsActiveAnimation = false,
             FacingRight = false,
-            Function = FuneNamiheEnemyFunction.FuneWaitForCooldown,
+            Action = FuneNamiheAction.FuneWaitForCooldown,
             Variant = FuneNamiheVariant.Fune,
             CooldownTime = CooldownTime,
             CooldownTimer = count,

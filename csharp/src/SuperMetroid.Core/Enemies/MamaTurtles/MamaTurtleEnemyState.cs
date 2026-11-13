@@ -8,7 +8,7 @@ public sealed class MamaTurtleEnemyState
     internal AnimationPlayback<MamaTurtleSegment> Playback { get; set; }
 
     /// <summary>The current Mama Turtle behaviour.</summary>
-    public MamaTurtleAiFunction? Function { get; internal set; }
+    public MamaTurtleAction? Action { get; internal set; }
 
     /// <summary>Signed 16.16 velocity per AI update.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }

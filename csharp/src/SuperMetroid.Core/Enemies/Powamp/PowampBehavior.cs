@@ -76,13 +76,13 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             _balloons.Place(slot, _slotTable.ListedBefore(slot, 1));
             RequirePowampBalloon(slot);
             state.FunctionTimer = PowampRestFrames;
-            state.Function = PowampEnemyFunction.DeflatedResting;
+            state.Action = PowampAction.DeflatedResting;
             SetPowampAnimation(slot, state, PowampSegment.BodySlow);
             return;
         }
 
         state.BalloonSpawn = slot.Position.Whole;
-        state.Function = PowampEnemyFunction.BalloonNoOp;
+        state.Action = PowampAction.BalloonNoOp;
         SetPowampAnimation(slot, state, PowampSegment.BalloonDeflated);
         state.BalloonGrappleTravelDistance = slot.SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance;
     }
@@ -94,45 +94,45 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         PowampBalloon balloon = RequirePowampBalloon(slot);
-        switch (state.Function)
+        switch (state.Action)
         {
-            case PowampEnemyFunction.DeflatedResting:
+            case PowampAction.DeflatedResting:
                 RunPowampDeflatedResting(slot, state, balloon);
                 return;
-            case PowampEnemyFunction.Inflating:
+            case PowampAction.Inflating:
                 RunPowampInflating(slot, state, balloon);
                 return;
-            case PowampEnemyFunction.InflatedRiseToTargetHeight:
+            case PowampAction.InflatedRiseToTargetHeight:
                 RunPowampRise(slot, state, balloon, RequirePowampLevel(level), hold: PowampHold.Free);
                 return;
-            case PowampEnemyFunction.InflatedFinishWiggle:
+            case PowampAction.InflatedFinishWiggle:
                 RunPowampFinishWiggle(slot, state, balloon, RequirePowampLevel(level), hold: PowampHold.Free);
                 return;
-            case PowampEnemyFunction.GrappledRiseToTargetHeight:
+            case PowampAction.GrappledRiseToTargetHeight:
                 RunPowampRise(slot, state, balloon, RequirePowampLevel(level), hold: PowampHold.Grappled);
                 return;
-            case PowampEnemyFunction.GrappledFinishWiggle:
+            case PowampAction.GrappledFinishWiggle:
                 RunPowampFinishWiggle(slot, state, balloon, RequirePowampLevel(level), hold: PowampHold.Grappled);
                 return;
-            case PowampEnemyFunction.GrappledResting:
+            case PowampAction.GrappledResting:
                 RunPowampGrappledResting(slot, state, balloon);
                 return;
-            case PowampEnemyFunction.Deflating:
+            case PowampAction.Deflating:
                 RunPowampDeflating(slot, state, balloon);
                 return;
-            case PowampEnemyFunction.DeflatedSinking:
+            case PowampAction.DeflatedSinking:
                 RunPowampSinking(slot, state, balloon, RequirePowampLevel(level));
                 return;
-            case PowampEnemyFunction.FatalDamage:
+            case PowampAction.FatalDamage:
                 BeginPowampDeathSequence(slot, state, balloon);
                 return;
-            case PowampEnemyFunction.DeathSequence:
+            case PowampAction.DeathSequence:
                 RunPowampDeathSequence(slot, state, balloon);
                 return;
-            case PowampEnemyFunction.BalloonNoOp:
+            case PowampAction.BalloonNoOp:
             default:
                 throw new InvalidDataException(
-                    $"Powamp body function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Powamp body function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -145,7 +145,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (TickPowampTimer(state))
         {
             SetPowampAnimation(balloon.Slot, balloon.State, PowampSegment.BalloonInflate0);
-            state.Function = PowampEnemyFunction.Inflating;
+            state.Action = PowampAction.Inflating;
             state.FunctionTimer = PowampTransitionFrames;
         }
         AlignPowampBalloonY(body, balloon);
@@ -159,7 +159,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (TickPowampTimer(state))
         {
-            state.Function = PowampEnemyFunction.InflatedRiseToTargetHeight;
+            state.Action = PowampAction.InflatedRiseToTargetHeight;
             // Exactly half a pixel per frame upward on NTSC.
             state.YVelocity = SignedSixteenSixteen.FromSixteenthsOfPixel(-8);
             SetPowampAnimation(body, state, PowampSegment.BodyFast);
@@ -180,7 +180,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         bool grappleAiActive = (body.AiStates & EnemyAiStates.Grappled) != EnemyAiStates.None;
         if (hold != PowampHold.Grappled && grappleAiActive)
         {
-            state.Function = PowampEnemyFunction.GrappledRiseToTargetHeight;
+            state.Action = PowampAction.GrappledRiseToTargetHeight;
             RunPowampRise(body, state, balloon, level, hold: PowampHold.Grappled);
             return;
         }
@@ -189,7 +189,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         // changing the function. In particular it does not realign the balloon on this path.
         if (hold == PowampHold.Grappled && !grappleAiActive)
         {
-            state.Function = PowampEnemyFunction.InflatedFinishWiggle;
+            state.Action = PowampAction.InflatedFinishWiggle;
             return;
         }
 
@@ -207,15 +207,15 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             if (IsPowampCentered(state.WiggleIndex))
             {
                 if (hold == PowampHold.Grappled)
-                    state.Function = PowampEnemyFunction.GrappledResting;
+                    state.Action = PowampAction.GrappledResting;
                 else
                     StartPowampDeflating(state, balloon);
             }
             else
             {
-                state.Function = hold == PowampHold.Grappled
-                    ? PowampEnemyFunction.GrappledFinishWiggle
-                    : PowampEnemyFunction.InflatedFinishWiggle;
+                state.Action = hold == PowampHold.Grappled
+                    ? PowampAction.GrappledFinishWiggle
+                    : PowampAction.InflatedFinishWiggle;
             }
         }
         AlignPowampBalloonY(body, balloon);
@@ -232,7 +232,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         bool grappleAiActive = (body.AiStates & EnemyAiStates.Grappled) != EnemyAiStates.None;
         if (hold == PowampHold.Grappled && !grappleAiActive)
         {
-            state.Function = PowampEnemyFunction.InflatedFinishWiggle;
+            state.Action = PowampAction.InflatedFinishWiggle;
             return;
         }
 
@@ -240,7 +240,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (centered)
         {
             if (hold == PowampHold.Grappled)
-                state.Function = PowampEnemyFunction.GrappledResting;
+                state.Action = PowampAction.GrappledResting;
             else
                 StartPowampDeflating(state, balloon);
         }
@@ -272,7 +272,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (TickPowampTimer(state))
         {
-            state.Function = PowampEnemyFunction.DeflatedSinking;
+            state.Action = PowampAction.DeflatedSinking;
             // Exactly +1 pixel/frame.
             state.YVelocity = SignedSixteenSixteen.FromParts(1, 0);
         }
@@ -290,7 +290,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!CoordinateAxis.Precedes(body.Position.Y.Whole, balloon.State.BalloonSpawn.Y))
         {
             body.Position = body.Position.WithWholeY(balloon.State.BalloonSpawn.Y);
-            state.Function = PowampEnemyFunction.DeflatedResting;
+            state.Action = PowampAction.DeflatedResting;
             state.FunctionTimer = PowampRestFrames;
             SetPowampAnimation(body, state, PowampSegment.BodySlow);
         }
@@ -314,7 +314,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             SetPowampAnimation(balloon.Slot, balloon.State, replacement);
         }
 
-        state.Function = PowampEnemyFunction.DeathSequence;
+        state.Action = PowampAction.DeathSequence;
         state.FunctionTimer = PowampDeathDelayFrames;
         AlignPowampBalloonY(body, balloon);
     }
@@ -372,7 +372,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (body.Health == 0)
         {
             PowampEnemyState bodyState = body.RequireSpeciesState<PowampEnemyState>();
-            bodyState.Function = PowampEnemyFunction.FatalDamage;
+            bodyState.Action = PowampAction.FatalDamage;
             bodyState.RefusesContact = true;
         }
     }
@@ -459,7 +459,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Switches the balloon to its sinking art and begins the deflation timer.</summary>
     private static void StartPowampDeflating(PowampEnemyState state, PowampBalloon balloon)
     {
-        state.Function = PowampEnemyFunction.Deflating;
+        state.Action = PowampAction.Deflating;
         state.FunctionTimer = PowampTransitionFrames;
         SetPowampAnimation(balloon.Slot, balloon.State, PowampSegment.BalloonStartSinking);
     }

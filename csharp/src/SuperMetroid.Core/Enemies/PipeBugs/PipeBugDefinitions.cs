@@ -12,15 +12,15 @@ internal static class PipeBugDefinitions
 
     /// <summary>
     /// The formation initializer assigns each formation slot its center/upper/lower movement
-    /// function. These are semantic role branches, not ordinal positions.
+    /// action. These are semantic role branches, not ordinal positions.
     /// </summary>
-    internal static readonly PipeBugEnemyFunction[] NorfairPostRiseFunctions =
+    internal static readonly PipeBugAction[] NorfairPostRiseActions =
     [
-        PipeBugEnemyFunction.NorfairLeaderStagger,
-        PipeBugEnemyFunction.NorfairUpperNearStagger,
-        PipeBugEnemyFunction.NorfairUpperFarStagger,
-        PipeBugEnemyFunction.NorfairLowerNearStagger,
-        PipeBugEnemyFunction.NorfairLowerFarStagger,
+        PipeBugAction.NorfairLeaderStagger,
+        PipeBugAction.NorfairUpperNearStagger,
+        PipeBugAction.NorfairUpperFarStagger,
+        PipeBugAction.NorfairLowerNearStagger,
+        PipeBugAction.NorfairLowerFarStagger,
     ];
 
     /// <summary>

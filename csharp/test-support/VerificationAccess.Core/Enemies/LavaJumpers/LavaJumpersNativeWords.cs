@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 /// </summary>
 internal static class LavaJumpersNativeWords
 {
-    /// <summary>The routine word naming each <see cref="NorfairLavaJumpingEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<NorfairLavaJumpingEnemyFunction> NorfairLavaJumpingEnemyFunctions = new(new Dictionary<NorfairLavaJumpingEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="NorfairLavaJumpingEnemyAction"/>.</summary>
+    internal static readonly NativeWordIdentities<NorfairLavaJumpingEnemyAction> NorfairLavaJumpingEnemyActions = new(new Dictionary<NorfairLavaJumpingEnemyAction, ushort>
     {
-        [NorfairLavaJumpingEnemyFunction.FollowParent] = 0xbedc,
-        [NorfairLavaJumpingEnemyFunction.BeginJump] = 0xbf1a,
-        [NorfairLavaJumpingEnemyFunction.RiseBeforeAnimationSwitch] = 0xbf3e,
-        [NorfairLavaJumpingEnemyFunction.MoveUntilAnimationSignal] = 0xbf7c,
-        [NorfairLavaJumpingEnemyFunction.FallBackIntoLava] = 0xbfbc,
+        [NorfairLavaJumpingEnemyAction.FollowParent] = 0xbedc,
+        [NorfairLavaJumpingEnemyAction.BeginJump] = 0xbf1a,
+        [NorfairLavaJumpingEnemyAction.RiseBeforeAnimationSwitch] = 0xbf3e,
+        [NorfairLavaJumpingEnemyAction.MoveUntilAnimationSignal] = 0xbf7c,
+        [NorfairLavaJumpingEnemyAction.FallBackIntoLava] = 0xbfbc,
     });
 }

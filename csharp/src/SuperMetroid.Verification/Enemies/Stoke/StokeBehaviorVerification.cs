@@ -14,15 +14,15 @@ using SuperMetroid.Core.World;
 internal static class StokeBehaviorVerification
 {
     /// <summary>
-    /// Each walking animation sets main AI's direction and function and loops on time; each attack spits a fireball in
+    /// Each walking animation sets main AI's direction and action and loops on time; each attack spits a fireball in
     /// its own direction and then walks again in that direction.
     /// </summary>
     internal static void VerifyStokeBehavior()
     {
-        foreach ((StokeDirection direction, StokeSegment walk, StokeSegment loop, StokeSegment attack, StokeAiFunction function, ushort fireball) in new[]
+        foreach ((StokeDirection direction, StokeSegment walk, StokeSegment loop, StokeSegment attack, StokeAction action, ushort fireball) in new[]
                  {
-                     new VerifyStokeBehaviorCase(StokeDirection.Left, StokeSegment.MovingLeft, StokeSegment.MovingLeftLoop, StokeSegment.AttackingLeft, StokeAiFunction.Moving, 0),
-                     new VerifyStokeBehaviorCase(StokeDirection.Right, StokeSegment.MovingRight, StokeSegment.MovingRightLoop, StokeSegment.AttackingRight, StokeAiFunction.Moving, 1),
+                     new VerifyStokeBehaviorCase(StokeDirection.Left, StokeSegment.MovingLeft, StokeSegment.MovingLeftLoop, StokeSegment.AttackingLeft, StokeAction.Moving, 0),
+                     new VerifyStokeBehaviorCase(StokeDirection.Right, StokeSegment.MovingRight, StokeSegment.MovingRightLoop, StokeSegment.AttackingRight, StokeAction.Moving, 1),
                  })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, StokeEnemyState state) = Create(direction == StokeDirection.Left ? StokeDirection.Right : StokeDirection.Left);
@@ -30,10 +30,10 @@ internal static class StokeBehaviorVerification
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(StokeAnimations.Segments, loop, StokeFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(StokeAnimations.Segments, loop)), $"Stoke {walk} loop");
             AssertEqual(direction, state.Direction, $"Stoke {walk} cue sets the direction");
-            AssertEqual(function, state.Function, $"Stoke {walk} cue sets the walking function");
+            AssertEqual(action, state.Action, $"Stoke {walk} cue sets the walking function");
 
             (enemies, slot, state) = Create(direction);
-            state.Function = StokeAiFunction.IdleDuringAttack;
+            state.Action = StokeAction.IdleDuringAttack;
             state.Playback = new(StokeAnimations.StartingWith(attack), AnimationPlace.StartOfAnimation);
             ushort[] attackFrames = StokeAnimationsConstants.Spritemaps(attack).ToArray();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(attackFrames, [16, 16]),
@@ -42,7 +42,7 @@ internal static class StokeBehaviorVerification
                 candidate => candidate.Kind == RoomEnemyProjectileKind.StokeProjectile);
             AssertEqual(fireball != 0, projectile.Velocity.X.InTwoHundredFiftySixthsOfPixel > 0, $"Stoke {attack} fireball flies in its direction");
             EnemyInstructionRunner.ShownFrames(slot, 1);
-            AssertEqual(function, state.Function, $"Stoke {attack} walks again");
+            AssertEqual(action, state.Action, $"Stoke {attack} walks again");
         }
         Console.WriteLine("  Stoke behavior: both walks set direction and function and loop on time; both attacks spit their fireball and walk again.");
     }

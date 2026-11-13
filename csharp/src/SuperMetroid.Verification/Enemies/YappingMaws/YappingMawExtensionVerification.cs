@@ -47,7 +47,7 @@ internal static class YappingMawExtensionVerification
             SignedSixteenSixteen.FromParts(0, checked((ushort)(ushort.MaxValue + 1 - extendFraction))), row, EnemySpeedSign.Positive);
         AssertEqual(SignedSixteenSixteen.FromParts(checked((short)(extendWhole + 1)), 0), carried.Extension,
             "the fraction's carry reaches the whole part");
-        AssertEqual(YappingMawAiFunction.ExtendingOrRetracting, carried.Function, "a positive curl keeps extending");
+        AssertEqual(YappingMawAction.ExtendingOrRetracting, carried.Action, "a positive curl keeps extending");
         AssertEqual(EnemyQuadraticSpeedIndex.FromRows(row + 1), carried.QuadraticSpeedRow, "below the clamp the row advances once");
         AssertEqual(EnemySpeedSign.Positive, carried.QuadraticSpeedSign, "below the clamp the speed stays extending");
 
@@ -65,12 +65,12 @@ internal static class YappingMawExtensionVerification
 
         YappingMawEnemyState atZero = Advance(SixteenSixteenWords.ToDisplacement(-retract), row, EnemySpeedSign.Negative);
         AssertEqual(SignedSixteenSixteen.Zero, atZero.Extension, "retraction can return the curl exactly to zero");
-        AssertEqual(YappingMawAiFunction.ExtendingOrRetracting, atZero.Function, "a zero curl is not negative and keeps retracting");
+        AssertEqual(YappingMawAction.ExtendingOrRetracting, atZero.Action, "a zero curl is not negative and keeps retracting");
 
         YappingMawEnemyState pastZero = Advance(SixteenSixteenWords.ToDisplacement(-retract - 1), row, EnemySpeedSign.Negative);
         AssertEqual(SignedSixteenSixteen.FromParts(-1, ushort.MaxValue), pastZero.Extension,
             "one fraction unit past zero borrows the whole part to -1");
-        AssertEqual(YappingMawAiFunction.RetractedDelay, pastZero.Function, "a negative whole part ends the retraction");
+        AssertEqual(YappingMawAction.RetractedDelay, pastZero.Action, "a negative whole part ends the retraction");
         Console.WriteLine($"Yapping Maw extension: row {row} carry, +128 clamp and miss, and zero/negative retraction sign test pass through production.");
     }
 
@@ -89,7 +89,7 @@ internal static class YappingMawExtensionVerification
             new FrameCounters(0));
         enemies.YappingMawBehavior.RunYappingMawMainAi(slot, frame);
         enemies.YappingMawBehavior.RunYappingMawMainAi(slot, frame);
-        AssertEqual(YappingMawAiFunction.ExtendingOrRetracting, state.Function, "setup begins the extension");
+        AssertEqual(YappingMawAction.ExtendingOrRetracting, state.Action, "setup begins the extension");
         AssertEqual(SignedSixteenSixteen.Zero, state.Extension, "setup starts the curl at zero");
 
         state.Extension = start;

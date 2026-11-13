@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 public sealed class HopperEnemyState
 {
     /// <summary>The current hopper AI step, advanced one setup stage per AI call.</summary>
-    public HopperEnemyFunction? Function { get; internal set; }
+    public HopperAction? Action { get; internal set; }
 
     /// <summary>
     /// The whole-row place along the quadratic speed table of the current vertical step. It moves back by

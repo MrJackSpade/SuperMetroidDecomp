@@ -45,7 +45,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             // is requested or installed until the first direction is selected.
             RequestedAnimation = null,
             InstalledAnimation = null,
-            Function = SbugEnemyFunction.WaitForSamus,
+            Action = SbugAction.WaitForSamus,
         };
         slot.SetSpeciesState(state);
 
@@ -91,68 +91,68 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Sbug AI requires the active Samus actor.");
 
         SbugEnemyState state = slot.RequireSpeciesState<SbugEnemyState>();
-        switch (state.Function)
+        switch (state.Action)
         {
-            case SbugEnemyFunction.WaitForSamus:
+            case SbugAction.WaitForSamus:
                 RunSbugWait(slot, state, samus);
                 return;
 
             // Activation functions deliberately consume a frame merely replacing
             // their own AI function. Movement begins on the following main AI call.
-            case SbugEnemyFunction.ActivateMoveForward:
-                state.Function = SbugEnemyFunction.MoveForward;
+            case SbugAction.ActivateMoveForward:
+                state.Action = SbugAction.MoveForward;
                 return;
-            case SbugEnemyFunction.ActivateZigZag:
-                state.Function = SbugEnemyFunction.ZigZag;
+            case SbugAction.ActivateZigZag:
+                state.Action = SbugAction.ZigZag;
                 return;
-            case SbugEnemyFunction.ActivateRandomUntilCollision:
+            case SbugAction.ActivateRandomUntilCollision:
                 SetSbugRandomSeed();
-                state.Function = SbugEnemyFunction.ChooseRandomDirectionUntilCollision;
+                state.Action = SbugAction.ChooseRandomDirectionUntilCollision;
                 return;
-            case SbugEnemyFunction.ActivateRandomAndReverseWhenFar:
+            case SbugAction.ActivateRandomAndReverseWhenFar:
                 state.StraightMovementTimer = WrappingCountdown.Start(SbugLongRandomLifetime);
                 SetSbugRandomSeed();
-                state.Function = SbugEnemyFunction.ChooseRandomDirectionAndReverseWhenFar;
+                state.Action = SbugAction.ChooseRandomDirectionAndReverseWhenFar;
                 return;
-            case SbugEnemyFunction.ActivateMoveForwardThenWait:
+            case SbugAction.ActivateMoveForwardThenWait:
                 state.MovementTimer = SbugMovementSegmentFrames;
-                state.Function = SbugEnemyFunction.MoveForwardThenWait;
+                state.Action = SbugAction.MoveForwardThenWait;
                 return;
-            case SbugEnemyFunction.ActivateMoveTowardSamus:
+            case SbugAction.ActivateMoveTowardSamus:
                 ActivateSbugTowardOrAway(slot, state, samus, relativeHeading: SbugHeading.Toward);
                 return;
-            case SbugEnemyFunction.ActivateMoveAwayFromSamus:
+            case SbugAction.ActivateMoveAwayFromSamus:
                 ActivateSbugTowardOrAway(slot, state, samus, relativeHeading: SbugHeading.Away);
                 return;
 
-            case SbugEnemyFunction.MoveForward:
+            case SbugAction.MoveForward:
                 MoveSbugForward(slot, state);
                 return;
-            case SbugEnemyFunction.ZigZag:
+            case SbugAction.ZigZag:
                 RunSbugZigZag(slot, state);
                 return;
-            case SbugEnemyFunction.MoveTowardSamus:
-            case SbugEnemyFunction.MoveAwayFromSamus:
+            case SbugAction.MoveTowardSamus:
+            case SbugAction.MoveAwayFromSamus:
                 AddSbugVelocity(slot, state.CustomXVelocity, state.CustomYVelocity);
                 return;
-            case SbugEnemyFunction.MoveForwardThenWait:
+            case SbugAction.MoveForwardThenWait:
                 RunSbugForwardThenWait(slot, state);
                 return;
-            case SbugEnemyFunction.MoveRandomlyUntilCollision:
+            case SbugAction.MoveRandomlyUntilCollision:
                 RunSbugCollisionAwareSegment(slot, state, level);
                 return;
-            case SbugEnemyFunction.MoveStraightAndReverseWhenFar:
+            case SbugAction.MoveStraightAndReverseWhenFar:
                 RunSbugStraightReverseSegment(slot, state, samus);
                 return;
-            case SbugEnemyFunction.ChooseRandomDirectionAndReverseWhenFar:
-                ChooseSbugRandomDirection(slot, state, SbugEnemyFunction.MoveStraightAndReverseWhenFar);
+            case SbugAction.ChooseRandomDirectionAndReverseWhenFar:
+                ChooseSbugRandomDirection(slot, state, SbugAction.MoveStraightAndReverseWhenFar);
                 return;
-            case SbugEnemyFunction.ChooseRandomDirectionUntilCollision:
-                ChooseSbugRandomDirection(slot, state, SbugEnemyFunction.MoveRandomlyUntilCollision);
+            case SbugAction.ChooseRandomDirectionUntilCollision:
+                ChooseSbugRandomDirection(slot, state, SbugAction.MoveRandomlyUntilCollision);
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Sbug function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Sbug function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -165,7 +165,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         if (xDistance >= threshold || yDistance >= threshold)
             return;
 
-        state.Function = SbugMovement.ActivationFunction(state.ActivationBehavior);
+        state.Action = SbugMovement.ActivationAction(state.ActivationBehavior);
     }
 
     /// <summary>Converts Samus's bearing into Sbug's angular convention and chosen direction.</summary>
@@ -182,9 +182,9 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToTableAngle();
         state.FaceCustomHeading((relativeHeading == SbugHeading.Away ? heading.TurnedBy(TrigonometryAngle.HalfTurn) : heading).ToAngle());
         RecalculateSbugCustomDirection(slot, state);
-        state.Function = relativeHeading == SbugHeading.Away
-            ? SbugEnemyFunction.MoveAwayFromSamus
-            : SbugEnemyFunction.MoveTowardSamus;
+        state.Action = relativeHeading == SbugHeading.Away
+            ? SbugAction.MoveAwayFromSamus
+            : SbugAction.MoveTowardSamus;
     }
 
     /// <summary>Alternates left and right diagonal legs on the enemy's own update count.</summary>
@@ -209,7 +209,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (--state.MovementTimer < 0)
         {
-            state.Function = SbugEnemyFunction.WaitForSamus;
+            state.Action = SbugAction.WaitForSamus;
             return;
         }
 
@@ -224,7 +224,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (--state.MovementTimer < 0)
         {
-            state.Function = SbugEnemyFunction.ChooseRandomDirectionUntilCollision;
+            state.Action = SbugAction.ChooseRandomDirectionUntilCollision;
             return;
         }
         if (level is null)
@@ -238,11 +238,11 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot,
                 state.CustomXVelocity))
         {
-            state.Function = SbugEnemyFunction.WaitForSamus;
+            state.Action = SbugAction.WaitForSamus;
             return;
         }
         if (_terrain.MoveEnemyVertically(level, slot, state.CustomYVelocity))
-            state.Function = SbugEnemyFunction.WaitForSamus;
+            state.Action = SbugAction.WaitForSamus;
     }
 
     /// <summary>Reverses only when both Samus distances reach six blocks during the long leg.</summary>
@@ -256,7 +256,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (--state.MovementTimer < 0)
             {
-                state.Function = SbugEnemyFunction.ChooseRandomDirectionAndReverseWhenFar;
+                state.Action = SbugAction.ChooseRandomDirectionAndReverseWhenFar;
                 return;
             }
 
@@ -275,14 +275,14 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ChooseSbugRandomDirection(
         RoomEnemySlot slot,
         SbugEnemyState state,
-        SbugEnemyFunction movement)
+        SbugAction movement)
     {
         // The random draw, 0 through 255 steps, less a quarter turn, turns the heading either way around the circle.
         int randomTurn = _room.Random.Next(SbugMovementDefinitions.RandomTurn);
         state.TurnCustomHeading(RotationAngle.FromSteps(randomTurn) - RotationAngle.QuarterTurn);
         RecalculateSbugCustomDirection(slot, state);
         state.MovementTimer = SbugMovementSegmentFrames;
-        state.Function = movement;
+        state.Action = movement;
     }
 
     /// <summary>Rebuilds signed velocities and facing animation from the chosen custom angle.</summary>

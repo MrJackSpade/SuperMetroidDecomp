@@ -2,6 +2,7 @@ using SuperMetroid.Verification.Bosses.MotherBrain;
 using static SuperMetroid.Verification.Areas.Ceres.PostCeresLandingHandOffVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -133,7 +134,7 @@ internal static class RoomDefinitionIntegrationVerification
             if (door.SetupCode != DoorSetupCode.None)
             {
                 forbidden.Add(RoomHeaderRomDataConstants.BankAddress |
-                    (ushort)door.SetupCode);
+                    DoorIdentityWords.SetupRoutines.Word(door.SetupCode));
             }
         }
 

@@ -1,7 +1,11 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The setup a door runs while Samus passes through it: the complete set the retail doors name, plus none.
+/// The setup a door runs while Samus passes through it: the complete set the retail doors name, plus none. Each is named
+/// for the room its doors lead into and what it does there: a scroll setup names the screens of that room it closes to
+/// the camera, opens, and opens with the camera aligned to the screen's top, each as its column and row in the room
+/// (in the summaries below, as (column, row)); two setups making the same change in one room are each named for the
+/// room their door leaves.
 /// The values are arbitrary; the import pipeline maps the doors' setups to them (#1414).
 /// </summary>
 public enum DoorSetupCode
@@ -9,263 +13,386 @@ public enum DoorSetupCode
     /// <summary>The door definition names no setup.</summary>
     None = 1,
 
-    /// <summary>Starts the Wrecked Ship treadmill for Samus entering from the west.</summary>
-    DoorASM_StartWreckedShipTreadmillWestEntrance = 2,
+    /// <summary>
+    /// Entering the WreckedShipEntrance room from the west, starts its treadmill moving rightwards and spawns the
+    /// treadmill object of its west entrance.
+    /// </summary>
+    WreckedShipEntranceStartsTreadmillRightwards = 2,
+
+    /// <summary>Entering the Parlor room, opens screen (1, 1).</summary>
+    ParlorOpensScreen1x1 = 3,
+
+    /// <summary>Entering the Parlor room, opens screen (0, 0) with the camera aligned to the screen's top.</summary>
+    ParlorOpensScreen0x0TopAligned = 4,
 
     /// <summary>
-    /// Turns room scroll cell 6 green.
+    /// Entering the LandingSite room, opens screen (1, 2) with the camera aligned to the screen's top.
     /// </summary>
-    DoorCode_Scroll6_Green = 3,
+    LandingSiteOpensScreen1x2TopAligned = 5,
 
-    /// <summary>Turns room scroll cell 0 blue.</summary>
-    DoorASM_Scroll_0_Blue = 4,
+    /// <summary>Entering the Parlor room, closes screen (4, 0); opens screen (3, 1).</summary>
+    ParlorClosesScreen4x0OpensScreen3x1 = 6,
 
-    /// <summary>Turns room scroll cell 19 blue.</summary>
-    DoorASM_Scroll_13_Blue = 5,
-
-    /// <summary>Turns room scroll cell 4 red and cell 8 green.</summary>
-    DoorASM_Scroll_4_Red_8_Green = 6,
-
-    /// <summary>Turns room scroll cells 8, 9, 10 and 11 red.</summary>
-    DoorASM_Scroll_8_9_A_B_Red = 7,
-
-    /// <summary>Turns room scroll cells 2, 3, 4, 5, 11, 12, 13 and 17 red.</summary>
-    DoorASM_Scroll_2_3_4_5_B_C_D_11_Red = 8,
-
-    /// <summary>Turns room scroll cells 1 and 4 green.</summary>
-    DoorASM_Scroll_1_4_Green = 9,
-
-    /// <summary>Turns room scroll cell 2 blue.</summary>
-    DoorASM_Scroll_2_Blue = 10,
-
-    /// <summary>Turns room scroll cell 23 blue.</summary>
-    DoorASM_Scroll_17_Blue = 11,
-
-    /// <summary>Turns room scroll cell 4 blue.</summary>
-    DoorASM_Scroll_4_Blue = 12,
-
-    /// <summary>Turns room scroll cell 6 green. A second setup making the same change.</summary>
-    DoorASM_Scroll_6_Green_duplicate = 13,
-
-    /// <summary>Turns room scroll cell 3 green.</summary>
-    DoorASM_Scroll_3_Green = 14,
-
-    /// <summary>Turns room scroll cells 24 and 28 green.</summary>
-    DoorASM_Scroll_18_1C_Green = 15,
-
-    /// <summary>Turns room scroll cells 5 and 6 blue.</summary>
-    DoorASM_Scroll_5_6_Blue = 16,
-
-    /// <summary>Turns room scroll cell 29 blue.</summary>
-    DoorASM_Scroll_1D_Blue = 17,
-
-    /// <summary>Turns room scroll cells 2 and 3 green.</summary>
-    DoorASM_Scroll_2_3_Green = 18,
-
-    /// <summary>Turns room scroll cell 0 red and cell 1 green.</summary>
-    DoorASM_Scroll_0_Red_1_Green = 19,
-
-    /// <summary>Turns room scroll cell 11 green.</summary>
-    DoorASM_Scroll_B_Green = 20,
-
-    /// <summary>Turns room scroll cell 28 red and cell 29 blue.</summary>
-    DoorASM_Scroll_Scroll_1C_Red_1D_Blue = 21,
-
-    /// <summary>Turns room scroll cell 4 red.</summary>
-    DoorASM_Scroll_4_Red = 22,
-
-    /// <summary>Turns room scroll cells 32, 36 and 37 green.</summary>
-    DoorASM_Scroll_20_24_25_Green = 23,
-
-    /// <summary>Turns room scroll cell 2 blue. A second setup making the same change.</summary>
-    DoorASM_Scroll_2_Blue_duplicate = 24,
-
-    /// <summary>Turns room scroll cell 0 green.</summary>
-    DoorASM_Scroll_0_Green = 25,
-
-    /// <summary>Turns room scroll cells 6 and 7 green.</summary>
-    DoorASM_Scroll_6_7_Green = 26,
-
-    /// <summary>Turns room scroll cell 1 blue and cell 2 red.</summary>
-    DoorASM_Scroll_1_Blue_2_Red = 27,
-
-    /// <summary>Turns room scroll cell 1 blue and cell 3 red.</summary>
-    DoorASM_Scroll_1_Blue_3_Red = 28,
-
-    /// <summary>Turns room scroll cell 0 red and cell 4 blue.</summary>
-    DoorASM_Scroll_0_Red_4_Blue = 29,
-
-    /// <summary>Turns room scroll cells 2 and 3 blue.</summary>
-    DoorASM_Scroll_2_3_Blue = 30,
-
-    /// <summary>Turns room scroll cells 0 and 1 green.</summary>
-    DoorASM_Scroll_0_1_Green = 31,
-
-    /// <summary>Turns room scroll cell 1 green.</summary>
-    DoorASM_Scroll_1_Green = 32,
-
-    /// <summary>Turns room scroll cells 15 and 18 green.</summary>
-    DoorASM_Scroll_F_12_Green = 33,
-
-    /// <summary>Turns room scroll cell 6 green. A third setup making the same change.</summary>
-    DoorASM_Scroll_6_Green_duplicate_again = 34,
+    /// <summary>Entering the BowlingAlley room, closes screens (2, 1), (3, 1), (4, 1) and (5, 1).</summary>
+    BowlingAlleyClosesScreens2x1And3x1And4x1And5x1 = 7,
 
     /// <summary>
-    /// Turns room scroll cell 0 green and cell 1 blue, opening Construction Zone's
-    /// two-screen vertical camera route after returning from First Missile.
+    /// Entering the BowlingAlley room, closes screens (2, 0), (3, 0), (4, 0), (5, 0), (5, 1), (0, 2), (1, 2) and
+    /// (5, 2).
     /// </summary>
-    DoorASM_Scroll_0_Green_1_Blue = 35,
+    BowlingAlleyClosesScreens2x0And3x0And4x0And5x0And5x1And0x2And1x2And5x2 = 8,
 
-    /// <summary>Turns room scroll cell 2 green.</summary>
-    DoorASM_Scroll_2_Green = 36,
+    /// <summary>Entering the CrateriaKihunter room, opens screens (1, 0) and (1, 1).</summary>
+    CrateriaKihunterOpensScreens1x0And1x1 = 9,
 
-    /// <summary>Turns room scroll cells 3 and 4 red and cells 6, 7 and 8 blue.</summary>
-    DoorASM_Scroll_3_4_Red_6_7_8_Blue = 37,
+    /// <summary>Entering the Climb room, opens screen (2, 0) with the camera aligned to the screen's top.</summary>
+    ClimbOpensScreen2x0TopAligned = 10,
 
-    /// <summary>Turns room scroll cells 1, 2 and 3 blue, cell 4 green and cell 6 red.</summary>
-    DoorASM_Scroll_1_2_3_Blue_4_Green_6_Red = 38,
-
-    /// <summary>Turns room scroll cells 0 and 1 blue.</summary>
-    DoorASM_Scroll_0_1_Blue = 39,
-
-    /// <summary>Turns room scroll cell 0 blue and cell 1 red.</summary>
-    DoorASM_Scroll_0_Blue_1_Red = 40,
-
-    /// <summary>Turns room scroll cell 10 green.</summary>
-    DoorASM_Scroll_A_Green = 41,
-
-    /// <summary>Turns room scroll cells 0 and 2 green.</summary>
-    DoorASM_Scroll_0_2_Green = 42,
-
-    /// <summary>Turns room scroll cells 6 and 7 blue and cell 8 red.</summary>
-    DoorASM_Scroll_6_7_Blue_8_Red = 43,
-
-    /// <summary>Turns room scroll cell 2 red and cell 3 blue.</summary>
-    DoorASM_Scroll_2_Red_3_Blue = 44,
-
-    /// <summary>Turns room scroll cell 7 green.</summary>
-    DoorASM_Scroll_7_Green = 45,
-
-    /// <summary>Turns room scroll cell 1 red and cell 2 blue.</summary>
-    DoorASM_Scroll_1_Red_2_Blue = 46,
-
-    /// <summary>Turns room scroll cell 0 blue and cell 3 red.</summary>
-    DoorASM_Scroll_0_Blue_3_Red = 47,
-
-    /// <summary>Turns room scroll cell 1 blue and cell 4 red.</summary>
-    DoorASM_Scroll_1_Blue_4_Red = 48,
-
-    /// <summary>Turns room scroll cell 0 blue and cells 1, 2 and 3 red.</summary>
-    DoorASM_Scroll_0_Blue_1_2_3_Red = 49,
-
-    /// <summary>Turns room scroll cell 0 green. A second setup making the same change.</summary>
-    DoorASM_Scroll_0_Green_duplicate = 50,
-
-    /// <summary>Turns room scroll cells 0 and 1 blue and cell 4 red.</summary>
-    DoorASM_Scroll_0_1_Blue_4_Red = 51,
-
-    /// <summary>Turns room scroll cell 0 blue and cell 3 red. A second setup making the same change.</summary>
-    DoorASM_Scroll_0_Blue_3_Red_duplicate = 52,
-
-    /// <summary>Turns room scroll cell 0 blue. A second setup making the same change.</summary>
-    DoorASM_Scroll_0_Blue_duplicate = 53,
-
-    /// <summary>Turns room scroll cell 0 blue and cell 1 red. A second setup making the same change.</summary>
-    DoorASM_Scroll_0_Blue_1_Red_duplicate = 54,
-
-    /// <summary>Turns room scroll cell 24 blue.</summary>
-    DoorASM_Scroll_18_Blue = 55,
-
-    /// <summary>Turns room scroll cell 2 blue and cell 3 red.</summary>
-    DoorASM_Scroll_2_Blue_3_Red = 56,
-
-    /// <summary>Turns room scroll cell 14 red.</summary>
-    DoorASM_Scroll_E_Red = 57,
-
-    /// <summary>Starts the Wrecked Ship treadmill for Samus entering from the east.</summary>
-    DoorASM_StartWreckedShipTreadmillEastEntrance = 58,
-
-    /// <summary>Turns room scroll cell 1 blue.</summary>
-    DoorASM_Scroll_1_Blue = 59,
-
-    /// <summary>Turns room scroll cell 0 green. A third setup making the same change.</summary>
-    DoorASM_Scroll_0_Green_duplicate_again = 60,
-
-    /// <summary>Turns room scroll cell 3 red and cell 4 blue.</summary>
-    DoorASM_Scroll_3_Red_4_Blue = 61,
-
-    /// <summary>Turns room scroll cell 41 blue.</summary>
-    DoorASM_Scroll_29_Blue = 62,
-
-    /// <summary>Turns room scroll cells 40 and 46 green.</summary>
-    DoorASM_Scroll_28_2E_Green = 63,
-
-    /// <summary>Turns room scroll cells 6, 7, 8, 9, 10 and 11 red.</summary>
-    DoorASM_Scroll_6_7_8_9_A_B_Red = 64,
-
-    /// <summary>Sets up the Maridia elevatube for Samus arriving from the south.</summary>
-    DoorASM_SetupElevatubeFromSouth = 65,
-
-    /// <summary>Sets up the Maridia elevatube for Samus arriving from the north.</summary>
-    DoorASM_SetupElevatubeFromNorth = 66,
-
-    /// <summary>Resets the Maridia elevatube when Samus leaves by its north door.</summary>
-    DoorASM_ResetElevatubeOnNorthExit = 67,
-
-    /// <summary>Resets the Maridia elevatube when Samus leaves by its south door.</summary>
-    DoorASM_ResetElevatubeOnSouthExit = 68,
-
-    /// <summary>Turns room scroll cell 10 red and cell 11 blue.</summary>
-    DoorASM_Scroll_A_Red_B_Blue = 69,
-
-    /// <summary>Turns room scroll cell 0 red and cell 4 blue. A second setup making the same change.</summary>
-    DoorASM_Scroll_0_Red_4_Blue_duplicate = 70,
-
-    /// <summary>Turns room scroll cell 0 red and cell 1 blue.</summary>
-    DoorASM_Scroll_0_Red_1_Blue = 71,
-
-    /// <summary>Turns room scroll cell 9 red and cell 10 blue.</summary>
-    DoorASM_Scroll_9_Red_A_Blue = 72,
-
-    /// <summary>Turns room scroll cells 0 and 2 red and cell 1 blue.</summary>
-    DoorASM_Scroll_0_2_Red_1_Blue = 73,
-
-    /// <summary>Turns room scroll cell 1 blue. A second setup making the same change.</summary>
-    DoorASM_Scroll_1_Blue_duplicate = 74,
-
-    /// <summary>Turns room scroll cell 6 blue.</summary>
-    DoorASM_Scroll_6_Blue = 75,
-
-    /// <summary>Turns room scroll cell 4 red. A second setup making the same change.</summary>
-    DoorASM_Scroll_4_Red_duplicate = 76,
-
-    /// <summary>Turns room scroll cells 4 and 7 red.</summary>
-    DoorASM_Scroll_4_7_Red = 77,
-
-    /// <summary>Turns room scroll cell 1 blue and cell 2 red. A second setup making the same change.</summary>
-    DoorASM_Scroll_1_Blue_2_Red_duplicate = 78,
-
-    /// <summary>Turns room scroll cells 0 and 2 green. A second setup making the same change.</summary>
-    DoorASM_Scroll_0_2_Green_duplicate = 79,
-
-    /// <summary>Turns room scroll cells 0 and 1 green. A second setup making the same change.</summary>
-    DoorASM_Scroll_0_1_Green_duplicate = 80,
+    /// <summary>Entering the Climb room, opens screen (2, 7) with the camera aligned to the screen's top.</summary>
+    ClimbOpensScreen2x7TopAligned = 11,
 
     /// <summary>
-    /// Door callback. Its traditional name says cells 8/9, but the
-    /// door's own operands are cells 24 and 25.
+    /// Entering the GauntletETank room, opens screen (4, 0) with the camera aligned to the screen's top.
     /// </summary>
-    DoorASM_Scroll_18_Blue_19_Red = 81,
+    GauntletETankOpensScreen4x0TopAligned = 12,
 
     /// <summary>
-    /// Entering the Ceres elevator shaft: selects the turning floor and installs
-    /// the shaft's initial rotation and center.
+    /// Entering the Caterpillar room from the RedBinstarElev room, opens screen (0, 2). The door from the Hellway room
+    /// runs another setup with the same writes.
     /// </summary>
-    DoorASM_ToCeresElevatorShaft = 82,
+    CaterpillarFromRedBinstarElevOpensScreen0x2 = 13,
+
+    /// <summary>Entering the GreenPiratesShaft room, opens screen (0, 3).</summary>
+    GreenPiratesShaftOpensScreen0x3 = 14,
+
+    /// <summary>Entering the GreenBrinstarMainShaft room, opens screens (0, 6) and (0, 7).</summary>
+    GreenBrinstarMainShaftOpensScreens0x6And0x7 = 15,
 
     /// <summary>
-    /// The Ceres elevator shaft's exit program; returns the screen from the turning
-    /// floor to the ordinary room display.
+    /// Entering the EtecoonETank room, opens screens (0, 1) and (1, 1) with the camera aligned to the screen's top.
     /// </summary>
-    DoorASM_FromCeresElevatorShaft = 83,
+    EtecoonETankOpensScreens0x1And1x1TopAligned = 16,
+
+    /// <summary>
+    /// Entering the GreenBrinstarMainShaft room, opens screen (1, 7) with the camera aligned to the screen's top.
+    /// </summary>
+    GreenBrinstarMainShaftOpensScreen1x7TopAligned = 17,
+
+    /// <summary>Entering the PinkBrinstarPowerBombs room, opens screens (0, 1) and (1, 1).</summary>
+    PinkBrinstarPowerBombsOpensScreens0x1And1x1 = 18,
+
+    /// <summary>Entering the WarehouseEntrance room, closes screen (0, 0); opens screen (1, 0).</summary>
+    WarehouseEntranceClosesScreen0x0OpensScreen1x0 = 19,
+
+    /// <summary>Entering the Dachora room, opens screen (4, 1).</summary>
+    DachoraOpensScreen4x1 = 20,
+
+    /// <summary>
+    /// Entering the BigPink room, closes screen (3, 5); opens screen (4, 5) with the camera aligned to the screen's
+    /// top.
+    /// </summary>
+    BigPinkClosesScreen3x5OpensScreen4x5TopAligned = 21,
+
+    /// <summary>Entering the Dachora room, closes screen (4, 0).</summary>
+    DachoraClosesScreen4x0 = 22,
+
+    /// <summary>Entering the BigPink room, opens screens (2, 6), (1, 7) and (2, 7).</summary>
+    BigPinkOpensScreens2x6And1x7And2x7 = 23,
+
+    /// <summary>
+    /// Entering the BlueBrinstarETank room, opens screen (2, 0) with the camera aligned to the screen's top.
+    /// </summary>
+    BlueBrinstarETankOpensScreen2x0TopAligned = 24,
+
+    /// <summary>Entering the KraidEyeDoor room, opens screen (0, 0).</summary>
+    KraidEyeDoorOpensScreen0x0 = 25,
+
+    /// <summary>Entering the RedTower room, opens screens (0, 6) and (0, 7).</summary>
+    RedTowerOpensScreens0x6And0x7 = 26,
+
+    /// <summary>
+    /// Entering the RedFish room, closes screen (2, 0); opens screen (1, 0) with the camera aligned to the screen's
+    /// top.
+    /// </summary>
+    RedFishClosesScreen2x0OpensScreen1x0TopAligned = 27,
+
+    /// <summary>
+    /// Entering the SporeSpawnSuper room, closes screen (1, 1); opens screen (1, 0) with the camera aligned to the
+    /// screen's top.
+    /// </summary>
+    SporeSpawnSuperClosesScreen1x1OpensScreen1x0TopAligned = 28,
+
+    /// <summary>
+    /// Entering the EastTunnel room from the WarehouseEntrance room, closes screen (0, 0); opens screen (0, 1) with the
+    /// camera aligned to the screen's top. The door from the GlassTunnel room runs another setup with the same writes.
+    /// </summary>
+    EastTunnelFromWarehouseEntranceClosesScreen0x0OpensScreen0x1TopAligned = 29,
+
+    /// <summary>
+    /// Entering the WarehouseKihunter room, opens screens (2, 0) and (3, 0) with the camera aligned to the screen's
+    /// top.
+    /// </summary>
+    WarehouseKihunterOpensScreens2x0And3x0TopAligned = 30,
+
+    /// <summary>Entering the BelowSpazer room, opens screens (0, 0) and (1, 0).</summary>
+    BelowSpazerOpensScreens0x0And1x0 = 31,
+
+    /// <summary>Entering the BigPink room, opens screen (1, 0).</summary>
+    BigPinkOpensScreen1x0 = 32,
+
+    /// <summary>Entering the Caterpillar room, opens screens (0, 5) and (0, 6).</summary>
+    CaterpillarOpensScreens0x5And0x6 = 33,
+
+    /// <summary>
+    /// Entering the Caterpillar room from the Hellway room, opens screen (0, 2). The door from the RedBinstarElev room
+    /// runs another setup with the same writes.
+    /// </summary>
+    CaterpillarFromHellwayOpensScreen0x2 = 34,
+
+    /// <summary>
+    /// Entering the ConstructionZone room, opens screen (0, 0); opens screen (0, 1) with the camera aligned to the
+    /// screen's top. This opens the room's two-screen vertical camera route after Samus returns from First Missile.
+    /// </summary>
+    ConstructionZoneOpensScreen0x0OpensScreen0x1TopAligned = 35,
+
+    /// <summary>
+    /// Entering the GreenBrinstarElev room, opens screen (0, 2), which lies below the room's own screens.
+    /// </summary>
+    GreenBrinstarElevOpensScreen0x2BelowTheRoom = 36,
+
+    /// <summary>
+    /// Entering the AcidStatue room, closes screens (0, 1) and (1, 1); opens screens (0, 2), (1, 2) and (2, 2) with the
+    /// camera aligned to the screen's top.
+    /// </summary>
+    AcidStatueClosesScreens0x1And1x1OpensScreens0x2And1x2And2x2TopAligned = 37,
+
+    /// <summary>
+    /// Entering the LNSpringBallMaze room, closes screen (1, 1); opens screen (4, 0); opens screens (1, 0), (2, 0) and
+    /// (3, 0) with the camera aligned to the screen's top.
+    /// </summary>
+    LNSpringBallMazeClosesScreen1x1OpensScreen4x0OpensScreens1x0And2x0And3x0TopAligned = 38,
+
+    /// <summary>
+    /// Entering the Crocomire room, opens screens (0, 0) and (1, 0) with the camera aligned to the screen's top.
+    /// </summary>
+    CrocomireOpensScreens0x0And1x0TopAligned = 39,
+
+    /// <summary>
+    /// Entering the BatCave room, closes screen (0, 1); opens screen (0, 0) with the camera aligned to the screen's
+    /// top.
+    /// </summary>
+    BatCaveClosesScreen0x1OpensScreen0x0TopAligned = 40,
+
+    /// <summary>Entering the IceBeamGate room, opens screen (3, 1).</summary>
+    IceBeamGateOpensScreen3x1 = 41,
+
+    /// <summary>Entering the HiJumpETank room, opens screens (0, 0) and (0, 1).</summary>
+    HiJumpETankOpensScreens0x0And0x1 = 42,
+
+    /// <summary>
+    /// Entering the Volcano room, closes screen (2, 2); opens screens (0, 2) and (1, 2) with the camera aligned to the
+    /// screen's top.
+    /// </summary>
+    VolcanoClosesScreen2x2OpensScreens0x2And1x2TopAligned = 43,
+
+    /// <summary>
+    /// Entering the IceBeamSnake room, closes screen (0, 1); opens screen (1, 1) with the camera aligned to the
+    /// screen's top.
+    /// </summary>
+    IceBeamSnakeClosesScreen0x1OpensScreen1x1TopAligned = 44,
+
+    /// <summary>Entering the Wasteland room, opens screen (1, 1).</summary>
+    WastelandOpensScreen1x1 = 45,
+
+    /// <summary>
+    /// Entering the FastPillarsSetup room, closes screen (0, 1); opens screen (0, 2) with the camera aligned to the
+    /// screen's top.
+    /// </summary>
+    FastPillarsSetupClosesScreen0x1OpensScreen0x2TopAligned = 46,
+
+    /// <summary>
+    /// Entering the RedKihunterShaft room from the Amphitheatre room, closes screen (0, 1); opens screen (0, 0) with
+    /// the camera aligned to the screen's top. The door from the LNFireflea room runs another setup with the same
+    /// writes.
+    /// </summary>
+    RedKihunterShaftFromAmphitheatreClosesScreen0x1OpensScreen0x0TopAligned = 47,
+
+    /// <summary>
+    /// Entering the LNFireflea room, closes screen (1, 1); opens screen (1, 0) with the camera aligned to the screen's
+    /// top.
+    /// </summary>
+    LNFirefleaClosesScreen1x1OpensScreen1x0TopAligned = 48,
+
+    /// <summary>
+    /// Entering the GoldenTorizo room, closes screens (1, 0), (0, 1) and (1, 1); opens screen (0, 0) with the camera
+    /// aligned to the screen's top.
+    /// </summary>
+    GoldenTorizoClosesScreens1x0And0x1And1x1OpensScreen0x0TopAligned = 49,
+
+    /// <summary>Entering the WorstRoomInTheGame room, opens screen (0, 0).</summary>
+    WorstRoomInTheGameOpensScreen0x0 = 50,
+
+    /// <summary>
+    /// Entering the LNFireflea room, closes screen (1, 1); opens screens (0, 0) and (1, 0) with the camera aligned to
+    /// the screen's top.
+    /// </summary>
+    LNFirefleaClosesScreen1x1OpensScreens0x0And1x0TopAligned = 51,
+
+    /// <summary>
+    /// Entering the RedKihunterShaft room from the LNFireflea room, closes screen (0, 1); opens screen (0, 0) with the
+    /// camera aligned to the screen's top. The door from the Amphitheatre room runs another setup with the same writes.
+    /// </summary>
+    RedKihunterShaftFromLNFirefleaClosesScreen0x1OpensScreen0x0TopAligned = 52,
+
+    /// <summary>
+    /// Entering the GreenBubblesMissiles room, opens screen (0, 0) with the camera aligned to the screen's top.
+    /// </summary>
+    GreenBubblesMissilesOpensScreen0x0TopAligned = 53,
+
+    /// <summary>
+    /// Entering the PurpleShaft room, closes screen (0, 1); opens screen (0, 0) with the camera aligned to the screen's
+    /// top.
+    /// </summary>
+    PurpleShaftClosesScreen0x1OpensScreen0x0TopAligned = 54,
+
+    /// <summary>
+    /// Entering the IceBeamGate room, opens screen (3, 3) with the camera aligned to the screen's top.
+    /// </summary>
+    IceBeamGateOpensScreen3x3TopAligned = 55,
+
+    /// <summary>
+    /// Entering the KronicBoost room, closes screen (1, 1); opens screen (0, 1) with the camera aligned to the screen's
+    /// top.
+    /// </summary>
+    KronicBoostClosesScreen1x1OpensScreen0x1TopAligned = 56,
+
+    /// <summary>Entering the MickeyMouse room, closes screen (2, 3).</summary>
+    MickeyMouseClosesScreen2x3 = 57,
+
+    /// <summary>
+    /// Entering the WreckedShipEntrance room from the east, starts its treadmill moving leftwards and spawns the
+    /// treadmill object of its east entrance.
+    /// </summary>
+    WreckedShipEntranceStartsTreadmillLeftwards = 58,
+
+    /// <summary>
+    /// Entering the SpongeBath room, opens screen (1, 0) with the camera aligned to the screen's top.
+    /// </summary>
+    SpongeBathOpensScreen1x0TopAligned = 59,
+
+    /// <summary>Entering the ElectricDeath room, opens screen (0, 0).</summary>
+    ElectricDeathOpensScreen0x0 = 60,
+
+    /// <summary>
+    /// Entering the Basement room, closes screen (3, 0); opens screen (4, 0) with the camera aligned to the screen's
+    /// top.
+    /// </summary>
+    BasementClosesScreen3x0OpensScreen4x0TopAligned = 61,
+
+    /// <summary>
+    /// Entering the WreckedShipMainShaft room, opens screen (5, 6) with the camera aligned to the screen's top.
+    /// </summary>
+    WreckedShipMainShaftOpensScreen5x6TopAligned = 62,
+
+    /// <summary>Entering the WreckedShipMainShaft room, opens screens (4, 6) and (4, 7).</summary>
+    WreckedShipMainShaftOpensScreens4x6And4x7 = 63,
+
+    /// <summary>
+    /// Entering the BowlingAlley room, closes screens (0, 1), (1, 1), (2, 1), (3, 1), (4, 1) and (5, 1).
+    /// </summary>
+    BowlingAlleyClosesScreens0x1And1x1And2x1And3x1And4x1And5x1 = 64,
+
+    /// <summary>
+    /// Entering the Toilet room from the south, starts the elevatube ride: holds Samus still and sets the tube's
+    /// starting height, speed and acceleration for a ride from the bottom.
+    /// </summary>
+    ToiletStartsElevatubeRideFromSouth = 65,
+
+    /// <summary>
+    /// Entering the Toilet room from the north, starts the elevatube ride: holds Samus still and sets the tube's
+    /// starting height, speed and acceleration for a ride from the top.
+    /// </summary>
+    ToiletStartsElevatubeRideFromNorth = 66,
+
+    /// <summary>
+    /// Entering the PlasmaSpark room from the elevatube, ends the ride: releases Samus and stops the tube.
+    /// </summary>
+    PlasmaSparkEndsElevatubeRide = 67,
+
+    /// <summary>
+    /// Entering the Oasis room from the elevatube, ends the ride: releases Samus and stops the tube; opens screens
+    /// (0, 0) and (0, 1).
+    /// </summary>
+    OasisEndsElevatubeRideOpensScreens0x0And0x1 = 68,
+
+    /// <summary>
+    /// Entering the HalfieClimb room, closes screen (0, 2); opens screen (1, 2) with the camera aligned to the screen's
+    /// top.
+    /// </summary>
+    HalfieClimbClosesScreen0x2OpensScreen1x2TopAligned = 69,
+
+    /// <summary>
+    /// Entering the EastTunnel room from the GlassTunnel room, closes screen (0, 0); opens screen (0, 1) with the
+    /// camera aligned to the screen's top. The door from the WarehouseEntrance room runs another setup with the same
+    /// writes.
+    /// </summary>
+    EastTunnelFromGlassTunnelClosesScreen0x0OpensScreen0x1TopAligned = 70,
+
+    /// <summary>
+    /// Entering the CrabHole room, closes screen (0, 0); opens screen (0, 1) with the camera aligned to the screen's
+    /// top.
+    /// </summary>
+    CrabHoleClosesScreen0x0OpensScreen0x1TopAligned = 71,
+
+    /// <summary>
+    /// Entering the Caterpillar room, closes screen (0, 3); opens screen (1, 3) with the camera aligned to the screen's
+    /// top.
+    /// </summary>
+    CaterpillarClosesScreen0x3OpensScreen1x3TopAligned = 72,
+
+    /// <summary>
+    /// Entering the GlassTunnel room, closes screens (0, 0) and (0, 2); opens screen (0, 1) with the camera aligned to
+    /// the screen's top.
+    /// </summary>
+    GlassTunnelClosesScreens0x0And0x2OpensScreen0x1TopAligned = 73,
+
+    /// <summary>Entering the Botwoon room, opens screen (1, 0) with the camera aligned to the screen's top.</summary>
+    BotwoonOpensScreen1x0TopAligned = 74,
+
+    /// <summary>Entering the CrabShaft room, opens screen (0, 3) with the camera aligned to the screen's top.</summary>
+    CrabShaftOpensScreen0x3TopAligned = 75,
+
+    /// <summary>Entering the Pants room, closes screen (0, 2).</summary>
+    PantsClosesScreen0x2 = 76,
+
+    /// <summary>Entering the Pants room, closes screens (0, 2) and (1, 3).</summary>
+    PantsClosesScreens0x2And1x3 = 77,
+
+    /// <summary>
+    /// Entering the EastPants room, closes screen (0, 2); opens screen (0, 1) with the camera aligned to the screen's
+    /// top.
+    /// </summary>
+    EastPantsClosesScreen0x2OpensScreen0x1TopAligned = 78,
+
+    /// <summary>Entering the ThePrecious room, opens screens (0, 0) and (0, 1).</summary>
+    ThePreciousOpensScreens0x0And0x1 = 79,
+
+    /// <summary>Entering the Statues room, opens screens (0, 0) and (0, 1).</summary>
+    StatuesOpensScreens0x0And0x1 = 80,
+
+    /// <summary>
+    /// Entering the Climb room, closes screen (1, 8); opens screen (0, 8) with the camera aligned to the screen's top.
+    /// </summary>
+    ClimbClosesScreen1x8OpensScreen0x8TopAligned = 81,
+
+    /// <summary>
+    /// Entering the CeresElev room, shows the room as a turning floor, unrotated, about room point (128, 1008).
+    /// </summary>
+    CeresElevShowsTurningFloor = 82,
+
+    /// <summary>
+    /// Entering the FallingTile room from the Ceres elevator shaft, returns the screen from the turning floor to the
+    /// ordinary room display.
+    /// </summary>
+    FallingTileEndsTurningFloor = 83,
 }

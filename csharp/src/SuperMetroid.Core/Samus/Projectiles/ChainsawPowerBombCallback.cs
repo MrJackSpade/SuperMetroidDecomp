@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// The Chainsaw callback, reached by uncharged beam combination thirteen: it runs the Power Bomb frame behaviour over the
-/// shot. Its misaligned store into the cached window edges is a presentation quirk the port drops (#1407).
+/// shot. Its misaligned store into the cached window edges is a presentation quirk the model drops (#1407).
 /// </summary>
 internal sealed class ChainsawPowerBombCallback
 {
@@ -33,11 +33,11 @@ internal sealed class ChainsawPowerBombCallback
         PowerBombFuseStep fuse = SamusPowerBombFuse.Step(slot.ChainsawPowerBombFuse, sharedProjectiles.PowerBombExplosion.IsArmed);
         slot.ChainsawPowerBombFuse = fuse.Timer;
         // On a beam the fuse's switch to the fast animation moves the beam's own animation as far as a bomb's fast
-        // animation lies from its slow one, which lands wherever the original game laid an animation out there.
+        // animation lies from its slow one, which lands wherever the game's animations lie there.
         if (fuse.FastAnimation && slot.Playback is { } live)
             slot.Playback = SamusProjectilePrograms.PlaybackAt(_fuseShift.Shift(SamusProjectilePrograms.BeatOf(live)));
 
-        // The borrowed fuse starts the explosion through the same routine as a Power Bomb's, its sound included.
+        // The borrowed fuse starts the explosion as a Power Bomb's does, its sound included.
         if (fuse.SpawnExplosion)
             sharedProjectiles.SpawnPowerBombExplosion(slot.Position.Whole);
         if (fuse.DeleteProjectile)

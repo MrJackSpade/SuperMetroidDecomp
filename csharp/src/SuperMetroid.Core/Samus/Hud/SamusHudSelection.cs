@@ -63,7 +63,7 @@ internal sealed class SamusHudSelection
         }
         else
         {
-            // The game saturates this word at two; it is a short stabilization counter,
+            // The game saturates this count at two; it is a short stabilization counter,
             // never a general elapsed-time counter.
             HudItemChangedThisFrame = Math.Min(HudItemChangedThisFrame + 1, 2);
         }

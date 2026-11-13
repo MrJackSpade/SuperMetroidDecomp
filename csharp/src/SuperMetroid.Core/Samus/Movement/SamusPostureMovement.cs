@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Movement for ordinary/aimed crouching and the crouch/stand animation poses.
 /// </summary>
 /// <remarks>
-/// These routines look stationary but are not host no-ops: the game still publishes
+/// These movements look stationary but are not host no-ops: the game still publishes
 /// total X speed, runs horizontal block/slope collision, and performs its downward grounding
 /// probe every frame. Keeping those calls makes ledges, slopes, and future conveyors meet
 /// the same seam as standing movement.
@@ -42,8 +42,8 @@ public static class SamusPostureMovement
 
         // Performs this cleanup after both collision passes. It is not
         // inferred from being stationary; these are literal observable writes.
-        // Unlike collision teardown, this does not call the boost cancellation
-        // routine. The later input fallback decides whether the retained stage ends.
+        // Unlike collision teardown, this does not cancel the boost.
+        // The later input fallback decides whether the retained stage ends.
         samus.HorizontalSpeed.ClearHorizontalVelocity();
         return result;
     }

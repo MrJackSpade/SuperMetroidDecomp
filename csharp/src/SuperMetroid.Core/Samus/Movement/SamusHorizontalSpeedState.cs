@@ -16,16 +16,16 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </remarks>
 public sealed class SamusHorizontalSpeedState
 {
-    /// <summary>Samus's base horizontal speed, <c>samus_x_base_speed</c>/<c>subspeed</c>.</summary>
+    /// <summary>Samus's base horizontal speed, whole and fraction.</summary>
     public UnsignedSixteenSixteen BaseSpeed { get; set; }
 
     /// <summary>The run-button/speed-booster addition to horizontal speed.</summary>
     public UnsignedSixteenSixteen ExtraRunSpeed { get; set; }
 
     /// <summary>
-    /// <c>samus_has_momentum_flag</c>. Once dash begins, releasing Dash or leaving
+    /// Whether Samus has running momentum. Once dash begins, releasing Dash or leaving
     /// movement type one retains the accumulated extra component until a specific cancel
-    /// routine (standing, turning, collision, etc.) clears it.
+    /// (standing, turning, collision, etc.) clears it.
     /// </summary>
     public bool HasRunningMomentum { get; set; }
 
@@ -75,7 +75,7 @@ public sealed class SamusHorizontalSpeedState
     /// Host-side publication of the immediate suit-palette copy performed by
     /// cancelling a speed boost. Movement owns the cancellation,
     /// while the runtime owns the colours, so this flag preserves the same-frame handoff
-    /// without passing a renderer through every collision and pose routine.
+    /// without passing a renderer through every collision and pose step.
     /// </summary>
     public bool NormalSuitPaletteRestoreRequested { get; private set; }
 
@@ -173,7 +173,7 @@ public sealed class SamusHorizontalSpeedState
         const ControllerButton dashButton = ControllerButton.B;
         // Diverts a non-Gravity submerged body to the same no-acceleration
         // branch as releasing Dash. Existing momentum retains its numeric extra component;
-        // without momentum, both words are cleared. This is not a multiplier or hard reset.
+        // without momentum, both values are cleared. This is not a multiplier or hard reset.
         bool activelyDashing = !liquidImpeded &&
             movementType == SamusMovementType.Running &&
             controllerInput.HasAny(dashButton);
@@ -249,7 +249,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which a full sound queue selects.</param>
     /// <param name="movementType">Current movement category; only running can consume this animation command.</param>
-    /// <param name="controllerInput">Current held button word; the dash button must be held.</param>
+    /// <param name="controllerInput">Current held buttons; the dash button must be held.</param>
     /// <param name="animationFrameBuffer">Frame-delay adjustment added to the selected stage's first animation delay.</param>
     /// <param name="animationFrame">Current animation frame, reset to zero only when this call consumes the command.</param>
     /// <param name="animationFrameTimer">Zero when the command is not consumed; otherwise the new first-frame delay plus the buffer, wrapped to sixteen bits.</param>
@@ -342,7 +342,7 @@ public sealed class SamusHorizontalSpeedState
         // gate and continues into the ordinary Screw Attack / Speed Booster logic even
         // though the raw room-FX comparison still says the body is underwater. The caller
         // supplies the raw boundary result so this state owner does not invent a second,
-        // subtly different interpretation of the room's FX words.
+        // subtly different reading of the room's FX values.
         bool gravitySuitEquipped = frame.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit);
         if (!gravitySuitEquipped && frame.BottomBoundarySubmerged)
             return paletteCopied;
@@ -486,10 +486,10 @@ public sealed class SamusHorizontalSpeedState
         SecondSpeedEchoPosition = null;
     }
 
-    /// <summary>Adds the 16.16 extra-run increment while retaining separate whole and fractional words.</summary>
+    /// <summary>Adds the 16.16 extra-run increment while retaining separate whole and fractional parts.</summary>
     private void AddExtraRunAcceleration() => ExtraRunSpeed += SamusMovementDefinitions.HorizontalMotion.ExtraRunAcceleration;
 
-    /// <summary>Enables Speed Booster contact damage only at the fully charged counter's high-byte state.</summary>
+    /// <summary>Enables Speed Booster contact damage only at the counter's fully charged stage.</summary>
     private void PublishBoostContactDamage()
     {
         if (IsActivelySpeedBoosting)
@@ -568,7 +568,7 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Clears the five horizontal velocity/acceleration words without canceling
+    /// Clears the five horizontal velocity/acceleration values without canceling
     /// boost bookkeeping. Crouching's cleanup performs only these stores;
     /// its angle-held input route can therefore preserve a temporary Blue Suit.
     /// </summary>
@@ -579,7 +579,7 @@ public sealed class SamusHorizontalSpeedState
         AccelerationMode = SamusAccelerationMode.Accelerating;
     }
 
-    /// <summary>Runs input fallback command two: stop acceleration and cancel boost, without clearing velocity words.</summary>
+    /// <summary>Runs input fallback command two: stop acceleration and cancel boost, without clearing velocity.</summary>
     public void ApplyStoppedInputFallback(SamusFacingDirection facingDirection)
     {
         AccelerationMode = SamusAccelerationMode.Accelerating;
@@ -705,7 +705,7 @@ public sealed class SamusHorizontalSpeedState
     public UnsignedSixteenSixteen CalculateBaseSpeed(SamusStandaloneSpeedRecord record) =>
         CalculateBaseSpeed(SamusHorizontalMotion.Standalone(record));
 
-    /// <summary>Applies the table's acceleration or deceleration using split-word arithmetic and updates base speed.</summary>
+    /// <summary>Applies the table's acceleration or deceleration to the whole and fraction separately and updates base speed.</summary>
     internal UnsignedSixteenSixteen CalculateBaseSpeed(SpeedTableEntry entry)
     {
 
@@ -793,7 +793,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Calculates the non-collision portion of a rightward displacement,
-    /// including the ±15-pixel whole-word clamp.
+    /// including the ±15-pixel whole-pixel clamp.
     /// </summary>
     public SignedSixteenSixteen CalculateRightDisplacement(UnsignedSixteenSixteen baseSpeed, SignedSixteenSixteen extraDisplacement = default) =>
         ClampDisplacement(CalculateTotalSpeed(baseSpeed).AsDisplacement() + extraDisplacement);

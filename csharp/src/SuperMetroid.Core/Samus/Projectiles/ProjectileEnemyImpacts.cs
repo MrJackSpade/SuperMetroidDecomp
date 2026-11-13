@@ -53,7 +53,7 @@ internal sealed class ProjectileEnemyImpacts
 
     /// <summary>
     /// Compatibility name retained for callers whose geometry is specifically an extended
-    /// spritemap. The behavior is the same projectile prelude, not a separate fix.
+    /// frame hitbox. The behavior is the same projectile prelude, not a separate fix.
     /// </summary>
     public void ApplyFrameHitboxCollisionPrelude(SamusProjectile projectile, bool markCollisionState) =>
         ApplyEnemyCollisionPrelude(projectile, markCollisionState);

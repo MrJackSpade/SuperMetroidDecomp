@@ -8,7 +8,7 @@ using SuperMetroid.Core.Rooms.Xray;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>Ports uncollected-item and room-special reveal writes after the terrain pass.</summary>
+/// <summary>Runs uncollected-item and room-special reveal writes after the terrain pass.</summary>
 public static class XrayRevealOverlays
 {
     /// <summary>

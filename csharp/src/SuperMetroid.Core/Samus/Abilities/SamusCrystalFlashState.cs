@@ -161,7 +161,7 @@ public sealed class SamusCrystalFlashState
         // installing its movement handler. Rejected activation must not shift it.
         samus.CommitPoseHistory();
 
-        // The routine reuses shinespark state but installs a distinct movement handler. The
+        // Crystal Flash reuses shinespark state but installs a distinct movement handler. The
         // states stay separate so Crystal Flash is never mistaken for a spark.
         samus.Shinespark.RelinquishToCrystalFlash();
         // Reserve Mode leaves X-Ray's cone effect alive but Crystal Flash still takes over
@@ -219,7 +219,7 @@ public sealed class SamusCrystalFlashState
 
             case CrystalFlashPhase.DrainingAmmo:
                 StepAmmoDrain(samus, frameCounter);
-                // The wrapper clears both words after calling the ammo handler,
+                // The wrapper clears both values after calling the ammo handler,
                 // including its seven no-drain frames and the final phase-changing call.
                 samus.InvincibilityTimer = WrappingCountdown.Start(0);
                 samus.KnockbackTimer = 0;
@@ -242,7 +242,7 @@ public sealed class SamusCrystalFlashState
     /// <summary>Raises Samus two whole pixels for ten calls, then starts the drain phase and requests the bubble effect.</summary>
     private void StepRaising(SamusState samus)
     {
-        // The raise changes only the whole-pixel word. The subposition survives.
+        // The raise changes only the whole pixels. The subposition survives.
         samus.Position -= new Offset16<RoomPixels>(0, 2);
 
         // The game initializes nine, then decrements and tests the sign. Values 8..0 return; the tenth call runs
@@ -306,7 +306,7 @@ public sealed class SamusCrystalFlashState
         }
 
         // The ammo handler switches to finish art directly; it does not wait for the main
-        // four-frame animation loop to reach a command byte.
+        // four-frame animation loop to reach a command.
         Phase = CrystalFlashPhase.Finishing;
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 12, timer: 3);
     }
@@ -316,7 +316,7 @@ public sealed class SamusCrystalFlashState
     {
         // Retail usually enters with equality because RaisedPosition was captured at the
         // end of the rise. Preserve the real defensive branch: an external producer that
-        // displaced Samus upward/downward makes the whole Y word walk downward one per call.
+        // displaced Samus upward/downward makes the whole Y walk downward one per call.
         if ((samus.Position.Whole - RaisedPosition).Y != 0)
             samus.Position += new Offset16<RoomPixels>(0, 1);
 

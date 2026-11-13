@@ -7,14 +7,14 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Palettes;
 
 /// <summary>
-/// Literal translation of the ordinary hurt-counter branch of
+/// The ordinary hurt-counter branch of
 /// Samus's miscellaneous colours.
 /// </summary>
 /// <remarks>
 /// The caller must first dispatch any nonzero super-special palette flag, just as the
 /// game's suit colouring does. Runtime satisfies that contract by allowing the drained/rainbow
-/// handler to return before this routine. All remaining special palettes run earlier and
-/// this routine therefore has final priority over charge, Speed Booster, shinespark,
+/// handler to return before this step. All remaining special palettes run earlier and
+/// this step therefore has final priority over charge, Speed Booster, shinespark,
 /// Crystal Flash, and X-ray colors during its first six calls.
 /// </remarks>
 public static class SamusHurtFlashPalette
@@ -47,7 +47,7 @@ public static class SamusHurtFlashPalette
 
         // The hurt flash plays the impact sound exactly on call two. Cinematics and the
         // Mother-Brain drained knockback handler are the two exceptions; the latter is
-        // identified by the same explicit phase/pose pair that replaces its handler word.
+        // identified by the same explicit phase/pose pair that replaces its handler.
         if (counterBefore == 2 &&
             !samus.LiquidPhysics.CinematicFunctionActive &&
             !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked &&
@@ -92,8 +92,8 @@ public static class SamusHurtFlashPalette
 
     /// <summary>
     /// Consumes the charging-audio latch in the same post-draw position as
-    /// the game's post-draw check. The only translated producer writes positive one, but the
-    /// property retains the word so later power-bomb and door handlers can share it.
+    /// the game's post-draw check. The only producer writes positive one, but the
+    /// property retains the whole value so later power-bomb and door handlers can share it.
     /// </summary>
     /// <param name="samus">Owner of the resume-charging flag, which is cleared whenever nonzero regardless of the held buttons.</param>
     /// <param name="controllerInput">Current held buttons; X must still be held to queue the resume-charging sound.</param>

@@ -60,9 +60,9 @@ public sealed class SamusKinematicsState
     }
 
     /// <summary>
-    /// Current pose byte sampled by collision. Door collision is mostly geometric,
+    /// Current pose sampled by collision. Door collision is mostly geometric,
     /// but the elevator pseudo-door handlers admit only the forward-facing and standing poses
-    /// before publishing the elevator flags. Keeping that byte beside the geometry lets every shared block
+    /// before publishing the elevator flags. Keeping that pose beside the geometry lets every shared block
     /// mover preserve the test without guessing which higher-level movement caller
     /// happened to reach it.
     /// </summary>
@@ -76,7 +76,7 @@ public sealed class SamusKinematicsState
     /// <remarks>
     /// Movement owns this snapshot because every ordinary movement wrapper probes
     /// solid/frozen enemies before dispatching to room blocks. Empty remains the
-    /// correct default for translated rooms whose enemy actor loader has not run. Keeping the
+    /// correct default for rooms whose enemy actor loader has not run. Keeping the
     /// list explicit prevents decorative render sprites from accidentally becoming physics.
     /// </remarks>
     public IReadOnlyList<SolidEnemyCollisionBody> InteractiveEnemies { get; set; } =
@@ -91,7 +91,7 @@ public sealed class SamusKinematicsState
     /// <summary>
     /// Room-pixel 16.16 position.
     /// Collision deliberately overwrites individual halves (a right wall sets the X
-    /// subposition to 65535), which the half-word operations preserve.
+    /// subposition to 65535), which the per-half operations preserve.
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; set; }
 
@@ -113,7 +113,7 @@ public sealed class SamusKinematicsState
 
     /// <summary>
     /// Vertical direction: zero is none, one is upward, and two is
-    /// downward. The game stores speed as a magnitude and uses this separate word;
+    /// downward. The game stores speed as a magnitude and uses this separate direction;
     /// treating upward velocity as a negative host number would lose the underflow quirks
     /// in the vertical move and the jump-release test.
     /// </summary>
@@ -125,7 +125,7 @@ public sealed class SamusKinematicsState
     /// <summary>The gravity applied to vertical speed.</summary>
     public UnsignedSixteenSixteen YAcceleration { get; set; }
 
-    /// <summary><c>enable_horiz_slope_coll</c>; bit 1 enables post-X Y alignment.</summary>
+    /// <summary>Horizontal slope collision settings; one of them enables post-X Y alignment.</summary>
     public int HorizontalSlopeCollisionEnable
     {
         get;

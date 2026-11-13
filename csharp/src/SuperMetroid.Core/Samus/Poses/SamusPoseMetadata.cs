@@ -189,11 +189,11 @@ internal static class SamusPoseMetadata
     /// Applies the movement/animation subset of facing Samus forward.
     /// </summary>
     /// <remarks>
-    /// The routine also locks the global current/new-state handlers, kills grapple,
+    /// The behaviour also locks the global current/new-state handlers, kills grapple,
     /// clears beam-flare presentation state, and reloads the suit palette. Those owners do
     /// not live in this state object. This method deliberately covers only the state it can
     /// own exactly: equipment-selected pose, its delay list, the radius-dependent lift and
-    /// all motion values cleared by the routine. It does not write the collision radius;
+    /// all motion values cleared by the setup. It does not write the collision radius;
     /// the next alpha's radius update does. Runtime/debug callers remain responsible for
     /// input lock, palette and grapple before their first displayed frame.
     /// </remarks>
@@ -207,7 +207,7 @@ internal static class SamusPoseMetadata
         samus.CommitPoseHistory();
 
         // Compares the live radius, still the previous pose's, and
-        // lifts both Y words by three unless it is already the front view's 24.
+        // lifts both current and previous Y by three unless it is already the front view's 24.
         if (samus.Kinematics.Radius.Y != 24)
         {
             samus.Kinematics.Position -= new Offset16<RoomPixels>(0, 3);
@@ -257,7 +257,7 @@ internal static class SamusPoseMetadata
         SamusPoseId.MoonwalkFacingRightPose or SamusPoseId.MoonwalkAimUpRightPose or SamusPoseId.MoonwalkAimDownRightPose;
 
     /// <summary>True for the six neutral or aimed moonwalk records of the moonwalking movement type, whose artwork faces opposite their travel direction.</summary>
-    /// <param name="pose">Current or prospective pose byte; no pose metadata or live state is changed.</param>
+    /// <param name="pose">Current or prospective pose; no pose metadata or live state is changed.</param>
     /// <returns>Whether the pose belongs to either visual-facing moonwalk family.</returns>
     public static bool IsMoonwalkingPose(SamusPoseId pose) =>
         IsMoonwalkingFacingLeftPose(pose) || IsMoonwalkingFacingRightPose(pose);
@@ -278,7 +278,7 @@ internal static class SamusPoseMetadata
     /// <summary>
     /// Applies one ordinary Draygon-held transition without inventing pose physics.
     /// Every admitted record stays within one facing, retains radius 21, and restarts the
-    /// target's delay list at byte zero through the normal pose initializer.
+    /// target's delay list at its start through the normal pose initializer.
     /// </summary>
     public static void ApplyDraygonGrabbedPoseChange(SamusState samus, SamusPoseId targetPose)
     {
@@ -336,13 +336,13 @@ internal static class SamusPoseMetadata
     public static bool IsLeftFacingRanIntoWallPose(SamusPoseId pose) => IsRightFacingRanIntoWallPose(SamusPoseMirror.Of(pose));
 
     /// <summary>True for the six ran-into-wall records: neutral and the two aimed variants for each facing.</summary>
-    /// <param name="pose">Current or prospective pose byte.</param>
+    /// <param name="pose">Current or prospective pose.</param>
     /// <returns>Whether the pose is a supported standing body pressed against a wall, rather than a wall-jump body.</returns>
     public static bool IsRanIntoWallPose(SamusPoseId pose) =>
         IsRightFacingRanIntoWallPose(pose) || IsLeftFacingRanIntoWallPose(pose);
 
     /// <summary>True for the four aimed wall-contact records; neutral wall-contact <see cref="SamusPoseId.RanIntoWallRightPose"/> and <see cref="SamusPoseId.RanIntoWallLeftPose"/> are excluded.</summary>
-    /// <param name="pose">Current or prospective pose byte.</param>
+    /// <param name="pose">Current or prospective pose.</param>
     /// <returns>Whether the ran-into-wall body uses an aimed wall-contact variant.</returns>
     public static bool IsAimedRanIntoWallPose(SamusPoseId pose) => pose is
         SamusPoseId.RanIntoWallAimUpRightPose or SamusPoseId.RanIntoWallAimUpLeftPose or
@@ -373,7 +373,7 @@ internal static class SamusPoseMetadata
     /// <summary>
     /// True for the complete right-facing landing set that shares the ordinary standing
     /// transition table: normal, spin, aimed up, diagonally up and diagonally down, and firing.
-    /// Centralizing this prevents a newly translated landing from silently losing crouch,
+    /// Centralizing this prevents a newly modelled landing from silently losing crouch,
     /// turn, run, or wall-probe exits in one of the several pose-change seams.
     /// </summary>
     public static bool IsRightFacingLandingPose(SamusPoseId pose) => pose is
@@ -494,7 +494,7 @@ internal static class SamusPoseMetadata
         SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose or SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose;
 
     /// <summary>True for the sixteen normal-jump or falling turn records of the two airborne turning movement types, excluding grounded and aimed crouching turns.</summary>
-    /// <param name="pose">Current or prospective pose byte.</param>
+    /// <param name="pose">Current or prospective pose.</param>
     /// <returns>Whether either jumping-turn or falling-turn family contains the pose.</returns>
     public static bool IsAerialTurnPose(SamusPoseId pose) =>
         IsJumpingTurnPose(pose) || IsFallingTurnPose(pose);
@@ -618,7 +618,7 @@ internal static class SamusPoseMetadata
     /// falling, moonwalking, wall-jump, wall-stop, and grapple families first select the
     /// ordinary forward-jump body. Ball, unused glitch-ball, and knockback-family
     /// entries retain their current pose. Jump/turn/transition/damage-boost and actor-owned
-    /// families clear the published direction exactly like the table's rejecting routines.
+    /// families clear the published direction exactly like the table's rejecting entries.
     /// </remarks>
     /// <returns>True when the pending request was rejected and dropped.</returns>
     public static bool RejectUnsupportedPublishedBombJump(SamusState samus, bool timeIsFrozen)
@@ -742,7 +742,7 @@ internal static class SamusPoseMetadata
 
             default:
                 // The retail pose table never exceeds the special movement type; this is corrupt metadata,
-                // analogous to indexing beyond the end of a movement-type table into unrelated words.
+                // analogous to indexing beyond the end of a movement-type table into unrelated data.
                 throw new InvalidDataException(
                     $"Bomb-jump setup cannot dispatch invalid movement type {movementType} for pose {samus.Pose}.");
         }

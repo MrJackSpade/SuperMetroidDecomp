@@ -64,7 +64,7 @@ internal sealed class SamusPresentation
     /// differs from PreviousPose, and otherwise keeps its frame and timer running.
     /// </summary>
     /// <remarks>
-    /// The routine also returns early while the animation-frame buffer is negative. This port owns it as
+    /// The behaviour also returns early while the animation-frame delay adjustment is negative. This model owns it as
     /// <see cref="SamusState.AnimationFrameBuffer"/>, so callers must be paths where it is
     /// nonnegative, as it is at the intro's discovery setup and its demo's end.
     /// </remarks>
@@ -82,7 +82,7 @@ internal sealed class SamusPresentation
     /// <remarks>
     /// Drained-controller functions one and four do exactly that.
     /// The game's animation pass resolves the animation from Pose every call, whereas
-    /// this C# port caches it as a consistency check. This narrow method updates only that
+    /// this model caches it as a consistency check. This narrow method updates only that
     /// cache plus the controller's explicit writes; it intentionally does not recompute the
     /// liquid animation buffer or silently refresh collision radius.
     /// </remarks>
@@ -172,7 +172,7 @@ internal sealed class SamusPresentation
 
     /// <summary>
     /// Publishes an animation frame/timer pair written directly by an installed special
-    /// movement handler instead of by the generic delay-program interpreter.
+    /// movement handler instead of by the generic delay program.
     /// </summary>
     /// <remarks>
     /// Crystal Flash writes the frame and timer directly. This narrow internal
@@ -185,7 +185,7 @@ internal sealed class SamusPresentation
         samus.AnimationFrameTimer = WrappingCountdown.FromRaw(timer);
     }
 
-    /// <summary>Runs the step the animation reaches when its frame timer expires: a frame's delay, or an instruction.</summary>
+    /// <summary>Runs the step the animation reaches when its frame timer expires: a frame's delay, or a cue.</summary>
     private static void HandleAnimationDelay(SamusState samus, ControllerButton controllerInput,
         SamusPoseId? prospectiveInputPose = null, bool demoPoseInput = false,
         Func<SoundQueueAdmission>? queueEchoSound = null)
@@ -210,7 +210,7 @@ internal sealed class SamusPresentation
             (controllerInput & ControllerButton.B) != ControllerButton.None;
         if (activeDashAnimation)
         {
-            // An active Dash takes the instruction that closes the run before the pose's program does. Without the
+            // An active Dash takes the cue that closes the run before the pose's program does. Without the
             // Speed Booster the run restarts at frame zero on the ordinary cadence, and nothing else runs.
             if (samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
             {
@@ -232,7 +232,7 @@ internal sealed class SamusPresentation
                     return;
                 }
 
-                // A boost cadence countdown still running leaves the instruction to the pose's program below.
+                // A boost cadence countdown still running leaves the cue to the pose's program below.
             }
             else
             {
@@ -358,7 +358,7 @@ internal sealed class SamusPresentation
         // The body sheet holds pictures for exactly the bodies a path of the game shows (#1513).
         int pictureFrame = SamusShownFrames.Of(samus.AnimationContinuation).PictureFrame(samus.Pose, samus.AnimationFrame);
 
-        // The draw applies invincibility flicker to the body spritemaps, not to
+        // The draw applies invincibility flicker to the body frames, not to
         // animation or graphics streaming as a whole. An odd frame hides ordinary invincible
         // Samus. Active knockback and any nonzero stored/active shine timer independently
         // force the body visible, even though the separately drawn arm cannon follows its
@@ -457,7 +457,7 @@ internal sealed class SamusPresentation
 
     /// <summary>
     /// On the crash echoes' updates, draws both crash-orbit copies after
-    /// the real Samus body using the current pose/frame spritemaps.
+    /// the real Samus body using the current pose/frame pictures.
     /// </summary>
     public void DrawShinesparkCrashEchoes(SamusState samus, 
         SpriteFrameBuffer sprites,

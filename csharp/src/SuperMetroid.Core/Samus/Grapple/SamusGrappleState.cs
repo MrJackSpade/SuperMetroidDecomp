@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>
-/// Named equivalents of the grapple words used by connected swinging.
+/// The grapple state connected swinging uses.
 /// </summary>
 public sealed class SamusGrappleState
 {
@@ -21,7 +21,7 @@ public sealed class SamusGrappleState
     public Position16<RoomPixels> RopeStart { get; set; }
 
     /// <summary>
-    /// The flare position, retained under the original host-facing
+    /// The flare position, retained under the older host-facing
     /// BeamStart name. <c>DrawConnectedBeam</c> starts drawing
     /// here; do not use this position to reconstruct command-10 body positioning.
     /// </summary>
@@ -62,7 +62,7 @@ public sealed class SamusGrappleState
     /// <summary>
     /// The beam's quarter velocity, whole and fractional, on both axes.
     /// Each firing frame rebuilds them from the extension
-    /// velocity, but the outer bytes keep last frame's values, so they are state rather than
+    /// velocity, but parts of each keep last frame's values, so they are state rather than
     /// a pure function of the velocity.
     /// </summary>
     public FixedVector<RoomPixels> QuarterVelocity { get; set; }

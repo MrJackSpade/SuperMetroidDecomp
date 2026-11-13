@@ -17,14 +17,14 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// The grapple beam's handler updates the pendulum before normal beta
 /// movement, and the block collision advances its angle while probing room collision. This class keeps
 /// those responsibilities separate from ordinary aerial movement. Firing, persistent grapple
-/// blocks, per-pixel rope adjustment, and the six-point angular terrain sweep are translated
+/// blocks, per-pixel rope adjustment, and the six-point angular terrain sweep are modelled
 /// here; solid/frozen-enemy wall-jump probing is shared with ordinary movement and retains
 /// the enemy slot to shake. The firing-only Draygon-turret damage and both behaviour-indexed swing
-/// spike-damage tables are translated through the shared periodic damage. Breakable
+/// spike-damage tables are applied through the shared periodic damage. Breakable
 /// block acquisition now installs the independent room-object lifecycle; enemy acquisition
 /// and the live enemy/shake loop remain explicit later routes rather than being approximated.
 /// Grapple's narrower water flag and persistent environment-selected
-/// release handler are translated rather than collapsed into ordinary aerial movement.
+/// release handler are modelled rather than collapsed into ordinary aerial movement.
 /// </remarks>
 public static class SamusGrappleMovement
 {
@@ -73,7 +73,7 @@ public static class SamusGrappleMovement
         grapple.FlareOffset = new(flare.X, CoordinateAxis.Difference(flare.Y, graphicsYOffset));
 
         // The endpoint offset is a signed 16.16 displacement from Samus plus the origin
-        // table. Firing clears all four words, not merely their whole halves.
+        // table. Firing clears both axes, fraction and whole alike.
         grapple.EndpointOffset = FixedVector<RoomPixels>.Zero;
         // Firing's palette and sound setup.
         grapple.QuarterVelocity = FixedVector<RoomPixels>.Zero;
@@ -177,7 +177,7 @@ public static class SamusGrappleMovement
         if (HandleFiringPoseChange(level, samus, controllerInput) is { } poseChange)
             return poseChange;
 
-        // The common pose-command tail clamps the camera's previous-position words after
+        // The common pose-command tail clamps the camera's previous position after
         // command 9/10 snaps Samus to the accepted rope geometry. Retain the pre-snap body
         // position even though most firing frames return without consuming this sample.
         Position16<RoomPixels> previousPosition = samus.Position.Whole;
@@ -192,7 +192,7 @@ public static class SamusGrappleMovement
 
         // Firing tests the current endpoint against ordinary enemies before moving the
         // beam through its four block-collision substeps. The collision producer sets the
-        // enemy's common grapple-handler bit; this consumer interprets only the header's
+        // enemy's common grapple-handler flag; this consumer reads only the definition's
         // seven common reaction indexes. Kill/no-interaction deliberately fall through to
         // terrain, exactly like the zero return from their reaction functions.
         if (enemyCollision is not null)
@@ -231,7 +231,7 @@ public static class SamusGrappleMovement
         }
 
         // The rope collision quarters each velocity and performs four identical probes. The quarter
-        // keeps stale bytes from the previous frame, so the four steps need not add up to
+        // keeps stale parts of the previous frame's value, so the four steps need not add up to
         // exactly one authored per-frame velocity.
         grapple.QuarterVelocity = new(
             QuarterExtensionVelocity(grapple.ExtensionVelocity.X, grapple.QuarterVelocity.X),
@@ -334,7 +334,7 @@ public static class SamusGrappleMovement
         if (grapple.Phase != GrapplePhase.ConnectedSwinging)
             throw new InvalidOperationException("Connected grapple movement is not active.");
 
-        // The special-angle snap clamps the camera's previous-position words against the position from
+        // The special-angle snap clamps the camera's previous position against the position from
         // the start of this frame after a special-angle snap. Retain that exact sample now;
         // the host runtime consumes the optional corrected values returned below.
         Position16<RoomPixels> previousPosition = samus.Position.Whole;
@@ -396,7 +396,7 @@ public static class SamusGrappleMovement
             // The persistent block path normally remains connected forever. Retain the
             // validation seam so a future dynamic/breakable room object cannot leave a rope
             // attached to air. A motionless straight-down body queues the drop; a moving
-            // pendulum uses the already translated velocity-preserving release handoff.
+            // pendulum uses the velocity-preserving release handoff.
             if (grapple.AngularVelocity == 0 && grapple.Angle == RotationAngle.HalfTurn)
             {
                 grapple.Phase = GrapplePhase.Dropped;
@@ -731,15 +731,15 @@ public static class SamusGrappleMovement
             OwnsMovement: false);
     }
 
-    /// <summary>Publishes rope, physical endpoint, and flare origins with fractional carry from the firing offset.</summary>
+    /// <summary>Publishes rope, physical endpoint, and flare origins with the fraction's overflow from the firing offset.</summary>
     private static void PublishFiringGeometry(SamusState samus, SamusGrappleState grapple)
     {
-        // Whole endpoint offsets are the signed upper words of the two 16.16 accumulators.
-        // Arithmetic shift is intentional: a left/up beam must retain sign after fractional
-        // accumulation, exactly like reading the endpoint offsets as signed displacement words.
+        // Whole endpoint offsets are the signed whole parts of the two 16.16 sums. The signed halving is
+        // intentional: a left/up beam must retain sign after fractional accumulation, as the endpoint offsets
+        // read as signed displacements.
         grapple.RopeStart = samus.Position.Whole + grapple.OriginOffset;
         // The endpoint adds the offset to Samus's subpixel-inclusive position, so the
-        // fractional carry reaches the endpoint before the whole origin offset is added.
+        // fraction's overflow reaches the endpoint before the whole origin offset is added.
         grapple.Anchor = samus.Position.Advance(grapple.EndpointOffset).Whole + grapple.OriginOffset;
         grapple.BeamStart = samus.Position.Whole + grapple.FlareOffset;
     }
@@ -808,7 +808,7 @@ public static class SamusGrappleMovement
                     return GrappleBlockReaction.Solid;
 
                 case RoomCollisionType.HorizontalExtension:
-                    // Horizontal extensions interpret behaviour as a signed block-index delta.
+                    // Horizontal extensions read behaviour as a signed block-index delta.
                     // behaviour zero is the terminator and behaves as air.
                     if (block.Behavior.EndsExtension)
                         return GrappleBlockReaction.Passes;
@@ -1113,8 +1113,8 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>
-    /// Integer octant translation of <c>CalculateAngleFromXY</c>.
-    /// The return byte is measured clockwise from negative Y: zero up, 64 right, 128 down,
+    /// Integer octant form of <c>CalculateAngleFromXY</c>.
+    /// The returned angle is measured clockwise from negative Y: zero up, 64 right, 128 down,
     /// and 192 left. Division truncates exactly as the game's unsigned divide does.
     /// </summary>
     internal static RotationAngle CalculateAngleFromXY(Offset16<RoomPixels> delta)
@@ -1164,8 +1164,8 @@ public static class SamusGrappleMovement
 
     /// <summary>
     /// Completes the one-frame cancellation function installed by firing. The game's
-    /// routine also clears palette/sound bookkeeping not yet modeled by this runtime;
-    /// every gameplay-visible firing word owned by this class is cleared here.
+    /// step also clears palette/sound bookkeeping not yet modeled by this runtime;
+    /// every gameplay-visible firing value owned by this class is cleared here.
     /// </summary>
     public static GrappleMovementResult CompleteFiringCancellation(
         RoomLevelData level,
@@ -1186,7 +1186,7 @@ public static class SamusGrappleMovement
         {
             // The cancel runs the pose-definition fallback while the current movement type is grappling.
             // Its command-six table entry kills all X/run momentum and the pose-definition
-            // byte selects the exact standing/crouching body that existed before locking.
+            // definition selects the exact standing/crouching body that existed before locking.
             SamusPoseId fallback = SamusPoseMetadata.ReadNoInputFallbackPose(samus);
             if (fallback == SamusMovementDefinitions.Poses.RetainCurrentPoseFallback)
             {
@@ -1275,7 +1275,7 @@ public static class SamusGrappleMovement
     {
         QueueGrappleSound(samus, GrappleBeamDefinitions.Sounds.Stop);
         SamusBlockCollision.EjectAfterGrapple(level, samus.Kinematics);
-        // The release bases facing on the angular-velocity word retained from the swing. A
+        // The release bases facing on the angular velocity retained from the swing. A
         // nonnegative value selects the left-facing forward jump; a negative value selects the right.
         // It publishes the pose as a super-special prospective pose (command 7), which
         // Samus's pose handling commits after this frame's hit interruption and movement.
@@ -1310,7 +1310,7 @@ public static class SamusGrappleMovement
     private static void ClearConnectedGrapple(SamusGrappleState grapple)
     {
         // The drop and wall-jump teardowns share the same long cleanup tail. Palette, sound, and HUD-item
-        // producers live outside this state object; every owned movement/rendering word is
+        // producers live outside this state object; every owned movement/rendering value is
         // reset here so a later firing edge cannot inherit wall-grace or collision state.
         grapple.Phase = GrapplePhase.Inactive;
         grapple.RopeLength = 0;

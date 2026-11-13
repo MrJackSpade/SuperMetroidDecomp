@@ -7,8 +7,8 @@ internal static class GrapplePointAnimation
 {
     /// <summary>Decrements the endpoint timer, advances one frame on expiry, and returns to the first frame past the last.</summary>
     /// <remarks>
-    /// A restored frame up to half the source word's span past the last frame also returns to the first; one beyond that
-    /// reads as before the start, so it keeps advancing until the source word wraps back to the first frame.
+    /// A restored frame up to half the stored value's range past the last frame also returns to the first; one beyond that
+    /// reads as before the start, so it keeps advancing until the stored value wraps back to the first frame.
     /// </remarks>
     internal static void Advance(SamusGrappleState state)
     {

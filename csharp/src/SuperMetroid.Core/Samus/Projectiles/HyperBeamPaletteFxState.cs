@@ -6,7 +6,7 @@ using SuperMetroid.Core.Samus.Palettes;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Translation of the Hyper Beam palette-FX object, the projectile palette cycle
+/// The Hyper Beam palette-FX object, the projectile palette cycle
 /// installed when Samus receives the Hyper Beam.
 /// </summary>
 /// <remarks>
@@ -35,7 +35,7 @@ public sealed class HyperBeamPaletteFxState
     public int? CurrentFrameIndex { get; private set; }
 
     /// <summary>
-    /// Number of completed ten-frame loops, a count the port keeps. No game value holds it and nothing in
+    /// Number of completed ten-frame loops, a count this model keeps. No game value holds it and nothing in
     /// gameplay reads it, so it is an ordinary count that starts at zero on spawn and grows by one per loop.
     /// </summary>
     public int CompletedCycles { get; private set; }
@@ -47,7 +47,7 @@ public sealed class HyperBeamPaletteFxState
     public void Spawn()
     {
         // Allocation clears the color index and auxiliary timer, installs timer
-        // one, then calls the object's no-op setup routine. This specialized state has no
+        // one, then calls the object's no-op setup. This specialized state has no
         // reusable slot fields to clear, but preserves every observable field and delay.
         IsActive = true;
         FrameHold = 1;
@@ -100,7 +100,7 @@ public sealed class HyperBeamPaletteFxState
         if (shown.Segment != PaletteFxProgram.HyperBeam1)
             throw new InvalidDataException($"The Hyper Beam's colour animation showed frame {shown.Shown} of {shown.Segment}, outside its cycle.");
         int frameIndex = shown.Shown;
-        // The cycle's goto returns to its first frame: showing it again completes a cycle.
+        // The cycle's jump returns to its first frame: showing it again completes a cycle.
         if (frameIndex == 0 && CurrentFrameIndex is not null)
             CompletedCycles++;
 

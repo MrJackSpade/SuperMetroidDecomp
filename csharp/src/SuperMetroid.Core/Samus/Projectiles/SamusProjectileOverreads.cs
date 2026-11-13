@@ -5,8 +5,8 @@ using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The compatibility services Samus's projectiles consult where their glitch paths read past the data the original game
-/// meant them to read (#1474, #1500): what the projectile system hands its combos, firing, impacts, Chainsaw fuse and
+/// The compatibility services Samus's projectiles consult where their glitch paths read past the end of their own
+/// data (#1474, #1500): what the projectile system hands its combos, firing, impacts, Chainsaw fuse and
 /// crash echoes as it builds them. Lifetime: the installation's, shared by every projectile system.
 /// </summary>
 public sealed class SamusProjectileOverreads

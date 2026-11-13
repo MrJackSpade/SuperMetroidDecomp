@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
-/// A Samus pose's animation program (#1473): runs of frames, each frame a picture held for its delay or the instruction
+/// A Samus pose's animation program (#1473): runs of frames, each frame a picture held for its delay or the cue
 /// that ends its run. Samus's animation frame is the number of the step it is on; frame numbers are the pose's artwork
 /// frame numbers, so a number between two runs names no step, and reaching one fails.
 /// </summary>

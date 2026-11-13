@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// </summary>
 /// <remarks>
 /// The cannon is not baked into every Samus body frame. Missile, Super Missile, and
-/// grapple HUD selections open a four-state cover, then the draw routine places the cover's
+/// grapple HUD selections open a four-state cover, then the draw places the cover's
 /// direction- and frame-specific picture separately at the pose's placement (#1463).
 /// Keeping this independent from pose art preserves its before/after-body priority.
 /// </remarks>

@@ -8,7 +8,7 @@ internal static class ProjectileTrailPlacements
     /// <summary>
     /// The list a trail of <paramref name="beams"/> from selector <paramref name="group"/> reads for a shot fired in
     /// <paramref name="direction"/>, or null when its row or direction entry names none, which draws no trail. An
-    /// empty row's direction table is left-over values the port does not keep (owner decision on #1318).
+    /// empty row's direction table is left-over values the model does not keep (owner decision on #1318).
     /// </summary>
     internal static ProjectileTrailPlacementList? List(ProjectileTrailFamilyGroup group, SamusBeamCombination beams, SamusProjectileDirection direction) =>
         ProjectileTrailPlacementDefinitions.Families[new(group, beams)] is { } family

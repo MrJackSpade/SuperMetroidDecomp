@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Commands in a charge-flare delay stream; every other byte is a delay. The values are arbitrary:
-/// <c>ChargeFlareAnimationDefinitions</c> encodes each as its stream byte.
+/// Commands in a charge-flare delay stream; every other entry is a delay. The values are arbitrary:
+/// <c>ChargeFlareAnimationDefinitions</c> encodes each as its stream entry.
 /// </summary>
 internal enum ChargeFlareDelayCommand
 {

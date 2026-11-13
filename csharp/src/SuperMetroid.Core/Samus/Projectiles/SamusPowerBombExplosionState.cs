@@ -269,11 +269,11 @@ public sealed class SamusPowerBombExplosionState
     private PowerBombRadius AdvanceRadiusWrapping(PowerBombRadius radius) => radius.WrappingAdd(RadiusSpeed);
 
     /// <summary>
-    /// Advances a radius by the shared speed unless the sum carries past 65535; the carry test runs before either
-    /// word changes, so a carrying frame leaves the radius (and the caller's speed update) frozen.
+    /// Advances a radius by the shared speed unless the sum passes 65535; the overflow test runs before either
+    /// value changes, so an overflowing frame leaves the radius (and the caller's speed update) frozen.
     /// </summary>
     /// <returns>True with the advanced radius when the sum fits.</returns>
-    private bool TryAdvanceRadiusWithoutCarry(PowerBombRadius radius, out PowerBombRadius advanced) =>
+    private bool TryAdvanceRadiusWithoutOverflow(PowerBombRadius radius, out PowerBombRadius advanced) =>
         radius.TryAddWithoutCarry(RadiusSpeed, out advanced);
 
     /// <summary>Consumes each yellow shape before advancing to the next and primes the damaging radius at the last shape.</summary>
@@ -289,9 +289,9 @@ public sealed class SamusPowerBombExplosionState
         // after the logic frame has completed.
         RenderedShape = ConsumeShape(out bool finishedShapes);
 
-        // The carry test is performed on the sum before either state word is changed.
+        // The overflow test is performed on the sum before either state value is changed.
         // If it would exceed 65535, both radius and speed remain frozen for this frame.
-        if (TryAdvanceRadiusWithoutCarry(PreExplosionRadius, out PowerBombRadius nextRadius))
+        if (TryAdvanceRadiusWithoutOverflow(PreExplosionRadius, out PowerBombRadius nextRadius))
         {
             PreExplosionRadius = nextRadius;
             RadiusSpeed = RadiusSpeed.WrappingSubtract(PowerBombExplosionDefinitions.PreExplosionAcceleration);
@@ -339,7 +339,7 @@ public sealed class SamusPowerBombExplosionState
 
         RenderedShape = ConsumeShape(out bool finishedShapes);
 
-        if (TryAdvanceRadiusWithoutCarry(ExplosionRadius, out PowerBombRadius nextRadius))
+        if (TryAdvanceRadiusWithoutOverflow(ExplosionRadius, out PowerBombRadius nextRadius))
         {
             ExplosionRadius = nextRadius;
             RadiusSpeed = RadiusSpeed.WrappingAdd(PowerBombExplosionDefinitions.ExplosionAcceleration);
@@ -421,7 +421,7 @@ public sealed class SamusPowerBombExplosionState
 
         // The awakened effect immediately ends both per-line effects and clears every
         // shared Power Bomb value. The lock is already released by Crystal Flash's start,
-        // but assigning it again mirrors the cleanup routine and makes reset atomic.
+        // but assigning it again mirrors the cleanup and makes reset atomic.
         IsArmed = false;
         IsActive = false;
         PreExplosionRadius = PowerBombRadius.Zero;

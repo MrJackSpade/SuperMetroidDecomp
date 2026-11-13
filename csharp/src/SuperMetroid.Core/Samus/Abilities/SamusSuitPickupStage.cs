@@ -18,7 +18,7 @@ public enum SamusSuitPickupStage
     /// <summary>The full-screen beam is wiped from the top and bottom while the colour returns to the suit's tint.</summary>
     LightBeamShrinks,
 
-    /// <summary>Only the centre scanline remains and narrows from both sides.</summary>
+    /// <summary>Only the centre row remains and narrows from both sides.</summary>
     LightBeamDissipates,
 
     /// <summary>The window and fixed colour are cleared and Samus's input is released.</summary>

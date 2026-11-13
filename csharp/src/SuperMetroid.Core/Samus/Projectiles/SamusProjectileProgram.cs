@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The Samus projectiles' programs (#1301), one per list a header or loop enters.</summary>
+/// <summary>The Samus projectiles' programs (#1301), one per list a definition or loop enters.</summary>
 public enum SamusProjectileProgram
 {
     /// <summary>The Power up facing right animation.</summary>

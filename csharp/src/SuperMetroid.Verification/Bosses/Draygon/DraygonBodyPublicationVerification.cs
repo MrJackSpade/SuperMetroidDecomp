@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Hud;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Scrolling;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses;

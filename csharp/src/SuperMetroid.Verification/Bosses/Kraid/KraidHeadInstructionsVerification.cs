@@ -86,7 +86,7 @@ internal static class KraidHeadInstructionsVerification
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = InstalledFixtures.BossArtwork };
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Access.Kraid = state;
-        enemies.KraidBehavior.Parts.RegisterInRoomOrder(enemies.SlotTable);
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
         var guard = new KraidHeadProgramReadGuard(rom);
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         var glow = new Action<KraidEnemyState>(enemies.KraidBehavior.Head.InitializeKraidEyeGlow);

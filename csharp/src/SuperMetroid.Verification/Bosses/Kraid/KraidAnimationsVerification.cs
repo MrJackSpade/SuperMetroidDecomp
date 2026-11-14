@@ -147,7 +147,7 @@ internal static class KraidAnimationsVerification
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var state = new KraidEnemyState { InitialHealth = 104 };
         enemies.KraidBehavior.Access.Kraid = state;
-        enemies.KraidBehavior.Parts.RegisterInRoomOrder(enemies.SlotTable);
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Kraid, body.Definition);
         RoomEnemySlot arm = enemies.SlotTable.Slots[1];

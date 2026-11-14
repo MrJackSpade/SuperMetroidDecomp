@@ -13,8 +13,8 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, Ene
     public void Initialize()
     {
         KraidPart part = KraidPartDefinitions.Parts[Slot.DefinitionId];
-        // Each part registers as the part its definition names before it sets up, so his parts reach one another (#1877).
-        species.Parts.Register(part, Slot);
+        // Each part joins as the part its definition names before it sets up, so his parts reach one another (#1877).
+        species.Parts.Join(part, Slot);
         switch (part)
         {
             case KraidPart.Kraid:

@@ -12,17 +12,17 @@ internal static class KraidPartsAccess
         KraidPart.Nail, KraidPart.NailBad,
     ];
 
-    /// <summary>Fixture registration of Kraid's parts.</summary>
+    /// <summary>Fixture joining of Kraid's parts.</summary>
     extension(KraidParts parts)
     {
         /// <summary>
-        /// Registers the first eight enemies of <paramref name="enemies"/> as Kraid's parts in the order his room lists
+        /// Joins the first eight enemies of <paramref name="enemies"/> to Kraid as his parts in the order his room lists
         /// them, as their initialization would (#1877).
         /// </summary>
-        internal void RegisterInRoomOrder(EnemySlotTable enemies)
+        internal void JoinInRoomOrder(EnemySlotTable enemies)
         {
             for (int place = 0; place < RoomOrder.Length; place++)
-                parts.Register(RoomOrder[place], enemies.Slots[place]);
+                parts.Join(RoomOrder[place], enemies.Slots[place]);
         }
     }
 }

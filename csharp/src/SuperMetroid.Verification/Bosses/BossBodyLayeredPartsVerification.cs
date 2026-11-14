@@ -101,7 +101,7 @@ internal static class BossBodyLayeredPartsVerification
         state.InitializeBodyLayer();
         state.ShowBody();
         enemies.KraidBehavior.Access.Kraid = state;
-        enemies.KraidBehavior.Parts.RegisterInRoomOrder(enemies.SlotTable);
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
         Dictionary<string, BossBodyFrameSource> sources = SourcesOf(frames, BossBodyOwner.Kraid);
         int compared = 0;
         foreach (KraidBodyAppearance appearance in new[] { KraidBodyAppearance.BehindSprites, KraidBodyAppearance.InFrontOfSprites })

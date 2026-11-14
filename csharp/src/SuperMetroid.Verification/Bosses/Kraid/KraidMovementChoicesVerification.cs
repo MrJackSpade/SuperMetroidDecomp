@@ -81,7 +81,7 @@ internal static class KraidMovementChoicesVerification
         var foot = enemies.SlotTable.Slots[5];
         var part = new KraidFootState();
         enemies.KraidBehavior.Access.Kraid = state;
-        enemies.KraidBehavior.Parts.RegisterInRoomOrder(enemies.SlotTable);
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
         ushort rng = 0;
         int reads = 0;
         enemies.VerificationServices().ReadRandom = () => { reads++; return rng; };

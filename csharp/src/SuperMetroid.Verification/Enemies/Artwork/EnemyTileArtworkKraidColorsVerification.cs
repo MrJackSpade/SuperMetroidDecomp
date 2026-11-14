@@ -106,7 +106,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };
         enemies.KraidBehavior.Access.Kraid = new KraidEnemyState();
-        enemies.KraidBehavior.Parts.RegisterInRoomOrder(enemies.SlotTable);
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
         var fade = new Func<KraidBackdropFade, bool>(enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade);
         int growthSteps = 0;
         while (!fade(KraidBackdropFade.ToRoomColors))
@@ -114,7 +114,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), enemies.KraidBehavior.Access.Backdrop.Shows, "Kraid's growth fade ends on his colours");
         // Kraid's body initializer replaces his encounter state; the room's backdrop colours outlive it.
         enemies.KraidBehavior.Access.Kraid = new KraidEnemyState();
-        enemies.KraidBehavior.Parts.RegisterInRoomOrder(enemies.SlotTable);
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
         AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), enemies.KraidBehavior.Access.Backdrop.Shows,
             "re-initializing Kraid keeps the backdrop his growth fade showed");
         int deathSteps = 0;
@@ -241,7 +241,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };
         enemies.KraidBehavior.Access.Kraid = new KraidEnemyState();
-        enemies.KraidBehavior.Parts.RegisterInRoomOrder(enemies.SlotTable);
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
         // A room whose fifth colour group holds distinct colours, so every step of a fade moves them.
         var standard = new RgbColor[ImageColourGroup.HalfColours];
         for (int colour = 0; colour < standard.Length; colour++)
@@ -374,7 +374,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         var state = new KraidEnemyState();
         // The death setup restarts the arm's typed program (#641), which lives in the room's Kraid state.
         enemies.KraidBehavior.Access.Kraid = state;
-        enemies.KraidBehavior.Parts.RegisterInRoomOrder(enemies.SlotTable);
+        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.SlotTable);
         KraidColorCatalog kraid = artwork.Bosses.KraidColors ?? throw new InvalidOperationException("The installed artwork has no Kraid colours.");
         switch (consumer)
         {

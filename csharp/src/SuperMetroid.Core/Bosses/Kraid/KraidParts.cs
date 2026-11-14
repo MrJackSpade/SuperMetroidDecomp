@@ -1,11 +1,12 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
 /// Kraid's eight parts in his room, which he holds by reference: his body, his arm, his top, middle and bottom lint, his
-/// foot and his two fingernails. Each part registers itself as the part its definition names when it initializes
-/// (#1877), and the fight reaches it through that registration. A part's reference outlives the part's occupant: a
+/// foot and his two fingernails. Each part joins as the part its definition names when it initializes (#1877), and
+/// the fight reaches it through that. A part's reference outlives the part's occupant: a
 /// deleted part leaves its last values there and a killed part is emptied, so a read of a part that has been killed
 /// goes through the rule that states what the fight reads of it (<see cref="KilledFingernailStops"/>).
 /// </summary>
@@ -13,59 +14,59 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal sealed class KraidParts
 {
     /// <summary>Each part that has initialized, by the part its definition names.</summary>
-    private readonly Dictionary<KraidPart, RoomEnemySlot> _registered = [];
+    private readonly Dictionary<KraidPart, RoomEnemySlot> _joined = [];
 
     /// <summary>
-    /// Registers <paramref name="slot"/> as Kraid's <paramref name="part"/>, as it initializes. A part that initializes
-    /// again, as a respawned fingernail does, registers the same enemy again.
+    /// Joins <paramref name="slot"/> to Kraid as his <paramref name="part"/>, as it initializes. A part that initializes
+    /// again, as a respawned fingernail does, joins the same enemy again.
     /// </summary>
     /// <exception cref="InvalidDataException">Another enemy already initialized as <paramref name="part"/>.</exception>
-    internal void Register(KraidPart part, RoomEnemySlot slot)
+    internal void Join(KraidPart part, RoomEnemySlot slot)
     {
         Ensure.NotNull(slot);
-        if (_registered.TryGetValue(part, out RoomEnemySlot? held) && !ReferenceEquals(held, slot))
+        if (_joined.TryGetValue(part, out RoomEnemySlot? held) && !ReferenceEquals(held, slot))
             throw new InvalidDataException($"Kraid's {part} initialized as enemy {slot.SlotIndex}, but enemy {held.SlotIndex} already is.");
-        _registered[part] = slot;
+        _joined[part] = slot;
     }
 
-    /// <summary>The enemy registered as <paramref name="part"/>.</summary>
+    /// <summary>The enemy that joined as <paramref name="part"/>.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="part"/> has not initialized.</exception>
-    private RoomEnemySlot Registered(KraidPart part) =>
-        _registered.TryGetValue(part, out RoomEnemySlot? slot)
+    private RoomEnemySlot Joined(KraidPart part) =>
+        _joined.TryGetValue(part, out RoomEnemySlot? slot)
             ? slot
             : throw new InvalidOperationException($"Kraid's {part} is reached before it initialized.");
 
     /// <summary>His body, which runs first.</summary>
-    internal RoomEnemySlot Body => Registered(KraidPart.Kraid);
+    internal RoomEnemySlot Body => Joined(KraidPart.Kraid);
 
     /// <summary>His arm.</summary>
-    internal RoomEnemySlot Arm => Registered(KraidPart.Arm);
+    internal RoomEnemySlot Arm => Joined(KraidPart.Arm);
 
     /// <summary>His top lint.</summary>
-    internal RoomEnemySlot TopLint => Registered(KraidPart.LintTop);
+    internal RoomEnemySlot TopLint => Joined(KraidPart.LintTop);
 
     /// <summary>His middle lint.</summary>
-    internal RoomEnemySlot MiddleLint => Registered(KraidPart.LintMiddle);
+    internal RoomEnemySlot MiddleLint => Joined(KraidPart.LintMiddle);
 
     /// <summary>His bottom lint.</summary>
-    internal RoomEnemySlot BottomLint => Registered(KraidPart.LintBottom);
+    internal RoomEnemySlot BottomLint => Joined(KraidPart.LintBottom);
 
     /// <summary>His foot.</summary>
-    internal RoomEnemySlot Foot => Registered(KraidPart.Foot);
+    internal RoomEnemySlot Foot => Joined(KraidPart.Foot);
 
     /// <summary>His first fingernail.</summary>
-    internal RoomEnemySlot FirstNail => Registered(KraidPart.Nail);
+    internal RoomEnemySlot FirstNail => Joined(KraidPart.Nail);
 
     /// <summary>His second fingernail, which runs last.</summary>
-    internal RoomEnemySlot SecondNail => Registered(KraidPart.NailBad);
+    internal RoomEnemySlot SecondNail => Joined(KraidPart.NailBad);
 
     /// <summary>Which of Kraid's parts <paramref name="slot"/> is.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="slot"/> has not initialized as one of his parts.</exception>
     internal KraidPart PartAt(RoomEnemySlot slot)
     {
-        foreach ((KraidPart part, RoomEnemySlot registered) in _registered)
+        foreach ((KraidPart part, RoomEnemySlot joined) in _joined)
         {
-            if (ReferenceEquals(registered, slot))
+            if (ReferenceEquals(joined, slot))
                 return part;
         }
         throw new InvalidOperationException($"Enemy {slot.SlotIndex} is not one of Kraid's parts.");

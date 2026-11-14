@@ -159,15 +159,10 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(slot, CacatacAnimations.StartingWith(segment));
     }
 
-    /// <summary>Registers the spike's ten direction-table movers and viewport cull.</summary>
-    internal static void AddCacatacProjectiles(EnemyProjectileHandlerTable table)
-    {
-        table.AddFrameBehavior(context =>
-        {
-            // Cacatac spike: ten direction-table movers.
-            RunCacatacSpikeFrameBehavior(context.Projectile, context.Camera);
-        }, EnemyProjectileFrameBehavior.CacatacSpikeFlight);
-    }
+    /// <summary>A Cacatac spike (#1760): it flies by its direction's velocity until it leaves the camera.</summary>
+    internal static readonly EnemyProjectileBehavior Spike = new SingleMotionProjectileBehavior(
+        EnemyProjectileFrameBehavior.CacatacSpikeFlight,
+        context => RunCacatacSpikeFrameBehavior(context.Projectile, context.Camera));
 
     /// <summary>Runs Cacatac's main AI.</summary>
     internal void RunCacatacMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
@@ -199,6 +194,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.CacatacSpike,
+            Spike,
             SpriteGraphics.SpawnedBy(source));
         projectile.InstallAnimation(new CacatacProjectileAnimation(segment));
         projectile.Position = source.Position;

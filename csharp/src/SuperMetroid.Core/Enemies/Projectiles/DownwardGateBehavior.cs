@@ -55,13 +55,16 @@ internal sealed class DownwardGateBehavior
         if (projectile is null)
             return; // The projectile spawn's deliberate finite-pool failure.
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: default);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Gate, graphics: default);
+        projectile.StartAnimation(new DownwardGateProjectileAnimation(request.Kind == DownwardGateProjectileKind.Closed
+            ? DownwardGateProjectileSegment.Closed
+            : DownwardGateProjectileSegment.Moving));
         int blockX = request.RoomObjectBlock.X;
         int blockY = request.RoomObjectBlock.Y;
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(
             blockX * DownwardGateDefinitions.PixelsPerRoomBlock), CoordinateAxis.Wrap(
             blockY * DownwardGateDefinitions.PixelsPerRoomBlock +
-            (kind == RoomEnemyProjectileKind.DownwardGateClosed
+            (request.Kind == DownwardGateProjectileKind.Closed
                 ? DownwardGateDefinitions.ClosedPositionOffsetPixels
                 : 0))));
 
@@ -145,13 +148,15 @@ internal sealed class DownwardGateBehavior
         }
     }
 
-    /// <summary>Connects the moving-gate frame behaviour to the projectile handler table.</summary>
-    internal static void AddDownwardGateProjectiles(EnemyProjectileHandlerTable table)
+    /// <summary>A downward gate, moving or closed (#1760).</summary>
+    internal static readonly EnemyProjectileBehavior Gate = new GateBehavior();
+
+    /// <summary>A downward gate: it slides down by its velocity once its animation sets it moving, and handles its animation's cues.</summary>
+    private sealed class GateBehavior() : SingleMotionProjectileBehavior(
+        EnemyProjectileFrameBehavior.DownwardGateDescent,
+        context => RunDownwardGateProjectileMovement(context.Projectile)), IEnemyProjectileCues<DownwardGateProjectileCue>
     {
-        table.AddCue<DownwardGateProjectileCue>((context, cue) => ApplyDownwardGateCue(context.Projectile, cue));
-        table.AddFrameBehavior(context =>
-        {
-            RunDownwardGateProjectileMovement(context.Projectile);
-        }, EnemyProjectileFrameBehavior.DownwardGateDescent);
+        /// <inheritdoc/>
+        public void RunCue(EnemyProjectileCueContext context, DownwardGateProjectileCue cue) => ApplyDownwardGateCue(context.Projectile, cue);
     }
 }

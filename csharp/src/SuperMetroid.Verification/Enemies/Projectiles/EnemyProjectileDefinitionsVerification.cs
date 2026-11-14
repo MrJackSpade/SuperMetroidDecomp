@@ -42,9 +42,6 @@ internal static class EnemyProjectileDefinitionsVerification
 
         HashSet<int> forbidden = VerifyEnemyProjectileDefinitionRecords(rom, kinds);
 
-        Action<EnemyProjectile, RoomEnemyProjectileKind, SpriteGraphics> initialize =
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition;
-
         const ushort populationPointer = 0x9400;
         TestAddressSpace setupBus = CreateEmptyEnemyPopulationCartridge(populationPointer);
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: setupBus, services: new StandaloneRoomEnemyServices(() => 0));
@@ -52,18 +49,18 @@ internal static class EnemyProjectileDefinitionsVerification
         var guard = NewEnemyProjectileDefinitionReadGuard(setupBus, forbidden);
         EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles[^1];
         Func<EnemyProjectile, SamusState, SuperMetroid.Core.Samus.Movement.KnockbackHorizontalDirection?> collideWithSamus =
-            enemies.Projectiles.ResolveEnemyProjectileSamusCollision;
+            EnemyProjectileEngine.ResolveEnemyProjectileSamusCollision;
 
         foreach (RoomEnemyProjectileKind kind in kinds)
         {
             EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
             projectile.Delete();
-            initialize(projectile, kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook));
+            FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook));
             AssertEqual(kind, projectile.Kind, $"{kind} production kind");
             AssertEqual(definition.FrameBehavior, projectile.FrameBehavior,
                 $"{kind} production pre-instruction");
-            // A kind with a typed initial program (#641) runs it in place of the definition's native list.
-            bool typedStart = EnemyProjectileTypedStarts.Initial(kind) is not null;
+            // A kind whose spawner starts a typed initial program (#641, #1760) runs it in place of the definition's native list.
+            bool typedStart = FamilyProjectileStarts.StartingAnimation(kind) is not null;
             AssertEqual(typedStart, projectile.Animation is not null, $"{kind} production typed start");
             AssertEqual((ushort)1, projectile.FrameHold.RawValue,
                 $"{kind} production timer");
@@ -125,7 +122,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(ReferenceEquals(initialProgram, projectile.Animation), $"{kind} production touch keeps its program");
             }
 
-            initialize(projectile, kind, SpriteGraphics.SharedStandard);
+            FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedStandard);
             projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));
             projectile.BlocksSamusProjectiles = true;
             projectile.CollisionOption = EnemyProjectileCollisionOption.RunShotList;

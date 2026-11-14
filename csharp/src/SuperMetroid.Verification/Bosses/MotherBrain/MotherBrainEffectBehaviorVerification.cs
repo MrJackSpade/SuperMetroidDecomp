@@ -34,14 +34,14 @@ internal static class MotherBrainEffectBehaviorVerification
 
         RoomEnemySystem bombEnemies = CreateRoomEnemySystem();
         EnemyProjectile bomb = bombEnemies.Projectiles.EnemyProjectiles[^1];
-        FamilyProjectileStarts.Initialize(bomb, RoomEnemyProjectileKind.MotherBrainBomb, SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(PictureShading.Shaded(MotherBrainShades.PhaseTwo)));
+        FamilyProjectileStarts.Initialize(bombEnemies, bomb, RoomEnemyProjectileKind.MotherBrainBomb, SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(PictureShading.Shaded(MotherBrainShades.PhaseTwo)));
         RunForcedTicks(rom, bombEnemies, bomb, samus, 10);
         AssertTrue(bomb.IsActive && bomb.Animation is MotherBrainEffectAnimation { PlayingSegment: MotherBrainEffectSegment.Bomb },
             "room-system Mother Brain bomb keeps looping its program");
 
         RoomEnemySystem breathEnemies = CreateRoomEnemySystem();
         EnemyProjectile breath = breathEnemies.Projectiles.EnemyProjectiles[^1];
-        FamilyProjectileStarts.Initialize(breath, RoomEnemyProjectileKind.MotherBrainPurpleBreathBig, default);
+        FamilyProjectileStarts.Initialize(breathEnemies, breath, RoomEnemyProjectileKind.MotherBrainPurpleBreathBig, default);
         RunForcedTicks(rom, breathEnemies, breath, samus, 9);
         AssertTrue(!breath.IsActive, "room-system Mother Brain purple breath reaches its deletion");
 
@@ -93,14 +93,14 @@ internal static class MotherBrainEffectBehaviorVerification
 
         RoomEnemySystem fragmentEnemies = CreateRoomEnemySystem();
         EnemyProjectile fragment = fragmentEnemies.Projectiles.EnemyProjectiles[^1];
-        FamilyProjectileStarts.Initialize(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, default);
+        FamilyProjectileStarts.Initialize(fragmentEnemies, fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, default);
         RunForcedTicks(rom, fragmentEnemies, fragment, samus, 9);
         AssertTrue(fragment.IsActive && fragment.Animation is MotherBrainEffectAnimation { PlayingSegment: MotherBrainEffectSegment.EscapeDoorParticle },
             "room-system Mother Brain escape fragment keeps looping its program");
 
         RoomEnemySystem subtitleEnemies = CreateRoomEnemySystem();
         EnemyProjectile subtitle = subtitleEnemies.Projectiles.EnemyProjectiles[^1];
-        FamilyProjectileStarts.Initialize(subtitle, RoomEnemyProjectileKind.MotherBrainEscapeSubtitle, default);
+        FamilyProjectileStarts.Initialize(subtitleEnemies, subtitle, RoomEnemyProjectileKind.MotherBrainEscapeSubtitle, default);
         RunForcedTicks(rom, subtitleEnemies, subtitle, samus, 2);
         AssertTrue(subtitle.IsActive && subtitle.Animation is MotherBrainEffectAnimation { PlayingSegment: MotherBrainEffectSegment.EscapeSubtitle },
             "room-system Mother Brain escape subtitle holds at its sleep");
@@ -188,7 +188,7 @@ internal static class MotherBrainEffectBehaviorVerification
             ring.CanDamageSamus = true;
             ring.PersistsOnSamusContact = true;
             var touching = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = ring.Position, Health = ushort.MaxValue };
-            AssertTrue(ringEnemies.Projectiles.ResolveEnemyProjectileSamusCollision(ring, touching).HasValue, "Samus touches the onion ring");
+            AssertTrue(EnemyProjectileEngine.ResolveEnemyProjectileSamusCollision(ring, touching).HasValue, "Samus touches the onion ring");
             AssertTrue(ring.Animation is MotherBrainEffectAnimation { PlayingSegment: MotherBrainEffectSegment.OnionRingHit },
                 "the touched onion ring starts its typed impact program");
             for (int frame = 0; frame < 30; frame++)

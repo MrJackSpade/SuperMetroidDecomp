@@ -57,6 +57,12 @@ public sealed class EnemyProjectile
     public EnemyProjectileFrameId? Frame { get; internal set; }
     /// <summary>How the projectile moves itself on each pass, before its animation advances.</summary>
     internal EnemyProjectileFrameBehavior FrameBehavior { get; set; }
+    /// <summary>
+    /// What the projectile's kind does (#1760): it runs the projectile's frame behaviours, carries out its animations'
+    /// cues and names its shot and touch animations. The spawner binds it with the kind; none until then. A projectile
+    /// that ends keeps it, so the cues its animation publishes on the way out still reach their owner.
+    /// </summary>
+    internal EnemyProjectileBehavior? Behavior { get; set; }
     /// <summary>Gets the sheet and shading the projectile draws with, as its spawner supplied them.</summary>
     public SpriteGraphics Graphics { get; internal set; }
     /// <summary>Gets the collision half-extents in pixels, from the projectile's definition.</summary>

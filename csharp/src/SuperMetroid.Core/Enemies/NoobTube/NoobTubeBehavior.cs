@@ -59,13 +59,14 @@ internal sealed class NoobTubeBehavior
         if (projectile is null)
             return;
         // The tube's pieces draw from the shared sheet in the crack colours the room's crack initializer installs (#1512).
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: TubePieceGraphics);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, TubePieces, graphics: TubePieceGraphics);
 
         int blockX = request.RoomObjectBlock.X;
         int blockY = request.RoomObjectBlock.Y;
-        switch (kind)
+        switch (request.Definition)
         {
-            case RoomEnemyProjectileKind.NoobTubeCrack:
+            case NoobTubeProjectileDefinition.Crack:
+                projectile.StartAnimation(new NoobTubeProjectileAnimation(NoobTubeProjectileSegment.Crack));
                 if (request.Piece is not null)
                     throw new InvalidDataException("The n00b tube has one crack; a crack names no piece.");
                 projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(
@@ -74,7 +75,7 @@ internal sealed class NoobTubeBehavior
                 projectile.State = new NoobTubeCrackState();
                 return;
 
-            case RoomEnemyProjectileKind.NoobTubeShard:
+            case NoobTubeProjectileDefinition.Shard:
             {
                 int index = RequireNoobTubePiece(
                     request.Piece,
@@ -91,8 +92,9 @@ internal sealed class NoobTubeBehavior
                 return;
             }
 
-            case RoomEnemyProjectileKind.NoobTubeReleasedAirBubble:
+            case NoobTubeProjectileDefinition.ReleasedAirBubble:
             {
+                projectile.StartAnimation(new NoobTubeProjectileAnimation(NoobTubeProjectileSegment.ReleasedAirBubble));
                 int index = RequireNoobTubePiece(
                     request.Piece,
                     NoobTubeDebrisDefinitions.BubbleOffsets.Length,
@@ -105,129 +107,9 @@ internal sealed class NoobTubeBehavior
                 return;
             }
 
-            case RoomEnemyProjectileKind.None:
-            case RoomEnemyProjectileKind.PrePhantoonRoom:
-            case RoomEnemyProjectileKind.YappingMawBody:
-            case RoomEnemyProjectileKind.SkreeParticleDownRight:
-            case RoomEnemyProjectileKind.SkreeParticleUpRight:
-            case RoomEnemyProjectileKind.SkreeParticleDownLeft:
-            case RoomEnemyProjectileKind.SkreeParticleUpLeft:
-            case RoomEnemyProjectileKind.MetareeParticleDownRight:
-            case RoomEnemyProjectileKind.MetareeParticleUpRight:
-            case RoomEnemyProjectileKind.MetareeParticleDownLeft:
-            case RoomEnemyProjectileKind.MetareeParticleUpLeft:
-            case RoomEnemyProjectileKind.CrocomireProjectile:
-            case RoomEnemyProjectileKind.CrocomireBridgeCrumbling:
-            case RoomEnemyProjectileKind.CrocomireSpikeWallPieces:
-            case RoomEnemyProjectileKind.KraidSpitRock:
-            case RoomEnemyProjectileKind.KraidCeilingRock:
-            case RoomEnemyProjectileKind.KraidRisingRockLeft:
-            case RoomEnemyProjectileKind.KraidRisingRockRight:
-            case RoomEnemyProjectileKind.PhantoonDestroyableFlame:
-            case RoomEnemyProjectileKind.PhantoonStartingFlame:
-            case RoomEnemyProjectileKind.DraygonGoop:
-            case RoomEnemyProjectileKind.DraygonWallTurret:
-            case RoomEnemyProjectileKind.MotherBrainRoomTurret:
-            case RoomEnemyProjectileKind.MotherBrainRoomTurretBullet:
-            case RoomEnemyProjectileKind.MotherBrainGlassShard:
-            case RoomEnemyProjectileKind.MotherBrainGlassSparkle:
-            case RoomEnemyProjectileKind.MotherBrainOnionRing:
-            case RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion:
-            case RoomEnemyProjectileKind.MotherBrainBomb:
-            case RoomEnemyProjectileKind.MotherBrainHandBeamCharging:
-            case RoomEnemyProjectileKind.MotherBrainHandBeamFired:
-            case RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging:
-            case RoomEnemyProjectileKind.MotherBrainPurpleBreathBig:
-            case RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall:
-            case RoomEnemyProjectileKind.MotherBrainDrool:
-            case RoomEnemyProjectileKind.MotherBrainDyingDrool:
-            case RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion:
-            case RoomEnemyProjectileKind.MotherBrainDeathExplosion:
-            case RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment:
-            case RoomEnemyProjectileKind.MotherBrainEscapeSubtitle:
-            case RoomEnemyProjectileKind.MotherBrainTopRightTube:
-            case RoomEnemyProjectileKind.MotherBrainTopLeftTube:
-            case RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube:
-            case RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube:
-            case RoomEnemyProjectileKind.CeresRidleyFireball:
-            case RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter:
-            case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter:
-            case RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight:
-            case RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft:
-            case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp:
-            case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown:
-            case RoomEnemyProjectileKind.CeresFallingDebrisLight:
-            case RoomEnemyProjectileKind.CeresFallingDebrisDark:
-            case RoomEnemyProjectileKind.GunshipLiftoffDustCloud:
-            case RoomEnemyProjectileKind.AlcoonFireball:
-            case RoomEnemyProjectileKind.PowampSpike:
-            case RoomEnemyProjectileKind.WorkRobotLaserUpLeft:
-            case RoomEnemyProjectileKind.WorkRobotLaserHorizontal:
-            case RoomEnemyProjectileKind.WorkRobotLaserDownLeft:
-            case RoomEnemyProjectileKind.WorkRobotLaserUpRight:
-            case RoomEnemyProjectileKind.WorkRobotLaserDownRight:
-            case RoomEnemyProjectileKind.FallingSpark:
-            case RoomEnemyProjectileKind.NuclearWaffleBody:
-            case RoomEnemyProjectileKind.FakeKraidSpit:
-            case RoomEnemyProjectileKind.FakeKraidSpikeLeft:
-            case RoomEnemyProjectileKind.FakeKraidSpikeRight:
-            case RoomEnemyProjectileKind.KiHunterAcidSpitLeft:
-            case RoomEnemyProjectileKind.KiHunterAcidSpitRight:
-            case RoomEnemyProjectileKind.PirateMotherBrainLaser:
-            case RoomEnemyProjectileKind.PirateClaw:
-            case RoomEnemyProjectileKind.PolypRock:
-            case RoomEnemyProjectileKind.CacatacSpike:
-            case RoomEnemyProjectileKind.NamiheFireball:
-            case RoomEnemyProjectileKind.FuneFireball:
-            case RoomEnemyProjectileKind.LavaThrownByMagdollite:
-            case RoomEnemyProjectileKind.DragonFireball:
-            case RoomEnemyProjectileKind.EyeDoorProjectile:
-            case RoomEnemyProjectileKind.EyeDoorSweat:
-            case RoomEnemyProjectileKind.EyeDoorSmoke:
-            case RoomEnemyProjectileKind.MiscDustExplosion:
-            case RoomEnemyProjectileKind.EnemyDeathPickup:
-            case RoomEnemyProjectileKind.EnemyDeathExplosion:
-            case RoomEnemyProjectileKind.KagoBug:
-            case RoomEnemyProjectileKind.BotwoonBody:
-            case RoomEnemyProjectileKind.BotwoonSpit:
-            case RoomEnemyProjectileKind.BombTorizoLowHealthDrool:
-            case RoomEnemyProjectileKind.BombTorizoInitialDrool:
-            case RoomEnemyProjectileKind.BombTorizoExplosiveSwipe:
-            case RoomEnemyProjectileKind.BombTorizoLowHealthExplosion:
-            case RoomEnemyProjectileKind.BombTorizoDeathExplosion:
-            case RoomEnemyProjectileKind.BombTorizoStatueBreaking:
-            case RoomEnemyProjectileKind.BombTorizoChozoOrb:
-            case RoomEnemyProjectileKind.BombTorizoSonicBoom:
-            case RoomEnemyProjectileKind.GoldenTorizoChozoOrb:
-            case RoomEnemyProjectileKind.GoldenTorizoSonicBoom:
-            case RoomEnemyProjectileKind.BombTorizoRightFootDust:
-            case RoomEnemyProjectileKind.BombTorizoLeftFootDust:
-            case RoomEnemyProjectileKind.GoldenTorizoEgg:
-            case RoomEnemyProjectileKind.GoldenTorizoSuperMissile:
-            case RoomEnemyProjectileKind.GoldenTorizoEyeBeam:
-            case RoomEnemyProjectileKind.TourianStatueSplash:
-            case RoomEnemyProjectileKind.TourianStatueEyeGlow:
-            case RoomEnemyProjectileKind.TourianStatueParticle:
-            case RoomEnemyProjectileKind.TourianStatueTail:
-            case RoomEnemyProjectileKind.TourianStatueSoul:
-            case RoomEnemyProjectileKind.TourianStatueRidley:
-            case RoomEnemyProjectileKind.TourianStatuePhantoon:
-            case RoomEnemyProjectileKind.TourianStatueBaseDecoration:
-            case RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep:
-            case RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate:
-            case RoomEnemyProjectileKind.TourianStatueDescentDust:
-            case RoomEnemyProjectileKind.ShaktoolAttackFrontCircle:
-            case RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle:
-            case RoomEnemyProjectileKind.ShaktoolAttackBackCircle:
-            case RoomEnemyProjectileKind.SporeSpawnStalk:
-            case RoomEnemyProjectileKind.SporeSpawnSpore:
-            case RoomEnemyProjectileKind.SporeSpawnSpawner:
-            case RoomEnemyProjectileKind.SaveStationElectricity:
-            case RoomEnemyProjectileKind.DownwardGateMoving:
-            case RoomEnemyProjectileKind.DownwardGateClosed:
             default:
                 throw new InvalidDataException(
-                    $"N00b-tube initializer lost projectile kind {kind}.");
+                    $"N00b-tube initializer lost projectile definition {request.Definition}.");
         }
     }
 
@@ -312,20 +194,37 @@ internal sealed class NoobTubeBehavior
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta()).WithWholeX(projectile.StateOf<NoobTubeDebrisState>().X.Whole);
     }
 
-    /// <summary>Connects the crack, shard and bubble movers to the projectile engine.</summary>
-    internal void AddNoobTubeProjectiles(EnemyProjectileHandlerTable table)
-    {
-        table.AddFrameBehavior(context => FlickerNoobTubeCrack(context.Projectile), EnemyProjectileFrameBehavior.NoobTubeCrackFlickering);
-        table.AddFrameBehavior(context => DropNoobTubeCrack(context.Projectile), EnemyProjectileFrameBehavior.NoobTubeCrackFalling);
-        table.AddFrameBehavior(context => FlyNoobTubeShard(context.Projectile, context.Camera.Y), EnemyProjectileFrameBehavior.NoobTubeShardFlying);
-        table.AddFrameBehavior(context => DropNoobTubeShard(context.Projectile, context.Camera.Y), EnemyProjectileFrameBehavior.NoobTubeShardFalling);
-        table.AddFrameBehavior(context => DropNoobTubeBubble(context.Projectile), EnemyProjectileFrameBehavior.NoobTubeBubbleFalling);
-        table.AddFrameBehavior(context => MoveNoobTubeBubbleVertically(context.Projectile), EnemyProjectileFrameBehavior.NoobTubeBubbleFlying);
-    }
+    /// <summary>The tube's crack, shards and released-air bubbles (#1760): their spawner starts their animations.</summary>
+    internal EnemyProjectileBehavior TubePieces => field ??= new NoobTubeProjectileBehavior(this);
 
-    /// <summary>Carries out the cues of the crack, shard and bubble animations.</summary>
-    internal void AddNoobTubeProjectileCues(EnemyProjectileHandlerTable table) =>
-        table.AddCue<NoobTubeProjectileCue>((context, cue) => ApplyNoobTubeProjectileCue(context.Projectile, cue));
+    /// <summary>A crack, shard or bubble: the crack's, shards' and bubbles' movers, and their animations' cues.</summary>
+    private sealed class NoobTubeProjectileBehavior(NoobTubeBehavior owner) : EnemyProjectileBehavior, IEnemyProjectileCues<NoobTubeProjectileCue>
+    {
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+        {
+            EnemyProjectile projectile = context.Projectile;
+            EnemyProjectileFrameBehavior motion = projectile.FrameBehavior;
+            if (motion == EnemyProjectileFrameBehavior.NoobTubeCrackFlickering)
+                owner.FlickerNoobTubeCrack(projectile);
+            else if (motion == EnemyProjectileFrameBehavior.NoobTubeCrackFalling)
+                DropNoobTubeCrack(projectile);
+            else if (motion == EnemyProjectileFrameBehavior.NoobTubeShardFlying)
+                FlyNoobTubeShard(projectile, context.Camera.Y);
+            else if (motion == EnemyProjectileFrameBehavior.NoobTubeShardFalling)
+                DropNoobTubeShard(projectile, context.Camera.Y);
+            else if (motion == EnemyProjectileFrameBehavior.NoobTubeBubbleFalling)
+                DropNoobTubeBubble(projectile);
+            else if (motion == EnemyProjectileFrameBehavior.NoobTubeBubbleFlying)
+                MoveNoobTubeBubbleVertically(projectile);
+            else
+                base.Move(context);
+        }
+
+        /// <inheritdoc/>
+        public void RunCue(EnemyProjectileCueContext context, NoobTubeProjectileCue cue) =>
+            owner.ApplyNoobTubeProjectileCue(context.Projectile, cue);
+    }
 
     /// <summary>Carries out one cue of the crack, shard and bubble animations.</summary>
     private void ApplyNoobTubeProjectileCue(EnemyProjectile projectile, NoobTubeProjectileCue cue)

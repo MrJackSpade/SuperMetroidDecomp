@@ -319,6 +319,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
 
     EnemyProjectile eyeShot = enemies.Projectiles.EnemyProjectiles[17];
     eyeShot.Kind = RoomEnemyProjectileKind.EyeDoorProjectile;
+    eyeShot.Behavior = SuperMetroid.Core.Enemies.Projectiles.FamilyProjectileStarts.BehaviorOf(enemies, eyeShot.Kind);
     eyeShot.Position = eyeShot.Position.WithWhole(new(0x01b5, 0x0180));
     eyeShot.BlocksSamusProjectiles = true;
     eyeShot.CollisionOption = EnemyProjectileCollisionOption.RunShotList;

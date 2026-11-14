@@ -293,7 +293,7 @@ internal static class NativeSnapshotImport
             initialObjects[index].Delete();
         }
         foreach (var projectile in runtime.Enemies.Projectiles.EnemyProjectiles)
-            ImportNativeEnemyProjectile(projectile, runtime.Enemies.GraphicsSet, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
+            ImportNativeEnemyProjectile(runtime.Enemies, projectile, runtime.Enemies.GraphicsSet, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
         // This is a one-time initial snapshot import. No native state is fed back during replay.
         runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));
         runtime.Enemies.FrameContext.SeedRandomEnemyCounter(W(NativeSnapshotMemory.MainEnemyRoutineCount));
@@ -474,7 +474,7 @@ internal static class NativeSnapshotImport
     /// hold; the definition-derived radii and properties must already agree with them. A free slot's place holds a gone
     /// projectile at the slot's position and velocity words, which the next spawn there starts from.
     /// </summary>
-    private static void ImportNativeEnemyProjectile(EnemyProjectile projectile, SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinition graphicsSet, IImportCartridgeSource cartridge,
+    private static void ImportNativeEnemyProjectile(SuperMetroid.Core.World.RoomEnemySystem enemies, EnemyProjectile projectile, SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinition graphicsSet, IImportCartridgeSource cartridge,
         Func<int, ushort> W)
     {
         int index = projectile.Place * 2;
@@ -496,7 +496,7 @@ internal static class NativeSnapshotImport
             // colours, and one at character zero in the shared selection its row is.
             var graphics = new SnesObjAttributeWord(W(NativeSnapshotMemory.EnemyProjectileGraphics + index));
             int standardRow = graphics.TileNumber == 0 ? SuperMetroid.AssetExtraction.Enemies.EnemySheetRowDefinitions.Common : graphics.PaletteIndex;
-            FamilyProjectileStarts.Initialize(projectile, kind, new SpriteGraphics(graphicsSet.OwnerDrawingAt(graphics.TileNumber),
+            FamilyProjectileStarts.Initialize(enemies, projectile, kind, new SpriteGraphics(graphicsSet.OwnerDrawingAt(graphics.TileNumber),
                 SpriteColouringAccess.ShadingInRow(graphics.PaletteIndex, standardRow)));
             projectile.FrameBehavior = EnemyProjectileFrameBehaviorAccess.FromWord(W(NativeSnapshotMemory.EnemyProjectileFrameBehavior + index));
             ushort instruction = W(NativeSnapshotMemory.NativeEnemyProjectileInstruction + index);

@@ -441,9 +441,10 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is not null)
         {
-            MotherBrainProjectileStarts.Initialize(
+            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 projectile,
                 RoomEnemyProjectileKind.EnemyDeathExplosion,
+                _deathsAndDrops.DeathProjectiles,
                 graphics: default);
             projectile.Position = projectile.Position.WithWhole(slot.Position.Whole);
             projectile.DropDefinitionId = slot.DefinitionId;
@@ -460,30 +461,5 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             _deathsAndDrops.InstallRespawnPlaceholder(slot);
         }
-    }
-
-    /// <summary>Runs the strict 256x256 camera cull for dust/explosion actors.</summary>
-    internal static void CullMiscDustOutsideCamera(
-        EnemyProjectile projectile,
-        Position16<RoomPixels> camera)
-    {
-        // The cull compares the position against camera + 256 and culls when not below it, so
-        // a projectile exactly 256 past the camera is already off-screen.
-        if (CoordinateAxis.Difference(projectile.Position.X.Whole, camera.X) < 0 ||
-            CoordinateAxis.Difference(projectile.Position.X.Whole, (camera.X + 256)) >= 0 ||
-            CoordinateAxis.Difference(projectile.Position.Y.Whole, camera.Y) < 0 ||
-            CoordinateAxis.Difference(projectile.Position.Y.Whole, (camera.Y + 256)) >= 0)
-        {
-            projectile.Delete();
-        }
-    }
-
-    /// <summary>Attaches the camera cull to miscellaneous dust and explosion projectiles.</summary>
-    internal static void AddMiscDustFrameBehavior(EnemyProjectileHandlerTable table)
-    {
-        table.AddFrameBehavior(context =>
-        {
-            CullMiscDustOutsideCamera(context.Projectile, context.Camera);
-        }, EnemyProjectileFrameBehavior.DustCameraCull);
     }
 }

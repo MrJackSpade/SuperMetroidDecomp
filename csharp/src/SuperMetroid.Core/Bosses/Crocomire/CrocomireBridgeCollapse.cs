@@ -22,10 +22,14 @@ internal sealed class CrocomireBridgeCollapse
     private readonly CrocomireBodyLayer _bodyLayer;
     /// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
+    /// <summary>Crocomire's combat, whose projectile behaviour the bridge's fragments are bound to.</summary>
+    private readonly CrocomireCombat _combat;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireBridgeCollapse(EnemyRoomBinding room, EnemyProjectileEngine projectiles, ZebetiteBehavior zebetiteBehavior, CrocomireBodyLayer bodyLayer, CrocomireEncounterAccess access)
+    internal CrocomireBridgeCollapse(EnemyRoomBinding room, EnemyProjectileEngine projectiles, ZebetiteBehavior zebetiteBehavior, CrocomireBodyLayer bodyLayer, CrocomireEncounterAccess access,
+        CrocomireCombat combat)
     {
+        _combat = combat;
         _room = room;
         _projectiles = projectiles;
         _zebetiteBehavior = zebetiteBehavior;
@@ -327,6 +331,7 @@ internal sealed class CrocomireBridgeCollapse
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.CrocomireBridgeCrumbling,
+            _combat.Debris,
             graphics: default);
         projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.BridgeFragment));
         projectile.Position = projectile.Position.WithWholeX(CrocomireBridgeFragmentDefinitions.XPosition(fragment));

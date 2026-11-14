@@ -317,9 +317,10 @@ internal sealed class MotherBrainBody
         if (beam is null)
             return;
 
-        MotherBrainProjectileStarts.Initialize(
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             beam,
             RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
+            _projectileAttacks.Projectile,
             graphics: SpriteGraphics.SharedIn(EnemyShades.HurtFlashLook));
         beam.Velocity = EightEightVector<RoomPixels>.Zero;
         beam.Position = beam.Position.WithFractionX(0).WithFractionY(0);
@@ -411,9 +412,10 @@ internal sealed class MotherBrainBody
         if (turret is null)
             return;
 
-        MotherBrainProjectileStarts.Initialize(
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             turret,
             RoomEnemyProjectileKind.MotherBrainRoomTurret,
+            _projectileAttacks.Projectile,
             MotherBrainTurretDefinitions.Graphics);
 
         MotherBrainTurretDefinition definition =

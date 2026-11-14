@@ -32,7 +32,8 @@ internal sealed class DraygonParts
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Receives the sounds Draygon's animations and death request.</summary>
     private readonly EnemyAudioQueue _audio;
-
+    /// <summary>The goop and turret shots, whose goop behaviour Draygon's goop is bound to.</summary>
+    private readonly DraygonShots _shots;
 
     /// <summary>Builds the component from the encounter's collaborators.</summary>
     internal DraygonParts(DraygonPartsDependencies dependencies)
@@ -44,6 +45,7 @@ internal sealed class DraygonParts
         _presentation = dependencies.Presentation;
         _frameContext = dependencies.FrameContext;
         _audio = dependencies.Audio;
+        _shots = dependencies.Shots;
     }
 
     /// <summary>The typed encounter extension while the retail Draygon population is loaded.</summary>
@@ -344,6 +346,7 @@ internal sealed class DraygonParts
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             goop,
             RoomEnemyProjectileKind.DraygonGoop,
+            _shots.Goop,
             graphics: SpriteGraphics.SharedIn(DraygonColours.Goop));
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.Goop));
         goop.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + (movingRight ? 24 : -28)), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 16)));

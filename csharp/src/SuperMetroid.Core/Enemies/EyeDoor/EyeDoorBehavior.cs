@@ -55,152 +55,68 @@ internal sealed class EyeDoorBehavior
             return; // Spawning fails when all eighteen projectile slots are live.
 
         _eyeDoorProjectileSystem = system;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: default);
-
         Position16<RoomBlocks> block = request.RoomObjectBlock;
-        switch (kind)
+        switch (request.Definition)
         {
-            case RoomEnemyProjectileKind.EyeDoorProjectile:
+            case EyeDoorProjectileDefinition.Projectile:
+                EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Shot, graphics: default);
+                projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Initial));
                 InitializeEyeDoorProjectile(projectile, request, block);
                 return;
 
-            case RoomEnemyProjectileKind.EyeDoorSweat:
+            case EyeDoorProjectileDefinition.Sweat:
+                EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Sweat, graphics: default);
+                projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatSegment.Falling));
                 InitializeEyeDoorSweat(projectile, request.Facing, block);
                 return;
 
-            case RoomEnemyProjectileKind.EyeDoorSmoke:
-                if (request.Definition == EyeDoorProjectileDefinition.ScatteredSmoke)
-                    InitializeEyeDoorSmoke(projectile, EyeDoorEffectDefinitions.ScatteredSmokeAnimation,
-                        EyeDoorEffectDefinitions.ScatteredSmokePlacement, block);
-                else
-                    InitializeEyeDoorSmoke(projectile, EyeDoorEffectDefinitions.CenteredSmokeAnimation,
-                        EyeDoorEffectDefinitions.CenteredSmokePlacement, block);
+            case EyeDoorProjectileDefinition.ScatteredSmoke:
+                EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, EnemyProjectileBehavior.Still, graphics: default);
+                InitializeEyeDoorSmoke(projectile, EyeDoorEffectDefinitions.ScatteredSmokeAnimation,
+                    EyeDoorEffectDefinitions.ScatteredSmokePlacement, block);
                 return;
 
-            case RoomEnemyProjectileKind.None:
-            case RoomEnemyProjectileKind.PrePhantoonRoom:
-            case RoomEnemyProjectileKind.YappingMawBody:
-            case RoomEnemyProjectileKind.SkreeParticleDownRight:
-            case RoomEnemyProjectileKind.SkreeParticleUpRight:
-            case RoomEnemyProjectileKind.SkreeParticleDownLeft:
-            case RoomEnemyProjectileKind.SkreeParticleUpLeft:
-            case RoomEnemyProjectileKind.MetareeParticleDownRight:
-            case RoomEnemyProjectileKind.MetareeParticleUpRight:
-            case RoomEnemyProjectileKind.MetareeParticleDownLeft:
-            case RoomEnemyProjectileKind.MetareeParticleUpLeft:
-            case RoomEnemyProjectileKind.CrocomireProjectile:
-            case RoomEnemyProjectileKind.CrocomireBridgeCrumbling:
-            case RoomEnemyProjectileKind.CrocomireSpikeWallPieces:
-            case RoomEnemyProjectileKind.KraidSpitRock:
-            case RoomEnemyProjectileKind.KraidCeilingRock:
-            case RoomEnemyProjectileKind.KraidRisingRockLeft:
-            case RoomEnemyProjectileKind.KraidRisingRockRight:
-            case RoomEnemyProjectileKind.PhantoonDestroyableFlame:
-            case RoomEnemyProjectileKind.PhantoonStartingFlame:
-            case RoomEnemyProjectileKind.DraygonGoop:
-            case RoomEnemyProjectileKind.DraygonWallTurret:
-            case RoomEnemyProjectileKind.MotherBrainRoomTurret:
-            case RoomEnemyProjectileKind.MotherBrainRoomTurretBullet:
-            case RoomEnemyProjectileKind.MotherBrainGlassShard:
-            case RoomEnemyProjectileKind.MotherBrainGlassSparkle:
-            case RoomEnemyProjectileKind.MotherBrainOnionRing:
-            case RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion:
-            case RoomEnemyProjectileKind.MotherBrainBomb:
-            case RoomEnemyProjectileKind.MotherBrainHandBeamCharging:
-            case RoomEnemyProjectileKind.MotherBrainHandBeamFired:
-            case RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging:
-            case RoomEnemyProjectileKind.MotherBrainPurpleBreathBig:
-            case RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall:
-            case RoomEnemyProjectileKind.MotherBrainDrool:
-            case RoomEnemyProjectileKind.MotherBrainDyingDrool:
-            case RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion:
-            case RoomEnemyProjectileKind.MotherBrainDeathExplosion:
-            case RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment:
-            case RoomEnemyProjectileKind.MotherBrainEscapeSubtitle:
-            case RoomEnemyProjectileKind.MotherBrainTopRightTube:
-            case RoomEnemyProjectileKind.MotherBrainTopLeftTube:
-            case RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube:
-            case RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube:
-            case RoomEnemyProjectileKind.CeresRidleyFireball:
-            case RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter:
-            case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter:
-            case RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight:
-            case RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft:
-            case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp:
-            case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown:
-            case RoomEnemyProjectileKind.CeresFallingDebrisLight:
-            case RoomEnemyProjectileKind.CeresFallingDebrisDark:
-            case RoomEnemyProjectileKind.GunshipLiftoffDustCloud:
-            case RoomEnemyProjectileKind.AlcoonFireball:
-            case RoomEnemyProjectileKind.PowampSpike:
-            case RoomEnemyProjectileKind.WorkRobotLaserUpLeft:
-            case RoomEnemyProjectileKind.WorkRobotLaserHorizontal:
-            case RoomEnemyProjectileKind.WorkRobotLaserDownLeft:
-            case RoomEnemyProjectileKind.WorkRobotLaserUpRight:
-            case RoomEnemyProjectileKind.WorkRobotLaserDownRight:
-            case RoomEnemyProjectileKind.FallingSpark:
-            case RoomEnemyProjectileKind.NuclearWaffleBody:
-            case RoomEnemyProjectileKind.FakeKraidSpit:
-            case RoomEnemyProjectileKind.FakeKraidSpikeLeft:
-            case RoomEnemyProjectileKind.FakeKraidSpikeRight:
-            case RoomEnemyProjectileKind.KiHunterAcidSpitLeft:
-            case RoomEnemyProjectileKind.KiHunterAcidSpitRight:
-            case RoomEnemyProjectileKind.PirateMotherBrainLaser:
-            case RoomEnemyProjectileKind.PirateClaw:
-            case RoomEnemyProjectileKind.PolypRock:
-            case RoomEnemyProjectileKind.CacatacSpike:
-            case RoomEnemyProjectileKind.NamiheFireball:
-            case RoomEnemyProjectileKind.FuneFireball:
-            case RoomEnemyProjectileKind.LavaThrownByMagdollite:
-            case RoomEnemyProjectileKind.DragonFireball:
-            case RoomEnemyProjectileKind.MiscDustExplosion:
-            case RoomEnemyProjectileKind.EnemyDeathPickup:
-            case RoomEnemyProjectileKind.EnemyDeathExplosion:
-            case RoomEnemyProjectileKind.KagoBug:
-            case RoomEnemyProjectileKind.BotwoonBody:
-            case RoomEnemyProjectileKind.BotwoonSpit:
-            case RoomEnemyProjectileKind.BombTorizoLowHealthDrool:
-            case RoomEnemyProjectileKind.BombTorizoInitialDrool:
-            case RoomEnemyProjectileKind.BombTorizoExplosiveSwipe:
-            case RoomEnemyProjectileKind.BombTorizoLowHealthExplosion:
-            case RoomEnemyProjectileKind.BombTorizoDeathExplosion:
-            case RoomEnemyProjectileKind.BombTorizoStatueBreaking:
-            case RoomEnemyProjectileKind.BombTorizoChozoOrb:
-            case RoomEnemyProjectileKind.BombTorizoSonicBoom:
-            case RoomEnemyProjectileKind.GoldenTorizoChozoOrb:
-            case RoomEnemyProjectileKind.GoldenTorizoSonicBoom:
-            case RoomEnemyProjectileKind.BombTorizoRightFootDust:
-            case RoomEnemyProjectileKind.BombTorizoLeftFootDust:
-            case RoomEnemyProjectileKind.GoldenTorizoEgg:
-            case RoomEnemyProjectileKind.GoldenTorizoSuperMissile:
-            case RoomEnemyProjectileKind.GoldenTorizoEyeBeam:
-            case RoomEnemyProjectileKind.TourianStatueSplash:
-            case RoomEnemyProjectileKind.TourianStatueEyeGlow:
-            case RoomEnemyProjectileKind.TourianStatueParticle:
-            case RoomEnemyProjectileKind.TourianStatueTail:
-            case RoomEnemyProjectileKind.TourianStatueSoul:
-            case RoomEnemyProjectileKind.TourianStatueRidley:
-            case RoomEnemyProjectileKind.TourianStatuePhantoon:
-            case RoomEnemyProjectileKind.TourianStatueBaseDecoration:
-            case RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep:
-            case RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate:
-            case RoomEnemyProjectileKind.TourianStatueDescentDust:
-            case RoomEnemyProjectileKind.ShaktoolAttackFrontCircle:
-            case RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle:
-            case RoomEnemyProjectileKind.ShaktoolAttackBackCircle:
-            case RoomEnemyProjectileKind.SporeSpawnStalk:
-            case RoomEnemyProjectileKind.SporeSpawnSpore:
-            case RoomEnemyProjectileKind.SporeSpawnSpawner:
-            case RoomEnemyProjectileKind.SaveStationElectricity:
-            case RoomEnemyProjectileKind.DownwardGateMoving:
-            case RoomEnemyProjectileKind.DownwardGateClosed:
-            case RoomEnemyProjectileKind.NoobTubeCrack:
-            case RoomEnemyProjectileKind.NoobTubeShard:
-            case RoomEnemyProjectileKind.NoobTubeReleasedAirBubble:
+            case EyeDoorProjectileDefinition.CenteredSmoke:
+                EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, EnemyProjectileBehavior.Still, graphics: default);
+                InitializeEyeDoorSmoke(projectile, EyeDoorEffectDefinitions.CenteredSmokeAnimation,
+                    EyeDoorEffectDefinitions.CenteredSmokePlacement, block);
+                return;
+
             default:
                 throw new InvalidOperationException(
-                    $"Eye-door projectile kind {kind} escaped its initializer step.");
+                    $"Eye-door projectile definition {request.Definition} escaped its initializer step.");
         }
+    }
+
+    /// <summary>
+    /// The eye's shot (#1760): it flies until it strikes the room or its door opens; a shot one runs its typed shot
+    /// animation, the animation its definition names.
+    /// </summary>
+    internal EnemyProjectileBehavior Shot => field ??= new EyeDoorProjectileBehavior(this,
+        shot: () => new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Shot));
+
+    /// <summary>A sweat drop (#1760): it falls and splashes on the floor.</summary>
+    internal EnemyProjectileBehavior Sweat => field ??= new EyeDoorProjectileBehavior(this);
+
+    /// <summary>An eye door's shot or sweat: the shot's and the sweat's flights, and the shot's animation cues.</summary>
+    private sealed class EyeDoorProjectileBehavior(EyeDoorBehavior owner, Func<EnemyProjectileAnimation>? shot = null)
+        : EnemyProjectileBehavior(shot), IEnemyProjectileCues<EyeDoorProjectileCue>
+    {
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+        {
+            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
+            if (motion == EnemyProjectileFrameBehavior.EyeDoorShotFlight)
+                owner.RunEyeDoorProjectileFrameBehavior(context.Projectile, context.Level);
+            else if (motion == EnemyProjectileFrameBehavior.EyeDoorSweatFall)
+                RunEyeDoorSweatFrameBehavior(context.Projectile, context.Level);
+            else
+                base.Move(context);
+        }
+
+        /// <inheritdoc/>
+        public void RunCue(EnemyProjectileCueContext context, EyeDoorProjectileCue cue) =>
+            ApplyEyeDoorProjectileCue(context.Projectile, context.Samus?.RoomView, cue);
     }
 
     /// <summary>Places the eye's shot on the side the eye faces and retains its door bit.</summary>
@@ -474,21 +390,4 @@ internal sealed class EyeDoorBehavior
         return false;
     }
 
-    /// <summary>Routes live eye shots and sweat through their distinct movement behaviours.</summary>
-    internal void AddEyeDoorProjectiles(EnemyProjectileHandlerTable table)
-    {
-        table.AddCue<EyeDoorProjectileCue>((context, cue) => ApplyEyeDoorProjectileCue(context.Projectile, context.Samus?.RoomView, cue));
-        // A shot eye-door projectile runs its typed shot animation, the animation its definition names.
-        table.AddShotAnimation(RoomEnemyProjectileKind.EyeDoorProjectile, () => new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Shot));
-
-        table.AddFrameBehavior(context =>
-        {
-            RunEyeDoorProjectileFrameBehavior(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.EyeDoorShotFlight);
-
-        table.AddFrameBehavior(context =>
-        {
-            RunEyeDoorSweatFrameBehavior(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.EyeDoorSweatFall);
-    }
 }

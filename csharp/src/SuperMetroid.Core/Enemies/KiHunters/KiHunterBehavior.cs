@@ -851,23 +851,33 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),
     };
 
-    /// <summary>Connects acid spit startup and gravity movement to frame behaviours.</summary>
-    internal static void AddKiHunterProjectiles(EnemyProjectileHandlerTable table)
+    /// <summary>Ki-Hunter acid, spat either way (#1760).</summary>
+    internal static readonly EnemyProjectileBehavior Acid = new AcidBehavior();
+
+    /// <summary>Ki-Hunter acid: its animation launches it in its direction, and it then flies under gravity until it strikes the room.</summary>
+    private sealed class AcidBehavior : EnemyProjectileBehavior
     {
-        table.AddFrameBehavior(context =>
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
         {
-            RunKiHunterAcidMovement(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.KiHunterAcidFlight);
-
-        table.AddFrameBehavior(context =>
-        {
-            StartKiHunterAcidMovement(context.Projectile, direction: HorizontalDirection.Left);
-        }, EnemyProjectileFrameBehavior.KiHunterAcidLaunchLeft);
-
-        table.AddFrameBehavior(context =>
-        {
-            StartKiHunterAcidMovement(context.Projectile, direction: HorizontalDirection.Right);
-        }, EnemyProjectileFrameBehavior.KiHunterAcidLaunchRight);
+            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
+            if (motion == EnemyProjectileFrameBehavior.KiHunterAcidFlight)
+            {
+                RunKiHunterAcidMovement(context.Projectile, context.Level);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.KiHunterAcidLaunchLeft)
+            {
+                StartKiHunterAcidMovement(context.Projectile, direction: HorizontalDirection.Left);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.KiHunterAcidLaunchRight)
+            {
+                StartKiHunterAcidMovement(context.Projectile, direction: HorizontalDirection.Right);
+            }
+            else
+            {
+                base.Move(context);
+            }
+        }
     }
 
     /// <summary>Runs the Ki-Hunter's main AI.</summary>
@@ -915,7 +925,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             kind,
+            Acid,
             SpriteGraphics.SpawnedBy(body));
+        projectile.StartAnimation(new KiHunterAcidSpitAnimation(movingRight
+            ? KiHunterAcidSpitSegment.Right
+            : KiHunterAcidSpitSegment.Left));
 
         projectile.Velocity = projectile.Velocity.WithX(movingRight
             ? KiHunterAcidHorizontalSpeed

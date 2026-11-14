@@ -30,4 +30,7 @@ internal sealed record MotherBrainFakeDeathDependencies
 
     /// <summary>Mother Brain's state lookups, body and brain animation setters, timers and room-object requests.</summary>
     public required MotherBrainEncounterAccess Access { get; init; }
+
+    /// <summary>Mother Brain's projectiles, whose ceiling tubes the collapse drops.</summary>
+    public required MotherBrainProjectiles ProjectileAttacks { get; init; }
 }

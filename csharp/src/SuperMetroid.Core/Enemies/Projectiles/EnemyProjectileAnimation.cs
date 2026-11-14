@@ -11,14 +11,16 @@ internal abstract class EnemyProjectileAnimation
     /// on the way may end the animation (deleting the projectile or handing it to another segment); the pass
     /// then stops, as the cue that did so would.
     /// </summary>
-    internal void Advance(EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers)
+    /// <param name="context">The projectile, Samus and the pass's camera, for cues that act on them.</param>
+    /// <param name="projectiles">The projectile engine, which carries out the shared cues.</param>
+    internal void Advance(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles)
     {
         EnemyProjectile projectile = context.Projectile;
         CountdownStep frameStep = projectile.FrameHold.Decrement();
         projectile.FrameHold = frameStep.Remaining;
         if (!frameStep.IsZero)
             return;
-        EnemyProjectileFrameStep step = NextFrame(context, handlers);
+        EnemyProjectileFrameStep step = NextFrame(context, projectiles);
         if (projectile.Animation != this)
             return;
         switch (step)
@@ -44,6 +46,6 @@ internal abstract class EnemyProjectileAnimation
 
     /// <summary>Advances the timeline to its next frame, a frame shown for good, or its rest.</summary>
     /// <param name="context">The slot the animation runs on, Samus and the pass's camera, for cues that act on them.</param>
-    /// <param name="handlers">The engine's handlers, which perform published cues.</param>
-    private protected abstract EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers);
+    /// <param name="projectiles">The projectile engine, which carries out the shared cues.</param>
+    private protected abstract EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles);
 }

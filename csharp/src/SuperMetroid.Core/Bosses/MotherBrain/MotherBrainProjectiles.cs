@@ -78,12 +78,106 @@ internal sealed class MotherBrainProjectiles
         }
     }
 
-    /// <summary>Registers the encounter-owned bombs, glass, beams, rings, turrets, tubes, and effects.</summary>
-    internal void AddMotherBrainProjectiles(EnemyProjectileHandlerTable table)
+    /// <summary>
+    /// Mother Brain's projectiles other than the onion rings and the turrets' bullets (#1760): her bombs, drool, breath,
+    /// beams, glass, tubes, turrets, explosions, door fragments and escape subtitle. Their spawners start their animations.
+    /// </summary>
+    internal EnemyProjectileBehavior Projectile => field ??= new MotherBrainProjectileBehavior(this);
+
+    /// <summary>
+    /// An onion ring (#1760): its spawner starts its animation, and touching Samus runs its typed impact animation, the
+    /// animation its definition names.
+    /// </summary>
+    internal EnemyProjectileBehavior OnionRing => field ??= new MotherBrainProjectileBehavior(this,
+        touch: () => new MotherBrainEffectAnimation(MotherBrainEffectSegment.OnionRingHit));
+
+    /// <summary>
+    /// A room turret's bullet (#1760): its spawner starts its animation, and a shot or Samus's touch runs the turret
+    /// family's smoke, the animation its definition names for both.
+    /// </summary>
+    internal EnemyProjectileBehavior TurretBullet => field ??= new MotherBrainProjectileBehavior(this,
+        shot: () => new MotherBrainTurretAnimation(),
+        touch: () => new MotherBrainTurretAnimation());
+
+    /// <summary>
+    /// One of Mother Brain's projectiles: every frame behaviour of her bombs, glass, beams, rings, turrets, tubes and
+    /// effects, and the cues of her turret, glass, effect and hand-beam animations.
+    /// </summary>
+    private sealed class MotherBrainProjectileBehavior(
+        MotherBrainProjectiles owner,
+        Func<EnemyProjectileAnimation>? shot = null,
+        Func<EnemyProjectileAnimation>? touch = null)
+        : EnemyProjectileBehavior(shot, touch),
+        IEnemyProjectileCues<MotherBrainTurretCue>,
+        IEnemyProjectileCues<MotherBrainGlassCue>,
+        IEnemyProjectileCues<MotherBrainEffectCue>,
+        IEnemyProjectileCues<MotherBrainHandBeamCue>
     {
-        table.AddTouchAnimation(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, () => new MotherBrainTurretAnimation());
-        table.AddShotAnimation(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, () => new MotherBrainTurretAnimation());
-        table.AddCue<MotherBrainTurretCue>((context, cue) =>
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
+        {
+            EnemyProjectile projectile = context.Projectile;
+            EnemyProjectileFrameBehavior motion = projectile.FrameBehavior;
+            if (motion == EnemyProjectileFrameBehavior.MotherBrainTurretAiming)
+            {
+                owner.RunMotherBrainTurretFrameBehavior(projectile, context.Camera);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.MotherBrainTurretBulletFlight)
+            {
+                RunMotherBrainTurretBulletFrameBehavior(projectile, context.Level);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.MotherBrainGlassShardFlight)
+            {
+                owner.RunMotherBrainGlassShardFrameBehavior(projectile);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.MotherBrainTubeFall)
+            {
+                owner.RunMotherBrainTopTubeFrameBehavior(projectile);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.MotherBrainDroolHanging)
+            {
+                owner.RunMotherBrainAttachedDroolFrameBehavior(projectile);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.MotherBrainDroolFall)
+            {
+                RunMotherBrainFallingDroolFrameBehavior(projectile);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.MotherBrainOnionRingFlight)
+            {
+                owner.RunMotherBrainOnionRingFrameBehavior(projectile, context.Samus, context.Camera.X);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.MotherBrainBombBounce)
+            {
+                owner.RunMotherBrainBombFrameBehavior(projectile, context.SamusBombs);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.MotherBrainRainbowBeamCharge)
+            {
+                owner.RunMotherBrainRainbowChargingFrameBehavior(projectile);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.MotherBrainRainbowImpactTracking)
+            {
+                RunMotherBrainRainbowExplosionFrameBehavior(projectile, context.Samus);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.MotherBrainDeathExplosionTracking)
+            {
+                owner.RunMotherBrainDeathExplosion(projectile);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.MotherBrainDeathDoorFragmentFall)
+            {
+                owner.RunMotherBrainDoorFragment(projectile);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.MotherBrainDeathSubtitleScreenPin)
+            {
+                PinMotherBrainEscapeSubtitle(projectile);
+            }
+            else
+            {
+                base.Move(context);
+            }
+        }
+
+        /// <summary>Carries out a turret cue: the shared sheet, stopping, or deletion.</summary>
+        public void RunCue(EnemyProjectileCueContext context, MotherBrainTurretCue cue)
         {
             EnemyProjectile projectile = context.Projectile;
             switch (cue)
@@ -100,107 +194,40 @@ internal sealed class MotherBrainProjectiles
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(MotherBrainTurretCue)} {cue}.");
             }
-        });
-        table.AddCue<MotherBrainGlassCue>((context, cue) =>
+        }
+
+        /// <summary>Carries out a glass cue: deletion.</summary>
+        public void RunCue(EnemyProjectileCueContext context, MotherBrainGlassCue cue)
         {
-            EnemyProjectile projectile = context.Projectile;
             switch (cue)
             {
                 case MotherBrainGlassCue.Delete:
-                    projectile.Delete();
+                    context.Projectile.Delete();
                     return;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(MotherBrainGlassCue)} {cue}.");
             }
-        });
-        table.AddFrameBehavior(context =>
-        {
-            RunMotherBrainTurretFrameBehavior(context.Projectile, context.Camera);
-        }, EnemyProjectileFrameBehavior.MotherBrainTurretAiming);
+        }
 
-        table.AddFrameBehavior(context =>
-        {
-            RunMotherBrainTurretBulletFrameBehavior(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.MotherBrainTurretBulletFlight);
+        /// <summary>Carries out an effect cue.</summary>
+        public void RunCue(EnemyProjectileCueContext context, MotherBrainEffectCue cue) =>
+            owner.ApplyMotherBrainEffectCue(context.Projectile, cue);
 
-        table.AddFrameBehavior(context =>
+        /// <summary>Carries out a hand-beam cue: the next beam's spawn, or deletion.</summary>
+        public void RunCue(EnemyProjectileCueContext context, MotherBrainHandBeamCue cue)
         {
-            RunMotherBrainGlassShardFrameBehavior(context.Projectile);
-        }, EnemyProjectileFrameBehavior.MotherBrainGlassShardFlight);
-
-        table.AddFrameBehavior(context =>
-        {
-            RunMotherBrainTopTubeFrameBehavior(context.Projectile);
-        }, EnemyProjectileFrameBehavior.MotherBrainTubeFall);
-
-        table.AddFrameBehavior(context =>
-        {
-            RunMotherBrainAttachedDroolFrameBehavior(context.Projectile);
-        }, EnemyProjectileFrameBehavior.MotherBrainDroolHanging);
-
-        table.AddFrameBehavior(context =>
-        {
-            RunMotherBrainFallingDroolFrameBehavior(context.Projectile);
-        }, EnemyProjectileFrameBehavior.MotherBrainDroolFall);
-
-        table.AddFrameBehavior(context =>
-        {
-            RunMotherBrainOnionRingFrameBehavior(
-                context.Projectile,
-                context.Samus,
-                context.Camera.X);
-        }, EnemyProjectileFrameBehavior.MotherBrainOnionRingFlight);
-
-        table.AddFrameBehavior(context =>
-        {
-            RunMotherBrainBombFrameBehavior(context.Projectile, context.SamusBombs);
-        }, EnemyProjectileFrameBehavior.MotherBrainBombBounce);
-
-        table.AddFrameBehavior(context =>
-        {
-            RunMotherBrainRainbowChargingFrameBehavior(context.Projectile);
-        }, EnemyProjectileFrameBehavior.MotherBrainRainbowBeamCharge);
-
-        table.AddFrameBehavior(context =>
-        {
-            RunMotherBrainRainbowExplosionFrameBehavior(context.Projectile, context.Samus);
-        }, EnemyProjectileFrameBehavior.MotherBrainRainbowImpactTracking);
-
-        table.AddFrameBehavior(context =>
-        {
-            RunMotherBrainDeathExplosion(context.Projectile);
-        }, EnemyProjectileFrameBehavior.MotherBrainDeathExplosionTracking);
-
-        table.AddFrameBehavior(context =>
-        {
-            RunMotherBrainDoorFragment(context.Projectile);
-        }, EnemyProjectileFrameBehavior.MotherBrainDeathDoorFragmentFall);
-
-        table.AddFrameBehavior(context =>
-        {
-            PinMotherBrainEscapeSubtitle(context.Projectile);
-        }, EnemyProjectileFrameBehavior.MotherBrainDeathSubtitleScreenPin);
-
-        table.AddCue<MotherBrainEffectCue>((context, cue) => ApplyMotherBrainEffectCue(context.Projectile, cue));
-        // A touched onion ring runs its typed impact animation, the animation its definition names.
-        table.AddTouchAnimation(RoomEnemyProjectileKind.MotherBrainOnionRing,
-            () => new MotherBrainEffectAnimation(MotherBrainEffectSegment.OnionRingHit));
-
-        table.AddCue<MotherBrainHandBeamCue>((context, cue) =>
-        {
-            EnemyProjectile projectile = context.Projectile;
             switch (cue)
             {
                 case MotherBrainHandBeamCue.SpawnNextBeam:
-                    SpawnMotherBrainHandBeamFired();
+                    owner.SpawnMotherBrainHandBeamFired();
                     return;
                 case MotherBrainHandBeamCue.Delete:
-                    projectile.Delete();
+                    context.Projectile.Delete();
                     return;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(MotherBrainHandBeamCue)} {cue}.");
             }
-        });
+        }
     }
 
     /// <summary>Runs the bomb's frame behaviour.</summary>
@@ -306,8 +333,9 @@ internal sealed class MotherBrainProjectiles
         // The bomb's explosion clears the source slot before both allocations. They therefore use
         // the normal descending shared-pool competition, including legitimate same-slot
         // replacement that the outer scheduler will continue processing on this pass.
+        // Its afterburn pair flies left and right.
         _roomActors.SpawnAfterburnCenter(
-            RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter,
+            Axis.Horizontal,
             impact,
             afterburnCount);
         _projectiles.SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.SmallExplosion);
@@ -412,9 +440,10 @@ internal sealed class MotherBrainProjectiles
         if (shard is null)
             return; // The projectile spawner silently loses actors when all eighteen slots are full.
 
-        MotherBrainProjectileStarts.Initialize(
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             shard,
             RoomEnemyProjectileKind.MotherBrainGlassShard,
+            Projectile,
             graphics: default);
 
         // The shard's launch angle is a random angle of 0 through 255. It selects signed sine/cosine velocities and the
@@ -472,9 +501,10 @@ internal sealed class MotherBrainProjectiles
         if (sparkle is null)
             return;
 
-        MotherBrainProjectileStarts.Initialize(
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             sparkle,
             RoomEnemyProjectileKind.MotherBrainGlassSparkle,
+            Projectile,
             graphics: default);
         sparkle.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassSegment.Sparkle));
         sparkle.Position = sparkle.Position.WithWhole(new(CoordinateAxis.Wrap(
@@ -497,9 +527,10 @@ internal sealed class MotherBrainProjectiles
         if (beam is null)
             return;
 
-        MotherBrainProjectileStarts.Initialize(
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             beam,
             RoomEnemyProjectileKind.MotherBrainHandBeamFired,
+            Projectile,
             graphics: default);
         beam.Position = state.HandBeamNextPosition;
         beam.Velocity = state.HandBeamNextVelocity;
@@ -791,9 +822,10 @@ internal sealed class MotherBrainProjectiles
         if (bullet is null)
             return;
 
-        MotherBrainProjectileStarts.Initialize(
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             bullet,
             RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
+            TurretBullet,
             MotherBrainTurretDefinitions.Graphics);
         MotherBrainTurretDirection direction =
             MotherBrainTurretDefinitions.Ring.At(turret.StateOf<MotherBrainTurretState>().RingPosition);

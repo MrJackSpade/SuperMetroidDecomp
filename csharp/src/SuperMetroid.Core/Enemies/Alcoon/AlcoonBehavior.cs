@@ -382,14 +382,10 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             : AlcoonSegment.WalkingRightLoop;
     }
 
-    /// <summary>Connects Alcoon fireballs to their movement frame behaviour.</summary>
-    internal static void AddAlcoonProjectiles(EnemyProjectileHandlerTable table)
-    {
-        table.AddFrameBehavior(context =>
-        {
-            RunAlcoonFireballFrameBehavior(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.AlcoonFireballFlight);
-    }
+    /// <summary>An Alcoon fireball (#1760): it flies with vertical, then horizontal, room collision and horizontal drag.</summary>
+    internal static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
+        EnemyProjectileFrameBehavior.AlcoonFireballFlight,
+        context => RunAlcoonFireballFrameBehavior(context.Projectile, context.Level));
 
     /// <summary>Runs Alcoon's initialization AI.</summary>
     internal void RunAlcoonInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
@@ -435,7 +431,9 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.AlcoonFireball,
+            Fireball,
             SpriteGraphics.SpawnedBy(alcoon));
+        projectile.StartAnimation(new AlcoonFireballAnimation(AlcoonFireballSegment.Initial));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(alcoon.Position.X.Whole + (movingLeft ? -16 : 16)), CoordinateAxis.Wrap(alcoon.Position.Y.Whole - 12)));
         projectile.Velocity = projectile.Velocity.WithX(movingLeft
             ? -AlcoonFireballGraphicsHorizontalSpeed

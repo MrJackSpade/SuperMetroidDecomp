@@ -174,15 +174,10 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             : FuneNamiheAction.FuneWaitForCooldown;
     }
 
-    /// <summary>Binds the shared fireball frame behaviour to 1/256-pixel horizontal travel and inclusive camera culling.</summary>
-    internal static void AddFuneNamiheProjectiles(EnemyProjectileHandlerTable table)
-    {
-        table.AddFrameBehavior(context =>
-        {
-            // Fune/Namihe: directional 1/256-pixel flight and cull.
-            RunFuneNamiheFireballFrameBehavior(context.Projectile, context.Camera);
-        }, EnemyProjectileFrameBehavior.FuneNamiheFireballFlight);
-    }
+    /// <summary>A Fune or Namihe fireball (#1760): it flies horizontally in 1/256-pixel steps until it leaves the camera.</summary>
+    internal static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
+        EnemyProjectileFrameBehavior.FuneNamiheFireballFlight,
+        context => RunFuneNamiheFireballFrameBehavior(context.Projectile, context.Camera));
 
     /// <summary>Runs FuneNamihe's main AI.</summary>
     internal static void RunFuneNamiheMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
@@ -218,6 +213,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             kind,
+            Fireball,
             SpriteGraphics.SpawnedBy(source));
         projectile.InstallAnimation(new FuneNamiheFireballAnimation(direction == HorizontalDirection.Right ? FuneNamiheFireballSegment.Right : FuneNamiheFireballSegment.Left));
         projectile.FrameBehavior = NamiFuneFireballFrameBehavior;

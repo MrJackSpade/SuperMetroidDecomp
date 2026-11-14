@@ -249,6 +249,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.FakeKraidSpit,
+            SpitAndSpikes,
             SpriteGraphics.SpawnedBy(source));
         projectile.StartAnimation(new FakeKraidProjectileAnimation(FakeKraidProjectilePose.Spit));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(
@@ -273,6 +274,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             kind,
+            SpitAndSpikes,
             SpriteGraphics.SpawnedBy(source));
         projectile.StartAnimation(new FakeKraidProjectileAnimation(kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft
             ? FakeKraidProjectilePose.SpikeLeft
@@ -367,18 +369,29 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         },
     };
 
-    /// <summary>Dispatches spit gravity and spike wall collision through their projectile frame behaviours.</summary>
-    internal static void AddFakeKraidProjectiles(EnemyProjectileHandlerTable table)
-    {
-        table.AddFrameBehavior(context =>
-        {
-            RunFakeKraidSpitFrameBehavior(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.FakeKraidSpitFlight);
+    /// <summary>Fake Kraid's spit and spikes (#1760): their spawners start their animations.</summary>
+    internal static readonly EnemyProjectileBehavior SpitAndSpikes = new SpitAndSpikeBehavior();
 
-        table.AddFrameBehavior(context =>
+    /// <summary>Fake Kraid's spit, with room collision then capped gravity, or a spike flying until it strikes a wall.</summary>
+    private sealed class SpitAndSpikeBehavior : EnemyProjectileBehavior
+    {
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
         {
-            RunFakeKraidSpikeFrameBehavior(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.FakeKraidSpikeFlight);
+            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
+            if (motion == EnemyProjectileFrameBehavior.FakeKraidSpitFlight)
+            {
+                RunFakeKraidSpitFrameBehavior(context.Projectile, context.Level);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.FakeKraidSpikeFlight)
+            {
+                RunFakeKraidSpikeFrameBehavior(context.Projectile, context.Level);
+            }
+            else
+            {
+                base.Move(context);
+            }
+        }
     }
 
     /// <summary>Runs Mini-Kraid's initialization AI.</summary>

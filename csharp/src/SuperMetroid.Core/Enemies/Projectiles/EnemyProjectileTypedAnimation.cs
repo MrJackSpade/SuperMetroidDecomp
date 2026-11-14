@@ -4,10 +4,11 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// A projectile animation that plays a family's typed animations (#1600): frames with durations, frames held for good
-/// (#1607), events, counted phases and a hold. Each event goes to the handler its family registered with
-/// <see cref="EnemyProjectileHandlerTable.AddCue{TCue}"/>, or with
-/// <see cref="EnemyProjectileHandlerTable.AddBranchingCue{TSegment, TCue}"/> when its reaction continues the play in the
-/// animation starting at another segment, as a conditional jump does. Counted phases count the projectile's
+/// (#1607), events, counted phases and a hold. Each event goes to the behaviour bound to the projectile (#1760), which
+/// carries out its family's events as <see cref="IEnemyProjectileCues{TCue}"/>, or as
+/// <see cref="IEnemyProjectileBranchingCues{TSegment, TCue}"/> when its reaction continues the play in the animation
+/// starting at another segment, as a conditional jump does; the engine carries out the shared
+/// <see cref="EnemyProjectileCommonCue"/> events. Counted phases count the projectile's
 /// <see cref="EnemyProjectile.LoopCountdown"/>.
 /// </summary>
 /// <typeparam name="TSegment">The family's segment identity.</typeparam>
@@ -42,15 +43,15 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
     /// <summary>The projectile frame <paramref name="frame"/> shows.</summary>
     private protected abstract EnemyProjectileFrameId Present(TFrame frame);
 
-    /// <summary>Plays the animation on to its next frame, raising each event in the family's registered handler.</summary>
-    private protected sealed override EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers)
+    /// <summary>Plays the animation on to its next frame, raising each event in the projectile's bound behaviour.</summary>
+    private protected sealed override EnemyProjectileFrameStep NextFrame(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles)
     {
         EnemyProjectile projectile = context.Projectile;
         Animation<TSegment> animation = Playback.Animation;
         AnimationPlace place = Playback.Place;
         WrappingCountdown repeats = projectile.LoopCountdown;
         AnimationShown<TSegment, TFrame> shown = Segments.PlayToNextFrame(ref animation, ref place, ref repeats,
-            raised => handlers.PublishAnimationCue<TSegment, TEvent>(context, raised) is { } target
+            raised => RunCue(context, projectiles, raised) is { } target
                 ? new AnimationContinuation<TSegment>(StartingAt[target], AnimationPlace.StartOfAnimation)
                 : null);
         Playback = new AnimationPlayback<TSegment>(animation, place);
@@ -69,6 +70,31 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
             case AnimationShown<TSegment, TFrame>.Ended:
             default:
                 throw new InvalidOperationException($"A projectile animation ended an update with {shown}.");
+        }
+    }
+
+    /// <summary>
+    /// Carries out <paramref name="cue"/>: a shared cue in the engine, any other in the behaviour bound to the projectile.
+    /// Returns the segment a branching cue continues the animation at, or null to run on.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The projectile's behaviour does not handle the family's cues.</exception>
+    private static TSegment? RunCue(EnemyProjectileCueContext context, EnemyProjectileEngine projectiles, TEvent cue)
+    {
+        if (cue is EnemyProjectileCommonCue common)
+        {
+            projectiles.ApplyCommonCue(context.Projectile, common);
+            return null;
+        }
+        switch (context.Projectile.Behavior)
+        {
+            case IEnemyProjectileBranchingCues<TSegment, TEvent> branching:
+                return branching.RunCue(context, cue);
+            case IEnemyProjectileCues<TEvent> plain:
+                plain.RunCue(context, cue);
+                return null;
+            default:
+                throw new InvalidOperationException(
+                    $"Enemy projectile {context.Projectile.Kind} in place {context.Projectile.Place} has no behaviour that carries out {typeof(TEvent).Name}.{cue}.");
         }
     }
 }

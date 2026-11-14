@@ -117,6 +117,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 body,
                 RoomEnemyProjectileKind.YappingMawBody,
+                EnemyProjectileBehavior.Still,
                 SpriteGraphics.SpawnedBy(slot));
             body.Position = body.Position.WithWhole(slot.Position.Whole);
             body.InstallAnimation(new YappingMawBodyProjectileAnimation(slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down

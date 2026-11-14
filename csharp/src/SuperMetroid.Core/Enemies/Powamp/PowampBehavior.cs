@@ -507,16 +507,14 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolvePowampShotAfterCommon(c.Enemy),
     };
 
-    /// <summary>Connects radial spikes to their movement frame behaviour.</summary>
-    internal static void AddPowampProjectiles(EnemyProjectileHandlerTable table)
-    {
-        table.AddFrameBehavior(context =>
-        {
-            RunPowampSpikeFrameBehavior(context.Projectile, context.Level);
-        }, EnemyProjectileFrameBehavior.PowampSpikeFlight);
-        // A shot spike runs the same private delete animation its definition names as its shot animation.
-        table.AddShotAnimation(RoomEnemyProjectileKind.PowampSpike, () => new PowampSpikeAnimation(PowampSpikeSegment.Delete));
-    }
+    /// <summary>
+    /// A Powamp spike (#1760): it flies outward, accelerating, with room collision. A shot spike runs the same private
+    /// delete animation its definition names as its shot animation.
+    /// </summary>
+    internal static readonly EnemyProjectileBehavior Spike = new SingleMotionProjectileBehavior(
+        EnemyProjectileFrameBehavior.PowampSpikeFlight,
+        context => RunPowampSpikeFrameBehavior(context.Projectile, context.Level),
+        shot: () => new PowampSpikeAnimation(PowampSpikeSegment.Delete));
 
     /// <summary>Advances Powamp's typed animation.</summary>
     internal static void AdvancePowampTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
@@ -586,7 +584,9 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 spike,
                 RoomEnemyProjectileKind.PowampSpike,
+                Spike,
                 SpriteGraphics.SpawnedBy(body).In(look));
+            spike.StartAnimation(new PowampSpikeAnimation(PowampSpikeSegment.Initial));
             spike.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
             spike.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);
             spike.State = new PowampSpikeState(direction);

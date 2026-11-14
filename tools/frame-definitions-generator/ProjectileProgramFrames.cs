@@ -509,7 +509,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
 
     /// <summary>
     /// The programs of <paramref name="family"/> the handlers of its cues (<paramref name="cueType"/>, registered with
-    /// <c>AddCue</c>) start, through every Core method and construction they reach: its constructions there, and the
+    /// the methods that take them) start, through every Core method and construction they reach: its constructions there, and the
     /// typed-start kinds they name that start it. Null when one of them names a program no constant decides.
     /// </summary>
     private HashSet<string>? CueStarted(INamedTypeSymbol family, INamedTypeSymbol cueType)
@@ -522,29 +522,30 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         return started.TryGetValue(family, out HashSet<string>? programs) ? programs : new HashSet<string>(StringComparer.Ordinal);
     }
 
-    /// <summary>The handlers registered with <c>AddCue</c> for the cues <paramref name="cueType"/> names.</summary>
+    /// <summary>
+    /// The handlers of the cues <paramref name="cueType"/> names (#1760): every Core method that takes such a cue, as the
+    /// projectile behaviours' <c>RunCue</c> implementations and the engine's shared-cue handler do.
+    /// </summary>
     private IEnumerable<SyntaxNode> CueHandlers(INamedTypeSymbol cueType)
     {
         foreach (SyntaxTree tree in model.Compilation.SyntaxTrees)
         {
             SemanticModel? semantic = null;
-            foreach (InvocationExpressionSyntax invocation in tree.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
+            foreach (MethodDeclarationSyntax method in tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>())
             {
-                // Only a call spelled with AddCue can register a cue handler; the rest need no binding.
-                if (!invocation.Expression.ToString().Contains("AddCue", StringComparison.Ordinal))
+                // Only a method declaring a parameter spelled with the cue type's name can take its cues.
+                if (!method.ParameterList.Parameters.Any(parameter => parameter.Type?.ToString().Contains(cueType.Name, StringComparison.Ordinal) == true))
                     continue;
                 semantic ??= model.ModelOf(tree);
-                if (semantic.GetSymbolInfo(invocation).Symbol is not IMethodSymbol { Name: "AddCue", TypeArguments: [var registered] }
-                    || !SymbolEqualityComparer.Default.Equals(registered.OriginalDefinition, cueType))
-                    continue;
-                foreach (ArgumentSyntax argument in invocation.ArgumentList.Arguments)
-                    yield return argument.Expression;
+                if (semantic.GetDeclaredSymbol(method) is IMethodSymbol symbol
+                    && symbol.Parameters.Any(parameter => SymbolEqualityComparer.Default.Equals(parameter.Type.OriginalDefinition, cueType)))
+                    yield return method;
             }
         }
     }
 
     /// <summary>
-    /// The programs of <paramref name="family"/> any frame-behaviour handler (registered with <c>AddFrameBehavior</c>)
+    /// The programs of <paramref name="family"/> any frame-behaviour handler (a projectile behaviour's <c>Move</c> or a single-motion mover)
     /// starts, through every Core method and construction it reaches: a handler restarting a projectile restarts one of
     /// its own family's, as a Ridley afterburn's flight switches it to its final puff when it hits a wall (#1537), so,
     /// like its cues' starts, these are among the programs every start of the family runs. Null when one of them names a
@@ -556,22 +557,47 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         return _frameBehaviourStarts.TryGetValue(family, out HashSet<string>? programs) ? programs : new HashSet<string>(StringComparer.Ordinal);
     }
 
-    /// <summary>Every handler registered with <c>AddFrameBehavior</c>.</summary>
+    /// <summary>
+    /// Every frame-behaviour handler (#1760): each projectile behaviour's <c>Move</c> override, and the mover each
+    /// single-motion behaviour is constructed with.
+    /// </summary>
     private IEnumerable<SyntaxNode> FrameBehaviourHandlers()
     {
         foreach (SyntaxTree tree in model.Compilation.SyntaxTrees)
         {
             SemanticModel? semantic = null;
-            foreach (InvocationExpressionSyntax invocation in tree.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
+            foreach (SyntaxNode node in tree.GetRoot().DescendantNodes())
             {
-                // Only a call spelled with AddFrameBehavior can register a frame-behaviour handler.
-                if (!invocation.Expression.ToString().Contains("AddFrameBehavior", StringComparison.Ordinal)
-                    || invocation.ArgumentList.Arguments.Count < 2)
-                    continue;
-                semantic ??= model.ModelOf(tree);
-                if (semantic.GetSymbolInfo(invocation).Symbol is IMethodSymbol { Name: "AddFrameBehavior" })
-                    yield return invocation.ArgumentList.Arguments[0].Expression;
+                switch (node)
+                {
+                    // Only an override spelled Move can move a projectile.
+                    case MethodDeclarationSyntax { Identifier.Text: "Move" } method when method.Modifiers.Any(SyntaxKind.OverrideKeyword):
+                        semantic ??= model.ModelOf(tree);
+                        if (semantic.GetDeclaredSymbol(method) is IMethodSymbol { OverriddenMethod.ContainingType.Name: "EnemyProjectileBehavior" or "SingleMotionProjectileBehavior" })
+                            yield return method;
+                        break;
+                    case BaseObjectCreationExpressionSyntax { ArgumentList: { } arguments } creation:
+                        semantic ??= model.ModelOf(tree);
+                        if (MoverArgument(semantic.GetSymbolInfo(creation).Symbol, arguments) is { } created)
+                            yield return created;
+                        break;
+                    case PrimaryConstructorBaseTypeSyntax baseType:
+                        semantic ??= model.ModelOf(tree);
+                        if (MoverArgument(semantic.GetSymbolInfo(baseType).Symbol, baseType.ArgumentList) is { } inherited)
+                            yield return inherited;
+                        break;
+                }
             }
+        }
+
+        // The argument a single-motion behaviour's constructor takes as its mover, by name or by position.
+        static ExpressionSyntax? MoverArgument(ISymbol? constructor, ArgumentListSyntax arguments)
+        {
+            if (constructor is not IMethodSymbol { MethodKind: MethodKind.Constructor, ContainingType.Name: "SingleMotionProjectileBehavior" } method)
+                return null;
+            int position = method.Parameters.IndexOf(method.Parameters.Single(parameter => parameter.Name == "move"));
+            return arguments.Arguments.FirstOrDefault(argument => argument.NameColon?.Name.Identifier.Text == "move")?.Expression
+                ?? (arguments.Arguments.Count > position && arguments.Arguments[position].NameColon is null ? arguments.Arguments[position].Expression : null);
         }
     }
 

@@ -14,6 +14,6 @@ internal interface IMotherBrainRoomActors
     /// <summary>Fires the shared Pirate/Mother Brain laser from <paramref name="muzzle"/>; null when no projectile slot is free.</summary>
     EnemyProjectile? SpawnPirateLaser(RoomEnemySlot source, Position16<RoomPixels> muzzle, HorizontalDirection direction);
 
-    /// <summary>Creates the stationary impact center that later emits a perpendicular afterburn pair.</summary>
-    void SpawnAfterburnCenter(RoomEnemyProjectileKind kind, Position16<RoomPixels> position, int remaining);
+    /// <summary>Creates the stationary impact center that later emits an afterburn pair flying along <paramref name="pairAxis"/>.</summary>
+    void SpawnAfterburnCenter(Axis pairAxis, Position16<RoomPixels> position, int remaining);
 }

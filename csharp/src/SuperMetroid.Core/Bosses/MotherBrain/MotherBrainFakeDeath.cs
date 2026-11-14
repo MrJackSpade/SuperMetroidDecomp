@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -26,7 +26,8 @@ internal sealed class MotherBrainFakeDeath
 
     /// <summary>Mother Brain's state lookups, body and brain animation setters, timers and room-object requests.</summary>
     private readonly MotherBrainEncounterAccess _access;
-
+    /// <summary>Mother Brain's projectiles, whose ceiling tubes the collapse drops.</summary>
+    private readonly MotherBrainProjectiles _projectileAttacks;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal MotherBrainFakeDeath(MotherBrainFakeDeathDependencies dependencies)
@@ -39,6 +40,7 @@ internal sealed class MotherBrainFakeDeath
         _motherBrainEncounter = dependencies.MotherBrainEncounter;
 
         _access = dependencies.Access;
+        _projectileAttacks = dependencies.ProjectileAttacks;
     }
 
     /// <summary>
@@ -131,7 +133,7 @@ internal sealed class MotherBrainFakeDeath
             case MotherBrainTubeCollapseStep.SpawnTopRightTube:
                 if (!DecrementMotherBrainTubeTimerPastZero(state))
                     return;
-                SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopRightTube, new(152, 47));
+                SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopRightTube, MotherBrainTopTubeSegment.TopRight, new(152, 47));
                 state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearCeilingColumn9;
                 return;
             case MotherBrainTubeCollapseStep.ClearCeilingColumn9:
@@ -142,7 +144,7 @@ internal sealed class MotherBrainFakeDeath
             case MotherBrainTubeCollapseStep.SpawnTopLeftTube:
                 if (!DecrementMotherBrainTubeTimerPastZero(state))
                     return;
-                SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopLeftTube, new(104, 47));
+                SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopLeftTube, MotherBrainTopTubeSegment.TopLeft, new(104, 47));
                 state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearCeilingColumn6;
                 return;
             case MotherBrainTubeCollapseStep.ClearCeilingColumn6:
@@ -175,7 +177,7 @@ internal sealed class MotherBrainFakeDeath
             case MotherBrainTubeCollapseStep.SpawnTopMiddleLeftTube:
                 if (!DecrementMotherBrainTubeTimerPastZero(state))
                     return;
-                SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube, new(120, 59));
+                SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube, MotherBrainTopTubeSegment.TopMiddleLeft, new(120, 59));
                 state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearCeilingColumn7;
                 return;
             case MotherBrainTubeCollapseStep.ClearCeilingColumn7:
@@ -186,7 +188,7 @@ internal sealed class MotherBrainFakeDeath
             case MotherBrainTubeCollapseStep.SpawnTopMiddleRightTube:
                 if (!DecrementMotherBrainTubeTimerPastZero(state))
                     return;
-                SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube, new(136, 59));
+                SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube, MotherBrainTopTubeSegment.TopMiddleRight, new(136, 59));
                 state.TubeCollapseStep = MotherBrainTubeCollapseStep.ClearCeilingColumn8;
                 return;
             case MotherBrainTubeCollapseStep.ClearCeilingColumn8:
@@ -240,16 +242,19 @@ internal sealed class MotherBrainFakeDeath
         state.TubeCollapseTimer = timer;
     }
 
-    /// <summary>Spawns the top tube projectile for the scripted collapse.</summary>
+    /// <summary>Spawns the top tube projectile of <paramref name="kind"/>, falling as <paramref name="tube"/> shows, for the scripted collapse.</summary>
     internal void SpawnMotherBrainTopTube(
         RoomEnemyProjectileKind kind,
+        MotherBrainTopTubeSegment tube,
         Position16<RoomPixels> position)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
-        MotherBrainProjectileStarts.Initialize(projectile, kind, graphics: SpriteGraphics.SharedIn(MotherBrainColours.GlassAndTubes));
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, _projectileAttacks.Projectile,
+            graphics: SpriteGraphics.SharedIn(MotherBrainColours.GlassAndTubes));
+        projectile.StartAnimation(new MotherBrainTopTubeAnimation(tube));
         projectile.Position = projectile.Position.WithWhole(position);
         projectile.Velocity = EightEightVector<RoomPixels>.Zero;
         projectile.State = new MotherBrainTopTubeState();

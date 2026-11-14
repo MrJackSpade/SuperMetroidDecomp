@@ -412,6 +412,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.PirateMotherBrainLaser,
+            Laser,
             graphics: default);
 
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(muzzle);
@@ -469,24 +470,48 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         slot.SpeciesState<WalkingSpacePirateEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized walking Space Pirate state.");
 
-    /// <summary>Registers laser movement and the cue that immediately runs its installed frame behaviour.</summary>
-    internal static void AddWalkingSpacePirateProjectiles(EnemyProjectileHandlerTable table)
-    {
-        table.AddFrameBehavior(
-            context => FlyPirateLaser(context.Projectile, context.Camera, HorizontalDirection.Left),
-            EnemyProjectileFrameBehavior.LaserFlightLeft);
-        table.AddFrameBehavior(
-            context => FlyPirateLaser(context.Projectile, context.Camera, HorizontalDirection.Right),
-            EnemyProjectileFrameBehavior.LaserFlightRight);
+    /// <summary>
+    /// The Pirates' and Mother Brain's laser (#1760): its spawner starts its animation, which installs its flight left or
+    /// right.
+    /// </summary>
+    internal static readonly EnemyProjectileBehavior Laser = new LaserBehavior();
 
-        table.AddCue<SpacePirateProjectileCue>((context, cue) =>
+    /// <summary>A laser: it flies left or right until it leaves the camera, as its animation's cues install.</summary>
+    private sealed class LaserBehavior : EnemyProjectileBehavior, IEnemyProjectileCues<SpacePirateProjectileCue>
+    {
+        /// <inheritdoc/>
+        private protected override void Move(EnemyProjectileFrameBehaviorContext context)
         {
-            context.Projectile.FrameBehavior = cue.Movement;
-            // The start-moving cue leaves the segment where it was, so the common animation dispatches the installed
-            // movement once at once: the laser moves on the update it starts and may leave the screen then.
-            if (cue.Kind == SpacePirateProjectileCueKind.StartMovingNow)
-                FlyPirateLaser(context.Projectile, context.Camera, LaserFlightDirection(cue.Movement));
-        });
+            EnemyProjectileFrameBehavior motion = context.Projectile.FrameBehavior;
+            if (motion == EnemyProjectileFrameBehavior.LaserFlightLeft)
+            {
+                FlyPirateLaser(context.Projectile, context.Camera, HorizontalDirection.Left);
+            }
+            else if (motion == EnemyProjectileFrameBehavior.LaserFlightRight)
+            {
+                FlyPirateLaser(context.Projectile, context.Camera, HorizontalDirection.Right);
+            }
+            else
+            {
+                base.Move(context);
+            }
+        }
+
+        /// <inheritdoc/>
+        public void RunCue(EnemyProjectileCueContext context, SpacePirateProjectileCue cue) => ApplySpacePirateProjectileCue(context, cue);
+    }
+
+    /// <summary>
+    /// Carries out a cue of the Pirates' laser and claw animations: it installs the movement the cue names, and the
+    /// start-moving-now cue runs a laser's installed flight at once.
+    /// </summary>
+    internal static void ApplySpacePirateProjectileCue(EnemyProjectileCueContext context, SpacePirateProjectileCue cue)
+    {
+        context.Projectile.FrameBehavior = cue.Movement;
+        // The start-moving cue leaves the segment where it was, so the common animation dispatches the installed
+        // movement once at once: the laser moves on the update it starts and may leave the screen then.
+        if (cue.Kind == SpacePirateProjectileCueKind.StartMovingNow)
+            FlyPirateLaser(context.Projectile, context.Camera, LaserFlightDirection(cue.Movement));
     }
 
     /// <summary>Runs the walking Space Pirate's main AI.</summary>

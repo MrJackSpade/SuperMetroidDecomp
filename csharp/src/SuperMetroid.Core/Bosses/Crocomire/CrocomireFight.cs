@@ -37,7 +37,8 @@ internal sealed class CrocomireFight
     private readonly EnemyRoomStatus _roomStatus;
     /// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
-
+    /// <summary>Crocomire's combat, whose projectile behaviour the mouth's shot is bound to.</summary>
+    private readonly CrocomireCombat _combat;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal CrocomireFight(CrocomireFightDependencies dependencies)
@@ -51,6 +52,7 @@ internal sealed class CrocomireFight
         _zebetiteBehavior = dependencies.ZebetiteBehavior;
         _roomStatus = dependencies.RoomStatus;
         _access = dependencies.Access;
+        _combat = dependencies.Combat;
     }
 
     /// <summary>Sets Crocomire up when the room spawns it.</summary>
@@ -485,6 +487,7 @@ internal sealed class CrocomireFight
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.CrocomireProjectile,
+            _combat.MouthShot,
             graphics: SpriteGraphics.SharedIn(CrocomireColours.ProjectileShading));
         projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Mouth));
         projectile.Velocity = new(SignedEightEight.FromPixels(-2), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1));

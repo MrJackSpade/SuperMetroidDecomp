@@ -23,15 +23,8 @@ internal static class CeresFlightActorDefinitions
     /// pixels an update toward the top-left.
     /// </summary>
     /// <remarks>
-    /// Issues #625 and #1014: front stars and the rear view's rear stars alias the
-    /// same star definition and animation. Its four
-    /// steps match the authored data: duration
-    /// 10, the star frame, then a jump back to the start.
-    /// The initializer parameter changes actor motion, not this animation.
-    /// The exact bounded rule displays the same authored star sheet for
-    /// ten handler calls and repeats while its scene owns the actor.
-    /// IntroDiscoverySprite.Step never falls into the following animation.
-    /// Both aliases select the same installed visual frame.
+    /// The opening stars and the rear view's stars share this star animation: the star picture for ten updates, again and
+    /// again while its scene keeps the actor. Which stars they are changes their motion, not their animation.
     /// </remarks>
     public static CeresFlightActorDefinition FrontStars => new(
         ActiveFrameBehavior: CinematicSpriteFrameBehavior.CeresStars,
@@ -63,15 +56,14 @@ internal static class CeresFlightActorDefinitions
             CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(8), true);
 
     /// <summary>The moving purple space vortex.
-    /// Its initializer takes the nonzero branch, the space objects' colours, preserving the moving behaviour;
+    /// It is coloured in the space objects' colours and keeps moving;
     /// its animation alternates two frames. The stationary destruction-scene vortex is its other variant.</summary>
     internal static CeresFlightActorDefinition MovingVortex =>
         new(CinematicSpriteFrameBehavior.CeresPurpleSpaceVortex, CinematicSpriteSegment.CeresVortex,
             CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, VortexHorizontalDelta, false);
 
     /// <summary>The stars around Ceres, the rear view's variant.
-    /// Its initializer takes the nonzero branch: the space objects' colours, timer remains cleared;
-    /// it replaces the star-field motion with the drifting one. The definition and animation alias FrontStars.</summary>
+    /// It is coloured in the space objects' colours and drifts with the vortex instead of rushing like the opening stars. The definition and animation alias FrontStars.</summary>
     internal static CeresFlightActorDefinition RearStars => FrontStars with
     {
         ActiveFrameBehavior = CinematicSpriteFrameBehavior.CeresPurpleSpaceVortex,

@@ -49,18 +49,18 @@ internal static class EndingLogoVerification
             logo.Step(screen.Colours);
             frame++;
             if (logo.CrossfadeStarted && fadeStart == 0) fadeStart = frame;
-            if (logo.PaletteStep > 0)
+            if (logo.CrossfadeStep > 0)
             {
                 // The screen names the step shown; the import's shade of that step holds the cartridge's table entry (#1512).
-                AssertEqual(EndingShades.LogoCrossfade(logo.PaletteStep - 1), screen.Colours.Shading.Shades[^1], "the logo shows its latest crossfade step");
-                SheetShade step = installedShades.Single(candidate => candidate.Shade == EndingShades.LogoCrossfade(logo.PaletteStep - 1));
+                AssertEqual(EndingShades.LogoCrossfade(logo.CrossfadeStep - 1), screen.Colours.Shading.Shades[^1], "the logo shows its latest crossfade step");
+                SheetShade step = installedShades.Single(candidate => candidate.Shade == EndingShades.LogoCrossfade(logo.CrossfadeStep - 1));
                 AssertTrue(step.Inks.SequenceEqual([.. Enumerable.Range(16, 16), .. Enumerable.Range(240, 16)]),
                     "a crossfade step covers the logo's background and sprite colours");
                 for (int p = 0; p < 2; p++)
                 {
                     int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                         EndingPaletteSources.NativeTableAddress +
-                        (logo.PaletteStep - 1) * 4 + p * 2);
+                        (logo.CrossfadeStep - 1) * 4 + p * 2);
                     for (int i = 0; i < 16; i++)
                         AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8c0000 | (pointer - 30 + i * 2)),
                             step.Colours[p * 16 + i].ToWord(), "native logo crossfade palette table entry");
@@ -156,7 +156,7 @@ internal static class EndingLogoVerification
             () => EndingLogoActors.Actor(4),
             "logo actor definition boundary");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => EndingPaletteSources.LogoCrossfadeSource(EndingLogoDefinitions.PaletteSteps, 0),
+            () => EndingPaletteSources.LogoCrossfadeSource(EndingLogoDefinitions.CrossfadeSteps, 0),
             "logo palette step boundary");
         AssertThrows<ArgumentOutOfRangeException>(
             () => EndingPaletteSources.LogoCrossfadeSource(0, 2),
@@ -171,7 +171,7 @@ internal static class EndingLogoVerification
             .Forbid(CinematicSpriteNativeListAddresses.InListRegion,
                 address => $"Ending logo reread a native cinematic sprite list byte ${address:X6}.")
             .ForbidRange(EndingPaletteSources.NativeTableAddress,
-                EndingLogoDefinitions.PaletteSteps * 2 * sizeof(ushort),
+                EndingLogoDefinitions.CrossfadeSteps * 2 * sizeof(ushort),
                 address => $"Ending logo reread palette pointer byte ${address:X6}.")
             .Forbid(address => Enumerable.Range(0, EndingLogoDefinitions.ActorCount).Any(index =>
                 {

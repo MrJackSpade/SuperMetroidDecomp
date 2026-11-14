@@ -59,7 +59,7 @@ internal static class ZebesRevealPixelationVerification
                 setting = startingSetting;
             else if (setting is { } shown && before == CeresDestructionPhase.FadeInZebes && (frameCounter & fadeInCadence) == 0)
                 setting = unchecked((byte)(shown - fadeInStep));
-            else if (setting is { } held && before == CeresDestructionPhase.RemoveZebesMosaic && (frameCounter & transitionCadence) == 0)
+            else if (setting is { } held && before == CeresDestructionPhase.RemoveZebesPixelation && (frameCounter & transitionCadence) == 0)
             {
                 setting = unchecked((byte)(held - transitionStep));
                 cleared = (setting.Value & transitionClear) == 0;
@@ -69,12 +69,12 @@ internal static class ZebesRevealPixelationVerification
 
             LayeredScene snapshot = scene.CaptureRenderSnapshot();
             PicturedPlaneLayer[] planes = snapshot.LayersOf<PicturedPlaneLayer>();
-            if (before == CeresDestructionPhase.RemoveZebesMosaic)
+            if (before == CeresDestructionPhase.RemoveZebesPixelation)
             {
-                AssertEqual(cleared ? CeresDestructionPhase.PlanetZebesTitle : CeresDestructionPhase.RemoveZebesMosaic, scene.Phase,
+                AssertEqual(cleared ? CeresDestructionPhase.PlanetZebesTitle : CeresDestructionPhase.RemoveZebesPixelation, scene.Phase,
                     $"the reveal ends on the update the cartridge's mosaic transition clears its size (update {update})");
             }
-            if (before == CeresDestructionPhase.FadeInZebes && scene.Phase == CeresDestructionPhase.RemoveZebesMosaic)
+            if (before == CeresDestructionPhase.FadeInZebes && scene.Phase == CeresDestructionPhase.RemoveZebesPixelation)
                 AssertEqual(DisplayBrightness.Full, snapshot.Brightness, $"the reveal's fade-in ends at full brightness (update {update})");
             if (cleared)
             {

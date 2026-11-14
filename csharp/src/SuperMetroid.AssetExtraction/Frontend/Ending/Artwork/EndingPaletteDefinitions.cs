@@ -18,6 +18,6 @@ internal static class EndingPaletteDefinitions
             [EndingPaletteId.Explosion] = ScreenColourImage.ColorCount,
             [EndingPaletteId.FinalGunship] = 16,
             [EndingPaletteId.LogoInitial] = 16,
-            [EndingPaletteId.LogoCrossfade] = EndingLogoDefinitions.PaletteSteps * 2 * 16,
+            [EndingPaletteId.LogoCrossfade] = EndingLogoDefinitions.CrossfadeSteps * 2 * 16,
         };
 }

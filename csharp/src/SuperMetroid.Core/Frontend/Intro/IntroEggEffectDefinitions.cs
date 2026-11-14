@@ -10,9 +10,6 @@ internal static class IntroEggEffectDefinitions
         IntroEggShellFragment.Centre, IntroEggShellFragment.Right, IntroEggShellFragment.Lower,
     ];
 
-    /// <summary>Number of slime drops allocated by the confused-baby frame behaviour.</summary>
-    public const int SlimeDropCount = 4;
-
     /// <summary>The animation each piece of the shell shows.</summary>
     internal static IReadOnlyDictionary<IntroEggShellFragment, CinematicSpriteSegment> ShellFragmentAnimations { get; } =
         new Dictionary<IntroEggShellFragment, CinematicSpriteSegment>
@@ -25,15 +22,9 @@ internal static class IntroEggEffectDefinitions
             [IntroEggShellFragment.Lower] = CinematicSpriteSegment.MetroidEggShellLower,
         };
 
-    /// <summary>The shared egg-slime initialization, motion, and animation definition.</summary>
+    /// <summary>The slime drops' actor: they fly as slime drops do and show the flying drop's picture.</summary>
     /// <remarks>
-    /// Issues #625 and #985: the moving animation and the four impact
-    /// animations select five one-entry visual frames,
-    /// one for each of f=0..4, matching the authored data.
-    /// Each record draws that frame's own picture four pixels left of and above the slime, in the egg's
-    /// colours in front of the scene.
-    /// These are authored artwork choices; preserve the five bounded picture
-    /// identities and do not infer a sixth frame from adjacent data.
+    /// A landed drop shows the four pictures of its puddle instead, each in the egg's colours in front of the scene.
     /// </remarks>
     public static CinematicActorDefinition SlimeDrop =>
         new(CinematicSpriteFrameBehavior.MetroidEggSlimeDrops, CinematicSpriteSegment.MetroidEggSlimeDrop);

@@ -48,7 +48,7 @@ internal sealed class EndingZebesExplosion
 
     /// <summary>Whether the explosion's palette interpolation still owns the colour writes.</summary>
     internal bool ExplosionCrossfadeActive => _stage.Phase is EndingCreditsPhase.FadeInZebesExplosion
-        or EndingCreditsPhase.ZebesExplosionPaletteCrossfade;
+        or EndingCreditsPhase.ZebesExplosionCrossfade;
 
     /// <summary>Stops cloud palette effects and seeds the planet object's first fade step.</summary>
     private void BeginExplosionCrossfade()

@@ -44,7 +44,7 @@ internal static class EndingPaletteReading
         {
             if (palette.kind != EndingPalette.Kind.LogoCrossfade)
                 throw new InvalidOperationException("Only the logo crossfade is read by step and layer.");
-            Ensure.BetweenInclusive(0, EndingLogoDefinitions.PaletteSteps - 1, step);
+            Ensure.BetweenInclusive(0, EndingLogoDefinitions.CrossfadeSteps - 1, step);
             Ensure.BetweenInclusive(0, EndingPalette.CrossfadeLayerColours - 1, colour);
             int place = layer switch
             {

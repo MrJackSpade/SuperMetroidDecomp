@@ -6,8 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>
 /// Cartridge identities of the game-over Baby program's records, read only by the extraction pipeline and its
-/// ROM-oracle verification. The simulation runs <see cref="GameOverBabyAnimation"/> by step ordinal and never
-/// reads these values.
+/// ROM-oracle verification. The simulation plays <see cref="GameOverBabyAnimation"/> and never reads these values.
 /// </summary>
 /// <remarks>
 /// Native $82:BC27..BD96 holds sixty six-byte frame records in play order. The first cry step of each group is
@@ -47,12 +46,12 @@ internal static class GameOverBabyAnimationDefinitions
     /// with no pointer outside these four sources. bank_82.asm names the same
     /// blocks. Unknown semantic phases fail rather than extrapolate.
     /// </remarks>
-    public static ushort NativePalettePointer(GameOverBabyPalette palette) => palette switch
+    public static ushort NativePalettePointer(GameOverBabyColouring palette) => palette switch
     {
-        GameOverBabyPalette.Idle => 0xbd97,
-        GameOverBabyPalette.ClosedCry => 0xbdb7,
-        GameOverBabyPalette.MiddleCry => 0xbdd7,
-        GameOverBabyPalette.OpenCry => 0xbdf7,
+        GameOverBabyColouring.Idle => 0xbd97,
+        GameOverBabyColouring.ClosedCry => 0xbdb7,
+        GameOverBabyColouring.MiddleCry => 0xbdd7,
+        GameOverBabyColouring.OpenCry => 0xbdf7,
         _ => throw new ArgumentOutOfRangeException(nameof(palette)),
     };
 
@@ -62,7 +61,7 @@ internal static class GameOverBabyAnimationDefinitions
     /// library-three sounds $23, $26 and $27.
     /// </summary>
     /// <remarks>Issues #625 and #970: their effect IDs and stream references were checked against pinned NTSC J/U v1.0
-    /// ROM. <see cref="GameOverBabySound.None"/> has no callback.</remarks>
+    /// ROM.</remarks>
     internal static readonly NativeWordIdentities<GameOverBabySound> CryCallbacks = new(new Dictionary<GameOverBabySound, ushort>
     {
         [GameOverBabySound.FirstCry] = 0xbc0c,

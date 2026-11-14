@@ -17,7 +17,7 @@ public sealed class EndingPalette
     internal const int CrossfadeLayerColours = 16;
 
     /// <summary>The logo crossfade's colours: every step's background colours, then its sprite colours.</summary>
-    private const int CrossfadeColours = EndingLogoDefinitions.PaletteSteps * 2 * CrossfadeLayerColours;
+    private const int CrossfadeColours = EndingLogoDefinitions.CrossfadeSteps * 2 * CrossfadeLayerColours;
 
     /// <summary>The colours in resource order.</summary>
     internal readonly ImmutableArray<RgbColor> colours;

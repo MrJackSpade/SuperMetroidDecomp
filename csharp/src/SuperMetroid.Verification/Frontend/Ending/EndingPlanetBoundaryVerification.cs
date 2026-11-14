@@ -42,7 +42,7 @@ internal static class EndingPlanetBoundaryVerification
         string firstDifference = "none";
         ShownFloorPairing? crossfadeFloors = null;
         int composedFloorFrames = 0;
-        while (ending.Stage.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionPaletteCrossfade)
+        while (ending.Stage.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionCrossfade)
         {
             var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
             RgbColor[] snapshotColours = EndingShownColours.Of(ending, shownShades);

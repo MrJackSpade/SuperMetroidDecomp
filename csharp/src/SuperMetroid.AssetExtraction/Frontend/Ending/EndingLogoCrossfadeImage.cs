@@ -19,7 +19,7 @@ internal static class EndingLogoCrossfadeImage
     private const int LayersPerStep = 2;
 
     /// <summary>The colours of the whole crossfade resource.</summary>
-    internal const int ColourCount = EndingLogoDefinitions.PaletteSteps * LayersPerStep * ColoursPerLayer;
+    internal const int ColourCount = EndingLogoDefinitions.CrossfadeSteps * LayersPerStep * ColoursPerLayer;
 
     /// <summary>The crossfade's colours that <paramref name="image"/>, the resource's colours in its own order, holds.</summary>
     /// <exception cref="ArgumentException"><paramref name="image"/> does not hold the whole crossfade.</exception>

@@ -37,7 +37,7 @@ internal sealed record EndingScreenLoads(EndingFloorSceneId? FloorScene, bool Fl
             or EndingCreditsPhase.FadeOutSideCloudEscape => None with { FloorScene = EndingFloorSceneId.SideCloudEscape },
         EndingCreditsPhase.FadeInTopAndBottomCloudEscape or EndingCreditsPhase.TopAndBottomCloudEscape
             or EndingCreditsPhase.FadeOutTopAndBottomCloudEscape => None with { FloorScene = EndingFloorSceneId.TopAndBottomCloudEscape },
-        EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionPaletteCrossfade
+        EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionCrossfade
             or EndingCreditsPhase.ZebesExplosionHold => None with { FloorScene = EndingFloorSceneId.PlanetExplosion, ExplosionMaps = true },
         EndingCreditsPhase.ZebesExplosionAnimation or EndingCreditsPhase.WaitForPlanetEscapeMusic
             or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue or EndingCreditsPhase.PlanetEscapeFast

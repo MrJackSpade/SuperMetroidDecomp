@@ -13,7 +13,7 @@ public static class EndingShades
     public const int FadeLevels = EndingExplosionFadeDefinitions.Steps;
 
     /// <summary>The logo crossfade's steps.</summary>
-    public const int LogoCrossfadeSteps = EndingLogoDefinitions.PaletteSteps;
+    public const int LogoCrossfadeSteps = EndingLogoDefinitions.CrossfadeSteps;
 
     /// <summary>The colours <paramref name="load"/> shows over those it replaces.</summary>
     public static PictureShade Loaded(EndingColourLoad load) => new($"Ending{load}", 0);

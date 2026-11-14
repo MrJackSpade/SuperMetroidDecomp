@@ -40,9 +40,6 @@ internal static class RoomObjectCollectibleDrawDefinitions
     /// <summary>The solid burst frame drawn when a Chozo orb opens.</summary>
     internal static RoomObjectFrameDraw<D> OrbBurst { get; } = RoomObjectDraw.Of(D.ChozoOrbBurst);
 
-    /// <summary>A Chozo orb's three frames, dimmest first; its animation runs forward through them and back through the middle one.</summary>
-    internal static readonly D[] OrbFrames = [D.ChozoOrbDim, D.ChozoOrbGlowing, D.ChozoOrbBright];
-
     /// <summary>A shot block's frames as a concealed item's reveal shows them; its hiding shows them in reverse.</summary>
     internal static readonly D[] ShotRevealFrames = [D.ShotBlockIntact, D.ShotBlockCracking, D.ShotBlockDust];
 

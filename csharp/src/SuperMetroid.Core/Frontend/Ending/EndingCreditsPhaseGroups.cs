@@ -19,7 +19,7 @@ internal static class EndingCreditsPhaseGroups
     /// <summary>The escape and the explosion's fade-in and crossfade, before the explosion's hold.</summary>
     internal static readonly FrozenSet<EndingCreditsPhase> BeforeZebesExplosionHold = BeforeZebesExplosion.Concat(new[]
     {
-        EndingCreditsPhase.FadeInZebesExplosion, EndingCreditsPhase.ZebesExplosionPaletteCrossfade,
+        EndingCreditsPhase.FadeInZebesExplosion, EndingCreditsPhase.ZebesExplosionCrossfade,
     }).ToFrozenSet();
 
     /// <summary>Everything before the gunship's planet escape: the escape, the explosion and the music waits.</summary>

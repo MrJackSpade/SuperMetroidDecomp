@@ -186,10 +186,10 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 Explosion.StepExplosionCrossfade();
                 EscapeScenes.StepSprites();
                 if (Stage.StepFastFadeIn())
-                    Stage.Phase = EndingCreditsPhase.ZebesExplosionPaletteCrossfade;
+                    Stage.Phase = EndingCreditsPhase.ZebesExplosionCrossfade;
                 break;
 
-            case EndingCreditsPhase.ZebesExplosionPaletteCrossfade:
+            case EndingCreditsPhase.ZebesExplosionCrossfade:
                 Explosion.StepExplosionCrossfade();
                 EscapeScenes.StepSprites();
                 break;
@@ -269,13 +269,13 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 if (Stage.StepSlowFadeIn())
                 {
                     Stage.PhaseTimer = EndingSequenceDefinitions.Timing.WaitingPaletteFadeFrames;
-                    CreditsRoll.ApplyWaitingBackdropPalette(0);
+                    CreditsRoll.FadeWaitingBackdrop(0);
                     Stage.Phase = EndingCreditsPhase.PostCreditsShootingStars;
                 }
                 break;
 
             case EndingCreditsPhase.PostCreditsShootingStars:
-                CreditsRoll.ApplyWaitingBackdropPalette(EndingSequenceDefinitions.Timing.WaitingPaletteFadeFrames - Stage.PhaseTimer + 1);
+                CreditsRoll.FadeWaitingBackdrop(EndingSequenceDefinitions.Timing.WaitingPaletteFadeFrames - Stage.PhaseTimer + 1);
                 if (--Stage.PhaseTimer <= 0)
                 {
                     // The palette fade finishes, then the waiting phase holds the
@@ -300,8 +300,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 if (--Stage.PhaseTimer <= 0)
                 {
                     EscapeScenes.SpawnEndingRewardActors();
-                    CreditsRoll.ResetRewardPalette();
-                    CreditsRoll.ApplyRewardPalette();
+                    CreditsRoll.ResetRewardFade();
+                    CreditsRoll.ShowRewardFade();
                     Stage.PhaseTimer = EndingSequenceDefinitions.Timing.RewardRevealHalfFrames;
                     Stage.Phase = EndingCreditsPhase.PostCreditsReward;
                 }
@@ -312,8 +312,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 // their shared palette step on the fourth, eighth, ... calls.
                 if (EndingCadenceDefinitions.RewardColourStepEveryFourthUpdate.IsDue(Stage.PhaseTimer))
                 {
-                    CreditsRoll.AdvanceRewardPalette();
-                    CreditsRoll.ApplyRewardPalette();
+                    CreditsRoll.AdvanceRewardFade();
+                    CreditsRoll.ShowRewardFade();
                 }
                 EscapeScenes.StepSprites();
                 if (--Stage.PhaseTimer <= 0)
@@ -411,12 +411,12 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 throw new InvalidOperationException($"Undefined {nameof(EndingCreditsPhase)} {Stage.Phase}.");
         }
 
-        // The cinematic runs its colour effects after actors; the ending's colours show the record each holds (#1512, #1597).
+        // The cinematic runs its colour effects after actors; the ending's colours show the frame each shows (#1512, #1597).
         Stage.ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
         if (Stage.ColourEffects.AudioRequests.SoundRequests.Count != 0)
-            throw new InvalidDataException("Ending palette program requested an unhandled sound.");
+            throw new InvalidDataException("An ending colour effect requested an unhandled sound.");
         // The ending follows cinematic actors even while a text-only screen hides sprites.
-        // The credits' end enables the already-initialized records when the credits finish.
+        // The credits' end enables the already-started colour effects when the credits finish.
         if (EndingCreditsPhaseGroups.PostCredits.Contains(Stage.Phase))
             (CreditsRoll.ShootingStars ??= new EndingShootingStars()).Step();
         Flyaway.CinematicFrame++;

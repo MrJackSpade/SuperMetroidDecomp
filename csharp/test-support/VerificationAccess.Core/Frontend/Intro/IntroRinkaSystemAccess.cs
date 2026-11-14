@@ -15,6 +15,6 @@ internal static class IntroRinkaSystemAccess
 
         /// <summary>The sprite of the live Rinka that strikes Samus, the first one launched.</summary>
         internal IntroDiscoverySprite HittingRinka =>
-            self.rinkas.Single(static rinka => rinka.HitsSamus).Sprite;
+            self.rinkas.Single(static rinka => rinka.Flight == CinematicSpriteFrameBehavior.IntroRinkaMovingHitsSamus).Sprite;
     }
 }

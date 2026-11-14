@@ -505,7 +505,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private void DrawMapPositionIndicator()
     {
         Position16<SpritePixels> origin = SamusMapCell().ToMapPixels().ToScreen(MapScrollPosition).ToSpritePosition();
-        MapSpriteId indicator = PauseMapIndicatorAnimation.SpriteId(MapIndicatorAnimationFrame);
+        MapSpriteId indicator = PauseMapIndicatorAnimation.Pulse[MapIndicatorAnimationFrame].Sprite;
         DrawMapSprite(
             indicator,
             origin,
@@ -520,8 +520,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // "draw frame zero for N ticks" animation helper.
         if (MapIndicatorAnimationTimer == 0)
         {
-            MapIndicatorAnimationFrame = (MapIndicatorAnimationFrame + 1) & (PauseMapIndicatorAnimation.FrameCount - 1);
-            MapIndicatorAnimationTimer = PauseMapIndicatorAnimation.FrameDelay(MapIndicatorAnimationFrame);
+            MapIndicatorAnimationFrame = (MapIndicatorAnimationFrame + 1) % PauseMapIndicatorAnimation.Pulse.Count;
+            MapIndicatorAnimationTimer = PauseMapIndicatorAnimation.Pulse[MapIndicatorAnimationFrame].Duration;
         }
         MapIndicatorAnimationTimer--;
     }

@@ -5,8 +5,9 @@ using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectCollectibleDrawDefini
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// How each collectible draw's block collides, the terrain a block pair's frame writes, and the frame selection. What a
-/// frame other than a block pair's shows is its installed picture (#1557).
+/// How each collectible draw's block collides, the terrain a block pair's frame writes, and the frame selection; the Chozo
+/// orb's frames are its animation's (<see cref="CollectibleOrbAnimation"/>). What a frame other than a block pair's shows
+/// is its installed picture (#1557).
 /// </summary>
 internal static class CollectibleObjectDraws
 {
@@ -63,15 +64,6 @@ internal static class CollectibleObjectDraws
         DrawGroup.ShotReveal => RoomCollisionType.SolidBlock,
         _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {group}."),
     };
-
-    /// <summary>The orb cycles forward through its three draws and back through the middle draw.</summary>
-    internal static RoomObjectFrameDraw<CollectibleDraw> OrbFrame(int animationIndex)
-    {
-        if ((uint)animationIndex >= 4)
-            throw new InvalidDataException(
-                $"Chozo orb animation index {animationIndex} is outside four authored phases.");
-        return RoomObjectDraw.Of(OrbFrames[2 - Math.Abs(animationIndex - 2)]);
-    }
 
     /// <summary>A shot-block reveal shows three consecutive draws; hiding consumes them in reverse.</summary>
     internal static RoomObjectFrameDraw<CollectibleDraw> ShotRevealFrame(int animationIndex)

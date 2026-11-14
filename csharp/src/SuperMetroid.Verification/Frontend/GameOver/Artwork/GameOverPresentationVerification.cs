@@ -35,8 +35,8 @@ internal static class GameOverPresentationVerification
                 "installed game-over phase matches cartridge path");
             AssertEqual(native.SelectedItem, installed.SelectedItem,
                 "installed game-over selection matches cartridge path");
-            AssertEqual(native.BabyStep, installed.BabyStep,
-                "compiled Baby sequence reaches the same program step");
+            AssertEqual(native.BabyPlace, installed.BabyPlace,
+                "the Baby's animation reaches the same place");
             AssertEqual(native.BabyFrame, installed.BabyFrame,
                 "compiled Baby sequence selects the same pose");
             AssertTrue(ScenePixels.Same(native.CaptureRenderSnapshot(), installed.CaptureRenderSnapshot()),

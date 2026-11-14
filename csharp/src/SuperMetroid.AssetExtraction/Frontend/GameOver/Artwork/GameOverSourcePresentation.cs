@@ -134,8 +134,8 @@ public sealed class GameOverSourcePresentation
         SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, GameOverPresentationDefinitions.CursorFrameCount).Select(frame =>
             CompileSprite(document, GameOverPresentationNames.CursorFrameName(frame)))];
 
-        var palettes = new Dictionary<GameOverBabyPalette, RgbColor[]>();
-        foreach (GameOverBabyPalette palette in Enum.GetValues<GameOverBabyPalette>())
+        var palettes = new Dictionary<GameOverBabyColouring, RgbColor[]>();
+        foreach (GameOverBabyColouring palette in Enum.GetValues<GameOverBabyColouring>())
         {
             string name = GameOverBabyPaletteNames.BabyPaletteName(palette);
             if (!document.BabyPalettes.TryGetValue(name, out ushort[]? colors) ||

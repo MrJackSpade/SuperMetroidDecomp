@@ -5,15 +5,14 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>One of the four Rinkas of the Mother Brain flashback: the sprite it shows and what its launch chose.</summary>
 internal sealed class IntroRinka
 {
-    /// <summary>Creates the Rinka of <paramref name="launch"/> at its authored place, running the Rinka animation.</summary>
-    /// <param name="launch">The launch, 0 through 3, in spawn order.</param>
-    public IntroRinka(int launch)
+    /// <summary>Creates the Rinka of <paramref name="launch"/> where it appears, running the Rinka animation.</summary>
+    /// <param name="launch">The Rinka's launch: where it appears, its drift and how it flies.</param>
+    public IntroRinka(IntroRinkaLaunch launch)
     {
-        IntroRinkaPhysicalDefinition definition = IntroRinkaLaunches.Rinka(launch);
-        HitsSamus = launch == 0;
-        XWholeVelocity = definition.XWholeVelocity;
+        Flight = launch.Flight;
+        Drift = launch.Drift;
         Sprite = new IntroDiscoverySprite(
-            definition.Position,
+            launch.Position,
             colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
             segment: IntroRinkaDefinitions.RinkaActor.Animation);
         Sprite.InstallFrameBehavior(IntroRinkaDefinitions.RinkaActor.FrameBehavior);
@@ -22,9 +21,9 @@ internal sealed class IntroRinka
     /// <summary>The sprite showing the Rinka: its position and animation.</summary>
     internal IntroDiscoverySprite Sprite { get; }
 
-    /// <summary>Whether the Rinka takes the route that strikes Samus; only the first launch does, the others miss.</summary>
-    internal bool HitsSamus { get; }
+    /// <summary>How the Rinka flies once it starts moving: only the first one launched strikes Samus, the others miss.</summary>
+    internal CinematicSpriteFrameBehavior Flight { get; }
 
-    /// <summary>The whole pixels the Rinka moves sideways each update, before its half pixel.</summary>
-    internal int XWholeVelocity { get; }
+    /// <summary>How far the Rinka moves sideways each update.</summary>
+    internal SignedSixteenSixteen Drift { get; }
 }

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// <summary>
 /// The colour effects' colour groups the frontend screens' pictures show (#1512): the title's lights, logo and copyright, the
 /// cinematics' gunship, Ceres lights and planet text, and the ending's explosion, gunship and icon effects. A screen shades
-/// its pictures with the records these groups last showed; which inks each group recolours is the import's.
+/// its pictures with the frames these groups last showed; which inks each group recolours is the import's.
 /// </summary>
 internal static class ColourEffectScreenColourDefinitions
 {

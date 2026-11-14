@@ -7,18 +7,18 @@ namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 internal static class GameOverBabyPaletteNames
 {
     /// <summary>Maps a compiled Baby palette phase to its authored color-array identity.</summary>
-    private static readonly IReadOnlyDictionary<GameOverBabyPalette, string> NamesByPhase =
-        new Dictionary<GameOverBabyPalette, string>
+    private static readonly IReadOnlyDictionary<GameOverBabyColouring, string> NamesByPhase =
+        new Dictionary<GameOverBabyColouring, string>
         {
-            [GameOverBabyPalette.Idle] = "Baby.Idle",
-            [GameOverBabyPalette.ClosedCry] = "Baby.ClosedCry",
-            [GameOverBabyPalette.MiddleCry] = "Baby.MiddleCry",
-            [GameOverBabyPalette.OpenCry] = "Baby.OpenCry",
+            [GameOverBabyColouring.Idle] = "Baby.Idle",
+            [GameOverBabyColouring.ClosedCry] = "Baby.ClosedCry",
+            [GameOverBabyColouring.MiddleCry] = "Baby.MiddleCry",
+            [GameOverBabyColouring.OpenCry] = "Baby.OpenCry",
         };
 
     /// <summary>Maps a compiled Baby palette phase to its authored color-array identity.</summary>
     /// <param name="palette">Idle, closed-cry, middle-cry, or open-cry palette phase.</param>
     /// <returns>The corresponding <c>Baby.</c> palette dictionary key.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The palette identity is unsupported.</exception>
-    internal static string BabyPaletteName(GameOverBabyPalette palette) => Ensure.Listed(NamesByPhase, palette);
+    internal static string BabyPaletteName(GameOverBabyColouring palette) => Ensure.Listed(NamesByPhase, palette);
 }

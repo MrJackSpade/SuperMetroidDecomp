@@ -28,7 +28,7 @@ internal static class EndingScreenFloor
         EndingCreditsPhase.WaitForEscapeMusic or EndingCreditsPhase.FadeInSideCloudEscape or EndingCreditsPhase.SideCloudEscape
             or EndingCreditsPhase.FadeOutSideCloudEscape => EndingFloorShot.SideCloudEscape,
         EndingCreditsPhase.FadeInTopAndBottomCloudEscape or EndingCreditsPhase.TopAndBottomCloudEscape or EndingCreditsPhase.FadeOutTopAndBottomCloudEscape => EndingFloorShot.TopAndBottomCloudEscape,
-        EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionPaletteCrossfade
+        EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionCrossfade
             or EndingCreditsPhase.ZebesExplosionHold => EndingFloorShot.PlanetExplosion,
         EndingCreditsPhase.ZebesExplosionAnimation or EndingCreditsPhase.WaitForPlanetEscapeMusic
             or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue or EndingCreditsPhase.PlanetEscapeFast

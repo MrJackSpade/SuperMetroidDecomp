@@ -147,8 +147,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private int cinematicFrameCounter;
     /// <summary>Calls elapsed for the staggered and repeating Ceres explosion spawner.</summary>
     private int explosionSpawnerFrame;
-    /// <summary>Cycles the authored offsets for repeating small explosions.</summary>
-    private int explosionOffsetIndex;
+    /// <summary>The place in <see cref="CeresExplosionDefinitions.RepeatingBlasts"/> the next repeating blast appears at.</summary>
+    private int nextRepeatingBlast;
     /// <summary>Countdown carried between repeating explosion spawn calls; it fires on reaching zero or below.</summary>
     private int explosionRepeatCountdown;
     /// <summary>Selects the turning floor or the planet-reveal page.</summary>
@@ -288,7 +288,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 else
                 {
                     // The final blast snaps the zoom to the explosion's, creates the final blast, and
-                    // enters the flying-away phase on this exact handler call.
+                    // enters the flying-away phase on this same update.
                     Zoom = CeresDestructionSceneDefinitions.Motion.CeresExplosionZoom;
                     SpawnFinalCeresExplosion();
                     Phase = CeresDestructionPhase.FlyingAwayFromExplosion;
@@ -338,10 +338,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 StepRevealPixelation();
                 StepSlowFadeIn();
                 if (brightness == 15)
-                    Phase = CeresDestructionPhase.RemoveZebesMosaic;
+                    Phase = CeresDestructionPhase.RemoveZebesPixelation;
                 break;
 
-            case CeresDestructionPhase.RemoveZebesMosaic:
+            case CeresDestructionPhase.RemoveZebesPixelation:
                 if (StepRevealPixelation())
                     SetupZebesFloorActors();
                 break;
@@ -417,14 +417,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             StepCeresActors();
 
         // The cinematic's game state runs the colour effects after cinematic objects, every update from the setup on,
-        // including the update which starts an effect. Their records are shades the import pre-colours the scene's pictures
-        // in (#1512); the scene names the record each running effect shows (#1597).
+        // including the update which starts an effect. Their frames are shades the import pre-colours the scene's pictures
+        // in (#1512); the scene names the frame each running effect shows (#1597).
         ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
         if (ColourEffects.AudioRequests.SoundRequests.Count != 0)
             throw new InvalidDataException("A Ceres destruction colour effect unexpectedly requested audio.");
 
-        // The cinematic's game state increments the shared cinematic frame counter after calling the
-        // current phase but before object handling. The mosaic test therefore observes
+        // The cinematic's game state increments the shared cinematic frame counter after running the
+        // current phase but before its actors. The pixelation's cadence therefore reads
         // this pre-increment value on its following update.
         cinematicFrameCounter++;
     }
@@ -589,25 +589,19 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             CeresDestructionPhaseGroups.BeforeFlyingAway.Contains(Phase), ref explosionRepeatCountdown);
         if (events.Initial)
         {
-            for (int index = 0; index < CeresExplosionDefinitions.InitialExplosionCount; index++)
-                SpawnCeresExplosion(
-                    CeresExplosionDefinitions.InitialActor,
-                    CeresExplosions.InitialExplosion(index));
+            foreach (CeresExplosionPlacement blast in CeresExplosionDefinitions.InitialWave)
+                SpawnCeresExplosion(CeresExplosionDefinitions.InitialActor, blast);
         }
         if (events.Repeating)
         {
-            int offset = explosionOffsetIndex++ &
-                (CeresExplosionDefinitions.RepeatingExplosionCount - 1);
-            SpawnCeresExplosion(
-                CeresExplosionDefinitions.RepeatingActor,
-                CeresExplosions.RepeatingExplosion(offset));
+            SpawnCeresExplosion(CeresExplosionDefinitions.RepeatingActor,
+                CeresExplosionDefinitions.RepeatingBlasts[nextRepeatingBlast]);
+            nextRepeatingBlast = (nextRepeatingBlast + 1) % CeresExplosionDefinitions.RepeatingBlasts.Count;
         }
         if (events.Final)
         {
-            for (int index = 0; index < CeresExplosionDefinitions.FinalExplosionCount; index++)
-                SpawnCeresExplosion(
-                    CeresExplosionDefinitions.FinalWaveActor,
-                    CeresExplosions.FinalExplosion(index));
+            foreach (CeresExplosionPlacement blast in CeresExplosionDefinitions.FinalWave)
+                SpawnCeresExplosion(CeresExplosionDefinitions.FinalWaveActor, blast);
         }
 
         for (int index = actors.Count - 1; index >= 0; index--)
@@ -790,7 +784,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             case CinematicSpriteCueKind.SetFrameBehavior:
             case CinematicSpriteCueKind.EndZebesExplosion:
             case CinematicSpriteCueKind.ExplosionFinale:
-            case CinematicSpriteCueKind.FadeExplosionPalette:
+            case CinematicSpriteCueKind.FadeExplosionColours:
             case CinematicSpriteCueKind.GreyOut:
             case CinematicSpriteCueKind.Launch:
             case CinematicSpriteCueKind.LaunchHead:
@@ -819,7 +813,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             case CinematicSpriteCueKind.StartZebesExplosion:
             case CinematicSpriteCueKind.TransitionToCredits:
             default:
-                throw new InvalidOperationException($"The Zebes title programs publish no {cue} cue.");
+                throw new InvalidOperationException($"The Zebes title's animations publish no {cue} cue.");
         }
     }
 
@@ -879,7 +873,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// The shading of the turning floor (#1512, #1544, #1597, #1733): the shade of the record each of the floor's colour
+    /// The shading of the turning floor (#1512, #1544, #1597, #1733): the shade of the frame each of the floor's colour
     /// effects shows, the station's navigation lights over Ceres and the gunship engine's flicker on the approach to Zebes,
     /// or the floor's standard colours while no effect has shown one.
     /// </summary>
@@ -898,8 +892,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// An actor's shading (#1733): <paramref name="drawn"/>, with the record a colour effect animating its colouring last
-    /// showed laid over it; a fade that has ended keeps showing its last record.
+    /// An actor's shading (#1733): <paramref name="drawn"/>, with the frame a colour effect animating its colouring last
+    /// showed laid over it; a fade that has ended keeps showing its last frame.
     /// </summary>
     private PictureShading ActorShading(PictureShade drawn)
     {

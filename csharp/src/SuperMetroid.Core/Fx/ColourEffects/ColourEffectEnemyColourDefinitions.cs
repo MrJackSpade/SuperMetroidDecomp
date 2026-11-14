@@ -3,8 +3,8 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>
-/// The colour effects' colour groups that recolour an enemy's own colours (#1512): the enemy lays the shade of each record its
-/// group shows over its draws through its colour state, in the order the records and its own colour writes came.
+/// The colour effects' colour groups that recolour an enemy's own colours (#1512): the enemy lays the shade of each frame its
+/// group shows over its draws through its colour state, in the order the frames and its own colour writes came.
 /// </summary>
 internal static class ColourEffectEnemyColourDefinitions
 {

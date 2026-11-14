@@ -9,5 +9,5 @@ namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 public static class GameOverBabyShades
 {
     /// <summary>The Baby shown in its <paramref name="colours"/> colours.</summary>
-    public static PictureShade Colours(GameOverBabyPalette colours) => new($"GameOverBaby{colours}", 0);
+    public static PictureShade Colours(GameOverBabyColouring colours) => new($"GameOverBaby{colours}", 0);
 }

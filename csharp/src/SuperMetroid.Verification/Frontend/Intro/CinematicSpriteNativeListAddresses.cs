@@ -141,7 +141,7 @@ internal static class CinematicSpriteNativeListAddresses
     {
         [0xf32b] = CinematicSpriteCueKind.EndZebesExplosion,
         [0xf2fa] = CinematicSpriteCueKind.ExplosionFinale,
-        [0xf284] = CinematicSpriteCueKind.FadeExplosionPalette,
+        [0xf284] = CinematicSpriteCueKind.FadeExplosionColours,
         [0xc9a5] = CinematicSpriteCueKind.FadeInZebesText,
         [0xc9bd] = CinematicSpriteCueKind.FadeOutZebesText,
         [0xf25e] = CinematicSpriteCueKind.GreyOut,

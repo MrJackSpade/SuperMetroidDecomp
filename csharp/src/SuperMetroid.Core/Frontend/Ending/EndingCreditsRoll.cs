@@ -76,19 +76,19 @@ internal sealed class EndingCreditsRoll
     }
 
     /// <summary>Fades the post-credits waiting backdrop toward its authored palette.</summary>
-    internal void ApplyWaitingBackdropPalette(int step) => screen.Colours.Fade(EndingFade.WaitingBackdrop, step);
+    internal void FadeWaitingBackdrop(int step) => screen.Colours.Fade(EndingFade.WaitingBackdrop, step);
 
     /// <summary>Interpolation step for suitless or helmetless reward colors.</summary>
-    private int rewardPaletteStep;
+    private int rewardFadeStep;
 
     /// <summary>Crossfades waiting colors into the selected non-armored reward palette.</summary>
-    internal void ApplyRewardPalette()
+    internal void ShowRewardFade()
     {
         if (_stage.EndingReward == EndingReward.Armored) return;
-        ApplyWaitingBackdropPalette(EndingSequenceDefinitions.Timing.WaitingPaletteFadeFrames - rewardPaletteStep);
-        screen.Colours.Fade(EndingFade.SuitlessSamus, rewardPaletteStep);
+        FadeWaitingBackdrop(EndingSequenceDefinitions.Timing.WaitingPaletteFadeFrames - rewardFadeStep);
+        screen.Colours.Fade(EndingFade.SuitlessSamus, rewardFadeStep);
         if (_stage.EndingReward == EndingReward.Helmetless)
-            screen.Colours.Fade(EndingFade.SuitedSamus, rewardPaletteStep);
+            screen.Colours.Fade(EndingFade.SuitedSamus, rewardFadeStep);
         // The fade saves the post-credits colours as its target, then runs the shared colour component step 32 times.
         // Each increment is eight times the component in 256ths and composing keeps only whole units, so step S of 32 shows
         // each target channel times S over 32, rounded down: the level the import pre-colours (#1512).
@@ -145,8 +145,8 @@ internal sealed class EndingCreditsRoll
     internal bool RewardCopyrightShown { get; private set; }
 
     /// <summary>Starts the reward palette from its first step.</summary>
-    internal void ResetRewardPalette() => rewardPaletteStep = 0;
+    internal void ResetRewardFade() => rewardFadeStep = 0;
 
     /// <summary>Moves the reward palette to its next step.</summary>
-    internal void AdvanceRewardPalette() => rewardPaletteStep++;
+    internal void AdvanceRewardFade() => rewardFadeStep++;
 }

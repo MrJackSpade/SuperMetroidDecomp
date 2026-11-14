@@ -38,7 +38,7 @@ public sealed class GameOverPresentation
     /// <param name="frame">Closed, middle, or open Baby frame selected by the compiled animation sequence.</param>
     /// <param name="colours">Idle or one of the three crying colourings selected by the compiled Baby sequence (#1512).</param>
     /// <exception cref="ArgumentOutOfRangeException">The frame is not a supported Baby frame.</exception>
-    public void DrawBaby(ScreenSprites screenSprites, SpriteSheet sheet, GameOverBabyFrame frame, GameOverBabyPalette colours) =>
+    public void DrawBaby(ScreenSprites screenSprites, SpriteSheet sheet, GameOverBabyFrame frame, GameOverBabyColouring colours) =>
         Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationNames.BabyFrameName(frame)), BabyAnchor,
             shading: PictureShading.Shaded(GameOverBabyShades.Colours(colours)));
 

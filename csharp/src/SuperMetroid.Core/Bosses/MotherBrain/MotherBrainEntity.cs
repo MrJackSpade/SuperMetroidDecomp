@@ -55,12 +55,85 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
     }
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => MotherBrainPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context)
     {
-        MotherBrainPart.Tubes => (enemy, _) => MotherBrainBody.AdvanceMotherBrainTubeAnimation(enemy),
-        MotherBrainPart.Body or MotherBrainPart.Head => species.AdvanceMotherBrainBodyTypedAnimation,
+        switch (MotherBrainPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case MotherBrainPart.Tubes:
+                MotherBrainBody.AdvanceMotherBrainTubeAnimation(Slot);
+                break;
+            case MotherBrainPart.Body or MotherBrainPart.Head:
+                species.AdvanceMotherBrainBodyTypedAnimation(Slot, context);
+                break;
+            default:
+                throw new InvalidOperationException($"MotherBrain entity bound to {Slot.DefinitionId}.");
+        }
+    }
+
+    /// <summary>The part the occupant is.</summary>
+    private MotherBrainPart Part => MotherBrainPartDefinitions.Parts[Slot.DefinitionId];
+
+    /// <summary>The head's touch reaction, which its definition leaves to it; the body and tubes name shared ones.</summary>
+    public EnemyReaction? SpeciesTouch => Part == MotherBrainPart.Head ? MotherBrainReactions.HeadTouch : null;
+
+    /// <summary>The head's or the body's shot reaction, which their definitions leave to them; the tubes name a shared one.</summary>
+    public EnemyReaction? SpeciesShot => Part switch
+    {
+        MotherBrainPart.Head => MotherBrainReactions.HeadShot,
+        MotherBrainPart.Body => MotherBrainReactions.BodyShot,
+        MotherBrainPart.Tubes => null,
         _ => throw new InvalidOperationException($"MotherBrain entity bound to {Slot.DefinitionId}."),
     };
+
+    /// <summary>Whether the head's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
+    public override bool ReactsToTouch => (Part == MotherBrainPart.Head && LeavesTouchToSpecies) || base.ReactsToTouch;
+
+    /// <summary>Runs the head's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
+    /// <param name="context">The touch.</param>
+    public override void ReactToTouch(EnemyTouchContext context)
+    {
+        if (Part == MotherBrainPart.Head && LeavesTouchToSpecies)
+            MotherBrainCombat.ReactToMotherBrainHeadTouch(context);
+        else
+            base.ReactToTouch(context);
+    }
+
+    /// <summary>The head's or the body's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
+    public override EnemyShotReaction? ShotReaction => !LeavesShotToSpecies ? base.ShotReaction : Part switch
+    {
+        MotherBrainPart.Body => species.Combat.BodyShotReaction,
+        MotherBrainPart.Head => species.Combat.HeadShotReaction,
+        MotherBrainPart.Tubes => base.ShotReaction,
+        _ => throw new InvalidOperationException($"MotherBrain entity bound to {Slot.DefinitionId}."),
+    };
+
+    /// <summary>
+    /// Runs the body's or the head's own reaction to a bomb that selects its shot reaction, before the ignoring check. The
+    /// body's makes a dud shot: the frame-hitbox bomb walker has already marked the physical explosion, and the body's
+    /// reaction does no health, phase or multipart work of its own.
+    /// </summary>
+    /// <param name="context">The bomb contact.</param>
+    public override bool TryReactToBomb(EnemyBombContext context)
+    {
+        if (Part == MotherBrainPart.Body && context.SelectedShot == MotherBrainReactions.BodyShot)
+            return true;
+        if (Part == MotherBrainPart.Head && context.SelectedShot == MotherBrainReactions.HeadShot)
+        {
+            species.Combat.ReactToMotherBrainHeadBomb(context);
+            return true;
+        }
+        return base.TryReactToBomb(context);
+    }
+
+    /// <summary>
+    /// The shared Power Bomb reaction; the head and body leave the blast to the species, which has no reaction to it, and
+    /// fail loudly if a blast reaches them.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The occupant is the head or the body.</exception>
+    public override EnemyPowerBombReaction? PowerBombReaction =>
+        (Part is MotherBrainPart.Head or MotherBrainPart.Body) && LeavesPowerBombToSpecies
+            ? throw new InvalidDataException($"Enemy {Slot.DefinitionId} has no response to its own Power Bomb reaction.")
+            : base.PowerBombReaction;
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => MotherBrainCombat.FindMotherBrainHitboxReaction(Slot, probe, out reaction);
@@ -75,8 +148,8 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
         Slot.DefinitionId is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead ? EnemyCapabilities.ProjectileFrameHitboxes : EnemyCapabilities.None;
 
     /// <summary>The body's and head's own shot reactions, which normal bombs dispatch like the common one.</summary>
-    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
+    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
-        Slot.DefinitionId == EnemyDefinitionId.MotherBrainBody && reaction == EnemyReaction.MotherBrainBodyShot ||
-        Slot.DefinitionId == EnemyDefinitionId.MotherBrainHead && reaction == EnemyReaction.MotherBrainHeadShot;
+        (Part == MotherBrainPart.Body && reaction == MotherBrainReactions.BodyShot) ||
+        (Part == MotherBrainPart.Head && reaction == MotherBrainReactions.HeadShot);
 }

@@ -14,5 +14,5 @@ internal sealed class RioEntity(RioBehavior species, RoomEnemySlot slot, EnemyCo
     public void RunMainAi(IEnemyAiFrame frame) => species.RunRioMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => RioBehavior.AdvanceRioTypedAnimation;
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RioBehavior.AdvanceRioTypedAnimation(Slot, context);
 }

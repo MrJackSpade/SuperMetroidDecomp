@@ -11,10 +11,10 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresSteamCollisionDefinitions
 {
     /// <summary>Every plume rectangle's touch reaction: the steam scalds Samus.</summary>
-    internal const EnemyReaction TouchReaction = EnemyReaction.CeresSteamTouch;
+    internal static readonly EnemyReaction TouchReaction = CeresSteamReactions.Touch;
 
     /// <summary>Every plume rectangle's shot reaction: the steam ignores shots.</summary>
-    internal const EnemyReaction ShotReaction = EnemyReaction.Ignore;
+    internal static readonly EnemyReaction ShotReaction = EnemyReaction.Ignore;
 
     /// <summary>
     /// The 21 hitbox lists: the shared empty list selected by both hidden poses, then five plume rectangles per
@@ -80,5 +80,4 @@ internal static class CeresSteamCollisionDefinitions
         { EnemyFrameId.CeresSteamRightSixth, [new(Offset16<RoomPixels>.Zero, Lists[0])] },
         { EnemyFrameId.CeresSteamRightSeventh, [new(Offset16<RoomPixels>.Zero, Lists[0])] },
     };
-
 }

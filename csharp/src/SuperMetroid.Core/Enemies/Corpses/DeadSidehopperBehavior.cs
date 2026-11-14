@@ -428,13 +428,9 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         return state;
     }
 
-    /// <summary>Routes bomb-special hits on the corpse shot reaction to its decay check.</summary>
-    internal static void AddDeadSidehopperBombReactions(EnemySharedReactions table)
-    {
-        table.AddBombSpecialAfterNoOp(c => c.Enemy.DefinitionId == EnemyDefinitionId.CorpseSidehopper &&
-                                           c.SelectedShotAi == EnemyReaction.DeadSidehopperShot,
-            c => ResolveDeadSidehopperShot(c.Enemy));
-    }
+    /// <summary>Routes a bomb that selects the corpse's shot reaction to its decay check, in place of common bomb damage.</summary>
+    internal static void ReplaceDeadSidehopperBombDamage(EnemyBombContext c) =>
+        ResolveDeadSidehopperShot(c.Enemy);
 
     /// <summary>Runs the dead Sidehopper's main AI.</summary>
     internal void RunDeadSidehopperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
@@ -457,39 +453,27 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Uses the private power-bomb reaction in place of common enemy damage handling.</summary>
-    internal void AddDeadSidehopperPowerBombReactions(EnemySharedReactions table)
+    internal EnemyPowerBombReaction DeadSidehopperPowerBombReaction => field ??= new()
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.CorpseSidehopper &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.DeadSidehopperPowerBomb)
-        {
-            ReplacesCommon = ResolveDeadSidehopperPowerBomb,
-        });
-    }
+        ReplacesCommon = ResolveDeadSidehopperPowerBomb,
+    };
 
     /// <summary>Marks projectile collision while withholding damage until the transformed corpse can decay.</summary>
-    internal static void AddDeadSidehopperShotReactions(EnemySharedReactions table)
+    /// <remarks>The common projectile prelude always marks the shot, but the private reaction ignores it until the
+    /// victim is fully drained. Even then it starts rotting without vulnerability damage or impact.</remarks>
+    internal static EnemyShotReaction DeadSidehopperShotReaction { get; } = new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.CorpseSidehopper &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.DeadSidehopperShot)
+        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            // The common projectile prelude always marks the shot, but the private reaction ignores it until the
-            // victim is fully drained. Even then it starts rotting without vulnerability damage or impact.
-            BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-            {
-                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
-                ResolveDeadSidehopperShot(c.Enemy);
-                return true;
-            },
-        });
-    }
+            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+            ResolveDeadSidehopperShot(c.Enemy);
+            return true;
+        },
+    };
 
     /// <summary>Uses ordinary touch damage during transformation and starts decomposition afterward.</summary>
-    internal void AddDeadSidehopperTouch(EnemySharedReactions table)
-    {
+    internal void ReactToDeadSidehopperTouch(EnemyTouchContext context) =>
         // Before Shitroid finishes feeding, the touch reaction uses normal contact damage without a death animation. At
         // the end of the drain it instead starts the corpse decomposition and never enters common touch damage.
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.CorpseSidehopper &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.DeadSidehopperTouch,
-            context => ResolveDeadSidehopperTouch(context.Slot, RequireDeadSidehopperState(context.Slot), context.Samus));
-    }
+        ResolveDeadSidehopperTouch(context.Slot, RequireDeadSidehopperState(context.Slot), context.Samus);
 }

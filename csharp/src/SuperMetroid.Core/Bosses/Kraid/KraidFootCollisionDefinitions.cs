@@ -55,5 +55,5 @@ internal static class KraidFootCollisionDefinitions
 
     /// <summary>The single shared rectangle every foot component collides with.</summary>
     internal static ImmutableArray<EnemyCollisionHitbox> SharedHitboxes { get; } =
-        [new(-6, -6, 6, 6, EnemyReaction.KraidBackgroundTouch, EnemyReaction.Ignore)];
+        [new(-6, -6, 6, 6, KraidReactions.BackgroundTouch, EnemyReaction.Ignore)];
 }

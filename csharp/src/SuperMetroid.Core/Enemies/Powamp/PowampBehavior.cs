@@ -499,17 +499,13 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes bomb hits through common shot logic and mirrors damage state to the balloon.</summary>
-    internal void AddPowampBombReactions(EnemySharedReactions table)
+    internal EnemyBombReaction PowampBombReaction => field ??= new()
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Powamp &&
-                                                       c.SelectedShotAi == EnemyReaction.PowampShot)
-        {
-            RunsGenericDeath = false,
-            // Powamp's shot reaction runs the common damage without the hit burst.
-            ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-            AfterCommon = c => ResolvePowampShotAfterCommon(c.Enemy),
-        });
-    }
+        RunsGenericDeath = false,
+        // Powamp's shot reaction runs the common damage without the hit burst.
+        ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
+        AfterCommon = c => ResolvePowampShotAfterCommon(c.Enemy),
+    };
 
     /// <summary>Connects radial spikes to their movement frame behaviour.</summary>
     internal static void AddPowampProjectiles(EnemyProjectileHandlerTable table)
@@ -535,48 +531,35 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Propagates power-bomb reaction state from the body to its balloon.</summary>
-    internal void AddPowampPowerBombReactions(EnemySharedReactions table)
+    internal EnemyPowerBombReaction PowampPowerBombReaction => field ??= new()
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Powamp &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.PowampPowerBomb)
+        AfterCommon = (enemy, _) =>
         {
-            AfterCommon = (enemy, _) =>
-            {
-                if (enemy.SpawnSettings<PowampSpawnSettings>().Part != PowampPart.Balloon)
-                    ResolvePowampPowerBombAfterCommon(enemy);
-            },
-        });
-    }
+            if (enemy.SpawnSettings<PowampSpawnSettings>().Part != PowampPart.Balloon)
+                ResolvePowampPowerBombAfterCommon(enemy);
+        },
+    };
 
     /// <summary>Skips later shots once fatal damage begins and mirrors surviving body presentation to the balloon.</summary>
-    internal void AddPowampShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction PowampShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Powamp &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.PowampShot)
-        {
-            // Powamp refuses contact as soon as a lethal shot starts its private 32-frame death. Later
-            // overlaps return before common shot AI, so they must not consume or explode the projectile while the
-            // body is still visibly deflating.
-            SkipsEnemy = enemy => enemy.RequireSpeciesState<PowampEnemyState>().RefusesContact,
-            ExemptFromGenericDeath = true,
-            // Powamp's shot reaction runs the common damage without the hit burst.
-            ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-            AfterCommon = c => ResolvePowampShotAfterCommon(c.Enemy),
-        });
-    }
+        // Powamp refuses contact as soon as a lethal shot starts its private 32-frame death. Later
+        // overlaps return before common shot AI, so they must not consume or explode the projectile while the
+        // body is still visibly deflating.
+        SkipsEnemy = enemy => enemy.RequireSpeciesState<PowampEnemyState>().RefusesContact,
+        ExemptFromGenericDeath = true,
+        // Powamp's shot reaction runs the common damage without the hit burst.
+        ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
+        AfterCommon = c => ResolvePowampShotAfterCommon(c.Enemy),
+    };
 
     /// <summary>Applies touch behavior only to the body before its fatal-shot state begins.</summary>
-    internal void AddPowampTouch(EnemySharedReactions table)
+    internal void ReactToPowampTouch(EnemyTouchContext context)
     {
         // Only the body before fatal shot damage accepts contact. Balloons are normally absent from the
         // interactive list because their intangibility property excludes them, but retain the handler's literal guard.
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Powamp &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.PowampTouch,
-            context =>
-            {
-                if (!context.Slot.RequireSpeciesState<PowampEnemyState>().RefusesContact)
-                    ResolvePowampTouch(context.Slot, context.Samus);
-            });
+        if (!context.Slot.RequireSpeciesState<PowampEnemyState>().RefusesContact)
+            ResolvePowampTouch(context.Slot, context.Samus);
     }
     /// <summary>Fires the Powamp's spikes in eight directions, drawn in <paramref name="look"/>.</summary>
     /// <param name="body">The Powamp firing them.</param>

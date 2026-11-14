@@ -39,11 +39,20 @@ internal sealed class KzanEntity(KzanBehavior species, RoomEnemySlot slot, Enemy
         }
     }
 
+    /// <summary>The Kzan's top animates by its typed animation; the bottom has none.</summary>
+    public bool HasTypedAnimation => KzanPartDefinitions.Parts[Slot.DefinitionId] == KzanPart.Top;
+
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => KzanPartDefinitions.Parts[Slot.DefinitionId] switch
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context)
     {
-        KzanPart.Top => KzanBehavior.AdvanceKzanTypedAnimation,
-        KzanPart.Bottom => null,
-        _ => throw new InvalidOperationException($"Kzan entity bound to {Slot.DefinitionId}."),
-    };
+        switch (KzanPartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case KzanPart.Top:
+                KzanBehavior.AdvanceKzanTypedAnimation(Slot, context);
+                break;
+            case KzanPart.Bottom:
+            default:
+                throw new InvalidOperationException($"Kzan entity bound to {Slot.DefinitionId} has no typed animation.");
+        }
+    }
 }

@@ -326,18 +326,14 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Replaces a frozen Tripper's map after common Bomb reaction using its movement direction.</summary>
-    internal static void AddPlatformsBombReactions(EnemySharedReactions table)
+    internal static EnemyBombReaction TripperBombReaction { get; } = new()
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Tripper &&
-                                                       c.SelectedShotAi == EnemyReaction.TripperShot)
+        AfterCommon = c =>
         {
-            AfterCommon = c =>
-            {
-                if (c.Enemy.FrozenTimer != 0)
-                    c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
-            },
-        });
-    }
+            if (c.Enemy.FrozenTimer != 0)
+                c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
+        },
+    };
 
     /// <summary>Runs Platforms's main AI.</summary>
     internal void RunPlatformsMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
@@ -356,30 +352,16 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             });
 
     /// <summary>Applies Tripper's direction-specific frozen map after a successful common shot freeze.</summary>
-    internal static void AddPlatformsShotReactions(EnemySharedReactions table)
+    /// <remarks>Tripper's private tail runs after common shot AI on the immediate-freeze path and replaces the current
+    /// frame with a direction-specific two-piece frozen map.</remarks>
+    internal static EnemyShotReaction TripperShotReaction { get; } = new()
     {
-        // Tripper's private tail runs after common shot AI on the immediate-freeze path and replaces the current
-        // frame with a direction-specific two-piece frozen map.
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Tripper &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.TripperShot)
+        AfterCommon = c =>
         {
-            AfterCommon = c =>
-            {
-                if (c.Froze)
-                    c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
-            },
-        });
-    }
-
-    /// <summary>Registers the platforms' ignoring touch so ordinary overlap does not damage Samus.</summary>
-    internal static void AddPlatformsTouch(EnemySharedReactions table)
-    {
-        // Platform solidity and the asymmetric rider test live in other handlers; ordinary body overlap must neither
-        // injure Samus nor synthesize knockback here.
-        table.AddTouch(slot => IsPlatformDefinition(slot.DefinitionId) &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.Ignore,
-            static _ => { });
-    }
+            if (c.Froze)
+                c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
+        },
+    };
 
     /// <summary>
     /// The frozen Tripper's frame. The frozen draw tests the complete X-movement value for zero: every nonzero value shows

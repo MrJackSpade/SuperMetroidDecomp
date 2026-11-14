@@ -487,14 +487,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the post-common lethal-shot tail for bomb hits.</summary>
-    internal void AddShaktoolBombReactions(EnemySharedReactions table)
+    internal EnemyBombReaction ShaktoolBombReaction => field ??= new()
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Shaktool &&
-                                                       c.SelectedShotAi == EnemyReaction.ShaktoolShot)
-        {
-            AfterCommon = c => ResolveShaktoolShotAfterCommon(c.Enemy),
-        });
-    }
+        AfterCommon = c => ResolveShaktoolShotAfterCommon(c.Enemy),
+    };
 
     /// <summary>Registers front and linked attack-circle movement behaviours.</summary>
     internal void AddShaktoolProjectiles(EnemyProjectileHandlerTable table)
@@ -533,22 +529,14 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Shaktool contact is the common normal-enemy touch, death animation included.</summary>
-    internal void AddShaktoolTouch(EnemySharedReactions table)
-    {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Shaktool &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.ShaktoolTouch,
-            context => _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus));
-    }
+    internal void ReactToShaktoolTouch(EnemyTouchContext context) =>
+        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
 
     /// <summary>Runs the post-common lethal-shot tail for regular projectile hits.</summary>
-    internal void AddShaktoolShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction ShaktoolShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Shaktool &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.ShaktoolShot)
-        {
-            AfterCommon = c => ResolveShaktoolShotAfterCommon(c.Enemy),
-        });
-    }
+        AfterCommon = c => ResolveShaktoolShotAfterCommon(c.Enemy),
+    };
     /// <summary>Runs the front circle's per-frame behaviour.</summary>
     internal static void RunShaktoolFrontCircleFrameBehavior(
         EnemyProjectile projectile,

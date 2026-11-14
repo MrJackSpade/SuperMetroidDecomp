@@ -14,23 +14,22 @@ internal static class PirateHitboxShotActions
     internal static PirateHitboxShotAction SelectPirateHitboxShotAction(
         RoomEnemySlot enemy,
         SamusProjectile projectile,
-        EnemyReaction? hitboxShotAi)
+        EnemyReaction? hitboxShot)
     {
         // The empty frame still has a real point hitbox for a pirate. Its common reaction
         // bypasses the Ninja-specific armor tests; it must not be rejected as unknown.
-        if (hitboxShotAi is EnemyReaction.SpacePirateShot or EnemyReaction.NormalEnemyShot)
+        if ((hitboxShot == SpacePirateReactions.Shot || hitboxShot == EnemyReaction.NormalEnemyShot))
             return PirateHitboxShotAction.Normal;
-        if (hitboxShotAi is not (
-                EnemyReaction.GoldNinjaVulnerableHitboxShot or EnemyReaction.GoldNinjaInvincibleHitboxShot))
+        if ((hitboxShot != SpacePirateReactions.GoldNinjaVulnerableHitboxShot && hitboxShot != SpacePirateReactions.GoldNinjaInvincibleHitboxShot))
         {
             throw new InvalidDataException(
-                $"Space Pirate has no response to shot reaction {hitboxShotAi?.ToString() ?? "(unnamed)"}.");
+                $"Space Pirate has no response to shot reaction {hitboxShot?.ToString() ?? "(unnamed)"}.");
         }
         if (enemy.DefinitionId != EnemyDefinitionId.PirateGoldNinja)
             return PirateHitboxShotAction.Normal;
 
         SamusProjectileFamily family = projectile.Type.Family;
-        if (hitboxShotAi == EnemyReaction.GoldNinjaInvincibleHitboxShot)
+        if (hitboxShot == SpacePirateReactions.GoldNinjaInvincibleHitboxShot)
         {
             if (family == SamusProjectileFamily.SuperMissile && projectile.MissileIgnition == SamusMissileIgnition.Pending)
                 return PirateHitboxShotAction.Ignore;
@@ -71,15 +70,12 @@ internal static class PirateHitboxShotActions
     /// </summary>
     internal static PirateHitboxShotAction SelectPirateNormalBombHitboxShotAction(
         RoomEnemySlot enemy,
-        EnemyReaction? hitboxShotAi)
+        EnemyReaction? hitboxShot)
     {
-        if (hitboxShotAi is not (
-                EnemyReaction.SpacePirateShot or
-                EnemyReaction.GoldNinjaVulnerableHitboxShot or
-                EnemyReaction.GoldNinjaInvincibleHitboxShot))
+        if ((hitboxShot != SpacePirateReactions.Shot && hitboxShot != SpacePirateReactions.GoldNinjaVulnerableHitboxShot && hitboxShot != SpacePirateReactions.GoldNinjaInvincibleHitboxShot))
         {
             throw new InvalidDataException(
-                $"Space Pirate has no response to normal-bomb reaction {hitboxShotAi?.ToString() ?? "(unnamed)"}.");
+                $"Space Pirate has no response to normal-bomb reaction {hitboxShot?.ToString() ?? "(unnamed)"}.");
         }
 
         return enemy.DefinitionId == EnemyDefinitionId.PirateGoldNinja
@@ -97,7 +93,7 @@ internal static class PirateHitboxShotActions
     /// <param name="reaction">The reaction the hit runs: its hitbox's, or the definition's when the Pirate collides by its radius.</param>
     internal static bool ShowsHitBurst(RoomEnemySlot pirate, EnemyReaction? reaction) =>
         reaction == EnemyReaction.NormalEnemyShot ||
-        reaction == EnemyReaction.SpacePirateShot && Ensure.NotNull(pirate).DefinitionId != EnemyDefinitionId.PirateGoldNinja;
+        reaction == SpacePirateReactions.Shot && Ensure.NotNull(pirate).DefinitionId != EnemyDefinitionId.PirateGoldNinja;
 
     /// <summary>Whether a shot is a beam, missile or Super Missile, the families the gold ninja reflects or is hurt by.</summary>
     private static bool IsBeamOrMissile(SamusProjectileFamily family) =>
@@ -113,5 +109,4 @@ internal static class PirateHitboxShotActions
         /// <summary>Reflect the projectile from the authored hitbox region.</summary>
         Reflect,
     }
-
 }

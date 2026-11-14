@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus.Drawing;
@@ -144,37 +144,25 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         RunCeresSteamMain(slot, frame.TurningFloor);
     }
 
-    /// <summary>Registers contact handling only for steam's authored extended hitbox reaction.</summary>
-    internal void AddCeresSteamTouch(EnemySharedReactions table)
+    /// <summary>Handles contact only for the steam's authored extended hitbox reaction.</summary>
+    internal void ReactToCeresSteamTouch(EnemyTouchContext context)
     {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Steam &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.CeresSteamTouch,
-            context =>
-            {
-                // Every visible steam frame stores the steam's touch reaction in its authored hitbox.
-                // The last two dispersal frames use an empty hitbox list and cannot reach
-                // this branch. Insisting on both facts keeps collision tied to the authored geometry.
-                if (!context.UsesFrameHitboxes || context.HitboxTouchAi != EnemyReaction.CeresSteamTouch)
-                {
-                    throw new InvalidDataException(
-                        $"Ceres steam requires extended touch AI {EnemyReaction.CeresSteamTouch}; " +
-                        $"extended={context.UsesFrameHitboxes}, selected={context.HitboxTouchAi?.ToString() ?? "(unnamed)"}, " +
-                        $"frame={context.Slot.Frame}.");
-                }
+        // Every visible steam frame stores the steam's touch reaction in its authored hitbox.
+        // The last two dispersal frames use an empty hitbox list and cannot reach
+        // this branch. Insisting on both facts keeps collision tied to the authored geometry.
+        if (!context.UsesFrameHitboxes || context.HitboxTouch != CeresSteamReactions.Touch)
+        {
+            throw new InvalidDataException(
+                $"Ceres steam requires extended touch AI {CeresSteamReactions.Touch}; " +
+                $"extended={context.UsesFrameHitboxes}, selected={context.HitboxTouch?.ToString() ?? "(unnamed)"}, " +
+                $"frame={context.Slot.Frame}.");
+        }
 
-                // The steam's touch reaction restores health immediately before entering common touch AI.
-                // Definition damage is deliberately zero: contact still installs the common
-                // invincibility/knockback state, while Screw/Speed cannot destroy the vent.
-                context.Slot.Health = CeresSteamIndestructibleHealth;
-                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
-            });
-    }
-
-    /// <summary>Routes steam shots to ordinary common shot AI without a species-specific reaction.</summary>
-    internal static void AddCeresSteamShotReactions(EnemySharedReactions table)
-    {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Steam &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.Ignore));
+        // The steam's touch reaction restores health immediately before entering common touch AI.
+        // Definition damage is deliberately zero: contact still installs the common
+        // invincibility/knockback state, while Screw/Speed cannot destroy the vent.
+        context.Slot.Health = CeresSteamIndestructibleHealth;
+        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
     }
 
     /// <summary>The reaction of the first of the occupant's hitboxes the probe overlaps on the frame it shows.</summary>
@@ -206,6 +194,5 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
             }
         }
         return false;
-    
     }
 }

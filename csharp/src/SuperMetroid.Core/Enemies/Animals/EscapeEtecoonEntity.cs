@@ -14,5 +14,5 @@ internal sealed class EscapeEtecoonEntity(EscapeAnimalsBehavior species, RoomEne
     public void RunMainAi(IEnemyAiFrame frame) => species.RunEscapeEtecoonMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceEscapeAnimalTypedAnimation;
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceEscapeAnimalTypedAnimation(Slot, context);
 }

@@ -47,7 +47,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         slot.AiStates = EnemyAiStates.None;
         slot.AnimationClock.Restart();
         slot.FrameCounter = 0;
-        slot.HurtAiTime = definition.HurtFlashFrames;
+        slot.HurtDuration = definition.HurtFlashFrames;
         slot.Shading = PictureShading.Standard;
         slot.Spawn = new RoomEnemySpawnSnapshot(population);
     }

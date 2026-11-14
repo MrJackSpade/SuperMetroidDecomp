@@ -14,7 +14,7 @@ internal static class MotherBrainCollisionDefinitions
     /// <summary>The brain's rectangle, which Samus touches and shoots as the head.</summary>
     internal static readonly EnemyCollisionHitbox[] BrainHitboxes =
     [
-        new(-20, -21, 16, 23, EnemyReaction.MotherBrainHeadTouch, EnemyReaction.MotherBrainHeadShot),
+        new(-20, -21, 16, 23, MotherBrainReactions.HeadTouch, MotherBrainReactions.HeadShot),
     ];
 
     /// <summary>A component with no rectangle.</summary>
@@ -24,47 +24,47 @@ internal static class MotherBrainCollisionDefinitions
     /// <summary>The leg rectangle right of the body's origin, near the floor.</summary>
     internal static readonly EnemyCollisionHitbox[] RightLegHitboxes =
     [
-        new(-23, -1, 23, 7, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
+        new(-23, -1, 23, 7, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
     ];
 
     /// <summary>The leg rectangle left of the body's origin, near the floor.</summary>
     internal static readonly EnemyCollisionHitbox[] LeftLegHitboxes =
     [
-        new(-23, -2, 23, 7, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
+        new(-23, -2, 23, 7, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
     ];
 
     /// <summary>The torso's two rectangles.</summary>
     internal static readonly EnemyCollisionHitbox[] TorsoHitboxes =
     [
-        new(-32, -24, 20, 52, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
-        new(-24, -42, 13, -25, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
+        new(-32, -24, 20, 52, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
+        new(-24, -42, 13, -25, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
     ];
 
     /// <summary>The upper body's two rectangles: the neck, and the jaw reaching forward from it.</summary>
     internal static readonly EnemyCollisionHitbox[] UpperBodyHitboxes =
     [
-        new(4, -59, 28, -24, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
-        new(28, -41, 57, -30, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
+        new(4, -59, 28, -24, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
+        new(28, -41, 57, -30, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
     ];
 
     /// <summary>The upper body's rectangles in each of the four death beam frames, as the jaw opens and closes.</summary>
     internal static readonly EnemyCollisionHitbox[][] DeathBeamUpperBodyHitboxes =
     [
         [
-            new(4, -59, 28, -24, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
-            new(28, -41, 54, -30, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
+            new(4, -59, 28, -24, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
+            new(28, -41, 54, -30, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
         ],
         [
-            new(4, -59, 28, -24, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
-            new(29, -43, 45, -24, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
+            new(4, -59, 28, -24, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
+            new(29, -43, 45, -24, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
         ],
         [
-            new(4, -59, 28, -24, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
-            new(29, -48, 68, -40, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
+            new(4, -59, 28, -24, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
+            new(29, -48, 68, -40, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
         ],
         [
-            new(4, -59, 28, -24, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
-            new(28, -41, 58, -31, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
+            new(4, -59, 28, -24, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
+            new(28, -41, 58, -31, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
         ],
     ];
 

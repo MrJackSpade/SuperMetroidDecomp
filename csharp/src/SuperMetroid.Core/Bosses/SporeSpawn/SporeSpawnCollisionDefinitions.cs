@@ -11,13 +11,13 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 internal static class SporeSpawnCollisionDefinitions
 {
     /// <summary>Spore Spawn's contact reaction, on the active shell and vulnerable point.</summary>
-    internal const EnemyReaction Touch = EnemyReaction.SporeSpawnTouch;
+    internal static readonly EnemyReaction Touch = SporeSpawnReactions.Touch;
     /// <summary>Spore Spawn's shot reaction, on the exposed vulnerable point.</summary>
-    internal const EnemyReaction Shot = EnemyReaction.SporeSpawnShot;
+    internal static readonly EnemyReaction Shot = SporeSpawnReactions.Shot;
     /// <summary>The inactive head's touch reaction before Spore Spawn opens.</summary>
-    internal const EnemyReaction Inert = EnemyReaction.Ignore;
+    internal static readonly EnemyReaction Inert = EnemyReaction.Ignore;
     /// <summary>The dud shot reaction of shell rectangles and the inactive trailing point.</summary>
-    internal const EnemyReaction Dud = EnemyReaction.DudShot;
+    internal static readonly EnemyReaction Dud = EnemyReaction.DudShot;
 
     /// <summary>Builds the trailing vulnerable rectangle with active or dud shot response.</summary>
     private static EnemyCollisionHitbox InnerPoint(EnemyReaction shot) => new(-15, -24, 14, 23, Touch, shot);

@@ -793,17 +793,13 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Enemy slot {head.SlotIndex} has no initialized Botwoon state.");
 
     /// <summary>Routes bomb hits through the shared shot reaction without generic death animation.</summary>
-    internal void AddBotwoonBombReactions(EnemySharedReactions table)
+    internal EnemyBombReaction BotwoonBombReaction => field ??= new()
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Botwoon &&
-                                                       c.SelectedShotAi == EnemyReaction.BotwoonShot)
-        {
-            RunsGenericDeath = false,
-            // Botwoon's shot reaction runs the common damage without the hit burst.
-            ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-            AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
-        });
-    }
+        RunsGenericDeath = false,
+        // Botwoon's shot reaction runs the common damage without the hit burst.
+        ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
+        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
+    };
 
     /// <summary>Adds the body-segment and spit frame behaviours.</summary>
     internal void AddBotwoonProjectiles(EnemyProjectileHandlerTable table)
@@ -826,39 +822,26 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies power-bomb damage while preserving Botwoon's delayed death traversal.</summary>
-    internal void AddBotwoonPowerBombReactions(EnemySharedReactions table)
+    internal EnemyPowerBombReaction BotwoonPowerBombReaction => field ??= new()
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Botwoon &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.BotwoonPowerBomb)
-        {
-            ExemptFromGenericDeath = true,
-            AfterCommon = (enemy, _) => ResolveBotwoonCombatAfterCommon(enemy),
-        });
-    }
+        ExemptFromGenericDeath = true,
+        AfterCommon = (enemy, _) => ResolveBotwoonCombatAfterCommon(enemy),
+    };
 
     /// <summary>Resolves the health bands and skips generic death on shot hits.</summary>
-    internal void AddBotwoonShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction BotwoonShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Botwoon &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.BotwoonShot)
-        {
-            ExemptFromGenericDeath = true,
-            // Botwoon's shot reaction runs the common damage without the hit burst.
-            ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-            AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
-        });
-    }
+        ExemptFromGenericDeath = true,
+        // Botwoon's shot reaction runs the common damage without the hit burst.
+        ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
+        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
+    };
 
     /// <summary>Resolves Samus contact while preserving Botwoon's special zero-health tail.</summary>
-    internal void AddBotwoonTouch(EnemySharedReactions table)
+    internal void ReactToBotwoonTouch(EnemyTouchContext context)
     {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Botwoon &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.BotwoonTouch,
-            context =>
-            {
-                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
-                ResolveBotwoonCombatAfterCommon(context.Slot);
-            });
+        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
+        ResolveBotwoonCombatAfterCommon(context.Slot);
     }
     /// <summary>Spawns one of Botwoon's body segments.</summary>
     /// <param name="head">Botwoon's head, whose position and graphics the segment starts with.</param>

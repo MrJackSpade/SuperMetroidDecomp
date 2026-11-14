@@ -181,7 +181,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             AssertEqual(pointer != 0xa36b, found,
                 $"Draygon frame {pointer:X4} shot overlap without ROM reads");
             if (found)
-                AssertEqual((EnemyReaction?)EnemyReaction.DraygonShot, ExtendedHitboxWalker.Reaction(arguments),
+                AssertEqual((EnemyReaction?)DraygonReactions.Shot, ExtendedHitboxWalker.Reaction(arguments),
                     $"Draygon frame {pointer:X4} selected shot reaction");
         }
 

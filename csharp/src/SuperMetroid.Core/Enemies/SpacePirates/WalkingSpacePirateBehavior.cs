@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
+using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -23,12 +23,20 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Allocates the shared Pirate/Mother Brain laser projectile.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Runs common Samus contact for the ordinary Pirate families.</summary>
+    private readonly EnemyCollision _collision;
+
+    /// <summary>Handles Pirate death animation and Gold Ninja's special pickup scatter.</summary>
+    private readonly EnemyDeathsAndDrops _deathsAndDrops;
+
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds the patrol collision owner and laser pool.</summary>
-    internal WalkingSpacePirateBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
+    internal WalkingSpacePirateBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops)
     {
+        _collision = collision;
+        _deathsAndDrops = deathsAndDrops;
         _audio = audio;
         _terrain = terrain;
         _projectiles = projectiles;
@@ -511,7 +519,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     {
         if (!c.UsesFrameHitboxes)
             return false;
-        PirateHitboxShotActions.PirateHitboxShotAction pirateAction = PirateHitboxShotActions.SelectPirateHitboxShotAction(c.Enemy, c.Projectile, c.HitboxShotAi);
+        PirateHitboxShotActions.PirateHitboxShotAction pirateAction = PirateHitboxShotActions.SelectPirateHitboxShotAction(c.Enemy, c.Projectile, c.HitboxShot);
         if (pirateAction != PirateHitboxShotActions.PirateHitboxShotAction.Normal)
         {
             // The extended walker marks a non-plasma projectile as having entered an extended hitbox before the
@@ -548,5 +556,55 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             return true;
         }
         return false;
+    }
+
+    /// <summary>
+    /// Runs the ordinary Pirates' bombs through the common bomb damage, showing the hit burst only where the reaction the
+    /// bomb reaches shows it (<see cref="PirateHitboxShotActions.ShowsHitBurst"/>).
+    /// </summary>
+    internal static EnemyBombReaction SpacePirateBombReaction { get; } = new()
+    {
+        ShowsHitBurst = c => PirateHitboxShotActions.ShowsHitBurst(c.Enemy, c.SelectedShot),
+    };
+
+    /// <summary>Uses shared Pirate shot logic, including hitbox quake, big death explosion, and Gold Ninja drops.</summary>
+    internal EnemyShotReaction SpacePirateShotReaction => field ??= new()
+    {
+        AfterSuperMissileQuake = ResolveSpacePirateHitboxShot,
+        ShowsHitBurst = c => PirateHitboxShotActions.ShowsHitBurst(c.Enemy, c.HitboxShot),
+        ReplacesGenericDeath = c =>
+        {
+            if (c.HitboxShot == EnemyReaction.NormalEnemyShot)
+                return false;
+            // The Gold Ninja's death records its position as the drop origin before the enemy's death clears the
+            // slot; it then spawns the death explosion before the metal ninja Pirate's item drop spawns the drops.
+            bool spawnsGoldNinjaDrops = c.Enemy.DefinitionId == EnemyDefinitionId.PirateGoldNinja;
+            Position16<RoomPixels> dropOrigin = c.Enemy.Position.Whole;
+            _deathsAndDrops.StartGenericEnemyDeath(
+                c.Enemy,
+                EnemyDeathsAndDrops.SelectNormalShotDeathAnimation(c.Enemy, c.ProjectileType, rule: ShotDeathAnimationRule.PirateBigExplosion));
+            if (spawnsGoldNinjaDrops)
+                _deathsAndDrops.SpawnEnemyDropScatterAround(EnemyDefinitionId.PirateGoldNinja, count: 5, dropOrigin);
+            return true;
+        },
+    };
+
+    /// <summary>Skips frozen contact and rejects unsupported extended hitbox reactions before normal touch damage.</summary>
+    internal void ReactToSpacePirateTouch(EnemyTouchContext context)
+    {
+        // Space Pirate extended maps currently use the shared Pirate touch
+        // reaction in every retail hitbox. Keep the reaction check explicit: silently
+        // treating a later family-specific attack box as ordinary body contact would
+        // recreate the exact radius-flattening bug this path is intended to remove.
+        if (context.UsesFrameHitboxes && context.HitboxTouch != SpacePirateReactions.Touch)
+        {
+            throw new InvalidDataException(
+                $"Space Pirate has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
+        }
+        // The shared Pirate touch returns before common touch AI while frozen. The overlap was
+        // still found, but neither Samus nor the Pirate receives contact damage.
+        if (context.Slot.FrozenTimer != 0)
+            return;
+        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
     }
 }

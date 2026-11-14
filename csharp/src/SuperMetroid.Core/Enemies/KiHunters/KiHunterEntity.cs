@@ -27,10 +27,17 @@ internal sealed class KiHunterEntity(KiHunterBehavior species, RoomEnemySlot slo
     public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceKiHunterTypedAnimation;
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceKiHunterTypedAnimation(Slot, context);
 
-    /// <summary>The Ki-Hunter body's own shot reaction, which normal bombs dispatch like the common one; the wings own none.</summary>
-    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
-        KiHunterBehavior.IsKiHunterBodyDefinition(Slot.DefinitionId) && reaction == EnemyReaction.KiHunterShot;
+    /// <summary>The Ki-Hunter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.KiHunterShotReaction : base.ShotReaction;
+
+    /// <summary>The Ki-Hunter's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
+    /// <param name="context">The bomb contact.</param>
+    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+        context.SelectedShot is null ? species.KiHunterBombReaction : base.CommonBombDamageReaction(context);
+
+    /// <summary>The Ki-Hunter's own shot reaction, which normal bombs dispatch like the common one.</summary>
+    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
 }

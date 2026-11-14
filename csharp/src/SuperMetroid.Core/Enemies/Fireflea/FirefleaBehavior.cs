@@ -12,7 +12,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fireflea];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new FirefleaEntity(slot, common);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new FirefleaEntity(this, slot, common);
 
     /// <summary>Runs common touch handling before Fireflea's unconditional death call.</summary>
     private readonly EnemyCollision _collision;
@@ -137,18 +137,14 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances darkness after common bomb damage kills a Fireflea.</summary>
-    internal void AddFirefleaBombReactions(EnemySharedReactions table)
+    internal EnemyBombReaction FirefleaBombReaction => field ??= new()
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Fireflea &&
-                                                       c.SelectedShotAi == EnemyReaction.FirefleaShot)
+        AfterCommon = c =>
         {
-            AfterCommon = c =>
-            {
-                if (c.Enemy.Health == 0)
-                    AdvanceFirefleaDarkness();
-            },
-        });
-    }
+            if (c.Enemy.Health == 0)
+                AdvanceFirefleaDarkness();
+        },
+    };
 
     /// <summary>Advances Fireflea's typed animation.</summary>
     internal static void AdvanceFirefleaTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
@@ -163,31 +159,19 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances darkness before a lethal common power-bomb death is finalized.</summary>
-    internal void AddFirefleaPowerBombReactions(EnemySharedReactions table)
+    internal EnemyPowerBombReaction FirefleaPowerBombReaction => field ??= new()
     {
         // Reactions around common power-bomb damage.
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Fireflea &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.FirefleaPowerBomb)
-        {
-            BeforeGenericDeath = (_, _) => AdvanceFirefleaDarkness(),
-        });
-    }
+        BeforeGenericDeath = (_, _) => AdvanceFirefleaDarkness(),
+    };
 
     /// <summary>Advances darkness before a lethal common projectile death is finalized.</summary>
-    internal void AddFirefleaShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction FirefleaShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Fireflea &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.FirefleaShot)
-        {
-            BeforeGenericDeath = _ => AdvanceFirefleaDarkness(),
-        });
-    }
+        BeforeGenericDeath = _ => AdvanceFirefleaDarkness(),
+    };
 
-    /// <summary>Registers Fireflea's touch reaction, which runs the retail unconditional-death sequence.</summary>
-    internal void AddFirefleaTouch(EnemySharedReactions table)
-    {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Fireflea &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.FirefleaTouch,
-            context => ResolveFirefleaTouch(context.Slot, context.Samus));
-    }
+    /// <summary>Runs Fireflea's touch reaction, the retail unconditional-death sequence.</summary>
+    internal void ReactToFirefleaTouch(EnemyTouchContext context) =>
+        ResolveFirefleaTouch(context.Slot, context.Samus);
 }

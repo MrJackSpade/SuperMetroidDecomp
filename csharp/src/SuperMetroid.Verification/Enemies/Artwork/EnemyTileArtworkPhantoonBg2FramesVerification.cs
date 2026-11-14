@@ -171,11 +171,11 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         }
         AssertEqual(3, checkedLists.Count,
             "Phantoon uses the three compiled retail hitbox lists");
-        AssertEqual((EnemyReaction?)EnemyReaction.PhantoonShot,
+        AssertEqual((EnemyReaction?)PhantoonReactions.Shot,
             FindPhantoonHitboxReaction(stock, (ushort)PhantoonCollisionFrame.BodyFullHitbox,
                 new(0x0080, 0x0080), selectShot: true),
             "Phantoon full-body frame selects Phantoon's shot reaction");
-        AssertEqual((EnemyReaction?)EnemyReaction.PhantoonShot,
+        AssertEqual((EnemyReaction?)PhantoonReactions.Shot,
             FindPhantoonHitboxReaction(stock, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly,
                 new(0x0080, 0x0099), selectShot: true),
             "Phantoon eye-only frame selects the vulnerable eye's shot reaction");

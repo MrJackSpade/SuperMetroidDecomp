@@ -37,32 +37,28 @@ internal sealed class PhantoonCombat
         _deathsAndDrops = deathsAndDrops;
     }
 
-    /// <summary>Binds bomb hit responses for vulnerable Phantoon phases.</summary>
-    internal void AddPhantoonBombReactions(EnemySharedReactions table)
+    /// <summary>The bomb hit response for vulnerable Phantoon phases.</summary>
+    internal EnemyBombReaction PhantoonBombReaction => field ??= new()
     {
         // Common bomb damage. Rinka, Skree, and Powamp deliberately call the no-death-animation form of common shot
         // AI; their private reactions own the enemy's removal or a staged death. Gameplay-enemy reactions reuse the same
         // post-common steps as beams. Normal bombs cannot freeze, but their damage, staged-death,
         // child synchronization, recoil, release, and attack side effects are otherwise the same reaction tails.
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.PhantoonBody &&
-                                                       c.SelectedShotAi == EnemyReaction.PhantoonShot)
+        RunsGenericDeath = false,
+        // Phantoon's shot reaction runs the common damage without the hit burst.
+        ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
+        // Phantoon's hitbox reaction enters the same no-death common damage for bombs as it
+        // does for beams and missiles, then consumes the exact damage delta in its encounter reaction state
+        // machine. A lethal hit begins the authored death sequence, while sub-threshold damage feeds the
+        // eye-close/rage counter instead of deleting a slot.
+        AfterCommon = c =>
         {
-            RunsGenericDeath = false,
-            // Phantoon's shot reaction runs the common damage without the hit burst.
-            ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-            // Phantoon's hitbox reaction enters the same no-death common damage for bombs as it
-            // does for beams and missiles, then consumes the exact damage delta in its encounter reaction state
-            // machine. A lethal hit begins the authored death sequence, while sub-threshold damage feeds the
-            // eye-close/rage counter instead of deleting a slot.
-            AfterCommon = c =>
-            {
-                PhantoonEnemyState phantoon = Phantoon ??
-                    throw new InvalidOperationException("Phantoon's shot reaction ran without Phantoon's fight state.");
-                int appliedDamage = c.HealthBefore - c.Enemy.Health;
-                ResolvePhantoonShotReaction(c.Enemy, phantoon, c.Bomb.Type, appliedDamage);
-            },
-        });
-    }
+            PhantoonEnemyState phantoon = Phantoon ??
+                throw new InvalidOperationException("Phantoon's shot reaction ran without Phantoon's fight state.");
+            int appliedDamage = c.HealthBefore - c.Enemy.Health;
+            ResolvePhantoonShotReaction(c.Enemy, phantoon, c.Bomb.Type, appliedDamage);
+        },
+    };
 
     /// <summary>Adds Phantoon's flame initializers, frame behaviours, and animation steps.</summary>
     internal void AddPhantoonProjectiles(EnemyProjectileHandlerTable table)
@@ -173,7 +169,7 @@ internal sealed class PhantoonCombat
                     projectile.Position.Whole,
                     projectile.Radius,
                     contactKind: HitboxContactKind.Shot,
-                    out EnemyReaction? hitboxShotAi))
+                    out EnemyReaction? hitboxShot))
             {
                 continue;
             }
@@ -185,7 +181,7 @@ internal sealed class PhantoonCombat
                 _earthquake.Start(SuperMissileDefinitions.EnemyHitEarthquake, SuperMissileDefinitions.EarthquakeDuration);
             }
 
-            if (hitboxShotAi == EnemyReaction.Ignore ||
+            if (hitboxShot == EnemyReaction.Ignore ||
                 state.BodyState.Phase is PhantoonPhase.DyingFadeInOut or PhantoonPhase.DyingExplosions or
                     PhantoonPhase.BeginFinalWavyDeath or PhantoonPhase.DyingFadeOut or PhantoonPhase.AlmostDead or
                     PhantoonPhase.Dead or PhantoonPhase.NoOperation)
@@ -197,10 +193,10 @@ internal sealed class PhantoonCombat
                 return 1;
             }
 
-            if (hitboxShotAi != EnemyReaction.PhantoonShot)
+            if (hitboxShot != PhantoonReactions.Shot)
             {
                 throw new InvalidDataException(
-                    $"Phantoon has no response to shot reaction {hitboxShotAi?.ToString() ?? "(unnamed)"}.");
+                    $"Phantoon has no response to shot reaction {hitboxShot?.ToString() ?? "(unnamed)"}.");
             }
 
             // The extended-hitbox walker marks the projectile before Phantoon's hitbox reaction.
@@ -617,24 +613,19 @@ internal sealed class PhantoonCombat
         EnemyDefinitionId.PhantoonBody or EnemyDefinitionId.PhantoonEye or
         EnemyDefinitionId.PhantoonTentacles or EnemyDefinitionId.PhantoonMouth;
 
-    /// <summary>Binds Phantoon body contact to the shared enemy collision path.</summary>
-    internal void AddPhantoonBodyTouch(EnemySharedReactions table)
+    /// <summary>Runs Phantoon's body contact through the shared enemy collision path.</summary>
+    internal void ReactToPhantoonBodyTouch(EnemyTouchContext context)
     {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.PhantoonBody &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.PhantoonTouch,
-            context =>
-            {
-                if (!context.UsesFrameHitboxes)
-                    throw new InvalidDataException("Phantoon requires his authored extended touch hitboxes.");
-                if (context.HitboxTouchAi == EnemyReaction.Ignore)
-                    return;
-                if (context.HitboxTouchAi != EnemyReaction.PhantoonTouch)
-                {
-                    throw new InvalidDataException(
-                        $"Phantoon has no response to touch reaction {context.HitboxTouchAi?.ToString() ?? "(unnamed)"}.");
-                }
-                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
-            });
+        if (!context.UsesFrameHitboxes)
+            throw new InvalidDataException("Phantoon requires his authored extended touch hitboxes.");
+        if (context.HitboxTouch == EnemyReaction.Ignore)
+            return;
+        if (context.HitboxTouch != PhantoonReactions.Touch)
+        {
+            throw new InvalidDataException(
+                $"Phantoon has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
+        }
+        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
     }
 
     /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
@@ -665,6 +656,5 @@ internal sealed class PhantoonCombat
             }
         }
         return false;
-    
     }
 }

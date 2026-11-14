@@ -39,11 +39,20 @@ internal sealed class ChozoStatueEntity(ChozoStatueBehavior species, RoomEnemySl
         }
     }
 
+    /// <summary>The Chozo statue animates by its typed animation; the n00b tube crack has none.</summary>
+    public bool HasTypedAnimation => ChozoStatuePartDefinitions.Parts[Slot.DefinitionId] == ChozoStatuePart.Chozo;
+
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => ChozoStatuePartDefinitions.Parts[Slot.DefinitionId] switch
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context)
     {
-        ChozoStatuePart.Chozo => species.AdvanceChozoStatueTypedAnimation,
-        ChozoStatuePart.NoobTubeCrack => null,
-        _ => throw new InvalidOperationException($"ChozoStatue entity bound to {Slot.DefinitionId}."),
-    };
+        switch (ChozoStatuePartDefinitions.Parts[Slot.DefinitionId])
+        {
+            case ChozoStatuePart.Chozo:
+                species.AdvanceChozoStatueTypedAnimation(Slot, context);
+                break;
+            case ChozoStatuePart.NoobTubeCrack:
+            default:
+                throw new InvalidOperationException($"ChozoStatue entity bound to {Slot.DefinitionId} has no typed animation.");
+        }
+    }
 }

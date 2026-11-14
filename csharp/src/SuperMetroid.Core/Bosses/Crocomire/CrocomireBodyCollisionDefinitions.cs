@@ -21,35 +21,35 @@ internal static class CrocomireBodyCollisionDefinitions
     /// <summary>Lower-front body rectangle using the standard touch and shot reactions.</summary>
     /// <remarks>The hitbox lists precede the frames that reference them: static fields initialise in declaration
     /// order.</remarks>
-    private static readonly EnemyCollisionHitbox[] LowerFrontBody = [new(-78, 32, -16, 43, EnemyReaction.CrocomireClawTouch, EnemyReaction.CrocomireAlternateDustHitboxShot)];
+    private static readonly EnemyCollisionHitbox[] LowerFrontBody = [new(-78, 32, -16, 43, CrocomireReactions.ClawTouch, CrocomireReactions.AlternateDustHitboxShot)];
     /// <summary>Thin horizontal jaw/body contact strip using standard reactions.</summary>
-    private static readonly EnemyCollisionHitbox[] JawStrip = [new(-95, 11, -16, 11, EnemyReaction.CrocomireClawTouch, EnemyReaction.CrocomireAlternateDustHitboxShot)];
+    private static readonly EnemyCollisionHitbox[] JawStrip = [new(-95, 11, -16, 11, CrocomireReactions.ClawTouch, CrocomireReactions.AlternateDustHitboxShot)];
     /// <summary>Lower body rectangle for another mouth pose, retaining the standard reactions.</summary>
-    private static readonly EnemyCollisionHitbox[] LowerBodyOtherMouthPose = [new(-69, 31, -16, 44, EnemyReaction.CrocomireClawTouch, EnemyReaction.CrocomireAlternateDustHitboxShot)];
+    private static readonly EnemyCollisionHitbox[] LowerBodyOtherMouthPose = [new(-69, 31, -16, 44, CrocomireReactions.ClawTouch, CrocomireReactions.AlternateDustHitboxShot)];
     /// <summary>Mid-body rectangle with the standard damage reactions.</summary>
-    private static readonly EnemyCollisionHitbox[] MidBody = [new(-60, 18, -16, 32, EnemyReaction.CrocomireClawTouch, EnemyReaction.CrocomireAlternateDustHitboxShot)];
+    private static readonly EnemyCollisionHitbox[] MidBody = [new(-60, 18, -16, 32, CrocomireReactions.ClawTouch, CrocomireReactions.AlternateDustHitboxShot)];
     /// <summary>Wider mid-body rectangle with the standard damage reactions.</summary>
-    private static readonly EnemyCollisionHitbox[] WideMidBody = [new(-80, 13, -16, 27, EnemyReaction.CrocomireClawTouch, EnemyReaction.CrocomireAlternateDustHitboxShot)];
+    private static readonly EnemyCollisionHitbox[] WideMidBody = [new(-80, 13, -16, 27, CrocomireReactions.ClawTouch, CrocomireReactions.AlternateDustHitboxShot)];
     /// <summary>The empty list of the two low components every fight frame carries.</summary>
     private static readonly EnemyCollisionHitbox[] EmptyLowComponent = [];
     /// <summary>Raised mouth rectangle whose shot reaction differs from the standard body set.</summary>
-    private static readonly EnemyCollisionHitbox[] RaisedMouth = [new(-95, -6, -16, 27, EnemyReaction.CrocomireClawTouch, EnemyReaction.CrocomireHitCountShot)];
+    private static readonly EnemyCollisionHitbox[] RaisedMouth = [new(-95, -6, -16, 27, CrocomireReactions.ClawTouch, CrocomireReactions.HitCountShot)];
     /// <summary>Upper mouth rectangle using the alternate shot reaction.</summary>
-    private static readonly EnemyCollisionHitbox[] UpperMouth = [new(-59, -9, -16, 5, EnemyReaction.CrocomireClawTouch, EnemyReaction.CrocomireHitCountShot)];
+    private static readonly EnemyCollisionHitbox[] UpperMouth = [new(-59, -9, -16, 5, CrocomireReactions.ClawTouch, CrocomireReactions.HitCountShot)];
     /// <summary>High mouth rectangle used by a raised body pose with alternate shot handling.</summary>
-    private static readonly EnemyCollisionHitbox[] HighMouth = [new(-93, -36, -30, -13, EnemyReaction.CrocomireClawTouch, EnemyReaction.CrocomireHitCountShot)];
+    private static readonly EnemyCollisionHitbox[] HighMouth = [new(-93, -36, -30, -13, CrocomireReactions.ClawTouch, CrocomireReactions.HitCountShot)];
     /// <summary>The empty list of the upper component in the attack frames.</summary>
     private static readonly EnemyCollisionHitbox[] EmptyAttackUpperComponent = [];
     /// <summary>Three-piece upper body collision list with separate shot handling for its first piece.</summary>
-    private static readonly EnemyCollisionHitbox[] UpperBody = [new(-50, -37, 40, -16, EnemyReaction.NormalEnemyTouch, EnemyReaction.CrocomireMouthShot), new(-52, -58, 42, -38, EnemyReaction.NormalEnemyTouch, EnemyReaction.NormalEnemyShot), new(-32, -13, 40, 0, EnemyReaction.NormalEnemyTouch, EnemyReaction.NormalEnemyShot)];
+    private static readonly EnemyCollisionHitbox[] UpperBody = [new(-50, -37, 40, -16, EnemyReaction.NormalEnemyTouch, CrocomireReactions.MouthShot), new(-52, -58, 42, -38, EnemyReaction.NormalEnemyTouch, EnemyReaction.NormalEnemyShot), new(-32, -13, 40, 0, EnemyReaction.NormalEnemyTouch, EnemyReaction.NormalEnemyShot)];
     /// <summary>Three-piece raised upper-body list with a taller first rectangle.</summary>
-    private static readonly EnemyCollisionHitbox[] RaisedUpperBody = [new(-46, -53, 13, -16, EnemyReaction.NormalEnemyTouch, EnemyReaction.CrocomireMouthShot), new(-41, -74, 16, -57, EnemyReaction.NormalEnemyTouch, EnemyReaction.NormalEnemyShot), new(-37, -16, 16, -3, EnemyReaction.NormalEnemyTouch, EnemyReaction.NormalEnemyShot)];
+    private static readonly EnemyCollisionHitbox[] RaisedUpperBody = [new(-46, -53, 13, -16, EnemyReaction.NormalEnemyTouch, CrocomireReactions.MouthShot), new(-41, -74, 16, -57, EnemyReaction.NormalEnemyTouch, EnemyReaction.NormalEnemyShot), new(-37, -16, 16, -3, EnemyReaction.NormalEnemyTouch, EnemyReaction.NormalEnemyShot)];
     /// <summary>Broad high body rectangle whose shot reaction is the common no-op.</summary>
-    private static readonly EnemyCollisionHitbox[] BroadHighBody = [new(-37, -50, 38, -4, EnemyReaction.CrocomireClawTouch, EnemyReaction.NormalEnemyShot)];
+    private static readonly EnemyCollisionHitbox[] BroadHighBody = [new(-37, -50, 38, -4, CrocomireReactions.ClawTouch, EnemyReaction.NormalEnemyShot)];
     /// <summary>Full-height central body rectangle with the main fight shot reaction.</summary>
-    private static readonly EnemyCollisionHitbox[] CentralBody = [new(-38, -48, 37, 52, EnemyReaction.CrocomireClawTouch, EnemyReaction.CrocomireDustHitboxShot)];
+    private static readonly EnemyCollisionHitbox[] CentralBody = [new(-38, -48, 37, 52, CrocomireReactions.ClawTouch, CrocomireReactions.DustHitboxShot)];
     /// <summary>Lower central body rectangle using the alternate shot reaction.</summary>
-    private static readonly EnemyCollisionHitbox[] LowerCentralBody = [new(-38, -4, 42, 52, EnemyReaction.CrocomireClawTouch, EnemyReaction.CrocomireHitCountShot)];
+    private static readonly EnemyCollisionHitbox[] LowerCentralBody = [new(-38, -4, 42, 52, CrocomireReactions.ClawTouch, CrocomireReactions.HitCountShot)];
 
     /// <summary>The fifty living-body frames' physical component lists, with presentation art excluded.</summary>
     internal static EnemyFrameCollision<EnemyCollisionComponent> Frames { get; } = new()

@@ -1,18 +1,28 @@
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Enemies.Corpses;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies.MaridiaSnails;
+using SuperMetroid.Core.Enemies.SpacePirates;
 
 namespace SuperMetroid.Verification.Enemies;
 
 /// <summary>
-/// Confirms that the species entities answer the collision capabilities, private shot callbacks and Ceres Ridley scene
+/// Confirms that the species entities answer the collision capabilities, private shot reactions and Ceres Ridley scene
 /// drawing exactly as the shared definition-keyed catalog and the Ridley room's door-identity test did before those answers
-/// moved onto the entities (#1312). The expected tables below are the removed catalog's answers, written out per
-/// definition; every bindable definition is bound through the production registry and asked through its entity.
+/// moved onto the entities (#1312), with the private shot reactions in the definitions' shared-response form (#1759). The
+/// expected tables below are the removed catalog's answers, written out per definition; every bindable definition is bound
+/// through the production registry and asked through its entity.
 /// </summary>
 internal static class EnemySpeciesCapabilitiesVerification
 {
@@ -29,11 +39,7 @@ internal static class EnemySpeciesCapabilitiesVerification
         EnemyDefinitionId.PirateGoldNinja, EnemyDefinitionId.PirateSilverNinja,
     ];
 
-    /// <summary>The dead Tourian corpses, whose rot trigger is owned by pointer when their header names it.</summary>
-    private static readonly EnemyDefinitionId[] DeadTourianCorpses =
-        [EnemyDefinitionId.CorpseZoomer, EnemyDefinitionId.CorpseRipper, EnemyDefinitionId.CorpseSkree];
-
-    /// <summary>Crocomire's body and tongue, whose hitbox shot callbacks are owned by pointer.</summary>
+    /// <summary>Crocomire's body and tongue, whose hitboxes name Crocomire's own shot reactions.</summary>
     private static readonly EnemyDefinitionId[] CrocomireParts = [EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue];
 
     /// <summary>The removed catalog's capabilities per definition; every definition not listed takes none.</summary>
@@ -63,77 +69,105 @@ internal static class EnemySpeciesCapabilitiesVerification
     }
 
     /// <summary>
-    /// The named private shot callbacks each definition owned in the removed catalog, plus the Metroid's, which its entity
-    /// already answered, and the horizontal shutter's, which the bomb pass runs (#1718); every definition not listed owns no
-    /// named callback.
+    /// The private shot reactions each definition owns (#1759): none (null) where the definition leaves its shots to a
+    /// species with no hitbox reactions of its own, and the species' own identities where its hitboxes name them. The
+    /// removed catalog's named callbacks map one to one onto these: a species' definition-level callback is the reaction
+    /// its definition now leaves to it. Every definition not listed owns none.
     /// </summary>
-    private static Dictionary<EnemyDefinitionId, EnemyReaction[]> ExpectedNamedShotCallbacks()
+    private static Dictionary<EnemyDefinitionId, EnemyReaction?[]> ExpectedPrivateShotReactions()
     {
-        var expected = new Dictionary<EnemyDefinitionId, EnemyReaction[]>
+        EnemyReaction?[] leftToSpecies = [null];
+        var expected = new Dictionary<EnemyDefinitionId, EnemyReaction?[]>
         {
-            [EnemyDefinitionId.BabyTurtle] = [EnemyReaction.BabyTurtleShot],
-            [EnemyDefinitionId.Owtch] = [EnemyReaction.OwtchShot],
-            [EnemyDefinitionId.Rinka] = [EnemyReaction.RinkaShot],
-            [EnemyDefinitionId.Oum] = [EnemyReaction.MaridiaLargeSnailShot],
-            [EnemyDefinitionId.GRipper] = [EnemyReaction.GRipperRipper2Shot],
-            [EnemyDefinitionId.Ripper2] = [EnemyReaction.GRipperRipper2Shot],
-            [EnemyDefinitionId.Dragon] = [EnemyReaction.DragonShot],
-            [EnemyDefinitionId.ShutterShootable] = [EnemyReaction.ShootableVerticalShutterShot],
-            [EnemyDefinitionId.Kamer] = [EnemyReaction.ShootableVerticalShutterShot],
-            [EnemyDefinitionId.ShutterDestroyable] = [EnemyReaction.DestroyableVerticalShutterShot],
-            [EnemyDefinitionId.Metaree] = [EnemyReaction.MetareeShot],
-            [EnemyDefinitionId.Fireflea] = [EnemyReaction.FirefleaShot],
-            [EnemyDefinitionId.Tripper] = [EnemyReaction.TripperShot],
-            [EnemyDefinitionId.Mochtroid] = [EnemyReaction.MochtroidShot],
-            [EnemyDefinitionId.Skree] = [EnemyReaction.SkreeShot],
-            [EnemyDefinitionId.Yard] = [EnemyReaction.YardShot],
-            [EnemyDefinitionId.Evir] = [EnemyReaction.EvirShot],
-            [EnemyDefinitionId.YappingMaw] = [EnemyReaction.YappingMawShot],
-            [EnemyDefinitionId.Kago] = [EnemyReaction.KagoShot],
-            [EnemyDefinitionId.Magdollite] = [EnemyReaction.MagdolliteShot],
-            [EnemyDefinitionId.Beetom] = [EnemyReaction.BeetomShot],
-            [EnemyDefinitionId.Powamp] = [EnemyReaction.PowampShot],
-            [EnemyDefinitionId.Robot] = [EnemyReaction.WorkRobotShot, EnemyReaction.WorkRobotNoPowerShot],
-            [EnemyDefinitionId.RobotNoPower] = [EnemyReaction.WorkRobotShot, EnemyReaction.WorkRobotNoPowerShot],
-            [EnemyDefinitionId.Bull] = [EnemyReaction.BullShot],
-            [EnemyDefinitionId.Spark] = [EnemyReaction.SparkShot],
-            [EnemyDefinitionId.FaceBlock] = [EnemyReaction.BlueBrinstarFaceBlockShot],
-            [EnemyDefinitionId.KihunterGreen] = [EnemyReaction.KiHunterShot],
-            [EnemyDefinitionId.KihunterYellow] = [EnemyReaction.KiHunterShot],
-            [EnemyDefinitionId.KihunterRed] = [EnemyReaction.KiHunterShot],
-            [EnemyDefinitionId.MiniKraid] = [EnemyReaction.FakeKraidShot],
-            [EnemyDefinitionId.Zebetite] = [EnemyReaction.ZebetiteShot],
-            [EnemyDefinitionId.CorpseTorizo] = [EnemyReaction.DeadTorizoTouchAndShot],
-            [EnemyDefinitionId.CorpseSidehopper] = [EnemyReaction.DeadSidehopperShot],
-            [EnemyDefinitionId.DraygonBody] = [EnemyReaction.DraygonShot, EnemyReaction.DudShot],
-            [EnemyDefinitionId.SporeSpawn] = [EnemyReaction.SporeSpawnShot, EnemyReaction.DudShot],
-            [EnemyDefinitionId.PhantoonBody] = [EnemyReaction.PhantoonShot],
-            [EnemyDefinitionId.MotherBrainBody] = [EnemyReaction.MotherBrainBodyShot],
-            [EnemyDefinitionId.MotherBrainHead] = [EnemyReaction.MotherBrainHeadShot],
-            [EnemyDefinitionId.BombTorizo] = [EnemyReaction.BombTorizoShot, EnemyReaction.TorizoStandUpSitDownShot],
-            [EnemyDefinitionId.GoldenTorizo] =
-            [
-                EnemyReaction.GoldenTorizoShot, EnemyReaction.BombTorizoShot,
-                EnemyReaction.TorizoStandUpSitDownShot,
-            ],
-            [EnemyDefinitionId.Shaktool] = [EnemyReaction.ShaktoolShot],
-            [EnemyDefinitionId.KraidArm] = [EnemyReaction.KraidArmShot],
-            [EnemyDefinitionId.RidleyCeres] = [EnemyReaction.RidleyShot],
-            [EnemyDefinitionId.Ridley] = [EnemyReaction.RidleyShot],
-            [EnemyDefinitionId.BabyMetroid] = [EnemyReaction.ShitroidShot],
-            [EnemyDefinitionId.Botwoon] = [EnemyReaction.BotwoonShot],
-            [EnemyDefinitionId.Metroid] = [EnemyReaction.MetroidShot],
+            [EnemyDefinitionId.BabyTurtle] = leftToSpecies,
+            [EnemyDefinitionId.Owtch] = leftToSpecies,
+            [EnemyDefinitionId.Rinka] = leftToSpecies,
+            [EnemyDefinitionId.Oum] = [MaridiaLargeSnailReactions.Shot],
+            [EnemyDefinitionId.GRipper] = leftToSpecies,
+            [EnemyDefinitionId.Ripper2] = leftToSpecies,
+            [EnemyDefinitionId.Dragon] = leftToSpecies,
+            [EnemyDefinitionId.ShutterShootable] = leftToSpecies,
+            [EnemyDefinitionId.Kamer] = leftToSpecies,
+            [EnemyDefinitionId.ShutterDestroyable] = leftToSpecies,
+            [EnemyDefinitionId.Metaree] = leftToSpecies,
+            [EnemyDefinitionId.Fireflea] = leftToSpecies,
+            [EnemyDefinitionId.Tripper] = leftToSpecies,
+            [EnemyDefinitionId.Mochtroid] = leftToSpecies,
+            [EnemyDefinitionId.Skree] = leftToSpecies,
+            [EnemyDefinitionId.Yard] = leftToSpecies,
+            [EnemyDefinitionId.Evir] = leftToSpecies,
+            [EnemyDefinitionId.YappingMaw] = leftToSpecies,
+            [EnemyDefinitionId.Kago] = leftToSpecies,
+            [EnemyDefinitionId.Magdollite] = leftToSpecies,
+            [EnemyDefinitionId.Beetom] = leftToSpecies,
+            [EnemyDefinitionId.Powamp] = leftToSpecies,
+            [EnemyDefinitionId.Robot] = leftToSpecies,
+            [EnemyDefinitionId.RobotNoPower] = leftToSpecies,
+            [EnemyDefinitionId.Bull] = leftToSpecies,
+            [EnemyDefinitionId.Spark] = leftToSpecies,
+            [EnemyDefinitionId.FaceBlock] = leftToSpecies,
+            [EnemyDefinitionId.KihunterGreen] = leftToSpecies,
+            [EnemyDefinitionId.KihunterYellow] = leftToSpecies,
+            [EnemyDefinitionId.KihunterRed] = leftToSpecies,
+            [EnemyDefinitionId.MiniKraid] = leftToSpecies,
+            [EnemyDefinitionId.Zebetite] = leftToSpecies,
+            [EnemyDefinitionId.CorpseTorizo] = leftToSpecies,
+            [EnemyDefinitionId.CorpseSidehopper] = leftToSpecies,
+            [EnemyDefinitionId.CorpseZoomer] = leftToSpecies,
+            [EnemyDefinitionId.CorpseRipper] = leftToSpecies,
+            [EnemyDefinitionId.CorpseSkree] = leftToSpecies,
+            [EnemyDefinitionId.DraygonBody] = [DraygonReactions.Shot, EnemyReaction.DudShot],
+            [EnemyDefinitionId.SporeSpawn] = [SporeSpawnReactions.Shot, EnemyReaction.DudShot],
+            [EnemyDefinitionId.PhantoonBody] = [PhantoonReactions.Shot],
+            [EnemyDefinitionId.MotherBrainBody] = [MotherBrainReactions.BodyShot],
+            [EnemyDefinitionId.MotherBrainHead] = [MotherBrainReactions.HeadShot],
+            [EnemyDefinitionId.BombTorizo] = [TorizoReactions.Shot, TorizoReactions.StandUpSitDownShot],
+            [EnemyDefinitionId.GoldenTorizo] = [TorizoReactions.GoldenShot, TorizoReactions.Shot, TorizoReactions.StandUpSitDownShot],
+            [EnemyDefinitionId.Shaktool] = leftToSpecies,
+            [EnemyDefinitionId.KraidArm] = [KraidReactions.ArmShot],
+            [EnemyDefinitionId.RidleyCeres] = [RidleyReactions.Shot],
+            [EnemyDefinitionId.Ridley] = [RidleyReactions.Shot],
+            [EnemyDefinitionId.BabyMetroid] = leftToSpecies,
+            [EnemyDefinitionId.Botwoon] = leftToSpecies,
+            [EnemyDefinitionId.Metroid] = leftToSpecies,
         };
         foreach (EnemyDefinitionId pirate in OrdinaryPirates)
         {
             expected.Add(pirate,
             [
-                EnemyReaction.SpacePirateShot, EnemyReaction.GoldNinjaVulnerableHitboxShot,
-                EnemyReaction.GoldNinjaInvincibleHitboxShot,
+                SpacePirateReactions.Shot, SpacePirateReactions.GoldNinjaVulnerableHitboxShot,
+                SpacePirateReactions.GoldNinjaInvincibleHitboxShot,
+            ]);
+        }
+        foreach (EnemyDefinitionId part in CrocomireParts)
+        {
+            expected.Add(part,
+            [
+                CrocomireReactions.HitCountShot, CrocomireReactions.DustHitboxShot,
+                CrocomireReactions.MouthShot, CrocomireReactions.AlternateDustHitboxShot,
             ]);
         }
         return expected;
     }
+
+    /// <summary>Every reaction a shot can select: none, the shared ones and each species' own.</summary>
+    private static readonly EnemyReaction?[] ProbedReactions =
+    [
+        null, .. EnemyReaction.Shared,
+        CeresSteamReactions.Touch,
+        CrocomireReactions.ClawTouch, CrocomireReactions.HitCountShot, CrocomireReactions.DustHitboxShot,
+        CrocomireReactions.MouthShot, CrocomireReactions.AlternateDustHitboxShot,
+        DraygonReactions.Touch, DraygonReactions.Shot,
+        KraidReactions.BackgroundTouch, KraidReactions.ArmTouch, KraidReactions.ArmShot,
+        MotherBrainReactions.BodyShot, MotherBrainReactions.HeadShot, MotherBrainReactions.HeadTouch,
+        PhantoonReactions.Touch, PhantoonReactions.Shot,
+        RidleyReactions.FrameHitboxTouch, RidleyReactions.Shot,
+        SporeSpawnReactions.Touch, SporeSpawnReactions.Shot,
+        TorizoReactions.Touch, TorizoReactions.Shot, TorizoReactions.StandUpSitDownShot, TorizoReactions.GoldenShot,
+        MaridiaLargeSnailReactions.DamagingTouch, MaridiaLargeSnailReactions.NonDamagingTouch, MaridiaLargeSnailReactions.Shot,
+        SpacePirateReactions.Touch, SpacePirateReactions.Shot, SpacePirateReactions.GoldNinjaVulnerableHitboxShot,
+        SpacePirateReactions.GoldNinjaInvincibleHitboxShot,
+    ];
 
     /// <summary>
     /// Binds every room and auxiliary definition, and every definition the expected tables name, to one slot of a production
@@ -143,22 +177,13 @@ internal static class EnemySpeciesCapabilitiesVerification
     internal static void VerifyEnemySpeciesCapabilities()
     {
         Dictionary<EnemyDefinitionId, EnemyCapabilities> capabilities = ExpectedCapabilities();
-        Dictionary<EnemyDefinitionId, EnemyReaction[]> namedCallbacks = ExpectedNamedShotCallbacks();
+        Dictionary<EnemyDefinitionId, EnemyReaction?[]> privateReactions = ExpectedPrivateShotReactions();
         IEnumerable<EnemyDefinitionId> definitions = RoomEnemyDefinitionCatalog.Definitions.Select(entry => entry.Id)
             .Concat(RoomEnemyAuxiliaryDefinitionCatalog.Definitions.Keys)
             .Concat(capabilities.Keys)
-            .Concat(namedCallbacks.Keys)
-            .Concat(DeadTourianCorpses)
-            .Concat(CrocomireParts)
+            .Concat(privateReactions.Keys)
             .Where(definition => definition != EnemyDefinitionId.None)
             .Distinct();
-        EnemyReaction?[] callbacks =
-            [null, .. Enum.GetValues<EnemyReaction>().Select(callback => (EnemyReaction?)callback)];
-        EnemyReaction[] crocomireCallbacks =
-        [
-            EnemyReaction.CrocomireHitCountShot, EnemyReaction.CrocomireDustHitboxShot,
-            EnemyReaction.CrocomireMouthShot, EnemyReaction.CrocomireAlternateDustHitboxShot,
-        ];
 
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[1];
@@ -173,16 +198,12 @@ internal static class EnemySpeciesCapabilitiesVerification
             AssertEqual(capabilities.GetValueOrDefault(definition, EnemyCapabilities.None), entity.Capabilities,
                 $"{definition} collision capabilities");
 
-            EnemyReaction[] owned = namedCallbacks.GetValueOrDefault(definition, Array.Empty<EnemyReaction>());
-            bool ownsHeaderCallback = DeadTourianCorpses.Contains(definition);
-            bool ownsCrocomireCallbacks = CrocomireParts.Contains(definition);
-            foreach (EnemyReaction? callback in callbacks)
+            EnemyReaction?[] owned = privateReactions.GetValueOrDefault(definition, []);
+            foreach (EnemyReaction? reaction in ProbedReactions)
             {
-                bool expected = callback is { } named && owned.Contains(named) ||
-                    ownsHeaderCallback && DeadTourianBehavior.HasDeadTourianCorpseShotReaction(slot) && callback == EnemyCollision.ShotAi(slot) ||
-                    ownsCrocomireCallbacks && callback is { } crocomire && crocomireCallbacks.Contains(crocomire);
-                bool actual = entity is IEnemyPrivateShotReaction owner && owner.OwnsPrivateShotReaction(callback);
-                AssertEqual(expected, actual, $"{definition} owns private shot callback {callback?.ToString() ?? "none"}");
+                bool expected = owned.Contains(reaction);
+                bool actual = entity is IEnemyPrivateShotReaction owner && owner.OwnsPrivateShotReaction(reaction);
+                AssertEqual(expected, actual, $"{definition} owns private shot reaction {reaction?.ToString() ?? "none"}");
                 answers++;
             }
 

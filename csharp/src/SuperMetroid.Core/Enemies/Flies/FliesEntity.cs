@@ -14,5 +14,5 @@ internal sealed class FliesEntity(FliesBehavior species, RoomEnemySlot slot, Ene
     public void RunMainAi(IEnemyAiFrame frame) => species.RunFliesMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => FliesBehavior.AdvanceFliesTypedAnimation;
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => FliesBehavior.AdvanceFliesTypedAnimation(Slot, context);
 }

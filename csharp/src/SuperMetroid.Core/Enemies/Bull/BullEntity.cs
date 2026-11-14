@@ -18,21 +18,17 @@ internal sealed class BullEntity(BullBehavior species, RoomEnemySlot slot, Enemy
         BullBehavior.RunBullMain(Slot, Slot.RequireSpeciesState<BullEnemyState>(), frame.Samus);
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => BullBehavior.AdvanceBullAnimation;
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BullBehavior.AdvanceBullAnimation(Slot, context);
 
-    /// <summary>
-    /// Bull's recoil reaction, ahead of the shared ones; only reactions for other species precede it in the shared list,
-    /// and the shared generic reactions follow it.
-    /// </summary>
-    public override EnemyShotReaction? FindShot() =>
-        species.ShotReaction.Matches(Slot) ? species.ShotReaction : base.FindShot();
+    /// <summary>The Bull's own recoil reaction where its definition leaves shots to it, or the shared one.</summary>
+    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? species.ShotReaction : base.ShotReaction;
 
-    /// <summary>Bull's bomb recoil, ahead of the shared common bomb reactions, which follow it in the shared list.</summary>
-    public override EnemyBombReaction? FindBombCommon(EnemyBombContext context) =>
-        species.BombReaction.Matches(context) ? species.BombReaction : base.FindBombCommon(context);
+    /// <summary>The Bull's own bomb recoil around common bomb damage, for a bomb that selects its own shot reaction.</summary>
+    /// <param name="context">The bomb contact.</param>
+    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+        context.SelectedShot is null ? species.BombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Bull's own shot reaction, which normal bombs dispatch like the common one.</summary>
-    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
-        reaction == EnemyReaction.BullShot;
+    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
 }

@@ -481,14 +481,10 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         _audio.QueueEnemySound(MaridiaLargeSnailShotSound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Publishes Oum's shot sound after common bomb damage.</summary>
-    internal void AddMaridiaLargeSnailBombReactions(EnemySharedReactions table)
+    internal EnemyBombReaction MaridiaLargeSnailBombReaction => field ??= new()
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Oum &&
-                                                       c.SelectedShotAi == EnemyReaction.MaridiaLargeSnailShot)
-        {
-            AfterCommon = _ => ResolveMaridiaLargeSnailShotAfterCommon(),
-        });
-    }
+        AfterCommon = _ => ResolveMaridiaLargeSnailShotAfterCommon(),
+    };
 
     /// <summary>Runs the Maridia large snail's main AI.</summary>
     internal void RunMaridiaLargeSnailMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
@@ -512,60 +508,49 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             });
 
     /// <summary>Preserves protected-shell no-op hits and runs common damage only for vulnerable hitboxes.</summary>
-    internal void AddMaridiaLargeSnailShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction MaridiaLargeSnailShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Oum &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.MaridiaLargeSnailShot)
+        AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            AfterSuperMissileQuake = (in EnemyShotContext c) =>
+            if (!c.UsesFrameHitboxes)
+                throw new InvalidDataException("Maridia Large Snail's shots no longer meet its frames' hitboxes.");
+            if (c.HitboxShot == EnemyReaction.Ignore)
             {
-                if (!c.UsesFrameHitboxes)
-                    throw new InvalidDataException("Maridia Large Snail's shots no longer meet its frames' hitboxes.");
-                if (c.HitboxShotAi == EnemyReaction.Ignore)
-                {
-                    // Frame-hitbox collision marks the projectile before calling the
-                    // no-op. It does not run normal shot AI, create an impact, play the shot sound,
-                    // or consult vulnerability for this protected shell component.
-                    c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
-                    return true;
-                }
-                if (c.HitboxShotAi != EnemyReaction.MaridiaLargeSnailShot)
-                {
-                    throw new InvalidDataException(
-                        $"Maridia Large Snail has no response to shot reaction " +
-                        $"{c.HitboxShotAi?.ToString() ?? "(unnamed)"}.");
-                }
-                return false;
-            },
-            AfterCommon = _ => ResolveMaridiaLargeSnailShotAfterCommon(),
-        });
-    }
+                // Frame-hitbox collision marks the projectile before calling the
+                // no-op. It does not run normal shot AI, create an impact, play the shot sound,
+                // or consult vulnerability for this protected shell component.
+                c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
+                return true;
+            }
+            if (c.HitboxShot != MaridiaLargeSnailReactions.Shot)
+            {
+                throw new InvalidDataException(
+                    $"Maridia Large Snail has no response to shot reaction " +
+                    $"{c.HitboxShot?.ToString() ?? "(unnamed)"}.");
+            }
+            return false;
+        },
+        AfterCommon = _ => ResolveMaridiaLargeSnailShotAfterCommon(),
+    };
 
     /// <summary>Dispatches damaging and non-damaging Oum hitboxes with their distinct Samus pushes.</summary>
-    internal void AddMaridiaLargeSnailTouch(EnemySharedReactions table)
+    internal void ReactToMaridiaLargeSnailTouch(EnemyTouchContext context)
     {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Oum &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.MaridiaLargeSnailNonDamagingTouch,
-            context =>
-            {
-                if (!context.UsesFrameHitboxes)
-                    throw new InvalidDataException("Maridia Large Snail's contact no longer meets its frames' hitboxes.");
-                if (context.HitboxTouchAi is not (
-                        EnemyReaction.MaridiaLargeSnailDamagingTouch or
-                        EnemyReaction.MaridiaLargeSnailNonDamagingTouch))
-                {
-                    throw new InvalidDataException(
-                        $"Maridia Large Snail has no response to touch reaction " +
-                        $"{context.HitboxTouchAi?.ToString() ?? "(unnamed)"}.");
-                }
+        if (!context.UsesFrameHitboxes)
+            throw new InvalidDataException("Maridia Large Snail's contact no longer meets its frames' hitboxes.");
+        if ((context.HitboxTouch != MaridiaLargeSnailReactions.DamagingTouch && context.HitboxTouch != MaridiaLargeSnailReactions.NonDamagingTouch))
+        {
+            throw new InvalidDataException(
+                $"Maridia Large Snail has no response to touch reaction " +
+                $"{context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
+        }
 
-                // The damaging touch enters common touch damage and falls directly through the harmless touch's
-                // asymmetric shove. Harmless-touch frames execute only the shove, which is why the
-                // closed shell can carry/push Samus without inflicting the definition's 100 HP.
-                if (context.HitboxTouchAi == EnemyReaction.MaridiaLargeSnailDamagingTouch)
-                    _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
-                ResolveMaridiaLargeSnailTouchAfterCommon(context.Slot, context.Samus);
-            });
+        // The damaging touch enters common touch damage and falls directly through the harmless touch's
+        // asymmetric shove. Harmless-touch frames execute only the shove, which is why the
+        // closed shell can carry/push Samus without inflicting the definition's 100 HP.
+        if (context.HitboxTouch == MaridiaLargeSnailReactions.DamagingTouch)
+            _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
+        ResolveMaridiaLargeSnailTouchAfterCommon(context.Slot, context.Samus);
     }
 
     /// <summary>The reaction of the first of the occupant's hitboxes the probe overlaps on the frame it shows.</summary>
@@ -590,6 +575,5 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return true;
         }
         return false;
-    
     }
 }

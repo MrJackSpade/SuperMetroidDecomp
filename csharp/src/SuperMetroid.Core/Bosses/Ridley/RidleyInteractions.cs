@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
@@ -60,38 +60,30 @@ internal static class RidleyInteractions
     }
 
     /// <summary>Requires the extended Ridley hitbox reaction and suppresses generic death on shots.</summary>
-    internal static void AddRidleyShotReactions(EnemySharedReactions table)
+    /// <remarks>Ridley's shot reaction runs the common damage without the hit burst.</remarks>
+    internal static EnemyShotReaction RidleyShotReaction { get; } = new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Ridley &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.RidleyShot)
+        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            BeforeSuperMissileQuake = (in EnemyShotContext c) =>
+            if (!c.UsesFrameHitboxes || c.HitboxShot != RidleyReactions.Shot)
             {
-                if (!c.UsesFrameHitboxes || c.HitboxShotAi != EnemyReaction.RidleyShot)
-                {
-                    throw new InvalidDataException(
-                        $"Lower Norfair Ridley requires extended shot AI " +
-                        $"{EnemyReaction.RidleyShot}; extended={c.UsesFrameHitboxes}, " +
-                        $"selected={c.HitboxShotAi?.ToString() ?? "(unnamed)"}, frame={c.Enemy.Frame}.");
-                }
-                return false;
-            },
-            ExemptFromGenericDeath = true,
-            // Ridley's shot reaction runs the common damage without the hit burst.
-            ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-        });
-    }
+                throw new InvalidDataException(
+                    $"Lower Norfair Ridley requires extended shot AI " +
+                    $"{RidleyReactions.Shot}; extended={c.UsesFrameHitboxes}, " +
+                    $"selected={c.HitboxShot?.ToString() ?? "(unnamed)"}, frame={c.Enemy.Frame}.");
+            }
+            return false;
+        },
+        ExemptFromGenericDeath = true,
+        ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
+    };
 
     /// <summary>Routes bombs through Ridley's shot reaction without generic death.</summary>
-    internal static void AddRidleyBombReactions(EnemySharedReactions table)
+    internal static EnemyBombReaction RidleyBombReaction { get; } = new()
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Ridley &&
-                                                       c.SelectedShotAi == EnemyReaction.RidleyShot)
-        {
-            RunsGenericDeath = false,
-            ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-        });
-    }
+        RunsGenericDeath = false,
+        ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
+    };
 
     /// <summary>The reaction of the first Ridley hitbox the probe overlaps, or null when the occupant is not Ridley.</summary>
     /// <exception cref="InvalidDataException">Ridley's frame has no compiled collision.</exception>
@@ -123,14 +115,11 @@ internal static class RidleyInteractions
             }
         }
         return false;
-    
     }
 
     /// <summary>Ridley's Power Bomb reaction, exempt from the generic death.</summary>
-    internal static void AddRidleyPowerBombReactions(EnemySharedReactions table) =>
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.RidleyPowerBomb)
-        {
-            ExemptFromGenericDeath = true,
-        });
+    internal static EnemyPowerBombReaction RidleyPowerBombReaction { get; } = new()
+    {
+        ExemptFromGenericDeath = true,
+    };
 }

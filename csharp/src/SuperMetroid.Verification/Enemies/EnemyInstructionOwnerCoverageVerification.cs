@@ -113,7 +113,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
 
                 // Every instruction-processing enemy runs a typed program (#641); none reads cartridge lists.
                 definitionNeedsOwner = true;
-                if ((slot.Entity as IEnemyTypedAnimation)?.FindTypedAnimation() is not null)
+                if (slot.Entity is IEnemyTypedAnimation { HasTypedAnimation: true })
                     definitionHasOwner = true;
                 else
                     unresolved.Add($"{definitionPointer} has no typed animation");

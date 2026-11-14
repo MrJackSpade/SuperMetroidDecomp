@@ -53,7 +53,7 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     }
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => (enemy, _) => species.AdvancePhantoonPartAnimation(enemy);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvancePhantoonPartAnimation(Slot);
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => PhantoonCombat.FindPhantoonHitboxReaction(Slot, probe, out reaction);
@@ -85,8 +85,51 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     public override EnemyCapabilities Capabilities =>
         Slot.DefinitionId == EnemyDefinitionId.PhantoonBody ? EnemyCapabilities.SamusFrameHitboxes : EnemyCapabilities.None;
 
+    /// <summary>Whether the occupant is Phantoon's body, the one part with reactions of its own.</summary>
+    private bool IsBody => Slot.DefinitionId == EnemyDefinitionId.PhantoonBody;
+
+    /// <summary>The body's touch reaction, which its definition leaves to it; the other parts name shared ones.</summary>
+    public EnemyReaction? SpeciesTouch => IsBody ? PhantoonReactions.Touch : null;
+
+    /// <summary>The body's shot reaction, which its definition leaves to it; the other parts name shared ones.</summary>
+    public EnemyReaction? SpeciesShot => IsBody ? PhantoonReactions.Shot : null;
+
+    /// <summary>
+    /// The body's hurt behaviour after a vulnerable-eye hit, which owns every Phantoon hurt frame: it alternates the
+    /// body's colours between white and the new health band; body movement and main AI resume only after the common
+    /// flash timing clears the hurt state. The other parts take the shared hurt their definitions name.
+    /// </summary>
+    /// <param name="frame">The enemy frame.</param>
+    public override bool RunHurt(RoomEnemyFrame frame)
+    {
+        if (!IsBody)
+            return base.RunHurt(frame);
+        species.ApplyPhantoonHurt(Slot, species.RequireCompletePhantoonState(Slot));
+        return true;
+    }
+
+    /// <summary>Whether the body's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
+    public override bool ReactsToTouch => (IsBody && LeavesTouchToSpecies) || base.ReactsToTouch;
+
+    /// <summary>Runs the body's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
+    /// <param name="context">The touch.</param>
+    public override void ReactToTouch(EnemyTouchContext context)
+    {
+        if (IsBody && LeavesTouchToSpecies)
+            species.Combat.ReactToPhantoonBodyTouch(context);
+        else
+            base.ReactToTouch(context);
+    }
+
+    /// <summary>The body's own stages around common bomb damage, for a bomb that selects its shot reaction.</summary>
+    /// <param name="context">The bomb contact.</param>
+    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+        IsBody && context.SelectedShot == PhantoonReactions.Shot
+            ? species.Combat.PhantoonBombReaction
+            : base.CommonBombDamageReaction(context);
+
     /// <summary>The body's shot reaction, which normal bombs dispatch like the common one.</summary>
-    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
+    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
-        Slot.DefinitionId == EnemyDefinitionId.PhantoonBody && reaction == EnemyReaction.PhantoonShot;
+        IsBody && reaction == PhantoonReactions.Shot;
 }

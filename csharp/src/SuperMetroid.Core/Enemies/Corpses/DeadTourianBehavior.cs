@@ -49,30 +49,6 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new ArgumentOutOfRangeException(nameof(definitionId)),
         };
 
-    /// <summary>Checks that the definition's touch AI points to its species' rot trigger.</summary>
-    private static bool HasDeadTourianCorpseTouchOrShotReaction(RoomEnemySlot slot)
-    {
-        if (!IsDeadTourianCorpseDefinition(slot.DefinitionId))
-            return false;
-        return EnemyCollision.TouchAi(slot) == ProfileForDeadTourianCorpse(slot.DefinitionId).TouchAndShot;
-    }
-
-    /// <summary>Checks that the definition's shot AI points to its species' rot trigger.</summary>
-    internal static bool HasDeadTourianCorpseShotReaction(RoomEnemySlot slot)
-    {
-        if (!IsDeadTourianCorpseDefinition(slot.DefinitionId))
-            return false;
-        return EnemyCollision.ShotAi(slot) == ProfileForDeadTourianCorpse(slot.DefinitionId).TouchAndShot;
-    }
-
-    /// <summary>Checks that the definition's power-bomb AI points to its species' rot trigger.</summary>
-    private static bool HasDeadTourianCorpsePowerBombReaction(RoomEnemySlot slot)
-    {
-        if (!IsDeadTourianCorpseDefinition(slot.DefinitionId))
-            return false;
-        return EnemyCollision.PowerBombReaction(slot) == ProfileForDeadTourianCorpse(slot.DefinitionId).PowerBomb;
-    }
-
     /// <summary>Initializes a Tourian corpse, checking its corpse is one of its species' before registering state and starting its rot.</summary>
     internal static void InitializeDeadTourianCorpse(RoomEnemySlot slot)
     {
@@ -171,22 +147,13 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         return state;
     }
 
-    /// <summary>Groups one corpse species with its definition's rot-trigger reactions.</summary>
+    /// <summary>One corpse definition's profile: the species whose corpse it is.</summary>
     /// <param name="Species">The corpse species.</param>
-    /// <param name="TouchAndShot">The reaction its definition names for touch and shot, which starts its rot.</param>
-    /// <param name="PowerBomb">The reaction its definition names for a power bomb, which starts its rot.</param>
-    internal sealed record DeadTourianCorpseProfile(
-        DeadTourianCorpseSpecies Species,
-        EnemyReaction TouchAndShot,
-        EnemyReaction PowerBomb);
+    internal sealed record DeadTourianCorpseProfile(DeadTourianCorpseSpecies Species);
 
     /// <summary>Routes bomb hits through the shared shot reaction, which begins decomposition.</summary>
-    internal static void AddDeadTourianBombReactions(EnemySharedReactions table)
-    {
-        table.AddBombSpecialAfterNoOp(c => HasDeadTourianCorpseShotReaction(c.Enemy) &&
-                                           c.SelectedShotAi == EnemyCollision.ShotAi(c.Enemy),
-            c => TriggerDeadTourianCorpseRotting(c.Enemy));
-    }
+    internal static void ReplaceDeadTourianBombDamage(EnemyBombContext c) =>
+        TriggerDeadTourianCorpseRotting(c.Enemy);
 
     /// <summary>Advances the Tourian corpses' typed animation.</summary>
     internal static void AdvanceDeadTourianTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
@@ -206,37 +173,29 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         RunDeadTourianCorpseMain(slot, frame.Samus);
     }
 
-    /// <summary>Registers the power-bomb response, which ignores corpses already marked decomposed.</summary>
-    internal static void AddDeadTourianPowerBombReactions(EnemySharedReactions table)
+    /// <summary>The power-bomb response, which ignores corpses already marked decomposed.</summary>
+    internal static EnemyPowerBombReaction DeadTourianPowerBombReaction { get; } = new()
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(HasDeadTourianCorpsePowerBombReaction)
-        {
-            ReplacesCommon = (enemy, _) => ResolveDeadTourianCorpsePowerBomb(enemy),
-        });
-    }
+        ReplacesCommon = (enemy, _) => ResolveDeadTourianCorpsePowerBomb(enemy),
+    };
 
-    /// <summary>Registers shot handling that applies the collision prelude and starts decomposition without health damage.</summary>
-    internal static void AddDeadTourianShotReactions(EnemySharedReactions table)
+    /// <summary>Shot handling that applies the collision prelude and starts decomposition without health damage.</summary>
+    /// <remarks>The species reactions run after the ordinary projectile prelude, set process-offscreen plus
+    /// intangibility, and select their species rot reaction. No vulnerability, health damage, or projectile impact
+    /// follows.</remarks>
+    internal static EnemyShotReaction DeadTourianShotReaction { get; } = new()
     {
-        table.AddShot(new EnemyShotReaction(HasDeadTourianCorpseShotReaction)
+        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            // The species reactions run after the ordinary projectile prelude, set process-offscreen plus intangibility, and
-            // select their species rot reaction. No vulnerability, health damage, or projectile impact follows.
-            BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-            {
-                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
-                TriggerDeadTourianCorpseRotting(c.Enemy);
-                return true;
-            },
-        });
-    }
+            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
+            TriggerDeadTourianCorpseRotting(c.Enemy);
+            return true;
+        },
+    };
 
     /// <summary>Starts decomposition on physical contact without applying ordinary enemy contact damage.</summary>
-    internal static void AddDeadTourianTouch(EnemySharedReactions table)
-    {
+    internal static void ReactToDeadTourianTouch(EnemyTouchContext context) =>
         // Dead Zoomer/Ripper/Skree definitions intentionally point touch and shot at the same private reaction.
         // Physical contact begins decomposition; these already-dead actors never apply ordinary contact damage.
-        table.AddTouch(HasDeadTourianCorpseTouchOrShotReaction,
-            context => TriggerDeadTourianCorpseRotting(context.Slot));
-    }
+        TriggerDeadTourianCorpseRotting(context.Slot);
 }

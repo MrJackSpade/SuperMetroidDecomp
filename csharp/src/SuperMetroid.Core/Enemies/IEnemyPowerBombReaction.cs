@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>An enemy that may react to a power bomb before the common path.</summary>
+/// <summary>An enemy that may react to a Power Bomb in its own way.</summary>
 internal interface IEnemyPowerBombReaction : IEnemyEntity
 {
-    /// <summary>The power-bomb reaction the enemy uses now, or null for the common path.</summary>
-    EnemyPowerBombReaction? FindPowerBomb();
+    /// <summary>The stages of the enemy's reaction to a Power Bomb now, or null for the common Power Bomb damage.</summary>
+    EnemyPowerBombReaction? PowerBombReaction { get; }
 }

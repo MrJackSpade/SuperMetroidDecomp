@@ -43,17 +43,11 @@ internal sealed class CrocomireCombat
             .Colours.ShowBody(white);
     }
 
-    /// <summary>Registers component-specific bomb hit reactions, consulted before the ignoring-shot gate.</summary>
-    internal void AddCrocomireBombReactions(EnemySharedReactions table)
-    {
-        // Specials consulted before the selected ignoring-shot gate, in the game's order.
+    /// <summary>Runs the component-specific reaction a bomb's hitbox selects, before the check for an ignoring reaction.</summary>
+    internal void ReactToCrocomireBomb(EnemyBombContext c) =>
         // Crocomire's species definition names no shot reaction; every live component supplies its own. Normal bombs
         // therefore reach the same hit counter, dust, or mouth reaction selected by the map.
-        table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
-                                  c.Enemy.Definition.Shot is null && c.UsesFrameHitboxes &&
-                                  c.SelectedShotAi != EnemyReaction.NormalEnemyShot,
-            c => ResolveCrocomireHitboxShot(c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShotAi));
-    }
+        ResolveCrocomireHitboxShot(c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShot);
 
     /// <summary>Registers Crocomire's owned projectile setup, movement, and cue handlers.</summary>
     internal void AddCrocomireProjectiles(EnemyProjectileHandlerTable table)
@@ -80,62 +74,44 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Routes power-bomb hits on each Crocomire component to their authored reactions.</summary>
-    internal void AddCrocomirePowerBombReactions(EnemySharedReactions table)
+    internal EnemyPowerBombReaction CrocomirePowerBombReaction => field ??= new()
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.CrocomirePowerBomb)
-        {
-            ReplacesCommon = (enemy, _) => ResolveCrocomirePowerBombReaction(enemy),
-        });
-    }
+        ReplacesCommon = (enemy, _) => ResolveCrocomirePowerBombReaction(enemy),
+    };
 
     /// <summary>Routes body, mouth, and auxiliary hitboxes to their distinct shot reactions.</summary>
-    internal void AddCrocomireShotReactions(EnemySharedReactions table)
+    internal EnemyShotReaction CrocomireShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
-                                                     enemy.Definition.Shot is null ||
-                                                     enemy.DefinitionId == EnemyDefinitionId.CrocomireTongue &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.NormalEnemyShot)
+        AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            AfterSuperMissileQuake = (in EnemyShotContext c) =>
-            {
-                if (c.HitboxShotAi == EnemyReaction.NormalEnemyShot)
-                    return false;
-                if (!c.UsesFrameHitboxes)
-                    throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
-                c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
-                ResolveCrocomireHitboxShot(c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShotAi);
-                return true;
-            },
-        });
-    }
+            if (c.HitboxShot == EnemyReaction.NormalEnemyShot)
+                return false;
+            if (!c.UsesFrameHitboxes)
+                throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
+            c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
+            ResolveCrocomireHitboxShot(c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShot);
+            return true;
+        },
+    };
 
-    /// <summary>Registers Crocomire component contact, including normal enemy touch damage.</summary>
-    internal void AddCrocomireTouch(EnemySharedReactions table)
+    /// <summary>Runs Crocomire's component contact, including normal enemy touch damage.</summary>
+    internal void ReactToCrocomireTouch(EnemyTouchContext context)
     {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Crocomire &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.Ignore ||
-                               slot.DefinitionId == EnemyDefinitionId.CrocomireTongue &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.NormalEnemyTouch,
-            context =>
-            {
-                if (!context.UsesFrameHitboxes)
-                    throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
-                if (context.HitboxTouchAi == EnemyReaction.Ignore)
-                    return; // The corpse's rectangles ignore Samus's touch.
-                if (context.HitboxTouchAi is not (
-                        EnemyReaction.CrocomireClawTouch or EnemyReaction.NormalEnemyTouch))
-                {
-                    throw new InvalidDataException(
-                        $"Crocomire has no response to touch reaction {context.HitboxTouchAi?.ToString() ?? "(none)"}.");
-                }
+        if (!context.UsesFrameHitboxes)
+            throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
+        if (context.HitboxTouch == EnemyReaction.Ignore)
+            return; // The corpse's rectangles ignore Samus's touch.
+        if ((context.HitboxTouch != CrocomireReactions.ClawTouch && context.HitboxTouch != EnemyReaction.NormalEnemyTouch))
+        {
+            throw new InvalidDataException(
+                $"Crocomire has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(none)"}.");
+        }
 
-                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
-                // A claw's touch also pushes Samus back. The game latches the touch too, but only its unused claw attack
-                // reads that latch, so it is not kept.
-                if (context.HitboxTouchAi == EnemyReaction.CrocomireClawTouch)
-                    context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWholeX(-4);
-            });
+        _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
+        // A claw's touch also pushes Samus back. The game latches the touch too, but only its unused claw attack
+        // reads that latch, so it is not kept.
+        if (context.HitboxTouch == CrocomireReactions.ClawTouch)
+            context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWholeX(-4);
     }
 
     /// <summary>Runs the shot reaction a Crocomire hitbox selected after frame-hitbox collision.</summary>
@@ -150,16 +126,16 @@ internal sealed class CrocomireCombat
 
         // A shot on his raised or high mouth or his lower body is absorbed: it neither hurts him nor raises dust. The
         // game counted these and his mouth hits in a count nothing in the fight reads (#1620), so the count is gone.
-        if (reaction == EnemyReaction.CrocomireHitCountShot)
+        if (reaction == CrocomireReactions.HitCountShot)
             return;
 
-        if (reaction is EnemyReaction.CrocomireDustHitboxShot or EnemyReaction.CrocomireAlternateDustHitboxShot)
+        if ((reaction == CrocomireReactions.DustHitboxShot || reaction == CrocomireReactions.AlternateDustHitboxShot))
         {
             SpawnCrocomireShotDust(projectileType, projectile);
             return;
         }
 
-        if (reaction == EnemyReaction.CrocomireMouthShot)
+        if (reaction == CrocomireReactions.MouthShot)
         {
             ResolveCrocomireMouthShot(
                 state,
@@ -425,7 +401,6 @@ internal sealed class CrocomireCombat
             }
         }
         return false;
-    
     }
 
     /// <summary>The reaction of the first hitbox the probe overlaps on the tongue's frame, or null when the occupant is not the tongue.</summary>
@@ -444,6 +419,5 @@ internal sealed class CrocomireCombat
         _ = CrocomireTongueCollision.HitboxCountAt(
             component.HitboxList);
         return false;
-    
     }
 }

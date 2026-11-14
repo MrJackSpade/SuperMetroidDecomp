@@ -244,7 +244,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Resolves the ordinary and contact-damage branches of a Metroid's touch.</summary>
-    private void ResolveMetroidTouch(RoomEnemySlot slot, SamusState samus)
+    internal void ResolveMetroidTouch(RoomEnemySlot slot, SamusState samus)
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
         int targetY = CoordinateAxis.Wrap(samus.Position.Y.Whole - 8);
@@ -431,21 +431,18 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>Routes bomb-family collisions through Metroid's attachment and recoil rules.</summary>
-    internal void AddMetroidBombReactions(EnemySharedReactions table)
+    /// <summary>
+    /// Routes a bomb through Metroid's attachment and recoil rules: Metroid shot AI ignores bombs while frozen, detaches an
+    /// attached body for a power-bomb explosion, or applies its peculiar recoil from the first projectile otherwise
+    /// (MetroidRecoilOrigin).
+    /// </summary>
+    internal void ReactToMetroidBomb(EnemyBombContext c)
     {
-        // Metroid shot AI ignores bombs while frozen, detaches an attached body for a power-bomb explosion, or applies its
-        // peculiar recoil from the first projectile otherwise (MetroidRecoilOrigin).
-        table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.Metroid &&
-                                  EnemyCollision.ShotAi(c.Enemy) == EnemyReaction.MetroidShot,
-            c =>
-            {
-                if (c.Enemy.FrozenTimer == 0)
-                {
-                    SamusProjectile recoilOrigin = MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Slots);
-                    ResolveMetroidNonFrozenShot(c.Enemy, c.Bomb.Type, Ensure.AtLeastZero(c.Bomb.Damage), recoilOrigin.Position.Whole, c.Samus);
-                }
-            });
+        if (c.Enemy.FrozenTimer == 0)
+        {
+            SamusProjectile recoilOrigin = MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Slots);
+            ResolveMetroidNonFrozenShot(c.Enemy, c.Bomb.Type, Ensure.AtLeastZero(c.Bomb.Damage), recoilOrigin.Position.Whole, c.Samus);
+        }
     }
 
     /// <summary>Runs Metroid's main AI.</summary>
@@ -464,23 +461,11 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
             });
 
-    /// <summary>Registers the Metroid Power Bomb reaction that clears its outer body before generic death.</summary>
-    internal static void AddMetroidPowerBombReactions(EnemySharedReactions table)
+    /// <summary>The Metroid Power Bomb reaction, which clears its outer body before generic death.</summary>
+    internal static EnemyPowerBombReaction PowerBombReaction { get; } = new()
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Metroid &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.MetroidPowerBomb)
-        {
-            BeforeGenericDeath = FinishMetroidDeath,
-        });
-    }
-
-    /// <summary>Registers Metroid touch behavior, including attachment and suit-dependent draining.</summary>
-    internal void AddMetroidTouch(EnemySharedReactions table)
-    {
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Metroid &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.MetroidTouch,
-            context => ResolveMetroidTouch(context.Slot, context.Samus));
-    }
+        BeforeGenericDeath = FinishMetroidDeath,
+    };
 
     /// <summary>Applies frozen missile damage or unfrozen recoil and Ice accumulation after the shared projectile prelude.</summary>
     internal bool ResolveMetroidOrdinaryShot(in EnemyShotContext c)
@@ -531,22 +516,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         return true;
     }
 
-    /// <summary>Routes ordinary projectile hits to Metroid-specific frozen and nonfrozen shot handling.</summary>
-    internal void AddMetroidShotReactions(EnemySharedReactions table)
+    /// <summary>The Metroid shot reaction, which routes ordinary projectile hits to its frozen and nonfrozen handling.</summary>
+    internal EnemyShotReaction ShotReaction => field ??= new()
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Metroid &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.MetroidShot)
-        {
-            AdmitsBombFamilies = true,
-            AfterSuperMissileQuake = ResolveMetroidOrdinaryShot,
-        });
-    }
-
-    /// <summary>Registers hurt AI ahead of frozen AI when both handlers are active; the animation still advances.</summary>
-    internal static void AddMetroidHurtAi(EnemySharedReactions table) =>
-        table.AddHurt(slot => slot.DefinitionId == EnemyDefinitionId.Metroid, (slot, _) => ApplyMetroidHurt(slot));
-
-    /// <summary>Registers the frozen Metroid handler that retains its outer-body state.</summary>
-    internal static void AddMetroidFrozenAi(EnemySharedReactions table) =>
-        table.AddFrozen(slot => slot.DefinitionId == EnemyDefinitionId.Metroid, RunMetroidFrozen);
+        AdmitsBombFamilies = true,
+        AfterSuperMissileQuake = ResolveMetroidOrdinaryShot,
+    };
 }

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal static class CrocomireCorpseCollisionDefinitions
 {
     /// <summary>The corpse's two body rectangles.</summary>
-    private static readonly EnemyCollisionHitbox[] CorpseBody = [new(-38, -16, 0, 31, EnemyReaction.Ignore, EnemyReaction.CrocomireDustHitboxShot), new(0, -29, 26, 28, EnemyReaction.Ignore, EnemyReaction.CrocomireDustHitboxShot)];
+    private static readonly EnemyCollisionHitbox[] CorpseBody = [new(-38, -16, 0, 31, EnemyReaction.Ignore, CrocomireReactions.DustHitboxShot), new(0, -29, 26, 28, EnemyReaction.Ignore, CrocomireReactions.DustHitboxShot)];
     /// <summary>The corpse's empty list, for components without collision.</summary>
     private static readonly EnemyCollisionHitbox[] CorpseEmpty = [];
 

@@ -170,7 +170,7 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0x0456, slot.Position.X.Whole, "population X position");
     AssertEqual(0x0789, slot.Position.Y.Whole, "population Y position");
     AssertEqual(PictureShading.Standard, slot.Shading, "a loaded slot shows its sheet's standard colours");
-    AssertEqual(0x5a, slot.HurtAiTime, "definition hurt flash copied into the slot");
+    AssertEqual(0x5a, slot.HurtDuration, "definition hurt flash copied into the slot");
     AssertEqual(EnemyAiStates.None, slot.AiStates, "room load clears AI handler bits");
     AssertEqual(0, slot.FlashTimer, "room load clears flash timer");
     AssertEqual(0, slot.InvincibilityTimer, "room load clears invincibility timer");
@@ -182,8 +182,9 @@ internal static void VerifyRoomEnemyLoading()
     // The import decodes the +$0E cry byte to its library-two sound rather than retaining the word.
     AssertEqual<SoundEffectId?>(EnemySound.ShotRio, definition.HurtSoundEffect, "definition hurt cry offset $0E");
     AssertEqual(EnemyGrappleResponse.Cancel, definition.GrappleResponse, "definition grapple response offset $1A");
-    AssertTrue(definition.PowerBombReaction is { } powerBomb && powerBomb != EnemyReaction.Ignore,
-        "definition power-bomb reaction offset $28 names a reacting routine");
+    // Offset $28 names the species' own Power Bomb routine, which a definition leaves to the species (#1759).
+    AssertEqual<EnemyReaction?>(null, definition.PowerBombReaction,
+        "definition power-bomb reaction offset $28 names no shared reaction");
     // The tile word is the import's to read (#1513): its low fifteen bits are the tile set's size, bit 15 set or not. The
     // fixture's identities are no members, so the headers are read at the pointers the fixture seeded them at.
     AssertEqual(new SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTileSet(0x0040),

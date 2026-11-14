@@ -791,7 +791,7 @@ internal static class RoomObjectPopulationVerification
         var malformed = new RoomObjectPopulation($"$8F:{malformedPopulation:X4}",
         [
             new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.ScrollTrigger),
-                new(offRoomX, offRoomY), null, Array.Empty<RoomScrollWrite>()),
+                new(offRoomX, offRoomY), null, Array.Empty<ScreenScrollChange>()),
         ]);
         AssertThrows<ArgumentOutOfRangeException>(
             () => RoomObjectFixtures.LoadPopulation(RoomObjectFixtures.Unbound(), new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), malformed, new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),

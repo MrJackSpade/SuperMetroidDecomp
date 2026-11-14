@@ -33,9 +33,9 @@ internal static class LookupScrollProgramsVerification
                 [compiled.Placements.Span[0] with { Argument = new GateTriggerArgument(ushort.MaxValue) }]);
             AssertEqual(retail, rebound.Placements.Span[0].CompiledScrollChange,"Copied placement preserves its bound program independently of argument");
             var customized = new RoomObjectPopulation($"$8F:{0x8230:X4}",
-                [compiled.Placements.Span[0] with { ScrollChange = [new(1, RoomScrollState.Open)] }]);
+                [compiled.Placements.Span[0] with { ScrollChange = [new(new(1, 0), RoomScrollState.Open)] }]);
             AssertEqual(null, customized.Placements.Span[0].CompiledScrollChange,"Explicit custom writes replace the retail program");
-            AssertTrue(customized.Placements.Span[0].ScrollChange!.SequenceEqual([new RoomScrollWrite(1, RoomScrollState.Open)]),"Explicit custom writes survive placement copy");
+            AssertTrue(customized.Placements.Span[0].ScrollChange!.SequenceEqual([new ScreenScrollChange(new(1, 0), RoomScrollState.Open)]),"Explicit custom writes survive placement copy");
             AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
                 [new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.ScrollTrigger),new(0, 0),null)]),
                 "Constructed scroll still requires decoded program");
@@ -43,9 +43,11 @@ internal static class LookupScrollProgramsVerification
         int totalPairs = 0, totalBytes = 0;
         foreach (ushort pointer in pointers)
         {
-            var actual = new List<LookupScrollProgramsActual>();
-            RoomObjectScrollChangeDefinitions.ApplyAt(pointer,(index,state) => actual.Add(new LookupScrollProgramsActual(index,state)));
+            var actual = new List<ScreenScrollChange>();
+            RoomObjectScrollChangeDefinitions.ApplyAt(pointer,(screen,state) => actual.Add(new ScreenScrollChange(screen,state)));
             var dto = RoomObjectScrollChangeDefinitions.Get(pointer);
+            // The native routine writes the stored cell number row-major at the placing room's width.
+            int width = RoomObjectScrollChangeDefinitions.PlacingRooms[RoomObjectScrollChangeDefinitions.ProgramAt(pointer)].Size.X;
             int cursor = 0, pair = 0;
             while (true)
             {
@@ -63,7 +65,8 @@ internal static class LookupScrollProgramsVerification
                 byte state = ScrollProgramFieldRomByte(rom, 0x8f0000 | (pointer + cursor++));
                 if (field == 1)
                 {
-                    AssertEqual(index, actual[pair].Index,"Scroll original ordered storage index");
+                    AssertTrue(actual[pair].Screen.X < width,"Scroll screen lies in one of its room's columns");
+                    AssertEqual(index, actual[pair].Screen.Y * width + actual[pair].Screen.X,"Scroll original ordered storage index at the room's width");
                     AssertEqual(index,dto.Span[cursor - 2],"Scroll encoded original index");
                 }
                 if (field == 2)

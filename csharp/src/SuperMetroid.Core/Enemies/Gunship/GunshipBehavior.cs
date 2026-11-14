@@ -563,7 +563,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory, IGlowingEnemy
             // exactly 64. Descending projectile allocation means the last cloud, the outer left one, occupies the
             // highest surviving slot, matching the ordinary scheduler.
             foreach (GunshipDustPlacement cloud in GunshipDustDefinitions.LiftoffClouds)
-                _projectiles.SpawnGunshipLiftoffDustCloud(cloud, samus);
+                GunshipLiftoffDust.SpawnCloud(_projectiles, cloud, samus);
         }
         if (Part(bottom).RumbleFrame >= GunshipTakeoffDefinitions.EngineRumbleFrames)
         {

@@ -1281,7 +1281,7 @@ internal static class RoomObjectPopulationVerification
         // the electricity on its shared sheet, as entering a save room loads it (#1513).
         SpawnedObjectFixtures.LoadSetSpawning(enemies, EnemyProjectileFrameId.SaveStationElectricityStartFirst,
             SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
-        enemies.Projectiles.SpawnSaveStationElectricity(saveBlock);
+        enemies.SaveStationElectricity.Spawn(saveBlock);
 
         EnemyProjectile electricity = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.SaveStationElectricity);

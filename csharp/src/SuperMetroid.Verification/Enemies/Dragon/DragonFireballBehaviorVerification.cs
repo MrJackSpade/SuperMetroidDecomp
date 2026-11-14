@@ -59,7 +59,7 @@ internal static class DragonFireballBehaviorVerification
         }
 
         left.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
-        enemies.Projectiles.AdvanceEnemyProjectileAnimations(left, null, Position16<RoomPixels>.Zero);
+        enemies.Projectiles.AdvanceEnemyProjectileAnimations(left, null, Position16<RoomPixels>.Zero, shortCounter: 0);
         AssertTrue(!left.IsActive, "the shared shot list still deletes the fireball");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the fireball's native list bytes");
         Console.WriteLine("  Dragon fireball behavior: both rising and falling programs and the zero-crossing switch match the native lists.");

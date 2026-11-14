@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Enemies.Skree;
+using SuperMetroid.Core.Enemies.Projectiles;
 
-namespace SuperMetroid.Core.Enemies.Projectiles;
+namespace SuperMetroid.Core.Enemies.Skree;
 
 /// <summary>
 /// The four particles a Skree or Metaree bursts into as it burrows or dies (#1435), one per direction. Each enemy names its

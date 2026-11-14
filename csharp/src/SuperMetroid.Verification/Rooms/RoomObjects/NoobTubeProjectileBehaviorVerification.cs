@@ -222,18 +222,17 @@ internal static class NoobTubeProjectileBehaviorVerification
         {
             for (int tick = 1; tick <= maximumTicks; tick++)
             {
-                system.Projectiles.CurrentFrame8 = unchecked((byte)tick);
                 projectile.FrameHold = WrappingCountdown.Start(1);
-                Process(system, projectile);
+                Process(system, projectile, unchecked((byte)tick));
                 if (!projectile.IsActive)
                     return tick;
             }
             throw new InvalidOperationException($"N00b-tube projectile {projectile.Kind} exceeded {maximumTicks} forced ticks.");
         }
 
-        void Process(RoomEnemySystem system, EnemyProjectile projectile)
+        void Process(RoomEnemySystem system, EnemyProjectile projectile, int shortCounter)
         {
-            system.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero);
+            system.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero, shortCounter);
             if (!projectile.IsActive)
                 return;
             ushort expectedOperand = projectile.PresentationOperandAddress;
@@ -243,7 +242,7 @@ internal static class NoobTubeProjectileBehaviorVerification
                 // shard's column; even frames show the reflected operand mirrored across the tube, or hide the shard.
                 ushort entry = NoobTubeProjectileNativeListAddresses.Entry(animation.PlayingSegment);
                 var command = (NativeEnemyProjectileInstruction)cartridge.ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | entry);
-                bool oddFrame = (system.Projectiles.CurrentFrame8 & 1) != 0;
+                bool oddFrame = (shortCounter & 1) != 0;
                 if (command == NativeEnemyProjectileInstruction.NoobTubeShardReflectFlicker)
                 {
                     expectedOperand = unchecked((ushort)(entry + (oddFrame ? 2 : 4)));

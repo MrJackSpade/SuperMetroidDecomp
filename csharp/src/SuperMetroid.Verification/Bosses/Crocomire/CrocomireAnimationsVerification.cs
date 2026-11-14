@@ -262,7 +262,7 @@ internal static class CrocomireAnimationsVerification
         int dropsBefore = enemies.Projectiles.EnemyProjectiles.Count(item => item.Kind == RoomEnemyProjectileKind.EnemyDeathPickup);
         for (int update = 0; update < 50 && !native.Deleted; update++)
         {
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, null, Position16<RoomPixels>.Zero);
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, null, Position16<RoomPixels>.Zero, shortCounter: 0);
             native.Step(cartridge);
             string at = $"Crocomire {label} update {update}";
             AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");

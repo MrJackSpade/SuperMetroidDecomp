@@ -31,8 +31,8 @@ internal static class SkreeMetareeParticleBehaviorVerification
         };
         foreach ((Action<RoomEnemySlot> spawn, SkreeMetareeParticleSegment program) in new VerifySkreeMetareeParticleBehaviorCase[]
                  {
-                     new VerifySkreeMetareeParticleBehaviorCase(slot => enemies.Projectiles.SpawnMetalParticleBurst(slot, SuperMetroid.Core.Enemies.Skree.SkreeParticleDefinitions.Burst), SkreeMetareeParticleSegment.Skree),
-                     new VerifySkreeMetareeParticleBehaviorCase(slot => enemies.Projectiles.SpawnMetalParticleBurst(slot, SuperMetroid.Core.Enemies.Metaree.MetareeParticleDefinitions.Burst), SkreeMetareeParticleSegment.Metaree),
+                     new VerifySkreeMetareeParticleBehaviorCase(slot => SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, slot, SuperMetroid.Core.Enemies.Skree.SkreeParticleDefinitions.Burst), SkreeMetareeParticleSegment.Skree),
+                     new VerifySkreeMetareeParticleBehaviorCase(slot => SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, slot, SuperMetroid.Core.Enemies.Metaree.MetareeParticleDefinitions.Burst), SkreeMetareeParticleSegment.Metaree),
                  })
         {
             foreach (EnemyProjectile stale in enemies.Projectiles.EnemyProjectiles)
@@ -50,7 +50,7 @@ internal static class SkreeMetareeParticleBehaviorVerification
                 var native = new NativeEnemyProjectileListReader(SkreeMetareeParticleNativeListAddresses.Entry(program), particle.FrameHold.RawValue);
                 for (int update = 0; update < 40; update++)
                 {
-                    enemies.Projectiles.AdvanceEnemyProjectileAnimations(particle, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero);
+                    enemies.Projectiles.AdvanceEnemyProjectileAnimations(particle, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero, shortCounter: 0);
                     native.Step(cartridge);
                     string at = $"{particle.Kind} update {update}";
                     AssertTrue(!native.Deleted && particle.IsActive, $"{at}: the particle lives");

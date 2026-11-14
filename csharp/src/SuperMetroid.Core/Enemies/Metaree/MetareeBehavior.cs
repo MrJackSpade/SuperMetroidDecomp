@@ -184,7 +184,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         if (state.BurrowTimer == MetareeParticleFrame)
-            _projectiles.SpawnMetalParticleBurst(slot, MetareeParticleDefinitions.Burst);
+            SkreeMetareeParticles.SpawnBurst(_projectiles, slot, MetareeParticleDefinitions.Burst);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
     }
 
@@ -222,7 +222,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         BeforeGenericDeath = c =>
         {
-            _projectiles.SpawnMetalParticleBurst(c.Enemy, MetareeParticleDefinitions.Burst);
+            SkreeMetareeParticles.SpawnBurst(_projectiles, c.Enemy, MetareeParticleDefinitions.Burst);
             c.Enemy.Shading = PictureShading.Standard;
         },
     };
@@ -234,7 +234,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (c.Enemy.Health != 0)
                 return;
-            _projectiles.SpawnMetalParticleBurst(c.Enemy, MetareeParticleDefinitions.Burst);
+            SkreeMetareeParticles.SpawnBurst(_projectiles, c.Enemy, MetareeParticleDefinitions.Burst);
             c.Enemy.Shading = PictureShading.Standard;
         },
     };

@@ -598,7 +598,7 @@ internal static class BotwoonPathDefinitions
     ];
 
     /// <summary>
-    /// Every authored path, in the order the original stored them; the cartridge comparison reads them in that order.
+    /// Every authored path, in a fixed order the checks compare them in.
     /// </summary>
     internal static readonly BotwoonPathDefinition[] Paths =
     [

@@ -464,9 +464,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Reproduces the Magdollite's drawing-queue alias. For the third part, the source is the head's
-    /// Y position and the destination is its Y radius. Expressing that relationship directly
-    /// preserves collision geometry without exposing unrelated queue storage to C#.
+    /// Stretches the head's collision height down to the tracking overlay (#1823): the head's vertical radius becomes
+    /// the distance from the overlay up to the head plus two pixels, and never less than eight, so the head's hitbox
+    /// reaches the overlay as the arm grows beneath it.
     /// </summary>
     private void UpdateMagdolliteHeadRadius(RoomEnemySlot overlay)
     {

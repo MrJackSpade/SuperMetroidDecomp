@@ -276,7 +276,7 @@ internal static class SamusBodyArtworkVerification
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(at),
                 stockDeathPalettes.WhiteoutColor(shade), $"death whiteout shade {shade}");
         }
-        for (int frame = 0; frame < SamusDeathExplosionTimingDefinitions.RecordCount; frame++)
+        for (int frame = 0; frame < SamusDeathExplosionTimingDefinitions.StepCount; frame++)
             AssertEqual(bus.ReadCartridgeByte(SamusSourceDefinitions.DeathExplosionTimingAndPaletteIndices.Value +
                 frame * 2 + 1), stockDeathPalettes.ExplosionPaletteIndex(frame),
                 $"death explosion frame {frame} visual palette selector");

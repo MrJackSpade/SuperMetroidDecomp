@@ -14,7 +14,7 @@ internal static class SamusDeathExplosionTimingDefinitionsVerification
         CartridgeImportAddressSpace rom)
     {
         for (ushort index = 0;
-             index < SamusDeathExplosionTimingDefinitions.RecordCount;
+             index < SamusDeathExplosionTimingDefinitions.StepCount;
              index++)
         {
             int address = SamusDeathExplosionTimingDefinitions.NativeFirstTimerAddress +
@@ -27,7 +27,7 @@ internal static class SamusDeathExplosionTimingDefinitionsVerification
 
         AssertThrows<InvalidDataException>(
             () => SamusDeathExplosionTiming.DurationForIndex(
-                SamusDeathExplosionTimingDefinitions.RecordCount),
+                SamusDeathExplosionTimingDefinitions.StepCount),
             "Samus death-explosion timing rejects a post-sequence index");
 
         Console.WriteLine(
@@ -42,7 +42,7 @@ internal static class SamusDeathExplosionTimingDefinitionsVerification
                 int relative = address -
                     SamusDeathExplosionTimingDefinitions.NativeFirstTimerAddress;
                 return relative >= 0 &&
-                    relative < SamusDeathExplosionTimingDefinitions.RecordCount *
+                    relative < SamusDeathExplosionTimingDefinitions.StepCount *
                         SamusDeathExplosionTimingDefinitions.RecordByteCount &&
                     relative % SamusDeathExplosionTimingDefinitions.RecordByteCount == 0;
             },

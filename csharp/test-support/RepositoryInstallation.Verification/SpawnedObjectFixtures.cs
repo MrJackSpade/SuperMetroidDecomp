@@ -26,14 +26,14 @@ internal static class SpawnedObjectFixtures
     /// </summary>
     internal static RoomEnemyGraphicsSetDefinition SetDrawing(EnemyDefinitionId enemy) =>
         RoomEnemyGraphicsSetLists.DrawnUnder.FirstOrDefault(set => RoomEnemyGraphicsSetLists.MembersOf(set).Records.ToArray().Any(record => record.DefinitionId == enemy))
-        ?? (RoomStateDefinitions.All.FirstOrDefault(state => state.EnemyPopulation.Records.ToArray().Any(record => record.DefinitionId == enemy)) is { } placing
+        ?? (RoomStateDefinitions.All.FirstOrDefault(state => state.EnemyPopulation.Placements.ToArray().Any(record => record.DefinitionId == enemy)) is { } placing
             ? RoomEnemyGraphicsSetLists.Of(placing) : null)
         ?? throw new InvalidDataException($"No retail room draws {enemy}.");
 
     /// <summary>Whether a retail room draws <paramref name="enemy"/>: a graphics set a room draws under loads it, or a room places it.</summary>
     internal static bool Drawn(EnemyDefinitionId enemy) =>
         RoomEnemyGraphicsSetLists.DrawnUnder.Any(set => RoomEnemyGraphicsSetLists.MembersOf(set).Records.ToArray().Any(record => record.DefinitionId == enemy))
-        || RoomStateDefinitions.All.Any(state => state.EnemyPopulation.Records.ToArray().Any(record => record.DefinitionId == enemy));
+        || RoomStateDefinitions.All.Any(state => state.EnemyPopulation.Placements.ToArray().Any(record => record.DefinitionId == enemy));
 
     /// <summary>
     /// Draws <paramref name="enemies"/> under a retail graphics set whose sheets hold projectile <paramref name="frame"/>:

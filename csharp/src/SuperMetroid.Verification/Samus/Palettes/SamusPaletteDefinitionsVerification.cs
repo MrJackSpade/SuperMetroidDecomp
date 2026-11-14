@@ -104,7 +104,7 @@ internal static class SamusPaletteDefinitionsVerification
             SuperMetroid.AssetExtraction.Samus.BeamTileAtlasDefinitions.SelectionCount * sizeof(ushort),
             "Crystal Flash restored beam palettes");
         TouchRange(bus, SamusSourceDefinitions.CrystalFlashBodyRecords.Value,
-            SamusPaletteDefinitions.CrystalFlash.BodyRecordCount *
+            SamusPaletteDefinitions.CrystalFlash.BodyStepCount *
                 SamusPaletteDefinitions.CrystalFlash.BodyRecordByteCount,
             "Crystal Flash body palette records");
         TouchRange(bus, SamusSourceDefinitions.BubblePointers.Value,

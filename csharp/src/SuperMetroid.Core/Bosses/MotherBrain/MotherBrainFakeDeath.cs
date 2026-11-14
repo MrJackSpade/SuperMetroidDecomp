@@ -259,7 +259,7 @@ internal sealed class MotherBrainFakeDeath
     internal void SpawnMotherBrainFallingTube(MotherBrainTubePiece piece)
     {
         // The bound source supplies the fixed cutscene placement; retail rooms resolve it from the loaded definitions.
-        RoomEnemyPopulationRecord population = _room.LoadedDefinitions.ReadFallingTubePopulation(piece);
+        RoomEnemyPlacement population = _room.LoadedDefinitions.ReadFallingTubePopulation(piece);
         if (population.DefinitionId != EnemyDefinitionId.MotherBrainTubes)
         {
             throw new InvalidDataException(

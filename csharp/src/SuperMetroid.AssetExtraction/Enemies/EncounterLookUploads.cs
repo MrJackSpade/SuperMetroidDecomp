@@ -97,7 +97,7 @@ internal static class EncounterLookUploads
     /// </summary>
     internal static bool ShownIn(ComposedEncounter encounter, RoomStateSettings state)
     {
-        foreach (RoomEnemyPopulationRecord record in Ensure.NotNull(state).EnemyPopulation.Records.Span)
+        foreach (RoomEnemyPlacement record in Ensure.NotNull(state).EnemyPopulation.Placements.Span)
         {
             if (ByEncounter.TryGetValue(record.DefinitionId, out ComposedEncounter played) && played == encounter && CopiesLooks(record))
                 return true;
@@ -109,7 +109,7 @@ internal static class EncounterLookUploads
     /// Whether <paramref name="placement"/> copies its encounter's looks: every placement but a Ceres door other than the
     /// pre-explosion overlay door (enemy parameter 2, whose initialization alone runs $A6:F739's copy).
     /// </summary>
-    private static bool CopiesLooks(RoomEnemyPopulationRecord placement) =>
+    private static bool CopiesLooks(RoomEnemyPlacement placement) =>
         placement.DefinitionId != EnemyDefinitionId.CeresDoor
         || placement.SpawnSettingsOf<CeresDoorSpawnSettings>().Variant == CeresDoorVariant.RotatingElevatorPreExplosionOverlay;
 

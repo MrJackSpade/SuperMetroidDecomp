@@ -14,7 +14,7 @@ internal sealed class EndingShootingStars
         for (int index = 0; index < stars.Length; index++)
         {
             Reset(ref stars[index]);
-            int delay = EndingShootingStarDefinitions.Records[index].Delay;
+            int delay = EndingShootingStarDefinitions.Stars[index].Delay;
             if (delay == 0) continue;
             stars[index].Delayed = true;
             stars[index].Timer = delay;
@@ -27,7 +27,7 @@ internal sealed class EndingShootingStars
         for (int index = 0; index < stars.Length; index++)
         {
             ref EndingShootingStar star = ref stars[index];
-            var definition = EndingShootingStarDefinitions.Records[index];
+            var definition = EndingShootingStarDefinitions.Stars[index];
             if (star.Delayed)
             {
                 if (--star.Timer >= 0) continue;

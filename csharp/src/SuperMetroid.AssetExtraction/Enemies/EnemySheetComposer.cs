@@ -397,7 +397,7 @@ internal static class EnemySheetComposer
         var placements = new Dictionary<EnemyDefinitionId, HashSet<EnemySpawnSettings>>();
         foreach (RoomStateSettings state in StatesOf(set))
         {
-            foreach (RoomEnemyPopulationRecord record in state.EnemyPopulation.Records.Span)
+            foreach (RoomEnemyPlacement record in state.EnemyPopulation.Placements.Span)
             {
                 if (!placements.TryGetValue(record.DefinitionId, out HashSet<EnemySpawnSettings>? placed))
                     placements.Add(record.DefinitionId, placed = []);
@@ -430,7 +430,7 @@ internal static class EnemySheetComposer
         // A record loading artwork for no enemy draws nothing (#1686); only the set's enemies are drawn under it.
         List<EnemyDefinitionId> members = [.. layout.Members.Select(member => member.DefinitionId).OfType<EnemyDefinitionId>()];
         IEnumerable<EnemyDefinitionId> placed = StatesOf(set)
-            .SelectMany(state => state.EnemyPopulation.Records.Span.SelectToArray(record => record.DefinitionId))
+            .SelectMany(state => state.EnemyPopulation.Placements.Span.SelectToArray(record => record.DefinitionId))
             .Except(members).Distinct().Order();
         EnemyDefinitionId[] loaded = [.. members, .. placed];
         // An encounter's own spawns, such as Mother Brain's tubes and the Baby, draw under the set its spawner loads.

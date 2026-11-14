@@ -24,7 +24,7 @@ internal static class EndingShootingStarsTests
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         for (int index = 0; index < 40; index++)
         {
-            var definition = EndingShootingStarDefinitions.Records[index];
+            var definition = EndingShootingStarDefinitions.Stars[index];
             Require(definition.Acceleration.X.RawValue == Word(0x8be9cf + index * 8), "Native X acceleration");
             Require(definition.Acceleration.Y.RawValue == Word(0x8be9d1 + index * 8), "Native Y acceleration");
             Require(definition.Period == Word(0x8be9d3 + index * 8), "Native animation period");

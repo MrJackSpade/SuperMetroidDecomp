@@ -16,10 +16,10 @@ internal static class SyntheticEnemyCartridgeFixturesVerification
     /// the room's death-quota byte.
     /// </summary>
     internal static void SeedRoomEnemyPopulation(
-        TestAddressSpace bus, ushort population, byte deathQuota, params ReadOnlySpan<RoomEnemyPopulationRecord> records)
+        TestAddressSpace bus, ushort population, byte deathQuota, params ReadOnlySpan<RoomEnemyPlacement> records)
     {
         int address = 0xa10000 | population;
-        foreach (RoomEnemyPopulationRecord record in records)
+        foreach (RoomEnemyPlacement record in records)
         {
             SuperMetroid.AssetExtraction.Enemies.PopulationEntryWords words =
                 SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Encode(record);

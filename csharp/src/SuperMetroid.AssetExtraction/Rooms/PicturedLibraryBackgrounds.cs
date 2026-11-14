@@ -45,7 +45,7 @@ internal static class PicturedLibraryBackgrounds
                 program = LibraryBackgroundPrograms.Of(background);
                 return true;
             case LibraryBackgroundView.BossBody:
-                if (!state.EnemyPopulation.Records.Span.Any(record => BossBodySheetComposer.DrawsBodyOf(record.DefinitionId)))
+                if (!state.EnemyPopulation.Placements.Span.Any(record => BossBodySheetComposer.DrawsBodyOf(record.DefinitionId)))
                 {
                     throw new InvalidDataException(
                         $"Room state {state.Name} shows its boss's body on its background {background}, but places no boss whose body sheet draws it.");

@@ -96,9 +96,9 @@ internal static class DemoInputNativeListAddresses
     internal static ushort Address(DemoPlaybackPosition position)
     {
         DemoInputNativeLoopEntry? loop = LoopEntries.Where(entry => entry.Recording == position.Recording).Cast<DemoInputNativeLoopEntry?>().SingleOrDefault();
-        return loop is { } authored && position.NextRecord >= authored.FirstRecord
-            ? (ushort)(authored.Entry + (position.NextRecord - authored.FirstRecord) * DemoInputListWords.InputRecordBytes)
-            : (ushort)(Entry(position.Recording) + position.NextRecord * DemoInputListWords.InputRecordBytes);
+        return loop is { } authored && position.NextInput >= authored.FirstRecord
+            ? (ushort)(authored.Entry + (position.NextInput - authored.FirstRecord) * DemoInputListWords.InputRecordBytes)
+            : (ushort)(Entry(position.Recording) + position.NextInput * DemoInputListWords.InputRecordBytes);
     }
 
     /// <summary>The native pre-instruction word of an object whose owner watches for nothing: the return-only routine.</summary>

@@ -73,6 +73,17 @@ exposes its lifecycle on its entity (`IEnemyInitialization.Initialize`, `IEnemyM
 out a handler delegate the record's pointer stood behind. Each word alone stays the game's own (`AiState`, `Routine`,
 `EnemyHurtHandler`).
 
+The cartridge's record is reported too (#1745, `CoreVocabularyAnalyzer.RecordPhrases`): the original kept a room's enemy
+and object populations, the Baby Metroid's route, a corpse's touch rectangles and its timing and step tables as runs of
+fixed-size records, and a name that says `Records`, `RecordCount` or `RecordIndex` (`TouchHitboxRecords`, `FromRecords`,
+a `records` local, `BodyRecordCount`) names that structure, as does a type whose last word is `Record`
+(`RoomEnemyPopulationRecord`, `CoreVocabularyAnalyzer.NamedForRecord`). Core names what the run holds: a room's
+`RoomEnemyPlacement`s and a population's `Placements`, a `PlacedRoomObject` with its `PlacementIndex`, a
+`BabyMetroidRouteLeg` and the route's `LegCount`, a corpse's `TouchRectangles`, a table's `StepCount`, a demo's
+`DemoInput`s. The English verb keeps the word (`RecordKill`, `RecordDoorOpened`, a `Record` method), as do the game's
+demo recordings (`DemoRecording`, `Recorded`). A method's or member's singular `Record` is not read, since it is the verb
+as often as the noun (`TryRecord`); such a name is found by review.
+
 A name that spells a cartridge value in hexadecimal is reported too (#1554): a run of two or more capital hexadecimal
 characters after a lower-case letter that holds a hexadecimal letter and ends its word (`Unused0B`, `PoseFD`,
 `Backdrop2A`, `Projectile86E314Frame`); a run of four or more hexadecimal characters of either case that starts with a

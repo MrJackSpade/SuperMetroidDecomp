@@ -4,19 +4,19 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class BabyMetroidRoute
 {
     /// <summary>Combines an authored waypoint with its movement step and whether it is the final leg.</summary>
-    private static BabyMetroidRouteRecord Record(int index) => new(
+    private static BabyMetroidRouteLeg BuildLeg(int index) => new(
         BabyMetroidRouteDefinitions.Waypoints[index],
         BabyMetroidRouteDefinitions.AccelerationDivisor,
         index < BabyMetroidRouteDefinitions.FirstExtraEightLeg
             ? BabyMetroidRouteMovement.GradualAccelerationExtraSixteen
             : BabyMetroidRouteMovement.GradualAccelerationExtraEight,
-        EndsWithLatchOntoSamus: index + 1 == BabyMetroidRouteDefinitions.RecordCount);
+        EndsWithLatchOntoSamus: index + 1 == BabyMetroidRouteDefinitions.LegCount);
 
     /// <summary>Returns the authored route leg <paramref name="leg"/>, counted from zero.</summary>
-    internal static BabyMetroidRouteRecord GetRecord(int leg) =>
-        (uint)leg < BabyMetroidRouteDefinitions.RecordCount
-            ? Record(leg)
-            : throw new InvalidDataException($"Baby route leg {leg} is not one of the {BabyMetroidRouteDefinitions.RecordCount} authored legs.");
+    internal static BabyMetroidRouteLeg GetLeg(int leg) =>
+        (uint)leg < BabyMetroidRouteDefinitions.LegCount
+            ? BuildLeg(leg)
+            : throw new InvalidDataException($"Baby route leg {leg} is not one of the {BabyMetroidRouteDefinitions.LegCount} authored legs.");
 
     /// <summary>Resolves a movement step to its wrong-way horizontal speed addition.</summary>
     internal static int GetWrongWayOffScreenXSpeed(BabyMetroidRouteMovement movement) =>

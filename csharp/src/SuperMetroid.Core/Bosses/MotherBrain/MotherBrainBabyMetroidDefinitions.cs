@@ -15,7 +15,7 @@ internal static class MotherBrainBabyMetroidDefinitions
     /// game's record carries the Baby's first animation there, which the cutscene's own
     /// animation replaces and nothing reads.
     /// </summary>
-    internal static readonly RoomEnemyPopulationRecord SpawnPopulation =
+    internal static readonly RoomEnemyPlacement SpawnPopulation =
         new(EnemyDefinitionId.BabyMetroidCutscene, new(384, 64),
             EnemyContact.None, EnemyProcessing.Animates | EnemyProcessing.OffScreen, EnemyPresence.None,
             CollidesByFrameHitboxes: false, EnemySpawnSettings.None);

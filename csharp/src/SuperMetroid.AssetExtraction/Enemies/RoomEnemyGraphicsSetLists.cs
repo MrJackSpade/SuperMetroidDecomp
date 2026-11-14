@@ -62,14 +62,14 @@ internal static class RoomEnemyGraphicsSetLists
     /// the session start's when it places no enemies, since the room load skips the set of a state with none (#1560).
     /// </summary>
     internal static RoomEnemyGraphicsSetDefinition DrawnUnderIn(RoomStateSettings state) =>
-        Ensure.NotNull(state).EnemyPopulation.Records.IsEmpty ? RoomEnemyGraphicsSetDefinitions.SessionStart : Of(state);
+        Ensure.NotNull(state).EnemyPopulation.Placements.IsEmpty ? RoomEnemyGraphicsSetDefinitions.SessionStart : Of(state);
 
     /// <summary>The set each population <paramref name="states"/> place enemies with draws under, by population name.</summary>
     /// <exception cref="InvalidDataException">Two states place one population under different sets.</exception>
     private static Dictionary<string, RoomEnemyGraphicsSetDefinition> PopulationSetsOf(IEnumerable<RoomStateSettings> states)
     {
         var sets = new Dictionary<string, RoomEnemyGraphicsSetDefinition>(StringComparer.Ordinal);
-        foreach (RoomStateSettings state in states.Where(state => !state.EnemyPopulation.Records.IsEmpty))
+        foreach (RoomStateSettings state in states.Where(state => !state.EnemyPopulation.Placements.IsEmpty))
         {
             RoomEnemyGraphicsSetDefinition set = Of(state);
             if (!sets.TryAdd(state.EnemyPopulation.Name, set) && sets[state.EnemyPopulation.Name] != set)

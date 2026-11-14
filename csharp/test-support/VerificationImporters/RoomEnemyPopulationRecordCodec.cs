@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// The codec between a typed <see cref="RoomEnemyPopulationRecord"/> and the words of a native sixteen-byte population
+/// The codec between a typed <see cref="RoomEnemyPlacement"/> and the words of a native sixteen-byte population
 /// entry (#1472), for the checks that compare compiled populations with the cartridge and the fixtures that seed native
 /// records. The definition pointer is the caller's: this type takes and gives the resolved identity.
 /// </summary>
@@ -13,7 +13,7 @@ internal static class RoomEnemyPopulationRecordCodec
 {
     /// <summary>The typed entry the words of a native population entry describe.</summary>
     /// <exception cref="InvalidDataException">A word holds a setting or property the entry cannot carry.</exception>
-    public static RoomEnemyPopulationRecord Decode(
+    public static RoomEnemyPlacement Decode(
         EnemyDefinitionId enemy, int x, int y, int initialization, int properties, int extraProperties,
         int parameter1, int parameter2)
     {
@@ -29,7 +29,7 @@ internal static class RoomEnemyPopulationRecordCodec
             throw new InvalidDataException(
                 $"Enemy {enemy}'s extra-property word ${extraProperties:X4} sets the new-frame flag, which an authored placement never sets.");
         }
-        return new RoomEnemyPopulationRecord(
+        return new RoomEnemyPlacement(
             enemy,
             new Position16<RoomPixels>(checked((ushort)x), checked((ushort)y)),
             state.Contact,
@@ -40,7 +40,7 @@ internal static class RoomEnemyPopulationRecordCodec
     }
 
     /// <summary>The words of a native population entry for a typed entry, after the definition pointer.</summary>
-    public static PopulationEntryWords Encode(RoomEnemyPopulationRecord record)
+    public static PopulationEntryWords Encode(RoomEnemyPlacement record)
     {
         PopulationWords settings = EnemySpawnSettingsCodec.Encode(record.SpawnSettings);
         return new PopulationEntryWords(

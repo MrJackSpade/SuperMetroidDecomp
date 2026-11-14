@@ -151,7 +151,7 @@ internal static class GunshipMotionDefinitionsVerification
                 : RoomEnemyDefinitionLookup.Get(pointer);
 
     /// <summary>Uses the compiled falling-tube placement; this fixture constructs none.</summary>
-    public RoomEnemyPopulationRecord ReadFallingTubePopulation(SuperMetroid.Core.Enemies.MotherBrainTubePiece piece) =>
+    public RoomEnemyPlacement ReadFallingTubePopulation(SuperMetroid.Core.Enemies.MotherBrainTubePiece piece) =>
         CompiledRoomEnemyDefinitions.Instance.ReadFallingTubePopulation(piece);
     }
 

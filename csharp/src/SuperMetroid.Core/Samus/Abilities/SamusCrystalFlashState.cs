@@ -387,7 +387,7 @@ public sealed class SamusCrystalFlashState
 
             // The step was validated as one of the pulse's above, so this advance cannot wrap.
             int nextStep = BodyStep + 1;
-            BodyStep = nextStep < SamusPaletteDefinitions.CrystalFlash.BodyRecordCount ? nextStep : 0;
+            BodyStep = nextStep < SamusPaletteDefinitions.CrystalFlash.BodyStepCount ? nextStep : 0;
         }
 
         // Every active call reports the palette handled, including frames on which neither timer

@@ -18,6 +18,6 @@ public sealed class CompiledRoomEnemyDefinitions : IRoomEnemyDefinitionSource
     public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId definitionId) => RoomEnemyDefinitionLookup.Read(definitionId);
 
     /// <inheritdoc />
-    public RoomEnemyPopulationRecord ReadFallingTubePopulation(MotherBrainTubePiece piece) =>
+    public RoomEnemyPlacement ReadFallingTubePopulation(MotherBrainTubePiece piece) =>
         MotherBrainFallingTubes.Get(piece);
 }

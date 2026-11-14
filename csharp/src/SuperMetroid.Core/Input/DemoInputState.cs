@@ -113,12 +113,12 @@ public sealed class DemoInputState
     private void PlayNextInput(DemoPlaybackPosition position, Action<DemoInputCue> cue)
     {
         DemoRecording recording = DemoInputRecordings.Of(position.Recording);
-        if (position.NextRecord >= recording.Records.Count)
+        if (position.NextInput >= recording.Inputs.Count)
         {
             switch (recording.End)
             {
                 case DemoRecordingEnd.Loop loop:
-                    position = position with { NextRecord = loop.Record };
+                    position = position with { NextInput = loop.Input };
                     break;
                 case DemoRecordingEnd.Signal signal:
                     cue(signal.Cue);
@@ -132,11 +132,11 @@ public sealed class DemoInputState
             }
         }
 
-        DemoInputRecord input = recording.Records[position.NextRecord];
+        DemoInput input = recording.Inputs[position.NextInput];
         FrameHold = WrappingCountdown.Start(input.Duration);
         Held = input.Held;
         NewlyPressed = input.NewlyPressed;
-        Position = position with { NextRecord = position.NextRecord + 1 };
+        Position = position with { NextInput = position.NextInput + 1 };
     }
 
     /// <summary>Ends the demo's input: the recording is done and the demo releases every button.</summary>

@@ -363,7 +363,7 @@ internal static class RoomBlockPicturesVerification
         // A frame pictured under a room animation's frames (Crocomire's melt states, #1513) shows those frames' characters
         // where they paint, as the body painter composes it, and the room's load elsewhere.
         IReadOnlyList<AnimatedCharacterPlacement> animated = RoomBlockUploads.ShownUnderBoss(BossRoomInputs.Value,
-            RoomStateLists.GetStates(room).First(state => !state.EnemyPopulation.Records.IsEmpty)).Animated;
+            RoomStateLists.GetStates(room).First(state => !state.EnemyPopulation.Placements.IsEmpty)).Animated;
         int frames = 0;
         foreach (BossBodyFrameSource frame in BossBodySheetComposer.Frames(bosses, owner))
         {

@@ -23,7 +23,7 @@ internal static class SamusDeathSheetComposer
     internal static IReadOnlyList<HorizontalDirection> Facings { get; } = [HorizontalDirection.Right, HorizontalDirection.Left];
 
     /// <summary>The explosion frames each facing shows.</summary>
-    internal const int ExplosionFrameCount = SamusDeathExplosionTimingDefinitions.RecordCount;
+    internal const int ExplosionFrameCount = SamusDeathExplosionTimingDefinitions.StepCount;
 
     /// <summary>Every frame the sheet holds.</summary>
     internal static IEnumerable<string> Frames =>

@@ -283,6 +283,31 @@ internal static class CoreVocabularyAnalyzerTests
         // routine, a handler, the responses and lifecycle phases that replaced the fields.
         Expect("class P { int AiState; int Routine; int Handler; int RoutineAi; int HandlerAi; int AiRoutinely; int AidHandler; }");
         Expect("class P { int GrappleResponse; int HurtResponse; int EnemyHurtHandler; void RunMainAi() { } void Initialize() { } }");
+        // The cartridge's record (#1745), in each kind of declaration the renamed populations, route, touch rectangles and
+        // step tables used it in: a plural field, property, method, parameter and local, a count and an index of records,
+        // and a type named for the record it is.
+        const string record = "names the cartridge's record";
+        Expect("class P { static readonly int[] TouchHitboxRecords = []; }", $"'TouchHitboxRecords' {record} ('Records')");
+        Expect("class P { System.ReadOnlyMemory<int> Records => default; }", $"'Records' {record} ('Records')");
+        Expect("class P { static int FromRecords() => 0; }", $"'FromRecords' {record} ('Records')");
+        Expect("class P { void Load(int[] records) { } }", $"'records' {record} ('Records')");
+        Expect("class P { int Run() { int[] records = []; return records.Length; } }", $"'records' {record} ('Records')");
+        Expect("class P { static int SharedWithoutRecords { get; } }", $"'SharedWithoutRecords' {record} ('Records')");
+        Expect("static class Steps { public const int RecordCount = 9; }", $"'RecordCount' {record} ('RecordCount')");
+        Expect("static class Pulse { public const int BodyRecordCount = 10; }", $"'BodyRecordCount' {record} ('RecordCount')");
+        Expect("class P { int Run() { int spawnedRecordCount = 0; return spawnedRecordCount; } }",
+            $"'spawnedRecordCount' {record} ('RecordCount')");
+        Expect("record struct Placed(int RecordIndex);", $"'RecordIndex' {record} ('RecordIndex')");
+        Expect("readonly record struct RoomEnemyPopulationRecord(int X);", $"'RoomEnemyPopulationRecord' {record} ('Record')");
+        Expect("class DemoInputRecord { }", $"'DemoInputRecord' {record} ('Record')");
+        ExpectFile("readonly record struct BabyMetroidRouteRecord(int Leg);", "BabyMetroidRouteRecord.cs",
+            $"'BabyMetroidRouteRecord' {record} ('Record')");
+        // The English verb, the game's demo recordings, a method's or member's singular record and words that only share its
+        // letters are the game's own.
+        Expect("class P { void RecordKill() { } void RecordDoorOpened() { } void Record(int x) { } bool TryRecord() => true; }");
+        Expect("class DemoRecording { int Recorded; int Recording; DemoRecordingEnd? End; } class DemoRecordingEnd { } enum DemoInputRecordingId { None }");
+        Expect("class P { int ForRecord() => 0; int NextRecord; bool MotherBrainDefeatRecordRequested; void RecordFullBrightness() { } }");
+        Expect("class Recorder { int Recordable; int RecordingCount; int CountRecord; } class RecordedInput { }");
         Expect("class P { int Banked; }", "'Banked' names the hardware ('Bank')");
         Expect("class P { int[] Pointers = []; }", "'Pointers' names the hardware ('Pointer')");
         Expect("class P { void Run() { try { } catch (System.Exception addressing) { _ = addressing; } } }", "'addressing' names the hardware ('Address')");

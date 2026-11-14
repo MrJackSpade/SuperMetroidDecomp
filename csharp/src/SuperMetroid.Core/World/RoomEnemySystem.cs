@@ -880,7 +880,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         // A room that places no enemies keeps drawing its spawned objects from the standard artwork (#1599): an empty
         // population loads no enemy artwork, so the objects such a room shows appear in their standard variants.
         RoomEnemyPopulationDefinition population = request.Population;
-        if (!population.Records.IsEmpty)
+        if (!population.Placements.IsEmpty)
             Presentation.DrawPopulation(population);
         PopulationLoader.LoadPopulation(
             definitions,

@@ -5,16 +5,16 @@ public sealed record DemoRecording
 {
     /// <summary>Creates a recording; a loop must name one of its inputs.</summary>
     /// <exception cref="ArgumentException">The loop names no input of the recording.</exception>
-    public DemoRecording(IReadOnlyList<DemoInputRecord> records, DemoRecordingEnd end)
+    public DemoRecording(IReadOnlyList<DemoInput> inputs, DemoRecordingEnd end)
     {
-        Records = Ensure.NotNull(records);
+        Inputs = Ensure.NotNull(inputs);
         End = Ensure.NotNull(end);
-        if (end is DemoRecordingEnd.Loop loop && loop.Record >= records.Count)
-            throw new ArgumentException($"A recording of {records.Count} inputs cannot loop from input {loop.Record}.", nameof(end));
+        if (end is DemoRecordingEnd.Loop loop && loop.Input >= inputs.Count)
+            throw new ArgumentException($"A recording of {inputs.Count} inputs cannot loop from input {loop.Input}.", nameof(end));
     }
 
     /// <summary>The inputs, in the order they play.</summary>
-    public IReadOnlyList<DemoInputRecord> Records { get; }
+    public IReadOnlyList<DemoInput> Inputs { get; }
 
     /// <summary>How the recording ends once its last input has run out.</summary>
     public DemoRecordingEnd End { get; }

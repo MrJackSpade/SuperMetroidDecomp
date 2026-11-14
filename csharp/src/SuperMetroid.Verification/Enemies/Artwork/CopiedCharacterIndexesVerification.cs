@@ -37,7 +37,7 @@ internal static class CopiedCharacterIndexesVerification
             EnemyDefinitionId owner = SuperMetroid.AssetExtraction.Enemies.EnemyCharacterBaseDefinitions.DrawsAtTilesOf[child];
             (RoomDefinition room, RoomStateSettings state) = RetailRooms.All
                 .SelectMany(definition => RoomStateLists.GetStates(definition).Select(state => KeyValuePair.Create(definition, state)))
-                .FirstOrDefault(candidate => candidate.Value.EnemyPopulation.Records.ToArray().Any(record => record.DefinitionId == owner));
+                .FirstOrDefault(candidate => candidate.Value.EnemyPopulation.Placements.ToArray().Any(record => record.DefinitionId == owner));
             if (room is null)
                 throw new InvalidOperationException($"No retail room state places {owner}.");
             runtime.LoadCartridgeRoomForDebug(room, state: state);

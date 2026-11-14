@@ -125,10 +125,10 @@ public sealed class CeresElevatorShaftRoomMainState
         if (--RotationTimer >= 0)
             return new(Transform, TiltChanged: false, DepartureRequestedThisFrame);
 
-        // Both sweeps read the record of the current step.
-        var record = CeresShaftRotation.Read(RotationStep);
-        RotationTimer = record.Timer;
-        Transform = new TurningFloorTransform(record.Tilt, CeresShaftRotationCenter);
+        // Both sweeps read the rotation of the current step.
+        var rotation = CeresShaftRotation.Read(RotationStep);
+        RotationTimer = rotation.Timer;
+        Transform = new TurningFloorTransform(rotation.Tilt, CeresShaftRotationCenter);
 
         // Steps 0..67 sweep forward; after 67 the turn reverses at step 68. The backward sweep counts down until
         // step 1 hands over to forward step 0, so the backward sweep never reaches step 0 itself.

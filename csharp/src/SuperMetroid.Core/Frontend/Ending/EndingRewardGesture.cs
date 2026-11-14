@@ -90,14 +90,14 @@ internal sealed class EndingRewardGesture
     /// <summary>Creates an actor from compiled initialization and binds its discovery frame behaviour.</summary>
     private void Spawn(EndingRewardActor definition)
     {
-        EndingRewardActorDefinition record = EndingRewardActors.Get(definition);
+        EndingRewardActorDefinition authored = EndingRewardActors.Get(definition);
         EndingRewardActorInitializationDefinition initialization =
-            EndingRewardActors.GetInitialization(record.Initialization);
+            EndingRewardActors.GetInitialization(authored.Initialization);
         var actor = new IntroDiscoverySprite(
             initialization.Position,
             EndingShades.Drawn(initialization.Colouring),
-            record.Animation);
-        actor.InstallFrameBehavior(record.FrameBehavior);
+            authored.Animation);
+        actor.InstallFrameBehavior(authored.FrameBehavior);
         actors.Add(actor);
     }
 }

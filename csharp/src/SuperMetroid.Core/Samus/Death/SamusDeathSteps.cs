@@ -24,7 +24,7 @@ public sealed class SamusDeathSteps
     /// <exception cref="InvalidDataException">A list has the wrong length or names a death step that does not exist.</exception>
     public SamusDeathSteps(ImmutableArray<int> explosionSteps, ImmutableArray<RgbColor> whiteout)
     {
-        if (explosionSteps.IsDefault || explosionSteps.Length != SamusDeathExplosionTimingDefinitions.RecordCount ||
+        if (explosionSteps.IsDefault || explosionSteps.Length != SamusDeathExplosionTimingDefinitions.StepCount ||
             explosionSteps.Any(step => step is < 0 or >= SamusPaletteDefinitions.Death.PaletteCount))
             throw new InvalidDataException("Samus's death explosion names one existing death step per explosion frame.");
         if (whiteout.IsDefault || whiteout.Length != SamusPaletteDefinitions.Death.WhiteoutShadeCount)

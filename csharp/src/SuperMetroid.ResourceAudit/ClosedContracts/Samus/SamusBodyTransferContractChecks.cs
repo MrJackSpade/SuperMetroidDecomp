@@ -73,7 +73,7 @@ internal static class SamusBodyTransferContractChecks
             .Select(_ => new RgbColor[InstalledSamusDeathPalettes.ColorCount]).ToArray();
         var deathColors = new InstalledSamusDeathPalettes(
             Enumerable.Range(0, InstalledSamusDeathPalettes.SuitCount).Select(_ => Rows()).ToArray(), Rows(),
-            new RgbColor[SamusPaletteDefinitions.Death.WhiteoutShadeCount], new ushort[SamusDeathExplosionTimingDefinitions.RecordCount]);
+            new RgbColor[SamusPaletteDefinitions.Death.WhiteoutShadeCount], new ushort[SamusDeathExplosionTimingDefinitions.StepCount]);
         var cannonDocument = new SamusArmCannonArtworkDocument {
             Version = SamusArmCannonArtworkFormat.Version,
             PoseDescriptors = EveryRecordedPose(0),

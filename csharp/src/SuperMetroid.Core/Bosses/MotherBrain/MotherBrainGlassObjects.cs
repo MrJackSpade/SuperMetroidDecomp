@@ -40,15 +40,15 @@ internal sealed class MotherBrainGlassObjects
     /// <summary>Runs the glass setup against the slot room population gave it.</summary>
     internal void SetupMotherBrainGlassSlot(
         RoomLevelData level,
-        RoomObjectPopulationRecord record,
+        PlacedRoomObject placed,
         RoomObjectSlot slot)
     {
-        if (record.RecordIndex != 0 ||
-            record.Block != new Position16<RoomBlocks>(9, 5))
+        if (placed.PlacementIndex != 0 ||
+            placed.Block != new Position16<RoomBlocks>(9, 5))
         {
             throw new InvalidDataException(
-                $"Mother Brain glass population diverged: record={record.RecordIndex}, " +
-                $"block=({record.Block.X},{record.Block.Y}), argument={record.Argument}.");
+                $"Mother Brain glass population diverged: placement={placed.PlacementIndex}, " +
+                $"block=({placed.Block.X},{placed.Block.Y}), argument={placed.Argument}.");
         }
 
         slot.Become(new MotherBrainGlassObject(this));

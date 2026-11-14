@@ -9,7 +9,7 @@ internal static class CrystalFlashPaletteTiming
     /// <remarks>Every one of the ten steps shows for ten calls, so a whole pulse is a hundred calls. Investigation: #625 / #668.</remarks>
     /// <exception cref="InvalidDataException">The step is not one of the pulse's.</exception>
     public static int DurationForStep(int step) =>
-        step is >= 0 and < RecordCount
+        step is >= 0 and < StepCount
             ? AuthoredDuration
-            : throw new InvalidDataException($"Crystal Flash body step {step} is not one of the pulse's {RecordCount}.");
+            : throw new InvalidDataException($"Crystal Flash body step {step} is not one of the pulse's {StepCount}.");
 }

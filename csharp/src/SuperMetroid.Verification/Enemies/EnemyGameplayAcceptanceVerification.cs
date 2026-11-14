@@ -68,19 +68,19 @@ internal static class EnemyGameplayAcceptanceVerification
         // not a hand-written visual-only approximation or a full room playthrough.
         RoomStateSettings state = RoomStateDefinitions.All
             .Where(candidate => IsKiHunterPairList(RoomEnemyPopulationDefinitions.PointerOf(candidate.EnemyPopulation)))
-            .OrderBy(candidate => candidate.EnemyPopulation.Records.Length)
+            .OrderBy(candidate => candidate.EnemyPopulation.Placements.Length)
             .ThenBy(candidate => RoomEnemyPopulationDefinitions.PointerOf(candidate.EnemyPopulation)).First();
         RoomEnemyPopulationDefinition population = state.EnemyPopulation;
         (RoomEnemySystem baseline, _) = Load(stock);
-        AssertEqual(population.Records.Length, baseline.SlotTable.EnemyCount, "compiled population publishes its exact count");
-        AssertEqual(population.Records.Length < EnemySlotOrder.Capacity ? baseline.SlotTable.Slots[population.Records.Length] : null,
+        AssertEqual(population.Placements.Length, baseline.SlotTable.EnemyCount, "compiled population publishes its exact count");
+        AssertEqual(population.Placements.Length < EnemySlotOrder.Capacity ? baseline.SlotTable.Slots[population.Placements.Length] : null,
             baseline.SlotTable.FindFreeSlot(), "a spawn takes the slot after the compiled population");
         AssertEqual(population.DeathQuota, baseline.PopulationLoader.DeathQuota, "compiled population publishes its authored death quota");
-        for (int index = 0; index < population.Records.Length; index++)
+        for (int index = 0; index < population.Placements.Length; index++)
         {
             RoomEnemySlot slot = baseline.SlotTable.Slots[index];
             AssertEqual(index, slot.SlotIndex, "linked population slot order");
-            AssertEqual(population.Records.Span[index], slot.Spawn.Population, "linked population preserves every spawn word");
+            AssertEqual(population.Placements.Span[index], slot.Spawn.Population, "linked population preserves every spawn word");
             AssertEqual(RoomEnemyDefinitionLookup.Get(slot.DefinitionId), slot.Definition, "linked slot uses compiled header");
             AssertEqual(slot.Definition.Health, slot.Health, "linked slot starts at compiled health");
             if ((index & 1) != 0)
@@ -91,7 +91,7 @@ internal static class EnemyGameplayAcceptanceVerification
             }
         }
 
-        Console.WriteLine($"Enemy population binding: {population.Records.Length} linked slots at {population.Name} " +
+        Console.WriteLine($"Enemy population binding: {population.Placements.Length} linked slots at {population.Name} " +
             "initialize with RAM-only memory.");
 
         LoadResult Load(ImportEnemyArtwork artwork)
@@ -118,7 +118,7 @@ internal static class EnemyGameplayAcceptanceVerification
 
         static bool IsKiHunterPairList(ushort pointer)
         {
-            ReadOnlySpan<RoomEnemyPopulationRecord> records = RoomEnemyPopulationDefinitions.Get(pointer).Records.Span;
+            ReadOnlySpan<RoomEnemyPlacement> records = RoomEnemyPopulationDefinitions.Get(pointer).Placements.Span;
             if (records.IsEmpty || (records.Length & 1) != 0) return false;
             for (int index = 0; index < records.Length; index++)
                 if (records[index].DefinitionId != ((index & 1) == 0

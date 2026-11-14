@@ -11,7 +11,7 @@ internal static class MotherBrainFallingTubes
     /// initializer. The record's animation is unused: the piece runs its typed animation (#641), so the field is
     /// zero. Placement magnitudes and the main delay remain independent required inputs.
     /// </summary>
-    internal static RoomEnemyPopulationRecord Get(MotherBrainTubePiece piece)
+    internal static RoomEnemyPlacement Get(MotherBrainTubePiece piece)
     {
         int index = Pieces.PositionOf(piece);
         bool main = piece == MotherBrainTubePiece.Main;

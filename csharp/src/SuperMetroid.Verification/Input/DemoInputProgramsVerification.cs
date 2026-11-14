@@ -51,8 +51,8 @@ internal static class DemoInputProgramsVerification
                 ushort word = Word(cursor);
                 if (word < DemoInputListWords.RoutineWord)
                 {
-                    AssertTrue(index < recording.Records.Count, $"{at}: the recording holds this input");
-                    DemoInputRecord input = recording.Records[index];
+                    AssertTrue(index < recording.Inputs.Count, $"{at}: the recording holds this input");
+                    DemoInput input = recording.Inputs[index];
                     AssertEqual(word, input.Duration, $"{at}: duration");
                     AssertEqual(Word(cursor + 2), ControllerWordCodec.ToJoypadWord(input.Held), $"{at}: held");
                     AssertEqual(Word(cursor + 4), ControllerWordCodec.ToJoypadWord(input.NewlyPressed), $"{at}: newly pressed");
@@ -61,7 +61,7 @@ internal static class DemoInputProgramsVerification
                     records++;
                     continue;
                 }
-                AssertEqual(recording.Records.Count, index, $"{at}: the recording's inputs end where its list's do");
+                AssertEqual(recording.Inputs.Count, index, $"{at}: the recording's inputs end where its list's do");
                 if (Routines.TryGetValue(word, out DemoInputCue cue))
                 {
                     AssertEqual((ushort)DemoInputInstruction.Delete, Word(cursor + 2), $"{at}: the routine is followed by the delete");

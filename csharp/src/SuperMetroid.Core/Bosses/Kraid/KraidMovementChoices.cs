@@ -23,7 +23,7 @@ public static class KraidMovementChoices
         internal static readonly Destination Rightmost = new(384);
 
         /// <summary>The position records the movement-policy search runs over, in search order.</summary>
-        internal static readonly ImmutableArray<Destination> Records = [Leftmost, Left, Middle, Starting, Right, Rightmost];
+        internal static readonly ImmutableArray<Destination> SearchOrder = [Leftmost, Left, Middle, Starting, Right, Rightmost];
     }
 
     /// <summary>
@@ -40,7 +40,7 @@ public static class KraidMovementChoices
     public static KraidMovementChoice Select(int position, int random)
     {
         // The movement record search ends on the starting row for every unlisted position.
-        Destination row = Destination.Records.FirstOrDefault(record => record.X == position) ?? Destination.Starting;
+        Destination row = Destination.SearchOrder.FirstOrDefault(destination => destination.X == position) ?? Destination.Starting;
         int choice = Math.Min(KraidRandomDefinitions.MovementChoice.Of(random), 4);
         Destination target = choice switch
         {

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal static class RoomObjectPopulationDefinitions
 {
     /// <summary>The LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombs room-object population.</summary>
-    public static RoomObjectPopulation LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombs { get; } = RoomObjectPopulation.FromRecords(nameof(LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombs),
+    public static RoomObjectPopulation LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombs { get; } = RoomObjectPopulation.FromPlacements(nameof(LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombs),
     [
         new(RoomObjectKind.ScrollTrigger, new(30, 40), null, ScrollChange: RoomScrollChange.LandingSiteOpensScreen1x2TopAligned),
         new(RoomObjectKind.UpwardsScrollExtension, new(30, 39), null),
@@ -23,7 +23,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The LandingSiteWhenZebesTimebombSet room-object population.</summary>
-    public static RoomObjectPopulation LandingSiteWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromRecords(nameof(LandingSiteWhenZebesTimebombSet),
+    public static RoomObjectPopulation LandingSiteWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromPlacements(nameof(LandingSiteWhenZebesTimebombSet),
     [
         new(RoomObjectKind.ScrollTrigger, new(30, 40), null, ScrollChange: RoomScrollChange.LandingSiteOpensScreen1x2TopAligned),
         new(RoomObjectKind.UpwardsScrollExtension, new(30, 39), null),
@@ -36,12 +36,12 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The GauntletEntrance room-object population.</summary>
-    public static RoomObjectPopulation GauntletEntrance { get; } = RoomObjectPopulation.FromRecords(nameof(GauntletEntrance),
+    public static RoomObjectPopulation GauntletEntrance { get; } = RoomObjectPopulation.FromPlacements(nameof(GauntletEntrance),
     [
     ]);
 
     /// <summary>The ParlorDefaultOrWhenZebesAwake room-object population.</summary>
-    public static RoomObjectPopulation ParlorDefaultOrWhenZebesAwake { get; } = RoomObjectPopulation.FromRecords(nameof(ParlorDefaultOrWhenZebesAwake),
+    public static RoomObjectPopulation ParlorDefaultOrWhenZebesAwake { get; } = RoomObjectPopulation.FromPlacements(nameof(ParlorDefaultOrWhenZebesAwake),
     [
         new(RoomObjectKind.ScrollTrigger, new(63, 11), null, ScrollChange: RoomScrollChange.ParlorOpensScreen3x1),
         new(RoomObjectKind.ScrollTrigger, new(67, 11), null, ScrollChange: RoomScrollChange.ParlorClosesScreen3x1),
@@ -74,7 +74,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The ParlorWhenZebesTimebombSet room-object population.</summary>
-    public static RoomObjectPopulation ParlorWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromRecords(nameof(ParlorWhenZebesTimebombSet),
+    public static RoomObjectPopulation ParlorWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromPlacements(nameof(ParlorWhenZebesTimebombSet),
     [
         new(RoomObjectKind.ScrollTrigger, new(63, 11), null, ScrollChange: RoomScrollChange.ParlorOpensScreen3x1),
         new(RoomObjectKind.ScrollTrigger, new(67, 11), null, ScrollChange: RoomScrollChange.ParlorClosesScreen3x1),
@@ -112,19 +112,19 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The CrateriaPowerBombs room-object population.</summary>
-    public static RoomObjectPopulation CrateriaPowerBombs { get; } = RoomObjectPopulation.FromRecords(nameof(CrateriaPowerBombs),
+    public static RoomObjectPopulation CrateriaPowerBombs { get; } = RoomObjectPopulation.FromPlacements(nameof(CrateriaPowerBombs),
     [
         new(RoomObjectKind.ExposedPowerBombTank, new(29, 7), new CollectedItemArgument(ItemLocationDefinitions.CrateriaPowerBombsExposedPowerBombTank)),
     ]);
 
     /// <summary>The CrateriaSave room-object population.</summary>
-    public static RoomObjectPopulation CrateriaSave { get; } = RoomObjectPopulation.FromRecords(nameof(CrateriaSave),
+    public static RoomObjectPopulation CrateriaSave { get; } = RoomObjectPopulation.FromPlacements(nameof(CrateriaSave),
     [
         new(RoomObjectKind.SaveStation, new(5, 11), new SaveStationArgument(LoadStationDefinitions.CrateriaSave)),
     ]);
 
     /// <summary>The WestOcean room-object population.</summary>
-    public static RoomObjectPopulation WestOcean { get; } = RoomObjectPopulation.FromRecords(nameof(WestOcean),
+    public static RoomObjectPopulation WestOcean { get; } = RoomObjectPopulation.FromPlacements(nameof(WestOcean),
     [
         new(RoomObjectKind.GreyDoorFacingLeft, new(94, 54), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.WestOceanGreyDoorFacingLeft, DoorOpeningPersistence.Transient))),
         new(RoomObjectKind.GreenDoorFacingLeft, new(126, 70), new DoorBitArgument(LockedDoorDefinitions.WestOceanGreenDoorFacingLeft, DoorOpeningPersistence.Persistent)),
@@ -134,12 +134,12 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The BowlingAlleyPath room-object population.</summary>
-    public static RoomObjectPopulation BowlingAlleyPath { get; } = RoomObjectPopulation.FromRecords(nameof(BowlingAlleyPath),
+    public static RoomObjectPopulation BowlingAlleyPath { get; } = RoomObjectPopulation.FromPlacements(nameof(BowlingAlleyPath),
     [
     ]);
 
     /// <summary>The CrateriaKihunter room-object population.</summary>
-    public static RoomObjectPopulation CrateriaKihunter { get; } = RoomObjectPopulation.FromRecords(nameof(CrateriaKihunter),
+    public static RoomObjectPopulation CrateriaKihunter { get; } = RoomObjectPopulation.FromPlacements(nameof(CrateriaKihunter),
     [
         new(RoomObjectKind.ScrollTrigger, new(23, 15), null, ScrollChange: RoomScrollChange.CrateriaKihunterOpensScreens1x0And1x1),
         new(RoomObjectKind.RightwardsScrollExtension, new(24, 15), null),
@@ -152,64 +152,64 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The ForgottenHighwayElev room-object population.</summary>
-    public static RoomObjectPopulation ForgottenHighwayElev { get; } = RoomObjectPopulation.FromRecords(nameof(ForgottenHighwayElev),
+    public static RoomObjectPopulation ForgottenHighwayElev { get; } = RoomObjectPopulation.FromPlacements(nameof(ForgottenHighwayElev),
     [
         new(RoomObjectKind.ScrollTrigger, new(8, 13), null, ScrollChange: RoomScrollChange.ForgottenHighwayElevOpensScreen0x0),
     ]);
 
     /// <summary>The EastOcean room-object population.</summary>
-    public static RoomObjectPopulation EastOcean { get; } = RoomObjectPopulation.FromRecords(nameof(EastOcean),
+    public static RoomObjectPopulation EastOcean { get; } = RoomObjectPopulation.FromPlacements(nameof(EastOcean),
     [
     ]);
 
     /// <summary>The ForgottenHighwayKagos room-object population.</summary>
-    public static RoomObjectPopulation ForgottenHighwayKagos { get; } = RoomObjectPopulation.FromRecords(nameof(ForgottenHighwayKagos),
+    public static RoomObjectPopulation ForgottenHighwayKagos { get; } = RoomObjectPopulation.FromPlacements(nameof(ForgottenHighwayKagos),
     [
     ]);
 
     /// <summary>The CrabMaze room-object population.</summary>
-    public static RoomObjectPopulation CrabMaze { get; } = RoomObjectPopulation.FromRecords(nameof(CrabMaze),
+    public static RoomObjectPopulation CrabMaze { get; } = RoomObjectPopulation.FromPlacements(nameof(CrabMaze),
     [
     ]);
 
     /// <summary>The ForgottenHighwayElbow room-object population.</summary>
-    public static RoomObjectPopulation ForgottenHighwayElbow { get; } = RoomObjectPopulation.FromRecords(nameof(ForgottenHighwayElbow),
+    public static RoomObjectPopulation ForgottenHighwayElbow { get; } = RoomObjectPopulation.FromPlacements(nameof(ForgottenHighwayElbow),
     [
         new(RoomObjectKind.YellowDoorFacingUp, new(6, 13), new DoorBitArgument(LockedDoorDefinitions.ForgottenHighwayElbowYellowDoorFacingUp, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The CrateriaTube room-object population.</summary>
-    public static RoomObjectPopulation CrateriaTube { get; } = RoomObjectPopulation.FromRecords(nameof(CrateriaTube),
+    public static RoomObjectPopulation CrateriaTube { get; } = RoomObjectPopulation.FromPlacements(nameof(CrateriaTube),
     [
     ]);
 
     /// <summary>The Moat room-object population.</summary>
-    public static RoomObjectPopulation Moat { get; } = RoomObjectPopulation.FromRecords(nameof(Moat),
+    public static RoomObjectPopulation Moat { get; } = RoomObjectPopulation.FromPlacements(nameof(Moat),
     [
         new(RoomObjectKind.ExposedMissileTank, new(14, 9), new CollectedItemArgument(ItemLocationDefinitions.MoatExposedMissileTank)),
     ]);
 
     /// <summary>The RedBinstarElev room-object population.</summary>
-    public static RoomObjectPopulation RedBinstarElev { get; } = RoomObjectPopulation.FromRecords(nameof(RedBinstarElev),
+    public static RoomObjectPopulation RedBinstarElev { get; } = RoomObjectPopulation.FromPlacements(nameof(RedBinstarElev),
     [
         new(RoomObjectKind.ScrollTrigger, new(8, 13), null, ScrollChange: RoomScrollChange.RedBinstarElevOpensScreen0x0),
         new(RoomObjectKind.YellowDoorFacingDown, new(6, 2), new DoorBitArgument(LockedDoorDefinitions.RedBinstarElevYellowDoorFacingDown, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The GauntletETank room-object population.</summary>
-    public static RoomObjectPopulation GauntletETank { get; } = RoomObjectPopulation.FromRecords(nameof(GauntletETank),
+    public static RoomObjectPopulation GauntletETank { get; } = RoomObjectPopulation.FromPlacements(nameof(GauntletETank),
     [
         new(RoomObjectKind.ScrollTrigger, new(84, 12), null, ScrollChange: RoomScrollChange.GauntletETankOpensScreen4x0TopAligned),
         new(RoomObjectKind.ExposedEnergyTank, new(83, 8), new CollectedItemArgument(ItemLocationDefinitions.GauntletETankExposedEnergyTank)),
     ]);
 
     /// <summary>The PreBowling room-object population.</summary>
-    public static RoomObjectPopulation PreBowling { get; } = RoomObjectPopulation.FromRecords(nameof(PreBowling),
+    public static RoomObjectPopulation PreBowling { get; } = RoomObjectPopulation.FromPlacements(nameof(PreBowling),
     [
     ]);
 
     /// <summary>The ClimbDefaultOrWhenZebesAwake room-object population.</summary>
-    public static RoomObjectPopulation ClimbDefaultOrWhenZebesAwake { get; } = RoomObjectPopulation.FromRecords(nameof(ClimbDefaultOrWhenZebesAwake),
+    public static RoomObjectPopulation ClimbDefaultOrWhenZebesAwake { get; } = RoomObjectPopulation.FromPlacements(nameof(ClimbDefaultOrWhenZebesAwake),
     [
         new(RoomObjectKind.ScrollTrigger, new(29, 5), null, ScrollChange: RoomScrollChange.ClimbClosesScreen2x0),
         new(RoomObjectKind.ScrollTrigger, new(32, 5), null, ScrollChange: RoomScrollChange.ClimbOpensScreen2x0TopAligned),
@@ -240,7 +240,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The ClimbWhenZebesTimebombSet room-object population.</summary>
-    public static RoomObjectPopulation ClimbWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromRecords(nameof(ClimbWhenZebesTimebombSet),
+    public static RoomObjectPopulation ClimbWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromPlacements(nameof(ClimbWhenZebesTimebombSet),
     [
         new(RoomObjectKind.ScrollTrigger, new(29, 5), null, ScrollChange: RoomScrollChange.ClimbClosesScreen2x0),
         new(RoomObjectKind.ScrollTrigger, new(32, 5), null, ScrollChange: RoomScrollChange.ClimbOpensScreen2x0TopAligned),
@@ -273,7 +273,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The PitDefault room-object population.</summary>
-    public static RoomObjectPopulation PitDefault { get; } = RoomObjectPopulation.FromRecords(nameof(PitDefault),
+    public static RoomObjectPopulation PitDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(PitDefault),
     [
         new(RoomObjectKind.ScrollTrigger, new(4, 15), null, ScrollChange: RoomScrollChange.PitOpensScreens0x0And0x1),
         new(RoomObjectKind.ScrollTrigger, new(6, 15), null, ScrollChange: RoomScrollChange.PitOpensScreens0x0And0x1),
@@ -282,7 +282,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The PitWithMorphBallAndMissiles room-object population.</summary>
-    public static RoomObjectPopulation PitWithMorphBallAndMissiles { get; } = RoomObjectPopulation.FromRecords(nameof(PitWithMorphBallAndMissiles),
+    public static RoomObjectPopulation PitWithMorphBallAndMissiles { get; } = RoomObjectPopulation.FromPlacements(nameof(PitWithMorphBallAndMissiles),
     [
         new(RoomObjectKind.ScrollTrigger, new(4, 15), null, ScrollChange: RoomScrollChange.PitOpensScreens0x0And0x1),
         new(RoomObjectKind.ScrollTrigger, new(6, 15), null, ScrollChange: RoomScrollChange.PitOpensScreens0x0And0x1),
@@ -293,13 +293,13 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The ElevToBlueBrinstar room-object population.</summary>
-    public static RoomObjectPopulation ElevToBlueBrinstar { get; } = RoomObjectPopulation.FromRecords(nameof(ElevToBlueBrinstar),
+    public static RoomObjectPopulation ElevToBlueBrinstar { get; } = RoomObjectPopulation.FromPlacements(nameof(ElevToBlueBrinstar),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 13), null, ScrollChange: RoomScrollChange.ElevToBlueBrinstarOpensScreen0x0),
     ]);
 
     /// <summary>The BombTorizoDefaultOrWhenAreaTorizoDead room-object population.</summary>
-    public static RoomObjectPopulation BombTorizoDefaultOrWhenAreaTorizoDead { get; } = RoomObjectPopulation.FromRecords(nameof(BombTorizoDefaultOrWhenAreaTorizoDead),
+    public static RoomObjectPopulation BombTorizoDefaultOrWhenAreaTorizoDead { get; } = RoomObjectPopulation.FromPlacements(nameof(BombTorizoDefaultOrWhenAreaTorizoDead),
     [
         new(RoomObjectKind.BombTorizoGreyDoor, new(1, 6), new GreyDoorArgument(2, new DoorBitArgument(LockedDoorDefinitions.BombTorizoDefaultOrWhenAreaTorizoDeadBombTorizoGreyDoor, DoorOpeningPersistence.Persistent))),
         new(RoomObjectKind.ChozoBombs, new(12, 10), new CollectedItemArgument(ItemLocationDefinitions.BombTorizoDefaultOrWhenAreaTorizoDeadChozoBombs)),
@@ -307,54 +307,54 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The BombTorizoWhenZebesTimebombSet room-object population.</summary>
-    public static RoomObjectPopulation BombTorizoWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromRecords(nameof(BombTorizoWhenZebesTimebombSet),
+    public static RoomObjectPopulation BombTorizoWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromPlacements(nameof(BombTorizoWhenZebesTimebombSet),
     [
         new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(7)),
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(6, new DoorBitArgument(LockedDoorDefinitions.BombTorizoWhenZebesTimebombSetGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The FlywayDefaultOrWhenAreaTorizoDead room-object population.</summary>
-    public static RoomObjectPopulation FlywayDefaultOrWhenAreaTorizoDead { get; } = RoomObjectPopulation.FromRecords(nameof(FlywayDefaultOrWhenAreaTorizoDead),
+    public static RoomObjectPopulation FlywayDefaultOrWhenAreaTorizoDead { get; } = RoomObjectPopulation.FromPlacements(nameof(FlywayDefaultOrWhenAreaTorizoDead),
     [
         new(RoomObjectKind.RedDoorFacingLeft, new(46, 6), new DoorBitArgument(LockedDoorDefinitions.FlywayDefaultOrWhenAreaTorizoDeadRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The FlywayWhenZebesTimebombSet room-object population.</summary>
-    public static RoomObjectPopulation FlywayWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromRecords(nameof(FlywayWhenZebesTimebombSet),
+    public static RoomObjectPopulation FlywayWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromPlacements(nameof(FlywayWhenZebesTimebombSet),
     [
         new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(8)),
     ]);
 
     /// <summary>The PreMapFlyway room-object population.</summary>
-    public static RoomObjectPopulation PreMapFlyway { get; } = RoomObjectPopulation.FromRecords(nameof(PreMapFlyway),
+    public static RoomObjectPopulation PreMapFlyway { get; } = RoomObjectPopulation.FromPlacements(nameof(PreMapFlyway),
     [
     ]);
 
     /// <summary>The Terminator room-object population.</summary>
-    public static RoomObjectPopulation Terminator { get; } = RoomObjectPopulation.FromRecords(nameof(Terminator),
+    public static RoomObjectPopulation Terminator { get; } = RoomObjectPopulation.FromPlacements(nameof(Terminator),
     [
         new(RoomObjectKind.ExposedEnergyTank, new(7, 42), new CollectedItemArgument(ItemLocationDefinitions.TerminatorExposedEnergyTank)),
     ]);
 
     /// <summary>The GreenBrinstarElev room-object population.</summary>
-    public static RoomObjectPopulation GreenBrinstarElev { get; } = RoomObjectPopulation.FromRecords(nameof(GreenBrinstarElev),
+    public static RoomObjectPopulation GreenBrinstarElev { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenBrinstarElev),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 13), null, ScrollChange: RoomScrollChange.GreenBrinstarElevOpensScreen0x0),
     ]);
 
     /// <summary>The LowerMushrooms room-object population.</summary>
-    public static RoomObjectPopulation LowerMushrooms { get; } = RoomObjectPopulation.FromRecords(nameof(LowerMushrooms),
+    public static RoomObjectPopulation LowerMushrooms { get; } = RoomObjectPopulation.FromPlacements(nameof(LowerMushrooms),
     [
     ]);
 
     /// <summary>The CrateriaMap room-object population.</summary>
-    public static RoomObjectPopulation CrateriaMap { get; } = RoomObjectPopulation.FromRecords(nameof(CrateriaMap),
+    public static RoomObjectPopulation CrateriaMap { get; } = RoomObjectPopulation.FromPlacements(nameof(CrateriaMap),
     [
         new(RoomObjectKind.MapStation, new(11, 10), null),
     ]);
 
     /// <summary>The GreenPiratesShaft room-object population.</summary>
-    public static RoomObjectPopulation GreenPiratesShaft { get; } = RoomObjectPopulation.FromRecords(nameof(GreenPiratesShaft),
+    public static RoomObjectPopulation GreenPiratesShaft { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenPiratesShaft),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 67), null, ScrollChange: RoomScrollChange.GreenPiratesShaftOpensScreen0x3),
         new(RoomObjectKind.RightwardsScrollExtension, new(8, 67), null),
@@ -366,34 +366,34 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The CrateriaSuper room-object population.</summary>
-    public static RoomObjectPopulation CrateriaSuper { get; } = RoomObjectPopulation.FromRecords(nameof(CrateriaSuper),
+    public static RoomObjectPopulation CrateriaSuper { get; } = RoomObjectPopulation.FromPlacements(nameof(CrateriaSuper),
     [
         new(RoomObjectKind.ExposedSuperMissileTank, new(59, 9), new CollectedItemArgument(ItemLocationDefinitions.CrateriaSuperExposedSuperMissileTank)),
     ]);
 
     /// <summary>The FinalMissileBombwayDefault room-object population.</summary>
-    public static RoomObjectPopulation FinalMissileBombwayDefault { get; } = RoomObjectPopulation.FromRecords(nameof(FinalMissileBombwayDefault),
+    public static RoomObjectPopulation FinalMissileBombwayDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(FinalMissileBombwayDefault),
     [
     ]);
 
     /// <summary>The FinalMissileBombwayWhenZebesAwake room-object population.</summary>
-    public static RoomObjectPopulation FinalMissileBombwayWhenZebesAwake { get; } = RoomObjectPopulation.FromRecords(nameof(FinalMissileBombwayWhenZebesAwake),
+    public static RoomObjectPopulation FinalMissileBombwayWhenZebesAwake { get; } = RoomObjectPopulation.FromPlacements(nameof(FinalMissileBombwayWhenZebesAwake),
     [
     ]);
 
     /// <summary>The FinalMissileDefault room-object population.</summary>
-    public static RoomObjectPopulation FinalMissileDefault { get; } = RoomObjectPopulation.FromRecords(nameof(FinalMissileDefault),
+    public static RoomObjectPopulation FinalMissileDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(FinalMissileDefault),
     [
     ]);
 
     /// <summary>The FinalMissileWhenZebesAwake room-object population.</summary>
-    public static RoomObjectPopulation FinalMissileWhenZebesAwake { get; } = RoomObjectPopulation.FromRecords(nameof(FinalMissileWhenZebesAwake),
+    public static RoomObjectPopulation FinalMissileWhenZebesAwake { get; } = RoomObjectPopulation.FromPlacements(nameof(FinalMissileWhenZebesAwake),
     [
         new(RoomObjectKind.ExposedMissileTank, new(4, 7), new CollectedItemArgument(ItemLocationDefinitions.FinalMissileWhenZebesAwakeExposedMissileTank)),
     ]);
 
     /// <summary>The GreenBrinstarMainShaft room-object population.</summary>
-    public static RoomObjectPopulation GreenBrinstarMainShaft { get; } = RoomObjectPopulation.FromRecords(nameof(GreenBrinstarMainShaft),
+    public static RoomObjectPopulation GreenBrinstarMainShaft { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenBrinstarMainShaft),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 113), null, ScrollChange: RoomScrollChange.GreenBrinstarMainShaftClosesScreen1x7OpensScreen0x7),
         new(RoomObjectKind.ScrollTrigger, new(16, 168), null, ScrollChange: RoomScrollChange.GreenBrinstarMainShaftClosesScreen0x7OpensScreens1x7And1x10TopAligned),
@@ -410,7 +410,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The SporeSpawnSuper room-object population.</summary>
-    public static RoomObjectPopulation SporeSpawnSuper { get; } = RoomObjectPopulation.FromRecords(nameof(SporeSpawnSuper),
+    public static RoomObjectPopulation SporeSpawnSuper { get; } = RoomObjectPopulation.FromPlacements(nameof(SporeSpawnSuper),
     [
         new(RoomObjectKind.ScrollTrigger, new(23, 11), null, ScrollChange: RoomScrollChange.SporeSpawnSuperOpensScreens1x0And1x1),
         new(RoomObjectKind.RightwardsScrollExtension, new(24, 11), null),
@@ -418,13 +418,13 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The BrinstarPreMap room-object population.</summary>
-    public static RoomObjectPopulation BrinstarPreMap { get; } = RoomObjectPopulation.FromRecords(nameof(BrinstarPreMap),
+    public static RoomObjectPopulation BrinstarPreMap { get; } = RoomObjectPopulation.FromPlacements(nameof(BrinstarPreMap),
     [
         new(RoomObjectKind.GreyDoorFacingLeft, new(46, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.BrinstarPreMapGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The EarlySupers room-object population.</summary>
-    public static RoomObjectPopulation EarlySupers { get; } = RoomObjectPopulation.FromRecords(nameof(EarlySupers),
+    public static RoomObjectPopulation EarlySupers { get; } = RoomObjectPopulation.FromPlacements(nameof(EarlySupers),
     [
         new(RoomObjectKind.ScrollTrigger, new(41, 14), null, ScrollChange: RoomScrollChange.EarlySupersOpensScreens0x0And1x0And2x0),
         new(RoomObjectKind.RightwardsScrollExtension, new(42, 14), null),
@@ -437,7 +437,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The BrinstarReserveTank room-object population.</summary>
-    public static RoomObjectPopulation BrinstarReserveTank { get; } = RoomObjectPopulation.FromRecords(nameof(BrinstarReserveTank),
+    public static RoomObjectPopulation BrinstarReserveTank { get; } = RoomObjectPopulation.FromPlacements(nameof(BrinstarReserveTank),
     [
         new(RoomObjectKind.ScrollTrigger, new(14, 11), null, ScrollChange: RoomScrollChange.BrinstarReserveTankOpensScreen1x0TopAligned),
         new(RoomObjectKind.ChozoReserveTank, new(11, 7), new CollectedItemArgument(ItemLocationDefinitions.BrinstarReserveTankChozoReserveTank)),
@@ -446,25 +446,25 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The GreenBrinstarMap room-object population.</summary>
-    public static RoomObjectPopulation GreenBrinstarMap { get; } = RoomObjectPopulation.FromRecords(nameof(GreenBrinstarMap),
+    public static RoomObjectPopulation GreenBrinstarMap { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenBrinstarMap),
     [
         new(RoomObjectKind.MapStation, new(5, 10), null),
     ]);
 
     /// <summary>The GreenBrinstarFirefleas room-object population.</summary>
-    public static RoomObjectPopulation GreenBrinstarFirefleas { get; } = RoomObjectPopulation.FromRecords(nameof(GreenBrinstarFirefleas),
+    public static RoomObjectPopulation GreenBrinstarFirefleas { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenBrinstarFirefleas),
     [
         new(RoomObjectKind.GreenDoorFacingRight, new(1, 38), new DoorBitArgument(LockedDoorDefinitions.GreenBrinstarFirefleasGreenDoorFacingRight, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The GreenBrinstarMissileRefill room-object population.</summary>
-    public static RoomObjectPopulation GreenBrinstarMissileRefill { get; } = RoomObjectPopulation.FromRecords(nameof(GreenBrinstarMissileRefill),
+    public static RoomObjectPopulation GreenBrinstarMissileRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenBrinstarMissileRefill),
     [
         new(RoomObjectKind.MissileStation, new(4, 10), null),
     ]);
 
     /// <summary>The Dachora room-object population.</summary>
-    public static RoomObjectPopulation Dachora { get; } = RoomObjectPopulation.FromRecords(nameof(Dachora),
+    public static RoomObjectPopulation Dachora { get; } = RoomObjectPopulation.FromPlacements(nameof(Dachora),
     [
         new(RoomObjectKind.DownwardsScrollExtension, new(69, 14), null),
         new(RoomObjectKind.LeftwardsScrollExtension, new(69, 13), null),
@@ -492,7 +492,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The BigPink room-object population.</summary>
-    public static RoomObjectPopulation BigPink { get; } = RoomObjectPopulation.FromRecords(nameof(BigPink),
+    public static RoomObjectPopulation BigPink { get; } = RoomObjectPopulation.FromPlacements(nameof(BigPink),
     [
         new(RoomObjectKind.ScrollTrigger, new(46, 107), null, ScrollChange: RoomScrollChange.BigPinkOpensScreens2x6And2x7And3x7),
         new(RoomObjectKind.ScrollTrigger, new(32, 122), null, ScrollChange: RoomScrollChange.BigPinkOpensScreen1x7),
@@ -510,20 +510,20 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The SporeSpawnKihunters room-object population.</summary>
-    public static RoomObjectPopulation SporeSpawnKihunters { get; } = RoomObjectPopulation.FromRecords(nameof(SporeSpawnKihunters),
+    public static RoomObjectPopulation SporeSpawnKihunters { get; } = RoomObjectPopulation.FromPlacements(nameof(SporeSpawnKihunters),
     [
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.SporeSpawnKihuntersGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
         new(RoomObjectKind.GreyDoorFacingDown, new(54, 3), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.SporeSpawnKihuntersGreyDoorFacingDown, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The SporeSpawn room-object population.</summary>
-    public static RoomObjectPopulation SporeSpawn { get; } = RoomObjectPopulation.FromRecords(nameof(SporeSpawn),
+    public static RoomObjectPopulation SporeSpawn { get; } = RoomObjectPopulation.FromPlacements(nameof(SporeSpawn),
     [
         new(RoomObjectKind.GreenDoorFacingUp, new(6, 46), new DoorBitArgument(LockedDoorDefinitions.SporeSpawnGreenDoorFacingUp, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The PinkBrinstarPowerBombs room-object population.</summary>
-    public static RoomObjectPopulation PinkBrinstarPowerBombs { get; } = RoomObjectPopulation.FromRecords(nameof(PinkBrinstarPowerBombs),
+    public static RoomObjectPopulation PinkBrinstarPowerBombs { get; } = RoomObjectPopulation.FromPlacements(nameof(PinkBrinstarPowerBombs),
     [
         new(RoomObjectKind.ScrollTrigger, new(8, 14), null, ScrollChange: RoomScrollChange.PinkBrinstarPowerBombsClosesScreen1x0OpensScreen0x0OpensScreens0x1And1x1TopAligned),
         new(RoomObjectKind.ScrollTrigger, new(8, 11), null, ScrollChange: RoomScrollChange.PinkBrinstarPowerBombsClosesScreens0x1And1x1OpensScreens0x0And1x0TopAligned),
@@ -532,7 +532,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The GreenHillZone room-object population.</summary>
-    public static RoomObjectPopulation GreenHillZone { get; } = RoomObjectPopulation.FromRecords(nameof(GreenHillZone),
+    public static RoomObjectPopulation GreenHillZone { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenHillZone),
     [
         new(RoomObjectKind.DownwardGate, new(100, 55), null),
         new(RoomObjectKind.DownwardGateShotBlock, new(100, 55), new GateTriggerArgument(0)),
@@ -541,7 +541,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The MorphBallDefault room-object population.</summary>
-    public static RoomObjectPopulation MorphBallDefault { get; } = RoomObjectPopulation.FromRecords(nameof(MorphBallDefault),
+    public static RoomObjectPopulation MorphBallDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(MorphBallDefault),
     [
         new(RoomObjectKind.ScrollTrigger, new(31, 43), null, ScrollChange: RoomScrollChange.MorphBallOpensScreen2x2TopAligned),
         new(RoomObjectKind.UpwardsScrollExtension, new(8, 35), null),
@@ -563,7 +563,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The MorphBallWhenZebesAwake room-object population.</summary>
-    public static RoomObjectPopulation MorphBallWhenZebesAwake { get; } = RoomObjectPopulation.FromRecords(nameof(MorphBallWhenZebesAwake),
+    public static RoomObjectPopulation MorphBallWhenZebesAwake { get; } = RoomObjectPopulation.FromPlacements(nameof(MorphBallWhenZebesAwake),
     [
         new(RoomObjectKind.ScrollTrigger, new(31, 43), null, ScrollChange: RoomScrollChange.MorphBallOpensScreen2x2TopAligned),
         new(RoomObjectKind.UpwardsScrollExtension, new(8, 35), null),
@@ -586,7 +586,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The ConstructionZone room-object population.</summary>
-    public static RoomObjectPopulation ConstructionZone { get; } = RoomObjectPopulation.FromRecords(nameof(ConstructionZone),
+    public static RoomObjectPopulation ConstructionZone { get; } = RoomObjectPopulation.FromPlacements(nameof(ConstructionZone),
     [
         new(RoomObjectKind.ScrollTrigger, new(4, 11), null, ScrollChange: RoomScrollChange.ConstructionZoneOpensScreen0x0OpensScreen0x1TopAligned),
         new(RoomObjectKind.RightwardsScrollExtension, new(5, 11), null),
@@ -600,7 +600,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The BlueBrinstarETank room-object population.</summary>
-    public static RoomObjectPopulation BlueBrinstarETank { get; } = RoomObjectPopulation.FromRecords(nameof(BlueBrinstarETank),
+    public static RoomObjectPopulation BlueBrinstarETank { get; } = RoomObjectPopulation.FromPlacements(nameof(BlueBrinstarETank),
     [
         new(RoomObjectKind.ScrollTrigger, new(39, 11), null, ScrollChange: RoomScrollChange.BlueBrinstarETankOpensScreen2x1),
         new(RoomObjectKind.ScrollTrigger, new(39, 38), null, ScrollChange: RoomScrollChange.BlueBrinstarETankOpensScreen2x1),
@@ -609,18 +609,18 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The NoobBridge room-object population.</summary>
-    public static RoomObjectPopulation NoobBridge { get; } = RoomObjectPopulation.FromRecords(nameof(NoobBridge),
+    public static RoomObjectPopulation NoobBridge { get; } = RoomObjectPopulation.FromPlacements(nameof(NoobBridge),
     [
         new(RoomObjectKind.GreenDoorFacingLeft, new(94, 6), new DoorBitArgument(LockedDoorDefinitions.NoobBridgeGreenDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The GreenBrinstarBeetoms room-object population.</summary>
-    public static RoomObjectPopulation GreenBrinstarBeetoms { get; } = RoomObjectPopulation.FromRecords(nameof(GreenBrinstarBeetoms),
+    public static RoomObjectPopulation GreenBrinstarBeetoms { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenBrinstarBeetoms),
     [
     ]);
 
     /// <summary>The EtecoonETank room-object population.</summary>
-    public static RoomObjectPopulation EtecoonETank { get; } = RoomObjectPopulation.FromRecords(nameof(EtecoonETank),
+    public static RoomObjectPopulation EtecoonETank { get; } = RoomObjectPopulation.FromPlacements(nameof(EtecoonETank),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 11), null, ScrollChange: RoomScrollChange.EtecoonETankOpensScreen1x0OpensScreens0x1And1x1TopAligned),
         new(RoomObjectKind.RightwardsScrollExtension, new(8, 11), null),
@@ -630,25 +630,25 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The EtecoonSuper room-object population.</summary>
-    public static RoomObjectPopulation EtecoonSuper { get; } = RoomObjectPopulation.FromRecords(nameof(EtecoonSuper),
+    public static RoomObjectPopulation EtecoonSuper { get; } = RoomObjectPopulation.FromPlacements(nameof(EtecoonSuper),
     [
         new(RoomObjectKind.ExposedSuperMissileTank, new(7, 9), new CollectedItemArgument(ItemLocationDefinitions.EtecoonSuperExposedSuperMissileTank)),
     ]);
 
     /// <summary>The DachoraEnergyRefill room-object population.</summary>
-    public static RoomObjectPopulation DachoraEnergyRefill { get; } = RoomObjectPopulation.FromRecords(nameof(DachoraEnergyRefill),
+    public static RoomObjectPopulation DachoraEnergyRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(DachoraEnergyRefill),
     [
         new(RoomObjectKind.EnergyStation, new(4, 10), null),
     ]);
 
     /// <summary>The SporeSpawnFarming room-object population.</summary>
-    public static RoomObjectPopulation SporeSpawnFarming { get; } = RoomObjectPopulation.FromRecords(nameof(SporeSpawnFarming),
+    public static RoomObjectPopulation SporeSpawnFarming { get; } = RoomObjectPopulation.FromPlacements(nameof(SporeSpawnFarming),
     [
         new(RoomObjectKind.GreenDoorFacingRight, new(1, 6), new DoorBitArgument(LockedDoorDefinitions.SporeSpawnFarmingGreenDoorFacingRight, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The WaterwayETank room-object population.</summary>
-    public static RoomObjectPopulation WaterwayETank { get; } = RoomObjectPopulation.FromRecords(nameof(WaterwayETank),
+    public static RoomObjectPopulation WaterwayETank { get; } = RoomObjectPopulation.FromPlacements(nameof(WaterwayETank),
     [
         new(RoomObjectKind.UpwardsScrollExtension, new(15, 9), null),
         new(RoomObjectKind.UpwardsScrollExtension, new(15, 10), null),
@@ -657,13 +657,13 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The FirstMissile room-object population.</summary>
-    public static RoomObjectPopulation FirstMissile { get; } = RoomObjectPopulation.FromRecords(nameof(FirstMissile),
+    public static RoomObjectPopulation FirstMissile { get; } = RoomObjectPopulation.FromPlacements(nameof(FirstMissile),
     [
         new(RoomObjectKind.ChozoMissileTank, new(4, 7), new CollectedItemArgument(ItemLocationDefinitions.FirstMissileChozoMissileTank)),
     ]);
 
     /// <summary>The PinkBrinstarHoppers room-object population.</summary>
-    public static RoomObjectPopulation PinkBrinstarHoppers { get; } = RoomObjectPopulation.FromRecords(nameof(PinkBrinstarHoppers),
+    public static RoomObjectPopulation PinkBrinstarHoppers { get; } = RoomObjectPopulation.FromPlacements(nameof(PinkBrinstarHoppers),
     [
         new(RoomObjectKind.DownwardGate, new(17, 4), null),
         new(RoomObjectKind.DownwardGateShotBlock, new(17, 4), new GateTriggerArgument(1)),
@@ -672,43 +672,43 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The HopperETank room-object population.</summary>
-    public static RoomObjectPopulation HopperETank { get; } = RoomObjectPopulation.FromRecords(nameof(HopperETank),
+    public static RoomObjectPopulation HopperETank { get; } = RoomObjectPopulation.FromPlacements(nameof(HopperETank),
     [
         new(RoomObjectKind.ExposedEnergyTank, new(11, 9), new CollectedItemArgument(ItemLocationDefinitions.HopperETankExposedEnergyTank)),
     ]);
 
     /// <summary>The BigPinkSaveRoom room-object population.</summary>
-    public static RoomObjectPopulation BigPinkSaveRoom { get; } = RoomObjectPopulation.FromRecords(nameof(BigPinkSaveRoom),
+    public static RoomObjectPopulation BigPinkSaveRoom { get; } = RoomObjectPopulation.FromPlacements(nameof(BigPinkSaveRoom),
     [
         new(RoomObjectKind.SaveStation, new(5, 11), new SaveStationArgument(LoadStationDefinitions.BigPinkSave)),
     ]);
 
     /// <summary>The BlueBrinstarBoulders room-object population.</summary>
-    public static RoomObjectPopulation BlueBrinstarBoulders { get; } = RoomObjectPopulation.FromRecords(nameof(BlueBrinstarBoulders),
+    public static RoomObjectPopulation BlueBrinstarBoulders { get; } = RoomObjectPopulation.FromPlacements(nameof(BlueBrinstarBoulders),
     [
     ]);
 
     /// <summary>The BillyMays room-object population.</summary>
-    public static RoomObjectPopulation BillyMays { get; } = RoomObjectPopulation.FromRecords(nameof(BillyMays),
+    public static RoomObjectPopulation BillyMays { get; } = RoomObjectPopulation.FromPlacements(nameof(BillyMays),
     [
         new(RoomObjectKind.ExposedMissileTank, new(7, 9), new CollectedItemArgument(ItemLocationDefinitions.BillyMaysExposedMissileTank)),
         new(RoomObjectKind.ShotBlockMissileTank, new(5, 12), new CollectedItemArgument(ItemLocationDefinitions.BillyMaysShotBlockMissileTank)),
     ]);
 
     /// <summary>The GreenBrinstarSave room-object population.</summary>
-    public static RoomObjectPopulation GreenBrinstarSave { get; } = RoomObjectPopulation.FromRecords(nameof(GreenBrinstarSave),
+    public static RoomObjectPopulation GreenBrinstarSave { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenBrinstarSave),
     [
         new(RoomObjectKind.SaveStation, new(5, 11), new SaveStationArgument(LoadStationDefinitions.GreenBrinstarSave)),
     ]);
 
     /// <summary>The EtecoonSave room-object population.</summary>
-    public static RoomObjectPopulation EtecoonSave { get; } = RoomObjectPopulation.FromRecords(nameof(EtecoonSave),
+    public static RoomObjectPopulation EtecoonSave { get; } = RoomObjectPopulation.FromPlacements(nameof(EtecoonSave),
     [
         new(RoomObjectKind.SaveStation, new(5, 11), new SaveStationArgument(LoadStationDefinitions.EtecoonSave)),
     ]);
 
     /// <summary>The RedTower room-object population.</summary>
-    public static RoomObjectPopulation RedTower { get; } = RoomObjectPopulation.FromRecords(nameof(RedTower),
+    public static RoomObjectPopulation RedTower { get; } = RoomObjectPopulation.FromPlacements(nameof(RedTower),
     [
         new(RoomObjectKind.ScrollTrigger, new(9, 106), null, ScrollChange: RoomScrollChange.RedTowerOpensScreens0x6And0x7),
         new(RoomObjectKind.RightwardsScrollExtension, new(10, 106), null),
@@ -717,24 +717,24 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The RedBrinstarFirefleas room-object population.</summary>
-    public static RoomObjectPopulation RedBrinstarFirefleas { get; } = RoomObjectPopulation.FromRecords(nameof(RedBrinstarFirefleas),
+    public static RoomObjectPopulation RedBrinstarFirefleas { get; } = RoomObjectPopulation.FromPlacements(nameof(RedBrinstarFirefleas),
     [
         new(RoomObjectKind.RedDoorFacingRight, new(1, 6), new DoorBitArgument(LockedDoorDefinitions.RedBrinstarFirefleasRedDoorFacingRight, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The XrayScope room-object population.</summary>
-    public static RoomObjectPopulation XrayScope { get; } = RoomObjectPopulation.FromRecords(nameof(XrayScope),
+    public static RoomObjectPopulation XrayScope { get; } = RoomObjectPopulation.FromPlacements(nameof(XrayScope),
     [
         new(RoomObjectKind.ChozoXrayScope, new(5, 7), new CollectedItemArgument(ItemLocationDefinitions.XrayScopeChozoXrayScope)),
     ]);
 
     /// <summary>The Hellway room-object population.</summary>
-    public static RoomObjectPopulation Hellway { get; } = RoomObjectPopulation.FromRecords(nameof(Hellway),
+    public static RoomObjectPopulation Hellway { get; } = RoomObjectPopulation.FromPlacements(nameof(Hellway),
     [
     ]);
 
     /// <summary>The Caterpillar room-object population.</summary>
-    public static RoomObjectPopulation Caterpillar { get; } = RoomObjectPopulation.FromRecords(nameof(Caterpillar),
+    public static RoomObjectPopulation Caterpillar { get; } = RoomObjectPopulation.FromPlacements(nameof(Caterpillar),
     [
         new(RoomObjectKind.ScrollTrigger, new(5, 94), null, ScrollChange: RoomScrollChange.CaterpillarOpensScreens0x5And0x6),
         new(RoomObjectKind.RightwardsScrollExtension, new(6, 94), null),
@@ -749,7 +749,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The BetaPowerBomb room-object population.</summary>
-    public static RoomObjectPopulation BetaPowerBomb { get; } = RoomObjectPopulation.FromRecords(nameof(BetaPowerBomb),
+    public static RoomObjectPopulation BetaPowerBomb { get; } = RoomObjectPopulation.FromPlacements(nameof(BetaPowerBomb),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 14), null, ScrollChange: RoomScrollChange.BetaPowerBombOpensScreen0x0OpensScreen0x1TopAligned),
         new(RoomObjectKind.RightwardsScrollExtension, new(8, 14), null),
@@ -758,7 +758,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The AlphaPowerBomb room-object population.</summary>
-    public static RoomObjectPopulation AlphaPowerBomb { get; } = RoomObjectPopulation.FromRecords(nameof(AlphaPowerBomb),
+    public static RoomObjectPopulation AlphaPowerBomb { get; } = RoomObjectPopulation.FromPlacements(nameof(AlphaPowerBomb),
     [
         new(RoomObjectKind.UpwardsScrollExtension, new(15, 4), null),
         new(RoomObjectKind.UpwardsScrollExtension, new(15, 5), null),
@@ -774,12 +774,12 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The SkreeBoost room-object population.</summary>
-    public static RoomObjectPopulation SkreeBoost { get; } = RoomObjectPopulation.FromRecords(nameof(SkreeBoost),
+    public static RoomObjectPopulation SkreeBoost { get; } = RoomObjectPopulation.FromPlacements(nameof(SkreeBoost),
     [
     ]);
 
     /// <summary>The BelowSpazer room-object population.</summary>
-    public static RoomObjectPopulation BelowSpazer { get; } = RoomObjectPopulation.FromRecords(nameof(BelowSpazer),
+    public static RoomObjectPopulation BelowSpazer { get; } = RoomObjectPopulation.FromPlacements(nameof(BelowSpazer),
     [
         new(RoomObjectKind.ScrollTrigger, new(16, 17), null, ScrollChange: RoomScrollChange.BelowSpazerOpensScreens0x0And1x0),
         new(RoomObjectKind.RightwardsScrollExtension, new(17, 17), null),
@@ -797,13 +797,13 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The Spazer room-object population.</summary>
-    public static RoomObjectPopulation Spazer { get; } = RoomObjectPopulation.FromRecords(nameof(Spazer),
+    public static RoomObjectPopulation Spazer { get; } = RoomObjectPopulation.FromPlacements(nameof(Spazer),
     [
         new(RoomObjectKind.ChozoSpazerBeam, new(11, 9), new CollectedItemArgument(ItemLocationDefinitions.SpazerChozoSpazerBeam)),
     ]);
 
     /// <summary>The WarehouseZeela room-object population.</summary>
-    public static RoomObjectPopulation WarehouseZeela { get; } = RoomObjectPopulation.FromRecords(nameof(WarehouseZeela),
+    public static RoomObjectPopulation WarehouseZeela { get; } = RoomObjectPopulation.FromPlacements(nameof(WarehouseZeela),
     [
         new(RoomObjectKind.ScrollTrigger, new(2, 11), null, ScrollChange: RoomScrollChange.WarehouseZeelaClosesScreen1x1OpensScreen0x0OpensScreen0x1TopAligned),
         new(RoomObjectKind.ScrollTrigger, new(2, 25), null, ScrollChange: RoomScrollChange.WarehouseZeelaOpensScreen0x0OpensScreen0x1TopAligned),
@@ -813,14 +813,14 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The WarehouseETank room-object population.</summary>
-    public static RoomObjectPopulation WarehouseETank { get; } = RoomObjectPopulation.FromRecords(nameof(WarehouseETank),
+    public static RoomObjectPopulation WarehouseETank { get; } = RoomObjectPopulation.FromPlacements(nameof(WarehouseETank),
     [
         new(RoomObjectKind.GreyDoorFacingLeft, new(14, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.WarehouseETankGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
         new(RoomObjectKind.ShotBlockEnergyTank, new(5, 4), new CollectedItemArgument(ItemLocationDefinitions.WarehouseETankShotBlockEnergyTank)),
     ]);
 
     /// <summary>The WarehouseKihunter room-object population.</summary>
-    public static RoomObjectPopulation WarehouseKihunter { get; } = RoomObjectPopulation.FromRecords(nameof(WarehouseKihunter),
+    public static RoomObjectPopulation WarehouseKihunter { get; } = RoomObjectPopulation.FromPlacements(nameof(WarehouseKihunter),
     [
         new(RoomObjectKind.ScrollTrigger, new(23, 11), null, ScrollChange: RoomScrollChange.WarehouseKihunterClosesScreen1x1OpensScreen1x0TopAligned),
         new(RoomObjectKind.ScrollTrigger, new(23, 14), null, ScrollChange: RoomScrollChange.WarehouseKihunterOpensScreen1x0OpensScreen1x1TopAligned),
@@ -838,14 +838,14 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The MiniKraid room-object population.</summary>
-    public static RoomObjectPopulation MiniKraid { get; } = RoomObjectPopulation.FromRecords(nameof(MiniKraid),
+    public static RoomObjectPopulation MiniKraid { get; } = RoomObjectPopulation.FromPlacements(nameof(MiniKraid),
     [
         new(RoomObjectKind.GreyDoorFacingLeft, new(94, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.MiniKraidGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.MiniKraidGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The KraidEyeDoor room-object population.</summary>
-    public static RoomObjectPopulation KraidEyeDoor { get; } = RoomObjectPopulation.FromRecords(nameof(KraidEyeDoor),
+    public static RoomObjectPopulation KraidEyeDoor { get; } = RoomObjectPopulation.FromPlacements(nameof(KraidEyeDoor),
     [
         new(RoomObjectKind.ScrollTrigger, new(3, 18), null, ScrollChange: RoomScrollChange.KraidEyeDoorOpensScreen0x0),
         new(RoomObjectKind.RightwardsScrollExtension, new(4, 18), null),
@@ -857,38 +857,38 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The Kraid room-object population.</summary>
-    public static RoomObjectPopulation Kraid { get; } = RoomObjectPopulation.FromRecords(nameof(Kraid),
+    public static RoomObjectPopulation Kraid { get; } = RoomObjectPopulation.FromPlacements(nameof(Kraid),
     [
         new(RoomObjectKind.GreyDoorFacingLeft, new(30, 22), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.KraidGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.KraidGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The StatuesHallway room-object population.</summary>
-    public static RoomObjectPopulation StatuesHallway { get; } = RoomObjectPopulation.FromRecords(nameof(StatuesHallway),
+    public static RoomObjectPopulation StatuesHallway { get; } = RoomObjectPopulation.FromPlacements(nameof(StatuesHallway),
     [
     ]);
 
     /// <summary>The RedTowerRefill room-object population.</summary>
-    public static RoomObjectPopulation RedTowerRefill { get; } = RoomObjectPopulation.FromRecords(nameof(RedTowerRefill),
+    public static RoomObjectPopulation RedTowerRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(RedTowerRefill),
     [
         new(RoomObjectKind.EnergyStation, new(4, 10), null),
     ]);
 
     /// <summary>The KraidRefill room-object population.</summary>
-    public static RoomObjectPopulation KraidRefill { get; } = RoomObjectPopulation.FromRecords(nameof(KraidRefill),
+    public static RoomObjectPopulation KraidRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(KraidRefill),
     [
         new(RoomObjectKind.MissileStation, new(9, 10), null),
         new(RoomObjectKind.EnergyStation, new(7, 10), null),
     ]);
 
     /// <summary>The Statues room-object population.</summary>
-    public static RoomObjectPopulation Statues { get; } = RoomObjectPopulation.FromRecords(nameof(Statues),
+    public static RoomObjectPopulation Statues { get; } = RoomObjectPopulation.FromPlacements(nameof(Statues),
     [
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(5, new DoorBitArgument(LockedDoorDefinitions.StatuesGreyDoorFacingRight, DoorOpeningPersistence.Transient))),
     ]);
 
     /// <summary>The WarehouseEntrance room-object population.</summary>
-    public static RoomObjectPopulation WarehouseEntrance { get; } = RoomObjectPopulation.FromRecords(nameof(WarehouseEntrance),
+    public static RoomObjectPopulation WarehouseEntrance { get; } = RoomObjectPopulation.FromPlacements(nameof(WarehouseEntrance),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 12), null, ScrollChange: RoomScrollChange.WarehouseEntranceOpensScreen0x0),
         new(RoomObjectKind.RightwardsScrollExtension, new(8, 12), null),
@@ -911,43 +911,43 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The VariaSuit room-object population.</summary>
-    public static RoomObjectPopulation VariaSuit { get; } = RoomObjectPopulation.FromRecords(nameof(VariaSuit),
+    public static RoomObjectPopulation VariaSuit { get; } = RoomObjectPopulation.FromPlacements(nameof(VariaSuit),
     [
         new(RoomObjectKind.ChozoVariaSuit, new(7, 9), new CollectedItemArgument(ItemLocationDefinitions.VariaSuitChozoVariaSuit)),
     ]);
 
     /// <summary>The WarehouseSave room-object population.</summary>
-    public static RoomObjectPopulation WarehouseSave { get; } = RoomObjectPopulation.FromRecords(nameof(WarehouseSave),
+    public static RoomObjectPopulation WarehouseSave { get; } = RoomObjectPopulation.FromPlacements(nameof(WarehouseSave),
     [
         new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationArgument(LoadStationDefinitions.WarehouseSave)),
     ]);
 
     /// <summary>The RedBrinstarSave room-object population.</summary>
-    public static RoomObjectPopulation RedBrinstarSave { get; } = RoomObjectPopulation.FromRecords(nameof(RedBrinstarSave),
+    public static RoomObjectPopulation RedBrinstarSave { get; } = RoomObjectPopulation.FromPlacements(nameof(RedBrinstarSave),
     [
         new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationArgument(LoadStationDefinitions.RedBrinstarSave)),
     ]);
 
     /// <summary>The IceBeamAcid room-object population.</summary>
-    public static RoomObjectPopulation IceBeamAcid { get; } = RoomObjectPopulation.FromRecords(nameof(IceBeamAcid),
+    public static RoomObjectPopulation IceBeamAcid { get; } = RoomObjectPopulation.FromPlacements(nameof(IceBeamAcid),
     [
     ]);
 
     /// <summary>The Cathedral room-object population.</summary>
-    public static RoomObjectPopulation Cathedral { get; } = RoomObjectPopulation.FromRecords(nameof(Cathedral),
+    public static RoomObjectPopulation Cathedral { get; } = RoomObjectPopulation.FromPlacements(nameof(Cathedral),
     [
         new(RoomObjectKind.ShotBlockMissileTank, new(34, 28), new CollectedItemArgument(ItemLocationDefinitions.CathedralShotBlockMissileTank)),
         new(RoomObjectKind.GreenDoorFacingLeft, new(46, 22), new DoorBitArgument(LockedDoorDefinitions.CathedralGreenDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The CathedralEntrance room-object population.</summary>
-    public static RoomObjectPopulation CathedralEntrance { get; } = RoomObjectPopulation.FromRecords(nameof(CathedralEntrance),
+    public static RoomObjectPopulation CathedralEntrance { get; } = RoomObjectPopulation.FromPlacements(nameof(CathedralEntrance),
     [
         new(RoomObjectKind.RedDoorFacingLeft, new(46, 6), new DoorBitArgument(LockedDoorDefinitions.CathedralEntranceRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The BusinessCenter room-object population.</summary>
-    public static RoomObjectPopulation BusinessCenter { get; } = RoomObjectPopulation.FromRecords(nameof(BusinessCenter),
+    public static RoomObjectPopulation BusinessCenter { get; } = RoomObjectPopulation.FromPlacements(nameof(BusinessCenter),
     [
         new(RoomObjectKind.ElevatorPlatform, new(6, 44), null),
         new(RoomObjectKind.GreenDoorFacingRight, new(1, 54), new DoorBitArgument(LockedDoorDefinitions.BusinessCenterGreenDoorFacingRight, DoorOpeningPersistence.Persistent)),
@@ -956,25 +956,25 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The IceBeamGate room-object population.</summary>
-    public static RoomObjectPopulation IceBeamGate { get; } = RoomObjectPopulation.FromRecords(nameof(IceBeamGate),
+    public static RoomObjectPopulation IceBeamGate { get; } = RoomObjectPopulation.FromPlacements(nameof(IceBeamGate),
     [
         new(RoomObjectKind.ScrollTrigger, new(55, 45), null, ScrollChange: RoomScrollChange.IceBeamGateOpensScreen3x2OpensScreen3x3TopAligned),
         new(RoomObjectKind.RightwardsScrollExtension, new(56, 45), null),
     ]);
 
     /// <summary>The IceBeamTutorial room-object population.</summary>
-    public static RoomObjectPopulation IceBeamTutorial { get; } = RoomObjectPopulation.FromRecords(nameof(IceBeamTutorial),
+    public static RoomObjectPopulation IceBeamTutorial { get; } = RoomObjectPopulation.FromPlacements(nameof(IceBeamTutorial),
     [
     ]);
 
     /// <summary>The IceBeam room-object population.</summary>
-    public static RoomObjectPopulation IceBeam { get; } = RoomObjectPopulation.FromRecords(nameof(IceBeam),
+    public static RoomObjectPopulation IceBeam { get; } = RoomObjectPopulation.FromPlacements(nameof(IceBeam),
     [
         new(RoomObjectKind.ChozoIceBeam, new(12, 7), new CollectedItemArgument(ItemLocationDefinitions.IceBeamChozoIceBeam)),
     ]);
 
     /// <summary>The IceBeamSnake room-object population.</summary>
-    public static RoomObjectPopulation IceBeamSnake { get; } = RoomObjectPopulation.FromRecords(nameof(IceBeamSnake),
+    public static RoomObjectPopulation IceBeamSnake { get; } = RoomObjectPopulation.FromPlacements(nameof(IceBeamSnake),
     [
         new(RoomObjectKind.ScrollTrigger, new(15, 23), null, ScrollChange: RoomScrollChange.IceBeamSnakeOpensScreen1x1TopAligned),
         new(RoomObjectKind.ScrollTrigger, new(13, 23), null, ScrollChange: RoomScrollChange.IceBeamSnakeClosesScreen1x1),
@@ -983,13 +983,13 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The CrumbleShaft room-object population.</summary>
-    public static RoomObjectPopulation CrumbleShaft { get; } = RoomObjectPopulation.FromRecords(nameof(CrumbleShaft),
+    public static RoomObjectPopulation CrumbleShaft { get; } = RoomObjectPopulation.FromPlacements(nameof(CrumbleShaft),
     [
         new(RoomObjectKind.ShotBlockMissileTank, new(1, 8), new CollectedItemArgument(ItemLocationDefinitions.CrumbleShaftShotBlockMissileTank)),
     ]);
 
     /// <summary>The CrocomireSpeedway room-object population.</summary>
-    public static RoomObjectPopulation CrocomireSpeedway { get; } = RoomObjectPopulation.FromRecords(nameof(CrocomireSpeedway),
+    public static RoomObjectPopulation CrocomireSpeedway { get; } = RoomObjectPopulation.FromPlacements(nameof(CrocomireSpeedway),
     [
         new(RoomObjectKind.ScrollTrigger, new(158, 40), null, ScrollChange: RoomScrollChange.CrocomireSpeedwayOpensScreens12x1And11x2And12x2),
         new(RoomObjectKind.UpwardsScrollExtension, new(158, 39), null),
@@ -1007,20 +1007,20 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The Crocomire room-object population.</summary>
-    public static RoomObjectPopulation Crocomire { get; } = RoomObjectPopulation.FromRecords(nameof(Crocomire),
+    public static RoomObjectPopulation Crocomire { get; } = RoomObjectPopulation.FromPlacements(nameof(Crocomire),
     [
         new(RoomObjectKind.GreyDoorFacingDown, new(54, 2), new GreyDoorArgument(1, new DoorBitArgument(LockedDoorDefinitions.CrocomireGreyDoorFacingDown, DoorOpeningPersistence.Persistent))),
         new(RoomObjectKind.ExposedEnergyTank, new(125, 6), new CollectedItemArgument(ItemLocationDefinitions.CrocomireExposedEnergyTank)),
     ]);
 
     /// <summary>The HiJumpBoots room-object population.</summary>
-    public static RoomObjectPopulation HiJumpBoots { get; } = RoomObjectPopulation.FromRecords(nameof(HiJumpBoots),
+    public static RoomObjectPopulation HiJumpBoots { get; } = RoomObjectPopulation.FromPlacements(nameof(HiJumpBoots),
     [
         new(RoomObjectKind.ChozoHiJumpBoots, new(3, 10), new CollectedItemArgument(ItemLocationDefinitions.HiJumpBootsChozoHiJumpBoots)),
     ]);
 
     /// <summary>The CrocomireEscape room-object population.</summary>
-    public static RoomObjectPopulation CrocomireEscape { get; } = RoomObjectPopulation.FromRecords(nameof(CrocomireEscape),
+    public static RoomObjectPopulation CrocomireEscape { get; } = RoomObjectPopulation.FromPlacements(nameof(CrocomireEscape),
     [
         new(RoomObjectKind.DownwardGate, new(6, 5), null),
         new(RoomObjectKind.DownwardGateShotBlock, new(6, 5), new GateTriggerArgument(5)),
@@ -1028,7 +1028,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The HiJumpETank room-object population.</summary>
-    public static RoomObjectPopulation HiJumpETank { get; } = RoomObjectPopulation.FromRecords(nameof(HiJumpETank),
+    public static RoomObjectPopulation HiJumpETank { get; } = RoomObjectPopulation.FromPlacements(nameof(HiJumpETank),
     [
         new(RoomObjectKind.ScrollTrigger, new(16, 12), null, ScrollChange: RoomScrollChange.HiJumpETankOpensScreens0x0And0x1And1x1),
         new(RoomObjectKind.ScrollTrigger, new(15, 5), null, ScrollChange: RoomScrollChange.HiJumpETankOpensScreens0x0And0x1),
@@ -1040,80 +1040,80 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The PostCrocFarming room-object population.</summary>
-    public static RoomObjectPopulation PostCrocFarming { get; } = RoomObjectPopulation.FromRecords(nameof(PostCrocFarming),
+    public static RoomObjectPopulation PostCrocFarming { get; } = RoomObjectPopulation.FromPlacements(nameof(PostCrocFarming),
     [
         new(RoomObjectKind.RedDoorFacingRight, new(1, 6), new DoorBitArgument(LockedDoorDefinitions.PostCrocFarmingRedDoorFacingRight, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The PostCrocSave room-object population.</summary>
-    public static RoomObjectPopulation PostCrocSave { get; } = RoomObjectPopulation.FromRecords(nameof(PostCrocSave),
+    public static RoomObjectPopulation PostCrocSave { get; } = RoomObjectPopulation.FromPlacements(nameof(PostCrocSave),
     [
         new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationArgument(LoadStationDefinitions.PostCrocomireSave)),
     ]);
 
     /// <summary>The PostCrocPowerBombs room-object population.</summary>
-    public static RoomObjectPopulation PostCrocPowerBombs { get; } = RoomObjectPopulation.FromRecords(nameof(PostCrocPowerBombs),
+    public static RoomObjectPopulation PostCrocPowerBombs { get; } = RoomObjectPopulation.FromPlacements(nameof(PostCrocPowerBombs),
     [
         new(RoomObjectKind.ExposedPowerBombTank, new(7, 8), new CollectedItemArgument(ItemLocationDefinitions.PostCrocPowerBombsExposedPowerBombTank)),
     ]);
 
     /// <summary>The PostCrocShaft room-object population.</summary>
-    public static RoomObjectPopulation PostCrocShaft { get; } = RoomObjectPopulation.FromRecords(nameof(PostCrocShaft),
+    public static RoomObjectPopulation PostCrocShaft { get; } = RoomObjectPopulation.FromPlacements(nameof(PostCrocShaft),
     [
         new(RoomObjectKind.RedDoorFacingLeft, new(14, 54), new DoorBitArgument(LockedDoorDefinitions.PostCrocShaftRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The PostCrocMissile room-object population.</summary>
-    public static RoomObjectPopulation PostCrocMissile { get; } = RoomObjectPopulation.FromRecords(nameof(PostCrocMissile),
+    public static RoomObjectPopulation PostCrocMissile { get; } = RoomObjectPopulation.FromPlacements(nameof(PostCrocMissile),
     [
         new(RoomObjectKind.ExposedMissileTank, new(60, 9), new CollectedItemArgument(ItemLocationDefinitions.PostCrocMissileExposedMissileTank)),
     ]);
 
     /// <summary>The GrappleTutorial3 room-object population.</summary>
-    public static RoomObjectPopulation GrappleTutorial3 { get; } = RoomObjectPopulation.FromRecords(nameof(GrappleTutorial3),
+    public static RoomObjectPopulation GrappleTutorial3 { get; } = RoomObjectPopulation.FromPlacements(nameof(GrappleTutorial3),
     [
         new(RoomObjectKind.DownwardGate, new(42, 5), null),
         new(RoomObjectKind.DownwardGateShotBlock, new(42, 5), new GateTriggerArgument(4)),
     ]);
 
     /// <summary>The PostCrocJump room-object population.</summary>
-    public static RoomObjectPopulation PostCrocJump { get; } = RoomObjectPopulation.FromRecords(nameof(PostCrocJump),
+    public static RoomObjectPopulation PostCrocJump { get; } = RoomObjectPopulation.FromPlacements(nameof(PostCrocJump),
     [
         new(RoomObjectKind.ExposedMissileTank, new(67, 9), new CollectedItemArgument(ItemLocationDefinitions.PostCrocJumpExposedMissileTank)),
     ]);
 
     /// <summary>The GrappleTutorial2 room-object population.</summary>
-    public static RoomObjectPopulation GrappleTutorial2 { get; } = RoomObjectPopulation.FromRecords(nameof(GrappleTutorial2),
+    public static RoomObjectPopulation GrappleTutorial2 { get; } = RoomObjectPopulation.FromPlacements(nameof(GrappleTutorial2),
     [
     ]);
 
     /// <summary>The GrappleTutorial1 room-object population.</summary>
-    public static RoomObjectPopulation GrappleTutorial1 { get; } = RoomObjectPopulation.FromRecords(nameof(GrappleTutorial1),
+    public static RoomObjectPopulation GrappleTutorial1 { get; } = RoomObjectPopulation.FromPlacements(nameof(GrappleTutorial1),
     [
     ]);
 
     /// <summary>The GrappleBeam room-object population.</summary>
-    public static RoomObjectPopulation GrappleBeam { get; } = RoomObjectPopulation.FromRecords(nameof(GrappleBeam),
+    public static RoomObjectPopulation GrappleBeam { get; } = RoomObjectPopulation.FromPlacements(nameof(GrappleBeam),
     [
         new(RoomObjectKind.ChozoGrappleBeam, new(4, 39), new CollectedItemArgument(ItemLocationDefinitions.GrappleBeamChozoGrappleBeam)),
     ]);
 
     /// <summary>The NorfairReserveTank room-object population.</summary>
-    public static RoomObjectPopulation NorfairReserveTank { get; } = RoomObjectPopulation.FromRecords(nameof(NorfairReserveTank),
+    public static RoomObjectPopulation NorfairReserveTank { get; } = RoomObjectPopulation.FromPlacements(nameof(NorfairReserveTank),
     [
         new(RoomObjectKind.ChozoReserveTank, new(2, 7), new CollectedItemArgument(ItemLocationDefinitions.NorfairReserveTankChozoReserveTank)),
         new(RoomObjectKind.ShotBlockMissileTank, new(7, 11), new CollectedItemArgument(ItemLocationDefinitions.NorfairReserveTankShotBlockMissileTank)),
     ]);
 
     /// <summary>The GreenBubblesMissiles room-object population.</summary>
-    public static RoomObjectPopulation GreenBubblesMissiles { get; } = RoomObjectPopulation.FromRecords(nameof(GreenBubblesMissiles),
+    public static RoomObjectPopulation GreenBubblesMissiles { get; } = RoomObjectPopulation.FromPlacements(nameof(GreenBubblesMissiles),
     [
         new(RoomObjectKind.ScrollTrigger, new(16, 5), null, ScrollChange: RoomScrollChange.GreenBubblesMissilesOpensScreen0x0TopAligned),
         new(RoomObjectKind.ExposedMissileTank, new(20, 10), new CollectedItemArgument(ItemLocationDefinitions.GreenBubblesMissilesExposedMissileTank)),
     ]);
 
     /// <summary>The BubbleMountain room-object population.</summary>
-    public static RoomObjectPopulation BubbleMountain { get; } = RoomObjectPopulation.FromRecords(nameof(BubbleMountain),
+    public static RoomObjectPopulation BubbleMountain { get; } = RoomObjectPopulation.FromPlacements(nameof(BubbleMountain),
     [
         new(RoomObjectKind.GreenDoorFacingRight, new(1, 6), new DoorBitArgument(LockedDoorDefinitions.BubbleMountainGreenDoorFacingRight, DoorOpeningPersistence.Persistent)),
         new(RoomObjectKind.GreenDoorFacingLeft, new(30, 6), new DoorBitArgument(LockedDoorDefinitions.BubbleMountainGreenDoorFacingLeft, DoorOpeningPersistence.Persistent)),
@@ -1121,7 +1121,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The SpeedBoosterHall room-object population.</summary>
-    public static RoomObjectPopulation SpeedBoosterHall { get; } = RoomObjectPopulation.FromRecords(nameof(SpeedBoosterHall),
+    public static RoomObjectPopulation SpeedBoosterHall { get; } = RoomObjectPopulation.FromPlacements(nameof(SpeedBoosterHall),
     [
         new(RoomObjectKind.SpeedBoosterEscape, new(0, 0), null),
         new(RoomObjectKind.ShotBlockMissileTank, new(188, 19), new CollectedItemArgument(ItemLocationDefinitions.SpeedBoosterHallShotBlockMissileTank)),
@@ -1129,13 +1129,13 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The SpeedBooster room-object population.</summary>
-    public static RoomObjectPopulation SpeedBooster { get; } = RoomObjectPopulation.FromRecords(nameof(SpeedBooster),
+    public static RoomObjectPopulation SpeedBooster { get; } = RoomObjectPopulation.FromPlacements(nameof(SpeedBooster),
     [
         new(RoomObjectKind.ChozoSpeedBooster, new(11, 6), new CollectedItemArgument(ItemLocationDefinitions.SpeedBoosterChozoSpeedBooster)),
     ]);
 
     /// <summary>The SingleChamber room-object population.</summary>
-    public static RoomObjectPopulation SingleChamber { get; } = RoomObjectPopulation.FromRecords(nameof(SingleChamber),
+    public static RoomObjectPopulation SingleChamber { get; } = RoomObjectPopulation.FromPlacements(nameof(SingleChamber),
     [
         new(RoomObjectKind.ScrollTrigger, new(13, 8), null, ScrollChange: RoomScrollChange.SingleChamberClosesScreen1x0),
         new(RoomObjectKind.ScrollTrigger, new(16, 8), null, ScrollChange: RoomScrollChange.SingleChamberOpensScreen1x0TopAligned),
@@ -1146,7 +1146,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The DoubleChamber room-object population.</summary>
-    public static RoomObjectPopulation DoubleChamber { get; } = RoomObjectPopulation.FromRecords(nameof(DoubleChamber),
+    public static RoomObjectPopulation DoubleChamber { get; } = RoomObjectPopulation.FromPlacements(nameof(DoubleChamber),
     [
         new(RoomObjectKind.DownwardGate, new(26, 5), null),
         new(RoomObjectKind.DownwardGateShotBlock, new(26, 5), new GateTriggerArgument(0)),
@@ -1155,18 +1155,18 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The WaveBeam room-object population.</summary>
-    public static RoomObjectPopulation WaveBeam { get; } = RoomObjectPopulation.FromRecords(nameof(WaveBeam),
+    public static RoomObjectPopulation WaveBeam { get; } = RoomObjectPopulation.FromPlacements(nameof(WaveBeam),
     [
         new(RoomObjectKind.ChozoWaveBeam, new(11, 6), new CollectedItemArgument(ItemLocationDefinitions.WaveBeamChozoWaveBeam)),
     ]);
 
     /// <summary>The SpikyPlatformsTunnel room-object population.</summary>
-    public static RoomObjectPopulation SpikyPlatformsTunnel { get; } = RoomObjectPopulation.FromRecords(nameof(SpikyPlatformsTunnel),
+    public static RoomObjectPopulation SpikyPlatformsTunnel { get; } = RoomObjectPopulation.FromPlacements(nameof(SpikyPlatformsTunnel),
     [
     ]);
 
     /// <summary>The Volcano room-object population.</summary>
-    public static RoomObjectPopulation Volcano { get; } = RoomObjectPopulation.FromRecords(nameof(Volcano),
+    public static RoomObjectPopulation Volcano { get; } = RoomObjectPopulation.FromPlacements(nameof(Volcano),
     [
         new(RoomObjectKind.ScrollTrigger, new(32, 41), null, ScrollChange: RoomScrollChange.VolcanoOpensScreens0x2And1x2TopAligned),
         new(RoomObjectKind.ScrollTrigger, new(31, 41), null, ScrollChange: RoomScrollChange.VolcanoOpensScreen2x2TopAligned),
@@ -1183,7 +1183,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The KronicBoost room-object population.</summary>
-    public static RoomObjectPopulation KronicBoost { get; } = RoomObjectPopulation.FromRecords(nameof(KronicBoost),
+    public static RoomObjectPopulation KronicBoost { get; } = RoomObjectPopulation.FromPlacements(nameof(KronicBoost),
     [
         new(RoomObjectKind.ScrollTrigger, new(15, 23), null, ScrollChange: RoomScrollChange.KronicBoostOpensScreen0x1TopAligned),
         new(RoomObjectKind.ScrollTrigger, new(17, 23), null, ScrollChange: RoomScrollChange.KronicBoostClosesScreen0x1OpensScreen1x1),
@@ -1197,12 +1197,12 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The MagdolliteTunnel room-object population.</summary>
-    public static RoomObjectPopulation MagdolliteTunnel { get; } = RoomObjectPopulation.FromRecords(nameof(MagdolliteTunnel),
+    public static RoomObjectPopulation MagdolliteTunnel { get; } = RoomObjectPopulation.FromPlacements(nameof(MagdolliteTunnel),
     [
     ]);
 
     /// <summary>The PurpleShaft room-object population.</summary>
-    public static RoomObjectPopulation PurpleShaft { get; } = RoomObjectPopulation.FromRecords(nameof(PurpleShaft),
+    public static RoomObjectPopulation PurpleShaft { get; } = RoomObjectPopulation.FromPlacements(nameof(PurpleShaft),
     [
         new(RoomObjectKind.ScrollTrigger, new(2, 11), null, ScrollChange: RoomScrollChange.PurpleShaftOpensScreens0x0And0x1),
         new(RoomObjectKind.RightwardsScrollExtension, new(3, 11), null),
@@ -1213,51 +1213,51 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The LavaDive room-object population.</summary>
-    public static RoomObjectPopulation LavaDive { get; } = RoomObjectPopulation.FromRecords(nameof(LavaDive),
+    public static RoomObjectPopulation LavaDive { get; } = RoomObjectPopulation.FromPlacements(nameof(LavaDive),
     [
     ]);
 
     /// <summary>The LowerNorfairElev room-object population.</summary>
-    public static RoomObjectPopulation LowerNorfairElev { get; } = RoomObjectPopulation.FromRecords(nameof(LowerNorfairElev),
+    public static RoomObjectPopulation LowerNorfairElev { get; } = RoomObjectPopulation.FromPlacements(nameof(LowerNorfairElev),
     [
         new(RoomObjectKind.ScrollTrigger, new(8, 11), null, ScrollChange: RoomScrollChange.LowerNorfairElevOpensScreen0x0),
     ]);
 
     /// <summary>The UpperNorfairFarming room-object population.</summary>
-    public static RoomObjectPopulation UpperNorfairFarming { get; } = RoomObjectPopulation.FromRecords(nameof(UpperNorfairFarming),
+    public static RoomObjectPopulation UpperNorfairFarming { get; } = RoomObjectPopulation.FromPlacements(nameof(UpperNorfairFarming),
     [
         new(RoomObjectKind.DownwardGate, new(6, 21), null),
         new(RoomObjectKind.DownwardGateShotBlock, new(6, 21), new GateTriggerArgument(0)),
     ]);
 
     /// <summary>The RisingTide room-object population.</summary>
-    public static RoomObjectPopulation RisingTide { get; } = RoomObjectPopulation.FromRecords(nameof(RisingTide),
+    public static RoomObjectPopulation RisingTide { get; } = RoomObjectPopulation.FromPlacements(nameof(RisingTide),
     [
     ]);
 
     /// <summary>The AcidSnakesTunnel room-object population.</summary>
-    public static RoomObjectPopulation AcidSnakesTunnel { get; } = RoomObjectPopulation.FromRecords(nameof(AcidSnakesTunnel),
+    public static RoomObjectPopulation AcidSnakesTunnel { get; } = RoomObjectPopulation.FromPlacements(nameof(AcidSnakesTunnel),
     [
     ]);
 
     /// <summary>The SpikyAcidSnakesTunnel room-object population.</summary>
-    public static RoomObjectPopulation SpikyAcidSnakesTunnel { get; } = RoomObjectPopulation.FromRecords(nameof(SpikyAcidSnakesTunnel),
+    public static RoomObjectPopulation SpikyAcidSnakesTunnel { get; } = RoomObjectPopulation.FromPlacements(nameof(SpikyAcidSnakesTunnel),
     [
     ]);
 
     /// <summary>The UpperNorfairRefill room-object population.</summary>
-    public static RoomObjectPopulation UpperNorfairRefill { get; } = RoomObjectPopulation.FromRecords(nameof(UpperNorfairRefill),
+    public static RoomObjectPopulation UpperNorfairRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(UpperNorfairRefill),
     [
         new(RoomObjectKind.EnergyStation, new(7, 10), null),
     ]);
 
     /// <summary>The PurpleFarming room-object population.</summary>
-    public static RoomObjectPopulation PurpleFarming { get; } = RoomObjectPopulation.FromRecords(nameof(PurpleFarming),
+    public static RoomObjectPopulation PurpleFarming { get; } = RoomObjectPopulation.FromPlacements(nameof(PurpleFarming),
     [
     ]);
 
     /// <summary>The BatCave room-object population.</summary>
-    public static RoomObjectPopulation BatCave { get; } = RoomObjectPopulation.FromRecords(nameof(BatCave),
+    public static RoomObjectPopulation BatCave { get; } = RoomObjectPopulation.FromPlacements(nameof(BatCave),
     [
         new(RoomObjectKind.ScrollTrigger, new(9, 12), null, ScrollChange: RoomScrollChange.BatCaveOpensScreens0x0And0x1),
         new(RoomObjectKind.RightwardsScrollExtension, new(10, 12), null),
@@ -1270,54 +1270,54 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The NorfairMap room-object population.</summary>
-    public static RoomObjectPopulation NorfairMap { get; } = RoomObjectPopulation.FromRecords(nameof(NorfairMap),
+    public static RoomObjectPopulation NorfairMap { get; } = RoomObjectPopulation.FromPlacements(nameof(NorfairMap),
     [
         new(RoomObjectKind.MapStation, new(5, 10), null),
     ]);
 
     /// <summary>The BubbleMountainSave room-object population.</summary>
-    public static RoomObjectPopulation BubbleMountainSave { get; } = RoomObjectPopulation.FromRecords(nameof(BubbleMountainSave),
+    public static RoomObjectPopulation BubbleMountainSave { get; } = RoomObjectPopulation.FromPlacements(nameof(BubbleMountainSave),
     [
         new(RoomObjectKind.SaveStation, new(5, 11), new SaveStationArgument(LoadStationDefinitions.BubbleMountainSave)),
     ]);
 
     /// <summary>The FrogSpeedway room-object population.</summary>
-    public static RoomObjectPopulation FrogSpeedway { get; } = RoomObjectPopulation.FromRecords(nameof(FrogSpeedway),
+    public static RoomObjectPopulation FrogSpeedway { get; } = RoomObjectPopulation.FromPlacements(nameof(FrogSpeedway),
     [
     ]);
 
     /// <summary>The RedPirateShaft room-object population.</summary>
-    public static RoomObjectPopulation RedPirateShaft { get; } = RoomObjectPopulation.FromRecords(nameof(RedPirateShaft),
+    public static RoomObjectPopulation RedPirateShaft { get; } = RoomObjectPopulation.FromPlacements(nameof(RedPirateShaft),
     [
     ]);
 
     /// <summary>The FrogSave room-object population.</summary>
-    public static RoomObjectPopulation FrogSave { get; } = RoomObjectPopulation.FromRecords(nameof(FrogSave),
+    public static RoomObjectPopulation FrogSave { get; } = RoomObjectPopulation.FromPlacements(nameof(FrogSave),
     [
         new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationArgument(LoadStationDefinitions.FrogSave)),
     ]);
 
     /// <summary>The CrocomireSave room-object population.</summary>
-    public static RoomObjectPopulation CrocomireSave { get; } = RoomObjectPopulation.FromRecords(nameof(CrocomireSave),
+    public static RoomObjectPopulation CrocomireSave { get; } = RoomObjectPopulation.FromPlacements(nameof(CrocomireSave),
     [
         new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationArgument(LoadStationDefinitions.CrocomireSave)),
     ]);
 
     /// <summary>The LNElevSave room-object population.</summary>
-    public static RoomObjectPopulation LNElevSave { get; } = RoomObjectPopulation.FromRecords(nameof(LNElevSave),
+    public static RoomObjectPopulation LNElevSave { get; } = RoomObjectPopulation.FromPlacements(nameof(LNElevSave),
     [
         new(RoomObjectKind.SaveStation, new(5, 11), new SaveStationArgument(LoadStationDefinitions.LowerNorfairElevatorSave)),
     ]);
 
     /// <summary>The AcidStatue room-object population.</summary>
-    public static RoomObjectPopulation AcidStatue { get; } = RoomObjectPopulation.FromRecords(nameof(AcidStatue),
+    public static RoomObjectPopulation AcidStatue { get; } = RoomObjectPopulation.FromPlacements(nameof(AcidStatue),
     [
         new(RoomObjectKind.ScrollTrigger, new(12, 30), null, ScrollChange: RoomScrollChange.AcidStatueOpensScreens0x1And1x1And0x2And1x2),
         new(RoomObjectKind.ScrollTrigger, new(12, 35), null, ScrollChange: RoomScrollChange.AcidStatueClosesScreen1x1OpensScreens0x2And1x2And2x2TopAligned),
     ]);
 
     /// <summary>The MainHall room-object population.</summary>
-    public static RoomObjectPopulation MainHall { get; } = RoomObjectPopulation.FromRecords(nameof(MainHall),
+    public static RoomObjectPopulation MainHall { get; } = RoomObjectPopulation.FromPlacements(nameof(MainHall),
     [
         new(RoomObjectKind.ScrollTrigger, new(71, 8), null, ScrollChange: RoomScrollChange.MainHallOpensScreen4x1),
         new(RoomObjectKind.RightwardsScrollExtension, new(72, 8), null),
@@ -1329,7 +1329,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The GoldenTorizo room-object population.</summary>
-    public static RoomObjectPopulation GoldenTorizo { get; } = RoomObjectPopulation.FromRecords(nameof(GoldenTorizo),
+    public static RoomObjectPopulation GoldenTorizo { get; } = RoomObjectPopulation.FromPlacements(nameof(GoldenTorizo),
     [
         new(RoomObjectKind.ScrollTrigger, new(4, 12), null, ScrollChange: RoomScrollChange.GoldenTorizoOpensScreens0x0And1x0OpensScreens0x1And1x1TopAligned),
         new(RoomObjectKind.RightwardsScrollExtension, new(5, 12), null),
@@ -1345,27 +1345,27 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The FastRipper room-object population.</summary>
-    public static RoomObjectPopulation FastRipper { get; } = RoomObjectPopulation.FromRecords(nameof(FastRipper),
+    public static RoomObjectPopulation FastRipper { get; } = RoomObjectPopulation.FromPlacements(nameof(FastRipper),
     [
         new(RoomObjectKind.DownwardGate, new(52, 5), null),
         new(RoomObjectKind.DownwardGateShotBlock, new(52, 5), new GateTriggerArgument(4)),
     ]);
 
     /// <summary>The GTEnergyRefill room-object population.</summary>
-    public static RoomObjectPopulation GTEnergyRefill { get; } = RoomObjectPopulation.FromRecords(nameof(GTEnergyRefill),
+    public static RoomObjectPopulation GTEnergyRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(GTEnergyRefill),
     [
         new(RoomObjectKind.EnergyStation, new(8, 10), null),
     ]);
 
     /// <summary>The Ridley room-object population.</summary>
-    public static RoomObjectPopulation Ridley { get; } = RoomObjectPopulation.FromRecords(nameof(Ridley),
+    public static RoomObjectPopulation Ridley { get; } = RoomObjectPopulation.FromPlacements(nameof(Ridley),
     [
         new(RoomObjectKind.GreyDoorFacingLeft, new(14, 6), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.RidleyGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.RidleyGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The LNFarming room-object population.</summary>
-    public static RoomObjectPopulation LNFarming { get; } = RoomObjectPopulation.FromRecords(nameof(LNFarming),
+    public static RoomObjectPopulation LNFarming { get; } = RoomObjectPopulation.FromPlacements(nameof(LNFarming),
     [
         new(RoomObjectKind.EyeDoorFacingRight, new(1, 6), new DoorBitArgument(LockedDoorDefinitions.LNFarmingEyeDoorFacingRight, DoorOpeningPersistence.Persistent)),
         new(RoomObjectKind.EyeDoorBottomFacingRight, new(1, 9), new DoorBitArgument(LockedDoorDefinitions.LNFarmingEyeDoorFacingRight, DoorOpeningPersistence.Persistent)),
@@ -1373,7 +1373,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The FastPillarsSetup room-object population.</summary>
-    public static RoomObjectPopulation FastPillarsSetup { get; } = RoomObjectPopulation.FromRecords(nameof(FastPillarsSetup),
+    public static RoomObjectPopulation FastPillarsSetup { get; } = RoomObjectPopulation.FromPlacements(nameof(FastPillarsSetup),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 33), null, ScrollChange: RoomScrollChange.FastPillarsSetupOpensScreen0x1),
         new(RoomObjectKind.RightwardsScrollExtension, new(8, 33), null),
@@ -1382,7 +1382,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The MickeyMouse room-object population.</summary>
-    public static RoomObjectPopulation MickeyMouse { get; } = RoomObjectPopulation.FromRecords(nameof(MickeyMouse),
+    public static RoomObjectPopulation MickeyMouse { get; } = RoomObjectPopulation.FromPlacements(nameof(MickeyMouse),
     [
         new(RoomObjectKind.ScrollTrigger, new(48, 22), null, ScrollChange: RoomScrollChange.MickeyMouseOpensScreen2x1TopAligned),
         new(RoomObjectKind.ScrollTrigger, new(50, 22), null, ScrollChange: RoomScrollChange.MickeyMouseClosesScreen2x1),
@@ -1403,17 +1403,17 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The Pillar room-object population.</summary>
-    public static RoomObjectPopulation Pillar { get; } = RoomObjectPopulation.FromRecords(nameof(Pillar),
+    public static RoomObjectPopulation Pillar { get; } = RoomObjectPopulation.FromPlacements(nameof(Pillar),
     [
     ]);
 
     /// <summary>The Plowerhouse room-object population.</summary>
-    public static RoomObjectPopulation Plowerhouse { get; } = RoomObjectPopulation.FromRecords(nameof(Plowerhouse),
+    public static RoomObjectPopulation Plowerhouse { get; } = RoomObjectPopulation.FromPlacements(nameof(Plowerhouse),
     [
     ]);
 
     /// <summary>The WorstRoomInTheGame room-object population.</summary>
-    public static RoomObjectPopulation WorstRoomInTheGame { get; } = RoomObjectPopulation.FromRecords(nameof(WorstRoomInTheGame),
+    public static RoomObjectPopulation WorstRoomInTheGame { get; } = RoomObjectPopulation.FromPlacements(nameof(WorstRoomInTheGame),
     [
         new(RoomObjectKind.ScrollTrigger, new(3, 16), null, ScrollChange: RoomScrollChange.WorstRoomInTheGameOpensScreens0x0And0x1),
         new(RoomObjectKind.RightwardsScrollExtension, new(4, 16), null),
@@ -1428,12 +1428,12 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The Amphitheatre room-object population.</summary>
-    public static RoomObjectPopulation Amphitheatre { get; } = RoomObjectPopulation.FromRecords(nameof(Amphitheatre),
+    public static RoomObjectPopulation Amphitheatre { get; } = RoomObjectPopulation.FromPlacements(nameof(Amphitheatre),
     [
     ]);
 
     /// <summary>The LNSpringBallMaze room-object population.</summary>
-    public static RoomObjectPopulation LNSpringBallMaze { get; } = RoomObjectPopulation.FromRecords(nameof(LNSpringBallMaze),
+    public static RoomObjectPopulation LNSpringBallMaze { get; } = RoomObjectPopulation.FromPlacements(nameof(LNSpringBallMaze),
     [
         new(RoomObjectKind.ScrollTrigger, new(12, 9), null, ScrollChange: RoomScrollChange.LNSpringBallMazeClosesScreen1x1OpensScreens1x0And2x0TopAligned),
         new(RoomObjectKind.UpwardsScrollExtension, new(12, 8), null),
@@ -1452,13 +1452,13 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The LNEscapePowerBombs room-object population.</summary>
-    public static RoomObjectPopulation LNEscapePowerBombs { get; } = RoomObjectPopulation.FromRecords(nameof(LNEscapePowerBombs),
+    public static RoomObjectPopulation LNEscapePowerBombs { get; } = RoomObjectPopulation.FromPlacements(nameof(LNEscapePowerBombs),
     [
         new(RoomObjectKind.ExposedPowerBombTank, new(12, 8), new CollectedItemArgument(ItemLocationDefinitions.LNEscapePowerBombsExposedPowerBombTank)),
     ]);
 
     /// <summary>The RedKihunterShaft room-object population.</summary>
-    public static RoomObjectPopulation RedKihunterShaft { get; } = RoomObjectPopulation.FromRecords(nameof(RedKihunterShaft),
+    public static RoomObjectPopulation RedKihunterShaft { get; } = RoomObjectPopulation.FromPlacements(nameof(RedKihunterShaft),
     [
         new(RoomObjectKind.ScrollTrigger, new(17, 72), null, ScrollChange: RoomScrollChange.RedKihunterShaftOpensScreens1x3And1x4),
         new(RoomObjectKind.RightwardsScrollExtension, new(9, 70), null),
@@ -1478,7 +1478,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The Wasteland room-object population.</summary>
-    public static RoomObjectPopulation Wasteland { get; } = RoomObjectPopulation.FromRecords(nameof(Wasteland),
+    public static RoomObjectPopulation Wasteland { get; } = RoomObjectPopulation.FromPlacements(nameof(Wasteland),
     [
         new(RoomObjectKind.ScrollTrigger, new(23, 13), null, ScrollChange: RoomScrollChange.WastelandOpensScreen1x1),
         new(RoomObjectKind.RightwardsScrollExtension, new(24, 13), null),
@@ -1507,13 +1507,13 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The MetalPirates room-object population.</summary>
-    public static RoomObjectPopulation MetalPirates { get; } = RoomObjectPopulation.FromRecords(nameof(MetalPirates),
+    public static RoomObjectPopulation MetalPirates { get; } = RoomObjectPopulation.FromPlacements(nameof(MetalPirates),
     [
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.MetalPiratesGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The ThreeMusketeers room-object population.</summary>
-    public static RoomObjectPopulation ThreeMusketeers { get; } = RoomObjectPopulation.FromRecords(nameof(ThreeMusketeers),
+    public static RoomObjectPopulation ThreeMusketeers { get; } = RoomObjectPopulation.FromPlacements(nameof(ThreeMusketeers),
     [
         new(RoomObjectKind.ScrollTrigger, new(11, 42), null, ScrollChange: RoomScrollChange.ThreeMusketeersClosesScreen1x2),
         new(RoomObjectKind.UpwardsScrollExtension, new(11, 41), null),
@@ -1527,19 +1527,19 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The RidleyETank room-object population.</summary>
-    public static RoomObjectPopulation RidleyETank { get; } = RoomObjectPopulation.FromRecords(nameof(RidleyETank),
+    public static RoomObjectPopulation RidleyETank { get; } = RoomObjectPopulation.FromPlacements(nameof(RidleyETank),
     [
         new(RoomObjectKind.ShotBlockEnergyTank, new(14, 11), new CollectedItemArgument(ItemLocationDefinitions.RidleyETankShotBlockEnergyTank)),
     ]);
 
     /// <summary>The ScrewAttack room-object population.</summary>
-    public static RoomObjectPopulation ScrewAttack { get; } = RoomObjectPopulation.FromRecords(nameof(ScrewAttack),
+    public static RoomObjectPopulation ScrewAttack { get; } = RoomObjectPopulation.FromPlacements(nameof(ScrewAttack),
     [
         new(RoomObjectKind.ChozoScrewAttack, new(11, 40), new CollectedItemArgument(ItemLocationDefinitions.ScrewAttackChozoScrewAttack)),
     ]);
 
     /// <summary>The LNFireflea room-object population.</summary>
-    public static RoomObjectPopulation LNFireflea { get; } = RoomObjectPopulation.FromRecords(nameof(LNFireflea),
+    public static RoomObjectPopulation LNFireflea { get; } = RoomObjectPopulation.FromPlacements(nameof(LNFireflea),
     [
         new(RoomObjectKind.UpwardsScrollExtension, new(31, 54), null),
         new(RoomObjectKind.UpwardsScrollExtension, new(31, 55), null),
@@ -1563,13 +1563,13 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The LNSave room-object population.</summary>
-    public static RoomObjectPopulation LNSave { get; } = RoomObjectPopulation.FromRecords(nameof(LNSave),
+    public static RoomObjectPopulation LNSave { get; } = RoomObjectPopulation.FromPlacements(nameof(LNSave),
     [
         new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationArgument(LoadStationDefinitions.LowerNorfairSave)),
     ]);
 
     /// <summary>The BowlingAlleyDefault room-object population.</summary>
-    public static RoomObjectPopulation BowlingAlleyDefault { get; } = RoomObjectPopulation.FromRecords(nameof(BowlingAlleyDefault),
+    public static RoomObjectPopulation BowlingAlleyDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(BowlingAlleyDefault),
     [
         new(RoomObjectKind.ScrollTrigger, new(31, 45), null, ScrollChange: RoomScrollChange.BowlingAlleyOpensScreens2x2And3x2TopAligned),
         new(RoomObjectKind.UpwardsScrollExtension, new(65, 38), null),
@@ -1578,12 +1578,12 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The WreckedShipEntranceDefault room-object population.</summary>
-    public static RoomObjectPopulation WreckedShipEntranceDefault { get; } = RoomObjectPopulation.FromRecords(nameof(WreckedShipEntranceDefault),
+    public static RoomObjectPopulation WreckedShipEntranceDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(WreckedShipEntranceDefault),
     [
     ]);
 
     /// <summary>The AtticDefault room-object population.</summary>
-    public static RoomObjectPopulation AtticDefault { get; } = RoomObjectPopulation.FromRecords(nameof(AtticDefault),
+    public static RoomObjectPopulation AtticDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(AtticDefault),
     [
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.AtticDefaultGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
         new(RoomObjectKind.GreyDoorFacingLeft, new(110, 6), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.AtticDefaultGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
@@ -1591,12 +1591,12 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The AssemblyLineDefault room-object population.</summary>
-    public static RoomObjectPopulation AssemblyLineDefault { get; } = RoomObjectPopulation.FromRecords(nameof(AssemblyLineDefault),
+    public static RoomObjectPopulation AssemblyLineDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(AssemblyLineDefault),
     [
     ]);
 
     /// <summary>The WreckedShipMainShaft room-object population.</summary>
-    public static RoomObjectPopulation WreckedShipMainShaft { get; } = RoomObjectPopulation.FromRecords(nameof(WreckedShipMainShaft),
+    public static RoomObjectPopulation WreckedShipMainShaft { get; } = RoomObjectPopulation.FromPlacements(nameof(WreckedShipMainShaft),
     [
         new(RoomObjectKind.ScrollTrigger, new(62, 87), null, ScrollChange: RoomScrollChange.WreckedShipMainShaftOpensScreen3x5TopAligned),
         new(RoomObjectKind.ScrollTrigger, new(81, 105), null, ScrollChange: RoomScrollChange.WreckedShipMainShaftOpensScreen5x6TopAligned),
@@ -1610,24 +1610,24 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The SpikyDeathDefault room-object population.</summary>
-    public static RoomObjectPopulation SpikyDeathDefault { get; } = RoomObjectPopulation.FromRecords(nameof(SpikyDeathDefault),
+    public static RoomObjectPopulation SpikyDeathDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(SpikyDeathDefault),
     [
     ]);
 
     /// <summary>The ElectricDeathDefault room-object population.</summary>
-    public static RoomObjectPopulation ElectricDeathDefault { get; } = RoomObjectPopulation.FromRecords(nameof(ElectricDeathDefault),
+    public static RoomObjectPopulation ElectricDeathDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(ElectricDeathDefault),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 16), null, ScrollChange: RoomScrollChange.ElectricDeathOpensScreen0x0),
         new(RoomObjectKind.RightwardsScrollExtension, new(8, 16), null),
     ]);
 
     /// <summary>The WreckedShipETankDefault room-object population.</summary>
-    public static RoomObjectPopulation WreckedShipETankDefault { get; } = RoomObjectPopulation.FromRecords(nameof(WreckedShipETankDefault),
+    public static RoomObjectPopulation WreckedShipETankDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(WreckedShipETankDefault),
     [
     ]);
 
     /// <summary>The BasementDefault room-object population.</summary>
-    public static RoomObjectPopulation BasementDefault { get; } = RoomObjectPopulation.FromRecords(nameof(BasementDefault),
+    public static RoomObjectPopulation BasementDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(BasementDefault),
     [
         new(RoomObjectKind.ScrollTrigger, new(64, 12), null, ScrollChange: RoomScrollChange.BasementOpensScreens3x0And4x0TopAligned),
         new(RoomObjectKind.ScrollTrigger, new(70, 12), null, ScrollChange: RoomScrollChange.BasementClosesScreen3x0),
@@ -1637,45 +1637,45 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The WreckedShipMapDefault room-object population.</summary>
-    public static RoomObjectPopulation WreckedShipMapDefault { get; } = RoomObjectPopulation.FromRecords(nameof(WreckedShipMapDefault),
+    public static RoomObjectPopulation WreckedShipMapDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(WreckedShipMapDefault),
     [
     ]);
 
     /// <summary>The Phantoon room-object population.</summary>
-    public static RoomObjectPopulation Phantoon { get; } = RoomObjectPopulation.FromRecords(nameof(Phantoon),
+    public static RoomObjectPopulation Phantoon { get; } = RoomObjectPopulation.FromPlacements(nameof(Phantoon),
     [
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.PhantoonGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The SpongeBathDefault room-object population.</summary>
-    public static RoomObjectPopulation SpongeBathDefault { get; } = RoomObjectPopulation.FromRecords(nameof(SpongeBathDefault),
+    public static RoomObjectPopulation SpongeBathDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(SpongeBathDefault),
     [
     ]);
 
     /// <summary>The WSWestSuperDefault room-object population.</summary>
-    public static RoomObjectPopulation WSWestSuperDefault { get; } = RoomObjectPopulation.FromRecords(nameof(WSWestSuperDefault),
+    public static RoomObjectPopulation WSWestSuperDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(WSWestSuperDefault),
     [
     ]);
 
     /// <summary>The WSEastSuperDefault room-object population.</summary>
-    public static RoomObjectPopulation WSEastSuperDefault { get; } = RoomObjectPopulation.FromRecords(nameof(WSEastSuperDefault),
+    public static RoomObjectPopulation WSEastSuperDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(WSEastSuperDefault),
     [
         new(RoomObjectKind.ScrollTrigger, new(47, 7), null, ScrollChange: RoomScrollChange.WSEastSuperOpensScreen3x0TopAligned),
     ]);
 
     /// <summary>The GravitySuitOrWreckedShipSaveDefault room-object population.</summary>
-    public static RoomObjectPopulation GravitySuitOrWreckedShipSaveDefault { get; } = RoomObjectPopulation.FromRecords(nameof(GravitySuitOrWreckedShipSaveDefault),
+    public static RoomObjectPopulation GravitySuitOrWreckedShipSaveDefault { get; } = RoomObjectPopulation.FromPlacements(nameof(GravitySuitOrWreckedShipSaveDefault),
     [
     ]);
 
     /// <summary>The WreckedShipSaveWhenAreaBossDead room-object population.</summary>
-    public static RoomObjectPopulation WreckedShipSaveWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(WreckedShipSaveWhenAreaBossDead),
+    public static RoomObjectPopulation WreckedShipSaveWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(WreckedShipSaveWhenAreaBossDead),
     [
         new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationArgument(LoadStationDefinitions.WreckedShipSave)),
     ]);
 
     /// <summary>The BowlingAlleyWhenAreaBossDead room-object population.</summary>
-    public static RoomObjectPopulation BowlingAlleyWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(BowlingAlleyWhenAreaBossDead),
+    public static RoomObjectPopulation BowlingAlleyWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(BowlingAlleyWhenAreaBossDead),
     [
         new(RoomObjectKind.ScrollTrigger, new(31, 45), null, ScrollChange: RoomScrollChange.BowlingAlleyOpensScreens2x2And3x2TopAligned),
         new(RoomObjectKind.UpwardsScrollExtension, new(65, 38), null),
@@ -1687,12 +1687,12 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The WreckedShipEntranceWhenAreaBossDead room-object population.</summary>
-    public static RoomObjectPopulation WreckedShipEntranceWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(WreckedShipEntranceWhenAreaBossDead),
+    public static RoomObjectPopulation WreckedShipEntranceWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(WreckedShipEntranceWhenAreaBossDead),
     [
     ]);
 
     /// <summary>The AtticWhenAreaBossDead room-object population.</summary>
-    public static RoomObjectPopulation AtticWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(AtticWhenAreaBossDead),
+    public static RoomObjectPopulation AtticWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(AtticWhenAreaBossDead),
     [
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.AtticWhenAreaBossDeadGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
         new(RoomObjectKind.GreyDoorFacingLeft, new(110, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.AtticWhenAreaBossDeadGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
@@ -1701,18 +1701,18 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The AssemblyLineWhenAreaBossDead room-object population.</summary>
-    public static RoomObjectPopulation AssemblyLineWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(AssemblyLineWhenAreaBossDead),
+    public static RoomObjectPopulation AssemblyLineWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(AssemblyLineWhenAreaBossDead),
     [
         new(RoomObjectKind.ExposedMissileTank, new(45, 8), new CollectedItemArgument(ItemLocationDefinitions.AssemblyLineWhenAreaBossDeadExposedMissileTank)),
     ]);
 
     /// <summary>The SpikyDeathWhenAreaBossDead room-object population.</summary>
-    public static RoomObjectPopulation SpikyDeathWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(SpikyDeathWhenAreaBossDead),
+    public static RoomObjectPopulation SpikyDeathWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(SpikyDeathWhenAreaBossDead),
     [
     ]);
 
     /// <summary>The ElectricDeathWhenAreaBossDead room-object population.</summary>
-    public static RoomObjectPopulation ElectricDeathWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(ElectricDeathWhenAreaBossDead),
+    public static RoomObjectPopulation ElectricDeathWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(ElectricDeathWhenAreaBossDead),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 16), null, ScrollChange: RoomScrollChange.ElectricDeathOpensScreen0x0),
         new(RoomObjectKind.RightwardsScrollExtension, new(8, 16), null),
@@ -1720,56 +1720,56 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The WreckedShipETankWhenAreaBossDead room-object population.</summary>
-    public static RoomObjectPopulation WreckedShipETankWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(WreckedShipETankWhenAreaBossDead),
+    public static RoomObjectPopulation WreckedShipETankWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(WreckedShipETankWhenAreaBossDead),
     [
         new(RoomObjectKind.ExposedEnergyTank, new(3, 6), new CollectedItemArgument(ItemLocationDefinitions.WreckedShipETankWhenAreaBossDeadExposedEnergyTank)),
     ]);
 
     /// <summary>The BasementWhenAreaBossDead room-object population.</summary>
-    public static RoomObjectPopulation BasementWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(BasementWhenAreaBossDead),
+    public static RoomObjectPopulation BasementWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(BasementWhenAreaBossDead),
     [
         new(RoomObjectKind.ScrollTrigger, new(64, 12), null, ScrollChange: RoomScrollChange.BasementOpensScreens3x0And4x0TopAligned),
         new(RoomObjectKind.ScrollTrigger, new(70, 12), null, ScrollChange: RoomScrollChange.BasementClosesScreen3x0),
     ]);
 
     /// <summary>The WreckedShipMapWhenAreaBossDead room-object population.</summary>
-    public static RoomObjectPopulation WreckedShipMapWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(WreckedShipMapWhenAreaBossDead),
+    public static RoomObjectPopulation WreckedShipMapWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(WreckedShipMapWhenAreaBossDead),
     [
         new(RoomObjectKind.MapStation, new(5, 10), null),
     ]);
 
     /// <summary>The SpongeBathWhenAreaBossDead room-object population.</summary>
-    public static RoomObjectPopulation SpongeBathWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(SpongeBathWhenAreaBossDead),
+    public static RoomObjectPopulation SpongeBathWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(SpongeBathWhenAreaBossDead),
     [
     ]);
 
     /// <summary>The WSWestSuperWhenAreaBossDead room-object population.</summary>
-    public static RoomObjectPopulation WSWestSuperWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(WSWestSuperWhenAreaBossDead),
+    public static RoomObjectPopulation WSWestSuperWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(WSWestSuperWhenAreaBossDead),
     [
         new(RoomObjectKind.ExposedSuperMissileTank, new(2, 7), new CollectedItemArgument(ItemLocationDefinitions.WSWestSuperWhenAreaBossDeadExposedSuperMissileTank)),
     ]);
 
     /// <summary>The WSEastSuperWhenAreaBossDead room-object population.</summary>
-    public static RoomObjectPopulation WSEastSuperWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(WSEastSuperWhenAreaBossDead),
+    public static RoomObjectPopulation WSEastSuperWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(WSEastSuperWhenAreaBossDead),
     [
         new(RoomObjectKind.ScrollTrigger, new(47, 7), null, ScrollChange: RoomScrollChange.WSEastSuperOpensScreen3x0TopAligned),
         new(RoomObjectKind.ExposedSuperMissileTank, new(56, 9), new CollectedItemArgument(ItemLocationDefinitions.WSEastSuperWhenAreaBossDeadExposedSuperMissileTank)),
     ]);
 
     /// <summary>The GravitySuitWhenAreaBossDead room-object population.</summary>
-    public static RoomObjectPopulation GravitySuitWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(GravitySuitWhenAreaBossDead),
+    public static RoomObjectPopulation GravitySuitWhenAreaBossDead { get; } = RoomObjectPopulation.FromPlacements(nameof(GravitySuitWhenAreaBossDead),
     [
         new(RoomObjectKind.ChozoGravitySuit, new(7, 9), new CollectedItemArgument(ItemLocationDefinitions.GravitySuitWhenAreaBossDeadChozoGravitySuit)),
     ]);
 
     /// <summary>The GlassTunnelSave room-object population.</summary>
-    public static RoomObjectPopulation GlassTunnelSave { get; } = RoomObjectPopulation.FromRecords(nameof(GlassTunnelSave),
+    public static RoomObjectPopulation GlassTunnelSave { get; } = RoomObjectPopulation.FromPlacements(nameof(GlassTunnelSave),
     [
         new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationArgument(LoadStationDefinitions.GlassTunnelSave)),
     ]);
 
     /// <summary>The GlassTunnel room-object population.</summary>
-    public static RoomObjectPopulation GlassTunnel { get; } = RoomObjectPopulation.FromRecords(nameof(GlassTunnel),
+    public static RoomObjectPopulation GlassTunnel { get; } = RoomObjectPopulation.FromPlacements(nameof(GlassTunnel),
     [
         new(RoomObjectKind.ScrollTrigger, new(3, 20), null, ScrollChange: RoomScrollChange.GlassTunnelOpensScreen0x0),
         new(RoomObjectKind.RightwardsScrollExtension, new(4, 20), null),
@@ -1790,12 +1790,12 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The WestTunnel room-object population.</summary>
-    public static RoomObjectPopulation WestTunnel { get; } = RoomObjectPopulation.FromRecords(nameof(WestTunnel),
+    public static RoomObjectPopulation WestTunnel { get; } = RoomObjectPopulation.FromPlacements(nameof(WestTunnel),
     [
     ]);
 
     /// <summary>The EastTunnel room-object population.</summary>
-    public static RoomObjectPopulation EastTunnel { get; } = RoomObjectPopulation.FromRecords(nameof(EastTunnel),
+    public static RoomObjectPopulation EastTunnel { get; } = RoomObjectPopulation.FromPlacements(nameof(EastTunnel),
     [
         new(RoomObjectKind.ScrollTrigger, new(5, 9), null, ScrollChange: RoomScrollChange.EastTunnelClosesScreens1x0And0x1OpensScreen0x0TopAligned),
         new(RoomObjectKind.ScrollTrigger, new(5, 16), null, ScrollChange: RoomScrollChange.EastTunnelOpensScreen0x0OpensScreen0x1TopAligned),
@@ -1812,7 +1812,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The MainStreet room-object population.</summary>
-    public static RoomObjectPopulation MainStreet { get; } = RoomObjectPopulation.FromRecords(nameof(MainStreet),
+    public static RoomObjectPopulation MainStreet { get; } = RoomObjectPopulation.FromPlacements(nameof(MainStreet),
     [
         new(RoomObjectKind.ScrollTrigger, new(37, 41), null, ScrollChange: RoomScrollChange.MainStreetClosesScreen1x3OpensScreen1x2TopAligned),
         new(RoomObjectKind.RedDoorFacingLeft, new(30, 118), new DoorBitArgument(LockedDoorDefinitions.MainStreetRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
@@ -1821,7 +1821,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The FishTank room-object population.</summary>
-    public static RoomObjectPopulation FishTank { get; } = RoomObjectPopulation.FromRecords(nameof(FishTank),
+    public static RoomObjectPopulation FishTank { get; } = RoomObjectPopulation.FromPlacements(nameof(FishTank),
     [
         new(RoomObjectKind.UpwardsScrollExtension, new(31, 38), null),
         new(RoomObjectKind.UpwardsScrollExtension, new(31, 39), null),
@@ -1835,33 +1835,33 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The MamaTurtle room-object population.</summary>
-    public static RoomObjectPopulation MamaTurtle { get; } = RoomObjectPopulation.FromRecords(nameof(MamaTurtle),
+    public static RoomObjectPopulation MamaTurtle { get; } = RoomObjectPopulation.FromPlacements(nameof(MamaTurtle),
     [
         new(RoomObjectKind.ExposedEnergyTank, new(31, 10), new CollectedItemArgument(ItemLocationDefinitions.MamaTurtleExposedEnergyTank)),
         new(RoomObjectKind.ShotBlockMissileTank, new(44, 29), new CollectedItemArgument(ItemLocationDefinitions.MamaTurtleShotBlockMissileTank)),
     ]);
 
     /// <summary>The CrabTunnel room-object population.</summary>
-    public static RoomObjectPopulation CrabTunnel { get; } = RoomObjectPopulation.FromRecords(nameof(CrabTunnel),
+    public static RoomObjectPopulation CrabTunnel { get; } = RoomObjectPopulation.FromPlacements(nameof(CrabTunnel),
     [
         new(RoomObjectKind.DownwardGate, new(14, 7), null),
         new(RoomObjectKind.DownwardGateShotBlock, new(14, 7), new GateTriggerArgument(4)),
     ]);
 
     /// <summary>The MtEverest room-object population.</summary>
-    public static RoomObjectPopulation MtEverest { get; } = RoomObjectPopulation.FromRecords(nameof(MtEverest),
+    public static RoomObjectPopulation MtEverest { get; } = RoomObjectPopulation.FromPlacements(nameof(MtEverest),
     [
     ]);
 
     /// <summary>The RedFish room-object population.</summary>
-    public static RoomObjectPopulation RedFish { get; } = RoomObjectPopulation.FromRecords(nameof(RedFish),
+    public static RoomObjectPopulation RedFish { get; } = RoomObjectPopulation.FromPlacements(nameof(RedFish),
     [
         new(RoomObjectKind.ScrollTrigger, new(32, 6), null, ScrollChange: RoomScrollChange.RedFishOpensScreen2x0),
         new(RoomObjectKind.ScrollTrigger, new(30, 6), null, ScrollChange: RoomScrollChange.RedFishOpensScreen1x0TopAligned),
     ]);
 
     /// <summary>The WateringHole room-object population.</summary>
-    public static RoomObjectPopulation WateringHole { get; } = RoomObjectPopulation.FromRecords(nameof(WateringHole),
+    public static RoomObjectPopulation WateringHole { get; } = RoomObjectPopulation.FromPlacements(nameof(WateringHole),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 31), null, ScrollChange: RoomScrollChange.WateringHoleOpensScreen0x2TopAligned),
         new(RoomObjectKind.ExposedSuperMissileTank, new(4, 38), new CollectedItemArgument(ItemLocationDefinitions.WateringHoleExposedSuperMissileTank)),
@@ -1869,7 +1869,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The NWestMaridiaBug room-object population.</summary>
-    public static RoomObjectPopulation NWestMaridiaBug { get; } = RoomObjectPopulation.FromRecords(nameof(NWestMaridiaBug),
+    public static RoomObjectPopulation NWestMaridiaBug { get; } = RoomObjectPopulation.FromPlacements(nameof(NWestMaridiaBug),
     [
         new(RoomObjectKind.UpwardsScrollExtension, new(32, 22), null),
         new(RoomObjectKind.UpwardsScrollExtension, new(32, 23), null),
@@ -1882,7 +1882,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The CrabShaft room-object population.</summary>
-    public static RoomObjectPopulation CrabShaft { get; } = RoomObjectPopulation.FromRecords(nameof(CrabShaft),
+    public static RoomObjectPopulation CrabShaft { get; } = RoomObjectPopulation.FromPlacements(nameof(CrabShaft),
     [
         new(RoomObjectKind.ScrollTrigger, new(7, 45), null, ScrollChange: RoomScrollChange.CrabShaftOpensScreen0x2OpensScreen0x3TopAligned),
         new(RoomObjectKind.RightwardsScrollExtension, new(8, 45), null),
@@ -1890,7 +1890,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The PseudoPlasmaSpark room-object population.</summary>
-    public static RoomObjectPopulation PseudoPlasmaSpark { get; } = RoomObjectPopulation.FromRecords(nameof(PseudoPlasmaSpark),
+    public static RoomObjectPopulation PseudoPlasmaSpark { get; } = RoomObjectPopulation.FromPlacements(nameof(PseudoPlasmaSpark),
     [
         new(RoomObjectKind.UpwardsScrollExtension, new(31, 38), null),
         new(RoomObjectKind.UpwardsScrollExtension, new(31, 39), null),
@@ -1904,7 +1904,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The CrabHole room-object population.</summary>
-    public static RoomObjectPopulation CrabHole { get; } = RoomObjectPopulation.FromRecords(nameof(CrabHole),
+    public static RoomObjectPopulation CrabHole { get; } = RoomObjectPopulation.FromPlacements(nameof(CrabHole),
     [
         new(RoomObjectKind.ScrollTrigger, new(8, 14), null, ScrollChange: RoomScrollChange.CrabHoleOpensScreen0x0OpensScreen0x1TopAligned),
         new(RoomObjectKind.ScrollTrigger, new(8, 17), null, ScrollChange: RoomScrollChange.CrabHoleOpensScreen0x0OpensScreen0x1TopAligned),
@@ -1912,75 +1912,75 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The WestSandHallTunnel room-object population.</summary>
-    public static RoomObjectPopulation WestSandHallTunnel { get; } = RoomObjectPopulation.FromRecords(nameof(WestSandHallTunnel),
+    public static RoomObjectPopulation WestSandHallTunnel { get; } = RoomObjectPopulation.FromPlacements(nameof(WestSandHallTunnel),
     [
     ]);
 
     /// <summary>The PlasmaTutorial room-object population.</summary>
-    public static RoomObjectPopulation PlasmaTutorial { get; } = RoomObjectPopulation.FromRecords(nameof(PlasmaTutorial),
+    public static RoomObjectPopulation PlasmaTutorial { get; } = RoomObjectPopulation.FromPlacements(nameof(PlasmaTutorial),
     [
     ]);
 
     /// <summary>The Plasma room-object population.</summary>
-    public static RoomObjectPopulation Plasma { get; } = RoomObjectPopulation.FromRecords(nameof(Plasma),
+    public static RoomObjectPopulation Plasma { get; } = RoomObjectPopulation.FromPlacements(nameof(Plasma),
     [
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.PlasmaGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
         new(RoomObjectKind.ChozoPlasmaBeam, new(25, 38), new CollectedItemArgument(ItemLocationDefinitions.PlasmaChozoPlasmaBeam)),
     ]);
 
     /// <summary>The ThreadTheNeedle room-object population.</summary>
-    public static RoomObjectPopulation ThreadTheNeedle { get; } = RoomObjectPopulation.FromRecords(nameof(ThreadTheNeedle),
+    public static RoomObjectPopulation ThreadTheNeedle { get; } = RoomObjectPopulation.FromPlacements(nameof(ThreadTheNeedle),
     [
     ]);
 
     /// <summary>The MaridiaElev room-object population.</summary>
-    public static RoomObjectPopulation MaridiaElev { get; } = RoomObjectPopulation.FromRecords(nameof(MaridiaElev),
+    public static RoomObjectPopulation MaridiaElev { get; } = RoomObjectPopulation.FromPlacements(nameof(MaridiaElev),
     [
         new(RoomObjectKind.ElevatorPlatform, new(6, 44), null),
         new(RoomObjectKind.RedDoorFacingLeft, new(14, 70), new DoorBitArgument(LockedDoorDefinitions.MaridiaElevRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The PlasmaSpark room-object population.</summary>
-    public static RoomObjectPopulation PlasmaSpark { get; } = RoomObjectPopulation.FromRecords(nameof(PlasmaSpark),
+    public static RoomObjectPopulation PlasmaSpark { get; } = RoomObjectPopulation.FromPlacements(nameof(PlasmaSpark),
     [
         new(RoomObjectKind.GreyDoorFacingLeft, new(46, 22), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.PlasmaSparkGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
         new(RoomObjectKind.GreenDoorFacingUp, new(6, 45), new DoorBitArgument(LockedDoorDefinitions.PlasmaSparkGreenDoorFacingUp, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The Kassiuz room-object population.</summary>
-    public static RoomObjectPopulation Kassiuz { get; } = RoomObjectPopulation.FromRecords(nameof(Kassiuz),
+    public static RoomObjectPopulation Kassiuz { get; } = RoomObjectPopulation.FromPlacements(nameof(Kassiuz),
     [
     ]);
 
     /// <summary>The MaridiaMap room-object population.</summary>
-    public static RoomObjectPopulation MaridiaMap { get; } = RoomObjectPopulation.FromRecords(nameof(MaridiaMap),
+    public static RoomObjectPopulation MaridiaMap { get; } = RoomObjectPopulation.FromPlacements(nameof(MaridiaMap),
     [
         new(RoomObjectKind.MapStation, new(11, 10), null),
     ]);
 
     /// <summary>The ForgottenHighwaySave room-object population.</summary>
-    public static RoomObjectPopulation ForgottenHighwaySave { get; } = RoomObjectPopulation.FromRecords(nameof(ForgottenHighwaySave),
+    public static RoomObjectPopulation ForgottenHighwaySave { get; } = RoomObjectPopulation.FromPlacements(nameof(ForgottenHighwaySave),
     [
         new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationArgument(LoadStationDefinitions.ForgottenHighwaySave)),
     ]);
 
     /// <summary>The Toilet room-object population.</summary>
-    public static RoomObjectPopulation Toilet { get; } = RoomObjectPopulation.FromRecords(nameof(Toilet),
+    public static RoomObjectPopulation Toilet { get; } = RoomObjectPopulation.FromPlacements(nameof(Toilet),
     [
     ]);
 
     /// <summary>The BugSandHole room-object population.</summary>
-    public static RoomObjectPopulation BugSandHole { get; } = RoomObjectPopulation.FromRecords(nameof(BugSandHole),
+    public static RoomObjectPopulation BugSandHole { get; } = RoomObjectPopulation.FromPlacements(nameof(BugSandHole),
     [
     ]);
 
     /// <summary>The WestSandHall room-object population.</summary>
-    public static RoomObjectPopulation WestSandHall { get; } = RoomObjectPopulation.FromRecords(nameof(WestSandHall),
+    public static RoomObjectPopulation WestSandHall { get; } = RoomObjectPopulation.FromPlacements(nameof(WestSandHall),
     [
     ]);
 
     /// <summary>The Oasis room-object population.</summary>
-    public static RoomObjectPopulation Oasis { get; } = RoomObjectPopulation.FromRecords(nameof(Oasis),
+    public static RoomObjectPopulation Oasis { get; } = RoomObjectPopulation.FromPlacements(nameof(Oasis),
     [
         new(RoomObjectKind.ScrollTrigger, new(3, 20), null, ScrollChange: RoomScrollChange.OasisOpensScreens0x0And0x1),
         new(RoomObjectKind.RightwardsScrollExtension, new(4, 20), null),
@@ -1996,36 +1996,36 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The EastSandHall room-object population.</summary>
-    public static RoomObjectPopulation EastSandHall { get; } = RoomObjectPopulation.FromRecords(nameof(EastSandHall),
+    public static RoomObjectPopulation EastSandHall { get; } = RoomObjectPopulation.FromPlacements(nameof(EastSandHall),
     [
     ]);
 
     /// <summary>The WestSandHole room-object population.</summary>
-    public static RoomObjectPopulation WestSandHole { get; } = RoomObjectPopulation.FromRecords(nameof(WestSandHole),
+    public static RoomObjectPopulation WestSandHole { get; } = RoomObjectPopulation.FromPlacements(nameof(WestSandHole),
     [
         new(RoomObjectKind.ExposedMissileTank, new(6, 4), new CollectedItemArgument(ItemLocationDefinitions.WestSandHoleExposedMissileTank)),
         new(RoomObjectKind.ChozoReserveTank, new(15, 4), new CollectedItemArgument(ItemLocationDefinitions.WestSandHoleChozoReserveTank)),
     ]);
 
     /// <summary>The EastSandHole room-object population.</summary>
-    public static RoomObjectPopulation EastSandHole { get; } = RoomObjectPopulation.FromRecords(nameof(EastSandHole),
+    public static RoomObjectPopulation EastSandHole { get; } = RoomObjectPopulation.FromPlacements(nameof(EastSandHole),
     [
         new(RoomObjectKind.ExposedMissileTank, new(3, 7), new CollectedItemArgument(ItemLocationDefinitions.EastSandHoleExposedMissileTank)),
         new(RoomObjectKind.ExposedPowerBombTank, new(25, 16), new CollectedItemArgument(ItemLocationDefinitions.EastSandHoleExposedPowerBombTank)),
     ]);
 
     /// <summary>The WestAqueductQuicksand room-object population.</summary>
-    public static RoomObjectPopulation WestAqueductQuicksand { get; } = RoomObjectPopulation.FromRecords(nameof(WestAqueductQuicksand),
+    public static RoomObjectPopulation WestAqueductQuicksand { get; } = RoomObjectPopulation.FromPlacements(nameof(WestAqueductQuicksand),
     [
     ]);
 
     /// <summary>The EastAqueductQuicksand room-object population.</summary>
-    public static RoomObjectPopulation EastAqueductQuicksand { get; } = RoomObjectPopulation.FromRecords(nameof(EastAqueductQuicksand),
+    public static RoomObjectPopulation EastAqueductQuicksand { get; } = RoomObjectPopulation.FromPlacements(nameof(EastAqueductQuicksand),
     [
     ]);
 
     /// <summary>The Aqueduct room-object population.</summary>
-    public static RoomObjectPopulation Aqueduct { get; } = RoomObjectPopulation.FromRecords(nameof(Aqueduct),
+    public static RoomObjectPopulation Aqueduct { get; } = RoomObjectPopulation.FromPlacements(nameof(Aqueduct),
     [
         new(RoomObjectKind.RedDoorFacingRight, new(1, 38), new DoorBitArgument(LockedDoorDefinitions.AqueductRedDoorFacingRight, DoorOpeningPersistence.Persistent)),
         new(RoomObjectKind.ExposedMissileTank, new(76, 9), new CollectedItemArgument(ItemLocationDefinitions.AqueductExposedMissileTank)),
@@ -2033,18 +2033,18 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The Butterfly room-object population.</summary>
-    public static RoomObjectPopulation Butterfly { get; } = RoomObjectPopulation.FromRecords(nameof(Butterfly),
+    public static RoomObjectPopulation Butterfly { get; } = RoomObjectPopulation.FromPlacements(nameof(Butterfly),
     [
         new(RoomObjectKind.GreyDoorFacingLeft, new(14, 6), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.ButterflyGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The BotwoonHallway room-object population.</summary>
-    public static RoomObjectPopulation BotwoonHallway { get; } = RoomObjectPopulation.FromRecords(nameof(BotwoonHallway),
+    public static RoomObjectPopulation BotwoonHallway { get; } = RoomObjectPopulation.FromPlacements(nameof(BotwoonHallway),
     [
     ]);
 
     /// <summary>The Pants room-object population.</summary>
-    public static RoomObjectPopulation Pants { get; } = RoomObjectPopulation.FromRecords(nameof(Pants),
+    public static RoomObjectPopulation Pants { get; } = RoomObjectPopulation.FromPlacements(nameof(Pants),
     [
         new(RoomObjectKind.ScrollTrigger, new(6, 50), null, ScrollChange: RoomScrollChange.PantsClosesScreens1x1And1x2And1x3OpensScreens0x1And0x2OpensScreen0x3TopAligned),
         new(RoomObjectKind.RightwardsScrollExtension, new(7, 50), null),
@@ -2073,7 +2073,7 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The EastPants room-object population.</summary>
-    public static RoomObjectPopulation EastPants { get; } = RoomObjectPopulation.FromRecords(nameof(EastPants),
+    public static RoomObjectPopulation EastPants { get; } = RoomObjectPopulation.FromPlacements(nameof(EastPants),
     [
         new(RoomObjectKind.ScrollTrigger, new(5, 34), null, ScrollChange: RoomScrollChange.EastPantsOpensScreen0x1),
         new(RoomObjectKind.RightwardsScrollExtension, new(6, 34), null),
@@ -2087,18 +2087,18 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The Springball room-object population.</summary>
-    public static RoomObjectPopulation Springball { get; } = RoomObjectPopulation.FromRecords(nameof(Springball),
+    public static RoomObjectPopulation Springball { get; } = RoomObjectPopulation.FromPlacements(nameof(Springball),
     [
         new(RoomObjectKind.ChozoSpringBall, new(24, 22), new CollectedItemArgument(ItemLocationDefinitions.SpringballChozoSpringBall)),
     ]);
 
     /// <summary>The BelowBotwoonETank room-object population.</summary>
-    public static RoomObjectPopulation BelowBotwoonETank { get; } = RoomObjectPopulation.FromRecords(nameof(BelowBotwoonETank),
+    public static RoomObjectPopulation BelowBotwoonETank { get; } = RoomObjectPopulation.FromPlacements(nameof(BelowBotwoonETank),
     [
     ]);
 
     /// <summary>The Colosseum room-object population.</summary>
-    public static RoomObjectPopulation Colosseum { get; } = RoomObjectPopulation.FromRecords(nameof(Colosseum),
+    public static RoomObjectPopulation Colosseum { get; } = RoomObjectPopulation.FromPlacements(nameof(Colosseum),
     [
         new(RoomObjectKind.RedDoorFacingLeft, new(110, 6), new DoorBitArgument(LockedDoorDefinitions.ColosseumRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
         new(RoomObjectKind.GreenDoorFacingLeft, new(78, 38), new DoorBitArgument(LockedDoorDefinitions.ColosseumGreenDoorFacingLeftAt78x38, DoorOpeningPersistence.Persistent)),
@@ -2106,13 +2106,13 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The AqueductSave room-object population.</summary>
-    public static RoomObjectPopulation AqueductSave { get; } = RoomObjectPopulation.FromRecords(nameof(AqueductSave),
+    public static RoomObjectPopulation AqueductSave { get; } = RoomObjectPopulation.FromPlacements(nameof(AqueductSave),
     [
         new(RoomObjectKind.SaveStation, new(5, 11), new SaveStationArgument(LoadStationDefinitions.AqueductSave)),
     ]);
 
     /// <summary>The ThePrecious room-object population.</summary>
-    public static RoomObjectPopulation ThePrecious { get; } = RoomObjectPopulation.FromRecords(nameof(ThePrecious),
+    public static RoomObjectPopulation ThePrecious { get; } = RoomObjectPopulation.FromPlacements(nameof(ThePrecious),
     [
         new(RoomObjectKind.ScrollTrigger, new(4, 14), null, ScrollChange: RoomScrollChange.ThePreciousOpensScreens0x0And0x1),
         new(RoomObjectKind.RightwardsScrollExtension, new(5, 14), null),
@@ -2129,40 +2129,40 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The BotwoonETank room-object population.</summary>
-    public static RoomObjectPopulation BotwoonETank { get; } = RoomObjectPopulation.FromRecords(nameof(BotwoonETank),
+    public static RoomObjectPopulation BotwoonETank { get; } = RoomObjectPopulation.FromPlacements(nameof(BotwoonETank),
     [
         new(RoomObjectKind.ExposedEnergyTank, new(50, 5), new CollectedItemArgument(ItemLocationDefinitions.BotwoonETankExposedEnergyTank)),
     ]);
 
     /// <summary>The DraygonSave room-object population.</summary>
-    public static RoomObjectPopulation DraygonSave { get; } = RoomObjectPopulation.FromRecords(nameof(DraygonSave),
+    public static RoomObjectPopulation DraygonSave { get; } = RoomObjectPopulation.FromPlacements(nameof(DraygonSave),
     [
         new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationArgument(LoadStationDefinitions.DraygonSave)),
     ]);
 
     /// <summary>The MaridiaMissileRefill room-object population.</summary>
-    public static RoomObjectPopulation MaridiaMissileRefill { get; } = RoomObjectPopulation.FromRecords(nameof(MaridiaMissileRefill),
+    public static RoomObjectPopulation MaridiaMissileRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(MaridiaMissileRefill),
     [
         new(RoomObjectKind.MissileStation, new(8, 10), null),
     ]);
 
     /// <summary>The PlasmaBeachQuicksand room-object population.</summary>
-    public static RoomObjectPopulation PlasmaBeachQuicksand { get; } = RoomObjectPopulation.FromRecords(nameof(PlasmaBeachQuicksand),
+    public static RoomObjectPopulation PlasmaBeachQuicksand { get; } = RoomObjectPopulation.FromPlacements(nameof(PlasmaBeachQuicksand),
     [
     ]);
 
     /// <summary>The BotwoonQuicksand room-object population.</summary>
-    public static RoomObjectPopulation BotwoonQuicksand { get; } = RoomObjectPopulation.FromRecords(nameof(BotwoonQuicksand),
+    public static RoomObjectPopulation BotwoonQuicksand { get; } = RoomObjectPopulation.FromPlacements(nameof(BotwoonQuicksand),
     [
     ]);
 
     /// <summary>The Shaktool room-object population.</summary>
-    public static RoomObjectPopulation Shaktool { get; } = RoomObjectPopulation.FromRecords(nameof(Shaktool),
+    public static RoomObjectPopulation Shaktool { get; } = RoomObjectPopulation.FromPlacements(nameof(Shaktool),
     [
     ]);
 
     /// <summary>The HalfieClimb room-object population.</summary>
-    public static RoomObjectPopulation HalfieClimb { get; } = RoomObjectPopulation.FromRecords(nameof(HalfieClimb),
+    public static RoomObjectPopulation HalfieClimb { get; } = RoomObjectPopulation.FromPlacements(nameof(HalfieClimb),
     [
         new(RoomObjectKind.ScrollTrigger, new(16, 41), null, ScrollChange: RoomScrollChange.HalfieClimbClosesScreen0x1OpensScreen1x2TopAligned),
         new(RoomObjectKind.ScrollTrigger, new(11, 41), null, ScrollChange: RoomScrollChange.HalfieClimbClosesScreen1x2OpensScreen0x1TopAligned),
@@ -2174,35 +2174,35 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The Botwoon room-object population.</summary>
-    public static RoomObjectPopulation Botwoon { get; } = RoomObjectPopulation.FromRecords(nameof(Botwoon),
+    public static RoomObjectPopulation Botwoon { get; } = RoomObjectPopulation.FromPlacements(nameof(Botwoon),
     [
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(1, new DoorBitArgument(LockedDoorDefinitions.BotwoonGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The SpaceJump room-object population.</summary>
-    public static RoomObjectPopulation SpaceJump { get; } = RoomObjectPopulation.FromRecords(nameof(SpaceJump),
+    public static RoomObjectPopulation SpaceJump { get; } = RoomObjectPopulation.FromPlacements(nameof(SpaceJump),
     [
         new(RoomObjectKind.ChozoSpaceJump, new(4, 8), new CollectedItemArgument(ItemLocationDefinitions.SpaceJumpChozoSpaceJump)),
     ]);
 
     /// <summary>The MaridiaEnergyRefill room-object population.</summary>
-    public static RoomObjectPopulation MaridiaEnergyRefill { get; } = RoomObjectPopulation.FromRecords(nameof(MaridiaEnergyRefill),
+    public static RoomObjectPopulation MaridiaEnergyRefill { get; } = RoomObjectPopulation.FromPlacements(nameof(MaridiaEnergyRefill),
     [
         new(RoomObjectKind.EnergyStation, new(8, 10), null),
     ]);
 
     /// <summary>The WestCactusAlley room-object population.</summary>
-    public static RoomObjectPopulation WestCactusAlley { get; } = RoomObjectPopulation.FromRecords(nameof(WestCactusAlley),
+    public static RoomObjectPopulation WestCactusAlley { get; } = RoomObjectPopulation.FromPlacements(nameof(WestCactusAlley),
     [
     ]);
 
     /// <summary>The EastCactusAlley room-object population.</summary>
-    public static RoomObjectPopulation EastCactusAlley { get; } = RoomObjectPopulation.FromRecords(nameof(EastCactusAlley),
+    public static RoomObjectPopulation EastCactusAlley { get; } = RoomObjectPopulation.FromPlacements(nameof(EastCactusAlley),
     [
     ]);
 
     /// <summary>The Draygon room-object population.</summary>
-    public static RoomObjectPopulation Draygon { get; } = RoomObjectPopulation.FromRecords(nameof(Draygon),
+    public static RoomObjectPopulation Draygon { get; } = RoomObjectPopulation.FromPlacements(nameof(Draygon),
     [
         new(RoomObjectKind.GreyDoorFacingLeft, new(30, 6), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.DraygonGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.DraygonGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
@@ -2213,78 +2213,78 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The TourianFirst room-object population.</summary>
-    public static RoomObjectPopulation TourianFirst { get; } = RoomObjectPopulation.FromRecords(nameof(TourianFirst),
+    public static RoomObjectPopulation TourianFirst { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianFirst),
     [
         new(RoomObjectKind.ElevatorPlatform, new(6, 44), null),
     ]);
 
     /// <summary>The Metroids1 room-object population.</summary>
-    public static RoomObjectPopulation Metroids1 { get; } = RoomObjectPopulation.FromRecords(nameof(Metroids1),
+    public static RoomObjectPopulation Metroids1 { get; } = RoomObjectPopulation.FromPlacements(nameof(Metroids1),
     [
         new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(9)),
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.Metroids1GreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The Metroids2 room-object population.</summary>
-    public static RoomObjectPopulation Metroids2 { get; } = RoomObjectPopulation.FromRecords(nameof(Metroids2),
+    public static RoomObjectPopulation Metroids2 { get; } = RoomObjectPopulation.FromPlacements(nameof(Metroids2),
     [
         new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(10)),
         new(RoomObjectKind.GreyDoorFacingLeft, new(14, 22), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.Metroids2GreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The Metroids3 room-object population.</summary>
-    public static RoomObjectPopulation Metroids3 { get; } = RoomObjectPopulation.FromRecords(nameof(Metroids3),
+    public static RoomObjectPopulation Metroids3 { get; } = RoomObjectPopulation.FromPlacements(nameof(Metroids3),
     [
         new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(11)),
         new(RoomObjectKind.GreyDoorFacingLeft, new(94, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.Metroids3GreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The Metroids4 room-object population.</summary>
-    public static RoomObjectPopulation Metroids4 { get; } = RoomObjectPopulation.FromRecords(nameof(Metroids4),
+    public static RoomObjectPopulation Metroids4 { get; } = RoomObjectPopulation.FromPlacements(nameof(Metroids4),
     [
         new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(12)),
         new(RoomObjectKind.GreyDoorFacingUp, new(6, 30), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.Metroids4GreyDoorFacingUp, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The BlueHopper room-object population.</summary>
-    public static RoomObjectPopulation BlueHopper { get; } = RoomObjectPopulation.FromRecords(nameof(BlueHopper),
+    public static RoomObjectPopulation BlueHopper { get; } = RoomObjectPopulation.FromPlacements(nameof(BlueHopper),
     [
     ]);
 
     /// <summary>The DustTorizo room-object population.</summary>
-    public static RoomObjectPopulation DustTorizo { get; } = RoomObjectPopulation.FromRecords(nameof(DustTorizo),
+    public static RoomObjectPopulation DustTorizo { get; } = RoomObjectPopulation.FromPlacements(nameof(DustTorizo),
     [
         new(RoomObjectKind.GreyDoorFacingLeft, new(30, 6), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.DustTorizoGreyDoorFacingLeft, DoorOpeningPersistence.Transient))),
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.DustTorizoGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The BigBoy room-object population.</summary>
-    public static RoomObjectPopulation BigBoy { get; } = RoomObjectPopulation.FromRecords(nameof(BigBoy),
+    public static RoomObjectPopulation BigBoy { get; } = RoomObjectPopulation.FromPlacements(nameof(BigBoy),
     [
         new(RoomObjectKind.GreyDoorFacingLeft, new(62, 6), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.BigBoyGreyDoorFacingLeft, DoorOpeningPersistence.Transient))),
     ]);
 
     /// <summary>The Seaweed room-object population.</summary>
-    public static RoomObjectPopulation Seaweed { get; } = RoomObjectPopulation.FromRecords(nameof(Seaweed),
+    public static RoomObjectPopulation Seaweed { get; } = RoomObjectPopulation.FromPlacements(nameof(Seaweed),
     [
         new(RoomObjectKind.RedDoorFacingLeft, new(14, 22), new DoorBitArgument(LockedDoorDefinitions.SeaweedRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The TourianRecharge room-object population.</summary>
-    public static RoomObjectPopulation TourianRecharge { get; } = RoomObjectPopulation.FromRecords(nameof(TourianRecharge),
+    public static RoomObjectPopulation TourianRecharge { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianRecharge),
     [
         new(RoomObjectKind.MissileStation, new(8, 10), null),
         new(RoomObjectKind.EnergyStation, new(6, 10), null),
     ]);
 
     /// <summary>The MotherBrain room-object population.</summary>
-    public static RoomObjectPopulation MotherBrain { get; } = RoomObjectPopulation.FromRecords(nameof(MotherBrain),
+    public static RoomObjectPopulation MotherBrain { get; } = RoomObjectPopulation.FromPlacements(nameof(MotherBrain),
     [
         new(RoomObjectKind.MotherBrainGlass, new(9, 5), null),
     ]);
 
     /// <summary>The TourianEyeDoor room-object population.</summary>
-    public static RoomObjectPopulation TourianEyeDoor { get; } = RoomObjectPopulation.FromRecords(nameof(TourianEyeDoor),
+    public static RoomObjectPopulation TourianEyeDoor { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianEyeDoor),
     [
         new(RoomObjectKind.EyeDoorFacingLeft, new(62, 6), new DoorBitArgument(LockedDoorDefinitions.TourianEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent)),
         new(RoomObjectKind.EyeDoorBottomFacingLeft, new(62, 9), new DoorBitArgument(LockedDoorDefinitions.TourianEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent)),
@@ -2292,78 +2292,78 @@ internal static class RoomObjectPopulationDefinitions
     ]);
 
     /// <summary>The RinkaShaft room-object population.</summary>
-    public static RoomObjectPopulation RinkaShaft { get; } = RoomObjectPopulation.FromRecords(nameof(RinkaShaft),
+    public static RoomObjectPopulation RinkaShaft { get; } = RoomObjectPopulation.FromPlacements(nameof(RinkaShaft),
     [
         new(RoomObjectKind.RedDoorFacingRight, new(1, 38), new DoorBitArgument(LockedDoorDefinitions.RinkaShaftRedDoorFacingRight, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The MotherBrainSave room-object population.</summary>
-    public static RoomObjectPopulation MotherBrainSave { get; } = RoomObjectPopulation.FromRecords(nameof(MotherBrainSave),
+    public static RoomObjectPopulation MotherBrainSave { get; } = RoomObjectPopulation.FromPlacements(nameof(MotherBrainSave),
     [
         new(RoomObjectKind.SaveStation, new(5, 11), new SaveStationArgument(LoadStationDefinitions.MotherBrainSave)),
     ]);
 
     /// <summary>The TourianEscape1 room-object population.</summary>
-    public static RoomObjectPopulation TourianEscape1 { get; } = RoomObjectPopulation.FromRecords(nameof(TourianEscape1),
+    public static RoomObjectPopulation TourianEscape1 { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianEscape1),
     [
         new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(0)),
         new(RoomObjectKind.MotherBrainEscapeRoomGate, new(31, 6), null),
     ]);
 
     /// <summary>The TourianEscape2 room-object population.</summary>
-    public static RoomObjectPopulation TourianEscape2 { get; } = RoomObjectPopulation.FromRecords(nameof(TourianEscape2),
+    public static RoomObjectPopulation TourianEscape2 { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianEscape2),
     [
         new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(1)),
         new(RoomObjectKind.GreyDoorFacingDown, new(6, 3), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.TourianEscape2GreyDoorFacingDown, DoorOpeningPersistence.Transient))),
     ]);
 
     /// <summary>The TourianEscape3 room-object population.</summary>
-    public static RoomObjectPopulation TourianEscape3 { get; } = RoomObjectPopulation.FromRecords(nameof(TourianEscape3),
+    public static RoomObjectPopulation TourianEscape3 { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianEscape3),
     [
         new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(2)),
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.TourianEscape3GreyDoorFacingRight, DoorOpeningPersistence.Transient))),
     ]);
 
     /// <summary>The TourianEscape4 room-object population.</summary>
-    public static RoomObjectPopulation TourianEscape4 { get; } = RoomObjectPopulation.FromRecords(nameof(TourianEscape4),
+    public static RoomObjectPopulation TourianEscape4 { get; } = RoomObjectPopulation.FromPlacements(nameof(TourianEscape4),
     [
         new(RoomObjectKind.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(3)),
         new(RoomObjectKind.GreyDoorFacingRight, new(1, 54), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.TourianEscape4GreyDoorFacingRight, DoorOpeningPersistence.Transient))),
     ]);
 
     /// <summary>The UpperTourianSave room-object population.</summary>
-    public static RoomObjectPopulation UpperTourianSave { get; } = RoomObjectPopulation.FromRecords(nameof(UpperTourianSave),
+    public static RoomObjectPopulation UpperTourianSave { get; } = RoomObjectPopulation.FromPlacements(nameof(UpperTourianSave),
     [
         new(RoomObjectKind.SaveStation, new(7, 11), new SaveStationArgument(LoadStationDefinitions.UpperTourianSave)),
     ]);
 
     /// <summary>The CeresElev room-object population.</summary>
-    public static RoomObjectPopulation CeresElev { get; } = RoomObjectPopulation.FromRecords(nameof(CeresElev),
+    public static RoomObjectPopulation CeresElev { get; } = RoomObjectPopulation.FromPlacements(nameof(CeresElev),
     [
     ]);
 
     /// <summary>The FallingTile room-object population.</summary>
-    public static RoomObjectPopulation FallingTile { get; } = RoomObjectPopulation.FromRecords(nameof(FallingTile),
+    public static RoomObjectPopulation FallingTile { get; } = RoomObjectPopulation.FromPlacements(nameof(FallingTile),
     [
     ]);
 
     /// <summary>The MagnetStairs room-object population.</summary>
-    public static RoomObjectPopulation MagnetStairs { get; } = RoomObjectPopulation.FromRecords(nameof(MagnetStairs),
+    public static RoomObjectPopulation MagnetStairs { get; } = RoomObjectPopulation.FromPlacements(nameof(MagnetStairs),
     [
     ]);
 
     /// <summary>The DeadScientist room-object population.</summary>
-    public static RoomObjectPopulation DeadScientist { get; } = RoomObjectPopulation.FromRecords(nameof(DeadScientist),
+    public static RoomObjectPopulation DeadScientist { get; } = RoomObjectPopulation.FromPlacements(nameof(DeadScientist),
     [
     ]);
 
     /// <summary>The Room58Escape room-object population.</summary>
-    public static RoomObjectPopulation Room58Escape { get; } = RoomObjectPopulation.FromRecords(nameof(Room58Escape),
+    public static RoomObjectPopulation Room58Escape { get; } = RoomObjectPopulation.FromPlacements(nameof(Room58Escape),
     [
     ]);
 
     /// <summary>The CeresRidley room-object population.</summary>
-    public static RoomObjectPopulation CeresRidley { get; } = RoomObjectPopulation.FromRecords(nameof(CeresRidley),
+    public static RoomObjectPopulation CeresRidley { get; } = RoomObjectPopulation.FromPlacements(nameof(CeresRidley),
     [
     ]);
 }

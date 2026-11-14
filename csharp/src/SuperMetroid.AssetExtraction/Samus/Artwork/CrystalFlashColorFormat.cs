@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 public static class CrystalFlashColorFormat
 {
     /// <summary>Ten editable body frames, one per pointer/timer record in playback order.</summary>
-    public const int BodyFrameCount = SamusPaletteDefinitions.CrystalFlash.BodyRecordCount;
+    public const int BodyFrameCount = SamusPaletteDefinitions.CrystalFlash.BodyStepCount;
     /// <summary>Six editable bubble frames selected independently by the pointer table.</summary>
     public const int BubbleFrameCount = SamusPaletteDefinitions.CrystalFlash.BubblePaletteCount;
     /// <summary>Ten colors in each body frame, occupying sprite palette six colors 0..9.</summary>

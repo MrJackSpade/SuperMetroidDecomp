@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Whether reaching this waypoint ends the route and starts the latch-onto-Samus phase,
 /// rather than moving on to the next leg.
 /// </param>
-internal readonly record struct BabyMetroidRouteRecord(
+internal readonly record struct BabyMetroidRouteLeg(
     Position16<RoomPixels> Target,
     int AccelerationDivisor,
     BabyMetroidRouteMovement Movement,

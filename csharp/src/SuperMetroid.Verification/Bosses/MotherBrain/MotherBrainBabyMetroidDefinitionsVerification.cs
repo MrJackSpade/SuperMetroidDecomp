@@ -16,7 +16,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
     {
         const int populationAddress = 0xa9be28;
 
-        RoomEnemyPopulationRecord population =
+        RoomEnemyPlacement population =
             MotherBrainBabyMetroidDefinitions.SpawnPopulation;
         SuperMetroid.AssetExtraction.Enemies.PopulationEntryWords words =
             SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Encode(population);

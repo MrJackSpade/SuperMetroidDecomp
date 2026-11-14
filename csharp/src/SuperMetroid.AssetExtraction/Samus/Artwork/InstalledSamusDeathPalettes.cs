@@ -45,7 +45,7 @@ public sealed class InstalledSamusDeathPalettes
             suited.Any(family => !deathSteps.Fits(family)) ||
             !deathSteps.Fits(suitless) ||
             whiteout.Length != SamusPaletteDefinitions.Death.WhiteoutShadeCount ||
-            explosionPaletteIndices.Length != SamusDeathExplosionTimingDefinitions.RecordCount ||
+            explosionPaletteIndices.Length != SamusDeathExplosionTimingDefinitions.StepCount ||
             explosionPaletteIndices.Any(index => index >= SamusPaletteDefinitions.Death.PaletteCount))
             throw new InvalidDataException("Samus death-palette artwork has an invalid shape or RGB5 color.");
         this.suited = [.. suited.Select(Copy)];
@@ -101,7 +101,7 @@ public sealed class InstalledSamusDeathPalettes
     /// suit and suitless colours stay here, where the import pre-colours her death shades from them.
     /// </summary>
     public SamusDeathSteps Steps => new(
-        [.. Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount).Select(ExplosionPaletteIndex)],
+        [.. Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.StepCount).Select(ExplosionPaletteIndex)],
         [.. Enumerable.Range(0, SamusPaletteDefinitions.Death.WhiteoutShadeCount).Select(WhiteoutColor)]);
 
     /// <summary>The colour at <paramref name="palette"/> and <paramref name="color"/> of one family's death-flash steps.</summary>

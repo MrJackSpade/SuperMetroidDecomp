@@ -202,7 +202,7 @@ internal sealed class NorfairRidleyDeath
             // The embedded entries all use the same zero position and properties and name one
             // body part. Initialization replaces position and animation from the still-live
             // shared Ridley joints below.
-            RoomEnemyPopulationRecord population = new(
+            RoomEnemyPlacement population = new(
                 EnemyDefinitionId.RidleyExplosion,
                 Position: Position16<RoomPixels>.Zero,
                 Contact: EnemyContact.IgnoresSamus,

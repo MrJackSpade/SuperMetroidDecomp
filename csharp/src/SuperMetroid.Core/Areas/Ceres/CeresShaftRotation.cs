@@ -31,12 +31,12 @@ public static class CeresShaftRotation
         _ => throw new ArgumentOutOfRangeException(nameof(magnitude)),
     };
 
-    /// <summary>The rotation of <paramref name="step"/>, one of the shaft's <see cref="RecordCount"/> steps.</summary>
+    /// <summary>The rotation of <paramref name="step"/>, one of the shaft's <see cref="StepCount"/> steps.</summary>
     /// <exception cref="InvalidDataException"><paramref name="step"/> is not one of the shaft's rotation steps.</exception>
     public static CeresShaftRotationDefinition Read(int step)
     {
-        if ((uint)step >= RecordCount)
-            throw new InvalidDataException($"Ceres shaft rotation step {step} is outside its {RecordCount} steps.");
+        if ((uint)step >= StepCount)
+            throw new InvalidDataException($"Ceres shaft rotation step {step} is outside its {StepCount} steps.");
         int stepsFromLevel = step - CenterStep;
         return new(Timer(Math.Abs(stepsFromLevel)), stepsFromLevel / StepsPerRadian);
     }

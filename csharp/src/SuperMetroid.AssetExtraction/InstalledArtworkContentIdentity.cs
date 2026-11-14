@@ -281,7 +281,7 @@ internal static class InstalledArtworkContentIdentity
         /// <summary>SHA-256 of the explosion's death steps and the whiteout colours.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create(nameof(SuperMetroid.Core.Samus.Death.SamusDeathSteps), content =>
         {
-            Span<int> explosion = stackalloc int[SamusDeathExplosionTimingDefinitions.RecordCount];
+            Span<int> explosion = stackalloc int[SamusDeathExplosionTimingDefinitions.StepCount];
             for (int frame = 0; frame < explosion.Length; frame++) explosion[frame] = steps.ExplosionStep(frame);
             content.AppendWords("explosion steps", explosion);
             Span<RgbColor> whiteout = stackalloc RgbColor[SamusPaletteDefinitions.Death.WhiteoutShadeCount];
@@ -311,7 +311,7 @@ internal static class InstalledArtworkContentIdentity
             Span<RgbColor> whiteoutColors = stackalloc RgbColor[SamusPaletteDefinitions.Death.WhiteoutShadeCount];
             for (int index = 0; index < whiteoutColors.Length; index++) whiteoutColors[index] = palettes.WhiteoutColor(index);
             content.AppendColors("whiteout", whiteoutColors);
-            Span<int> selectors = stackalloc int[SamusDeathExplosionTimingDefinitions.RecordCount];
+            Span<int> selectors = stackalloc int[SamusDeathExplosionTimingDefinitions.StepCount];
             for (int frame = 0; frame < selectors.Length; frame++) selectors[frame] = palettes.ExplosionPaletteIndex(frame);
             content.AppendWords("explosion palette indices", selectors);
         });

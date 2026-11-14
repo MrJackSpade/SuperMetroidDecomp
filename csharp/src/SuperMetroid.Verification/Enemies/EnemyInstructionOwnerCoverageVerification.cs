@@ -37,7 +37,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
         }
 
         CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        Dictionary<EnemyDefinitionId, List<RoomEnemyPopulationRecord>> populations =
+        Dictionary<EnemyDefinitionId, List<RoomEnemyPlacement>> populations =
             ReadRetailEnemyPopulationRecords(rom);
         EnemyDefinitionId[] definitions = ReadNamedRetailEnemyDefinitions();
 
@@ -50,15 +50,15 @@ internal static class EnemyInstructionOwnerCoverageVerification
         {
             RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(
                 rom, definitionPointer);
-            IReadOnlyList<RoomEnemyPopulationRecord> records =
-                populations.TryGetValue(definitionPointer, out List<RoomEnemyPopulationRecord>? found)
+            IReadOnlyList<RoomEnemyPlacement> records =
+                populations.TryGetValue(definitionPointer, out List<RoomEnemyPlacement>? found)
                     ? found
                     : [RoomEnemyPopulationRecordCodec.Decode(definitionPointer, 128, 128, 0, 0, 0, 0, 0)];
 
             bool definitionTranslated = false;
             bool definitionNeedsOwner = false;
             bool definitionHasOwner = false;
-            foreach (RoomEnemyPopulationRecord population in records)
+            foreach (RoomEnemyPlacement population in records)
             {
                 var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
                 enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
@@ -204,13 +204,13 @@ internal static class EnemyInstructionOwnerCoverageVerification
     }
 
     /// <summary>Groups native population records from all retail room states by enemy definition.</summary>
-    private static Dictionary<EnemyDefinitionId, List<RoomEnemyPopulationRecord>>
+    private static Dictionary<EnemyDefinitionId, List<RoomEnemyPlacement>>
         ReadRetailEnemyPopulationRecords(ISnesAddressSpace rom)
     {
         RoomStateSettings[] states = RoomStateDefinitions.All.ToArray();
         AssertEqual(RoomStateDefinitions.RetailStateCount, states.Length,
             "owner fixture enumerates every retail room state");
-        var records = new Dictionary<EnemyDefinitionId, List<RoomEnemyPopulationRecord>>();
+        var records = new Dictionary<EnemyDefinitionId, List<RoomEnemyPlacement>>();
 
         foreach (ushort populationPointer in states
                      .Select(state => RoomEnemyPopulationDefinitions.PointerOf(state.EnemyPopulation))
@@ -227,11 +227,11 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(definitionPointerWord);
 
                 int Word(int offset) => CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + offset);
-                RoomEnemyPopulationRecord record = RoomEnemyPopulationRecordCodec.Decode(
+                RoomEnemyPlacement record = RoomEnemyPopulationRecordCodec.Decode(
                     definitionPointer, Word(2), Word(4), Word(6), Word(8), Word(10), Word(12), Word(14));
                 if (!records.TryGetValue(
                     definitionPointer,
-                    out List<RoomEnemyPopulationRecord>? definitionRecords))
+                    out List<RoomEnemyPlacement>? definitionRecords))
                 {
                     definitionRecords = [];
                     records.Add(definitionPointer, definitionRecords);

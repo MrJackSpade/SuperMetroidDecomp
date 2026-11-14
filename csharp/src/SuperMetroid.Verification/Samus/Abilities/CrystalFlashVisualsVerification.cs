@@ -32,7 +32,7 @@ internal static class CrystalFlashVisualsVerification
         {
             // Independent timeline lookup: expand authored durations into a cycle
             // and index elapsed calls, rather than reading the production timers.
-            int cycleLength = Enumerable.Range(0, CrystalFlash.BodyRecordCount)
+            int cycleLength = Enumerable.Range(0, CrystalFlash.BodyStepCount)
                 .Sum(i => Word(SamusSourceDefinitions.CrystalFlashBodyRecords.Value + i * CrystalFlash.BodyRecordByteCount + 2));
             int remaining = elapsed % cycleLength, record = 0;
             while (remaining >= Word(SamusSourceDefinitions.CrystalFlashBodyRecords.Value + record * CrystalFlash.BodyRecordByteCount + 2))

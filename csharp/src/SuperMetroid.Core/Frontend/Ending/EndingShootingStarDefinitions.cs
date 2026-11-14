@@ -26,7 +26,7 @@ internal static class EndingShootingStarDefinitions
     /// <summary>The <see cref="SpriteOffset"/> centering applied on both axes.</summary>
     internal static Offset16<ScreenPixels> SpriteCenter => new(CoordinateAxis.AsSigned(SpriteOffset), CoordinateAxis.AsSigned(SpriteOffset));
     /// <summary>The shooting stars: X/Y acceleration, animation period, initial delay.</summary>
-    private static readonly EndingShootingStarDefinition[] records = [
+    private static readonly EndingShootingStarDefinition[] stars = [
         new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(16, -16), 6, 8),
         new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(12, -1), 6, 0),
         new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(13, -10), 6, 6),
@@ -69,7 +69,7 @@ internal static class EndingShootingStarDefinitions
         new(EightEightVector<ScreenPixels>.FromTwoHundredFiftySixthsOfPixel(-8, -4), 3840, 0)
     ];
     /// <summary>Exposes the forty star records in order for initialization and motion updates.</summary>
-    internal static ReadOnlySpan<EndingShootingStarDefinition> Records => records;
+    internal static ReadOnlySpan<EndingShootingStarDefinition> Stars => stars;
     /// <summary>The animation frames a shooting star shows.</summary>
     internal const int FrameCount = 20;
 

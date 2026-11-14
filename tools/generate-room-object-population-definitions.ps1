@@ -156,7 +156,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
         $offset = 0x78000 + ($pointer - 0x8000)
         $name = $populationNames[$pointer]
         $lines.Add(('    /// <summary>The {0} room-object population.</summary>' -f $name))
-        $lines.Add(('    public static RoomObjectPopulation {0} {{ get; }} = RoomObjectPopulation.FromRecords(nameof({0}),' -f $name))
+        $lines.Add(('    public static RoomObjectPopulation {0} {{ get; }} = RoomObjectPopulation.FromPlacements(nameof({0}),' -f $name))
         $lines.Add('    [')
         $count = 0
         while ($true) {

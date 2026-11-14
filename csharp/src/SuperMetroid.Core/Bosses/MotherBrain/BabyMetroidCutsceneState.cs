@@ -403,13 +403,13 @@ public sealed class BabyMetroidCutsceneState
                 // own chance.
                 ambientCrySoundQueued = MotherBrainRandomDefinitions.BabyMetroidCries.IsTakenBy(randomNumber);
 
-                // The route is eight overlapping records. The fixed targets, divisors, and movement-step identities are
+                // The route is eight overlapping legs. The fixed targets, divisors, and movement-step identities are
                 // compiled mechanics definitions; sprite and animation presentation remains separately backed.
-                BabyMetroidRouteRecord record = BabyMetroidRoute.GetRecord(RouteLeg);
-                Position16<RoomPixels> target = record.Target;
-                int accelerationDivisor = record.AccelerationDivisor;
+                BabyMetroidRouteLeg leg = BabyMetroidRoute.GetLeg(RouteLeg);
+                Position16<RoomPixels> target = leg.Target;
+                int accelerationDivisor = leg.AccelerationDivisor;
                 int wrongWayExtra = BabyMetroidRoute.GetWrongWayOffScreenXSpeed(
-                    record.Movement);
+                    leg.Movement);
 
                 GraduallyAccelerateTowardsPoint(
                     target,
@@ -422,7 +422,7 @@ public sealed class BabyMetroidCutsceneState
                 // final leg's target starts the latch-onto-Samus phase instead.
                 if (CollidesWithRectangle(target, TargetRadius))
                 {
-                    if (record.EndsWithLatchOntoSamus)
+                    if (leg.EndsWithLatchOntoSamus)
                         Phase = BabyMetroidCutscenePhase.LatchOntoSamus;
                     else
                         RouteLeg++;

@@ -59,7 +59,7 @@ internal static class FollowUpAfterStruckPartVerification
         int parts = 0;
         foreach (RoomEnemyPopulationDefinition population in RoomEnemyPopulationDefinitions.Definitions)
         {
-            RoomEnemyPopulationRecord[] records = population.Records.ToArray();
+            RoomEnemyPlacement[] records = population.Placements.ToArray();
             int head = -1;
             for (int place = 0; place < records.Length; place++)
             {

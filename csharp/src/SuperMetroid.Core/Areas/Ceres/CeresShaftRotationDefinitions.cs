@@ -5,7 +5,7 @@ public static class CeresShaftRotationDefinitions
 {
 
     /// <summary>The shaft has 69 rotation steps, from 34 steps tilted anticlockwise through 34 tilted clockwise.</summary>
-    public const int RecordCount = 69;
+    public const int StepCount = 69;
 
     /// <summary>The step whose rotation is level, the middle of the steps.</summary>
     public const int CenterStep = 34;

@@ -83,7 +83,7 @@ internal sealed class RoomObjectSlot
     {
         if (!Active)
             throw new InvalidOperationException("A room-object place is readied only once a spawn has taken it.");
-        ClearRecord();
+        ClearContents();
     }
 
     /// <summary>
@@ -94,11 +94,11 @@ internal sealed class RoomObjectSlot
     {
         if (Active)
             _places.Free(_place);
-        ClearRecord();
+        ClearContents();
     }
 
     /// <summary>Clears what the place holds.</summary>
-    private void ClearRecord()
+    private void ClearContents()
     {
         Block = default;
         RestoreTerrain = null;

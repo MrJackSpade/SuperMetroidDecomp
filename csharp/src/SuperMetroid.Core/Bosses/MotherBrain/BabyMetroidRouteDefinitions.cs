@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class BabyMetroidRouteDefinitions
 {
     /// <summary>Number of authored route legs.</summary>
-    internal const int RecordCount = 8;
+    internal const int LegCount = 8;
 
     /// <summary>
     /// The eight authored waypoints. Each leg steers to its waypoint with the acceleration divisor

@@ -60,16 +60,16 @@ internal sealed class RoomObjectPopulationLoader
         Ensure.NotNull(services.Samus);
         Ensure.NotNull(services.Bosses);
 
-        int spawnedRecordCount = 0;
-        for (int recordIndex = 0; recordIndex < population.Placements.Length; recordIndex++)
+        int spawnedCount = 0;
+        for (int placementIndex = 0; placementIndex < population.Placements.Length; placementIndex++)
         {
-            RoomObjectPlacement placement = population.Placements.Span[recordIndex];
+            RoomObjectPlacement placement = population.Placements.Span[placementIndex];
             RoomObjectKind objectKind = placement.Kind;
             if (DraygonCannonObjects.IsDraygonCannonKind(objectKind) != placement.Cannon.HasValue)
                 throw new InvalidDataException(
-                    $"Room-object population {population.Name} record {recordIndex} ({objectKind}) must carry a cannon-control word exactly when it is a Draygon cannon.");
-            var record = new RoomObjectPopulationRecord(
-                recordIndex, objectKind, placement.Block, placement.Argument);
+                    $"Room-object population {population.Name} placement {placementIndex} ({objectKind}) must carry a cannon-control word exactly when it is a Draygon cannon.");
+            var placed = new PlacedRoomObject(
+                placementIndex, objectKind, placement.Block, placement.Argument);
 
             Position16<RoomBlocks> block;
             try
@@ -80,50 +80,50 @@ internal sealed class RoomObjectPopulationLoader
                 // the two shipped off-room door records, whose column past the room's width is the block that many
                 // columns into the following rows; setups that genuinely require authored terrain still
                 // validate when they consume the block.
-                block = room.Level.ObjectBlock(record.Block);
+                block = room.Level.ObjectBlock(placed.Block);
             }
             catch (ArgumentOutOfRangeException error)
             {
                 throw new InvalidDataException(
-                    $"Room-object population {population.Name} record {recordIndex} " +
+                    $"Room-object population {population.Name} placement {placementIndex} " +
                     $"room object {objectKind} has block outside the room's allocated blocks " +
-                    $"({record.Block.X},{record.Block.Y}) and argument {record.Argument}.",
+                    $"({placed.Block.X},{placed.Block.Y}) and argument {placed.Argument}.",
                     error);
             }
 
-            RoomObjectSlot? slot = AllocateRoomPopulationSlot(record, block);
+            RoomObjectSlot? slot = AllocateRoomPopulationSlot(placed, block);
             if (slot is null)
                 continue; // No room object spawns while all forty slots are live.
 
-            if (!TryRunRoomPopulationSetup(room, services.Bosses, record, slot, placement))
+            if (!TryRunRoomPopulationSetup(room, services.Bosses, placed, slot, placement))
             {
                 // Do not leave the preallocated but unsupported actor resident. The load is
                 // intentionally loud and includes every value needed to locate the exact authored
                 // record without relying on a room-name special case.
                 slot.Delete();
                 throw new NotSupportedException(
-                    $"Room-object population {population.Name} record {recordIndex} " +
+                    $"Room-object population {population.Name} placement {placementIndex} " +
                     $"uses unsupported room-object kind " +
-                    $"{objectKind} at block ({record.Block.X},{record.Block.Y}) " +
-                    $"with argument {record.Argument}.");
+                    $"{objectKind} at block ({placed.Block.X},{placed.Block.Y}) " +
+                    $"with argument {placed.Argument}.");
             }
 
-            spawnedRecordCount++;
+            spawnedCount++;
         }
 
-        return spawnedRecordCount;
+        return spawnedCount;
     }
 
     /// <summary>Claims the highest free place, which resets whatever it held, and installs the record's identity before setup runs.</summary>
     private RoomObjectSlot? AllocateRoomPopulationSlot(
-        RoomObjectPopulationRecord record,
+        PlacedRoomObject placed,
         Position16<RoomBlocks> block)
     {
         if (_slotTable.Spawn() is not { } slot)
             return null;
 
         slot.Block = block;
-        slot.Argument = record.Argument;
+        slot.Argument = placed.Argument;
         return slot;
     }
 
@@ -131,14 +131,14 @@ internal sealed class RoomObjectPopulationLoader
     private bool TryRunRoomPopulationSetup(
         RoomObjectRoom room,
         IAreaBossFlagReader bosses,
-        RoomObjectPopulationRecord record,
+        PlacedRoomObject placed,
         RoomObjectSlot slot,
         RoomObjectPlacement placement)
     {
         RoomLevelData level = room.Level;
         SharedGameState system = room.System;
         AreaId areaIndex = room.AreaIndex;
-        RoomObjectKind objectKind = record.Kind;
+        RoomObjectKind objectKind = placed.Kind;
         if (DoorObjects.TryIdentifyColoredDoor(
                 objectKind,
                 out ColoredDoorColor color,
@@ -176,7 +176,7 @@ internal sealed class RoomObjectPopulationLoader
 
         if (objectKind == RoomObjectKind.MotherBrainGlass)
         {
-            _motherBrainGlass.SetupMotherBrainGlassSlot(level, record, slot);
+            _motherBrainGlass.SetupMotherBrainGlassSlot(level, placed, slot);
             return true;
         }
 

@@ -412,7 +412,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Uses movement reactions instead of common power-bomb damage for shutter families.</summary>
     internal EnemyPowerBombReaction VerticalShutterPowerBombReaction => field ??= new()
     {
-        ReplacesCommon = (enemy, _) => ReactVerticalShutter(enemy, _shutterCamera),
+        ReplacesCommon = c => ReactVerticalShutter(c.Enemy, _shutterCamera),
     };
 
     /// <summary>Marks a shootable vertical shutter's projectile collision before activating it.</summary>

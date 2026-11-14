@@ -95,6 +95,15 @@ internal static class RoomEnemyListing
     internal static bool IsListedFirst(this RoomEnemySlot part) => part.IsListedAt(0);
 
     /// <summary>
+    /// Whether room loading has initialized <paramref name="enemy"/> (<see cref="IRoomLoadProgress"/>). Loading
+    /// initializes the room's population in the order it lists it, so its progress is measured by that order.
+    /// </summary>
+    /// <param name="progress">How far room loading has progressed.</param>
+    /// <param name="enemy">The enemy whose initialization is asked about.</param>
+    internal static bool HasInitialized(this IRoomLoadProgress progress, RoomEnemySlot enemy) =>
+        Ensure.NotNull(progress).HasInitializedEnemySlot(Ensure.NotNull(enemy).SlotIndex);
+
+    /// <summary>
     /// Whether the population lists <paramref name="part"/> at <paramref name="place"/>, counted from zero, which an
     /// enemy whose original reads assume a fixed place requires.
     /// </summary>

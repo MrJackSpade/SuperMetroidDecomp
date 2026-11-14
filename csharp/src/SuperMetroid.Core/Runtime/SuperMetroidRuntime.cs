@@ -776,10 +776,13 @@ internal sealed class SuperMetroidRuntime
             // expansion/afterglow radius from damaging one actor every frame.
             SamusPowerBombExplosionState powerBomb =
                 Room.LoadedScope.BombProjectiles.PowerBombExplosion;
-            // The radius's whole pixels, which the radius's own type holds to its range (#1627).
+            // The radius's whole pixels, which the radius's own type holds to its range (#1627). A reaction that runs an
+            // enemy's main behaviour reads the room's terrain and the camera as they stand now, before the main scrolling.
             Room.LoadedScope.Enemies.Collision.ResolveOrdinaryPowerBombHits(
                 powerBomb.Position,
                 powerBomb.ExplosionRadius.WholePixels,
+                Room.LoadedLevelData,
+                Room.LoadedCamera.PixelPosition,
                 samus);
         }
     }

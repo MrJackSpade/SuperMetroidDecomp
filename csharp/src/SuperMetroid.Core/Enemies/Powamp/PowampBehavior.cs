@@ -531,10 +531,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Propagates power-bomb reaction state from the body to its balloon.</summary>
     internal EnemyPowerBombReaction PowampPowerBombReaction => field ??= new()
     {
-        AfterCommon = (enemy, _) =>
+        AfterCommon = c =>
         {
-            if (enemy.SpawnSettings<PowampSpawnSettings>().Part != PowampPart.Balloon)
-                ResolvePowampPowerBombAfterCommon(enemy);
+            if (c.Enemy.SpawnSettings<PowampSpawnSettings>().Part != PowampPart.Balloon)
+                ResolvePowampPowerBombAfterCommon(c.Enemy);
         },
     };
 

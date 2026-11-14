@@ -833,7 +833,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the private power-bomb reaction in place of common enemy damage.</summary>
     internal EnemyPowerBombReaction ShitroidPowerBombReaction => field ??= new()
     {
-        ReplacesCommon = ResolveShitroidPowerBomb,
+        ReplacesCommon = c => ResolveShitroidPowerBomb(c.Enemy, c.Samus),
     };
 
     /// <summary>Marks projectile collision and converts shot damage into recoil without vulnerability damage.</summary>

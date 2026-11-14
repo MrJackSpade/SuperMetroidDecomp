@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>One DeadTorizo occupant: its own AI handlers, with the shared reactions.</summary>
-/// <param name="species">The DeadTorizo species owner.</param>
+/// <summary>One dead Torizo occupant: its own AI handlers, with the shared reactions.</summary>
+/// <param name="species">The dead Torizo species owner.</param>
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
@@ -9,16 +9,16 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemySlot
         IShowsCorpseRotRows
 {
     /// <inheritdoc/>
-    public CorpseRotRows ShownRotRows => species.ShownDeadTorizoRows(Slot);
+    public CorpseRotRows ShownRotRows => DeadTorizoBehavior.ShownDeadTorizoRows(Slot);
 
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeDeadTorizo(Slot);
+    public void Initialize() => DeadTorizoBehavior.InitializeDeadTorizo(Slot);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadTorizoMainAi(Slot, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceDeadTorizoTypedAnimation(Slot, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadTorizoBehavior.AdvanceDeadTorizoTypedAnimation(Slot, context);
 
     /// <summary>Whether the dead Torizo's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
@@ -28,7 +28,7 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemySlot
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (LeavesTouchToSpecies)
-            species.ReactToDeadTorizoTouch(context);
+            DeadTorizoBehavior.ReactToDeadTorizoTouch(context);
         else
             base.ReactToTouch(context);
     }
@@ -42,7 +42,7 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemySlot
     {
         if (!(context.SelectedShot is null))
             return base.TryReplaceCommonBombDamage(context);
-        species.ReplaceDeadTorizoBombDamage(context);
+        DeadTorizoBehavior.ReplaceDeadTorizoBombDamage(context);
         return true;
     }
 

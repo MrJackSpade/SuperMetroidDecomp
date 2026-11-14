@@ -47,12 +47,44 @@ internal static class DeadTourianBehaviorVerification
         Console.WriteLine("  Dead Sidehopper behavior: the poses hold and the hop's landing cue reaches main AI.");
     }
 
+    /// <summary>
+    /// A Power Bomb reaching the waiting Shitroid victim runs its main step with the room and camera the power-bomb pass
+    /// carries (#1807): with no main behaviour run before it, a camera at or right of the victim's activation column
+    /// leaves it waiting, and one left of that column wakes it.
+    /// </summary>
+    internal static void VerifyDeadSidehopperPowerBombReadsPassCamera()
+    {
+        var level = RoomEnemyFrameFixtures.OpenRoom(new(16, 16));
+        Confirm(cameraX: 600, wakes: false);
+        Confirm(cameraX: 512, wakes: true);
+        Console.WriteLine("  Dead Sidehopper Power Bomb: the reaction's main step reads the pass's camera.");
+
+        void Confirm(int cameraX, bool wakes)
+        {
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = InstalledFixtures.BossArtwork };
+            RoomEnemySlot corpse = enemies.SlotTable.Slots[0];
+            corpse.Bind(EnemyDefinitionId.CorpseSidehopper, corpse.Definition);
+            corpse.Bind(corpse.DefinitionId, default(RoomEnemyDefinition));
+            corpse.SetSpawnParameter1(EnemyDefinitionId.CorpseSidehopper, 0);
+            enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(corpse);
+            DeadSidehopperEnemyState state = corpse.RequireSpeciesState<DeadSidehopperEnemyState>();
+            AssertEqual(DeadSidehopperAction.AliveWaitForCamera, state.Action, "the Shitroid victim starts waiting for the camera");
+
+            EnemyPowerBombStage reaction = enemies.DeadSidehopperBehavior.DeadSidehopperPowerBombReaction.ReplacesCommon
+                ?? throw new InvalidOperationException("The dead Sidehopper's Power Bomb reaction replaces the common damage.");
+            reaction(new EnemyPowerBombContext(corpse, Samus: null, level, new(cameraX, 0)));
+            AssertEqual(wakes, state.Action != DeadSidehopperAction.AliveWaitForCamera,
+                $"a Power Bomb with the camera at column {cameraX} {(wakes ? "wakes" : "leaves waiting")} the victim");
+        }
+    }
+
     /// <summary>Runs the dead Sidehopper behavior check and the dead Tourian program oracle against the local retail cartridge.</summary>
     [VerificationCommand("--dead-sidehopper-instruction-mechanics")]
     internal static int DeadSidehopperBehaviorCommand()
     {
         CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyDeadSidehopperBehavior), () => VerifyDeadSidehopperBehavior());
+        Suite(nameof(VerifyDeadSidehopperPowerBombReadsPassCamera), () => VerifyDeadSidehopperPowerBombReadsPassCamera());
         Suite(nameof(DeadTourianAnimationsVerification.VerifyDeadTourianAnimations), () => DeadTourianAnimationsVerification.VerifyDeadTourianAnimations(rom));
         return 0;
     }

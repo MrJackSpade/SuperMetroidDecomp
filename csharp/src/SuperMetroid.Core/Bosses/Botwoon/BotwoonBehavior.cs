@@ -839,7 +839,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileBehavior, IEnemySpecies, 
     internal EnemyPowerBombReaction BotwoonPowerBombReaction => field ??= new()
     {
         ExemptFromGenericDeath = true,
-        AfterCommon = (enemy, _) => ResolveBotwoonCombatAfterCommon(enemy),
+        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
     };
 
     /// <summary>Resolves the health bands and skips generic death on shot hits.</summary>

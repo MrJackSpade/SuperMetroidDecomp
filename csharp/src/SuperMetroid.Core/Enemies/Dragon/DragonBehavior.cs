@@ -325,7 +325,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Synchronizes wing and body state after a Dragon power-bomb reaction.</summary>
     internal EnemyPowerBombReaction DragonPowerBombReaction => field ??= new()
     {
-        AfterCommon = (enemy, _) => ResolveDragonCombatAfterCommon(enemy),
+        AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),
     };
 
     /// <summary>Synchronizes wing and body state after common projectile damage resolution.</summary>

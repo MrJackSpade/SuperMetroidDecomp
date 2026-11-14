@@ -33,12 +33,16 @@ internal static class SuperMetroidRuntimeAccess
 
         /// <summary>
         /// Gives the loaded room a new enemy system loaded from <paramref name="request"/>, as a room load builds one, and
-        /// returns it. Fixtures use it to place a constructed population into a room that is already running.
+        /// returns it. Fixtures use it to place a constructed population into a room that is already running; the system
+        /// continues the runtime's enemy session over sheets that also draw the fixture's own population (#1783). The room's
+        /// colour effects run on: a glow the replaced population's gunship started keeps showing on that gunship.
         /// </summary>
         internal RoomEnemySystem ReplaceRoomEnemiesForVerification(IRoomEnemyDefinitionSource definitions,
             IRoomEnemyServices services, IRoomEnemyLoad request)
         {
-            var enemies = new RoomEnemySystem(self.EnemySession, RoomEnemyCompatibilityFixtures.ForNewRoom(self.FadeStepCount, self.UnauthoredBoostCadence), definitions: definitions, services: services);
+            var enemies = new RoomEnemySystem(
+                SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySessionFixtures.ContinuingWithFixturePopulations(self.EnemySession),
+                RoomEnemyCompatibilityFixtures.ForNewRoom(self.FadeStepCount, self.UnauthoredBoostCadence), definitions: definitions, services: services);
             enemies.Load(request);
             self.Room.Adopt(self.Room.LoadedScope with { Enemies = enemies });
             return enemies;

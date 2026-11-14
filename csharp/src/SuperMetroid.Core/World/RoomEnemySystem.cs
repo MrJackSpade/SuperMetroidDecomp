@@ -519,7 +519,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
 
     /// <summary>The enemies' colour effect glows and flashes the room's colour effect handler shows.</summary>
     internal IEnemyColourEffectShows ColourEffectShows => field ??= new EnemyColourEffectShows(BombTorizoBehavior, TourianEntranceStatueBehavior,
-        SlotTable, GunshipBehavior);
+        SlotTable);
 
     /// <summary>The live enemy state the display latch and drawing read.</summary>
     internal IEnemyDisplaySources DisplaySources => this;
@@ -593,7 +593,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>The enemy pass's results so far, the bosses' included.</summary>
     private EnemyFrameResult BuildFrameResult() => new(FrameResults.Elevator, FrameResults.ElevatorClearedProjectileData,
         BossFrameResults.DraygonDiscardedSamusPoseRequests, BossFrameResults.CeresEscapeStarted, BossFrameResults.CameraXOverride,
-        BossFrameResults.RemoveLiquidEffects, FrameResults.Gunship, BossFrameResults.RoomEffects(), FrameResults.ColourEffect);
+        BossFrameResults.RemoveLiquidEffects, FrameResults.Gunship, BossFrameResults.RoomEffects(), FrameResults.Glow);
 
     /// <summary>
     /// Creates a room's enemy system: every enemy slot, each with its stable ordinal, with the door-transition gates

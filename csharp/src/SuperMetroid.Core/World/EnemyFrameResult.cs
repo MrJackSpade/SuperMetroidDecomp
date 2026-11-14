@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.World;
 /// <param name="StopLiquidMotion">Mother Brain's tube landed, stopping the liquid surface's motion from the next frame.</param>
 /// <param name="Gunship">The gunship lifecycle event, if any.</param>
 /// <param name="RoomEffects">The hardcoded room objects and room writes enemy AI requested.</param>
-/// <param name="ColourEffect">The colour effect an enemy's placement or AI started, if any: the gunship's glow (#1733).</param>
+/// <param name="Glow">The glow an enemy's placement started, if any, with the enemy it shows on: the gunship's glow (#1733, #1783).</param>
 [IndependentFlag("independent events one enemy frame reports to the runtime")]
 public readonly record struct EnemyFrameResult(
     ElevatorFrameEvent Elevator,
@@ -28,4 +28,4 @@ public readonly record struct EnemyFrameResult(
     bool StopLiquidMotion,
     GunshipFrameEvent Gunship,
     EnemyRoomEffectRequests RoomEffects,
-    ColourEffectId? ColourEffect);
+    EnemyGlowStart? Glow);

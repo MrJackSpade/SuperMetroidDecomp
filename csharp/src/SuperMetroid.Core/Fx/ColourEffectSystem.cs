@@ -34,6 +34,8 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     private readonly List<ShownColourEffectFrame> suitShown = [];
     /// <summary>The frames the enemies' groups showed during the current update, in order (#1512).</summary>
     private readonly List<ShownColourEffectFrame> enemyShown = [];
+    /// <summary>The frames the enemies' own glows showed during the current update, in order, each for the enemy that started it (#1783).</summary>
+    private readonly List<ShownEnemyGlow> glowsShown = [];
     /// <summary>Whether the effects run at all and the heat phases, which outlive each room's effects.</summary>
     private readonly ColourEffectSessionState _session;
 
@@ -66,8 +68,21 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated = false)
     {
-        if (!TryStart(effect, equippedItems, areaMiniBossDefeated, litTorizo: null))
+        if (!TryStart(effect, equippedItems, areaMiniBossDefeated, litTorizo: null, glowingEnemy: null))
             throw new InvalidOperationException($"Colour effect {effect} could not start.");
+    }
+
+    /// <summary>
+    /// Starts the glow an enemy's placement started (#1733): the glow keeps <paramref name="start"/>'s enemy and shows each
+    /// of its frames on that enemy for as long as it runs (#1783), which is until the room's colour effects are cleared. It
+    /// must start: the start is rejected loudly when it does not.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The glow did not start: its start skips it.</exception>
+    internal void StartEnemyGlow(EnemyGlowStart start, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
+    {
+        Ensure.NotNull(start);
+        if (!TryStart(start.Glow, equippedItems, areaMiniBossDefeated: false, litTorizo: null, Ensure.NotNull(start.Enemy)))
+            throw new InvalidOperationException($"Enemy glow {start.Glow} could not start.");
     }
 
     /// <summary>
@@ -81,7 +96,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         ILitTorizo torizo,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
     {
-        if (!TryStart(glow, equippedItems, areaMiniBossDefeated: false, Ensure.NotNull(torizo)))
+        if (!TryStart(glow, equippedItems, areaMiniBossDefeated: false, Ensure.NotNull(torizo), glowingEnemy: null))
             throw new InvalidOperationException($"Torizo belly glow {glow} could not start.");
     }
 
@@ -117,7 +132,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         {
             // Colour effects and block animations have separate owners and lists; the record's effects start in its order.
             foreach (ColourEffectId effect in record.PaletteEffects)
-                system.TryStart(effect, equippedItems, areaMiniBossDefeated, litTorizo: null);
+                system.TryStart(effect, equippedItems, areaMiniBossDefeated, litTorizo: null, glowingEnemy: null);
         }
         return system;
     }
@@ -126,7 +141,8 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <remarks>
     /// No colour is written (#1512, #1597): each effect shows the frame it holds now, which the room's pictures take as a
     /// shade, and the frames of Samus's and the enemies' groups are handed to their owners through
-    /// <see cref="SuitShown"/> and <see cref="EnemyShown"/>, whose colourings the import pre-colours per frame.
+    /// <see cref="SuitShown"/>, <see cref="EnemyShown"/> and <see cref="GlowsShown"/>, whose colourings the import
+    /// pre-colours per frame.
     /// </remarks>
     /// <param name="conditions">The update's conditions the effects watch.</param>
     /// <exception cref="InvalidOperationException">A frame is shown in colours no gameplay picture shows.</exception>
@@ -154,6 +170,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     {
         suitShown.Clear();
         enemyShown.Clear();
+        glowsShown.Clear();
 
         foreach (RoomColourEffect effect in effects)
         {
@@ -178,13 +195,15 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <param name="equippedItems">Samus's equipment, which selects suit-dependent animations.</param>
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
     /// <param name="litTorizo">The Torizo whose belly the effect lights, which it watches for its defeat, or null.</param>
+    /// <param name="glowingEnemy">The enemy whose placement started the effect, which shows its frames, or null.</param>
     /// <returns>Whether the effect started.</returns>
     /// <exception cref="InvalidOperationException">The effect names a start of no defined kind.</exception>
     private bool TryStart(
         ColourEffectId effect,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated,
-        ILitTorizo? litTorizo)
+        ILitTorizo? litTorizo,
+        IGlowingEnemy? glowingEnemy)
     {
         ColourEffectDefinition definition = ColourEffectSelection.Get(effect);
         ColourEffectAnimation animation;
@@ -206,7 +225,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
                 throw new InvalidOperationException($"Colour effect {effect} has undefined start {definition.Start}.");
         }
 
-        ColourEffectTurnOrder.Join(effects, new RoomColourEffect(effect, animation, litTorizo));
+        ColourEffectTurnOrder.Join(effects, new RoomColourEffect(effect, animation, litTorizo, glowingEnemy));
         return true;
     }
 
@@ -320,6 +339,12 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     internal IReadOnlyList<ShownColourEffectFrame> EnemyShown => enemyShown;
 
     /// <summary>
+    /// The frames the enemies' own glows showed during the last update, in order (#1783): each is shown by the enemy whose
+    /// placement started its glow, which lays its shade over that enemy's draws.
+    /// </summary>
+    internal IReadOnlyList<ShownEnemyGlow> GlowsShown => glowsShown;
+
+    /// <summary>
     /// The frame <paramref name="colours"/> show now (#1512, #1597, #1598): the frame laid last on them, in the order
     /// <see cref="Shown"/> lays the looks; null while no effect shows them.
     /// </summary>
@@ -400,7 +425,11 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         }
         if (ColourEffectEnemyColourDefinitions.EnemyColours.Contains(animated))
         {
-            enemyShown.Add(new ShownColourEffectFrame(animated, frame));
+            // An enemy's own glow shows on the enemy that started it; the other enemy groups show on the room's enemies.
+            if (effect.GlowingEnemy is { } glowing)
+                glowsShown.Add(new ShownEnemyGlow(glowing, frame));
+            else
+                enemyShown.Add(new ShownColourEffectFrame(animated, frame));
             return;
         }
         throw new InvalidOperationException($"Colour effect {effect.Effect} showed {animated}, which no gameplay picture shows.");

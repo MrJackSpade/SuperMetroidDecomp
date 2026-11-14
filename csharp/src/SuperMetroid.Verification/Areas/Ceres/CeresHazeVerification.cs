@@ -111,7 +111,7 @@ internal static class CeresHazeVerification
             }
         }
         AssertTrue(!transition.IsActive && sawDestinationFade, "retail escape door completes its haze fade handoff");
-        AssertEqual(RoomDefinitions.Room58Escape, runtime.Room.LoadedRoom.Definition, "retail exit enters final hallway");
+        AssertEqual(RoomDefinitions.CeresRidleyHallway, runtime.Room.LoadedRoom.Definition, "retail exit enters final hallway");
         AssertTrue(runtime.CeresHaze.Enabled && runtime.CeresHaze.IsRed, "next room selects escape red on load");
         Console.WriteLine("Ceres haze: native ramps, source fade and retail room-owned blue/red selection agree.");
     }

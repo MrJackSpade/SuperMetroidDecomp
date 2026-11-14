@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>The initialization settings of each Maridia room state, named for their rooms.</summary>
-[NumberedIdentities("Each numbered state is one state of its room, chosen by its own event condition; the number tells the states apart and no caller indexes them.")]
 public static class MaridiaRoomStateDefinitions
 {
 

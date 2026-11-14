@@ -334,8 +334,8 @@ internal static class RoomStateSourceDefinitions
         [0xe003] = CeresRoomStateDefinitions.MagnetStairsWhenAreaBossDead,
         [0xe033] = CeresRoomStateDefinitions.DeadScientistDefault,
         [0xe04d] = CeresRoomStateDefinitions.DeadScientistWhenAreaBossDead,
-        [0xe07d] = CeresRoomStateDefinitions.Room58EscapeDefault,
-        [0xe097] = CeresRoomStateDefinitions.Room58EscapeWhenAreaBossDead,
+        [0xe07d] = CeresRoomStateDefinitions.CeresRidleyHallwayDefault,
+        [0xe097] = CeresRoomStateDefinitions.CeresRidleyHallwayWhenAreaBossDead,
         [0xe0c7] = CeresRoomStateDefinitions.CeresRidleyDefault,
         [0xe0e1] = CeresRoomStateDefinitions.CeresRidleyWhenAreaBossDead,
     };

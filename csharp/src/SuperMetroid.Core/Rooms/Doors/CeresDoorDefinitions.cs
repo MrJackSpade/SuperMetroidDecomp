@@ -25,11 +25,11 @@ public static class CeresDoorDefinitions
     /// <summary>The Dead Scientist room's door 1.</summary>
     public static DoorDefinition DeadScientist1 { get; } = DoorDefinitions.Find(nameof(DeadScientist1));
 
-    /// <summary>The Room 58 Escape's door 0.</summary>
-    public static DoorDefinition Room58Escape0 { get; } = DoorDefinitions.Find(nameof(Room58Escape0));
+    /// <summary>The Ceres Ridley hallway's door 0.</summary>
+    public static DoorDefinition CeresRidleyHallway0 { get; } = DoorDefinitions.Find(nameof(CeresRidleyHallway0));
 
-    /// <summary>The Room 58 Escape's door 1.</summary>
-    public static DoorDefinition Room58Escape1 { get; } = DoorDefinitions.Find(nameof(Room58Escape1));
+    /// <summary>The Ceres Ridley hallway's door 1.</summary>
+    public static DoorDefinition CeresRidleyHallway1 { get; } = DoorDefinitions.Find(nameof(CeresRidleyHallway1));
 
     /// <summary>The Ceres Ridley room's door.</summary>
     public static DoorDefinition CeresRidley { get; } = DoorDefinitions.Find(nameof(CeresRidley));

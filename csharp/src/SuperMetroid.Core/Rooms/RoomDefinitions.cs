@@ -270,7 +270,7 @@ public static class RoomDefinitions
         new(nameof(FallingTile), AreaId.Ceres, new(13, 15), new(2, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(MagnetStairs), AreaId.Ceres, new(15, 15), new(1, 2), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(DeadScientist), AreaId.Ceres, new(16, 16), new(2, 1), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(Room58Escape), AreaId.Ceres, new(18, 16), new(2, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(CeresRidleyHallway), AreaId.Ceres, new(18, 16), new(2, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(CeresRidley), AreaId.Ceres, new(20, 16), new(1, 1), 112, 160, RoomDoorTransitionStyle.ObjectsOnly),
     ];
 
@@ -798,8 +798,8 @@ public static class RoomDefinitions
     public static RoomDefinition MagnetStairs { get; } = Find(nameof(MagnetStairs));
     /// <summary>The Dead Scientist room.</summary>
     public static RoomDefinition DeadScientist { get; } = Find(nameof(DeadScientist));
-    /// <summary>The Room 58 Escape.</summary>
-    public static RoomDefinition Room58Escape { get; } = Find(nameof(Room58Escape));
+    /// <summary>The hallway between the Dead Scientist room and Ceres Ridley's room.</summary>
+    public static RoomDefinition CeresRidleyHallway { get; } = Find(nameof(CeresRidleyHallway));
     /// <summary>The Ceres Ridley room.</summary>
     public static RoomDefinition CeresRidley { get; } = Find(nameof(CeresRidley));
 }

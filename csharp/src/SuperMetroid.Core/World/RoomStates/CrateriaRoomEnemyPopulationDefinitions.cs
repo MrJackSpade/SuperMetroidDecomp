@@ -99,7 +99,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Zoomer, new(385, 277), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, CrawlSpeed: new SignedEightEight(128), SurfaceFamily: CrawlerAnimationFamily.Shared)),
             new(EnemyDefinitionId.Ripper, new(941, 488), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new RipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), Direction: HorizontalDirection.Left)),
         ], 16),
-        new(nameof(RoomEnemyPopulationDefinitions.Flyway01),
+        new(nameof(RoomEnemyPopulationDefinitions.FlywayBeforeTimebomb),
         [
             new(EnemyDefinitionId.Mellow, new(237, 97), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Mellow, new(350, 92), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
@@ -132,7 +132,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Waver, new(358, 119), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Left)),
             new(EnemyDefinitionId.YappingMaw, new(264, 200), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new YappingMawSpawnSettings(ActivationDistance: 112, Attack: VerticalDirection.Up)),
         ], 3),
-        new(nameof(RoomEnemyPopulationDefinitions.BombTorizo01),
+        new(nameof(RoomEnemyPopulationDefinitions.BombTorizoBeforeTimebomb),
         [
             new(EnemyDefinitionId.BombTorizo, new(219, 179), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         ], 0),
@@ -221,7 +221,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Sbug, new(269, 731), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 3, InitialAngle: RotationAngle.FromSteps(172), ActivationRadius: 128, Behavior: SbugActivationBehavior.MoveForward)),
             new(EnemyDefinitionId.Sbug, new(421, 1248), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new SbugSpawnSettings(Speed: 4, InitialAngle: RotationAngle.FromSteps(232), ActivationRadius: 32, Behavior: SbugActivationBehavior.MoveForward)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.LandingSite012),
+        new(nameof(RoomEnemyPopulationDefinitions.LandingSiteBeforeTimebomb),
         [
             new(EnemyDefinitionId.ShipTop, new(1152, 1144), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
             new(EnemyDefinitionId.ShipBottomEntrance, new(1152, 1144), EnemyContact.IgnoresSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new GunshipSpawnSettings(Part: GunshipBottomPiece.Hull)),

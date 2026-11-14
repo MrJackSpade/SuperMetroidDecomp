@@ -27,9 +27,9 @@ internal static class RetailDoorCaptureTests
             var runtime = RepositoryInstallation.CreateRuntime();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
             runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-            RoomDefinition destination = left ? RoomDefinitions.DeadScientist : RoomDefinitions.Room58Escape;
+            RoomDefinition destination = left ? RoomDefinitions.DeadScientist : RoomDefinitions.CeresRidleyHallway;
             ushort door = left ? DoorPointers.CeresDeadScientistFromFinalHallway : DoorPointers.CeresFinalHallwayFromDeadScientist;
-            runtime.LoadCartridgeRoomForDebug(left ? RoomDefinitions.Room58Escape : RoomDefinitions.DeadScientist,
+            runtime.LoadCartridgeRoomForDebug(left ? RoomDefinitions.CeresRidleyHallway : RoomDefinitions.DeadScientist,
                 new Position16<RoomPixels>(left ? DoorTransitionAuditPositions.Origin : DoorTransitionAuditPositions.SecondScreenCameraX, 0));
             runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithX(FixedCoordinate.Of(left ? DoorTransitionAuditPositions.LeftDoorSamusX : DoorTransitionAuditPositions.SecondScreenRightDoorSamusX, 0));
             runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithY(FixedCoordinate.Of(DoorTransitionAuditPositions.CeresCorridorDoorSamusY, 0));

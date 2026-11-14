@@ -29,7 +29,7 @@ internal static class CeresRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.CeresDoor, new(32, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingRight)),
             new(EnemyDefinitionId.CeresDoor, new(480, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingLeft)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.Room58EscapeDefault),
+        new(nameof(RoomEnemyPopulationDefinitions.CeresRidleyHallwayDefault),
         [
             new(EnemyDefinitionId.CeresDoor, new(32, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingRight)),
             new(EnemyDefinitionId.CeresDoor, new(480, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingLeft)),
@@ -86,7 +86,7 @@ internal static class CeresRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.CeresDoor, new(32, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingRight)),
             new(EnemyDefinitionId.CeresDoor, new(480, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingLeft)),
         ], 0),
-        new(nameof(RoomEnemyPopulationDefinitions.Room58EscapeWhenAreaBossDead),
+        new(nameof(RoomEnemyPopulationDefinitions.CeresRidleyHallwayWhenAreaBossDead),
         [
             new(EnemyDefinitionId.CeresDoor, new(32, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingRight)),
             new(EnemyDefinitionId.CeresDoor, new(480, 127), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new CeresDoorSpawnSettings(Variant: CeresDoorVariant.NormalFacingLeft)),

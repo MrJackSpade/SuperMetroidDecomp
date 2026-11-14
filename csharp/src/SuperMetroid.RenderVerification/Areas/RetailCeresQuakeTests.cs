@@ -18,7 +18,7 @@ internal static class RetailCeresQuakeTests
     /// <summary>Advances two retail rooms through 240 frames each, requiring changing quake displacement.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        foreach (RoomDefinition room in new[] { RoomDefinitions.DeadScientist, RoomDefinitions.Room58Escape })
+        foreach (RoomDefinition room in new[] { RoomDefinitions.DeadScientist, RoomDefinitions.CeresRidleyHallway })
         {
             var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true);

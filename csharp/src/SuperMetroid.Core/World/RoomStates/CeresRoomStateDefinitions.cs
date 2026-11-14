@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>The initialization settings of each Ceres room state, named for their rooms.</summary>
-[NumberedIdentities("Each numbered state is one state of its room, chosen by its own event condition; the number tells the states apart and no caller indexes them.")]
 public static class CeresRoomStateDefinitions
 {
 
@@ -49,14 +48,14 @@ public static class CeresRoomStateDefinitions
         new(nameof(DeadScientistWhenAreaBossDead), RoomLevelDefinitions.DeadScientist, RoomGraphicsSet.WhiteCeres, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.DeadScientistWhenAreaBossDead, RoomEnemyPopulationDefinitions.DeadScientistWhenAreaBossDead, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.DeadScientist, null, RoomSetupBehavior.SpawnCeresHaze);
 
 
-    /// <summary>The Room Escape room's default state.</summary>
-    public static RoomStateSettings Room58EscapeDefault { get; } =
-        new(nameof(Room58EscapeDefault), RoomLevelDefinitions.Room58Escape, RoomGraphicsSet.BlueCeres, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Room58EscapeDefault, RoomEnemyPopulationDefinitions.Room58EscapeDefault, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Room58Escape, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CeresCapsuleHall, RoomSetupBehavior.SpawnCeresHaze);
+    /// <summary>The Ceres Ridley hallway's default state.</summary>
+    public static RoomStateSettings CeresRidleyHallwayDefault { get; } =
+        new(nameof(CeresRidleyHallwayDefault), RoomLevelDefinitions.CeresRidleyHallway, RoomGraphicsSet.BlueCeres, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.CeresRidleyHallwayDefault, RoomEnemyPopulationDefinitions.CeresRidleyHallwayDefault, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CeresRidleyHallway, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CeresCapsuleHall, RoomSetupBehavior.SpawnCeresHaze);
 
 
-    /// <summary>The Room Escape room's state once the area's boss is dead.</summary>
-    public static RoomStateSettings Room58EscapeWhenAreaBossDead { get; } =
-        new(nameof(Room58EscapeWhenAreaBossDead), RoomLevelDefinitions.Room58Escape, RoomGraphicsSet.WhiteCeres, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Room58EscapeWhenAreaBossDead, RoomEnemyPopulationDefinitions.Room58EscapeWhenAreaBossDead, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Room58Escape, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CeresCapsuleHall, RoomSetupBehavior.SpawnCeresHaze);
+    /// <summary>The Ceres Ridley hallway's state once the area's boss is dead.</summary>
+    public static RoomStateSettings CeresRidleyHallwayWhenAreaBossDead { get; } =
+        new(nameof(CeresRidleyHallwayWhenAreaBossDead), RoomLevelDefinitions.CeresRidleyHallway, RoomGraphicsSet.WhiteCeres, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.CeresRidleyHallwayWhenAreaBossDead, RoomEnemyPopulationDefinitions.CeresRidleyHallwayWhenAreaBossDead, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CeresRidleyHallway, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CeresCapsuleHall, RoomSetupBehavior.SpawnCeresHaze);
 
 
     /// <summary>The Ceres Ridley room's default state.</summary>

@@ -229,9 +229,9 @@ public static class RoomStateSelectionDefinitions
         [
             new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), CeresRoomStateDefinitions.DeadScientistWhenAreaBossDead),
         ]),
-        [RoomDefinitions.Room58Escape] = new(CeresRoomStateDefinitions.Room58EscapeDefault,
+        [RoomDefinitions.CeresRidleyHallway] = new(CeresRoomStateDefinitions.CeresRidleyHallwayDefault,
         [
-            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), CeresRoomStateDefinitions.Room58EscapeWhenAreaBossDead),
+            new(RoomStateCondition.BossDead(DefeatedBosses.AreaBoss), CeresRoomStateDefinitions.CeresRidleyHallwayWhenAreaBossDead),
         ]),
         [RoomDefinitions.CeresRidley] = new(CeresRoomStateDefinitions.CeresRidleyDefault,
         [

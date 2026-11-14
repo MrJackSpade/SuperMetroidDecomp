@@ -35,7 +35,7 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Skree),
             new(EnemyDefinitionId.Ripper),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.Flyway01), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.FlywayBeforeTimebomb), [
             new(EnemyDefinitionId.Waver),
             new(EnemyDefinitionId.Mellow),
         ]),
@@ -47,7 +47,7 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.YappingMaw),
             new(EnemyDefinitionId.Waver),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.BombTorizo01), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.BombTorizoBeforeTimebomb), [
             new(EnemyDefinitionId.BombTorizo),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.GreenPiratesShaft), [
@@ -88,7 +88,7 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.ParlorDefault), [
             new(EnemyDefinitionId.Sbug),
         ]),
-        new(nameof(RoomEnemyGraphicsSetDefinitions.LandingSite012), [
+        new(nameof(RoomEnemyGraphicsSetDefinitions.LandingSiteBeforeTimebomb), [
             new(EnemyDefinitionId.ShipTop),
             new(EnemyDefinitionId.ShipBottomEntrance),
         ]),

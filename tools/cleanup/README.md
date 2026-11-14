@@ -226,6 +226,20 @@ share a documentation-comment ID, so the audit keys each block by where it is de
 as one reachable declaration, the second block's members moved one by one and an empty block stayed in shipped code. A
 staying block every member of which would move out one by one fails the run.
 
+`paired-operators` holds the shape of the failure on every run from e40e73afe5 (2026-11-13) to 86b2e34794: only checks
+used `PowerBombRadius.operator >=` and nothing used `operator <=`, so the prune deleted `<=` alone and its reload failed
+on CS0216. The compiler requires some declarations beside others, and the reachability audit records that on the
+declarations themselves (`RequiredDeclarations` in `csharp/src/SuperMetroid.ReachabilityAudit/Analysis`), not on the
+code that uses them, which for code only checks use is code the audit does not walk: each operator of a pair (`==`/`!=`,
+`<`/`>`, `<=`/`>=`, `true`/`false`) reaches its partner, a checked operator its unchecked form, and an override the
+member it overrides. A pair is kept when either is used and removed only together. The fixture keeps `<=` beside the
+`>=` only checks use (both stay in place, since operators never move), keeps `>` beside the `<` production uses,
+removes an unused `true`/`false` pair together, keeps a `GetHashCode` nothing calls beside the `Equals` production
+calls, and keeps an abstract property production reads only through its override, which the prune deleted before
+(CS0115). An `Equals` override and `GetHashCode` stay with their type, as every override of a framework member does, and
+an interface member needs no rule: an explicit implementation is reached only through it, and an implicit one does not
+need it.
+
 The promotion fixtures hold the shape of the 2026-11-13 failure at 5eddba348d, where the prune made the private field
 `RoomObjectSlotTable._places` internal for moved test code and the build failed on SME6354, and the other rules a
 promotion can break. `underscore-promotion` promotes an underscore-prefixed private field that moved code reaches

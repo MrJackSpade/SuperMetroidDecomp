@@ -27,6 +27,7 @@ internal static class ReachabilityAnalysis
         var identity = new SymbolIdentity(solution.RepositoryRoot);
         var graph = new ReachabilityGraph();
         var declarations = new DeclarationCollector(identity, graph);
+        var required = new RequiredDeclarations(identity, graph);
         var roots = new RootCollector(identity, graph);
         var json = new JsonSerializationScan(identity);
         var reflection = new ReflectionScan(identity, graph);
@@ -38,7 +39,10 @@ internal static class ReachabilityAnalysis
         var analyzed = solution.Projects.Where(p => !VerificationProjects.Contains(p.Project.Name)).ToList();
 
         foreach (var (project, compilation) in analyzed)
+        {
             declarations.Collect(project, compilation);
+            required.Collect(compilation);
+        }
         foreach (var (project, compilation) in analyzed)
         {
             roots.Collect(project, compilation, ProductionHosts.Contains(project.Name));

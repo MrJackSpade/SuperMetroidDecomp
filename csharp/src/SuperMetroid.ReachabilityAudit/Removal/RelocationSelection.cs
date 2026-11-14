@@ -99,8 +99,11 @@ internal sealed class RelocationSelection
             }
         }
         KeepWhatStayingDeclarationsUse(identity, found, staying, manual);
-        var seen = found.Select(m => identity.Key(m.Symbol)).ToHashSet();
-        foreach (string key in targets.Where(k => !seen.Contains(k) && !manual.Any(m => m.Contains(k.Split('@')[0][2..], StringComparison.Ordinal))))
+        // A key is matched when its declaration moves or stays; an operator's MANUAL line names it as C# writes it, not as
+        // its key does, so the lines cannot tell which keys they cover.
+        var placed = found.Select(m => identity.Key(m.Symbol)).Concat(staying.Select(s => identity.Key(s.Symbol)))
+            .OfType<string>().ToHashSet(StringComparer.Ordinal);
+        foreach (string key in targets.Where(k => !placed.Contains(k)))
             manual.Add($"MANUAL unmatched declaration {key}");
     }
 

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>How drained Samus answers a fresh Up press in the check that runs after each of her movements.</summary>
-public enum DrainedGetUpHandler
+public enum DrainedGetUpCheck
 {
     /// <summary>Up no longer gets her up, either after a successful stand request or because the escape countdown's display took the check's place.</summary>
     Inactive,

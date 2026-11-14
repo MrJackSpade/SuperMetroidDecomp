@@ -232,7 +232,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     /// The movement mode installed for this movement phase: the first of death, the suit's empty movement mode, the stationary lock, the station lock,
     /// the attract demo, the gunship's handler and another lock that holds, otherwise the normal handler.
     /// </summary>
-    private SamusMovementMode SelectedMovementMode(SamusHandlerFrame frame, SamusState samus)
+    private SamusMovementMode SelectedMovementMode(SamusControlFrame frame, SamusState samus)
     {
         if (frame.DeathOwnsSamus)
             return SamusMovementMode.Fatal;
@@ -246,7 +246,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     /// Runs the input phase: the head, then, when Samus movement is enabled,
     /// the tail. The enable flag is captured once here for every later gate of the frame.
     /// </summary>
-    internal void RunInputPhase(SamusHandlerFrame frame, SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusState samus,
+    internal void RunInputPhase(SamusControlFrame frame, SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusState samus,
         ScrollBoundaryCamera camera, FixedPosition<RoomPixels>? cameraPointAtFrameStart, RoomScope room)
     {
         RunInputPhaseHead(frame, samus, camera, cameraPointAtFrameStart, room);
@@ -259,7 +259,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     /// Runs the movement phase: movement when Samus movement is enabled, then
     /// the tail.
     /// </summary>
-    internal void RunMovementPhase(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera, ISamusFrameAudio audio, RoomScope room)
+    internal void RunMovementPhase(SamusControlFrame frame, SamusState samus, ScrollBoundaryCamera camera, ISamusFrameAudio audio, RoomScope room)
     {
         if (frame.MovementEnabled)
             RunMovement(frame, samus, camera, room);
@@ -270,7 +270,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     /// Runs the input phase's tail once movement is enabled: environment gravity, terrain hazards, inside-block reactions, HUD
     /// selection, X-ray admission, bombs, grapple and projectiles, then the end-of-input-phase movement snapshot.
     /// </summary>
-    private void RunInputPhaseTail(SamusHandlerFrame frame, SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusState samus,
+    private void RunInputPhaseTail(SamusControlFrame frame, SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusState samus,
         ScrollBoundaryCamera camera, RoomScope room)
     {
         if (_room.LevelData is null)
@@ -394,7 +394,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     /// Re-samples what the enemy pass can change before the movement phase dispatches: a cancelled prospective pose, the
     /// stationary-script lock, updated beam hits and the contact-damage index the movement phase clears.
     /// </summary>
-    internal void RunPostEnemyMainResample(SamusHandlerFrame frame, SamusState samus, SamusBombProjectileSystem bombProjectiles, SamusProjectileSystem projectiles, RoomScope room)
+    internal void RunPostEnemyMainResample(SamusControlFrame frame, SamusState samus, SamusBombProjectileSystem bombProjectiles, SamusProjectileSystem projectiles, RoomScope room)
     {
         if (!frame.MovementEnabled)
             return;
@@ -421,7 +421,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     /// Runs movement: clears the frame's movement results, runs the grapple-release mover, publishes
     /// grapple's corrected camera point and the dispatch pose, then runs the installed movement owner.
     /// </summary>
-    private void RunMovement(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera, RoomScope room)
+    private void RunMovement(SamusControlFrame frame, SamusState samus, ScrollBoundaryCamera camera, RoomScope room)
     {
         if (_room.LevelData is null)
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
@@ -484,7 +484,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     /// X-ray, Ceres Ridley's ejection, knockback, bomb jump, Crystal Flash, the drain, the shinespark, or her pose, which an
     /// elevator ride also runs.
     /// </summary>
-    private void RunMovementOwner(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera, RoomScope room)
+    private void RunMovementOwner(SamusControlFrame frame, SamusState samus, ScrollBoundaryCamera camera, RoomScope room)
     {
         if (_room.LevelData is null)
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
@@ -648,7 +648,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     /// and the shinespark; then nothing while her control is locked, unless an elevator ride moves her; and otherwise her
     /// pose. Every test reads state and changes none, so resolving the owner before running it keeps the frame's order.
     /// </summary>
-    private static SamusMovementOwner ResolveMovementOwner(SamusHandlerFrame frame, SamusState samus, RoomScope room)
+    private static SamusMovementOwner ResolveMovementOwner(SamusControlFrame frame, SamusState samus, RoomScope room)
     {
         // The stationary lock installs an empty movement mode independently of whoever
         // moved Samus beforehand. Automatic Reserve can therefore freeze an in-progress
@@ -1161,7 +1161,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     /// Runs the input phase's head: X-ray's beam object, the frame's camera point, the frame-start captures, the live radius
     /// refresh, pose-input lookup and the lookup-failure pose.
     /// </summary>
-    private void RunInputPhaseHead(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera,
+    private void RunInputPhaseHead(SamusControlFrame frame, SamusState samus, ScrollBoundaryCamera camera,
         FixedPosition<RoomPixels>? cameraPointAtFrameStart, RoomScope room)
     {
         // X-ray's beam is not part of the Samus handler. Advance its explicit
@@ -1270,7 +1270,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     /// her movement (the drained get-up and Draygon's escape), animation or the death sequence, the pose transitions, and
     /// periodic damage with the low-energy check.
     /// </summary>
-    private void RunMovementPhaseTail(SamusHandlerFrame frame, SamusState samus, ISamusFrameAudio audio, ISamusRoomObjects roomObjects, RoomScope room)
+    private void RunMovementPhaseTail(SamusControlFrame frame, SamusState samus, ISamusFrameAudio audio, ISamusRoomObjects roomObjects, RoomScope room)
     {
         // Samus's normal movement phase updates the speed echo after her movement owner has moved her
         // and before animation/pose transitions. Every fourth gameplay frame
@@ -1309,7 +1309,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // Mother Brain's two drain setups choose its Up-edge branches; the
         // method is a cheap no-op for every ordinary gameplay state.
         if (frame.Mode.Movement != SamusMovementMode.SuitPickup)
-            samus.Drained.StepGetUpHandler(samus, _controller1.NewlyPressed);
+            samus.Drained.RunGetUpCheck(samus, _controller1.NewlyPressed);
 
         if (frame.Mode.Movement != SamusMovementMode.SuitPickup && samus.DraygonGrabbed.IsActive)
         {

@@ -6,12 +6,13 @@ using SuperMetroid.Core.World;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// One gameplay frame of the Samus handler: the values the input phase samples before movement and the ones
+/// One gameplay frame of Samus's control: the <see cref="SamusControlMode"/> the frame runs under, the
+/// <see cref="SamusMovementOwner"/> that moves her, the values the input phase samples before movement and the ones
 /// the movement phase and the animation transitions update, shared by <see cref="SuperMetroidRuntime"/> and
 /// <see cref="SamusFramePhases"/>. Each value changes only through the sampling operation that names its point in
-/// the handler sequence.
+/// the frame's input and movement phases.
 /// </summary>
-internal sealed class SamusHandlerFrame
+internal sealed class SamusControlFrame
 {
     /// <summary>Samus's camera point carried across the frame boundary; movement and the frame tail advance it.</summary>
     internal FixedPosition<RoomPixels> PreviousCameraPoint { get; private set; }

@@ -109,7 +109,7 @@ public static class GitHubErrorReporterSmokeTest
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.BareRuntimeArtwork, random: random);
         var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.MovingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)) };
         runtime.Player.Samus = samus;
-        samus.Drained.GetUpHandler = DrainedGetUpHandler.UnableToStand;
+        samus.Drained.GetUpCheck = DrainedGetUpCheck.UnableToStand;
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 8, 1);
         samus.LiquidPhysics.FxType = RoomFxType.Acid;
         samus.LiquidPhysics.LavaAcidSurfaceY = 100;

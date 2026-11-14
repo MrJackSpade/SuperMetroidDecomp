@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Samus;
 /// <summary>
 /// Who moves Samus in her movement phase: her pose's own movement, or the ability, hold or ride that has taken her
 /// movement from it. It sits beside the <see cref="SamusControlMode"/> her frame runs under: the movement phase resolves
-/// it in priority order (<see cref="SamusHandlerFrame.MovementOwner"/>), and an owner takes her movement by naming itself
+/// it in priority order (<see cref="SamusControlFrame.MovementOwner"/>), and an owner takes her movement by naming itself
 /// (<see cref="SamusMovementHandOver"/>). Its values are arbitrary and nothing reads them.
 /// </summary>
 internal enum SamusMovementOwner

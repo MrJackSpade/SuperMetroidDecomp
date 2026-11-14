@@ -263,19 +263,19 @@ level, right, unchecked((ushort)(frame + 1))),
         "rainbow command five unconditionally selects left knockback pose $54");
     AssertEqual(DrainedSamusPhase.RainbowBeamLocked, able.Drained.Phase,
         "rainbow command five locks Samus-side movement");
-    AssertEqual(DrainedGetUpHandler.AbleToStand, able.Drained.GetUpHandler,
+    AssertEqual(DrainedGetUpCheck.AbleToStand, able.Drained.GetUpCheck,
         "rainbow command five installs able timer handler");
 
     // The handler survives the later controller-four pose change. It accepts Up only from
     // left drained `$E9` at frame >=8, writes 13/1, and replaces itself with RTS.
     able.Drained.PutCrouchingOrFalling(able);
-    AssertTrue(!able.Drained.StepGetUpHandler(able, newlyPressedInput: 0),
+    AssertTrue(!able.Drained.RunGetUpCheck(able, newlyPressedInput: 0),
         "able timer handler ignores absent Up edge");
-    AssertTrue(able.Drained.StepGetUpHandler(able, newlyPressedInput: ControllerButton.Up),
+    AssertTrue(able.Drained.RunGetUpCheck(able, newlyPressedInput: ControllerButton.Up),
         "able timer handler accepts Up from E9 frame eight");
     AssertEqual(13, able.AnimationFrame, "able timer handler selects stand-up frame thirteen");
     AssertEqual(1, able.AnimationFrameTimer.RawValue, "able timer handler selects one-tick timer");
-    AssertEqual(DrainedGetUpHandler.Inactive, able.Drained.GetUpHandler,
+    AssertEqual(DrainedGetUpCheck.Inactive, able.Drained.GetUpCheck,
         "able timer handler replaces itself with RTS");
 
     var unable = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
@@ -287,12 +287,12 @@ level, right, unchecked((ushort)(frame + 1))),
     SamusPresentation.InitializeAnimation(unable);
     unable.Drained.SetupForRainbowBeamUnableToStand(unable);
     unable.Drained.PutCrouchingOrFalling(unable);
-    AssertEqual(DrainedGetUpHandler.UnableToStand, unable.Drained.GetUpHandler,
+    AssertEqual(DrainedGetUpCheck.UnableToStand, unable.Drained.GetUpCheck,
         "rainbow command $18 installs failed-stand timer handler");
-    AssertTrue(unable.Drained.StepGetUpHandler(unable, newlyPressedInput: ControllerButton.Up),
+    AssertTrue(unable.Drained.RunGetUpCheck(unable, newlyPressedInput: ControllerButton.Up),
         "failed-stand handler accepts Up only inside frames eight through eleven");
     AssertEqual(18, unable.AnimationFrame, "failed-stand handler selects frame eighteen");
-    AssertEqual(DrainedGetUpHandler.UnableToStand, unable.Drained.GetUpHandler,
+    AssertEqual(DrainedGetUpCheck.UnableToStand, unable.Drained.GetUpCheck,
         "failed-stand handler remains installed");
 
         // The two later cutscene commands are direct animation writes. They do not select a

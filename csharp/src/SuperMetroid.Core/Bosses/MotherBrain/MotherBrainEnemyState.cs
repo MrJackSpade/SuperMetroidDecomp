@@ -60,8 +60,8 @@ public sealed class MotherBrainEnemyState
     /// <summary>Elapsed-update count for the current room-flash frame, advanced upward by the room-flash handler and reset when the frame changes; never above the frame's two-update duration.</summary>
     public int RoomFlashTimer { get; internal set; }
 
-    /// <summary>The brain's tube-collapse step and its independent countdown.</summary>
-    public MotherBrainTubeCollapseStep TubeCollapseStep { get; internal set; }
+    /// <summary>The brain's tube-collapse step, or null until her fake-death flash starts the collapse.</summary>
+    public MotherBrainTubeCollapseStep? TubeCollapseStep { get; internal set; }
     /// <summary>Independent countdown used by selected tube spawn stages; a stage expires once it runs past zero.</summary>
     public int TubeCollapseTimer { get; internal set; }
 

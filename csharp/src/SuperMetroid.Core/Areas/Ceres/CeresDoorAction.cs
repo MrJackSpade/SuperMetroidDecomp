@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal enum CeresDoorAction
 {
     /// <summary>Shakes the screen while Ceres self-destructs.</summary>
-    HandleEarthquakeDuringEscape = 1,
+    HandleEarthquakeDuringEscape,
 
     /// <summary>Shakes the screen while Ceres self-destructs, in Ridley's room.</summary>
     HandleEarthquakeDuringEscapeInRidleysRoom,

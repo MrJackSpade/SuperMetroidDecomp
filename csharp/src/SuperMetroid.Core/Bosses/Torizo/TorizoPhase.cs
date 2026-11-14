@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 public enum TorizoPhase
 {
     /// <summary>Dormant.</summary>
-    Idle = 1,
+    Idle,
 
     /// <summary>Torizo behaviour: simple movement.</summary>
     Falling,

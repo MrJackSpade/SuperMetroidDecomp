@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 public enum RidleyPhase
 {
     /// <summary>Clears shared motion before returning to the flying step.</summary>
-    ClearVelocity = 1,
+    ClearVelocity,
     /// <summary>Waits for the room-entry door transition before starting Ridley's reveal.</summary>
     WaitForDoorTransition,
     /// <summary>Counts the initial reveal delay before fading the eyes.</summary>

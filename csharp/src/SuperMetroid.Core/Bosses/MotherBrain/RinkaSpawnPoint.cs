@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public enum RinkaSpawnPoint
 {
     /// <summary>High in the room's rightmost pair of points.</summary>
-    FarRightUpper = 1,
+    FarRightUpper,
 
     /// <summary>Low in the room's rightmost pair of points.</summary>
     FarRightLower,

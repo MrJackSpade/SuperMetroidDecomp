@@ -80,11 +80,13 @@ public sealed class TorizoEnemyState : ILitTorizo
     /// </summary>
     public EightEightVector<RoomPixels> JumpAcceleration { get; internal set; }
 
-    /// <summary>The main phase the Torizo runs each frame.</summary>
-    public TorizoPhase Phase { get; internal set; }
+    /// <summary>The main phase the Torizo runs each frame, or null until its first animation selects one.</summary>
+    public TorizoPhase? Phase { get; internal set; }
 
-    /// <summary>The behaviour the Torizo runs before each animation step while active.</summary>
-    public TorizoFrameBehavior FrameBehavior { get; internal set; }
+    /// <summary>
+    /// The behaviour the Torizo runs before each animation step while active, or null until an animation installs one.
+    /// </summary>
+    public TorizoFrameBehavior? FrameBehavior { get; internal set; }
 
     /// <summary>Latch preventing repeat entry into the death script after lethal damage; remains set for this state instance.</summary>
     public bool DeathStarted { get; internal set; }

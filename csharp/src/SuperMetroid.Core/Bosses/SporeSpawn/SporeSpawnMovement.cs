@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 public enum SporeSpawnMovement
 {
     /// <summary>Performs no main-AI movement while its animations control the idle or open phase.</summary>
-    Idle = 1,
+    Idle,
     /// <summary>Lowers the body one room pixel per AI update until Y reaches 624 and starts the fight-start animation.</summary>
     Descending,
     /// <summary>Computes the phase-driven body sway about its spawn center and updates stalk segment positions.</summary>

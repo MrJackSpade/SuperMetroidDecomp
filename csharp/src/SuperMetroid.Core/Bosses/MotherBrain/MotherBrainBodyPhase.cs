@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public enum MotherBrainBodyPhase
 {
     /// <summary>Observes the tank-bound head's health and hands zero-health defeat to the fake-death descent.</summary>
-    FirstPhase = 1,
+    FirstPhase,
     /// <summary>Seeds a 64-count wait and immediately falls into its first decrement.</summary>
     FakeDeathDescentInitialPause,
     /// <summary>Waits for the timer to pass zero, then locks Samus and closes scroll region 1.</summary>

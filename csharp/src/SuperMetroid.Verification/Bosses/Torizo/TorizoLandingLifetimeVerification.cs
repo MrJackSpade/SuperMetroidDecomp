@@ -51,7 +51,7 @@ internal static class TorizoLandingLifetimeVerification
             var result=game.Step(0);
             // Every rendered earthquake type displaces BG1 or BG2, so only an unapplied frame leaves the default delta.
             var shake=runtime.Enemies.Earthquake.LastRoomShake;bool shakeApplied=shake!=default;if(shakeApplied)shaken++;
-            if(frame%8==0 || frame>=30)Console.WriteLine($"frame={frame} actor={body.Position.X.Whole},{body.Position.Y.Whole} hp={body.Health} pre={(int)state.FrameBehavior:X4} timer={runtime.Enemies.Earthquake.RemainingFrames} shake={shake}");
+            if(frame%8==0 || frame>=30)Console.WriteLine($"frame={frame} actor={body.Position.X.Whole},{body.Position.Y.Whole} hp={body.Health} pre={state.FrameBehavior} timer={runtime.Enemies.Earthquake.RemainingFrames} shake={shake}");
             if(shakeApplied!=(frame<32))throw new InvalidDataException("Full frontend landing-shake lifetime differs from 32 native frames.");
         }
         Console.WriteLine($"shaken={shaken}");
